@@ -36,34 +36,34 @@ class DirectiveSpec extends FlatSpec
 
   val blockDirectives: Seq[Directive[Block]] = Seq(
     BlockDirective("oneArg")(argument() map p),
-    BlockDirective("twoArgs")((argument() ~ argument()) { (arg1,arg2) => p(arg1+arg2) }),
+    BlockDirective("twoArgs")((argument() ~ argument()).map { case arg1 ~ arg2 => p(arg1+arg2) }),
     BlockDirective("oneIntArg")(argument(positiveInt) map stars),
     BlockDirective("oneOptArg")(optArgument() map { arg => p(arg.getOrElse("missing")) }),
     BlockDirective("oneOptIntArg")(optArgument(positiveInt) map { arg => p("*" * arg.getOrElse(1)) }),
-    BlockDirective("reqAndOptArg")((argument() ~ optArgument()) { (arg1,arg2) => p(arg1+arg2.getOrElse("missing")) }),
-    BlockDirective("argWithWS")((argument() ~ argument(withWS = true)) { (arg1,arg2) => p(arg1+arg2) }),
+    BlockDirective("reqAndOptArg")((argument() ~ optArgument()).map { case arg1 ~ arg2 => p(arg1+arg2.getOrElse("missing")) }),
+    BlockDirective("argWithWS")((argument() ~ argument(withWS = true)).map { case arg1 ~ arg2 => p(arg1+arg2) }),
     BlockDirective("oneFd")(field("name") map p),
     BlockDirective("oneIntFd")(field("name",positiveInt) map stars),
-    BlockDirective("twoFd")((field("name1") ~ field("name2")) { (arg1,arg2) => p(arg1+arg2) }),
+    BlockDirective("twoFd")((field("name1") ~ field("name2")).map { case arg1 ~ arg2 => p(arg1+arg2) }),
     BlockDirective("oneOptFd")(optField("name") map { arg => p(arg.getOrElse("missing")) }),
     BlockDirective("oneOptIntFd")(optField("name",positiveInt) map { arg => p("*" * arg.getOrElse(1)) }),
-    BlockDirective("reqAndOptFd")((field("name1") ~ optField("name2")) { (arg1,arg2) => p(arg1+arg2.getOrElse("missing")) }),
-    BlockDirective("argAndFd")((argument(positiveInt) ~ field("name",positiveInt)) { (arg1,arg2) => p(("*" * arg1) + ("#" * arg2)) }),
-    BlockDirective("optArgAndFd")((optArgument() ~ optField("name")) { (arg1,arg2) => p(arg1.getOrElse("missing")+arg2.getOrElse("missing")) }),
-    BlockDirective("optArgFdBody")((optArgument(withWS = true) ~ optField("name") ~ content(Right(_))) {
-      (arg1,arg2,content) => p(arg1.getOrElse("missing")+arg2.getOrElse("missing")+content) }),
-    BlockDirective("optFdBody")((optField("name") ~ content(Right(_))) {
-      (field,content) => p(field.getOrElse("missing")+content) }),
+    BlockDirective("reqAndOptFd")((field("name1") ~ optField("name2")).map { case arg1 ~ arg2 => p(arg1+arg2.getOrElse("missing")) }),
+    BlockDirective("argAndFd")((argument(positiveInt) ~ field("name",positiveInt)).map { case arg1 ~ arg2 => p(("*" * arg1) + ("#" * arg2)) }),
+    BlockDirective("optArgAndFd")((optArgument() ~ optField("name")).map { case arg1 ~ arg2 => p(arg1.getOrElse("missing")+arg2.getOrElse("missing")) }),
+    BlockDirective("optArgFdBody")((optArgument(withWS = true) ~ optField("name") ~ content(Right(_))).map {
+      case arg1 ~ arg2 ~ content => p(arg1.getOrElse("missing")+arg2.getOrElse("missing")+content) }),
+    BlockDirective("optFdBody")((optField("name") ~ content(Right(_))).map {
+      case field ~ content => p(field.getOrElse("missing") + content) }),
     BlockDirective("stdBody")(blockContent map (BlockSequence(_))),
     BlockDirective("customBody")(content(body => if (body.length > 10) Right(p(body)) else Left("body too short"))),
-    BlockDirective("argAndBlocks")((argument() ~ blockContent) { (arg,blocks) => BlockSequence(p(arg+"!") +: blocks) }),
-    BlockDirective("argAndSpans")((argument() ~ spanContent) { (arg,spans) => Paragraph(txt(arg) +: spans) }),
-    BlockDirective("fdAndBody")((field("name") ~ blockContent) { (field,blocks) => BlockSequence(p(field+"!") +: blocks) }),
-    BlockDirective("all")((argument() ~ field("name") ~ blockContent) {
-      (arg,field,blocks) => BlockSequence(p(s"$arg:$field") +: blocks)
+    BlockDirective("argAndBlocks")((argument() ~ blockContent).map { case arg ~ blocks => BlockSequence(p(arg+"!") +: blocks) }),
+    BlockDirective("argAndSpans")((argument() ~ spanContent).map { case arg ~ spans => Paragraph(txt(arg) +: spans) }),
+    BlockDirective("fdAndBody")((field("name") ~ blockContent).map { case field ~ blocks => BlockSequence(p(field+"!") +: blocks) }),
+    BlockDirective("all")((argument() ~ field("name") ~ blockContent).map {
+      case arg ~ field ~ blocks => BlockSequence(p(s"$arg:$field") +: blocks)
     }),
-    BlockDirective("allOpt")((optArgument(positiveInt) ~ optField("name",positiveInt) ~ content(intList)) {
-      (arg,field,list) => p((arg.getOrElse(0) +: field.getOrElse(0) +: list).sum.toString)
+    BlockDirective("allOpt")((optArgument(positiveInt) ~ optField("name",positiveInt) ~ content(intList)).map {
+      case arg ~ field ~ list => p((arg.getOrElse(0) +: field.getOrElse(0) +: list).sum.toString)
     })
   )
 

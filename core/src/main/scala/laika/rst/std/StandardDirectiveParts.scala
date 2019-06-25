@@ -39,7 +39,7 @@ object StandardDirectiveParts {
   /** The standard class and name options supported by most directives,
     *  combined in the result into an Options instance.
     */
-  val stdOpt: DirectivePart[Options] = (nameOpt ~ classOpt) { (id, styles) => toOptions(id, styles) }
+  val stdOpt: DirectivePart[Options] = (nameOpt ~ classOpt).map { case id ~ styles => toOptions(id, styles) }
 
   /** Converts an optional id and an optional style parameter containing
     *  a space-delimited list of styles to an `Options` instance.
@@ -68,7 +68,7 @@ object StandardDirectiveParts {
         optField("scale", StandardDirectiveParsers.parseDirectivePart(scale, _)) ~
         optField("align", StandardDirectiveParsers.parseDirectivePart(align, _)) ~
         optField("target", StandardDirectiveParsers.target(p)) ~
-        stdOpt) { (uri, alt, width, height, scale, align, target, opt) =>
+        stdOpt).map { case uri ~ alt ~ width ~ height ~ scale ~ align ~ target ~ opt =>
 
       val actualWidth  = scale.fold(width) (s =>  width.map(_.scale(s.amount)))
       val actualHeight = scale.fold(height)(s => height.map(_.scale(s.amount)))

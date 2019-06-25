@@ -17,10 +17,9 @@
 package laika.rst.ext
 
 import laika.ast._
-import laika.directive.Builders
-import laika.directive.Builders.{CanBuild, Result}
 import laika.parse.markup.RecursiveParsers
 import laika.rst.bundle.RstExtension
+import laika.rst.ext.ExtensionParsers.Result
 
 /** API for creating directives, the extension mechanism of reStructuredText.
  *  The API did not aim to mimic the API of the original Python reference implementation.
@@ -76,7 +75,7 @@ import laika.rst.bundle.RstExtension
  *  object MyDirectives extends RstExtensionRegistry {
  *    val blockDirectives = Seq(
  *      BlockDirective("note") {
- *        (argument(withWS = true) ~ blockContent)(Note(_,_))
+ *        (argument(withWS = true) ~ blockContent).map { case title ~ content => Note(title, content) }
  *      }
  *    )
  *    val spanDirectives = Nil
@@ -119,7 +118,9 @@ import laika.rst.bundle.RstExtension
  *  object MyDirectives extends RstExtensionRegistry {
  *    val blockDirectives = Seq(
  *      BlockDirective("message") {
- *        (argument(nonNegativeInt) ~ blockContent)(Message(_,_))
+ *        (argument(nonNegativeInt) ~ blockContent).map { 
+ *          case severity ~ content => Message(severity, content) 
+ *        }
  *      }
  *    )
  *    val spanDirectives = Nil
@@ -146,7 +147,9 @@ import laika.rst.bundle.RstExtension
  *  object MyDirectives extends RstExtensionRegistry {
  *    val blockDirectives = Seq(
  *      BlockDirective("message") {
- *        (optArgument(nonNegativeInt) ~ blockContent)(Message(_,_))
+ *        (optArgument(nonNegativeInt) ~ blockContent).map {
+ *          case severity ~ content => Message(severity.getOrElse(0), content) 
+ *        }  
  *      }
  *    )
  *    val spanDirectives = Nil
@@ -199,29 +202,21 @@ object Directives {
     def map [B](f: A => B): DirectivePart[B] = new DirectivePart[B] { 
       def apply (p: DirectiveParser) = self(p) map f 
     }
+
+    def ~ [B] (other: DirectivePart[B]): DirectivePart[A ~ B] = new DirectivePart[A ~ B] {
+      def apply (p: DirectiveParser) = {
+        val a = self.apply(p)
+        val b = other.apply(p)
+        new Result(new ~(a.get, b.get))
+      }
+    }
     
   }
 
-  /** Type class required for using the generic `Builders` API with directives.
-   */
-  implicit object CanBuildDirectivePart extends CanBuild[DirectivePart] {
-    
-    def apply [A,B](ma: DirectivePart[A], mb: DirectivePart[B]): DirectivePart[A~B] = new DirectivePart[A~B] {
-      def apply (p: DirectiveParser) = {
-        val a = ma(p)
-        val b = mb(p)
-        new Result(new ~(a.get,b.get))
-      }
-    }
-  
-    def map [A,B](m: DirectivePart[A], f: A => B): DirectivePart[B] = m map f
-    
-  }
- 
   /** The public user API for specifying the required and optional parts of a directive
    *  (arguments, fields or body) together with optional converter/validator functions.
    */
-  object Parts extends Builders.Implicits {
+  object Parts {
     
     private def part [T](f: DirectiveParser => Result[T]): DirectivePart[T] = new DirectivePart[T] {
       def apply (p: DirectiveParser) = f(p)

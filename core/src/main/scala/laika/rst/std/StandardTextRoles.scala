@@ -117,7 +117,7 @@ class StandardTextRoles {
    */
   lazy val codeSpan: TextRole =
     TextRole("code", ("",NoOpt:Options)) {
-      (optField("language") ~ classOption) { (lang,opt) => (lang.getOrElse(""), opt) }
+      (optField("language") ~ classOption).map { case lang ~ opt => (lang.getOrElse(""), opt) }
     }{
       case ((lang, opt), text) => Code(lang, List(Text(text)), opt)
     }  
@@ -128,7 +128,7 @@ class StandardTextRoles {
    */
   lazy val rawTextRole: TextRole =
     TextRole("raw", (Nil:List[String],NoOpt:Options)) {
-      (field("format") ~ classOption) { (format,opt) => (format.split(" ").toList, opt) }
+      (field("format") ~ classOption).map { case format ~ opt => (format.split(" ").toList, opt) }
     }{
       case ((formats, opt), content) => RawContent(formats, content, opt)
     }  

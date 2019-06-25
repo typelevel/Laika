@@ -18,7 +18,6 @@ package laika.rst.ext
 
 import laika.ast._
 import laika.bundle.{BlockParser, BlockParserBuilder}
-import laika.directive.Builders.Result
 import laika.parse.markup.BlockParsers._
 import laika.parse.markup.RecursiveParsers
 import laika.parse.text.TextParsers._
@@ -27,6 +26,7 @@ import laika.rst.BaseParsers._
 import laika.rst.ast.{CustomizedTextRole, SubstitutionDefinition}
 import laika.rst.bundle.RstExtension
 import laika.rst.ext.Directives._
+import laika.rst.ext.ExtensionParsers.Result
 import laika.rst.ext.TextRoles._
 
 import scala.collection.mutable.ListBuffer
@@ -306,6 +306,13 @@ class ExtensionParsers(recParsers: RecursiveParsers,
   * @author Jens Halm
   */
 object ExtensionParsers {
+
+  /** A wrapper for a single result value.
+    */
+  class Result[+A] (a: => A) {
+    def get: A = a
+    def map [B](f: A => B): Result[B] = new Result(f(get))
+  }
 
   /** Creates a new parser builder based on the specified extensions.
     */

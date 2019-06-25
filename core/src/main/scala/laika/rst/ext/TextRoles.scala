@@ -17,10 +17,9 @@
 package laika.rst.ext
 
 import laika.ast._
-import laika.directive.Builders
-import laika.directive.Builders.{CanBuild, Result}
 import laika.parse.markup.RecursiveParsers
 import laika.rst.bundle.RstExtension
+import laika.rst.ext.ExtensionParsers.Result
 
 /** API for creating interpreted text roles, the extension mechanism for inline elements of reStructuredText.
  *  The API did not aim to mimic the API of the original Python reference implementation.
@@ -77,9 +76,11 @@ import laika.rst.bundle.RstExtension
  *    val blockDirectives = Seq()
  *  }
  *
- *  Transformer.from(ReStructuredText).to(HTML)
+ *  val transformer = Transformer
+ *    .from(ReStructuredText)
+ *    .to(HTML)
  *    .using(MyDirectives)
- *    .fromFile("hello.rst").toFile("hello.html")
+ *    .build
  *  }}}
  * 
  *  We specify the name of the role to be `link`, and the default value the URL provided as the
@@ -154,28 +155,20 @@ object TextRoles {
       def apply (p: RoleDirectiveParser) = self(p) map f 
     }
     
-  }
-  
-  /** Type class required for using the generic `Builders` API with directives.
-   */
-  implicit object CanBuildRoleDirectivePart extends CanBuild[RoleDirectivePart] {
-    
-    def apply [A,B](ma: RoleDirectivePart[A], mb: RoleDirectivePart[B]): RoleDirectivePart[A~B] = new RoleDirectivePart[A~B] {
+    def ~ [B] (other: RoleDirectivePart[B]): RoleDirectivePart[A~B] = new RoleDirectivePart[A~B] {
       def apply (p: RoleDirectiveParser) = {
-        val a = ma(p)
-        val b = mb(p)
+        val a = self.apply(p)
+        val b = other.apply(p)
         new Result(new ~(a.get,b.get))
       }
     }
-  
-    def map [A,B](m: RoleDirectivePart[A], f: A => B): RoleDirectivePart[B] = m map f
     
   }
  
   /** The public user API for specifying the required and optional parts of a directive
    *  (fields or body) together with optional converter/validator functions.
    */
-  object Parts extends Builders.Implicits {
+  object Parts {
     
     private def part [T](f: RoleDirectiveParser => Result[T]): RoleDirectivePart[T] = new RoleDirectivePart[T] {
       def apply (p: RoleDirectiveParser) = f(p)

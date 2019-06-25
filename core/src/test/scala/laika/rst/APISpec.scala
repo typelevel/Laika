@@ -35,7 +35,7 @@ class APISpec extends FlatSpec
   "The API" should "support registration of block directives" in {
     val directives = List(
       BlockDirective("oneArg")(argument() map p),
-      BlockDirective("twoArgs")((argument() ~ argument()) { (arg1,arg2) => p(arg1+arg2) })
+      BlockDirective("twoArgs")((argument() ~ argument()).map { case arg1 ~ arg2 => p(arg1+arg2) })
     )
     val input = """.. oneArg:: arg
       |
@@ -47,7 +47,7 @@ class APISpec extends FlatSpec
   it should "support registration of span directives" in {
     val directives = List(
       SpanDirective("oneArg")(argument() map (Text(_))),
-      SpanDirective("twoArgs")((argument() ~ argument()) { (arg1,arg2) => Text(arg1+arg2) })
+      SpanDirective("twoArgs")((argument() ~ argument()).map { case arg1 ~ arg2 => Text(arg1+arg2) })
     )
     val input = """foo |one| foo |two|
       |
@@ -66,7 +66,7 @@ class APISpec extends FlatSpec
        txt(res+text)
       },
       TextRole("twoArgs", "foo2")
-        ((P.field("name1") ~ P.field("name2")) { (arg1,arg2) => arg1+arg2 }) 
+        ((P.field("name1") ~ P.field("name2")).map { case arg1 ~ arg2 => arg1+arg2 }) 
         { (res,text) => txt(res+text) }
     )
     val input = """foo `one`:one: foo :two:`two`

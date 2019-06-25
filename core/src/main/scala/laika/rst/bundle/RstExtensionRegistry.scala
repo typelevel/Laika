@@ -36,12 +36,11 @@ import laika.rst.std.{StandardBlockDirectives, StandardSpanDirectives, StandardT
   *   [...]
   * }
   *
-  * Transform
+  * val transformer = Transformer
   *   .from(ReStructuredText)
   *   .to(HTML)
   *   .using(MyDirectives, OtherDirectives)
-  *   .fromFile("hello.rst")
-  *   .toFile("hello.html")
+  *   .build
   * }}}
   *
   * In contrast to the original Python implementation, this API has been redesigned to be a more
@@ -90,9 +89,11 @@ trait RstExtensionRegistry extends ExtensionBundle {
     *    val textRoles = Seq()
     *  }
     *
-    *  Transformer.from(ReStructuredText).to(HTML)
+    *  val transformer = Transformer
+    *    .from(ReStructuredText)
+    *    .to(HTML)
     *    .using(MyDirectives)
-    *    .fromFile("hello.rst").toFile("hello.html")
+    *    .build
     *  }}}
     *
     *  For more details on implementing directives see [[laika.rst.ext.Directives]].
@@ -109,16 +110,18 @@ trait RstExtensionRegistry extends ExtensionBundle {
     *  object MyDirectives extends RstExtensionRegistry {
     *    val blockDirectives = Seq(
     *      BlockDirective("note") {
-    *        (argument() ~ blockContent)(Note)
+    *        (argument() ~ blockContent).map { case title ~ content => Note(title, content) }
     *      }
     *    )
     *    val spanDirectives = Seq()
     *    val textRoles = Seq()
     *  }
     *
-    *  Transformer.from(ReStructuredText).to(HTML)
+    *  val transformer = Transformer
+    *    .from(ReStructuredText)
+    *    .to(HTML)
     *    .using(MyDirectives)
-    *    .fromFile("hello.rst").toFile("hello.html")
+    *    .build
     *  }}}
     *
     *  For more details on implementing directives see [[laika.rst.ext.Directives]].
@@ -141,9 +144,11 @@ trait RstExtensionRegistry extends ExtensionBundle {
     *    val blockDirectives = Seq()
     *  }
     *
-    *  Transformer.from(ReStructuredText).to(HTML)
+    *  val transformer = Transformer
+    *    .from(ReStructuredText)
+    *    .to(HTML)
     *    .using(MyDirectives)
-    *    .fromFile("hello.rst").toFile("hello.html")
+    *    .build
     *  }}}
     *
     *  For more details on implementing directives see [[laika.rst.ext.TextRoles]].
@@ -184,12 +189,11 @@ object StandardExtensions extends RstExtensionRegistry {
   * on the `Parse` or `Transform` APIs:
   *
   * {{{
-  * Transform
+  * val transformer = Transformer
   *   .from(ReStructuredText)
   *   .to(HTML)
   *   .withRawContent
-  *   .fromFile("hello.rst")
-  *   .toFile("hello.html")
+  *   .build
   * }}}
   */
 object RawContentExtensions extends RstExtensionRegistry {

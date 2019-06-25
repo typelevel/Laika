@@ -34,17 +34,6 @@ import laika.ast.~
 object Builders {
 
 
-  /** A wrapper for a single result value.
-   */
-  class Result[+A] (a: => A) {
-    
-    def get: A = a
-    
-    def map [B](f: A => B): Result[B] = new Result(f(get))
-    
-  }
-
-
   /** Contract for type classes that adapt a container
    *  type for use with these builders. Implementations
    *  have to know how to merge two containers as well
