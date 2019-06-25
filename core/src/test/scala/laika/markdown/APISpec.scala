@@ -17,6 +17,7 @@
 package laika.markdown
 
 import laika.api.MarkupParser
+import laika.ast.~
 import laika.ast.helper.ModelBuilder
 import laika.directive.DirectiveRegistry
 import laika.format.Markdown
@@ -35,7 +36,7 @@ class APISpec extends FlatSpec
 
       val blockDirectives: List[Blocks.Directive] = List(
         Blocks.create("oneArg")(attribute(Default) map p),
-        Blocks.create("twoArgs")((attribute(Default) ~ attribute("name")) { (arg1, arg2) => p(arg1 + arg2) })
+        Blocks.create("twoArgs")((attribute(Default) ~ attribute("name")).map { case arg1 ~ arg2 => p(arg1 + arg2) })
       )
 
       val spanDirectives = Seq()
@@ -52,7 +53,7 @@ class APISpec extends FlatSpec
 
       val spanDirectives: List[Spans.Directive] = List(
         Spans.create("oneArg")(attribute(Default) map txt),
-        Spans.create("twoArgs")((attribute(Default) ~ attribute("name")) { (arg1,arg2) => txt(arg1+arg2) })
+        Spans.create("twoArgs")((attribute(Default) ~ attribute("name")).map { case arg1 ~ arg2 => txt(arg1+arg2) })
       )
 
       val blockDirectives = Seq()

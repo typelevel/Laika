@@ -19,7 +19,7 @@ package laika.directive
 import laika.ast._
 
 /** Represents the result (or combined results)
-  *  of processing one or more parts of a directive.
+  * of processing one or more parts of a directive.
   */
 sealed abstract class Result[+A] {
 
@@ -34,7 +34,7 @@ sealed abstract class Result[+A] {
 }
 
 /** Represents the successful computation
-  *  of a directive part.
+  * of a directive part.
   */
 case class Success[+A] (a: A) extends Result[A] {
 
@@ -52,12 +52,12 @@ case class Success[+A] (a: A) extends Result[A] {
 }
 
 /** Represents the failed computation
-  *  of a directive part. This failure type
-  *  can be combined with other failures
-  *  to "collect" all error messages, in contrast
-  *  to the `Either` type for example, which always
-  *  only carries one `Left` value through a chain
-  *  of computations.
+  * of a directive part. This failure type
+  * can be combined with other failures
+  * to "collect" all error messages, in contrast
+  * to the `Either` type for example, which always
+  * only carries one `Left` value through a chain
+  * of computations.
   */
 case class Failure (messages: Seq[String]) extends Result[Nothing] {
 
@@ -114,18 +114,18 @@ case class Attribute (id: PartId) extends Key("attribute")
 case class Body (id: PartId) extends Key("body")
 
 
-/**  Provides the basic building blocks for
-  *  Laika's Directive API. This trait
-  *  is not used directly, but instead its
-  *  three subtraits `Blocks`, `Spans` and `Templates`,
-  *  which represent the concrete implementations
-  *  for the three directive types.
+/** Provides the basic building blocks for
+  * Laika's Directive API. This trait
+  * is not used directly, but instead its
+  * three sub-traits `Blocks`, `Spans` and `Templates`,
+  * which represent the concrete implementations
+  * for the three directive types.
   */
 trait BuilderContext[E <: Element] {
 
   /** The parser API in case a directive function
-    *  needs to manually parse one of the directive
-    *  parts.
+    * needs to manually parse one of the directive
+    * parts.
     */
   type Parser <: (String => Seq[E])
 
@@ -143,7 +143,7 @@ trait BuilderContext[E <: Element] {
   }
 
   /** Represents a single part (attribute or body) of a directive
-    *  or a combination of multiple parts.
+    * or a combination of multiple parts.
     */
   abstract class DirectivePart[+A] extends (DirectiveContext => Result[A]) { self =>
 
@@ -153,26 +153,18 @@ trait BuilderContext[E <: Element] {
     }
 
     def requiresContext: Boolean
-
-    /** Indicates that this directive part is optional,
-      *  turning the result into an Option value.
-      *  If the part is present it still has to validate
-      *  successfully.
-      */
-    def optional: DirectivePart[Option[A]] = map (Some(_))
-
-  }
-
-  /** Type class required for using the generic `Builders` API with directives.
-    */
-  implicit object CanBuildDirectivePart extends Builders.CanBuild[DirectivePart] {
-
-    def apply [A,B](ma: DirectivePart[A], mb: DirectivePart[B]): DirectivePart[A~B] = new DirectivePart[A~B] {
-      def apply (p: DirectiveContext) = ma(p) ~ mb(p)
-      def requiresContext = ma.requiresContext || mb.requiresContext
+    
+    def ~ [B] (other: DirectivePart[B]): DirectivePart[A ~ B] = new DirectivePart[A ~ B] {
+      def apply (p: DirectiveContext) = self.apply(p) ~ other.apply(p)
+      def requiresContext = self.requiresContext || other.requiresContext
     }
 
-    def map [A,B](m: DirectivePart[A], f: A => B) = m map f
+    /** Indicates that this directive part is optional,
+      * turning the result into an Option value.
+      * If the part is present it still has to validate
+      * successfully.
+      */
+    def optional: DirectivePart[Option[A]] = map (Some(_))
 
   }
 
@@ -187,10 +179,10 @@ trait BuilderContext[E <: Element] {
   type Converter[T] = (Parser, String) => Result[T]
 
   /** Provides various converter functions
-    *  that can be used with the directive
-    *  combinators to convert the string value
-    *  obtained from a directive attribute or
-    *  body.
+    * that can be used with the directive
+    * combinators to convert the string value
+    * obtained from a directive attribute or
+    * body.
     */
   trait Converters {
 
@@ -216,7 +208,7 @@ trait BuilderContext[E <: Element] {
   }
 
   /** Provides various combinators to describe the expected
-    *  format of a specific directive.
+    * format of a specific directive.
     */
   trait Combinators {
 
@@ -246,50 +238,50 @@ trait BuilderContext[E <: Element] {
 
     /** Specifies a required attribute.
       *
-      *  @param id the identifier that must be used in markup or templates
-      *  @param converter the function to use for converting and validating the parsed value
-      *  @return a directive part that can be combined with further parts with the `~` operator
+      * @param id        the identifier that must be used in markup or templates
+      * @param converter the function to use for converting and validating the parsed value
+      * @return a directive part that can be combined with further parts with the `~` operator
       */
     def attribute [T](id: PartId, converter: Converter[T] = dsl.string): DirectivePart[T]
     = requiredPart(Attribute(id), converter, s"required ${Attribute(id).desc} is missing")
 
     /** Specifies a required body part.
       *
-      *  @param id the identifier that must be used in markup or templates
-      *  @param converter the function to use for converting and validating the parsed value
-      *  @return a directive part that can be combined with further parts with the `~` operator
+      * @param id        the identifier that must be used in markup or templates
+      * @param converter the function to use for converting and validating the parsed value
+      * @return a directive part that can be combined with further parts with the `~` operator
       */
     def body [T](id: PartId, converter: Converter[T] = dsl.parsed): DirectivePart[T]
     = requiredPart(Body(id), converter, s"required ${Body(id).desc} is missing")
 
     /** Specifies an empty directive that does not accept any attributes or
-      *  body elements.
+      * body elements.
       *
-      *  @param result the fixed result each empty directive will produce
-      *  @return a directive part that usually won't be combined with other parts
+      * @param result the fixed result each empty directive will produce
+      * @return a directive part that usually won't be combined with other parts
       */
     def empty [T] (result: T): DirectivePart[T] = part(_ => Success(result))
 
     /** Indicates that access to the parser responsible for this directive
-      *  is needed, in case the directive implementation has to manually
-      *  parse parts or all of its result.
+      * is needed, in case the directive implementation has to manually
+      * parse parts or all of its result.
       *
-      *  The advantage of using the parser provided by the runtime versus
-      *  creating your own is only this provided parser can now all other
-      *  registered extensions in case your directive content may contain
-      *  other directives.
+      * The advantage of using the parser provided by the runtime versus
+      * creating your own is only this provided parser can now all other
+      * registered extensions in case your directive content may contain
+      * other directives.
       */
     def parser: DirectivePart[Parser] = part(c => Success(c.parser))
 
     /** Indicates that access to the document cursor is required.
-      *  This may be required if the directive relies on information
-      *  from the document structure, its title or the parent tree
-      *  it is contained in.
+      * This may be required if the directive relies on information
+      * from the document structure, its title or the parent tree
+      * it is contained in.
       *
-      *  Use of this function causes the directive to be processed in a later
-      *  rewrite step as the document cursor is not yet fully populated in
-      *  the initial rewrite step. But this is an implementation detail
-      *  you normally do not need to deal with.
+      * Use of this function causes the directive to be processed in a later
+      * rewrite step as the document cursor is not yet fully populated in
+      * the initial rewrite step. But this is an implementation detail
+      * you normally do not need to deal with.
       */
     def cursor: DirectivePart[DocumentCursor]
     = part(_.cursor map (Success(_)) getOrElse Failure("DocumentCursor not available yet"), reqContext = true)
@@ -364,7 +356,9 @@ trait BuilderContext[E <: Element] {
     *  object MyDirectives extends DirectiveRegistry {
     *    val spanDirectives = Seq(
     *      Spans.create("note") {
-    *        (attribute(Default) ~ body(Default)) (Note(_,_))
+    *        (attribute(Default) ~ body(Default)).map { 
+    *          case title ~ content => Note(title, content) 
+    *        }
     *      }
     *    )
     *    val blockDirectives = Seq()
@@ -397,7 +391,9 @@ trait BuilderContext[E <: Element] {
     *
     *  val blockDirectives = Seq(
     *    Blocks.create("message") {
-    *      (attribute(Default, positiveInt) ~ blockContent) (Message(_,_))
+    *      (attribute(Default, positiveInt) ~ blockContent).map { 
+    *        case severity ~ content => Message(severity, content) 
+    *      }
     *    }
     *  )
     *  }}}
@@ -424,14 +420,16 @@ trait BuilderContext[E <: Element] {
     *
     *  val blockDirectives = Seq(
     *    Blocks.create("message") {
-    *      (attribute(Default, positiveInt).optional ~ blockContent) (Message(_,_))
+    *      (attribute(Default, positiveInt).optional ~ blockContent).map { 
+    *        case severity ~ content => Message(severity.getOrElse(0), content) 
+    *      }
     *    }
     *  )
     *  }}}
     *
     *  The attribute may be missing, but if it is present it has to pass the specified validator.
     */
-  object dsl extends Combinators with Converters with IdBuilders with Builders.Implicits
+  object dsl extends Combinators with Converters with IdBuilders
 
 }
 

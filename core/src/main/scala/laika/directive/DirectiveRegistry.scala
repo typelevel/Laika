@@ -52,7 +52,7 @@ trait DirectiveRegistry extends ExtensionBundle {
     *  object MyDirectives extends DirectiveRegistry {
     *    val spanDirectives = Seq(
     *      Spans.create("ticket") {
-    *        (attribute(Default) ~ attribute("param").optional) { (ticketNo, param) =>
+    *        (attribute(Default) ~ attribute("param").optional).map { case ticketNo ~ param =>
     *          val base = "http://tickets.service.com/"+ticketNo
     *          val url = base + (param map (p => "?param="+p) getOrElse "")
     *          ExternalLink(Seq(Text("Ticket "+ticketNo)), url, options = Styles("ticket"))
@@ -63,7 +63,7 @@ trait DirectiveRegistry extends ExtensionBundle {
     *    val templateDirectives = Seq()
     *  }
     *
-    *  Transformer.from(Markdown).to(HTML).using(MyDirectives) fromFile "hello.md" toFile "hello.html"
+    *  val transformer = Transformer.from(Markdown).to(HTML).using(MyDirectives).build
     *  }}}
     *
     *  The code above registers a span directive that detects markup like
@@ -84,14 +84,14 @@ trait DirectiveRegistry extends ExtensionBundle {
     *  object MyDirectives extends DirectiveRegistry {
     *    val blockDirectives = Seq(
     *      Blocks.create("note") {
-    *        (attribute(Default) ~ body(Default))(Note(_,_))
+    *        (attribute(Default) ~ body(Default)).map { case title ~ content => Note(title, content) }
     *      }
     *    )
     *    val spanDirectives = Seq()
     *    val templateDirectives = Seq()
     *  }
     *
-    *  Transformer.from(Markdown).to(HTML).using(MyDirectives) fromFile "hello.md" toFile "hello.html"
+    *  val transformer = Transformer.from(Markdown).to(HTML).using(MyDirectives).build
     *  }}}
     *
     *  For more details on implementing Laika directives see [[laika.directive.BuilderContext.dsl]].
@@ -106,7 +106,7 @@ trait DirectiveRegistry extends ExtensionBundle {
     *  object MyDirectives extends DirectiveRegistry {
     *    val templateDirectives = Seq(
     *      Templates.create("ticket") {
-    *        (attribute(Default) ~ attribute("param").optional) { (ticketNo, param) =>
+    *        (attribute(Default) ~ attribute("param").optional).map { case ticketNo ~ param =>
     *          val base = "http://tickets.service.com/"+ticketNo
     *          val url = base + (param map (p => "&param="+p) getOrElse "")
     *          TemplateElement(ExternalLink(Seq(Text("Ticket "+ticketNo)), url, options = Styles("ticket")))
@@ -117,7 +117,7 @@ trait DirectiveRegistry extends ExtensionBundle {
     *    val spanDirectives = Seq()
     *  }
     *
-    *  Transformer.from(Markdown).to(HTML).using(MyDirectives) fromFile "hello.md" toFile "hello.html"
+    *  val transformer = Transformer.from(Markdown).to(HTML).using(MyDirectives).build
     *  }}}
     *
     *  The code above registers a template directive that detects markup like

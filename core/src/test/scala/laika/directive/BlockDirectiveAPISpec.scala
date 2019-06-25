@@ -79,8 +79,8 @@ class BlockDirectiveAPISpec extends FlatSpec
     trait FullDirectiveSpec {
       val directive = Blocks.create("dir") {
         (attribute(Default) ~ attribute("strAttr").optional ~ attribute("intAttr", positiveInt).optional ~
-        body(Default) ~ body("blockBody").optional ~ body("intBody", positiveInt).optional) {
-          (defAttr, strAttr, intAttr, defBody, blockBody, intBody) => 
+        body(Default) ~ body("blockBody").optional ~ body("intBody", positiveInt).optional).map {
+          case defAttr ~ strAttr ~ intAttr ~ defBody ~ blockBody ~ intBody => 
             val sum = intAttr.getOrElse(0) + intBody.getOrElse(0)
             val str = defAttr + ":" + strAttr.getOrElse("..") + ":" + sum
             BlockSequence(p(str) +: (defBody ++ blockBody.getOrElse(Nil)))
@@ -90,16 +90,16 @@ class BlockDirectiveAPISpec extends FlatSpec
     
     trait DirectiveWithParserAccess {
       val directive = Blocks.create("dir") { 
-        (body(Default, string) ~ parser) {
-          (body, parser) => BlockSequence(parser(body.drop(3)))
+        (body(Default, string) ~ parser).map {
+          case body ~ parser => BlockSequence(parser(body.drop(3)))
         }
       }
     }
     
     trait DirectiveWithContextAccess {
       val directive = Blocks.create("dir") { 
-        (body(Default, string) ~ cursor) {
-          (body, cursor) => p(body + cursor.target.path)
+        (body(Default, string) ~ cursor).map {
+          case body ~ cursor => p(body + cursor.target.path)
         }
       }
     }

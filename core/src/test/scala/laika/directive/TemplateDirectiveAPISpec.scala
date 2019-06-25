@@ -74,8 +74,8 @@ class TemplateDirectiveAPISpec extends FlatSpec
     trait FullDirectiveSpec {
       val directive = Templates.create("dir") {
         (attribute(Default) ~ attribute("strAttr").optional ~ attribute("intAttr", positiveInt).optional ~
-        body(Default) ~ body("spanBody").optional ~ body("intBody", positiveInt).optional) {
-          (defAttr, strAttr, intAttr, defBody, spanBody, intBody) => 
+        body(Default) ~ body("spanBody").optional ~ body("intBody", positiveInt).optional).map {
+          case defAttr ~ strAttr ~ intAttr ~ defBody ~ spanBody ~ intBody => 
             val sum = intAttr.getOrElse(0) + intBody.getOrElse(0)
             val str = defAttr + ":" + strAttr.getOrElse("..") + ":" + sum
             TemplateSpanSequence(TemplateString(str) +: (defBody ++ spanBody.getOrElse(Nil)))
@@ -85,16 +85,16 @@ class TemplateDirectiveAPISpec extends FlatSpec
     
     trait DirectiveWithParserAccess {
       val directive = Templates.create("dir") { 
-        (body(Default, string) ~ parser) {
-          (body, parser) => TemplateSpanSequence(parser(body.drop(3)))
+        (body(Default, string) ~ parser).map {
+          case body ~ parser => TemplateSpanSequence(parser(body.drop(3)))
         }
       }
     }
     
     trait DirectiveWithContextAccess {
       val directive = Templates.create("dir") { 
-        (body(Default, string) ~ cursor) {
-          (body, cursor) => TemplateString(body + cursor.target.path)
+        (body(Default, string) ~ cursor).map {
+          case body ~ cursor => TemplateString(body + cursor.target.path)
         }
       }
     }
