@@ -21,9 +21,12 @@ import laika.ast.DocumentType.Markup
 import laika.ast.TextDocumentType
 import laika.factory.MarkupFormat
 
-/** 
- *  @author Jens Halm
- */
+/** Builder API for Parser instances.
+  * 
+  * Allows to add ExtensionBundles and the `strict` and `withRawContent` flags.
+  * 
+  * @author Jens Halm
+  */
 class ParserBuilder (format: MarkupFormat, val config: OperationConfig, rewrite: Boolean) extends ParserBuilderOps {
 
   val docType: TextDocumentType = Markup
@@ -38,7 +41,10 @@ class ParserBuilder (format: MarkupFormat, val config: OperationConfig, rewrite:
    *  of header instances found in the document.
    */
   def withoutRewrite: ParserBuilder = new ParserBuilder(format, config, rewrite = false)
-  
+
+  /** Applies all configuration specified with this builder
+    * and returns a new MarkupParser instance.
+    */
   def build: MarkupParser = new MarkupParser(format, config, rewrite)
 
 }

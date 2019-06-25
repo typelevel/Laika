@@ -1,7 +1,7 @@
 package laika.api.builder
 
 /** API for specifying configuration options that apply to all
-  * kinds of operations that contain a parsing step (Parse and Transform APIs).
+  * kinds of operations that contain a parsing step (Parser and Transformer).
   *
   * @author Jens Halm
   */

@@ -20,20 +20,37 @@ import laika.api.Renderer
 import laika.ast.DocumentTreeRoot
 import laika.factory.TwoPhaseRenderFormat
 
-/** 
- *  @tparam PP the type of the post processor 
- *  @author Jens Halm
- */
+/** A renderer that operates with two phases, producing an interim result.
+  * 
+  * Examples for such renderers are EPUB (with XHTML as the interim format)
+  * and PDF (with XSL-FO as the interim format).
+  * 
+  * This instance does not come with its own runtime. Instead its need to be passed
+  * to a builder API in laika-io that knows how to execute such an operation.
+  * 
+  * @param interimRenderer the renderer for the 1st phase, producing the interim result
+  * @param prepareTree a hook with which the interim result can be modified before it gets
+  *                    passed to the post processor
+  * @param postProcessor the processor taking the interim result and producing the final 
+  *                      result, the implementing type may vary from format to format
+  * @tparam PP the type of the post processor 
+  *            
+  * @author Jens Halm
+  */
 case class TwoPhaseRenderer[PP] (interimRenderer: Renderer,
                                  prepareTree: DocumentTreeRoot => DocumentTreeRoot,
                                  postProcessor: PP)
 
 
-/**
-  *  @tparam FMT the formatter API to use which varies depending on the renderer
-  *  @tparam PP the type of the post processor
+/** Builder API for Renderer instances.
   *
-  *  @author Jens Halm
+  * Allows to add ExtensionBundles, to override the renderer for specific elements
+  * and other options.
+  *
+  * @tparam FMT the formatter API to use which varies depending on the renderer
+  * @tparam PP the type of the post processor
+  *
+  * @author Jens Halm
   */
 class TwoPhaseRendererBuilder[FMT, PP] (val twoPhaseFormat: TwoPhaseRenderFormat[FMT, PP],
                                         val config: OperationConfig) extends RendererBuilderOps[FMT] {
@@ -44,6 +61,9 @@ class TwoPhaseRendererBuilder[FMT, PP] (val twoPhaseFormat: TwoPhaseRenderFormat
 
   def withConfig(newConfig: OperationConfig): ThisType = new TwoPhaseRendererBuilder[FMT, PP](twoPhaseFormat, newConfig)
 
+  /** Applies all configuration specified with this builder
+    * and returns a new Renderer instance.
+    */
   def build: TwoPhaseRenderer[PP] = TwoPhaseRenderer(
     new RendererBuilder(renderFormat, config).build,
     twoPhaseFormat.prepareTree,

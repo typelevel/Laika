@@ -19,11 +19,15 @@ package laika.api.builder
 import laika.api.Renderer
 import laika.factory.RenderFormat
 
-/** 
- *  @tparam FMT the formatter API to use which varies depending on the renderer
- * 
- *  @author Jens Halm
- */
+/** Builder API for Renderer instances.
+  * 
+  * Allows to add ExtensionBundles, to override the renderer for specific elements
+  * and other options.
+  * 
+  * @tparam FMT the formatter API to use which varies depending on the renderer
+  * 
+  * @author Jens Halm
+  */
 class RendererBuilder[FMT] (val renderFormat: RenderFormat[FMT],
                             val config: OperationConfig) extends RendererBuilderOps[FMT] {
 
@@ -31,11 +35,12 @@ class RendererBuilder[FMT] (val renderFormat: RenderFormat[FMT],
 
   def withConfig(newConfig: OperationConfig): ThisType = new RendererBuilder[FMT](renderFormat, newConfig)
 
+  /** Applies all configuration specified with this builder
+    * and returns a new Renderer instance.
+    */
   def build: Renderer = new Renderer(config) {
     override type Formatter = FMT
     override def format: RenderFormat[FMT] = renderFormat
   }
 
 }
-
-

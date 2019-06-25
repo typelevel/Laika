@@ -5,7 +5,7 @@ import laika.bundle.ExtensionBundle
 import laika.factory.RenderFormat
 
 /** API for specifying configuration options that apply to all
-  * kinds of operations that contain a rendering step (Render and Transform APIs).
+  * kinds of operations that contain a rendering step (Renderer and Transformer).
   *
   * @author Jens Halm
   */

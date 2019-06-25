@@ -3,7 +3,7 @@ package laika.api.builder
 import laika.bundle.ExtensionBundle
 
 /** Base API for specifying configuration options that apply to all
-  * kinds of operations (Parse, Render and Transform).
+  * kinds of operations (Parser, Renderer and Transformer).
   *
   * @author Jens Halm
   */

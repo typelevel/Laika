@@ -21,11 +21,15 @@ import laika.ast.DocumentType.Markup
 import laika.ast._
 import laika.factory.{MarkupFormat, RenderFormat}
 
-/** 
- *  @tparam FMT the formatter API to use which varies depending on the renderer
- * 
- *  @author Jens Halm
- */
+/** Builder API for Transformer instances.
+  *
+  * Allows to add ExtensionBundles, to register AST rewrite rules, 
+  * to override the renderer for specific elements and other options.
+  * 
+  * @tparam FMT the formatter API to use which varies depending on the renderer
+  *             
+  * @author Jens Halm
+  */
 class TransformerBuilder [FMT] (markupFormat: MarkupFormat,
                                 protected val renderFormat: RenderFormat[FMT],
                                 protected val config: OperationConfig) extends TransformerBuilderOps[FMT] {
@@ -35,7 +39,10 @@ class TransformerBuilder [FMT] (markupFormat: MarkupFormat,
   val docType: TextDocumentType = Markup
 
   def withConfig (newConfig: OperationConfig): ThisType = new TransformerBuilder(markupFormat, renderFormat, newConfig)
-  
+
+  /** Applies all configuration specified with this builder
+    * and returns a new Transformer instance.
+    */
   def build: Transformer = {
     val parser = new MarkupParser(markupFormat, config, rewrite = true)
     val renderer = new RendererBuilder[FMT](renderFormat, config).build
