@@ -191,17 +191,25 @@ case class DocumentCursor (target: Document,
    */
   def rewriteTarget (rules: RewriteRules): Document = {
     
-    val newRoot = rules.rewriteBlock(target.content) match {
+    val rewrittenRoot = rules.rewriteBlock(target.content) match {
       case r: RootElement => r
       case b => target.content.copy(content = Seq(b))
     }
        
-    val newFragments = target.fragments mapValuesStrict {
+    val rewrittenFragments = target.fragments mapValuesStrict {
       case r: RewritableContainer with Block => r.rewriteChildren(rules).asInstanceOf[Block]
       case block => block
     }
     
-    target.copy(content = newRoot, fragments = newFragments, position = position)
+    val newFragments = rewrittenRoot.content.collect {
+      case DocumentFragment(name, content, _) => (name, content)
+    }.toMap
+    
+    target.copy(
+      content = rewrittenRoot.copy(content = rewrittenRoot.content.filterNot(_.isInstanceOf[DocumentFragment])), 
+      fragments = rewrittenFragments ++ newFragments, 
+      position = position
+    )
   }
   
   /** Resolves the context reference with the specified path relative to 

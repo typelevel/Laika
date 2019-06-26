@@ -74,7 +74,7 @@ class MarkupParser (parser: MarkupFormat, val config: OperationConfig, val rewri
     val res = docParser(input)
     if (rewrite) res.map { doc => 
       val phase1 = doc.rewrite(config.rewriteRulesFor(doc))
-      phase1.copy(content = phase1.content.rewriteChildren(TemplateRewriter.rewriteRules(DocumentCursor(phase1))))
+      phase1.rewrite(TemplateRewriter.rewriteRules(DocumentCursor(phase1)))
     }
     else res
   }
