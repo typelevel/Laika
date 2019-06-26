@@ -19,7 +19,7 @@ package laika.rst.std
 import java.text.SimpleDateFormat
 import java.util.Date
 
-import laika.api.{MarkupParser, Parse}
+import laika.api.MarkupParser
 import laika.ast.Path.{Current, Root}
 import laika.ast._
 import laika.ast.helper.ModelBuilder
@@ -143,7 +143,8 @@ class StandardSpanDirectivesSpec extends FlatSpec
     val input = """.. |subst| date::
       |
       |Some |subst|""".stripMargin
-    val result = root (p(txt("Some "),txt((new SimpleDateFormat("yyyy-MM-dd").format(new Date)))))
+    val date = new SimpleDateFormat("yyyy-MM-dd").format(new Date)
+    val result = root (p(txt(s"Some $date")))
     parse(input) should be (result)
   }
   
@@ -151,7 +152,8 @@ class StandardSpanDirectivesSpec extends FlatSpec
     val input = """.. |subst| date:: yyyy-MMM-dd
       |
       |Some |subst|""".stripMargin
-    val result = root (p(txt("Some "),txt((new SimpleDateFormat("yyyy-MMM-dd").format(new Date)))))
+    val date = new SimpleDateFormat("yyyy-MMM-dd").format(new Date)
+    val result = root (p(txt(s"Some $date")))
     parse(input) should be (result)
   }
   
@@ -160,7 +162,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
     val input = """.. |subst| unicode:: 0xA9 Company
       |
       |Copyright |subst|""".stripMargin
-    val result = root (p(txt("Copyright "),txt('\u00a9'.toString+" Company")))
+    val result = root (p(txt("Copyright " + '\u00a9'.toString + " Company")))
     parse(input) should be (result)
   }
   
@@ -168,7 +170,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
     val input = """.. |subst| unicode:: xA9 Company
       |
       |Copyright |subst|""".stripMargin
-    val result = root (p(txt("Copyright "),txt('\u00a9'.toString+" Company")))
+    val result = root (p(txt("Copyright " + '\u00a9'.toString + " Company")))
     parse(input) should be (result)
   }
   
@@ -176,7 +178,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
     val input = """.. |subst| unicode:: \xA9 Company
       |
       |Copyright |subst|""".stripMargin
-    val result = root (p(txt("Copyright "),txt('\u00a9'.toString+" Company")))
+    val result = root (p(txt("Copyright " + '\u00a9'.toString + " Company")))
     parse(input) should be (result)
   }
   
@@ -184,7 +186,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
     val input = """.. |subst| unicode:: U+A9 Company
       |
       |Copyright |subst|""".stripMargin
-    val result = root (p(txt("Copyright "),txt('\u00a9'.toString+" Company")))
+    val result = root (p(txt("Copyright " + '\u00a9'.toString + " Company")))
     parse(input) should be (result)
   }
   
@@ -192,7 +194,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
     val input = """.. |subst| unicode:: uA9 Company
       |
       |Copyright |subst|""".stripMargin
-    val result = root (p(txt("Copyright "),txt('\u00a9'.toString+" Company")))
+    val result = root (p(txt("Copyright " + '\u00a9'.toString + " Company")))
     parse(input) should be (result)
   }
   
@@ -200,7 +202,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
     val input = """.. |subst| unicode:: \""" + """uA9 Company
       |
       |Copyright |subst|""".stripMargin
-    val result = root (p(txt("Copyright "),txt('\u00a9'.toString+" Company")))
+    val result = root (p(txt("Copyright " + '\u00a9'.toString + " Company")))
     parse(input) should be (result)
   }
   
@@ -208,7 +210,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
     val input = """.. |subst| unicode:: &#xA9; Company
       |
       |Copyright |subst|""".stripMargin
-    val result = root (p(txt("Copyright "),txt('\u00a9'.toString+" Company")))
+    val result = root (p(txt("Copyright " + '\u00a9'.toString + " Company")))
     parse(input) should be (result)
   }
   
@@ -216,7 +218,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
     val input = """.. |subst| unicode:: 169 Company
       |
       |Copyright |subst|""".stripMargin
-    val result = root (p(txt("Copyright "),txt('\u00a9'.toString+" Company")))
+    val result = root (p(txt("Copyright " + '\u00a9'.toString + " Company")))
     parse(input) should be (result)
   }
   

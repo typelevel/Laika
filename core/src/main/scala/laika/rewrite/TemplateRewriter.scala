@@ -126,8 +126,10 @@ trait TemplateRewriter {
     lazy val rules: RewriteRules = RewriteRules.forBlocks {
       case ph: BlockResolver                => Replace(rewriteBlock(ph resolve cursor))
       case TemplateRoot(spans, opt)         => Replace(TemplateRoot(format(spans), opt))
+      case sc: SpanContainer with Block     => Replace(sc.withContent(joinTextSpans(sc.content)).asInstanceOf[Block]) 
     } ++ RewriteRules.forSpans {
       case ph: SpanResolver                 => Replace(rewriteSpan(ph resolve cursor))
+      case sc: SpanContainer with Span      => Replace(sc.withContent(joinTextSpans(sc.content)).asInstanceOf[Span])
     } ++ RewriteRules.forTemplates {
       case ph: SpanResolver                 => Replace(rewriteTemplateSpan(asTemplateSpan(ph resolve cursor)))
       case TemplateSpanSequence(spans, opt) => Replace(TemplateSpanSequence(format(spans), opt))
@@ -140,6 +142,14 @@ trait TemplateRewriter {
     def rewriteBlock (block: Block): Block = rules.rewriteBlock(block)
     def rewriteSpan (span: Span): Span = rules.rewriteSpan(span)
     def rewriteTemplateSpan (span: TemplateSpan): TemplateSpan = rules.rewriteTemplateSpan(span)
+    
+    def joinTextSpans (spans: Seq[Span]): Seq[Span] = if (spans.isEmpty) spans
+      else spans.sliding(2).foldLeft(spans.take(1)) {
+        case (acc, Seq(Text(_, NoOpt), Text(txt2, NoOpt))) => 
+          acc.dropRight(1) :+ Text(acc.last.asInstanceOf[Text].content + txt2)
+        case (acc, Seq(_, other)) => acc :+ other
+        case (acc, _) => acc
+      }
     
     def format (spans: Seq[TemplateSpan]): Seq[TemplateSpan] = {
       def indentFor(text: String): Int = text.lastIndexOf('\n') match {

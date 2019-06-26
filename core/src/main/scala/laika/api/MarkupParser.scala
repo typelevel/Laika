@@ -17,13 +17,14 @@
 package laika.api
 
 import laika.api.builder.ParserBuilder
-import laika.ast.{Document, Path}
+import laika.ast.{Document, DocumentCursor, Path}
 import laika.ast.Path.Root
 import laika.api.builder.OperationConfig
 import laika.factory.MarkupFormat
 import laika.parse.ParserContext
 import laika.parse.markup.DocumentParser
 import laika.parse.markup.DocumentParser.{ParserError, ParserInput}
+import laika.rewrite.TemplateRewriter
 
 /** Performs a parse operation from text markup to a
   * document tree without a subsequent render operation. 
@@ -71,7 +72,10 @@ class MarkupParser (parser: MarkupFormat, val config: OperationConfig, val rewri
     */
   def parse (input: ParserInput): Either[ParserError, Document] = {
     val res = docParser(input)
-    if (rewrite) res.map(doc => doc.rewrite(config.rewriteRulesFor(doc)))
+    if (rewrite) res.map { doc => 
+      val phase1 = doc.rewrite(config.rewriteRulesFor(doc))
+      phase1.copy(content = phase1.content.rewriteChildren(TemplateRewriter.rewriteRules(DocumentCursor(phase1))))
+    }
     else res
   }
 

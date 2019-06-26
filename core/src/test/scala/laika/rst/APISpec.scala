@@ -56,7 +56,7 @@ class APISpec extends FlatSpec
       |.. |two| twoArgs:: arg arg""".stripMargin
     MarkupParser.of(ReStructuredText).using(ExtensionProvider.forExtensions(spans = directives)).build.parse(input)
       .toOption.get.content should be (root
-        (p(txt("foo "), txt("arg"), txt(" foo "), txt("argarg"))))
+        (p(txt("foo arg foo argarg"))))
   }
   
   it should "support registration of text roles" in {
@@ -78,7 +78,7 @@ class APISpec extends FlatSpec
       | :name1: val1
       | :name2: val2""".stripMargin
     MarkupParser.of(ReStructuredText).using(ExtensionProvider.forExtensions(roles = roles)).build.parse(input)
-      .toOption.get.content should be (root (p(txt("foo "), txt("valone"), txt(" foo "), txt("val1val2two"))))
+      .toOption.get.content should be (root (p(txt("foo valone foo val1val2two"))))
   }
   
   trait BlockDirectives {
