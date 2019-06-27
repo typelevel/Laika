@@ -16,11 +16,14 @@
 
 package laika.directive
 
+import com.typesafe.config.ConfigFactory
+import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.parse.Parser
 import laika.parse.directive.TemplateParsers
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
+import laika.rewrite.TemplateRewriter
 import org.scalatest.{FlatSpec, Matchers}
 
 class TemplateDirectiveAPISpec extends FlatSpec
@@ -108,7 +111,12 @@ class TemplateDirectiveAPISpec extends FlatSpec
 
     val templateParsers = new TemplateParsers(Map(directive.name -> directive))
     
-    val defaultParser: Parser[TemplateRoot] = templateParsers.templateSpans ^^ (spans => tRoot(spans:_*))
+    val defaultParser: Parser[TemplateRoot] = templateParsers.templateSpans ^^ { spans =>
+      val root = TemplateRoot(spans)
+      TemplateRewriter.rewriteRules(DocumentCursor(
+        Document(Root, RootElement(Seq(root)), config = ConfigFactory.parseString("ref: value"))
+      )).rewriteBlock(root).asInstanceOf[TemplateRoot]
+    }
     
     def invalid (input: String, error: String): InvalidSpan = InvalidElement(error, input).asSpan
         
@@ -192,8 +200,8 @@ class TemplateDirectiveAPISpec extends FlatSpec
   
   it should "parse a directive with a required default body" in {
     new RequiredDefaultBody with TemplateParser {
-      val body = tss(tt(" some "), TemplateContextReference("ref"), tt(" text "))
-      Parsing ("aa @:dir: { some {{ref}} text } bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
+      val body = tss(tt(" some "), tt("value"), tt(" text "))
+      Parsing ("aa @:dir: { some {{config.ref}} text } bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
     }
   }
   
@@ -213,8 +221,8 @@ class TemplateDirectiveAPISpec extends FlatSpec
   
   it should "parse a directive with an optional default body" in {
     new OptionalDefaultBody with TemplateParser {
-      val body = tss(tt(" some "), TemplateContextReference("ref"), tt(" text "))
-      Parsing ("aa @:dir: { some {{ref}} text } bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
+      val body = tss(tt(" some "), tt("value"), tt(" text "))
+      Parsing ("aa @:dir: { some {{config.ref}} text } bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
     }
   }
   
@@ -226,8 +234,8 @@ class TemplateDirectiveAPISpec extends FlatSpec
   
   it should "parse a directive with a required named body" in {
     new RequiredNamedBody with TemplateParser {
-      val body = tss(tt(" some "), TemplateContextReference("ref"), tt(" text "))
-      Parsing ("aa @:dir: ~name: { some {{ref}} text } bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
+      val body = tss(tt(" some "), tt("value"), tt(" text "))
+      Parsing ("aa @:dir: ~name: { some {{config.ref}} text } bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
     }
   }
   
@@ -240,8 +248,8 @@ class TemplateDirectiveAPISpec extends FlatSpec
   
   it should "parse a directive with an optional named body" in {
     new OptionalNamedBody with TemplateParser {
-      val body = tss(tt(" some "), TemplateContextReference("ref"), tt(" text "))
-      Parsing ("aa @:dir: ~name: { some {{ref}} text } bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
+      val body = tss(tt(" some "), tt("value"), tt(" text "))
+      Parsing ("aa @:dir: ~name: { some {{config.ref}} text } bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
     }
   }
   
@@ -249,10 +257,10 @@ class TemplateDirectiveAPISpec extends FlatSpec
     new FullDirectiveSpec with TemplateParser {
       val body = tss(
         tt("foo:str:16"), 
-        tt(" 1 "), TemplateContextReference("ref1"), tt(" 2 "), 
-        tt(" 3 "), TemplateContextReference("ref3"), tt(" 4 ")
+        tt(" 1 "), tt("value"), tt(" 2 "),
+        tt(" 3 "), tt("value"), tt(" 4 ")
       )
-      Parsing ("aa @:dir foo strAttr=str intAttr=7: { 1 {{ref1}} 2 } ~spanBody: { 3 {{ref3}} 4 } ~intBody: { 9 } bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
+      Parsing ("aa @:dir foo strAttr=str intAttr=7: { 1 {{config.ref}} 2 } ~spanBody: { 3 {{config.ref}} 4 } ~intBody: { 9 } bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
     }
   }
   
@@ -260,9 +268,9 @@ class TemplateDirectiveAPISpec extends FlatSpec
     new FullDirectiveSpec with TemplateParser {
       val body = tss(
         tt("foo:..:0"), 
-        tt(" 1 "), TemplateContextReference("ref1"), tt(" 2 ")
+        tt(" 1 "), tt("value"), tt(" 2 ")
       )
-      Parsing ("aa @:dir foo: { 1 {{ref1}} 2 } bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
+      Parsing ("aa @:dir foo: { 1 {{config.ref}} 2 } bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
     }
   }
   
@@ -275,17 +283,14 @@ class TemplateDirectiveAPISpec extends FlatSpec
   
   it should "parse a directive with a required default body and parser access" in {
     new DirectiveWithParserAccess with TemplateParser {
-      val body = tss(tt("me "), TemplateContextReference("ref"), tt(" text "))
-      Parsing ("aa @:dir: { some {{ref}} text } bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
+      val body = tss(tt("me "), tt("value"), tt(" text "))
+      Parsing ("aa @:dir: { some {{config.ref}} text } bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
     }
   }
   
   it should "parse a directive with a required default body and cursor access" in {
     new DirectiveWithContextAccess with TemplateParser {
-      def translate (result: TemplateRoot) = result rewriteTemplateSpans {
-        case _: templateParsers.DirectiveSpan => Replace(TemplateElement(Text("ok"))) // cannot compare DirectiveSpans
-      }
-      Parsing ("aa @:dir: { text } bb") map translate should produce (tRoot(tt("aa "), TemplateElement(txt("ok")), tt(" bb")))
+      Parsing ("aa @:dir: { text } bb") should produce (tRoot(tt("aa "), tt(" text /"), tt(" bb")))
     }
   }
   

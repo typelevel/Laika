@@ -145,8 +145,7 @@ object DirectiveParsers {
     
     processResult((directive ~ partMap) flatMap { case directive ~ partMap =>
       def directiveWithContext (cursor: Option[DocumentCursor]) = directive(createContext(partMap, cursor))
-      if (directive.requiresContext) Success(createPlaceholder(c => processResult(directiveWithContext(Some(c)))))
-      else directiveWithContext(None)
+      Success(createPlaceholder(c => processResult(directiveWithContext(Some(c)))))
     }) 
   }
   

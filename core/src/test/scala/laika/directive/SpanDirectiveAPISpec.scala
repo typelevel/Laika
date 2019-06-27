@@ -16,13 +16,15 @@
 
 package laika.directive
 
+import com.typesafe.config.ConfigFactory
+import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.bundle.ParserBundle
 import laika.parse.Parser
-import laika.parse.directive.SpanDirectiveParsers
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import laika.parse.markup.RootParserProvider
+import laika.rewrite.TemplateRewriter
 import org.scalatest.{FlatSpec, Matchers}
 
 class SpanDirectiveAPISpec extends FlatSpec
@@ -104,19 +106,24 @@ class SpanDirectiveAPISpec extends FlatSpec
   }
   
   trait SpanParser extends ParseResultHelpers
-                   with DefaultParserHelpers[SpanSequence] {
+                   with DefaultParserHelpers[Span] {
     
     def directive: Spans.Directive
 
     lazy val directiveSupport: ParserBundle = DirectiveSupport.withDirectives(Seq(), Seq(directive), Seq()).parsers
 
-    lazy val defaultParser: Parser[SpanSequence] = RootParserProvider.forParsers(
+    lazy val defaultParser: Parser[Span] = RootParserProvider.forParsers(
       markupExtensions = directiveSupport.markupExtensions
-    ).recursiveSpans ^^ (SpanSequence(_))
+    ).recursiveSpans ^^ { spans =>
+      val seq = SpanSequence(spans)
+      TemplateRewriter.rewriteRules(DocumentCursor(
+        Document(Root, RootElement(Seq(seq)), config = ConfigFactory.parseString("ref: value"))
+      )).rewriteSpan(seq)
+    }
     
     def invalid (input: String, error: String): InvalidSpan = InvalidElement(error, input).asSpan
         
-    def ss (spans: Span*): SpanSequence = SpanSequence(spans)
+    def ss (spans: Span*): Span = SpanSequence(spans)
 
   }
   
@@ -196,8 +203,8 @@ class SpanDirectiveAPISpec extends FlatSpec
   
   it should "parse a directive with a required default body" in {
     new SpanParser with RequiredDefaultBody {
-      val body = ss(txt(" some "), MarkupContextReference("ref"), txt(" text "))
-      Parsing ("aa @:dir: { some {{ref}} text } bb") should produce (ss(txt("aa "), body, txt(" bb")))
+      val body = ss(txt(" some value text "))
+      Parsing ("aa @:dir: { some {{config.ref}} text } bb") should produce (ss(txt("aa "), body, txt(" bb")))
     }
   }
   
@@ -217,8 +224,8 @@ class SpanDirectiveAPISpec extends FlatSpec
   
   it should "parse a directive with an optional default body" in {
     new SpanParser with OptionalDefaultBody {
-      val body = ss(txt(" some "), MarkupContextReference("ref"), txt(" text "))
-      Parsing ("aa @:dir: { some {{ref}} text } bb") should produce (ss(txt("aa "), body, txt(" bb")))
+      val body = ss(txt(" some value text "))
+      Parsing ("aa @:dir: { some {{config.ref}} text } bb") should produce (ss(txt("aa "), body, txt(" bb")))
     }
   }
   
@@ -230,8 +237,8 @@ class SpanDirectiveAPISpec extends FlatSpec
   
   it should "parse a directive with a required named body" in {
     new SpanParser with RequiredNamedBody {
-      val body = ss(txt(" some "), MarkupContextReference("ref"), txt(" text "))
-      Parsing ("aa @:dir: ~name: { some {{ref}} text } bb") should produce (ss(txt("aa "), body, txt(" bb")))
+      val body = ss(txt(" some value text "))
+      Parsing ("aa @:dir: ~name: { some {{config.ref}} text } bb") should produce (ss(txt("aa "), body, txt(" bb")))
     }
   }
   
@@ -244,8 +251,8 @@ class SpanDirectiveAPISpec extends FlatSpec
   
   it should "parse a directive with an optional named body" in {
     new SpanParser with OptionalNamedBody {
-      val body = ss(txt(" some "), MarkupContextReference("ref"), txt(" text "))
-      Parsing ("aa @:dir: ~name: { some {{ref}} text } bb") should produce (ss(txt("aa "), body, txt(" bb")))
+      val body = ss(txt(" some value text "))
+      Parsing ("aa @:dir: ~name: { some {{config.ref}} text } bb") should produce (ss(txt("aa "), body, txt(" bb")))
     }
   }
   
@@ -258,21 +265,18 @@ class SpanDirectiveAPISpec extends FlatSpec
   it should "parse a full directive spec with all elements present" in {
     new FullDirectiveSpec with SpanParser {
       val body = ss(
-        txt("foo:str:16"), 
-        txt(" 1 "), MarkupContextReference("ref1"), txt(" 2 "), 
-        txt(" 3 "), MarkupContextReference("ref3"), txt(" 4 ")
+        txt("foo:str:16 1 value 2  3 value 4 ")
       )
-      Parsing ("aa @:dir foo strAttr=str intAttr=7: { 1 {{ref1}} 2 } ~spanBody: { 3 {{ref3}} 4 } ~intBody: { 9 } bb") should produce (ss(txt("aa "), body, txt(" bb")))
+      Parsing ("aa @:dir foo strAttr=str intAttr=7: { 1 {{config.ref}} 2 } ~spanBody: { 3 {{config.ref}} 4 } ~intBody: { 9 } bb") should produce (ss(txt("aa "), body, txt(" bb")))
     }
   }
   
   it should "parse a full directive spec with all optional elements missing" in {
     new FullDirectiveSpec with SpanParser {
       val body = ss(
-        txt("foo:..:0"), 
-        txt(" 1 "), MarkupContextReference("ref1"), txt(" 2 ")
+        txt("foo:..:0 1 value 2 ")
       )
-      Parsing ("aa @:dir foo: { 1 {{ref1}} 2 } bb") should produce (ss(txt("aa "), body, txt(" bb")))
+      Parsing ("aa @:dir foo: { 1 {{config.ref}} 2 } bb") should produce (ss(txt("aa "), body, txt(" bb")))
     }
   }
   
@@ -285,21 +289,16 @@ class SpanDirectiveAPISpec extends FlatSpec
   
   it should "parse a directive with a required default body and parser access" in {
     new DirectiveWithParserAccess with SpanParser {
-      val body = ss(txt("me "), MarkupContextReference("ref"), txt(" text "))
-      Parsing ("aa @:dir: { some {{ref}} text } bb") should produce (ss(txt("aa "), body, txt(" bb")))
+      val body = ss(txt("me value text "))
+      Parsing ("aa @:dir: { some {{config.ref}} text } bb") should produce (ss(txt("aa "), body, txt(" bb")))
     }
   }
   
   it should "parse a directive with a required default body and cursor access" in {
     new DirectiveWithContextAccess with SpanParser {
-      def translate (result: SpanSequence) = result rewriteSpans {
-        case _: SpanDirectiveParsers.DirectiveSpan => Replace(Text("ok")) // cannot compare DirectiveSpans
-      }
-      Parsing ("aa @:dir: { text } bb") map translate should produce (ss(txt("aa "), txt("ok"), txt(" bb")))
+      Parsing ("aa @:dir: { text } bb") should produce (ss(txt("aa  text / bb")))
     }
   }
-  
-  
   
   it should "detect a directive with an unknown name" in {
     new SpanParser with OptionalNamedAttribute {

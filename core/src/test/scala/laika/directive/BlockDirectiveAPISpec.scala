@@ -16,6 +16,8 @@
 
 package laika.directive
 
+import com.typesafe.config.ConfigFactory
+import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.bundle.{BlockParser, BlockParserBuilder, ParserBundle}
@@ -25,6 +27,7 @@ import laika.parse.directive.BlockDirectiveParsers
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import laika.parse.markup.RootParserProvider
 import laika.parse.text.TextParsers._
+import laika.rewrite.TemplateRewriter
 import org.scalatest.{FlatSpec, Matchers}
 
 
@@ -120,7 +123,11 @@ class BlockDirectiveAPISpec extends FlatSpec
     lazy val defaultParser: Parser[RootElement] = RootParserProvider.forParsers(
       blockParsers = Seq(paragraphParser),
       markupExtensions = directiveSupport.markupExtensions
-    ).rootElement
+    ).rootElement ^^ { root =>
+      TemplateRewriter.rewriteRules(DocumentCursor(
+        Document(Root, root, config = ConfigFactory.parseString("ref: value"))
+      )).rewriteBlock(root).asInstanceOf[RootElement]
+    }
 
     def invalid (input: String, error: String): InvalidBlock = InvalidElement(error, input).asBlock
 
@@ -259,10 +266,10 @@ class BlockDirectiveAPISpec extends FlatSpec
     new TemplateParser with RequiredDefaultBody {
       val input = """aa
         |
-        |@:dir: some {{ref}} text
+        |@:dir: some {{config.ref}} text
         |
         |bb""".stripMargin
-      val body = BlockSequence(List(p(txt("some "), MarkupContextReference("ref"), txt(" text"))))
+      val body = BlockSequence(List(p(txt("some value text"))))
       Parsing (input) should produce (root(p("aa"), body, p("bb")))
     }
   }
@@ -273,11 +280,11 @@ class BlockDirectiveAPISpec extends FlatSpec
         |
         |@:dir:
         |  some
-        |  {{ref}}
+        |  {{config.ref}}
         |  text
         |
         |bb""".stripMargin
-      val body = BlockSequence(List(p(txt("some\n"), MarkupContextReference("ref"), txt("\ntext"))))
+      val body = BlockSequence(List(p(txt("some\nvalue\ntext"))))
       Parsing (input) should produce (root(p("aa"), body, p("bb")))
     }
   }
@@ -298,10 +305,10 @@ class BlockDirectiveAPISpec extends FlatSpec
     new TemplateParser with OptionalDefaultBody {
       val input = """aa
         |
-        |@:dir: some {{ref}} text
+        |@:dir: some {{config.ref}} text
         |
         |bb""".stripMargin
-      val body = BlockSequence(List(p(txt("some "), MarkupContextReference("ref"), txt(" text"))))
+      val body = BlockSequence(List(p(txt("some value text"))))
       Parsing (input) should produce (root(p("aa"), body, p("bb")))
     }
   }
@@ -321,10 +328,10 @@ class BlockDirectiveAPISpec extends FlatSpec
     new TemplateParser with RequiredNamedBody {
       val input = """aa
         |
-        |@:dir: ~name: some {{ref}} text
+        |@:dir: ~name: some {{config.ref}} text
         |
         |bb""".stripMargin
-      val body = BlockSequence(List(p(txt("some "), MarkupContextReference("ref"), txt(" text"))))
+      val body = BlockSequence(List(p(txt("some value text"))))
       Parsing (input) should produce (root(p("aa"), body, p("bb")))
     }
   }
@@ -345,10 +352,10 @@ class BlockDirectiveAPISpec extends FlatSpec
     new TemplateParser with OptionalNamedBody {
       val input = """aa
         |
-        |@:dir: ~name: some {{ref}} text
+        |@:dir: ~name: some {{config.ref}} text
         |
         |bb""".stripMargin
-      val body = BlockSequence(List(p(txt("some "), MarkupContextReference("ref"), txt(" text"))))
+      val body = BlockSequence(List(p(txt("some value text"))))
       Parsing (input) should produce (root(p("aa"), body, p("bb")))
     }
   }
@@ -369,16 +376,16 @@ class BlockDirectiveAPISpec extends FlatSpec
       val input = """aa
         |
         |@:dir foo strAttr=str intAttr=7:
-        |  1 {{ref1}} 2
+        |  1 {{config.ref}} 2
         |~blockBody:
-        |  3 {{ref3}} 4
+        |  3 {{config.ref}} 4
         |~intBody: 9
         |
         |bb""".stripMargin
       val body = BlockSequence(List(
         p("foo:str:16"),
-        p(txt("1 "), MarkupContextReference("ref1"), txt(" 2")),
-        p(txt("3 "), MarkupContextReference("ref3"), txt(" 4"))
+        p(txt("1 value 2")),
+        p(txt("3 value 4"))
       ))
       Parsing (input) should produce (root(p("aa"), body, p("bb")))
     }
@@ -389,18 +396,18 @@ class BlockDirectiveAPISpec extends FlatSpec
       val input = """aa
         |
         |@:dir foo strAttr=str intAttr=7:
-        |  1 {{ref1}} 2
+        |  1 {{config.ref}} 2
         |
         |~blockBody:
-        |  3 {{ref3}} 4
+        |  3 {{config.ref}} 4
         |
         |~intBody: 9
         |
         |bb""".stripMargin
       val body = BlockSequence(List(
         p("foo:str:16"),
-        p(txt("1 "), MarkupContextReference("ref1"), txt(" 2")),
-        p(txt("3 "), MarkupContextReference("ref3"), txt(" 4"))
+        p(txt("1 value 2")),
+        p(txt("3 value 4"))
       ))
       Parsing (input) should produce (root(p("aa"), body, p("bb")))
     }
@@ -411,12 +418,12 @@ class BlockDirectiveAPISpec extends FlatSpec
       val input = """aa
         |
         |@:dir foo:
-        |  1 {{ref1}} 2
+        |  1 {{config.ref}} 2
         |
         |bb""".stripMargin
       val body = BlockSequence(List(
         p("foo:..:0"),
-        p(txt("1 "), MarkupContextReference("ref1"), txt(" 2"))
+        p(txt("1 value 2"))
       ))
       Parsing (input) should produce (root(p("aa"), body, p("bb")))
     }
@@ -438,10 +445,10 @@ class BlockDirectiveAPISpec extends FlatSpec
     new TemplateParser with DirectiveWithParserAccess {
       val input = """aa
         |
-        |@:dir: some {{ref}} text
+        |@:dir: some {{config.ref}} text
         |
         |bb""".stripMargin
-      val body = BlockSequence(List(p(txt("e "), MarkupContextReference("ref"), txt(" text"))))
+      val body = BlockSequence(List(p(txt("e value text"))))
       Parsing (input) should produce (root(p("aa"), body, p("bb")))
     }
   }
@@ -453,10 +460,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |@:dir: text
         |
         |bb""".stripMargin
-      def translate (result: RootElement) = result rewriteBlocks {
-        case _: BlockDirectiveParsers.DirectiveBlock => Replace(p("ok")) // cannot compare DirectiveBlocks
-      }
-      Parsing (input) map translate should produce (root(p("aa"), p("ok"), p("bb")))
+      Parsing (input) should produce (root(p("aa"), p("text/"), p("bb")))
     }
   }
   
