@@ -18,66 +18,6 @@ package laika.directive
 
 import laika.ast._
 
-/** Represents the result (or combined results)
-  * of processing one or more parts of a directive.
-  */
-sealed abstract class Result[+A] {
-
-  def get: A
-
-  def map [B](f: A => B): Result[B]
-
-  def flatMap [B](f: A => Result[B]): Result[B]
-
-  def ~ [B](result: Result[B]): Result[A ~ B]
-
-}
-
-/** Represents the successful computation
-  * of a directive part.
-  */
-case class Success[+A] (a: A) extends Result[A] {
-
-  def get: A = a
-
-  def map [B](f: A => B): Result[B] = Success(f(get))
-
-  def flatMap [B](f: A => Result[B]): Result[B] = f(a)
-
-  def ~ [B](result: Result[B]): Result[A ~ B] = result match {
-    case Success(value) => Success(new ~(a, value))
-    case Failure(msg)   => Failure(msg)
-  }
-
-}
-
-/** Represents the failed computation
-  * of a directive part. This failure type
-  * can be combined with other failures
-  * to "collect" all error messages, in contrast
-  * to the `Either` type for example, which always
-  * only carries one `Left` value through a chain
-  * of computations.
-  */
-case class Failure (messages: Seq[String]) extends Result[Nothing] {
-
-  def get: Nothing = throw new RuntimeException("no result as processing failed")
-
-  def map [B](f: Nothing => B): Result[B] = this
-
-  def flatMap [B](f: Nothing => Result[B]): Result[B] = this
-
-  def ~ [B](result: Result[B]): Result[Nothing ~ B] = result match {
-    case Success(value)     => this
-    case Failure(otherMsg)  => Failure(messages ++ otherMsg)
-  }
-
-}
-
-object Failure {
-  def apply (msg: String) = new Failure(Seq(msg))
-}
-
 /** The id for a directive part.
   */
 sealed abstract class PartId {
@@ -128,6 +68,9 @@ trait BuilderContext[E <: Element] {
     * parts.
     */
   type Parser <: (String => Seq[E])
+  
+  
+  type Result[+A] = Either[Seq[String], A]
 
   /** The context of a directive during
     *  execution.
@@ -152,7 +95,12 @@ trait BuilderContext[E <: Element] {
     }
 
     def ~ [B] (other: DirectivePart[B]): DirectivePart[A ~ B] = new DirectivePart[A ~ B] {
-      def apply (p: DirectiveContext) = self.apply(p) ~ other.apply(p)
+      def apply (p: DirectiveContext) = (self(p), other(p)) match {
+        case (Right(a), Right(b)) => Right(new ~(a, b))
+        case (Left(a), Left(b)) => Left(a ++ b)
+        case (Left(msg), _) => Left(msg)
+        case (_, Left(msg)) => Left(msg)
+      }
     }
 
     /** Indicates that this directive part is optional,
@@ -182,9 +130,9 @@ trait BuilderContext[E <: Element] {
     */
   trait Converters {
 
-    val string: Converter[String] = (_, input) => Success(input)
+    val string: Converter[String] = (_, input) => Right(input)
 
-    val parsed: Converter[Seq[E]] = (parser, input) => Success(parser(input))
+    val parsed: Converter[Seq[E]] = (parser, input) => Right(parser(input))
 
     val int: Converter[Int] = (_, input) => toInt(input, _ => true)
 
@@ -195,9 +143,9 @@ trait BuilderContext[E <: Element] {
     private def toInt (input: String, predicate: Int => Boolean, msg: String = ""): Result[Int] = {
       try {
         val i = input.trim.toInt
-        if (predicate(i)) Success(i) else Failure(s"$msg: $i")
+        if (predicate(i)) Right(i) else Left(Seq(s"$msg: $i"))
       } catch {
-        case e: NumberFormatException => Failure(s"not an integer: $input")
+        case e: NumberFormatException => Left(Seq(s"not an integer: $input"))
       }
     }
 
@@ -212,13 +160,13 @@ trait BuilderContext[E <: Element] {
 
       def convert (context: DirectiveContext) = context.part(key).map(s => converter(context.parser, s))
 
-      def apply (context: DirectiveContext) = convert(context).getOrElse(Failure(Seq(msg)))
+      def apply (context: DirectiveContext) = convert(context).getOrElse(Left(Seq(msg)))
 
       override def optional: DirectivePart[Option[T]] = new DirectivePart[Option[T]] {
         def apply (context: DirectiveContext) = convert(context) match {
-          case Some(Success(value)) => Success(Some(value))
-          case Some(Failure(msg))   => Failure(s"error converting ${key.desc}: " + msg.mkString(", "))
-          case None                 => Success(None)
+          case Some(Right(value)) => Right(Some(value))
+          case Some(Left(msg))    => Left(Seq(s"error converting ${key.desc}: " + msg.mkString(", ")))
+          case None               => Right(None)
         }
       }
 
@@ -252,7 +200,7 @@ trait BuilderContext[E <: Element] {
       * @param result the fixed result each empty directive will produce
       * @return a directive part that usually won't be combined with other parts
       */
-    def empty [T] (result: T): DirectivePart[T] = part(_ => Success(result))
+    def empty [T] (result: T): DirectivePart[T] = part(_ => Right(result))
 
     /** Indicates that access to the parser responsible for this directive
       * is needed, in case the directive implementation has to manually
@@ -263,7 +211,7 @@ trait BuilderContext[E <: Element] {
       * registered extensions in case your directive content may contain
       * other directives.
       */
-    def parser: DirectivePart[Parser] = part(c => Success(c.parser))
+    def parser: DirectivePart[Parser] = part(c => Right(c.parser))
 
     /** Indicates that access to the document cursor is required.
       * This may be required if the directive relies on information
@@ -275,7 +223,7 @@ trait BuilderContext[E <: Element] {
       * the initial rewrite step. But this is an implementation detail
       * you normally do not need to deal with.
       */
-    def cursor: DirectivePart[DocumentCursor] = part(c => Success(c.cursor))
+    def cursor: DirectivePart[DocumentCursor] = part(c => Right(c.cursor))
 
   }
 

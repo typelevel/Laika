@@ -118,36 +118,41 @@ object DirectiveParsers {
     val cursor: DocumentCursor = docCursor
     
   }
+
+  type Result[+A] = Either[Seq[String], A]
   
   def applyDirective [E <: Element] (builder: BuilderContext[E]) (
-      parseResult: ParsedDirective, 
-      directives: String => Option[builder.Directive], 
+      parseResult: ParsedDirective,
+      directives: String => Option[builder.Directive],
       createContext: (PartMap, DocumentCursor) => builder.DirectiveContext,
-      createPlaceholder: (DocumentCursor => E) => E, 
+      createDirectiveInstance: (DocumentCursor => E) => E,
       createInvalidElement: String => E,
       directiveTypeDesc: String
     ): E = {
     
-    val directive: Result[builder.Directive] = directives(parseResult.name).map(Success(_))
-        .getOrElse(Failure(s"No $directiveTypeDesc directive registered with name: ${parseResult.name}"))
-    
-    val partMap: Result[Map[Key, String]] = {
-      val dups = parseResult.parts groupBy (_.key) filterNot (_._2.tail.isEmpty) keySet;
-      if (dups.isEmpty) Success(parseResult.parts map (p => (p.key, p.content)) toMap)
-      else Failure(dups.map("Duplicate "+_.desc).toList)
+    createDirectiveInstance { cursor =>
+
+      def directive: Result[builder.Directive] = directives(parseResult.name)
+        .toRight(Seq(s"No $directiveTypeDesc directive registered with name: ${parseResult.name}"))
+
+      def partMap: Result[Map[Key, String]] = {
+        val dups = parseResult.parts.groupBy(_.key).filterNot(_._2.tail.isEmpty).keySet
+        if (dups.isEmpty) Right(parseResult.parts.map(p => (p.key, p.content)).toMap)
+        else Left(dups.map("Duplicate "+_.desc).toList)
+      }
+      
+      val res = for {
+        dir   <- directive
+        parts <- partMap
+        res   <- dir.apply(createContext(parts, cursor))
+      } yield res
+      
+      res.fold(messages => createInvalidElement("One or more errors processing directive '"
+        + parseResult.name + "': " + messages.mkString(", ")), identity)
     }
     
-    def processResult (result: Result[E]): E = result match {
-      case Success(result)   => result
-      case Failure(messages) => createInvalidElement("One or more errors processing directive '"
-          + parseResult.name + "': " + messages.mkString(", "))
-    }
-    
-    processResult((directive ~ partMap) flatMap { case directive ~ partMap =>
-      Success(createPlaceholder(cursor => processResult(directive(createContext(partMap, cursor)))))
-    }) 
   }
-  
+
   val nestedBraces: Parser[Text] = delimitedBy('}') ^^ (str => Text(s"{$str}"))
 
 }
