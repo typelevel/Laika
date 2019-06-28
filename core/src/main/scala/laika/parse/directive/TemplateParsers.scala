@@ -18,9 +18,9 @@ package laika.parse.directive
 
 import laika.ast._
 import laika.directive.Templates
+import laika.parse.Parser
 import laika.parse.markup.DefaultRecursiveSpanParsers
 import laika.parse.text.TextParsers._
-import laika.parse.{Failure, Parser, Success}
 
 /** Provides the parsers for directives and context references in templates.
   *

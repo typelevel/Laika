@@ -111,14 +111,6 @@ object DirectiveParsers {
     declaration ~ (noBody | bodies) ^^ { case (name, attrs) ~ bodies => ParsedDirective(name, attrs ::: bodies) }
   }
   
-  abstract class DirectiveContextBase (parts: PartMap, docCursor: DocumentCursor) {
-    
-    def part (key: Key): Option[String] = parts.get(key)
-      
-    val cursor: DocumentCursor = docCursor
-    
-  }
-
   val nestedBraces: Parser[Text] = delimitedBy('}') ^^ (str => Text(s"{$str}"))
 
 }
