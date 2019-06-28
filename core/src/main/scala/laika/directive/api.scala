@@ -136,7 +136,7 @@ trait BuilderContext[E <: Element] {
 
     def part (key: Key): Option[String]
 
-    def cursor: Option[DocumentCursor]
+    def cursor: DocumentCursor
 
     def parser: Parser
 
@@ -149,14 +149,10 @@ trait BuilderContext[E <: Element] {
 
     def map [B](f: A => B): DirectivePart[B] = new DirectivePart[B] {
       def apply (p: DirectiveContext) = self(p) map f
-      def requiresContext = self.requiresContext
     }
 
-    def requiresContext: Boolean
-    
     def ~ [B] (other: DirectivePart[B]): DirectivePart[A ~ B] = new DirectivePart[A ~ B] {
       def apply (p: DirectiveContext) = self.apply(p) ~ other.apply(p)
-      def requiresContext = self.requiresContext || other.requiresContext
     }
 
     /** Indicates that this directive part is optional,
@@ -214,14 +210,11 @@ trait BuilderContext[E <: Element] {
 
     private def requiredPart [T] (key: Key, converter: Converter[T], msg: => String) = new DirectivePart[T] {
 
-      val requiresContext = false
-
       def convert (context: DirectiveContext) = context.part(key).map(s => converter(context.parser, s))
 
       def apply (context: DirectiveContext) = convert(context).getOrElse(Failure(Seq(msg)))
 
-      override def optional = new DirectivePart[Option[T]] {
-        val requiresContext = false
+      override def optional: DirectivePart[Option[T]] = new DirectivePart[Option[T]] {
         def apply (context: DirectiveContext) = convert(context) match {
           case Some(Success(value)) => Success(Some(value))
           case Some(Failure(msg))   => Failure(s"error converting ${key.desc}: " + msg.mkString(", "))
@@ -231,9 +224,8 @@ trait BuilderContext[E <: Element] {
 
     }
 
-    private def part [T](f: DirectiveContext => Result[T], reqContext: Boolean = false) = new DirectivePart[T] {
+    private def part [T](f: DirectiveContext => Result[T]) = new DirectivePart[T] {
       def apply (p: DirectiveContext) = f(p)
-      val requiresContext = reqContext
     }
 
     /** Specifies a required attribute.
@@ -283,8 +275,7 @@ trait BuilderContext[E <: Element] {
       * the initial rewrite step. But this is an implementation detail
       * you normally do not need to deal with.
       */
-    def cursor: DirectivePart[DocumentCursor]
-    = part(_.cursor map (Success(_)) getOrElse Failure("DocumentCursor not available yet"), reqContext = true)
+    def cursor: DirectivePart[DocumentCursor] = part(c => Success(c.cursor))
 
   }
 
@@ -292,7 +283,6 @@ trait BuilderContext[E <: Element] {
     */
   class Directive private[directive] (val name: String, part: DirectivePart[E]) {
     def apply (context: DirectiveContext): Result[E] = part(context)
-    def requiresContext: Boolean = part.requiresContext
   }
 
   /** Creates a new directive with the specified name

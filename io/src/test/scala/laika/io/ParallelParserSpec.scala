@@ -112,6 +112,15 @@ class ParallelParserSpec extends FlatSpec
         .build(processingContext, blockingContext)
         .fromInput(build(inputs)).parse.unsafeRunSync().root)
       )
+
+    def parsedTemplates (bundle: ExtensionBundle): Seq[TemplateRoot] = {
+      val root = Parallel(MarkupParser.of(Markdown).using(bundle))
+        .build(processingContext, blockingContext)
+        .fromInput(build(inputs)).parse.unsafeRunSync().root
+      root.tree.templates.map { tpl =>
+        tpl.content.rewriteChildren(TemplateRewriter.rewriteRules(DocumentCursor(Document(Root, RootElement(Nil)))))
+      }
+    }
       
     def parsedRawWith (bundle: ExtensionBundle = ExtensionBundle.Empty, customMatcher: PartialFunction[Path, DocumentType] = PartialFunction.empty): RootView = {
       val input = IO.pure(build(inputs, customMatcher.orElse({case path => docTypeMatcher(path)})))
@@ -281,9 +290,9 @@ class ParallelParserSpec extends FlatSpec
       Root / "main1.template.html" -> Contents.directive,
       Root / "main2.template.html" -> Contents.directive
     )
-    def template (num: Int) = TemplateView(Root / s"main$num.template.html", tRoot(tt("aa "),tt("bar"),tt(" bb")))
-    val treeResult = TreeView(Root, List(TemplateDocuments(List(template(1),template(2))))).asRoot
-    parsedRawWith(BundleProvider.forTemplateDirective(directive)) should be (treeResult)
+    val template = tRoot(tt("aa "),tt("bar"),tt(" bb"))
+    val result = Seq(template, template)
+    parsedTemplates(BundleProvider.forTemplateDirective(directive)) should be (result)
   }
 
   it should "add indentation information if an embedded root is preceded by whitespace characters" in new TreeParser {

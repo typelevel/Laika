@@ -111,41 +111,40 @@ object DirectiveParsers {
     declaration ~ (noBody | bodies) ^^ { case (name, attrs) ~ bodies => ParsedDirective(name, attrs ::: bodies) }
   }
   
-  abstract class DirectiveContextBase (parts: PartMap, docCursor: Option[DocumentCursor] = None) {
+  abstract class DirectiveContextBase (parts: PartMap, docCursor: DocumentCursor) {
     
     def part (key: Key): Option[String] = parts.get(key)
       
-    val cursor: Option[DocumentCursor] = docCursor
+    val cursor: DocumentCursor = docCursor
     
   }
   
   def applyDirective [E <: Element] (builder: BuilderContext[E]) (
       parseResult: ParsedDirective, 
       directives: String => Option[builder.Directive], 
-      createContext: (PartMap, Option[DocumentCursor]) => builder.DirectiveContext,
+      createContext: (PartMap, DocumentCursor) => builder.DirectiveContext,
       createPlaceholder: (DocumentCursor => E) => E, 
       createInvalidElement: String => E,
       directiveTypeDesc: String
     ): E = {
     
-    val directive = directives(parseResult.name).map(Success(_))
+    val directive: Result[builder.Directive] = directives(parseResult.name).map(Success(_))
         .getOrElse(Failure(s"No $directiveTypeDesc directive registered with name: ${parseResult.name}"))
     
-    val partMap = {
+    val partMap: Result[Map[Key, String]] = {
       val dups = parseResult.parts groupBy (_.key) filterNot (_._2.tail.isEmpty) keySet;
       if (dups.isEmpty) Success(parseResult.parts map (p => (p.key, p.content)) toMap)
       else Failure(dups.map("Duplicate "+_.desc).toList)
     }
     
-    def processResult (result: Result[E]) = result match {
+    def processResult (result: Result[E]): E = result match {
       case Success(result)   => result
       case Failure(messages) => createInvalidElement("One or more errors processing directive '"
           + parseResult.name + "': " + messages.mkString(", "))
     }
     
     processResult((directive ~ partMap) flatMap { case directive ~ partMap =>
-      def directiveWithContext (cursor: Option[DocumentCursor]) = directive(createContext(partMap, cursor))
-      Success(createPlaceholder(c => processResult(directiveWithContext(Some(c)))))
+      Success(createPlaceholder(cursor => processResult(directive(createContext(partMap, cursor)))))
     }) 
   }
   
@@ -181,7 +180,7 @@ object SpanDirectiveParsers {
     withRecursiveSpanParser(withSource(directiveParser(bodyContent, recParsers))) ^^ {
       case (recParser, (result, source)) => // TODO - optimization - parsed spans might be cached for DirectiveContext (applies for the template parser, too)
 
-        def createContext (parts: PartMap, docCursor: Option[DocumentCursor]): Spans.DirectiveContext = {
+        def createContext (parts: PartMap, docCursor: DocumentCursor): Spans.DirectiveContext = {
           new DirectiveContextBase(parts, docCursor) with Spans.DirectiveContext {
             val parser = new Spans.Parser {
               def apply (source: String) = recParser(source)
@@ -224,7 +223,7 @@ object BlockDirectiveParsers {
     withRecursiveSpanParser(withRecursiveBlockParser(withSource(directiveParser(bodyContent, recParsers)))) ^^ {
       case (recSpanParser, (recBlockParser, (result, source))) =>
 
-        def createContext (parts: PartMap, docCursor: Option[DocumentCursor]): Blocks.DirectiveContext = {
+        def createContext (parts: PartMap, docCursor: DocumentCursor): Blocks.DirectiveContext = {
           new DirectiveContextBase(parts, docCursor) with Blocks.DirectiveContext {
             val parser = new Blocks.Parser {
               def apply (source: String): Seq[Block] = recBlockParser(source)

@@ -53,7 +53,7 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
     val bodyContent = wsOrNl ~ '{' ~> (withSource(delimitedRecursiveSpans(delimitedBy('}'), contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
     withSource(directiveParser(bodyContent, this)) ^^ { case (result, source) =>
 
-      def createContext(parts: PartMap, docCursor: Option[DocumentCursor]): Templates.DirectiveContext = {
+      def createContext(parts: PartMap, docCursor: DocumentCursor): Templates.DirectiveContext = {
         new DirectiveContextBase(parts, docCursor) with Templates.DirectiveContext {
           val parser = new Templates.Parser {
             def apply(source: String): Seq[TemplateSpan] = templateSpans.parse(source) match {
