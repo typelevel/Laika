@@ -30,17 +30,6 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
 
   import DirectiveParsers._
 
-  case class DirectiveSpan(f: DocumentCursor => Span, options: Options = NoOpt) extends SpanResolver with TemplateSpan {
-    
-    type Self = DirectiveSpan
-    def withOptions (options: Options): DirectiveSpan = copy(options = options)
-    
-    def resolve(cursor: DocumentCursor) = f(cursor) match {
-      case s: TemplateSpan => s
-      case s: Span => TemplateElement(s)
-    }
-  }
-
   lazy val spanParsers: Map[Char, Parser[Span]] = Map(
     '{' -> reference(TemplateContextReference(_)),
     '@' -> templateDirective,
@@ -51,21 +40,9 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
 
     val contextRefOrNestedBraces = Map('{' -> (reference(TemplateContextReference(_)) | nestedBraces))
     val bodyContent = wsOrNl ~ '{' ~> (withSource(delimitedRecursiveSpans(delimitedBy('}'), contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
+    
     withSource(directiveParser(bodyContent, this)) ^^ { case (result, source) =>
-
-      def createContext(parts: PartMap, docCursor: DocumentCursor): Templates.DirectiveContext = {
-        new DirectiveContextBase(parts, docCursor) with Templates.DirectiveContext {
-          val parser = new Templates.Parser {
-            def apply(source: String): Seq[TemplateSpan] = templateSpans.parse(source) match {
-              case Success(spans, _)  => spans
-              case Failure(msg, next) => List(InvalidElement(msg.message(next), source).asTemplateSpan)
-            }
-          }
-        }
-      }
-      def invalid (msg: String): TemplateSpan = InvalidElement(msg, "@" + source).asTemplateSpan
-
-      applyDirective(Templates)(result, directives.get, createContext, s => DirectiveSpan(s), invalid, "template")
+      Templates.DirectiveInstance(directives.get(result.name), result, templateSpans, source)
     }
   }
 

@@ -17,6 +17,8 @@
 package laika.directive
 
 import laika.ast._
+import laika.parse.{Failure, Success}
+import laika.parse.directive.DirectiveParsers.{DirectiveContextBase, ParsedDirective, PartMap, Result}
 
 /** The id for a directive part.
   */
@@ -109,6 +111,43 @@ trait BuilderContext[E <: Element] {
       * successfully.
       */
     def optional: DirectivePart[Option[A]] = map (Some(_))
+
+  }
+
+  trait DirectiveInstanceBase {
+
+    def typeName: String
+
+    def parsedResult: ParsedDirective
+
+    def name: String = parsedResult.name
+
+    def directive: Option[Directive]
+
+    def createContext (parts: PartMap, cursor: DocumentCursor): DirectiveContext
+
+    def createInvalidElement (message: String): E
+
+    def resolve (cursor: DocumentCursor): E = {
+
+      def directiveOrMsg: Result[Directive] =
+        directive.toRight(Seq(s"No $typeName directive registered with name: $name"))
+
+      def partMap: Result[Map[Key, String]] = {
+        val dups = parsedResult.parts.groupBy(_.key).filterNot(_._2.tail.isEmpty).keySet
+        if (dups.isEmpty) Right(parsedResult.parts.map(p => (p.key, p.content)).toMap)
+        else Left(dups.map("Duplicate "+_.desc).toList)
+      }
+
+      val res = for {
+        dir   <- directiveOrMsg
+        parts <- partMap
+        res   <- dir.apply(createContext(parts, cursor))
+      } yield res
+
+      res.fold(messages => createInvalidElement("One or more errors processing directive '"
+        + name + "': " + messages.mkString(", ")), identity)
+    }
 
   }
 
@@ -380,6 +419,23 @@ object Spans extends BuilderContext[Span] {
     def apply (source: String): Seq[Span]
   }
 
+  case class DirectiveInstance (directive: Option[Directive],
+                                parsedResult: ParsedDirective,
+                                recursiveParser: String => List[Span],
+                                source: String,
+                                options: Options = NoOpt) extends SpanResolver with DirectiveInstanceBase {
+    type Self = DirectiveInstance
+    val typeName: String = "span"
+    def withOptions (options: Options): DirectiveInstance = copy(options = options)
+    def createInvalidElement (message: String): Span = InvalidElement(message, "@"+source).asSpan
+    def createContext (parts: PartMap, cursor: DocumentCursor): DirectiveContext = 
+      new DirectiveContextBase(parts, cursor) with DirectiveContext {
+        val parser = new Spans.Parser {
+          def apply (source: String): Seq[Span] = recursiveParser(source)
+        }
+    }
+  }
+  
 }
 
 /** The API for declaring directives that can be used
@@ -392,6 +448,25 @@ object Blocks extends BuilderContext[Block] {
     def parseInline (source: String): Seq[Span]
   }
 
+  case class DirectiveInstance (directive: Option[Directive],
+                                parsedResult: ParsedDirective,
+                                recursiveBlockParser: String => Seq[Block],
+                                recursiveSpanParser: String => Seq[Span],
+                                source: String,
+                                options: Options = NoOpt) extends BlockResolver with DirectiveInstanceBase {
+    type Self = DirectiveInstance
+    val typeName: String = "block"
+    def withOptions (options: Options): DirectiveInstance = copy(options = options)
+    def createInvalidElement (message: String): Block = InvalidElement(message, s"@$source").asBlock
+    def createContext (parts: PartMap, cursor: DocumentCursor): DirectiveContext =
+      new DirectiveContextBase(parts, cursor) with DirectiveContext {
+        val parser = new Blocks.Parser {
+          def apply (source: String): Seq[Block] = recursiveBlockParser(source)
+          def parseInline (source: String): Seq[Span] = recursiveSpanParser(source)
+        }
+      }
+  }
+
 }
 
 /** The API for declaring directives that can be used
@@ -401,6 +476,26 @@ object Templates extends BuilderContext[TemplateSpan] {
 
   trait Parser extends (String => Seq[TemplateSpan]) {
     def apply (source: String): Seq[TemplateSpan]
+  }
+
+  case class DirectiveInstance (directive: Option[Directive],
+                                parsedResult: ParsedDirective,
+                                recursiveParser: laika.parse.Parser[List[TemplateSpan]],
+                                source: String,
+                                options: Options = NoOpt) extends SpanResolver with TemplateSpan with DirectiveInstanceBase {
+    type Self = DirectiveInstance
+    val typeName: String = "template"
+    def withOptions (options: Options): DirectiveInstance = copy(options = options)
+    def createInvalidElement (message: String): TemplateSpan = InvalidElement(message, "@" + source).asTemplateSpan
+    def createContext (parts: PartMap, cursor: DocumentCursor): DirectiveContext =
+      new DirectiveContextBase(parts, cursor) with DirectiveContext {
+        val parser = new Templates.Parser {
+          def apply(source: String): Seq[TemplateSpan] = recursiveParser.parse(source) match {
+            case Success(spans, _)  => spans
+            case Failure(msg, next) => List(InvalidElement(msg.message(next), source).asTemplateSpan)
+          }
+        }
+      }
   }
 
 }

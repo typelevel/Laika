@@ -119,40 +119,6 @@ object DirectiveParsers {
     
   }
 
-  type Result[+A] = Either[Seq[String], A]
-  
-  def applyDirective [E <: Element] (builder: BuilderContext[E]) (
-      parseResult: ParsedDirective,
-      directives: String => Option[builder.Directive],
-      createContext: (PartMap, DocumentCursor) => builder.DirectiveContext,
-      createDirectiveInstance: (DocumentCursor => E) => E,
-      createInvalidElement: String => E,
-      directiveTypeDesc: String
-    ): E = {
-    
-    createDirectiveInstance { cursor =>
-
-      def directive: Result[builder.Directive] = directives(parseResult.name)
-        .toRight(Seq(s"No $directiveTypeDesc directive registered with name: ${parseResult.name}"))
-
-      def partMap: Result[Map[Key, String]] = {
-        val dups = parseResult.parts.groupBy(_.key).filterNot(_._2.tail.isEmpty).keySet
-        if (dups.isEmpty) Right(parseResult.parts.map(p => (p.key, p.content)).toMap)
-        else Left(dups.map("Duplicate "+_.desc).toList)
-      }
-      
-      val res = for {
-        dir   <- directive
-        parts <- partMap
-        res   <- dir.apply(createContext(parts, cursor))
-      } yield res
-      
-      res.fold(messages => createInvalidElement("One or more errors processing directive '"
-        + parseResult.name + "': " + messages.mkString(", ")), identity)
-    }
-    
-  }
-
   val nestedBraces: Parser[Text] = delimitedBy('}') ^^ (str => Text(s"{$str}"))
 
 }
@@ -163,12 +129,6 @@ object SpanDirectiveParsers {
 
   import DirectiveParsers._
   import laika.directive.Spans
-
-  case class DirectiveSpan (f: DocumentCursor => Span, options: Options = NoOpt) extends SpanResolver {
-    type Self = DirectiveSpan
-    def withOptions (options: Options): DirectiveSpan = copy(options = options)
-    def resolve (cursor: DocumentCursor) = f(cursor)
-  }
 
   val contextRef: SpanParserBuilder =
     SpanParser.forStartChar('{').standalone(reference(MarkupContextReference(_)))
@@ -182,19 +142,10 @@ object SpanDirectiveParsers {
 
     val contextRefOrNestedBraces = Map('{' -> (reference(MarkupContextReference(_)) | nestedBraces))
     val bodyContent = wsOrNl ~ '{' ~> (withSource(delimitedRecursiveSpans(delimitedBy('}'), contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
+    
     withRecursiveSpanParser(withSource(directiveParser(bodyContent, recParsers))) ^^ {
-      case (recParser, (result, source)) => // TODO - optimization - parsed spans might be cached for DirectiveContext (applies for the template parser, too)
-
-        def createContext (parts: PartMap, docCursor: DocumentCursor): Spans.DirectiveContext = {
-          new DirectiveContextBase(parts, docCursor) with Spans.DirectiveContext {
-            val parser = new Spans.Parser {
-              def apply (source: String) = recParser(source)
-            }
-          }
-        }
-        def invalid (msg: String) = InvalidElement(msg, "@"+source).asSpan
-
-        applyDirective(Spans)(result, directives.get, createContext, DirectiveSpan(_), invalid, "span")
+      case (recParser, (result, source)) => 
+        Spans.DirectiveInstance(directives.get(result.name), result, recParser, source)
     }
   }
 
@@ -207,12 +158,6 @@ object BlockDirectiveParsers {
   import DirectiveParsers._
   import laika.directive.Blocks
   import laika.parse.markup.BlockParsers._
-
-  case class DirectiveBlock (f: DocumentCursor => Block, options: Options = NoOpt) extends BlockResolver {
-    type Self = DirectiveBlock
-    def withOptions (options: Options): DirectiveBlock = copy(options = options)
-    def resolve (cursor: DocumentCursor) = f(cursor)
-  }
 
   def blockDirective (directives: Map[String, Blocks.Directive]): BlockParserBuilder =
     BlockParser.forStartChar('@').recursive(blockDirectiveParser(directives))
@@ -227,20 +172,8 @@ object BlockDirectiveParsers {
     }
     withRecursiveSpanParser(withRecursiveBlockParser(withSource(directiveParser(bodyContent, recParsers)))) ^^ {
       case (recSpanParser, (recBlockParser, (result, source))) =>
-
-        def createContext (parts: PartMap, docCursor: DocumentCursor): Blocks.DirectiveContext = {
-          new DirectiveContextBase(parts, docCursor) with Blocks.DirectiveContext {
-            val parser = new Blocks.Parser {
-              def apply (source: String): Seq[Block] = recBlockParser(source)
-              def parseInline (source: String): Seq[Span] = recSpanParser(source)
-            }
-          }
-        }
-        def invalid (msg: String) = InvalidElement(msg, s"@$source").asBlock
-
-        applyDirective(Blocks)(result, directives.get, createContext, DirectiveBlock(_), invalid, "block")
+        Blocks.DirectiveInstance(directives.get(result.name), result, recBlockParser, recSpanParser, source)
     }
   }
-    
 
 }
