@@ -148,6 +148,33 @@ class ExtensionParsers(recParsers: RecursiveParsers,
     optionalFields: Set[String] = Set.empty,
     hasBody: Boolean = false) extends DirectiveParserBuilder {
 
+    lazy val parser: Parser[Vector[Part]] = {
+      val reqArgs = (0 until requiredArgs).map(num => arg.map(Part(Key.Argument(1, num), _)))
+      val optArgs = (0 until optionalArgs).map(num => opt(arg).map(_.map(Part(Key.Argument(3, num), _))))
+
+      val reqArgsWithWS = if (requiredArgWithWS) Seq(argWithWS.map(Part(Key.Argument(2, 0), _))) else Nil
+      val optArgsWithWS = if (optionalArgWithWS) Seq(opt(argWithWS).map(_.map(Part(Key.Argument(4, 0), _)))) else Nil
+      
+      val allReqArgs = (reqArgs ++ reqArgsWithWS).foldLeft[Parser[Vector[Part]]](success(Vector())) {
+        case (acc, p) => (acc ~ p) ^^ { case parts ~ part => parts :+ part }
+      }
+      val allOptArgs = (optArgs ++ optArgsWithWS).foldLeft[Parser[Vector[Part]]](success(Vector())) {
+        case (acc, p) => (acc ~ p) ^^ { case parts ~ part => parts ++ part.toSeq }
+      }
+ 
+      val fields = if (requiredFields.nonEmpty || optionalFields.nonEmpty) directiveFieldList else success(Vector())
+      
+      val separator = 
+        if (requiredArgWithWS || requiredArgs > 0 || requiredFields.nonEmpty) contentSeparator 
+        else opt(contentSeparator)
+
+      val bodyWithSeparator = if (hasBody) (separator ~> bodyParser).map(res => Vector(Part(Key.Body, res))) else success(Vector())
+
+      (allReqArgs ~ allOptArgs ~ fields ~ bodyWithSeparator).map {
+        case parts1 ~ parts2 ~ parts3 ~ parts4 => parts1 ++ parts2 ++ parts3 ++ parts4
+      } 
+    }
+    
     def requiredArg (p: => Parser[String]): Parser[String] = p.withFailureMessage("missing required argument")
 
     val arg: Parser[String] = requiredArg((anyBut(' ','\n') min 1) <~ ws)
