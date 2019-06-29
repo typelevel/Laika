@@ -219,7 +219,7 @@ class ExtensionParsers(recParsers: RecursiveParsers,
     }
 
     val contentSeparator: Parser[Unit] =
-      (((lookBehind(1, '\n') | eol) ~ blankLine) ^^^ ()) | failure("blank line required to separate arguments and/or options from the body")
+      (((lookBehind(1, '\n') | eol) ~ blankLine) ^^^ (())) | failure("blank line required to separate arguments and/or options from the body")
 
     def argument (withWS: Boolean = false): (Key, DirectiveParserBuilder) =
       if (withWS) (Key.Argument(3, 0), copy(requiredArgWithWS = true))
