@@ -17,6 +17,7 @@
 package laika.rst.ext
 
 import laika.ast._
+import laika.directive.Key
 import laika.parse.markup.RecursiveParsers
 import laika.rst.bundle.RstExtension
 import laika.rst.ext.ExtensionParsers.Result
@@ -194,6 +195,40 @@ object Directives {
     def content [T](f: String => Either[String,T]): Result[T]
     
   }
+
+  /** API to implement by the actual directive parser.
+    * 
+    * This allows directive parts to specify the expected elements within
+    * the parsed directive. In contrast to Laika's directive syntax which 
+    * allows to have a single directive parser for any kind of directive implementation,
+    * the one for ReStructuredText has a separate parser for each directive depending
+    * on its configuration.
+    */
+  trait DirectiveParserBuilder {
+
+    def argument (withWS: Boolean = false): (Key, DirectiveParserBuilder)
+    def optArgument (withWS: Boolean = false): (Key, DirectiveParserBuilder)
+
+//    def spanArgument: (Key, DirectiveParserBuilder)
+//    def optSpanArgument: (Key, DirectiveParserBuilder)
+
+    def field (name: String): (Key, DirectiveParserBuilder)
+    def optField (name: String): (Key, DirectiveParserBuilder)
+
+//    def blockContent: Result[Seq[Block]]
+//    def spanContent: Result[Seq[Span]]
+//    def content [T](f: String => Either[String,T]): Result[T]
+
+    def body: (Key, DirectiveParserBuilder)
+  }
+
+  /** Represents one part of a directive (an attribute or a body element).
+    */
+  case class Part (key: Key, content: String)
+
+  /** Represents the parsed but unprocessed content of a directive.
+    */
+  case class ParsedDirective (name: String, parts: List[Part])
   
   /** Represents a single part (argument, field or body) of a directive.
    */
@@ -215,17 +250,17 @@ object Directives {
 
   /** Represents a single part (argument, field or body) of a directive.
     */
-  abstract class DirectivePartBuilder[+A] extends (DirectiveParser => (DirectiveParser, DirectivePart[A])) { self =>
+  abstract class DirectivePartBuilder[+A] extends (DirectiveParserBuilder => (DirectiveParserBuilder, DirectivePart[A])) { self =>
 
     def map [B](f: A => B): DirectivePartBuilder[B] = new DirectivePartBuilder[B] {
-      def apply (parser: DirectiveParser): (DirectiveParser, DirectivePart[B]) = {
+      def apply (parser: DirectiveParserBuilder): (DirectiveParserBuilder, DirectivePart[B]) = {
         val (newParser, part) = self.apply(parser)
         (newParser, part.map(f))
       }
     }
 
     def ~ [B] (other: DirectivePartBuilder[B]): DirectivePartBuilder[A ~ B] = new DirectivePartBuilder[A ~ B] {
-      def apply (parser: DirectiveParser): (DirectiveParser, DirectivePart[A ~ B]) = {
+      def apply (parser: DirectiveParserBuilder): (DirectiveParserBuilder, DirectivePart[A ~ B]) = {
         val (parserA, partA) = self.apply(parser)
         val (parserB, partB) = other.apply(parserA)
         (parserB, partA ~ partB)
@@ -237,13 +272,11 @@ object Directives {
   sealed trait Key
   
   object Key {
-    case class Argument (position: Int) extends Key
+    case class Argument (group: Int, position: Int) extends Key
     case class Field (name: String) extends Key
     case object Body extends Key
   }
   
-  sealed trait DirectiveParserBuilder
-
   /** The public user API for specifying the required and optional parts of a directive
    *  (arguments, fields or body) together with optional converter/validator functions.
    */
@@ -254,7 +287,7 @@ object Directives {
     }
 
     private def part2 [T](f: DirectiveParser => Result[T]): DirectivePartBuilder[T] = new DirectivePartBuilder[T] {
-      def apply (p: DirectiveParser): (DirectiveParser, DirectivePart[T]) = ???
+      def apply (p: DirectiveParserBuilder): (DirectiveParserBuilder, DirectivePart[T]) = ???
     }
     
     /*

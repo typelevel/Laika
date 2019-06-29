@@ -87,7 +87,7 @@ class ExtensionParsers(recParsers: RecursiveParsers,
     val nameParser = simpleRefName <~ "::" ~ ws
     
     def directiveParser [E] (directive: DirectivePart[E]): Parser[E] = {
-      val parserBuilder = new DirectiveParserBuilder
+      val parserBuilder = new LegacyDirectiveParserBuilder
       val result = directive(parserBuilder)
       parserBuilder.parser ^^^ {
         result.get
@@ -122,7 +122,7 @@ class ExtensionParsers(recParsers: RecursiveParsers,
     val nameParser = "role::" ~ ws ~> simpleRefName ~ opt('(' ~> simpleRefName <~ ')')
     
     def directiveParser (name: String)(role: RoleDirectivePart[String => Span]): Parser[Block] = {
-      val delegate = new DirectiveParserBuilder
+      val delegate = new LegacyDirectiveParserBuilder
       val parserBuilder = new RoleDirectiveParserBuilder(delegate)
       val result = role(parserBuilder)
       delegate.parser ^^^ {
@@ -139,7 +139,80 @@ class ExtensionParsers(recParsers: RecursiveParsers,
     
   }
   
-  private class DirectiveParserBuilder extends DirectiveParser {
+  private case class DefaultDirectiveParserBuilder (
+    requiredArgs: Int = 0,
+    requiredArgWithWS: Boolean = false,
+    optionalArgs: Int = 0,
+    optionalArgWithWS: Boolean = false,
+    requiredFields: Set[String] = Set.empty,
+    optionalFields: Set[String] = Set.empty,
+    hasBody: Boolean = false) extends DirectiveParserBuilder {
+
+    def requiredArg (p: => Parser[String]): Parser[String] = p.withFailureMessage("missing required argument")
+
+    val arg: Parser[String] = requiredArg((anyBut(' ','\n') min 1) <~ ws)
+
+    val argWithWS: Parser[String] = {
+      val p = indentedBlock(linePredicate = not(":"), endsOnBlankLine = true) ^^? { block =>
+        val text = block.trim
+        if (text.nonEmpty) Right(text) else Left("missing required argument")
+      }
+      requiredArg(p)
+    }
+
+    val bodyParser: Parser[String] = lookBehind(1, '\n') ~> indentedBlock(firstLineIndented = true) | indentedBlock()
+
+    // TODO - some duplicate logic with original fieldList parser
+    lazy val directiveFieldList: Parser[Vector[Part]] = {
+
+      val name = ':' ~> escapedUntil(':') <~ (lookAhead(eol) | ' ')
+
+      val item = (ws min 1) >> { firstIndent =>
+        (name ~ indentedBlock(firstIndent.length + 1)) ^^
+          { case name ~ block =>
+            (name, block.trim)
+          }}
+
+      ((opt(wsEol) ~> (item +)) | success(Nil)) ^^? { fields =>
+
+        // TODO - 0.12 - might defer validation to a later step
+        
+        val parsed = fields.map(_._1).toSet
+
+        val unknown = parsed.diff(requiredFields).diff(optionalFields)
+        val missing = requiredFields.diff(parsed)
+        
+        def parts: Vector[Part] = fields.map { case (name, value) => Part(Key.Field(name), value) }.toVector
+
+        val errors = 
+          (if (unknown.nonEmpty) Seq(unknown.mkString("unknown options: ",", ","")) else Nil) ++ 
+          (if (missing.nonEmpty) Seq(missing.mkString("missing required options: ",", ","")) else Nil)
+        Either.cond(errors.isEmpty, parts, errors mkString "; ")
+      }
+    }
+
+    val contentSeparator: Parser[Unit] =
+      (((lookBehind(1, '\n') | eol) ~ blankLine) ^^^ ()) | failure("blank line required to separate arguments and/or options from the body")
+
+    def argument (withWS: Boolean = false): (Key, DirectiveParserBuilder) =
+      if (withWS) (Key.Argument(3, 0), copy(requiredArgWithWS = true))
+      else (Key.Argument(1, requiredArgs), copy(requiredArgs = requiredArgs + 1))
+
+    def optArgument (withWS: Boolean = false): (Key, DirectiveParserBuilder) =
+      if (withWS) (Key.Argument(4, 0), copy(optionalArgWithWS = true))
+      else (Key.Argument(2, optionalArgs), copy(optionalArgs = optionalArgs + 1))
+
+    def field (name: String): (Key, DirectiveParserBuilder) = 
+      (Key.Field(name), copy(requiredFields = requiredFields + name))
+
+    def optField (name: String): (Key, DirectiveParserBuilder) = 
+      (Key.Field(name), copy(optionalFields = optionalFields + name))
+
+    def body: (Key, DirectiveParserBuilder) =
+      (Key.Body, copy(hasBody = true))
+  }
+  
+  private class LegacyDirectiveParserBuilder extends DirectiveParser {
 
     val skip: Parser[Any] = success(())
     var requiredArgs: Parser[Any] = skip
