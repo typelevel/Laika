@@ -204,7 +204,7 @@ object Directives {
     }
 
     def ~ [B] (other: DirectivePart[B]): DirectivePart[A ~ B] = new DirectivePart[A ~ B] {
-      def apply (p: DirectiveParser) = {
+      def apply (p: DirectiveParser): Result[A ~ B] = {
         val a = self.apply(p)
         val b = other.apply(p)
         new Result(new ~(a.get, b.get))
@@ -212,6 +212,37 @@ object Directives {
     }
     
   }
+
+  /** Represents a single part (argument, field or body) of a directive.
+    */
+  abstract class DirectivePartBuilder[+A] extends (DirectiveParser => (DirectiveParser, DirectivePart[A])) { self =>
+
+    def map [B](f: A => B): DirectivePartBuilder[B] = new DirectivePartBuilder[B] {
+      def apply (parser: DirectiveParser): (DirectiveParser, DirectivePart[B]) = {
+        val (newParser, part) = self.apply(parser)
+        (newParser, part.map(f))
+      }
+    }
+
+    def ~ [B] (other: DirectivePartBuilder[B]): DirectivePartBuilder[A ~ B] = new DirectivePartBuilder[A ~ B] {
+      def apply (parser: DirectiveParser): (DirectiveParser, DirectivePart[A ~ B]) = {
+        val (parserA, partA) = self.apply(parser)
+        val (parserB, partB) = other.apply(parserA)
+        (parserB, partA ~ partB)
+      }
+    }
+    
+  }
+  
+  sealed trait Key
+  
+  object Key {
+    case class Argument (position: Int) extends Key
+    case class Field (name: String) extends Key
+    case object Body extends Key
+  }
+  
+  sealed trait DirectiveParserBuilder
 
   /** The public user API for specifying the required and optional parts of a directive
    *  (arguments, fields or body) together with optional converter/validator functions.
@@ -221,6 +252,18 @@ object Directives {
     private def part [T](f: DirectiveParser => Result[T]): DirectivePart[T] = new DirectivePart[T] {
       def apply (p: DirectiveParser) = f(p)
     }
+
+    private def part2 [T](f: DirectiveParser => Result[T]): DirectivePartBuilder[T] = new DirectivePartBuilder[T] {
+      def apply (p: DirectiveParser): (DirectiveParser, DirectivePart[T]) = ???
+    }
+    
+    /*
+    - arg, opt or req, with WS or without, converted (2)
+    - span arg, opt or req (2)
+    - named field, opt or req, converted (2)
+    
+    - body, raw, as spans, as blocks (3)
+     */
     
     /** Specifies a required argument. 
      * 
@@ -285,11 +328,11 @@ object Directives {
     
   }
 
-  type DirectivePartBuilder[E] = RecursiveParsers => DirectivePart[E]
+  type DirectiveBuilder[E] = RecursiveParsers => DirectivePart[E]
 
   /** Represents a single directive implementation.
    */
-  class Directive [E <: Element] private[Directives](val name: String, val part: DirectivePartBuilder[E])
+  class Directive [E <: Element] private[Directives](val name: String, val part: DirectiveBuilder[E])
     extends RstExtension[DirectivePart[E]]
 
   /** API entry point for setting up a span directive that can be used
@@ -318,7 +361,7 @@ object Directives {
      *  @param part a function returning the implementation of the directive that can be created by using the combinators of the `Parts` object
      *  @return a new directive that can be registered with the reStructuredText parser
      */
-    def recursive (name: String)(part: DirectivePartBuilder[Span]): Directive[Span] = new Directive(name.toLowerCase, part)
+    def recursive (name: String)(part: DirectiveBuilder[Span]): Directive[Span] = new Directive(name.toLowerCase, part)
     
   }
   
@@ -347,7 +390,7 @@ object Directives {
      *  @param part a function returning the implementation of the directive that can be created by using the combinators of the `Parts` object
      *  @return a new directive that can be registered with the reStructuredText parser
      */
-    def recursive (name: String)(part: DirectivePartBuilder[Block]): Directive[Block] = new Directive(name.toLowerCase, part)
+    def recursive (name: String)(part: DirectiveBuilder[Block]): Directive[Block] = new Directive(name.toLowerCase, part)
     
   }
 
