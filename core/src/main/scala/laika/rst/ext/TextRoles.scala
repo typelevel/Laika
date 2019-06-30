@@ -17,8 +17,10 @@
 package laika.rst.ext
 
 import laika.ast._
+import laika.parse.Parser
 import laika.parse.markup.RecursiveParsers
 import laika.rst.bundle.RstExtension
+import laika.rst.ext.Directives._
 import laika.rst.ext.ExtensionParsers.Result
 
 /** API for creating interpreted text roles, the extension mechanism for inline elements of reStructuredText.
@@ -128,39 +130,66 @@ import laika.rst.ext.ExtensionParsers.Result
  */
 object TextRoles {
 
-  
-  /** API to implement by the actual role directive parser.
-   *  The methods of this trait correspond to the methods of the `Parts` object,
-   *  only differing in return type. 
-   */
-  trait RoleDirectiveParser {
-      
-    def field [T](name: String, convert: String => Either[String,T]): Result[T]
-    
-    def optField [T](name: String, convert: String => Either[String,T]): Result[Option[T]]
-    
-    def blockContent: Result[Seq[Block]]
+  /** API to implement by the actual directive parser.
+    *
+    * This allows directive parts to specify the expected elements within
+    * the parsed directive. In contrast to Laika's directive syntax which 
+    * allows to have a single directive parser for any kind of directive implementation,
+    * the one for ReStructuredText has a separate parser for each directive depending
+    * on its configuration.
+    * 
+    * The API for text roles is a subset of the API for block and span directives.
+    */
+  trait RoleDirectiveParserBuilder {
 
-    def spanContent: Result[Seq[Span]]
-    
-    def content [T](f: String => Either[String,T]): Result[T]
-    
+    def parser: Parser[Vector[Part]]
+
+    def field (name: String): (Key, RoleDirectiveParserBuilder)
+
+    def optField (name: String): (Key, RoleDirectiveParserBuilder)
+
+    def body: (Key, RoleDirectiveParserBuilder)
+
+  }
+
+  /** Represents a single part (argument, field or body) of a text role.
+    */
+  abstract class RoleDirectivePartBuilder[+A] extends (RoleDirectiveParserBuilder => (RoleDirectiveParserBuilder, RoleDirectivePart[A])) { self =>
+
+    def map [B](f: A => B): RoleDirectivePartBuilder[B] = new RoleDirectivePartBuilder[B] {
+      def apply (parser: RoleDirectiveParserBuilder): (RoleDirectiveParserBuilder, RoleDirectivePart[B]) = {
+        val (newParser, part) = self.apply(parser)
+        (newParser, part.map(f))
+      }
+    }
+
+    def ~ [B] (other: RoleDirectivePartBuilder[B]): RoleDirectivePartBuilder[A ~ B] = new RoleDirectivePartBuilder[A ~ B] {
+      def apply (parser: RoleDirectiveParserBuilder): (RoleDirectiveParserBuilder, RoleDirectivePart[A ~ B]) = {
+        val (parserA, partA) = self.apply(parser)
+        val (parserB, partB) = other.apply(parserA)
+        (parserB, partA ~ partB)
+      }
+    }
+
   }
   
   /** Represents a single part (field or body) of a directive.
    */
-  abstract class RoleDirectivePart[+A] extends (RoleDirectiveParser => Result[A]) { self =>
+  abstract class RoleDirectivePart[+A] extends (ParsedDirective => Result[A]) { self =>
     
     def map [B](f: A => B): RoleDirectivePart[B] = new RoleDirectivePart[B] { 
-      def apply (p: RoleDirectiveParser) = self(p) map f 
+      def apply (p: ParsedDirective) = self(p) map f 
+    }
+
+    def flatMap [B](f: A => Result[B]): RoleDirectivePart[B] = new RoleDirectivePart[B] {
+      def apply (p: ParsedDirective) = self(p) flatMap f
     }
     
     def ~ [B] (other: RoleDirectivePart[B]): RoleDirectivePart[A~B] = new RoleDirectivePart[A~B] {
-      def apply (p: RoleDirectiveParser) = {
-        val a = self.apply(p)
-        val b = other.apply(p)
-        new Result(new ~(a.get,b.get))
-      }
+      def apply (p: ParsedDirective) = for {
+        a <- self.apply(p)
+        b <- other.apply(p)
+      } yield new ~(a, b)
     }
     
   }
@@ -170,8 +199,33 @@ object TextRoles {
    */
   object Parts {
     
-    private def part [T](f: RoleDirectiveParser => Result[T]): RoleDirectivePart[T] = new RoleDirectivePart[T] {
-      def apply (p: RoleDirectiveParser) = f(p)
+    import Directives.Converters._
+    
+    private def requiredPart [T] (build: RoleDirectiveParserBuilder => (Key, RoleDirectiveParserBuilder),
+                                  converter: (ParsedDirective, String) => Either[String, T]) = new RoleDirectivePartBuilder[T] {
+      val base = part(build, converter)
+      def apply (builder: RoleDirectiveParserBuilder): (RoleDirectiveParserBuilder, RoleDirectivePart[T]) = {
+        val (newBuilder, basePart) = base(builder)
+        val reqPart = basePart.flatMap(_.toRight("Missing directive part"))
+        (newBuilder, reqPart)
+      }
+    }
+
+    private def part [T] (build: RoleDirectiveParserBuilder => (Key, RoleDirectiveParserBuilder),
+                          converter: (ParsedDirective, String) => Either[String, T]) = new RoleDirectivePartBuilder[Option[T]] {
+
+      def apply (builder: RoleDirectiveParserBuilder): (RoleDirectiveParserBuilder, RoleDirectivePart[Option[T]]) = {
+        val (key, newBuilder) = build(builder)
+        val part = new RoleDirectivePart[Option[T]] {
+          def apply (parsed: ParsedDirective): Result[Option[T]] = parsed.part(key).map(converter(parsed, _)) match {
+            case None => Right(None)
+            case Some(Left(error)) => Left(error)
+            case Some(Right(result)) => Right(Some(result))
+          }
+        }
+        (newBuilder, part)
+      }
+
     }
     
     /** Specifies a required named field. 
@@ -181,8 +235,8 @@ object TextRoles {
      *  @return a directive part that can be combined with further parts with the `~` operator
      */
     def field [T](name: String, 
-                  convert: String => Either[String,T] = { s:String => Right(s) }): RoleDirectivePart[T] = 
-                    part(_.field(name, convert))
+                  convert: String => Either[String,T] = { s:String => Right(s) }): RoleDirectivePartBuilder[T] = 
+                    requiredPart(_.field(name), simple(convert))
     
     /** Specifies an optional named field. 
      * 
@@ -192,33 +246,33 @@ object TextRoles {
      *  @return a directive part that can be combined with further parts with the `~` operator
      */
     def optField [T](name: String, 
-                     convert: String => Either[String,T] = { s:String => Right(s) }): RoleDirectivePart[Option[T]] = 
-                     part(_.optField(name, convert))
+                     convert: String => Either[String,T] = { s:String => Right(s) }): RoleDirectivePartBuilder[Option[T]] = 
+                     part(_.optField(name), simple(convert))
     
     /** Specifies standard block-level content as the body of the directive.
      * 
      *  @return a directive part that can be combined with further parts with the `~` operator
      */                 
-    def blockContent: RoleDirectivePart[Seq[Block]] = part(_.blockContent)
+    def blockContent: RoleDirectivePartBuilder[Seq[Block]] = requiredPart(_.body, blocks)
     
-    def spanContent: RoleDirectivePart[Seq[Span]] = part(_.spanContent)
+    def spanContent: RoleDirectivePartBuilder[Seq[Span]] = requiredPart(_.body, spans)
     
     /** Specifies that the body of the directive markup should get passed to the conversion function as a raw string.
      * 
      *  @param f the function to use for converting and validating the parsed value
      *  @return a directive part that can be combined with further parts with the `~` operator
      */
-    def content [T](f: String => Either[String,T]): RoleDirectivePart[T] = part(_.content(f))
+    def content [T](f: String => Either[String,T]): RoleDirectivePartBuilder[T] = requiredPart(_.body, simple(f))
     
   }
 
-  type RoleDirectivePartBuilder[E] = RecursiveParsers => RoleDirectivePart[E]
+  //type RoleDirectivePartBuilder[E] = RecursiveParsers => RoleDirectivePart[E]
 
   /** Represents a single text role implementation.
    */
   class TextRole private (val name: String,
                           val default: String => Span,
-                          val part: RoleDirectivePartBuilder[String => Span]) extends RstExtension[RoleDirectivePart[String => Span]]
+                          val part: RecursiveParsers => RoleDirectivePartBuilder[String => Span]) extends RstExtension[RoleDirectivePartBuilder[String => Span]]
 
   /** API entry point for setting up a text role that.
    */
@@ -242,7 +296,7 @@ object TextRoles {
      *  value) and the actual text of the interpreted text span
      *  @return a new text role that can be registered with the reStructuredText parser
      */
-    def apply [T] (name: String, default: T)(part: RoleDirectivePart[T])(roleF: (T, String) => Span): TextRole = 
+    def apply [T] (name: String, default: T)(part: RoleDirectivePartBuilder[T])(roleF: (T, String) => Span): TextRole = 
       new TextRole(name.toLowerCase, str => roleF(default, str), _ => part map (res => (str: String) => roleF(res, str)))
     
     /** Creates a new text role that can be referred to by interpreted text with the specified name.
@@ -268,7 +322,7 @@ object TextRoles {
      *  value) and the actual text of the interpreted text span
      *  @return a new text role that can be registered with the reStructuredText parser
      */
-    def recursive [T] (name: String, default: T)(part: RoleDirectivePartBuilder[T])(roleF: (T, String) => Span): TextRole =
+    def recursive [T] (name: String, default: T)(part: RecursiveParsers => RoleDirectivePartBuilder[T])(roleF: (T, String) => Span): TextRole =
       new TextRole(name.toLowerCase, str => roleF(default, str), parsers => part(parsers) map (res => (str: String) => roleF(res, str)))
     
   }

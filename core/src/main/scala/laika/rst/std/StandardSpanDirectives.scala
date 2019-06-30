@@ -45,17 +45,17 @@ class StandardSpanDirectives {
   /** The replace directive,
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#replacement-text]] for details.
    */
-  lazy val replace: DirectivePart[Span] = spanContent map (SpanSequence(_)) 
+  lazy val replace: DirectivePartBuilder[Span] = spanContent map (SpanSequence(_)) 
   
   /** The unicode directive, 
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#unicode-character-codes]] for details.
    */
-  lazy val unicode: DirectivePart[Span] = argument(StandardDirectiveParsers.unicode, withWS = true) map (Text(_))
+  lazy val unicode: DirectivePartBuilder[Span] = argument(StandardDirectiveParsers.unicode, withWS = true) map (Text(_))
   
   /** The date directive, 
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#date]] for details.
    */
-  lazy val date: DirectivePart[Span] = {
+  lazy val date: DirectivePartBuilder[Span] = {
     optArgument(withWS = true) map { pattern => 
       Text(new SimpleDateFormat(pattern.getOrElse("yyyy-MM-dd")).format(new Date))
     } 

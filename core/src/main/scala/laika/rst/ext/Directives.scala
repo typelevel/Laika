@@ -17,7 +17,7 @@
 package laika.rst.ext
 
 import laika.ast._
-import laika.directive.Key
+import laika.parse.Parser
 import laika.parse.markup.RecursiveParsers
 import laika.rst.bundle.RstExtension
 import laika.rst.ext.ExtensionParsers.Result
@@ -168,34 +168,6 @@ import laika.rst.ext.ExtensionParsers.Result
  */
 object Directives {
 
-  
-  /** API to implement by the actual directive parser.
-   *  The methods of this trait correspond to the methods of the `Parts` object,
-   *  only differing in return type. 
-   */
-  trait DirectiveParser {
-      
-    def argument [T](convert: String => Either[String,T] = {s:String => Right(s)}, 
-                     withWS: Boolean = false): Result[T]
-
-    def spanArgument: Result[Seq[Span]]
-    def optSpanArgument: Result[Option[Seq[Span]]]
-
-    def optArgument [T](convert: String => Either[String,T] = {s:String => Right(s)}, 
-                     withWS: Boolean = false): Result[Option[T]]
-    
-    def field [T](name: String, convert: String => Either[String,T]): Result[T]
-    
-    def optField [T](name: String, convert: String => Either[String,T]): Result[Option[T]]
-    
-    def blockContent: Result[Seq[Block]]
-
-    def spanContent: Result[Seq[Span]]
-    
-    def content [T](f: String => Either[String,T]): Result[T]
-    
-  }
-
   /** API to implement by the actual directive parser.
     * 
     * This allows directive parts to specify the expected elements within
@@ -205,20 +177,13 @@ object Directives {
     * on its configuration.
     */
   trait DirectiveParserBuilder {
+    
+    def parser: Parser[Vector[Part]]
 
     def argument (withWS: Boolean = false): (Key, DirectiveParserBuilder)
     def optArgument (withWS: Boolean = false): (Key, DirectiveParserBuilder)
-
-//    def spanArgument: (Key, DirectiveParserBuilder)
-//    def optSpanArgument: (Key, DirectiveParserBuilder)
-
     def field (name: String): (Key, DirectiveParserBuilder)
     def optField (name: String): (Key, DirectiveParserBuilder)
-
-//    def blockContent: Result[Seq[Block]]
-//    def spanContent: Result[Seq[Span]]
-//    def content [T](f: String => Either[String,T]): Result[T]
-
     def body: (Key, DirectiveParserBuilder)
   }
 
@@ -226,24 +191,23 @@ object Directives {
     */
   case class Part (key: Key, content: String)
 
-  /** Represents the parsed but unprocessed content of a directive.
-    */
-  case class ParsedDirective (name: String, parts: List[Part])
-  
   /** Represents a single part (argument, field or body) of a directive.
    */
-  abstract class DirectivePart[+A] extends (DirectiveParser => Result[A]) { self =>
+  abstract class DirectivePart[+A] extends (ParsedDirective => Result[A]) { self =>
     
     def map [B](f: A => B): DirectivePart[B] = new DirectivePart[B] { 
-      def apply (p: DirectiveParser) = self(p) map f 
+      def apply (p: ParsedDirective) = self(p) map f 
+    }
+
+    def flatMap [B](f: A => Result[B]): DirectivePart[B] = new DirectivePart[B] {
+      def apply (p: ParsedDirective) = self(p) flatMap f
     }
 
     def ~ [B] (other: DirectivePart[B]): DirectivePart[A ~ B] = new DirectivePart[A ~ B] {
-      def apply (p: DirectiveParser): Result[A ~ B] = {
-        val a = self.apply(p)
-        val b = other.apply(p)
-        new Result(new ~(a.get, b.get))
-      }
+      def apply (p: ParsedDirective): Result[A ~ B] = for {
+        a <- self.apply(p)
+        b <- other.apply(p)
+      } yield new ~(a, b)
     }
     
   }
@@ -276,27 +240,61 @@ object Directives {
     case class Field (name: String) extends Key
     case object Body extends Key
   }
+
+  /** Represents the parsed but unprocessed content of a directive.
+    */
+  case class ParsedDirective (parts: Seq[Part],
+                              recursiveBlocks: String => Result[Seq[Block]],
+                              recursiveSpans: String => Result[Seq[Span]]) {
+    def part (key: Key): Option[String] = parts.find(_.key == key).map(_.content)
+  }
+
+  /** Provides functions for internal use in the implementation of directive
+    * combinators to convert the string value obtained from a directive 
+    * attribute or body.
+    */
+  object Converters {
+    def simple[T] (f: String => Either[String, T]): (ParsedDirective, String) => Either[String, T] = 
+      (_, value) => f(value)
+    def spans: (ParsedDirective, String) => Either[String, Seq[Span]] =
+      (parsed, value) => parsed.recursiveSpans(value)
+    def blocks: (ParsedDirective, String) => Either[String, Seq[Block]] =
+      (parsed, value) => parsed.recursiveBlocks(value)
+  }
   
   /** The public user API for specifying the required and optional parts of a directive
    *  (arguments, fields or body) together with optional converter/validator functions.
    */
   object Parts {
     
-    private def part [T](f: DirectiveParser => Result[T]): DirectivePart[T] = new DirectivePart[T] {
-      def apply (p: DirectiveParser) = f(p)
+    import Converters._
+    
+    private def requiredPart [T] (build: DirectiveParserBuilder => (Key, DirectiveParserBuilder),
+                             converter: (ParsedDirective, String) => Either[String, T]) = new DirectivePartBuilder[T] {
+      val base = part(build, converter)
+      def apply (builder: DirectiveParserBuilder): (DirectiveParserBuilder, DirectivePart[T]) = {
+        val (newBuilder, basePart) = base(builder)
+        val reqPart = basePart.flatMap(_.toRight("Missing directive part"))
+        (newBuilder, reqPart)
+      }
     }
 
-    private def part2 [T](f: DirectiveParser => Result[T]): DirectivePartBuilder[T] = new DirectivePartBuilder[T] {
-      def apply (p: DirectiveParserBuilder): (DirectiveParserBuilder, DirectivePart[T]) = ???
+    private def part [T] (build: DirectiveParserBuilder => (Key, DirectiveParserBuilder), 
+                          converter: (ParsedDirective, String) => Either[String, T]) = new DirectivePartBuilder[Option[T]] {
+
+      def apply (builder: DirectiveParserBuilder): (DirectiveParserBuilder, DirectivePart[Option[T]]) = {
+        val (key, newBuilder) = build(builder)
+        val part = new DirectivePart[Option[T]] {
+          def apply (parsed: ParsedDirective): Result[Option[T]] = parsed.part(key).map(converter(parsed, _)) match {
+            case None => Right(None)
+            case Some(Left(error)) => Left(error)
+            case Some(Right(result)) => Right(Some(result))
+          }
+        }
+        (newBuilder, part)
+      }
+
     }
-    
-    /*
-    - arg, opt or req, with WS or without, converted (2)
-    - span arg, opt or req (2)
-    - named field, opt or req, converted (2)
-    
-    - body, raw, as spans, as blocks (3)
-     */
     
     /** Specifies a required argument. 
      * 
@@ -306,7 +304,7 @@ object Directives {
      *  @return a directive part that can be combined with further parts with the `~` operator
      */
     def argument [T](convert: String => Either[String,T] = { s:String => Right(s) }, 
-                     withWS: Boolean = false): DirectivePart[T] = part(_.argument(convert, withWS)) 
+                     withWS: Boolean = false): DirectivePartBuilder[T] = requiredPart(_.argument(withWS), simple(convert)) 
       
     /** Specifies an optional argument. 
      * 
@@ -317,7 +315,7 @@ object Directives {
      *  @return a directive part that can be combined with further parts with the `~` operator
      */
     def optArgument [T](convert: String => Either[String,T] = { s:String => Right(s) }, 
-                        withWS: Boolean = false): DirectivePart[Option[T]] = part(_.optArgument(convert, withWS)) 
+                        withWS: Boolean = false): DirectivePartBuilder[Option[T]] = part(_.optArgument(withWS), simple(convert)) 
 
     /** Specifies a required named field. 
      * 
@@ -326,8 +324,8 @@ object Directives {
      *  @return a directive part that can be combined with further parts with the `~` operator
      */
     def field [T](name: String, 
-                  convert: String => Either[String,T] = { s:String => Right(s) }): DirectivePart[T] = 
-                    part(_.field(name, convert))
+                  convert: String => Either[String,T] = { s:String => Right(s) }): DirectivePartBuilder[T] =
+      requiredPart(_.field(name), simple(convert))
     
     /** Specifies an optional named field. 
      * 
@@ -337,36 +335,34 @@ object Directives {
      *  @return a directive part that can be combined with further parts with the `~` operator
      */
     def optField [T](name: String, 
-                     convert: String => Either[String,T] = { s:String => Right(s) }): DirectivePart[Option[T]] = 
-                     part(_.optField(name, convert))
+                     convert: String => Either[String,T] = { s:String => Right(s) }): DirectivePartBuilder[Option[T]] = 
+                     part(_.optField(name), simple(convert))
     
     /** Specifies standard block-level content as the body of the directive.
      * 
      *  @return a directive part that can be combined with further parts with the `~` operator
      */
-    def blockContent: DirectivePart[Seq[Block]] = part(_.blockContent)
+    def blockContent: DirectivePartBuilder[Seq[Block]] = requiredPart(_.body, blocks)
 
-    def spanContent: DirectivePart[Seq[Span]] = part(_.spanContent)
+    def spanContent: DirectivePartBuilder[Seq[Span]] = requiredPart(_.body, spans)
 
-    def spanArgument: DirectivePart[Seq[Span]] = part(_.spanArgument)
+    def spanArgument: DirectivePartBuilder[Seq[Span]] = requiredPart(_.argument(withWS = true), spans)
 
-    def optSpanArgument: DirectivePart[Option[Seq[Span]]] = part(_.optSpanArgument)
+    def optSpanArgument: DirectivePartBuilder[Option[Seq[Span]]] = part(_.optArgument(withWS = true), spans)
     
     /** Specifies that the body of the directive markup should get passed to the conversion function as a raw string.
      * 
      *  @param f the function to use for converting and validating the parsed value
      *  @return a directive part that can be combined with further parts with the `~` operator
      */
-    def content [T](f: String => Either[String,T]): DirectivePart[T] = part(_.content(f))
+    def content [T](f: String => Either[String,T]): DirectivePartBuilder[T] = requiredPart(_.body, simple(f))
     
   }
 
-  type DirectiveBuilder[E] = RecursiveParsers => DirectivePart[E]
-
   /** Represents a single directive implementation.
    */
-  class Directive [E <: Element] private[Directives](val name: String, val part: DirectiveBuilder[E])
-    extends RstExtension[DirectivePart[E]]
+  class Directive [E <: Element] private[Directives](val name: String, val part: RecursiveParsers => DirectivePartBuilder[E])
+    extends RstExtension[DirectivePartBuilder[E]]
 
   /** API entry point for setting up a span directive that can be used
    *  in substitution definitions.
@@ -381,7 +377,7 @@ object Directives {
      *  @param part the implementation of the directive that can be created by using the combinators of the `Parts` object
      *  @return a new directive that can be registered with the reStructuredText parser
      */
-    def apply (name: String)(part: DirectivePart[Span]): Directive[Span] = new Directive(name.toLowerCase, _ => part)
+    def apply (name: String)(part: DirectivePartBuilder[Span]): Directive[Span] = new Directive(name.toLowerCase, _ => part)
     
     /** Creates a new directive with the specified name and implementation.
      *  The `DirectivePart` can be created by using the methods of the `Parts`
@@ -394,7 +390,7 @@ object Directives {
      *  @param part a function returning the implementation of the directive that can be created by using the combinators of the `Parts` object
      *  @return a new directive that can be registered with the reStructuredText parser
      */
-    def recursive (name: String)(part: DirectiveBuilder[Span]): Directive[Span] = new Directive(name.toLowerCase, part)
+    def recursive (name: String)(part: RecursiveParsers => DirectivePartBuilder[Span]): Directive[Span] = new Directive(name.toLowerCase, part)
     
   }
   
@@ -410,7 +406,7 @@ object Directives {
      *  @param part the implementation of the directive that can be created by using the combinators of the `Parts` object
      *  @return a new directive that can be registered with the reStructuredText parser
      */
-    def apply (name: String)(part: DirectivePart[Block]): Directive[Block] = new Directive(name.toLowerCase, _ => part)
+    def apply (name: String)(part: DirectivePartBuilder[Block]): Directive[Block] = new Directive(name.toLowerCase, _ => part)
     
     /** Creates a new directive with the specified name and implementation.
      *  The `DirectivePart` can be created by using the methods of the `Parts`
@@ -423,7 +419,7 @@ object Directives {
      *  @param part a function returning the implementation of the directive that can be created by using the combinators of the `Parts` object
      *  @return a new directive that can be registered with the reStructuredText parser
      */
-    def recursive (name: String)(part: DirectiveBuilder[Block]): Directive[Block] = new Directive(name.toLowerCase, part)
+    def recursive (name: String)(part: RecursiveParsers => DirectivePartBuilder[Block]): Directive[Block] = new Directive(name.toLowerCase, part)
     
   }
 

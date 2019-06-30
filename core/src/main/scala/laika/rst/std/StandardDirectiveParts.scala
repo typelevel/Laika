@@ -19,7 +19,7 @@ package laika.rst.std
 import laika.ast._
 import laika.parse.markup.RecursiveParsers
 import laika.parse.text.TextParsers
-import laika.rst.ext.Directives.DirectivePart
+import laika.rst.ext.Directives.{DirectivePart, DirectivePartBuilder}
 import laika.rst.ext.Directives.Parts._
 
 /**
@@ -30,16 +30,16 @@ object StandardDirectiveParts {
 
   /** The name option which is supported by almost all reStructuredText directives.
     */
-  val nameOpt: DirectivePart[Option[String]] = optField("name")
+  val nameOpt: DirectivePartBuilder[Option[String]] = optField("name")
 
   /** The class option which is supported by almost all reStructuredText directives.
     */
-  val classOpt: DirectivePart[Option[String]] = optField("class")
+  val classOpt: DirectivePartBuilder[Option[String]] = optField("class")
 
   /** The standard class and name options supported by most directives,
     *  combined in the result into an Options instance.
     */
-  val stdOpt: DirectivePart[Options] = (nameOpt ~ classOpt).map { case id ~ styles => toOptions(id, styles) }
+  val stdOpt: DirectivePartBuilder[Options] = (nameOpt ~ classOpt).map { case id ~ styles => toOptions(id, styles) }
 
   /** Converts an optional id and an optional style parameter containing
     *  a space-delimited list of styles to an `Options` instance.
@@ -51,7 +51,7 @@ object StandardDirectiveParts {
   /** The image directive for span elements,
     *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#image]] for details.
     */
-  def image (p: RecursiveParsers): DirectivePart[Span] = {
+  def image (p: RecursiveParsers): DirectivePartBuilder[Span] = {
     import TextParsers._
 
     def multilineURI (text: String) = Right(text.split("\n").map(_.trim).mkString("\n").trim)

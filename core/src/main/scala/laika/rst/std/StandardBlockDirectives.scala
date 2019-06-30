@@ -89,7 +89,7 @@ class StandardBlockDirectives {
   /** The compound directive,
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#compound-paragraph]] for details.
    */
-  lazy val compound: DirectivePart[Block] = {
+  lazy val compound: DirectivePartBuilder[Block] = {
     (blockContent ~ stdOpt).map { case content ~ opt =>
       BlockSequence(content, opt + Styles("compound"))
     } 
@@ -98,7 +98,7 @@ class StandardBlockDirectives {
   /** The container directive, 
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#container]] for details.
    */
-  lazy val container: DirectivePart[Block] = {
+  lazy val container: DirectivePartBuilder[Block] = {
     (optArgument(withWS = true) ~ blockContent ~ nameOpt).map { case styles ~ content ~ id => 
       BlockSequence(content, Options(id, styles.map(_.split(" ").toSet).getOrElse(Set())))
     } 
@@ -107,7 +107,7 @@ class StandardBlockDirectives {
   /** The admonition directive, 
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#generic-admonition]] for details.
    */
-  lazy val genericAdmonition: DirectivePart[Block] = {
+  lazy val genericAdmonition: DirectivePartBuilder[Block] = {
     (spanArgument ~ blockContent ~ stdOpt).map { case title ~ content ~ opt =>
       TitledBlock(title, content, opt + Styles("admonition"))
     } 
@@ -117,7 +117,7 @@ class StandardBlockDirectives {
    *  which are all identical apart from their title which can be specified with the style parameter. 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#specific-admonitions]] for details.
    */
-  def admonition (style: String, title: String): DirectivePart[Block] = {
+  def admonition (style: String, title: String): DirectivePartBuilder[Block] = {
     (blockContent ~ stdOpt).map { case content ~ opt => 
       TitledBlock(List(Text(title)), content, opt + Styles(style))
     } 
@@ -126,7 +126,7 @@ class StandardBlockDirectives {
   /** The topic directive, 
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#topic]] for details.
    */
-  lazy val topic: DirectivePart[Block] = {
+  lazy val topic: DirectivePartBuilder[Block] = {
     (spanArgument ~ blockContent ~ stdOpt).map { case title ~ content ~ opt =>
       TitledBlock(title, content, opt + Styles("topic"))
     } 
@@ -135,7 +135,7 @@ class StandardBlockDirectives {
   /** The rubric directive,
     *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#rubric]] for details.
     */
-  lazy val rubric: DirectivePart[Block] = {
+  lazy val rubric: DirectivePartBuilder[Block] = {
     (spanArgument ~ stdOpt).map { case text ~ opt =>
       Paragraph(text, opt + Styles("rubric"))
     }
@@ -144,7 +144,7 @@ class StandardBlockDirectives {
   /** The sidebar directive, 
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#sidebar]] for details.
    */
-  def sidebar (p: RecursiveParsers): DirectivePart[Block] = {
+  def sidebar (p: RecursiveParsers): DirectivePartBuilder[Block] = {
     (spanArgument ~ optField("subtitle", StandardDirectiveParsers.standardSpans(p)) ~
         blockContent ~ stdOpt).map { case title ~ subtitle ~ content ~ opt =>
       val titleAndContent = subtitle.map(s => Paragraph(s, Styles("subtitle"))).toList ++ content
@@ -164,7 +164,7 @@ class StandardBlockDirectives {
    *  Therefore the result will be accessible through the generic
    *  config property in the `Document` class. 
    */
-  lazy val meta: DirectivePart[Block] = blockContent map {
+  lazy val meta: DirectivePartBuilder[Block] = blockContent map {
     case FieldList(fields,_) :: Nil => 
       ConfigValue("meta", fields map (field => (SpanSequence(field.name).extractText,
           field.content collect { case p: Paragraph => p.extractText } mkString)) toMap)
@@ -175,22 +175,22 @@ class StandardBlockDirectives {
   /** The header directive,
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#document-header-footer]] for details.
    */
-  lazy val header: DirectivePart[Block] = blockContent map { blocks => DocumentFragment("header", BlockSequence(blocks)) }
+  lazy val header: DirectivePartBuilder[Block] = blockContent map { blocks => DocumentFragment("header", BlockSequence(blocks)) }
   
   /** The footer directive,
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#document-header-footer]] for details.
    */
-  lazy val footer: DirectivePart[Block] = blockContent map { blocks => DocumentFragment("footer", BlockSequence(blocks)) }
+  lazy val footer: DirectivePartBuilder[Block] = blockContent map { blocks => DocumentFragment("footer", BlockSequence(blocks)) }
   
   private def tuple (name: String) = optField(name, Right(name, _))
   
-  lazy val sectnum: DirectivePart[Block] = (tuple("depth") ~ tuple("start") ~ tuple("prefix") ~ tuple("suffix")).map {
+  lazy val sectnum: DirectivePartBuilder[Block] = (tuple("depth") ~ tuple("start") ~ tuple("prefix") ~ tuple("suffix")).map {
     case depth ~ start ~ prefix ~ suffix => 
       val options = depth.toList ::: start.toList ::: prefix.toList ::: suffix.toList
       ConfigValue("autonumbering", options.toMap)
   }
   
-  lazy val contents: DirectivePart[Block] = (optArgument(withWS = true) ~ optField("depth", positiveInt) ~ optField("local") ~ optField("class")).map {
+  lazy val contents: DirectivePartBuilder[Block] = (optArgument(withWS = true) ~ optField("depth", positiveInt) ~ optField("local") ~ optField("class")).map {
     case title ~ depth ~ local ~ style => 
       Contents(title.getOrElse("Contents"), depth.getOrElse(Int.MaxValue), local.isDefined, toOptions(None, style))
   }
@@ -206,7 +206,7 @@ class StandardBlockDirectives {
    *  references the previously parsed node tree. This is both simpler and more efficient when the same
    *  file gets included in multiple places.
    */
-  lazy val include: DirectivePart[Block] = argument() map (Include(_))
+  lazy val include: DirectivePartBuilder[Block] = argument() map (Include(_))
   
   /** The epitaph, highlights and pull-quote directives, which are all identical apart from the style
    *  parameter, see 
@@ -214,7 +214,7 @@ class StandardBlockDirectives {
    *  [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#highlights highlights]] and
    *  [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#pull-quote pull-quote]] for details.
    */
-  def quotedBlock (style: String): DirectivePart[Block] = blockContent map { blocks =>
+  def quotedBlock (style: String): DirectivePartBuilder[Block] = blockContent map { blocks =>
     blocks.lastOption match {
       case Some(p @ Paragraph(Text(text, opt) :: _, _)) if text startsWith "-- " =>
         val attr = Text(text.drop(3), opt + Styles("attribution")) +: p.content.tail
@@ -227,7 +227,7 @@ class StandardBlockDirectives {
   /** The parsed-literal directive, see
    *  [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#parsed-literal-block]] for details.
    */
-  lazy val parsedLiteral: DirectivePart[Block] = {
+  lazy val parsedLiteral: DirectivePartBuilder[Block] = {
     (spanContent ~ stdOpt).map { case content ~ opt =>
       ParsedLiteralBlock(content, opt)
     } 
@@ -236,7 +236,7 @@ class StandardBlockDirectives {
   /** The table directive, adding a title to standard reStructuredText tables, 
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#table]] for details.
    */
-  def table (p: RecursiveParsers): DirectivePart[Block] = {
+  def table (p: RecursiveParsers): DirectivePartBuilder[Block] = {
     (optSpanArgument ~ content(StandardDirectiveParsers.table(p)) ~ stdOpt).map { case caption ~ tableBlock ~ opt =>
       val table = tableBlock match {
         case t: Table => t
@@ -250,7 +250,7 @@ class StandardBlockDirectives {
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#code]] for details.
    *  The current implementation does not support syntax highlighting.
    */
-  lazy val code: DirectivePart[Block] = {
+  lazy val code: DirectivePartBuilder[Block] = {
     (argument() ~ content(Right(_)) ~ stdOpt).map { case language ~ content ~ opt => 
       CodeBlock(language, List(Text(content)), opt)
     } 
@@ -259,7 +259,7 @@ class StandardBlockDirectives {
   /** The image directive for block elements, 
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#image]] for details.
    */
-  def imageBlock (p: RecursiveParsers): DirectivePart[Block] = image(p) map { img =>
+  def imageBlock (p: RecursiveParsers): DirectivePartBuilder[Block] = image(p) map { img =>
     val hAlign = Set("align-left", "align-right", "align-center") // promote horizontal align to parent block
     val (pOpt, imgOpt) =  img.options.styles.foldLeft((NoOpt: Options, Options(img.options.id))) {
       case ((pOpt, imgOpt), style) =>
@@ -277,7 +277,7 @@ class StandardBlockDirectives {
   /** The figure directive, 
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#figure]] for details.
    */
-  def figure (p: RecursiveParsers): DirectivePart[Block] = {
+  def figure (p: RecursiveParsers): DirectivePartBuilder[Block] = {
     (image(p) ~ content(StandardDirectiveParsers.captionAndLegend(p)) ~ optField("figclass")).map { case image ~ captionAndLegend ~ figStyles =>
       Figure(image, captionAndLegend._1, captionAndLegend._2, toOptions(None, figStyles))
     } 

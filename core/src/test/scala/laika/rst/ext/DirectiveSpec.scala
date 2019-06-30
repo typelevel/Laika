@@ -194,7 +194,7 @@ class DirectiveSpec extends FlatSpec
   }
   
   it should "detect a directive with a required field being invalid" in {
-    val error = """invalid option values: name: unable to convert to int: java.lang.NumberFormatException: For input string: "foo""""
+    val error = """unable to convert to int: java.lang.NumberFormatException: For input string: "foo""""
     val input = """.. oneIntFd::
       | :name: foo""".stripMargin
     Parsing (input) should produce (root (invalid(input,error)))
@@ -254,7 +254,7 @@ class DirectiveSpec extends FlatSpec
   }
   
   it should "detect a directive with an optional field being invalid" in {
-    val error = """invalid option values: name: unable to convert to int: java.lang.NumberFormatException: For input string: "foo""""
+    val error = """unable to convert to int: java.lang.NumberFormatException: For input string: "foo""""
     val input = """.. oneOptIntFd::
       | :name: foo""".stripMargin
     Parsing (input) should produce (root (invalid(input,error)))
@@ -293,7 +293,7 @@ class DirectiveSpec extends FlatSpec
   }
   
   it should "detect a directive with one converted argument and one field invalid" in {
-    val error = """invalid option values: name: unable to convert to int: java.lang.NumberFormatException: For input string: "foo""""
+    val error = """unable to convert to int: java.lang.NumberFormatException: For input string: "foo""""
     val input = """.. argAndFd:: 3
       | :name: foo""".stripMargin
     Parsing (input) should produce (root (invalid(input,error)))
@@ -503,7 +503,7 @@ class DirectiveSpec extends FlatSpec
   }
   
   it should "detect a directive with a converted argument and body and an invalid field" in {
-    val error = """invalid option values: name: unable to convert to int: java.lang.NumberFormatException: For input string: "foo""""
+    val error = """unable to convert to int: java.lang.NumberFormatException: For input string: "foo""""
     val input = """.. allOpt:: 2
       | :name: foo
       |
