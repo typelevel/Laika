@@ -39,16 +39,20 @@ sealed abstract class Parsed[+T] {
     */
   def isFailure: Boolean = !isSuccess
 
-  /** The result as an option, empty in case of failure.
+  /** The result as an Option, empty in case of failure.
     */
   def toOption: Option[T]
+
+  /** The result as an Either, a Left in case of failure.
+    */
+  def toEither: Either[String, T]
 
   /** Returns the result value from the parser invocation if the
     * parser succeeded or otherwise the specified fallback value.
     */
   def getOrElse[B >: T] (default: => B): B = toOption.getOrElse(default)
 
-  /** Returns this `Parsed` instance if the parser suceeded or
+  /** Returns this `Parsed` instance if the parser succeeded or
     * otherwise the specified fallback instance.
     */
   def orElse[U >: T] (default: => Parsed[U]): Parsed[U] = if (isFailure) default else this
@@ -67,6 +71,8 @@ case class Success[+T] (result: T, next: ParserContext) extends Parsed[T] {
   val isSuccess = true
 
   def toOption: Option[T] = Some(result)
+
+  def toEither: Either[String, T] = Right(result)
 
   def map[U](f: T => U) = Success(f(result), next)
 
@@ -95,6 +101,8 @@ case class Failure (msgProvider: Message, next: ParserContext) extends Parsed[No
   val isSuccess = false
 
   def toOption: Option[Nothing] = None
+
+  def toEither: Either[String, Nothing] = Left(message)
 
   def map[U](f: Nothing => U): Failure = this
 
