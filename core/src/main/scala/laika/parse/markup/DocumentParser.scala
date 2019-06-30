@@ -110,11 +110,11 @@ object DocumentParser {
     * dependent on the input path can be created.
     */
   def forParser[T] (p: Path => Parser[T]): ParserInput => Either[ParserError, T] = { in =>
-    val baseParser = Parsers.consumeAll(p(in.path))
-    baseParser.parse(in.context) match {
-      case Success(result, _) => Right(result)
-      case ns: Failure        => Left(ParserError(ns.message, in.path))
-    }
+    Parsers
+      .consumeAll(p(in.path))
+      .parse(in.context)
+      .toEither
+      .left.map(ParserError(_, in.path))
   }
 
 }

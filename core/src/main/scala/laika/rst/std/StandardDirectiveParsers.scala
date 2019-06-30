@@ -37,12 +37,8 @@ object StandardDirectiveParsers {
   /** Utility method to be used by custom parsers for directive argument or body.
     *  It translates a `Success` into a `Right` and a `NoSuccess` into a `Left`.
     */
-  def parseDirectivePart [T] (parser: Parser[T], source: String): Either[String,T] = {
-    consumeAll(parser).parse(source.trim) match {
-      case Success(result,_) => Right(result)
-      case Failure(msg, in) => Left(msg.message(in))
-    }
-  }
+  def parseDirectivePart [T] (parser: Parser[T], source: String): Either[String,T] =
+    consumeAll(parser).parse(source.trim).toEither
 
 
   /** Parses all standard inline markup supported by `reStructuredText`.
