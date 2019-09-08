@@ -251,6 +251,17 @@ class GitHubFlavorSpec extends WordSpec
       Parsing (input) should produce (root(LiteralBlock("code\n~~~xxx")))
     }
 
+    "parse a code block with an empty line" in {
+      val input =
+        """```
+          |code
+          |
+          |code
+          |```
+        """.stripMargin
+      Parsing (input) should produce (root(LiteralBlock("code\n\ncode")))
+    }
+
   }
 
   "The GitHubFlavor table parser" should {
