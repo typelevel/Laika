@@ -114,6 +114,10 @@ object HTMLParsers {
    */
   val htmlComment: Parser[HTMLComment] = "!--" ~> delimitedBy("-->") ^^ { HTMLComment(_) }
 
+  /** Parses an HTML comment without the leading `'<'`.
+    */
+  val htmlScriptElement: Parser[HTMLScriptElement] = "script>" ~> delimitedBy("</script>") ^^ { HTMLScriptElement(_) }
+
   /** Parses an empty HTML element without the leading `'<'`.
    *  Only recognizes empty tags explicitly closed.
    */
@@ -158,7 +162,7 @@ object HTMLParsers {
 
   /** Parses any of the HTML span elements supported by this trait, but no standard markdown inside HTML elements.
    */
-  lazy val htmlSpanInsideBlock: Parser[HTMLSpan] = htmlComment | htmlEmptyElement | htmlElement | htmlEndTag | htmlStartTag
+  lazy val htmlSpanInsideBlock: Parser[HTMLSpan] = htmlComment | htmlScriptElement | htmlEmptyElement | htmlElement | htmlEndTag | htmlStartTag
   
   
   private def mkString (result: ~[Char,String]): String = result._1.toString + result._2

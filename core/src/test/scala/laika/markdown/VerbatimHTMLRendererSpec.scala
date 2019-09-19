@@ -20,7 +20,7 @@ import laika.api.{MarkupParser, Renderer}
 import laika.ast.Element
 import laika.ast.helper.ModelBuilder
 import laika.format.{HTML, Markdown}
-import laika.markdown.ast.{HTMLAttribute, HTMLBlock, HTMLStartTag}
+import laika.markdown.ast.{HTMLAttribute, HTMLBlock, HTMLScriptElement, HTMLStartTag}
 import org.scalatest.{FlatSpec, Matchers}
  
 
@@ -45,6 +45,11 @@ class VerbatimHTMLRendererSpec extends FlatSpec
   it should "render an HTML comment with content unescaped" in {
     val elem = p(txt("some "), comment(" yes < no "), txt(" & text"))
     render (elem) should be ("<p>some <!-- yes < no --> &amp; text</p>") 
+  }
+
+  it should "render a script element with content unescaped" in {
+    val elem = p(txt("some "), HTMLScriptElement(" var x = 'foo'; "), txt(" & text"))
+    render (elem) should be ("<p>some <script> var x = 'foo'; </script> &amp; text</p>")
   }
   
   it should "render an HTML end tag unescaped" in {

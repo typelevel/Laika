@@ -65,6 +65,7 @@ object HTMLRenderer {
     case (_, HTMLEmptyElement(name, attributes,_)) => tagStart(name, attributes) + "/>"
     case (_, HTMLEndTag(name,_))                   => s"</$name>"
     case (_, HTMLComment(content,_))               => s"<!--$content-->"
+    case (_, HTMLScriptElement(content,_))         => s"<script>$content</script>"
     case (_, HTMLCharacterReference(ref,_))        => ref
     case (fmt, HTMLBlock(root,_))                  => fmt.child(root)
   }
