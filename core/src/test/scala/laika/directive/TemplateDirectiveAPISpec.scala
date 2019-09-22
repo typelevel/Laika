@@ -55,40 +55,30 @@ class TemplateDirectiveAPISpec extends FlatSpec
     }
     
     trait RequiredDefaultBody {
-      val directive = Templates.create("dir") { body(Default) map (TemplateSpanSequence(_)) }
+      val directive = Templates.create("dir") { body map (TemplateSpanSequence(_)) }
     }
     
     trait OptionalDefaultBody {
       val directive = Templates.create("dir") { 
-        body(Default).optional map (spans => TemplateSpanSequence(spans.getOrElse(Nil))) 
-      }
-    }
-    
-    trait RequiredNamedBody {
-      val directive = Templates.create("dir") { body("name") map (TemplateSpanSequence(_)) }
-    }
-    
-    trait OptionalNamedBody {
-      val directive = Templates.create("dir") { 
-        body("name").optional map (spans => TemplateSpanSequence(spans.getOrElse(Nil))) 
+        body.optional map (spans => TemplateSpanSequence(spans.getOrElse(Nil))) 
       }
     }
     
     trait FullDirectiveSpec {
       val directive = Templates.create("dir") {
         (attribute(Default) ~ attribute("strAttr").optional ~ attribute("intAttr", positiveInt).optional ~
-        body(Default) ~ body("spanBody").optional ~ body("intBody", positiveInt).optional).map {
-          case defAttr ~ strAttr ~ intAttr ~ defBody ~ spanBody ~ intBody => 
-            val sum = intAttr.getOrElse(0) + intBody.getOrElse(0)
+        body).map {
+          case defAttr ~ strAttr ~ intAttr ~ defBody => 
+            val sum = intAttr.getOrElse(0)
             val str = defAttr + ":" + strAttr.getOrElse("..") + ":" + sum
-            TemplateSpanSequence(TemplateString(str) +: (defBody ++ spanBody.getOrElse(Nil)))
+            TemplateSpanSequence(TemplateString(str) +: defBody)
         }
       }
     }
     
     trait DirectiveWithParserAccess {
       val directive = Templates.create("dir") { 
-        (body(Default, string) ~ parser).map {
+        (body(string) ~ parser).map {
           case body ~ parser => TemplateSpanSequence(parser(body.drop(3)))
         }
       }
@@ -96,7 +86,7 @@ class TemplateDirectiveAPISpec extends FlatSpec
     
     trait DirectiveWithContextAccess {
       val directive = Templates.create("dir") { 
-        (body(Default, string) ~ cursor).map {
+        (body(string) ~ cursor).map {
           case body ~ cursor => TemplateString(body + cursor.target.path)
         }
       }
@@ -214,7 +204,7 @@ class TemplateDirectiveAPISpec extends FlatSpec
   
   it should "detect a directive with a missing required default body" in {
     new RequiredDefaultBody with TemplateParser {
-      val msg = "One or more errors processing directive 'dir': required default body is missing"
+      val msg = "One or more errors processing directive 'dir': required body is missing"
       Parsing ("aa @:dir. bb") should produce (tRoot(tt("aa "), tElem(invalid("@:dir.",msg)), tt(" bb")))
     }
   }
@@ -232,35 +222,13 @@ class TemplateDirectiveAPISpec extends FlatSpec
     }
   }
   
-  it should "parse a directive with a required named body" in {
-    new RequiredNamedBody with TemplateParser {
-      val body = tss(tt(" some "), tt("value"), tt(" text "))
-      Parsing ("aa @:dir: ~name: { some {{config.ref}} text } bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
-    }
-  }
-  
-  it should "detect a directive with a missing required named body" in {
-    new RequiredNamedBody with TemplateParser {
-      val msg = "One or more errors processing directive 'dir': required body with name 'name' is missing"
-      Parsing ("aa @:dir. bb") should produce (tRoot(tt("aa "), tElem(invalid("@:dir.",msg)), tt(" bb")))
-    }
-  }
-  
-  it should "parse a directive with an optional named body" in {
-    new OptionalNamedBody with TemplateParser {
-      val body = tss(tt(" some "), tt("value"), tt(" text "))
-      Parsing ("aa @:dir: ~name: { some {{config.ref}} text } bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
-    }
-  }
-  
   it should "parse a full directive spec with all elements present" in {
     new FullDirectiveSpec with TemplateParser {
       val body = tss(
-        tt("foo:str:16"), 
-        tt(" 1 "), tt("value"), tt(" 2 "),
-        tt(" 3 "), tt("value"), tt(" 4 ")
+        tt("foo:str:7"), 
+        tt(" 1 "), tt("value"), tt(" 2 ")
       )
-      Parsing ("aa @:dir foo strAttr=str intAttr=7: { 1 {{config.ref}} 2 } ~spanBody: { 3 {{config.ref}} 4 } ~intBody: { 9 } bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
+      Parsing ("aa @:dir foo strAttr=str intAttr=7: { 1 {{config.ref}} 2 } bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
     }
   }
   
@@ -276,7 +244,7 @@ class TemplateDirectiveAPISpec extends FlatSpec
   
   it should "detect a full directive spec with all one required attribute and one required body missing" in {
     new FullDirectiveSpec with TemplateParser {
-      val msg = "One or more errors processing directive 'dir': required default attribute is missing, required default body is missing"
+      val msg = "One or more errors processing directive 'dir': required default attribute is missing, required body is missing"
       Parsing ("aa @:dir strAttr=str. bb") should produce (tRoot(tt("aa "), tElem(invalid("@:dir strAttr=str.",msg)), tt(" bb")))
     }
   }
@@ -291,12 +259,6 @@ class TemplateDirectiveAPISpec extends FlatSpec
   it should "parse a directive with a required default body and cursor access" in {
     new DirectiveWithContextAccess with TemplateParser {
       Parsing ("aa @:dir: { text } bb") should produce (tRoot(tt("aa "), tt(" text /"), tt(" bb")))
-    }
-  }
-  
-  it should "parse a directive with a missing optional named body" in {
-    new OptionalNamedBody with TemplateParser {
-      Parsing ("aa @:dir. bb") should produce (tRoot(tt("aa "), tss(), tt(" bb")))
     }
   }
   

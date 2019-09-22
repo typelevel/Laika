@@ -53,7 +53,9 @@ sealed abstract class Key (keyType: String) {
 
 case class Attribute (id: PartId) extends Key("attribute")
 
-case class Body (id: PartId) extends Key("body")
+case object Body extends Key("body") {
+  val id: PartId = PartId.Default
+}
 
 
 /** Provides the basic building blocks for
@@ -221,12 +223,17 @@ trait BuilderContext[E <: Element] {
 
     /** Specifies a required body part.
       *
-      * @param id        the identifier that must be used in markup or templates
+      * @return a directive part that can be combined with further parts with the `~` operator
+      */
+    def body: DirectivePart[Seq[E]] = requiredPart(Body, dsl.parsed, s"required body is missing")
+    
+    /** Specifies a required body part.
+      *
       * @param converter the function to use for converting and validating the parsed value
       * @return a directive part that can be combined with further parts with the `~` operator
       */
-    def body [T](id: PartId, converter: Converter[T] = dsl.parsed): DirectivePart[T]
-    = requiredPart(Body(id), converter, s"required ${Body(id).desc} is missing")
+    def body [T](converter: Converter[T]): DirectivePart[T]
+    = requiredPart(Body, converter, s"required body is missing")
 
     /** Specifies an empty directive that does not accept any attributes or
       * body elements.

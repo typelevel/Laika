@@ -60,40 +60,30 @@ class BlockDirectiveAPISpec extends FlatSpec
     }
     
     trait RequiredDefaultBody {
-      val directive = Blocks.create("dir") { body(Default) map (BlockSequence(_)) }
+      val directive = Blocks.create("dir") { body map (BlockSequence(_)) }
     }
     
     trait OptionalDefaultBody {
       val directive = Blocks.create("dir") { 
-        body(Default).optional map (blocks => BlockSequence(blocks.getOrElse(Nil))) 
-      }
-    }
-    
-    trait RequiredNamedBody {
-      val directive = Blocks.create("dir") { body("name") map (BlockSequence(_)) }
-    }
-    
-    trait OptionalNamedBody {
-      val directive = Blocks.create("dir") { 
-        body("name").optional map (blocks => BlockSequence(blocks.getOrElse(Nil))) 
+        body.optional map (blocks => BlockSequence(blocks.getOrElse(Nil))) 
       }
     }
     
     trait FullDirectiveSpec {
       val directive = Blocks.create("dir") {
         (attribute(Default) ~ attribute("strAttr").optional ~ attribute("intAttr", positiveInt).optional ~
-        body(Default) ~ body("blockBody").optional ~ body("intBody", positiveInt).optional).map {
-          case defAttr ~ strAttr ~ intAttr ~ defBody ~ blockBody ~ intBody => 
-            val sum = intAttr.getOrElse(0) + intBody.getOrElse(0)
+        body).map {
+          case defAttr ~ strAttr ~ intAttr ~ defBody =>
+            val sum = intAttr.getOrElse(0)
             val str = defAttr + ":" + strAttr.getOrElse("..") + ":" + sum
-            BlockSequence(p(str) +: (defBody ++ blockBody.getOrElse(Nil)))
+            BlockSequence(p(str) +: defBody)
         }
       }
     }
     
     trait DirectiveWithParserAccess {
       val directive = Blocks.create("dir") { 
-        (body(Default, string) ~ parser).map {
+        (body(string) ~ parser).map {
           case body ~ parser => BlockSequence(parser(body.drop(3)))
         }
       }
@@ -101,7 +91,7 @@ class BlockDirectiveAPISpec extends FlatSpec
     
     trait DirectiveWithContextAccess {
       val directive = Blocks.create("dir") { 
-        (body(Default, string) ~ cursor).map {
+        (body(string) ~ cursor).map {
           case body ~ cursor => p(body + cursor.target.path)
         }
       }
@@ -296,7 +286,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |@:dir.
         |
         |bb""".stripMargin
-      val msg = "One or more errors processing directive 'dir': required default body is missing"
+      val msg = "One or more errors processing directive 'dir': required body is missing"
       Parsing (input) should produce (root(p("aa"), invalid("@:dir.",msg), p("bb")))
     }
   }
@@ -324,90 +314,17 @@ class BlockDirectiveAPISpec extends FlatSpec
     }
   }
 
-  it should "parse a directive with a required named body" in {
-    new TemplateParser with RequiredNamedBody {
-      val input = """aa
-        |
-        |@:dir: ~name: some {{config.ref}} text
-        |
-        |bb""".stripMargin
-      val body = BlockSequence(List(p(txt("some value text"))))
-      Parsing (input) should produce (root(p("aa"), body, p("bb")))
-    }
-  }
-
-  it should "detect a directive with a missing required named body" in {
-    new TemplateParser with RequiredNamedBody {
-      val input = """aa
-        |
-        |@:dir.
-        |
-        |bb""".stripMargin
-      val msg = "One or more errors processing directive 'dir': required body with name 'name' is missing"
-      Parsing (input) should produce (root(p("aa"), invalid("@:dir.",msg), p("bb")))
-    }
-  }
-
-  it should "parse a directive with an optional named body" in {
-    new TemplateParser with OptionalNamedBody {
-      val input = """aa
-        |
-        |@:dir: ~name: some {{config.ref}} text
-        |
-        |bb""".stripMargin
-      val body = BlockSequence(List(p(txt("some value text"))))
-      Parsing (input) should produce (root(p("aa"), body, p("bb")))
-    }
-  }
-
-  it should "parse a directive with a missing optional named body" in {
-    new TemplateParser with OptionalNamedBody {
-      val input = """aa
-        |
-        |@:dir.
-        |
-        |bb""".stripMargin
-      Parsing (input) should produce (root(p("aa"), BlockSequence(Nil), p("bb")))
-    }
-  }
-
   it should "parse a full directive spec with all elements present" in {
     new FullDirectiveSpec with TemplateParser {
       val input = """aa
         |
         |@:dir foo strAttr=str intAttr=7:
         |  1 {{config.ref}} 2
-        |~blockBody:
-        |  3 {{config.ref}} 4
-        |~intBody: 9
         |
         |bb""".stripMargin
       val body = BlockSequence(List(
-        p("foo:str:16"),
-        p(txt("1 value 2")),
-        p(txt("3 value 4"))
-      ))
-      Parsing (input) should produce (root(p("aa"), body, p("bb")))
-    }
-  }
-
-  it should "parse a full directive spec with all elements present and blank lines between blocks" in {
-    new FullDirectiveSpec with TemplateParser {
-      val input = """aa
-        |
-        |@:dir foo strAttr=str intAttr=7:
-        |  1 {{config.ref}} 2
-        |
-        |~blockBody:
-        |  3 {{config.ref}} 4
-        |
-        |~intBody: 9
-        |
-        |bb""".stripMargin
-      val body = BlockSequence(List(
-        p("foo:str:16"),
-        p(txt("1 value 2")),
-        p(txt("3 value 4"))
+        p("foo:str:7"),
+        p(txt("1 value 2"))
       ))
       Parsing (input) should produce (root(p("aa"), body, p("bb")))
     }
@@ -436,7 +353,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |@:dir strAttr=str.
         |
         |bb""".stripMargin
-      val msg = "One or more errors processing directive 'dir': required default attribute is missing, required default body is missing"
+      val msg = "One or more errors processing directive 'dir': required default attribute is missing, required body is missing"
       Parsing (input) should produce (root(p("aa"), invalid("@:dir strAttr=str.",msg), p("bb")))
     }
   }

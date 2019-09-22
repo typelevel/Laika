@@ -183,16 +183,6 @@ class StandardDirectiveSpec extends FlatSpec
     )))  
   } 
   
-  it should "process the fallback body if the referenced object is an empty collection" in {
-    val input = """aaa @:for "config.persons": { {{name}} {{age}} } ~empty: { none } bbb"""
-    val config = "persons: []" 
-    parseTemplateWithConfig(input, config) should be (root(tRoot(
-      tt("aaa "),
-      TemplateSpanSequence(List(tt(" none "))),
-      tt(" bbb")
-    )))  
-  } 
-  
   it should "process the default body once if the referenced object is a scalar value" in {
     val input = """aaa @:for "config.person": { text } bbb"""
     val config = "person: Mary" 
@@ -239,26 +229,6 @@ class StandardDirectiveSpec extends FlatSpec
     parseTemplateWithConfig(input, config) should be (root(tRoot(
       tt("aaa "),
       TemplateSpanSequence(Nil),
-      tt(" bbb")
-    )))  
-  } 
-  
-  it should "process the fallback body if the referenced object does not exist" in {
-    val input = """aaa @:if "config.monday": { text } ~else: { none } bbb"""
-    val config = "tuesday: on" 
-    parseTemplateWithConfig(input, config) should be (root(tRoot(
-      tt("aaa "),
-      TemplateSpanSequence(List(tt(" none "))),
-      tt(" bbb")
-    )))  
-  } 
-  
-  it should "process the fallback body if the referenced object is not a string recognized as true" in {
-    val input = """aaa @:if "config.monday": { text } ~else: { none } bbb"""
-    val config = "monday: off" 
-    parseTemplateWithConfig(input, config) should be (root(tRoot(
-      tt("aaa "),
-      TemplateSpanSequence(List(tt(" none "))),
       tt(" bbb")
     )))  
   } 

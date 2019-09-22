@@ -88,8 +88,6 @@ object DirectiveParsers {
  }
       
 
-  private lazy val bodyName: Parser[String] = '~' ~> nameDecl <~ ws ~ ':'
-  
   private lazy val noBody: Parser[List[Part]] = '.' ^^^ List[Part]()
   
   /** Parses one directive instance containing its name declaration,
@@ -102,13 +100,9 @@ object DirectiveParsers {
 
     val declaration = declarationParser(escapedText)
 
-    val defaultBody: Parser[Part] = not(wsOrNl ~> bodyName) ~> bodyContent ^^ { Part(Body(PartId.Default),_) }
+    val body: Parser[List[Part]] = ':' ~> bodyContent ^^ { content => List(Part(Body, content)) }
     
-    val body: Parser[Part] = wsOrNl ~> bodyName ~ bodyContent ^^ { case name ~ content => Part(Body(name), content) }
-    
-    val bodies = ':' ~> (defaultBody | body) ~ (body*) ^^ { case first ~ rest => first :: rest }
-
-    declaration ~ (noBody | bodies) ^^ { case (name, attrs) ~ bodies => ParsedDirective(name, attrs ::: bodies) }
+    declaration ~ (noBody | body) ^^ { case (name, attrs) ~ bodies => ParsedDirective(name, attrs ::: bodies) }
   }
   
   val nestedBraces: Parser[Text] = delimitedBy('}') ^^ (str => Text(s"{$str}"))
