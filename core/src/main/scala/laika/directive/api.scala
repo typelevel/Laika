@@ -338,7 +338,7 @@ trait BuilderContext[E <: Element] {
     *  object MyDirectives extends DirectiveRegistry {
     *    val spanDirectives = Seq(
     *      Spans.create("note") {
-    *        (attribute(Default) ~ body(Default)).map { 
+    *        (attribute(Default) ~ body).map { 
     *          case title ~ content => Note(title, content) 
     *        }
     *      }

@@ -235,53 +235,32 @@ Combinator:
     attribute("myAttr")
 
 
-### Default Bodies
+### Body
 
-A default body is a body element without a name. 
-It has to be the first body before any named body elements.
+The body is an element containing text markup that can follow the attribute section. 
 
 Markup example:
 
     @:name: { 
-      this is the content of the default body 
+      this is the content of the body 
     }
 
 Combinator:
 
-    body(Default)
-
-
-### Named Bodies
-
-A named body element usually appears after a default body (but it does not have
-to). In the example below the second body has the name `empty`.
-
-Markup example:
-
-    @:for "documents.sections": { 
-      <li>{{title.content}}</li>
-    } ~empty: {
-      <p>no sections</p>
-    }
-
-Combinator:
-
-    body("empty")
+    body
 
 
 ### Optional Elements
 
-All the element types shown above, default and named attributes as well
-as default and named bodies can be marked as optional.
+Default and named attributes can be marked as optional.
 
 Combinator:
 
-    body("empty").optional
+    attribute("width").optional
 
 The parameter type of your directive function changes accordingly,
 from `T` to `Option[T]` where `T` is either the type returned by
-your converter (see below) or the default type (which is different
-for body and attribute elements (again see next section).
+your converter (see below) or the default type.
 
 
 ### Converters

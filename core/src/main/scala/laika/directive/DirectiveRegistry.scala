@@ -84,7 +84,7 @@ trait DirectiveRegistry extends ExtensionBundle {
     *  object MyDirectives extends DirectiveRegistry {
     *    val blockDirectives = Seq(
     *      Blocks.create("note") {
-    *        (attribute(Default) ~ body(Default)).map { case title ~ content => Note(title, content) }
+    *        (attribute(Default) ~ body).map { case title ~ content => Note(title, content) }
     *      }
     *    )
     *    val spanDirectives = Seq()
