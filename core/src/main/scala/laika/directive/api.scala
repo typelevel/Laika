@@ -107,7 +107,7 @@ trait BuilderContext[E <: Element] {
       * If the part is present it still has to validate
       * successfully.
       */
-    def optional: DirectivePart[Option[A]] = map (Some(_))
+    // def optional: DirectivePart[Option[A]] = map (Some(_))
 
   }
 
@@ -191,21 +191,24 @@ trait BuilderContext[E <: Element] {
     * format of a specific directive.
     */
   trait Combinators {
+    
+    private def convert [T] (context: DirectiveContext, key: Key, converter: Converter[T]) = 
+      context.part(key).map(s => converter(context.parser, s))
 
     private def requiredPart [T] (key: Key, converter: Converter[T], msg: => String) = new DirectivePart[T] {
+      def apply (context: DirectiveContext) = convert(context, key, converter).getOrElse(Left(Seq(msg)))
+    }
 
-      def convert (context: DirectiveContext) = context.part(key).map(s => converter(context.parser, s))
+    class AttributePart [T] (key: Key, converter: Converter[T], msg: => String) extends DirectivePart[T] {
+      def apply (context: DirectiveContext) = convert(context, key, converter).getOrElse(Left(Seq(msg)))
 
-      def apply (context: DirectiveContext) = convert(context).getOrElse(Left(Seq(msg)))
-
-      override def optional: DirectivePart[Option[T]] = new DirectivePart[Option[T]] {
-        def apply (context: DirectiveContext) = convert(context) match {
+      def optional: DirectivePart[Option[T]] = new DirectivePart[Option[T]] {
+        def apply (context: DirectiveContext) = convert(context, key, converter) match {
           case Some(Right(value)) => Right(Some(value))
           case Some(Left(msg))    => Left(Seq(s"error converting ${key.desc}: " + msg.mkString(", ")))
           case None               => Right(None)
         }
       }
-
     }
 
     private def part [T](f: DirectiveContext => Result[T]) = new DirectivePart[T] {
@@ -218,8 +221,8 @@ trait BuilderContext[E <: Element] {
       * @param converter the function to use for converting and validating the parsed value
       * @return a directive part that can be combined with further parts with the `~` operator
       */
-    def attribute [T](id: PartId, converter: Converter[T] = dsl.string): DirectivePart[T]
-    = requiredPart(Attribute(id), converter, s"required ${Attribute(id).desc} is missing")
+    def attribute [T](id: PartId, converter: Converter[T] = dsl.string): AttributePart[T]
+    = new AttributePart(Attribute(id), converter, s"required ${Attribute(id).desc} is missing")
 
     /** Specifies a required body part.
       *

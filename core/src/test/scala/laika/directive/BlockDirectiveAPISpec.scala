@@ -63,12 +63,6 @@ class BlockDirectiveAPISpec extends FlatSpec
       val directive = Blocks.create("dir") { body map (BlockSequence(_)) }
     }
     
-    trait OptionalDefaultBody {
-      val directive = Blocks.create("dir") { 
-        body.optional map (blocks => BlockSequence(blocks.getOrElse(Nil))) 
-      }
-    }
-    
     trait FullDirectiveSpec {
       val directive = Blocks.create("dir") {
         (attribute(Default) ~ attribute("strAttr").optional ~ attribute("intAttr", positiveInt).optional ~
@@ -288,29 +282,6 @@ class BlockDirectiveAPISpec extends FlatSpec
         |bb""".stripMargin
       val msg = "One or more errors processing directive 'dir': required body is missing"
       Parsing (input) should produce (root(p("aa"), invalid("@:dir.",msg), p("bb")))
-    }
-  }
-
-  it should "parse a directive with an optional default body" in {
-    new TemplateParser with OptionalDefaultBody {
-      val input = """aa
-        |
-        |@:dir: some {{config.ref}} text
-        |
-        |bb""".stripMargin
-      val body = BlockSequence(List(p(txt("some value text"))))
-      Parsing (input) should produce (root(p("aa"), body, p("bb")))
-    }
-  }
-
-  it should "parse a directive with a missing optional default body" in {
-    new TemplateParser with OptionalDefaultBody {
-      val input = """aa
-        |
-        |@:dir.
-        |
-        |bb""".stripMargin
-      Parsing (input) should produce (root(p("aa"), BlockSequence(Nil), p("bb")))
     }
   }
 

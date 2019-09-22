@@ -59,12 +59,6 @@ class SpanDirectiveAPISpec extends FlatSpec
       val directive = Spans.create("dir") { body map (SpanSequence(_)) }
     }
     
-    trait OptionalDefaultBody {
-      val directive = Spans.create("dir") { 
-        body.optional map (spans => SpanSequence(spans.getOrElse(Nil))) 
-      }
-    }
-    
     trait FullDirectiveSpec {
       val directive = Spans.create("dir") {
         (attribute(Default) ~ attribute("strAttr").optional ~ attribute("intAttr", positiveInt).optional ~
@@ -209,19 +203,6 @@ class SpanDirectiveAPISpec extends FlatSpec
     new SpanParser with RequiredDefaultBody {
       val msg = "One or more errors processing directive 'dir': required body is missing"
       Parsing ("aa @:dir. bb") should produce (ss(txt("aa "), invalid("@:dir.",msg), txt(" bb")))
-    }
-  }
-  
-  it should "parse a directive with an optional default body" in {
-    new SpanParser with OptionalDefaultBody {
-      val body = ss(txt(" some value text "))
-      Parsing ("aa @:dir: { some {{config.ref}} text } bb") should produce (ss(txt("aa "), body, txt(" bb")))
-    }
-  }
-  
-  it should "parse a directive with a missing optional default body" in {
-    new SpanParser with OptionalDefaultBody {
-      Parsing ("aa @:dir. bb") should produce (ss(txt("aa "), ss(), txt(" bb")))
     }
   }
   

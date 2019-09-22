@@ -58,12 +58,6 @@ class TemplateDirectiveAPISpec extends FlatSpec
       val directive = Templates.create("dir") { body map (TemplateSpanSequence(_)) }
     }
     
-    trait OptionalDefaultBody {
-      val directive = Templates.create("dir") { 
-        body.optional map (spans => TemplateSpanSequence(spans.getOrElse(Nil))) 
-      }
-    }
-    
     trait FullDirectiveSpec {
       val directive = Templates.create("dir") {
         (attribute(Default) ~ attribute("strAttr").optional ~ attribute("intAttr", positiveInt).optional ~
@@ -206,19 +200,6 @@ class TemplateDirectiveAPISpec extends FlatSpec
     new RequiredDefaultBody with TemplateParser {
       val msg = "One or more errors processing directive 'dir': required body is missing"
       Parsing ("aa @:dir. bb") should produce (tRoot(tt("aa "), tElem(invalid("@:dir.",msg)), tt(" bb")))
-    }
-  }
-  
-  it should "parse a directive with an optional default body" in {
-    new OptionalDefaultBody with TemplateParser {
-      val body = tss(tt(" some "), tt("value"), tt(" text "))
-      Parsing ("aa @:dir: { some {{config.ref}} text } bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
-    }
-  }
-  
-  it should "parse a directive with a missing optional default body" in {
-    new OptionalDefaultBody with TemplateParser {
-      Parsing ("aa @:dir. bb") should produce (tRoot(tt("aa "), tss(), tt(" bb")))
     }
   }
   
