@@ -91,6 +91,7 @@ trait BuilderContext[E <: Element] {
 
     def map [B](f: A => B): DirectivePart[B] = new DirectivePart[B] {
       def apply (p: DirectiveContext) = self(p) map f
+      def hasBody: Boolean = self.hasBody
     }
 
     def ~ [B] (other: DirectivePart[B]): DirectivePart[A ~ B] = new DirectivePart[A ~ B] {
@@ -100,7 +101,13 @@ trait BuilderContext[E <: Element] {
         case (Left(msg), _) => Left(msg)
         case (_, Left(msg)) => Left(msg)
       }
+      def hasBody: Boolean = other.hasBody || self.hasBody
     }
+
+    /** Indicates whether the directive supports a body section
+      * after the directive name and attribute section.
+      */
+    def hasBody: Boolean
 
     /** Indicates that this directive part is optional,
       * turning the result into an Option value.
@@ -195,8 +202,9 @@ trait BuilderContext[E <: Element] {
     private def convert [T] (context: DirectiveContext, key: Key, converter: Converter[T]) = 
       context.part(key).map(s => converter(context.parser, s))
 
-    private def requiredPart [T] (key: Key, converter: Converter[T], msg: => String) = new DirectivePart[T] {
+    private def bodyPart [T] (key: Key, converter: Converter[T], msg: => String) = new DirectivePart[T] {
       def apply (context: DirectiveContext) = convert(context, key, converter).getOrElse(Left(Seq(msg)))
+      def hasBody: Boolean = true
     }
 
     class AttributePart [T] (key: Key, converter: Converter[T], msg: => String) extends DirectivePart[T] {
@@ -208,11 +216,14 @@ trait BuilderContext[E <: Element] {
           case Some(Left(msg))    => Left(Seq(s"error converting ${key.desc}: " + msg.mkString(", ")))
           case None               => Right(None)
         }
+        def hasBody: Boolean = false
       }
+      def hasBody: Boolean = false
     }
 
     private def part [T](f: DirectiveContext => Result[T]) = new DirectivePart[T] {
       def apply (p: DirectiveContext) = f(p)
+      def hasBody: Boolean = false
     }
 
     /** Specifies a required attribute.
@@ -228,7 +239,7 @@ trait BuilderContext[E <: Element] {
       *
       * @return a directive part that can be combined with further parts with the `~` operator
       */
-    def body: DirectivePart[Seq[E]] = requiredPart(Body, dsl.parsed, s"required body is missing")
+    def body: DirectivePart[Seq[E]] = bodyPart(Body, dsl.parsed, s"required body is missing")
     
     /** Specifies a required body part.
       *
@@ -236,7 +247,7 @@ trait BuilderContext[E <: Element] {
       * @return a directive part that can be combined with further parts with the `~` operator
       */
     def body [T](converter: Converter[T]): DirectivePart[T]
-    = requiredPart(Body, converter, s"required body is missing")
+    = bodyPart(Body, converter, s"required body is missing")
 
     /** Specifies an empty directive that does not accept any attributes or
       * body elements.
@@ -275,6 +286,7 @@ trait BuilderContext[E <: Element] {
     */
   class Directive private[directive] (val name: String, part: DirectivePart[E]) {
     def apply (context: DirectiveContext): Result[E] = part(context)
+    def hasBody: Boolean = part.hasBody
   }
 
   /** Creates a new directive with the specified name
