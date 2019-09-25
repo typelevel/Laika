@@ -40,11 +40,11 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
 
     val contextRefOrNestedBraces = Map('{' -> (reference(TemplateContextReference(_)) | nestedBraces))
     val legacyBody = wsOrNl ~ '{' ~> (withSource(delimitedRecursiveSpans(delimitedBy('}'), contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
-    val newBody: Option[String] => Parser[Option[String]] = _.fold[Parser[Option[String]]](success(None)) { fence =>
-      withSource(delimitedRecursiveSpans(delimitedBy(fence), contextRefOrNestedBraces)) ^^ { src =>
-        Some(src._2.dropRight(fence.length))
+    val newBody: BodyParserBuilder = spec =>
+      if (directives.get(spec.name).exists(_.hasBody)) withSource(delimitedRecursiveSpans(delimitedBy(spec.fence), contextRefOrNestedBraces)) ^^ { src =>
+        Some(src._2.dropRight(spec.fence.length))
       }
-    }
+      else success(None)
 
     withSource(directiveParser(newBody, legacyBody, this)) ^^ { case (result, source) =>
       Templates.DirectiveInstance(directives.get(result.name), result, templateSpans, source)
