@@ -69,6 +69,9 @@ object DirectiveParsers {
     anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '-', '_') ^^ { case first ~ rest => first + rest }
   
   
+  def closingFence (fence: String): Parser[String] = fence <~ wsEol 
+  
+  
   def attributeParser (escapedText: EscapedTextParsers): Parser[List[Part]] = {
     lazy val attrName: Parser[String] = nameDecl <~ wsOrNl ~ '=' ~ wsOrNl
 
@@ -98,21 +101,26 @@ object DirectiveParsers {
   def legacyDeclarationParser (escapedText: EscapedTextParsers): Parser[(String, List[Part])] =
     (":" ~> nameDecl ~ attributeParser(escapedText)) ^^ { case name ~ attrs => (name, attrs) }
 
-  private lazy val noBody: Parser[List[Part]] = '.' ^^^ List[Part]()
-  
   /** Parses one directive instance containing its name declaration,
    *  all attributes and all body elements.
    *  
    *  @param bodyContent the parser for the body content which is different for a block directive than for a span or template directive
    *  @param escapedText the parser for escape sequences according to the rules of the host markup language
    */
-  def directiveParser (bodyContent: Parser[String], escapedText: EscapedTextParsers): Parser[ParsedDirective] = {
+  def directiveParser (bodyContent: Option[String] => Parser[Option[String]], legacyBody: Parser[String], escapedText: EscapedTextParsers): Parser[ParsedDirective] = {
 
-    val declaration = legacyDeclarationParser(escapedText)| declarationParser(escapedText)
-
-    val body: Parser[List[Part]] = ':' ~> bodyContent ^^ { content => List(Part(Body, content)) }
+    val legacyDirective: Parser[(String, List[Part]) ~ Option[Part]] = {
+      val noBody: Parser[Option[Part]] = '.' ^^^ None
+      val body: Parser[Option[Part]] = ':' ~> legacyBody ^^ { content => Some(Part(Body, content)) }
+      legacyDeclarationParser(escapedText) ~ (noBody | body)
+    }
     
-    declaration ~ (noBody | body) ^^ { case (name, attrs) ~ bodies => ParsedDirective(name, attrs ::: bodies) }
+    val newDirective: Parser[(String, List[Part]) ~ Option[Part]] = {
+      val body: Parser[Option[Part]] = bodyContent(None).map(_.map { content => Part(Body, content) })
+      declarationParser(escapedText) ~ body
+    }
+    
+    (legacyDirective | newDirective) ^^ { case (name, attrs) ~ body => ParsedDirective(name, attrs ++ body.toList) }
   }
   
   val nestedBraces: Parser[Text] = delimitedBy('}') ^^ (str => Text(s"{$str}"))
@@ -137,9 +145,14 @@ object SpanDirectiveParsers {
     import recParsers._
 
     val contextRefOrNestedBraces = Map('{' -> (reference(MarkupContextReference(_)) | nestedBraces))
-    val bodyContent = wsOrNl ~ '{' ~> (withSource(delimitedRecursiveSpans(delimitedBy('}'), contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
+    val legacyBody = wsOrNl ~ '{' ~> (withSource(delimitedRecursiveSpans(delimitedBy('}'), contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
+    val newBody: Option[String] => Parser[Option[String]] = _.fold[Parser[Option[String]]](success(None)) { fence =>
+      withSource(delimitedRecursiveSpans(delimitedBy(fence), contextRefOrNestedBraces)) ^^ { src => 
+        Some(src._2.dropRight(fence.length)) 
+      }
+    }  
     
-    withRecursiveSpanParser(withSource(directiveParser(bodyContent, recParsers))) ^^ {
+    withRecursiveSpanParser(withSource(directiveParser(newBody, legacyBody, recParsers))) ^^ {
       case (recParser, (result, source)) => 
         Spans.DirectiveInstance(directives.get(result.name), result, recParser, source)
     }
@@ -162,11 +175,18 @@ object BlockDirectiveParsers {
 
     import recParsers._
 
-    val bodyContent = indentedBlock() ^^? { block =>
+    val legacyBody = indentedBlock() ^^? { block =>
       val trimmed = block.trim
       Either.cond(trimmed.nonEmpty, trimmed, "empty body")
     }
-    withRecursiveSpanParser(withRecursiveBlockParser(withSource(directiveParser(bodyContent, recParsers)))) ^^ {
+    val newBody: Option[String] => Parser[Option[String]] = _.fold[Parser[Option[String]]](wsEol ^^^ None) { fence =>
+      val closingFenceP = closingFence(fence)
+      wsEol ~> (not(closingFenceP | eof) ~> restOfLine).rep <~ opt(closingFenceP) ^^ { lines =>
+        val trimmedLines = lines.dropWhile(_.trim.isEmpty).reverse.dropWhile(_.trim.isEmpty).reverse
+        Some(trimmedLines.mkString("\n"))
+      }
+    }
+    withRecursiveSpanParser(withRecursiveBlockParser(withSource(directiveParser(newBody, legacyBody, recParsers)))) ^^ {
       case (recSpanParser, (recBlockParser, (result, source))) =>
         Blocks.DirectiveInstance(directives.get(result.name), result, recBlockParser, recSpanParser, source)
     }
