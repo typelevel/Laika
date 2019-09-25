@@ -44,8 +44,7 @@ object DirectiveParsers {
 
   /** Parses a reference enclosed between `{{` and `}}`.
     */
-  def reference[T] (f: String => T): Parser[T] =
-  '{' ~ ws ~> refName <~ ws ~ "}}" ^^ f
+  def reference[T] (f: String => T): Parser[T] = '{' ~ ws ~> refName <~ ws ~ "}}" ^^ f
 
 
   /** Represents one part of a directive (an attribute or a body element).
@@ -69,24 +68,35 @@ object DirectiveParsers {
   lazy val nameDecl: Parser[String] = (anyIn('a' to 'z', 'A' to 'Z') take 1) ~ 
     anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '-', '_') ^^ { case first ~ rest => first + rest }
   
-  /** Parses a full directive declaration, containing all its attributes,
-   *  but not the body elements.
-   */
-  def declarationParser (escapedText: EscapedTextParsers): Parser[(String, List[Part])] = {
-    
-    lazy val attrName: Parser[String] = nameDecl <~ wsOrNl ~ '=' ~ wsOrNl
   
+  def attributeParser (escapedText: EscapedTextParsers): Parser[List[Part]] = {
+    lazy val attrName: Parser[String] = nameDecl <~ wsOrNl ~ '=' ~ wsOrNl
+
     lazy val attrValue: Parser[String] =
       '"' ~> escapedText.escapedUntil('"') | (anyBut(' ','\t','\n','.',':') min 1)
-  
+
     lazy val defaultAttribute: Parser[Part] = not(attrName) ~> attrValue ^^ { Part(Attribute(PartId.Default), _) }
-  
+
     lazy val attribute: Parser[Part] = attrName ~ attrValue ^^ { case name ~ value => Part(Attribute(name), value) }
- 
-    (":" ~> nameDecl <~ wsOrNl) ~ opt(defaultAttribute <~ wsOrNl) ~ ((wsOrNl ~> attribute)*) <~ ws ^^ 
-    { case name ~ defAttr ~ attrs => (name, defAttr.toList ::: attrs) }
- }
-      
+
+    (wsOrNl ~> opt(defaultAttribute <~ wsOrNl) ~ ((wsOrNl ~> attribute)*)) <~ ws ^^
+      { case defAttr ~ attrs => defAttr.toList ::: attrs }
+  }
+
+  /** Parses a full directive declaration, containing all its attributes,
+    *  but not the body elements.
+    */
+  def declarationParser (escapedText: EscapedTextParsers): Parser[(String, List[Part])] = {
+    val attributeSection = ws ~> "{" ~> attributeParser(escapedText) <~ wsOrNl <~ "}"
+    (":" ~> nameDecl ~ opt(attributeSection)) ^^ { case name ~ attrs => (name, attrs.getOrElse(Nil)) }
+  }
+    
+  /** Parses a full directive declaration, containing all its attributes,
+   *  but not the body elements. This method parses the deprecated syntax where attributes
+   *  are not enclosed in braces.
+   */
+  def legacyDeclarationParser (escapedText: EscapedTextParsers): Parser[(String, List[Part])] =
+    (":" ~> nameDecl ~ attributeParser(escapedText)) ^^ { case name ~ attrs => (name, attrs) }
 
   private lazy val noBody: Parser[List[Part]] = '.' ^^^ List[Part]()
   
@@ -98,7 +108,7 @@ object DirectiveParsers {
    */
   def directiveParser (bodyContent: Parser[String], escapedText: EscapedTextParsers): Parser[ParsedDirective] = {
 
-    val declaration = declarationParser(escapedText)
+    val declaration = legacyDeclarationParser(escapedText)| declarationParser(escapedText)
 
     val body: Parser[List[Part]] = ':' ~> bodyContent ^^ { content => List(Part(Body, content)) }
     
