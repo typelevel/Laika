@@ -55,8 +55,11 @@ class StandardDirectiveSpec extends FlatSpec
   "The fragment directive" should "parse a fragment with a single paragraph" in {
     val input = """aa
       |
-      |@:fragment foo:
-      |  Fragment Text
+      |@:fragment { foo }
+      |
+      |Fragment Text
+      |
+      |@:@
       |
       |bb""".stripMargin
     parseWithFragments(input) should be ((Map("foo" -> Paragraph(List(Text("Fragment Text")),Styles("foo"))),root(p("aa"),p("bb"))))
@@ -65,10 +68,13 @@ class StandardDirectiveSpec extends FlatSpec
   it should "parse a fragment with a two paragraphs" in {
     val input = """aa
       |
-      |@:fragment foo:
-      |  Line 1
+      |@:fragment { foo }
       |
-      |  Line 2
+      |Line 1
+      |
+      |Line 2
+      |
+      |@:@
       |
       |bb""".stripMargin
     parseWithFragments(input) should be ((Map("foo" -> BlockSequence(List(p("Line 1"), p("Line 2")),Styles("foo"))),root(p("aa"),p("bb"))))
@@ -78,63 +84,79 @@ class StandardDirectiveSpec extends FlatSpec
   "The pageBreak directive" should "parse an empty directive" in {
     val input = """aa
       |
-      |@:pageBreak.
+      |@:pageBreak
       |
       |bb""".stripMargin
     parse(input).content should be (root(p("aa"),PageBreak(),p("bb")))
   }
   
   
-  "The style directive" should "parse a single nested block" in {
+  "The style directive" should "parse a body with a single block" in {
     val input = """aa
       |
-      |@:style foo: 11
-      | 22
+      |@:style { foo } 
+      |
+      |11
+      |22
+      |
+      |@:@
       |
       |bb""".stripMargin
     parse(input).content should be (root(p("aa"), Paragraph(List(Text("11\n22")),Styles("foo")), p("bb")))
   }
   
-  it should "parse two nested blocks" in {
+  it should "parse a body with two blocks" in {
     val input = """aa
       |
-      |@:style foo: 11
-      | 22
+      |@:style { foo } 
       |
-      | 33
+      |11
+      |22
+      |
+      |33
+      |
+      |@:@
       |
       |bb""".stripMargin
     parse(input).content should be (root(p("aa"), BlockSequence(List(p("11\n22"),p("33")),Styles("foo")), p("bb")))
   }
   
   it should "parse a single nested span" in {
-    val input = """aa @:style foo: { 11 } bb"""
+    val input = """aa @:style { foo } 11 @:@ bb"""
     parse(input).content should be (root(p(txt("aa "), Text(" 11 ", Styles("foo")), txt(" bb"))))
   }
   
   it should "parse two nested spans" in {
-    val input = """aa @:style foo: { 11 *22* 33 } bb"""
+    val input = """aa @:style { foo } 11 *22* 33 @:@ bb"""
     parse(input).content should be (root(p(txt("aa "), SpanSequence(List(txt(" 11 "),em("22"),txt(" 33 ")),Styles("foo")), txt(" bb"))))
   }
   
   
-  "The format directive" should "parse a single nested block" in {
+  "The format directive" should "parse a body with a single paragraph" in {
     val input = """aa
       |
-      |@:format foo: 11
-      | 22
+      |@:format { foo } 
+      |
+      |11
+      |22
+      |
+      |@:@
       |
       |bb""".stripMargin
     parse(input).content should be (root(p("aa"), TargetFormat("foo", p("11\n22")), p("bb")))
   }
   
-  it should "parse two nested blocks" in {
+  it should "parse a body with two paragraphs" in {
     val input = """aa
       |
-      |@:format foo: 11
-      | 22
+      |@:format { foo } 
       |
-      | 33
+      |11
+      |22
+      |
+      |33
+      |
+      |@:@
       |
       |bb""".stripMargin
     parse(input).content should be (root(p("aa"), TargetFormat("foo", BlockSequence(List(p("11\n22"),p("33")))), p("bb")))
@@ -142,7 +164,7 @@ class StandardDirectiveSpec extends FlatSpec
   
   
   "The for directive" should "process the default body once if the referenced object is a map" in {
-    val input = """aaa @:for "config.person": { {{name}} {{age}} } bbb"""
+    val input = """aaa @:for { "config.person" } {{name}} {{age}} @:@ bbb"""
     val config = "person: { name: Mary, age: 35 }" 
     parseTemplateWithConfig(input, config) should be (root(tRoot(
       tt("aaa "),
@@ -154,7 +176,7 @@ class StandardDirectiveSpec extends FlatSpec
   } 
   
   it should "process the default body multiple times if the referenced object is a list" in {
-    val input = """aaa @:for "config.persons": { {{name}} {{age}} } bbb"""
+    val input = """aaa @:for { "config.persons" } {{name}} {{age}} @:@ bbb"""
     val config = "persons: [{ name: Mary, age: 35 },{ name: Lucy, age: 32 },{ name: Anna, age: 42 }]" 
     parseTemplateWithConfig(input, config) should be (root(tRoot(
       tt("aaa "),
@@ -174,7 +196,7 @@ class StandardDirectiveSpec extends FlatSpec
   } 
   
   it should "not process the default body if the referenced object is an empty collection" in {
-    val input = """aaa @:for "config.persons": { {{name}} {{age}} } bbb"""
+    val input = """aaa @:for { "config.persons" } {{name}} {{age}} @:@ bbb"""
     val config = "persons: []" 
     parseTemplateWithConfig(input, config) should be (root(tRoot(
       tt("aaa "),
@@ -184,7 +206,7 @@ class StandardDirectiveSpec extends FlatSpec
   } 
   
   it should "process the default body once if the referenced object is a scalar value" in {
-    val input = """aaa @:for "config.person": { text } bbb"""
+    val input = """aaa @:for { "config.person" } text @:@ bbb"""
     val config = "person: Mary" 
     parseTemplateWithConfig(input, config) should be (root(tRoot(
       tt("aaa "),
@@ -194,7 +216,7 @@ class StandardDirectiveSpec extends FlatSpec
   } 
   
   "The if directive" should "process the default body once if the referenced object is the string 'true'" in {
-    val input = """aaa @:if "config.monday": { text } bbb"""
+    val input = """aaa @:if { "config.monday" } text @:@ bbb"""
     val config = "monday: true" 
     parseTemplateWithConfig(input, config) should be (root(tRoot(
       tt("aaa "),
@@ -204,7 +226,7 @@ class StandardDirectiveSpec extends FlatSpec
   } 
   
   it should "process the default body once if the referenced object is the string 'on'" in {
-    val input = """aaa @:if "config.monday": { text } bbb"""
+    val input = """aaa @:if { "config.monday" } text @:@ bbb"""
     val config = "monday: on" 
     parseTemplateWithConfig(input, config) should be (root(tRoot(
       tt("aaa "),
@@ -214,7 +236,7 @@ class StandardDirectiveSpec extends FlatSpec
   } 
   
   it should "not process the default body if the referenced object does not exist" in {
-    val input = """aaa @:if "config.monday": { text } bbb"""
+    val input = """aaa @:if { "config.monday" } text @:@ bbb"""
     val config = "tuesday: on" 
     parseTemplateWithConfig(input, config) should be (root(tRoot(
       tt("aaa "),
@@ -224,7 +246,7 @@ class StandardDirectiveSpec extends FlatSpec
   } 
   
   it should "not process the default body if the referenced object is not a string recognized as true" in {
-    val input = """aaa @:if "config.monday": { text } bbb"""
+    val input = """aaa @:if { "config.monday" } text @:@ bbb"""
     val config = "monday: off" 
     parseTemplateWithConfig(input, config) should be (root(tRoot(
       tt("aaa "),
@@ -399,7 +421,7 @@ class StandardDirectiveSpec extends FlatSpec
   "The template toc directive" should "produce a table of content starting from the root tree" in {
     new TreeModel with TocModel {
       
-      val template = """aaa @:toc. bbb {{document.content}}"""
+      val template = """aaa @:toc bbb {{document.content}}"""
       
       parseAndRewrite(template, markup) should be (result(rootList))  
     }
@@ -411,7 +433,7 @@ class StandardDirectiveSpec extends FlatSpec
       override val hasTitleDocs = true
       override val hasTitleDocLinks = true
 
-      val template = """aaa @:toc. bbb {{document.content}}"""
+      val template = """aaa @:toc bbb {{document.content}}"""
 
       parseAndRewrite(template, markup) should be (result(rootList))
     }
@@ -422,7 +444,7 @@ class StandardDirectiveSpec extends FlatSpec
       
       override val title = Some("Some Title")
       
-      val template = """aaa @:toc title="Some Title". bbb {{document.content}}"""
+      val template = """aaa @:toc { title="Some Title" } bbb {{document.content}}"""
       
       parseAndRewrite(template, markup) should be (result(rootList))  
     }
@@ -431,7 +453,7 @@ class StandardDirectiveSpec extends FlatSpec
   it should "produce a table of content starting from the current tree" in {
     new TreeModel with TocModel {
       
-      val template = """aaa @:toc root=#currentTree. bbb {{document.content}}"""
+      val template = """aaa @:toc { root=#currentTree } bbb {{document.content}}"""
       
       parseAndRewrite(template, markup) should be (result(currentList))  
     }
@@ -440,7 +462,7 @@ class StandardDirectiveSpec extends FlatSpec
   it should "produce a table of content starting from the root of the current document" in {
     new TreeModel with TocModel {
       
-      val template = """aaa @:toc root=#currentDocument. bbb {{document.content}}"""
+      val template = """aaa @:toc { root=#currentDocument } bbb {{document.content}}"""
       
       parseAndRewrite(template, markup) should be (result(currentDoc))  
     }
@@ -449,7 +471,7 @@ class StandardDirectiveSpec extends FlatSpec
   it should "produce a table of content starting from an explicit absolute path" in {
     new TreeModel with TocModel {
       
-      val template = """aaa @:toc root=/sub1. bbb {{document.content}}"""
+      val template = """aaa @:toc { root=/sub1 } bbb {{document.content}}"""
       
       parseAndRewrite(template, markup) should be (result(firstTree))  
     }
@@ -458,7 +480,7 @@ class StandardDirectiveSpec extends FlatSpec
   it should "produce a table of content starting from an explicit relative path" in {
     new TreeModel with TocModel {
       
-      val template = """aaa @:toc root="../sub1". bbb {{document.content}}"""
+      val template = """aaa @:toc { root="../sub1" } bbb {{document.content}}"""
       
       parseAndRewrite(template, markup) should be (result(firstTree))  
     }
@@ -467,7 +489,7 @@ class StandardDirectiveSpec extends FlatSpec
   it should "produce a table of content starting from an explicit relative path with depth 2" in {
     new TreeModel with TocModel {
       
-      val template = """aaa @:toc root="../sub1" depth=2. bbb {{document.content}}"""
+      val template = """aaa @:toc { root="../sub1" depth=2 } bbb {{document.content}}"""
       
       parseAndRewrite(template, markup) should be (result(firstTreeFirstLevel))  
     }
@@ -476,7 +498,7 @@ class StandardDirectiveSpec extends FlatSpec
   "The document toc directive"  should "produce a table of content starting from the root of the current document" in {
     new TreeModel with TocModel {
       
-      override val markup = """@:toc.
+      override val markup = """@:toc
         |
         |# Headline 1
         |
