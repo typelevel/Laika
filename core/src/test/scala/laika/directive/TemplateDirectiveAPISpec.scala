@@ -34,6 +34,10 @@ class TemplateDirectiveAPISpec extends FlatSpec
   object DirectiveSetup {
     import Templates.dsl._
 
+    trait Empty {
+      val directive = Templates.create("dir")(Templates.dsl.empty(TemplateString("foo")))
+    }
+    
     trait RequiredDefaultAttribute {
       val directive = Templates.create("dir") { attribute(Default) map (TemplateString(_)) }
     }
@@ -110,96 +114,102 @@ class TemplateDirectiveAPISpec extends FlatSpec
   
 
   import DirectiveSetup._
+
+  "The directive parser" should "parse an empty directive" in {
+    new Empty with TemplateParser {
+      Parsing ("aa @:dir bb") should produce (tRoot(tt("aa "), tt("foo"), tt(" bb")))
+    }
+  }
   
-  "The directive parser" should "parse a directive with one required default string attribute" in {
+  it should "parse a directive with one required default string attribute" in {
     new RequiredDefaultAttribute with TemplateParser {
-      Parsing ("aa @:dir foo. bb") should produce (tRoot(tt("aa "), tt("foo"), tt(" bb")))
+      Parsing ("aa @:dir { foo } bb") should produce (tRoot(tt("aa "), tt("foo"), tt(" bb")))
     }
   }
   
   it should "detect a directive with a missing required default attribute" in {
     new RequiredDefaultAttribute with TemplateParser {
       val msg = "One or more errors processing directive 'dir': required default attribute is missing"
-      Parsing ("aa @:dir. bb") should produce (tRoot(tt("aa "), tElem(invalid("@:dir.",msg)), tt(" bb")))
+      Parsing ("aa @:dir bb") should produce (tRoot(tt("aa "), tElem(invalid("@:dir",msg)), tt(" bb")))
     }
   }
   
   it should "parse a directive with an optional default int attribute" in {
     new OptionalDefaultAttribute with TemplateParser {
-      Parsing ("aa @:dir 5. bb") should produce (tRoot(tt("aa "), tt("5"), tt(" bb")))
+      Parsing ("aa @:dir { 5 } bb") should produce (tRoot(tt("aa "), tt("5"), tt(" bb")))
     }
   }
   
   it should "detect a directive with an optional invalid default int attribute" in {
     new OptionalDefaultAttribute with TemplateParser {
       val msg = "One or more errors processing directive 'dir': error converting default attribute: not an integer: foo"
-      Parsing ("aa @:dir foo. bb") should produce (tRoot(tt("aa "), tElem(invalid("@:dir foo.",msg)), tt(" bb")))
+      Parsing ("aa @:dir { foo } bb") should produce (tRoot(tt("aa "), tElem(invalid("@:dir { foo }",msg)), tt(" bb")))
     }
   }
   
   it should "parse a directive with a missing optional default int attribute" in {
     new OptionalDefaultAttribute with TemplateParser {
-      Parsing ("aa @:dir. bb") should produce (tRoot(tt("aa "), tt("<>"), tt(" bb")))
+      Parsing ("aa @:dir bb") should produce (tRoot(tt("aa "), tt("<>"), tt(" bb")))
     }
   }
   
   it should "parse a directive with one required named string attribute" in {
     new RequiredNamedAttribute with TemplateParser {
-      Parsing ("aa @:dir name=foo. bb") should produce (tRoot(tt("aa "), tt("foo"), tt(" bb")))
+      Parsing ("aa @:dir { name=foo } bb") should produce (tRoot(tt("aa "), tt("foo"), tt(" bb")))
     }
   }
   
   it should "parse a directive with a named string attribute value in quotes" in {
     new RequiredNamedAttribute with TemplateParser {
-      Parsing ("""aa @:dir name="foo bar". bb""") should produce (tRoot(tt("aa "), tt("foo bar"), tt(" bb")))
+      Parsing ("""aa @:dir { name="foo bar" } bb""") should produce (tRoot(tt("aa "), tt("foo bar"), tt(" bb")))
     }
   }
   
   it should "detect a directive with a missing required named attribute" in {
     new RequiredNamedAttribute with TemplateParser {
       val msg = "One or more errors processing directive 'dir': required attribute with name 'name' is missing"
-      Parsing ("aa @:dir. bb") should produce (tRoot(tt("aa "), tElem(invalid("@:dir.",msg)), tt(" bb")))
+      Parsing ("aa @:dir bb") should produce (tRoot(tt("aa "), tElem(invalid("@:dir",msg)), tt(" bb")))
     }
   }
   
   it should "parse a directive with an optional named int attribute" in {
     new OptionalNamedAttribute with TemplateParser {
-      Parsing ("aa @:dir name=5. bb") should produce (tRoot(tt("aa "), tt("5"), tt(" bb")))
+      Parsing ("aa @:dir { name=5 } bb") should produce (tRoot(tt("aa "), tt("5"), tt(" bb")))
     }
   }
   
   it should "detect a directive with an optional invalid named int attribute" in {
     new OptionalNamedAttribute with TemplateParser {
       val msg = "One or more errors processing directive 'dir': error converting attribute with name 'name': not an integer: foo"
-      Parsing ("aa @:dir name=foo. bb") should produce (tRoot(tt("aa "), tElem(invalid("@:dir name=foo.",msg)), tt(" bb")))
+      Parsing ("aa @:dir { name=foo } bb") should produce (tRoot(tt("aa "), tElem(invalid("@:dir { name=foo }",msg)), tt(" bb")))
     }
   }
   
   it should "parse a directive with a missing optional named int attribute" in {
     new OptionalNamedAttribute with TemplateParser {
       val msg = "One or more errors processing directive 'dir': required default attribute is missing"
-      Parsing ("aa @:dir. bb") should produce (tRoot(tt("aa "), tt("<>"), tt(" bb")))
+      Parsing ("aa @:dir bb") should produce (tRoot(tt("aa "), tt("<>"), tt(" bb")))
     }
   }
   
-  it should "parse a directive with a required default body" in {
+  it should "parse a directive with a body" in {
     new RequiredDefaultBody with TemplateParser {
       val body = tss(tt(" some "), tt("value"), tt(" text "))
-      Parsing ("aa @:dir: { some {{config.ref}} text } bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
+      Parsing ("aa @:dir some {{config.ref}} text @:@ bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
     }
   }
   
   it should "support a directive with a nested pair of braces" in {
     new RequiredDefaultBody with TemplateParser {
       val body = tss(tt(" some {ref} text "))
-      Parsing ("aa @:dir: { some {ref} text } bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
+      Parsing ("aa @:dir some {ref} text @:@ bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
     }
   }
   
-  it should "detect a directive with a missing required default body" in {
+  it should "detect a directive with a missing body" in {
     new RequiredDefaultBody with TemplateParser {
       val msg = "One or more errors processing directive 'dir': required body is missing"
-      Parsing ("aa @:dir. bb") should produce (tRoot(tt("aa "), tElem(invalid("@:dir.",msg)), tt(" bb")))
+      Parsing ("aa @:dir bb") should produce (tRoot(tt("aa "), tElem(invalid("@:dir",msg)), tt(" bb")))
     }
   }
   
@@ -209,7 +219,17 @@ class TemplateDirectiveAPISpec extends FlatSpec
         tt("foo:str:7"), 
         tt(" 1 "), tt("value"), tt(" 2 ")
       )
-      Parsing ("aa @:dir foo strAttr=str intAttr=7: { 1 {{config.ref}} 2 } bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
+      Parsing ("aa @:dir { foo strAttr=str intAttr=7 } 1 {{config.ref}} 2 @:@ bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
+    }
+  }
+
+  it should "parse a full directive spec with all elements present with attributes spanning two lines" in {
+    new FullDirectiveSpec with TemplateParser {
+      val body = tss(
+        tt("foo:str:7"),
+        tt(" 1 "), tt("value"), tt(" 2 ")
+      )
+      Parsing ("aa @:dir { foo strAttr=str\nintAttr=7 } 1 {{config.ref}} 2 @:@ bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
     }
   }
   
@@ -219,27 +239,27 @@ class TemplateDirectiveAPISpec extends FlatSpec
         tt("foo:..:0"), 
         tt(" 1 "), tt("value"), tt(" 2 ")
       )
-      Parsing ("aa @:dir foo: { 1 {{config.ref}} 2 } bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
+      Parsing ("aa @:dir { foo } 1 {{config.ref}} 2 @:@ bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
     }
   }
   
   it should "detect a full directive spec with all one required attribute and one required body missing" in {
     new FullDirectiveSpec with TemplateParser {
       val msg = "One or more errors processing directive 'dir': required default attribute is missing, required body is missing"
-      Parsing ("aa @:dir strAttr=str. bb") should produce (tRoot(tt("aa "), tElem(invalid("@:dir strAttr=str.",msg)), tt(" bb")))
+      Parsing ("aa @:dir { strAttr=str } bb") should produce (tRoot(tt("aa "), tElem(invalid("@:dir { strAttr=str }",msg)), tt(" bb")))
     }
   }
   
   it should "parse a directive with a required default body and parser access" in {
     new DirectiveWithParserAccess with TemplateParser {
       val body = tss(tt("me "), tt("value"), tt(" text "))
-      Parsing ("aa @:dir: { some {{config.ref}} text } bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
+      Parsing ("aa @:dir some {{config.ref}} text @:@ bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
     }
   }
   
   it should "parse a directive with a required default body and cursor access" in {
     new DirectiveWithContextAccess with TemplateParser {
-      Parsing ("aa @:dir: { text } bb") should produce (tRoot(tt("aa "), tt(" text /"), tt(" bb")))
+      Parsing ("aa @:dir text @:@ bb") should produce (tRoot(tt("aa "), tt(" text /"), tt(" bb")))
     }
   }
   
