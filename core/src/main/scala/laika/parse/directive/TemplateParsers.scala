@@ -43,7 +43,7 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
     val newBody: BodyParserBuilder = spec =>
       if (directives.get(spec.name).exists(_.hasBody)) withSource(delimitedRecursiveSpans(delimitedBy(spec.fence), contextRefOrNestedBraces)) ^^ { src =>
         Some(src._2.dropRight(spec.fence.length))
-      }
+      } | success(None)
       else success(None)
 
     withSource(directiveParser(newBody, legacyBody, this)) ^^ { case (result, source) =>

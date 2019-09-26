@@ -71,7 +71,7 @@ trait BuilderContext[E <: Element] {
     * needs to manually parse one of the directive
     * parts.
     */
-  type Parser <: (String => Seq[E])
+  type Parser <: String => Seq[E]
   
   
   type Result[+A] = Either[Seq[String], A]

@@ -105,6 +105,7 @@ object DirectiveParsers {
    *  all attributes and all body elements.
    *  
    *  @param bodyContent the parser for the body content which is different for a block directive than for a span or template directive
+   *  @param legacyBody the parser for the deprecated directive syntax that is still supported                   
    *  @param escapedText the parser for escape sequences according to the rules of the host markup language
    */
   def directiveParser (bodyContent: BodyParserBuilder, legacyBody: Parser[String], escapedText: EscapedTextParsers): Parser[ParsedDirective] = {
@@ -117,7 +118,7 @@ object DirectiveParsers {
     
     val newDirective: Parser[(String, List[Part]) ~ Option[Part]] = {
       declarationParser(escapedText) >> { case (name, attrs) =>
-        val body: Parser[Option[Part]] = bodyContent(DirectiveSpec(name, "TODO")).map(_.map { content => Part(Body, content) })
+        val body: Parser[Option[Part]] = bodyContent(DirectiveSpec(name, "@:@")).map(_.map { content => Part(Body, content) }) // TODO - 0.12 - support custom fence
         
         body ^^ (content => new ~((name, attrs), content))
       } 
@@ -152,7 +153,7 @@ object SpanDirectiveParsers {
     val newBody: BodyParserBuilder = spec => 
       if (directives.get(spec.name).exists(_.hasBody)) withSource(delimitedRecursiveSpans(delimitedBy(spec.fence), contextRefOrNestedBraces)) ^^ { src => 
         Some(src._2.dropRight(spec.fence.length)) 
-      }
+      } | success(None)
       else success(None)
     
     withRecursiveSpanParser(withSource(directiveParser(newBody, legacyBody, recParsers))) ^^ {
@@ -185,16 +186,17 @@ object BlockDirectiveParsers {
     val newBody: BodyParserBuilder = spec =>
       if (directives.get(spec.name).exists(_.hasBody)) {
         val closingFenceP = spec.fence <~ wsEol
-        wsEol ~> (not(closingFenceP | eof) ~> restOfLine).rep <~ opt(closingFenceP) ^^ { lines =>
+        wsEol ~> (not(closingFenceP | eof) ~> restOfLine).rep <~ closingFenceP ^^ { lines =>
           val trimmedLines = lines.dropWhile(_.trim.isEmpty).reverse.dropWhile(_.trim.isEmpty).reverse
           Some(trimmedLines.mkString("\n"))
         }
-      }
+      } | success(None)
       else wsEol ^^^ None
     
     withRecursiveSpanParser(withRecursiveBlockParser(withSource(directiveParser(newBody, legacyBody, recParsers)))) ^^ {
       case (recSpanParser, (recBlockParser, (result, source))) =>
-        Blocks.DirectiveInstance(directives.get(result.name), result, recBlockParser, recSpanParser, source)
+        val trimmedSource = if (source.lastOption.contains('\n')) source.dropRight(1) else source
+        Blocks.DirectiveInstance(directives.get(result.name), result, recBlockParser, recSpanParser, trimmedSource)
     }
   }
 
