@@ -247,6 +247,12 @@ class SpanDirectiveAPISpec extends FlatSpec
       Parsing (input) should produce (ss(txt("aa "), invalid(src,msg), txt(" bb")))
     }
   }
+
+  it should "detect an orphaned separator directive" in new SpanParser with SeparatedBody {
+    val input = "aa @:foo bb"
+    val msg = "Orphaned separator directive with name 'foo'"
+    Parsing (input) should produce (ss(txt("aa "), invalid("@:foo",msg), txt(" bb")))
+  }
   
   it should "parse a full directive spec with all elements present" in {
     new FullDirectiveSpec with SpanParser {

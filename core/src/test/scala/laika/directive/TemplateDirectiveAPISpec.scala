@@ -244,6 +244,12 @@ class TemplateDirectiveAPISpec extends FlatSpec
       Parsing (input) should produce (tRoot(tt("aa "), tElem(invalid(src,msg)), tt(" bb")))
     }
   }
+
+  it should "detect an orphaned separator directive" in new SeparatedBody with TemplateParser {
+    val input = "aa @:foo bb"
+    val msg = "Orphaned separator directive with name 'foo'"
+    Parsing (input) should produce (tRoot(tt("aa "), tElem(invalid("@:foo",msg)), tt(" bb")))
+  }
   
   it should "parse a full directive spec with all elements present" in {
     new FullDirectiveSpec with TemplateParser {

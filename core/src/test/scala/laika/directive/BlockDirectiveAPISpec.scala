@@ -344,34 +344,33 @@ class BlockDirectiveAPISpec extends FlatSpec
     }
   }
 
-  it should "detect a directive with an invalid separator" in {
-    new BlockParser with SeparatedBody {
-      val input = """aa
-        |
-        |@:dir
-        |aaa
-        |
-        |@:foo
-        |bbb
-        |
-        |@:bar
-        |ccc
-        |@:@
-        |
-        |bb""".stripMargin
-      val msg = "One or more errors processing directive 'dir': One or more errors processing separator directive 'bar': required default attribute is missing"
-      val src = input.split("\n").toSeq.slice(2, 11).mkString("\n")
-      println(MarkupParser
-        .of(Markdown)
-        .using(DirectiveSupport.withDirectives(Seq(directive), Seq(), Seq()))
-        .build
-        .parse(input)
-        .right.get
-        .content.content(1).asInstanceOf[InvalidBlock].message.content
-      )
-      
-      Parsing (input) should produce (root(p("aa"), invalid(src,msg), p("bb")))
-    }
+  it should "detect a directive with an invalid separator" in new BlockParser with SeparatedBody {
+    val input = """aa
+      |
+      |@:dir
+      |aaa
+      |
+      |@:foo
+      |bbb
+      |
+      |@:bar
+      |ccc
+      |@:@
+      |
+      |bb""".stripMargin
+    val msg = "One or more errors processing directive 'dir': One or more errors processing separator directive 'bar': required default attribute is missing"
+    val src = input.split("\n").toSeq.slice(2, 11).mkString("\n")
+    Parsing (input) should produce (root(p("aa"), invalid(src,msg), p("bb")))
+  }
+
+  it should "detect an orphaned separator directive" in new BlockParser with SeparatedBody {
+    val input = """aa
+      |
+      |@:foo
+      |
+      |bb""".stripMargin
+    val msg = "Orphaned separator directive with name 'foo'"
+    Parsing (input) should produce (root(p("aa"), invalid("@:foo",msg), p("bb")))
   }
 
   it should "parse a full directive spec with all elements present" in {

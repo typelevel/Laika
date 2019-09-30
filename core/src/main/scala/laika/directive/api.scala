@@ -562,9 +562,12 @@ object Spans extends BuilderContext[Span] {
   }
 
   case class SeparatorInstance (parsedResult: ParsedDirective,
-                                options: Options = NoOpt) extends Span with SeparatorInstanceBase {
+                                source: String,
+                                options: Options = NoOpt) extends Span with SeparatorInstanceBase with SpanResolver {
     type Self = SeparatorInstance
     def withOptions (options: Options): SeparatorInstance = copy(options = options)
+    def resolve (cursor: DocumentCursor): Span =
+      InvalidElement(s"Orphaned separator directive with name '${parsedResult.name}'", "@" + source).asSpan
   }
   
 }
@@ -596,9 +599,12 @@ object Blocks extends BuilderContext[Block] {
   }
   
   case class SeparatorInstance (parsedResult: ParsedDirective,
-                                options: Options = NoOpt) extends Block with SeparatorInstanceBase {
+                                source: String,
+                                options: Options = NoOpt) extends Block with SeparatorInstanceBase with BlockResolver {
     type Self = SeparatorInstance
     def withOptions (options: Options): SeparatorInstance = copy(options = options)
+    def resolve (cursor: DocumentCursor): Block =
+      InvalidElement(s"Orphaned separator directive with name '${parsedResult.name}'", "@" + source).asBlock
   }
 
 }
@@ -630,9 +636,12 @@ object Templates extends BuilderContext[TemplateSpan] {
   }
 
   case class SeparatorInstance (parsedResult: ParsedDirective,
-                                options: Options = NoOpt) extends TemplateSpan with SeparatorInstanceBase {
+                                source: String,
+                                options: Options = NoOpt) extends TemplateSpan with SeparatorInstanceBase with SpanResolver {
     type Self = SeparatorInstance
     def withOptions (options: Options): SeparatorInstance = copy(options = options)
+    def resolve (cursor: DocumentCursor): TemplateSpan = 
+      InvalidElement(s"Orphaned separator directive with name '${parsedResult.name}'", "@" + source).asTemplateSpan
   }
 
 }

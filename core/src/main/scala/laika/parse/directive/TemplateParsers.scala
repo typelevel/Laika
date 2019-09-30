@@ -48,7 +48,7 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
       else success(None)
 
     withSource(directiveParser(newBody, legacyBody, this)) ^^ { case (result, source) =>
-      if (separators.contains(result.name)) Templates.SeparatorInstance(result)
+      if (separators.contains(result.name)) Templates.SeparatorInstance(result, source)
       else Templates.DirectiveInstance(directives.get(result.name), result, templateSpans, source)
     }
   }
