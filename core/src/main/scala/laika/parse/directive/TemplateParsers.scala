@@ -38,6 +38,7 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
 
   lazy val templateDirective: Parser[TemplateSpan] = {
 
+    val separators = directives.values.flatMap(_.separators).toSet
     val contextRefOrNestedBraces = Map('{' -> (reference(TemplateContextReference(_)) | nestedBraces))
     val legacyBody = wsOrNl ~ '{' ~> (withSource(delimitedRecursiveSpans(delimitedBy('}'), contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
     val newBody: BodyParserBuilder = spec =>
@@ -47,7 +48,8 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
       else success(None)
 
     withSource(directiveParser(newBody, legacyBody, this)) ^^ { case (result, source) =>
-      Templates.DirectiveInstance(directives.get(result.name), result, templateSpans, source)
+      if (separators.contains(result.name)) Templates.SeparatorInstance(result)
+      else Templates.DirectiveInstance(directives.get(result.name), result, templateSpans, source)
     }
   }
 

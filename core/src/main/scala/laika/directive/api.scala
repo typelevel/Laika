@@ -16,9 +16,11 @@
 
 package laika.directive
 
-import laika.ast._
+import laika.ast.{TemplateSpan, _}
 import laika.parse.directive.DirectiveParsers.ParsedDirective
 import laika.parse.{Failure, Success}
+
+import scala.reflect.ClassTag
 
 /** The id for a directive part.
   */
@@ -76,11 +78,21 @@ trait BuilderContext[E <: Element] {
   
   type Result[+A] = Either[Seq[String], A]
 
+  case class Multipart[T](mainBody: Seq[E], children: Seq[T]) {
+    def collect[U <: T : ClassTag]: Seq[U] = children.collect { case u:U => u }
+  }
+
+  sealed trait PartContent
+  object PartContent {
+    case class Source(value: String) extends PartContent
+    case class Parsed(value: Seq[E]) extends PartContent
+  }
+
   /** The context of a directive during execution.
     */
-  case class DirectiveContext (parts: Map[Key, String], parser: Parser, cursor: DocumentCursor) {
+  case class DirectiveContext (parts: Map[Key, PartContent], parser: Parser, cursor: DocumentCursor) {
 
-    def part (key: Key): Option[String] = parts.get(key)
+    def part (key: Key): Option[PartContent] = parts.get(key)
 
   }
 
@@ -92,6 +104,7 @@ trait BuilderContext[E <: Element] {
     def map [B](f: A => B): DirectivePart[B] = new DirectivePart[B] {
       def apply (p: DirectiveContext) = self(p) map f
       def hasBody: Boolean = self.hasBody
+      def separators: Set[String] = self.separators
     }
 
     def ~ [B] (other: DirectivePart[B]): DirectivePart[A ~ B] = new DirectivePart[A ~ B] {
@@ -102,12 +115,15 @@ trait BuilderContext[E <: Element] {
         case (_, Left(msg)) => Left(msg)
       }
       def hasBody: Boolean = other.hasBody || self.hasBody
+      def separators: Set[String] = other.separators ++ self.separators
     }
 
     /** Indicates whether the directive supports a body section
       * after the directive name and attribute section.
       */
     def hasBody: Boolean
+    
+    def separators: Set[String]
 
     /** Indicates that this directive part is optional,
       * turning the result into an Option value.
@@ -117,14 +133,39 @@ trait BuilderContext[E <: Element] {
     // def optional: DirectivePart[Option[A]] = map (Some(_))
 
   }
-
-  trait DirectiveInstanceBase {
+  
+  trait DirectiveProcessor {
 
     def typeName: String
 
     def parsedResult: ParsedDirective
 
     def name: String = parsedResult.name
+
+    def process[T] (cursor: DocumentCursor, factory: Option[Map[Key, String] => Result[T]]): Result[T] = {
+
+      def directiveOrMsg: Result[Map[Key, String] => Result[T]] =
+        factory.toRight(Seq(s"No $typeName directive registered with name: $name"))
+
+      def partMap: Result[Map[Key, String]] = {
+        val dups = parsedResult.parts.groupBy(_.key).filterNot(_._2.tail.isEmpty).keySet
+        if (dups.isEmpty) Right(parsedResult.parts.map(p => (p.key, p.content)).toMap)
+        else Left(dups.map("Duplicate "+_.desc).toList)
+      }
+
+      for {
+        dir   <- directiveOrMsg
+        parts <- partMap
+        res   <- dir(parts)
+      } yield res
+
+    }
+    
+  }
+
+  trait DirectiveInstanceBase extends DirectiveProcessor {
+    
+    import laika.collection.TransitionalCollectionOps._
 
     def directive: Option[Directive]
     
@@ -134,25 +175,32 @@ trait BuilderContext[E <: Element] {
 
     def resolve (cursor: DocumentCursor): E = {
 
-      def directiveOrMsg: Result[Directive] =
-        directive.toRight(Seq(s"No $typeName directive registered with name: $name"))
-
-      def partMap: Result[Map[Key, String]] = {
-        val dups = parsedResult.parts.groupBy(_.key).filterNot(_._2.tail.isEmpty).keySet
-        if (dups.isEmpty) Right(parsedResult.parts.map(p => (p.key, p.content)).toMap)
-        else Left(dups.map("Duplicate "+_.desc).toList)
+      val factory: Option[Map[Key, String] => Result[E]] = directive.map { dir =>
+        parts => dir(DirectiveContext(parts.mapValuesStrict(PartContent.Source), parser, cursor))
       }
 
-      val res = for {
-        dir   <- directiveOrMsg
-        parts <- partMap
-        res   <- dir.apply(DirectiveContext(parts, parser, cursor))
-      } yield res
-
-      res.fold(messages => createInvalidElement("One or more errors processing directive '"
-        + name + "': " + messages.mkString(", ")), identity)
+      process(cursor, factory).fold(messages => createInvalidElement(s"One or more errors processing directive '$name': "
+        + messages.mkString(", ")), identity)
     }
 
+  }
+  
+  trait SeparatorInstanceBase extends DirectiveProcessor {
+
+    import laika.collection.TransitionalCollectionOps._
+    
+    val typeName: String = "separator"
+    
+    def resolve[T] (context: DirectiveContext, body: Seq[E], directive: Option[SeparatorDirective[T]]): Result[T] = {
+
+      val factory: Option[Map[Key, String] => Result[T]] = directive.map { dir =>
+        parts => dir(context.copy(parts = parts.mapValuesStrict(PartContent.Source) + (Body -> PartContent.Parsed(body))))
+      }
+
+      process(context.cursor, factory)
+      
+    }
+    
   }
 
   trait IdBuilders {
@@ -199,12 +247,29 @@ trait BuilderContext[E <: Element] {
     */
   trait Combinators {
     
-    private def convert [T] (context: DirectiveContext, key: Key, converter: Converter[T]) = 
-      context.part(key).map(s => converter(context.parser, s))
+    private def convert [T] (context: DirectiveContext, key: Key, converter: Converter[T]): Option[Result[T]] = 
+      context.part(key).map {
+        case PartContent.Source(value) => converter(context.parser, value)
+        case PartContent.Parsed(_) => Left(Seq(s"error converting ${key.desc}: expected raw string element"))
+      }
 
-    private def bodyPart [T] (key: Key, converter: Converter[T], msg: => String) = new DirectivePart[T] {
-      def apply (context: DirectiveContext) = convert(context, key, converter).getOrElse(Left(Seq(msg)))
+    private def convertBody (context: DirectiveContext): Option[Result[Seq[E]]] =
+      context.part(Body).map {
+        case PartContent.Source(value) => dsl.parsed(context.parser, value)
+        case PartContent.Parsed(value) => Right(value)
+      }
+
+    private def bodyPart [T] (converter: Converter[T]) = new DirectivePart[T] {
+      def apply (context: DirectiveContext) = 
+        convert(context, Body, converter).getOrElse(Left(Seq(s"required body is missing")))
       def hasBody: Boolean = true
+      def separators: Set[String] = Set.empty
+    }
+
+    private def parsedBodyPart = new DirectivePart[Seq[E]] {
+      def apply (context: DirectiveContext) = convertBody(context).getOrElse(Left(Seq(s"required body is missing")))
+      def hasBody: Boolean = true
+      def separators: Set[String] = Set.empty
     }
 
     class AttributePart [T] (key: Key, converter: Converter[T], msg: => String) extends DirectivePart[T] {
@@ -217,13 +282,50 @@ trait BuilderContext[E <: Element] {
           case None               => Right(None)
         }
         def hasBody: Boolean = false
+        def separators: Set[String] = Set.empty
       }
       def hasBody: Boolean = false
+      def separators: Set[String] = Set.empty
+    }
+    
+    class SeparatedBodyPart[T] (directives: Seq[SeparatorDirective[T]]) extends DirectivePart[Multipart[T]] {
+      
+      def apply (context: DirectiveContext): Result[Multipart[T]] = 
+        convertBody(context).getOrElse(Left(Seq(s"required body is missing"))).flatMap(toMultipart(context))
+      
+      def hasBody: Boolean = true
+      
+      override def separators: Set[String] = directives.map(_.name).toSet
+      
+      def toMultipart (context: DirectiveContext)(elements: Seq[E]): Result[Multipart[T]] = {
+        
+        def splitNextBodyPart(remaining: Seq[E]): (Seq[E], Seq[E]) = remaining.span(!_.isInstanceOf[SeparatorInstanceBase])
+        
+        def processSeparators(remaining: Seq[E], acc: Seq[Result[T]]): Seq[Result[T]] = {
+          remaining.headOption
+            .collect { case i: SeparatorInstanceBase => i }
+            .fold(acc) { instance =>
+              val (body, newRemaining) = splitNextBodyPart(remaining.tail)
+              val nextSeparator = instance.resolve(context, body, directives.find(_.name == instance.parsedResult.name))
+              processSeparators(newRemaining, acc :+ nextSeparator
+                .left.map(errs => Seq(s"One or more errors processing separator directive '${instance.parsedResult.name}': ${errs.mkString(", ")}")))
+            }
+        }
+        
+        val (mainBody, remaining) = splitNextBodyPart(elements)
+        val separators: Seq[Either[Seq[String], T]] = processSeparators(remaining, Nil)
+        
+        val (errors, valid) = (separators.collect{case Left(e) => e}, separators.collect{case Right(v) => v})
+        if (errors.isEmpty) Right(Multipart(mainBody, valid))
+        else Left(Seq(errors.flatten.mkString(", ")))
+      }
+      
     }
 
     private def part [T](f: DirectiveContext => Result[T]) = new DirectivePart[T] {
       def apply (p: DirectiveContext) = f(p)
       def hasBody: Boolean = false
+      def separators: Set[String] = Set.empty
     }
 
     /** Specifies a required attribute.
@@ -239,15 +341,17 @@ trait BuilderContext[E <: Element] {
       *
       * @return a directive part that can be combined with further parts with the `~` operator
       */
-    def body: DirectivePart[Seq[E]] = bodyPart(Body, dsl.parsed, s"required body is missing")
+    def body: DirectivePart[Seq[E]] = parsedBodyPart
     
     /** Specifies a required body part.
       *
       * @param converter the function to use for converting and validating the parsed value
       * @return a directive part that can be combined with further parts with the `~` operator
       */
-    def body [T](converter: Converter[T]): DirectivePart[T]
-    = bodyPart(Body, converter, s"required body is missing")
+    def body [T](converter: Converter[T]): DirectivePart[T] = bodyPart(converter)
+
+    def separatedBody[T] (directives: Seq[SeparatorDirective[T]]): DirectivePart[Multipart[T]] =
+      new SeparatedBodyPart(directives)
 
     /** Specifies an empty directive that does not accept any attributes or
       * body elements.
@@ -287,12 +391,19 @@ trait BuilderContext[E <: Element] {
   class Directive private[directive] (val name: String, part: DirectivePart[E]) {
     def apply (context: DirectiveContext): Result[E] = part(context)
     def hasBody: Boolean = part.hasBody
+    def separators: Set[String] = part.separators
+  }
+
+  class SeparatorDirective[+T] private[directive] (val name: String, part: DirectivePart[T]) {
+    def apply (context: DirectiveContext): Result[T] = part(context)
   }
 
   /** Creates a new directive with the specified name
     *  and part specification.
     */
   def create (name: String)(part: DirectivePart[E]): Directive = new Directive(name, part)
+
+  def separator[T] (name: String)(part: DirectivePart[T]): SeparatorDirective[T] = new SeparatorDirective(name, part)
 
   /** Turns a collection of directives into a map,
     *  using the name of the directive as the key.
@@ -449,6 +560,12 @@ object Spans extends BuilderContext[Span] {
     def withOptions (options: Options): DirectiveInstance = copy(options = options)
     def createInvalidElement (message: String): Span = InvalidElement(message, "@"+source).asSpan
   }
+
+  case class SeparatorInstance (parsedResult: ParsedDirective,
+                                options: Options = NoOpt) extends Span with SeparatorInstanceBase {
+    type Self = SeparatorInstance
+    def withOptions (options: Options): SeparatorInstance = copy(options = options)
+  }
   
 }
 
@@ -477,6 +594,12 @@ object Blocks extends BuilderContext[Block] {
     def withOptions (options: Options): DirectiveInstance = copy(options = options)
     def createInvalidElement (message: String): Block = InvalidElement(message, s"@$source").asBlock
   }
+  
+  case class SeparatorInstance (parsedResult: ParsedDirective,
+                                options: Options = NoOpt) extends Block with SeparatorInstanceBase {
+    type Self = SeparatorInstance
+    def withOptions (options: Options): SeparatorInstance = copy(options = options)
+  }
 
 }
 
@@ -504,6 +627,12 @@ object Templates extends BuilderContext[TemplateSpan] {
     }
     def withOptions (options: Options): DirectiveInstance = copy(options = options)
     def createInvalidElement (message: String): TemplateSpan = InvalidElement(message, "@" + source).asTemplateSpan
+  }
+
+  case class SeparatorInstance (parsedResult: ParsedDirective,
+                                options: Options = NoOpt) extends TemplateSpan with SeparatorInstanceBase {
+    type Self = SeparatorInstance
+    def withOptions (options: Options): SeparatorInstance = copy(options = options)
   }
 
 }

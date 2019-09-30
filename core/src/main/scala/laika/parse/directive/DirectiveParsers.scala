@@ -147,7 +147,8 @@ object SpanDirectiveParsers {
   def spanDirectiveParser(directives: Map[String, Spans.Directive])(recParsers: RecursiveSpanParsers): Parser[Span] = {
 
     import recParsers._
-
+    
+    val separators = directives.values.flatMap(_.separators).toSet
     val contextRefOrNestedBraces = Map('{' -> (reference(MarkupContextReference(_)) | nestedBraces))
     val legacyBody = wsOrNl ~ '{' ~> (withSource(delimitedRecursiveSpans(delimitedBy('}'), contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
     val newBody: BodyParserBuilder = spec => 
@@ -158,7 +159,8 @@ object SpanDirectiveParsers {
     
     withRecursiveSpanParser(withSource(directiveParser(newBody, legacyBody, recParsers))) ^^ {
       case (recParser, (result, source)) => 
-        Spans.DirectiveInstance(directives.get(result.name), result, recParser, source)
+        if (separators.contains(result.name)) Spans.SeparatorInstance(result)
+        else Spans.DirectiveInstance(directives.get(result.name), result, recParser, source)
     }
   }
 
@@ -179,6 +181,7 @@ object BlockDirectiveParsers {
 
     import recParsers._
 
+    val separators = directives.values.flatMap(_.separators).toSet
     val legacyBody = indentedBlock() ^^? { block =>
       val trimmed = block.trim
       Either.cond(trimmed.nonEmpty, trimmed, "empty body")
@@ -196,7 +199,8 @@ object BlockDirectiveParsers {
     withRecursiveSpanParser(withRecursiveBlockParser(withSource(directiveParser(newBody, legacyBody, recParsers)))) ^^ {
       case (recSpanParser, (recBlockParser, (result, source))) =>
         val trimmedSource = if (source.lastOption.contains('\n')) source.dropRight(1) else source
-        Blocks.DirectiveInstance(directives.get(result.name), result, recBlockParser, recSpanParser, trimmedSource)
+        if (separators.contains(result.name)) Blocks.SeparatorInstance(result)
+        else Blocks.DirectiveInstance(directives.get(result.name), result, recBlockParser, recSpanParser, trimmedSource)
     }
   }
 
