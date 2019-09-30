@@ -20,6 +20,7 @@ import laika.ast._
 import laika.rewrite.TemplateRewriter
 import laika.rewrite.nav.TocGenerator
 
+import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 
 /** Provides the implementation for the standard directives included in Laika.
@@ -56,27 +57,34 @@ object StandardDirectives extends DirectiveRegistry {
     import Templates.dsl._
 
     val emptyValues = Set("",false,null,None)
+    case class Empty (spans: Seq[TemplateSpan])
+    val emptySeparator = Templates.separator("empty")(body.map(Empty))
     
-    (attribute(Default) ~ body ~ cursor).map {
-      case path ~ content ~ cursor => {
+    (attribute(Default) ~ separatedBody(Seq(emptySeparator)) ~ cursor).map {
+      case path ~ multipart ~ cursor => {
         
-        def rewriteContent (value: Any) =
-          TemplateSpanSequence(content) rewriteChildren TemplateRewriter.rewriteRules(cursor.withReferenceContext(value))
+        def rewrite (spans: Seq[TemplateSpan], childCursor: DocumentCursor): TemplateSpanSequence =
+          TemplateSpanSequence(spans) rewriteChildren TemplateRewriter.rewriteRules(childCursor)
+        
+        def rewriteContent (value: Any): TemplateSpanSequence = rewrite(multipart.mainBody, cursor.withReferenceContext(value))
+
+        // TODO - 0.12 - error handling for multiple Empty separators requires min/max support in the DSL
+        def rewriteFallback = multipart.children.headOption.map(_.spans).map(rewrite(_, cursor)).getOrElse(TemplateSpanSequence(Nil))
         
         cursor.resolveReference(path) match {
           case Some(m: Map[_,_])  => rewriteContent(m) 
           case Some(m: JMap[_,_]) => rewriteContent(m) 
-          case Some(it: Iterable[_]) if it.isEmpty => TemplateSpanSequence(Nil)
-          case Some(it: JCol[_])     if it.isEmpty => TemplateSpanSequence(Nil)
+          case Some(it: Iterable[_]) if it.isEmpty => rewriteFallback
+          case Some(it: JCol[_])     if it.isEmpty => rewriteFallback
           case Some(it: Iterable[_]) =>
             val spans = for (value <- it) yield rewriteContent(value)
             TemplateSpanSequence(spans.toSeq)
           case Some(it: JCol[_]) =>
             val spans = for (value <- it.asScala) yield rewriteContent(value)
             TemplateSpanSequence(spans.toSeq)
-          case Some(value) if emptyValues(value) => TemplateSpanSequence(Nil)
+          case Some(value) if emptyValues(value) => rewriteFallback
           case Some(value)            => rewriteContent(value)
-          case None                   => TemplateSpanSequence(Nil)
+          case None                   => rewriteFallback
         }
       }
     }
@@ -89,18 +97,36 @@ object StandardDirectives extends DirectiveRegistry {
     import Templates.dsl._
     
     val trueStrings = Set("true","yes","on","enabled")
+    
+    sealed trait IfSeparator extends Product with Serializable
+    case class ElseIf (ref: String, body: Seq[TemplateSpan]) extends IfSeparator
+    case class Else (body: Seq[TemplateSpan]) extends IfSeparator
+    
+    val elseIfSep = Templates.separator("elseIf")((body ~ attribute(Default)).map{ case spans ~ ref => ElseIf(ref, spans) })
+    val elseSep = Templates.separator("else")(body.map(Else))
 
-    (attribute(Default) ~ body ~ cursor).map {
-      case path ~ content ~ cursor => {
+    (attribute(Default) ~ separatedBody(Seq(elseIfSep, elseSep)) ~ cursor).map {
+      case path ~ multipart ~ cursor => {
+
+        def rewrite (spans: Seq[TemplateSpan]): TemplateSpanSequence =
+          TemplateSpanSequence(spans) rewriteChildren TemplateRewriter.rewriteRules(cursor)
         
-        def rewriteContent =
-          TemplateSpanSequence(content) rewriteChildren TemplateRewriter.rewriteRules(cursor)
+        def rewriteFallback = multipart.children
+          .collectFirst { case e: Else => e }
+          .map(_.body).map(rewrite)
+          .getOrElse(TemplateSpanSequence(Nil))
         
-        cursor.resolveReference(path) match {
-          case Some(true) => rewriteContent
-          case Some(s: String) if trueStrings(s) => rewriteContent
-          case _ => TemplateSpanSequence(Nil)
-        }
+        @tailrec
+        def process (parts: Seq[ElseIf]): TemplateSpanSequence = 
+          if (parts.isEmpty) rewriteFallback
+          else cursor.resolveReference(parts.head.ref) match {
+            case Some(true) => rewrite(parts.head.body)
+            case Some(s: String) if trueStrings(s) => rewrite(parts.head.body)
+            case _ => process(parts.tail)
+          }
+        
+        val alternatives = ElseIf(path, multipart.mainBody) +: multipart.collect[ElseIf] 
+        process(alternatives)
       }
     }
   }

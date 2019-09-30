@@ -203,8 +203,18 @@ class StandardDirectiveSpec extends FlatSpec
       TemplateSpanSequence(Nil),
       tt(" bbb")
     )))  
-  } 
-  
+  }
+
+  it should "process the @:empty body part if the referenced object is an empty collection" in {
+    val input = """aaa @:for { "config.persons" } {{name}} {{age}} @:empty none @:@ bbb"""
+    val config = "persons: []"
+    parseTemplateWithConfig(input, config) should be (root(tRoot(
+      tt("aaa "),
+      TemplateSpanSequence(List(tt(" none "))),
+      tt(" bbb")
+    )))
+  }
+
   it should "process the default body once if the referenced object is a scalar value" in {
     val input = """aaa @:for { "config.person" } text @:@ bbb"""
     val config = "person: Mary" 
@@ -243,8 +253,38 @@ class StandardDirectiveSpec extends FlatSpec
       TemplateSpanSequence(Nil),
       tt(" bbb")
     )))  
-  } 
-  
+  }
+
+  it should "process the @:else body if the referenced object does not exist" in {
+    val input = """aaa @:if { "config.monday" } text @:else none @:@ bbb"""
+    val config = "tuesday: on"
+    parseTemplateWithConfig(input, config) should be (root(tRoot(
+      tt("aaa "),
+      TemplateSpanSequence(List(tt(" none "))),
+      tt(" bbb")
+    )))
+  }
+
+  it should "process the first @:elseIf body if it is defined" in {
+    val input = """111 @:if { "config.aaa" } aaa @:elseIf { "config.bbb" } bbb @:elseIf { "config.ccc" } ccc @:else none @:@ 222"""
+    val config = "bbb: on"
+    parseTemplateWithConfig(input, config) should be (root(tRoot(
+      tt("111 "),
+      TemplateSpanSequence(List(tt(" bbb "))),
+      tt(" 222")
+    )))
+  }
+
+  it should "process the second @:elseIf body if it is defined" in {
+    val input = """111 @:if { "config.aaa" } aaa @:elseIf { "config.bbb" } bbb @:elseIf { "config.ccc" } ccc @:else none @:@ 222"""
+    val config = "ccc: on"
+    parseTemplateWithConfig(input, config) should be (root(tRoot(
+      tt("111 "),
+      TemplateSpanSequence(List(tt(" ccc "))),
+      tt(" 222")
+    )))
+  }
+
   it should "not process the default body if the referenced object is not a string recognized as true" in {
     val input = """aaa @:if { "config.monday" } text @:@ bbb"""
     val config = "monday: off" 
