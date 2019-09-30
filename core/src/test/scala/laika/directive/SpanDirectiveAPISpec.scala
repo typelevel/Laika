@@ -62,6 +62,21 @@ class SpanDirectiveAPISpec extends FlatSpec
     trait RequiredBody {
       val directive = Spans.create("dir") { body map (SpanSequence(_)) }
     }
+
+    trait SeparatedBody {
+      sealed trait Child extends Product with Serializable
+      case class Foo (content: Seq[Span]) extends Child
+      case class Bar (content: Seq[Span], attr: String) extends Child
+      val sep1 = Spans.separator("foo") { body map Foo }
+      val sep2 = Spans.separator("bar") { (body ~ attribute(Default)) map { case spans ~ attr => Bar(spans, attr) } }
+      val directive = Spans.create("dir") { separatedBody[Child](Seq(sep1, sep2)) map { multipart =>
+        val seps = multipart.children.flatMap {
+          case Foo(content) => txt("foo") +: content
+          case Bar(content, attr) => txt(attr) +: content
+        }
+        SpanSequence(multipart.mainBody ++ seps)
+      }}
+    }
     
     trait FullDirectiveSpec {
       val directive = Spans.create("dir") {
@@ -213,6 +228,23 @@ class SpanDirectiveAPISpec extends FlatSpec
     new SpanParser with RequiredBody {
       val msg = "One or more errors processing directive 'dir': required body is missing"
       Parsing ("aa @:dir bb") should produce (ss(txt("aa "), invalid("@:dir",msg), txt(" bb")))
+    }
+  }
+
+  it should "parse a directive with a separated body" in {
+    new SpanParser with SeparatedBody {
+      val input = """aa @:dir aaa @:foo bbb @:bar { baz } ccc @:@ bb"""
+      val body = SpanSequence(List(txt(" aaa foo bbb baz ccc ")))
+      Parsing (input) should produce (ss(txt("aa "), body, txt(" bb")))
+    }
+  }
+
+  it should "detect a directive with an invalid separator" in {
+    new SpanParser with SeparatedBody {
+      val input = """aa @:dir aaa @:foo bbb @:bar ccc @:@ bb"""
+      val msg = "One or more errors processing directive 'dir': One or more errors processing separator directive 'bar': required default attribute is missing"
+      val src = input.slice(3, 36)
+      Parsing (input) should produce (ss(txt("aa "), invalid(src,msg), txt(" bb")))
     }
   }
   

@@ -58,8 +58,23 @@ class TemplateDirectiveAPISpec extends FlatSpec
       }
     }
     
-    trait RequiredDefaultBody {
+    trait RequiredBody {
       val directive = Templates.create("dir") { body map (TemplateSpanSequence(_)) }
+    }
+
+    trait SeparatedBody {
+      sealed trait Child extends Product with Serializable
+      case class Foo (content: Seq[TemplateSpan]) extends Child
+      case class Bar (content: Seq[TemplateSpan], attr: String) extends Child
+      val sep1 = Templates.separator("foo") { body map Foo }
+      val sep2 = Templates.separator("bar") { (body ~ attribute(Default)) map { case spans ~ attr => Bar(spans, attr) } }
+      val directive = Templates.create("dir") { separatedBody[Child](Seq(sep1, sep2)) map { multipart =>
+        val seps = multipart.children.flatMap {
+          case Foo(content) => tt("foo") +: content
+          case Bar(content, attr) => tt(attr) +: content
+        }
+        TemplateSpanSequence(multipart.mainBody ++ seps)
+      }}
     }
     
     trait FullDirectiveSpec {
@@ -95,7 +110,7 @@ class TemplateDirectiveAPISpec extends FlatSpec
   trait TemplateParser extends ParseResultHelpers
                           with DefaultParserHelpers[TemplateRoot] {
     
-    val directive: Templates.Directive
+    def directive: Templates.Directive
 
     val templateParsers = new TemplateParsers(Map(directive.name -> directive))
     
@@ -193,23 +208,40 @@ class TemplateDirectiveAPISpec extends FlatSpec
   }
   
   it should "parse a directive with a body" in {
-    new RequiredDefaultBody with TemplateParser {
+    new RequiredBody with TemplateParser {
       val body = tss(tt(" some "), tt("value"), tt(" text "))
       Parsing ("aa @:dir some {{config.ref}} text @:@ bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
     }
   }
   
   it should "support a directive with a nested pair of braces" in {
-    new RequiredDefaultBody with TemplateParser {
+    new RequiredBody with TemplateParser {
       val body = tss(tt(" some {ref} text "))
       Parsing ("aa @:dir some {ref} text @:@ bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
     }
   }
   
   it should "detect a directive with a missing body" in {
-    new RequiredDefaultBody with TemplateParser {
+    new RequiredBody with TemplateParser {
       val msg = "One or more errors processing directive 'dir': required body is missing"
       Parsing ("aa @:dir bb") should produce (tRoot(tt("aa "), tElem(invalid("@:dir",msg)), tt(" bb")))
+    }
+  }
+
+  it should "parse a directive with a separated body" in {
+    new SeparatedBody with TemplateParser {
+      val input = """aa @:dir aaa @:foo bbb @:bar { baz } ccc @:@ bb"""
+      val body = TemplateSpanSequence(List(tt(" aaa "),tt("foo"),tt(" bbb "),tt("baz"),tt(" ccc ")))
+      Parsing (input) should produce (tRoot(tt("aa "), body, tt(" bb")))
+    }
+  }
+
+  it should "detect a directive with an invalid separator" in {
+    new SeparatedBody with TemplateParser {
+      val input = """aa @:dir aaa @:foo bbb @:bar ccc @:@ bb"""
+      val msg = "One or more errors processing directive 'dir': One or more errors processing separator directive 'bar': required default attribute is missing"
+      val src = input.slice(3, 36)
+      Parsing (input) should produce (tRoot(tt("aa "), tElem(invalid(src,msg)), tt(" bb")))
     }
   }
   

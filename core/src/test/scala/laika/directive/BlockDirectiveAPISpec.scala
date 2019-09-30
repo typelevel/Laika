@@ -17,10 +17,12 @@
 package laika.directive
 
 import com.typesafe.config.ConfigFactory
+import laika.api.MarkupParser
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.bundle.{BlockParser, BlockParserBuilder, ParserBundle}
+import laika.format.Markdown
 import laika.parse.Parser
 import laika.parse.combinator.Parsers
 import laika.parse.directive.BlockDirectiveParsers
@@ -63,8 +65,23 @@ class BlockDirectiveAPISpec extends FlatSpec
       }
     }
     
-    trait RequiredDefaultBody {
+    trait Body {
       val directive = Blocks.create("dir") { body map (BlockSequence(_)) }
+    }
+
+    trait SeparatedBody {
+      sealed trait Child extends Product with Serializable
+      case class Foo (content: Seq[Block]) extends Child
+      case class Bar (content: Seq[Block], attr: String) extends Child
+      val sep1 = Blocks.separator("foo") { body map Foo }
+      val sep2 = Blocks.separator("bar") { (body ~ attribute(Default)) map { case blocks ~ attr => Bar(blocks, attr) } }
+      val directive = Blocks.create("dir") { separatedBody[Child](Seq(sep1, sep2)) map { multipart =>
+        val seps = multipart.children.flatMap {
+          case Foo(content) => p("foo") +: content
+          case Bar(content, attr) => p(attr) +: content
+        } 
+        BlockSequence(multipart.mainBody ++ seps)
+      }}
     }
     
     trait FullDirectiveSpec {
@@ -262,7 +279,7 @@ class BlockDirectiveAPISpec extends FlatSpec
   }
 
   it should "parse a directive with a body" in {
-    new BlockParser with RequiredDefaultBody {
+    new BlockParser with Body {
       val input = """aa
         |
         |@:dir
@@ -278,7 +295,7 @@ class BlockDirectiveAPISpec extends FlatSpec
   }
 
   it should "parse a directive with a body and trim empty lines at the start and end" in {
-    new BlockParser with RequiredDefaultBody {
+    new BlockParser with Body {
       val input = """aa
         |
         |@:dir
@@ -296,7 +313,7 @@ class BlockDirectiveAPISpec extends FlatSpec
   }
 
   it should "detect a directive with a missing body" in {
-    new BlockParser with RequiredDefaultBody {
+    new BlockParser with Body {
       val input = """aa
         |
         |@:dir
@@ -304,6 +321,56 @@ class BlockDirectiveAPISpec extends FlatSpec
         |bb""".stripMargin
       val msg = "One or more errors processing directive 'dir': required body is missing"
       Parsing (input) should produce (root(p("aa"), invalid("@:dir",msg), p("bb")))
+    }
+  }
+
+  it should "parse a directive with a separated body" in {
+    new BlockParser with SeparatedBody {
+      val input = """aa
+        |
+        |@:dir
+        |aaa
+        |
+        |@:foo
+        |bbb
+        |
+        |@:bar { baz }
+        |ccc
+        |@:@
+        |
+        |bb""".stripMargin
+      val body = BlockSequence(List(p("aaa"),p("foo"),p("bbb"),p("baz"),p("ccc")))
+      Parsing (input) should produce (root(p("aa"), body, p("bb")))
+    }
+  }
+
+  it should "detect a directive with an invalid separator" in {
+    new BlockParser with SeparatedBody {
+      val input = """aa
+        |
+        |@:dir
+        |aaa
+        |
+        |@:foo
+        |bbb
+        |
+        |@:bar
+        |ccc
+        |@:@
+        |
+        |bb""".stripMargin
+      val msg = "One or more errors processing directive 'dir': One or more errors processing separator directive 'bar': required default attribute is missing"
+      val src = input.split("\n").toSeq.slice(2, 11).mkString("\n")
+      println(MarkupParser
+        .of(Markdown)
+        .using(DirectiveSupport.withDirectives(Seq(directive), Seq(), Seq()))
+        .build
+        .parse(input)
+        .right.get
+        .content.content(1).asInstanceOf[InvalidBlock].message.content
+      )
+      
+      Parsing (input) should produce (root(p("aa"), invalid(src,msg), p("bb")))
     }
   }
 
