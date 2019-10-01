@@ -67,8 +67,8 @@ class SpanDirectiveAPISpec extends FlatSpec
       sealed trait Child extends Product with Serializable
       case class Foo (content: Seq[Span]) extends Child
       case class Bar (content: Seq[Span], attr: String) extends Child
-      val sep1 = Spans.separator("foo") { body map Foo }
-      val sep2 = Spans.separator("bar") { (body ~ attribute(Default)) map { case spans ~ attr => Bar(spans, attr) } }
+      val sep1 = Spans.separator("foo", min = 1) { body map Foo }
+      val sep2 = Spans.separator("bar", max = 1) { (body ~ attribute(Default)) map { case spans ~ attr => Bar(spans, attr) } }
       val directive = Spans.create("dir") { separatedBody[Child](Seq(sep1, sep2)) map { multipart =>
         val seps = multipart.children.flatMap {
           case Foo(content) => txt("foo") +: content
@@ -244,6 +244,24 @@ class SpanDirectiveAPISpec extends FlatSpec
       val input = """aa @:dir aaa @:foo bbb @:bar ccc @:@ bb"""
       val msg = "One or more errors processing directive 'dir': One or more errors processing separator directive 'bar': required default attribute is missing"
       val src = input.slice(3, 36)
+      Parsing (input) should produce (ss(txt("aa "), invalid(src,msg), txt(" bb")))
+    }
+  }
+
+  it should "detect a directive with a separator not meeting the min count requirements" in {
+    new SpanParser with SeparatedBody {
+      val input = """aa @:dir aaa @:bar { baz } ccc @:@ bb"""
+      val msg = "One or more errors processing directive 'dir': too few occurrences of separator directive 'foo': expected min: 1, actual: 0"
+      val src = input.slice(3, 34)
+      Parsing (input) should produce (ss(txt("aa "), invalid(src,msg), txt(" bb")))
+    }
+  }
+
+  it should "detect a directive with a separator exceeding the max count constraint" in {
+    new SpanParser with SeparatedBody {
+      val input = """aa @:dir aaa @:foo bbb @:bar { baz } ccc @:bar { baz } ddd @:@ bb"""
+      val msg = "One or more errors processing directive 'dir': too many occurrences of separator directive 'bar': expected max: 1, actual: 2"
+      val src = input.drop(3).dropRight(3)
       Parsing (input) should produce (ss(txt("aa "), invalid(src,msg), txt(" bb")))
     }
   }

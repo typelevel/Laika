@@ -17,6 +17,7 @@
 package laika.directive
 
 import laika.ast.{TemplateSpan, _}
+import laika.collection.TransitionalCollectionOps._
 import laika.parse.directive.DirectiveParsers.ParsedDirective
 import laika.parse.{Failure, Success}
 
@@ -165,8 +166,6 @@ trait BuilderContext[E <: Element] {
 
   trait DirectiveInstanceBase extends DirectiveProcessor {
     
-    import laika.collection.TransitionalCollectionOps._
-
     def directive: Option[Directive]
     
     def parser: Parser
@@ -187,8 +186,6 @@ trait BuilderContext[E <: Element] {
   
   trait SeparatorInstanceBase extends DirectiveProcessor {
 
-    import laika.collection.TransitionalCollectionOps._
-    
     val typeName: String = "separator"
     
     def resolve[T] (context: DirectiveContext, body: Seq[E], directive: Option[SeparatorDirective[T]]): Result[T] = {
@@ -301,23 +298,30 @@ trait BuilderContext[E <: Element] {
         
         def splitNextBodyPart(remaining: Seq[E]): (Seq[E], Seq[E]) = remaining.span(!_.isInstanceOf[SeparatorInstanceBase])
         
-        def processSeparators(remaining: Seq[E], acc: Seq[Result[T]]): Seq[Result[T]] = {
+        def processSeparators(remaining: Seq[E], acc: Seq[Result[(String,T)]]): Seq[Result[(String, T)]] = {
           remaining.headOption
             .collect { case i: SeparatorInstanceBase => i }
             .fold(acc) { instance =>
+              val name = instance.parsedResult.name
               val (body, newRemaining) = splitNextBodyPart(remaining.tail)
-              val nextSeparator = instance.resolve(context, body, directives.find(_.name == instance.parsedResult.name))
+              val nextSeparator = instance.resolve(context, body, directives.find(_.name == name)).map((name, _))
               processSeparators(newRemaining, acc :+ nextSeparator
-                .left.map(errs => Seq(s"One or more errors processing separator directive '${instance.parsedResult.name}': ${errs.mkString(", ")}")))
+                .left.map(errs => Seq(s"One or more errors processing separator directive '$name': ${errs.mkString(", ")}")))
             }
         }
         
         val (mainBody, remaining) = splitNextBodyPart(elements)
-        val separators: Seq[Either[Seq[String], T]] = processSeparators(remaining, Nil)
+        val separators: Seq[Either[Seq[String], (String, T)]] = processSeparators(remaining, Nil)
         
         val (errors, valid) = (separators.collect{case Left(e) => e}, separators.collect{case Right(v) => v})
-        if (errors.isEmpty) Right(Multipart(mainBody, valid))
-        else Left(Seq(errors.flatten.mkString(", ")))
+        val nameCounts = valid.groupBy(_._1).mapValuesStrict(_.length).withDefaultValue(0)
+        val cntErrors = directives.flatMap { dir =>
+          val cnt = nameCounts(dir.name)
+          (if (cnt > dir.max) Seq(s"too many occurrences of separator directive '${dir.name}': expected max: ${dir.max}, actual: $cnt") else Nil) ++ 
+            (if (cnt < dir.min) Seq(s"too few occurrences of separator directive '${dir.name}': expected min: ${dir.min}, actual: $cnt") else Nil)
+        }
+        if (errors.isEmpty && cntErrors.isEmpty) Right(Multipart(mainBody, valid.map(_._2)))
+        else Left(Seq((errors.flatten ++ cntErrors).mkString(", ")))
       }
       
     }
@@ -394,7 +398,7 @@ trait BuilderContext[E <: Element] {
     def separators: Set[String] = part.separators
   }
 
-  class SeparatorDirective[+T] private[directive] (val name: String, part: DirectivePart[T]) {
+  class SeparatorDirective[+T] private[directive] (val name: String, part: DirectivePart[T], val min: Int = 0, val max: Int = Int.MaxValue) {
     def apply (context: DirectiveContext): Result[T] = part(context)
   }
 
@@ -403,7 +407,7 @@ trait BuilderContext[E <: Element] {
     */
   def create (name: String)(part: DirectivePart[E]): Directive = new Directive(name, part)
 
-  def separator[T] (name: String)(part: DirectivePart[T]): SeparatorDirective[T] = new SeparatorDirective(name, part)
+  def separator[T] (name: String, min: Int = 0, max: Int = Int.MaxValue)(part: DirectivePart[T]): SeparatorDirective[T] = new SeparatorDirective(name, part, min, max)
 
   /** Turns a collection of directives into a map,
     *  using the name of the directive as the key.

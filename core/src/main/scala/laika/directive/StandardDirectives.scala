@@ -58,7 +58,7 @@ object StandardDirectives extends DirectiveRegistry {
 
     val emptyValues = Set("",false,null,None)
     case class Empty (spans: Seq[TemplateSpan])
-    val emptySeparator = Templates.separator("empty")(body.map(Empty))
+    val emptySeparator = Templates.separator("empty", max = 1)(body.map(Empty))
     
     (attribute(Default) ~ separatedBody(Seq(emptySeparator)) ~ cursor).map {
       case path ~ multipart ~ cursor => {
@@ -103,7 +103,7 @@ object StandardDirectives extends DirectiveRegistry {
     case class Else (body: Seq[TemplateSpan]) extends IfSeparator
     
     val elseIfSep = Templates.separator("elseIf")((body ~ attribute(Default)).map{ case spans ~ ref => ElseIf(ref, spans) })
-    val elseSep = Templates.separator("else")(body.map(Else))
+    val elseSep = Templates.separator("else", max = 1)(body.map(Else))
 
     (attribute(Default) ~ separatedBody(Seq(elseIfSep, elseSep)) ~ cursor).map {
       case path ~ multipart ~ cursor => {

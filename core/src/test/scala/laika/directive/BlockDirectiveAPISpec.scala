@@ -73,8 +73,8 @@ class BlockDirectiveAPISpec extends FlatSpec
       sealed trait Child extends Product with Serializable
       case class Foo (content: Seq[Block]) extends Child
       case class Bar (content: Seq[Block], attr: String) extends Child
-      val sep1 = Blocks.separator("foo") { body map Foo }
-      val sep2 = Blocks.separator("bar") { (body ~ attribute(Default)) map { case blocks ~ attr => Bar(blocks, attr) } }
+      val sep1 = Blocks.separator("foo", min = 1) { body map Foo }
+      val sep2 = Blocks.separator("bar", max = 1) { (body ~ attribute(Default)) map { case blocks ~ attr => Bar(blocks, attr) } }
       val directive = Blocks.create("dir") { separatedBody[Child](Seq(sep1, sep2)) map { multipart =>
         val seps = multipart.children.flatMap {
           case Foo(content) => p("foo") +: content
@@ -363,6 +363,49 @@ class BlockDirectiveAPISpec extends FlatSpec
     Parsing (input) should produce (root(p("aa"), invalid(src,msg), p("bb")))
   }
 
+  it should "detect a directive with a separator not meeting the min count requirements" in {
+    new BlockParser with SeparatedBody {
+      val input = """aa
+        |
+        |@:dir
+        |aaa
+        |
+        |@:bar { baz }
+        |ccc
+        |@:@
+        |
+        |bb""".stripMargin
+      val msg = "One or more errors processing directive 'dir': too few occurrences of separator directive 'foo': expected min: 1, actual: 0"
+      val src = input.split("\n").toSeq.drop(2).dropRight(2).mkString("\n")
+      Parsing (input) should produce (root(p("aa"), invalid(src,msg), p("bb")))
+    }
+  }
+
+  it should "detect a directive with a separator exceeding the max count constraint" in {
+    new BlockParser with SeparatedBody {
+      val input = """aa
+        |
+        |@:dir
+        |aaa
+        |
+        |@:foo
+        |bbb
+        |
+        |@:bar { baz }
+        |ccc
+        |
+        |@:bar { baz }
+        |ddd
+        |
+        |@:@
+        |
+        |bb""".stripMargin
+      val msg = "One or more errors processing directive 'dir': too many occurrences of separator directive 'bar': expected max: 1, actual: 2"
+      val src = input.split("\n").toSeq.drop(2).dropRight(2).mkString("\n")
+      Parsing (input) should produce (root(p("aa"), invalid(src,msg), p("bb")))
+    }
+  }
+  
   it should "detect an orphaned separator directive" in new BlockParser with SeparatedBody {
     val input = """aa
       |
