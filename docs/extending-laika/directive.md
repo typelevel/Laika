@@ -242,6 +242,21 @@ Markup example:
     
     @:@
 
+Example with a custom fence:
+
+    @:name { foo=bar } ^^^
+    
+    this is the content of the body 
+    
+    ^^^
+    
+A custom fence is only supported for block directives and can be used for disambiguation
+in case of nesting a directive inside another. It has to consist of exactly 3 characters
+on the same line right after the directive declaration. 
+
+For span and template directives this
+is not necessary as the parser can figure the nesting hierarchy on its own.
+
 Combinator:
 
     body
