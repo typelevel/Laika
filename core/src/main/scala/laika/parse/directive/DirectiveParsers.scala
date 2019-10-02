@@ -89,9 +89,14 @@ object DirectiveParsers {
   /** Parses a full directive declaration, containing all its attributes,
     *  but not the body elements.
     */
-  def declarationParser (escapedText: EscapedTextParsers): Parser[(String, List[Part])] = {
+  def declarationParser (escapedText: EscapedTextParsers, supportsCustomFence: Boolean = false): Parser[(String, List[Part], String)] = {
+    val defaultFence = success("@:@")
+    val fence = if (supportsCustomFence) (ws ~> anyBut(' ', '\n', '\t').take(3)) | defaultFence else defaultFence
     val attributeSection = ws ~> "{" ~> attributeParser(escapedText) <~ wsOrNl <~ "}"
-    (":" ~> nameDecl ~ opt(attributeSection)) ^^ { case name ~ attrs => (name, attrs.getOrElse(Nil)) }
+    
+    (":" ~> nameDecl ~ opt(attributeSection) ~ fence) ^^ { 
+      case name ~ attrs ~ fencePattern => (name, attrs.getOrElse(Nil), fencePattern) 
+    }
   }
     
   /** Parses a full directive declaration, containing all its attributes,
@@ -107,8 +112,10 @@ object DirectiveParsers {
    *  @param bodyContent the parser for the body content which is different for a block directive than for a span or template directive
    *  @param legacyBody the parser for the deprecated directive syntax that is still supported                   
    *  @param escapedText the parser for escape sequences according to the rules of the host markup language
+   *  @param supportsCustomFence indicates whether the directive declaration allows the addition of a custom closing fence                   
    */
-  def directiveParser (bodyContent: BodyParserBuilder, legacyBody: Parser[String], escapedText: EscapedTextParsers): Parser[ParsedDirective] = {
+  def directiveParser (bodyContent: BodyParserBuilder, legacyBody: Parser[String], escapedText: EscapedTextParsers, 
+                       supportsCustomFence: Boolean = false): Parser[ParsedDirective] = {
 
     val legacyDirective: Parser[(String, List[Part]) ~ Option[Part]] = {
       val noBody: Parser[Option[Part]] = '.' ^^^ None
@@ -117,8 +124,8 @@ object DirectiveParsers {
     }
     
     val newDirective: Parser[(String, List[Part]) ~ Option[Part]] = {
-      declarationParser(escapedText) >> { case (name, attrs) =>
-        val body: Parser[Option[Part]] = bodyContent(DirectiveSpec(name, "@:@")).map(_.map { content => Part(Body, content) }) // TODO - 0.12 - support custom fence
+      declarationParser(escapedText, supportsCustomFence) >> { case (name, attrs, fence) =>
+        val body: Parser[Option[Part]] = bodyContent(DirectiveSpec(name, fence)).map(_.map { content => Part(Body, content) })
         
         body ^^ (content => new ~((name, attrs), content))
       } 
@@ -197,7 +204,9 @@ object BlockDirectiveParsers {
       } | noBody
       else noBody
     
-    withRecursiveSpanParser(withRecursiveBlockParser(withSource(directiveParser(newBody, legacyBody, recParsers)))) ^^ {
+    withRecursiveSpanParser(withRecursiveBlockParser(withSource(
+      directiveParser(newBody, legacyBody, recParsers, supportsCustomFence = true)
+    ))) ^^ {
       case (recSpanParser, (recBlockParser, (result, source))) =>
         val trimmedSource = if (source.lastOption.contains('\n')) source.dropRight(1) else source
         if (separators.contains(result.name)) Blocks.SeparatorInstance(result, trimmedSource)

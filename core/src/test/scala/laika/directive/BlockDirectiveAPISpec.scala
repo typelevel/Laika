@@ -17,15 +17,12 @@
 package laika.directive
 
 import com.typesafe.config.ConfigFactory
-import laika.api.MarkupParser
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.bundle.{BlockParser, BlockParserBuilder, ParserBundle}
-import laika.format.Markdown
 import laika.parse.Parser
 import laika.parse.combinator.Parsers
-import laika.parse.directive.BlockDirectiveParsers
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import laika.parse.markup.RootParserProvider
 import laika.parse.text.TextParsers._
@@ -46,7 +43,7 @@ class BlockDirectiveAPISpec extends FlatSpec
     }
     
     trait RequiredDefaultAttribute {
-      val directive = Blocks.create("dir") { attribute(Default) map (p(_)) }
+      val directive = Blocks.create("dir") { attribute(Default) map p }
     }
     
     trait OptionalDefaultAttribute {
@@ -56,7 +53,7 @@ class BlockDirectiveAPISpec extends FlatSpec
     }
     
     trait RequiredNamedAttribute {
-      val directive = Blocks.create("dir") { attribute("name") map (p(_)) }
+      val directive = Blocks.create("dir") { attribute("name") map p }
     }
     
     trait OptionalNamedAttribute {
@@ -312,6 +309,24 @@ class BlockDirectiveAPISpec extends FlatSpec
     }
   }
 
+  it should "parse a directive with a body and a custom fence" in {
+    new BlockParser with Body {
+      val input = """aa
+        |
+        |@:dir +++
+        |
+        |some
+        |{{config.ref}}
+        |text
+        |  
+        |+++
+        |
+        |bb""".stripMargin
+      val body = BlockSequence(List(p(txt("some\nvalue\ntext"))))
+      Parsing (input) should produce (root(p("aa"), body, p("bb")))
+    }
+  }
+
   it should "detect a directive with a missing body" in {
     new BlockParser with Body {
       val input = """aa
@@ -466,6 +481,25 @@ class BlockDirectiveAPISpec extends FlatSpec
         |1 {{config.ref}} 2
         |
         |@:@
+        |
+        |bb""".stripMargin
+      val body = BlockSequence(List(
+        p("foo:..:0"),
+        p(txt("1 value 2"))
+      ))
+      Parsing (input) should produce (root(p("aa"), body, p("bb")))
+    }
+  }
+
+  it should "parse a full directive spec with a custom fence" in {
+    new FullDirectiveSpec with BlockParser {
+      val input = """aa
+        |
+        |@:dir { foo } +++
+        |
+        |1 {{config.ref}} 2
+        |
+        |+++
         |
         |bb""".stripMargin
       val body = BlockSequence(List(
