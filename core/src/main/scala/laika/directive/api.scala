@@ -79,13 +79,18 @@ trait BuilderContext[E <: Element] {
   
   type Result[+A] = Either[Seq[String], A]
 
+  /** The content of a body element divided by separator directives.
+    */
   case class Multipart[T](mainBody: Seq[E], children: Seq[T]) {
     def collect[U <: T : ClassTag]: Seq[U] = children.collect { case u:U => u }
   }
 
+  /** The content of a directive part, either an attribute or the body. */
   sealed trait PartContent
   object PartContent {
+    /** The content of a directive part in its raw, unparsed form. */
     case class Source(value: String) extends PartContent
+    /** The parsed content of a directive part. */
     case class Parsed(value: Seq[E]) extends PartContent
   }
 
@@ -123,19 +128,14 @@ trait BuilderContext[E <: Element] {
       * after the directive name and attribute section.
       */
     def hasBody: Boolean
-    
-    def separators: Set[String]
 
-    /** Indicates that this directive part is optional,
-      * turning the result into an Option value.
-      * If the part is present it still has to validate
-      * successfully.
+    /** The names of the separator directives accepted by this directive part.
       */
-    // def optional: DirectivePart[Option[A]] = map (Some(_))
+    def separators: Set[String]
 
   }
   
-  trait DirectiveProcessor {
+  private[laika] trait DirectiveProcessor {
 
     def typeName: String
 
@@ -164,7 +164,7 @@ trait BuilderContext[E <: Element] {
     
   }
 
-  trait DirectiveInstanceBase extends DirectiveProcessor {
+  private[laika] trait DirectiveInstanceBase extends DirectiveProcessor {
     
     def directive: Option[Directive]
     
@@ -183,8 +183,8 @@ trait BuilderContext[E <: Element] {
     }
 
   }
-  
-  trait SeparatorInstanceBase extends DirectiveProcessor {
+
+  private[laika] trait SeparatorInstanceBase extends DirectiveProcessor {
 
     val typeName: String = "separator"
     
@@ -210,11 +210,8 @@ trait BuilderContext[E <: Element] {
 
   type Converter[T] = (Parser, String) => Result[T]
 
-  /** Provides various converter functions
-    * that can be used with the directive
-    * combinators to convert the string value
-    * obtained from a directive attribute or
-    * body.
+  /** Provides various converter functions that can be used with the directive
+    * combinators to convert the string value obtained from a directive attribute or body.
     */
   trait Converters {
 
@@ -354,8 +351,17 @@ trait BuilderContext[E <: Element] {
       */
     def body [T](converter: Converter[T]): DirectivePart[T] = bodyPart(converter)
 
-    def separatedBody[T] (directives: Seq[SeparatorDirective[T]]): DirectivePart[Multipart[T]] =
-      new SeparatedBodyPart(directives)
+    /** Specifies a required body part divided by separator directives.
+      * 
+      * It is recommended that all separators extend a sealed trait, if the directive
+      * supports more than one separator kind. The separators need to be immediate
+      * children in the body element of the parent directive.
+      *
+      * @param separators all separator directives accepted as children of this directive.
+      * @return a directive part that can be combined with further parts with the `~` operator
+      */
+    def separatedBody[T] (separators: Seq[SeparatorDirective[T]]): DirectivePart[Multipart[T]] =
+      new SeparatedBodyPart(separators)
 
     /** Specifies an empty directive that does not accept any attributes or
       * body elements.
@@ -398,15 +404,20 @@ trait BuilderContext[E <: Element] {
     def separators: Set[String] = part.separators
   }
 
+  /** Represents a separator directive, its name and its (combined) parts.
+    * It also allows to specify requirements for the minimum and maximum number of occurrences allowed for this directive.
+    * The default is unbounded, with 0 or more instances allowed.
+    */
   class SeparatorDirective[+T] private[directive] (val name: String, part: DirectivePart[T], val min: Int = 0, val max: Int = Int.MaxValue) {
     def apply (context: DirectiveContext): Result[T] = part(context)
   }
 
-  /** Creates a new directive with the specified name
-    *  and part specification.
+  /** Creates a new directive with the specified name and part specification.
     */
   def create (name: String)(part: DirectivePart[E]): Directive = new Directive(name, part)
 
+  /** Creates a new separator directive with the specified name and part specification.
+    */
   def separator[T] (name: String, min: Int = 0, max: Int = Int.MaxValue)(part: DirectivePart[T]): SeparatorDirective[T] = new SeparatorDirective(name, part, min, max)
 
   /** Turns a collection of directives into a map,
