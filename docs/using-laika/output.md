@@ -61,7 +61,7 @@ document, as well as a directive called `@toc` to inset a table of contents:
         <title>{{document.title}}</title>
       </head>
       <body>
-        @:toc.
+        @:toc
         <div class="content">
           {{document.content}}
         </div>

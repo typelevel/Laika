@@ -38,24 +38,19 @@ Directive Syntax
 A very minimal example is the `toc` directive for inserting a table of contents.
 Since all its attributes are optional, it can simply be used like this:
 
-    @:toc.
+    @:toc
 
-A directive always starts with `@:` followed by the name of the 
-directive. When there are no further attributes or body elements
-you can close it with a `.`
+A directive always starts with `@:` followed by the name of the directive.
     
 A more complete example is the use of the `for` directive:
 
-    @:for "document.sections": {
-      <li><a href="#{{id}}">{{title.content}}</a></li>
-    } 
+    @:for { "document.sections" }
+    <li><a href="#{{id}}">{{title.content}}</a></li>
+    @:@ 
 
 Here `for` is the name of the directive, `"document.sections"` is an unnamed
 attribute (where in this case the value is interpreted as a variable reference),
-and finally, enclosed in curly braces the body of the directive. The opening
-declaration with directive name and attributes ends with a `:` and not with `.` 
-if it is followed by body elements.
-
+and finally the body of the directive followed by the `@:@` fence. 
 
 
 Example Implementation
@@ -73,7 +68,7 @@ Our `ticket` directive constructs an external link to our
 bugtracker. Since the base URL is always the same, we want to
 only write:
 
-    @:ticket 456.
+    @:ticket {456}
     
 to get the output:
 
@@ -81,7 +76,7 @@ to get the output:
     
 Or optionally specify a different project than the main one:
 
-    @:ticket 456 project=pineapple.
+    @:ticket {456 project=pineapple}
     
 to get the output:
 
@@ -212,7 +207,7 @@ attribute is used and its meaning is obvious.
 
 Markup example:
 
-    @:name arg.
+    @:name { arg }
 
 Combinator:
 
@@ -228,7 +223,7 @@ the order you declared them in (that's why they have names after all).
 
 Markup example:
 
-    @:name myAttr=value.
+    @:name { myAttr=value }
 
 Combinator:
 
@@ -241,9 +236,11 @@ The body is an element containing text markup that can follow the attribute sect
 
 Markup example:
 
-    @:name: { 
-      this is the content of the body 
-    }
+    @:name
+    
+    this is the content of the body 
+    
+    @:@
 
 Combinator:
 

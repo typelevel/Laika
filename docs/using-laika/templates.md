@@ -41,7 +41,7 @@ templates:
         <title>{{document.title}}</title>
       </head>
       <body>
-        @:toc.
+        @:toc
         <div class="content">
           {{document.content}}
         </div>
@@ -142,23 +142,25 @@ achieved with a directive than with variable references.
 
 Directives are Laika's extension hook for both, templates and text markup.
 They always start with `@:`, the name of the directive, optionally followed 
-by one or more attributes and then either ending with a `.` and no body element 
-or a `:` followed by one or more bodies enclosed between `{` and `}`.
+by one or more attributes enclosed between `{` and `}` and an optional
+body element ending on a `@:@` fence.
 
 A very minimal example is the `toc` directive for inserting a table of contents.
 Since all its attributes are optional, it can simply be used like this:
 
-    @:toc.
+    @:toc
     
 A more complete example is the use of the `for` directive:
 
-    @:for "document.sections": {
-      <li><a href="#{{id}}">{{title.content}}</a></li>
-    } 
+    @:for { "document.sections" }
+    
+    <li><a href="#{{id}}">{{title.content}}</a></li>
+    
+    @:@
 
 Here `for` is the name of the directive, `"document.sections"` is an unnamed
 attribute (where in this case the value is interpreted as a variable reference),
-and finally, enclosed in curly braces the body of the directive. The exact
+and finally, the body of the directive followed by the `@:@` fence. The exact
 semantics of this particular directive are explained in the section 
 [Standard Template Directives].
 
@@ -240,8 +242,12 @@ Can only be used in block elements in text markup.
 The body of such a directive will only be included into the
 output by renderers for the specified type:
 
-    @:format html: This text only appears in the HTML output,
-      not in PDF, EPUB or any other format.
+    @:format { html }
+    
+    This text only appears in the HTML output,
+    not in PDF, EPUB or any other format.
+    
+    @:@
 
 Note that the body of a block directive needs to be indented,
 and does not appear between curly braces.
@@ -257,14 +263,18 @@ rendered element.
 
 Block directive: 
 
-    @:style subtitle: This paragraph gets the 
-      subtitle style applied.
+    @:style { subtitle } 
+    
+    This paragraph gets the 
+    subtitle style applied.
+    
+    @:@
       
     While this paragraph does not.
 
 Span directive:
 
-    Burrito - @:style price: { £3.50 }.
+    Burrito - @:style { price } £3.50 @:@.
 
 
 ### The `for` directive
@@ -279,22 +289,25 @@ empty collections, and exactly once for all other values.
 In case of non-empty values their properties will be made available
 for use inside the body part without any prefix:
 
-    @:for "document.sections": {
-      <li><a href="#{{id}}">{{title.content}}</a></li>
-    } 
+    @:for { "document.sections" }
     
+    <li><a href="#{{id}}">{{title.content}}</a></li>
+    
+    @:@ 
+
 In this example `id` and `title` are properties of the `SectionInfo`
 objects inside the `document.sections` collection.
 
 You can also specify a fallback, a body part that gets executed
 for empty values:
 
-    @:for "document.sections": {
-      <li><a href="#{{id}}">{{title.content}}</a></li>
-    } 
-    ~empty: {
-      <p>This document does not have any sections</p>
-    }
+    @:for { "document.sections" }
+    <li><a href="#{{id}}">{{title.content}}</a></li>
+     
+    @:empty
+    <p>This document does not have any sections</p>
+    
+    @:@
 
 Each directive can have one unnamed default body and any number
 of named bodies. The `for` directive supports a body element
@@ -311,22 +324,26 @@ Can only be used inside templates.
 Executes the body of the directive exactly once for a Boolean
 `true` or the strings `true`, `on`, `yes` and `enabled`.
 
-    @:if "config.showSidebar": {
-      <div class="sidebar">...</div>
-    } 
-    
+    @:if { "config.showSidebar" }
+    <div class="sidebar">...</div>
+    @:@
+
 In this example `showSidebar` is a custom configuration entry
 that you have set explicitly in a configuration header or file.
 
-You can also specify a fallback, a body part that gets executed
-for other values:
+You can also specify a fallback with `@:else`, 
+or even secondary conditions with `@:elseIf`:
 
-    @:if "config.showSidebar": {
-      <div class="sidebar">...</div>
-    } 
-    ~else: {
-      <p>This document does not have any sections</p>
-    }
+    @:if { "config.showSidebar" }
+    <div class="sidebar">...</div>
+    
+    @:elseIf { "config.showInfobox" }
+    <div class="infobox">...</div>
+    
+    @:else
+    <p>This document does not have any sections</p>
+    
+    @:@
 
 
 ### The `pageBreak` directive
@@ -338,5 +355,5 @@ know how to render page break elements.
 
 This directive does not support any attributes:
 
-    @:pageBreak.
+    @:pageBreak
 

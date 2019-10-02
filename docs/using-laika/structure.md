@@ -72,16 +72,18 @@ on the levels of the headlines.
 
 These sections can then be referenced in templates:
 
-    @:for "document.sections": {
-      <li><a href="#{{id}}">{{title.content}}</a></li>
-    }
+    @:for { "document.sections" }
+    
+    <li><a href="#{{id}}">{{title.content}}</a></li>
+    
+    @:@
 
 Or they can be accessed through a `Document` instance:
 
     val doc: Document = ...
     doc.sections // Seq[SectionInfo]
 
-    
+
 ### Automatic Section Ids
 
 Laika will automatically generate an id for each headline, so that
@@ -145,14 +147,18 @@ Instead it can be referred to by `{{document.fragments.<fragmentName>}}`.
 
 Example:
 
-    @:fragment sidebar: This content will be *parsed* like all other
-      content, but will be available separately from the document content.
-      The block elements have to be indented.
+    @:fragment { sidebar } 
+    
+    This content will be *parsed* like all other
+    content, but will be available separately from the document content.
+    The block elements extend until the `@:@` fence below.
   
-      Therefore this line still belongs to the fragment.
+    Therefore this line still belongs to the fragment.
       
-      * As does
-      * this list
+    * As does
+    * this list
+    
+    @:@
   
     This line doesn't and will be part of the main document content.
 
@@ -246,11 +252,11 @@ visualized in a table of contents.
 
 When using the default settings, you can simply use an empty tag:
 
-    @:toc.
+    @:toc
     
 If you specify all available options it would look like this:
 
-    @:toc title="List of Chapters" root="../intro" depth=2.
+    @:toc { title="List of Chapters" root="../intro" depth=2 }
    
    
 * The `title` attribute adds a title above the table. 
