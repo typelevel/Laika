@@ -262,6 +262,70 @@ Combinator:
     body
 
 
+### Separated Body
+
+A separated body element is divided into multiple sub-sections by a special kind of directive,
+called a separator directive. It is a fairly advanced feature and probably not something you'd
+need often. 
+
+For an example from the built-in standard directives, let's have a look at the `@:if` directive:
+
+    @:if { "config.showSidebar" }
+    <div class="sidebar">...</div>
+    
+    @:elseIf { "config.showInfobox" }
+    <div class="infobox">...</div>
+    
+    @:else
+    <p>This document does not have any sections</p>
+    
+    @:@
+    
+The root `@if` directive is the parent directive in this case, and both the `@:elseIf` and `@:else`
+directives are separator directives that partition the body. Separator directives are different
+than normal directives in that they do not need to produce an AST element (e.g. `Block` or `Span`)
+as they will be passed to the parent directive for processing which then will produce the target AST element.
+
+If you want to see a full example of such a directive, have a look at the implementation of the `@:if` directive
+in the `StandardDirectives` source.
+
+In this section we'll just show a very small, contrived example. Declaring a separator directive looks just
+like declaring a normal directive, only that you call `separator` instead of `create`:
+
+    case class Child (content: Seq[Span])
+    
+    val sepDir = Spans.separator("child", min = 1) { body map Foo }   
+
+Here you specify the name of the directive `@:child`, as well as that it has to be present in 
+the body at least once. Then you use the regular combinators to declare the expected directive
+parts, in this case only a body that you map to the `Child` type.
+
+Now you can use this directive in the parent:
+
+    val directive = Spans.create("parent") { 
+      separatedBody(Seq(sepDir)) map { multipart =>
+        val seps = multipart.children.flatMap { sep => 
+          Text("Child: ") +: sep.content 
+        }
+        SpanSequence(multipart.mainBody ++ seps)
+      }
+    }
+
+You can use the `separatedBody` combinator where you pass all expected child directives (in this
+case only one) and then map the resulting `Multipart` instance to an AST element. The `Multipart`
+gives you access to the main body as well as all processed separator directives in `multipart.children`.
+
+This entire directive can then be used like this:
+
+    @:parent
+    This is the main body
+    
+    @:child
+    This is the body of the separator
+    
+    @:@
+    
+
 ### Optional Elements
 
 Default and named attributes can be marked as optional.
