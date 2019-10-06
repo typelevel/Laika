@@ -17,7 +17,7 @@
 package laika.parse.hocon
 
 import laika.ast.~
-import laika.parse.Parser
+import laika.parse.{Parser, ParserContext}
 import laika.parse.text.TextParsers._
 
 import scala.util.Try
@@ -55,6 +55,13 @@ object HoconParsers {
   
   case class Field(key: String, value: ConfigValue) // TODO - use Path
   
+  def lazily[T](parser: => Parser[T]): Parser[T] = new Parser[T] {
+    lazy val p = parser
+    override def parse (in: ParserContext) = p.parse(in)
+  }
+  
+  val wsOrNl: Parser[String] = anyOf(' ','\t','\n')
+  
   val nullValue: Parser[ConfigValue] = "null" ^^^ NullValue
   val trueValue: Parser[ConfigValue] = "true" ^^^ BooleanValue(true)
   val falseValue: Parser[ConfigValue] = "false" ^^^ BooleanValue(false)
@@ -64,13 +71,13 @@ object HoconParsers {
     val zero = anyIn('0').take(1)
     val digits = anyIn('0' to '9')
     val oneToNine = anyIn('1' to '9')
-    val nonZero = (oneToNine ~ digits).concat
+    val nonZero = (oneToNine.take(1) ~ digits).concat
     val negativeSign = opt('-').map(_.fold("")(_.toString))
     val sign = opt(char('-') | char('+')).map(_.fold("")(_.toString))
     
     val integer = (negativeSign ~ (zero | nonZero)).concat
-    val fraction = (anyIn('.').take(1) ~ digits).concat
-    val exponent = (anyIn('E','e').take(1) ~ sign ~ digits).concat
+    val fraction = opt((anyIn('.').take(1) ~ digits).concat).map(_.getOrElse(""))
+    val exponent = opt((anyIn('E','e').take(1) ~ sign ~ digits).concat).map(_.getOrElse(""))
 
     (integer ~ (fraction ~ exponent).concat) ^^? {
       case int ~ ""         => Try(int.toLong).toEither.left.map(_.getMessage).map(LongValue)
@@ -79,7 +86,7 @@ object HoconParsers {
   }
   
   val stringValue: Parser[StringValue] = {
-    val chars = anyBut('"','\\')
+    val chars = anyBut('"','\\').min(1)
     val specialChar = anyIn('b','f','n','r','t').take(1).map {
       case "b" => "\b"
       case "f" => "\f"
@@ -91,21 +98,22 @@ object HoconParsers {
     val unicode = anyIn('0' to '9', 'a' to 'f', 'A' to 'F').take(4).map(Integer.parseInt(_, 16).toChar.toString)
     val escape = '\\' ~> (literalChar | specialChar | unicode)
     
-    (chars | escape).rep.map(parts => StringValue(parts.mkString))
+    val value = (chars | escape).rep.map(parts => StringValue(parts.mkString))
+    '"' ~> value <~ '"'
   }
   
   lazy val arrayValue: Parser[ConfigValue] = {
-    val value = ws ~> anyValue <~ ws
-    val values = opt(value ~ (',' ~> value).rep).map(_.fold(Seq.empty[ConfigValue]){ case v ~ vs => v +: vs })
-    ('[' ~> values  <~ ']').map(ArrayValue)
+    lazy val value = wsOrNl ~> anyValue <~ wsOrNl
+    lazy val values = wsOrNl ~> opt(value ~ (',' ~> value).rep).map(_.fold(Seq.empty[ConfigValue]){ case v ~ vs => v +: vs }) <~ wsOrNl
+    lazily(('[' ~> values <~ ']').map(ArrayValue))
   }
   
-  lazy val objectValue: Parser[ConfigValue] = {
-    val key = ws ~> stringValue <~ ws
-    val value = ws ~> anyValue <~ ws
-    val member = (key ~ (':' ~> value)).map { case k ~ v => Field(k.value, v) }
-    val members = opt(member ~ (',' ~> member).rep).map(_.fold(Seq.empty[Field]){ case m ~ ms => m +: ms })
-    ('[' ~> members  <~ ']').map(ObjectValue)
+  lazy val objectValue: Parser[ObjectValue] = {
+    lazy val key = wsOrNl ~> stringValue <~ wsOrNl
+    lazy val value = wsOrNl ~> anyValue <~ wsOrNl
+    lazy val member = (key ~ (':' ~> value)).map { case k ~ v => Field(k.value, v) }
+    lazy val members = wsOrNl ~> opt(member ~ (',' ~> member).rep).map(_.fold(Seq.empty[Field]){ case m ~ ms => m +: ms }) <~ wsOrNl
+    lazily(('{' ~> members <~ '}').map(ObjectValue))
   }
   
   lazy val anyValue: Parser[ConfigValue] = objectValue | arrayValue | numberValue | trueValue | falseValue | nullValue | stringValue
