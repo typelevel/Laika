@@ -34,6 +34,9 @@ object HoconParsers {
   implicit class String3ParserOps (val p: Parser[String ~ String ~ String]) extends AnyVal {
     def concat: Parser[String] = p.map { case a ~ b ~ c => a + b + c }
   }
+  implicit class PrependParserOps[T] (val p: Parser[T ~ Seq[T]]) extends AnyVal {
+    def concat: Parser[Seq[T]] = p.map { case x ~ xs => x +: xs }
+  }
   
   sealed trait ConfigBuilderValue
   
@@ -48,7 +51,9 @@ object HoconParsers {
   case class LongValue(value: Long) extends ConfigValue
   case class StringValue(value: String) extends ConfigValue
   case class ArrayValue(values: Seq[ConfigValue]) extends ConfigValue
+  case class ObjectValue(values: Seq[Field]) extends ConfigValue
   
+  case class Field(key: String, value: ConfigValue) // TODO - use Path
   
   val nullValue: Parser[ConfigValue] = "null" ^^^ NullValue
   val trueValue: Parser[ConfigValue] = "true" ^^^ BooleanValue(true)
@@ -73,7 +78,7 @@ object HoconParsers {
     }
   }
   
-  val stringValue: Parser[ConfigValue] = {
+  val stringValue: Parser[StringValue] = {
     val chars = anyBut('"','\\')
     val specialChar = anyIn('b','f','n','r','t').take(1).map {
       case "b" => "\b"
@@ -95,7 +100,14 @@ object HoconParsers {
     ('[' ~> values  <~ ']').map(ArrayValue)
   }
   
-  lazy val anyValue: Parser[ConfigValue] = arrayValue | numberValue | trueValue | falseValue | nullValue | stringValue
+  lazy val objectValue: Parser[ConfigValue] = {
+    val key = ws ~> stringValue <~ ws
+    val value = ws ~> anyValue <~ ws
+    val member = (key ~ (':' ~> value)).map { case k ~ v => Field(k.value, v) }
+    val members = opt(member ~ (',' ~> member).rep).map(_.fold(Seq.empty[Field]){ case m ~ ms => m +: ms })
+    ('[' ~> members  <~ ']').map(ObjectValue)
+  }
   
+  lazy val anyValue: Parser[ConfigValue] = objectValue | arrayValue | numberValue | trueValue | falseValue | nullValue | stringValue
   
 }
