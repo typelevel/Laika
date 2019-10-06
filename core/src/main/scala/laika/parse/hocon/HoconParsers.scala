@@ -89,7 +89,13 @@ object HoconParsers {
     (chars | escape).rep.map(parts => StringValue(parts.mkString))
   }
   
-  val anyValue: Parser[ConfigValue] = numberValue | trueValue | falseValue | nullValue | stringValue
+  lazy val arrayValue: Parser[ConfigValue] = {
+    val value = ws ~> anyValue <~ ws
+    val values = opt(value ~ (',' ~> value).rep).map(_.fold(Seq.empty[ConfigValue]){ case v ~ vs => v +: vs })
+    ('[' ~> values  <~ ']').map(ArrayValue)
+  }
+  
+  lazy val anyValue: Parser[ConfigValue] = arrayValue | numberValue | trueValue | falseValue | nullValue | stringValue
   
   
 }
