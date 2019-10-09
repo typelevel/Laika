@@ -40,8 +40,12 @@ object HoconParsers {
   
   sealed trait ConfigBuilderValue
   
-  case class ConcatValue(values: Seq[ConfigBuilderValue]) extends ConfigBuilderValue
+  case class ConcatValue(first: ConfigBuilderValue, rest: Seq[ConcatPart]) extends ConfigBuilderValue
+  case class ConcatPart(whitespace: String, value: ConfigBuilderValue)
   case class SubstitutionValue(ref: String) extends ConfigBuilderValue // TODO - use Path?
+  case class ArrayBuilderValue(values: Seq[ConfigBuilderValue]) extends ConfigValue
+  case class ObjectBuilderValue(values: Seq[BuilderField]) extends ConfigBuilderValue
+  case class BuilderField(key: String, value: ConfigBuilderValue) // TODO - use Path
   
   sealed trait ConfigValue extends ConfigBuilderValue
   
@@ -52,8 +56,8 @@ object HoconParsers {
   case class StringValue(value: String) extends ConfigValue
   case class ArrayValue(values: Seq[ConfigValue]) extends ConfigValue
   case class ObjectValue(values: Seq[Field]) extends ConfigValue
+  case class Field(key: String, value: ConfigValue)
   
-  case class Field(key: String, value: ConfigValue) // TODO - use Path
   
   def lazily[T](parser: => Parser[T]): Parser[T] = new Parser[T] {
     lazy val p = parser
@@ -111,33 +115,43 @@ object HoconParsers {
     unquotedChar.map(StringValue)
   }
   
+  lazy val concatenatedValue: Parser[ConfigBuilderValue] = {
+    lazy val parts = (ws ~ anyValue).map { case s ~ v => ConcatPart(s,v) }.rep
+    lazily {
+      (anyValue ~ parts).map {
+        case first ~ Nil => first
+        case first ~ rest => ConcatValue(first, rest)
+      }
+    }
+  }
+  
   val separator: Parser[Any] = char(',') | eol ~ wsOrNl
   
-  lazy val arrayValue: Parser[ConfigValue] = {
-    lazy val value = wsOrNl ~> anyValue <~ ws
-    lazy val values = wsOrNl ~> opt(value ~ (separator ~> value).rep).map(_.fold(Seq.empty[ConfigValue]){ case v ~ vs => v +: vs }) <~ wsOrNl
-    lazily(('[' ~> values <~ opt(',' ~ wsOrNl) <~ ']').map(ArrayValue))
+  lazy val arrayValue: Parser[ConfigBuilderValue] = {
+    lazy val value = wsOrNl ~> concatenatedValue <~ ws
+    lazy val values = wsOrNl ~> opt(value ~ (separator ~> value).rep).map(_.fold(Seq.empty[ConfigBuilderValue]){ case v ~ vs => v +: vs }) <~ wsOrNl
+    lazily(('[' ~> values <~ opt(',' ~ wsOrNl) <~ ']').map(ArrayBuilderValue))
   }
   
-  private lazy val objectMembers: Parser[ObjectValue] = {
+  private lazy val objectMembers: Parser[ObjectBuilderValue] = {
     lazy val key = wsOrNl ~> (quotedString | unquotedString) <~ wsOrNl
-    lazy val value = wsOrNl ~> anyValue <~ ws
+    lazy val value = wsOrNl ~> concatenatedValue <~ ws
     lazy val withSeparator = anyOf(':','=').take(1) ~> value
     lazy val withoutSeparator = wsOrNl ~> objectValue <~ wsOrNl
-    lazy val member = (key ~ (withSeparator | withoutSeparator)).map { case k ~ v => Field(k.value, v) }
-    lazy val members = opt(member ~ (separator ~> member).rep).map(_.fold(Seq.empty[Field]) { case m ~ ms => m +: ms })
-    (wsOrNl ~> members <~ wsOrNl <~ opt(',' ~ wsOrNl)).map(ObjectValue)
+    lazy val member = (key ~ (withSeparator | withoutSeparator)).map { case k ~ v => BuilderField(k.value, v) }
+    lazy val members = opt(member ~ (separator ~> member).rep).map(_.fold(Seq.empty[BuilderField]) { case m ~ ms => m +: ms })
+    (wsOrNl ~> members <~ wsOrNl <~ opt(',' ~ wsOrNl)).map(ObjectBuilderValue)
   }
   
-  lazy val objectValue: Parser[ObjectValue] = lazily('{' ~> objectMembers <~ '}')
+  lazy val objectValue: Parser[ObjectBuilderValue] = lazily('{' ~> objectMembers <~ '}')
   
-  lazy val rootObject: Parser[ObjectValue] = {
+  lazy val rootObject: Parser[ObjectBuilderValue] = {
     val withBraces = wsOrNl ~> objectValue <~ wsOrNl
     val withoutBraces = wsOrNl ~> objectMembers <~ wsOrNl
     (withBraces | withoutBraces) <~ eof
   }
   
-  lazy val anyValue: Parser[ConfigValue] = 
+  lazy val anyValue: Parser[ConfigBuilderValue] = 
     objectValue | 
       arrayValue | 
       numberValue | 

@@ -25,20 +25,20 @@ import org.scalatest.{Matchers, WordSpec}
   */
 class HoconJsonSpec extends WordSpec with Matchers with ParseResultHelpers with StringParserHelpers {
 
-  def f (key: String, value: String): Field = Field(key, StringValue(value))
+  def f (key: String, value: String): BuilderField = BuilderField(key, StringValue(value))
   
   "The object parser" should {
 
     "parse an empty object in" in {
-      Parsing ("{ }") using objectValue should produce (ObjectValue(Nil))
+      Parsing ("{ }") using objectValue should produce (ObjectBuilderValue(Nil))
     }
 
     "parse an object with one property in" in {
-      Parsing ("""{ "a": "foo" }""") using objectValue should produce (ObjectValue(Seq(Field("a", StringValue("foo")))))
+      Parsing ("""{ "a": "foo" }""") using objectValue should produce (ObjectBuilderValue(Seq(BuilderField("a", StringValue("foo")))))
     }
 
     "parse an object with two properties in" in {
-      Parsing ("""{ "a": "foo", "b": "bar" }""") using objectValue should produce (ObjectValue(Seq(f("a","foo"),f("b","bar"))))
+      Parsing ("""{ "a": "foo", "b": "bar" }""") using objectValue should produce (ObjectBuilderValue(Seq(f("a","foo"),f("b","bar"))))
     }
 
     "parse an object with all property types" in {
@@ -51,17 +51,17 @@ class HoconJsonSpec extends WordSpec with Matchers with ParseResultHelpers with 
           |  "arr": [ 1, 2, "bar" ],
           |  "obj": { "inner": "xx", "num": 9.5 }
           |}""".stripMargin
-      Parsing (input) using objectValue should produce (ObjectValue(Seq(
-        Field("str", StringValue("foo")),
-        Field("int", LongValue(27)),
-        Field("null", NullValue),
-        Field("bool", BooleanValue(true)),
-        Field("arr", ArrayValue(Seq(
+      Parsing (input) using objectValue should produce (ObjectBuilderValue(Seq(
+        BuilderField("str", StringValue("foo")),
+        BuilderField("int", LongValue(27)),
+        BuilderField("null", NullValue),
+        BuilderField("bool", BooleanValue(true)),
+        BuilderField("arr", ArrayBuilderValue(Seq(
           LongValue(1), LongValue(2), StringValue("bar")
         ))),
-        Field("obj", ObjectValue(Seq(
-          Field("inner", StringValue("xx")),
-          Field("num", DoubleValue(9.5))
+        BuilderField("obj", ObjectBuilderValue(Seq(
+          BuilderField("inner", StringValue("xx")),
+          BuilderField("num", DoubleValue(9.5))
         )))
       )))
     }

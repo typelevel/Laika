@@ -25,25 +25,25 @@ import org.scalatest.{Matchers, WordSpec}
   */
 class HoconParserSpec extends WordSpec with Matchers with ParseResultHelpers with StringParserHelpers {
 
-  def f (key: String, value: String): Field = Field(key, StringValue(value))
+  def f (key: String, value: String): BuilderField = BuilderField(key, StringValue(value))
   
-  private val nestedObject = Field("obj", ObjectValue(Seq(
-    Field("inner", StringValue("xx")),
-    Field("num", DoubleValue(9.5))
+  private val nestedObject = BuilderField("obj", ObjectBuilderValue(Seq(
+    BuilderField("inner", StringValue("xx")),
+    BuilderField("num", DoubleValue(9.5))
   )))
   
-  private val arrayProperty = Field("arr", ArrayValue(Seq(
+  private val arrayProperty = BuilderField("arr", ArrayBuilderValue(Seq(
     LongValue(1), LongValue(2), StringValue("bar")
   )))
   
   "The object parser" should {
 
     "parse an empty root object that is not enclosed in braces" in {
-      Parsing (" ") using rootObject should produce (ObjectValue(Nil))
+      Parsing (" ") using rootObject should produce (ObjectBuilderValue(Nil))
     }
 
     "parse a root object with two properties that is not enclosed in braces" in {
-      Parsing (""" "a": "foo", "b": "bar" """.stripMargin) using rootObject should produce (ObjectValue(Seq(f("a","foo"),f("b","bar"))))
+      Parsing (""" "a": "foo", "b": "bar" """.stripMargin) using rootObject should produce (ObjectBuilderValue(Seq(f("a","foo"),f("b","bar"))))
     }
 
     "parse a root object with all property types that is not enclosed in braces" in {
@@ -54,18 +54,18 @@ class HoconParserSpec extends WordSpec with Matchers with ParseResultHelpers wit
           |"bool": true,
           |"arr": [ 1, 2, "bar" ],
           |"obj": { "inner": "xx", "num": 9.5 }""".stripMargin
-      Parsing (input) using rootObject should produce (ObjectValue(Seq(
-        Field("str", StringValue("foo")),
-        Field("int", LongValue(27)),
-        Field("null", NullValue),
-        Field("bool", BooleanValue(true)),
+      Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(
+        BuilderField("str", StringValue("foo")),
+        BuilderField("int", LongValue(27)),
+        BuilderField("null", NullValue),
+        BuilderField("bool", BooleanValue(true)),
         arrayProperty,
         nestedObject
       )))
     }
 
     "parse a root object with two properties that use '=' instead of ':'" in {
-      Parsing (""" "a" = "foo", "b" = "bar" """.stripMargin) using rootObject should produce (ObjectValue(Seq(f("a","foo"),f("b","bar"))))
+      Parsing (""" "a" = "foo", "b" = "bar" """.stripMargin) using rootObject should produce (ObjectBuilderValue(Seq(f("a","foo"),f("b","bar"))))
     }
 
     "parse an object property without separator" in {
@@ -75,7 +75,7 @@ class HoconParserSpec extends WordSpec with Matchers with ParseResultHelpers wit
           |  "inner": "xx", 
           |  "num": 9.5 
           |} """.stripMargin
-      Parsing (input) using rootObject should produce (ObjectValue(Seq(f("a","foo"), nestedObject)))
+      Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(f("a","foo"), nestedObject)))
     }
 
     "parse an object property with a trailing comma" in {
@@ -85,14 +85,14 @@ class HoconParserSpec extends WordSpec with Matchers with ParseResultHelpers wit
           |  "inner": "xx", 
           |  "num": 9.5,
           |} """.stripMargin
-      Parsing (input) using rootObject should produce (ObjectValue(Seq(f("a","foo"), nestedObject)))
+      Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(f("a","foo"), nestedObject)))
     }
 
     "parse an array property with a trailing comma" in {
       val input =
         """"a": "foo", 
           |"arr": [ 1, 2, "bar", ]""".stripMargin
-      Parsing (input) using rootObject should produce (ObjectValue(Seq(f("a","foo"), arrayProperty)))
+      Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(f("a","foo"), arrayProperty)))
     }
 
     "parse an array property with elements separated by newline characters" in {
@@ -103,14 +103,14 @@ class HoconParserSpec extends WordSpec with Matchers with ParseResultHelpers wit
           |  2 
           |  "bar"
           |]""".stripMargin
-      Parsing (input) using rootObject should produce (ObjectValue(Seq(f("a","foo"), arrayProperty)))
+      Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(f("a","foo"), arrayProperty)))
     }
 
     "parse a root object with members separated by newline characters" in {
       Parsing (
         """"a": "foo"
           |"b": "bar" 
-          |"c": "baz" """.stripMargin) using rootObject should produce (ObjectValue(Seq(f("a","foo"),f("b","bar"),f("c","baz"))))
+          |"c": "baz" """.stripMargin) using rootObject should produce (ObjectBuilderValue(Seq(f("a","foo"),f("b","bar"),f("c","baz"))))
     }
 
     "parse a root object with members separated by two newline characters" in {
@@ -119,7 +119,7 @@ class HoconParserSpec extends WordSpec with Matchers with ParseResultHelpers wit
           |
           |"b": "bar"
           | 
-          |"c": "baz" """.stripMargin) using rootObject should produce (ObjectValue(Seq(f("a","foo"),f("b","bar"),f("c","baz"))))
+          |"c": "baz" """.stripMargin) using rootObject should produce (ObjectBuilderValue(Seq(f("a","foo"),f("b","bar"),f("c","baz"))))
     }
 
     "parse a multiline string property" in {
@@ -128,28 +128,28 @@ class HoconParserSpec extends WordSpec with Matchers with ParseResultHelpers wit
           |"s": +++Line 1
           | Line 2
           | Line 3+++""".stripMargin.replaceAllLiterally("+++", "\"\"\"")
-      Parsing (input) using rootObject should produce (ObjectValue(Seq(f("a","foo"), f("s", "Line 1\n Line 2\n Line 3"))))
+      Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(f("a","foo"), f("s", "Line 1\n Line 2\n Line 3"))))
     }
 
     "ignore escapes in a multiline string property" in {
       val input =
         """"a": "foo", 
           |"s": +++Word 1 \n Word 2+++""".stripMargin.replaceAllLiterally("+++", "\"\"\"")
-      Parsing (input) using rootObject should produce (ObjectValue(Seq(f("a","foo"), f("s", "Word 1 \\n Word 2"))))
+      Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(f("a","foo"), f("s", "Word 1 \\n Word 2"))))
     }
 
     "parse an object with unquoted keys" in {
       val input =
         """a: "foo", 
           |arr: [ 1, 2, "bar" ]""".stripMargin
-      Parsing (input) using rootObject should produce (ObjectValue(Seq(f("a","foo"), arrayProperty)))
+      Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(f("a","foo"), arrayProperty)))
     }
 
     "parse an object with unquoted string values" in {
       val input =
         """"a": foo, 
           |"arr": [ 1, 2, bar ]""".stripMargin
-      Parsing (input) using rootObject should produce (ObjectValue(Seq(f("a","foo"), arrayProperty)))
+      Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(f("a","foo"), arrayProperty)))
     }
     
   }
