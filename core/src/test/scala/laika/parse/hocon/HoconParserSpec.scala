@@ -27,6 +27,15 @@ class HoconParserSpec extends WordSpec with Matchers with ParseResultHelpers wit
 
   def f (key: String, value: String): Field = Field(key, StringValue(value))
   
+  private val nestedObject = Field("obj", ObjectValue(Seq(
+    Field("inner", StringValue("xx")),
+    Field("num", DoubleValue(9.5))
+  )))
+  
+  private val arrayProperty = Field("arr", ArrayValue(Seq(
+    LongValue(1), LongValue(2), StringValue("bar")
+  )))
+  
   "The object parser" should {
 
     "parse an empty root object that is not enclosed in braces" in {
@@ -50,13 +59,8 @@ class HoconParserSpec extends WordSpec with Matchers with ParseResultHelpers wit
         Field("int", LongValue(27)),
         Field("null", NullValue),
         Field("bool", BooleanValue(true)),
-        Field("arr", ArrayValue(Seq(
-          LongValue(1), LongValue(2), StringValue("bar")
-        ))),
-        Field("obj", ObjectValue(Seq(
-          Field("inner", StringValue("xx")),
-          Field("num", DoubleValue(9.5))
-        )))
+        arrayProperty,
+        nestedObject
       )))
     }
 
@@ -71,13 +75,24 @@ class HoconParserSpec extends WordSpec with Matchers with ParseResultHelpers wit
           |  "inner": "xx", 
           |  "num": 9.5 
           |} """.stripMargin
-      Parsing (input) using rootObject should produce (ObjectValue(Seq(
-        f("a","foo"),
-        Field("obj", ObjectValue(Seq(
-          Field("inner", StringValue("xx")),
-          Field("num", DoubleValue(9.5))
-        )))
-      )))
+      Parsing (input) using rootObject should produce (ObjectValue(Seq(f("a","foo"), nestedObject)))
+    }
+
+    "parse an object property with a trailing comma" in {
+      val input =
+        """"a": "foo", 
+          |"obj" = { 
+          |  "inner": "xx", 
+          |  "num": 9.5,
+          |} """.stripMargin
+      Parsing (input) using rootObject should produce (ObjectValue(Seq(f("a","foo"), nestedObject)))
+    }
+
+    "parse an array property with a trailing comma" in {
+      val input =
+        """"a": "foo", 
+          |"arr": [ 1, 2, "bar", ]""".stripMargin
+      Parsing (input) using rootObject should produce (ObjectValue(Seq(f("a","foo"), arrayProperty)))
     }
 
   }

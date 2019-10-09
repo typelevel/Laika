@@ -105,7 +105,7 @@ object HoconParsers {
   lazy val arrayValue: Parser[ConfigValue] = {
     lazy val value = wsOrNl ~> anyValue <~ wsOrNl
     lazy val values = wsOrNl ~> opt(value ~ (',' ~> value).rep).map(_.fold(Seq.empty[ConfigValue]){ case v ~ vs => v +: vs }) <~ wsOrNl
-    lazily(('[' ~> values <~ ']').map(ArrayValue))
+    lazily(('[' ~> values <~ opt(',' ~ wsOrNl) <~ ']').map(ArrayValue))
   }
   
   private lazy val objectMembers: Parser[ObjectValue] = {
@@ -115,7 +115,7 @@ object HoconParsers {
     lazy val withoutSeparator = wsOrNl ~> objectValue <~ wsOrNl
     lazy val member = (key ~ (withSeparator | withoutSeparator)).map { case k ~ v => Field(k.value, v) }
     lazy val members = opt(member ~ (',' ~> member).rep).map(_.fold(Seq.empty[Field]) { case m ~ ms => m +: ms })
-    (wsOrNl ~> members <~ wsOrNl).map(ObjectValue)
+    (wsOrNl ~> members <~ wsOrNl <~ opt(',' ~ wsOrNl)).map(ObjectValue)
   }
   
   lazy val objectValue: Parser[ObjectValue] = lazily('{' ~> objectMembers <~ '}')
