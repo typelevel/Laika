@@ -153,5 +153,65 @@ class HoconParserSpec extends WordSpec with Matchers with ParseResultHelpers wit
     }
     
   }
+  
+  "The concatenated value parser" should {
+    
+    "parse simple values containing booleans" in {
+      val input = "a = true is false"
+      Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(
+        BuilderField("a", ConcatValue(BooleanValue(true), Seq(ConcatPart(" ", StringValue("is")), ConcatPart(" ", BooleanValue(false)))))
+      )))
+    }
+
+    "parse simple values containing numbers" in {
+      val input = "a = 9 is 7"
+      Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(
+        BuilderField("a", ConcatValue(LongValue(9), Seq(ConcatPart(" ", StringValue("is")), ConcatPart(" ", LongValue(7)))))
+      )))
+    }
+
+    "parse object values on a single line" in {
+      val input = """a = { "inner": "xx", "num": 9.5 } { "inner": "xx", "num": 9.5 }"""
+      Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(
+        BuilderField("a", ConcatValue(nestedObject.value, Seq(ConcatPart(" ", nestedObject.value))))
+      )))
+    }
+
+    "parse object values spanning multiple lines" in {
+      val input = """a = { 
+                    |  "inner": "xx", 
+                    |  "num": 9.5
+                    |} { 
+                    |  "inner": "xx", 
+                    |  "num": 9.5
+                    |}""".stripMargin
+      Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(
+        BuilderField("a", ConcatValue(nestedObject.value, Seq(ConcatPart(" ", nestedObject.value))))
+      )))
+    }
+
+    "parse array values on a single line" in {
+      val input = """a = [ 1, 2, "bar", ] [ 1, 2, "bar", ]"""
+      Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(
+        BuilderField("a", ConcatValue(arrayProperty.value, Seq(ConcatPart(" ", arrayProperty.value))))
+      )))
+    }
+
+    "parse array values spanning multiple lines" in {
+      val input = """a = [ 
+                    | 1
+                    | 2 
+                    | "bar"
+                    |] [ 
+                    | 1 
+                    | 2
+                    | "bar"
+                    |]""".stripMargin
+      Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(
+        BuilderField("a", ConcatValue(arrayProperty.value, Seq(ConcatPart(" ", arrayProperty.value))))
+      )))
+    }
+
+  }
 
 }
