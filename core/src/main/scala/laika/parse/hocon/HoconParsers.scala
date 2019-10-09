@@ -111,7 +111,7 @@ object HoconParsers {
   private lazy val objectMembers: Parser[ObjectValue] = {
     lazy val key = wsOrNl ~> stringValue <~ wsOrNl
     lazy val value = wsOrNl ~> anyValue <~ wsOrNl
-    lazy val member = (key ~ (':' ~> value)).map { case k ~ v => Field(k.value, v) }
+    lazy val member = (key ~ (anyOf(':','=').take(1) ~> value)).map { case k ~ v => Field(k.value, v) }
     lazy val members = opt(member ~ (',' ~> member).rep).map(_.fold(Seq.empty[Field]) { case m ~ ms => m +: ms })
     (wsOrNl ~> members <~ wsOrNl).map(ObjectValue)
   }

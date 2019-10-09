@@ -27,17 +27,17 @@ class HoconParserSpec extends WordSpec with Matchers with ParseResultHelpers wit
 
   def f (key: String, value: String): Field = Field(key, StringValue(value))
   
-  "The root parser for documents that are not enclosed in braces " should {
+  "The object parser" should {
 
-    "parse an empty object in" in {
+    "parse an empty root object that is not enclosed in braces" in {
       Parsing (" ") using rootObject should produce (ObjectValue(Nil))
     }
 
-    "parse an object with two properties in" in {
+    "parse a root object with two properties that is not enclosed in braces" in {
       Parsing (""" "a": "foo", "b": "bar" """.stripMargin) using rootObject should produce (ObjectValue(Seq(f("a","foo"),f("b","bar"))))
     }
 
-    "parse an object with all property types" in {
+    "parse a root object with all property types that is not enclosed in braces" in {
       val input =
         """"str": "foo",
           |"int": 27,
@@ -58,6 +58,10 @@ class HoconParserSpec extends WordSpec with Matchers with ParseResultHelpers wit
           Field("num", DoubleValue(9.5))
         )))
       )))
+    }
+
+    "parse a root object with two properties that use '=' instead of ':'" in {
+      Parsing (""" "a": "foo", "b": "bar" """.stripMargin) using rootObject should produce (ObjectValue(Seq(f("a","foo"),f("b","bar"))))
     }
 
   }
