@@ -102,6 +102,10 @@ object HoconParsers {
     '"' ~> value <~ '"'
   }
   
+  val multilineString: Parser[StringValue] = {
+    "\"\"\"" ~> delimitedBy("\"\"\"").map(StringValue)
+  }
+  
   val separator: Parser[Any] = char(',') | eol ~ wsOrNl
   
   lazy val arrayValue: Parser[ConfigValue] = {
@@ -128,6 +132,14 @@ object HoconParsers {
     (withBraces | withoutBraces) <~ eof
   }
   
-  lazy val anyValue: Parser[ConfigValue] = objectValue | arrayValue | numberValue | trueValue | falseValue | nullValue | stringValue
+  lazy val anyValue: Parser[ConfigValue] = 
+    objectValue | 
+      arrayValue | 
+      numberValue | 
+      trueValue | 
+      falseValue | 
+      nullValue | 
+      multilineString | 
+      stringValue
   
 }
