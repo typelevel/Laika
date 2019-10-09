@@ -71,23 +71,23 @@ class HoconJsonSpec extends WordSpec with Matchers with ParseResultHelpers with 
   "The string parser" should {
 
     "parse an empty string" in {
-      Parsing ("\"\"") using stringValue should produce (StringValue(""))
+      Parsing ("\"\"") using quotedString should produce (StringValue(""))
     }
 
     "parse an string containing only whitespace" in {
-      Parsing ("\"  \"") using stringValue should produce (StringValue("  "))
+      Parsing ("\"  \"") using quotedString should produce (StringValue("  "))
     }
     
     "parse a plain string" in {
-      Parsing ("\"fooz\"") using stringValue should produce (StringValue("fooz"))
+      Parsing ("\"fooz\"") using quotedString should produce (StringValue("fooz"))
     }
 
     "parse a new line character" in {
-      Parsing ("\"foo\\nbar\"") using stringValue should produce (StringValue("foo\nbar"))
+      Parsing ("\"foo\\nbar\"") using quotedString should produce (StringValue("foo\nbar"))
     }
 
     "parse a unicode character reference" in {
-      Parsing (""""foo \u007B bar"""") using stringValue should produce (StringValue("foo { bar"))
+      Parsing (""""foo \u007B bar"""") using quotedString should produce (StringValue("foo { bar"))
     }
     
   }

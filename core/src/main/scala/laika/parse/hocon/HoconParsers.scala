@@ -85,7 +85,7 @@ object HoconParsers {
     }
   }
   
-  val stringValue: Parser[StringValue] = {
+  val quotedString: Parser[StringValue] = {
     val chars = anyBut('"','\\').min(1)
     val specialChar = anyIn('b','f','n','r','t').take(1).map {
       case "b" => "\b"
@@ -106,6 +106,11 @@ object HoconParsers {
     "\"\"\"" ~> delimitedBy("\"\"\"").map(StringValue)
   }
   
+  val unquotedString: Parser[StringValue] = {
+    val unquotedChar = anyBut('$', '"', '{', '}', '[', ']', ':', '=', ',', '+', '#', '`', '^', '?', '!', '@', '*', '&', '\\', ' ','\t','\n').min(1)
+    unquotedChar.map(StringValue)
+  }
+  
   val separator: Parser[Any] = char(',') | eol ~ wsOrNl
   
   lazy val arrayValue: Parser[ConfigValue] = {
@@ -115,7 +120,7 @@ object HoconParsers {
   }
   
   private lazy val objectMembers: Parser[ObjectValue] = {
-    lazy val key = wsOrNl ~> stringValue <~ wsOrNl
+    lazy val key = wsOrNl ~> (quotedString | unquotedString) <~ wsOrNl
     lazy val value = wsOrNl ~> anyValue <~ ws
     lazy val withSeparator = anyOf(':','=').take(1) ~> value
     lazy val withoutSeparator = wsOrNl ~> objectValue <~ wsOrNl
@@ -140,6 +145,7 @@ object HoconParsers {
       falseValue | 
       nullValue | 
       multilineString | 
-      stringValue
+      quotedString |
+      unquotedString
   
 }

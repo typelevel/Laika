@@ -137,6 +137,20 @@ class HoconParserSpec extends WordSpec with Matchers with ParseResultHelpers wit
           |"s": +++Word 1 \n Word 2+++""".stripMargin.replaceAllLiterally("+++", "\"\"\"")
       Parsing (input) using rootObject should produce (ObjectValue(Seq(f("a","foo"), f("s", "Word 1 \\n Word 2"))))
     }
+
+    "parse an object with unquoted keys" in {
+      val input =
+        """a: "foo", 
+          |arr: [ 1, 2, "bar" ]""".stripMargin
+      Parsing (input) using rootObject should produce (ObjectValue(Seq(f("a","foo"), arrayProperty)))
+    }
+
+    "parse an object with unquoted string values" in {
+      val input =
+        """"a": foo, 
+          |"arr": [ 1, 2, bar ]""".stripMargin
+      Parsing (input) using rootObject should produce (ObjectValue(Seq(f("a","foo"), arrayProperty)))
+    }
     
   }
 
