@@ -102,19 +102,21 @@ object HoconParsers {
     '"' ~> value <~ '"'
   }
   
+  val separator: Parser[Any] = char(',') | eol ~ wsOrNl
+  
   lazy val arrayValue: Parser[ConfigValue] = {
-    lazy val value = wsOrNl ~> anyValue <~ wsOrNl
-    lazy val values = wsOrNl ~> opt(value ~ (',' ~> value).rep).map(_.fold(Seq.empty[ConfigValue]){ case v ~ vs => v +: vs }) <~ wsOrNl
+    lazy val value = wsOrNl ~> anyValue <~ ws
+    lazy val values = wsOrNl ~> opt(value ~ (separator ~> value).rep).map(_.fold(Seq.empty[ConfigValue]){ case v ~ vs => v +: vs }) <~ wsOrNl
     lazily(('[' ~> values <~ opt(',' ~ wsOrNl) <~ ']').map(ArrayValue))
   }
   
   private lazy val objectMembers: Parser[ObjectValue] = {
     lazy val key = wsOrNl ~> stringValue <~ wsOrNl
-    lazy val value = wsOrNl ~> anyValue <~ wsOrNl
+    lazy val value = wsOrNl ~> anyValue <~ ws
     lazy val withSeparator = anyOf(':','=').take(1) ~> value
     lazy val withoutSeparator = wsOrNl ~> objectValue <~ wsOrNl
     lazy val member = (key ~ (withSeparator | withoutSeparator)).map { case k ~ v => Field(k.value, v) }
-    lazy val members = opt(member ~ (',' ~> member).rep).map(_.fold(Seq.empty[Field]) { case m ~ ms => m +: ms })
+    lazy val members = opt(member ~ (separator ~> member).rep).map(_.fold(Seq.empty[Field]) { case m ~ ms => m +: ms })
     (wsOrNl ~> members <~ wsOrNl <~ opt(',' ~ wsOrNl)).map(ObjectValue)
   }
   

@@ -95,6 +95,33 @@ class HoconParserSpec extends WordSpec with Matchers with ParseResultHelpers wit
       Parsing (input) using rootObject should produce (ObjectValue(Seq(f("a","foo"), arrayProperty)))
     }
 
+    "parse an array property with elements separated by newline characters" in {
+      val input =
+        """"a": "foo", 
+          |"arr": [ 
+          |  1 
+          |  2 
+          |  "bar"
+          |]""".stripMargin
+      Parsing (input) using rootObject should produce (ObjectValue(Seq(f("a","foo"), arrayProperty)))
+    }
+
+    "parse a root object with members separated by newline characters" in {
+      Parsing (
+        """"a": "foo"
+          |"b": "bar" 
+          |"c": "baz" """.stripMargin) using rootObject should produce (ObjectValue(Seq(f("a","foo"),f("b","bar"),f("c","baz"))))
+    }
+
+    "parse a root object with members separated by two newline characters" in {
+      Parsing (
+        """"a": "foo"
+          |
+          |"b": "bar"
+          | 
+          |"c": "baz" """.stripMargin) using rootObject should produce (ObjectValue(Seq(f("a","foo"),f("b","bar"),f("c","baz"))))
+    }
+
   }
 
 }
