@@ -61,7 +61,23 @@ class HoconParserSpec extends WordSpec with Matchers with ParseResultHelpers wit
     }
 
     "parse a root object with two properties that use '=' instead of ':'" in {
-      Parsing (""" "a": "foo", "b": "bar" """.stripMargin) using rootObject should produce (ObjectValue(Seq(f("a","foo"),f("b","bar"))))
+      Parsing (""" "a" = "foo", "b" = "bar" """.stripMargin) using rootObject should produce (ObjectValue(Seq(f("a","foo"),f("b","bar"))))
+    }
+
+    "parse an object property without separator" in {
+      val input =
+        """"a": "foo", 
+          |"obj" { 
+          |  "inner": "xx", 
+          |  "num": 9.5 
+          |} """.stripMargin
+      Parsing (input) using rootObject should produce (ObjectValue(Seq(
+        f("a","foo"),
+        Field("obj", ObjectValue(Seq(
+          Field("inner", StringValue("xx")),
+          Field("num", DoubleValue(9.5))
+        )))
+      )))
     }
 
   }
