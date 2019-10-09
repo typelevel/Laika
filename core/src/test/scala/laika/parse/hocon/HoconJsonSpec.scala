@@ -38,7 +38,7 @@ class HoconJsonSpec extends WordSpec with Matchers with ParseResultHelpers with 
     }
 
     "parse an object with two properties in" in {
-      Parsing ("""{ "a": "foo", "b": "bar }""") using objectValue should produce (ObjectValue(Seq(f("a","foo"),f("b","bar"))))
+      Parsing ("""{ "a": "foo", "b": "bar" }""") using objectValue should produce (ObjectValue(Seq(f("a","foo"),f("b","bar"))))
     }
 
     "parse an object with all property types" in {
