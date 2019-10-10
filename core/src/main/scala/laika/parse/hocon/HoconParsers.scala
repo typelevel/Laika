@@ -124,6 +124,14 @@ object HoconParsers {
       }
     }
   }
+
+  val concatenatedKey: Parser[String] = {
+    val string = (quotedString | unquotedString).map(_.value)
+    val parts = (ws ~ string).concat.rep
+    (string ~ parts).map {
+      case first ~ rest => (first +: rest).mkString // TODO - special handling for . in quoted string
+    }
+  }
   
   val separator: Parser[Any] = char(',') | eol ~ wsOrNl
   
@@ -134,11 +142,11 @@ object HoconParsers {
   }
   
   private lazy val objectMembers: Parser[ObjectBuilderValue] = {
-    lazy val key = wsOrNl ~> (quotedString | unquotedString) <~ wsOrNl
+    lazy val key = wsOrNl ~> concatenatedKey <~ wsOrNl
     lazy val value = wsOrNl ~> concatenatedValue <~ ws
     lazy val withSeparator = anyOf(':','=').take(1) ~> value
     lazy val withoutSeparator = wsOrNl ~> objectValue <~ wsOrNl
-    lazy val member = (key ~ (withSeparator | withoutSeparator)).map { case k ~ v => BuilderField(k.value, v) }
+    lazy val member = (key ~ (withSeparator | withoutSeparator)).map { case k ~ v => BuilderField(k, v) }
     lazy val members = opt(member ~ (separator ~> member).rep).map(_.fold(Seq.empty[BuilderField]) { case m ~ ms => m +: ms })
     (wsOrNl ~> members <~ wsOrNl <~ opt(',' ~ wsOrNl)).map(ObjectBuilderValue)
   }

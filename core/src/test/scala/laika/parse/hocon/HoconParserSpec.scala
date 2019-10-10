@@ -213,5 +213,19 @@ class HoconParserSpec extends WordSpec with Matchers with ParseResultHelpers wit
     }
 
   }
+  
+  "The concatenated key parser" should {
+    
+    "parse a concatenated key consisting of unquoted strings" in {
+      val input = """a b c = foo"""
+      Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(f("a b c","foo"))))
+    }
+
+    "parse a concatenated key consisting of unquoted and quoted strings" in {
+      val input = """a "b" c = foo"""
+      Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(f("a b c","foo"))))
+    }
+    
+  }
 
 }
