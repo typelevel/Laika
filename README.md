@@ -1,6 +1,6 @@
 ![Laika](http://planet42.github.io/Laika/img/laika-top.png)
 
-Customizable and extensible toolkit for transforming lightweight text markup and template based site generation.
+Customizable and extensible toolkit for transforming lightweight text markup and template based site and e-book generation.
 
 Supporting Markdown and reStructuredText as input and HTML, EPUB and PDF as output, 
 either through its integrated sbt plugin or embedded in Scala applications, 

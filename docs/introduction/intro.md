@@ -2,7 +2,8 @@
 Laika
 =====
 
-Laika is a customizable and extensible toolkit for transforming lightweight text markup and template based site generation.
+Laika is a customizable and extensible toolkit for transforming lightweight text markup 
+and template based site and e-book generation.
 
 It has been designed for two primary usage scenarios:
 
