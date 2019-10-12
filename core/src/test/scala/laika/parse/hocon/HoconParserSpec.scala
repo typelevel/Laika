@@ -151,6 +151,16 @@ class HoconParserSpec extends WordSpec with Matchers with ParseResultHelpers wit
           |"arr": [ 1, 2, bar ]""".stripMargin
       Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(f("a","foo"), arrayProperty)))
     }
+
+    "parse an object with the += field separator" in {
+      val input =
+        """a = [ foo ], 
+          |a += bar""".stripMargin
+      Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(
+        BuilderField("a", ArrayBuilderValue(Seq(StringValue("foo")))),
+        BuilderField("a", ConcatValue(SelfReference, Seq(ConcatPart("", ArrayBuilderValue(Seq(StringValue("bar")))))))
+      )))
+    }
     
   }
   

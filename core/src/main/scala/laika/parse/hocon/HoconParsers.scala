@@ -43,6 +43,7 @@ object HoconParsers {
   case class ConcatValue(first: ConfigBuilderValue, rest: Seq[ConcatPart]) extends ConfigBuilderValue
   case class ConcatPart(whitespace: String, value: ConfigBuilderValue)
   case class SubstitutionValue(ref: String, optional: Boolean) extends ConfigBuilderValue // TODO - use Path?
+  case object SelfReference extends ConfigBuilderValue
   case class ArrayBuilderValue(values: Seq[ConfigBuilderValue]) extends ConfigValue
   case class ObjectBuilderValue(values: Seq[BuilderField]) extends ConfigBuilderValue
   case class BuilderField(key: String, value: ConfigBuilderValue) // TODO - use Path
@@ -150,7 +151,10 @@ object HoconParsers {
   private lazy val objectMembers: Parser[ObjectBuilderValue] = {
     lazy val key = wsOrNl ~> concatenatedKey <~ wsOrNl
     lazy val value = wsOrNl ~> concatenatedValue <~ ws
-    lazy val withSeparator = anyOf(':','=').take(1) ~> value
+    lazy val withSeparator = ((anyOf(':','=').take(1) | "+=") ~ value).map {
+      case "+=" ~ element => ConcatValue(SelfReference, Seq(ConcatPart("", ArrayBuilderValue(Seq(element))))) 
+      case _ ~ v => v 
+    }
     lazy val withoutSeparator = wsOrNl ~> objectValue <~ wsOrNl
     lazy val member = (key ~ (withSeparator | withoutSeparator)).map { case k ~ v => BuilderField(k, v) }
     lazy val members = opt(member ~ (separator ~> member).rep).map(_.fold(Seq.empty[BuilderField]) { case m ~ ms => m +: ms })
