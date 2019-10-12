@@ -17,6 +17,7 @@
 package laika.parse.hocon
 
 import laika.ast.~
+import laika.parse.text.Characters
 import laika.parse.{Parser, ParserContext}
 import laika.parse.text.TextParsers._
 
@@ -65,7 +66,7 @@ object HoconParsers {
     override def parse (in: ParserContext) = p.parse(in)
   }
   
-  val wsOrNl: Parser[String] = anyOf(' ','\t','\n')
+  val wsOrNl: Characters[String] = anyOf(' ','\t','\n')
   
   val nullValue: Parser[ConfigValue] = "null" ^^^ NullValue
   val trueValue: Parser[ConfigValue] = "true" ^^^ BooleanValue(true)
@@ -117,7 +118,7 @@ object HoconParsers {
   }
   
   lazy val concatenatedValue: Parser[ConfigBuilderValue] = {
-    lazy val parts = (ws ~ anyValue).map { case s ~ v => ConcatPart(s,v) }.rep
+    lazy val parts = (ws ~ (not(comment) ~> anyValue)).map { case s ~ v => ConcatPart(s,v) }.rep
     lazily {
       (anyValue ~ parts).map {
         case first ~ Nil => first
@@ -140,16 +141,22 @@ object HoconParsers {
     } 
   }
   
-  val separator: Parser[Any] = char(',') | eol ~ wsOrNl
+  val comment: Parser[String] = ("//" | "#") ~> restOfLine
+  
+  val wsOrComment: Parser[Any] = wsOrNl ~ (comment | wsOrNl.min(1)).rep
+  
+  val separator: Parser[Any] = (char(',') | eol | comment) ~ wsOrComment
+  
+  val trailingComma: Parser[Any] = opt(',' ~ wsOrComment)
   
   lazy val arrayValue: Parser[ConfigBuilderValue] = {
     lazy val value = wsOrNl ~> concatenatedValue <~ ws
-    lazy val values = wsOrNl ~> opt(value ~ (separator ~> value).rep).map(_.fold(Seq.empty[ConfigBuilderValue]){ case v ~ vs => v +: vs }) <~ wsOrNl
-    lazily(('[' ~> values <~ opt(',' ~ wsOrNl) <~ ']').map(ArrayBuilderValue))
+    lazy val values = wsOrComment ~> opt(value ~ (separator ~> value).rep).map(_.fold(Seq.empty[ConfigBuilderValue]){ case v ~ vs => v +: vs }) <~ wsOrComment
+    lazily(('[' ~> values <~ trailingComma <~ ']').map(ArrayBuilderValue))
   }
   
   private lazy val objectMembers: Parser[ObjectBuilderValue] = {
-    lazy val key = wsOrNl ~> concatenatedKey <~ wsOrNl
+    lazy val key = wsOrNl ~> concatenatedKey <~ ws
     lazy val value = wsOrNl ~> concatenatedValue <~ ws
     lazy val withSeparator = ((anyOf(':','=').take(1) | "+=") ~ value).map {
       case "+=" ~ element => ConcatValue(SelfReference, Seq(ConcatPart("", ArrayBuilderValue(Seq(element))))) 
@@ -158,14 +165,14 @@ object HoconParsers {
     lazy val withoutSeparator = wsOrNl ~> objectValue <~ wsOrNl
     lazy val member = (key ~ (withSeparator | withoutSeparator)).map { case k ~ v => BuilderField(k, v) }
     lazy val members = opt(member ~ (separator ~> member).rep).map(_.fold(Seq.empty[BuilderField]) { case m ~ ms => m +: ms })
-    (wsOrNl ~> members <~ wsOrNl <~ opt(',' ~ wsOrNl)).map(ObjectBuilderValue)
+    (wsOrComment ~> members <~ wsOrComment <~ trailingComma).map(ObjectBuilderValue)
   }
   
   lazy val objectValue: Parser[ObjectBuilderValue] = lazily('{' ~> objectMembers <~ '}')
   
   lazy val rootObject: Parser[ObjectBuilderValue] = {
-    val withBraces = wsOrNl ~> objectValue <~ wsOrNl
-    val withoutBraces = wsOrNl ~> objectMembers <~ wsOrNl
+    val withBraces = wsOrComment ~> objectValue <~ wsOrComment
+    val withoutBraces = wsOrComment ~> objectMembers <~ wsOrComment
     (withBraces | withoutBraces) <~ eof
   }
   

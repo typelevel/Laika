@@ -269,5 +269,71 @@ class HoconParserSpec extends WordSpec with Matchers with ParseResultHelpers wit
     }
     
   }
+  
+  "The comment parser" should {
+    
+    "parse a comment at the beginning of the input" in {
+      val input = """
+        | // comment
+        | 
+        | a = 7
+      """.stripMargin
+      Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(BuilderField("a", LongValue(7)))))
+    }
+
+    "parse a comment at the end of the input" in {
+      val input = """
+                    | a = 7
+                    |
+                    | // comment
+                  """.stripMargin
+      Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(BuilderField("a", LongValue(7)))))
+    }
+
+    "parse a comment in the middle of the input" in {
+      val input = """
+                    | a = 7
+                    |
+                    | // comment
+                    | 
+                    | b = 9
+                  """.stripMargin
+      Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(BuilderField("a", LongValue(7)), BuilderField("b", LongValue(9)))))
+    }
+
+    "parse multiple comments in the middle of the input" in {
+      val input = """
+                    | a = 7
+                    |
+                    | // comment
+                    | 
+                    | # some other comment
+                    |
+                    | b = 9
+                  """.stripMargin
+      Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(BuilderField("a", LongValue(7)), BuilderField("b", LongValue(9)))))
+    }
+
+    "parse a comment next to an object member" in {
+      val input = """
+                    | a = 7   // comment
+                    | 
+                    | b = 9
+                  """.stripMargin
+      Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(BuilderField("a", LongValue(7)), BuilderField("b", LongValue(9)))))
+    }
+
+    "parse a comment next to an array property" in {
+      val input =
+        """"a": "foo", 
+          |"arr": [ 
+          |  1  // hello
+          |  2  # there
+          |  "bar"
+          |]""".stripMargin
+      Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(f("a","foo"), arrayProperty)))
+    }
+    
+  }
 
 }
