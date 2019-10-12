@@ -227,5 +227,37 @@ class HoconParserSpec extends WordSpec with Matchers with ParseResultHelpers wit
     }
     
   }
+  
+  "The substitution parser" should {
+    
+    "parse a substitution as a simple value" in {
+      val input = "a = ${foo.bar}"
+      Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(
+        BuilderField("a", SubstitutionValue("foo.bar", optional = false))
+      )))
+    }
+
+    "parse a substitution for an optional value" in {
+      val input = "a = ${?foo.bar}"
+      Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(
+        BuilderField("a", SubstitutionValue("foo.bar", optional = true))
+      )))
+    }
+
+    "parse a substitution as the first part in a concatenated value" in {
+      val input = "a = ${foo.bar} is null"
+      Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(
+        BuilderField("a", ConcatValue(SubstitutionValue("foo.bar", optional = false), Seq(ConcatPart(" ", StringValue("is")), ConcatPart(" ", NullValue))))
+      )))
+    }
+
+    "parse a substitution as the last part in a concatenated value" in {
+      val input = "a = Blue is ${foo.bar}"
+      Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(
+        BuilderField("a", ConcatValue(StringValue("Blue"), Seq(ConcatPart(" ", StringValue("is")), ConcatPart(" ", SubstitutionValue("foo.bar", optional = false)))))
+      )))
+    }
+    
+  }
 
 }

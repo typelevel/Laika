@@ -42,7 +42,7 @@ object HoconParsers {
   
   case class ConcatValue(first: ConfigBuilderValue, rest: Seq[ConcatPart]) extends ConfigBuilderValue
   case class ConcatPart(whitespace: String, value: ConfigBuilderValue)
-  case class SubstitutionValue(ref: String) extends ConfigBuilderValue // TODO - use Path?
+  case class SubstitutionValue(ref: String, optional: Boolean) extends ConfigBuilderValue // TODO - use Path?
   case class ArrayBuilderValue(values: Seq[ConfigBuilderValue]) extends ConfigValue
   case class ObjectBuilderValue(values: Seq[BuilderField]) extends ConfigBuilderValue
   case class BuilderField(key: String, value: ConfigBuilderValue) // TODO - use Path
@@ -133,6 +133,12 @@ object HoconParsers {
     }
   }
   
+  val substitutionValue: Parser[SubstitutionValue] = {
+    ("${" ~> opt('?') ~ delimitedBy('}')).map {
+      case opt ~ key => SubstitutionValue(key, opt.isDefined)
+    } 
+  }
+  
   val separator: Parser[Any] = char(',') | eol ~ wsOrNl
   
   lazy val arrayValue: Parser[ConfigBuilderValue] = {
@@ -165,7 +171,8 @@ object HoconParsers {
       numberValue | 
       trueValue | 
       falseValue | 
-      nullValue | 
+      nullValue |
+      substitutionValue |
       multilineString | 
       quotedString |
       unquotedString
