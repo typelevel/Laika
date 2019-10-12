@@ -16,6 +16,7 @@
 
 package laika.parse.hocon
 
+import laika.ast.Path.Root
 import laika.parse.helper.{ParseResultHelpers, StringParserHelpers}
 import laika.parse.hocon.HoconParsers._
 import org.scalatest.{Matchers, WordSpec}
@@ -243,28 +244,28 @@ class HoconParserSpec extends WordSpec with Matchers with ParseResultHelpers wit
     "parse a substitution as a simple value" in {
       val input = "a = ${foo.bar}"
       Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(
-        BuilderField("a", SubstitutionValue("foo.bar", optional = false))
+        BuilderField("a", SubstitutionValue(Root / "foo" / "bar", optional = false))
       )))
     }
 
     "parse a substitution for an optional value" in {
       val input = "a = ${?foo.bar}"
       Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(
-        BuilderField("a", SubstitutionValue("foo.bar", optional = true))
+        BuilderField("a", SubstitutionValue(Root / "foo" / "bar", optional = true))
       )))
     }
 
     "parse a substitution as the first part in a concatenated value" in {
       val input = "a = ${foo.bar} is null"
       Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(
-        BuilderField("a", ConcatValue(SubstitutionValue("foo.bar", optional = false), Seq(ConcatPart(" ", StringValue("is")), ConcatPart(" ", NullValue))))
+        BuilderField("a", ConcatValue(SubstitutionValue(Root / "foo" / "bar", optional = false), Seq(ConcatPart(" ", StringValue("is")), ConcatPart(" ", NullValue))))
       )))
     }
 
     "parse a substitution as the last part in a concatenated value" in {
       val input = "a = Blue is ${foo.bar}"
       Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(
-        BuilderField("a", ConcatValue(StringValue("Blue"), Seq(ConcatPart(" ", StringValue("is")), ConcatPart(" ", SubstitutionValue("foo.bar", optional = false)))))
+        BuilderField("a", ConcatValue(StringValue("Blue"), Seq(ConcatPart(" ", StringValue("is")), ConcatPart(" ", SubstitutionValue(Root / "foo" / "bar", optional = false)))))
       )))
     }
     
@@ -332,6 +333,30 @@ class HoconParserSpec extends WordSpec with Matchers with ParseResultHelpers wit
           |  "bar"
           |]""".stripMargin
       Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(f("a","foo"), arrayProperty)))
+    }
+    
+  }
+  
+  "The path expression parser" should {
+    
+    "parse an unquoted path" in {
+      Parsing ("foo.bar = 7") using rootObject should produce (ObjectBuilderValue(Seq(BuilderField(Root / "foo" / "bar", LongValue(7)))))
+    }
+
+    "parse an unquoted path with whitespace" in {
+      Parsing ("foo.bar bar.baz = 7") using rootObject should produce (ObjectBuilderValue(Seq(BuilderField(Root / "foo" / "bar bar" / "baz", LongValue(7)))))
+    }
+
+    "parse a quoted path" in {
+      Parsing ("\"foo.bar\" = 7") using rootObject should produce (ObjectBuilderValue(Seq(BuilderField(Root / "foo.bar", LongValue(7)))))
+    }
+    
+    "parse a quoted and unquoted path combined" in {
+      Parsing ("foo.\"bar.bar\".baz = 7") using rootObject should produce (ObjectBuilderValue(Seq(BuilderField(Root / "foo" / "bar.bar" / "baz", LongValue(7)))))
+    }
+
+    "parse a quoted empty string as a path element" in {
+      Parsing ("foo.\"\".baz = 7") using rootObject should produce (ObjectBuilderValue(Seq(BuilderField(Root / "foo" / "" / "baz", LongValue(7)))))
     }
     
   }

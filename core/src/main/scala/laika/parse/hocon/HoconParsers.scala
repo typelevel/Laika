@@ -16,7 +16,7 @@
 
 package laika.parse.hocon
 
-import laika.ast.~
+import laika.ast.{Path, ~}
 import laika.parse.text.Characters
 import laika.parse.{Parser, ParserContext}
 import laika.parse.text.TextParsers._
@@ -43,11 +43,17 @@ object HoconParsers {
   
   case class ConcatValue(first: ConfigBuilderValue, rest: Seq[ConcatPart]) extends ConfigBuilderValue
   case class ConcatPart(whitespace: String, value: ConfigBuilderValue)
-  case class SubstitutionValue(ref: String, optional: Boolean) extends ConfigBuilderValue // TODO - use Path?
+  case class SubstitutionValue(ref: Path, optional: Boolean) extends ConfigBuilderValue
+  object SubstitutionValue {
+    def apply (ref: String, optional: Boolean): SubstitutionValue = apply(Path.Root / ref, optional)
+  }
   case object SelfReference extends ConfigBuilderValue
   case class ArrayBuilderValue(values: Seq[ConfigBuilderValue]) extends ConfigValue
   case class ObjectBuilderValue(values: Seq[BuilderField]) extends ConfigBuilderValue
-  case class BuilderField(key: String, value: ConfigBuilderValue) // TODO - use Path
+  case class BuilderField(key: Path, value: ConfigBuilderValue)
+  object BuilderField {
+    def apply (key: String, value: ConfigBuilderValue): BuilderField = apply(Path.Root / key, value)
+  }
   
   sealed trait ConfigValue extends ConfigBuilderValue
   
@@ -59,7 +65,17 @@ object HoconParsers {
   case class ArrayValue(values: Seq[ConfigValue]) extends ConfigValue
   case class ObjectValue(values: Seq[Field]) extends ConfigValue
   case class Field(key: String, value: ConfigValue)
-  
+  case class PathFragments(fragments: Seq[String]) {
+    def join(other: PathFragments): PathFragments = {
+      if (fragments.isEmpty || other.fragments.isEmpty) PathFragments(fragments ++ other.fragments)
+      else PathFragments(fragments.init ++ Seq(fragments.last + other.fragments.head) ++ other.fragments.tail)
+    }
+  }
+  object PathFragments {
+    def unquoted(key: StringValue): PathFragments = apply(key.value.split("\\.", -1))
+    def quoted(key: StringValue): PathFragments = apply(Seq(key.value))
+    def whitespace(ws: String): PathFragments = apply(Seq(ws))
+  }
   
   def lazily[T](parser: => Parser[T]): Parser[T] = new Parser[T] {
     lazy val p = parser
@@ -127,16 +143,16 @@ object HoconParsers {
     }
   }
 
-  val concatenatedKey: Parser[String] = {
-    val string = (quotedString | unquotedString).map(_.value)
-    val parts = (ws ~ string).concat.rep
-    (string ~ parts).map {
-      case first ~ rest => (first +: rest).mkString // TODO - special handling for . in quoted string
+  val concatenatedKey: Parser[Path] = {
+    val string = quotedString.map(PathFragments.quoted) | unquotedString.map(PathFragments.unquoted)
+    val parts = (ws.map(PathFragments.whitespace) ~ string).map { case s ~ fr => s.join(fr) }
+    (string ~ parts.rep).map {
+      case first ~ rest => Path(Path.Root, (first +: rest).reduce(_ join _).fragments.toList)
     }
   }
   
   val substitutionValue: Parser[SubstitutionValue] = {
-    ("${" ~> opt('?') ~ delimitedBy('}')).map {
+    ("${" ~> opt('?') ~ concatenatedKey <~ '}').map {
       case opt ~ key => SubstitutionValue(key, opt.isDefined)
     } 
   }
