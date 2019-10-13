@@ -23,9 +23,9 @@ import org.scalatest.{Matchers, WordSpec}
 /**
   * @author Jens Halm
   */
-class HoconJsonSpec extends WordSpec with Matchers with ParseResultHelpers with StringParserHelpers {
+class HoconJsonSpec extends WordSpec with Matchers with ParseResultHelpers with StringParserHelpers with ResultBuilders {
 
-  def f (key: String, value: String): BuilderField = BuilderField(key, StringValue(value))
+  def f (key: String, value: String): BuilderField = BuilderField(key, stringValue(value))
   
   "The object parser" should {
 
@@ -34,7 +34,7 @@ class HoconJsonSpec extends WordSpec with Matchers with ParseResultHelpers with 
     }
 
     "parse an object with one property in" in {
-      Parsing ("""{ "a": "foo" }""") using objectValue should produce (ObjectBuilderValue(Seq(BuilderField("a", StringValue("foo")))))
+      Parsing ("""{ "a": "foo" }""") using objectValue should produce (ObjectBuilderValue(Seq(BuilderField("a", stringValue("foo")))))
     }
 
     "parse an object with two properties in" in {
@@ -52,16 +52,16 @@ class HoconJsonSpec extends WordSpec with Matchers with ParseResultHelpers with 
           |  "obj": { "inner": "xx", "num": 9.5 }
           |}""".stripMargin
       Parsing (input) using objectValue should produce (ObjectBuilderValue(Seq(
-        BuilderField("str", StringValue("foo")),
-        BuilderField("int", LongValue(27)),
-        BuilderField("null", NullValue),
-        BuilderField("bool", BooleanValue(true)),
+        BuilderField("str", stringValue("foo")),
+        BuilderField("int", longValue(27)),
+        BuilderField("null", nullValue),
+        BuilderField("bool", trueValue),
         BuilderField("arr", ArrayBuilderValue(Seq(
-          LongValue(1), LongValue(2), StringValue("bar")
+          longValue(1), longValue(2), stringValue("bar")
         ))),
         BuilderField("obj", ObjectBuilderValue(Seq(
-          BuilderField("inner", StringValue("xx")),
-          BuilderField("num", DoubleValue(9.5))
+          BuilderField("inner", stringValue("xx")),
+          BuilderField("num", doubleValue(9.5))
         )))
       )))
     }
@@ -95,23 +95,23 @@ class HoconJsonSpec extends WordSpec with Matchers with ParseResultHelpers with 
   "The number parser" should {
     
     "parse a long" in {
-      Parsing ("123") using numberValue should produce (LongValue(123): ConfigValue)
+      Parsing ("123") using numberValue should produce (longValue(123): ConfigBuilderValue)
     }
 
     "parse a signed long" in {
-      Parsing ("-123") using numberValue should produce (LongValue(-123): ConfigValue)
+      Parsing ("-123") using numberValue should produce (longValue(-123): ConfigBuilderValue)
     }
 
     "parse a double" in {
-      Parsing ("123.5") using numberValue should produce (DoubleValue(123.5): ConfigValue)
+      Parsing ("123.5") using numberValue should produce (doubleValue(123.5): ConfigBuilderValue)
     }
 
     "parse a double with an exponent" in {
-      Parsing ("123.5E10") using numberValue should produce (DoubleValue(1.235E12): ConfigValue)
+      Parsing ("123.5E10") using numberValue should produce (doubleValue(1.235E12): ConfigBuilderValue)
     }
 
     "parse a double with a negative exponent" in {
-      Parsing ("123.5E-2") using numberValue should produce (DoubleValue(1.235): ConfigValue)
+      Parsing ("123.5E-2") using numberValue should produce (doubleValue(1.235): ConfigBuilderValue)
     }
   }
   

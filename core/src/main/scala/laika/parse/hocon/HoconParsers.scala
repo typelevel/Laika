@@ -48,14 +48,15 @@ object HoconParsers {
     def apply (ref: String, optional: Boolean): SubstitutionValue = apply(Path.Root / ref, optional)
   }
   case object SelfReference extends ConfigBuilderValue
-  case class ArrayBuilderValue(values: Seq[ConfigBuilderValue]) extends ConfigValue
+  case class ArrayBuilderValue(values: Seq[ConfigBuilderValue]) extends ConfigBuilderValue
   case class ObjectBuilderValue(values: Seq[BuilderField]) extends ConfigBuilderValue
   case class BuilderField(key: Path, value: ConfigBuilderValue)
   object BuilderField {
     def apply (key: String, value: ConfigBuilderValue): BuilderField = apply(Path.Root / key, value)
   }
+  case class ResolvedBuilderValue(value: ConfigValue) extends ConfigBuilderValue
   
-  sealed trait ConfigValue extends ConfigBuilderValue
+  sealed trait ConfigValue
   
   case object NullValue extends ConfigValue
   case class BooleanValue(value: Boolean) extends ConfigValue
@@ -84,11 +85,11 @@ object HoconParsers {
   
   val wsOrNl: Characters[String] = anyOf(' ','\t','\n')
   
-  val nullValue: Parser[ConfigValue] = "null" ^^^ NullValue
-  val trueValue: Parser[ConfigValue] = "true" ^^^ BooleanValue(true)
-  val falseValue: Parser[ConfigValue] = "false" ^^^ BooleanValue(false)
+  val nullValue: Parser[ConfigBuilderValue] = "null" ^^^ ResolvedBuilderValue(NullValue)
+  val trueValue: Parser[ConfigBuilderValue] = "true" ^^^ ResolvedBuilderValue(BooleanValue(true))
+  val falseValue: Parser[ConfigBuilderValue] = "false" ^^^ ResolvedBuilderValue(BooleanValue(false))
   
-  val numberValue: Parser[ConfigValue] = {
+  val numberValue: Parser[ConfigBuilderValue] = {
     
     val zero = anyIn('0').take(1)
     val digits = anyIn('0' to '9')
@@ -102,8 +103,14 @@ object HoconParsers {
     val exponent = opt((anyIn('E','e').take(1) ~ sign ~ digits).concat).map(_.getOrElse(""))
 
     (integer ~ (fraction ~ exponent).concat) ^^? {
-      case int ~ ""         => Try(int.toLong).toEither.left.map(_.getMessage).map(LongValue)
-      case int ~ doublePart => Try((int + doublePart).toDouble).toEither.left.map(_.getMessage).map(DoubleValue)
+      case int ~ ""         => 
+        Try(int.toLong).toEither
+          .left.map(_.getMessage)
+          .map(v => ResolvedBuilderValue(LongValue(v)))
+      case int ~ doublePart => 
+        Try((int + doublePart).toDouble).toEither
+          .left.map(_.getMessage)
+          .map(v => ResolvedBuilderValue(DoubleValue(v)))
     }
   }
   
@@ -132,6 +139,9 @@ object HoconParsers {
     val unquotedChar = anyBut('$', '"', '{', '}', '[', ']', ':', '=', ',', '+', '#', '`', '^', '?', '!', '@', '*', '&', '\\', ' ','\t','\n').min(1)
     unquotedChar.map(StringValue)
   }
+  
+  val stringBuilderValue: Parser[ConfigBuilderValue] =
+    (multilineString | quotedString | unquotedString).map(ResolvedBuilderValue)
   
   lazy val concatenatedValue: Parser[ConfigBuilderValue] = {
     lazy val parts = (ws ~ (not(comment) ~> anyValue)).map { case s ~ v => ConcatPart(s,v) }.rep
@@ -200,8 +210,6 @@ object HoconParsers {
       falseValue | 
       nullValue |
       substitutionValue |
-      multilineString | 
-      quotedString |
-      unquotedString
+      stringBuilderValue
   
 }

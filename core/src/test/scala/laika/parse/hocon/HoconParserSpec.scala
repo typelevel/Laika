@@ -24,17 +24,17 @@ import org.scalatest.{Matchers, WordSpec}
 /**
   * @author Jens Halm
   */
-class HoconParserSpec extends WordSpec with Matchers with ParseResultHelpers with StringParserHelpers {
+class HoconParserSpec extends WordSpec with Matchers with ParseResultHelpers with StringParserHelpers with ResultBuilders {
 
-  def f (key: String, value: String): BuilderField = BuilderField(key, StringValue(value))
+  def f (key: String, value: String): BuilderField = BuilderField(key, stringValue(value))
   
   private val nestedObject = BuilderField("obj", ObjectBuilderValue(Seq(
-    BuilderField("inner", StringValue("xx")),
-    BuilderField("num", DoubleValue(9.5))
+    BuilderField("inner", stringValue("xx")),
+    BuilderField("num", doubleValue(9.5))
   )))
   
   private val arrayProperty = BuilderField("arr", ArrayBuilderValue(Seq(
-    LongValue(1), LongValue(2), StringValue("bar")
+    longValue(1), longValue(2), stringValue("bar")
   )))
   
   "The object parser" should {
@@ -56,10 +56,10 @@ class HoconParserSpec extends WordSpec with Matchers with ParseResultHelpers wit
           |"arr": [ 1, 2, "bar" ],
           |"obj": { "inner": "xx", "num": 9.5 }""".stripMargin
       Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(
-        BuilderField("str", StringValue("foo")),
-        BuilderField("int", LongValue(27)),
-        BuilderField("null", NullValue),
-        BuilderField("bool", BooleanValue(true)),
+        BuilderField("str", stringValue("foo")),
+        BuilderField("int", longValue(27)),
+        BuilderField("null", nullValue),
+        BuilderField("bool", trueValue),
         arrayProperty,
         nestedObject
       )))
@@ -158,8 +158,8 @@ class HoconParserSpec extends WordSpec with Matchers with ParseResultHelpers wit
         """a = [ foo ], 
           |a += bar""".stripMargin
       Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(
-        BuilderField("a", ArrayBuilderValue(Seq(StringValue("foo")))),
-        BuilderField("a", ConcatValue(SelfReference, Seq(ConcatPart("", ArrayBuilderValue(Seq(StringValue("bar")))))))
+        BuilderField("a", ArrayBuilderValue(Seq(stringValue("foo")))),
+        BuilderField("a", ConcatValue(SelfReference, Seq(ConcatPart("", ArrayBuilderValue(Seq(stringValue("bar")))))))
       )))
     }
     
@@ -170,14 +170,14 @@ class HoconParserSpec extends WordSpec with Matchers with ParseResultHelpers wit
     "parse simple values containing booleans" in {
       val input = "a = true is false"
       Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(
-        BuilderField("a", ConcatValue(BooleanValue(true), Seq(ConcatPart(" ", StringValue("is")), ConcatPart(" ", BooleanValue(false)))))
+        BuilderField("a", ConcatValue(trueValue, Seq(ConcatPart(" ", stringValue("is")), ConcatPart(" ", falseValue))))
       )))
     }
 
     "parse simple values containing numbers" in {
       val input = "a = 9 is 7"
       Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(
-        BuilderField("a", ConcatValue(LongValue(9), Seq(ConcatPart(" ", StringValue("is")), ConcatPart(" ", LongValue(7)))))
+        BuilderField("a", ConcatValue(longValue(9), Seq(ConcatPart(" ", stringValue("is")), ConcatPart(" ", longValue(7)))))
       )))
     }
 
@@ -258,14 +258,14 @@ class HoconParserSpec extends WordSpec with Matchers with ParseResultHelpers wit
     "parse a substitution as the first part in a concatenated value" in {
       val input = "a = ${foo.bar} is null"
       Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(
-        BuilderField("a", ConcatValue(SubstitutionValue(Root / "foo" / "bar", optional = false), Seq(ConcatPart(" ", StringValue("is")), ConcatPart(" ", NullValue))))
+        BuilderField("a", ConcatValue(SubstitutionValue(Root / "foo" / "bar", optional = false), Seq(ConcatPart(" ", stringValue("is")), ConcatPart(" ", nullValue))))
       )))
     }
 
     "parse a substitution as the last part in a concatenated value" in {
       val input = "a = Blue is ${foo.bar}"
       Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(
-        BuilderField("a", ConcatValue(StringValue("Blue"), Seq(ConcatPart(" ", StringValue("is")), ConcatPart(" ", SubstitutionValue(Root / "foo" / "bar", optional = false)))))
+        BuilderField("a", ConcatValue(stringValue("Blue"), Seq(ConcatPart(" ", stringValue("is")), ConcatPart(" ", SubstitutionValue(Root / "foo" / "bar", optional = false)))))
       )))
     }
     
@@ -279,7 +279,7 @@ class HoconParserSpec extends WordSpec with Matchers with ParseResultHelpers wit
         | 
         | a = 7
       """.stripMargin
-      Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(BuilderField("a", LongValue(7)))))
+      Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(BuilderField("a", longValue(7)))))
     }
 
     "parse a comment at the end of the input" in {
@@ -288,7 +288,7 @@ class HoconParserSpec extends WordSpec with Matchers with ParseResultHelpers wit
                     |
                     | // comment
                   """.stripMargin
-      Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(BuilderField("a", LongValue(7)))))
+      Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(BuilderField("a", longValue(7)))))
     }
 
     "parse a comment in the middle of the input" in {
@@ -299,7 +299,7 @@ class HoconParserSpec extends WordSpec with Matchers with ParseResultHelpers wit
                     | 
                     | b = 9
                   """.stripMargin
-      Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(BuilderField("a", LongValue(7)), BuilderField("b", LongValue(9)))))
+      Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(BuilderField("a", longValue(7)), BuilderField("b", longValue(9)))))
     }
 
     "parse multiple comments in the middle of the input" in {
@@ -312,7 +312,7 @@ class HoconParserSpec extends WordSpec with Matchers with ParseResultHelpers wit
                     |
                     | b = 9
                   """.stripMargin
-      Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(BuilderField("a", LongValue(7)), BuilderField("b", LongValue(9)))))
+      Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(BuilderField("a", longValue(7)), BuilderField("b", longValue(9)))))
     }
 
     "parse a comment next to an object member" in {
@@ -321,7 +321,7 @@ class HoconParserSpec extends WordSpec with Matchers with ParseResultHelpers wit
                     | 
                     | b = 9
                   """.stripMargin
-      Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(BuilderField("a", LongValue(7)), BuilderField("b", LongValue(9)))))
+      Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(BuilderField("a", longValue(7)), BuilderField("b", longValue(9)))))
     }
 
     "parse a comment next to an array property" in {
@@ -340,23 +340,23 @@ class HoconParserSpec extends WordSpec with Matchers with ParseResultHelpers wit
   "The path expression parser" should {
     
     "parse an unquoted path" in {
-      Parsing ("foo.bar = 7") using rootObject should produce (ObjectBuilderValue(Seq(BuilderField(Root / "foo" / "bar", LongValue(7)))))
+      Parsing ("foo.bar = 7") using rootObject should produce (ObjectBuilderValue(Seq(BuilderField(Root / "foo" / "bar", longValue(7)))))
     }
 
     "parse an unquoted path with whitespace" in {
-      Parsing ("foo.bar bar.baz = 7") using rootObject should produce (ObjectBuilderValue(Seq(BuilderField(Root / "foo" / "bar bar" / "baz", LongValue(7)))))
+      Parsing ("foo.bar bar.baz = 7") using rootObject should produce (ObjectBuilderValue(Seq(BuilderField(Root / "foo" / "bar bar" / "baz", longValue(7)))))
     }
 
     "parse a quoted path" in {
-      Parsing ("\"foo.bar\" = 7") using rootObject should produce (ObjectBuilderValue(Seq(BuilderField(Root / "foo.bar", LongValue(7)))))
+      Parsing ("\"foo.bar\" = 7") using rootObject should produce (ObjectBuilderValue(Seq(BuilderField(Root / "foo.bar", longValue(7)))))
     }
     
     "parse a quoted and unquoted path combined" in {
-      Parsing ("foo.\"bar.bar\".baz = 7") using rootObject should produce (ObjectBuilderValue(Seq(BuilderField(Root / "foo" / "bar.bar" / "baz", LongValue(7)))))
+      Parsing ("foo.\"bar.bar\".baz = 7") using rootObject should produce (ObjectBuilderValue(Seq(BuilderField(Root / "foo" / "bar.bar" / "baz", longValue(7)))))
     }
 
     "parse a quoted empty string as a path element" in {
-      Parsing ("foo.\"\".baz = 7") using rootObject should produce (ObjectBuilderValue(Seq(BuilderField(Root / "foo" / "" / "baz", LongValue(7)))))
+      Parsing ("foo.\"\".baz = 7") using rootObject should produce (ObjectBuilderValue(Seq(BuilderField(Root / "foo" / "" / "baz", longValue(7)))))
     }
     
   }
