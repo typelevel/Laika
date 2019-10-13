@@ -34,13 +34,10 @@ object ConfigResolver {
     val invalidPaths = mutable.Map.empty[Path, String]
     
     /*
-    Array
-    Child Object
     Concat String
     Concat Array
     Concat Object
-    Merge Object
-    Override Value
+    
     Self Reference
     Substitution as Self Reference
     Substitution of simple value
@@ -65,12 +62,6 @@ object ConfigResolver {
       case SubstitutionValue(ref, optional) => NullValue // TODO
     }
     
-//    def resolveAndMerge(concat: Boolean)(v1: ConfigBuilderValue, v2: ConfigBuilderValue): ConfigValue = {
-//      val resolved1 = resolveValue(v1)
-//      val resolved2 = resolveValue(v2) // TODO - pass context for self refs, needs path
-//      merge(concat)(resolved1, resolved2)
-//    }
-
     def merge(concat: Boolean)(v1: ConfigValue, v2: ConfigValue): ConfigValue = {
       (v1, v2) match {
         case (o1: ObjectValue, o2: ObjectValue) => deepMerge(o1, o2)

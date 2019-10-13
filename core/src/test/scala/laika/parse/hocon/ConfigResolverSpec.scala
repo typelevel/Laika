@@ -17,7 +17,7 @@
 package laika.parse.hocon
 
 import laika.ast.Path.Root
-import laika.parse.hocon.HoconParsers.{BuilderField, Field, LongValue, ObjectBuilderValue, ObjectValue}
+import laika.parse.hocon.HoconParsers.{ArrayValue, BuilderField, Field, LongValue, ObjectBuilderValue, ObjectValue, StringValue}
 import org.scalatest.{Matchers, WordSpec}
 
 /**
@@ -55,6 +55,61 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
           Field("b", LongValue(5)),
           Field("c", LongValue(7))
         )))
+      ))
+    }
+
+    "resolve a nested object" in {
+      val input =
+        """
+          |a {
+          |  b = 5
+          |  c = 7
+          |}  
+        """.stripMargin
+      parseAndResolve(input) shouldBe ObjectValue(Seq(
+        Field("a", ObjectValue(Seq(
+          Field("b", LongValue(5)),
+          Field("c", LongValue(7))
+        )))
+      ))
+    }
+
+    "resolve an array of simple values" in {
+      val input =
+        """
+          |a = [1,2,3]
+        """.stripMargin
+      parseAndResolve(input) shouldBe ObjectValue(Seq(
+        Field("a", ArrayValue(Seq(LongValue(1), LongValue(2), LongValue(3))))
+      ))
+    }
+
+    "resolve an array of objects" in {
+      val input =
+        """
+          |a = [
+          |  { name = foo }
+          |  { name = bar }
+          |  { name = baz }
+          |]
+        """.stripMargin
+      parseAndResolve(input) shouldBe ObjectValue(Seq(
+        Field("a", ArrayValue(Seq(
+          ObjectValue(Seq(Field("name", StringValue("foo")))),
+          ObjectValue(Seq(Field("name", StringValue("bar")))),
+          ObjectValue(Seq(Field("name", StringValue("baz")))),
+        )))
+      ))
+    }
+
+    "resolve an object with an overridden field" in {
+      val input =
+        """
+          |a = 5
+          |a = 7
+        """.stripMargin
+      parseAndResolve(input) shouldBe ObjectValue(Seq(
+        Field("a", LongValue(7))
       ))
     }
     
