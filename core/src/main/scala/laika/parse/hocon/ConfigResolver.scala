@@ -17,7 +17,7 @@
 package laika.parse.hocon
 
 import laika.ast.Path
-import laika.parse.hocon.HoconParsers.{BuilderField, ConcatValue, ConfigBuilderValue, ConfigValue, Field, ObjectBuilderValue, ObjectValue, ResolvedBuilderValue}
+import laika.parse.hocon.HoconParsers.{ArrayBuilderValue, ArrayValue, BuilderField, ConcatValue, ConfigBuilderValue, ConfigValue, Field, NullValue, ObjectBuilderValue, ObjectValue, ResolvedBuilderValue, SelfReference, StringValue, SubstitutionValue}
 import laika.collection.TransitionalCollectionOps._
 
 import scala.collection.mutable
@@ -33,14 +33,62 @@ object ConfigResolver {
     val resolvedPaths = mutable.Map.empty[Path, ConfigValue]
     val invalidPaths = mutable.Map.empty[Path, String]
     
-    def loop(obj: ObjectBuilderValue): ObjectValue = {
+    /*
+    Array
+    Child Object
+    Concat String
+    Concat Array
+    Concat Object
+    Merge Object
+    Override Value
+    Self Reference
+    Substitution as Self Reference
+    Substitution of simple value
+    Substitution in concatenated string
+    Substitution as merged array
+    Substitution as merged object
+     */
+    
+    def deepMerge(o1: ObjectValue, o2: ObjectValue): ObjectValue =  {
+      val resolvedFields = (o1.values ++ o2.values).groupBy(_.key).mapValuesStrict(_.map(_.value)).toSeq.map {
+        case (name, values) => Field(name, values.reduce(merge(concat = false)))
+      }
+      ObjectValue(resolvedFields.sortBy(_.key))
+    }
+
+    def resolveValue(value: ConfigBuilderValue): ConfigValue = value match {
+      case o: ObjectBuilderValue => resolveObject(o)
+      case a: ArrayBuilderValue => ArrayValue(a.values.map(resolveValue))
+      case r: ResolvedBuilderValue => r.value
+      case c: ConcatValue => NullValue // TODO
+      case SelfReference => NullValue // TODO
+      case SubstitutionValue(ref, optional) => NullValue // TODO
+    }
+    
+//    def resolveAndMerge(concat: Boolean)(v1: ConfigBuilderValue, v2: ConfigBuilderValue): ConfigValue = {
+//      val resolved1 = resolveValue(v1)
+//      val resolved2 = resolveValue(v2) // TODO - pass context for self refs, needs path
+//      merge(concat)(resolved1, resolved2)
+//    }
+
+    def merge(concat: Boolean)(v1: ConfigValue, v2: ConfigValue): ConfigValue = {
+      (v1, v2) match {
+        case (o1: ObjectValue, o2: ObjectValue) => deepMerge(o1, o2)
+        case (a1: ArrayValue, a2: ArrayValue) if concat => ArrayValue(a1.values ++ a2.values)
+        case (s1: StringValue, s2: StringValue) if concat => StringValue(s1.value ++ s2.value) // TODO - ws from Concat Values
+        case (c1, c2) if concat => NullValue // TODO - invalid combination of concat values
+        case (_, c2) => c2
+      }
+    }
+    
+    def resolveObject(obj: ObjectBuilderValue): ObjectValue = {
       val resolvedFields = obj.values.groupBy(_.key).mapValuesStrict(_.map(_.value)).toSeq.map {
-        case (path, Seq(ResolvedBuilderValue(v))) => Field(path.name, v)
+        case (path, values) => Field(path.name, values.map(resolveValue).reduce(merge(concat = false)))
       }
       ObjectValue(resolvedFields.sortBy(_.key))
     }
     
-    loop(expandPaths(root))
+    resolveObject(expandPaths(root))
   }
   
   /** Expands all flattened path expressions to nested objects.

@@ -43,6 +43,20 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
         Field("b", LongValue(7))
       ))
     }
+
+    "resolve an object with expanded paths" in {
+      val input =
+        """
+          |a.b = 5
+          |a.c = 7
+        """.stripMargin
+      parseAndResolve(input) shouldBe ObjectValue(Seq(
+        Field("a", ObjectValue(Seq(
+          Field("b", LongValue(5)),
+          Field("c", LongValue(7))
+        )))
+      ))
+    }
     
   }
   
