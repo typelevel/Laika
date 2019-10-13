@@ -147,7 +147,7 @@ object HoconParsers {
     val string = quotedString.map(PathFragments.quoted) | unquotedString.map(PathFragments.unquoted)
     val parts = (ws.map(PathFragments.whitespace) ~ string).map { case s ~ fr => s.join(fr) }
     (string ~ parts.rep).map {
-      case first ~ rest => Path(Path.Root, (first +: rest).reduce(_ join _).fragments.toList)
+      case first ~ rest => Path((first +: rest).reduce(_ join _).fragments.toList)
     }
   }
   

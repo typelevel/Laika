@@ -153,4 +153,9 @@ object Path {
     case (Parent(level), ".." :: rest) => apply(Parent(level+1), rest)
     case (parent, rest) => rest.foldLeft(parent)(_ / _)
   }
+
+  /** Creates an absolute path from the specified path segments.
+    */
+  def apply (segments: List[String]): Path = apply(Root, segments)
+  
 }
