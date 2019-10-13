@@ -17,7 +17,10 @@
 package laika.parse.hocon
 
 import laika.ast.Path
-import laika.parse.hocon.HoconParsers.{BuilderField, ConcatValue, ConfigBuilderValue, Field, ObjectBuilderValue, ObjectValue}
+import laika.parse.hocon.HoconParsers.{BuilderField, ConcatValue, ConfigBuilderValue, ConfigValue, Field, ObjectBuilderValue, ObjectValue, ResolvedBuilderValue}
+import laika.collection.TransitionalCollectionOps._
+
+import scala.collection.mutable
 
 /**
   * @author Jens Halm
@@ -26,11 +29,32 @@ object ConfigResolver {
 
   def resolve(root: ObjectBuilderValue): ObjectValue = {
     
-    ???
+    val activePaths = mutable.Set.empty[Path]
+    val resolvedPaths = mutable.Map.empty[Path, ConfigValue]
+    val invalidPaths = mutable.Map.empty[Path, String]
+    
+    def loop(obj: ObjectBuilderValue): ObjectValue = {
+      val resolvedFields = obj.values.groupBy(_.key).mapValuesStrict(_.map(_.value)).toSeq.map {
+        case (path, Seq(ResolvedBuilderValue(v))) => Field(path.name, v)
+      }
+      ObjectValue(resolvedFields.sortBy(_.key))
+    }
+    
+    loop(expandPaths(root))
   }
   
-  def buildLookup(obj: ObjectBuilderValue): Map[Path, Seq[ConfigBuilderValue]] = ???
-  
+  /** Expands all flattened path expressions to nested objects.
+    * 
+    * ```
+    * { a.b.c = 7 }
+    * ```
+    * 
+    * will become
+    * 
+    * ```
+    * { a = { b = { c = 7 }}}
+    * ```
+    */
   def expandPaths(obj: ObjectBuilderValue, path: Path = Path.Root): ObjectBuilderValue = {
     
     def expandValue(value: ConfigBuilderValue, child: Path): ConfigBuilderValue = value match {

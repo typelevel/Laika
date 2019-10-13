@@ -17,7 +17,7 @@
 package laika.parse.hocon
 
 import laika.ast.Path.Root
-import laika.parse.hocon.HoconParsers.{BuilderField, ObjectBuilderValue}
+import laika.parse.hocon.HoconParsers.{BuilderField, Field, LongValue, ObjectBuilderValue, ObjectValue}
 import org.scalatest.{Matchers, WordSpec}
 
 /**
@@ -25,6 +25,27 @@ import org.scalatest.{Matchers, WordSpec}
   */
 class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
 
+  def parseAndResolve(input: String): ObjectValue = {
+    val builder = HoconParsers.rootObject.parse(input).toOption.get
+    ConfigResolver.resolve(builder)
+  }
+   
+  "The config resolver" should {
+    
+    "resolve a simple object" in {
+      val input =
+        """
+          |a = 5
+          |b = 7
+        """.stripMargin
+      parseAndResolve(input) shouldBe ObjectValue(Seq(
+        Field("a", LongValue(5)),
+        Field("b", LongValue(7))
+      ))
+    }
+    
+  }
+  
   "The path expansion" should {
     
     "expand a single path" in {
