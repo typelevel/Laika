@@ -113,6 +113,39 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
       ))
     }
     
+    "resolve a concatenated array" in {
+      val input =
+        """
+          |a = [1,2] [3,4]
+        """.stripMargin
+      parseAndResolve(input) shouldBe ObjectValue(Seq(
+        Field("a", ArrayValue(Seq(LongValue(1), LongValue(2), LongValue(3), LongValue(4))))
+      ))
+    }
+
+    "resolve a merged object" in {
+      val input =
+        """
+          |a = { b = 5 } { c = 7 }
+        """.stripMargin
+      parseAndResolve(input) shouldBe ObjectValue(Seq(
+        Field("a", ObjectValue(Seq(
+          Field("b", LongValue(5)),
+          Field("c", LongValue(7))
+        )))
+      ))
+    }
+
+    "resolve a concatenated string" in {
+      val input =
+        """
+          |a = nothing is null
+        """.stripMargin
+      parseAndResolve(input) shouldBe ObjectValue(Seq(
+        Field("a", StringValue("nothing is null"))
+      ))
+    }
+    
   }
   
   "The path expansion" should {
