@@ -6,6 +6,7 @@ import java.time.temporal.ChronoUnit
 import java.util.{Locale, UUID}
 
 import cats.effect.Async
+import laika.api.config.ConfigBuilder
 import laika.ast.Path.Root
 import laika.ast._
 import laika.factory.{BinaryPostProcessor, RenderContext, RenderFormat, TwoPhaseRenderFormat}
@@ -91,7 +92,7 @@ object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor] {
       treeWithStyles.copy(tree = treeWithStyles.tree.copy(
         content = Document(Root / "cover", 
           RootElement(Seq(SpanSequence(Seq(Image("cover", URI(image)))))), 
-        config = com.typesafe.config.ConfigFactory.parseString("title: Cover")) +: tree.tree.content
+        config = ConfigBuilder.parse("title: Cover").build) +: tree.tree.content
       ))
     }
   }

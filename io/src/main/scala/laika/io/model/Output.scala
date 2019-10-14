@@ -18,7 +18,7 @@ package laika.io.model
 
 import java.io._
 
-import com.typesafe.config.Config
+import laika.api.config.Config
 import laika.ast.Path.Root
 import laika.ast._
 

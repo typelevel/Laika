@@ -28,6 +28,8 @@ class ConfigBuilder (values: Seq[BuilderField]) {
   def withValue[T](value: T)(implicit encoder: ConfigEncoder[T], defaultKey: DefaultKey[T]): ConfigBuilder = ???
   
   def build: Either[ConfigBuilderError, Config] = ???
+
+  def withFallback(other: Config): ConfigBuilder = ???
   
 }
 

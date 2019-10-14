@@ -16,7 +16,6 @@
 
 package laika.rst.bundle
 
-import com.typesafe.config.ConfigValueFactory
 import laika.ast._
 import laika.rst.ast.FieldList
 
@@ -50,7 +49,7 @@ object DocInfoExtractor extends (Document => Document) {
     }
 
     val mergedConfig = docInfoMap.fold(doc.config){ info =>
-      doc.config.withValue("docInfo", ConfigValueFactory.fromMap(info.asJava))
+      doc.config.withValue("docInfo", ConfigValueFactoryX.fromMap(info.asJava))
     }
 
     doc.copy(config = mergedConfig)

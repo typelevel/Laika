@@ -16,7 +16,7 @@
 
 package laika.ast
 
-import com.typesafe.config.Config
+import laika.api.config.Config
 import laika.ast.Path.Root
 import laika.collection.TransitionalCollectionOps._
 import laika.rewrite.ReferenceResolver

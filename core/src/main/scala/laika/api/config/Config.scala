@@ -31,6 +31,8 @@ class Config (root: ObjectValue) {
   
   def get[T](implicit decoder: ConfigDecoder[T], defaultKey: DefaultKey[T]): Either[ConfigError, T] = ???
   
+  def withFallback(other: Config): Config = ??? // TODO - should only exist on ConfigBuilder
+  
 }
 
 object Config {

@@ -16,7 +16,7 @@
 
 package laika.render.pdf
 
-import com.typesafe.config.{ConfigFactory, ConfigValueFactory}
+import laika.api.config.ConfigBuilder
 import laika.ast._
 import laika.format.PDF
 import laika.io.model.{RenderContent, RenderedDocument, RenderedTree, RenderedTreeRoot}
@@ -71,7 +71,7 @@ object PDFNavigation {
         val doc = Document(
           path = tree.path / DocNames.treeTitle,
           content = root,
-          config = ConfigFactory.empty.withValue("title", ConfigValueFactory.fromAnyRef(SpanSequence(tree.title).extractText))
+          config = ConfigBuilder.empty.withValue("title", ConfigValueFactoryX.fromAnyRef(SpanSequence(tree.title).extractText))
         )
         doc +: newContent
       }

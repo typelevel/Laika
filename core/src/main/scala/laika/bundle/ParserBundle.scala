@@ -16,7 +16,7 @@
 
 package laika.bundle
 
-import com.typesafe.config.Config
+import laika.api.config.Config
 import laika.ast._
 import laika.parse.Parser
 import laika.parse.markup.DocumentParser.ParserInput

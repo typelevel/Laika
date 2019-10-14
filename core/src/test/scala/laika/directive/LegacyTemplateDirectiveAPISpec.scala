@@ -16,7 +16,7 @@
 
 package laika.directive
 
-import com.typesafe.config.ConfigFactory
+import laika.api.config.ConfigBuilder
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
@@ -98,7 +98,7 @@ class LegacyTemplateDirectiveAPISpec extends FlatSpec
     val defaultParser: Parser[TemplateRoot] = templateParsers.templateSpans ^^ { spans =>
       val root = TemplateRoot(spans)
       TemplateRewriter.rewriteRules(DocumentCursor(
-        Document(Root, RootElement(Seq(root)), config = ConfigFactory.parseString("ref: value"))
+        Document(Root, RootElement(Seq(root)), config = ConfigBuilder.parse("ref: value").build.right.get)
       )).rewriteBlock(root).asInstanceOf[TemplateRoot]
     }
     

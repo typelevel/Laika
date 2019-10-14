@@ -16,7 +16,7 @@
 
 package laika.api.builder
 
-import com.typesafe.config.Config
+import laika.api.config.Config
 import laika.ast._
 import laika.bundle.{DocumentTypeMatcher, ExtensionBundle, MarkupExtensions}
 import laika.directive.{DirectiveSupport, StandardDirectives}

@@ -16,7 +16,7 @@
 
 package laika.parse.markup
 
-import com.typesafe.config.{Config, ConfigFactory}
+import laika.api.config.{Config, ConfigBuilder}
 import laika.ast._
 import laika.bundle.MarkupExtensions
 import laika.factory.MarkupFormat
@@ -47,7 +47,7 @@ object DocumentParser {
 
     forParser { path =>
       configHeaderParser(path) ~ rootParser ^^ { case configHeader ~ root =>
-        val config = configHeader.getOrElse(ConfigFactory.empty)
+        val config = configHeader.getOrElse(Config.empty)
         val message = configHeader.swap.toOption
         val processedConfig = ConfigHeaderParser.merge(config, extractConfigValues(root))
         docFactory(path, processedConfig, message, root)

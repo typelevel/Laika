@@ -16,7 +16,7 @@
 
 package laika.rewrite
 
-import com.typesafe.config.{Config, ConfigFactory}
+import laika.api.config.{Config, ConfigBuilder}
 import laika.api.builder.OperationConfig
 import laika.ast._
 import laika.ast.helper.DocumentViewBuilder.{Documents => Docs, _}
@@ -67,7 +67,7 @@ class SectionNumberSpec extends FlatSpec
       )) :: Nil)
     }
     
-    def parseConfig (source: String): Config = ConfigFactory.parseString(source)
+    def parseConfig (source: String): Config = ConfigBuilder.parse(source).build.right.get
     
     def config: String
     def numberSections: Boolean

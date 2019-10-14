@@ -16,7 +16,7 @@
 
 package laika.rewrite.nav
 
-import com.typesafe.config.{Config, ConfigValueFactory}
+import laika.api.config.Config
 
 /** Configuration for autonumbering of documents and sections.
  */
@@ -33,8 +33,8 @@ object AutonumberConfig {
     if (config.hasPath("autonumbering.scope")) {
       config.getString("autonumbering.scope") match {
         case "documents" => config
-        case "sections"  => config.withValue("autonumbering.scope", ConfigValueFactory.fromAnyRef("none"))
-        case "all"       => config.withValue("autonumbering.scope", ConfigValueFactory.fromAnyRef("documents"))
+        case "sections"  => config.withValue("autonumbering.scope", ConfigValueFactoryX.fromAnyRef("none"))
+        case "all"       => config.withValue("autonumbering.scope", ConfigValueFactoryX.fromAnyRef("documents"))
         case "none"      => config
         case other       => throw ConfigurationException("Unsupported value for key 'autonumbering.scope': " + other)
       }

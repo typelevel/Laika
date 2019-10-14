@@ -16,7 +16,7 @@
 
 package laika.render
 
-import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
+import laika.api.config.{Config, ConfigBuilder}
 import laika.ast._
 import laika.ast.Path.Root
 
@@ -26,12 +26,12 @@ trait TreeModel {
 
   def useTitleDocuments: Boolean = false
   
-  private def pdfFileConfig = if (usePDFFileConfig) ConfigFactory.parseString("""
+  private def pdfFileConfig = if (usePDFFileConfig) ConfigBuilder.parse("""
     |pdf {
     |  bookmarks.depth = 0
     |  toc.depth = 0
     |}  
-    """.stripMargin) else ConfigFactory.empty
+    """.stripMargin) else Config.empty
   
   def doc (num: Int): Document = {
     val parent = if (num > 4) Root / "tree2" else if (num > 2) Root / "tree1" else Root
@@ -41,11 +41,11 @@ trait TreeModel {
     )))
   }
     
-  def configWithTreeTitle (num: Int): Config = ConfigFactory.empty
-      .withValue("title", ConfigValueFactory.fromAnyRef(s"Tree $num & More"))
+  def configWithTreeTitle (num: Int): Config = Config.empty
+      .withValue("title", ConfigValueFactoryX.fromAnyRef(s"Tree $num & More"))
       .withFallback(pdfFileConfig)
 
-  def configWithFallback: Config = ConfigFactory.empty.withFallback(pdfFileConfig)
+  def configWithFallback: Config = ConfigBuilder.empty.withFallback(pdfFileConfig)
 
   def subtreeDocs (nums: Int*): Seq[Document] = nums.map(doc)
   

@@ -16,7 +16,7 @@
 
 package laika.bundle
 
-import com.typesafe.config.{Config, ConfigFactory}
+import laika.api.config.{Config, ConfigBuilder}
 import laika.ast._
 import laika.parse.css.CSSParsers
 
@@ -55,7 +55,7 @@ trait ExtensionBundle { self =>
     * configuration files in the source directories
     * and/or config headers in markup and template documents.
     */
-  def baseConfig: Config = ConfigFactory.empty
+  def baseConfig: Config = Config.empty
 
   /** Specifies the function to use for determining the document type
     * of the input based on its path.

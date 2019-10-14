@@ -16,7 +16,7 @@
 
 package laika.ast
 
-import com.typesafe.config.{Config, ConfigFactory}
+import laika.api.config.Config
 import laika.ast.DocumentType.Markup
 import laika.ast.Path.{Current, Root}
 import laika.ast.helper.DocumentViewBuilder.{Documents => Docs, _}
@@ -34,7 +34,7 @@ class DocumentTreeAPISpec extends FlatSpec
     
     def createConfig (path: Path, source: Option[String]): Config =
       source.map(c => ConfigProvider.fromInput(c, path))
-      .getOrElse(ConfigFactory.empty)
+      .getOrElse(Config.empty)
 
     def treeWithTitleDoc (path: Path, root: RootElement, config: Option[String] = None): DocumentTree =
       DocumentTree(path, Nil, Some(Document(path / "title", root, config = createConfig(path / "title", config))))

@@ -16,7 +16,6 @@
 
 package laika.rst.std
 
-import com.typesafe.config.ConfigValueFactory
 import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
 import laika.ast.Path.{Current, Root}
@@ -607,7 +606,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       | :key1: val1
       | :key2: val2""".stripMargin
     val map = Map("key1"->"val1","key2"->"val2").asJava
-    parseDoc(input).config.getObject("meta") should be (ConfigValueFactory.fromMap(map))
+    parseDoc(input).config.getObject("meta") should be (ConfigValueFactoryX.fromMap(map))
   }
   
   "The sectnum directive" should "create config entries in the document instance" in {
@@ -618,7 +617,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       | :prefix: (
       | :suffix: )""".stripMargin
     val map = Map("depth"->"3", "start"->"1", "prefix"->"(", "suffix"->")").asJava
-    parseDoc(input).config.getObject("autonumbering") should be (ConfigValueFactory.fromMap(map))
+    parseDoc(input).config.getObject("autonumbering") should be (ConfigValueFactoryX.fromMap(map))
   }
   
   "The contents directive" should "create a placeholder in the document" in {

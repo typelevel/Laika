@@ -16,7 +16,7 @@
 
 package laika.config
 
-import com.typesafe.config.ConfigFactory
+import laika.api.config.{Config, ConfigBuilder}
 import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
@@ -318,8 +318,8 @@ class ParserBundleSpec extends WordSpec with Matchers {
       val appBundles = Seq(BundleProvider.forConfigHeaderParser(ConfigHeaderParser.betweenLines("<<", ">>")))
 
       val confHeaderParser = config.configHeaderParser(Root)
-      confHeaderParser.parse("{{\nfoo: 7\n}}").toOption shouldBe Some(Right(ConfigFactory.parseString("foo: 7")))
-      confHeaderParser.parse("<<\nfoo: 7\n>>").toOption shouldBe Some(Right(ConfigFactory.parseString("foo: 7")))
+      confHeaderParser.parse("{{\nfoo: 7\n}}").toOption shouldBe Some(Right(ConfigBuilder.parse("foo: 7").build))
+      confHeaderParser.parse("<<\nfoo: 7\n>>").toOption shouldBe Some(Right(ConfigBuilder.parse("foo: 7").build))
     }
 
     "let an app config override a parser for identical start markup in the extension config" in new BundleSetup {
@@ -327,7 +327,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
       val appBundles = Seq(BundleProvider.forConfigHeaderParser(ConfigHeaderParser.forTextParser(TextParsers.any ^^^ "foo: 9")))
 
       val confHeaderParser = config.configHeaderParser(Root)
-      confHeaderParser.parse("{{\nfoo: 7\n}}").toOption shouldBe Some(Right(ConfigFactory.parseString("foo: 9")))
+      confHeaderParser.parse("{{\nfoo: 7\n}}").toOption shouldBe Some(Right(ConfigBuilder.parse("foo: 9").build))
     }
 
     "let an app config override a parser for identical start markup in a previously installed app config" in new BundleSetup {
@@ -338,7 +338,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
       )
 
       val confHeaderParser = config.configHeaderParser(Root)
-      confHeaderParser.parse("{{\nfoo: 7\n}}").toOption shouldBe Some(Right(ConfigFactory.parseString("foo: 9")))
+      confHeaderParser.parse("{{\nfoo: 7\n}}").toOption shouldBe Some(Right(ConfigBuilder.parse("foo: 9").build))
     }
 
     "use the default fallback parser in case all other parsers fail" in new BundleSetup {
@@ -346,7 +346,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
       val appBundles = Seq(BundleProvider.forConfigHeaderParser(ConfigHeaderParser.betweenLines("<<", ">>")))
 
       val confHeaderParser = config.configHeaderParser(Root)
-      confHeaderParser.parse("{%\nfoo: 7\n%}").toOption shouldBe Some(Right(ConfigFactory.parseString("foo: 7")))
+      confHeaderParser.parse("{%\nfoo: 7\n%}").toOption shouldBe Some(Right(ConfigBuilder.parse("foo: 7")))
     }
 
     "should use the fallback parser producing empty config instances when all other parsers fail" in new BundleSetup {
@@ -354,7 +354,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
       val appBundles = Seq(BundleProvider.forConfigHeaderParser(ConfigHeaderParser.betweenLines("<<", ">>")))
 
       val confHeaderParser = config.configHeaderParser(Root)
-      confHeaderParser.parse("[[\nfoo: 7\n]]").toOption shouldBe Some(Right(ConfigFactory.empty))
+      confHeaderParser.parse("[[\nfoo: 7\n]]").toOption shouldBe Some(Right(Config.empty))
     }
 
   }

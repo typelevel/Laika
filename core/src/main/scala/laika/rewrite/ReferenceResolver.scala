@@ -16,7 +16,7 @@
 
 package laika.rewrite
 
-import com.typesafe.config.Config
+import laika.api.config.Config
 import laika.ast.{Document, SpanSequence, TreeCursor}
 
 import scala.util.Try
@@ -26,14 +26,9 @@ import scala.util.Try
  *  @author Jens Halm
  */
 case class ReferenceResolver (root: Any, parent: Option[ReferenceResolver] = None) {
-  import java.util.{Map => JMap}
-  def fromJavaMap (m: JMap[Any,Any], key: Any): Option[Any] = if (m.containsKey(key)) Some(m.get(key)) else None
-  /* These are all dynamic, non-typesafe lookups for values where often both,
-   * the path from the template and the actual target value (e.g. from a config
-   * file) originate from text resources, so the dynamic lookup is justifiable here */
+  
   def resolve (target: Any, path: List[String], root: Boolean = false): (Option[Any], List[String]) = {
     val result = target match {
-      case m: JMap[_, _]=> (fromJavaMap(m.asInstanceOf[JMap[Any,Any]], path.head), path.tail)
       case m: Map[_, _] => (m.asInstanceOf[Map[Any,Any]].get(path.head), path.tail)
       case c: Config    => (Try { c.getAnyRef(path.mkString(".")) } toOption, Nil)
       case d: Document if path.head == "title" => (Some(SpanSequence(d.title)), path.tail)  

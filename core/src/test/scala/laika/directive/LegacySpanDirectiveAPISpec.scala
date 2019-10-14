@@ -16,7 +16,7 @@
 
 package laika.directive
 
-import com.typesafe.config.ConfigFactory
+import laika.api.config.ConfigBuilder
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
@@ -101,7 +101,7 @@ class LegacySpanDirectiveAPISpec extends FlatSpec
     ).recursiveSpans ^^ { spans =>
       val seq = SpanSequence(spans)
       TemplateRewriter.rewriteRules(DocumentCursor(
-        Document(Root, RootElement(Seq(seq)), config = ConfigFactory.parseString("ref: value"))
+        Document(Root, RootElement(Seq(seq)), config = ConfigBuilder.parse("ref: value").build.right.get)
       )).rewriteSpan(seq)
     }
     

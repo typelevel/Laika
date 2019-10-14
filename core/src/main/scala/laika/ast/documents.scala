@@ -19,7 +19,7 @@ package laika.ast
 import java.time.Instant
 import java.util.Locale
 
-import com.typesafe.config.{Config, ConfigFactory}
+import laika.api.config.{Config, ConfigBuilder}
 import laika.ast.Path.Root
 import laika.collection.TransitionalCollectionOps._
 import laika.rewrite.TemplateRewriter
@@ -72,7 +72,7 @@ sealed trait TreeContent extends Navigatable {
 
   protected def titleFromConfig: Option[Seq[Span]] = {
     if (config.hasPath("title")) {
-      val title = List(Text(config.getString("title")))
+      val title = List(Text(config.get[String]("title")))
       val autonumberConfig = AutonumberConfig.fromConfig(config)
       val autonumberEnabled = autonumberConfig.documents && position.depth < autonumberConfig.maxDepth
       if (autonumberEnabled) Some(position.toSpan +: title)
@@ -87,7 +87,7 @@ sealed trait TreeContent extends Navigatable {
 /** A template document containing the element tree of a parsed template and its extracted
  *  configuration section (if present).
  */
-case class TemplateDocument (path: Path, content: TemplateRoot, config: Config = ConfigFactory.empty) extends Navigatable {
+case class TemplateDocument (path: Path, content: TemplateRoot, config: Config = Config.empty) extends Navigatable {
 
   /** Applies this template to the specified document, replacing all
    *  span and block resolvers in the template with the final resolved element.
@@ -432,7 +432,7 @@ object DocumentType {
 case class Document (path: Path,
                      content: RootElement,
                      fragments: Map[String, Element] = Map.empty,
-                     config: Config = ConfigFactory.empty,
+                     config: Config = Config.empty,
                      position: TreePosition = TreePosition(Seq())) extends DocumentStructure with TreeContent {
 
   /** Returns a new, rewritten document model based on the specified rewrite rules.
@@ -464,7 +464,7 @@ case class DocumentTree (path: Path,
                          content: Seq[TreeContent],
                          titleDocument: Option[Document] = None,
                          templates: Seq[TemplateDocument] = Nil,
-                         config: Config = ConfigFactory.empty,
+                         config: Config = Config.empty,
                          position: TreePosition = TreePosition.root) extends TreeStructure with TreeContent {
 
   val targetTree: DocumentTree = this

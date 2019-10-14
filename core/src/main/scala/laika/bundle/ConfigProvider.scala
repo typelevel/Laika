@@ -16,7 +16,7 @@
 
 package laika.bundle
 
-import com.typesafe.config.{Config, ConfigFactory, ConfigParseOptions}
+import laika.api.config.{Config, ConfigBuilder}
 import laika.ast.Path
 import laika.parse.markup.DocumentParser.{ParserError, ParserInput}
 import laika.parse.text.TextParsers._
@@ -38,7 +38,7 @@ object ConfigProvider {
     * this configuration instance.
     */
   def fromInput (input: String, path: Path): Config =
-    ConfigFactory.parseString(input, ConfigParseOptions.defaults().setOriginDescription("path:" + path))
+    ConfigBuilder.parse(input, ConfigParseOptionsX.defaults().setOriginDescription("path:" + path))
 
   // temporary API
   def fromInput (input: ParserInput): Either[ParserError, Config] = Right(fromInput(input.context.input, input.path))

@@ -2,14 +2,13 @@ package laika.runtime
 
 import cats.data.{NonEmptyList, ValidatedNel}
 import cats.effect.Async
-import com.typesafe.config.ConfigFactory
-import laika.ast.{TemplateDocument, _}
+import cats.implicits._
+import laika.ast._
 import laika.bundle.ConfigProvider
 import laika.io.model.{DirectoryInput, InputCollection, ParsedTree, TextFileInput, TextInput}
 import laika.parse.markup.DocumentParser.{ParserError, ParserInput}
-import com.typesafe.config.{Config => TConfig}
-import cats.implicits._
 import laika.api.MarkupParser
+import laika.api.config.Config
 import laika.ast.Path.Root
 import laika.io.text.{ParallelParser, SequentialParser}
 
@@ -46,13 +45,13 @@ object ParserRuntime {
     case class StyleResult (doc: StyleDeclarationSet, format: String) extends ParserResult {
       val path: Path = doc.paths.head
     }
-    case class ConfigResult (path: Path, config: TConfig) extends ParserResult
+    case class ConfigResult (path: Path, config: Config) extends ParserResult
     
     case class TreeResult (tree: DocumentTree) extends ParserResult {
       val path: Path = tree.path
     }
 
-    def buildNode (baseConfig: TConfig)(path: Path, content: Seq[ParserResult]): TreeResult = {
+    def buildNode (baseConfig: Config)(path: Path, content: Seq[ParserResult]): TreeResult = {
       def isTitleDoc (doc: Document): Boolean = doc.path.basename == "title"
       val titleDoc = content.collectFirst { case MarkupResult(doc) if isTitleDoc(doc) => doc }
       val subTrees = content.collect { case TreeResult(doc) => doc }.sortBy(_.path.name)
@@ -61,12 +60,12 @@ object ParserRuntime {
 
       val treeConfig = content.collect { case ConfigResult(_, config) => config }
       val rootConfig = if (path == Path.Root) Seq(baseConfig) else Nil
-      val fullConfig = (treeConfig.toList ++ rootConfig) reduceLeftOption (_ withFallback _) getOrElse ConfigFactory.empty
+      val fullConfig = (treeConfig.toList ++ rootConfig) reduceLeftOption (_ withFallback _) getOrElse Config.empty
 
       TreeResult(DocumentTree(path, treeContent, titleDoc, templates, fullConfig))
     }
 
-    def buildTree (results: Seq[ParserResult], baseConfig: TConfig): DocumentTreeRoot = {
+    def buildTree (results: Seq[ParserResult], baseConfig: Config): DocumentTreeRoot = {
       val coverDoc = results.collectFirst {
         case MarkupResult(doc) if doc.path.parent == Root && doc.path.basename == "cover" => doc
       }
@@ -88,7 +87,7 @@ object ParserRuntime {
     */
   def run[F[_]: Async: Runtime] (op: ParallelParser.Op[F]): F[ParsedTree] = {
     
-    import DocumentType._
+    import DocumentType.{Config => ConfigType, _}
     import interimModel._
 
     def selectParser (path: Path): ValidatedNel[Throwable, MarkupParser] = op.parsers match {
@@ -118,7 +117,7 @@ object ParserRuntime {
         case Markup             => selectParser(in.path).map(parser => Vector(parseDocument(in, parser.parse, MarkupResult)))
         case Template           => op.templateParser.map(parseDocument(in, _, TemplateResult)).toVector.validNel
         case StyleSheet(format) => Vector(parseDocument(in, op.styleSheetParser, StyleResult(_, format))).validNel
-        case Config             => Vector(parseDocument(in, ConfigProvider.fromInput, ConfigResult(in.path, _))).validNel
+        case ConfigType         => Vector(parseDocument(in, ConfigProvider.fromInput, ConfigResult(in.path, _))).validNel
       }}.combineAll.toEither.leftMap(es => ParserErrors(es.toList))
       
       def rewriteTree (root: DocumentTreeRoot): ParsedTree = {

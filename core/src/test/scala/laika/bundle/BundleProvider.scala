@@ -16,7 +16,7 @@
 
 package laika.bundle
 
-import com.typesafe.config.Config
+import laika.api.config.Config
 import laika.ast.Path.Root
 import laika.ast._
 import laika.directive.{DirectiveRegistry, Templates}

@@ -16,7 +16,7 @@
 
 package laika.directive
 
-import com.typesafe.config.ConfigFactory
+import laika.api.config.ConfigBuilder
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
@@ -127,7 +127,7 @@ class BlockDirectiveAPISpec extends FlatSpec
       markupExtensions = directiveSupport.markupExtensions
     ).rootElement ^^ { root =>
       TemplateRewriter.rewriteRules(DocumentCursor(
-        Document(Root, root, config = ConfigFactory.parseString("ref: value"))
+        Document(Root, root, config = ConfigBuilder.parse("ref: value").build.right.get)
       )).rewriteBlock(root).asInstanceOf[RootElement]
     }
 
