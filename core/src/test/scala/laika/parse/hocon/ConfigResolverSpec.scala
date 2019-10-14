@@ -190,7 +190,7 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
       ))
     }
 
-    "resolve a backward looking reference to a simple value with a common path segment" ignore {
+    "resolve a backward looking reference to a simple value with a common path segment" in {
       val input =
         """
           |o = { a = 5, b = ${o.a} }

@@ -90,6 +90,8 @@ sealed abstract class Path {
   def basename: String = name
   
   def withSuffix (suffix: String): Path = this
+  
+  def isSubPath (other: Path): Boolean = this.prefix == other.prefix && this.components.startsWith(other.components)
 }
 
 case class / (parent: Path, name: String) extends Path {

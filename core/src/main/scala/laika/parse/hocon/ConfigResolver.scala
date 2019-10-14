@@ -17,7 +17,8 @@
 package laika.parse.hocon
 
 import laika.ast.Path
-import laika.parse.hocon.HoconParsers.{ArrayBuilderValue, ArrayValue, BooleanValue, BuilderField, ConcatPart, ConcatValue, ConfigBuilderValue, ConfigValue, DoubleValue, Field, LongValue, MergedValue, NullValue, ObjectBuilderValue, ObjectValue, ResolvedBuilderValue, SelfReference, StringValue, SubstitutionValue}
+import laika.collection.Stack
+import laika.parse.hocon.HoconParsers._
 import laika.collection.TransitionalCollectionOps._
 
 import scala.collection.mutable
@@ -33,11 +34,12 @@ object ConfigResolver {
     
     println(s"resolving root: $rootExpanded")
     
-    val activePaths = mutable.Set.empty[Path]
-    val resolvedPaths = mutable.Map.empty[Path, (ConfigValue, ConfigBuilderValue)]
+    val activeFields = mutable.Set.empty[Path]
+    val activeObjects = mutable.Map.empty[Path, ObjectBuilderValue]
+    val resolvedPaths = mutable.Map.empty[Path, ConfigValue]
     val invalidPaths = mutable.Map.empty[Path, String]
     
-    def resolvedValue(path: Path): Option[ConfigValue] = resolvedPaths.get(path).map(_._1)
+    def resolvedValue(path: Path): Option[ConfigValue] = resolvedPaths.get(path)
     
     def deepMerge(o1: ObjectValue, o2: ObjectValue): ObjectValue =  {
       val resolvedFields = (o1.values ++ o2.values).groupBy(_.key).mapValuesStrict(_.map(_.value)).toSeq.map {
@@ -46,11 +48,11 @@ object ConfigResolver {
       ObjectValue(resolvedFields.sortBy(_.key))
     }
 
-    def resolveValue(value: ConfigBuilderValue): ConfigValue = value match {
-      case o: ObjectBuilderValue => resolveObject(o)
-      case a: ArrayBuilderValue => ArrayValue(a.values.map(resolveValue))
+    def resolveValue(path: Path)(value: ConfigBuilderValue): ConfigValue = value match {
+      case o: ObjectBuilderValue => resolveObject(o, path)
+      case a: ArrayBuilderValue => ArrayValue(a.values.map(resolveValue(path))) // TODO - adjust path
       case r: ResolvedBuilderValue => r.value
-      case c: ConcatValue => c.allParts.map(resolveConcatPart).reduce(concat)
+      case c: ConcatValue => c.allParts.map(resolveConcatPart(path)).reduce(concat)
       case SelfReference => NullValue
       case SubstitutionValue(ref, optional) =>
         println(s"resolve ref '${ref.toString}'")
@@ -60,17 +62,21 @@ object ConfigResolver {
     def lookahead(path: Path): Option[ConfigValue] = {
       
       def resolvedParent(current: Path): Option[(ObjectBuilderValue, Path)] = {
-        val parent = current.parent
-        if (parent == Path.Root) Some((rootExpanded, current))
-        else resolvedPaths.get(parent).fold(resolvedParent(parent)) {
-          case (_, obv: ObjectBuilderValue) => Some((obv, current))
-          case _ => None
+        if (current == Path.Root) Some((rootExpanded, current))
+        else {
+          val matching = activeObjects.toSeq.filter(o => current.isSubPath(o._1))
+          val sorted = matching.sortBy(_._1.components.length)
+          println(s"matching active objects for path $current: ${sorted.map(_._1.toString).mkString(" ")}")
+          sorted.lastOption.fold(resolvedParent(current.parent)) {
+            case (commonPath, obv) => Some((obv, Path(Path.Root, current.components.take(commonPath.components.size + 1))))
+          }
         }
       } 
       
       resolvedParent(path).flatMap { case (obj, fieldPath) =>
         println(s"lookahead from '${fieldPath.toString}'")
         println(s"keys before lookahead: ${resolvedPaths.keySet.map(_.toString).mkString(" ")}")
+        println(s"keys in selected parent: ${obj.values.map(_.key.toString).mkString(" ")}")
         resolveField(fieldPath, obj.values.filter(_.key == fieldPath).map(_.value), obj)
         println(s"keys after lookahead: ${resolvedPaths.keySet.map(_.toString).mkString(" ")}")
         val res = resolvedValue(path)
@@ -79,9 +85,9 @@ object ConfigResolver {
       }
     }
     
-    def resolveConcatPart(part: ConcatPart): ConfigValue = part.value match {
+    def resolveConcatPart(path: Path)(part: ConcatPart): ConfigValue = part.value match {
       case SelfReference => NullValue
-      case other => resolveValue(other) match {
+      case other => resolveValue(path)(other) match {
         case NullValue       => StringValue(part.whitespace + "null")
         case BooleanValue(v) => StringValue(part.whitespace + v.toString)
         case LongValue(v)    => StringValue(part.whitespace + v.toString)
@@ -110,16 +116,17 @@ object ConfigResolver {
     
     def resolveField(path: Path, values: Seq[ConfigBuilderValue], parent: ObjectBuilderValue): ConfigValue = {
       resolvedValue(path).getOrElse {
-        println(s"resolve field '${path.toString}'")
-        activePaths += path
-        val res = values.map(resolveValue).reduce(merge)
-        activePaths -= path
-        resolvedPaths += ((path, (res, parent)))
+        println(s"resolve field '${path.toString}' with ${values.size} values")
+        activeFields += path
+        val res = values.map(resolveValue(path)).reduce(merge)
+        activeFields -= path
+        resolvedPaths += ((path, res))
         res
       }
     }
     
-    def resolveObject(obj: ObjectBuilderValue): ObjectValue = {
+    def resolveObject(obj: ObjectBuilderValue, path: Path): ObjectValue = {
+      activeObjects += ((path, obj))
       println(s"resolve obj with keys: ${obj.values.map(_.key.toString).mkString(" ")}")
       val resolvedFields = obj.values.groupBy(_.key).mapValuesStrict(_.map(_.value)).toSeq.map {
         case (path, values) => Field(path.name, resolveField(path, values, obj))
@@ -127,7 +134,7 @@ object ConfigResolver {
       ObjectValue(resolvedFields.sortBy(_.key))
     }
     
-    resolveObject(rootExpanded)
+    resolveObject(rootExpanded, Path.Root)
   }
   
   def mergeObjects(obj: ObjectBuilderValue): ObjectBuilderValue = {
