@@ -128,7 +128,7 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
       ))
     }
 
-    "resolve an array of objects" ignore {
+    "resolve an array of objects" in {
       val input =
         """
           |a = [

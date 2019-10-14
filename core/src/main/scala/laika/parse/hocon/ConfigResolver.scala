@@ -17,7 +17,6 @@
 package laika.parse.hocon
 
 import laika.ast.Path
-import laika.collection.Stack
 import laika.parse.hocon.HoconParsers._
 import laika.collection.TransitionalCollectionOps._
 
@@ -198,6 +197,11 @@ object ConfigResolver {
     
     def expandValue(value: ConfigBuilderValue, child: Path): ConfigBuilderValue = value match {
       case o: ObjectBuilderValue => expandPaths(o, child)
+      case a: ArrayBuilderValue => 
+        val expandedElements = a.values.zipWithIndex.map { case (element, index) =>
+          expandValue(element, child / index.toString)
+        }
+        ArrayBuilderValue(expandedElements)
       case c: ConcatValue => c.copy(
         first = expandValue(c.first, child),
         rest = c.rest.map(part => part.copy(value = expandValue(part.value, child)))
