@@ -29,15 +29,16 @@ object ConfigResolver {
 
   def resolve(root: ObjectBuilderValue): ObjectValue = {
     
+    val rootExpanded = expandPaths(root)
+    
     val activePaths = mutable.Set.empty[Path]
-    val resolvedPaths = mutable.Map.empty[Path, ConfigValue]
+    val resolvedPaths = mutable.Map.empty[Path, (ConfigValue, ConfigBuilderValue)]
     val invalidPaths = mutable.Map.empty[Path, String]
     
     /*
     Self Reference
     Substitution as Self Reference
-    Substitution of simple value
-    Substitution of single object
+    
     Substitution in concatenated string
     Substitution as merged array
     Substitution as merged object
@@ -56,16 +57,40 @@ object ConfigResolver {
       case r: ResolvedBuilderValue => r.value
       case c: ConcatValue => c.allParts.map(resolveConcatPart).reduce(concat)
       case SelfReference => NullValue // TODO
-      case SubstitutionValue(ref, optional) => NullValue // TODO
+      case SubstitutionValue(ref, optional) =>
+        println(s"resolve ref '${ref.toString}'")
+        resolvedPaths.get(ref).map(_._1).orElse(lookahead(ref)).getOrElse(NullValue) // TODO - error if not optional
+    }
+    
+    def lookahead(path: Path): Option[ConfigValue] = {
+      
+      def resolvedParent(current: Path): Option[(ObjectBuilderValue, Path)] = {
+        val parent = current.parent
+        if (parent == Path.Root) Some((rootExpanded, current))
+        else resolvedPaths.get(parent).fold(resolvedParent(parent)) {
+          case (_, obv: ObjectBuilderValue) => Some((obv, current))
+          case _ => None
+        }
+      } 
+      
+      resolvedParent(path).flatMap { case (obj, fieldPath) =>
+        println(s"lookahead from '${fieldPath.toString}'")
+        println(s"keys before lookahead: ${resolvedPaths.keySet.map(_.toString).mkString(" ")}")
+        resolveField(fieldPath, obj.values.filter(_.key == fieldPath).map(_.value), obj)
+        println(s"keys after lookahead: ${resolvedPaths.keySet.map(_.toString).mkString(" ")}")
+        val res = resolvedPaths.get(path).map(_._1)
+        println(s"success? ${res.isDefined}")
+        res
+      }
     }
     
     def resolveConcatPart(part: ConcatPart): ConfigValue = resolveValue(part.value) match {
-      case NullValue => StringValue(part.whitespace + "null")
+      case NullValue       => StringValue(part.whitespace + "null")
       case BooleanValue(v) => StringValue(part.whitespace + v.toString)
-      case LongValue(v) => StringValue(part.whitespace + v.toString)
-      case DoubleValue(v) => StringValue(part.whitespace + v.toString)
-      case StringValue(v) => StringValue(part.whitespace + v.toString)
-      case arrayOrObject => arrayOrObject
+      case LongValue(v)    => StringValue(part.whitespace + v.toString)
+      case DoubleValue(v)  => StringValue(part.whitespace + v.toString)
+      case StringValue(v)  => StringValue(part.whitespace + v.toString)
+      case arrayOrObject   => arrayOrObject
     }
 
     def concat(v1: ConfigValue, v2: ConfigValue): ConfigValue = {
@@ -84,14 +109,26 @@ object ConfigResolver {
       }
     }
     
+    def resolveField(path: Path, values: Seq[ConfigBuilderValue], parent: ObjectBuilderValue): ConfigValue = {
+      resolvedPaths.get(path).map(_._1).getOrElse {
+        println(s"resolve field '${path.toString}'")
+        activePaths += path
+        val res = values.map(resolveValue).reduce(merge)
+        activePaths -= path
+        resolvedPaths += ((path, (res, parent)))
+        res
+      }
+    }
+    
     def resolveObject(obj: ObjectBuilderValue): ObjectValue = {
+      println(s"resolve obj with keys: ${obj.values.map(_.key.toString).mkString(" ")}")
       val resolvedFields = obj.values.groupBy(_.key).mapValuesStrict(_.map(_.value)).toSeq.map {
-        case (path, values) => Field(path.name, values.map(resolveValue).reduce(merge))
+        case (path, values) => Field(path.name, resolveField(path, values, obj))
       }
       ObjectValue(resolvedFields.sortBy(_.key))
     }
     
-    resolveObject(expandPaths(root))
+    resolveObject(rootExpanded)
   }
   
   /** Expands all flattened path expressions to nested objects.
@@ -118,6 +155,7 @@ object ConfigResolver {
     }
     
     val expandedFields = obj.values.map { field =>
+      println(s"expand key ${field.key.toString}")
       field.key.components match {
         case name :: Nil => 
           field.copy(
@@ -131,6 +169,7 @@ object ConfigResolver {
           )
       }
     }
+    println(s"expanded keys: ${expandedFields.map(_.key.toString).mkString(" ")}")
     obj.copy(values = expandedFields)
   }
   
