@@ -44,6 +44,7 @@ object HoconParsers {
   case class ConcatValue(first: ConfigBuilderValue, rest: Seq[ConcatPart]) extends ConfigBuilderValue {
     val allParts: Seq[ConcatPart] = ConcatPart("", first) +: rest
   }
+  case class MergedValue(values: Seq[ConfigBuilderValue]) extends ConfigBuilderValue
   case class ConcatPart(whitespace: String, value: ConfigBuilderValue)
   case class SubstitutionValue(ref: Path, optional: Boolean) extends ConfigBuilderValue
   object SubstitutionValue {

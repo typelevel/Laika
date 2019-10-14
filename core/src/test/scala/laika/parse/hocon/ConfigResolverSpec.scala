@@ -58,6 +58,22 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
       ))
     }
 
+    "resolve an object with expanded paths 2 levels deep" in {
+      val input =
+        """
+          |a.b.c = 5
+          |a.b.d = 7
+        """.stripMargin
+      parseAndResolve(input) shouldBe ObjectValue(Seq(
+        Field("a", ObjectValue(Seq(
+          Field("b", ObjectValue(Seq(
+            Field("c", LongValue(5)),
+            Field("d", LongValue(7))
+          )))
+        )))
+      ))
+    }
+
     "resolve a nested object" in {
       val input =
         """
@@ -174,6 +190,32 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
       ))
     }
 
+    "resolve a backward looking reference to a simple value with a common path segment" ignore {
+      val input =
+        """
+          |o = { a = 5, b = ${o.a} }
+        """.stripMargin
+      parseAndResolve(input) shouldBe ObjectValue(Seq(Field("o",
+        ObjectValue(Seq(
+          Field("a", LongValue(5)),
+          Field("b", LongValue(5))
+        ))
+      )))
+    }
+
+    "resolve a forward looking reference to a simple value with a common path segment" in {
+      val input =
+        """
+          |o = { a = ${o.b}, b = 5 }
+        """.stripMargin
+      parseAndResolve(input) shouldBe ObjectValue(Seq(Field("o",
+        ObjectValue(Seq(
+          Field("a", LongValue(5)),
+          Field("b", LongValue(5))
+        ))
+      ))) 
+    }
+
     "resolve a backward looking reference to another object" in {
       val input =
         """
@@ -258,6 +300,39 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
       ))
     }
 
+    "resolve a self reference in a concatenated array" in {
+      val input =
+        """
+          |a = [1,2]
+          |a = ${a} [3,4]
+        """.stripMargin
+      parseAndResolve(input) shouldBe ObjectValue(Seq(
+        Field("a", ArrayValue(Seq(LongValue(1), LongValue(2), LongValue(3), LongValue(4))))
+      ))
+    }
+
+    "resolve a self reference via += in a concatenated array" in {
+      val input =
+        """
+          |a = [1,2]
+          |a += 3
+        """.stripMargin
+      parseAndResolve(input) shouldBe ObjectValue(Seq(
+        Field("a", ArrayValue(Seq(LongValue(1), LongValue(2), LongValue(3))))
+      ))
+    }
+
+    "resolve a self reference via += as the first occurrence in the input" in {
+      val input =
+        """
+          |a += 1
+          |a += 2
+        """.stripMargin
+      parseAndResolve(input) shouldBe ObjectValue(Seq(
+        Field("a", ArrayValue(Seq(LongValue(1), LongValue(2))))
+      ))
+    }
+
     "resolve a backward looking reference in a merged object" in {
       val input =
         """
@@ -288,6 +363,20 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
         ))),
         Field("b", ObjectValue(Seq(
           Field("a", LongValue(5)),
+        )))
+      ))
+    }
+
+    "resolve a self reference in a merged object" in {
+      val input =
+        """
+          |a = { b = 5 }
+          |a = ${a} { c = 7 }
+        """.stripMargin
+      parseAndResolve(input) shouldBe ObjectValue(Seq(
+        Field("a", ObjectValue(Seq(
+          Field("b", LongValue(5)),
+          Field("c", LongValue(7))
         )))
       ))
     }
