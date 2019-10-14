@@ -92,7 +92,7 @@ object ConfigResolver {
         println(s"lookahead from '${fieldPath.toString}'")
         println(s"keys before lookahead: ${resolvedFields.keySet.map(_.toString).mkString(" ")}")
         println(s"keys in selected parent: ${obj.values.map(_.key.toString).mkString(" ")}")
-        resolveField(fieldPath, obj.values.filter(_.key == fieldPath).map(_.value), obj)
+        resolveField(fieldPath, obj.values.find(_.key == fieldPath).map(_.value).get, obj) // TODO - handle None
         println(s"keys after lookahead: ${resolvedFields.keySet.map(_.toString).mkString(" ")}")
         val res = resolvedValue(path)
         println(s"success? ${res.isDefined}")
@@ -129,11 +129,11 @@ object ConfigResolver {
       }
     }
     
-    def resolveField(path: Path, values: Seq[ConfigBuilderValue], parent: ObjectBuilderValue): ConfigValue = {
+    def resolveField(path: Path, value: ConfigBuilderValue, parent: ObjectBuilderValue): ConfigValue = {
       resolvedValue(path).getOrElse {
-        println(s"resolve field '${path.toString}' with ${values.size} values")
+        println(s"resolve field '${path.toString}'")
         activeFields += path
-        val res = values.map(resolveValue(path)).reduce(merge)
+        val res = resolveValue(path)(value)
         activeFields -= path
         resolvedFields += ((path, res))
         res
@@ -143,8 +143,8 @@ object ConfigResolver {
     def resolveObject(obj: ObjectBuilderValue, path: Path): ObjectValue = {
       startedObjects += ((path, obj))
       println(s"resolve obj with keys: ${obj.values.map(_.key.toString).mkString(" ")}")
-      val resolvedFields = obj.values.groupBy(_.key).mapValuesStrict(_.map(_.value)).toSeq.map {
-        case (path, values) => Field(path.name, resolveField(path, values, obj))
+      val resolvedFields = obj.values.map { field =>
+        Field(field.key.name, resolveField(field.key, field.value, obj))
       }
       ObjectValue(resolvedFields.sortBy(_.key))
     }
