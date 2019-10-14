@@ -35,11 +35,11 @@ object ConfigResolver {
     println(s"resolving root: $rootExpanded")
     
     val activeFields = mutable.Set.empty[Path]
-    val activeObjects = mutable.Map.empty[Path, ObjectBuilderValue]
-    val resolvedPaths = mutable.Map.empty[Path, ConfigValue]
+    val resolvedFields = mutable.Map.empty[Path, ConfigValue]
+    val startedObjects = mutable.Map.empty[Path, ObjectBuilderValue] // may be in progress or resolved
     val invalidPaths = mutable.Map.empty[Path, String]
     
-    def resolvedValue(path: Path): Option[ConfigValue] = resolvedPaths.get(path)
+    def resolvedValue(path: Path): Option[ConfigValue] = resolvedFields.get(path)
     
     def deepMerge(o1: ObjectValue, o2: ObjectValue): ObjectValue =  {
       val resolvedFields = (o1.values ++ o2.values).groupBy(_.key).mapValuesStrict(_.map(_.value)).toSeq.map {
@@ -64,7 +64,7 @@ object ConfigResolver {
       def resolvedParent(current: Path): Option[(ObjectBuilderValue, Path)] = {
         if (current == Path.Root) Some((rootExpanded, current))
         else {
-          val matching = activeObjects.toSeq.filter(o => current.isSubPath(o._1))
+          val matching = startedObjects.toSeq.filter(o => current.isSubPath(o._1))
           val sorted = matching.sortBy(_._1.components.length)
           println(s"matching active objects for path $current: ${sorted.map(_._1.toString).mkString(" ")}")
           sorted.lastOption.fold(resolvedParent(current.parent)) {
@@ -75,10 +75,10 @@ object ConfigResolver {
       
       resolvedParent(path).flatMap { case (obj, fieldPath) =>
         println(s"lookahead from '${fieldPath.toString}'")
-        println(s"keys before lookahead: ${resolvedPaths.keySet.map(_.toString).mkString(" ")}")
+        println(s"keys before lookahead: ${resolvedFields.keySet.map(_.toString).mkString(" ")}")
         println(s"keys in selected parent: ${obj.values.map(_.key.toString).mkString(" ")}")
         resolveField(fieldPath, obj.values.filter(_.key == fieldPath).map(_.value), obj)
-        println(s"keys after lookahead: ${resolvedPaths.keySet.map(_.toString).mkString(" ")}")
+        println(s"keys after lookahead: ${resolvedFields.keySet.map(_.toString).mkString(" ")}")
         val res = resolvedValue(path)
         println(s"success? ${res.isDefined}")
         res
@@ -120,13 +120,13 @@ object ConfigResolver {
         activeFields += path
         val res = values.map(resolveValue(path)).reduce(merge)
         activeFields -= path
-        resolvedPaths += ((path, res))
+        resolvedFields += ((path, res))
         res
       }
     }
     
     def resolveObject(obj: ObjectBuilderValue, path: Path): ObjectValue = {
-      activeObjects += ((path, obj))
+      startedObjects += ((path, obj))
       println(s"resolve obj with keys: ${obj.values.map(_.key.toString).mkString(" ")}")
       val resolvedFields = obj.values.groupBy(_.key).mapValuesStrict(_.map(_.value)).toSeq.map {
         case (path, values) => Field(path.name, resolveField(path, values, obj))
@@ -191,7 +191,7 @@ object ConfigResolver {
     }
     
     val expandedFields = obj.values.map { field =>
-      println(s"expand key ${field.key.toString}")
+      //println(s"expand key ${field.key.toString}")
       field.key.components match {
         case name :: Nil => 
           field.copy(
@@ -205,7 +205,7 @@ object ConfigResolver {
           )
       }
     }
-    println(s"expanded keys: ${expandedFields.map(_.key.toString).mkString(" ")}")
+    //println(s"expanded keys: ${expandedFields.map(_.key.toString).mkString(" ")}")
     obj.copy(values = expandedFields)
   }
   
