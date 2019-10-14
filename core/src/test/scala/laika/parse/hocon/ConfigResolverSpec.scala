@@ -31,7 +31,7 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
   }
    
   "The config resolver" should {
-    
+
     "resolve a simple object" in {
       val input =
         """
@@ -112,7 +112,7 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
         Field("a", LongValue(7))
       ))
     }
-    
+
     "resolve a concatenated array" in {
       val input =
         """
@@ -146,6 +146,10 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
       ))
     }
 
+  }
+
+  "The reference resolver" should {
+    
     "resolve a backward looking reference to a simple value" in {
       val input =
         """
@@ -205,6 +209,89 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
         )))
       ))
     }
+
+    "resolve a backward looking reference in a concatenated string" in {
+      val input =
+        """
+          |a = yes
+          |b = ${a} or no
+        """.stripMargin
+      parseAndResolve(input) shouldBe ObjectValue(Seq(
+        Field("a", StringValue("yes")),
+        Field("b", StringValue("yes or no"))
+      ))
+    }
+
+    "resolve a forward looking reference in a concatenated string" in {
+      val input =
+        """
+          |a = ${b} or no
+          |b = yes
+        """.stripMargin
+      parseAndResolve(input) shouldBe ObjectValue(Seq(
+        Field("a", StringValue("yes or no")),
+        Field("b", StringValue("yes"))
+      ))
+    }
+
+    "resolve a backward looking reference in a concatenated array" in {
+      val input =
+        """
+          |a = [1,2]
+          |b = ${a} [3,4]
+        """.stripMargin
+      parseAndResolve(input) shouldBe ObjectValue(Seq(
+        Field("a", ArrayValue(Seq(LongValue(1), LongValue(2)))),
+        Field("b", ArrayValue(Seq(LongValue(1), LongValue(2), LongValue(3), LongValue(4))))
+      ))
+    }
+
+    "resolve a forward looking reference in a concatenated array" in {
+      val input =
+        """
+          |a = ${b} [3,4]
+          |b = [1,2]
+        """.stripMargin
+      parseAndResolve(input) shouldBe ObjectValue(Seq(
+        Field("a", ArrayValue(Seq(LongValue(1), LongValue(2), LongValue(3), LongValue(4)))),
+        Field("b", ArrayValue(Seq(LongValue(1), LongValue(2))))
+      ))
+    }
+
+    "resolve a backward looking reference in a merged object" in {
+      val input =
+        """
+          |a = { a = 5 }
+          |b = ${a} { b = 7 }
+        """.stripMargin
+      parseAndResolve(input) shouldBe ObjectValue(Seq(
+        Field("a", ObjectValue(Seq(
+          Field("a", LongValue(5))
+        ))),
+        Field("b", ObjectValue(Seq(
+          Field("a", LongValue(5)),
+          Field("b", LongValue(7))
+        )))
+      ))
+    }
+
+    "resolve a forward looking reference in a merged object" in {
+      val input =
+        """
+          |a = ${b} { b = 7 }
+          |b = { a = 5 }
+        """.stripMargin
+      parseAndResolve(input) shouldBe ObjectValue(Seq(
+        Field("a", ObjectValue(Seq(
+          Field("a", LongValue(5)),
+          Field("b", LongValue(7))
+        ))),
+        Field("b", ObjectValue(Seq(
+          Field("a", LongValue(5)),
+        )))
+      ))
+    }
+    
   }
   
   "The path expansion" should {

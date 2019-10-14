@@ -38,11 +38,9 @@ object ConfigResolver {
     /*
     Self Reference
     Substitution as Self Reference
-    
-    Substitution in concatenated string
-    Substitution as merged array
-    Substitution as merged object
      */
+    
+    def resolvedValue(path: Path): Option[ConfigValue] = resolvedPaths.get(path).map(_._1)
     
     def deepMerge(o1: ObjectValue, o2: ObjectValue): ObjectValue =  {
       val resolvedFields = (o1.values ++ o2.values).groupBy(_.key).mapValuesStrict(_.map(_.value)).toSeq.map {
@@ -59,7 +57,7 @@ object ConfigResolver {
       case SelfReference => NullValue // TODO
       case SubstitutionValue(ref, optional) =>
         println(s"resolve ref '${ref.toString}'")
-        resolvedPaths.get(ref).map(_._1).orElse(lookahead(ref)).getOrElse(NullValue) // TODO - error if not optional
+        resolvedValue(ref).orElse(lookahead(ref)).getOrElse(NullValue) // TODO - error if not optional
     }
     
     def lookahead(path: Path): Option[ConfigValue] = {
@@ -78,7 +76,7 @@ object ConfigResolver {
         println(s"keys before lookahead: ${resolvedPaths.keySet.map(_.toString).mkString(" ")}")
         resolveField(fieldPath, obj.values.filter(_.key == fieldPath).map(_.value), obj)
         println(s"keys after lookahead: ${resolvedPaths.keySet.map(_.toString).mkString(" ")}")
-        val res = resolvedPaths.get(path).map(_._1)
+        val res = resolvedValue(path)
         println(s"success? ${res.isDefined}")
         res
       }
@@ -110,7 +108,7 @@ object ConfigResolver {
     }
     
     def resolveField(path: Path, values: Seq[ConfigBuilderValue], parent: ObjectBuilderValue): ConfigValue = {
-      resolvedPaths.get(path).map(_._1).getOrElse {
+      resolvedValue(path).getOrElse {
         println(s"resolve field '${path.toString}'")
         activePaths += path
         val res = values.map(resolveValue).reduce(merge)
