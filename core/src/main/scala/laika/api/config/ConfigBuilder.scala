@@ -55,10 +55,12 @@ object ConfigEncoder {
   implicit val forString: ConfigEncoder[String] = ???
   implicit val forInt: ConfigEncoder[Int] = ???
   implicit val forConfigValue: ConfigEncoder[ConfigValue] = ???
+  implicit def forSeq[T](implicit elementEncoder: ConfigEncoder[T]): ConfigEncoder[Seq[T]] = ???
 }
 
 object ConfigDecoder {
   implicit val forString: ConfigDecoder[String] = ???
   implicit val forInt: ConfigDecoder[Int] = ???
   implicit val forConfigValue: ConfigDecoder[ConfigValue] = ???
+  implicit def forSeq[T](implicit elementDecoder: ConfigDecoder[T]): ConfigDecoder[Seq[T]] = ???
 }

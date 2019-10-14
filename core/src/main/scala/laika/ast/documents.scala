@@ -71,14 +71,13 @@ sealed trait TreeContent extends Navigatable {
   def selectTarget (selector: Selector): Option[TargetResolver] = globalLinkTargets.get(selector)
 
   protected def titleFromConfig: Option[Seq[Span]] = {
-    if (config.hasPath("title")) {
-      val title = List(Text(config.get[String]("title")))
+    config.get[String]("title").toOption.map { titleString =>
+      val title = List(Text(titleString))
       val autonumberConfig = AutonumberConfig.fromConfig(config)
       val autonumberEnabled = autonumberConfig.documents && position.depth < autonumberConfig.maxDepth
-      if (autonumberEnabled) Some(position.toSpan +: title)
-      else Some(title)
+      if (autonumberEnabled) position.toSpan +: title
+      else title
     }
-    else None
   }
 
 }

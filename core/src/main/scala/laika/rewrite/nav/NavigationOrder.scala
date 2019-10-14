@@ -55,17 +55,16 @@ object NavigationOrder {
       case _ => false
     }
 
-    val sorted = if (config.hasPath("navigationOrder")) {
-      val javaList = config.getList("navigationOrder").unwrapped
-      val list = javaList.asScala.collect{ case s:String => s }.toIndexedSeq
+    val sorted = config.get[Seq[String]]("navigationOrder").toOption.fold {
+      otherDocs.sortBy {
+        case d: DocumentCursor => "A-" + d.path.name
+        case t: TreeCursor => "B-" + t.path.name
+      }
+    } { list =>
       otherDocs.sortBy { nav =>
         list.indexOf(nav.path.name) match { case -1 => Int.MaxValue; case other => other }
       }
-    }
-    else otherDocs.sortBy {
-      case d: DocumentCursor => "A-" + d.path.name
-      case t: TreeCursor => "B-" + t.path.name
-    }
+    } 
 
     titleDoc.map(reAssignPosition(_, parentPosition, AutonumberConfig.withoutSectionNumbering)) ++
       reAssignPositions(sorted)

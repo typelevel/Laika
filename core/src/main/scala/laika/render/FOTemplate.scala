@@ -72,12 +72,13 @@ object FOTemplate {
     private val coverImagePath = "pdf.coverImage"
 
     def resolve (cursor: DocumentCursor): Span = {
-      val config = cursor.root.target.config
-      val path = if (config.hasPath(coverImagePath)) Some(config.getString(coverImagePath)) else None
-      path.fold[TemplateSpan](TemplateSpanSequence(Nil)) { coverPath =>
-        val fo = s"""    <fox:external-document src="$coverPath"
+      cursor.root.target.config
+        .get[String](coverImagePath)
+        .toOption
+        .fold[TemplateSpan](TemplateSpanSequence(Nil)) { coverPath =>
+          val fo = s"""    <fox:external-document src="$coverPath"
                     |      width="21cm" height="29.7cm" content-width="21cm"/>""".stripMargin
-        TemplateString(fo)
+          TemplateString(fo)
       }
     }
   }
