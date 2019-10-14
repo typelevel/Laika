@@ -2,7 +2,7 @@ package laika.render.epub
 
 import java.io.File
 
-import laika.api.config.Config
+import laika.api.config.{Config, ConfigBuilder}
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
@@ -19,8 +19,7 @@ trait InputTreeBuilder extends ModelBuilder with InputBuilder {
 
   def sections: Seq[SectionInfo] = Seq(section('A'), section('B'))
 
-  def configWithTreeTitle (num: Int): Config = com.typesafe.config.Config.empty
-    .withValue("title", ConfigValueFactoryX.fromAnyRef(s"Tree $num"))
+  def configWithTreeTitle (num: Int): Config = ConfigBuilder.empty.withValue("title", s"Tree $num").build
   
   def titleSpans (text: String): Seq[Span] = Seq(Text(text))
 

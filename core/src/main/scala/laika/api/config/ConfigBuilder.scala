@@ -16,18 +16,19 @@
 
 package laika.api.config
 
-import laika.parse.hocon.HoconParsers.BuilderField
+import laika.ast.ConfigValue
+import laika.parse.hocon.HoconParsers.Field
 
 /**
   * @author Jens Halm
   */
-class ConfigBuilder (values: Seq[BuilderField]) {
+class ConfigBuilder (values: Seq[Field]) {
 
   def withValue[T](key: String, value: T)(implicit encoder: ConfigEncoder[T]) : ConfigBuilder = ???
   
   def withValue[T](value: T)(implicit encoder: ConfigEncoder[T], defaultKey: DefaultKey[T]): ConfigBuilder = ???
   
-  def build: Either[ConfigBuilderError, Config] = ???
+  def build: Config = ???
 
   def withFallback(other: Config): ConfigBuilder = ???
   
@@ -37,7 +38,7 @@ object ConfigBuilder {
 
   val empty: ConfigBuilder = new ConfigBuilder(Nil)
 
-  def parse(input: String): ConfigBuilder = ???
+  def parse(input: String): ConfigBuilder = ??? // TODO - 0.12 - move to ConfigParser
   
 }
 
@@ -49,3 +50,15 @@ trait DefaultKey[T] {
 
 trait ConfigError
 trait ConfigBuilderError
+
+object ConfigEncoder {
+  implicit val forString: ConfigEncoder[String] = ???
+  implicit val forInt: ConfigEncoder[Int] = ???
+  implicit val forConfigValue: ConfigEncoder[ConfigValue] = ???
+}
+
+object ConfigDecoder {
+  implicit val forString: ConfigDecoder[String] = ???
+  implicit val forInt: ConfigDecoder[Int] = ???
+  implicit val forConfigValue: ConfigDecoder[ConfigValue] = ???
+}

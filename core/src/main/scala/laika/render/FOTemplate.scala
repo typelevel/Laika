@@ -62,7 +62,7 @@ object FOTemplate {
                                |</fo:root>
                                |""".stripMargin
 
-  // TODO - 0.12 - temporary duplication of the styleLink directive until the directive impl has been rewritten
+  // TODO - temporary duplication of the styleLink directive until the directive impl has been rewritten
   case object CoverImage extends SpanResolver with TemplateSpan {
 
     type Self = this.type

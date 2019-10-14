@@ -33,8 +33,8 @@ object AutonumberConfig {
     if (config.hasPath("autonumbering.scope")) {
       config.getString("autonumbering.scope") match {
         case "documents" => config
-        case "sections"  => config.withValue("autonumbering.scope", ConfigValueFactoryX.fromAnyRef("none"))
-        case "all"       => config.withValue("autonumbering.scope", ConfigValueFactoryX.fromAnyRef("documents"))
+        case "sections"  => config.withValue("autonumbering.scope", "none")
+        case "all"       => config.withValue("autonumbering.scope", "documents")
         case "none"      => config
         case other       => throw ConfigurationException("Unsupported value for key 'autonumbering.scope': " + other)
       }

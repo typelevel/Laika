@@ -30,7 +30,6 @@ import laika.rst.ast.FieldList
 object DocInfoExtractor extends (Document => Document) {
 
   def apply (doc: Document): Document = {
-    import scala.collection.JavaConverters._
 
     val docStartBlock = doc.content.content.dropWhile {
       case _: Comment => true
@@ -49,7 +48,7 @@ object DocInfoExtractor extends (Document => Document) {
     }
 
     val mergedConfig = docInfoMap.fold(doc.config){ info =>
-      doc.config.withValue("docInfo", ConfigValueFactoryX.fromMap(info.asJava))
+      doc.config.withValue("docInfo", info)
     }
 
     doc.copy(config = mergedConfig)

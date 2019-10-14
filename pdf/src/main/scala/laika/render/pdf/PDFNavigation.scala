@@ -71,7 +71,7 @@ object PDFNavigation {
         val doc = Document(
           path = tree.path / DocNames.treeTitle,
           content = root,
-          config = ConfigBuilder.empty.withValue("title", ConfigValueFactoryX.fromAnyRef(SpanSequence(tree.title).extractText))
+          config = ConfigBuilder.empty.withValue("title", SpanSequence(tree.title).extractText).build
         )
         doc +: newContent
       }
@@ -140,7 +140,7 @@ object PDFNavigation {
 
     def toBlockSequence (blocks: Seq[Element]): Seq[Block] = blocks flatMap {
       case BulletList(items, _, _) => toBlockSequence(items)
-      case BulletListItem(blocks, _, _) => toBlockSequence(blocks)
+      case BulletListItem(content, _, _) => toBlockSequence(content)
       case Paragraph(Seq(link: CrossLink), opt) => Seq(Paragraph(Seq(link.copy(
         content = link.content :+ Leader() :+ PageNumberCitation(link.ref, link.path)
       )), opt))

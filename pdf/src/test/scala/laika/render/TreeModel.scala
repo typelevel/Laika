@@ -26,12 +26,11 @@ trait TreeModel {
 
   def useTitleDocuments: Boolean = false
   
-  private def pdfFileConfig = if (usePDFFileConfig) ConfigBuilder.parse("""
-    |pdf {
-    |  bookmarks.depth = 0
-    |  toc.depth = 0
-    |}  
-    """.stripMargin) else Config.empty
+  private def pdfFileConfig: Config = if (usePDFFileConfig) ConfigBuilder.empty
+      .withValue("pdf.bookmarks.depth", 0)
+      .withValue("pdf.toc.depth", 0)
+      .build
+    else Config.empty
   
   def doc (num: Int): Document = {
     val parent = if (num > 4) Root / "tree2" else if (num > 2) Root / "tree1" else Root
@@ -41,11 +40,14 @@ trait TreeModel {
     )))
   }
     
-  def configWithTreeTitle (num: Int): Config = Config.empty
-      .withValue("title", ConfigValueFactoryX.fromAnyRef(s"Tree $num & More"))
-      .withFallback(pdfFileConfig)
+  def configWithTreeTitle (num: Int): Config = ConfigBuilder.empty
+    .withValue("title", s"Tree $num & More")
+    .withFallback(pdfFileConfig)
+    .build
 
-  def configWithFallback: Config = ConfigBuilder.empty.withFallback(pdfFileConfig)
+  def configWithFallback: Config = ConfigBuilder.empty
+    .withFallback(pdfFileConfig)
+    .build
 
   def subtreeDocs (nums: Int*): Seq[Document] = nums.map(doc)
   

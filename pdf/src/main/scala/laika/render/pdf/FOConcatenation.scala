@@ -63,7 +63,7 @@ object FOConcatenation {
       if (result.config.hasPath("pdf.coverImage")) {
         val uri = result.config.getString("pdf.coverImage")
         val resolvedUri = PathInfo.fromURI(uri, Root).fold(uri)(_.absolute.toString)
-        result.config.withValue("pdf.coverImage", ConfigValueFactoryX.fromAnyRef(resolvedUri))
+        result.config.withValue("pdf.coverImage", resolvedUri)
       } else result.config
 
     val resultWithoutToc = result.copy(tree = result.tree.copy(content = result.tree.content.filterNot(_.path == Root / s"${DocNames.toc}.fo")))

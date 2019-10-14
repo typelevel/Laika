@@ -22,6 +22,7 @@ import laika.ast.Path.{Current, Root}
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.ReStructuredText
+import laika.parse.hocon.HoconParsers.{Field, ObjectValue, StringValue}
 import laika.rewrite.TemplateRewriter
 import laika.rst.ast.{Contents, Include}
 import org.scalatest.{FlatSpec, Matchers}
@@ -601,30 +602,33 @@ class StandardBlockDirectivesSpec extends FlatSpec
   }
   
   "The meta directive" should "create config entries in the document instance" in {
-    import scala.collection.JavaConverters._
     val input = """.. meta::
       | :key1: val1
       | :key2: val2""".stripMargin
-    val map = Map("key1"->"val1","key2"->"val2").asJava
-    parseDoc(input).config.getObject("meta") should be (ConfigValueFactoryX.fromMap(map))
+    val config = ObjectValue(Seq(Field("key1", StringValue("val1")), Field("key2", StringValue("val2"))))
+    parseDoc(input).config.get[ConfigValue]("meta") should be (config)
   }
   
   "The sectnum directive" should "create config entries in the document instance" in {
-    import scala.collection.JavaConverters._
     val input = """.. sectnum::
       | :depth: 3
       | :start: 1
       | :prefix: (
       | :suffix: )""".stripMargin
-    val map = Map("depth"->"3", "start"->"1", "prefix"->"(", "suffix"->")").asJava
-    parseDoc(input).config.getObject("autonumbering") should be (ConfigValueFactoryX.fromMap(map))
+    val config = ObjectValue(Seq(
+      Field("depth", StringValue("3")), 
+      Field("start", StringValue("1")), 
+      Field("prefix", StringValue("(")), 
+      Field("suffix", StringValue(")"))
+    ))
+    parseDoc(input).config.get[ConfigValue]("meta") should be (config)
   }
   
   "The contents directive" should "create a placeholder in the document" in {
     val input = """.. contents:: This is the title
       | :depth: 3
       | :local: true""".stripMargin
-    val elem = Contents("This is the title", 3, true)
+    val elem = Contents("This is the title", 3, local = true)
     parseRaw(input) should be (root(elem))
   }
   
@@ -640,7 +644,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
           
     val sectionsWithTitle = RootElement(
       header(1,1,"title") ::
-      Contents("This is the title", 3, false) ::
+      Contents("This is the title", 3) ::
       header(2,2) ::
       header(3,3) ::
       header(2,4) ::
@@ -651,8 +655,8 @@ class StandardBlockDirectivesSpec extends FlatSpec
     val result = root(
       title(1),
       TitledBlock(List(txt("This is the title")), 
-        List(bulletList() + (link(1,2), (bulletList() + link(2,3)))
-                          + (link(1,4), (bulletList() + link(2,5)))), 
+        List(bulletList() + (link(1,2), bulletList() + link(2,3))
+                          + (link(1,4), bulletList() + link(2,5))), 
       Styles("toc")),
       Section(header(2,2), List(Section(header(3,3), Nil))),
       Section(header(2,4), List(Section(header(3,5), Nil)))
