@@ -53,10 +53,25 @@ object ConfigResolver {
       case a: ArrayBuilderValue => ArrayValue(a.values.map(resolveValue(path))) // TODO - adjust path
       case r: ResolvedBuilderValue => r.value
       case c: ConcatValue => c.allParts.map(resolveConcatPart(path)).reduce(concat)
+      case m: MergedValue => resolveMergedValue(path: Path)(m.values.reverse)
       case SelfReference => NullValue
       case SubstitutionValue(ref, optional) =>
         println(s"resolve ref '${ref.toString}'")
         resolvedValue(ref).orElse(lookahead(ref)).getOrElse(NullValue) // TODO - error if not optional
+    }
+    
+    def resolveMergedValue(path: Path)(values: Seq[ConfigBuilderValue]): ConfigValue = {
+      
+      def loop(values: Seq[ConfigBuilderValue]): ConfigValue = (resolveValue(path)(values.head), values.tail) match {
+        case (ov: ObjectValue, Nil) => ov
+        case (ov: ObjectValue, rest) => loop(rest) match {
+          case o2: ObjectValue => merge(o2, ov)
+          case _ => ov
+        }
+        case (other, _) => other
+      }
+      
+      loop(values)
     }
     
     def lookahead(path: Path): Option[ConfigValue] = {

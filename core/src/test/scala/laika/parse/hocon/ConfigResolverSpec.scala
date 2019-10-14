@@ -74,6 +74,34 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
       ))
     }
 
+    "merge two object definitions with the same path" in {
+      val input =
+        """
+          |a = { c = 5 }
+          |a = { d = 7 }
+        """.stripMargin
+      parseAndResolve(input) shouldBe ObjectValue(Seq(
+        Field("a", ObjectValue(Seq(
+          Field("c", LongValue(5)),
+          Field("d", LongValue(7)),
+        )))
+      ))
+    }
+
+    "don't merge an object if there is a simple overriding value between them" in {
+      val input =
+        """
+          |a = { c = 5 }
+          |a = 7
+          |a = { d = 7 }
+        """.stripMargin
+      parseAndResolve(input) shouldBe ObjectValue(Seq(
+        Field("a", ObjectValue(Seq(
+          Field("d", LongValue(7)),
+        )))
+      ))
+    }
+
     "resolve a nested object" in {
       val input =
         """
@@ -333,7 +361,7 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
       ))
     }
 
-    "resolve a backward looking reference in a merged object" in {
+    "resolve a backward looking reference in a concatenated object" in {
       val input =
         """
           |a = { a = 5 }
@@ -350,7 +378,7 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
       ))
     }
 
-    "resolve a forward looking reference in a merged object" in {
+    "resolve a forward looking reference in a concatenated object" in {
       val input =
         """
           |a = ${b} { b = 7 }
@@ -367,6 +395,42 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
       ))
     }
 
+    "resolve a backward looking reference in a merged object" in {
+      val input =
+        """
+          |a = { c = 5 }
+          |b = { d = 7 }
+          |b = ${a}
+        """.stripMargin
+      parseAndResolve(input) shouldBe ObjectValue(Seq(
+        Field("a", ObjectValue(Seq(
+          Field("c", LongValue(5))
+        ))),
+        Field("b", ObjectValue(Seq(
+          Field("c", LongValue(5)),
+          Field("d", LongValue(7))
+        )))
+      ))
+    }
+
+    "resolve a forward looking reference in a merged object" in {
+      val input =
+        """
+          |a = { c = 5 }
+          |a = ${b}
+          |b = { d = 7 }
+        """.stripMargin
+      parseAndResolve(input) shouldBe ObjectValue(Seq(
+        Field("a", ObjectValue(Seq(
+          Field("c", LongValue(5)),
+          Field("d", LongValue(7))
+        ))),
+        Field("b", ObjectValue(Seq(
+          Field("d", LongValue(7)),
+        )))
+      ))
+    }
+
     "resolve a self reference in a merged object" in {
       val input =
         """
@@ -378,6 +442,17 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
           Field("b", LongValue(5)),
           Field("c", LongValue(7))
         )))
+      ))
+    }
+
+    "ignore a missing reference when it is later overridden" in {
+      val input =
+        """
+          |a = ${non-existing}
+          |a = 5
+        """.stripMargin
+      parseAndResolve(input) shouldBe ObjectValue(Seq(
+        Field("a", LongValue(5))
       ))
     }
     
