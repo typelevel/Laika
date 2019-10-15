@@ -43,6 +43,8 @@ class Config (root: ObjectValue) {
 
 object Config {
   
+  type Result[T] = Either[ConfigError, T]
+  
   val empty: Config = new Config(ObjectValue(Nil))
   
 }

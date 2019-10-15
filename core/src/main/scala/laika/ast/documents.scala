@@ -19,13 +19,14 @@ package laika.ast
 import java.time.Instant
 import java.util.Locale
 
-import laika.api.config.{Config, ConfigBuilder}
+import laika.api.config.{Config, ConfigBuilder, ConfigDecoder, ConfigError, DefaultKey, InvalidType, ValidationError}
 import laika.ast.Path.Root
 import laika.collection.TransitionalCollectionOps._
+import laika.parse.hocon.HoconParsers.ObjectValue
 import laika.rewrite.TemplateRewriter
 import laika.rewrite.link.LinkTargetProvider
 import laika.rewrite.link.LinkTargets._
-import laika.rewrite.nav.AutonumberConfig
+import laika.rewrite.nav.{AutonumberConfig, Scope}
 
 import scala.annotation.tailrec
 import scala.util.Try
@@ -112,24 +113,36 @@ case class TitleInfo (content: Seq[Span], options: Options = NoOpt) extends Span
 case class DocumentMetadata (identifier: Option[String] = None, authors: Seq[String] = Nil, language: Option[Locale] = None, date: Option[Instant] = None)
 
 object DocumentMetadata {
+  
+  implicit val forLocale: ConfigDecoder[Locale] = ??? // Try(Locale.forLanguageTag(nConf.getString("language")))
 
-  import scala.collection.JavaConverters._
+  def toInstant[C] (in: Config.Result[Option[String]])(f: String => Config.Result[Instant]): Config.Result[Option[Instant]] = 
+    in.flatMap(_.fold[Config.Result[Option[Instant]]](Right(None))(f(_).map(Some(_))))
+  
+  implicit val decoder: ConfigDecoder[DocumentMetadata] = {
+    case ov: ObjectValue =>
+      val config = ov.toConfig
+      for {
+        identifier <- config.getOpt[String]("identifier")
+        author     <- config.getOpt[String]("author")
+        authors    <- config.get[Seq[String]]("authors", Nil)
+        lang       <- config.getOpt[Locale]("language")
+        date       <- toInstant(config.getOpt[String]("date")) { ds => 
+                        Try(Instant.parse(ds)).toEither.left.map(f => ValidationError(s"Invalid date format: ${f.getMessage}")) 
+                      }
+      } yield {
+        DocumentMetadata(identifier, authors ++ author.toSeq, lang, date)
+      }
+
+    case other => Left(InvalidType("Object", "" /* other.getClass.getSimpleName */)) // TODO - 0.12 - type descriptors
+  }
+  implicit val defaultKey: DefaultKey[DocumentMetadata] = DefaultKey("metadata")
 
   /** Tries to obtain the document metadata
     * from the specified configuration instance or returns
     * an empty instance.
     */
-  def fromConfig (config: Config): DocumentMetadata = {
-    if (config.hasPath("metadata")) {
-      val nConf = config.getObject("metadata").toConfig
-      val identifier = if (nConf.hasPath("identifier")) Some(nConf.getString("identifier")) else None
-      val authors = if (nConf.hasPath("author")) Seq(nConf.getString("author")) else if (nConf.hasPath("authors")) nConf.getStringList("authors").asScala else Nil
-      val language = if (nConf.hasPath("language")) Try(Locale.forLanguageTag(nConf.getString("language"))).toOption else None
-      val date = if (nConf.hasPath("date")) Try(Instant.parse(nConf.getString("date"))).toOption else None
-      DocumentMetadata(identifier, authors.toSeq, language, date)
-    }
-    else DocumentMetadata()
-  }
+  def fromConfig (config: Config): DocumentMetadata = config.get[DocumentMetadata].toOption.getOrElse(DocumentMetadata()) 
 
 }
 
