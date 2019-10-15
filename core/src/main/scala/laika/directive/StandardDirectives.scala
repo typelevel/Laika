@@ -16,12 +16,12 @@
 
 package laika.directive
 
-import laika.ast._
+import laika.ast.{ConfigValue => _, _}
+import laika.parse.hocon.HoconParsers.{ArrayValue, BooleanValue, ConfigValue, NullValue, ObjectValue, StringValue}
 import laika.rewrite.TemplateRewriter
 import laika.rewrite.nav.TocGenerator
 
 import scala.annotation.tailrec
-import scala.collection.JavaConverters._
 
 /** Provides the implementation for the standard directives included in Laika.
  *  
@@ -48,15 +48,13 @@ import scala.collection.JavaConverters._
  */
 object StandardDirectives extends DirectiveRegistry {
 
-  
   /** Implementation of the `for` directive for templates.
    */
   lazy val templateFor: Templates.Directive = Templates.create("for") {
-    import java.util.{Collection => JCol, Map => JMap}
 
     import Templates.dsl._
 
-    val emptyValues = Set("",false,null,None)
+    val emptyValues = Set[ConfigValue](StringValue(""), BooleanValue(false), NullValue)
     case class Empty (spans: Seq[TemplateSpan])
     val emptySeparator = Templates.separator("empty", max = 1)(body.map(Empty))
     
@@ -66,25 +64,18 @@ object StandardDirectives extends DirectiveRegistry {
         def rewrite (spans: Seq[TemplateSpan], childCursor: DocumentCursor): TemplateSpanSequence =
           TemplateSpanSequence(spans) rewriteChildren TemplateRewriter.rewriteRules(childCursor)
         
-        def rewriteContent (value: Any): TemplateSpanSequence = rewrite(multipart.mainBody, cursor.withReferenceContext(value))
+        def rewriteContent (value: ConfigValue): TemplateSpanSequence = rewrite(multipart.mainBody, cursor.withReferenceContext(value))
 
-        // TODO - 0.12 - error handling for multiple Empty separators requires min/max support in the DSL
         def rewriteFallback = multipart.children.headOption.map(_.spans).map(rewrite(_, cursor)).getOrElse(TemplateSpanSequence(Nil))
         
         cursor.resolveReference(path) match {
-          case Some(m: Map[_,_])  => rewriteContent(m) 
-          case Some(m: JMap[_,_]) => rewriteContent(m) 
-          case Some(it: Iterable[_]) if it.isEmpty => rewriteFallback
-          case Some(it: JCol[_])     if it.isEmpty => rewriteFallback
-          case Some(it: Iterable[_]) =>
-            val spans = for (value <- it) yield rewriteContent(value)
-            TemplateSpanSequence(spans.toSeq)
-          case Some(it: JCol[_]) =>
-            val spans = for (value <- it.asScala) yield rewriteContent(value)
-            TemplateSpanSequence(spans.toSeq)
-          case Some(value) if emptyValues(value) => rewriteFallback
-          case Some(value)            => rewriteContent(value)
-          case None                   => rewriteFallback
+          case Right(Some(o: ObjectValue))             => rewriteContent(o) 
+          case Right(Some(a: ArrayValue)) if a.isEmpty => rewriteFallback
+          case Right(Some(a: ArrayValue))              => TemplateSpanSequence(a.values.map(rewriteContent))
+          case Right(Some(simpleValue)) if emptyValues(simpleValue) => rewriteFallback
+          case Right(Some(simpleValue))                => rewriteContent(simpleValue)
+          case Right(None)                             => rewriteFallback
+          case Left(error)                             => rewriteFallback // TODO - 0.12 - insert invalid element - might also use get instead of getOpt and check for NotFound
         }
       }
     }
@@ -120,8 +111,8 @@ object StandardDirectives extends DirectiveRegistry {
         def process (parts: Seq[ElseIf]): TemplateSpanSequence = 
           if (parts.isEmpty) rewriteFallback
           else cursor.resolveReference(parts.head.ref) match {
-            case Some(true) => rewrite(parts.head.body)
-            case Some(s: String) if trueStrings(s) => rewrite(parts.head.body)
+            case Right(Some(BooleanValue(true)))               => rewrite(parts.head.body)
+            case Right(Some(StringValue(s))) if trueStrings(s) => rewrite(parts.head.body)
             case _ => process(parts.tail)
           }
         

@@ -16,7 +16,7 @@
 
 package laika.ast
 
-import laika.api.config.Config
+import laika.api.config.{Config, ConfigEncoder}
 import laika.ast.Path.Root
 import laika.collection.TransitionalCollectionOps._
 import laika.rewrite.ReferenceResolver
@@ -121,7 +121,7 @@ case class TreeCursor(target: DocumentTree,
     */
   lazy val children: Seq[Cursor] = {
     
-    def configForChild(childConfig: Config) = childConfig.withFallback(config).resolve
+    def configForChild(childConfig: Config): Config = childConfig.withFallback(config).resolve
     
     target.content.zipWithIndex map {
       case (doc: Document, index) => 
@@ -219,16 +219,15 @@ case class DocumentCursor (target: Document,
    *  root tree is reached. If the value is not found `None` will
    *  be returned.
    */
-  def resolveReference (path: String): Option[Any] = 
-    resolver.resolve(path.split("\\.").toList)
+  def resolveReference (key: String): Config.Result[Option[laika.parse.hocon.HoconParsers.ConfigValue]] = resolver.resolve(key)
   
   /** Creates a copy of this cursor with a new root object
    *  for resolving references. This is useful for custom
    *  template directives which need to provide a new scope
    *  for a nested part inside the directive tags.
    */
-  def withReferenceContext (refValue: Any): DocumentCursor =
-    copy(resolver = ReferenceResolver(refValue, Some(self.resolver)))
+  def withReferenceContext[T: ConfigEncoder](refValue: T): DocumentCursor =
+    copy(resolver = ReferenceResolver(resolver.config.withValue("value", refValue).build))
   
 }
 

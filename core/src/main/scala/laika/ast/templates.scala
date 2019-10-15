@@ -16,7 +16,8 @@
 
 package laika.ast
 
-import laika.rewrite.TemplateRewriter
+import laika.api.config.Config
+import laika.parse.hocon.HoconParsers.{ConfigValue => HoconConfigValue}
 
 /** Represents a placeholder inline element that needs
  *  to be resolved in a rewrite step.
@@ -54,12 +55,12 @@ trait BlockResolver extends Block {
  */
 abstract class ContextReference[T <: Span] (ref: String) extends SpanResolver {
 
-  def result (value: Option[Any]): T
+  def result (value: Config.Result[Option[HoconConfigValue]]): T
 
   def resolve (cursor: DocumentCursor): Span = {
     
     cursor.resolveReference(ref) match {
-      case Some(element: Element) => result(Some(TemplateRewriter.rewriteRules(cursor).rewriteElement(element)))
+      // case Some(element: Element) => result(Some(TemplateRewriter.rewriteRules(cursor).rewriteElement(element))) // TODO - 0.12 - has this ever been used?
       case other                  => result(other)
     }
   }
@@ -70,12 +71,13 @@ abstract class ContextReference[T <: Span] (ref: String) extends SpanResolver {
 case class TemplateContextReference (ref: String, options: Options = NoOpt) extends ContextReference[TemplateSpan](ref) with TemplateSpan {
   type Self = TemplateContextReference
 
-  def result (value: Option[Any]): TemplateSpan = value match {
-    case Some(s: TemplateSpan)        => s
-    case Some(RootElement(content,_)) => EmbeddedRoot(content)
-    case Some(e: Element)             => TemplateElement(e)
-    case Some(other)                  => TemplateString(other.toString)
-    case None                         => TemplateString("")
+  def result (value: Config.Result[Option[HoconConfigValue]]): TemplateSpan = value match {
+    //case Right(Some(s: TemplateSpan)) => s  // TODO - 0.12 - has this ever been used?
+    //case Some(RootElement(content,_)) => EmbeddedRoot(content)  // TODO - 0.12 - has this ever been used?
+    //case Some(e: Element)             => TemplateElement(e)  // TODO - 0.12 - has this ever been used?
+    case Right(Some(v))           => TemplateString(v.toString) // TODO - 0.12 - properly convert
+    case Right(None)              => TemplateString("")
+    case Left(error)              => TemplateString("") // TODO - 0.12 - insert invalid element
   }
   def withOptions (options: Options): TemplateContextReference = copy(options = options)
 }
@@ -85,11 +87,12 @@ case class TemplateContextReference (ref: String, options: Options = NoOpt) exte
 case class MarkupContextReference (ref: String, options: Options = NoOpt) extends ContextReference[Span](ref) {
   type Self = MarkupContextReference
 
-  def result (value: Option[Any]): Span = value match {
-    case Some(s: Span)    => s
-    case Some(e: Element) => TemplateElement(e)
-    case Some(other)      => Text(other.toString)
-    case None             => Text("")
+  def result (value: Config.Result[Option[HoconConfigValue]]): Span = value match {
+    //case Some(s: Span)    => s // TODO - 0.12 - has this ever been used?
+    //case Some(e: Element) => TemplateElement(e) // TODO - 0.12 - has this ever been used?
+    case Right(Some(v))     => Text(v.toString) // TODO - 0.12 - properly convert
+    case Right(None)        => Text("")
+    case Left(error)        => Text("") // TODO - 0.12 - insert invalid element
   }
   def withOptions (options: Options): MarkupContextReference = copy(options = options)
 }

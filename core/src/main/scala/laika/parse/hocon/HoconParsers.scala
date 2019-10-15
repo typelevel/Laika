@@ -67,7 +67,9 @@ object HoconParsers {
   case class DoubleValue(value: Double) extends ConfigValue
   case class LongValue(value: Long) extends ConfigValue
   case class StringValue(value: String) extends ConfigValue
-  case class ArrayValue(values: Seq[ConfigValue]) extends ConfigValue
+  case class ArrayValue(values: Seq[ConfigValue]) extends ConfigValue {
+    def isEmpty: Boolean = values.isEmpty
+  }
   case class ObjectValue(values: Seq[Field]) extends ConfigValue {
     def toConfig: Config = ???
   }

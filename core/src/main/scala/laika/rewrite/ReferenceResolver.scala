@@ -16,33 +16,17 @@
 
 package laika.rewrite
 
-import laika.api.config.Config
-import laika.ast.{Document, SpanSequence, TreeCursor}
-
-import scala.util.Try
+import laika.api.config.{Config, ConfigBuilder}
+import laika.ast.{Document, TreeCursor}
+import laika.parse.hocon.HoconParsers.ConfigValue
 
 /** A resolver for context references in templates or markup documents.
  *  
  *  @author Jens Halm
  */
-case class ReferenceResolver (root: Any, parent: Option[ReferenceResolver] = None) {
+case class ReferenceResolver (config: Config) {
   
-  def resolve (target: Any, path: List[String], root: Boolean = false): (Option[Any], List[String]) = {
-    val result = target match {
-      case m: Map[_, _] => (m.asInstanceOf[Map[Any,Any]].get(path.head), path.tail)
-      case c: Config    => (Try { c.getAnyRef(path.mkString(".")) } toOption, Nil)
-      case d: Document if path.head == "title" => (Some(SpanSequence(d.title)), path.tail)  
-      case other        => (Try { target.getClass.getMethod(path.head).invoke(target) } toOption, path.tail)
-    }
-    result match {
-      case (None, _) if root && parent.isDefined => parent.get.resolve(parent.get.root, path, root)
-      case (None, _)            => (None, Nil)
-      case (Some(value), Nil)   => (Some(value), Nil)
-      case (Some(value), path)  => resolve(value, path)
-    }
-  }
-  
-  def resolve (path: List[String]): Option[Any] = resolve(root, path, root = true)._1
+  def resolve (key: String): Config.Result[Option[ConfigValue]] = config.getOpt[ConfigValue](key)
   
 }
 
@@ -55,11 +39,9 @@ object ReferenceResolver {
    *  document and its parent and configuration.
    */
   def forDocument(document: Document, parent: TreeCursor, config: Config): ReferenceResolver =
-    apply(Map[String,Any](
-      "config" -> config,
-      "document" -> document,
-      "parent" -> parent.target,
-      "root" -> parent.root.target
-    ))
+    apply(ConfigBuilder.empty
+      .withFallback(config) // TODO - 0.12 - insert documented refs to config, document, parent, root
+      .build
+    )
   
 }
