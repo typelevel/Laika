@@ -67,7 +67,7 @@ class SectionNumberSpec extends FlatSpec
       )) :: Nil)
     }
     
-    def parseConfig (source: String): Config = ConfigBuilder.parse(source).build.right.get
+    def parseConfig (source: String): Config = ConfigBuilder.parse(source).build
     
     def config: String
     def numberSections: Boolean

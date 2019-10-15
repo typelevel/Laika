@@ -30,14 +30,15 @@ object PDFConfigBuilder {
   def fromTreeConfig (treeConfig: Config): PDF.Config = {
     val defaults = PDF.Config.default
 
-    def getOpt [T](key: String, read: String => T): Option[T] =
-      if (treeConfig.hasPath(key)) Some(read(key)) else None
+    val res = for {
+      bookmarkDepth <- treeConfig.get[Int]("pdf.bookmarks.depth", defaults.bookmarkDepth)
+      tocDepth      <- treeConfig.get[Int]("pdf.toc.depth", defaults.tocDepth)
+      tocTitle      <- treeConfig.getOpt[String]("pdf.toc.title")
+    } yield {
+      PDF.Config(bookmarkDepth, tocDepth, tocTitle.orElse(defaults.tocTitle))
+    }
 
-    val bookmarkDepth = getOpt("pdf.bookmarks.depth", treeConfig.getInt).getOrElse(defaults.bookmarkDepth)
-    val tocDepth = getOpt("pdf.toc.depth", treeConfig.getInt).getOrElse(defaults.tocDepth)
-    val tocTitle = getOpt("pdf.toc.title", treeConfig.getString).orElse(defaults.tocTitle)
-
-    PDF.Config(bookmarkDepth, tocDepth, tocTitle)
+    res.toOption.getOrElse(defaults) // TODO - 0.12 - error handling
   }
   
 }

@@ -101,7 +101,7 @@ class LegacySpanDirectiveAPISpec extends FlatSpec
     ).recursiveSpans ^^ { spans =>
       val seq = SpanSequence(spans)
       TemplateRewriter.rewriteRules(DocumentCursor(
-        Document(Root, RootElement(Seq(seq)), config = ConfigBuilder.parse("ref: value").build.right.get)
+        Document(Root, RootElement(Seq(seq)), config = ConfigBuilder.parse("ref: value").build)
       )).rewriteSpan(seq)
     }
     

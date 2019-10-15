@@ -47,7 +47,7 @@ class LegacyStandardDirectiveSpec extends FlatSpec
   def parseTemplateWithConfig (input: String, config: String): RootElement = {
     val tRoot = parseTemplate(input)
     val template = TemplateDocument(Path.Root, tRoot)
-    val cursor = DocumentCursor(Document(Path.Root, root(), config = ConfigBuilder.parse(config).build.right.get))
+    val cursor = DocumentCursor(Document(Path.Root, root(), config = ConfigBuilder.parse(config).build))
     TemplateRewriter.applyTemplate(cursor, template).content
   }
   
@@ -255,22 +255,22 @@ class LegacyStandardDirectiveSpec extends FlatSpec
 
     def titleDoc (path: Path): Option[Document] =
       if (!hasTitleDocs || path == Root) None
-      else Some(Document(path / "title", sectionsWithoutTitle, config = ConfigBuilder.parse("title: TitleDoc")))
+      else Some(Document(path / "title", sectionsWithoutTitle, config = ConfigBuilder.parse("title: TitleDoc").build))
     
     def docs (path: Path, nums: Int*): Seq[Document] = nums map {
-      n => Document(path / ("doc"+n), sectionsWithoutTitle, config = ConfigBuilder.parse("title: Doc "+n))
+      n => Document(path / ("doc"+n), sectionsWithoutTitle, config = ConfigBuilder.parse("title: Doc "+n).build)
     }
 
     def buildTree (template: TemplateDocument, markup: Document): DocumentTree = {
       DocumentTree(Root, docs(Root, 1,2) ++ List(
-        DocumentTree(Root / "sub1", docs(Root / "sub1",3,4), titleDoc(Root / "sub1"), config = ConfigBuilder.parse("title: Tree 1")),
-        DocumentTree(Root / "sub2", docs(Root / "sub2",5,6) ++ List(markup), titleDoc(Root / "sub1"), config = ConfigBuilder.parse("title: Tree 2"))
+        DocumentTree(Root / "sub1", docs(Root / "sub1",3,4), titleDoc(Root / "sub1"), config = ConfigBuilder.parse("title: Tree 1").build),
+        DocumentTree(Root / "sub2", docs(Root / "sub2",5,6) ++ List(markup), titleDoc(Root / "sub1"), config = ConfigBuilder.parse("title: Tree 2").build)
       ), templates = List(template))
     }
     
     def parseAndRewrite (template: String, markup: String): RootElement = {
       val templateDoc = TemplateDocument(Root / "test.html", parseTemplate(template))
-      val doc = Document(pathUnderTest, parse(markup).content, config = ConfigBuilder.parse("title: Doc 7, template: /test.html"))
+      val doc = Document(pathUnderTest, parse(markup).content, config = ConfigBuilder.parse("title: Doc 7, template: /test.html").build)
       val tree = buildTree(templateDoc, doc).rewrite(OperationConfig.default.rewriteRules)
       TemplateRewriter.applyTemplates(DocumentTreeRoot(tree), "html").tree.selectDocument(Current / "sub2" / "doc7").get.content
     }

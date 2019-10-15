@@ -28,8 +28,6 @@ import laika.ast._
  */
 object NavigationOrder {
   
-  import scala.collection.JavaConverters._
-  
   def applyTo (content: Seq[Cursor], config: Config, parentPosition: TreePosition): Seq[Cursor] = {
 
     def reAssignPosition (cursor: Cursor, position: TreePosition, configF: Config => Config = identity): Cursor = cursor match {

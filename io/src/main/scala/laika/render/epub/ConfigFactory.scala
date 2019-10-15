@@ -18,17 +18,17 @@ object ConfigFactory {
   def forTreeConfig (config: Config): EPUB.Config = {
 
     val defaults = EPUB.Config.default
-
-    def getOpt [T](key: String, read: String => T): Option[T] =
-      if (config.hasPath(key)) Some(read(key)) else None
-
-    val tocDepth = getOpt("epub.toc.depth", config.getInt).getOrElse(defaults.tocDepth)
-    val tocTitle = getOpt("epub.toc.title", config.getString).orElse(defaults.tocTitle)
-    val coverImage = getOpt("epub.coverImage", config.getString).orElse(defaults.coverImage)
-
-    val metadata = DocumentMetadata.fromConfig(config)
-
-    EPUB.Config(metadata, tocDepth, tocTitle, coverImage)
+    
+    val res = for {
+      tocDepth   <- config.get[Int]("epub.toc.depth", defaults.tocDepth)
+      tocTitle   <- config.getOpt[String]("epub.toc.title")
+      coverImage <- config.getOpt[String]("epub.toc.title")
+    } yield {
+      val metadata = DocumentMetadata.fromConfig(config)
+      EPUB.Config(metadata, tocDepth, tocTitle.orElse(defaults.tocTitle), coverImage.orElse(defaults.coverImage))
+    }
+    
+    res.toOption.getOrElse(defaults) // TODO - 0.12 - error handling
   }
 
 }

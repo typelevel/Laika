@@ -127,7 +127,7 @@ class BlockDirectiveAPISpec extends FlatSpec
       markupExtensions = directiveSupport.markupExtensions
     ).rootElement ^^ { root =>
       TemplateRewriter.rewriteRules(DocumentCursor(
-        Document(Root, root, config = ConfigBuilder.parse("ref: value").build.right.get)
+        Document(Root, root, config = ConfigBuilder.parse("ref: value").build)
       )).rewriteBlock(root).asInstanceOf[RootElement]
     }
 

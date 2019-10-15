@@ -222,6 +222,11 @@ object ConfigResolver {
             key = path / name, 
             value = expandPaths(ObjectBuilderValue(Seq(BuilderField(Path(rest), field.value))), path / name)
           )
+        case Nil =>
+          field.copy(
+            key = Path.Root,
+            value = expandValue(field.value, Path.Root) // TODO - 0.12 - should never get here
+          )
       }
     }
     //println(s"expanded keys: ${expandedFields.map(_.key.toString).mkString(" ")}")
