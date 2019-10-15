@@ -16,6 +16,7 @@
 
 package laika.parse.hocon
 
+import laika.api.config.Config
 import laika.ast.{Path, ~}
 import laika.parse.text.Characters
 import laika.parse.{Parser, ParserContext}
@@ -67,7 +68,9 @@ object HoconParsers {
   case class LongValue(value: Long) extends ConfigValue
   case class StringValue(value: String) extends ConfigValue
   case class ArrayValue(values: Seq[ConfigValue]) extends ConfigValue
-  case class ObjectValue(values: Seq[Field]) extends ConfigValue
+  case class ObjectValue(values: Seq[Field]) extends ConfigValue {
+    def toConfig: Config = ???
+  }
   case class Field(key: String, value: ConfigValue)
   case class PathFragments(fragments: Seq[String]) {
     def join(other: PathFragments): PathFragments = {

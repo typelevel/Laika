@@ -16,7 +16,8 @@
 
 package laika.rewrite.nav
 
-import laika.api.config.Config
+import laika.api.config.{Config, ConfigDecoder, DefaultKey, InvalidType, ValidationError}
+import laika.parse.hocon.HoconParsers.ObjectValue
 
 /** Configuration for autonumbering of documents and sections.
  */
@@ -24,43 +25,62 @@ case class AutonumberConfig (documents: Boolean, sections: Boolean, maxDepth: In
 
 case class ConfigurationException (msg: String) extends RuntimeException(msg)
 
+sealed trait Scope
+
+object Scope {
+  case object Documents extends Scope
+  case object Sections extends Scope
+  case object All extends Scope
+  case object None extends Scope
+  implicit val decoder: ConfigDecoder[Scope] = ConfigDecoder.forString.flatMap {
+    case "documents" => Right(Documents)
+    case "sections"  => Right(Sections)
+    case "all"       => Right(All)
+    case "none"      => Right(None)
+    case other       => Left(ValidationError(s"Invalid value for autonumbering.scope: $other"))
+  }
+}
+
 object AutonumberConfig {
+
+  implicit val decoder: ConfigDecoder[AutonumberConfig] = {
+    case ov: ObjectValue => 
+      val config = ov.toConfig
+      for {
+        scope <- config.get[Scope]("scope", Scope.None)
+        depth <- config.get[Int]("depth", Int.MaxValue)
+      } yield {
+        val (documents, sections) = scope match {
+          case Scope.Documents => (true,  false)
+          case Scope.Sections  => (false, true)
+          case Scope.All       => (true,  true)
+          case Scope.None      => (false, false)
+        }
+        AutonumberConfig(documents, sections, depth)
+      }
+
+    case other => Left(InvalidType("Object", "" /* other.getClass.getSimpleName */)) // TODO - 0.12 - type descriptors
+  }
+  implicit val defaultKey: DefaultKey[AutonumberConfig] = DefaultKey("autonumbering")
 
   /** Disables section numbering for the specified config instance.
     * Retains the existing value for auto-numbering of documents.
     */
   def withoutSectionNumbering (config: Config): Config = {
-    if (config.hasPath("autonumbering.scope")) {
-      config.getString("autonumbering.scope") match {
-        case "documents" => config
-        case "sections"  => config.withValue("autonumbering.scope", "none")
-        case "all"       => config.withValue("autonumbering.scope", "documents")
-        case "none"      => config
-        case other       => throw ConfigurationException("Unsupported value for key 'autonumbering.scope': " + other)
-      }
+    val key = "autonumbering.scope"
+    config.get[Scope](key).toOption.fold(config) {
+      case Scope.Documents => config
+      case Scope.Sections  => config.withValue(key, "none").build
+      case Scope.All       => config.withValue(key, "documents").build
+      case Scope.None      => config
     }
-    else config
   }
 
   /** Tries to obtain the autonumbering configuration
    *  from the specified configuration instance or returns
    *  the default configuration if not found.
    */
-  def fromConfig (config: Config): AutonumberConfig = {
-    if (config.hasPath("autonumbering")) {
-      val nConf = config.getObject("autonumbering").toConfig
-      val (documents, sections) = if (nConf.hasPath("scope")) nConf.getString("scope") match {
-        case "documents" => (true,  false)
-        case "sections"  => (false, true)
-        case "all"       => (true,  true)
-        case "none"      => (false, false)
-        case other       => throw ConfigurationException("Unsupported value for key 'autonumbering.scope': " + other)
-      } else                (false, false)
-      val depth = if (nConf.hasPath("depth")) nConf.getInt("depth") else Int.MaxValue 
-      AutonumberConfig(documents, sections, depth)
-    }
-    else defaults
-  }
+  def fromConfig (config: Config): AutonumberConfig = config.get[AutonumberConfig].toOption.getOrElse(defaults)
   
   /** The defaults for autonumbering with section
    *  and document numbering both switched off. 

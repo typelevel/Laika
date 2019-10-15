@@ -16,8 +16,7 @@
 
 package laika.api.config
 
-import laika.ast.ConfigValue
-import laika.parse.hocon.HoconParsers.Field
+import laika.parse.hocon.HoconParsers.{ConfigValue, Field}
 
 /**
   * @author Jens Halm
@@ -43,13 +42,23 @@ object ConfigBuilder {
 }
 
 trait ConfigEncoder[T]
-trait ConfigDecoder[T]
+trait ConfigDecoder[T] {
+  def decode(value: ConfigValue): Either[ConfigError, T]
+  def flatMap[U](f: T => Either[ConfigError, U]): ConfigDecoder[U] = ???
+}
 trait DefaultKey[T] {
   def value: String
 }
 
+object DefaultKey {
+  def apply[T](key: String): DefaultKey[T] = new DefaultKey[T] { val value: String = key }
+}
+
 trait ConfigError
 trait ConfigBuilderError
+
+case class InvalidType(expected: String, actual: String) extends ConfigError
+case class ValidationError(message: String) extends ConfigError
 
 object ConfigEncoder {
   implicit val forString: ConfigEncoder[String] = ???
@@ -59,6 +68,7 @@ object ConfigEncoder {
 }
 
 object ConfigDecoder {
+  //def apply[T](f: ConfigValue => Either[ConfigError, T]): ConfigDecoder[T] = value => f(value)
   implicit val forString: ConfigDecoder[String] = ???
   implicit val forInt: ConfigDecoder[Int] = ???
   implicit val forConfigValue: ConfigDecoder[ConfigValue] = ???

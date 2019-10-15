@@ -32,6 +32,12 @@ class Config (root: ObjectValue) {
   def get[T](implicit decoder: ConfigDecoder[T], defaultKey: DefaultKey[T]): Either[ConfigError, T] = ???
   
   def withFallback(other: Config): Config = ??? // TODO - should only exist on ConfigBuilder
+
+  def withValue[T](key: String, value: T)(implicit encoder: ConfigEncoder[T]) : ConfigBuilder = 
+    ConfigBuilder.empty.withValue(key, value).withFallback(this)
+
+  def withValue[T](value: T)(implicit encoder: ConfigEncoder[T], defaultKey: DefaultKey[T]): ConfigBuilder =
+    ConfigBuilder.empty.withValue(value).withFallback(this)
   
 }
 
