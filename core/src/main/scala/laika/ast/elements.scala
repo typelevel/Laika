@@ -293,7 +293,7 @@ case class TargetFormat (format: String, element: Element, options: Options = No
  *  to the configuration of the document.
  *  During rendering these embedded configuration values will be discarded.
  */
-case class EmbeddedConfigValue (name: String, value: ConfigValue, options: Options = NoOpt) extends Block with Span with Temporary {
+case class EmbeddedConfigValue (key: String, value: ConfigValue, options: Options = NoOpt) extends Block with Span with Temporary {
   type Self = EmbeddedConfigValue
   def withOptions (options: Options): EmbeddedConfigValue = copy(options = options)
 }

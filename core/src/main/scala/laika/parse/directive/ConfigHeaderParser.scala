@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,9 @@ package laika.parse.directive
 import laika.api.config.{Config, ConfigBuilder}
 import laika.ast.{InvalidElement, Path}
 import laika.bundle.ConfigProvider
-import laika.collection.TransitionalCollectionOps._
 import laika.parse.Parser
 import laika.parse.combinator.Parsers
+import laika.parse.hocon.HoconParsers.ConfigValue
 import laika.parse.text.TextParsers._
 
 /** Provides parser implementation for configuration header sections
@@ -74,15 +74,10 @@ object ConfigHeaderParser {
 
   val fallback: Path => Parser[Either[InvalidElement, Config]] = { _ => Parsers.success(Right(Config.empty)) }
 
-  def merge (config: Config, values: Map[String, AnyRef]): Config = {
-    import scala.collection.JavaConverters._
-    val javaValues = values.mapValuesStrict {
-      case m: Map[_,_]      => m.asJava
-      case it: Iterable[_]  => it.asJava
-      case other            => other
-    }
-    config.withFallback(ConfigFactoryX.parseMap(javaValues.asJava))
-  }
+  def merge (config: Config, values: Seq[(String, ConfigValue)]): Config =
+    values.foldLeft(ConfigBuilder.empty.withFallback(config)) { case (builder, (key, value)) =>
+      builder.withValue(key, value)
+    }.build
 
 
 }

@@ -16,13 +16,14 @@
 
 package laika.parse.markup
 
-import laika.api.config.{Config, ConfigBuilder}
+import laika.api.config.{Config}
 import laika.ast._
 import laika.bundle.MarkupExtensions
 import laika.factory.MarkupFormat
 import laika.parse.combinator.Parsers
-import laika.parse.{Failure, Parser, ParserContext, Success}
+import laika.parse.{Parser, ParserContext}
 import laika.parse.directive.ConfigHeaderParser
+import laika.parse.hocon.HoconParsers.ConfigValue
 
 /** Responsible for creating the top level parsers for text markup and template documents,
   * by combining the parser for the root element with a parser for an (optional) configuration
@@ -42,8 +43,9 @@ object DocumentParser {
   private def create [D, R <: ElementContainer[_]] (rootParser: Parser[R], configHeaderParser: ConfigHeaderParser)
     (docFactory: (Path, Config, Option[InvalidElement], R) => D): ParserInput => Either[ParserError, D] = {
 
-    def extractConfigValues (root: R): Map[String,AnyRef] =
-      root.collect { case c: EmbeddedConfigValue => (c.name, c.value) }.toMap
+    def extractConfigValues (root: R): Seq[(String, ConfigValue)] = root.collect { 
+      case c: EmbeddedConfigValue => (c.key, c.value) 
+    }
 
     forParser { path =>
       configHeaderParser(path) ~ rootParser ^^ { case configHeader ~ root =>
