@@ -17,7 +17,7 @@
 package laika.rewrite.nav
 
 import laika.api.config.{Config, ConfigDecoder, DefaultKey, InvalidType, ValidationError}
-import laika.parse.hocon.HoconParsers.ObjectValue
+import laika.parse.hocon.HoconParsers.{ObjectValue, TracedValue}
 
 /** Configuration for autonumbering of documents and sections.
  */
@@ -44,7 +44,7 @@ object Scope {
 object AutonumberConfig {
 
   implicit val decoder: ConfigDecoder[AutonumberConfig] = {
-    case ov: ObjectValue => 
+    case TracedValue(ov: ObjectValue, _) => 
       val config = ov.toConfig
       for {
         scope <- config.get[Scope]("scope", Scope.None)

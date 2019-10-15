@@ -22,7 +22,7 @@ import java.util.Locale
 import laika.api.config.{Config, ConfigBuilder, ConfigDecoder, ConfigError, DefaultKey, InvalidType, ValidationError}
 import laika.ast.Path.Root
 import laika.collection.TransitionalCollectionOps._
-import laika.parse.hocon.HoconParsers.ObjectValue
+import laika.parse.hocon.HoconParsers.{ObjectValue, TracedValue}
 import laika.rewrite.TemplateRewriter
 import laika.rewrite.link.LinkTargetProvider
 import laika.rewrite.link.LinkTargets._
@@ -120,7 +120,7 @@ object DocumentMetadata {
     in.flatMap(_.fold[Config.Result[Option[Instant]]](Right(None))(f(_).map(Some(_))))
   
   implicit val decoder: ConfigDecoder[DocumentMetadata] = {
-    case ov: ObjectValue =>
+    case TracedValue(ov: ObjectValue, _) =>
       val config = ov.toConfig
       for {
         identifier <- config.getOpt[String]("identifier")

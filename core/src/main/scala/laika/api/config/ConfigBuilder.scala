@@ -17,12 +17,12 @@
 package laika.api.config
 
 import laika.ast.Path
-import laika.parse.hocon.HoconParsers.{ConfigValue, Field, TracedValue}
+import laika.parse.hocon.HoconParsers.{ConfigValue, Field, Origin, TracedValue}
 
 /**
   * @author Jens Halm
   */
-class ConfigBuilder (values: Seq[Field]) {
+class ConfigBuilder (values: Seq[Field], origin: Origin) {
 
   def withValue[T](key: String, value: T)(implicit encoder: ConfigEncoder[T]) : ConfigBuilder = ???
   
@@ -32,11 +32,13 @@ class ConfigBuilder (values: Seq[Field]) {
 
   def withFallback(other: Config): ConfigBuilder = ???
   
+  def withOrigin(path: Path): ConfigBuilder = new ConfigBuilder(values, Origin(path))
+  
 }
 
 object ConfigBuilder {
 
-  val empty: ConfigBuilder = new ConfigBuilder(Nil)
+  val empty: ConfigBuilder = new ConfigBuilder(Nil, Origin.root)
 
   def parse(input: String): ConfigBuilder = ??? // TODO - 0.12 - move to ConfigParser
   

@@ -29,16 +29,13 @@ import laika.parse.text.TextParsers._
   */
 object ConfigProvider {
 
-  /** Creates a Typesafe Config instance based on the specified input string
+  /** Creates a Config instance based on the specified input string
     * which is expected to be in HOCON format.
     *
-    * Use this factory method instead of the ones in the Typesafe library, as this
-    * method adds an origin description for the virtual path (the library mostly deals with
-    * files in that respect). The origin description helps resolving relative paths within
-    * this configuration instance.
+    * This method adds a origin description to the Config instance which helps 
+    * resolving relative paths within this configuration instance.
     */
-  def fromInput (input: String, path: Path): Config = ???
-    // ConfigBuilder.parse(input, ConfigParseOptionsX.defaults().setOriginDescription("path:" + path))
+  def fromInput (input: String, path: Path): Config = ConfigBuilder.parse(input).withOrigin(path).build
 
   // temporary API
   def fromInput (input: ParserInput): Either[ParserError, Config] = Right(fromInput(input.context.input, input.path))
