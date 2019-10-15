@@ -37,41 +37,10 @@ object ConfigProvider {
     * files in that respect). The origin description helps resolving relative paths within
     * this configuration instance.
     */
-  def fromInput (input: String, path: Path): Config =
-    ConfigBuilder.parse(input, ConfigParseOptionsX.defaults().setOriginDescription("path:" + path))
+  def fromInput (input: String, path: Path): Config = ???
+    // ConfigBuilder.parse(input, ConfigParseOptionsX.defaults().setOriginDescription("path:" + path))
 
   // temporary API
   def fromInput (input: ParserInput): Either[ParserError, Config] = Right(fromInput(input.context.input, input.path))
-
-}
-
-/** Extension methods for Typesafe Config instances.
-  */
-object ConfigImplicits {
-
-  private val laikaPath = "path:" ~> anyBut(':') <~ opt(':' ~ anyIn('0' to '9').min(1)) ^^ (Path(_).parent)
-
-  /** Extension methods for Typesafe Config instances.
-    */
-  implicit class ConfigOps (val config: Config) extends AnyVal {
-
-    /** Looks up the specified key and if found, resolves
-      * it as a path relative to the path of the configuration.
-      *
-      * Any path reference users declare in configuration files
-      * or in configuration headers in text markup files can
-      * be interpreted as relative paths.
-      */
-    def getRelativePath (key: String): Option[Path] = {
-      if (config.hasPath(key)) {
-        val value = config.getValue(key)
-        val desc = value.origin.description
-        val basePath = laikaPath.parse(desc).getOrElse(Path.Root)
-        Some((basePath / Path(value.unwrapped().toString)).relativeTo(Path.Root))
-      }
-      else None
-    }
-
-  }
 
 }

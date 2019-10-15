@@ -62,6 +62,9 @@ object HoconParsers {
   
   sealed trait ConfigValue
   
+  case class TracedValue[T](value: T, origins: Set[Origin])
+  case class Origin(path: Path, sourcePaths: Seq[String])
+  
   case object NullValue extends ConfigValue
   case class BooleanValue(value: Boolean) extends ConfigValue
   case class DoubleValue(value: Double) extends ConfigValue

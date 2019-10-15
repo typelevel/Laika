@@ -16,7 +16,8 @@
 
 package laika.api.config
 
-import laika.parse.hocon.HoconParsers.{ConfigValue, Field}
+import laika.ast.Path
+import laika.parse.hocon.HoconParsers.{ConfigValue, Field, TracedValue}
 
 /**
   * @author Jens Halm
@@ -43,8 +44,9 @@ object ConfigBuilder {
 
 trait ConfigEncoder[-T]
 trait ConfigDecoder[T] {
-  def decode(value: ConfigValue): Either[ConfigError, T]
+  def decode(value: TracedValue[ConfigValue]): Either[ConfigError, T]
   def flatMap[U](f: T => Either[ConfigError, U]): ConfigDecoder[U] = ???
+  def map[U](f: T => U): ConfigDecoder[U] = ???
 }
 trait DefaultKey[T] {
   def value: String
@@ -61,16 +63,23 @@ case class InvalidType(expected: String, actual: String) extends ConfigError
 case class ValidationError(message: String) extends ConfigError
 
 object ConfigEncoder {
-  implicit val forString: ConfigEncoder[String] = ???
-  implicit val forInt: ConfigEncoder[Int] = ???
-  implicit val forConfigValue: ConfigEncoder[ConfigValue] = ???
+  implicit lazy val forString: ConfigEncoder[String] = ???
+  implicit lazy val forInt: ConfigEncoder[Int] = ???
+  implicit lazy val forConfigValue: ConfigEncoder[ConfigValue] = ???
   implicit def forSeq[T](implicit elementEncoder: ConfigEncoder[T]): ConfigEncoder[Seq[T]] = ???
 }
 
 object ConfigDecoder {
   //def apply[T](f: ConfigValue => Either[ConfigError, T]): ConfigDecoder[T] = value => f(value)
-  implicit val forString: ConfigDecoder[String] = ???
-  implicit val forInt: ConfigDecoder[Int] = ???
-  implicit val forConfigValue: ConfigDecoder[ConfigValue] = ???
+  implicit lazy val forString: ConfigDecoder[String] = ???
+  implicit lazy val forInt: ConfigDecoder[Int] = ???
+  implicit lazy val forConfigValue: ConfigDecoder[ConfigValue] = ???
+  implicit def tracedValue[T](implicit valueDecoder: ConfigDecoder[T]): ConfigDecoder[TracedValue[T]] = ???
+
+  implicit lazy val forPath: ConfigDecoder[Path] = tracedValue[String].map { tracedValue =>
+    val basePath = tracedValue.origins.headOption.fold[Path](Path.Root)(_.path)
+    (basePath / Path(tracedValue.value)).relativeTo(Path.Root)
+  }
+  
   implicit def forSeq[T](implicit elementDecoder: ConfigDecoder[T]): ConfigDecoder[Seq[T]] = ???
 }
