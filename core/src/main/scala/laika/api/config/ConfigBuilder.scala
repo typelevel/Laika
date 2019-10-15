@@ -41,7 +41,7 @@ object ConfigBuilder {
   
 }
 
-trait ConfigEncoder[T]
+trait ConfigEncoder[-T]
 trait ConfigDecoder[T] {
   def decode(value: ConfigValue): Either[ConfigError, T]
   def flatMap[U](f: T => Either[ConfigError, U]): ConfigDecoder[U] = ???

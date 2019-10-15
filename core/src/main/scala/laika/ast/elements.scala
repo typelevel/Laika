@@ -19,7 +19,9 @@ package laika.ast
 import java.text.DecimalFormat
 
 import laika.api.Renderer
+import laika.api.config.ConfigEncoder
 import laika.format.AST
+import laika.parse.hocon.HoconParsers.ConfigValue
 
 import scala.math.Ordered
 
@@ -287,12 +289,16 @@ case class TargetFormat (format: String, element: Element, options: Options = No
 }
 
 /** A single configuration value to be merged with the top document config.
- *  The value can be any type allowed by the Typesafe Config library (i.e. Boolean,
- *  Number, String, Map, Iterable).
+ *  This is particularly useful for directive implementations that need to contribute
+ *  to the configuration of the document.
+ *  During rendering these embedded configuration values will be discarded.
  */
-case class ConfigValue (name: String, value: AnyRef, options: Options = NoOpt) extends Block with Span with Temporary {
-  type Self = ConfigValue
-  def withOptions (options: Options): ConfigValue = copy(options = options)
+case class EmbeddedConfigValue (name: String, value: ConfigValue, options: Options = NoOpt) extends Block with Span with Temporary {
+  type Self = EmbeddedConfigValue
+  def withOptions (options: Options): EmbeddedConfigValue = copy(options = options)
+}
+object EmbeddedConfigValue {
+  def apply[T](name: String, value: T)(implicit encoder: ConfigEncoder[T]):  EmbeddedConfigValue = ???
 }
 
 /** A section of the document, consisting of a header and content in the form

@@ -22,7 +22,7 @@ import laika.ast.Path.{Current, Root}
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.ReStructuredText
-import laika.parse.hocon.HoconParsers.{Field, ObjectValue, StringValue}
+import laika.parse.hocon.HoconParsers.{ConfigValue, Field, ObjectValue, StringValue}
 import laika.rewrite.TemplateRewriter
 import laika.rst.ast.{Contents, Include}
 import org.scalatest.{FlatSpec, Matchers}

@@ -17,6 +17,7 @@
 package laika.rst.std
 
 import laika.ast._
+import laika.parse.hocon.HoconParsers.{Field, ObjectValue, StringValue}
 import laika.parse.markup.RecursiveParsers
 import laika.rst.ast.{Contents, FieldList, Include}
 import laika.rst.ext.Directives.Parts._
@@ -155,7 +156,7 @@ class StandardBlockDirectives {
   /** The title directive, 
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#metadata-document-title]] for details.
    */
-  lazy val titleDirective = argument() map (ConfigValue("title", _))
+  lazy val titleDirective = argument() map (EmbeddedConfigValue("title", _))
   
   /** The meta directive, 
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#meta]] for details.
@@ -166,8 +167,11 @@ class StandardBlockDirectives {
    */
   lazy val meta: DirectivePartBuilder[Block] = blockContent map {
     case FieldList(fields,_) :: Nil => 
-      ConfigValue("meta", fields map (field => (SpanSequence(field.name).extractText,
-          field.content collect { case p: Paragraph => p.extractText } mkString)) toMap)
+      val values = fields map { field => Field(
+        SpanSequence(field.name).extractText,
+        StringValue(field.content collect { case p: Paragraph => p.extractText } mkString)
+      )}
+      EmbeddedConfigValue("meta", ObjectValue(values))
     case other => InvalidBlock(SystemMessage(MessageLevel.Error,
         "The meta directive expects a FieldList as its only block content"), BlockSequence(other))
   }
@@ -186,8 +190,10 @@ class StandardBlockDirectives {
   
   lazy val sectnum: DirectivePartBuilder[Block] = (tuple("depth") ~ tuple("start") ~ tuple("prefix") ~ tuple("suffix")).map {
     case depth ~ start ~ prefix ~ suffix => 
-      val options = depth.toList ::: start.toList ::: prefix.toList ::: suffix.toList
-      ConfigValue("autonumbering", options.toMap)
+      val fields = (depth.toList ++ start.toList ++ prefix.toList ++ suffix.toList).map { case (name, value) => 
+        Field(name, StringValue(value))
+      }
+      EmbeddedConfigValue("autonumbering", ObjectValue(fields))
   }
   
   lazy val contents: DirectivePartBuilder[Block] = (optArgument(withWS = true) ~ optField("depth", positiveInt) ~ optField("local") ~ optField("class")).map {

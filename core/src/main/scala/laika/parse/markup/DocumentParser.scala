@@ -43,7 +43,7 @@ object DocumentParser {
     (docFactory: (Path, Config, Option[InvalidElement], R) => D): ParserInput => Either[ParserError, D] = {
 
     def extractConfigValues (root: R): Map[String,AnyRef] =
-      root.collect { case c: ConfigValue => (c.name, c.value) }.toMap
+      root.collect { case c: EmbeddedConfigValue => (c.name, c.value) }.toMap
 
     forParser { path =>
       configHeaderParser(path) ~ rootParser ^^ { case configHeader ~ root =>
