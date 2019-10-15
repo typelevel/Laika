@@ -25,8 +25,7 @@ import laika.parse.hocon.HoconParsers.ConfigValue
 import laika.parse.text.TextParsers._
 
 /** Provides parser implementation for configuration header sections
-  * in text markup files, which are expected to be in HOCON format
-  * as defined in the Typesafe Config library.
+  * in text markup files, which are expected to be in HOCON format.
   *
   * @author Jens Halm
   */

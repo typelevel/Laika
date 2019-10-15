@@ -21,17 +21,7 @@ import laika.ast.DocumentType._
 import laika.rst.ast.CustomizedTextRole
 
 /* Provides a view of DocumentTree structures that allows for 
- * formatted AST rendering (for debugging purposes) and case
- * class based equality for test assertions, whereas the corresponding
- * original model classes do not come with any useful notion of equality.
- * This is because they have content like a Typesafe Config instance or
- * rewrite rules (partial functions) for which there is no straightforward
- * equality and which only have an effect in a rewrite operation.
- * These views reduce the model to the components which can easily get
- * compared. Therefore it is recommended to use them with models which
- * already have been rewritten (where the left out components of the
- * structure do not matter any more) or where any possible future effects
- * of rewriting can be safely ignored for testing purposes.
+ * formatted AST rendering (for debugging purposes).
  */
 object DocumentViewBuilder {
 

@@ -399,8 +399,7 @@ sealed abstract class TextDocumentType extends DocumentType
   */
 object DocumentType {
 
-  /** A configuration document in the syntax
-    *  supported by the Typesafe Config library.
+  /** A configuration document in HOCON format.
     */
   case object Config extends TextDocumentType
 
