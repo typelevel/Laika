@@ -39,6 +39,8 @@ class Config (root: ObjectValue) {
   def withValue[T](value: T)(implicit encoder: ConfigEncoder[T], defaultKey: DefaultKey[T]): ConfigBuilder =
     ConfigBuilder.empty.withValue(value).withFallback(this)
   
+  def resolve: Config = ???
+  
 }
 
 object Config {
