@@ -16,6 +16,7 @@
 
 package laika.rst.bundle
 
+import laika.api.config.ConfigBuilder
 import laika.ast._
 import laika.rst.ast.FieldList
 
@@ -48,7 +49,10 @@ object DocInfoExtractor extends (Document => Document) {
     }
 
     val mergedConfig = docInfoMap.fold(doc.config){ info =>
-      doc.config.withValue("docInfo", info)
+      info.foldLeft(ConfigBuilder.empty.withFallback(doc.config)) { case (builder, (key, value)) =>
+        builder.withValue(s"docInfo.$key", value)
+      }.build
+      
     }
 
     doc.copy(config = mergedConfig)
