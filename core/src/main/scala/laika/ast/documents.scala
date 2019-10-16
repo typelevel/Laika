@@ -22,6 +22,7 @@ import java.util.Locale
 import laika.api.config.{Config, ConfigBuilder, ConfigDecoder, ConfigError, DefaultKey, InvalidType, ValidationError}
 import laika.ast.Path.Root
 import laika.collection.TransitionalCollectionOps._
+import laika.parse.hocon.HoconParsers
 import laika.parse.hocon.HoconParsers.{ObjectValue, TracedValue}
 import laika.rewrite.TemplateRewriter
 import laika.rewrite.link.LinkTargetProvider
@@ -114,7 +115,9 @@ case class DocumentMetadata (identifier: Option[String] = None, authors: Seq[Str
 
 object DocumentMetadata {
   
-  implicit lazy val forLocale: ConfigDecoder[Locale] = ??? // Try(Locale.forLanguageTag(nConf.getString("language")))
+  implicit val localeDecoder: ConfigDecoder[Locale] = ConfigDecoder.string.flatMap { lang => 
+    Try(Locale.forLanguageTag(lang)).toEither.left.map(e => ValidationError(e.getMessage)) 
+  }
 
   def toInstant[C] (in: Config.Result[Option[String]])(f: String => Config.Result[Instant]): Config.Result[Option[Instant]] = 
     in.flatMap(_.fold[Config.Result[Option[Instant]]](Right(None))(f(_).map(Some(_))))
