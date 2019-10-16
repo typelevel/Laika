@@ -75,6 +75,7 @@ trait ConfigBuilderError
 
 case class InvalidType(expected: String, actual: String) extends ConfigError
 case class ValidationError(message: String) extends ConfigError
+case class NotFound(path: Path) extends ConfigError
 
 object ConfigEncoder {
   implicit lazy val string: ConfigEncoder[String] = new ConfigEncoder[String] {
