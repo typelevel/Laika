@@ -114,7 +114,7 @@ case class DocumentMetadata (identifier: Option[String] = None, authors: Seq[Str
 
 object DocumentMetadata {
   
-  implicit val forLocale: ConfigDecoder[Locale] = ??? // Try(Locale.forLanguageTag(nConf.getString("language")))
+  implicit lazy val forLocale: ConfigDecoder[Locale] = ??? // Try(Locale.forLanguageTag(nConf.getString("language")))
 
   def toInstant[C] (in: Config.Result[Option[String]])(f: String => Config.Result[Instant]): Config.Result[Option[Instant]] = 
     in.flatMap(_.fold[Config.Result[Option[Instant]]](Right(None))(f(_).map(Some(_))))

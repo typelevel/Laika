@@ -17,22 +17,25 @@
 package laika.api.config
 
 import laika.ast.Path
-import laika.parse.hocon.HoconParsers.{ConfigValue, Field, Origin, TracedValue}
+import laika.parse.hocon.HoconParsers.{ConfigValue, Field, LongValue, ObjectValue, Origin, StringValue, TracedValue}
 
 /**
   * @author Jens Halm
   */
-class ConfigBuilder (values: Seq[Field], origin: Origin) {
+class ConfigBuilder (fields: Seq[Field], origin: Origin, fallbacks: Seq[Config] = Nil) {
 
-  def withValue[T](key: String, value: T)(implicit encoder: ConfigEncoder[T]) : ConfigBuilder = ???
+  def withValue[T](key: String, value: T)(implicit encoder: ConfigEncoder[T]) : ConfigBuilder =
+    new ConfigBuilder(fields :+ Field(key, encoder(value)), origin, fallbacks) // TODO - path expansion
   
-  def withValue[T](value: T)(implicit encoder: ConfigEncoder[T], defaultKey: DefaultKey[T]): ConfigBuilder = ???
+  def withValue[T](value: T)(implicit encoder: ConfigEncoder[T], defaultKey: DefaultKey[T]): ConfigBuilder =
+    new ConfigBuilder(fields :+ Field(defaultKey.value, encoder(value)), origin, fallbacks) // TODO - path expansion
   
-  def build: Config = ???
+  def build: Config = new Config(ObjectValue(fields))
 
-  def withFallback(other: Config): ConfigBuilder = ???
+  def withFallback(other: Config): ConfigBuilder = new ConfigBuilder(fields, origin, fallbacks :+ other)
   
-  def withOrigin(path: Path): ConfigBuilder = new ConfigBuilder(values, Origin(path))
+  // TODO - move to companion
+  def withOrigin(path: Path): ConfigBuilder = new ConfigBuilder(fields, Origin(path))
   
 }
 
@@ -44,11 +47,20 @@ object ConfigBuilder {
   
 }
 
-trait ConfigEncoder[-T]
-trait ConfigDecoder[T] {
-  def decode(value: TracedValue[ConfigValue]): Either[ConfigError, T]
-  def flatMap[U](f: T => Either[ConfigError, U]): ConfigDecoder[U] = ???
-  def map[U](f: T => U): ConfigDecoder[U] = ???
+trait ConfigEncoder[-T] {
+  def apply(value: T): ConfigValue
+}
+trait ConfigDecoder[T] { self =>
+  
+  def apply (value: TracedValue[ConfigValue]): Either[ConfigError, T]
+  
+  def flatMap[U](f: T => Either[ConfigError, U]): ConfigDecoder[U] = new ConfigDecoder[U] {
+    def apply (value: TracedValue[ConfigValue]) = self.apply(value).flatMap(f)
+  }
+  
+  def map[U](f: T => U): ConfigDecoder[U] = new ConfigDecoder[U] {
+    def apply (value: TracedValue[ConfigValue]) = self.apply(value).map(f)
+  }
 }
 trait DefaultKey[T] {
   def value: String
@@ -65,23 +77,42 @@ case class InvalidType(expected: String, actual: String) extends ConfigError
 case class ValidationError(message: String) extends ConfigError
 
 object ConfigEncoder {
-  implicit lazy val forString: ConfigEncoder[String] = ???
-  implicit lazy val forInt: ConfigEncoder[Int] = ???
-  implicit lazy val forConfigValue: ConfigEncoder[ConfigValue] = ???
-  implicit def forSeq[T](implicit elementEncoder: ConfigEncoder[T]): ConfigEncoder[Seq[T]] = ???
+  implicit lazy val string: ConfigEncoder[String] = new ConfigEncoder[String] {
+    def apply (value: String) = StringValue(value)
+  }
+  implicit lazy val int: ConfigEncoder[Int] = new ConfigEncoder[Int] {
+    def apply (value: Int) = LongValue(value.toLong)
+  }
+  implicit lazy val configValue: ConfigEncoder[ConfigValue] = new ConfigEncoder[ConfigValue] {
+    def apply (value: ConfigValue) = value
+  }
+
+  implicit def seq[T] (implicit elementEncoder: ConfigEncoder[T]): ConfigEncoder[Seq[T]] = ???
 }
 
 object ConfigDecoder {
   //def apply[T](f: ConfigValue => Either[ConfigError, T]): ConfigDecoder[T] = value => f(value)
-  implicit lazy val forString: ConfigDecoder[String] = ???
-  implicit lazy val forInt: ConfigDecoder[Int] = ???
-  implicit lazy val forConfigValue: ConfigDecoder[ConfigValue] = ???
+  implicit lazy val string: ConfigDecoder[String] = new ConfigDecoder[String] {
+    def apply (value: TracedValue[ConfigValue]) = value.value match {
+      case StringValue(s) => Right(s) // TODO - convert other types
+      case _ => Left(InvalidType("String", ""))
+    }
+  }
+  implicit lazy val int: ConfigDecoder[Int] = new ConfigDecoder[Int] {
+    def apply (value: TracedValue[ConfigValue]) = value.value match {
+      case LongValue(n) => Right(n.toInt) // TODO - convert other types, check bounds
+      case _ => Left(InvalidType("Number", ""))
+    }
+  }
+  implicit lazy val configValue: ConfigDecoder[ConfigValue] = new ConfigDecoder[ConfigValue] {
+    def apply (value: TracedValue[ConfigValue]) = Right(value.value)
+  }
   implicit def tracedValue[T](implicit valueDecoder: ConfigDecoder[T]): ConfigDecoder[TracedValue[T]] = ???
 
-  implicit lazy val forPath: ConfigDecoder[Path] = tracedValue[String].map { tracedValue =>
+  implicit lazy val path: ConfigDecoder[Path] = tracedValue[String].map { tracedValue =>
     val basePath = tracedValue.origins.headOption.fold[Path](Path.Root)(_.path)
     (basePath / Path(tracedValue.value)).relativeTo(Path.Root)
   }
   
-  implicit def forSeq[T](implicit elementDecoder: ConfigDecoder[T]): ConfigDecoder[Seq[T]] = ???
+  implicit def seq[T] (implicit elementDecoder: ConfigDecoder[T]): ConfigDecoder[Seq[T]] = ???
 }

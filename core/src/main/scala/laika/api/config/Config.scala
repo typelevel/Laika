@@ -21,7 +21,7 @@ import laika.parse.hocon.HoconParsers.ObjectValue
 /**
   * @author Jens Halm
   */
-class Config (root: ObjectValue) {
+class Config (root: ObjectValue, fallbacks: Seq[Config] = Nil) {
 
   def get[T](key: String)(implicit decoder: ConfigDecoder[T]): Either[ConfigError, T] = ???
   
@@ -31,15 +31,15 @@ class Config (root: ObjectValue) {
   
   def get[T](implicit decoder: ConfigDecoder[T], defaultKey: DefaultKey[T]): Either[ConfigError, T] = ???
   
-  def withFallback(other: Config): Config = ??? // TODO - should only exist on ConfigBuilder
-
   def withValue[T](key: String, value: T)(implicit encoder: ConfigEncoder[T]) : ConfigBuilder = 
     ConfigBuilder.empty.withValue(key, value).withFallback(this)
 
   def withValue[T](value: T)(implicit encoder: ConfigEncoder[T], defaultKey: DefaultKey[T]): ConfigBuilder =
     ConfigBuilder.empty.withValue(value).withFallback(this)
   
-  def resolve: Config = ???
+  def withFallback(other: Config): Config = new Config(root, fallbacks :+ other) // TODO - should only exist on ConfigBuilder
+  
+  def resolve: Config = this // TODO - should only exist on ConfigBuilder
   
 }
 

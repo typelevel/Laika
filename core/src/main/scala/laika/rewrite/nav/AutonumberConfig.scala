@@ -32,7 +32,7 @@ object Scope {
   case object Sections extends Scope
   case object All extends Scope
   case object None extends Scope
-  implicit val decoder: ConfigDecoder[Scope] = ConfigDecoder.forString.flatMap {
+  implicit val decoder: ConfigDecoder[Scope] = ConfigDecoder.string.flatMap {
     case "documents" => Right(Documents)
     case "sections"  => Right(Sections)
     case "all"       => Right(All)

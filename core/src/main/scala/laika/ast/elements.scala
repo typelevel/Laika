@@ -298,7 +298,8 @@ case class EmbeddedConfigValue (key: String, value: ConfigValue, options: Option
   def withOptions (options: Options): EmbeddedConfigValue = copy(options = options)
 }
 object EmbeddedConfigValue {
-  def apply[T](name: String, value: T)(implicit encoder: ConfigEncoder[T]):  EmbeddedConfigValue = ???
+  def apply[T](name: String, value: T)(implicit encoder: ConfigEncoder[T]): EmbeddedConfigValue = 
+    EmbeddedConfigValue(name, encoder(value))
 }
 
 /** A section of the document, consisting of a header and content in the form

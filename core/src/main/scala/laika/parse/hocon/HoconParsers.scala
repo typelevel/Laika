@@ -77,7 +77,7 @@ object HoconParsers {
     def isEmpty: Boolean = values.isEmpty
   }
   case class ObjectValue(values: Seq[Field]) extends ConfigValue {
-    def toConfig: Config = ???
+    def toConfig: Config = new Config(this)
   }
   case class Field(key: String, value: ConfigValue)
   case class PathFragments(fragments: Seq[String]) {
