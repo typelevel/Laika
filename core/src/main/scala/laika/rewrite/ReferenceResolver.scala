@@ -17,8 +17,8 @@
 package laika.rewrite
 
 import laika.api.config.{Config, ConfigBuilder}
-import laika.ast.{Document, TreeCursor}
-import laika.parse.hocon.HoconParsers.ConfigValue
+import laika.ast.{Document, SpanSequence, TreeCursor}
+import laika.parse.hocon.HoconParsers.{ASTValue, ConfigValue, Field, ObjectValue}
 
 /** A resolver for context references in templates or markup documents.
  *  
@@ -40,6 +40,10 @@ object ReferenceResolver {
    */
   def forDocument(document: Document, parent: TreeCursor, config: Config): ReferenceResolver =
     apply(ConfigBuilder.empty
+      .withValue("document", ObjectValue(Seq(
+        Field("content", ASTValue(document.content)),
+        Field("title", ASTValue(SpanSequence(document.title)))
+      )))
       .withFallback(config) // TODO - 0.12 - insert documented refs to config, document, parent, root
       .build
     )

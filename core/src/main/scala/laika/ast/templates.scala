@@ -17,7 +17,8 @@
 package laika.ast
 
 import laika.api.config.Config
-import laika.parse.hocon.HoconParsers.{LongValue, StringValue, ConfigValue => HoconConfigValue}
+import laika.parse.hocon.HoconParsers.{ASTValue, LongValue, StringValue, ConfigValue => HoconConfigValue}
+import laika.rewrite.TemplateRewriter
 
 /** Represents a placeholder inline element that needs
  *  to be resolved in a rewrite step.
@@ -60,8 +61,8 @@ abstract class ContextReference[T <: Span] (ref: String) extends SpanResolver {
   def resolve (cursor: DocumentCursor): Span = {
     
     cursor.resolveReference(ref) match {
-      // case Some(element: Element) => result(Some(TemplateRewriter.rewriteRules(cursor).rewriteElement(element))) // TODO - 0.12 - has this ever been used?
-      case other                  => result(other)
+      case Right(Some(ASTValue(element: Element))) => result(Right(Some(ASTValue(TemplateRewriter.rewriteRules(cursor).rewriteElement(element)))))
+      case other                                   => result(other)
     }
   }
 }
@@ -72,14 +73,14 @@ case class TemplateContextReference (ref: String, options: Options = NoOpt) exte
   type Self = TemplateContextReference
 
   def result (value: Config.Result[Option[HoconConfigValue]]): TemplateSpan = value match {
-    //case Right(Some(s: TemplateSpan)) => s  // TODO - 0.12 - has this ever been used?
-    //case Some(RootElement(content,_)) => EmbeddedRoot(content)  // TODO - 0.12 - has this ever been used?
-    //case Some(e: Element)             => TemplateElement(e)  // TODO - 0.12 - has this ever been used?
-    case Right(Some(StringValue(v)))    => TemplateString(v)
-    case Right(Some(LongValue(v)))      => TemplateString(v.toString)
+    case Right(Some(ASTValue(s: TemplateSpan)))        => s
+    case Right(Some(ASTValue(RootElement(content,_)))) => EmbeddedRoot(content)
+    case Right(Some(ASTValue(e: Element)))             => TemplateElement(e)
+    case Right(Some(StringValue(v)))                   => TemplateString(v)
+    case Right(Some(LongValue(v)))                     => TemplateString(v.toString)
     case Right(Some(v))           => TemplateString(v.toString) // TODO - 0.12 - properly convert
     case Right(None)              => TemplateString("")
-    case Left(error)              => TemplateString("") // TODO - 0.12 - insert invalid element
+    case Left(error)              => TemplateString("") // TODO - 0.12 - insert invalid element for left and unsupported Right
   }
   def withOptions (options: Options): TemplateContextReference = copy(options = options)
 }
@@ -90,13 +91,13 @@ case class MarkupContextReference (ref: String, options: Options = NoOpt) extend
   type Self = MarkupContextReference
 
   def result (value: Config.Result[Option[HoconConfigValue]]): Span = value match {
-    //case Some(s: Span)    => s // TODO - 0.12 - has this ever been used?
-    //case Some(e: Element) => TemplateElement(e) // TODO - 0.12 - has this ever been used?
-    case Right(Some(StringValue(v)))    => Text(v)
-    case Right(Some(LongValue(v)))      => Text(v.toString)
-    case Right(Some(v))     => Text(v.toString) // TODO - 0.12 - properly convert - use SimpleConfigValue.render
-    case Right(None)        => Text("")
-    case Left(error)        => Text("") // TODO - 0.12 - insert invalid element
+    case Right(Some(ASTValue(s: Span)))    => s
+    case Right(Some(ASTValue(e: Element))) => TemplateElement(e)
+    case Right(Some(StringValue(v)))       => Text(v)
+    case Right(Some(LongValue(v)))         => Text(v.toString)
+    case Right(Some(v))                    => Text(v.toString) // TODO - 0.12 - properly convert - use SimpleConfigValue.render
+    case Right(None)                       => Text("")
+    case Left(error)                       => Text("") // TODO - 0.12 - insert invalid element for left and unsupported Right
   }
   def withOptions (options: Options): MarkupContextReference = copy(options = options)
 }

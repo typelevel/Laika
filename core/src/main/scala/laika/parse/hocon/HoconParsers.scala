@@ -17,7 +17,7 @@
 package laika.parse.hocon
 
 import laika.api.config.Config
-import laika.ast.{Path, ~}
+import laika.ast.{Element, Path, ~}
 import laika.parse.text.Characters
 import laika.parse.{Parser, ParserContext}
 import laika.parse.text.TextParsers._
@@ -73,6 +73,7 @@ object HoconParsers {
   case class DoubleValue(value: Double) extends ConfigValue
   case class LongValue(value: Long) extends ConfigValue
   case class StringValue(value: String) extends ConfigValue
+  case class ASTValue(value: Element) extends ConfigValue
   case class ArrayValue(values: Seq[ConfigValue]) extends ConfigValue {
     def isEmpty: Boolean = values.isEmpty
   }
