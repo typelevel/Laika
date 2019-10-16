@@ -158,6 +158,6 @@ object Path {
 
   /** Creates an absolute path from the specified path segments.
     */
-  def apply (segments: List[String]): Path = apply(Root, segments)
+  def apply (segments: List[String]): Path = if (segments.isEmpty) Root else apply(Root, segments)
   
 }

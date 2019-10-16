@@ -17,20 +17,39 @@
 package laika.api.config
 
 import laika.ast.Path
-import laika.parse.hocon.HoconParsers.{ObjectValue, TracedValue}
+import laika.parse.hocon.HoconParsers.{Field, ObjectValue, TracedValue}
 
 /**
   * @author Jens Halm
   */
 class Config (private[laika] val root: ObjectValue, private[laika] val fallback: Option[Config] = None) {
 
-  def get[T](key: String)(implicit decoder: ConfigDecoder[T]): Either[ConfigError, T] = {
-    (root.values.find(_.key == key), fallback) match {
-      case (None, Some(fb)) => fb.get[T](key)
-      case (None, None) => Left(NotFound(Path.Root / key))
-      case (Some(field), _) => decoder(TracedValue(field.value, Set()))
+  private def lookup(keySegments: List[String], target: ObjectValue): Option[Field] = {
+    (target.values.find(_.key == keySegments.head), keySegments.tail) match {
+      case (res, Nil) => res
+      case (Some(Field(_, ov: ObjectValue)), rest) => lookup(rest, ov)
+      case _ => None
     }
-    // TODO - split keys, use actual origin, join objects
+  }
+
+  private def lookup(path: Path): Option[Field] = 
+    if (path == Path.Root) Some(Field("", root)) else lookup(path.components, root).orElse {
+      if (path.components.head == "config") lookup(Path(path.components.tail)) // legacy path prefix pre-0.12
+      else None
+    }
+  
+  def get[T](key: Path)(implicit decoder: ConfigDecoder[T]): Either[ConfigError, T] = {
+    lookup(key).fold(
+      fallback.fold[Either[ConfigError, T]](Left(NotFound(key)))(_.get[T](key))
+    ) { field =>
+      decoder(TracedValue(field.value, Set()))
+    }
+    // TODO - use actual origin, join objects, overload all methods with Path variant
+  }
+  
+  def get[T](key: String)(implicit decoder: ConfigDecoder[T]): Either[ConfigError, T] = {
+    val segments = key.split("\\.").toList
+    get[T](Path(segments))
   }
   
   def get[T](key: String, default: => T)(implicit decoder: ConfigDecoder[T]): Either[ConfigError, T] = 
