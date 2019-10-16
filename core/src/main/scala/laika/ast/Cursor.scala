@@ -227,7 +227,7 @@ case class DocumentCursor (target: Document,
    *  for a nested part inside the directive tags.
    */
   def withReferenceContext[T: ConfigEncoder](refValue: T): DocumentCursor =
-    copy(resolver = ReferenceResolver(resolver.config.withValue("value", refValue).build))
+    copy(resolver = ReferenceResolver(resolver.config.withValue("#", refValue).build))
   
 }
 

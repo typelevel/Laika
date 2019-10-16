@@ -47,7 +47,7 @@ object DirectiveParsers {
 
   /** Parses a reference enclosed between `{{` and `}}`.
     */
-  def reference[T] (f: String => T): Parser[T] = '{' ~ ws ~> refName <~ ws ~ "}}" ^^ f
+  def reference[T] (f: String => T): Parser[T] = '{' ~ ws ~> anyBut('}') <~ ws ~ "}}" ^^ f
 
 
   /** Represents one part of a directive (an attribute or a body element).

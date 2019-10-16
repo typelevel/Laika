@@ -17,7 +17,7 @@
 package laika.ast
 
 import laika.api.config.Config
-import laika.parse.hocon.HoconParsers.{StringValue, ConfigValue => HoconConfigValue}
+import laika.parse.hocon.HoconParsers.{LongValue, StringValue, ConfigValue => HoconConfigValue}
 
 /** Represents a placeholder inline element that needs
  *  to be resolved in a rewrite step.
@@ -76,6 +76,7 @@ case class TemplateContextReference (ref: String, options: Options = NoOpt) exte
     //case Some(RootElement(content,_)) => EmbeddedRoot(content)  // TODO - 0.12 - has this ever been used?
     //case Some(e: Element)             => TemplateElement(e)  // TODO - 0.12 - has this ever been used?
     case Right(Some(StringValue(v)))    => TemplateString(v)
+    case Right(Some(LongValue(v)))      => TemplateString(v.toString)
     case Right(Some(v))           => TemplateString(v.toString) // TODO - 0.12 - properly convert
     case Right(None)              => TemplateString("")
     case Left(error)              => TemplateString("") // TODO - 0.12 - insert invalid element
@@ -92,7 +93,8 @@ case class MarkupContextReference (ref: String, options: Options = NoOpt) extend
     //case Some(s: Span)    => s // TODO - 0.12 - has this ever been used?
     //case Some(e: Element) => TemplateElement(e) // TODO - 0.12 - has this ever been used?
     case Right(Some(StringValue(v)))    => Text(v)
-    case Right(Some(v))     => Text(v.toString) // TODO - 0.12 - properly convert
+    case Right(Some(LongValue(v)))      => Text(v.toString)
+    case Right(Some(v))     => Text(v.toString) // TODO - 0.12 - properly convert - use SimpleConfigValue.render
     case Right(None)        => Text("")
     case Left(error)        => Text("") // TODO - 0.12 - insert invalid element
   }
