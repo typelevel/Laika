@@ -42,7 +42,10 @@ object ReferenceResolver {
     apply(ConfigBuilder.empty
       .withValue("document", ObjectValue(Seq(
         Field("content", ASTValue(document.content)),
-        Field("title", ASTValue(SpanSequence(document.title)))
+        Field("title", ASTValue(SpanSequence(document.title))),
+        Field("fragments", ObjectValue(document.fragments.toSeq.map { 
+          case (name, element) => Field(name, ASTValue(element)) 
+        }))
       )))
       .withFallback(config) // TODO - 0.12 - insert documented refs to config, document, parent, root
       .build
