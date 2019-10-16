@@ -19,7 +19,7 @@ package laika.ast
 import java.time.Instant
 import java.util.Locale
 
-import laika.api.config.ConfigBuilder
+import laika.api.config.{ConfigBuilder, ConfigParser}
 import org.scalatest.{FlatSpec, Matchers}
 
 class DocumentMetadataSpec extends FlatSpec with Matchers {
@@ -34,7 +34,7 @@ class DocumentMetadataSpec extends FlatSpec with Matchers {
         |  language: "en:UK"
         |}
       """.stripMargin
-    val config = ConfigBuilder.parse(configString).build
+    val config = ConfigParser.parse(configString).right.get
     DocumentMetadata.fromConfig(config) shouldBe DocumentMetadata(Some("urn:isbn:9781449325299"), Seq("Mia Miller"),
       Some(Locale.forLanguageTag("en:UK")), Some(Instant.parse("2000-01-01T00:00:00Z")))
   }
@@ -42,7 +42,7 @@ class DocumentMetadataSpec extends FlatSpec with Matchers {
   it should "populate multiple authors" in {
     val configString =
       """metadata.authors: ["Mia Miller", "Naomi Nader"]"""
-    val config = ConfigBuilder.parse(configString).build
+    val config = ConfigParser.parse(configString).right.get
     DocumentMetadata.fromConfig(config) shouldBe DocumentMetadata(authors = Seq("Mia Miller", "Naomi Nader"))
   }
 

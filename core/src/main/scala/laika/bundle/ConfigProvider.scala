@@ -16,7 +16,7 @@
 
 package laika.bundle
 
-import laika.api.config.{Config, ConfigBuilder}
+import laika.api.config.{Config, ConfigBuilder, ConfigParser}
 import laika.ast.Path
 import laika.parse.markup.DocumentParser.{ParserError, ParserInput}
 import laika.parse.text.TextParsers._
@@ -35,7 +35,7 @@ object ConfigProvider {
     * This method adds a origin description to the Config instance which helps 
     * resolving relative paths within this configuration instance.
     */
-  def fromInput (input: String, path: Path): Config = ConfigBuilder.parse(input).withOrigin(path).build
+  def fromInput (input: String, path: Path): Config = ConfigParser.parse(input, path).right.get // TODO - 0.12 - error handling
 
   // temporary API
   def fromInput (input: ParserInput): Either[ParserError, Config] = Right(fromInput(input.context.input, input.path))

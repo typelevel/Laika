@@ -75,6 +75,8 @@ trait ConfigBuilderError
 
 case class InvalidType(expected: String, actual: String) extends ConfigError
 case class ValidationError(message: String) extends ConfigError
+case class ConfigParserError(message: String) extends ConfigError
+case class ConfigResolverError(message: String) extends ConfigError
 case class NotFound(path: Path) extends ConfigError
 
 object ConfigEncoder {

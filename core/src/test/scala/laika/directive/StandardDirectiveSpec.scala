@@ -18,7 +18,7 @@ package laika.directive
 
 import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
-import laika.api.config.ConfigBuilder
+import laika.api.config.{ConfigBuilder, ConfigParser}
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.Markdown
@@ -47,7 +47,7 @@ class StandardDirectiveSpec extends FlatSpec
   def parseTemplateWithConfig (input: String, config: String): RootElement = {
     val tRoot = parseTemplate(input)
     val template = TemplateDocument(Path.Root, tRoot)
-    val cursor = DocumentCursor(Document(Path.Root, root(), config = ConfigBuilder.parse(config).build))
+    val cursor = DocumentCursor(Document(Path.Root, root(), config = ConfigParser.parse(config).right.get))
     TemplateRewriter.applyTemplate(cursor, template).content
   }
   

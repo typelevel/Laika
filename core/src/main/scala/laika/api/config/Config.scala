@@ -28,7 +28,7 @@ class Config (private[laika] val root: ObjectValue, private[laika] val fallbacks
     root.values
       .find(_.key == key)
       .toRight(NotFound(Path.Root / key))
-      .flatMap(f => decoder(TracedValue(f.value, Set()))) // TODO - initial draft, later: split keys, use fallbacks + actual origin
+      .flatMap(f => decoder(TracedValue(f.value, Set()))) // TODO - initial draft, later: split keys, use fallbacks + actual origin, join objects
   }
   
   def get[T](key: String, default: => T)(implicit decoder: ConfigDecoder[T]): Either[ConfigError, T] = 
