@@ -30,7 +30,7 @@ class ConfigBuilder (fields: Seq[Field], origin: Origin, fallback: Option[Config
   def withValue[T](value: T)(implicit encoder: ConfigEncoder[T], defaultKey: DefaultKey[T]): ConfigBuilder =
     new ConfigBuilder(fields :+ Field(defaultKey.value, encoder(value)), origin, fallback) // TODO - path expansion
   
-  def build: Config = if (fields.isEmpty) fallback.getOrElse(Config.empty) else new Config(ObjectValue(fields), fallback)
+  def build: Config = if (fields.isEmpty) fallback.getOrElse(Config.empty) else new Config(ObjectValue(fields), origin, fallback)
 
   def withFallback(other: Config): ConfigBuilder =
     if (other.root.values.isEmpty) this

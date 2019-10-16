@@ -17,6 +17,7 @@
 package laika.api.config
 
 import laika.ast.Path
+import laika.parse.hocon.HoconParsers.Origin
 import laika.parse.hocon.{ConfigResolver, HoconParsers}
 
 /**
@@ -33,7 +34,7 @@ object ConfigParser {
       .left.map(ConfigParserError)
       .map { builderValue =>
         val root = ConfigResolver.resolve(builderValue) // TODO - 0.12 - this must return an Either, too
-        new Config(root)
+        new Config(root, Origin(origin))
       }
   }
   

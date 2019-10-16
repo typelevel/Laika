@@ -17,13 +17,22 @@
 package laika.api.config
 
 import laika.ast.Path
-import laika.parse.hocon.HoconParsers.{Field, ObjectValue, TracedValue}
+import laika.parse.hocon.HoconParsers.{Field, ObjectValue, Origin, TracedValue}
 
 /**
   * @author Jens Halm
   */
-class Config (private[laika] val root: ObjectValue, private[laika] val fallback: Option[Config] = None) {
+class Config (private[laika] val root: ObjectValue, 
+              private[laika] val origin: Origin, 
+              private[laika] val fallback: Option[Config] = None) {
 
+//  println()
+//  println("=====================================================================")
+//  println(s"  CREATING CONFIG WITH KEYS: '${root.values.map(_.key).mkString(", ")}' FROM '$origin")
+//  fallback.foreach(fb => println(s"          AND FALLBACK KEYS: '${fb.root.values.map(_.key).mkString(", ")}' FROM '${fb.origin}'"))
+//  println("=====================================================================")
+//  println()
+  
   private def lookup(keySegments: List[String], target: ObjectValue): Option[Field] = {
     (target.values.find(_.key == keySegments.head), keySegments.tail) match {
       case (res, Nil) => res
@@ -68,14 +77,17 @@ class Config (private[laika] val root: ObjectValue, private[laika] val fallback:
   def withValue[T](value: T)(implicit encoder: ConfigEncoder[T], defaultKey: DefaultKey[T]): ConfigBuilder =
     ConfigBuilder.empty.withValue(value).withFallback(this)
   
-  def withFallback(other: Config): Config = new Config(root, fallback.fold(Some(other))(f => Some(f.withFallback(other)))) // TODO - should only exist on ConfigBuilder
+  def withFallback(other: Config): Config =
+    if (other.root.values.isEmpty && other.fallback.isEmpty) this
+    else if (root.values.isEmpty) fallback.fold(other)(_.withFallback(other))
+    else new Config(root, origin, Some(fallback.fold(other)(_.withFallback(other)))) // TODO - should only exist on ConfigBuilder?
   
   def resolve: Config = this // TODO - should only exist on ConfigBuilder
   
-  override def hashCode: Int = (root, fallback).hashCode
+  override def hashCode: Int = (root, origin, fallback).hashCode
 
   override def equals (obj: Any): Boolean = obj match {
-    case c: Config => (c.root, c.fallback).equals((root, fallback))
+    case c: Config => (c.root, c.origin, c.fallback).equals((root, origin, fallback))
     case _ => false
   }
   
@@ -85,6 +97,6 @@ object Config {
   
   type Result[T] = Either[ConfigError, T]
   
-  val empty: Config = new Config(ObjectValue(Nil))
+  val empty: Config = new Config(ObjectValue(Nil), Origin.root)
   
 }
