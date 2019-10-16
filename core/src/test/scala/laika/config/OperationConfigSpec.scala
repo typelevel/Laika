@@ -58,8 +58,8 @@ class OperationConfigSpec extends WordSpec with Matchers {
       val appBundles = Seq(BundleProvider.forConfigString("bar: 2"))
 
       val baseConfig = config.baseConfig
-      baseConfig.get[Int]("foo") shouldBe 1
-      baseConfig.get[Int]("bar") shouldBe 2
+      baseConfig.get[Int]("foo") shouldBe Right(1)
+      baseConfig.get[Int]("bar") shouldBe Right(2)
     }
 
     "let an app config override an identical key in the extension config" in new BundleSetup {
@@ -67,7 +67,7 @@ class OperationConfigSpec extends WordSpec with Matchers {
       val appBundles = Seq(BundleProvider.forConfigString("foo: 2"))
 
       val baseConfig = config.baseConfig
-      baseConfig.get[Int]("foo") shouldBe 2
+      baseConfig.get[Int]("foo") shouldBe Right(2)
     }
 
     "let an app config override an identical key in a previously installed app config" in new BundleSetup {
@@ -75,7 +75,7 @@ class OperationConfigSpec extends WordSpec with Matchers {
       val appBundles = Seq(BundleProvider.forConfigString("foo: 1"), BundleProvider.forConfigString("foo: 2"))
 
       val baseConfig = config.baseConfig
-      baseConfig.get[Int]("foo") shouldBe 2
+      baseConfig.get[Int]("foo") shouldBe Right(2)
     }
 
   }

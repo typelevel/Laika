@@ -593,7 +593,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
     val tree = DocumentTree(Root, List(doc1, doc2), templates = List(template))
     val rewrittenTree = tree.rewrite(OperationConfig.default.withBundlesFor(ReStructuredText).rewriteRules)
     val templatesApplied = TemplateRewriter.applyTemplates(DocumentTreeRoot(rewrittenTree), "html").tree
-    templatesApplied.content.collect{case doc: Document => doc}.head.content should be (root(BlockSequence(List(p("text")))))
+    templatesApplied.content.collect{ case doc: Document => doc }.head.content should be (root(BlockSequence(List(p("text")))))
   }
   
   "The title directive" should "set the title in the document instance" in {
@@ -606,7 +606,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       | :key1: val1
       | :key2: val2""".stripMargin
     val config = ObjectValue(Seq(Field("key1", StringValue("val1")), Field("key2", StringValue("val2"))))
-    parseDoc(input).config.get[ConfigValue]("meta") should be (config)
+    parseDoc(input).config.get[ConfigValue]("meta") should be (Right(config))
   }
   
   "The sectnum directive" should "create config entries in the document instance" in {
@@ -621,7 +621,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       Field("prefix", StringValue("(")), 
       Field("suffix", StringValue(")"))
     ))
-    parseDoc(input).config.get[ConfigValue]("meta") should be (config)
+    parseDoc(input).config.get[ConfigValue]("autonumbering") should be (Right(config))
   }
   
   "The contents directive" should "create a placeholder in the document" in {

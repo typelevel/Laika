@@ -346,7 +346,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
       val appBundles = Seq(BundleProvider.forConfigHeaderParser(ConfigHeaderParser.betweenLines("<<", ">>")))
 
       val confHeaderParser = config.configHeaderParser(Root)
-      confHeaderParser.parse("{%\nfoo: 7\n%}").toOption shouldBe Some(Right(ConfigBuilder.empty.withValue("foo",7)))
+      confHeaderParser.parse("{%\nfoo: 7\n%}").toOption shouldBe Some(Right(ConfigBuilder.empty.withValue("foo",7).build))
     }
 
     "should use the fallback parser producing empty config instances when all other parsers fail" in new BundleSetup {
