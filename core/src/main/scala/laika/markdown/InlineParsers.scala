@@ -26,6 +26,8 @@ import laika.parse.markup.RecursiveSpanParsers
 import laika.parse.text.TextParsers._
 import laika.parse.text.DelimitedText
 
+import scala.util.Try
+
 /** Provides all inline parsers for Markdown text except for those dealing
  *  with verbatim HTML markup which this library treats as an optional 
  *  feature that has to be explicitly mixed in.
@@ -213,8 +215,13 @@ object InlineParsers {
   val simpleLink: SpanParserBuilder = SpanParser.forStartChar('<').standalone {
 
     def isAcceptedScheme (s: String) = s == "http" || s == "https" || s == "ftp" || s == "mailto"
-    def isURI (s: String) = try { val uri = new java.net.URI(s); uri.isAbsolute && isAcceptedScheme(uri.getScheme) } catch { case _:Throwable => false }
-    def isEmail (s: String) = s.contains("@") && isURI(s"mailto:$s") // TODO - improve
+    
+    def isURI (s: String) = Try { 
+      val uri = new java.net.URI(s)
+      uri.isAbsolute && isAcceptedScheme(uri.getScheme) 
+    }.toOption.getOrElse(false)
+    
+    def isEmail (s: String) = s.contains("@") && isURI(s"mailto:$s")
 
     def toLink(s: String) = ExternalLink(List(Text(s)), s)
 
