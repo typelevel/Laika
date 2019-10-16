@@ -22,17 +22,19 @@ import laika.parse.hocon.HoconParsers.{ArrayValue, ConfigValue, Field, LongValue
 /**
   * @author Jens Halm
   */
-class ConfigBuilder (fields: Seq[Field], origin: Origin, fallbacks: Seq[Config] = Nil) {
+class ConfigBuilder (fields: Seq[Field], origin: Origin, fallback: Option[Config] = None) {
 
   def withValue[T](key: String, value: T)(implicit encoder: ConfigEncoder[T]) : ConfigBuilder =
-    new ConfigBuilder(fields :+ Field(key, encoder(value)), origin, fallbacks) // TODO - path expansion
+    new ConfigBuilder(fields :+ Field(key, encoder(value)), origin, fallback) // TODO - path expansion
   
   def withValue[T](value: T)(implicit encoder: ConfigEncoder[T], defaultKey: DefaultKey[T]): ConfigBuilder =
-    new ConfigBuilder(fields :+ Field(defaultKey.value, encoder(value)), origin, fallbacks) // TODO - path expansion
+    new ConfigBuilder(fields :+ Field(defaultKey.value, encoder(value)), origin, fallback) // TODO - path expansion
   
-  def build: Config = new Config(ObjectValue(fields))
+  def build: Config = if (fields.isEmpty) fallback.getOrElse(Config.empty) else new Config(ObjectValue(fields), fallback)
 
-  def withFallback(other: Config): ConfigBuilder = new ConfigBuilder(fields, origin, fallbacks :+ other)
+  def withFallback(other: Config): ConfigBuilder =
+    if (other.root.values.isEmpty) this
+    else new ConfigBuilder(fields, origin, fallback.fold(Some(other))(f => Some(f.withFallback(other))))
   
   // TODO - move to companion
   def withOrigin(path: Path): ConfigBuilder = new ConfigBuilder(fields, Origin(path))
@@ -79,15 +81,15 @@ case class NotFound(path: Path) extends ConfigError
 
 object ConfigEncoder {
   
-  implicit lazy val string: ConfigEncoder[String] = new ConfigEncoder[String] {
+  implicit val string: ConfigEncoder[String] = new ConfigEncoder[String] {
     def apply (value: String) = StringValue(value)
   }
   
-  implicit lazy val int: ConfigEncoder[Int] = new ConfigEncoder[Int] {
+  implicit val int: ConfigEncoder[Int] = new ConfigEncoder[Int] {
     def apply (value: Int) = LongValue(value.toLong)
   }
   
-  implicit lazy val configValue: ConfigEncoder[ConfigValue] = new ConfigEncoder[ConfigValue] {
+  implicit val configValue: ConfigEncoder[ConfigValue] = new ConfigEncoder[ConfigValue] {
     def apply (value: ConfigValue) = value
   }
   
@@ -98,21 +100,21 @@ object ConfigEncoder {
 
 object ConfigDecoder {
   
-  implicit lazy val string: ConfigDecoder[String] = new ConfigDecoder[String] {
+  implicit val string: ConfigDecoder[String] = new ConfigDecoder[String] {
     def apply (value: TracedValue[ConfigValue]) = value.value match {
       case StringValue(s) => Right(s) // TODO - convert other types
       case _ => Left(InvalidType("String", ""))
     }
   }
   
-  implicit lazy val int: ConfigDecoder[Int] = new ConfigDecoder[Int] {
+  implicit val int: ConfigDecoder[Int] = new ConfigDecoder[Int] {
     def apply (value: TracedValue[ConfigValue]) = value.value match {
       case LongValue(n) => Right(n.toInt) // TODO - convert other types, check bounds
       case _ => Left(InvalidType("Number", ""))
     }
   }
   
-  implicit lazy val configValue: ConfigDecoder[ConfigValue] = new ConfigDecoder[ConfigValue] {
+  implicit val configValue: ConfigDecoder[ConfigValue] = new ConfigDecoder[ConfigValue] {
     def apply (value: TracedValue[ConfigValue]) = Right(value.value)
   }
   
