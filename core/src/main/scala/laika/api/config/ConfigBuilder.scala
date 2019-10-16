@@ -17,7 +17,8 @@
 package laika.api.config
 
 import laika.ast.Path
-import laika.parse.hocon.HoconParsers.{ArrayValue, ConfigValue, Field, LongValue, ObjectValue, Origin, StringValue, TracedValue}
+import laika.parse.hocon.HoconParsers._
+import laika.collection.TransitionalCollectionOps._
 
 /**
   * @author Jens Halm
@@ -25,12 +26,14 @@ import laika.parse.hocon.HoconParsers.{ArrayValue, ConfigValue, Field, LongValue
 class ConfigBuilder (fields: Seq[Field], origin: Origin, fallback: Option[Config] = None) {
 
   def withValue[T](key: String, value: T)(implicit encoder: ConfigEncoder[T]) : ConfigBuilder =
-    new ConfigBuilder(fields :+ Field(key, encoder(value)), origin, fallback) // TODO - path expansion
+    new ConfigBuilder(fields :+ expandPath(Key(key), encoder(value)), origin, fallback)
   
   def withValue[T](value: T)(implicit encoder: ConfigEncoder[T], defaultKey: DefaultKey[T]): ConfigBuilder =
-    new ConfigBuilder(fields :+ Field(defaultKey.value, encoder(value)), origin, fallback) // TODO - path expansion
+    withValue[T](defaultKey.value, value)
   
-  def build: Config = if (fields.isEmpty) fallback.getOrElse(Config.empty) else new Config(ObjectValue(fields), origin, fallback)
+  def build: Config = 
+    if (fields.isEmpty) fallback.getOrElse(Config.empty) 
+    else new Config(mergeObjects(ObjectValue(fields)), origin, fallback)
 
   def withFallback(other: Config): ConfigBuilder =
     if (other.root.values.isEmpty) this
@@ -38,6 +41,27 @@ class ConfigBuilder (fields: Seq[Field], origin: Origin, fallback: Option[Config
   
   // TODO - move to companion
   def withOrigin(path: Path): ConfigBuilder = new ConfigBuilder(fields, Origin(path))
+
+  private def expandPath(key: Path, value: ConfigValue): Field = {
+    key.components match {
+      case name :: Nil => Field(name, value)
+      case name :: rest => Field(name, ObjectValue(Seq(expandPath(Path(rest), value))))
+      case Nil => Field("", value)
+    }
+  }
+
+  def mergeObjects(obj: ObjectValue): ObjectValue = {
+
+    def mergeValues(cbv1: ConfigValue, cbv2: ConfigValue): ConfigValue = (cbv1, cbv2) match {
+      case (o1: ObjectValue, o2: ObjectValue) => mergeObjects(ObjectValue(o1.values ++ o2.values))
+      case (_, v2) => v2
+    }
+
+    val mergedFields = obj.values.groupBy(_.key).mapValuesStrict(_.map(_.value)).toSeq.map {
+      case (name, values) => Field(name, values.reduce(mergeValues))
+    }
+    ObjectValue(mergedFields)
+  }
   
 }
 
@@ -68,6 +92,13 @@ trait DefaultKey[T] {
 
 object DefaultKey {
   def apply[T](key: String): DefaultKey[T] = new DefaultKey[T] { val value: String = key }
+}
+
+object Key {
+  def apply(key: String): Path = {
+    val segments = key.split("\\.").toList
+    Path(segments)
+  }
 }
 
 trait ConfigError

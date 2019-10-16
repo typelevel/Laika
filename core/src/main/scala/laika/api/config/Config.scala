@@ -53,13 +53,10 @@ class Config (private[laika] val root: ObjectValue,
     ) { field =>
       decoder(TracedValue(field.value, Set()))
     }
-    // TODO - use actual origin, join objects, overload all methods with Path variant
+    // TODO - use actual origin, overload all methods with Path variant
   }
   
-  def get[T](key: String)(implicit decoder: ConfigDecoder[T]): Either[ConfigError, T] = {
-    val segments = key.split("\\.").toList
-    get[T](Path(segments))
-  }
+  def get[T](key: String)(implicit decoder: ConfigDecoder[T]): Either[ConfigError, T] = get[T](Key(key))
   
   def get[T](key: String, default: => T)(implicit decoder: ConfigDecoder[T]): Either[ConfigError, T] = 
     getOpt(key).map(_.getOrElse(default))
