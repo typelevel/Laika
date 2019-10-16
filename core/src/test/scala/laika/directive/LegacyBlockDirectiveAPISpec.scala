@@ -108,7 +108,7 @@ class LegacyBlockDirectiveAPISpec extends FlatSpec
       markupExtensions = directiveSupport.markupExtensions
     ).rootElement ^^ { root =>
       TemplateRewriter.rewriteRules(DocumentCursor(
-        Document(Root, root, config = ConfigBuilder.parse("ref: value").build)
+        Document(Root, root, config = ConfigBuilder.empty.withValue("ref", "value").build)
       )).rewriteBlock(root).asInstanceOf[RootElement]
     }
 

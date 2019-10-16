@@ -92,7 +92,7 @@ object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor] {
       treeWithStyles.copy(tree = treeWithStyles.tree.copy(
         content = Document(Root / "cover", 
           RootElement(Seq(SpanSequence(Seq(Image("cover", URI(image)))))), 
-        config = ConfigBuilder.parse("title: Cover").build) +: tree.tree.content
+        config = ConfigBuilder.empty.withValue("title", "Cover").build) +: tree.tree.content
       ))
     }
   }

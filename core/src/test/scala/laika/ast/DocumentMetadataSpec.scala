@@ -47,7 +47,7 @@ class DocumentMetadataSpec extends FlatSpec with Matchers {
   }
 
   it should "provide an empty instance when there is no metadata entry" in {
-    val config = ConfigBuilder.parse("foo: bar").build
+    val config = ConfigBuilder.empty.withValue("foo", "bar").build
     DocumentMetadata.fromConfig(config) shouldBe DocumentMetadata()
   }
 

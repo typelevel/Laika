@@ -117,7 +117,7 @@ class TemplateDirectiveAPISpec extends FlatSpec
     val defaultParser: Parser[TemplateRoot] = templateParsers.templateSpans ^^ { spans =>
       val root = TemplateRoot(spans)
       TemplateRewriter.rewriteRules(DocumentCursor(
-        Document(Root, RootElement(Seq(root)), config = ConfigBuilder.parse("ref: value").build)
+        Document(Root, RootElement(Seq(root)), config = ConfigBuilder.empty.withValue("ref","value").build)
       )).rewriteBlock(root).asInstanceOf[TemplateRoot]
     }
     

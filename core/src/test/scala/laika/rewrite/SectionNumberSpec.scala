@@ -75,7 +75,7 @@ class SectionNumberSpec extends FlatSpec
     
     def depth: Option[Int] = None
     
-    def isIncluded (level: Int): Boolean = depth map (_ >= level) getOrElse true
+    def isIncluded (level: Int): Boolean = depth.forall(_ >= level)
   }
   
   trait NumberAllConfig {
