@@ -22,13 +22,15 @@ import laika.parse.hocon.HoconParsers.{ObjectValue, TracedValue}
 /**
   * @author Jens Halm
   */
-class Config (private[laika] val root: ObjectValue, private[laika] val fallbacks: Seq[Config] = Nil) {
+class Config (private[laika] val root: ObjectValue, private[laika] val fallback: Option[Config] = None) {
 
   def get[T](key: String)(implicit decoder: ConfigDecoder[T]): Either[ConfigError, T] = {
-    root.values
-      .find(_.key == key)
-      .toRight(NotFound(Path.Root / key))
-      .flatMap(f => decoder(TracedValue(f.value, Set()))) // TODO - initial draft, later: split keys, use fallbacks + actual origin, join objects
+    (root.values.find(_.key == key), fallback) match {
+      case (None, Some(fb)) => fb.get[T](key)
+      case (None, None) => Left(NotFound(Path.Root / key))
+      case (Some(field), _) => decoder(TracedValue(field.value, Set()))
+    }
+    // TODO - split keys, use actual origin, join objects
   }
   
   def get[T](key: String, default: => T)(implicit decoder: ConfigDecoder[T]): Either[ConfigError, T] = 
@@ -47,14 +49,14 @@ class Config (private[laika] val root: ObjectValue, private[laika] val fallbacks
   def withValue[T](value: T)(implicit encoder: ConfigEncoder[T], defaultKey: DefaultKey[T]): ConfigBuilder =
     ConfigBuilder.empty.withValue(value).withFallback(this)
   
-  def withFallback(other: Config): Config = new Config(root, fallbacks :+ other) // TODO - should only exist on ConfigBuilder
+  def withFallback(other: Config): Config = new Config(root, fallback.fold(Some(other))(f => Some(f.withFallback(other)))) // TODO - should only exist on ConfigBuilder
   
   def resolve: Config = this // TODO - should only exist on ConfigBuilder
   
-  override def hashCode: Int = (root, fallbacks).hashCode
+  override def hashCode: Int = (root, fallback).hashCode
 
   override def equals (obj: Any): Boolean = obj match {
-    case c: Config => (c.root, c.fallbacks).equals((root, fallbacks))
+    case c: Config => (c.root, c.fallback).equals((root, fallback))
     case _ => false
   }
   
