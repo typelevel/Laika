@@ -52,7 +52,7 @@ import laika.rewrite.TemplateRewriter
   *
   * @author Jens Halm
   */
-class MarkupParser (parser: MarkupFormat, val config: OperationConfig, val rewrite: Boolean) { // TODO - 0.12 - remove flag
+class MarkupParser (parser: MarkupFormat, val config: OperationConfig) {
 
   /** The file suffixes this parser will recognize
     * as a supported format.
@@ -83,17 +83,29 @@ class MarkupParser (parser: MarkupFormat, val config: OperationConfig, val rewri
     } yield {
       val processedConfig = ConfigHeaderParser.merge(resolvedConfig, extractConfigValues(unresolved.document)) // TODO - 0.12 - move this somewhere else
       val resolvedDoc = unresolved.document.copy(config = processedConfig)
-      if (rewrite) {
-        val phase1 = resolvedDoc.rewrite(config.rewriteRulesFor(resolvedDoc))
-        phase1.rewrite(TemplateRewriter.rewriteRules(DocumentCursor(phase1)))
-      }
-      else resolvedDoc
+      val phase1 = resolvedDoc.rewrite(config.rewriteRulesFor(resolvedDoc))
+      phase1.rewrite(TemplateRewriter.rewriteRules(DocumentCursor(phase1)))
     }
   }
 
+  def parseUnresolved (input: String): Either[ParserError, UnresolvedDocument] = 
+    parseUnresolved(ParserInput(Root, ParserContext(input)))
+
   def parseUnresolved (input: String, path: Path): Either[ParserError, UnresolvedDocument] = 
     parseUnresolved(ParserInput(path, ParserContext(input)))
-  
+
+  /** Returns an unresolved document without applying
+    * the default rewrite rules and without resolving the configuration header (if present). 
+    * 
+    * The default rewrite rules resolve link and image references and 
+    * rearrange the tree into a hierarchy of sections based on the sequence
+    * of header instances found in the document.
+    * 
+    * The default configuration resolver allows for variable references in the HOCON
+    * header of the document to be resolved against values defined in the base configuration.
+    * 
+    * This low-level hook is rarely used by application code.
+    */
   def parseUnresolved (input: ParserInput): Either[ParserError, UnresolvedDocument] = docParser(input)
 
 }
@@ -114,8 +126,7 @@ object MarkupParser {
     */
   def of (format: MarkupFormat): ParserBuilder = new ParserBuilder(
     format,
-    OperationConfig.default.withBundlesFor(format),
-    rewrite = true
+    OperationConfig.default.withBundlesFor(format)
   )
 
 }

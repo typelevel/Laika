@@ -25,8 +25,7 @@ object Parse {
   @deprecated("use MarkupParser.of(...) instead", "0.12.0")
   def as (format: MarkupFormat): ParserBuilder = new ParserBuilder(
     format,
-    OperationConfig.default.withBundlesFor(format),
-    rewrite = true
+    OperationConfig.default.withBundlesFor(format)
   )
 
 }

@@ -27,25 +27,18 @@ import laika.factory.MarkupFormat
   * 
   * @author Jens Halm
   */
-class ParserBuilder (format: MarkupFormat, val config: OperationConfig, rewrite: Boolean) extends ParserBuilderOps {
+class ParserBuilder (format: MarkupFormat, val config: OperationConfig) extends ParserBuilderOps {
 
   val docType: TextDocumentType = Markup
   
   type ThisType = ParserBuilder
 
-  def withConfig(newConfig: OperationConfig): ThisType = new ParserBuilder(format, newConfig, rewrite)
-
-  /** Returns a new Parse instance that produces raw document trees without applying
-   *  the default rewrite rules. These rules resolve link and image references and 
-   *  rearrange the tree into a hierarchy of sections based on the (flat) sequence
-   *  of header instances found in the document.
-   */
-  def withoutRewrite: ParserBuilder = new ParserBuilder(format, config, rewrite = false)
+  def withConfig(newConfig: OperationConfig): ThisType = new ParserBuilder(format, newConfig)
 
   /** Applies all configuration specified with this builder
     * and returns a new MarkupParser instance.
     */
-  def build: MarkupParser = new MarkupParser(format, config, rewrite)
+  def build: MarkupParser = new MarkupParser(format, config)
 
 }
 

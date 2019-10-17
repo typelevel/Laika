@@ -49,7 +49,7 @@ class ParseAPISpec extends FlatSpec
     val input = """[link][id]
       |
       |[id]: http://foo/""".stripMargin
-    MarkupParser.of(Markdown).withoutRewrite.build.parse(input).toOption.get.content should be (root 
+    MarkupParser.of(Markdown).build.parseUnresolved(input).toOption.get.document.content should be (root 
         (p (LinkReference(List(Text("link")), "id", "[link][id]")), ExternalLinkDefinition("id","http://foo/",None)))
   }
   

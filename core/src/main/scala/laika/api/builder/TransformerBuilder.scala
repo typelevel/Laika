@@ -44,7 +44,7 @@ class TransformerBuilder [FMT] (markupFormat: MarkupFormat,
     * and returns a new Transformer instance.
     */
   def build: Transformer = {
-    val parser = new MarkupParser(markupFormat, config, rewrite = true)
+    val parser = new MarkupParser(markupFormat, config)
     val renderer = new RendererBuilder[FMT](renderFormat, config).build
     new Transformer(parser, renderer)
   }

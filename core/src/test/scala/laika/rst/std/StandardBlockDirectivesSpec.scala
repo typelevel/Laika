@@ -40,11 +40,11 @@ class StandardBlockDirectivesSpec extends FlatSpec
 
    def parseRaw (input: String): RootElement = MarkupParser
      .of(ReStructuredText)
-     .withoutRewrite
      .build
-     .parse(input)
+     .parseUnresolved(input)
      .toOption
      .get
+     .document
      .content
      .rewriteBlocks({ case _: Temporary with Block => Remove }) // removing the noise of rst TextRoles which are not the focus of this spec
 

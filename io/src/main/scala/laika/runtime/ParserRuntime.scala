@@ -121,7 +121,7 @@ object ParserRuntime {
       }}.combineAll.toEither.leftMap(es => ParserErrors(es.toList))
       
       def rewriteTree (root: DocumentTreeRoot): ParsedTree = {
-        val finalTree = if (op.parsers.exists(_.rewrite)) root.rewrite(op.config.rewriteRules) else root
+        val finalTree = root.rewrite(op.config.rewriteRules)
         val finalRoot = finalTree.copy(staticDocuments = inputs.binaryInputs.map(_.path), sourcePaths = inputs.sourcePaths)
         ParsedTree(finalRoot, inputs.binaryInputs)
       }

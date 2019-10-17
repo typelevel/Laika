@@ -28,8 +28,6 @@ class DocumentAPISpec extends FlatSpec
 
   
   val parser = MarkupParser.of(Markdown).build
-  val rawParser = MarkupParser.of(Markdown).withoutRewrite.build
-  
   
   "The Document API" should "allow to specify a title in a config section" in {
     val markup = """{% title: Foo and Bar %}
@@ -78,7 +76,7 @@ class DocumentAPISpec extends FlatSpec
       |
       |Some more text""".stripMargin
     
-    val doc = rawParser.parse(markup).toOption.get
+    val doc = parser.parseUnresolved(markup).toOption.get.document
     
     val rewritten1 = doc.rewrite(OperationConfig.default.rewriteRules(DocumentCursor(doc)))
     val rewritten2 = rewritten1.rewrite(OperationConfig.default.rewriteRules(DocumentCursor(rewritten1)))
@@ -94,7 +92,7 @@ class DocumentAPISpec extends FlatSpec
       |
       |Some more text""".stripMargin
     
-    val raw = rawParser.parse(markup).toOption.get
+    val raw = parser.parseUnresolved(markup).toOption.get.document
     val cursor = DocumentCursor(raw)
     val testRule = RewriteRules.forSpans {
       case Text("Some text",_) => Replace(Text("Swapped"))

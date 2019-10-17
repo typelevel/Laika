@@ -61,7 +61,7 @@ class TwoPhaseTransformerBuilder[FMT, PP] (val markupFormat: MarkupFormat,
     * and returns a new Transformer instance.
     */
   def build: TwoPhaseTransformer[PP] = TwoPhaseTransformer(
-    new ParserBuilder(markupFormat, config, rewrite = true).build,
+    new ParserBuilder(markupFormat, config).build,
     new TwoPhaseRendererBuilder[FMT, PP](twoPhaseRenderFormat, config).build
   )
 
