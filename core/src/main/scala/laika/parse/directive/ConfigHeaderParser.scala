@@ -17,10 +17,8 @@
 package laika.parse.directive
 
 import laika.api.config.{Config, ConfigBuilder}
-import laika.ast.{InvalidElement, Path}
 import laika.bundle.UnresolvedConfig
 import laika.parse.Parser
-import laika.parse.combinator.Parsers
 import laika.parse.hocon.HoconParsers.ConfigValue
 import laika.parse.text.TextParsers._
 
@@ -55,12 +53,6 @@ object ConfigHeaderParser {
     * tried instead.
     */
   def forTextParser (parser: Parser[String]): Parser[UnresolvedConfig] = parser.map(UnresolvedConfig.default)
-
-//  /** Merges the specified parsers so that they will be tried consecutively until
-//    * one of them succeeds. If all of them fail, the merged parser will fail, too.
-//    */
-//  def merged (parsers: Seq[Path => ConfigHeaderParser])(path: Path): ConfigHeaderParser =
-//    parsers.map(_(path)).reduce(_ | _)
 
   // val fallback: Path => Parser[Either[InvalidElement, Config]] = { _ => Parsers.success(Right(Config.empty)) }
 

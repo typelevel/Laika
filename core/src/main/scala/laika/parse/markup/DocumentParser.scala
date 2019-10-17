@@ -38,13 +38,8 @@ object DocumentParser {
   private def create [D, R <: ElementContainer[_]] (rootParser: Parser[R], configProvider: ConfigProvider)
     (docFactory: (Path, UnresolvedConfig, R) => D): ParserInput => Either[ParserError, D] = {
 
-//    def extractConfigValues (root: R): Seq[(String, ConfigValue)] = root.collect { 
-//      case c: EmbeddedConfigValue => (c.key, c.value) 
-//    }
-
     forParser { path =>
       (configProvider.configHeader | Parsers.success(UnresolvedConfig.empty)) ~ rootParser ^^ { case configHeader ~ root =>
-        // val processedConfig = ConfigHeaderParser.merge(config, extractConfigValues(root)) TODO - 0.12 - needs to happen later now
         docFactory(path, configHeader, root)
       }
     }

@@ -17,12 +17,13 @@
 package laika.api
 
 import laika.api.builder.ParserBuilder
-import laika.ast.{Document, DocumentCursor, Path, UnresolvedDocument}
+import laika.ast.{Document, DocumentCursor, EmbeddedConfigValue, Path, UnresolvedDocument}
 import laika.ast.Path.Root
 import laika.api.builder.OperationConfig
 import laika.factory.MarkupFormat
 import laika.parse.ParserContext
-import laika.parse.hocon.HoconParsers.Origin
+import laika.parse.directive.ConfigHeaderParser
+import laika.parse.hocon.HoconParsers.{ConfigValue, Origin}
 import laika.parse.markup.DocumentParser
 import laika.parse.markup.DocumentParser.{ParserError, ParserInput}
 import laika.rewrite.TemplateRewriter
@@ -72,12 +73,16 @@ class MarkupParser (parser: MarkupFormat, val config: OperationConfig, val rewri
   /** Parses the specified markup input into a document AST structure.
     */
   def parse (input: ParserInput): Either[ParserError, Document] = {
+    
+    def extractConfigValues (doc: Document): Seq[(String, ConfigValue)] = doc.content.collect { case c: EmbeddedConfigValue => (c.key, c.value) }
+      
     for {
       unresolved     <- docParser(input)
       resolvedConfig <- unresolved.config.resolve(Origin(input.path), 
                           config.baseConfig).left.map(e => ParserError(e.toString, input.path)) // TODO - 0.12 - ConfigError to ParserError
     } yield {
-      val resolvedDoc = unresolved.document.copy(config = resolvedConfig)
+      val processedConfig = ConfigHeaderParser.merge(resolvedConfig, extractConfigValues(unresolved.document)) // TODO - 0.12 - move this somewhere else
+      val resolvedDoc = unresolved.document.copy(config = processedConfig)
       if (rewrite) {
         val phase1 = resolvedDoc.rewrite(config.rewriteRulesFor(resolvedDoc))
         phase1.rewrite(TemplateRewriter.rewriteRules(DocumentCursor(phase1)))
