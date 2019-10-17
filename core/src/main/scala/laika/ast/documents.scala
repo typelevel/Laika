@@ -19,15 +19,14 @@ package laika.ast
 import java.time.Instant
 import java.util.Locale
 
-import laika.api.config.{Config, ConfigBuilder, ConfigDecoder, ConfigError, DefaultKey, InvalidType, ValidationError}
+import laika.api.config.Config.ConfigResult
+import laika.api.config.{Config, ConfigDecoder, DefaultKey, InvalidType, ValidationError}
 import laika.ast.Path.Root
-import laika.collection.TransitionalCollectionOps._
-import laika.parse.hocon.HoconParsers
 import laika.parse.hocon.HoconParsers.{ObjectValue, TracedValue}
 import laika.rewrite.TemplateRewriter
 import laika.rewrite.link.LinkTargetProvider
 import laika.rewrite.link.LinkTargets._
-import laika.rewrite.nav.{AutonumberConfig, Scope}
+import laika.rewrite.nav.AutonumberConfig
 
 import scala.annotation.tailrec
 import scala.util.Try
@@ -119,8 +118,8 @@ object DocumentMetadata {
     Try(Locale.forLanguageTag(lang)).toEither.left.map(e => ValidationError(e.getMessage)) 
   }
 
-  def toInstant[C] (in: Config.Result[Option[String]])(f: String => Config.Result[Instant]): Config.Result[Option[Instant]] = 
-    in.flatMap(_.fold[Config.Result[Option[Instant]]](Right(None))(f(_).map(Some(_))))
+  def toInstant[C] (in: ConfigResult[Option[String]])(f: String => ConfigResult[Instant]): ConfigResult[Option[Instant]] = 
+    in.flatMap(_.fold[ConfigResult[Option[Instant]]](Right(None))(f(_).map(Some(_))))
   
   implicit val decoder: ConfigDecoder[DocumentMetadata] = {
     case TracedValue(ov: ObjectValue, _) =>
@@ -137,7 +136,7 @@ object DocumentMetadata {
         DocumentMetadata(identifier, authors ++ author.toSeq, lang, date)
       }
 
-    case other => Left(InvalidType("Object", "" /* other.getClass.getSimpleName */)) // TODO - 0.12 - type descriptors
+    case _ => Left(InvalidType("Object", "" /* other.getClass.getSimpleName */)) // TODO - 0.12 - type descriptors
   }
   implicit val defaultKey: DefaultKey[DocumentMetadata] = DefaultKey("metadata")
 

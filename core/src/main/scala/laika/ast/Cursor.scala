@@ -16,9 +16,11 @@
 
 package laika.ast
 
+import laika.api.config.Config.ConfigResult
 import laika.api.config.{Config, ConfigEncoder}
 import laika.ast.Path.Root
 import laika.collection.TransitionalCollectionOps._
+import laika.parse.hocon.HoconParsers.ConfigValue
 import laika.rewrite.ReferenceResolver
 import laika.rewrite.nav.NavigationOrder
 
@@ -219,7 +221,7 @@ case class DocumentCursor (target: Document,
    *  root tree is reached. If the value is not found `None` will
    *  be returned.
    */
-  def resolveReference (key: String): Config.Result[Option[laika.parse.hocon.HoconParsers.ConfigValue]] = resolver.resolve(key)
+  def resolveReference (key: String): ConfigResult[Option[ConfigValue]] = resolver.resolve(key)
   
   /** Creates a copy of this cursor with a new root object
    *  for resolving references. This is useful for custom

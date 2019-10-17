@@ -72,7 +72,7 @@ object FOTemplate {
     private val coverImagePath = "pdf.coverImage"
 
     def resolve (cursor: DocumentCursor): Span = {
-      cursor.root.target.config
+      cursor.root.target.config // TODO - 0.12 - shouldn't we use cursor.config here?
         .get[String](coverImagePath)
         .toOption
         .fold[TemplateSpan](TemplateSpanSequence(Nil)) { coverPath =>

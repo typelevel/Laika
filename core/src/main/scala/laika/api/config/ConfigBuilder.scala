@@ -23,7 +23,7 @@ import laika.collection.TransitionalCollectionOps._
 /**
   * @author Jens Halm
   */
-class ConfigBuilder (fields: Seq[Field], origin: Origin, fallback: Option[Config] = None) {
+class ConfigBuilder (fields: Seq[Field], origin: Origin, fallback: Config = EmptyConfig) {
 
   def withValue[T](key: String, value: T)(implicit encoder: ConfigEncoder[T]) : ConfigBuilder =
     new ConfigBuilder(fields :+ expandPath(Key(key), encoder(value)), origin, fallback)
@@ -32,12 +32,10 @@ class ConfigBuilder (fields: Seq[Field], origin: Origin, fallback: Option[Config
     withValue[T](defaultKey.value, value)
   
   def build: Config = 
-    if (fields.isEmpty) fallback.getOrElse(Config.empty) 
-    else new Config(mergeObjects(ObjectValue(fields)), origin, fallback)
+    if (fields.isEmpty && origin == Origin.root) fallback 
+    else new ObjectConfig(mergeObjects(ObjectValue(fields)), origin, fallback)
 
-  def withFallback(other: Config): ConfigBuilder =
-    if (other.root.values.isEmpty) this
-    else new ConfigBuilder(fields, origin, fallback.fold(Some(other))(f => Some(f.withFallback(other))))
+  def withFallback(other: Config): ConfigBuilder = new ConfigBuilder(fields, origin, fallback.withFallback(other))
   
   // TODO - move to companion
   def withOrigin(path: Path): ConfigBuilder = new ConfigBuilder(fields, Origin(path))
@@ -155,7 +153,7 @@ object ConfigDecoder {
 
   implicit lazy val path: ConfigDecoder[Path] = tracedValue[String].map { tracedValue =>
     val basePath = tracedValue.origins.headOption.fold[Path](Path.Root)(_.path)
-    (basePath / Path(tracedValue.value)).relativeTo(Path.Root)
+    (basePath.parent / Path(tracedValue.value)).relativeTo(Path.Root)
   }
   
   implicit def seq[T] (implicit elementDecoder: ConfigDecoder[T]): ConfigDecoder[Seq[T]] = new ConfigDecoder[Seq[T]] {

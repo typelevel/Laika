@@ -16,10 +16,9 @@
 
 package laika.bundle
 
-import laika.api.config.{Config, ConfigBuilder, ConfigParser}
+import laika.api.config.{Config, ConfigParser}
 import laika.ast.Path
 import laika.parse.markup.DocumentParser.{ParserError, ParserInput}
-import laika.parse.text.TextParsers._
 
 /** Factory for Config instances that add information
   * about the virtual path of the configuration within a Laika

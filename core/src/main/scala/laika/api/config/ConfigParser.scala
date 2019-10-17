@@ -20,6 +20,12 @@ import laika.ast.Path
 import laika.parse.hocon.HoconParsers.Origin
 import laika.parse.hocon.{ConfigResolver, HoconParsers}
 
+class ConfigParser(input: String, origin: Origin) {
+  
+  def resolve: Either[ConfigError, Config] = ???
+  
+}
+
 /**
   * @author Jens Halm
   */
@@ -34,7 +40,7 @@ object ConfigParser {
       .left.map(ConfigParserError)
       .map { builderValue =>
         val root = ConfigResolver.resolve(builderValue) // TODO - 0.12 - this must return an Either, too
-        new Config(root, Origin(origin))
+        new ObjectConfig(root, Origin(origin))
       }
   }
   

@@ -16,8 +16,8 @@
 
 package laika.ast
 
-import laika.api.config.Config
-import laika.parse.hocon.HoconParsers.{ASTValue, LongValue, StringValue, ConfigValue => HoconConfigValue}
+import laika.api.config.Config.ConfigResult
+import laika.parse.hocon.HoconParsers.{ASTValue, LongValue, StringValue, ConfigValue}
 import laika.rewrite.TemplateRewriter
 
 /** Represents a placeholder inline element that needs
@@ -56,7 +56,7 @@ trait BlockResolver extends Block {
  */
 abstract class ContextReference[T <: Span] (ref: String) extends SpanResolver {
 
-  def result (value: Config.Result[Option[HoconConfigValue]]): T
+  def result (value: ConfigResult[Option[ConfigValue]]): T
 
   def resolve (cursor: DocumentCursor): Span = {
     
@@ -72,7 +72,7 @@ abstract class ContextReference[T <: Span] (ref: String) extends SpanResolver {
 case class TemplateContextReference (ref: String, options: Options = NoOpt) extends ContextReference[TemplateSpan](ref) with TemplateSpan {
   type Self = TemplateContextReference
 
-  def result (value: Config.Result[Option[HoconConfigValue]]): TemplateSpan = value match {
+  def result (value: ConfigResult[Option[ConfigValue]]): TemplateSpan = value match {
     case Right(Some(ASTValue(s: TemplateSpan)))        => s
     case Right(Some(ASTValue(RootElement(content,_)))) => EmbeddedRoot(content)
     case Right(Some(ASTValue(e: Element)))             => TemplateElement(e)
@@ -90,7 +90,7 @@ case class TemplateContextReference (ref: String, options: Options = NoOpt) exte
 case class MarkupContextReference (ref: String, options: Options = NoOpt) extends ContextReference[Span](ref) {
   type Self = MarkupContextReference
 
-  def result (value: Config.Result[Option[HoconConfigValue]]): Span = value match {
+  def result (value: ConfigResult[Option[ConfigValue]]): Span = value match {
     case Right(Some(ASTValue(s: Span)))    => s
     case Right(Some(ASTValue(e: Element))) => TemplateElement(e)
     case Right(Some(StringValue(v)))       => Text(v)
