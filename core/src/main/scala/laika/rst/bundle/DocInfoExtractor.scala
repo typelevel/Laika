@@ -28,34 +28,32 @@ import laika.rst.ast.FieldList
   *
   * @author Jens Halm
   */
-object DocInfoExtractor extends (Document => Document) {
+object DocInfoExtractor extends (UnresolvedDocument => UnresolvedDocument) {
 
-  def apply (doc: Document): Document = {
+  def apply (doc: UnresolvedDocument): UnresolvedDocument = {
 
-    val docStartBlock = doc.content.content.dropWhile {
+    val docStartBlock = doc.document.content.content.dropWhile {
       case _: Comment => true
       case _: DecoratedHeader => true
       case _ => false
     }.headOption
 
-    val docInfoMap = docStartBlock.collect {
+    val embeddedConfigs = docStartBlock.collect {
       case FieldList(fields, _) => fields.map { field =>
         val name = SpanSequence(field.name).extractText
         val value = field.content.collect {
           case p: Paragraph => p.extractText
         }.mkString
-        (name, value)
-      }.toMap
+        EmbeddedConfigValue(s"docInfo.$name", value)
+      }
     }
-
-    val mergedConfig = docInfoMap.fold(doc.config){ info =>
-      info.foldLeft(ConfigBuilder.empty.withFallback(doc.config)) { case (builder, (key, value)) =>
-        builder.withValue(s"docInfo.$key", value)
-      }.build
-      
+    
+    embeddedConfigs.fold(doc){ configs =>
+      val block = BlockSequence(configs)
+      val oldRoot = doc.document.content
+      doc.copy(document = doc.document.copy(content = oldRoot.copy(content = block +: oldRoot.content)))
     }
-
-    doc.copy(config = mergedConfig)
+    
   }
 
 }

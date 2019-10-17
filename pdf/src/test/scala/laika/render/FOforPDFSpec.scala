@@ -16,8 +16,9 @@
 
 package laika.render
 
-import java.io.ByteArrayOutputStream
+import java.io.{ByteArrayOutputStream, OutputStream}
 
+import cats.implicits._
 import cats.effect.{Async, ContextShift, IO}
 import laika.api.Renderer
 import laika.ast.{DocumentTreeRoot, TemplateRoot}
@@ -52,9 +53,13 @@ class FOforPDFSpec extends FlatSpec with Matchers {
 
       override def process[F[_]: Async: Runtime] (result: RenderedTreeRoot, output: BinaryOutput): F[Unit] = {
 
-        val fo = FOConcatenation(result, config.getOrElse(PDFConfigBuilder.fromTreeConfig(result.config)))
+        val foRes = FOConcatenation(result, config.getOrElse(PDFConfigBuilder.fromTreeConfig(result.config)))
+        
         OutputRuntime.asStream(output).use { out =>
-          Async[F].delay(out.write(fo.getBytes("UTF-8")))
+          for {
+            fo <- Async[F].fromEither(foRes.left.map(e => new RuntimeException(e.toString))): F[String] // TODO - 0.12 - ConfigError to Throwable
+            _  <- Async[F].delay(out.write(fo.getBytes("UTF-8"))): F[Unit]
+          } yield ()
         }
 
       }

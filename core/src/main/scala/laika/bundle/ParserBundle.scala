@@ -16,7 +16,6 @@
 
 package laika.bundle
 
-import laika.api.config.Config
 import laika.ast._
 import laika.parse.Parser
 import laika.parse.markup.DocumentParser.ParserInput
@@ -33,14 +32,14 @@ import laika.parse.markup.DocumentParser.ParserInput
   * @param blockParsers parsers for block elements in text markup, complementing the parsers of the host language
   * @param spanParsers parsers for span elements in text markup, complementing the parsers of the host language
   * @param markupParserHooks hooks for markup parsers to control aspects beyond the individual span and block parsers
-  * @param configHeaderParsers parser for configuration headers in text markup and template documents
+  * @param configProvider parser for configuration headers in text markup and template documents and configuration documents
   * @param templateParser parser for template documents
   * @param styleSheetParser parser for CSS documents
   */
 case class ParserBundle(blockParsers: Seq[BlockParserBuilder] = Nil,
                         spanParsers: Seq[SpanParserBuilder] = Nil,
                         markupParserHooks: Option[ParserHooks] = None,
-                        configHeaderParsers: Seq[Path => Parser[Either[InvalidElement, Config]]] = Nil,
+                        configProvider: Option[ConfigProvider] = None,
                         templateParser: Option[Parser[TemplateRoot]] = None,
                         styleSheetParser: Option[Parser[Set[StyleDeclaration]]] = None) {
 
@@ -54,7 +53,7 @@ case class ParserBundle(blockParsers: Seq[BlockParserBuilder] = Nil,
       blockParsers ++ base.blockParsers,
       spanParsers ++ base.spanParsers,
       (markupParserHooks.toSeq ++ base.markupParserHooks.toSeq).reduceLeftOption(_ withBase _),
-      configHeaderParsers ++ base.configHeaderParsers,
+      configProvider.orElse(base.configProvider),
       templateParser.orElse(base.templateParser),
       styleSheetParser.orElse(base.styleSheetParser)
     )
@@ -76,14 +75,14 @@ case class ParserBundle(blockParsers: Seq[BlockParserBuilder] = Nil,
   * @param preProcessInput function invoked before parsing, allowing to pre-process the input
   */
 case class ParserHooks(postProcessBlocks: Seq[Block] => Seq[Block] = identity,
-                       postProcessDocument: Document => Document = identity,
+                       postProcessDocument: UnresolvedDocument => UnresolvedDocument = identity,
                        preProcessInput: ParserInput => ParserInput = identity) {
 
   /** Merges this instance with the specified base.
     * The functions specified in the base are always invoked before
     * the functions in this instance.
     */
-  def withBase (base: ParserHooks): ParserHooks = new ParserHooks(
+  def withBase (base: ParserHooks): ParserHooks = ParserHooks(
     base.postProcessBlocks andThen postProcessBlocks,
     base.postProcessDocument andThen postProcessDocument,
     base.preProcessInput andThen preProcessInput

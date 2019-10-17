@@ -18,7 +18,7 @@ package laika.api.builder
 
 import laika.api.config.Config
 import laika.ast._
-import laika.bundle.{DocumentTypeMatcher, ExtensionBundle, MarkupExtensions}
+import laika.bundle.{ConfigProvider, DocumentTypeMatcher, ExtensionBundle, MarkupExtensions}
 import laika.directive.{DirectiveSupport, StandardDirectives}
 import laika.factory.{MarkupFormat, RenderFormat}
 import laika.parse.Parser
@@ -55,12 +55,11 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
     */
   lazy val markupExtensions: MarkupExtensions = mergedBundle.parsers.markupExtensions
 
-  /** Provides the parser for configuration headers in text markup and template documents,
-    * obtained from merging the parsers defined in all extension bundles and adding a fallback
-    * that produces an empty configuration if all other parsers fail (or none are defined).
+  /** Provides the parser for configuration documents and configuration headers in text markup 
+    * and template documents.
+    * Always produces an empty configuration if no provider was installed.
     */
-  lazy val configHeaderParser: Path => Parser[Either[InvalidElement, Config]] =
-    ConfigHeaderParser.merged(mergedBundle.parsers.configHeaderParsers :+ ConfigHeaderParser.fallback)
+  lazy val configProvider: ConfigProvider = mergedBundle.parsers.configProvider.getOrElse(ConfigProvider.empty)
 
   /** Provides the parser for CSS documents, obtained by merging the parsers defined in all extension bundles
     * and adding a fallback that produces an empty style declaration set if all other parsers fail (or none are defined).

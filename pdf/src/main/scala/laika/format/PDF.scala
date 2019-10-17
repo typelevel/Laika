@@ -19,6 +19,7 @@ package laika.format
 import java.io.File
 
 import cats.effect.Async
+import cats.implicits._
 import laika.ast.{DocumentMetadata, DocumentTreeRoot, SpanSequence, TemplateRoot}
 import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
 import laika.io.model.{BinaryOutput, RenderedTreeRoot}
@@ -79,12 +80,13 @@ class PDF private(val interimFormat: RenderFormat[FOFormatter], config: Option[P
   val postProcessor: BinaryPostProcessor = new BinaryPostProcessor {
     override def process[F[_]: Async: Runtime] (result: RenderedTreeRoot, output: BinaryOutput): F[Unit] = {
       
-      val fo: String = FOConcatenation(result, config.getOrElse(PDFConfigBuilder.fromTreeConfig(result.config)))
-
       val metadata = DocumentMetadata.fromConfig(result.config)
       val title = if (result.title.isEmpty) None else Some(SpanSequence(result.title).extractText)
 
-      renderer.render(fo, output, metadata, title, result.sourcePaths)
+      for {
+        fo <- Async[F].fromEither(FOConcatenation(result, config.getOrElse(PDFConfigBuilder.fromTreeConfig(result.config))).left.map(e => new RuntimeException(e.toString))) // TODO - 0.12 - ConfigError to Throwable
+        _  <- renderer.render(fo, output, metadata, title, result.sourcePaths)
+      } yield ()
     }
   }
 

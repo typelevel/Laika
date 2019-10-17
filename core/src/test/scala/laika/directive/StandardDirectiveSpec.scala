@@ -48,7 +48,7 @@ class StandardDirectiveSpec extends FlatSpec
     val tRoot = parseTemplate(input)
     val template = TemplateDocument(Path.Root, tRoot)
     val cursor = DocumentCursor(Document(Path.Root, root(), config = ConfigParser.parse(config).resolve.right.get))
-    TemplateRewriter.applyTemplate(cursor, template).content
+    TemplateRewriter.applyTemplate(cursor, template).right.get.content
   }
   
 
@@ -335,7 +335,7 @@ class StandardDirectiveSpec extends FlatSpec
       val doc = Document(pathUnderTest, parse(markup).content, config = 
         ConfigBuilder.empty.withValue("title","Doc 7").withValue("template","/test.html").build)
       val tree = buildTree(templateDoc, doc).rewrite(OperationConfig.default.rewriteRules)
-      TemplateRewriter.applyTemplates(DocumentTreeRoot(tree), "html").tree.selectDocument(Current / "sub2" / "doc7").get.content
+      TemplateRewriter.applyTemplates(DocumentTreeRoot(tree), "html").right.get.tree.selectDocument(Current / "sub2" / "doc7").get.content
     }
     
     def markup = """# Headline 1

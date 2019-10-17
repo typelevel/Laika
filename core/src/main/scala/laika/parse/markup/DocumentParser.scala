@@ -16,14 +16,11 @@
 
 package laika.parse.markup
 
-import laika.api.config.{Config}
 import laika.ast._
-import laika.bundle.MarkupExtensions
+import laika.bundle.{ConfigProvider, MarkupExtensions, UnresolvedConfig}
 import laika.factory.MarkupFormat
 import laika.parse.combinator.Parsers
 import laika.parse.{Parser, ParserContext}
-import laika.parse.directive.ConfigHeaderParser
-import laika.parse.hocon.HoconParsers.ConfigValue
 
 /** Responsible for creating the top level parsers for text markup and template documents,
   * by combining the parser for the root element with a parser for an (optional) configuration
@@ -38,21 +35,17 @@ object DocumentParser {
   case class ParserError (message: String, path: Path) extends 
     RuntimeException(s"Error parsing document '$path': $message")
 
-  type ConfigHeaderParser = Path => Parser[Either[InvalidElement, Config]]
+  private def create [D, R <: ElementContainer[_]] (rootParser: Parser[R], configProvider: ConfigProvider)
+    (docFactory: (Path, UnresolvedConfig, R) => D): ParserInput => Either[ParserError, D] = {
 
-  private def create [D, R <: ElementContainer[_]] (rootParser: Parser[R], configHeaderParser: ConfigHeaderParser)
-    (docFactory: (Path, Config, Option[InvalidElement], R) => D): ParserInput => Either[ParserError, D] = {
-
-    def extractConfigValues (root: R): Seq[(String, ConfigValue)] = root.collect { 
-      case c: EmbeddedConfigValue => (c.key, c.value) 
-    }
+//    def extractConfigValues (root: R): Seq[(String, ConfigValue)] = root.collect { 
+//      case c: EmbeddedConfigValue => (c.key, c.value) 
+//    }
 
     forParser { path =>
-      configHeaderParser(path) ~ rootParser ^^ { case configHeader ~ root =>
-        val config = configHeader.getOrElse(Config.empty)
-        val message = configHeader.swap.toOption
-        val processedConfig = ConfigHeaderParser.merge(config, extractConfigValues(root))
-        docFactory(path, processedConfig, message, root)
+      (configProvider.configHeader | Parsers.success(UnresolvedConfig.empty)) ~ rootParser ^^ { case configHeader ~ root =>
+        // val processedConfig = ConfigHeaderParser.merge(config, extractConfigValues(root)) TODO - 0.12 - needs to happen later now
+        docFactory(path, configHeader, root)
       }
     }
   }
@@ -62,43 +55,31 @@ object DocumentParser {
     */
   def forMarkup (markupParser: MarkupFormat,
                  markupExtensions: MarkupExtensions,
-                 configHeaderParser: ConfigHeaderParser): ParserInput => Either[ParserError, Document] = {
+                 configProvider: ConfigProvider): ParserInput => Either[ParserError, UnresolvedDocument] = {
 
     val rootParser = new RootParser(markupParser, markupExtensions).rootElement
 
     markupExtensions.parserHooks.preProcessInput andThen
-      forMarkup(rootParser, configHeaderParser) andThen
+      forMarkup(rootParser, configProvider) andThen
       { _.map(markupExtensions.parserHooks.postProcessDocument) }
   }
 
   /** Combines the specified parsers for the root element and for (optional) configuration
     * headers to create a parser function for an entire text markup document.
     */
-  def forMarkup (rootParser: Parser[RootElement], configHeaderParser: ConfigHeaderParser): ParserInput => Either[ParserError, Document] =
-
-    create(rootParser, configHeaderParser) { (path, config, invalid, root) =>
-
+  def forMarkup (rootParser: Parser[RootElement], configProvider: ConfigProvider): ParserInput => Either[ParserError, UnresolvedDocument] =
+    create(rootParser, configProvider) { (path, config, root) =>
       val fragments = root.collect { case f: DocumentFragment => (f.name, f.root) }.toMap
-      val content = invalid.fold(root) { inv =>
-        root.copy(content = inv.asBlock +: root.content)
-      }
-      Document(path, content, fragments, config)
+      UnresolvedDocument(Document(path, root, fragments), config)
    }
 
   /** Combines the specified parsers for the root element and for (optional) configuration
     * headers to create a parser function for an entire template document.
     */
-  def forTemplate (rootParser: Parser[TemplateRoot], configHeaderParser: ConfigHeaderParser): ParserInput => Either[ParserError, TemplateDocument] = {
-
-    create(rootParser, configHeaderParser) { (path, config, invalid, root) =>
-
-      val content = invalid.fold(root) { inv =>
-        root.copy(content = inv.asTemplateSpan +: root.content)
-      }
-      TemplateDocument(path, content, config)
+  def forTemplate (rootParser: Parser[TemplateRoot], configProvider: ConfigProvider): ParserInput => Either[ParserError, TemplateDocument] = 
+    create(rootParser, configProvider) { (path, config, root) =>
+      TemplateDocument(path, root, config)
     }
-
-  }
 
   /** Builds a document parser for CSS documents based on the specified parser for style declarations.
     */

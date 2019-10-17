@@ -116,7 +116,7 @@ object ParallelParser {
       * templating is not supported for this operation.
       */
     lazy val templateParser: Option[ParserInput => Either[ParserError, TemplateDocument]] = config.templateParser map { rootParser =>
-      DocumentParser.forTemplate(rootParser, config.configHeaderParser)
+      DocumentParser.forTemplate(rootParser, config.configProvider)
     }
 
     /** The parser for CSS documents for this operation. Currently CSS input

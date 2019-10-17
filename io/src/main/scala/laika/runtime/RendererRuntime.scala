@@ -51,14 +51,12 @@ object RendererRuntime {
     }
 
     val fileSuffix = op.renderer.format.fileSuffix
-    val finalRoot = op.renderer.applyTheme(op.input)
-    val styles = finalRoot.styles(fileSuffix)
     
     case class RenderOps (mkDirOps: Seq[F[Unit]], renderOps: Seq[F[RenderResult]])
     
     def file (rootDir: File, path: Path): File = new File(rootDir, path.toString.drop(1))
 
-    def renderDocuments (output: Path => TextOutput): Seq[F[RenderResult]] = finalRoot.allDocuments.map { document =>
+    def renderDocuments (finalRoot: DocumentTreeRoot, styles: StyleDeclarationSet)(output: Path => TextOutput): Seq[F[RenderResult]] = finalRoot.allDocuments.map { document =>
       val outputPath = document.path.withSuffix(fileSuffix)
       val textOp = SequentialRenderer.Op(op.renderer, document.content, outputPath, Async[F].pure(output(outputPath)))
       run(textOp, Some(styles)).map { res =>
@@ -71,10 +69,10 @@ object RendererRuntime {
       CopyRuntime.copy(in, out).as(Left(CopiedDocument(in.path)): RenderResult)
     }
     
-    def renderOps (staticDocs: Seq[BinaryInput]): F[RenderOps] = op.output.map {
-      case StringTreeOutput => RenderOps(Nil, renderDocuments(p => StringOutput(p)))
+    def renderOps (finalRoot: DocumentTreeRoot, styles: StyleDeclarationSet, staticDocs: Seq[BinaryInput]): F[RenderOps] = op.output.map {
+      case StringTreeOutput => RenderOps(Nil, renderDocuments(finalRoot, styles)(p => StringOutput(p)))
       case DirectoryOutput(dir, codec) => 
-        val renderOps = renderDocuments(p => TextFileOutput(file(dir, p), p, codec))
+        val renderOps = renderDocuments(finalRoot, styles)(p => TextFileOutput(file(dir, p), p, codec))
         val toCopy = filterOutput(staticDocs, dir.getAbsolutePath)
         val copyOps = copyDocuments(toCopy, dir)
         val directories = (finalRoot.allDocuments.map(_.path.parent) ++ toCopy.map(_.path.parent)).distinct
@@ -88,7 +86,7 @@ object RendererRuntime {
       }.fold(staticDocs) { nestedOut => staticDocs.filterNot(_.path.components.startsWith(nestedOut.components)) }
     }
     
-    def processBatch (ops: Seq[F[RenderResult]], staticDocs: Seq[BinaryInput]): F[RenderedTreeRoot] =
+    def processBatch (finalRoot: DocumentTreeRoot, ops: Seq[F[RenderResult]], staticDocs: Seq[BinaryInput]): F[RenderedTreeRoot] =
 
       implicitly[Runtime[F]].runParallel(ops.toVector).map { results =>
         val renderedDocs = results.collect { case Right(doc) => doc }
@@ -111,11 +109,13 @@ object RendererRuntime {
       }
 
     for {
-      static <- op.staticDocuments
-      _      <- validatePaths(static)
-      ops    <- renderOps(static)
-      _      <- ops.mkDirOps.toVector.sequence
-      res    <- processBatch(ops.renderOps, static)
+      finalRoot <- Async[F].fromEither(op.renderer.applyTheme(op.input).leftMap(e => RendererErrors(Seq(new RuntimeException(e.toString))))) // TODO - 0.12 - ConfigError to Ex
+      styles    = finalRoot.styles(fileSuffix)
+      static    <- op.staticDocuments
+      _         <- validatePaths(static)
+      ops       <- renderOps(finalRoot, styles, static)
+      _         <- ops.mkDirOps.toVector.sequence
+      res       <- processBatch(finalRoot, ops.renderOps, static)
     } yield res
   }
 

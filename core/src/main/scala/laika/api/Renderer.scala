@@ -17,6 +17,7 @@
 package laika.api
 
 import laika.api.builder.{OperationConfig, RendererBuilder, TwoPhaseRendererBuilder}
+import laika.api.config.ConfigError
 import laika.ast.Path.Root
 import laika.ast._
 import laika.factory.{RenderContext, RenderFormat, TwoPhaseRenderFormat}
@@ -108,7 +109,7 @@ abstract class Renderer (val config: OperationConfig) {
     * entire trees of documents. It is usually not invoked by 
     * application code directly.
     */
-  def applyTheme (root: DocumentTreeRoot): DocumentTreeRoot = {
+  def applyTheme (root: DocumentTreeRoot): Either[ConfigError, DocumentTreeRoot] = {
     val styles = theme.defaultStyles ++ root.styles(format.fileSuffix)
     
     val treeWithTpl: DocumentTree = root.tree.getDefaultTemplate(format.fileSuffix).fold(

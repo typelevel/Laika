@@ -16,7 +16,9 @@
 
 package laika.rewrite
 
+import laika.api.config.ConfigError
 import laika.ast._
+import laika.parse.hocon.HoconParsers.Origin
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
@@ -31,63 +33,77 @@ trait TemplateRewriter {
   
   /** Selects and applies the templates for the specified output format to all documents within the specified tree cursor recursively.
    */
-  def applyTemplates (tree: DocumentTreeRoot, format: String): DocumentTreeRoot = applyTemplates(RootCursor(tree), format)
+  def applyTemplates (tree: DocumentTreeRoot, format: String): Either[ConfigError, DocumentTreeRoot] = applyTemplates(RootCursor(tree), format)
 
   /** Selects and applies the templates for the specified output format to all documents within the specified tree cursor recursively.
     */
-  def applyTemplates (cursor: RootCursor, format: String): DocumentTreeRoot = {
+  def applyTemplates (cursor: RootCursor, format: String): Either[ConfigError, DocumentTreeRoot] = {
     
-    val newCover = cursor.coverDocument.map(applyTemplate(_, format))
+    for {
+      newCover <- applyTemplate(cursor.coverDocument.toSeq, format)
+      newTree  <- applyTemplates(cursor.tree, format)
+    } yield {
+      cursor.target.copy(
+        coverDocument = newCover.headOption,
+        tree = newTree
+      )
+    }
     
-    val newTree = applyTemplates(cursor.tree, format)
-    
-    cursor.target.copy(
-      coverDocument = newCover,
-      tree = newTree
-    )
   }
+  
+  private def applyTemplate(cursors: Seq[DocumentCursor], format: String): Either[ConfigError, Seq[Document]] =
+    cursors.foldLeft[Either[ConfigError, Seq[Document]]](Right(Nil)) { 
+      case (acc, next) => acc.flatMap(ls => applyTemplate(next, format).map(ls :+ _)) // TODO - 0.12 - cats Traverse
+    }
+
+  private def applyTreeTemplate(cursors: Seq[Cursor], format: String): Either[ConfigError, Seq[TreeContent]] =
+    cursors.foldLeft[Either[ConfigError, Seq[TreeContent]]](Right(Nil)) {
+      case (acc, next) => acc.flatMap { ls => (next match {
+        case doc: DocumentCursor => applyTemplate(doc, format)
+        case tree: TreeCursor => applyTemplates(tree, format)
+      }).map(ls :+ _) }
+    }
   
   /** Selects and applies the templates for the specified output format to all documents within the specified tree cursor recursively.
    */
-  def applyTemplates (cursor: TreeCursor, format: String): DocumentTree = {
-    
-    val newTitle = cursor.titleDocument.map(applyTemplate(_, format))
-    
-    val newContent = cursor.children map {
-      case doc: DocumentCursor => applyTemplate(doc, format)
-      case tree: TreeCursor => applyTemplates(tree, format)
+  def applyTemplates (cursor: TreeCursor, format: String): Either[ConfigError, DocumentTree] = {
+
+    for {
+      newTitle   <- applyTemplate(cursor.titleDocument.toSeq, format)
+      newContent <- applyTreeTemplate(cursor.children, format)
+    } yield {
+      cursor.target.copy(
+        titleDocument = newTitle.headOption,
+        content = newContent,
+        templates = Nil
+      )
     }
-      
-    cursor.target.copy(
-      titleDocument = newTitle,
-      content = newContent,
-      templates = Nil
-    )
-      
+    
   }
   
   /** Selects and applies the template for the specified output format to the target of the specified document cursor.
     */ 
-  def applyTemplate (cursor: DocumentCursor, format: String): Document = {
+  def applyTemplate (cursor: DocumentCursor, format: String): Either[ConfigError, Document] = {
     val template = selectTemplate(cursor, format).getOrElse(defaultTemplate)
     applyTemplate(cursor, template)
   }
 
   /** Applies the specified template to the target of the specified document cursor.
     */
-  def applyTemplate (cursor: DocumentCursor, template: TemplateDocument): Document = {
-    val mergedConfig = cursor.config.withFallback(template.config).resolve
-    val cursorWithMergedConfig = cursor.copy(
-      config = mergedConfig,  
-      resolver = ReferenceResolver.forDocument(cursor.target, cursor.parent, mergedConfig)
-    )
-    val newContent = rewriteRules(cursorWithMergedConfig).rewriteBlock(template.content)
-    val newRoot = newContent match {
-      case TemplateRoot(List(TemplateElement(root: RootElement, _, _)), _) => root
-      case TemplateRoot(List(EmbeddedRoot(content, _, _)), _) => RootElement(content)
-      case other => RootElement(Seq(other))
+  def applyTemplate (cursor: DocumentCursor, template: TemplateDocument): Either[ConfigError, Document] = {
+    template.config.resolve(Origin(template.path), cursor.config).map { mergedConfig =>
+      val cursorWithMergedConfig = cursor.copy(
+        config = mergedConfig,  
+        resolver = ReferenceResolver.forDocument(cursor.target, cursor.parent, mergedConfig)
+      )
+      val newContent = rewriteRules(cursorWithMergedConfig).rewriteBlock(template.content)
+      val newRoot = newContent match {
+        case TemplateRoot(List(TemplateElement(root: RootElement, _, _)), _) => root
+        case TemplateRoot(List(EmbeddedRoot(content, _, _)), _) => RootElement(content)
+        case other => RootElement(Seq(other))
+      }
+      cursorWithMergedConfig.target.copy(content = newRoot)
     }
-    cursorWithMergedConfig.target.copy(content = newRoot)
   }
   
   /** The (optional) template to use when rendering the target of the specified document cursor.

@@ -94,7 +94,7 @@ class ParallelParserSpec extends FlatSpec
     
     def customDocView (name: String, content: Seq[Block], path: Path = Root) = DocumentView(path / name, Content(content) :: Nil)
   
-    def withTemplatesApplied (root: DocumentTreeRoot): DocumentTreeRoot = TemplateRewriter.applyTemplates(root, "html")
+    def withTemplatesApplied (root: DocumentTreeRoot): DocumentTreeRoot = TemplateRewriter.applyTemplates(root, "html").right.get
     
     def parsedTree: RootView = viewOf(withTemplatesApplied(defaultParser.fromInput(build(inputs)).parse.unsafeRunSync().root))
     

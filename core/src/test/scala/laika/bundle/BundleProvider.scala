@@ -39,7 +39,7 @@ object BundleProvider {
   }
 
   def forParserHooks (postProcessBlocks: Seq[Block] => Seq[Block] = identity,
-                      postProcessDocument: Document => Document = identity,
+                      postProcessDocument: UnresolvedDocument => UnresolvedDocument = identity,
                       preProcessInput: ParserInput => ParserInput = identity): ExtensionBundle = new ExtensionBundle {
 
     override def parsers: ParserBundle = ParserBundle(
@@ -52,10 +52,10 @@ object BundleProvider {
 
   }
 
-  def forConfigHeaderParser (parser: Path => Parser[Either[InvalidElement, Config]]): ExtensionBundle = new ExtensionBundle {
+  def forConfigProvider (provider: ConfigProvider): ExtensionBundle = new ExtensionBundle {
 
     override def parsers: ParserBundle = ParserBundle(
-      configHeaderParsers = Seq(parser)
+      configProvider = Some(provider)
     )
 
   }

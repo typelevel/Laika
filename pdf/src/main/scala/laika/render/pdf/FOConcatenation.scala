@@ -16,7 +16,7 @@
 
 package laika.render.pdf
 
-import laika.api.config.Config
+import laika.api.config.{Config, ConfigError}
 import laika.api.Renderer
 import laika.ast.Path.Root
 import laika.ast._
@@ -38,7 +38,7 @@ object FOConcatenation {
     *  @param config the configuration to apply
     *  @return the rendered XSL-FO merged to a single String 
     */
-  def apply (result: RenderedTreeRoot, config: PDF.Config): String = {
+  def apply (result: RenderedTreeRoot, config: PDF.Config): Either[ConfigError, String] = {
 
     def concatDocuments: String = {
 
@@ -67,7 +67,7 @@ object FOConcatenation {
 
     val resultWithoutToc = result.copy(tree = result.tree.copy(content = result.tree.content.filterNot(_.path == Root / s"${DocNames.toc}.fo")))
 
-    def applyTemplate(foString: String, template: TemplateDocument): String = {
+    def applyTemplate(foString: String, template: TemplateDocument): Either[ConfigError, String] = {
       val foElement = RawContent(Seq("fo"), foString)
       val finalConfig = resolveCoverImagePath
       val finalDoc = Document(
@@ -76,8 +76,8 @@ object FOConcatenation {
         fragments = PDFNavigation.generateBookmarks(resultWithoutToc, config.bookmarkDepth),
         config = finalConfig
       )
-      val templateApplied = template.applyTo(finalDoc)
-      Renderer.of(XSLFO).build.render(templateApplied)
+      val renderer = Renderer.of(XSLFO).build
+      template.applyTo(finalDoc).map(renderer.render)
     }
 
     val defaultTemplate = TemplateDocument(Path.Root / "default.template.fo", result.defaultTemplate)

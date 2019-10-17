@@ -20,8 +20,9 @@ import java.time.Instant
 import java.util.Locale
 
 import laika.api.config.Config.ConfigResult
-import laika.api.config.{Config, ConfigDecoder, DefaultKey, InvalidType, ValidationError}
+import laika.api.config.{Config, ConfigDecoder, ConfigError, DefaultKey, InvalidType, ValidationError}
 import laika.ast.Path.Root
+import laika.bundle.UnresolvedConfig
 import laika.parse.hocon.HoconParsers.{ObjectValue, TracedValue}
 import laika.rewrite.TemplateRewriter
 import laika.rewrite.link.LinkTargetProvider
@@ -87,14 +88,21 @@ sealed trait TreeContent extends Navigatable {
 /** A template document containing the element tree of a parsed template and its extracted
  *  configuration section (if present).
  */
-case class TemplateDocument (path: Path, content: TemplateRoot, config: Config = Config.empty) extends Navigatable {
+case class TemplateDocument (path: Path, content: TemplateRoot, config: UnresolvedConfig = UnresolvedConfig.empty) extends Navigatable {
 
   /** Applies this template to the specified document, replacing all
    *  span and block resolvers in the template with the final resolved element.
    */
-  def applyTo (document: Document): Document = TemplateRewriter.applyTemplate(DocumentCursor(document), this)
+  def applyTo (document: Document): Either[ConfigError, Document] = TemplateRewriter.applyTemplate(DocumentCursor(document), this)
 
 }
+
+/** A temporary structure usually not exposed to user code.
+  * It holds a document with an empty Config instance and its actual config
+  * (obtained from a header section if present) in unresolved form, as it
+  * needs to be resolved based on a fallback configuration later.
+  */
+case class UnresolvedDocument (document: Document, config: UnresolvedConfig)
 
 /** Captures information about a document section, without its content.
  */

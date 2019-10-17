@@ -16,8 +16,12 @@
 
 package laika.bundle
 
-import laika.api.config.{Config, ConfigParser}
+import laika.api.config.{Config, ConfigError, ConfigParser}
 import laika.ast.Path
+import laika.parse.Parser
+import laika.parse.combinator.Parsers
+import laika.parse.hocon.HoconParsers
+import laika.parse.hocon.HoconParsers.Origin
 import laika.parse.markup.DocumentParser.{ParserError, ParserInput}
 
 /** Factory for Config instances that add information
@@ -26,6 +30,14 @@ import laika.parse.markup.DocumentParser.{ParserError, ParserInput}
   *
   * @author Jens Halm
   */
+trait ConfigProvider {
+  
+  def configHeader: Parser[UnresolvedConfig]
+  
+  def configDocument (input: String): UnresolvedConfig
+  
+}
+
 object ConfigProvider {
 
   /** Creates a Config instance based on the specified input string
@@ -37,6 +49,30 @@ object ConfigProvider {
   def fromInput (input: String, path: Path): Config = ConfigParser.parse(input, path).resolve.right.get // TODO - 0.12 - error handling
 
   // temporary API
-  def fromInput (input: ParserInput): Either[ParserError, Config] = Right(fromInput(input.context.input, input.path))
+  def fromInput (input: ParserInput): Either[ParserError, Config] = Right(fromInput(input.context.input, input.path)) // TODO - 0.12 - remove
+  
+  val empty: ConfigProvider = new ConfigProvider {
+    def configHeader = Parsers.success(UnresolvedConfig.empty)
+    def configDocument (input: String) = UnresolvedConfig.empty
+  }
+  
+}
 
+trait UnresolvedConfig {
+  
+  def resolve (origin: Origin, fallback: Config): Either[ConfigError, Config]
+  
+}
+
+object UnresolvedConfig {
+  
+  val empty: UnresolvedConfig = new UnresolvedConfig {
+    def resolve (origin: Origin, fallback: Config) = Right(fallback)
+  }
+  
+  def default (input: String): UnresolvedConfig = new UnresolvedConfig {
+    def resolve (origin: HoconParsers.Origin, fallback: Config) =
+      ConfigParser.parse(input).withFallback(fallback).resolve
+  }
+  
 }
