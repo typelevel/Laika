@@ -16,6 +16,7 @@
 
 package laika.parse.hocon
 
+import laika.api.config.EmptyConfig
 import laika.ast.Path.Root
 import laika.parse.hocon.HoconParsers.{ArrayValue, BuilderField, Field, LongValue, ObjectBuilderValue, ObjectValue, StringValue}
 import org.scalatest.{Matchers, WordSpec}
@@ -27,7 +28,7 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
 
   def parseAndResolve(input: String): ObjectValue = {
     val builder = HoconParsers.rootObject.parse(input).toOption.get
-    ConfigResolver.resolve(builder)
+    ConfigResolver.resolve(builder, EmptyConfig)
   }
    
   "The config resolver" should {

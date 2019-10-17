@@ -20,28 +20,28 @@ import laika.ast.Path
 import laika.parse.hocon.HoconParsers.Origin
 import laika.parse.hocon.{ConfigResolver, HoconParsers}
 
-class ConfigParser(input: String, origin: Origin) {
-  
-  def resolve: Either[ConfigError, Config] = ???
-  
-}
-
 /**
   * @author Jens Halm
   */
+class ConfigParser(input: String, origin: Origin, fallback: Config = EmptyConfig) {
+  
+  def resolve: Either[ConfigError, Config] = HoconParsers.rootObject
+    .parse(input)
+    .toEither
+    .left.map(ConfigParserError)
+    .map { builderValue =>
+      val root = ConfigResolver.resolve(builderValue, fallback) // TODO - 0.12 - this must return an Either, too
+      new ObjectConfig(root, origin, fallback)
+    }
+
+  def withFallback(other: Config): ConfigParser = new ConfigParser(input, origin, fallback.withFallback(other))
+  
+}
+
 object ConfigParser {
 
-  def parse(input: String): Either[ConfigError, Config] = parse(input, Path.Root)
+  def parse(input: String): ConfigParser = new ConfigParser(input, Origin(Path.Root))
 
-  def parse(input: String, origin: Path): Either[ConfigError, Config] = {
-    HoconParsers.rootObject
-      .parse(input)
-      .toEither
-      .left.map(ConfigParserError)
-      .map { builderValue =>
-        val root = ConfigResolver.resolve(builderValue) // TODO - 0.12 - this must return an Either, too
-        new ObjectConfig(root, Origin(origin))
-      }
-  }
+  def parse(input: String, origin: Path): ConfigParser = new ConfigParser(input, Origin(origin))
   
 }

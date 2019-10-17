@@ -16,6 +16,7 @@
 
 package laika.parse.hocon
 
+import laika.api.config.Config
 import laika.ast.Path
 import laika.parse.hocon.HoconParsers._
 import laika.collection.TransitionalCollectionOps._
@@ -27,7 +28,7 @@ import scala.collection.mutable
   */
 object ConfigResolver {
 
-  def resolve(root: ObjectBuilderValue): ObjectValue = {
+  def resolve(root: ObjectBuilderValue, fallback: Config): ObjectValue = {
     
     val rootExpanded = mergeObjects(expandPaths(root))
     
@@ -93,7 +94,7 @@ object ConfigResolver {
         println(s"keys in selected parent: ${obj.values.map(_.key.toString).mkString(" ")}")
         resolveField(fieldPath, obj.values.find(_.key == fieldPath).map(_.value).get, obj) // TODO - handle None
         println(s"keys after lookahead: ${resolvedFields.keySet.map(_.toString).mkString(" ")}")
-        val res = resolvedValue(path)
+        val res = resolvedValue(path).orElse(fallback.get[ConfigValue](path).toOption)
         println(s"success? ${res.isDefined}")
         res
       }
