@@ -4,7 +4,7 @@ import cats.data.{NonEmptyList, ValidatedNel}
 import cats.effect.Async
 import cats.implicits._
 import laika.ast._
-import laika.bundle.ConfigProvider
+import laika.bundle.{ConfigProvider, UnresolvedConfig}
 import laika.io.model.{DirectoryInput, InputCollection, ParsedTree, TextFileInput, TextInput}
 import laika.parse.markup.DocumentParser.{ParserError, ParserInput}
 import laika.api.MarkupParser
@@ -61,14 +61,17 @@ object ParserRuntime {
       def parseDocument[D] (input: TextInput, parse: ParserInput => Either[ParserError, D], result: D => ParserResult): F[ParserResult] =
         InputRuntime.readParserInput(input).flatMap(in => Async[F].fromEither(parse(in).map(result)))
       
+      def parseConfig(input: ParserInput): Either[ParserError, UnresolvedConfig] =
+        Right(op.config.configProvider.configDocument(input.context.input))
+      
       val createOps: Either[Throwable, Vector[F[ParserResult]]] = inputs.textInputs.toVector.map { in => in.docType match {
-        case Markup             => selectParser(in.path).map(parser => Vector(parseDocument(in, parser.parse, MarkupResult)))
+        case Markup             => selectParser(in.path).map(parser => Vector(parseDocument(in, parser.parseUnresolved, MarkupResult)))
         case Template           => op.templateParser.map(parseDocument(in, _, TemplateResult)).toVector.validNel
         case StyleSheet(format) => Vector(parseDocument(in, op.styleSheetParser, StyleResult(_, format))).validNel
-        case ConfigType         => Vector(parseDocument(in, ConfigProvider.fromInput, ConfigResult(in.path, _))).validNel
+        case ConfigType         => Vector(parseDocument(in, parseConfig, ConfigResult(in.path, _))).validNel
       }}.combineAll.toEither.leftMap(es => ParserErrors(es.toList))
       
-      def rewriteTree (root: DocumentTreeRoot): ParsedTree = {
+      def rewriteTree (root: DocumentTreeRoot): ParsedTree = { // TODO - 0.12 - move to TreeResultBuilder
         val finalTree = root.rewrite(op.config.rewriteRules)
         val finalRoot = finalTree.copy(staticDocuments = inputs.binaryInputs.map(_.path), sourcePaths = inputs.sourcePaths)
         ParsedTree(finalRoot, inputs.binaryInputs)
@@ -78,7 +81,8 @@ object ParserRuntime {
         _       <- validateInputPaths
         ops     <- Async[F].fromEither(createOps)
         results <- implicitly[Runtime[F]].runParallel(ops)
-      } yield rewriteTree(buildTree(results, op.config.baseConfig))
+        tree    <- Async[F].fromEither(buildTree(results, op.config.baseConfig).leftMap(e => ParserError(e.toString, Root))) // TODO - 0.12 - ConfigError to ParserError
+      } yield rewriteTree(tree)
     }
     
     op.input flatMap {

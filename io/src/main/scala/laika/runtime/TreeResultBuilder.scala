@@ -16,9 +16,12 @@
 
 package laika.runtime
 
-import laika.api.config.Config
+import laika.api.config.{Config, ConfigError}
 import laika.ast.Path.Root
-import laika.ast.{Document, DocumentTree, DocumentTreeRoot, Navigatable, Path, StyleDeclarationSet, TemplateDocument, TreeBuilder}
+import laika.ast.{Document, DocumentTree, DocumentTreeRoot, Navigatable, Path, StyleDeclarationSet, TemplateDocument, TreeBuilder, UnresolvedDocument}
+import laika.bundle.UnresolvedConfig
+import laika.parse.hocon.HoconParsers.Origin
+import cats.implicits._
 
 /**
   * @author Jens Halm
@@ -29,8 +32,8 @@ object TreeResultBuilder {
 
   sealed trait ParserResult extends Navigatable
 
-  case class MarkupResult (doc: Document) extends ParserResult {
-    val path: Path = doc.path
+  case class MarkupResult (doc: UnresolvedDocument) extends ParserResult {
+    val path: Path = doc.document.path
   }
   case class TemplateResult (doc: TemplateDocument)  extends ParserResult {
     val path: Path = doc.path
@@ -38,39 +41,71 @@ object TreeResultBuilder {
   case class StyleResult (doc: StyleDeclarationSet, format: String) extends ParserResult {
     val path: Path = doc.paths.head
   }
-  case class ConfigResult (path: Path, config: Config) extends ParserResult
+  case class ConfigResult (path: Path, config: UnresolvedConfig) extends ParserResult
 
-  case class TreeResult (tree: DocumentTree) extends ParserResult {
-    val path: Path = tree.path
-  }
+  type UnresolvedContent = Either[UnresolvedDocument, TreeResult]
+  
+  case class TreeResult (path: Path, 
+                         content: Seq[Either[UnresolvedDocument, TreeResult]], 
+                         titleDoc: Option[UnresolvedDocument],
+                         templates: Seq[TemplateDocument],
+                         configs: Seq[ConfigResult]) extends ParserResult
 
-  def buildNode (baseConfig: Config)(path: Path, content: Seq[ParserResult]): TreeResult = {
+  def buildNode (path: Path, content: Seq[ParserResult]): TreeResult = {
+    
     def isTitleDoc (doc: Document): Boolean = doc.path.basename == "title"
-    val titleDoc = content.collectFirst { case MarkupResult(doc) if isTitleDoc(doc) => doc }
-    val subTrees = content.collect { case TreeResult(doc) => doc }.sortBy(_.path.name)
-    val treeContent = content.collect { case MarkupResult(doc) if !isTitleDoc(doc) => doc } ++ subTrees
+    
+    val titleDoc = content.collectFirst { case MarkupResult(doc) if isTitleDoc(doc.document) => doc }
+    val subTrees = content.collect { case tree: TreeResult => Right(tree) }.sortBy(_.right.get.path.name)
+    val treeContent = content.collect { case MarkupResult(doc) if !isTitleDoc(doc.document) => Left(doc) } ++ subTrees
     val templates = content.collect { case TemplateResult(doc) => doc }
 
-    val treeConfig = content.collect { case ConfigResult(_, config) => config }
-    val rootConfig = if (path == Root) Seq(baseConfig) else Nil
-    val fullConfig = (treeConfig.toList ++ rootConfig) reduceLeftOption (_ withFallback _) getOrElse Config.empty
+    val treeConfig = content.collect { case c: ConfigResult => c }
 
-    TreeResult(DocumentTree(path, treeContent, titleDoc, templates, fullConfig))
+    TreeResult(path, treeContent, titleDoc, templates, treeConfig)
   }
 
-  def buildTree (results: Seq[ParserResult], baseConfig: Config): DocumentTreeRoot = {
-    val coverDoc = results.collectFirst {
-      case MarkupResult(doc) if doc.path.parent == Root && doc.path.basename == "cover" => doc
+  def resolveConfig (doc: UnresolvedDocument, baseConfig: Config): Either[ConfigError, Document] =
+    doc.config.resolve(Origin(doc.document.path), baseConfig).map(config => doc.document.copy(config = config))
+  
+  def resolveConfig (result: TreeResult, baseConfig: Config): Either[ConfigError, DocumentTree] = {
+    
+    val resolvedConfig = result.configs.foldLeft[Either[ConfigError, Config]](Right(baseConfig)) {
+      case (acc, unresolved) => acc.flatMap(base => unresolved.config.resolve(Origin(unresolved.path), base))
     }
-    val tree = TreeBuilder.build(results.filterNot(res => coverDoc.exists(_.path == res.path)), buildNode(baseConfig)).tree
+    
+    resolvedConfig.flatMap { treeConfig =>
+      val resolvedContent = result.content.toVector.traverse(
+        _.fold(resolveConfig(_, treeConfig), resolveConfig(_, treeConfig))
+        //case Right(tree) => resolvedConfig(tree, treeConfig)
+        //case Left(doc)   => resolveConfig(doc, treeConfig)
+      )
+      
+      for {
+        content <- resolvedContent
+        title   <- result.titleDoc.map(resolveConfig(_, baseConfig)).sequence
+      } yield DocumentTree(result.path, content, title, result.templates, treeConfig)
+    }
+  }
+
+  def buildTree (results: Seq[ParserResult], baseConfig: Config): Either[ConfigError, DocumentTreeRoot] = {
+    
+    val coverDoc = results.collectFirst {
+      case MarkupResult(doc) if doc.document.path.parent == Root && doc.document.path.basename == "cover" => doc
+    }
+    val tree = TreeBuilder.build(results.filterNot(res => coverDoc.exists(_.document.path == res.path)), buildNode)
 
     val styles = results
       .collect { case StyleResult(styleSet, format) => (format, styleSet) }
       .groupBy(_._1)
       .mapValuesStrict(_.map(_._2).reduce(_ ++ _))
       .withDefaultValue(StyleDeclarationSet.empty)
-
-    DocumentTreeRoot(tree, coverDoc, styles)
+    
+    for {
+      resolvedTree  <- resolveConfig(tree, baseConfig)
+      resolvedCover <- coverDoc.map(resolveConfig(_, resolvedTree.config)).sequence: Either[ConfigError, Option[Document]]
+    } yield
+      DocumentTreeRoot(resolvedTree, resolvedCover, styles)
   }
   
 }

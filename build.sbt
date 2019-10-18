@@ -13,7 +13,8 @@ lazy val basicSettings = Seq(
                            "-feature" :+ 
                            "-language:implicitConversions" :+ 
                            "-language:postfixOps" :+ 
-                           "-language:higherKinds"
+                           "-language:higherKinds" :+
+                           "-Ypartial-unification"
 )
 
 lazy val moduleSettings = basicSettings ++ Seq(
