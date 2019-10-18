@@ -77,7 +77,7 @@ case class RootCursor(target: DocumentTreeRoot) {
   /** The cursor for the cover document of this tree.
     */
   lazy val coverDocument: Option[DocumentCursor] = target.coverDocument.map { cover =>
-    DocumentCursor(cover, tree, cover.config.withFallback(config).resolve, TreePosition.root)
+    DocumentCursor(cover, tree, cover.config, TreePosition.root)
   }
 
   /** Returns a new tree root, with all the document models contained in it
@@ -116,22 +116,16 @@ case class TreeCursor(target: DocumentTree,
   /** The cursor for the title document of this tree.
     */
   lazy val titleDocument: Option[DocumentCursor] = target.titleDocument.map { title =>
-    DocumentCursor(title, this, title.config.withFallback(config).resolve, position)
+    DocumentCursor(title, this, title.config, position)
   }
 
   /** The cursors for all children of this node in the document tree.
     */
   lazy val children: Seq[Cursor] = {
     
-    def configForChild(childConfig: Config): Config = childConfig.withFallback(config).resolve
-    
     target.content.zipWithIndex map {
-      case (doc: Document, index) => 
-        val config = configForChild(doc.config)
-        DocumentCursor(doc, this, config, position.forChild(index + 1))
-      case (tree: DocumentTree, index) => 
-        val config = configForChild(tree.config)
-        TreeCursor(tree, Some(this), root, config, position.forChild(index + 1))
+      case (doc: Document, index)      => DocumentCursor(doc, this, doc.config, position.forChild(index + 1))
+      case (tree: DocumentTree, index) => TreeCursor(tree, Some(this), root, tree.config, position.forChild(index + 1))
     }
   }
 
