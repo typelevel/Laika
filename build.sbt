@@ -50,9 +50,9 @@ lazy val noPublishSettings = Seq(
   publishTo := None
 )
 
-val scalatest  = "org.scalatest"          %% "scalatest"   % "3.0.8-RC2" % "test"
-val jTidy      = "net.sf.jtidy"           %  "jtidy"       % "r938"      % "test"
-val catsEffect = "org.typelevel"          %% "cats-effect" % "2.0.0-M1"
+val scalatest  = "org.scalatest"          %% "scalatest"   % "3.0.8" % "test"
+val jTidy      = "net.sf.jtidy"           %  "jtidy"       % "r938"  % "test"
+val catsEffect = "org.typelevel"          %% "cats-effect" % "2.0.0"
 val fop        = "org.apache.xmlgraphics" %  "fop"         % "2.3"
 
 lazy val root = project.in(file("."))

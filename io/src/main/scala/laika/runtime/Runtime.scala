@@ -91,8 +91,8 @@ object Runtime {
   /** Creates a Runtime instance for parallel execution based on the specified
     * contexts for CPU-bound and blocking operations.
     */
-  def parallel[F[_]: Async, G[_]] (processingC: ContextShift[F], blockingC: ContextShift[F], 
-                                   parallelismSetting: Int)(implicit P: Parallel[F, G]): Runtime[F] = new Runtime[F] {
+  def parallel[F[_]: Async: Parallel, G[_]] (processingC: ContextShift[F], blockingC: ContextShift[F], 
+                                   parallelismSetting: Int): Runtime[F] = new Runtime[F] {
     val F = implicitly[Async[F]]
     val parallelInstance = Some(Par.fromParallel)
     val parallelism = parallelismSetting
@@ -111,18 +111,16 @@ object Runtime {
     * type class.
     */
   trait Par[F[_]]{
-    type ParG[A]
-    def parallel: Parallel[F, ParG]
+    def parallel: Parallel[F]
   }
 
   /** Constructs Par instances from cats Parallel instances.
     */
   object Par {
     
-    def fromParallel[F[_], G[_]](implicit P: Parallel[F, G]): Par[F] =
+    def fromParallel[F[_], G[_]](implicit P: Parallel[F]): Par[F] =
       new Par[F]{
-        type ParG[A] = G[A]
-        def parallel: Parallel[F, ParG] = P
+        def parallel: Parallel[F] = P
       }
   }
   

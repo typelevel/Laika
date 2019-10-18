@@ -16,6 +16,7 @@
 
 package laika.io.text
 
+import cats.Parallel
 import cats.data.NonEmptyList
 import cats.effect.{Async, ContextShift}
 import laika.api.MarkupParser
@@ -77,8 +78,7 @@ object ParallelParser {
       * @param blockingContext the execution context for blocking IO
       * @param parallelism the desired level of parallelism for all tree operations                       
       */
-    def build[F[_]: Async, G[_]](processingContext: ContextShift[F], blockingContext: ContextShift[F], parallelism: Int)
-                                (implicit P: cats.Parallel[F, G]): ParallelParser[F] =
+    def build[F[_]: Async: Parallel](processingContext: ContextShift[F], blockingContext: ContextShift[F], parallelism: Int): ParallelParser[F] =
       new ParallelParser[F](parsers)(implicitly[Async[F]], Runtime.parallel(processingContext, blockingContext, parallelism))
 
     /** Builder step that allows to specify the execution context
@@ -90,8 +90,7 @@ object ParallelParser {
       * @param processingContext the execution context for CPU-bound tasks
       * @param blockingContext the execution context for blocking IO
       */
-    def build[F[_]: Async, G[_]](processingContext: ContextShift[F], blockingContext: ContextShift[F])
-                                (implicit P: cats.Parallel[F, G]): ParallelParser[F] =
+    def build[F[_]: Async: Parallel](processingContext: ContextShift[F], blockingContext: ContextShift[F]): ParallelParser[F] =
       build(processingContext, blockingContext, java.lang.Runtime.getRuntime.availableProcessors)
 
   }

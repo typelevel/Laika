@@ -16,6 +16,7 @@
 
 package laika.io.binary
 
+import cats.Parallel
 import cats.effect.{Async, ContextShift}
 import laika.api.builder.{OperationConfig, TwoPhaseTransformer}
 import laika.ast.{DocumentType, TextDocumentType}
@@ -62,8 +63,7 @@ object ParallelTransformer {
       * @param blockingContext the execution context for blocking IO
       * @param parallelism the desired level of parallelism for all tree operations                       
       */
-    def build[F[_]: Async, G[_]](processingContext: ContextShift[F], blockingContext: ContextShift[F], parallelism: Int)
-                                (implicit P: cats.Parallel[F, G]): ParallelTransformer[F] =
+    def build[F[_]: Async: Parallel](processingContext: ContextShift[F], blockingContext: ContextShift[F], parallelism: Int): ParallelTransformer[F] =
       new ParallelTransformer[F](transformer)(implicitly[Async[F]], Runtime.parallel(processingContext, blockingContext, parallelism))
 
     /** Builder step that allows to specify the execution context
@@ -75,8 +75,7 @@ object ParallelTransformer {
       * @param processingContext the execution context for CPU-bound tasks
       * @param blockingContext the execution context for blocking IO
       */
-    def build[F[_]: Async, G[_]](processingContext: ContextShift[F], blockingContext: ContextShift[F])
-                                (implicit P: cats.Parallel[F, G]): ParallelTransformer[F] =
+    def build[F[_]: Async: Parallel](processingContext: ContextShift[F], blockingContext: ContextShift[F]): ParallelTransformer[F] =
       build(processingContext, blockingContext, java.lang.Runtime.getRuntime.availableProcessors)
     
   }

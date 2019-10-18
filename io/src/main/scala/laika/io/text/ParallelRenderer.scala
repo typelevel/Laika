@@ -16,6 +16,7 @@
 
 package laika.io.text
 
+import cats.Parallel
 import cats.effect.{Async, ContextShift}
 import cats.implicits._
 import laika.api.Renderer
@@ -54,8 +55,7 @@ object ParallelRenderer {
       * @param blockingContext the execution context for blocking IO
       * @param parallelism the desired level of parallelism for all tree operations                       
       */
-    def build[F[_]: Async, G[_]](processingContext: ContextShift[F], blockingContext: ContextShift[F], parallelism: Int)
-                                (implicit P: cats.Parallel[F, G]): ParallelRenderer[F] =
+    def build[F[_]: Async: Parallel](processingContext: ContextShift[F], blockingContext: ContextShift[F], parallelism: Int): ParallelRenderer[F] =
       new ParallelRenderer[F](renderer)(implicitly[Async[F]], Runtime.parallel(processingContext, blockingContext, parallelism))
 
     /** Builder step that allows to specify the execution context
@@ -67,8 +67,7 @@ object ParallelRenderer {
       * @param processingContext the execution context for CPU-bound tasks
       * @param blockingContext the execution context for blocking IO
       */
-    def build[F[_]: Async, G[_]](processingContext: ContextShift[F], blockingContext: ContextShift[F])
-                                (implicit P: cats.Parallel[F, G]): ParallelRenderer[F] =
+    def build[F[_]: Async: Parallel](processingContext: ContextShift[F], blockingContext: ContextShift[F]): ParallelRenderer[F] =
       build(processingContext, blockingContext, java.lang.Runtime.getRuntime.availableProcessors)
 
   }
