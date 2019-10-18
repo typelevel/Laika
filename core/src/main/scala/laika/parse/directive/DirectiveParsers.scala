@@ -101,7 +101,7 @@ object DirectiveParsers {
     val attributeSection = ws ~> HoconParsers.objectValue
     
     (":" ~> nameDecl ~ opt(attributeSection) ~ fence) ^^ { 
-      case name ~ attrs ~ fencePattern => (name, attrs.getOrElse(Nil), fencePattern) 
+      case name ~ attrs ~ fencePattern => (name, attrs.getOrElse(ObjectBuilderValue(Nil)), fencePattern) 
     }
   }
     

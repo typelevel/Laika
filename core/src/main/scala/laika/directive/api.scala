@@ -16,9 +16,12 @@
 
 package laika.directive
 
+import laika.api.config.{Config, ObjectConfig}
 import laika.ast.{TemplateSpan, _}
 import laika.collection.TransitionalCollectionOps._
 import laika.parse.directive.DirectiveParsers.ParsedDirective
+import laika.parse.hocon.ConfigResolver
+import laika.parse.hocon.HoconParsers.Origin
 import laika.parse.{Failure, Success}
 
 import scala.reflect.ClassTag
@@ -88,19 +91,24 @@ trait BuilderContext[E <: Element] {
   }
 
   /** The content of a directive part, either an attribute or the body. */
-  sealed trait PartContent
-  object PartContent {
+  sealed trait BodyContent
+  object BodyContent {
     /** The content of a directive part in its raw, unparsed form. */
-    case class Source(value: String) extends PartContent
+    case class Source(value: String) extends BodyContent
     /** The parsed content of a directive part. */
-    case class Parsed(value: Seq[E]) extends PartContent
+    case class Parsed(value: Seq[E]) extends BodyContent
   }
+  
+  case class DirectiveContent (attributes: Config, body: Option[BodyContent])
 
   /** The context of a directive during execution.
     */
-  case class DirectiveContext (parts: Map[Key, PartContent], parser: Parser, cursor: DocumentCursor) {
+  case class DirectiveContext (content: DirectiveContent, parser: Parser, cursor: DocumentCursor) {
 
-    def part (key: Key): Option[PartContent] = parts.get(key)
+    def part (key: Key): Option[BodyContent] = key match {
+      case Body => content.body
+      case Attribute(id) => content.attributes.get[String](id.key).toOption.map(BodyContent.Source) // TODO - 0.12 - error handling
+    }
 
   }
 
@@ -145,21 +153,21 @@ trait BuilderContext[E <: Element] {
 
     def name: String = parsedResult.name
 
-    def process[T] (cursor: DocumentCursor, factory: Option[Map[Key, String] => Result[T]]): Result[T] = {
+    def process[T] (cursor: DocumentCursor, factory: Option[DirectiveContent => Result[T]]): Result[T] = {
 
-      def directiveOrMsg: Result[Map[Key, String] => Result[T]] =
+      def directiveOrMsg: Result[DirectiveContent => Result[T]] =
         factory.toRight(Seq(s"No $typeName directive registered with name: $name"))
-
-      def partMap: Result[Map[Key, String]] = {
-        val dups = parsedResult.parts.groupBy(_.key).filterNot(_._2.tail.isEmpty).keySet
-        if (dups.isEmpty) Right(parsedResult.parts.map(p => (p.key, p.content)).toMap)
-        else Left(dups.map("Duplicate "+_.desc).toList)
-      }
+      
+      def attributes: Result[Config] = Right(ConfigResolver
+        .resolve(parsedResult.attributes, cursor.config))
+        .map(new ObjectConfig(_, Origin(cursor.path), cursor.config))
+      
+      val body = parsedResult.body.map(BodyContent.Source)
 
       for {
         dir   <- directiveOrMsg
-        parts <- partMap
-        res   <- dir(parts)
+        attrs <- attributes
+        res   <- dir(DirectiveContent(attrs, body))
       } yield res
 
     }
@@ -176,8 +184,8 @@ trait BuilderContext[E <: Element] {
 
     def resolve (cursor: DocumentCursor): E = {
 
-      val factory: Option[Map[Key, String] => Result[E]] = directive.map { dir =>
-        parts => dir(DirectiveContext(parts.mapValuesStrict(PartContent.Source), parser, cursor))
+      val factory: Option[DirectiveContent => Result[E]] = directive.map { dir =>
+        content => dir(DirectiveContext(content, parser, cursor))
       }
 
       process(cursor, factory).fold(messages => createInvalidElement(s"One or more errors processing directive '$name': "
@@ -192,8 +200,8 @@ trait BuilderContext[E <: Element] {
     
     def resolve[T] (context: DirectiveContext, body: Seq[E], directive: Option[SeparatorDirective[T]]): Result[T] = {
 
-      val factory: Option[Map[Key, String] => Result[T]] = directive.map { dir =>
-        parts => dir(context.copy(parts = parts.mapValuesStrict(PartContent.Source) + (Body -> PartContent.Parsed(body))))
+      val factory: Option[DirectiveContent => Result[T]] = directive.map { dir =>
+        content => dir(context.copy(content = content.copy(body = Some(BodyContent.Parsed(body)))))
       }
 
       process(context.cursor, factory)
@@ -245,14 +253,14 @@ trait BuilderContext[E <: Element] {
     
     private def convert [T] (context: DirectiveContext, key: Key, converter: Converter[T]): Option[Result[T]] = 
       context.part(key).map {
-        case PartContent.Source(value) => converter(context.parser, value)
-        case PartContent.Parsed(_) => Left(Seq(s"error converting ${key.desc}: expected raw string element"))
+        case BodyContent.Source(value) => converter(context.parser, value)
+        case BodyContent.Parsed(_) => Left(Seq(s"error converting ${key.desc}: expected raw string element"))
       }
 
     private def convertBody (context: DirectiveContext): Option[Result[Seq[E]]] =
       context.part(Body).map {
-        case PartContent.Source(value) => dsl.parsed(context.parser, value)
-        case PartContent.Parsed(value) => Right(value)
+        case BodyContent.Source(value) => dsl.parsed(context.parser, value)
+        case BodyContent.Parsed(value) => Right(value)
       }
 
     private def bodyPart [T] (converter: Converter[T]) = new DirectivePart[T] {
