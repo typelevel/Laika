@@ -36,11 +36,12 @@ class SectionNumberSpec extends FlatSpec
       Header(level,List(Text(s"Title $title")),Id(s"title$title") + Styles(style))
       
     def tree (content: RootElement): DocumentTree = {
-      def docs (path: Path, nums: Int*) = nums map (n => Document(path / ("doc"+n), content))
+      val autonumberConfig = parseConfig(config)
+      def docs (path: Path, nums: Int*) = nums map (n => Document(path / ("doc"+n), content, config = autonumberConfig))
       DocumentTree(Root, docs(Root, 1,2) ++ List(
-        DocumentTree(Root / "sub1", docs(Root / "sub1",3,4)),
-        DocumentTree(Root / "sub2", docs(Root / "sub2",5,6))
-      ), config = parseConfig(config))
+        DocumentTree(Root / "sub1", docs(Root / "sub1",3,4), config = autonumberConfig),
+        DocumentTree(Root / "sub2", docs(Root / "sub2",5,6), config = autonumberConfig)
+      ), config = autonumberConfig)
     }
     
     def numberedHeader (level: Int, title: Int, num: List[Int], style: String = "section"): Header = {
@@ -59,7 +60,7 @@ class SectionNumberSpec extends FlatSpec
     def treeView (content: List[Int] => List[DocumentContent]): TreeView = {
       def numbers (titleNums: List[Int]) = if (numberDocs) titleNums else Nil
       def docs (path: Path, nums: (Int, List[Int])*) = nums map { 
-        case (fileNum, titleNums) => new DocumentView(path / ("doc"+fileNum), content(numbers(titleNums)))
+        case (fileNum, titleNums) => DocumentView(path / ("doc"+fileNum), content(numbers(titleNums)))
       }
       TreeView(Root, Docs(DocumentType.Markup, docs(Root, (1,List(1)),(2,List(2)))) :: Subtrees(List(
         TreeView(Root / "sub1", Docs(DocumentType.Markup, docs(Root / "sub1",(3,List(3,1)),(4, List(3,2)))) :: Nil),
