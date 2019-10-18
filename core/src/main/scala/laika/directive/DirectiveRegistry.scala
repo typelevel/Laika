@@ -52,7 +52,7 @@ trait DirectiveRegistry extends ExtensionBundle {
     *  object MyDirectives extends DirectiveRegistry {
     *    val spanDirectives = Seq(
     *      Spans.create("ticket") {
-    *        (attribute(Default) ~ attribute("param").optional).map { case ticketNo ~ param =>
+    *        (defaultAttribute.as[String] ~ attribute("param").optional).map { case ticketNo ~ param =>
     *          val base = "http://tickets.service.com/"+ticketNo
     *          val url = base + (param map (p => "?param="+p) getOrElse "")
     *          ExternalLink(Seq(Text("Ticket "+ticketNo)), url, options = Styles("ticket"))
@@ -84,7 +84,7 @@ trait DirectiveRegistry extends ExtensionBundle {
     *  object MyDirectives extends DirectiveRegistry {
     *    val blockDirectives = Seq(
     *      Blocks.create("note") {
-    *        (attribute(Default) ~ body).map { case title ~ content => Note(title, content) }
+    *        (defaultAttribute.as[String] ~ body).map { case title ~ content => Note(title, content) }
     *      }
     *    )
     *    val spanDirectives = Seq()
@@ -106,7 +106,7 @@ trait DirectiveRegistry extends ExtensionBundle {
     *  object MyDirectives extends DirectiveRegistry {
     *    val templateDirectives = Seq(
     *      Templates.create("ticket") {
-    *        (attribute(Default) ~ attribute("param").optional).map { case ticketNo ~ param =>
+    *        (defaultAttribute.as[String] ~ attribute("param").optional).map { case ticketNo ~ param =>
     *          val base = "http://tickets.service.com/"+ticketNo
     *          val url = base + (param map (p => "&param="+p) getOrElse "")
     *          TemplateElement(ExternalLink(Seq(Text("Ticket "+ticketNo)), url, options = Styles("ticket")))

@@ -20,6 +20,8 @@ import laika.ast.Path
 import laika.parse.hocon.HoconParsers._
 import laika.collection.TransitionalCollectionOps._
 
+import scala.util.Try
+
 /**
   * @author Jens Halm
   */
@@ -103,6 +105,9 @@ trait ConfigError
 trait ConfigBuilderError
 
 case class InvalidType(expected: String, actual: String) extends ConfigError
+case class ConversionError(message: String) extends ConfigError {
+  override def toString: String = message // TODO - 0.12 - temp
+}
 case class ValidationError(message: String) extends ConfigError
 case class ConfigParserError(message: String) extends ConfigError
 case class ConfigResolverError(message: String) extends ConfigError
@@ -132,7 +137,7 @@ object ConfigDecoder {
   implicit val string: ConfigDecoder[String] = new ConfigDecoder[String] {
     def apply (value: TracedValue[ConfigValue]) = value.value match {
       case StringValue(s) => Right(s) // TODO - convert other types
-      case LongValue(n) => Right(n.toString) // TODO - 0.12 - temp
+      case LongValue(n) => Right(n.toString)
       case _ => Left(InvalidType("String", ""))
     }
   }
@@ -140,7 +145,7 @@ object ConfigDecoder {
   implicit val int: ConfigDecoder[Int] = new ConfigDecoder[Int] {
     def apply (value: TracedValue[ConfigValue]) = value.value match {
       case LongValue(n) => Right(n.toInt) // TODO - convert other types, check bounds
-      case StringValue(n) => Right(n.toInt) // TODO - 0.12 - temp
+      case StringValue(s) => Try(s.toInt).toEither.left.map(_ => ConversionError(s"not an integer: $s"))
       case _ => Left(InvalidType("Number", ""))
     }
   }

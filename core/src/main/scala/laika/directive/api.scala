@@ -16,55 +16,41 @@
 
 package laika.directive
 
-import laika.api.config.{Config, ObjectConfig}
+import laika.api.config.{Config, ConfigDecoder, ObjectConfig}
 import laika.ast.{TemplateSpan, _}
 import laika.collection.TransitionalCollectionOps._
 import laika.parse.directive.DirectiveParsers.ParsedDirective
 import laika.parse.hocon.ConfigResolver
-import laika.parse.hocon.HoconParsers.Origin
+import laika.parse.hocon.HoconParsers.{ConfigValue, Origin}
 import laika.parse.{Failure, Success}
 
 import scala.reflect.ClassTag
 
 /** The id for a directive part.
   */
-sealed abstract class PartId {
+sealed abstract class AttributeKey {
   def key: String
   def desc: String
 }
 
-object PartId {
+object AttributeKey {
 
   /** Represents the string identifier of an attribute or body part
     *  of a directive.
     */
-  case class Named (key: String) extends PartId {
-    def desc: String = s"attribute with name '$key'"
+  case class Named (key: String) extends AttributeKey {
+    def desc: String = s"attribute '$key'"
   }
-
-  implicit def stringToId (str: String): PartId = Named(str)
 
   /** Represents an unnamed attribute or body part
     *  of a directive.
     */
-  case object Default extends PartId {
+  case object Default extends AttributeKey {
     val key = "__$$:default:$$__"
     def desc: String = s"default attribute"
   }
 
 }
-
-sealed abstract class Key (keyType: String) {
-  def id: PartId
-  def desc: String = id.desc
-}
-
-case class Attribute (id: PartId) extends Key("attribute")
-
-case object Body extends Key("body") {
-  val id: PartId = PartId.Default
-}
-
 
 /** Provides the basic building blocks for
   * Laika's Directive API. This trait
@@ -105,11 +91,11 @@ trait BuilderContext[E <: Element] {
     */
   case class DirectiveContext (content: DirectiveContent, parser: Parser, cursor: DocumentCursor) {
 
-    def part (key: Key): Option[BodyContent] = key match {
-      case Body => content.body
-      case Attribute(id) => content.attributes.get[String](id.key).toOption.map(BodyContent.Source) // TODO - 0.12 - error handling
-    }
-
+    val body: Option[BodyContent] = content.body
+    
+    def attribute[T] (id: AttributeKey, decoder: ConfigDecoder[T]): Result[Option[T]] =
+      content.attributes.getOpt[T](id.key)(decoder).left.map(e => Seq(s"error converting ${id.desc}: ${e.toString}")) // TODO - 0.12 - ConfigError conversions
+    
   }
 
   /** Represents a single part (attribute or body) of a directive
@@ -210,81 +196,38 @@ trait BuilderContext[E <: Element] {
     
   }
 
-  trait IdBuilders {
-
-    val Default = PartId.Default
-
-    implicit def stringToId (str: String): PartId = PartId.stringToId(str)
-
-  }
-
-  type Converter[T] = (Parser, String) => Result[T]
-
-  /** Provides various converter functions that can be used with the directive
-    * combinators to convert the string value obtained from a directive attribute or body.
-    */
-  trait Converters {
-
-    val string: Converter[String] = (_, input) => Right(input)
-
-    val parsed: Converter[Seq[E]] = (parser, input) => Right(parser(input))
-
-    val int: Converter[Int] = (_, input) => toInt(input, _ => true)
-
-    val positiveInt: Converter[Int] = (_, input) => toInt(input, _ > 0, "not a positive integer")
-
-    val nonNegativeInt: Converter[Int] = (_, input) => toInt(input, _ >= 0, "not a non-negative integer")
-
-    private def toInt (input: String, predicate: Int => Boolean, msg: String = ""): Result[Int] = {
-      try {
-        val i = input.trim.toInt
-        if (predicate(i)) Right(i) else Left(Seq(s"$msg: $i"))
-      } catch {
-        case e: NumberFormatException => Left(Seq(s"not an integer: $input"))
-      }
-    }
-
-  }
-
-  /** Provides various combinators to describe the expected
+  /** Provides combinators to describe the expected
     * format of a specific directive.
     */
   trait Combinators {
     
-    private def convert [T] (context: DirectiveContext, key: Key, converter: Converter[T]): Option[Result[T]] = 
-      context.part(key).map {
-        case BodyContent.Source(value) => converter(context.parser, value)
-        case BodyContent.Parsed(_) => Left(Seq(s"error converting ${key.desc}: expected raw string element"))
+    private def getRawBody (context: DirectiveContext): Option[Result[String]] =
+      context.body.map {
+        case BodyContent.Source(value) => Right(value)
+        case BodyContent.Parsed(_) => Left(Seq(s"unable to retrieve raw body from pre-parsed content"))
       }
 
-    private def convertBody (context: DirectiveContext): Option[Result[Seq[E]]] =
-      context.part(Body).map {
-        case BodyContent.Source(value) => dsl.parsed(context.parser, value)
+    private def getParsedBody (context: DirectiveContext): Option[Result[Seq[E]]] =
+      context.body.map {
+        case BodyContent.Source(value) => Right(context.parser(value))
         case BodyContent.Parsed(value) => Right(value)
       }
 
-    private def bodyPart [T] (converter: Converter[T]) = new DirectivePart[T] {
-      def apply (context: DirectiveContext) = 
-        convert(context, Body, converter).getOrElse(Left(Seq(s"required body is missing")))
+    private def bodyPart[T] (accessor: DirectiveContext => Option[Result[T]]) = new DirectivePart[T] {
+      def apply (context: DirectiveContext): Result[T] = accessor(context).getOrElse(Left(Seq(s"required body is missing")))
       def hasBody: Boolean = true
       def separators: Set[String] = Set.empty
     }
 
-    private def parsedBodyPart = new DirectivePart[Seq[E]] {
-      def apply (context: DirectiveContext) = convertBody(context).getOrElse(Left(Seq(s"required body is missing")))
-      def hasBody: Boolean = true
-      def separators: Set[String] = Set.empty
-    }
-
-    class AttributePart [T] (key: Key, converter: Converter[T], msg: => String) extends DirectivePart[T] {
-      def apply (context: DirectiveContext) = convert(context, key, converter).getOrElse(Left(Seq(msg)))
+    class AttributePart [T] (key: AttributeKey, decoder: ConfigDecoder[T], requiredMsg: => String) extends DirectivePart[T] {
+      
+      def apply (context: DirectiveContext): Result[T] = 
+        context.attribute(key, decoder).flatMap(_.toRight(Seq(requiredMsg)))
+      
+      def as[U](implicit decoder: ConfigDecoder[U]): AttributePart[U] = new AttributePart(key, decoder, requiredMsg)
 
       def optional: DirectivePart[Option[T]] = new DirectivePart[Option[T]] {
-        def apply (context: DirectiveContext) = convert(context, key, converter) match {
-          case Some(Right(value)) => Right(Some(value))
-          case Some(Left(msg))    => Left(Seq(s"error converting ${key.desc}: " + msg.mkString(", ")))
-          case None               => Right(None)
-        }
+        def apply (context: DirectiveContext): Result[Option[T]] = context.attribute(key, decoder)
         def hasBody: Boolean = false
         def separators: Set[String] = Set.empty
       }
@@ -295,7 +238,7 @@ trait BuilderContext[E <: Element] {
     class SeparatedBodyPart[T] (directives: Seq[SeparatorDirective[T]]) extends DirectivePart[Multipart[T]] {
       
       def apply (context: DirectiveContext): Result[Multipart[T]] = 
-        convertBody(context).getOrElse(Left(Seq(s"required body is missing"))).flatMap(toMultipart(context))
+        getParsedBody(context).getOrElse(Left(Seq(s"required body is missing"))).flatMap(toMultipart(context))
       
       def hasBody: Boolean = true
       
@@ -338,28 +281,29 @@ trait BuilderContext[E <: Element] {
       def hasBody: Boolean = false
       def separators: Set[String] = Set.empty
     }
+    
+    def defaultAttribute: AttributePart[ConfigValue]
+      = new AttributePart(AttributeKey.Default, ConfigDecoder.configValue, s"required default attribute is missing")
 
     /** Specifies a required attribute.
       *
-      * @param id        the identifier that must be used in markup or templates
-      * @param converter the function to use for converting and validating the parsed value
+      * @param key the key that must be used in markup or templates
       * @return a directive part that can be combined with further parts with the `~` operator
       */
-    def attribute [T](id: PartId, converter: Converter[T] = dsl.string): AttributePart[T]
-    = new AttributePart(Attribute(id), converter, s"required ${Attribute(id).desc} is missing")
+    def attribute (key: String): AttributePart[ConfigValue]
+      = new AttributePart(AttributeKey.Named(key), ConfigDecoder.configValue, s"required attribute '$key' is missing")
 
     /** Specifies a required body part.
       *
       * @return a directive part that can be combined with further parts with the `~` operator
       */
-    def body: DirectivePart[Seq[E]] = parsedBodyPart
+    def parsedBody: DirectivePart[Seq[E]] = bodyPart(getParsedBody)
     
     /** Specifies a required body part.
       *
-      * @param converter the function to use for converting and validating the parsed value
       * @return a directive part that can be combined with further parts with the `~` operator
       */
-    def body [T](converter: Converter[T]): DirectivePart[T] = bodyPart(converter)
+    def rawBody: DirectivePart[String] = bodyPart(getRawBody)
 
     /** Specifies a required body part divided by separator directives.
       * 
@@ -486,7 +430,7 @@ trait BuilderContext[E <: Element] {
     *  object MyDirectives extends DirectiveRegistry {
     *    val spanDirectives = Seq(
     *      Spans.create("note") {
-    *        (attribute(Default) ~ body).map { 
+    *        (defaultAttribute.as[String] ~ body).map { 
     *          case title ~ content => Note(title, content) 
     *        }
     *      }
@@ -497,9 +441,8 @@ trait BuilderContext[E <: Element] {
     *  Transformer.from(Markdown).to(HTML).using(MyDirectives) fromFile "hello.md" toFile "hello.html"
     *  }}}
     *
-    *  The `attribute(Default)` combinator specifies a required attribue of type `String` (since no conversion
-    *  function was supplied) and without a name (indicated by passing the `Default` object instead of a string
-    *  name). The `body` combinator specifies standard inline content (any span
+    *  The `defaultAttribute` combinator specifies a required attribute of type `String` 
+    *  and without a name. The `body` combinator specifies standard inline content (any span
     *  elements that are supported in normal inline markup, too) which results in a parsed value of type
     *  `Seq[Span]`.
     *
@@ -521,7 +464,7 @@ trait BuilderContext[E <: Element] {
     *
     *  val blockDirectives = Seq(
     *    Blocks.create("message") {
-    *      (attribute(Default, positiveInt) ~ blockContent).map { 
+    *      (defaultAttribute.as[Int] ~ blockContent).map { 
     *        case severity ~ content => Message(severity, content) 
     *      }
     *    }
@@ -550,7 +493,7 @@ trait BuilderContext[E <: Element] {
     *
     *  val blockDirectives = Seq(
     *    Blocks.create("message") {
-    *      (attribute(Default, positiveInt).optional ~ blockContent).map { 
+    *      (defaultAttribute.as[Int].optional ~ blockContent).map { 
     *        case severity ~ content => Message(severity.getOrElse(0), content) 
     *      }
     *    }
@@ -559,7 +502,7 @@ trait BuilderContext[E <: Element] {
     *
     *  The attribute may be missing, but if it is present it has to pass the specified validator.
     */
-  object dsl extends Combinators with Converters with IdBuilders
+  object dsl extends Combinators
 
 }
 

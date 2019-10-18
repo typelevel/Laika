@@ -56,9 +56,9 @@ object StandardDirectives extends DirectiveRegistry {
 
     val emptyValues = Set[ConfigValue](StringValue(""), BooleanValue(false), NullValue)
     case class Empty (spans: Seq[TemplateSpan])
-    val emptySeparator = Templates.separator("empty", max = 1)(body.map(Empty))
+    val emptySeparator = Templates.separator("empty", max = 1)(parsedBody.map(Empty))
     
-    (attribute(Default) ~ separatedBody(Seq(emptySeparator)) ~ cursor).map {
+    (defaultAttribute.as[String] ~ separatedBody(Seq(emptySeparator)) ~ cursor).map {
       case path ~ multipart ~ cursor => {
         
         def rewrite (spans: Seq[TemplateSpan], childCursor: DocumentCursor): TemplateSpanSequence =
@@ -93,10 +93,10 @@ object StandardDirectives extends DirectiveRegistry {
     case class ElseIf (ref: String, body: Seq[TemplateSpan]) extends IfSeparator
     case class Else (body: Seq[TemplateSpan]) extends IfSeparator
     
-    val elseIfSep = Templates.separator("elseIf")((body ~ attribute(Default)).map{ case spans ~ ref => ElseIf(ref, spans) })
-    val elseSep = Templates.separator("else", max = 1)(body.map(Else))
+    val elseIfSep = Templates.separator("elseIf")((parsedBody ~ defaultAttribute.as[String]).map{ case spans ~ ref => ElseIf(ref, spans) })
+    val elseSep = Templates.separator("else", max = 1)(parsedBody.map(Else))
 
-    (attribute(Default) ~ separatedBody(Seq(elseIfSep, elseSep)) ~ cursor).map {
+    (defaultAttribute.as[String] ~ separatedBody(Seq(elseIfSep, elseSep)) ~ cursor).map {
       case path ~ multipart ~ cursor => {
 
         def rewrite (spans: Seq[TemplateSpan]): TemplateSpanSequence =
@@ -163,9 +163,9 @@ object StandardDirectives extends DirectiveRegistry {
 
     import Templates.dsl._
 
-    (attribute("depth", positiveInt).optional ~ 
-        attribute("root").optional ~ 
-        attribute("title").optional ~ 
+    (attribute("depth").as[Int].optional ~ 
+        attribute("root").as[String].optional ~ 
+        attribute("title").as[String].optional ~ 
         cursor).map {
       case depth ~ rootConfig ~ title ~ cursor =>
         TemplateElement(toc(depth, rootConfig.getOrElse("#rootTree"), title, cursor))
@@ -178,9 +178,9 @@ object StandardDirectives extends DirectiveRegistry {
 
     import Blocks.dsl._
     
-    (attribute("depth", positiveInt).optional ~ 
-        attribute("root").optional ~ 
-        attribute("title").optional ~ 
+    (attribute("depth").as[Int].optional ~ 
+        attribute("root").as[String].optional ~ 
+        attribute("title").as[String].optional ~ 
         cursor).map {
       case depth ~ rootConfig ~ title ~ cursor =>
         toc(depth, rootConfig.getOrElse("#currentDocument"), title, cursor)
@@ -206,7 +206,7 @@ object StandardDirectives extends DirectiveRegistry {
   lazy val format: Blocks.Directive  = Blocks.create("format") {
     import Blocks.dsl._
     
-    (attribute(Default) ~ body).map {
+    (defaultAttribute.as[String] ~ parsedBody).map {
       case name ~ content => 
         TargetFormat(name, asBlock(content))
     }
@@ -217,7 +217,7 @@ object StandardDirectives extends DirectiveRegistry {
   lazy val blockStyle: Blocks.Directive  = Blocks.create("style") {
     import Blocks.dsl._
     
-    (attribute(Default) ~ body).map {
+    (defaultAttribute.as[String] ~ parsedBody).map {
       case style ~ content => asBlock(content, Styles(style))
     }
   }
@@ -227,7 +227,7 @@ object StandardDirectives extends DirectiveRegistry {
   lazy val spanStyle: Spans.Directive  = Spans.create("style") {
     import Spans.dsl._
     
-    (attribute(Default) ~ body).map {
+    (defaultAttribute.as[String] ~ parsedBody).map {
       case style ~ content => asSpan(content, Styles(style))
     }
   }
@@ -237,7 +237,7 @@ object StandardDirectives extends DirectiveRegistry {
   lazy val blockFragment: Blocks.Directive  = Blocks.create("fragment") {
     import Blocks.dsl._
     
-    (attribute(Default) ~ body).map {
+    (defaultAttribute.as[String] ~ parsedBody).map {
       case name ~ content => DocumentFragment(name, asBlock(content, Styles(name)))
     }
   }
@@ -247,7 +247,7 @@ object StandardDirectives extends DirectiveRegistry {
   lazy val templateFragment: Templates.Directive  = Templates.create("fragment") {
     import Templates.dsl._
     
-    (attribute(Default) ~ body).map {
+    (defaultAttribute.as[String] ~ parsedBody).map {
       case name ~ content => TemplateElement(DocumentFragment(name, TemplateSpanSequence(content)))
     }
   }

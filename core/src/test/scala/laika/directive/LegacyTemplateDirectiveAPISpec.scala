@@ -35,33 +35,33 @@ class LegacyTemplateDirectiveAPISpec extends FlatSpec
     import Templates.dsl._
 
     trait RequiredDefaultAttribute {
-      val directive = Templates.create("dir") { attribute(Default) map (TemplateString(_)) }
+      val directive = Templates.create("dir") { defaultAttribute.as[String] map (TemplateString(_)) }
     }
     
     trait OptionalDefaultAttribute {
       val directive = Templates.create("dir") { 
-        attribute(Default, positiveInt).optional map (num => TemplateString(num.map(_.toString).getOrElse("<>"))) 
+        defaultAttribute.as[Int].optional map (num => TemplateString(num.map(_.toString).getOrElse("<>"))) 
       }
     }
     
     trait RequiredNamedAttribute {
-      val directive = Templates.create("dir") { attribute("name") map (TemplateString(_)) }
+      val directive = Templates.create("dir") { attribute("name").as[String] map (TemplateString(_)) }
     }
     
     trait OptionalNamedAttribute {
       val directive = Templates.create("dir") { 
-        attribute("name", positiveInt).optional map (num => TemplateString(num.map(_.toString).getOrElse("<>"))) 
+        attribute("name").as[Int].optional map (num => TemplateString(num.map(_.toString).getOrElse("<>"))) 
       }
     }
     
     trait RequiredDefaultBody {
-      val directive = Templates.create("dir") { body map (TemplateSpanSequence(_)) }
+      val directive = Templates.create("dir") { parsedBody map (TemplateSpanSequence(_)) }
     }
     
     trait FullDirectiveSpec {
       val directive = Templates.create("dir") {
-        (attribute(Default) ~ attribute("strAttr").optional ~ attribute("intAttr", positiveInt).optional ~
-        body).map {
+        (defaultAttribute.as[String] ~ attribute("strAttr").as[String].optional ~ attribute("intAttr").as[Int].optional ~
+        parsedBody).map {
           case defAttr ~ strAttr ~ intAttr ~ defBody => 
             val sum = intAttr.getOrElse(0)
             val str = defAttr + ":" + strAttr.getOrElse("..") + ":" + sum
@@ -72,7 +72,7 @@ class LegacyTemplateDirectiveAPISpec extends FlatSpec
     
     trait DirectiveWithParserAccess {
       val directive = Templates.create("dir") { 
-        (body(string) ~ parser).map {
+        (rawBody ~ parser).map {
           case body ~ parser => TemplateSpanSequence(parser(body.drop(3)))
         }
       }
@@ -80,7 +80,7 @@ class LegacyTemplateDirectiveAPISpec extends FlatSpec
     
     trait DirectiveWithContextAccess {
       val directive = Templates.create("dir") { 
-        (body(string) ~ cursor).map {
+        (rawBody ~ cursor).map {
           case body ~ cursor => TemplateString(body + cursor.target.path)
         }
       }
@@ -157,7 +157,7 @@ class LegacyTemplateDirectiveAPISpec extends FlatSpec
   
   it should "detect a directive with a missing required named attribute" in {
     new RequiredNamedAttribute with TemplateParser {
-      val msg = "One or more errors processing directive 'dir': required attribute with name 'name' is missing"
+      val msg = "One or more errors processing directive 'dir': required attribute 'name' is missing"
       Parsing ("aa @:dir. bb") should produce (tRoot(tt("aa "), tElem(invalid("@:dir.",msg)), tt(" bb")))
     }
   }
@@ -170,7 +170,7 @@ class LegacyTemplateDirectiveAPISpec extends FlatSpec
   
   it should "detect a directive with an optional invalid named int attribute" in {
     new OptionalNamedAttribute with TemplateParser {
-      val msg = "One or more errors processing directive 'dir': error converting attribute with name 'name': not an integer: foo"
+      val msg = "One or more errors processing directive 'dir': error converting attribute 'name': not an integer: foo"
       Parsing ("aa @:dir name=foo. bb") should produce (tRoot(tt("aa "), tElem(invalid("@:dir name=foo.",msg)), tt(" bb")))
     }
   }

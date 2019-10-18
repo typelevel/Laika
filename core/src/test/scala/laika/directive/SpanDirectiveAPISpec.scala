@@ -40,35 +40,35 @@ class SpanDirectiveAPISpec extends FlatSpec
     }
 
     trait RequiredDefaultAttribute {
-      val directive = Spans.create("dir") { attribute(Default) map (Text(_)) }
+      val directive = Spans.create("dir") { defaultAttribute.as[String] map (Text(_)) }
     }
     
     trait OptionalDefaultAttribute {
       val directive = Spans.create("dir") { 
-        attribute(Default, positiveInt).optional map (num => Text(num.map(_.toString).getOrElse("<>"))) 
+        defaultAttribute.as[Int].optional map (num => Text(num.map(_.toString).getOrElse("<>"))) 
       }
     }
     
     trait RequiredNamedAttribute {
-      val directive = Spans.create("dir") { attribute("name") map (Text(_)) }
+      val directive = Spans.create("dir") { attribute("name").as[String] map (Text(_)) }
     }
     
     trait OptionalNamedAttribute {
       val directive = Spans.create("dir") { 
-        attribute("name", positiveInt).optional map (num => Text(num.map(_.toString).getOrElse("<>"))) 
+        attribute("name").as[Int].optional map (num => Text(num.map(_.toString).getOrElse("<>"))) 
       }
     }
     
     trait RequiredBody {
-      val directive = Spans.create("dir") { body map (SpanSequence(_)) }
+      val directive = Spans.create("dir") { parsedBody map (SpanSequence(_)) }
     }
 
     trait SeparatedBody {
       sealed trait Child extends Product with Serializable
       case class Foo (content: Seq[Span]) extends Child
       case class Bar (content: Seq[Span], attr: String) extends Child
-      val sep1 = Spans.separator("foo", min = 1) { body map Foo }
-      val sep2 = Spans.separator("bar", max = 1) { (body ~ attribute(Default)) map { case spans ~ attr => Bar(spans, attr) } }
+      val sep1 = Spans.separator("foo", min = 1) { parsedBody map Foo }
+      val sep2 = Spans.separator("bar", max = 1) { (parsedBody ~ defaultAttribute.as[String]) map { case spans ~ attr => Bar(spans, attr) } }
       val directive = Spans.create("dir") { separatedBody[Child](Seq(sep1, sep2)) map { multipart =>
         val seps = multipart.children.flatMap {
           case Foo(content) => txt("foo") +: content
@@ -80,8 +80,8 @@ class SpanDirectiveAPISpec extends FlatSpec
     
     trait FullDirectiveSpec {
       val directive = Spans.create("dir") {
-        (attribute(Default) ~ attribute("strAttr").optional ~ attribute("intAttr", positiveInt).optional ~
-        body).map {
+        (defaultAttribute.as[String] ~ attribute("strAttr").as[String].optional ~ attribute("intAttr").as[Int].optional ~
+        parsedBody).map {
           case defAttr ~ strAttr ~ intAttr ~ defBody => 
             val sum = intAttr.getOrElse(0)
             val str = defAttr + ":" + strAttr.getOrElse("..") + ":" + sum
@@ -92,7 +92,7 @@ class SpanDirectiveAPISpec extends FlatSpec
     
     trait DirectiveWithParserAccess {
       val directive = Spans.create("dir") { 
-        (body(string) ~ parser).map {
+        (rawBody ~ parser).map {
           case body ~ parser => SpanSequence(parser(body.drop(3)))
         }
       }
@@ -100,7 +100,7 @@ class SpanDirectiveAPISpec extends FlatSpec
     
     trait DirectiveWithContextAccess {
       val directive = Spans.create("dir") { 
-        (body(string) ~ cursor).map {
+        (rawBody ~ cursor).map {
           case body ~ cursor => Text(body + cursor.target.path)
         }
       }
@@ -185,7 +185,7 @@ class SpanDirectiveAPISpec extends FlatSpec
   
   it should "detect a directive with a missing required named attribute" in {
     new SpanParser with RequiredNamedAttribute {
-      val msg = "One or more errors processing directive 'dir': required attribute with name 'name' is missing"
+      val msg = "One or more errors processing directive 'dir': required attribute 'name' is missing"
       Parsing ("aa @:dir bb") should produce (ss(txt("aa "), invalid("@:dir",msg), txt(" bb")))
     }
   }
@@ -198,7 +198,7 @@ class SpanDirectiveAPISpec extends FlatSpec
   
   it should "detect a directive with an optional invalid named int attribute" in {
     new SpanParser with OptionalNamedAttribute {
-      val msg = "One or more errors processing directive 'dir': error converting attribute with name 'name': not an integer: foo"
+      val msg = "One or more errors processing directive 'dir': error converting attribute 'name': not an integer: foo"
       Parsing ("aa @:dir { name=foo } bb") should produce (ss(txt("aa "), invalid("@:dir { name=foo }",msg), txt(" bb")))
     }
   }

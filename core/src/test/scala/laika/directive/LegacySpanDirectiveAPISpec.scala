@@ -36,33 +36,33 @@ class LegacySpanDirectiveAPISpec extends FlatSpec
     import Spans.dsl._
 
     trait RequiredDefaultAttribute {
-      val directive = Spans.create("dir") { attribute(Default) map (Text(_)) }
+      val directive = Spans.create("dir") { defaultAttribute.as[String] map (Text(_)) }
     }
     
     trait OptionalDefaultAttribute {
       val directive = Spans.create("dir") { 
-        attribute(Default, positiveInt).optional map (num => Text(num.map(_.toString).getOrElse("<>"))) 
+        defaultAttribute.as[Int].optional map (num => Text(num.map(_.toString).getOrElse("<>"))) 
       }
     }
     
     trait RequiredNamedAttribute {
-      val directive = Spans.create("dir") { attribute("name") map (Text(_)) }
+      val directive = Spans.create("dir") { attribute("name").as[String] map (Text(_)) }
     }
     
     trait OptionalNamedAttribute {
       val directive = Spans.create("dir") { 
-        attribute("name", positiveInt).optional map (num => Text(num.map(_.toString).getOrElse("<>"))) 
+        attribute("name").as[Int].optional map (num => Text(num.map(_.toString).getOrElse("<>"))) 
       }
     }
     
     trait RequiredDefaultBody {
-      val directive = Spans.create("dir") { body map (SpanSequence(_)) }
+      val directive = Spans.create("dir") { parsedBody map (SpanSequence(_)) }
     }
     
     trait FullDirectiveSpec {
       val directive = Spans.create("dir") {
-        (attribute(Default) ~ attribute("strAttr").optional ~ attribute("intAttr", positiveInt).optional ~
-        body).map {
+        (defaultAttribute.as[String] ~ attribute("strAttr").as[String].optional ~ attribute("intAttr").as[Int].optional ~
+        parsedBody).map {
           case defAttr ~ strAttr ~ intAttr ~ defBody => 
             val sum = intAttr.getOrElse(0)
             val str = defAttr + ":" + strAttr.getOrElse("..") + ":" + sum
@@ -73,7 +73,7 @@ class LegacySpanDirectiveAPISpec extends FlatSpec
     
     trait DirectiveWithParserAccess {
       val directive = Spans.create("dir") { 
-        (body(string) ~ parser).map {
+        (rawBody ~ parser).map {
           case body ~ parser => SpanSequence(parser(body.drop(3)))
         }
       }
@@ -81,7 +81,7 @@ class LegacySpanDirectiveAPISpec extends FlatSpec
     
     trait DirectiveWithContextAccess {
       val directive = Spans.create("dir") { 
-        (body(string) ~ cursor).map {
+        (rawBody ~ cursor).map {
           case body ~ cursor => Text(body + cursor.target.path)
         }
       }
@@ -160,7 +160,7 @@ class LegacySpanDirectiveAPISpec extends FlatSpec
   
   it should "detect a directive with a missing required named attribute" in {
     new SpanParser with RequiredNamedAttribute {
-      val msg = "One or more errors processing directive 'dir': required attribute with name 'name' is missing"
+      val msg = "One or more errors processing directive 'dir': required attribute 'name' is missing"
       Parsing ("aa @:dir. bb") should produce (ss(txt("aa "), invalid("@:dir.",msg), txt(" bb")))
     }
   }
@@ -173,7 +173,7 @@ class LegacySpanDirectiveAPISpec extends FlatSpec
   
   it should "detect a directive with an optional invalid named int attribute" in {
     new SpanParser with OptionalNamedAttribute {
-      val msg = "One or more errors processing directive 'dir': error converting attribute with name 'name': not an integer: foo"
+      val msg = "One or more errors processing directive 'dir': error converting attribute 'name': not an integer: foo"
       Parsing ("aa @:dir name=foo. bb") should produce (ss(txt("aa "), invalid("@:dir name=foo.",msg), txt(" bb")))
     }
   }

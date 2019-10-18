@@ -87,8 +87,8 @@ class APISpec extends FlatSpec
     object TestDirectives extends DirectiveRegistry {
 
       val blockDirectives: List[Blocks.Directive] = List(
-        Blocks.create("oneArg")(attribute(Default) map p),
-        Blocks.create("twoArgs")((attribute(Default) ~ attribute("name")).map { case arg1 ~ arg2 => p(arg1 + arg2) })
+        Blocks.create("oneArg")(defaultAttribute.as[String] map p),
+        Blocks.create("twoArgs")((defaultAttribute.as[String] ~ attribute("name")).map { case arg1 ~ arg2 => p(arg1 + arg2) })
       )
 
       val spanDirectives = Seq()
@@ -102,8 +102,8 @@ class APISpec extends FlatSpec
     object TestDirectives extends DirectiveRegistry {
 
       val spanDirectives: List[Spans.Directive] = List(
-        Spans.create("oneArg")(attribute(Default) map txt),
-        Spans.create("twoArgs")((attribute(Default) ~ attribute("name")).map { case arg1 ~ arg2 => txt(arg1+arg2) })
+        Spans.create("oneArg")(defaultAttribute.as[String] map txt),
+        Spans.create("twoArgs")((defaultAttribute.as[String] ~ attribute("name")).map { case arg1 ~ arg2 => txt(arg1+arg2) })
       )
 
       val blockDirectives = Seq()

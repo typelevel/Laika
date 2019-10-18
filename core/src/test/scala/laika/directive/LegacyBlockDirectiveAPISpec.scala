@@ -39,33 +39,33 @@ class LegacyBlockDirectiveAPISpec extends FlatSpec
     import Blocks.dsl._
 
     trait RequiredDefaultAttribute {
-      val directive = Blocks.create("dir") { attribute(Default) map (p(_)) }
+      val directive = Blocks.create("dir") { defaultAttribute.as[String] map p }
     }
     
     trait OptionalDefaultAttribute {
-      val directive = Blocks.create("dir") { 
-        attribute(Default, positiveInt).optional map (num => p(num.map(_.toString).getOrElse("<>"))) 
+      val directive = Blocks.create("dir") {
+        defaultAttribute.as[Int].optional map (num => p(num.map(_.toString).getOrElse("<>"))) 
       }
     }
     
     trait RequiredNamedAttribute {
-      val directive = Blocks.create("dir") { attribute("name") map (p(_)) }
+      val directive = Blocks.create("dir") { attribute("name").as[String] map p }
     }
     
     trait OptionalNamedAttribute {
       val directive = Blocks.create("dir") { 
-        attribute("name", positiveInt).optional map (num => p(num.map(_.toString).getOrElse("<>"))) 
+        attribute("name").as[Int].optional map (num => p(num.map(_.toString).getOrElse("<>"))) 
       }
     }
     
     trait RequiredDefaultBody {
-      val directive = Blocks.create("dir") { body map (BlockSequence(_)) }
+      val directive = Blocks.create("dir") { parsedBody map (BlockSequence(_)) }
     }
     
     trait FullDirectiveSpec {
       val directive = Blocks.create("dir") {
-        (attribute(Default) ~ attribute("strAttr").optional ~ attribute("intAttr", positiveInt).optional ~
-        body).map {
+        (defaultAttribute.as[String] ~ attribute("strAttr").as[String].optional ~ attribute("intAttr").as[Int].optional ~
+        parsedBody).map {
           case defAttr ~ strAttr ~ intAttr ~ defBody =>
             val sum = intAttr.getOrElse(0)
             val str = defAttr + ":" + strAttr.getOrElse("..") + ":" + sum
@@ -76,7 +76,7 @@ class LegacyBlockDirectiveAPISpec extends FlatSpec
     
     trait DirectiveWithParserAccess {
       val directive = Blocks.create("dir") { 
-        (body(string) ~ parser).map {
+        (rawBody ~ parser).map {
           case body ~ parser => BlockSequence(parser(body.drop(3)))
         }
       }
@@ -84,7 +84,7 @@ class LegacyBlockDirectiveAPISpec extends FlatSpec
     
     trait DirectiveWithContextAccess {
       val directive = Blocks.create("dir") { 
-        (body(string) ~ cursor).map {
+        (rawBody ~ cursor).map {
           case body ~ cursor => p(body + cursor.target.path)
         }
       }
@@ -205,7 +205,7 @@ class LegacyBlockDirectiveAPISpec extends FlatSpec
         |@:dir.
         |
         |bb""".stripMargin
-      val msg = "One or more errors processing directive 'dir': required attribute with name 'name' is missing"
+      val msg = "One or more errors processing directive 'dir': required attribute 'name' is missing"
       Parsing (input) should produce (root(p("aa"), invalid("@:dir.",msg), p("bb")))
     }
   }
@@ -228,7 +228,7 @@ class LegacyBlockDirectiveAPISpec extends FlatSpec
         |@:dir name=foo.
         |
         |bb""".stripMargin
-      val msg = "One or more errors processing directive 'dir': error converting attribute with name 'name': not an integer: foo"
+      val msg = "One or more errors processing directive 'dir': error converting attribute 'name': not an integer: foo"
       Parsing (input) should produce (root(p("aa"), invalid("@:dir name=foo.",msg), p("bb")))
     }
   }
