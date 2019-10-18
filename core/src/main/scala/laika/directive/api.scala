@@ -26,7 +26,8 @@ import scala.reflect.ClassTag
 /** The id for a directive part.
   */
 sealed abstract class PartId {
-  def desc (keyType: String): String
+  def key: String
+  def desc: String
 }
 
 object PartId {
@@ -34,8 +35,8 @@ object PartId {
   /** Represents the string identifier of an attribute or body part
     *  of a directive.
     */
-  case class Named (name: String) extends PartId {
-    def desc (keyType: String): String = s"$keyType with name '$name'"
+  case class Named (key: String) extends PartId {
+    def desc: String = s"attribute with name '$key'"
   }
 
   implicit def stringToId (str: String): PartId = Named(str)
@@ -44,14 +45,15 @@ object PartId {
     *  of a directive.
     */
   case object Default extends PartId {
-    def desc (keyType: String): String = s"default $keyType"
+    val key = "__$$default$$__"
+    def desc: String = s"default attribute"
   }
 
 }
 
 sealed abstract class Key (keyType: String) {
   def id: PartId
-  def desc: String = id.desc(keyType)
+  def desc: String = id.desc
 }
 
 case class Attribute (id: PartId) extends Key("attribute")

@@ -20,6 +20,8 @@ import laika.ast._
 import laika.bundle.{BlockParser, BlockParserBuilder, SpanParser, SpanParserBuilder}
 import laika.directive._
 import laika.parse.Parser
+import laika.parse.hocon.HoconParsers
+import laika.parse.hocon.HoconParsers.{BuilderField, ObjectBuilderValue, ResolvedBuilderValue, StringValue}
 import laika.parse.markup.{EscapedTextParsers, RecursiveParsers, RecursiveSpanParsers}
 import laika.parse.text.TextParsers._
 
@@ -56,7 +58,7 @@ object DirectiveParsers {
 
   /** Represents the parsed but unprocessed content of a directive.
    */
-  case class ParsedDirective (name: String, parts: List[Part])
+  case class ParsedDirective (name: String, attributes: ObjectBuilderValue, body: Option[String])
   
   type PartMap = Map[Key, String]
   
@@ -72,27 +74,31 @@ object DirectiveParsers {
     anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '-', '_') ^^ { case first ~ rest => first + rest }
   
   
-  def attributeParser (escapedText: EscapedTextParsers): Parser[List[Part]] = {
+  def legacyAttributeParser (escapedText: EscapedTextParsers): Parser[ObjectBuilderValue] = {
     lazy val attrName: Parser[String] = nameDecl <~ wsOrNl ~ '=' ~ wsOrNl
 
     lazy val attrValue: Parser[String] =
       '"' ~> escapedText.escapedUntil('"') | (anyBut(' ','\t','\n','.',':') min 1)
 
-    lazy val defaultAttribute: Parser[Part] = not(attrName) ~> attrValue ^^ { Part(Attribute(PartId.Default), _) }
+    lazy val defaultAttribute: Parser[BuilderField] = not(attrName) ~> attrValue ^^ { v => 
+      BuilderField(PartId.Default.key, ResolvedBuilderValue(StringValue(v))) 
+    }
 
-    lazy val attribute: Parser[Part] = attrName ~ attrValue ^^ { case name ~ value => Part(Attribute(name), value) }
+    lazy val attribute: Parser[BuilderField] = attrName ~ attrValue ^^ { case name ~ value =>
+      BuilderField(name, ResolvedBuilderValue(StringValue(value)))
+    }
 
     (wsOrNl ~> opt(defaultAttribute <~ wsOrNl) ~ ((wsOrNl ~> attribute)*)) <~ ws ^^
-      { case defAttr ~ attrs => defAttr.toList ::: attrs }
+      { case defAttr ~ attrs => ObjectBuilderValue(defAttr.toList ++ attrs) }
   }
 
   /** Parses a full directive declaration, containing all its attributes,
     *  but not the body elements.
     */
-  def declarationParser (escapedText: EscapedTextParsers, supportsCustomFence: Boolean = false): Parser[(String, List[Part], String)] = {
+  def declarationParser (escapedText: EscapedTextParsers, supportsCustomFence: Boolean = false): Parser[(String, ObjectBuilderValue, String)] = {
     val defaultFence = success("@:@")
     val fence = if (supportsCustomFence) (ws ~> anyBut(' ', '\n', '\t').take(3)) | defaultFence else defaultFence
-    val attributeSection = ws ~> "{" ~> attributeParser(escapedText) <~ wsOrNl <~ "}"
+    val attributeSection = ws ~> HoconParsers.objectValue
     
     (":" ~> nameDecl ~ opt(attributeSection) ~ fence) ^^ { 
       case name ~ attrs ~ fencePattern => (name, attrs.getOrElse(Nil), fencePattern) 
@@ -103,8 +109,8 @@ object DirectiveParsers {
    *  but not the body elements. This method parses the deprecated syntax where attributes
    *  are not enclosed in braces.
    */
-  def legacyDeclarationParser (escapedText: EscapedTextParsers): Parser[(String, List[Part])] =
-    (":" ~> nameDecl ~ attributeParser(escapedText)) ^^ { case name ~ attrs => (name, attrs) }
+  def legacyDeclarationParser (escapedText: EscapedTextParsers): Parser[(String, ObjectBuilderValue)] =
+    (":" ~> nameDecl ~ legacyAttributeParser(escapedText)) ^^ { case name ~ attrs => (name, attrs) }
 
   /** Parses one directive instance containing its name declaration,
    *  all attributes and all body elements.
@@ -117,21 +123,21 @@ object DirectiveParsers {
   def directiveParser (bodyContent: BodyParserBuilder, legacyBody: Parser[String], escapedText: EscapedTextParsers, 
                        supportsCustomFence: Boolean = false): Parser[ParsedDirective] = {
 
-    val legacyDirective: Parser[(String, List[Part]) ~ Option[Part]] = {
-      val noBody: Parser[Option[Part]] = '.' ^^^ None
-      val body: Parser[Option[Part]] = ':' ~> legacyBody ^^ { content => Some(Part(Body, content)) }
+    val legacyDirective: Parser[(String, ObjectBuilderValue) ~ Option[String]] = {
+      val noBody: Parser[Option[String]] = '.' ^^^ None
+      val body: Parser[Option[String]] = ':' ~> legacyBody.map(Some(_))
       legacyDeclarationParser(escapedText) ~ (noBody | body)
     }
     
-    val newDirective: Parser[(String, List[Part]) ~ Option[Part]] = {
+    val newDirective: Parser[(String, ObjectBuilderValue) ~ Option[String]] = {
       declarationParser(escapedText, supportsCustomFence) >> { case (name, attrs, fence) =>
-        val body: Parser[Option[Part]] = bodyContent(DirectiveSpec(name, fence)).map(_.map { content => Part(Body, content) })
+        val body: Parser[Option[String]] = bodyContent(DirectiveSpec(name, fence))
         
         body ^^ (content => new ~((name, attrs), content))
       } 
     }
     
-    (legacyDirective | newDirective) ^^ { case (name, attrs) ~ body => ParsedDirective(name, attrs ++ body.toList) }
+    (legacyDirective | newDirective) ^^ { case (name, attrs) ~ body => ParsedDirective(name, attrs, body) }
   }
   
   val nestedBraces: Parser[Text] = delimitedBy('}') ^^ (str => Text(s"{$str}"))
