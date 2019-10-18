@@ -16,8 +16,7 @@
 
 package laika.bundle
 
-import laika.api.config.Config
-import laika.ast.Path.Root
+import laika.api.config.{Config, ConfigParser}
 import laika.ast._
 import laika.directive.{DirectiveRegistry, Templates}
 import laika.parse.Parser
@@ -62,7 +61,7 @@ object BundleProvider {
 
   def forConfigString (input: String): ExtensionBundle = new ExtensionBundle {
 
-    override def baseConfig: Config = ConfigProvider.fromInput(input, Root)
+    override def baseConfig: Config = ConfigParser.parse(input).resolve.right.get
 
   }
 

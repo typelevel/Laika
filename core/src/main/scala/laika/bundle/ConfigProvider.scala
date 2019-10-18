@@ -17,12 +17,10 @@
 package laika.bundle
 
 import laika.api.config.{Config, ConfigError, ConfigParser}
-import laika.ast.Path
 import laika.parse.Parser
 import laika.parse.combinator.Parsers
 import laika.parse.hocon.HoconParsers
 import laika.parse.hocon.HoconParsers.Origin
-import laika.parse.markup.DocumentParser.{ParserError, ParserInput}
 
 /** Factory for Config instances that add information
   * about the virtual path of the configuration within a Laika
@@ -40,17 +38,6 @@ trait ConfigProvider {
 
 object ConfigProvider {
 
-  /** Creates a Config instance based on the specified input string
-    * which is expected to be in HOCON format.
-    *
-    * This method adds a origin description to the Config instance which helps 
-    * resolving relative paths within this configuration instance.
-    */
-  def fromInput (input: String, path: Path): Config = ConfigParser.parse(input, path).resolve.right.get // TODO - 0.12 - error handling
-
-  // temporary API
-  def fromInput (input: ParserInput): Either[ParserError, Config] = Right(fromInput(input.context.input, input.path)) // TODO - 0.12 - remove
-  
   val empty: ConfigProvider = new ConfigProvider {
     def configHeader = Parsers.success(UnresolvedConfig.empty)
     def configDocument (input: String) = UnresolvedConfig.empty
