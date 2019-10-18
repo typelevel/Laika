@@ -132,7 +132,7 @@ object ConfigDecoder {
   implicit val string: ConfigDecoder[String] = new ConfigDecoder[String] {
     def apply (value: TracedValue[ConfigValue]) = value.value match {
       case StringValue(s) => Right(s) // TODO - convert other types
-      //case LongValue(n) => Right(n.toString) // TODO - 0.12 - temp
+      case LongValue(n) => Right(n.toString) // TODO - 0.12 - temp
       case _ => Left(InvalidType("String", ""))
     }
   }

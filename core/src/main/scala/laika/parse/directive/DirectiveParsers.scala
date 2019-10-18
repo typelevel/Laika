@@ -91,17 +91,29 @@ object DirectiveParsers {
     (wsOrNl ~> opt(defaultAttribute <~ wsOrNl) ~ ((wsOrNl ~> attribute)*)) <~ ws ^^
       { case defAttr ~ attrs => ObjectBuilderValue(defAttr.toList ++ attrs) }
   }
+  
+  def log[T](p: => Parser[T], msg: String): Parser[T] = Parser[T] { in =>
+    val res = p.parse(in)
+    println(s"parser $msg $res")
+    res
+  }
 
   /** Parses a full directive declaration, containing all its attributes,
     *  but not the body elements.
     */
   def declarationParser (escapedText: EscapedTextParsers, supportsCustomFence: Boolean = false): Parser[(String, ObjectBuilderValue, String)] = {
+    import HoconParsers.{wsOrNl => hoconWS, _}
+    
     val defaultFence = success("@:@")
     val fence = if (supportsCustomFence) (ws ~> anyBut(' ', '\n', '\t').take(3)) | defaultFence else defaultFence
-    val attributeSection = ws ~> HoconParsers.objectValue
+    val defaultAttribute = opt((hoconWS ~> log(stringBuilderValue, "sb") <~ not(ws ~ '=') ~ hoconWS).map(sv => BuilderField(PartId.Default.key, sv)))
+    val attributeSection = (ws ~> lazily('{' ~> log(defaultAttribute, "da") ~ log(objectMembers, "om") <~ log('}', "}"))).map {
+      case defAttr ~ obj => obj.copy(values = defAttr.toSeq ++ obj.values)
+    }
     
-    (":" ~> nameDecl ~ opt(attributeSection) ~ fence) ^^ { 
-      case name ~ attrs ~ fencePattern => (name, attrs.getOrElse(ObjectBuilderValue(Nil)), fencePattern) 
+    (":" ~> log(nameDecl, "nd") ~ opt(attributeSection) ~ fence) ^^ { 
+      case name ~ attrs ~ fencePattern => 
+        (name, attrs.getOrElse(ObjectBuilderValue(Nil)), fencePattern) 
     }
   }
     

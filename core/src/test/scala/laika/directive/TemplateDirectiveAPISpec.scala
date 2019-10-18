@@ -275,7 +275,7 @@ class TemplateDirectiveAPISpec extends FlatSpec
         tt("foo:str:7"), 
         tt(" 1 "), tt("value"), tt(" 2 ")
       )
-      Parsing ("aa @:dir { foo strAttr=str intAttr=7 } 1 {{config.ref}} 2 @:@ bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
+      Parsing ("aa @:dir { foo strAttr=str, intAttr=7 } 1 {{config.ref}} 2 @:@ bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
     }
   }
 

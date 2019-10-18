@@ -196,7 +196,7 @@ object HoconParsers {
     lazily(('[' ~> values <~ trailingComma <~ ']').map(ArrayBuilderValue))
   }
   
-  private lazy val objectMembers: Parser[ObjectBuilderValue] = {
+  private[laika] lazy val objectMembers: Parser[ObjectBuilderValue] = {
     lazy val key = wsOrNl ~> concatenatedKey <~ ws
     lazy val value = wsOrNl ~> concatenatedValue <~ ws
     lazy val withSeparator = ((anyOf(':','=').take(1) | "+=") ~ value).map {

@@ -48,7 +48,7 @@ object PartId {
     *  of a directive.
     */
   case object Default extends PartId {
-    val key = "__$$default$$__"
+    val key = "__$$:default:$$__"
     def desc: String = s"default attribute"
   }
 
