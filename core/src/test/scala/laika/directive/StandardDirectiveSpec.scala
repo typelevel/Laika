@@ -494,7 +494,7 @@ class StandardDirectiveSpec extends FlatSpec
   it should "produce a table of content starting from the current tree" in {
     new TreeModel with TocModel {
       
-      val template = """aaa @:toc { root=#currentTree } bbb {{document.content}}"""
+      val template = """aaa @:toc { root=<currentTree> } bbb {{document.content}}"""
       
       parseAndRewrite(template, markup) should be (result(currentList))  
     }
@@ -503,7 +503,7 @@ class StandardDirectiveSpec extends FlatSpec
   it should "produce a table of content starting from the root of the current document" in {
     new TreeModel with TocModel {
       
-      val template = """aaa @:toc { root=#currentDocument } bbb {{document.content}}"""
+      val template = """aaa @:toc { root=<currentDocument> } bbb {{document.content}}"""
       
       parseAndRewrite(template, markup) should be (result(currentDoc))  
     }
@@ -530,7 +530,7 @@ class StandardDirectiveSpec extends FlatSpec
   it should "produce a table of content starting from an explicit relative path with depth 2" in {
     new TreeModel with TocModel {
       
-      val template = """aaa @:toc { root="../sub1" depth=2 } bbb {{document.content}}"""
+      val template = """aaa @:toc { root="../sub1", depth=2 } bbb {{document.content}}"""
       
       parseAndRewrite(template, markup) should be (result(firstTreeFirstLevel))  
     }

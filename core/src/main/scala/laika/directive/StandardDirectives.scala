@@ -135,9 +135,9 @@ object StandardDirectives extends DirectiveRegistry {
     val maxLevel = depth getOrElse Int.MaxValue
     
     val root: TreeContent = rootConfig match {
-      case "#rootTree"        => cursor.root.target.tree
-      case "#currentTree"     => cursor.parent.target
-      case "#currentDocument" => cursor.target
+      case "<rootTree>" | "#rootTree" => cursor.root.target.tree // # syntax is legacy, clashes with HOCON spec
+      case "<currentTree>" | "#currentTree"     => cursor.parent.target
+      case "<currentDocument>" | "#currentDocument" => cursor.target
       case pathString =>
         val configPath = Path(pathString)
         val root = cursor.root.target.tree
@@ -168,7 +168,7 @@ object StandardDirectives extends DirectiveRegistry {
         attribute("title").as[String].optional ~ 
         cursor).map {
       case depth ~ rootConfig ~ title ~ cursor =>
-        TemplateElement(toc(depth, rootConfig.getOrElse("#rootTree"), title, cursor))
+        TemplateElement(toc(depth, rootConfig.getOrElse("<rootTree>"), title, cursor))
     }
   }
   
