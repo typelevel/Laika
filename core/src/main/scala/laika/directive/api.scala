@@ -21,7 +21,7 @@ import laika.ast.{TemplateSpan, _}
 import laika.collection.TransitionalCollectionOps._
 import laika.parse.directive.DirectiveParsers.ParsedDirective
 import laika.parse.hocon.ConfigResolver
-import laika.parse.hocon.HoconParsers.{ConfigValue, Origin}
+import laika.parse.hocon.HoconParsers.{ConfigValue, Origin, TracedValue}
 import laika.parse.{Failure, Success}
 
 import scala.reflect.ClassTag
@@ -61,6 +61,8 @@ object AttributeKey {
   */
 trait BuilderContext[E <: Element] {
 
+  private val directiveOrigin = "$$directive$$" // TODO - use Scope enum (Global, Tree, Document, Directive) - might include Path in Tree and Document scope only
+  
   /** The parser API in case a directive function
     * needs to manually parse one of the directive
     * parts.
@@ -93,8 +95,14 @@ trait BuilderContext[E <: Element] {
 
     val body: Option[BodyContent] = content.body
     
-    def attribute[T] (id: AttributeKey, decoder: ConfigDecoder[T]): Result[Option[T]] =
-      content.attributes.getOpt[T](id.key)(decoder).left.map(e => Seq(s"error converting ${id.desc}: ${e.toString}")) // TODO - 0.12 - ConfigError conversions
+    def attribute[T] (id: AttributeKey, decoder: ConfigDecoder[T], inherit: Boolean): Result[Option[T]] =
+      content.attributes
+        .getOpt[TracedValue[T]](id.key)(ConfigDecoder.tracedValue(decoder))
+        .map(_.flatMap { traced =>
+          if (traced.origins.exists(_.path.name == directiveOrigin) || inherit) Some(traced.value)
+          else None
+        })
+        .left.map(e => Seq(s"error converting ${id.desc}: ${e.toString}")) // TODO - 0.12 - ConfigError conversions
     
   }
 
@@ -146,7 +154,7 @@ trait BuilderContext[E <: Element] {
       
       def attributes: Result[Config] = Right(ConfigResolver
         .resolve(parsedResult.attributes, cursor.config))
-        .map(new ObjectConfig(_, Origin(cursor.path), cursor.config))
+        .map(new ObjectConfig(_, Origin(cursor.path / directiveOrigin), cursor.config))
       
       val body = parsedResult.body.map(BodyContent.Source)
 
@@ -219,18 +227,21 @@ trait BuilderContext[E <: Element] {
       def separators: Set[String] = Set.empty
     }
 
-    class AttributePart [T] (key: AttributeKey, decoder: ConfigDecoder[T], requiredMsg: => String) extends DirectivePart[T] {
+    class AttributePart [T] (key: AttributeKey, decoder: ConfigDecoder[T], isInherited: Boolean, requiredMsg: => String) extends DirectivePart[T] {
       
       def apply (context: DirectiveContext): Result[T] = 
-        context.attribute(key, decoder).flatMap(_.toRight(Seq(requiredMsg)))
+        context.attribute(key, decoder, isInherited).flatMap(_.toRight(Seq(requiredMsg)))
       
-      def as[U](implicit decoder: ConfigDecoder[U]): AttributePart[U] = new AttributePart(key, decoder, requiredMsg)
+      def as[U](implicit decoder: ConfigDecoder[U]): AttributePart[U] = new AttributePart(key, decoder, isInherited, requiredMsg)
 
+      def inherited: AttributePart[T] = new AttributePart(key, decoder, true, requiredMsg)
+      
       def optional: DirectivePart[Option[T]] = new DirectivePart[Option[T]] {
-        def apply (context: DirectiveContext): Result[Option[T]] = context.attribute(key, decoder)
+        def apply (context: DirectiveContext): Result[Option[T]] = context.attribute(key, decoder, isInherited)
         def hasBody: Boolean = false
         def separators: Set[String] = Set.empty
       }
+      
       def hasBody: Boolean = false
       def separators: Set[String] = Set.empty
     }
@@ -283,7 +294,7 @@ trait BuilderContext[E <: Element] {
     }
     
     def defaultAttribute: AttributePart[ConfigValue]
-      = new AttributePart(AttributeKey.Default, ConfigDecoder.configValue, s"required default attribute is missing")
+      = new AttributePart(AttributeKey.Default, ConfigDecoder.configValue, false, s"required default attribute is missing")
 
     /** Specifies a required attribute.
       *
@@ -291,7 +302,7 @@ trait BuilderContext[E <: Element] {
       * @return a directive part that can be combined with further parts with the `~` operator
       */
     def attribute (key: String): AttributePart[ConfigValue]
-      = new AttributePart(AttributeKey.Named(key), ConfigDecoder.configValue, s"required attribute '$key' is missing")
+      = new AttributePart(AttributeKey.Named(key), ConfigDecoder.configValue, false, s"required attribute '$key' is missing")
 
     /** Specifies a required body part.
       *
