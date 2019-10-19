@@ -52,6 +52,7 @@ lazy val noPublishSettings = Seq(
 
 val scalatest  = "org.scalatest"          %% "scalatest"   % "3.0.8" % "test"
 val jTidy      = "net.sf.jtidy"           %  "jtidy"       % "r938"  % "test"
+val catsCore   = "org.typelevel"          %% "cats-core"   % "2.0.0"
 val catsEffect = "org.typelevel"          %% "cats-effect" % "2.0.0"
 val fop        = "org.apache.xmlgraphics" %  "fop"         % "2.3"
 
@@ -69,7 +70,7 @@ lazy val core = project.in(file("core"))
   .settings(publishSettings)
   .settings(
     name := "laika-core",
-    libraryDependencies ++= Seq(scalatest, jTidy)
+    libraryDependencies ++= Seq(catsCore, scalatest, jTidy)
   )
 
 lazy val io = project.in(file("io"))
