@@ -83,9 +83,11 @@ import laika.rst.ext.ExtensionParsers.Result
  *    val textRoles = Nil
  *  )
  *
- *  Transformer.from(ReStructuredText).to(HTML)
+ *  val transformer = Transformer
+  *   .from(ReStructuredText)
+  *   .to(HTML)
  *    .using(MyDirectives)
- *    .fromFile("hello.rst").toFile("hello.html")
+ *    .build
  *  }}}
  * 
  *  The `argument()` method specifies a required argument of type `String` (since no conversion

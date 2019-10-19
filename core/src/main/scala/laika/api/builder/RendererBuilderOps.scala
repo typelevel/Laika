@@ -23,9 +23,9 @@ trait RendererBuilderOps[FMT] extends CommonBuilderOps {
     *  style class:
     *
     *  {{{
-    *  Transformer.from(Markdown).to(HTML).rendering {
+    *  val transformer = Transformer.from(Markdown).to(HTML).rendering {
     *    case (fmt, Emphasized(content, opt)) => fmt.element("em", opt, content, "class" -> "big")
-    *  }.fromFile("hello.md").toFile("hello.html")
+    *  }.build
     *  }}}
     */
   def rendering (customRenderer: PartialFunction[(FMT, Element), String]): ThisType = using(new ExtensionBundle {

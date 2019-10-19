@@ -41,10 +41,11 @@ import laika.parse.css.CSSParsers
   * This way a user can easily pass it to the operation builders:
   *
   * {{{
-  * Transform
-  *   .from(Markdown).to(HTML)
+  * val transformer = Transformer
+  *   .from(Markdown)
+  *   .to(HTML)
   *   .using(MyExtensions)
-  *   .fromFile("hello.md").toFile("hello.html")
+  *   .build
   * }}}
   *
   * @author Jens Halm
@@ -152,8 +153,7 @@ trait ExtensionBundle { self =>
     * `withRawContent` on the `Parse` or `Transform` API:
     *
     * {{{
-    *   Transformer.from(Markdown).to(HTML).withRawContent
-    *     .fromFile("hello.md").toFile("hello.html")
+    *   val transformer = Transformer.from(Markdown).to(HTML).withRawContent.build
     * }}}
     */
   def acceptRawContent: Boolean = false

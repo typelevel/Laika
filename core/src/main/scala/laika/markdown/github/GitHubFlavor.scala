@@ -20,13 +20,14 @@ import laika.bundle.{ExtensionBundle, ParserBundle}
 
 /** Extension bundle that enables GitHub-Flavored Markdown on top of standard Markdown.
   *
-  * The extension can be added to a transformation like any other extension:
+  * The extension can be added to a transformer like any other extension:
   *
   * {{{
-  *   Transform
-  *     .from(Markdown).to(HTML)
+  *   val transformer = Transformer
+  *     .from(Markdown)
+  *     .to(HTML)
   *     .using(GitHubFlavor)
-  *     .fromFile("hello.md").toFile("hello.html")
+  *     .build
   * }}}
   *
   * These are the parsers this extension adds to standard Markdown:

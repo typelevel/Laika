@@ -32,12 +32,11 @@ import laika.bundle.ExtensionBundle
   *   [...]
   * }
   *
-  * Transform
+  * val transformer = Transformer
   *   .from(Markdown)
   *   .to(HTML)
   *   .using(MyDirectives, OtherDirectives)
-  *   .fromFile("hello.md")
-  *   .toFile("hello.html")
+  *   .build
   * }}}
   *
   * @author Jens Halm
