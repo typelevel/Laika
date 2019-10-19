@@ -16,6 +16,7 @@
 
 package laika.directive
 
+import cats.implicits._
 import laika.api.config.ConfigBuilder
 import laika.ast.Path.Root
 import laika.ast._
@@ -64,11 +65,17 @@ class SpanDirectiveAPISpec extends FlatSpec
     }
 
     trait SeparatedBody {
+      
       sealed trait Child extends Product with Serializable
       case class Foo (content: Seq[Span]) extends Child
       case class Bar (content: Seq[Span], attr: String) extends Child
-      val sep1 = Spans.separator("foo", min = 1) { parsedBody map Foo }
-      val sep2 = Spans.separator("bar", max = 1) { (parsedBody ~ defaultAttribute.as[String]) map { case spans ~ attr => Bar(spans, attr) } }
+      
+      val sep1 = Spans.separator("foo", min = 1) { 
+        parsedBody.map(Foo) 
+      }
+      val sep2 = Spans.separator("bar", max = 1) { 
+        (parsedBody, defaultAttribute.as[String]).mapN(Bar) 
+      }
       val directive = Spans.create("dir") { separatedBody[Child](Seq(sep1, sep2)) map { multipart =>
         val seps = multipart.children.flatMap {
           case Foo(content) => txt("foo") +: content
@@ -80,9 +87,8 @@ class SpanDirectiveAPISpec extends FlatSpec
     
     trait FullDirectiveSpec {
       val directive = Spans.create("dir") {
-        (defaultAttribute.as[String] ~ attribute("strAttr").as[String].optional ~ attribute("intAttr").as[Int].optional ~
-        parsedBody).map {
-          case defAttr ~ strAttr ~ intAttr ~ defBody => 
+        (defaultAttribute.as[String], attribute("strAttr").as[String].optional, attribute("intAttr").as[Int].optional, parsedBody).mapN {
+          (defAttr, strAttr, intAttr, defBody) => 
             val sum = intAttr.getOrElse(0)
             val str = defAttr + ":" + strAttr.getOrElse("..") + ":" + sum
             SpanSequence(Text(str) +: defBody)
@@ -92,16 +98,16 @@ class SpanDirectiveAPISpec extends FlatSpec
     
     trait DirectiveWithParserAccess {
       val directive = Spans.create("dir") { 
-        (rawBody ~ parser).map {
-          case body ~ parser => SpanSequence(parser(body.drop(3)))
+        (rawBody, parser).mapN { (body, parser) =>
+          SpanSequence(parser(body.drop(3)))
         }
       }
     }
     
     trait DirectiveWithContextAccess {
       val directive = Spans.create("dir") { 
-        (rawBody ~ cursor).map {
-          case body ~ cursor => Text(body + cursor.target.path)
+        (rawBody, cursor).mapN { (body, cursor) =>
+          Text(body + cursor.target.path)
         }
       }
     }

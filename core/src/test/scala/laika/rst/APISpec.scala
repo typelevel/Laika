@@ -16,6 +16,7 @@
 
 package laika.rst
 
+import cats.implicits._
 import laika.api._
 import laika.ast._
 import laika.ast.helper.ModelBuilder
@@ -88,7 +89,9 @@ class APISpec extends FlatSpec
 
       val blockDirectives: List[Blocks.Directive] = List(
         Blocks.create("oneArg")(defaultAttribute.as[String] map p),
-        Blocks.create("twoArgs")((defaultAttribute.as[String] ~ attribute("name")).map { case arg1 ~ arg2 => p(arg1 + arg2) })
+        Blocks.create("twoArgs") {
+          (defaultAttribute.as[String], attribute("name").as[String].widen).mapN { (arg1, arg2) => p(arg1 + arg2) }
+        }
       )
 
       val spanDirectives = Seq()
@@ -103,7 +106,11 @@ class APISpec extends FlatSpec
 
       val spanDirectives: List[Spans.Directive] = List(
         Spans.create("oneArg")(defaultAttribute.as[String] map txt),
-        Spans.create("twoArgs")((defaultAttribute.as[String] ~ attribute("name")).map { case arg1 ~ arg2 => txt(arg1+arg2) })
+        Spans.create("twoArgs") {
+          (defaultAttribute.as[String], attribute("name").as[String].widen).mapN { 
+            (arg1, arg2) => txt(arg1+arg2) 
+          }
+        }
       )
 
       val blockDirectives = Seq()

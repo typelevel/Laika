@@ -16,6 +16,7 @@
 
 package laika.directive
 
+import cats.implicits._
 import laika.api.config.ConfigBuilder
 import laika.ast.Path.Root
 import laika.ast._
@@ -64,9 +65,8 @@ class LegacyBlockDirectiveAPISpec extends FlatSpec
     
     trait FullDirectiveSpec {
       val directive = Blocks.create("dir") {
-        (defaultAttribute.as[String] ~ attribute("strAttr").as[String].optional ~ attribute("intAttr").as[Int].optional ~
-        parsedBody).map {
-          case defAttr ~ strAttr ~ intAttr ~ defBody =>
+        (defaultAttribute.as[String], attribute("strAttr").as[String].optional, attribute("intAttr").as[Int].optional, parsedBody).mapN {
+          (defAttr, strAttr, intAttr, defBody) =>
             val sum = intAttr.getOrElse(0)
             val str = defAttr + ":" + strAttr.getOrElse("..") + ":" + sum
             BlockSequence(p(str) +: defBody)
@@ -76,16 +76,16 @@ class LegacyBlockDirectiveAPISpec extends FlatSpec
     
     trait DirectiveWithParserAccess {
       val directive = Blocks.create("dir") { 
-        (rawBody ~ parser).map {
-          case body ~ parser => BlockSequence(parser(body.drop(3)))
+        (rawBody, parser).mapN { (body, parser) =>
+          BlockSequence(parser(body.drop(3)))
         }
       }
     }
     
     trait DirectiveWithContextAccess {
       val directive = Blocks.create("dir") { 
-        (rawBody ~ cursor).map {
-          case body ~ cursor => p(body + cursor.target.path)
+        (rawBody, cursor).mapN { (body, cursor) =>
+          p(body + cursor.target.path)
         }
       }
     }

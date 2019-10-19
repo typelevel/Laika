@@ -264,6 +264,7 @@ trait BuilderContext[E <: Element] {
       
       def hasBody: Boolean = false
       def separators: Set[String] = Set.empty
+      def widen: DirectivePart[T] = this
     }
     
     class SeparatedBodyPart[T] (directives: Seq[SeparatorDirective[T]]) extends DirectivePart[Multipart[T]] {

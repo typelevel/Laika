@@ -16,6 +16,7 @@
 
 package laika.directive
 
+import cats.implicits._
 import laika.api.config.ConfigBuilder
 import laika.ast.Path.Root
 import laika.ast._
@@ -61,9 +62,8 @@ class LegacySpanDirectiveAPISpec extends FlatSpec
     
     trait FullDirectiveSpec {
       val directive = Spans.create("dir") {
-        (defaultAttribute.as[String] ~ attribute("strAttr").as[String].optional ~ attribute("intAttr").as[Int].optional ~
-        parsedBody).map {
-          case defAttr ~ strAttr ~ intAttr ~ defBody => 
+        (defaultAttribute.as[String], attribute("strAttr").as[String].optional, attribute("intAttr").as[Int].optional, parsedBody).mapN {
+          (defAttr, strAttr, intAttr, defBody) => 
             val sum = intAttr.getOrElse(0)
             val str = defAttr + ":" + strAttr.getOrElse("..") + ":" + sum
             SpanSequence(Text(str) +: defBody)
@@ -73,16 +73,16 @@ class LegacySpanDirectiveAPISpec extends FlatSpec
     
     trait DirectiveWithParserAccess {
       val directive = Spans.create("dir") { 
-        (rawBody ~ parser).map {
-          case body ~ parser => SpanSequence(parser(body.drop(3)))
+        (rawBody, parser).mapN { (body, parser) =>
+          SpanSequence(parser(body.drop(3)))
         }
       }
     }
     
     trait DirectiveWithContextAccess {
       val directive = Spans.create("dir") { 
-        (rawBody ~ cursor).map {
-          case body ~ cursor => Text(body + cursor.target.path)
+        (rawBody, cursor).mapN { (body, cursor) =>
+          Text(body + cursor.target.path)
         }
       }
     }

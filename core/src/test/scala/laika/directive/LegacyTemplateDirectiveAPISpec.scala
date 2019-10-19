@@ -16,6 +16,7 @@
 
 package laika.directive
 
+import cats.implicits._
 import laika.api.config.ConfigBuilder
 import laika.ast.Path.Root
 import laika.ast._
@@ -60,9 +61,8 @@ class LegacyTemplateDirectiveAPISpec extends FlatSpec
     
     trait FullDirectiveSpec {
       val directive = Templates.create("dir") {
-        (defaultAttribute.as[String] ~ attribute("strAttr").as[String].optional ~ attribute("intAttr").as[Int].optional ~
-        parsedBody).map {
-          case defAttr ~ strAttr ~ intAttr ~ defBody => 
+        (defaultAttribute.as[String], attribute("strAttr").as[String].optional, attribute("intAttr").as[Int].optional, parsedBody).mapN {
+          (defAttr, strAttr, intAttr, defBody) => 
             val sum = intAttr.getOrElse(0)
             val str = defAttr + ":" + strAttr.getOrElse("..") + ":" + sum
             TemplateSpanSequence(TemplateString(str) +: defBody)
@@ -72,16 +72,16 @@ class LegacyTemplateDirectiveAPISpec extends FlatSpec
     
     trait DirectiveWithParserAccess {
       val directive = Templates.create("dir") { 
-        (rawBody ~ parser).map {
-          case body ~ parser => TemplateSpanSequence(parser(body.drop(3)))
+        (rawBody, parser).mapN { (body, parser) =>
+          TemplateSpanSequence(parser(body.drop(3)))
         }
       }
     }
     
     trait DirectiveWithContextAccess {
       val directive = Templates.create("dir") { 
-        (rawBody ~ cursor).map {
-          case body ~ cursor => TemplateString(body + cursor.target.path)
+        (rawBody, cursor).mapN { (body, cursor) =>
+          TemplateString(body + cursor.target.path)
         }
       }
     }

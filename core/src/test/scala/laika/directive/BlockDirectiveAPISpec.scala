@@ -16,6 +16,7 @@
 
 package laika.directive
 
+import cats.implicits._
 import laika.api.config.ConfigBuilder
 import laika.ast.Path.Root
 import laika.ast._
@@ -67,11 +68,18 @@ class BlockDirectiveAPISpec extends FlatSpec
     }
 
     trait SeparatedBody {
+      
       sealed trait Child extends Product with Serializable
       case class Foo (content: Seq[Block]) extends Child
       case class Bar (content: Seq[Block], attr: String) extends Child
-      val sep1 = Blocks.separator("foo", min = 1) { parsedBody map Foo }
-      val sep2 = Blocks.separator("bar", max = 1) { (parsedBody ~ defaultAttribute.as[String]) map { case blocks ~ attr => Bar(blocks, attr) } }
+      
+      val sep1 = Blocks.separator("foo", min = 1) {
+        parsedBody.map(Foo)
+      }
+      val sep2 = Blocks.separator("bar", max = 1) {
+        (parsedBody, defaultAttribute.as[String]).mapN(Bar)
+      }
+      
       val directive = Blocks.create("dir") { separatedBody[Child](Seq(sep1, sep2)) map { multipart =>
         val seps = multipart.children.flatMap {
           case Foo(content) => p("foo") +: content
@@ -83,9 +91,8 @@ class BlockDirectiveAPISpec extends FlatSpec
     
     trait FullDirectiveSpec {
       val directive = Blocks.create("dir") {
-        (defaultAttribute.as[String] ~ attribute("strAttr").as[String].optional ~ attribute("intAttr").as[Int].optional ~
-        parsedBody).map {
-          case defAttr ~ strAttr ~ intAttr ~ defBody =>
+        (defaultAttribute.as[String], attribute("strAttr").as[String].optional, attribute("intAttr").as[Int].optional, parsedBody).mapN {
+          (defAttr, strAttr, intAttr, defBody) =>
             val sum = intAttr.getOrElse(0)
             val str = defAttr + ":" + strAttr.getOrElse("..") + ":" + sum
             BlockSequence(p(str) +: defBody)
@@ -95,16 +102,16 @@ class BlockDirectiveAPISpec extends FlatSpec
     
     trait DirectiveWithParserAccess {
       val directive = Blocks.create("dir") { 
-        (rawBody ~ parser).map {
-          case body ~ parser => BlockSequence(parser(body.drop(3)))
+        (rawBody, parser).mapN { (body, parser) =>
+          BlockSequence(parser(body.drop(3)))
         }
       }
     }
     
     trait DirectiveWithContextAccess {
       val directive = Blocks.create("dir") { 
-        (rawBody ~ cursor).map {
-          case body ~ cursor => p(body + cursor.target.path)
+        (rawBody, cursor).mapN { (body, cursor) =>
+          p(body + cursor.target.path)
         }
       }
     }

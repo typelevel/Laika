@@ -16,6 +16,7 @@
 
 package laika.directive
 
+import cats.implicits._
 import laika.api.config.ConfigBuilder
 import laika.ast.Path.Root
 import laika.ast._
@@ -63,12 +64,18 @@ class TemplateDirectiveAPISpec extends FlatSpec
     }
 
     trait SeparatedBody {
+      
       sealed trait Child extends Product with Serializable
       case class Foo (content: Seq[TemplateSpan]) extends Child
       case class Bar (content: Seq[TemplateSpan], attr: String) extends Child
-      val sep1 = Templates.separator("foo", min = 1) { parsedBody map Foo }
-      val sep2 = Templates.separator("bar", max = 1) { (parsedBody ~ defaultAttribute.as[String]) map { case spans ~ attr => Bar(spans, attr) } }
-      val directive = Templates.create("dir") { separatedBody[Child](Seq(sep1, sep2)) map { multipart =>
+      
+      val sep1 = Templates.separator("foo", min = 1) { 
+        parsedBody.map(Foo) 
+      }
+      val sep2 = Templates.separator("bar", max = 1) { 
+        (parsedBody, defaultAttribute.as[String]).mapN(Bar) 
+      }
+      val directive = Templates.create("dir") { separatedBody(Seq(sep1, sep2)).map { multipart =>
         val seps = multipart.children.flatMap {
           case Foo(content) => tt("foo") +: content
           case Bar(content, attr) => tt(attr) +: content
@@ -79,9 +86,8 @@ class TemplateDirectiveAPISpec extends FlatSpec
     
     trait FullDirectiveSpec {
       val directive = Templates.create("dir") {
-        (defaultAttribute.as[String] ~ attribute("strAttr").as[String].optional ~ attribute("intAttr").as[Int].optional ~
-        parsedBody).map {
-          case defAttr ~ strAttr ~ intAttr ~ defBody => 
+        (defaultAttribute.as[String], attribute("strAttr").as[String].optional, attribute("intAttr").as[Int].optional, parsedBody).mapN {
+          (defAttr, strAttr, intAttr, defBody) => 
             val sum = intAttr.getOrElse(0)
             val str = defAttr + ":" + strAttr.getOrElse("..") + ":" + sum
             TemplateSpanSequence(TemplateString(str) +: defBody)
@@ -91,16 +97,16 @@ class TemplateDirectiveAPISpec extends FlatSpec
     
     trait DirectiveWithParserAccess {
       val directive = Templates.create("dir") { 
-        (rawBody ~ parser).map {
-          case body ~ parser => TemplateSpanSequence(parser(body.drop(3)))
+        (rawBody, parser).mapN { (body, parser) =>
+          TemplateSpanSequence(parser(body.drop(3)))
         }
       }
     }
     
     trait DirectiveWithContextAccess {
       val directive = Templates.create("dir") { 
-        (rawBody ~ cursor).map {
-          case body ~ cursor => TemplateString(body + cursor.target.path)
+        (rawBody, cursor).mapN { (body, cursor) =>
+          TemplateString(body + cursor.target.path)
         }
       }
     }
