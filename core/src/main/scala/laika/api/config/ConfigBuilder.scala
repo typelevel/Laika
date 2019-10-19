@@ -37,8 +37,6 @@ class ConfigBuilder (fields: Seq[Field], origin: Origin, fallback: Config = Empt
     if (fields.isEmpty && origin == Origin.root) fallback 
     else new ObjectConfig(mergeObjects(ObjectValue(fields)), origin, fallback)
 
-  def withFallback(other: Config): ConfigBuilder = new ConfigBuilder(fields, origin, fallback.withFallback(other))
-  
   // TODO - move to companion
   def withOrigin(path: Path): ConfigBuilder = new ConfigBuilder(fields, Origin(path))
 
@@ -68,6 +66,8 @@ class ConfigBuilder (fields: Seq[Field], origin: Origin, fallback: Config = Empt
 object ConfigBuilder {
 
   val empty: ConfigBuilder = new ConfigBuilder(Nil, Origin.root)
+
+  def withFallback(fb: Config): ConfigBuilder = new ConfigBuilder(Nil, Origin.root, fb)
 
 }
 

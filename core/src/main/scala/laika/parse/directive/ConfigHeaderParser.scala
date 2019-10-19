@@ -57,7 +57,7 @@ object ConfigHeaderParser {
   // val fallback: Path => Parser[Either[InvalidElement, Config]] = { _ => Parsers.success(Right(Config.empty)) }
 
   def merge (config: Config, values: Seq[(String, ConfigValue)]): Config =
-    values.foldLeft(ConfigBuilder.empty.withFallback(config)) { case (builder, (key, value)) =>
+    values.foldLeft(ConfigBuilder.withFallback(config)) { case (builder, (key, value)) =>
       builder.withValue(key, value)
     }.build
 

@@ -40,15 +40,15 @@ object ReferenceResolver {
    *  document and its parent and configuration.
    */
   def forDocument(document: Document, parent: TreeCursor, config: Config): ReferenceResolver =
-    apply(ConfigBuilder.empty
+    apply(ConfigBuilder
+      .withFallback(config)
       .withValue("document", ObjectValue(Seq(
         Field("content", ASTValue(document.content)),
         Field("title", ASTValue(SpanSequence(document.title))),
         Field("fragments", ObjectValue(document.fragments.toSeq.map { 
           case (name, element) => Field(name, ASTValue(element)) 
         }))
-      )))
-      .withFallback(config) // TODO - 0.12 - insert documented refs to config, document, parent, root
+      ))) // TODO - 0.12 - insert documented refs to config, document, parent, root
       .build
     )
   

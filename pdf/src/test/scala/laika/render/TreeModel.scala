@@ -40,14 +40,12 @@ trait TreeModel {
     )))
   }
     
-  def configWithTreeTitle (num: Int): Config = ConfigBuilder.empty
-    .withValue("title", s"Tree $num & More")
+  def configWithTreeTitle (num: Int): Config = ConfigBuilder
     .withFallback(pdfFileConfig)
+    .withValue("title", s"Tree $num & More")
     .build
 
-  def configWithFallback: Config = ConfigBuilder.empty
-    .withFallback(pdfFileConfig)
-    .build
+  def configWithFallback: Config = ConfigBuilder.withFallback(pdfFileConfig).build
 
   def subtreeDocs (nums: Int*): Seq[Document] = nums.map(doc)
   

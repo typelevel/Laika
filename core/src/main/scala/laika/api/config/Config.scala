@@ -40,10 +40,10 @@ trait Config {
   def get[T](implicit decoder: ConfigDecoder[T], defaultKey: DefaultKey[T]): ConfigResult[T] = get[T](defaultKey.value)
   
   def withValue[T](key: String, value: T)(implicit encoder: ConfigEncoder[T]) : ConfigBuilder = 
-    ConfigBuilder.empty.withValue(key, value).withFallback(this)
+    ConfigBuilder.withFallback(this).withValue(key, value)
 
   def withValue[T](value: T)(implicit encoder: ConfigEncoder[T], defaultKey: DefaultKey[T]): ConfigBuilder =
-    ConfigBuilder.empty.withValue(value).withFallback(this)
+    ConfigBuilder.withFallback(this).withValue(value)
   
   def withFallback(other: Config): Config
   
