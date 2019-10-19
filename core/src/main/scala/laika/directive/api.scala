@@ -118,6 +118,7 @@ trait BuilderContext[E <: Element] {
       def separators: Set[String] = self.separators
     }
 
+    @deprecated("use cats mapN with directive parts as tuples", "0.12.0")
     def ~ [B] (other: DirectivePart[B]): DirectivePart[A ~ B] = new DirectivePart[A ~ B] {
       def apply (p: DirectiveContext) = (self(p), other(p)) match {
         case (Right(a), Right(b)) => Right(new ~(a, b))
