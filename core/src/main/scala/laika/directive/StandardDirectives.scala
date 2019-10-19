@@ -16,6 +16,7 @@
 
 package laika.directive
 
+import cats.implicits._
 import laika.ast._
 import laika.parse.hocon.HoconParsers.{ArrayValue, BooleanValue, ConfigValue, NullValue, ObjectValue, StringValue}
 import laika.rewrite.TemplateRewriter
@@ -58,25 +59,23 @@ object StandardDirectives extends DirectiveRegistry {
     case class Empty (spans: Seq[TemplateSpan])
     val emptySeparator = Templates.separator("empty", max = 1)(parsedBody.map(Empty))
     
-    (defaultAttribute.as[String] ~ separatedBody(Seq(emptySeparator)) ~ cursor).map {
-      case path ~ multipart ~ cursor => {
+    (defaultAttribute.as[String], separatedBody(Seq(emptySeparator)), cursor).mapN { (path, multipart, cursor) =>
         
-        def rewrite (spans: Seq[TemplateSpan], childCursor: DocumentCursor): TemplateSpanSequence =
-          TemplateSpanSequence(spans) rewriteChildren TemplateRewriter.rewriteRules(childCursor)
-        
-        def rewriteContent (value: ConfigValue): TemplateSpanSequence = rewrite(multipart.mainBody, cursor.withReferenceContext(value))
+      def rewrite (spans: Seq[TemplateSpan], childCursor: DocumentCursor): TemplateSpanSequence =
+        TemplateSpanSequence(spans) rewriteChildren TemplateRewriter.rewriteRules(childCursor)
+      
+      def rewriteContent (value: ConfigValue): TemplateSpanSequence = rewrite(multipart.mainBody, cursor.withReferenceContext(value))
 
-        def rewriteFallback = multipart.children.headOption.map(_.spans).map(rewrite(_, cursor)).getOrElse(TemplateSpanSequence(Nil))
-        
-        cursor.resolveReference(path) match {
-          case Right(Some(o: ObjectValue))             => rewriteContent(o) 
-          case Right(Some(a: ArrayValue)) if a.isEmpty => rewriteFallback
-          case Right(Some(a: ArrayValue))              => TemplateSpanSequence(a.values.map(rewriteContent))
-          case Right(Some(simpleValue)) if emptyValues(simpleValue) => rewriteFallback
-          case Right(Some(simpleValue))                => rewriteContent(simpleValue)
-          case Right(None)                             => rewriteFallback
-          case Left(error)                             => rewriteFallback // TODO - 0.12 - insert invalid element - might also use get instead of getOpt and check for NotFound
-        }
+      def rewriteFallback = multipart.children.headOption.map(_.spans).map(rewrite(_, cursor)).getOrElse(TemplateSpanSequence(Nil))
+      
+      cursor.resolveReference(path) match {
+        case Right(Some(o: ObjectValue))             => rewriteContent(o) 
+        case Right(Some(a: ArrayValue)) if a.isEmpty => rewriteFallback
+        case Right(Some(a: ArrayValue))              => TemplateSpanSequence(a.values.map(rewriteContent))
+        case Right(Some(simpleValue)) if emptyValues(simpleValue) => rewriteFallback
+        case Right(Some(simpleValue))                => rewriteContent(simpleValue)
+        case Right(None)                             => rewriteFallback
+        case Left(error)                             => rewriteFallback // TODO - 0.12 - insert invalid element - might also use get instead of getOpt and check for NotFound
       }
     }
   }
@@ -93,32 +92,35 @@ object StandardDirectives extends DirectiveRegistry {
     case class ElseIf (ref: String, body: Seq[TemplateSpan]) extends IfSeparator
     case class Else (body: Seq[TemplateSpan]) extends IfSeparator
     
-    val elseIfSep = Templates.separator("elseIf")((parsedBody ~ defaultAttribute.as[String]).map{ case spans ~ ref => ElseIf(ref, spans) })
-    val elseSep = Templates.separator("else", max = 1)(parsedBody.map(Else))
+    val elseIfSep = Templates.separator("elseIf") {
+      (defaultAttribute.as[String], parsedBody).mapN(ElseIf) 
+    }
+    val elseSep = Templates.separator("else", max = 1) {
+      parsedBody.map(Else)
+    }
+    val multipartBody = separatedBody(Seq(elseIfSep, elseSep))
 
-    (defaultAttribute.as[String] ~ separatedBody(Seq(elseIfSep, elseSep)) ~ cursor).map {
-      case path ~ multipart ~ cursor => {
+    (defaultAttribute.as[String], multipartBody, cursor).mapN { (path, multipart, cursor) =>
 
-        def rewrite (spans: Seq[TemplateSpan]): TemplateSpanSequence =
-          TemplateSpanSequence(spans) rewriteChildren TemplateRewriter.rewriteRules(cursor)
-        
-        def rewriteFallback = multipart.children
-          .collectFirst { case e: Else => e }
-          .map(_.body).map(rewrite)
-          .getOrElse(TemplateSpanSequence(Nil))
-        
-        @tailrec
-        def process (parts: Seq[ElseIf]): TemplateSpanSequence = 
-          if (parts.isEmpty) rewriteFallback
-          else cursor.resolveReference(parts.head.ref) match {
-            case Right(Some(BooleanValue(true)))               => rewrite(parts.head.body)
-            case Right(Some(StringValue(s))) if trueStrings(s) => rewrite(parts.head.body)
-            case _ => process(parts.tail)
-          }
-        
-        val alternatives = ElseIf(path, multipart.mainBody) +: multipart.collect[ElseIf] 
-        process(alternatives)
-      }
+      def rewrite (spans: Seq[TemplateSpan]): TemplateSpanSequence =
+        TemplateSpanSequence(spans) rewriteChildren TemplateRewriter.rewriteRules(cursor)
+      
+      def rewriteFallback = multipart.children
+        .collectFirst { case e: Else => e }
+        .map(_.body).map(rewrite)
+        .getOrElse(TemplateSpanSequence(Nil))
+      
+      @tailrec
+      def process (parts: Seq[ElseIf]): TemplateSpanSequence = 
+        if (parts.isEmpty) rewriteFallback
+        else cursor.resolveReference(parts.head.ref) match {
+          case Right(Some(BooleanValue(true)))               => rewrite(parts.head.body)
+          case Right(Some(StringValue(s))) if trueStrings(s) => rewrite(parts.head.body)
+          case _ => process(parts.tail)
+        }
+      
+      val alternatives = ElseIf(path, multipart.mainBody) +: multipart.collect[ElseIf] 
+      process(alternatives)
     }
   }
   
@@ -163,11 +165,11 @@ object StandardDirectives extends DirectiveRegistry {
 
     import Templates.dsl._
 
-    (attribute("depth").as[Int].optional ~ 
-        attribute("root").as[String].optional ~ 
-        attribute("title").as[String].optional ~ 
-        cursor).map {
-      case depth ~ rootConfig ~ title ~ cursor =>
+    (attribute("depth").as[Int].optional, 
+        attribute("root").as[String].optional, 
+        attribute("title").as[String].optional, 
+        cursor).mapN {
+      (depth, rootConfig, title, cursor) =>
         TemplateElement(toc(depth, rootConfig.getOrElse("<rootTree>"), title, cursor))
     }
   }
@@ -178,11 +180,11 @@ object StandardDirectives extends DirectiveRegistry {
 
     import Blocks.dsl._
     
-    (attribute("depth").as[Int].optional ~ 
-        attribute("root").as[String].optional ~ 
-        attribute("title").as[String].optional ~ 
-        cursor).map {
-      case depth ~ rootConfig ~ title ~ cursor =>
+    (attribute("depth").as[Int].optional, 
+        attribute("root").as[String].optional, 
+        attribute("title").as[String].optional, 
+        cursor).mapN {
+      (depth, rootConfig, title, cursor) =>
         toc(depth, rootConfig.getOrElse("#currentDocument"), title, cursor)
     }
   }
@@ -190,12 +192,12 @@ object StandardDirectives extends DirectiveRegistry {
   
   private def asBlock (blocks: Seq[Block], options: Options = NoOpt): Block = blocks match {
     case block :: Nil => block.mergeOptions(options)
-    case blocks => BlockSequence(blocks, options)
+    case multiple     => BlockSequence(multiple, options)
   }
   
   private def asSpan (spans: Seq[Span], options: Options = NoOpt): Span = spans match {
     case span :: Nil => span.mergeOptions(options)
-    case spans => SpanSequence(spans, options)
+    case multiple    => SpanSequence(multiple, options)
   }
   
   
@@ -206,10 +208,7 @@ object StandardDirectives extends DirectiveRegistry {
   lazy val format: Blocks.Directive  = Blocks.create("format") {
     import Blocks.dsl._
     
-    (defaultAttribute.as[String] ~ parsedBody).map {
-      case name ~ content => 
-        TargetFormat(name, asBlock(content))
-    }
+    (defaultAttribute.as[String], parsedBody.map(asBlock(_))).mapN(TargetFormat(_,_))
   }
   
   /** Implementation of the `style` directive for block elements in markup documents.
@@ -217,19 +216,15 @@ object StandardDirectives extends DirectiveRegistry {
   lazy val blockStyle: Blocks.Directive  = Blocks.create("style") {
     import Blocks.dsl._
     
-    (defaultAttribute.as[String] ~ parsedBody).map {
-      case style ~ content => asBlock(content, Styles(style))
-    }
+    (parsedBody, defaultAttribute.as[String].map(Styles(_))).mapN(asBlock)
   }
   
   /** Implementation of the `style` directive for span elements in markup documents.
    */
   lazy val spanStyle: Spans.Directive  = Spans.create("style") {
     import Spans.dsl._
-    
-    (defaultAttribute.as[String] ~ parsedBody).map {
-      case style ~ content => asSpan(content, Styles(style))
-    }
+
+    (parsedBody, defaultAttribute.as[String].map(Styles(_))).mapN(asSpan)
   }
   
   /** Implementation of the `fragment` directive for block elements in markup documents.
@@ -237,8 +232,8 @@ object StandardDirectives extends DirectiveRegistry {
   lazy val blockFragment: Blocks.Directive  = Blocks.create("fragment") {
     import Blocks.dsl._
     
-    (defaultAttribute.as[String] ~ parsedBody).map {
-      case name ~ content => DocumentFragment(name, asBlock(content, Styles(name)))
+    (defaultAttribute.as[String], parsedBody).mapN { (name, content) =>
+      DocumentFragment(name, asBlock(content, Styles(name)))
     }
   }
   
@@ -247,8 +242,8 @@ object StandardDirectives extends DirectiveRegistry {
   lazy val templateFragment: Templates.Directive  = Templates.create("fragment") {
     import Templates.dsl._
     
-    (defaultAttribute.as[String] ~ parsedBody).map {
-      case name ~ content => TemplateElement(DocumentFragment(name, TemplateSpanSequence(content)))
+    (defaultAttribute.as[String], parsedBody).mapN { (name, content) =>
+      TemplateElement(DocumentFragment(name, TemplateSpanSequence(content)))
     }
   }
   
