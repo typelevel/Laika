@@ -16,10 +16,10 @@
 
 package laika.render
 
-import java.io.{ByteArrayOutputStream, OutputStream}
+import java.io.ByteArrayOutputStream
 
-import cats.implicits._
 import cats.effect.{Async, ContextShift, IO}
+import cats.implicits._
 import laika.api.Renderer
 import laika.ast.{DocumentTreeRoot, TemplateRoot}
 import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
@@ -29,8 +29,8 @@ import laika.io.binary.ParallelRenderer
 import laika.io.helper.RenderResult
 import laika.io.model.{BinaryOutput, RenderedTreeRoot}
 import laika.render.pdf.{FOConcatenation, PDFConfigBuilder, PDFNavigation}
+import laika.runtime.TestContexts.blocker
 import laika.runtime.{OutputRuntime, Runtime}
-import laika.runtime.TestContexts.{blockingContext, processingContext}
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.concurrent.ExecutionContext
@@ -154,8 +154,7 @@ class FOforPDFSpec extends FlatSpec with Matchers {
     
     def config: Option[PDF.Config]
     
-    lazy val renderer: ParallelRenderer[IO] = Parallel(Renderer.of(FOTest(config)))
-      .build(processingContext, blockingContext)
+    lazy val renderer: ParallelRenderer[IO] = Parallel(Renderer.of(FOTest(config))).build[IO](blocker)
     
     def result: String = {
       val stream = new ByteArrayOutputStream

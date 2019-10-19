@@ -16,7 +16,7 @@
 
 package laika.io.text
 
-import cats.effect.{Async, ContextShift}
+import cats.effect.{Async, Blocker, ContextShift}
 import laika.api.Transformer
 import laika.ast.{DocumentType, TextDocumentType}
 import laika.io.ops.{SequentialInputOps, SequentialTextOutputOps}
@@ -51,11 +51,10 @@ object SequentialTransformer {
     /** Builder step that allows to specify the execution context
       * for blocking IO and CPU-bound tasks.
       *
-      * @param processingContext the execution context for CPU-bound tasks
-      * @param blockingContext the execution context for blocking IO
+      * @param blocker the execution context for blocking IO
       */
-    def build[F[_]: Async] (processingContext: ContextShift[F], blockingContext: ContextShift[F]): SequentialTransformer[F] =
-      new SequentialTransformer[F](transformer)(implicitly[Async[F]], Runtime.sequential(processingContext, blockingContext))
+    def build[F[_]: Async: ContextShift] (blocker: Blocker): SequentialTransformer[F] =
+      new SequentialTransformer[F](transformer)(implicitly[Async[F]], Runtime.sequential(blocker))
 
   }
 

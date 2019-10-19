@@ -18,23 +18,25 @@ package laika.io
 
 import java.io.ByteArrayInputStream
 
-import cats.effect.IO
+import cats.effect.{ContextShift, IO}
 import laika.api.MarkupParser
 import laika.ast.helper.ModelBuilder
 import laika.format.Markdown
 import laika.io.text.SequentialParser
-import laika.runtime.TestContexts.{blockingContext, processingContext}
+import laika.runtime.TestContexts.blocker
 import org.scalatest.{FlatSpec, Matchers}
 
+import scala.concurrent.ExecutionContext
 import scala.io.Codec
 
 
 class SequentialParserSpec extends FlatSpec 
                    with Matchers
                    with ModelBuilder {
+
+  implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
   
-  
-  val parser: SequentialParser[IO] = Sequential(MarkupParser.of(Markdown)).build(processingContext, blockingContext)
+  val parser: SequentialParser[IO] = Sequential(MarkupParser.of(Markdown)).build[IO](blocker)
 
 
   "The SequentialParser" should "allow parsing Markdown from a string" in {

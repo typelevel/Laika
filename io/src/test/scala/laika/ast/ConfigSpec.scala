@@ -74,11 +74,9 @@ class ConfigSpec extends FlatSpec
     
   }
   
-  val markdownParser = laika.io.Parallel(MarkupParser.of(Markdown))
-    .build(processingContext, blockingContext)
+  val markdownParser = laika.io.Parallel(MarkupParser.of(Markdown)).build[IO](blocker)
   
-  val rstParser = laika.io.Parallel(MarkupParser.of(ReStructuredText))
-    .build(processingContext, blockingContext)
+  val rstParser = laika.io.Parallel(MarkupParser.of(ReStructuredText)).build[IO](blocker)
   
   "The Config parser" should "parse configuration sections embedded in Markdown documents" in new Inputs {
     val inputs = Seq(
@@ -174,7 +172,7 @@ class ConfigSpec extends FlatSpec
     )
     
     val op = laika.io.Parallel(MarkupParser.of(Markdown).using(BundleProvider.forConfigString(config5)))
-      .build(processingContext, blockingContext)
+      .build[IO](blocker)
       .fromInput(IO.pure(builder(inputs, mdMatcher)))
     val result = TemplateRewriter.applyTemplates(op.parse.unsafeRunSync().root, "html").right.get.tree
     result.selectDocument(Path.Current / "dir" / "input.md").get.content should be (expected)

@@ -18,23 +18,26 @@ package laika.io
 
 import java.io.{ByteArrayOutputStream, File}
 
-import cats.effect.IO
+import cats.effect.{ContextShift, IO}
 import laika.api.Renderer
 import laika.ast.helper.ModelBuilder
 import laika.format._
-import laika.io.text.SequentialRenderer
 import laika.io.helper.OutputBuilder
-import laika.runtime.TestContexts.{blockingContext, processingContext}
+import laika.io.text.SequentialRenderer
+import laika.runtime.TestContexts.blocker
 import org.scalatest.{FlatSpec, Matchers}
 
+import scala.concurrent.ExecutionContext
 import scala.io.Codec
 
 class SequentialRendererSpec extends FlatSpec 
                     with Matchers
                     with ModelBuilder { self =>
 
+
+  implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
   
-  val renderer: SequentialRenderer[IO] = Sequential(Renderer.of(AST)).build(processingContext, blockingContext)
+  val renderer: SequentialRenderer[IO] = Sequential(Renderer.of(AST)).build[IO](blocker)
   
   val rootElem = root(p("aaö"), p("bbb"))
 

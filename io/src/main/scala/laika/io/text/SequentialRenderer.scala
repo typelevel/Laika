@@ -16,7 +16,7 @@
 
 package laika.io.text
 
-import cats.effect.{Async, ContextShift}
+import cats.effect.{Async, Blocker, ContextShift}
 import laika.api.Renderer
 import laika.ast.{Document, Element, Path}
 import laika.io.ops.SequentialTextOutputOps
@@ -58,11 +58,10 @@ object SequentialRenderer {
     /** Builder step that allows to specify the execution context
       * for blocking IO and CPU-bound tasks.
       *
-      * @param processingContext the execution context for CPU-bound tasks
-      * @param blockingContext the execution context for blocking IO
+      * @param blocker the execution context for blocking IO
       */
-    def build[F[_]: Async] (processingContext: ContextShift[F], blockingContext: ContextShift[F]): SequentialRenderer[F] =
-      new SequentialRenderer[F](renderer)(implicitly[Async[F]], Runtime.sequential(processingContext, blockingContext))
+    def build[F[_]: Async: ContextShift] (blocker: Blocker): SequentialRenderer[F] =
+      new SequentialRenderer[F](renderer)(implicitly[Async[F]], Runtime.sequential(blocker))
 
   }
 

@@ -18,13 +18,13 @@ package laika.sbt
 
 import java.util.concurrent.Executors
 
-import cats.effect.{ContextShift, IO}
+import cats.effect.{Blocker, ContextShift, IO}
 import laika.api.builder.{BundleFilter, ParserBuilder}
 import laika.api.{MarkupParser, Renderer}
-import laika.runtime.{DirectoryScanner, InputRuntime}
 import laika.factory.{BinaryPostProcessor, MarkupFormat, RenderFormat, TwoPhaseRenderFormat}
 import laika.format._
 import laika.io.model._
+import laika.runtime.DirectoryScanner
 import laika.sbt.LaikaPlugin.autoImport._
 import sbt.Keys._
 import sbt._
@@ -42,7 +42,7 @@ object Tasks {
 
   implicit lazy val processingContext: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
 
-  lazy val blockingContext: ContextShift[IO] = IO.contextShift(ExecutionContext.fromExecutor(Executors.newCachedThreadPool()))
+  lazy val blocker: Blocker = Blocker.liftExecutionContext(ExecutionContext.fromExecutor(Executors.newCachedThreadPool()))
   
   /** The main transformation task of the sbt plugin.
     *
@@ -74,7 +74,7 @@ object Tasks {
     
     val parser = laika.io.Parallel(createParser(Markdown))
       .or(createParser(ReStructuredText))
-      .build(processingContext, blockingContext)
+      .build[IO](blocker)
 
     val inputs = DirectoryInput((sourceDirectories in Laika).value, laikaConfig.value.encoding, parser.config.docTypeMatcher,
       (excludeFilter in Laika).value.accept)
@@ -101,7 +101,7 @@ object Tasks {
       laika.io.Parallel {
         Renderer.of(format).withConfig(parser.config)
       }
-        .build(processingContext, blockingContext)
+        .build[IO](blocker)
         .from(tree.root)
         .copying(IO.pure(tree.staticDocuments))
         .toDirectory(targetDir)(laikaConfig.value.encoding)
@@ -120,7 +120,7 @@ object Tasks {
       laika.io.Parallel {
         Renderer.of(format).withConfig(parser.config)
       }
-        .build(processingContext, blockingContext)
+        .build[IO](blocker)
         .from(tree.root)
         .toFile(targetFile)
         .render

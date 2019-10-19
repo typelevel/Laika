@@ -17,7 +17,7 @@
 package laika.io.text
 
 import cats.Parallel
-import cats.effect.{Async, ContextShift}
+import cats.effect.{Async, Blocker, ContextShift}
 import cats.implicits._
 import laika.api.Renderer
 import laika.api.builder.OperationConfig
@@ -51,12 +51,11 @@ object ParallelRenderer {
     /** Builder step that allows to specify the execution context
       * for blocking IO and CPU-bound tasks.
       *
-      * @param processingContext the execution context for CPU-bound tasks
-      * @param blockingContext the execution context for blocking IO
+      * @param blocker the execution context for blocking IO
       * @param parallelism the desired level of parallelism for all tree operations                       
       */
-    def build[F[_]: Async: Parallel](processingContext: ContextShift[F], blockingContext: ContextShift[F], parallelism: Int): ParallelRenderer[F] =
-      new ParallelRenderer[F](renderer)(implicitly[Async[F]], Runtime.parallel(processingContext, blockingContext, parallelism))
+    def build[F[_]: Async: Parallel: ContextShift](blocker: Blocker, parallelism: Int): ParallelRenderer[F] =
+      new ParallelRenderer[F](renderer)(implicitly[Async[F]], Runtime.parallel(blocker, parallelism))
 
     /** Builder step that allows to specify the execution context
       * for blocking IO and CPU-bound tasks.
@@ -64,11 +63,10 @@ object ParallelRenderer {
       * The level of parallelism is determined from the number of available CPUs.
       * Use the other `build` method if you want to specify the parallelism explicitly.
       * 
-      * @param processingContext the execution context for CPU-bound tasks
-      * @param blockingContext the execution context for blocking IO
+      * @param blocker the execution context for blocking IO
       */
-    def build[F[_]: Async: Parallel](processingContext: ContextShift[F], blockingContext: ContextShift[F]): ParallelRenderer[F] =
-      build(processingContext, blockingContext, java.lang.Runtime.getRuntime.availableProcessors)
+    def build[F[_]: Async: Parallel: ContextShift](blocker: Blocker): ParallelRenderer[F] =
+      build(blocker, java.lang.Runtime.getRuntime.availableProcessors)
 
   }
 

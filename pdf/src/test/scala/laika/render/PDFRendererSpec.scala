@@ -22,7 +22,7 @@ import cats.effect.{ContextShift, IO}
 import laika.api.Renderer
 import laika.ast.DocumentTreeRoot
 import laika.format.PDF
-import laika.runtime.TestContexts.{blockingContext, processingContext}
+import laika.runtime.TestContexts.blocker
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.concurrent.ExecutionContext
@@ -51,7 +51,7 @@ class PDFRendererSpec extends FlatSpec with Matchers {
   
   "The PDF Renderer" should "render a document to a file" in new TreeModel with FileSetup {
     laika.io.Sequential(Renderer.of(PDF))
-      .build(processingContext, blockingContext)
+      .build[IO](blocker)
       .from(doc(1))
       .toFile(file)
       .render
@@ -61,7 +61,7 @@ class PDFRendererSpec extends FlatSpec with Matchers {
 
   it should "render a document to a file using a custom FopFactory" in new TreeModel with FileSetup {
     laika.io.Sequential(Renderer.of(PDF.withFopFactory(PDF.defaultFopFactory)))
-      .build(processingContext, blockingContext)
+      .build[IO](blocker)
       .from(doc(1))
       .toFile(file)
       .render
@@ -72,7 +72,7 @@ class PDFRendererSpec extends FlatSpec with Matchers {
   it should "render a document to an OutputStream" in new TreeModel {
     val stream = new ByteArrayOutputStream
     laika.io.Sequential(Renderer.of(PDF))
-      .build(processingContext, blockingContext)
+      .build[IO](blocker)
       .from(doc(1))
       .toStream(IO.pure(stream))
       .render
@@ -82,7 +82,7 @@ class PDFRendererSpec extends FlatSpec with Matchers {
   
   it should "render a tree to a file" in new TreeModel with FileSetup {
     laika.io.Parallel(Renderer.of(PDF))
-      .build(processingContext, blockingContext)
+      .build[IO](blocker)
       .from(DocumentTreeRoot(tree))
       .toFile(file)
       .render
@@ -93,7 +93,7 @@ class PDFRendererSpec extends FlatSpec with Matchers {
   it should "render a tree to an OutputStream" in new TreeModel {
     val stream = new ByteArrayOutputStream
     laika.io.Parallel(Renderer.of(PDF))
-      .build(processingContext, blockingContext)
+      .build[IO](blocker)
       .from(DocumentTreeRoot(tree))
       .toStream(IO.pure(stream))
       .render

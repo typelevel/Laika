@@ -16,7 +16,7 @@
 
 package laika.io.text
 
-import cats.effect.{Async, ContextShift}
+import cats.effect.{Async, Blocker, ContextShift}
 import laika.api.MarkupParser
 import laika.ast.{Document, DocumentType, TextDocumentType}
 import laika.io.model.TextInput
@@ -51,11 +51,10 @@ object SequentialParser {
     /** Builder step that allows to specify the execution context
       * for blocking IO and CPU-bound tasks.
       *
-      * @param processingContext the execution context for CPU-bound tasks
-      * @param blockingContext the execution context for blocking IO
+      * @param blocker the execution context for blocking IO
       */
-    def build[F[_]: Async] (processingContext: ContextShift[F], blockingContext: ContextShift[F]): SequentialParser[F] =
-      new SequentialParser[F](parser)(implicitly[Async[F]], Runtime.sequential(processingContext, blockingContext))
+    def build[F[_]: Async: ContextShift] (blocker: Blocker): SequentialParser[F] =
+      new SequentialParser[F](parser)(implicitly[Async[F]], Runtime.sequential(blocker))
 
   }
 

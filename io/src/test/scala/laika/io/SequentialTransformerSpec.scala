@@ -18,19 +18,24 @@ package laika.io
 
 import java.io._
 
-import cats.effect.IO
+import cats.effect.{ContextShift, IO}
 import laika.api.Transformer
 import laika.format._
 import laika.io.text.SequentialTransformer
-import laika.runtime.TestContexts.{blockingContext, processingContext}
+import laika.runtime.TestContexts.blocker
 import org.scalatest.{FlatSpec, Matchers}
 
+import scala.concurrent.ExecutionContext
 import scala.io.{Codec, Source}
 
 class SequentialTransformerSpec extends FlatSpec 
                        with Matchers {
 
-   
+  implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
+
+  val transformer: SequentialTransformer[IO] = Sequential(Transformer.from(Markdown).to(AST)).build[IO](blocker)
+  
+  
   val input = """# Title äöü
     |
     |text""".stripMargin 
@@ -41,8 +46,6 @@ class SequentialTransformerSpec extends FlatSpec
     |. Paragraph - Spans: 1
     |. . Text - 'text'""".stripMargin
     
-  val transformer: SequentialTransformer[IO] = Sequential(Transformer.from(Markdown).to(AST))
-    .build(processingContext, blockingContext)
   
   
   "The Transform API" should "transform from file to file" in {

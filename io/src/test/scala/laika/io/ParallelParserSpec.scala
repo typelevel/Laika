@@ -46,10 +46,10 @@ class ParallelParserSpec extends FlatSpec
 
   trait ParserSetup {
 
-    val defaultParser: ParallelParser[IO] = Parallel(MarkupParser.of(Markdown))
-      .build(processingContext, blockingContext)
-    def parserWithBundle (bundle: ExtensionBundle): ParallelParser[IO] = Parallel(MarkupParser.of(Markdown).using(bundle))
-      .build(processingContext, blockingContext)
+    val defaultParser: ParallelParser[IO] = Parallel(MarkupParser.of(Markdown)).build[IO](blocker)
+    
+    def parserWithBundle (bundle: ExtensionBundle): ParallelParser[IO] = 
+      Parallel(MarkupParser.of(Markdown).using(bundle)).build[IO](blocker)
     
   }
   
@@ -98,20 +98,20 @@ class ParallelParserSpec extends FlatSpec
     
     def mixedParsedTree: RootView = {
       val parser = Parallel(MarkupParser.of(Markdown)).or(MarkupParser.of(ReStructuredText))
-        .build(processingContext, blockingContext)
+        .build[IO](blocker)
       viewOf(parser.fromInput(IO.pure(build(inputs, parser.config.docTypeMatcher))).parse.unsafeRunSync().root)
     }
       
     
     def parsedWith (bundle: ExtensionBundle): RootView =
       viewOf(withTemplatesApplied(Parallel(MarkupParser.of(Markdown).using(bundle))
-        .build(processingContext, blockingContext)
+        .build[IO](blocker)
         .fromInput(build(inputs)).parse.unsafeRunSync().root)
       )
 
     def parsedTemplates (bundle: ExtensionBundle): Seq[TemplateRoot] = {
       val root = Parallel(MarkupParser.of(Markdown).using(bundle))
-        .build(processingContext, blockingContext)
+        .build[IO](blocker)
         .fromInput(build(inputs)).parse.unsafeRunSync().root
       root.tree.templates.map { tpl =>
         tpl.content.rewriteChildren(TemplateRewriter.rewriteRules(DocumentCursor(Document(Root, RootElement(Nil)))))
@@ -122,7 +122,7 @@ class ParallelParserSpec extends FlatSpec
       val input = IO.pure(build(inputs, customMatcher.orElse({case path => docTypeMatcher(path)})))
       val parser = MarkupParser.of(Markdown).using(bundle)
       viewOf(Parallel(parser)
-        .build(processingContext, blockingContext)
+        .build[IO](blocker)
         .fromInput(input).parse.unsafeRunSync().root
       )
     }

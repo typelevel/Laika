@@ -18,7 +18,7 @@ package laika.runtime
 
 import java.util.concurrent.Executors
 
-import cats.effect.{ContextShift, IO}
+import cats.effect.{Blocker}
 
 import scala.concurrent.ExecutionContext
 
@@ -27,8 +27,6 @@ import scala.concurrent.ExecutionContext
   */
 object TestContexts {
   
-  lazy val processingContext: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
-  
-  lazy val blockingContext: ContextShift[IO] = IO.contextShift(ExecutionContext.fromExecutor(Executors.newCachedThreadPool()))
+  lazy val blocker: Blocker = Blocker.liftExecutionContext(ExecutionContext.fromExecutor(Executors.newCachedThreadPool()))
 
 }
