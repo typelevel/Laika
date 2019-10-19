@@ -16,6 +16,7 @@
 
 package laika.directive
 
+import cats.{Functor, Semigroupal}
 import laika.api.config.{Config, ConfigDecoder, ObjectConfig}
 import laika.ast.{TemplateSpan, _}
 import laika.collection.TransitionalCollectionOps._
@@ -136,6 +137,25 @@ trait BuilderContext[E <: Element] {
     /** The names of the separator directives accepted by this directive part.
       */
     def separators: Set[String]
+
+  }
+  
+  object DirectivePart {
+
+    implicit final val directivePartInstances: Functor[DirectivePart] with Semigroupal[DirectivePart] = 
+      new Functor[DirectivePart] with Semigroupal[DirectivePart] {
+        override def map[A, B] (fa: DirectivePart[A])(f: A => B): DirectivePart[B] = fa.map(f)
+        override def product[A, B] (fa: DirectivePart[A], fb: DirectivePart[B]): DirectivePart[(A, B)] = new DirectivePart[(A, B)] {
+          def apply (p: DirectiveContext) = (fa(p), fb(p)) match {
+            case (Right(a), Right(b)) => Right((a, b))
+            case (Left(a), Left(b)) => Left(a ++ b)
+            case (Left(msg), _) => Left(msg)
+            case (_, Left(msg)) => Left(msg)
+          }
+          def hasBody: Boolean = fa.hasBody || fb.hasBody
+          def separators: Set[String] = fa.separators ++ fb.separators
+        }
+      }
 
   }
   
