@@ -58,6 +58,16 @@ class TemplateDirectiveAPISpec extends FlatSpec
         attribute("name").as[Int].optional map (num => TemplateString(num.map(_.toString).getOrElse("<>"))) 
       }
     }
+
+    trait AllAttributes {
+      val directive = Templates.create("dir") {
+        allAttributes.map { attrs =>
+          val foo = attrs.get[String]("foo").right.get
+          val bar = attrs.get[Int]("bar").right.get
+          TemplateString(s"$foo $bar")
+        }
+      }
+    }
     
     trait RequiredBody {
       val directive = Templates.create("dir") { parsedBody map (TemplateSpanSequence(_)) }
@@ -210,6 +220,12 @@ class TemplateDirectiveAPISpec extends FlatSpec
     new OptionalNamedAttribute with TemplateParser {
       val msg = "One or more errors processing directive 'dir': required default attribute is missing"
       Parsing ("aa @:dir bb") should produce (tRoot(tt("aa "), tt("<>"), tt(" bb")))
+    }
+  }
+
+  it should "parse a directive with the allAttributes combinator" in {
+    new AllAttributes with TemplateParser {
+      Parsing ("aa @:dir { foo=Planet, bar=42 } bb") should produce (tRoot(tt("aa "), tt("Planet 42"), tt(" bb")))
     }
   }
   

@@ -62,6 +62,16 @@ class BlockDirectiveAPISpec extends FlatSpec
         attribute("name").as[Int].optional map (num => p(num.map(_.toString).getOrElse("<>"))) 
       }
     }
+
+    trait AllAttributes {
+      val directive = Blocks.create("dir") {
+        allAttributes.map { attrs =>
+          val foo = attrs.get[String]("foo").right.get
+          val bar = attrs.get[Int]("bar").right.get
+          p(s"$foo $bar")
+        }
+      }
+    }
     
     trait Body {
       val directive = Blocks.create("dir") { parsedBody map (BlockSequence(_)) }
@@ -279,6 +289,17 @@ class BlockDirectiveAPISpec extends FlatSpec
         |bb""".stripMargin
       val msg = "One or more errors processing directive 'dir': required default attribute is missing"
       Parsing (input) should produce (root(p("aa"), p("<>"), p("bb")))
+    }
+  }
+
+  it should "parse a directive with the allAttributes combinator" in {
+    new BlockParser with AllAttributes {
+      val input = """aa
+        |
+        |@:dir { foo=Planet, bar=42 }
+        |
+        |bb""".stripMargin
+      Parsing (input) should produce (root(p("aa"), p("Planet 42"), p("bb")))
     }
   }
 

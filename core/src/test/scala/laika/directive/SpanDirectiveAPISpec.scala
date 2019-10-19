@@ -59,6 +59,16 @@ class SpanDirectiveAPISpec extends FlatSpec
         attribute("name").as[Int].optional map (num => Text(num.map(_.toString).getOrElse("<>"))) 
       }
     }
+
+    trait AllAttributes {
+      val directive = Spans.create("dir") {
+        allAttributes.map { attrs =>
+          val foo = attrs.get[String]("foo").right.get
+          val bar = attrs.get[Int]("bar").right.get
+          Text(s"$foo $bar")
+        }
+      }
+    }
     
     trait RequiredBody {
       val directive = Spans.create("dir") { parsedBody map (SpanSequence(_)) }
@@ -213,6 +223,12 @@ class SpanDirectiveAPISpec extends FlatSpec
     new SpanParser with OptionalNamedAttribute {
       val msg = "One or more errors processing directive 'dir': required default attribute is missing"
       Parsing ("aa @:dir bb") should produce (ss(txt("aa <> bb")))
+    }
+  }
+
+  it should "parse a directive with the allAttributes combinator" in {
+    new SpanParser with AllAttributes {
+      Parsing ("aa @:dir { foo=Planet, bar=42 } bb") should produce (ss(txt("aa Planet 42 bb")))
     }
   }
   

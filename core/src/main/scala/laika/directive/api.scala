@@ -326,6 +326,15 @@ trait BuilderContext[E <: Element] {
     def attribute (key: String): AttributePart[ConfigValue]
       = new AttributePart(AttributeKey.Named(key), ConfigDecoder.configValue, false, s"required attribute '$key' is missing")
 
+    /** A combinator that captures all attributes in a directive declaration.
+      *
+      * This is useful when a directive implementation allows the use of
+      * any arbitrary attribute name, but leaves the burden of validation
+      * to the implementor of the directive. This part does not provide
+      * automatic error handling for missing required attributes for example.
+      */
+    def allAttributes: DirectivePart[Config] = part(c => Right(c.content.attributes))
+    
     /** Specifies a required body part.
       *
       * @return a directive part that can be combined with further parts with the `~` operator
