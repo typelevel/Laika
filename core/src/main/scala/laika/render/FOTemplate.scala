@@ -1,5 +1,6 @@
 package laika.render
 
+import laika.api.config.Key
 import laika.ast._
 
 /** The default template for HTML renderers.
@@ -94,11 +95,11 @@ object FOTemplate {
     val templateSpans = templateText.split("#").map(TemplateString(_))
     TemplateRoot(Seq(
       templateSpans(0),
-      TemplateContextReference("document.fragments.bookmarks", required = true),
+      TemplateContextReference(Key("document.fragments.bookmarks"), required = true),
       templateSpans(1),
       CoverImage,
       templateSpans(2),
-      TemplateContextReference("document.content", required = true),
+      TemplateContextReference(Key("document.content"), required = true),
       templateSpans(3)
     ))
   }

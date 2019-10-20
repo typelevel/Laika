@@ -16,6 +16,7 @@
 
 package laika.parse.directive
 
+import laika.api.config.Key
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.parse.Parser
@@ -44,26 +45,56 @@ class TemplateParsersSpec extends FlatSpec
   
   "The context reference parser" should "parse a reference as the only template content" in {
     
-    Parsing ("{{document.content}}") should produce (spans(TemplateContextReference("document.content", required = true)))
+    Parsing ("${document.content}") should produce (spans(TemplateContextReference(Key("document.content"), required = true)))
     
   }
   
   it should "parse a reference at the beginning of a template" in {
     
-    Parsing ("{{document.content}} some text") should produce (spans(TemplateContextReference("document.content", required = true), tt(" some text")))
+    Parsing ("${document.content} some text") should produce (spans(TemplateContextReference(Key("document.content"), required = true), tt(" some text")))
     
   }
   
   it should "parse a reference at the end of a template" in {
     
-    Parsing ("some text {{document.content}}") should produce (spans(tt("some text "), TemplateContextReference("document.content", required = true)))
+    Parsing ("some text ${document.content}") should produce (spans(tt("some text "), TemplateContextReference(Key("document.content"), required = true)))
     
   }
   
   it should "parse a reference in the middle of a template" in {
     
-    Parsing ("some text {{document.content}} some more") should produce (spans(tt("some text "), TemplateContextReference("document.content", required = true), tt(" some more")))
+    Parsing ("some text ${document.content} some more") should produce (spans(tt("some text "), TemplateContextReference(Key("document.content"), required = true), tt(" some more")))
     
+  }
+
+  it should "parse an optional reference" in {
+
+    Parsing ("some text ${?document.content} some more") should produce (spans(tt("some text "), TemplateContextReference(Key("document.content"), required = false), tt(" some more")))
+
+  }
+
+  it should "parse a legacy reference as the only template content" in {
+
+    Parsing ("{{document.content}}") should produce (spans(TemplateContextReference(Key("document.content"), required = true)))
+
+  }
+
+  it should "parse a legacy reference at the beginning of a template" in {
+
+    Parsing ("{{document.content}} some text") should produce (spans(TemplateContextReference(Key("document.content"), required = true), tt(" some text")))
+
+  }
+
+  it should "parse a legacy reference at the end of a template" in {
+
+    Parsing ("some text {{document.content}}") should produce (spans(tt("some text "), TemplateContextReference(Key("document.content"), required = true)))
+
+  }
+
+  it should "parse a legacy reference in the middle of a template" in {
+
+    Parsing ("some text {{document.content}} some more") should produce (spans(tt("some text "), TemplateContextReference(Key("document.content"), required = true), tt(" some more")))
+
   }
   
   

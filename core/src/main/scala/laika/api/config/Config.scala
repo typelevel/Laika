@@ -29,13 +29,17 @@ trait Config {
   
   def get[T](key: String)(implicit decoder: ConfigDecoder[T]): ConfigResult[T] = get[T](Key(key))
   
-  def get[T](key: String, default: => T)(implicit decoder: ConfigDecoder[T]): ConfigResult[T] = 
+  def get[T](key: Path, default: => T)(implicit decoder: ConfigDecoder[T]): ConfigResult[T] =
     getOpt(key).map(_.getOrElse(default))
+
+  def get[T](key: String, default: => T)(implicit decoder: ConfigDecoder[T]): ConfigResult[T] = get[T](Key(key), default)
   
-  def getOpt[T](key: String)(implicit decoder: ConfigDecoder[T]): ConfigResult[Option[T]] = get(key).fold(
+  def getOpt[T](key: Path)(implicit decoder: ConfigDecoder[T]): ConfigResult[Option[T]] = get(key).fold(
     e => if (e.isInstanceOf[NotFound]) Right(None) else Left(e),
     r => Right(Some(r))
   )
+
+  def getOpt[T](key: String)(implicit decoder: ConfigDecoder[T]): ConfigResult[Option[T]] = getOpt[T](Key(key))
   
   def get[T](implicit decoder: ConfigDecoder[T], defaultKey: DefaultKey[T]): ConfigResult[T] = get[T](defaultKey.value)
   
@@ -78,7 +82,7 @@ class ObjectConfig (private[laika] val root: ObjectValue,
     lookup(key).fold(fallback.get[T](key)) { field =>
       decoder(TracedValue(field.value, Set(origin)))
     }
-    // TODO - merge objects, overload all methods with Path variant
+    // TODO - 0.12 - merge objects
   }
   
   def withFallback(other: Config): Config = other match {

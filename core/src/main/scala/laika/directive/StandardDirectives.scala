@@ -17,6 +17,7 @@
 package laika.directive
 
 import cats.implicits._
+import laika.api.config.Key
 import laika.ast._
 import laika.parse.hocon.HoconParsers.{ArrayValue, BooleanValue, ConfigValue, NullValue, ObjectValue, StringValue}
 import laika.rewrite.TemplateRewriter
@@ -68,7 +69,7 @@ object StandardDirectives extends DirectiveRegistry {
 
       def rewriteFallback = multipart.children.headOption.map(_.spans).map(rewrite(_, cursor)).getOrElse(TemplateSpanSequence(Nil))
       
-      cursor.resolveReference(path) match {
+      cursor.resolveReference(Key(path)) match {
         case Right(Some(o: ObjectValue))             => rewriteContent(o) 
         case Right(Some(a: ArrayValue)) if a.isEmpty => rewriteFallback
         case Right(Some(a: ArrayValue))              => TemplateSpanSequence(a.values.map(rewriteContent))
@@ -113,7 +114,7 @@ object StandardDirectives extends DirectiveRegistry {
       @tailrec
       def process (parts: Seq[ElseIf]): TemplateSpanSequence = 
         if (parts.isEmpty) rewriteFallback
-        else cursor.resolveReference(parts.head.ref) match {
+        else cursor.resolveReference(Key(parts.head.ref)) match {
           case Right(Some(BooleanValue(true)))               => rewrite(parts.head.body)
           case Right(Some(StringValue(s))) if trueStrings(s) => rewrite(parts.head.body)
           case _ => process(parts.tail)

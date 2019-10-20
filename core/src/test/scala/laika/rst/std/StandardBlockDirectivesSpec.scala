@@ -18,6 +18,7 @@ package laika.rst.std
 
 import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
+import laika.api.config.Key
 import laika.ast.Path.{Current, Root}
 import laika.ast._
 import laika.ast.helper.ModelBuilder
@@ -589,7 +590,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
   "The include rewriter" should "replace the node with the corresponding document" in {
     val doc1 = Document(Root / "doc1", root(Include("doc2")))
     val doc2 = Document(Root / "doc2", root(p("text")))
-    val template = TemplateDocument(Root / "default.template.html", tRoot(TemplateContextReference("document.content", required = true)))
+    val template = TemplateDocument(Root / "default.template.html", tRoot(TemplateContextReference(Key("document.content"), required = true)))
     val tree = DocumentTree(Root, List(doc1, doc2), templates = List(template))
     val rewrittenTree = tree.rewrite(OperationConfig.default.withBundlesFor(ReStructuredText).rewriteRules)
     val templatesApplied = TemplateRewriter.applyTemplates(DocumentTreeRoot(rewrittenTree), "html").right.get.tree
@@ -663,7 +664,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
     )
     
     val document = Document(Root / "doc", sectionsWithTitle)
-    val template = TemplateDocument(Root / "default.template.html", tRoot(TemplateContextReference("document.content", required = true)))
+    val template = TemplateDocument(Root / "default.template.html", tRoot(TemplateContextReference(Key("document.content"), required = true)))
     val tree = DocumentTree(Root, content = List(document), templates = List(template))
     val rewrittenTree = tree.rewrite(OperationConfig.default.withBundlesFor(ReStructuredText).rewriteRules)
     val templatesApplied = TemplateRewriter.applyTemplates(DocumentTreeRoot(rewrittenTree), "html").right.get.tree

@@ -16,12 +16,13 @@
 
 package laika.parse.directive
 
+import laika.api.config.Key
 import laika.ast._
 import laika.bundle.{BlockParser, BlockParserBuilder, SpanParser, SpanParserBuilder}
 import laika.directive._
 import laika.parse.Parser
 import laika.parse.hocon.HoconParsers
-import laika.parse.hocon.HoconParsers.{BuilderField, ObjectBuilderValue, ResolvedBuilderValue, StringValue}
+import laika.parse.hocon.HoconParsers.{BuilderField, ObjectBuilderValue, ResolvedBuilderValue, StringValue, SubstitutionValue}
 import laika.parse.markup.{EscapedTextParsers, RecursiveParsers, RecursiveSpanParsers}
 import laika.parse.text.TextParsers._
 
@@ -47,10 +48,15 @@ object DirectiveParsers {
   }
 
 
-  /** Parses a reference enclosed between `{{` and `}}`.
+  /** Parses a legacy reference (version 0.1 to 0.11) enclosed between `{{` and `}}`.
     */
   def legacyReference[T] (f: String => T): Parser[T] = '{' ~ ws ~> anyBut('}') <~ ws ~ "}}" ^^ f
 
+  /** Parses a HOCON-style reference enclosed between `${` and `}` that may be marked as optional (`${?some.param}`).
+    */
+  def hoconReference[T] (f: (Path, Boolean) => T): Parser[T] = ('{' ~> opt('?') ~ HoconParsers.concatenatedKey <~ '}').map {
+    case opt ~ key => f(key, opt.isEmpty)
+  }
 
   /** Represents one part of a directive (an attribute or a body element).
    */
@@ -162,7 +168,10 @@ object SpanDirectiveParsers {
   import laika.directive.Spans
 
   val contextRef: SpanParserBuilder =
-    SpanParser.forStartChar('{').standalone(legacyReference(MarkupContextReference(_, required = true)))
+    SpanParser.forStartChar('$').standalone(hoconReference(MarkupContextReference(_,_)))
+
+  val legacyContextRef: SpanParserBuilder =
+    SpanParser.forStartChar('{').standalone(legacyReference(key => MarkupContextReference(Key(key), required = true)))
 
   def spanDirective (directives: Map[String, Spans.Directive]): SpanParserBuilder =
     SpanParser.forStartChar('@').recursive(spanDirectiveParser(directives))
@@ -171,11 +180,14 @@ object SpanDirectiveParsers {
 
     import recParsers._
     
+    val legacyBody = {
+      val contextRefOrNestedBraces = Map('{' -> (legacyReference(key => MarkupContextReference(Key(key), required = true)) | nestedBraces))
+      wsOrNl ~ '{' ~> (withSource(delimitedRecursiveSpans(delimitedBy('}'), contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
+    }
+    
     val separators = directives.values.flatMap(_.separators).toSet
-    val contextRefOrNestedBraces = Map('{' -> (legacyReference(MarkupContextReference(_, required = true)) | nestedBraces))
-    val legacyBody = wsOrNl ~ '{' ~> (withSource(delimitedRecursiveSpans(delimitedBy('}'), contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
     val newBody: BodyParserBuilder = spec => 
-      if (directives.get(spec.name).exists(_.hasBody)) withSource(delimitedRecursiveSpans(delimitedBy(spec.fence), contextRefOrNestedBraces)) ^^ { src => 
+      if (directives.get(spec.name).exists(_.hasBody)) withSource(delimitedRecursiveSpans(delimitedBy(spec.fence))) ^^ { src => 
         Some(src._2.dropRight(spec.fence.length)) 
       } | success(None)
       else success(None)

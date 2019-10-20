@@ -18,7 +18,7 @@ package laika.rewrite
 
 import laika.api.config.Config.ConfigResult
 import laika.api.config.{Config, ConfigBuilder}
-import laika.ast.{Document, SpanSequence, TreeCursor}
+import laika.ast.{Document, Path, SpanSequence, TreeCursor}
 import laika.parse.hocon.HoconParsers.{ASTValue, ConfigValue, Field, ObjectValue}
 
 /** A resolver for context references in templates or markup documents.
@@ -27,7 +27,7 @@ import laika.parse.hocon.HoconParsers.{ASTValue, ConfigValue, Field, ObjectValue
  */
 case class ReferenceResolver (config: Config) {
   
-  def resolve (key: String): ConfigResult[Option[ConfigValue]] = config.getOpt[ConfigValue](key)
+  def resolve (key: Path): ConfigResult[Option[ConfigValue]] = config.getOpt[ConfigValue](key)
   
 }
 

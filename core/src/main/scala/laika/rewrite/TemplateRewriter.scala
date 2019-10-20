@@ -16,7 +16,7 @@
 
 package laika.rewrite
 
-import laika.api.config.ConfigError
+import laika.api.config.{ConfigError, Key}
 import laika.ast._
 import laika.parse.hocon.HoconParsers.Origin
 
@@ -29,7 +29,7 @@ trait TemplateRewriter {
     * 
     * The default simply inserts the rendered document into the rendered result without any surrounding template text.
     */
-  val defaultTemplate: TemplateDocument = TemplateDocument(Path.Root / "default.template", TemplateRoot(List(TemplateContextReference("document.content", required = true))))
+  val defaultTemplate: TemplateDocument = TemplateDocument(Path.Root / "default.template", TemplateRoot(List(TemplateContextReference(Key("document.content"), required = true))))
   
   /** Selects and applies the templates for the specified output format to all documents within the specified tree cursor recursively.
    */

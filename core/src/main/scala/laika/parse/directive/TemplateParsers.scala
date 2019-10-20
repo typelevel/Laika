@@ -16,6 +16,7 @@
 
 package laika.parse.directive
 
+import laika.api.config.Key
 import laika.ast._
 import laika.directive.Templates
 import laika.parse.Parser
@@ -31,22 +32,26 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
   import DirectiveParsers._
 
   lazy val spanParsers: Map[Char, Parser[Span]] = Map(
-    '{' -> legacyReference(TemplateContextReference(_, required = true)),
+    '{' -> legacyReference(key => TemplateContextReference(Key(key), required = true)),
+    '$' -> hoconReference(TemplateContextReference(_,_)),
     '@' -> templateDirective,
     '\\'-> ((any take 1) ^^ { Text(_) })
   )
 
   lazy val templateDirective: Parser[TemplateSpan] = {
 
-    val separators = directives.values.flatMap(_.separators).toSet
-    val contextRefOrNestedBraces = Map('{' -> (legacyReference(TemplateContextReference(_, required = true)) | nestedBraces))
-    val legacyBody = wsOrNl ~ '{' ~> (withSource(delimitedRecursiveSpans(delimitedBy('}'), contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
+    val legacyBody = {
+      val contextRefOrNestedBraces = Map('{' -> (legacyReference(key => TemplateContextReference(Key(key), required = true)) | nestedBraces))
+      wsOrNl ~ '{' ~> (withSource(delimitedRecursiveSpans(delimitedBy('}'), contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
+    }
+    
     val newBody: BodyParserBuilder = spec =>
-      if (directives.get(spec.name).exists(_.hasBody)) withSource(delimitedRecursiveSpans(delimitedBy(spec.fence), contextRefOrNestedBraces)) ^^ { src =>
+      if (directives.get(spec.name).exists(_.hasBody)) withSource(delimitedRecursiveSpans(delimitedBy(spec.fence))) ^^ { src =>
         Some(src._2.dropRight(spec.fence.length))
       } | success(None)
       else success(None)
 
+    val separators = directives.values.flatMap(_.separators).toSet
     withSource(directiveParser(newBody, legacyBody, this)) ^^ { case (result, source) =>
       if (separators.contains(result.name)) Templates.SeparatorInstance(result, source)
       else Templates.DirectiveInstance(directives.get(result.name), result, templateSpans, source)

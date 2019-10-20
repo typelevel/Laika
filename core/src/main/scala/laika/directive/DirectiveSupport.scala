@@ -38,7 +38,11 @@ class DirectiveSupport (blockDirectives: Seq[Blocks.Directive],
   
   override lazy val parsers: ParserBundle = ParserBundle(
     blockParsers = Seq(BlockDirectiveParsers.blockDirective(Blocks.toMap(blockDirectives))),
-    spanParsers = Seq(SpanDirectiveParsers.spanDirective(Spans.toMap(spanDirectives)), SpanDirectiveParsers.contextRef),
+    spanParsers = Seq(
+      SpanDirectiveParsers.spanDirective(Spans.toMap(spanDirectives)), 
+      SpanDirectiveParsers.contextRef, 
+      SpanDirectiveParsers.legacyContextRef
+    ),
     configProvider = Some(configProvider),
     templateParser = Some(new TemplateParsers(Templates.toMap(templateDirectives)).templateRoot)
   )

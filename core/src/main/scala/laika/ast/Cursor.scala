@@ -215,7 +215,7 @@ case class DocumentCursor (target: Document,
    *  root tree is reached. If the value is not found `None` will
    *  be returned.
    */
-  def resolveReference (key: String): ConfigResult[Option[ConfigValue]] = resolver.resolve(key)
+  def resolveReference (key: Path): ConfigResult[Option[ConfigValue]] = resolver.resolve(key)
   
   /** Creates a copy of this cursor with a new root object
    *  for resolving references. This is useful for custom

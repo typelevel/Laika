@@ -16,6 +16,7 @@
 
 package laika.render
 
+import laika.api.config.Key
 import laika.ast.{TemplateContextReference, TemplateRoot, TemplateString}
 
 /** The default template for HTML renderers.
@@ -47,9 +48,9 @@ object HTMLTemplate {
     val templateSpans = templateText.split("#").map(TemplateString(_))
     TemplateRoot(Seq(
       templateSpans(0),
-      TemplateContextReference("document.title", required = true),
+      TemplateContextReference(Key("document.title"), required = true),
       templateSpans(1),
-      TemplateContextReference("document.content", required = true),
+      TemplateContextReference(Key("document.content"), required = true),
       templateSpans(2)
     ))
   }

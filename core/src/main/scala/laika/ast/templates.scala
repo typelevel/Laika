@@ -17,7 +17,8 @@
 package laika.ast
 
 import laika.api.config.Config.ConfigResult
-import laika.parse.hocon.HoconParsers.{ASTValue, LongValue, StringValue, ConfigValue}
+import laika.api.config.Key
+import laika.parse.hocon.HoconParsers.{ASTValue, ConfigValue, LongValue, StringValue}
 import laika.rewrite.TemplateRewriter
 
 /** Represents a placeholder inline element that needs
@@ -54,7 +55,7 @@ trait BlockResolver extends Block {
  *  - `config`: all configuration values for the current document,
  *    including those inherited from parent trees
  */
-abstract class ContextReference[T <: Span] (ref: String) extends SpanResolver {
+abstract class ContextReference[T <: Span] (ref: Path) extends SpanResolver {
 
   def result (value: ConfigResult[Option[ConfigValue]]): T
 
@@ -69,7 +70,7 @@ abstract class ContextReference[T <: Span] (ref: String) extends SpanResolver {
 
 /** A context reference specifically for use in template documents.
  */
-case class TemplateContextReference (ref: String, required: Boolean, options: Options = NoOpt) extends ContextReference[TemplateSpan](ref) with TemplateSpan {
+case class TemplateContextReference (ref: Path, required: Boolean, options: Options = NoOpt) extends ContextReference[TemplateSpan](ref) with TemplateSpan {
   type Self = TemplateContextReference
 
   def result (value: ConfigResult[Option[ConfigValue]]): TemplateSpan = value match {
@@ -88,7 +89,7 @@ case class TemplateContextReference (ref: String, required: Boolean, options: Op
 
 /** A context reference specifically for use in markup documents.
  */
-case class MarkupContextReference (ref: String, required: Boolean, options: Options = NoOpt) extends ContextReference[Span](ref) {
+case class MarkupContextReference (ref: Path, required: Boolean, options: Options = NoOpt) extends ContextReference[Span](ref) {
   type Self = MarkupContextReference
 
   def result (value: ConfigResult[Option[ConfigValue]]): Span = value match {
@@ -178,7 +179,7 @@ object TemplateRoot {
   /** A fallback instance that can be used when no user-specified template
     * is available. It simply inserts the content of the parsed markup document
     * without any surrounding decoration. */
-  val fallback = TemplateRoot(List(TemplateContextReference("document.content", required = true)))
+  val fallback = TemplateRoot(List(TemplateContextReference(Key("document.content"), required = true)))
 }
 
 /** The root element of a document tree (originating from text markup) inside a template.
