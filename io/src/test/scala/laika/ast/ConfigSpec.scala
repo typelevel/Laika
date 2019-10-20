@@ -47,13 +47,13 @@ class ConfigSpec extends FlatSpec
     object Contents {
 
       val templateWithRef =
-        """<h1>{{config.foo}}</h1>
-          |<div>{{document.content}}</div>
+        """<h1>${config.foo}</h1>
+          |<div>${document.content}</div>
           |CCC""".stripMargin
 
       val templateWithConfig =
         """{% foo: bar %}
-          |<div>{{document.content}}</div>
+          |<div>${document.content}</div>
           |CCC""".stripMargin
 
       val markup =
@@ -64,7 +64,7 @@ class ConfigSpec extends FlatSpec
 
       val markupWithRef =
         """aaa
-          |{{config.foo}}
+          |${config.foo}
           |bbb""".stripMargin
     }
     
@@ -146,11 +146,11 @@ class ConfigSpec extends FlatSpec
   it should "merge configuration found in documents, templates, directories and programmatic setup" in new Inputs {
     
     val template = """{% key2: val2 %}
-      |{{config.key1}}
-      |{{config.key2}}
-      |{{config.key3}}
-      |{{config.key4}}
-      |{{config.key5}}""".stripMargin
+      |${config.key1}
+      |${config.key2}
+      |${config.key3}
+      |${config.key4}
+      |${config.key5}""".stripMargin
 
     val md = """{% key1: val1 %}
                |aaa""".stripMargin

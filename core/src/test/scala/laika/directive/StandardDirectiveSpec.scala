@@ -164,7 +164,7 @@ class StandardDirectiveSpec extends FlatSpec
   
   
   "The for directive" should "process the default body once if the referenced object is a map" in {
-    val input = """aaa @:for { config.person } {{#.name}} {{#.age}} @:@ bbb"""
+    val input = """aaa @:for { config.person } ${_.name} ${_.age} @:@ bbb"""
     val config = "person: { name: Mary, age: 35 }" 
     parseTemplateWithConfig(input, config) should be (root(tRoot(
       tt("aaa "),
@@ -176,7 +176,7 @@ class StandardDirectiveSpec extends FlatSpec
   } 
   
   it should "process the default body multiple times if the referenced object is a list" in {
-    val input = """aaa @:for { config.persons } {{#.name}} {{#.age}} @:@ bbb"""
+    val input = """aaa @:for { config.persons } ${_.name} ${_.age} @:@ bbb"""
     val config = "persons: [{ name: Mary, age: 35 },{ name: Lucy, age: 32 },{ name: Anna, age: 42 }]" 
     parseTemplateWithConfig(input, config) should be (root(tRoot(
       tt("aaa "),
@@ -196,7 +196,7 @@ class StandardDirectiveSpec extends FlatSpec
   } 
   
   it should "not process the default body if the referenced object is an empty collection" in {
-    val input = """aaa @:for { config.persons } {{name}} {{age}} @:@ bbb"""
+    val input = """aaa @:for { config.persons } ${_.name} ${_.age} @:@ bbb"""
     val config = "persons: []" 
     parseTemplateWithConfig(input, config) should be (root(tRoot(
       tt("aaa "),
@@ -206,7 +206,7 @@ class StandardDirectiveSpec extends FlatSpec
   }
 
   it should "process the @:empty body part if the referenced object is an empty collection" in {
-    val input = """aaa @:for { config.persons } {{name}} {{age}} @:empty none @:@ bbb"""
+    val input = """aaa @:for { config.persons } ${_.name} ${_.age} @:empty none @:@ bbb"""
     val config = "persons: []"
     parseTemplateWithConfig(input, config) should be (root(tRoot(
       tt("aaa "),
@@ -216,11 +216,11 @@ class StandardDirectiveSpec extends FlatSpec
   }
 
   it should "process the default body once if the referenced object is a scalar value" in {
-    val input = """aaa @:for { config.person } text @:@ bbb"""
+    val input = """aaa @:for { config.person } ${_} @:@ bbb"""
     val config = "person: Mary" 
     parseTemplateWithConfig(input, config) should be (root(tRoot(
       tt("aaa "),
-      TemplateSpanSequence(List(tt(" text "))),
+      TemplateSpanSequence(List(tt(" "),tt("Mary"),tt(" "))),
       tt(" bbb")
     )))  
   } 
@@ -462,7 +462,7 @@ class StandardDirectiveSpec extends FlatSpec
   "The template toc directive" should "produce a table of content starting from the root tree" in {
     new TreeModel with TocModel {
       
-      val template = """aaa @:toc bbb {{document.content}}"""
+      val template = """aaa @:toc bbb ${document.content}"""
       
       parseAndRewrite(template, markup) should be (result(rootList))  
     }
@@ -474,7 +474,7 @@ class StandardDirectiveSpec extends FlatSpec
       override val hasTitleDocs = true
       override val hasTitleDocLinks = true
 
-      val template = """aaa @:toc bbb {{document.content}}"""
+      val template = """aaa @:toc bbb ${document.content}"""
 
       parseAndRewrite(template, markup) should be (result(rootList))
     }
@@ -485,7 +485,7 @@ class StandardDirectiveSpec extends FlatSpec
       
       override val title = Some("Some Title")
       
-      val template = """aaa @:toc { title="Some Title" } bbb {{document.content}}"""
+      val template = """aaa @:toc { title="Some Title" } bbb ${document.content}"""
       
       parseAndRewrite(template, markup) should be (result(rootList))  
     }
@@ -494,7 +494,7 @@ class StandardDirectiveSpec extends FlatSpec
   it should "produce a table of content starting from the current tree" in {
     new TreeModel with TocModel {
       
-      val template = """aaa @:toc { root=<currentTree> } bbb {{document.content}}"""
+      val template = """aaa @:toc { root=<currentTree> } bbb ${document.content}"""
       
       parseAndRewrite(template, markup) should be (result(currentList))  
     }
@@ -503,7 +503,7 @@ class StandardDirectiveSpec extends FlatSpec
   it should "produce a table of content starting from the root of the current document" in {
     new TreeModel with TocModel {
       
-      val template = """aaa @:toc { root=<currentDocument> } bbb {{document.content}}"""
+      val template = """aaa @:toc { root=<currentDocument> } bbb ${document.content}"""
       
       parseAndRewrite(template, markup) should be (result(currentDoc))  
     }
@@ -512,7 +512,7 @@ class StandardDirectiveSpec extends FlatSpec
   it should "produce a table of content starting from an explicit absolute path" in {
     new TreeModel with TocModel {
       
-      val template = """aaa @:toc { root=/sub1 } bbb {{document.content}}"""
+      val template = """aaa @:toc { root=/sub1 } bbb ${document.content}"""
       
       parseAndRewrite(template, markup) should be (result(firstTree))  
     }
@@ -521,7 +521,7 @@ class StandardDirectiveSpec extends FlatSpec
   it should "produce a table of content starting from an explicit relative path" in {
     new TreeModel with TocModel {
       
-      val template = """aaa @:toc { root="../sub1" } bbb {{document.content}}"""
+      val template = """aaa @:toc { root="../sub1" } bbb ${document.content}"""
       
       parseAndRewrite(template, markup) should be (result(firstTree))  
     }
@@ -530,7 +530,7 @@ class StandardDirectiveSpec extends FlatSpec
   it should "produce a table of content starting from an explicit relative path with depth 2" in {
     new TreeModel with TocModel {
       
-      val template = """aaa @:toc { root="../sub1", depth=2 } bbb {{document.content}}"""
+      val template = """aaa @:toc { root="../sub1", depth=2 } bbb ${document.content}"""
       
       parseAndRewrite(template, markup) should be (result(firstTreeFirstLevel))  
     }
@@ -545,7 +545,7 @@ class StandardDirectiveSpec extends FlatSpec
         |
         |# Headline 2""".stripMargin
       
-      val template = """{{document.content}}"""
+      val template = """${document.content}"""
       
       parseAndRewrite(template, markup) should be (markupTocResult)  
     }

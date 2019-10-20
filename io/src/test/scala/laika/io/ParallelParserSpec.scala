@@ -76,12 +76,12 @@ class ParallelParserSpec extends FlatSpec
                        |bbb""".stripMargin
       val directive = "aa @:foo bar. bb"
       val template = """<div>
-                      |  {{document.content}}
+                      |  ${document.content}
                       |</div>""".stripMargin
       val template2 = """<div>
-                       |xx{{document.content}}
+                       |xx${document.content}
                        |</div>""".stripMargin
-      val dynDoc = "{{config.value}}"
+      val dynDoc = "${config.value}"
       val conf = "value: abc"
       val order = """navigationOrder: [
         |  lemon.md

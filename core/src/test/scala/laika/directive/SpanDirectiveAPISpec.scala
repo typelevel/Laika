@@ -235,7 +235,7 @@ class SpanDirectiveAPISpec extends FlatSpec
   it should "parse a directive with a body" in {
     new SpanParser with RequiredBody {
       val body = ss(txt(" some value text "))
-      Parsing ("aa @:dir some {{config.ref}} text @:@ bb") should produce (ss(txt("aa "), body, txt(" bb")))
+      Parsing ("aa @:dir some ${config.ref} text @:@ bb") should produce (ss(txt("aa "), body, txt(" bb")))
     }
   }
   
@@ -299,7 +299,7 @@ class SpanDirectiveAPISpec extends FlatSpec
       val body = ss(
         txt("foo:str:7 1 value 2 ")
       )
-      Parsing ("aa @:dir { foo strAttr=str, intAttr=7 } 1 {{config.ref}} 2 @:@ bb") should produce (ss(txt("aa "), body, txt(" bb")))
+      Parsing ("aa @:dir { foo strAttr=str, intAttr=7 } 1 ${config.ref} 2 @:@ bb") should produce (ss(txt("aa "), body, txt(" bb")))
     }
   }
 
@@ -308,7 +308,7 @@ class SpanDirectiveAPISpec extends FlatSpec
       val body = ss(
         txt("foo:str:7 1 value 2 ")
       )
-      Parsing ("aa @:dir { foo strAttr=str\nintAttr=7 } 1 {{config.ref}} 2 @:@ bb") should produce (ss(txt("aa "), body, txt(" bb")))
+      Parsing ("aa @:dir { foo strAttr=str\nintAttr=7 } 1 ${config.ref} 2 @:@ bb") should produce (ss(txt("aa "), body, txt(" bb")))
     }
   }
   
@@ -317,7 +317,7 @@ class SpanDirectiveAPISpec extends FlatSpec
       val body = ss(
         txt("foo:..:0 1 value 2 ")
       )
-      Parsing ("aa @:dir { foo } 1 {{config.ref}} 2 @:@ bb") should produce (ss(txt("aa "), body, txt(" bb")))
+      Parsing ("aa @:dir { foo } 1 ${config.ref} 2 @:@ bb") should produce (ss(txt("aa "), body, txt(" bb")))
     }
   }
   
@@ -331,7 +331,7 @@ class SpanDirectiveAPISpec extends FlatSpec
   it should "parse a directive with a body and parser access" in {
     new DirectiveWithParserAccess with SpanParser {
       val body = ss(txt("me value text "))
-      Parsing ("aa @:dir some {{config.ref}} text @:@ bb") should produce (ss(txt("aa "), body, txt(" bb")))
+      Parsing ("aa @:dir some ${config.ref} text @:@ bb") should produce (ss(txt("aa "), body, txt(" bb")))
     }
   }
   

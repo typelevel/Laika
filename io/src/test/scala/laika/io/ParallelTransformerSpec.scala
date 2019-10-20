@@ -82,10 +82,10 @@ class ParallelTransformerSpec extends FlatSpec
       val aa = "aa"
       val style = "13"
       val link = "[link](foo)"
-      val directive = "{{document.content}} @:foo bar. bb"
-      val templateConfigRef = "{{document.content}}{{config.value}}"
-      val template1 = "{{document.content}}"
-      val template2 = "({{document.content}})"
+      val directive = "${document.content} @:foo bar. bb"
+      val templateConfigRef = "${document.content}{{config.value}}"
+      val template1 = "${document.content}"
+      val template2 = "(${document.content})"
       val conf = "value: abc"
     }
     

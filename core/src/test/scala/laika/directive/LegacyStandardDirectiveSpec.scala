@@ -142,7 +142,7 @@ class LegacyStandardDirectiveSpec extends FlatSpec
   
   
   "The for directive" should "process the default body once if the referenced object is a map" in {
-    val input = """aaa @:for "config.person": { {{#.name}} {{#.age}} } bbb"""
+    val input = """aaa @:for "config.person": { {{_.name}} {{_.age}} } bbb"""
     val config = "person: { name: Mary, age: 35 }" 
     parseTemplateWithConfig(input, config) should be (root(tRoot(
       tt("aaa "),
@@ -154,7 +154,7 @@ class LegacyStandardDirectiveSpec extends FlatSpec
   } 
   
   it should "process the default body multiple times if the referenced object is a list" in {
-    val input = """aaa @:for "config.persons": { {{#.name}} {{#.age}} } bbb"""
+    val input = """aaa @:for "config.persons": { {{_.name}} {{_.age}} } bbb"""
     val config = "persons: [{ name: Mary, age: 35 },{ name: Lucy, age: 32 },{ name: Anna, age: 42 }]" 
     parseTemplateWithConfig(input, config) should be (root(tRoot(
       tt("aaa "),

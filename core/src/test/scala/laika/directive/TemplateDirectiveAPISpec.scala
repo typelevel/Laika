@@ -232,7 +232,7 @@ class TemplateDirectiveAPISpec extends FlatSpec
   it should "parse a directive with a body" in {
     new RequiredBody with TemplateParser {
       val body = tss(tt(" some "), tt("value"), tt(" text "))
-      Parsing ("aa @:dir some {{config.ref}} text @:@ bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
+      Parsing ("aa @:dir some ${config.ref} text @:@ bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
     }
   }
   
@@ -297,7 +297,7 @@ class TemplateDirectiveAPISpec extends FlatSpec
         tt("foo:str:7"), 
         tt(" 1 "), tt("value"), tt(" 2 ")
       )
-      Parsing ("aa @:dir { foo strAttr=str, intAttr=7 } 1 {{config.ref}} 2 @:@ bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
+      Parsing ("aa @:dir { foo strAttr=str, intAttr=7 } 1 ${config.ref} 2 @:@ bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
     }
   }
 
@@ -307,7 +307,7 @@ class TemplateDirectiveAPISpec extends FlatSpec
         tt("foo:str:7"),
         tt(" 1 "), tt("value"), tt(" 2 ")
       )
-      Parsing ("aa @:dir { foo strAttr=str\nintAttr=7 } 1 {{config.ref}} 2 @:@ bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
+      Parsing ("aa @:dir { foo strAttr=str\nintAttr=7 } 1 ${config.ref} 2 @:@ bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
     }
   }
   
@@ -317,7 +317,7 @@ class TemplateDirectiveAPISpec extends FlatSpec
         tt("foo:..:0"), 
         tt(" 1 "), tt("value"), tt(" 2 ")
       )
-      Parsing ("aa @:dir { foo } 1 {{config.ref}} 2 @:@ bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
+      Parsing ("aa @:dir { foo } 1 ${config.ref} 2 @:@ bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
     }
   }
   
@@ -331,7 +331,7 @@ class TemplateDirectiveAPISpec extends FlatSpec
   it should "parse a directive with a required default body and parser access" in {
     new DirectiveWithParserAccess with TemplateParser {
       val body = tss(tt("me "), tt("value"), tt(" text "))
-      Parsing ("aa @:dir some {{config.ref}} text @:@ bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
+      Parsing ("aa @:dir some ${config.ref} text @:@ bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
     }
   }
   
