@@ -33,12 +33,12 @@ object CopyRuntime {
   def copy[F[_]: Sync: Runtime] (input: InputStream, output: OutputStream): F[Unit] = (input, output) match {
       
     case (in: FileInputStream, out: FileOutputStream) =>
-      implicitly[Runtime[F]].runBlocking {
+      Runtime[F].runBlocking {
         Sync[F].delay(in.getChannel.transferTo(0, Integer.MAX_VALUE, out.getChannel))
       }
       
     case _ =>
-      implicitly[Runtime[F]].runBlocking {
+      Runtime[F].runBlocking {
         Sync[F].delay {
           val buffer = new Array[Byte](8192)
           Iterator.continually(input.read(buffer))

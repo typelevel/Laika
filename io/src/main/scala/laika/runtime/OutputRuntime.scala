@@ -19,13 +19,13 @@ object OutputRuntime {
   def write[F[_]: Async: Runtime] (result: String, output: TextOutput): F[Unit] = {
     output match {
       case StringOutput(_) => Async[F].unit
-      case TextFileOutput(file, _, codec) => implicitly[Runtime[F]].runBlocking {
+      case TextFileOutput(file, _, codec) => Runtime[F].runBlocking {
         fileWriter(file, codec).use { writer =>
           Async[F].delay(writer.write(result))
         }
       }
       case CharStreamOutput(stream, _, autoClose, codec) =>
-        implicitly[Runtime[F]].runBlocking {
+        Runtime[F].runBlocking {
           val streamF = Async[F].pure(stream)
           val resource = if (autoClose) Resource.fromAutoCloseable(streamF) else Resource.liftF(streamF)
           resource.map(out => new BufferedWriter(new OutputStreamWriter(out, codec.charSet))).use { writer =>

@@ -73,6 +73,10 @@ trait Runtime[F[_]] {
   */
 object Runtime {
 
+  /** Summoner for implicit Runtime instances.
+    */
+  def apply[F[_]: Runtime]: Runtime[F] = implicitly[Runtime[F]]
+
   /** Creates a Runtime instance for sequential execution based on the specified
     * contexts for CPU-bound and blocking operations.
     */

@@ -88,7 +88,7 @@ object RendererRuntime {
     
     def processBatch (finalRoot: DocumentTreeRoot, ops: Seq[F[RenderResult]], staticDocs: Seq[BinaryInput]): F[RenderedTreeRoot] =
 
-      implicitly[Runtime[F]].runParallel(ops.toVector).map { results =>
+      Runtime[F].runParallel(ops.toVector).map { results =>
         val renderedDocs = results.collect { case Right(doc) => doc }
         val coverDoc = renderedDocs.collectFirst {
           case doc if doc.path.parent == Root && doc.path.basename == "cover" => doc

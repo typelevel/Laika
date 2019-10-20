@@ -90,7 +90,7 @@ class PDFRenderer (config: Option[PDF.Config], fopFactory: Option[FopFactory]) {
       factory.newTransformer // identity transformer
     }
 
-    implicitly[Runtime[F]].runBlocking {
+    Runtime[F].runBlocking {
       OutputRuntime.asStream(output).use { out =>
         for {
           source      <- Async[F].delay(new StreamSource(new StringReader(foInput)))

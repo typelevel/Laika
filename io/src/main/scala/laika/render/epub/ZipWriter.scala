@@ -65,7 +65,7 @@ object ZipWriter {
       .asStream(output)
       .map(new ZipOutputStream(_))
 
-    implicitly[Runtime[F]].runBlocking {
+    Runtime[F].runBlocking {
       for {
         inputs <- inputFs
         _      <- out.use(copy(inputs, _))

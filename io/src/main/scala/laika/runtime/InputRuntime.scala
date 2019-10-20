@@ -47,7 +47,7 @@ object InputRuntime {
 
   /** Reads all input from the specified reader.
     */
-  def readAll[F[_]: Async: Runtime] (reader: Reader, sizeHint: Int): F[String] = implicitly[Runtime[F]].runBlocking {
+  def readAll[F[_]: Async: Runtime] (reader: Reader, sizeHint: Int): F[String] = Runtime[F].runBlocking {
     
     def read(inBuffer: Array[Char], outBuffer: StringBuilder): F[Unit] = {
       for {
