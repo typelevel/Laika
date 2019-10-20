@@ -16,7 +16,7 @@
 
 package laika.bundle
 
-import laika.api.config.{Config, ConfigBuilder}
+import laika.config.{Config, ConfigBuilder}
 import laika.ast._
 import laika.parse.css.CSSParsers
 

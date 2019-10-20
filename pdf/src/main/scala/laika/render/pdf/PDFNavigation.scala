@@ -16,7 +16,7 @@
 
 package laika.render.pdf
 
-import laika.api.config.ConfigBuilder
+import laika.config.ConfigBuilder
 import laika.ast._
 import laika.format.PDF
 import laika.io.model.{RenderContent, RenderedDocument, RenderedTree, RenderedTreeRoot}

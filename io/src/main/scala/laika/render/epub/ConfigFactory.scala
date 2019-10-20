@@ -1,6 +1,6 @@
 package laika.render.epub
 
-import laika.api.config.Config
+import laika.config.Config
 import laika.ast.DocumentMetadata
 import laika.format.EPUB
 

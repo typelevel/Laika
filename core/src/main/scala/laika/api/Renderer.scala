@@ -17,7 +17,7 @@
 package laika.api
 
 import laika.api.builder.{OperationConfig, RendererBuilder, TwoPhaseRendererBuilder}
-import laika.api.config.ConfigError
+import laika.config.ConfigError
 import laika.ast.Path.Root
 import laika.ast._
 import laika.factory.{RenderContext, RenderFormat, TwoPhaseRenderFormat}

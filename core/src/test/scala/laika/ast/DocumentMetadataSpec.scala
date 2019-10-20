@@ -19,7 +19,7 @@ package laika.ast
 import java.time.Instant
 import java.util.Locale
 
-import laika.api.config.{ConfigBuilder, ConfigParser}
+import laika.config.{ConfigBuilder, ConfigParser}
 import org.scalatest.{FlatSpec, Matchers}
 
 class DocumentMetadataSpec extends FlatSpec with Matchers {

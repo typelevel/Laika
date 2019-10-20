@@ -8,7 +8,7 @@ import laika.bundle.{ConfigProvider, UnresolvedConfig}
 import laika.io.model.{DirectoryInput, InputCollection, ParsedTree, TextFileInput, TextInput}
 import laika.parse.markup.DocumentParser.{ParserError, ParserInput}
 import laika.api.MarkupParser
-import laika.api.config.Config
+import laika.config.Config
 import laika.ast.Path.Root
 import laika.io.text.{ParallelParser, SequentialParser}
 

@@ -16,7 +16,7 @@
 
 package laika.ast
 
-import laika.api.config.{Config, ConfigParser}
+import laika.config.{Config, ConfigParser}
 import laika.ast.DocumentType.Markup
 import laika.ast.Path.{Current, Root}
 import laika.ast.helper.DocumentViewBuilder.{Documents => Docs, _}

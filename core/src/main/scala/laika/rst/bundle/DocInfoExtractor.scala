@@ -16,7 +16,7 @@
 
 package laika.rst.bundle
 
-import laika.api.config.ConfigBuilder
+import laika.config.ConfigBuilder
 import laika.ast._
 import laika.rst.ast.FieldList
 

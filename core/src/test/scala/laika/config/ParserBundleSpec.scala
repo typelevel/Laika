@@ -16,7 +16,7 @@
 
 package laika.config
 
-import laika.api.config.{Config, ConfigBuilder}
+import laika.config.{Config, ConfigBuilder}
 import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root

@@ -16,7 +16,7 @@
 
 package laika.rewrite.nav
 
-import laika.api.config.Config
+import laika.config.Config
 import laika.ast._
 
 /** Responsible for applying the navigation order to the 

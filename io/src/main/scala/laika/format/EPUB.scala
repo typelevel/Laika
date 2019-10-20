@@ -6,7 +6,7 @@ import java.time.temporal.ChronoUnit
 import java.util.{Locale, UUID}
 
 import cats.effect.Async
-import laika.api.config.ConfigBuilder
+import laika.config.ConfigBuilder
 import laika.ast.Path.Root
 import laika.ast._
 import laika.factory.{BinaryPostProcessor, RenderContext, RenderFormat, TwoPhaseRenderFormat}

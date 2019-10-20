@@ -16,7 +16,7 @@
 
 package laika.parse.hocon
 
-import laika.api.config.Config
+import laika.config.Config
 import laika.ast.Path
 import laika.parse.hocon.HoconParsers._
 import laika.collection.TransitionalCollectionOps._

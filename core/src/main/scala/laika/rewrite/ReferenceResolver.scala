@@ -16,8 +16,8 @@
 
 package laika.rewrite
 
-import laika.api.config.Config.ConfigResult
-import laika.api.config.{Config, ConfigBuilder}
+import laika.config.Config.ConfigResult
+import laika.config.{Config, ConfigBuilder}
 import laika.ast.{Document, Path, SpanSequence, TreeCursor}
 import laika.parse.hocon.HoconParsers.{ASTValue, ConfigValue, Field, ObjectValue}
 

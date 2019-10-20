@@ -16,7 +16,7 @@
 
 package laika.render.epub
 
-import laika.api.config.Key
+import laika.config.Key
 import laika.ast._
 
 /** The default template for EPUB XHTML renderers.

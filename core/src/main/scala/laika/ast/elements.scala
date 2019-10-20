@@ -19,7 +19,7 @@ package laika.ast
 import java.text.DecimalFormat
 
 import laika.api.Renderer
-import laika.api.config.ConfigEncoder
+import laika.config.ConfigEncoder
 import laika.format.AST
 import laika.parse.hocon.HoconParsers.ConfigValue
 

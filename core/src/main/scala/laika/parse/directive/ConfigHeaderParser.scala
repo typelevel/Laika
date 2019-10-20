@@ -16,7 +16,7 @@
 
 package laika.parse.directive
 
-import laika.api.config.{Config, ConfigBuilder}
+import laika.config.{Config, ConfigBuilder}
 import laika.bundle.UnresolvedConfig
 import laika.parse.Parser
 import laika.parse.hocon.HoconParsers.ConfigValue

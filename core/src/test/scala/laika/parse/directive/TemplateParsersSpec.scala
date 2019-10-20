@@ -16,7 +16,7 @@
 
 package laika.parse.directive
 
-import laika.api.config.Key
+import laika.config.Key
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.parse.Parser

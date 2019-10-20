@@ -19,8 +19,8 @@ package laika.ast
 import java.time.Instant
 import java.util.Locale
 
-import laika.api.config.Config.ConfigResult
-import laika.api.config.{Config, ConfigDecoder, ConfigError, DefaultKey, InvalidType, ValidationError}
+import laika.config.Config.ConfigResult
+import laika.config.{Config, ConfigDecoder, ConfigError, DefaultKey, InvalidType, ValidationError}
 import laika.ast.Path.Root
 import laika.bundle.UnresolvedConfig
 import laika.parse.hocon.HoconParsers.{ObjectValue, Traced}

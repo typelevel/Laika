@@ -16,7 +16,7 @@
 
 package laika.rewrite
 
-import laika.api.config.{Config, ConfigBuilder, ConfigParser}
+import laika.config.{Config, ConfigBuilder, ConfigParser}
 import laika.api.builder.OperationConfig
 import laika.ast._
 import laika.ast.helper.DocumentViewBuilder.{Documents => Docs, _}

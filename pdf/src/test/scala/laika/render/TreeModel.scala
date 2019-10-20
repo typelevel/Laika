@@ -16,7 +16,7 @@
 
 package laika.render
 
-import laika.api.config.{Config, ConfigBuilder}
+import laika.config.{Config, ConfigBuilder}
 import laika.ast._
 import laika.ast.Path.Root
 

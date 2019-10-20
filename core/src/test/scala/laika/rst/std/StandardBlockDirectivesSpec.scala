@@ -18,7 +18,7 @@ package laika.rst.std
 
 import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
-import laika.api.config.Key
+import laika.config.Key
 import laika.ast.Path.{Current, Root}
 import laika.ast._
 import laika.ast.helper.ModelBuilder

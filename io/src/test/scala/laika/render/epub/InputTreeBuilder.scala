@@ -2,7 +2,7 @@ package laika.render.epub
 
 import java.io.File
 
-import laika.api.config.{Config, ConfigBuilder}
+import laika.config.{Config, ConfigBuilder}
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder

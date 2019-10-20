@@ -18,7 +18,7 @@ package laika.directive
 
 import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
-import laika.api.config.{ConfigBuilder, ConfigParser}
+import laika.config.{ConfigBuilder, ConfigParser}
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.Markdown

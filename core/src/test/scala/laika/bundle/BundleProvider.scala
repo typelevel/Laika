@@ -16,7 +16,7 @@
 
 package laika.bundle
 
-import laika.api.config.{Config, ConfigParser}
+import laika.config.{Config, ConfigParser}
 import laika.ast._
 import laika.directive.{DirectiveRegistry, Templates}
 import laika.parse.Parser

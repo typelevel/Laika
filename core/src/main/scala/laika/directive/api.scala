@@ -17,7 +17,7 @@
 package laika.directive
 
 import cats.{Functor, Semigroupal}
-import laika.api.config.{Config, ConfigDecoder, ObjectConfig}
+import laika.config.{Config, ConfigDecoder, ObjectConfig}
 import laika.ast.{TemplateSpan, _}
 import laika.collection.TransitionalCollectionOps._
 import laika.parse.directive.DirectiveParsers.ParsedDirective

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package laika.api.config
+package laika.config
 
 import laika.ast.Path
 import laika.parse.hocon.HoconParsers._

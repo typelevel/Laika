@@ -16,7 +16,7 @@
 
 package laika.rewrite
 
-import laika.api.config.{ConfigError, Key}
+import laika.config.{ConfigError, Key}
 import laika.ast._
 import laika.parse.hocon.HoconParsers.Origin
 

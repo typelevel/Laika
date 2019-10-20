@@ -16,8 +16,8 @@
 
 package laika.ast
 
-import laika.api.config.Config.ConfigResult
-import laika.api.config.Key
+import laika.config.Config.ConfigResult
+import laika.config.Key
 import laika.parse.hocon.HoconParsers.{ASTValue, ConfigValue, LongValue, StringValue}
 import laika.rewrite.TemplateRewriter
 

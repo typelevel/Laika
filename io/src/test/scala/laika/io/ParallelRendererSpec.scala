@@ -20,7 +20,7 @@ import java.io.{ByteArrayOutputStream, File}
 
 import cats.effect.{ContextShift, IO}
 import laika.api.Renderer
-import laika.api.config.Key
+import laika.config.Key
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder

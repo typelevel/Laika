@@ -16,7 +16,7 @@
 
 package laika.parse.hocon
 
-import laika.api.config.{Config, ObjectConfig}
+import laika.config.{Config, ObjectConfig}
 import laika.ast.{Element, Path, ~}
 import laika.parse.text.Characters
 import laika.parse.{Parser, ParserContext}

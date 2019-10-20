@@ -16,7 +16,7 @@
 
 package laika.bundle
 
-import laika.api.config.{Config, ConfigError, ConfigParser}
+import laika.config.{Config, ConfigError, ConfigParser}
 import laika.parse.Parser
 import laika.parse.combinator.Parsers
 import laika.parse.hocon.HoconParsers

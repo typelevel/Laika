@@ -16,7 +16,7 @@
 
 package laika.render.pdf
 
-import laika.api.config.{Config, ConfigError}
+import laika.config.{Config, ConfigError}
 import laika.api.Renderer
 import laika.ast.Path.Root
 import laika.ast._

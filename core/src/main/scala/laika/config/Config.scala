@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package laika.api.config
+package laika.config
 
-import laika.api.config.Config.ConfigResult
+import laika.config.Config.ConfigResult
 import laika.ast.Path
 import laika.parse.hocon.HoconParsers.{Field, ObjectValue, Origin, Traced}
 

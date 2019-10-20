@@ -16,7 +16,7 @@
 
 package laika.render.pdf
 
-import laika.api.config.Config
+import laika.config.Config
 import laika.format.PDF
 
 /** Builds PDF configuration instances from configuration embedded in document trees.

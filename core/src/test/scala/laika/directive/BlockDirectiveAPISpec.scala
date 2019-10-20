@@ -17,7 +17,7 @@
 package laika.directive
 
 import cats.implicits._
-import laika.api.config.ConfigBuilder
+import laika.config.ConfigBuilder
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder

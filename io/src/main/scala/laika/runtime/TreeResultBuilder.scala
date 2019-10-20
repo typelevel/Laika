@@ -16,7 +16,7 @@
 
 package laika.runtime
 
-import laika.api.config.{Config, ConfigError}
+import laika.config.{Config, ConfigError}
 import laika.ast.Path.Root
 import laika.ast.{Document, DocumentTree, DocumentTreeRoot, Navigatable, Path, StyleDeclarationSet, TemplateDocument, TreeBuilder, UnresolvedDocument}
 import laika.bundle.UnresolvedConfig
