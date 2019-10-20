@@ -25,6 +25,7 @@ import laika.factory.MarkupFormat
 import laika.parse.{Parser, ParserContext}
 import laika.parse.combinator.Parsers
 import laika.parse.css.CSSParsers
+import laika.parse.directive.ConfigHeaderParser
 import laika.parse.markup.DocumentParser.ParserInput
 import laika.parse.text.TextParsers
 import org.scalatest.{Matchers, WordSpec}
@@ -312,54 +313,55 @@ class ParserBundleSpec extends WordSpec with Matchers {
 
   "The configuration for the config provider" should {
     
-    object TestConfigProvider extends ConfigProvider {
-      def configHeader: Parser[UnresolvedConfig] = ???
-      def configDocument (input: String): UnresolvedConfig = ???
+    object BetweenBraces extends ConfigProvider {
+      def configHeader: Parser[UnresolvedConfig] = ConfigHeaderParser.betweenLines("{{", "}}")
+      def configDocument (input: String): UnresolvedConfig = UnresolvedConfig.empty
+    }
+    object BetweenAngles extends ConfigProvider {
+      def configHeader: Parser[UnresolvedConfig] = ConfigHeaderParser.betweenLines("<<", ">>")
+      def configDocument (input: String): UnresolvedConfig = UnresolvedConfig.empty
+    }
+    
+    def parseWith(opConfig: OperationConfig, input: String): Either[ConfigError, Config] = opConfig
+      .configProvider
+      .configHeader
+      .parse(input)
+      .toEither
+      .left.map(ConfigParserError)
+      .flatMap(_.resolve(Origin.root, Config.empty))
+
+    "should let configuration providers from app bundles override providers from parsers" in new BundleSetup {
+      val parserBundles = Seq(BundleProvider.forConfigProvider(BetweenBraces))
+      val appBundles = Seq(BundleProvider.forConfigProvider(BetweenAngles))
+
+      parseWith(config, "{{\nfoo: 7\n}}").toOption shouldBe None
+      parseWith(config, "<<\nfoo: 7\n>>").toOption shouldBe Some(ConfigBuilder.empty.withValue("foo",7).build)
     }
 
-//    "merge parsers from a markup extension with parsers from an app extension" in new BundleSetup {
-//      val parserBundles = Seq(BundleProvider.forConfigProvider(ConfigHeaderParser.betweenLines("{{", "}}")))
-//      val appBundles = Seq(BundleProvider.forConfigProvider(ConfigHeaderParser.betweenLines("<<", ">>")))
-//
-//      val confHeaderParser = config.configHeaderParser(Root)
-//      confHeaderParser.parse("{{\nfoo: 7\n}}").toOption shouldBe Some(Right(ConfigBuilder.empty.withValue("foo",7).build))
-//      confHeaderParser.parse("<<\nfoo: 7\n>>").toOption shouldBe Some(Right(ConfigBuilder.empty.withValue("foo",7).build))
-//    }
-//
-//    "let an app config override a parser for identical start markup in the extension config" in new BundleSetup {
-//      val parserBundles = Seq(BundleProvider.forConfigProvider(ConfigHeaderParser.betweenLines("{{", "}}")))
-//      val appBundles = Seq(BundleProvider.forConfigProvider(ConfigHeaderParser.forTextParser(TextParsers.any ^^^ "foo: 9")))
-//
-//      val confHeaderParser = config.configHeaderParser(Root)
-//      confHeaderParser.parse("{{\nfoo: 7\n}}").toOption shouldBe Some(Right(ConfigBuilder.empty.withValue("foo",9).build))
-//    }
-//
-//    "let an app config override a parser for identical start markup in a previously installed app config" in new BundleSetup {
-//      val parserBundles = Nil
-//      val appBundles = Seq(
-//        BundleProvider.forConfigProvider(ConfigHeaderParser.betweenLines("{{", "}}")),
-//        BundleProvider.forConfigProvider(ConfigHeaderParser.forTextParser(TextParsers.any ^^^ "foo: 9"))
-//      )
-//
-//      val confHeaderParser = config.configHeaderParser(Root)
-//      confHeaderParser.parse("{{\nfoo: 7\n}}").toOption shouldBe Some(Right(ConfigBuilder.empty.withValue("foo",9).build))
-//    }
-//
-//    "use the default fallback parser in case all other parsers fail" in new BundleSetup {
-//      val parserBundles = Seq(BundleProvider.forConfigProvider(ConfigHeaderParser.betweenLines("{{", "}}")))
-//      val appBundles = Seq(BundleProvider.forConfigProvider(ConfigHeaderParser.betweenLines("<<", ">>")))
-//
-//      val confHeaderParser = config.configHeaderParser(Root)
-//      confHeaderParser.parse("{%\nfoo: 7\n%}").toOption shouldBe Some(Right(ConfigBuilder.empty.withValue("foo",7).build))
-//    }
-//
-//    "should use the fallback parser producing empty config instances when all other parsers fail" in new BundleSetup {
-//      val parserBundles = Seq(BundleProvider.forConfigProvider(ConfigHeaderParser.betweenLines("{{", "}}")))
-//      val appBundles = Seq(BundleProvider.forConfigProvider(ConfigHeaderParser.betweenLines("<<", ">>")))
-//
-//      val confHeaderParser = config.configHeaderParser(Root)
-//      confHeaderParser.parse("[[\nfoo: 7\n]]").toOption shouldBe Some(Right(Config.empty))
-//    }
+    "let an app config override a config provider in a previously installed app config" in new BundleSetup {
+      val parserBundles = Nil
+      val appBundles = Seq(
+        BundleProvider.forConfigProvider(BetweenBraces),
+        BundleProvider.forConfigProvider(BetweenAngles),
+      )
+
+      parseWith(config, "{{\nfoo: 7\n}}").toOption shouldBe None
+      parseWith(config, "<<\nfoo: 7\n>>").toOption shouldBe Some(ConfigBuilder.empty.withValue("foo",7).build)
+    }
+
+    "use the default fallback parser in case no provider is installed" in new BundleSetup {
+      val parserBundles = Nil
+      val appBundles = Nil
+
+      parseWith(config, "{%\nfoo: 7\n%}").toOption shouldBe Some(ConfigBuilder.empty.withValue("foo",7).build)
+    }
+
+    "fail when it does not recognize the header separator" in new BundleSetup {
+      val parserBundles = Nil
+      val appBundles = Nil
+
+      parseWith(config, "[[\nfoo: 7\n]]") shouldBe Left(ConfigParserError("`{%' expected but `[[` found"))
+    }
 
   }
 
