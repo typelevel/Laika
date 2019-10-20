@@ -69,7 +69,7 @@ abstract class ContextReference[T <: Span] (ref: String) extends SpanResolver {
 
 /** A context reference specifically for use in template documents.
  */
-case class TemplateContextReference (ref: String, options: Options = NoOpt) extends ContextReference[TemplateSpan](ref) with TemplateSpan {
+case class TemplateContextReference (ref: String, required: Boolean, options: Options = NoOpt) extends ContextReference[TemplateSpan](ref) with TemplateSpan {
   type Self = TemplateContextReference
 
   def result (value: ConfigResult[Option[ConfigValue]]): TemplateSpan = value match {
@@ -78,16 +78,17 @@ case class TemplateContextReference (ref: String, options: Options = NoOpt) exte
     case Right(Some(ASTValue(e: Element)))             => TemplateElement(e)
     case Right(Some(StringValue(v)))                   => TemplateString(v)
     case Right(Some(LongValue(v)))                     => TemplateString(v.toString)
-    case Right(Some(v))           => TemplateString(v.toString) // TODO - 0.12 - properly convert
-    case Right(None)              => TemplateString("")
-    case Left(error)              => TemplateString("") // TODO - 0.12 - insert invalid element for left and unsupported Right
+    case Right(Some(v))                                => TemplateString(v.toString) // TODO - 0.12 - properly convert
+    case Right(None) if !required                      => TemplateString("")
+    case Right(None)                                   => InvalidElement(SystemMessage(MessageLevel.Error, s"Missing required reference: '$ref'"), "${"+ref+"}").asTemplateSpan
+    case Left(error)                                   => TemplateString("") // TODO - 0.12 - insert invalid element for left and unsupported Right
   }
   def withOptions (options: Options): TemplateContextReference = copy(options = options)
 }
 
 /** A context reference specifically for use in markup documents.
  */
-case class MarkupContextReference (ref: String, options: Options = NoOpt) extends ContextReference[Span](ref) {
+case class MarkupContextReference (ref: String, required: Boolean, options: Options = NoOpt) extends ContextReference[Span](ref) {
   type Self = MarkupContextReference
 
   def result (value: ConfigResult[Option[ConfigValue]]): Span = value match {
@@ -96,7 +97,8 @@ case class MarkupContextReference (ref: String, options: Options = NoOpt) extend
     case Right(Some(StringValue(v)))       => Text(v)
     case Right(Some(LongValue(v)))         => Text(v.toString)
     case Right(Some(v))                    => Text(v.toString) // TODO - 0.12 - properly convert - use SimpleConfigValue.render
-    case Right(None)                       => Text("")
+    case Right(None) if !required          => Text("")
+    case Right(None)                       => InvalidElement(SystemMessage(MessageLevel.Error, s"Missing required reference: '$ref'"), "${"+ref+"}").asSpan
     case Left(error)                       => Text("") // TODO - 0.12 - insert invalid element for left and unsupported Right
   }
   def withOptions (options: Options): MarkupContextReference = copy(options = options)
@@ -176,7 +178,7 @@ object TemplateRoot {
   /** A fallback instance that can be used when no user-specified template
     * is available. It simply inserts the content of the parsed markup document
     * without any surrounding decoration. */
-  val fallback = TemplateRoot(List(TemplateContextReference("document.content")))
+  val fallback = TemplateRoot(List(TemplateContextReference("document.content", required = true)))
 }
 
 /** The root element of a document tree (originating from text markup) inside a template.

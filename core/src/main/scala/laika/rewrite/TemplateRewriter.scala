@@ -29,7 +29,7 @@ trait TemplateRewriter {
     * 
     * The default simply inserts the rendered document into the rendered result without any surrounding template text.
     */
-  val defaultTemplate: TemplateDocument = TemplateDocument(Path.Root / "default.template", TemplateRoot(List(TemplateContextReference("document.content"))))
+  val defaultTemplate: TemplateDocument = TemplateDocument(Path.Root / "default.template", TemplateRoot(List(TemplateContextReference("document.content", required = true))))
   
   /** Selects and applies the templates for the specified output format to all documents within the specified tree cursor recursively.
    */

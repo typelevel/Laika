@@ -162,7 +162,7 @@ object SpanDirectiveParsers {
   import laika.directive.Spans
 
   val contextRef: SpanParserBuilder =
-    SpanParser.forStartChar('{').standalone(reference(MarkupContextReference(_)))
+    SpanParser.forStartChar('{').standalone(reference(MarkupContextReference(_, required = true)))
 
   def spanDirective (directives: Map[String, Spans.Directive]): SpanParserBuilder =
     SpanParser.forStartChar('@').recursive(spanDirectiveParser(directives))
@@ -172,7 +172,7 @@ object SpanDirectiveParsers {
     import recParsers._
     
     val separators = directives.values.flatMap(_.separators).toSet
-    val contextRefOrNestedBraces = Map('{' -> (reference(MarkupContextReference(_)) | nestedBraces))
+    val contextRefOrNestedBraces = Map('{' -> (reference(MarkupContextReference(_, required = true)) | nestedBraces))
     val legacyBody = wsOrNl ~ '{' ~> (withSource(delimitedRecursiveSpans(delimitedBy('}'), contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
     val newBody: BodyParserBuilder = spec => 
       if (directives.get(spec.name).exists(_.hasBody)) withSource(delimitedRecursiveSpans(delimitedBy(spec.fence), contextRefOrNestedBraces)) ^^ { src => 

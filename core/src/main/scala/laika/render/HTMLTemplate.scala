@@ -47,9 +47,9 @@ object HTMLTemplate {
     val templateSpans = templateText.split("#").map(TemplateString(_))
     TemplateRoot(Seq(
       templateSpans(0),
-      TemplateContextReference("document.title"),
+      TemplateContextReference("document.title", required = true),
       templateSpans(1),
-      TemplateContextReference("document.content"),
+      TemplateContextReference("document.content", required = true),
       templateSpans(2)
     ))
   }
