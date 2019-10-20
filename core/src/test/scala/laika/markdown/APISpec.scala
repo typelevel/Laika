@@ -103,15 +103,15 @@ class APISpec extends FlatSpec
   
   it should "support the registration of span directives" in {
     new SpanDirectives {
-      val input = """one @:oneArg { arg } two @:twoArgs { arg1 name=arg2 } three""".stripMargin
+      val input = """one @:oneArg { arg } two @:twoArgs { arg1, name=arg2 } three""".stripMargin
       MarkupParser.of(Markdown).using(TestDirectives).build.parse(input).toOption.get.content should be (root (p("one arg two arg1arg2 three")))
     }
   }
 
   it should "ignore the registration of span directives when run in strict mode" in {
     new SpanDirectives {
-      val input = """one @:oneArg { arg } two @:twoArgs { arg1 name=arg2 } three"""
-      MarkupParser.of(Markdown).using(TestDirectives).strict.build.parse(input).toOption.get.content should be (root (p("one @:oneArg { arg } two @:twoArgs { arg1 name=arg2 } three")))
+      val input = """one @:oneArg { arg } two @:twoArgs { arg1, name=arg2 } three"""
+      MarkupParser.of(Markdown).using(TestDirectives).strict.build.parse(input).toOption.get.content should be (root (p("one @:oneArg { arg } two @:twoArgs { arg1, name=arg2 } three")))
     }
   }
   

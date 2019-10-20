@@ -299,7 +299,7 @@ class SpanDirectiveAPISpec extends FlatSpec
       val body = ss(
         txt("foo:str:7 1 value 2 ")
       )
-      Parsing ("aa @:dir { foo strAttr=str, intAttr=7 } 1 ${config.ref} 2 @:@ bb") should produce (ss(txt("aa "), body, txt(" bb")))
+      Parsing ("aa @:dir { foo, strAttr=str, intAttr=7 } 1 ${config.ref} 2 @:@ bb") should produce (ss(txt("aa "), body, txt(" bb")))
     }
   }
 
@@ -308,7 +308,7 @@ class SpanDirectiveAPISpec extends FlatSpec
       val body = ss(
         txt("foo:str:7 1 value 2 ")
       )
-      Parsing ("aa @:dir { foo strAttr=str\nintAttr=7 } 1 ${config.ref} 2 @:@ bb") should produce (ss(txt("aa "), body, txt(" bb")))
+      Parsing ("aa @:dir { foo, strAttr=str\nintAttr=7 } 1 ${config.ref} 2 @:@ bb") should produce (ss(txt("aa "), body, txt(" bb")))
     }
   }
   

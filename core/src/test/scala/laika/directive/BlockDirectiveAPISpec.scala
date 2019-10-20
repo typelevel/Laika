@@ -463,7 +463,7 @@ class BlockDirectiveAPISpec extends FlatSpec
     new FullDirectiveSpec with BlockParser {
       val input = """aa
         |
-        |@:dir { foo strAttr=str, intAttr=7 }
+        |@:dir { foo, strAttr=str, intAttr=7 }
         |
         |1 ${config.ref} 2
         |
