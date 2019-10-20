@@ -76,14 +76,14 @@ trait ConfigEncoder[-T] {
 }
 trait ConfigDecoder[T] { self =>
   
-  def apply (value: TracedValue[ConfigValue]): Either[ConfigError, T]
+  def apply (value: Traced[ConfigValue]): Either[ConfigError, T]
   
   def flatMap[U](f: T => Either[ConfigError, U]): ConfigDecoder[U] = new ConfigDecoder[U] {
-    def apply (value: TracedValue[ConfigValue]) = self.apply(value).flatMap(f)
+    def apply (value: Traced[ConfigValue]) = self.apply(value).flatMap(f)
   }
   
   def map[U](f: T => U): ConfigDecoder[U] = new ConfigDecoder[U] {
-    def apply (value: TracedValue[ConfigValue]) = self.apply(value).map(f)
+    def apply (value: Traced[ConfigValue]) = self.apply(value).map(f)
   }
 }
 trait DefaultKey[T] {
@@ -135,7 +135,7 @@ object ConfigEncoder {
 object ConfigDecoder {
   
   implicit val string: ConfigDecoder[String] = new ConfigDecoder[String] {
-    def apply (value: TracedValue[ConfigValue]) = value.value match {
+    def apply (value: Traced[ConfigValue]) = value.value match {
       case StringValue(s) => Right(s) // TODO - convert other types
       case LongValue(n) => Right(n.toString)
       case _ => Left(InvalidType("String", ""))
@@ -143,7 +143,7 @@ object ConfigDecoder {
   }
   
   implicit val int: ConfigDecoder[Int] = new ConfigDecoder[Int] {
-    def apply (value: TracedValue[ConfigValue]) = value.value match {
+    def apply (value: Traced[ConfigValue]) = value.value match {
       case LongValue(n) => Right(n.toInt) // TODO - convert other types, check bounds
       case StringValue(s) => Try(s.toInt).toEither.left.map(_ => ConversionError(s"not an integer: $s"))
       case _ => Left(InvalidType("Number", ""))
@@ -151,11 +151,11 @@ object ConfigDecoder {
   }
   
   implicit val configValue: ConfigDecoder[ConfigValue] = new ConfigDecoder[ConfigValue] {
-    def apply (value: TracedValue[ConfigValue]) = Right(value.value)
+    def apply (value: Traced[ConfigValue]) = Right(value.value)
   }
   
-  implicit def tracedValue[T](implicit valueDecoder: ConfigDecoder[T]): ConfigDecoder[TracedValue[T]] = new ConfigDecoder[TracedValue[T]] {
-    def apply (value: TracedValue[ConfigValue]) = valueDecoder(value).map(res => value.copy(value = res))
+  implicit def tracedValue[T](implicit valueDecoder: ConfigDecoder[T]): ConfigDecoder[Traced[T]] = new ConfigDecoder[Traced[T]] {
+    def apply (value: Traced[ConfigValue]) = valueDecoder(value).map(res => value.copy(value = res))
   }
 
   implicit lazy val path: ConfigDecoder[Path] = tracedValue[String].map { tracedValue =>
@@ -164,9 +164,9 @@ object ConfigDecoder {
   }
   
   implicit def seq[T] (implicit elementDecoder: ConfigDecoder[T]): ConfigDecoder[Seq[T]] = new ConfigDecoder[Seq[T]] {
-    def apply (value: TracedValue[ConfigValue]) = value.value match {
+    def apply (value: Traced[ConfigValue]) = value.value match {
       case ArrayValue(values) => 
-        val elements = values.map(v => elementDecoder(TracedValue(v, value.origins)))
+        val elements = values.map(v => elementDecoder(Traced(v, value.origins)))
         val errors = elements.collect { case Left(e) => e }
         if (errors.nonEmpty) Left(ValidationError(s"One or more errors decoding array elements: ${errors.mkString(", ")}"))
         else Right(elements.collect { case Right(r) => r })

@@ -18,7 +18,7 @@ package laika.api.config
 
 import laika.api.config.Config.ConfigResult
 import laika.ast.Path
-import laika.parse.hocon.HoconParsers.{Field, ObjectValue, Origin, TracedValue}
+import laika.parse.hocon.HoconParsers.{Field, ObjectValue, Origin, Traced}
 
 /**
   * @author Jens Halm
@@ -80,7 +80,7 @@ class ObjectConfig (private[laika] val root: ObjectValue,
 
   def get[T](key: Path)(implicit decoder: ConfigDecoder[T]): ConfigResult[T] = {
     lookup(key).fold(fallback.get[T](key)) { field =>
-      decoder(TracedValue(field.value, Set(origin)))
+      decoder(Traced(field.value, Set(origin)))
     }
     // TODO - 0.12 - merge objects
   }

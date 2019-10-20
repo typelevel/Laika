@@ -22,7 +22,7 @@ import laika.ast.{TemplateSpan, _}
 import laika.collection.TransitionalCollectionOps._
 import laika.parse.directive.DirectiveParsers.ParsedDirective
 import laika.parse.hocon.ConfigResolver
-import laika.parse.hocon.HoconParsers.{ConfigValue, Origin, TracedValue}
+import laika.parse.hocon.HoconParsers.{ConfigValue, Origin, Traced}
 import laika.parse.{Failure, Success}
 
 import scala.reflect.ClassTag
@@ -98,7 +98,7 @@ trait BuilderContext[E <: Element] {
     
     def attribute[T] (id: AttributeKey, decoder: ConfigDecoder[T], inherit: Boolean): Result[Option[T]] =
       content.attributes
-        .getOpt[TracedValue[T]](id.key)(ConfigDecoder.tracedValue(decoder))
+        .getOpt[Traced[T]](id.key)(ConfigDecoder.tracedValue(decoder))
         .map(_.flatMap { traced =>
           if (traced.origins.exists(_.path.name == directiveOrigin) || inherit) Some(traced.value)
           else None

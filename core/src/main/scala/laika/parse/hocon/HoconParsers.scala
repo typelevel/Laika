@@ -62,7 +62,7 @@ object HoconParsers {
   
   sealed trait ConfigValue
   
-  case class TracedValue[T](value: T, origins: Set[Origin])
+  case class Traced[T] (value: T, origins: Set[Origin])
   case class Origin(path: Path, sourcePath: Option[String] = None)
   object Origin {
     val root: Origin = Origin(Path.Root)

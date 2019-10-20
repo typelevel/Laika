@@ -23,7 +23,7 @@ import laika.api.config.Config.ConfigResult
 import laika.api.config.{Config, ConfigDecoder, ConfigError, DefaultKey, InvalidType, ValidationError}
 import laika.ast.Path.Root
 import laika.bundle.UnresolvedConfig
-import laika.parse.hocon.HoconParsers.{ObjectValue, TracedValue}
+import laika.parse.hocon.HoconParsers.{ObjectValue, Traced}
 import laika.rewrite.TemplateRewriter
 import laika.rewrite.link.LinkTargetProvider
 import laika.rewrite.link.LinkTargets._
@@ -130,7 +130,7 @@ object DocumentMetadata {
     in.flatMap(_.fold[ConfigResult[Option[Instant]]](Right(None))(f(_).map(Some(_))))
   
   implicit val decoder: ConfigDecoder[DocumentMetadata] = {
-    case TracedValue(ov: ObjectValue, _) =>
+    case Traced(ov: ObjectValue, _) =>
       val config = ov.toConfig
       for {
         identifier <- config.getOpt[String]("identifier")
