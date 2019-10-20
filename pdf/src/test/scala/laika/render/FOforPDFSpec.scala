@@ -24,7 +24,7 @@ import laika.api.Renderer
 import laika.ast.{DocumentTreeRoot, TemplateRoot}
 import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
 import laika.format.{PDF, XSLFO}
-import laika.io.Parallel
+import laika.io.implicits._
 import laika.io.binary.ParallelRenderer
 import laika.io.helper.RenderResult
 import laika.io.model.{BinaryOutput, RenderedTreeRoot}
@@ -154,7 +154,7 @@ class FOforPDFSpec extends FlatSpec with Matchers {
     
     def config: Option[PDF.Config]
     
-    lazy val renderer: ParallelRenderer[IO] = Parallel(Renderer.of(FOTest(config))).build[IO](blocker)
+    lazy val renderer: ParallelRenderer[IO] = Renderer.of(FOTest(config)).io(blocker).parallel[IO].build
     
     def result: String = {
       val stream = new ByteArrayOutputStream

@@ -27,6 +27,7 @@ import laika.ast._
 import laika.bundle.{BundleProvider, ExtensionBundle}
 import laika.directive.Templates
 import laika.format._
+import laika.io.implicits._
 import laika.io.text.ParallelTransformer
 import laika.io.helper.OutputBuilder._
 import laika.io.helper.{InputBuilder, OutputBuilder, RenderResult}
@@ -43,9 +44,9 @@ class ParallelTransformerSpec extends FlatSpec
 
   implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
 
-  private val transformer: ParallelTransformer[IO] = Parallel(Transformer.from(Markdown).to(AST)).build[IO](blocker)
+  private val transformer: ParallelTransformer[IO] = Transformer.from(Markdown).to(AST).io(blocker).parallel[IO].build
   private def transformerWithBundle (bundle: ExtensionBundle): ParallelTransformer[IO] = 
-    Parallel(Transformer.from(Markdown).to(AST).using(bundle)).build[IO](blocker)
+    Transformer.from(Markdown).to(AST).using(bundle).io(blocker).parallel[IO].build
   
   
   trait TreeTransformer extends InputBuilder {
@@ -72,7 +73,7 @@ class ParallelTransformerSpec extends FlatSpec
       )
 
     private def transformWithBundle (bundle: ExtensionBundle): RenderedTreeViewRoot =
-      transformWith(Parallel(Transformer.from(Markdown).to(AST).using(bundle)).build[IO](blocker))
+      transformWith(Transformer.from(Markdown).to(AST).using(bundle).io(blocker).parallel[IO].build)
     
     def root (content: Seq[TreeContentView]): RenderedTreeView = RenderedTreeView(Root, content)
     
@@ -192,7 +193,7 @@ class ParallelTransformerSpec extends FlatSpec
     )
     
     val result = RenderResult.fo.withDefaultTemplate("""<fo:block font-family="serif" font-size="13pt" space-after="3mm">foo</fo:block>""")
-    val transform = Parallel(Transformer.from(Markdown).to(XSLFO).using(BundleProvider.forStyleSheetParser(parser))).build[IO](blocker)
+    val transform = Transformer.from(Markdown).to(XSLFO).using(BundleProvider.forStyleSheetParser(parser)).io(blocker).parallel[IO].build
     val renderResult = transform.fromInput(IO.pure(input(inputs, transformer.config.docTypeMatcher))).toOutput(IO.pure(StringTreeOutput)).transform.unsafeRunSync()
     OutputBuilder.RenderedTreeView.toTreeView(renderResult.tree) should be (root(List(docs(
       (Root / "doc1.fo", result)
@@ -318,10 +319,12 @@ class ParallelTransformerSpec extends FlatSpec
   
   it should "render a tree with a RenderResultProcessor writing to an output stream" in new GatheringTransformer {
     val out = new ByteArrayOutputStream
-    val transform = Transformer.from(ReStructuredText).to(TestRenderResultProcessor).build
-    Parallel(transform)
-      .build[IO](blocker)
-      .fromInput(IO.pure(input(inputs, transform.markupParser.config.docTypeMatcher)))
+    val transform = Transformer.from(ReStructuredText).to(TestRenderResultProcessor)
+    transform
+      .io(blocker)
+      .parallel[IO]
+      .build
+      .fromInput(IO.pure(input(inputs, transform.build.markupParser.config.docTypeMatcher)))
       .toStream(IO.pure(out))
       .transform
       .unsafeRunSync()
@@ -330,11 +333,13 @@ class ParallelTransformerSpec extends FlatSpec
   
   it should "render a tree with a RenderResultProcessor writing to a file" in new GatheringTransformer {
     val f = File.createTempFile("output", null)
-    val transform = Transformer.from(ReStructuredText).to(TestRenderResultProcessor).build
+    val transform = Transformer.from(ReStructuredText).to(TestRenderResultProcessor)
     
-    Parallel(transform)
-      .build[IO](blocker)
-      .fromInput(IO.pure(input(inputs, transform.markupParser.config.docTypeMatcher)))
+    transform
+      .io(blocker)
+      .parallel[IO]
+      .build
+      .fromInput(IO.pure(input(inputs, transform.build.markupParser.config.docTypeMatcher)))
       .toFile(f)
       .transform
       .unsafeRunSync()

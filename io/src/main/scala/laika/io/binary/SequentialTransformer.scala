@@ -51,15 +51,11 @@ object SequentialTransformer {
   /** Builder step that allows to specify the execution context
     * for blocking IO and CPU-bound tasks.
     */
-  case class Builder (transformer: BinaryTransformer) {
+  case class Builder[F[_]: Async: Runtime] (transformer: BinaryTransformer) {
 
-    /** Builder step that allows to specify the execution context
-      * for blocking IO and CPU-bound tasks.
-      *
-      * @param blocker the execution context for blocking IO
+    /** Final builder step that creates a sequential transformer for binary output.
       */
-    def build[F[_]: Async: ContextShift] (blocker: Blocker): SequentialTransformer[F] = 
-      new SequentialTransformer[F](transformer)(implicitly[Async[F]], Runtime.sequential(blocker))
+    def build: SequentialTransformer[F] = new SequentialTransformer[F](transformer)
 
   }
 

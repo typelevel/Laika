@@ -25,6 +25,7 @@ import laika.ast.helper.DocumentViewBuilder._
 import laika.ast.helper.ModelBuilder
 import laika.bundle.{BundleProvider, ExtensionBundle}
 import laika.format.{Markdown, ReStructuredText}
+import laika.io.implicits._
 import laika.io.text.ParallelParser
 import laika.io.helper.InputBuilder
 import laika.io.model.TreeInput
@@ -46,10 +47,19 @@ class ParallelParserSpec extends FlatSpec
 
   trait ParserSetup {
 
-    val defaultParser: ParallelParser[IO] = Parallel(MarkupParser.of(Markdown)).build[IO](blocker)
+    val defaultParser: ParallelParser[IO] = MarkupParser
+      .of(Markdown)
+      .io(blocker)
+      .parallel[IO]
+      .build
     
     def parserWithBundle (bundle: ExtensionBundle): ParallelParser[IO] = 
-      Parallel(MarkupParser.of(Markdown).using(bundle)).build[IO](blocker)
+      MarkupParser
+        .of(Markdown)
+        .using(bundle)
+        .io(blocker)
+        .parallel[IO]
+        .build
     
   }
   
@@ -97,21 +107,33 @@ class ParallelParserSpec extends FlatSpec
     def parsedTree: RootView = viewOf(withTemplatesApplied(defaultParser.fromInput(build(inputs)).parse.unsafeRunSync().root))
     
     def mixedParsedTree: RootView = {
-      val parser = Parallel(MarkupParser.of(Markdown)).or(MarkupParser.of(ReStructuredText))
-        .build[IO](blocker)
+      val parser = MarkupParser
+        .of(Markdown)
+        .io(blocker)
+        .parallel[IO]
+        .withAlternativeParser(MarkupParser.of(ReStructuredText))
+        .build
       viewOf(parser.fromInput(IO.pure(build(inputs, parser.config.docTypeMatcher))).parse.unsafeRunSync().root)
     }
       
     
     def parsedWith (bundle: ExtensionBundle): RootView =
-      viewOf(withTemplatesApplied(Parallel(MarkupParser.of(Markdown).using(bundle))
-        .build[IO](blocker)
+      viewOf(withTemplatesApplied(MarkupParser
+        .of(Markdown)
+        .using(bundle)
+        .io(blocker)
+        .parallel[IO]
+        .build
         .fromInput(build(inputs)).parse.unsafeRunSync().root)
       )
 
     def parsedTemplates (bundle: ExtensionBundle): Seq[TemplateRoot] = {
-      val root = Parallel(MarkupParser.of(Markdown).using(bundle))
-        .build[IO](blocker)
+      val root = MarkupParser
+        .of(Markdown)
+        .using(bundle)
+        .io(blocker)
+        .parallel[IO]
+        .build
         .fromInput(build(inputs)).parse.unsafeRunSync().root
       root.tree.templates.map { tpl =>
         tpl.content.rewriteChildren(TemplateRewriter.rewriteRules(DocumentCursor(Document(Root, RootElement(Nil)))))
@@ -121,8 +143,10 @@ class ParallelParserSpec extends FlatSpec
     def parsedWith (bundle: ExtensionBundle = ExtensionBundle.Empty, customMatcher: PartialFunction[Path, DocumentType] = PartialFunction.empty): RootView = {
       val input = IO.pure(build(inputs, customMatcher.orElse({case path => docTypeMatcher(path)})))
       val parser = MarkupParser.of(Markdown).using(bundle)
-      viewOf(Parallel(parser)
-        .build[IO](blocker)
+      viewOf(parser
+        .io(blocker)
+        .parallel[IO]
+        .build
         .fromInput(input).parse.unsafeRunSync().root
       )
     }

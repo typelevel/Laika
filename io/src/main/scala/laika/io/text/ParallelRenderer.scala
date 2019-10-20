@@ -46,27 +46,11 @@ object ParallelRenderer {
   /** Builder step that allows to specify the execution context
     * for blocking IO and CPU-bound tasks.
     */
-  case class Builder (renderer: Renderer) {
+  case class Builder[F[_]: Async: Runtime] (renderer: Renderer) {
 
-    /** Builder step that allows to specify the execution context
-      * for blocking IO and CPU-bound tasks.
-      *
-      * @param blocker the execution context for blocking IO
-      * @param parallelism the desired level of parallelism for all tree operations                       
+    /** Final builder step that creates a parallel renderer.
       */
-    def build[F[_]: Async: Parallel: ContextShift](blocker: Blocker, parallelism: Int): ParallelRenderer[F] =
-      new ParallelRenderer[F](renderer)(implicitly[Async[F]], Runtime.parallel(blocker, parallelism))
-
-    /** Builder step that allows to specify the execution context
-      * for blocking IO and CPU-bound tasks.
-      *
-      * The level of parallelism is determined from the number of available CPUs.
-      * Use the other `build` method if you want to specify the parallelism explicitly.
-      * 
-      * @param blocker the execution context for blocking IO
-      */
-    def build[F[_]: Async: Parallel: ContextShift](blocker: Blocker): ParallelRenderer[F] =
-      build(blocker, java.lang.Runtime.getRuntime.availableProcessors)
+    def build: ParallelRenderer[F] = new ParallelRenderer[F](renderer)
 
   }
 

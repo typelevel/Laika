@@ -22,6 +22,7 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.EPUB
+import laika.io.implicits._
 import laika.io.model.{RenderedDocument, RenderedTree, RenderedTreeRoot, StringTreeOutput}
 import laika.runtime.TestContexts.blocker
 import org.scalatest.{FlatSpec, Matchers}
@@ -51,11 +52,13 @@ class XHTMLRendererSpec extends FlatSpec with Matchers with ModelBuilder {
       val res = renderedDocs(DocumentTreeRoot(tree))
       collectDocuments(res.tree)
     } 
-      
 
     def renderedDocs (root: DocumentTreeRoot): RenderedTreeRoot = {
-      laika.io.Parallel(Renderer.of(EPUB.XHTML))
-        .build[IO](blocker)
+      Renderer
+        .of(EPUB.XHTML)
+        .io(blocker)
+        .parallel[IO]
+        .build
         .from(root)
         .toOutput(IO.pure(StringTreeOutput))
         .render

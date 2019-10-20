@@ -54,28 +54,12 @@ object ParallelTransformer {
   /** Builder step that allows to specify the execution context
     * for blocking IO and CPU-bound tasks.
     */
-  case class Builder (transformer: BinaryTransformer) {
+  case class Builder[F[_]: Async: Runtime] (transformer: BinaryTransformer) {
 
-    /** Builder step that allows to specify the execution context
-      * for blocking IO and CPU-bound tasks.
-      *
-      * @param blocker the execution context for blocking IO
-      * @param parallelism the desired level of parallelism for all tree operations                       
+    /** Final builder step that creates a parallel transformer for binary output.
       */
-    def build[F[_]: Async: Parallel: ContextShift](blocker: Blocker, parallelism: Int): ParallelTransformer[F] =
-      new ParallelTransformer[F](transformer)(implicitly[Async[F]], Runtime.parallel(blocker, parallelism))
+    def build: ParallelTransformer[F] = new ParallelTransformer[F](transformer)
 
-    /** Builder step that allows to specify the execution context
-      * for blocking IO and CPU-bound tasks.
-      *
-      * The level of parallelism is determined from the number of available CPUs.
-      * Use the other `build` method if you want to specify the parallelism explicitly.
-      * 
-      * @param blocker the execution context for blocking IO
-      */
-    def build[F[_]: Async: Parallel: ContextShift](blocker: Blocker): ParallelTransformer[F] =
-      build(blocker, java.lang.Runtime.getRuntime.availableProcessors)
-    
   }
 
   /** Builder step that allows to specify the output to render to.

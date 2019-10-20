@@ -53,15 +53,11 @@ object SequentialRenderer {
   /** Builder step that allows to specify the execution context
     * for blocking IO and CPU-bound tasks.
     */
-  case class Builder (renderer: Renderer) {
+  case class Builder[F[_]: Async: Runtime] (renderer: Renderer) {
 
-    /** Builder step that allows to specify the execution context
-      * for blocking IO and CPU-bound tasks.
-      *
-      * @param blocker the execution context for blocking IO
+    /** Final builder step that creates a sequential renderer.
       */
-    def build[F[_]: Async: ContextShift] (blocker: Blocker): SequentialRenderer[F] =
-      new SequentialRenderer[F](renderer)(implicitly[Async[F]], Runtime.sequential(blocker))
+    def build: SequentialRenderer[F] = new SequentialRenderer[F](renderer)
 
   }
 

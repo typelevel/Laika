@@ -22,6 +22,7 @@ import cats.effect.{ContextShift, IO}
 import laika.api.MarkupParser
 import laika.ast.helper.ModelBuilder
 import laika.format.Markdown
+import laika.io.implicits._
 import laika.io.text.SequentialParser
 import laika.runtime.TestContexts.blocker
 import org.scalatest.{FlatSpec, Matchers}
@@ -36,7 +37,7 @@ class SequentialParserSpec extends FlatSpec
 
   implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
   
-  val parser: SequentialParser[IO] = Sequential(MarkupParser.of(Markdown)).build[IO](blocker)
+  val parser: SequentialParser[IO] = MarkupParser.of(Markdown).io(blocker).sequential[IO].build
 
 
   "The SequentialParser" should "allow parsing Markdown from a string" in {

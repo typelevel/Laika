@@ -48,22 +48,27 @@ import laika.factory.BinaryPostProcessor
   * Example for transforming a directory of Markdown files to a directory of HTML files:
   *
   * {{{
-  * implicit val processingContext: ContextShift[IO] = 
+  * import laika.io.implicits._
+  * 
+  * implicit val cs: ContextShift[IO] = 
   *   IO.contextShift(ExecutionContext.global)
   *
-  * val blockingContext: ContextShift[IO] = 
-  *   IO.contextShift(ExecutionContext.fromExecutor(Executors.newCachedThreadPool()))  
+  * val blocker = Blocker.liftExecutionContext(
+  *   ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
+  * )
   *
   * val transformer = Transformer
   *   .from(Markdown)
   *   .to(HTML)
   *   .using(GitHubFlavor)
+  *   .io(blocker)
+  *   .parallel[IO](4)
+  *   .build
   *
-  * val res: IO[Unit] = laika.io.Parallel(transformer)
-  *   .build(processingContext, blockingContext)
+  * val res: IO[Unit] = transformer
   *   .fromDirectory("src")
   *   .toDirectory("target")
-  *   .transform  
+  *   .transform
   * }}}
   *
   * The first transformer built in the example in the pure transformer from the laika-core module
@@ -73,7 +78,7 @@ import laika.factory.BinaryPostProcessor
   * It is based on an abstract effect from the cats-effect library and thus can be used with
   * cats IO, Monix or Zio. The example above shows the usage with cats IO.
   */
-object Parallel {
+object ParallelX {
 
   /** Entry point of the builder API for a parsing operation for tree of inputs.
     *
@@ -96,8 +101,8 @@ object Parallel {
     *   .parse  
     * }}}
     */
-  def apply (parser: ParserBuilder): text.ParallelParser.Builder = 
-    text.ParallelParser.Builder(NonEmptyList.of(parser.build))
+//  def apply (parser: ParserBuilder): text.ParallelParser.Builder = 
+//    text.ParallelParser.Builder(NonEmptyList.of(parser.build))
 
   /** Entry point of the builder API for a rendering operation to a tree of character outputs.
     *
@@ -121,8 +126,8 @@ object Parallel {
     *   .render  
     * }}}
     */
-  def apply (renderer: RendererBuilder[_]): text.ParallelRenderer.Builder = 
-    text.ParallelRenderer.Builder(renderer.build)
+//  def apply (renderer: RendererBuilder[_]): text.ParallelRenderer.Builder = 
+//    text.ParallelRenderer.Builder(renderer.build)
 
   /** Entry point of the builder API for a transformation from a tree of inputs to a tree of character outputs.
     *
@@ -147,8 +152,8 @@ object Parallel {
     *   .transform  
     * }}}
     */
-  def apply (transformer: TransformerBuilder[_]): text.ParallelTransformer.Builder = 
-    text.ParallelTransformer.Builder(transformer.build)
+//  def apply (transformer: TransformerBuilder[_]): text.ParallelTransformer.Builder = 
+//    text.ParallelTransformer.Builder(transformer.build)
 
   /** Entry point of the builder API for a rendering operation that renders a document tree merged into a single binary 
     * output.
@@ -173,8 +178,8 @@ object Parallel {
     *   .render  
     * }}}
     */
-  def apply (renderer: TwoPhaseRendererBuilder[_, BinaryPostProcessor]): binary.ParallelRenderer.Builder = 
-    binary.ParallelRenderer.Builder(renderer.build)
+//  def apply (renderer: TwoPhaseRendererBuilder[_, BinaryPostProcessor]): binary.ParallelRenderer.Builder = 
+//    binary.ParallelRenderer.Builder(renderer.build)
 
   /** Entry point of the builder API for a transformation from a tree of inputs merged into to a single binary output.
     *
@@ -199,8 +204,8 @@ object Parallel {
     *   .transform  
     * }}}
     */
-  def apply (transformer: TwoPhaseTransformerBuilder[_, BinaryPostProcessor]): binary.ParallelTransformer.Builder = 
-    binary.ParallelTransformer.Builder(transformer.build)
+//  def apply (transformer: TwoPhaseTransformerBuilder[_, BinaryPostProcessor]): binary.ParallelTransformer.Builder = 
+//    binary.ParallelTransformer.Builder(transformer.build)
 
   /** Entry point of the builder API for a parsing operation for tree of inputs.
     *
@@ -223,7 +228,7 @@ object Parallel {
     *   .parse  
     * }}}
     */
-  def apply (parser: MarkupParser): text.ParallelParser.Builder = text.ParallelParser.Builder(NonEmptyList.of(parser))
+  //def apply (parser: MarkupParser): text.ParallelParser.Builder = text.ParallelParser.Builder(NonEmptyList.of(parser))
 
   /** Entry point of the builder API for a rendering operation to a tree of character outputs.
     *
@@ -247,7 +252,7 @@ object Parallel {
     *   .render  
     * }}}
     */
-  def apply (renderer: Renderer): text.ParallelRenderer.Builder = text.ParallelRenderer.Builder(renderer)
+  //def apply (renderer: Renderer): text.ParallelRenderer.Builder = text.ParallelRenderer.Builder(renderer)
 
   /** Entry point of the builder API for a transformation from a tree of inputs to a tree of character outputs.
     *
@@ -272,7 +277,7 @@ object Parallel {
     *   .transform  
     * }}}
     */
-  def apply (transformer: Transformer): text.ParallelTransformer.Builder = text.ParallelTransformer.Builder(transformer)
+  //def apply (transformer: Transformer): text.ParallelTransformer.Builder = text.ParallelTransformer.Builder(transformer)
 
   /** Entry point of the builder API for a rendering operation that renders a document tree merged into a single binary 
     * output.
@@ -297,8 +302,8 @@ object Parallel {
     *   .render  
     * }}}
     */
-  def apply (renderer: TwoPhaseRenderer[BinaryPostProcessor]): binary.ParallelRenderer.Builder = 
-    binary.ParallelRenderer.Builder(renderer)
+//  def apply (renderer: TwoPhaseRenderer[BinaryPostProcessor]): binary.ParallelRenderer.Builder = 
+//    binary.ParallelRenderer.Builder(renderer)
 
   /** Entry point of the builder API for a transformation from a tree of inputs merged into to a single binary output.
     *
@@ -323,7 +328,7 @@ object Parallel {
     *   .transform  
     * }}}
     */
-  def apply (transformer: TwoPhaseTransformer[BinaryPostProcessor]): binary.ParallelTransformer.Builder = 
-    binary.ParallelTransformer.Builder(transformer)
+//  def apply (transformer: TwoPhaseTransformer[BinaryPostProcessor]): binary.ParallelTransformer.Builder = 
+//    binary.ParallelTransformer.Builder(transformer)
 
 }

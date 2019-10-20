@@ -23,6 +23,7 @@ import laika.api.builder.{BundleFilter, ParserBuilder}
 import laika.api.{MarkupParser, Renderer}
 import laika.factory.{BinaryPostProcessor, MarkupFormat, RenderFormat, TwoPhaseRenderFormat}
 import laika.format._
+import laika.io.implicits._
 import laika.io.model._
 import laika.runtime.DirectoryScanner
 import laika.sbt.LaikaPlugin.autoImport._
@@ -72,9 +73,11 @@ object Tasks {
       parser.withConfig(mergedConfig).using(laikaExtensions.value: _*)
     }
     
-    val parser = laika.io.Parallel(createParser(Markdown))
-      .or(createParser(ReStructuredText))
-      .build[IO](blocker)
+    val parser = createParser(Markdown)
+      .io(blocker)
+      .parallel[IO]
+      .withAlternativeParser(createParser(ReStructuredText))
+      .build
 
     val inputs = DirectoryInput((sourceDirectories in Laika).value, laikaConfig.value.encoding, parser.config.docTypeMatcher,
       (excludeFilter in Laika).value.accept)
@@ -98,10 +101,12 @@ object Tasks {
 
       if (!targetDir.exists) targetDir.mkdirs()
  
-      laika.io.Parallel {
-        Renderer.of(format).withConfig(parser.config)
-      }
-        .build[IO](blocker)
+      Renderer
+        .of(format)
+        .withConfig(parser.config)
+        .io(blocker)
+        .parallel[IO]
+        .build
         .from(tree.root)
         .copying(IO.pure(tree.staticDocuments))
         .toDirectory(targetDir)(laikaConfig.value.encoding)
@@ -117,10 +122,12 @@ object Tasks {
     def renderWithProcessor[FMT] (format: TwoPhaseRenderFormat[FMT,BinaryPostProcessor], targetFile: File, formatDesc: String): Set[File] = {
       targetFile.getParentFile.mkdirs()
 
-      laika.io.Parallel {
-        Renderer.of(format).withConfig(parser.config)
-      }
-        .build[IO](blocker)
+      Renderer
+        .of(format)
+        .withConfig(parser.config)
+        .io(blocker)
+        .parallel[IO]
+        .build
         .from(tree.root)
         .toFile(targetFile)
         .render

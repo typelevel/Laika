@@ -22,6 +22,7 @@ import cats.effect.{ContextShift, IO}
 import laika.api.Renderer
 import laika.ast.helper.ModelBuilder
 import laika.format._
+import laika.io.implicits._
 import laika.io.helper.OutputBuilder
 import laika.io.text.SequentialRenderer
 import laika.runtime.TestContexts.blocker
@@ -37,7 +38,7 @@ class SequentialRendererSpec extends FlatSpec
 
   implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
   
-  val renderer: SequentialRenderer[IO] = Sequential(Renderer.of(AST)).build[IO](blocker)
+  val renderer: SequentialRenderer[IO] = Renderer.of(AST).io(blocker).sequential[IO].build
   
   val rootElem = root(p("aaö"), p("bbb"))
 

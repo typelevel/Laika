@@ -77,7 +77,7 @@ object Sequential {
     *   .parse  
     * }}}
     */
-  def apply (parser: ParserBuilder): text.SequentialParser.Builder = text.SequentialParser.Builder(parser.build)
+  //def apply (parser: ParserBuilder): text.SequentialParser.Builder = text.SequentialParser.Builder(parser.build)
 
   /** Entry point of the builder API for a rendering operation for a single character output.
     *
@@ -101,8 +101,8 @@ object Sequential {
     *   .render  
     * }}}
     */
-  def apply (renderer: RendererBuilder[_]): text.SequentialRenderer.Builder = 
-    text.SequentialRenderer.Builder(renderer.build)
+//  def apply (renderer: RendererBuilder[_]): text.SequentialRenderer.Builder = 
+//    text.SequentialRenderer.Builder(renderer.build)
 
   /** Entry point of the builder API for a transformation from a single input to a single character output.
     *
@@ -127,8 +127,8 @@ object Sequential {
     *   .transform  
     * }}}
     */
-  def apply (transformer: TransformerBuilder[_]): text.SequentialTransformer.Builder = 
-    text.SequentialTransformer.Builder(transformer.build)
+//  def apply (transformer: TransformerBuilder[_]): text.SequentialTransformer.Builder = 
+//    text.SequentialTransformer.Builder(transformer.build)
 
   /** Entry point of the builder API for a rendering operation for a single binary output.
     *
@@ -152,8 +152,8 @@ object Sequential {
     *   .render  
     * }}}
     */
-  def apply (renderer: TwoPhaseRendererBuilder[_, BinaryPostProcessor]): binary.SequentialRenderer.Builder = 
-    binary.SequentialRenderer.Builder(renderer.build)
+//  def apply (renderer: TwoPhaseRendererBuilder[_, BinaryPostProcessor]): binary.SequentialRenderer.Builder = 
+//    binary.SequentialRenderer.Builder(renderer.build)
 
   /** Entry point of the builder API for a transformation from a single input to a single binary output.
     *
@@ -178,8 +178,8 @@ object Sequential {
     *   .transform  
     * }}}
     */
-  def apply (transformer: TwoPhaseTransformerBuilder[_, BinaryPostProcessor]): binary.SequentialTransformer.Builder = 
-    binary.SequentialTransformer.Builder(transformer.build)
+//  def apply (transformer: TwoPhaseTransformerBuilder[_, BinaryPostProcessor]): binary.SequentialTransformer.Builder = 
+//    binary.SequentialTransformer.Builder(transformer.build)
 
   /** Entry point of the builder API for a parsing operation for a single input.
     *
@@ -202,7 +202,7 @@ object Sequential {
     *   .parse  
     * }}}
     */
-  def apply (parser: MarkupParser): text.SequentialParser.Builder = text.SequentialParser.Builder(parser)
+  //def apply (parser: MarkupParser): text.SequentialParser.Builder = text.SequentialParser.Builder(parser)
 
   /** Entry point of the builder API for a rendering operation for a single character output.
     *
@@ -226,7 +226,7 @@ object Sequential {
     *   .render  
     * }}}
     */
-  def apply (renderer: Renderer): text.SequentialRenderer.Builder = text.SequentialRenderer.Builder(renderer)
+  //def apply (renderer: Renderer): text.SequentialRenderer.Builder = text.SequentialRenderer.Builder(renderer)
 
   /** Entry point of the builder API for a transformation from a single input to a single character output.
     *
@@ -251,8 +251,8 @@ object Sequential {
     *   .transform  
     * }}}
     */
-  def apply (transformer: Transformer): text.SequentialTransformer.Builder = 
-    text.SequentialTransformer.Builder(transformer)
+//  def apply (transformer: Transformer): text.SequentialTransformer.Builder = 
+//    text.SequentialTransformer.Builder(transformer)
 
   /** Entry point of the builder API for a rendering operation for a single binary output.
     *
@@ -276,8 +276,8 @@ object Sequential {
     *   .render  
     * }}}
     */
-  def apply (renderer: TwoPhaseRenderer[BinaryPostProcessor]): binary.SequentialRenderer.Builder = 
-    binary.SequentialRenderer.Builder(renderer)
+//  def apply (renderer: TwoPhaseRenderer[BinaryPostProcessor]): binary.SequentialRenderer.Builder = 
+//    binary.SequentialRenderer.Builder(renderer)
 
   /** Entry point of the builder API for a transformation from a single input to a single binary output.
     *
@@ -302,7 +302,7 @@ object Sequential {
     *   .transform  
     * }}}
     */
-  def apply (transformer: TwoPhaseTransformer[BinaryPostProcessor]): binary.SequentialTransformer.Builder = 
-    binary.SequentialTransformer.Builder(transformer)
+//  def apply (transformer: TwoPhaseTransformer[BinaryPostProcessor]): binary.SequentialTransformer.Builder = 
+//    binary.SequentialTransformer.Builder(transformer)
 
 }  

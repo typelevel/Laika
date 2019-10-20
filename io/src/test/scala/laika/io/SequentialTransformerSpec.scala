@@ -21,6 +21,7 @@ import java.io._
 import cats.effect.{ContextShift, IO}
 import laika.api.Transformer
 import laika.format._
+import laika.io.implicits._
 import laika.io.text.SequentialTransformer
 import laika.runtime.TestContexts.blocker
 import org.scalatest.{FlatSpec, Matchers}
@@ -33,7 +34,8 @@ class SequentialTransformerSpec extends FlatSpec
 
   implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
 
-  val transformer: SequentialTransformer[IO] = Sequential(Transformer.from(Markdown).to(AST)).build[IO](blocker)
+  val transformer: SequentialTransformer[IO] = 
+    Transformer.from(Markdown).to(AST).io(blocker).sequential[IO].build
   
   
   val input = """# Title äöü

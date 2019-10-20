@@ -46,15 +46,11 @@ object SequentialParser {
   /** Builder step that allows to specify the execution context
     * for blocking IO and CPU-bound tasks.
     */
-  case class Builder (parser: MarkupParser) {
+  case class Builder[F[_]: Async: Runtime] (parser: MarkupParser) {
 
-    /** Builder step that allows to specify the execution context
-      * for blocking IO and CPU-bound tasks.
-      *
-      * @param blocker the execution context for blocking IO
+    /** Final builder step that creates a sequential parser.
       */
-    def build[F[_]: Async: ContextShift] (blocker: Blocker): SequentialParser[F] =
-      new SequentialParser[F](parser)(implicitly[Async[F]], Runtime.sequential(blocker))
+    def build: SequentialParser[F] = new SequentialParser[F](parser)
 
   }
 

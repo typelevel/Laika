@@ -53,7 +53,7 @@ object ParallelParser {
   /** Builder step that allows to specify the execution context
     * for blocking IO and CPU-bound tasks.
     */
-  case class Builder (parsers: NonEmptyList[MarkupParser]) {
+  case class Builder[F[_]: Async: Runtime] (parsers: NonEmptyList[MarkupParser]) {
 
     /** Specifies an additional parser for text markup.
       * 
@@ -61,7 +61,7 @@ object ParallelParser {
       * will be determined by the suffix of the input document, e.g.
       * `.md` for Markdown and `.rst` for reStructuredText.
       */
-    def or (parser: MarkupParser): Builder = copy(parsers = parsers.append(parser))
+    def withAlternativeParser (parser: MarkupParser): Builder[F] = copy(parsers = parsers.append(parser))
 
     /** Specifies an additional parser for text markup.
       *
@@ -69,27 +69,11 @@ object ParallelParser {
       * will be determined by the suffix of the input document, e.g.
       * `.md` for Markdown and `.rst` for reStructuredText.
       */
-    def or (parser: ParserBuilder): Builder = copy(parsers = parsers.append(parser.build))
+    def withAlternativeParser (parser: ParserBuilder): Builder[F] = copy(parsers = parsers.append(parser.build))
 
-    /** Builder step that allows to specify the execution context
-      * for blocking IO and CPU-bound tasks.
-      *
-      * @param blocker the execution context for blocking IO
-      * @param parallelism the desired level of parallelism for all tree operations                       
+    /** Final builder step that creates a parallel parser.
       */
-    def build[F[_]: Async: Parallel: ContextShift](blocker: Blocker, parallelism: Int): ParallelParser[F] =
-      new ParallelParser[F](parsers)(implicitly[Async[F]], Runtime.parallel(blocker, parallelism))
-
-    /** Builder step that allows to specify the execution context
-      * for blocking IO and CPU-bound tasks.
-      * 
-      * The level of parallelism is determined from the number of available CPUs.
-      * Use the other `build` method if you want to specify the parallelism explicitly.
-      *
-      * @param blocker the execution context for blocking IO
-      */
-    def build[F[_]: Async: Parallel: ContextShift](blocker: Blocker): ParallelParser[F] =
-      build(blocker, java.lang.Runtime.getRuntime.availableProcessors)
+    def build: ParallelParser[F] = new ParallelParser[F](parsers)
 
   }
 
