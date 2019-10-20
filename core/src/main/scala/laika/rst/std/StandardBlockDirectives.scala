@@ -17,7 +17,7 @@
 package laika.rst.std
 
 import laika.ast._
-import laika.parse.hocon.HoconParsers.{Field, ObjectValue, StringValue}
+import laika.config.{Field, ObjectValue, StringValue}
 import laika.parse.markup.RecursiveParsers
 import laika.rst.ast.{Contents, FieldList, Include}
 import laika.rst.ext.Directives.Parts._

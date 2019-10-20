@@ -17,9 +17,8 @@
 package laika.rewrite
 
 import laika.config.Config.ConfigResult
-import laika.config.{Config, ConfigBuilder}
+import laika.config.{ASTValue, Config, ConfigBuilder, ConfigValue, Field, ObjectValue}
 import laika.ast.{Document, Path, SpanSequence, TreeCursor}
-import laika.parse.hocon.HoconParsers.{ASTValue, ConfigValue, Field, ObjectValue}
 
 /** A resolver for context references in templates or markup documents.
  *  

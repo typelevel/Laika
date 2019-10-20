@@ -16,11 +16,10 @@
 
 package laika.runtime
 
-import laika.config.{Config, ConfigError}
+import laika.config.{Config, ConfigError, Origin}
 import laika.ast.Path.Root
 import laika.ast.{Document, DocumentTree, DocumentTreeRoot, Navigatable, Path, StyleDeclarationSet, TemplateDocument, TreeBuilder, UnresolvedDocument}
 import laika.bundle.UnresolvedConfig
-import laika.parse.hocon.HoconParsers.Origin
 import cats.implicits._
 
 /**

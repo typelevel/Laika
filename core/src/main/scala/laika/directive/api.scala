@@ -17,12 +17,11 @@
 package laika.directive
 
 import cats.{Functor, Semigroupal}
-import laika.config.{Config, ConfigDecoder, ObjectConfig}
+import laika.config.{Config, ConfigDecoder, ConfigValue, ObjectConfig, Origin, Traced}
 import laika.ast.{TemplateSpan, _}
 import laika.collection.TransitionalCollectionOps._
 import laika.parse.directive.DirectiveParsers.ParsedDirective
 import laika.parse.hocon.ConfigResolver
-import laika.parse.hocon.HoconParsers.{ConfigValue, Origin, Traced}
 import laika.parse.{Failure, Success}
 
 import scala.reflect.ClassTag

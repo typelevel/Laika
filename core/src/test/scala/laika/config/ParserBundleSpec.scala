@@ -16,7 +16,6 @@
 
 package laika.config
 
-import laika.config.{Config, ConfigBuilder}
 import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
@@ -26,7 +25,6 @@ import laika.factory.MarkupFormat
 import laika.parse.{Parser, ParserContext}
 import laika.parse.combinator.Parsers
 import laika.parse.css.CSSParsers
-import laika.parse.directive.ConfigHeaderParser
 import laika.parse.markup.DocumentParser.ParserInput
 import laika.parse.text.TextParsers
 import org.scalatest.{Matchers, WordSpec}

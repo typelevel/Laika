@@ -16,13 +16,12 @@
 
 package laika.parse.directive
 
-import laika.config.Key
+import laika.config.{Key, StringValue}
 import laika.ast._
 import laika.bundle.{BlockParser, BlockParserBuilder, SpanParser, SpanParserBuilder}
 import laika.directive._
 import laika.parse.Parser
-import laika.parse.hocon.HoconParsers
-import laika.parse.hocon.HoconParsers.{BuilderField, ObjectBuilderValue, ResolvedBuilderValue, StringValue, SubstitutionValue}
+import laika.parse.hocon.{BuilderField, HoconParsers, ObjectBuilderValue, ResolvedBuilderValue}
 import laika.parse.markup.{EscapedTextParsers, RecursiveParsers, RecursiveSpanParsers}
 import laika.parse.text.TextParsers._
 

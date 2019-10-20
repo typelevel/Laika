@@ -17,10 +17,9 @@
 package laika.ast
 
 import laika.config.Config.ConfigResult
-import laika.config.{Config, ConfigEncoder}
+import laika.config.{Config, ConfigEncoder, ConfigValue}
 import laika.ast.Path.Root
 import laika.collection.TransitionalCollectionOps._
-import laika.parse.hocon.HoconParsers.ConfigValue
 import laika.rewrite.ReferenceResolver
 import laika.rewrite.nav.NavigationOrder
 

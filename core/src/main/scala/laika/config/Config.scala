@@ -18,7 +18,6 @@ package laika.config
 
 import laika.config.Config.ConfigResult
 import laika.ast.Path
-import laika.parse.hocon.HoconParsers.{Field, ObjectValue, Origin, Traced}
 
 /**
   * @author Jens Halm

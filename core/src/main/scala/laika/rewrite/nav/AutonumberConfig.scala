@@ -16,8 +16,7 @@
 
 package laika.rewrite.nav
 
-import laika.config.{Config, ConfigDecoder, DefaultKey, InvalidType, ValidationError}
-import laika.parse.hocon.HoconParsers.{ObjectValue, Traced}
+import laika.config.{Config, ConfigDecoder, DefaultKey, InvalidType, ObjectValue, Traced, ValidationError}
 
 /** Configuration for autonumbering of documents and sections.
  */

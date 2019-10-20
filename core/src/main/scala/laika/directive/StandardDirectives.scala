@@ -17,9 +17,8 @@
 package laika.directive
 
 import cats.implicits._
-import laika.config.Key
+import laika.config.{ArrayValue, BooleanValue, ConfigValue, Key, NullValue, ObjectValue, StringValue}
 import laika.ast._
-import laika.parse.hocon.HoconParsers.{ArrayValue, BooleanValue, ConfigValue, NullValue, ObjectValue, StringValue}
 import laika.rewrite.TemplateRewriter
 import laika.rewrite.nav.TocGenerator
 

@@ -17,7 +17,6 @@
 package laika.config
 
 import laika.ast.Path
-import laika.parse.hocon.HoconParsers.Origin
 import laika.parse.hocon.{ConfigResolver, HoconParsers}
 
 /**

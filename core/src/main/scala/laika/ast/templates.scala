@@ -16,9 +16,9 @@
 
 package laika.ast
 
+import laika._
 import laika.config.Config.ConfigResult
-import laika.config.Key
-import laika.parse.hocon.HoconParsers.{ASTValue, ConfigValue, LongValue, StringValue}
+import laika.config.{ASTValue, ConfigValue, Key, LongValue, StringValue}
 import laika.rewrite.TemplateRewriter
 
 /** Represents a placeholder inline element that needs

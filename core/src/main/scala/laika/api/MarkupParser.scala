@@ -20,10 +20,10 @@ import laika.api.builder.ParserBuilder
 import laika.ast.{Document, DocumentCursor, EmbeddedConfigValue, Path, UnresolvedDocument}
 import laika.ast.Path.Root
 import laika.api.builder.OperationConfig
+import laika.config.{ConfigValue, Origin}
 import laika.factory.MarkupFormat
 import laika.parse.ParserContext
 import laika.parse.directive.ConfigHeaderParser
-import laika.parse.hocon.HoconParsers.{ConfigValue, Origin}
 import laika.parse.markup.DocumentParser
 import laika.parse.markup.DocumentParser.{ParserError, ParserInput}
 import laika.rewrite.TemplateRewriter

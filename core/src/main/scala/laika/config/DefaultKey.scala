@@ -14,20 +14,15 @@
  * limitations under the License.
  */
 
-package laika.parse.hocon
-
-import laika.config.{BooleanValue, DoubleValue, LongValue, NullValue, StringValue}
+package laika.config
 
 /**
   * @author Jens Halm
   */
-trait ResultBuilders {
+trait DefaultKey[T] {
+  def value: String
+}
 
-  val nullValue: ConfigBuilderValue = ResolvedBuilderValue(NullValue)
-  val trueValue: ConfigBuilderValue = ResolvedBuilderValue(BooleanValue(true))
-  val falseValue: ConfigBuilderValue = ResolvedBuilderValue(BooleanValue(false))
-  def longValue(value: Long): ConfigBuilderValue = ResolvedBuilderValue(LongValue(value))
-  def doubleValue(value: Double): ConfigBuilderValue = ResolvedBuilderValue(DoubleValue(value))
-  def stringValue(value: String): ConfigBuilderValue = ResolvedBuilderValue(StringValue(value))
-  
+object DefaultKey {
+  def apply[T](key: String): DefaultKey[T] = new DefaultKey[T] { val value: String = key }
 }

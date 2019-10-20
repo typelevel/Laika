@@ -18,12 +18,11 @@ package laika.rst.std
 
 import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
-import laika.config.Key
 import laika.ast.Path.{Current, Root}
 import laika.ast._
 import laika.ast.helper.ModelBuilder
+import laika.config.{ConfigValue, Field, Key, ObjectValue, StringValue}
 import laika.format.ReStructuredText
-import laika.parse.hocon.HoconParsers.{ConfigValue, Field, ObjectValue, StringValue}
 import laika.rewrite.TemplateRewriter
 import laika.rst.ast.{Contents, Include}
 import org.scalatest.{FlatSpec, Matchers}

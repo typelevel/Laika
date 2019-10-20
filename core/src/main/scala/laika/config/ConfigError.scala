@@ -14,20 +14,21 @@
  * limitations under the License.
  */
 
-package laika.parse.hocon
+package laika.config
 
-import laika.config.{BooleanValue, DoubleValue, LongValue, NullValue, StringValue}
+import laika.ast.Path
 
 /**
   * @author Jens Halm
   */
-trait ResultBuilders {
+sealed trait ConfigError
+trait ConfigBuilderError
 
-  val nullValue: ConfigBuilderValue = ResolvedBuilderValue(NullValue)
-  val trueValue: ConfigBuilderValue = ResolvedBuilderValue(BooleanValue(true))
-  val falseValue: ConfigBuilderValue = ResolvedBuilderValue(BooleanValue(false))
-  def longValue(value: Long): ConfigBuilderValue = ResolvedBuilderValue(LongValue(value))
-  def doubleValue(value: Double): ConfigBuilderValue = ResolvedBuilderValue(DoubleValue(value))
-  def stringValue(value: String): ConfigBuilderValue = ResolvedBuilderValue(StringValue(value))
-  
+case class InvalidType(expected: String, actual: String) extends ConfigError
+case class ConversionError(message: String) extends ConfigError {
+  override def toString: String = message // TODO - 0.12 - temp
 }
+case class ValidationError(message: String) extends ConfigError
+case class ConfigParserError(message: String) extends ConfigError
+case class ConfigResolverError(message: String) extends ConfigError
+case class NotFound(path: Path) extends ConfigError

@@ -16,11 +16,9 @@
 
 package laika.bundle
 
-import laika.config.{Config, ConfigError, ConfigParser}
+import laika.config.{Config, ConfigError, ConfigParser, Origin}
 import laika.parse.Parser
 import laika.parse.combinator.Parsers
-import laika.parse.hocon.HoconParsers
-import laika.parse.hocon.HoconParsers.Origin
 
 /** Factory for Config instances that add information
   * about the virtual path of the configuration within a Laika
@@ -58,7 +56,7 @@ object UnresolvedConfig {
   }
   
   def default (input: String): UnresolvedConfig = new UnresolvedConfig {
-    def resolve (origin: HoconParsers.Origin, fallback: Config) =
+    def resolve (origin: Origin, fallback: Config) =
       ConfigParser.parse(input).withFallback(fallback).resolve
   }
   

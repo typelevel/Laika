@@ -19,9 +19,8 @@ package laika.ast
 import java.text.DecimalFormat
 
 import laika.api.Renderer
-import laika.config.ConfigEncoder
+import laika.config.{ConfigEncoder, ConfigValue}
 import laika.format.AST
-import laika.parse.hocon.HoconParsers.ConfigValue
 
 import scala.math.Ordered
 

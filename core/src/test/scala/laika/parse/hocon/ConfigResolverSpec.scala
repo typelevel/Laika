@@ -16,9 +16,8 @@
 
 package laika.parse.hocon
 
-import laika.config.EmptyConfig
 import laika.ast.Path.Root
-import laika.parse.hocon.HoconParsers.{ArrayValue, BuilderField, Field, LongValue, ObjectBuilderValue, ObjectValue, StringValue}
+import laika.config.{ArrayValue, EmptyConfig, Field, LongValue, ObjectValue, StringValue}
 import org.scalatest.{Matchers, WordSpec}
 
 /**

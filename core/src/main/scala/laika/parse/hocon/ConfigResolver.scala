@@ -16,10 +16,9 @@
 
 package laika.parse.hocon
 
-import laika.config.Config
 import laika.ast.Path
-import laika.parse.hocon.HoconParsers._
 import laika.collection.TransitionalCollectionOps._
+import laika.config.{ArrayValue, BooleanValue, Config, ConfigValue, DoubleValue, Field, LongValue, NullValue, ObjectValue, StringValue}
 
 import scala.collection.mutable
 

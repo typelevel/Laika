@@ -16,9 +16,8 @@
 
 package laika.rewrite
 
-import laika.config.{ConfigError, Key}
+import laika.config.{ConfigError, Key, Origin}
 import laika.ast._
-import laika.parse.hocon.HoconParsers.Origin
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
