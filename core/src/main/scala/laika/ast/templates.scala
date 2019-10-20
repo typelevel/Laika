@@ -16,9 +16,8 @@
 
 package laika.ast
 
-import laika._
 import laika.config.Config.ConfigResult
-import laika.config.{ASTValue, ConfigValue, Key, LongValue, StringValue}
+import laika.config.{ASTValue, ConfigValue, Key, SimpleConfigValue}
 import laika.rewrite.TemplateRewriter
 
 /** Represents a placeholder inline element that needs
@@ -72,17 +71,18 @@ abstract class ContextReference[T <: Span] (ref: Path) extends SpanResolver {
  */
 case class TemplateContextReference (ref: Path, required: Boolean, options: Options = NoOpt) extends ContextReference[TemplateSpan](ref) with TemplateSpan {
   type Self = TemplateContextReference
+  
+  def error(message: String): TemplateSpan = InvalidElement(message, "${"+ref+"}").asTemplateSpan
 
   def result (value: ConfigResult[Option[ConfigValue]]): TemplateSpan = value match {
     case Right(Some(ASTValue(s: TemplateSpan)))        => s
     case Right(Some(ASTValue(RootElement(content,_)))) => EmbeddedRoot(content)
     case Right(Some(ASTValue(e: Element)))             => TemplateElement(e)
-    case Right(Some(StringValue(v)))                   => TemplateString(v)
-    case Right(Some(LongValue(v)))                     => TemplateString(v.toString)
-    case Right(Some(v))                                => TemplateString(v.toString) // TODO - 0.12 - properly convert
+    case Right(Some(simple: SimpleConfigValue))        => TemplateString(simple.render)
     case Right(None) if !required                      => TemplateString("")
-    case Right(None)                                   => InvalidElement(SystemMessage(MessageLevel.Error, s"Missing required reference: '$ref'"), "${"+ref+"}").asTemplateSpan
-    case Left(error)                                   => TemplateString("") // TODO - 0.12 - insert invalid element for left and unsupported Right
+    case Right(None)                                   => error(s"Missing required reference: '$ref'")
+    case Right(Some(unsupported))                      => error(s"Unsupported element type for reference: '$ref': TODO") // TODO - 0.12 - type descriptors
+    case Left(configError)                             => error(s"Error resolving reference: '$ref': ${configError.toString}") // TODO - 0.12 - ConfigError toString
   }
   def withOptions (options: Options): TemplateContextReference = copy(options = options)
 }
@@ -92,15 +92,16 @@ case class TemplateContextReference (ref: Path, required: Boolean, options: Opti
 case class MarkupContextReference (ref: Path, required: Boolean, options: Options = NoOpt) extends ContextReference[Span](ref) {
   type Self = MarkupContextReference
 
+  def error(message: String): Span = InvalidElement(message, "${"+ref+"}").asSpan
+  
   def result (value: ConfigResult[Option[ConfigValue]]): Span = value match {
-    case Right(Some(ASTValue(s: Span)))    => s
-    case Right(Some(ASTValue(e: Element))) => TemplateElement(e)
-    case Right(Some(StringValue(v)))       => Text(v)
-    case Right(Some(LongValue(v)))         => Text(v.toString)
-    case Right(Some(v))                    => Text(v.toString) // TODO - 0.12 - properly convert - use SimpleConfigValue.render
-    case Right(None) if !required          => Text("")
-    case Right(None)                       => InvalidElement(SystemMessage(MessageLevel.Error, s"Missing required reference: '$ref'"), "${"+ref+"}").asSpan
-    case Left(error)                       => Text("") // TODO - 0.12 - insert invalid element for left and unsupported Right
+    case Right(Some(ASTValue(s: Span)))         => s
+    case Right(Some(ASTValue(e: Element)))      => TemplateElement(e)
+    case Right(Some(simple: SimpleConfigValue)) => Text(simple.render)
+    case Right(None) if !required               => Text("")
+    case Right(None)                            => error(s"Missing required reference: '$ref'")
+    case Right(Some(unsupported))               => error(s"Unsupported element type for reference: '$ref': TODO") // TODO - 0.12 - type descriptors
+    case Left(configError)                      => error(s"Error resolving reference: '$ref': ${configError.toString}") // TODO - 0.12 - ConfigError toString
   }
   def withOptions (options: Options): MarkupContextReference = copy(options = options)
 }

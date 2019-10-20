@@ -17,7 +17,7 @@
 package laika.parse.hocon
 
 import laika.ast.Path
-import laika.config.ConfigValue
+import laika.config.SimpleConfigValue
 
 /**
   * @author Jens Halm
@@ -40,4 +40,4 @@ case class BuilderField(key: Path, value: ConfigBuilderValue)
 object BuilderField {
   def apply (key: String, value: ConfigBuilderValue): BuilderField = apply(Path.Root / key, value)
 }
-case class ResolvedBuilderValue(value: ConfigValue) extends ConfigBuilderValue
+case class ResolvedBuilderValue(value: SimpleConfigValue) extends ConfigBuilderValue

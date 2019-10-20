@@ -29,12 +29,28 @@ object Origin {
   val root: Origin = Origin(Path.Root)
 }
 
-case object NullValue extends ConfigValue
-case class BooleanValue(value: Boolean) extends ConfigValue
-case class DoubleValue(value: Double) extends ConfigValue
-case class LongValue(value: Long) extends ConfigValue
-case class StringValue(value: String) extends ConfigValue
+sealed trait SimpleConfigValue extends ConfigValue {
+  def render: String
+}
+
+case object NullValue extends SimpleConfigValue {
+  val render: String = null
+}
+case class BooleanValue(value: Boolean) extends SimpleConfigValue {
+  def render: String = value.toString
+}
+case class DoubleValue(value: Double) extends SimpleConfigValue {
+  def render: String = value.toString
+}
+case class LongValue(value: Long) extends SimpleConfigValue {
+  def render: String = value.toString
+}
+case class StringValue(value: String) extends SimpleConfigValue {
+  def render: String = value
+}
+
 case class ASTValue(value: Element) extends ConfigValue
+
 case class ArrayValue(values: Seq[ConfigValue]) extends ConfigValue {
   def isEmpty: Boolean = values.isEmpty
 }
