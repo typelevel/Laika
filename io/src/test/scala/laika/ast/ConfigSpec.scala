@@ -47,7 +47,7 @@ class ConfigSpec extends FlatSpec
     object Contents {
 
       val templateWithRef =
-        """<h1>${config.foo}</h1>
+        """<h1>${foo}</h1>
           |<div>${document.content}</div>
           |CCC""".stripMargin
 
@@ -66,16 +66,21 @@ class ConfigSpec extends FlatSpec
           |<div>${document.content}</div>
           |CCC""".stripMargin
 
-      val markup =
+      val templateWithoutConfig =
+        """<div>${document.content}</div>
+          |CCC""".stripMargin
+
+      val markupWithConfig =
         """{% foo: bar %}
           |aaa
           |bbb""".stripMargin
-
 
       val markupWithRef =
         """aaa
           |${config.foo}
           |bbb""".stripMargin
+      
+      val configDoc = """foo = bar"""
     }
     
     def resultOf (root: DocumentTreeRoot): RootElement = {
@@ -92,7 +97,7 @@ class ConfigSpec extends FlatSpec
   "The Config parser" should "parse configuration sections embedded in Markdown documents" in new Inputs {
     val inputs = Seq(
       Root / "default.template.html" -> Contents.templateWithRef,
-      Root / "input.md" -> Contents.markup
+      Root / "input.md" -> Contents.markupWithConfig
     )
     val expected = root(
       TemplateRoot(List(
@@ -109,7 +114,7 @@ class ConfigSpec extends FlatSpec
   it should "parse configuration sections embedded in reStructuredText documents" in new Inputs {
     val inputs = Seq(
       Root / "default.template.html" -> Contents.templateWithRef,
-      Root / "input.rst" -> Contents.markup
+      Root / "input.rst" -> Contents.markupWithConfig
     )
     val expected = root(
       TemplateRoot(List(
@@ -126,7 +131,7 @@ class ConfigSpec extends FlatSpec
   it should "insert an invalid element when a required context reference is missing" in new Inputs {
     val inputs = Seq(
       Root / "default.template.html" -> Contents.templateWithMissingRef,
-      Root / "input.rst" -> Contents.markup
+      Root / "input.rst" -> Contents.markupWithConfig
     )
     val expected = root(
       TemplateRoot(List(
@@ -143,7 +148,7 @@ class ConfigSpec extends FlatSpec
   it should "insert an empty string when an optional context reference is missing" in new Inputs {
     val inputs = Seq(
       Root / "default.template.html" -> Contents.templateWithOptRef,
-      Root / "input.rst" -> Contents.markup
+      Root / "input.rst" -> Contents.markupWithConfig
     )
     val expected = root(
       TemplateRoot(List(
@@ -157,30 +162,34 @@ class ConfigSpec extends FlatSpec
     resultOf(rstParser.fromInput(IO.pure(builder(inputs, rstMatcher))).parse.unsafeRunSync().root) should be (expected)
   }
 
-  it should "parse configuration sections embedded in template documents for Markdown" ignore new Inputs {
+  it should "make directory configuration available for references in markup" in new Inputs {
     val inputs = Seq(
-      Root / "default.template.html" -> Contents.templateWithConfig,
+      Root / "directory.conf" -> Contents.configDoc,
+      Root / "default.template.html" -> Contents.templateWithoutConfig,
       Root / "input.md" -> Contents.markupWithRef
     )
     val expected = root(
       TemplateRoot(List(
         TemplateString("<div>"),
-        eRoot(p(txt("aaa\n"),txt("bar"),txt("\nbbb"))),
+        eRoot(p(txt("aaa\nbar\nbbb"))),
         TemplateString("</div>\nCCC")
       ))
     )
     resultOf(markdownParser.fromInput(IO.pure(builder(inputs, mdMatcher))).parse.unsafeRunSync().root) should be (expected)
   }
 
-  it should "parse configuration sections embedded in template documents for reStructuredText" ignore new Inputs {
+  it should "make directory configuration available for references in templates" in new Inputs {
     val inputs = Seq(
-      Root / "default.template.html" -> Contents.templateWithConfig,
-      Root / "input.rst" -> Contents.markupWithRef
+      Root / "directory.conf" -> Contents.configDoc,
+      Root / "default.template.html" -> Contents.templateWithRef,
+      Root / "input.rst" -> "txt"
     )
     val expected = root(
       TemplateRoot(List(
-        TemplateString("<div>"),
-        eRoot(p(txt("aaa\n"),txt("bar"),txt("\nbbb"))),
+        TemplateString("<h1>"),
+        TemplateString("bar"),
+        TemplateString("</h1>\n<div>"),
+        eRoot(p(txt("txt"))),
         TemplateString("</div>\nCCC")
       ))
     )
