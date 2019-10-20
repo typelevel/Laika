@@ -51,6 +51,16 @@ class ConfigSpec extends FlatSpec
           |<div>${document.content}</div>
           |CCC""".stripMargin
 
+      val templateWithMissingRef =
+        """<h1>${config.foox}</h1>
+          |<div>${document.content}</div>
+          |CCC""".stripMargin
+
+      val templateWithOptRef =
+        """<h1>${?config.foox}</h1>
+          |<div>${document.content}</div>
+          |CCC""".stripMargin
+
       val templateWithConfig =
         """{% foo: bar %}
           |<div>${document.content}</div>
@@ -105,6 +115,40 @@ class ConfigSpec extends FlatSpec
       TemplateRoot(List(
         TemplateString("<h1>"),
         TemplateString("bar"),
+        TemplateString("</h1>\n<div>"),
+        eRoot(p("aaa\nbbb")),
+        TemplateString("</div>\nCCC")
+      ))
+    )
+    resultOf(rstParser.fromInput(IO.pure(builder(inputs, rstMatcher))).parse.unsafeRunSync().root) should be (expected)
+  }
+
+  it should "insert an invalid element when a required context reference is missing" in new Inputs {
+    val inputs = Seq(
+      Root / "default.template.html" -> Contents.templateWithMissingRef,
+      Root / "input.rst" -> Contents.markup
+    )
+    val expected = root(
+      TemplateRoot(List(
+        TemplateString("<h1>"),
+        InvalidElement(SystemMessage(MessageLevel.Error, "Missing required reference: '/config/foox'"), "${/config/foox}").asTemplateSpan,
+        TemplateString("</h1>\n<div>"),
+        eRoot(p("aaa\nbbb")),
+        TemplateString("</div>\nCCC")
+      ))
+    )
+    resultOf(rstParser.fromInput(IO.pure(builder(inputs, rstMatcher))).parse.unsafeRunSync().root) should be (expected)
+  }
+
+  it should "insert an empty string when an optional context reference is missing" in new Inputs {
+    val inputs = Seq(
+      Root / "default.template.html" -> Contents.templateWithOptRef,
+      Root / "input.rst" -> Contents.markup
+    )
+    val expected = root(
+      TemplateRoot(List(
+        TemplateString("<h1>"),
+        TemplateString(""),
         TemplateString("</h1>\n<div>"),
         eRoot(p("aaa\nbbb")),
         TemplateString("</div>\nCCC")
