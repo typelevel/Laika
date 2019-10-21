@@ -234,6 +234,17 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
       ))
     }
 
+    "ignore an optional, missing reference" in {
+      val input =
+        """
+          |a = ${?x}
+          |b = 5
+        """.stripMargin
+      parseAndResolve(input) shouldBe ObjectValue(Seq(
+        Field("b", LongValue(5))
+      ))
+    }
+
     "resolve a backward looking reference to a simple value with a common path segment" in {
       val input =
         """
@@ -320,6 +331,16 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
       ))
     }
 
+    "ignore a missing, optional reference in a concatenated string" in {
+      val input =
+        """
+          |a = ${?x} or no
+        """.stripMargin
+      parseAndResolve(input) shouldBe ObjectValue(Seq(
+        Field("a", StringValue(" or no"))
+      ))
+    }
+
     "resolve a backward looking reference in a concatenated array" in {
       val input =
         """
@@ -341,6 +362,16 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
       parseAndResolve(input) shouldBe ObjectValue(Seq(
         Field("a", ArrayValue(Seq(LongValue(1), LongValue(2), LongValue(3), LongValue(4)))),
         Field("b", ArrayValue(Seq(LongValue(1), LongValue(2))))
+      ))
+    }
+
+    "ignore a missing, optional reference in a concatenated array" in {
+      val input =
+        """
+          |a = [1,2] ${?x} [3,4]
+        """.stripMargin
+      parseAndResolve(input) shouldBe ObjectValue(Seq(
+        Field("a", ArrayValue(Seq(LongValue(1), LongValue(2), LongValue(3), LongValue(4))))
       ))
     }
 
@@ -411,6 +442,19 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
       ))
     }
 
+    "ignore an optional, missing reference in a concatenated object" in {
+      val input =
+        """
+          |a = ${b} { a = 5, b = 7 }
+        """.stripMargin
+      parseAndResolve(input) shouldBe ObjectValue(Seq(
+        Field("a", ObjectValue(Seq(
+          Field("a", LongValue(5)),
+          Field("b", LongValue(7))
+        )))
+      ))
+    }
+
     "resolve a backward looking reference in a merged object" in {
       val input =
         """
@@ -443,6 +487,20 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
         ))),
         Field("b", ObjectValue(Seq(
           Field("d", LongValue(7)),
+        )))
+      ))
+    }
+
+    "ignore a missing, optional reference in a merged object" in {
+      val input =
+        """
+          |b = { c = 5, d = 7 }
+          |b = ${?x}
+        """.stripMargin
+      parseAndResolve(input) shouldBe ObjectValue(Seq(
+        Field("b", ObjectValue(Seq(
+          Field("c", LongValue(5)),
+          Field("d", LongValue(7))
         )))
       ))
     }
