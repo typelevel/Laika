@@ -53,7 +53,7 @@ object ConfigResolver {
       case o: ObjectBuilderValue   => Some(resolveObject(o, path))
       case a: ArrayBuilderValue    => Some(ArrayValue(a.values.flatMap(resolveValue(path)))) // TODO - adjust path?
       case r: ResolvedBuilderValue => Some(r.value)
-      case c: ConcatValue          => c.allParts.flatMap(resolveConcatPart(path)).reduceOption(concat)
+      case c: ConcatValue          => c.allParts.flatMap(resolveConcatPart(path)).reduceOption(concat(path))
       case m: MergedValue          => resolveMergedValue(path: Path)(m.values.reverse)
       case SelfReference           => None
       case SubstitutionValue(ref, optional) =>
@@ -115,13 +115,15 @@ object ConfigResolver {
       }
     } 
 
-    def concat(v1: ConfigValue, v2: ConfigValue): ConfigValue = {
+    def concat(path: Path)(v1: ConfigValue, v2: ConfigValue): ConfigValue = {
       (v1, v2) match {
         case (o1: ObjectValue, o2: ObjectValue) => deepMerge(o1, o2)
         case (a1: ArrayValue, a2: ArrayValue) => ArrayValue(a1.values ++ a2.values)
         case (s1: StringValue, s2: StringValue) => StringValue(s1.value ++ s2.value)
         case (NullValue, a2: ArrayValue) => a2
-        case (c1, c2) => NullValue // TODO - invalid combination of concat values
+        case _ => 
+          invalidPaths += ((path, s"Invalid concatenation of values. It must contain either only objects, only arrays or only simple values"))
+          NullValue
       }
     }
     

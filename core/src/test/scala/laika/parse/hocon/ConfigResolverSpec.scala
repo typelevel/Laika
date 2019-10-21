@@ -397,6 +397,16 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
       parseAndResolveForFailure(input) shouldBe Left(ConfigResolverError("One or more errors resolving configuration: 'a': Missing required reference: 'x'"))
     }
 
+    "fail when the combination of types is invalid in concatenated field" in {
+      val input =
+        """
+          |a = { x = 9 }
+          |b = [1,2] ${a} [3,4]
+        """.stripMargin
+      val msg = "One or more errors resolving configuration: 'b': Invalid concatenation of values. It must contain either only objects, only arrays or only simple values"
+      parseAndResolveForFailure(input) shouldBe Left(ConfigResolverError(msg))
+    }
+
     "resolve a self reference in a concatenated array" in {
       val input =
         """
