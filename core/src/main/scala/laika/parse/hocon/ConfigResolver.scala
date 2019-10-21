@@ -18,7 +18,7 @@ package laika.parse.hocon
 
 import laika.ast.Path
 import laika.collection.TransitionalCollectionOps._
-import laika.config.{ASTValue, ArrayValue, Config, ConfigValue, Field, NullValue, ObjectValue, SimpleConfigValue, StringValue}
+import laika.config.{ASTValue, ArrayValue, Config, ConfigError, ConfigResolverError, ConfigValue, Field, NullValue, ObjectValue, SimpleConfigValue, StringValue}
 
 import scala.collection.mutable
 
@@ -27,9 +27,11 @@ import scala.collection.mutable
   */
 object ConfigResolver {
 
-  def resolve(root: ObjectBuilderValue, fallback: Config): ObjectValue = {
+  def resolve(root: ObjectBuilderValue, fallback: Config): Either[ConfigError, ObjectValue] = {
     
     val rootExpanded = mergeObjects(expandPaths(root))
+    
+    def renderPath(p: Path): String = p.components.mkString(".")
     
     println(s"resolving root: $rootExpanded")
     
@@ -57,7 +59,7 @@ object ConfigResolver {
       case SubstitutionValue(ref, optional) =>
         println(s"resolve ref '${ref.toString}'")
         resolvedValue(ref).orElse(lookahead(ref)).orElse {
-          if (!optional) invalidPaths += ((path, ""))
+          if (!optional) invalidPaths += ((path, s"Missing required reference: '${renderPath(ref)}'"))
           None
         }
     }
@@ -152,7 +154,12 @@ object ConfigResolver {
       ObjectValue(resolvedFields.sortBy(_.key))
     }
     
-    resolveObject(rootExpanded, Path.Root)
+    val res = resolveObject(rootExpanded, Path.Root)
+    
+    if (invalidPaths.nonEmpty) Left(ConfigResolverError(
+      s"One or more errors resolving configuration: ${invalidPaths.map{ case (key, msg) => s"'${renderPath(key)}': $msg" }.mkString(", ")}"
+    ))
+    else Right(res)
   }
   
   def mergeObjects(obj: ObjectBuilderValue): ObjectBuilderValue = {

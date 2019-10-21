@@ -172,9 +172,10 @@ trait BuilderContext[E <: Element] {
       def directiveOrMsg: Result[DirectiveContent => Result[T]] =
         factory.toRight(Seq(s"No $typeName directive registered with name: $name"))
       
-      def attributes: Result[Config] = Right(ConfigResolver
-        .resolve(parsedResult.attributes, cursor.config))
+      def attributes: Result[Config] = ConfigResolver
+        .resolve(parsedResult.attributes, cursor.config)
         .map(new ObjectConfig(_, Origin(cursor.path / directiveOrigin), cursor.config))
+        .left.map(e => Seq(e.toString)) // TODO - 0.12 - ConfigError toString
       
       val body = parsedResult.body.map(BodyContent.Source)
 

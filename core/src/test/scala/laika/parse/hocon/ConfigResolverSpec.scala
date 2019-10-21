@@ -17,7 +17,7 @@
 package laika.parse.hocon
 
 import laika.ast.Path.Root
-import laika.config.{ArrayValue, Config, ConfigBuilder, EmptyConfig, Field, LongValue, ObjectValue, StringValue}
+import laika.config.{ArrayValue, Config, ConfigBuilder, ConfigError, ConfigResolverError, EmptyConfig, Field, LongValue, ObjectValue, StringValue}
 import org.scalatest.{Matchers, WordSpec}
 
 /**
@@ -27,12 +27,17 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
 
   def parseAndResolve(input: String): ObjectValue = {
     val builder = HoconParsers.rootObject.parse(input).toOption.get
-    ConfigResolver.resolve(builder, EmptyConfig)
+    ConfigResolver.resolve(builder, EmptyConfig).right.get
   }
 
   def parseAndResolve(input: String, fallback: Config): ObjectValue = {
     val builder = HoconParsers.rootObject.parse(input).toOption.get
-    ConfigResolver.resolve(builder, fallback)
+    ConfigResolver.resolve(builder, fallback).right.get
+  }
+
+  def parseAndResolveForFailure(input: String): Either[ConfigError, ObjectValue] = {
+    val builder = HoconParsers.rootObject.parse(input).toOption.get
+    ConfigResolver.resolve(builder, EmptyConfig)
   }
    
   "The config resolver" should {
@@ -245,6 +250,15 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
       ))
     }
 
+    "fail with a missing required reference" in {
+      val input =
+        """
+          |a = ${x}
+          |b = 5
+        """.stripMargin
+      parseAndResolveForFailure(input) shouldBe Left(ConfigResolverError("One or more errors resolving configuration: 'a': Missing required reference: 'x'"))
+    }
+
     "resolve a backward looking reference to a simple value with a common path segment" in {
       val input =
         """
@@ -375,6 +389,14 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
       ))
     }
 
+    "fail with a missing required reference in a concatenated array" in {
+      val input =
+        """
+          |a = [1,2] ${x} [3,4]
+        """.stripMargin
+      parseAndResolveForFailure(input) shouldBe Left(ConfigResolverError("One or more errors resolving configuration: 'a': Missing required reference: 'x'"))
+    }
+
     "resolve a self reference in a concatenated array" in {
       val input =
         """
@@ -445,7 +467,7 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
     "ignore an optional, missing reference in a concatenated object" in {
       val input =
         """
-          |a = ${b} { a = 5, b = 7 }
+          |a = ${?x} { a = 5, b = 7 }
         """.stripMargin
       parseAndResolve(input) shouldBe ObjectValue(Seq(
         Field("a", ObjectValue(Seq(

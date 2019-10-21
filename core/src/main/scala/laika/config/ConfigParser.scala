@@ -28,9 +28,9 @@ class ConfigParser(input: String, origin: Origin, fallback: Config = EmptyConfig
     .parse(input)
     .toEither
     .left.map(ConfigParserError)
-    .map { builderValue =>
-      val root = ConfigResolver.resolve(builderValue, fallback) // TODO - 0.12 - this must return an Either, too
-      new ObjectConfig(root, origin, fallback)
+    .flatMap { builderRoot =>
+      ConfigResolver.resolve(builderRoot, fallback)
+        .map(new ObjectConfig(_, origin, fallback))
     }
 
   def withFallback(other: Config): ConfigParser = new ConfigParser(input, origin, fallback.withFallback(other))
