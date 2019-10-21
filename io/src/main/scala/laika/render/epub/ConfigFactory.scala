@@ -28,7 +28,7 @@ object ConfigFactory {
       EPUB.Config(metadata, tocDepth, tocTitle.orElse(defaults.tocTitle), coverImage.orElse(defaults.coverImage))
     }
     
-    res.toOption.getOrElse(defaults) // TODO - 0.12 - error handling
+    res.toOption.getOrElse(defaults) // TODO - 0.13 - error handling
   }
 
 }

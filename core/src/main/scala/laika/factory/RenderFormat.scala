@@ -83,7 +83,7 @@ trait RenderFormat[FMT] {
     */
   def formatterFactory: RenderContext[FMT] => FMT
   
-  type CustomRenderFunction[FMT] = PartialFunction[(FMT, Element), String] // TODO - 0.12 - move
+  type CustomRenderFunction[FMT] = PartialFunction[(FMT, Element), String] // TODO - 0.13 - move
 
 
   case class Theme (customRenderer: CustomRenderFunction[FMT] = PartialFunction.empty,

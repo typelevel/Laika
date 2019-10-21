@@ -243,7 +243,7 @@ object ConfigResolver {
         case Nil =>
           field.copy(
             key = Path.Root,
-            value = expandValue(field.value, Path.Root) // TODO - 0.12 - should never get here
+            value = expandValue(field.value, Path.Root) // TODO - 0.13 - should never get here
           )
       }
     }
