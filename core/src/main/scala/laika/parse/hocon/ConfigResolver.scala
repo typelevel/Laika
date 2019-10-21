@@ -94,15 +94,20 @@ object ConfigResolver {
         }
       } 
       
-      resolvedParent(path).flatMap { case (obj, fieldPath) =>
-        println(s"lookahead from '${fieldPath.toString}'")
-        println(s"keys before lookahead: ${resolvedFields.keySet.map(_.toString).mkString(" ")}")
-        println(s"keys in selected parent: ${obj.values.map(_.key.toString).mkString(" ")}")
-        obj.values.find(_.key == fieldPath).map(_.value).foreach(resolveField(fieldPath, _, obj)) // TODO - handle None
-        println(s"keys after lookahead: ${resolvedFields.keySet.map(_.toString).mkString(" ")}")
-        val res = resolvedValue(path).orElse(fallback.get[ConfigValue](path).toOption)
-        println(s"success? ${res.isDefined}")
-        res
+      if (activeFields.contains(path)) {
+        invalidPaths += ((path, s"Circular Reference involving path '${renderPath(path)}'"))
+        Some(NullValue)
+      } else {
+        resolvedParent(path).flatMap { case (obj, fieldPath) =>
+          println(s"lookahead from '${fieldPath.toString}'")
+          println(s"keys before lookahead: ${resolvedFields.keySet.map(_.toString).mkString(" ")}")
+          println(s"keys in selected parent: ${obj.values.map(_.key.toString).mkString(" ")}")
+          obj.values.find(_.key == fieldPath).map(_.value).foreach(resolveField(fieldPath, _, obj)) // TODO - handle None
+          println(s"keys after lookahead: ${resolvedFields.keySet.map(_.toString).mkString(" ")}")
+          val res = resolvedValue(path).orElse(fallback.get[ConfigValue](path).toOption)
+          println(s"success? ${res.isDefined}")
+          res
+        }
       }
     }
     

@@ -259,6 +259,24 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
       parseAndResolveForFailure(input) shouldBe Left(ConfigResolverError("One or more errors resolving configuration: 'a': Missing required reference: 'x'"))
     }
 
+    "fail with a circular reference" in {
+      val input =
+        """
+          |a = ${c}
+          |b = ${a}
+          |c = ${b}
+        """.stripMargin
+      parseAndResolveForFailure(input) shouldBe Left(ConfigResolverError("One or more errors resolving configuration: 'c': Circular Reference involving path 'c'"))
+    }
+
+    "fail with a circular reference to a parent node" in {
+      val input =
+        """
+          |a = { x = 5, y = ${a} }
+        """.stripMargin
+      parseAndResolveForFailure(input) shouldBe Left(ConfigResolverError("One or more errors resolving configuration: 'a': Circular Reference involving path 'a'"))
+    }
+
     "resolve a backward looking reference to a simple value with a common path segment" in {
       val input =
         """
