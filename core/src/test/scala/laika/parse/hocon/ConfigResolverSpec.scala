@@ -17,7 +17,7 @@
 package laika.parse.hocon
 
 import laika.ast.Path.Root
-import laika.config.{ArrayValue, EmptyConfig, Field, LongValue, ObjectValue, StringValue}
+import laika.config.{ArrayValue, Config, ConfigBuilder, EmptyConfig, Field, LongValue, ObjectValue, StringValue}
 import org.scalatest.{Matchers, WordSpec}
 
 /**
@@ -28,6 +28,11 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
   def parseAndResolve(input: String): ObjectValue = {
     val builder = HoconParsers.rootObject.parse(input).toOption.get
     ConfigResolver.resolve(builder, EmptyConfig)
+  }
+
+  def parseAndResolve(input: String, fallback: Config): ObjectValue = {
+    val builder = HoconParsers.rootObject.parse(input).toOption.get
+    ConfigResolver.resolve(builder, fallback)
   }
    
   "The config resolver" should {
@@ -214,6 +219,17 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
         """.stripMargin
       parseAndResolve(input) shouldBe ObjectValue(Seq(
         Field("a", LongValue(5)),
+        Field("b", LongValue(5))
+      ))
+    }
+
+    "resolve a reference to a value declared in the fallback config" in {
+      val input =
+        """
+          |b = ${a}
+        """.stripMargin
+      val fallback = ConfigBuilder.empty.withValue("a", 5).build
+      parseAndResolve(input, fallback) shouldBe ObjectValue(Seq(
         Field("b", LongValue(5))
       ))
     }
