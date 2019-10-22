@@ -17,6 +17,7 @@
 package laika.config
 
 import laika.ast.{Element, Path}
+import laika.config.Origin.Scope
 
 /**
   * @author Jens Halm
@@ -24,9 +25,19 @@ import laika.ast.{Element, Path}
 sealed trait ConfigValue
 
 case class Traced[T] (value: T, origin: Origin)
-case class Origin(path: Path, sourcePath: Option[String] = None)
+
+case class Origin(scope: Scope, path: Path, sourcePath: Option[String] = None)
+
 object Origin {
-  val root: Origin = Origin(Path.Root)
+  
+  val root: Origin = Origin(GlobalScope, Path.Root)
+  
+  sealed trait Scope
+  case object GlobalScope extends Scope
+  case object TreeScope extends Scope
+  case object DocumentScope extends Scope
+  case object TemplateScope extends Scope
+  case object DirectiveScope extends Scope
 }
 
 sealed trait SimpleConfigValue extends ConfigValue {

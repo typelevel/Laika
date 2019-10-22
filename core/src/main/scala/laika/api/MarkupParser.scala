@@ -20,6 +20,7 @@ import laika.api.builder.ParserBuilder
 import laika.ast.{Document, DocumentCursor, EmbeddedConfigValue, Path, UnresolvedDocument}
 import laika.ast.Path.Root
 import laika.api.builder.OperationConfig
+import laika.config.Origin.DocumentScope
 import laika.config.{ConfigValue, Origin}
 import laika.factory.MarkupFormat
 import laika.parse.ParserContext
@@ -78,7 +79,7 @@ class MarkupParser (parser: MarkupFormat, val config: OperationConfig) {
       
     for {
       unresolved     <- docParser(input)
-      resolvedConfig <- unresolved.config.resolve(Origin(input.path), 
+      resolvedConfig <- unresolved.config.resolve(Origin(DocumentScope, input.path), 
                           config.baseConfig).left.map(e => ParserError(e.toString, input.path)) // TODO - 0.12 - ConfigError to ParserError
     } yield {
       val processedConfig = ConfigHeaderParser.merge(resolvedConfig, extractConfigValues(unresolved.document)) // TODO - 0.13 - move this somewhere else

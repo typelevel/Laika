@@ -39,8 +39,8 @@ class ConfigParser(input: String, origin: Origin, fallback: Config = EmptyConfig
 
 object ConfigParser {
 
-  def parse(input: String): ConfigParser = new ConfigParser(input, Origin(Path.Root))
+  def parse(input: String): ConfigParser = new ConfigParser(input, Origin.root)
 
-  def parse(input: String, origin: Path): ConfigParser = new ConfigParser(input, Origin(origin))
+  def parse(input: String, origin: Origin): ConfigParser = new ConfigParser(input, origin)
   
 }

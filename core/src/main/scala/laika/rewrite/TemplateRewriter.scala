@@ -18,6 +18,7 @@ package laika.rewrite
 
 import laika.config.{ConfigError, Key, Origin}
 import laika.ast._
+import laika.config.Origin.TemplateScope
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
@@ -90,9 +91,9 @@ trait TemplateRewriter {
   /** Applies the specified template to the target of the specified document cursor.
     */
   def applyTemplate (cursor: DocumentCursor, template: TemplateDocument): Either[ConfigError, Document] = {
-    template.config.resolve(Origin(template.path), cursor.config).map { mergedConfig =>
+    template.config.resolve(Origin(TemplateScope, template.path), cursor.config).map { mergedConfig =>
       val cursorWithMergedConfig = cursor.copy(
-        config = mergedConfig,  
+        config = mergedConfig,
         resolver = ReferenceResolver.forDocument(cursor.target, cursor.parent, mergedConfig)
       )
       val newContent = rewriteRules(cursorWithMergedConfig).rewriteBlock(template.content)

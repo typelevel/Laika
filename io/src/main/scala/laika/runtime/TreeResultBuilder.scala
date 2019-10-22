@@ -21,6 +21,7 @@ import laika.ast.Path.Root
 import laika.ast.{Document, DocumentTree, DocumentTreeRoot, Navigatable, Path, StyleDeclarationSet, TemplateDocument, TreeBuilder, UnresolvedDocument}
 import laika.bundle.UnresolvedConfig
 import cats.implicits._
+import laika.config.Origin.{DocumentScope, TreeScope}
 
 /**
   * @author Jens Halm
@@ -65,12 +66,12 @@ object TreeResultBuilder {
   }
 
   def resolveConfig (doc: UnresolvedDocument, baseConfig: Config): Either[ConfigError, Document] =
-    doc.config.resolve(Origin(doc.document.path), baseConfig).map(config => doc.document.copy(config = config))
+    doc.config.resolve(Origin(DocumentScope, doc.document.path), baseConfig).map(config => doc.document.copy(config = config))
   
   def resolveConfig (result: TreeResult, baseConfig: Config): Either[ConfigError, DocumentTree] = {
     
     val resolvedConfig = result.configs.foldLeft[Either[ConfigError, Config]](Right(baseConfig)) {
-      case (acc, unresolved) => acc.flatMap(base => unresolved.config.resolve(Origin(unresolved.path), base))
+      case (acc, unresolved) => acc.flatMap(base => unresolved.config.resolve(Origin(TreeScope, unresolved.path), base))
     }
     
     resolvedConfig.flatMap { treeConfig =>
