@@ -24,6 +24,8 @@ import laika.ast.Path
   */
 trait Config {
 
+  def origin: Origin
+  
   def get[T](key: Path)(implicit decoder: ConfigDecoder[T]): ConfigResult[T]
   
   def get[T](key: String)(implicit decoder: ConfigDecoder[T]): ConfigResult[T] = get[T](Key(key))
@@ -53,7 +55,7 @@ trait Config {
 }
 
 class ObjectConfig (private[laika] val root: ObjectValue,
-                    private[laika] val origin: Origin,
+                    val origin: Origin,
                     private[laika] val fallback: Config = EmptyConfig) extends Config {
 
   //  println()
@@ -66,20 +68,20 @@ class ObjectConfig (private[laika] val root: ObjectValue,
   private def lookup(keySegments: List[String], target: ObjectValue): Option[Field] = {
     (target.values.find(_.key == keySegments.head), keySegments.tail) match {
       case (res, Nil) => res
-      case (Some(Field(_, ov: ObjectValue)), rest) => lookup(rest, ov)
+      case (Some(Field(_, ov: ObjectValue, _)), rest) => lookup(rest, ov)
       case _ => None
     }
   }
 
   private def lookup(path: Path): Option[Field] =
-    if (path == Path.Root) Some(Field("", root)) else lookup(path.components, root).orElse {
+    if (path == Path.Root) Some(Field("", root, origin)) else lookup(path.components, root).orElse {
       if (path.components.head == "config") lookup(Path(path.components.tail)) // legacy path prefix pre-0.12
       else None
     }
 
   def get[T](key: Path)(implicit decoder: ConfigDecoder[T]): ConfigResult[T] = {
     lookup(key).fold(fallback.get[T](key)) { field =>
-      decoder(Traced(field.value, Set(origin)))
+      decoder(Traced(field.value, field.origin))
     }
     // TODO - 0.12 - merge objects
   }

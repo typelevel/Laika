@@ -99,7 +99,7 @@ trait BuilderContext[E <: Element] {
       content.attributes
         .getOpt[Traced[T]](id.key)(ConfigDecoder.tracedValue(decoder))
         .map(_.flatMap { traced =>
-          if (traced.origins.exists(_.path.name == directiveOrigin) || inherit) Some(traced.value)
+          if (traced.origin.path.name == directiveOrigin || inherit) Some(traced.value)
           else None
         })
         .left.map(e => Seq(s"error converting ${id.desc}: ${e.toString}")) // TODO - 0.12 - ConfigError conversions
@@ -169,12 +169,14 @@ trait BuilderContext[E <: Element] {
 
     def process[T] (cursor: DocumentCursor, factory: Option[DirectiveContent => Result[T]]): Result[T] = {
 
+      val origin = Origin(cursor.path / directiveOrigin)
+      
       def directiveOrMsg: Result[DirectiveContent => Result[T]] =
         factory.toRight(Seq(s"No $typeName directive registered with name: $name"))
       
       def attributes: Result[Config] = ConfigResolver
-        .resolve(parsedResult.attributes, cursor.config)
-        .map(new ObjectConfig(_, Origin(cursor.path / directiveOrigin), cursor.config))
+        .resolve(parsedResult.attributes, origin, cursor.config)
+        .map(new ObjectConfig(_, origin, cursor.config))
         .left.map(e => Seq(e.toString)) // TODO - 0.12 - ConfigError toString
       
       val body = parsedResult.body.map(BodyContent.Source)

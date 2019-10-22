@@ -18,7 +18,7 @@ package laika.parse.hocon
 
 import laika.ast.Path
 import laika.collection.TransitionalCollectionOps._
-import laika.config.{ASTValue, ArrayValue, Config, ConfigError, ConfigResolverError, ConfigValue, Field, NullValue, ObjectValue, SimpleConfigValue, StringValue}
+import laika.config.{ASTValue, ArrayValue, Config, ConfigError, ConfigResolverError, ConfigValue, Field, NullValue, ObjectValue, Origin, SimpleConfigValue, StringValue}
 
 import scala.collection.mutable
 
@@ -27,7 +27,7 @@ import scala.collection.mutable
   */
 object ConfigResolver {
 
-  def resolve(root: ObjectBuilderValue, fallback: Config): Either[ConfigError, ObjectValue] = {
+  def resolve(root: ObjectBuilderValue, origin: Origin, fallback: Config): Either[ConfigError, ObjectValue] = {
     
     val rootExpanded = mergeObjects(expandPaths(root))
     
@@ -44,7 +44,7 @@ object ConfigResolver {
     
     def deepMerge(o1: ObjectValue, o2: ObjectValue): ObjectValue =  {
       val resolvedFields = (o1.values ++ o2.values).groupBy(_.key).mapValuesStrict(_.map(_.value)).toSeq.map {
-        case (name, values) => Field(name, values.reduce(merge))
+        case (name, values) => Field(name, values.reduce(merge), origin)
       }
       ObjectValue(resolvedFields.sortBy(_.key))
     }
@@ -156,7 +156,7 @@ object ConfigResolver {
       startedObjects += ((path, obj))
       println(s"resolve obj with keys: ${obj.values.map(_.key.toString).mkString(" ")}")
       val resolvedFields = obj.values.flatMap { field =>
-        resolveField(field.key, field.value, obj).map(Field(field.key.name, _))
+        resolveField(field.key, field.value, obj).map(Field(field.key.name, _, origin))
       }
       ObjectValue(resolvedFields.sortBy(_.key))
     }

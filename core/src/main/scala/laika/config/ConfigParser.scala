@@ -29,7 +29,7 @@ class ConfigParser(input: String, origin: Origin, fallback: Config = EmptyConfig
     .toEither
     .left.map(ConfigParserError)
     .flatMap { builderRoot =>
-      ConfigResolver.resolve(builderRoot, fallback)
+      ConfigResolver.resolve(builderRoot, origin, fallback)
         .map(new ObjectConfig(_, origin, fallback))
     }
 

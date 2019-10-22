@@ -17,7 +17,7 @@
 package laika.rst.std
 
 import laika.ast._
-import laika.config.{Field, ObjectValue, StringValue}
+import laika.config.{Field, ObjectValue, Origin, StringValue}
 import laika.parse.markup.RecursiveParsers
 import laika.rst.ast.{Contents, FieldList, Include}
 import laika.rst.ext.Directives.Parts._
@@ -169,7 +169,8 @@ class StandardBlockDirectives {
     case FieldList(fields,_) :: Nil => 
       val values = fields map { field => Field(
         SpanSequence(field.name).extractText,
-        StringValue(field.content collect { case p: Paragraph => p.extractText } mkString)
+        StringValue(field.content collect { case p: Paragraph => p.extractText } mkString),
+        Origin.root
       )}
       EmbeddedConfigValue("meta", ObjectValue(values))
     case other => InvalidBlock(SystemMessage(MessageLevel.Error,
@@ -191,7 +192,7 @@ class StandardBlockDirectives {
   lazy val sectnum: DirectivePartBuilder[Block] = (tuple("depth") ~ tuple("start") ~ tuple("prefix") ~ tuple("suffix")).map {
     case depth ~ start ~ prefix ~ suffix => 
       val fields = (depth.toList ++ start.toList ++ prefix.toList ++ suffix.toList).map { case (name, value) => 
-        Field(name, StringValue(value))
+        Field(name, StringValue(value), Origin.root)
       }
       EmbeddedConfigValue("autonumbering", ObjectValue(fields))
   }

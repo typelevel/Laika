@@ -63,14 +63,14 @@ object ConfigDecoder {
   }
 
   implicit lazy val path: ConfigDecoder[Path] = tracedValue[String].map { tracedValue =>
-    val basePath = tracedValue.origins.headOption.fold[Path](Path.Root)(_.path)
+    val basePath = tracedValue.origin.path
     (basePath.parent / Path(tracedValue.value)).relativeTo(Path.Root)
   }
 
   implicit def seq[T] (implicit elementDecoder: ConfigDecoder[T]): ConfigDecoder[Seq[T]] = new ConfigDecoder[Seq[T]] {
     def apply (value: Traced[ConfigValue]) = value.value match {
       case ArrayValue(values) =>
-        val elements = values.map(v => elementDecoder(Traced(v, value.origins)))
+        val elements = values.map(v => elementDecoder(Traced(v, value.origin)))
         val errors = elements.collect { case Left(e) => e }
         if (errors.nonEmpty) Left(ValidationError(s"One or more errors decoding array elements: ${errors.mkString(", ")}"))
         else Right(elements.collect { case Right(r) => r })

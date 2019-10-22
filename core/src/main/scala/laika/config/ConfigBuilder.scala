@@ -37,14 +37,11 @@ class ConfigBuilder (fields: Seq[Field], origin: Origin, fallback: Config = Empt
     if (fields.isEmpty && origin == Origin.root) fallback 
     else new ObjectConfig(mergeObjects(ObjectValue(fields)), origin, fallback)
 
-  // TODO - move to companion
-  def withOrigin(path: Path): ConfigBuilder = new ConfigBuilder(fields, Origin(path))
-
   private def expandPath(key: Path, value: ConfigValue): Field = {
     key.components match {
-      case name :: Nil => Field(name, value)
-      case name :: rest => Field(name, ObjectValue(Seq(expandPath(Path(rest), value))))
-      case Nil => Field("", value)
+      case name :: Nil => Field(name, value, origin)
+      case name :: rest => Field(name, ObjectValue(Seq(expandPath(Path(rest), value))), origin)
+      case Nil => Field("", value, origin)
     }
   }
 
@@ -56,7 +53,7 @@ class ConfigBuilder (fields: Seq[Field], origin: Origin, fallback: Config = Empt
     }
 
     val mergedFields = obj.values.groupBy(_.key).mapValuesStrict(_.map(_.value)).toSeq.map {
-      case (name, values) => Field(name, values.reduce(mergeValues))
+      case (name, values) => Field(name, values.reduce(mergeValues), origin)
     }
     ObjectValue(mergedFields)
   }
@@ -67,7 +64,11 @@ object ConfigBuilder {
 
   val empty: ConfigBuilder = new ConfigBuilder(Nil, Origin.root)
 
-  def withFallback(fb: Config): ConfigBuilder = new ConfigBuilder(Nil, Origin.root, fb)
+  def withOrigin(origin: Origin): ConfigBuilder = new ConfigBuilder(Nil, origin)
+  
+  def withFallback(fallback: Config): ConfigBuilder = new ConfigBuilder(Nil, fallback.origin, fallback)
+  
+  def withFallback(fallback: Config, origin: Origin): ConfigBuilder = new ConfigBuilder(Nil, origin, fallback)
 
 }
 

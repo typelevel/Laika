@@ -23,7 +23,7 @@ import laika.ast.{Element, Path}
   */
 sealed trait ConfigValue
 
-case class Traced[T] (value: T, origins: Set[Origin])
+case class Traced[T] (value: T, origin: Origin)
 case class Origin(path: Path, sourcePath: Option[String] = None)
 object Origin {
   val root: Origin = Origin(Path.Root)
@@ -55,6 +55,10 @@ case class ArrayValue(values: Seq[ConfigValue]) extends ConfigValue {
   def isEmpty: Boolean = values.isEmpty
 }
 case class ObjectValue(values: Seq[Field]) extends ConfigValue {
-  def toConfig: Config = new ObjectConfig(this, Origin.root) // TODO - 0.12 - origin is wrong
+  def toConfig: Config = {
+    val origin = if (values.isEmpty) Origin.root
+      else values.groupBy(_.origin).toSeq.maxBy(_._2.size)._1
+    new ObjectConfig(this, origin)
+  }
 }
-case class Field(key: String, value: ConfigValue)
+case class Field(key: String, value: ConfigValue, origin: Origin = Origin.root)
