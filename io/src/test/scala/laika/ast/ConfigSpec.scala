@@ -21,6 +21,8 @@ import laika.api.MarkupParser
 import laika.ast.Path.Root
 import laika.ast.helper.ModelBuilder
 import laika.bundle.BundleProvider
+import laika.config.Origin.{DocumentScope, TreeScope}
+import laika.config.{ConfigValue, Field, LongValue, ObjectValue, Origin}
 import laika.format.{Markdown, ReStructuredText}
 import laika.io.implicits._
 import laika.io.model.InputCollection
@@ -81,6 +83,13 @@ class ConfigSpec extends FlatSpec
           |bbb""".stripMargin
       
       val configDoc = """foo = bar"""
+
+      val markupWithMergeableConfig =
+        """{% foo.bar: 7 %}
+          |${foo.bar}
+          |${foo.baz}""".stripMargin
+      
+      val mergeableConfig = """{ foo.baz = 9 }"""
     }
     
     def resultOf (root: DocumentTreeRoot): RootElement = {
@@ -176,6 +185,20 @@ class ConfigSpec extends FlatSpec
       ))
     )
     resultOf(markdownParser.fromInput(IO.pure(builder(inputs, mdMatcher))).parse.unsafeRunSync().root) should be (expected)
+  }
+
+  it should "merge objects from config headers in markup with objects in directory configuration" in new Inputs {
+    val inputs = Seq(
+      Root / "directory.conf" -> Contents.mergeableConfig,
+      Root / "default.template.html" -> Contents.templateWithoutConfig,
+      Root / "input.md" -> Contents.markupWithMergeableConfig
+    )
+    val tree = markdownParser.fromInput(IO.pure(builder(inputs, mdMatcher))).parse.unsafeRunSync()
+    val doc = tree.root.tree.content.head.asInstanceOf[Document]
+    doc.config.get[ConfigValue]("foo").right.get.asInstanceOf[ObjectValue].values.sortBy(_.key) should be (Seq(
+      Field("bar", LongValue(7), Origin(DocumentScope, Root / "input.md")),
+      Field("baz", LongValue(9), Origin(TreeScope, Root / "directory.conf"))
+    ))
   }
 
   it should "make directory configuration available for references in templates" in new Inputs {

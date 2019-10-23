@@ -66,6 +66,20 @@ case class ArrayValue(values: Seq[ConfigValue]) extends ConfigValue {
   def isEmpty: Boolean = values.isEmpty
 }
 case class ObjectValue(values: Seq[Field]) extends ConfigValue {
+  
+  def merge (other: ObjectValue): ObjectValue = {
+    
+    def mergeValues(cbv1: Field, cbv2: Field): Field = (cbv1, cbv2) match {
+      case (Field(name, o1: ObjectValue, origin), Field(_, o2: ObjectValue, _)) => Field(name, o1.merge(o2), origin)
+      case (v1, _) => v1
+    }
+
+    val mergedFields = (values ++ other.values).groupBy(_.key).toSeq.map {
+      case (_, fields) => fields.reduce(mergeValues)
+    }
+    ObjectValue(mergedFields)
+  }
+  
   def toConfig: Config = {
     val origin = if (values.isEmpty) Origin.root
       else values.groupBy(_.origin).toSeq.maxBy(_._2.size)._1

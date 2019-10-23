@@ -81,9 +81,15 @@ class ObjectConfig (private[laika] val root: ObjectValue,
 
   def get[T](key: Path)(implicit decoder: ConfigDecoder[T]): ConfigResult[T] = {
     lookup(key).fold(fallback.get[T](key)) { field =>
-      decoder(Traced(field.value, field.origin))
+      val res = field match {
+        case Field(_, ov: ObjectValue, _) => fallback.get[ConfigValue](key).toOption match {
+          case Some(parentOv: ObjectValue) => ov.merge(parentOv)
+          case _ => ov
+        }
+        case _ => field.value
+      }
+      decoder(Traced(res, field.origin))
     }
-    // TODO - 0.12 - merge objects
   }
   
   def withFallback(other: Config): Config = other match {

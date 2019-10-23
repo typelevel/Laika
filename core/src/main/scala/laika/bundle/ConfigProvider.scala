@@ -57,7 +57,7 @@ object UnresolvedConfig {
   
   def default (input: String): UnresolvedConfig = new UnresolvedConfig {
     def resolve (origin: Origin, fallback: Config) =
-      ConfigParser.parse(input).withFallback(fallback).resolve
+      ConfigParser.parse(input, origin).withFallback(fallback).resolve
   }
   
 }
