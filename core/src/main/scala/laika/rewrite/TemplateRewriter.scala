@@ -16,6 +16,7 @@
 
 package laika.rewrite
 
+import cats.implicits._
 import laika.config.{ConfigError, Key, Origin}
 import laika.ast._
 import laika.config.Origin.TemplateScope
@@ -40,22 +41,17 @@ trait TemplateRewriter {
   def applyTemplates (cursor: RootCursor, format: String): Either[ConfigError, DocumentTreeRoot] = {
     
     for {
-      newCover <- applyTemplate(cursor.coverDocument.toSeq, format)
+      newCover <- cursor.coverDocument.traverse(applyTemplate(_, format))
       newTree  <- applyTemplates(cursor.tree, format)
     } yield {
       cursor.target.copy(
-        coverDocument = newCover.headOption,
+        coverDocument = newCover,
         tree = newTree
       )
     }
     
   }
   
-  private def applyTemplate(cursors: Seq[DocumentCursor], format: String): Either[ConfigError, Seq[Document]] =
-    cursors.foldLeft[Either[ConfigError, Seq[Document]]](Right(Nil)) { 
-      case (acc, next) => acc.flatMap(ls => applyTemplate(next, format).map(ls :+ _)) // TODO - 0.12 - cats Traverse
-    }
-
   private def applyTreeTemplate(cursors: Seq[Cursor], format: String): Either[ConfigError, Seq[TreeContent]] =
     cursors.foldLeft[Either[ConfigError, Seq[TreeContent]]](Right(Nil)) {
       case (acc, next) => acc.flatMap { ls => (next match {
@@ -69,11 +65,11 @@ trait TemplateRewriter {
   def applyTemplates (cursor: TreeCursor, format: String): Either[ConfigError, DocumentTree] = {
 
     for {
-      newTitle   <- applyTemplate(cursor.titleDocument.toSeq, format)
+      newTitle   <- cursor.titleDocument.traverse(applyTemplate(_, format))
       newContent <- applyTreeTemplate(cursor.children, format)
     } yield {
       cursor.target.copy(
-        titleDocument = newTitle.headOption,
+        titleDocument = newTitle,
         content = newContent,
         templates = Nil
       )
