@@ -23,7 +23,7 @@ Document Title
 The document title can then be accessed in a template through
 a variable reference:
 
-    <title>{{document.title}}</title>
+    <title>${document.title}</title>
     
 Or in code through a `Document` instance:
 
@@ -70,13 +70,9 @@ All headlines except for the one that serves as the document title
 (if present) will be used to build the section structure based
 on the levels of the headlines.
 
-These sections can then be referenced in templates:
+These sections can the be used when generating a table of content:
 
-    @:for { "document.sections" }
-    
-    <li><a href="#{{id}}">{{title.content}}</a></li>
-    
-    @:@
+    @:toc
 
 Or they can be accessed through a `Document` instance:
 
@@ -142,8 +138,8 @@ Fragments allow to keep some sections of your document separate, to be rendered
 in different locations of the output, like headers, footers or sidebars.
 
 They produce a block element which is not part of the main body of the markup
-document (so will not be rendered with a `{{document.content}}` reference).
-Instead it can be referred to by `{{document.fragments.<fragmentName>}}`.
+document (so will not be rendered with a `${document.content}` reference).
+Instead it can be referred to by `${document.fragments.<fragmentName>}`.
 
 Example:
 
@@ -326,7 +322,7 @@ by its name, in the following way:
   and `.rst` for reStructuredText
 * `*.dynamic.html`: a dynamic file, which has the same syntax
   as a template, but does not get applied to a markup document.
-  This means it should not have a `{{document.content}}` reference
+  This means it should not have a `${document.content}` reference
   like normal templates, but may use any of the other template
   features. The result of processing will be copied to the
   output directory (with the `.dynamic` part stripped from 

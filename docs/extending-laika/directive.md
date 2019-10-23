@@ -44,12 +44,13 @@ A directive always starts with `@:` followed by the name of the directive.
     
 A more complete example is the use of the `for` directive:
 
-    @:for { "document.sections" }
-    <li><a href="#{{id}}">{{title.content}}</a></li>
+    @:for { some.list.of.products }
+    <li><a href="#${_.id}">${_.description}</a></li>
     @:@ 
 
-Here `for` is the name of the directive, `"document.sections"` is an unnamed
-attribute (where in this case the value is interpreted as a variable reference),
+Here `for` is the name of the directive, `some.list.of.products` is an unnamed
+attribute (where in this case the value is interpreted as a variable reference,
+a path the user has defined in the configuration),
 and finally the body of the directive followed by the `@:@` fence. 
 
 

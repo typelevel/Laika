@@ -38,18 +38,18 @@ templates:
     %}  
     <html>
       <head>
-        <title>{{document.title}}</title>
+        <title>${document.title}</title>
       </head>
       <body>
         @:toc
         <div class="content">
-          {{document.content}}
+          ${document.content}
         </div>
       </body>
     </html>
     
 It contains a configuration header (enclosed between `{%` and `%}`),
-two variable references (enclosed between `{{` and `}}`) and
+two variable references (enclosed between `${` and `}`) and
 a standard directive (starting with `@:`), in this case the
 `toc` directive for generating a table of contents.
 
@@ -61,9 +61,11 @@ These three constructs are described in the following sections.
 A configuration header can only appear at the beginning of a
 template document and has to be enclosed between `{%` and `%}`.
 The supported syntax is equivalent to the one used in the
-[Typesafe Config] library (and in fact that library is used
-under the hood for parsing these headers). The syntax
-is a superset of JSON called [HOCON].
+[Typesafe Config] library. It is a superset of JSON called [HOCON].
+
+Laika comes with its own parser implementation for HOCON,
+to retain the overall design of full referential transparency
+and avoid the Java API of the Typesafe Config library.
 
 There are a few configuration entries that have a special meaning
 for Laika, like the `autonumbering` entry in the example above.
@@ -71,7 +73,7 @@ These are all documented in their respective chapters.
 
 But you can also add arbitrary entries and then refer to them
 from a variable reference. The `scope` entry above for example
-can be referred to with `{{config.autonumbering.scope}}`.
+can be referred to with `${config.autonumbering.scope}`.
 
 You can also have a configuration header in a markup document
 (supported for both Markdown and reStructuredText) and then
@@ -85,7 +87,7 @@ inside the corresponding template (and vice versa)
 ### Variable References
 
 A variable reference can appear anywhere in a template
-and has to be enclosed between `{{` and `}}`. During
+and has to be enclosed between `${` and `}`. During
 rewriting these references get replaced by their corresponding
 value, which may be a standard document node which gets inserted
 into the tree or a simple string.
@@ -101,28 +103,15 @@ These are the variables you can use in templates:
   the fragment with the name `footer`), see [Document Fragments]
   for details.
 * `document.path`: the absolute (virtual) path of the document inside the tree
-* `document.sections`: the section structure of the document which you can loop
-  over with the `@:for` directive described below; the section objects have the 
-  following properties:
-    - `id`: the id to use when linking to that section
-    - `title.content`: the formatted title of the document (retaining all inline markup)
-    - `title.text`: the unformatted plain text of the title
-    - `content`: a sequence of further child sections
-* `parent.path` and `root.path`: the path of the immediate parent tree of this document
-   and the path of the root tree
-* `parent.title` and `root.title`: the title of the parent and root trees
-* `parent.documents` and `root.documents`: the documents of the parent and root tree 
-   respectively, these objects have the same properties like the `document` references
-   listed above
-* `parent.subtrees` and `root.subtrees`: the subtrees of the parent and root tree
-  which in turn have the same properties like the `parent` and `root` references listed
-  here
-* `config`: let's you access any configuration variable, e.g. {{config.autonumbering.scope}}
+* `parent.path` the path of the immediate parent tree of this document
+* `parent.title` the title of the parent tree 
+* `root.title`: the title of the root tree
+* any other path: let's you access any configuration variable, e.g. ${autonumbering.scope}
   refers to the scope attribute from the template example at the beginning of this section.
   You can refer to configuration entries from any of the following sources (which the
   resolver will try in this order):
-    - a configuration header in the corresponding document  
     - a configuration header in the template
+    - a configuration header in the corresponding document  
     - a configuration file with the name `directory.conf` inside the current directory
     - a configuration file with the name `directory.conf` inside any parent directory
     - a configuration file specified programmatically
@@ -152,14 +141,15 @@ Since all its attributes are optional, it can simply be used like this:
     
 A more complete example is the use of the `for` directive:
 
-    @:for { "document.sections" }
+    @:for { some.list.of.products }
     
-    <li><a href="#{{id}}">{{title.content}}</a></li>
+    <li><a href="#${_.id}">${_.description}</a></li>
     
     @:@
 
-Here `for` is the name of the directive, `"document.sections"` is an unnamed
-attribute (where in this case the value is interpreted as a variable reference),
+Here `for` is the name of the directive, `some.list.of.products` is an unnamed
+attribute (where in this case the value is interpreted as a variable reference,
+pointing to a path the user defined in the configuration),
 and finally, the body of the directive followed by the `@:@` fence. The exact
 semantics of this particular directive are explained in the section 
 [Standard Template Directives].
@@ -226,8 +216,8 @@ This directive is explained in detail in the [Document Structure] chapter.
 Can only be used in block elements in text markup, not in templates (yet).
 
 Produces a block element which is not part of the main body of the markup
-document (so will not be rendered with a `{{document.content}}` reference).
-Instead it can be referred to by `{{document.fragments.<fragmentName>}}`.
+document (so will not be rendered with a `${document.content}` reference).
+Instead it can be referred to by `${document.fragments.<fragmentName>}`.
 
 This allows to keep some sections of your document separate, to be rendered
 in different locations of the output, like headers, footers or sidebars.
@@ -289,9 +279,9 @@ empty collections, and exactly once for all other values.
 In case of non-empty values their properties will be made available
 for use inside the body part without any prefix:
 
-    @:for { "document.sections" }
+    @:for { some.list.of.products }
     
-    <li><a href="#{{id}}">{{title.content}}</a></li>
+    <li><a href="#${_.id}">${_.description}</a></li>
     
     @:@ 
 
@@ -301,8 +291,8 @@ objects inside the `document.sections` collection.
 You can also specify a fallback, a body part that gets executed
 for empty values:
 
-    @:for { "document.sections" }
-    <li><a href="#{{id}}">{{title.content}}</a></li>
+    @:for { some.list.of.products }
+    <li><a href="#${_.id}">${_.description}</a></li>
      
     @:empty
     <p>This document does not have any sections</p>

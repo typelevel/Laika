@@ -240,11 +240,11 @@ for HTML output may look like this:
 
     <html>
       <head>
-        <title>{{document.title}}</title>
+        <title>${document.title}</title>
       </head>
       <body>
         <div class="content">
-          {{document.content}}
+          ${document.content}
         </div>
       </body>
     </html>
