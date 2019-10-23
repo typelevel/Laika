@@ -17,7 +17,7 @@
 package laika.rewrite
 
 import laika.config.Config.ConfigResult
-import laika.config.{ASTValue, Config, ConfigBuilder, ConfigValue, Field, ObjectValue}
+import laika.config.{ASTValue, Config, ConfigBuilder, ConfigValue, Field, ObjectValue, StringValue}
 import laika.ast.{Document, Path, SpanSequence, TreeCursor}
 
 /** A resolver for context references in templates or markup documents.
@@ -42,12 +42,20 @@ object ReferenceResolver {
     apply(ConfigBuilder
       .withFallback(config)
       .withValue("document", ObjectValue(Seq(
+        Field("path", StringValue(document.path.toString)),
         Field("content", ASTValue(document.content), config.origin),
         Field("title", ASTValue(SpanSequence(document.title)), config.origin),
         Field("fragments", ObjectValue(document.fragments.toSeq.map { 
           case (name, element) => Field(name, ASTValue(element), config.origin) 
         }), config.origin)
-      ))) // TODO - 0.12 - insert documented refs to config, document, parent, root
+      )))
+      .withValue("parent", ObjectValue(Seq(
+         Field("path", StringValue(parent.path.toString)), 
+         Field("title", ASTValue(SpanSequence(parent.target.title))) 
+      )))
+      .withValue("root", ObjectValue(Seq(
+        Field("title", ASTValue(SpanSequence(parent.root.target.title)))
+      )))
       .build
     )
   
