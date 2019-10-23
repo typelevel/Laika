@@ -58,12 +58,12 @@ document, as well as a directive called `@toc` to inset a table of contents:
 
     <html>
       <head>
-        <title>{{document.title}}</title>
+        <title>${document.title}</title>
       </head>
       <body>
         @:toc
         <div class="content">
-          {{document.content}}
+          ${document.content}
         </div>
       </body>
     </html>
@@ -155,20 +155,22 @@ the `laika-io` module is required for the binary output:
 
 The EPUB renderer can be used with the `Transform` or `Render` APIs:
 
-    implicit val processingContext: ContextShift[IO] = 
+    implicit val cs: ContextShift[IO] = 
       IO.contextShift(ExecutionContext.global)
       
-    val blockingContext: ContextShift[IO] = 
-      IO.contextShift(ExecutionContext
-        .fromExecutor(Executors.newCachedThreadPool()))
+    val blocker = Blocker.liftExecutionContext(
+      ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
+    )
     
     val transformer = Transformer
       .from(Markdown)
       .to(EPUB)
       .using(GitHubFlavor)
-      
-    laika.io.Parallel(transformer)
-      .build(processingContext, blockingContext)
+      .io(blocker)
+      .parallel[IO]
+      .build
+    
+    transformer
       .fromDirectory("src")
       .toFile("hello.epub")
       .transform
@@ -296,23 +298,26 @@ you need to add the `laika-pdf` module to your build:
 
 The PDF renderer can be used with the `Transform` or `Render` APIs:
 
-    implicit val processingContext: ContextShift[IO] = 
+    implicit val cs: ContextShift[IO] = 
       IO.contextShift(ExecutionContext.global)
       
-    val blockingContext: ContextShift[IO] = 
-      IO.contextShift(ExecutionContext
-        .fromExecutor(Executors.newCachedThreadPool()))
+    val blocker = Blocker.liftExecutionContext(
+      ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
+    )
     
     val transformer = Transformer
       .from(Markdown)
       .to(PDF)
       .using(GitHubFlavor)
-      
-    laika.io.Parallel(transformer)
-      .build(processingContext, blockingContext)
+      .io(blocker)
+      .parallel[IO]
+      .build
+    
+    transformer
       .fromDirectory("src")
       .toFile("hello.pdf")
       .transform
+
 
 See [Using the Library API] for more details on these APIs.
     

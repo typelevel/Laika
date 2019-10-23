@@ -46,24 +46,31 @@ it to various output formats.
 
 ### Parsing an Entire Directory
 
-Similar to the full transformation step, you need to specify the `ExecutionContexts`
-to use for blocking IO and parallel processing:
+Similar to the full transformation step, you need to specify the `ContextShift`
+and `Blocker` to use for blocking IO and parallel processing:
 
-    implicit val processingContext: ContextShift[IO] = 
+    implicit val cs: ContextShift[IO] = 
       IO.contextShift(ExecutionContext.global)
       
-    val blockingContext: ContextShift[IO] = 
-      IO.contextShift(ExecutionContext
-        .fromExecutor(Executors.newCachedThreadPool()))
+    val blocker = Blocker.liftExecutionContext(
+      ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
+    )
 
-You can then obtain a tree instance from a parser:
+These will then be used to build a parallel parser instance:
 
-    val tree: IO[DocumentTreeRoot] = laika.io.Parallel(Parser.of(Markdown))
-      .build(processingContext, blockingContext)
+    val parser = Parser
+      .of(Markdown)
+      .io(blocker)
+      .parallel[IO]
+      .build
+
+Finally, you can obtain a tree instance from the parser:
+
+    val tree: IO[DocumentTreeRoot] = parser
       .fromDirectory("source")
       .parse
 
-The tree instance is of type `DocumentTree` which gives you access
+The tree instance is of type `DocumentTreeRoot` which gives you access
 to all documents, templates and subdirectories contained in the
 parsed directory.
 
@@ -123,22 +130,28 @@ Rendering as a string:
 
 ### Rendering an Entire Directory as HTML
 
-Like for the Parser and Transformer APIs, you need to specify the `ExecutionContexts`
-to use for blocking IO and parallel processing:
+Like for the Parser and Transformer APIs, you need to specify the `ContextShift`
+and `Blocker` to use for blocking IO and parallel processing:
 
-    implicit val processingContext: ContextShift[IO] = 
+    implicit val cs: ContextShift[IO] = 
       IO.contextShift(ExecutionContext.global)
-      
-    val blockingContext: ContextShift[IO] = 
-      IO.contextShift(ExecutionContext.fromExecutor(Executors.newCachedThreadPool()))
+    
+    val blocker = Blocker.liftExecutionContext(
+      ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
+    )
 
-You can then obtain a tree instance from a parser:
+You can then render the result to a files in a target directory:
 
     // obtained from a parse step or created programmatically
     val tree: DocumentTreeRoot = ???
+    
+    val renderer = Renderer
+      .of(HTML)
+      .io(blocker)
+      .parallel[IO]
+      .build
         
-    val op: IO[Unit] = laika.io.Parallel(Renderer.of(HTML))
-      .build(processingContext, blockingContext)
+    val op: IO[Unit] = renderer
       .from(tree)
       .toDirectory("target")
       .render
@@ -152,9 +165,8 @@ will be one HTML file for each input file in the same directory layout.
 
     // obtained from a parse step or created programmatically
     val tree: DocumentTreeRoot = ???
-        
-    val op: IO[Unit] = laika.io.Parallel(Renderer.of(PDF))
-      .build(processingContext, blockingContext)
+    
+    val op: IO[Unit] = renderer
       .from(tree)
       .toFile("out.pdf")
       .render    

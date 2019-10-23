@@ -77,20 +77,22 @@ add the laika-io module to your build:
     
 Example for transforming an entire directory of markup files to a single EPUB file:
 
-    implicit val processingContext: ContextShift[IO] = 
+    implicit val cs: ContextShift[IO] = 
       IO.contextShift(ExecutionContext.global)
       
-    val blockingContext: ContextShift[IO] = 
-      IO.contextShift(ExecutionContext
-        .fromExecutor(Executors.newCachedThreadPool()))
+    val blocker = Blocker.liftExecutionContext(
+      ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
+    )
     
     val transformer = Transformer
       .from(Markdown)
       .to(EPUB)
       .using(GitHubFlavor)
+      .io(blocker)
+      .parallel[IO]
+      .build
       
-    laika.io.Parallel(transformer)
-      .build(processingContext, blockingContext)
+    transformer
       .fromDirectory("src")
       .toFile("hello.epub")
       .transform

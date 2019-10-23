@@ -128,21 +128,26 @@ and for some use cases a `Parallel` instance.
 Laika gives full control over the `ExecutionContext` in which the blocking IO operations
 are performed. All the examples below will assume a setup like this:
 
-    implicit val processingContext: ContextShift[IO] = 
+    implicit val cs: ContextShift[IO] = 
       IO.contextShift(ExecutionContext.global)
       
-    val blockingContext: ContextShift[IO] = 
-      IO.contextShift(ExecutionContext.fromExecutor(Executors.newCachedThreadPool()))
+    val blocker = Blocker.liftExecutionContext(
+      ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
+    )
 
 
 ### Transforming a Single File
 
-You can use the `Sequential` builder to transform single files or streams:
+You can use the sequential builder to transform single files or streams:
 
-    val transformer = Transformer.from(Markdown).to(HTML)
+    val transformer = Transformer
+      .from(Markdown)
+      .to(HTML)
+      .io(blocker)
+      .sequential[IO]
+      .build
     
-    laika.io.Sequential(transformer)
-      .build(processingContext, blockingContext)
+    val res: IO[Unit] = transformer
       .fromFile("hello.md")
       .toFile("hello.html")
       .transform
@@ -156,8 +161,7 @@ using a stack from the cats-effect ecosystem, like fs2 or http4s, you are good t
 
 If you run in a different stack, like Akka HTTP, you can convert the `IO` to a `Future`:
 
-    laika.io.Sequential(transformer)
-      .build(processingContext, blockingContext)
+    val res: Future[Unit] = transformer
       .fromFile("hello.md")
       .toFile("hello.html")
       .transform
@@ -169,12 +173,10 @@ If you run in a different stack, like Akka HTTP, you can convert the `IO` to a `
 The API is similar to that for File IO, but the creation of the streams are treated
 as an effect, so you have to pass an `F[InputStream]` or `F[OutputStream]`:
 
-    val transformer = Transformer.from(Markdown).to(HTML)
     val input: IO[InputStream] = ???
     val output: IO[InputStream] = ???
     
-    laika.io.Sequential(transformer)
-      .build(processingContext, blockingContext)
+    val res: IO[Unit] = transformer
       .fromStream(input)
       .toStream(output, autoClose = false)
       .transform 
@@ -185,12 +187,17 @@ after all input has been read or all output has been written.
  
 ### Transforming an Entire Directory
 
-You can use the `Parallel` builder to transform an entire directory of files:
+You can use the parallel builder to transform an entire directory of files:
 
-    val transformer = Transformer.from(Markdown).to(HTML)
-    
-    laika.io.Parallel(transformer)
-      .build(processingContext, blockingContext)
+    val transformer = Transformer
+      .from(Markdown)
+      .to(HTML)
+      .using(GitHubFlavor)
+      .io(blocker)
+      .parallel[IO]
+      .build
+          
+    val res: IO[Unit] = transformer
       .fromDirectory("src")
       .toDirectory("target")
       .transform
@@ -219,10 +226,7 @@ are treated as errors.
 
 Use the `fromDirectories` method to specify the directories to merge:
 
-    val transformer = Transformer.from(Markdown).to(HTML)
-    
-    laika.io.Parallel(transformer)
-      .build(processingContext, blockingContext)
+    val res: IO[Unit] = transformer
       .fromDirectories("markup", "theme")
       .toDirectory("target")
       .transform
@@ -268,10 +272,15 @@ and tables of content, see the chapter [Document Structure].
 These binary formats also rely on the laika-io module, and they always produce a single
 output file, even if the input is an entire directory:
 
-    val transformer = Transformer.from(Markdown).to(EPUB)
-    
-    laika.io.Parallel(transformer)
-      .build(processingContext, blockingContext)
+    val transformer = Transformer
+      .from(Markdown)
+      .to(EPUB)
+      .using(GitHubFlavor)
+      .io(blocker)
+      .parallel[IO]
+      .build
+          
+    val res: IO[Unit] = transformer
       .fromDirectories("markup", "theme")
       .toFile("output.epub")
       .transform
