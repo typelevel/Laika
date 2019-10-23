@@ -87,7 +87,10 @@ trait BuilderContext[E <: Element] {
     /** The parsed content of a directive part. */
     case class Parsed(value: Seq[E]) extends BodyContent
   }
-  
+
+  /** The content of a parsed directive with the HOCON attributes captured in a `Config`
+    * instance.
+    */
   case class DirectiveContent (attributes: Config, body: Option[BodyContent])
 
   /** The context of a directive during execution.
@@ -228,8 +231,7 @@ trait BuilderContext[E <: Element] {
     
   }
 
-  /** Provides combinators to describe the expected
-    * format of a specific directive.
+  /** Provides combinators to describe the expected structure of a specific directive.
     */
   trait Combinators {
     
@@ -317,14 +319,26 @@ trait BuilderContext[E <: Element] {
       def hasBody: Boolean = false
       def separators: Set[String] = Set.empty
     }
-    
+
+    /** Specifies a default attribute, which is an attribute without a name.
+      * 
+      * Although valid, it is not recommended to combine default attributes with
+      * named attributes in a single directive, as the resulting syntax can
+      * appear ambiguous to the user.
+      * 
+      * This combinator is primarily intended to be used as the only attribute
+      * of the directive where the meaning is obvious, like in `@:style { big }`
+      * or `@:image { foo.jpg }`.
+      * 
+      * @return a directive part that can be combined with further parts
+      */
     def defaultAttribute: AttributePart[ConfigValue]
       = new AttributePart(AttributeKey.Default, ConfigDecoder.configValue, false, s"required default attribute is missing")
 
     /** Specifies a required attribute.
       *
       * @param key the key that must be used in markup or templates
-      * @return a directive part that can be combined with further parts with the `~` operator
+      * @return a directive part that can be combined with further parts
       */
     def attribute (key: String): AttributePart[ConfigValue]
       = new AttributePart(AttributeKey.Named(key), ConfigDecoder.configValue, false, s"required attribute '$key' is missing")
@@ -340,13 +354,13 @@ trait BuilderContext[E <: Element] {
     
     /** Specifies a required body part.
       *
-      * @return a directive part that can be combined with further parts with the `~` operator
+      * @return a directive part that can be combined with further parts
       */
     def parsedBody: DirectivePart[Seq[E]] = bodyPart(getParsedBody)
     
     /** Specifies a required body part.
       *
-      * @return a directive part that can be combined with further parts with the `~` operator
+      * @return a directive part that can be combined with further parts
       */
     def rawBody: DirectivePart[String] = bodyPart(getRawBody)
 
@@ -357,7 +371,7 @@ trait BuilderContext[E <: Element] {
       * children in the body element of the parent directive.
       *
       * @param separators all separator directives accepted as children of this directive.
-      * @return a directive part that can be combined with further parts with the `~` operator
+      * @return a directive part that can be combined with further parts
       */
     def separatedBody[T] (separators: Seq[SeparatorDirective[T]]): DirectivePart[Multipart[T]] =
       new SeparatedBodyPart(separators)
@@ -443,63 +457,65 @@ trait BuilderContext[E <: Element] {
     *  Entry points of the API are the `Templates`, `Blocks` and `Spans` objects for the
     *  three different directive types.
     *
-    *  A directive may consist of any combination of arguments, fields and body elements:
+    *  A directive may consist of any combination of attributes and body elements:
     *
     *  {{{
-    *  @:myDirective arg1=value1 arg2=value2: {
-    *    This is the body of the directive. It may consist of any standard or custom
-    *    block-level and inline markup.
-    *  }
+    *  @:myDirective { arg1 = value1, arg2 = value2 }
+    *    
+    *  This is the body of the directive. It may consist of any standard or custom
+    *  block-level and inline markup.
+    *  
+    *  @:@
     *  }}}
     *
-    *  In the example above `arg1` and `arg2` are arguments, ollowed by a body element
+    *  In the example above `arg1` and `arg2` are attributes, followed by a body element
     *  enclosed in curly braces.
     *
     *  For each of these directive elements, the API offers a combinator to specify whether the
-    *  element is required or optional, and an optional function to convert or validate the
-    *  parsed value.
+    *  element is required or optional, and an optional function to convert.
     *
     *  Consider the following simple example of a directive with just one argument and
     *  a body, for specifying a specially formatted inline note:
     *
     *  {{{
-    *  @:note This is the title: { This is the body of the note. }
+    *  @:note { This is the title } 
+    *  
+    *  This is the body of the note.
+    *  
+    *  @:@
     *  }}}
     *
     *  The implementation of this directive could look like this:
     *
     *  {{{
-    *  case class Note (title: String, content: Seq[Span], options: Options = NoOpt)
-    *                                                      extends Span with SpanContainer[Note]
+    *  case class Note (title: String, content: Seq[Block], options: Options = NoOpt)
+    *                                                      extends Block with BlockContainer[Note]
     *
     *  object MyDirectives extends DirectiveRegistry {
-    *    val spanDirectives = Seq(
-    *      Spans.create("note") {
-    *        (defaultAttribute.as[String] ~ body).map { 
-    *          case title ~ content => Note(title, content) 
-    *        }
+    *    val blockDirectives = Seq(
+    *      Blocks.create("note") {
+    *        (defaultAttribute.as[String] ~ parsedBody).mapN(Note(_,_))
     *      }
     *    )
-    *    val blockDirectives = Seq()
+    *    val spanDirectives = Seq()
     *  }
     *
-    *  Transformer.from(Markdown).to(HTML).using(MyDirectives) fromFile "hello.md" toFile "hello.html"
+    *  val transformer = Transformer.from(Markdown).to(HTML).using(MyDirectives)
     *  }}}
     *
     *  The `defaultAttribute` combinator specifies a required attribute of type `String` 
-    *  and without a name. The `body` combinator specifies standard inline content (any span
-    *  elements that are supported in normal inline markup, too) which results in a parsed value of type
-    *  `Seq[Span]`.
+    *  and without a name. The `parsedBody` combinator specifies standard block content (any block
+    *  elements that are supported in normal markup, too) which results in a parsed value of type
+    *  `Seq[Block]`.
     *
     *  Finally you need to provide a function that accepts the results of the specified
     *  directive elements as parameters (of the corresponding type). Here we created a case class
-    *  with a matching signature so can pass it directly as the target function. For a span directive
-    *  the final result has to be of type `Span` which the `Note` class satisfies. Finally the directive
+    *  with a matching signature so can pass it directly as the target function. For a block directive
+    *  the final result has to be of type `Block` which the `Note` class satisfies. Finally the directive
     *  gets registered with the `Markdown` parser. It can be registered for a `reStructuredText` parser,
     *  too, without any changes.
     *
-    *  If any conversion or validation is required on the individual parts of the directive they can
-    *  be passed to the corresponding function:
+    *  If any conversion of attributes is required it can be performed with the `as[T]` method:
     *
     *  {{{
     *  case class Message (severity: Int,
@@ -509,25 +525,19 @@ trait BuilderContext[E <: Element] {
     *
     *  val blockDirectives = Seq(
     *    Blocks.create("message") {
-    *      (defaultAttribute.as[Int] ~ blockContent).map { 
-    *        case severity ~ content => Message(severity, content) 
-    *      }
+    *      (defaultAttribute.as[Int] ~ blockContent).mapN(Message(_,_))
     *    }
     *  )
     *  }}}
     *
-    *  In the example above the built-in `positiveInt` converter gets passed to the `attribute`
-    *  combinator, but you can easily create and use your own functions.
-    *  The function has to accept a string argument and return a `Result[T]`.
+    *  In the example above the built-in `Int` decoder gets passed to the `defaultAttribute`
+    *  combinator, but you can easily create and use your own instances of `ConfigDecoder[T]`.
     *
-    *  The `Failure` subtype of `Result` will be interpreted as an error by the interpreter with the string being used as the message
-    *  and an instance of `InvalidBlock` containing the validator message and the raw source of the directive
+    *  If required attributes or bodies are missing or any type conversion fails,
+    *  an instance of `InvalidBlock` containing the error message and the raw source of the directive
     *  will be inserted into the document tree. In this case the final function (`Message`) will never be invoked.
     *
-    *  The `Success` subtype of `Result` will be used as an argument to the final function. Note how the case class now expects
-    *  an `Int` as the first parameter.
-    *
-    *  Finally attributes and body elements can also be optional. In case they are missing, the directive is still
+    *  Finally attributes can also be optional. In case they are missing, the directive is still
     *  considered valid and `None` will be passed to your function:
     *
     *  {{{
@@ -538,8 +548,8 @@ trait BuilderContext[E <: Element] {
     *
     *  val blockDirectives = Seq(
     *    Blocks.create("message") {
-    *      (defaultAttribute.as[Int].optional ~ blockContent).map { 
-    *        case severity ~ content => Message(severity.getOrElse(0), content) 
+    *      (defaultAttribute.as[Int].optional ~ blockContent).mapN { 
+    *        (severity, content) => Message(severity.getOrElse(0), content) 
     *      }
     *    }
     *  )
