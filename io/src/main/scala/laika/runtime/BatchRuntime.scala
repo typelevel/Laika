@@ -1,6 +1,6 @@
 package laika.runtime
 
-import cats.effect.Async
+import cats.Applicative
 import cats.implicits._
 
 /** Utility for explicitly producing a batch of operations as an optimization step
@@ -13,7 +13,7 @@ object BatchRuntime {
   /** Splits the specified operations into batches based on the given
     * desired parallelism.
     */
-  def createBatches[F[_]: Async, A] (ops: Vector[F[A]], parallelism: Int): Vector[F[Vector[A]]] = {
+  def createBatches[F[_]: Applicative, A] (ops: Vector[F[A]], parallelism: Int): Vector[F[Vector[A]]] = {
     val mod = ops.size % parallelism
     val loSize = ops.size / parallelism
     val hiSize = loSize + 1
