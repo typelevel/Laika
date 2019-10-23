@@ -77,7 +77,7 @@ to get the output:
     
 Or optionally specify a different project than the main one:
 
-    @:ticket {456 project=pineapple}
+    @:ticket {456, project=pineapple}
     
 to get the output:
 
@@ -93,12 +93,13 @@ parser or to the template parser.
 ### Directive Implementation
 
     val directive = Spans.create("ticket") {
-      (attribute(Default) ~ attribute("project").optional) { 
-        (ticketNo, project) => 
-          val base = "http://tickets.cloud42.com/"
-          val url = base + project.getOrElse("main-project") + "/" + ticketNo
-          val linkText = Seq(Text("#"+ticketNo))
-          ExternalLink(linkText, url, options = Styles("ticket"))
+      val ticketAttr = defaultAttribute.as[String]
+      val projectAttr = attribute("project").as[String].optional
+      (ticketAttr, projectAttr).mapN { (ticketNo, project) => 
+        val base = "http://tickets.cloud42.com/"
+        val url = base + project.getOrElse("main-project") + "/" + ticketNo
+        val linkText = Seq(Text("#"+ticketNo))
+        ExternalLink(linkText, url, options = Styles("ticket"))
       }
     }
 
@@ -114,18 +115,15 @@ the `Blocks` object, for template directives the `Templates` object.
 The features and APIs are identical, but there are subtle differences
 in return types.
 
-With `attribute(Default)` we specify that we expect a default (unnamed)
+With `defaultAttribute.as[String]` we specify that we expect a default (unnamed)
 attribute which is required. When a required attribute is missing
 our directive function will never be invoked. Instead Laika inserts
 a node of type `InvalidSpan` into the document tree (which we may
 then choose to render or not).
 
-With `attribute("project").optional` we specify that we expect an
+With `attribute("project").as[String].optional` we specify that we expect an
 attribute with the name `project` which is optional. In case it is 
 missing our directive function will still be invoked.
-
-The `~` method chains our declarations together. This operator is fairly
-common in Scala lands, you've very likely seen it in other APIs already.
 
 `(ticketNo, project)` are the parameters that the parser will pass
 to our function after parsing and validating the directive. They
@@ -212,7 +210,7 @@ Markup example:
 
 Combinator:
 
-    attribute(Default)
+    defaultAttribute
 
     
 ### Named Attributes
@@ -258,9 +256,17 @@ on the same line right after the directive declaration.
 For span and template directives this
 is not necessary as the parser can figure the nesting hierarchy on its own.
 
+The type of the result this combinator will produce depends on the type of the directive:
+In a template directive it is `Seq[TemplateSpan]`, in a block directive it is `Seq[Block]`,
+and finally, in a span directive it is `Seq[Span]`. 
+
 Combinator:
 
-    body
+    parsedBody
+    
+There is an alternative combinator if you need the raw, unparsed body as a String:
+
+    rawBody    
 
 
 ### Separated Body
@@ -271,10 +277,10 @@ need often.
 
 For an example from the built-in standard directives, let's have a look at the `@:if` directive:
 
-    @:if { "config.showSidebar" }
+    @:if { showSidebar }
     <div class="sidebar">...</div>
     
-    @:elseIf { "config.showInfobox" }
+    @:elseIf { showInfobox }
     <div class="infobox">...</div>
     
     @:else
@@ -333,38 +339,44 @@ Default and named attributes can be marked as optional.
 
 Combinator:
 
-    attribute("width").optional
+    attribute("width").as[Int].optional
 
 The parameter type of your directive function changes accordingly,
 from `T` to `Option[T]` where `T` is either the type returned by
 your converter (see below) or the default type.
 
 
-### Converters
+### Inherited Elements
 
-For any attribute or body element a converter can be specified.
-If it is left out the default types are as follows:
+By default directives only accept attributes defined right in the
+attribute section of the directive to avoid name clashes with attributes
+in other scopes. If you want to explicitly enable inheritance, so that
+a user can define default values for attributes either in the configuration
+header of the markup or template files or in the `directory.conf` file,
+you can set the `inherited` flag:
 
-* `String` for attributes in all directive types
-* `Seq[Block]` for body elements in block directives
-* `Seq[Span]` for body elements in inline directives
-* `Seq[TemplateSpan]` for body elements in template directives
+Combinator:
 
-This means that for body elements they are already parsed by default,
-as this is the most likely requirement for a directive.
+    attribute("width").as[Int].inherited
 
-The object `Converters` in the `Directives` object contains several
-pre-built converters, like `positiveInt`:
+With this flag set, the `width` attribute can be inherited from other scopes
+if it is not defined in the directive itself.
 
-    attribute("depth", Converters.positiveInt).optional
 
-It will validate the attribute value and only invoke your directive
-function if it succeeds. The parameter type in your function changes
-to `Option[Int]` accordingly.
+### Decoders
 
-If you want to implement your own converter, it simply has to
-be a function of type `(Parser, String) => Result[T]` for which
-a type alias `Converter[T]` exists.
+You can specify a decoder for all attributes with the `as[T]`
+method:
+
+    attribute("depth").as[Int].optional
+
+Without a decoder the result type would be `ConfigValue`
+which is a data structure similar to those of popular JSON libraries.
+But that type is rarely the most convenient type, which is why
+Laika defines some basic decoders out of the box, for `String`,
+`Int`, `Double`, `Boolean` and `Path`.
+
+You can define your own by implementing `ConfigDecoder[T]`.
 
 
 ### Access to the Parser
@@ -377,7 +389,7 @@ options active for this operation (unless you manually duplicate it which
 is brittle). Therefore you can request a parser for your function in 
 addition to the other values:
 
-    attribute(Default) ~ parser { (attrValue, parser) =>
+    (defaultAttribute, parser).mapN { (attrValue, parser) =>
       val parsedSpans = parser("["+attrValue+"]")
       SpanSequence(parsedSpans)
     }
@@ -386,7 +398,7 @@ In this contrived example the attribute value is modified before being passed
 to the parser and then wrapped inside a sequence.
 
 
-### Access to the Document Context
+### Access to the Document Cursor
 
 Finally you can also request access to the document context. This gives
 you access to the structure, the title, sections and parent and root
@@ -396,8 +408,8 @@ It is, for example, required for a directive like the `toc` directive,
 because for building a table of contents you have to look beyond your
 particular directive node.
 
-    attribute(Default) ~ context { (attrValue, context) =>
-      val spans = Text("The title is: ") +: context.document.title
+    (defaultAttribute, cursor).mapN { (attrValue, cursor) =>
+      val spans = Text("The title is: ") +: cursor.target.title
       SpanSequence(spans)
     }
 
@@ -418,6 +430,7 @@ Use: in inline elements in text markup files
 
 Implementation:
 
+    import cats.implicits._
     import laika.ast._
     import laika.directive.Spans
     import Spans.dsl._
@@ -456,6 +469,7 @@ Use: in block elements in text markup files
 
 Implementation:
 
+    import cats.implicits._
     import laika.ast._
     import laika.directive.Blocks
     import Blocks.dsl._
@@ -494,6 +508,7 @@ Use: in template files
 
 Implementation:
 
+    import cats.implicits._
     import laika.ast._
     import laika.directive.Templates
     Templates Blocks.dsl._

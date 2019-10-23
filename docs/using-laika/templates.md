@@ -314,7 +314,7 @@ Can only be used inside templates.
 Executes the body of the directive exactly once for a Boolean
 `true` or the strings `true`, `on`, `yes` and `enabled`.
 
-    @:if { "config.showSidebar" }
+    @:if { showSidebar }
     <div class="sidebar">...</div>
     @:@
 
@@ -324,10 +324,10 @@ that you have set explicitly in a configuration header or file.
 You can also specify a fallback with `@:else`, 
 or even secondary conditions with `@:elseIf`:
 
-    @:if { "config.showSidebar" }
+    @:if { showSidebar }
     <div class="sidebar">...</div>
     
-    @:elseIf { "config.showInfobox" }
+    @:elseIf { showInfobox }
     <div class="infobox">...</div>
     
     @:else

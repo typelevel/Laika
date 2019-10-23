@@ -252,7 +252,7 @@ When using the default settings, you can simply use an empty tag:
     
 If you specify all available options it would look like this:
 
-    @:toc { title="List of Chapters" root="../intro" depth=2 }
+    @:toc { title="List of Chapters", root="../intro", depth=2 }
    
    
 * The `title` attribute adds a title above the table. 
