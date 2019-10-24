@@ -106,8 +106,8 @@ trait TemplateRewriter {
    */  
   def selectTemplate (cursor: DocumentCursor, format: String): Option[TemplateDocument] = {
     val config = cursor.config
-    val templatePath = config.getOpt[Path]("template").toOption.flatten // TODO - error handling 
-      .orElse(config.getOpt[Path](format + ".template").toOption.flatten)
+    val templatePath = config.get[Path]("template").toOption // TODO - error handling 
+      .orElse(config.get[Path](format + ".template").toOption)
 
     templatePath match {
       case Some(path) =>
