@@ -57,6 +57,11 @@ class SequentialRendererSpec extends FlatSpec
     OutputBuilder.readFile(f) should be (expected)
   }
 
+  it should "render a document to an in-memory string" in {
+    val res = renderer.from(rootElem).toRenderedString.render.unsafeRunSync()
+    res should be (expected)
+  }
+  
   it should "render a document to a java.io.OutputStream" in {
     val stream = new ByteArrayOutputStream
     renderer.from(rootElem).toStream(IO.pure(stream)).render.unsafeRunSync()

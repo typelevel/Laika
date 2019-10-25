@@ -21,7 +21,7 @@ import java.io.{File, OutputStream}
 import cats.effect.Async
 import laika.ast.Path
 import laika.ast.Path.Root
-import laika.io.model.{CharStreamOutput, TextFileOutput, TextOutput}
+import laika.io.model.{CharStreamOutput, StringOutput, TextFileOutput, TextOutput}
 
 import scala.io.Codec
 
@@ -65,7 +65,10 @@ trait SequentialTextOutputOps[F[_]] {
   def toStream (stream: F[OutputStream], autoClose: Boolean = true)(implicit codec: Codec): Result =
     toOutput(F.map(stream)(CharStreamOutput(_, Root, autoClose, codec)))
 
-  // TODO - 0.12 - re-introduce string output
+  /** Builder step that instructs the runtime to render the document to
+    * an in-memory string.
+    */
+  def toRenderedString: Result = toOutput(F.pure(StringOutput(Root)))
 
   /** Renders the model to the specified output.
     *

@@ -87,5 +87,10 @@ class SequentialTransformerSpec extends FlatSpec
     transformer.fromStream(inStream).toStream(IO.pure(outStream)).transform.unsafeRunSync()
     outStream.toString("ISO-8859-1") should be (output)
   }
+
+  it should "transform from string to string" in {
+    val res = transformer.fromString(input).toRenderedString.transform.unsafeRunSync()
+    res should be (output)
+  }
   
 }
