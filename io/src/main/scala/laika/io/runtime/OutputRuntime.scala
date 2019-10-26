@@ -65,14 +65,10 @@ object OutputRuntime {
     Async[F].delay(file.exists || file.mkdirs()).flatMap(if (_) Async[F].unit 
     else Async[F].raiseError(new IOException(s"Unable to create directory ${file.getAbsolutePath}")))
  
-  /** Creates an OutputStream Resource from a binary output model. 
-    */
-  def asStream[F[_]: Async] (output: BinaryOutput): Resource[F, OutputStream] = output match {
-    case BinaryFileOutput(file, _) => 
-      Resource.fromAutoCloseable(Async[F].delay(new BufferedOutputStream(new FileOutputStream(file))))
-    case BinaryStreamOutput(stream, _, autoClose) =>
-      val streamF = Async[F].pure(stream)
-      if (autoClose) Resource.fromAutoCloseable(streamF) else Resource.liftF(streamF)
-  }
+  def binaryFileResource[F[_]: Async] (file: File): Resource[F, OutputStream] = 
+    Resource.fromAutoCloseable(Async[F].delay(new BufferedOutputStream(new FileOutputStream(file))))
+
+  def binaryStreamResource[F[_]: Async] (stream: F[OutputStream], autoClose: Boolean): Resource[F, OutputStream] =
+    if (autoClose) Resource.fromAutoCloseable(stream) else Resource.liftF(stream)
 
 }

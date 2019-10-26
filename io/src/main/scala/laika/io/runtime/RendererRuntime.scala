@@ -85,7 +85,7 @@ object RendererRuntime {
       val outFile = file(dir, doc.path)
       if (doc.sourceFile.contains(outFile)) None
       else {
-        val out = OutputRuntime.asStream(BinaryFileOutput(outFile, doc.path))
+        val out = OutputRuntime.binaryFileResource(outFile)
         Some(CopyRuntime.copy(doc.input, out).as(Left(CopiedDocument(doc.path)): RenderResult))
       }
     }
@@ -156,9 +156,8 @@ object RendererRuntime {
     val template = op.renderer.interimRenderer.templateFor(op.input)
     val preparedTree = op.renderer.prepareTree(op.input)
     for {
-      out          <- op.output
       renderedTree <- run(ParallelRenderer.Op[F](op.renderer.interimRenderer, preparedTree, StringTreeOutput))
-      _            <- op.renderer.postProcessor.process(renderedTree.copy[F](defaultTemplate = template), out)
+      _            <- op.renderer.postProcessor.process(renderedTree.copy[F](defaultTemplate = template), op.output)
     } yield ()
       
   }

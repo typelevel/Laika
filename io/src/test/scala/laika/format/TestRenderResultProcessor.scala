@@ -2,11 +2,10 @@ package laika.format
 
 import cats.effect.Async
 import laika.ast.DocumentTreeRoot
-import laika.io.runtime.OutputRuntime
 import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
 import laika.io.model.{BinaryOutput, RenderedDocument, RenderedTree, RenderedTreeRoot}
-import laika.render.TextFormatter
 import laika.io.runtime.Runtime
+import laika.render.TextFormatter
 
 object TestRenderResultProcessor extends TwoPhaseRenderFormat[TextFormatter, BinaryPostProcessor] {
 
@@ -16,7 +15,7 @@ object TestRenderResultProcessor extends TwoPhaseRenderFormat[TextFormatter, Bin
 
   object postProcessor extends BinaryPostProcessor {
     
-    override def process[F[_] : Async: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput): F[Unit] = {
+    override def process[F[_] : Async: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput[F]): F[Unit] = {
       
       def append (sb: StringBuilder, result: RenderedTree): Unit = {
         result.content.foreach {
@@ -30,7 +29,7 @@ object TestRenderResultProcessor extends TwoPhaseRenderFormat[TextFormatter, Bin
       append(sb, result.tree)
       val resultString = sb.toString
 
-      OutputRuntime.asStream(output).use { out =>
+      output.output.use { out =>
         Async[F].delay(out.write(resultString.getBytes("UTF-8")))
       }
     }

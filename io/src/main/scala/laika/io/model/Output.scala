@@ -18,6 +18,7 @@ package laika.io.model
 
 import java.io._
 
+import cats.effect.Resource
 import laika.config.Config
 import laika.ast.Path.Root
 import laika.ast._
@@ -44,13 +45,6 @@ sealed trait Output {
   
 }
 
-/** A marker trait for binary output.
-  *
-  *  Most renderers write character data, but formats like PDF or EPUB
-  *  would require a binary stream to write to.
-  */
-sealed trait BinaryOutput extends Output
-
 /** A marker trait for textual output.
   */
 sealed trait TextOutput extends Output
@@ -69,10 +63,12 @@ case class StringOutput (path: Path) extends TextOutput
 
 case class CharStreamOutput (stream: OutputStream, path: Path, autoClose: Boolean, codec: Codec) extends TextOutput
 
-
-case class BinaryFileOutput (file: File, path: Path) extends BinaryOutput
-
-case class BinaryStreamOutput (stream: OutputStream, path: Path, autoClose: Boolean) extends BinaryOutput
+/** A resource for binary output.
+  *
+  * Most renderers write character data, but formats like PDF or EPUB
+  * require a binary stream to write to.
+  */
+case class BinaryOutput[F[_]] (path: Path, output: Resource[F, OutputStream])
 
 /** A directory as a target for a rendering operation of a document tree.
   * 

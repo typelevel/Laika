@@ -16,12 +16,12 @@
 
 package laika.io.binary
 
-import cats.effect.{Async, Blocker, ContextShift}
+import cats.effect.Async
 import laika.api.builder.TwoPhaseRenderer
 import laika.ast.{Document, Element, Path}
 import laika.factory.BinaryPostProcessor
-import laika.io.model.BinaryOutput
 import laika.io.binary.SequentialRenderer.BinaryRenderer
+import laika.io.model.BinaryOutput
 import laika.io.ops.BinaryOutputOps
 import laika.io.runtime.{RendererRuntime, Runtime}
 
@@ -73,7 +73,7 @@ object SequentialRenderer {
 
     type Result = Op[F]
 
-    def toOutput (output: F[BinaryOutput]): Op[F] = Op[F](renderer, input, path, output)
+    def toOutput (output: BinaryOutput[F]): Op[F] = Op[F](renderer, input, path, output)
 
   }
 
@@ -83,7 +83,7 @@ object SequentialRenderer {
     * default runtime implementation or by developing a custom runner that performs
     * the rendering based on this operation's properties.
     */
-  case class Op[F[_]: Async: Runtime] (renderer: BinaryRenderer, input: Element, path: Path, output: F[BinaryOutput]) {
+  case class Op[F[_]: Async: Runtime] (renderer: BinaryRenderer, input: Element, path: Path, output: BinaryOutput[F]) {
 
     /** Performs the rendering operation based on the library's
       * default runtime implementation, suspended in the effect F.

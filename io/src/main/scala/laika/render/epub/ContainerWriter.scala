@@ -99,7 +99,7 @@ class ContainerWriter {
     * @param result the result of the render operation as a tree
     * @param output the output to write the final result to
     */
-  def write[F[_]: Async: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput): F[Unit] = {
+  def write[F[_]: Async: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput[F]): F[Unit] = {
 
     val inputs = collectInputs(result, ConfigFactory.forTreeConfig(result.config))
 

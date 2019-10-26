@@ -22,13 +22,13 @@ import java.util.Date
 
 import cats.effect.Async
 import cats.implicits._
-import javax.xml.transform.{Transformer, TransformerFactory}
 import javax.xml.transform.sax.SAXResult
 import javax.xml.transform.stream.StreamSource
+import javax.xml.transform.{Transformer, TransformerFactory}
 import laika.ast.DocumentMetadata
 import laika.format.PDF
 import laika.io.model.BinaryOutput
-import laika.io.runtime.{OutputRuntime, Runtime}
+import laika.io.runtime.Runtime
 import org.apache.fop.apps.{FOUserAgent, FOUserAgentFactory, FopFactory}
 import org.apache.xmlgraphics.io.{Resource, ResourceResolver}
 import org.apache.xmlgraphics.util.MimeConstants
@@ -53,7 +53,7 @@ class PDFRenderer (config: Option[PDF.Config], fopFactory: Option[FopFactory]) {
     *  @param sourcePaths the paths that may contain files like images
     *  which will be used to resolve relative paths
     */
-  def render[F[_] : Async: Runtime] (foInput: String, output: BinaryOutput, metadata: DocumentMetadata, title: Option[String] = None, sourcePaths: Seq[String] = Nil): F[Unit] = {
+  def render[F[_] : Async: Runtime] (foInput: String, output: BinaryOutput[F], metadata: DocumentMetadata, title: Option[String] = None, sourcePaths: Seq[String] = Nil): F[Unit] = {
 
     def applyMetadata (agent: FOUserAgent): F[Unit] = Async[F].delay {
       metadata.date.foreach(d => agent.setCreationDate(Date.from(d)))
@@ -91,7 +91,7 @@ class PDFRenderer (config: Option[PDF.Config], fopFactory: Option[FopFactory]) {
     }
 
     Runtime[F].runBlocking {
-      OutputRuntime.asStream(output).use { out =>
+      output.output.use { out =>
         for {
           source      <- Async[F].delay(new StreamSource(new StringReader(foInput)))
           result      <- createSAXResult(out)

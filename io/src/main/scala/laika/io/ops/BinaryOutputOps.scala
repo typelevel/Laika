@@ -5,7 +5,8 @@ import java.io.{File, OutputStream}
 import cats.effect.Async
 import laika.ast.Path
 import laika.ast.Path.Root
-import laika.io.model.{BinaryFileOutput, BinaryOutput, BinaryStreamOutput}
+import laika.io.model.BinaryOutput
+import laika.io.runtime.OutputRuntime
 
 /** API for specifying the output for a binary format like EPUB or PDF.
   *
@@ -33,7 +34,7 @@ trait BinaryOutputOps[F[_]] {
     *  @param file the file to write to
     */
   def toFile (file: File): Result =
-    toOutput(F.pure(BinaryFileOutput(file, Path(file.getName))))
+    toOutput(BinaryOutput(Path(file.getName), OutputRuntime.binaryFileResource(file)(F)))
 
   /** Builder step that instructs the runtime to render
     * to the specified output stream.
@@ -42,7 +43,7 @@ trait BinaryOutputOps[F[_]] {
     * @param autoClose indicates whether the stream should be closed after all output had been written                 
     */
   def toStream (stream: F[OutputStream], autoClose: Boolean = true): Result =
-    toOutput(F.map(stream)(BinaryStreamOutput(_, Root, autoClose)))
+    toOutput(BinaryOutput(Root, OutputRuntime.binaryStreamResource(stream, autoClose)(F)))
 
   /** Builder step that instructs the runtime to render
     * to the specified output.
@@ -50,6 +51,6 @@ trait BinaryOutputOps[F[_]] {
     * This is a generic method based on Laika's IO model that concrete
     * methods delegate to.
     */
-  def toOutput (output: F[BinaryOutput]): Result
+  def toOutput (output: BinaryOutput[F]): Result
 
 }

@@ -6,14 +6,14 @@ import java.time.temporal.ChronoUnit
 import java.util.{Locale, UUID}
 
 import cats.effect.Async
-import laika.config.ConfigBuilder
 import laika.ast.Path.Root
 import laika.ast._
+import laika.config.ConfigBuilder
 import laika.factory.{BinaryPostProcessor, RenderContext, RenderFormat, TwoPhaseRenderFormat}
 import laika.io.model.{BinaryOutput, RenderedTreeRoot}
+import laika.io.runtime.Runtime
 import laika.render.epub.{ConfigFactory, ContainerWriter, HtmlRenderExtensions, HtmlTemplate, StyleSupport}
 import laika.render.{HTMLFormatter, XHTMLFormatter, XHTMLRenderer}
-import laika.io.runtime.Runtime
 
 /** A post processor for EPUB output, based on an interim HTML renderer.
  *  May be directly passed to the `Render` or `Transform` APIs:
@@ -107,7 +107,7 @@ object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor] {
    *    and the configuration of this instance.
    */
   val postProcessor: BinaryPostProcessor = new BinaryPostProcessor {
-    def process[F[_] : Async: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput): F[Unit] = writer.write(result, output)
+    def process[F[_] : Async: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput[F]): F[Unit] = writer.write(result, output)
   }
   
 }

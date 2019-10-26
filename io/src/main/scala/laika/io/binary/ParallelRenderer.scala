@@ -21,7 +21,7 @@ import laika.api.builder.{OperationConfig, TwoPhaseRenderer}
 import laika.ast.DocumentTreeRoot
 import laika.factory.BinaryPostProcessor
 import laika.io.binary.ParallelRenderer.BinaryRenderer
-import laika.io.model.{BinaryOutput, BinaryInput}
+import laika.io.model.{BinaryInput, BinaryOutput}
 import laika.io.ops.BinaryOutputOps
 import laika.io.runtime.{RendererRuntime, Runtime}
 
@@ -63,7 +63,7 @@ object ParallelRenderer {
 
     type Result = Op[F]
 
-    def toOutput (output: F[BinaryOutput]): Op[F] = Op[F](renderer, input, output)
+    def toOutput (output: BinaryOutput[F]): Op[F] = Op[F](renderer, input, output)
 
   }
 
@@ -73,7 +73,7 @@ object ParallelRenderer {
     * default runtime implementation or by developing a custom runner that performs
     * the rendering based on this operation's properties.
     */
-  case class Op[F[_]: Async: Runtime] (renderer: BinaryRenderer, input: DocumentTreeRoot, output: F[BinaryOutput], staticDocuments: Seq[BinaryInput[F]] = Nil) {
+  case class Op[F[_]: Async: Runtime] (renderer: BinaryRenderer, input: DocumentTreeRoot, output: BinaryOutput[F], staticDocuments: Seq[BinaryInput[F]] = Nil) {
 
     /** The configuration of the renderer for the interim format.
       */

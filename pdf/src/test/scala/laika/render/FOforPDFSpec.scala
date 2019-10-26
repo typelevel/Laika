@@ -25,13 +25,13 @@ import laika.ast.{DocumentTreeRoot, TemplateRoot}
 import laika.config.ConfigException
 import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
 import laika.format.{PDF, XSLFO}
-import laika.io.implicits._
 import laika.io.binary.ParallelRenderer
 import laika.io.helper.RenderResult
+import laika.io.implicits._
 import laika.io.model.{BinaryOutput, RenderedTreeRoot}
-import laika.render.pdf.{FOConcatenation, PDFConfigBuilder, PDFNavigation}
+import laika.io.runtime.Runtime
 import laika.io.runtime.TestContexts.blocker
-import laika.io.runtime.{OutputRuntime, Runtime}
+import laika.render.pdf.{FOConcatenation, PDFConfigBuilder, PDFNavigation}
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.concurrent.ExecutionContext
@@ -52,11 +52,11 @@ class FOforPDFSpec extends FlatSpec with Matchers {
 
     object postProcessor extends BinaryPostProcessor {
 
-      override def process[F[_]: Async: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput): F[Unit] = {
+      override def process[F[_]: Async: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput[F]): F[Unit] = {
 
         val foRes = FOConcatenation(result, config.getOrElse(PDFConfigBuilder.fromTreeConfig(result.config)))
         
-        OutputRuntime.asStream(output).use { out =>
+        output.output.use { out =>
           for {
             fo <- Async[F].fromEither(foRes.left.map(ConfigException)): F[String]
             _  <- Async[F].delay(out.write(fo.getBytes("UTF-8"))): F[Unit]
