@@ -20,7 +20,7 @@ import cats.effect.Async
 import laika.api.Renderer
 import laika.api.builder.OperationConfig
 import laika.ast.DocumentTreeRoot
-import laika.io.model.{RenderedTreeRoot, StaticDocument, TreeOutput}
+import laika.io.model.{RenderedTreeRoot, BinaryInput, TreeOutput}
 import laika.io.ops.ParallelTextOutputOps
 import laika.io.runtime.{RendererRuntime, Runtime}
 
@@ -54,7 +54,7 @@ object ParallelRenderer {
 
   /** Builder step that allows to specify the output to render to.
     */
-  case class OutputOps[F[_]: Async: Runtime] (renderer: Renderer, input: DocumentTreeRoot, staticDocuments: Seq[StaticDocument[F]]) extends ParallelTextOutputOps[F] {
+  case class OutputOps[F[_]: Async: Runtime] (renderer: Renderer, input: DocumentTreeRoot, staticDocuments: Seq[BinaryInput[F]]) extends ParallelTextOutputOps[F] {
 
     val F: Async[F] = Async[F]
 
@@ -63,7 +63,7 @@ object ParallelRenderer {
     /** Copies the specified binary input to the output target,
       * in addition to rendering the document tree.
       */
-    def copying (toCopy: Seq[StaticDocument[F]]): OutputOps[F] = copy(staticDocuments = staticDocuments ++ toCopy)
+    def copying (toCopy: Seq[BinaryInput[F]]): OutputOps[F] = copy(staticDocuments = staticDocuments ++ toCopy)
 
     def toOutput (output: F[TreeOutput]): Op[F] = Op[F](renderer, input, output, staticDocuments)
 
@@ -75,7 +75,7 @@ object ParallelRenderer {
     * default runtime implementation or by developing a custom runner that performs
     * the rendering based on this operation's properties.
     */
-  case class Op[F[_]: Async: Runtime] (renderer: Renderer, input: DocumentTreeRoot, output: F[TreeOutput], staticDocuments: Seq[StaticDocument[F]] = Nil) {
+  case class Op[F[_]: Async: Runtime] (renderer: Renderer, input: DocumentTreeRoot, output: F[TreeOutput], staticDocuments: Seq[BinaryInput[F]] = Nil) {
 
     /** The configuration of the renderer.
       */

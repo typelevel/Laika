@@ -47,14 +47,6 @@ sealed trait Input extends Product with Serializable {
 
 }
 
-/** A marker trait for binary input.
-  * 
-  * In the context of this library binary inputs are usually only
-  * used by `Parallel` parsers and transformers for copying static
-  * documents from input to output directory.
-  */
-sealed trait BinaryInput extends Input
-
 /** A marker trait for character input.
   */
 sealed trait TextInput extends Input {
@@ -72,11 +64,6 @@ case class StringInput (source: String, docType: TextDocumentType, path: Path = 
 case class TextFileInput (file: File, docType: TextDocumentType, path: Path, codec: Codec) extends TextInput
 
 case class CharStreamInput (stream: InputStream, docType: TextDocumentType, path: Path, autoClose: Boolean, codec: Codec) extends TextInput
-
-
-case class BinaryFileInput (file: File, path: Path) extends BinaryInput
-
-case class BinaryStreamInput (stream: InputStream, autoClose: Boolean, path: Path) extends BinaryInput
 
 /** A directory in the file system containing input documents for a tree transformation.
   * 
@@ -105,7 +92,7 @@ object DirectoryInput {
 sealed trait InputDocument {
   def path: Path
 }
-case class StaticDocument[F[_]] (path: Path, input: Resource[F, InputStream], sourceFile: Option[File] = None) extends InputDocument
+case class BinaryInput[F[_]] (path: Path, input: Resource[F, InputStream], sourceFile: Option[File] = None) extends InputDocument
 case class TextDocument[F[_]](path: Path, docType: TextDocumentType, input: F[TextInput]) extends InputDocument
 
 /** A (virtual) tree of input documents, either obtained from scanning a directory recursively or 
@@ -114,7 +101,7 @@ case class TextDocument[F[_]](path: Path, docType: TextDocumentType, input: F[Te
   * Even though the documents are specified as a flat sequence, they logically form a tree based
   * on their virtual path.
   */
-case class TreeInput[F[_]] (textInputs: Seq[TextDocument[F]], binaryInputs: Seq[StaticDocument[F]], sourcePaths: Seq[String] = Nil) {
+case class TreeInput[F[_]] (textInputs: Seq[TextDocument[F]], binaryInputs: Seq[BinaryInput[F]], sourcePaths: Seq[String] = Nil) {
 
   /** Merges the inputs of two collections.
     */
@@ -150,4 +137,4 @@ object TreeInput {
   * might copy them into a target directory, or embed them into an output format
   * like EPUB.
   */
-case class ParsedTree[F[_]] (root: DocumentTreeRoot, staticDocuments: Seq[StaticDocument[F]])
+case class ParsedTree[F[_]] (root: DocumentTreeRoot, staticDocuments: Seq[BinaryInput[F]])

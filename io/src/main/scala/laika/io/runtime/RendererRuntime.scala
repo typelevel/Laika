@@ -58,7 +58,7 @@ object RendererRuntime {
     */
   def run[F[_]: Async: Runtime] (op: ParallelRenderer.Op[F]): F[RenderedTreeRoot[F]] = {
     
-    def validatePaths (staticDocs: Seq[StaticDocument[F]]): F[Unit] = {
+    def validatePaths (staticDocs: Seq[BinaryInput[F]]): F[Unit] = {
       val paths = op.input.allDocuments.map(_.path) ++ staticDocs.map(_.path)
       val duplicates = paths.groupBy(identity).values.collect {
         case p if p.size > 1 => DuplicatePath(p.head)
@@ -81,12 +81,12 @@ object RendererRuntime {
       }
     }
     
-    def copyDocuments (docs: Seq[StaticDocument[F]], dir: File): Seq[F[RenderResult]] = docs.map { doc =>
+    def copyDocuments (docs: Seq[BinaryInput[F]], dir: File): Seq[F[RenderResult]] = docs.map { doc =>
       val out = OutputRuntime.asStream(BinaryFileOutput(file(dir, doc.path), doc.path))
       CopyRuntime.copy(doc.input, out).as(Left(CopiedDocument(doc.path)): RenderResult)
     }
     
-    def renderOps (finalRoot: DocumentTreeRoot, styles: StyleDeclarationSet, staticDocs: Seq[StaticDocument[F]]): F[RenderOps] = op.output.map {
+    def renderOps (finalRoot: DocumentTreeRoot, styles: StyleDeclarationSet, staticDocs: Seq[BinaryInput[F]]): F[RenderOps] = op.output.map {
       case StringTreeOutput => RenderOps(Nil, renderDocuments(finalRoot, styles)(p => StringOutput(p)))
       case DirectoryOutput(dir, codec) => 
         val renderOps = renderDocuments(finalRoot, styles)(p => TextFileOutput(file(dir, p), p, codec))
@@ -97,13 +97,13 @@ object RendererRuntime {
         RenderOps(directories, renderOps ++ copyOps)
     }
     
-    def filterOutput (staticDocs: Seq[StaticDocument[F]], outPath: String): Seq[StaticDocument[F]] = {
+    def filterOutput (staticDocs: Seq[BinaryInput[F]], outPath: String): Seq[BinaryInput[F]] = {
       op.input.sourcePaths.collectFirst { 
         case inPath if outPath.startsWith(inPath) => Path(outPath.drop(inPath.length)) 
       }.fold(staticDocs) { nestedOut => staticDocs.filterNot(_.path.components.startsWith(nestedOut.components)) }
     }
     
-    def processBatch (finalRoot: DocumentTreeRoot, ops: Seq[F[RenderResult]], staticDocs: Seq[StaticDocument[F]]): F[RenderedTreeRoot[F]] =
+    def processBatch (finalRoot: DocumentTreeRoot, ops: Seq[F[RenderResult]], staticDocs: Seq[BinaryInput[F]]): F[RenderedTreeRoot[F]] =
 
       Runtime[F].runParallel(ops.toVector).map { results =>
         val renderedDocs = results.collect { case Right(doc) => doc }

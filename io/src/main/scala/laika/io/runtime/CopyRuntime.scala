@@ -20,7 +20,6 @@ import java.io._
 
 import cats.implicits._
 import cats.effect.{Async, Resource, Sync}
-import laika.io.model.{BinaryFileInput, BinaryFileOutput, BinaryInput, BinaryOutput}
 
 /** Internal runtime for copying bytes from an InputStream to an OutputStream.
   * 
@@ -55,25 +54,4 @@ object CopyRuntime {
   def copy[F[_]: Async: Runtime] (input: Resource[F, InputStream], output: Resource[F, OutputStream]): F[Unit] =
     (input, output).tupled.use { case (in, out) => copy(in, out) }
 
-  /** Copies all bytes from the specified binary Input to the binary Output,
-    * executing in the blocking ExecutionContext of the implicit Runtime.
-    */
-  def copy[F[_]: Async: Runtime] (input: BinaryInput, output: BinaryOutput): F[Unit] = {
-
-    val sameFile = (input, output) match {
-      case (a: BinaryFileInput, b: BinaryFileOutput) => a.file == b.file
-      case _ => false
-    }
-
-    if (sameFile) Async[F].unit else {
-      
-      val inOut = for {
-        in  <- InputRuntime.asStream(input)
-        out <- OutputRuntime.asStream(output)
-      } yield (in, out)
-
-      inOut.use { case (in, out) => copy(in, out) }
-    }
-  }
-  
 }

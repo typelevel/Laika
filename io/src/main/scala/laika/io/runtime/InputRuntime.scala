@@ -80,14 +80,7 @@ object InputRuntime {
     } yield outBuffer.toString
   }
 
-  /** Creates an InputStream Resource from a binary input model. 
-    */
-  def asStream[F[_]: Async] (output: BinaryInput): Resource[F, InputStream] = output match {
-    case BinaryFileInput(file, _) =>
-      Resource.fromAutoCloseable(Async[F].delay(new BufferedInputStream(new FileInputStream(file))))
-    case BinaryStreamInput(stream, autoClose, _) =>
-      val streamF = Async[F].pure(stream)
-      if (autoClose) Resource.fromAutoCloseable(streamF) else Resource.liftF(streamF)
-  }
+  def binaryInput[F[_]: Async] (file: File): Resource[F, InputStream] =
+    Resource.fromAutoCloseable(Async[F].delay(new BufferedInputStream(new FileInputStream(file))))
   
 }

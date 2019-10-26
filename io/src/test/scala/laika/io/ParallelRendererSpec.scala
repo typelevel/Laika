@@ -30,7 +30,7 @@ import laika.io.implicits._
 import laika.io.text.ParallelRenderer
 import laika.io.helper.OutputBuilder._
 import laika.io.helper.{InputBuilder, OutputBuilder, RenderResult}
-import laika.io.model.{BinaryInput, StaticDocument, StringTreeOutput}
+import laika.io.model.{BinaryInput, StringTreeOutput}
 import laika.render._
 import laika.io.runtime.RendererRuntime.{DuplicatePath, RendererErrors}
 import laika.io.runtime.TestContexts._

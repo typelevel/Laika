@@ -272,9 +272,8 @@ object Tasks {
     */
   def collectInputFiles (inputs: TreeInput[IO]): Set[File] = {
     
-    def allFiles (inputs: Seq[Input]) = (inputs collect {
+    def allFiles (inputs: Seq[TextInput]) = (inputs collect {
       case f: TextFileInput => f.file
-      case f: BinaryFileInput => f.file
     }).toSet
 
     allFiles(inputs.textInputs.map(_.input.unsafeRunSync())) ++ 

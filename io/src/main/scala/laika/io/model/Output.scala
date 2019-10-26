@@ -126,7 +126,7 @@ case class RenderedTreeRoot[F[_]] (tree: RenderedTree,
                                    defaultTemplate: TemplateRoot,
                                    config: Config,
                                    coverDocument: Option[RenderedDocument] = None,
-                                   staticDocuments: Seq[StaticDocument[F]] = Nil,
+                                   staticDocuments: Seq[BinaryInput[F]] = Nil,
                                    sourcePaths: Seq[String] = Nil) {
 
   /** The title of the tree, either obtained from the title document or configuration 

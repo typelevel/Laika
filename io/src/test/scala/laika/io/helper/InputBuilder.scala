@@ -12,8 +12,8 @@ import scala.io.Codec
 trait InputBuilder {
 
   object ByteInput {
-    def apply (input: String, path: Path)(implicit codec: Codec): StaticDocument[IO] =
-      StaticDocument(path, Resource.fromAutoCloseable(IO(new ByteArrayInputStream(input.getBytes(codec.charSet)))))
+    def apply (input: String, path: Path)(implicit codec: Codec): BinaryInput[IO] =
+      BinaryInput(path, Resource.fromAutoCloseable(IO(new ByteArrayInputStream(input.getBytes(codec.charSet)))))
   }
   
   def build (inputs: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): TreeInput[IO] = {
@@ -30,7 +30,7 @@ trait InputBuilder {
 
     TreeInput[IO](
       mappedInputs.collect { case i: TextInput   => TextDocument(i.path, i.docType, IO.pure[TextInput](i)) }, 
-      mappedInputs.collect { case i: StaticDocument[IO] => i }
+      mappedInputs.collect { case i: BinaryInput[IO] => i }
     )
   }
   

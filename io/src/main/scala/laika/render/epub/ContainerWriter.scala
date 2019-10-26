@@ -51,7 +51,7 @@ class ContainerWriter {
     *  @param result the result of the render operation as a tree
     *  @return a list of all documents that need to be written to the EPUB container.
     */
-  def collectInputs[F[_]: Async] (result: RenderedTreeRoot[F], config: EPUB.Config): Seq[StaticDocument[F]] = {
+  def collectInputs[F[_]: Async] (result: RenderedTreeRoot[F], config: EPUB.Config): Seq[BinaryInput[F]] = {
 
     val contentRoot = Root / "EPUB" / "content"
 
@@ -59,8 +59,8 @@ class ContainerWriter {
       if (path.suffix == "html") Path(contentRoot, path.withSuffix("xhtml").components)
       else Path(contentRoot, path.components)
 
-    def toBinaryInput (content: String, path: Path): StaticDocument[F] =
-      StaticDocument(path, Resource.fromAutoCloseable(Async[F].delay {
+    def toBinaryInput (content: String, path: Path): BinaryInput[F] =
+      BinaryInput(path, Resource.fromAutoCloseable(Async[F].delay {
         new ByteArrayInputStream(content.getBytes(Charset.forName("UTF-8")))
       }))
 
@@ -69,7 +69,7 @@ class ContainerWriter {
     
     val finalResult = result.copy[F](staticDocuments = result.staticDocuments ++ fallbackStyles)
     
-    val staticDocs: Seq[StaticDocument[F]] = finalResult.staticDocuments
+    val staticDocs: Seq[BinaryInput[F]] = finalResult.staticDocuments
       .filter(in => MimeTypes.supportedTypes.contains(in.path.suffix))
       .map { doc =>
         doc.copy(path = shiftContentPath(doc.path))

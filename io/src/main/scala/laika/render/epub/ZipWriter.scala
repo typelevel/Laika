@@ -23,7 +23,7 @@ import cats.effect.Async
 import cats.implicits._
 import laika.ast.Path
 import laika.io.runtime.{CopyRuntime, InputRuntime, OutputRuntime, Runtime}
-import laika.io.model.{BinaryInput, BinaryOutput, StaticDocument}
+import laika.io.model.{BinaryOutput, BinaryInput}
 
 /**
   * @author Jens Halm
@@ -37,7 +37,7 @@ object ZipWriter {
     * file (called `mimeType`) is written uncompressed. Hence this is not
     * a generic zip utility as the method name suggests.
     */
-  def zipEPUB[F[_]: Async: Runtime] (inputFs: Seq[StaticDocument[F]], output: BinaryOutput): F[Unit] = {
+  def zipEPUB[F[_]: Async: Runtime] (inputFs: Seq[BinaryInput[F]], output: BinaryOutput): F[Unit] = {
 
     def copy (inputs: Vector[(InputStream, Path)], zipOut: ZipOutputStream): F[Unit] = {
     
