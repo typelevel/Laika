@@ -16,7 +16,7 @@ trait InputBuilder {
       BinaryStreamInput(new ByteArrayInputStream(input.getBytes(codec.charSet)), autoClose = true, path)
   }
   
-  def build (inputs: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): InputCollection[IO] = {
+  def build (inputs: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): TreeInput[IO] = {
     
     val mappedInputs = inputs.flatMap {
       case (path, content) => 
@@ -28,7 +28,7 @@ trait InputBuilder {
         
     }
 
-    InputCollection[IO](
+    TreeInput[IO](
       mappedInputs.collect { case i: TextInput => i }, 
       mappedInputs.collect { case i: BinaryInput => StaticDocument[IO](i.path, IO.pure(i)) }
     )

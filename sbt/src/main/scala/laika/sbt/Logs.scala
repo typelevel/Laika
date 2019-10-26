@@ -19,7 +19,7 @@ package laika.sbt
 import cats.effect.IO
 import laika.ast.DocumentType.{Config, Markup, StyleSheet, Template}
 import laika.ast._
-import laika.io.model.InputCollection
+import laika.io.model.TreeInput
 import sbt.Logger
 
 /** Provides detailed logs for the tasks of the sbt plugin.
@@ -34,7 +34,7 @@ object Logs {
     * the number and types of documents found in the specified input
     * tree.
     */
-  def inputs (tree: InputCollection[IO]): String = {
+  def inputs (tree: TreeInput[IO]): String = {
 
     val docTypes = tree.textInputs.map(_.docType)
     val docs = docTypes.count(_ == Markup)

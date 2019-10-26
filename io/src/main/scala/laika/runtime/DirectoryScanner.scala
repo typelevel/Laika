@@ -36,35 +36,35 @@ object DirectoryScanner {
 
   /** Scans the specified directory and transforms it into a generic InputCollection.
     */
-  def scanDirectories[F[_]: Async] (input: DirectoryInput): F[InputCollection[F]] = {
+  def scanDirectories[F[_]: Async] (input: DirectoryInput): F[TreeInput[F]] = {
     val sourcePaths: Seq[String] = input.directories map (_.getAbsolutePath)
     join(input.directories.map(d => scanDirectory(Root, d.toPath, input))).map(_.copy(sourcePaths = sourcePaths))
   }
   
-  private def scanDirectory[F[_]: Async] (vPath: Path, filePath: JPath, input: DirectoryInput): F[InputCollection[F]] =
+  private def scanDirectory[F[_]: Async] (vPath: Path, filePath: JPath, input: DirectoryInput): F[TreeInput[F]] =
     Resource
       .fromAutoCloseable(Async[F].delay(Files.newDirectoryStream(filePath)))
       .use(asInputCollection(vPath, input)(_))
   
-  private def join[F[_]: Async] (collections: Seq[F[InputCollection[F]]]): F[InputCollection[F]] = collections
+  private def join[F[_]: Async] (collections: Seq[F[TreeInput[F]]]): F[TreeInput[F]] = collections
     .toVector
     .sequence
-    .map(_.reduceLeftOption(_ ++ _).getOrElse(InputCollection.empty))
+    .map(_.reduceLeftOption(_ ++ _).getOrElse(TreeInput.empty))
 
-  private def asInputCollection[F[_]: Async] (path: Path, input: DirectoryInput)(directoryStream: DirectoryStream[JPath]): F[InputCollection[F]] = {
+  private def asInputCollection[F[_]: Async] (path: Path, input: DirectoryInput)(directoryStream: DirectoryStream[JPath]): F[TreeInput[F]] = {
 
-    def toCollection (filePath: JPath): F[InputCollection[F]] = {
+    def toCollection (filePath: JPath): F[TreeInput[F]] = {
       
       val childPath = path / filePath.getFileName.toString
       
       def binaryInput: BinaryInput = BinaryFileInput(filePath.toFile, childPath)
 
-      if (input.fileFilter(filePath.toFile)) InputCollection.empty[F].pure[F]
+      if (input.fileFilter(filePath.toFile)) TreeInput.empty[F].pure[F]
       else if (Files.isDirectory(filePath)) scanDirectory(childPath, filePath, input)
       else input.docTypeMatcher(childPath) match {
-        case docType: TextDocumentType => InputCollection[F](TextFileInput(filePath.toFile, docType, childPath, input.codec)).pure[F]
-        case Static                    => InputCollection[F](Nil, Seq(StaticDocument(childPath, binaryInput.pure[F])), Nil).pure[F]
-        case _                         => InputCollection.empty[F].pure[F]
+        case docType: TextDocumentType => TreeInput[F](TextFileInput(filePath.toFile, docType, childPath, input.codec)).pure[F]
+        case Static                    => TreeInput[F](Nil, Seq(StaticDocument(childPath, binaryInput.pure[F])), Nil).pure[F]
+        case _                         => TreeInput.empty[F].pure[F]
       }
     }
 

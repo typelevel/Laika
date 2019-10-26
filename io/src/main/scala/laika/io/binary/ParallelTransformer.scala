@@ -41,7 +41,7 @@ class ParallelTransformer[F[_]: Async: Runtime] (transformer: BinaryTransformer)
 
   val config: OperationConfig = transformer.markupParser.config
 
-  def fromInput (input: F[InputCollection[F]]): ParallelTransformer.OutputOps[F] = ParallelTransformer.OutputOps(transformer, input)
+  def fromInput (input: F[TreeInput[F]]): ParallelTransformer.OutputOps[F] = ParallelTransformer.OutputOps(transformer, input)
 
 }
 
@@ -64,7 +64,7 @@ object ParallelTransformer {
 
   /** Builder step that allows to specify the output to render to.
     */
-  case class OutputOps[F[_]: Async: Runtime] (transformer: BinaryTransformer, input: F[InputCollection[F]]) extends BinaryOutputOps[F] {
+  case class OutputOps[F[_]: Async: Runtime] (transformer: BinaryTransformer, input: F[TreeInput[F]]) extends BinaryOutputOps[F] {
 
     val F: Async[F] = Async[F]
 
@@ -80,7 +80,7 @@ object ParallelTransformer {
     * default runtime implementation or by developing a custom runner that performs
     * the transformation based on this operation's properties.
     */
-  case class Op[F[_]: Async: Runtime] (transformer: BinaryTransformer, input: F[InputCollection[F]], output: F[BinaryOutput]) {
+  case class Op[F[_]: Async: Runtime] (transformer: BinaryTransformer, input: F[TreeInput[F]], output: F[BinaryOutput]) {
 
     /** Performs the transformation based on the library's
       * default runtime implementation, suspended in the effect F.

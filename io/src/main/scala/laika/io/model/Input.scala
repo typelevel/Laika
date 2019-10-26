@@ -105,11 +105,11 @@ object DirectoryInput {
   * Even though the documents are specified as a flat sequence, they logically form a tree based
   * on their virtual path.
   */
-case class InputCollection[F[_]] (textInputs: Seq[TextInput], binaryInputs: Seq[StaticDocument[F]], sourcePaths: Seq[String] = Nil) {
+case class TreeInput[F[_]] (textInputs: Seq[TextInput], binaryInputs: Seq[StaticDocument[F]], sourcePaths: Seq[String] = Nil) {
 
   /** Merges the inputs of two collections.
     */
-  def ++ (other: InputCollection[F]): InputCollection[F] = InputCollection(
+  def ++ (other: TreeInput[F]): TreeInput[F] = TreeInput(
     textInputs ++ other.textInputs, 
     binaryInputs ++ other.binaryInputs, 
     sourcePaths ++ other.sourcePaths
@@ -118,15 +118,15 @@ case class InputCollection[F[_]] (textInputs: Seq[TextInput], binaryInputs: Seq[
 
 /** Factory methods for creating `InputCollections`.
   */
-object InputCollection {
+object TreeInput {
 
   /** Creates an input collection consisting solely of the specified single text input.
     */
-  def apply[F[_]] (textInput: TextInput): InputCollection[F] = InputCollection(Seq(textInput), Nil, Nil)
+  def apply[F[_]] (textInput: TextInput): TreeInput[F] = TreeInput(Seq(textInput), Nil, Nil)
 
   /** An empty input collection.
     */
-  def empty[F[_]]: InputCollection[F] = InputCollection(Nil, Nil, Nil)
+  def empty[F[_]]: TreeInput[F] = TreeInput(Nil, Nil, Nil)
 }
 
 /** The result of a parsing operation for an entire document tree.

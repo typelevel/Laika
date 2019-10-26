@@ -31,7 +31,7 @@ import laika.io.implicits._
 import laika.io.text.ParallelTransformer
 import laika.io.helper.OutputBuilder._
 import laika.io.helper.{InputBuilder, OutputBuilder, RenderResult}
-import laika.io.model.{InputCollection, StringTreeOutput}
+import laika.io.model.{TreeInput, StringTreeOutput}
 import laika.parse.Parser
 import laika.parse.text.TextParsers
 import laika.runtime.TestContexts._
@@ -54,7 +54,7 @@ class ParallelTransformerSpec extends FlatSpec
 
     def inputs: Seq[(Path, String)]
 
-    def input (in: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): InputCollection[IO] = build(in, docTypeMatcher)
+    def input (in: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): TreeInput[IO] = build(in, docTypeMatcher)
 
     def transformTree: RenderedTreeViewRoot = transformWith()
     
@@ -314,7 +314,7 @@ class ParallelTransformerSpec extends FlatSpec
       |. . Text - 'ccc'
       |""".stripMargin
 
-    def input (in: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): InputCollection[IO] = build(in, docTypeMatcher)
+    def input (in: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): TreeInput[IO] = build(in, docTypeMatcher)
   }
   
   it should "render a tree with a RenderResultProcessor writing to an output stream" in new GatheringTransformer {

@@ -25,7 +25,7 @@ import laika.config.Origin.{DocumentScope, TreeScope}
 import laika.config.{ConfigValue, Field, LongValue, ObjectValue, Origin}
 import laika.format.{Markdown, ReStructuredText}
 import laika.io.implicits._
-import laika.io.model.InputCollection
+import laika.io.model.TreeInput
 import laika.io.helper.InputBuilder
 import laika.rewrite.TemplateRewriter
 import laika.runtime.TestContexts._
@@ -44,7 +44,7 @@ class ConfigSpec extends FlatSpec
     val mdMatcher = MarkupParser.of(Markdown).config.docTypeMatcher
     val rstMatcher = MarkupParser.of(ReStructuredText).config.docTypeMatcher
       
-    def builder (in: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): InputCollection[IO] = build(in, docTypeMatcher)
+    def builder (in: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): TreeInput[IO] = build(in, docTypeMatcher)
     
     object Contents {
 

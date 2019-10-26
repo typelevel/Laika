@@ -269,7 +269,7 @@ object Tasks {
   /** Collects all input files from the specified
     * input tree. Ignores any virtual inputs in the input trees.
     */
-  def collectInputFiles (inputs: InputCollection[IO]): Set[File] = {
+  def collectInputFiles (inputs: TreeInput[IO]): Set[File] = {
     
     def allFiles (inputs: Seq[Input]) = (inputs collect {
       case f: TextFileInput => f.file

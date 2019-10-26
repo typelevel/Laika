@@ -5,7 +5,7 @@ import cats.effect.Async
 import cats.implicits._
 import laika.ast._
 import laika.bundle.{ConfigProvider, UnresolvedConfig}
-import laika.io.model.{DirectoryInput, InputCollection, ParsedTree, TextFileInput, TextInput}
+import laika.io.model.{DirectoryInput, TreeInput, ParsedTree, TextFileInput, TextInput}
 import laika.parse.markup.DocumentParser.{ParserError, ParserInput}
 import laika.api.MarkupParser
 import laika.config.Config
@@ -45,7 +45,7 @@ object ParserRuntime {
         .toValidNel(NoMatchingParser(path, multiple.toList.flatMap(_.fileSuffixes).toSet))
     }
       
-    def parseAll(inputs: InputCollection[F]): F[ParsedTree[F]] = {
+    def parseAll(inputs: TreeInput[F]): F[ParsedTree[F]] = {
       
       def validateInputPaths: F[Unit] = {
         val duplicates = (inputs.binaryInputs.map(_.path) ++ inputs.textInputs.map(_.path))

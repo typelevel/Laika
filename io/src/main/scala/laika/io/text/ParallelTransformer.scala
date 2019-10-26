@@ -21,7 +21,7 @@ import cats.effect.{Async, Blocker, ContextShift}
 import laika.api.Transformer
 import laika.api.builder.OperationConfig
 import laika.ast.{DocumentType, TextDocumentType}
-import laika.io.model.{InputCollection, RenderedTreeRoot, TreeOutput}
+import laika.io.model.{TreeInput, RenderedTreeRoot, TreeOutput}
 import laika.io.ops.{ParallelInputOps, ParallelTextOutputOps}
 import laika.runtime.{Runtime, TransformerRuntime}
 
@@ -39,7 +39,7 @@ class ParallelTransformer[F[_]: Async: Runtime] (transformer: Transformer) exten
 
   val config: OperationConfig = transformer.parser.config
 
-  def fromInput (input: F[InputCollection[F]]): ParallelTransformer.OutputOps[F] = ParallelTransformer.OutputOps(transformer, input)
+  def fromInput (input: F[TreeInput[F]]): ParallelTransformer.OutputOps[F] = ParallelTransformer.OutputOps(transformer, input)
 
 }
 
@@ -60,7 +60,7 @@ object ParallelTransformer {
 
   /** Builder step that allows to specify the output to render to.
     */
-  case class OutputOps[F[_]: Async: Runtime] (transformer: Transformer, input: F[InputCollection[F]]) extends ParallelTextOutputOps[F] {
+  case class OutputOps[F[_]: Async: Runtime] (transformer: Transformer, input: F[TreeInput[F]]) extends ParallelTextOutputOps[F] {
 
     val F: Async[F] = Async[F]
 
@@ -76,7 +76,7 @@ object ParallelTransformer {
     * default runtime implementation or by developing a custom runner that performs
     * the transformation based on this operation's properties.
     */
-  case class Op[F[_]: Async: Runtime] (transformer: Transformer, input: F[InputCollection[F]], output: F[TreeOutput]) {
+  case class Op[F[_]: Async: Runtime] (transformer: Transformer, input: F[TreeInput[F]], output: F[TreeOutput]) {
 
     /** Performs the transformation based on the library's
       * default runtime implementation, suspended in the effect F.
