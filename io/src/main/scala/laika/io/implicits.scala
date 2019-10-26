@@ -25,13 +25,85 @@ import laika.io.ops.IOBuilderOps
 import laika.io.text.{ParallelParser, SequentialParser}
 import laika.io.runtime.Runtime
 
-/**
+/** Implicits that add an `io` method to all builder instances for parsers, renderers and transformers
+  * from the laika-core module, adding support for file/stream IO, suspended in the effect of your choice.
+  * 
+  * The requirements for the effect are `Async` and `ContextShift` for sequential execution,
+  * and additionally `cats.Parallel` for parallel execution.
+  *
+  * Example for transforming a file from Markdown to HTML using the `sequential` builder:
+  *
+  * {{{
+  * implicit val cs: ContextShift[IO] = 
+  *   IO.contextShift(ExecutionContext.global)
+  *
+  * val blocker = Blocker.liftExecutionContext(
+  *   ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
+  * )
+  *
+  * val transformer = Transformer
+  *   .from(Markdown)
+  *   .to(HTML)
+  *   .using(GitHubFlavor)
+  *   .io(blocker)
+  *   .sequential[IO]
+  *   .build
+  *
+  * val res: IO[Unit] = transformer
+  *   .fromFile("hello.md")
+  *   .toFile("hello.html")
+  *   .transform
+  * }}}
+  * 
+  * Example for transforming an entire directory from Markdown to HTML using the `parallel` builder:
+  *
+  * {{{
+  * implicit val cs: ContextShift[IO] = 
+  *   IO.contextShift(ExecutionContext.global)
+  *
+  * val blocker = Blocker.liftExecutionContext(
+  *   ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
+  * )
+  *
+  * val transformer = Transformer
+  *   .from(Markdown)
+  *   .to(HTML)
+  *   .using(GitHubFlavor)
+  *   .io(blocker)
+  *   .parallel[IO](4)
+  *   .build
+  *
+  * val res: IO[Unit] = transformer
+  *   .fromDirectory("src")
+  *   .toDirectory("target")
+  *   .transform
+  * }}}
+  * 
+  * The parallel variants of parser, renderer and transformer are the most powerful of the library, and the only
+  * options that support templating, style sheets and the copying of static files from input to output directory.
+  *
+  * This API can be used to produce an entire HTML site or e-books in the EPUB or PDF format.
+  * It is also the basis of all tasks in the sbt plugin, that only adds a thin layer of sbt tasks
+  * and settings on top of the library API.
+  *
+  * The tree for all internal processing steps is based on a virtual path, where in case
+  * of directory input and output the root of the virtual tree is mapped to the directory.
+  * This abstraction allows the merging of multiple input directories or the addition
+  * of inputs constructed in memory to those obtained from the file system.
+  *
+  * In the case of binary output like EPUB or PDF, the document tree will be rendered
+  * to a single, merged output. In case of HTML the output is a tree of separate HTML documents.
+  * The API adjusts to the format in use, e.g. EPUB and PDF transformers will offer a
+  * `fromDirectory` ... `toFile` flow whereas HTML will offer `fromDirectory` ... `toDirectory`.
+  * 
   * @author Jens Halm
   */
 object implicits {
 
   implicit class ImplicitParserOps (val builder: ParserBuilder) extends AnyVal {
 
+    /** Builder step for specifying the blocker to use for all blocking IO operations.
+      */
     def io (blocker: Blocker): IOBuilderOps[SequentialParser.Builder, ParallelParser.Builder] =
       new IOBuilderOps[SequentialParser.Builder, ParallelParser.Builder] {
 
@@ -49,6 +121,8 @@ object implicits {
 
   implicit class ImplicitTextRendererOps (val builder: RendererBuilder[_]) extends AnyVal {
 
+    /** Builder step for specifying the blocker to use for all blocking IO operations.
+      */
     def io (blocker: Blocker): IOBuilderOps[text.SequentialRenderer.Builder, text.ParallelRenderer.Builder] =
       new IOBuilderOps[text.SequentialRenderer.Builder, text.ParallelRenderer.Builder] {
 
@@ -66,6 +140,8 @@ object implicits {
 
   implicit class ImplicitBinaryRendererOps (val builder: TwoPhaseRendererBuilder[_, BinaryPostProcessor]) extends AnyVal {
 
+    /** Builder step for specifying the blocker to use for all blocking IO operations.
+      */
     def io (blocker: Blocker): IOBuilderOps[binary.SequentialRenderer.Builder, binary.ParallelRenderer.Builder] =
       new IOBuilderOps[binary.SequentialRenderer.Builder, binary.ParallelRenderer.Builder] {
 
@@ -83,6 +159,8 @@ object implicits {
 
   implicit class ImplicitTextTransformerOps (val builder: TransformerBuilder[_]) extends AnyVal {
 
+    /** Builder step for specifying the blocker to use for all blocking IO operations.
+      */
     def io (blocker: Blocker): IOBuilderOps[text.SequentialTransformer.Builder, text.ParallelTransformer.Builder] =
       new IOBuilderOps[text.SequentialTransformer.Builder, text.ParallelTransformer.Builder] {
 
@@ -100,6 +178,8 @@ object implicits {
 
   implicit class ImplicitBinaryTransformerOps (val builder: TwoPhaseTransformerBuilder[_, BinaryPostProcessor]) extends AnyVal {
 
+    /** Builder step for specifying the blocker to use for all blocking IO operations.
+      */
     def io (blocker: Blocker): IOBuilderOps[binary.SequentialTransformer.Builder, binary.ParallelTransformer.Builder] =
       new IOBuilderOps[binary.SequentialTransformer.Builder, binary.ParallelTransformer.Builder] {
 
