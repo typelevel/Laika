@@ -25,7 +25,6 @@ sealed trait ConfigError {
   def message: String
   protected def render(key: Path): String = key.components.mkString(".")
 }
-trait ConfigBuilderError
 
 case class InvalidType(expected: String, actual: ConfigValue) extends ConfigError {
   val message: String = s"Invalid type - expected: $expected, actual: ${actual.productPrefix.replaceAllLiterally("Value","")}"
@@ -38,3 +37,5 @@ case class ConfigResolverError(message: String) extends ConfigError
 case class NotFound(path: Path) extends ConfigError {
   val message: String = s"Not found: '${render(path)}'"
 }
+
+case class ConfigException(error: ConfigError) extends RuntimeException(error.message)

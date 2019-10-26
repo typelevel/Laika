@@ -6,6 +6,7 @@ import cats.effect.Async
 import cats.implicits._
 import laika.ast.Path.Root
 import laika.ast._
+import laika.config.ConfigException
 import laika.io.binary
 import laika.io.text.ParallelRenderer
 import laika.io.text.SequentialRenderer
@@ -109,7 +110,7 @@ object RendererRuntime {
       }
 
     for {
-      finalRoot <- Async[F].fromEither(op.renderer.applyTheme(op.input).leftMap(e => RendererErrors(Seq(new RuntimeException(e.toString))))) // TODO - 0.12 - ConfigError to Ex
+      finalRoot <- Async[F].fromEither(op.renderer.applyTheme(op.input).leftMap(e => RendererErrors(Seq(ConfigException(e)))))
       styles    = finalRoot.styles(fileSuffix)
       static    <- op.staticDocuments
       _         <- validatePaths(static)

@@ -21,6 +21,7 @@ import java.io.File
 import cats.effect.Async
 import cats.implicits._
 import laika.ast.{DocumentMetadata, DocumentTreeRoot, SpanSequence, TemplateRoot}
+import laika.config.ConfigException
 import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
 import laika.io.model.{BinaryOutput, RenderedTreeRoot}
 import laika.runtime.Runtime
@@ -84,7 +85,7 @@ class PDF private(val interimFormat: RenderFormat[FOFormatter], config: Option[P
       val title = if (result.title.isEmpty) None else Some(SpanSequence(result.title).extractText)
 
       for {
-        fo <- Async[F].fromEither(FOConcatenation(result, config.getOrElse(PDFConfigBuilder.fromTreeConfig(result.config))).left.map(e => new RuntimeException(e.toString))) // TODO - 0.12 - ConfigError to Throwable
+        fo <- Async[F].fromEither(FOConcatenation(result, config.getOrElse(PDFConfigBuilder.fromTreeConfig(result.config))).left.map(ConfigException))
         _  <- renderer.render(fo, output, metadata, title, result.sourcePaths)
       } yield ()
     }

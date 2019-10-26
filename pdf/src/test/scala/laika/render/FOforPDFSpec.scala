@@ -22,6 +22,7 @@ import cats.effect.{Async, ContextShift, IO}
 import cats.implicits._
 import laika.api.Renderer
 import laika.ast.{DocumentTreeRoot, TemplateRoot}
+import laika.config.ConfigException
 import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
 import laika.format.{PDF, XSLFO}
 import laika.io.implicits._
@@ -57,7 +58,7 @@ class FOforPDFSpec extends FlatSpec with Matchers {
         
         OutputRuntime.asStream(output).use { out =>
           for {
-            fo <- Async[F].fromEither(foRes.left.map(e => new RuntimeException(e.toString))): F[String] // TODO - 0.12 - ConfigError to Throwable
+            fo <- Async[F].fromEither(foRes.left.map(ConfigException)): F[String]
             _  <- Async[F].delay(out.write(fo.getBytes("UTF-8"))): F[Unit]
           } yield ()
         }
