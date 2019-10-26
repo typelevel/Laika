@@ -28,7 +28,7 @@ import laika.format.{Markdown, ReStructuredText}
 import laika.io.implicits._
 import laika.io.text.ParallelParser
 import laika.io.helper.InputBuilder
-import laika.io.model.TreeInput
+import laika.io.model.{InputCollection, TreeInput}
 import laika.parse.Parser
 import laika.parse.text.TextParsers
 import laika.rewrite.TemplateRewriter
@@ -95,7 +95,7 @@ class ParallelParserSpec extends FlatSpec
     
     val docTypeMatcher: Path => DocumentType = defaultParser.config.docTypeMatcher
     
-    def build (in: Seq[(Path, String)]): IO[TreeInput] = IO.pure(build(in, docTypeMatcher))
+    def build (in: Seq[(Path, String)]): IO[InputCollection[IO]] = IO.pure(build(in, docTypeMatcher))
     
     def docView (num: Int, path: Path = Root) = DocumentView(path / s"doc$num.md", Content(List(p("foo"))) :: Nil)
     def docView (name: String) = DocumentView(Root / name, Content(List(p("foo"))) :: Nil)

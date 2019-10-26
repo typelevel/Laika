@@ -4,7 +4,8 @@ import java.io.File
 
 import cats.effect.Async
 import laika.api.builder.OperationConfig
-import laika.io.model.{DirectoryInput, TreeInput}
+import laika.io.model.{DirectoryInput, InputCollection, TreeInput}
+import laika.runtime.DirectoryScanner
 
 import scala.io.Codec
 
@@ -85,8 +86,10 @@ trait ParallelInputOps[F[_]] {
     *  @param exclude the files to exclude from processing
     *  @param codec the character encoding of the files, if not specified the platform default will be used.
     */
-  def fromDirectories (roots: Seq[File], exclude: FileFilter)(implicit codec: Codec): Result =
-    fromInput(F.pure(DirectoryInput(roots, codec, config.docTypeMatcher, exclude)))
+  def fromDirectories (roots: Seq[File], exclude: FileFilter)(implicit codec: Codec): Result = {
+    val col: F[InputCollection[F]] = DirectoryScanner.scanDirectories[F](DirectoryInput(roots, codec, config.docTypeMatcher, exclude))(F)
+    fromInput(col)
+  }
 
   /**  Builder step that instructs the runtime to parse files from the
     *  current working directory.
@@ -105,6 +108,6 @@ trait ParallelInputOps[F[_]] {
     *
     *  @param input the input tree to process
     */
-  def fromInput(input: F[TreeInput]): Result
+  def fromInput(input: F[InputCollection[F]]): Result
 
 }

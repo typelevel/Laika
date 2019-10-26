@@ -22,7 +22,7 @@ import cats.effect.{Async, Blocker, ContextShift}
 import laika.api.MarkupParser
 import laika.api.builder.{OperationConfig, ParserBuilder}
 import laika.ast.{DocumentType, StyleDeclarationSet, TemplateDocument, TextDocumentType}
-import laika.io.model.{ParsedTree, TreeInput}
+import laika.io.model.{InputCollection, ParsedTree, TreeInput}
 import laika.io.ops.ParallelInputOps
 import laika.parse.markup.DocumentParser
 import laika.parse.markup.DocumentParser.{ParserError, ParserInput}
@@ -42,7 +42,7 @@ class ParallelParser[F[_]: Async: Runtime] (parsers: NonEmptyList[MarkupParser])
 
   lazy val config: OperationConfig = parsers.map(_.config).reduceLeft[OperationConfig](_ merge _)
 
-  def fromInput (input: F[TreeInput]): ParallelParser.Op[F] = ParallelParser.Op(parsers, input)
+  def fromInput (input: F[InputCollection[F]]): ParallelParser.Op[F] = ParallelParser.Op(parsers, input)
 
 }
 
@@ -83,7 +83,7 @@ object ParallelParser {
     * default runtime implementation or by developing a custom runner that performs
     * the parsing based on this operation's properties.
     */
-  case class Op[F[_]: Async: Runtime] (parsers: NonEmptyList[MarkupParser], input: F[TreeInput]) {
+  case class Op[F[_]: Async: Runtime] (parsers: NonEmptyList[MarkupParser], input: F[InputCollection[F]]) {
 
     /** Maps the suffixes of the supported markup formats to the corresponding parser.
       */

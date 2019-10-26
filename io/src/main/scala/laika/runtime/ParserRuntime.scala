@@ -82,11 +82,7 @@ object ParserRuntime {
       } yield rewriteTree(tree)
     }
     
-    val finalCol: F[InputCollection[F]] = op.input flatMap {
-      case col: InputCollection[_] => Async[F].pure(col.asInstanceOf[InputCollection[F]])
-      case dir: DirectoryInput => DirectoryScanner.scanDirectories(dir)
-    }
-    finalCol.flatMap(parseAll)
+    op.input.flatMap(parseAll)
     
   }
 

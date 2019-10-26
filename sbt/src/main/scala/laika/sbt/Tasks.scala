@@ -79,13 +79,13 @@ object Tasks {
       .withAlternativeParser(createParser(ReStructuredText))
       .build
 
-    val inputs = DirectoryInput((sourceDirectories in Laika).value, laikaConfig.value.encoding, parser.config.docTypeMatcher,
-      (excludeFilter in Laika).value.accept)
+    val inputs = DirectoryScanner.scanDirectories[IO](DirectoryInput((sourceDirectories in Laika).value, laikaConfig.value.encoding, parser.config.docTypeMatcher,
+      (excludeFilter in Laika).value.accept))
 
     lazy val tree = {
       streams.value.log.info("Reading files from " + (sourceDirectories in Laika).value.mkString(", "))
 
-      val tree = parser.fromInput(IO.pure(inputs)).parse.unsafeRunSync()
+      val tree = parser.fromInput(inputs).parse.unsafeRunSync()
 
       Logs.systemMessages(streams.value.log, tree.root, laikaConfig.value.logMessageLevel)
 
@@ -138,7 +138,7 @@ object Tasks {
     }
 
     val cacheDir = streams.value.cacheDirectory / "laika"
-    val inputCollection = DirectoryScanner.scanDirectories[IO](inputs).unsafeRunSync()
+    val inputCollection = inputs.unsafeRunSync()
     streams.value.log.info(Logs.inputs(inputCollection))
     val inputFiles = collectInputFiles(inputCollection)
 

@@ -97,7 +97,7 @@ case class BinaryStreamInput (stream: InputStream, autoClose: Boolean, path: Pat
 case class DirectoryInput (directories: Seq[File],
                            codec: Codec,
                            docTypeMatcher: Path => DocumentType = DocumentTypeMatcher.base,
-                           fileFilter: File => Boolean = DirectoryInput.hiddenFileFilter) extends TreeInput {
+                           fileFilter: File => Boolean = DirectoryInput.hiddenFileFilter) {
   lazy val sourcePaths: Seq[String] = directories map (_.getAbsolutePath)
 }
 
