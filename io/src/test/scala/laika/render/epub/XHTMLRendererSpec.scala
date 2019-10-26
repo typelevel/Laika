@@ -53,7 +53,7 @@ class XHTMLRendererSpec extends FlatSpec with Matchers with ModelBuilder {
       collectDocuments(res.tree)
     } 
 
-    def renderedDocs (root: DocumentTreeRoot): RenderedTreeRoot = {
+    def renderedDocs (root: DocumentTreeRoot): RenderedTreeRoot[IO] = {
       Renderer
         .of(EPUB.XHTML)
         .io(blocker)

@@ -38,7 +38,7 @@ object FOConcatenation {
     *  @param config the configuration to apply
     *  @return the rendered XSL-FO merged to a single String 
     */
-  def apply (result: RenderedTreeRoot, config: PDF.Config): Either[ConfigError, String] = {
+  def apply[F[_]] (result: RenderedTreeRoot[F], config: PDF.Config): Either[ConfigError, String] = {
 
     def concatDocuments: String = {
 
@@ -65,7 +65,7 @@ object FOConcatenation {
         result.config.withValue("pdf.coverImage", resolvedUri).build
       }
 
-    val resultWithoutToc = result.copy(tree = result.tree.copy(content = result.tree.content.filterNot(_.path == Root / s"${DocNames.toc}.fo")))
+    val resultWithoutToc = result.copy[F](tree = result.tree.copy(content = result.tree.content.filterNot(_.path == Root / s"${DocNames.toc}.fo")))
 
     def applyTemplate(foString: String, template: TemplateDocument): Either[ConfigError, String] = {
       val foElement = RawContent(Seq("fo"), foString)

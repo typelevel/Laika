@@ -16,7 +16,7 @@ object TestRenderResultProcessor extends TwoPhaseRenderFormat[TextFormatter, Bin
 
   object postProcessor extends BinaryPostProcessor {
     
-    override def process[F[_] : Async: Runtime] (result: RenderedTreeRoot, output: BinaryOutput): F[Unit] = {
+    override def process[F[_] : Async: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput): F[Unit] = {
       
       def append (sb: StringBuilder, result: RenderedTree): Unit = {
         result.content.foreach {

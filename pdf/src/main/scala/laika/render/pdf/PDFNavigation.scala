@@ -101,7 +101,7 @@ object PDFNavigation {
     *  @param depth the recursion depth through trees, documents and sections
     *  @return a fragment map containing the generated bookmarks
     */
-  def generateBookmarks (result: RenderedTreeRoot, depth: Int): Map[String, Element] = {
+  def generateBookmarks[F[_]] (result: RenderedTreeRoot[F], depth: Int): Map[String, Element] = {
 
     def sectionBookmarks (path: Path, sections: Seq[SectionInfo], levels: Int): Seq[Bookmark] =
       if (levels == 0) Nil

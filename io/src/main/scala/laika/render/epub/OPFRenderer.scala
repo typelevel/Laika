@@ -75,7 +75,7 @@ class OPFRenderer {
   /** Renders the content of an EPUB Package document (OPF) generated from
     * the specified document tree.
     */
-  def render (result: RenderedTreeRoot, config: EPUB.Config): String = {
+  def render[F[_]] (result: RenderedTreeRoot[F], config: EPUB.Config): String = {
 
     val coverDoc = result.coverDocument.map(doc => DocumentRef(doc.path, "application/xhtml+xml", isSpine = false, isCover = true, forceXhtml = true))
     val titleDoc = result.titleDocument.map(doc => DocumentRef(doc.path, "application/xhtml+xml", isSpine = false, isTitle = true, forceXhtml = true))

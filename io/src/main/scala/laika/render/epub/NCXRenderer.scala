@@ -66,8 +66,7 @@ class NCXRenderer {
     * document sections, depending on which recursion depth is configured.
     * The configuration key for setting the recursion depth is `epub.toc.depth`.
     *
-    * @param root the document tree to generate navPoints for
-    * @param depth the recursion depth through trees, documents and sections
+    * @param bookNav the structure to generate navPoints for
     * @return the navPoint XML nodes for the specified document tree
     */
   def navPoints (bookNav: Seq[BookNavigation]): String = {
@@ -94,7 +93,7 @@ class NCXRenderer {
     * trees, documents and sections.
     * The configuration key for setting the recursion depth is `epub.toc.depth`.
     */
-  def render (result: RenderedTreeRoot, identifier: String, depth: Int): String = {
+  def render[F[_]] (result: RenderedTreeRoot[F], identifier: String, depth: Int): String = {
     val title = if (result.title.isEmpty) "UNTITLED" else SpanSequence(result.title).extractText
     val bookNav = BookNavigation.forTree(result.tree, depth)
     val renderedNavPoints = navPoints(bookNav)

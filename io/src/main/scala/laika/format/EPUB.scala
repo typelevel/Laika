@@ -107,7 +107,7 @@ object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor] {
    *    and the configuration of this instance.
    */
   val postProcessor: BinaryPostProcessor = new BinaryPostProcessor {
-    def process[F[_] : Async: Runtime] (result: RenderedTreeRoot, output: BinaryOutput): F[Unit] = writer.write(result, output)
+    def process[F[_] : Async: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput): F[Unit] = writer.write(result, output)
   }
   
 }

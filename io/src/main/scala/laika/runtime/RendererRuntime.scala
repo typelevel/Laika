@@ -40,7 +40,7 @@ object RendererRuntime {
   /** Process the specified render operation for an entire input tree and 
     * a character output format.
     */
-  def run[F[_]: Async: Runtime] (op: ParallelRenderer.Op[F]): F[RenderedTreeRoot] = {
+  def run[F[_]: Async: Runtime] (op: ParallelRenderer.Op[F]): F[RenderedTreeRoot[F]] = {
     
     def validatePaths (staticDocs: Seq[BinaryInput]): F[Unit] = {
       val paths = op.input.allDocuments.map(_.path) ++ staticDocs.map(_.path)
@@ -87,7 +87,7 @@ object RendererRuntime {
       }.fold(staticDocs) { nestedOut => staticDocs.filterNot(_.path.components.startsWith(nestedOut.components)) }
     }
     
-    def processBatch (finalRoot: DocumentTreeRoot, ops: Seq[F[RenderResult]], staticDocs: Seq[BinaryInput]): F[RenderedTreeRoot] =
+    def processBatch (finalRoot: DocumentTreeRoot, ops: Seq[F[RenderResult]], staticDocs: Seq[BinaryInput]): F[RenderedTreeRoot[F]] =
 
       Runtime[F].runParallel(ops.toVector).map { results =>
         val renderedDocs = results.collect { case Right(doc) => doc }
@@ -106,7 +106,7 @@ object RendererRuntime {
         val resultRoot = TreeBuilder.build(renderedDocs.filterNot(res => coverDoc.exists(_.path == res.path)), buildNode)
         val template = finalRoot.tree.getDefaultTemplate(fileSuffix).fold(TemplateRoot.fallback)(_.content)
   
-        RenderedTreeRoot(resultRoot, template, finalRoot.config, coverDoc, staticDocs, finalRoot.sourcePaths)
+        RenderedTreeRoot[F](resultRoot, template, finalRoot.config, coverDoc, staticDocs, finalRoot.sourcePaths)
       }
 
     for {
@@ -138,7 +138,7 @@ object RendererRuntime {
     for {
       out          <- op.output
       renderedTree <- run(ParallelRenderer.Op[F](op.renderer.interimRenderer, preparedTree, Async[F].pure(StringTreeOutput), Async[F].pure(Nil)))
-      _            <- op.renderer.postProcessor.process(renderedTree.copy(defaultTemplate = template), out)
+      _            <- op.renderer.postProcessor.process(renderedTree.copy[F](defaultTemplate = template), out)
     } yield ()
       
   }

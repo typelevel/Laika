@@ -2,6 +2,7 @@ package laika.render.epub
 
 import java.io.File
 
+import cats.effect.IO
 import laika.config.{Config, ConfigBuilder}
 import laika.ast.Path.Root
 import laika.ast._
@@ -23,7 +24,7 @@ trait InputTreeBuilder extends ModelBuilder with InputBuilder {
   
   def titleSpans (text: String): Seq[Span] = Seq(Text(text))
 
-  def rootTree (path: Path, titleNum: Int, docs: RenderContent*): RenderedTreeRoot = {
+  def rootTree (path: Path, titleNum: Int, docs: RenderContent*): RenderedTreeRoot[IO] = {
     RenderedTreeRoot(tree(path, titleNum, docs: _*), TemplateRoot(Nil), Config.empty)
   }
 
@@ -66,7 +67,7 @@ trait DocumentPlusCover extends InputTreeBuilder {
   val doc2 = doc(Path.Root / "bar", 3)
   val cover = doc(Path.Root / "cover", 0)
 
-  val input = rootTree(Path.Root, 1, doc1, doc2).copy(
+  val input = rootTree(Path.Root, 1, doc1, doc2).copy[IO](
     coverDocument = Some(cover), 
     staticDocuments = Seq(BinaryFileInput(new File("cover.png"), Root / "cover.png"))
   )
@@ -77,7 +78,7 @@ trait DocumentPlusStyle extends InputTreeBuilder {
   val doc1 = doc(Path.Root / "foo", 2)
   val css = ByteInput("{}", Path.Root / "test-style.css")
 
-  val input = rootTree(Path.Root, 1, doc1).copy(staticDocuments = Seq(css))
+  val input = rootTree(Path.Root, 1, doc1).copy[IO](staticDocuments = Seq(css))
 }
 
 trait NestedTree extends InputTreeBuilder {
@@ -121,7 +122,7 @@ trait TreeWithStaticDocuments extends InputTreeBuilder {
   val unknown = ByteInput("", Path("/sub/doc.pdf"))
   val subtree = tree(Path.Root / "sub", 4, doc2)
 
-  val input = rootTree(Path.Root, 1, doc1, subtree).copy(staticDocuments = Seq(static1, static2, unknown))
+  val input = rootTree(Path.Root, 1, doc1, subtree).copy[IO](staticDocuments = Seq(static1, static2, unknown))
 }
 
 trait DocumentsWithSections extends InputTreeBuilder {

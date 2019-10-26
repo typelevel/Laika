@@ -25,7 +25,7 @@ object TransformerRuntime {
   /** Process the specified transform operation for an entire input tree and 
     * a character output format.
     */
-  def run[F[_]: Async: Runtime] (op: ParallelTransformer.Op[F]): F[RenderedTreeRoot] = for {
+  def run[F[_]: Async: Runtime] (op: ParallelTransformer.Op[F]): F[RenderedTreeRoot[F]] = for {
     tree <- ParallelParser.Op(NonEmptyList.of(op.transformer.parser), op.input).parse
     res  <- ParallelRenderer.Op(op.transformer.renderer, tree.root, op.output, Async[F].pure(tree.staticDocuments)).render
   } yield res

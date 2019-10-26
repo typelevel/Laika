@@ -51,7 +51,7 @@ class ContainerWriter {
     *  @param result the result of the render operation as a tree
     *  @return a list of all documents that need to be written to the EPUB container.
     */
-  def collectInputs[F[_]: Async] (result: RenderedTreeRoot, config: EPUB.Config): F[Vector[BinaryInput]] = {
+  def collectInputs[F[_]: Async] (result: RenderedTreeRoot[F], config: EPUB.Config): F[Vector[BinaryInput]] = {
 
     val contentRoot = Root / "EPUB" / "content"
 
@@ -68,7 +68,7 @@ class ContainerWriter {
     
     styles.sequence.flatMap { fallbackStyles =>
         
-      val finalResult = result.copy(staticDocuments = result.staticDocuments ++ fallbackStyles)
+      val finalResult = result.copy[F](staticDocuments = result.staticDocuments ++ fallbackStyles)
       
       val staticDocs: Seq[F[BinaryInput]] = finalResult.staticDocuments.filter(in => MimeTypes.supportedTypes.contains(in.path.suffix)).map {
         case fileInput: BinaryFileInput => Async[F].pure[BinaryInput](fileInput.copy(path = shiftContentPath(fileInput.path)))
@@ -103,7 +103,7 @@ class ContainerWriter {
     * @param result the result of the render operation as a tree
     * @param output the output to write the final result to
     */
-  def write[F[_]: Async: Runtime] (result: RenderedTreeRoot, output: BinaryOutput): F[Unit] = {
+  def write[F[_]: Async: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput): F[Unit] = {
 
     val inputs = collectInputs(result, ConfigFactory.forTreeConfig(result.config))
 

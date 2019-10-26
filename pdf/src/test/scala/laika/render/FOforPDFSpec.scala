@@ -52,7 +52,7 @@ class FOforPDFSpec extends FlatSpec with Matchers {
 
     object postProcessor extends BinaryPostProcessor {
 
-      override def process[F[_]: Async: Runtime] (result: RenderedTreeRoot, output: BinaryOutput): F[Unit] = {
+      override def process[F[_]: Async: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput): F[Unit] = {
 
         val foRes = FOConcatenation(result, config.getOrElse(PDFConfigBuilder.fromTreeConfig(result.config)))
         

@@ -122,12 +122,12 @@ case class RenderedDocument (path: Path, title: Seq[Span], sections: Seq[Section
   *                        and will potentially be embedded or copied as is to the final output, depending on the output format
   * @param sourcePaths the paths this document tree has been built from or an empty list if this ast does not originate from the file system
   */
-case class RenderedTreeRoot (tree: RenderedTree,
-                             defaultTemplate: TemplateRoot,
-                             config: Config,
-                             coverDocument: Option[RenderedDocument] = None,
-                             staticDocuments: Seq[BinaryInput] = Nil,
-                             sourcePaths: Seq[String] = Nil) {
+case class RenderedTreeRoot[F[_]] (tree: RenderedTree,
+                                   defaultTemplate: TemplateRoot,
+                                   config: Config,
+                                   coverDocument: Option[RenderedDocument] = None,
+                                   staticDocuments: Seq[BinaryInput] = Nil,
+                                   sourcePaths: Seq[String] = Nil) {
 
   /** The title of the tree, either obtained from the title document or configuration 
     */

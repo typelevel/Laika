@@ -14,6 +14,6 @@ trait BinaryPostProcessor {
 
   /** Processes the interim render result and writes it to the specified final output.
    */
-  def process[F[_]: Async: Runtime] (result: RenderedTreeRoot, output: BinaryOutput): F[Unit]
+  def process[F[_]: Async: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput): F[Unit]
   
 }

@@ -79,7 +79,7 @@ class PDF private(val interimFormat: RenderFormat[FOFormatter], config: Option[P
     * it to the specified final output.
     */
   val postProcessor: BinaryPostProcessor = new BinaryPostProcessor {
-    override def process[F[_]: Async: Runtime] (result: RenderedTreeRoot, output: BinaryOutput): F[Unit] = {
+    override def process[F[_]: Async: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput): F[Unit] = {
       
       val metadata = DocumentMetadata.fromConfig(result.config)
       val title = if (result.title.isEmpty) None else Some(SpanSequence(result.title).extractText)

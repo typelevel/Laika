@@ -19,6 +19,7 @@ package laika.render.epub
 import java.time.Instant
 import java.util.Locale
 
+import cats.effect.IO
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.EPUB
@@ -50,7 +51,7 @@ class OPFRendererSpec extends FlatSpec with Matchers with ModelBuilder {
       """    <item id="foo_epub_xhtml" href="content/foo.epub.xhtml" media-type="application/xhtml+xml" />"""
     val spineRefs =
       """    <itemref idref="foo_epub_xhtml" />"""
-    renderer.render(input, config) shouldBe fileContent(manifestItems, "", spineRefs, uuid)
+    renderer.render[IO](input, config) shouldBe fileContent(manifestItems, "", spineRefs, uuid)
   }
 
   it should "render a tree with a two documents" in new TwoDocuments {

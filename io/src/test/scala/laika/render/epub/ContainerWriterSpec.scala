@@ -39,9 +39,9 @@ class ContainerWriterSpec extends FlatSpec with Matchers with ModelBuilder {
   
   val fallbackStyles = "/EPUB/content/styles/fallback.css"
 
-  def collectInputs (renderResult: RenderedTreeRoot): Seq[String] = 
+  def collectInputs (renderResult: RenderedTreeRoot[IO]): Seq[String] = 
     writer
-      .collectInputs[IO](renderResult, EPUB.Config.default)
+      .collectInputs(renderResult, EPUB.Config.default)
       .unsafeRunSync()
       .map(_.path.toString)
 

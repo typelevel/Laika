@@ -89,7 +89,7 @@ object ParallelRenderer {
     /** Performs the rendering operation based on the library's
       * default runtime implementation, suspended in the effect F.
       */
-    def render: F[RenderedTreeRoot] = RendererRuntime.run(this)
+    def render: F[RenderedTreeRoot[F]] = RendererRuntime.run(this)
 
   }
 

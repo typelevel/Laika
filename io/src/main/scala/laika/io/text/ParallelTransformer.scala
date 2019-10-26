@@ -81,7 +81,7 @@ object ParallelTransformer {
     /** Performs the transformation based on the library's
       * default runtime implementation, suspended in the effect F.
       */
-    def transform: F[RenderedTreeRoot] = TransformerRuntime.run(this)
+    def transform: F[RenderedTreeRoot[F]] = TransformerRuntime.run(this)
 
   }
 

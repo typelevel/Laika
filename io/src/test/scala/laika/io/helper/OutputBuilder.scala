@@ -26,7 +26,7 @@ object OutputBuilder {
   
   object RenderedTreeView {
 
-    def toTreeView (root: io.model.RenderedTreeRoot) : RenderedTreeViewRoot = 
+    def toTreeView[F[_]] (root: io.model.RenderedTreeRoot[F]) : RenderedTreeViewRoot = 
       RenderedTreeViewRoot(
         toTreeView(root.tree), 
         root.coverDocument.map(doc => RenderedDocumentView(doc.path, doc.content)), 
