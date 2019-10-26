@@ -18,20 +18,17 @@ trait InputBuilder {
   
   def build (inputs: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): TreeInput[IO] = {
     
-    val mappedInputs = inputs.flatMap {
-      case (path, content) => 
-        docTypeMatcher(path) match {
-          case docType: TextDocumentType => Seq(StringInput(content, docType, path))
-          case Static => Seq(ByteInput(content, path))
-          case _ => Nil
-        }
-        
+    val classified = inputs.map { case (path, content) => (path, content, docTypeMatcher(path)) }
+    
+    val textInputs: Seq[TextDocument[IO]] = classified.collect {
+      case (path, content, docType: TextDocumentType) => TextDocument(path, docType, IO.pure[TextInput](StringInput(content, docType, path)))
     }
 
-    TreeInput[IO](
-      mappedInputs.collect { case i: TextInput   => TextDocument(i.path, i.docType, IO.pure[TextInput](i)) }, 
-      mappedInputs.collect { case i: BinaryInput[IO] => i }
-    )
+    val binaryInputs = classified.collect {
+      case (path, content, Static) => ByteInput(content, path)
+    }
+
+    TreeInput(textInputs, binaryInputs)
   }
   
 }
