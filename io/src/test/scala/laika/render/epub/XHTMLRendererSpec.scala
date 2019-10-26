@@ -60,7 +60,7 @@ class XHTMLRendererSpec extends FlatSpec with Matchers with ModelBuilder {
         .parallel[IO]
         .build
         .from(root)
-        .toOutput(IO.pure(StringTreeOutput))
+        .toOutput(StringTreeOutput)
         .render
         .unsafeRunSync()
     }

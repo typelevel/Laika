@@ -65,7 +65,7 @@ object ParallelRenderer {
       */
     def copying (toCopy: Seq[BinaryInput[F]]): OutputOps[F] = copy(staticDocuments = staticDocuments ++ toCopy)
 
-    def toOutput (output: F[TreeOutput]): Op[F] = Op[F](renderer, input, output, staticDocuments)
+    def toOutput (output: TreeOutput): Op[F] = Op[F](renderer, input, output, staticDocuments)
 
   }
 
@@ -75,7 +75,7 @@ object ParallelRenderer {
     * default runtime implementation or by developing a custom runner that performs
     * the rendering based on this operation's properties.
     */
-  case class Op[F[_]: Async: Runtime] (renderer: Renderer, input: DocumentTreeRoot, output: F[TreeOutput], staticDocuments: Seq[BinaryInput[F]] = Nil) {
+  case class Op[F[_]: Async: Runtime] (renderer: Renderer, input: DocumentTreeRoot, output: TreeOutput, staticDocuments: Seq[BinaryInput[F]] = Nil) {
 
     /** The configuration of the renderer.
       */

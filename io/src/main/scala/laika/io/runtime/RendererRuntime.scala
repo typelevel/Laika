@@ -90,7 +90,7 @@ object RendererRuntime {
       }
     }
     
-    def renderOps (finalRoot: DocumentTreeRoot, styles: StyleDeclarationSet, staticDocs: Seq[BinaryInput[F]]): F[RenderOps] = op.output.map {
+    def renderOps (finalRoot: DocumentTreeRoot, styles: StyleDeclarationSet, staticDocs: Seq[BinaryInput[F]]): RenderOps = op.output match {
       case StringTreeOutput => RenderOps(Nil, renderDocuments(finalRoot, styles)(p => StringOutput(p)))
       case DirectoryOutput(dir, codec) => 
         val renderOps = renderDocuments(finalRoot, styles)(p => TextFileOutput(file(dir, p), p, codec))
@@ -134,7 +134,7 @@ object RendererRuntime {
       styles    = finalRoot.styles(fileSuffix)
       static    = op.staticDocuments
       _         <- validatePaths(static)
-      ops       <- renderOps(finalRoot, styles, static)
+      ops       =  renderOps(finalRoot, styles, static)
       _         <- ops.mkDirOps.toVector.sequence
       res       <- processBatch(finalRoot, ops.renderOps, static)
     } yield res
@@ -157,7 +157,7 @@ object RendererRuntime {
     val preparedTree = op.renderer.prepareTree(op.input)
     for {
       out          <- op.output
-      renderedTree <- run(ParallelRenderer.Op[F](op.renderer.interimRenderer, preparedTree, Async[F].pure(StringTreeOutput)))
+      renderedTree <- run(ParallelRenderer.Op[F](op.renderer.interimRenderer, preparedTree, StringTreeOutput))
       _            <- op.renderer.postProcessor.process(renderedTree.copy[F](defaultTemplate = template), out)
     } yield ()
       

@@ -78,7 +78,7 @@ class ParallelRendererSpec extends FlatSpec
     
     def renderedTree: RenderedTreeViewRoot = RenderedTreeView.toTreeView(renderer
       .from(treeRoot)
-      .toOutput(IO.pure(StringTreeOutput))
+      .toOutput(StringTreeOutput)
       .render.unsafeRunSync()
     )
 
@@ -154,7 +154,7 @@ class ParallelRendererSpec extends FlatSpec
       ))
       val res = renderer
         .from(treeRoot)
-        .toOutput(IO.pure(StringTreeOutput))
+        .toOutput(StringTreeOutput)
         .render
         .attempt
         .unsafeRunSync()
@@ -315,7 +315,7 @@ class ParallelRendererSpec extends FlatSpec
     RenderedTreeView.toTreeView(renderer
       .from(treeRoot)
       .copying(Seq(ByteInput("...", Root / "static1.txt")))
-      .toOutput(IO.pure(StringTreeOutput))
+      .toOutput(StringTreeOutput)
       .render.unsafeRunSync()
     ) should be (RenderedTreeViewRoot(RenderedTreeView(Root, Nil), staticDocuments = Seq(Root / "static1.txt")))
   }
@@ -346,7 +346,7 @@ class ParallelRendererSpec extends FlatSpec
     val result = RenderedTreeView.toTreeView(renderer
       .from(treeRoot)
       .copying(staticDocs)
-      .toOutput(IO.pure(StringTreeOutput))
+      .toOutput(StringTreeOutput)
       .render.unsafeRunSync()
     )
     

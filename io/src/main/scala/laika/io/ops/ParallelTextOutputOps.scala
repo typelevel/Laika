@@ -40,7 +40,7 @@ trait ParallelTextOutputOps[F[_]] {
     * @param dir the directory to write to
     * @param codec the character encoding of the files, if not specified the platform default will be used.
     */
-  def toDirectory (dir: File)(implicit codec: Codec): Result = toOutput(F.pure(DirectoryOutput(dir, codec)))
+  def toDirectory (dir: File)(implicit codec: Codec): Result = toOutput(DirectoryOutput(dir, codec))
 
   /** Builder step that instructs the runtime to render the document tree to files
     * in the working directory and its subdirectories.
@@ -51,7 +51,7 @@ trait ParallelTextOutputOps[F[_]] {
     *  @param codec the character encoding of the files, if not specified the platform default will be used.
     */
   def toWorkingDirectory (implicit codec: Codec): Result = 
-    toOutput(F.pure(DirectoryOutput(new File(System.getProperty("user.dir")), codec)))
+    toOutput(DirectoryOutput(new File(System.getProperty("user.dir")), codec))
 
   /** Builder step that instructs the runtime to render
     * to the specified tree output.
@@ -59,6 +59,6 @@ trait ParallelTextOutputOps[F[_]] {
     * This is a generic method based on Laika's IO model that concrete
     * methods delegate to.
     */
-  def toOutput (tree: F[TreeOutput]): Result
+  def toOutput (tree: TreeOutput): Result
 
 }

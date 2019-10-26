@@ -66,7 +66,7 @@ object ParallelTransformer {
 
     type Result = Op[F]
 
-    def toOutput (output: F[TreeOutput]): Op[F] = Op[F](transformer, input, output)
+    def toOutput (output: TreeOutput): Op[F] = Op[F](transformer, input, output)
 
   }
 
@@ -76,7 +76,7 @@ object ParallelTransformer {
     * default runtime implementation or by developing a custom runner that performs
     * the transformation based on this operation's properties.
     */
-  case class Op[F[_]: Async: Runtime] (transformer: Transformer, input: F[TreeInput[F]], output: F[TreeOutput]) {
+  case class Op[F[_]: Async: Runtime] (transformer: Transformer, input: F[TreeInput[F]], output: TreeOutput) {
 
     /** Performs the transformation based on the library's
       * default runtime implementation, suspended in the effect F.
