@@ -33,6 +33,10 @@ object ConfigEncoder {
     def apply (value: Int) = LongValue(value.toLong)
   }
 
+  implicit val double: ConfigEncoder[Double] = new ConfigEncoder[Double] {
+    def apply (value: Double) = DoubleValue(value)
+  }
+
   implicit val configValue: ConfigEncoder[ConfigValue] = new ConfigEncoder[ConfigValue] {
     def apply (value: ConfigValue) = value
   }

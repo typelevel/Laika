@@ -40,16 +40,25 @@ object ConfigDecoder {
 
   implicit val string: ConfigDecoder[String] = new ConfigDecoder[String] {
     def apply (value: Traced[ConfigValue]) = value.value match {
-      case StringValue(s) => Right(s) // TODO - convert other types
-      case LongValue(n) => Right(n.toString)
+      case s: SimpleConfigValue => Right(s.render)
       case invalid => Left(InvalidType("String", invalid))
     }
   }
 
   implicit val int: ConfigDecoder[Int] = new ConfigDecoder[Int] {
     def apply (value: Traced[ConfigValue]) = value.value match {
-      case LongValue(n) => Right(n.toInt) // TODO - convert other types, check bounds
+      case LongValue(n) => Either.cond(n.isValidInt, n.toInt, ConversionError(s"not a valid integer: $n"))
+      case DoubleValue(n) => Either.cond(n.isValidInt, n.toInt, ConversionError(s"not a valid integer: $n"))
       case StringValue(s) => Try(s.toInt).toEither.left.map(_ => ConversionError(s"not an integer: $s"))
+      case invalid => Left(InvalidType("Number", invalid))
+    }
+  }
+
+  implicit val double: ConfigDecoder[Double] = new ConfigDecoder[Double] {
+    def apply (value: Traced[ConfigValue]) = value.value match {
+      case LongValue(n) => Right(n.toDouble)
+      case DoubleValue(n) => Right(n)
+      case StringValue(s) => Try(s.toDouble).toEither.left.map(_ => ConversionError(s"not a double: $s"))
       case invalid => Left(InvalidType("Number", invalid))
     }
   }
