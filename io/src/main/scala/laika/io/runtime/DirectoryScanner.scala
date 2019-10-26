@@ -57,13 +57,13 @@ object DirectoryScanner {
       
       val childPath = path / filePath.getFileName.toString
       
-      def binaryInput: BinaryInput = BinaryFileInput(filePath.toFile, childPath)
+      def binaryInput = InputRuntime.asStream(BinaryFileInput(filePath.toFile, childPath))
 
       if (input.fileFilter(filePath.toFile)) TreeInput.empty[F].pure[F]
       else if (Files.isDirectory(filePath)) scanDirectory(childPath, filePath, input)
       else input.docTypeMatcher(childPath) match {
         case docType: TextDocumentType => TreeInput[F](TextFileInput(filePath.toFile, docType, childPath, input.codec)).pure[F]
-        case Static                    => TreeInput[F](Nil, Seq(StaticDocument(childPath, binaryInput.pure[F])), Nil).pure[F]
+        case Static                    => TreeInput[F](Nil, Seq(StaticDocument(childPath, binaryInput)), Nil).pure[F]
         case _                         => TreeInput.empty[F].pure[F]
       }
     }

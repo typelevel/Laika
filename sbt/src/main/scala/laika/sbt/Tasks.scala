@@ -278,7 +278,7 @@ object Tasks {
     }).toSet
 
     allFiles(inputs.textInputs.map(_.input.unsafeRunSync())) ++ 
-      allFiles(inputs.binaryInputs.map(_.input.unsafeRunSync())) // TODO - make file path accessible without running the effect
+      inputs.binaryInputs.flatMap(_.sourceFile)
   }
 
   /** Collects all parent directories of the specified file or directory.

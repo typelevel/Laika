@@ -19,7 +19,7 @@ package laika.render.epub
 import java.io.{BufferedInputStream, ByteArrayInputStream, FileInputStream}
 import java.nio.charset.Charset
 
-import cats.effect.Async
+import cats.effect.{Async, Resource}
 import cats.implicits._
 import laika.ast.Path
 import laika.ast.Path.Root
@@ -51,7 +51,7 @@ class ContainerWriter {
     *  @param result the result of the render operation as a tree
     *  @return a list of all documents that need to be written to the EPUB container.
     */
-  def collectInputs[F[_]: Async] (result: RenderedTreeRoot[F], config: EPUB.Config): F[Vector[BinaryInput]] = {
+  def collectInputs[F[_]: Async] (result: RenderedTreeRoot[F], config: EPUB.Config): Seq[StaticDocument[F]] = {
 
     val contentRoot = Root / "EPUB" / "content"
 
@@ -59,21 +59,21 @@ class ContainerWriter {
       if (path.suffix == "html") Path(contentRoot, path.withSuffix("xhtml").components)
       else Path(contentRoot, path.components)
 
-    def toBinaryInput (content: String, path: Path): F[BinaryInput] = Async[F].delay {
-      new ByteArrayInputStream(content.getBytes(Charset.forName("UTF-8")))
-    }.map(BinaryStreamInput(_, autoClose = true, path))
+    def toBinaryInput (content: String, path: Path): StaticDocument[F] =
+      StaticDocument(path, Resource.fromAutoCloseable(Async[F].delay {
+        new ByteArrayInputStream(content.getBytes(Charset.forName("UTF-8")))
+      }))
 
     val fallbackStyles = if (result.staticDocuments.exists(_.path.suffix == "css")) Vector() 
-                         else Vector(StaticDocument(StyleSupport.fallbackStylePath, toBinaryInput(StaticContent.fallbackStyles, StyleSupport.fallbackStylePath)))
+                         else Vector(toBinaryInput(StaticContent.fallbackStyles, StyleSupport.fallbackStylePath))
     
     val finalResult = result.copy[F](staticDocuments = result.staticDocuments ++ fallbackStyles)
     
-    val staticDocs: Seq[F[BinaryInput]] = finalResult.staticDocuments.filter(in => MimeTypes.supportedTypes.contains(in.path.suffix)).map { doc =>
-      doc.input.map[BinaryInput] {
-        case fileInput: BinaryFileInput     => fileInput.copy(path = shiftContentPath(fileInput.path))
-        case streamInput: BinaryStreamInput => streamInput.copy(path = shiftContentPath(streamInput.path))
+    val staticDocs: Seq[StaticDocument[F]] = finalResult.staticDocuments
+      .filter(in => MimeTypes.supportedTypes.contains(in.path.suffix))
+      .map { doc =>
+        doc.copy(path = shiftContentPath(doc.path))
       }
-    }
 
     val mimeType  = toBinaryInput(StaticContent.mimeType, Root / "mimetype")
     val container = toBinaryInput(StaticContent.container, Root / "META-INF" / "container.xml")
@@ -84,10 +84,7 @@ class ContainerWriter {
     
     val renderedDocs = finalResult.allDocuments.map(doc => toBinaryInput(doc.content, shiftContentPath(doc.path)))
 
-    val allInputs: Seq[F[BinaryInput]] = Seq(mimeType, container, iBooksOpt, opf, nav, ncx) ++ 
-      renderedDocs ++ staticDocs
-    
-    allInputs.toVector.sequence
+    Seq(mimeType, container, iBooksOpt, opf, nav, ncx) ++ renderedDocs ++ staticDocs
   }
 
   /** Produces an EPUB container from the specified document tree.

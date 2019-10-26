@@ -16,13 +16,14 @@
 
 package laika.render.epub
 
+import java.io.InputStream
 import java.util.zip.{CRC32, ZipEntry, ZipOutputStream}
 
 import cats.effect.Async
 import cats.implicits._
 import laika.ast.Path
-import laika.io.runtime.{Runtime, CopyRuntime, InputRuntime, OutputRuntime}
-import laika.io.model.{BinaryInput, BinaryOutput}
+import laika.io.runtime.{CopyRuntime, InputRuntime, OutputRuntime, Runtime}
+import laika.io.model.{BinaryInput, BinaryOutput, StaticDocument}
 
 /**
   * @author Jens Halm
@@ -36,15 +37,15 @@ object ZipWriter {
     * file (called `mimeType`) is written uncompressed. Hence this is not
     * a generic zip utility as the method name suggests.
     */
-  def zipEPUB[F[_]: Async: Runtime] (inputFs: F[Vector[BinaryInput]], output: BinaryOutput): F[Unit] = {
+  def zipEPUB[F[_]: Async: Runtime] (inputFs: Seq[StaticDocument[F]], output: BinaryOutput): F[Unit] = {
 
-    def copy (inputs: Vector[BinaryInput], zipOut: ZipOutputStream): F[Unit] = {
+    def copy (inputs: Vector[(InputStream, Path)], zipOut: ZipOutputStream): F[Unit] = {
     
-      def writeEntry (input: BinaryInput, prepareEntry: ZipEntry => F[Unit] = _ => Async[F].unit): F[Unit] = for {
-        entry <- Async[F].delay(new ZipEntry(input.path.relativeTo(Path.Root).toString))
+      def writeEntry (input: (InputStream, Path), prepareEntry: ZipEntry => F[Unit] = _ => Async[F].unit): F[Unit] = for {
+        entry <- Async[F].delay(new ZipEntry(input._2.relativeTo(Path.Root).toString))
         _     <- prepareEntry(entry)
         _     <- Async[F].delay(zipOut.putNextEntry(entry))
-        _     <- InputRuntime.asStream(input).use { in => CopyRuntime.copy(in, zipOut) }
+        _     <- CopyRuntime.copy(input._1, zipOut)
         _     <- Async[F].delay(zipOut.closeEntry())
       } yield ()
       
@@ -61,15 +62,18 @@ object ZipWriter {
       writeEntry(inputs.head, prepareUncompressedEntry) >> inputs.tail.map(writeEntry(_)).sequence.as(())
     }
     
+    val in = inputFs.toVector.map { doc =>
+      doc.input.map((_, doc.path))
+    }.sequence
+
     val out = OutputRuntime
       .asStream(output)
       .map(new ZipOutputStream(_))
-
+    
     Runtime[F].runBlocking {
-      for {
-        inputs <- inputFs
-        _      <- out.use(copy(inputs, _))
-      } yield ()
+      (in, out).tupled.use {
+        case (ins, zip) => copy(ins, zip)
+      }
     }
   }
   

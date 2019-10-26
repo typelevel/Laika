@@ -56,7 +56,7 @@ class ParallelRendererSpec extends FlatSpec
   trait DocBuilder extends InputBuilder {
     def markupDoc (num: Int, path: Path = Root)  = Document(path / ("doc"+num), root(p("Doc"+num)))
     
-    def staticDoc (num: Int, path: Path = Root) = StaticDocument(path / s"static$num.txt", IO.pure[BinaryInput](ByteInput("Static"+num, path / s"static$num.txt")))
+    def staticDoc (num: Int, path: Path = Root) = ByteInput("Static"+num, path / s"static$num.txt")
     
     
     def renderedDynDoc (num: Int): String = """RootElement - Blocks: 1
@@ -314,7 +314,7 @@ class ParallelRendererSpec extends FlatSpec
     override def treeRoot = DocumentTreeRoot(input, staticDocuments = Seq(staticDoc(1).path))
     RenderedTreeView.toTreeView(renderer
       .from(treeRoot)
-      .copying(Seq(StaticDocument(Root / "static1.txt", IO.pure(ByteInput("...", Root / "static1.txt"): BinaryInput))))
+      .copying(Seq(ByteInput("...", Root / "static1.txt")))
       .toOutput(IO.pure(StringTreeOutput))
       .render.unsafeRunSync()
     ) should be (RenderedTreeViewRoot(RenderedTreeView(Root, Nil), staticDocuments = Seq(Root / "static1.txt")))

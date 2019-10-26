@@ -69,14 +69,14 @@ trait DocumentPlusCover extends InputTreeBuilder {
 
   val input = rootTree(Path.Root, 1, doc1, doc2).copy[IO](
     coverDocument = Some(cover), 
-    staticDocuments = Seq(StaticDocument(Root / "cover.png", IO.pure(BinaryFileInput(new File("cover.png"), Root / "cover.png"): BinaryInput)))
+    staticDocuments = Seq(ByteInput("", Root / "cover.png"))
   )
 }
 
 trait DocumentPlusStyle extends InputTreeBuilder {
 
   val doc1 = doc(Path.Root / "foo", 2)
-  val css = StaticDocument(Path.Root / "test-style.css", IO.pure[BinaryInput](ByteInput("{}", Path.Root / "test-style.css")))
+  val css = ByteInput("{}", Path.Root / "test-style.css")
 
   val input = rootTree(Path.Root, 1, doc1).copy[IO](staticDocuments = Seq(css))
 }
@@ -117,9 +117,9 @@ trait TreeWithStaticDocuments extends InputTreeBuilder {
 
   val doc1 = doc(Path.Root / "foo", 2)
   val doc2 = doc(Path.Root / "sub" / "bar", 3)
-  val static1 = StaticDocument(Path("/sub/image.jpg"), IO.pure[BinaryInput](ByteInput("", Path("/sub/image.jpg"))))
-  val static2 = StaticDocument(Path("/sub/styles.css"), IO.pure[BinaryInput](ByteInput("", Path("/sub/styles.css"))))
-  val unknown = StaticDocument(Path("/sub/doc.pdf"), IO.pure[BinaryInput](ByteInput("", Path("/sub/doc.pdf"))))
+  val static1 = ByteInput("", Path("/sub/image.jpg"))
+  val static2 = ByteInput("", Path("/sub/styles.css"))
+  val unknown = ByteInput("", Path("/sub/doc.pdf"))
   val subtree = tree(Path.Root / "sub", 4, doc2)
 
   val input = rootTree(Path.Root, 1, doc1, subtree).copy[IO](staticDocuments = Seq(static1, static2, unknown))

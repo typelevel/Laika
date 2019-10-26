@@ -42,7 +42,6 @@ class ContainerWriterSpec extends FlatSpec with Matchers with ModelBuilder {
   def collectInputs (renderResult: RenderedTreeRoot[IO]): Seq[String] = 
     writer
       .collectInputs(renderResult, EPUB.Config.default)
-      .unsafeRunSync()
       .map(_.path.toString)
 
 

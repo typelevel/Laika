@@ -1,8 +1,8 @@
 package laika.io.helper
 
-import java.io.ByteArrayInputStream
+import java.io.{ByteArrayInputStream, InputStream}
 
-import cats.effect.IO
+import cats.effect.{IO, Resource}
 import laika.ast.DocumentType.Static
 import laika.ast.{DocumentType, Path, TextDocumentType}
 import laika.io.model._
@@ -12,8 +12,8 @@ import scala.io.Codec
 trait InputBuilder {
 
   object ByteInput {
-    def apply (input: String, path: Path)(implicit codec: Codec): BinaryStreamInput =
-      BinaryStreamInput(new ByteArrayInputStream(input.getBytes(codec.charSet)), autoClose = true, path)
+    def apply (input: String, path: Path)(implicit codec: Codec): StaticDocument[IO] =
+      StaticDocument(path, Resource.fromAutoCloseable(IO(new ByteArrayInputStream(input.getBytes(codec.charSet)))))
   }
   
   def build (inputs: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): TreeInput[IO] = {
@@ -30,7 +30,7 @@ trait InputBuilder {
 
     TreeInput[IO](
       mappedInputs.collect { case i: TextInput   => TextDocument(i.path, i.docType, IO.pure[TextInput](i)) }, 
-      mappedInputs.collect { case i: BinaryInput => StaticDocument(i.path, IO.pure[BinaryInput](i)) }
+      mappedInputs.collect { case i: StaticDocument[IO] => i }
     )
   }
   

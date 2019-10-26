@@ -20,6 +20,7 @@ import java.io._
 
 import cats.implicits._
 import cats.Monad
+import cats.effect.Resource
 import laika.ast.Path.Root
 import laika.ast.{DocumentTreeRoot, DocumentType, Path, TextDocumentType}
 import laika.bundle.DocumentTypeMatcher
@@ -104,7 +105,7 @@ object DirectoryInput {
 sealed trait InputDocument {
   def path: Path
 }
-case class StaticDocument[F[_]] (path: Path, input: F[BinaryInput]) extends InputDocument
+case class StaticDocument[F[_]] (path: Path, input: Resource[F, InputStream], sourceFile: Option[File] = None) extends InputDocument
 case class TextDocument[F[_]](path: Path, docType: TextDocumentType, input: F[TextInput]) extends InputDocument
 
 /** A (virtual) tree of input documents, either obtained from scanning a directory recursively or 
