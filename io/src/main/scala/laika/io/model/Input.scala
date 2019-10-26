@@ -18,6 +18,8 @@ package laika.io.model
 
 import java.io._
 
+import cats.implicits._
+import cats.Monad
 import laika.ast.Path.Root
 import laika.ast.{DocumentTreeRoot, DocumentType, Path, TextDocumentType}
 import laika.bundle.DocumentTypeMatcher
@@ -99,13 +101,19 @@ object DirectoryInput {
   def apply (directory: File)(implicit codec: Codec): DirectoryInput = DirectoryInput(Seq(directory), codec)
 }
 
+sealed trait InputDocument {
+  def path: Path
+}
+case class StaticDocument[F[_]] (path: Path, input: F[BinaryInput]) extends InputDocument
+case class TextDocument[F[_]](path: Path, docType: TextDocumentType, input: F[TextInput]) extends InputDocument
+
 /** A (virtual) tree of input documents, either obtained from scanning a directory recursively or 
   * constructed programmatically (or a mix of both).
   * 
   * Even though the documents are specified as a flat sequence, they logically form a tree based
   * on their virtual path.
   */
-case class TreeInput[F[_]] (textInputs: Seq[TextInput], binaryInputs: Seq[StaticDocument[F]], sourcePaths: Seq[String] = Nil) {
+case class TreeInput[F[_]] (textInputs: Seq[TextDocument[F]], binaryInputs: Seq[StaticDocument[F]], sourcePaths: Seq[String] = Nil) {
 
   /** Merges the inputs of two collections.
     */
@@ -122,7 +130,8 @@ object TreeInput {
 
   /** Creates an input collection consisting solely of the specified single text input.
     */
-  def apply[F[_]] (textInput: TextInput): TreeInput[F] = TreeInput(Seq(textInput), Nil, Nil)
+  def apply[F[_]: Monad] (textInput: TextInput): TreeInput[F] = 
+    TreeInput(Seq(TextDocument(textInput.path, textInput.docType, textInput.pure[F])), Nil, Nil)
 
   /** An empty input collection.
     */

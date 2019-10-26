@@ -29,8 +29,8 @@ trait InputBuilder {
     }
 
     TreeInput[IO](
-      mappedInputs.collect { case i: TextInput => i }, 
-      mappedInputs.collect { case i: BinaryInput => StaticDocument[IO](i.path, IO.pure(i)) }
+      mappedInputs.collect { case i: TextInput   => TextDocument(i.path, i.docType, IO.pure[TextInput](i)) }, 
+      mappedInputs.collect { case i: BinaryInput => StaticDocument(i.path, IO.pure[BinaryInput](i)) }
     )
   }
   

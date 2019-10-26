@@ -5,7 +5,7 @@ import cats.effect.Async
 import cats.implicits._
 import laika.ast._
 import laika.bundle.{ConfigProvider, UnresolvedConfig}
-import laika.io.model.{DirectoryInput, TreeInput, ParsedTree, TextFileInput, TextInput}
+import laika.io.model.{DirectoryInput, ParsedTree, TextDocument, TextFileInput, TextInput, TreeInput}
 import laika.parse.markup.DocumentParser.{ParserError, ParserInput}
 import laika.api.MarkupParser
 import laika.config.Config
@@ -55,8 +55,8 @@ object ParserRuntime {
         else Async[F].raiseError(ParserErrors(duplicates.toSeq))
       }
 
-      def parseDocument[D] (input: TextInput, parse: ParserInput => Either[ParserError, D], result: D => ParserResult): F[ParserResult] =
-        InputRuntime.readParserInput(input).flatMap(in => Async[F].fromEither(parse(in).map(result)))
+      def parseDocument[D] (doc: TextDocument[F], parse: ParserInput => Either[ParserError, D], result: D => ParserResult): F[ParserResult] =
+        doc.input.flatMap(in => InputRuntime.readParserInput(in).flatMap(in => Async[F].fromEither(parse(in).map(result))))
       
       def parseConfig(input: ParserInput): Either[ParserError, UnresolvedConfig] =
         Right(op.config.configProvider.configDocument(input.context.input))

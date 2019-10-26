@@ -21,6 +21,7 @@ import java.util.concurrent.Executors
 import cats.effect.{Blocker, ContextShift, IO}
 import laika.api.builder.{BundleFilter, ParserBuilder}
 import laika.api.{MarkupParser, Renderer}
+import laika.ast./
 import laika.factory.{BinaryPostProcessor, MarkupFormat, RenderFormat, TwoPhaseRenderFormat}
 import laika.format._
 import laika.io.implicits._
@@ -276,7 +277,8 @@ object Tasks {
       case f: BinaryFileInput => f.file
     }).toSet
 
-    allFiles(inputs.textInputs) ++ allFiles(inputs.binaryInputs.map(_.input.unsafeRunSync()))
+    allFiles(inputs.textInputs.map(_.input.unsafeRunSync())) ++ 
+      allFiles(inputs.binaryInputs.map(_.input.unsafeRunSync())) // TODO - make file path accessible without running the effect
   }
 
   /** Collects all parent directories of the specified file or directory.
