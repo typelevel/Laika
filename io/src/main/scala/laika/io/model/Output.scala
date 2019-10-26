@@ -111,6 +111,8 @@ case class RenderedTree (path: Path,
   */
 case class RenderedDocument (path: Path, title: Seq[Span], sections: Seq[SectionInfo], content: String) extends RenderContent
 
+case class StaticDocument[F[_]] (path: Path, input: F[BinaryInput])
+
 /** Represents the root of a tree of rendered documents. In addition to the recursive structure of documents
   * it holds additional items like static or cover documents, which may contribute to the output of a site or an e-book.
   *
@@ -126,7 +128,7 @@ case class RenderedTreeRoot[F[_]] (tree: RenderedTree,
                                    defaultTemplate: TemplateRoot,
                                    config: Config,
                                    coverDocument: Option[RenderedDocument] = None,
-                                   staticDocuments: Seq[BinaryInput] = Nil,
+                                   staticDocuments: Seq[StaticDocument[F]] = Nil,
                                    sourcePaths: Seq[String] = Nil) {
 
   /** The title of the tree, either obtained from the title document or configuration 

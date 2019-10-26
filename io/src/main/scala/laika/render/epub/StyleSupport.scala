@@ -1,7 +1,7 @@
 package laika.render.epub
 
 import laika.ast.{DocumentTreeRoot, Path}
-import laika.io.model.{BinaryInput, RenderedTreeRoot}
+import laika.io.model.RenderedTreeRoot
 
 /** Processes CSS inputs for EPUB containers.
   *
@@ -17,7 +17,8 @@ object StyleSupport {
   /** Collects all CSS inputs (recursively) in the provided document tree.
     * CSS inputs are recognized by file suffix).
     */
-  def collectStyles[F[_]] (root: RenderedTreeRoot[F]): Seq[BinaryInput] = root.staticDocuments.filter(_.path.suffix == "css")
+  def collectStylePaths[F[_]] (root: RenderedTreeRoot[F]): Seq[Path] = 
+    root.staticDocuments.collect { case doc if doc.path.suffix == "css" => doc.path }
 
   /** Verifies that the specified document tree contains at least one CSS file
     * (determined by file suffix). If this is the case the tree is returned unchanged,

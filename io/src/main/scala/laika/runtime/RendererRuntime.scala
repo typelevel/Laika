@@ -42,7 +42,7 @@ object RendererRuntime {
     */
   def run[F[_]: Async: Runtime] (op: ParallelRenderer.Op[F]): F[RenderedTreeRoot[F]] = {
     
-    def validatePaths (staticDocs: Seq[BinaryInput]): F[Unit] = {
+    def validatePaths (staticDocs: Seq[StaticDocument[F]]): F[Unit] = {
       val paths = op.input.allDocuments.map(_.path) ++ staticDocs.map(_.path)
       val duplicates = paths.groupBy(identity).values.collect {
         case p if p.size > 1 => DuplicatePath(p.head)
@@ -65,12 +65,12 @@ object RendererRuntime {
       }
     }
     
-    def copyDocuments (docs: Seq[BinaryInput], dir: File): Seq[F[RenderResult]] = docs.map { in =>
-      val out = BinaryFileOutput(file(dir, in.path), in.path)
-      CopyRuntime.copy(in, out).as(Left(CopiedDocument(in.path)): RenderResult)
+    def copyDocuments (docs: Seq[StaticDocument[F]], dir: File): Seq[F[RenderResult]] = docs.map { doc =>
+      val out = BinaryFileOutput(file(dir, doc.path), doc.path)
+      doc.input.flatMap(in => CopyRuntime.copy(in, out).as(Left(CopiedDocument(in.path)): RenderResult))
     }
     
-    def renderOps (finalRoot: DocumentTreeRoot, styles: StyleDeclarationSet, staticDocs: Seq[BinaryInput]): F[RenderOps] = op.output.map {
+    def renderOps (finalRoot: DocumentTreeRoot, styles: StyleDeclarationSet, staticDocs: Seq[StaticDocument[F]]): F[RenderOps] = op.output.map {
       case StringTreeOutput => RenderOps(Nil, renderDocuments(finalRoot, styles)(p => StringOutput(p)))
       case DirectoryOutput(dir, codec) => 
         val renderOps = renderDocuments(finalRoot, styles)(p => TextFileOutput(file(dir, p), p, codec))
@@ -81,13 +81,13 @@ object RendererRuntime {
         RenderOps(directories, renderOps ++ copyOps)
     }
     
-    def filterOutput (staticDocs: Seq[BinaryInput], outPath: String): Seq[BinaryInput] = {
+    def filterOutput (staticDocs: Seq[StaticDocument[F]], outPath: String): Seq[StaticDocument[F]] = {
       op.input.sourcePaths.collectFirst { 
         case inPath if outPath.startsWith(inPath) => Path(outPath.drop(inPath.length)) 
       }.fold(staticDocs) { nestedOut => staticDocs.filterNot(_.path.components.startsWith(nestedOut.components)) }
     }
     
-    def processBatch (finalRoot: DocumentTreeRoot, ops: Seq[F[RenderResult]], staticDocs: Seq[BinaryInput]): F[RenderedTreeRoot[F]] =
+    def processBatch (finalRoot: DocumentTreeRoot, ops: Seq[F[RenderResult]], staticDocs: Seq[StaticDocument[F]]): F[RenderedTreeRoot[F]] =
 
       Runtime[F].runParallel(ops.toVector).map { results =>
         val renderedDocs = results.collect { case Right(doc) => doc }
@@ -112,7 +112,7 @@ object RendererRuntime {
     for {
       finalRoot <- Async[F].fromEither(op.renderer.applyTheme(op.input).leftMap(e => RendererErrors(Seq(ConfigException(e)))))
       styles    = finalRoot.styles(fileSuffix)
-      static    <- op.staticDocuments
+      static    = op.staticDocuments
       _         <- validatePaths(static)
       ops       <- renderOps(finalRoot, styles, static)
       _         <- ops.mkDirOps.toVector.sequence
@@ -125,7 +125,7 @@ object RendererRuntime {
     */
   def run[F[_]: Async: Runtime] (op: binary.SequentialRenderer.Op[F]): F[Unit] = {
     val root = DocumentTreeRoot(DocumentTree(Root, Seq(Document(Root / "input", RootElement(Seq(SpanSequence(Seq(TemplateElement(op.input)))))))))
-    val parOp = binary.ParallelRenderer.Op(op.renderer, root, op.output, Async[F].pure[Seq[BinaryInput]](Nil))
+    val parOp = binary.ParallelRenderer.Op(op.renderer, root, op.output)
     run(parOp)
   }
 
@@ -137,7 +137,7 @@ object RendererRuntime {
     val preparedTree = op.renderer.prepareTree(op.input)
     for {
       out          <- op.output
-      renderedTree <- run(ParallelRenderer.Op[F](op.renderer.interimRenderer, preparedTree, Async[F].pure(StringTreeOutput), Async[F].pure(Nil)))
+      renderedTree <- run(ParallelRenderer.Op[F](op.renderer.interimRenderer, preparedTree, Async[F].pure(StringTreeOutput)))
       _            <- op.renderer.postProcessor.process(renderedTree.copy[F](defaultTemplate = template), out)
     } yield ()
       

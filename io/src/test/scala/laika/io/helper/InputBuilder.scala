@@ -2,6 +2,7 @@ package laika.io.helper
 
 import java.io.ByteArrayInputStream
 
+import cats.effect.IO
 import laika.ast.DocumentType.Static
 import laika.ast.{DocumentType, Path, TextDocumentType}
 import laika.io.model._
@@ -15,7 +16,7 @@ trait InputBuilder {
       BinaryStreamInput(new ByteArrayInputStream(input.getBytes(codec.charSet)), autoClose = true, path)
   }
   
-  def build (inputs: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): InputCollection = {
+  def build (inputs: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): InputCollection[IO] = {
     
     val mappedInputs = inputs.flatMap {
       case (path, content) => 
@@ -27,9 +28,9 @@ trait InputBuilder {
         
     }
 
-    InputCollection(
+    InputCollection[IO](
       mappedInputs.collect { case i: TextInput => i }, 
-      mappedInputs.collect { case i: BinaryInput => i }
+      mappedInputs.collect { case i: BinaryInput => StaticDocument[IO](i.path, IO.pure(i)) }
     )
   }
   

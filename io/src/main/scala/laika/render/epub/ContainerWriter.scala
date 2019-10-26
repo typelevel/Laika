@@ -63,32 +63,31 @@ class ContainerWriter {
       new ByteArrayInputStream(content.getBytes(Charset.forName("UTF-8")))
     }.map(BinaryStreamInput(_, autoClose = true, path))
 
-    val styles = if (result.staticDocuments.exists(_.path.suffix == "css")) Vector() 
-                 else Vector(toBinaryInput(StaticContent.fallbackStyles, StyleSupport.fallbackStylePath))
+    val fallbackStyles = if (result.staticDocuments.exists(_.path.suffix == "css")) Vector() 
+                         else Vector(StaticDocument(StyleSupport.fallbackStylePath, toBinaryInput(StaticContent.fallbackStyles, StyleSupport.fallbackStylePath)))
     
-    styles.sequence.flatMap { fallbackStyles =>
-        
-      val finalResult = result.copy[F](staticDocuments = result.staticDocuments ++ fallbackStyles)
-      
-      val staticDocs: Seq[F[BinaryInput]] = finalResult.staticDocuments.filter(in => MimeTypes.supportedTypes.contains(in.path.suffix)).map {
-        case fileInput: BinaryFileInput => Async[F].pure[BinaryInput](fileInput.copy(path = shiftContentPath(fileInput.path)))
-        case streamInput: BinaryStreamInput => Async[F].pure[BinaryInput](streamInput.copy(path = shiftContentPath(streamInput.path)))
+    val finalResult = result.copy[F](staticDocuments = result.staticDocuments ++ fallbackStyles)
+    
+    val staticDocs: Seq[F[BinaryInput]] = finalResult.staticDocuments.filter(in => MimeTypes.supportedTypes.contains(in.path.suffix)).map { doc =>
+      doc.input.map[BinaryInput] {
+        case fileInput: BinaryFileInput     => fileInput.copy(path = shiftContentPath(fileInput.path))
+        case streamInput: BinaryStreamInput => streamInput.copy(path = shiftContentPath(streamInput.path))
       }
-  
-      val mimeType  = toBinaryInput(StaticContent.mimeType, Root / "mimetype")
-      val container = toBinaryInput(StaticContent.container, Root / "META-INF" / "container.xml")
-      val iBooksOpt = toBinaryInput(StaticContent.iBooksOptions, Root / "META-INF" / "com.apple.ibooks.display-options.xml")
-      val opf       = toBinaryInput(opfRenderer.render(finalResult, config), Root / "EPUB" / "content.opf")
-      val nav       = toBinaryInput(navRenderer.render(finalResult, config.tocDepth), Root / "EPUB" / "nav.xhtml")
-      val ncx       = toBinaryInput(ncxRenderer.render(finalResult, config.identifier, config.tocDepth), Root / "EPUB" / "toc.ncx")
-      
-      val renderedDocs = finalResult.allDocuments.map(doc => toBinaryInput(doc.content, shiftContentPath(doc.path)))
-  
-      val allInputs: Seq[F[BinaryInput]] = Seq(mimeType, container, iBooksOpt, opf, nav, ncx) ++ 
-        renderedDocs ++ staticDocs
-      
-      allInputs.toVector.sequence
     }
+
+    val mimeType  = toBinaryInput(StaticContent.mimeType, Root / "mimetype")
+    val container = toBinaryInput(StaticContent.container, Root / "META-INF" / "container.xml")
+    val iBooksOpt = toBinaryInput(StaticContent.iBooksOptions, Root / "META-INF" / "com.apple.ibooks.display-options.xml")
+    val opf       = toBinaryInput(opfRenderer.render(finalResult, config), Root / "EPUB" / "content.opf")
+    val nav       = toBinaryInput(navRenderer.render(finalResult, config.tocDepth), Root / "EPUB" / "nav.xhtml")
+    val ncx       = toBinaryInput(ncxRenderer.render(finalResult, config.identifier, config.tocDepth), Root / "EPUB" / "toc.ncx")
+    
+    val renderedDocs = finalResult.allDocuments.map(doc => toBinaryInput(doc.content, shiftContentPath(doc.path)))
+
+    val allInputs: Seq[F[BinaryInput]] = Seq(mimeType, container, iBooksOpt, opf, nav, ncx) ++ 
+      renderedDocs ++ staticDocs
+    
+    allInputs.toVector.sequence
   }
 
   /** Produces an EPUB container from the specified document tree.

@@ -110,7 +110,7 @@ object ParallelParser {
     /** Performs the parsing operation based on the library's
       * default runtime implementation, suspended in the effect F.
       */
-    def parse: F[ParsedTree] = ParserRuntime.run(this)
+    def parse: F[ParsedTree[F]] = ParserRuntime.run(this)
 
   }
 

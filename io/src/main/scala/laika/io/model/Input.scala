@@ -28,7 +28,7 @@ import scala.io.Codec
  *  
  *  @author Jens Halm
  */
-sealed trait Input {
+sealed trait Input extends Product with Serializable {
 
   /** The full virtual path of this input.
    *  This path is always an absolute path
@@ -119,11 +119,11 @@ object DirectoryInput {
   * Even though the documents are specified as a flat sequence, they logically form a tree based
   * on their virtual path.
   */
-case class InputCollection (textInputs: Seq[TextInput], binaryInputs: Seq[BinaryInput] = Nil, sourcePaths: Seq[String] = Nil) extends TreeInput {
+case class InputCollection[F[_]] (textInputs: Seq[TextInput], binaryInputs: Seq[StaticDocument[F]], sourcePaths: Seq[String] = Nil) extends TreeInput {
 
   /** Merges the inputs of two collections.
     */
-  def ++ (other: InputCollection): InputCollection = InputCollection(
+  def ++ (other: InputCollection[F]): InputCollection[F] = InputCollection(
     textInputs ++ other.textInputs, 
     binaryInputs ++ other.binaryInputs, 
     sourcePaths ++ other.sourcePaths
@@ -136,11 +136,11 @@ object InputCollection {
 
   /** Creates an input collection consisting solely of the specified single text input.
     */
-  def apply (textInput: TextInput): InputCollection = InputCollection(Seq(textInput))
+  def apply[F[_]] (textInput: TextInput): InputCollection[F] = InputCollection(Seq(textInput), Nil, Nil)
 
   /** An empty input collection.
     */
-  def empty: InputCollection = InputCollection(Nil)
+  def empty[F[_]]: InputCollection[F] = InputCollection(Nil, Nil, Nil)
 }
 
 /** The result of a parsing operation for an entire document tree.
@@ -154,4 +154,4 @@ object InputCollection {
   * might copy them into a target directory, or embed them into an output format
   * like EPUB.
   */
-case class ParsedTree (root: DocumentTreeRoot, staticDocuments: Seq[BinaryInput])
+case class ParsedTree[F[_]] (root: DocumentTreeRoot, staticDocuments: Seq[StaticDocument[F]])

@@ -33,7 +33,7 @@ object ParserRuntime {
   /** Run the specified parser operation for an entire input tree,
     * producing an AST tree.
     */
-  def run[F[_]: Async: Runtime] (op: ParallelParser.Op[F]): F[ParsedTree] = {
+  def run[F[_]: Async: Runtime] (op: ParallelParser.Op[F]): F[ParsedTree[F]] = {
     
     import DocumentType.{Config => ConfigType, _}
     import TreeResultBuilder._
@@ -45,15 +45,12 @@ object ParserRuntime {
         .toValidNel(NoMatchingParser(path, multiple.toList.flatMap(_.fileSuffixes).toSet))
     }
       
-    def parseAll(inputs: InputCollection): F[ParsedTree] = {
+    def parseAll(inputs: InputCollection[F]): F[ParsedTree[F]] = {
       
       def validateInputPaths: F[Unit] = {
-        val duplicates = (inputs.binaryInputs ++ inputs.textInputs)
-          .map(i => i.path -> i)
-          .groupBy(_._1)
-          .collect { case (path, in) if in.size > 1 => 
-            DuplicatePath(path, in.collect { case (_, i: TextFileInput) => i.file.getAbsolutePath }.toSet)
-          }
+        val duplicates = (inputs.binaryInputs.map(_.path) ++ inputs.textInputs.map(_.path))
+          .groupBy(identity)
+          .collect { case (path, in) if in.size > 1 => DuplicatePath(path) }
         if (duplicates.isEmpty) Async[F].unit
         else Async[F].raiseError(ParserErrors(duplicates.toSeq))
       }
@@ -71,7 +68,7 @@ object ParserRuntime {
         case ConfigType         => Vector(parseDocument(in, parseConfig, ConfigResult(in.path, _))).validNel
       }}.combineAll.toEither.leftMap(es => ParserErrors(es.toList))
       
-      def rewriteTree (root: DocumentTreeRoot): ParsedTree = { // TODO - 0.13 - move to TreeResultBuilder
+      def rewriteTree (root: DocumentTreeRoot): ParsedTree[F] = { // TODO - 0.13 - move to TreeResultBuilder
         val finalTree = root.rewrite(op.config.rewriteRules)
         val finalRoot = finalTree.copy(staticDocuments = inputs.binaryInputs.map(_.path), sourcePaths = inputs.sourcePaths)
         ParsedTree(finalRoot, inputs.binaryInputs)
@@ -85,10 +82,11 @@ object ParserRuntime {
       } yield rewriteTree(tree)
     }
     
-    op.input flatMap {
-      case col: InputCollection => Async[F].pure(col)
+    val finalCol: F[InputCollection[F]] = op.input flatMap {
+      case col: InputCollection[_] => Async[F].pure(col.asInstanceOf[InputCollection[F]])
       case dir: DirectoryInput => DirectoryScanner.scanDirectories(dir)
-    } flatMap parseAll
+    }
+    finalCol.flatMap(parseAll)
     
   }
 

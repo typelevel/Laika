@@ -18,7 +18,7 @@ package laika.render.epub
 
 import laika.ast._
 import laika.io.model.RenderedTreeRoot
-import laika.render.epub.StyleSupport.collectStyles
+import laika.render.epub.StyleSupport.collectStylePaths
 
 /** Renders the entire content of an EPUB HTML navigation file.
   *
@@ -90,8 +90,8 @@ class HtmlNavRenderer {
   def render[F[_]] (result: RenderedTreeRoot[F], depth: Int): String = {
     val title = if (result.title.isEmpty) "UNTITLED" else SpanSequence(result.title).extractText
     val bookNav = BookNavigation.forTree(result.tree, depth)
-    val styles = collectStyles(result).map { input =>
-      s"""<link rel="stylesheet" type="text/css" href="content${input.path.toString}" />"""
+    val styles = collectStylePaths(result).map { path =>
+      s"""<link rel="stylesheet" type="text/css" href="content${path.toString}" />"""
     }.mkString("\n    ")
     val renderedNavPoints = navItems(bookNav)
     val coverDoc = result.coverDocument.map(doc => BookNavigation.fullPath(doc.path, forceXhtml = true))

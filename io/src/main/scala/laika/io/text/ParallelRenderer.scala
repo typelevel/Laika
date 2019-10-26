@@ -16,13 +16,11 @@
 
 package laika.io.text
 
-import cats.Parallel
-import cats.effect.{Async, Blocker, ContextShift}
-import cats.implicits._
+import cats.effect.Async
 import laika.api.Renderer
 import laika.api.builder.OperationConfig
 import laika.ast.DocumentTreeRoot
-import laika.io.model.{BinaryInput, RenderedTreeRoot, TreeOutput}
+import laika.io.model.{RenderedTreeRoot, StaticDocument, TreeOutput}
 import laika.io.ops.ParallelTextOutputOps
 import laika.runtime.{RendererRuntime, Runtime}
 
@@ -35,7 +33,7 @@ class ParallelRenderer[F[_]: Async: Runtime] (renderer: Renderer) {
   /** Builder step that specifies the root of the document tree to render.
     */
   def from (input: DocumentTreeRoot): ParallelRenderer.OutputOps[F] =
-    ParallelRenderer.OutputOps(renderer, input, Async[F].pure(Nil))
+    ParallelRenderer.OutputOps(renderer, input, Nil)
 
 }
 
@@ -56,7 +54,7 @@ object ParallelRenderer {
 
   /** Builder step that allows to specify the output to render to.
     */
-  case class OutputOps[F[_]: Async: Runtime] (renderer: Renderer, input: DocumentTreeRoot, staticDocuments: F[Seq[BinaryInput]]) extends ParallelTextOutputOps[F] {
+  case class OutputOps[F[_]: Async: Runtime] (renderer: Renderer, input: DocumentTreeRoot, staticDocuments: Seq[StaticDocument[F]]) extends ParallelTextOutputOps[F] {
 
     val F: Async[F] = Async[F]
 
@@ -65,10 +63,7 @@ object ParallelRenderer {
     /** Copies the specified binary input to the output target,
       * in addition to rendering the document tree.
       */
-    def copying (toCopy: F[Seq[BinaryInput]]): OutputOps[F] = {
-      val combined = for { a <- staticDocuments; b <- toCopy } yield a ++ b
-      copy(staticDocuments = combined)
-    }
+    def copying (toCopy: Seq[StaticDocument[F]]): OutputOps[F] = copy(staticDocuments = staticDocuments ++ toCopy)
 
     def toOutput (output: F[TreeOutput]): Op[F] = Op[F](renderer, input, output, staticDocuments)
 
@@ -80,7 +75,7 @@ object ParallelRenderer {
     * default runtime implementation or by developing a custom runner that performs
     * the rendering based on this operation's properties.
     */
-  case class Op[F[_]: Async: Runtime] (renderer: Renderer, input: DocumentTreeRoot, output: F[TreeOutput], staticDocuments: F[Seq[BinaryInput]]) {
+  case class Op[F[_]: Async: Runtime] (renderer: Renderer, input: DocumentTreeRoot, output: F[TreeOutput], staticDocuments: Seq[StaticDocument[F]] = Nil) {
 
     /** The configuration of the renderer.
       */

@@ -54,7 +54,7 @@ class ParallelTransformerSpec extends FlatSpec
 
     def inputs: Seq[(Path, String)]
 
-    def input (in: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): InputCollection = build(in, docTypeMatcher)
+    def input (in: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): InputCollection[IO] = build(in, docTypeMatcher)
 
     def transformTree: RenderedTreeViewRoot = transformWith()
     
@@ -314,7 +314,7 @@ class ParallelTransformerSpec extends FlatSpec
       |. . Text - 'ccc'
       |""".stripMargin
 
-    def input (in: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): InputCollection = build(in, docTypeMatcher)
+    def input (in: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): InputCollection[IO] = build(in, docTypeMatcher)
   }
   
   it should "render a tree with a RenderResultProcessor writing to an output stream" in new GatheringTransformer {

@@ -107,7 +107,7 @@ object Tasks {
         .parallel[IO]
         .build
         .from(tree.root)
-        .copying(IO.pure(tree.staticDocuments))
+        .copying(tree.staticDocuments)
         .toDirectory(targetDir)(laikaConfig.value.encoding)
         .render
         .unsafeRunSync()      
@@ -269,14 +269,14 @@ object Tasks {
   /** Collects all input files from the specified
     * input tree. Ignores any virtual inputs in the input trees.
     */
-  def collectInputFiles (inputs: InputCollection): Set[File] = {
+  def collectInputFiles (inputs: InputCollection[IO]): Set[File] = {
     
     def allFiles (inputs: Seq[Input]) = (inputs collect {
       case f: TextFileInput => f.file
       case f: BinaryFileInput => f.file
     }).toSet
 
-    allFiles(inputs.textInputs) ++ allFiles(inputs.binaryInputs)
+    allFiles(inputs.textInputs) ++ allFiles(inputs.binaryInputs.map(_.input.unsafeRunSync()))
   }
 
   /** Collects all parent directories of the specified file or directory.

@@ -30,7 +30,7 @@ import laika.io.implicits._
 import laika.io.text.ParallelRenderer
 import laika.io.helper.OutputBuilder._
 import laika.io.helper.{InputBuilder, OutputBuilder, RenderResult}
-import laika.io.model.StringTreeOutput
+import laika.io.model.{BinaryInput, StaticDocument, StringTreeOutput}
 import laika.render._
 import laika.runtime.RendererRuntime.{DuplicatePath, RendererErrors}
 import laika.runtime.TestContexts._
@@ -56,7 +56,7 @@ class ParallelRendererSpec extends FlatSpec
   trait DocBuilder extends InputBuilder {
     def markupDoc (num: Int, path: Path = Root)  = Document(path / ("doc"+num), root(p("Doc"+num)))
     
-    def staticDoc (num: Int, path: Path = Root) = ByteInput("Static"+num, path / s"static$num.txt")
+    def staticDoc (num: Int, path: Path = Root) = StaticDocument(path / s"static$num.txt", IO.pure[BinaryInput](ByteInput("Static"+num, path / s"static$num.txt")))
     
     
     def renderedDynDoc (num: Int): String = """RootElement - Blocks: 1
@@ -314,7 +314,7 @@ class ParallelRendererSpec extends FlatSpec
     override def treeRoot = DocumentTreeRoot(input, staticDocuments = Seq(staticDoc(1).path))
     RenderedTreeView.toTreeView(renderer
       .from(treeRoot)
-      .copying(IO.pure(Seq(ByteInput("...", Root / "static1.txt"))))
+      .copying(Seq(StaticDocument(Root / "static1.txt", IO.pure(ByteInput("...", Root / "static1.txt"): BinaryInput))))
       .toOutput(IO.pure(StringTreeOutput))
       .render.unsafeRunSync()
     ) should be (RenderedTreeViewRoot(RenderedTreeView(Root, Nil), staticDocuments = Seq(Root / "static1.txt")))
@@ -345,7 +345,7 @@ class ParallelRendererSpec extends FlatSpec
     
     val result = RenderedTreeView.toTreeView(renderer
       .from(treeRoot)
-      .copying(IO.pure(staticDocs))
+      .copying(staticDocs)
       .toOutput(IO.pure(StringTreeOutput))
       .render.unsafeRunSync()
     )

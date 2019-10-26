@@ -44,7 +44,7 @@ class ConfigSpec extends FlatSpec
     val mdMatcher = MarkupParser.of(Markdown).config.docTypeMatcher
     val rstMatcher = MarkupParser.of(ReStructuredText).config.docTypeMatcher
       
-    def builder (in: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): InputCollection = build(in, docTypeMatcher)
+    def builder (in: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): InputCollection[IO] = build(in, docTypeMatcher)
     
     object Contents {
 
