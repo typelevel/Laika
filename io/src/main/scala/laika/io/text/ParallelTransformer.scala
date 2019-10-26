@@ -21,7 +21,7 @@ import cats.effect.{Async, Blocker, ContextShift}
 import laika.api.Transformer
 import laika.api.builder.OperationConfig
 import laika.ast.{DocumentType, TextDocumentType}
-import laika.io.model.{InputCollection, RenderedTreeRoot, TreeInput, TreeOutput}
+import laika.io.model.{InputCollection, RenderedTreeRoot, TreeOutput}
 import laika.io.ops.{ParallelInputOps, ParallelTextOutputOps}
 import laika.runtime.{Runtime, TransformerRuntime}
 

@@ -16,13 +16,12 @@
 
 package laika.io.text
 
-import cats.Parallel
 import cats.data.NonEmptyList
 import cats.effect.{Async, Blocker, ContextShift}
 import laika.api.MarkupParser
 import laika.api.builder.{OperationConfig, ParserBuilder}
 import laika.ast.{DocumentType, StyleDeclarationSet, TemplateDocument, TextDocumentType}
-import laika.io.model.{InputCollection, ParsedTree, TreeInput}
+import laika.io.model.{InputCollection, ParsedTree}
 import laika.io.ops.ParallelInputOps
 import laika.parse.markup.DocumentParser
 import laika.parse.markup.DocumentParser.{ParserError, ParserInput}

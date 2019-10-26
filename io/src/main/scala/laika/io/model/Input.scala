@@ -64,20 +64,6 @@ sealed trait TextInput extends Input {
   
 }
 
-/** A (virtual) tree of input documents.
-  */
-sealed trait TreeInput extends Input {
-
-  val path: Path = Root
-
-  /** The paths this tree has been created from
-    * or an empty list if this input tree does
-    * not originate from the file system.
-    */
-  def sourcePaths: Seq[String]
-
-}
-
 case class StringInput (source: String, docType: TextDocumentType, path: Path = Root) extends TextInput
 
 case class TextFileInput (file: File, docType: TextDocumentType, path: Path, codec: Codec) extends TextInput
@@ -113,13 +99,13 @@ object DirectoryInput {
   def apply (directory: File)(implicit codec: Codec): DirectoryInput = DirectoryInput(Seq(directory), codec)
 }
 
-/** A generic collection of input documents, either obtained from scanning a directory recursively or 
+/** A (virtual) tree of input documents, either obtained from scanning a directory recursively or 
   * constructed programmatically (or a mix of both).
   * 
   * Even though the documents are specified as a flat sequence, they logically form a tree based
   * on their virtual path.
   */
-case class InputCollection[F[_]] (textInputs: Seq[TextInput], binaryInputs: Seq[StaticDocument[F]], sourcePaths: Seq[String] = Nil) extends TreeInput {
+case class InputCollection[F[_]] (textInputs: Seq[TextInput], binaryInputs: Seq[StaticDocument[F]], sourcePaths: Seq[String] = Nil) {
 
   /** Merges the inputs of two collections.
     */

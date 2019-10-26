@@ -28,7 +28,7 @@ import laika.format.{Markdown, ReStructuredText}
 import laika.io.implicits._
 import laika.io.text.ParallelParser
 import laika.io.helper.InputBuilder
-import laika.io.model.{InputCollection, TreeInput}
+import laika.io.model.{InputCollection}
 import laika.parse.Parser
 import laika.parse.text.TextParsers
 import laika.rewrite.TemplateRewriter
