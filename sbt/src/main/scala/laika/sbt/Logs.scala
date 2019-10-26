@@ -18,7 +18,7 @@ package laika.sbt
 
 import laika.ast.DocumentType.{Config, Markup, StyleSheet, Template}
 import laika.ast._
-import laika.io.model.TreeInput
+import laika.io.model.InputCollection
 import sbt.Logger
 
 /** Provides detailed logs for the tasks of the sbt plugin.
@@ -33,17 +33,15 @@ object Logs {
     * the number and types of documents found in the specified input
     * tree.
     */
-  def inputs (tree: TreeInput): String = {
+  def inputs (tree: InputCollection): String = {
 
-    // TODO - 0.12 - resurrect based on new describeF function
-//    val docTypes = tree.textInputs.map(_.docType)
-//    val docs = docTypes.count(_ == Markup)
-//    val tmpl = docTypes.count(_ == Template) + docTypes.count(_ == Dynamic)
-//    val styles = docTypes.count(_.isInstanceOf[StyleSheet])
-//    val conf = docTypes.count(_ == Config)
-//
-//    s"Parsing $docs markup document${s(docs)}, $tmpl template${s(tmpl)}, $conf configuration${s(conf)} ..."
-    ""
+    val docTypes = tree.textInputs.map(_.docType)
+    val docs = docTypes.count(_ == Markup)
+    val tmpl = docTypes.count(_ == Template)
+    val styles = docTypes.count(_.isInstanceOf[StyleSheet])
+    val conf = docTypes.count(_ == Config)
+
+    s"Parsing $docs markup document${s(docs)}, $tmpl template${s(tmpl)}, $conf configuration${s(conf)}, $styles stylesheet${s(styles)} ..."
   }
 
   /** Create a string containing detailed information about

@@ -49,7 +49,13 @@ object Settings {
   /** The set of targets for the transformation tasks of all supported output formats.
     */
   val allTargets = setting {
-    Set((target in laikaSite).value, (artifactPath in laikaPDF).value, (target in laikaXSLFO).value, (target in laikaAST).value)
+    Set(
+      (target in laikaSite).value, 
+      (artifactPath in laikaPDF).value, 
+      (artifactPath in laikaEPUB).value, 
+      (target in laikaXSLFO).value, 
+      (target in laikaAST).value
+    )
   }
 
 }

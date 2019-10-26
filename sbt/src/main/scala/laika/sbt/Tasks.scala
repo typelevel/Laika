@@ -84,7 +84,6 @@ object Tasks {
 
     lazy val tree = {
       streams.value.log.info("Reading files from " + (sourceDirectories in Laika).value.mkString(", "))
-      streams.value.log.info(Logs.inputs(inputs))
 
       val tree = parser.fromInput(IO.pure(inputs)).parse.unsafeRunSync()
 
@@ -139,7 +138,9 @@ object Tasks {
     }
 
     val cacheDir = streams.value.cacheDirectory / "laika"
-    val inputFiles = collectInputFiles(DirectoryScanner.scanDirectories[IO](inputs).unsafeRunSync()) // TODO - 0.12 - refactor
+    val inputCollection = DirectoryScanner.scanDirectories[IO](inputs).unsafeRunSync()
+    streams.value.log.info(Logs.inputs(inputCollection))
+    val inputFiles = collectInputFiles(inputCollection)
 
     val results = formats map { format =>
 
