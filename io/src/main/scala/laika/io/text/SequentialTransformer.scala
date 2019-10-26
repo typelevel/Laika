@@ -35,7 +35,7 @@ class SequentialTransformer[F[_]: Async: Runtime] (transformer: Transformer) ext
 
   val docType: TextDocumentType = DocumentType.Markup
 
-  def fromInput (input: F[TextInput]): SequentialTransformer.OutputOps[F] = SequentialTransformer.OutputOps(transformer, input)
+  def fromInput (input: TextInput[F]): SequentialTransformer.OutputOps[F] = SequentialTransformer.OutputOps(transformer, input)
 
 }
 
@@ -56,7 +56,7 @@ object SequentialTransformer {
 
   /** Builder step that allows to specify the output to render to.
     */
-  case class OutputOps[F[_]: Async: Runtime] (transformer: Transformer, input: F[TextInput]) extends SequentialTextOutputOps[F] {
+  case class OutputOps[F[_]: Async: Runtime] (transformer: Transformer, input: TextInput[F]) extends SequentialTextOutputOps[F] {
 
     val F: Async[F] = Async[F]
 
@@ -72,7 +72,7 @@ object SequentialTransformer {
     * default runtime implementation or by developing a custom runner that performs
     * the transformation based on this operation's properties.
     */
-  case class Op[F[_]: Async: Runtime] (transformer: Transformer, input: F[TextInput], output: F[TextOutput]) {
+  case class Op[F[_]: Async: Runtime] (transformer: Transformer, input: TextInput[F], output: F[TextOutput]) {
 
     /** Performs the transformation based on the library's
       * default runtime implementation, suspended in the effect F.

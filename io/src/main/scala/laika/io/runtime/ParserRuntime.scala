@@ -19,14 +19,13 @@ package laika.io.runtime
 import cats.data.{NonEmptyList, ValidatedNel}
 import cats.effect.Async
 import cats.implicits._
-import laika.ast._
-import laika.bundle.{ConfigProvider, UnresolvedConfig}
-import laika.io.model.{DirectoryInput, ParsedTree, TextDocument, TextFileInput, TextInput, TreeInput}
-import laika.parse.markup.DocumentParser.{ParserError, ParserInput}
 import laika.api.MarkupParser
-import laika.config.Config
 import laika.ast.Path.Root
+import laika.ast._
+import laika.bundle.UnresolvedConfig
+import laika.io.model.{ParsedTree, TextInput, TreeInput}
 import laika.io.text.{ParallelParser, SequentialParser}
+import laika.parse.markup.DocumentParser.{ParserError, ParserInput}
 
 /** Internal runtime for parser operations, for parallel and sequential execution. 
   * 
@@ -39,8 +38,7 @@ object ParserRuntime {
     */
   def run[F[_]: Async: Runtime] (op: SequentialParser.Op[F]): F[Document] = {
     for {
-      input       <- op.input
-      parserInput <- InputRuntime.readParserInput(input)
+      parserInput <- InputRuntime.readParserInput(op.input)
       res         <- Async[F].fromEither(op.parser.parse(parserInput))
     } yield res
           
@@ -71,8 +69,8 @@ object ParserRuntime {
         else Async[F].raiseError(ParserErrors(duplicates.toSeq))
       }
 
-      def parseDocument[D] (doc: TextDocument[F], parse: ParserInput => Either[ParserError, D], result: D => ParserResult): F[ParserResult] =
-        doc.input.flatMap(in => InputRuntime.readParserInput(in).flatMap(in => Async[F].fromEither(parse(in).map(result))))
+      def parseDocument[D] (doc: TextInput[F], parse: ParserInput => Either[ParserError, D], result: D => ParserResult): F[ParserResult] =
+        InputRuntime.readParserInput(doc).flatMap(in => Async[F].fromEither(parse(in).map(result)))
       
       def parseConfig(input: ParserInput): Either[ParserError, UnresolvedConfig] =
         Right(op.config.configProvider.configDocument(input.context.input))

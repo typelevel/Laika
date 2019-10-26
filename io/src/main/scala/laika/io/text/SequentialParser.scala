@@ -19,7 +19,7 @@ package laika.io.text
 import cats.effect.{Async, Blocker, ContextShift}
 import laika.api.MarkupParser
 import laika.ast.{Document, DocumentType, TextDocumentType}
-import laika.io.model.TextInput
+import laika.io.model.{TextInput}
 import laika.io.ops.SequentialInputOps
 import laika.io.runtime.{ParserRuntime, Runtime}
 
@@ -35,7 +35,7 @@ class SequentialParser[F[_]: Async: Runtime] (parser: MarkupParser) extends Sequ
 
   val docType: TextDocumentType = DocumentType.Markup
 
-  def fromInput (input: F[TextInput]): SequentialParser.Op[F] = SequentialParser.Op(parser, input)
+  def fromInput (input: TextInput[F]): SequentialParser.Op[F] = SequentialParser.Op(parser, input)
 
 }
 
@@ -60,7 +60,7 @@ object SequentialParser {
     * default runtime implementation or by developing a custom runner that performs
     * the parsing based on this operation's properties.
     */
-  case class Op[F[_]: Async: Runtime] (parser: MarkupParser, input: F[TextInput]) {
+  case class Op[F[_]: Async: Runtime] (parser: MarkupParser, input: TextInput[F]) {
 
     /** Performs the parsing operation based on the library's
       * default runtime implementation, suspended in the effect F.

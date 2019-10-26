@@ -19,7 +19,6 @@ package laika.io.runtime
 import java.io._
 
 import cats.effect.{Async, Resource}
-import laika.ast.Path
 import laika.io.model._
 import laika.parse.ParserContext
 import laika.parse.markup.DocumentParser.ParserInput
@@ -33,37 +32,14 @@ import scala.io.Codec
   */
 object InputRuntime {
 
-  /** Creates a Reader for the specified input model, reads it into a string and returns
-    * it as an instance of `ParserInput` that can serve as input for Laika's parsers.
-    */
-  def readParserInput[F[_]: Async: Runtime] (input: TextInput): F[ParserInput] = input match {
-      
-    case StringInput(source, _, path) => 
-      Async[F].pure(ParserInput(path, ParserContext(source)))
-      
-    case TextFileInput(file, _, path, codec) =>
-      readParserInput(fileInput(file), path, codec, file.length.toInt)
-      
-    case CharStreamInput(stream, _, path, autoClose, codec) =>
-      val streamF = Async[F].pure(stream)
-      val resource = if (autoClose) Resource.fromAutoCloseable(streamF) else Resource.liftF(streamF)
-      readParserInput(resource, path, codec, 8096)
+  def readParserInput[F[_]: Async: Runtime] (doc: TextInput[F]): F[ParserInput] = doc.input.use {
+    case PureReader(input) => 
+      Async[F].pure(ParserInput(doc.path, ParserContext(input)))
+    case StreamReader(reader, sizeHint) => 
+      readAll(reader, sizeHint).map(source => ParserInput(doc.path, ParserContext(source)))
   }
 
-  private def fileInput[F[_]: Async] (file: File): Resource[F, InputStream] = 
-    Resource.fromAutoCloseable(Async[F].delay(new FileInputStream(file)))
-  
-  private def readParserInput[F[_]: Async: Runtime] (resource: Resource[F, InputStream], path: Path, codec: Codec, sizeHint: Int): F[ParserInput] =
-    resource
-      .map(in => new BufferedReader(new InputStreamReader(in, codec.charSet)))
-      .use { reader =>
-        readAll(reader, 8096)
-          .map(source => ParserInput(path, ParserContext(source)))
-      }
-
-  /** Reads all input from the specified reader.
-    */
-  def readAll[F[_]: Async: Runtime] (reader: Reader, sizeHint: Int): F[String] = Runtime[F].runBlocking {
+  private def readAll[F[_]: Async: Runtime] (reader: Reader, sizeHint: Int): F[String] = Runtime[F].runBlocking {
     
     def read(inBuffer: Array[Char], outBuffer: StringBuilder): F[Unit] = {
       for {
@@ -80,7 +56,16 @@ object InputRuntime {
     } yield outBuffer.toString
   }
 
-  def binaryInput[F[_]: Async] (file: File): Resource[F, InputStream] =
+  def binaryFileResource[F[_]: Async] (file: File): Resource[F, InputStream] =
     Resource.fromAutoCloseable(Async[F].delay(new BufferedInputStream(new FileInputStream(file))))
+
+  def textFileResource[F[_]: Async] (file: File, codec: Codec): Resource[F, Reader] =
+    readerResource(Resource.fromAutoCloseable(Async[F].delay(new FileInputStream(file))), codec)
+  
+  def textStreamResource[F[_]: Async] (inputStream: F[InputStream], codec: Codec, autoClose: Boolean): Resource[F, Reader] =
+    readerResource(if (autoClose) Resource.fromAutoCloseable(inputStream) else Resource.liftF(inputStream), codec)
+
+  private def readerResource[F[_]: Async](resource: Resource[F, InputStream], codec: Codec): Resource[F, Reader] =
+    resource.map(in => new BufferedReader(new InputStreamReader(in, codec.charSet)))
   
 }

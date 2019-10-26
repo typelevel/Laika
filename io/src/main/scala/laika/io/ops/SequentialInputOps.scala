@@ -21,7 +21,7 @@ import java.io.{File, InputStream}
 import cats.effect.Async
 import laika.ast.Path.Root
 import laika.ast.{Path, TextDocumentType}
-import laika.io.model.{CharStreamInput, StringInput, TextFileInput, TextInput}
+import laika.io.model.TextInput
 
 import scala.io.Codec
 
@@ -49,7 +49,7 @@ trait SequentialInputOps[F[_]] {
   /** Builder step that instructs the runtime to use the
     * specified string as parser input.
     */
-  def fromString (str: String): InputResult = fromInput(F.pure(StringInput(str, docType)))
+  def fromString (str: String): InputResult = fromInput(TextInput.fromString[F](Root, docType, str)(F))
 
   /** Builder step that instructs the runtime to use the specified file as parser input.
     *
@@ -64,7 +64,7 @@ trait SequentialInputOps[F[_]] {
     * @param codec the character encoding of the file, if not specified the platform default will be used.
     */
   def fromFile (file: File)(implicit codec: Codec): InputResult =
-    fromInput(F.pure(TextFileInput(file, docType, Path(file.getName), codec)))
+    fromInput(TextInput.fromFile(Path(file.getName), docType, file, codec)(F))
 
   /** Builder step that instructs the runtime to use the specified character stream as parser input.
     *
@@ -73,7 +73,7 @@ trait SequentialInputOps[F[_]] {
     * @param codec the character encoding of the stream, if not specified the platform default will be used.
     */
   def fromStream (stream: F[InputStream], autoClose: Boolean = true)(implicit codec: Codec): InputResult =
-    fromInput(F.map(stream)(CharStreamInput(_, docType, Root, autoClose, codec)))
+    fromInput(TextInput.fromStream(Root, docType, stream, codec, autoClose)(F))
 
   /** Builder step that instructs the runtime to use the specified input for the
     * parsing operation.
@@ -83,6 +83,6 @@ trait SequentialInputOps[F[_]] {
     *
     * @param input the input to parse
     */
-  def fromInput (input: F[TextInput]): InputResult
+  def fromInput (input: TextInput[F]): InputResult
 
 }

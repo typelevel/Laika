@@ -18,82 +18,38 @@ package laika.io.model
 
 import java.io._
 
-import cats.implicits._
-import cats.Monad
-import cats.effect.Resource
-import laika.ast.Path.Root
-import laika.ast.{DocumentTreeRoot, DocumentType, Path, TextDocumentType}
+import cats.Applicative
+import cats.effect.{Async, Resource}
+import laika.ast.{DocumentTreeRoot, DocumentType, Navigatable, Path, TextDocumentType}
 import laika.bundle.DocumentTypeMatcher
+import laika.io.runtime.InputRuntime
 
 import scala.io.Codec
 
-/** Represents the input for a parser, abstracting over various types of IO resources. 
- *  
- *  @author Jens Halm
- */
-sealed trait Input extends Product with Serializable {
+sealed trait InputReader extends Product with Serializable
+case class PureReader(input: String) extends InputReader
+case class StreamReader(input: Reader, sizeHint: Int) extends InputReader
 
-  /** The full virtual path of this input.
-   *  This path is always an absolute path
-   *  from the root of the (virtual) input tree,
-   *  therefore does not represent the filesystem
-   *  path in case of file I/O.
-   */
-  def path: Path
-  
-  /** The local name of this input.
-   */
-  lazy val name: String = path.name
+case class BinaryInput[F[_]] (path: Path, input: Resource[F, InputStream], sourceFile: Option[File] = None) extends Navigatable
 
-}
-
-/** A marker trait for character input.
-  */
-sealed trait TextInput extends Input {
-
-  /** The type of the document, to distinguish between
-    * text markup, templates, configuration and style sheets,
-    * which all have a different kind of parser.
-    */
-  def docType: TextDocumentType
-  
-}
-
-case class StringInput (source: String, docType: TextDocumentType, path: Path = Root) extends TextInput
-
-case class TextFileInput (file: File, docType: TextDocumentType, path: Path, codec: Codec) extends TextInput
-
-case class CharStreamInput (stream: InputStream, docType: TextDocumentType, path: Path, autoClose: Boolean, codec: Codec) extends TextInput
-
-/** A directory in the file system containing input documents for a tree transformation.
+/** A character input that can be passed to 
   * 
-  * The specified `docTypeMatcher` is responsible for determining the type of input 
-  * (e.g. text markup, template, etc.) based on the (virtual) document path.
+  * @param path    The full virtual path of this input (does not represent the filesystem path in case of file I/O)
+  * @param docType Indicates the type of the document, to distinguish between text markup, templates, configuration 
+  *                and style sheets, which all have a different kind of parser
+  * @param input   The resource to read the character input from
+  * @param sourceFile The source file from the file system, empty if this does not represent a file system resource
   */
-case class DirectoryInput (directories: Seq[File],
-                           codec: Codec,
-                           docTypeMatcher: Path => DocumentType = DocumentTypeMatcher.base,
-                           fileFilter: File => Boolean = DirectoryInput.hiddenFileFilter) {
-  lazy val sourcePaths: Seq[String] = directories map (_.getAbsolutePath)
-}
+case class TextInput[F[_]] (path: Path, docType: TextDocumentType, input: Resource[F, InputReader], sourceFile: Option[File] = None) extends Navigatable
 
-object DirectoryInput {
-  
-  /** A filter that selects files that are hidden according to `java.io.File.isHidden`.
-    */
-  val hiddenFileFilter: File => Boolean = file => file.isHidden && file.getName != "."
-
-  /** Creates a new instance using the library's defaults for the `docTypeMatcher` and
-    * `fileFilter` properties.
-    */
-  def apply (directory: File)(implicit codec: Codec): DirectoryInput = DirectoryInput(Seq(directory), codec)
+object TextInput {
+  def fromString[F[_]: Applicative] (path: Path, docType: TextDocumentType, input: String): TextInput[F] = 
+    TextInput[F](path, docType, Resource.pure[F, InputReader](PureReader(input)))
+  def fromFile[F[_]: Async] (path: Path, docType: TextDocumentType, file: File, codec: Codec): TextInput[F] =
+    TextInput[F](path, docType, InputRuntime.textFileResource[F](file, codec).map(StreamReader(_, file.length.toInt)), Some(file))
+  def fromStream[F[_]: Async] (path: Path, docType: TextDocumentType, stream: F[InputStream], codec: Codec, autoClose: Boolean): TextInput[F] =
+    TextInput[F](path, docType, InputRuntime.textStreamResource(stream, codec, autoClose).map(StreamReader(_, 8096)))
 }
-
-sealed trait InputDocument {
-  def path: Path
-}
-case class BinaryInput[F[_]] (path: Path, input: Resource[F, InputStream], sourceFile: Option[File] = None) extends InputDocument
-case class TextDocument[F[_]](path: Path, docType: TextDocumentType, input: F[TextInput]) extends InputDocument
 
 /** A (virtual) tree of input documents, either obtained from scanning a directory recursively or 
   * constructed programmatically (or a mix of both).
@@ -101,7 +57,7 @@ case class TextDocument[F[_]](path: Path, docType: TextDocumentType, input: F[Te
   * Even though the documents are specified as a flat sequence, they logically form a tree based
   * on their virtual path.
   */
-case class TreeInput[F[_]] (textInputs: Seq[TextDocument[F]], binaryInputs: Seq[BinaryInput[F]], sourcePaths: Seq[String] = Nil) {
+case class TreeInput[F[_]] (textInputs: Seq[TextInput[F]], binaryInputs: Seq[BinaryInput[F]], sourcePaths: Seq[String] = Nil) {
 
   /** Merges the inputs of two collections.
     */
@@ -116,14 +72,33 @@ case class TreeInput[F[_]] (textInputs: Seq[TextDocument[F]], binaryInputs: Seq[
   */
 object TreeInput {
 
-  /** Creates an input collection consisting solely of the specified single text input.
-    */
-  def apply[F[_]: Monad] (textInput: TextInput): TreeInput[F] = 
-    TreeInput(Seq(TextDocument(textInput.path, textInput.docType, textInput.pure[F])), Nil, Nil)
-
   /** An empty input collection.
     */
   def empty[F[_]]: TreeInput[F] = TreeInput(Nil, Nil, Nil)
+}
+
+/** A directory in the file system containing input documents for a tree transformation.
+  *
+  * The specified `docTypeMatcher` is responsible for determining the type of input 
+  * (e.g. text markup, template, etc.) based on the (virtual) document path.
+  */
+case class DirectoryInput (directories: Seq[File],
+                           codec: Codec,
+                           docTypeMatcher: Path => DocumentType = DocumentTypeMatcher.base,
+                           fileFilter: File => Boolean = DirectoryInput.hiddenFileFilter) {
+  lazy val sourcePaths: Seq[String] = directories map (_.getAbsolutePath)
+}
+
+object DirectoryInput {
+
+  /** A filter that selects files that are hidden according to `java.io.File.isHidden`.
+    */
+  val hiddenFileFilter: File => Boolean = file => file.isHidden && file.getName != "."
+
+  /** Creates a new instance using the library's defaults for the `docTypeMatcher` and
+    * `fileFilter` properties.
+    */
+  def apply (directory: File)(implicit codec: Codec): DirectoryInput = DirectoryInput(Seq(directory), codec)
 }
 
 /** The result of a parsing operation for an entire document tree.

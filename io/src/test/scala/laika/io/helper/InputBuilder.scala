@@ -20,8 +20,8 @@ trait InputBuilder {
     
     val classified = inputs.map { case (path, content) => (path, content, docTypeMatcher(path)) }
     
-    val textInputs: Seq[TextDocument[IO]] = classified.collect {
-      case (path, content, docType: TextDocumentType) => TextDocument(path, docType, IO.pure[TextInput](StringInput(content, docType, path)))
+    val textInputs: Seq[TextInput[IO]] = classified.collect {
+      case (path, content, docType: TextDocumentType) => TextInput.fromString[IO](path, docType, content)
     }
 
     val binaryInputs = classified.collect {
