@@ -81,9 +81,13 @@ object RendererRuntime {
       }
     }
     
-    def copyDocuments (docs: Seq[BinaryInput[F]], dir: File): Seq[F[RenderResult]] = docs.map { doc =>
-      val out = OutputRuntime.asStream(BinaryFileOutput(file(dir, doc.path), doc.path))
-      CopyRuntime.copy(doc.input, out).as(Left(CopiedDocument(doc.path)): RenderResult)
+    def copyDocuments (docs: Seq[BinaryInput[F]], dir: File): Seq[F[RenderResult]] = docs.flatMap { doc =>
+      val outFile = file(dir, doc.path)
+      if (doc.sourceFile.contains(outFile)) None
+      else {
+        val out = OutputRuntime.asStream(BinaryFileOutput(outFile, doc.path))
+        Some(CopyRuntime.copy(doc.input, out).as(Left(CopiedDocument(doc.path)): RenderResult))
+      }
     }
     
     def renderOps (finalRoot: DocumentTreeRoot, styles: StyleDeclarationSet, staticDocs: Seq[BinaryInput[F]]): F[RenderOps] = op.output.map {
