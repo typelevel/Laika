@@ -91,7 +91,7 @@ class PDFRenderer (config: Option[PDF.Config], fopFactory: Option[FopFactory]) {
     }
 
     Runtime[F].runBlocking {
-      output.output.use { out =>
+      output.resource.use { out =>
         for {
           source      <- Async[F].delay(new StreamSource(new StringReader(foInput)))
           result      <- createSAXResult(out)

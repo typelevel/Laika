@@ -56,7 +56,7 @@ class FOforPDFSpec extends FlatSpec with Matchers {
 
         val foRes = FOConcatenation(result, config.getOrElse(PDFConfigBuilder.fromTreeConfig(result.config)))
         
-        output.output.use { out =>
+        output.resource.use { out =>
           for {
             fo <- Async[F].fromEither(foRes.left.map(ConfigException)): F[String]
             _  <- Async[F].delay(out.write(fo.getBytes("UTF-8"))): F[Unit]

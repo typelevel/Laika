@@ -29,7 +29,7 @@ object TestRenderResultProcessor extends TwoPhaseRenderFormat[TextFormatter, Bin
       append(sb, result.tree)
       val resultString = sb.toString
 
-      output.output.use { out =>
+      output.resource.use { out =>
         Async[F].delay(out.write(resultString.getBytes("UTF-8")))
       }
     }

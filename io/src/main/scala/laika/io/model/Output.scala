@@ -68,7 +68,7 @@ case class CharStreamOutput (stream: OutputStream, path: Path, autoClose: Boolea
   * Most renderers write character data, but formats like PDF or EPUB
   * require a binary stream to write to.
   */
-case class BinaryOutput[F[_]] (path: Path, output: Resource[F, OutputStream])
+case class BinaryOutput[F[_]] (path: Path, resource: Resource[F, OutputStream])
 
 /** A directory as a target for a rendering operation of a document tree.
   * 

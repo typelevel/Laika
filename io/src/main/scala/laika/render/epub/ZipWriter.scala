@@ -66,7 +66,7 @@ object ZipWriter {
       doc.input.map((_, doc.path))
     }.sequence
 
-    val out = output.output.map(new ZipOutputStream(_))
+    val out = output.resource.map(new ZipOutputStream(_))
     
     Runtime[F].runBlocking {
       (in, out).tupled.use {
