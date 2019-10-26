@@ -81,7 +81,7 @@ object ParserRuntime {
         _       <- validateInputPaths
         ops     <- Async[F].fromEither(createOps)
         results <- Runtime[F].runParallel(ops)
-        tree    <- Async[F].fromEither(buildTree(results, op.config.baseConfig).leftMap(e => ParserError(e.toString, Root))) // TODO - 0.12 - ConfigError to ParserError
+        tree    <- Async[F].fromEither(buildTree(results, op.config.baseConfig).leftMap(ParserError(_, Root)))
       } yield rewriteTree(tree)
     }
     

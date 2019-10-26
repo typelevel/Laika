@@ -18,6 +18,7 @@ package laika.parse.markup
 
 import laika.ast._
 import laika.bundle.{ConfigProvider, MarkupExtensions, UnresolvedConfig}
+import laika.config.ConfigError
 import laika.factory.MarkupFormat
 import laika.parse.combinator.Parsers
 import laika.parse.{Parser, ParserContext}
@@ -34,6 +35,11 @@ object DocumentParser {
   
   case class ParserError (message: String, path: Path) extends 
     RuntimeException(s"Error parsing document '$path': $message")
+  
+  object ParserError {
+    def apply(configError: ConfigError, path: Path): ParserError = 
+      ParserError(s"Configuration Error: ${configError.message}", path)
+  }
 
   private def create [D, R <: ElementContainer[_]] (rootParser: Parser[R], configProvider: ConfigProvider)
     (docFactory: (Path, UnresolvedConfig, R) => D): ParserInput => Either[ParserError, D] = {
