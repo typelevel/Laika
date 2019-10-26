@@ -42,7 +42,7 @@ object ConfigDecoder {
     def apply (value: Traced[ConfigValue]) = value.value match {
       case StringValue(s) => Right(s) // TODO - convert other types
       case LongValue(n) => Right(n.toString)
-      case _ => Left(InvalidType("String", ""))
+      case invalid => Left(InvalidType("String", invalid))
     }
   }
 
@@ -50,7 +50,7 @@ object ConfigDecoder {
     def apply (value: Traced[ConfigValue]) = value.value match {
       case LongValue(n) => Right(n.toInt) // TODO - convert other types, check bounds
       case StringValue(s) => Try(s.toInt).toEither.left.map(_ => ConversionError(s"not an integer: $s"))
-      case _ => Left(InvalidType("Number", ""))
+      case invalid => Left(InvalidType("Number", invalid))
     }
   }
 
@@ -74,7 +74,7 @@ object ConfigDecoder {
         val errors = elements.collect { case Left(e) => e }
         if (errors.nonEmpty) Left(ValidationError(s"One or more errors decoding array elements: ${errors.mkString(", ")}"))
         else Right(elements.collect { case Right(r) => r })
-      case _ => Left(InvalidType("Array", ""))
+      case invalid => Left(InvalidType("Array", invalid))
     }
   }
 }

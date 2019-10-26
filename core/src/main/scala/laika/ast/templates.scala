@@ -17,7 +17,7 @@
 package laika.ast
 
 import laika.config.Config.ConfigResult
-import laika.config.{ASTValue, ConfigValue, Key, SimpleConfigValue}
+import laika.config.{ASTValue, ConfigError, ConfigValue, InvalidType, Key, SimpleConfigValue}
 import laika.rewrite.TemplateRewriter
 
 /** Represents a placeholder inline element that needs
@@ -65,6 +65,12 @@ abstract class ContextReference[T <: Span] (ref: Path) extends SpanResolver {
       case other                                   => result(other)
     }
   }
+
+  private def error(message: String): InvalidElement = InvalidElement(message, "${"+ref+"}")
+  protected def missing: InvalidElement = error(s"Missing required reference: '$ref'")
+  protected def invalid(cError: ConfigError): InvalidElement = error(s"Error resolving reference: '$ref': ${cError.toString}") // TODO - 0.12 - ConfigError.message
+  protected def invalidType(value: ConfigValue): InvalidElement = error(s"Error resolving reference: '$ref': " +
+    InvalidType("AST Element or Simple Value", value).message)
 }
 
 /** A context reference specifically for use in template documents.
@@ -72,17 +78,15 @@ abstract class ContextReference[T <: Span] (ref: Path) extends SpanResolver {
 case class TemplateContextReference (ref: Path, required: Boolean, options: Options = NoOpt) extends ContextReference[TemplateSpan](ref) with TemplateSpan {
   type Self = TemplateContextReference
   
-  def error(message: String): TemplateSpan = InvalidElement(message, "${"+ref+"}").asTemplateSpan
-
   def result (value: ConfigResult[Option[ConfigValue]]): TemplateSpan = value match {
     case Right(Some(ASTValue(s: TemplateSpan)))        => s
     case Right(Some(ASTValue(RootElement(content,_)))) => EmbeddedRoot(content)
     case Right(Some(ASTValue(e: Element)))             => TemplateElement(e)
     case Right(Some(simple: SimpleConfigValue))        => TemplateString(simple.render)
     case Right(None) if !required                      => TemplateString("")
-    case Right(None)                                   => error(s"Missing required reference: '$ref'")
-    case Right(Some(unsupported))                      => error(s"Unsupported element type for reference: '$ref': TODO") // TODO - 0.12 - type descriptors
-    case Left(configError)                             => error(s"Error resolving reference: '$ref': ${configError.toString}") // TODO - 0.12 - ConfigError toString
+    case Right(None)                                   => missing.asTemplateSpan
+    case Right(Some(unsupported))                      => invalidType(unsupported).asTemplateSpan
+    case Left(configError)                             => invalid(configError).asTemplateSpan
   }
   def withOptions (options: Options): TemplateContextReference = copy(options = options)
 }
@@ -92,16 +96,14 @@ case class TemplateContextReference (ref: Path, required: Boolean, options: Opti
 case class MarkupContextReference (ref: Path, required: Boolean, options: Options = NoOpt) extends ContextReference[Span](ref) {
   type Self = MarkupContextReference
 
-  def error(message: String): Span = InvalidElement(message, "${"+ref+"}").asSpan
-  
   def result (value: ConfigResult[Option[ConfigValue]]): Span = value match {
     case Right(Some(ASTValue(s: Span)))         => s
     case Right(Some(ASTValue(e: Element)))      => TemplateElement(e)
     case Right(Some(simple: SimpleConfigValue)) => Text(simple.render)
     case Right(None) if !required               => Text("")
-    case Right(None)                            => error(s"Missing required reference: '$ref'")
-    case Right(Some(unsupported))               => error(s"Unsupported element type for reference: '$ref': TODO") // TODO - 0.12 - type descriptors
-    case Left(configError)                      => error(s"Error resolving reference: '$ref': ${configError.toString}") // TODO - 0.12 - ConfigError toString
+    case Right(None)                            => missing.asSpan
+    case Right(Some(unsupported))               => invalidType(unsupported).asSpan
+    case Left(configError)                      => invalid(configError).asSpan
   }
   def withOptions (options: Options): MarkupContextReference = copy(options = options)
 }

@@ -20,7 +20,7 @@ import java.time.Instant
 import java.util.Locale
 
 import laika.config.Config.ConfigResult
-import laika.config.{Config, ConfigDecoder, ConfigError, DefaultKey, InvalidType, ObjectValue, Traced, ValidationError}
+import laika.config.{Config, ConfigDecoder, ConfigError, ConfigValue, DefaultKey, InvalidType, ObjectValue, Traced, ValidationError}
 import laika.ast.Path.Root
 import laika.bundle.UnresolvedConfig
 import laika.rewrite.TemplateRewriter
@@ -143,7 +143,7 @@ object DocumentMetadata {
         DocumentMetadata(identifier, authors ++ author.toSeq, lang, date)
       }
 
-    case _ => Left(InvalidType("Object", "" /* other.getClass.getSimpleName */)) // TODO - 0.12 - type descriptors
+    case Traced(invalid: ConfigValue, _) => Left(InvalidType("Object", invalid))
   }
   implicit val defaultKey: DefaultKey[DocumentMetadata] = DefaultKey("metadata")
 

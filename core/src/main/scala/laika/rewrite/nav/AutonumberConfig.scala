@@ -16,7 +16,7 @@
 
 package laika.rewrite.nav
 
-import laika.config.{Config, ConfigDecoder, DefaultKey, InvalidType, ObjectValue, Traced, ValidationError}
+import laika.config.{Config, ConfigDecoder, ConfigValue, DefaultKey, InvalidType, ObjectValue, Traced, ValidationError}
 
 /** Configuration for autonumbering of documents and sections.
  */
@@ -58,7 +58,7 @@ object AutonumberConfig {
         AutonumberConfig(documents, sections, depth)
       }
 
-    case other => Left(InvalidType("Object", "" /* other.getClass.getSimpleName */)) // TODO - 0.12 - type descriptors
+    case Traced(invalid: ConfigValue, _) => Left(InvalidType("Object", invalid))
   }
   implicit val defaultKey: DefaultKey[AutonumberConfig] = DefaultKey("autonumbering")
 

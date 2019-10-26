@@ -22,7 +22,7 @@ import laika.config.Origin.Scope
 /**
   * @author Jens Halm
   */
-sealed trait ConfigValue
+sealed trait ConfigValue extends Product with Serializable
 
 case class Traced[T] (value: T, origin: Origin)
 

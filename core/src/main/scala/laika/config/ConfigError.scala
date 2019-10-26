@@ -24,7 +24,9 @@ import laika.ast.Path
 sealed trait ConfigError
 trait ConfigBuilderError
 
-case class InvalidType(expected: String, actual: String) extends ConfigError
+case class InvalidType(expected: String, actual: ConfigValue) extends ConfigError {
+  val message: String = s"Invalid type - expected: $expected, actual: ${actual.productPrefix.replaceAllLiterally("Value","")}"
+}
 case class ConversionError(message: String) extends ConfigError {
   override def toString: String = message // TODO - 0.12 - temp
 }
