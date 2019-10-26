@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package laika.runtime
+package laika.io.runtime
 
 import laika.config.{Config, ConfigError, Origin}
 import laika.ast.Path.Root

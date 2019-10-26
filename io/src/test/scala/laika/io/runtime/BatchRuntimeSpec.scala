@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package laika.runtime
+package laika.io.runtime
 
 import cats.effect.IO
 import org.scalatest.{Matchers, WordSpec}

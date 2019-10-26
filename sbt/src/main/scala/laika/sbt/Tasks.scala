@@ -26,7 +26,7 @@ import laika.factory.{BinaryPostProcessor, MarkupFormat, RenderFormat, TwoPhaseR
 import laika.format._
 import laika.io.implicits._
 import laika.io.model._
-import laika.runtime.DirectoryScanner
+import laika.io.runtime.DirectoryScanner
 import laika.sbt.LaikaPlugin.autoImport._
 import sbt.Keys._
 import sbt._

@@ -23,7 +23,7 @@ import laika.api.builder.OperationConfig
 import laika.ast.{DocumentType, TextDocumentType}
 import laika.io.model.{TreeInput, RenderedTreeRoot, TreeOutput}
 import laika.io.ops.{ParallelInputOps, ParallelTextOutputOps}
-import laika.runtime.{Runtime, TransformerRuntime}
+import laika.io.runtime.{Runtime, TransformerRuntime}
 
 /** Transformer for a tree of input and output documents.
   *

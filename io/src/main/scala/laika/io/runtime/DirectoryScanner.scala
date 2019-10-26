@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package laika.runtime
+package laika.io.runtime
 
 import java.nio.file.{DirectoryStream, Files, Path => JPath}
 

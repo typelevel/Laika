@@ -24,7 +24,7 @@ import laika.ast.{DocumentMetadata, DocumentTreeRoot, SpanSequence, TemplateRoot
 import laika.config.ConfigException
 import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
 import laika.io.model.{BinaryOutput, RenderedTreeRoot}
-import laika.runtime.Runtime
+import laika.io.runtime.Runtime
 import laika.render.FOFormatter
 import laika.render.pdf.{FOConcatenation, PDFConfigBuilder, PDFNavigation, PDFRenderer}
 import org.apache.fop.apps.{FopFactory, FopFactoryBuilder}

@@ -25,7 +25,7 @@ import laika.ast.Path
 import laika.ast.Path.Root
 import laika.format.EPUB
 import laika.io.model._
-import laika.runtime.Runtime
+import laika.io.runtime.Runtime
 
 /** Creates the EPUB container based on a document tree and the HTML result
   * of a preceding render operation.

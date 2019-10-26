@@ -24,7 +24,7 @@ import laika.io.ops.SequentialInputOps
 import laika.io.binary.SequentialTransformer.BinaryTransformer
 import laika.io.model.{BinaryOutput, TextInput}
 import laika.io.ops.BinaryOutputOps
-import laika.runtime.{Runtime, TransformerRuntime}
+import laika.io.runtime.{Runtime, TransformerRuntime}
 
 /** Transformer for a single input and binary output document.
   *

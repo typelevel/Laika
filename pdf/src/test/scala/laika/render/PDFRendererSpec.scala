@@ -23,7 +23,7 @@ import laika.api.Renderer
 import laika.ast.DocumentTreeRoot
 import laika.format.PDF
 import laika.io.implicits._
-import laika.runtime.TestContexts.blocker
+import laika.io.runtime.TestContexts.blocker
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.concurrent.ExecutionContext

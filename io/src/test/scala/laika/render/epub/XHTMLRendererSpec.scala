@@ -24,7 +24,7 @@ import laika.ast.helper.ModelBuilder
 import laika.format.EPUB
 import laika.io.implicits._
 import laika.io.model.{RenderedDocument, RenderedTree, RenderedTreeRoot, StringTreeOutput}
-import laika.runtime.TestContexts.blocker
+import laika.io.runtime.TestContexts.blocker
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.concurrent.ExecutionContext

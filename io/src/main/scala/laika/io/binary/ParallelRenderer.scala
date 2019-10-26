@@ -23,7 +23,7 @@ import laika.factory.BinaryPostProcessor
 import laika.io.binary.ParallelRenderer.BinaryRenderer
 import laika.io.model.{BinaryOutput, StaticDocument}
 import laika.io.ops.BinaryOutputOps
-import laika.runtime.{RendererRuntime, Runtime}
+import laika.io.runtime.{RendererRuntime, Runtime}
 
 /** Renderer that merges a tree of input documents to a single binary output document.
   *

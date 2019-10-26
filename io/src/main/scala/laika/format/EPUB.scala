@@ -13,7 +13,7 @@ import laika.factory.{BinaryPostProcessor, RenderContext, RenderFormat, TwoPhase
 import laika.io.model.{BinaryOutput, RenderedTreeRoot}
 import laika.render.epub.{ConfigFactory, ContainerWriter, HtmlRenderExtensions, HtmlTemplate, StyleSupport}
 import laika.render.{HTMLFormatter, XHTMLFormatter, XHTMLRenderer}
-import laika.runtime.Runtime
+import laika.io.runtime.Runtime
 
 /** A post processor for EPUB output, based on an interim HTML renderer.
  *  May be directly passed to the `Render` or `Transform` APIs:

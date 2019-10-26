@@ -23,7 +23,7 @@ import laika.factory.BinaryPostProcessor
 import laika.io.model.BinaryOutput
 import laika.io.binary.SequentialRenderer.BinaryRenderer
 import laika.io.ops.BinaryOutputOps
-import laika.runtime.{RendererRuntime, Runtime}
+import laika.io.runtime.{RendererRuntime, Runtime}
 
 /** Renderer for a single binary output document.
   *

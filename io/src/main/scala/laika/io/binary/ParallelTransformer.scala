@@ -25,7 +25,7 @@ import laika.io.ops.ParallelInputOps
 import laika.io.binary.ParallelTransformer.BinaryTransformer
 import laika.io.model._
 import laika.io.ops.BinaryOutputOps
-import laika.runtime.{Runtime, TransformerRuntime}
+import laika.io.runtime.{Runtime, TransformerRuntime}
 
 /** Transformer that merges a tree of input documents to a single binary output document.
   *

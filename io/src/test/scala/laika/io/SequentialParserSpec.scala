@@ -24,7 +24,7 @@ import laika.ast.helper.ModelBuilder
 import laika.format.Markdown
 import laika.io.implicits._
 import laika.io.text.SequentialParser
-import laika.runtime.TestContexts.blocker
+import laika.io.runtime.TestContexts.blocker
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.concurrent.ExecutionContext

@@ -22,7 +22,7 @@ import laika.api.builder.OperationConfig
 import laika.ast.DocumentTreeRoot
 import laika.io.model.{RenderedTreeRoot, StaticDocument, TreeOutput}
 import laika.io.ops.ParallelTextOutputOps
-import laika.runtime.{RendererRuntime, Runtime}
+import laika.io.runtime.{RendererRuntime, Runtime}
 
 /** Renderer for a tree of output documents.
   *

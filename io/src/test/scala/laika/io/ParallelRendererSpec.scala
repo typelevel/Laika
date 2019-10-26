@@ -32,8 +32,8 @@ import laika.io.helper.OutputBuilder._
 import laika.io.helper.{InputBuilder, OutputBuilder, RenderResult}
 import laika.io.model.{BinaryInput, StaticDocument, StringTreeOutput}
 import laika.render._
-import laika.runtime.RendererRuntime.{DuplicatePath, RendererErrors}
-import laika.runtime.TestContexts._
+import laika.io.runtime.RendererRuntime.{DuplicatePath, RendererErrors}
+import laika.io.runtime.TestContexts._
 import org.scalatest.{Assertion, FlatSpec, Matchers}
 
 import scala.concurrent.ExecutionContext

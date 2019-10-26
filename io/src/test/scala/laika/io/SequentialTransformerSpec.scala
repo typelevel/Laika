@@ -23,7 +23,7 @@ import laika.api.Transformer
 import laika.format._
 import laika.io.implicits._
 import laika.io.text.SequentialTransformer
-import laika.runtime.TestContexts.blocker
+import laika.io.runtime.TestContexts.blocker
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.concurrent.ExecutionContext

@@ -21,7 +21,7 @@ import laika.api.MarkupParser
 import laika.ast.{Document, DocumentType, TextDocumentType}
 import laika.io.model.TextInput
 import laika.io.ops.SequentialInputOps
-import laika.runtime.{ParserRuntime, Runtime}
+import laika.io.runtime.{ParserRuntime, Runtime}
 
 /** Parser for a single input document.
   * 

@@ -21,7 +21,7 @@ import laika.api.Renderer
 import laika.ast.{Document, Element, Path}
 import laika.io.ops.SequentialTextOutputOps
 import laika.io.model.TextOutput
-import laika.runtime.{RendererRuntime, Runtime}
+import laika.io.runtime.{RendererRuntime, Runtime}
 
 /** Renderer for a single output document.
   *

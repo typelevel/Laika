@@ -21,7 +21,7 @@ import laika.api.Transformer
 import laika.ast.{DocumentType, TextDocumentType}
 import laika.io.ops.{SequentialInputOps, SequentialTextOutputOps}
 import laika.io.model.{TextInput, TextOutput}
-import laika.runtime.{Runtime, TransformerRuntime}
+import laika.io.runtime.{Runtime, TransformerRuntime}
 
 /** Transformer for a single input and output document.
   *

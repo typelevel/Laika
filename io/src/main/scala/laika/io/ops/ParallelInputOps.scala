@@ -5,7 +5,7 @@ import java.io.File
 import cats.effect.Async
 import laika.api.builder.OperationConfig
 import laika.io.model.{DirectoryInput, TreeInput}
-import laika.runtime.DirectoryScanner
+import laika.io.runtime.DirectoryScanner
 
 import scala.io.Codec
 

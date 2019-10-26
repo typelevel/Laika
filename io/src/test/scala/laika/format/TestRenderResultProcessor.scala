@@ -2,11 +2,11 @@ package laika.format
 
 import cats.effect.Async
 import laika.ast.DocumentTreeRoot
-import laika.runtime.OutputRuntime
+import laika.io.runtime.OutputRuntime
 import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
 import laika.io.model.{BinaryOutput, RenderedDocument, RenderedTree, RenderedTreeRoot}
 import laika.render.TextFormatter
-import laika.runtime.Runtime
+import laika.io.runtime.Runtime
 
 object TestRenderResultProcessor extends TwoPhaseRenderFormat[TextFormatter, BinaryPostProcessor] {
 

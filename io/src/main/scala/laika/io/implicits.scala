@@ -23,7 +23,7 @@ import laika.api.builder.{ParserBuilder, RendererBuilder, TransformerBuilder, Tw
 import laika.factory.BinaryPostProcessor
 import laika.io.ops.IOBuilderOps
 import laika.io.text.{ParallelParser, SequentialParser}
-import laika.runtime.Runtime
+import laika.io.runtime.Runtime
 
 /**
   * @author Jens Halm

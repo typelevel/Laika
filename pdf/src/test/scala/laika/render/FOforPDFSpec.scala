@@ -30,8 +30,8 @@ import laika.io.binary.ParallelRenderer
 import laika.io.helper.RenderResult
 import laika.io.model.{BinaryOutput, RenderedTreeRoot}
 import laika.render.pdf.{FOConcatenation, PDFConfigBuilder, PDFNavigation}
-import laika.runtime.TestContexts.blocker
-import laika.runtime.{OutputRuntime, Runtime}
+import laika.io.runtime.TestContexts.blocker
+import laika.io.runtime.{OutputRuntime, Runtime}
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.concurrent.ExecutionContext

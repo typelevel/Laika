@@ -28,7 +28,7 @@ import javax.xml.transform.stream.StreamSource
 import laika.ast.DocumentMetadata
 import laika.format.PDF
 import laika.io.model.BinaryOutput
-import laika.runtime.{OutputRuntime, Runtime}
+import laika.io.runtime.{OutputRuntime, Runtime}
 import org.apache.fop.apps.{FOUserAgent, FOUserAgentFactory, FopFactory}
 import org.apache.xmlgraphics.io.{Resource, ResourceResolver}
 import org.apache.xmlgraphics.util.MimeConstants

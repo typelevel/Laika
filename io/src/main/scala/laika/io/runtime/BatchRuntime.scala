@@ -1,4 +1,4 @@
-package laika.runtime
+package laika.io.runtime
 
 import cats.Applicative
 import cats.implicits._

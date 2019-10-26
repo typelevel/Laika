@@ -32,8 +32,8 @@ import laika.io.model.{TreeInput}
 import laika.parse.Parser
 import laika.parse.text.TextParsers
 import laika.rewrite.TemplateRewriter
-import laika.runtime.ParserRuntime.{DuplicatePath, ParserErrors}
-import laika.runtime.TestContexts._
+import laika.io.runtime.ParserRuntime.{DuplicatePath, ParserErrors}
+import laika.io.runtime.TestContexts._
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.concurrent.ExecutionContext

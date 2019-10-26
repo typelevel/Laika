@@ -25,7 +25,7 @@ import laika.io.model.{TreeInput, ParsedTree}
 import laika.io.ops.ParallelInputOps
 import laika.parse.markup.DocumentParser
 import laika.parse.markup.DocumentParser.{ParserError, ParserInput}
-import laika.runtime.{ParserRuntime, Runtime}
+import laika.io.runtime.{ParserRuntime, Runtime}
 
 /** Parser for a tree of input documents.
   *

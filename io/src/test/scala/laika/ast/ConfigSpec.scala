@@ -28,7 +28,7 @@ import laika.io.implicits._
 import laika.io.model.TreeInput
 import laika.io.helper.InputBuilder
 import laika.rewrite.TemplateRewriter
-import laika.runtime.TestContexts._
+import laika.io.runtime.TestContexts._
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.concurrent.ExecutionContext

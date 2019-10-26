@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package laika.runtime
+package laika.io.runtime
 
 import cats.{Monad, Parallel, Traverse}
 import cats.effect.{Async, Blocker, ContextShift}

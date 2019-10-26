@@ -21,7 +21,7 @@ import java.util.zip.{CRC32, ZipEntry, ZipOutputStream}
 import cats.effect.Async
 import cats.implicits._
 import laika.ast.Path
-import laika.runtime.{Runtime, CopyRuntime, InputRuntime, OutputRuntime}
+import laika.io.runtime.{Runtime, CopyRuntime, InputRuntime, OutputRuntime}
 import laika.io.model.{BinaryInput, BinaryOutput}
 
 /**

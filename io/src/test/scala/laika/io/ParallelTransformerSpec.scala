@@ -34,7 +34,7 @@ import laika.io.helper.{InputBuilder, OutputBuilder, RenderResult}
 import laika.io.model.{TreeInput, StringTreeOutput}
 import laika.parse.Parser
 import laika.parse.text.TextParsers
-import laika.runtime.TestContexts._
+import laika.io.runtime.TestContexts._
 import org.scalatest.{Assertion, FlatSpec, Matchers}
 
 import scala.concurrent.ExecutionContext
