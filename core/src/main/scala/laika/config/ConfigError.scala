@@ -21,16 +21,20 @@ import laika.ast.Path
 /**
   * @author Jens Halm
   */
-sealed trait ConfigError
+sealed trait ConfigError {
+  def message: String
+  protected def render(key: Path): String = key.components.mkString(".")
+}
 trait ConfigBuilderError
 
 case class InvalidType(expected: String, actual: ConfigValue) extends ConfigError {
   val message: String = s"Invalid type - expected: $expected, actual: ${actual.productPrefix.replaceAllLiterally("Value","")}"
 }
-case class ConversionError(message: String) extends ConfigError {
-  override def toString: String = message // TODO - 0.12 - temp
-}
+case class ConversionError(message: String) extends ConfigError
 case class ValidationError(message: String) extends ConfigError
 case class ConfigParserError(message: String) extends ConfigError
 case class ConfigResolverError(message: String) extends ConfigError
-case class NotFound(path: Path) extends ConfigError
+
+case class NotFound(path: Path) extends ConfigError {
+  val message: String = s"Not found: '${render(path)}'"
+}

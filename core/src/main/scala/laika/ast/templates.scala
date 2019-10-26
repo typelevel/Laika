@@ -66,10 +66,11 @@ abstract class ContextReference[T <: Span] (ref: Path) extends SpanResolver {
     }
   }
 
-  private def error(message: String): InvalidElement = InvalidElement(message, "${"+ref+"}")
-  protected def missing: InvalidElement = error(s"Missing required reference: '$ref'")
-  protected def invalid(cError: ConfigError): InvalidElement = error(s"Error resolving reference: '$ref': ${cError.toString}") // TODO - 0.12 - ConfigError.message
-  protected def invalidType(value: ConfigValue): InvalidElement = error(s"Error resolving reference: '$ref': " +
+  private def renderRef: String = ref.components.mkString(".")
+  private def error(message: String): InvalidElement = InvalidElement(message, "${"+renderRef+"}")
+  protected def missing: InvalidElement = error(s"Missing required reference: '$renderRef'")
+  protected def invalid(cError: ConfigError): InvalidElement = error(s"Error resolving reference: '$renderRef': ${cError.message}")
+  protected def invalidType(value: ConfigValue): InvalidElement = error(s"Error resolving reference: '$renderRef': " +
     InvalidType("AST Element or Simple Value", value).message)
 }
 

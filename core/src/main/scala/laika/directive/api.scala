@@ -106,7 +106,7 @@ trait BuilderContext[E <: Element] {
           if (traced.origin.scope == DirectiveScope || inherit) Some(traced.value)
           else None
         })
-        .left.map(e => Seq(s"error converting ${id.desc}: ${e.toString}")) // TODO - 0.12 - ConfigError conversions
+        .left.map(e => Seq(s"error converting ${id.desc}: ${e.message}"))
     
   }
 
@@ -181,7 +181,7 @@ trait BuilderContext[E <: Element] {
       def attributes: Result[Config] = ConfigResolver
         .resolve(parsedResult.attributes, origin, cursor.config)
         .map(new ObjectConfig(_, origin, cursor.config))
-        .left.map(e => Seq(e.toString)) // TODO - 0.12 - ConfigError toString
+        .left.map(e => Seq(e.message))
       
       val body = parsedResult.body.map(BodyContent.Source)
 

@@ -38,7 +38,7 @@ object PDFConfigBuilder {
       PDF.Config(bookmarkDepth, tocDepth, tocTitle.orElse(defaults.tocTitle))
     }
 
-    res.toOption.getOrElse(defaults) // TODO - 0.12 - error handling
+    res.toOption.getOrElse(defaults) // TODO - error handling
   }
   
 }

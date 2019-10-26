@@ -59,7 +59,7 @@ object StandardDirectives extends DirectiveRegistry {
     case class Empty (spans: Seq[TemplateSpan])
     val emptySeparator = Templates.separator("empty", max = 1)(parsedBody.map(Empty))
     
-    (defaultAttribute.as[String], separatedBody(Seq(emptySeparator)), cursor).mapN { (path, multipart, cursor) =>
+    (defaultAttribute.as[String], separatedBody(Seq(emptySeparator)), cursor).mapN { (ref, multipart, cursor) =>
         
       def rewrite (spans: Seq[TemplateSpan], childCursor: DocumentCursor): TemplateSpanSequence =
         TemplateSpanSequence(spans) rewriteChildren TemplateRewriter.rewriteRules(childCursor)
@@ -68,14 +68,14 @@ object StandardDirectives extends DirectiveRegistry {
 
       def rewriteFallback = multipart.children.headOption.map(_.spans).map(rewrite(_, cursor)).getOrElse(TemplateSpanSequence(Nil))
       
-      cursor.resolveReference(Key(path)) match {
+      cursor.resolveReference(Key(ref)) match {
         case Right(Some(o: ObjectValue))             => rewriteContent(o) 
         case Right(Some(a: ArrayValue)) if a.isEmpty => rewriteFallback
         case Right(Some(a: ArrayValue))              => TemplateSpanSequence(a.values.map(rewriteContent))
         case Right(Some(simpleValue)) if emptyValues(simpleValue) => rewriteFallback
         case Right(Some(simpleValue))                => rewriteContent(simpleValue)
         case Right(None)                             => rewriteFallback
-        case Left(error)                             => rewriteFallback // TODO - 0.12 - insert invalid element - might also use get instead of getOpt and check for NotFound
+        case Left(error)                             => InvalidElement(s"Error retrieving reference '$ref': ${error.message}", "${"+ref+"}").asTemplateSpan
       }
     }
   }
