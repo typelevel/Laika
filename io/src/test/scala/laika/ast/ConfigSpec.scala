@@ -145,7 +145,7 @@ class ConfigSpec extends FlatSpec
     val expected = root(
       TemplateRoot(List(
         TemplateString("<h1>"),
-        InvalidElement(SystemMessage(MessageLevel.Error, "Missing required reference: '/config/foox'"), "${/config/foox}").asTemplateSpan,
+        InvalidElement(SystemMessage(MessageLevel.Error, "Missing required reference: 'config.foox'"), "${config.foox}").asTemplateSpan,
         TemplateString("</h1>\n<div>"),
         eRoot(p("aaa\nbbb")),
         TemplateString("</div>\nCCC")
