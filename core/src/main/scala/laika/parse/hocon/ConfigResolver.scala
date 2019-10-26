@@ -102,7 +102,7 @@ object ConfigResolver {
           println(s"lookahead from '${fieldPath.toString}'")
           println(s"keys before lookahead: ${resolvedFields.keySet.map(_.toString).mkString(" ")}")
           println(s"keys in selected parent: ${obj.values.map(_.key.toString).mkString(" ")}")
-          obj.values.find(_.key == fieldPath).map(_.value).foreach(resolveField(fieldPath, _, obj)) // TODO - handle None
+          obj.values.find(_.key == fieldPath).map(_.value).foreach(resolveField(fieldPath, _, obj))
           println(s"keys after lookahead: ${resolvedFields.keySet.map(_.toString).mkString(" ")}")
           val res = resolvedValue(path).orElse(fallback.get[ConfigValue](path).toOption)
           println(s"success? ${res.isDefined}")

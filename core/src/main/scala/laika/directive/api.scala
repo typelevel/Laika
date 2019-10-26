@@ -62,7 +62,7 @@ object AttributeKey {
   */
 trait BuilderContext[E <: Element] {
 
-  private val directiveOrigin = "$$directive$$" // TODO - use Scope enum (Global, Tree, Document, Directive) - might include Path in Tree and Document scope only
+  private val directiveOrigin = "$$directive$$"
   
   /** The parser API in case a directive function
     * needs to manually parse one of the directive
