@@ -20,11 +20,18 @@ import laika.ast.Path
 
 import scala.util.Try
 
-/**
+/** A type class that can decode a ConfigValue to an instance of T.
+  * 
   * @author Jens Halm
   */
 trait ConfigDecoder[T] { self =>
 
+  /** Decode the given traced value.
+    * 
+    * The object passed to this method is of type `Traced[ConfigValue]`,
+    * which passes the `Origin` alongside the actual value. The origin
+    * can be used to resolve relative paths and similar tasks.
+    */ 
   def apply (value: Traced[ConfigValue]): Either[ConfigError, T]
 
   def flatMap[U](f: T => Either[ConfigError, U]): ConfigDecoder[U] = new ConfigDecoder[U] {
@@ -36,6 +43,8 @@ trait ConfigDecoder[T] { self =>
   }
 }
 
+/** Companion containing default decoder implementations for simple values and Seq's.
+  */
 object ConfigDecoder {
 
   implicit val string: ConfigDecoder[String] = new ConfigDecoder[String] {
@@ -47,9 +56,9 @@ object ConfigDecoder {
 
   implicit val int: ConfigDecoder[Int] = new ConfigDecoder[Int] {
     def apply (value: Traced[ConfigValue]) = value.value match {
-      case LongValue(n) => Either.cond(n.isValidInt, n.toInt, ConversionError(s"not a valid integer: $n"))
-      case DoubleValue(n) => Either.cond(n.isValidInt, n.toInt, ConversionError(s"not a valid integer: $n"))
-      case StringValue(s) => Try(s.toInt).toEither.left.map(_ => ConversionError(s"not an integer: $s"))
+      case LongValue(n) => Either.cond(n.isValidInt, n.toInt, DecodingError(s"not a valid integer: $n"))
+      case DoubleValue(n) => Either.cond(n.isValidInt, n.toInt, DecodingError(s"not a valid integer: $n"))
+      case StringValue(s) => Try(s.toInt).toEither.left.map(_ => DecodingError(s"not an integer: $s"))
       case invalid => Left(InvalidType("Number", invalid))
     }
   }
@@ -58,7 +67,7 @@ object ConfigDecoder {
     def apply (value: Traced[ConfigValue]) = value.value match {
       case LongValue(n) => Right(n.toDouble)
       case DoubleValue(n) => Right(n)
-      case StringValue(s) => Try(s.toDouble).toEither.left.map(_ => ConversionError(s"not a double: $s"))
+      case StringValue(s) => Try(s.toDouble).toEither.left.map(_ => DecodingError(s"not a double: $s"))
       case invalid => Left(InvalidType("Number", invalid))
     }
   }
@@ -81,7 +90,7 @@ object ConfigDecoder {
       case ArrayValue(values) =>
         val elements = values.map(v => elementDecoder(Traced(v, value.origin)))
         val errors = elements.collect { case Left(e) => e }
-        if (errors.nonEmpty) Left(ValidationError(s"One or more errors decoding array elements: ${errors.mkString(", ")}"))
+        if (errors.nonEmpty) Left(DecodingError(s"One or more errors decoding array elements: ${errors.mkString(", ")}"))
         else Right(elements.collect { case Right(r) => r })
       case invalid => Left(InvalidType("Array", invalid))
     }

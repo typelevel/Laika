@@ -24,7 +24,12 @@ import laika.parse.{Parser, ParserContext}
 
 import scala.util.Try
 
-/**
+/** The parser implementation for the HOCON format.
+  * 
+  * It currently supports the full spec as documented in
+  * [[https://github.com/lightbend/config/blob/master/HOCON.md]]
+  * except for file includes which might be added in a later release.
+  * 
   * @author Jens Halm
   */
 object HoconParsers {
@@ -57,12 +62,17 @@ object HoconParsers {
     override def parse (in: ParserContext) = p.parse(in)
   }
   
+  /** Parses whitespace or newline characters. */
   val wsOrNl: Characters[String] = anyOf(' ','\t','\n')
-  
+
+  /** Parses a null value. */
   val nullValue: Parser[ConfigBuilderValue] = "null" ^^^ ResolvedBuilderValue(NullValue)
+  /** Parses a literal true value. */
   val trueValue: Parser[ConfigBuilderValue] = "true" ^^^ ResolvedBuilderValue(BooleanValue(true))
+  /** Parses a literal false value. */
   val falseValue: Parser[ConfigBuilderValue] = "false" ^^^ ResolvedBuilderValue(BooleanValue(false))
-  
+
+  /** Parses a literal number value into a Long or Double depending on whether a fraction part is present. */
   val numberValue: Parser[ConfigBuilderValue] = {
     
     val zero = anyIn('0').take(1)
@@ -87,7 +97,8 @@ object HoconParsers {
           .map(v => ResolvedBuilderValue(DoubleValue(v)))
     }
   }
-  
+
+  /** Parses a string enclosed in quotes. */
   val quotedString: Parser[StringValue] = {
     val chars = anyBut('"','\\').min(1)
     val specialChar = anyIn('b','f','n','r','t').take(1).map {
@@ -104,16 +115,19 @@ object HoconParsers {
     val value = (chars | escape).rep.map(parts => StringValue(parts.mkString))
     '"' ~> value <~ '"'
   }
-  
+
+  /** Parses a string enclosed in triple quotes. */
   val multilineString: Parser[StringValue] = {
     "\"\"\"" ~> delimitedBy("\"\"\"").map(StringValue)
   }
-  
+
+  /** Parses an unquoted string that is not allowed to contain any of the reserved characters listed in the HOCON spec. */
   val unquotedString: Parser[StringValue] = {
     val unquotedChar = anyBut('$', '"', '{', '}', '[', ']', ':', '=', ',', '+', '#', '`', '^', '?', '!', '@', '*', '&', '\\', ' ','\t','\n').min(1)
     unquotedChar.map(StringValue)
   }
-  
+
+  /** Parses any of the 3 string types (quoted, unquoted, triple-quoted). */
   val stringBuilderValue: Parser[ConfigBuilderValue] =
     (multilineString | quotedString | unquotedString).map(ResolvedBuilderValue)
   
@@ -127,6 +141,7 @@ object HoconParsers {
     }
   }
 
+  /** Parses a key based on the HOCON rules where a '.' in a quoted string is not interpreted as a path separator. */
   val concatenatedKey: Parser[Path] = {
     val string = quotedString.map(PathFragments.quoted) | unquotedString.map(PathFragments.unquoted)
     val parts = (ws.map(PathFragments.whitespace) ~ string).map { case s ~ fr => s.join(fr) }
@@ -134,27 +149,32 @@ object HoconParsers {
       case first ~ rest => Path((first +: rest).reduce(_ join _).fragments.toList)
     }
   }
-  
+
+  /** Parses a substitution variable. */
   val substitutionValue: Parser[SubstitutionValue] = {
     ("${" ~> opt('?') ~ concatenatedKey <~ '}').map {
       case opt ~ key => SubstitutionValue(key, opt.isDefined)
     } 
   }
-  
+
+  /** Parses a comment. */
   val comment: Parser[String] = ("//" | "#") ~> restOfLine
-  
+
+  /** Parses the rest of the current line if it contains either just whitespace or a comment. */
   val wsOrComment: Parser[Any] = wsOrNl ~ (comment | wsOrNl.min(1)).rep
   
-  val separator: Parser[Any] = (char(',') | eol | comment) ~ wsOrComment
+  private val separator: Parser[Any] = (char(',') | eol | comment) ~ wsOrComment
   
-  val trailingComma: Parser[Any] = opt(',' ~ wsOrComment)
-  
+  private val trailingComma: Parser[Any] = opt(',' ~ wsOrComment)
+
+  /** Parses an array value recursively. */
   lazy val arrayValue: Parser[ConfigBuilderValue] = {
     lazy val value = wsOrNl ~> concatenatedValue <~ ws
     lazy val values = wsOrComment ~> opt(value ~ (separator ~> value).rep).map(_.fold(Seq.empty[ConfigBuilderValue]){ case v ~ vs => v +: vs }) <~ wsOrComment
     lazily(('[' ~> values <~ trailingComma <~ ']').map(ArrayBuilderValue))
   }
-  
+
+  /** Parses the members of an object without the enclosing braces. */
   private[laika] lazy val objectMembers: Parser[ObjectBuilderValue] = {
     lazy val key = wsOrNl ~> concatenatedKey <~ ws
     lazy val value = wsOrNl ~> concatenatedValue <~ ws
@@ -167,15 +187,18 @@ object HoconParsers {
     lazy val members = opt(member ~ (separator ~> member).rep).map(_.fold(Seq.empty[BuilderField]) { case m ~ ms => m +: ms })
     (wsOrComment ~> members <~ wsOrComment <~ trailingComma).map(ObjectBuilderValue)
   }
-  
+
+  /** Parses an object value enclosed in braces. */
   lazy val objectValue: Parser[ObjectBuilderValue] = lazily('{' ~> objectMembers <~ '}')
-  
+
+  /** Parses a root configuration object where the enclosing braces may be omitted. */
   lazy val rootObject: Parser[ObjectBuilderValue] = {
     val withBraces = wsOrComment ~> objectValue <~ wsOrComment
     val withoutBraces = wsOrComment ~> objectMembers <~ wsOrComment
     (withBraces | withoutBraces) <~ eof
   }
-  
+
+  /** Parses any kind of value supported by the HOCON format. */
   lazy val anyValue: Parser[ConfigBuilderValue] = 
     objectValue | 
       arrayValue | 

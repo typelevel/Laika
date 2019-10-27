@@ -19,13 +19,39 @@ package laika.config
 import laika.ast.{Element, Path}
 import laika.config.Origin.Scope
 
-/**
+/** The base trait for all configuration values.
+  * 
+  * This data structure is quite similar to those found in common
+  * JSON libraries (HOCON is a JSON superset after all).
+  * 
+  * The only exception is one special type: the `ASTValue` which 
+  * can hold an instance of a document AST obtained from parsing 
+  * text markup.
+  * 
+  * This can be useful in scenarios where substitution variables
+  * in templates or markup want to refer to other AST elements
+  * and include them into their AST tree as is.
+  * 
   * @author Jens Halm
   */
 sealed trait ConfigValue extends Product with Serializable
 
+/** A value tagged with its origin. */
 case class Traced[T] (value: T, origin: Origin)
 
+/** The origin of a configuration value. 
+  * 
+  * Origins can be used to distinguish values from a specific Config
+  * instance from those which were inherited from a fallback, which
+  * might be relevant in scenarios where relative paths need to be
+  * resolved.
+  * 
+  * @param scope the scope of the containing config instance
+  * @param path the virtual path of containing config instance in a document tree 
+  *             (not the key inside the configuration)
+  * @param sourcePath the path in the file system this configuration originates from,
+  *                   empty if it was constructed in memory
+  * */
 case class Origin(scope: Scope, path: Path, sourcePath: Option[String] = None)
 
 object Origin {
@@ -40,6 +66,7 @@ object Origin {
   case object DirectiveScope extends Scope
 }
 
+/** Base trait for all simple configuration values. */
 sealed trait SimpleConfigValue extends ConfigValue {
   def render: String
 }
@@ -60,6 +87,12 @@ case class StringValue(value: String) extends SimpleConfigValue {
   def render: String = value
 }
 
+/** A value containing an AST element obtained from text markup or templates. 
+  * 
+  * Such a value can be used in scenarios where substitution variables
+  * in templates or markup want to refer to other AST elements
+  * and include them into their AST tree as is.
+  * */
 case class ASTValue(value: Element) extends ConfigValue
 
 case class ArrayValue(values: Seq[ConfigValue]) extends ConfigValue {
@@ -86,4 +119,6 @@ case class ObjectValue(values: Seq[Field]) extends ConfigValue {
     new ObjectConfig(this, origin)
   }
 }
+
+/** A single field of an object value. */
 case class Field(key: String, value: ConfigValue, origin: Origin = Origin.root)

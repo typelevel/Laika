@@ -22,11 +22,34 @@ import laika.config.{ASTValue, ArrayValue, Config, ConfigError, ConfigResolverEr
 
 import scala.collection.mutable
 
-/**
+/** Translates the interim configuration model (usually obtained from a HOCON parser)
+  * into the final object model. It turns a root `ObjectBuilderValue` into
+  * a root `ObjectValue`.
+  * 
+  * The translation step involves the following steps:
+  * 
+  * - Expand keys (e.g. `{ a.b.c = 7 }` will become `{ a = { b = { c = 7 }}}`
+  * - Merge objects with a common base path
+  * - Merge concatenated values (e.g. `[1,2] [3,4]` will become `[1,2,3,4]`
+  * - Resolve substitution variables (potentially using the provided fallback if not found in
+  *   in the provided unresolved root)
+  * 
   * @author Jens Halm
   */
 object ConfigResolver {
 
+  /** Translates the interim configuration model (usually obtained from a HOCON parser)
+    * into the final object model. It turns a root `ObjectBuilderValue` into
+    * a root `ObjectValue`.
+    *
+    * The translation step involves the following steps:
+    *
+    * - Expand keys (e.g. `{ a.b.c = 7 }` will become `{ a = { b = { c = 7 }}}`
+    * - Merge objects with a common base path
+    * - Merge concatenated values (e.g. `[1,2] [3,4]` will become `[1,2,3,4]`
+    * - Resolve substitution variables (potentially using the provided fallback if not found in
+    *   in the provided unresolved root)
+    */
   def resolve(root: ObjectBuilderValue, origin: Origin, fallback: Config): Either[ConfigError, ObjectValue] = {
     
     val rootExpanded = mergeObjects(expandPaths(root))
@@ -168,7 +191,24 @@ object ConfigResolver {
     ))
     else Right(res)
   }
-  
+
+  /** Merges objects with a common base path into a single one.
+    * 
+    * ```
+    * a = { b = { c = 7 }}
+    * 
+    * a = { b = { d = 9 }}
+    * ```
+    * 
+    * will become
+    *
+    * ```
+    * a = { b = { c = 7, d = 9 }}
+    * ```
+    *
+    * @param obj
+    * @return
+    */
   def mergeObjects(obj: ObjectBuilderValue): ObjectBuilderValue = {
 
     def resolveSelfReference(path: Path, value: ConcatValue, parent: ConfigBuilderValue): ConfigBuilderValue = {

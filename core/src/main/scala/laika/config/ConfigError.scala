@@ -18,7 +18,10 @@ package laika.config
 
 import laika.ast.Path
 
-/**
+/** Base trait for all configuration errors that occurred
+  * during parsing, resolving, retrieving or convering
+  * configuration values.
+  * 
   * @author Jens Halm
   */
 sealed trait ConfigError {
@@ -26,16 +29,28 @@ sealed trait ConfigError {
   protected def render(key: Path): String = key.components.mkString(".")
 }
 
+/** Indicates that a value found in the configuration does not have the expected
+  * type so that type conversion is not even attempted. */
 case class InvalidType(expected: String, actual: ConfigValue) extends ConfigError {
   val message: String = s"Invalid type - expected: $expected, actual: ${actual.productPrefix.replaceAllLiterally("Value","")}"
 }
-case class ConversionError(message: String) extends ConfigError
+
+/** An error that occurred when decoding a configuration value to a target type. */
+case class DecodingError (message: String) extends ConfigError
+
+/** A generic error for invalid values. */
 case class ValidationError(message: String) extends ConfigError
+
+/** An error that occurred when parsing HOCON input. */
 case class ConfigParserError(message: String) extends ConfigError
+
+/** An error that occurred when resolving the interim result of a parsing operation. */
 case class ConfigResolverError(message: String) extends ConfigError
 
+/** A required value that could not be found. */
 case class NotFound(path: Path) extends ConfigError {
   val message: String = s"Not found: '${render(path)}'"
 }
 
+/** A ConfigError as a RuntimeException for use cases where a Throwable is required. */
 case class ConfigException(error: ConfigError) extends RuntimeException(error.message)

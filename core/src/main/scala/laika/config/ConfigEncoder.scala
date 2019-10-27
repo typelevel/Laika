@@ -16,13 +16,16 @@
 
 package laika.config
 
-/**
+/** A type class that can encode a value of type T as a ConfigValue.
+  * 
   * @author Jens Halm
   */
 trait ConfigEncoder[-T] {
   def apply(value: T): ConfigValue
 }
 
+/** Companion containing default encoder implementations for simple values and Seq's.
+  */
 object ConfigEncoder {
 
   implicit val string: ConfigEncoder[String] = new ConfigEncoder[String] {

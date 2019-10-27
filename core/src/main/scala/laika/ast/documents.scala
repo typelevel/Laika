@@ -20,7 +20,7 @@ import java.time.Instant
 import java.util.Locale
 
 import laika.config.Config.ConfigResult
-import laika.config.{Config, ConfigDecoder, ConfigError, ConfigValue, DefaultKey, InvalidType, ObjectValue, Traced, ValidationError}
+import laika.config.{Config, ConfigDecoder, ConfigError, ConfigValue, DecodingError, DefaultKey, InvalidType, ObjectValue, Traced, ValidationError}
 import laika.ast.Path.Root
 import laika.bundle.UnresolvedConfig
 import laika.rewrite.TemplateRewriter
@@ -122,7 +122,7 @@ case class DocumentMetadata (identifier: Option[String] = None, authors: Seq[Str
 object DocumentMetadata {
   
   implicit val localeDecoder: ConfigDecoder[Locale] = ConfigDecoder.string.flatMap { lang => 
-    Try(Locale.forLanguageTag(lang)).toEither.left.map(e => ValidationError(e.getMessage)) 
+    Try(Locale.forLanguageTag(lang)).toEither.left.map(e => DecodingError(e.getMessage)) 
   }
 
   def toInstant[C] (in: ConfigResult[Option[String]])(f: String => ConfigResult[Instant]): ConfigResult[Option[Instant]] = 
@@ -137,7 +137,7 @@ object DocumentMetadata {
         authors    <- config.get[Seq[String]]("authors", Nil)
         lang       <- config.getOpt[Locale]("language")
         date       <- toInstant(config.getOpt[String]("date")) { ds => 
-                        Try(Instant.parse(ds)).toEither.left.map(f => ValidationError(s"Invalid date format: ${f.getMessage}")) 
+                        Try(Instant.parse(ds)).toEither.left.map(f => DecodingError(s"Invalid date format: ${f.getMessage}")) 
                       }
       } yield {
         DocumentMetadata(identifier, authors ++ author.toSeq, lang, date)

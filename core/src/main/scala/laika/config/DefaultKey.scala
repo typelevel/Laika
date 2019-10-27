@@ -16,7 +16,18 @@
 
 package laika.config
 
-/**
+/** A defaultKey can be used for commonly used configuration objects like `AutonumberConfig`
+  * that are expected to be mapped to a specific key, like `autonumbering` without requiring
+  * the user to remember these keys.
+  * 
+  * {{{
+  * val config: Config = ???
+  * val res: ConfigResult[AutonumberConfig] = config.get[AutonumberConfig]
+  * }}}
+  * 
+  * In the example above retrieval happens solely based on the type of the result
+  * with the associated key being specified by an implicit `DefaultKey`.
+  * 
   * @author Jens Halm
   */
 trait DefaultKey[T] {
@@ -24,5 +35,8 @@ trait DefaultKey[T] {
 }
 
 object DefaultKey {
+  
+  /** Creates a new instance for the specified key.
+    */
   def apply[T](key: String): DefaultKey[T] = new DefaultKey[T] { val value: String = key }
 }
