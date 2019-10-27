@@ -19,7 +19,7 @@ lazy val basicSettings = Seq(
 
 lazy val moduleSettings = basicSettings ++ Seq(
   crossVersion       := CrossVersion.binary,
-  crossScalaVersions := Seq("2.12.8", "2.13.0-RC1")
+  crossScalaVersions := Seq("2.12.10", "2.13.1")
 )
 
 lazy val publishSettings = Seq(
