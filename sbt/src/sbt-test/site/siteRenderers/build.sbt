@@ -8,6 +8,6 @@ scalaVersion := "2.12.6"
 
 enablePlugins(LaikaPlugin)
 
-laikaExtensions += laikaHtmlRenderer { out => {
-  case Emphasized(content, _) => out << """<em class="foo">""" << content << "</em>"
-}}
+laikaExtensions += laikaHtmlRenderer {
+  case (fmt, Emphasized(content, opt)) => fmt.element("em", opt, content, "class"->"foo")
+}
