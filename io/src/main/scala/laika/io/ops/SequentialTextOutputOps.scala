@@ -21,7 +21,7 @@ import java.io.{File, OutputStream}
 import cats.effect.Async
 import laika.ast.Path
 import laika.ast.Path.Root
-import laika.io.model.{CharStreamOutput, StringOutput, TextFileOutput, TextOutput}
+import laika.io.model.TextOutput
 
 import scala.io.Codec
 
@@ -53,7 +53,7 @@ trait SequentialTextOutputOps[F[_]] {
     * @param codec the character encoding of the file, if not specified the platform default will be used.
     */
   def toFile (file: File)(implicit codec: Codec): Result =
-    toOutput(F.pure(TextFileOutput(file, Path(file.getName), codec)))
+    toOutput(TextOutput.forFile(Path(file.getName), file, codec)(F))
 
   /** Builder step that instructs the runtime to render the document to
     * the specified stream.
@@ -63,12 +63,12 @@ trait SequentialTextOutputOps[F[_]] {
     * @param codec the character encoding of the stream, if not specified the platform default will be used.
     */
   def toStream (stream: F[OutputStream], autoClose: Boolean = true)(implicit codec: Codec): Result =
-    toOutput(F.map(stream)(CharStreamOutput(_, Root, autoClose, codec)))
+    toOutput(TextOutput.forStream(Root, stream, codec, autoClose)(F))
 
   /** Builder step that instructs the runtime to render the document to
     * an in-memory string.
     */
-  def toRenderedString: Result = toOutput(F.pure(StringOutput(Root)))
+  def toRenderedString: Result = toOutput(TextOutput.forString(Root)(F))
 
   /** Renders the model to the specified output.
     *
@@ -76,6 +76,6 @@ trait SequentialTextOutputOps[F[_]] {
     *  methods delegate to. Usually not used directly in application code, but
     *  might come in handy for very special requirements.
     */
-  def toOutput (output: F[TextOutput]): Result
+  def toOutput (output: TextOutput[F]): Result
 
 }

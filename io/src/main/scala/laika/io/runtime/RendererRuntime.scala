@@ -47,10 +47,7 @@ object RendererRuntime {
       op.renderer.render(op.input, op.path, st) 
     }
     
-    for {
-      output <- op.output
-      _      <- OutputRuntime.write(renderResult, output)
-    } yield renderResult
+    OutputRuntime.write(renderResult, op.output).as(renderResult)
   }
 
   /** Process the specified render operation for an entire input tree and 
@@ -73,9 +70,9 @@ object RendererRuntime {
     
     def file (rootDir: File, path: Path): File = new File(rootDir, path.toString.drop(1))
 
-    def renderDocuments (finalRoot: DocumentTreeRoot, styles: StyleDeclarationSet)(output: Path => TextOutput): Seq[F[RenderResult]] = finalRoot.allDocuments.map { document =>
+    def renderDocuments (finalRoot: DocumentTreeRoot, styles: StyleDeclarationSet)(output: Path => TextOutput[F]): Seq[F[RenderResult]] = finalRoot.allDocuments.map { document =>
       val outputPath = document.path.withSuffix(fileSuffix)
-      val textOp = SequentialRenderer.Op(op.renderer, document.content, outputPath, Async[F].pure(output(outputPath)))
+      val textOp = SequentialRenderer.Op(op.renderer, document.content, outputPath, output(outputPath))
       run(textOp, Some(styles)).map { res =>
         Right(RenderedDocument(outputPath, document.title, document.sections, res)): RenderResult
       }
@@ -91,9 +88,9 @@ object RendererRuntime {
     }
     
     def renderOps (finalRoot: DocumentTreeRoot, styles: StyleDeclarationSet, staticDocs: Seq[BinaryInput[F]]): RenderOps = op.output match {
-      case StringTreeOutput => RenderOps(Nil, renderDocuments(finalRoot, styles)(p => StringOutput(p)))
+      case StringTreeOutput => RenderOps(Nil, renderDocuments(finalRoot, styles)(p => TextOutput.forString(p)))
       case DirectoryOutput(dir, codec) => 
-        val renderOps = renderDocuments(finalRoot, styles)(p => TextFileOutput(file(dir, p), p, codec))
+        val renderOps = renderDocuments(finalRoot, styles)(p => TextOutput.forFile(p, file(dir, p), codec))
         val toCopy = filterOutput(staticDocs, dir.getAbsolutePath)
         val copyOps = copyDocuments(toCopy, dir)
         val directories = (finalRoot.allDocuments.map(_.path.parent) ++ toCopy.map(_.path.parent)).distinct

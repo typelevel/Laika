@@ -32,7 +32,7 @@ case class StreamReader(input: Reader, sizeHint: Int) extends InputReader
 
 case class BinaryInput[F[_]] (path: Path, input: Resource[F, InputStream], sourceFile: Option[File] = None) extends Navigatable
 
-/** A character input that can be passed to 
+/** Character input for the various parsers of this library.
   * 
   * @param path    The full virtual path of this input (does not represent the filesystem path in case of file I/O)
   * @param docType Indicates the type of the document, to distinguish between text markup, templates, configuration 

@@ -18,50 +18,35 @@ package laika.io.model
 
 import java.io._
 
-import cats.effect.Resource
-import laika.config.Config
-import laika.ast.Path.Root
+import cats.Applicative
+import cats.effect.{Async, Resource}
 import laika.ast._
+import laika.config.Config
+import laika.io.runtime.OutputRuntime
 
 import scala.io.Codec
 
-/** Represents the output of a renderer, abstracting over various types of IO resources. 
- * 
- *  @author Jens Halm
- */
-sealed trait Output { 
 
-  /** The full path of this output.
-   *  This path is always an absolute path
-   *  from the root of the (virtual) output tree,
-   *  therefore does not represent the filesystem
-   *  path in case of file I/O.
-   */
-  def path: Path
-  
-  /** The local name of this output.
-   */
-  lazy val name: String = path.name
-  
-}
+sealed trait OutputWriter extends Product with Serializable
+case object PureWriter extends OutputWriter
+case class StreamWriter(output: Writer) extends OutputWriter
 
-/** A marker trait for textual output.
+/** Character output for the various renderers of this library
+  *
+  * @param path    The full virtual path of this input (does not represent the filesystem path in case of file I/O)
+  * @param resource   The resource to write the character output to
+  * @param targetFile The target file in the file system, empty if this does not represent a file system resource
   */
-sealed trait TextOutput extends Output
+case class TextOutput[F[_]] (path: Path, resource: Resource[F, OutputWriter], targetFile: Option[File] = None)
 
-/** A (virtual) tree of output documents.
-  */
-sealed trait TreeOutput extends Output {
-
-  val path: Path = Root
-  
+object TextOutput {
+  def forString[F[_]: Applicative] (path: Path): TextOutput[F] =
+    TextOutput[F](path, Resource.pure[F, OutputWriter](PureWriter))
+  def forFile[F[_]: Async] (path: Path, file: File, codec: Codec): TextOutput[F] =
+    TextOutput[F](path, OutputRuntime.textFileResource(file, codec).map(StreamWriter), Some(file))
+  def forStream[F[_]: Async] (path: Path, stream: F[OutputStream], codec: Codec, autoClose: Boolean): TextOutput[F] =
+    TextOutput[F](path, OutputRuntime.textStreamResource(stream, codec, autoClose).map(StreamWriter))
 }
-
-case class TextFileOutput (file: File, path: Path, codec: Codec) extends TextOutput
-
-case class StringOutput (path: Path) extends TextOutput
-
-case class CharStreamOutput (stream: OutputStream, path: Path, autoClose: Boolean, codec: Codec) extends TextOutput
 
 /** A resource for binary output.
   *
@@ -69,6 +54,10 @@ case class CharStreamOutput (stream: OutputStream, path: Path, autoClose: Boolea
   * require a binary stream to write to.
   */
 case class BinaryOutput[F[_]] (path: Path, resource: Resource[F, OutputStream])
+
+/** A (virtual) tree of output documents.
+  */
+sealed trait TreeOutput
 
 /** A directory as a target for a rendering operation of a document tree.
   * 

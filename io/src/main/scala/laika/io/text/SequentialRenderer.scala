@@ -16,11 +16,11 @@
 
 package laika.io.text
 
-import cats.effect.{Async, Blocker, ContextShift}
+import cats.effect.Async
 import laika.api.Renderer
 import laika.ast.{Document, Element, Path}
-import laika.io.ops.SequentialTextOutputOps
 import laika.io.model.TextOutput
+import laika.io.ops.SequentialTextOutputOps
 import laika.io.runtime.{RendererRuntime, Runtime}
 
 /** Renderer for a single output document.
@@ -69,7 +69,7 @@ object SequentialRenderer {
 
     type Result = Op[F]
 
-    def toOutput (output: F[TextOutput]): Op[F] = Op[F](renderer, input, path, output)
+    def toOutput (output: TextOutput[F]): Op[F] = Op[F](renderer, input, path, output)
 
   }
 
@@ -79,7 +79,7 @@ object SequentialRenderer {
     * default runtime implementation or by developing a custom runner that performs
     * the rendering based on this operation's properties.
     */
-  case class Op[F[_]: Async: Runtime] (renderer: Renderer, input: Element, path: Path, output: F[TextOutput]) {
+  case class Op[F[_]: Async: Runtime] (renderer: Renderer, input: Element, path: Path, output: TextOutput[F]) {
 
     /** Performs the rendering operation based on the library's
       * default runtime implementation, suspended in the effect F.

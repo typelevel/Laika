@@ -16,11 +16,11 @@
 
 package laika.io.text
 
-import cats.effect.{Async, Blocker, ContextShift}
+import cats.effect.Async
 import laika.api.Transformer
 import laika.ast.{DocumentType, TextDocumentType}
-import laika.io.ops.{SequentialInputOps, SequentialTextOutputOps}
 import laika.io.model.{TextInput, TextOutput}
+import laika.io.ops.{SequentialInputOps, SequentialTextOutputOps}
 import laika.io.runtime.{Runtime, TransformerRuntime}
 
 /** Transformer for a single input and output document.
@@ -62,7 +62,7 @@ object SequentialTransformer {
 
     type Result = Op[F]
 
-    def toOutput (output: F[TextOutput]): Op[F] = Op[F](transformer, input, output)
+    def toOutput (output: TextOutput[F]): Op[F] = Op[F](transformer, input, output)
 
   }
 
@@ -72,7 +72,7 @@ object SequentialTransformer {
     * default runtime implementation or by developing a custom runner that performs
     * the transformation based on this operation's properties.
     */
-  case class Op[F[_]: Async: Runtime] (transformer: Transformer, input: TextInput[F], output: F[TextOutput]) {
+  case class Op[F[_]: Async: Runtime] (transformer: Transformer, input: TextInput[F], output: TextOutput[F]) {
 
     /** Performs the transformation based on the library's
       * default runtime implementation, suspended in the effect F.
