@@ -6,16 +6,23 @@ lazy val basicSettings = Seq(
   description           := "Text Markup Transformer for sbt and Scala applications",
   startYear             := Some(2012),
   licenses              := Seq("Apache 2.0" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt")),
-  scalaVersion          := "2.12.8",
-  scalacOptions         := Opts.compile.encoding("UTF-8") :+ 
+  scalaVersion          := "2.12.10",
+  scalacOptions         := (Opts.compile.encoding("UTF-8") :+ 
                            Opts.compile.deprecation :+ 
                            Opts.compile.unchecked :+ 
                            "-feature" :+ 
                            "-language:implicitConversions" :+ 
                            "-language:postfixOps" :+ 
-                           "-language:higherKinds" :+
-                           "-Ypartial-unification"
+                           "-language:higherKinds")  ++ 
+                             (if (priorTo2_13(scalaVersion.value)) Seq("-Ypartial-unification") else Nil)
+                           
 )
+
+def priorTo2_13(version: String): Boolean =
+  CrossVersion.partialVersion(version) match {
+    case Some((2, minor)) if minor < 13 => true
+    case _                              => false
+  }
 
 lazy val moduleSettings = basicSettings ++ Seq(
   crossVersion       := CrossVersion.binary,
