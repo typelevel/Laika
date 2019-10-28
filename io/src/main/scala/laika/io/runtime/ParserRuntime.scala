@@ -66,7 +66,7 @@ object ParserRuntime {
           .groupBy(identity)
           .collect { case (path, in) if in.size > 1 => DuplicatePath(path) }
         if (duplicates.isEmpty) Async[F].unit
-        else Async[F].raiseError(ParserErrors(duplicates.toSeq))
+        else Async[F].raiseError(ParserErrors(duplicates.toSet))
       }
 
       def parseDocument[D] (doc: TextInput[F], parse: ParserInput => Either[ParserError, D], result: D => ParserResult): F[ParserResult] =
@@ -80,7 +80,7 @@ object ParserRuntime {
         case Template           => op.templateParser.map(parseDocument(in, _, TemplateResult)).toVector.validNel
         case StyleSheet(format) => Vector(parseDocument(in, op.styleSheetParser, StyleResult(_, format))).validNel
         case ConfigType         => Vector(parseDocument(in, parseConfig, ConfigResult(in.path, _))).validNel
-      }}.combineAll.toEither.leftMap(es => ParserErrors(es.toList))
+      }}.combineAll.toEither.leftMap(es => ParserErrors(es.toList.toSet))
       
       def rewriteTree (root: DocumentTreeRoot): ParsedTree[F] = { // TODO - 0.13 - move to TreeResultBuilder
         val finalTree = root.rewrite(op.config.rewriteRules)
@@ -106,7 +106,7 @@ object ParserRuntime {
   case class DuplicatePath (path: Path, filePaths: Set[String] = Set.empty) extends
     RuntimeException(s"Duplicate path: $path ${filePathMessage(filePaths)}")
 
-  case class ParserErrors (errors: Seq[Throwable]) extends
+  case class ParserErrors (errors: Set[Throwable]) extends
     RuntimeException(s"Multiple errors during parsing: ${errors.map(_.getMessage).mkString(", ")}")
 
   private def filePathMessage (filePaths: Set[String]): String =

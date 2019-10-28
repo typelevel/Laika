@@ -222,7 +222,7 @@ class ParallelParserSpec extends FlatSpec
       Root / "sub" / "doc.md"  -> Contents.name
     )
     defaultParser.fromInput(build(inputs)).parse.attempt.unsafeRunSync() shouldBe Left(
-      ParserErrors(Seq(DuplicatePath(Root / "doc2.md"), DuplicatePath(Root / "sub" / "doc.md")))
+      ParserErrors(Set(DuplicatePath(Root / "doc2.md"), DuplicatePath(Root / "sub" / "doc.md")))
     )
   }
 
