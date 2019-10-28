@@ -187,7 +187,7 @@ object TemplateRoot {
 }
 
 /** The root element of a document tree (originating from text markup) inside a template.
- *  Usually created by a template reference like `${document.content}`.
+ *  Usually created by a template reference like `\${document.content}`.
  */
 case class EmbeddedRoot (content: Seq[Block], indent: Int = 0, options: Options = NoOpt) extends TemplateSpan with BlockContainer {
   type Self = EmbeddedRoot

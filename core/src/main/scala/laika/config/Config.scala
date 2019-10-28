@@ -29,7 +29,7 @@ import laika.ast.Path
   * 
   * A second use case is user configuration, where custom variables can be set
   * in configuration files or headers and then referenced in templates or markup
-  * with the syntax `${ref.path}`.
+  * with the syntax `\${ref.path}`.
   * 
   * The key is a path separated by '.', which allows to reference nested objects
   * in the configuration.

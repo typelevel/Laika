@@ -51,7 +51,7 @@ object DirectiveParsers {
     */
   def legacyReference[T] (f: String => T): Parser[T] = '{' ~ ws ~> anyBut('}') <~ ws ~ "}}" ^^ f
 
-  /** Parses a HOCON-style reference enclosed between `${` and `}` that may be marked as optional (`${?some.param}`).
+  /** Parses a HOCON-style reference enclosed between `\${` and `}` that may be marked as optional (`\${?some.param}`).
     */
   def hoconReference[T] (f: (Path, Boolean) => T): Parser[T] = ('{' ~> opt('?') ~ HoconParsers.concatenatedKey <~ '}').map {
     case opt ~ key => f(key, opt.isEmpty)
