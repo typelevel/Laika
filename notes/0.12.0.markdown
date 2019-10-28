@@ -1,8 +1,49 @@
 
-Integration with cats-effect.
+New laika-io Module, Full Referential Transparency, Integration with cats-effect.
 
-* Extraction of all file and stream IO, parallel processing and EPUB support to a new module laika-io
-* IO module based on cats-effect, with effect abstraction and full control over ExecutionContexts 
-  for blocking IO and processing 
+This is a breaking release, for a full migration guide, see the 
+[Migration Guide](http://planet42.github.io/Laika/migration-guide-0.12.html)
+
+* New laika-io Module
+    * Functionality extracted from existing laika-core module
+    * Contains File/Stream IO, EPUB output, Parallel transformations
+    * Based on cats-effect type classes (in "Bring-Your-Own-Effect" style) 
+    * Leaves laika-core pure, preparing it for later support for Scala.js
+* Referential Transparency
+    * No method in the public API throws Exceptions anymore
+    * The result of pure operations is provided by instances of `Either`
+    * The result of side-effecting operations is provided by a return type of `F[A]`,
+      with `F[_]` being an effect type from cats-effect
+    * Eliminated all uses of runtime reflection
+* Changes to the APIs for creating and running parsers, renderers and transformers
+    * Necessary due to the changes listed above
+    * See the migration guide for details and examples  
+* Changes to the Directive Syntax in Templating
+    * The syntax of separators for the attribute and body sections have changed
+    * HOCON syntax is now used for attributes
+    * The old syntax is still supported, but will be removed at some point before the 1.0 release
+* Changes to the Directive DSL for creating directives
+    * `attribute(Default)` is now `defaultAttribute`
+    * `body` is now either `parsedBody` or `rawBody`
+    * Type conversions happen with the new `as` method: `attribute("title").as[String]`,
+      based on the `ConfigDecoder` type class that is also used for the new Config API
+    * Named body parts have been replaced by the more flexible Separator Directives
+    * The built-in helper for mapping directive parts with different arity has
+      been replaced by cats' `mapN`
 * Refactoring of AST Rewrite API to be fully type-safe and avoid runtime reflection and exceptions.
+    * Return types are now more explicit (e.g. `Replace(newSpan)` instead of `Some(newSpan)`)
+    * Rules for rewriting spans and blocks get registered separately for increased
+      type-safety, as it is invalid to replace a span with a block element.
 * Refactoring of the Render API to be referentially transparent
+    * Also applies to the API for registering custom renderers for individual AST nodes
+* New Config API and built-in HOCON parser
+    * Removed the dependency on the Typesafe Config library and its impure Java API
+    * Added a new lightweight and pure HOCON parser as part of laika-core,
+      supporting the full spec except for file includes (for now).
+* Enhancement for the DocumentTree API      
+    * The result of a tree parsing operation is now a new type called `DocumentTreeRoot`
+    * It has a `coverDocument` property and contains the recursive tree structure of the parsed content.
+    * Each `DocumentTree` in the structure now has an explicit `titleDocument: Option[Document]` property
+      for more explicit content organization in e-books.
+    * Properties that previously held references to streams and other impure data had been
+      removed from the pure content model (e.g. `DocumentTree.staticDocuments`).  

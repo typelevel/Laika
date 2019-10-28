@@ -214,6 +214,7 @@ On the API surface, there are only two changes:
 * Rules for rewriting spans and blocks get registered separately for increased
   type-safety, as it is invalid to replace a span with a block element.
 
+Before
 ```scala
 val transformer = Transform
   .from(Markdown)
@@ -292,7 +293,7 @@ The building blocks for creating your own directives have also changed significa
   based on the `ConfigDecoder` type class that is also used for the new Config API
 * Named body parts have been replaced by the more flexible Separator Directives, 
   see [Separated Body] for details
-* The built-in helpers for mapping directive parts with different arities has
+* The built-in helper for mapping directive parts with different arity has
   been replaced by cats `mapN`
   
 Before
@@ -350,7 +351,7 @@ The model had been enhanced to better cater for Laika's support for e-book gener
 * The result of a tree parsing operation is now a new type called `DocumentTreeRoot`
 * It has a `coverDocument` property and contains the recursive tree structure of the parsed content.
 * Each `DocumentTree` in the structure now has an explicit `titleDocument: Option[Document]` property
-  for a more explicit content organization in e-books.
-* Properties that could previously hold references to streams and other impure data had been
+  for more explicit content organization in e-books.
+* Properties that previously held references to streams and other impure data had been
   removed from the pure content model (e.g. `DocumentTree.staticDocuments`).  
   
