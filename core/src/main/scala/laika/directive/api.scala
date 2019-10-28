@@ -494,7 +494,7 @@ trait BuilderContext[E <: Element] {
     *  object MyDirectives extends DirectiveRegistry {
     *    val blockDirectives = Seq(
     *      Blocks.create("note") {
-    *        (defaultAttribute.as[String] ~ parsedBody).mapN(Note(_,_))
+    *        (defaultAttribute.as[String], parsedBody).mapN(Note(_,_))
     *      }
     *    )
     *    val spanDirectives = Seq()
@@ -525,7 +525,7 @@ trait BuilderContext[E <: Element] {
     *
     *  val blockDirectives = Seq(
     *    Blocks.create("message") {
-    *      (defaultAttribute.as[Int] ~ blockContent).mapN(Message(_,_))
+    *      (defaultAttribute.as[Int], blockContent).mapN(Message(_,_))
     *    }
     *  )
     *  }}}
@@ -548,7 +548,7 @@ trait BuilderContext[E <: Element] {
     *
     *  val blockDirectives = Seq(
     *    Blocks.create("message") {
-    *      (defaultAttribute.as[Int].optional ~ blockContent).mapN { 
+    *      (defaultAttribute.as[Int].optional, blockContent).mapN { 
     *        (severity, content) => Message(severity.getOrElse(0), content) 
     *      }
     *    }
