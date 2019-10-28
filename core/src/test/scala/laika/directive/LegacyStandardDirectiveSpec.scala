@@ -47,8 +47,8 @@ class LegacyStandardDirectiveSpec extends FlatSpec
   def parseTemplateWithConfig (input: String, config: String): RootElement = {
     val tRoot = parseTemplate(input)
     val template = TemplateDocument(Path.Root, tRoot)
-    val cursor = DocumentCursor(Document(Path.Root, root(), config = ConfigParser.parse(config).resolve.right.get))
-    TemplateRewriter.applyTemplate(cursor, template).right.get.content
+    val cursor = DocumentCursor(Document(Path.Root, root(), config = ConfigParser.parse(config).resolve.toOption.get))
+    TemplateRewriter.applyTemplate(cursor, template).toOption.get.content
   }
   
 
@@ -273,7 +273,7 @@ class LegacyStandardDirectiveSpec extends FlatSpec
       val doc = Document(pathUnderTest, parse(markup).content, config = 
         ConfigBuilder.empty.withValue("title", "Doc 7").withValue("template", "/test.html").build)
       val tree = buildTree(templateDoc, doc).rewrite(OperationConfig.default.rewriteRules)
-      TemplateRewriter.applyTemplates(DocumentTreeRoot(tree), "html").right.get.tree.selectDocument(Current / "sub2" / "doc7").get.content
+      TemplateRewriter.applyTemplates(DocumentTreeRoot(tree), "html").toOption.get.tree.selectDocument(Current / "sub2" / "doc7").get.content
     }
     
     def markup = """# Headline 1

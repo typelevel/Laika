@@ -52,7 +52,7 @@ object HoconParsers {
     }
   }
   object PathFragments {
-    def unquoted(key: StringValue): PathFragments = apply(key.value.split("\\.", -1))
+    def unquoted(key: StringValue): PathFragments = apply(key.value.split("\\.", -1).toSeq)
     def quoted(key: StringValue): PathFragments = apply(Seq(key.value))
     def whitespace(ws: String): PathFragments = apply(Seq(ws))
   }

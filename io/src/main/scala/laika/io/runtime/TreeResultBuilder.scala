@@ -56,7 +56,7 @@ object TreeResultBuilder {
     def isTitleDoc (doc: Document): Boolean = doc.path.basename == "title"
     
     val titleDoc = content.collectFirst { case MarkupResult(doc) if isTitleDoc(doc.document) => doc }
-    val subTrees = content.collect { case tree: TreeResult => Right(tree) }.sortBy(_.right.get.path.name)
+    val subTrees = content.collect { case tree: TreeResult => Right(tree) }.sortBy(_.toOption.get.path.name)
     val treeContent = content.collect { case MarkupResult(doc) if !isTitleDoc(doc.document) => Left(doc) } ++ subTrees
     val templates = content.collect { case TemplateResult(doc) => doc }
 

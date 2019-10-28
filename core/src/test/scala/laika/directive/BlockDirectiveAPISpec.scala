@@ -66,8 +66,8 @@ class BlockDirectiveAPISpec extends FlatSpec
     trait AllAttributes {
       val directive = Blocks.create("dir") {
         allAttributes.map { attrs =>
-          val foo = attrs.get[String]("foo").right.get
-          val bar = attrs.get[Int]("bar").right.get
+          val foo = attrs.get[String]("foo").toOption.get
+          val bar = attrs.get[Int]("bar").toOption.get
           p(s"$foo $bar")
         }
       }

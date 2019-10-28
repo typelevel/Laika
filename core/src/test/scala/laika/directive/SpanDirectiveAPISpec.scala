@@ -63,8 +63,8 @@ class SpanDirectiveAPISpec extends FlatSpec
     trait AllAttributes {
       val directive = Spans.create("dir") {
         allAttributes.map { attrs =>
-          val foo = attrs.get[String]("foo").right.get
-          val bar = attrs.get[Int]("bar").right.get
+          val foo = attrs.get[String]("foo").toOption.get
+          val bar = attrs.get[Int]("bar").toOption.get
           Text(s"$foo $bar")
         }
       }

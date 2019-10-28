@@ -27,12 +27,12 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
 
   def parseAndResolve(input: String): ObjectValue = {
     val builder = HoconParsers.rootObject.parse(input).toOption.get
-    ConfigResolver.resolve(builder, Origin.root, EmptyConfig).right.get
+    ConfigResolver.resolve(builder, Origin.root, EmptyConfig).toOption.get
   }
 
   def parseAndResolve(input: String, fallback: Config): ObjectValue = {
     val builder = HoconParsers.rootObject.parse(input).toOption.get
-    ConfigResolver.resolve(builder, Origin.root, fallback).right.get
+    ConfigResolver.resolve(builder, Origin.root, fallback).toOption.get
   }
 
   def parseAndResolveForFailure(input: String): Either[ConfigError, ObjectValue] = {

@@ -93,7 +93,7 @@ class ConfigSpec extends FlatSpec
     }
     
     def resultOf (root: DocumentTreeRoot): RootElement = {
-      val result = TemplateRewriter.applyTemplates(root, "html").right.get.tree
+      val result = TemplateRewriter.applyTemplates(root, "html").toOption.get.tree
       result.content.collect{case doc: Document => doc}.head.content
     }
     
@@ -195,7 +195,7 @@ class ConfigSpec extends FlatSpec
     )
     val tree = markdownParser.fromInput(IO.pure(builder(inputs, mdMatcher))).parse.unsafeRunSync()
     val doc = tree.root.tree.content.head.asInstanceOf[Document]
-    doc.config.get[ConfigValue]("foo").right.get.asInstanceOf[ObjectValue].values.sortBy(_.key) should be (Seq(
+    doc.config.get[ConfigValue]("foo").toOption.get.asInstanceOf[ObjectValue].values.sortBy(_.key) should be (Seq(
       Field("bar", LongValue(7), Origin(DocumentScope, Root / "input.md")),
       Field("baz", LongValue(9), Origin(TreeScope, Root / "directory.conf"))
     ))
@@ -250,7 +250,7 @@ class ConfigSpec extends FlatSpec
     
     val op = MarkupParser.of(Markdown).using(BundleProvider.forConfigString(config5)).io(blocker).parallel[IO].build
       .fromInput(IO.pure(builder(inputs, mdMatcher)))
-    val result = TemplateRewriter.applyTemplates(op.parse.unsafeRunSync().root, "html").right.get.tree
+    val result = TemplateRewriter.applyTemplates(op.parse.unsafeRunSync().root, "html").toOption.get.tree
     result.selectDocument(Path.Current / "dir" / "input.md").get.content should be (expected)
   }
   

@@ -62,8 +62,8 @@ class TemplateDirectiveAPISpec extends FlatSpec
     trait AllAttributes {
       val directive = Templates.create("dir") {
         allAttributes.map { attrs =>
-          val foo = attrs.get[String]("foo").right.get
-          val bar = attrs.get[Int]("bar").right.get
+          val foo = attrs.get[String]("foo").toOption.get
+          val bar = attrs.get[Int]("bar").toOption.get
           TemplateString(s"$foo $bar")
         }
       }
