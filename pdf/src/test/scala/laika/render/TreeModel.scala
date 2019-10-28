@@ -16,7 +16,7 @@
 
 package laika.render
 
-import laika.config.{Config, ConfigBuilder}
+import laika.config.{Config, ConfigBuilder, Origin}
 import laika.ast._
 import laika.ast.Path.Root
 
@@ -41,7 +41,7 @@ trait TreeModel {
   }
     
   def configWithTreeTitle (num: Int): Config = ConfigBuilder
-    .withFallback(pdfFileConfig)
+    .withFallback(pdfFileConfig, Origin(Origin.TreeScope, Root))
     .withValue("title", s"Tree $num & More")
     .build
 
