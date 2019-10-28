@@ -50,6 +50,10 @@ class ParserBundleSpec extends WordSpec with Matchers {
       lazy val extensions = parserBundles
     }
 
+    val docConfig = {
+      val base = ConfigBuilder.withOrigin(Origin(Origin.DocumentScope, Root)).build
+      ConfigBuilder.withFallback(base).build // TODO - why is this nested twice?
+    }
   }
 
   trait BundleSetup extends SetupBase {
@@ -96,7 +100,8 @@ class ParserBundleSpec extends WordSpec with Matchers {
       }
 
     def doc (blocks: (Char, String)*): Document =
-      Document(Root, RootElement(blocks.map { case (deco, text) => DecoratedBlock(deco, Seq(Text(text))) }))
+      Document(Root, RootElement(blocks.map { case (deco, text) => DecoratedBlock(deco, Seq(Text(text))) }),
+        config = docConfig)
 
   }
 
@@ -165,7 +170,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
     def doc (spans: (Char, String)*): Document =
       Document(Root, RootElement(Seq(Paragraph(
         spans.map { case (deco, text) => DecoratedSpan(deco, text) }
-      ))))
+      ))), config = docConfig)
   }
 
   "The configuration for span parsers" should {
@@ -232,7 +237,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
       }
     }
 
-    def doc (text: String): Document = Document(Root, RootElement(Seq(Paragraph(Seq(Text(text))))))
+    def doc (text: String): Document = Document(Root, RootElement(Seq(Paragraph(Seq(Text(text))))), config = docConfig)
 
   }
 

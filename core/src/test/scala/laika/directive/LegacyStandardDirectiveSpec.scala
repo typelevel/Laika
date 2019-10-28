@@ -18,7 +18,7 @@ package laika.directive
 
 import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
-import laika.config.{ConfigBuilder, ConfigParser}
+import laika.config.{Config, ConfigBuilder, ConfigParser, Origin}
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.Markdown
@@ -253,25 +253,30 @@ class LegacyStandardDirectiveSpec extends FlatSpec
       Nil
     )
 
+    def config(path: Path, title: String, scope: Origin.Scope): Config = ConfigBuilder
+      .withOrigin(Origin(scope, path))
+      .withValue("title", title)
+      .build
+
     def titleDoc (path: Path): Option[Document] =
       if (!hasTitleDocs || path == Root) None
-      else Some(Document(path / "title", sectionsWithoutTitle, config = ConfigBuilder.empty.withValue("title", "TitleDoc").build))
-    
+      else Some(Document(path / "title", sectionsWithoutTitle, config = config(path / "title", "TitleDoc", Origin.DocumentScope)))
+
     def docs (path: Path, nums: Int*): Seq[Document] = nums map {
-      n => Document(path / ("doc"+n), sectionsWithoutTitle, config = ConfigBuilder.empty.withValue("title", "Doc "+n).build)
+      n => Document(path / ("doc"+n), sectionsWithoutTitle, config = config(path / ("doc"+n), "Doc "+n, Origin.DocumentScope))
     }
 
     def buildTree (template: TemplateDocument, markup: Document): DocumentTree = {
       DocumentTree(Root, docs(Root, 1,2) ++ List(
-        DocumentTree(Root / "sub1", docs(Root / "sub1",3,4), titleDoc(Root / "sub1"), config = ConfigBuilder.empty.withValue("title", "Tree 1").build),
-        DocumentTree(Root / "sub2", docs(Root / "sub2",5,6) ++ List(markup), titleDoc(Root / "sub1"), config = ConfigBuilder.empty.withValue("title", "Tree 2").build)
+        DocumentTree(Root / "sub1", docs(Root / "sub1",3,4), titleDoc(Root / "sub1"), config = config(Root / "sub1", "Tree 1", Origin.TreeScope)),
+        DocumentTree(Root / "sub2", docs(Root / "sub2",5,6) ++ List(markup), titleDoc(Root / "sub1"), config = config(Root / "sub2", "Tree 2", Origin.TreeScope))
       ), templates = List(template))
     }
-    
+
     def parseAndRewrite (template: String, markup: String): RootElement = {
       val templateDoc = TemplateDocument(Root / "test.html", parseTemplate(template))
-      val doc = Document(pathUnderTest, parse(markup).content, config = 
-        ConfigBuilder.empty.withValue("title", "Doc 7").withValue("template", "/test.html").build)
+      val doc = Document(pathUnderTest, parse(markup).content, config =
+        config(pathUnderTest, "Doc 7", Origin.DocumentScope).withValue("template","/test.html").build)
       val tree = buildTree(templateDoc, doc).rewrite(OperationConfig.default.rewriteRules)
       TemplateRewriter.applyTemplates(DocumentTreeRoot(tree), "html").toOption.get.tree.selectDocument(Current / "sub2" / "doc7").get.content
     }

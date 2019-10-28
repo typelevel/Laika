@@ -16,7 +16,7 @@
 
 package laika.bundle
 
-import laika.config.{Config, ConfigError, ConfigParser, Origin}
+import laika.config.{Config, ConfigBuilder, ConfigError, ConfigParser, Origin}
 import laika.parse.Parser
 import laika.parse.combinator.Parsers
 
@@ -87,7 +87,7 @@ object UnresolvedConfig {
     * the fallback unmodified.
     */
   val empty: UnresolvedConfig = new UnresolvedConfig {
-    def resolve (origin: Origin, fallback: Config) = Right(fallback)
+    def resolve (origin: Origin, fallback: Config) = Right(ConfigBuilder.withFallback(fallback, origin).build)
   }
 
   /** Returns an unresolved config for the specified HOCON input

@@ -20,7 +20,7 @@ import java.time.Instant
 import java.util.Locale
 
 import laika.config.Config.ConfigResult
-import laika.config.{Config, ConfigDecoder, ConfigError, ConfigValue, DecodingError, DefaultKey, InvalidType, ObjectValue, Traced, ValidationError}
+import laika.config.{Config, ConfigDecoder, ConfigError, ConfigValue, DecodingError, DefaultKey, InvalidType, ObjectValue, Origin, Traced, ValidationError}
 import laika.ast.Path.Root
 import laika.bundle.UnresolvedConfig
 import laika.rewrite.TemplateRewriter
@@ -72,14 +72,18 @@ sealed trait TreeContent extends Navigatable {
   def selectTarget (selector: Selector): Option[TargetResolver] = globalLinkTargets.get(selector)
 
   protected def titleFromConfig: Option[Seq[Span]] = {
-    config.get[String]("title").toOption.map { titleString =>
-      val title = List(Text(titleString))
-      val autonumberConfig = AutonumberConfig.fromConfig(config)
-      val autonumberEnabled = autonumberConfig.documents && position.depth < autonumberConfig.maxDepth
-      if (autonumberEnabled) position.toSpan +: title
-      else title
+    config.get[Traced[String]]("title").toOption.flatMap { tracedTitle =>
+      if (tracedTitle.origin.scope == configScope) {
+        val title = List(Text(tracedTitle.value))
+        val autonumberConfig = AutonumberConfig.fromConfig(config)
+        val autonumberEnabled = autonumberConfig.documents && position.depth < autonumberConfig.maxDepth
+        if (autonumberEnabled) Some(position.toSpan +: title)
+        else Some(title)
+      } else None
     }
   }
+  
+  protected def configScope: Origin.Scope
 
 }
 
@@ -468,6 +472,8 @@ case class Document (path: Path,
    *  been processed.
    */
   def rewrite (rules: RewriteRules): Document = DocumentCursor(this).rewriteTarget(rules)
+  
+  protected val configScope: Origin.Scope = Origin.DocumentScope
 
 }
 
@@ -507,6 +513,8 @@ case class DocumentTree (path: Path,
    */
   def rewrite (rules: DocumentCursor => RewriteRules): DocumentTree = TreeCursor(this).rewriteTarget(rules)
 
+  protected val configScope: Origin.Scope = Origin.TreeScope
+  
 }
 
 /** Represents the root of a tree of documents. In addition to the recursive structure of documents,
