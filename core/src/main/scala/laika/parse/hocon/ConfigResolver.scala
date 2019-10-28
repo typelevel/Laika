@@ -56,8 +56,6 @@ object ConfigResolver {
     
     def renderPath(p: Path): String = p.components.mkString(".")
     
-    println(s"resolving root: $rootExpanded")
-    
     val activeFields   = mutable.Set.empty[Path]
     val resolvedFields = mutable.Map.empty[Path, ConfigValue]
     val startedObjects = mutable.Map.empty[Path, ObjectBuilderValue] // may be in progress or resolved
@@ -80,7 +78,6 @@ object ConfigResolver {
       case m: MergedValue          => resolveMergedValue(path: Path)(m.values.reverse)
       case SelfReference           => None
       case SubstitutionValue(ref, optional) =>
-        println(s"resolve ref '${ref.toString}'")
         resolvedValue(ref).orElse(lookahead(ref)).orElse {
           if (!optional) invalidPaths += ((path, s"Missing required reference: '${renderPath(ref)}'"))
           None
@@ -110,7 +107,6 @@ object ConfigResolver {
         else {
           val matching = startedObjects.toSeq.filter(o => current.isSubPath(o._1))
           val sorted = matching.sortBy(_._1.components.length)
-          println(s"matching active objects for path $current: ${sorted.map(_._1.toString).mkString(" ")}")
           sorted.lastOption.fold(resolvedParent(current.parent)) {
             case (commonPath, obv) => Some((obv, Path(Path.Root, current.components.take(commonPath.components.size + 1))))
           }
@@ -122,14 +118,8 @@ object ConfigResolver {
         Some(NullValue)
       } else {
         resolvedParent(path).flatMap { case (obj, fieldPath) =>
-          println(s"lookahead from '${fieldPath.toString}'")
-          println(s"keys before lookahead: ${resolvedFields.keySet.map(_.toString).mkString(" ")}")
-          println(s"keys in selected parent: ${obj.values.map(_.key.toString).mkString(" ")}")
           obj.values.find(_.key == fieldPath).map(_.value).foreach(resolveField(fieldPath, _, obj))
-          println(s"keys after lookahead: ${resolvedFields.keySet.map(_.toString).mkString(" ")}")
-          val res = resolvedValue(path).orElse(fallback.get[ConfigValue](path).toOption)
-          println(s"success? ${res.isDefined}")
-          res
+          resolvedValue(path).orElse(fallback.get[ConfigValue](path).toOption)
         }
       }
     }
@@ -164,7 +154,6 @@ object ConfigResolver {
     
     def resolveField(path: Path, value: ConfigBuilderValue, parent: ObjectBuilderValue): Option[ConfigValue] = {
       resolvedValue(path).orElse {
-        println(s"resolve field '${path.toString}'")
         activeFields += path
         val res = resolveValue(path)(value)
         activeFields -= path
@@ -177,7 +166,6 @@ object ConfigResolver {
     
     def resolveObject(obj: ObjectBuilderValue, path: Path): ObjectValue = {
       startedObjects += ((path, obj))
-      println(s"resolve obj with keys: ${obj.values.map(_.key.toString).mkString(" ")}")
       val resolvedFields = obj.values.flatMap { field =>
         resolveField(field.key, field.value, obj).map(Field(field.key.name, _, origin))
       }
@@ -268,7 +256,6 @@ object ConfigResolver {
     }
     
     val expandedFields = obj.values.map { field =>
-      //println(s"expand key ${field.key.toString}")
       field.key.components match {
         case name :: Nil => 
           field.copy(
@@ -287,7 +274,6 @@ object ConfigResolver {
           )
       }
     }
-    //println(s"expanded keys: ${expandedFields.map(_.key.toString).mkString(" ")}")
     obj.copy(values = expandedFields)
   }
   

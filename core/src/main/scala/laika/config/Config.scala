@@ -130,13 +130,6 @@ class ObjectConfig (private[laika] val root: ObjectValue,
                     val origin: Origin,
                     private[laika] val fallback: Config = EmptyConfig) extends Config {
 
-  //  println()
-  //  println("=====================================================================")
-  //  println(s"  CREATING CONFIG WITH KEYS: '${root.values.map(_.key).mkString(", ")}' FROM '$origin")
-  //  fallback.foreach(fb => println(s"          AND FALLBACK KEYS: '${fb.root.values.map(_.key).mkString(", ")}' FROM '${fb.origin}'"))
-  //  println("=====================================================================")
-  //  println()
-
   private def lookup(keySegments: List[String], target: ObjectValue): Option[Field] = {
     (target.values.find(_.key == keySegments.head), keySegments.tail) match {
       case (res, Nil) => res
