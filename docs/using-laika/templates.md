@@ -295,7 +295,7 @@ for empty values:
     <li><a href="#${_.id}">${_.description}</a></li>
      
     @:empty
-    <p>This document does not have any sections</p>
+    <p>No products available.</p>
     
     @:@
 
@@ -331,7 +331,7 @@ or even secondary conditions with `@:elseIf`:
     <div class="infobox">...</div>
     
     @:else
-    <p>This document does not have any sections</p>
+    <p>Something else</p>
     
     @:@
 
