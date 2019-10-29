@@ -59,7 +59,9 @@ object ZipWriter {
         entry.setCrc(crc32.getValue)
       }
 
-      writeEntry(inputs.head, prepareUncompressedEntry) >> inputs.tail.map(writeEntry(_)).sequence.as(())
+      writeEntry(inputs.head, prepareUncompressedEntry) >> 
+        inputs.tail.map(writeEntry(_)).sequence.as(()) >> 
+          Async[F].delay(zipOut.close())
     }
     
     val in = inputFs.toVector.map { doc =>
