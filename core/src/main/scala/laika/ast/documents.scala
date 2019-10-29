@@ -214,8 +214,12 @@ trait DocumentStructure { this: TreeContent =>
     (content select {
       case RootElement(TemplateRoot(_,_) :: Nil, _) => false
       case RootElement(_, _) => true
+      case EmbeddedRoot(_, _, _) => true
       case _ => false
-    }).headOption map { case RootElement(content, _) => content } getOrElse Nil
+    }).headOption map {
+      case EmbeddedRoot(content, _, _) => content
+      case RootElement(content, _) => content 
+    } getOrElse Nil
   }
 
   /** The title of this document, obtained from the document
