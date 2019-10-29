@@ -91,7 +91,7 @@ object BookNavigation {
     *
     * The configuration key for setting the recursion depth is `epub.toc.depth`.
     *
-    * @param root the document tree to generate navPoints for
+    * @param tree the document tree to generate navPoints for
     * @param depth the recursion depth through trees, documents and sections
     * @return a recursive structure of `BookNavigation` instances
     */
