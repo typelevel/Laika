@@ -99,7 +99,7 @@ case class / (parent: Path, name: String) extends Path {
   lazy val prefix: Path.PathPrefix = parent.prefix
   override lazy val basename: String = if (name.contains('.')) name.take(name.lastIndexOf(".")) else name
   override lazy val suffix: String = if (name.contains('.')) name.drop(name.lastIndexOf(".")+1) else ""
-  override def withSuffix (newSuffix: String): Path = copy(name = basename + "." + newSuffix)
+  override def withSuffix (newSuffix: String): Path = if (name.endsWith(newSuffix)) this else copy(name = basename + "." + newSuffix)
   override lazy val toString: String = prefix.toString + (components mkString "/")
 }
 
