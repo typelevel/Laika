@@ -34,7 +34,7 @@ class ParallelRenderer[F[_]: Async: Runtime] (renderer: BinaryRenderer) {
   /** Builder step that specifies the root of the document tree to render.
     */
   def from (input: DocumentTreeRoot): ParallelRenderer.OutputOps[F] =
-    ParallelRenderer.OutputOps(renderer, input)
+    ParallelRenderer.OutputOps(renderer, input, Nil)
 
 }
 
@@ -57,13 +57,18 @@ object ParallelRenderer {
 
   /** Builder step that allows to specify the output to render to.
     */
-  case class OutputOps[F[_]: Async: Runtime] (renderer: BinaryRenderer, input: DocumentTreeRoot) extends BinaryOutputOps[F] {
+  case class OutputOps[F[_]: Async: Runtime] (renderer: BinaryRenderer, input: DocumentTreeRoot, staticDocuments: Seq[BinaryInput[F]]) extends BinaryOutputOps[F] {
 
     val F: Async[F] = Async[F]
 
     type Result = Op[F]
 
-    def toOutput (output: BinaryOutput[F]): Op[F] = Op[F](renderer, input, output)
+    /** Copies the specified binary input to the output target,
+      * in addition to rendering the document tree.
+      */
+    def copying (toCopy: Seq[BinaryInput[F]]): OutputOps[F] = copy(staticDocuments = staticDocuments ++ toCopy)
+
+    def toOutput (output: BinaryOutput[F]): Op[F] = Op[F](renderer, input, output, staticDocuments)
 
   }
 

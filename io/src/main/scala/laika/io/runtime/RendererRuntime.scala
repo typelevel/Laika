@@ -154,7 +154,7 @@ object RendererRuntime {
     val preparedTree = op.renderer.prepareTree(op.input)
     for {
       renderedTree <- run(ParallelRenderer.Op[F](op.renderer.interimRenderer, preparedTree, StringTreeOutput))
-      _            <- op.renderer.postProcessor.process(renderedTree.copy[F](defaultTemplate = template), op.output)
+      _            <- op.renderer.postProcessor.process(renderedTree.copy[F](defaultTemplate = template, staticDocuments = op.staticDocuments), op.output)
     } yield ()
       
   }
