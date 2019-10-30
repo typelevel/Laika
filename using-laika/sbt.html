@@ -38,7 +38,7 @@
           <li><a href="../introduction/architecture.html">Architecture</a></li>
           <li class="nav-header">Using Laika</li>
           <li class="active"><a href="#">Using the sbt Plugin</a></li>
-          <li><a href="embedded.html">Using Laika Embedded</a></li>
+          <li><a href="embedded.html">Using the Library API</a></li>
           <li><a href="markup.html">Supported Markup</a></li>
           <li><a href="output.html">Supported Output Formats</a></li>
           <li><a href="structure.html">Document Structure</a></li>
@@ -69,7 +69,7 @@
       <div class="span8" id="top">
 
         <div class="page-header">
-          <h1>Using the sbt Plugin</h1>
+        <h1>Using the sbt Plugin</h1>
         </div>
         <p>The core of the Laika toolkit does not depend on sbt in any way, and therefore comes with a plugin
         that provides the glue necessary to expose Laika&#39;s feature set as sbt tasks and settings.</p>
@@ -81,7 +81,7 @@
         <p>If you still need to use sbt 0.13.x, you can use Laika 0.7.0 which was the last release
         supporting that sbt version.</p>
         <p>First add the plugin to <code>project/plugins.sbt</code>:</p>
-        <pre>addSbtPlugin(&quot;org.planet42&quot; % &quot;laika-sbt&quot; % &quot;0.11.0&quot;)</pre>
+        <pre>addSbtPlugin(&quot;org.planet42&quot; % &quot;laika-sbt&quot; % &quot;0.12.0&quot;)</pre>
         <p>If you want to install it globally, add the line above to
         <code>~/.sbt/1.0/plugins/build.sbt</code> instead.</p>
         <p>Then enable the plugin in your project&#39;s <code>build.sbt</code>:</p>
@@ -118,11 +118,11 @@
             like this:</p>
             <pre>&lt;html&gt;
   &lt;head&gt;
-    &lt;title&gt;{{document.title}}&lt;/title&gt;
+    &lt;title&gt;${document.title}&lt;/title&gt;
   &lt;/head&gt;
   &lt;body&gt;
     &lt;div class=&quot;content&quot;&gt;
-      {{document.content}}
+      ${document.content}
     &lt;/div&gt;
   &lt;/body&gt;
 &lt;/html&gt;</pre>
@@ -169,9 +169,9 @@
             as an EPUB and a PDF file from the parsed source markup. The markup will only
             get parsed once, therefore this task is very efficient for producing
             multiple output formats. The formats supported as arguments to this
-            task are <code>html</code>, <code>epub</code>, <code>pdf</code>, <code>xslfo</code> and <code>ast</code>. 
-            If you only want to generate one output format there are shortcut tasks for each of them:
-            <code>laikaHTML</code>, <code>laikaEPUB</code>, <code>laikaPDF</code>, <code>laikaXSLFO</code>, <code>laikaAST</code></p>
+            task are <code>html</code>, <code>epub</code>, <code>pdf</code>, <code>xslfo</code> and <code>ast</code>. If you only want
+            to generate one output format there are shortcut tasks for each of them:
+            <code>laikaHTML</code>, <code>laikaEPUB</code>, <code>laikaPDF</code>, <code>laikaXSLFO</code>, <code>laikaAST</code>.</p>
           </li>
         </ul>
         <p>The default settings for these tasks should be sufficient for many use cases.
@@ -247,35 +247,38 @@
         <p>A custom renderer allows to override the generated output for one or more specific node
         types, while falling back to the default renderers for all other node types.</p>
         <p>The <code>laikaHtmlRenderer</code> shortcut allows to add a custom HTML renderer to the <code>laikaExtensions</code> setting
-        and expects a function of type <code>HTMLWriter =&gt; RenderFunction</code> where <code>RenderFunction</code>
-        is a type alias for <code>PartialFunction[Element, Unit]</code>. <code>Element</code> is the base trait for all nodes
-        in a document tree. For all elements where this partial function is not defined,
-        Laika will use the default renderers for all node types. </p>
+        and expects a function of type <code>PartialFunction[(HTMLFormatter, Element), String]</code>. </p>
+        <p><code>HTMLFormatter</code> provides the API for rendering tags, adds the current indentation level after
+        line breaks and knows how to render child elements. </p>
+        <p><code>Element</code> is the base trait for all nodes in a document tree. 
+        For all elements where this partial function is not defined, Laika will use the default renderers for all node types. </p>
         <p>The following simple example shows how you can add a style to the renderer for
         the <code>&lt;em&gt;</code> tag:</p>
-        <pre>laikaExtensions += laikaHtmlRenderer { out =&gt; {
-  case Emphasized(content, _) =&gt; 
-      out &lt;&lt; &quot;&quot;&quot;&lt;em class=&quot;big&quot;&gt;&quot;&quot;&quot; &lt;&lt; content &lt;&lt; &quot;&lt;/em&gt;&quot; 
+        <pre>laikaExtensions += laikaHtmlRenderer {
+  case (fmt, Emphasized(content, opt)) =&gt; 
+      fmt.element(&quot;em&quot;, opt, content, &quot;class&quot; -&gt; &quot;big&quot;) 
 }}</pre>
-        <p>For more details see the chapter <a href="../customizing-laika/customize-rendering.html#customizing-renderers">Customizing Renderers</a>.</p>
+        <p>For more details see the chapter [Customizing Renderers].</p>
         <p>Similarly the <code>laikaFoRenderer</code> shortcut can be used to add a custom <code>XSL-FO</code> renderer 
-        of type <code>FOWriter =&gt; RenderFunction</code>. <code>XSL-FO</code> is an interim format for PDF output,
+        of type <code>PartialFunction[(FOFormatter, Element), String]</code>. <code>XSL-FO</code> is an interim format for PDF output,
         so this option would also allow to change the appearance of PDF documents.</p>
         <p>For EPUB the <code>laikaEpubRenderer</code> can be used to add a custom XHMTL renderer of type
-        <code>HTMLWriter =&gt; RenderFunction</code>. </p>
+        <code>PartialFunction[(HTMLFormatter, Element), String]</code>. </p>
         
         <h3 id="custom-rewrite-rules" class="section">Custom Rewrite Rules</h3>
-        <p>When customizing renderers you have to repeat the step for each output format like HTML or PDF 
-        (and a subsequent version will add support for epub). A rewrite rule lets you express a transformation
+        <p>When customizing renderers you have to repeat the step for each output format like HTML, EPUB or PDF. 
+        A rewrite rule lets you express a transformation
         of a node inside the document tree before rendering, so it would have an effect on all output formats.</p>
-        <p>A rewrite rule is a function of type <code>PartialFunction[Element, Option[Element]]</code>.
-        If the function is not defined for a particular element the old element is kept in the tree.
-        If it returns <code>Some(Element)</code> this element replaces the old one.
-        If the function returns <code>None</code> the old element is removed from the tree.</p>
+        <p>A rewrite rule is a function of type <code>PartialFunction[T, RewriteAction[T]]</code>.
+        If the function is not defined for a particular element or the result is <code>Retain</code> the old element is kept in the tree.
+        If it returns <code>Replace(Element)</code> this element replaces the old one.
+        If the function returns <code>Remove</code> the old element is removed from the tree.
+        The type parameter <code>T</code> is either <code>Block</code>, <code>Span</code> or <code>TemplateSpan</code>, depending on the kind of AST element you
+        want to rewrite.</p>
         <p>The following (somewhat contrived, but simple) example shows how to turn each <code>Emphasized</code> node
         into a <code>Strong</code> node:</p>
-        <pre>laikaExtensions += laikaRewriteRule { 
-  case Emphasized(content, opts) =&gt; Some(Strong(content, opts))
+        <pre>laikaExtensions += laikaSpanRewriteRule { 
+  case Emphasized(content, opts) =&gt; Replace(Strong(content, opts))
 }</pre>
         <p>For more details see the chapter <a href="../customizing-laika/tree-rewriting.html#document-tree-rewriting">Document Tree Rewriting</a>.</p>
         

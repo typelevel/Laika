@@ -38,7 +38,7 @@
           <li><a href="../introduction/architecture.html">Architecture</a></li>
           <li class="nav-header">Using Laika</li>
           <li><a href="sbt.html">Using the sbt Plugin</a></li>
-          <li><a href="embedded.html">Using Laika Embedded</a></li>
+          <li><a href="embedded.html">Using the Library API</a></li>
           <li><a href="markup.html">Supported Markup</a></li>
           <li><a href="output.html">Supported Output Formats</a></li>
           <li class="active"><a href="#">Document Structure</a></li>
@@ -69,20 +69,23 @@
       <div class="span8" id="top">
 
         <div class="page-header">
-          <h1>Document Structure</h1>
+        <h1>Document Structure</h1>
         </div>
         <p>Laika adds several features on top of the supported markup languages
         that make it easier to deal with structured content.</p>
         <p>These features are enabled by default, but can be switched off
         explicitly.</p>
         <p>This is how you can switch them off for any markup format:</p>
-        <pre>Transform.from(Markdown).to(PDF).strict 
-  .fromFile(&quot;hello.md&quot;).toFile(&quot;hello.pdf&quot;)</pre>
+        <pre>val transformer = Transformer
+  .from(Markdown)
+  .to(PDF)
+  .strict
+  .build </pre>
         
         <h2 id="document-title" class="section">Document Title</h2>
         <p>The document title can then be accessed in a template through
         a variable reference:</p>
-        <pre>&lt;title&gt;{{document.title}}&lt;/title&gt;
+        <pre>&lt;title&gt;${document.title}&lt;/title&gt;
 </pre>
         <p>Or in code through a <code>Document</code> instance:</p>
         <pre>val doc: Document = ...
@@ -116,10 +119,8 @@ doc.title // Seq[Span]
         <p>All headlines except for the one that serves as the document title
         (if present) will be used to build the section structure based
         on the levels of the headlines.</p>
-        <p>These sections can then be referenced in templates:</p>
-        <pre>@:for &quot;document.sections&quot;: {
-  &lt;li&gt;&lt;a href=&quot;#{{id}}&quot;&gt;{{title.content}}&lt;/a&gt;&lt;/li&gt;
-}</pre>
+        <p>These sections can the be used when generating a table of content:</p>
+        <pre>@:toc</pre>
         <p>Or they can be accessed through a <code>Document</code> instance:</p>
         <pre>val doc: Document = ...
 doc.sections // Seq[SectionInfo]</pre>
@@ -175,17 +176,21 @@ doc.sections // Seq[SectionInfo]</pre>
         <p>Fragments allow to keep some sections of your document separate, to be rendered
         in different locations of the output, like headers, footers or sidebars.</p>
         <p>They produce a block element which is not part of the main body of the markup
-        document (so will not be rendered with a <code>{{document.content}}</code> reference).
-        Instead it can be referred to by <code>{{document.fragments.&lt;fragmentName&gt;}}</code>.</p>
+        document (so will not be rendered with a <code>${document.content}</code> reference).
+        Instead it can be referred to by <code>${document.fragments.&lt;fragmentName&gt;}</code>.</p>
         <p>Example:</p>
-        <pre>@:fragment sidebar: This content will be *parsed* like all other
-  content, but will be available separately from the document content.
-  The block elements have to be indented.
+        <pre>@:fragment { sidebar } 
 
-  Therefore this line still belongs to the fragment.
+This content will be *parsed* like all other
+content, but will be available separately from the document content.
+The block elements extend until the `@:@` fence below.
+
+Therefore this line still belongs to the fragment.
   
-  * As does
-  * this list
+* As does
+* this list
+
+@:@
 
 This line doesn&#39;t and will be part of the main document content.</pre>
         <p>Fragments are also available in code through a <code>Document</code> instance:</p>
@@ -247,10 +252,10 @@ doc.fragments // Map[String, Element]</pre>
         Subdirectories can contain markup files, too, and the hierarchy can get
         visualized in a table of contents.</p>
         <p>When using the default settings, you can simply use an empty tag:</p>
-        <pre>@:toc.
+        <pre>@:toc
 </pre>
         <p>If you specify all available options it would look like this:</p>
-        <pre>@:toc title=&quot;List of Chapters&quot; root=&quot;../intro&quot; depth=2.</pre>
+        <pre>@:toc { title=&quot;List of Chapters&quot;, root=&quot;../intro&quot;, depth=2 }</pre>
         <ul>
           <li>
             <p>The <code>title</code> attribute adds a title above the table. </p>
@@ -314,7 +319,7 @@ doc.fragments // Map[String, Element]</pre>
           and <code>.rst</code> for reStructuredText</li>
           <li><code>*.dynamic.html</code>: a dynamic file, which has the same syntax
           as a template, but does not get applied to a markup document.
-          This means it should not have a <code>{{document.content}}</code> reference
+          This means it should not have a <code>${document.content}</code> reference
           like normal templates, but may use any of the other template
           features. The result of processing will be copied to the
           output directory (with the <code>.dynamic</code> part stripped from 
@@ -333,11 +338,14 @@ doc.fragments // Map[String, Element]</pre>
     // ... optionally other customizations
   }
 
-Transform from Markdown to HTML using MyExtensions fromDirectory 
-  &quot;source&quot; toDirectory &quot;target&quot;</pre>
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .using(MyExtensions)
+  .build</pre>
         <p>The valid return types of the matcher function correspond to the document types listed
         above:</p>
-        <pre>Markup, Template, Dynamic, Static, Config, Ignored</pre>      
+        <pre>Markup, Template, Styles, Static, Config, Ignored</pre>      
 
       </div>
     </div>

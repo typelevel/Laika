@@ -38,7 +38,7 @@
           <li><a href="../introduction/architecture.html">Architecture</a></li>
           <li class="nav-header">Using Laika</li>
           <li><a href="../using-laika/sbt.html">Using the sbt Plugin</a></li>
-          <li><a href="../using-laika/embedded.html">Using Laika Embedded</a></li>
+          <li><a href="../using-laika/embedded.html">Using the Library API</a></li>
           <li><a href="../using-laika/markup.html">Supported Markup</a></li>
           <li><a href="../using-laika/output.html">Supported Output Formats</a></li>
           <li><a href="../using-laika/structure.html">Document Structure</a></li>
@@ -69,7 +69,7 @@
       <div class="span8" id="top">
 
         <div class="page-header">
-          <h1>Implementing a Parser</h1>
+        <h1>Implementing a Parser</h1>
         </div>
         <p>This document describes the best practices for adding an entirely new parser to the toolkit.
         It is only useful if you either plan to implement a parser for a markup language not (yet)
@@ -80,7 +80,7 @@
         <h2 id="factory-contract" class="section">Factory Contract</h2>
         <p>The contract a parser factory has to adhere to is captured in the following
         trait:</p>
-        <pre>trait MarkupParser {
+        <pre>trait MarkupFormat {
 
   def fileSuffixes: Set[String]
 
@@ -136,14 +136,14 @@ def createBlockListParser (parser: Parser[Block]): Parser[Seq[Block]] =
         <p>Parsing three or more lower-case characters:</p>
         <pre>&quot;[a-z]{3,}&quot;.r              // regex
 
-anyIn(&#39;a&#39; to &#39;z&#39;) min 3    // Laika alternative</pre>
+anyIn(&#39;a&#39; to &#39;z&#39;).min(3)   // Laika alternative</pre>
         <p>Parsing any character apart from space or tab:</p>
         <pre>&quot;[^ \t]*&quot;.r               // regex
 
 anyBut(&#39; &#39;,&#39;\t&#39;)          // Laika alternative</pre>
         <p>Note that for the Laika base parsers the default is to parse any number of characters,
         as this is the most common case. To read just one you can write:</p>
-        <pre>anyBut(&#39; &#39;,&#39;\t&#39;) take 1</pre>
+        <pre>anyBut(&#39; &#39;,&#39;\t&#39;).take(1)</pre>
         <p>The parsers of this trait will be faster than regex parsers in many scenarios, but
         there will be edge cases where it is the other way round. To be really sure it&#39;s best
         to do some benchmarks first. </p>

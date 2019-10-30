@@ -38,7 +38,7 @@
           <li><a href="../introduction/architecture.html">Architecture</a></li>
           <li class="nav-header">Using Laika</li>
           <li><a href="sbt.html">Using the sbt Plugin</a></li>
-          <li><a href="embedded.html">Using Laika Embedded</a></li>
+          <li><a href="embedded.html">Using the Library API</a></li>
           <li class="active"><a href="#">Supported Markup</a></li>
           <li><a href="output.html">Supported Output Formats</a></li>
           <li><a href="structure.html">Document Structure</a></li>
@@ -69,7 +69,7 @@
       <div class="span8" id="top">
 
         <div class="page-header">
-          <h1>Supported Markup</h1>
+        <h1>Supported Markup</h1>
         </div>
         <p>The current release supports Markdown and reStructuredText. Both implementations stay as close
         as possible to the original descriptions and specifications of these formats. </p>
@@ -87,8 +87,12 @@
         <p>Laika supports several convenient features for processing groups of documents.
         These are built as extensions to both Markdown and reStructuredText parsers.
         They can be switched off when you run these two parsers in strict mode:</p>
-        <pre>Transform.from(Markdown).to(HTML).strict
-  .fromFile(&quot;hello.md&quot;).toFile(&quot;hello.html&quot;)</pre>
+        <pre>Transformer
+  .from(Markdown)
+  .to(HTML)
+  .strict
+  .build
+  .transform(&quot;hello *there*)</pre>
         <p>The extensions are documented in their respective section linked to from
         the list below:</p>
         <ul>
@@ -131,7 +135,7 @@
             handle them, the <a href="http://johnmacfarlane.net/babelmark2/">Babelmark</a> tool can be used.<br></p>
           </li>
           <li>
-            <p>For using Markdown in Laika, the <a href="embedded.html#using-laika-embedded">Using Laika Embedded</a> page should answer most of your questions.</p>
+            <p>For using Markdown in Laika, the <a href="embedded.html#using-the-library-api">Using the Library API</a> page should answer most of your questions.</p>
           </li>
           <li>
             <p>For the special treatment of verbatim HTML in Laika, see the following section.</p>
@@ -151,10 +155,12 @@
         <h3 id="github-flavored-markdown" class="section">GitHub Flavored Markdown</h3>
         <p>Laika supports the syntax of GitHubFlavored Markdown through an <code>ExtensionBundle</code> that must
         be enabled explicitly:</p>
-        <pre>Transform
-  .from(Markdown).to(HTML)
+        <pre>Transformer
+  .from(Markdown)
+  .to(HTML)
   .using(GitHubFlavor)
-  .fromFile(&quot;hello.md&quot;).toFile(&quot;hello.html&quot;)</pre>
+  .build
+  .transform(&quot;hello *there*)</pre>
         <p>When using the sbt plugin it can be added to the <code>laikaExtensions</code> settings:</p>
         <pre>laikaExtensions += GitHubFlavor      </pre>
         <p>These are the parsers this extension adds to standard Markdown:</p>
@@ -205,12 +211,12 @@
         <p>When the markup originates from user input in a web application, it would not be safe 
         to use without additional filtering. By default Laika does not filter any tags, not
         even <code>&lt;script&gt;</code> tags, but whitelist filtering can be added fairly easily through Laika&#39;s 
-        customization hooks like <a href="../customizing-laika/tree-rewriting.html#document-tree-rewriting">Document Tree Rewriting</a> or <a href="../customizing-laika/customize-rendering.html#customizing-renderers">Customizing Renderers</a>.</p>
+        customization hooks like <a href="../customizing-laika/tree-rewriting.html#document-tree-rewriting">Document Tree Rewriting</a> or [Customizing Renderers].</p>
         <p>To enable verbatim HTML elements you have to change this standard expression:</p>
-        <pre>Transform.from(Markdown).to(HTML)
+        <pre>Transformer.from(Markdown).to(HTML)
 </pre>
         <p>to</p>
-        <pre>Transform.from(Markdown).to(HTML).withRawContent
+        <pre>Transformer.from(Markdown).to(HTML).withRawContent
 </pre>
         <p>This installs both, the required parser and renderer extensions. </p>
         
@@ -235,7 +241,7 @@
             <p>An <a href="http://www.tele3.cz/jbar/rest/rest.html">online tool</a> for trying out small snippets of reStructuredText.<br></p>
           </li>
           <li>
-            <p><a href="embedded.html#using-laika-embedded">Using Laika Embedded</a> for using reStructuredText in Laika.</p>
+            <p><a href="embedded.html#using-the-library-api">Using the Library API</a> for using reStructuredText in Laika.</p>
           </li>
           <li>
             <p>The following sections below for an overview on how to implement extensions for reStructuredText</p>
@@ -344,7 +350,11 @@
         
         <h3 id="extension-options" class="section">Extension Options</h3>
         <p>Finally some of the defaults for these extensions can be changed through the API:</p>
-        <pre>val transformer = Transform.from(ReStructuredText).to(HTML).withRawContent
+        <pre>val transformer = Transformer
+  .from(ReStructuredText)
+  .to(HTML)
+  .withRawContent
+  .build
 </pre>
         <p>enables both the <code>raw</code> directive and the <code>raw</code> text role. They are disabled by default as
         they present a potential security risk.</p>
@@ -355,7 +365,11 @@
   override val defaultTextRole = &quot;my-role-name&quot;
 }
 
-val transformer = Transform from ReStructuredText to HTML using RstExtensions
+val transformer = Transformer
+  .from(ReStructuredText)
+  .to(HTML)
+  .using(RstExtensions)
+  .build
 </pre>
         <p>sets the text role <code>my-role-name</code> as the default role for the transformer.</p>
         

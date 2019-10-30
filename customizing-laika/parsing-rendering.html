@@ -38,7 +38,7 @@
           <li><a href="../introduction/architecture.html">Architecture</a></li>
           <li class="nav-header">Using Laika</li>
           <li><a href="../using-laika/sbt.html">Using the sbt Plugin</a></li>
-          <li><a href="../using-laika/embedded.html">Using Laika Embedded</a></li>
+          <li><a href="../using-laika/embedded.html">Using the Library API</a></li>
           <li><a href="../using-laika/markup.html">Supported Markup</a></li>
           <li><a href="../using-laika/output.html">Supported Output Formats</a></li>
           <li><a href="../using-laika/structure.html">Document Structure</a></li>
@@ -69,9 +69,9 @@
       <div class="span8" id="top">
 
         <div class="page-header">
-          <h1>Separate Parsing and Rendering</h1>
+        <h1>Separate Parsing and Rendering</h1>
         </div>
-        <p>The chapter [Using Laika Embedded] introduced the API
+        <p>The chapter [Using the Library API] introduced the API
         for performing a full transformation from text markup to
         output format. In many cases this is all you need.</p>
         <p>Alternatively the parse and render operations can be executed
@@ -81,18 +81,17 @@
         creating the tree model programmatically instead of reading
         from text input.</p>
         
-        <h2 id="the-parse-api" class="section">The Parse API</h2>
-        <p>The Parse API is quite similar to the Transform API, but leaves
+        <h2 id="the-parser-api" class="section">The Parser API</h2>
+        <p>The Parser API is quite similar to the Transform API, but leaves
         out the rendering step.</p>
         
         <h3 id="parsing-a-single-document" class="section">Parsing a Single Document</h3>
-        <p>Reading from a file:</p>
-        <pre>val document = Parse as Markdown fromFile &quot;hello.md&quot;
-</pre>
         <p>Reading from a String:</p>
         <pre>val input = &quot;some *text* example&quot;    
-val document = Parse as Markdown fromString input
-</pre>
+val document = Parser
+  .of(Markdown)
+  .build
+  .parse(input)</pre>
         <p>The <code>document</code> instance gives you the full document model. See
         the <a href="../api/laika/ast/">AST Scaladoc</a> for details.</p>
         <p>The <code>content</code> property of the <code>document</code> instance holds
@@ -104,27 +103,27 @@ val document = Parse as Markdown fromString input
         it to various output formats.</p>
         
         <h3 id="parsing-an-entire-directory" class="section">Parsing an Entire Directory</h3>
-        <pre>val tree = Parse as Markdown fromDirectory &quot;source&quot;
-</pre>
-        <p>The tree instance is of type <code>DocumentTree</code> which gives you access
+        <p>Similar to the full transformation step, you need to specify the <code>ContextShift</code>
+        and <code>Blocker</code> to use for blocking IO and parallel processing:</p>
+        <pre>implicit val cs: ContextShift[IO] = 
+  IO.contextShift(ExecutionContext.global)
+  
+val blocker = Blocker.liftExecutionContext(
+  ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
+)</pre>
+        <p>These will then be used to build a parallel parser instance:</p>
+        <pre>val parser = Parser
+  .of(Markdown)
+  .io(blocker)
+  .parallel[IO]
+  .build</pre>
+        <p>Finally, you can obtain a tree instance from the parser:</p>
+        <pre>val tree: IO[DocumentTreeRoot] = parser
+  .fromDirectory(&quot;source&quot;)
+  .parse</pre>
+        <p>The tree instance is of type <code>DocumentTreeRoot</code> which gives you access
         to all documents, templates and subdirectories contained in the
         parsed directory.</p>
-        
-        <h3 id="parallel-execution" class="section">Parallel Execution</h3>
-        <p>Like with a full transformation, parsing can be performed in parallel:</p>
-        <pre>Parse.as(Markdown).inParallel.fromDirectory(&quot;source&quot;)</pre>
-        <p>When specifying options like parallel execution, you cannot use
-        the <code>fromDirectory</code> shortcut like in the previous example, but
-        instead use the <code>Directory</code> entry point to the full configuration
-        API. Apart from parallel execution, it allows to specify a custom
-        template engine, a custom document type matcher, and more.</p>
-        
-        <h3 id="reusing-parsers" class="section">Reusing Parsers</h3>
-        <p>Like with the Transform API, all objects are reusable and immutable:</p>
-        <pre>val parse = Parse as ReStructuredText
-
-val doc1 = parse fromFile &quot;input1.rst&quot;
-val doc2 = parse fromFile &quot;input2.rst&quot;</pre>
         
         <h3 id="character-encoding" class="section">Character Encoding</h3>
         <p>Laika uses the same platform-dependent defaults for file encodings as the
@@ -134,72 +133,70 @@ val doc2 = parse fromFile &quot;input2.rst&quot;</pre>
         <p>This codec will then be used by <code>fromDirectory</code> and other methods 
         shown in the examples above.</p>
         
-        <h2 id="the-render-api" class="section">The Render API</h2>
-        <p>The Render API is similar to the Transform API, but expects
+        <h2 id="the-renderer-api" class="section">The Renderer API</h2>
+        <p>The Renderer API is similar to the Transformer API, but expects
         that you already have a document tree model, either obtained
         by a previous parsing step or built programmatically, and now
         want to render it to a specific output format.</p>
         
         <h3 id="reusing-the-parser-configuration" class="section">Reusing the parser configuration</h3>
-        <p>In contrast to the Transform API, the Parse and Render APIs keep these
+        <p>In contrast to the Transformer, the Parser and Renderer keep these
         two operations completely separate. However, this also means that the
         renderer does not know about any custom renderers the parser might 
         provide as extensions for rendering custom AST nodes the default renderer
         does not know about.</p>
         <p>For this reason it is always best to copy the parser configuration over
         to the Render API:</p>
-        <pre>val parser = Parse.as(Markdown).strict
+        <pre>val parser = Parser.of(Markdown).strict.build
 
-val doc = parse.fromFile(&quot;foo.md&quot;)
-
-Render.as(HTML).withConfig(parser.config).toFile(&quot;hello.html&quot;)</pre>
+val renderer = Renderer.of(HTML).withConfig(parser.config).build</pre>
         <p>For the sake of brevity we omit this detail from the following examples.</p>
         
         <h3 id="rendering-a-single-document" class="section">Rendering a Single Document</h3>
-        <p>Rendering to a file:</p>
+        <p>Rendering as a string:</p>
         <pre>// obtained from a parse step or created programmatically
 val doc: Document = ... 
 
-Render as HTML from doc toFile &quot;hello.html&quot;
-</pre>
-        <p>Or to obtain the HTML as a string:</p>
-        <pre>val html = Render as HTML from doc toString
-</pre>
+val res: String = renderer.render(doc)</pre>
         
         <h3 id="rendering-an-entire-directory-as-html" class="section">Rendering an Entire Directory as HTML</h3>
-        <pre>// obtained from a parse step or created programmatically
-val tree: DocumentTree = ...
+        <p>Like for the Parser and Transformer APIs, you need to specify the <code>ContextShift</code>
+        and <code>Blocker</code> to use for blocking IO and parallel processing:</p>
+        <pre>implicit val cs: ContextShift[IO] = 
+  IO.contextShift(ExecutionContext.global)
 
-Render as HTML from tree toDirectory &quot;path/to/target&quot;</pre>
+val blocker = Blocker.liftExecutionContext(
+  ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
+)</pre>
+        <p>You can then render the result to a files in a target directory:</p>
+        <pre>// obtained from a parse step or created programmatically
+val tree: DocumentTreeRoot = ???
+
+val renderer = Renderer
+  .of(HTML)
+  .io(blocker)
+  .parallel[IO]
+  .build
+    
+val op: IO[Unit] = renderer
+  .from(tree)
+  .toDirectory(&quot;target&quot;)
+  .render</pre>
         <p>The <code>target</code> directory is expected to exist, while any required
         subdirectories will be automatically created during rendering. There
         will be one HTML file for each input file in the same directory layout.</p>
         
         <h3 id="rendering-an-entire-directory-as-pdf" class="section">Rendering an Entire Directory as PDF</h3>
         <pre>// obtained from a parse step or created programmatically
-val tree: DocumentTree = ...
+val tree: DocumentTreeRoot = ???
 
-Render as PDF from tree toFile &quot;out.pdf&quot;
-</pre>
+val op: IO[Unit] = renderer
+  .from(tree)
+  .toFile(&quot;out.pdf&quot;)
+  .render    </pre>
         <p>Here the input files get rendered into a single PDF document, with
         the directory structure getting translated into the document structure
         (optionally including bookmarks and table of contents).</p>
-        
-        <h3 id="parallel-execution-1" class="section">Parallel Execution</h3>
-        <p>Like with a full transformation, rendering can be performed in parallel:</p>
-        <pre>val tree: DocumentTree = ...
-
-Render.as(HTML).inParallel.from(tree).toDirectory(&quot;source&quot;)</pre>
-        
-        <h3 id="reusing-renderers" class="section">Reusing Renderers</h3>
-        <p>Like with the Transform API, all objects are reusable and immutable:</p>
-        <pre>val document = ...
-
-val render = Render as HTML from document
-
-render toFile &quot;output1.html&quot;
-render toFile &quot;output2.html&quot;
-</pre>
         
         <h3 id="character-encoding-1" class="section">Character Encoding</h3>
         <p>Laika uses the same platform-dependent defaults for file encodings as the

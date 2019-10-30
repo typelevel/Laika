@@ -38,7 +38,7 @@
           <li><a href="../introduction/architecture.html">Architecture</a></li>
           <li class="nav-header">Using Laika</li>
           <li><a href="sbt.html">Using the sbt Plugin</a></li>
-          <li><a href="embedded.html">Using Laika Embedded</a></li>
+          <li><a href="embedded.html">Using the Library API</a></li>
           <li><a href="markup.html">Supported Markup</a></li>
           <li class="active"><a href="#">Supported Output Formats</a></li>
           <li><a href="structure.html">Document Structure</a></li>
@@ -69,7 +69,7 @@
       <div class="span8" id="top">
 
         <div class="page-header">
-          <h1>Supported Output Formats</h1>
+        <h1>Supported Output Formats</h1>
         </div>
         <p>The current release supports HTML, EPUB, PDF, XSL-FO and AST.
         Rendering happens from a generic document tree model shared between all parsers,
@@ -77,18 +77,29 @@
         markup syntax like Markdown or reStructuredText.</p>
         <p>Customization of the output is possible on two levels, first most formats (except
         for AST) can be styled with CSS. Secondly the rendering of specific nodes
-        can be overridden with a simple partial function as described in <a href="../customizing-laika/customize-rendering.html#customizing-renderers">Customizing Renderers</a>.</p>
+        can be overridden with a simple partial function as described in [Customizing Renderers].</p>
         <p>Finally you can develop an entirely new renderer for a format not supported by Laika
         out of the box. See chapter <a href="../extending-laika/renderer.html#implementing-a-renderer">Implementing a Renderer</a> for details.</p>
         
         <h2 id="html" class="section">HTML</h2>
         <p>The HTML renderer can be used with the <code>Transform</code> or <code>Render</code> APIs:</p>
-        <pre>Transform from Markdown to HTML fromFile &quot;hello.md&quot; toFile &quot;hello.html&quot;
+        <pre>val html: String = Transformer
+  .from(Markdown)
+  .to(HTML).
+  .build
+  .transform(&quot;hello *there*&quot;)
 
-val doc: Document = Parse as Markdown fromFile &quot;hello.md&quot;
-Render as HTML from document toFile &quot;hello.html&quot;
+val doc: Document = Parser
+  .of(Markdown)
+  .build
+  .parse(&quot;hello *there*&quot;)
+  
+val html: String = Renderer
+  .of(HTML)
+  .build
+  .render(doc)
 </pre>
-        <p>See <a href="embedded.html#using-laika-embedded">Using Laika Embedded</a> for more details on these APIs.</p>
+        <p>See <a href="embedded.html#using-the-library-api">Using the Library API</a> for more details on these APIs.</p>
         <p>If you are using the sbt plugin you can use several of its task for generating
         HTML output:</p>
         <ul>
@@ -106,12 +117,12 @@ Render as HTML from document toFile &quot;hello.html&quot;
         document, as well as a directive called <code>@toc</code> to inset a table of contents:</p>
         <pre>&lt;html&gt;
   &lt;head&gt;
-    &lt;title&gt;{{document.title}}&lt;/title&gt;
+    &lt;title&gt;${document.title}&lt;/title&gt;
   &lt;/head&gt;
   &lt;body&gt;
-    @:toc.
+    @:toc
     &lt;div class=&quot;content&quot;&gt;
-      {{document.content}}
+      ${document.content}
     &lt;/div&gt;
   &lt;/body&gt;
 &lt;/html&gt;
@@ -126,48 +137,49 @@ Render as HTML from document toFile &quot;hello.html&quot;
         <h3 id="html-renderer-properties" class="section">HTML Renderer Properties</h3>
         <p>The <code>unformatted</code> property tells the renderer to omit any formatting (line breaks or indentation) 
         around tags. Useful when storing the output in a database for example:</p>
-        <pre>Transform.from(Markdown).to(HTML).unformatted 
-  .fromFile(&quot;hello.md&quot;).toFile(&quot;hello.html&quot;)</pre>
+        <pre>val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .unformatted 
+  .build</pre>
         <p>The <code>withMessageLevel</code> property instructs the renderer to include system messages in the
         generated HTML. Messages may get inserted into the document tree for problems during
         parsing or reference resolution, e.g. an internal link to a destination that does not
         exist. By default these messages are not included in the output. They are mostly useful
         for testing and debugging, or for providing feedback to application users producing 
         markup input:</p>
-        <pre>Transform.from(Markdown).to(HTML).withMessageLevel(Warning) 
-  .fromFile(&quot;hello.md&quot;).toFile(&quot;hello.html&quot;)</pre>
+        <pre>val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .withMessageLevel(Warning)
+  .build</pre>
         
         <h3 id="css-javascript-and-other-files" class="section">CSS, JavaScript and other Files</h3>
         <p>The generated HTML can be styled with CSS like any other static HTML files.
         If you transform an entire directory Laika will copy all static files like CSS
         and JavaScript files over to the target directory alongside the generated HTML.
-        It does that recursively including sub-directories:</p>
-        <pre>Transform from Markdown to HTML fromDirectory &quot;src&quot; toDirectory &quot;target&quot;</pre>
+        It does that recursively including sub-directories.</p>
         
         <h3 id="customizing-the-html-renderer" class="section">Customizing the HTML Renderer</h3>
         <p>Finally you can adjust the rendered output for one or more node types
         of the document tree programmatically with a simple partial function:</p>
-        <pre>val open = &quot;&quot;&quot;&lt;em class=&quot;big&quot;&gt;&quot;&quot;&quot;
-val close = &quot;&lt;/em&gt;&quot;
-
-Transform from Markdown to HTML rendering { out =&gt; 
-  { case Emphasized(content, _) =&gt; out &lt;&lt; open &lt;&lt; content &lt;&lt; close } 
-} fromFile &quot;hello.md&quot; toFile &quot;hello.html&quot;
+        <pre>val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .rendering {
+    case (fmt, Emphasized(content, opt)) =&gt; 
+      fmt.element(&quot;em&quot;, opt, content, &quot;class&quot; -&gt; &quot;big&quot;)  
+  }
+  .build
 </pre>
         <p>Note that in some cases the simpler way to achieve the same result may be
         styling with CSS.</p>
-        <p>See <a href="../customizing-laika/customize-rendering.html#customizing-renderers">Customizing Renderers</a> for more details.</p>
+        <p>See [Customizing Renderers] for more details.</p>
         
         <h2 id="epub" class="section">EPUB</h2>
         <p>Since version 0.11.0 Laika support the generation of e-books in the EPUB format.
         Similar to the PDF export, it allows you to transform an entire directory with
         text markup, CSS, image and font files into a single EPUB container.</p>
-        <p>The EPUB renderer can be used with the <code>Transform</code> or <code>Render</code> APIs:</p>
-        <pre>Transform from Markdown to EPUB fromDirectory &quot;src&quot; toFile &quot;out.epub&quot;
-
-val tree: DocumentTree = Parse as Markdown fromDirectory &quot;src&quot;
-Render as EPUB from tree toFile &quot;out.epub&quot;</pre>
-        <p>See <a href="embedded.html#using-laika-embedded">Using Laika Embedded</a> for more details on these APIs.</p>
         <p>If you are using the sbt plugin you can use several of its task for generating
         EPUB files:</p>
         <ul>
@@ -178,6 +190,30 @@ Render as EPUB from tree toFile &quot;out.epub&quot;</pre>
           PDF and/or EPUB files.</li>
         </ul>
         <p>See <a href="sbt.html#using-the-sbt-plugin">Using the sbt Plugin</a> for more details.</p>
+        <p>If you want to produce EPUB files with the library API,
+        the <code>laika-io</code> module is required for the binary output:</p>
+        <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika-io&quot; % &quot;0.12.0&quot;</pre>
+        <p>The EPUB renderer can be used with the <code>Transform</code> or <code>Render</code> APIs:</p>
+        <pre>implicit val cs: ContextShift[IO] = 
+  IO.contextShift(ExecutionContext.global)
+  
+val blocker = Blocker.liftExecutionContext(
+  ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
+)
+
+val transformer = Transformer
+  .from(Markdown)
+  .to(EPUB)
+  .using(GitHubFlavor)
+  .io(blocker)
+  .parallel[IO]
+  .build
+
+transformer
+  .fromDirectory(&quot;src&quot;)
+  .toFile(&quot;hello.epub&quot;)
+  .transform</pre>
+        <p>See <a href="embedded.html#using-the-library-api">Using the Library API</a> for more details on these APIs.</p>
         
         <h3 id="epub-directory-structure" class="section">EPUB Directory Structure</h3>
         <p>The structure of the generated EPUB file will exactly mirror the structure of the
@@ -256,14 +292,6 @@ metadata {
         like performance and memory consumption depend entirely on Apache FOP. If you
         plan to use Laika&#39;s PDF support embedded in live application it is recommended
         to first do performance and load testing.</p>
-        <p>Using the PDF renderer requires to add another dependency to your build:</p>
-        <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika-pdf&quot; % &quot;0.11.0&quot;</pre>
-        <p>The PDF renderer can then be used with the <code>Transform</code> or <code>Render</code> APIs:</p>
-        <pre>Transform from Markdown to PDF fromDirectory &quot;src&quot; toFile &quot;out.pdf&quot;
-
-val tree: DocumentTree = Parse as Markdown fromDirectory &quot;src&quot;
-Render as PDF from tree toFile &quot;out.pdf&quot;</pre>
-        <p>See <a href="embedded.html#using-laika-embedded">Using Laika Embedded</a> for more details on these APIs.</p>
         <p>If you are using the sbt plugin you can use several of its task for generating
         PDF files:</p>
         <ul>
@@ -274,6 +302,30 @@ Render as PDF from tree toFile &quot;out.pdf&quot;</pre>
           PDF files.</li>
         </ul>
         <p>See <a href="sbt.html#using-the-sbt-plugin">Using the sbt Plugin</a> for more details.</p>
+        <p>If you want to produce PDF files with the library API,
+        you need to add the <code>laika-pdf</code> module to your build:</p>
+        <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika-pdf&quot; % &quot;0.12.0&quot;</pre>
+        <p>The PDF renderer can be used with the <code>Transform</code> or <code>Render</code> APIs:</p>
+        <pre>implicit val cs: ContextShift[IO] = 
+  IO.contextShift(ExecutionContext.global)
+  
+val blocker = Blocker.liftExecutionContext(
+  ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
+)
+
+val transformer = Transformer
+  .from(Markdown)
+  .to(PDF)
+  .using(GitHubFlavor)
+  .io(blocker)
+  .parallel[IO]
+  .build
+
+transformer
+  .fromDirectory(&quot;src&quot;)
+  .toFile(&quot;hello.pdf&quot;)
+  .transform</pre>
+        <p>See <a href="embedded.html#using-the-library-api">Using the Library API</a> for more details on these APIs.</p>
         
         <h3 id="css-for-pdf" class="section">CSS for PDF</h3>
         <p>Laika offers the unusual, but convenient and probably unique feature of CSS styling for PDF.
@@ -372,8 +424,10 @@ Render as PDF from tree toFile &quot;out.pdf&quot;</pre>
   tocTitle = Some(&quot;Contents&quot;)
 )
 
-Transform from Markdown to PDF.withConfig(config) fromDirectory 
-  &quot;source&quot; toFile &quot;out.pdf&quot;</pre>
+val transformer = Transformer
+  .from(Markdown)
+  .to(PDF.withConfig(config))
+  .build</pre>
         <p>These properties control the following aspects of the rendering:</p>
         <ul>
           <li><code>bookmarkDepth</code> the number of levels bookmarks should be generated for, 
@@ -412,8 +466,10 @@ Transform from Markdown to PDF.withConfig(config) fromDirectory
         <pre>val configFile = &quot;/path/to/customFop.xconf&quot;
 val factory = FopFactory.newInstance(new File(configFile))
 
-Transform from Markdown to PDF.withFopFactory(factory) fromDirectory 
-  &quot;src&quot; toFile &quot;out.pdf&quot;</pre>
+val transformer = Transformer
+  .from(Markdown)
+  .to(PDF.withFopFactory(factory))
+  .build</pre>
         <p>Note that a <code>FopFactory</code> is a fairly heavy-weight object, so make sure that you reuse
         either the <code>FopFactory</code> instance itself or the resulting <code>PDF</code> renderer.
         In case you do not specify a custom factory, Laika ensures that the default
@@ -432,27 +488,39 @@ Transform from Markdown to PDF.withFopFactory(factory) fromDirectory
         <h3 id="customizing-the-xsl-fo-renderer" class="section">Customizing the XSL-FO Renderer</h3>
         <p>Finally you can adjust the <code>fo</code> tags rendered for one or more node types
         of the document tree programmatically with a simple partial function:</p>
-        <pre>Transform from Markdown to PDF rendering { out =&gt; { 
-  case elem @ Emphasized(content, _) =&gt; out.inline(
-    elem.copy(options = Style(&quot;myStyle&quot;)), content
-  ) 
-}} fromDirectory &quot;src&quot; toFile &quot;out.pdf&quot;
-</pre>
+        <pre>val transformer = Transformer
+  .from(Markdown)
+  .to(PDF)
+  .rendering {
+    case (fmt, elem @ Emphasized(content, _)) =&gt; 
+      fmt.inline(elem.copy(options = Style(&quot;myStyle&quot;)), content)   
+  }
+  .build</pre>
         <p>Note that in most cases the simpler way to achieve the same result will be
         styling with CSS.</p>
-        <p>See <a href="../customizing-laika/customize-rendering.html#customizing-renderers">Customizing Renderers</a> for more details.</p>
+        <p>See [Customizing Renderers] for more details.</p>
         
         <h2 id="xsl-fo" class="section">XSL-FO</h2>
         <p>XSL-FO is primarily intended as an interim format for producing PDF output, but you
         can alternatively use it as the final output format and then post-process it with other
         tools.</p>
-        <p>The XSL-FO renderer can be used with the <code>Transform</code> or <code>Render</code> APIs:</p>
-        <pre>Transform from Markdown to XSLFO fromFile &quot;hello.md&quot; toFile &quot;hello.fo&quot;
+        <p>The XSL-FO renderer can be used with the <code>Transformer</code> or <code>Renderer</code> APIs:</p>
+        <pre>val result: String = Transformer
+  .from(Markdown)
+  .to(XSLFO)
+  .build
+  .transform(&quot;hello *there*)
 
-val doc: Document = Parse as Markdown fromFile &quot;hello.md&quot;
-Render as XSLFO from document toFile &quot;hello.fo&quot;
-</pre>
-        <p>See <a href="embedded.html#using-laika-embedded">Using Laika Embedded</a> for more details on these APIs.</p>
+val doc: Document = Parser
+  .of(Markdown)
+  .build
+  .parse(&quot;hello *there*&quot;)
+  
+val html: String = Renderer
+  .of(XSLFO)
+  .build
+  .render(doc)</pre>
+        <p>See <a href="embedded.html#using-the-library-api">Using the Library API</a> for more details on these APIs.</p>
         <p>If you are using the sbt plugin you can use several of its task for generating
         XSL-FO output:</p>
         <ul>
@@ -474,10 +542,14 @@ Render as XSLFO from document toFile &quot;hello.fo&quot;
         <p>A renderer that visualizes the document tree structure, essentially a formatted
         <code>toString</code> for a tree of case classes, mainly useful for testing and debugging
         purposes.</p>
-        <p>You can use this renderer with the Transform API:</p>
+        <p>You can use this renderer with the Transformer API:</p>
         <pre>val input = &quot;some *text* example&quot;
 
-Transform from Markdown to AST fromString input toString
+Transformer
+  .from(Markdown)
+  .to(AST)
+  .build
+  .transform(input)
 
 res0: java.lang.String = Document - Blocks: 1
 . Paragraph - Spans: 3
@@ -488,9 +560,9 @@ res0: java.lang.String = Document - Blocks: 1
         <p>Alternatively you can use the Render API to render an existing document:</p>
         <pre>val input = &quot;some *text* example&quot;
 
-val doc = Parse as Markdown fromString input
+val doc = Parser.of(Markdown).build.parse(input)
 
-Render as AST from doc toString</pre>
+Renderer.of(AST).build.render(doc)</pre>
         <p>The above will yield the same result as the previous example.</p>
         <p>Finally, if you are using the sbt plugin you can use the <code>laikaAST</code> task.</p>      
 

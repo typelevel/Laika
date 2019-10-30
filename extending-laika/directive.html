@@ -38,7 +38,7 @@
           <li><a href="../introduction/architecture.html">Architecture</a></li>
           <li class="nav-header">Using Laika</li>
           <li><a href="../using-laika/sbt.html">Using the sbt Plugin</a></li>
-          <li><a href="../using-laika/embedded.html">Using Laika Embedded</a></li>
+          <li><a href="../using-laika/embedded.html">Using the Library API</a></li>
           <li><a href="../using-laika/markup.html">Supported Markup</a></li>
           <li><a href="../using-laika/output.html">Supported Output Formats</a></li>
           <li><a href="../using-laika/structure.html">Document Structure</a></li>
@@ -69,7 +69,7 @@
       <div class="span8" id="top">
 
         <div class="page-header">
-          <h1>Directives</h1>
+        <h1>Directives</h1>
         </div>
         <p>Directives are Laika&#39;s extension hook for both, templates and text markup.
         They allow to add new tag-like constructs without touching the existing parsers.</p>
@@ -97,19 +97,16 @@
         <h2 id="directive-syntax" class="section">Directive Syntax</h2>
         <p>A very minimal example is the <code>toc</code> directive for inserting a table of contents.
         Since all its attributes are optional, it can simply be used like this:</p>
-        <pre>@:toc.</pre>
-        <p>A directive always starts with <code>@:</code> followed by the name of the 
-        directive. When there are no further attributes or body elements
-        you can close it with a <code>.</code></p>
+        <pre>@:toc</pre>
+        <p>A directive always starts with <code>@:</code> followed by the name of the directive.</p>
         <p>A more complete example is the use of the <code>for</code> directive:</p>
-        <pre>@:for &quot;document.sections&quot;: {
-  &lt;li&gt;&lt;a href=&quot;#{{id}}&quot;&gt;{{title.content}}&lt;/a&gt;&lt;/li&gt;
-} </pre>
-        <p>Here <code>for</code> is the name of the directive, <code>&quot;document.sections&quot;</code> is an unnamed
-        attribute (where in this case the value is interpreted as a variable reference),
-        and finally, enclosed in curly braces the body of the directive. The opening
-        declaration with directive name and attributes ends with a <code>:</code> and not with <code>.</code> 
-        if it is followed by body elements.</p>
+        <pre>@:for { some.list.of.products }
+&lt;li&gt;&lt;a href=&quot;#${_.id}&quot;&gt;${_.description}&lt;/a&gt;&lt;/li&gt;
+@:@ </pre>
+        <p>Here <code>for</code> is the name of the directive, <code>some.list.of.products</code> is an unnamed
+        attribute (where in this case the value is interpreted as a variable reference,
+        a path the user has defined in the configuration),
+        and finally the body of the directive followed by the <code>@:@</code> fence. </p>
         
         <h2 id="example-implementation" class="section">Example Implementation</h2>
         <p>You can browse the source of the built-in directives here: <a href="https://github.com/planet42/Laika/blob/master/core/src/main/scala/laika/directive/StandardDirectives.scala">directive-api</a>
@@ -121,13 +118,13 @@
         <p>Our <code>ticket</code> directive constructs an external link to our
         bugtracker. Since the base URL is always the same, we want to
         only write:</p>
-        <pre>@:ticket 456.
+        <pre>@:ticket {456}
 </pre>
         <p>to get the output:</p>
         <pre>&lt;a href=&quot;http://tickets.cloud42.com/main-project/456&quot;&gt;#456&lt;/a&gt;
 </pre>
         <p>Or optionally specify a different project than the main one:</p>
-        <pre>@:ticket 456 project=pineapple.
+        <pre>@:ticket {456, project=pineapple}
 </pre>
         <p>to get the output:</p>
         <pre>&lt;a href=&quot;http://tickets.cloud42.com/pineapple/456&quot;&gt;#456&lt;/a&gt;</pre>
@@ -137,12 +134,13 @@
         
         <h3 id="directive-implementation" class="section">Directive Implementation</h3>
         <pre>val directive = Spans.create(&quot;ticket&quot;) {
-  (attribute(Default) ~ attribute(&quot;project&quot;).optional) { 
-    (ticketNo, project) =&gt; 
-      val base = &quot;http://tickets.cloud42.com/&quot;
-      val url = base + project.getOrElse(&quot;main-project&quot;) + &quot;/&quot; + ticketNo
-      val linkText = Seq(Text(&quot;#&quot;+ticketNo))
-      ExternalLink(linkText, url, options = Styles(&quot;ticket&quot;))
+  val ticketAttr = defaultAttribute.as[String]
+  val projectAttr = attribute(&quot;project&quot;).as[String].optional
+  (ticketAttr, projectAttr).mapN { (ticketNo, project) =&gt; 
+    val base = &quot;http://tickets.cloud42.com/&quot;
+    val url = base + project.getOrElse(&quot;main-project&quot;) + &quot;/&quot; + ticketNo
+    val linkText = Seq(Text(&quot;#&quot;+ticketNo))
+    ExternalLink(linkText, url, options = Styles(&quot;ticket&quot;))
   }
 }</pre>
         <p>Let&#39;s examine the code:</p>
@@ -154,16 +152,14 @@
         the <code>Blocks</code> object, for template directives the <code>Templates</code> object.
         The features and APIs are identical, but there are subtle differences
         in return types.</p>
-        <p>With <code>attribute(Default)</code> we specify that we expect a default (unnamed)
+        <p>With <code>defaultAttribute.as[String]</code> we specify that we expect a default (unnamed)
         attribute which is required. When a required attribute is missing
         our directive function will never be invoked. Instead Laika inserts
         a node of type <code>InvalidSpan</code> into the document tree (which we may
         then choose to render or not).</p>
-        <p>With <code>attribute(&quot;project&quot;).optional</code> we specify that we expect an
+        <p>With <code>attribute(&quot;project&quot;).as[String].optional</code> we specify that we expect an
         attribute with the name <code>project</code> which is optional. In case it is 
         missing our directive function will still be invoked.</p>
-        <p>The <code>~</code> method chains our declarations together. This operator is fairly
-        common in Scala lands, you&#39;ve very likely seen it in other APIs already.</p>
         <p><code>(ticketNo, project)</code> are the parameters that the parser will pass
         to our function after parsing and validating the directive. They
         have a type corresponding to our configuration. <code>ticketNo</code> is of
@@ -188,15 +184,18 @@
         file in the <code>project</code> directory and then referenced from your
         <code>build.sbt</code>. Reusable directives are best packaged as a library
         and then added as a dependency of your build.</p>
-        <p><strong>Embedded</strong>:</p>
+        <p><strong>Library API</strong>:</p>
         <pre>object MyDirectives extends DirectiveRegistry {
   val spanDirectives = Seq(directive)
   val blockDirectives = Seq()
   val templateDirectives = Seq()
 }
 
-Transform from Markdown to HTML using 
-  MyDirectives fromFile &quot;hello.md&quot; toFile &quot;hello.html&quot;   </pre>
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .using(MyDirectives)
+  .build</pre>
         <p>The <code>directive</code> variable refers to the instance we created above.
         We can now use our <code>ticket</code> directive in Markdown files!</p>
         <p><strong>Templates</strong>:</p>
@@ -219,9 +218,9 @@ Transform from Markdown to HTML using
         It allows for more concise syntax in all the cases where usually only one
         attribute is used and its meaning is obvious.</p>
         <p>Markup example:</p>
-        <pre>@:name arg.</pre>
+        <pre>@:name { arg }</pre>
         <p>Combinator:</p>
-        <pre>attribute(Default)</pre>
+        <pre>defaultAttribute</pre>
         
         <h3 id="named-attributes" class="section">Named Attributes</h3>
         <p>A named attribute can appear after the default attribute or right
@@ -229,62 +228,121 @@ Transform from Markdown to HTML using
         The order of attributes does not matter, it does not need to match
         the order you declared them in (that&#39;s why they have names after all).</p>
         <p>Markup example:</p>
-        <pre>@:name myAttr=value.</pre>
+        <pre>@:name { myAttr=value }</pre>
         <p>Combinator:</p>
         <pre>attribute(&quot;myAttr&quot;)</pre>
         
-        <h3 id="default-bodies" class="section">Default Bodies</h3>
-        <p>A default body is a body element without a name. 
-        It has to be the first body before any named body elements.</p>
+        <h3 id="body" class="section">Body</h3>
+        <p>The body is an element containing text markup that can follow the attribute section. </p>
         <p>Markup example:</p>
-        <pre>@:name: { 
-  this is the content of the default body 
-}</pre>
+        <pre>@:name
+
+this is the content of the body 
+
+@:@</pre>
+        <p>Example with a custom fence:</p>
+        <pre>@:name { foo=bar } ^^^
+
+this is the content of the body 
+
+^^^
+</pre>
+        <p>A custom fence is only supported for block directives and can be used for disambiguation
+        in case of nesting a directive inside another. It has to consist of exactly 3 characters
+        on the same line right after the directive declaration. </p>
+        <p>For span and template directives this
+        is not necessary as the parser can figure the nesting hierarchy on its own.</p>
+        <p>The type of the result this combinator will produce depends on the type of the directive:
+        In a template directive it is <code>Seq[TemplateSpan]</code>, in a block directive it is <code>Seq[Block]</code>,
+        and finally, in a span directive it is <code>Seq[Span]</code>. </p>
         <p>Combinator:</p>
-        <pre>body(Default)</pre>
+        <pre>parsedBody
+</pre>
+        <p>There is an alternative combinator if you need the raw, unparsed body as a String:</p>
+        <pre>rawBody    </pre>
         
-        <h3 id="named-bodies" class="section">Named Bodies</h3>
-        <p>A named body element usually appears after a default body (but it does not have
-        to). In the example below the second body has the name <code>empty</code>.</p>
-        <p>Markup example:</p>
-        <pre>@:for &quot;documents.sections&quot;: { 
-  &lt;li&gt;{{title.content}}&lt;/li&gt;
-} ~empty: {
-  &lt;p&gt;no sections&lt;/p&gt;
+        <h3 id="separated-body" class="section">Separated Body</h3>
+        <p>A separated body element is divided into multiple sub-sections by a special kind of directive,
+        called a separator directive. It is a fairly advanced feature and probably not something you&#39;d
+        need often. </p>
+        <p>For an example from the built-in standard directives, let&#39;s have a look at the <code>@:if</code> directive:</p>
+        <pre>@:if { showSidebar }
+&lt;div class=&quot;sidebar&quot;&gt;...&lt;/div&gt;
+
+@:elseIf { showInfobox }
+&lt;div class=&quot;infobox&quot;&gt;...&lt;/div&gt;
+
+@:else
+&lt;p&gt;This document does not have any sections&lt;/p&gt;
+
+@:@
+</pre>
+        <p>The root <code>@if</code> directive is the parent directive in this case, and both the <code>@:elseIf</code> and <code>@:else</code>
+        directives are separator directives that partition the body. Separator directives are different
+        than normal directives in that they do not need to produce an AST element (e.g. <code>Block</code> or <code>Span</code>)
+        as they will be passed to the parent directive for processing which then will produce the target AST element.</p>
+        <p>If you want to see a full example of such a directive, have a look at the implementation of the <code>@:if</code> directive
+        in the <code>StandardDirectives</code> source.</p>
+        <p>In this section we&#39;ll just show a very small, contrived example. Declaring a separator directive looks just
+        like declaring a normal directive, only that you call <code>separator</code> instead of <code>create</code>:</p>
+        <pre>case class Child (content: Seq[Span])
+
+val sepDir = Spans.separator(&quot;child&quot;, min = 1) { body map Foo }   </pre>
+        <p>Here you specify the name of the directive <code>@:child</code>, as well as that it has to be present in 
+        the body at least once. Then you use the regular combinators to declare the expected directive
+        parts, in this case only a body that you map to the <code>Child</code> type.</p>
+        <p>Now you can use this directive in the parent:</p>
+        <pre>val directive = Spans.create(&quot;parent&quot;) { 
+  separatedBody(Seq(sepDir)) map { multipart =&gt;
+    val seps = multipart.children.flatMap { sep =&gt; 
+      Text(&quot;Child: &quot;) +: sep.content 
+    }
+    SpanSequence(multipart.mainBody ++ seps)
+  }
 }</pre>
-        <p>Combinator:</p>
-        <pre>body(&quot;empty&quot;)</pre>
+        <p>You can use the <code>separatedBody</code> combinator where you pass all expected child directives (in this
+        case only one) and then map the resulting <code>Multipart</code> instance to an AST element. The <code>Multipart</code>
+        gives you access to the main body as well as all processed separator directives in <code>multipart.children</code>.</p>
+        <p>This entire directive can then be used like this:</p>
+        <pre>@:parent
+This is the main body
+
+@:child
+This is the body of the separator
+
+@:@
+</pre>
         
         <h3 id="optional-elements" class="section">Optional Elements</h3>
-        <p>All the element types shown above, default and named attributes as well
-        as default and named bodies can be marked as optional.</p>
+        <p>Default and named attributes can be marked as optional.</p>
         <p>Combinator:</p>
-        <pre>body(&quot;empty&quot;).optional</pre>
+        <pre>attribute(&quot;width&quot;).as[Int].optional</pre>
         <p>The parameter type of your directive function changes accordingly,
         from <code>T</code> to <code>Option[T]</code> where <code>T</code> is either the type returned by
-        your converter (see below) or the default type (which is different
-        for body and attribute elements (again see next section).</p>
+        your converter (see below) or the default type.</p>
         
-        <h3 id="converters" class="section">Converters</h3>
-        <p>For any attribute or body element a converter can be specified.
-        If it is left out the default types are as follows:</p>
-        <ul>
-          <li><code>String</code> for attributes in all directive types</li>
-          <li><code>Seq[Block]</code> for body elements in block directives</li>
-          <li><code>Seq[Span]</code> for body elements in inline directives</li>
-          <li><code>Seq[TemplateSpan]</code> for body elements in template directives</li>
-        </ul>
-        <p>This means that for body elements they are already parsed by default,
-        as this is the most likely requirement for a directive.</p>
-        <p>The object <code>Converters</code> in the <code>Directives</code> object contains several
-        pre-built converters, like <code>positiveInt</code>:</p>
-        <pre>attribute(&quot;depth&quot;, Converters.positiveInt).optional</pre>
-        <p>It will validate the attribute value and only invoke your directive
-        function if it succeeds. The parameter type in your function changes
-        to <code>Option[Int]</code> accordingly.</p>
-        <p>If you want to implement your own converter, it simply has to
-        be a function of type <code>(Parser, String) =&gt; Result[T]</code> for which
-        a type alias <code>Converter[T]</code> exists.</p>
+        <h3 id="inherited-elements" class="section">Inherited Elements</h3>
+        <p>By default directives only accept attributes defined right in the
+        attribute section of the directive to avoid name clashes with attributes
+        in other scopes. If you want to explicitly enable inheritance, so that
+        a user can define default values for attributes either in the configuration
+        header of the markup or template files or in the <code>directory.conf</code> file,
+        you can set the <code>inherited</code> flag:</p>
+        <p>Combinator:</p>
+        <pre>attribute(&quot;width&quot;).as[Int].inherited</pre>
+        <p>With this flag set, the <code>width</code> attribute can be inherited from other scopes
+        if it is not defined in the directive itself.</p>
+        
+        <h3 id="decoders" class="section">Decoders</h3>
+        <p>You can specify a decoder for all attributes with the <code>as[T]</code>
+        method:</p>
+        <pre>attribute(&quot;depth&quot;).as[Int].optional</pre>
+        <p>Without a decoder the result type would be <code>ConfigValue</code>
+        which is a data structure similar to those of popular JSON libraries.
+        But that type is rarely the most convenient type, which is why
+        Laika defines some basic decoders out of the box, for <code>String</code>,
+        <code>Int</code>, <code>Double</code>, <code>Boolean</code> and <code>Path</code>.</p>
+        <p>You can define your own by implementing <code>ConfigDecoder[T]</code>.</p>
         
         <h3 id="access-to-the-parser" class="section">Access to the Parser</h3>
         <p>For block elements the default is to pre-parse the content for you,
@@ -294,22 +352,22 @@ Transform from Markdown to HTML using
         options active for this operation (unless you manually duplicate it which
         is brittle). Therefore you can request a parser for your function in 
         addition to the other values:</p>
-        <pre>attribute(Default) ~ parser { (attrValue, parser) =&gt;
+        <pre>(defaultAttribute, parser).mapN { (attrValue, parser) =&gt;
   val parsedSpans = parser(&quot;[&quot;+attrValue+&quot;]&quot;)
   SpanSequence(parsedSpans)
 }</pre>
         <p>In this contrived example the attribute value is modified before being passed
         to the parser and then wrapped inside a sequence.</p>
         
-        <h3 id="access-to-the-document-context" class="section">Access to the Document Context</h3>
+        <h3 id="access-to-the-document-cursor" class="section">Access to the Document Cursor</h3>
         <p>Finally you can also request access to the document context. This gives
         you access to the structure, the title, sections and parent and root
         trees, in short, the full API for the AST built by the parser.</p>
         <p>It is, for example, required for a directive like the <code>toc</code> directive,
         because for building a table of contents you have to look beyond your
         particular directive node.</p>
-        <pre>attribute(Default) ~ context { (attrValue, context) =&gt;
-  val spans = Text(&quot;The title is: &quot;) +: context.document.title
+        <pre>(defaultAttribute, cursor).mapN { (attrValue, cursor) =&gt;
+  val spans = Text(&quot;The title is: &quot;) +: cursor.target.title
   SpanSequence(spans)
 }</pre>
         
@@ -324,7 +382,8 @@ Transform from Markdown to HTML using
         <h3 id="span-directives" class="section">Span Directives</h3>
         <p>Use: in inline elements in text markup files</p>
         <p>Implementation:</p>
-        <pre>import laika.ast._
+        <pre>import cats.implicits._
+import laika.ast._
 import laika.directive.Spans
 import Spans.dsl._
 
@@ -335,19 +394,29 @@ val directive = Spans.create(&quot;name&quot;) {
         <pre>// for Markdown and reStructuredText with sbt plugin:
 laikaSpanDirectives += directive // in build.sbt
 
-// for Markdown and reStructuredText with Transform API or Parse API:
+// for Markdown and reStructuredText with Transformer or Parser API:
 object MyDirectives extends DirectiveRegistry {
   val spanDirectives = Seq(directive)
   val blockDirectives = Seq()
   val templateDirectives = Seq()
 }
-Transform from Markdown to HTML using MyDirectives from...
-Parse as Markdown using MyDirectives from...</pre>
+
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .using(MyDirectives)
+  .build
+
+val parser = Parser
+  .of(Markdown)
+  .using(MyDirectives)
+  .build    </pre>
         
         <h3 id="block-directives" class="section">Block Directives</h3>
         <p>Use: in block elements in text markup files</p>
         <p>Implementation:</p>
-        <pre>import laika.ast._
+        <pre>import cats.implicits._
+import laika.ast._
 import laika.directive.Blocks
 import Blocks.dsl._
 
@@ -358,19 +427,29 @@ val directive = Blocks.create(&quot;name&quot;) {
         <pre>// for Markdown and reStructuredText with sbt plugin:
 laikaBlockDirectives += directive // in build.sbt
 
-// for Markdown and reStructuredText with Transform API or Parse API:
+// for Markdown and reStructuredText with Transformer or Parser API:
 object MyDirectives extends DirectiveRegistry {
   val spanDirectives = Seq()
   val blockDirectives = Seq(directive)
   val templateDirectives = Seq()
 }
-Transform from Markdown to HTML using MyDirectives from...
-Parse as Markdown using MyDirectives from...</pre>
+
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .using(MyDirectives)
+  .build
+
+val parser = Parser
+  .of(Markdown)
+  .using(MyDirectives)
+  .build    </pre>
         
         <h3 id="template-directives" class="section">Template Directives</h3>
         <p>Use: in template files</p>
         <p>Implementation:</p>
-        <pre>import laika.ast._
+        <pre>import cats.implicits._
+import laika.ast._
 import laika.directive.Templates
 Templates Blocks.dsl._
 
@@ -381,14 +460,23 @@ val directive = Templates.create(&quot;name&quot;) {
         <pre>// for templates with sbt plugin:
 laikaTemplateDirectives += directive // in build.sbt
 
-// for Markdown and reStructuredText with Transform API or Parse API:
+// for Markdown and reStructuredText with Transformer or Parser API:
 object MyDirectives extends DirectiveRegistry {
   val spanDirectives = Seq()
   val blockDirectives = Seq()
   val templateDirectives = Seq(directive)
 }
-Transform from Markdown to HTML using MyDirectives from...
-Parse as Markdown using MyDirectives from...</pre>      
+
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .using(MyDirectives)
+  .build
+
+val parser = Parser
+  .of(Markdown)
+  .using(MyDirectives)
+  .build    </pre>      
 
       </div>
     </div>

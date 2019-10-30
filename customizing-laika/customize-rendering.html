@@ -38,7 +38,7 @@
           <li><a href="../introduction/architecture.html">Architecture</a></li>
           <li class="nav-header">Using Laika</li>
           <li><a href="../using-laika/sbt.html">Using the sbt Plugin</a></li>
-          <li><a href="../using-laika/embedded.html">Using Laika Embedded</a></li>
+          <li><a href="../using-laika/embedded.html">Using the Library API</a></li>
           <li><a href="../using-laika/markup.html">Supported Markup</a></li>
           <li><a href="../using-laika/output.html">Supported Output Formats</a></li>
           <li><a href="../using-laika/structure.html">Document Structure</a></li>
@@ -69,49 +69,45 @@
       <div class="span8" id="top">
 
         <div class="page-header">
-          <h1>Customizing Renderers</h1>
+        <h1>Customizing Renderers</h1>
         </div>
         <p>In some cases you might want to override the output of a renderer for a few types
         of document tree nodes only, while keeping the default for the rest. Both the
         Transform and Render APIs offer a hook to easily do that without modifying
         or extending the existing renderer. </p>
         <p>This is the signature of a custom renderer hook:</p>
-        <pre>W =&gt; PartialFunction[Element,Unit]
+        <pre>PartialFunction[(Formatter, Element), String]
 </pre>
-        <p><code>W</code> is a generic type representing the writer API which is different for each 
-        output format. For HTML it is <code>HTMLWriter</code>, for XSL-FO it is <code>FOWriter</code>. 
-        This way renderers can offer the most convenient API for a specific output format.</p>
-        <p>Creating a function that expects a writer instance and returns the actual custom
-        render function in form of a partial function allows to &#39;capture&#39; the writer
-        in a concise way like the examples below will show.</p>
+        <p><code>Formatter</code> is a generic type representing the formatting API which is different for each 
+        output format. For HTML it is <code>HTMLFormatterr</code>, for XSL-FO it is <code>FOFormatter</code>. 
+        This way renderers can offer the most convenient API for a specific output format.
+        It provides a helper API for rendering tags, adds the current indentation level after
+        line breaks and knows how to render child elements. </p>
+        <p><code>Element</code> is the base type of the document AST and represent the AST node to render, <code>String</code>
+        is the render result in the expected target format.</p>
         
         <h2 id="defining-a-render-function" class="section">Defining a Render Function</h2>
         <p>This section explains how a render function is implemented and the subsequent sections
         show the three different ways to register such a function.</p>
         <p>In the following example only the HTML output for emphasized text will be modified,
         adding a specific style class:</p>
-        <pre>val open = &quot;&quot;&quot;&lt;em class=&quot;big&quot;&gt;&quot;&quot;&quot;
-val close = &quot;&lt;/em&gt;&quot;
-
-val renderer: HTMLWriter =&gt; RenderFunction = { out =&gt; 
-  { case Emphasized(content, _) =&gt; out &lt;&lt; open &lt;&lt; content &lt;&lt; close } 
+        <pre>val renderer: PartialFunction[(HTMLFormatter, Element), String] = {
+  case (fmt, Emphasized(content, opt)) =&gt; 
+    fmt.element(&quot;em&quot;, opt, content, &quot;class&quot; -&gt; &quot;big&quot;) 
 }</pre>
         <p>For all node types where the partial function is not defined, the default renderer
         will be used.</p>
         <p>Multiple custom renderers can be specified for the same transformation, they will be 
         tried in the order you added them, falling back to the default in case none is defined 
         for a specific node.</p>
-        <p>The <code>content</code> value above is of type <code>Seq[Span]</code>. <code>&lt;&lt;</code> and other methods of the
-        <code>HTMLWriter</code> API are overloaded and accept <code>String</code>, <code>Element</code> or <code>Seq[Element]</code> 
-        as a parameter, with <code>Element</code> being the abstract base type of all tree nodes.
-        This way rendering child elements can be delegated to other renderers, either another
-        custom renderer or the default. </p>
-        <p>In almost all cases, a custom renderer should not render
-        the children of a node passed to the function itself.</p>
+        <p>The <code>content</code> value above is of type <code>Seq[Span]</code>. A renderer should only ever render
+        a single node and delegate to the formatter for rendering children. Only the formatter
+        has a list of all installed render extensions as well as the base renderer and will
+        delegate to those function where the partial function is defined for the child element. </p>
         
         <h2 id="registering-a-render-function" class="section">Registering a Render Function</h2>
         <p>The mechanism is slightly different, depending on whether you are using the sbt
-        plugin or Laika embedded in an application. In the latter case you have two
+        plugin or Laika as a library in an application. In the latter case you have two
         choices, one for performing a full transformation, the other for a separate
         render operation. All three options are described below.</p>
         
@@ -119,88 +115,70 @@ val renderer: HTMLWriter =&gt; RenderFunction = { out =&gt;
         <p>In <code>build.sbt</code>:</p>
         <pre>import laika.ast._
 
-laikaSiteRenderers += laikaSiteRenderer { out =&gt; {
-  case Emphasized(content, _) =&gt; 
-      out &lt;&lt; &quot;&quot;&quot;&lt;em class=&quot;big&quot;&gt;&quot;&quot;&quot; &lt;&lt; content &lt;&lt; &quot;&lt;/em&gt;&quot; 
-}}</pre>
+laikaSiteRenderers += laikaSiteRenderer {
+  case (fmt, Emphasized(content, opt)) =&gt; 
+    fmt.element(&quot;em&quot;, opt, content, &quot;class&quot; -&gt; &quot;big&quot;)
+}</pre>
         
-        <h3 id="using-the-transform-api" class="section">Using the Transform API</h3>
-        <pre>val open = &quot;&quot;&quot;&lt;em class=&quot;big&quot;&gt;&quot;&quot;&quot;
-val close = &quot;&lt;/em&gt;&quot;
-
-Transform from Markdown to HTML rendering { out =&gt; 
-  { case Emphasized(content, _) =&gt; out &lt;&lt; open &lt;&lt; content &lt;&lt; close } 
-} fromFile &quot;hello.md&quot; toFile &quot;hello.html&quot;
-</pre>
+        <h3 id="using-the-transformer-api" class="section">Using the Transformer API</h3>
+        <pre>val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .rendering {
+    case (fmt, Emphasized(content, opt)) =&gt; 
+      fmt.element(&quot;em&quot;, opt, content, &quot;class&quot; -&gt; &quot;big&quot;)
+  }.build</pre>
         
-        <h3 id="using-the-render-api" class="section">Using the Render API</h3>
+        <h3 id="using-the-renderer-api" class="section">Using the Renderer API</h3>
         <pre>val doc: Document = ...
 
-val open = &quot;&quot;&quot;&lt;em class=&quot;big&quot;&gt;&quot;&quot;&quot;
-val close = &quot;&lt;/em&gt;&quot;
-
-Render as HTML using { out =&gt; 
-  { case Emphasized(content, _) =&gt; out &lt;&lt; open &lt;&lt; content &lt;&lt; close } 
-} from doc toString
-</pre>
+val renderer = Renderer
+  .of(HTML)
+  .rendering { 
+    case (fmt, Emphasized(content, opt)) =&gt; 
+      fmt.element(&quot;em&quot;, opt, content, &quot;class&quot; -&gt; &quot;big&quot;)
+  }.build</pre>
         
-        <h2 id="the-writer-apis" class="section">The Writer APIs</h2>
-        <p>In the examples above we only needed the basic <code>&lt;&lt;</code> method. This secion provides
-        an overview over the full API.</p>
-        <p>Btw: in case you do not fancy operators as method names, the writer APIs are the only ones
-        in Laika making use of them. It turned out to improve readability for most common
-        scenarios where you have to chain lots of elements, often including indentation
-        and newline characters for making the output prettier. There are not that many,
-        so it should be easy to memorize them.</p>
-        <p>Writers differ from all other Laika objects in that they are stateful. But the
-        only state they keep internally is the current level of indentation for prettier
-        output which greatly simplifies the use of the API for rendering elements
-        recursively. A new writer instance is created for each render operation,
-        so there is no need to share it between threads.<br></p>
+        <h2 id="the-formatter-apis" class="section">The Formatter APIs</h2>
+        <p>Each formatter provides functionality that is specific to the target format.
+        On top of that all formatters manage the indentation level after line breaks and 
+        know how to delegate to the relevant renderers for child elements.</p>
         
-        <h3 id="textwriter" class="section">TextWriter</h3>
+        <h3 id="textformatter" class="section">TextFormatter</h3>
         <p>This is the base API supported by both the <code>XSL-FO</code> and <code>HTML</code> renderer,
         both of them adding several methods with rendering logic specific to that format.</p>
-        <p>All methods below are overloaded and accept <code>String</code>, <code>Element</code> or <code>Seq[Element]</code> 
-        as a parameter, with <code>Element</code> being the abstract base type of all tree nodes.
-        When passing Elements to the writer it will delegate to the renderers responsible
-        for those nodes.</p>
         <ul>
           <li>
-            <p><code>&lt;&lt;</code> appends to the output on the current line.</p>
+            <p><code>newLine</code> renders a newline character followed by whitespace for the current level of indentation</p>
           </li>
           <li>
-            <p><code>&lt;&lt;|</code> appends to the output on a new line, with the current level of indentation</p>
+            <p><code>child</code> render a single child element.</p>
           </li>
           <li>
-            <p><code>&lt;&lt;|&gt;</code> appends to the output on a new line, increasing indentation one level to the right</p>
+            <p><code>childPerLine</code> renders a list of child elements, each on a separate line, 
+            with the current level of indentation</p>
+          </li>
+          <li>
+            <p><code>indentedChildren</code> renders a list of child elements, each on a separate line, 
+            indented one level to the right from the current indentation level</p>
           </li>
         </ul>
-        <p>When using the last method with Element instances which might themselves delegate
-        rendering of their children, you get a nicely formatted output without much effort.</p>
         
-        <h3 id="htmlwriter" class="section">HTMLWriter</h3>
-        <p>This writer supports all methods of the <code>TextWriter</code> API shown above, and adds
+        <h3 id="htmlformatter" class="section">HTMLFormatter</h3>
+        <p>This formatter supports all methods of the <code>TextFormatter</code> API shown above, and adds
         the following methods:</p>
         <ul>
           <li>
-            <p>For the three methods above, there is a variant that replaces special HTML
-            characters with HTML entities and should be used for writing text nodes. They
-            are named <code>&lt;&lt;&amp;</code>, <code>&lt;&lt;|&amp;</code> and <code>&lt;&lt;|&gt;&amp;</code> and otherwise behave the same as their
-            counterparts without the <code>&amp;</code>.</p>
+            <p><code>element</code> renders a tag where the specified list of child elements will be used to render the content of the tag</p>
           </li>
           <li>
-            <p>The <code>&lt;&lt;&lt;&amp;</code> method does not have a counterpart without <code>&amp;</code>. Like the others
-            it replaces special HTML characters, but it writes without any indentation,
-            no matter which level of indentation the writer currently has,
-            which is needed for writing nodes like <code>&lt;pre&gt;</code> where indentation would be
-            significant. </p>
+            <p><code>indentedElement</code> is similar to <code>element</code>, but renders the child elements one per line and indented to the right</p>
           </li>
           <li>
-            <p>The <code>&lt;&lt;@</code> method is a convenient way to write an HTML attribute. It is overloaded
-            and either takes <code>(String, String)</code> or <code>(String, Option[String])</code> as parameters
-            for name and value of the attribute. If the value is None, nothing will be written,
-            but it often makes writing optional attributes more concise.</p>
+            <p><code>textElement</code> renders an element with text content with special characters replaced by entities</p>
+          </li>
+          <li>
+            <p><code>emptyElement</code> renders an empty tag</p>
           </li>
         </ul>
         
@@ -209,10 +187,9 @@ Render as HTML using { out =&gt;
         plus optionally default templates and/or static files to be copied to the output
         directory.</p>
         <p>This is the signature of the <code>Theme</code> case class:</p>
-        <pre>case class Theme (customRenderer: W =&gt; RenderFunction,
+        <pre>case class Theme (customRenderer: PartialFunction[(Formatter, Element), String],
                   defaultTemplate: Option[TemplateRoot],
-                  defaultStyles: StyleDeclarationSet,
-                  staticDocuments: StaticDocuments)</pre>
+                  defaultStyles: StyleDeclarationSet)</pre>
         <ul>
           <li>
             <p>The <code>customRenderer</code> is a renderer function that overrides the built-in renderers
@@ -233,11 +210,6 @@ Render as HTML using { out =&gt;
             the CSS and applies it to the render result. If you want to add CSS for HTML or EPUB, 
             add them as static files instead, as Laika will just copy them over without processing them.</p>
           </li>
-          <li>
-            <p>The <code>staticDocuments</code> provides a collection of files to be copied over to the output
-            directory on each transformation. You can bundle images, script or CSS files this way:</p>
-            <p>val docs = StaticDocuments.fromDirectory(&quot;theme-files&quot;)</p>
-          </li>
         </ul>
         <p>A theme can be installed as part of an extension bundle:</p>
         <pre>object MyExtensions extends ExtensionBundle {
@@ -246,8 +218,7 @@ Render as HTML using { out =&gt;
     
 }
 
-Transform.from(Markdown).to(HTML).using(MyExtensions)
-  .fromFile(&quot;hello.md&quot;).toFile(&quot;hello.html&quot;)         </pre>
+val transformer = Transformer.from(Markdown).to(HTML).using(MyExtensions)</pre>
         <p>A theme is specific to a particular output format, separate instances need to be 
         provided if you want to install themes for several formats like HTML, PDF or EPUB.</p>      
 
