@@ -50,25 +50,27 @@ in `target/docs/site`.
 
 ### Using the Library API
 
+If you are updating from a version before 0.12.0, it's recommended to read
+the [Migration Guide](http://planet42.github.io/Laika/migration-guide-0.12.html) 
+first, as there were significant changes in the Library API.
+
 Adding the Laika dependency to your sbt build:
 
     libraryDependencies += "org.planet42" %% "laika-core" % "0.12.0"
 
-Example for transforming Markdown:
+Example for transforming Markdown to HTML:
 
-    Transformer
+    import laika.api._
+    import laika.format._
+    
+    val transformer = Transformer
       .from(Markdown)
       .to(HTML)
       .build
+      
+    val res: Either[ParserError, String] = transformer
       .transform("hello *there*")
 
-Example for transforming ReStructuredText:
-
-    Transformer
-      .from(ReStructuredText)
-      .to(HTML)
-      .build
-      .transform("hello *there*")
     
 For file/stream IO, parallel processing and/or EPUB support, based on cats-effect, 
 add the laika-io module to your build:
@@ -76,6 +78,10 @@ add the laika-io module to your build:
     libraryDependencies += "org.planet42" %% "laika-io" % "0.12.0"  
     
 Example for transforming an entire directory of markup files to a single EPUB file:
+
+    import laika.api._
+    import laika.format._
+    import laika.io.implicits._
 
     implicit val cs: ContextShift[IO] = 
       IO.contextShift(ExecutionContext.global)
@@ -92,11 +98,10 @@ Example for transforming an entire directory of markup files to a single EPUB fi
       .parallel[IO]
       .build
       
-    transformer
+    val res: IO[Unit] = transformer
       .fromDirectory("src")
       .toFile("hello.epub")
       .transform
-      .unsafeRunSync()       
 
 When using Laika's PDF support you need to add one more dependency to your build:
 
@@ -155,6 +160,9 @@ Features
   
 * sbt plugin, exposing all Laika features and customization hooks
   as sbt settings and tasks
+  
+* Purely Functional Library API, respecting referential transparency,
+  no exceptions, no mutable state
 
 * Custom Directives (tags) for templates and text markup, with type-safe
   and concise DSL for their declaration
@@ -187,15 +195,15 @@ Road Map
 
 * __0.14__: Integrated support for syntax highlighting in source code
 
-* __0.15__: Include a set of default themes for all output formats
+* __0.15__: A set of default themes for all output formats
 
-* __1.0__: API polishing and removal of all deprecations
+* __1.0__: Separation of public and internal APIs and removal of all deprecations
 
 
 Release History
 ---------------
 
-* __0.12.0__ (>WIP<, 2019):
+* __0.12.0__ (Oct 30, 2019):
 
     * New laika-io Module
         * Functionality extracted from existing laika-core module
@@ -239,7 +247,8 @@ Release History
         * Each `DocumentTree` in the structure now has an explicit `titleDocument: Option[Document]` property
           for more explicit content organization in e-books.
         * Properties that previously held references to streams and other impure data had been
-          removed from the pure content model (e.g. `DocumentTree.staticDocuments`).  
+          removed from the pure content model (e.g. `DocumentTree.staticDocuments`). 
+    * Bug fixes for fenced code blocks with blank lines in GitHub-Flavored Markdown      
 
 * __0.11.0__ (June 12, 2019):
 
