@@ -8,17 +8,17 @@
           <meta name="keywords" content="" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
+      
       <link href="../../lib/index.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../lib/jquery.js"></script>
+      <script type="text/javascript" src="../../lib/jquery.min.js"></script>
       <script type="text/javascript" src="../../lib/jquery.panzoom.min.js"></script>
       <script type="text/javascript" src="../../lib/jquery.mousewheel.min.js"></script>
       <script type="text/javascript" src="../../lib/index.js"></script>
       <script type="text/javascript" src="../../index.js"></script>
       <script type="text/javascript" src="../../lib/scheduler.js"></script>
       <script type="text/javascript" src="../../lib/template.js"></script>
-      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
       
       <script type="text/javascript">
         /* this variable can be used by the JS to determine the path to the root document */
@@ -56,7 +56,7 @@
                 <li name="_root_.root" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="_root_"></a><a id="root:_root_"></a>
       <span class="permalink">
-      <a href="index.html#_root_" title="Permalink">
+      <a href="../../index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -72,7 +72,7 @@
     </li><li name="_root_.laika" visbl="pub" class="indented1 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="laika"></a><a id="laika:laika"></a>
       <span class="permalink">
-      <a href="index.html#laika" title="Permalink">
+      <a href="../../laika/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -88,7 +88,7 @@
     </li><li name="laika.directive" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="directive"></a><a id="directive:directive"></a>
       <span class="permalink">
-      <a href="../laika/index.html#directive" title="Permalink">
+      <a href="../../laika/directive/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -104,7 +104,7 @@
     </li><li name="laika.directive.BuilderContext" visbl="pub" class="indented3 " data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="BuilderContext[E&lt;:laika.ast.Element]extendsAnyRef"></a><a id="BuilderContext[E&lt;:Element]:BuilderContext[E]"></a>
       <span class="permalink">
-      <a href="../../laika/directive/index.html#BuilderContext[E&lt;:laika.ast.Element]extendsAnyRef" title="Permalink">
+      <a href="../../laika/directive/BuilderContext.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -116,46 +116,50 @@
         <a title="Provides the basic building blocks for Laika's Directive API." href="BuilderContext.html"><span class="name">BuilderContext</span></a><span class="tparams">[<span name="E">E &lt;: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       
-      <p class="shortcomment cmt"> Provides the basic building blocks for
- Laika's Directive API.</p><div class="fullcomment"><div class="comment cmt"><p> Provides the basic building blocks for
- Laika's Directive API. This trait
- is not used directly, but instead its
- three subtraits <code>Blocks</code>, <code>Spans</code> and <code>Templates</code>,
- which represent the concrete implementations
- for the three directive types.
+      <p class="shortcomment cmt">Provides the basic building blocks for
+Laika's Directive API.</p><div class="fullcomment"><div class="comment cmt"><p>Provides the basic building blocks for
+Laika's Directive API. This trait
+is not used directly, but instead its
+three sub-traits <code>Blocks</code>, <code>Spans</code> and <code>Templates</code>,
+which represent the concrete implementations
+for the three directive types.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="laika.directive">directive</a></dd></dl></div>
     </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="object" href="BuilderContext$CanBuildDirectivePart$.html" title="Type class required for using the generic Builders API with directives."></a>
-                        <a href="BuilderContext$CanBuildDirectivePart$.html" title="Type class required for using the generic Builders API with directives.">CanBuildDirectivePart</a>
+                        <a class="object" href="BuilderContext$BodyContent$.html" title=""></a>
+                        <a class="trait" href="BuilderContext$BodyContent.html" title="The content of a directive part, either an attribute or the body."></a>
+                        <a href="BuilderContext$BodyContent.html" title="The content of a directive part, either an attribute or the body.">BodyContent</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="trait" href="BuilderContext$Combinators.html" title="Provides various combinators to describe the expected format of a specific directive."></a>
-                        <a href="BuilderContext$Combinators.html" title="Provides various combinators to describe the expected format of a specific directive.">Combinators</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="trait" href="BuilderContext$Converters.html" title="Provides various converter functions that can be used with the directive combinators to convert the string value obtained from a directive attribute or body."></a>
-                        <a href="BuilderContext$Converters.html" title="Provides various converter functions that can be used with the directive combinators to convert the string value obtained from a directive attribute or body.">Converters</a>
+                        <a class="trait" href="BuilderContext$Combinators.html" title="Provides combinators to describe the expected structure of a specific directive."></a>
+                        <a href="BuilderContext$Combinators.html" title="Provides combinators to describe the expected structure of a specific directive.">Combinators</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="class" href="" title="Represents a directive, its name and its (combined) parts."></a>
                         <a href="" title="Represents a directive, its name and its (combined) parts.">Directive</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="trait" href="BuilderContext$DirectiveContext.html" title="The context of a directive during execution."></a>
-                        <a href="BuilderContext$DirectiveContext.html" title="The context of a directive during execution.">DirectiveContext</a>
+                        <a class="class" href="BuilderContext$DirectiveContent.html" title="The content of a parsed directive with the HOCON attributes captured in a Config instance."></a>
+                        <a href="BuilderContext$DirectiveContent.html" title="The content of a parsed directive with the HOCON attributes captured in a Config instance.">DirectiveContent</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
+                        <a class="class" href="BuilderContext$DirectiveContext.html" title="The context of a directive during execution."></a>
+                        <a href="BuilderContext$DirectiveContext.html" title="The context of a directive during execution.">DirectiveContext</a>
+                      </li><li class="current-entities indented3">
+                        <a class="object" href="BuilderContext$DirectivePart$.html" title=""></a>
                         <a class="class" href="BuilderContext$DirectivePart.html" title="Represents a single part (attribute or body) of a directive or a combination of multiple parts."></a>
                         <a href="BuilderContext$DirectivePart.html" title="Represents a single part (attribute or body) of a directive or a combination of multiple parts.">DirectivePart</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="trait" href="BuilderContext$IdBuilders.html" title=""></a>
-                        <a href="BuilderContext$IdBuilders.html" title="">IdBuilders</a>
+                        <a class="class" href="BuilderContext$Multipart.html" title="The content of a body element divided by separator directives."></a>
+                        <a href="BuilderContext$Multipart.html" title="The content of a body element divided by separator directives.">Multipart</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="abstract type" href="BuilderContext$Parser.html" title="The parser API in case a directive function needs to manually parse one of the directive parts."></a>
                         <a href="BuilderContext$Parser.html" title="The parser API in case a directive function needs to manually parse one of the directive parts.">Parser</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="BuilderContext$SeparatorDirective.html" title="Represents a separator directive, its name and its (combined) parts."></a>
+                        <a href="BuilderContext$SeparatorDirective.html" title="Represents a separator directive, its name and its (combined) parts.">SeparatorDirective</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="object" href="BuilderContext$dsl$.html" title="Provides the basic building blocks for defining directives, Laika's extension mechanism for creating custom tags for both, templates or text markup."></a>
@@ -295,9 +299,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="laika.directive.BuilderContext.Directive#apply" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="apply(context:BuilderContext.this.DirectiveContext):laika.directive.Result[E]"></a><a id="apply(DirectiveContext):Result[E]"></a>
+      <a id="apply(context:BuilderContext.this.DirectiveContext):BuilderContext.this.Result[E]"></a><a id="apply(DirectiveContext):Result[E]"></a>
       <span class="permalink">
-      <a href="../../laika/directive/BuilderContext$Directive.html#apply(context:BuilderContext.this.DirectiveContext):laika.directive.Result[E]" title="Permalink">
+      <a href="../../laika/directive/BuilderContext$Directive.html#apply(context:BuilderContext.this.DirectiveContext):BuilderContext.this.Result[E]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -306,7 +310,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="params">(<span name="context">context: <a href="BuilderContext$DirectiveContext.html" class="extype" name="laika.directive.BuilderContext.DirectiveContext">DirectiveContext</a></span>)</span><span class="result">: <a href="Result.html" class="extype" name="laika.directive.Result">Result</a>[<span class="extype" name="laika.directive.BuilderContext.E">E</span>]</span>
+        <span class="name">apply</span><span class="params">(<span name="context">context: <a href="BuilderContext$DirectiveContext.html" class="extype" name="laika.directive.BuilderContext.DirectiveContext">DirectiveContext</a></span>)</span><span class="result">: <a href="BuilderContext.html#Result[+A]=Either[Seq[String],A]" class="extmbr" name="laika.directive.BuilderContext.Result">Result</a>[<span class="extype" name="laika.directive.BuilderContext.E">E</span>]</span>
       </span>
       
       
@@ -341,13 +345,13 @@
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
     </span>)</span>
+              
+                <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
@@ -397,7 +401,7 @@
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="symbol">classOf[java.lang.Throwable]</span>
@@ -423,6 +427,22 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li name="laika.directive.BuilderContext.Directive#hasBody" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="hasBody:Boolean"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/BuilderContext$Directive.html#hasBody:Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hasBody</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      
+      
     </li><li name="scala.AnyRef#hashCode" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="hashCode():Int"></a>
       <span class="permalink">
@@ -528,10 +548,10 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="laika.directive.BuilderContext.Directive#requiresContext" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="requiresContext:Boolean"></a>
+    </li><li name="laika.directive.BuilderContext.Directive#separators" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="separators:Set[String]"></a>
       <span class="permalink">
-      <a href="../../laika/directive/BuilderContext$Directive.html#requiresContext:Boolean" title="Permalink">
+      <a href="../../laika/directive/BuilderContext$Directive.html#separators:Set[String]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -540,7 +560,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">requiresContext</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+        <span class="name">separators</span><span class="result">: <span class="extype" name="scala.Predef.Set">Set</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>
       </span>
       
       
@@ -636,12 +656,12 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
     </span>)</span>
+              
+                <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
     </li>

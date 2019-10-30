@@ -8,17 +8,17 @@
           <meta name="keywords" content="" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
+      
       <link href="../../../lib/index.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../../lib/jquery.js"></script>
+      <script type="text/javascript" src="../../../lib/jquery.min.js"></script>
       <script type="text/javascript" src="../../../lib/jquery.panzoom.min.js"></script>
       <script type="text/javascript" src="../../../lib/jquery.mousewheel.min.js"></script>
       <script type="text/javascript" src="../../../lib/index.js"></script>
       <script type="text/javascript" src="../../../index.js"></script>
       <script type="text/javascript" src="../../../lib/scheduler.js"></script>
       <script type="text/javascript" src="../../../lib/template.js"></script>
-      <script type="text/javascript" src="../../../lib/tools.tooltip.js"></script>
       
       <script type="text/javascript">
         /* this variable can be used by the JS to determine the path to the root document */
@@ -56,7 +56,7 @@
                 <li name="_root_.root" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="_root_"></a><a id="root:_root_"></a>
       <span class="permalink">
-      <a href="index.html#_root_" title="Permalink">
+      <a href="../../../index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -72,7 +72,7 @@
     </li><li name="_root_.laika" visbl="pub" class="indented1 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="laika"></a><a id="laika:laika"></a>
       <span class="permalink">
-      <a href="index.html#laika" title="Permalink">
+      <a href="../../../laika/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -88,7 +88,7 @@
     </li><li name="laika.parse" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="parse"></a><a id="parse:parse"></a>
       <span class="permalink">
-      <a href="../laika/index.html#parse" title="Permalink">
+      <a href="../../../laika/parse/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -104,7 +104,7 @@
     </li><li name="laika.parse.markup" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="markup"></a><a id="markup:markup"></a>
       <span class="permalink">
-      <a href="../../laika/parse/index.html#markup" title="Permalink">
+      <a href="../../../laika/parse/markup/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -256,19 +256,35 @@ header.
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="laika.parse.markup.DocumentParser.ConfigHeaderParser" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="ConfigHeaderParser=laika.ast.Path=&gt;laika.parse.Parser[Either[laika.ast.InvalidElement,com.typesafe.config.Config]]"></a><a id="ConfigHeaderParser:ConfigHeaderParser"></a>
+              <ol><li name="laika.parse.markup.DocumentParser.ParserError" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ParserErrorextendsRuntimeExceptionwithProductwithSerializable"></a><a id="ParserError:ParserError"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/markup/DocumentParser$.html#ConfigHeaderParser=laika.ast.Path=&gt;laika.parse.Parser[Either[laika.ast.InvalidElement,com.typesafe.config.Config]]" title="Permalink">
+      <a href="../../../laika/parse/markup/DocumentParser$$ParserError.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">type</span>
+        <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">ConfigHeaderParser</span><span class="result alias"> = (<a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a>) ⇒ <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Either">Either</span>[<a href="../../ast/InvalidElement.html" class="extype" name="laika.ast.InvalidElement">InvalidElement</a>, <span class="extype" name="com.typesafe.config.Config">Config</span>]]</span>
+        <a title="" href="DocumentParser$$ParserError.html"><span class="name">ParserError</span></a><span class="params">(<span name="message">message: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>)</span><span class="result"> extends <span class="extype" name="scala.RuntimeException">RuntimeException</span> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
+    </li><li name="laika.parse.markup.DocumentParser.ParserInput" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ParserInputextendsProductwithSerializable"></a><a id="ParserInput:ParserInput"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/markup/DocumentParser$$ParserInput.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="DocumentParser$$ParserInput.html"><span class="name">ParserInput</span></a><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="context">context: <a href="../ParserContext.html" class="extype" name="laika.parse.ParserContext">ParserContext</a></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       
@@ -359,13 +375,13 @@ header.
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
     </span>)</span>
+              
+                <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
@@ -415,7 +431,7 @@ header.
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="symbol">classOf[java.lang.Throwable]</span>
@@ -423,9 +439,9 @@ header.
               
         </dd></dl></div>
     </li><li name="laika.parse.markup.DocumentParser#forMarkup" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="forMarkup(rootParser:laika.parse.Parser[laika.ast.RootElement],configHeaderParser:laika.parse.markup.DocumentParser.ConfigHeaderParser):laika.io.Input=&gt;laika.ast.Document"></a><a id="forMarkup(Parser[RootElement],ConfigHeaderParser):(Input)⇒Document"></a>
+      <a id="forMarkup(rootParser:laika.parse.Parser[laika.ast.RootElement],configProvider:laika.bundle.ConfigProvider):laika.parse.markup.DocumentParser.ParserInput=&gt;Either[laika.parse.markup.DocumentParser.ParserError,laika.ast.UnresolvedDocument]"></a><a id="forMarkup(Parser[RootElement],ConfigProvider):(ParserInput)⇒Either[ParserError,UnresolvedDocument]"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/markup/DocumentParser$.html#forMarkup(rootParser:laika.parse.Parser[laika.ast.RootElement],configHeaderParser:laika.parse.markup.DocumentParser.ConfigHeaderParser):laika.io.Input=&gt;laika.ast.Document" title="Permalink">
+      <a href="../../../laika/parse/markup/DocumentParser$.html#forMarkup(rootParser:laika.parse.Parser[laika.ast.RootElement],configProvider:laika.bundle.ConfigProvider):laika.parse.markup.DocumentParser.ParserInput=&gt;Either[laika.parse.markup.DocumentParser.ParserError,laika.ast.UnresolvedDocument]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -434,15 +450,15 @@ header.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">forMarkup</span><span class="params">(<span name="rootParser">rootParser: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../../ast/RootElement.html" class="extype" name="laika.ast.RootElement">RootElement</a>]</span>, <span name="configHeaderParser">configHeaderParser: <a href="#ConfigHeaderParser=laika.ast.Path=&gt;laika.parse.Parser[Either[laika.ast.InvalidElement,com.typesafe.config.Config]]" class="extmbr" name="laika.parse.markup.DocumentParser.ConfigHeaderParser">ConfigHeaderParser</a></span>)</span><span class="result">: (<a href="../../io/Input.html" class="extype" name="laika.io.Input">Input</a>) ⇒ <a href="../../ast/Document.html" class="extype" name="laika.ast.Document">Document</a></span>
+        <span class="name">forMarkup</span><span class="params">(<span name="rootParser">rootParser: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../../ast/RootElement.html" class="extype" name="laika.ast.RootElement">RootElement</a>]</span>, <span name="configProvider">configProvider: <a href="../../bundle/ConfigProvider.html" class="extype" name="laika.bundle.ConfigProvider">ConfigProvider</a></span>)</span><span class="result">: (<a href="DocumentParser$$ParserInput.html" class="extype" name="laika.parse.markup.DocumentParser.ParserInput">ParserInput</a>) ⇒ <span class="extype" name="scala.Either">Either</span>[<a href="DocumentParser$$ParserError.html" class="extype" name="laika.parse.markup.DocumentParser.ParserError">ParserError</a>, <a href="../../ast/UnresolvedDocument.html" class="extype" name="laika.ast.UnresolvedDocument">UnresolvedDocument</a>]</span>
       </span>
       
       <p class="shortcomment cmt">Combines the specified parsers for the root element and for (optional) configuration
 headers to create a parser function for an entire text markup document.</p>
     </li><li name="laika.parse.markup.DocumentParser#forMarkup" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="forMarkup(markupParser:laika.factory.MarkupParser,markupExtensions:laika.bundle.MarkupExtensions,configHeaderParser:laika.parse.markup.DocumentParser.ConfigHeaderParser):laika.io.Input=&gt;laika.ast.Document"></a><a id="forMarkup(MarkupParser,MarkupExtensions,ConfigHeaderParser):(Input)⇒Document"></a>
+      <a id="forMarkup(markupParser:laika.factory.MarkupFormat,markupExtensions:laika.bundle.MarkupExtensions,configProvider:laika.bundle.ConfigProvider):laika.parse.markup.DocumentParser.ParserInput=&gt;Either[laika.parse.markup.DocumentParser.ParserError,laika.ast.UnresolvedDocument]"></a><a id="forMarkup(MarkupFormat,MarkupExtensions,ConfigProvider):(ParserInput)⇒Either[ParserError,UnresolvedDocument]"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/markup/DocumentParser$.html#forMarkup(markupParser:laika.factory.MarkupParser,markupExtensions:laika.bundle.MarkupExtensions,configHeaderParser:laika.parse.markup.DocumentParser.ConfigHeaderParser):laika.io.Input=&gt;laika.ast.Document" title="Permalink">
+      <a href="../../../laika/parse/markup/DocumentParser$.html#forMarkup(markupParser:laika.factory.MarkupFormat,markupExtensions:laika.bundle.MarkupExtensions,configProvider:laika.bundle.ConfigProvider):laika.parse.markup.DocumentParser.ParserInput=&gt;Either[laika.parse.markup.DocumentParser.ParserError,laika.ast.UnresolvedDocument]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -451,15 +467,15 @@ headers to create a parser function for an entire text markup document.</p>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">forMarkup</span><span class="params">(<span name="markupParser">markupParser: <a href="../../factory/MarkupParser.html" class="extype" name="laika.factory.MarkupParser">MarkupParser</a></span>, <span name="markupExtensions">markupExtensions: <a href="../../bundle/MarkupExtensions.html" class="extype" name="laika.bundle.MarkupExtensions">MarkupExtensions</a></span>, <span name="configHeaderParser">configHeaderParser: <a href="#ConfigHeaderParser=laika.ast.Path=&gt;laika.parse.Parser[Either[laika.ast.InvalidElement,com.typesafe.config.Config]]" class="extmbr" name="laika.parse.markup.DocumentParser.ConfigHeaderParser">ConfigHeaderParser</a></span>)</span><span class="result">: (<a href="../../io/Input.html" class="extype" name="laika.io.Input">Input</a>) ⇒ <a href="../../ast/Document.html" class="extype" name="laika.ast.Document">Document</a></span>
+        <span class="name">forMarkup</span><span class="params">(<span name="markupParser">markupParser: <a href="../../factory/MarkupFormat.html" class="extype" name="laika.factory.MarkupFormat">MarkupFormat</a></span>, <span name="markupExtensions">markupExtensions: <a href="../../bundle/MarkupExtensions.html" class="extype" name="laika.bundle.MarkupExtensions">MarkupExtensions</a></span>, <span name="configProvider">configProvider: <a href="../../bundle/ConfigProvider.html" class="extype" name="laika.bundle.ConfigProvider">ConfigProvider</a></span>)</span><span class="result">: (<a href="DocumentParser$$ParserInput.html" class="extype" name="laika.parse.markup.DocumentParser.ParserInput">ParserInput</a>) ⇒ <span class="extype" name="scala.Either">Either</span>[<a href="DocumentParser$$ParserError.html" class="extype" name="laika.parse.markup.DocumentParser.ParserError">ParserError</a>, <a href="../../ast/UnresolvedDocument.html" class="extype" name="laika.ast.UnresolvedDocument">UnresolvedDocument</a>]</span>
       </span>
       
       <p class="shortcomment cmt">Combines the specified markup parsers and extensions and the parser for (optional) configuration
 headers to create a parser function for an entire text markup document.</p>
-    </li><li name="laika.parse.markup.DocumentParser#forTemplate" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="forTemplate(rootParser:laika.parse.Parser[laika.ast.TemplateRoot],configHeaderParser:laika.parse.markup.DocumentParser.ConfigHeaderParser):laika.io.Input=&gt;laika.ast.TemplateDocument"></a><a id="forTemplate(Parser[TemplateRoot],ConfigHeaderParser):(Input)⇒TemplateDocument"></a>
+    </li><li name="laika.parse.markup.DocumentParser#forParser" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="forParser[T](p:laika.ast.Path=&gt;laika.parse.Parser[T]):laika.parse.markup.DocumentParser.ParserInput=&gt;Either[laika.parse.markup.DocumentParser.ParserError,T]"></a><a id="forParser[T]((Path)⇒Parser[T]):(ParserInput)⇒Either[ParserError,T]"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/markup/DocumentParser$.html#forTemplate(rootParser:laika.parse.Parser[laika.ast.TemplateRoot],configHeaderParser:laika.parse.markup.DocumentParser.ConfigHeaderParser):laika.io.Input=&gt;laika.ast.TemplateDocument" title="Permalink">
+      <a href="../../../laika/parse/markup/DocumentParser$.html#forParser[T](p:laika.ast.Path=&gt;laika.parse.Parser[T]):laika.parse.markup.DocumentParser.ParserInput=&gt;Either[laika.parse.markup.DocumentParser.ParserError,T]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -468,7 +484,43 @@ headers to create a parser function for an entire text markup document.</p>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">forTemplate</span><span class="params">(<span name="rootParser">rootParser: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../../ast/TemplateRoot.html" class="extype" name="laika.ast.TemplateRoot">TemplateRoot</a>]</span>, <span name="configHeaderParser">configHeaderParser: <a href="#ConfigHeaderParser=laika.ast.Path=&gt;laika.parse.Parser[Either[laika.ast.InvalidElement,com.typesafe.config.Config]]" class="extmbr" name="laika.parse.markup.DocumentParser.ConfigHeaderParser">ConfigHeaderParser</a></span>)</span><span class="result">: (<a href="../../io/Input.html" class="extype" name="laika.io.Input">Input</a>) ⇒ <a href="../../ast/TemplateDocument.html" class="extype" name="laika.ast.TemplateDocument">TemplateDocument</a></span>
+        <span class="name">forParser</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="p">p: (<a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a>) ⇒ <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="laika.parse.markup.DocumentParser.forParser.T">T</span>]</span>)</span><span class="result">: (<a href="DocumentParser$$ParserInput.html" class="extype" name="laika.parse.markup.DocumentParser.ParserInput">ParserInput</a>) ⇒ <span class="extype" name="scala.Either">Either</span>[<a href="DocumentParser$$ParserError.html" class="extype" name="laika.parse.markup.DocumentParser.ParserError">ParserError</a>, <span class="extype" name="laika.parse.markup.DocumentParser.forParser.T">T</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">A document parser function for the specified parser that is expected to consume
+all input.</p><div class="fullcomment"><div class="comment cmt"><p>A document parser function for the specified parser that is expected to consume
+all input.</p><p>The specified function is invoked for each parsed document, so that a parser
+dependent on the input path can be created.
+</p></div></div>
+    </li><li name="laika.parse.markup.DocumentParser#forStyleSheets" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="forStyleSheets(parser:laika.parse.Parser[Set[laika.ast.StyleDeclaration]]):laika.parse.markup.DocumentParser.ParserInput=&gt;Either[laika.parse.markup.DocumentParser.ParserError,laika.ast.StyleDeclarationSet]"></a><a id="forStyleSheets(Parser[Set[StyleDeclaration]]):(ParserInput)⇒Either[ParserError,StyleDeclarationSet]"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/markup/DocumentParser$.html#forStyleSheets(parser:laika.parse.Parser[Set[laika.ast.StyleDeclaration]]):laika.parse.markup.DocumentParser.ParserInput=&gt;Either[laika.parse.markup.DocumentParser.ParserError,laika.ast.StyleDeclarationSet]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">forStyleSheets</span><span class="params">(<span name="parser">parser: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.Set">Set</span>[<a href="../../ast/StyleDeclaration.html" class="extype" name="laika.ast.StyleDeclaration">StyleDeclaration</a>]]</span>)</span><span class="result">: (<a href="DocumentParser$$ParserInput.html" class="extype" name="laika.parse.markup.DocumentParser.ParserInput">ParserInput</a>) ⇒ <span class="extype" name="scala.Either">Either</span>[<a href="DocumentParser$$ParserError.html" class="extype" name="laika.parse.markup.DocumentParser.ParserError">ParserError</a>, <a href="../../ast/StyleDeclarationSet.html" class="extype" name="laika.ast.StyleDeclarationSet">StyleDeclarationSet</a>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Builds a document parser for CSS documents based on the specified parser for style declarations.</p>
+    </li><li name="laika.parse.markup.DocumentParser#forTemplate" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="forTemplate(rootParser:laika.parse.Parser[laika.ast.TemplateRoot],configProvider:laika.bundle.ConfigProvider):laika.parse.markup.DocumentParser.ParserInput=&gt;Either[laika.parse.markup.DocumentParser.ParserError,laika.ast.TemplateDocument]"></a><a id="forTemplate(Parser[TemplateRoot],ConfigProvider):(ParserInput)⇒Either[ParserError,TemplateDocument]"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/markup/DocumentParser$.html#forTemplate(rootParser:laika.parse.Parser[laika.ast.TemplateRoot],configProvider:laika.bundle.ConfigProvider):laika.parse.markup.DocumentParser.ParserInput=&gt;Either[laika.parse.markup.DocumentParser.ParserError,laika.ast.TemplateDocument]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">forTemplate</span><span class="params">(<span name="rootParser">rootParser: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../../ast/TemplateRoot.html" class="extype" name="laika.ast.TemplateRoot">TemplateRoot</a>]</span>, <span name="configProvider">configProvider: <a href="../../bundle/ConfigProvider.html" class="extype" name="laika.bundle.ConfigProvider">ConfigProvider</a></span>)</span><span class="result">: (<a href="DocumentParser$$ParserInput.html" class="extype" name="laika.parse.markup.DocumentParser.ParserInput">ParserInput</a>) ⇒ <span class="extype" name="scala.Either">Either</span>[<a href="DocumentParser$$ParserError.html" class="extype" name="laika.parse.markup.DocumentParser.ParserError">ParserError</a>, <a href="../../ast/TemplateDocument.html" class="extype" name="laika.ast.TemplateDocument">TemplateDocument</a>]</span>
       </span>
       
       <p class="shortcomment cmt">Combines the specified parsers for the root element and for (optional) configuration
@@ -673,14 +725,30 @@ headers to create a parser function for an entire template document.</p>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
     </span>)</span>
               
+                <span class="name">@native</span><span class="args">()</span>
+              
         </dd></dl></div>
+    </li><li name="laika.parse.markup.DocumentParser.ParserError" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ParserError"></a><a id="ParserError:ParserError"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/markup/DocumentParser$$ParserError$.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="DocumentParser$$ParserError$.html"><span class="name">ParserError</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
     </li>
               </ol>
             </div>

@@ -8,17 +8,17 @@
           <meta name="keywords" content="" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
+      
       <link href="../../../lib/index.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../../lib/jquery.js"></script>
+      <script type="text/javascript" src="../../../lib/jquery.min.js"></script>
       <script type="text/javascript" src="../../../lib/jquery.panzoom.min.js"></script>
       <script type="text/javascript" src="../../../lib/jquery.mousewheel.min.js"></script>
       <script type="text/javascript" src="../../../lib/index.js"></script>
       <script type="text/javascript" src="../../../index.js"></script>
       <script type="text/javascript" src="../../../lib/scheduler.js"></script>
       <script type="text/javascript" src="../../../lib/template.js"></script>
-      <script type="text/javascript" src="../../../lib/tools.tooltip.js"></script>
       
       <script type="text/javascript">
         /* this variable can be used by the JS to determine the path to the root document */
@@ -56,7 +56,7 @@
                 <li name="_root_.root" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="_root_"></a><a id="root:_root_"></a>
       <span class="permalink">
-      <a href="index.html#_root_" title="Permalink">
+      <a href="../../../index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -72,7 +72,7 @@
     </li><li name="_root_.laika" visbl="pub" class="indented1 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="laika"></a><a id="laika:laika"></a>
       <span class="permalink">
-      <a href="index.html#laika" title="Permalink">
+      <a href="../../../laika/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -88,7 +88,7 @@
     </li><li name="laika.rst" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="rst"></a><a id="rst:rst"></a>
       <span class="permalink">
-      <a href="../laika/index.html#rst" title="Permalink">
+      <a href="../../../laika/rst/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -104,7 +104,7 @@
     </li><li name="laika.rst.ext" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ext"></a><a id="ext:ext"></a>
       <span class="permalink">
-      <a href="../../laika/rst/index.html#ext" title="Permalink">
+      <a href="../../../laika/rst/ext/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -188,15 +188,18 @@
 <span class="kw">object</span> MyDirectives <span class="kw">extends</span> RstExtensionRegistry {
   <span class="kw">val</span> blockDirectives = <span class="std">Seq</span>(
     BlockDirective(<span class="lit">"note"</span>) {
-      (argument(withWS = <span class="kw">true</span>) ~ blockContent)(Note(_,_))
+      (argument(withWS = <span class="kw">true</span>) ~ blockContent).map { <span class="kw">case</span> title ~ content <span class="kw">=&gt;</span> Note(title, content) }
     }
   )
   <span class="kw">val</span> spanDirectives = Nil
   <span class="kw">val</span> textRoles = Nil
 )
 
-Transform from ReStructuredText to HTML using
-  MyDirectives fromFile <span class="lit">"hello.rst"</span> toFile <span class="lit">"hello.html"</span></pre><p> The <code>argument()</code> method specifies a required argument of type <code>String</code> (since no conversion
+<span class="kw">val</span> transformer = Transformer
+ .from(ReStructuredText)
+ .to(HTML)
+  .using(MyDirectives)
+  .build</pre><p> The <code>argument()</code> method specifies a required argument of type <code>String</code> (since no conversion
  function was supplied). We need to set the <code>withWS</code> flag to true as an argument cannot have
  whitespace per default. The <code>blockContent</code> method specifies standard block content (any block-level
  elements that are supported in normal blocks, too) which results in a parsed value of type
@@ -222,7 +225,9 @@ Transform from ReStructuredText to HTML using
 <span class="kw">object</span> MyDirectives <span class="kw">extends</span> RstExtensionRegistry {
   <span class="kw">val</span> blockDirectives = <span class="std">Seq</span>(
     BlockDirective(<span class="lit">"message"</span>) {
-      (argument(nonNegativeInt) ~ blockContent)(Message(_,_))
+      (argument(nonNegativeInt) ~ blockContent).map {
+        <span class="kw">case</span> severity ~ content <span class="kw">=&gt;</span> Message(severity, content)
+      }
     }
   )
   <span class="kw">val</span> spanDirectives = Nil
@@ -241,7 +246,9 @@ Transform from ReStructuredText to HTML using
 <span class="kw">object</span> MyDirectives <span class="kw">extends</span> RstExtensionRegistry {
   <span class="kw">val</span> blockDirectives = <span class="std">Seq</span>(
     BlockDirective(<span class="lit">"message"</span>) {
-      (optArgument(nonNegativeInt) ~ blockContent)(Message(_,_))
+      (optArgument(nonNegativeInt) ~ blockContent).map {
+        <span class="kw">case</span> severity ~ content <span class="kw">=&gt;</span> Message(severity.getOrElse(<span class="num">0</span>), content)
+      }
     }
   )
   <span class="kw">val</span> spanDirectives = Nil
@@ -302,9 +309,9 @@ Transform from ReStructuredText to HTML using
         <div id="types" class="types members">
               <h3>Type Members</h3>
               <ol><li name="laika.rst.ext.Directives.Directive" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Directive[E&lt;:laika.ast.Element]extendsRstExtension[laika.rst.ext.Directives.DirectivePart[E]]"></a><a id="Directive[E&lt;:Element]:Directive[E]"></a>
+      <a id="Directive[E&lt;:laika.ast.Element]extendsRstExtension[laika.rst.ext.Directives.DirectivePartBuilder[E]]"></a><a id="Directive[E&lt;:Element]:Directive[E]"></a>
       <span class="permalink">
-      <a href="../../../laika/rst/ext/Directives$.html#Directive[E&lt;:laika.ast.Element]extendsRstExtension[laika.rst.ext.Directives.DirectivePart[E]]" title="Permalink">
+      <a href="../../../laika/rst/ext/Directives$$Directive.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -313,14 +320,14 @@ Transform from ReStructuredText to HTML using
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a title="Represents a single directive implementation." href="Directives$$Directive.html"><span class="name">Directive</span></a><span class="tparams">[<span name="E">E &lt;: <a href="../../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>]</span><span class="result"> extends <a href="../bundle/RstExtension.html" class="extype" name="laika.rst.bundle.RstExtension">RstExtension</a>[<a href="Directives$$DirectivePart.html" class="extype" name="laika.rst.ext.Directives.DirectivePart">DirectivePart</a>[<span class="extype" name="laika.rst.ext.Directives.Directive.E">E</span>]]</span>
+        <a title="Represents a single directive implementation." href="Directives$$Directive.html"><span class="name">Directive</span></a><span class="tparams">[<span name="E">E &lt;: <a href="../../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>]</span><span class="result"> extends <a href="../bundle/RstExtension.html" class="extype" name="laika.rst.bundle.RstExtension">RstExtension</a>[<a href="Directives$$DirectivePartBuilder.html" class="extype" name="laika.rst.ext.Directives.DirectivePartBuilder">DirectivePartBuilder</a>[<span class="extype" name="laika.rst.ext.Directives.Directive.E">E</span>]]</span>
       </span>
       
       <p class="shortcomment cmt">Represents a single directive implementation.</p>
-    </li><li name="laika.rst.ext.Directives.DirectiveParser" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="DirectiveParserextendsAnyRef"></a><a id="DirectiveParser:DirectiveParser"></a>
+    </li><li name="laika.rst.ext.Directives.DirectiveParserBuilder" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="DirectiveParserBuilderextendsAnyRef"></a><a id="DirectiveParserBuilder:DirectiveParserBuilder"></a>
       <span class="permalink">
-      <a href="../../../laika/rst/ext/Directives$.html#DirectiveParserextendsAnyRef" title="Permalink">
+      <a href="../../../laika/rst/ext/Directives$$DirectiveParserBuilder.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -329,17 +336,19 @@ Transform from ReStructuredText to HTML using
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a title="API to implement by the actual directive parser." href="Directives$$DirectiveParser.html"><span class="name">DirectiveParser</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a title="API to implement by the actual directive parser." href="Directives$$DirectiveParserBuilder.html"><span class="name">DirectiveParserBuilder</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       
-      <p class="shortcomment cmt">API to implement by the actual directive parser.</p><div class="fullcomment"><div class="comment cmt"><p>API to implement by the actual directive parser.
- The methods of this trait correspond to the methods of the <code>Parts</code> object,
- only differing in return type.
+      <p class="shortcomment cmt">API to implement by the actual directive parser.</p><div class="fullcomment"><div class="comment cmt"><p>API to implement by the actual directive parser.</p><p>This allows directive parts to specify the expected elements within
+the parsed directive. In contrast to Laika's directive syntax which
+allows to have a single directive parser for any kind of directive implementation,
+the one for ReStructuredText has a separate parser for each directive depending
+on its configuration.
 </p></div></div>
     </li><li name="laika.rst.ext.Directives.DirectivePart" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="DirectivePart[+A]extendslaika.rst.ext.Directives.DirectiveParser=&gt;laika.directive.Builders.Result[A]"></a><a id="DirectivePart[+A]:DirectivePart[A]"></a>
+      <a id="DirectivePart[+A]extendslaika.rst.ext.Directives.ParsedDirective=&gt;laika.rst.ext.ExtensionParsers.Result[A]"></a><a id="DirectivePart[+A]:DirectivePart[A]"></a>
       <span class="permalink">
-      <a href="../../../laika/rst/ext/Directives$.html#DirectivePart[+A]extendslaika.rst.ext.Directives.DirectiveParser=&gt;laika.directive.Builders.Result[A]" title="Permalink">
+      <a href="../../../laika/rst/ext/Directives$$DirectivePart.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -348,26 +357,74 @@ Transform from ReStructuredText to HTML using
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a title="Represents a single part (argument, field or body) of a directive." href="Directives$$DirectivePart.html"><span class="name">DirectivePart</span></a><span class="tparams">[<span name="A">+A</span>]</span><span class="result"> extends (<a href="Directives$$DirectiveParser.html" class="extype" name="laika.rst.ext.Directives.DirectiveParser">DirectiveParser</a>) ⇒ <a href="../../directive/Builders$$Result.html" class="extype" name="laika.directive.Builders.Result">Result</a>[<span class="extype" name="laika.rst.ext.Directives.DirectivePart.A">A</span>]</span>
+        <a title="Represents a single part (argument, field or body) of a directive." href="Directives$$DirectivePart.html"><span class="name">DirectivePart</span></a><span class="tparams">[<span name="A">+A</span>]</span><span class="result"> extends (<a href="Directives$$ParsedDirective.html" class="extype" name="laika.rst.ext.Directives.ParsedDirective">ParsedDirective</a>) ⇒ <a href="ExtensionParsers$.html#Result[+A]=Either[String,A]" class="extmbr" name="laika.rst.ext.ExtensionParsers.Result">Result</a>[<span class="extype" name="laika.rst.ext.Directives.DirectivePart.A">A</span>]</span>
       </span>
       
       <p class="shortcomment cmt">Represents a single part (argument, field or body) of a directive.</p>
-    </li><li name="laika.rst.ext.Directives.DirectivePartBuilder" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DirectivePartBuilder[E]=laika.parse.markup.RecursiveParsers=&gt;laika.rst.ext.Directives.DirectivePart[E]"></a><a id="DirectivePartBuilder[E]:DirectivePartBuilder[E]"></a>
+    </li><li name="laika.rst.ext.Directives.DirectivePartBuilder" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="DirectivePartBuilder[+A]extendslaika.rst.ext.Directives.DirectiveParserBuilder=&gt;(laika.rst.ext.Directives.DirectiveParserBuilder,laika.rst.ext.Directives.DirectivePart[A])"></a><a id="DirectivePartBuilder[+A]:DirectivePartBuilder[A]"></a>
       <span class="permalink">
-      <a href="../../../laika/rst/ext/Directives$.html#DirectivePartBuilder[E]=laika.parse.markup.RecursiveParsers=&gt;laika.rst.ext.Directives.DirectivePart[E]" title="Permalink">
+      <a href="../../../laika/rst/ext/Directives$$DirectivePartBuilder.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a title="Represents a single part (argument, field or body) of a directive." href="Directives$$DirectivePartBuilder.html"><span class="name">DirectivePartBuilder</span></a><span class="tparams">[<span name="A">+A</span>]</span><span class="result"> extends (<a href="Directives$$DirectiveParserBuilder.html" class="extype" name="laika.rst.ext.Directives.DirectiveParserBuilder">DirectiveParserBuilder</a>) ⇒ (<a href="Directives$$DirectiveParserBuilder.html" class="extype" name="laika.rst.ext.Directives.DirectiveParserBuilder">DirectiveParserBuilder</a>, <a href="Directives$$DirectivePart.html" class="extype" name="laika.rst.ext.Directives.DirectivePart">DirectivePart</a>[<span class="extype" name="laika.rst.ext.Directives.DirectivePartBuilder.A">A</span>])</span>
+      </span>
+      
+      <p class="shortcomment cmt">Represents a single part (argument, field or body) of a directive.</p>
+    </li><li name="laika.rst.ext.Directives.Key" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="KeyextendsAnyRef"></a><a id="Key:Key"></a>
+      <span class="permalink">
+      <a href="../../../laika/rst/ext/Directives$$Key.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">sealed </span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="Directives$$Key.html"><span class="name">Key</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      
+      
+    </li><li name="laika.rst.ext.Directives.ParsedDirective" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ParsedDirectiveextendsProductwithSerializable"></a><a id="ParsedDirective:ParsedDirective"></a>
+      <span class="permalink">
+      <a href="../../../laika/rst/ext/Directives$$ParsedDirective.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">type</span>
+        <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">DirectivePartBuilder</span><span class="tparams">[<span name="E">E</span>]</span><span class="result alias"> = (<a href="../../parse/markup/RecursiveParsers.html" class="extype" name="laika.parse.markup.RecursiveParsers">RecursiveParsers</a>) ⇒ <a href="Directives$$DirectivePart.html" class="extype" name="laika.rst.ext.Directives.DirectivePart">DirectivePart</a>[<span class="extype" name="laika.rst.ext.Directives.DirectivePartBuilder.E">E</span>]</span>
+        <a title="Represents the parsed but unprocessed content of a directive." href="Directives$$ParsedDirective.html"><span class="name">ParsedDirective</span></a><span class="params">(<span name="parts">parts: <span class="extype" name="scala.Seq">Seq</span>[<a href="Directives$$Part.html" class="extype" name="laika.rst.ext.Directives.Part">Part</a>]</span>, <span name="recursiveBlocks">recursiveBlocks: (<span class="extype" name="scala.Predef.String">String</span>) ⇒ <a href="ExtensionParsers$.html#Result[+A]=Either[String,A]" class="extmbr" name="laika.rst.ext.ExtensionParsers.Result">Result</a>[<span class="extype" name="scala.Seq">Seq</span>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]]</span>, <span name="recursiveSpans">recursiveSpans: (<span class="extype" name="scala.Predef.String">String</span>) ⇒ <a href="ExtensionParsers$.html#Result[+A]=Either[String,A]" class="extmbr" name="laika.rst.ext.ExtensionParsers.Result">Result</a>[<span class="extype" name="scala.Seq">Seq</span>[<a href="../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>]]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
+      <p class="shortcomment cmt">Represents the parsed but unprocessed content of a directive.</p>
+    </li><li name="laika.rst.ext.Directives.Part" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="PartextendsProductwithSerializable"></a><a id="Part:Part"></a>
+      <span class="permalink">
+      <a href="../../../laika/rst/ext/Directives$$Part.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="Represents one part of a directive (an attribute or a body element)." href="Directives$$Part.html"><span class="name">Part</span></a><span class="params">(<span name="key">key: <a href="Directives$$Key.html" class="extype" name="laika.rst.ext.Directives.Key">Key</a></span>, <span name="content">content: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
       
+      <p class="shortcomment cmt">Represents one part of a directive (an attribute or a body element).</p>
     </li></ol>
             </div>
 
@@ -455,13 +512,13 @@ Transform from ReStructuredText to HTML using
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
     </span>)</span>
+              
+                <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
@@ -511,7 +568,7 @@ Transform from ReStructuredText to HTML using
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="symbol">classOf[java.lang.Throwable]</span>
@@ -718,18 +775,18 @@ Transform from ReStructuredText to HTML using
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
     </span>)</span>
               
+                <span class="name">@native</span><span class="args">()</span>
+              
         </dd></dl></div>
     </li><li name="laika.rst.ext.Directives.BlockDirective" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="BlockDirective"></a><a id="BlockDirective:BlockDirective"></a>
       <span class="permalink">
-      <a href="../../../laika/rst/ext/Directives$.html#BlockDirective" title="Permalink">
+      <a href="../../../laika/rst/ext/Directives$$BlockDirective$.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -742,26 +799,10 @@ Transform from ReStructuredText to HTML using
       </span>
       
       <p class="shortcomment cmt">API entry point for setting up a block directive.</p>
-    </li><li name="laika.rst.ext.Directives.CanBuildDirectivePart" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="CanBuildDirectivePart"></a><a id="CanBuildDirectivePart:CanBuildDirectivePart"></a>
+    </li><li name="laika.rst.ext.Directives.Converters" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Converters"></a><a id="Converters:Converters"></a>
       <span class="permalink">
-      <a href="../../../laika/rst/ext/Directives$.html#CanBuildDirectivePart" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a title="Type class required for using the generic Builders API with directives." href="Directives$$CanBuildDirectivePart$.html"><span class="name">CanBuildDirectivePart</span></a><span class="result"> extends <a href="../../directive/Builders$$CanBuild.html" class="extype" name="laika.directive.Builders.CanBuild">CanBuild</a>[<a href="Directives$$DirectivePart.html" class="extype" name="laika.rst.ext.Directives.DirectivePart">DirectivePart</a>]</span>
-      </span>
-      
-      <p class="shortcomment cmt">Type class required for using the generic <code>Builders</code> API with directives.</p>
-    </li><li name="laika.rst.ext.Directives.Parts" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Parts"></a><a id="Parts:Parts"></a>
-      <span class="permalink">
-      <a href="../../../laika/rst/ext/Directives$.html#Parts" title="Permalink">
+      <a href="../../../laika/rst/ext/Directives$$Converters$.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -770,7 +811,41 @@ Transform from ReStructuredText to HTML using
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a title="The public user API for specifying the required and optional parts of a directive (arguments, fields or body) together with optional converter/validator functions." href="Directives$$Parts$.html"><span class="name">Parts</span></a><span class="result"> extends <a href="../../directive/Builders$$Implicits.html" class="extype" name="laika.directive.Builders.Implicits">Implicits</a></span>
+        <a title="Provides functions for internal use in the implementation of directive combinators to convert the string value obtained from a directive attribute or body." href="Directives$$Converters$.html"><span class="name">Converters</span></a>
+      </span>
+      
+      <p class="shortcomment cmt">Provides functions for internal use in the implementation of directive
+combinators to convert the string value obtained from a directive
+attribute or body.</p>
+    </li><li name="laika.rst.ext.Directives.Key" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Key"></a><a id="Key:Key"></a>
+      <span class="permalink">
+      <a href="../../../laika/rst/ext/Directives$$Key$.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="Directives$$Key$.html"><span class="name">Key</span></a>
+      </span>
+      
+      
+    </li><li name="laika.rst.ext.Directives.Parts" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Parts"></a><a id="Parts:Parts"></a>
+      <span class="permalink">
+      <a href="../../../laika/rst/ext/Directives$$Parts$.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="The public user API for specifying the required and optional parts of a directive (arguments, fields or body) together with optional converter/validator functions." href="Directives$$Parts$.html"><span class="name">Parts</span></a>
       </span>
       
       <p class="shortcomment cmt">The public user API for specifying the required and optional parts of a directive
@@ -778,7 +853,7 @@ Transform from ReStructuredText to HTML using
     </li><li name="laika.rst.ext.Directives.SpanDirective" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="SpanDirective"></a><a id="SpanDirective:SpanDirective"></a>
       <span class="permalink">
-      <a href="../../../laika/rst/ext/Directives$.html#SpanDirective" title="Permalink">
+      <a href="../../../laika/rst/ext/Directives$$SpanDirective$.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>

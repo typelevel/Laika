@@ -8,17 +8,17 @@
           <meta name="keywords" content="" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
+      
       <link href="../../../lib/index.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../../lib/jquery.js"></script>
+      <script type="text/javascript" src="../../../lib/jquery.min.js"></script>
       <script type="text/javascript" src="../../../lib/jquery.panzoom.min.js"></script>
       <script type="text/javascript" src="../../../lib/jquery.mousewheel.min.js"></script>
       <script type="text/javascript" src="../../../lib/index.js"></script>
       <script type="text/javascript" src="../../../index.js"></script>
       <script type="text/javascript" src="../../../lib/scheduler.js"></script>
       <script type="text/javascript" src="../../../lib/template.js"></script>
-      <script type="text/javascript" src="../../../lib/tools.tooltip.js"></script>
       
       <script type="text/javascript">
         /* this variable can be used by the JS to determine the path to the root document */
@@ -56,7 +56,7 @@
                 <li name="_root_.root" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="_root_"></a><a id="root:_root_"></a>
       <span class="permalink">
-      <a href="index.html#_root_" title="Permalink">
+      <a href="../../../index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -72,7 +72,7 @@
     </li><li name="_root_.laika" visbl="pub" class="indented1 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="laika"></a><a id="laika:laika"></a>
       <span class="permalink">
-      <a href="index.html#laika" title="Permalink">
+      <a href="../../../laika/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -88,7 +88,7 @@
     </li><li name="laika.rst" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="rst"></a><a id="rst:rst"></a>
       <span class="permalink">
-      <a href="../laika/index.html#rst" title="Permalink">
+      <a href="../../../laika/rst/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -104,7 +104,7 @@
     </li><li name="laika.rst.std" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="std"></a><a id="std:std"></a>
       <span class="permalink">
-      <a href="../../laika/rst/index.html#std" title="Permalink">
+      <a href="../../../laika/rst/std/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -293,9 +293,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="laika.rst.std.StandardBlockDirectives#admonition" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="admonition(style:String,title:String):laika.rst.ext.Directives.DirectivePart[laika.ast.Block]"></a><a id="admonition(String,String):DirectivePart[Block]"></a>
+      <a id="admonition(style:String,title:String):laika.rst.ext.Directives.DirectivePartBuilder[laika.ast.Block]"></a><a id="admonition(String,String):DirectivePartBuilder[Block]"></a>
       <span class="permalink">
-      <a href="../../../laika/rst/std/StandardBlockDirectives.html#admonition(style:String,title:String):laika.rst.ext.Directives.DirectivePart[laika.ast.Block]" title="Permalink">
+      <a href="../../../laika/rst/std/StandardBlockDirectives.html#admonition(style:String,title:String):laika.rst.ext.Directives.DirectivePartBuilder[laika.ast.Block]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -304,7 +304,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">admonition</span><span class="params">(<span name="style">style: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="title">title: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="../ext/Directives$$DirectivePart.html" class="extype" name="laika.rst.ext.Directives.DirectivePart">DirectivePart</a>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
+        <span class="name">admonition</span><span class="params">(<span name="style">style: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="title">title: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="../ext/Directives$$DirectivePartBuilder.html" class="extype" name="laika.rst.ext.Directives.DirectivePartBuilder">DirectivePartBuilder</a>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
       </span>
       
       <p class="shortcomment cmt">The attention, caution, danger, error, hint, important, note, tip and warning directives,
@@ -360,19 +360,19 @@
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
     </span>)</span>
               
+                <span class="name">@native</span><span class="args">()</span>
+              
         </dd></dl></div>
     </li><li name="laika.rst.std.StandardBlockDirectives#code" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="code:laika.rst.ext.Directives.DirectivePart[laika.ast.Block]"></a><a id="code:DirectivePart[Block]"></a>
+      <a id="code:laika.rst.ext.Directives.DirectivePartBuilder[laika.ast.Block]"></a><a id="code:DirectivePartBuilder[Block]"></a>
       <span class="permalink">
-      <a href="../../../laika/rst/std/StandardBlockDirectives.html#code:laika.rst.ext.Directives.DirectivePart[laika.ast.Block]" title="Permalink">
+      <a href="../../../laika/rst/std/StandardBlockDirectives.html#code:laika.rst.ext.Directives.DirectivePartBuilder[laika.ast.Block]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -381,7 +381,7 @@
         <span class="kind">lazy val</span>
       </span>
       <span class="symbol">
-        <span class="name">code</span><span class="result">: <a href="../ext/Directives$$DirectivePart.html" class="extype" name="laika.rst.ext.Directives.DirectivePart">DirectivePart</a>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
+        <span class="name">code</span><span class="result">: <a href="../ext/Directives$$DirectivePartBuilder.html" class="extype" name="laika.rst.ext.Directives.DirectivePartBuilder">DirectivePartBuilder</a>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
       </span>
       
       <p class="shortcomment cmt">The code directive,
@@ -390,9 +390,9 @@
  The current implementation does not support syntax highlighting.
 </p></div></div>
     </li><li name="laika.rst.std.StandardBlockDirectives#compound" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="compound:laika.rst.ext.Directives.DirectivePart[laika.ast.Block]"></a><a id="compound:DirectivePart[Block]"></a>
+      <a id="compound:laika.rst.ext.Directives.DirectivePartBuilder[laika.ast.Block]"></a><a id="compound:DirectivePartBuilder[Block]"></a>
       <span class="permalink">
-      <a href="../../../laika/rst/std/StandardBlockDirectives.html#compound:laika.rst.ext.Directives.DirectivePart[laika.ast.Block]" title="Permalink">
+      <a href="../../../laika/rst/std/StandardBlockDirectives.html#compound:laika.rst.ext.Directives.DirectivePartBuilder[laika.ast.Block]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -401,15 +401,15 @@
         <span class="kind">lazy val</span>
       </span>
       <span class="symbol">
-        <span class="name">compound</span><span class="result">: <a href="../ext/Directives$$DirectivePart.html" class="extype" name="laika.rst.ext.Directives.DirectivePart">DirectivePart</a>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
+        <span class="name">compound</span><span class="result">: <a href="../ext/Directives$$DirectivePartBuilder.html" class="extype" name="laika.rst.ext.Directives.DirectivePartBuilder">DirectivePartBuilder</a>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
       </span>
       
       <p class="shortcomment cmt">The compound directive,
  see <a href="http://docutils.sourceforge.net/docs/ref/rst/directives.html#compound-paragraph" target="_blank">http://docutils.sourceforge.net/docs/ref/rst/directives.html#compound-paragraph</a> for details.</p>
     </li><li name="laika.rst.std.StandardBlockDirectives#container" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="container:laika.rst.ext.Directives.DirectivePart[laika.ast.Block]"></a><a id="container:DirectivePart[Block]"></a>
+      <a id="container:laika.rst.ext.Directives.DirectivePartBuilder[laika.ast.Block]"></a><a id="container:DirectivePartBuilder[Block]"></a>
       <span class="permalink">
-      <a href="../../../laika/rst/std/StandardBlockDirectives.html#container:laika.rst.ext.Directives.DirectivePart[laika.ast.Block]" title="Permalink">
+      <a href="../../../laika/rst/std/StandardBlockDirectives.html#container:laika.rst.ext.Directives.DirectivePartBuilder[laika.ast.Block]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -418,15 +418,15 @@
         <span class="kind">lazy val</span>
       </span>
       <span class="symbol">
-        <span class="name">container</span><span class="result">: <a href="../ext/Directives$$DirectivePart.html" class="extype" name="laika.rst.ext.Directives.DirectivePart">DirectivePart</a>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
+        <span class="name">container</span><span class="result">: <a href="../ext/Directives$$DirectivePartBuilder.html" class="extype" name="laika.rst.ext.Directives.DirectivePartBuilder">DirectivePartBuilder</a>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
       </span>
       
       <p class="shortcomment cmt">The container directive,
  see <a href="http://docutils.sourceforge.net/docs/ref/rst/directives.html#container" target="_blank">http://docutils.sourceforge.net/docs/ref/rst/directives.html#container</a> for details.</p>
     </li><li name="laika.rst.std.StandardBlockDirectives#contents" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="contents:laika.rst.ext.Directives.DirectivePart[laika.ast.Block]"></a><a id="contents:DirectivePart[Block]"></a>
+      <a id="contents:laika.rst.ext.Directives.DirectivePartBuilder[laika.ast.Block]"></a><a id="contents:DirectivePartBuilder[Block]"></a>
       <span class="permalink">
-      <a href="../../../laika/rst/std/StandardBlockDirectives.html#contents:laika.rst.ext.Directives.DirectivePart[laika.ast.Block]" title="Permalink">
+      <a href="../../../laika/rst/std/StandardBlockDirectives.html#contents:laika.rst.ext.Directives.DirectivePartBuilder[laika.ast.Block]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -435,7 +435,7 @@
         <span class="kind">lazy val</span>
       </span>
       <span class="symbol">
-        <span class="name">contents</span><span class="result">: <a href="../ext/Directives$$DirectivePart.html" class="extype" name="laika.rst.ext.Directives.DirectivePart">DirectivePart</a>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
+        <span class="name">contents</span><span class="result">: <a href="../ext/Directives$$DirectivePartBuilder.html" class="extype" name="laika.rst.ext.Directives.DirectivePartBuilder">DirectivePartBuilder</a>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
       </span>
       
       
@@ -472,9 +472,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="laika.rst.std.StandardBlockDirectives#figure" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="figure(p:laika.parse.markup.RecursiveParsers):laika.rst.ext.Directives.DirectivePart[laika.ast.Block]"></a><a id="figure(RecursiveParsers):DirectivePart[Block]"></a>
+      <a id="figure(p:laika.parse.markup.RecursiveParsers):laika.rst.ext.Directives.DirectivePartBuilder[laika.ast.Block]"></a><a id="figure(RecursiveParsers):DirectivePartBuilder[Block]"></a>
       <span class="permalink">
-      <a href="../../../laika/rst/std/StandardBlockDirectives.html#figure(p:laika.parse.markup.RecursiveParsers):laika.rst.ext.Directives.DirectivePart[laika.ast.Block]" title="Permalink">
+      <a href="../../../laika/rst/std/StandardBlockDirectives.html#figure(p:laika.parse.markup.RecursiveParsers):laika.rst.ext.Directives.DirectivePartBuilder[laika.ast.Block]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -483,7 +483,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">figure</span><span class="params">(<span name="p">p: <a href="../../parse/markup/RecursiveParsers.html" class="extype" name="laika.parse.markup.RecursiveParsers">RecursiveParsers</a></span>)</span><span class="result">: <a href="../ext/Directives$$DirectivePart.html" class="extype" name="laika.rst.ext.Directives.DirectivePart">DirectivePart</a>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
+        <span class="name">figure</span><span class="params">(<span name="p">p: <a href="../../parse/markup/RecursiveParsers.html" class="extype" name="laika.parse.markup.RecursiveParsers">RecursiveParsers</a></span>)</span><span class="result">: <a href="../ext/Directives$$DirectivePartBuilder.html" class="extype" name="laika.rst.ext.Directives.DirectivePartBuilder">DirectivePartBuilder</a>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
       </span>
       
       <p class="shortcomment cmt">The figure directive,
@@ -503,7 +503,7 @@
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="symbol">classOf[java.lang.Throwable]</span>
@@ -511,9 +511,9 @@
               
         </dd></dl></div>
     </li><li name="laika.rst.std.StandardBlockDirectives#footer" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="footer:laika.rst.ext.Directives.DirectivePart[laika.ast.Block]"></a><a id="footer:DirectivePart[Block]"></a>
+      <a id="footer:laika.rst.ext.Directives.DirectivePartBuilder[laika.ast.Block]"></a><a id="footer:DirectivePartBuilder[Block]"></a>
       <span class="permalink">
-      <a href="../../../laika/rst/std/StandardBlockDirectives.html#footer:laika.rst.ext.Directives.DirectivePart[laika.ast.Block]" title="Permalink">
+      <a href="../../../laika/rst/std/StandardBlockDirectives.html#footer:laika.rst.ext.Directives.DirectivePartBuilder[laika.ast.Block]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -522,15 +522,15 @@
         <span class="kind">lazy val</span>
       </span>
       <span class="symbol">
-        <span class="name">footer</span><span class="result">: <a href="../ext/Directives$$DirectivePart.html" class="extype" name="laika.rst.ext.Directives.DirectivePart">DirectivePart</a>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
+        <span class="name">footer</span><span class="result">: <a href="../ext/Directives$$DirectivePartBuilder.html" class="extype" name="laika.rst.ext.Directives.DirectivePartBuilder">DirectivePartBuilder</a>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
       </span>
       
       <p class="shortcomment cmt">The footer directive,
  see <a href="http://docutils.sourceforge.net/docs/ref/rst/directives.html#document-header-footer" target="_blank">http://docutils.sourceforge.net/docs/ref/rst/directives.html#document-header-footer</a> for details.</p>
     </li><li name="laika.rst.std.StandardBlockDirectives#genericAdmonition" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="genericAdmonition:laika.rst.ext.Directives.DirectivePart[laika.ast.Block]"></a><a id="genericAdmonition:DirectivePart[Block]"></a>
+      <a id="genericAdmonition:laika.rst.ext.Directives.DirectivePartBuilder[laika.ast.Block]"></a><a id="genericAdmonition:DirectivePartBuilder[Block]"></a>
       <span class="permalink">
-      <a href="../../../laika/rst/std/StandardBlockDirectives.html#genericAdmonition:laika.rst.ext.Directives.DirectivePart[laika.ast.Block]" title="Permalink">
+      <a href="../../../laika/rst/std/StandardBlockDirectives.html#genericAdmonition:laika.rst.ext.Directives.DirectivePartBuilder[laika.ast.Block]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -539,7 +539,7 @@
         <span class="kind">lazy val</span>
       </span>
       <span class="symbol">
-        <span class="name">genericAdmonition</span><span class="result">: <a href="../ext/Directives$$DirectivePart.html" class="extype" name="laika.rst.ext.Directives.DirectivePart">DirectivePart</a>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
+        <span class="name">genericAdmonition</span><span class="result">: <a href="../ext/Directives$$DirectivePartBuilder.html" class="extype" name="laika.rst.ext.Directives.DirectivePartBuilder">DirectivePartBuilder</a>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
       </span>
       
       <p class="shortcomment cmt">The admonition directive,
@@ -583,9 +583,9 @@
               
         </dd></dl></div>
     </li><li name="laika.rst.std.StandardBlockDirectives#header" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="header:laika.rst.ext.Directives.DirectivePart[laika.ast.Block]"></a><a id="header:DirectivePart[Block]"></a>
+      <a id="header:laika.rst.ext.Directives.DirectivePartBuilder[laika.ast.Block]"></a><a id="header:DirectivePartBuilder[Block]"></a>
       <span class="permalink">
-      <a href="../../../laika/rst/std/StandardBlockDirectives.html#header:laika.rst.ext.Directives.DirectivePart[laika.ast.Block]" title="Permalink">
+      <a href="../../../laika/rst/std/StandardBlockDirectives.html#header:laika.rst.ext.Directives.DirectivePartBuilder[laika.ast.Block]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -594,15 +594,15 @@
         <span class="kind">lazy val</span>
       </span>
       <span class="symbol">
-        <span class="name">header</span><span class="result">: <a href="../ext/Directives$$DirectivePart.html" class="extype" name="laika.rst.ext.Directives.DirectivePart">DirectivePart</a>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
+        <span class="name">header</span><span class="result">: <a href="../ext/Directives$$DirectivePartBuilder.html" class="extype" name="laika.rst.ext.Directives.DirectivePartBuilder">DirectivePartBuilder</a>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
       </span>
       
       <p class="shortcomment cmt">The header directive,
  see <a href="http://docutils.sourceforge.net/docs/ref/rst/directives.html#document-header-footer" target="_blank">http://docutils.sourceforge.net/docs/ref/rst/directives.html#document-header-footer</a> for details.</p>
     </li><li name="laika.rst.std.StandardBlockDirectives#imageBlock" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="imageBlock(p:laika.parse.markup.RecursiveParsers):laika.rst.ext.Directives.DirectivePart[laika.ast.Block]"></a><a id="imageBlock(RecursiveParsers):DirectivePart[Block]"></a>
+      <a id="imageBlock(p:laika.parse.markup.RecursiveParsers):laika.rst.ext.Directives.DirectivePartBuilder[laika.ast.Block]"></a><a id="imageBlock(RecursiveParsers):DirectivePartBuilder[Block]"></a>
       <span class="permalink">
-      <a href="../../../laika/rst/std/StandardBlockDirectives.html#imageBlock(p:laika.parse.markup.RecursiveParsers):laika.rst.ext.Directives.DirectivePart[laika.ast.Block]" title="Permalink">
+      <a href="../../../laika/rst/std/StandardBlockDirectives.html#imageBlock(p:laika.parse.markup.RecursiveParsers):laika.rst.ext.Directives.DirectivePartBuilder[laika.ast.Block]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -611,15 +611,15 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">imageBlock</span><span class="params">(<span name="p">p: <a href="../../parse/markup/RecursiveParsers.html" class="extype" name="laika.parse.markup.RecursiveParsers">RecursiveParsers</a></span>)</span><span class="result">: <a href="../ext/Directives$$DirectivePart.html" class="extype" name="laika.rst.ext.Directives.DirectivePart">DirectivePart</a>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
+        <span class="name">imageBlock</span><span class="params">(<span name="p">p: <a href="../../parse/markup/RecursiveParsers.html" class="extype" name="laika.parse.markup.RecursiveParsers">RecursiveParsers</a></span>)</span><span class="result">: <a href="../ext/Directives$$DirectivePartBuilder.html" class="extype" name="laika.rst.ext.Directives.DirectivePartBuilder">DirectivePartBuilder</a>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
       </span>
       
       <p class="shortcomment cmt">The image directive for block elements,
  see <a href="http://docutils.sourceforge.net/docs/ref/rst/directives.html#image" target="_blank">http://docutils.sourceforge.net/docs/ref/rst/directives.html#image</a> for details.</p>
     </li><li name="laika.rst.std.StandardBlockDirectives#include" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="include:laika.rst.ext.Directives.DirectivePart[laika.ast.Block]"></a><a id="include:DirectivePart[Block]"></a>
+      <a id="include:laika.rst.ext.Directives.DirectivePartBuilder[laika.ast.Block]"></a><a id="include:DirectivePartBuilder[Block]"></a>
       <span class="permalink">
-      <a href="../../../laika/rst/std/StandardBlockDirectives.html#include:laika.rst.ext.Directives.DirectivePart[laika.ast.Block]" title="Permalink">
+      <a href="../../../laika/rst/std/StandardBlockDirectives.html#include:laika.rst.ext.Directives.DirectivePartBuilder[laika.ast.Block]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -628,7 +628,7 @@
         <span class="kind">lazy val</span>
       </span>
       <span class="symbol">
-        <span class="name">include</span><span class="result">: <a href="../ext/Directives$$DirectivePart.html" class="extype" name="laika.rst.ext.Directives.DirectivePart">DirectivePart</a>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
+        <span class="name">include</span><span class="result">: <a href="../ext/Directives$$DirectivePartBuilder.html" class="extype" name="laika.rst.ext.Directives.DirectivePartBuilder">DirectivePartBuilder</a>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
       </span>
       
       <p class="shortcomment cmt">The include directive,
@@ -659,9 +659,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="laika.rst.std.StandardBlockDirectives#meta" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="meta:laika.rst.ext.Directives.DirectivePart[laika.ast.Block]"></a><a id="meta:DirectivePart[Block]"></a>
+      <a id="meta:laika.rst.ext.Directives.DirectivePartBuilder[laika.ast.Block]"></a><a id="meta:DirectivePartBuilder[Block]"></a>
       <span class="permalink">
-      <a href="../../../laika/rst/std/StandardBlockDirectives.html#meta:laika.rst.ext.Directives.DirectivePart[laika.ast.Block]" title="Permalink">
+      <a href="../../../laika/rst/std/StandardBlockDirectives.html#meta:laika.rst.ext.Directives.DirectivePartBuilder[laika.ast.Block]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -670,7 +670,7 @@
         <span class="kind">lazy val</span>
       </span>
       <span class="symbol">
-        <span class="name">meta</span><span class="result">: <a href="../ext/Directives$$DirectivePart.html" class="extype" name="laika.rst.ext.Directives.DirectivePart">DirectivePart</a>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
+        <span class="name">meta</span><span class="result">: <a href="../ext/Directives$$DirectivePartBuilder.html" class="extype" name="laika.rst.ext.Directives.DirectivePartBuilder">DirectivePartBuilder</a>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
       </span>
       
       <p class="shortcomment cmt">The meta directive,
@@ -734,9 +734,9 @@
               
         </dd></dl></div>
     </li><li name="laika.rst.std.StandardBlockDirectives#parsedLiteral" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="parsedLiteral:laika.rst.ext.Directives.DirectivePart[laika.ast.Block]"></a><a id="parsedLiteral:DirectivePart[Block]"></a>
+      <a id="parsedLiteral:laika.rst.ext.Directives.DirectivePartBuilder[laika.ast.Block]"></a><a id="parsedLiteral:DirectivePartBuilder[Block]"></a>
       <span class="permalink">
-      <a href="../../../laika/rst/std/StandardBlockDirectives.html#parsedLiteral:laika.rst.ext.Directives.DirectivePart[laika.ast.Block]" title="Permalink">
+      <a href="../../../laika/rst/std/StandardBlockDirectives.html#parsedLiteral:laika.rst.ext.Directives.DirectivePartBuilder[laika.ast.Block]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -745,15 +745,15 @@
         <span class="kind">lazy val</span>
       </span>
       <span class="symbol">
-        <span class="name">parsedLiteral</span><span class="result">: <a href="../ext/Directives$$DirectivePart.html" class="extype" name="laika.rst.ext.Directives.DirectivePart">DirectivePart</a>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
+        <span class="name">parsedLiteral</span><span class="result">: <a href="../ext/Directives$$DirectivePartBuilder.html" class="extype" name="laika.rst.ext.Directives.DirectivePartBuilder">DirectivePartBuilder</a>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
       </span>
       
       <p class="shortcomment cmt">The parsed-literal directive, see
  <a href="http://docutils.sourceforge.net/docs/ref/rst/directives.html#parsed-literal-block" target="_blank">http://docutils.sourceforge.net/docs/ref/rst/directives.html#parsed-literal-block</a> for details.</p>
     </li><li name="laika.rst.std.StandardBlockDirectives#quotedBlock" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="quotedBlock(style:String):laika.rst.ext.Directives.DirectivePart[laika.ast.Block]"></a><a id="quotedBlock(String):DirectivePart[Block]"></a>
+      <a id="quotedBlock(style:String):laika.rst.ext.Directives.DirectivePartBuilder[laika.ast.Block]"></a><a id="quotedBlock(String):DirectivePartBuilder[Block]"></a>
       <span class="permalink">
-      <a href="../../../laika/rst/std/StandardBlockDirectives.html#quotedBlock(style:String):laika.rst.ext.Directives.DirectivePart[laika.ast.Block]" title="Permalink">
+      <a href="../../../laika/rst/std/StandardBlockDirectives.html#quotedBlock(style:String):laika.rst.ext.Directives.DirectivePartBuilder[laika.ast.Block]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -762,7 +762,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">quotedBlock</span><span class="params">(<span name="style">style: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="../ext/Directives$$DirectivePart.html" class="extype" name="laika.rst.ext.Directives.DirectivePart">DirectivePart</a>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
+        <span class="name">quotedBlock</span><span class="params">(<span name="style">style: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="../ext/Directives$$DirectivePartBuilder.html" class="extype" name="laika.rst.ext.Directives.DirectivePartBuilder">DirectivePartBuilder</a>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
       </span>
       
       <p class="shortcomment cmt">The epitaph, highlights and pull-quote directives, which are all identical apart from the style
@@ -788,12 +788,12 @@
       <p class="shortcomment cmt">The raw directive, which is not enabled by default,
  see <a href="http://docutils.sourceforge.net/docs/ref/rst/directives.html#raw-data-pass-through" target="_blank">http://docutils.sourceforge.net/docs/ref/rst/directives.html#raw-data-pass-through</a> for details.</p><div class="fullcomment"><div class="comment cmt"><p>The raw directive, which is not enabled by default,
  see <a href="http://docutils.sourceforge.net/docs/ref/rst/directives.html#raw-data-pass-through" target="_blank">http://docutils.sourceforge.net/docs/ref/rst/directives.html#raw-data-pass-through</a> for details.
- It can be enabled with <code>Transform.from(ReStructuredText).to(HTML).withRawContent</code>.
+ It can be enabled with <code>Transformer.from(ReStructuredText).to(HTML).withRawContent</code>.
 </p></div></div>
     </li><li name="laika.rst.std.StandardBlockDirectives#rubric" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="rubric:laika.rst.ext.Directives.DirectivePart[laika.ast.Block]"></a><a id="rubric:DirectivePart[Block]"></a>
+      <a id="rubric:laika.rst.ext.Directives.DirectivePartBuilder[laika.ast.Block]"></a><a id="rubric:DirectivePartBuilder[Block]"></a>
       <span class="permalink">
-      <a href="../../../laika/rst/std/StandardBlockDirectives.html#rubric:laika.rst.ext.Directives.DirectivePart[laika.ast.Block]" title="Permalink">
+      <a href="../../../laika/rst/std/StandardBlockDirectives.html#rubric:laika.rst.ext.Directives.DirectivePartBuilder[laika.ast.Block]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -802,15 +802,15 @@
         <span class="kind">lazy val</span>
       </span>
       <span class="symbol">
-        <span class="name">rubric</span><span class="result">: <a href="../ext/Directives$$DirectivePart.html" class="extype" name="laika.rst.ext.Directives.DirectivePart">DirectivePart</a>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
+        <span class="name">rubric</span><span class="result">: <a href="../ext/Directives$$DirectivePartBuilder.html" class="extype" name="laika.rst.ext.Directives.DirectivePartBuilder">DirectivePartBuilder</a>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
       </span>
       
       <p class="shortcomment cmt">The rubric directive,
  see <a href="http://docutils.sourceforge.net/docs/ref/rst/directives.html#rubric" target="_blank">http://docutils.sourceforge.net/docs/ref/rst/directives.html#rubric</a> for details.</p>
     </li><li name="laika.rst.std.StandardBlockDirectives#sectnum" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="sectnum:laika.rst.ext.Directives.DirectivePart[laika.ast.Block]"></a><a id="sectnum:DirectivePart[Block]"></a>
+      <a id="sectnum:laika.rst.ext.Directives.DirectivePartBuilder[laika.ast.Block]"></a><a id="sectnum:DirectivePartBuilder[Block]"></a>
       <span class="permalink">
-      <a href="../../../laika/rst/std/StandardBlockDirectives.html#sectnum:laika.rst.ext.Directives.DirectivePart[laika.ast.Block]" title="Permalink">
+      <a href="../../../laika/rst/std/StandardBlockDirectives.html#sectnum:laika.rst.ext.Directives.DirectivePartBuilder[laika.ast.Block]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -819,14 +819,14 @@
         <span class="kind">lazy val</span>
       </span>
       <span class="symbol">
-        <span class="name">sectnum</span><span class="result">: <a href="../ext/Directives$$DirectivePart.html" class="extype" name="laika.rst.ext.Directives.DirectivePart">DirectivePart</a>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
+        <span class="name">sectnum</span><span class="result">: <a href="../ext/Directives$$DirectivePartBuilder.html" class="extype" name="laika.rst.ext.Directives.DirectivePartBuilder">DirectivePartBuilder</a>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
       </span>
       
       
     </li><li name="laika.rst.std.StandardBlockDirectives#sidebar" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="sidebar(p:laika.parse.markup.RecursiveParsers):laika.rst.ext.Directives.DirectivePart[laika.ast.Block]"></a><a id="sidebar(RecursiveParsers):DirectivePart[Block]"></a>
+      <a id="sidebar(p:laika.parse.markup.RecursiveParsers):laika.rst.ext.Directives.DirectivePartBuilder[laika.ast.Block]"></a><a id="sidebar(RecursiveParsers):DirectivePartBuilder[Block]"></a>
       <span class="permalink">
-      <a href="../../../laika/rst/std/StandardBlockDirectives.html#sidebar(p:laika.parse.markup.RecursiveParsers):laika.rst.ext.Directives.DirectivePart[laika.ast.Block]" title="Permalink">
+      <a href="../../../laika/rst/std/StandardBlockDirectives.html#sidebar(p:laika.parse.markup.RecursiveParsers):laika.rst.ext.Directives.DirectivePartBuilder[laika.ast.Block]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -835,7 +835,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">sidebar</span><span class="params">(<span name="p">p: <a href="../../parse/markup/RecursiveParsers.html" class="extype" name="laika.parse.markup.RecursiveParsers">RecursiveParsers</a></span>)</span><span class="result">: <a href="../ext/Directives$$DirectivePart.html" class="extype" name="laika.rst.ext.Directives.DirectivePart">DirectivePart</a>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
+        <span class="name">sidebar</span><span class="params">(<span name="p">p: <a href="../../parse/markup/RecursiveParsers.html" class="extype" name="laika.parse.markup.RecursiveParsers">RecursiveParsers</a></span>)</span><span class="result">: <a href="../ext/Directives$$DirectivePartBuilder.html" class="extype" name="laika.rst.ext.Directives.DirectivePartBuilder">DirectivePartBuilder</a>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
       </span>
       
       <p class="shortcomment cmt">The sidebar directive,
@@ -857,9 +857,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="laika.rst.std.StandardBlockDirectives#table" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="table(p:laika.parse.markup.RecursiveParsers):laika.rst.ext.Directives.DirectivePart[laika.ast.Block]"></a><a id="table(RecursiveParsers):DirectivePart[Block]"></a>
+      <a id="table(p:laika.parse.markup.RecursiveParsers):laika.rst.ext.Directives.DirectivePartBuilder[laika.ast.Block]"></a><a id="table(RecursiveParsers):DirectivePartBuilder[Block]"></a>
       <span class="permalink">
-      <a href="../../../laika/rst/std/StandardBlockDirectives.html#table(p:laika.parse.markup.RecursiveParsers):laika.rst.ext.Directives.DirectivePart[laika.ast.Block]" title="Permalink">
+      <a href="../../../laika/rst/std/StandardBlockDirectives.html#table(p:laika.parse.markup.RecursiveParsers):laika.rst.ext.Directives.DirectivePartBuilder[laika.ast.Block]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -868,15 +868,15 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">table</span><span class="params">(<span name="p">p: <a href="../../parse/markup/RecursiveParsers.html" class="extype" name="laika.parse.markup.RecursiveParsers">RecursiveParsers</a></span>)</span><span class="result">: <a href="../ext/Directives$$DirectivePart.html" class="extype" name="laika.rst.ext.Directives.DirectivePart">DirectivePart</a>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
+        <span class="name">table</span><span class="params">(<span name="p">p: <a href="../../parse/markup/RecursiveParsers.html" class="extype" name="laika.parse.markup.RecursiveParsers">RecursiveParsers</a></span>)</span><span class="result">: <a href="../ext/Directives$$DirectivePartBuilder.html" class="extype" name="laika.rst.ext.Directives.DirectivePartBuilder">DirectivePartBuilder</a>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
       </span>
       
       <p class="shortcomment cmt">The table directive, adding a title to standard reStructuredText tables,
  see <a href="http://docutils.sourceforge.net/docs/ref/rst/directives.html#table" target="_blank">http://docutils.sourceforge.net/docs/ref/rst/directives.html#table</a> for details.</p>
     </li><li name="laika.rst.std.StandardBlockDirectives#titleDirective" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="titleDirective:laika.rst.ext.Directives.DirectivePart[laika.ast.ConfigValue]"></a><a id="titleDirective:DirectivePart[ConfigValue]"></a>
+      <a id="titleDirective:laika.rst.ext.Directives.DirectivePartBuilder[laika.ast.EmbeddedConfigValue]"></a><a id="titleDirective:DirectivePartBuilder[EmbeddedConfigValue]"></a>
       <span class="permalink">
-      <a href="../../../laika/rst/std/StandardBlockDirectives.html#titleDirective:laika.rst.ext.Directives.DirectivePart[laika.ast.ConfigValue]" title="Permalink">
+      <a href="../../../laika/rst/std/StandardBlockDirectives.html#titleDirective:laika.rst.ext.Directives.DirectivePartBuilder[laika.ast.EmbeddedConfigValue]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -885,7 +885,7 @@
         <span class="kind">lazy val</span>
       </span>
       <span class="symbol">
-        <span class="name">titleDirective</span><span class="result">: <a href="../ext/Directives$$DirectivePart.html" class="extype" name="laika.rst.ext.Directives.DirectivePart">DirectivePart</a>[<a href="../../ast/ConfigValue.html" class="extype" name="laika.ast.ConfigValue">ConfigValue</a>]</span>
+        <span class="name">titleDirective</span><span class="result">: <a href="../ext/Directives$$DirectivePartBuilder.html" class="extype" name="laika.rst.ext.Directives.DirectivePartBuilder">DirectivePartBuilder</a>[<a href="../../ast/EmbeddedConfigValue.html" class="extype" name="laika.ast.EmbeddedConfigValue">EmbeddedConfigValue</a>]</span>
       </span>
       
       <p class="shortcomment cmt">The title directive,
@@ -907,9 +907,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="laika.rst.std.StandardBlockDirectives#topic" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="topic:laika.rst.ext.Directives.DirectivePart[laika.ast.Block]"></a><a id="topic:DirectivePart[Block]"></a>
+      <a id="topic:laika.rst.ext.Directives.DirectivePartBuilder[laika.ast.Block]"></a><a id="topic:DirectivePartBuilder[Block]"></a>
       <span class="permalink">
-      <a href="../../../laika/rst/std/StandardBlockDirectives.html#topic:laika.rst.ext.Directives.DirectivePart[laika.ast.Block]" title="Permalink">
+      <a href="../../../laika/rst/std/StandardBlockDirectives.html#topic:laika.rst.ext.Directives.DirectivePartBuilder[laika.ast.Block]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -918,7 +918,7 @@
         <span class="kind">lazy val</span>
       </span>
       <span class="symbol">
-        <span class="name">topic</span><span class="result">: <a href="../ext/Directives$$DirectivePart.html" class="extype" name="laika.rst.ext.Directives.DirectivePart">DirectivePart</a>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
+        <span class="name">topic</span><span class="result">: <a href="../ext/Directives$$DirectivePartBuilder.html" class="extype" name="laika.rst.ext.Directives.DirectivePartBuilder">DirectivePartBuilder</a>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
       </span>
       
       <p class="shortcomment cmt">The topic directive,
@@ -983,12 +983,12 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
     </span>)</span>
+              
+                <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
     </li>

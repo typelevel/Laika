@@ -8,17 +8,17 @@
           <meta name="keywords" content="" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
+      
       <link href="../../../lib/index.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../../lib/jquery.js"></script>
+      <script type="text/javascript" src="../../../lib/jquery.min.js"></script>
       <script type="text/javascript" src="../../../lib/jquery.panzoom.min.js"></script>
       <script type="text/javascript" src="../../../lib/jquery.mousewheel.min.js"></script>
       <script type="text/javascript" src="../../../lib/index.js"></script>
       <script type="text/javascript" src="../../../index.js"></script>
       <script type="text/javascript" src="../../../lib/scheduler.js"></script>
       <script type="text/javascript" src="../../../lib/template.js"></script>
-      <script type="text/javascript" src="../../../lib/tools.tooltip.js"></script>
       
       <script type="text/javascript">
         /* this variable can be used by the JS to determine the path to the root document */
@@ -56,7 +56,7 @@
                 <li name="_root_.root" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="_root_"></a><a id="root:_root_"></a>
       <span class="permalink">
-      <a href="index.html#_root_" title="Permalink">
+      <a href="../../../index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -72,7 +72,7 @@
     </li><li name="_root_.laika" visbl="pub" class="indented1 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="laika"></a><a id="laika:laika"></a>
       <span class="permalink">
-      <a href="index.html#laika" title="Permalink">
+      <a href="../../../laika/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -88,7 +88,7 @@
     </li><li name="laika.parse" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="parse"></a><a id="parse:parse"></a>
       <span class="permalink">
-      <a href="../laika/index.html#parse" title="Permalink">
+      <a href="../../../laika/parse/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -104,7 +104,7 @@
     </li><li name="laika.parse.directive" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="directive"></a><a id="directive:directive"></a>
       <span class="permalink">
-      <a href="../../laika/parse/index.html#directive" title="Permalink">
+      <a href="../../../laika/parse/directive/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -123,12 +123,8 @@
                         <a href="BlockDirectiveParsers$.html" title="Provides the parser definitions for block directives in markup documents.">BlockDirectiveParsers</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="object" href="ConfigHeaderParser$.html" title="Provides parser implementation for configuration header sections in text markup files, which are expected to be in HOCON format as defined in the Typesafe Config library."></a>
-                        <a href="ConfigHeaderParser$.html" title="Provides parser implementation for configuration header sections in text markup files, which are expected to be in HOCON format as defined in the Typesafe Config library.">ConfigHeaderParser</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="object" href="DefaultTemplateParser$.html" title="Default template parser without any template directives, usually used for parsing fallback templates from resource folders."></a>
-                        <a href="DefaultTemplateParser$.html" title="Default template parser without any template directives, usually used for parsing fallback templates from resource folders.">DefaultTemplateParser</a>
+                        <a class="object" href="ConfigHeaderParser$.html" title="Provides parser implementation for configuration header sections in text markup files, which are expected to be in HOCON format."></a>
+                        <a href="ConfigHeaderParser$.html" title="Provides parser implementation for configuration header sections in text markup files, which are expected to be in HOCON format.">ConfigHeaderParser</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="object" href="" title="Parsers for all types of custom directives that can be used in templates or as inline or block elements in markup documents."></a>
@@ -223,58 +219,10 @@
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="laika.parse.directive.DirectiveParsers.DirectiveContextBase" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="DirectiveContextBaseextendsAnyRef"></a><a id="DirectiveContextBase:DirectiveContextBase"></a>
+              <ol><li name="laika.parse.directive.DirectiveParsers.BodyParserBuilder" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="BodyParserBuilder=laika.parse.directive.DirectiveParsers.DirectiveSpec=&gt;laika.parse.Parser[Option[String]]"></a><a id="BodyParserBuilder:BodyParserBuilder"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/directive/DirectiveParsers$.html#DirectiveContextBaseextendsAnyRef" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a title="" href="DirectiveParsers$$DirectiveContextBase.html"><span class="name">DirectiveContextBase</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
-      </span>
-      
-      
-    </li><li name="laika.parse.directive.DirectiveParsers.ParsedDirective" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="ParsedDirectiveextendsProductwithSerializable"></a><a id="ParsedDirective:ParsedDirective"></a>
-      <span class="permalink">
-      <a href="../../../laika/parse/directive/DirectiveParsers$.html#ParsedDirectiveextendsProductwithSerializable" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a title="Represents the parsed but unprocessed content of a directive." href="DirectiveParsers$$ParsedDirective.html"><span class="name">ParsedDirective</span></a><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="parts">parts: <span class="extype" name="scala.List">List</span>[<a href="DirectiveParsers$$Part.html" class="extype" name="laika.parse.directive.DirectiveParsers.Part">Part</a>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      
-      <p class="shortcomment cmt">Represents the parsed but unprocessed content of a directive.</p>
-    </li><li name="laika.parse.directive.DirectiveParsers.Part" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="PartextendsProductwithSerializable"></a><a id="Part:Part"></a>
-      <span class="permalink">
-      <a href="../../../laika/parse/directive/DirectiveParsers$.html#PartextendsProductwithSerializable" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a title="Represents one part of a directive (an attribute or a body element)." href="DirectiveParsers$$Part.html"><span class="name">Part</span></a><span class="params">(<span name="key">key: <a href="../../directive/Key.html" class="extype" name="laika.directive.Key">Key</a></span>, <span name="content">content: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      
-      <p class="shortcomment cmt">Represents one part of a directive (an attribute or a body element).</p>
-    </li><li name="laika.parse.directive.DirectiveParsers.PartMap" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="PartMap=Map[laika.directive.Key,String]"></a><a id="PartMap:PartMap"></a>
-      <span class="permalink">
-      <a href="../../../laika/parse/directive/DirectiveParsers$.html#PartMap=Map[laika.directive.Key,String]" title="Permalink">
+      <a href="../../../laika/parse/directive/DirectiveParsers$.html#BodyParserBuilder=laika.parse.directive.DirectiveParsers.DirectiveSpec=&gt;laika.parse.Parser[Option[String]]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -283,10 +231,58 @@
         <span class="kind">type</span>
       </span>
       <span class="symbol">
-        <span class="name">PartMap</span><span class="result alias"> = <span class="extype" name="scala.collection.immutable.Map">Map</span>[<a href="../../directive/Key.html" class="extype" name="laika.directive.Key">Key</a>, <span class="extype" name="scala.Predef.String">String</span>]</span>
+        <span class="name">BodyParserBuilder</span><span class="result alias"> = (<a href="DirectiveParsers$$DirectiveSpec.html" class="extype" name="laika.parse.directive.DirectiveParsers.DirectiveSpec">DirectiveSpec</a>) ⇒ <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
       </span>
       
       
+    </li><li name="laika.parse.directive.DirectiveParsers.DirectiveSpec" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DirectiveSpecextendsProductwithSerializable"></a><a id="DirectiveSpec:DirectiveSpec"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/directive/DirectiveParsers$$DirectiveSpec.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="DirectiveParsers$$DirectiveSpec.html"><span class="name">DirectiveSpec</span></a><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="fence">fence: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
+    </li><li name="laika.parse.directive.DirectiveParsers.ParsedDirective" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ParsedDirectiveextendsProductwithSerializable"></a><a id="ParsedDirective:ParsedDirective"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/directive/DirectiveParsers$$ParsedDirective.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="Represents the parsed but unprocessed content of a directive." href="DirectiveParsers$$ParsedDirective.html"><span class="name">ParsedDirective</span></a><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="attributes">attributes: <a href="../hocon/ObjectBuilderValue.html" class="extype" name="laika.parse.hocon.ObjectBuilderValue">ObjectBuilderValue</a></span>, <span name="body">body: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Represents the parsed but unprocessed content of a directive.</p>
+    </li><li name="laika.parse.directive.DirectiveParsers.Part" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="PartextendsProductwithSerializable"></a><a id="Part:Part"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/directive/DirectiveParsers$$Part.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="Represents one part of a directive (an attribute or a body element)." href="DirectiveParsers$$Part.html"><span class="name">Part</span></a><span class="params">(<span name="key">key: <a href="../../directive/AttributeKey.html" class="extype" name="laika.directive.AttributeKey">AttributeKey</a></span>, <span name="content">content: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Represents one part of a directive (an attribute or a body element).</p>
     </li></ol>
             </div>
 
@@ -343,22 +339,6 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="laika.parse.directive.DirectiveParsers#applyDirective" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="applyDirective[E&lt;:laika.ast.Element](builder:laika.directive.BuilderContext[E])(parseResult:laika.parse.directive.DirectiveParsers.ParsedDirective,directives:String=&gt;Option[builder.Directive],createContext:(laika.parse.directive.DirectiveParsers.PartMap,Option[laika.ast.DocumentCursor])=&gt;builder.DirectiveContext,createPlaceholder:(laika.ast.DocumentCursor=&gt;E)=&gt;E,createInvalidElement:String=&gt;E,directiveTypeDesc:String):E"></a><a id="applyDirective[E&lt;:Element](BuilderContext[E])(ParsedDirective,(String)⇒Option[Directive],(PartMap,Option[DocumentCursor])⇒DirectiveContext,((DocumentCursor)⇒E)⇒E,(String)⇒E,String):E"></a>
-      <span class="permalink">
-      <a href="../../../laika/parse/directive/DirectiveParsers$.html#applyDirective[E&lt;:laika.ast.Element](builder:laika.directive.BuilderContext[E])(parseResult:laika.parse.directive.DirectiveParsers.ParsedDirective,directives:String=&gt;Option[builder.Directive],createContext:(laika.parse.directive.DirectiveParsers.PartMap,Option[laika.ast.DocumentCursor])=&gt;builder.DirectiveContext,createPlaceholder:(laika.ast.DocumentCursor=&gt;E)=&gt;E,createInvalidElement:String=&gt;E,directiveTypeDesc:String):E" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">applyDirective</span><span class="tparams">[<span name="E">E &lt;: <a href="../../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>]</span><span class="params">(<span name="builder">builder: <a href="../../directive/BuilderContext.html" class="extype" name="laika.directive.BuilderContext">BuilderContext</a>[<span class="extype" name="laika.parse.directive.DirectiveParsers.applyDirective.E">E</span>]</span>)</span><span class="params">(<span name="parseResult">parseResult: <a href="DirectiveParsers$$ParsedDirective.html" class="extype" name="laika.parse.directive.DirectiveParsers.ParsedDirective">ParsedDirective</a></span>, <span name="directives">directives: (<span class="extype" name="scala.Predef.String">String</span>) ⇒ <span class="extype" name="scala.Option">Option</span>[<a href="../../directive/BuilderContext$Directive.html" class="extype" name="laika.directive.BuilderContext.Directive">Directive</a>]</span>, <span name="createContext">createContext: (<a href="#PartMap=Map[laika.directive.Key,String]" class="extmbr" name="laika.parse.directive.DirectiveParsers.PartMap">PartMap</a>, <span class="extype" name="scala.Option">Option</span>[<a href="../../ast/DocumentCursor.html" class="extype" name="laika.ast.DocumentCursor">DocumentCursor</a>]) ⇒ <a href="../../directive/BuilderContext$DirectiveContext.html" class="extype" name="laika.directive.BuilderContext.DirectiveContext">DirectiveContext</a></span>, <span name="createPlaceholder">createPlaceholder: ((<a href="../../ast/DocumentCursor.html" class="extype" name="laika.ast.DocumentCursor">DocumentCursor</a>) ⇒ <span class="extype" name="laika.parse.directive.DirectiveParsers.applyDirective.E">E</span>) ⇒ <span class="extype" name="laika.parse.directive.DirectiveParsers.applyDirective.E">E</span></span>, <span name="createInvalidElement">createInvalidElement: (<span class="extype" name="scala.Predef.String">String</span>) ⇒ <span class="extype" name="laika.parse.directive.DirectiveParsers.applyDirective.E">E</span></span>, <span name="directiveTypeDesc">directiveTypeDesc: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="laika.parse.directive.DirectiveParsers.applyDirective.E">E</span></span>
-      </span>
-      
-      
     </li><li name="scala.Any#asInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <span class="permalink">
@@ -390,19 +370,19 @@
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
     </span>)</span>
               
+                <span class="name">@native</span><span class="args">()</span>
+              
         </dd></dl></div>
     </li><li name="laika.parse.directive.DirectiveParsers#declarationParser" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="declarationParser(escapedText:laika.parse.markup.EscapedTextParsers):laika.parse.Parser[(String,List[laika.parse.directive.DirectiveParsers.Part])]"></a><a id="declarationParser(EscapedTextParsers):Parser[(String,List[Part])]"></a>
+      <a id="declarationParser(escapedText:laika.parse.markup.EscapedTextParsers,supportsCustomFence:Boolean):laika.parse.Parser[(String,laika.parse.hocon.ObjectBuilderValue,String)]"></a><a id="declarationParser(EscapedTextParsers,Boolean):Parser[(String,ObjectBuilderValue,String)]"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/directive/DirectiveParsers$.html#declarationParser(escapedText:laika.parse.markup.EscapedTextParsers):laika.parse.Parser[(String,List[laika.parse.directive.DirectiveParsers.Part])]" title="Permalink">
+      <a href="../../../laika/parse/directive/DirectiveParsers$.html#declarationParser(escapedText:laika.parse.markup.EscapedTextParsers,supportsCustomFence:Boolean):laika.parse.Parser[(String,laika.parse.hocon.ObjectBuilderValue,String)]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -411,15 +391,15 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">declarationParser</span><span class="params">(<span name="escapedText">escapedText: <a href="../markup/EscapedTextParsers.html" class="extype" name="laika.parse.markup.EscapedTextParsers">EscapedTextParsers</a></span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[(<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.List">List</span>[<a href="DirectiveParsers$$Part.html" class="extype" name="laika.parse.directive.DirectiveParsers.Part">Part</a>])]</span>
+        <span class="name">declarationParser</span><span class="params">(<span name="escapedText">escapedText: <a href="../markup/EscapedTextParsers.html" class="extype" name="laika.parse.markup.EscapedTextParsers">EscapedTextParsers</a></span>, <span name="supportsCustomFence">supportsCustomFence: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[(<span class="extype" name="scala.Predef.String">String</span>, <a href="../hocon/ObjectBuilderValue.html" class="extype" name="laika.parse.hocon.ObjectBuilderValue">ObjectBuilderValue</a>, <span class="extype" name="scala.Predef.String">String</span>)]</span>
       </span>
       
       <p class="shortcomment cmt">Parses a full directive declaration, containing all its attributes,
  but not the body elements.</p>
     </li><li name="laika.parse.directive.DirectiveParsers#directiveParser" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="directiveParser(bodyContent:laika.parse.Parser[String],escapedText:laika.parse.markup.EscapedTextParsers):laika.parse.Parser[laika.parse.directive.DirectiveParsers.ParsedDirective]"></a><a id="directiveParser(Parser[String],EscapedTextParsers):Parser[ParsedDirective]"></a>
+      <a id="directiveParser(bodyContent:laika.parse.directive.DirectiveParsers.BodyParserBuilder,legacyBody:laika.parse.Parser[String],escapedText:laika.parse.markup.EscapedTextParsers,supportsCustomFence:Boolean):laika.parse.Parser[laika.parse.directive.DirectiveParsers.ParsedDirective]"></a><a id="directiveParser(BodyParserBuilder,Parser[String],EscapedTextParsers,Boolean):Parser[ParsedDirective]"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/directive/DirectiveParsers$.html#directiveParser(bodyContent:laika.parse.Parser[String],escapedText:laika.parse.markup.EscapedTextParsers):laika.parse.Parser[laika.parse.directive.DirectiveParsers.ParsedDirective]" title="Permalink">
+      <a href="../../../laika/parse/directive/DirectiveParsers$.html#directiveParser(bodyContent:laika.parse.directive.DirectiveParsers.BodyParserBuilder,legacyBody:laika.parse.Parser[String],escapedText:laika.parse.markup.EscapedTextParsers,supportsCustomFence:Boolean):laika.parse.Parser[laika.parse.directive.DirectiveParsers.ParsedDirective]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -428,13 +408,13 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">directiveParser</span><span class="params">(<span name="bodyContent">bodyContent: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="escapedText">escapedText: <a href="../markup/EscapedTextParsers.html" class="extype" name="laika.parse.markup.EscapedTextParsers">EscapedTextParsers</a></span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="DirectiveParsers$$ParsedDirective.html" class="extype" name="laika.parse.directive.DirectiveParsers.ParsedDirective">ParsedDirective</a>]</span>
+        <span class="name">directiveParser</span><span class="params">(<span name="bodyContent">bodyContent: <a href="#BodyParserBuilder=laika.parse.directive.DirectiveParsers.DirectiveSpec=&gt;laika.parse.Parser[Option[String]]" class="extmbr" name="laika.parse.directive.DirectiveParsers.BodyParserBuilder">BodyParserBuilder</a></span>, <span name="legacyBody">legacyBody: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="escapedText">escapedText: <a href="../markup/EscapedTextParsers.html" class="extype" name="laika.parse.markup.EscapedTextParsers">EscapedTextParsers</a></span>, <span name="supportsCustomFence">supportsCustomFence: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="DirectiveParsers$$ParsedDirective.html" class="extype" name="laika.parse.directive.DirectiveParsers.ParsedDirective">ParsedDirective</a>]</span>
       </span>
       
       <p class="shortcomment cmt">Parses one directive instance containing its name declaration,
  all attributes and all body elements.</p><div class="fullcomment"><div class="comment cmt"><p>Parses one directive instance containing its name declaration,
  all attributes and all body elements.
-</p></div><dl class="paramcmts block"><dt class="param">bodyContent</dt><dd class="cmt"><p>the parser for the body content which is different for a block directive than for a span or template directive</p></dd><dt class="param">escapedText</dt><dd class="cmt"><p>the parser for escape sequences according to the rules of the host markup language</p></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">bodyContent</dt><dd class="cmt"><p>the parser for the body content which is different for a block directive than for a span or template directive</p></dd><dt class="param">legacyBody</dt><dd class="cmt"><p>the parser for the deprecated directive syntax that is still supported</p></dd><dt class="param">escapedText</dt><dd class="cmt"><p>the parser for escape sequences according to the rules of the host markup language</p></dd><dt class="param">supportsCustomFence</dt><dd class="cmt"><p>indicates whether the directive declaration allows the addition of a custom closing fence</p></dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
       <span class="permalink">
@@ -482,7 +462,7 @@
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="symbol">classOf[java.lang.Throwable]</span>
@@ -527,6 +507,22 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li name="laika.parse.directive.DirectiveParsers#hoconReference" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="hoconReference[T](f:(laika.ast.Path,Boolean)=&gt;T):laika.parse.Parser[T]"></a><a id="hoconReference[T]((Path,Boolean)⇒T):Parser[T]"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/directive/DirectiveParsers$.html#hoconReference[T](f:(laika.ast.Path,Boolean)=&gt;T):laika.parse.Parser[T]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hoconReference</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="f">f: (<a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a>, <span class="extype" name="scala.Boolean">Boolean</span>) ⇒ <span class="extype" name="laika.parse.directive.DirectiveParsers.hoconReference.T">T</span></span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="laika.parse.directive.DirectiveParsers.hoconReference.T">T</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Parses a HOCON-style reference enclosed between <code>${</code> and <code>}</code> that may be marked as optional (<code>${?some.param}</code>).</p>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <span class="permalink">
@@ -543,6 +539,58 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="laika.parse.directive.DirectiveParsers#legacyAttributeParser" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="legacyAttributeParser(escapedText:laika.parse.markup.EscapedTextParsers):laika.parse.Parser[laika.parse.hocon.ObjectBuilderValue]"></a><a id="legacyAttributeParser(EscapedTextParsers):Parser[ObjectBuilderValue]"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/directive/DirectiveParsers$.html#legacyAttributeParser(escapedText:laika.parse.markup.EscapedTextParsers):laika.parse.Parser[laika.parse.hocon.ObjectBuilderValue]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">legacyAttributeParser</span><span class="params">(<span name="escapedText">escapedText: <a href="../markup/EscapedTextParsers.html" class="extype" name="laika.parse.markup.EscapedTextParsers">EscapedTextParsers</a></span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../hocon/ObjectBuilderValue.html" class="extype" name="laika.parse.hocon.ObjectBuilderValue">ObjectBuilderValue</a>]</span>
+      </span>
+      
+      
+    </li><li name="laika.parse.directive.DirectiveParsers#legacyDeclarationParser" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="legacyDeclarationParser(escapedText:laika.parse.markup.EscapedTextParsers):laika.parse.Parser[(String,laika.parse.hocon.ObjectBuilderValue)]"></a><a id="legacyDeclarationParser(EscapedTextParsers):Parser[(String,ObjectBuilderValue)]"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/directive/DirectiveParsers$.html#legacyDeclarationParser(escapedText:laika.parse.markup.EscapedTextParsers):laika.parse.Parser[(String,laika.parse.hocon.ObjectBuilderValue)]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">legacyDeclarationParser</span><span class="params">(<span name="escapedText">escapedText: <a href="../markup/EscapedTextParsers.html" class="extype" name="laika.parse.markup.EscapedTextParsers">EscapedTextParsers</a></span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[(<span class="extype" name="scala.Predef.String">String</span>, <a href="../hocon/ObjectBuilderValue.html" class="extype" name="laika.parse.hocon.ObjectBuilderValue">ObjectBuilderValue</a>)]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Parses a full directive declaration, containing all its attributes,
+ but not the body elements.</p><div class="fullcomment"><div class="comment cmt"><p>Parses a full directive declaration, containing all its attributes,
+ but not the body elements. This method parses the deprecated syntax where attributes
+ are not enclosed in braces.
+</p></div></div>
+    </li><li name="laika.parse.directive.DirectiveParsers#legacyReference" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="legacyReference[T](f:String=&gt;T):laika.parse.Parser[T]"></a><a id="legacyReference[T]((String)⇒T):Parser[T]"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/directive/DirectiveParsers$.html#legacyReference[T](f:String=&gt;T):laika.parse.Parser[T]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">legacyReference</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="scala.Predef.String">String</span>) ⇒ <span class="extype" name="laika.parse.directive.DirectiveParsers.legacyReference.T">T</span></span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="laika.parse.directive.DirectiveParsers.legacyReference.T">T</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Parses a legacy reference (version 0.1 to 0.11) enclosed between <code>{{</code> and <code>}}</code>.</p>
     </li><li name="laika.parse.directive.DirectiveParsers#nameDecl" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="nameDecl:laika.parse.Parser[String]"></a><a id="nameDecl:Parser[String]"></a>
       <span class="permalink">
@@ -630,22 +678,6 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="laika.parse.directive.DirectiveParsers#reference" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="reference[T](f:String=&gt;T):laika.parse.Parser[T]"></a><a id="reference[T]((String)⇒T):Parser[T]"></a>
-      <span class="permalink">
-      <a href="../../../laika/parse/directive/DirectiveParsers$.html#reference[T](f:String=&gt;T):laika.parse.Parser[T]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">reference</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="scala.Predef.String">String</span>) ⇒ <span class="extype" name="laika.parse.directive.DirectiveParsers.reference.T">T</span></span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="laika.parse.directive.DirectiveParsers.reference.T">T</span>]</span>
-      </span>
-      
-      <p class="shortcomment cmt">Parses a reference enclosed between <code>{{</code> and <code>}}</code>.</p>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">
@@ -738,12 +770,12 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
     </span>)</span>
+              
+                <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
     </li><li name="laika.parse.directive.DirectiveParsers#withSource" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">

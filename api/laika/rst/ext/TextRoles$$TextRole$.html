@@ -8,17 +8,17 @@
           <meta name="keywords" content="" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
+      
       <link href="../../../lib/index.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../../lib/jquery.js"></script>
+      <script type="text/javascript" src="../../../lib/jquery.min.js"></script>
       <script type="text/javascript" src="../../../lib/jquery.panzoom.min.js"></script>
       <script type="text/javascript" src="../../../lib/jquery.mousewheel.min.js"></script>
       <script type="text/javascript" src="../../../lib/index.js"></script>
       <script type="text/javascript" src="../../../index.js"></script>
       <script type="text/javascript" src="../../../lib/scheduler.js"></script>
       <script type="text/javascript" src="../../../lib/template.js"></script>
-      <script type="text/javascript" src="../../../lib/tools.tooltip.js"></script>
       
       <script type="text/javascript">
         /* this variable can be used by the JS to determine the path to the root document */
@@ -56,7 +56,7 @@
                 <li name="_root_.root" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="_root_"></a><a id="root:_root_"></a>
       <span class="permalink">
-      <a href="index.html#_root_" title="Permalink">
+      <a href="../../../index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -72,7 +72,7 @@
     </li><li name="_root_.laika" visbl="pub" class="indented1 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="laika"></a><a id="laika:laika"></a>
       <span class="permalink">
-      <a href="index.html#laika" title="Permalink">
+      <a href="../../../laika/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -88,7 +88,7 @@
     </li><li name="laika.rst" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="rst"></a><a id="rst:rst"></a>
       <span class="permalink">
-      <a href="../laika/index.html#rst" title="Permalink">
+      <a href="../../../laika/rst/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -104,7 +104,7 @@
     </li><li name="laika.rst.ext" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ext"></a><a id="ext:ext"></a>
       <span class="permalink">
-      <a href="../../laika/rst/index.html#ext" title="Permalink">
+      <a href="../../../laika/rst/ext/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -120,7 +120,7 @@
     </li><li name="laika.rst.ext.TextRoles" visbl="pub" class="indented4 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="TextRoles"></a><a id="TextRoles:TextRoles"></a>
       <span class="permalink">
-      <a href="../../../laika/rst/ext/index.html#TextRoles" title="Permalink">
+      <a href="../../../laika/rst/ext/TextRoles$.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -162,8 +162,11 @@
   <span class="kw">val</span> blockDirectives = <span class="std">Seq</span>()
 }
 
-Transform from ReStructuredText to HTML using
-  MyDirectives fromFile <span class="lit">"hello.rst"</span> toFile <span class="lit">"hello.html"</span></pre><p> We specify the name of the role to be <code>link</code>, and the default value the URL provided as the
+<span class="kw">val</span> transformer = Transformer
+  .from(ReStructuredText)
+  .to(HTML)
+  .using(MyDirectives)
+  .build</pre><p> We specify the name of the role to be <code>link</code>, and the default value the URL provided as the
  second argument. The second parameter list specifies the role directive implementation,
  in this case only consisting of a call to <code>field(&quot;base-url&quot;)</code> which specifies a required
  field of type <code>String</code> (since no conversion function was supplied). The type of the result
@@ -174,23 +177,23 @@ Transform from ReStructuredText to HTML using
  interpreted text span. Finally the directive gets registered with the <code>ReStructuredText</code>
  parser.</p><p> If you need to define more fields or body content they can be added with the <code>~</code> combinator
  just like with normal directives. Likewise you can specify validators and converters for
- fields and body values like documented in <a href="Directives$.html" class="extype" name="laika.rst.ext.Directives">laika.rst.ext.Directives</a>.</p><p> Our example role can then be used in the following ways:</p><p> Using the base role directly:</p><pre>For details read our :link:`documentation`.</pre><p> This would result in the following HTML:</p><pre>For details read our &lt;a href=<span class="lit">"http://www.company.com/main/documentation"</span>&gt;documentation&lt;/a&gt;.</pre><p> Using the customized role called <code>ticket</code>:</p><pre>For details see ticket :ticket:`<span class="num">344</span>`.</pre><p> This would result in the following HTML:</p><pre>For details see ticket &lt;a href=<span class="lit">"http://www.company.com/ticket/344"</span>&gt;344&lt;/a&gt;.</pre></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="laika.rst.ext">ext</a></dd></dl></div>
+ fields and body values like documented in <a href="Directives$.html" class="extype" name="laika.rst.ext.Directives">laika.rst.ext.Directives</a>.</p><p> Our example role can then be used in the following ways:</p><p> Using the base role directly:</p><pre>For details read our :link:`documentation`.</pre><p> This would result in the following HTML:</p><pre>For details read our &lt;a href=<span class="lit">"http://www.company.com/main/documentation"</span>&gt;documentation&lt;/a&gt;.</pre><p> Using the customized role called <code>ticket</code>:</p><pre>For details see ticket :ticket:`<span class="num">344</span>`.</pre><p> This would result in the following HTML:</p><pre>For details see ticket &lt;a href=<span class="lit">"http://www.company.com/ticket/344"</span>&gt;<span class="num">344</span>&lt;/a&gt;.</pre></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="laika.rst.ext">ext</a></dd></dl></div>
     </li><li class="current-entities indented4">
-                        <span class="separator"></span>
-                        <a class="object" href="TextRoles$$CanBuildRoleDirectivePart$.html" title="Type class required for using the generic Builders API with directives."></a>
-                        <a href="TextRoles$$CanBuildRoleDirectivePart$.html" title="Type class required for using the generic Builders API with directives.">CanBuildRoleDirectivePart</a>
-                      </li><li class="current-entities indented4">
                         <span class="separator"></span>
                         <a class="object" href="TextRoles$$Parts$.html" title="The public user API for specifying the required and optional parts of a directive (fields or body) together with optional converter/validator functions."></a>
                         <a href="TextRoles$$Parts$.html" title="The public user API for specifying the required and optional parts of a directive (fields or body) together with optional converter/validator functions.">Parts</a>
                       </li><li class="current-entities indented4">
                         <span class="separator"></span>
-                        <a class="trait" href="TextRoles$$RoleDirectiveParser.html" title="API to implement by the actual role directive parser."></a>
-                        <a href="TextRoles$$RoleDirectiveParser.html" title="API to implement by the actual role directive parser.">RoleDirectiveParser</a>
+                        <a class="trait" href="TextRoles$$RoleDirectiveParserBuilder.html" title="API to implement by the actual directive parser."></a>
+                        <a href="TextRoles$$RoleDirectiveParserBuilder.html" title="API to implement by the actual directive parser.">RoleDirectiveParserBuilder</a>
                       </li><li class="current-entities indented4">
                         <span class="separator"></span>
                         <a class="class" href="TextRoles$$RoleDirectivePart.html" title="Represents a single part (field or body) of a directive."></a>
                         <a href="TextRoles$$RoleDirectivePart.html" title="Represents a single part (field or body) of a directive.">RoleDirectivePart</a>
+                      </li><li class="current-entities indented4">
+                        <span class="separator"></span>
+                        <a class="class" href="TextRoles$$RoleDirectivePartBuilder.html" title="Represents a single part (argument, field or body) of a text role."></a>
+                        <a href="TextRoles$$RoleDirectivePartBuilder.html" title="Represents a single part (argument, field or body) of a text role.">RoleDirectivePartBuilder</a>
                       </li><li class="current-entities indented4">
                         <a class="object" href="" title="API entry point for setting up a text role that."></a>
                         <a class="class" href="TextRoles$$TextRole.html" title="Represents a single text role implementation."></a>
@@ -332,9 +335,9 @@ Transform from ReStructuredText to HTML using
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="laika.rst.ext.TextRoles.TextRole#apply" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="apply[T](name:String,default:T)(part:laika.rst.ext.TextRoles.RoleDirectivePart[T])(roleF:(T,String)=&gt;laika.ast.Span):laika.rst.ext.TextRoles.TextRole"></a><a id="apply[T](String,T)(RoleDirectivePart[T])((T,String)⇒Span):TextRole"></a>
+      <a id="apply[T](name:String,default:T)(part:laika.rst.ext.TextRoles.RoleDirectivePartBuilder[T])(roleF:(T,String)=&gt;laika.ast.Span):laika.rst.ext.TextRoles.TextRole"></a><a id="apply[T](String,T)(RoleDirectivePartBuilder[T])((T,String)⇒Span):TextRole"></a>
       <span class="permalink">
-      <a href="../../../laika/rst/ext/TextRoles$$TextRole$.html#apply[T](name:String,default:T)(part:laika.rst.ext.TextRoles.RoleDirectivePart[T])(roleF:(T,String)=&gt;laika.ast.Span):laika.rst.ext.TextRoles.TextRole" title="Permalink">
+      <a href="../../../laika/rst/ext/TextRoles$$TextRole$.html#apply[T](name:String,default:T)(part:laika.rst.ext.TextRoles.RoleDirectivePartBuilder[T])(roleF:(T,String)=&gt;laika.ast.Span):laika.rst.ext.TextRoles.TextRole" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -343,7 +346,7 @@ Transform from ReStructuredText to HTML using
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="default">default: <span class="extype" name="laika.rst.ext.TextRoles.TextRole.apply.T">T</span></span>)</span><span class="params">(<span name="part">part: <a href="TextRoles$$RoleDirectivePart.html" class="extype" name="laika.rst.ext.TextRoles.RoleDirectivePart">RoleDirectivePart</a>[<span class="extype" name="laika.rst.ext.TextRoles.TextRole.apply.T">T</span>]</span>)</span><span class="params">(<span name="roleF">roleF: (<span class="extype" name="laika.rst.ext.TextRoles.TextRole.apply.T">T</span>, <span class="extype" name="scala.Predef.String">String</span>) ⇒ <a href="../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a></span>)</span><span class="result">: <a href="TextRoles$$TextRole.html" class="extype" name="laika.rst.ext.TextRoles.TextRole">TextRole</a></span>
+        <span class="name">apply</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="default">default: <span class="extype" name="laika.rst.ext.TextRoles.TextRole.apply.T">T</span></span>)</span><span class="params">(<span name="part">part: <a href="TextRoles$$RoleDirectivePartBuilder.html" class="extype" name="laika.rst.ext.TextRoles.RoleDirectivePartBuilder">RoleDirectivePartBuilder</a>[<span class="extype" name="laika.rst.ext.TextRoles.TextRole.apply.T">T</span>]</span>)</span><span class="params">(<span name="roleF">roleF: (<span class="extype" name="laika.rst.ext.TextRoles.TextRole.apply.T">T</span>, <span class="extype" name="scala.Predef.String">String</span>) ⇒ <a href="../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a></span>)</span><span class="result">: <a href="TextRoles$$TextRole.html" class="extype" name="laika.rst.ext.TextRoles.TextRole">TextRole</a></span>
       </span>
       
       <p class="shortcomment cmt">Creates a new text role that can be referred to by interpreted text with the specified name.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new text role that can be referred to by interpreted text with the specified name.
@@ -389,13 +392,13 @@ Transform from ReStructuredText to HTML using
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
     </span>)</span>
+              
+                <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
@@ -445,7 +448,7 @@ Transform from ReStructuredText to HTML using
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="symbol">classOf[java.lang.Throwable]</span>
@@ -561,9 +564,9 @@ Transform from ReStructuredText to HTML using
               
         </dd></dl></div>
     </li><li name="laika.rst.ext.TextRoles.TextRole#recursive" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="recursive[T](name:String,default:T)(part:laika.rst.ext.TextRoles.RoleDirectivePartBuilder[T])(roleF:(T,String)=&gt;laika.ast.Span):laika.rst.ext.TextRoles.TextRole"></a><a id="recursive[T](String,T)(RoleDirectivePartBuilder[T])((T,String)⇒Span):TextRole"></a>
+      <a id="recursive[T](name:String,default:T)(part:laika.parse.markup.RecursiveParsers=&gt;laika.rst.ext.TextRoles.RoleDirectivePartBuilder[T])(roleF:(T,String)=&gt;laika.ast.Span):laika.rst.ext.TextRoles.TextRole"></a><a id="recursive[T](String,T)((RecursiveParsers)⇒RoleDirectivePartBuilder[T])((T,String)⇒Span):TextRole"></a>
       <span class="permalink">
-      <a href="../../../laika/rst/ext/TextRoles$$TextRole$.html#recursive[T](name:String,default:T)(part:laika.rst.ext.TextRoles.RoleDirectivePartBuilder[T])(roleF:(T,String)=&gt;laika.ast.Span):laika.rst.ext.TextRoles.TextRole" title="Permalink">
+      <a href="../../../laika/rst/ext/TextRoles$$TextRole$.html#recursive[T](name:String,default:T)(part:laika.parse.markup.RecursiveParsers=&gt;laika.rst.ext.TextRoles.RoleDirectivePartBuilder[T])(roleF:(T,String)=&gt;laika.ast.Span):laika.rst.ext.TextRoles.TextRole" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -572,7 +575,7 @@ Transform from ReStructuredText to HTML using
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">recursive</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="default">default: <span class="extype" name="laika.rst.ext.TextRoles.TextRole.recursive.T">T</span></span>)</span><span class="params">(<span name="part">part: <a href="TextRoles$.html#RoleDirectivePartBuilder[E]=laika.parse.markup.RecursiveParsers=&gt;laika.rst.ext.TextRoles.RoleDirectivePart[E]" class="extmbr" name="laika.rst.ext.TextRoles.RoleDirectivePartBuilder">RoleDirectivePartBuilder</a>[<span class="extype" name="laika.rst.ext.TextRoles.TextRole.recursive.T">T</span>]</span>)</span><span class="params">(<span name="roleF">roleF: (<span class="extype" name="laika.rst.ext.TextRoles.TextRole.recursive.T">T</span>, <span class="extype" name="scala.Predef.String">String</span>) ⇒ <a href="../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a></span>)</span><span class="result">: <a href="TextRoles$$TextRole.html" class="extype" name="laika.rst.ext.TextRoles.TextRole">TextRole</a></span>
+        <span class="name">recursive</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="default">default: <span class="extype" name="laika.rst.ext.TextRoles.TextRole.recursive.T">T</span></span>)</span><span class="params">(<span name="part">part: (<a href="../../parse/markup/RecursiveParsers.html" class="extype" name="laika.parse.markup.RecursiveParsers">RecursiveParsers</a>) ⇒ <a href="TextRoles$$RoleDirectivePartBuilder.html" class="extype" name="laika.rst.ext.TextRoles.RoleDirectivePartBuilder">RoleDirectivePartBuilder</a>[<span class="extype" name="laika.rst.ext.TextRoles.TextRole.recursive.T">T</span>]</span>)</span><span class="params">(<span name="roleF">roleF: (<span class="extype" name="laika.rst.ext.TextRoles.TextRole.recursive.T">T</span>, <span class="extype" name="scala.Predef.String">String</span>) ⇒ <a href="../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a></span>)</span><span class="result">: <a href="TextRoles$$TextRole.html" class="extype" name="laika.rst.ext.TextRoles.TextRole">TextRole</a></span>
       </span>
       
       <p class="shortcomment cmt">Creates a new text role that can be referred to by interpreted text with the specified name.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new text role that can be referred to by interpreted text with the specified name.
@@ -682,12 +685,12 @@ Transform from ReStructuredText to HTML using
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
     </span>)</span>
+              
+                <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
     </li>

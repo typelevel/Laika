@@ -8,17 +8,17 @@
           <meta name="keywords" content="" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
+      
       <link href="../../lib/index.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../lib/jquery.js"></script>
+      <script type="text/javascript" src="../../lib/jquery.min.js"></script>
       <script type="text/javascript" src="../../lib/jquery.panzoom.min.js"></script>
       <script type="text/javascript" src="../../lib/jquery.mousewheel.min.js"></script>
       <script type="text/javascript" src="../../lib/index.js"></script>
       <script type="text/javascript" src="../../index.js"></script>
       <script type="text/javascript" src="../../lib/scheduler.js"></script>
       <script type="text/javascript" src="../../lib/template.js"></script>
-      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
       
       <script type="text/javascript">
         /* this variable can be used by the JS to determine the path to the root document */
@@ -56,7 +56,7 @@
                 <li name="_root_.root" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="_root_"></a><a id="root:_root_"></a>
       <span class="permalink">
-      <a href="index.html#_root_" title="Permalink">
+      <a href="../../index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -72,7 +72,7 @@
     </li><li name="_root_.laika" visbl="pub" class="indented1 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="laika"></a><a id="laika:laika"></a>
       <span class="permalink">
-      <a href="index.html#laika" title="Permalink">
+      <a href="../../laika/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -88,7 +88,7 @@
     </li><li name="laika.format" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="format"></a><a id="format:format"></a>
       <span class="permalink">
-      <a href="../laika/index.html#format" title="Permalink">
+      <a href="../../laika/format/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -152,22 +152,37 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">EPUB</span><span class="result"> extends <a href="../factory/RenderResultProcessor.html" class="extype" name="laika.factory.RenderResultProcessor">RenderResultProcessor</a>[<a href="../render/HTMLWriter.html" class="extype" name="laika.render.HTMLWriter">HTMLWriter</a>]</span>
+        <span class="name">EPUB</span><span class="result"> extends <a href="../factory/TwoPhaseRenderFormat.html" class="extype" name="laika.factory.TwoPhaseRenderFormat">TwoPhaseRenderFormat</a>[<a href="../render/HTMLFormatter.html" class="extype" name="laika.render.HTMLFormatter">HTMLFormatter</a>, <a href="../factory/BinaryPostProcessor.html" class="extype" name="laika.factory.BinaryPostProcessor">BinaryPostProcessor</a>]</span>
       </span>
       </h4>
 
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>A post processor for EPUB output, based on an interim HTML renderer.
- May be directly passed to the <code>Render</code> or <code>Transform</code> APIs:</p><pre><span class="kw">val</span> document: Document = ...
-Render as EPUB from document toFile <span class="lit">"hello.epub"</span>
+ May be directly passed to the <code>Renderer</code> or <code>Transformer</code> APIs:</p><pre><span class="kw">implicit</span> <span class="kw">val</span> cs: ContextShift[IO] =
+  IO.contextShift(ExecutionContext.global)
 
-Transform from Markdown to PDF fromDirectory <span class="lit">"book-src"</span> toFile <span class="lit">"book.epub"</span></pre><p> In the second example above the input from an entire directory gets
+<span class="kw">val</span> blocker = Blocker.liftExecutionContext(
+  ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
+)
+
+<span class="kw">val</span> transformer = Transformer
+  .from(Markdown)
+  .to(EPUB)
+  .using(GitHubFlavor)
+  .io(blocker)
+  .parallel[IO]
+  .build
+
+<span class="kw">val</span> res: IO[<span class="std">Unit</span>] = transformer
+  .fromDirectory(<span class="lit">"src"</span>)
+  .toFile(<span class="lit">"demo.epub"</span>)
+  .transform</pre><p> In the example above the input from an entire directory gets
  merged into a single output file.
 </p></div><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
           </span>
-          <div class="superTypes hiddenContent"><a href="../factory/RenderResultProcessor.html" class="extype" name="laika.factory.RenderResultProcessor">RenderResultProcessor</a>[<a href="../render/HTMLWriter.html" class="extype" name="laika.render.HTMLWriter">HTMLWriter</a>], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><a href="../factory/TwoPhaseRenderFormat.html" class="extype" name="laika.factory.TwoPhaseRenderFormat">TwoPhaseRenderFormat</a>[<a href="../render/HTMLFormatter.html" class="extype" name="laika.render.HTMLFormatter">HTMLFormatter</a>, <a href="../factory/BinaryPostProcessor.html" class="extype" name="laika.factory.BinaryPostProcessor">BinaryPostProcessor</a>], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -193,7 +208,7 @@ Transform from Markdown to PDF fromDirectory <span class="lit">"book-src"</span>
                   <span class="filtertype">Inherited<br />
                   </span>
                   <ol id="linearization">
-                    <li class="in" name="laika.format.EPUB"><span>EPUB</span></li><li class="in" name="laika.factory.RenderResultProcessor"><span>RenderResultProcessor</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                    <li class="in" name="laika.format.EPUB"><span>EPUB</span></li><li class="in" name="laika.factory.TwoPhaseRenderFormat"><span>TwoPhaseRenderFormat</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                   </ol>
                 </div><div class="ancestors">
               <span class="filtertype"></span>
@@ -218,7 +233,7 @@ Transform from Markdown to PDF fromDirectory <span class="lit">"book-src"</span>
               <ol><li name="laika.format.EPUB.Config" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ConfigextendsProductwithSerializable"></a><a id="Config:Config"></a>
       <span class="permalink">
-      <a href="../../laika/format/EPUB$.html#ConfigextendsProductwithSerializable" title="Permalink">
+      <a href="../../laika/format/EPUB$$Config.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -231,7 +246,7 @@ Transform from Markdown to PDF fromDirectory <span class="lit">"book-src"</span>
       </span>
       
       <p class="shortcomment cmt">Configuration options for the generated EPUB output.</p><div class="fullcomment"><div class="comment cmt"><p>Configuration options for the generated EPUB output.
-</p></div><dl class="paramcmts block"><dt class="param">metadata</dt><dd class="cmt"><p>the metadata associated with the document</p></dd><dt class="param">tocDepth</dt><dd class="cmt"><p>the number of levels to generate a table of contents for</p></dd><dt class="param">tocTitle</dt><dd class="cmt"><p>the title for the table of contents</p></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">metadata</dt><dd class="cmt"><p>the metadata associated with the document</p></dd><dt class="param">tocDepth</dt><dd class="cmt"><p>the number of levels to generate a table of contents for</p></dd><dt class="param">tocTitle</dt><dd class="cmt"><p>the title for the table of contents</p></dd><dt class="param">coverImage</dt><dd class="cmt"><p>the path to the cover image within the virtual document tree</p></dd></dl></div>
     </li></ol>
             </div>
 
@@ -319,13 +334,13 @@ Transform from Markdown to PDF fromDirectory <span class="lit">"book-src"</span>
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
     </span>)</span>
+              
+                <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
@@ -375,30 +390,13 @@ Transform from Markdown to PDF fromDirectory <span class="lit">"book-src"</span>
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="symbol">classOf[java.lang.Throwable]</span>
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="laika.format.EPUB#format" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="format:laika.format.EPUB.XHTML.type"></a><a id="format:XHTML.type"></a>
-      <span class="permalink">
-      <a href="../../laika/format/EPUB$.html#format:laika.format.EPUB.XHTML.type" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">format</span><span class="result">: <a href="EPUB$$XHTML$.html" class="extype" name="laika.format.EPUB.XHTML">XHTML</a>.type</span>
-      </span>
-      
-      <p class="shortcomment cmt">The factory for the renderer that produces the interim result.</p><div class="fullcomment"><div class="comment cmt"><p>The factory for the renderer that produces the interim result.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.format.EPUB">EPUB</a> → <a href="../factory/RenderResultProcessor.html" class="extype" name="laika.factory.RenderResultProcessor">RenderResultProcessor</a></dd></dl></div>
     </li><li name="scala.AnyRef#getClass" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <span class="permalink">
@@ -437,6 +435,23 @@ Transform from Markdown to PDF fromDirectory <span class="lit">"book-src"</span>
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li name="laika.format.EPUB#interimFormat" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="interimFormat:laika.factory.RenderFormat[laika.render.HTMLFormatter]"></a><a id="interimFormat:RenderFormat[HTMLFormatter]"></a>
+      <span class="permalink">
+      <a href="../../laika/format/EPUB$.html#interimFormat:laika.factory.RenderFormat[laika.render.HTMLFormatter]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">interimFormat</span><span class="result">: <a href="../factory/RenderFormat.html" class="extype" name="laika.factory.RenderFormat">RenderFormat</a>[<a href="../render/HTMLFormatter.html" class="extype" name="laika.render.HTMLFormatter">HTMLFormatter</a>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">The render format for the interim result, the first phase of this renderer.</p><div class="fullcomment"><div class="comment cmt"><p>The render format for the interim result, the first phase of this renderer.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.format.EPUB">EPUB</a> → <a href="../factory/TwoPhaseRenderFormat.html" class="extype" name="laika.factory.TwoPhaseRenderFormat">TwoPhaseRenderFormat</a></dd></dl></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <span class="permalink">
@@ -507,10 +522,28 @@ Transform from Markdown to PDF fromDirectory <span class="lit">"book-src"</span>
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="laika.format.EPUB#process" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="process(tree:laika.ast.DocumentTree,render:(laika.ast.DocumentTree,laika.io.OutputTree)=&gt;Unit,defaultTemplate:laika.ast.TemplateRoot,output:laika.io.Output.BinaryOutput):Unit"></a><a id="process(DocumentTree,(DocumentTree,OutputTree)⇒Unit,TemplateRoot,BinaryOutput):Unit"></a>
+    </li><li name="laika.format.EPUB#postProcessor" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="postProcessor:laika.factory.BinaryPostProcessor"></a><a id="postProcessor:BinaryPostProcessor"></a>
       <span class="permalink">
-      <a href="../../laika/format/EPUB$.html#process(tree:laika.ast.DocumentTree,render:(laika.ast.DocumentTree,laika.io.OutputTree)=&gt;Unit,defaultTemplate:laika.ast.TemplateRoot,output:laika.io.Output.BinaryOutput):Unit" title="Permalink">
+      <a href="../../laika/format/EPUB$.html#postProcessor:laika.factory.BinaryPostProcessor" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">postProcessor</span><span class="result">: <a href="../factory/BinaryPostProcessor.html" class="extype" name="laika.factory.BinaryPostProcessor">BinaryPostProcessor</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Produces an EPUB container from the specified result tree.</p><div class="fullcomment"><div class="comment cmt"><p>Produces an EPUB container from the specified result tree.</p><p> It includes the following files in the container:</p><ul><li>All text markup in the provided document tree, transformed to HTML by the specified render function.</li><li>All static content in the provided document tree, copied to the same relative path within the EPUB container.</li><li>Metadata and navigation files as required by the EPUB specification, auto-generated from the document tree
+   and the configuration of this instance.
+</li></ul></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.format.EPUB">EPUB</a> → <a href="../factory/TwoPhaseRenderFormat.html" class="extype" name="laika.factory.TwoPhaseRenderFormat">TwoPhaseRenderFormat</a></dd></dl></div>
+    </li><li name="laika.format.EPUB#prepareTree" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="prepareTree(tree:laika.ast.DocumentTreeRoot):laika.ast.DocumentTreeRoot"></a><a id="prepareTree(DocumentTreeRoot):DocumentTreeRoot"></a>
+      <span class="permalink">
+      <a href="../../laika/format/EPUB$.html#prepareTree(tree:laika.ast.DocumentTreeRoot):laika.ast.DocumentTreeRoot" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -519,12 +552,15 @@ Transform from Markdown to PDF fromDirectory <span class="lit">"book-src"</span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">process</span><span class="params">(<span name="tree">tree: <a href="../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>, <span name="render">render: (<a href="../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a>, <a href="../io/OutputTree.html" class="extype" name="laika.io.OutputTree">OutputTree</a>) ⇒ <span class="extype" name="scala.Unit">Unit</span></span>, <span name="defaultTemplate">defaultTemplate: <a href="../ast/TemplateRoot.html" class="extype" name="laika.ast.TemplateRoot">TemplateRoot</a></span>, <span name="output">output: <a href="../io/Output$$BinaryOutput.html" class="extype" name="laika.io.Output.BinaryOutput">BinaryOutput</a></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+        <span class="name">prepareTree</span><span class="params">(<span name="tree">tree: <a href="../ast/DocumentTreeRoot.html" class="extype" name="laika.ast.DocumentTreeRoot">DocumentTreeRoot</a></span>)</span><span class="result">: <a href="../ast/DocumentTreeRoot.html" class="extype" name="laika.ast.DocumentTreeRoot">DocumentTreeRoot</a></span>
       </span>
       
-      <p class="shortcomment cmt">Produces an EPUB container from the specified document tree.</p><div class="fullcomment"><div class="comment cmt"><p>Produces an EPUB container from the specified document tree.</p><p> It includes the following files in the container:</p><ul><li>All text markup in the provided document tree, transformed to HTML by the specified render function.</li><li>All static content in the provided document tree, copied to the same relative path within the EPUB container.</li><li>Metadata and navigation files as required by the EPUB specification, auto-generated from the document tree
-   and the configuration of this instance.
-</li></ul></div><dl class="paramcmts block"><dt class="param">tree</dt><dd class="cmt"><p>the tree to render to HTML</p></dd><dt class="param">render</dt><dd class="cmt"><p>the render function for producing the HTML</p></dd><dt class="param">defaultTemplate</dt><dd class="cmt"><p>the default template to merge with the render result</p></dd><dt class="param">output</dt><dd class="cmt"><p>the output to write the EPUB container to</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.format.EPUB">EPUB</a> → <a href="../factory/RenderResultProcessor.html" class="extype" name="laika.factory.RenderResultProcessor">RenderResultProcessor</a></dd></dl></div>
+      <p class="shortcomment cmt">Adds a cover image (if specified in the configuration)
+and a fallback CSS resource (if the input tree did not contain any CSS),
+before the tree gets passed to the XHTML renderer.</p><div class="fullcomment"><div class="comment cmt"><p>Adds a cover image (if specified in the configuration)
+and a fallback CSS resource (if the input tree did not contain any CSS),
+before the tree gets passed to the XHTML renderer.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.format.EPUB">EPUB</a> → <a href="../factory/TwoPhaseRenderFormat.html" class="extype" name="laika.factory.TwoPhaseRenderFormat">TwoPhaseRenderFormat</a></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">
@@ -617,18 +653,18 @@ Transform from Markdown to PDF fromDirectory <span class="lit">"book-src"</span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
     </span>)</span>
               
+                <span class="name">@native</span><span class="args">()</span>
+              
         </dd></dl></div>
     </li><li name="laika.format.EPUB.Config" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Config"></a><a id="Config:Config"></a>
       <span class="permalink">
-      <a href="../../laika/format/EPUB$.html#Config" title="Permalink">
+      <a href="../../laika/format/EPUB$$Config$.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -644,7 +680,7 @@ Transform from Markdown to PDF fromDirectory <span class="lit">"book-src"</span>
     </li><li name="laika.format.EPUB.XHTML" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="XHTML"></a><a id="XHTML:XHTML"></a>
       <span class="permalink">
-      <a href="../../laika/format/EPUB$.html#XHTML" title="Permalink">
+      <a href="../../laika/format/EPUB$$XHTML$.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -653,7 +689,7 @@ Transform from Markdown to PDF fromDirectory <span class="lit">"book-src"</span>
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a title="A render format for XHTML output as used by EPUB output." href="EPUB$$XHTML$.html"><span class="name">XHTML</span></a><span class="result"> extends <a href="../factory/RenderFormat.html" class="extype" name="laika.factory.RenderFormat">RenderFormat</a>[<a href="../render/HTMLWriter.html" class="extype" name="laika.render.HTMLWriter">HTMLWriter</a>]</span>
+        <a title="A render format for XHTML output as used by EPUB output." href="EPUB$$XHTML$.html"><span class="name">XHTML</span></a><span class="result"> extends <a href="../factory/RenderFormat.html" class="extype" name="laika.factory.RenderFormat">RenderFormat</a>[<a href="../render/HTMLFormatter.html" class="extype" name="laika.render.HTMLFormatter">HTMLFormatter</a>]</span>
       </span>
       
       <p class="shortcomment cmt">A render format for XHTML output as used by EPUB output.</p><div class="fullcomment"><div class="comment cmt"><p>A render format for XHTML output as used by EPUB output.</p><p>This format is usually not used directly with Laika's <code>Render</code> or <code>Transform</code> APIs.
@@ -669,8 +705,8 @@ It is primarily used internally by the parent <code>EPUB</code> instance.
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="laika.factory.RenderResultProcessor">
-              <h3>Inherited from <a href="../factory/RenderResultProcessor.html" class="extype" name="laika.factory.RenderResultProcessor">RenderResultProcessor</a>[<a href="../render/HTMLWriter.html" class="extype" name="laika.render.HTMLWriter">HTMLWriter</a>]</h3>
+        <div class="parent" name="laika.factory.TwoPhaseRenderFormat">
+              <h3>Inherited from <a href="../factory/TwoPhaseRenderFormat.html" class="extype" name="laika.factory.TwoPhaseRenderFormat">TwoPhaseRenderFormat</a>[<a href="../render/HTMLFormatter.html" class="extype" name="laika.render.HTMLFormatter">HTMLFormatter</a>, <a href="../factory/BinaryPostProcessor.html" class="extype" name="laika.factory.BinaryPostProcessor">BinaryPostProcessor</a>]</h3>
             </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">

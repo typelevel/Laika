@@ -8,17 +8,17 @@
           <meta name="keywords" content="" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
+      
       <link href="../../../lib/index.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../../lib/jquery.js"></script>
+      <script type="text/javascript" src="../../../lib/jquery.min.js"></script>
       <script type="text/javascript" src="../../../lib/jquery.panzoom.min.js"></script>
       <script type="text/javascript" src="../../../lib/jquery.mousewheel.min.js"></script>
       <script type="text/javascript" src="../../../lib/index.js"></script>
       <script type="text/javascript" src="../../../index.js"></script>
       <script type="text/javascript" src="../../../lib/scheduler.js"></script>
       <script type="text/javascript" src="../../../lib/template.js"></script>
-      <script type="text/javascript" src="../../../lib/tools.tooltip.js"></script>
       
       <script type="text/javascript">
         /* this variable can be used by the JS to determine the path to the root document */
@@ -56,7 +56,7 @@
                 <li name="_root_.root" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="_root_"></a><a id="root:_root_"></a>
       <span class="permalink">
-      <a href="index.html#_root_" title="Permalink">
+      <a href="../../../index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -72,7 +72,7 @@
     </li><li name="_root_.laika" visbl="pub" class="indented1 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="laika"></a><a id="laika:laika"></a>
       <span class="permalink">
-      <a href="index.html#laika" title="Permalink">
+      <a href="../../../laika/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -88,7 +88,7 @@
     </li><li name="laika.markdown" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="markdown"></a><a id="markdown:markdown"></a>
       <span class="permalink">
-      <a href="../laika/index.html#markdown" title="Permalink">
+      <a href="../../../laika/markdown/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -104,7 +104,7 @@
     </li><li name="laika.markdown.ast" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ast"></a><a id="ast:ast"></a>
       <span class="permalink">
-      <a href="../../laika/markdown/index.html#ast" title="Permalink">
+      <a href="../../../laika/markdown/ast/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -120,7 +120,7 @@
     </li><li name="laika.markdown.bundle" visbl="pub" class="indented3 current" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="bundle"></a><a id="bundle:bundle"></a>
       <span class="permalink">
-      <a href="../../laika/markdown/index.html#bundle" title="Permalink">
+      <a href="../../../laika/markdown/bundle/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -148,7 +148,7 @@
                       </li><li name="laika.markdown.github" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="github"></a><a id="github:github"></a>
       <span class="permalink">
-      <a href="../../laika/markdown/index.html#github" title="Permalink">
+      <a href="../../../laika/markdown/github/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -232,7 +232,7 @@
                 <li name="laika.markdown.bundle.HTMLRenderer" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="HTMLRenderer"></a><a id="HTMLRenderer:HTMLRenderer"></a>
       <span class="permalink">
-      <a href="../../../laika/markdown/bundle/index.html#HTMLRenderer" title="Permalink">
+      <a href="../../../laika/markdown/bundle/HTMLRenderer$.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -241,7 +241,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a title="Renderer for verbatim HTML elements." href="HTMLRenderer$.html"><span class="name">HTMLRenderer</span></a><span class="result"> extends (<a href="../../render/HTMLWriter.html" class="extype" name="laika.render.HTMLWriter">HTMLWriter</a>) ⇒ <a href="../../ast/index.html#RenderFunction=PartialFunction[laika.ast.Element,Unit]" class="extmbr" name="laika.ast.RenderFunction">RenderFunction</a></span>
+        <a title="Renderer for verbatim HTML elements." href="HTMLRenderer$.html"><span class="name">HTMLRenderer</span></a>
       </span>
       
       <p class="shortcomment cmt"> Renderer for verbatim HTML elements.</p><div class="fullcomment"><div class="comment cmt"><p> Renderer for verbatim HTML elements. Since verbatim HTML is treated as an optional feature
@@ -249,11 +249,11 @@
  the nodes in the document tree produced by the verbatim HTML parsers are not known by the standard
  renderers. This partial renderer complements the regular HTML renderer and simply writes
  the HTML elements out as they were read. Of course, in contrast to regular text, without
- escaping any of the special HTML characters.</p><p> It must be applied explicitly as part of the <code>VerbatimHTML</code> bundle when enabling verbatim HTML:</p><pre><span class="kw">val</span> transform = Transform.from(Markdown).to(HTML).withRawContent</pre></div></div>
+ escaping any of the special HTML characters.</p><p> It must be applied explicitly as part of the <code>VerbatimHTML</code> bundle when enabling verbatim HTML:</p><pre><span class="kw">val</span> transformer = Transformer.from(Markdown).to(HTML).withRawContent</pre></div></div>
     </li><li name="laika.markdown.bundle.HeaderIdInsertion" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="HeaderIdInsertion"></a><a id="HeaderIdInsertion:HeaderIdInsertion"></a>
       <span class="permalink">
-      <a href="../../../laika/markdown/bundle/index.html#HeaderIdInsertion" title="Permalink">
+      <a href="../../../laika/markdown/bundle/HeaderIdInsertion$.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -276,7 +276,7 @@ documents.</p><p>This extension is disabled when Markdown is parsed in strict mo
     </li><li name="laika.markdown.bundle.VerbatimHTML" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="VerbatimHTML"></a><a id="VerbatimHTML:VerbatimHTML"></a>
       <span class="permalink">
-      <a href="../../../laika/markdown/bundle/index.html#VerbatimHTML" title="Permalink">
+      <a href="../../../laika/markdown/bundle/VerbatimHTML$.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -292,7 +292,7 @@ documents.</p><p>This extension is disabled when Markdown is parsed in strict mo
  the standard Markdown markup.</p><div class="fullcomment"><div class="comment cmt"><p> Markdown extension that also parses verbatim HTML elements alongside
  the standard Markdown markup.</p><p> Since verbatim HTML is treated as an optional feature
  by this library as it aims to also support renderers for other formats than HTML,
- this extension is disabled by default.</p><p> You can enable it with the Transform API:</p><pre><span class="kw">val</span> transform = Transform.from(Markdown).to(HTML).withRawContent</pre></div></div>
+ this extension is disabled by default.</p><p> You can enable it with the Transform API:</p><pre><span class="kw">val</span> transformer = Transformer.from(Markdown).to(HTML).withRawContent</pre></div></div>
     </li>
               </ol>
             </div>

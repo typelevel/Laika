@@ -8,17 +8,17 @@
           <meta name="keywords" content="" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
+      
       <link href="../../../lib/index.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../../lib/jquery.js"></script>
+      <script type="text/javascript" src="../../../lib/jquery.min.js"></script>
       <script type="text/javascript" src="../../../lib/jquery.panzoom.min.js"></script>
       <script type="text/javascript" src="../../../lib/jquery.mousewheel.min.js"></script>
       <script type="text/javascript" src="../../../lib/index.js"></script>
       <script type="text/javascript" src="../../../index.js"></script>
       <script type="text/javascript" src="../../../lib/scheduler.js"></script>
       <script type="text/javascript" src="../../../lib/template.js"></script>
-      <script type="text/javascript" src="../../../lib/tools.tooltip.js"></script>
       
       <script type="text/javascript">
         /* this variable can be used by the JS to determine the path to the root document */
@@ -56,7 +56,7 @@
                 <li name="_root_.root" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="_root_"></a><a id="root:_root_"></a>
       <span class="permalink">
-      <a href="index.html#_root_" title="Permalink">
+      <a href="../../../index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -72,7 +72,7 @@
     </li><li name="_root_.laika" visbl="pub" class="indented1 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="laika"></a><a id="laika:laika"></a>
       <span class="permalink">
-      <a href="index.html#laika" title="Permalink">
+      <a href="../../../laika/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -88,7 +88,7 @@
     </li><li name="laika.rst" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="rst"></a><a id="rst:rst"></a>
       <span class="permalink">
-      <a href="../laika/index.html#rst" title="Permalink">
+      <a href="../../../laika/rst/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -104,7 +104,7 @@
     </li><li name="laika.rst.bundle" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="bundle"></a><a id="bundle:bundle"></a>
       <span class="permalink">
-      <a href="../../laika/rst/index.html#bundle" title="Permalink">
+      <a href="../../../laika/rst/bundle/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -192,12 +192,11 @@ them to Parse, Render or Transform operations:</p><pre><span class="kw">object</
   [...]
 }
 
-Transform
+<span class="kw">val</span> transformer = Transformer
   .from(ReStructuredText)
   .to(HTML)
   .using(MyDirectives, OtherDirectives)
-  .fromFile(<span class="lit">"hello.rst"</span>)
-  .toFile(<span class="lit">"hello.html"</span>)</pre><p>In contrast to the original Python implementation, this API has been redesigned to be a more
+  .build</pre><p>In contrast to the original Python implementation, this API has been redesigned to be a more
  idiomatic, concise and type-safe Scala DSL. See the documentation for the methods of this trait
  for concrete examples on how to implement an extension.</p><p> The following extension types are available:</p><ul><li>Block Directives - an extension hook for adding new block level elements to
    reStructuredText markup. Use the <code>blockDirectives</code> method of this class to
@@ -293,16 +292,18 @@ Transform
 <span class="kw">object</span> MyDirectives <span class="kw">extends</span> RstExtensionRegistry {
   <span class="kw">val</span> blockDirectives = <span class="std">Seq</span>(
     BlockDirective(<span class="lit">"note"</span>) {
-      (argument() ~ blockContent)(Note)
+      (argument() ~ blockContent).map { <span class="kw">case</span> title ~ content <span class="kw">=&gt;</span> Note(title, content) }
     }
   )
   <span class="kw">val</span> spanDirectives = <span class="std">Seq</span>()
   <span class="kw">val</span> textRoles = <span class="std">Seq</span>()
 }
 
-Transform.from(ReStructuredText).to(HTML)
+<span class="kw">val</span> transformer = Transformer
+  .from(ReStructuredText)
+  .to(HTML)
   .using(MyDirectives)
-  .fromFile(<span class="lit">"hello.rst"</span>).toFile(<span class="lit">"hello.html"</span>)</pre><p> For more details on implementing directives see <a href="../ext/Directives$.html" class="extype" name="laika.rst.ext.Directives">laika.rst.ext.Directives</a>.
+  .build</pre><p> For more details on implementing directives see <a href="../ext/Directives$.html" class="extype" name="laika.rst.ext.Directives">laika.rst.ext.Directives</a>.
 </p></div></div>
     </li><li name="laika.rst.bundle.RstExtensionRegistry#spanDirectives" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="spanDirectives:Seq[laika.rst.ext.Directives.Directive[laika.ast.Span]]"></a><a id="spanDirectives:Seq[Directive[Span]]"></a>
@@ -330,9 +331,11 @@ Transform.from(ReStructuredText).to(HTML)
   <span class="kw">val</span> textRoles = <span class="std">Seq</span>()
 }
 
-Transform.from(ReStructuredText).to(HTML)
+<span class="kw">val</span> transformer = Transformer
+  .from(ReStructuredText)
+  .to(HTML)
   .using(MyDirectives)
-  .fromFile(<span class="lit">"hello.rst"</span>).toFile(<span class="lit">"hello.html"</span>)</pre><p> For more details on implementing directives see <a href="../ext/Directives$.html" class="extype" name="laika.rst.ext.Directives">laika.rst.ext.Directives</a>.
+  .build</pre><p> For more details on implementing directives see <a href="../ext/Directives$.html" class="extype" name="laika.rst.ext.Directives">laika.rst.ext.Directives</a>.
 </p></div></div>
     </li><li name="laika.rst.bundle.RstExtensionRegistry#textRoles" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="textRoles:Seq[laika.rst.ext.TextRoles.TextRole]"></a><a id="textRoles:Seq[TextRole]"></a>
@@ -360,8 +363,11 @@ Transform.from(ReStructuredText).to(HTML)
   <span class="kw">val</span> blockDirectives = <span class="std">Seq</span>()
 }
 
-Transform from ReStructuredText to HTML using
-  MyDirectives fromFile <span class="lit">"hello.rst"</span> toFile <span class="lit">"hello.html"</span></pre><p> For more details on implementing directives see <a href="../ext/TextRoles$.html" class="extype" name="laika.rst.ext.TextRoles">laika.rst.ext.TextRoles</a>.
+<span class="kw">val</span> transformer = Transformer
+  .from(ReStructuredText)
+  .to(HTML)
+  .using(MyDirectives)
+  .build</pre><p> For more details on implementing directives see <a href="../ext/TextRoles$.html" class="extype" name="laika.rst.ext.TextRoles">laika.rst.ext.TextRoles</a>.
 </p></div></div>
     </li></ol>
             </div>
@@ -435,8 +441,7 @@ Transform from ReStructuredText to HTML using
       <p class="shortcomment cmt">Indicates that this bundle deals with raw content embedded in text markup, like HTML.</p><div class="fullcomment"><div class="comment cmt"><p>Indicates that this bundle deals with raw content embedded in text markup, like HTML.</p><p>These kind of bundles are disabled by default as Laika is designed to render to multiple
 output formats from a single input document. With raw content embedded the markup document
 is tied to a specific output format.</p><p>Bundles which have this flag set to true need to be enabled explicitly by the user by calling
-<code>withRawContent</code> on the <code>Parse</code> or <code>Transform</code> API:</p><pre>Transform.from(Markdown).to(HTML).withRawContent
-  .fromFile(<span class="lit">"hello.md"</span>).toFile(<span class="lit">"hello.html"</span>)</pre></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a></dd></dl></div>
+<code>withRawContent</code> on the <code>Parse</code> or <code>Transform</code> API:</p><pre><span class="kw">val</span> transformer = Transformer.from(Markdown).to(HTML).withRawContent.build</pre></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a></dd></dl></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <span class="permalink">
@@ -454,9 +459,9 @@ is tied to a specific output format.</p><p>Bundles which have this flag set to t
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="laika.bundle.ExtensionBundle#baseConfig" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="baseConfig:com.typesafe.config.Config"></a><a id="baseConfig:Config"></a>
+      <a id="baseConfig:laika.config.Config"></a><a id="baseConfig:Config"></a>
       <span class="permalink">
-      <a href="../../../laika/rst/bundle/RstExtensionRegistry.html#baseConfig:com.typesafe.config.Config" title="Permalink">
+      <a href="../../../laika/rst/bundle/RstExtensionRegistry.html#baseConfig:laika.config.Config" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -465,7 +470,7 @@ is tied to a specific output format.</p><p>Bundles which have this flag set to t
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">baseConfig</span><span class="result">: <span class="extype" name="com.typesafe.config.Config">Config</span></span>
+        <span class="name">baseConfig</span><span class="result">: <a href="../../config/Config.html" class="extype" name="laika.config.Config">Config</a></span>
       </span>
       
       <p class="shortcomment cmt">Base configuration that serves as a fallback for
@@ -489,13 +494,13 @@ and/or config headers in markup and template documents.
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
     </span>)</span>
+              
+                <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
     </li><li name="laika.rst.bundle.RstExtensionRegistry#defaultTextRole" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
@@ -584,7 +589,7 @@ directory in transformations by default.
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="symbol">classOf[java.lang.Throwable]</span>
@@ -740,9 +745,9 @@ bundle which deals with finally creating all the directive parsers.</p><p>The pa
 and is then allowed to return a new, modified instance of that bundle.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.rst.bundle.RstExtensionRegistry">RstExtensionRegistry</a> → <a href="../../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a></dd></dl></div>
     </li><li name="laika.bundle.ExtensionBundle#rewriteRules" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="rewriteRules:Seq[laika.ast.DocumentCursor=&gt;laika.ast.RewriteRule]"></a><a id="rewriteRules:Seq[(DocumentCursor)⇒RewriteRule]"></a>
+      <a id="rewriteRules:Seq[laika.ast.DocumentCursor=&gt;laika.ast.RewriteRules]"></a><a id="rewriteRules:Seq[(DocumentCursor)⇒ast.RewriteRules]"></a>
       <span class="permalink">
-      <a href="../../../laika/rst/bundle/RstExtensionRegistry.html#rewriteRules:Seq[laika.ast.DocumentCursor=&gt;laika.ast.RewriteRule]" title="Permalink">
+      <a href="../../../laika/rst/bundle/RstExtensionRegistry.html#rewriteRules:Seq[laika.ast.DocumentCursor=&gt;laika.ast.RewriteRules]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -751,7 +756,7 @@ and is then allowed to return a new, modified instance of that bundle.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">rewriteRules</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[(<a href="../../ast/DocumentCursor.html" class="extype" name="laika.ast.DocumentCursor">DocumentCursor</a>) ⇒ <a href="../../ast/index.html#RewriteRule=PartialFunction[laika.ast.Element,Option[laika.ast.Element]]" class="extmbr" name="laika.ast.RewriteRule">RewriteRule</a>]</span>
+        <span class="name">rewriteRules</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[(<a href="../../ast/DocumentCursor.html" class="extype" name="laika.ast.DocumentCursor">DocumentCursor</a>) ⇒ <a href="../../ast/RewriteRules.html" class="extype" name="laika.ast.RewriteRules">ast.RewriteRules</a>]</span>
       </span>
       
       <p class="shortcomment cmt">Specifies rewrite rules to be applied to the document tree model between the
@@ -892,12 +897,12 @@ text markup language as defined in its specification, but implemented as an exte
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
     </span>)</span>
+              
+                <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
     </li><li name="laika.bundle.ExtensionBundle#withBase" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">

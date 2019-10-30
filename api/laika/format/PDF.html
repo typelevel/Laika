@@ -8,17 +8,17 @@
           <meta name="keywords" content="" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
+      
       <link href="../../lib/index.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../lib/jquery.js"></script>
+      <script type="text/javascript" src="../../lib/jquery.min.js"></script>
       <script type="text/javascript" src="../../lib/jquery.panzoom.min.js"></script>
       <script type="text/javascript" src="../../lib/jquery.mousewheel.min.js"></script>
       <script type="text/javascript" src="../../lib/index.js"></script>
       <script type="text/javascript" src="../../index.js"></script>
       <script type="text/javascript" src="../../lib/scheduler.js"></script>
       <script type="text/javascript" src="../../lib/template.js"></script>
-      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
       
       <script type="text/javascript">
         /* this variable can be used by the JS to determine the path to the root document */
@@ -56,7 +56,7 @@
                 <li name="_root_.root" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="_root_"></a><a id="root:_root_"></a>
       <span class="permalink">
-      <a href="index.html#_root_" title="Permalink">
+      <a href="../../index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -72,7 +72,7 @@
     </li><li name="_root_.laika" visbl="pub" class="indented1 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="laika"></a><a id="laika:laika"></a>
       <span class="permalink">
-      <a href="index.html#laika" title="Permalink">
+      <a href="../../laika/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -88,7 +88,7 @@
     </li><li name="laika.format" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="format"></a><a id="format:format"></a>
       <span class="permalink">
-      <a href="../laika/index.html#format" title="Permalink">
+      <a href="../../laika/format/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -154,22 +154,37 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <span class="name">PDF</span><span class="result"> extends <a href="../factory/RenderResultProcessor.html" class="extype" name="laika.factory.RenderResultProcessor">RenderResultProcessor</a>[<a href="../render/FOWriter.html" class="extype" name="laika.render.FOWriter">FOWriter</a>]</span>
+        <span class="name">PDF</span><span class="result"> extends <a href="../factory/TwoPhaseRenderFormat.html" class="extype" name="laika.factory.TwoPhaseRenderFormat">TwoPhaseRenderFormat</a>[<a href="../render/FOFormatter.html" class="extype" name="laika.render.FOFormatter">FOFormatter</a>, <a href="../factory/BinaryPostProcessor.html" class="extype" name="laika.factory.BinaryPostProcessor">BinaryPostProcessor</a>]</span>
       </span>
       </h4>
 
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>A post processor for PDF output, based on an interim XSL-FO renderer.
- May be directly passed to the <code>Render</code> or <code>Transform</code> APIs:</p><pre><span class="kw">val</span> document: Document = ...
-Render as PDF from document toFile <span class="lit">"hello.pdf"</span>
+ May be directly passed to the <code>Render</code> or <code>Transform</code> APIs:</p><pre><span class="kw">implicit</span> <span class="kw">val</span> cs: ContextShift[IO] =
+  IO.contextShift(ExecutionContext.global)
 
-Transform from Markdown to PDF fromDirectory <span class="lit">"book-src"</span> toFile <span class="lit">"book.pdf"</span></pre><p> In the second example above the input from an entire directory gets
+<span class="kw">val</span> blocker = Blocker.liftExecutionContext(
+  ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
+)
+
+<span class="kw">val</span> transformer = Transformer
+  .from(Markdown)
+  .to(PDF)
+  .using(GitHubFlavor)
+  .io(blocker)
+  .parallel[IO]
+  .build
+
+<span class="kw">val</span> res: IO[<span class="std">Unit</span>] = transformer
+  .fromDirectory(<span class="lit">"src"</span>)
+  .toFile(<span class="lit">"demo.pdf"</span>)
+  .transform</pre><p> In the example above the input from an entire directory gets
  merged into a single output file.
 </p></div><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
           </span>
-          <div class="superTypes hiddenContent"><a href="../factory/RenderResultProcessor.html" class="extype" name="laika.factory.RenderResultProcessor">RenderResultProcessor</a>[<a href="../render/FOWriter.html" class="extype" name="laika.render.FOWriter">FOWriter</a>], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><a href="../factory/TwoPhaseRenderFormat.html" class="extype" name="laika.factory.TwoPhaseRenderFormat">TwoPhaseRenderFormat</a>[<a href="../render/FOFormatter.html" class="extype" name="laika.render.FOFormatter">FOFormatter</a>, <a href="../factory/BinaryPostProcessor.html" class="extype" name="laika.factory.BinaryPostProcessor">BinaryPostProcessor</a>], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div><div class="toggleContainer block">
             <span class="toggle">
               Known Subclasses
@@ -200,7 +215,7 @@ Transform from Markdown to PDF fromDirectory <span class="lit">"book-src"</span>
                   <span class="filtertype">Inherited<br />
                   </span>
                   <ol id="linearization">
-                    <li class="in" name="laika.format.PDF"><span>PDF</span></li><li class="in" name="laika.factory.RenderResultProcessor"><span>RenderResultProcessor</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                    <li class="in" name="laika.format.PDF"><span>PDF</span></li><li class="in" name="laika.factory.TwoPhaseRenderFormat"><span>TwoPhaseRenderFormat</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                   </ol>
                 </div><div class="ancestors">
               <span class="filtertype"></span>
@@ -306,13 +321,13 @@ Transform from Markdown to PDF fromDirectory <span class="lit">"book-src"</span>
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
     </span>)</span>
+              
+                <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
@@ -362,30 +377,13 @@ Transform from Markdown to PDF fromDirectory <span class="lit">"book-src"</span>
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="symbol">classOf[java.lang.Throwable]</span>
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="laika.format.PDF#format" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="format:laika.factory.RenderFormat[laika.render.FOWriter]"></a><a id="format:RenderFormat[FOWriter]"></a>
-      <span class="permalink">
-      <a href="../../laika/format/PDF.html#format:laika.factory.RenderFormat[laika.render.FOWriter]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">format</span><span class="result">: <a href="../factory/RenderFormat.html" class="extype" name="laika.factory.RenderFormat">RenderFormat</a>[<a href="../render/FOWriter.html" class="extype" name="laika.render.FOWriter">FOWriter</a>]</span>
-      </span>
-      
-      <p class="shortcomment cmt">The factory for the renderer that produces the interim result.</p><div class="fullcomment"><div class="comment cmt"><p>The factory for the renderer that produces the interim result.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.format.PDF">PDF</a> → <a href="../factory/RenderResultProcessor.html" class="extype" name="laika.factory.RenderResultProcessor">RenderResultProcessor</a></dd></dl></div>
     </li><li name="scala.AnyRef#getClass" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <span class="permalink">
@@ -424,6 +422,23 @@ Transform from Markdown to PDF fromDirectory <span class="lit">"book-src"</span>
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li name="laika.format.PDF#interimFormat" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="interimFormat:laika.factory.RenderFormat[laika.render.FOFormatter]"></a><a id="interimFormat:RenderFormat[FOFormatter]"></a>
+      <span class="permalink">
+      <a href="../../laika/format/PDF.html#interimFormat:laika.factory.RenderFormat[laika.render.FOFormatter]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">interimFormat</span><span class="result">: <a href="../factory/RenderFormat.html" class="extype" name="laika.factory.RenderFormat">RenderFormat</a>[<a href="../render/FOFormatter.html" class="extype" name="laika.render.FOFormatter">FOFormatter</a>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">The render format for the interim result, the first phase of this renderer.</p><div class="fullcomment"><div class="comment cmt"><p>The render format for the interim result, the first phase of this renderer.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.format.PDF">PDF</a> → <a href="../factory/TwoPhaseRenderFormat.html" class="extype" name="laika.factory.TwoPhaseRenderFormat">TwoPhaseRenderFormat</a></dd></dl></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <span class="permalink">
@@ -494,10 +509,29 @@ Transform from Markdown to PDF fromDirectory <span class="lit">"book-src"</span>
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="laika.format.PDF#process" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="process(tree:laika.ast.DocumentTree,render:(laika.ast.DocumentTree,laika.io.OutputTree)=&gt;Unit,defaultTemplate:laika.ast.TemplateRoot,output:laika.io.Output.BinaryOutput):Unit"></a><a id="process(DocumentTree,(DocumentTree,OutputTree)⇒Unit,TemplateRoot,BinaryOutput):Unit"></a>
+    </li><li name="laika.format.PDF#postProcessor" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="postProcessor:laika.factory.BinaryPostProcessor"></a><a id="postProcessor:BinaryPostProcessor"></a>
       <span class="permalink">
-      <a href="../../laika/format/PDF.html#process(tree:laika.ast.DocumentTree,render:(laika.ast.DocumentTree,laika.io.OutputTree)=&gt;Unit,defaultTemplate:laika.ast.TemplateRoot,output:laika.io.Output.BinaryOutput):Unit" title="Permalink">
+      <a href="../../laika/format/PDF.html#postProcessor:laika.factory.BinaryPostProcessor" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">postProcessor</span><span class="result">: <a href="../factory/BinaryPostProcessor.html" class="extype" name="laika.factory.BinaryPostProcessor">BinaryPostProcessor</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Processes the interim XSL-FO result, transforms it to PDF and writes
+it to the specified final output.</p><div class="fullcomment"><div class="comment cmt"><p>Processes the interim XSL-FO result, transforms it to PDF and writes
+it to the specified final output.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.format.PDF">PDF</a> → <a href="../factory/TwoPhaseRenderFormat.html" class="extype" name="laika.factory.TwoPhaseRenderFormat">TwoPhaseRenderFormat</a></dd></dl></div>
+    </li><li name="laika.format.PDF#prepareTree" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="prepareTree(root:laika.ast.DocumentTreeRoot):laika.ast.DocumentTreeRoot"></a><a id="prepareTree(DocumentTreeRoot):DocumentTreeRoot"></a>
+      <span class="permalink">
+      <a href="../../laika/format/PDF.html#prepareTree(root:laika.ast.DocumentTreeRoot):laika.ast.DocumentTreeRoot" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -506,61 +540,12 @@ Transform from Markdown to PDF fromDirectory <span class="lit">"book-src"</span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">process</span><span class="params">(<span name="tree">tree: <a href="../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>, <span name="render">render: (<a href="../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a>, <a href="../io/OutputTree.html" class="extype" name="laika.io.OutputTree">OutputTree</a>) ⇒ <span class="extype" name="scala.Unit">Unit</span></span>, <span name="defaultTemplate">defaultTemplate: <a href="../ast/TemplateRoot.html" class="extype" name="laika.ast.TemplateRoot">TemplateRoot</a></span>, <span name="output">output: <a href="../io/Output$$BinaryOutput.html" class="extype" name="laika.io.Output.BinaryOutput">BinaryOutput</a></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+        <span class="name">prepareTree</span><span class="params">(<span name="root">root: <a href="../ast/DocumentTreeRoot.html" class="extype" name="laika.ast.DocumentTreeRoot">DocumentTreeRoot</a></span>)</span><span class="result">: <a href="../ast/DocumentTreeRoot.html" class="extype" name="laika.ast.DocumentTreeRoot">DocumentTreeRoot</a></span>
       </span>
       
-      <p class="shortcomment cmt">Processes the tree by first using the specified render function
- to produce the interim XSL-FO result, transform the result to PDF and write
- it to the specified final output.</p><div class="fullcomment"><div class="comment cmt"><p>Processes the tree by first using the specified render function
- to produce the interim XSL-FO result, transform the result to PDF and write
- it to the specified final output.
-</p></div><dl class="paramcmts block"><dt class="param">tree</dt><dd class="cmt"><p>the tree to render to the interim result</p></dd><dt class="param">render</dt><dd class="cmt"><p>the render function for producing the interim XSL-FO result</p></dd><dt class="param">defaultTemplate</dt><dd class="cmt"><p>the default template to merge with the render result</p></dd><dt class="param">output</dt><dd class="cmt"><p>the output to write the final result to</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.format.PDF">PDF</a> → <a href="../factory/RenderResultProcessor.html" class="extype" name="laika.factory.RenderResultProcessor">RenderResultProcessor</a></dd></dl></div>
-    </li><li name="laika.format.PDF#renderFO" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="renderFO(tree:laika.ast.DocumentTree,render:(laika.ast.DocumentTree,laika.io.OutputTree)=&gt;Unit,defaultTemplate:laika.ast.TemplateRoot):String"></a><a id="renderFO(DocumentTree,(DocumentTree,OutputTree)⇒Unit,TemplateRoot):String"></a>
-      <span class="permalink">
-      <a href="../../laika/format/PDF.html#renderFO(tree:laika.ast.DocumentTree,render:(laika.ast.DocumentTree,laika.io.OutputTree)=&gt;Unit,defaultTemplate:laika.ast.TemplateRoot):String" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">renderFO</span><span class="params">(<span name="tree">tree: <a href="../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>, <span name="render">render: (<a href="../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a>, <a href="../io/OutputTree.html" class="extype" name="laika.io.OutputTree">OutputTree</a>) ⇒ <span class="extype" name="scala.Unit">Unit</span></span>, <span name="defaultTemplate">defaultTemplate: <a href="../ast/TemplateRoot.html" class="extype" name="laika.ast.TemplateRoot">TemplateRoot</a></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
-      </span>
-      
-      <p class="shortcomment cmt">Renders the XSL-FO that serves as a basis for producing the final PDF output.</p><div class="fullcomment"><div class="comment cmt"><p>Renders the XSL-FO that serves as a basis for producing the final PDF output.
- The result should include the output from rendering the documents in the
- specified tree as well as any additional insertions like bookmarks or
- table of content. For this the specified <code>DocumentTree</code> instance may get
- modified before passing it to the given render function.</p><p> The default implementation simply delegates to an instance of <code>FOforPDF</code>
- which uses a <code>PDFConfig</code> object to drive configuration. In rare cases
- where the flexibility provided by <code>PDFConfig</code> is not sufficient, this
- method may get overridden.
-</p></div><dl class="paramcmts block"><dt class="param">tree</dt><dd class="cmt"><p>the document tree serving as input for the renderer</p></dd><dt class="param">render</dt><dd class="cmt"><p>the actual render function for producing the XSL-FO output</p></dd><dt>returns</dt><dd class="cmt"><p>the rendered XSL-FO as a String</p></dd></dl><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
-    </li><li name="laika.format.PDF#renderPDF" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="renderPDF(foInput:laika.io.Input,output:laika.io.Output.BinaryOutput,metadata:laika.ast.DocumentMetadata,title:Option[String],sourcePaths:Seq[String]):Unit"></a><a id="renderPDF(Input,BinaryOutput,DocumentMetadata,Option[String],Seq[String]):Unit"></a>
-      <span class="permalink">
-      <a href="../../laika/format/PDF.html#renderPDF(foInput:laika.io.Input,output:laika.io.Output.BinaryOutput,metadata:laika.ast.DocumentMetadata,title:Option[String],sourcePaths:Seq[String]):Unit" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">renderPDF</span><span class="params">(<span name="foInput">foInput: <a href="../io/Input.html" class="extype" name="laika.io.Input">Input</a></span>, <span name="output">output: <a href="../io/Output$$BinaryOutput.html" class="extype" name="laika.io.Output.BinaryOutput">BinaryOutput</a></span>, <span name="metadata">metadata: <a href="../ast/DocumentMetadata.html" class="extype" name="laika.ast.DocumentMetadata">DocumentMetadata</a></span>, <span name="title">title: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="sourcePaths">sourcePaths: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">Nil</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
-      </span>
-      
-      <p class="shortcomment cmt">Render the given XSL-FO input as a PDF to the specified
- binary output.</p><div class="fullcomment"><div class="comment cmt"><p>Render the given XSL-FO input as a PDF to the specified
- binary output. The optional <code>sourcePaths</code> argument
- may be used to allow resolving relative paths for
- loading external files like images.
-</p></div><dl class="paramcmts block"><dt class="param">foInput</dt><dd class="cmt"><p>the input in XSL-FO format</p></dd><dt class="param">output</dt><dd class="cmt"><p>the output to write the final result to</p></dd><dt class="param">metadata</dt><dd class="cmt"><p>the metadata associated with the PDF</p></dd><dt class="param">title</dt><dd class="cmt"><p>the title of the document</p></dd><dt class="param">sourcePaths</dt><dd class="cmt"><p>the paths that may contain files like images
- which will be used to resolve relative paths</p></dd></dl></div>
+      <p class="shortcomment cmt">Adds PDF bookmarks and/or a table of content to the specified document tree, depending on configuration.</p><div class="fullcomment"><div class="comment cmt"><p>Adds PDF bookmarks and/or a table of content to the specified document tree, depending on configuration.
+The modified tree will be used for rendering the interim XSL-FO result.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.format.PDF">PDF</a> → <a href="../factory/TwoPhaseRenderFormat.html" class="extype" name="laika.factory.TwoPhaseRenderFormat">TwoPhaseRenderFormat</a></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">
@@ -653,12 +638,12 @@ Transform from Markdown to PDF fromDirectory <span class="lit">"book-src"</span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
     </span>)</span>
+              
+                <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
     </li><li name="laika.format.PDF#withConfig" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
@@ -710,8 +695,8 @@ factory is reused between renderers.
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="laika.factory.RenderResultProcessor">
-              <h3>Inherited from <a href="../factory/RenderResultProcessor.html" class="extype" name="laika.factory.RenderResultProcessor">RenderResultProcessor</a>[<a href="../render/FOWriter.html" class="extype" name="laika.render.FOWriter">FOWriter</a>]</h3>
+        <div class="parent" name="laika.factory.TwoPhaseRenderFormat">
+              <h3>Inherited from <a href="../factory/TwoPhaseRenderFormat.html" class="extype" name="laika.factory.TwoPhaseRenderFormat">TwoPhaseRenderFormat</a>[<a href="../render/FOFormatter.html" class="extype" name="laika.render.FOFormatter">FOFormatter</a>, <a href="../factory/BinaryPostProcessor.html" class="extype" name="laika.factory.BinaryPostProcessor">BinaryPostProcessor</a>]</h3>
             </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">

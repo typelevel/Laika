@@ -8,17 +8,17 @@
           <meta name="keywords" content="" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
+      
       <link href="../../lib/index.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../lib/jquery.js"></script>
+      <script type="text/javascript" src="../../lib/jquery.min.js"></script>
       <script type="text/javascript" src="../../lib/jquery.panzoom.min.js"></script>
       <script type="text/javascript" src="../../lib/jquery.mousewheel.min.js"></script>
       <script type="text/javascript" src="../../lib/index.js"></script>
       <script type="text/javascript" src="../../index.js"></script>
       <script type="text/javascript" src="../../lib/scheduler.js"></script>
       <script type="text/javascript" src="../../lib/template.js"></script>
-      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
       
       <script type="text/javascript">
         /* this variable can be used by the JS to determine the path to the root document */
@@ -56,7 +56,7 @@
                 <li name="_root_.root" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="_root_"></a><a id="root:_root_"></a>
       <span class="permalink">
-      <a href="index.html#_root_" title="Permalink">
+      <a href="../../index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -72,7 +72,7 @@
     </li><li name="_root_.laika" visbl="pub" class="indented1 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="laika"></a><a id="laika:laika"></a>
       <span class="permalink">
-      <a href="index.html#laika" title="Permalink">
+      <a href="../../laika/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -88,7 +88,7 @@
     </li><li name="laika.bundle" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="bundle"></a><a id="bundle:bundle"></a>
       <span class="permalink">
-      <a href="../laika/index.html#bundle" title="Permalink">
+      <a href="../../laika/bundle/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -118,13 +118,9 @@
                         <a class="trait" href="BlockPosition.html" title="Specifies the position a block element is allowed to appear in."></a>
                         <a href="BlockPosition.html" title="Specifies the position a block element is allowed to appear in.">BlockPosition</a>
                       </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="object" href="ConfigImplicits$.html" title="Extension methods for Typesafe Config instances."></a>
-                        <a href="ConfigImplicits$.html" title="Extension methods for Typesafe Config instances.">ConfigImplicits</a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="object" href="" title="Factory for Typesafe Config instances that add information about the virtual path of the configuration within a Laika document tree."></a>
-                        <a href="" title="Factory for Typesafe Config instances that add information about the virtual path of the configuration within a Laika document tree.">ConfigProvider</a>
+                        <a class="object" href="" title=""></a>
+                        <a class="trait" href="ConfigProvider.html" title="Responsible for providing the parsers for configuration files and configuration headers in markup documents as part of an ExtensionBundle."></a>
+                        <a href="ConfigProvider.html" title="Responsible for providing the parsers for configuration files and configuration headers in markup documents as part of an ExtensionBundle.">ConfigProvider</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="object" href="DocumentTypeMatcher$.html" title="The default implementations for determining the document type of the input based on its path."></a>
@@ -162,10 +158,6 @@
                         <a class="trait" href="RenderTheme.html" title="Collects templates, styles and custom render functions to form a theme for a specific output format."></a>
                         <a href="RenderTheme.html" title="Collects templates, styles and custom render functions to form a theme for a specific output format.">RenderTheme</a>
                       </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="object" href="RewriteRules$.html" title="Utilities for dealing with rewrite rules."></a>
-                        <a href="RewriteRules$.html" title="Utilities for dealing with rewrite rules.">RewriteRules</a>
-                      </li><li class="current-entities indented2">
                         <a class="object" href="SpanParser$.html" title="Builder API for span parsers."></a>
                         <a class="class" href="SpanParser.html" title="Builder API for span parsers."></a>
                         <a href="SpanParser.html" title="Builder API for span parsers.">SpanParser</a>
@@ -178,9 +170,9 @@
                         <a class="class" href="SpanParserDefinition.html" title="Defines a parser for a single kind of span element, like a literal text span or a link reference for example."></a>
                         <a href="SpanParserDefinition.html" title="Defines a parser for a single kind of span element, like a literal text span or a link reference for example.">SpanParserDefinition</a>
                       </li><li class="current-entities indented2">
-                        <a class="object" href="StaticDocuments$.html" title="API for defining a collection of static documents based on one or more directories."></a>
-                        <a class="class" href="StaticDocuments.html" title="A collection of static documents to be copied over to the target directory in each transform operation."></a>
-                        <a href="StaticDocuments.html" title="A collection of static documents to be copied over to the target directory in each transform operation.">StaticDocuments</a>
+                        <a class="object" href="UnresolvedConfig$.html" title=""></a>
+                        <a class="trait" href="UnresolvedConfig.html" title="An unresolved Config instance that will be lazily resolved against a fallback."></a>
+                        <a href="UnresolvedConfig.html" title="An unresolved Config instance that will be lazily resolved against a fallback.">UnresolvedConfig</a>
                       </li>
               </ul>
             </div>
@@ -188,14 +180,16 @@
           <div id="content">
             <body class="object value">
       <div id="definition">
-        <div class="big-circle object">o</div>
+        <a href="ConfigProvider.html" title="See companion trait"><div class="big-circle object-companion-trait">o</div></a>
         <p id="owner"><a href="../index.html" class="extype" name="laika">laika</a>.<a href="index.html" class="extype" name="laika.bundle">bundle</a></p>
-        <h1>ConfigProvider<span class="permalink">
+        <h1><a href="ConfigProvider.html" title="See companion trait">ConfigProvider</a><span class="permalink">
       <a href="../../laika/bundle/ConfigProvider$.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span></h1>
-        <h3><span class="morelinks"></span></h3>
+        <h3><span class="morelinks"><div>
+            Companion <a href="ConfigProvider.html" title="See companion trait">trait ConfigProvider</a>
+          </div></span></h3>
       </div>
 
       <h4 id="signature" class="signature">
@@ -209,10 +203,7 @@
       </h4>
 
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Factory for Typesafe Config instances that add information
-about the virtual path of the configuration within a Laika
-document tree.
-</p></div><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
           </span>
@@ -348,15 +339,32 @@ document tree.
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
     </span>)</span>
               
+                <span class="name">@native</span><span class="args">()</span>
+              
         </dd></dl></div>
+    </li><li name="laika.bundle.ConfigProvider#empty" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="empty:laika.bundle.ConfigProvider"></a><a id="empty:ConfigProvider"></a>
+      <span class="permalink">
+      <a href="../../laika/bundle/ConfigProvider$.html#empty:laika.bundle.ConfigProvider" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">empty</span><span class="result">: <a href="ConfigProvider.html" class="extype" name="laika.bundle.ConfigProvider">ConfigProvider</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Provides parsers that always succeed by producing
+an empty Config instance.</p>
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
       <span class="permalink">
@@ -404,35 +412,13 @@ document tree.
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="symbol">classOf[java.lang.Throwable]</span>
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="laika.bundle.ConfigProvider#fromInput" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="fromInput(input:laika.io.Input):com.typesafe.config.Config"></a><a id="fromInput(Input):Config"></a>
-      <span class="permalink">
-      <a href="../../laika/bundle/ConfigProvider$.html#fromInput(input:laika.io.Input):com.typesafe.config.Config" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">fromInput</span><span class="params">(<span name="input">input: <a href="../io/Input.html" class="extype" name="laika.io.Input">Input</a></span>)</span><span class="result">: <span class="extype" name="com.typesafe.config.Config">Config</span></span>
-      </span>
-      
-      <p class="shortcomment cmt">Creates a Typesafe Config instance based on the specified input string
-which is expected to be in HOCON format.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a Typesafe Config instance based on the specified input string
-which is expected to be in HOCON format.</p><p>Use this factory method instead of the ones in the Typesafe library, as this
-method adds an origin description for the virtual path (the library mostly deals with
-files in that respect). The origin description helps resolving relative paths within
-this configuration instance.
-</p></div></div>
     </li><li name="scala.AnyRef#getClass" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <span class="permalink">
@@ -633,12 +619,12 @@ this configuration instance.
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
     </span>)</span>
+              
+                <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
     </li>

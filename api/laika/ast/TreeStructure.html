@@ -8,17 +8,17 @@
           <meta name="keywords" content="" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
+      
       <link href="../../lib/index.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../lib/jquery.js"></script>
+      <script type="text/javascript" src="../../lib/jquery.min.js"></script>
       <script type="text/javascript" src="../../lib/jquery.panzoom.min.js"></script>
       <script type="text/javascript" src="../../lib/jquery.mousewheel.min.js"></script>
       <script type="text/javascript" src="../../lib/index.js"></script>
       <script type="text/javascript" src="../../index.js"></script>
       <script type="text/javascript" src="../../lib/scheduler.js"></script>
       <script type="text/javascript" src="../../lib/template.js"></script>
-      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
       
       <script type="text/javascript">
         /* this variable can be used by the JS to determine the path to the root document */
@@ -56,7 +56,7 @@
                 <li name="_root_.root" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="_root_"></a><a id="root:_root_"></a>
       <span class="permalink">
-      <a href="index.html#_root_" title="Permalink">
+      <a href="../../index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -72,7 +72,7 @@
     </li><li name="_root_.laika" visbl="pub" class="indented1 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="laika"></a><a id="laika:laika"></a>
       <span class="permalink">
-      <a href="index.html#laika" title="Permalink">
+      <a href="../../laika/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -88,7 +88,7 @@
     </li><li name="laika.ast" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ast"></a><a id="ast:ast"></a>
       <span class="permalink">
-      <a href="../laika/index.html#ast" title="Permalink">
+      <a href="../../laika/ast/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -105,10 +105,6 @@
                         <span class="separator"></span>
                         <a class="class" href="$div.html" title=""></a>
                         <a href="$div.html" title="">/</a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="trait" href="AdditionalContent.html" title="Content within the document tree that is neither titled nor positional."></a>
-                        <a href="AdditionalContent.html" title="Content within the document tree that is neither titled nor positional.">AdditionalContent</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="object" href="Autonumber$.html" title="Label with automatic numbering."></a>
@@ -199,10 +195,6 @@
                         <a href="Comment.html" title="A comment that may be omitted by renderers.">Comment</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="class" href="ConfigValue.html" title="A single configuration value to be merged with the top document config."></a>
-                        <a href="ConfigValue.html" title="A single configuration value to be merged with the top document config.">ConfigValue</a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
                         <a class="trait" href="Container.html" title="A generic container."></a>
                         <a href="Container.html" title="A generic container.">Container</a>
                       </li><li class="current-entities indented2">
@@ -263,16 +255,16 @@
                         <a href="DocumentStructure.html" title="The structure of a markup document.">DocumentStructure</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="class" href="DocumentTree.html" title="Represents a tree with all its documents and subtrees."></a>
-                        <a href="DocumentTree.html" title="Represents a tree with all its documents and subtrees.">DocumentTree</a>
+                        <a class="class" href="DocumentTree.html" title="Represents a tree with all its documents, templates, configurations and subtrees."></a>
+                        <a href="DocumentTree.html" title="Represents a tree with all its documents, templates, configurations and subtrees.">DocumentTree</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="DocumentTreeRoot.html" title="Represents the root of a tree of documents."></a>
+                        <a href="DocumentTreeRoot.html" title="Represents the root of a tree of documents.">DocumentTreeRoot</a>
                       </li><li class="current-entities indented2">
                         <a class="object" href="DocumentType$.html" title="Provides all available DocumentTypes."></a>
                         <a class="class" href="DocumentType.html" title="Base type for all document type descriptors."></a>
                         <a href="DocumentType.html" title="Base type for all document type descriptors.">DocumentType</a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="class" href="DynamicDocument.html" title="A dynamic document that has been obtained from a template not associated with any markup document."></a>
-                        <a href="DynamicDocument.html" title="A dynamic document that has been obtained from a template not associated with any markup document.">DynamicDocument</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="Element.html" title="The base class for all Elements forming the document tree."></a>
@@ -283,8 +275,12 @@
                         <a href="ElementContainer.html" title="A generic container of other elements.">ElementContainer</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="trait" href="ElementTraversal.html" title="Provides means to traverse, select and rewrite elements of a document tree."></a>
-                        <a href="ElementTraversal.html" title="Provides means to traverse, select and rewrite elements of a document tree.">ElementTraversal</a>
+                        <a class="trait" href="ElementTraversal.html" title="Provides means to traverse and select elements of a document tree."></a>
+                        <a href="ElementTraversal.html" title="Provides means to traverse and select elements of a document tree.">ElementTraversal</a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="EmbeddedConfigValue$.html" title=""></a>
+                        <a class="class" href="EmbeddedConfigValue.html" title="A single configuration value to be merged with the top document config."></a>
+                        <a href="EmbeddedConfigValue.html" title="A single configuration value to be merged with the top document config.">EmbeddedConfigValue</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="EmbeddedRoot.html" title="The root element of a document tree (originating from text markup) inside a template."></a>
@@ -511,12 +507,40 @@
                         <a href="Reference.html" title="The base type for all reference elements.">Reference</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="object" href="Remove$.html" title="Indicates that the element a rewrite rule had been applied to should be removed from the document AST."></a>
+                        <a href="Remove$.html" title="Indicates that the element a rewrite rule had been applied to should be removed from the document AST.">Remove</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="Replace.html" title="Indicates that the element a rewrite rule had been applied to should be replaced with this new value."></a>
+                        <a href="Replace.html" title="Indicates that the element a rewrite rule had been applied to should be replaced with this new value.">Replace</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="object" href="Retain$.html" title="Indicates that the element a rewrite rule had been applied to should be kept in the document AST unchanged."></a>
+                        <a href="Retain$.html" title="Indicates that the element a rewrite rule had been applied to should be kept in the document AST unchanged.">Retain</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="class" href="Reverse.html" title=""></a>
                         <a href="Reverse.html" title="">Reverse</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="trait" href="RewritableContainer.html" title="A generic container of child elements which can have rewrite rules applied to them in recursive tree rewriting."></a>
+                        <a href="RewritableContainer.html" title="A generic container of child elements which can have rewrite rules applied to them in recursive tree rewriting.">RewritableContainer</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="trait" href="RewriteAction.html" title="Describes the action to be performed for a particular node in the document AST."></a>
+                        <a href="RewriteAction.html" title="Describes the action to be performed for a particular node in the document AST.">RewriteAction</a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="RewriteRules$.html" title="Factory methods and utilities for dealing with rewrite rules."></a>
+                        <a class="class" href="RewriteRules.html" title="A set of rewrite rules describing a set of modifications to be applied to an AST of a document."></a>
+                        <a href="RewriteRules.html" title="A set of rewrite rules describing a set of modifications to be applied to an AST of a document.">RewriteRules</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="object" href="RomanNumerals$.html" title="Converts Roman numerals to integers and vice versa."></a>
                         <a href="RomanNumerals$.html" title="Converts Roman numerals to integers and vice versa.">RomanNumerals</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="RootCursor.html" title="Cursor for the root node of a document tree, providing access to all child cursors of this tree and allowing to trigger rewrite operations."></a>
+                        <a href="RootCursor.html" title="Cursor for the root node of a document tree, providing access to all child cursors of this tree and allowing to trigger rewrite operations.">RootCursor</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="RootElement.html" title="The root element of a document tree."></a>
@@ -569,10 +593,6 @@
                         <span class="separator"></span>
                         <a class="class" href="Specificity.html" title="Represents the specificity of a style selector or predicate."></a>
                         <a href="Specificity.html" title="Represents the specificity of a style selector or predicate.">Specificity</a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="class" href="StaticDocument.html" title="A static document that might get copied to the target document tree as is."></a>
-                        <a href="StaticDocument.html" title="A static document that might get copied to the target document tree as is.">StaticDocument</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="StringBullet.html" title="Bullet format based on a simple string."></a>
@@ -651,6 +671,10 @@
                         <a href="TemplateSpan.html" title="The base type for all inline elements that can be found in a template.">TemplateSpan</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="trait" href="TemplateSpanContainer.html" title="A container of other TemplateSpan elements."></a>
+                        <a href="TemplateSpanContainer.html" title="A container of other TemplateSpan elements.">TemplateSpanContainer</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="class" href="TemplateSpanSequence.html" title="A generic container element containing a list of template spans."></a>
                         <a href="TemplateSpanSequence.html" title="A generic container element containing a list of template spans.">TemplateSpanSequence</a>
                       </li><li class="current-entities indented2">
@@ -671,6 +695,10 @@
                         <a href="TextContainer.html" title="A container for plain text.">TextContainer</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="class" href="TextDocumentType.html" title="Base type for all document type descriptors for text input."></a>
+                        <a href="TextDocumentType.html" title="Base type for all document type descriptors for text input.">TextDocumentType</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="class" href="Title.html" title="The (optional) title of the document."></a>
                         <a href="Title.html" title="The (optional) title of the document.">Title</a>
                       </li><li class="current-entities indented2">
@@ -681,6 +709,10 @@
                         <span class="separator"></span>
                         <a class="class" href="TitledBlock.html" title="Generic block element with a title."></a>
                         <a href="TitledBlock.html" title="Generic block element with a title.">TitledBlock</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="object" href="TreeBuilder$.html" title="Generically builds a tree structure out of a flat sequence of elements with a Path property that signifies the position in the tree."></a>
+                        <a href="TreeBuilder$.html" title="Generically builds a tree structure out of a flat sequence of elements with a Path property that signifies the position in the tree.">TreeBuilder</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="trait" href="TreeContent.html" title="A titled, positional element in the document tree."></a>
@@ -701,6 +733,10 @@
                         <span class="separator"></span>
                         <a class="class" href="URI.html" title="Represents a URI which might also optionally be expressed as a local reference within the processed tree."></a>
                         <a href="URI.html" title="Represents a URI which might also optionally be expressed as a local reference within the processed tree.">URI</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="UnresolvedDocument.html" title="A temporary structure usually not exposed to user code."></a>
+                        <a href="UnresolvedDocument.html" title="A temporary structure usually not exposed to user code.">UnresolvedDocument</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="package$$$tilde.html" title="A wrapper for two result values."></a>
@@ -809,7 +845,7 @@
       </span>
       
       <p class="shortcomment cmt">The content of this tree structure, containing
-all markup documents and subtrees.</p>
+all markup documents and subtrees, except for the (optional) title document.</p>
     </li><li name="laika.ast.TreeStructure#targetTree" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="targetTree:laika.ast.DocumentTree"></a><a id="targetTree:DocumentTree"></a>
       <span class="permalink">
@@ -843,6 +879,26 @@ all markup documents and subtrees.</p>
       
       <p class="shortcomment cmt">All templates on this level of the tree hierarchy that might
 get applied to a document when it gets rendered.</p>
+    </li><li name="laika.ast.TreeStructure#titleDocument" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="titleDocument:Option[laika.ast.Document]"></a><a id="titleDocument:Option[Document]"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/TreeStructure.html#titleDocument:Option[laika.ast.Document]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">titleDocument</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="Document.html" class="extype" name="laika.ast.Document">Document</a>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">The title document for this tree, if present.</p><div class="fullcomment"><div class="comment cmt"><p>The title document for this tree, if present.</p><p>A document with the base name <code>title</code> and the corresponding
+suffix for the input markup, e.g. <code>title.md</code> for Markdown,
+can be used as an introductory section for a chapter represented
+by a directory tree.
+</p></div></div>
     </li></ol>
             </div>
 
@@ -928,31 +984,15 @@ get applied to a document when it gets rendered.</p>
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
     </span>)</span>
               
+                <span class="name">@native</span><span class="args">()</span>
+              
         </dd></dl></div>
-    </li><li name="laika.ast.TreeStructure#contentAfterTitle" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="contentAfterTitle:Seq[laika.ast.TreeContent]"></a><a id="contentAfterTitle:Seq[TreeContent]"></a>
-      <span class="permalink">
-      <a href="../../laika/ast/TreeStructure.html#contentAfterTitle:Seq[laika.ast.TreeContent]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">contentAfterTitle</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="TreeContent.html" class="extype" name="laika.ast.TreeContent">TreeContent</a>]</span>
-      </span>
-      
-      <p class="shortcomment cmt">The content after the title document, if present.</p>
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
       <span class="permalink">
@@ -1000,7 +1040,7 @@ get applied to a document when it gets rendered.</p>
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="symbol">classOf[java.lang.Throwable]</span>
@@ -1026,6 +1066,23 @@ get applied to a document when it gets rendered.</p>
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li name="laika.ast.TreeStructure#getDefaultTemplate" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="getDefaultTemplate(formatSuffix:String):Option[laika.ast.TemplateDocument]"></a><a id="getDefaultTemplate(String):Option[TemplateDocument]"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/TreeStructure.html#getDefaultTemplate(formatSuffix:String):Option[laika.ast.TemplateDocument]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getDefaultTemplate</span><span class="params">(<span name="formatSuffix">formatSuffix: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="TemplateDocument.html" class="extype" name="laika.ast.TemplateDocument">TemplateDocument</a>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Selects the template with the name <code>default.template.&lt;suffix&gt;</code> for the
+specified format suffix from this level of the document tree.</p>
     </li><li name="laika.ast.TreeStructure#globalLinkTargets" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="globalLinkTargets:Map[laika.rewrite.link.LinkTargets.Selector,laika.rewrite.link.LinkTargets.TargetResolver]"></a><a id="globalLinkTargets:Map[Selector,TargetResolver]"></a>
       <span class="permalink">
@@ -1274,26 +1331,6 @@ in the document tree.</p>
       </span>
       
       <p class="shortcomment cmt">The title of this tree, obtained from configuration.</p>
-    </li><li name="laika.ast.TreeStructure#titleDocument" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="titleDocument:Option[laika.ast.Document]"></a><a id="titleDocument:Option[Document]"></a>
-      <span class="permalink">
-      <a href="../../laika/ast/TreeStructure.html#titleDocument:Option[laika.ast.Document]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">titleDocument</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="Document.html" class="extype" name="laika.ast.Document">Document</a>]</span>
-      </span>
-      
-      <p class="shortcomment cmt">The title document for this tree, if present.</p><div class="fullcomment"><div class="comment cmt"><p>The title document for this tree, if present.</p><p>A document with the base name <code>title</code> and the corresponding
-suffix for the input markup, e.g. <code>title.md</code> for Markdown,
-can be used as an introductory section for a chapter represented
-by a directory tree.
-</p></div></div>
     </li><li name="scala.AnyRef#toString" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <span class="permalink">
@@ -1370,14 +1407,30 @@ by a directory tree.
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
     </span>)</span>
               
+                <span class="name">@native</span><span class="args">()</span>
+              
         </dd></dl></div>
+    </li><li name="laika.ast.TreeStructure#withDefaultTemplate" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="withDefaultTemplate(template:laika.ast.TemplateRoot,formatSuffix:String):laika.ast.DocumentTree"></a><a id="withDefaultTemplate(TemplateRoot,String):DocumentTree"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/TreeStructure.html#withDefaultTemplate(template:laika.ast.TemplateRoot,formatSuffix:String):laika.ast.DocumentTree" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withDefaultTemplate</span><span class="params">(<span name="template">template: <a href="TemplateRoot.html" class="extype" name="laika.ast.TemplateRoot">TemplateRoot</a></span>, <span name="formatSuffix">formatSuffix: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Create a new document tree that contains the specified template as the default.</p>
     </li>
               </ol>
             </div>

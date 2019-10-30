@@ -8,17 +8,17 @@
           <meta name="keywords" content="" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
+      
       <link href="../../lib/index.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../lib/jquery.js"></script>
+      <script type="text/javascript" src="../../lib/jquery.min.js"></script>
       <script type="text/javascript" src="../../lib/jquery.panzoom.min.js"></script>
       <script type="text/javascript" src="../../lib/jquery.mousewheel.min.js"></script>
       <script type="text/javascript" src="../../lib/index.js"></script>
       <script type="text/javascript" src="../../index.js"></script>
       <script type="text/javascript" src="../../lib/scheduler.js"></script>
       <script type="text/javascript" src="../../lib/template.js"></script>
-      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
       
       <script type="text/javascript">
         /* this variable can be used by the JS to determine the path to the root document */
@@ -56,7 +56,7 @@
                 <li name="_root_.root" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="_root_"></a><a id="root:_root_"></a>
       <span class="permalink">
-      <a href="index.html#_root_" title="Permalink">
+      <a href="../../index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -72,7 +72,7 @@
     </li><li name="_root_.laika" visbl="pub" class="indented1 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="laika"></a><a id="laika:laika"></a>
       <span class="permalink">
-      <a href="index.html#laika" title="Permalink">
+      <a href="../../laika/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -88,7 +88,7 @@
     </li><li name="laika.factory" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="factory"></a><a id="factory:factory"></a>
       <span class="permalink">
-      <a href="../laika/index.html#factory" title="Permalink">
+      <a href="../../laika/factory/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -102,9 +102,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika">laika</a></dd></dl></div>
     </li><li name="laika.factory.RenderFormat" visbl="pub" class="indented3 " data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="RenderFormat[W]extendsAnyRef"></a><a id="RenderFormat[W]:RenderFormat[W]"></a>
+      <a id="RenderFormat[FMT]extendsAnyRef"></a><a id="RenderFormat[FMT]:RenderFormat[FMT]"></a>
       <span class="permalink">
-      <a href="../../laika/factory/index.html#RenderFormat[W]extendsAnyRef" title="Permalink">
+      <a href="../../laika/factory/RenderFormat.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -113,13 +113,13 @@
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a title="Responsible for creating renderer instances for a specific output format." href="RenderFormat.html"><span class="name">RenderFormat</span></a><span class="tparams">[<span name="W">W</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a title="Responsible for creating renderer instances for a specific output format." href="RenderFormat.html"><span class="name">RenderFormat</span></a><span class="tparams">[<span name="FMT">FMT</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       
       <p class="shortcomment cmt">Responsible for creating renderer instances for a specific output format.</p><div class="fullcomment"><div class="comment cmt"><p>Responsible for creating renderer instances for a specific output format.
- A renderer is simply a function of type <code>Element =&gt; Unit</code>. In addition
+ A renderer is simply a function of type <code>(Formatter, Element) =&gt; String</code>. In addition
  to the actual renderer function, the factory method also produces
- an instance of the generic <code>W</code> type which is the writer API to use
+ an instance of the generic <code>FMT</code> type which is the formatter API to use
  for custom renderer functions and which is specific to the output format.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="laika.factory">factory</a></dd></dl></div>
     </li><li class="current-entities indented3">
@@ -149,7 +149,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">Theme</span><span class="params">(<span name="customRenderer">customRenderer: (<span class="extype" name="laika.factory.RenderFormat.W">W</span>) ⇒ <a href="../ast/index.html#RenderFunction=PartialFunction[laika.ast.Element,Unit]" class="extmbr" name="laika.ast.RenderFunction">RenderFunction</a> = <span class="symbol">_: W =&gt; PartialFunction.empty</span></span>, <span name="defaultTemplate">defaultTemplate: <span class="extype" name="scala.Option">Option</span>[<a href="../ast/TemplateRoot.html" class="extype" name="laika.ast.TemplateRoot">TemplateRoot</a>] = <span class="symbol">None</span></span>, <span name="defaultStyles">defaultStyles: <a href="../ast/StyleDeclarationSet.html" class="extype" name="laika.ast.StyleDeclarationSet">StyleDeclarationSet</a> = <span class="symbol"><span class="name"><a href="../index.html">StyleDeclarationSet.empty</a></span></span></span>, <span name="staticDocuments">staticDocuments: <a href="../bundle/StaticDocuments.html" class="extype" name="laika.bundle.StaticDocuments">StaticDocuments</a> = <span class="symbol"><span class="name"><a href="../index.html">StaticDocuments.empty</a></span></span></span>)</span><span class="result"> extends <a href="../bundle/RenderTheme.html" class="extype" name="laika.bundle.RenderTheme">RenderTheme</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">Theme</span><span class="params">(<span name="customRenderer">customRenderer: <a href="RenderFormat.html#CustomRenderFunction[FMT]=PartialFunction[(FMT,laika.ast.Element),String]" class="extmbr" name="laika.factory.RenderFormat.CustomRenderFunction">CustomRenderFunction</a>[<span class="extype" name="laika.factory.RenderFormat.FMT">FMT</span>] = <span class="symbol">PartialFunction.empty</span></span>, <span name="defaultTemplate">defaultTemplate: <span class="extype" name="scala.Option">Option</span>[<a href="../ast/TemplateRoot.html" class="extype" name="laika.ast.TemplateRoot">TemplateRoot</a>] = <span class="symbol">None</span></span>, <span name="defaultStyles">defaultStyles: <a href="../ast/StyleDeclarationSet.html" class="extype" name="laika.ast.StyleDeclarationSet">StyleDeclarationSet</a> = <span class="symbol"><span class="name"><a href="../index.html">StyleDeclarationSet.empty</a></span></span></span>)</span><span class="result"> extends <a href="../bundle/RenderTheme.html" class="extype" name="laika.bundle.RenderTheme">RenderTheme</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
@@ -205,9 +205,9 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.factory.RenderFormat.Theme#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(customRenderer:W=&gt;laika.ast.RenderFunction,defaultTemplate:Option[laika.ast.TemplateRoot],defaultStyles:laika.ast.StyleDeclarationSet,staticDocuments:laika.bundle.StaticDocuments):RenderFormat.this.Theme"></a><a id="&lt;init&gt;:Theme"></a>
+      <a id="&lt;init&gt;(customRenderer:RenderFormat.this.CustomRenderFunction[FMT],defaultTemplate:Option[laika.ast.TemplateRoot],defaultStyles:laika.ast.StyleDeclarationSet):RenderFormat.this.Theme"></a><a id="&lt;init&gt;:Theme"></a>
       <span class="permalink">
-      <a href="../../laika/factory/RenderFormat$Theme.html#&lt;init&gt;(customRenderer:W=&gt;laika.ast.RenderFunction,defaultTemplate:Option[laika.ast.TemplateRoot],defaultStyles:laika.ast.StyleDeclarationSet,staticDocuments:laika.bundle.StaticDocuments):RenderFormat.this.Theme" title="Permalink">
+      <a href="../../laika/factory/RenderFormat$Theme.html#&lt;init&gt;(customRenderer:RenderFormat.this.CustomRenderFunction[FMT],defaultTemplate:Option[laika.ast.TemplateRoot],defaultStyles:laika.ast.StyleDeclarationSet):RenderFormat.this.Theme" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -216,7 +216,7 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">Theme</span><span class="params">(<span name="customRenderer">customRenderer: (<span class="extype" name="laika.factory.RenderFormat.W">W</span>) ⇒ <a href="../ast/index.html#RenderFunction=PartialFunction[laika.ast.Element,Unit]" class="extmbr" name="laika.ast.RenderFunction">RenderFunction</a> = <span class="symbol">_: W =&gt; PartialFunction.empty</span></span>, <span name="defaultTemplate">defaultTemplate: <span class="extype" name="scala.Option">Option</span>[<a href="../ast/TemplateRoot.html" class="extype" name="laika.ast.TemplateRoot">TemplateRoot</a>] = <span class="symbol">None</span></span>, <span name="defaultStyles">defaultStyles: <a href="../ast/StyleDeclarationSet.html" class="extype" name="laika.ast.StyleDeclarationSet">StyleDeclarationSet</a> = <span class="symbol"><span class="name"><a href="../index.html">StyleDeclarationSet.empty</a></span></span></span>, <span name="staticDocuments">staticDocuments: <a href="../bundle/StaticDocuments.html" class="extype" name="laika.bundle.StaticDocuments">StaticDocuments</a> = <span class="symbol"><span class="name"><a href="../index.html">StaticDocuments.empty</a></span></span></span>)</span>
+        <span class="name">Theme</span><span class="params">(<span name="customRenderer">customRenderer: <a href="RenderFormat.html#CustomRenderFunction[FMT]=PartialFunction[(FMT,laika.ast.Element),String]" class="extmbr" name="laika.factory.RenderFormat.CustomRenderFunction">CustomRenderFunction</a>[<span class="extype" name="laika.factory.RenderFormat.FMT">FMT</span>] = <span class="symbol">PartialFunction.empty</span></span>, <span name="defaultTemplate">defaultTemplate: <span class="extype" name="scala.Option">Option</span>[<a href="../ast/TemplateRoot.html" class="extype" name="laika.ast.TemplateRoot">TemplateRoot</a>] = <span class="symbol">None</span></span>, <span name="defaultStyles">defaultStyles: <a href="../ast/StyleDeclarationSet.html" class="extype" name="laika.ast.StyleDeclarationSet">StyleDeclarationSet</a> = <span class="symbol"><span class="name"><a href="../index.html">StyleDeclarationSet.empty</a></span></span></span>)</span>
       </span>
       
       
@@ -225,10 +225,10 @@
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="laika.factory.RenderFormat.Theme.Writer" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="Writer=W"></a><a id="Writer:Writer"></a>
+              <ol><li name="laika.factory.RenderFormat.Theme.Formatter" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="Formatter=FMT"></a><a id="Formatter:Formatter"></a>
       <span class="permalink">
-      <a href="../../laika/factory/RenderFormat$Theme.html#Writer=W" title="Permalink">
+      <a href="../../laika/factory/RenderFormat$Theme.html#Formatter=FMT" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -237,11 +237,11 @@
         <span class="kind">type</span>
       </span>
       <span class="symbol">
-        <span class="name">Writer</span><span class="result alias"> = <span class="extype" name="laika.factory.RenderFormat.W">W</span></span>
+        <span class="name">Formatter</span><span class="result alias"> = <span class="extype" name="laika.factory.RenderFormat.FMT">FMT</span></span>
       </span>
       
-      <p class="shortcomment cmt">The type of the Writer API a custom render function
-for this theme uses.</p><div class="fullcomment"><div class="comment cmt"><p>The type of the Writer API a custom render function
+      <p class="shortcomment cmt">The type of the Formatter API a custom render function
+for this theme uses.</p><div class="fullcomment"><div class="comment cmt"><p>The type of the Formatter API a custom render function
 for this theme uses.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.factory.RenderFormat.Theme">Theme</a> → <a href="../bundle/RenderTheme.html" class="extype" name="laika.bundle.RenderTheme">RenderTheme</a></dd></dl></div>
     </li></ol>
@@ -331,19 +331,19 @@ for this theme uses.
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
     </span>)</span>
               
+                <span class="name">@native</span><span class="args">()</span>
+              
         </dd></dl></div>
     </li><li name="laika.factory.RenderFormat.Theme#customRenderer" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="customRenderer:W=&gt;laika.ast.RenderFunction"></a><a id="customRenderer:(W)⇒RenderFunction"></a>
+      <a id="customRenderer:RenderFormat.this.CustomRenderFunction[FMT]"></a><a id="customRenderer:CustomRenderFunction[FMT]"></a>
       <span class="permalink">
-      <a href="../../laika/factory/RenderFormat$Theme.html#customRenderer:W=&gt;laika.ast.RenderFunction" title="Permalink">
+      <a href="../../laika/factory/RenderFormat$Theme.html#customRenderer:RenderFormat.this.CustomRenderFunction[FMT]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -352,7 +352,7 @@ for this theme uses.
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">customRenderer</span><span class="result">: (<span class="extype" name="laika.factory.RenderFormat.W">W</span>) ⇒ <a href="../ast/index.html#RenderFunction=PartialFunction[laika.ast.Element,Unit]" class="extmbr" name="laika.ast.RenderFunction">RenderFunction</a></span>
+        <span class="name">customRenderer</span><span class="result">: <a href="RenderFormat.html#CustomRenderFunction[FMT]=PartialFunction[(FMT,laika.ast.Element),String]" class="extmbr" name="laika.factory.RenderFormat.CustomRenderFunction">CustomRenderFunction</a>[<span class="extype" name="laika.factory.RenderFormat.FMT">FMT</span>]</span>
       </span>
       
       <p class="shortcomment cmt">Specifies a custom render function that overrides one or more of the default
@@ -452,7 +452,7 @@ system-wide default in case the default is empty.
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="symbol">classOf[java.lang.Throwable]</span>
@@ -548,26 +548,6 @@ system-wide default in case the default is empty.
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="laika.factory.RenderFormat.Theme#staticDocuments" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="staticDocuments:laika.bundle.StaticDocuments"></a><a id="staticDocuments:StaticDocuments"></a>
-      <span class="permalink">
-      <a href="../../laika/factory/RenderFormat$Theme.html#staticDocuments:laika.bundle.StaticDocuments" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">staticDocuments</span><span class="result">: <a href="../bundle/StaticDocuments.html" class="extype" name="laika.bundle.StaticDocuments">StaticDocuments</a></span>
-      </span>
-      
-      <p class="shortcomment cmt">Specifies any additional static documents to be copied over to the
-target directory in each transform operation.</p><div class="fullcomment"><div class="comment cmt"><p>Specifies any additional static documents to be copied over to the
-target directory in each transform operation.</p><p>This is allows for a central collection of CSS, JavaScript, image and
-other files needed for a specific theme.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.factory.RenderFormat.Theme">Theme</a> → <a href="../bundle/RenderTheme.html" class="extype" name="laika.bundle.RenderTheme">RenderTheme</a></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">
@@ -644,12 +624,12 @@ other files needed for a specific theme.
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
     </span>)</span>
+              
+                <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
     </li><li name="laika.factory.RenderFormat.Theme#withBase" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">

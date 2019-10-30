@@ -8,17 +8,17 @@
           <meta name="keywords" content="" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
+      
       <link href="../../../lib/index.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../../lib/jquery.js"></script>
+      <script type="text/javascript" src="../../../lib/jquery.min.js"></script>
       <script type="text/javascript" src="../../../lib/jquery.panzoom.min.js"></script>
       <script type="text/javascript" src="../../../lib/jquery.mousewheel.min.js"></script>
       <script type="text/javascript" src="../../../lib/index.js"></script>
       <script type="text/javascript" src="../../../index.js"></script>
       <script type="text/javascript" src="../../../lib/scheduler.js"></script>
       <script type="text/javascript" src="../../../lib/template.js"></script>
-      <script type="text/javascript" src="../../../lib/tools.tooltip.js"></script>
       
       <script type="text/javascript">
         /* this variable can be used by the JS to determine the path to the root document */
@@ -56,7 +56,7 @@
                 <li name="_root_.root" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="_root_"></a><a id="root:_root_"></a>
       <span class="permalink">
-      <a href="index.html#_root_" title="Permalink">
+      <a href="../../../index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -72,7 +72,7 @@
     </li><li name="_root_.laika" visbl="pub" class="indented1 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="laika"></a><a id="laika:laika"></a>
       <span class="permalink">
-      <a href="index.html#laika" title="Permalink">
+      <a href="../../../laika/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -88,7 +88,7 @@
     </li><li name="laika.rst" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="rst"></a><a id="rst:rst"></a>
       <span class="permalink">
-      <a href="../laika/index.html#rst" title="Permalink">
+      <a href="../../../laika/rst/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -104,7 +104,7 @@
     </li><li name="laika.rst.ast" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ast"></a><a id="ast:ast"></a>
       <span class="permalink">
-      <a href="../../laika/rst/index.html#ast" title="Permalink">
+      <a href="../../../laika/rst/ast/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -120,7 +120,7 @@
     </li><li name="laika.rst.bundle" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="bundle"></a><a id="bundle:bundle"></a>
       <span class="permalink">
-      <a href="../../laika/rst/index.html#bundle" title="Permalink">
+      <a href="../../../laika/rst/bundle/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -136,7 +136,7 @@
     </li><li name="laika.rst.ext" visbl="pub" class="indented3 current" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ext"></a><a id="ext:ext"></a>
       <span class="permalink">
-      <a href="../../laika/rst/index.html#ext" title="Permalink">
+      <a href="../../../laika/rst/ext/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -164,7 +164,7 @@
                       </li><li name="laika.rst.std" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="std"></a><a id="std:std"></a>
       <span class="permalink">
-      <a href="../../laika/rst/index.html#std" title="Permalink">
+      <a href="../../../laika/rst/std/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -243,7 +243,7 @@
               <ol><li name="laika.rst.ext.ExtensionParsers" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="ExtensionParsersextendsAnyRef"></a><a id="ExtensionParsers:ExtensionParsers"></a>
       <span class="permalink">
-      <a href="../../../laika/rst/ext/index.html#ExtensionParsersextendsAnyRef" title="Permalink">
+      <a href="../../../laika/rst/ext/ExtensionParsers.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -267,7 +267,7 @@
                 <li name="laika.rst.ext.Directives" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="Directives"></a><a id="Directives:Directives"></a>
       <span class="permalink">
-      <a href="../../../laika/rst/ext/index.html#Directives" title="Permalink">
+      <a href="../../../laika/rst/ext/Directives$.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -310,15 +310,18 @@
 <span class="kw">object</span> MyDirectives <span class="kw">extends</span> RstExtensionRegistry {
   <span class="kw">val</span> blockDirectives = <span class="std">Seq</span>(
     BlockDirective(<span class="lit">"note"</span>) {
-      (argument(withWS = <span class="kw">true</span>) ~ blockContent)(Note(_,_))
+      (argument(withWS = <span class="kw">true</span>) ~ blockContent).map { <span class="kw">case</span> title ~ content <span class="kw">=&gt;</span> Note(title, content) }
     }
   )
   <span class="kw">val</span> spanDirectives = Nil
   <span class="kw">val</span> textRoles = Nil
 )
 
-Transform from ReStructuredText to HTML using
-  MyDirectives fromFile <span class="lit">"hello.rst"</span> toFile <span class="lit">"hello.html"</span></pre><p> The <code>argument()</code> method specifies a required argument of type <code>String</code> (since no conversion
+<span class="kw">val</span> transformer = Transformer
+ .from(ReStructuredText)
+ .to(HTML)
+  .using(MyDirectives)
+  .build</pre><p> The <code>argument()</code> method specifies a required argument of type <code>String</code> (since no conversion
  function was supplied). We need to set the <code>withWS</code> flag to true as an argument cannot have
  whitespace per default. The <code>blockContent</code> method specifies standard block content (any block-level
  elements that are supported in normal blocks, too) which results in a parsed value of type
@@ -344,7 +347,9 @@ Transform from ReStructuredText to HTML using
 <span class="kw">object</span> MyDirectives <span class="kw">extends</span> RstExtensionRegistry {
   <span class="kw">val</span> blockDirectives = <span class="std">Seq</span>(
     BlockDirective(<span class="lit">"message"</span>) {
-      (argument(nonNegativeInt) ~ blockContent)(Message(_,_))
+      (argument(nonNegativeInt) ~ blockContent).map {
+        <span class="kw">case</span> severity ~ content <span class="kw">=&gt;</span> Message(severity, content)
+      }
     }
   )
   <span class="kw">val</span> spanDirectives = Nil
@@ -363,7 +368,9 @@ Transform from ReStructuredText to HTML using
 <span class="kw">object</span> MyDirectives <span class="kw">extends</span> RstExtensionRegistry {
   <span class="kw">val</span> blockDirectives = <span class="std">Seq</span>(
     BlockDirective(<span class="lit">"message"</span>) {
-      (optArgument(nonNegativeInt) ~ blockContent)(Message(_,_))
+      (optArgument(nonNegativeInt) ~ blockContent).map {
+        <span class="kw">case</span> severity ~ content <span class="kw">=&gt;</span> Message(severity.getOrElse(<span class="num">0</span>), content)
+      }
     }
   )
   <span class="kw">val</span> spanDirectives = Nil
@@ -375,7 +382,7 @@ Transform from ReStructuredText to HTML using
     </li><li name="laika.rst.ext.ExtensionParsers" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="ExtensionParsers"></a><a id="ExtensionParsers:ExtensionParsers"></a>
       <span class="permalink">
-      <a href="../../../laika/rst/ext/index.html#ExtensionParsers" title="Permalink">
+      <a href="../../../laika/rst/ext/ExtensionParsers$.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -391,7 +398,7 @@ Transform from ReStructuredText to HTML using
     </li><li name="laika.rst.ext.TextRoles" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="TextRoles"></a><a id="TextRoles:TextRoles"></a>
       <span class="permalink">
-      <a href="../../../laika/rst/ext/index.html#TextRoles" title="Permalink">
+      <a href="../../../laika/rst/ext/TextRoles$.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -433,8 +440,11 @@ Transform from ReStructuredText to HTML using
   <span class="kw">val</span> blockDirectives = <span class="std">Seq</span>()
 }
 
-Transform from ReStructuredText to HTML using
-  MyDirectives fromFile <span class="lit">"hello.rst"</span> toFile <span class="lit">"hello.html"</span></pre><p> We specify the name of the role to be <code>link</code>, and the default value the URL provided as the
+<span class="kw">val</span> transformer = Transformer
+  .from(ReStructuredText)
+  .to(HTML)
+  .using(MyDirectives)
+  .build</pre><p> We specify the name of the role to be <code>link</code>, and the default value the URL provided as the
  second argument. The second parameter list specifies the role directive implementation,
  in this case only consisting of a call to <code>field(&quot;base-url&quot;)</code> which specifies a required
  field of type <code>String</code> (since no conversion function was supplied). The type of the result
@@ -445,7 +455,7 @@ Transform from ReStructuredText to HTML using
  interpreted text span. Finally the directive gets registered with the <code>ReStructuredText</code>
  parser.</p><p> If you need to define more fields or body content they can be added with the <code>~</code> combinator
  just like with normal directives. Likewise you can specify validators and converters for
- fields and body values like documented in <a href="Directives$.html" class="extype" name="laika.rst.ext.Directives">laika.rst.ext.Directives</a>.</p><p> Our example role can then be used in the following ways:</p><p> Using the base role directly:</p><pre>For details read our :link:`documentation`.</pre><p> This would result in the following HTML:</p><pre>For details read our &lt;a href=<span class="lit">"http://www.company.com/main/documentation"</span>&gt;documentation&lt;/a&gt;.</pre><p> Using the customized role called <code>ticket</code>:</p><pre>For details see ticket :ticket:`<span class="num">344</span>`.</pre><p> This would result in the following HTML:</p><pre>For details see ticket &lt;a href=<span class="lit">"http://www.company.com/ticket/344"</span>&gt;344&lt;/a&gt;.</pre></div></div>
+ fields and body values like documented in <a href="Directives$.html" class="extype" name="laika.rst.ext.Directives">laika.rst.ext.Directives</a>.</p><p> Our example role can then be used in the following ways:</p><p> Using the base role directly:</p><pre>For details read our :link:`documentation`.</pre><p> This would result in the following HTML:</p><pre>For details read our &lt;a href=<span class="lit">"http://www.company.com/main/documentation"</span>&gt;documentation&lt;/a&gt;.</pre><p> Using the customized role called <code>ticket</code>:</p><pre>For details see ticket :ticket:`<span class="num">344</span>`.</pre><p> This would result in the following HTML:</p><pre>For details see ticket &lt;a href=<span class="lit">"http://www.company.com/ticket/344"</span>&gt;<span class="num">344</span>&lt;/a&gt;.</pre></div></div>
     </li>
               </ol>
             </div>

@@ -8,17 +8,17 @@
           <meta name="keywords" content="" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
+      
       <link href="../../../lib/index.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../../lib/jquery.js"></script>
+      <script type="text/javascript" src="../../../lib/jquery.min.js"></script>
       <script type="text/javascript" src="../../../lib/jquery.panzoom.min.js"></script>
       <script type="text/javascript" src="../../../lib/jquery.mousewheel.min.js"></script>
       <script type="text/javascript" src="../../../lib/index.js"></script>
       <script type="text/javascript" src="../../../index.js"></script>
       <script type="text/javascript" src="../../../lib/scheduler.js"></script>
       <script type="text/javascript" src="../../../lib/template.js"></script>
-      <script type="text/javascript" src="../../../lib/tools.tooltip.js"></script>
       
       <script type="text/javascript">
         /* this variable can be used by the JS to determine the path to the root document */
@@ -56,7 +56,7 @@
                 <li name="_root_.root" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="_root_"></a><a id="root:_root_"></a>
       <span class="permalink">
-      <a href="index.html#_root_" title="Permalink">
+      <a href="../../../index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -72,7 +72,7 @@
     </li><li name="_root_.laika" visbl="pub" class="indented1 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="laika"></a><a id="laika:laika"></a>
       <span class="permalink">
-      <a href="index.html#laika" title="Permalink">
+      <a href="../../../laika/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -88,7 +88,7 @@
     </li><li name="laika.rst" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="rst"></a><a id="rst:rst"></a>
       <span class="permalink">
-      <a href="../laika/index.html#rst" title="Permalink">
+      <a href="../../../laika/rst/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -104,7 +104,7 @@
     </li><li name="laika.rst.bundle" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="bundle"></a><a id="bundle:bundle"></a>
       <span class="permalink">
-      <a href="../../laika/rst/index.html#bundle" title="Permalink">
+      <a href="../../../laika/rst/bundle/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -178,17 +178,18 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <span class="name">ExtendedHTMLRenderer</span><span class="result"> extends (<a href="../../render/HTMLWriter.html" class="extype" name="laika.render.HTMLWriter">HTMLWriter</a>) ⇒ <a href="../../ast/index.html#RenderFunction=PartialFunction[laika.ast.Element,Unit]" class="extmbr" name="laika.ast.RenderFunction">RenderFunction</a></span>
+        <span class="name">ExtendedHTMLRenderer</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4>
 
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>HTML renderer for special reStructuredText tree elements not part of the default document tree model.</p><p> The following tree elements are specific to reStructuredText and are not included in the default model:</p><ul><li><code>FieldList</code> and corresponding child elements</li><li><code>OptionList</code> and corresponding child elements</li><li><code>DoctestBlock</code></li></ul><p> FieldLists being part of a directive declaration will be processed by the default parser, the <code>FieldList</code>
- element only appears in the final document model if field lists are used outside of directives.</p><p> The renderer must be applied explicitly when any of these constructs are used in the markup:</p><pre><span class="kw">val</span> transform = Transform from ReStructuredText to HTML rendering ExtendedHTMLRenderer</pre></div><div class="toggleContainer block">
+ element only appears in the final document model if field lists are used outside of directives.
+</p></div><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
           </span>
-          <div class="superTypes hiddenContent">(<a href="../../render/HTMLWriter.html" class="extype" name="laika.render.HTMLWriter">HTMLWriter</a>) ⇒ <a href="../../ast/index.html#RenderFunction=PartialFunction[laika.ast.Element,Unit]" class="extmbr" name="laika.ast.RenderFunction">RenderFunction</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div><div class="toggleContainer block">
             <span class="toggle">
               Known Subclasses
@@ -219,7 +220,7 @@
                   <span class="filtertype">Inherited<br />
                   </span>
                   <ol id="linearization">
-                    <li class="in" name="laika.rst.bundle.ExtendedHTMLRenderer"><span>ExtendedHTMLRenderer</span></li><li class="in" name="scala.Function1"><span>Function1</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                    <li class="in" name="laika.rst.bundle.ExtendedHTMLRenderer"><span>ExtendedHTMLRenderer</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                   </ol>
                 </div><div class="ancestors">
               <span class="filtertype"></span>
@@ -313,41 +314,6 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="scala.Function1#andThen" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="andThen[A](g:R=&gt;A):T1=&gt;A"></a><a id="andThen[A]((RenderFunction)⇒A):(HTMLWriter)⇒A"></a>
-      <span class="permalink">
-      <a href="../../../laika/rst/bundle/ExtendedHTMLRenderer.html#andThen[A](g:R=&gt;A):T1=&gt;A" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">andThen</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="g">g: (<a href="../../ast/index.html#RenderFunction=PartialFunction[laika.ast.Element,Unit]" class="extmbr" name="laika.ast.RenderFunction">RenderFunction</a>) ⇒ <span class="extype" name="scala.Function1.andThen.A">A</span></span>)</span><span class="result">: (<a href="../../render/HTMLWriter.html" class="extype" name="laika.render.HTMLWriter">HTMLWriter</a>) ⇒ <span class="extype" name="scala.Function1.andThen.A">A</span></span>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Function1</dd><dt>Annotations</dt><dd>
-                <span class="name">@unspecialized</span><span class="args">()</span>
-              
-        </dd></dl></div>
-    </li><li name="laika.rst.bundle.ExtendedHTMLRenderer#apply" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="apply(out:laika.render.HTMLWriter):laika.ast.RenderFunction"></a><a id="apply(HTMLWriter):RenderFunction"></a>
-      <span class="permalink">
-      <a href="../../../laika/rst/bundle/ExtendedHTMLRenderer.html#apply(out:laika.render.HTMLWriter):laika.ast.RenderFunction" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">apply</span><span class="params">(<span name="out">out: <a href="../../render/HTMLWriter.html" class="extype" name="laika.render.HTMLWriter">HTMLWriter</a></span>)</span><span class="result">: <a href="../../ast/index.html#RenderFunction=PartialFunction[laika.ast.Element,Unit]" class="extmbr" name="laika.ast.RenderFunction">RenderFunction</a></span>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.rst.bundle.ExtendedHTMLRenderer">ExtendedHTMLRenderer</a> → Function1</dd></dl></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <span class="permalink">
@@ -379,34 +345,31 @@
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
     </span>)</span>
               
+                <span class="name">@native</span><span class="args">()</span>
+              
         </dd></dl></div>
-    </li><li name="scala.Function1#compose" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="compose[A](g:A=&gt;T1):A=&gt;R"></a><a id="compose[A]((A)⇒HTMLWriter):(A)⇒RenderFunction"></a>
+    </li><li name="laika.rst.bundle.ExtendedHTMLRenderer#custom" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="custom:PartialFunction[(laika.render.HTMLFormatter,laika.ast.Element),String]"></a><a id="custom:PartialFunction[(HTMLFormatter,Element),String]"></a>
       <span class="permalink">
-      <a href="../../../laika/rst/bundle/ExtendedHTMLRenderer.html#compose[A](g:A=&gt;T1):A=&gt;R" title="Permalink">
+      <a href="../../../laika/rst/bundle/ExtendedHTMLRenderer.html#custom:PartialFunction[(laika.render.HTMLFormatter,laika.ast.Element),String]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">def</span>
+        <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">compose</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="g">g: (<span class="extype" name="scala.Function1.compose.A">A</span>) ⇒ <a href="../../render/HTMLWriter.html" class="extype" name="laika.render.HTMLWriter">HTMLWriter</a></span>)</span><span class="result">: (<span class="extype" name="scala.Function1.compose.A">A</span>) ⇒ <a href="../../ast/index.html#RenderFunction=PartialFunction[laika.ast.Element,Unit]" class="extmbr" name="laika.ast.RenderFunction">RenderFunction</a></span>
+        <span class="name">custom</span><span class="result">: <span class="extype" name="scala.PartialFunction">PartialFunction</span>[(<a href="../../render/HTMLFormatter.html" class="extype" name="laika.render.HTMLFormatter">HTMLFormatter</a>, <a href="../../ast/Element.html" class="extype" name="laika.ast.Element">Element</a>), <span class="extype" name="scala.Predef.String">String</span>]</span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Function1</dd><dt>Annotations</dt><dd>
-                <span class="name">@unspecialized</span><span class="args">()</span>
-              
-        </dd></dl></div>
+      
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
       <span class="permalink">
@@ -454,7 +417,7 @@
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="symbol">classOf[java.lang.Throwable]</span>
@@ -585,7 +548,7 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.Function1#toString" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scala.AnyRef#toString" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <span class="permalink">
       <a href="../../../laika/rst/bundle/ExtendedHTMLRenderer.html#toString():String" title="Permalink">
@@ -600,7 +563,7 @@
         <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Function1 → AnyRef → Any</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="laika.rst.bundle.ExtendedHTMLRenderer#toTable" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="toTable(fl:laika.rst.ast.FieldList):laika.ast.Table"></a><a id="toTable(FieldList):Table"></a>
       <span class="permalink">
@@ -693,12 +656,12 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
     </span>)</span>
+              
+                <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
     </li>
@@ -711,9 +674,7 @@
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="scala.Function1">
-              <h3>Inherited from (<a href="../../render/HTMLWriter.html" class="extype" name="laika.render.HTMLWriter">HTMLWriter</a>) ⇒ <a href="../../ast/index.html#RenderFunction=PartialFunction[laika.ast.Element,Unit]" class="extmbr" name="laika.ast.RenderFunction">RenderFunction</a></h3>
-            </div><div class="parent" name="scala.AnyRef">
+        <div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>

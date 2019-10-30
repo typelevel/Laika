@@ -8,17 +8,17 @@
           <meta name="keywords" content="" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
+      
       <link href="../../lib/index.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../lib/jquery.js"></script>
+      <script type="text/javascript" src="../../lib/jquery.min.js"></script>
       <script type="text/javascript" src="../../lib/jquery.panzoom.min.js"></script>
       <script type="text/javascript" src="../../lib/jquery.mousewheel.min.js"></script>
       <script type="text/javascript" src="../../lib/index.js"></script>
       <script type="text/javascript" src="../../index.js"></script>
       <script type="text/javascript" src="../../lib/scheduler.js"></script>
       <script type="text/javascript" src="../../lib/template.js"></script>
-      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
       
       <script type="text/javascript">
         /* this variable can be used by the JS to determine the path to the root document */
@@ -56,7 +56,7 @@
                 <li name="_root_.root" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="_root_"></a><a id="root:_root_"></a>
       <span class="permalink">
-      <a href="index.html#_root_" title="Permalink">
+      <a href="../../index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -72,7 +72,7 @@
     </li><li name="_root_.laika" visbl="pub" class="indented1 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="laika"></a><a id="laika:laika"></a>
       <span class="permalink">
-      <a href="index.html#laika" title="Permalink">
+      <a href="../../laika/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -88,7 +88,7 @@
     </li><li name="laika.format" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="format"></a><a id="format:format"></a>
       <span class="permalink">
-      <a href="../laika/index.html#format" title="Permalink">
+      <a href="../../laika/format/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -104,7 +104,7 @@
     </li><li name="laika.format.EPUB" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="EPUB"></a><a id="EPUB:EPUB"></a>
       <span class="permalink">
-      <a href="../../laika/format/index.html#EPUB" title="Permalink">
+      <a href="../../laika/format/EPUB$.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -113,14 +113,29 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a title="A post processor for EPUB output, based on an interim HTML renderer." href="EPUB$.html"><span class="name">EPUB</span></a><span class="result"> extends <a href="../factory/RenderResultProcessor.html" class="extype" name="laika.factory.RenderResultProcessor">RenderResultProcessor</a>[<a href="../render/HTMLWriter.html" class="extype" name="laika.render.HTMLWriter">HTMLWriter</a>]</span>
+        <a title="A post processor for EPUB output, based on an interim HTML renderer." href="EPUB$.html"><span class="name">EPUB</span></a><span class="result"> extends <a href="../factory/TwoPhaseRenderFormat.html" class="extype" name="laika.factory.TwoPhaseRenderFormat">TwoPhaseRenderFormat</a>[<a href="../render/HTMLFormatter.html" class="extype" name="laika.render.HTMLFormatter">HTMLFormatter</a>, <a href="../factory/BinaryPostProcessor.html" class="extype" name="laika.factory.BinaryPostProcessor">BinaryPostProcessor</a>]</span>
       </span>
       
       <p class="shortcomment cmt">A post processor for EPUB output, based on an interim HTML renderer.</p><div class="fullcomment"><div class="comment cmt"><p>A post processor for EPUB output, based on an interim HTML renderer.
- May be directly passed to the <code>Render</code> or <code>Transform</code> APIs:</p><pre><span class="kw">val</span> document: Document = ...
-Render as EPUB from document toFile <span class="lit">"hello.epub"</span>
+ May be directly passed to the <code>Renderer</code> or <code>Transformer</code> APIs:</p><pre><span class="kw">implicit</span> <span class="kw">val</span> cs: ContextShift[IO] =
+  IO.contextShift(ExecutionContext.global)
 
-Transform from Markdown to PDF fromDirectory <span class="lit">"book-src"</span> toFile <span class="lit">"book.epub"</span></pre><p> In the second example above the input from an entire directory gets
+<span class="kw">val</span> blocker = Blocker.liftExecutionContext(
+  ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
+)
+
+<span class="kw">val</span> transformer = Transformer
+  .from(Markdown)
+  .to(EPUB)
+  .using(GitHubFlavor)
+  .io(blocker)
+  .parallel[IO]
+  .build
+
+<span class="kw">val</span> res: IO[<span class="std">Unit</span>] = transformer
+  .fromDirectory(<span class="lit">"src"</span>)
+  .toFile(<span class="lit">"demo.epub"</span>)
+  .transform</pre><p> In the example above the input from an entire directory gets
  merged into a single output file.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="laika.format">format</a></dd></dl></div>
     </li><li class="current-entities indented3">
@@ -298,13 +313,13 @@ Transform from Markdown to PDF fromDirectory <span class="lit">"book-src"</span>
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
     </span>)</span>
+              
+                <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
     </li><li name="laika.format.EPUB.Config#default" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
@@ -370,7 +385,7 @@ Transform from Markdown to PDF fromDirectory <span class="lit">"book-src"</span>
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="symbol">classOf[java.lang.Throwable]</span>
@@ -577,12 +592,12 @@ Transform from Markdown to PDF fromDirectory <span class="lit">"book-src"</span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
     </span>)</span>
+              
+                <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
     </li>

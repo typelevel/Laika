@@ -8,17 +8,17 @@
           <meta name="keywords" content="" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
+      
       <link href="../../../lib/index.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../../lib/jquery.js"></script>
+      <script type="text/javascript" src="../../../lib/jquery.min.js"></script>
       <script type="text/javascript" src="../../../lib/jquery.panzoom.min.js"></script>
       <script type="text/javascript" src="../../../lib/jquery.mousewheel.min.js"></script>
       <script type="text/javascript" src="../../../lib/index.js"></script>
       <script type="text/javascript" src="../../../index.js"></script>
       <script type="text/javascript" src="../../../lib/scheduler.js"></script>
       <script type="text/javascript" src="../../../lib/template.js"></script>
-      <script type="text/javascript" src="../../../lib/tools.tooltip.js"></script>
       
       <script type="text/javascript">
         /* this variable can be used by the JS to determine the path to the root document */
@@ -56,7 +56,7 @@
                 <li name="_root_.root" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="_root_"></a><a id="root:_root_"></a>
       <span class="permalink">
-      <a href="index.html#_root_" title="Permalink">
+      <a href="../../../index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -72,7 +72,7 @@
     </li><li name="_root_.laika" visbl="pub" class="indented1 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="laika"></a><a id="laika:laika"></a>
       <span class="permalink">
-      <a href="index.html#laika" title="Permalink">
+      <a href="../../../laika/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -88,7 +88,7 @@
     </li><li name="laika.render" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="render"></a><a id="render:render"></a>
       <span class="permalink">
-      <a href="../laika/index.html#render" title="Permalink">
+      <a href="../../../laika/render/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -104,7 +104,7 @@
     </li><li name="laika.render.epub" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="epub"></a><a id="epub:epub"></a>
       <span class="permalink">
-      <a href="../../laika/render/index.html#epub" title="Permalink">
+      <a href="../../../laika/render/epub/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -147,6 +147,10 @@
                         <a href="HtmlRenderExtensions$.html" title="Customizations of the default HTML renderer for AST elements where attributes specific to EPUB need to be rendered.">HtmlRenderExtensions</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
+                        <a class="object" href="HtmlTemplate$.html" title="The default template for EPUB XHTML renderers."></a>
+                        <a href="HtmlTemplate$.html" title="The default template for EPUB XHTML renderers.">HtmlTemplate</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
                         <a class="object" href="MimeTypes$.html" title="Lists the supported file types that get inserted into the EPUB container in addition to the dynamically rendered HTML content."></a>
                         <a href="MimeTypes$.html" title="Lists the supported file types that get inserted into the EPUB container in addition to the dynamically rendered HTML content.">MimeTypes</a>
                       </li><li class="current-entities indented3">
@@ -165,6 +169,10 @@
                         <span class="separator"></span>
                         <a class="object" href="StyleSupport$.html" title="Processes CSS inputs for EPUB containers."></a>
                         <a href="StyleSupport$.html" title="Processes CSS inputs for EPUB containers.">StyleSupport</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="ZipWriter$.html" title=""></a>
+                        <a href="ZipWriter$.html" title="">ZipWriter</a>
                       </li>
               </ul>
             </div>
@@ -350,19 +358,19 @@ of a preceding render operation.
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
     </span>)</span>
               
+                <span class="name">@native</span><span class="args">()</span>
+              
         </dd></dl></div>
     </li><li name="laika.render.epub.ContainerWriter#collectInputs" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="collectInputs(tree:laika.ast.DocumentTree,config:laika.format.EPUB.Config,html:laika.io.OutputTree.ResultTree):Seq[laika.io.Inputwithlaika.io.Input.Binary]"></a><a id="collectInputs(DocumentTree,Config,ResultTree):Seq[InputwithBinary]"></a>
+      <a id="collectInputs[F[_]](result:laika.io.model.RenderedTreeRoot[F],config:laika.format.EPUB.Config)(implicitevidence$1:cats.effect.Async[F]):Seq[laika.io.model.BinaryInput[F]]"></a><a id="collectInputs[F[_]](RenderedTreeRoot[F],Config)(Async[F]):Seq[BinaryInput[F]]"></a>
       <span class="permalink">
-      <a href="../../../laika/render/epub/ContainerWriter.html#collectInputs(tree:laika.ast.DocumentTree,config:laika.format.EPUB.Config,html:laika.io.OutputTree.ResultTree):Seq[laika.io.Inputwithlaika.io.Input.Binary]" title="Permalink">
+      <a href="../../../laika/render/epub/ContainerWriter.html#collectInputs[F[_]](result:laika.io.model.RenderedTreeRoot[F],config:laika.format.EPUB.Config)(implicitevidence$1:cats.effect.Async[F]):Seq[laika.io.model.BinaryInput[F]]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -371,14 +379,14 @@ of a preceding render operation.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">collectInputs</span><span class="params">(<span name="tree">tree: <a href="../../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>, <span name="config">config: <a href="../../format/EPUB$$Config.html" class="extype" name="laika.format.EPUB.Config">Config</a></span>, <span name="html">html: <a href="../../io/OutputTree$$ResultTree.html" class="extype" name="laika.io.OutputTree.ResultTree">ResultTree</a></span>)</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="../../io/Input.html" class="extype" name="laika.io.Input">Input</a> with <a href="../../io/Input$$Binary.html" class="extype" name="laika.io.Input.Binary">Binary</a>]</span>
+        <span class="name">collectInputs</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="result">result: <a href="../../io/model/RenderedTreeRoot.html" class="extype" name="laika.io.model.RenderedTreeRoot">RenderedTreeRoot</a>[<span class="extype" name="laika.render.epub.ContainerWriter.collectInputs.F">F</span>]</span>, <span name="config">config: <a href="../../format/EPUB$$Config.html" class="extype" name="laika.format.EPUB.Config">Config</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Async">Async</span>[<span class="extype" name="laika.render.epub.ContainerWriter.collectInputs.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="../../io/model/BinaryInput.html" class="extype" name="laika.io.model.BinaryInput">BinaryInput</a>[<span class="extype" name="laika.render.epub.ContainerWriter.collectInputs.F">F</span>]]</span>
       </span>
       
       <p class="shortcomment cmt">Collects all documents that need to be written to the EPUB container.</p><div class="fullcomment"><div class="comment cmt"><p>Collects all documents that need to be written to the EPUB container.</p><p>This includes:</p><p>- All rendered HTML in the provided result tree.
 - All static content in the provided document tree, copied to the same relative path within the EPUB container.
 - Metadata and navigation files as required by the EPUB specification, auto-generated from the document tree
   and the configuration of this instance.
-</p></div><dl class="paramcmts block"><dt class="param">tree</dt><dd class="cmt"><p>the tree to obtain navigation info from</p></dd><dt class="param">html</dt><dd class="cmt"><p>the dynamically rendered HTML output</p></dd><dt>returns</dt><dd class="cmt"><p>a list of all documents that need to be written to the EPUB container.</p></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">result</dt><dd class="cmt"><p>the result of the render operation as a tree</p></dd><dt>returns</dt><dd class="cmt"><p>a list of all documents that need to be written to the EPUB container.</p></dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
       <span class="permalink">
@@ -426,7 +434,7 @@ of a preceding render operation.
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="symbol">classOf[java.lang.Throwable]</span>
@@ -633,18 +641,18 @@ of a preceding render operation.
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
     </span>)</span>
               
+                <span class="name">@native</span><span class="args">()</span>
+              
         </dd></dl></div>
     </li><li name="laika.render.epub.ContainerWriter#write" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="write(tree:laika.ast.DocumentTree,config:laika.format.EPUB.Config,html:laika.io.OutputTree.ResultTree,output:laika.io.Output.BinaryOutput):Unit"></a><a id="write(DocumentTree,Config,ResultTree,BinaryOutput):Unit"></a>
+      <a id="write[F[_]](result:laika.io.model.RenderedTreeRoot[F],output:laika.io.model.BinaryOutput[F])(implicitevidence$2:cats.effect.Async[F],implicitevidence$3:laika.io.runtime.Runtime[F]):F[Unit]"></a><a id="write[F[_]](RenderedTreeRoot[F],BinaryOutput[F])(Async[F],Runtime[F]):F[Unit]"></a>
       <span class="permalink">
-      <a href="../../../laika/render/epub/ContainerWriter.html#write(tree:laika.ast.DocumentTree,config:laika.format.EPUB.Config,html:laika.io.OutputTree.ResultTree,output:laika.io.Output.BinaryOutput):Unit" title="Permalink">
+      <a href="../../../laika/render/epub/ContainerWriter.html#write[F[_]](result:laika.io.model.RenderedTreeRoot[F],output:laika.io.model.BinaryOutput[F])(implicitevidence$2:cats.effect.Async[F],implicitevidence$3:laika.io.runtime.Runtime[F]):F[Unit]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -653,14 +661,14 @@ of a preceding render operation.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">write</span><span class="params">(<span name="tree">tree: <a href="../../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>, <span name="config">config: <a href="../../format/EPUB$$Config.html" class="extype" name="laika.format.EPUB.Config">Config</a></span>, <span name="html">html: <a href="../../io/OutputTree$$ResultTree.html" class="extype" name="laika.io.OutputTree.ResultTree">ResultTree</a></span>, <span name="output">output: <a href="../../io/Output$$BinaryOutput.html" class="extype" name="laika.io.Output.BinaryOutput">BinaryOutput</a></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+        <span class="name">write</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="result">result: <a href="../../io/model/RenderedTreeRoot.html" class="extype" name="laika.io.model.RenderedTreeRoot">RenderedTreeRoot</a>[<span class="extype" name="laika.render.epub.ContainerWriter.write.F">F</span>]</span>, <span name="output">output: <a href="../../io/model/BinaryOutput.html" class="extype" name="laika.io.model.BinaryOutput">BinaryOutput</a>[<span class="extype" name="laika.render.epub.ContainerWriter.write.F">F</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Async">Async</span>[<span class="extype" name="laika.render.epub.ContainerWriter.write.F">F</span>]</span>, <span name="arg1">arg1: <a href="../../io/runtime/Runtime.html" class="extype" name="laika.io.runtime.Runtime">Runtime</a>[<span class="extype" name="laika.render.epub.ContainerWriter.write.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="laika.render.epub.ContainerWriter.write.F">F</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
       </span>
       
       <p class="shortcomment cmt">Produces an EPUB container from the specified document tree.</p><div class="fullcomment"><div class="comment cmt"><p>Produces an EPUB container from the specified document tree.</p><p>This includes:</p><p>- All rendered HTML in the provided result tree.
 - All static content in the provided document tree, copied to the same relative path within the EPUB container.
 - Metadata and navigation files as required by the EPUB specification, auto-generated from the document tree
   and the configuration of this instance.
-</p></div><dl class="paramcmts block"><dt class="param">tree</dt><dd class="cmt"><p>the tree to obtain navigation info from</p></dd><dt class="param">config</dt><dd class="cmt"><p>the configuration for the EPUB container</p></dd><dt class="param">html</dt><dd class="cmt"><p>the dynamically rendered HTML output</p></dd><dt class="param">output</dt><dd class="cmt"><p>the output to write the EPUB container to</p></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">result</dt><dd class="cmt"><p>the result of the render operation as a tree</p></dd><dt class="param">output</dt><dd class="cmt"><p>the output to write the final result to</p></dd></dl></div>
     </li>
               </ol>
             </div>

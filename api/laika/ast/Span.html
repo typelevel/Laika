@@ -8,17 +8,17 @@
           <meta name="keywords" content="" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
+      
       <link href="../../lib/index.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../lib/jquery.js"></script>
+      <script type="text/javascript" src="../../lib/jquery.min.js"></script>
       <script type="text/javascript" src="../../lib/jquery.panzoom.min.js"></script>
       <script type="text/javascript" src="../../lib/jquery.mousewheel.min.js"></script>
       <script type="text/javascript" src="../../lib/index.js"></script>
       <script type="text/javascript" src="../../index.js"></script>
       <script type="text/javascript" src="../../lib/scheduler.js"></script>
       <script type="text/javascript" src="../../lib/template.js"></script>
-      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
       
       <script type="text/javascript">
         /* this variable can be used by the JS to determine the path to the root document */
@@ -56,7 +56,7 @@
                 <li name="_root_.root" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="_root_"></a><a id="root:_root_"></a>
       <span class="permalink">
-      <a href="index.html#_root_" title="Permalink">
+      <a href="../../index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -72,7 +72,7 @@
     </li><li name="_root_.laika" visbl="pub" class="indented1 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="laika"></a><a id="laika:laika"></a>
       <span class="permalink">
-      <a href="index.html#laika" title="Permalink">
+      <a href="../../laika/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -88,7 +88,7 @@
     </li><li name="laika.ast" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ast"></a><a id="ast:ast"></a>
       <span class="permalink">
-      <a href="../laika/index.html#ast" title="Permalink">
+      <a href="../../laika/ast/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -105,10 +105,6 @@
                         <span class="separator"></span>
                         <a class="class" href="$div.html" title=""></a>
                         <a href="$div.html" title="">/</a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="trait" href="AdditionalContent.html" title="Content within the document tree that is neither titled nor positional."></a>
-                        <a href="AdditionalContent.html" title="Content within the document tree that is neither titled nor positional.">AdditionalContent</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="object" href="Autonumber$.html" title="Label with automatic numbering."></a>
@@ -199,10 +195,6 @@
                         <a href="Comment.html" title="A comment that may be omitted by renderers.">Comment</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="class" href="ConfigValue.html" title="A single configuration value to be merged with the top document config."></a>
-                        <a href="ConfigValue.html" title="A single configuration value to be merged with the top document config.">ConfigValue</a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
                         <a class="trait" href="Container.html" title="A generic container."></a>
                         <a href="Container.html" title="A generic container.">Container</a>
                       </li><li class="current-entities indented2">
@@ -263,16 +255,16 @@
                         <a href="DocumentStructure.html" title="The structure of a markup document.">DocumentStructure</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="class" href="DocumentTree.html" title="Represents a tree with all its documents and subtrees."></a>
-                        <a href="DocumentTree.html" title="Represents a tree with all its documents and subtrees.">DocumentTree</a>
+                        <a class="class" href="DocumentTree.html" title="Represents a tree with all its documents, templates, configurations and subtrees."></a>
+                        <a href="DocumentTree.html" title="Represents a tree with all its documents, templates, configurations and subtrees.">DocumentTree</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="DocumentTreeRoot.html" title="Represents the root of a tree of documents."></a>
+                        <a href="DocumentTreeRoot.html" title="Represents the root of a tree of documents.">DocumentTreeRoot</a>
                       </li><li class="current-entities indented2">
                         <a class="object" href="DocumentType$.html" title="Provides all available DocumentTypes."></a>
                         <a class="class" href="DocumentType.html" title="Base type for all document type descriptors."></a>
                         <a href="DocumentType.html" title="Base type for all document type descriptors.">DocumentType</a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="class" href="DynamicDocument.html" title="A dynamic document that has been obtained from a template not associated with any markup document."></a>
-                        <a href="DynamicDocument.html" title="A dynamic document that has been obtained from a template not associated with any markup document.">DynamicDocument</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="Element.html" title="The base class for all Elements forming the document tree."></a>
@@ -283,8 +275,12 @@
                         <a href="ElementContainer.html" title="A generic container of other elements.">ElementContainer</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="trait" href="ElementTraversal.html" title="Provides means to traverse, select and rewrite elements of a document tree."></a>
-                        <a href="ElementTraversal.html" title="Provides means to traverse, select and rewrite elements of a document tree.">ElementTraversal</a>
+                        <a class="trait" href="ElementTraversal.html" title="Provides means to traverse and select elements of a document tree."></a>
+                        <a href="ElementTraversal.html" title="Provides means to traverse and select elements of a document tree.">ElementTraversal</a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="EmbeddedConfigValue$.html" title=""></a>
+                        <a class="class" href="EmbeddedConfigValue.html" title="A single configuration value to be merged with the top document config."></a>
+                        <a href="EmbeddedConfigValue.html" title="A single configuration value to be merged with the top document config.">EmbeddedConfigValue</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="EmbeddedRoot.html" title="The root element of a document tree (originating from text markup) inside a template."></a>
@@ -511,12 +507,40 @@
                         <a href="Reference.html" title="The base type for all reference elements.">Reference</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="object" href="Remove$.html" title="Indicates that the element a rewrite rule had been applied to should be removed from the document AST."></a>
+                        <a href="Remove$.html" title="Indicates that the element a rewrite rule had been applied to should be removed from the document AST.">Remove</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="Replace.html" title="Indicates that the element a rewrite rule had been applied to should be replaced with this new value."></a>
+                        <a href="Replace.html" title="Indicates that the element a rewrite rule had been applied to should be replaced with this new value.">Replace</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="object" href="Retain$.html" title="Indicates that the element a rewrite rule had been applied to should be kept in the document AST unchanged."></a>
+                        <a href="Retain$.html" title="Indicates that the element a rewrite rule had been applied to should be kept in the document AST unchanged.">Retain</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="class" href="Reverse.html" title=""></a>
                         <a href="Reverse.html" title="">Reverse</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="trait" href="RewritableContainer.html" title="A generic container of child elements which can have rewrite rules applied to them in recursive tree rewriting."></a>
+                        <a href="RewritableContainer.html" title="A generic container of child elements which can have rewrite rules applied to them in recursive tree rewriting.">RewritableContainer</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="trait" href="RewriteAction.html" title="Describes the action to be performed for a particular node in the document AST."></a>
+                        <a href="RewriteAction.html" title="Describes the action to be performed for a particular node in the document AST.">RewriteAction</a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="RewriteRules$.html" title="Factory methods and utilities for dealing with rewrite rules."></a>
+                        <a class="class" href="RewriteRules.html" title="A set of rewrite rules describing a set of modifications to be applied to an AST of a document."></a>
+                        <a href="RewriteRules.html" title="A set of rewrite rules describing a set of modifications to be applied to an AST of a document.">RewriteRules</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="object" href="RomanNumerals$.html" title="Converts Roman numerals to integers and vice versa."></a>
                         <a href="RomanNumerals$.html" title="Converts Roman numerals to integers and vice versa.">RomanNumerals</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="RootCursor.html" title="Cursor for the root node of a document tree, providing access to all child cursors of this tree and allowing to trigger rewrite operations."></a>
+                        <a href="RootCursor.html" title="Cursor for the root node of a document tree, providing access to all child cursors of this tree and allowing to trigger rewrite operations.">RootCursor</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="RootElement.html" title="The root element of a document tree."></a>
@@ -569,10 +593,6 @@
                         <span class="separator"></span>
                         <a class="class" href="Specificity.html" title="Represents the specificity of a style selector or predicate."></a>
                         <a href="Specificity.html" title="Represents the specificity of a style selector or predicate.">Specificity</a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="class" href="StaticDocument.html" title="A static document that might get copied to the target document tree as is."></a>
-                        <a href="StaticDocument.html" title="A static document that might get copied to the target document tree as is.">StaticDocument</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="StringBullet.html" title="Bullet format based on a simple string."></a>
@@ -651,6 +671,10 @@
                         <a href="TemplateSpan.html" title="The base type for all inline elements that can be found in a template.">TemplateSpan</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="trait" href="TemplateSpanContainer.html" title="A container of other TemplateSpan elements."></a>
+                        <a href="TemplateSpanContainer.html" title="A container of other TemplateSpan elements.">TemplateSpanContainer</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="class" href="TemplateSpanSequence.html" title="A generic container element containing a list of template spans."></a>
                         <a href="TemplateSpanSequence.html" title="A generic container element containing a list of template spans.">TemplateSpanSequence</a>
                       </li><li class="current-entities indented2">
@@ -671,6 +695,10 @@
                         <a href="TextContainer.html" title="A container for plain text.">TextContainer</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="class" href="TextDocumentType.html" title="Base type for all document type descriptors for text input."></a>
+                        <a href="TextDocumentType.html" title="Base type for all document type descriptors for text input.">TextDocumentType</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="class" href="Title.html" title="The (optional) title of the document."></a>
                         <a href="Title.html" title="The (optional) title of the document.">Title</a>
                       </li><li class="current-entities indented2">
@@ -681,6 +709,10 @@
                         <span class="separator"></span>
                         <a class="class" href="TitledBlock.html" title="Generic block element with a title."></a>
                         <a href="TitledBlock.html" title="Generic block element with a title.">TitledBlock</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="object" href="TreeBuilder$.html" title="Generically builds a tree structure out of a flat sequence of elements with a Path property that signifies the position in the tree."></a>
+                        <a href="TreeBuilder$.html" title="Generically builds a tree structure out of a flat sequence of elements with a Path property that signifies the position in the tree.">TreeBuilder</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="trait" href="TreeContent.html" title="A titled, positional element in the document tree."></a>
@@ -701,6 +733,10 @@
                         <span class="separator"></span>
                         <a class="class" href="URI.html" title="Represents a URI which might also optionally be expressed as a local reference within the processed tree."></a>
                         <a href="URI.html" title="Represents a URI which might also optionally be expressed as a local reference within the processed tree.">URI</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="UnresolvedDocument.html" title="A temporary structure usually not exposed to user code."></a>
+                        <a href="UnresolvedDocument.html" title="A temporary structure usually not exposed to user code.">UnresolvedDocument</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="package$$$tilde.html" title="A wrapper for two result values."></a>
@@ -743,7 +779,7 @@
             <span class="toggle">
               Known Subclasses
             </span>
-            <div class="subClasses hiddenContent"><a href="CitationLink.html" class="extype" name="laika.ast.CitationLink">CitationLink</a>, <a href="CitationReference.html" class="extype" name="laika.ast.CitationReference">CitationReference</a>, <a href="Code.html" class="extype" name="laika.ast.Code">Code</a>, <a href="ConfigValue.html" class="extype" name="laika.ast.ConfigValue">ConfigValue</a>, <a href="ContextReference.html" class="extype" name="laika.ast.ContextReference">ContextReference</a>, <a href="CrossLink.html" class="extype" name="laika.ast.CrossLink">CrossLink</a>, <a href="Deleted.html" class="extype" name="laika.ast.Deleted">Deleted</a>, <a href="EmbeddedRoot.html" class="extype" name="laika.ast.EmbeddedRoot">EmbeddedRoot</a>, <a href="Emphasized.html" class="extype" name="laika.ast.Emphasized">Emphasized</a>, <a href="ExternalLink.html" class="extype" name="laika.ast.ExternalLink">ExternalLink</a>, <a href="ExternalLinkDefinition.html" class="extype" name="laika.ast.ExternalLinkDefinition">ExternalLinkDefinition</a>, <a href="FootnoteLink.html" class="extype" name="laika.ast.FootnoteLink">FootnoteLink</a>, <a href="FootnoteReference.html" class="extype" name="laika.ast.FootnoteReference">FootnoteReference</a>, <a href="Image.html" class="extype" name="laika.ast.Image">Image</a>, <a href="ImageReference.html" class="extype" name="laika.ast.ImageReference">ImageReference</a>, <a href="Inserted.html" class="extype" name="laika.ast.Inserted">Inserted</a>, <a href="InternalLink.html" class="extype" name="laika.ast.InternalLink">InternalLink</a>, <a href="InternalLinkTarget.html" class="extype" name="laika.ast.InternalLinkTarget">InternalLinkTarget</a>, <a href="InvalidSpan.html" class="extype" name="laika.ast.InvalidSpan">InvalidSpan</a>, <a href="LineBreak.html" class="extype" name="laika.ast.LineBreak">LineBreak</a>, <a href="Link.html" class="extype" name="laika.ast.Link">Link</a>, <a href="LinkAlias.html" class="extype" name="laika.ast.LinkAlias">LinkAlias</a>, <a href="LinkReference.html" class="extype" name="laika.ast.LinkReference">LinkReference</a>, <a href="Literal.html" class="extype" name="laika.ast.Literal">Literal</a>, <a href="MarkupContextReference.html" class="extype" name="laika.ast.MarkupContextReference">MarkupContextReference</a>, <a href="RawContent.html" class="extype" name="laika.ast.RawContent">RawContent</a>, <a href="Reference.html" class="extype" name="laika.ast.Reference">Reference</a>, <a href="Reverse.html" class="extype" name="laika.ast.Reverse">Reverse</a>, <a href="SectionNumber.html" class="extype" name="laika.ast.SectionNumber">SectionNumber</a>, <a href="SpanResolver.html" class="extype" name="laika.ast.SpanResolver">SpanResolver</a>, <a href="SpanSequence.html" class="extype" name="laika.ast.SpanSequence">SpanSequence</a>, <a href="Strong.html" class="extype" name="laika.ast.Strong">Strong</a>, <a href="SystemMessage.html" class="extype" name="laika.ast.SystemMessage">SystemMessage</a>, <a href="TemplateContextReference.html" class="extype" name="laika.ast.TemplateContextReference">TemplateContextReference</a>, <a href="TemplateElement.html" class="extype" name="laika.ast.TemplateElement">TemplateElement</a>, <a href="TemplateSpan.html" class="extype" name="laika.ast.TemplateSpan">TemplateSpan</a>, <a href="TemplateSpanSequence.html" class="extype" name="laika.ast.TemplateSpanSequence">TemplateSpanSequence</a>, <a href="TemplateString.html" class="extype" name="laika.ast.TemplateString">TemplateString</a>, <a href="Text.html" class="extype" name="laika.ast.Text">Text</a>, <a href="../markdown/ast/HTMLCharacterReference.html" class="extype" name="laika.markdown.ast.HTMLCharacterReference">HTMLCharacterReference</a>, <a href="../markdown/ast/HTMLComment.html" class="extype" name="laika.markdown.ast.HTMLComment">HTMLComment</a>, <a href="../markdown/ast/HTMLElement.html" class="extype" name="laika.markdown.ast.HTMLElement">HTMLElement</a>, <a href="../markdown/ast/HTMLEmptyElement.html" class="extype" name="laika.markdown.ast.HTMLEmptyElement">HTMLEmptyElement</a>, <a href="../markdown/ast/HTMLEndTag.html" class="extype" name="laika.markdown.ast.HTMLEndTag">HTMLEndTag</a>, <a href="../markdown/ast/HTMLSpan.html" class="extype" name="laika.markdown.ast.HTMLSpan">HTMLSpan</a>, <a href="../markdown/ast/HTMLStartTag.html" class="extype" name="laika.markdown.ast.HTMLStartTag">HTMLStartTag</a>, <a href="../parse/directive/SpanDirectiveParsers$$DirectiveSpan.html" class="extype" name="laika.parse.directive.SpanDirectiveParsers.DirectiveSpan">DirectiveSpan</a>, <a href="../parse/directive/TemplateParsers$DirectiveSpan.html" class="extype" name="laika.parse.directive.TemplateParsers.DirectiveSpan">DirectiveSpan</a>, <a href="../render/FOWriter$$Leader.html" class="extype" name="laika.render.FOWriter.Leader">Leader</a>, <a href="../render/FOWriter$$PageNumberCitation.html" class="extype" name="laika.render.FOWriter.PageNumberCitation">PageNumberCitation</a>, <a href="../rst/ast/Classifier.html" class="extype" name="laika.rst.ast.Classifier">Classifier</a>, <a href="../rst/ast/InterpretedText.html" class="extype" name="laika.rst.ast.InterpretedText">InterpretedText</a>, <a href="../rst/ast/SubstitutionReference.html" class="extype" name="laika.rst.ast.SubstitutionReference">SubstitutionReference</a></div>
+            <div class="subClasses hiddenContent"><a href="CitationLink.html" class="extype" name="laika.ast.CitationLink">CitationLink</a>, <a href="CitationReference.html" class="extype" name="laika.ast.CitationReference">CitationReference</a>, <a href="Code.html" class="extype" name="laika.ast.Code">Code</a>, <a href="ContextReference.html" class="extype" name="laika.ast.ContextReference">ContextReference</a>, <a href="CrossLink.html" class="extype" name="laika.ast.CrossLink">CrossLink</a>, <a href="Deleted.html" class="extype" name="laika.ast.Deleted">Deleted</a>, <a href="EmbeddedConfigValue.html" class="extype" name="laika.ast.EmbeddedConfigValue">EmbeddedConfigValue</a>, <a href="EmbeddedRoot.html" class="extype" name="laika.ast.EmbeddedRoot">EmbeddedRoot</a>, <a href="Emphasized.html" class="extype" name="laika.ast.Emphasized">Emphasized</a>, <a href="ExternalLink.html" class="extype" name="laika.ast.ExternalLink">ExternalLink</a>, <a href="ExternalLinkDefinition.html" class="extype" name="laika.ast.ExternalLinkDefinition">ExternalLinkDefinition</a>, <a href="FootnoteLink.html" class="extype" name="laika.ast.FootnoteLink">FootnoteLink</a>, <a href="FootnoteReference.html" class="extype" name="laika.ast.FootnoteReference">FootnoteReference</a>, <a href="Image.html" class="extype" name="laika.ast.Image">Image</a>, <a href="ImageReference.html" class="extype" name="laika.ast.ImageReference">ImageReference</a>, <a href="Inserted.html" class="extype" name="laika.ast.Inserted">Inserted</a>, <a href="InternalLink.html" class="extype" name="laika.ast.InternalLink">InternalLink</a>, <a href="InternalLinkTarget.html" class="extype" name="laika.ast.InternalLinkTarget">InternalLinkTarget</a>, <a href="InvalidSpan.html" class="extype" name="laika.ast.InvalidSpan">InvalidSpan</a>, <a href="LineBreak.html" class="extype" name="laika.ast.LineBreak">LineBreak</a>, <a href="Link.html" class="extype" name="laika.ast.Link">Link</a>, <a href="LinkAlias.html" class="extype" name="laika.ast.LinkAlias">LinkAlias</a>, <a href="LinkReference.html" class="extype" name="laika.ast.LinkReference">LinkReference</a>, <a href="Literal.html" class="extype" name="laika.ast.Literal">Literal</a>, <a href="MarkupContextReference.html" class="extype" name="laika.ast.MarkupContextReference">MarkupContextReference</a>, <a href="RawContent.html" class="extype" name="laika.ast.RawContent">RawContent</a>, <a href="Reference.html" class="extype" name="laika.ast.Reference">Reference</a>, <a href="Reverse.html" class="extype" name="laika.ast.Reverse">Reverse</a>, <a href="SectionNumber.html" class="extype" name="laika.ast.SectionNumber">SectionNumber</a>, <a href="SpanResolver.html" class="extype" name="laika.ast.SpanResolver">SpanResolver</a>, <a href="SpanSequence.html" class="extype" name="laika.ast.SpanSequence">SpanSequence</a>, <a href="Strong.html" class="extype" name="laika.ast.Strong">Strong</a>, <a href="SystemMessage.html" class="extype" name="laika.ast.SystemMessage">SystemMessage</a>, <a href="TemplateContextReference.html" class="extype" name="laika.ast.TemplateContextReference">TemplateContextReference</a>, <a href="TemplateElement.html" class="extype" name="laika.ast.TemplateElement">TemplateElement</a>, <a href="TemplateSpan.html" class="extype" name="laika.ast.TemplateSpan">TemplateSpan</a>, <a href="TemplateSpanSequence.html" class="extype" name="laika.ast.TemplateSpanSequence">TemplateSpanSequence</a>, <a href="TemplateString.html" class="extype" name="laika.ast.TemplateString">TemplateString</a>, <a href="Text.html" class="extype" name="laika.ast.Text">Text</a>, <a href="../directive/Spans$$DirectiveInstance.html" class="extype" name="laika.directive.Spans.DirectiveInstance">DirectiveInstance</a>, <a href="../directive/Spans$$SeparatorInstance.html" class="extype" name="laika.directive.Spans.SeparatorInstance">SeparatorInstance</a>, <a href="../directive/Templates$$DirectiveInstance.html" class="extype" name="laika.directive.Templates.DirectiveInstance">DirectiveInstance</a>, <a href="../directive/Templates$$SeparatorInstance.html" class="extype" name="laika.directive.Templates.SeparatorInstance">SeparatorInstance</a>, <a href="../markdown/ast/HTMLCharacterReference.html" class="extype" name="laika.markdown.ast.HTMLCharacterReference">HTMLCharacterReference</a>, <a href="../markdown/ast/HTMLComment.html" class="extype" name="laika.markdown.ast.HTMLComment">HTMLComment</a>, <a href="../markdown/ast/HTMLElement.html" class="extype" name="laika.markdown.ast.HTMLElement">HTMLElement</a>, <a href="../markdown/ast/HTMLEmptyElement.html" class="extype" name="laika.markdown.ast.HTMLEmptyElement">HTMLEmptyElement</a>, <a href="../markdown/ast/HTMLEndTag.html" class="extype" name="laika.markdown.ast.HTMLEndTag">HTMLEndTag</a>, <a href="../markdown/ast/HTMLScriptElement.html" class="extype" name="laika.markdown.ast.HTMLScriptElement">HTMLScriptElement</a>, <a href="../markdown/ast/HTMLSpan.html" class="extype" name="laika.markdown.ast.HTMLSpan">HTMLSpan</a>, <a href="../markdown/ast/HTMLStartTag.html" class="extype" name="laika.markdown.ast.HTMLStartTag">HTMLStartTag</a>, <a href="../render/FOFormatter$$Leader.html" class="extype" name="laika.render.FOFormatter.Leader">Leader</a>, <a href="../render/FOFormatter$$PageNumberCitation.html" class="extype" name="laika.render.FOFormatter.PageNumberCitation">PageNumberCitation</a>, <a href="../render/FOTemplate$$CoverImage$.html" class="extype" name="laika.render.FOTemplate.CoverImage">CoverImage</a>, <a href="../render/epub/HtmlTemplate$$StyleLinkSpan$.html" class="extype" name="laika.render.epub.HtmlTemplate.StyleLinkSpan">StyleLinkSpan</a>, <a href="../rst/ast/Classifier.html" class="extype" name="laika.rst.ast.Classifier">Classifier</a>, <a href="../rst/ast/InterpretedText.html" class="extype" name="laika.rst.ast.InterpretedText">InterpretedText</a>, <a href="../rst/ast/SubstitutionReference.html" class="extype" name="laika.rst.ast.SubstitutionReference">SubstitutionReference</a></div>
           </div></div>
         
 
@@ -789,7 +825,26 @@
         <div id="allMembers">
         
 
-        
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="laika.ast.Span.Self" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="Self&lt;:laika.ast.Span"></a><a id="Self:Self"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/Span.html#Self&lt;:laika.ast.Span" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">Self</span><span class="result"> &lt;: <a href="" class="extype" name="laika.ast.Span">Span</a></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.ast.Span">Span</a> → <a href="Customizable.html" class="extype" name="laika.ast.Customizable">Customizable</a></dd></dl></div>
+    </li></ol>
+            </div>
 
         <div class="values members">
               <h3>Abstract Value Members</h3>
@@ -857,6 +912,25 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Product</dd></dl></div>
+    </li><li name="laika.ast.Customizable#withOptions" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="withOptions(options:laika.ast.Options):Customizable.this.Self"></a><a id="withOptions(Options):Self"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/Span.html#withOptions(options:laika.ast.Options):Customizable.this.Self" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withOptions</span><span class="params">(<span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a></span>)</span><span class="result">: <a href="#Self&lt;:laika.ast.Span" class="extmbr" name="laika.ast.Span.Self">Self</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Returns a new instance of this customizable element
+with the specified options replacing the current value.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a new instance of this customizable element
+with the specified options replacing the current value.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Customizable.html" class="extype" name="laika.ast.Customizable">Customizable</a></dd></dl></div>
     </li></ol>
             </div>
 
@@ -942,13 +1016,13 @@
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
     </span>)</span>
+              
+                <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
@@ -998,7 +1072,7 @@
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="symbol">classOf[java.lang.Throwable]</span>
@@ -1059,6 +1133,46 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="laika.ast.Customizable#mergeOptions" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="mergeOptions(opt:laika.ast.Options):Customizable.this.Self"></a><a id="mergeOptions(Options):Self"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/Span.html#mergeOptions(opt:laika.ast.Options):Customizable.this.Self" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">mergeOptions</span><span class="params">(<span name="opt">opt: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a></span>)</span><span class="result">: <a href="#Self&lt;:laika.ast.Span" class="extmbr" name="laika.ast.Span.Self">Self</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Returns a new instance of this customizable element
+with its options merged with the specified options.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a new instance of this customizable element
+with its options merged with the specified options.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Customizable.html" class="extype" name="laika.ast.Customizable">Customizable</a></dd></dl></div>
+    </li><li name="laika.ast.Customizable#modifyOptions" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="modifyOptions(f:laika.ast.Options=&gt;laika.ast.Options):Customizable.this.Self"></a><a id="modifyOptions((Options)⇒Options):Self"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/Span.html#modifyOptions(f:laika.ast.Options=&gt;laika.ast.Options):Customizable.this.Self" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">modifyOptions</span><span class="params">(<span name="f">f: (<a href="Options.html" class="extype" name="laika.ast.Options">Options</a>) ⇒ <a href="Options.html" class="extype" name="laika.ast.Options">Options</a></span>)</span><span class="result">: <a href="#Self&lt;:laika.ast.Span" class="extmbr" name="laika.ast.Span.Self">Self</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Returns a new instance of this customizable element
+with the new options obtained from applying the specified function
+to the existing value.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a new instance of this customizable element
+with the new options obtained from applying the specified function
+to the existing value.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Customizable.html" class="extype" name="laika.ast.Customizable">Customizable</a></dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a><a id="ne(AnyRef):Boolean"></a>
       <span class="permalink">
@@ -1237,14 +1351,52 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
     </span>)</span>
               
+                <span class="name">@native</span><span class="args">()</span>
+              
         </dd></dl></div>
+    </li><li name="laika.ast.Customizable#withId" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withId(id:String):Customizable.this.Self"></a><a id="withId(String):Self"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/Span.html#withId(id:String):Customizable.this.Self" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withId</span><span class="params">(<span name="id">id: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="#Self&lt;:laika.ast.Span" class="extmbr" name="laika.ast.Span.Self">Self</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Returns a new instance of this customizable element
+with its id set to the specified value, overriding any existing value.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a new instance of this customizable element
+with its id set to the specified value, overriding any existing value.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Customizable.html" class="extype" name="laika.ast.Customizable">Customizable</a></dd></dl></div>
+    </li><li name="laika.ast.Customizable#withoutId" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withoutId:Customizable.this.Self"></a><a id="withoutId:Self"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/Span.html#withoutId:Customizable.this.Self" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withoutId</span><span class="result">: <a href="#Self&lt;:laika.ast.Span" class="extmbr" name="laika.ast.Span.Self">Self</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Returns a new instance of this customizable element
+without its id.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a new instance of this customizable element
+without its id.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Customizable.html" class="extype" name="laika.ast.Customizable">Customizable</a></dd></dl></div>
     </li>
               </ol>
             </div>

@@ -8,17 +8,17 @@
           <meta name="keywords" content="" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
+      
       <link href="../../../lib/index.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../../lib/jquery.js"></script>
+      <script type="text/javascript" src="../../../lib/jquery.min.js"></script>
       <script type="text/javascript" src="../../../lib/jquery.panzoom.min.js"></script>
       <script type="text/javascript" src="../../../lib/jquery.mousewheel.min.js"></script>
       <script type="text/javascript" src="../../../lib/index.js"></script>
       <script type="text/javascript" src="../../../index.js"></script>
       <script type="text/javascript" src="../../../lib/scheduler.js"></script>
       <script type="text/javascript" src="../../../lib/template.js"></script>
-      <script type="text/javascript" src="../../../lib/tools.tooltip.js"></script>
       
       <script type="text/javascript">
         /* this variable can be used by the JS to determine the path to the root document */
@@ -56,7 +56,7 @@
                 <li name="_root_.root" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="_root_"></a><a id="root:_root_"></a>
       <span class="permalink">
-      <a href="index.html#_root_" title="Permalink">
+      <a href="../../../index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -72,7 +72,7 @@
     </li><li name="_root_.laika" visbl="pub" class="indented1 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="laika"></a><a id="laika:laika"></a>
       <span class="permalink">
-      <a href="index.html#laika" title="Permalink">
+      <a href="../../../laika/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -88,7 +88,7 @@
     </li><li name="laika.render" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="render"></a><a id="render:render"></a>
       <span class="permalink">
-      <a href="../laika/index.html#render" title="Permalink">
+      <a href="../../../laika/render/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -104,7 +104,7 @@
     </li><li name="laika.render.epub" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="epub"></a><a id="epub:epub"></a>
       <span class="permalink">
-      <a href="../../laika/render/index.html#epub" title="Permalink">
+      <a href="../../../laika/render/epub/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -147,6 +147,10 @@
                         <a href="HtmlRenderExtensions$.html" title="Customizations of the default HTML renderer for AST elements where attributes specific to EPUB need to be rendered.">HtmlRenderExtensions</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
+                        <a class="object" href="HtmlTemplate$.html" title="The default template for EPUB XHTML renderers."></a>
+                        <a href="HtmlTemplate$.html" title="The default template for EPUB XHTML renderers.">HtmlTemplate</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
                         <a class="object" href="MimeTypes$.html" title="Lists the supported file types that get inserted into the EPUB container in addition to the dynamically rendered HTML content."></a>
                         <a href="MimeTypes$.html" title="Lists the supported file types that get inserted into the EPUB container in addition to the dynamically rendered HTML content.">MimeTypes</a>
                       </li><li class="current-entities indented3">
@@ -165,6 +169,10 @@
                         <span class="separator"></span>
                         <a class="object" href="StyleSupport$.html" title="Processes CSS inputs for EPUB containers."></a>
                         <a href="StyleSupport$.html" title="Processes CSS inputs for EPUB containers.">StyleSupport</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="ZipWriter$.html" title=""></a>
+                        <a href="ZipWriter$.html" title="">ZipWriter</a>
                       </li>
               </ul>
             </div>
@@ -331,13 +339,13 @@
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
     </span>)</span>
+              
+                <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
@@ -387,17 +395,17 @@
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="symbol">classOf[java.lang.Throwable]</span>
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="laika.render.epub.BookNavigation#forTree" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="forTree(tree:laika.ast.DocumentTree,depth:Int,pos:Iterator[Int]):Seq[laika.render.epub.BookNavigation]"></a><a id="forTree(DocumentTree,Int,Iterator[Int]):Seq[BookNavigation]"></a>
+    </li><li name="laika.render.epub.BookNavigation#forTree" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="forTree(tree:laika.io.model.RenderedTree,depth:Int,pos:Iterator[Int]):Seq[laika.render.epub.BookNavigation]"></a><a id="forTree(RenderedTree,Int,Iterator[Int]):Seq[BookNavigation]"></a>
       <span class="permalink">
-      <a href="../../../laika/render/epub/BookNavigation$.html#forTree(tree:laika.ast.DocumentTree,depth:Int,pos:Iterator[Int]):Seq[laika.render.epub.BookNavigation]" title="Permalink">
+      <a href="../../../laika/render/epub/BookNavigation$.html#forTree(tree:laika.io.model.RenderedTree,depth:Int,pos:Iterator[Int]):Seq[laika.render.epub.BookNavigation]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -406,13 +414,29 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">forTree</span><span class="params">(<span name="tree">tree: <a href="../../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>, <span name="depth">depth: <span class="extype" name="scala.Int">Int</span></span>, <span name="pos">pos: <span class="extype" name="scala.Iterator">Iterator</span>[<span class="extype" name="scala.Int">Int</span>] = <span class="symbol">Iterator.from(0)</span></span>)</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="BookNavigation.html" class="extype" name="laika.render.epub.BookNavigation">BookNavigation</a>]</span>
+        <span class="name">forTree</span><span class="params">(<span name="tree">tree: <a href="../../io/model/RenderedTree.html" class="extype" name="laika.io.model.RenderedTree">RenderedTree</a></span>, <span name="depth">depth: <span class="extype" name="scala.Int">Int</span></span>, <span name="pos">pos: <span class="extype" name="scala.Iterator">Iterator</span>[<span class="extype" name="scala.Int">Int</span>] = <span class="symbol">Iterator.from(0)</span></span>)</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="BookNavigation.html" class="extype" name="laika.render.epub.BookNavigation">BookNavigation</a>]</span>
+      </span>
+      
+      
+    </li><li name="laika.render.epub.BookNavigation#forTreeOld" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="forTreeOld(tree:laika.ast.DocumentTree,depth:Int,pos:Iterator[Int]):Seq[laika.render.epub.BookNavigation]"></a><a id="forTreeOld(DocumentTree,Int,Iterator[Int]):Seq[BookNavigation]"></a>
+      <span class="permalink">
+      <a href="../../../laika/render/epub/BookNavigation$.html#forTreeOld(tree:laika.ast.DocumentTree,depth:Int,pos:Iterator[Int]):Seq[laika.render.epub.BookNavigation]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">forTreeOld</span><span class="params">(<span name="tree">tree: <a href="../../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>, <span name="depth">depth: <span class="extype" name="scala.Int">Int</span></span>, <span name="pos">pos: <span class="extype" name="scala.Iterator">Iterator</span>[<span class="extype" name="scala.Int">Int</span>] = <span class="symbol">Iterator.from(0)</span></span>)</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="BookNavigation.html" class="extype" name="laika.render.epub.BookNavigation">BookNavigation</a>]</span>
       </span>
       
       <p class="shortcomment cmt">Extracts navigation structure from document trees, documents and section in the specified
 tree.</p><div class="fullcomment"><div class="comment cmt"><p>Extracts navigation structure from document trees, documents and section in the specified
 tree.</p><p>The configuration key for setting the recursion depth is <code>epub.toc.depth</code>.
-</p></div><dl class="paramcmts block"><dt class="param">depth</dt><dd class="cmt"><p>the recursion depth through trees, documents and sections</p></dd><dt>returns</dt><dd class="cmt"><p>a recursive structure of <code>BookNavigation</code> instances</p></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">tree</dt><dd class="cmt"><p>the document tree to generate navPoints for</p></dd><dt class="param">depth</dt><dd class="cmt"><p>the recursion depth through trees, documents and sections</p></dd><dt>returns</dt><dd class="cmt"><p>a recursive structure of <code>BookNavigation</code> instances</p></dd></dl></div>
     </li><li name="laika.render.epub.BookNavigation#fullPath" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="fullPath(path:laika.ast.Path,forceXhtml:Boolean):String"></a><a id="fullPath(Path,Boolean):String"></a>
       <span class="permalink">
@@ -630,12 +654,12 @@ from the specified virtual path of the Laika document tree.</p>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
     </span>)</span>
+              
+                <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
     </li>

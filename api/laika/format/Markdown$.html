@@ -8,17 +8,17 @@
           <meta name="keywords" content="" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
+      
       <link href="../../lib/index.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../lib/jquery.js"></script>
+      <script type="text/javascript" src="../../lib/jquery.min.js"></script>
       <script type="text/javascript" src="../../lib/jquery.panzoom.min.js"></script>
       <script type="text/javascript" src="../../lib/jquery.mousewheel.min.js"></script>
       <script type="text/javascript" src="../../lib/index.js"></script>
       <script type="text/javascript" src="../../index.js"></script>
       <script type="text/javascript" src="../../lib/scheduler.js"></script>
       <script type="text/javascript" src="../../lib/template.js"></script>
-      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
       
       <script type="text/javascript">
         /* this variable can be used by the JS to determine the path to the root document */
@@ -56,7 +56,7 @@
                 <li name="_root_.root" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="_root_"></a><a id="root:_root_"></a>
       <span class="permalink">
-      <a href="index.html#_root_" title="Permalink">
+      <a href="../../index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -72,7 +72,7 @@
     </li><li name="_root_.laika" visbl="pub" class="indented1 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="laika"></a><a id="laika:laika"></a>
       <span class="permalink">
-      <a href="index.html#laika" title="Permalink">
+      <a href="../../laika/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -88,7 +88,7 @@
     </li><li name="laika.format" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="format"></a><a id="format:format"></a>
       <span class="permalink">
-      <a href="../laika/index.html#format" title="Permalink">
+      <a href="../../laika/format/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -152,26 +152,25 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">Markdown</span><span class="result"> extends <a href="../factory/MarkupParser.html" class="extype" name="laika.factory.MarkupParser">MarkupParser</a></span>
+        <span class="name">Markdown</span><span class="result"> extends <a href="../factory/MarkupFormat.html" class="extype" name="laika.factory.MarkupFormat">MarkupFormat</a></span>
       </span>
       </h4>
 
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>A parser for Markdown text. Instances of this class may be passed directly
- to the <code>Parse</code> or <code>Transform</code> APIs:</p><pre><span class="kw">val</span> document = Parse as Markdown fromFile <span class="lit">"hello.md"</span>
+ to the <code>Parser</code> or <code>Transformer</code> APIs:</p><pre><span class="kw">val</span> document = MarkupParser.of(Markdown).build.parse(inputString)
 
-Transform from Markdown to HTML fromFile <span class="lit">"hello.md"</span> toFile <span class="lit">"hello.html"</span></pre><p> Since this library is not solely focused on producing HTML output,
+Transformer.from(Markdown).to(HTML).build.transform(inputString)</pre><p> Since this library is not solely focused on producing HTML output,
  parsing verbatim HTML elements like defined by the official Markdown
  syntax description is an optional feature, as some types of renderers
  would not know what to do with HTML nodes in the document tree.
- It must be enabled explicitly:</p><pre><span class="kw">val</span> document = Parse.as(Markdown).withRawContent.fromFile(<span class="lit">"hello.md"</span>)</pre><p> To switch off all custom extensions like directives,
+ It must be enabled explicitly:</p><pre><span class="kw">val</span> parser = MarkupParser.of(Markdown).withRawContent.build</pre><p> To switch off all custom extensions like directives,
  configuration sections at the start of the document or automatic
- id generation for headers, you can run the parser in strict mode:</p><pre>Transform.from(Markdown).to(HTML).strict
-  .fromFile(<span class="lit">"hello.md"</span>).toFile(<span class="lit">"hello.html"</span>)</pre></div><div class="toggleContainer block">
+ id generation for headers, you can run the parser in strict mode:</p><pre><span class="kw">val</span> transformer = Transformer.from(Markdown).to(HTML).strict</pre></div><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
           </span>
-          <div class="superTypes hiddenContent"><a href="../factory/MarkupParser.html" class="extype" name="laika.factory.MarkupParser">MarkupParser</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><a href="../factory/MarkupFormat.html" class="extype" name="laika.factory.MarkupFormat">MarkupFormat</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -197,7 +196,7 @@ Transform from Markdown to HTML fromFile <span class="lit">"hello.md"</span> toF
                   <span class="filtertype">Inherited<br />
                   </span>
                   <ol id="linearization">
-                    <li class="in" name="laika.format.Markdown"><span>Markdown</span></li><li class="in" name="laika.factory.MarkupParser"><span>MarkupParser</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                    <li class="in" name="laika.format.Markdown"><span>Markdown</span></li><li class="in" name="laika.factory.MarkupFormat"><span>MarkupFormat</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                   </ol>
                 </div><div class="ancestors">
               <span class="filtertype"></span>
@@ -304,7 +303,7 @@ Transform from Markdown to HTML fromFile <span class="lit">"hello.md"</span> toF
       </span>
       
       <p class="shortcomment cmt">All block parsers for the markup language this parser processes.</p><div class="fullcomment"><div class="comment cmt"><p>All block parsers for the markup language this parser processes.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.format.Markdown">Markdown</a> → <a href="../factory/MarkupParser.html" class="extype" name="laika.factory.MarkupParser">MarkupParser</a></dd></dl></div>
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.format.Markdown">Markdown</a> → <a href="../factory/MarkupFormat.html" class="extype" name="laika.factory.MarkupFormat">MarkupFormat</a></dd></dl></div>
     </li><li name="scala.AnyRef#clone" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a><a id="clone():AnyRef"></a>
       <span class="permalink">
@@ -320,13 +319,13 @@ Transform from Markdown to HTML fromFile <span class="lit">"hello.md"</span> toF
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
     </span>)</span>
+              
+                <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
     </li><li name="laika.format.Markdown#createBlockListParser" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
@@ -352,7 +351,7 @@ by the user.</p><p>The default implementation simply applies this parser repeate
 skipping blank lines between the parsed blocks. This method can get overridden
 for special requirements, for example when the previous result has an influence on
 which parser to pick for the subsequent block.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.format.Markdown">Markdown</a> → <a href="../factory/MarkupParser.html" class="extype" name="laika.factory.MarkupParser">MarkupParser</a></dd></dl></div>
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.format.Markdown">Markdown</a> → <a href="../factory/MarkupFormat.html" class="extype" name="laika.factory.MarkupFormat">MarkupFormat</a></dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
       <span class="permalink">
@@ -402,7 +401,7 @@ which parser to pick for the subsequent block.
       
       <p class="shortcomment cmt">Parses the character after the one that started the escape sequence (usually a backslash).</p><div class="fullcomment"><div class="comment cmt"><p>Parses the character after the one that started the escape sequence (usually a backslash).</p><p>The default implementation parses any character as is, this can be overridden in case
 the host language has more specific rules for escape sequences.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.format.Markdown">Markdown</a> → <a href="../factory/MarkupParser.html" class="extype" name="laika.factory.MarkupParser">MarkupParser</a></dd></dl></div>
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.format.Markdown">Markdown</a> → <a href="../factory/MarkupFormat.html" class="extype" name="laika.factory.MarkupFormat">MarkupFormat</a></dd></dl></div>
     </li><li name="laika.format.Markdown#extensions" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="extensions:Seq[laika.bundle.ExtensionBundle]"></a><a id="extensions:Seq[ExtensionBundle]"></a>
       <span class="permalink">
@@ -423,7 +422,7 @@ the host language has more specific rules for escape sequences.
  for each transformation that involves this parser.</p><p> One scenario where a parser needs to provide a bundle
  is when it produces tree elements that are unknown
  to the built-in rewrite rules and renderers.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.format.Markdown">Markdown</a> → <a href="../factory/MarkupParser.html" class="extype" name="laika.factory.MarkupParser">MarkupParser</a></dd></dl></div>
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.format.Markdown">Markdown</a> → <a href="../factory/MarkupFormat.html" class="extype" name="laika.factory.MarkupFormat">MarkupFormat</a></dd></dl></div>
     </li><li name="laika.format.Markdown#fileSuffixes" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="fileSuffixes:Set[String]"></a>
       <span class="permalink">
@@ -445,7 +444,7 @@ the host language has more specific rules for escape sequences.
  be considered.</p><p> It is recommended not to support <code>txt</code>
  or similarly common suffixes as this might interfere
  with other installed formats.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.format.Markdown">Markdown</a> → <a href="../factory/MarkupParser.html" class="extype" name="laika.factory.MarkupParser">MarkupParser</a></dd></dl></div>
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.format.Markdown">Markdown</a> → <a href="../factory/MarkupFormat.html" class="extype" name="laika.factory.MarkupFormat">MarkupFormat</a></dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <span class="permalink">
@@ -461,7 +460,7 @@ the host language has more specific rules for escape sequences.
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="symbol">classOf[java.lang.Throwable]</span>
@@ -592,7 +591,7 @@ the host language has more specific rules for escape sequences.
       </span>
       
       <p class="shortcomment cmt">All span parsers for the markup language this parser processes.</p><div class="fullcomment"><div class="comment cmt"><p>All span parsers for the markup language this parser processes.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.format.Markdown">Markdown</a> → <a href="../factory/MarkupParser.html" class="extype" name="laika.factory.MarkupParser">MarkupParser</a></dd></dl></div>
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.format.Markdown">Markdown</a> → <a href="../factory/MarkupFormat.html" class="extype" name="laika.factory.MarkupFormat">MarkupFormat</a></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">
@@ -685,18 +684,18 @@ the host language has more specific rules for escape sequences.
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
     </span>)</span>
               
+                <span class="name">@native</span><span class="args">()</span>
+              
         </dd></dl></div>
     </li><li name="laika.format.Markdown.BundledDefaults" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="BundledDefaults"></a><a id="BundledDefaults:BundledDefaults"></a>
       <span class="permalink">
-      <a href="../../laika/format/Markdown$.html#BundledDefaults" title="Permalink">
+      <a href="../../laika/format/Markdown$$BundledDefaults$.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -719,8 +718,8 @@ the host language has more specific rules for escape sequences.
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="laika.factory.MarkupParser">
-              <h3>Inherited from <a href="../factory/MarkupParser.html" class="extype" name="laika.factory.MarkupParser">MarkupParser</a></h3>
+        <div class="parent" name="laika.factory.MarkupFormat">
+              <h3>Inherited from <a href="../factory/MarkupFormat.html" class="extype" name="laika.factory.MarkupFormat">MarkupFormat</a></h3>
             </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">

@@ -8,17 +8,17 @@
           <meta name="keywords" content="" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
+      
       <link href="../../lib/index.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../lib/jquery.js"></script>
+      <script type="text/javascript" src="../../lib/jquery.min.js"></script>
       <script type="text/javascript" src="../../lib/jquery.panzoom.min.js"></script>
       <script type="text/javascript" src="../../lib/jquery.mousewheel.min.js"></script>
       <script type="text/javascript" src="../../lib/index.js"></script>
       <script type="text/javascript" src="../../index.js"></script>
       <script type="text/javascript" src="../../lib/scheduler.js"></script>
       <script type="text/javascript" src="../../lib/template.js"></script>
-      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
       
       <script type="text/javascript">
         /* this variable can be used by the JS to determine the path to the root document */
@@ -56,7 +56,7 @@
                 <li name="_root_.root" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="_root_"></a><a id="root:_root_"></a>
       <span class="permalink">
-      <a href="index.html#_root_" title="Permalink">
+      <a href="../../index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -72,7 +72,7 @@
     </li><li name="_root_.laika" visbl="pub" class="indented1 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="laika"></a><a id="laika:laika"></a>
       <span class="permalink">
-      <a href="index.html#laika" title="Permalink">
+      <a href="../../laika/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -88,7 +88,7 @@
     </li><li name="laika.rewrite" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="rewrite"></a><a id="rewrite:rewrite"></a>
       <span class="permalink">
-      <a href="../laika/index.html#rewrite" title="Permalink">
+      <a href="../../laika/rewrite/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -104,7 +104,7 @@
     </li><li name="laika.rewrite.link" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="link"></a><a id="link:link"></a>
       <span class="permalink">
-      <a href="../../laika/rewrite/index.html#link" title="Permalink">
+      <a href="../../laika/rewrite/link/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -120,7 +120,7 @@
     </li><li name="laika.rewrite.nav" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="nav"></a><a id="nav:nav"></a>
       <span class="permalink">
-      <a href="../../laika/rewrite/index.html#nav" title="Permalink">
+      <a href="../../laika/rewrite/nav/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -166,7 +166,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">ReferenceResolver</span><span class="params">(<span name="root">root: <span class="extype" name="scala.Any">Any</span></span>, <span name="parent">parent: <span class="extype" name="scala.Option">Option</span>[<a href="" class="extype" name="laika.rewrite.ReferenceResolver">ReferenceResolver</a>] = <span class="symbol">None</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">ReferenceResolver</span><span class="params">(<span name="config">config: <a href="../config/Config.html" class="extype" name="laika.config.Config">Config</a></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
@@ -223,9 +223,9 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.rewrite.ReferenceResolver#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(root:Any,parent:Option[laika.rewrite.ReferenceResolver]):laika.rewrite.ReferenceResolver"></a><a id="&lt;init&gt;:ReferenceResolver"></a>
+      <a id="&lt;init&gt;(config:laika.config.Config):laika.rewrite.ReferenceResolver"></a><a id="&lt;init&gt;:ReferenceResolver"></a>
       <span class="permalink">
-      <a href="../../laika/rewrite/ReferenceResolver.html#&lt;init&gt;(root:Any,parent:Option[laika.rewrite.ReferenceResolver]):laika.rewrite.ReferenceResolver" title="Permalink">
+      <a href="../../laika/rewrite/ReferenceResolver.html#&lt;init&gt;(config:laika.config.Config):laika.rewrite.ReferenceResolver" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -234,7 +234,7 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">ReferenceResolver</span><span class="params">(<span name="root">root: <span class="extype" name="scala.Any">Any</span></span>, <span name="parent">parent: <span class="extype" name="scala.Option">Option</span>[<a href="" class="extype" name="laika.rewrite.ReferenceResolver">ReferenceResolver</a>] = <span class="symbol">None</span></span>)</span>
+        <span class="name">ReferenceResolver</span><span class="params">(<span name="config">config: <a href="../config/Config.html" class="extype" name="laika.config.Config">Config</a></span>)</span>
       </span>
       
       
@@ -327,15 +327,31 @@
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
     </span>)</span>
               
+                <span class="name">@native</span><span class="args">()</span>
+              
         </dd></dl></div>
+    </li><li name="laika.rewrite.ReferenceResolver#config" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="config:laika.config.Config"></a><a id="config:Config"></a>
+      <span class="permalink">
+      <a href="../../laika/rewrite/ReferenceResolver.html#config:laika.config.Config" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">config</span><span class="result">: <a href="../config/Config.html" class="extype" name="laika.config.Config">Config</a></span>
+      </span>
+      
+      
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
       <span class="permalink">
@@ -367,29 +383,13 @@
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="symbol">classOf[java.lang.Throwable]</span>
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="laika.rewrite.ReferenceResolver#fromJavaMap" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="fromJavaMap(m:java.util.Map[Any,Any],key:Any):Option[Any]"></a><a id="fromJavaMap(Map[Any,Any],Any):Option[Any]"></a>
-      <span class="permalink">
-      <a href="../../laika/rewrite/ReferenceResolver.html#fromJavaMap(m:java.util.Map[Any,Any],key:Any):Option[Any]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">fromJavaMap</span><span class="params">(<span name="m">m: <span class="extype" name="java.util.Map">Map</span>[<span class="extype" name="scala.Any">Any</span>, <span class="extype" name="scala.Any">Any</span>]</span>, <span name="key">key: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Any">Any</span>]</span>
-      </span>
-      
-      
     </li><li name="scala.AnyRef#getClass" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <span class="permalink">
@@ -479,26 +479,10 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="laika.rewrite.ReferenceResolver#parent" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="parent:Option[laika.rewrite.ReferenceResolver]"></a><a id="parent:Option[ReferenceResolver]"></a>
-      <span class="permalink">
-      <a href="../../laika/rewrite/ReferenceResolver.html#parent:Option[laika.rewrite.ReferenceResolver]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">parent</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="" class="extype" name="laika.rewrite.ReferenceResolver">ReferenceResolver</a>]</span>
-      </span>
-      
-      
     </li><li name="laika.rewrite.ReferenceResolver#resolve" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="resolve(path:List[String]):Option[Any]"></a><a id="resolve(List[String]):Option[Any]"></a>
+      <a id="resolve(key:laika.ast.Path):laika.config.Config.ConfigResult[Option[laika.config.ConfigValue]]"></a><a id="resolve(Path):ConfigResult[Option[ConfigValue]]"></a>
       <span class="permalink">
-      <a href="../../laika/rewrite/ReferenceResolver.html#resolve(path:List[String]):Option[Any]" title="Permalink">
+      <a href="../../laika/rewrite/ReferenceResolver.html#resolve(key:laika.ast.Path):laika.config.Config.ConfigResult[Option[laika.config.ConfigValue]]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -507,39 +491,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">resolve</span><span class="params">(<span name="path">path: <span class="extype" name="scala.List">List</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Any">Any</span>]</span>
-      </span>
-      
-      
-    </li><li name="laika.rewrite.ReferenceResolver#resolve" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="resolve(target:Any,path:List[String],root:Boolean):(Option[Any],List[String])"></a><a id="resolve(Any,List[String],Boolean):(Option[Any],List[String])"></a>
-      <span class="permalink">
-      <a href="../../laika/rewrite/ReferenceResolver.html#resolve(target:Any,path:List[String],root:Boolean):(Option[Any],List[String])" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">resolve</span><span class="params">(<span name="target">target: <span class="extype" name="scala.Any">Any</span></span>, <span name="path">path: <span class="extype" name="scala.List">List</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="root">root: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>)</span><span class="result">: (<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Any">Any</span>], <span class="extype" name="scala.List">List</span>[<span class="extype" name="scala.Predef.String">String</span>])</span>
-      </span>
-      
-      
-    </li><li name="laika.rewrite.ReferenceResolver#root" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="root:Any"></a>
-      <span class="permalink">
-      <a href="../../laika/rewrite/ReferenceResolver.html#root:Any" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">root</span><span class="result">: <span class="extype" name="scala.Any">Any</span></span>
+        <span class="name">resolve</span><span class="params">(<span name="key">key: <a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>)</span><span class="result">: <a href="../config/Config$.html#ConfigResult[T]=Either[laika.config.ConfigError,T]" class="extmbr" name="laika.config.Config.ConfigResult">ConfigResult</a>[<span class="extype" name="scala.Option">Option</span>[<a href="../config/ConfigValue.html" class="extype" name="laika.config.ConfigValue">ConfigValue</a>]]</span>
       </span>
       
       
@@ -619,12 +571,12 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
     </span>)</span>
+              
+                <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
     </li>

@@ -8,17 +8,17 @@
           <meta name="keywords" content="" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
+      
       <link href="../../lib/index.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../lib/jquery.js"></script>
+      <script type="text/javascript" src="../../lib/jquery.min.js"></script>
       <script type="text/javascript" src="../../lib/jquery.panzoom.min.js"></script>
       <script type="text/javascript" src="../../lib/jquery.mousewheel.min.js"></script>
       <script type="text/javascript" src="../../lib/index.js"></script>
       <script type="text/javascript" src="../../index.js"></script>
       <script type="text/javascript" src="../../lib/scheduler.js"></script>
       <script type="text/javascript" src="../../lib/template.js"></script>
-      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
       
       <script type="text/javascript">
         /* this variable can be used by the JS to determine the path to the root document */
@@ -56,7 +56,7 @@
                 <li name="_root_.root" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="_root_"></a><a id="root:_root_"></a>
       <span class="permalink">
-      <a href="index.html#_root_" title="Permalink">
+      <a href="../../index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -72,7 +72,7 @@
     </li><li name="_root_.laika" visbl="pub" class="indented1 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="laika"></a><a id="laika:laika"></a>
       <span class="permalink">
-      <a href="index.html#laika" title="Permalink">
+      <a href="../../laika/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -88,7 +88,7 @@
     </li><li name="laika.directive" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="directive"></a><a id="directive:directive"></a>
       <span class="permalink">
-      <a href="../laika/index.html#directive" title="Permalink">
+      <a href="../../laika/directive/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -104,7 +104,7 @@
     </li><li name="laika.directive.BuilderContext" visbl="pub" class="indented3 " data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="BuilderContext[E&lt;:laika.ast.Element]extendsAnyRef"></a><a id="BuilderContext[E&lt;:Element]:BuilderContext[E]"></a>
       <span class="permalink">
-      <a href="../../laika/directive/index.html#BuilderContext[E&lt;:laika.ast.Element]extendsAnyRef" title="Permalink">
+      <a href="../../laika/directive/BuilderContext.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -116,46 +116,50 @@
         <a title="Provides the basic building blocks for Laika's Directive API." href="BuilderContext.html"><span class="name">BuilderContext</span></a><span class="tparams">[<span name="E">E &lt;: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       
-      <p class="shortcomment cmt"> Provides the basic building blocks for
- Laika's Directive API.</p><div class="fullcomment"><div class="comment cmt"><p> Provides the basic building blocks for
- Laika's Directive API. This trait
- is not used directly, but instead its
- three subtraits <code>Blocks</code>, <code>Spans</code> and <code>Templates</code>,
- which represent the concrete implementations
- for the three directive types.
+      <p class="shortcomment cmt">Provides the basic building blocks for
+Laika's Directive API.</p><div class="fullcomment"><div class="comment cmt"><p>Provides the basic building blocks for
+Laika's Directive API. This trait
+is not used directly, but instead its
+three sub-traits <code>Blocks</code>, <code>Spans</code> and <code>Templates</code>,
+which represent the concrete implementations
+for the three directive types.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="laika.directive">directive</a></dd></dl></div>
     </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="object" href="BuilderContext$CanBuildDirectivePart$.html" title="Type class required for using the generic Builders API with directives."></a>
-                        <a href="BuilderContext$CanBuildDirectivePart$.html" title="Type class required for using the generic Builders API with directives.">CanBuildDirectivePart</a>
+                        <a class="object" href="BuilderContext$BodyContent$.html" title=""></a>
+                        <a class="trait" href="BuilderContext$BodyContent.html" title="The content of a directive part, either an attribute or the body."></a>
+                        <a href="BuilderContext$BodyContent.html" title="The content of a directive part, either an attribute or the body.">BodyContent</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="trait" href="BuilderContext$Combinators.html" title="Provides various combinators to describe the expected format of a specific directive."></a>
-                        <a href="BuilderContext$Combinators.html" title="Provides various combinators to describe the expected format of a specific directive.">Combinators</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="trait" href="BuilderContext$Converters.html" title="Provides various converter functions that can be used with the directive combinators to convert the string value obtained from a directive attribute or body."></a>
-                        <a href="BuilderContext$Converters.html" title="Provides various converter functions that can be used with the directive combinators to convert the string value obtained from a directive attribute or body.">Converters</a>
+                        <a class="trait" href="BuilderContext$Combinators.html" title="Provides combinators to describe the expected structure of a specific directive."></a>
+                        <a href="BuilderContext$Combinators.html" title="Provides combinators to describe the expected structure of a specific directive.">Combinators</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="class" href="BuilderContext$Directive.html" title="Represents a directive, its name and its (combined) parts."></a>
                         <a href="BuilderContext$Directive.html" title="Represents a directive, its name and its (combined) parts.">Directive</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="trait" href="" title="The context of a directive during execution."></a>
-                        <a href="" title="The context of a directive during execution.">DirectiveContext</a>
+                        <a class="class" href="BuilderContext$DirectiveContent.html" title="The content of a parsed directive with the HOCON attributes captured in a Config instance."></a>
+                        <a href="BuilderContext$DirectiveContent.html" title="The content of a parsed directive with the HOCON attributes captured in a Config instance.">DirectiveContent</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
+                        <a class="class" href="" title="The context of a directive during execution."></a>
+                        <a href="" title="The context of a directive during execution.">DirectiveContext</a>
+                      </li><li class="current-entities indented3">
+                        <a class="object" href="BuilderContext$DirectivePart$.html" title=""></a>
                         <a class="class" href="BuilderContext$DirectivePart.html" title="Represents a single part (attribute or body) of a directive or a combination of multiple parts."></a>
                         <a href="BuilderContext$DirectivePart.html" title="Represents a single part (attribute or body) of a directive or a combination of multiple parts.">DirectivePart</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="trait" href="BuilderContext$IdBuilders.html" title=""></a>
-                        <a href="BuilderContext$IdBuilders.html" title="">IdBuilders</a>
+                        <a class="class" href="BuilderContext$Multipart.html" title="The content of a body element divided by separator directives."></a>
+                        <a href="BuilderContext$Multipart.html" title="The content of a body element divided by separator directives.">Multipart</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="abstract type" href="BuilderContext$Parser.html" title="The parser API in case a directive function needs to manually parse one of the directive parts."></a>
                         <a href="BuilderContext$Parser.html" title="The parser API in case a directive function needs to manually parse one of the directive parts.">Parser</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="BuilderContext$SeparatorDirective.html" title="Represents a separator directive, its name and its (combined) parts."></a>
+                        <a href="BuilderContext$SeparatorDirective.html" title="Represents a separator directive, its name and its (combined) parts.">SeparatorDirective</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="object" href="BuilderContext$dsl$.html" title="Provides the basic building blocks for defining directives, Laika's extension mechanism for creating custom tags for both, templates or text markup."></a>
@@ -165,9 +169,9 @@
             </div>
           </div>
           <div id="content">
-            <body class="trait type">
+            <body class="class type">
       <div id="definition">
-        <div class="big-circle trait">t</div>
+        <div class="big-circle class">c</div>
         <p id="owner"><a href="../index.html" class="extype" name="laika">laika</a>.<a href="index.html" class="extype" name="laika.directive">directive</a>.<a href="BuilderContext.html" class="extype" name="laika.directive.BuilderContext">BuilderContext</a></p>
         <h1>DirectiveContext<span class="permalink">
       <a href="../../laika/directive/BuilderContext$DirectiveContext.html" title="Permalink">
@@ -180,21 +184,20 @@
       <h4 id="signature" class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">trait</span>
+        <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">DirectiveContext</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <span class="name">DirectiveContext</span><span class="params">(<span name="content">content: <a href="BuilderContext$DirectiveContent.html" class="extype" name="laika.directive.BuilderContext.DirectiveContent">DirectiveContent</a></span>, <span name="parser">parser: <a href="BuilderContext.html#Parser&lt;:String=&gt;Seq[E]" class="extmbr" name="laika.directive.BuilderContext.Parser">Parser</a></span>, <span name="cursor">cursor: <a href="../ast/DocumentCursor.html" class="extype" name="laika.ast.DocumentCursor">DocumentCursor</a></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>The context of a directive during
- execution.
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>The context of a directive during execution.
 </p></div><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
           </span>
-          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -220,7 +223,7 @@
                   <span class="filtertype">Inherited<br />
                   </span>
                   <ol id="linearization">
-                    <li class="in" name="laika.directive.BuilderContext.DirectiveContext"><span>DirectiveContext</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                    <li class="in" name="laika.directive.BuilderContext.DirectiveContext"><span>DirectiveContext</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                   </ol>
                 </div><div class="ancestors">
               <span class="filtertype"></span>
@@ -238,65 +241,33 @@
 
       <div id="template">
         <div id="allMembers">
-        
-
-        
-
-        <div class="values members">
-              <h3>Abstract Value Members</h3>
-              <ol><li name="laika.directive.BuilderContext.DirectiveContext#cursor" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="cursor:Option[laika.ast.DocumentCursor]"></a><a id="cursor:Option[DocumentCursor]"></a>
+        <div id="constructors" class="members">
+              <h3>Instance Constructors</h3>
+              <ol><li name="laika.directive.BuilderContext.DirectiveContext#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="&lt;init&gt;(content:BuilderContext.this.DirectiveContent,parser:BuilderContext.this.Parser,cursor:laika.ast.DocumentCursor):BuilderContext.this.DirectiveContext"></a><a id="&lt;init&gt;:DirectiveContext"></a>
       <span class="permalink">
-      <a href="../../laika/directive/BuilderContext$DirectiveContext.html#cursor:Option[laika.ast.DocumentCursor]" title="Permalink">
+      <a href="../../laika/directive/BuilderContext$DirectiveContext.html#&lt;init&gt;(content:BuilderContext.this.DirectiveContent,parser:BuilderContext.this.Parser,cursor:laika.ast.DocumentCursor):BuilderContext.this.DirectiveContext" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
       <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">def</span>
+        <span class="modifier"></span>
+        <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">cursor</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="../ast/DocumentCursor.html" class="extype" name="laika.ast.DocumentCursor">DocumentCursor</a>]</span>
-      </span>
-      
-      
-    </li><li name="laika.directive.BuilderContext.DirectiveContext#parser" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="parser:BuilderContext.this.Parser"></a><a id="parser:Parser"></a>
-      <span class="permalink">
-      <a href="../../laika/directive/BuilderContext$DirectiveContext.html#parser:BuilderContext.this.Parser" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">parser</span><span class="result">: <a href="BuilderContext.html#Parser&lt;:String=&gt;Seq[E]" class="extmbr" name="laika.directive.BuilderContext.Parser">Parser</a></span>
-      </span>
-      
-      
-    </li><li name="laika.directive.BuilderContext.DirectiveContext#part" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="part(key:laika.directive.Key):Option[String]"></a><a id="part(Key):Option[String]"></a>
-      <span class="permalink">
-      <a href="../../laika/directive/BuilderContext$DirectiveContext.html#part(key:laika.directive.Key):Option[String]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">part</span><span class="params">(<span name="key">key: <a href="Key.html" class="extype" name="laika.directive.Key">Key</a></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+        <span class="name">DirectiveContext</span><span class="params">(<span name="content">content: <a href="BuilderContext$DirectiveContent.html" class="extype" name="laika.directive.BuilderContext.DirectiveContent">DirectiveContent</a></span>, <span name="parser">parser: <a href="BuilderContext.html#Parser&lt;:String=&gt;Seq[E]" class="extmbr" name="laika.directive.BuilderContext.Parser">Parser</a></span>, <span name="cursor">cursor: <a href="../ast/DocumentCursor.html" class="extype" name="laika.ast.DocumentCursor">DocumentCursor</a></span>)</span>
       </span>
       
       
     </li></ol>
             </div>
 
+        
+
+        
+
         <div class="values members">
-              <h3>Concrete Value Members</h3>
+              <h3>Value Members</h3>
               <ol>
                 <li name="scala.AnyRef#!=" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:Any):Boolean"></a><a id="!=(Any):Boolean"></a>
@@ -362,6 +333,38 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="laika.directive.BuilderContext.DirectiveContext#attribute" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="attribute[T](id:laika.directive.AttributeKey,decoder:laika.config.ConfigDecoder[T],inherit:Boolean):BuilderContext.this.Result[Option[T]]"></a><a id="attribute[T](AttributeKey,ConfigDecoder[T],Boolean):Result[Option[T]]"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/BuilderContext$DirectiveContext.html#attribute[T](id:laika.directive.AttributeKey,decoder:laika.config.ConfigDecoder[T],inherit:Boolean):BuilderContext.this.Result[Option[T]]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">attribute</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="id">id: <a href="AttributeKey.html" class="extype" name="laika.directive.AttributeKey">AttributeKey</a></span>, <span name="decoder">decoder: <a href="../config/ConfigDecoder.html" class="extype" name="laika.config.ConfigDecoder">ConfigDecoder</a>[<span class="extype" name="laika.directive.BuilderContext.DirectiveContext.attribute.T">T</span>]</span>, <span name="inherit">inherit: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result">: <a href="BuilderContext.html#Result[+A]=Either[Seq[String],A]" class="extmbr" name="laika.directive.BuilderContext.Result">Result</a>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="laika.directive.BuilderContext.DirectiveContext.attribute.T">T</span>]]</span>
+      </span>
+      
+      
+    </li><li name="laika.directive.BuilderContext.DirectiveContext#body" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="body:Option[BuilderContext.this.BodyContent]"></a><a id="body:Option[BodyContent]"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/BuilderContext$DirectiveContext.html#body:Option[BuilderContext.this.BodyContent]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">body</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="BuilderContext$BodyContent.html" class="extype" name="laika.directive.BuilderContext.BodyContent">BodyContent</a>]</span>
+      </span>
+      
+      
     </li><li name="scala.AnyRef#clone" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a><a id="clone():AnyRef"></a>
       <span class="permalink">
@@ -377,15 +380,47 @@
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
     </span>)</span>
               
+                <span class="name">@native</span><span class="args">()</span>
+              
         </dd></dl></div>
+    </li><li name="laika.directive.BuilderContext.DirectiveContext#content" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="content:BuilderContext.this.DirectiveContent"></a><a id="content:DirectiveContent"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/BuilderContext$DirectiveContext.html#content:BuilderContext.this.DirectiveContent" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">content</span><span class="result">: <a href="BuilderContext$DirectiveContent.html" class="extype" name="laika.directive.BuilderContext.DirectiveContent">DirectiveContent</a></span>
+      </span>
+      
+      
+    </li><li name="laika.directive.BuilderContext.DirectiveContext#cursor" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="cursor:laika.ast.DocumentCursor"></a><a id="cursor:DocumentCursor"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/BuilderContext$DirectiveContext.html#cursor:laika.ast.DocumentCursor" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">cursor</span><span class="result">: <a href="../ast/DocumentCursor.html" class="extype" name="laika.ast.DocumentCursor">DocumentCursor</a></span>
+      </span>
+      
+      
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
       <span class="permalink">
@@ -402,22 +437,6 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.AnyRef#equals" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="equals(x$1:Any):Boolean"></a><a id="equals(Any):Boolean"></a>
-      <span class="permalink">
-      <a href="../../laika/directive/BuilderContext$DirectiveContext.html#equals(x$1:Any):Boolean" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <span class="permalink">
@@ -433,7 +452,7 @@
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="symbol">classOf[java.lang.Throwable]</span>
@@ -453,25 +472,6 @@
       </span>
       <span class="symbol">
         <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
-        </dd></dl></div>
-    </li><li name="scala.AnyRef#hashCode" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="hashCode():Int"></a>
-      <span class="permalink">
-      <a href="../../laika/directive/BuilderContext$DirectiveContext.html#hashCode():Int" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd><dt>Annotations</dt><dd>
@@ -548,6 +548,22 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li name="laika.directive.BuilderContext.DirectiveContext#parser" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="parser:BuilderContext.this.Parser"></a><a id="parser:Parser"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/BuilderContext$DirectiveContext.html#parser:BuilderContext.this.Parser" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">parser</span><span class="result">: <a href="BuilderContext.html#Parser&lt;:String=&gt;Seq[E]" class="extmbr" name="laika.directive.BuilderContext.Parser">Parser</a></span>
+      </span>
+      
+      
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">
@@ -564,22 +580,6 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.AnyRef#toString" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toString():String"></a>
-      <span class="permalink">
-      <a href="../../laika/directive/BuilderContext$DirectiveContext.html#toString():String" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <span class="permalink">
@@ -640,12 +640,12 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
     </span>)</span>
+              
+                <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
     </li>
@@ -658,7 +658,15 @@
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="scala.AnyRef">
+        <div class="parent" name="scala.Serializable">
+              <h3>Inherited from <span class="extype" name="scala.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="java.io.Serializable">
+              <h3>Inherited from <span class="extype" name="java.io.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="scala.Product">
+              <h3>Inherited from <span class="extype" name="scala.Product">Product</span></h3>
+            </div><div class="parent" name="scala.Equals">
+              <h3>Inherited from <span class="extype" name="scala.Equals">Equals</span></h3>
+            </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
