@@ -64,23 +64,20 @@ object Tasks {
     if (formats.isEmpty) throw new IllegalArgumentException("At least one format must be specified")
 
     val userConfig = laikaConfig.value
-    val mergedConfig = OperationConfig
-      .default
-      .withBundlesFor(Markdown)
-      .withBundlesFor(ReStructuredText)
-      .withBundles(laikaExtensions.value)
-      .copy(
+
+    def createParser (format: MarkupFormat): ParserBuilder = {
+      val parser = MarkupParser.of(format)
+      val mergedConfig = parser.config.copy(
         bundleFilter = BundleFilter(strict = userConfig.strict, acceptRawContent = userConfig.rawContent),
         minMessageLevel = userConfig.renderMessageLevel
       )
+      parser.withConfig(mergedConfig).using(laikaExtensions.value: _*)
+    }
 
-    val md  = MarkupParser.of(Markdown).withConfig(mergedConfig)
-    val rst = MarkupParser.of(ReStructuredText).withConfig(OperationConfig.empty)
-    
-    val parser = md
+    val parser = createParser(Markdown)
       .io(blocker)
       .parallel[IO]
-      .withAlternativeParser(rst)
+      .withAlternativeParser(createParser(ReStructuredText))
       .build
 
     val inputs = DirectoryScanner.scanDirectories[IO](DirectoryInput((sourceDirectories in Laika).value, laikaConfig.value.encoding, parser.config.docTypeMatcher,
