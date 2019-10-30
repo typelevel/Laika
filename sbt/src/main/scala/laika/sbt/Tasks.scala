@@ -129,6 +129,7 @@ object Tasks {
         .parallel[IO]
         .build
         .from(tree.root)
+        .copying(tree.staticDocuments)
         .toFile(targetFile)
         .render
         .unsafeRunSync()
