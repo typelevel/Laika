@@ -31,15 +31,30 @@ import org.apache.fop.apps.{FopFactory, FopFactoryBuilder}
 
 /** A post processor for PDF output, based on an interim XSL-FO renderer. 
  *  May be directly passed to the `Render` or `Transform` APIs:
- * 
- *  {{{
- *  val document: Document = ...
- *  Renderer.of(PDF) from document toFile "hello.pdf"
+ *
+  * {{{
+  * implicit val cs: ContextShift[IO] = 
+  *   IO.contextShift(ExecutionContext.global)
+  *
+  * val blocker = Blocker.liftExecutionContext(
+  *   ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
+  * )
+  *
+  * val transformer = Transformer
+  *   .from(Markdown)
+  *   .to(PDF)
+  *   .using(GitHubFlavor)
+  *   .io(blocker)
+  *   .parallel[IO]
+  *   .build
+  *
+  * val res: IO[Unit] = transformer
+  *   .fromDirectory("src")
+  *   .toFile("demo.pdf")
+  *   .transform
+  * }}}
  *  
- *  Transformer.from(Markdown).to(PDF) fromDirectory "book-src" toFile "book.pdf"
- *  }}}
- *  
- *  In the second example above the input from an entire directory gets
+ *  In the example above the input from an entire directory gets
  *  merged into a single output file.
  * 
  *  @author Jens Halm

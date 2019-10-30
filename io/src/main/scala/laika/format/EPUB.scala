@@ -16,16 +16,31 @@ import laika.render.epub.{ConfigFactory, ContainerWriter, HtmlRenderExtensions, 
 import laika.render.{HTMLFormatter, XHTMLFormatter, XHTMLRenderer}
 
 /** A post processor for EPUB output, based on an interim HTML renderer.
- *  May be directly passed to the `Render` or `Transform` APIs:
- * 
- *  {{{
- *  val document: Document = ...
- *  Renderer.of(EPUB)from document toFile "hello.epub"
+ *  May be directly passed to the `Renderer` or `Transformer` APIs:
+ *
+  * {{{
+  * implicit val cs: ContextShift[IO] = 
+  *   IO.contextShift(ExecutionContext.global)
+  *
+  * val blocker = Blocker.liftExecutionContext(
+  *   ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
+  * )
+  *
+  * val transformer = Transformer
+  *   .from(Markdown)
+  *   .to(EPUB)
+  *   .using(GitHubFlavor)
+  *   .io(blocker)
+  *   .parallel[IO]
+  *   .build
+  *
+  * val res: IO[Unit] = transformer
+  *   .fromDirectory("src")
+  *   .toFile("demo.epub")
+  *   .transform
+  * }}}
  *  
- *  Transformer.from(Markdown).to(PDF fromDirectory "book-src" toFile "book.epub"
- *  }}}
- *  
- *  In the second example above the input from an entire directory gets
+ *  In the example above the input from an entire directory gets
  *  merged into a single output file.
  * 
  *  @author Jens Halm
