@@ -47,4 +47,5 @@ This is a breaking release, for a full migration guide, see the
       for more explicit content organization in e-books.
     * Properties that previously held references to streams and other impure data had been
       removed from the pure content model (e.g. `DocumentTree.staticDocuments`).  
-* Bug fixes for fenced code blocks with blank lines in GitHub-Flavored Markdown      
+* Bug fixes for fenced code blocks with blank lines in GitHub-Flavored Markdown
+* Markdown: Properly render JavaScript in <script> tags in verbatim HTML
