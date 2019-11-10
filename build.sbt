@@ -65,14 +65,12 @@ val fop        = "org.apache.xmlgraphics" %  "fop"         % "2.3"
 
 lazy val root = project.in(file("."))
   .aggregate(core, pdf, plugin)
-  .disablePlugins(ScriptedPlugin)
   .settings(basicSettings)
   .settings(noPublishSettings)
   .enablePlugins(ScalaUnidocPlugin)
   .settings(unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(plugin))
 
 lazy val core = project.in(file("core"))
-  .disablePlugins(ScriptedPlugin)
   .settings(moduleSettings)
   .settings(publishSettings)
   .settings(
@@ -82,7 +80,6 @@ lazy val core = project.in(file("core"))
 
 lazy val io = project.in(file("io"))
   .dependsOn(core % "compile->compile;test->test")
-  .disablePlugins(ScriptedPlugin)
   .settings(moduleSettings)
   .settings(publishSettings)
   .settings(
@@ -92,7 +89,6 @@ lazy val io = project.in(file("io"))
   
 lazy val pdf = project.in(file("pdf"))
   .dependsOn(core % "compile->compile;test->test", io % "compile->compile;test->test")
-  .disablePlugins(ScriptedPlugin)
   .settings(moduleSettings)
   .settings(publishSettings)
   .settings(
