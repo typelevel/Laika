@@ -182,7 +182,7 @@ object HoconParsers {
       case "+=" ~ element => ConcatValue(SelfReference, Seq(ConcatPart("", ArrayBuilderValue(Seq(element))))) 
       case _ ~ v => v 
     }
-    lazy val withoutSeparator = wsOrNl ~> objectValue <~ wsOrNl
+    lazy val withoutSeparator = wsOrNl ~> objectValue <~ ws
     lazy val member = (key ~ (withSeparator | withoutSeparator)).map { case k ~ v => BuilderField(k, v) }
     lazy val members = opt(member ~ (separator ~> member).rep).map(_.fold(Seq.empty[BuilderField]) { case m ~ ms => m +: ms })
     (wsOrComment ~> members <~ wsOrComment <~ trailingComma).map(ObjectBuilderValue)

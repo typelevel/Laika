@@ -49,14 +49,22 @@ class HoconParserSpec extends WordSpec with Matchers with ParseResultHelpers wit
 
     "parse a root object with all property types that is not enclosed in braces" in {
       val input =
-        """"str": "foo",
-          |"int": 27,
-          |"null": null,
-          |"bool": true,
-          |"arr": [ 1, 2, "bar" ],
+        """obj { 
+          |  inner = xx 
+          |  num = 9.5 
+          |}
+          |str1 = "foo"
+          |str2 = foo
+          |
+          |int = 27
+          |"null": null
+          |bool = true
+          |arr = [ 1, 2, "bar" ]
           |"obj": { "inner": "xx", "num": 9.5 }""".stripMargin
       Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(
-        BuilderField("str", stringValue("foo")),
+        nestedObject,
+        BuilderField("str1", stringValue("foo")),
+        BuilderField("str2", stringValue("foo")),
         BuilderField("int", longValue(27)),
         BuilderField("null", nullValue),
         BuilderField("bool", trueValue),
