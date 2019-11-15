@@ -17,8 +17,10 @@
 package laika.parse.hocon
 
 import laika.ast.Path.Root
+import laika.config.ConfigParser
 import laika.parse.helper.{ParseResultHelpers, StringParserHelpers}
 import laika.parse.hocon.HoconParsers._
+import laika.transform.helper.FileTransformerUtil
 import org.scalatest.{Matchers, WordSpec}
 
 /**
@@ -365,6 +367,16 @@ class HoconParserSpec extends WordSpec with Matchers with ParseResultHelpers wit
 
     "parse a quoted empty string as a path element" in {
       Parsing ("foo.\"\".baz = 7") using rootObject should produce (ObjectBuilderValue(Seq(BuilderField(Root / "foo" / "" / "baz", longValue(7)))))
+    }
+    
+  }
+  
+  "The root parser" should {
+    
+    "successfully parse the full Akka default configuration" in new FileTransformerUtil {
+      val input = readFile(classPathResourcePath("/akka.conf"))
+      println(ConfigParser.parse(input).resolve)
+      ConfigParser.parse(input).resolve.isRight shouldBe true
     }
     
   }
