@@ -17,7 +17,7 @@
 package laika.markdown
 
 import laika.api.{MarkupParser, Renderer}
-import laika.ast.Element
+import laika.ast.{Element, Text}
 import laika.ast.helper.ModelBuilder
 import laika.format.{HTML, Markdown}
 import laika.markdown.ast.{HTMLAttribute, HTMLBlock, HTMLScriptElement, HTMLStartTag}
@@ -48,8 +48,17 @@ class VerbatimHTMLRendererSpec extends FlatSpec
   }
 
   it should "render a script element with content unescaped" in {
-    val elem = p(txt("some "), HTMLScriptElement(" var x = 'foo'; "), txt(" & text"))
+    val elem = p(txt("some "), HTMLScriptElement(Nil, " var x = 'foo'; "), txt(" & text"))
     render (elem) should be ("<p>some <script> var x = 'foo'; </script> &amp; text</p>")
+  }
+
+  it should "render a script element with attributes with content unescaped" in {
+    val script = HTMLScriptElement(List(
+      HTMLAttribute("type", List(Text("text/javascript")),Some('"')),
+      HTMLAttribute("defer", List(),None)
+    ), " var x = 'foo'; ")
+    val elem = p(txt("some "), script, txt(" & text"))
+    render (elem) should be ("<p>some <script type=\"text/javascript\" defer> var x = 'foo'; </script> &amp; text</p>")
   }
   
   it should "render an HTML end tag unescaped" in {

@@ -78,7 +78,7 @@ case class HTMLComment (content: String, options: Options = NoOpt) extends HTMLS
 
 /** Represents a script element.
   */
-case class HTMLScriptElement (content: String, options: Options = NoOpt) extends HTMLSpan with TextContainer {
+case class HTMLScriptElement (attributes: List[HTMLAttribute], content: String, options: Options = NoOpt) extends HTMLSpan with TextContainer {
   type Self = HTMLScriptElement
   def withOptions (options: Options): HTMLScriptElement = copy(options = options)
 }

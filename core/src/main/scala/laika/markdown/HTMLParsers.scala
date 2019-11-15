@@ -116,7 +116,10 @@ object HTMLParsers {
 
   /** Parses an HTML comment without the leading `'<'`.
     */
-  val htmlScriptElement: Parser[HTMLScriptElement] = "script>" ~> delimitedBy("</script>") ^^ { HTMLScriptElement(_) }
+  val htmlScriptElement: Parser[HTMLScriptElement] =
+    ("script" ~> (htmlWS ~> (htmlAttribute *) <~ htmlWS) <~ '>') ~ delimitedBy("</script>") ^^ {
+      case attributes ~ content => HTMLScriptElement(attributes, content) 
+    }
 
   /** Parses an empty HTML element without the leading `'<'`.
    *  Only recognizes empty tags explicitly closed.

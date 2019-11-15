@@ -17,10 +17,10 @@
 package laika.markdown
 
 import laika.api.builder.OperationConfig
-import laika.ast.RootElement
+import laika.ast.{RootElement, Text}
 import laika.ast.helper.ModelBuilder
 import laika.format.Markdown
-import laika.markdown.ast.{HTMLBlock, HTMLScriptElement}
+import laika.markdown.ast.{HTMLAttribute, HTMLBlock, HTMLScriptElement}
 import laika.parse.Parser
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import laika.parse.markup.RootParser
@@ -76,7 +76,26 @@ class HTMLBlockParserSpec extends FlatSpec
                   |</div>
                   |
                   |bbb""".stripMargin
-    val inner = HTMLScriptElement("\n    var x = [1, 2, 3];\n    var y = 'foo';\n  ")
+    val inner = HTMLScriptElement(Nil, "\n    var x = [1, 2, 3];\n    var y = 'foo';\n  ")
+    val outer = element("div", txt("\n  "), inner, txt("\n"))
+    Parsing (input) should produce (root(p("aaa"), HTMLBlock(outer), p("bbb")))
+  }
+
+  it should "recognize a script tag with attributes inside a block level HTML element" in {
+    val input = """aaa
+                  |
+                  |<div>
+                  |  <script type="text/javascript" defer>
+                  |    var x = [1, 2, 3];
+                  |    var y = 'foo';
+                  |  </script>
+                  |</div>
+                  |
+                  |bbb""".stripMargin
+    val inner = HTMLScriptElement(List(
+      HTMLAttribute("type", List(Text("text/javascript")),Some('"')),
+      HTMLAttribute("defer", List(),None)
+    ), "\n    var x = [1, 2, 3];\n    var y = 'foo';\n  ")
     val outer = element("div", txt("\n  "), inner, txt("\n"))
     Parsing (input) should produce (root(p("aaa"), HTMLBlock(outer), p("bbb")))
   }
