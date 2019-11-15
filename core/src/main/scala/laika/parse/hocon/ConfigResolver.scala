@@ -77,6 +77,7 @@ object ConfigResolver {
       case c: ConcatValue          => c.allParts.flatMap(resolveConcatPart(path)).reduceOption(concat(path))
       case m: MergedValue          => resolveMergedValue(path: Path)(m.values.reverse)
       case SelfReference           => None
+      case SubstitutionValue(ref, true) if ref == path => None
       case SubstitutionValue(ref, optional) =>
         resolvedValue(ref).orElse(lookahead(ref)).orElse {
           if (!optional) invalidPaths += ((path, s"Missing required reference: '${renderPath(ref)}'"))

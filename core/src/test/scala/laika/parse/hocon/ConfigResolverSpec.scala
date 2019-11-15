@@ -250,6 +250,16 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
       ))
     }
 
+    "ignore an optional, missing self reference" in {
+      val input =
+        """
+          |a = ${?a} [5,7]
+        """.stripMargin
+      parseAndResolve(input) shouldBe ObjectValue(Seq(
+        Field("a", ArrayValue(Seq(LongValue(5),LongValue(7))))
+      ))
+    }
+
     "fail with a missing required reference" in {
       val input =
         """
