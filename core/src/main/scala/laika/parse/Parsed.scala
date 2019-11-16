@@ -55,7 +55,7 @@ sealed abstract class Parsed[+T] {
   /** Returns this `Parsed` instance if the parser succeeded or
     * otherwise the specified fallback instance.
     */
-  def orElse[U >: T] (default: => Parsed[U]): Parsed[U] = if (isFailure) default else this
+  def orElse[U >: T] (default: => Parsed[U]): Parsed[U]
 
   /** Builds a new `Parsed` instance by applying the specified function
     * to the result of this instance.
@@ -73,6 +73,8 @@ case class Success[+T] (result: T, next: ParserContext) extends Parsed[T] {
   def toOption: Option[T] = Some(result)
 
   def toEither: Either[String, T] = Right(result)
+
+  def orElse[U >: T] (default: => Parsed[U]): Parsed[U] = this
 
   def map[U](f: T => U) = Success(f(result), next)
 
@@ -106,6 +108,11 @@ case class Failure (msgProvider: Message, next: ParserContext, maxOffset: Int) e
   def toOption: Option[Nothing] = None
 
   def toEither: Either[String, Nothing] = Left(message)
+
+  def orElse[U >: Nothing] (default: => Parsed[U]): Parsed[U] = default match {
+    case s: Success[_] => s
+    case f: Failure => if (f.maxOffset > maxOffset) f else this
+  }
 
   def map[U](f: Nothing => U): Failure = this
 

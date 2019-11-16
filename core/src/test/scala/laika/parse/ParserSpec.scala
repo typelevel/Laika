@@ -97,6 +97,35 @@ class ParserSpec extends WordSpec with Matchers with ParseResultHelpers with Str
 
   }
 
+  "The failure of alternatives of four parsers" should {
+
+    val p1 = TextParsers.anyOf('a','b').min(4).withFailureMessage("1")
+    val p2 = TextParsers.anyOf('a','c').min(4).withFailureMessage("2")
+    val p3 = TextParsers.anyOf('a','c','d').min(4).withFailureMessage("3")
+    val p4 = TextParsers.anyOf('a','e').min(4).withFailureMessage("4")
+    val p = p1 | p2 | p3 | p4
+
+    def validate(input: String, expectedParser: Int, expectedMaxOffset: Int): Assertion = {
+      val res = p.parse(input)
+      res shouldBe a[Failure]
+      val f: Failure = res.asInstanceOf[Failure]
+      f.maxOffset shouldBe expectedMaxOffset
+      f.message shouldBe expectedParser.toString
+    }
+    
+    "should pick the first error when it has the largest max offset" in {
+      validate("abaxxx", 1, 3)
+    }
+
+    "should pick the last error when it has the largest max offset" in {
+      validate("aeaxxx", 4, 3)
+    }
+
+    "should pick the error of the parser with highest precedence if multiple failures have the same max offset" in {
+      validate("acaxxx", 2, 3)
+    }
+  }
+
   "The concatenation of two parsers" should {
 
     "provide the combined result" in {
@@ -281,7 +310,6 @@ class ParserSpec extends WordSpec with Matchers with ParseResultHelpers with Str
     
     def validate(res: Parsed[_], expectedMaxOffset: Int): Assertion = {
       res shouldBe a[Failure]
-      println(res.asInstanceOf[Failure].toString)
       res.asInstanceOf[Failure].maxOffset shouldBe expectedMaxOffset
     }
     
