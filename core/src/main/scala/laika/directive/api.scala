@@ -651,7 +651,7 @@ object Templates extends BuilderContext[TemplateSpan] {
     val parser: Parser = new Parser {
       def apply(source: String): Seq[TemplateSpan] = recursiveParser.parse(source) match {
         case Success(spans, _)  => spans
-        case Failure(msg, next) => List(InvalidElement(msg.message(next), source).asTemplateSpan)
+        case f: Failure => List(InvalidElement(f.message, source).asTemplateSpan)
       }
     }
     def withOptions (options: Options): DirectiveInstance = copy(options = options)

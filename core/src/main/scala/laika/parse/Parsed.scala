@@ -90,13 +90,16 @@ case class Success[+T] (result: T, next: ParserContext) extends Parsed[T] {
   *  performance gain for a typical Markdown document for example).
   *
   *  @param msgProvider  A provider that produces an error message for this failure based on its ParserContext
-  *  @param next         The parser's unconsumed input at the point where the failure occurred.
+  *  @param next         The unconsumed input at the point where the failing parser started
+  *  @param maxOffset    The offset position the parser could successfully read to before failing
   */
-case class Failure (msgProvider: Message, next: ParserContext) extends Parsed[Nothing] {
+case class Failure (msgProvider: Message, next: ParserContext, maxOffset: Int) extends Parsed[Nothing] {
 
+  private lazy val failureContext = next.copy(offset = maxOffset)
+  
   /** The message specifying the cause of the failure.
     */
-  lazy val message: String = msgProvider.message(next)
+  lazy val message: String = msgProvider.message(failureContext)
 
   val isSuccess = false
 
@@ -106,9 +109,16 @@ case class Failure (msgProvider: Message, next: ParserContext) extends Parsed[No
 
   def map[U](f: Nothing => U): Failure = this
 
-  override def toString = s"[${next.position}] failure: $message\n\n${next.position.lineContentWithCaret}"
+  override def toString: String = {
+    val pointOfFailure = failureContext.position
+    s"[$pointOfFailure] failure: $message\n\n${pointOfFailure.lineContentWithCaret}"
+  }
+
 }
 
+object Failure {
+  @inline def apply(msgProvider: Message, next: ParserContext): Failure = apply(msgProvider, next, next.offset)
+}
 
 /** Represents a lazy failure message.
   * Implementations can use the specified `ParserContext` to construct

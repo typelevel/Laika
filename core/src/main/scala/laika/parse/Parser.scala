@@ -168,7 +168,7 @@ abstract class Parser[+T] {
       parse(in) match {
         case Success(result, next) =>
           if (f.isDefinedAt(result)) Success(f(result), next)
-          else Failure(msg(result), next)
+          else Failure(msg(result), in, next.offset)
         case f: Failure => f
       }
 
@@ -186,7 +186,10 @@ abstract class Parser[+T] {
   def ^^? [U] (f: T => Either[String, U]): Parser[U] = Parser { in =>
 
     parse(in) match {
-      case Success(result, next) => f(result) fold (msg => Failure(Message.fixed(msg),in), res => Success(res,next))
+      case Success(result, next) => f(result).fold(
+        msg => Failure(Message.fixed(msg), in, next.offset), 
+        res => Success(res,next)
+      )
       case f: Failure => f
     }
 
@@ -194,7 +197,7 @@ abstract class Parser[+T] {
 
   /** Operator synonym for `flatMap`.
     */
-  def >>[U] (fq: T => Parser[U]) = flatMap(fq)
+  def >>[U] (fq: T => Parser[U]): Parser[U] = flatMap(fq)
 
   /**  Returns a parser that repeatedly applies this parser.
     *  The returned parser offers an API to specify further constraints
@@ -244,8 +247,8 @@ abstract class Parser[+T] {
     */
   def withFailureMessage (msg: String) = Parser { in =>
     parse(in) match {
-      case Failure(_, next) => Failure(Message.fixed(msg), next)
-      case other            => other
+      case Failure(_, next, maxOff) => Failure(Message.fixed(msg), next, maxOff)
+      case other                    => other
     }
   }
 

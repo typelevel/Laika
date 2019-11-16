@@ -21,7 +21,7 @@ import laika.parse.combinator.Parsers
 import laika.parse.combinator.Parsers._
 import laika.parse.helper.{ParseResultHelpers, StringParserHelpers}
 import laika.parse.text.TextParsers
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.{Assertion, Matchers, WordSpec}
 
 /**
   * @author Jens Halm
@@ -275,6 +275,32 @@ class ParserSpec extends WordSpec with Matchers with ParseResultHelpers with Str
       Parsing("ababaxx") using consumeAll(parser1) should cause[Failure]
     }
 
+  }
+  
+  "The maxOffset property" should {
+    
+    def validate(res: Parsed[_], expectedMaxOffset: Int): Assertion = {
+      res shouldBe a[Failure]
+      println(res.asInstanceOf[Failure].toString)
+      res.asInstanceOf[Failure].maxOffset shouldBe expectedMaxOffset
+    }
+    
+    "be set properly on a failing character parser" in {
+      val p1 = TextParsers.anyOf('a','b')
+      val p2 = TextParsers.anyOf('c','d').min(3)
+      validate((p1 ~ p2).parse("ababcdef"), 6)
+    }
+
+    "be set properly on a failing literal parser" in {
+      val p = TextParsers.literal("Norway")
+      validate(p.parse("Nowhere"), 2)
+    }
+
+    "be set properly on a failing delimited text parser" in {
+      val p = TextParsers.delimitedBy("]")
+      validate(p.parse("[wrong"), 6)
+    }
+    
   }
 
 

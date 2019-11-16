@@ -67,7 +67,7 @@ trait Parsers {
     val errMsg: Int => Message = Message.forRuntimeValue[Int] { o => s"Unable to look ahead with offset $o" }
     Parser { in =>
       if (in.offset - offset < 0) Failure(errMsg(offset), in)
-      p.parse(in.consume(offset)) match{
+      p.parse(in.consume(offset)) match {
         case Success(s1, _) => Success(s1, in)
         case e => e
       }

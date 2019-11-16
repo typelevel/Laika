@@ -80,7 +80,7 @@ trait DefaultRecursiveSpanParsers extends RecursiveSpanParsers with DefaultEscap
         val recParser: String => List[Span] = { source: String =>
           defaultSpanParser.parse(source) match {
             case Success(spans, _)  => spans
-            case Failure(msg, next) => List(InvalidElement(msg.message(next), source).asSpan)
+            case f: Failure => List(InvalidElement(f.message, source).asSpan)
           }
         }
         Success((recParser, res), next)

@@ -16,8 +16,6 @@
 
 package laika.markdown
 
-import java.io
-
 import laika.ast._
 import laika.bundle.{SpanParser, SpanParserBuilder}
 import laika.parse.{Failure, Parser, ParserContext, Success}
@@ -129,7 +127,7 @@ object InlineParsers {
   
   private def normalizeId (id: String): String = id.toLowerCase.replaceAll("[\n ]+", " ")
 
-  type RecParser = (String => List[Span])
+  type RecParser = String => List[Span]
 
   /** Parses a link, including nested spans in the link text.
     *  Recognizes both, an inline link `[text](url)` and a link reference `[text][id]`.
@@ -160,8 +158,8 @@ object InlineParsers {
   val image: SpanParserBuilder = SpanParser.forStartChar('!').recursive { recParsers =>
 
     def escape (ctx: ParserContext): Either[Span, String] = recParsers.escapedText(DelimitedText.Undelimited).parse(ctx)  match {
-      case Success(span, _)  => Right(span)
-      case Failure(msg, next) => Left(InvalidElement(msg.message(next), ctx.input).asSpan)
+      case Success(span, _) => Right(span)
+      case f: Failure       => Left(InvalidElement(f.message, ctx.input).asSpan)
     }
 
     def imageInline (p: RecParser, text: String, uri: String, title: Option[String]) =

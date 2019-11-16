@@ -31,7 +31,7 @@ case class Literal (expected: String) extends Parser[String] {
     s"`$expected' expected but `$found` found"
   }
 
-  def parse (in: ParserContext) = {
+  def parse (in: ParserContext): Parsed[String] = {
     val source = in.input
     val start = in.offset
     var i = 0
@@ -41,7 +41,7 @@ case class Literal (expected: String) extends Parser[String] {
       j += 1
     }
     if (i == expected.length) Success(expected, in.consume(i))
-    else Failure(msgProvider, in)
+    else Failure(msgProvider, in, j)
   }
 
 }

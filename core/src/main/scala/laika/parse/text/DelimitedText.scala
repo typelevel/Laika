@@ -117,7 +117,7 @@ case class ConfigurableDelimiter (endDelimiters: Set[Char],
                                   keepDelimiter: Boolean = false,
                                   failOn: Set[Char] = Set()) extends Delimiter[String] {
 
-  val startChars = endDelimiters ++ failOn
+  val startChars: Set[Char] = endDelimiters ++ failOn
 
   private val emptyResult = Message.fixed(s"expected at least 1 character before end delimiter")
   private val unexpectedInput: Char => Message =
@@ -139,7 +139,7 @@ case class ConfigurableDelimiter (endDelimiters: Set[Char],
       Success(capturedText, context.consume(totalConsumed))
     }
 
-    if (failOn.contains(startChar)) Complete(Failure(unexpectedInput(startChar), context))
+    if (failOn.contains(startChar)) Complete(Failure(unexpectedInput(startChar), context, context.offset + charsConsumed))
     else {
       applyPostCondition match {
         case None                                      => Continue
@@ -150,7 +150,7 @@ case class ConfigurableDelimiter (endDelimiters: Set[Char],
   }
 
   def atEOF (charsConsumed: Int, context: ParserContext): Parsed[String] = {
-    if (!acceptEOF) Failure(Message.UnexpectedEOF, context)
+    if (!acceptEOF) Failure(Message.UnexpectedEOF, context, context.offset + charsConsumed)
     else if (charsConsumed == 0 && nonEmpty) Failure(emptyResult, context)
     else Success(context.capture(charsConsumed), context.consume(charsConsumed))
   }

@@ -75,7 +75,7 @@ class Characters[T] (predicate:     Char => Boolean,
       if (consumed >= minChar)
         Success(resultBuilder(ctx, consumed), ctx.consume(consumed))
       else
-        Failure(msgProvider(consumed), ctx)
+        Failure(msgProvider(consumed), ctx, offset)
     }
 
     @tailrec
@@ -138,7 +138,7 @@ object Characters {
   def exclude (chars: Seq[Char]): Characters[String] = {
     val p: Char => Boolean = chars.length match {
       case 0 =>
-        c => true
+        _ => true
       case 1 =>
         val c = chars(0)
         _ != c

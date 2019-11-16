@@ -296,7 +296,7 @@ object InlineParsers {
   private def reverse (offset: Int, p: => Parser[String]): Parser[String] = Parser { in =>
     p.parse(in.reverse.consume(offset)) match {
       case Success(result, _) => Success(result.reverse, in)
-      case Failure(msg, _) => Failure(msg, in)
+      case Failure(msg, _, _) => Failure(msg, in)
     }
   }
   

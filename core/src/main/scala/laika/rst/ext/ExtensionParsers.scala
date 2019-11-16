@@ -109,8 +109,8 @@ class ExtensionParsers(recParsers: RecursiveParsers,
   private def directive [E](p: Parser[E], name: String): Parser[E] = Parser { in =>
     p.parse(in) match {
       case s @ Success(_,_) => s
-      case Failure(msg, next) => (indentedBlock() ^^ { block =>
-        InvalidDirective(msg.message(next), s".. $name " + block).asInstanceOf[E]
+      case f: Failure => (indentedBlock() ^^ { block =>
+        InvalidDirective(f.message, s".. $name " + block).asInstanceOf[E]
       }).parse(in)
     }
   }

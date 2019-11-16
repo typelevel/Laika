@@ -118,7 +118,7 @@ object InlineParsers {
     lazy val nestedMap = nested
     lazy val textParser = new DelimitedText(new InlineDelimiter(nestedMap.keySet, text.delimiter))
 
-    def addText (text: String) = if (!text.isEmpty) builder += builder.fromString(text)
+    def addText (text: String): Unit = if (!text.isEmpty) builder += builder.fromString(text)
 
     def nestedSpanOrNextChar (parser: Parser[Elem], input: ParserContext) = {
       parser.parse(input) match {
@@ -130,8 +130,8 @@ object InlineParsers {
     @tailrec
     def parse (input: ParserContext) : Parsed[To] = {
       textParser.parse(input) match {
-        case Failure(msg, _) =>
-          Failure(msg, in)
+        case Failure(msg, _, maxOffset) =>
+          Failure(msg, in, maxOffset)
         case Success(EndDelimiter(text), next) =>
           addText(text)
           Success(builder.result, next)
