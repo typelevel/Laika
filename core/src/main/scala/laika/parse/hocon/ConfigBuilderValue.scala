@@ -18,6 +18,7 @@ package laika.parse.hocon
 
 import laika.ast.Path
 import laika.config.SimpleConfigValue
+import laika.parse.Failure
 
 /** The base trait of the interim configuration model (usually obtained from a HOCON parser).
   * 
@@ -46,6 +47,12 @@ object SubstitutionValue {
   def apply (ref: String, optional: Boolean): SubstitutionValue = apply(Path.Root / ref, optional)
 }
 
+sealed trait StringBuilderValue extends ConfigBuilderValue {
+  def value: String
+}
+case class ValidStringValue (value: String) extends StringBuilderValue
+case class InvalidStringValue (value: String, failure: Failure) extends StringBuilderValue
+
 /** A marker for a self reference, a reference to an earlier definition with the same key. */
 case object SelfReference extends ConfigBuilderValue
 
@@ -56,10 +63,15 @@ case class ArrayBuilderValue(values: Seq[ConfigBuilderValue]) extends ConfigBuil
 case class ObjectBuilderValue(values: Seq[BuilderField]) extends ConfigBuilderValue
 
 /** A single field of an object value. */
-case class BuilderField(key: Path, value: ConfigBuilderValue)
-object BuilderField {
-  def apply (key: String, value: ConfigBuilderValue): BuilderField = apply(Path.Root / key, value)
+case class BuilderField(key: Either[InvalidStringValue, Path], value: ConfigBuilderValue) {
+  def validKey: Path = key.right.get
 }
+object BuilderField {
+  def apply (key: String, value: ConfigBuilderValue): BuilderField = apply(Right(Path.Root / key), value)
+  def apply (key: Path, value: ConfigBuilderValue): BuilderField = apply(Right(key), value)
+}
+
+//case class InvalidBuilderValue(source: String, failure: Failure) extends ConfigBuilderValue
 
 /** A simple configuration value that does not need to be recursively resolved. */
 case class ResolvedBuilderValue(value: SimpleConfigValue) extends ConfigBuilderValue

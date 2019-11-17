@@ -74,6 +74,7 @@ object ConfigResolver {
       case o: ObjectBuilderValue   => Some(resolveObject(o, path))
       case a: ArrayBuilderValue    => Some(ArrayValue(a.values.flatMap(resolveValue(path)))) // TODO - adjust path?
       case r: ResolvedBuilderValue => Some(r.value)
+      case s: ValidStringValue     => Some(StringValue(s.value))
       case c: ConcatValue          => c.allParts.flatMap(resolveConcatPart(path)).reduceOption(concat(path))
       case m: MergedValue          => resolveMergedValue(path: Path)(m.values.reverse)
       case SelfReference           => None
@@ -119,7 +120,7 @@ object ConfigResolver {
         Some(NullValue)
       } else {
         resolvedParent(path).flatMap { case (obj, fieldPath) =>
-          obj.values.find(_.key == fieldPath).map(_.value).foreach(resolveField(fieldPath, _, obj))
+          obj.values.find(_.validKey == fieldPath).map(_.value).foreach(resolveField(fieldPath, _, obj))
           resolvedValue(path).orElse(fallback.get[ConfigValue](path).toOption)
         }
       }
@@ -168,7 +169,7 @@ object ConfigResolver {
     def resolveObject(obj: ObjectBuilderValue, path: Path): ObjectValue = {
       startedObjects += ((path, obj))
       val resolvedFields = obj.values.flatMap { field =>
-        resolveField(field.key, field.value, obj).map(Field(field.key.name, _, origin))
+        resolveField(field.validKey, field.value, obj).map(Field(field.validKey.name, _, origin))
       }
       ObjectValue(resolvedFields.sortBy(_.key))
     }
@@ -222,7 +223,7 @@ object ConfigResolver {
       case (v1, v2) => MergedValue(Seq(v1, v2))
     }
     
-    val mergedFields = obj.values.groupBy(_.key).mapValuesStrict(_.map(_.value)).toSeq.map {
+    val mergedFields = obj.values.groupBy(_.key.right.get).mapValuesStrict(_.map(_.value)).toSeq.map {
       case (path, values) => BuilderField(path.name, values.reduce(mergeValues(path)))
     }
     ObjectBuilderValue(mergedFields)
@@ -257,20 +258,20 @@ object ConfigResolver {
     }
     
     val expandedFields = obj.values.map { field =>
-      field.key.components match {
+      field.validKey.components match {
         case name :: Nil => 
           field.copy(
-            key = path / name, 
+            key = Right(path / name), 
             value = expandValue(field.value, path / name)
           )
         case name :: rest =>
           field.copy(
-            key = path / name, 
-            value = expandPaths(ObjectBuilderValue(Seq(BuilderField(Path(rest), field.value))), path / name)
+            key = Right(path / name), 
+            value = expandPaths(ObjectBuilderValue(Seq(BuilderField(Right(Path(rest)), field.value))), path / name)
           )
         case Nil =>
           field.copy(
-            key = Path.Root,
+            key = Right(Path.Root),
             value = expandValue(field.value, Path.Root) // TODO - 0.13 - should never get here
           )
       }

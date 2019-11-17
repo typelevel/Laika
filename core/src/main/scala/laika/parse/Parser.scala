@@ -69,7 +69,7 @@ abstract class Parser[+T] {
     *  `a orElse b` succeeds if either of the parsers succeeds.
     *  
     *  In case both parsers fail, the `Failure` instance will
-    *  be from the parser which the most successfully read characters.
+    *  be from the parser with the most successfully read characters.
     *  In the case of multiple failures having the same number of characters, 
     *  the one with the highest precedence (this parser) will be chosen.
     *

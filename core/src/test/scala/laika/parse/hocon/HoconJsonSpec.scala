@@ -16,7 +16,6 @@
 
 package laika.parse.hocon
 
-import laika.config.StringValue
 import laika.parse.helper.{ParseResultHelpers, StringParserHelpers}
 import laika.parse.hocon.HoconParsers._
 import org.scalatest.{Matchers, WordSpec}
@@ -72,23 +71,23 @@ class HoconJsonSpec extends WordSpec with Matchers with ParseResultHelpers with 
   "The string parser" should {
 
     "parse an empty string" in {
-      Parsing ("\"\"") using quotedString should produce (StringValue(""))
+      Parsing ("\"\"") using quotedString should produce (ValidStringValue(""): StringBuilderValue)
     }
 
     "parse an string containing only whitespace" in {
-      Parsing ("\"  \"") using quotedString should produce (StringValue("  "))
+      Parsing ("\"  \"") using quotedString should produce (ValidStringValue("  "): StringBuilderValue)
     }
     
     "parse a plain string" in {
-      Parsing ("\"fooz\"") using quotedString should produce (StringValue("fooz"))
+      Parsing ("\"fooz\"") using quotedString should produce (ValidStringValue("fooz"): StringBuilderValue)
     }
 
     "parse a new line character" in {
-      Parsing ("\"foo\\nbar\"") using quotedString should produce (StringValue("foo\nbar"))
+      Parsing ("\"foo\\nbar\"") using quotedString should produce (ValidStringValue("foo\nbar"): StringBuilderValue)
     }
 
     "parse a unicode character reference" in {
-      Parsing (""""foo \u007B bar"""") using quotedString should produce (StringValue("foo { bar"))
+      Parsing (""""foo \u007B bar"""") using quotedString should produce (ValidStringValue("foo { bar"): StringBuilderValue)
     }
     
   }

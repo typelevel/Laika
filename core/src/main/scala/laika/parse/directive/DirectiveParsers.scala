@@ -54,7 +54,7 @@ object DirectiveParsers {
   /** Parses a HOCON-style reference enclosed between `\${` and `}` that may be marked as optional (`\${?some.param}`).
     */
   def hoconReference[T] (f: (Path, Boolean) => T): Parser[T] = ('{' ~> opt('?') ~ HoconParsers.concatenatedKey <~ '}').map {
-    case opt ~ key => f(key, opt.isEmpty)
+    case opt ~ key => f(key.right.get, opt.isEmpty) // TODO - 0.12.1 - handle invalid keys
   }
 
   /** Represents one part of a directive (an attribute or a body element).

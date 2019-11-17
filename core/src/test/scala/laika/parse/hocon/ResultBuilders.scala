@@ -28,6 +28,6 @@ trait ResultBuilders {
   val falseValue: ConfigBuilderValue = ResolvedBuilderValue(BooleanValue(false))
   def longValue(value: Long): ConfigBuilderValue = ResolvedBuilderValue(LongValue(value))
   def doubleValue(value: Double): ConfigBuilderValue = ResolvedBuilderValue(DoubleValue(value))
-  def stringValue(value: String): ConfigBuilderValue = ResolvedBuilderValue(StringValue(value))
+  def stringValue(value: String): ConfigBuilderValue = ValidStringValue(value)
   
 }

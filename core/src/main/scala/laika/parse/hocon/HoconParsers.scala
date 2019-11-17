@@ -45,17 +45,29 @@ object HoconParsers {
     def concat: Parser[Seq[T]] = p.map { case x ~ xs => x +: xs }
   }
   
-  case class PathFragments(fragments: Seq[String]) {
+  case class PathFragments(fragments: Seq[StringBuilderValue]) {
     def join(other: PathFragments): PathFragments = {
       if (fragments.isEmpty || other.fragments.isEmpty) PathFragments(fragments ++ other.fragments)
-      else PathFragments(fragments.init ++ Seq(fragments.last + other.fragments.head) ++ other.fragments.tail)
+      else {
+        val glue = (fragments.last, other.fragments.head) match {
+          case (ValidStringValue(v1), ValidStringValue(v2)) => Seq(ValidStringValue(v1 ++ v2))
+          case (v1, v2) => Seq(v1, v2)
+        }
+        PathFragments(fragments.init ++ glue ++ other.fragments.tail)
+      }
     }
   }
   object PathFragments {
-    def unquoted(key: StringValue): PathFragments = apply(key.value.split("\\.", -1).toSeq)
-    def quoted(key: StringValue): PathFragments = apply(Seq(key.value))
-    def whitespace(ws: String): PathFragments = apply(Seq(ws))
-  }
+    def unquoted(key: StringBuilderValue): PathFragments = {
+      val fragments = key match {
+        case ValidStringValue(value) => value.split("\\.", -1).toSeq.map(ValidStringValue)
+        case invalid => Seq(invalid)
+      }
+      apply(fragments)
+    }
+    def quoted(key: StringBuilderValue): PathFragments = apply(Seq(key))
+    def whitespace(ws: String): PathFragments = apply(Seq(ValidStringValue(ws)))
+  } 
   
   def lazily[T](parser: => Parser[T]): Parser[T] = new Parser[T] {
     lazy val p = parser
@@ -99,7 +111,7 @@ object HoconParsers {
   }
 
   /** Parses a string enclosed in quotes. */
-  val quotedString: Parser[StringValue] = {
+  val quotedString: Parser[StringBuilderValue] = {
     val chars = anyBut('"','\\').min(1)
     val specialChar = anyIn('b','f','n','r','t').take(1).map {
       case "b" => "\b"
@@ -112,24 +124,24 @@ object HoconParsers {
     val unicode = anyIn('0' to '9', 'a' to 'f', 'A' to 'F').take(4).map(Integer.parseInt(_, 16).toChar.toString)
     val escape = '\\' ~> (literalChar | specialChar | unicode)
     
-    val value = (chars | escape).rep.map(parts => StringValue(parts.mkString))
+    val value = (chars | escape).rep.map(parts => ValidStringValue(parts.mkString))
     '"' ~> value <~ '"'
   }
 
   /** Parses a string enclosed in triple quotes. */
-  val multilineString: Parser[StringValue] = {
-    "\"\"\"" ~> delimitedBy("\"\"\"").map(StringValue)
+  val multilineString: Parser[StringBuilderValue] = {
+    "\"\"\"" ~> delimitedBy("\"\"\"").map(ValidStringValue)
   }
 
   /** Parses an unquoted string that is not allowed to contain any of the reserved characters listed in the HOCON spec. */
-  val unquotedString: Parser[StringValue] = {
+  val unquotedString: Parser[StringBuilderValue] = {
     val unquotedChar = anyBut('$', '"', '{', '}', '[', ']', ':', '=', ',', '+', '#', '`', '^', '?', '!', '@', '*', '&', '\\', ' ','\t','\n').min(1)
-    unquotedChar.map(StringValue)
+    unquotedChar.map(ValidStringValue)
   }
 
   /** Parses any of the 3 string types (quoted, unquoted, triple-quoted). */
   val stringBuilderValue: Parser[ConfigBuilderValue] =
-    (multilineString | quotedString | unquotedString).map(ResolvedBuilderValue)
+    multilineString | quotedString | unquotedString
   
   lazy val concatenatedValue: Parser[ConfigBuilderValue] = {
     lazy val parts = (ws ~ (not(comment) ~> anyValue)).map { case s ~ v => ConcatPart(s,v) }.rep
@@ -142,18 +154,27 @@ object HoconParsers {
   }
 
   /** Parses a key based on the HOCON rules where a '.' in a quoted string is not interpreted as a path separator. */
-  val concatenatedKey: Parser[Path] = {
+  val concatenatedKey: Parser[Either[InvalidStringValue, Path]] = {
     val string = quotedString.map(PathFragments.quoted) | unquotedString.map(PathFragments.unquoted)
     val parts = (ws.map(PathFragments.whitespace) ~ string).map { case s ~ fr => s.join(fr) }
     (string ~ parts.rep).map {
-      case first ~ rest => Path((first +: rest).reduce(_ join _).fragments.toList)
+      case first ~ rest =>
+        val res = (first +: rest).reduce(_ join _)
+        val keyStrings = res.fragments.map(_.value)
+        res.fragments.collect { case inv: InvalidStringValue => inv } match {
+          case error :: _ => Left(InvalidStringValue(keyStrings.mkString("."), error.failure.copy(
+            msgProvider = res => "Invalid key: " + error.failure.msgProvider.message(res)))
+          )
+          case _          => Right(Path(keyStrings.toList))
+        }
     }
   }
 
   /** Parses a substitution variable. */
-  val substitutionValue: Parser[SubstitutionValue] = {
+  val substitutionValue: Parser[ConfigBuilderValue] = {
     ("${" ~> opt('?') ~ concatenatedKey <~ '}').map {
-      case opt ~ key => SubstitutionValue(key, opt.isDefined)
+      case opt ~ Right(key)  => SubstitutionValue(key, opt.isDefined)
+      case _ ~ Left(invalid) => invalid
     } 
   }
 
