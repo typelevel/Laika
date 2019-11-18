@@ -250,10 +250,26 @@ abstract class Parser[+T] {
 
   /**  Changes the failure message produced by a parser.
     */
-  def withFailureMessage (msg: String) = Parser { in =>
+  def withFailureMessage (msg: String): Parser[T] = Parser { in =>
     parse(in) match {
       case Failure(_, next, maxOff) => Failure(Message.fixed(msg), next, maxOff)
       case other                    => other
+    }
+  }
+
+  /** Adds the position at the end of a successful application of this 
+    * parser to the result.
+    */
+  def withPosition: Parser[(T, Position)] = Parser { in =>
+    parse(in) match {
+      case f: Failure => f
+      case Success(result, rest) => Success((result, rest.position), rest)
+    }
+  }
+  def withContext: Parser[(T, ParserContext)] = Parser { in =>
+    parse(in) match {
+      case f: Failure => f
+      case Success(result, rest) => Success((result, rest), rest)
     }
   }
 

@@ -20,7 +20,7 @@ import laika.ast.{Path, ~}
 import laika.config._
 import laika.parse.text.Characters
 import laika.parse.text.TextParsers._
-import laika.parse.{Parser, ParserContext}
+import laika.parse.{Failure, Message, Parser, ParserContext}
 
 import scala.util.Try
 
@@ -112,7 +112,7 @@ object HoconParsers {
 
   /** Parses a string enclosed in quotes. */
   val quotedString: Parser[StringBuilderValue] = {
-    val chars = anyBut('"','\\').min(1)
+    val chars = anyBut('"','\\').min(1).map(Right(_))
     val specialChar = anyIn('b','f','n','r','t').take(1).map {
       case "b" => "\b"
       case "f" => "\f"
@@ -122,9 +122,19 @@ object HoconParsers {
     }
     val literalChar = anyIn('"','\\','/').take(1)
     val unicode = anyIn('0' to '9', 'a' to 'f', 'A' to 'F').take(4).map(Integer.parseInt(_, 16).toChar.toString)
-    val escape = '\\' ~> (literalChar | specialChar | unicode)
+    val escape = '\\' ~> ((literalChar | specialChar | unicode).map(Right(_)) | any.take(1).withContext.map(Left(_)) )
     
-    val value = (chars | escape).rep.map(parts => ValidStringValue(parts.mkString))
+    import cats.implicits._
+    
+    val value = (chars | escape).rep.map { parts => 
+      parts.sequence.fold(
+        error => InvalidStringValue(
+          parts.map(_.fold(_._1, identity)).mkString, 
+          Failure(Message.fixed(s"Invalid escape sequence: \\${error._1}"), error._2)
+        ),
+        parts => ValidStringValue(parts.mkString)
+      )
+    }
     '"' ~> value <~ '"'
   }
 
