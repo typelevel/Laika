@@ -44,6 +44,23 @@ object HoconParsers {
   implicit class PrependParserOps[T] (val p: Parser[T ~ Seq[T]]) extends AnyVal {
     def concat: Parser[Seq[T]] = p.map { case x ~ xs => x +: xs }
   }
+
+  def closeWith[T,R](mainParser: Parser[T],
+                     closingParser: Parser[Any],
+                     fallbackParser: Parser[Any],
+                     msg: => String)
+                    (captureResult: T => R,
+                     captureError: (T, Failure) => R): Parser[R] = {
+
+    (mainParser ~ (closingParser.^^^(()) | fallbackParser.withContext.map(_._2))).map {
+      case res ~ (ctx: ParserContext) =>
+        println("A")
+        captureError(res, Failure(Message.fixed(msg), ctx))
+      case res ~ _                    =>
+        println("B")
+        captureResult(res)
+    }
+  }
   
   case class PathFragments(fragments: Seq[StringBuilderValue]) {
     def join(other: PathFragments): PathFragments = {
@@ -112,7 +129,7 @@ object HoconParsers {
 
   /** Parses a string enclosed in quotes. */
   val quotedString: Parser[StringBuilderValue] = {
-    val chars = anyBut('"','\\').min(1).map(Right(_))
+    val chars = anyBut('"','\\','\n').min(1).map(Right(_))
     val specialChar = anyIn('b','f','n','r','t').take(1).map {
       case "b" => "\b"
       case "f" => "\f"
@@ -135,7 +152,8 @@ object HoconParsers {
         parts => ValidStringValue(parts.mkString)
       )
     }
-    '"' ~> value <~ '"'
+    //'"' ~> value <~ '"'
+    closeWith('"' ~> value, '"', any.take(1), "Expected closing quote")(identity, (v,f) => InvalidStringValue(v.value, f))
   }
 
   /** Parses a string enclosed in triple quotes. */

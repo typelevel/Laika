@@ -41,15 +41,30 @@ class HoconErrorSpec extends WordSpec with Matchers {
     "report an invalid escape sequence" in {
       val input =
         """
-          |a = "abcd \x zoo"
+          |a = "foo \x bar"
           |
           |b = 9
         """.stripMargin
       val expectedMessage =
-        """[2.12] failure: Invalid escape sequence: \x
+        """[2.11] failure: Invalid escape sequence: \x
           |
-          |a = "abcd \x zoo"
-          |           ^""".stripMargin
+          |a = "foo \x bar"
+          |          ^""".stripMargin
+      parseAndValidate(input, expectedMessage)
+    }
+
+    "report a missing closing quote" in {
+      val input =
+        """
+          |a = "foo bar
+          |
+          |b = 9
+        """.stripMargin
+      val expectedMessage =
+        """[2.13] failure: Expected closing quote
+          |
+          |a = "foo bar
+          |            ^""".stripMargin
       parseAndValidate(input, expectedMessage)
     }
 
