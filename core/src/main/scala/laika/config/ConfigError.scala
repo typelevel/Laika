@@ -17,6 +17,7 @@
 package laika.config
 
 import laika.ast.Path
+import laika.parse.Failure
 
 /** Base trait for all configuration errors that occurred
   * during parsing, resolving, retrieving or convering
@@ -42,7 +43,9 @@ case class DecodingError (message: String) extends ConfigError
 case class ValidationError(message: String) extends ConfigError
 
 /** An error that occurred when parsing HOCON input. */
-case class ConfigParserError(message: String) extends ConfigError
+case class ConfigParserError(failure: Failure) extends ConfigError {
+  val message = failure.message
+}
 
 /** An error that occurred when resolving the interim result of a parsing operation. */
 case class ConfigResolverError(message: String) extends ConfigError

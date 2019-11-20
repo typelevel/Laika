@@ -16,6 +16,7 @@
 
 package laika.config
 
+import laika.parse.{Failure, Success}
 import laika.parse.hocon.{ConfigResolver, HoconParsers}
 
 /** A parser for obtaining a Config instance from a HOCON string.
@@ -34,12 +35,11 @@ class ConfigParser(input: String, origin: Origin, fallback: Config = EmptyConfig
     * Failures may be caused by both, the parser and resolver step.
     */
   def resolve: Either[ConfigError, Config] = HoconParsers.rootObject
-    .parse(input)
-    .toEither
-    .left.map(ConfigParserError)
-    .flatMap { builderRoot =>
-      ConfigResolver.resolve(builderRoot, origin, fallback)
+    .parse(input) match {
+      case Success(builderRoot, _) => ConfigResolver
+        .resolve(builderRoot, origin, fallback)
         .map(new ObjectConfig(_, origin, fallback))
+      case f: Failure => Left(ConfigParserError(f))
     }
 
   /** Creates a new parser with the specified fallback which will be used

@@ -22,10 +22,11 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.bundle._
 import laika.factory.MarkupFormat
-import laika.parse.{Parser, ParserContext}
+import laika.parse._
 import laika.parse.combinator.Parsers
 import laika.parse.css.CSSParsers
 import laika.parse.directive.ConfigHeaderParser
+import laika.parse.hocon.ConfigResolver
 import laika.parse.markup.DocumentParser.ParserInput
 import laika.parse.text.TextParsers
 import org.scalatest.{Matchers, WordSpec}
@@ -330,10 +331,11 @@ class ParserBundleSpec extends WordSpec with Matchers {
     def parseWith(opConfig: OperationConfig, input: String): Either[ConfigError, Config] = opConfig
       .configProvider
       .configHeader
-      .parse(input)
-      .toEither
-      .left.map(ConfigParserError)
-      .flatMap(_.resolve(Origin.root, Config.empty))
+      .parse(input) match {
+        case Success(builderRoot, _) =>
+          builderRoot.resolve(Origin.root, Config.empty)
+        case f: Failure => Left(ConfigParserError(f))
+      }
 
     "should let configuration providers from app bundles override providers from parsers" in new BundleSetup {
       val parserBundles = Seq(BundleProvider.forConfigProvider(BetweenBraces))
@@ -364,8 +366,15 @@ class ParserBundleSpec extends WordSpec with Matchers {
     "fail when it does not recognize the header separator" in new BundleSetup {
       val parserBundles = Nil
       val appBundles = Nil
+      val input = "[[\nfoo: 7\n]]"
 
-      parseWith(config, "[[\nfoo: 7\n]]") shouldBe Left(ConfigParserError("`{%' expected but `[[` found"))
+      parseWith(config, input) match {
+        case Left(ConfigParserError(f)) => f.toString shouldBe """[1.1] failure: `{%' expected but `[[` found
+                                                                 |
+                                                                 |[[
+                                                                 |^""".stripMargin
+        case other => fail(s"Unexpected result: $other")
+      }
     }
 
   }
