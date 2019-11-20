@@ -18,7 +18,8 @@ package laika.parse.hocon
 
 import laika.ast.Path
 import laika.collection.TransitionalCollectionOps._
-import laika.config.{ASTValue, ArrayValue, Config, ConfigError, ConfigResolverError, ConfigValue, Field, NullValue, ObjectValue, Origin, SimpleConfigValue, StringValue}
+import laika.config._
+import laika.parse.Failure
 
 import scala.collection.mutable
 
@@ -51,135 +52,142 @@ object ConfigResolver {
     *   in the provided unresolved root)
     */
   def resolve(root: ObjectBuilderValue, origin: Origin, fallback: Config): Either[ConfigError, ObjectValue] = {
-    
-    val rootExpanded = mergeObjects(expandPaths(root))
-    
-    def renderPath(p: Path): String = p.components.mkString(".")
-    
-    val activeFields   = mutable.Set.empty[Path]
-    val resolvedFields = mutable.Map.empty[Path, ConfigValue]
-    val startedObjects = mutable.Map.empty[Path, ObjectBuilderValue] // may be in progress or resolved
-    val invalidPaths   = mutable.Map.empty[Path, String]
-    
-    def resolvedValue(path: Path): Option[ConfigValue] = resolvedFields.get(path)
-    
-    def deepMerge(o1: ObjectValue, o2: ObjectValue): ObjectValue =  {
-      val resolvedFields = (o1.values ++ o2.values).groupBy(_.key).mapValuesStrict(_.map(_.value)).toSeq.map {
-        case (name, values) => Field(name, values.reduce(merge), origin)
-      }
-      ObjectValue(resolvedFields.sortBy(_.key))
-    }
 
-    def resolveValue(path: Path)(value: ConfigBuilderValue): Option[ConfigValue] = value match {
-      case o: ObjectBuilderValue   => Some(resolveObject(o, path))
-      case a: ArrayBuilderValue    => Some(ArrayValue(a.values.flatMap(resolveValue(path)))) // TODO - adjust path?
-      case r: ResolvedBuilderValue => Some(r.value)
-      case s: ValidStringValue     => Some(StringValue(s.value))
-      case c: ConcatValue          => c.allParts.flatMap(resolveConcatPart(path)).reduceOption(concat(path))
-      case m: MergedValue          => resolveMergedValue(path: Path)(m.values.reverse)
-      case SelfReference           => None
-      case SubstitutionValue(ref, true) if ref == path => None
-      case SubstitutionValue(ref, optional) =>
-        resolvedValue(ref).orElse(lookahead(ref)).orElse {
-          if (!optional) invalidPaths += ((path, s"Missing required reference: '${renderPath(ref)}'"))
-          None
+    val errors = extractErrors(root)
+
+    if (errors.nonEmpty) Left(ConfigParserErrors(errors))
+    else {
+
+      val rootExpanded = mergeObjects(expandPaths(root))
+
+      def renderPath(p: Path): String = p.components.mkString(".")
+
+      val activeFields = mutable.Set.empty[Path]
+      val resolvedFields = mutable.Map.empty[Path, ConfigValue]
+      val startedObjects = mutable.Map.empty[Path, ObjectBuilderValue] // may be in progress or resolved
+      val invalidPaths = mutable.Map.empty[Path, String]
+
+      def resolvedValue(path: Path): Option[ConfigValue] = resolvedFields.get(path)
+
+      def deepMerge(o1: ObjectValue, o2: ObjectValue): ObjectValue = {
+        val resolvedFields = (o1.values ++ o2.values).groupBy(_.key).mapValuesStrict(_.map(_.value)).toSeq.map {
+          case (name, values) => Field(name, values.reduce(merge), origin)
         }
-    }
-    
-    def resolveMergedValue(path: Path)(values: Seq[ConfigBuilderValue]): Option[ConfigValue] = {
-      
-      def loop(values: Seq[ConfigBuilderValue]): Option[ConfigValue] = (resolveValue(path)(values.head), values.tail) match {
-        case (Some(ov: ObjectValue), Nil)  => Some(ov)
-        case (Some(ov: ObjectValue), rest) => loop(rest) match {
-          case Some(o2: ObjectValue) => Some(merge(o2, ov))
-          case _ => Some(ov)
-        }
-        case (Some(other), _) => Some(other)
-        case (None, Nil)      => None
-        case (None, rest)     => loop(rest)
+        ObjectValue(resolvedFields.sortBy(_.key))
       }
-      
-      loop(values)
-    }
-    
-    def lookahead(path: Path): Option[ConfigValue] = {
-      
-      def resolvedParent(current: Path): Option[(ObjectBuilderValue, Path)] = {
-        if (current == Path.Root) Some((rootExpanded, current))
-        else {
-          val matching = startedObjects.toSeq.filter(o => current.isSubPath(o._1))
-          val sorted = matching.sortBy(_._1.components.length)
-          sorted.lastOption.fold(resolvedParent(current.parent)) {
-            case (commonPath, obv) => Some((obv, Path(Path.Root, current.components.take(commonPath.components.size + 1))))
+
+      def resolveValue(path: Path)(value: ConfigBuilderValue): Option[ConfigValue] = value match {
+        case o: ObjectBuilderValue => Some(resolveObject(o, path))
+        case a: ArrayBuilderValue => Some(ArrayValue(a.values.flatMap(resolveValue(path)))) // TODO - adjust path?
+        case r: ResolvedBuilderValue => Some(r.value)
+        case s: ValidStringValue => Some(StringValue(s.value))
+        case c: ConcatValue => c.allParts.flatMap(resolveConcatPart(path)).reduceOption(concat(path))
+        case m: MergedValue => resolveMergedValue(path: Path)(m.values.reverse)
+        case SelfReference => None
+        case _: InvalidStringValue => None
+        case SubstitutionValue(ref, true) if ref == path => None
+        case SubstitutionValue(ref, optional) =>
+          resolvedValue(ref).orElse(lookahead(ref)).orElse {
+            if (!optional) invalidPaths += ((path, s"Missing required reference: '${renderPath(ref)}'"))
+            None
+          }
+      }
+
+      def resolveMergedValue(path: Path)(values: Seq[ConfigBuilderValue]): Option[ConfigValue] = {
+
+        def loop(values: Seq[ConfigBuilderValue]): Option[ConfigValue] = (resolveValue(path)(values.head), values.tail) match {
+          case (Some(ov: ObjectValue), Nil) => Some(ov)
+          case (Some(ov: ObjectValue), rest) => loop(rest) match {
+            case Some(o2: ObjectValue) => Some(merge(o2, ov))
+            case _ => Some(ov)
+          }
+          case (Some(other), _) => Some(other)
+          case (None, Nil) => None
+          case (None, rest) => loop(rest)
+        }
+
+        loop(values)
+      }
+
+      def lookahead(path: Path): Option[ConfigValue] = {
+
+        def resolvedParent(current: Path): Option[(ObjectBuilderValue, Path)] = {
+          if (current == Path.Root) Some((rootExpanded, current))
+          else {
+            val matching = startedObjects.toSeq.filter(o => current.isSubPath(o._1))
+            val sorted = matching.sortBy(_._1.components.length)
+            sorted.lastOption.fold(resolvedParent(current.parent)) {
+              case (commonPath, obv) => Some((obv, Path(Path.Root, current.components.take(commonPath.components.size + 1))))
+            }
           }
         }
-      } 
-      
-      if (activeFields.contains(path)) {
-        invalidPaths += ((path, s"Circular Reference involving path '${renderPath(path)}'"))
-        Some(NullValue)
-      } else {
-        resolvedParent(path).flatMap { case (obj, fieldPath) =>
-          obj.values.find(_.validKey == fieldPath).map(_.value).foreach(resolveField(fieldPath, _, obj))
-          resolvedValue(path).orElse(fallback.get[ConfigValue](path).toOption)
-        }
-      }
-    }
-    
-    def resolveConcatPart(path: Path)(part: ConcatPart): Option[ConfigValue] = part.value match {
-      case SelfReference => None
-      case other => resolveValue(path)(other) match {
-        case Some(simpleValue: SimpleConfigValue) => Some(StringValue(part.whitespace + simpleValue.render))
-        case Some(_: ASTValue)                    => None
-        case other                                => other
-      }
-    } 
 
-    def concat(path: Path)(v1: ConfigValue, v2: ConfigValue): ConfigValue = {
-      (v1, v2) match {
-        case (o1: ObjectValue, o2: ObjectValue) => deepMerge(o1, o2)
-        case (a1: ArrayValue, a2: ArrayValue) => ArrayValue(a1.values ++ a2.values)
-        case (s1: StringValue, s2: StringValue) => StringValue(s1.value ++ s2.value)
-        case (NullValue, a2: ArrayValue) => a2
-        case _ => 
-          invalidPaths += ((path, s"Invalid concatenation of values. It must contain either only objects, only arrays or only simple values"))
-          NullValue
-      }
-    }
-    
-    def merge(v1: ConfigValue, v2: ConfigValue): ConfigValue = {
-      (v1, v2) match {
-        case (o1: ObjectValue, o2: ObjectValue) => deepMerge(o1, o2)
-        case (_, c2) => c2
-      }
-    }
-    
-    def resolveField(path: Path, value: ConfigBuilderValue, parent: ObjectBuilderValue): Option[ConfigValue] = {
-      resolvedValue(path).orElse {
-        activeFields += path
-        val res = resolveValue(path)(value)
-        activeFields -= path
-        res.foreach { resolved =>
-          resolvedFields += ((path, resolved))
+        if (activeFields.contains(path)) {
+          invalidPaths += ((path, s"Circular Reference involving path '${renderPath(path)}'"))
+          Some(NullValue)
+        } else {
+          resolvedParent(path).flatMap { case (obj, fieldPath) =>
+            obj.values.find(_.validKey == fieldPath).map(_.value).foreach(resolveField(fieldPath, _, obj))
+            resolvedValue(path).orElse(fallback.get[ConfigValue](path).toOption)
+          }
         }
-        res
       }
-    }
-    
-    def resolveObject(obj: ObjectBuilderValue, path: Path): ObjectValue = {
-      startedObjects += ((path, obj))
-      val resolvedFields = obj.values.flatMap { field =>
-        resolveField(field.validKey, field.value, obj).map(Field(field.validKey.name, _, origin))
+
+      def resolveConcatPart(path: Path)(part: ConcatPart): Option[ConfigValue] = part.value match {
+        case SelfReference => None
+        case other => resolveValue(path)(other) match {
+          case Some(simpleValue: SimpleConfigValue) => Some(StringValue(part.whitespace + simpleValue.render))
+          case Some(_: ASTValue) => None
+          case other => other
+        }
       }
-      ObjectValue(resolvedFields.sortBy(_.key))
+
+      def concat(path: Path)(v1: ConfigValue, v2: ConfigValue): ConfigValue = {
+        (v1, v2) match {
+          case (o1: ObjectValue, o2: ObjectValue) => deepMerge(o1, o2)
+          case (a1: ArrayValue, a2: ArrayValue) => ArrayValue(a1.values ++ a2.values)
+          case (s1: StringValue, s2: StringValue) => StringValue(s1.value ++ s2.value)
+          case (NullValue, a2: ArrayValue) => a2
+          case _ =>
+            invalidPaths += ((path, s"Invalid concatenation of values. It must contain either only objects, only arrays or only simple values"))
+            NullValue
+        }
+      }
+
+      def merge(v1: ConfigValue, v2: ConfigValue): ConfigValue = {
+        (v1, v2) match {
+          case (o1: ObjectValue, o2: ObjectValue) => deepMerge(o1, o2)
+          case (_, c2) => c2
+        }
+      }
+
+      def resolveField(path: Path, value: ConfigBuilderValue, parent: ObjectBuilderValue): Option[ConfigValue] = {
+        resolvedValue(path).orElse {
+          activeFields += path
+          val res = resolveValue(path)(value)
+          activeFields -= path
+          res.foreach { resolved =>
+            resolvedFields += ((path, resolved))
+          }
+          res
+        }
+      }
+
+      def resolveObject(obj: ObjectBuilderValue, path: Path): ObjectValue = {
+        startedObjects += ((path, obj))
+        val resolvedFields = obj.values.flatMap { field =>
+          resolveField(field.validKey, field.value, obj).map(Field(field.validKey.name, _, origin))
+        }
+        ObjectValue(resolvedFields.sortBy(_.key))
+      }
+
+      val res = resolveObject(rootExpanded, Path.Root)
+
+      if (invalidPaths.nonEmpty) Left(ConfigResolverError(
+        s"One or more errors resolving configuration: ${invalidPaths.map { case (key, msg) => s"'${renderPath(key)}': $msg" }.mkString(", ")}"
+      ))
+      else Right(res)
     }
-    
-    val res = resolveObject(rootExpanded, Path.Root)
-    
-    if (invalidPaths.nonEmpty) Left(ConfigResolverError(
-      s"One or more errors resolving configuration: ${invalidPaths.map{ case (key, msg) => s"'${renderPath(key)}': $msg" }.mkString(", ")}"
-    ))
-    else Right(res)
   }
 
   /** Merges objects with a common base path into a single one.
@@ -277,6 +285,24 @@ object ConfigResolver {
       }
     }
     obj.copy(values = expandedFields)
+  }
+
+  /* Extracts all invalid values from the unresolved config tree */
+  def extractErrors (obj: ObjectBuilderValue): Seq[Failure] = {
+
+    def extract(concat: ConcatValue): Seq[Failure] = (concat.first +: concat.rest.map(_.value)).flatMap {
+      case InvalidStringValue(_, failure) => Seq(failure)
+      case child: ObjectBuilderValue => extractErrors(child)
+      case _ => Nil
+    }
+
+    obj.values.flatMap {
+      case BuilderField(Left(InvalidStringValue(_, failure)), _) => Seq(failure)
+      case BuilderField(_, InvalidStringValue(_, failure)) => Seq(failure)
+      case BuilderField(_, child: ObjectBuilderValue) => extractErrors(child)
+      case BuilderField(_, concat: ConcatValue) => extract(concat)
+      case _ => Nil
+    }
   }
   
 }
