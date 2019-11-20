@@ -269,7 +269,7 @@ abstract class Parser[+T] {
   def withContext: Parser[(T, ParserContext)] = Parser { in =>
     parse(in) match {
       case f: Failure => f
-      case Success(result, rest) => Success((result, rest), rest)
+      case Success(result, rest) => Success((result, in), rest)
     }
   }
 
