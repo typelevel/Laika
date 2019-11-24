@@ -77,6 +77,7 @@ class HoconErrorSpec extends WordSpec with Matchers {
         """
           |a {
           | aa = "some text
+          | bb = 7
           |} 
           |
           |b = 9
@@ -87,6 +88,36 @@ class HoconErrorSpec extends WordSpec with Matchers {
           | aa = "some text
           |                ^""".stripMargin
       parseAndValidate(input, expectedMessage)
+    }
+
+    "be detected in a substitution reference" in {
+      val input =
+        """
+          |a = ${"foo.bar}
+          |
+          |b = 9
+        """.stripMargin
+      val expectedMessage =
+        """[2.13] failure: Expected closing quote
+          |
+          |a = "foo bar
+          |            ^""".stripMargin
+      //parseAndValidate(input, expectedMessage) TODO
+    }
+
+    "be detected in a property key" in {
+      val input =
+        """
+          |"a = 7
+          |
+          |b = 9
+        """.stripMargin
+      val expectedMessage =
+        """[2.13] failure: Expected closing quote
+          |
+          |a = "foo bar
+          |            ^""".stripMargin
+      //parseAndValidate(input, expectedMessage) TODO
     }
     
   }
@@ -164,6 +195,64 @@ class HoconErrorSpec extends WordSpec with Matchers {
           |
           |  c = 9
           |    ^""".stripMargin
+      parseAndValidate(input, expectedMessage)
+    }
+
+  }
+
+  "Missing closing braces for objects" should {
+
+    "be detected in a top level property" in {
+      val input =
+        """
+          |a {
+          |  x = 5
+          |
+          |b = 9
+          |""".stripMargin
+      val expectedMessage =
+        """[6.1] failure: Expected closing brace '}'
+          |
+          |
+          |^""".stripMargin
+      parseAndValidate(input, expectedMessage)
+    }
+
+    "be detected in a multiline array" in {
+      val input =
+        """
+          |a = [
+          | { x = 5
+          | 4
+          | 5
+          |]
+          |
+          |b = 9
+        """.stripMargin
+      val expectedMessage =
+        """[4.2] failure: Expected closing brace '}'
+          |
+          | 4
+          | ^""".stripMargin
+      parseAndValidate(input, expectedMessage)
+    }
+
+    "be detected in a nested object property" in {
+      val input =
+        """
+          |a {
+          |  b { x = 5
+          |    
+          |  c = 9
+          |}
+          |  
+          |d = 7  
+          |""".stripMargin
+      val expectedMessage =
+        """[9.1] failure: Expected closing brace '}'
+          |
+          |
+          |^""".stripMargin
       parseAndValidate(input, expectedMessage)
     }
 

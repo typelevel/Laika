@@ -156,7 +156,6 @@ object HoconParsers {
         parts => ValidStringValue(parts.mkString)
       )
     }
-    //'"' ~> value <~ '"'
     closeWith('"' ~> value, '"', anyBut('\n'), "Expected closing quote")(identity, (v,f) => InvalidStringValue(v.value, f))
   }
 
@@ -243,11 +242,18 @@ object HoconParsers {
   }
 
   /** Parses an object value enclosed in braces. */
-  lazy val objectValue: Parser[ObjectBuilderValue] = lazily('{' ~> objectMembers <~ '}')
+  lazy val objectValue: Parser[ConfigBuilderValue] = {
+    val mainParser = lazily('{' ~> objectMembers)
+    closeWith(mainParser, '}', anyBut('\n'), "Expected closing brace '}'")(identity, InvalidBuilderValue)
+  }
 
   /** Parses a root configuration object where the enclosing braces may be omitted. */
   lazy val rootObject: Parser[ObjectBuilderValue] = {
-    val withBraces = wsOrComment ~> objectValue <~ wsOrComment
+    val recoveredRoot = objectValue.map {
+      case obj: ObjectBuilderValue => obj
+      case inv => ObjectBuilderValue(Seq(BuilderField("invalid", inv)))
+    }
+    val withBraces = wsOrComment ~> recoveredRoot <~ wsOrComment
     val withoutBraces = wsOrComment ~> objectMembers <~ wsOrComment
     (withBraces | withoutBraces) <~ eof
   }

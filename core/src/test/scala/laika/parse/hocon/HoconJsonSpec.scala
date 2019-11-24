@@ -30,15 +30,15 @@ class HoconJsonSpec extends WordSpec with Matchers with ParseResultHelpers with 
   "The object parser" should {
 
     "parse an empty object in" in {
-      Parsing ("{ }") using objectValue should produce (ObjectBuilderValue(Nil))
+      Parsing ("{ }") using objectValue should produce (ObjectBuilderValue(Nil): ConfigBuilderValue)
     }
 
     "parse an object with one property in" in {
-      Parsing ("""{ "a": "foo" }""") using objectValue should produce (ObjectBuilderValue(Seq(BuilderField("a", stringValue("foo")))))
+      Parsing ("""{ "a": "foo" }""") using objectValue should produce (ObjectBuilderValue(Seq(BuilderField("a", stringValue("foo")))): ConfigBuilderValue)
     }
 
     "parse an object with two properties in" in {
-      Parsing ("""{ "a": "foo", "b": "bar" }""") using objectValue should produce (ObjectBuilderValue(Seq(f("a","foo"),f("b","bar"))))
+      Parsing ("""{ "a": "foo", "b": "bar" }""") using objectValue should produce (ObjectBuilderValue(Seq(f("a","foo"),f("b","bar"))): ConfigBuilderValue)
     }
 
     "parse an object with all property types" in {
@@ -63,7 +63,7 @@ class HoconJsonSpec extends WordSpec with Matchers with ParseResultHelpers with 
           BuilderField("inner", stringValue("xx")),
           BuilderField("num", doubleValue(9.5))
         )))
-      )))
+      )): ConfigBuilderValue)
     }
 
   }
