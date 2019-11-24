@@ -203,10 +203,11 @@ object HoconParsers {
 
   /** Parses a substitution variable. */
   val substitutionValue: Parser[ConfigBuilderValue] = {
-    ("${" ~> opt('?') ~ concatenatedKey <~ '}').map {
+    val mainParser = ("${" ~> opt('?') ~ concatenatedKey).map {
       case opt ~ Right(key)  => SubstitutionValue(key, opt.isDefined)
       case _ ~ Left(invalid) => invalid
-    } 
+    }
+    closeWith(mainParser, '}', anyBut('\n'), "Expected closing brace '}'")(identity, InvalidBuilderValue)
   }
 
   /** Parses a comment. */

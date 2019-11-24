@@ -258,6 +258,63 @@ class HoconErrorSpec extends WordSpec with Matchers {
 
   }
 
+  "Missing closing braces for substitution references" should {
+
+    "be detected in a top level property" in {
+      val input =
+        """
+          |a = ${foo.bar
+          |
+          |b = 9
+          |""".stripMargin
+      val expectedMessage =
+        """[2.14] failure: Expected closing brace '}'
+          |
+          |a = ${foo.bar
+          |             ^""".stripMargin
+      parseAndValidate(input, expectedMessage)
+    }
+
+    "be detected in a multiline array" in {
+      val input =
+        """
+          |a = [
+          | ${foo.bar
+          | 4
+          | 5
+          |]
+          |
+          |b = 9
+        """.stripMargin
+      val expectedMessage =
+        """[3.11] failure: Expected closing brace '}'
+          |
+          | ${foo.bar
+          |          ^""".stripMargin
+      parseAndValidate(input, expectedMessage)
+    }
+
+    "be detected in a nested object property" in {
+      val input =
+        """
+          |a {
+          |  b = ${foo.bar
+          |    
+          |  c = 9
+          |}
+          |  
+          |d = 7  
+          |""".stripMargin
+      val expectedMessage =
+        """[3.16] failure: Expected closing brace '}'
+          |
+          |  b = ${foo.bar
+          |               ^""".stripMargin
+      parseAndValidate(input, expectedMessage)
+    }
+
+  }
+
     //    "report a missing closing triple quote" in {
 //      val input =
 //        """
