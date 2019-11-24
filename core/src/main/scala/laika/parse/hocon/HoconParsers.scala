@@ -58,10 +58,10 @@ object HoconParsers {
 
     (mainParser ~ (closingParser.^^^(()) | fallbackParser.withContext.map(_._2))).map {
       case res ~ (ctx: ParserContext) =>
-        println("A")
+        println(s"A $res")
         captureError(res, Failure(Message.fixed(msg), ctx))
       case res ~ _                    =>
-        println("B")
+        println(s"B $res")
         captureResult(res)
     }
   }
@@ -157,7 +157,7 @@ object HoconParsers {
       )
     }
     //'"' ~> value <~ '"'
-    closeWith('"' ~> value, '"', any.take(1), "Expected closing quote")(identity, (v,f) => InvalidStringValue(v.value, f))
+    closeWith('"' ~> value, '"', anyBut('\n'), "Expected closing quote")(identity, (v,f) => InvalidStringValue(v.value, f))
   }
 
   /** Parses a string enclosed in triple quotes. */

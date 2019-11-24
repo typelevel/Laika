@@ -36,24 +36,9 @@ class HoconErrorSpec extends WordSpec with Matchers {
 
   }
 
-  "The error messages of the HOCON parser" should {
-    
-    "report an invalid escape sequence" in {
-      val input =
-        """
-          |a = "foo \x bar"
-          |
-          |b = 9
-        """.stripMargin
-      val expectedMessage =
-        """[2.11] failure: Invalid escape sequence: \x
-          |
-          |a = "foo \x bar"
-          |          ^""".stripMargin
-      parseAndValidate(input, expectedMessage)
-    }
+  "Missing closing quotes" should {
 
-    "report a missing closing quote" in {
+    "be detected in a top level property" in {
       val input =
         """
           |a = "foo bar
@@ -68,23 +53,66 @@ class HoconErrorSpec extends WordSpec with Matchers {
       parseAndValidate(input, expectedMessage)
     }
 
-    "report a missing closing triple quote" in {
-//      val input =
-//        """
-//          |a = +++foo bar
-//          |       baz baz
-//          |       
-//          |b = 9
-//        """.stripMargin.replaceAllLiterally("+", "\"")
-//      val expectedMessage =
-//        """[2.13] failure: Expected closing quote
-//          |
-//          |a = "foo bar
-//          |            ^""".stripMargin
-//      parseAndValidate(input, expectedMessage)
+    "be detected in an array property" in {
+      val input =
+        """
+          |a = [
+          | 3
+          | 4
+          | "some text
+          |] 
+          |
+          |b = 9
+        """.stripMargin
+      val expectedMessage =
+        """[5.12] failure: Expected closing quote
+          |
+          | "some text
+          |           ^""".stripMargin
+      parseAndValidate(input, expectedMessage)
     }
 
-    "report a missing closing bracket of an array" in {
+    "be detected in a nested object property" in {
+      val input =
+        """
+          |a {
+          | aa = "some text
+          |} 
+          |
+          |b = 9
+        """.stripMargin
+      val expectedMessage =
+        """[3.17] failure: Expected closing quote
+          |
+          | aa = "some text
+          |                ^""".stripMargin
+      parseAndValidate(input, expectedMessage)
+    }
+    
+  }
+  
+  "Invalid escape sequences" should {
+
+    "be detected in a top level property" in {
+      val input =
+        """
+          |a = "foo \x bar"
+          |
+          |b = 9
+        """.stripMargin
+      val expectedMessage =
+        """[2.11] failure: Invalid escape sequence: \x
+          |
+          |a = "foo \x bar"
+          |          ^""".stripMargin
+      parseAndValidate(input, expectedMessage)
+    }
+
+  }
+   
+  "Missing closing brackets for arrays" should {
+
+    "be detected in a top level property" in {
       val input =
         """
           |a = [3, 4, 5
@@ -99,7 +127,7 @@ class HoconErrorSpec extends WordSpec with Matchers {
       parseAndValidate(input, expectedMessage)
     }
 
-    "report a missing closing bracket of a multiline array" in {
+    "be detected in a top level property in a multiline array" in {
       val input =
         """
           |a = [
@@ -117,7 +145,7 @@ class HoconErrorSpec extends WordSpec with Matchers {
       parseAndValidate(input, expectedMessage)
     }
 
-    "report a missing closing bracket of a nested multiline array" in {
+    "be detected in a nested object property" in {
       val input =
         """
           |a {
@@ -140,5 +168,22 @@ class HoconErrorSpec extends WordSpec with Matchers {
     }
 
   }
+
+    //    "report a missing closing triple quote" in {
+//      val input =
+//        """
+//          |a = +++foo bar
+//          |       baz baz
+//          |       
+//          |b = 9
+//        """.stripMargin.replaceAllLiterally("+", "\"")
+//      val expectedMessage =
+//        """[2.13] failure: Expected closing quote
+//          |
+//          |a = "foo bar
+//          |            ^""".stripMargin
+//      parseAndValidate(input, expectedMessage)
+//    }
+
   
 }

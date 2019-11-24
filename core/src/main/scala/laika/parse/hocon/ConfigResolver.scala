@@ -290,19 +290,18 @@ object ConfigResolver {
   /* Extracts all invalid values from the unresolved config tree */
   def extractErrors (obj: ObjectBuilderValue): Seq[Failure] = {
 
-    def extract(concat: ConcatValue): Seq[Failure] = (concat.first +: concat.rest.map(_.value)).flatMap {
-      case InvalidStringValue(_, failure) => Seq(failure)
-      case child: ObjectBuilderValue => extractErrors(child)
-      case _ => Nil
+    def extract(value: ConfigBuilderValue): Seq[Failure] = value match {
+      case InvalidStringValue(_, failure)  => Seq(failure)
+      case InvalidBuilderValue(_, failure) => Seq(failure)
+      case child: ObjectBuilderValue       => extractErrors(child)
+      case child: ArrayBuilderValue        => child.values.flatMap(extract)
+      case concat: ConcatValue             => (concat.first +: concat.rest.map(_.value)).flatMap(extract)
+      case _                               => Nil
     }
 
     obj.values.flatMap {
       case BuilderField(Left(InvalidStringValue(_, failure)), _) => Seq(failure)
-      case BuilderField(_, InvalidStringValue(_, failure)) => Seq(failure)
-      case BuilderField(_, InvalidBuilderValue(_, failure)) => Seq(failure)
-      case BuilderField(_, child: ObjectBuilderValue) => extractErrors(child)
-      case BuilderField(_, concat: ConcatValue) => extract(concat)
-      case _ => Nil
+      case BuilderField(_, value) => extract(value)
     }
   }
   
