@@ -71,7 +71,7 @@ object BuilderField {
   def apply (key: Path, value: ConfigBuilderValue): BuilderField = apply(Right(key), value)
 }
 
-//case class InvalidBuilderValue(source: String, failure: Failure) extends ConfigBuilderValue
+case class InvalidBuilderValue(value: ConfigBuilderValue, failure: Failure) extends ConfigBuilderValue
 
 /** A simple configuration value that does not need to be recursively resolved. */
 case class ResolvedBuilderValue(value: SimpleConfigValue) extends ConfigBuilderValue

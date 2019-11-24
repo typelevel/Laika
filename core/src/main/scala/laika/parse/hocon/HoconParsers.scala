@@ -20,7 +20,7 @@ import laika.ast.{Path, ~}
 import laika.config._
 import laika.parse.text.Characters
 import laika.parse.text.TextParsers._
-import laika.parse.{Failure, Message, Parser, ParserContext}
+import laika.parse.{Failure, Message, Parser, ParserContext, Success}
 
 import scala.util.Try
 
@@ -33,6 +33,10 @@ import scala.util.Try
   * @author Jens Halm
   */
 object HoconParsers {
+  
+  val consumeAllInput: Parser[Unit] = Parser { in =>
+    Success((), in.consume(in.remaining))
+  }
 
   // TODO - promote to core parser
   implicit class String2ParserOps (val p: Parser[String ~ String]) extends AnyVal {
@@ -220,7 +224,8 @@ object HoconParsers {
   lazy val arrayValue: Parser[ConfigBuilderValue] = {
     lazy val value = wsOrNl ~> concatenatedValue <~ ws
     lazy val values = wsOrComment ~> opt(value ~ (separator ~> value).rep).map(_.fold(Seq.empty[ConfigBuilderValue]){ case v ~ vs => v +: vs }) <~ wsOrComment
-    lazily(('[' ~> values <~ trailingComma <~ ']').map(ArrayBuilderValue))
+    val mainParser = lazily(('[' ~> values <~ trailingComma).map(ArrayBuilderValue))
+    closeWith(mainParser, ']', consumeAllInput, "Expected closing bracket ']'")(identity, InvalidBuilderValue)
   }
 
   /** Parses the members of an object without the enclosing braces. */

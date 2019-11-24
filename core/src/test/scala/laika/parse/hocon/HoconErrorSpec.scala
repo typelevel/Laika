@@ -68,6 +68,55 @@ class HoconErrorSpec extends WordSpec with Matchers {
       parseAndValidate(input, expectedMessage)
     }
 
+    "report a missing closing triple quote" in {
+//      val input =
+//        """
+//          |a = +++foo bar
+//          |       baz baz
+//          |       
+//          |b = 9
+//        """.stripMargin.replaceAllLiterally("+", "\"")
+//      val expectedMessage =
+//        """[2.13] failure: Expected closing quote
+//          |
+//          |a = "foo bar
+//          |            ^""".stripMargin
+//      parseAndValidate(input, expectedMessage)
+    }
+
+    "report a missing closing bracket of an array" in {
+      val input =
+        """
+          |a = [3, 4, 5
+          |
+          |b = 9
+        """.stripMargin
+      val expectedMessage =
+        """[4.3] failure: Expected closing bracket ']'
+          |
+          |b = 9
+          |  ^""".stripMargin
+      parseAndValidate(input, expectedMessage)
+    }
+
+    "report a missing closing bracket of a multiline array" in {
+      val input =
+        """
+          |a = [
+          | 3
+          | 4
+          | 5
+          |
+          |b = 9
+        """.stripMargin
+      val expectedMessage =
+        """[7.3] failure: Expected closing bracket ']'
+          |
+          |b = 9
+          |  ^""".stripMargin
+      parseAndValidate(input, expectedMessage)
+    }
+
   }
   
 }

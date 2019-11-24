@@ -299,6 +299,7 @@ object ConfigResolver {
     obj.values.flatMap {
       case BuilderField(Left(InvalidStringValue(_, failure)), _) => Seq(failure)
       case BuilderField(_, InvalidStringValue(_, failure)) => Seq(failure)
+      case BuilderField(_, InvalidBuilderValue(_, failure)) => Seq(failure)
       case BuilderField(_, child: ObjectBuilderValue) => extractErrors(child)
       case BuilderField(_, concat: ConcatValue) => extract(concat)
       case _ => Nil
