@@ -225,7 +225,7 @@ object HoconParsers {
     lazy val value = wsOrNl ~> concatenatedValue <~ ws
     lazy val values = wsOrComment ~> opt(value ~ (separator ~> value).rep).map(_.fold(Seq.empty[ConfigBuilderValue]){ case v ~ vs => v +: vs }) <~ wsOrComment
     val mainParser = lazily(('[' ~> values <~ trailingComma).map(ArrayBuilderValue))
-    closeWith(mainParser, ']', consumeAllInput, "Expected closing bracket ']'")(identity, InvalidBuilderValue)
+    closeWith(mainParser, ']', anyBut('\n'), "Expected closing bracket ']'")(identity, InvalidBuilderValue)
   }
 
   /** Parses the members of an object without the enclosing braces. */

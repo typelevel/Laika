@@ -117,6 +117,28 @@ class HoconErrorSpec extends WordSpec with Matchers {
       parseAndValidate(input, expectedMessage)
     }
 
+    "report a missing closing bracket of a nested multiline array" in {
+      val input =
+        """
+          |a {
+          |  b = [
+          |    3
+          |    4
+          |    5
+          |
+          |  c = 9
+          |}
+          |  
+          |d = 7  
+        """.stripMargin
+      val expectedMessage =
+        """[8.5] failure: Expected closing bracket ']'
+          |
+          |  c = 9
+          |    ^""".stripMargin
+      parseAndValidate(input, expectedMessage)
+    }
+
   }
   
 }
