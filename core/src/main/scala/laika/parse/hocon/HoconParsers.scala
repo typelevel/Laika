@@ -207,7 +207,11 @@ object HoconParsers {
       case opt ~ Right(key)  => SubstitutionValue(key, opt.isDefined)
       case _ ~ Left(invalid) => invalid
     }
-    closeWith(mainParser, '}', anyBut('\n'), "Expected closing brace '}'")(identity, InvalidBuilderValue)
+    def handleError(value: ConfigBuilderValue, failure: Failure): ConfigBuilderValue = value match {
+      case inv: InvalidStringValue => inv
+      case other => InvalidBuilderValue(other, failure)  
+    }
+    closeWith(mainParser, '}', anyBut('\n'), "Expected closing brace '}'")(identity, handleError)
   }
 
   /** Parses a comment. */

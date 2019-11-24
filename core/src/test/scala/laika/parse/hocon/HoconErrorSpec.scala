@@ -98,11 +98,11 @@ class HoconErrorSpec extends WordSpec with Matchers {
           |b = 9
         """.stripMargin
       val expectedMessage =
-        """[2.13] failure: Expected closing quote
+        """[2.16] failure: Invalid key: Expected closing quote
           |
-          |a = "foo bar
-          |            ^""".stripMargin
-      //parseAndValidate(input, expectedMessage) TODO
+          |a = ${"foo.bar}
+          |               ^""".stripMargin
+      parseAndValidate(input, expectedMessage)
     }
 
     "be detected in a property key" in {
