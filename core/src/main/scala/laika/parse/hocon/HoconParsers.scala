@@ -165,19 +165,20 @@ object HoconParsers {
   }
 
   /** Parses an unquoted string that is not allowed to contain any of the reserved characters listed in the HOCON spec. */
-  val unquotedString: Parser[StringBuilderValue] = {
+  def unquotedString(delimiter: Set[Char]): Parser[StringBuilderValue] = {
+    // TODO - special case +=
     val unquotedChar = anyBut('$', '"', '{', '}', '[', ']', ':', '=', ',', '+', '#', '`', '^', '?', '!', '@', '*', '&', '\\', ' ','\t','\n').min(1)
     unquotedChar.map(ValidStringValue)
   }
 
   /** Parses any of the 3 string types (quoted, unquoted, triple-quoted). */
-  val stringBuilderValue: Parser[ConfigBuilderValue] =
-    multilineString | quotedString | unquotedString
+  def stringBuilderValue(delimiter: Set[Char]): Parser[ConfigBuilderValue] =
+    multilineString | quotedString | unquotedString(delimiter)
   
-  lazy val concatenatedValue: Parser[ConfigBuilderValue] = {
-    lazy val parts = (ws ~ (not(comment) ~> anyValue)).map { case s ~ v => ConcatPart(s,v) }.rep
+  def concatenatedValue(delimiter: Set[Char]): Parser[ConfigBuilderValue] = {
+    lazy val parts = (ws ~ (not(comment) ~> anyValue(delimiter))).map { case s ~ v => ConcatPart(s,v) }.rep
     lazily {
-      (anyValue ~ parts).map {
+      (anyValue(delimiter) ~ parts).map {
         case first ~ Nil => first
         case first ~ rest => ConcatValue(first, rest)
       }
@@ -185,8 +186,8 @@ object HoconParsers {
   }
 
   /** Parses a key based on the HOCON rules where a '.' in a quoted string is not interpreted as a path separator. */
-  val concatenatedKey: Parser[Either[InvalidStringValue, Path]] = {
-    val string = quotedString.map(PathFragments.quoted) | unquotedString.map(PathFragments.unquoted)
+  def concatenatedKey(delimiter: Set[Char]): Parser[Either[InvalidStringValue, Path]] = {
+    val string = quotedString.map(PathFragments.quoted) | unquotedString(delimiter).map(PathFragments.unquoted)
     val parts = (ws.map(PathFragments.whitespace) ~ string).map { case s ~ fr => s.join(fr) }
     (string ~ parts.rep).map {
       case first ~ rest =>
@@ -203,7 +204,7 @@ object HoconParsers {
 
   /** Parses a substitution variable. */
   val substitutionValue: Parser[ConfigBuilderValue] = {
-    val mainParser = ("${" ~> opt('?') ~ concatenatedKey).map {
+    val mainParser = ("${" ~> opt('?') ~ concatenatedKey(Set('}'))).map {
       case opt ~ Right(key)  => SubstitutionValue(key, opt.isDefined)
       case _ ~ Left(invalid) => invalid
     }
@@ -226,7 +227,7 @@ object HoconParsers {
 
   /** Parses an array value recursively. */
   lazy val arrayValue: Parser[ConfigBuilderValue] = {
-    lazy val value = wsOrNl ~> concatenatedValue <~ ws
+    lazy val value = wsOrNl ~> concatenatedValue(Set(']',',','\n','#')) <~ ws
     lazy val values = wsOrComment ~> opt(value ~ (separator ~> value).rep).map(_.fold(Seq.empty[ConfigBuilderValue]){ case v ~ vs => v +: vs }) <~ wsOrComment
     val mainParser = lazily(('[' ~> values <~ trailingComma).map(ArrayBuilderValue))
     closeWith(mainParser, ']', anyBut('\n'), "Expected closing bracket ']'")(identity, InvalidBuilderValue)
@@ -234,8 +235,8 @@ object HoconParsers {
 
   /** Parses the members of an object without the enclosing braces. */
   private[laika] lazy val objectMembers: Parser[ObjectBuilderValue] = {
-    lazy val key = wsOrNl ~> concatenatedKey <~ ws
-    lazy val value = wsOrNl ~> concatenatedValue <~ ws
+    lazy val key = wsOrNl ~> concatenatedKey(Set(':','=','{','+')) <~ ws
+    lazy val value = wsOrNl ~> concatenatedValue(Set('}',',','\n','#')) <~ ws
     lazy val withSeparator = ((anyOf(':','=').take(1) | "+=") ~ value).map {
       case "+=" ~ element => ConcatValue(SelfReference, Seq(ConcatPart("", ArrayBuilderValue(Seq(element))))) 
       case _ ~ v => v 
@@ -264,7 +265,7 @@ object HoconParsers {
   }
 
   /** Parses any kind of value supported by the HOCON format. */
-  lazy val anyValue: Parser[ConfigBuilderValue] = 
+  def anyValue(delimiter: Set[Char]): Parser[ConfigBuilderValue] = 
     objectValue | 
       arrayValue | 
       numberValue | 
@@ -272,6 +273,6 @@ object HoconParsers {
       falseValue | 
       nullValue |
       substitutionValue |
-      stringBuilderValue
+      stringBuilderValue(delimiter)
   
 }
