@@ -165,10 +165,18 @@ object HoconParsers {
   }
 
   /** Parses an unquoted string that is not allowed to contain any of the reserved characters listed in the HOCON spec. */
-  def unquotedString(delimiter: Set[Char]): Parser[StringBuilderValue] = {
+  def unquotedString(delimiters: Set[Char]): Parser[StringBuilderValue] = {
     // TODO - special case +=
     val unquotedChar = anyBut('$', '"', '{', '}', '[', ']', ':', '=', ',', '+', '#', '`', '^', '?', '!', '@', '*', '&', '\\', ' ','\t','\n').min(1)
-    unquotedChar.map(ValidStringValue)
+    val mainParser = unquotedChar.map(ValidStringValue)
+    val closingParser = lookAhead(ws ~ anyOf(delimiters.toSeq:_*).take(1))
+    val delimMsg = if (delimiters.size == 1) " is" else "s are one of"
+    val renderedDelimiters = delimiters.map {
+      case '\n' => "'\\n'"
+      case c => "'" + c + "'"
+    }.mkString(", ")
+    val msg = s"Illegal character in unquoted string, expected delimiter${delimMsg} $renderedDelimiters"
+    closeWith(mainParser, closingParser, ws ~ anyBut((delimiters + '\n').toSeq:_*), msg)(identity, (v, f) => { println("C"); InvalidStringValue(v.value, f)})
   }
 
   /** Parses any of the 3 string types (quoted, unquoted, triple-quoted). */

@@ -122,6 +122,92 @@ class HoconErrorSpec extends WordSpec with Matchers {
     
   }
   
+  "Invalid characters for unquoted strings" should {
+
+    "be detected in a top level property value" in {
+      val input =
+        """
+          |a = foo ? bar
+          |
+          |b = 9
+        """.stripMargin
+      val expectedMessage =
+        """[2.8] failure: Illegal character in unquoted string, expected delimiters are one of '}', ',', '\n', '#'
+          |
+          |a = foo ? bar
+          |       ^""".stripMargin
+      parseAndValidate(input, expectedMessage)
+    }
+
+    "be detected in an array property" in {
+      val input =
+        """
+          |a = [
+          | 3
+          | 4
+          | some ? text
+          |] 
+          |
+          |b = 9
+        """.stripMargin
+      val expectedMessage =
+        """[5.6] failure: Illegal character in unquoted string, expected delimiters are one of ']', ',', '\n', '#'
+          |
+          | some ? text
+          |     ^""".stripMargin
+      parseAndValidate(input, expectedMessage)
+    }
+
+    "be detected in a nested object property value" in {
+      val input =
+        """
+          |a {
+          | aa = some ? text
+          | bb = 7
+          |} 
+          |
+          |b = 9
+        """.stripMargin
+      val expectedMessage =
+        """[3.11] failure: Illegal character in unquoted string, expected delimiters are one of '}', ',', '\n', '#'
+          |
+          | aa = some ? text
+          |          ^""".stripMargin
+      parseAndValidate(input, expectedMessage)
+    }
+    
+    "be detected in a substitution reference" in {
+      val input =
+        """
+          |a = ${foo = bar}
+          |
+          |b = 9
+        """.stripMargin
+      val expectedMessage =
+        """[2.10] failure: Invalid key: Illegal character in unquoted string, expected delimiter is '}'
+          |
+          |a = ${foo = bar}
+          |         ^""".stripMargin
+      parseAndValidate(input, expectedMessage)
+    }
+
+    "be detected in a property key" in {
+      val input =
+        """
+          |a } c = 7
+          |
+          |b = 9
+        """.stripMargin
+      val expectedMessage =
+        """[2.2] failure: Invalid key: Illegal character in unquoted string, expected delimiters are one of ':', '=', '{', '+'
+          |
+          |a } c = 7
+          | ^""".stripMargin
+      parseAndValidate(input, expectedMessage)
+    }
+    
+  }
+  
   "Invalid escape sequences" should {
 
     "be detected in a top level property" in {
