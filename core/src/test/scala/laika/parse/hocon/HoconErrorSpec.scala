@@ -308,9 +308,9 @@ class HoconErrorSpec extends WordSpec with Matchers {
       val input =
         """
           |a = [
-          | { x = 5
-          | 4
-          | 5
+          | { x = 3
+          | { x = 4 }
+          | { x = 5 }
           |]
           |
           |b = 9
@@ -318,7 +318,7 @@ class HoconErrorSpec extends WordSpec with Matchers {
       val expectedMessage =
         """[4.2] failure: Expected closing brace '}'
           |
-          | 4
+          | { x = 4 }
           | ^""".stripMargin
       parseAndValidate(input, expectedMessage)
     }

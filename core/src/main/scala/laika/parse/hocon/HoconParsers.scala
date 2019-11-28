@@ -251,9 +251,13 @@ object HoconParsers {
       case _ ~ v => v 
     }
     lazy val withoutSeparator = wsOrNl ~> objectValue <~ ws
-    val msg = "Expected separator after key ('=','+=',':' or '{')"
-    val fallback = closeWith(success(ValidStringValue("")), failure("expected"), anyBut('\n'), msg)(identity, InvalidBuilderValue)
-    lazy val member = (key ~ (withSeparator | withoutSeparator)).map { case k ~ v => BuilderField(k, v) }
+    val msg = "Expected separator after key ('=', '+=', ':' or '{')"
+    val fallback = closeWith(success(ValidStringValue("")), failure("expected"), anyBut('\n'), msg)(identity, InvalidBuilderValue).withContext ^^? {
+      case (res, ctx) => 
+        println("FALLBACK AT " + ctx.position.toString)
+        Right(res)
+    }
+    lazy val member = (key ~ (withSeparator | withoutSeparator | fallback)).map { case k ~ v => BuilderField(k, v) }
     lazy val members = opt(member ~ (separator ~> member).rep).map(_.fold(Seq.empty[BuilderField]) { case m ~ ms => m +: ms })
     (wsOrComment ~> members <~ wsOrComment <~ trailingComma).map(ObjectBuilderValue)
   }
