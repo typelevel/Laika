@@ -103,7 +103,7 @@ object DirectiveParsers {
     
     val defaultFence = success("@:@")
     val fence = if (supportsCustomFence) (ws ~> anyBut(' ', '\n', '\t').take(3)) | defaultFence else defaultFence
-    val defaultAttribute = opt((hoconWS ~> stringBuilderValue(Set(',','}','\n')) <~ ((ws ~ (',' | eol)) | lookAhead(hoconWS ~ '}')) ~ hoconWS)
+    val defaultAttribute = opt((hoconWS ~> stringBuilderValue(/*Set(',','}','\n')*/ Set()) <~ ((ws ~ (',' | eol)) | lookAhead(hoconWS ~ '}')) ~ hoconWS)
       .map(sv => BuilderField(AttributeKey.Default.key, sv)))
     val attributeSection = (ws ~> lazily('{' ~> defaultAttribute ~ objectMembers <~ '}')).map {
       case defAttr ~ obj => obj.copy(values = defAttr.toSeq ++ obj.values)

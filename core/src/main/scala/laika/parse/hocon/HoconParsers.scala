@@ -167,9 +167,9 @@ object HoconParsers {
   /** Parses an unquoted string that is not allowed to contain any of the reserved characters listed in the HOCON spec. */
   def unquotedString(delimiters: Set[Char]): Parser[StringBuilderValue] = {
     // TODO - special case +=
-    val unquotedChar = anyBut('$', '"', '{', '}', '[', ']', ':', '=', ',', '+', '#', '`', '^', '?', '!', '@', '*', '&', '\\', ' ','\t','\n').min(1)
-    val mainParser = unquotedChar.map(ValidStringValue)
-    val closingParser = lookAhead(ws ~ anyOf(delimiters.toSeq:_*).take(1))
+    val unquotedChar = anyBut('$', '"', '{', '}', '[', ']', ':', '=', ',', '+', '#', '`', '^', '?', '!', '@', '*', '&', '\\', ' ','\t','\n')
+    val mainParser = unquotedChar.min(1).map(ValidStringValue)
+    val closingParser = if (delimiters.isEmpty) success(()) else lookAhead(ws ~ (anyOf((delimiters + '"' + "$").toSeq:_*).take(1) | unquotedChar.take(1) | eof)) // TODO - quote should not be added for all cases + empty delimiters are a temp workaround
     val delimMsg = if (delimiters.size == 1) " is" else "s are one of"
     val renderedDelimiters = delimiters.map {
       case '\n' => "'\\n'"
@@ -243,13 +243,16 @@ object HoconParsers {
 
   /** Parses the members of an object without the enclosing braces. */
   private[laika] lazy val objectMembers: Parser[ObjectBuilderValue] = {
-    lazy val key = wsOrNl ~> concatenatedKey(Set(':','=','{','+')) <~ ws
+    val keySeparators = Set(':','=','{','+')
+    lazy val key = wsOrNl ~> concatenatedKey(keySeparators) <~ ws
     lazy val value = wsOrNl ~> concatenatedValue(Set('}',',','\n','#')) <~ ws
     lazy val withSeparator = ((anyOf(':','=').take(1) | "+=") ~ value).map {
       case "+=" ~ element => ConcatValue(SelfReference, Seq(ConcatPart("", ArrayBuilderValue(Seq(element))))) 
       case _ ~ v => v 
     }
     lazy val withoutSeparator = wsOrNl ~> objectValue <~ ws
+    val msg = "Expected separator after key ('=','+=',':' or '{')"
+    val fallback = closeWith(success(ValidStringValue("")), failure("expected"), anyBut('\n'), msg)(identity, InvalidBuilderValue)
     lazy val member = (key ~ (withSeparator | withoutSeparator)).map { case k ~ v => BuilderField(k, v) }
     lazy val members = opt(member ~ (separator ~> member).rep).map(_.fold(Seq.empty[BuilderField]) { case m ~ ms => m +: ms })
     (wsOrComment ~> members <~ wsOrComment <~ trailingComma).map(ObjectBuilderValue)

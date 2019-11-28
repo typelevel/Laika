@@ -117,7 +117,7 @@ class HoconErrorSpec extends WordSpec with Matchers {
           |
           |a = "foo bar
           |            ^""".stripMargin
-      //parseAndValidate(input, expectedMessage) TODO
+      //parseAndValidate(input, expectedMessage) // TODO
     }
     
   }
@@ -235,12 +235,12 @@ class HoconErrorSpec extends WordSpec with Matchers {
           |a = [3, 4, 5
           |
           |b = 9
-        """.stripMargin
+          |""".stripMargin
       val expectedMessage =
-        """[4.3] failure: Expected closing bracket ']'
+        """[4.2] failure: Illegal character in unquoted string, expected delimiters are one of ']', ',', '\n', '#'
           |
           |b = 9
-          |  ^""".stripMargin
+          | ^""".stripMargin
       parseAndValidate(input, expectedMessage)
     }
 
@@ -255,10 +255,10 @@ class HoconErrorSpec extends WordSpec with Matchers {
           |b = 9
         """.stripMargin
       val expectedMessage =
-        """[7.3] failure: Expected closing bracket ']'
+        """[7.2] failure: Illegal character in unquoted string, expected delimiters are one of ']', ',', '\n', '#'
           |
           |b = 9
-          |  ^""".stripMargin
+          | ^""".stripMargin
       parseAndValidate(input, expectedMessage)
     }
 
@@ -277,10 +277,10 @@ class HoconErrorSpec extends WordSpec with Matchers {
           |d = 7  
         """.stripMargin
       val expectedMessage =
-        """[8.5] failure: Expected closing bracket ']'
+        """[8.4] failure: Illegal character in unquoted string, expected delimiters are one of ']', ',', '\n', '#'
           |
           |  c = 9
-          |    ^""".stripMargin
+          |   ^""".stripMargin
       parseAndValidate(input, expectedMessage)
     }
 
@@ -354,7 +354,7 @@ class HoconErrorSpec extends WordSpec with Matchers {
           |b = 9
           |""".stripMargin
       val expectedMessage =
-        """[2.14] failure: Expected closing brace '}'
+        """[2.14] failure: Invalid key: Illegal character in unquoted string, expected delimiter is '}'
           |
           |a = ${foo.bar
           |             ^""".stripMargin
@@ -373,7 +373,7 @@ class HoconErrorSpec extends WordSpec with Matchers {
           |b = 9
         """.stripMargin
       val expectedMessage =
-        """[3.11] failure: Expected closing brace '}'
+        """[3.11] failure: Invalid key: Illegal character in unquoted string, expected delimiter is '}'
           |
           | ${foo.bar
           |          ^""".stripMargin
@@ -392,7 +392,7 @@ class HoconErrorSpec extends WordSpec with Matchers {
           |d = 7  
           |""".stripMargin
       val expectedMessage =
-        """[3.16] failure: Expected closing brace '}'
+        """[3.16] failure: Invalid key: Illegal character in unquoted string, expected delimiter is '}'
           |
           |  b = ${foo.bar
           |               ^""".stripMargin

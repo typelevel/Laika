@@ -292,6 +292,12 @@ object ConfigResolver {
 
     def extract(value: ConfigBuilderValue): Seq[Failure] = value match {
       case InvalidStringValue(_, failure)  => Seq(failure)
+      case InvalidBuilderValue(ArrayBuilderValue(values), failure) => 
+        val nested = values.flatMap(extract) 
+        if (nested.isEmpty) Seq(failure) else nested
+      case InvalidBuilderValue(obj: ObjectBuilderValue, failure) => 
+        val nested = extractErrors(obj)
+        if (nested.isEmpty) Seq(failure) else nested
       case InvalidBuilderValue(_, failure) => Seq(failure)
       case child: ObjectBuilderValue       => extractErrors(child)
       case child: ArrayBuilderValue        => child.values.flatMap(extract)
