@@ -49,7 +49,7 @@ case class ConfigParserError(failure: Failure) extends ConfigError {
 
 /** Multiple errors that occurred when parsing HOCON input. */
 case class ConfigParserErrors(failures: Seq[Failure]) extends ConfigError {
-  val message = failures.map(_.message).mkString("Multiple errors parsing HOCON: ", ", ", "")
+  val message = failures.map(_.toString).mkString("Multiple errors parsing HOCON: ", ", ", "")
 }
 
 /** An error that occurred when resolving the interim result of a parsing operation. */

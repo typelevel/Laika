@@ -167,6 +167,16 @@ class SpanDirectiveAPISpec extends FlatSpec
       Parsing ("aa @:dir bb") should produce (ss(txt("aa "), invalid("@:dir",msg), txt(" bb")))
     }
   }
+
+  it should "detect a directive with an invalid default attribute" in {
+    new SpanParser with RequiredDefaultAttribute {
+      val msg = """One or more errors processing directive 'dir': Multiple errors parsing HOCON: [1.16] failure: Expected separator after key ('=', '+=', ':' or '{')
+                  |
+                  |aa @:dir { foo ? bar } bb
+                  |               ^""".stripMargin
+      Parsing ("aa @:dir { foo ? bar } bb") should produce (ss(txt("aa "), invalid("@:dir { foo ? bar } bb",msg)))
+    }
+  }
   
   it should "parse a directive with an optional default int attribute" in {
     new SpanParser with OptionalDefaultAttribute {
@@ -203,6 +213,26 @@ class SpanDirectiveAPISpec extends FlatSpec
     new SpanParser with RequiredNamedAttribute {
       val msg = "One or more errors processing directive 'dir': required attribute 'name' is missing"
       Parsing ("aa @:dir bb") should produce (ss(txt("aa "), invalid("@:dir",msg), txt(" bb")))
+    }
+  }
+
+  it should "detect a directive with an invalid HOCON string attribute (missing closing quote)" in {
+    new SpanParser with RequiredNamedAttribute {
+      val msg = """One or more errors processing directive 'dir': Multiple errors parsing HOCON: [1.30] failure: Expected closing quote
+       |
+       |aa @:dir { name="foo bar } bb
+       |                             ^""".stripMargin
+      Parsing ("""aa @:dir { name="foo bar } bb""") should produce (ss(txt("aa "), invalid("@:dir { name=\"foo bar } bb",msg)))
+    }
+  }
+
+  it should "detect a directive with an invalid HOCON string attribute (invalid character in unquoted string)" in {
+    new SpanParser with RequiredNamedAttribute {
+      val msg = """One or more errors processing directive 'dir': Multiple errors parsing HOCON: [1.23] failure: Illegal character in unquoted string, expected delimiters are one of '}', ',', '\n', '#'
+                  |
+                  |aa @:dir { name = foo ? bar } bb
+                  |                      ^""".stripMargin
+      Parsing ("""aa @:dir { name = foo ? bar } bb""") should produce (ss(txt("aa "), invalid("@:dir { name = foo ? bar }",msg), txt(" bb")))
     }
   }
   
