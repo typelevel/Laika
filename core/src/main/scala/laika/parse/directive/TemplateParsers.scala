@@ -33,7 +33,7 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
 
   lazy val spanParsers: Map[Char, Parser[Span]] = Map(
     '{' -> legacyReference(key => TemplateContextReference(Key(key), required = true)),
-    '$' -> hoconReference(TemplateContextReference(_,_)),
+    '$' -> hoconReference(TemplateContextReference(_,_), _.asTemplateSpan),
     '@' -> templateDirective,
     '\\'-> ((any take 1) ^^ { Text(_) })
   )

@@ -16,6 +16,7 @@
 
 package laika.parse.directive
 
+import cats.instances.string
 import laika.config.Key
 import laika.ast._
 import laika.ast.helper.ModelBuilder
@@ -70,6 +71,20 @@ class TemplateParsersSpec extends FlatSpec
   it should "parse an optional reference" in {
 
     Parsing ("some text ${?document.content} some more") should produce (spans(tt("some text "), TemplateContextReference(Key("document.content"), required = false), tt(" some more")))
+
+  }
+
+  it should "detect an invalid reference" in {
+    
+    val errorMsg = """Invalid HOCON reference: 'document = content': [1.22] failure: Invalid key: Illegal character in unquoted string, expected delimiter is '}'
+                    |
+                    |some text ${document = content} some more
+                    |                     ^""".stripMargin
+
+    Parsing ("some text ${document = content} some more") should produce (spans(tt("some text "), 
+      TemplateElement(InvalidElement(errorMsg, "${document = content}").asSpan), 
+      tt(" some more")
+    ))
 
   }
 
