@@ -200,7 +200,7 @@ class HoconErrorSpec extends WordSpec with Matchers {
           |b = 9
         """.stripMargin
       val expectedMessage =
-        """[2.3] failure: Invalid key: Illegal character in unquoted string, expected delimiters are one of ':', '=', '{', '+'
+        """[2.3] failure: Invalid key: Illegal character in unquoted string, expected delimiters are one of ':', '=', '{', '+='
           |
           |a } c = 7
           |  ^""".stripMargin
