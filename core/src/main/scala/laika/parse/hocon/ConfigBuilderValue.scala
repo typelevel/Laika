@@ -28,7 +28,7 @@ import laika.parse.Failure
   * 
   * @author Jens Halm
   */
-sealed trait ConfigBuilderValue
+sealed trait ConfigBuilderValue extends Product with Serializable
 
 /** A concatenated value (either all objects, all arrays, all simple values or invalid). */
 case class ConcatValue(first: ConfigBuilderValue, rest: Seq[ConcatPart]) extends ConfigBuilderValue {

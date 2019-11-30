@@ -29,6 +29,7 @@ class HoconErrorSpec extends WordSpec with Matchers {
     ConfigParser.parse(input).resolve match {
       case Right(result) => fail(s"Unexpected parser success: $result")
       case Left(ConfigParserErrors(errors)) =>
+        if (errors.size != 1) println(errors)
         errors.size shouldBe 1
         errors.head.toString shouldBe expectedMessage
       case Left(other) => fail(s"Unexpected parser error: $other")
@@ -476,22 +477,42 @@ class HoconErrorSpec extends WordSpec with Matchers {
     }
 
   }
+  
+  "Missing closing triple quotes" should {
+    
+    "be detected in a top level object" in {
+      val input =
+        """
+          |a = +++foo bar
+          |       baz baz
+          |       
+          |b = 9""".stripMargin.replaceAllLiterally("+", "\"")
+      val expectedMessage =
+        """[2.8] failure: Expected closing triple quote
+          |
+          |a = +++foo bar
+          |       ^""".stripMargin.replaceAllLiterally("+", "\"")
+      parseAndValidate(input, expectedMessage) // TODO - fix position
+    }
 
-    //    "report a missing closing triple quote" in {
-//      val input =
-//        """
-//          |a = +++foo bar
-//          |       baz baz
-//          |       
-//          |b = 9
-//        """.stripMargin.replaceAllLiterally("+", "\"")
-//      val expectedMessage =
-//        """[2.13] failure: Expected closing quote
-//          |
-//          |a = "foo bar
-//          |            ^""".stripMargin
-//      parseAndValidate(input, expectedMessage)
-//    }
+    "be detected in a nested object" in {
+      val input =
+        """
+          |a = {
+          |  aa = +++foo bar
+          |          baz baz
+          |}
+          |       
+          |b = 9""".stripMargin.replaceAllLiterally("+", "\"")
+      val expectedMessage =
+        """[3.11] failure: Expected closing triple quote
+          |
+          |  aa = +++foo bar
+          |          ^""".stripMargin.replaceAllLiterally("+", "\"")
+      parseAndValidate(input, expectedMessage) // TODO - fix position
+    }
+    
+  }
 
   
 }

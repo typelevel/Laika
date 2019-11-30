@@ -160,8 +160,15 @@ object HoconParsers {
   }
 
   /** Parses a string enclosed in triple quotes. */
-  val multilineString: Parser[StringBuilderValue] = {
-    "\"\"\"" ~> delimitedBy("\"\"\"").map(ValidStringValue)
+  val multilineString: Parser[ConfigBuilderValue] = {
+    val msg = "Expected closing triple quote"
+    val fallback = closeWith(success(ValidStringValue("")), failure("expected"), any, msg)(identity, InvalidBuilderValue).withContext ^^? {
+      case (res, ctx) =>
+        println("FALLBACK AT " + ctx.position.toString)
+        println("FALLBACK res " + res)
+        Right(res)
+    }
+    "\"\"\"" ~> (delimitedBy("\"\"\"").map(ValidStringValue) | fallback)
   }
 
   /** Parses an unquoted string that is not allowed to contain any of the reserved characters listed in the HOCON spec. */
