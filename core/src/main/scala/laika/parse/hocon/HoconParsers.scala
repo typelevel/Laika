@@ -48,24 +48,37 @@ object HoconParsers {
   implicit class PrependParserOps[T] (val p: Parser[T ~ Seq[T]]) extends AnyVal {
     def concat: Parser[Seq[T]] = p.map { case x ~ xs => x +: xs }
   }
+  
+  implicit class ClosingParserOps[T] (parser: Parser[T]) {
+    
+    def closeWith[R >: T] (closingParser: Parser[Any],
+                           fallbackParser: Parser[Any],
+                           msg: => String)
+                           (captureError: (T, Failure) => R): Parser[R] = {
 
-  def closeWith[T,R](mainParser: Parser[T],
-                     closingParser: Parser[Any],
-                     fallbackParser: Parser[Any],
-                     msg: => String)
-                    (captureResult: T => R,
-                     captureError: (T, Failure) => R): Parser[R] = {
-
-    (mainParser ~ (closingParser.^^^(()) | fallbackParser.withContext.map(_._2))).map {
-      case res ~ (ctx: ParserContext) =>
-        println(s"A $res - ${ctx.position.toString} - $msg")
-        captureError(res, Failure(Message.fixed(msg), ctx))
-      case res ~ _                    =>
-        println(s"B $res")
-        captureResult(res)
+      (parser ~ (closingParser.^^^(()) | fallbackParser.withContext.map(_._2))).map {
+        case res ~ (ctx: ParserContext) =>
+          println(s"A $res - ${ctx.position.toString} - $msg")
+          captureError(res, Failure(Message.fixed(msg), ctx))
+        case res ~ _ =>
+          println(s"B $res")
+          res
+      }
     }
+    
   }
   
+  def failWith[T](fallbackParser: Parser[Any],
+                  msg: => String)
+                 (captureError: Failure => T): Parser[T] = {
+
+    fallbackParser.withContext.map(_._2).map { ctx =>
+      println(s"AA - ${ctx.position.toString} - $msg")
+      captureError(Failure(Message.fixed(msg), ctx))
+    }
+    
+  }
+ 
   case class PathFragments(fragments: Seq[StringBuilderValue]) {
     def join(other: PathFragments): PathFragments = {
       if (fragments.isEmpty || other.fragments.isEmpty) PathFragments(fragments ++ other.fragments)
@@ -156,13 +169,13 @@ object HoconParsers {
         parts => ValidStringValue(parts.mkString)
       )
     }
-    closeWith('"' ~> value, '"', anyBut('\n'), "Expected closing quote")(identity, (v,f) => InvalidStringValue(v.value, f))
+    ('"' ~> value).closeWith('"', anyBut('\n'), "Expected closing quote")((v,f) => InvalidStringValue(v.value, f))
   }
 
   /** Parses a string enclosed in triple quotes. */
   val multilineString: Parser[ConfigBuilderValue] = {
     val msg = "Expected closing triple quote"
-    val fallback = closeWith(success(ValidStringValue("")), failure("expected"), any, msg)(identity, InvalidBuilderValue).withContext ^^? {
+    val fallback = failWith(any, msg)(InvalidBuilderValue(SelfReference,_)).withContext ^^? {
       case (res, ctx) =>
         println("FALLBACK AT " + ctx.position.toString)
         println("FALLBACK res " + res)
@@ -183,7 +196,7 @@ object HoconParsers {
       case c => "'" + c + "'"
     }.mkString(", ")
     val msg = s"Illegal character in unquoted string, expected delimiter$delimMsg $renderedDelimiters"
-    closeWith(mainParser, closingParser, ws ~ anyBut((delimiters + '\n').toSeq:_*), msg)(identity, (v, f) => { println("C"); InvalidStringValue(v.value, f)})
+    mainParser.closeWith[StringBuilderValue](closingParser, ws ~ anyBut((delimiters + '\n').toSeq:_*), msg)((v, f) => { println("C"); InvalidStringValue(v.value, f)})
   }
 
   /** Parses any of the 3 string types (quoted, unquoted, triple-quoted). */
@@ -227,7 +240,7 @@ object HoconParsers {
       case inv: InvalidStringValue => inv
       case other => InvalidBuilderValue(other, failure)  
     }
-    closeWith(mainParser, '}', anyBut('\n'), "Expected closing brace '}'")(identity, handleError)
+    mainParser.closeWith('}', anyBut('\n'), "Expected closing brace '}'")(handleError)
   }
 
   /** Parses a comment. */
@@ -245,7 +258,7 @@ object HoconParsers {
     lazy val value = wsOrNl ~> concatenatedValue(Set(']',',','\n','#')) <~ ws
     lazy val values = wsOrComment ~> opt(value ~ (separator ~> value).rep).map(_.fold(Seq.empty[ConfigBuilderValue]){ case v ~ vs => v +: vs }) <~ wsOrComment
     val mainParser = lazily(('[' ~> values <~ trailingComma).map(ArrayBuilderValue))
-    closeWith(mainParser, ']', anyBut('\n'), "Expected closing bracket ']'")(identity, InvalidBuilderValue)
+    mainParser.closeWith[ConfigBuilderValue](']', anyBut('\n'), "Expected closing bracket ']'")(InvalidBuilderValue)
   }
 
   /** Parses the members of an object without the enclosing braces. */
@@ -259,7 +272,7 @@ object HoconParsers {
     }
     lazy val withoutSeparator = ws ~> objectValue <~ ws
     val msg = "Expected separator after key ('=', '+=', ':' or '{')"
-    val fallback = closeWith(success(ValidStringValue("")), failure("expected"), anyBut('\n'), msg)(identity, InvalidBuilderValue).withContext ^^? {
+    val fallback = failWith(anyBut('\n'), msg)(InvalidBuilderValue(SelfReference,_)).withContext ^^? {
       case (res, ctx) => 
         println("FALLBACK AT " + ctx.position.toString)
         println("FALLBACK res " + res)
@@ -273,7 +286,7 @@ object HoconParsers {
   /** Parses an object value enclosed in braces. */
   lazy val objectValue: Parser[ConfigBuilderValue] = {
     val mainParser = lazily('{' ~> objectMembers)
-    closeWith(mainParser, '}', anyBut('\n'), "Expected closing brace '}'")(identity, InvalidBuilderValue)
+    mainParser.closeWith[ConfigBuilderValue]('}', anyBut('\n'), "Expected closing brace '}'")(InvalidBuilderValue)
   }
 
   /** Parses a root configuration object where the enclosing braces may be omitted. */
