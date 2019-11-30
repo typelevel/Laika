@@ -113,11 +113,11 @@ class HoconErrorSpec extends WordSpec with Matchers {
           |b = 9
         """.stripMargin
       val expectedMessage =
-        """[2.13] failure: Expected closing quote
+        """[2.7] failure: Invalid key: Expected closing quote
           |
-          |a = "foo bar
-          |            ^""".stripMargin
-      //parseAndValidate(input, expectedMessage) // TODO
+          |"a = 7
+          |      ^""".stripMargin
+      parseAndValidate(input, expectedMessage)
     }
     
   }
@@ -203,6 +203,25 @@ class HoconErrorSpec extends WordSpec with Matchers {
           |
           |a } c = 7
           | ^""".stripMargin
+      parseAndValidate(input, expectedMessage)
+    }
+
+    "be detected as a consequence of a missing separator between fields" in {
+      val input =
+        """
+          |a {
+          |  b { x = 5 y = 6 }
+          |    
+          |  c = 9
+          |}
+          |  
+          |d = 7  
+          |""".stripMargin
+      val expectedMessage =
+        """[3.14] failure: Illegal character in unquoted string, expected delimiters are one of '}', ',', '\n', '#'
+          |
+          |  b { x = 5 y = 6 }
+          |             ^""".stripMargin
       parseAndValidate(input, expectedMessage)
     }
     
@@ -339,6 +358,63 @@ class HoconErrorSpec extends WordSpec with Matchers {
           |
           |
           |^""".stripMargin
+      parseAndValidate(input, expectedMessage)
+    }
+
+  }
+
+  "Missing '=' or ':' between key and value" should {
+
+    "be detected in a top level property" in {
+      val input =
+        """
+          |a 5
+          |
+          |b = 9
+          |""".stripMargin
+      val expectedMessage =
+        """[2.4] failure: Expected separator after key ('=', '+=', ':' or '{')
+          |
+          |a 5
+          |   ^""".stripMargin
+      parseAndValidate(input, expectedMessage)
+    }
+
+    "be detected in a multiline array" in {
+      val input =
+        """
+          |a = [
+          | { x 3 }
+          | { y = 4 }
+          | { z = 5 }
+          |]
+          |
+          |b = 9
+        """.stripMargin
+      val expectedMessage =
+        """[3.7] failure: Expected separator after key ('=', '+=', ':' or '{')
+          |
+          | { x 3 }
+          |      ^""".stripMargin
+      parseAndValidate(input, expectedMessage)
+    }
+
+    "be detected in a nested object property" in {
+      val input =
+        """
+          |a {
+          |  b { x 5 }
+          |    
+          |  c = 9
+          |}
+          |  
+          |d = 7  
+          |""".stripMargin
+      val expectedMessage =
+        """[3.10] failure: Expected separator after key ('=', '+=', ':' or '{')
+          |
+          |  b { x 5 }
+          |         ^""".stripMargin
       parseAndValidate(input, expectedMessage)
     }
 

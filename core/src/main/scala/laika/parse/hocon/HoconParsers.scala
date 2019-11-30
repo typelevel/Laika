@@ -58,7 +58,7 @@ object HoconParsers {
 
     (mainParser ~ (closingParser.^^^(()) | fallbackParser.withContext.map(_._2))).map {
       case res ~ (ctx: ParserContext) =>
-        println(s"A $res")
+        println(s"A $res - ${ctx.position.toString} - $msg")
         captureError(res, Failure(Message.fixed(msg), ctx))
       case res ~ _                    =>
         println(s"B $res")
@@ -175,7 +175,7 @@ object HoconParsers {
       case '\n' => "'\\n'"
       case c => "'" + c + "'"
     }.mkString(", ")
-    val msg = s"Illegal character in unquoted string, expected delimiter${delimMsg} $renderedDelimiters"
+    val msg = s"Illegal character in unquoted string, expected delimiter$delimMsg $renderedDelimiters"
     closeWith(mainParser, closingParser, ws ~ anyBut((delimiters + '\n').toSeq:_*), msg)(identity, (v, f) => { println("C"); InvalidStringValue(v.value, f)})
   }
 
@@ -201,7 +201,7 @@ object HoconParsers {
       case first ~ rest =>
         val res = (first +: rest).reduce(_ join _)
         val keyStrings = res.fragments.map(_.value)
-        res.fragments.collect { case inv: InvalidStringValue => inv } match {
+        res.fragments.toList.collect { case inv: InvalidStringValue => inv } match {
           case error :: _ => Left(InvalidStringValue(keyStrings.mkString("."), error.failure.copy(
             msgProvider = res => "Invalid key: " + error.failure.msgProvider.message(res)))
           )
@@ -250,14 +250,15 @@ object HoconParsers {
       case "+=" ~ element => ConcatValue(SelfReference, Seq(ConcatPart("", ArrayBuilderValue(Seq(element))))) 
       case _ ~ v => v 
     }
-    lazy val withoutSeparator = wsOrNl ~> objectValue <~ ws
+    lazy val withoutSeparator = ws ~> objectValue <~ ws
     val msg = "Expected separator after key ('=', '+=', ':' or '{')"
     val fallback = closeWith(success(ValidStringValue("")), failure("expected"), anyBut('\n'), msg)(identity, InvalidBuilderValue).withContext ^^? {
       case (res, ctx) => 
         println("FALLBACK AT " + ctx.position.toString)
+        println("FALLBACK res " + res)
         Right(res)
     }
-    lazy val member = (key ~ (withSeparator | withoutSeparator | fallback)).map { case k ~ v => BuilderField(k, v) }
+    lazy val member = (key ~ (withSeparator | withoutSeparator | fallback)).map { case k ~ v => println(s"**** key: $k"); println(s"**** val: $v"); BuilderField(k, v) }
     lazy val members = opt(member ~ (separator ~> member).rep).map(_.fold(Seq.empty[BuilderField]) { case m ~ ms => m +: ms })
     (wsOrComment ~> members <~ wsOrComment <~ trailingComma).map(ObjectBuilderValue)
   }
