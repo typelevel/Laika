@@ -488,11 +488,11 @@ class HoconErrorSpec extends WordSpec with Matchers {
           |       
           |b = 9""".stripMargin.replaceAllLiterally("+", "\"")
       val expectedMessage =
-        """[2.8] failure: Expected closing triple quote
+        """[5.6] failure: Expected closing triple quote
           |
-          |a = +++foo bar
-          |       ^""".stripMargin.replaceAllLiterally("+", "\"")
-      parseAndValidate(input, expectedMessage) // TODO - fix position
+          |b = 9
+          |     ^""".stripMargin.replaceAllLiterally("+", "\"")
+      parseAndValidate(input, expectedMessage)
     }
 
     "be detected in a nested object" in {
@@ -505,11 +505,11 @@ class HoconErrorSpec extends WordSpec with Matchers {
           |       
           |b = 9""".stripMargin.replaceAllLiterally("+", "\"")
       val expectedMessage =
-        """[3.11] failure: Expected closing triple quote
+        """[7.6] failure: Expected closing triple quote
           |
-          |  aa = +++foo bar
-          |          ^""".stripMargin.replaceAllLiterally("+", "\"")
-      parseAndValidate(input, expectedMessage) // TODO - fix position
+          |b = 9
+          |     ^""".stripMargin.replaceAllLiterally("+", "\"")
+      parseAndValidate(input, expectedMessage)
     }
     
   }

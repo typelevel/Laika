@@ -68,13 +68,13 @@ object HoconParsers {
     
   }
   
-  def failWith[T](fallbackParser: Parser[Any],
+  def failWith[T](fallbackParser: Parser[Int],
                   msg: => String)
                  (captureError: Failure => T): Parser[T] = {
 
-    fallbackParser.withContext.map(_._2).map { ctx =>
+    fallbackParser.withContext.map { case(cnt, ctx) =>
       println(s"AA - ${ctx.position.toString} - $msg")
-      captureError(Failure(Message.fixed(msg), ctx))
+      captureError(Failure(Message.fixed(msg), ctx.consume(cnt)))
     }
     
   }
@@ -175,7 +175,7 @@ object HoconParsers {
   /** Parses a string enclosed in triple quotes. */
   val multilineString: Parser[ConfigBuilderValue] = {
     val msg = "Expected closing triple quote"
-    val fallback = failWith(any, msg)(InvalidBuilderValue(SelfReference,_)).withContext ^^? {
+    val fallback = failWith(any.count, msg)(InvalidBuilderValue(SelfReference,_)).withContext ^^? {
       case (res, ctx) =>
         println("FALLBACK AT " + ctx.position.toString)
         println("FALLBACK res " + res)
@@ -272,7 +272,7 @@ object HoconParsers {
     }
     lazy val withoutSeparator = ws ~> objectValue <~ ws
     val msg = "Expected separator after key ('=', '+=', ':' or '{')"
-    val fallback = failWith(anyBut('\n'), msg)(InvalidBuilderValue(SelfReference,_)).withContext ^^? {
+    val fallback = failWith(ws.count <~ anyBut('\n'), msg)(InvalidBuilderValue(SelfReference,_)).withContext ^^? {
       case (res, ctx) => 
         println("FALLBACK AT " + ctx.position.toString)
         println("FALLBACK res " + res)
