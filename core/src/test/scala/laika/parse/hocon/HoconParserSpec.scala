@@ -375,7 +375,6 @@ class HoconParserSpec extends WordSpec with Matchers with ParseResultHelpers wit
     
     "successfully parse the full Akka default configuration" in new FileTransformerUtil {
       val input = readFile(classPathResourcePath("/akka.conf"))
-      println(ConfigParser.parse(input).resolve)
       ConfigParser.parse(input).resolve.isRight shouldBe true
     }
     

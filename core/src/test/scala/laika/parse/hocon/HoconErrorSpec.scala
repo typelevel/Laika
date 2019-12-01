@@ -29,7 +29,6 @@ class HoconErrorSpec extends WordSpec with Matchers {
     ConfigParser.parse(input).resolve match {
       case Right(result) => fail(s"Unexpected parser success: $result")
       case Left(ConfigParserErrors(errors)) =>
-        if (errors.size != 1) println(errors)
         errors.size shouldBe 1
         errors.head.toString shouldBe expectedMessage
       case Left(other) => fail(s"Unexpected parser error: $other")

@@ -64,10 +64,8 @@ object HoconParsers {
 
       (parser ~ (closingParser.^^^((0,())) | fallbackParser.withContext)).map {
         case res ~ ((cnt: Int, ctx: ParserContext)) =>
-          println(s"A $res - ${ctx.position.toString} - $msg")
           captureError(res, Failure(Message.fixed(msg), ctx.consume(cnt)))
         case res ~ _ =>
-          println(s"B $res")
           res
       }
     }
@@ -79,7 +77,6 @@ object HoconParsers {
                  (captureError: Failure => T): Parser[T] = {
 
     fallbackParser.withContext.map { case(cnt, ctx) =>
-      println(s"AA - ${ctx.position.toString} - $msg")
       captureError(Failure(Message.fixed(msg), ctx.consume(cnt)))
     }
     
@@ -181,12 +178,7 @@ object HoconParsers {
   /** Parses a string enclosed in triple quotes. */
   val multilineString: Parser[ConfigBuilderValue] = {
     val msg = "Expected closing triple quote"
-    val fallback = failWith(any.count, msg)(InvalidBuilderValue(SelfReference,_)).withContext ^^? {
-      case (res, ctx) =>
-        println("FALLBACK AT " + ctx.position.toString)
-        println("FALLBACK res " + res)
-        Right(res)
-    }
+    val fallback = failWith(any.count, msg)(InvalidBuilderValue(SelfReference,_))
     "\"\"\"" ~> (delimitedBy("\"\"\"").map(ValidStringValue) | fallback)
   }
 
@@ -202,7 +194,7 @@ object HoconParsers {
       case c => "'" + c + "'"
     }.mkString(", ")
     val msg = s"Illegal character in unquoted string, expected delimiter$delimMsg $renderedDelimiters"
-    mainParser.closeWith[StringBuilderValue](closingParser, ws.count <~ anyBut((delimiters + '\n').toSeq:_*), msg)((v, f) => { println("C"); InvalidStringValue(v.value, f)})
+    mainParser.closeWith[StringBuilderValue](closingParser, ws.count <~ anyBut((delimiters + '\n').toSeq:_*), msg)((v, f) => InvalidStringValue(v.value, f))
   }
 
   /** Parses any of the 3 string types (quoted, unquoted, triple-quoted). */
@@ -308,14 +300,9 @@ object HoconParsers {
     }
     lazy val withoutSeparator = ws ~> objectValue <~ ws
     val msg = "Expected separator after key ('=', '+=', ':' or '{')"
-    val fallback = failWith(ws.count <~ anyBut('\n'), msg)(InvalidBuilderValue(SelfReference,_)).withContext ^^? {
-      case (res, ctx) => 
-        println("FALLBACK AT " + ctx.position.toString)
-        println("FALLBACK res " + res)
-        Right(res)
-    }
+    val fallback = failWith(ws.count <~ anyBut('\n'), msg)(InvalidBuilderValue(SelfReference,_))
     val includeField = include.map(BuilderField(Right(Root), _))
-    val valueField = (key ~ (withSeparator | withoutSeparator | fallback)).map { case k ~ v => println(s"**** key: $k"); println(s"**** val: $v"); BuilderField(k, v) }
+    val valueField = (key ~ (withSeparator | withoutSeparator | fallback)).map { case k ~ v => BuilderField(k, v) }
     lazy val member = includeField | valueField
     lazy val members = opt(member ~ (separator ~> member).rep).map(_.fold(Seq.empty[BuilderField]) { case m ~ ms => m +: ms })
     (wsOrComment ~> members <~ wsOrComment <~ trailingComma).map(ObjectBuilderValue)
