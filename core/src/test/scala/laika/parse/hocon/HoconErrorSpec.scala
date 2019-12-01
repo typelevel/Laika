@@ -491,7 +491,7 @@ class HoconErrorSpec extends WordSpec with Matchers {
         """[5.6] failure: Expected closing triple quote
           |
           |b = 9
-          |     ^""".stripMargin.replaceAllLiterally("+", "\"")
+          |     ^""".stripMargin
       parseAndValidate(input, expectedMessage)
     }
 
@@ -508,7 +508,95 @@ class HoconErrorSpec extends WordSpec with Matchers {
         """[7.6] failure: Expected closing triple quote
           |
           |b = 9
-          |     ^""".stripMargin.replaceAllLiterally("+", "\"")
+          |     ^""".stripMargin
+      parseAndValidate(input, expectedMessage)
+    }
+    
+  }
+  
+  "Unsupported include syntax" should {
+
+    "be detected with valid, but unsupported syntax" in {
+      val input =
+        """
+          |include "foo.conf"
+          |       
+          |b = 9""".stripMargin
+      val expectedMessage =
+        """[1.1] failure: Processing include instructions is not implemented for the pure parser and will be added later to the laika-io module
+          |
+          |foo.conf
+          |^""".stripMargin
+      parseAndValidate(input, expectedMessage)
+    }
+    
+    "be detected with missing closing quotes" in {
+      val input =
+        """
+          |include "foo.conf
+          |       
+          |b = 9""".stripMargin
+      val expectedMessage =
+        """[2.18] failure: Expected closing quote
+          |
+          |include "foo.conf
+          |                 ^""".stripMargin
+      parseAndValidate(input, expectedMessage)
+    }
+
+    "be detected with missing closing quotes (file syntax)" in {
+      val input =
+        """
+          |include file("foo.conf)
+          |       
+          |b = 9""".stripMargin
+      val expectedMessage =
+        """[2.24] failure: Expected closing quote
+          |
+          |include file("foo.conf)
+          |                       ^""".stripMargin
+      parseAndValidate(input, expectedMessage)
+    }
+
+    "be detected with missing closing parenthesis (file syntax)" in {
+      val input =
+        """
+          |include file("foo.conf"
+          |       
+          |b = 9""".stripMargin
+      val expectedMessage =
+        """[2.24] failure: Expected closing parenthesis
+          |
+          |include file("foo.conf"
+          |                       ^""".stripMargin
+      parseAndValidate(input, expectedMessage)
+    }
+
+    "be detected with missing closing parenthesis (required/file syntax)" in {
+      val input =
+        """
+          |include required(file("foo.conf")
+          |       
+          |b = 9""".stripMargin
+      val expectedMessage =
+        """[2.34] failure: Expected closing parenthesis
+          |
+          |include required(file("foo.conf")
+          |                                 ^""".stripMargin
+      parseAndValidate(input, expectedMessage)
+    }
+
+    "be detected with missing quotes" in {
+      val input =
+        """
+          |include file(foo.conf)
+          |       
+          |b = 9""".stripMargin
+      val expectedMessage =
+        """[2.14] failure: Expected quoted string
+          |
+          |include file(foo.conf)
+          |             ^""".stripMargin
       parseAndValidate(input, expectedMessage)
     }
     

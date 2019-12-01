@@ -19,7 +19,7 @@ package laika.parse.hocon
 import laika.ast.Path
 import laika.collection.TransitionalCollectionOps._
 import laika.config._
-import laika.parse.Failure
+import laika.parse.{Failure, Message, ParserContext}
 
 import scala.collection.mutable
 
@@ -289,6 +289,8 @@ object ConfigResolver {
 
   /* Extracts all invalid values from the unresolved config tree */
   def extractErrors (obj: ObjectBuilderValue): Seq[Failure] = {
+    
+    val includeMsg = "Processing include instructions is not implemented for the pure parser and will be added later to the laika-io module"
 
     def extract(value: ConfigBuilderValue): Seq[Failure] = value match {
       case InvalidStringValue(_, failure)  => Seq(failure)
@@ -299,6 +301,10 @@ object ConfigResolver {
         val nested = extractErrors(obj)
         if (nested.isEmpty) Seq(failure) else nested
       case InvalidBuilderValue(_, failure) => Seq(failure)
+      case incl: IncludeBuilderValue       => incl.resource.resourceId match {
+        case InvalidStringValue(_, failure) => Seq(failure)
+        case ValidStringValue(name)         => Seq(Failure(Message.fixed(includeMsg), ParserContext(name)))
+      }
       case child: ObjectBuilderValue       => extractErrors(child)
       case child: ArrayBuilderValue        => child.values.flatMap(extract)
       case concat: ConcatValue             => (concat.first +: concat.rest.map(_.value)).flatMap(extract)

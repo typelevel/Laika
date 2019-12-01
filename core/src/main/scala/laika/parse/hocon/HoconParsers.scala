@@ -254,7 +254,10 @@ object HoconParsers {
     def resource(kind: String, f: StringBuilderValue => IncludeResource): Parser[IncludeResource] = {
       val noOpeningQuote = failWith(anyBut('\n') ^^^ 0, "Expected quoted string")(InvalidStringValue("",_))
       val resourceId = (quotedString | noOpeningQuote)
-        .closeWith(")", "Expected closing parenthesis")((v,f) => InvalidStringValue(v.value, f))
+        .closeWith(")", "Expected closing parenthesis") { 
+          case (inv: InvalidStringValue, _) => inv
+          case (v, failure) => InvalidStringValue(v.value, failure)
+        }
       ((kind + "(") ~> resourceId).map(f)
     }
     
@@ -266,7 +269,12 @@ object HoconParsers {
     
     val required = "required(" ~> includeResource
       .map(_.asRequired)
-      .closeWith(")", "Expected closing parenthesis")((v,f) => IncludeAny(InvalidStringValue(v.resource.value, f)))
+      .closeWith(")", "Expected closing parenthesis"){ (v,f) => 
+        v.resourceId match {
+          case inv: InvalidStringValue => IncludeAny(inv)
+          case sv => IncludeAny(InvalidStringValue(sv.value, f))
+        }
+      }
     
     "include " ~> (required | includeResource).map(IncludeBuilderValue)
   }

@@ -78,7 +78,7 @@ case class ResolvedBuilderValue(value: SimpleConfigValue) extends ConfigBuilderV
 
 /** Description of a resource to be included in the current configuration. */
 sealed trait IncludeResource {
-  def resource: StringBuilderValue
+  def resourceId: StringBuilderValue
   def isRequired: Boolean
   def asRequired: IncludeResource = this match {
     case i: IncludeUrl => i.copy(isRequired = true)
@@ -87,9 +87,9 @@ sealed trait IncludeResource {
     case i: IncludeAny => i.copy(isRequired = true)
   }
 }
-case class IncludeUrl(resource: StringBuilderValue, isRequired: Boolean = false) extends IncludeResource
-case class IncludeFile(resource: StringBuilderValue, isRequired: Boolean = false) extends IncludeResource
-case class IncludeClassPath(resource: StringBuilderValue, isRequired: Boolean = false) extends IncludeResource
-case class IncludeAny(resource: StringBuilderValue, isRequired: Boolean = false) extends IncludeResource
+case class IncludeUrl(resourceId: StringBuilderValue, isRequired: Boolean = false) extends IncludeResource
+case class IncludeFile(resourceId: StringBuilderValue, isRequired: Boolean = false) extends IncludeResource
+case class IncludeClassPath(resourceId: StringBuilderValue, isRequired: Boolean = false) extends IncludeResource
+case class IncludeAny(resourceId: StringBuilderValue, isRequired: Boolean = false) extends IncludeResource
 
 case class IncludeBuilderValue(resource: IncludeResource) extends ConfigBuilderValue
