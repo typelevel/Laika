@@ -591,6 +591,24 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
         Field("a", LongValue(5))
       ))
     }
+
+    "resolve a self reference in a nested object" in {
+      val input =
+        """
+          |a { 
+          |  b = { c = 5 }
+          |  b = ${a.b} { d = 7 }
+          |}
+        """.stripMargin
+      parseAndResolve(input) shouldBe ObjectValue(Seq(
+        Field("a", ObjectValue(Seq(
+          Field("b", ObjectValue(Seq(
+            Field("c", LongValue(5)),
+            Field("d", LongValue(7))
+          )))
+        )))
+      ))
+    }
     
   }
   

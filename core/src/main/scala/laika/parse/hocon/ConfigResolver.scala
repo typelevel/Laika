@@ -232,7 +232,12 @@ object ConfigResolver {
     }
     
     val mergedFields = obj.values.groupBy(_.key.right.get).mapValuesStrict(_.map(_.value)).toSeq.map {
-      case (path, values) => BuilderField(path.name, values.reduce(mergeValues(path)))
+      case (path, values) => 
+        val merged = values.reduce(mergeValues(path)) match {
+          case obj: ObjectBuilderValue => mergeObjects(obj)
+          case other => other
+        }
+        BuilderField(path, merged)
     }
     ObjectBuilderValue(mergedFields)
   }
