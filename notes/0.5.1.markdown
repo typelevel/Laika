@@ -1,8 +1,0 @@
-
-This release is fully backwards-compatible to version 0.5.0. 
-
-Changes in this update:
-
-* Cross-compile for Scala 2.11 and 2.10
-* Publish the sbt plugin to the new plugin repository on Bintray
-* Upgrade to ScalaTest 2.2.4
