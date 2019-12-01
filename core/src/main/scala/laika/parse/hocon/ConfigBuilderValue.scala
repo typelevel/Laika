@@ -75,3 +75,21 @@ case class InvalidBuilderValue(value: ConfigBuilderValue, failure: Failure) exte
 
 /** A simple configuration value that does not need to be recursively resolved. */
 case class ResolvedBuilderValue(value: SimpleConfigValue) extends ConfigBuilderValue
+
+/** Description of a resource to be included in the current configuration. */
+sealed trait IncludeResource {
+  def resource: StringBuilderValue
+  def isRequired: Boolean
+  def asRequired: IncludeResource = this match {
+    case i: IncludeUrl => i.copy(isRequired = true)
+    case i: IncludeFile => i.copy(isRequired = true)
+    case i: IncludeClassPath => i.copy(isRequired = true)
+    case i: IncludeAny => i.copy(isRequired = true)
+  }
+}
+case class IncludeUrl(resource: StringBuilderValue, isRequired: Boolean = false) extends IncludeResource
+case class IncludeFile(resource: StringBuilderValue, isRequired: Boolean = false) extends IncludeResource
+case class IncludeClassPath(resource: StringBuilderValue, isRequired: Boolean = false) extends IncludeResource
+case class IncludeAny(resource: StringBuilderValue, isRequired: Boolean = false) extends IncludeResource
+
+case class IncludeBuilderValue(resource: IncludeResource) extends ConfigBuilderValue

@@ -16,6 +16,7 @@
 
 package laika.parse.hocon
 
+import laika.ast.Path.Root
 import laika.ast.{Path, ~}
 import laika.config._
 import laika.parse.text.Characters
@@ -247,6 +248,28 @@ object HoconParsers {
     }
     mainParser.closeWith('}', "Expected closing brace '}'")(handleError)
   }
+  
+  val include: Parser[ConfigBuilderValue] = {
+    
+    def resource(kind: String, f: StringBuilderValue => IncludeResource): Parser[IncludeResource] = {
+      val noOpeningQuote = failWith(anyBut('\n') ^^^ 0, "Expected quoted string")(InvalidStringValue("",_))
+      val resourceId = (quotedString | noOpeningQuote)
+        .closeWith(")", "Expected closing parenthesis")((v,f) => InvalidStringValue(v.value, f))
+      ((kind + "(") ~> resourceId).map(f)
+    }
+    
+    val includeResource = quotedString.map(IncludeAny(_)) | 
+      resource("file", IncludeFile(_)) | 
+      resource("classpath", IncludeClassPath(_)) | 
+      resource("url", IncludeUrl(_)) |
+      failWith(anyBut('\n') ^^^ 0, "Expected quoted string")(f => IncludeAny(InvalidStringValue("", f)))
+    
+    val required = "required(" ~> includeResource
+      .map(_.asRequired)
+      .closeWith(")", "Expected closing parenthesis")((v,f) => IncludeAny(InvalidStringValue(v.resource.value, f)))
+    
+    "include " ~> (required | includeResource).map(IncludeBuilderValue)
+  }
 
   /** Parses a comment. */
   val comment: Parser[String] = ("//" | "#") ~> restOfLine
@@ -283,7 +306,9 @@ object HoconParsers {
         println("FALLBACK res " + res)
         Right(res)
     }
-    lazy val member = (key ~ (withSeparator | withoutSeparator | fallback)).map { case k ~ v => println(s"**** key: $k"); println(s"**** val: $v"); BuilderField(k, v) }
+    val includeField = include.map(BuilderField(Right(Root), _))
+    val valueField = (key ~ (withSeparator | withoutSeparator | fallback)).map { case k ~ v => println(s"**** key: $k"); println(s"**** val: $v"); BuilderField(k, v) }
+    lazy val member = includeField | valueField
     lazy val members = opt(member ~ (separator ~> member).rep).map(_.fold(Seq.empty[BuilderField]) { case m ~ ms => m +: ms })
     (wsOrComment ~> members <~ wsOrComment <~ trailingComma).map(ObjectBuilderValue)
   }
