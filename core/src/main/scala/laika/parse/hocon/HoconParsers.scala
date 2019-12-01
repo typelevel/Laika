@@ -186,7 +186,7 @@ object HoconParsers {
   def unquotedString(delimiters: Set[Char]): Parser[StringBuilderValue] = {
     val unquotedChar = anyBut('$', '"', '{', '}', '[', ']', ':', '=', ',', '+', '#', '`', '^', '?', '!', '@', '*', '&', '\\', ' ','\t','\n')
     val mainParser = unquotedChar.min(1).map(ValidStringValue)
-    val closingParser = if (delimiters.isEmpty) success(()) else lookAhead(ws ~ (anyOf((delimiters + '"' + "$").toSeq:_*).take(1) | unquotedChar.take(1) | eof)) // TODO - empty delimiters are a temp workaround
+    val closingParser = if (delimiters.isEmpty) success(()) else lookAhead(ws ~ (anyOf((delimiters + '"' + '$').toSeq:_*).take(1) | unquotedChar.take(1) | eof)) // TODO - empty delimiters are a temp workaround
     val delimMsg = if (delimiters.size == 1) " is" else "s are one of"
     val renderedDelimiters = delimiters.map {
       case '\n' => "'\\n'"

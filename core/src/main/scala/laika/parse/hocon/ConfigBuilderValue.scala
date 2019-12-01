@@ -64,7 +64,7 @@ case class ObjectBuilderValue(values: Seq[BuilderField]) extends ConfigBuilderVa
 
 /** A single field of an object value. */
 case class BuilderField(key: Either[InvalidStringValue, Path], value: ConfigBuilderValue) {
-  def validKey: Path = key.right.get
+  def validKey: Path = key.getOrElse(Path.Root)
 }
 object BuilderField {
   def apply (key: String, value: ConfigBuilderValue): BuilderField = apply(Right(Path.Root / key), value)
