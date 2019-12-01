@@ -37,7 +37,7 @@ the final release for Scala 2.10 and sbt 0.13 was 0.7.0.
 
 Add the plugin to `project/plugins.sbt`:
 
-    addSbtPlugin("org.planet42" % "laika-sbt" % "0.12.0")
+    addSbtPlugin("org.planet42" % "laika-sbt" % "0.12.1")
 
 Enable the plugin in your project's `build.sbt`:
 
@@ -56,7 +56,7 @@ first, as there were significant changes in the Library API.
 
 Adding the Laika dependency to your sbt build:
 
-    libraryDependencies += "org.planet42" %% "laika-core" % "0.12.0"
+    libraryDependencies += "org.planet42" %% "laika-core" % "0.12.1"
 
 Example for transforming Markdown to HTML:
 
@@ -75,7 +75,7 @@ Example for transforming Markdown to HTML:
 For file/stream IO, parallel processing and/or EPUB support, based on cats-effect, 
 add the laika-io module to your build:
 
-    libraryDependencies += "org.planet42" %% "laika-io" % "0.12.0"  
+    libraryDependencies += "org.planet42" %% "laika-io" % "0.12.1"  
     
 Example for transforming an entire directory of markup files to a single EPUB file:
 
@@ -105,7 +105,7 @@ Example for transforming an entire directory of markup files to a single EPUB fi
 
 When using Laika's PDF support you need to add one more dependency to your build:
 
-    libraryDependencies += "org.planet42" %% "laika-pdf" % "0.12.0"
+    libraryDependencies += "org.planet42" %% "laika-pdf" % "0.12.1"
 
 The example for how to transform a directory of input files into a PDF file looks
 the same as the EPUB example, apart from swapping `EPUB` for `PDF`    
@@ -202,6 +202,16 @@ Road Map
 
 Release History
 ---------------
+
+* __0.12.1__ (Dec 1, 2019):
+
+    * Fixes and Improvements for the new HOCON parser introduced in version 0.12.0
+        * Significant improvements for error messages in HOCON parser
+        * Fixes for nested self references, missing optional self references,
+          and objects without '=' or ':' separator
+    * Parser Combinators: The '|' alternative parser now keeps the failure with the
+      most processed characters and not the last one, for improved error messages
+    * Fix for script tag with attributes not being recognized in verbatim HTML in Markdown
 
 * __0.12.0__ (Oct 30, 2019):
 

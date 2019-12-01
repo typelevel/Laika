@@ -151,7 +151,7 @@ See [Using the sbt Plugin] for more details.
 If you want to produce EPUB files with the library API,
 the `laika-io` module is required for the binary output:
 
-    libraryDependencies += "org.planet42" %% "laika-io" % "0.12.0"
+    libraryDependencies += "org.planet42" %% "laika-io" % "0.12.1"
 
 The EPUB renderer can be used with the `Transform` or `Render` APIs:
 
@@ -294,7 +294,7 @@ See [Using the sbt Plugin] for more details.
 If you want to produce PDF files with the library API,
 you need to add the `laika-pdf` module to your build:
 
-    libraryDependencies += "org.planet42" %% "laika-pdf" % "0.12.0"
+    libraryDependencies += "org.planet42" %% "laika-pdf" % "0.12.1"
 
 The PDF renderer can be used with the `Transform` or `Render` APIs:
 

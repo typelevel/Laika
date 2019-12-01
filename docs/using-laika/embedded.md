@@ -31,7 +31,7 @@ as input, and for HTML as output. EPUB and PDF both require additional modules a
 
 First add the dependency to your build:
 
-    libraryDependencies += "org.planet42" %% "laika-core" % "0.12.0" 
+    libraryDependencies += "org.planet42" %% "laika-core" % "0.12.1" 
 
 For most cases where you don't use any of the customization hooks, you should be fine with just these imports:
 
@@ -114,7 +114,7 @@ File/Stream IO and Binary Formats
 In case you want to transform from files or directories, or use one of the binary formats
 like EPUB or PDF, you need to add another dependency to your build:
 
-    libraryDependencies += "org.planet42" %% "laika-io" % "0.12.0" 
+    libraryDependencies += "org.planet42" %% "laika-io" % "0.12.1" 
 
 This module depends on cats-effect, and models all side effects in an abstract effect,
 so that you can use it with cats IO, Monix or Zio.
