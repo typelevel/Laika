@@ -180,7 +180,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">HTMLScriptElement</span><span class="params">(<span name="content">content: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="options">options: <a href="../../ast/Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="../../index.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="HTMLSpan.html" class="extype" name="laika.markdown.ast.HTMLSpan">HTMLSpan</a> with <a href="../../ast/TextContainer.html" class="extype" name="laika.ast.TextContainer">TextContainer</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">HTMLScriptElement</span><span class="params">(<span name="attributes">attributes: <span class="extype" name="scala.List">List</span>[<a href="HTMLAttribute.html" class="extype" name="laika.markdown.ast.HTMLAttribute">HTMLAttribute</a>]</span>, <span name="content">content: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="options">options: <a href="../../ast/Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="../../index.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="HTMLSpan.html" class="extype" name="laika.markdown.ast.HTMLSpan">HTMLSpan</a> with <a href="../../ast/TextContainer.html" class="extype" name="laika.ast.TextContainer">TextContainer</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
@@ -237,9 +237,9 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.markdown.ast.HTMLScriptElement#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(content:String,options:laika.ast.Options):laika.markdown.ast.HTMLScriptElement"></a><a id="&lt;init&gt;:HTMLScriptElement"></a>
+      <a id="&lt;init&gt;(attributes:List[laika.markdown.ast.HTMLAttribute],content:String,options:laika.ast.Options):laika.markdown.ast.HTMLScriptElement"></a><a id="&lt;init&gt;:HTMLScriptElement"></a>
       <span class="permalink">
-      <a href="../../../laika/markdown/ast/HTMLScriptElement.html#&lt;init&gt;(content:String,options:laika.ast.Options):laika.markdown.ast.HTMLScriptElement" title="Permalink">
+      <a href="../../../laika/markdown/ast/HTMLScriptElement.html#&lt;init&gt;(attributes:List[laika.markdown.ast.HTMLAttribute],content:String,options:laika.ast.Options):laika.markdown.ast.HTMLScriptElement" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -248,7 +248,7 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">HTMLScriptElement</span><span class="params">(<span name="content">content: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="options">options: <a href="../../ast/Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="../../index.html">NoOpt</a></span></span></span>)</span>
+        <span class="name">HTMLScriptElement</span><span class="params">(<span name="attributes">attributes: <span class="extype" name="scala.List">List</span>[<a href="HTMLAttribute.html" class="extype" name="laika.markdown.ast.HTMLAttribute">HTMLAttribute</a>]</span>, <span name="content">content: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="options">options: <a href="../../ast/Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="../../index.html">NoOpt</a></span></span></span>)</span>
       </span>
       
       
@@ -345,6 +345,22 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="laika.markdown.ast.HTMLScriptElement#attributes" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="attributes:List[laika.markdown.ast.HTMLAttribute]"></a><a id="attributes:List[HTMLAttribute]"></a>
+      <span class="permalink">
+      <a href="../../../laika/markdown/ast/HTMLScriptElement.html#attributes:List[laika.markdown.ast.HTMLAttribute]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">attributes</span><span class="result">: <span class="extype" name="scala.List">List</span>[<a href="HTMLAttribute.html" class="extype" name="laika.markdown.ast.HTMLAttribute">HTMLAttribute</a>]</span>
+      </span>
+      
+      
     </li><li name="scala.AnyRef#clone" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a><a id="clone():AnyRef"></a>
       <span class="permalink">

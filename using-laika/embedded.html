@@ -90,7 +90,7 @@
         
         <h3 id="setup" class="section">Setup</h3>
         <p>First add the dependency to your build:</p>
-        <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika-core&quot; % &quot;0.12.0&quot; </pre>
+        <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika-core&quot; % &quot;0.12.1&quot; </pre>
         <p>For most cases where you don&#39;t use any of the customization hooks, you should be fine with just these imports:</p>
         <pre>import laika.api._
 import laika.format._</pre>
@@ -152,7 +152,7 @@ res0: java.lang.String = Document - Blocks: 1
         <h2 id="file-stream-io-and-binary-formats" class="section">File/Stream IO and Binary Formats</h2>
         <p>In case you want to transform from files or directories, or use one of the binary formats
         like EPUB or PDF, you need to add another dependency to your build:</p>
-        <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika-io&quot; % &quot;0.12.0&quot; </pre>
+        <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika-io&quot; % &quot;0.12.1&quot; </pre>
         <p>This module depends on cats-effect, and models all side effects in an abstract effect,
         so that you can use it with cats IO, Monix or Zio.</p>
         <p>The type class constraints of the Library API are <code>Async</code>, <code>ContextShift</code> 

@@ -211,6 +211,10 @@
                         <a href="ConfigParserError.html" title="An error that occurred when parsing HOCON input.">ConfigParserError</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="class" href="ConfigParserErrors.html" title="Multiple errors that occurred when parsing HOCON input."></a>
+                        <a href="ConfigParserErrors.html" title="Multiple errors that occurred when parsing HOCON input.">ConfigParserErrors</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="class" href="ConfigResolverError.html" title="An error that occurred when resolving the interim result of a parsing operation."></a>
                         <a href="ConfigResolverError.html" title="An error that occurred when resolving the interim result of a parsing operation.">ConfigResolverError</a>
                       </li><li class="current-entities indented2">
@@ -689,10 +693,26 @@ configuration values.</p>
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="An error that occurred when parsing HOCON input." href="ConfigParserError.html"><span class="name">ConfigParserError</span></a><span class="params">(<span name="message">message: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="ConfigError.html" class="extype" name="laika.config.ConfigError">ConfigError</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="An error that occurred when parsing HOCON input." href="ConfigParserError.html"><span class="name">ConfigParserError</span></a><span class="params">(<span name="failure">failure: <a href="../parse/Failure.html" class="extype" name="laika.parse.Failure">Failure</a></span>)</span><span class="result"> extends <a href="ConfigError.html" class="extype" name="laika.config.ConfigError">ConfigError</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">An error that occurred when parsing HOCON input.</p>
+    </li><li name="laika.config.ConfigParserErrors" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ConfigParserErrorsextendsConfigErrorwithProductwithSerializable"></a><a id="ConfigParserErrors:ConfigParserErrors"></a>
+      <span class="permalink">
+      <a href="../../laika/config/ConfigParserErrors.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="Multiple errors that occurred when parsing HOCON input." href="ConfigParserErrors.html"><span class="name">ConfigParserErrors</span></a><span class="params">(<span name="failures">failures: <span class="extype" name="scala.Seq">Seq</span>[<a href="../parse/Failure.html" class="extype" name="laika.parse.Failure">Failure</a>]</span>)</span><span class="result"> extends <a href="ConfigError.html" class="extype" name="laika.config.ConfigError">ConfigError</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Multiple errors that occurred when parsing HOCON input.</p>
     </li><li name="laika.config.ConfigResolverError" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="ConfigResolverErrorextendsConfigErrorwithProductwithSerializable"></a><a id="ConfigResolverError:ConfigResolverError"></a>
       <span class="permalink">

@@ -214,7 +214,7 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="laika.parse">parse</a></dd></dl></div>
     </li><li class="current-entities indented2">
-                        <span class="separator"></span>
+                        <a class="object" href="Failure$.html" title=""></a>
                         <a class="class" href="" title="The failure case of Parsed containing an error message and the remaining input."></a>
                         <a href="" title="The failure case of Parsed containing an error message and the remaining input.">Failure</a>
                       </li><li class="current-entities indented2">
@@ -252,14 +252,16 @@
           <div id="content">
             <body class="class type">
       <div id="definition">
-        <div class="big-circle class">c</div>
+        <a href="Failure$.html" title="See companion object"><div class="big-circle class-companion-object">c</div></a>
         <p id="owner"><a href="../index.html" class="extype" name="laika">laika</a>.<a href="index.html" class="extype" name="laika.parse">parse</a></p>
-        <h1>Failure<span class="permalink">
+        <h1><a href="Failure$.html" title="See companion object">Failure</a><span class="permalink">
       <a href="../../laika/parse/Failure.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span></h1>
-        <h3><span class="morelinks"></span></h3>
+        <h3><span class="morelinks"><div>
+            Companion <a href="Failure$.html" title="See companion object">object Failure</a>
+          </div></span></h3>
       </div>
 
       <h4 id="signature" class="signature">
@@ -268,7 +270,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">Failure</span><span class="params">(<span name="msgProvider">msgProvider: <a href="Message.html" class="extype" name="laika.parse.Message">Message</a></span>, <span name="next">next: <a href="ParserContext.html" class="extype" name="laika.parse.ParserContext">ParserContext</a></span>)</span><span class="result"> extends <a href="Parsed.html" class="extype" name="laika.parse.Parsed">Parsed</a>[<span class="extype" name="scala.Nothing">Nothing</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">Failure</span><span class="params">(<span name="msgProvider">msgProvider: <a href="Message.html" class="extype" name="laika.parse.Message">Message</a></span>, <span name="next">next: <a href="ParserContext.html" class="extype" name="laika.parse.ParserContext">ParserContext</a></span>, <span name="maxOffset">maxOffset: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result"> extends <a href="Parsed.html" class="extype" name="laika.parse.Parsed">Parsed</a>[<span class="extype" name="scala.Nothing">Nothing</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
@@ -279,7 +281,7 @@
  a lot of unnecessary string concatenations for messages which were then never read.
  This implementation avoids this extra cost and the result is measurable (about 15%
  performance gain for a typical Markdown document for example).
-</p></div><dl class="paramcmts block"><dt class="param">msgProvider</dt><dd class="cmt"><p>A provider that produces an error message for this failure based on its ParserContext</p></dd><dt class="param">next</dt><dd class="cmt"><p>The parser's unconsumed input at the point where the failure occurred.</p></dd></dl><div class="toggleContainer block">
+</p></div><dl class="paramcmts block"><dt class="param">msgProvider</dt><dd class="cmt"><p>A provider that produces an error message for this failure based on its ParserContext</p></dd><dt class="param">next</dt><dd class="cmt"><p>The unconsumed input at the point where the failing parser started</p></dd><dt class="param">maxOffset</dt><dd class="cmt"><p>The offset position the parser could successfully read to before failing</p></dd></dl><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
           </span>
@@ -330,9 +332,9 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.parse.Failure#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;init&gt;(msgProvider:laika.parse.Message,next:laika.parse.ParserContext):laika.parse.Failure"></a><a id="&lt;init&gt;:Failure"></a>
+      <a id="&lt;init&gt;(msgProvider:laika.parse.Message,next:laika.parse.ParserContext,maxOffset:Int):laika.parse.Failure"></a><a id="&lt;init&gt;:Failure"></a>
       <span class="permalink">
-      <a href="../../laika/parse/Failure.html#&lt;init&gt;(msgProvider:laika.parse.Message,next:laika.parse.ParserContext):laika.parse.Failure" title="Permalink">
+      <a href="../../laika/parse/Failure.html#&lt;init&gt;(msgProvider:laika.parse.Message,next:laika.parse.ParserContext,maxOffset:Int):laika.parse.Failure" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -341,10 +343,10 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">Failure</span><span class="params">(<span name="msgProvider">msgProvider: <a href="Message.html" class="extype" name="laika.parse.Message">Message</a></span>, <span name="next">next: <a href="ParserContext.html" class="extype" name="laika.parse.ParserContext">ParserContext</a></span>)</span>
+        <span class="name">Failure</span><span class="params">(<span name="msgProvider">msgProvider: <a href="Message.html" class="extype" name="laika.parse.Message">Message</a></span>, <span name="next">next: <a href="ParserContext.html" class="extype" name="laika.parse.ParserContext">ParserContext</a></span>, <span name="maxOffset">maxOffset: <span class="extype" name="scala.Int">Int</span></span>)</span>
       </span>
       
-      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">msgProvider</dt><dd class="cmt"><p>A provider that produces an error message for this failure based on its ParserContext</p></dd><dt class="param">next</dt><dd class="cmt"><p>The parser's unconsumed input at the point where the failure occurred.</p></dd></dl></div>
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">msgProvider</dt><dd class="cmt"><p>A provider that produces an error message for this failure based on its ParserContext</p></dd><dt class="param">next</dt><dd class="cmt"><p>The unconsumed input at the point where the failing parser started</p></dd><dt class="param">maxOffset</dt><dd class="cmt"><p>The offset position the parser could successfully read to before failing</p></dd></dl></div>
     </li></ol>
             </div>
 
@@ -592,6 +594,22 @@ parser invocation.
 to the result of this instance.</p><div class="fullcomment"><div class="comment cmt"><p>Builds a new <code>Parsed</code> instance by applying the specified function
 to the result of this instance.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.parse.Failure">Failure</a> → <a href="Parsed.html" class="extype" name="laika.parse.Parsed">Parsed</a></dd></dl></div>
+    </li><li name="laika.parse.Failure#maxOffset" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="maxOffset:Int"></a>
+      <span class="permalink">
+      <a href="../../laika/parse/Failure.html#maxOffset:Int" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">maxOffset</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      
+      
     </li><li name="laika.parse.Failure#message" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="message:String"></a>
       <span class="permalink">
@@ -697,10 +715,10 @@ left over by the parser that produced this result.
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="laika.parse.Parsed#orElse" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="orElse[U&gt;:T](default:=&gt;laika.parse.Parsed[U]):laika.parse.Parsed[U]"></a><a id="orElse[U&gt;:Nothing](⇒Parsed[U]):Parsed[U]"></a>
+    </li><li name="laika.parse.Failure#orElse" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="orElse[U](default:=&gt;laika.parse.Parsed[U]):laika.parse.Parsed[U]"></a><a id="orElse[U](⇒Parsed[U]):Parsed[U]"></a>
       <span class="permalink">
-      <a href="../../laika/parse/Failure.html#orElse[U&gt;:T](default:=&gt;laika.parse.Parsed[U]):laika.parse.Parsed[U]" title="Permalink">
+      <a href="../../laika/parse/Failure.html#orElse[U](default:=&gt;laika.parse.Parsed[U]):laika.parse.Parsed[U]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -709,13 +727,13 @@ left over by the parser that produced this result.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">orElse</span><span class="tparams">[<span name="U">U &gt;: <span class="extype" name="scala.Nothing">Nothing</span></span>]</span><span class="params">(<span name="default">default: ⇒ <a href="Parsed.html" class="extype" name="laika.parse.Parsed">Parsed</a>[<span class="extype" name="laika.parse.Parsed.orElse.U">U</span>]</span>)</span><span class="result">: <a href="Parsed.html" class="extype" name="laika.parse.Parsed">Parsed</a>[<span class="extype" name="laika.parse.Parsed.orElse.U">U</span>]</span>
+        <span class="name">orElse</span><span class="tparams">[<span name="U">U</span>]</span><span class="params">(<span name="default">default: ⇒ <a href="Parsed.html" class="extype" name="laika.parse.Parsed">Parsed</a>[<span class="extype" name="laika.parse.Failure.orElse.U">U</span>]</span>)</span><span class="result">: <a href="Parsed.html" class="extype" name="laika.parse.Parsed">Parsed</a>[<span class="extype" name="laika.parse.Failure.orElse.U">U</span>]</span>
       </span>
       
       <p class="shortcomment cmt">Returns this <code>Parsed</code> instance if the parser succeeded or
 otherwise the specified fallback instance.</p><div class="fullcomment"><div class="comment cmt"><p>Returns this <code>Parsed</code> instance if the parser succeeded or
 otherwise the specified fallback instance.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Parsed.html" class="extype" name="laika.parse.Parsed">Parsed</a></dd></dl></div>
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.parse.Failure">Failure</a> → <a href="Parsed.html" class="extype" name="laika.parse.Parsed">Parsed</a></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">

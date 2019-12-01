@@ -195,6 +195,38 @@
                         <a href="HoconParsers$.html" title="The parser implementation for the HOCON format.">HoconParsers</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
+                        <a class="class" href="IncludeAny.html" title=""></a>
+                        <a href="IncludeAny.html" title="">IncludeAny</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="IncludeBuilderValue.html" title=""></a>
+                        <a href="IncludeBuilderValue.html" title="">IncludeBuilderValue</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="IncludeClassPath.html" title=""></a>
+                        <a href="IncludeClassPath.html" title="">IncludeClassPath</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="IncludeFile.html" title=""></a>
+                        <a href="IncludeFile.html" title="">IncludeFile</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="trait" href="IncludeResource.html" title="Description of a resource to be included in the current configuration."></a>
+                        <a href="IncludeResource.html" title="Description of a resource to be included in the current configuration.">IncludeResource</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="IncludeUrl.html" title=""></a>
+                        <a href="IncludeUrl.html" title="">IncludeUrl</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="InvalidBuilderValue.html" title=""></a>
+                        <a href="InvalidBuilderValue.html" title="">InvalidBuilderValue</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="InvalidStringValue.html" title=""></a>
+                        <a href="InvalidStringValue.html" title="">InvalidStringValue</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
                         <a class="class" href="MergedValue.html" title="A merged value with &quot;last one wins&quot; semantics for the provided values (objects will be merged instead)."></a>
                         <a href="MergedValue.html" title="A merged value with &quot;last one wins&quot; semantics for the provided values (objects will be merged instead).">MergedValue</a>
                       </li><li class="current-entities indented3">
@@ -210,9 +242,17 @@
                         <a class="object" href="SelfReference$.html" title="A marker for a self reference, a reference to an earlier definition with the same key."></a>
                         <a href="SelfReference$.html" title="A marker for a self reference, a reference to an earlier definition with the same key.">SelfReference</a>
                       </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="trait" href="StringBuilderValue.html" title=""></a>
+                        <a href="StringBuilderValue.html" title="">StringBuilderValue</a>
+                      </li><li class="current-entities indented3">
                         <a class="object" href="SubstitutionValue$.html" title=""></a>
                         <a class="class" href="SubstitutionValue.html" title="A substitution reference that may be marked as optional."></a>
                         <a href="SubstitutionValue.html" title="A substitution reference that may be marked as optional.">SubstitutionValue</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="ValidStringValue.html" title=""></a>
+                        <a href="ValidStringValue.html" title="">ValidStringValue</a>
                       </li><li name="laika.parse.markup" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="markup"></a><a id="markup:markup"></a>
       <span class="permalink">
@@ -352,7 +392,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="A single field of an object value." href="BuilderField.html"><span class="name">BuilderField</span></a><span class="params">(<span name="key">key: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="value">value: <a href="ConfigBuilderValue.html" class="extype" name="laika.parse.hocon.ConfigBuilderValue">ConfigBuilderValue</a></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="A single field of an object value." href="BuilderField.html"><span class="name">BuilderField</span></a><span class="params">(<span name="key">key: <span class="extype" name="scala.Either">Either</span>[<a href="InvalidStringValue.html" class="extype" name="laika.parse.hocon.InvalidStringValue">InvalidStringValue</a>, <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a>]</span>, <span name="value">value: <a href="ConfigBuilderValue.html" class="extype" name="laika.parse.hocon.ConfigBuilderValue">ConfigBuilderValue</a></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">A single field of an object value.</p>
@@ -389,7 +429,7 @@
       
       <p class="shortcomment cmt">A concatenated value (either all objects, all arrays, all simple values or invalid).</p>
     </li><li name="laika.parse.hocon.ConfigBuilderValue" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="ConfigBuilderValueextendsAnyRef"></a><a id="ConfigBuilderValue:ConfigBuilderValue"></a>
+      <a id="ConfigBuilderValueextendsProductwithSerializable"></a><a id="ConfigBuilderValue:ConfigBuilderValue"></a>
       <span class="permalink">
       <a href="../../../laika/parse/hocon/ConfigBuilderValue.html" title="Permalink">
         <i class="material-icons"></i>
@@ -400,13 +440,141 @@
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a title="The base trait of the interim configuration model (usually obtained from a HOCON parser)." href="ConfigBuilderValue.html"><span class="name">ConfigBuilderValue</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a title="The base trait of the interim configuration model (usually obtained from a HOCON parser)." href="ConfigBuilderValue.html"><span class="name">ConfigBuilderValue</span></a><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">The base trait of the interim configuration model (usually obtained from a HOCON parser).</p><div class="fullcomment"><div class="comment cmt"><p>The base trait of the interim configuration model (usually obtained from a HOCON parser).</p><p>This type is not exposed to public APIs as it will be translated to a final object
 structure later. It contains instances representing interim constructs like concatenated
 values or substitution variables which will not be present in the final model.
 </p></div></div>
+    </li><li name="laika.parse.hocon.IncludeAny" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="IncludeAnyextendsIncludeResourcewithProductwithSerializable"></a><a id="IncludeAny:IncludeAny"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/hocon/IncludeAny.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="IncludeAny.html"><span class="name">IncludeAny</span></a><span class="params">(<span name="resourceId">resourceId: <a href="StringBuilderValue.html" class="extype" name="laika.parse.hocon.StringBuilderValue">StringBuilderValue</a></span>, <span name="isRequired">isRequired: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>)</span><span class="result"> extends <a href="IncludeResource.html" class="extype" name="laika.parse.hocon.IncludeResource">IncludeResource</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
+    </li><li name="laika.parse.hocon.IncludeBuilderValue" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="IncludeBuilderValueextendsConfigBuilderValuewithProductwithSerializable"></a><a id="IncludeBuilderValue:IncludeBuilderValue"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/hocon/IncludeBuilderValue.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="IncludeBuilderValue.html"><span class="name">IncludeBuilderValue</span></a><span class="params">(<span name="resource">resource: <a href="IncludeResource.html" class="extype" name="laika.parse.hocon.IncludeResource">IncludeResource</a></span>)</span><span class="result"> extends <a href="ConfigBuilderValue.html" class="extype" name="laika.parse.hocon.ConfigBuilderValue">ConfigBuilderValue</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
+    </li><li name="laika.parse.hocon.IncludeClassPath" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="IncludeClassPathextendsIncludeResourcewithProductwithSerializable"></a><a id="IncludeClassPath:IncludeClassPath"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/hocon/IncludeClassPath.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="IncludeClassPath.html"><span class="name">IncludeClassPath</span></a><span class="params">(<span name="resourceId">resourceId: <a href="StringBuilderValue.html" class="extype" name="laika.parse.hocon.StringBuilderValue">StringBuilderValue</a></span>, <span name="isRequired">isRequired: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>)</span><span class="result"> extends <a href="IncludeResource.html" class="extype" name="laika.parse.hocon.IncludeResource">IncludeResource</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
+    </li><li name="laika.parse.hocon.IncludeFile" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="IncludeFileextendsIncludeResourcewithProductwithSerializable"></a><a id="IncludeFile:IncludeFile"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/hocon/IncludeFile.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="IncludeFile.html"><span class="name">IncludeFile</span></a><span class="params">(<span name="resourceId">resourceId: <a href="StringBuilderValue.html" class="extype" name="laika.parse.hocon.StringBuilderValue">StringBuilderValue</a></span>, <span name="isRequired">isRequired: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>)</span><span class="result"> extends <a href="IncludeResource.html" class="extype" name="laika.parse.hocon.IncludeResource">IncludeResource</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
+    </li><li name="laika.parse.hocon.IncludeResource" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="IncludeResourceextendsAnyRef"></a><a id="IncludeResource:IncludeResource"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/hocon/IncludeResource.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">sealed </span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a title="Description of a resource to be included in the current configuration." href="IncludeResource.html"><span class="name">IncludeResource</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Description of a resource to be included in the current configuration.</p>
+    </li><li name="laika.parse.hocon.IncludeUrl" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="IncludeUrlextendsIncludeResourcewithProductwithSerializable"></a><a id="IncludeUrl:IncludeUrl"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/hocon/IncludeUrl.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="IncludeUrl.html"><span class="name">IncludeUrl</span></a><span class="params">(<span name="resourceId">resourceId: <a href="StringBuilderValue.html" class="extype" name="laika.parse.hocon.StringBuilderValue">StringBuilderValue</a></span>, <span name="isRequired">isRequired: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>)</span><span class="result"> extends <a href="IncludeResource.html" class="extype" name="laika.parse.hocon.IncludeResource">IncludeResource</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
+    </li><li name="laika.parse.hocon.InvalidBuilderValue" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="InvalidBuilderValueextendsConfigBuilderValuewithProductwithSerializable"></a><a id="InvalidBuilderValue:InvalidBuilderValue"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/hocon/InvalidBuilderValue.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="InvalidBuilderValue.html"><span class="name">InvalidBuilderValue</span></a><span class="params">(<span name="value">value: <a href="ConfigBuilderValue.html" class="extype" name="laika.parse.hocon.ConfigBuilderValue">ConfigBuilderValue</a></span>, <span name="failure">failure: <a href="../Failure.html" class="extype" name="laika.parse.Failure">Failure</a></span>)</span><span class="result"> extends <a href="ConfigBuilderValue.html" class="extype" name="laika.parse.hocon.ConfigBuilderValue">ConfigBuilderValue</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
+    </li><li name="laika.parse.hocon.InvalidStringValue" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="InvalidStringValueextendsStringBuilderValuewithProductwithSerializable"></a><a id="InvalidStringValue:InvalidStringValue"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/hocon/InvalidStringValue.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="InvalidStringValue.html"><span class="name">InvalidStringValue</span></a><span class="params">(<span name="value">value: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="failure">failure: <a href="../Failure.html" class="extype" name="laika.parse.Failure">Failure</a></span>)</span><span class="result"> extends <a href="StringBuilderValue.html" class="extype" name="laika.parse.hocon.StringBuilderValue">StringBuilderValue</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
     </li><li name="laika.parse.hocon.MergedValue" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="MergedValueextendsConfigBuilderValuewithProductwithSerializable"></a><a id="MergedValue:MergedValue"></a>
       <span class="permalink">
@@ -455,6 +623,22 @@ values or substitution variables which will not be present in the final model.
       </span>
       
       <p class="shortcomment cmt">A simple configuration value that does not need to be recursively resolved.</p>
+    </li><li name="laika.parse.hocon.StringBuilderValue" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="StringBuilderValueextendsConfigBuilderValue"></a><a id="StringBuilderValue:StringBuilderValue"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/hocon/StringBuilderValue.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">sealed </span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="StringBuilderValue.html"><span class="name">StringBuilderValue</span></a><span class="result"> extends <a href="ConfigBuilderValue.html" class="extype" name="laika.parse.hocon.ConfigBuilderValue">ConfigBuilderValue</a></span>
+      </span>
+      
+      
     </li><li name="laika.parse.hocon.SubstitutionValue" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="SubstitutionValueextendsConfigBuilderValuewithProductwithSerializable"></a><a id="SubstitutionValue:SubstitutionValue"></a>
       <span class="permalink">
@@ -471,6 +655,22 @@ values or substitution variables which will not be present in the final model.
       </span>
       
       <p class="shortcomment cmt">A substitution reference that may be marked as optional.</p>
+    </li><li name="laika.parse.hocon.ValidStringValue" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ValidStringValueextendsStringBuilderValuewithProductwithSerializable"></a><a id="ValidStringValue:ValidStringValue"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/hocon/ValidStringValue.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="ValidStringValue.html"><span class="name">ValidStringValue</span></a><span class="params">(<span name="value">value: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="StringBuilderValue.html" class="extype" name="laika.parse.hocon.StringBuilderValue">StringBuilderValue</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
     </li></ol>
             </div>
 

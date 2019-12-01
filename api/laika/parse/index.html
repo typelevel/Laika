@@ -374,7 +374,7 @@
       
       
     </li><li class="current-entities indented2">
-                        <span class="separator"></span>
+                        <a class="object" href="Failure$.html" title=""></a>
                         <a class="class" href="Failure.html" title="The failure case of Parsed containing an error message and the remaining input."></a>
                         <a href="Failure.html" title="The failure case of Parsed containing an error message and the remaining input.">Failure</a>
                       </li><li class="current-entities indented2">
@@ -528,7 +528,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="The failure case of Parsed containing an error message and the remaining input." href="Failure.html"><span class="name">Failure</span></a><span class="params">(<span name="msgProvider">msgProvider: <a href="Message.html" class="extype" name="laika.parse.Message">Message</a></span>, <span name="next">next: <a href="ParserContext.html" class="extype" name="laika.parse.ParserContext">ParserContext</a></span>)</span><span class="result"> extends <a href="Parsed.html" class="extype" name="laika.parse.Parsed">Parsed</a>[<span class="extype" name="scala.Nothing">Nothing</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="The failure case of Parsed containing an error message and the remaining input." href="Failure.html"><span class="name">Failure</span></a><span class="params">(<span name="msgProvider">msgProvider: <a href="Message.html" class="extype" name="laika.parse.Message">Message</a></span>, <span name="next">next: <a href="ParserContext.html" class="extype" name="laika.parse.ParserContext">ParserContext</a></span>, <span name="maxOffset">maxOffset: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result"> extends <a href="Parsed.html" class="extype" name="laika.parse.Parsed">Parsed</a>[<span class="extype" name="scala.Nothing">Nothing</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt"> The failure case of <code>Parsed</code> containing an error message and the remaining input.</p><div class="fullcomment"><div class="comment cmt"><p> The failure case of <code>Parsed</code> containing an error message and the remaining input.</p><p> Implementation note:
@@ -537,7 +537,7 @@
  a lot of unnecessary string concatenations for messages which were then never read.
  This implementation avoids this extra cost and the result is measurable (about 15%
  performance gain for a typical Markdown document for example).
-</p></div><dl class="paramcmts block"><dt class="param">msgProvider</dt><dd class="cmt"><p>A provider that produces an error message for this failure based on its ParserContext</p></dd><dt class="param">next</dt><dd class="cmt"><p>The parser's unconsumed input at the point where the failure occurred.</p></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">msgProvider</dt><dd class="cmt"><p>A provider that produces an error message for this failure based on its ParserContext</p></dd><dt class="param">next</dt><dd class="cmt"><p>The unconsumed input at the point where the failing parser started</p></dd><dt class="param">maxOffset</dt><dd class="cmt"><p>The offset position the parser could successfully read to before failing</p></dd></dl></div>
     </li><li name="laika.parse.Message" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="MessageextendsAnyRef"></a><a id="Message:Message"></a>
       <span class="permalink">
@@ -670,7 +670,23 @@ containing the input string as well as positional information/
         <div class="values members">
               <h3>Value Members</h3>
               <ol>
-                <li name="laika.parse.Message" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+                <li name="laika.parse.Failure" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Failure"></a><a id="Failure:Failure"></a>
+      <span class="permalink">
+      <a href="../../laika/parse/Failure$.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="Failure$.html"><span class="name">Failure</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
+    </li><li name="laika.parse.Message" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Message"></a><a id="Message:Message"></a>
       <span class="permalink">
       <a href="../../laika/parse/Message$.html" title="Permalink">

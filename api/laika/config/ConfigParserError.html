@@ -147,6 +147,10 @@
                         <a href="" title="An error that occurred when parsing HOCON input.">ConfigParserError</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="class" href="ConfigParserErrors.html" title="Multiple errors that occurred when parsing HOCON input."></a>
+                        <a href="ConfigParserErrors.html" title="Multiple errors that occurred when parsing HOCON input.">ConfigParserErrors</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="class" href="ConfigResolverError.html" title="An error that occurred when resolving the interim result of a parsing operation."></a>
                         <a href="ConfigResolverError.html" title="An error that occurred when resolving the interim result of a parsing operation.">ConfigResolverError</a>
                       </li><li class="current-entities indented2">
@@ -244,7 +248,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">ConfigParserError</span><span class="params">(<span name="message">message: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="ConfigError.html" class="extype" name="laika.config.ConfigError">ConfigError</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">ConfigParserError</span><span class="params">(<span name="failure">failure: <a href="../parse/Failure.html" class="extype" name="laika.parse.Failure">Failure</a></span>)</span><span class="result"> extends <a href="ConfigError.html" class="extype" name="laika.config.ConfigError">ConfigError</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
@@ -300,9 +304,9 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.config.ConfigParserError#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(message:String):laika.config.ConfigParserError"></a><a id="&lt;init&gt;:ConfigParserError"></a>
+      <a id="&lt;init&gt;(failure:laika.parse.Failure):laika.config.ConfigParserError"></a><a id="&lt;init&gt;:ConfigParserError"></a>
       <span class="permalink">
-      <a href="../../laika/config/ConfigParserError.html#&lt;init&gt;(message:String):laika.config.ConfigParserError" title="Permalink">
+      <a href="../../laika/config/ConfigParserError.html#&lt;init&gt;(failure:laika.parse.Failure):laika.config.ConfigParserError" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -311,7 +315,7 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">ConfigParserError</span><span class="params">(<span name="message">message: <span class="extype" name="scala.Predef.String">String</span></span>)</span>
+        <span class="name">ConfigParserError</span><span class="params">(<span name="failure">failure: <a href="../parse/Failure.html" class="extype" name="laika.parse.Failure">Failure</a></span>)</span>
       </span>
       
       
@@ -429,6 +433,22 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="laika.config.ConfigParserError#failure" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="failure:laika.parse.Failure"></a><a id="failure:Failure"></a>
+      <span class="permalink">
+      <a href="../../laika/config/ConfigParserError.html#failure:laika.parse.Failure" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">failure</span><span class="result">: <a href="../parse/Failure.html" class="extype" name="laika.parse.Failure">Failure</a></span>
+      </span>
+      
+      
     </li><li name="scala.AnyRef#finalize" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <span class="permalink">

@@ -147,6 +147,38 @@
                         <a href="HoconParsers$.html" title="The parser implementation for the HOCON format.">HoconParsers</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
+                        <a class="class" href="IncludeAny.html" title=""></a>
+                        <a href="IncludeAny.html" title="">IncludeAny</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="IncludeBuilderValue.html" title=""></a>
+                        <a href="IncludeBuilderValue.html" title="">IncludeBuilderValue</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="IncludeClassPath.html" title=""></a>
+                        <a href="IncludeClassPath.html" title="">IncludeClassPath</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="IncludeFile.html" title=""></a>
+                        <a href="IncludeFile.html" title="">IncludeFile</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="trait" href="IncludeResource.html" title="Description of a resource to be included in the current configuration."></a>
+                        <a href="IncludeResource.html" title="Description of a resource to be included in the current configuration.">IncludeResource</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="IncludeUrl.html" title=""></a>
+                        <a href="IncludeUrl.html" title="">IncludeUrl</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="InvalidBuilderValue.html" title=""></a>
+                        <a href="InvalidBuilderValue.html" title="">InvalidBuilderValue</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="InvalidStringValue.html" title=""></a>
+                        <a href="InvalidStringValue.html" title="">InvalidStringValue</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
                         <a class="class" href="MergedValue.html" title="A merged value with &quot;last one wins&quot; semantics for the provided values (objects will be merged instead)."></a>
                         <a href="MergedValue.html" title="A merged value with &quot;last one wins&quot; semantics for the provided values (objects will be merged instead).">MergedValue</a>
                       </li><li class="current-entities indented3">
@@ -162,9 +194,17 @@
                         <a class="object" href="SelfReference$.html" title="A marker for a self reference, a reference to an earlier definition with the same key."></a>
                         <a href="SelfReference$.html" title="A marker for a self reference, a reference to an earlier definition with the same key.">SelfReference</a>
                       </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="trait" href="StringBuilderValue.html" title=""></a>
+                        <a href="StringBuilderValue.html" title="">StringBuilderValue</a>
+                      </li><li class="current-entities indented3">
                         <a class="object" href="SubstitutionValue$.html" title=""></a>
                         <a class="class" href="SubstitutionValue.html" title="A substitution reference that may be marked as optional."></a>
                         <a href="SubstitutionValue.html" title="A substitution reference that may be marked as optional.">SubstitutionValue</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="ValidStringValue.html" title=""></a>
+                        <a href="ValidStringValue.html" title="">ValidStringValue</a>
                       </li>
               </ul>
             </div>
@@ -188,7 +228,7 @@
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <span class="name">ConfigBuilderValue</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <span class="name">ConfigBuilderValue</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
@@ -200,12 +240,12 @@ values or substitution variables which will not be present in the final model.
           <span class="toggle">
             Linear Supertypes
           </span>
-          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div><div class="toggleContainer block">
             <span class="toggle">
               Known Subclasses
             </span>
-            <div class="subClasses hiddenContent"><a href="ArrayBuilderValue.html" class="extype" name="laika.parse.hocon.ArrayBuilderValue">ArrayBuilderValue</a>, <a href="ConcatValue.html" class="extype" name="laika.parse.hocon.ConcatValue">ConcatValue</a>, <a href="MergedValue.html" class="extype" name="laika.parse.hocon.MergedValue">MergedValue</a>, <a href="ObjectBuilderValue.html" class="extype" name="laika.parse.hocon.ObjectBuilderValue">ObjectBuilderValue</a>, <a href="ResolvedBuilderValue.html" class="extype" name="laika.parse.hocon.ResolvedBuilderValue">ResolvedBuilderValue</a>, <a href="SelfReference$.html" class="extype" name="laika.parse.hocon.SelfReference">SelfReference</a>, <a href="SubstitutionValue.html" class="extype" name="laika.parse.hocon.SubstitutionValue">SubstitutionValue</a></div>
+            <div class="subClasses hiddenContent"><a href="ArrayBuilderValue.html" class="extype" name="laika.parse.hocon.ArrayBuilderValue">ArrayBuilderValue</a>, <a href="ConcatValue.html" class="extype" name="laika.parse.hocon.ConcatValue">ConcatValue</a>, <a href="IncludeBuilderValue.html" class="extype" name="laika.parse.hocon.IncludeBuilderValue">IncludeBuilderValue</a>, <a href="InvalidBuilderValue.html" class="extype" name="laika.parse.hocon.InvalidBuilderValue">InvalidBuilderValue</a>, <a href="InvalidStringValue.html" class="extype" name="laika.parse.hocon.InvalidStringValue">InvalidStringValue</a>, <a href="MergedValue.html" class="extype" name="laika.parse.hocon.MergedValue">MergedValue</a>, <a href="ObjectBuilderValue.html" class="extype" name="laika.parse.hocon.ObjectBuilderValue">ObjectBuilderValue</a>, <a href="ResolvedBuilderValue.html" class="extype" name="laika.parse.hocon.ResolvedBuilderValue">ResolvedBuilderValue</a>, <a href="SelfReference$.html" class="extype" name="laika.parse.hocon.SelfReference">SelfReference</a>, <a href="StringBuilderValue.html" class="extype" name="laika.parse.hocon.StringBuilderValue">StringBuilderValue</a>, <a href="SubstitutionValue.html" class="extype" name="laika.parse.hocon.SubstitutionValue">SubstitutionValue</a>, <a href="ValidStringValue.html" class="extype" name="laika.parse.hocon.ValidStringValue">ValidStringValue</a></div>
           </div></div>
         
 
@@ -231,7 +271,7 @@ values or substitution variables which will not be present in the final model.
                   <span class="filtertype">Inherited<br />
                   </span>
                   <ol id="linearization">
-                    <li class="in" name="laika.parse.hocon.ConfigBuilderValue"><span>ConfigBuilderValue</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                    <li class="in" name="laika.parse.hocon.ConfigBuilderValue"><span>ConfigBuilderValue</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                   </ol>
                 </div><div class="ancestors">
               <span class="filtertype"></span>
@@ -253,10 +293,61 @@ values or substitution variables which will not be present in the final model.
 
         
 
-        
+        <div class="values members">
+              <h3>Abstract Value Members</h3>
+              <ol><li name="scala.Equals#canEqual" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="canEqual(that:Any):Boolean"></a><a id="canEqual(Any):Boolean"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/hocon/ConfigBuilderValue.html#canEqual(that:Any):Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">canEqual</span><span class="params">(<span name="that">that: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Equals</dd></dl></div>
+    </li><li name="scala.Product#productArity" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="productArity:Int"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/hocon/ConfigBuilderValue.html#productArity:Int" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">productArity</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Product</dd></dl></div>
+    </li><li name="scala.Product#productElement" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="productElement(n:Int):Any"></a><a id="productElement(Int):Any"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/hocon/ConfigBuilderValue.html#productElement(n:Int):Any" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">productElement</span><span class="params">(<span name="n">n: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Any">Any</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Product</dd></dl></div>
+    </li></ol>
+            </div>
 
         <div class="values members">
-              <h3>Value Members</h3>
+              <h3>Concrete Value Members</h3>
               <ol>
                 <li name="scala.AnyRef#!=" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:Any):Boolean"></a><a id="!=(Any):Boolean"></a>
@@ -508,6 +599,38 @@ values or substitution variables which will not be present in the final model.
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li name="scala.Product#productIterator" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="productIterator:Iterator[Any]"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/hocon/ConfigBuilderValue.html#productIterator:Iterator[Any]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">productIterator</span><span class="result">: <span class="extype" name="scala.Iterator">Iterator</span>[<span class="extype" name="scala.Any">Any</span>]</span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Product</dd></dl></div>
+    </li><li name="scala.Product#productPrefix" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="productPrefix:String"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/hocon/ConfigBuilderValue.html#productPrefix:String" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">productPrefix</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Product</dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">
@@ -618,7 +741,15 @@ values or substitution variables which will not be present in the final model.
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="scala.AnyRef">
+        <div class="parent" name="scala.Serializable">
+              <h3>Inherited from <span class="extype" name="scala.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="java.io.Serializable">
+              <h3>Inherited from <span class="extype" name="java.io.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="scala.Product">
+              <h3>Inherited from <span class="extype" name="scala.Product">Product</span></h3>
+            </div><div class="parent" name="scala.Equals">
+              <h3>Inherited from <span class="extype" name="scala.Equals">Equals</span></h3>
+            </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>

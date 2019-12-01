@@ -147,6 +147,38 @@
                         <a href="HoconParsers$.html" title="The parser implementation for the HOCON format.">HoconParsers</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
+                        <a class="class" href="IncludeAny.html" title=""></a>
+                        <a href="IncludeAny.html" title="">IncludeAny</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="IncludeBuilderValue.html" title=""></a>
+                        <a href="IncludeBuilderValue.html" title="">IncludeBuilderValue</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="IncludeClassPath.html" title=""></a>
+                        <a href="IncludeClassPath.html" title="">IncludeClassPath</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="IncludeFile.html" title=""></a>
+                        <a href="IncludeFile.html" title="">IncludeFile</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="trait" href="IncludeResource.html" title="Description of a resource to be included in the current configuration."></a>
+                        <a href="IncludeResource.html" title="Description of a resource to be included in the current configuration.">IncludeResource</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="IncludeUrl.html" title=""></a>
+                        <a href="IncludeUrl.html" title="">IncludeUrl</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="InvalidBuilderValue.html" title=""></a>
+                        <a href="InvalidBuilderValue.html" title="">InvalidBuilderValue</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="InvalidStringValue.html" title=""></a>
+                        <a href="InvalidStringValue.html" title="">InvalidStringValue</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
                         <a class="class" href="MergedValue.html" title="A merged value with &quot;last one wins&quot; semantics for the provided values (objects will be merged instead)."></a>
                         <a href="MergedValue.html" title="A merged value with &quot;last one wins&quot; semantics for the provided values (objects will be merged instead).">MergedValue</a>
                       </li><li class="current-entities indented3">
@@ -162,9 +194,17 @@
                         <a class="object" href="SelfReference$.html" title="A marker for a self reference, a reference to an earlier definition with the same key."></a>
                         <a href="SelfReference$.html" title="A marker for a self reference, a reference to an earlier definition with the same key.">SelfReference</a>
                       </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="trait" href="StringBuilderValue.html" title=""></a>
+                        <a href="StringBuilderValue.html" title="">StringBuilderValue</a>
+                      </li><li class="current-entities indented3">
                         <a class="object" href="SubstitutionValue$.html" title=""></a>
                         <a class="class" href="SubstitutionValue.html" title="A substitution reference that may be marked as optional."></a>
                         <a href="SubstitutionValue.html" title="A substitution reference that may be marked as optional.">SubstitutionValue</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="ValidStringValue.html" title=""></a>
+                        <a href="ValidStringValue.html" title="">ValidStringValue</a>
                       </li>
               </ul>
             </div>
@@ -190,7 +230,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">BuilderField</span><span class="params">(<span name="key">key: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="value">value: <a href="ConfigBuilderValue.html" class="extype" name="laika.parse.hocon.ConfigBuilderValue">ConfigBuilderValue</a></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">BuilderField</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Either">Either</span>[<a href="InvalidStringValue.html" class="extype" name="laika.parse.hocon.InvalidStringValue">InvalidStringValue</a>, <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a>]</span>, <span name="value">value: <a href="ConfigBuilderValue.html" class="extype" name="laika.parse.hocon.ConfigBuilderValue">ConfigBuilderValue</a></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
@@ -246,9 +286,9 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.parse.hocon.BuilderField#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(key:laika.ast.Path,value:laika.parse.hocon.ConfigBuilderValue):laika.parse.hocon.BuilderField"></a><a id="&lt;init&gt;:BuilderField"></a>
+      <a id="&lt;init&gt;(key:Either[laika.parse.hocon.InvalidStringValue,laika.ast.Path],value:laika.parse.hocon.ConfigBuilderValue):laika.parse.hocon.BuilderField"></a><a id="&lt;init&gt;:BuilderField"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/hocon/BuilderField.html#&lt;init&gt;(key:laika.ast.Path,value:laika.parse.hocon.ConfigBuilderValue):laika.parse.hocon.BuilderField" title="Permalink">
+      <a href="../../../laika/parse/hocon/BuilderField.html#&lt;init&gt;(key:Either[laika.parse.hocon.InvalidStringValue,laika.ast.Path],value:laika.parse.hocon.ConfigBuilderValue):laika.parse.hocon.BuilderField" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -257,7 +297,7 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">BuilderField</span><span class="params">(<span name="key">key: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="value">value: <a href="ConfigBuilderValue.html" class="extype" name="laika.parse.hocon.ConfigBuilderValue">ConfigBuilderValue</a></span>)</span>
+        <span class="name">BuilderField</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Either">Either</span>[<a href="InvalidStringValue.html" class="extype" name="laika.parse.hocon.InvalidStringValue">InvalidStringValue</a>, <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a>]</span>, <span name="value">value: <a href="ConfigBuilderValue.html" class="extype" name="laika.parse.hocon.ConfigBuilderValue">ConfigBuilderValue</a></span>)</span>
       </span>
       
       
@@ -433,9 +473,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="laika.parse.hocon.BuilderField#key" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="key:laika.ast.Path"></a><a id="key:Path"></a>
+      <a id="key:Either[laika.parse.hocon.InvalidStringValue,laika.ast.Path]"></a><a id="key:Either[InvalidStringValue,Path]"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/hocon/BuilderField.html#key:laika.ast.Path" title="Permalink">
+      <a href="../../../laika/parse/hocon/BuilderField.html#key:Either[laika.parse.hocon.InvalidStringValue,laika.ast.Path]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -444,7 +484,7 @@
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">key</span><span class="result">: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>
+        <span class="name">key</span><span class="result">: <span class="extype" name="scala.Either">Either</span>[<a href="InvalidStringValue.html" class="extype" name="laika.parse.hocon.InvalidStringValue">InvalidStringValue</a>, <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a>]</span>
       </span>
       
       
@@ -518,6 +558,22 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="laika.parse.hocon.BuilderField#validKey" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="validKey:laika.ast.Path"></a><a id="validKey:Path"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/hocon/BuilderField.html#validKey:laika.ast.Path" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">validKey</span><span class="result">: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>
+      </span>
+      
+      
     </li><li name="laika.parse.hocon.BuilderField#value" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="value:laika.parse.hocon.ConfigBuilderValue"></a><a id="value:ConfigBuilderValue"></a>
       <span class="permalink">

@@ -818,7 +818,10 @@ only consumes the number of characters successfully parsed.</p>
         <span class="name">orElse</span><span class="tparams">[<span name="U">U &gt;: <span class="extype" name="laika.parse.text.Characters.T">T</span></span>]</span><span class="params">(<span name="p0">p0: ⇒ <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="laika.parse.Parser.orElse.U">U</span>]</span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="laika.parse.Parser.orElse.U">U</span>]</span>
       </span>
       
-      <p class="shortcomment cmt"> Applies the specified parser when this parser fails.</p><div class="fullcomment"><div class="comment cmt"><p> Applies the specified parser when this parser fails.</p><p> <code>a orElse b</code> succeeds if either of the parsers succeeds.</p><p> Implementation note:
+      <p class="shortcomment cmt"> Applies the specified parser when this parser fails.</p><div class="fullcomment"><div class="comment cmt"><p> Applies the specified parser when this parser fails.</p><p> <code>a orElse b</code> succeeds if either of the parsers succeeds.</p><p> In case both parsers fail, the <code>Failure</code> instance will
+ be from the parser with the most successfully read characters.
+ In the case of multiple failures having the same number of characters,
+ the one with the highest precedence (this parser) will be chosen.</p><p> Implementation note:
  The parameter is by-name to allow the definition of
  recursive parsers. In contrast to the former SDK
  parser combinators this is the only place where
@@ -1024,6 +1027,22 @@ function.
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li name="laika.parse.Parser#withContext" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withContext:laika.parse.Parser[(T,laika.parse.ParserContext)]"></a><a id="withContext:Parser[(T,ParserContext)]"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/text/Characters.html#withContext:laika.parse.Parser[(T,laika.parse.ParserContext)]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withContext</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[(<span class="extype" name="laika.parse.text.Characters.T">T</span>, <a href="../ParserContext.html" class="extype" name="laika.parse.ParserContext">ParserContext</a>)]</span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a></dd></dl></div>
     </li><li name="laika.parse.Parser#withFailureMessage" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="withFailureMessage(msg:String):laika.parse.Parser[T]"></a><a id="withFailureMessage(String):Parser[T]"></a>
       <span class="permalink">
@@ -1040,6 +1059,25 @@ function.
       </span>
       
       <p class="shortcomment cmt"> Changes the failure message produced by a parser.</p><div class="fullcomment"><div class="comment cmt"><p> Changes the failure message produced by a parser.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a></dd></dl></div>
+    </li><li name="laika.parse.Parser#withPosition" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withPosition:laika.parse.Parser[(T,laika.parse.Position)]"></a><a id="withPosition:Parser[(T,Position)]"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/text/Characters.html#withPosition:laika.parse.Parser[(T,laika.parse.Position)]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withPosition</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[(<span class="extype" name="laika.parse.text.Characters.T">T</span>, <a href="../Position.html" class="extype" name="laika.parse.Position">Position</a>)]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Adds the position at the end of a successful application of this
+parser to the result.</p><div class="fullcomment"><div class="comment cmt"><p>Adds the position at the end of a successful application of this
+parser to the result.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a></dd></dl></div>
     </li><li name="laika.parse.Parser#|" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="|[U&gt;:T](p:=&gt;laika.parse.Parser[U]):laika.parse.Parser[U]"></a><a id="|[U&gt;:T](⇒Parser[U]):Parser[U]"></a>

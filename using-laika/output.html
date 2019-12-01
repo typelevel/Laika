@@ -192,7 +192,7 @@ val html: String = Renderer
         <p>See <a href="sbt.html#using-the-sbt-plugin">Using the sbt Plugin</a> for more details.</p>
         <p>If you want to produce EPUB files with the library API,
         the <code>laika-io</code> module is required for the binary output:</p>
-        <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika-io&quot; % &quot;0.12.0&quot;</pre>
+        <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika-io&quot; % &quot;0.12.1&quot;</pre>
         <p>The EPUB renderer can be used with the <code>Transform</code> or <code>Render</code> APIs:</p>
         <pre>implicit val cs: ContextShift[IO] = 
   IO.contextShift(ExecutionContext.global)
@@ -304,7 +304,7 @@ metadata {
         <p>See <a href="sbt.html#using-the-sbt-plugin">Using the sbt Plugin</a> for more details.</p>
         <p>If you want to produce PDF files with the library API,
         you need to add the <code>laika-pdf</code> module to your build:</p>
-        <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika-pdf&quot; % &quot;0.12.0&quot;</pre>
+        <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika-pdf&quot; % &quot;0.12.1&quot;</pre>
         <p>The PDF renderer can be used with the <code>Transform</code> or <code>Render</code> APIs:</p>
         <pre>implicit val cs: ContextShift[IO] = 
   IO.contextShift(ExecutionContext.global)
