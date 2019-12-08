@@ -46,7 +46,7 @@ class HoconErrorSpec extends WordSpec with Matchers {
           |b = 9
         """.stripMargin
       val expectedMessage =
-        """[2.13] failure: Expected closing quote
+        """[2.13] failure: Expected closing '"'
           |
           |a = "foo bar
           |            ^""".stripMargin
@@ -65,7 +65,7 @@ class HoconErrorSpec extends WordSpec with Matchers {
           |b = 9
         """.stripMargin
       val expectedMessage =
-        """[5.12] failure: Expected closing quote
+        """[5.12] failure: Expected closing '"'
           |
           | "some text
           |           ^""".stripMargin
@@ -83,7 +83,7 @@ class HoconErrorSpec extends WordSpec with Matchers {
           |b = 9
         """.stripMargin
       val expectedMessage =
-        """[3.17] failure: Expected closing quote
+        """[3.17] failure: Expected closing '"'
           |
           | aa = "some text
           |                ^""".stripMargin
@@ -98,7 +98,7 @@ class HoconErrorSpec extends WordSpec with Matchers {
           |b = 9
         """.stripMargin
       val expectedMessage =
-        """[2.16] failure: Invalid key: Expected closing quote
+        """[2.16] failure: Invalid key: Expected closing '"'
           |
           |a = ${"foo.bar}
           |               ^""".stripMargin
@@ -113,7 +113,7 @@ class HoconErrorSpec extends WordSpec with Matchers {
           |b = 9
         """.stripMargin
       val expectedMessage =
-        """[2.7] failure: Invalid key: Expected closing quote
+        """[2.7] failure: Invalid key: Expected closing '"'
           |
           |"a = 7
           |      ^""".stripMargin
@@ -316,7 +316,7 @@ class HoconErrorSpec extends WordSpec with Matchers {
           |b = 9
           |""".stripMargin
       val expectedMessage =
-        """[6.1] failure: Expected closing brace '}'
+        """[6.1] failure: Expected closing '}'
           |
           |
           |^""".stripMargin
@@ -335,7 +335,7 @@ class HoconErrorSpec extends WordSpec with Matchers {
           |b = 9
         """.stripMargin
       val expectedMessage =
-        """[4.2] failure: Expected closing brace '}'
+        """[4.2] failure: Expected closing '}'
           |
           | { x = 4 }
           | ^""".stripMargin
@@ -354,7 +354,7 @@ class HoconErrorSpec extends WordSpec with Matchers {
           |d = 7  
           |""".stripMargin
       val expectedMessage =
-        """[9.1] failure: Expected closing brace '}'
+        """[9.1] failure: Expected closing '}'
           |
           |
           |^""".stripMargin
@@ -536,7 +536,7 @@ class HoconErrorSpec extends WordSpec with Matchers {
           |       
           |b = 9""".stripMargin
       val expectedMessage =
-        """[2.18] failure: Expected closing quote
+        """[2.18] failure: Expected closing '"'
           |
           |include "foo.conf
           |                 ^""".stripMargin
@@ -550,7 +550,7 @@ class HoconErrorSpec extends WordSpec with Matchers {
           |       
           |b = 9""".stripMargin
       val expectedMessage =
-        """[2.24] failure: Expected closing quote
+        """[2.24] failure: Expected closing '"'
           |
           |include file("foo.conf)
           |                       ^""".stripMargin
@@ -564,7 +564,7 @@ class HoconErrorSpec extends WordSpec with Matchers {
           |       
           |b = 9""".stripMargin
       val expectedMessage =
-        """[2.24] failure: Expected closing parenthesis
+        """[2.24] failure: Expected closing ')'
           |
           |include file("foo.conf"
           |                       ^""".stripMargin
@@ -578,7 +578,7 @@ class HoconErrorSpec extends WordSpec with Matchers {
           |       
           |b = 9""".stripMargin
       val expectedMessage =
-        """[2.34] failure: Expected closing parenthesis
+        """[2.34] failure: Expected closing ')'
           |
           |include required(file("foo.conf")
           |                                 ^""".stripMargin

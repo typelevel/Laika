@@ -19,7 +19,7 @@ package laika.parse.hocon
 import laika.ast.Path.Root
 import laika.ast.{Path, ~}
 import laika.config._
-import laika.parse.text.Characters
+import laika.parse.text.{Characters, TextParsers}
 import laika.parse.text.TextParsers._
 import laika.parse.{Failure, Message, Parser, ParserContext, Success}
 
@@ -52,10 +52,8 @@ object HoconParsers {
   
   implicit class ClosingParserOps[T] (parser: Parser[T]) {
 
-    def closeWith[R >: T] (closingParser: Parser[Any],
-                           msg: => String)
-                          (captureError: (T, Failure) => R): Parser[R] = 
-      closeWith[R](closingParser, anyBut('\n') ^^^ 0, msg)(captureError)
+    def closeWith[R >: T] (char: Char)(captureError: (T, Failure) => R): Parser[R] =
+      closeWith[R](TextParsers.char(char), anyBut('\n') ^^^ 0, s"Expected closing '$char'")(captureError)
     
     def closeWith[R >: T] (closingParser: Parser[Any],
                            fallbackParser: Parser[Int],
@@ -172,7 +170,7 @@ object HoconParsers {
         parts => ValidStringValue(parts.mkString)
       )
     }
-    ('"' ~> value).closeWith('"', "Expected closing quote")((v,f) => InvalidStringValue(v.value, f))
+    ('"' ~> value).closeWith('"')((v,f) => InvalidStringValue(v.value, f))
   }
 
   /** Parses a string enclosed in triple quotes. */
@@ -238,7 +236,7 @@ object HoconParsers {
       case inv: InvalidStringValue => inv
       case other => InvalidBuilderValue(other, failure)  
     }
-    mainParser.closeWith('}', "Expected closing brace '}'")(handleError)
+    mainParser.closeWith('}')(handleError)
   }
   
   val include: Parser[ConfigBuilderValue] = {
@@ -246,7 +244,7 @@ object HoconParsers {
     def resource(kind: String, f: StringBuilderValue => IncludeResource): Parser[IncludeResource] = {
       val noOpeningQuote = failWith(anyBut('\n') ^^^ 0, "Expected quoted string")(InvalidStringValue("",_))
       val resourceId = (quotedString | noOpeningQuote)
-        .closeWith(")", "Expected closing parenthesis") { 
+        .closeWith(')') { 
           case (inv: InvalidStringValue, _) => inv
           case (v, failure) => InvalidStringValue(v.value, failure)
         }
@@ -261,7 +259,7 @@ object HoconParsers {
     
     val required = "required(" ~> includeResource
       .map(_.asRequired)
-      .closeWith(")", "Expected closing parenthesis"){ (v,f) => 
+      .closeWith(')') { (v,f) => 
         v.resourceId match {
           case inv: InvalidStringValue => IncludeAny(inv)
           case sv => IncludeAny(InvalidStringValue(sv.value, f))
@@ -286,7 +284,7 @@ object HoconParsers {
     lazy val value = wsOrNl ~> concatenatedValue(Set(']',',','\n','#')) <~ ws
     lazy val values = wsOrComment ~> opt(value ~ (separator ~> value).rep).map(_.fold(Seq.empty[ConfigBuilderValue]){ case v ~ vs => v +: vs }) <~ wsOrComment
     val mainParser = lazily(('[' ~> values <~ trailingComma).map(ArrayBuilderValue))
-    mainParser.closeWith[ConfigBuilderValue](']', "Expected closing bracket ']'")(InvalidBuilderValue)
+    mainParser.closeWith[ConfigBuilderValue](']')(InvalidBuilderValue)
   }
 
   /** Parses the members of an object without the enclosing braces. */
@@ -311,7 +309,7 @@ object HoconParsers {
   /** Parses an object value enclosed in braces. */
   lazy val objectValue: Parser[ConfigBuilderValue] = {
     val mainParser = lazily('{' ~> objectMembers)
-    mainParser.closeWith[ConfigBuilderValue]('}', "Expected closing brace '}'")(InvalidBuilderValue)
+    mainParser.closeWith[ConfigBuilderValue]('}')(InvalidBuilderValue)
   }
 
   /** Parses a root configuration object where the enclosing braces may be omitted. */
