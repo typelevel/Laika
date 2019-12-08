@@ -53,7 +53,7 @@ object DirectiveParsers {
 
   /** Parses a HOCON-style reference enclosed between `\${` and `}` that may be marked as optional (`\${?some.param}`).
     */
-  def hoconReference[T] (f: (Path, Boolean) => T, e: InvalidElement => T): Parser[T] = 
+  def hoconReference[T] (f: (Key, Boolean) => T, e: InvalidElement => T): Parser[T] = 
     ('{' ~> opt('?') ~ withSource(HoconParsers.concatenatedKey(Set('}'))) <~ '}').map {
       case opt ~ ((Right(key), _))  => f(key, opt.isEmpty)
       case _ ~ ((Left(invalid), src)) => e(InvalidElement(s"Invalid HOCON reference: '$src': ${invalid.failure.toString}", s"$${$src}"))
@@ -178,7 +178,7 @@ object SpanDirectiveParsers {
     SpanParser.forStartChar('$').standalone(hoconReference(MarkupContextReference(_,_), _.asSpan))
 
   val legacyContextRef: SpanParserBuilder =
-    SpanParser.forStartChar('{').standalone(legacyReference(key => MarkupContextReference(Key(key), required = true)))
+    SpanParser.forStartChar('{').standalone(legacyReference(key => MarkupContextReference(Key.parse(key), required = true)))
 
   def spanDirective (directives: Map[String, Spans.Directive]): SpanParserBuilder =
     SpanParser.forStartChar('@').recursive(spanDirectiveParser(directives))
@@ -188,7 +188,7 @@ object SpanDirectiveParsers {
     import recParsers._
     
     val legacyBody = {
-      val contextRefOrNestedBraces = Map('{' -> (legacyReference(key => MarkupContextReference(Key(key), required = true)) | nestedBraces))
+      val contextRefOrNestedBraces = Map('{' -> (legacyReference(key => MarkupContextReference(Key.parse(key), required = true)) | nestedBraces))
       wsOrNl ~ '{' ~> (withSource(delimitedRecursiveSpans(delimitedBy('}'), contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
     }
     

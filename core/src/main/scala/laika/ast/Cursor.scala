@@ -17,7 +17,7 @@
 package laika.ast
 
 import laika.config.Config.ConfigResult
-import laika.config.{Config, ConfigEncoder, ConfigValue}
+import laika.config.{Config, ConfigEncoder, ConfigValue, Key}
 import laika.ast.Path.Root
 import laika.collection.TransitionalCollectionOps._
 import laika.rewrite.ReferenceResolver
@@ -214,7 +214,7 @@ case class DocumentCursor (target: Document,
    *  root tree is reached. If the value is not found `None` will
    *  be returned.
    */
-  def resolveReference (key: Path): ConfigResult[Option[ConfigValue]] = resolver.resolve(key)
+  def resolveReference (key: Key): ConfigResult[Option[ConfigValue]] = resolver.resolve(key)
   
   /** Creates a copy of this cursor with a new root object
    *  for resolving references. This is useful for custom

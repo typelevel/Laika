@@ -218,7 +218,7 @@ class SpanDirectiveAPISpec extends FlatSpec
 
   it should "detect a directive with an invalid HOCON string attribute (missing closing quote)" in {
     new SpanParser with RequiredNamedAttribute {
-      val msg = """One or more errors processing directive 'dir': Multiple errors parsing HOCON: [1.30] failure: Expected closing quote
+      val msg = """One or more errors processing directive 'dir': Multiple errors parsing HOCON: [1.30] failure: Expected closing '"'
        |
        |aa @:dir { name="foo bar } bb
        |                             ^""".stripMargin

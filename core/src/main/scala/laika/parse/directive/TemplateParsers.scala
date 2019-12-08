@@ -32,7 +32,7 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
   import DirectiveParsers._
 
   lazy val spanParsers: Map[Char, Parser[Span]] = Map(
-    '{' -> legacyReference(key => TemplateContextReference(Key(key), required = true)),
+    '{' -> legacyReference(key => TemplateContextReference(Key.parse(key), required = true)),
     '$' -> hoconReference(TemplateContextReference(_,_), _.asTemplateSpan),
     '@' -> templateDirective,
     '\\'-> ((any take 1) ^^ { Text(_) })
@@ -41,7 +41,7 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
   lazy val templateDirective: Parser[TemplateSpan] = {
 
     val legacyBody = {
-      val contextRefOrNestedBraces = Map('{' -> (legacyReference(key => TemplateContextReference(Key(key), required = true)) | nestedBraces))
+      val contextRefOrNestedBraces = Map('{' -> (legacyReference(key => TemplateContextReference(Key.parse(key), required = true)) | nestedBraces))
       wsOrNl ~ '{' ~> (withSource(delimitedRecursiveSpans(delimitedBy('}'), contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
     }
     

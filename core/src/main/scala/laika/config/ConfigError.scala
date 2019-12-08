@@ -16,7 +16,6 @@
 
 package laika.config
 
-import laika.ast.Path
 import laika.parse.Failure
 
 /** Base trait for all configuration errors that occurred
@@ -27,7 +26,6 @@ import laika.parse.Failure
   */
 sealed trait ConfigError {
   def message: String
-  protected def render(key: Path): String = key.components.mkString(".")
 }
 
 /** Indicates that a value found in the configuration does not have the expected
@@ -56,8 +54,8 @@ case class ConfigParserErrors(failures: Seq[Failure]) extends ConfigError {
 case class ConfigResolverError(message: String) extends ConfigError
 
 /** A required value that could not be found. */
-case class NotFound(path: Path) extends ConfigError {
-  val message: String = s"Not found: '${render(path)}'"
+case class NotFound(key: Key) extends ConfigError {
+  val message: String = s"Not found: '$key'"
 }
 
 /** A ConfigError as a RuntimeException for use cases where a Throwable is required. */

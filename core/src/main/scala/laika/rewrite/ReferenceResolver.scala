@@ -17,8 +17,8 @@
 package laika.rewrite
 
 import laika.config.Config.ConfigResult
-import laika.config.{ASTValue, Config, ConfigBuilder, ConfigValue, Field, ObjectValue, StringValue}
-import laika.ast.{Document, Path, SpanSequence, TreeCursor}
+import laika.config.{ASTValue, Config, ConfigBuilder, ConfigValue, Field, Key, ObjectValue, StringValue}
+import laika.ast.{Document, SpanSequence, TreeCursor}
 
 /** A resolver for context references in templates or markup documents.
  *  
@@ -26,7 +26,7 @@ import laika.ast.{Document, Path, SpanSequence, TreeCursor}
  */
 case class ReferenceResolver (config: Config) {
   
-  def resolve (key: Path): ConfigResult[Option[ConfigValue]] = config.getOpt[ConfigValue](key)
+  def resolve (key: Key): ConfigResult[Option[ConfigValue]] = config.getOpt[ConfigValue](key)
   
 }
 

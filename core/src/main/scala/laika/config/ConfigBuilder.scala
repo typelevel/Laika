@@ -16,7 +16,6 @@
 
 package laika.config
 
-import laika.ast.Path
 import laika.collection.TransitionalCollectionOps._
 
 /** A builder for creating a Config instance programmatically.
@@ -33,7 +32,7 @@ class ConfigBuilder (fields: Seq[Field], origin: Origin, fallback: Config = Empt
   /** Returns a new builder instance adding the specified value to the existing set of values.
     */
   def withValue[T](key: String, value: T)(implicit encoder: ConfigEncoder[T]) : ConfigBuilder =
-    new ConfigBuilder(fields :+ expandPath(Key(key), encoder(value)), origin, fallback)
+    new ConfigBuilder(fields :+ expandPath(Key.parse(key), encoder(value)), origin, fallback)
 
   /** Returns a new builder instance adding the specified value to the existing set of values.
     */
@@ -46,10 +45,10 @@ class ConfigBuilder (fields: Seq[Field], origin: Origin, fallback: Config = Empt
     if (fields.isEmpty && origin == Origin.root) fallback 
     else new ObjectConfig(mergeObjects(ObjectValue(fields)), origin, fallback)
 
-  private def expandPath(key: Path, value: ConfigValue): Field = {
-    key.components match {
+  private def expandPath(key: Key, value: ConfigValue): Field = {
+    key.segments match {
       case name :: Nil => Field(name, value, origin)
-      case name :: rest => Field(name, ObjectValue(Seq(expandPath(Path(rest), value))), origin)
+      case name :: rest => Field(name, ObjectValue(Seq(expandPath(Key(rest), value))), origin)
       case Nil => Field("", value, origin)
     }
   }
@@ -113,11 +112,4 @@ object ConfigBuilder {
     */
   def withFallback(fallback: Config, origin: Origin): ConfigBuilder = new ConfigBuilder(Nil, origin, fallback)
 
-}
-
-object Key {
-  def apply(key: String): Path = {
-    val segments = key.split("\\.").toList
-    Path(segments)
-  }
 }

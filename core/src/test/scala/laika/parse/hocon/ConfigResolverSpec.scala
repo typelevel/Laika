@@ -16,8 +16,7 @@
 
 package laika.parse.hocon
 
-import laika.ast.Path.Root
-import laika.config.{ArrayValue, Config, ConfigBuilder, ConfigError, ConfigResolverError, EmptyConfig, Field, LongValue, ObjectValue, Origin, StringValue}
+import laika.config.{ArrayValue, Config, ConfigBuilder, ConfigError, ConfigResolverError, EmptyConfig, Field, Key, LongValue, ObjectValue, Origin, StringValue}
 import org.scalatest.{Matchers, WordSpec}
 
 /**
@@ -615,11 +614,11 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
   "The path expansion" should {
     
     "expand a single path" in {
-      val in = ObjectBuilderValue(Seq(BuilderField(Root / "foo" / "bar" / "baz", longValue(7))))
+      val in = ObjectBuilderValue(Seq(BuilderField(Key("foo","bar","baz"), longValue(7))))
       val expected = ObjectBuilderValue(
-        Seq(BuilderField(Root / "foo", ObjectBuilderValue(
-          Seq(BuilderField(Root / "foo" / "bar", ObjectBuilderValue(
-            Seq(BuilderField(Root / "foo" / "bar" / "baz", longValue(7)))
+        Seq(BuilderField(Key("foo"), ObjectBuilderValue(
+          Seq(BuilderField(Key("foo","bar"), ObjectBuilderValue(
+            Seq(BuilderField(Key("foo","bar","baz"), longValue(7)))
           )))
         )))
       )
@@ -628,14 +627,14 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
 
     "expand a nested path" in {
       val in = ObjectBuilderValue(
-        Seq(BuilderField(Root / "foo", ObjectBuilderValue(
-          Seq(BuilderField(Root / "bar" / "baz", longValue(7)))
+        Seq(BuilderField(Key("foo"), ObjectBuilderValue(
+          Seq(BuilderField(Key("bar","baz"), longValue(7)))
         )))
       )
       val expected = ObjectBuilderValue(
-        Seq(BuilderField(Root / "foo", ObjectBuilderValue(
-          Seq(BuilderField(Root / "foo" / "bar", ObjectBuilderValue(
-            Seq(BuilderField(Root / "foo" / "bar" / "baz", longValue(7)))
+        Seq(BuilderField(Key("foo"), ObjectBuilderValue(
+          Seq(BuilderField(Key("foo","bar"), ObjectBuilderValue(
+            Seq(BuilderField(Key("foo","bar","baz"), longValue(7)))
           )))
         )))
       )

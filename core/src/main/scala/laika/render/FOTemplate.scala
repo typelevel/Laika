@@ -95,11 +95,11 @@ object FOTemplate {
     val templateSpans = templateText.split("#").map(TemplateString(_))
     TemplateRoot(Seq(
       templateSpans(0),
-      TemplateContextReference(Key("document.fragments.bookmarks"), required = false),
+      TemplateContextReference(Key("document","fragments","bookmarks"), required = false),
       templateSpans(1),
       CoverImage,
       templateSpans(2),
-      TemplateContextReference(Key("document.content"), required = true),
+      TemplateContextReference(Key("document","content"), required = true),
       templateSpans(3)
     ))
   }

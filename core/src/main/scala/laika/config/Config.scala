@@ -62,37 +62,46 @@ trait Config {
 
   /** Retrieve a required value for the specified key and decoder.
     */
-  def get[T](key: Path)(implicit decoder: ConfigDecoder[T]): ConfigResult[T]
+  def get[T](key: Key)(implicit decoder: ConfigDecoder[T]): ConfigResult[T]
+  
+  @deprecated("use get(Key)", "0.13.0")
+  def get[T](key: Path)(implicit decoder: ConfigDecoder[T]): ConfigResult[T] = get(Key.fromPath(key))
 
   /** Retrieve a required value for the specified key and decoder.
     */
-  def get[T](key: String)(implicit decoder: ConfigDecoder[T]): ConfigResult[T] = get[T](Key(key))
+  def get[T](key: String)(implicit decoder: ConfigDecoder[T]): ConfigResult[T] = get[T](Key.parse(key))
 
   /** Retrieve an optional value for the specified key and decoder, falling back to the
     * given default if the value is missing.
     */
-  def get[T](key: Path, default: => T)(implicit decoder: ConfigDecoder[T]): ConfigResult[T] =
+  def get[T](key: Key, default: => T)(implicit decoder: ConfigDecoder[T]): ConfigResult[T] =
     getOpt(key).map(_.getOrElse(default))
 
+  @deprecated("use get(Key)", "0.13.0")
+  def get[T](key: Path, default: => T)(implicit decoder: ConfigDecoder[T]): ConfigResult[T] = get(Key.fromPath(key), default)
+
   /** Retrieve an optional value for the specified key and decoder, falling back to the
     * given default if the value is missing.
     */
-  def get[T](key: String, default: => T)(implicit decoder: ConfigDecoder[T]): ConfigResult[T] = get[T](Key(key), default)
+  def get[T](key: String, default: => T)(implicit decoder: ConfigDecoder[T]): ConfigResult[T] = get[T](Key.parse(key), default)
 
   /** Retrieve an optional value for the specified key and decoder.
     * The result is still an Either as this method might still fail even if the value is present in
     * case the decoding fails.
     */
-  def getOpt[T](key: Path)(implicit decoder: ConfigDecoder[T]): ConfigResult[Option[T]] = get(key).fold(
+  def getOpt[T](key: Key)(implicit decoder: ConfigDecoder[T]): ConfigResult[Option[T]] = get(key).fold(
     e => if (e.isInstanceOf[NotFound]) Right(None) else Left(e),
     r => Right(Some(r))
   )
 
+  @deprecated("use getOpt(Key)", "0.13.0")
+  def getOpt[T](key: Path)(implicit decoder: ConfigDecoder[T]): ConfigResult[Option[T]] = getOpt[T](Key.fromPath(key))
+
   /** Retrieve an optional value for the specified key and decoder.
     * The result is still an Either as this method might still fail even if the value is present in
     * case the decoding fails.
     */
-  def getOpt[T](key: String)(implicit decoder: ConfigDecoder[T]): ConfigResult[Option[T]] = getOpt[T](Key(key))
+  def getOpt[T](key: String)(implicit decoder: ConfigDecoder[T]): ConfigResult[Option[T]] = getOpt[T](Key.parse(key))
 
   /** Retrieve a required value for the specified implicit key and decoder.
     * 
@@ -130,7 +139,7 @@ class ObjectConfig (private[laika] val root: ObjectValue,
                     val origin: Origin,
                     private[laika] val fallback: Config = EmptyConfig) extends Config {
 
-  private def lookup(keySegments: List[String], target: ObjectValue): Option[Field] = {
+  private def lookup(keySegments: Seq[String], target: ObjectValue): Option[Field] = {
     (target.values.find(_.key == keySegments.head), keySegments.tail) match {
       case (res, Nil) => res
       case (Some(Field(_, ov: ObjectValue, _)), rest) => lookup(rest, ov)
@@ -138,13 +147,13 @@ class ObjectConfig (private[laika] val root: ObjectValue,
     }
   }
 
-  private def lookup(path: Path): Option[Field] =
-    if (path == Path.Root) Some(Field("", root, origin)) else lookup(path.components, root).orElse {
-      if (path.components.head == "config") lookup(Path(path.components.tail)) // legacy path prefix pre-0.12
+  private def lookup(key: Key): Option[Field] =
+    if (key.segments.isEmpty) Some(Field("", root, origin)) else lookup(key.segments, root).orElse {
+      if (key.segments.head == "config") lookup(Key(key.segments.tail)) // legacy path prefix pre-0.12
       else None
     }
 
-  def get[T](key: Path)(implicit decoder: ConfigDecoder[T]): ConfigResult[T] = {
+  def get[T](key: Key)(implicit decoder: ConfigDecoder[T]): ConfigResult[T] = {
     lookup(key).fold(fallback.get[T](key)) { field =>
       val res = field match {
         case Field(_, ov: ObjectValue, _) => fallback.get[ConfigValue](key).toOption match {
@@ -177,7 +186,7 @@ object EmptyConfig extends Config {
 
   val origin: Origin = Origin.root
   
-  def get[T](key: Path)(implicit decoder: ConfigDecoder[T]): ConfigResult[T] = Left(NotFound(key))
+  def get[T](key: Key)(implicit decoder: ConfigDecoder[T]): ConfigResult[T] = Left(NotFound(key))
 
   def withFallback(other: Config): Config = other
   

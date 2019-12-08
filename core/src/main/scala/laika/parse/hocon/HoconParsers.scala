@@ -16,7 +16,6 @@
 
 package laika.parse.hocon
 
-import laika.ast.Path.Root
 import laika.ast.{Path, ~}
 import laika.config._
 import laika.parse.text.{Characters, TextParsers}
@@ -210,7 +209,7 @@ object HoconParsers {
   }
 
   /** Parses a key based on the HOCON rules where a '.' in a quoted string is not interpreted as a path separator. */
-  def concatenatedKey(delimiter: Set[Char]): Parser[Either[InvalidStringValue, Path]] = {
+  def concatenatedKey(delimiter: Set[Char]): Parser[Either[InvalidStringValue, Key]] = {
     val string = quotedString.map(PathFragments.quoted) | unquotedString(delimiter).map(PathFragments.unquoted)
     val parts = (ws.map(PathFragments.whitespace) ~ string).map { case s ~ fr => s.join(fr) }
     (string ~ parts.rep).map {
@@ -221,7 +220,7 @@ object HoconParsers {
           case error :: _ => Left(InvalidStringValue(keyStrings.mkString("."), error.failure.copy(
             msgProvider = res => "Invalid key: " + error.failure.msgProvider.message(res)))
           )
-          case _          => Right(Path(keyStrings.toList))
+          case _          => Right(Key(keyStrings.toList))
         }
     }
   }
@@ -299,7 +298,7 @@ object HoconParsers {
     lazy val withoutSeparator = ws ~> objectValue <~ ws
     val msg = "Expected separator after key ('=', '+=', ':' or '{')"
     val fallback = failWith(ws.count <~ anyBut('\n'), msg)(InvalidBuilderValue(SelfReference,_))
-    val includeField = include.map(BuilderField(Right(Root), _))
+    val includeField = include.map(BuilderField(Right(Key.root), _))
     val valueField = (key ~ (withSeparator | withoutSeparator | fallback)).map { case k ~ v => BuilderField(k, v) }
     lazy val member = includeField | valueField
     lazy val members = opt(member ~ (separator ~> member).rep).map(_.fold(Seq.empty[BuilderField]) { case m ~ ms => m +: ms })

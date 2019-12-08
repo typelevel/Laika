@@ -54,7 +54,7 @@ trait BlockResolver extends Block {
  *  - `config`: all configuration values for the current document,
  *    including those inherited from parent trees
  */
-abstract class ContextReference[T <: Span] (ref: Path) extends SpanResolver {
+abstract class ContextReference[T <: Span] (ref: Key) extends SpanResolver {
 
   def result (value: ConfigResult[Option[ConfigValue]]): T
 
@@ -66,17 +66,16 @@ abstract class ContextReference[T <: Span] (ref: Path) extends SpanResolver {
     }
   }
 
-  private def renderRef: String = ref.components.mkString(".")
-  private def error(message: String): InvalidElement = InvalidElement(message, "${"+renderRef+"}")
-  protected def missing: InvalidElement = error(s"Missing required reference: '$renderRef'")
-  protected def invalid(cError: ConfigError): InvalidElement = error(s"Error resolving reference: '$renderRef': ${cError.message}")
-  protected def invalidType(value: ConfigValue): InvalidElement = error(s"Error resolving reference: '$renderRef': " +
+  private def error(message: String): InvalidElement = InvalidElement(message, "${"+ref+"}")
+  protected def missing: InvalidElement = error(s"Missing required reference: '$ref'")
+  protected def invalid(cError: ConfigError): InvalidElement = error(s"Error resolving reference: '$ref': ${cError.message}")
+  protected def invalidType(value: ConfigValue): InvalidElement = error(s"Error resolving reference: '$ref': " +
     InvalidType("AST Element or Simple Value", value).message)
 }
 
 /** A context reference specifically for use in template documents.
  */
-case class TemplateContextReference (ref: Path, required: Boolean, options: Options = NoOpt) extends ContextReference[TemplateSpan](ref) with TemplateSpan {
+case class TemplateContextReference (ref: Key, required: Boolean, options: Options = NoOpt) extends ContextReference[TemplateSpan](ref) with TemplateSpan {
   type Self = TemplateContextReference
   
   def result (value: ConfigResult[Option[ConfigValue]]): TemplateSpan = value match {
@@ -94,7 +93,7 @@ case class TemplateContextReference (ref: Path, required: Boolean, options: Opti
 
 /** A context reference specifically for use in markup documents.
  */
-case class MarkupContextReference (ref: Path, required: Boolean, options: Options = NoOpt) extends ContextReference[Span](ref) {
+case class MarkupContextReference (ref: Key, required: Boolean, options: Options = NoOpt) extends ContextReference[Span](ref) {
   type Self = MarkupContextReference
 
   def result (value: ConfigResult[Option[ConfigValue]]): Span = value match {
@@ -183,7 +182,7 @@ object TemplateRoot {
   /** A fallback instance that can be used when no user-specified template
     * is available. It simply inserts the content of the parsed markup document
     * without any surrounding decoration. */
-  val fallback = TemplateRoot(List(TemplateContextReference(Key("document.content"), required = true)))
+  val fallback = TemplateRoot(List(TemplateContextReference(Key("document","content"), required = true)))
 }
 
 /** The root element of a document tree (originating from text markup) inside a template.
