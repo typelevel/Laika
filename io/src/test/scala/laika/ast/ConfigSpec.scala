@@ -77,12 +77,19 @@ class ConfigSpec extends FlatSpec
           |aaa
           |bbb""".stripMargin
 
+      val markupWithPathConfig =
+        """{% foo: ../foo.txt %}
+          |aaa
+          |bbb""".stripMargin
+
       val markupWithRef =
         """aaa
           |${config.foo}
           |bbb""".stripMargin
       
       val configDoc = """foo = bar"""
+
+      val configDocWithPath = """foo = ../foo.txt"""
 
       val markupWithMergeableConfig =
         """{% foo.bar: 7 %}
@@ -92,10 +99,13 @@ class ConfigSpec extends FlatSpec
       val mergeableConfig = """{ foo.baz = 9 }"""
     }
     
-    def resultOf (root: DocumentTreeRoot): RootElement = {
-      val result = TemplateRewriter.applyTemplates(root, "html").toOption.get.tree
-      result.content.collect{case doc: Document => doc}.head.content
-    }
+    def resultOf (root: DocumentTreeRoot): RootElement = resultDoc(root).content
+
+    def resultDoc (root: DocumentTreeRoot): Document =
+      resultTree(root).content.collect{case doc: Document => doc}.head
+
+    def resultTree (root: DocumentTreeRoot): DocumentTree =
+      TemplateRewriter.applyTemplates(root, "html").toOption.get.tree
     
   }
   
@@ -252,6 +262,28 @@ class ConfigSpec extends FlatSpec
       .fromInput(IO.pure(builder(inputs, mdMatcher)))
     val result = TemplateRewriter.applyTemplates(op.parse.unsafeRunSync().root, "html").toOption.get.tree
     result.selectDocument(Path.Current / "dir" / "input.md").get.content should be (expected)
+  }
+  
+  it should "decode a path in a document config header" in new Inputs {
+    val inputs = Seq(
+      Root / "dir" / "input.md" -> Contents.markupWithPathConfig
+    )
+    
+    val tree = resultTree(rstParser.fromInput(IO.pure(builder(inputs, mdMatcher))).parse.unsafeRunSync().root)
+    val doc = tree.selectDocument(Path.Current / "dir" / "input.md")
+    
+    doc.get.config.get[Path]("foo") shouldBe Right(Path.Current / "foo.txt")
+  }
+
+  it should "decode a path in a directory config file in a nested directory" in new Inputs {
+    val inputs = Seq(
+      Root / "dir" / "directory.conf" -> Contents.configDocWithPath
+    )
+
+    val tree = resultTree(rstParser.fromInput(IO.pure(builder(inputs, mdMatcher))).parse.unsafeRunSync().root)
+    val subTree = tree.selectSubtree(Path.Current / "dir")
+
+    subTree.get.config.get[Path]("foo") shouldBe Right(Path.Current / "foo.txt")
   }
   
 }
