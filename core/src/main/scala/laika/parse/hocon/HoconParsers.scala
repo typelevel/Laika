@@ -176,7 +176,10 @@ object HoconParsers {
   val multilineString: Parser[ConfigBuilderValue] = {
     val msg = "Expected closing triple quote"
     val fallback = failWith(any.count, msg)(InvalidBuilderValue(SelfReference,_))
-    "\"\"\"" ~> (delimitedBy("\"\"\"").map(ValidStringValue) | fallback)
+    val content = delimitedBy("\"\"\"") ~ anyOf('\"') ^^ {
+      case text ~ extraQuotes => ValidStringValue(text + extraQuotes)
+    }
+    "\"\"\"" ~> (content | fallback)
   }
 
   /** Parses an unquoted string that is not allowed to contain any of the reserved characters listed in the HOCON spec. */

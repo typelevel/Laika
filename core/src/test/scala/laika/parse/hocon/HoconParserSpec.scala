@@ -141,6 +141,15 @@ class HoconParserSpec extends WordSpec with Matchers with ParseResultHelpers wit
       Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(f("a","foo"), f("s", "Line 1\n Line 2\n Line 3"))))
     }
 
+    "parse a multiline string property with more than 3 closing quotes" in {
+      val input =
+        """"a": "foo", 
+          |"s": +++Line 1
+          | Line 2
+          | Line 3+++++""".stripMargin.replaceAllLiterally("+", "\"")
+      Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(f("a","foo"), f("s", "Line 1\n Line 2\n Line 3\"\""))))
+    }
+
     "ignore escapes in a multiline string property" in {
       val input =
         """"a": "foo", 
