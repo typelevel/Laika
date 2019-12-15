@@ -23,6 +23,7 @@ import cats.effect.{Async, Resource}
 import cats.implicits._
 import laika.ast.Path
 import laika.ast.Path.Root
+import laika.config.ConfigException
 import laika.format.EPUB
 import laika.io.model._
 import laika.io.runtime.Runtime
@@ -101,9 +102,11 @@ class ContainerWriter {
     */
   def write[F[_]: Async: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput[F]): F[Unit] = {
 
-    val inputs = collectInputs(result, ConfigFactory.forTreeConfig(result.config))
-
-    ZipWriter.zipEPUB(inputs, output)
+    for {
+      config <- Async[F].fromEither(ConfigFactory.forTreeConfig(result.config).left.map(ConfigException))
+      inputs =  collectInputs(result, config)
+      _      <- ZipWriter.zipEPUB(inputs, output)
+    } yield ()
 
   }
 
