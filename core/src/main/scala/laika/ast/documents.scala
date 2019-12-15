@@ -155,7 +155,8 @@ object DocumentMetadata {
     * from the specified configuration instance or returns
     * an empty instance.
     */
-  def fromConfig (config: Config): DocumentMetadata = config.get[DocumentMetadata].toOption.getOrElse(DocumentMetadata()) 
+  def fromConfig (config: Config): ConfigResult[DocumentMetadata] = 
+    config.getOpt[DocumentMetadata].map(_.getOrElse(DocumentMetadata())) 
 
 }
 

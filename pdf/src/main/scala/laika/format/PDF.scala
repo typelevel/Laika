@@ -96,12 +96,12 @@ class PDF private(val interimFormat: RenderFormat[FOFormatter], config: Option[P
   val postProcessor: BinaryPostProcessor = new BinaryPostProcessor {
     override def process[F[_]: Async: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput[F]): F[Unit] = {
       
-      val metadata = DocumentMetadata.fromConfig(result.config)
       val title = if (result.title.isEmpty) None else Some(SpanSequence(result.title).extractText)
 
       for {
-        fo <- Async[F].fromEither(FOConcatenation(result, config.getOrElse(PDFConfigBuilder.fromTreeConfig(result.config))).left.map(ConfigException))
-        _  <- renderer.render(fo, output, metadata, title, result.sourcePaths)
+        fo       <- Async[F].fromEither(FOConcatenation(result, config.getOrElse(PDFConfigBuilder.fromTreeConfig(result.config))).left.map(ConfigException))
+        metadata <- Async[F].fromEither(DocumentMetadata.fromConfig(result.config).left.map(ConfigException))
+        _        <- renderer.render(fo, output, metadata, title, result.sourcePaths)
       } yield ()
     }
   }

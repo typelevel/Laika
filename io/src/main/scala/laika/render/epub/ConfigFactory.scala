@@ -23,8 +23,8 @@ object ConfigFactory {
       tocDepth   <- config.get[Int]("epub.toc.depth", defaults.tocDepth)
       tocTitle   <- config.getOpt[String]("epub.toc.title")
       coverImage <- config.getOpt[String]("epub.coverImage")
+      metadata   <- DocumentMetadata.fromConfig(config)
     } yield {
-      val metadata = DocumentMetadata.fromConfig(config)
       EPUB.Config(metadata, tocDepth, tocTitle.orElse(defaults.tocTitle), coverImage.orElse(defaults.coverImage))
     }
     
