@@ -196,7 +196,7 @@ object Tasks {
       val apiMappings = (mappings in packageDoc in Compile).value
       val targetMappings = apiMappings map { case (file, target) => (file, targetDir / target) }
 
-      Sync(CacheStore(cacheDir))(targetMappings)
+      Sync.sync(CacheStore(cacheDir))(targetMappings)
 
       streams.value.log.info("Copied API documentation to " + targetDir)
       targetDir
@@ -217,7 +217,7 @@ object Tasks {
 
     if (laikaIncludeEPUB.value) task {
       val cacheDir = streams.value.cacheDirectory / "laika" / "site-epub"
-      Sync(CacheStore(cacheDir))(Seq((epubSource, epubTarget)))
+      Sync.sync(CacheStore(cacheDir))(Seq((epubSource, epubTarget)))
 
       streams.value.log.info("Copied EPUB output to " + targetDir)
       targetDir
@@ -238,7 +238,7 @@ object Tasks {
 
     if (laikaIncludePDF.value) task {
       val cacheDir = streams.value.cacheDirectory / "laika" / "site-pdf"
-      Sync(CacheStore(cacheDir))(Seq((pdfSource, pdfTarget)))
+      Sync.sync(CacheStore(cacheDir))(Seq((pdfSource, pdfTarget)))
 
       streams.value.log.info("Copied PDF output to " + targetDir)
       targetDir
