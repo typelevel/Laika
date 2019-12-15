@@ -45,20 +45,21 @@ class FOforPDFSpec extends FlatSpec with Matchers {
     val interimFormat: RenderFormat[FOFormatter] = XSLFO
     
     def prepareTree (root: DocumentTreeRoot): Either[Throwable, DocumentTreeRoot] = {
-      val pdfConfig = config.getOrElse(PDFConfigBuilder.fromTreeConfig(root.config))
+      val pdfConfig = config.map(Right(_)).getOrElse(PDFConfigBuilder.fromTreeConfig(root.config))
       val rootWithTemplate = root.copy(tree = root.tree.withDefaultTemplate(TemplateRoot.fallback, "fo"))
-      Right(PDFNavigation.prepareTree(rootWithTemplate, pdfConfig))
+      pdfConfig.map(PDFNavigation.prepareTree(rootWithTemplate, _)).left.map(ConfigException)
     }
 
     object postProcessor extends BinaryPostProcessor {
 
       override def process[F[_]: Async: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput[F]): F[Unit] = {
 
-        val foRes = FOConcatenation(result, config.getOrElse(PDFConfigBuilder.fromTreeConfig(result.config)))
+        val pdfConfig = config.map(Right(_)).getOrElse(PDFConfigBuilder.fromTreeConfig(result.config))
         
         output.resource.use { out =>
           for {
-            fo <- Async[F].fromEither(foRes.left.map(ConfigException)): F[String]
+            config <- Async[F].fromEither(pdfConfig.left.map(ConfigException))
+            fo <- Async[F].fromEither(FOConcatenation(result, config).left.map(ConfigException)): F[String]
             _  <- Async[F].delay(out.write(fo.getBytes("UTF-8"))): F[Unit]
           } yield ()
         }

@@ -17,6 +17,7 @@
 package laika.render.pdf
 
 import laika.config.Config
+import laika.config.Config.ConfigResult
 import laika.format.PDF
 
 /** Builds PDF configuration instances from configuration embedded in document trees.
@@ -27,18 +28,16 @@ object PDFConfigBuilder {
 
   /** Builds PDF configuration instances from configuration embedded in the specified document trees.
     */
-  def fromTreeConfig (treeConfig: Config): PDF.Config = {
+  def fromTreeConfig (treeConfig: Config): ConfigResult[PDF.Config] = {
     val defaults = PDF.Config.default
 
-    val res = for {
+    for {
       bookmarkDepth <- treeConfig.get[Int]("pdf.bookmarks.depth", defaults.bookmarkDepth)
       tocDepth      <- treeConfig.get[Int]("pdf.toc.depth", defaults.tocDepth)
       tocTitle      <- treeConfig.getOpt[String]("pdf.toc.title")
     } yield {
       PDF.Config(bookmarkDepth, tocDepth, tocTitle.orElse(defaults.tocTitle))
     }
-
-    res.toOption.getOrElse(defaults) // TODO - error handling
   }
   
 }

@@ -85,9 +85,9 @@ class PDF private(val interimFormat: RenderFormat[FOFormatter], config: Option[P
     * The modified tree will be used for rendering the interim XSL-FO result.
     */
   def prepareTree (root: DocumentTreeRoot): Either[Throwable, DocumentTreeRoot] = {
-    val pdfConfig = config.getOrElse(PDFConfigBuilder.fromTreeConfig(root.config))
+    val pdfConfig = config.map(Right(_)).getOrElse(PDFConfigBuilder.fromTreeConfig(root.config))
     val rootWithTemplate = root.copy(tree = root.tree.withDefaultTemplate(TemplateRoot.fallback, "fo"))
-    Right(PDFNavigation.prepareTree(rootWithTemplate, pdfConfig))
+    pdfConfig.map(PDFNavigation.prepareTree(rootWithTemplate, _)).left.map(ConfigException)
   }
 
   /** Processes the interim XSL-FO result, transforms it to PDF and writes
@@ -97,9 +97,11 @@ class PDF private(val interimFormat: RenderFormat[FOFormatter], config: Option[P
     override def process[F[_]: Async: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput[F]): F[Unit] = {
       
       val title = if (result.title.isEmpty) None else Some(SpanSequence(result.title).extractText)
-
+      val pdfConfig = config.map(Right(_)).getOrElse(PDFConfigBuilder.fromTreeConfig(result.config))
+      
       for {
-        fo       <- Async[F].fromEither(FOConcatenation(result, config.getOrElse(PDFConfigBuilder.fromTreeConfig(result.config))).left.map(ConfigException))
+        config   <- Async[F].fromEither(pdfConfig.left.map(ConfigException))
+        fo       <- Async[F].fromEither(FOConcatenation(result, config).left.map(ConfigException))
         metadata <- Async[F].fromEither(DocumentMetadata.fromConfig(result.config).left.map(ConfigException))
         _        <- renderer.render(fo, output, metadata, title, result.sourcePaths)
       } yield ()
