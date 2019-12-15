@@ -220,6 +220,9 @@ after the directory name in case there is no default attribute.
 The order of attributes does not matter, it does not need to match
 the order you declared them in (that's why they have names after all).
 
+The syntax for attributes is HOCON and it supports the full spec except
+for file includes.
+
 Markup example:
 
     @:name { myAttr=value }
@@ -227,6 +230,26 @@ Markup example:
 Combinator:
 
     attribute("myAttr")
+
+
+### All Attributes
+
+If you want the full flexibility of accepting any kind of attribute without
+knowing the expected names upfront, you can use the `allAttributes` combinator.
+
+    val directive = Spans.create("custom") {
+      (allAttributes, body).mapN { (attributes, bodyContent) => 
+        val path = attributes.getOpt[Path]("filePath")
+        val index = attributes.getOpt[Int]("index")
+        ...
+      }
+    }
+
+This combinator gives you an instance of `Config` as a result, Laika's configuration API, 
+and you can manually inspect the values it contains. This naturally leaves the burden
+of validation and error handling (e.g. for required values or type conversions)
+with the implementor of the directive. It should therefore only be used when
+this level of flexibility is really required.
 
 
 ### Body
