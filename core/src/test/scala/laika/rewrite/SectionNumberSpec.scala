@@ -119,6 +119,14 @@ class SectionNumberSpec extends FlatSpec
     val numberSections = false
     val numberDocs = false
   }
+
+  trait InvalidConfig {
+    val config = """autonumbering { 
+                   |  scope: xxx
+                   |}""".stripMargin
+    val numberSections = false
+    val numberDocs = false
+  }
   
   
   trait SectionsWithTitle extends TreeModel {
@@ -149,7 +157,7 @@ class SectionNumberSpec extends FlatSpec
   }
   
   trait SectionsWithoutTitle extends TreeModel {
-    val sections = RootElement(
+    def sections = RootElement(
       header(1,1) ::
       header(2,2) ::
       header(1,3) ::
@@ -170,6 +178,20 @@ class SectionNumberSpec extends FlatSpec
 
     lazy val expected: TreeView = treeView(resultView)
     lazy val result: TreeView = viewOf(tree(sections).rewrite(OperationConfig.default.rewriteRules))
+  }
+  
+  trait SectionsWithConfigError extends SectionsWithoutTitle {
+    override def resultView (docNum: List[Int]): List[DocumentContent] = List(
+      Content(List(
+        InvalidElement("Invalid value for autonumbering.scope: xxx", "").asBlock,
+        numberedSection(1,1, docNum:+1, numberedSection(2,2, docNum:+1:+1)),
+        numberedSection(1,3, docNum:+2, numberedSection(2,4, docNum:+2:+1))
+      )),
+      Sections(List(
+        numberedSectionInfo(1,1, docNum:+1, numberedSectionInfo(2,2, docNum:+1:+1)),
+        numberedSectionInfo(1,3, docNum:+2, numberedSectionInfo(2,4, docNum:+2:+1))
+      ))
+    )
   }
   
   
@@ -226,7 +248,14 @@ class SectionNumberSpec extends FlatSpec
       override val depth = Some(2)
       result should be (expected)
     }
-  } 
-  
-  
+  }
+
+  it should "insert an invalid element for invalid configuration" in {
+    new SectionsWithConfigError with InvalidConfig {
+      val invalidElement = 
+      result should be (expected)
+    }
+  }
+
+
 }

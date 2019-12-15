@@ -75,7 +75,7 @@ sealed trait TreeContent extends Navigatable {
     config.get[Traced[String]]("title").toOption.flatMap { tracedTitle =>
       if (tracedTitle.origin.scope == configScope) {
         val title = List(Text(tracedTitle.value))
-        val autonumberConfig = AutonumberConfig.fromConfig(config)
+        val autonumberConfig = AutonumberConfig.fromConfig(config).toOption.getOrElse(AutonumberConfig.defaults)
         val autonumberEnabled = autonumberConfig.documents && position.depth < autonumberConfig.maxDepth
         if (autonumberEnabled) Some(position.toSpan +: title)
         else Some(title)

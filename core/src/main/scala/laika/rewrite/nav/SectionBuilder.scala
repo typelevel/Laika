@@ -72,7 +72,10 @@ object SectionBuilder extends (DocumentCursor => RewriteRules) {
       
       val numberedSections: Seq[Block] = {
         
-        val autonumberConfig = AutonumberConfig.fromConfig(cursor.config)
+        val (errorBlock, autonumberConfig) = AutonumberConfig.fromConfig(cursor.config).fold(
+          error => (Some(InvalidElement(error.message, "").asBlock), AutonumberConfig.defaults),
+          (None, _)
+        )
 
         val hasTitle = sectionStructure collect { case s:Section => s } match {
           case _ :: Nil => true
@@ -118,9 +121,11 @@ object SectionBuilder extends (DocumentCursor => RewriteRules) {
           }._1.toList
         }
         
-        if (autonumberConfig.sections) numberSections(sectionStructure, docPosition, hasTitle)
-        else if (hasTitle) transformRootBlocks(sectionStructure)
-        else sectionStructure
+        val blocks = if (autonumberConfig.sections) numberSections(sectionStructure, docPosition, hasTitle)
+          else if (hasTitle) transformRootBlocks(sectionStructure)
+          else sectionStructure
+        
+        errorBlock.toSeq ++ blocks
       }
       
       RootElement(numberedSections)

@@ -42,7 +42,7 @@ case class ValidationError(message: String) extends ConfigError
 
 /** An error that occurred when parsing HOCON input. */
 case class ConfigParserError(failure: Failure) extends ConfigError {
-  val message = failure.message
+  val message = failure.toString
 }
 
 /** Multiple errors that occurred when parsing HOCON input. */

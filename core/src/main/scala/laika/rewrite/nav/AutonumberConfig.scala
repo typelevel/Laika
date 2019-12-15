@@ -16,6 +16,7 @@
 
 package laika.rewrite.nav
 
+import laika.config.Config.ConfigResult
 import laika.config.{Config, ConfigDecoder, ConfigValue, DefaultKey, InvalidType, ObjectValue, Traced, ValidationError}
 
 /** Configuration for autonumbering of documents and sections.
@@ -79,7 +80,8 @@ object AutonumberConfig {
    *  from the specified configuration instance or returns
    *  the default configuration if not found.
    */
-  def fromConfig (config: Config): AutonumberConfig = config.get[AutonumberConfig].toOption.getOrElse(defaults)
+  def fromConfig (config: Config): ConfigResult[AutonumberConfig] = 
+    config.getOpt[AutonumberConfig].map(_.getOrElse(defaults))
   
   /** The defaults for autonumbering with section
    *  and document numbering both switched off. 
