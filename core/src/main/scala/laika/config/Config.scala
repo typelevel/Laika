@@ -94,6 +94,17 @@ trait Config {
     r => Right(Some(r))
   )
 
+  /** Retrieve an optional value for the specified implicit key and decoder.
+    * 
+    * A defaultKey can be used for commonly used configuration objects like `AutonumberConfig`
+    * that are expected to be mapped to a specific key, like `autonumbering`.
+    * 
+    * The result is still an Either as this method might still fail even if the value is present in
+    * case the decoding fails.
+    */
+  def getOpt[T](implicit decoder: ConfigDecoder[T], defaultKey: DefaultKey[T]): ConfigResult[Option[T]] = 
+    getOpt(defaultKey.value)
+
   @deprecated("use getOpt(Key)", "0.13.0")
   def getOpt[T](key: Path)(implicit decoder: ConfigDecoder[T]): ConfigResult[Option[T]] = getOpt[T](Key.fromPath(key))
 
