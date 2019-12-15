@@ -19,7 +19,7 @@ package laika.ast
 import java.time.Instant
 import java.util.Locale
 
-import laika.config.{ConfigBuilder, ConfigParser}
+import laika.config.{ConfigBuilder, ConfigParser, DecodingError}
 import org.scalatest.{FlatSpec, Matchers}
 
 class DocumentMetadataSpec extends FlatSpec with Matchers {
@@ -35,20 +35,34 @@ class DocumentMetadataSpec extends FlatSpec with Matchers {
         |}
       """.stripMargin
     val config = ConfigParser.parse(configString).resolve.toOption.get
-    DocumentMetadata.fromConfig(config) shouldBe DocumentMetadata(Some("urn:isbn:9781449325299"), Seq("Mia Miller"),
-      Some(Locale.forLanguageTag("en:UK")), Some(Instant.parse("2000-01-01T00:00:00Z")))
+    DocumentMetadata.fromConfig(config) shouldBe Right(DocumentMetadata(Some("urn:isbn:9781449325299"), Seq("Mia Miller"),
+      Some(Locale.forLanguageTag("en:UK")), Some(Instant.parse("2000-01-01T00:00:00Z"))))
   }
 
   it should "populate multiple authors" in {
     val configString =
       """metadata.authors: ["Mia Miller", "Naomi Nader"]"""
     val config = ConfigParser.parse(configString).resolve.toOption.get
-    DocumentMetadata.fromConfig(config) shouldBe DocumentMetadata(authors = Seq("Mia Miller", "Naomi Nader"))
+    DocumentMetadata.fromConfig(config) shouldBe Right(DocumentMetadata(authors = Seq("Mia Miller", "Naomi Nader")))
   }
 
   it should "provide an empty instance when there is no metadata entry" in {
     val config = ConfigBuilder.empty.withValue("foo", "bar").build
-    DocumentMetadata.fromConfig(config) shouldBe DocumentMetadata()
+    DocumentMetadata.fromConfig(config) shouldBe Right(DocumentMetadata())
+  }
+
+  it should "fail with an invalid date" in {
+    val configString =
+      """
+        |metadata: {
+        |  identifier: "urn:isbn:9781449325299"
+        |  date: "2000-XX-01T00:00:00Z"
+        |  author: "Mia Miller"
+        |  language: "en:UK"
+        |}
+      """.stripMargin
+    val config = ConfigParser.parse(configString).resolve.toOption.get
+    DocumentMetadata.fromConfig(config) shouldBe Left(DecodingError("Invalid date format: Text '2000-XX-01T00:00:00Z' could not be parsed at index 5"))
   }
 
 }
