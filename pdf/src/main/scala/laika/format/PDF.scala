@@ -84,10 +84,10 @@ class PDF private(val interimFormat: RenderFormat[FOFormatter], config: Option[P
   /** Adds PDF bookmarks and/or a table of content to the specified document tree, depending on configuration.
     * The modified tree will be used for rendering the interim XSL-FO result.
     */
-  def prepareTree (root: DocumentTreeRoot): DocumentTreeRoot = {
+  def prepareTree (root: DocumentTreeRoot): Either[Throwable, DocumentTreeRoot] = {
     val pdfConfig = config.getOrElse(PDFConfigBuilder.fromTreeConfig(root.config))
     val rootWithTemplate = root.copy(tree = root.tree.withDefaultTemplate(TemplateRoot.fallback, "fo"))
-    PDFNavigation.prepareTree(rootWithTemplate, pdfConfig)
+    Right(PDFNavigation.prepareTree(rootWithTemplate, pdfConfig))
   }
 
   /** Processes the interim XSL-FO result, transforms it to PDF and writes

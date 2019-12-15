@@ -44,10 +44,10 @@ class FOforPDFSpec extends FlatSpec with Matchers {
     
     val interimFormat: RenderFormat[FOFormatter] = XSLFO
     
-    def prepareTree (root: DocumentTreeRoot): DocumentTreeRoot = {
+    def prepareTree (root: DocumentTreeRoot): Either[Throwable, DocumentTreeRoot] = {
       val pdfConfig = config.getOrElse(PDFConfigBuilder.fromTreeConfig(root.config))
       val rootWithTemplate = root.copy(tree = root.tree.withDefaultTemplate(TemplateRoot.fallback, "fo"))
-      PDFNavigation.prepareTree(rootWithTemplate, pdfConfig)
+      Right(PDFNavigation.prepareTree(rootWithTemplate, pdfConfig))
     }
 
     object postProcessor extends BinaryPostProcessor {

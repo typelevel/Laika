@@ -38,7 +38,7 @@ import laika.factory.TwoPhaseRenderFormat
   * @author Jens Halm
   */
 case class TwoPhaseRenderer[PP] (interimRenderer: Renderer,
-                                 prepareTree: DocumentTreeRoot => DocumentTreeRoot,
+                                 prepareTree: DocumentTreeRoot => Either[Throwable, DocumentTreeRoot],
                                  postProcessor: PP)
 
 

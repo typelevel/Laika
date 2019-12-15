@@ -151,8 +151,8 @@ object RendererRuntime {
     */
   def run[F[_]: Async: Runtime] (op: binary.ParallelRenderer.Op[F]): F[Unit] = {
     val template = op.renderer.interimRenderer.templateFor(op.input)
-    val preparedTree = op.renderer.prepareTree(op.input)
     for {
+      preparedTree <- Async[F].fromEither(op.renderer.prepareTree(op.input))
       renderedTree <- run(ParallelRenderer.Op[F](op.renderer.interimRenderer, preparedTree, StringTreeOutput))
       _            <- op.renderer.postProcessor.process(renderedTree.copy[F](defaultTemplate = template, staticDocuments = op.staticDocuments), op.output)
     } yield ()

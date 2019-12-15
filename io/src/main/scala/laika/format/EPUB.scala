@@ -100,16 +100,16 @@ object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor] {
     * and a fallback CSS resource (if the input tree did not contain any CSS),
     * before the tree gets passed to the XHTML renderer.
     */
-  def prepareTree (tree: DocumentTreeRoot): DocumentTreeRoot = {
+  def prepareTree (tree: DocumentTreeRoot): Either[Throwable, DocumentTreeRoot] = {
     val treeConfig = ConfigFactory.forTreeConfig(tree.config)
     val treeWithStyles = StyleSupport.ensureContainsStyles(tree)
-    treeConfig.coverImage.fold(tree) { image =>
+    Right(treeConfig.coverImage.fold(tree) { image =>
       treeWithStyles.copy(tree = treeWithStyles.tree.copy(
         content = Document(Root / "cover", 
           RootElement(Seq(SpanSequence(Seq(Image("cover", URI(image)))))), 
         config = ConfigBuilder.empty.withValue("title", "Cover").build) +: tree.tree.content
       ))
-    }
+    })
   }
 
   /** Produces an EPUB container from the specified result tree.

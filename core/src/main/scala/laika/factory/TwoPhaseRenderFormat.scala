@@ -22,7 +22,7 @@ trait TwoPhaseRenderFormat[FMT, PP] {
     * The modified tree produced by this method will be used for
     * rendering the interim format specified with the `format` property.
     */
-  def prepareTree (tree: DocumentTreeRoot): DocumentTreeRoot
+  def prepareTree (tree: DocumentTreeRoot): Either[Throwable, DocumentTreeRoot]
 
   /** Post processor that produces the final result based on the interim format.
    */

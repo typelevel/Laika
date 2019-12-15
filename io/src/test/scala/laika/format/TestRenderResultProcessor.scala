@@ -11,7 +11,7 @@ object TestRenderResultProcessor extends TwoPhaseRenderFormat[TextFormatter, Bin
 
   val interimFormat: RenderFormat[TextFormatter] = AST
 
-  def prepareTree (tree: DocumentTreeRoot): DocumentTreeRoot = tree
+  def prepareTree (tree: DocumentTreeRoot): Either[Throwable, DocumentTreeRoot] = Right(tree)
 
   object postProcessor extends BinaryPostProcessor {
     
