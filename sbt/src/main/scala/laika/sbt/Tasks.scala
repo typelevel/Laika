@@ -145,8 +145,14 @@ object Tasks {
     val inputFiles = collectInputFiles(inputCollection)
 
     val results = formats map { format =>
+      
+      val cacheFormatDir = format match {
+        case OutputFormat.PDF => (artifactPath in laikaPDF).value.name
+        case OutputFormat.EPUB => (artifactPath in laikaEPUB).value.name
+        case other => other.toString.toLowerCase
+      }
 
-      val fun = FileFunction.cached(cacheDir / format.toString.toLowerCase, FilesInfo.lastModified, FilesInfo.exists) { _ =>
+      val fun = FileFunction.cached(cacheDir / cacheFormatDir, FilesInfo.lastModified, FilesInfo.exists) { _ =>
         format match {
           case OutputFormat.HTML  => renderWithFormat(HTML, (target in laikaSite).value, "HTML")
           case OutputFormat.AST   => renderWithFormat(AST, (target in laikaAST).value, "Formatted AST")
