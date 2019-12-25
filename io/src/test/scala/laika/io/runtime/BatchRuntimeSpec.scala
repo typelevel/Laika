@@ -17,47 +17,45 @@
 package laika.io.runtime
 
 import cats.effect.IO
-import org.scalatest.{Matchers, WordSpec}
 import cats.implicits._
+import laika.io.IOSpec
 
-class BatchRuntimeSpec extends WordSpec with Matchers {
+class BatchRuntimeSpec extends IOSpec {
 
   trait Setup {
 
     val dummyOp: IO[Unit] = IO.unit
 
-    def batchCount(numOps: Int, parallelism: Int): Seq[Int] = {
+    def batchCount(numOps: Int, parallelism: Int): IO[Seq[Int]] = {
       val ops = Vector.fill(numOps)(dummyOp)
       BatchRuntime
         .createBatches[IO, Unit](ops, parallelism)
         .sequence[IO, Vector[Unit]]
         .map(_.map(_.size))
-        .unsafeRunSync()
     }
 
   }
 
-
   "The Executor" should {
 
     "create a single batch when parallelism is 1" in new Setup {
-      batchCount(5, 1) shouldBe Seq(5)
+      batchCount(5, 1).assertEquals(Seq(5))
     }
 
     "create batches of size 1 when the number of operations is lower than the parallelism" in new Setup {
-      batchCount(3, 5) shouldBe Seq(1,1,1)
+      batchCount(3, 5).assertEquals(Seq(1,1,1))
     }
 
     "create batches of size 1 when the number of operations is equal to the parallelism" in new Setup {
-      batchCount(4, 4) shouldBe Seq(1,1,1,1)
+      batchCount(4, 4).assertEquals(Seq(1,1,1,1))
     }
 
     "create batches of variable size when the number of operations is not a multiple of the parallelism" in new Setup {
-      batchCount(9, 4) shouldBe Seq(3,2,2,2)
+      batchCount(9, 4).assertEquals(Seq(3,2,2,2))
     }
 
     "create batches of equal size when the number of operations is a multiple of the parallelism" in new Setup {
-      batchCount(9, 3) shouldBe Seq(3,3,3)
+      batchCount(9, 3).assertEquals(Seq(3,3,3))
     }
 
   }

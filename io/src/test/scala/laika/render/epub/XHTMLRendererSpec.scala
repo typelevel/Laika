@@ -22,17 +22,17 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.EPUB
+import laika.io.IOSpec
 import laika.io.implicits._
-import laika.io.model.{RenderedDocument, RenderedTree, RenderedTreeRoot, StringTreeOutput}
+import laika.io.model.{RenderedDocument, RenderedTree, StringTreeOutput}
 import laika.io.runtime.TestContexts.blocker
-import org.scalatest.{FlatSpec, Matchers}
 
 import scala.concurrent.ExecutionContext
 
 /**
   * @author Jens Halm
   */
-class XHTMLRendererSpec extends FlatSpec with Matchers with ModelBuilder {
+class XHTMLRendererSpec extends IOSpec with ModelBuilder {
 
   implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
   
@@ -44,16 +44,11 @@ class XHTMLRendererSpec extends FlatSpec with Matchers with ModelBuilder {
 
   trait StringRenderer {
 
-    def collectDocuments (result: RenderedTree): Seq[RenderedDocument] =
+    private def collectDocuments (result: RenderedTree): Seq[RenderedDocument] =
       (result.content.collect { case doc: RenderedDocument => Seq(doc) } ++
         result.content.collect { case tree: RenderedTree => collectDocuments(tree) }).flatten
     
-    def renderedDocs (tree: DocumentTree): Seq[RenderedDocument] = {
-      val res = renderedDocs(DocumentTreeRoot(tree))
-      collectDocuments(res.tree)
-    } 
-
-    def renderedDocs (root: DocumentTreeRoot): RenderedTreeRoot[IO] = {
+    def renderedDocs (root: DocumentTreeRoot): IO[Seq[RenderedDocument]] =
       Renderer
         .of(EPUB.XHTML)
         .io(blocker)
@@ -62,9 +57,9 @@ class XHTMLRendererSpec extends FlatSpec with Matchers with ModelBuilder {
         .from(root)
         .toOutput(StringTreeOutput)
         .render
-        .unsafeRunSync()
-    }
+        .map(root => collectDocuments(root.tree))
 
+    
     def renderedXhtml (num: Int, style1: String, style2: String): String = s"""<?xml version="1.0" encoding="UTF-8"?>
      |<!DOCTYPE html>
      |<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
@@ -84,54 +79,58 @@ class XHTMLRendererSpec extends FlatSpec with Matchers with ModelBuilder {
 
   }
 
-  "The XHTML Renderer for EPUB" should "render a tree with 2 documents and 2 style sheets" in {
-    new DocBuilder with StringRenderer {
-      val input = DocumentTreeRoot(
-        tree = DocumentTree(Root,
-          content = List(
-            markupDoc(1),
-            DocumentTree(Root / "sub", content = List(markupDoc(2, Root / "sub")))
-          )
-        ),
-        staticDocuments = Seq(Root / "sub" / "styles2.css", Root / "styles1.css")
-      ) 
+  "The XHTML Renderer for EPUB" should {
 
-      val expected = Seq(
-        RenderedDocument(Root / "doc1.epub.xhtml", Nil, Nil, renderedXhtml(1, "sub/styles2.css", "styles1.css")),
-        RenderedDocument(Root / "sub" / "doc2.epub.xhtml", Nil, Nil, renderedXhtml(2, "styles2.css", "../styles1.css"))
-      )
+    "render a tree with 2 documents and 2 style sheets" in {
+      new DocBuilder with StringRenderer {
+        val input = DocumentTreeRoot(
+          tree = DocumentTree(Root,
+            content = List(
+              markupDoc(1),
+              DocumentTree(Root / "sub", content = List(markupDoc(2, Root / "sub")))
+            )
+          ),
+          staticDocuments = Seq(Root / "sub" / "styles2.css", Root / "styles1.css")
+        )
 
-      collectDocuments(renderedDocs(input).tree) shouldBe expected
+        val expected = Seq(
+          RenderedDocument(Root / "doc1.epub.xhtml", Nil, Nil, renderedXhtml(1, "sub/styles2.css", "styles1.css")),
+          RenderedDocument(Root / "sub" / "doc2.epub.xhtml", Nil, Nil, renderedXhtml(2, "styles2.css", "../styles1.css"))
+        )
+
+        renderedDocs(input).assertEquals(expected)
+      }
+    }
+
+    "render a paragraph containing a citation link with an epub:type attribute" in {
+      val elem = p(txt("some "), CitationLink("ref", "label"), txt(" span"))
+      Renderer.of(EPUB.XHTML).build.render(elem) should be("""<p>some <a class="citation" href="#ref" epub:type="noteref">[label]</a> span</p>""")
+    }
+
+    "render a paragraph containing a footnote link with an epub:type attribute" in {
+      val elem = p(txt("some "), FootnoteLink("id", "label"), txt(" span"))
+      Renderer.of(EPUB.XHTML).build.render(elem) should be("""<p>some <a class="footnote" href="#id" epub:type="noteref">[label]</a> span</p>""")
+    }
+
+    "render a footnote with an epub:type attribute" in {
+      val elem = Footnote("label", List(p("a"), p("b")), Id("id"))
+      val html =
+        """<aside id="id" class="footnote" epub:type="footnote">
+          |  <p>a</p>
+          |  <p>b</p>
+          |</aside>""".stripMargin
+      Renderer.of(EPUB.XHTML).build.render(elem) should be(html)
+    }
+
+    "render a citation with an epub:type attribute" in {
+      val elem = Citation("ref", List(p("a"), p("b")), Id("ref"))
+      val html =
+        """<aside id="ref" class="citation" epub:type="footnote">
+          |  <p>a</p>
+          |  <p>b</p>
+          |</aside>""".stripMargin
+      Renderer.of(EPUB.XHTML).build.render(elem) should be(html)
     }
   }
-  
-  it should "render a paragraph containing a citation link with an epub:type attribute" in {
-    val elem = p(txt("some "), CitationLink("ref","label"), txt(" span"))
-    Renderer.of(EPUB.XHTML).build.render(elem) should be ("""<p>some <a class="citation" href="#ref" epub:type="noteref">[label]</a> span</p>""")
-  }
-
-  it should "render a paragraph containing a footnote link with an epub:type attribute" in {
-    val elem = p(txt("some "), FootnoteLink("id","label"), txt(" span"))
-    Renderer.of(EPUB.XHTML).build.render(elem) should be ("""<p>some <a class="footnote" href="#id" epub:type="noteref">[label]</a> span</p>""")
-  }
-
-  it should "render a footnote with an epub:type attribute" in {
-    val elem = Footnote("label", List(p("a"),p("b")), Id("id"))
-    val html = """<aside id="id" class="footnote" epub:type="footnote">
-     |  <p>a</p>
-     |  <p>b</p>
-     |</aside>""".stripMargin
-    Renderer.of(EPUB.XHTML).build.render(elem) should be (html)
-  }
-
-  it should "render a citation with an epub:type attribute" in {
-    val elem = Citation("ref", List(p("a"),p("b")), Id("ref"))
-    val html = """<aside id="ref" class="citation" epub:type="footnote">
-     |  <p>a</p>
-     |  <p>b</p>
-     |</aside>""".stripMargin
-    Renderer.of(EPUB.XHTML).build.render(elem) should be (html)
-  }
-
 
 }
