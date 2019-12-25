@@ -78,7 +78,7 @@ class ParallelRendererSpec extends IOSpec
       .from(treeRoot)
       .toOutput(StringTreeOutput)
       .render
-      .map(RenderedTreeView.toTreeView[IO])
+      .map(RenderedTreeViewRoot.apply[IO])
 
     def addPosition (tree: DocumentTree, pos: Seq[Int] = Nil): DocumentTree = {
       val nextNum = Iterator.from(1)
@@ -316,7 +316,7 @@ class ParallelRendererSpec extends IOSpec
         .copying(Seq(ByteInput("...", Root / "static1.txt")))
         .toOutput(StringTreeOutput)
         .render
-        .map(RenderedTreeView.toTreeView[IO])
+        .map(RenderedTreeViewRoot.apply[IO])
         .assertEquals(RenderedTreeViewRoot(RenderedTreeView(Root, Nil), staticDocuments = Seq(Root / "static1.txt")))
     }
   
@@ -369,7 +369,7 @@ class ParallelRendererSpec extends IOSpec
         .copying(staticDocs)
         .toOutput(StringTreeOutput)
         .render
-        .map(RenderedTreeView.toTreeView[IO])
+        .map(RenderedTreeViewRoot.apply[IO])
         .assertEquals(RenderedTreeViewRoot(expectedRendered, staticDocuments = expectedStatic))
     }
     

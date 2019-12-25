@@ -63,7 +63,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
         .fromInput(IO.pure(input(inputs, transformer.config.docTypeMatcher)))
         .toOutput(StringTreeOutput)
         .transform
-        .map(OutputBuilder.RenderedTreeView.toTreeView[IO])
+        .map(RenderedTreeViewRoot.apply[IO])
 
     private def transformWithBundle (bundle: ExtensionBundle): IO[RenderedTreeViewRoot] =
       transformWith(Transformer.from(Markdown).to(AST).using(bundle).io(blocker).parallel[IO].build)
@@ -201,7 +201,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
         .fromInput(IO.pure(input(inputs, transformer.config.docTypeMatcher)))
         .toOutput(StringTreeOutput)
         .transform
-        .map(OutputBuilder.RenderedTreeView.toTreeView[IO])
+        .map(RenderedTreeViewRoot.apply[IO])
       renderResult.map(_.tree).assertEquals(root(List(docs(
         (Root / "doc1.fo", result)
       ))))
