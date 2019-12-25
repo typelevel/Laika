@@ -36,6 +36,8 @@ trait IOSpec extends WordSpec with Matchers {
 
     def assertEquals(a: A): Assertion = self.map(_ shouldBe a).unsafeRunSync()
 
+    def asserting(f: A => Assertion): Assertion = self.map(f).unsafeRunSync()
+
   }
   
 }
