@@ -18,27 +18,23 @@ package laika.io
 
 import java.io.{ByteArrayOutputStream, File}
 
-import cats.effect.{ContextShift, IO}
+import cats.effect.IO
 import laika.api.Renderer
 import laika.ast.helper.ModelBuilder
 import laika.format._
-import laika.io.implicits._
 import laika.io.helper.OutputBuilder
-import laika.io.text.SequentialRenderer
+import laika.io.implicits._
 import laika.io.runtime.TestContexts.blocker
-import org.scalatest.{FlatSpec, Matchers}
+import laika.io.text.SequentialRenderer
 
-import scala.concurrent.ExecutionContext
 import scala.io.Codec
 
-class SequentialRendererSpec extends FlatSpec 
-                    with Matchers
-                    with ModelBuilder { self =>
+class SequentialRendererSpec extends IOSpec 
+                             with ModelBuilder {
 
 
-  implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
-  
   val renderer: SequentialRenderer[IO] = Renderer.of(AST).io(blocker).sequential[IO].build
+  
   
   val rootElem = root(p("aaö"), p("bbb"))
 
@@ -49,36 +45,45 @@ class SequentialRendererSpec extends FlatSpec
       |. . Text - 'bbb'""".stripMargin
 
 
-  "The Render API" should "render a document to a file" in {
-    val f = File.createTempFile("output", null)
+  "The Sequential Renderer" should {
 
-    renderer.from(rootElem).toFile(f).render.unsafeRunSync()
+    "render a document to a file" in {
+      val res = for {
+        f <- IO(File.createTempFile("output", null))
+        _ <- renderer.from(rootElem).toFile(f).render
+        res <- IO(OutputBuilder.readFile(f))
+      } yield res
+      res.assertEquals(expected)
+    }
 
-    OutputBuilder.readFile(f) should be (expected)
+    "render a document to an in-memory string" in {
+      renderer.from(rootElem).toRenderedString.render.assertEquals(expected)
+    }
+
+    "render a document to a java.io.OutputStream" in {
+      val res = for {
+        stream <- IO(new ByteArrayOutputStream)
+        _ <- renderer.from(rootElem).toStream(IO.pure(stream)).render
+      } yield stream.toString
+      res.assertEquals(expected)
+    }
+
+    "render a document to a java.io.OutputStream, specifying the encoding explicitly" in {
+      val res = for {
+        stream <- IO(new ByteArrayOutputStream)
+        _ <- renderer.from(rootElem).toStream(IO.pure(stream))(Codec.ISO8859).render
+      } yield stream.toString("ISO-8859-1")
+      res.assertEquals(expected)
+    }
+
+    "render a document to a java.io.OutputStream, specifying the encoding implicitly" in {
+      implicit val codec: Codec = Codec.ISO8859
+      val res = for {
+        stream <- IO(new ByteArrayOutputStream)
+        _ <- renderer.from(rootElem).toStream(IO.pure(stream)).render
+      } yield stream.toString("ISO-8859-1")
+      res.assertEquals(expected)
+    }
+
   }
-
-  it should "render a document to an in-memory string" in {
-    val res = renderer.from(rootElem).toRenderedString.render.unsafeRunSync()
-    res should be (expected)
-  }
-  
-  it should "render a document to a java.io.OutputStream" in {
-    val stream = new ByteArrayOutputStream
-    renderer.from(rootElem).toStream(IO.pure(stream)).render.unsafeRunSync()
-    stream.toString should be (expected)
-  }
-
-  it should "render a document to a java.io.OutputStream, specifying the encoding explicitly" in {
-    val stream = new ByteArrayOutputStream
-    renderer.from(rootElem).toStream(IO.pure(stream))(Codec.ISO8859).render.unsafeRunSync()
-    stream.toString("ISO-8859-1") should be (expected)
-  }
-
-  it should "render a document to a java.io.OutputStream, specifying the encoding implicitly" in {
-    implicit val codec:Codec = Codec.ISO8859
-    val stream = new ByteArrayOutputStream
-    renderer.from(rootElem).toStream(IO.pure(stream)).render.unsafeRunSync()
-    stream.toString("ISO-8859-1") should be (expected)
-  }
-
 }
