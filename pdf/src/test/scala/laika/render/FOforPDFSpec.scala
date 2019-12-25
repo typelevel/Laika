@@ -25,6 +25,7 @@ import laika.ast.{DocumentTreeRoot, TemplateRoot}
 import laika.config.ConfigException
 import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
 import laika.format.{PDF, XSLFO}
+import laika.io.IOSpec
 import laika.io.binary.ParallelRenderer
 import laika.io.helper.RenderResult
 import laika.io.implicits._
@@ -32,13 +33,10 @@ import laika.io.model.{BinaryOutput, RenderedTreeRoot}
 import laika.io.runtime.Runtime
 import laika.io.runtime.TestContexts.blocker
 import laika.render.pdf.{FOConcatenation, PDFConfigBuilder, PDFNavigation}
-import org.scalatest.{FlatSpec, Matchers}
 
-import scala.concurrent.ExecutionContext
 
-class FOforPDFSpec extends FlatSpec with Matchers {
+class FOforPDFSpec extends IOSpec {
 
-  implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
   
   case class FOTest (config: Option[PDF.Config]) extends TwoPhaseRenderFormat[FOFormatter, BinaryPostProcessor] {
     
@@ -158,82 +156,84 @@ class FOforPDFSpec extends FlatSpec with Matchers {
     
     lazy val renderer: ParallelRenderer[IO] = Renderer.of(FOTest(config)).io(blocker).parallel[IO].build
     
-    def result: String = {
-      val stream = new ByteArrayOutputStream
-      renderer.from(DocumentTreeRoot(tree)).toStream(IO.pure(stream)).render.unsafeRunSync()      
-      stream.toString
+    def result: IO[String] = for {
+      stream <- IO(new ByteArrayOutputStream)
+      _      <- renderer.from(DocumentTreeRoot(tree)).toStream(IO.pure(stream)).render     
+    } yield stream.toString
+    
+  }
+  
+  
+  "The FOforPDF utility" should {
+
+    "render a tree with all structure elements disabled" in new Setup {
+
+      val config = Some(PDF.Config(bookmarkDepth = 0, tocDepth = 0))
+
+      result.assertEquals(withDefaultTemplate(results(6)))
     }
-    
-  }
-  
-  
-  "The FOforPDF utility" should "render a tree with all structure elements disabled" in new Setup {
-    
-    val config = Some(PDF.Config(bookmarkDepth = 0, tocDepth = 0))
-    
-    result should be (withDefaultTemplate(results(6)))
-  }
 
-  it should "render a tree with all structure elements disabled by a tree configuration file" in new Setup {
+    "render a tree with all structure elements disabled by a tree configuration file" in new Setup {
 
-    val config = None
+      val config = None
 
-    override val usePDFFileConfig = true
+      override val usePDFFileConfig = true
 
-    result should be (withDefaultTemplate(results(6)))
-  }
+      result.assertEquals(withDefaultTemplate(results(6)))
+    }
 
-  it should "render a tree with a table of content" in new Setup {
-    
-    val config = Some(PDF.Config(bookmarkDepth = 0, tocDepth = Int.MaxValue, tocTitle = Some("Contents")))
-    
-    result should be (withDefaultTemplate(treeLinkResult(1) + tocTitle + tocDocResult(1) + tocDocResult(2)
+    "render a tree with a table of content" in new Setup {
+
+      val config = Some(PDF.Config(bookmarkDepth = 0, tocDepth = Int.MaxValue, tocTitle = Some("Contents")))
+
+      result.assertEquals(withDefaultTemplate(treeLinkResult(1) + tocTitle + tocDocResult(1) + tocDocResult(2)
         + tocTreeResult(1) + tocDocResult(3) + tocDocResult(4)
         + tocTreeResult(2) + tocDocResult(5) + tocDocResult(6).dropRight(1) + resultWithDocTitle(1) + resultWithDocTitle(2)
         + treeLinkResult(2) + resultWithDocTitle(3) + resultWithDocTitle(4)
         + treeLinkResult(3) + resultWithDocTitle(5) + resultWithDocTitle(6)))
-  }
-  
-  it should "render a tree with bookmarks" in new Setup {
-    
-    val config = Some(PDF.Config(bookmarkDepth = Int.MaxValue, tocDepth = 0))
-    
-    result should be (withDefaultTemplate(treeLinkResult(1) + resultWithDocTitle(1) + resultWithDocTitle(2)
-        + treeLinkResult(2) + resultWithDocTitle(3) + resultWithDocTitle(4)
-        + treeLinkResult(3) + resultWithDocTitle(5) + resultWithDocTitle(6), 
-        bookmarkRootResult + bookmarkTreeResult(1,3) + bookmarkTreeResult(2,5).dropRight(1) + closeBookmarks))
-  }
-  
-  it should "render a tree with all structure elements enabled" in new Setup {
-    
-    val config = Some(PDF.Config.default)
-    
-    result should be (withDefaultTemplate(
-      treeLinkResult(1) + tocDocResult(1) + tocDocResult(2)
-        + tocTreeResult(1) + tocDocResult(3) + tocDocResult(4)
-        + tocTreeResult(2) + tocDocResult(5) + tocDocResult(6).dropRight(1) 
-        + resultWithDocTitle(1) + resultWithDocTitle(2)
+    }
+
+    "render a tree with bookmarks" in new Setup {
+
+      val config = Some(PDF.Config(bookmarkDepth = Int.MaxValue, tocDepth = 0))
+
+      result.assertEquals(withDefaultTemplate(treeLinkResult(1) + resultWithDocTitle(1) + resultWithDocTitle(2)
         + treeLinkResult(2) + resultWithDocTitle(3) + resultWithDocTitle(4)
         + treeLinkResult(3) + resultWithDocTitle(5) + resultWithDocTitle(6),
-        bookmarkRootResult + bookmarkTreeResult(1,3) + bookmarkTreeResult(2,5).dropRight(1) + closeBookmarks
-    ))
-  }
+        bookmarkRootResult + bookmarkTreeResult(1, 3) + bookmarkTreeResult(2, 5).dropRight(1) + closeBookmarks))
+    }
 
-  it should "render a tree with all structure elements enabled, handling a title document in both subtrees" in new Setup {
+    "render a tree with all structure elements enabled" in new Setup {
 
-    override val useTitleDocuments = true
+      val config = Some(PDF.Config.default)
 
-    val config = Some(PDF.Config.default)
+      result.assertEquals(withDefaultTemplate(
+        treeLinkResult(1) + tocDocResult(1) + tocDocResult(2)
+          + tocTreeResult(1) + tocDocResult(3) + tocDocResult(4)
+          + tocTreeResult(2) + tocDocResult(5) + tocDocResult(6).dropRight(1)
+          + resultWithDocTitle(1) + resultWithDocTitle(2)
+          + treeLinkResult(2) + resultWithDocTitle(3) + resultWithDocTitle(4)
+          + treeLinkResult(3) + resultWithDocTitle(5) + resultWithDocTitle(6),
+        bookmarkRootResult + bookmarkTreeResult(1, 3) + bookmarkTreeResult(2, 5).dropRight(1) + closeBookmarks
+      ))
+    }
 
-    result should be (withDefaultTemplate(
-      treeLinkResult(1) + tocDocResult(1) + tocDocResult(2)
-        + tocTreeResult(1, titleDoc = true) + tocDocResult(3) + tocDocResult(4)
-        + tocTreeResult(2, titleDoc = true) + tocDocResult(5) + tocDocResult(6).dropRight(1)
-        + resultWithDocTitle(1) + resultWithDocTitle(2)
-        + treeTitleResult(2) + resultWithDocTitle(3) + resultWithDocTitle(4)
-        + treeTitleResult(3) + resultWithDocTitle(5) + resultWithDocTitle(6),
-      bookmarkRootResult + bookmarkTreeResult(1,3, titleDoc = true) + bookmarkTreeResult(2,5, titleDoc = true).dropRight(1) + closeBookmarks
-    ))
+    "render a tree with all structure elements enabled, handling a title document in both subtrees" in new Setup {
+
+      override val useTitleDocuments = true
+
+      val config = Some(PDF.Config.default)
+
+      result.assertEquals(withDefaultTemplate(
+        treeLinkResult(1) + tocDocResult(1) + tocDocResult(2)
+          + tocTreeResult(1, titleDoc = true) + tocDocResult(3) + tocDocResult(4)
+          + tocTreeResult(2, titleDoc = true) + tocDocResult(5) + tocDocResult(6).dropRight(1)
+          + resultWithDocTitle(1) + resultWithDocTitle(2)
+          + treeTitleResult(2) + resultWithDocTitle(3) + resultWithDocTitle(4)
+          + treeTitleResult(3) + resultWithDocTitle(5) + resultWithDocTitle(6),
+        bookmarkRootResult + bookmarkTreeResult(1, 3, titleDoc = true) + bookmarkTreeResult(2, 5, titleDoc = true).dropRight(1) + closeBookmarks
+      ))
+    }
   }
   
 }

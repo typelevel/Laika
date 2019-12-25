@@ -16,17 +16,17 @@
 
 package laika.render
 
-import java.io.{BufferedInputStream, ByteArrayOutputStream, File, FileInputStream, InputStream}
+import java.io.{BufferedInputStream, ByteArrayOutputStream, File, FileInputStream}
 
-import cats.effect.{ContextShift, IO}
+import cats.effect.IO
+import cats.implicits._
 import laika.api.Renderer
 import laika.ast.DocumentTreeRoot
 import laika.format.PDF
+import laika.io.IOSpec
 import laika.io.implicits._
 import laika.io.runtime.TestContexts.blocker
-import org.scalatest.{FlatSpec, Matchers}
-
-import scala.concurrent.ExecutionContext
+import org.scalatest.Assertion
 
 /** Since there is no straightforward way to validate a rendered PDF document
  *  on the JVM, this Spec merely asserts that a file or OutputStream is non-empty
@@ -37,83 +37,82 @@ import scala.concurrent.ExecutionContext
  *  on Apache FOP for converting the rendered XSL-FO to PDF, therefore having 
  *  limited scope in this particular spec is acceptable.  
  */
-class PDFRendererSpec extends FlatSpec with Matchers {
+class PDFRendererSpec extends IOSpec {
 
-  implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
   
   trait FileSetup {
     
     val file: File = File.createTempFile("output", null)
     
-    def readFile: InputStream = new BufferedInputStream(new FileInputStream(file))
+    val firstChar: IO[Int] = for {
+      in   <- IO(new BufferedInputStream(new FileInputStream(file)))
+      read <- IO(in.read)
+    } yield read
     
+    def firstCharAvailable(render: IO[Unit]): Assertion = (render >> firstChar).asserting(_ should not be (-1))
   }
   
   
-  "The PDF Renderer" should "render a document to a file" in new TreeModel with FileSetup {
-    Renderer
-      .of(PDF)
-      .io(blocker)
-      .sequential[IO]
-      .build
-      .from(doc(1))
-      .toFile(file)
-      .render
-      .unsafeRunSync()
-    readFile.read should not be (-1)
-  }
+  "The PDF Renderer" should {
 
-  it should "render a document to a file using a custom FopFactory" in new TreeModel with FileSetup {
-    Renderer
-      .of(PDF.withFopFactory(PDF.defaultFopFactory))
-      .io(blocker)
-      .sequential[IO]
-      .build
-      .from(doc(1))
-      .toFile(file)
-      .render
-      .unsafeRunSync()
-    readFile.read should not be (-1)
+    "render a document to a file" in new TreeModel with FileSetup {
+      val renderer = Renderer
+        .of(PDF)
+        .io(blocker)
+        .sequential[IO]
+        .build
+      
+      firstCharAvailable(renderer.from(doc(1)).toFile(file).render)
+    }
+
+    "render a document to a file using a custom FopFactory" in new TreeModel with FileSetup {
+      val renderer = Renderer
+        .of(PDF.withFopFactory(PDF.defaultFopFactory))
+        .io(blocker)
+        .sequential[IO]
+        .build
+
+      firstCharAvailable(renderer.from(doc(1)).toFile(file).render)  
+    }
+
+    "render a document to an OutputStream" in new TreeModel {
+      val renderer = Renderer
+        .of(PDF)
+        .io(blocker)
+        .sequential[IO]
+        .build
+      
+      val res = for {
+        stream <- IO(new ByteArrayOutputStream)
+        _      <- renderer.from(doc(1)).toStream(IO.pure(stream)).render
+      } yield stream.toByteArray
+      
+      res.asserting(_ should not be empty)
+    }
+
+    "render a tree to a file" in new TreeModel with FileSetup {
+      val renderer = Renderer.of(PDF)
+        .io(blocker)
+        .parallel[IO]
+        .build
+
+      firstCharAvailable(renderer.from(DocumentTreeRoot(tree)).toFile(file).render)
+    }
+
+    "render a tree to an OutputStream" in new TreeModel {
+      val renderer = Renderer
+        .of(PDF)
+        .io(blocker)
+        .parallel[IO]
+        .build
+
+      val res = for {
+        stream <- IO(new ByteArrayOutputStream)
+        _      <- renderer.from(DocumentTreeRoot(tree)).toStream(IO.pure(stream)).render
+      } yield stream.toByteArray
+
+      res.asserting(_ should not be empty)
+    }
+
   }
-  
-  it should "render a document to an OutputStream" in new TreeModel {
-    val stream = new ByteArrayOutputStream
-    Renderer
-      .of(PDF)
-      .io(blocker)
-      .sequential[IO]
-      .build
-      .from(doc(1))
-      .toStream(IO.pure(stream))
-      .render
-      .unsafeRunSync()
-    stream.toByteArray should not be empty
-  }
-  
-  it should "render a tree to a file" in new TreeModel with FileSetup {
-    Renderer.of(PDF)
-      .io(blocker)
-      .parallel[IO]
-      .build
-      .from(DocumentTreeRoot(tree))
-      .toFile(file)
-      .render
-      .unsafeRunSync()
-    readFile.read should not be (-1)
-  }
-  
-  it should "render a tree to an OutputStream" in new TreeModel {
-    val stream = new ByteArrayOutputStream
-    Renderer.of(PDF)
-      .io(blocker)
-      .parallel[IO]
-      .build
-      .from(DocumentTreeRoot(tree))
-      .toStream(IO.pure(stream))
-      .render
-      .unsafeRunSync()
-    stream.toByteArray should not be empty
-  }
-  
-  
 }
