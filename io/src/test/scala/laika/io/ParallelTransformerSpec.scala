@@ -31,13 +31,12 @@ import laika.io.helper.OutputBuilder._
 import laika.io.helper.{InputBuilder, OutputBuilder, RenderResult}
 import laika.io.implicits._
 import laika.io.model.{StringTreeOutput, TreeInput}
-import laika.io.runtime.TestContexts._
 import laika.io.text.ParallelTransformer
 import laika.parse.Parser
 import laika.parse.text.TextParsers
 import org.scalatest.Assertion
 
-class ParallelTransformerSpec extends IOSpec {
+class ParallelTransformerSpec extends IOSpec with FileIO {
 
   
   private val transformer: ParallelTransformer[IO] = Transformer.from(Markdown).to(AST).io(blocker).parallel[IO].build
@@ -345,13 +344,10 @@ class ParallelTransformerSpec extends IOSpec {
         .fromInput(IO.pure(input(inputs, transformer.build.markupParser.config.docTypeMatcher)))
         .toStream(out)
         .transform
-      
-      val res = for {
-        out <- IO(new ByteArrayOutputStream)
-        _   <- transformTo(IO.pure(out))
-      } yield out.toString
-      
-      res.assertEquals(expectedResult)
+
+      withByteArrayTextOutput { out =>
+        transformTo(IO.pure(out))
+      }.assertEquals(expectedResult)
     }
 
     "render a tree with a RenderResultProcessor writing to a file" in new TwoPhaseTransformer {
@@ -367,7 +363,7 @@ class ParallelTransformerSpec extends IOSpec {
       val res = for {
         f   <- IO(File.createTempFile("output", null))
         _   <- transformTo(f)
-        res <- IO(OutputBuilder.readFile(f))
+        res <- readFile(f)
       } yield res.toString
 
       res.assertEquals(expectedResult)
@@ -375,7 +371,6 @@ class ParallelTransformerSpec extends IOSpec {
 
     trait FileSystemTest {
 
-      import OutputBuilder._
       import cats.implicits._
 
       def resourcePath (path: String): String = getClass.getResource(path).getFile
@@ -391,30 +386,30 @@ class ParallelTransformerSpec extends IOSpec {
           |. . Text - 'Doc""".stripMargin + num + "'"
 
       def readFiles (base: String): IO[List[String]] = List(
-        IO(readFile(base + "/doc1.txt")),
-        IO(readFile(base + "/doc2.txt")),
-        IO(readFile(base + "/dir1/doc3.txt")),
-        IO(readFile(base + "/dir1/doc4.txt")),
-        IO(readFile(base + "/dir2/doc5.txt")),
-        IO(readFile(base + "/dir2/doc6.txt")),
+        readFile(base + "/doc1.txt"),
+        readFile(base + "/doc2.txt"),
+        readFile(base + "/dir1/doc3.txt"),
+        readFile(base + "/dir1/doc4.txt"),
+        readFile(base + "/dir2/doc5.txt"),
+        readFile(base + "/dir2/doc6.txt"),
       ).sequence
 
       def readFilesFiltered (base: String): IO[List[String]] = List(
-        IO(readFile(base + "/doc2.txt")),
-        IO(readFile(base + "/dir2/doc5.txt")),
-        IO(readFile(base + "/dir2/doc6.txt")),
+        readFile(base + "/doc2.txt"),
+        readFile(base + "/dir2/doc5.txt"),
+        readFile(base + "/dir2/doc6.txt"),
       ).sequence
 
       def readFilesMerged (base: String): IO[List[String]] = List(
-        IO(readFile(base + "/doc1.txt")),
-        IO(readFile(base + "/doc2.txt")),
-        IO(readFile(base + "/dir1/doc3.txt")),
-        IO(readFile(base + "/dir1/doc4.txt")),
-        IO(readFile(base + "/dir2/doc5.txt")),
-        IO(readFile(base + "/dir2/doc6.txt")),
-        IO(readFile(base + "/dir1/doc7.txt")),
-        IO(readFile(base + "/dir3/doc8.txt")),
-        IO(readFile(base + "/doc9.txt")),
+        readFile(base + "/doc1.txt"),
+        readFile(base + "/doc2.txt"),
+        readFile(base + "/dir1/doc3.txt"),
+        readFile(base + "/dir1/doc4.txt"),
+        readFile(base + "/dir2/doc5.txt"),
+        readFile(base + "/dir2/doc6.txt"),
+        readFile(base + "/dir1/doc7.txt"),
+        readFile(base + "/dir3/doc8.txt"),
+        readFile(base + "/doc9.txt"),
       ).sequence
     }
 
@@ -422,7 +417,7 @@ class ParallelTransformerSpec extends IOSpec {
       val sourceName = resourcePath("/trees/a/")
       val expectedFileContents = (1 to 6).map(renderedDoc).toList
       val res = for {
-        targetDir <- IO(OutputBuilder.createTempDirectory("renderToDir"))
+        targetDir <- newTempDirectory
         _         <- transformer.fromDirectory(sourceName).toDirectory(targetDir).transform
         results   <- readFiles(targetDir.getPath)
       } yield results
@@ -437,11 +432,11 @@ class ParallelTransformerSpec extends IOSpec {
       val expectedFileContents = List(2,5,6).map(renderedDoc)
       
       val res = for {
-        targetDir  <- IO(OutputBuilder.createTempDirectory("renderToDir"))
+        targetDir  <- newTempDirectory
         _          <- transformer.fromDirectory(sourceName).toDirectory(targetDir).transform
         contents   <- readFilesFiltered(targetDir.getPath)
-        fileExists <- IO(new File(targetDir + "/doc1.txt").exists)
-        dirExists  <- IO(new File(targetDir + "/dir1").exists)
+        fileExists <- exists(new File(targetDir + "/doc1.txt"))
+        dirExists  <- exists(new File(targetDir + "/dir1"))
       } yield (contents, fileExists, dirExists)
       
       res.assertEquals((expectedFileContents, false, false))
@@ -453,11 +448,11 @@ class ParallelTransformerSpec extends IOSpec {
       val expectedFileContents = List(2,5,6).map(renderedDoc)
       
       val res = for {
-        targetDir  <- IO(OutputBuilder.createTempDirectory("renderToDir"))
+        targetDir  <- newTempDirectory
         _          <- transformer.fromDirectory(sourceName, fileFilter).toDirectory(targetDir).transform
         contents   <- readFilesFiltered(targetDir.getPath)
-        fileExists <- IO(new File(targetDir + "/doc1.txt").exists)
-        dirExists  <- IO(new File(targetDir + "/dir1").exists)
+        fileExists <- exists(new File(targetDir + "/doc1.txt"))
+        dirExists  <- exists(new File(targetDir + "/dir1"))
       } yield (contents, fileExists, dirExists)
 
       res.assertEquals((expectedFileContents, false, false))
@@ -468,7 +463,7 @@ class ParallelTransformerSpec extends IOSpec {
       val source2 = new File(resourcePath("/trees/b/"))
       val expectedFileContents = (1 to 9).map(renderedDoc).toList
       val res = for {
-        targetDir <- IO(OutputBuilder.createTempDirectory("renderToDir"))
+        targetDir <- newTempDirectory
         _         <- transformer.fromDirectories(Seq(source1, source2)).toDirectory(targetDir).transform
         results   <- readFilesMerged(targetDir.getPath)
       } yield results 
@@ -477,23 +472,21 @@ class ParallelTransformerSpec extends IOSpec {
 
     "allow to use the same directory as input and output" in new FileSystemTest {
 
-      import OutputBuilder._
-
       val result =
         """RootElement - Blocks: 1
           |. Paragraph - Spans: 1
           |. . Text - 'Hello'""".stripMargin
       
       val res = for {
-        targetDir  <- IO(OutputBuilder.createTempDirectory("renderToDir"))
+        targetDir  <- newTempDirectory
         staticFile = new File(targetDir, "static.txt")
         inputFile  = new File(targetDir, "hello.md")
-        _          <- IO(writeFile(inputFile, "Hello"))
-        _          <- IO(writeFile(staticFile, "Text"))
+        _          <- writeFile(inputFile, "Hello")
+        _          <- writeFile(staticFile, "Text")
         _          <- transformer.fromDirectory(targetDir).toDirectory(targetDir).transform
-        hello      <- IO(readFile(inputFile))
-        static     <- IO(readFile(staticFile))
-        result     <- IO(readFile(new File(targetDir, "hello.txt")))
+        hello      <- readFile(inputFile)
+        static     <- readFile(staticFile)
+        result     <- readFile(new File(targetDir, "hello.txt"))
       } yield (hello, static, result)
 
       res.assertEquals(("Hello", "Text", result))
@@ -502,28 +495,26 @@ class ParallelTransformerSpec extends IOSpec {
     "not copy files from the output directory if it's nested inside the input directory" in {
       new FileSystemTest {
 
-        import OutputBuilder._
-
         val result =
           """RootElement - Blocks: 1
             |. Paragraph - Spans: 1
             |. . Text - 'Hello'""".stripMargin
 
         val res = for {
-          targetDir  <- IO(OutputBuilder.createTempDirectory("renderToDir"))
+          targetDir  <- newTempDirectory
           staticFile = new File(targetDir, "static.txt")
           inputFile  = new File(targetDir, "hello.md")
           subdir     = new File(targetDir, "sub")
-          _          <- IO(writeFile(inputFile, "Hello"))
-          _          <- IO(writeFile(staticFile, "Text"))
-          _          <- IO(subdir.mkdir())
+          _          <- writeFile(inputFile, "Hello")
+          _          <- writeFile(staticFile, "Text")
+          _          <- mkDir(subdir)
           outputFile = new File(subdir, "hello.js")
-          _          <- IO(writeFile(outputFile, "Output"))
+          _          <- writeFile(outputFile, "Output")
           _          <- transformer.fromDirectory(targetDir).toDirectory(subdir).transform
-          hello      <- IO(readFile(inputFile))
-          static     <- IO(readFile(new File(subdir, "static.txt")))
-          result     <- IO(readFile(new File(subdir, "hello.txt")))
-          subExists  <- IO(new File(subdir, "sub").exists)
+          hello      <- readFile(inputFile)
+          static     <- readFile(new File(subdir, "static.txt"))
+          result     <- readFile(new File(subdir, "hello.txt"))
+          subExists  <- exists(new File(subdir, "sub"))
         } yield (hello, static, result, subExists)
 
         res.assertEquals(("Hello", "Text", result, false))

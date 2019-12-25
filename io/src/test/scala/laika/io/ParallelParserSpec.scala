@@ -29,7 +29,6 @@ import laika.io.helper.InputBuilder
 import laika.io.implicits._
 import laika.io.model.{ParsedTree, TreeInput}
 import laika.io.runtime.ParserRuntime.{DuplicatePath, ParserErrors}
-import laika.io.runtime.TestContexts._
 import laika.io.text.ParallelParser
 import laika.parse.Parser
 import laika.parse.text.TextParsers
@@ -37,7 +36,8 @@ import laika.rewrite.TemplateRewriter
 
 
 class ParallelParserSpec extends IOSpec 
-                         with ModelBuilder {
+                         with ModelBuilder
+                         with FileIO {
 
   trait ParserSetup {
 

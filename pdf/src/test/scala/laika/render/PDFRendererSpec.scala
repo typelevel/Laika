@@ -16,16 +16,15 @@
 
 package laika.render
 
-import java.io.{BufferedInputStream, ByteArrayOutputStream, File, FileInputStream}
+import java.io.{BufferedInputStream, File, FileInputStream}
 
 import cats.effect.IO
 import cats.implicits._
 import laika.api.Renderer
 import laika.ast.DocumentTreeRoot
 import laika.format.PDF
-import laika.io.IOSpec
+import laika.io.{FileIO, IOSpec}
 import laika.io.implicits._
-import laika.io.runtime.TestContexts.blocker
 import org.scalatest.Assertion
 
 /** Since there is no straightforward way to validate a rendered PDF document
@@ -37,7 +36,7 @@ import org.scalatest.Assertion
  *  on Apache FOP for converting the rendered XSL-FO to PDF, therefore having 
  *  limited scope in this particular spec is acceptable.  
  */
-class PDFRendererSpec extends IOSpec {
+class PDFRendererSpec extends IOSpec with FileIO {
 
   
   trait FileSetup {
@@ -82,12 +81,10 @@ class PDFRendererSpec extends IOSpec {
         .sequential[IO]
         .build
       
-      val res = for {
-        stream <- IO(new ByteArrayOutputStream)
-        _      <- renderer.from(doc(1)).toStream(IO.pure(stream)).render
-      } yield stream.toByteArray
+      withByteArrayOutput { out =>
+        renderer.from(doc(1)).toStream(IO.pure(out)).render.void
+      }.asserting(_ should not be empty)
       
-      res.asserting(_ should not be empty)
     }
 
     "render a tree to a file" in new TreeModel with FileSetup {
@@ -106,12 +103,9 @@ class PDFRendererSpec extends IOSpec {
         .parallel[IO]
         .build
 
-      val res = for {
-        stream <- IO(new ByteArrayOutputStream)
-        _      <- renderer.from(DocumentTreeRoot(tree)).toStream(IO.pure(stream)).render
-      } yield stream.toByteArray
-
-      res.asserting(_ should not be empty)
+      withByteArrayOutput { out =>
+        renderer.from(DocumentTreeRoot(tree)).toStream(IO.pure(out)).render.void
+      }.asserting(_ should not be empty)
     }
 
   }

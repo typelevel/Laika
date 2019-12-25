@@ -18,19 +18,19 @@ package laika.io
 
 import java.io._
 
+import cats.implicits._
 import cats.effect.IO
 import laika.api.Transformer
 import laika.format._
-import laika.io.helper.OutputBuilder
 import laika.io.implicits._
-import laika.io.runtime.TestContexts.blocker
 import laika.io.text.SequentialTransformer
 import org.scalatest.Matchers
 
 import scala.io.Codec
 
 class SequentialTransformerSpec extends IOSpec 
-                                with Matchers {
+                                with Matchers
+                                with FileIO {
 
   
   val transformer: SequentialTransformer[IO] = 
@@ -54,41 +54,35 @@ class SequentialTransformerSpec extends IOSpec
       val inFile = getClass.getResource("/testInput2.md").getFile
       implicit val codec: Codec = Codec.UTF8
       val res = for {
-        outFile <- IO(File.createTempFile("output", null))
+        outFile <- newTempFile
         _       <- transformer.fromFile(inFile).toFile(outFile).transform
-        res     <- IO(OutputBuilder.readFile(outFile))
-        _       <- IO(outFile.delete())
+        res     <- readFile(outFile)
+        _       <- delete(outFile)
       } yield res
       res.assertEquals(output)
     }
 
     "transform from a java.io.InputStream to a java.io.OutputStream" in {
       val inStream = IO(new ByteArrayInputStream(input.getBytes()))
-      val res = for {
-        outStream <- IO(new ByteArrayOutputStream)
-        _         <- transformer.fromStream(inStream).toStream(IO.pure(outStream)).transform
-      } yield outStream.toString
-      res.assertEquals(output)
+      withByteArrayTextOutput { out =>
+        transformer.fromStream(inStream).toStream(IO.pure(out)).transform.void
+      }.assertEquals(output)
     }
 
     "transform from a java.io.InputStream to a java.io.OutputStream, specifying the encoding explicitly" in {
       val inStream = IO(new ByteArrayInputStream(input.getBytes("ISO-8859-1")))
       val codec = Codec.ISO8859
-      val res = for {
-        outStream <- IO(new ByteArrayOutputStream)
-        _         <- transformer.fromStream(inStream)(codec).toStream(IO.pure(outStream))(codec).transform
-      } yield outStream.toString("ISO-8859-1")
-      res.assertEquals(output)
+      withByteArrayTextOutput("ISO-8859-1") { out =>
+        transformer.fromStream(inStream)(codec).toStream(IO.pure(out))(codec).transform.void
+      }.assertEquals(output)
     }
 
     "transform from a java.io.InputStream to a java.io.OutputStream, specifying the encoding implicitly" in {
       val inStream = IO(new ByteArrayInputStream(input.getBytes("ISO-8859-1")))
       implicit val codec: Codec = Codec.ISO8859
-      val res = for {
-        outStream <- IO(new ByteArrayOutputStream)
-        _         <- transformer.fromStream(inStream).toStream(IO.pure(outStream)).transform
-      } yield outStream.toString("ISO-8859-1")
-      res.assertEquals(output)
+      withByteArrayTextOutput("ISO-8859-1") { out =>
+        transformer.fromStream(inStream).toStream(IO.pure(out)).transform.void
+      }.assertEquals(output)
     }
 
     "transform from string to string" in {

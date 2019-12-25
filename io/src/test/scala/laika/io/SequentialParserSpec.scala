@@ -24,13 +24,13 @@ import laika.ast.helper.ModelBuilder
 import laika.format.Markdown
 import laika.io.implicits._
 import laika.io.text.SequentialParser
-import laika.io.runtime.TestContexts.blocker
 
 import scala.io.Codec
 
 
 class SequentialParserSpec extends IOSpec
-                           with ModelBuilder {
+                           with ModelBuilder
+                           with FileIO {
 
   
   val parser: SequentialParser[IO] = MarkupParser.of(Markdown).io(blocker).sequential[IO].build

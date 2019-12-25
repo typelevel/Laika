@@ -22,17 +22,16 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.EPUB
-import laika.io.IOSpec
+import laika.io.{FileIO, IOSpec}
 import laika.io.implicits._
 import laika.io.model.{RenderedDocument, RenderedTree, StringTreeOutput}
-import laika.io.runtime.TestContexts.blocker
 
 import scala.concurrent.ExecutionContext
 
 /**
   * @author Jens Halm
   */
-class XHTMLRendererSpec extends IOSpec with ModelBuilder {
+class XHTMLRendererSpec extends IOSpec with ModelBuilder with FileIO {
 
   implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
   

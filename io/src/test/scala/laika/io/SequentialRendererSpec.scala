@@ -18,19 +18,19 @@ package laika.io
 
 import java.io.{ByteArrayOutputStream, File}
 
+import cats.implicits._
 import cats.effect.IO
 import laika.api.Renderer
 import laika.ast.helper.ModelBuilder
 import laika.format._
-import laika.io.helper.OutputBuilder
 import laika.io.implicits._
-import laika.io.runtime.TestContexts.blocker
 import laika.io.text.SequentialRenderer
 
 import scala.io.Codec
 
 class SequentialRendererSpec extends IOSpec 
-                             with ModelBuilder {
+                             with ModelBuilder
+                             with FileIO {
 
 
   val renderer: SequentialRenderer[IO] = Renderer.of(AST).io(blocker).sequential[IO].build
@@ -49,9 +49,9 @@ class SequentialRendererSpec extends IOSpec
 
     "render a document to a file" in {
       val res = for {
-        f <- IO(File.createTempFile("output", null))
-        _ <- renderer.from(rootElem).toFile(f).render
-        res <- IO(OutputBuilder.readFile(f))
+        f   <- newTempFile
+        _   <- renderer.from(rootElem).toFile(f).render
+        res <- readFile(f)
       } yield res
       res.assertEquals(expected)
     }
@@ -61,28 +61,22 @@ class SequentialRendererSpec extends IOSpec
     }
 
     "render a document to a java.io.OutputStream" in {
-      val res = for {
-        stream <- IO(new ByteArrayOutputStream)
-        _ <- renderer.from(rootElem).toStream(IO.pure(stream)).render
-      } yield stream.toString
-      res.assertEquals(expected)
+      withByteArrayTextOutput { out =>
+        renderer.from(rootElem).toStream(IO.pure(out)).render.void
+      }.assertEquals(expected)
     }
 
     "render a document to a java.io.OutputStream, specifying the encoding explicitly" in {
-      val res = for {
-        stream <- IO(new ByteArrayOutputStream)
-        _ <- renderer.from(rootElem).toStream(IO.pure(stream))(Codec.ISO8859).render
-      } yield stream.toString("ISO-8859-1")
-      res.assertEquals(expected)
+      withByteArrayTextOutput("ISO-8859-1") { out =>
+        renderer.from(rootElem).toStream(IO.pure(out))(Codec.ISO8859).render.void
+      }.assertEquals(expected)
     }
 
     "render a document to a java.io.OutputStream, specifying the encoding implicitly" in {
       implicit val codec: Codec = Codec.ISO8859
-      val res = for {
-        stream <- IO(new ByteArrayOutputStream)
-        _ <- renderer.from(rootElem).toStream(IO.pure(stream)).render
-      } yield stream.toString("ISO-8859-1")
-      res.assertEquals(expected)
+      withByteArrayTextOutput("ISO-8859-1") { out =>
+        renderer.from(rootElem).toStream(IO.pure(out)).render.void
+      }.assertEquals(expected)
     }
 
   }

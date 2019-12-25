@@ -20,6 +20,7 @@ import java.io.{ByteArrayOutputStream, File}
 
 import cats.effect.IO
 import laika.api.Renderer
+import laika.api.builder.TwoPhaseRenderer
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
@@ -31,14 +32,14 @@ import laika.io.helper.{InputBuilder, OutputBuilder, RenderResult}
 import laika.io.implicits._
 import laika.io.model.StringTreeOutput
 import laika.io.runtime.RendererRuntime.{DuplicatePath, RendererErrors}
-import laika.io.runtime.TestContexts._
 import laika.io.text.ParallelRenderer
 import laika.render._
 
 import scala.io.Codec
 
 class ParallelRendererSpec extends IOSpec 
-                           with ModelBuilder { self =>
+                           with ModelBuilder
+                           with FileIO { self =>
 
   val rootElem: RootElement = root(p("aaö"), p("bbb"))
 
@@ -403,19 +404,17 @@ class ParallelRendererSpec extends IOSpec
     }
   
     "render a tree with two documents using a RenderResultProcessor writing to an output stream" in new TwoPhaseRenderer {
-      val res = for {
-        out <- IO(new ByteArrayOutputStream)
-        _   <- renderer.from(DocumentTreeRoot(input)).toStream(IO.pure(out)).render
-      } yield out.toString
+      withByteArrayTextOutput { out =>
+        renderer.from(DocumentTreeRoot(input)).toStream(IO.pure(out)).render
+      }.assertEquals(expectedResult)
       
-      res.assertEquals(expectedResult)
     }
   
     "render a tree with two documents using a RenderResultProcessor writing to a file" in new TwoPhaseRenderer {
       val res = for {
-        f   <- IO(File.createTempFile("output", null))
+        f   <- newTempFile
         _   <- renderer.from(DocumentTreeRoot(input)).toFile(f).render
-        res <- IO(OutputBuilder.readFile(f))
+        res <- readFile(f)
       } yield res
       
       res.assertEquals(expectedResult)
@@ -438,14 +437,13 @@ class ParallelRendererSpec extends IOSpec
       )))
       
       def readFiles (base: String): IO[List[String]] = {
-        import laika.io.helper.OutputBuilder._
         List(
-          IO(readFile(base+"/doc1.txt")),
-          IO(readFile(base+"/doc2.txt")),
-          IO(readFile(base+"/dir1/doc3.txt")),
-          IO(readFile(base+"/dir1/doc4.txt")),
-          IO(readFile(base+"/dir2/doc5.txt")),
-          IO(readFile(base+"/dir2/doc6.txt"))
+          readFile(base+"/doc1.txt"),
+          readFile(base+"/doc2.txt"),
+          readFile(base+"/dir1/doc3.txt"),
+          readFile(base+"/dir1/doc4.txt"),
+          readFile(base+"/dir2/doc5.txt"),
+          readFile(base+"/dir2/doc6.txt")
         ).sequence
       }
     }
@@ -460,7 +458,7 @@ class ParallelRendererSpec extends IOSpec
         val expectedFileContents: List[String] = (1 to 6).map(renderedDoc).toList
         
         val res = for {
-          f   <- IO(OutputBuilder.createTempDirectory("renderToDir"))
+          f   <- newTempDirectory
           _   <- renderer.from(input).toDirectory(f).render
           res <- readFiles(f.getPath)
         } yield res
@@ -482,9 +480,9 @@ class ParallelRendererSpec extends IOSpec
         .build
       
       val res = for {
-        f   <- IO(OutputBuilder.createTempDirectory("renderNonASCII"))
+        f   <- newTempDirectory
         _   <- renderer.from(input).toDirectory(f)(Codec.ISO8859).render
-        res <- IO(OutputBuilder.readFile(new File(f, "doc.txt"), Codec.ISO8859))
+        res <- readFile(new File(f, "doc.txt"), Codec.ISO8859)
       } yield res
       
       res.assertEquals(expected)

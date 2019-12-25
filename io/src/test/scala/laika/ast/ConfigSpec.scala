@@ -24,16 +24,16 @@ import laika.bundle.BundleProvider
 import laika.config.Origin.{DocumentScope, TreeScope}
 import laika.config.{ConfigValue, Field, LongValue, ObjectValue, Origin}
 import laika.format.{Markdown, ReStructuredText}
-import laika.io.IOSpec
+import laika.io.{FileIO, IOSpec}
 import laika.io.implicits._
 import laika.io.model.{ParsedTree, TreeInput}
 import laika.io.helper.InputBuilder
 import laika.rewrite.TemplateRewriter
-import laika.io.runtime.TestContexts._
 
 
 class ConfigSpec extends IOSpec 
-                    with ModelBuilder {
+                    with ModelBuilder
+                    with FileIO {
 
 
   trait Inputs extends InputBuilder  {

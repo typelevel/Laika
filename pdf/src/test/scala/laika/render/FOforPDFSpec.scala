@@ -16,26 +16,23 @@
 
 package laika.render
 
-import java.io.ByteArrayOutputStream
-
-import cats.effect.{Async, ContextShift, IO}
+import cats.effect.{Async, IO}
 import cats.implicits._
 import laika.api.Renderer
 import laika.ast.{DocumentTreeRoot, TemplateRoot}
 import laika.config.ConfigException
 import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
 import laika.format.{PDF, XSLFO}
-import laika.io.IOSpec
 import laika.io.binary.ParallelRenderer
 import laika.io.helper.RenderResult
 import laika.io.implicits._
 import laika.io.model.{BinaryOutput, RenderedTreeRoot}
 import laika.io.runtime.Runtime
-import laika.io.runtime.TestContexts.blocker
+import laika.io.{FileIO, IOSpec}
 import laika.render.pdf.{FOConcatenation, PDFConfigBuilder, PDFNavigation}
 
 
-class FOforPDFSpec extends IOSpec {
+class FOforPDFSpec extends IOSpec with FileIO {
 
   
   case class FOTest (config: Option[PDF.Config]) extends TwoPhaseRenderFormat[FOFormatter, BinaryPostProcessor] {
@@ -70,7 +67,7 @@ class FOforPDFSpec extends IOSpec {
   
   trait ResultModel {
     
-    def results (num: Int): String = (1 to num) map (result) reduce (_ + _)
+    def results (num: Int): String = (1 to num) map result reduce (_ + _)
     
     def idPrefix (num: Int): String = if (num > 4) "_tree2" else if (num > 2) "_tree1" else ""
     
@@ -156,10 +153,9 @@ class FOforPDFSpec extends IOSpec {
     
     lazy val renderer: ParallelRenderer[IO] = Renderer.of(FOTest(config)).io(blocker).parallel[IO].build
     
-    def result: IO[String] = for {
-      stream <- IO(new ByteArrayOutputStream)
-      _      <- renderer.from(DocumentTreeRoot(tree)).toStream(IO.pure(stream)).render     
-    } yield stream.toString
+    def result: IO[String] = withByteArrayTextOutput { out =>
+      renderer.from(DocumentTreeRoot(tree)).toStream(IO.pure(out)).render.void
+    }
     
   }
   
