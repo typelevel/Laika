@@ -47,7 +47,7 @@ class LegacyStandardDirectiveSpec extends FlatSpec
   def parseTemplateWithConfig (input: String, config: String): RootElement = {
     val tRoot = parseTemplate(input)
     val template = TemplateDocument(Path.Root, tRoot)
-    val cursor = DocumentCursor(Document(Path.Root, root(), config = ConfigParser.parse(config).resolve.toOption.get))
+    val cursor = DocumentCursor(Document(Path.Root, root(), config = ConfigParser.parse(config).resolve().toOption.get))
     TemplateRewriter.applyTemplate(cursor, template).toOption.get.content
   }
   

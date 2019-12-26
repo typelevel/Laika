@@ -26,7 +26,7 @@ class HoconErrorSpec extends WordSpec with Matchers {
   
   def parseAndValidate(input: String, expectedMessage: String): Assertion = {
 
-    ConfigParser.parse(input).resolve match {
+    ConfigParser.parse(input).resolve() match {
       case Right(result) => fail(s"Unexpected parser success: $result")
       case Left(ConfigParserErrors(errors)) =>
         errors.size shouldBe 1

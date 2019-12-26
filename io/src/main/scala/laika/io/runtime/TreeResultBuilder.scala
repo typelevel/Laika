@@ -77,8 +77,6 @@ object TreeResultBuilder {
     resolvedConfig.flatMap { treeConfig =>
       val resolvedContent = result.content.toVector.traverse(
         _.fold(resolveConfig(_, treeConfig), resolveConfig(_, treeConfig))
-        //case Right(tree) => resolvedConfig(tree, treeConfig)
-        //case Left(doc)   => resolveConfig(doc, treeConfig)
       )
       
       for {

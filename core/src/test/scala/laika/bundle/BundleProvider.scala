@@ -61,7 +61,7 @@ object BundleProvider {
 
   def forConfigString (input: String): ExtensionBundle = new ExtensionBundle {
 
-    override def baseConfig: Config = ConfigParser.parse(input).resolve.toOption.get
+    override def baseConfig: Config = ConfigParser.parse(input).resolve().toOption.get
 
   }
 

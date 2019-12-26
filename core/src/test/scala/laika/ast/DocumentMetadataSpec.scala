@@ -34,7 +34,7 @@ class DocumentMetadataSpec extends FlatSpec with Matchers {
         |  language: "en:UK"
         |}
       """.stripMargin
-    val config = ConfigParser.parse(configString).resolve.toOption.get
+    val config = ConfigParser.parse(configString).resolve().toOption.get
     DocumentMetadata.fromConfig(config) shouldBe Right(DocumentMetadata(Some("urn:isbn:9781449325299"), Seq("Mia Miller"),
       Some(Locale.forLanguageTag("en:UK")), Some(Instant.parse("2000-01-01T00:00:00Z"))))
   }
@@ -42,7 +42,7 @@ class DocumentMetadataSpec extends FlatSpec with Matchers {
   it should "populate multiple authors" in {
     val configString =
       """metadata.authors: ["Mia Miller", "Naomi Nader"]"""
-    val config = ConfigParser.parse(configString).resolve.toOption.get
+    val config = ConfigParser.parse(configString).resolve().toOption.get
     DocumentMetadata.fromConfig(config) shouldBe Right(DocumentMetadata(authors = Seq("Mia Miller", "Naomi Nader")))
   }
 
@@ -61,7 +61,7 @@ class DocumentMetadataSpec extends FlatSpec with Matchers {
         |  language: "en:UK"
         |}
       """.stripMargin
-    val config = ConfigParser.parse(configString).resolve.toOption.get
+    val config = ConfigParser.parse(configString).resolve().toOption.get
     DocumentMetadata.fromConfig(config) shouldBe Left(DecodingError("Invalid date format: Text '2000-XX-01T00:00:00Z' could not be parsed at index 5"))
   }
 
