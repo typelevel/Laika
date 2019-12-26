@@ -97,7 +97,7 @@ case class TemplateDocument (path: Path, content: TemplateRoot, config: ConfigPa
    *  span and block resolvers in the template with the final resolved element.
    */
   def applyTo (document: Document): Either[ConfigError, Document] = 
-    TemplateRewriter.applyTemplate(DocumentCursor(document), this, Map.empty[IncludeResource, Either[ConfigError, ObjectBuilderValue]]) // TODO - 0.13 - use unsupported map
+    TemplateRewriter.applyTemplate(DocumentCursor(document), this)
 
 }
 

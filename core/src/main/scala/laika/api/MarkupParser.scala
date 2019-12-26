@@ -80,7 +80,7 @@ class MarkupParser (parser: MarkupFormat, val config: OperationConfig) {
     for {
       unresolved     <- docParser(input)
       resolvedConfig <- unresolved.config.resolve(Origin(DocumentScope, input.path), 
-                          config.baseConfig, Map.empty).left.map(ParserError(_, input.path)) // TODO - 0.13 - this should use the unsupported map instead of the empty one
+                          config.baseConfig).left.map(ParserError(_, input.path))
     } yield {
       val processedConfig = ConfigHeaderParser.merge(resolvedConfig, extractConfigValues(unresolved.document)) // TODO - 0.13 - move this somewhere else
       val resolvedDoc = unresolved.document.copy(config = processedConfig)

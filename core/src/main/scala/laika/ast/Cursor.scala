@@ -16,10 +16,10 @@
 
 package laika.ast
 
-import laika.config.Config.ConfigResult
-import laika.config.{Config, ConfigEncoder, ConfigValue, Key}
 import laika.ast.Path.Root
 import laika.collection.TransitionalCollectionOps._
+import laika.config.Config.ConfigResult
+import laika.config.{Config, ConfigEncoder, ConfigValue, Key}
 import laika.rewrite.ReferenceResolver
 import laika.rewrite.nav.NavigationOrder
 

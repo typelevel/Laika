@@ -18,14 +18,13 @@ package laika.directive
 
 import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
-import laika.config.{Config, ConfigBuilder, ConfigError, ConfigParser, Origin}
+import laika.config.{Config, ConfigBuilder, ConfigParser, Origin}
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.Markdown
 import laika.parse.ParserContext
-import laika.parse.hocon.{IncludeResource, ObjectBuilderValue}
 import laika.rewrite.TemplateRewriter
-import org.scalatest.{FlatSpec, Matchers, path}
+import org.scalatest.{FlatSpec, Matchers}
 
 
 class StandardDirectiveSpec extends FlatSpec
@@ -49,7 +48,7 @@ class StandardDirectiveSpec extends FlatSpec
     val tRoot = parseTemplate(input)
     val template = TemplateDocument(Path.Root, tRoot)
     val cursor = DocumentCursor(Document(Path.Root, root(), config = ConfigParser.parse(config).resolve().toOption.get))
-    TemplateRewriter.applyTemplate(cursor, template, Map.empty[IncludeResource, Either[ConfigError, ObjectBuilderValue]]).toOption.get.content
+    TemplateRewriter.applyTemplate(cursor, template).toOption.get.content
   }
   
 
