@@ -53,6 +53,9 @@ case class ConfigParserErrors(failures: Seq[Failure]) extends ConfigError {
 /** An error that occurred when resolving the interim result of a parsing operation. */
 case class ConfigResolverError(message: String) extends ConfigError
 
+/** An error that occurred when loading a resource, before parsing could start. */
+case class ConfigResourceError(message: String) extends ConfigError
+
 /** A required value that could not be found. */
 case class NotFound(key: Key) extends ConfigError {
   val message: String = s"Not found: '$key'"
