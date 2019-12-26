@@ -26,7 +26,6 @@ import laika.parse._
 import laika.parse.combinator.Parsers
 import laika.parse.css.CSSParsers
 import laika.parse.directive.ConfigHeaderParser
-import laika.parse.hocon.ConfigResolver
 import laika.parse.markup.DocumentParser.ParserInput
 import laika.parse.text.TextParsers
 import org.scalatest.{Matchers, WordSpec}
@@ -320,12 +319,12 @@ class ParserBundleSpec extends WordSpec with Matchers {
   "The configuration for the config provider" should {
     
     object BetweenBraces extends ConfigProvider {
-      def configHeader: Parser[UnresolvedConfig] = ConfigHeaderParser.betweenLines("{{", "}}")
-      def configDocument (input: String): UnresolvedConfig = UnresolvedConfig.empty
+      def configHeader: Parser[ConfigParser] = ConfigHeaderParser.betweenLines("{{", "}}")
+      def configDocument (input: String): ConfigParser = ConfigParser.empty
     }
     object BetweenAngles extends ConfigProvider {
-      def configHeader: Parser[UnresolvedConfig] = ConfigHeaderParser.betweenLines("<<", ">>")
-      def configDocument (input: String): UnresolvedConfig = UnresolvedConfig.empty
+      def configHeader: Parser[ConfigParser] = ConfigHeaderParser.betweenLines("<<", ">>")
+      def configDocument (input: String): ConfigParser = ConfigParser.empty
     }
     
     def parseWith(opConfig: OperationConfig, input: String): Either[ConfigError, Config] = opConfig

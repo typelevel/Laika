@@ -16,7 +16,8 @@
 
 package laika.directive
 
-import laika.bundle.{ConfigProvider, ExtensionBundle, ParserBundle, UnresolvedConfig}
+import laika.bundle.{ConfigProvider, ExtensionBundle, ParserBundle}
+import laika.config.ConfigParser
 import laika.parse.Parser
 import laika.parse.directive.{BlockDirectiveParsers, ConfigHeaderParser, SpanDirectiveParsers, TemplateParsers}
 
@@ -32,8 +33,8 @@ class DirectiveSupport (blockDirectives: Seq[Blocks.Directive],
                         templateDirectives: Seq[Templates.Directive]) extends ExtensionBundle {
 
   private val configProvider: ConfigProvider = new ConfigProvider {
-    def configHeader: Parser[UnresolvedConfig] = ConfigHeaderParser.withDefaultLineDelimiters
-    def configDocument (input: String): UnresolvedConfig = UnresolvedConfig.default(input)
+    def configHeader: Parser[ConfigParser] = ConfigHeaderParser.withDefaultLineDelimiters
+    def configDocument (input: String): ConfigParser = ConfigParser.parse(input)
   }
   
   override lazy val parsers: ParserBundle = ParserBundle(

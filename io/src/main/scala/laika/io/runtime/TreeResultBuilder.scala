@@ -16,10 +16,9 @@
 
 package laika.io.runtime
 
-import laika.config.{Config, ConfigError, Origin}
+import laika.config.{Config, ConfigError, ConfigParser, Origin}
 import laika.ast.Path.Root
 import laika.ast.{Document, DocumentTree, DocumentTreeRoot, Navigatable, Path, StyleDeclarationSet, TemplateDocument, TreeBuilder, UnresolvedDocument}
-import laika.bundle.UnresolvedConfig
 import cats.implicits._
 import laika.config.Config.IncludeMap
 import laika.config.Origin.{DocumentScope, TreeScope}
@@ -42,7 +41,7 @@ object TreeResultBuilder {
   case class StyleResult (doc: StyleDeclarationSet, format: String) extends ParserResult {
     val path: Path = doc.paths.head
   }
-  case class ConfigResult (path: Path, config: UnresolvedConfig) extends ParserResult
+  case class ConfigResult (path: Path, config: ConfigParser) extends ParserResult
 
   type UnresolvedContent = Either[UnresolvedDocument, TreeResult]
   

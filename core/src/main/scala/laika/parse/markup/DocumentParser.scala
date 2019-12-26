@@ -17,8 +17,8 @@
 package laika.parse.markup
 
 import laika.ast._
-import laika.bundle.{ConfigProvider, MarkupExtensions, UnresolvedConfig}
-import laika.config.ConfigError
+import laika.bundle.{ConfigProvider, MarkupExtensions}
+import laika.config.{ConfigError, ConfigParser}
 import laika.factory.MarkupFormat
 import laika.parse.combinator.Parsers
 import laika.parse.{Parser, ParserContext}
@@ -42,10 +42,10 @@ object DocumentParser {
   }
 
   private def create [D, R <: ElementContainer[_]] (rootParser: Parser[R], configProvider: ConfigProvider)
-    (docFactory: (Path, UnresolvedConfig, R) => D): ParserInput => Either[ParserError, D] = {
+    (docFactory: (Path, ConfigParser, R) => D): ParserInput => Either[ParserError, D] = {
 
     forParser { path =>
-      (configProvider.configHeader | Parsers.success(UnresolvedConfig.empty)) ~ rootParser ^^ { case configHeader ~ root =>
+      (configProvider.configHeader | Parsers.success(ConfigParser.empty)) ~ rootParser ^^ { case configHeader ~ root =>
         docFactory(path, configHeader, root)
       }
     }

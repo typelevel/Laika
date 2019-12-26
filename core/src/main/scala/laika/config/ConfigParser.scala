@@ -27,19 +27,8 @@ import laika.parse.hocon.{BuilderField, ConfigResolver, HoconParsers, IncludeBui
   * 
   * @author Jens Halm
   */
-class ConfigParser(input: String) {
+trait ConfigParser {
   
-  private val includesNotSupported: IncludeMap =
-    Map.empty.withDefaultValue(Left(ConfigResourceError(
-      "Loading of includes is not supported in pure mode, use parsers or transformers in laika-io for this purpose."
-    )))
-  
-  private lazy val parsed: Either[ConfigError, ObjectBuilderValue] = 
-    HoconParsers.rootObject.parse(input) match {
-      case Success(builderRoot, _) => Right(builderRoot)
-      case f: Failure => Left(ConfigParserError(f))
-    }
-
   /** Extracts all unresolved requested includes the parsed configuration contains,
     * including those nested inside other objects.
     * 
@@ -47,16 +36,7 @@ class ConfigParser(input: String) {
     * can be used by a higher level API to resolve includes and pass them
     * to the `resolve` method.
     */
-  lazy val includes: Seq[IncludeResource] = {
-    
-    def extractIncludes(obj: ObjectBuilderValue): Seq[IncludeResource] = obj.values.flatMap {
-      case BuilderField(_, IncludeBuilderValue(resource)) => Seq(resource)
-      case BuilderField(_, child: ObjectBuilderValue) => extractIncludes(child)
-      case _ => Nil
-    }
-    
-    parsed.fold(_ => Nil, extractIncludes)
-  }
+  def includes: Seq[IncludeResource]
   
   /** Parses and resolves the parsed HOCON input.
     * This includes the resolving of substitution references
@@ -85,18 +65,59 @@ class ConfigParser(input: String) {
     */
   def resolve(origin: Origin = Origin.root, 
               fallback: Config = EmptyConfig, 
-              includes: IncludeMap = includesNotSupported): Either[ConfigError, Config] =
-    parsed.flatMap(ConfigResolver
-      .resolve(_, origin, fallback, includes)
-      .map(new ObjectConfig(_, origin, fallback))
-    )
+              includes: IncludeMap = ConfigParser.includesNotSupported): Either[ConfigError, Config]
 
 }
 
 object ConfigParser {
 
+  private[laika] val includesNotSupported: IncludeMap =
+    Map.empty.withDefaultValue(Left(ConfigResourceError(
+      "Loading of includes is not supported in pure mode, use parsers or transformers in laika-io for this purpose."
+    )))
+  
+
   /** Creates a new parser for the specified HOCON input.
     */
-  def parse(input: String): ConfigParser = new ConfigParser(input)
+  def parse(input: String): ConfigParser = new ConfigParser {
+
+    private lazy val parsed: Either[ConfigError, ObjectBuilderValue] =
+      HoconParsers.rootObject.parse(input) match {
+        case Success(builderRoot, _) => Right(builderRoot)
+        case f: Failure => Left(ConfigParserError(f))
+      }
+
+    lazy val includes: Seq[IncludeResource] = {
+
+      def extractIncludes(obj: ObjectBuilderValue): Seq[IncludeResource] = obj.values.flatMap {
+        case BuilderField(_, IncludeBuilderValue(resource)) => Seq(resource)
+        case BuilderField(_, child: ObjectBuilderValue) => extractIncludes(child)
+        case _ => Nil
+      }
+
+      parsed.fold(_ => Nil, extractIncludes)
+    }
+
+    def resolve(origin: Origin = Origin.root,
+                fallback: Config = EmptyConfig,
+                includes: IncludeMap = ConfigParser.includesNotSupported): Either[ConfigError, Config] =
+      parsed.flatMap(ConfigResolver
+        .resolve(_, origin, fallback, includes)
+        .map(new ObjectConfig(_, origin, fallback))
+      )
+    
+  }
+
+  /** Creates a new parser that will produce an empty result.
+    */
+  def empty: ConfigParser = new ConfigParser {
+
+    val includes: Seq[IncludeResource] = Nil
+
+    def resolve(origin: Origin = Origin.root,
+                fallback: Config = EmptyConfig,
+                includes: IncludeMap = ConfigParser.includesNotSupported): Either[ConfigError, Config] =
+      Right(ConfigBuilder.withFallback(fallback, origin).build)
+  }
 
 }

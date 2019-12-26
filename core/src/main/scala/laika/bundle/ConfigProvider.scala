@@ -44,7 +44,7 @@ trait ConfigProvider {
     * is necessary as substitution references in configuration headers can
     * refer to values defined in configuration files or programmatically.
     */
-  def configHeader: Parser[UnresolvedConfig]
+  def configHeader: Parser[ConfigParser]
 
   /** The parser for configuration files recognized in input directories.
     *
@@ -53,7 +53,7 @@ trait ConfigProvider {
     * is necessary as substitution references in configuration headers can
     * refer to values defined in configuration files or programmatically.
     */
-  def configDocument (input: String): UnresolvedConfig
+  def configDocument (input: String): ConfigParser
   
 }
 
@@ -63,52 +63,9 @@ object ConfigProvider {
     * an empty Config instance.
     */
   val empty: ConfigProvider = new ConfigProvider {
-    def configHeader = Parsers.success(UnresolvedConfig.empty)
-    def configDocument (input: String) = UnresolvedConfig.empty
+    def configHeader = Parsers.success(ConfigParser.empty)
+    def configDocument (input: String) = ConfigParser.empty
   }
   
 }
 
-/** An unresolved Config instance that will be lazily resolved against a fallback.
-  */
-trait UnresolvedConfig {
-
-  /** Extracts all unresolved requested includes the unresolved configuration contains,
-    * including those nested inside other objects.
-    */
-  def includes: Seq[IncludeResource]
-
-  /** Resolves the parsed configuration against the specified fallback,
-    * using it for references not found in the parsed result.
-    * 
-    * The given origin will be used to tag each value parsed with this
-    * instance.
-    */
-  def resolve (origin: Origin, fallback: Config, includes: IncludeMap): Either[ConfigError, Config]
-  
-}
-
-object UnresolvedConfig {
-
-  /** Returns an empty instance that will always return just
-    * the fallback unmodified.
-    */
-  val empty: UnresolvedConfig = new UnresolvedConfig {
-    val includes = Nil
-    def resolve (origin: Origin, fallback: Config, includes: IncludeMap) = Right(ConfigBuilder.withFallback(fallback, origin).build)
-  }
-
-  /** Returns an unresolved config for the specified HOCON input
-    * based on the library's built-in HOCON parser.
-    */
-  def default (input: String): UnresolvedConfig = new UnresolvedConfig {
-    
-    private val parser = ConfigParser.parse(input)
-    
-    lazy val includes: Seq[IncludeResource] = parser.includes
-    
-    def resolve (origin: Origin, fallback: Config, includes: IncludeMap) =
-      parser.resolve(origin, fallback)
-  }
-  
-}

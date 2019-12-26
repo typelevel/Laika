@@ -22,8 +22,8 @@ import cats.implicits._
 import laika.api.MarkupParser
 import laika.ast.Path.Root
 import laika.ast._
-import laika.bundle.UnresolvedConfig
 import laika.config.Config.IncludeMap
+import laika.config.ConfigParser
 import laika.io.config.IncludeLoader
 import laika.io.model.{ParsedTree, TextInput, TreeInput}
 import laika.io.text.{ParallelParser, SequentialParser}
@@ -74,7 +74,7 @@ object ParserRuntime {
       def parseDocument[D] (doc: TextInput[F], parse: ParserInput => Either[ParserError, D], result: D => ParserResult): F[ParserResult] =
         InputRuntime.readParserInput(doc).flatMap(in => Async[F].fromEither(parse(in).map(result)))
       
-      def parseConfig(input: ParserInput): Either[ParserError, UnresolvedConfig] =
+      def parseConfig(input: ParserInput): Either[ParserError, ConfigParser] =
         Right(op.config.configProvider.configDocument(input.context.input))
       
       val createOps: Either[Throwable, Vector[F[ParserResult]]] = inputs.textInputs.toVector.map { in => in.docType match {
