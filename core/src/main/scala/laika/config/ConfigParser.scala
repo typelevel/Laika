@@ -71,10 +71,17 @@ class ConfigParser(input: String) {
     * the keys will be merged from this parser with those present in the fallback.
     * Simple values on the other hand will always override values with the same
     * key in the fallback.
+    * 
+    * The specified includes contain all resources that could be loaded
+    * based on the requested resources exposed by the `includes` property.
+    * Keeping the actual loading separate allows the resource loading step
+    * to be separate and in a module designed for effectful operations.
     */
-  def resolve(origin: Origin = Origin.root, fallback: Config = EmptyConfig): Either[ConfigError, Config] =
+  def resolve(origin: Origin = Origin.root, 
+              fallback: Config = EmptyConfig, 
+              includes: Map[IncludeResource, Either[ConfigError, ObjectBuilderValue]] = Map.empty): Either[ConfigError, Config] =
     parsed.flatMap(ConfigResolver
-      .resolve(_, origin, fallback)
+      .resolve(_, origin, fallback, includes)
       .map(new ObjectConfig(_, origin, fallback))
     )
 

@@ -179,7 +179,7 @@ trait BuilderContext[E <: Element] {
         factory.toRight(Seq(s"No $typeName directive registered with name: $name"))
       
       def attributes: Result[Config] = ConfigResolver
-        .resolve(parsedResult.attributes, origin, cursor.config)
+        .resolve(parsedResult.attributes, origin, cursor.config, Map.empty)
         .map(new ObjectConfig(_, origin, cursor.config))
         .left.map(e => Seq(e.message))
       

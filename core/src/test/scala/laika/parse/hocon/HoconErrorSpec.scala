@@ -513,22 +513,8 @@ class HoconErrorSpec extends WordSpec with Matchers {
     
   }
   
-  "Unsupported include syntax" should {
+  "Invalid include syntax" should {
 
-    "be detected with valid, but unsupported syntax" in {
-      val input =
-        """
-          |include "foo.conf"
-          |       
-          |b = 9""".stripMargin
-      val expectedMessage =
-        """[1.1] failure: Processing include instructions is not implemented for the pure parser and will be added later to the laika-io module
-          |
-          |foo.conf
-          |^""".stripMargin
-      parseAndValidate(input, expectedMessage)
-    }
-    
     "be detected with missing closing quotes" in {
       val input =
         """

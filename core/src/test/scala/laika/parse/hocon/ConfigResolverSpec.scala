@@ -16,7 +16,7 @@
 
 package laika.parse.hocon
 
-import laika.config.{ArrayValue, Config, ConfigBuilder, ConfigError, ConfigResolverError, EmptyConfig, Field, Key, LongValue, ObjectValue, Origin, StringValue}
+import laika.config.{ArrayValue, Config, ConfigBuilder, ConfigError, ConfigResolverError, EmptyConfig, Field, Key, LongValue, ObjectValue, Origin, StringValue, ValidationError}
 import org.scalatest.{Matchers, WordSpec}
 
 /**
@@ -26,17 +26,22 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
 
   def parseAndResolve(input: String): ObjectValue = {
     val builder = HoconParsers.rootObject.parse(input).toOption.get
-    ConfigResolver.resolve(builder, Origin.root, EmptyConfig).toOption.get
+    ConfigResolver.resolve(builder, Origin.root, EmptyConfig, Map.empty).toOption.get
+  }
+
+  def parseAndResolve(input: String, includes: Map[IncludeResource, Either[ConfigError, ObjectBuilderValue]]): ObjectValue = {
+    val builder = HoconParsers.rootObject.parse(input).toOption.get
+    ConfigResolver.resolve(builder, Origin.root, EmptyConfig, includes).toOption.get
   }
 
   def parseAndResolve(input: String, fallback: Config): ObjectValue = {
     val builder = HoconParsers.rootObject.parse(input).toOption.get
-    ConfigResolver.resolve(builder, Origin.root, fallback).toOption.get
+    ConfigResolver.resolve(builder, Origin.root, fallback, Map.empty).toOption.get
   }
 
-  def parseAndResolveForFailure(input: String): Either[ConfigError, ObjectValue] = {
+  def parseAndResolveForFailure(input: String, includes: Map[IncludeResource, Either[ConfigError, ObjectBuilderValue]] = Map.empty): Either[ConfigError, ObjectValue] = {
     val builder = HoconParsers.rootObject.parse(input).toOption.get
-    ConfigResolver.resolve(builder, Origin.root, EmptyConfig)
+    ConfigResolver.resolve(builder, Origin.root, EmptyConfig, includes)
   }
    
   "The config resolver" should {
@@ -607,6 +612,80 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
           )))
         )))
       ))
+    }
+    
+  }
+  
+  "The inclusion resolver" should {
+    
+    val includes: Map[IncludeResource, Either[ConfigError, ObjectBuilderValue]] = Map(
+      IncludeFile(ValidStringValue("foo.conf")) -> Right(ObjectBuilderValue(Seq(
+        BuilderField(Right(Key("c")), ResolvedBuilderValue(LongValue(5)))
+      )))
+    )
+    
+    "resolve an include on the top level" in {
+      val input =
+        """
+         |b = 7
+         |include file("foo.conf")
+         |
+        """.stripMargin
+      parseAndResolve(input, includes) shouldBe ObjectValue(Seq(
+        Field("b", LongValue(7)),
+        Field("c", LongValue(5))
+      ))
+    }
+
+    "resolve a nested include" in {
+      val input =
+        """
+          |a { 
+          |  b = 7
+          |  include file("foo.conf")
+          |}
+        """.stripMargin
+      parseAndResolve(input, includes) shouldBe ObjectValue(Seq(
+        Field("a", ObjectValue(Seq(
+          Field("b", LongValue(7)),
+          Field("c", LongValue(5))
+        )))
+      ))
+    }
+
+    "ignore a missing optional resource" in {
+      val input =
+        """
+          |b = 7
+          |include file("foo.conf")
+          |
+        """.stripMargin
+      parseAndResolve(input) shouldBe ObjectValue(Seq(
+        Field("b", LongValue(7))
+      ))
+    }
+
+    "fail with a missing required resource" in {
+      val input =
+        """
+          |b = 7
+          |include required(file("foo.conf"))
+          |
+        """.stripMargin
+      parseAndResolveForFailure(input) shouldBe Left(ConfigResolverError("One or more errors resolving configuration: '<RootKey>': Missing required include 'foo.conf'"))
+    }
+
+    "fail when an include failed to load" in {
+      val includes: Map[IncludeResource, Either[ConfigError, ObjectBuilderValue]] = Map(
+        IncludeFile(ValidStringValue("foo.conf")) -> Left(ValidationError("This include is faulty"))
+      )
+      val input =
+        """
+          |b = 7
+          |include file("foo.conf")
+          |
+        """.stripMargin
+      parseAndResolveForFailure(input, includes) shouldBe Left(ConfigResolverError("One or more errors resolving configuration: '<RootKey>': Error including 'foo.conf': This include is faulty"))
     }
     
   }

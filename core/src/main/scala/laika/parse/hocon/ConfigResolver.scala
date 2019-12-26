@@ -51,7 +51,10 @@ object ConfigResolver {
     * - Resolve substitution variables (potentially using the provided fallback if not found in
     *   in the provided unresolved root)
     */
-  def resolve(root: ObjectBuilderValue, origin: Origin, fallback: Config): Either[ConfigError, ObjectValue] = {
+  def resolve(root: ObjectBuilderValue, 
+              origin: Origin, 
+              fallback: Config, 
+              includes: Map[IncludeResource, Either[ConfigError, ObjectBuilderValue]]): Either[ConfigError, ObjectValue] = {
 
     val errors = extractErrors(root)
 
@@ -173,8 +176,22 @@ object ConfigResolver {
 
       def resolveObject(obj: ObjectBuilderValue, key: Key): ObjectValue = {
         startedObjects += ((key, obj))
-        val resolvedFields = obj.values.flatMap { field =>
+        
+        def resolve(field: BuilderField): Option[Field] =
           resolveField(field.validKey, field.value, obj).map(Field(field.validKey.local.toString, _, origin))
+        
+        val resolvedFields = obj.values.flatMap {
+          case BuilderField(_, IncludeBuilderValue(resource)) => includes.get(resource) match {
+            case None =>
+              if (resource.isRequired) invalidPaths += ((key, s"Missing required include '${resource.resourceId.value}'"))
+              Nil
+            case Some(Left(error)) => 
+              invalidPaths += ((key, s"Error including '${resource.resourceId.value}': ${error.message}"))
+              Nil
+            case Some(Right(included)) => 
+              included.values.flatMap(resolve)
+          }
+          case field => resolve(field)
         }
         ObjectValue(resolvedFields.sortBy(_.key))
       }
@@ -293,8 +310,6 @@ object ConfigResolver {
   /* Extracts all invalid values from the unresolved config tree */
   def extractErrors (obj: ObjectBuilderValue): Seq[Failure] = {
     
-    val includeMsg = "Processing include instructions is not implemented for the pure parser and will be added later to the laika-io module"
-
     def extract(value: ConfigBuilderValue): Seq[Failure] = value match {
       case InvalidStringValue(_, failure)  => Seq(failure)
       case InvalidBuilderValue(ArrayBuilderValue(values), failure) => 
@@ -306,7 +321,7 @@ object ConfigResolver {
       case InvalidBuilderValue(_, failure) => Seq(failure)
       case incl: IncludeBuilderValue       => incl.resource.resourceId match {
         case InvalidStringValue(_, failure) => Seq(failure)
-        case ValidStringValue(name)         => Seq(Failure(Message.fixed(includeMsg), ParserContext(name)))
+        case _                              => Nil
       }
       case child: ObjectBuilderValue       => extractErrors(child)
       case child: ArrayBuilderValue        => child.values.flatMap(extract)
