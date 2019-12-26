@@ -17,7 +17,7 @@
 package laika.io
 
 import cats.Parallel
-import cats.data.NonEmptyList
+import cats.data.{Kleisli, NonEmptyList}
 import cats.effect.{Async, Blocker, ContextShift}
 import laika.api.builder.{ParserBuilder, RendererBuilder, TransformerBuilder, TwoPhaseRendererBuilder, TwoPhaseTransformerBuilder}
 import laika.factory.BinaryPostProcessor
@@ -171,7 +171,7 @@ object implicits {
 
         def parallel[F[_] : Async : ContextShift : Parallel] (parallelism: Int): text.ParallelTransformer.Builder[F] = {
           implicit val runtime: Runtime[F] = Runtime.parallel(blocker, parallelism)
-          new text.ParallelTransformer.Builder[F](builder.build)
+          new text.ParallelTransformer.Builder[F](builder.build, Kleisli(Async[F].pure))
         }
       }
   }
@@ -190,7 +190,7 @@ object implicits {
 
         def parallel[F[_] : Async : ContextShift : Parallel] (parallelism: Int): binary.ParallelTransformer.Builder[F] = {
           implicit val runtime: Runtime[F] = Runtime.parallel(blocker, parallelism)
-          new binary.ParallelTransformer.Builder[F](builder.build)
+          new binary.ParallelTransformer.Builder[F](builder.build, Kleisli(Async[F].pure))
         }
       }
   }

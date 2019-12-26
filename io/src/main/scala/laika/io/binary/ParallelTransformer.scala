@@ -16,22 +16,22 @@
 
 package laika.io.binary
 
-import cats.Parallel
-import cats.effect.{Async, Blocker, ContextShift}
+import cats.data.Kleisli
+import cats.effect.Async
 import laika.api.builder.{OperationConfig, TwoPhaseTransformer}
 import laika.ast.{DocumentType, TextDocumentType}
 import laika.factory.BinaryPostProcessor
-import laika.io.ops.ParallelInputOps
-import laika.io.binary.ParallelTransformer.BinaryTransformer
+import laika.io.binary.ParallelTransformer.{BinaryTransformer, TreeMapper}
 import laika.io.model._
-import laika.io.ops.BinaryOutputOps
+import laika.io.ops.{BinaryOutputOps, ParallelInputOps, TreeMapperOps}
 import laika.io.runtime.{Runtime, TransformerRuntime}
 
 /** Transformer that merges a tree of input documents to a single binary output document.
   *
   * @author Jens Halm
   */
-class ParallelTransformer[F[_]: Async: Runtime] (transformer: BinaryTransformer) extends ParallelInputOps[F] {
+class ParallelTransformer[F[_]: Async: Runtime] (transformer: BinaryTransformer, 
+                                                 mapper: TreeMapper[F]) extends ParallelInputOps[F] {
 
   type Result = ParallelTransformer.OutputOps[F]
 
@@ -41,7 +41,8 @@ class ParallelTransformer[F[_]: Async: Runtime] (transformer: BinaryTransformer)
 
   val config: OperationConfig = transformer.markupParser.config
 
-  def fromInput (input: F[TreeInput[F]]): ParallelTransformer.OutputOps[F] = ParallelTransformer.OutputOps(transformer, input)
+  def fromInput (input: F[TreeInput[F]]): ParallelTransformer.OutputOps[F] = 
+    ParallelTransformer.OutputOps(transformer, input, mapper)
 
 }
 
@@ -50,27 +51,36 @@ class ParallelTransformer[F[_]: Async: Runtime] (transformer: BinaryTransformer)
 object ParallelTransformer {
 
   type BinaryTransformer = TwoPhaseTransformer[BinaryPostProcessor]
+  
+  type TreeMapper[F[_]] = Kleisli[F, ParsedTree[F], ParsedTree[F]]
 
   /** Builder step that allows to specify the execution context
     * for blocking IO and CPU-bound tasks.
     */
-  case class Builder[F[_]: Async: Runtime] (transformer: BinaryTransformer) {
+  case class Builder[F[_]: Async: Runtime] (transformer: BinaryTransformer, mapper: TreeMapper[F]) extends TreeMapperOps[F] {
 
+    type MapRes = Builder[F]
+
+    def evalMapTree (f: ParsedTree[F] => F[ParsedTree[F]]): MapRes =
+      new Builder[F](transformer, mapper.andThen(f))
+    
     /** Final builder step that creates a parallel transformer for binary output.
       */
-    def build: ParallelTransformer[F] = new ParallelTransformer[F](transformer)
+    def build: ParallelTransformer[F] = new ParallelTransformer[F](transformer, Kleisli(Async[F].pure))
 
   }
 
   /** Builder step that allows to specify the output to render to.
     */
-  case class OutputOps[F[_]: Async: Runtime] (transformer: BinaryTransformer, input: F[TreeInput[F]]) extends BinaryOutputOps[F] {
+  case class OutputOps[F[_]: Async: Runtime] (transformer: BinaryTransformer, 
+                                              input: F[TreeInput[F]], 
+                                              mapper: TreeMapper[F]) extends BinaryOutputOps[F] {
 
     val F: Async[F] = Async[F]
 
     type Result = Op[F]
 
-    def toOutput (output: BinaryOutput[F]): Op[F] = Op[F](transformer, input, output)
+    def toOutput (output: BinaryOutput[F]): Op[F] = Op[F](transformer, input, mapper, output)
 
   }
 
@@ -80,7 +90,10 @@ object ParallelTransformer {
     * default runtime implementation or by developing a custom runner that performs
     * the transformation based on this operation's properties.
     */
-  case class Op[F[_]: Async: Runtime] (transformer: BinaryTransformer, input: F[TreeInput[F]], output: BinaryOutput[F]) {
+  case class Op[F[_]: Async: Runtime] (transformer: BinaryTransformer, 
+                                       input: F[TreeInput[F]],
+                                       mapper: TreeMapper[F],
+                                       output: BinaryOutput[F]) {
 
     /** Performs the transformation based on the library's
       * default runtime implementation, suspended in the effect F.

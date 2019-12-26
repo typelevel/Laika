@@ -16,20 +16,20 @@
 
 package laika.io.text
 
-import cats.Parallel
-import cats.effect.{Async, Blocker, ContextShift}
+import cats.effect.Async
 import laika.api.Transformer
 import laika.api.builder.OperationConfig
 import laika.ast.{DocumentType, TextDocumentType}
-import laika.io.model.{TreeInput, RenderedTreeRoot, TreeOutput}
-import laika.io.ops.{ParallelInputOps, ParallelTextOutputOps}
+import laika.io.binary.ParallelTransformer.TreeMapper
+import laika.io.model.{ParsedTree, RenderedTreeRoot, TreeInput, TreeOutput}
+import laika.io.ops.{ParallelInputOps, ParallelTextOutputOps, TreeMapperOps}
 import laika.io.runtime.{Runtime, TransformerRuntime}
 
 /** Transformer for a tree of input and output documents.
   *
   * @author Jens Halm
   */
-class ParallelTransformer[F[_]: Async: Runtime] (transformer: Transformer) extends ParallelInputOps[F] {
+class ParallelTransformer[F[_]: Async: Runtime] (transformer: Transformer, mapper: TreeMapper[F]) extends ParallelInputOps[F] {
 
   type Result = ParallelTransformer.OutputOps[F]
 
@@ -39,7 +39,8 @@ class ParallelTransformer[F[_]: Async: Runtime] (transformer: Transformer) exten
 
   val config: OperationConfig = transformer.parser.config
 
-  def fromInput (input: F[TreeInput[F]]): ParallelTransformer.OutputOps[F] = ParallelTransformer.OutputOps(transformer, input)
+  def fromInput (input: F[TreeInput[F]]): ParallelTransformer.OutputOps[F] =
+    ParallelTransformer.OutputOps(transformer, input, mapper)
 
 }
 
@@ -50,23 +51,27 @@ object ParallelTransformer {
   /** Builder step that allows to specify the execution context
     * for blocking IO and CPU-bound tasks.
     */
-  case class Builder[F[_]: Async: Runtime] (transformer: Transformer) {
+  case class Builder[F[_]: Async: Runtime] (transformer: Transformer, mapper: TreeMapper[F]) extends TreeMapperOps[F] {
 
+    type MapRes = Builder[F]
+    
+    def evalMapTree (f: ParsedTree[F] => F[ParsedTree[F]]): MapRes = new Builder[F](transformer, mapper.andThen(f))
+    
     /** Final builder step that creates a parallel transformer.
       */
-    def build: ParallelTransformer[F] = new ParallelTransformer[F](transformer)
+    def build: ParallelTransformer[F] = new ParallelTransformer[F](transformer, mapper)
 
   }
 
   /** Builder step that allows to specify the output to render to.
     */
-  case class OutputOps[F[_]: Async: Runtime] (transformer: Transformer, input: F[TreeInput[F]]) extends ParallelTextOutputOps[F] {
+  case class OutputOps[F[_]: Async: Runtime] (transformer: Transformer, input: F[TreeInput[F]], mapper: TreeMapper[F]) extends ParallelTextOutputOps[F] {
 
     val F: Async[F] = Async[F]
 
     type Result = Op[F]
 
-    def toOutput (output: TreeOutput): Op[F] = Op[F](transformer, input, output)
+    def toOutput (output: TreeOutput): Op[F] = Op[F](transformer, input, mapper, output)
 
   }
 
@@ -76,7 +81,7 @@ object ParallelTransformer {
     * default runtime implementation or by developing a custom runner that performs
     * the transformation based on this operation's properties.
     */
-  case class Op[F[_]: Async: Runtime] (transformer: Transformer, input: F[TreeInput[F]], output: TreeOutput) {
+  case class Op[F[_]: Async: Runtime] (transformer: Transformer, input: F[TreeInput[F]], mapper: TreeMapper[F], output: TreeOutput) {
 
     /** Performs the transformation based on the library's
       * default runtime implementation, suspended in the effect F.

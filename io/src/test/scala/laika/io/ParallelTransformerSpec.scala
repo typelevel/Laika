@@ -28,7 +28,7 @@ import laika.bundle.{BundleProvider, ExtensionBundle}
 import laika.directive.Templates
 import laika.format._
 import laika.io.helper.OutputBuilder._
-import laika.io.helper.{InputBuilder, OutputBuilder, RenderResult}
+import laika.io.helper.{InputBuilder, RenderResult}
 import laika.io.implicits._
 import laika.io.model.{StringTreeOutput, TreeInput}
 import laika.io.text.ParallelTransformer
@@ -57,6 +57,8 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
     def transformWithDocTypeMatcher (matcher: PartialFunction[Path, DocumentType]): IO[RenderedTreeViewRoot] = transformWithBundle(BundleProvider.forDocTypeMatcher(matcher))
     def transformWithTemplates (parser: Parser[TemplateRoot]): IO[RenderedTreeViewRoot] = transformWithBundle(BundleProvider.forTemplateParser(parser))
     def transformWithDirective (directive: Templates.Directive): IO[RenderedTreeViewRoot] = transformWithBundle(BundleProvider.forTemplateDirective(directive))
+    def transformWithDocumentMapper (f: Document => Document): IO[RenderedTreeViewRoot] = 
+      transformWith(Transformer.from(Markdown).to(AST).io(blocker).parallel[IO].mapDocuments(f).build)
     
     private def transformWith (transformer: ParallelTransformer[IO] = transformer): IO[RenderedTreeViewRoot] =
       transformer
@@ -85,6 +87,10 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
     val simpleResult: String = """RootElement - Blocks: 1
       |. Paragraph - Spans: 1
       |. . Text - 'foo'""".stripMargin
+
+    val mappedResult: String = """RootElement - Blocks: 1
+      |. Paragraph - Spans: 1
+      |. . Text - 'foo-bar'""".stripMargin
       
     def docs (values: (Path, String)*): DocumentViews = DocumentViews(values map { case (path, content) => RenderedDocumentView(path, content) })
 
@@ -130,6 +136,28 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
         )),
         Some(RenderedDocumentView(Root / "cover.txt", simpleResult))
       ))
+    }
+
+    "transform a tree with a cover, title document and two content documents with a document mapper" in new TreeTransformer {
+      val inputs = Seq(
+        Root / "rootDoc.md" -> Contents.name,
+        Root / "sub" / "subDoc.md" -> Contents.name,
+        Root / "title.md" -> Contents.name,
+        Root / "cover.md" -> Contents.name
+      )
+      transformWithDocumentMapper(doc => doc.copy(content = doc.content.copy(content = Seq(Paragraph(Seq(Text("foo-bar")))))))
+        .assertEquals(RenderedTreeViewRoot(
+          root(List(
+            TitleDocument(RenderedDocumentView(Root / "title.txt", mappedResult)),
+            docs((Root / "rootDoc.txt", mappedResult)),
+            trees(
+              (Root / "sub", List(docs(
+                (Root / "sub" / "subDoc.txt", mappedResult)
+              )))
+            )
+          )),
+          Some(RenderedDocumentView(Root / "cover.txt", mappedResult))
+        ))
     }
 
     "transform a tree with a template document populated by a config file in the directory" in new TreeTransformer {

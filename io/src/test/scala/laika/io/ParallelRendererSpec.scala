@@ -16,11 +16,10 @@
 
 package laika.io
 
-import java.io.{ByteArrayOutputStream, File}
+import java.io.File
 
 import cats.effect.IO
 import laika.api.Renderer
-import laika.api.builder.TwoPhaseRenderer
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
@@ -28,7 +27,7 @@ import laika.bundle.BundleProvider
 import laika.config.Key
 import laika.format._
 import laika.io.helper.OutputBuilder._
-import laika.io.helper.{InputBuilder, OutputBuilder, RenderResult}
+import laika.io.helper.{InputBuilder, RenderResult}
 import laika.io.implicits._
 import laika.io.model.StringTreeOutput
 import laika.io.runtime.RendererRuntime.{DuplicatePath, RendererErrors}

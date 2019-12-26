@@ -42,8 +42,9 @@ object TransformerRuntime {
     * a character output format.
     */
   def run[F[_]: Async: Runtime] (op: ParallelTransformer.Op[F]): F[RenderedTreeRoot[F]] = for {
-    tree <- ParallelParser.Op(NonEmptyList.of(op.transformer.parser), op.input).parse
-    res  <- ParallelRenderer.Op(op.transformer.renderer, tree.root, op.output, tree.staticDocuments).render
+    tree       <- ParallelParser.Op(NonEmptyList.of(op.transformer.parser), op.input).parse
+    mappedTree <- op.mapper.run(tree)
+    res        <- ParallelRenderer.Op(op.transformer.renderer, mappedTree.root, op.output, mappedTree.staticDocuments).render
   } yield res
 
   /** Process the specified transform operation for a single input document and 
@@ -58,8 +59,9 @@ object TransformerRuntime {
     * a binary output format.
     */
   def run[F[_]: Async: Runtime] (op: binary.ParallelTransformer.Op[F]): F[Unit] = for {
-    tree <- ParallelParser.Op(NonEmptyList.of(op.transformer.markupParser), op.input).parse
-    res  <- binary.ParallelRenderer.Op[F](op.transformer.renderer, tree.root, op.output, tree.staticDocuments).render
+    tree       <- ParallelParser.Op(NonEmptyList.of(op.transformer.markupParser), op.input).parse
+    mappedTree <- op.mapper.run(tree)
+    res        <- binary.ParallelRenderer.Op[F](op.transformer.renderer, mappedTree.root, op.output, mappedTree.staticDocuments).render
   } yield res
 
 }
