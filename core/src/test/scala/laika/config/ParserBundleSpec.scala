@@ -333,7 +333,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
       .configHeader
       .parse(input) match {
         case Success(builderRoot, _) =>
-          builderRoot.resolve(Origin.root, Config.empty)
+          builderRoot.resolve(Origin.root, Config.empty, Map.empty)
         case f: Failure => Left(ConfigParserError(f))
       }
 

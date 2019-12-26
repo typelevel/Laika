@@ -23,6 +23,8 @@ import laika.api.MarkupParser
 import laika.ast.Path.Root
 import laika.ast._
 import laika.bundle.UnresolvedConfig
+import laika.io.config.IncludeLoader
+import laika.io.config.IncludeLoader.IncludeMap
 import laika.io.model.{ParsedTree, TextInput, TreeInput}
 import laika.io.text.{ParallelParser, SequentialParser}
 import laika.parse.markup.DocumentParser.{ParserError, ParserInput}
@@ -88,11 +90,23 @@ object ParserRuntime {
         ParsedTree(finalRoot, inputs.binaryInputs)
       }
       
+      def loadIncludes(results: Vector[ParserResult]): F[IncludeMap] = {
+        val includes = results.flatMap {
+          case ConfigResult(_, config) => config.includes
+          case MarkupResult(doc) => doc.config.includes
+          case TemplateResult(doc) => doc.config.includes
+          case _ => Vector()
+        }
+        
+        IncludeLoader.load(includes)
+      } 
+      
       for {
-        _       <- validateInputPaths
-        ops     <- Async[F].fromEither(createOps)
-        results <- Runtime[F].runParallel(ops)
-        tree    <- Async[F].fromEither(buildTree(results, op.config.baseConfig).leftMap(ParserError(_, Root)))
+        _        <- validateInputPaths
+        ops      <- Async[F].fromEither(createOps)
+        results  <- Runtime[F].runParallel(ops)
+        includes <- loadIncludes(results)
+        tree     <- Async[F].fromEither(buildTree(results, op.config.baseConfig, includes).leftMap(ParserError(_, Root)))
       } yield rewriteTree(tree)
     }
     

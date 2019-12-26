@@ -19,6 +19,7 @@ package laika.bundle
 import laika.config.{Config, ConfigBuilder, ConfigError, ConfigParser, Origin}
 import laika.parse.Parser
 import laika.parse.combinator.Parsers
+import laika.parse.hocon.{IncludeResource, ObjectBuilderValue}
 
 /** Responsible for providing the parsers for configuration files
   * and configuration headers in markup documents as part of an
@@ -71,13 +72,18 @@ object ConfigProvider {
   */
 trait UnresolvedConfig {
 
+  /** Extracts all unresolved requested includes the unresolved configuration contains,
+    * including those nested inside other objects.
+    */
+  def includes: Seq[IncludeResource]
+
   /** Resolves the parsed configuration against the specified fallback,
     * using it for references not found in the parsed result.
     * 
     * The given origin will be used to tag each value parsed with this
     * instance.
     */
-  def resolve (origin: Origin, fallback: Config): Either[ConfigError, Config]
+  def resolve (origin: Origin, fallback: Config, includes: Map[IncludeResource, Either[ConfigError, ObjectBuilderValue]]): Either[ConfigError, Config]
   
 }
 
@@ -87,15 +93,21 @@ object UnresolvedConfig {
     * the fallback unmodified.
     */
   val empty: UnresolvedConfig = new UnresolvedConfig {
-    def resolve (origin: Origin, fallback: Config) = Right(ConfigBuilder.withFallback(fallback, origin).build)
+    val includes = Nil
+    def resolve (origin: Origin, fallback: Config, includes: Map[IncludeResource, Either[ConfigError, ObjectBuilderValue]]) = Right(ConfigBuilder.withFallback(fallback, origin).build)
   }
 
   /** Returns an unresolved config for the specified HOCON input
     * based on the library's built-in HOCON parser.
     */
   def default (input: String): UnresolvedConfig = new UnresolvedConfig {
-    def resolve (origin: Origin, fallback: Config) =
-      ConfigParser.parse(input).resolve(origin, fallback)
+    
+    private val parser = ConfigParser.parse(input)
+    
+    lazy val includes: Seq[IncludeResource] = parser.includes
+    
+    def resolve (origin: Origin, fallback: Config, includes: Map[IncludeResource, Either[ConfigError, ObjectBuilderValue]]) =
+      parser.resolve(origin, fallback)
   }
   
 }

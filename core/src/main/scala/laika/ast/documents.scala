@@ -23,6 +23,7 @@ import laika.config.Config.ConfigResult
 import laika.config.{Config, ConfigDecoder, ConfigError, ConfigValue, DecodingError, DefaultKey, InvalidType, ObjectValue, Origin, Traced, ValidationError}
 import laika.ast.Path.Root
 import laika.bundle.UnresolvedConfig
+import laika.parse.hocon.{IncludeResource, ObjectBuilderValue}
 import laika.rewrite.TemplateRewriter
 import laika.rewrite.link.LinkTargetProvider
 import laika.rewrite.link.LinkTargets._
@@ -96,7 +97,8 @@ case class TemplateDocument (path: Path, content: TemplateRoot, config: Unresolv
   /** Applies this template to the specified document, replacing all
    *  span and block resolvers in the template with the final resolved element.
    */
-  def applyTo (document: Document): Either[ConfigError, Document] = TemplateRewriter.applyTemplate(DocumentCursor(document), this)
+  def applyTo (document: Document): Either[ConfigError, Document] = 
+    TemplateRewriter.applyTemplate(DocumentCursor(document), this, Map.empty[IncludeResource, Either[ConfigError, ObjectBuilderValue]]) // TODO - 0.13 - use unsupported map
 
 }
 
@@ -534,12 +536,14 @@ case class DocumentTree (path: Path,
   * @param coverDocument the cover document (usually used with e-book formats like EPUB and PDF)            
   * @param styles the styles to apply when rendering this tree, only populated for PDF or XSL-FO output
   * @param staticDocuments the paths of documents that were neither identified as text markup, config or templates, and will be copied as is to the final output
+  * @param includes the map of configuration includes that may be needed when resolving template configuration
   * @param sourcePaths the paths this document tree has been built from or an empty list if this ast does not originate from the file system
   */
 case class DocumentTreeRoot (tree: DocumentTree,
                              coverDocument: Option[Document] = None,
                              styles: Map[String, StyleDeclarationSet] = Map.empty.withDefaultValue(StyleDeclarationSet.empty), 
                              staticDocuments: Seq[Path] = Nil,
+                             includes: Map[IncludeResource, Either[ConfigError, ObjectBuilderValue]] = Map.empty,
                              sourcePaths: Seq[String] = Nil) {
 
   /** The configuration associated with the root of the tree.
