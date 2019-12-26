@@ -17,7 +17,7 @@
 package laika.config
 
 import laika.parse.{Failure, Success}
-import laika.parse.hocon.{ConfigResolver, HoconParsers, ObjectBuilderValue}
+import laika.parse.hocon.{BuilderField, ConfigResolver, HoconParsers, IncludeBuilderValue, IncludeResource, ObjectBuilderValue}
 
 /** A parser for obtaining a Config instance from a HOCON string.
   * 
@@ -28,12 +28,30 @@ import laika.parse.hocon.{ConfigResolver, HoconParsers, ObjectBuilderValue}
   */
 class ConfigParser(input: String) {
   
-  private val parsed: Either[ConfigError, ObjectBuilderValue] = 
+  private lazy val parsed: Either[ConfigError, ObjectBuilderValue] = 
     HoconParsers.rootObject.parse(input) match {
       case Success(builderRoot, _) => Right(builderRoot)
       case f: Failure => Left(ConfigParserError(f))
     }
 
+  /** Extracts all unresolved requested includes the parsed configuration contains,
+    * including those nested inside other objects.
+    * 
+    * Since the pure core module does not support effectful IO, this hook
+    * can be used by a higher level API to resolve includes and pass them
+    * to the `resolve` method.
+    */
+  lazy val includes: Seq[IncludeResource] = {
+    
+    def extractIncludes(obj: ObjectBuilderValue): Seq[IncludeResource] = obj.values.flatMap {
+      case BuilderField(_, IncludeBuilderValue(resource)) => Seq(resource)
+      case BuilderField(_, child: ObjectBuilderValue) => extractIncludes(child)
+      case _ => Nil
+    }
+    
+    parsed.fold(_ => Nil, extractIncludes)
+  }
+  
   /** Parses and resolves the parsed HOCON input.
     * This includes the resolving of substitution references
     * and the merging of concatenated objects, arrays and strings.

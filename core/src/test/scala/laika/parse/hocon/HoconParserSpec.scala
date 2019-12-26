@@ -379,6 +379,61 @@ class HoconParserSpec extends WordSpec with Matchers with ParseResultHelpers wit
     
   }
   
+  "The include parser" should {
+    
+    "parse an optional file include" in {
+      val input = """include file("foo.conf")"""
+      ConfigParser.parse(input).includes shouldBe Seq(IncludeFile(ValidStringValue("foo.conf")))
+    }
+
+    "parse an optional classpath include" in {
+      val input = """include classpath("foo.conf")"""
+      ConfigParser.parse(input).includes shouldBe Seq(IncludeClassPath(ValidStringValue("foo.conf")))
+    }
+
+    "parse an optional URL include" in {
+      val input = """include url("http://config.com/foo.conf")"""
+      ConfigParser.parse(input).includes shouldBe Seq(IncludeUrl(ValidStringValue("http://config.com/foo.conf")))
+    }
+
+    "parse an optional heuristic include" in {
+      val input = """include "http://config.com/foo.conf""""
+      ConfigParser.parse(input).includes shouldBe Seq(IncludeAny(ValidStringValue("http://config.com/foo.conf")))
+    }
+
+    "parse a required heuristic include" in {
+      val input = """include required("http://config.com/foo.conf")"""
+      ConfigParser.parse(input).includes shouldBe Seq(IncludeAny(ValidStringValue("http://config.com/foo.conf"), isRequired = true))
+    }
+
+    "parse a required file include" in {
+      val input = """include required(file("foo.conf"))"""
+      ConfigParser.parse(input).includes shouldBe Seq(IncludeFile(ValidStringValue("foo.conf"), isRequired = true))
+    }
+    
+    "parse multiple include statements on different nesting levels" in {
+      val input =
+        """
+          |include file("foo.conf")
+          |a {
+          |  include classpath("foo.conf")
+          |  
+          |  x = 5
+          |  
+          |  b {
+          |    include url("http://config.com/foo.conf")
+          |  }
+          |}
+          |""".stripMargin
+      ConfigParser.parse(input).includes shouldBe Seq(
+        IncludeFile(ValidStringValue("foo.conf")),
+        IncludeClassPath(ValidStringValue("foo.conf")),
+        IncludeUrl(ValidStringValue("http://config.com/foo.conf"))
+      )
+    }
+    
+  }
+  
   "The root parser" should {
     
     "successfully parse the full Akka default configuration" in new FileTransformerUtil {
