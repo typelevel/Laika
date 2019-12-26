@@ -23,8 +23,8 @@ import laika.api.MarkupParser
 import laika.ast.Path.Root
 import laika.ast._
 import laika.bundle.UnresolvedConfig
+import laika.config.Config.IncludeMap
 import laika.io.config.IncludeLoader
-import laika.io.config.IncludeLoader.IncludeMap
 import laika.io.model.{ParsedTree, TextInput, TreeInput}
 import laika.io.text.{ParallelParser, SequentialParser}
 import laika.parse.markup.DocumentParser.{ParserError, ParserInput}

@@ -16,10 +16,11 @@
 
 package laika.bundle
 
+import laika.config.Config.IncludeMap
 import laika.config.{Config, ConfigBuilder, ConfigError, ConfigParser, Origin}
 import laika.parse.Parser
 import laika.parse.combinator.Parsers
-import laika.parse.hocon.{IncludeResource, ObjectBuilderValue}
+import laika.parse.hocon.{IncludeResource}
 
 /** Responsible for providing the parsers for configuration files
   * and configuration headers in markup documents as part of an
@@ -83,7 +84,7 @@ trait UnresolvedConfig {
     * The given origin will be used to tag each value parsed with this
     * instance.
     */
-  def resolve (origin: Origin, fallback: Config, includes: Map[IncludeResource, Either[ConfigError, ObjectBuilderValue]]): Either[ConfigError, Config]
+  def resolve (origin: Origin, fallback: Config, includes: IncludeMap): Either[ConfigError, Config]
   
 }
 
@@ -94,7 +95,7 @@ object UnresolvedConfig {
     */
   val empty: UnresolvedConfig = new UnresolvedConfig {
     val includes = Nil
-    def resolve (origin: Origin, fallback: Config, includes: Map[IncludeResource, Either[ConfigError, ObjectBuilderValue]]) = Right(ConfigBuilder.withFallback(fallback, origin).build)
+    def resolve (origin: Origin, fallback: Config, includes: IncludeMap) = Right(ConfigBuilder.withFallback(fallback, origin).build)
   }
 
   /** Returns an unresolved config for the specified HOCON input
@@ -106,7 +107,7 @@ object UnresolvedConfig {
     
     lazy val includes: Seq[IncludeResource] = parser.includes
     
-    def resolve (origin: Origin, fallback: Config, includes: Map[IncludeResource, Either[ConfigError, ObjectBuilderValue]]) =
+    def resolve (origin: Origin, fallback: Config, includes: IncludeMap) =
       parser.resolve(origin, fallback)
   }
   

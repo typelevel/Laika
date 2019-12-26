@@ -17,17 +17,15 @@
 package laika.io.config
 
 import cats.effect.Async
-import laika.config.ConfigError
+import laika.config.Config.IncludeMap
 import laika.io.runtime.Runtime
-import laika.parse.hocon.{IncludeResource, ObjectBuilderValue}
+import laika.parse.hocon.IncludeResource
 
 /**
   * @author Jens Halm
   */
 object IncludeLoader {
   
-  type IncludeMap = Map[IncludeResource, Either[ConfigError, ObjectBuilderValue]]
-
   def load[F[_]: Async : Runtime] (includes: Seq[IncludeResource]): F[IncludeMap] =
     Async[F].pure(Map.empty) // TODO - 0.13 - implement
   

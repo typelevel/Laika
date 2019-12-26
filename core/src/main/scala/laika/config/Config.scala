@@ -18,6 +18,7 @@ package laika.config
 
 import laika.config.Config.ConfigResult
 import laika.ast.Path
+import laika.parse.hocon.{IncludeResource, ObjectBuilderValue}
 
 /** API for retrieving configuration values based on a string key and a decoder.
   * 
@@ -206,6 +207,8 @@ object EmptyConfig extends Config {
 object Config {
 
   type ConfigResult[T] = Either[ConfigError, T]
+
+  type IncludeMap = Map[IncludeResource, Either[ConfigError, ObjectBuilderValue]]
   
   val empty: Config = EmptyConfig
   

@@ -21,8 +21,8 @@ import laika.ast.Path.Root
 import laika.ast.{Document, DocumentTree, DocumentTreeRoot, Navigatable, Path, StyleDeclarationSet, TemplateDocument, TreeBuilder, UnresolvedDocument}
 import laika.bundle.UnresolvedConfig
 import cats.implicits._
+import laika.config.Config.IncludeMap
 import laika.config.Origin.{DocumentScope, TreeScope}
-import laika.io.config.IncludeLoader.IncludeMap
 
 /**
   * @author Jens Halm

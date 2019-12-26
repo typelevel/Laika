@@ -16,6 +16,7 @@
 
 package laika.config
 
+import laika.config.Config.IncludeMap
 import laika.parse.{Failure, Success}
 import laika.parse.hocon.{BuilderField, ConfigResolver, HoconParsers, IncludeBuilderValue, IncludeResource, ObjectBuilderValue}
 
@@ -28,7 +29,7 @@ import laika.parse.hocon.{BuilderField, ConfigResolver, HoconParsers, IncludeBui
   */
 class ConfigParser(input: String) {
   
-  private val includesNotSupported: Map[IncludeResource, Either[ConfigError, ObjectBuilderValue]] =
+  private val includesNotSupported: IncludeMap =
     Map.empty.withDefaultValue(Left(ConfigResourceError(
       "Loading of includes is not supported in pure mode, use parsers or transformers in laika-io for this purpose."
     )))
@@ -84,7 +85,7 @@ class ConfigParser(input: String) {
     */
   def resolve(origin: Origin = Origin.root, 
               fallback: Config = EmptyConfig, 
-              includes: Map[IncludeResource, Either[ConfigError, ObjectBuilderValue]] = includesNotSupported): Either[ConfigError, Config] =
+              includes: IncludeMap = includesNotSupported): Either[ConfigError, Config] =
     parsed.flatMap(ConfigResolver
       .resolve(_, origin, fallback, includes)
       .map(new ObjectConfig(_, origin, fallback))

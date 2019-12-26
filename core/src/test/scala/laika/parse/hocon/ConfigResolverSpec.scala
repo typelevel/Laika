@@ -16,6 +16,7 @@
 
 package laika.parse.hocon
 
+import laika.config.Config.IncludeMap
 import laika.config.{ArrayValue, Config, ConfigBuilder, ConfigError, ConfigResolverError, EmptyConfig, Field, Key, LongValue, ObjectValue, Origin, StringValue, ValidationError}
 import org.scalatest.{Matchers, WordSpec}
 
@@ -29,7 +30,7 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
     ConfigResolver.resolve(builder, Origin.root, EmptyConfig, Map.empty).toOption.get
   }
 
-  def parseAndResolve(input: String, includes: Map[IncludeResource, Either[ConfigError, ObjectBuilderValue]]): ObjectValue = {
+  def parseAndResolve(input: String, includes: IncludeMap): ObjectValue = {
     val builder = HoconParsers.rootObject.parse(input).toOption.get
     ConfigResolver.resolve(builder, Origin.root, EmptyConfig, includes).toOption.get
   }
@@ -39,7 +40,7 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
     ConfigResolver.resolve(builder, Origin.root, fallback, Map.empty).toOption.get
   }
 
-  def parseAndResolveForFailure(input: String, includes: Map[IncludeResource, Either[ConfigError, ObjectBuilderValue]] = Map.empty): Either[ConfigError, ObjectValue] = {
+  def parseAndResolveForFailure(input: String, includes: IncludeMap = Map.empty): Either[ConfigError, ObjectValue] = {
     val builder = HoconParsers.rootObject.parse(input).toOption.get
     ConfigResolver.resolve(builder, Origin.root, EmptyConfig, includes)
   }
@@ -618,7 +619,7 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
   
   "The inclusion resolver" should {
     
-    val includes: Map[IncludeResource, Either[ConfigError, ObjectBuilderValue]] = Map(
+    val includes: IncludeMap = Map(
       IncludeFile(ValidStringValue("foo.conf")) -> Right(ObjectBuilderValue(Seq(
         BuilderField(Right(Key("c")), ResolvedBuilderValue(LongValue(5)))
       )))
@@ -676,7 +677,7 @@ class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
     }
 
     "fail when an include failed to load" in {
-      val includes: Map[IncludeResource, Either[ConfigError, ObjectBuilderValue]] = Map(
+      val includes: IncludeMap = Map(
         IncludeFile(ValidStringValue("foo.conf")) -> Left(ValidationError("This include is faulty"))
       )
       val input =

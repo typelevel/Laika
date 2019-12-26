@@ -16,10 +16,10 @@
 
 package laika.parse.hocon
 
-import laika.ast.Path
 import laika.collection.TransitionalCollectionOps._
+import laika.config.Config.IncludeMap
 import laika.config._
-import laika.parse.{Failure, Message, ParserContext}
+import laika.parse.Failure
 
 import scala.collection.mutable
 
@@ -54,7 +54,7 @@ object ConfigResolver {
   def resolve(root: ObjectBuilderValue, 
               origin: Origin, 
               fallback: Config, 
-              includes: Map[IncludeResource, Either[ConfigError, ObjectBuilderValue]]): Either[ConfigError, ObjectValue] = {
+              includes: IncludeMap): Either[ConfigError, ObjectValue] = {
 
     val errors = extractErrors(root)
 

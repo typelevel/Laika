@@ -19,7 +19,7 @@ package laika.ast
 import java.time.Instant
 import java.util.Locale
 
-import laika.config.Config.ConfigResult
+import laika.config.Config.{ConfigResult, IncludeMap}
 import laika.config.{Config, ConfigDecoder, ConfigError, ConfigValue, DecodingError, DefaultKey, InvalidType, ObjectValue, Origin, Traced, ValidationError}
 import laika.ast.Path.Root
 import laika.bundle.UnresolvedConfig
@@ -543,7 +543,7 @@ case class DocumentTreeRoot (tree: DocumentTree,
                              coverDocument: Option[Document] = None,
                              styles: Map[String, StyleDeclarationSet] = Map.empty.withDefaultValue(StyleDeclarationSet.empty), 
                              staticDocuments: Seq[Path] = Nil,
-                             includes: Map[IncludeResource, Either[ConfigError, ObjectBuilderValue]] = Map.empty,
+                             includes: IncludeMap = Map.empty,
                              sourcePaths: Seq[String] = Nil) {
 
   /** The configuration associated with the root of the tree.

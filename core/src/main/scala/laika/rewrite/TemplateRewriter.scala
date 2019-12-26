@@ -19,8 +19,8 @@ package laika.rewrite
 import cats.implicits._
 import laika.config.{ConfigError, Key, Origin}
 import laika.ast._
+import laika.config.Config.IncludeMap
 import laika.config.Origin.TemplateScope
-import laika.parse.hocon.{IncludeResource, ObjectBuilderValue}
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
@@ -39,7 +39,7 @@ trait TemplateRewriter {
 
   /** Selects and applies the templates for the specified output format to all documents within the specified tree cursor recursively.
     */
-  def applyTemplates (cursor: RootCursor, format: String, includes: Map[IncludeResource, Either[ConfigError, ObjectBuilderValue]]): Either[ConfigError, DocumentTreeRoot] = {
+  def applyTemplates (cursor: RootCursor, format: String, includes: IncludeMap): Either[ConfigError, DocumentTreeRoot] = {
     
     for {
       newCover <- cursor.coverDocument.traverse(applyTemplate(_, format, includes))
@@ -53,7 +53,7 @@ trait TemplateRewriter {
     
   }
   
-  private def applyTreeTemplate(cursors: Seq[Cursor], format: String, includes: Map[IncludeResource, Either[ConfigError, ObjectBuilderValue]]): Either[ConfigError, Seq[TreeContent]] =
+  private def applyTreeTemplate(cursors: Seq[Cursor], format: String, includes: IncludeMap): Either[ConfigError, Seq[TreeContent]] =
     cursors.foldLeft[Either[ConfigError, Seq[TreeContent]]](Right(Nil)) {
       case (acc, next) => acc.flatMap { ls => (next match {
         case doc: DocumentCursor => applyTemplate(doc, format, includes)
@@ -63,7 +63,7 @@ trait TemplateRewriter {
   
   /** Selects and applies the templates for the specified output format to all documents within the specified tree cursor recursively.
    */
-  def applyTemplates (cursor: TreeCursor, format: String, includes: Map[IncludeResource, Either[ConfigError, ObjectBuilderValue]]): Either[ConfigError, DocumentTree] = {
+  def applyTemplates (cursor: TreeCursor, format: String, includes: IncludeMap): Either[ConfigError, DocumentTree] = {
 
     for {
       newTitle   <- cursor.titleDocument.traverse(applyTemplate(_, format, includes))
@@ -80,14 +80,14 @@ trait TemplateRewriter {
   
   /** Selects and applies the template for the specified output format to the target of the specified document cursor.
     */ 
-  def applyTemplate (cursor: DocumentCursor, format: String, includes: Map[IncludeResource, Either[ConfigError, ObjectBuilderValue]]): Either[ConfigError, Document] = {
+  def applyTemplate (cursor: DocumentCursor, format: String, includes: IncludeMap): Either[ConfigError, Document] = {
     val template = selectTemplate(cursor, format).getOrElse(defaultTemplate)
     applyTemplate(cursor, template, includes)
   }
 
   /** Applies the specified template to the target of the specified document cursor.
     */
-  def applyTemplate (cursor: DocumentCursor, template: TemplateDocument, includes: Map[IncludeResource, Either[ConfigError, ObjectBuilderValue]]): Either[ConfigError, Document] = {
+  def applyTemplate (cursor: DocumentCursor, template: TemplateDocument, includes: IncludeMap): Either[ConfigError, Document] = {
     template.config.resolve(Origin(TemplateScope, template.path), cursor.config, includes).map { mergedConfig =>
       val cursorWithMergedConfig = cursor.copy(
         config = mergedConfig,
