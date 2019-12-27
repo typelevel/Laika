@@ -16,7 +16,8 @@
 
 package laika.io.config
 
-import java.io.File
+import java.io.{File, FileNotFoundException, InputStream}
+import java.net.URL
 
 import cats.effect.Async
 import cats.implicits._
@@ -55,6 +56,21 @@ object ResourceLoader {
   def loadClasspathResource[F[_]: Async : Runtime] (resource: String): F[Option[Either[ConfigResourceError, String]]] = 
     loadFile(getClass.getResource(resource).getFile)
   
-  def loadUrl[F[_]: Async : Runtime] (url: String): F[Option[Either[ConfigResourceError, String]]] = ???
+  def loadUrl[F[_]: Async : Runtime] (url: URL): F[Option[Either[ConfigResourceError, String]]] = {
+    
+    val stream: F[InputStream] = for {
+      con <- Async[F].delay(url.openConnection())
+      _   <- Async[F].delay(con.setRequestProperty("Accept", "application/hocon"))
+      _   <- Runtime[F].runBlocking(Async[F].delay(con.connect())) 
+      str <- Async[F].delay(con.getInputStream)
+    } yield str
+    
+    val input = TextInput.fromStream[F](Root, DocumentType.Config, stream, Codec.UTF8, autoClose = true)
+    InputRuntime.readParserInput(input).attempt.map {
+      case Left(_: FileNotFoundException) => None
+      case Left(t) => Some(Left(ConfigResourceError(s"Unable to load config from URL '${url.toString}': ${t.getMessage}")))
+      case Right(res) => Some(Right(res.context.input))
+    }
+  }
   
 }
