@@ -16,11 +16,9 @@
 
 package laika.bundle
 
-import laika.config.Config.IncludeMap
-import laika.config.{Config, ConfigBuilder, ConfigError, ConfigParser, Origin}
+import laika.config.ConfigParser
 import laika.parse.Parser
 import laika.parse.combinator.Parsers
-import laika.parse.hocon.{IncludeResource}
 
 /** Responsible for providing the parsers for configuration files
   * and configuration headers in markup documents as part of an
@@ -39,7 +37,7 @@ trait ConfigProvider {
     * The parser is expected to fail if it does not recognize the fence
     * before and after the configuration header. Otherwise it is expected
     * to succeed, without parsing the actual string input from the configuration
-    * header. This will happen lazily when the `UnresolvedConfig` will be resolved
+    * header. This will happen lazily when the `ConfigParser` will be resolved
     * with a fallback Config provided by the runtime. This deferred resolution
     * is necessary as substitution references in configuration headers can
     * refer to values defined in configuration files or programmatically.
@@ -48,7 +46,7 @@ trait ConfigProvider {
 
   /** The parser for configuration files recognized in input directories.
     *
-    * The returned `UnresolvedConfig` will be resolved lazily
+    * The returned `ConfigParser` will be resolved lazily
     * with a fallback Config provided by the runtime. This deferred resolution
     * is necessary as substitution references in configuration headers can
     * refer to values defined in configuration files or programmatically.

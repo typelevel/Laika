@@ -24,9 +24,11 @@ import laika.parse.hocon.IncludeResource
 /**
   * @author Jens Halm
   */
-object IncludeLoader {
+object IncludeHandler {
   
-  def load[F[_]: Async : Runtime] (includes: Seq[IncludeResource]): F[IncludeMap] =
+  case class RequestedInclude(resource: IncludeResource, parent: Option[IncludeResource])
+  
+  def load[F[_]: Async : Runtime] (includes: Seq[RequestedInclude]): F[IncludeMap] =
     Async[F].pure(Map.empty) // TODO - 0.13 - implement
   
 }

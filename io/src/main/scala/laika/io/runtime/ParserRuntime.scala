@@ -16,6 +16,8 @@
 
 package laika.io.runtime
 
+import java.io.File
+
 import cats.data.{NonEmptyList, ValidatedNel}
 import cats.effect.Async
 import cats.implicits._
@@ -24,9 +26,11 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.config.Config.IncludeMap
 import laika.config.ConfigParser
-import laika.io.config.IncludeLoader
+import laika.io.config.IncludeHandler
+import laika.io.config.IncludeHandler.RequestedInclude
 import laika.io.model.{ParsedTree, TextInput, TreeInput}
 import laika.io.text.{ParallelParser, SequentialParser}
+import laika.parse.hocon.{IncludeFile, IncludeResource, ValidStringValue}
 import laika.parse.markup.DocumentParser.{ParserError, ParserInput}
 
 /** Internal runtime for parser operations, for parallel and sequential execution. 
@@ -71,8 +75,8 @@ object ParserRuntime {
         else Async[F].raiseError(ParserErrors(duplicates.toSet))
       }
 
-      def parseDocument[D] (doc: TextInput[F], parse: ParserInput => Either[ParserError, D], result: D => ParserResult): F[ParserResult] =
-        InputRuntime.readParserInput(doc).flatMap(in => Async[F].fromEither(parse(in).map(result)))
+      def parseDocument[D] (doc: TextInput[F], parse: ParserInput => Either[ParserError, D], result: (D, Option[File]) => ParserResult): F[ParserResult] =
+        InputRuntime.readParserInput(doc).flatMap(in => Async[F].fromEither(parse(in).map(result(_, doc.sourceFile))))
       
       def parseConfig(input: ParserInput): Either[ParserError, ConfigParser] =
         Right(op.config.configProvider.configDocument(input.context.input))
@@ -80,8 +84,8 @@ object ParserRuntime {
       val createOps: Either[Throwable, Vector[F[ParserResult]]] = inputs.textInputs.toVector.map { in => in.docType match {
         case Markup             => selectParser(in.path).map(parser => Vector(parseDocument(in, parser.parseUnresolved, MarkupResult)))
         case Template           => op.templateParser.map(parseDocument(in, _, TemplateResult)).toVector.validNel
-        case StyleSheet(format) => Vector(parseDocument(in, op.styleSheetParser, StyleResult(_, format))).validNel
-        case ConfigType         => Vector(parseDocument(in, parseConfig, ConfigResult(in.path, _))).validNel
+        case StyleSheet(format) => Vector(parseDocument(in, op.styleSheetParser, StyleResult(_, format, _))).validNel
+        case ConfigType         => Vector(parseDocument(in, parseConfig, ConfigResult(in.path, _, _))).validNel
       }}.combineAll.toEither.leftMap(es => ParserErrors(es.toList.toSet))
       
       def rewriteTree (root: DocumentTreeRoot): ParsedTree[F] = { // TODO - 0.13 - move to TreeResultBuilder
@@ -91,14 +95,18 @@ object ParserRuntime {
       }
       
       def loadIncludes(results: Vector[ParserResult]): F[IncludeMap] = {
+        
+        def toRequestedInclude(includes: Seq[IncludeResource], sourceFile: Option[File]): Seq[RequestedInclude] =
+          includes.map { include => RequestedInclude(include, sourceFile.map(f => IncludeFile(ValidStringValue(f.getPath)))) }
+        
         val includes = results.flatMap {
-          case ConfigResult(_, config) => config.includes
-          case MarkupResult(doc) => doc.config.includes
-          case TemplateResult(doc) => doc.config.includes
+          case ConfigResult(_, config, sourceFile) => toRequestedInclude(config.includes, sourceFile)
+          case MarkupResult(doc, sourceFile) => toRequestedInclude(doc.config.includes, sourceFile)
+          case TemplateResult(doc, sourceFile) => toRequestedInclude(doc.config.includes, sourceFile)
           case _ => Vector()
         }
         
-        IncludeLoader.load(includes)
+        IncludeHandler.load(includes)
       } 
       
       for {
