@@ -37,6 +37,12 @@ trait ConfigParser {
     * to the `resolve` method.
     */
   def includes: Seq[IncludeResource]
+
+  /** The unresolved result of the parser which can be used
+    * for processing inclusions that will be resolved in the
+    * context of the hosting configuration.
+    */
+  def unresolved: Either[ConfigError, ObjectBuilderValue]
   
   /** Parses and resolves the parsed HOCON input.
     * This includes the resolving of substitution references
@@ -81,12 +87,12 @@ object ConfigParser {
     */
   def parse(input: String): ConfigParser = new ConfigParser {
 
-    private lazy val parsed: Either[ConfigError, ObjectBuilderValue] =
+    lazy val unresolved: Either[ConfigError, ObjectBuilderValue] =
       HoconParsers.rootObject.parse(input) match {
         case Success(builderRoot, _) => Right(builderRoot)
         case f: Failure => Left(ConfigParserError(f))
       }
-
+    
     lazy val includes: Seq[IncludeResource] = {
 
       def extractIncludes(obj: ObjectBuilderValue): Seq[IncludeResource] = obj.values.flatMap {
@@ -95,13 +101,13 @@ object ConfigParser {
         case _ => Nil
       }
 
-      parsed.fold(_ => Nil, extractIncludes)
+      unresolved.fold(_ => Nil, extractIncludes)
     }
 
     def resolve(origin: Origin = Origin.root,
                 fallback: Config = EmptyConfig,
                 includes: IncludeMap = ConfigParser.includesNotSupported): Either[ConfigError, Config] =
-      parsed.flatMap(ConfigResolver
+      unresolved.flatMap(ConfigResolver
         .resolve(_, origin, fallback, includes)
         .map(new ObjectConfig(_, origin, fallback))
       )
@@ -113,6 +119,8 @@ object ConfigParser {
   def empty: ConfigParser = new ConfigParser {
 
     val includes: Seq[IncludeResource] = Nil
+
+    val unresolved: Either[ConfigError, ObjectBuilderValue] = Right(ObjectBuilderValue(Nil))
 
     def resolve(origin: Origin = Origin.root,
                 fallback: Config = EmptyConfig,
