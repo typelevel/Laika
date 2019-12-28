@@ -16,6 +16,8 @@
 
 package laika.ast
 
+import java.io.File
+
 import cats.effect._
 import laika.api.MarkupParser
 import laika.ast.Path.Root
@@ -83,8 +85,27 @@ class ConfigSpec extends IOSpec
         """aaa
           |${config.foo}
           |bbb""".stripMargin
+
+      val markupWithRefs =
+        """aaa
+          |${a}
+          |${b}
+          |${c}
+          |bbb""".stripMargin
       
       val configDoc = """foo = bar"""
+      
+      val configWithCpInclude =
+        """
+          |a = 1
+          |
+          |include classpath("/config/b.conf")""".stripMargin
+
+      def configWithFileInclude(fileName: String): String =
+        s"""
+          |a = 1
+          |
+          |include file("$fileName")""".stripMargin
 
       val configDocWithPath = """foo = ../foo.txt"""
 
@@ -194,6 +215,52 @@ class ConfigSpec extends IOSpec
         ))
       )
       markdownParser.fromInput(IO.pure(builder(inputs, mdMatcher))).parse.map(toResult).assertEquals(expected)
+    }
+
+    "include classpath resources in directory configuration" in new Inputs {
+      val inputs = Seq(
+        Root / "directory.conf" -> Contents.configWithCpInclude,
+        Root / "default.template.html" -> Contents.templateWithoutConfig,
+        Root / "input.md" -> Contents.markupWithRefs
+      )
+      val expected = root(
+        TemplateRoot(List(
+          TemplateString("<div>"),
+          eRoot(p(txt("aaa\n1\n2\n3\nbbb"))),
+          TemplateString("</div>\nCCC")
+        ))
+      )
+      markdownParser.fromInput(IO.pure(builder(inputs, mdMatcher))).parse.map(toResult).assertEquals(expected)
+    }
+
+    "include file resources in directory configuration" in new Inputs {
+      def inputs(file: File) = Seq(
+        Root / "directory.conf" -> Contents.configWithFileInclude(file.getPath),
+        Root / "default.template.html" -> Contents.templateWithoutConfig,
+        Root / "input.md" -> Contents.markupWithRefs
+      )
+      val expected = root(
+        TemplateRoot(List(
+          TemplateString("<div>"),
+          eRoot(p(txt("aaa\n1\n2\n3\nbbb"))),
+          TemplateString("</div>\nCCC")
+        ))
+      )
+      val bConf =
+        """include "c.conf" 
+          |
+          |b = 2
+        """.stripMargin
+      
+      val res = for {
+        tempDir <- newTempDirectory
+        conf    =  new File(tempDir, "b.conf")
+        _       <- writeFile(conf, bConf)
+        _       <- writeFile(new File(tempDir, "c.conf"), "c = 3")
+        res     <- markdownParser.fromInput(IO.pure(builder(inputs(conf), mdMatcher))).parse.map(toResult)
+      } yield res
+      
+      res.assertEquals(expected)
     }
 
     "merge objects from config headers in markup with objects in directory configuration" in new Inputs {
