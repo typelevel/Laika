@@ -189,7 +189,7 @@ object ConfigResolver {
               invalidPaths += ((key, s"Error including '${resource.resourceId.value}': ${error.message}"))
               Nil
             case Some(Right(included)) => 
-              included.values.flatMap(resolve)
+              resolveObject(included, key).values
           }
           case field => resolve(field)
         }
