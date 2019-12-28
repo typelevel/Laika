@@ -18,7 +18,7 @@ package laika.api.builder
 
 import laika.config.Config
 import laika.ast._
-import laika.bundle.{ConfigProvider, DocumentTypeMatcher, ExtensionBundle, MarkupExtensions}
+import laika.bundle.{BundleOrigin, ConfigProvider, DocumentTypeMatcher, ExtensionBundle, MarkupExtensions}
 import laika.directive.{DirectiveSupport, StandardDirectives}
 import laika.factory.{MarkupFormat, RenderFormat}
 import laika.parse.Parser
@@ -112,6 +112,7 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
     */
   def withBundlesFor (parser: MarkupFormat): OperationConfig = {
     val docTypeMatcher = new ExtensionBundle {
+      override val origin: BundleOrigin = BundleOrigin.Parser
       override val docTypeMatcher: PartialFunction[Path, DocumentType] =
         DocumentTypeMatcher.forMarkup(parser.fileSuffixes)
       override val useInStrictMode: Boolean = true

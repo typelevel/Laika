@@ -17,7 +17,7 @@
 package laika.format
 
 import laika.ast.Block
-import laika.bundle.{ExtensionBundle, ParserBundle, ParserHooks}
+import laika.bundle.{BlockParserBuilder, BundleOrigin, ExtensionBundle, ParserBundle, ParserHooks, SpanParserBuilder}
 import laika.factory.MarkupFormat
 import laika.markdown.{BlockParsers, InlineParsers, ListParsers}
 import laika.markdown.bundle.{HeaderIdInsertion, VerbatimHTML}
@@ -56,7 +56,7 @@ object Markdown extends MarkupFormat {
 
   val fileSuffixes: Set[String] = Set("md", "markdown")
 
-  val blockParsers = Seq(
+  val blockParsers: Seq[BlockParserBuilder] = Seq(
     BlockParsers.atxHeader,
     BlockParsers.linkTarget,
     BlockParsers.quotedBlock,
@@ -69,7 +69,7 @@ object Markdown extends MarkupFormat {
     ListParsers.enumLists ++
     ListParsers.bulletLists
 
-  val spanParsers = Seq(
+  val spanParsers: Seq[SpanParserBuilder] = Seq(
     InlineParsers.enclosedByAsterisk,
     InlineParsers.enclosedByUnderscore,
     InlineParsers.literalSpan,
@@ -79,9 +79,10 @@ object Markdown extends MarkupFormat {
     InlineParsers.lineBreak
   )
 
-  override lazy val escapedChar = InlineParsers.escapedChar
+  override lazy val escapedChar: Parser[String] = InlineParsers.escapedChar
 
   object BundledDefaults extends ExtensionBundle {
+    override val origin: BundleOrigin = BundleOrigin.Parser
     override val parsers: ParserBundle = ParserBundle(
       markupParserHooks = Some(ParserHooks(
         postProcessBlocks = HeaderIdInsertion
@@ -89,7 +90,7 @@ object Markdown extends MarkupFormat {
     )
   }
 
-  val extensions = Seq(BundledDefaults, VerbatimHTML)
+  val extensions: Seq[ExtensionBundle] = Seq(BundledDefaults, VerbatimHTML)
 
   override def createBlockListParser (parser: Parser[Block]): Parser[Seq[Block]] =
     super.createBlockListParser(BlockParsers.insignificantSpaces ~> parser)

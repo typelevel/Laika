@@ -17,7 +17,7 @@
 package laika.rst.bundle
 
 import laika.ast.{Block, DocumentCursor, RewriteRule, Span}
-import laika.bundle.{ExtensionBundle, ParserBundle}
+import laika.bundle.{BundleOrigin, ExtensionBundle, ParserBundle}
 import laika.parse.markup.RecursiveParsers
 import laika.rst.InlineParsers
 import laika.rst.ext.Directives.Directive
@@ -36,6 +36,8 @@ class RstExtensionSupport (blockDirectives: Seq[Directive[Block]],
                            textRoles: Seq[TextRole],
                            defaultTextRole: String) extends ExtensionBundle {
 
+  override val origin: BundleOrigin = BundleOrigin.Parser
+  
   override val useInStrictMode: Boolean = true
 
   override def rewriteRules: Seq[DocumentCursor => laika.ast.RewriteRules] = Seq(new RewriteRules(textRoles))

@@ -19,6 +19,7 @@ package laika.directive
 import cats.implicits._
 import laika.config.{ArrayValue, BooleanValue, ConfigValue, Key, NullValue, ObjectValue, StringValue}
 import laika.ast._
+import laika.bundle.BundleOrigin
 import laika.rewrite.TemplateRewriter
 import laika.rewrite.nav.TocGenerator
 
@@ -48,6 +49,8 @@ import scala.annotation.tailrec
  *  @author Jens Halm
  */
 object StandardDirectives extends DirectiveRegistry {
+
+  override val origin: BundleOrigin = BundleOrigin.Library
 
   /** Implementation of the `for` directive for templates.
    */

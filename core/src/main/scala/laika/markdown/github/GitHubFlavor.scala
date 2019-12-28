@@ -16,7 +16,7 @@
 
 package laika.markdown.github
 
-import laika.bundle.{ExtensionBundle, ParserBundle}
+import laika.bundle.{BundleOrigin, ExtensionBundle, ParserBundle}
 
 /** Extension bundle that enables GitHub-Flavored Markdown on top of standard Markdown.
   *
@@ -40,6 +40,8 @@ import laika.bundle.{ExtensionBundle, ParserBundle}
   * @author Jens Halm
   */
 object GitHubFlavor extends ExtensionBundle {
+
+  override val origin: BundleOrigin = BundleOrigin.Parser
 
   override def parsers: ParserBundle = ParserBundle(
     blockParsers = Seq(

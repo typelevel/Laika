@@ -17,7 +17,7 @@
 package laika.rst.bundle
 
 import laika.ast.{Block, Span}
-import laika.bundle.ExtensionBundle
+import laika.bundle.{BundleOrigin, ExtensionBundle}
 import laika.rst.ext.Directives.Directive
 import laika.rst.ext.TextRoles.TextRole
 import laika.rst.std.{StandardBlockDirectives, StandardSpanDirectives, StandardTextRoles}
@@ -178,6 +178,8 @@ trait RstExtensionRegistry extends ExtensionBundle {
   */
 object StandardExtensions extends RstExtensionRegistry {
 
+  override val origin: BundleOrigin = BundleOrigin.Parser
+  
   lazy val blockDirectives = (new StandardBlockDirectives).blockDirectives
   lazy val spanDirectives = (new StandardSpanDirectives).spanDirectives
   lazy val textRoles = (new StandardTextRoles).allRoles
@@ -198,6 +200,8 @@ object StandardExtensions extends RstExtensionRegistry {
   */
 object RawContentExtensions extends RstExtensionRegistry {
 
+  override val origin: BundleOrigin = BundleOrigin.Parser
+  
   override val acceptRawContent = true
   lazy val blockDirectives = Seq((new StandardBlockDirectives).rawDirective)
   lazy val spanDirectives = Seq()

@@ -16,7 +16,7 @@
 
 package laika.markdown.bundle
 
-import laika.bundle.{ExtensionBundle, ParserBundle}
+import laika.bundle.{BundleOrigin, ExtensionBundle, ParserBundle, RenderTheme}
 import laika.format.HTML
 import laika.markdown.HTMLParsers
 
@@ -37,6 +37,7 @@ import laika.markdown.HTMLParsers
   */
 object VerbatimHTML extends ExtensionBundle {
 
+  override val origin: BundleOrigin = BundleOrigin.Parser
   override val useInStrictMode: Boolean = true
   override val acceptRawContent: Boolean = true
 
@@ -45,6 +46,6 @@ object VerbatimHTML extends ExtensionBundle {
     spanParsers = Seq(HTMLParsers.htmlSpan, HTMLParsers.htmlCharRef)
   )
 
-  override val themes = Seq(HTML.Theme(customRenderer = HTMLRenderer.custom))
+  override val themes: Seq[RenderTheme] = Seq(HTML.Theme(customRenderer = HTMLRenderer.custom))
 
 }

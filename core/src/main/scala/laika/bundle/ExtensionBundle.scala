@@ -52,6 +52,14 @@ import laika.parse.css.CSSParsers
   */
 trait ExtensionBundle { self =>
 
+  /** Indicates whether the bundle is a built-in default provided by the library,
+    * a collection of extensions installed by a markup format or user-defined.
+    * 
+    * This is relevant for determining the precedence of installed bundles when merging
+    * them, as user-supplied functionality always overrides library defaults.
+    */
+  def origin: BundleOrigin = BundleOrigin.User
+
   /** Base configuration that serves as a fallback for
     * configuration files in the source directories
     * and/or config headers in markup and template documents.
@@ -118,6 +126,8 @@ trait ExtensionBundle { self =>
     */
   def withBase (base: ExtensionBundle): ExtensionBundle = new ExtensionBundle {
 
+    override lazy val origin: BundleOrigin = if (this.origin == base.origin) origin else BundleOrigin.Mixed
+    
     override val useInStrictMode = self.useInStrictMode && base.useInStrictMode
 
     override lazy val baseConfig = self.baseConfig.withFallback(base.baseConfig)
@@ -165,13 +175,17 @@ trait ExtensionBundle { self =>
 object ExtensionBundle {
 
   /** An empty bundle */
-  object Empty extends ExtensionBundle
+  object Empty extends ExtensionBundle {
+    override val origin: BundleOrigin = BundleOrigin.Library
+  }
 
   /** Bundle containing Laika defaults which is included automatically
     * in all operations.
     */
   object LaikaDefaults extends ExtensionBundle {
 
+    override val origin: BundleOrigin = BundleOrigin.Library
+    
     override val useInStrictMode = true
 
     override val docTypeMatcher: PartialFunction[Path, DocumentType] = DocumentTypeMatcher.base

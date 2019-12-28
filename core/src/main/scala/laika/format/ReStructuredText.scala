@@ -17,7 +17,7 @@
 package laika.format
 
 import laika.ast.Block
-import laika.bundle.{ExtensionBundle, ParserBundle, ParserHooks}
+import laika.bundle.{BundleOrigin, ExtensionBundle, ParserBundle, ParserHooks}
 import laika.factory.MarkupFormat
 import laika.parse.Parser
 import laika.parse.text.WhitespacePreprocessor
@@ -91,6 +91,8 @@ object ReStructuredText extends MarkupFormat { self =>
   override lazy val escapedChar = InlineParsers.escapedChar
 
   object BundledDefaults extends ExtensionBundle {
+    
+    override val origin: BundleOrigin = BundleOrigin.Parser
     override val useInStrictMode: Boolean = true
 
     override val parsers: ParserBundle = ParserBundle(
