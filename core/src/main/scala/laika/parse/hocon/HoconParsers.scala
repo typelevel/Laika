@@ -268,7 +268,7 @@ object HoconParsers {
         }
       }
     
-    "include " ~> (required | includeResource).map(IncludeBuilderValue)
+    "include " ~> (required | includeResource).map(IncludeBuilderValue) <~ ws
   }
 
   /** Parses a comment. */
