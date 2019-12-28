@@ -54,7 +54,10 @@ object ResourceLoader {
   }
   
   def loadClasspathResource[F[_]: Async : Runtime] (resource: String): F[Option[Either[ConfigResourceError, String]]] = 
-    loadFile(getClass.getResource(resource).getFile)
+    Option(getClass.getClassLoader.getResource(resource)) match {
+      case Some(url) => loadFile(url.getFile)
+      case None => Async[F].pure(None)
+    }
   
   def loadUrl[F[_]: Async : Runtime] (url: URL): F[Option[Either[ConfigResourceError, String]]] = {
     
