@@ -23,7 +23,6 @@ import laika.directive.{DirectiveSupport, StandardDirectives}
 import laika.factory.{MarkupFormat, RenderFormat}
 import laika.parse.Parser
 import laika.parse.combinator.Parsers
-import laika.parse.directive.ConfigHeaderParser
 
 import scala.annotation.tailrec
 
@@ -142,20 +141,17 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
     *  Alternative settings defined in this instance will have precedence.
     */
   def merge (other: OperationConfig): OperationConfig = copy(
-    bundles = mergeBundles(this.bundles, other.bundles),
+    bundles = combineBundles(this.bundles, other.bundles),
     bundleFilter = this.bundleFilter.merge(other.bundleFilter)
   )
   
-  private def mergeBundles(b1: Seq[ExtensionBundle], b2: Seq[ExtensionBundle]): Seq[ExtensionBundle] = {
-    // TODO - bundles need a way of explicit prioritization, this is just heuristics
-    val defaultBundles = Set(ExtensionBundle.LaikaDefaults, DirectiveSupport, StandardDirectives)
-    val appBundles = (b1 ++ b2).filterNot(defaultBundles.contains).groupBy(identity).filter(_._2.size > 1).keys.toSet
-    val parserBundles = (b1 ++ b2).filterNot(defaultBundles.contains).filterNot(appBundles.contains).toSet
-    val distinctBundles = (b1 ++ b2).distinct
-    
-    distinctBundles.filter(defaultBundles.contains) ++ 
-      distinctBundles.filter(parserBundles.contains) ++
-        distinctBundles.filter(appBundles.contains)
+  private val originOrder: List[BundleOrigin] = List(
+    BundleOrigin.Library, BundleOrigin.Parser, BundleOrigin.Mixed, BundleOrigin.User
+  )
+  private def combineBundles(b1: Seq[ExtensionBundle], b2: Seq[ExtensionBundle]): Seq[ExtensionBundle] = {
+    (b1 ++ b2).distinct.zipWithIndex.sortBy { case (bundle, index) =>
+      (originOrder.indexOf(bundle.origin), index)
+    }.map(_._1)
   }
 
 }
