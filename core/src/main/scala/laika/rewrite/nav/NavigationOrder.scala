@@ -48,24 +48,18 @@ object NavigationOrder {
         case (cursor, index) => reAssignPosition(cursor, parentPosition.forChild(index + 1))
       }
 
-    val (titleDoc, otherDocs) = content.partition {
-      case d: DocumentCursor if d.path.basename == "title" => true
-      case _ => false
-    }
-
     val sorted = config.get[Seq[String]]("navigationOrder").toOption.fold {
-      otherDocs.sortBy {
-        case d: DocumentCursor => "A-" + d.path.name
-        case t: TreeCursor => "B-" + t.path.name
+      content.sortBy {
+        case d: DocumentCursor => (0, d.path.name)
+        case t: TreeCursor     => (1, t.path.name)
       }
     } { list =>
-      otherDocs.sortBy { nav =>
+      content.sortBy { nav =>
         list.indexOf(nav.path.name) match { case -1 => Int.MaxValue; case other => other }
       }
     } 
 
-    titleDoc.map(reAssignPosition(_, parentPosition, AutonumberConfig.withoutSectionNumbering)) ++
-      reAssignPositions(sorted)
+    reAssignPositions(sorted)
   }
 
 }

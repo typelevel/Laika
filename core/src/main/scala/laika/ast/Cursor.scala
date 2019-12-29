@@ -21,7 +21,7 @@ import laika.collection.TransitionalCollectionOps._
 import laika.config.Config.ConfigResult
 import laika.config.{Config, ConfigEncoder, ConfigValue, Key}
 import laika.rewrite.ReferenceResolver
-import laika.rewrite.nav.NavigationOrder
+import laika.rewrite.nav.{AutonumberConfig, NavigationOrder}
 
 /** A cursor provides the necessary context during a rewrite operation.
   * The stateless document tree cannot provide access to parent or sibling
@@ -135,7 +135,11 @@ case class TreeCursor(target: DocumentTree,
       
     val sortedContent = NavigationOrder.applyTo(children, config, position)
 
-    val rewrittenTitle = titleDocument.map(doc => doc.rewriteTarget(rules(doc)))
+    val rewrittenTitle = titleDocument.map { doc =>
+      doc
+        .copy(config = AutonumberConfig.withoutSectionNumbering(doc.config))
+        .rewriteTarget(rules(doc))
+    }
     
     val rewrittenContent = sortedContent map {
       case doc: DocumentCursor => doc.rewriteTarget(rules(doc))
