@@ -29,14 +29,27 @@ import laika.io.runtime.{InputRuntime, Runtime}
 
 import scala.io.Codec
 
-/**
+/** Internal utility for loading text resources from the file system, the classpath or via its URL.
+  * 
   * @author Jens Halm
   */
 object ResourceLoader {
 
+  /** Load the file with the specified name.
+    * 
+    * If the file does not exist the result will be `None`.
+    * If it does exist, but fails to load or parse correctly the result will be `Some(Left(...))`,
+    * successfully parsed resources will be returned as `Some(Right(...))`.
+    */
   def loadFile[F[_]: Async : Runtime] (file: String): F[Option[Either[ConfigResourceError, String]]] = 
     loadFile(new File(file))
 
+  /** Load the specified file (which may be a file on the file system or a classpath resource).
+    *
+    * If the file does not exist the result will be `None`.
+    * If it does exist, but fails to load or parse correctly the result will be `Some(Left(...))`,
+    * successfully parsed resources will be returned as `Some(Right(...))`.
+    */
   def loadFile[F[_]: Async : Runtime] (file: File): F[Option[Either[ConfigResourceError, String]]] = {
     
     def load: F[Either[ConfigResourceError, String]] = {
@@ -52,13 +65,27 @@ object ResourceLoader {
       res    <- (if (exists) load.map(Option(_)) else Async[F].pure(None)): F[Option[Either[ConfigResourceError, String]]]
     } yield res
   }
-  
+
+  /** Load the specified classpath resource. 
+    * 
+    * The resource name is interpreted as absolute and should not start with a leading `/`.
+    *
+    * If the resource does not exist the result will be `None`.
+    * If it does exist, but fails to load or parse correctly the result will be `Some(Left(...))`,
+    * successfully parsed resources will be returned as `Some(Right(...))`.
+    */
   def loadClasspathResource[F[_]: Async : Runtime] (resource: String): F[Option[Either[ConfigResourceError, String]]] = 
     Option(getClass.getClassLoader.getResource(resource)) match {
       case Some(url) => loadFile(url.getFile)
       case None => Async[F].pure(None)
     }
-  
+
+  /** Load the configuration from the specified URL.
+    *
+    * If the resource does not exist (404 response) the result will be `None`.
+    * If it does exist, but fails to load or parse correctly the result will be `Some(Left(...))`,
+    * successfully parsed resources will be returned as `Some(Right(...))`.
+    */
   def loadUrl[F[_]: Async : Runtime] (url: URL): F[Option[Either[ConfigResourceError, String]]] = {
     
     val stream: F[InputStream] = for {

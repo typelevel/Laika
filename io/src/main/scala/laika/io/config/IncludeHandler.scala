@@ -26,14 +26,25 @@ import laika.config.{ConfigParser, ConfigResourceError}
 import laika.io.runtime.Runtime
 import laika.parse.hocon.{IncludeAny, IncludeClassPath, IncludeFile, IncludeResource, IncludeUrl, ValidStringValue}
 
-/**
+/** Internal utility that provides configuration files requested by include statements in other
+  * configuration instances.
+  * 
   * @author Jens Halm
   */
 object IncludeHandler {
   
   case class RequestedInclude(resource: IncludeResource, parent: Option[IncludeResource])
   case class LoadedInclude(requestedResource: IncludeResource, resolvedResource: IncludeResource, result: Either[ConfigResourceError, String])
-  
+
+  /** Loads the requested resources and maps them to the request instance for later lookup.
+    * 
+    * If a resource is not present (e.g. file does not exist in the file system or HTTP call
+    * produced a 404) then the requested resource will not be present as a key in the result map.
+    * 
+    * If a resource is present, but fails to load or parse correctly, the error will
+    * be mapped to the requested resource as a `Left`. Successfully loaded and parsed
+    * resources appear in the result map as a `Right`.
+    */
   def load[F[_]: Async : Runtime] (includes: Seq[RequestedInclude]): F[IncludeMap] = 
     
     if (includes.isEmpty) Async[F].pure(Map.empty) else {
