@@ -86,49 +86,4 @@ object BookNavigation {
     }
   }
   
-  /** Extracts navigation structure from document trees, documents and section in the specified
-    * tree.
-    *
-    * The configuration key for setting the recursion depth is `epub.toc.depth`.
-    *
-    * @param tree the document tree to generate navPoints for
-    * @param depth the recursion depth through trees, documents and sections
-    * @return a recursive structure of `BookNavigation` instances
-    */
-  def forTreeOld (tree: DocumentTree, depth: Int, pos: Iterator[Int] = Iterator.from(0)): Seq[BookNavigation] = {
-
-    def hasContent (level: Int)(nav: Navigatable): Boolean = nav match {
-      case _: Document => true
-      case tree: DocumentTree => if (level > 0) tree.content.exists(hasContent(level - 1)) else false
-    }
-
-    def forSections (path: Path, sections: Seq[SectionInfo], levels: Int, pos: Iterator[Int]): Seq[BookNavigation] =
-      if (levels == 0) Nil
-      else for (section <- sections) yield {
-        val title = section.title.extractText
-        val parentPos = pos.next
-        val children = forSections(path, section.content, levels - 1, pos)
-        BookNavigationLink(title, fullPath(path, forceXhtml = true) + "#" + section.id, parentPos, children)
-      }
-
-    if (depth == 0) Nil
-    else {
-      for (nav <- tree.content if hasContent(depth - 1)(nav)) yield nav match {
-        case doc: Document =>
-          val title = if (doc.title.nonEmpty) SpanSequence(doc.title).extractText else doc.name
-          val parentPos = pos.next
-          val children = forSections(doc.path, doc.sections, depth - 1, pos)
-          BookNavigationLink(title, fullPath(doc.path, forceXhtml = true), parentPos, children)
-        case subtree: DocumentTree =>
-          val title = if (subtree.title.nonEmpty) SpanSequence(subtree.title).extractText else subtree.name
-          val parentPos = pos.next
-          val children = forTreeOld(subtree, depth - 1, pos)
-          val targetDoc = subtree.titleDocument.orElse(subtree.content.collectFirst{ case d: Document => d }).get
-          val link = fullPath(targetDoc.path, forceXhtml = true)
-          if (depth == 1 || subtree.titleDocument.nonEmpty) BookNavigationLink(title, link, parentPos, children)
-          else BookSectionHeader(title, parentPos, children)
-      }
-    }
-  }
-
 }
