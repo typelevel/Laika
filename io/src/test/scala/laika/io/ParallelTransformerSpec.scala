@@ -19,7 +19,7 @@ package laika.io
 import java.io._
 
 import cats.effect.IO
-import laika.api.Transformer
+import laika.api.{MarkupParser, Transformer}
 import laika.api.builder.OperationConfig
 import laika.ast.DocumentType.Ignored
 import laika.ast.Path.Root
@@ -69,6 +69,9 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
 
     private def transformWithBundle (bundle: ExtensionBundle): IO[RenderedTreeViewRoot] =
       transformWith(Transformer.from(Markdown).to(AST).using(bundle).io(blocker).parallel[IO].build)
+
+    def transformMixedMarkup: IO[RenderedTreeViewRoot] =
+      transformWith(Transformer.from(Markdown).to(AST).io(blocker).parallel[IO].withAlternativeParser(MarkupParser.of(ReStructuredText)).build)
     
     def root (content: Seq[TreeContentView]): RenderedTreeView = RenderedTreeView(Root, content)
     
@@ -270,10 +273,10 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
       transformTree.assertEquals(RenderedTreeViewRoot(RenderedTreeView(Root, Nil), staticDocuments = Seq(Root / "omg.js")))
     }
 
-    "transform a tree with all available file types" in new TreeTransformer {
+    "transform a tree with all available file types and multiple markup formats" in new TreeTransformer {
       val inputs = Seq(
         Root / "doc1.md" -> Contents.link,
-        Root / "doc2.md" -> Contents.link,
+        Root / "doc2.rst" -> Contents.link,
         Root / "default.template.txt" -> Contents.template1,
         Root / "dir1" / "default.template.txt" -> Contents.template2,
         Root / "dir1" / "doc3.md" -> Contents.name,
@@ -300,10 +303,14 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
           |. Paragraph - Spans: 1
           |. . ExternalLink(foo,None) - Spans: 1
           |. . . Text - 'link'""".stripMargin
-      transformTree.assertEquals(RenderedTreeViewRoot(root(List(
+      val rst =
+        """RootElement - Blocks: 1
+          |. Paragraph - Spans: 1
+          |. . Text - '[link](foo)'""".stripMargin
+      transformMixedMarkup.assertEquals(RenderedTreeViewRoot(root(List(
         docs(
           (Root / "doc1.txt", markdown),
-          (Root / "doc2.txt", markdown)
+          (Root / "doc2.txt", rst)
         ),
         trees(
           (Root / "dir1", List(docs(

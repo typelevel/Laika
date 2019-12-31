@@ -19,7 +19,7 @@ package laika.io.text
 import cats.data.NonEmptyList
 import cats.effect.Async
 import laika.api.{MarkupParser, Renderer}
-import laika.api.builder.OperationConfig
+import laika.api.builder.{OperationConfig, ParserBuilder}
 import laika.ast.{DocumentType, TextDocumentType}
 import laika.io.binary.ParallelTransformer.TreeMapper
 import laika.io.model.{ParsedTree, RenderedTreeRoot, TreeInput, TreeOutput}
@@ -57,6 +57,22 @@ object ParallelTransformer {
     type MapRes = Builder[F]
     
     def evalMapTree (f: ParsedTree[F] => F[ParsedTree[F]]): MapRes = new Builder[F](parsers, renderer, mapper.andThen(f))
+
+    /** Specifies an additional parser for text markup.
+      *
+      * When multiple parsers exist for an operation, the target parser
+      * will be determined by the suffix of the input document, e.g.
+      * `.md` for Markdown and `.rst` for reStructuredText.
+      */
+    def withAlternativeParser (parser: MarkupParser): Builder[F] = copy(parsers = parsers.append(parser))
+
+    /** Specifies an additional parser for text markup.
+      *
+      * When multiple parsers exist for an operation, the target parser
+      * will be determined by the suffix of the input document, e.g.
+      * `.md` for Markdown and `.rst` for reStructuredText.
+      */
+    def withAlternativeParser (parser: ParserBuilder): Builder[F] = copy(parsers = parsers.append(parser.build))
     
     /** Final builder step that creates a parallel transformer.
       */
