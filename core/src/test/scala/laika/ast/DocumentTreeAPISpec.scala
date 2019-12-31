@@ -21,9 +21,9 @@ import laika.ast.DocumentType.Markup
 import laika.ast.Path.{Current, Root}
 import laika.ast.helper.DocumentViewBuilder.{Documents => Docs, _}
 import laika.ast.helper.ModelBuilder
-import laika.config.Origin.DocumentScope
+import laika.config.Origin.{DocumentScope, Scope, TreeScope}
 import laika.rewrite.TemplateRewriter
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.{FlatSpec, Matchers, path}
 
 class DocumentTreeAPISpec extends FlatSpec 
                       with Matchers
@@ -32,8 +32,8 @@ class DocumentTreeAPISpec extends FlatSpec
   trait TreeModel {
     def rootElement (b: Block): RootElement = root(b, p("b"), p("c"))
     
-    def createConfig (path: Path, source: Option[String]): Config =
-      source.map(c => ConfigParser.parse(c).resolve(Origin(DocumentScope, path)).toOption.get)
+    def createConfig (path: Path, source: Option[String], scope: Scope = DocumentScope): Config =
+      source.map(c => ConfigParser.parse(c).resolve(Origin(scope, path)).toOption.get)
       .getOrElse(Config.empty)
 
     def treeWithTitleDoc (path: Path, root: RootElement, config: Option[String] = None): DocumentTree =
@@ -94,6 +94,26 @@ class DocumentTreeAPISpec extends FlatSpec
       val title = Seq(Text("Title"))
       val tree = treeWithTitleDoc(Root, root(laika.ast.Title(title)))
       tree.title should be (title)
+    }
+  }
+
+  it should "obtain the title from the document config if present" in {
+    new TreeModel {
+      val title = Seq(Text("from-content"))
+      val tree = treeWithDoc(Root, "doc", root(laika.ast.Title(title)), Some("title: from-config"))
+      tree.content.head.title should be (Seq(Text("from-config")))
+    }
+  }
+
+  it should "not inherit the tree title as the document title" in {
+    new TreeModel {
+      val title = Seq(Text("from-content"))
+      val treeConfig = createConfig(Root, Some("title: from-config"), TreeScope)
+      val docConfig = createConfig(Root / "doc", Some("foo: bar")).withFallback(treeConfig)
+      val tree = DocumentTree(Root, List(
+        Document(Root / "doc", root(laika.ast.Title(title)), config = docConfig)
+      ), config = treeConfig)
+      tree.content.head.title should be (title)
     }
   }
   

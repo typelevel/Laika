@@ -19,10 +19,9 @@ package laika.ast
 import java.time.Instant
 import java.util.Locale
 
-import laika.config.Config.{ConfigResult, IncludeMap}
-import laika.config.{Config, ConfigDecoder, ConfigError, ConfigParser, ConfigValue, DecodingError, DefaultKey, InvalidType, ObjectValue, Origin, Traced, ValidationError}
 import laika.ast.Path.Root
-import laika.parse.hocon.{IncludeResource, ObjectBuilderValue}
+import laika.config.Config.{ConfigResult, IncludeMap}
+import laika.config._
 import laika.rewrite.TemplateRewriter
 import laika.rewrite.link.LinkTargetProvider
 import laika.rewrite.link.LinkTargets._
