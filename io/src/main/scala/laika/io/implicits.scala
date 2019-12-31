@@ -171,7 +171,8 @@ object implicits {
 
         def parallel[F[_] : Async : ContextShift : Parallel] (parallelism: Int): text.ParallelTransformer.Builder[F] = {
           implicit val runtime: Runtime[F] = Runtime.parallel(blocker, parallelism)
-          new text.ParallelTransformer.Builder[F](builder.build, Kleisli(Async[F].pure))
+          val transformer = builder.build
+          new text.ParallelTransformer.Builder[F](NonEmptyList.of(transformer.parser), transformer.renderer, Kleisli(Async[F].pure))
         }
       }
   }
@@ -190,7 +191,8 @@ object implicits {
 
         def parallel[F[_] : Async : ContextShift : Parallel] (parallelism: Int): binary.ParallelTransformer.Builder[F] = {
           implicit val runtime: Runtime[F] = Runtime.parallel(blocker, parallelism)
-          new binary.ParallelTransformer.Builder[F](builder.build, Kleisli(Async[F].pure))
+          val transformer = builder.build
+          new binary.ParallelTransformer.Builder[F](NonEmptyList.of(transformer.markupParser), transformer.renderer, Kleisli(Async[F].pure))
         }
       }
   }
