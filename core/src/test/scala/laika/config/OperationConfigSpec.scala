@@ -20,8 +20,11 @@ import laika.api.builder.OperationConfig
 import laika.ast._
 import laika.ast.DocumentType.{Markup, Static, Template}
 import laika.ast.Path.Root
+import laika.bundle.ExtensionBundle.LaikaDefaults
 import laika.bundle.{BundleProvider, ExtensionBundle}
 import laika.factory.MarkupFormat
+import laika.markdown.bundle.VerbatimHTML
+import laika.markdown.github.GitHubFlavor
 import org.scalatest.{Matchers, WordSpec}
 
 /**
@@ -50,6 +53,27 @@ class OperationConfigSpec extends WordSpec with Matchers {
 
   }
 
+  "The configuration for extension bundles" should {
+    
+    object UserBundle1 extends ExtensionBundle 
+    object UserBundle2 extends ExtensionBundle 
+    
+    "merge bundles based on their origin and configuration order" in {
+      val bundles1 = Seq(UserBundle1, LaikaDefaults, GitHubFlavor, UserBundle2)
+      val bundles2 = Seq(VerbatimHTML, UserBundle1, ExtensionBundle.Empty)
+      val config1 = OperationConfig(bundles1)
+      val config2 = OperationConfig(bundles2)
+      config1.merge(config2).bundles shouldBe Seq(
+        LaikaDefaults,
+        ExtensionBundle.Empty,
+        GitHubFlavor,
+        VerbatimHTML,
+        UserBundle1,
+        UserBundle2
+      )
+    }
+    
+  }
 
   "The configuration for baseConfig settings" should {
 
