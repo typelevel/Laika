@@ -123,6 +123,9 @@ Laika currently supports the following sbt tasks:
 The default settings for these tasks should be sufficient for many use cases.
 The following sections show how you can override the defaults. 
 
+You can also get a formatted summary of all settings and extensions by running
+`show laikaDescribe`.
+
 
 
 Basic Settings
