@@ -55,10 +55,10 @@ case class TreeInputDescriptor (inputs: Seq[InputDescriptor], sourceDirectories:
                     .groupBy(_._1).mapValuesStrict(_.map(_._2))
     
     TreeInputDescriptor.docTypeMappings.map { case (docType, typeDesc) =>
-      val docs = grouped.get(docType).fold("-"){ _.mkString("\n    ") }
+      val docs = grouped.get(docType).fold("-"){ _.distinct.mkString("\n    ") }
       s"""  $typeDesc
          |    $docs""".stripMargin  
-    }.mkString("\n")
+    }.mkString("\n").drop(2)
   }
   
 }

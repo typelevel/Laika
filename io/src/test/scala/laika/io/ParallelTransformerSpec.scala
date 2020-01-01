@@ -27,6 +27,7 @@ import laika.ast._
 import laika.bundle.{BundleProvider, ExtensionBundle}
 import laika.directive.Templates
 import laika.format._
+import laika.io.descriptor.TransformerDescriptor
 import laika.io.helper.OutputBuilder._
 import laika.io.helper.{InputBuilder, RenderResult}
 import laika.io.implicits._
@@ -59,6 +60,17 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
     def transformWithDirective (directive: Templates.Directive): IO[RenderedTreeViewRoot] = transformWithBundle(BundleProvider.forTemplateDirective(directive))
     def transformWithDocumentMapper (f: Document => Document): IO[RenderedTreeViewRoot] = 
       transformWith(Transformer.from(Markdown).to(AST).io(blocker).parallel[IO].mapDocuments(f).build)
+    
+    def describe: IO[TransformerDescriptor] = Transformer
+      .from(Markdown)
+      .to(AST)
+      .io(blocker)
+      .parallel[IO]
+      .withAlternativeParser(MarkupParser.of(ReStructuredText))
+      .build
+      .fromInput(IO.pure(input(inputs, transformer.config.docTypeMatcher)))
+      .toOutput(StringTreeOutput)
+      .describe
     
     private def transformWith (transformer: ParallelTransformer[IO] = transformer): IO[RenderedTreeViewRoot] =
       transformer
@@ -323,6 +335,57 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
           )))
         )
       )), staticDocuments = Seq(Root / "dir2" / "omg.js")))
+    }
+
+    "describe a tree with all available file types and multiple markup formats" in new TreeTransformer {
+      val inputs = Seq(
+        Root / "doc1.md" -> Contents.link,
+        Root / "doc2.rst" -> Contents.link,
+        Root / "default.template.txt" -> Contents.template1,
+        Root / "dir1" / "default.template.txt" -> Contents.template2,
+        Root / "dir1" / "doc3.md" -> Contents.name,
+        Root / "dir1" / "doc4.md" -> Contents.name,
+        Root / "dir2" / "omg.js" -> Contents.name,
+        Root / "dir2" / "doc5.md" -> Contents.name,
+        Root / "dir2" / "doc6.md" -> Contents.name,
+      )
+      val expected = """Parser(s):
+                       |  Markdown
+                       |  reStructuredText
+                       |Renderer:
+                       |  AST
+                       |Extension Bundles:
+                       |  Laika's Default Extensions (supplied by library)
+                       |  Laika's directive support (supplied by library)
+                       |  Laika's built-in directives (supplied by library)
+                       |  Header ids for Markdown (supplied by parser)
+                       |  Support for verbatim HTML in markup (supplied by parser)
+                       |  Document Type Matcher for Markdown (supplied by parser)
+                       |  Default extensions for reStructuredText (supplied by parser)
+                       |  Support for user-defined reStructuredText directives (supplied by parser)
+                       |  Standard directives for reStructuredText (supplied by parser)
+                       |  Raw content extensions for reStructuredText (supplied by parser)
+                       |  Document Type Matcher for reStructuredText (supplied by parser)
+                       |Settings:
+                       |  Strict Mode: false
+                       |  Accept Raw Content: false
+                       |  Render Formatted: true
+                       |Sources:
+                       |  Markup File(s)
+                       |    In-memory string or stream
+                       |  Template(s)
+                       |    In-memory string or stream
+                       |  Configuration Files(s)
+                       |    -
+                       |  CSS for PDF
+                       |    -
+                       |  Copied File(s)
+                       |    In-memory bytes or stream
+                       |  Root Directories
+                       |    -
+                       |Target:
+                       |  In-memory strings or streams""".stripMargin
+      describe.map(_.formatted).assertEquals(expected)
     }
 
     trait TwoPhaseTransformer extends InputBuilder {
