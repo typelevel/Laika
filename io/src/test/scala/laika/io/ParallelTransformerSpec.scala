@@ -359,12 +359,10 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
                        |  Laika's directive support (supplied by library)
                        |  Laika's built-in directives (supplied by library)
                        |  Header ids for Markdown (supplied by parser)
-                       |  Support for verbatim HTML in markup (supplied by parser)
                        |  Document Type Matcher for Markdown (supplied by parser)
                        |  Default extensions for reStructuredText (supplied by parser)
                        |  Support for user-defined reStructuredText directives (supplied by parser)
                        |  Standard directives for reStructuredText (supplied by parser)
-                       |  Raw content extensions for reStructuredText (supplied by parser)
                        |  Document Type Matcher for reStructuredText (supplied by parser)
                        |Settings:
                        |  Strict Mode: false

@@ -53,7 +53,7 @@ object ParserDescriptor {
   
   def create[F[_]: Async] (op: SequentialParser.Op[F]): F[ParserDescriptor] = Async[F].pure(apply(
     NonEmptyList.of(op.parser.format.description),
-    op.parser.config.bundles.map(ExtensionBundleDescriptor),
+    op.parser.config.bundles.filter(op.parser.config.bundleFilter).map(ExtensionBundleDescriptor),
     TreeInputDescriptor(Seq(InputDescriptor.create(op.input))),
     op.parser.config.bundleFilter.strict,
     op.parser.config.bundleFilter.acceptRawContent
@@ -63,7 +63,7 @@ object ParserDescriptor {
     TreeInputDescriptor.create(op.input).map { inputDesc =>
     apply(
       op.parsers.map(_.format.description),
-      op.config.bundles.map(ExtensionBundleDescriptor),
+      op.config.bundles.filter(op.config.bundleFilter).map(ExtensionBundleDescriptor),
       inputDesc,
       op.config.bundleFilter.strict,
       op.config.bundleFilter.acceptRawContent
