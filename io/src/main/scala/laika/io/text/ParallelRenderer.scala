@@ -20,7 +20,8 @@ import cats.effect.Async
 import laika.api.Renderer
 import laika.api.builder.OperationConfig
 import laika.ast.DocumentTreeRoot
-import laika.io.model.{RenderedTreeRoot, BinaryInput, TreeOutput}
+import laika.io.descriptor.{ParserDescriptor, RendererDescriptor}
+import laika.io.model.{BinaryInput, RenderedTreeRoot, TreeOutput}
 import laika.io.ops.ParallelTextOutputOps
 import laika.io.runtime.{RendererRuntime, Runtime}
 
@@ -86,6 +87,12 @@ object ParallelRenderer {
       */
     def render: F[RenderedTreeRoot[F]] = RendererRuntime.run(this)
 
+    /** Provides a description of this operation, the renderers
+      * and extension bundles used, as well as the output target.
+      * This functionality is mostly intended for tooling support.
+      */
+    def describe: F[RendererDescriptor] = RendererDescriptor.create(this)
+    
   }
 
 }

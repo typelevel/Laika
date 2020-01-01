@@ -19,6 +19,7 @@ package laika.io.text
 import cats.effect.Async
 import laika.api.Renderer
 import laika.ast.{Document, Element, Path}
+import laika.io.descriptor.{ParserDescriptor, RendererDescriptor}
 import laika.io.model.TextOutput
 import laika.io.ops.SequentialTextOutputOps
 import laika.io.runtime.{RendererRuntime, Runtime}
@@ -86,6 +87,12 @@ object SequentialRenderer {
       */
     def render: F[String] = RendererRuntime.run(this)
 
+    /** Provides a description of this operation, the renderers
+      * and extension bundles used, as well as the output target.
+      * This functionality is mostly intended for tooling support.
+      */
+    def describe: F[RendererDescriptor] = RendererDescriptor.create(this)
+    
   }
 
 }

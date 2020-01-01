@@ -21,7 +21,8 @@ import cats.effect.{Async, Blocker, ContextShift}
 import laika.api.MarkupParser
 import laika.api.builder.{OperationConfig, ParserBuilder}
 import laika.ast.{DocumentType, StyleDeclarationSet, TemplateDocument, TextDocumentType}
-import laika.io.model.{TreeInput, ParsedTree}
+import laika.io.descriptor.ParserDescriptor
+import laika.io.model.{ParsedTree, TreeInput}
 import laika.io.ops.ParallelInputOps
 import laika.parse.markup.DocumentParser
 import laika.parse.markup.DocumentParser.{ParserError, ParserInput}
@@ -110,6 +111,12 @@ object ParallelParser {
       * default runtime implementation, suspended in the effect F.
       */
     def parse: F[ParsedTree[F]] = ParserRuntime.run(this)
+
+    /** Provides a description of this operation, the parsers
+      * and extension bundles used, as well as the input sources.
+      * This functionality is mostly intended for tooling support.
+      */
+    def describe: F[ParserDescriptor] = ParserDescriptor.create(this)
 
   }
 

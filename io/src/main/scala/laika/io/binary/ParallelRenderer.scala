@@ -21,6 +21,7 @@ import laika.api.builder.{OperationConfig, TwoPhaseRenderer}
 import laika.ast.DocumentTreeRoot
 import laika.factory.BinaryPostProcessor
 import laika.io.binary.ParallelRenderer.BinaryRenderer
+import laika.io.descriptor.{ParserDescriptor, RendererDescriptor}
 import laika.io.model.{BinaryInput, BinaryOutput}
 import laika.io.ops.BinaryOutputOps
 import laika.io.runtime.{RendererRuntime, Runtime}
@@ -89,6 +90,11 @@ object ParallelRenderer {
       */
     def render: F[Unit] = RendererRuntime.run(this)
 
+    /** Provides a description of this operation, the renderers
+      * and extension bundles used, as well as the output target.
+      * This functionality is mostly intended for tooling support.
+      */
+    def describe: F[RendererDescriptor] = RendererDescriptor.create(this)
   }
 
 }

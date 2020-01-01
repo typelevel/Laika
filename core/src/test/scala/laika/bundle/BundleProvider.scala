@@ -89,7 +89,7 @@ object BundleProvider {
 
   }
 
-  def forTemplateDirective(directive: Templates.Directive): ExtensionBundle = new TestExtensionBundle {
+  def forTemplateDirective(directive: Templates.Directive): ExtensionBundle = new DirectiveRegistry {
 
     val templateDirectives = Seq(directive)
     val spanDirectives = Seq()

@@ -22,6 +22,7 @@ import laika.api.{MarkupParser, Renderer}
 import laika.api.builder.{OperationConfig, ParserBuilder}
 import laika.ast.{DocumentType, TextDocumentType}
 import laika.io.binary.ParallelTransformer.TreeMapper
+import laika.io.descriptor.TransformerDescriptor
 import laika.io.model.{ParsedTree, RenderedTreeRoot, TreeInput, TreeOutput}
 import laika.io.ops.{ParallelInputOps, ParallelTextOutputOps, TreeMapperOps}
 import laika.io.runtime.{Runtime, TransformerRuntime}
@@ -105,6 +106,12 @@ object ParallelTransformer {
       */
     def transform: F[RenderedTreeRoot[F]] = TransformerRuntime.run(this)
 
+    /** Provides a description of this operation, the parsers, renderers
+      * and extension bundles used, as well as the sources and output target.
+      * This functionality is mostly intended for tooling support.
+      */
+    def describe: F[TransformerDescriptor] = TransformerDescriptor.create(this)
+    
   }
 
 }

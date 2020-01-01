@@ -19,7 +19,8 @@ package laika.io.text
 import cats.effect.{Async, Blocker, ContextShift}
 import laika.api.MarkupParser
 import laika.ast.{Document, DocumentType, TextDocumentType}
-import laika.io.model.{TextInput}
+import laika.io.descriptor.ParserDescriptor
+import laika.io.model.TextInput
 import laika.io.ops.SequentialInputOps
 import laika.io.runtime.{ParserRuntime, Runtime}
 
@@ -67,6 +68,12 @@ object SequentialParser {
       */
     def parse: F[Document] = ParserRuntime.run(this)
 
+    /** Provides a description of this operation, the parsers
+      * and extension bundles used, as well as the input sources.
+      * This functionality is mostly intended for tooling support.
+      */
+    def describe: F[ParserDescriptor] = ParserDescriptor.create(this)
+    
   }
 
 }

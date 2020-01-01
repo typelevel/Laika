@@ -53,14 +53,14 @@ import laika.rewrite.TemplateRewriter
   *
   * @author Jens Halm
   */
-class MarkupParser (parser: MarkupFormat, val config: OperationConfig) {
+class MarkupParser (val format: MarkupFormat, val config: OperationConfig) {
 
   /** The file suffixes this parser will recognize
     * as a supported format.
     */
-  val fileSuffixes: Set[String] = parser.fileSuffixes
+  val fileSuffixes: Set[String] = format.fileSuffixes
   
-  private val docParser = DocumentParser.forMarkup(parser, config.markupExtensions, config.configProvider)
+  private val docParser = DocumentParser.forMarkup(format, config.markupExtensions, config.configProvider)
 
   /** Parses the specified markup string into a document AST structure.
     */
