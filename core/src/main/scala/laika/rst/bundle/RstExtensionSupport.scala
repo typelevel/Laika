@@ -36,6 +36,8 @@ class RstExtensionSupport (blockDirectives: Seq[Directive[Block]],
                            textRoles: Seq[TextRole],
                            defaultTextRole: String) extends ExtensionBundle {
 
+  val description: String = "Support for user-defined reStructuredText directives"
+
   override val origin: BundleOrigin = BundleOrigin.Parser
   
   override val useInStrictMode: Boolean = true

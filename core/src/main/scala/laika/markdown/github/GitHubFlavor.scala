@@ -41,6 +41,8 @@ import laika.bundle.{BundleOrigin, ExtensionBundle, ParserBundle}
   */
 object GitHubFlavor extends ExtensionBundle {
 
+  val description: String = "Github-flavored Markdown"
+
   override val origin: BundleOrigin = BundleOrigin.Parser
 
   override def parsers: ParserBundle = ParserBundle(

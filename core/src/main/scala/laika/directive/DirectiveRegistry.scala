@@ -42,6 +42,8 @@ import laika.bundle.ExtensionBundle
   * @author Jens Halm
   */
 trait DirectiveRegistry extends ExtensionBundle {
+  
+  val description: String = "Registry for Laika's directives"
 
   /**  Registers the specified span directives.
     *

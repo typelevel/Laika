@@ -82,6 +82,7 @@ case object Markdown extends MarkupFormat {
   override lazy val escapedChar: Parser[String] = InlineParsers.escapedChar
 
   object BundledDefaults extends ExtensionBundle {
+    val description: String = "Header ids for Markdown"
     override val origin: BundleOrigin = BundleOrigin.Parser
     override val parsers: ParserBundle = ParserBundle(
       markupParserHooks = Some(ParserHooks(

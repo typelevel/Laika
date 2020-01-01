@@ -26,9 +26,13 @@ import laika.parse.markup.DocumentParser.ParserInput
   * @author Jens Halm
   */
 object BundleProvider {
+  
+  trait TestExtensionBundle extends ExtensionBundle {
+    val description: String = "Extensions under test"
+  }
 
   def forMarkupParser (blockParsers: Seq[BlockParserBuilder] = Nil,
-                       spanParsers: Seq[SpanParserBuilder] = Nil): ExtensionBundle = new ExtensionBundle {
+                       spanParsers: Seq[SpanParserBuilder] = Nil): ExtensionBundle = new TestExtensionBundle {
 
     override def parsers: ParserBundle = ParserBundle(
       blockParsers = blockParsers,
@@ -39,7 +43,7 @@ object BundleProvider {
 
   def forParserHooks (postProcessBlocks: Seq[Block] => Seq[Block] = identity,
                       postProcessDocument: UnresolvedDocument => UnresolvedDocument = identity,
-                      preProcessInput: ParserInput => ParserInput = identity): ExtensionBundle = new ExtensionBundle {
+                      preProcessInput: ParserInput => ParserInput = identity): ExtensionBundle = new TestExtensionBundle {
 
     override def parsers: ParserBundle = ParserBundle(
       markupParserHooks = Some(ParserHooks(
@@ -51,7 +55,7 @@ object BundleProvider {
 
   }
 
-  def forConfigProvider (provider: ConfigProvider): ExtensionBundle = new ExtensionBundle {
+  def forConfigProvider (provider: ConfigProvider): ExtensionBundle = new TestExtensionBundle {
 
     override def parsers: ParserBundle = ParserBundle(
       configProvider = Some(provider)
@@ -59,25 +63,25 @@ object BundleProvider {
 
   }
 
-  def forConfigString (input: String): ExtensionBundle = new ExtensionBundle {
+  def forConfigString (input: String): ExtensionBundle = new TestExtensionBundle {
 
     override def baseConfig: Config = ConfigParser.parse(input).resolve().toOption.get
 
   }
 
-  def forDocTypeMatcher (matcher: PartialFunction[Path, DocumentType]): ExtensionBundle = new ExtensionBundle {
+  def forDocTypeMatcher (matcher: PartialFunction[Path, DocumentType]): ExtensionBundle = new TestExtensionBundle {
 
     override def docTypeMatcher: PartialFunction[Path, DocumentType] = matcher
 
   }
 
-  def forSpanRewriteRule (rule: RewriteRule[Span]): ExtensionBundle = new ExtensionBundle {
+  def forSpanRewriteRule (rule: RewriteRule[Span]): ExtensionBundle = new TestExtensionBundle {
 
     override def rewriteRules: Seq[DocumentCursor => RewriteRules] = Seq(_ => laika.ast.RewriteRules.forSpans(rule))
 
   }
 
-  def forTemplateParser(parser: Parser[TemplateRoot]): ExtensionBundle = new ExtensionBundle {
+  def forTemplateParser(parser: Parser[TemplateRoot]): ExtensionBundle = new TestExtensionBundle {
 
     override def parsers: ParserBundle = ParserBundle(
       templateParser = Some(parser)
@@ -85,7 +89,7 @@ object BundleProvider {
 
   }
 
-  def forTemplateDirective(directive: Templates.Directive): ExtensionBundle = new DirectiveRegistry {
+  def forTemplateDirective(directive: Templates.Directive): ExtensionBundle = new TestExtensionBundle {
 
     val templateDirectives = Seq(directive)
     val spanDirectives = Seq()
@@ -93,7 +97,7 @@ object BundleProvider {
 
   }
 
-  def forStyleSheetParser (parser: Parser[Set[StyleDeclaration]]): ExtensionBundle = new ExtensionBundle {
+  def forStyleSheetParser (parser: Parser[Set[StyleDeclaration]]): ExtensionBundle = new TestExtensionBundle {
 
     override def parsers: ParserBundle = ParserBundle(
       styleSheetParser = Some(parser)
@@ -101,7 +105,7 @@ object BundleProvider {
 
   }
 
-  def forTheme (theme: RenderTheme): ExtensionBundle = new ExtensionBundle {
+  def forTheme (theme: RenderTheme): ExtensionBundle = new TestExtensionBundle {
 
     override def themes: Seq[RenderTheme] = Seq(theme)
 

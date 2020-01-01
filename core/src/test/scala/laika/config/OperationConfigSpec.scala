@@ -20,6 +20,7 @@ import laika.api.builder.OperationConfig
 import laika.ast._
 import laika.ast.DocumentType.{Markup, Static, Template}
 import laika.ast.Path.Root
+import laika.bundle.BundleProvider.TestExtensionBundle
 import laika.bundle.ExtensionBundle.LaikaDefaults
 import laika.bundle.{BundleProvider, ExtensionBundle}
 import laika.factory.MarkupFormat
@@ -55,8 +56,8 @@ class OperationConfigSpec extends WordSpec with Matchers {
 
   "The configuration for extension bundles" should {
     
-    object UserBundle1 extends ExtensionBundle 
-    object UserBundle2 extends ExtensionBundle 
+    object UserBundle1 extends TestExtensionBundle 
+    object UserBundle2 extends TestExtensionBundle 
     
     "merge bundles based on their origin and configuration order" in {
       val bundles1 = Seq(UserBundle1, LaikaDefaults, GitHubFlavor, UserBundle2)
@@ -187,13 +188,13 @@ class OperationConfigSpec extends WordSpec with Matchers {
 
   "The configuration flags for strict mode and raw content" should {
 
-    case object Defaults extends ExtensionBundle
+    case object Defaults extends TestExtensionBundle
 
-    case object Strict extends ExtensionBundle { override val useInStrictMode = true }
+    case object Strict extends TestExtensionBundle { override val useInStrictMode = true }
 
-    case object RawContent extends ExtensionBundle { override val acceptRawContent = true }
+    case object RawContent extends TestExtensionBundle { override val acceptRawContent = true }
 
-    case object Both extends ExtensionBundle {
+    case object Both extends TestExtensionBundle {
       override val useInStrictMode = true
       override val acceptRawContent = true
     }

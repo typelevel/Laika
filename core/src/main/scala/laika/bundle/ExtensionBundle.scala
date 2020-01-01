@@ -52,6 +52,10 @@ import laika.parse.css.CSSParsers
   */
 trait ExtensionBundle { self =>
 
+  /** Short string describing the output format for tooling and logging
+    */
+  def description: String
+  
   /** Indicates whether the bundle is a built-in default provided by the library,
     * a collection of extensions installed by a markup format or user-defined.
     * 
@@ -126,6 +130,8 @@ trait ExtensionBundle { self =>
     */
   def withBase (base: ExtensionBundle): ExtensionBundle = new ExtensionBundle {
 
+    val description: String = "Merged Bundle"
+
     override lazy val origin: BundleOrigin = if (this.origin == base.origin) origin else BundleOrigin.Mixed
     
     override val useInStrictMode = self.useInStrictMode && base.useInStrictMode
@@ -176,6 +182,7 @@ object ExtensionBundle {
 
   /** An empty bundle */
   object Empty extends ExtensionBundle {
+    val description: String = "Empty extension bundle"
     override val origin: BundleOrigin = BundleOrigin.Library
   }
 
@@ -183,6 +190,8 @@ object ExtensionBundle {
     * in all operations.
     */
   object LaikaDefaults extends ExtensionBundle {
+
+    val description: String = "Laika's Default Extensions"
 
     override val origin: BundleOrigin = BundleOrigin.Library
     

@@ -71,6 +71,8 @@ import laika.rst.std.{StandardBlockDirectives, StandardSpanDirectives, StandardT
   */
 trait RstExtensionRegistry extends ExtensionBundle {
 
+  val description: String = "Registry for reStructuredText directives"
+  
   override val useInStrictMode: Boolean = true
 
   /**  Registers the specified span directives.
@@ -178,6 +180,8 @@ trait RstExtensionRegistry extends ExtensionBundle {
   */
 object StandardExtensions extends RstExtensionRegistry {
 
+  override val description: String = "Standard directives for reStructuredText"
+
   override val origin: BundleOrigin = BundleOrigin.Parser
   
   lazy val blockDirectives = (new StandardBlockDirectives).blockDirectives
@@ -199,6 +203,8 @@ object StandardExtensions extends RstExtensionRegistry {
   * }}}
   */
 object RawContentExtensions extends RstExtensionRegistry {
+
+  override val description: String = "Raw content extensions for reStructuredText"
 
   override val origin: BundleOrigin = BundleOrigin.Parser
   

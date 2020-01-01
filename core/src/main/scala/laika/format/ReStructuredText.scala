@@ -92,7 +92,9 @@ case object ReStructuredText extends MarkupFormat { self =>
   override lazy val escapedChar = InlineParsers.escapedChar
 
   object BundledDefaults extends ExtensionBundle {
-    
+
+    val description: String = "Default extensions for reStructuredText"
+
     override val origin: BundleOrigin = BundleOrigin.Parser
     override val useInStrictMode: Boolean = true
 

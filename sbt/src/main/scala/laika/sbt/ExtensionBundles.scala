@@ -40,12 +40,14 @@ trait ExtensionBundles {
   /** Create an extension bundle based on the specified custom HTML render function.
     */
   def laikaHtmlRenderer (f: PartialFunction[(HTMLFormatter, Element), String]): ExtensionBundle = new ExtensionBundle {
+    val description: String = "Custom HTML render function"
     override def themes: Seq[RenderTheme] = Seq(HTML.Theme(customRenderer = f))
   }
 
   /** Create an extension bundle based on the specified custom HTML render function.
     */
   def laikaEpubRenderer (f: PartialFunction[(HTMLFormatter, Element), String]): ExtensionBundle = new ExtensionBundle {
+    val description: String = "Custom XHTML render function for EPUB"
     override def themes: Seq[RenderTheme] = Seq(EPUB.XHTML.Theme(customRenderer = f))
   }
 
@@ -55,6 +57,7 @@ trait ExtensionBundles {
     * format for the PDF renderer.
     */
   def laikaFoRenderer (f: PartialFunction[(FOFormatter, Element), String]): ExtensionBundle = new ExtensionBundle {
+    val description: String = "Custom XSL-FO render function for PDF"
     override def themes: Seq[RenderTheme] = Seq(XSLFO.Theme(customRenderer = f))
   }
 
@@ -77,6 +80,7 @@ trait ExtensionBundles {
     * creating a new rule for each document.
     */
   def laikaRewriteRuleFactory (factory: DocumentCursor => RewriteRules): ExtensionBundle = new ExtensionBundle {
+    val description: String = "Custom rewrite rules"
     override def rewriteRules: Seq[DocumentCursor => RewriteRules] = Seq(factory)
   }
 
@@ -85,6 +89,7 @@ trait ExtensionBundles {
     * The matcher function determines the document type of the input based on its path.
     */
   def laikaDocTypeMatcher (f: PartialFunction[laika.ast.Path, DocumentType]): ExtensionBundle = new ExtensionBundle {
+    val description: String = "Custom document type matcher"
     override def docTypeMatcher: PartialFunction[laika.ast.Path, DocumentType] = f
   }
 

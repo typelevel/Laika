@@ -132,6 +132,7 @@ trait TransformerBuilderOps[FMT] extends ParserBuilderOps with RendererBuilderOp
     *  been processed.
     */
   def creatingRule (newRules: DocumentCursor => RewriteRules): ThisType = using(new ExtensionBundle {
+    val description: String = "Custom rewrite rules"
     override val useInStrictMode: Boolean = true
     override def rewriteRules: Seq[DocumentCursor => RewriteRules] = Seq(newRules)
   })

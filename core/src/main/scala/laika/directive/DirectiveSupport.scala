@@ -32,6 +32,8 @@ class DirectiveSupport (blockDirectives: Seq[Blocks.Directive],
                         spanDirectives: Seq[Spans.Directive],
                         templateDirectives: Seq[Templates.Directive]) extends ExtensionBundle {
 
+  val description: String = "Laika's directive support"
+
   override val origin: BundleOrigin = BundleOrigin.Library
   
   private val configProvider: ConfigProvider = new ConfigProvider {

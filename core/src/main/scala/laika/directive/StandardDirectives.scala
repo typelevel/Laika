@@ -50,6 +50,8 @@ import scala.annotation.tailrec
  */
 object StandardDirectives extends DirectiveRegistry {
 
+  override val description: String = "Laika's built-in directives"
+
   override val origin: BundleOrigin = BundleOrigin.Library
 
   /** Implementation of the `for` directive for templates.
