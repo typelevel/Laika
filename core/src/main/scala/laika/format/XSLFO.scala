@@ -38,6 +38,8 @@ import scala.language.existentials
  */
 object XSLFO extends RenderFormat[FOFormatter] {
   
+  override val description: String = "XSL-FO"
+  
   val fileSuffix = "fo"
 
   val defaultRenderer: (FOFormatter, Element) => String = FORenderer

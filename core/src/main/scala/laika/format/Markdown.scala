@@ -52,7 +52,7 @@ import laika.parse.Parser
  * 
  *  @author Jens Halm
  */
-object Markdown extends MarkupFormat {
+case object Markdown extends MarkupFormat {
 
   val fileSuffixes: Set[String] = Set("md", "markdown")
 

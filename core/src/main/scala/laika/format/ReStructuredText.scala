@@ -49,9 +49,10 @@ import laika.rst.bundle._
  * 
  *  @author Jens Halm
  */
-object ReStructuredText extends MarkupFormat { self =>
+case object ReStructuredText extends MarkupFormat { self =>
 
-
+  override val description: String = "reStructuredText"
+  
   val fileSuffixes: Set[String] = Set("rest", "rst")
 
   val blockParsers = Seq(

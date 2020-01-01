@@ -31,7 +31,7 @@ import laika.render._
  * 
  *  @author Jens Halm
  */
-object AST extends RenderFormat[TextFormatter] {
+case object AST extends RenderFormat[TextFormatter] {
 
   val fileSuffix = "txt"
 

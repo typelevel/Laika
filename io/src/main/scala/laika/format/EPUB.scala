@@ -61,7 +61,7 @@ import laika.render.{HTMLFormatter, XHTMLFormatter, XHTMLRenderer}
  * 
  *  @author Jens Halm
  */
-object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor] {
+case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor] {
 
   /** A render format for XHTML output as used by EPUB output.
     *

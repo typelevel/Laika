@@ -62,6 +62,7 @@ import org.apache.fop.apps.{FopFactory, FopFactoryBuilder}
 class PDF private(val interimFormat: RenderFormat[FOFormatter], config: Option[PDF.Config], fopFactory: Option[FopFactory]) 
   extends TwoPhaseRenderFormat[FOFormatter, BinaryPostProcessor] {
 
+  override val description: String = "PDF"
 
   /** Allows to specify configuration options like insertion
    *  of bookmarks or table of content.

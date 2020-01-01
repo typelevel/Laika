@@ -30,7 +30,7 @@ import laika.render.{HTMLFormatter, HTMLRenderer, HTMLTemplate}
  * 
  *  @author Jens Halm
  */
-object HTML extends RenderFormat[HTMLFormatter] {
+case object HTML extends RenderFormat[HTMLFormatter] {
   
   val fileSuffix = "html"
 

@@ -33,13 +33,15 @@ import laika.factory.TwoPhaseRenderFormat
   *                    passed to the post processor
   * @param postProcessor the processor taking the interim result and producing the final 
   *                      result, the implementing type may vary from format to format
+  * @param description short string describing the output format for tooling and logging 
   * @tparam PP the type of the post processor 
   *            
   * @author Jens Halm
   */
 case class TwoPhaseRenderer[PP] (interimRenderer: Renderer,
                                  prepareTree: DocumentTreeRoot => Either[Throwable, DocumentTreeRoot],
-                                 postProcessor: PP)
+                                 postProcessor: PP,
+                                 description: String)
 
 
 /** Builder API for Renderer instances.
@@ -67,7 +69,8 @@ class TwoPhaseRendererBuilder[FMT, PP] (val twoPhaseFormat: TwoPhaseRenderFormat
   def build: TwoPhaseRenderer[PP] = TwoPhaseRenderer(
     new RendererBuilder(renderFormat, config).build,
     twoPhaseFormat.prepareTree,
-    twoPhaseFormat.postProcessor
+    twoPhaseFormat.postProcessor,
+    twoPhaseFormat.description
   )
 
 }
