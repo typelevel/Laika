@@ -93,7 +93,9 @@ object LaikaPlugin extends AutoPlugin {
     val laikaXSLFO        = taskKey[Set[File]]("Generates XSL-FO output")
 
     val laikaAST          = taskKey[Set[File]]("Generates a formatted output of the AST obtained from a parser")
-
+    
+    
+    val laikaDescribe     = settingKey[String]("Describe the current configuration, formats and input and output files")
 
     val laikaExtensions   = settingKey[Seq[ExtensionBundle]]("Custom extension bundles to use in each transformation")
 
@@ -158,6 +160,7 @@ object LaikaPlugin extends AutoPlugin {
     laikaEPUB               := Tasks.generate.toTask(" epub").value.headOption.getOrElse((artifactPath in laikaEPUB).value),
     laikaPDF                := Tasks.generate.toTask(" pdf").value.headOption.getOrElse((artifactPath in laikaPDF).value),
     laikaAST                := Tasks.generate.toTask(" ast").value,
+    laikaDescribe           := Settings.describe.value,
     laikaCopyAPI            := Tasks.copyAPI.value,
     laikaCopyEPUB           := Tasks.copyEPUB.value,
     laikaCopyPDF            := Tasks.copyPDF.value,
