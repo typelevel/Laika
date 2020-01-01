@@ -50,7 +50,7 @@ trait BinaryOutputOps[F[_]] {
     *  @param file the file to write to
     */
   def toFile (file: File): Result =
-    toOutput(BinaryOutput(Path(file.getName), OutputRuntime.binaryFileResource(file)(F)))
+    toOutput(BinaryOutput(Path(file.getName), OutputRuntime.binaryFileResource(file)(F), Some(file)))
 
   /** Builder step that instructs the runtime to render
     * to the specified output stream.

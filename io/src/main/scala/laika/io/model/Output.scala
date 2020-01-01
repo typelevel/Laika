@@ -53,7 +53,7 @@ object TextOutput {
   * Most renderers write character data, but formats like PDF or EPUB
   * require a binary stream to write to.
   */
-case class BinaryOutput[F[_]] (path: Path, resource: Resource[F, OutputStream])
+case class BinaryOutput[F[_]] (path: Path, resource: Resource[F, OutputStream], targetFile: Option[File] = None)
 
 /** A (virtual) tree of output documents.
   */
