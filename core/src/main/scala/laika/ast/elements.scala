@@ -417,7 +417,7 @@ case class ParsedLiteralBlock (content: Seq[Span], options: Options = NoOpt) ext
 }
 
 /** A block of program code. The content is a sequence of spans to support
- *  the later integration of syntax highlighting systems. Without this support
+ *  the integration of syntax highlighting systems. For unsupported languages
  *  the sequence will only consist of a single `Text` element.
  */
 case class CodeBlock (language: String, content: Seq[Span], options: Options = NoOpt) extends Block with SpanContainer {

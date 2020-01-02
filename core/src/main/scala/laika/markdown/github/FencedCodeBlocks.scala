@@ -36,7 +36,7 @@ object FencedCodeBlocks {
 
   /** Creates a parser for a fenced code block with the specified fence character.
     */
-  def codeBlock (fenceChar: Char): BlockParserBuilder = BlockParser.forStartChar(fenceChar).standalone {
+  def codeBlock (fenceChar: Char): BlockParserBuilder = BlockParser.forStartChar(fenceChar).recursive { recParsers =>
 
     val infoString = restOfLine.map(Some(_)
       .filter(_.nonEmpty)
@@ -48,10 +48,14 @@ object FencedCodeBlocks {
 
       val closingFence = anyOf(fenceChar).min(charCount + 1) ~ wsEol
 
-      (not(closingFence | eof) ~> restOfLine).rep <~ opt(closingFence) ^^ { lines =>
+      (not(closingFence | eof) ~> restOfLine).rep <~ opt(closingFence) ^^? { lines =>
         val trimmedLines = if (lines.lastOption.exists(_.trim.isEmpty)) lines.dropRight(1) else lines
         val code = trimmedLines.mkString("\n")
-        info.fold(LiteralBlock(code): Block) { lang => CodeBlock(lang, Seq(Text(code))) }
+        info.fold[Either[String, Block]](Right(LiteralBlock(code))) { lang =>
+          val highlighter = recParsers.getSyntaxHighlighter(lang).getOrElse(any ^^ { txt => Seq(Text(txt)) })
+          val blockParser = highlighter ^^ { codeSpans => CodeBlock(lang, codeSpans) }
+          blockParser.parse(code).toEither
+        }
       }
     }
   }
