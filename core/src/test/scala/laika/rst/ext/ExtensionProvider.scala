@@ -53,6 +53,7 @@ object RootParserProvider {
     val markupExtensions = MarkupExtensions(
       blockParsers = finalBundle.parsers.blockParsers,
       spanParsers = finalBundle.parsers.spanParsers,
+      syntaxHighlighters = Nil,
       parserHooks = ParserHooks(postProcessBlocks = LinkTargetProcessor)
     )
     new RootParser(ReStructuredText, markupExtensions)

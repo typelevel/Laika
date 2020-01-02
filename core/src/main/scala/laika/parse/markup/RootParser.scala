@@ -29,6 +29,13 @@ import laika.parse.text.TextParsers._
   */
 class RootParser (markupParser: MarkupFormat, markupExtensions: MarkupExtensions) extends DefaultRecursiveParsers {
 
+  private lazy val highlighterMap: Map[String, Parser[Seq[Span]]] = 
+    markupExtensions.syntaxHighlighters.flatMap { highlighter =>
+      highlighter.language.toList.map(lang => (lang.toLowerCase, highlighter.parser))
+    }.toMap
+
+  def getSyntaxHighlighter (language: String): Option[Parser[Seq[Span]]] = highlighterMap.get(language.toLowerCase)
+  
   /** Parses a full document, delegating most of the work to the `topLevelBlock` parser.
     */
   lazy val rootElement: Parser[RootElement] = opt(blankLines) ~> blockList(rootBlock) ^^ { RootElement(_) }

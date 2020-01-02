@@ -67,7 +67,7 @@ case class ParserBundle(blockParsers: Seq[BlockParserBuilder] = Nil,
     * in this bundle.
     */
   def markupExtensions: MarkupExtensions =
-    MarkupExtensions(blockParsers, spanParsers, markupParserHooks.getOrElse(ParserHooks()))
+    MarkupExtensions(blockParsers, spanParsers, syntaxHighlighters, markupParserHooks.getOrElse(ParserHooks()))
 
 }
 
@@ -109,8 +109,10 @@ case class SyntaxHighlighter (language: NonEmptyList[String], parser: Parser[Seq
   *
   * @param blockParsers parsers for block elements in text markup, complementing the parsers of the host language
   * @param spanParsers parsers for span elements in text markup, complementing the parsers of the host language
+  * @param syntaxHighlighters parsers for syntax highlighting of code blocks
   * @param parserHooks hooks for markup parsers to control aspects beyond the individual span and block parsers
   */
 case class MarkupExtensions (blockParsers: Seq[BlockParserBuilder],
                              spanParsers: Seq[SpanParserBuilder],
+                             syntaxHighlighters: Seq[SyntaxHighlighter],
                              parserHooks: ParserHooks)

@@ -67,4 +67,5 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
 
   lazy val templateRoot: Parser[TemplateRoot] = templateSpans ^^ (TemplateRoot(_))
 
+  def getSyntaxHighlighter (language: String): Option[Parser[Seq[Span]]] = None
 }
