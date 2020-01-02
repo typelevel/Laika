@@ -16,6 +16,7 @@
 
 package laika.bundle
 
+import cats.data.NonEmptyList
 import laika.ast._
 import laika.parse.Parser
 import laika.parse.markup.DocumentParser.ParserInput
@@ -31,6 +32,7 @@ import laika.parse.markup.DocumentParser.ParserInput
   *
   * @param blockParsers parsers for block elements in text markup, complementing the parsers of the host language
   * @param spanParsers parsers for span elements in text markup, complementing the parsers of the host language
+  * @param syntaxHighlighters parsers for syntax highlighting of code blocks
   * @param markupParserHooks hooks for markup parsers to control aspects beyond the individual span and block parsers
   * @param configProvider parser for configuration headers in text markup and template documents and configuration documents
   * @param templateParser parser for template documents
@@ -38,6 +40,7 @@ import laika.parse.markup.DocumentParser.ParserInput
   */
 case class ParserBundle(blockParsers: Seq[BlockParserBuilder] = Nil,
                         spanParsers: Seq[SpanParserBuilder] = Nil,
+                        syntaxHighlighters: Seq[SyntaxHighlighter] = Nil,
                         markupParserHooks: Option[ParserHooks] = None,
                         configProvider: Option[ConfigProvider] = None,
                         templateParser: Option[Parser[TemplateRoot]] = None,
@@ -52,6 +55,7 @@ case class ParserBundle(blockParsers: Seq[BlockParserBuilder] = Nil,
     ParserBundle(
       blockParsers ++ base.blockParsers,
       spanParsers ++ base.spanParsers,
+      syntaxHighlighters ++ base.syntaxHighlighters,
       (markupParserHooks.toSeq ++ base.markupParserHooks.toSeq).reduceLeftOption(_ withBase _),
       configProvider.orElse(base.configProvider),
       templateParser.orElse(base.templateParser),
@@ -89,6 +93,13 @@ case class ParserHooks(postProcessBlocks: Seq[Block] => Seq[Block] = identity,
   )
 
 }
+
+/** The parser for syntax highlighting a particular language.
+  * 
+  * @param language the names of the language as used in text markup
+  * @param parser the parser for code blocks written in this language
+  */
+case class SyntaxHighlighter (language: NonEmptyList[String], parser: Parser[Seq[Span]])
 
 /** Bundles extensions for the text markup parsers defined for the host language to support additional
   * syntax not recognized by the base parsers.
