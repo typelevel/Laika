@@ -225,6 +225,13 @@ object Directives {
       }
     }
 
+    def evalMap [B](f: A => Either[String, B]): DirectivePartBuilder[B] = new DirectivePartBuilder[B] {
+      def apply (parser: DirectiveParserBuilder): (DirectiveParserBuilder, DirectivePart[B]) = {
+        val (newParser, part) = self.apply(parser)
+        (newParser, part.flatMap(f))
+      }
+    }
+
     def ~ [B] (other: DirectivePartBuilder[B]): DirectivePartBuilder[A ~ B] = new DirectivePartBuilder[A ~ B] {
       def apply (parser: DirectiveParserBuilder): (DirectiveParserBuilder, DirectivePart[A ~ B]) = {
         val (parserA, partA) = self.apply(parser)

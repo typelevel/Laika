@@ -19,6 +19,7 @@ package laika.rst.std
 import laika.ast._
 import laika.config.{Field, ObjectValue, Origin, StringValue}
 import laika.parse.markup.RecursiveParsers
+import laika.parse.text.TextParsers.any
 import laika.rst.ast.{Contents, FieldList, Include}
 import laika.rst.ext.Directives.Parts._
 import laika.rst.ext.Directives._
@@ -257,9 +258,11 @@ class StandardBlockDirectives {
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#code]] for details.
    *  The current implementation does not support syntax highlighting.
    */
-  lazy val code: DirectivePartBuilder[Block] = {
-    (argument() ~ content(Right(_)) ~ stdOpt).map { case language ~ content ~ opt => 
-      CodeBlock(language, List(Text(content)), opt)
+  def code (p: RecursiveParsers): DirectivePartBuilder[Block] = {
+    (argument() ~ content(Right(_)) ~ stdOpt).evalMap { case language ~ code ~ opt => 
+      val highlighter = p.getSyntaxHighlighter(language).getOrElse(any ^^ { txt => Seq(Text(txt)) })
+      val blockParser = highlighter ^^ { codeSpans => CodeBlock(language, codeSpans, opt) }
+      blockParser.parse(code).toEither  
     } 
   }
   
@@ -316,7 +319,7 @@ class StandardBlockDirectives {
     BlockDirective("epigraph")(quotedBlock("epigraph")),
     BlockDirective("highlights")(quotedBlock("highlights")),
     BlockDirective("pull-quote")(quotedBlock("pull-quote")),
-    BlockDirective("code")(code),
+    BlockDirective.recursive("code")(code),
     BlockDirective("header")(header),
     BlockDirective("footer")(footer),
     BlockDirective("include")(include),
