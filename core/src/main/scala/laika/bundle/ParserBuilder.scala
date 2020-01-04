@@ -17,7 +17,6 @@
 package laika.bundle
 
 import laika.ast.{Block, Span}
-import laika.bundle
 import laika.parse.Parser
 import laika.parse.markup.{EscapedTextParsers, RecursiveParsers, RecursiveSpanParsers}
 
@@ -59,7 +58,7 @@ class SpanParser (startChar: Char) {
                            precedence: Precedence) extends SpanParserBuilder {
 
     override def createParser (recursiveParsers: RecursiveParsers): SpanParserDefinition =
-      bundle.SpanParserDefinition(startChar, parserFactory(recursiveParsers), recursive, precedence)
+      SpanParserDefinition(startChar, parserFactory(recursiveParsers), recursive, precedence)
 
     /** Indicates that this parser should only be applied after all built-in
       * parsers have failed on a specific markup element.
@@ -104,7 +103,7 @@ class BlockParser (startChar: Option[Char] = None) {
                                 precedence: Precedence = Precedence.High) extends BlockParserBuilder {
 
     override def createParser (recursiveParsers: RecursiveParsers): BlockParserDefinition =
-      bundle.BlockParserDefinition(startChar, parserFactory(recursiveParsers), recursive, position, precedence)
+      BlockParserDefinition(startChar, parserFactory(recursiveParsers), recursive, position, precedence)
 
     /** Indicates that this parser should only be applied after all built-in
       * parsers have failed on a specific markup element.
@@ -125,25 +124,25 @@ class BlockParser (startChar: Option[Char] = None) {
   /** Creates a parser definition for a parser that is independent from the parsers
     * of the host languages.
     */
-  def standalone (parser: Parser[Block]): DefinitionBuilder = new DefinitionBuilder(_ => parser)
+  def standalone (parser: Parser[Block]): DefinitionBuilder = DefinitionBuilder(_ => parser)
 
   /** Creates a parser definition for a parser that depends on the parsers
     * of the host languages for recursively parsing child elements.
     */
   def recursive (factory: RecursiveParsers => Parser[Block]): DefinitionBuilder =
-    new DefinitionBuilder(factory, recursive = true)
+    DefinitionBuilder(factory, recursive = true)
 
   /** Creates a parser definition for a parser that depends on the span parsers
     * of the host languages for recursively parsing child elements.
     */
   def withSpans (factory: RecursiveSpanParsers => Parser[Block]): DefinitionBuilder =
-    new DefinitionBuilder(factory)
+    DefinitionBuilder(factory)
 
   /** Creates a parser definition for a parser that depends on the parsers for escape sequences
     * of the host languages for parsing text.
     */
   def withEscapedText (factory: EscapedTextParsers => Parser[Block]): DefinitionBuilder =
-    new DefinitionBuilder(factory)
+    DefinitionBuilder(factory)
 
 }
 
