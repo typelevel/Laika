@@ -16,7 +16,6 @@
 
 package laika.bundle
 
-import cats.data.NonEmptyList
 import laika.ast._
 import laika.parse.Parser
 import laika.parse.markup.DocumentParser.ParserInput
@@ -93,13 +92,6 @@ case class ParserHooks(postProcessBlocks: Seq[Block] => Seq[Block] = identity,
   )
 
 }
-
-/** The parser for syntax highlighting a particular language.
-  * 
-  * @param language the names of the language as used in text markup
-  * @param parser the parser for code blocks written in this language
-  */
-case class SyntaxHighlighter (language: NonEmptyList[String], parser: Parser[Seq[Span]])
 
 /** Bundles extensions for the text markup parsers defined for the host language to support additional
   * syntax not recognized by the base parsers.
