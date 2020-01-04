@@ -37,9 +37,9 @@ object SyntaxHighlighter {
     * where any unrecognized syntax will simply be put into a top-level default category.
     * 
     * For formats that have stricter rules and require a dedicated, hand-written root 
-    * parser, you can use the other `apply` method.
+    * parser, you can use the `apply` method.
     */
-  def apply (language: String, aliases: String*)(parsers: Seq[CodeSpanParser]): SyntaxHighlighter = {
+  def build (language: String, aliases: String*)(parsers: Seq[CodeSpanParser]): SyntaxHighlighter = {
     
     val languages = NonEmptyList.of(language, aliases:_*)
     

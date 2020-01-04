@@ -17,6 +17,7 @@
 package laika.parse.code
 
 import laika.bundle.{BundleOrigin, ExtensionBundle, ParserBundle}
+import laika.parse.code.languages.{CSS, HOCON, HTML, JSON, Java, JavaScript, Python, Scala, TextMarkup, TypeScript, XML}
 
 /** Registry for all code syntax highlighters provided out of the box.
   * 
@@ -30,7 +31,21 @@ case object DefaultSyntaxHighlighters extends ExtensionBundle {
 
   override def parsers: ParserBundle = ParserBundle(
     syntaxHighlighters = Seq(
-      
+      Scala.highlighter,
+      Java.highlighter,
+      Python.highlighter,
+      TypeScript.highlighter,
+      JavaScript.highlighter,
+      HTML.highlighter,
+      CSS.highlighter,
+      JSON.highlighter,
+      HOCON.highlighter,
+      XML.highlighter,
+      TextMarkup.markdown,
+      TextMarkup.rst,
+      TextMarkup.laikaMarkdown,
+      TextMarkup.laikaRst,
+      TextMarkup.laikaHTML
     )
   )
   
