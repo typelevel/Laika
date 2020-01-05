@@ -16,7 +16,7 @@
 
 package laika.parse.code
 
-import laika.ast.Span
+import laika.ast.{NoOpt, Options, Span, TextContainer}
 import laika.parse.Parser
 
 /**
@@ -26,15 +26,15 @@ trait CodeSpanParser {
 
   def startChar: Char
   
-  def parser: Parser[Span]
+  def parser: Parser[CodeSpan]
   
 }
 
 object CodeSpanParser {
   
-  def apply(startChar: Char)(parser: Parser[Span]): CodeSpanParser = {
+  def apply(startChar: Char)(parser: Parser[CodeSpan]): CodeSpanParser = {
     
-    def create(s: Char, p: Parser[Span]) = new CodeSpanParser {
+    def create(s: Char, p: Parser[CodeSpan]) = new CodeSpanParser {
       val startChar = s
       val parser = p
     }
@@ -42,4 +42,11 @@ object CodeSpanParser {
     create(startChar, parser)
   }
   
+}
+
+sealed trait CodeCategory
+
+case class CodeSpan (content: String, categories: Set[CodeCategory], options: Options = NoOpt) extends Span with TextContainer {
+  type Self = CodeSpan
+  def withOptions (options: Options): CodeSpan = copy(options = options)
 }

@@ -17,9 +17,9 @@
 package laika.bundle
 
 import cats.data.NonEmptyList
-import laika.ast.Span
+import laika.ast.Text
 import laika.parse.Parser
-import laika.parse.code.CodeSpanParser
+import laika.parse.code.{CodeSpan, CodeSpanParser}
 import laika.parse.markup.InlineParsers
 import laika.parse.text.DelimitedText
 
@@ -28,7 +28,7 @@ import laika.parse.text.DelimitedText
   * @param language the names of the language as used in text markup
   * @param parser the parser for code blocks written in this language
   */
-case class SyntaxHighlighter (language: NonEmptyList[String], parser: Parser[Seq[Span]])
+case class SyntaxHighlighter (language: NonEmptyList[String], parser: Parser[Seq[CodeSpan]])
 
 object SyntaxHighlighter {
 
@@ -47,14 +47,19 @@ object SyntaxHighlighter {
       case (char, definitions) => (char, definitions.map(_.parser).reduceLeft(_ | _))
     }
     
-    val rootParser = InlineParsers.spans(DelimitedText.Undelimited, spanParserMap)
+    val rootParser = InlineParsers.spans(DelimitedText.Undelimited, spanParserMap).map(
+      _.map {
+        case Text(content, _) => CodeSpan(content, Set())
+        case codeSpan: CodeSpan => codeSpan
+      }
+    )
     
     SyntaxHighlighter(languages, rootParser)
   }
 
   /** Creates a syntax highlighter with the specified, dedicated root parser.
     */
-  def apply (language: String, aliases: String*)(rootParser: Parser[Seq[Span]]): SyntaxHighlighter =
+  def apply (language: String, aliases: String*)(rootParser: Parser[Seq[CodeSpan]]): SyntaxHighlighter =
     SyntaxHighlighter(NonEmptyList.of(language, aliases:_*), rootParser)
   
 }
