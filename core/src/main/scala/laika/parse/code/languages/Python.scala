@@ -17,7 +17,8 @@
 package laika.parse.code.languages
 
 import laika.bundle.SyntaxHighlighter
-import laika.parse.code.common.Comment
+import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue}
+import laika.parse.code.common.{Comment, Keywords}
 
 /**
   * @author Jens Halm
@@ -26,6 +27,12 @@ object Python {
 
   lazy val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("python", "py")(Seq(
     Comment.singleLine("#")
-  ))
+  ) ++
+    Keywords(BooleanLiteral)("True", "False") ++
+    Keywords(LiteralValue)("None") ++
+    Keywords("and", "assert", "async", "as", "await", "break", "class", "continue", "def", "del", "elif", "else", 
+      "except", "exec", "finally", "for", "from", "global", "if", "import", "in", "is", "lambda", 
+      "nonlocal", "not", "or", "pass", "print", "raise", "return", "try", "with", "while", "yield")
+  )
   
 }

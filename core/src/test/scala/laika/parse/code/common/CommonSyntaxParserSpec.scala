@@ -34,7 +34,7 @@ class CommonSyntaxParserSpec extends WordSpec
   val defaultParser: Parser[Seq[CodeSpan]] = SyntaxHighlighter.build("test-lang")(Seq(
     Comment.multiLine("/*", "*/"),
     Comment.singleLine("//")
-  )).parser
+  ) ++ Keywords("foo", "bar", "baz")).parser
   
   
   "The comment parser" should {
@@ -56,14 +56,36 @@ class CommonSyntaxParserSpec extends WordSpec
     "parse a multi-line comment" in {
 
       val input =
-        """line 1 /* foo
-          |bar
-          |baz */ line 3""".stripMargin
+        """line 1 /* moo
+          |mar
+          |maz */ line 3""".stripMargin
 
       Parsing(input) should produce (Seq(
         CodeSpan("line 1 "),
-        CodeSpan("/* foo\nbar\nbaz */", CodeCategory.Comment),
+        CodeSpan("/* moo\nmar\nmaz */", CodeCategory.Comment),
         CodeSpan(" line 3"),
+      ))
+    }
+    
+  }
+  
+  "The keyword parser" should {
+    
+    "parse keywords" in {
+      val input = "one two foo three"
+
+      Parsing(input) should produce (Seq(
+        CodeSpan("one two "),
+        CodeSpan("foo", CodeCategory.Keyword),
+        CodeSpan(" three"),
+      ))
+    }
+    
+    "ignore keywords when they are followed by more characters" in {
+      val input = "one two foo1 bar2 three"
+
+      Parsing(input) should produce (Seq(
+        CodeSpan("one two foo1 bar2 three")
       ))
     }
     

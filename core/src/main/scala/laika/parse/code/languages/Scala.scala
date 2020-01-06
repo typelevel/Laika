@@ -17,7 +17,8 @@
 package laika.parse.code.languages
 
 import laika.bundle.SyntaxHighlighter
-import laika.parse.code.common.Comment
+import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue}
+import laika.parse.code.common.{Comment, Keywords}
 
 /**
   * @author Jens Halm
@@ -27,6 +28,13 @@ object Scala {
   lazy val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("scala")(Seq(
     Comment.singleLine("//"),
     Comment.multiLine("/*", "*/")
-  ))
+  ) ++
+    Keywords(BooleanLiteral)("true", "false") ++
+    Keywords(LiteralValue)("null") ++
+    Keywords("abstract", "break", "case", "catch", "class", "continue", "default", "def", "else", "extends",
+      "finally", "final", "forSome", "for", "if", "implicit", "import", "lazy", "match",
+      "new", "object", "override", "package", "private", "protected", "return", "sealed", "super",
+      "this", "throw", "throws", "trait", "try", "type", "yield", "val", "var", "while", "with")
+  )
   
 }

@@ -49,6 +49,10 @@ sealed trait CodeCategory
 object CodeCategory {
   
   object Comment extends CodeCategory
+  object Keyword extends CodeCategory
+  object BooleanLiteral extends CodeCategory
+  object LiteralValue extends CodeCategory
+  object TypeName extends CodeCategory
   
 }
 

@@ -17,7 +17,8 @@
 package laika.parse.code.languages
 
 import laika.bundle.SyntaxHighlighter
-import laika.parse.code.common.Comment
+import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue}
+import laika.parse.code.common.{Comment, Keywords}
 
 /**
   * @author Jens Halm
@@ -27,6 +28,12 @@ object TypeScript {
   lazy val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("typescript")(Seq(
     Comment.singleLine("//"),
     Comment.multiLine("/*", "*/")
-  ))
+  ) ++ 
+    Keywords(BooleanLiteral)("true", "false") ++
+    Keywords(LiteralValue)("null", "undefined", "NaN", "Infinity") ++
+    Keywords("abstract", "class", "declare", "enum", "extends", "get", "implements", "namespace", 
+      "public", "private", "protected", "set", "type") ++
+    JavaScript.keywords
+  )
   
 }

@@ -17,16 +17,26 @@
 package laika.parse.code.languages
 
 import laika.bundle.SyntaxHighlighter
-import laika.parse.code.common.Comment
+import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue}
+import laika.parse.code.common.{Comment, Keywords}
 
 /**
   * @author Jens Halm
   */
 object JavaScript {
+  
+  val keywords = Keywords("async", "as", "await", "break", "case", "catch", "const", "continue", "debugger", "default", "delete",
+    "do", "else", "export", "finally", "for", "from", "function", "if", "import", "instanceof", "in",
+    "let", "new", "of", "return", "static", "super", "switch", "this", "throw", "try", "typeof",
+    "var", "void", "while", "with", "yield")
 
   lazy val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("javascript", "js")(Seq(
     Comment.singleLine("//"),
     Comment.multiLine("/*", "*/")
-  ))
+  )  ++
+    Keywords(BooleanLiteral)("true", "false") ++
+    Keywords(LiteralValue)("null", "undefined", "NaN", "Infinity") ++
+    keywords
+  )
   
 }
