@@ -17,14 +17,15 @@
 package laika.parse.code.languages
 
 import laika.bundle.SyntaxHighlighter
+import laika.parse.code.common.Comment
 
 /**
   * @author Jens Halm
   */
 object Python {
 
-  lazy val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("python")(Seq(
-
+  lazy val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("python", "py")(Seq(
+    Comment.singleLine("#")
   ))
   
 }

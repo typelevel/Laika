@@ -25,6 +25,6 @@ import laika.parse.text.TextParsers.any
   */
 object HTML {
 
-  val highlighter: SyntaxHighlighter = SyntaxHighlighter("html")(any ^^ { txt => Seq(CodeSpan(txt, Set())) })
+  val highlighter: SyntaxHighlighter = SyntaxHighlighter("html")(any ^^ { txt => Seq(CodeSpan(txt)) })
   
 }

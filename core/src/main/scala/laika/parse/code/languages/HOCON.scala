@@ -25,6 +25,6 @@ import laika.parse.text.TextParsers.any
   */
 object HOCON {
 
-  val highlighter: SyntaxHighlighter = SyntaxHighlighter("hocon")(any ^^ { txt => Seq(CodeSpan(txt, Set())) })
+  val highlighter: SyntaxHighlighter = SyntaxHighlighter("hocon")(any ^^ { txt => Seq(CodeSpan(txt)) })
   
 }

@@ -25,6 +25,6 @@ import laika.parse.text.TextParsers.any
   */
 object JSON {
 
-  val highlighter: SyntaxHighlighter = SyntaxHighlighter("json")(any ^^ { txt => Seq(CodeSpan(txt, Set())) })
+  val highlighter: SyntaxHighlighter = SyntaxHighlighter("json")(any ^^ { txt => Seq(CodeSpan(txt)) })
   
 }

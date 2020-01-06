@@ -17,6 +17,7 @@
 package laika.parse.code.languages
 
 import laika.bundle.SyntaxHighlighter
+import laika.parse.code.common.Comment
 
 /**
   * @author Jens Halm
@@ -24,7 +25,8 @@ import laika.bundle.SyntaxHighlighter
 object Java {
 
   lazy val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("java")(Seq(
-    
+    Comment.singleLine("//"),
+    Comment.multiLine("/*", "*/")
   ))
   
 }

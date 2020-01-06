@@ -49,7 +49,7 @@ object SyntaxHighlighter {
     
     val rootParser = InlineParsers.spans(DelimitedText.Undelimited, spanParserMap).map(
       _.map {
-        case Text(content, _) => CodeSpan(content, Set())
+        case Text(content, _) => CodeSpan(content)
         case codeSpan: CodeSpan => codeSpan
       }
     )

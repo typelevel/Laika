@@ -46,7 +46,21 @@ object CodeSpanParser {
 
 sealed trait CodeCategory
 
+object CodeCategory {
+  
+  object Comment extends CodeCategory
+  
+}
+
 case class CodeSpan (content: String, categories: Set[CodeCategory], options: Options = NoOpt) extends Span with TextContainer {
   type Self = CodeSpan
   def withOptions (options: Options): CodeSpan = copy(options = options)
+}
+
+object CodeSpan {
+  
+  def apply (content: String, category: CodeCategory): CodeSpan = apply(content, Set(category))
+
+  def apply (content: String): CodeSpan = apply(content, Set(), NoOpt)
+  
 }

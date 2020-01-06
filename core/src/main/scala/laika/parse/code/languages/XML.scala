@@ -25,6 +25,6 @@ import laika.parse.text.TextParsers.any
   */
 object XML {
 
-  val highlighter: SyntaxHighlighter = SyntaxHighlighter("xml")(any ^^ { txt => Seq(CodeSpan(txt, Set())) })
+  val highlighter: SyntaxHighlighter = SyntaxHighlighter("xml")(any ^^ { txt => Seq(CodeSpan(txt)) })
   
 }

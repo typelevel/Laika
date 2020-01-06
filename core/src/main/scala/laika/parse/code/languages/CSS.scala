@@ -25,6 +25,6 @@ import laika.parse.text.TextParsers.any
   */
 object CSS {
   
-  val highlighter: SyntaxHighlighter = SyntaxHighlighter("css")(any ^^ { txt => Seq(CodeSpan(txt, Set())) })
+  val highlighter: SyntaxHighlighter = SyntaxHighlighter("css")(any ^^ { txt => Seq(CodeSpan(txt)) })
 
 }
