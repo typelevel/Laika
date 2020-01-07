@@ -22,7 +22,7 @@ import laika.parse.Parser
 /**
   * @author Jens Halm
   */
-trait CodeSpanParser {
+sealed trait CodeSpanParser {
 
   def startChar: Char
   
@@ -32,11 +32,11 @@ trait CodeSpanParser {
 
 object CodeSpanParser {
   
-  def apply(startChar: Char)(parser: Parser[CodeSpan]): CodeSpanParser = {
+  def apply(category: CodeCategory, startChar: Char)(parser: Parser[String]): CodeSpanParser = {
     
-    def create(s: Char, p: Parser[CodeSpan]) = new CodeSpanParser {
+    def create(s: Char, p: Parser[String]) = new CodeSpanParser {
       val startChar = s
-      val parser = p
+      val parser = p.map(res => CodeSpan(s"$startChar$res", category))
     }
     
     create(startChar, parser)
@@ -51,6 +51,7 @@ object CodeCategory {
   object Comment extends CodeCategory
   object Keyword extends CodeCategory
   object BooleanLiteral extends CodeCategory
+  object NumberLiteral extends CodeCategory
   object LiteralValue extends CodeCategory
   object TypeName extends CodeCategory
   

@@ -30,7 +30,7 @@ object Keywords {
 
   def apply (category: CodeCategory)(keyword: String, keywords: String*): Seq[CodeSpanParser] = (keyword +: keywords).map { kw =>
     require(kw.nonEmpty)
-    CodeSpanParser(kw.head)((Literal(kw.tail) <~ not(anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '_').take(1))) ^^^ CodeSpan(kw, CodeCategory.Keyword))
+    CodeSpanParser(category, kw.head)((Literal(kw.tail) <~ not(anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '_').take(1))) ^^^ kw.tail)
   }
 
 }
