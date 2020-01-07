@@ -16,13 +16,12 @@
 
 package laika.parse.code.common
 
-import laika.ast.Code
 import laika.bundle.SyntaxHighlighter
 import laika.parse.Parser
 import laika.parse.text.TextParsers._
 import laika.parse.code.{CodeCategory, CodeSpan, CodeSpanParsers}
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.{Assertion, Matchers, WordSpec}
 
 /**
   * @author Jens Halm
@@ -47,161 +46,65 @@ class CommonSyntaxParserSpec extends WordSpec
   ).parser
   
   "The numeric literal parser" should {
+    
+    def test(numberLiteral: String): Assertion = Parsing(s"one1 $numberLiteral three3") should produce (Seq(
+      CodeSpan("one1", CodeCategory.Identifier),
+      CodeSpan(" "),
+      CodeSpan(numberLiteral, CodeCategory.NumberLiteral),
+      CodeSpan(" "),
+      CodeSpan("three3", CodeCategory.Identifier)
+    ))
 
     "parse a binary literal" in {
-      val input = "one1 0b10011011 three3"
-
-      Parsing(input) should produce (Seq(
-        CodeSpan("one1", CodeCategory.Identifier),
-        CodeSpan(" "),
-        CodeSpan("0b10011011", CodeCategory.NumberLiteral),
-        CodeSpan(" "),
-        CodeSpan("three3", CodeCategory.Identifier),
-      ))
+      test("0b10011011")
     }
     
     "parse a binary literal with underscores" in {
-      val input = "one1 0b_1001_1011 three3"
-
-      Parsing(input) should produce (Seq(
-        CodeSpan("one1", CodeCategory.Identifier),
-        CodeSpan(" "),
-        CodeSpan("0b_1001_1011", CodeCategory.NumberLiteral),
-        CodeSpan(" "),
-        CodeSpan("three3", CodeCategory.Identifier),
-      ))
+      test("0b_1001_1011")
     }
 
     "parse a binary literal with L suffix" in {
-      val input = "one1 0b_1001_1011L three3"
-
-      Parsing(input) should produce (Seq(
-        CodeSpan("one1", CodeCategory.Identifier),
-        CodeSpan(" "),
-        CodeSpan("0b_1001_1011L", CodeCategory.NumberLiteral),
-        CodeSpan(" "),
-        CodeSpan("three3", CodeCategory.Identifier),
-      ))
+      test("0b_1001_1011L")
     }
 
     "parse an octal literal" in {
-      val input = "one1 0o171 three3"
-
-      Parsing(input) should produce (Seq(
-        CodeSpan("one1", CodeCategory.Identifier),
-        CodeSpan(" "),
-        CodeSpan("0o171", CodeCategory.NumberLiteral),
-        CodeSpan(" "),
-        CodeSpan("three3", CodeCategory.Identifier),
-      ))
+      test("0o171")
     }
 
     "parse an octal literal with underscores" in {
-      val input = "one1 0o171_151 three3"
-
-      Parsing(input) should produce (Seq(
-        CodeSpan("one1", CodeCategory.Identifier),
-        CodeSpan(" "),
-        CodeSpan("0o171_151", CodeCategory.NumberLiteral),
-        CodeSpan(" "),
-        CodeSpan("three3", CodeCategory.Identifier),
-      ))
+      test("0o171_151")
     }
 
     "parse an octal literal with L suffix" in {
-      val input = "one1 0o171L three3"
-
-      Parsing(input) should produce (Seq(
-        CodeSpan("one1", CodeCategory.Identifier),
-        CodeSpan(" "),
-        CodeSpan("0o171L", CodeCategory.NumberLiteral),
-        CodeSpan(" "),
-        CodeSpan("three3", CodeCategory.Identifier),
-      ))
+      test("0o171L")
     }
 
     "parse a hex literal" in {
-      val input = "one1 0xff99ee three3"
-
-      Parsing(input) should produce (Seq(
-        CodeSpan("one1", CodeCategory.Identifier),
-        CodeSpan(" "),
-        CodeSpan("0xff99ee", CodeCategory.NumberLiteral),
-        CodeSpan(" "),
-        CodeSpan("three3", CodeCategory.Identifier),
-      ))
+      test("0xff99ee")
     }
 
     "parse a hex literal with underscores" in {
-      val input = "one1 0xff_99_ee three3"
-
-      Parsing(input) should produce (Seq(
-        CodeSpan("one1", CodeCategory.Identifier),
-        CodeSpan(" "),
-        CodeSpan("0xff_99_ee", CodeCategory.NumberLiteral),
-        CodeSpan(" "),
-        CodeSpan("three3", CodeCategory.Identifier),
-      ))
+      test("0xff_99_ee")
     }
 
     "parse a hex literal with L suffix" in {
-      val input = "one1 0xff99eeL three3"
-
-      Parsing(input) should produce (Seq(
-        CodeSpan("one1", CodeCategory.Identifier),
-        CodeSpan(" "),
-        CodeSpan("0xff99eeL", CodeCategory.NumberLiteral),
-        CodeSpan(" "),
-        CodeSpan("three3", CodeCategory.Identifier),
-      ))
+      test("0xff99eeL")
     }
 
     "parse a single-digit decimal literal" in {
-      val input = "one1 3 three3"
-
-      Parsing(input) should produce (Seq(
-        CodeSpan("one1", CodeCategory.Identifier),
-        CodeSpan(" "),
-        CodeSpan("3", CodeCategory.NumberLiteral),
-        CodeSpan(" "),
-        CodeSpan("three3", CodeCategory.Identifier),
-      ))
+      test("3")
     }
 
     "parse a multi-digit decimal literal" in {
-      val input = "one1 902 three3"
-
-      Parsing(input) should produce (Seq(
-        CodeSpan("one1", CodeCategory.Identifier),
-        CodeSpan(" "),
-        CodeSpan("902", CodeCategory.NumberLiteral),
-        CodeSpan(" "),
-        CodeSpan("three3", CodeCategory.Identifier),
-      ))
+      test("902")
     }
 
     "parse a decimal literal with underscores" in {
-      val input = "one1 12_000 three3"
-
-      Parsing(input) should produce (Seq(
-        CodeSpan("one1", CodeCategory.Identifier),
-        CodeSpan(" "),
-        CodeSpan("12_000", CodeCategory.NumberLiteral),
-        CodeSpan(" "),
-        CodeSpan("three3", CodeCategory.Identifier),
-      ))
+      test("12_000")
     }
 
     "parse a decimal literal with L suffix" in {
-      val input = "one1 42L three3"
-
-      Parsing(input) should produce (Seq(
-        CodeSpan("one1", CodeCategory.Identifier),
-        CodeSpan(" "),
-        CodeSpan("42L", CodeCategory.NumberLiteral),
-        CodeSpan(" "),
-        CodeSpan("three3", CodeCategory.Identifier),
-      ))
+      test("42L")
     }
     
   }
