@@ -31,10 +31,11 @@ class CommonSyntaxParserSpec extends WordSpec
                              with DefaultParserHelpers[Seq[CodeSpan]] {
 
   
-  val defaultParser: Parser[Seq[CodeSpan]] = SyntaxHighlighter.build("test-lang")(Seq(
+  val defaultParser: Parser[Seq[CodeSpan]] = SyntaxHighlighter.build("test-lang")(
     Comment.multiLine("/*", "*/"),
-    Comment.singleLine("//")
-  ) ++ Keywords("foo", "bar", "baz")).parser
+    Comment.singleLine("//"),
+    Keywords("foo", "bar", "baz")
+  ).parser
   
   
   "The comment parser" should {

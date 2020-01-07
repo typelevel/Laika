@@ -25,14 +25,13 @@ import laika.parse.code.common.{Comment, Keywords}
   */
 object TypeScript {
 
-  lazy val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("typescript")(Seq(
+  lazy val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("typescript")(
     Comment.singleLine("//"),
-    Comment.multiLine("/*", "*/")
-  ) ++ 
-    Keywords(BooleanLiteral)("true", "false") ++
-    Keywords(LiteralValue)("null", "undefined", "NaN", "Infinity") ++
+    Comment.multiLine("/*", "*/"),
+    Keywords(BooleanLiteral)("true", "false"),
+    Keywords(LiteralValue)("null", "undefined", "NaN", "Infinity"),
     Keywords("abstract", "class", "declare", "enum", "extends", "get", "implements", "namespace", 
-      "public", "private", "protected", "set", "type") ++
+      "public", "private", "protected", "set", "type"),
     JavaScript.keywords
   )
   

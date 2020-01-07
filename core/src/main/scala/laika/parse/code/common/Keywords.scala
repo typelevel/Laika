@@ -16,7 +16,7 @@
 
 package laika.parse.code.common
 
-import laika.parse.code.{CodeCategory, CodeSpan, CodeSpanParser}
+import laika.parse.code.{CodeCategory, CodeSpanParsers}
 import laika.parse.text.Literal
 import laika.parse.text.TextParsers._
 
@@ -25,12 +25,14 @@ import laika.parse.text.TextParsers._
   */
 object Keywords {
 
-  def apply (keyword: String, keywords: String*): Seq[CodeSpanParser] = 
+  def apply (keyword: String, keywords: String*): CodeSpanParsers = 
     apply(CodeCategory.Keyword)(keyword, keywords:_*)
 
-  def apply (category: CodeCategory)(keyword: String, keywords: String*): Seq[CodeSpanParser] = (keyword +: keywords).map { kw =>
-    require(kw.nonEmpty)
-    CodeSpanParser(category, kw.head)((Literal(kw.tail) <~ not(anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '_').take(1))) ^^^ kw.tail)
+  def apply (category: CodeCategory)(keyword: String, keywords: String*): CodeSpanParsers = CodeSpanParsers(category) {
+    (keyword +: keywords).map { kw =>
+      require(kw.nonEmpty)
+      (kw.head, (Literal(kw.tail) <~ not(anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '_').take(1))) ^^^ kw.tail)
+    }
   }
 
 }

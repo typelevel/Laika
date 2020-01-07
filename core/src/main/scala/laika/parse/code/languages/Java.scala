@@ -25,13 +25,12 @@ import laika.parse.code.common.{Comment, Keywords}
   */
 object Java {
 
-  lazy val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("java")(Seq(
+  lazy val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("java")(
     Comment.singleLine("//"),
-    Comment.multiLine("/*", "*/")
-  ) ++
-    Keywords(BooleanLiteral)("true", "false") ++
-    Keywords(LiteralValue)("null") ++
-    Keywords(TypeName)("boolean", "byte", "char", "double", "float", "int", "long", "short") ++
+    Comment.multiLine("/*", "*/"),
+    Keywords(BooleanLiteral)("true", "false"),
+    Keywords(LiteralValue)("null"),
+    Keywords(TypeName)("boolean", "byte", "char", "double", "float", "int", "long", "short"),
     Keywords("abstract", "assert", "break", "case", "catch", "const", "continue",
       "default", "do", "else", "enum", "exports", "finally", "final", "for", "if", 
       "import", "instanceof", "module", "native", "package", "private", "protected", 

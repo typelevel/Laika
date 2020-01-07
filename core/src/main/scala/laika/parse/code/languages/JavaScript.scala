@@ -30,12 +30,11 @@ object JavaScript {
     "let", "new", "of", "return", "static", "super", "switch", "this", "throw", "try", "typeof",
     "var", "void", "while", "with", "yield")
 
-  lazy val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("javascript", "js")(Seq(
+  lazy val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("javascript", "js")(
     Comment.singleLine("//"),
-    Comment.multiLine("/*", "*/")
-  )  ++
-    Keywords(BooleanLiteral)("true", "false") ++
-    Keywords(LiteralValue)("null", "undefined", "NaN", "Infinity") ++
+    Comment.multiLine("/*", "*/"),
+    Keywords(BooleanLiteral)("true", "false"),
+    Keywords(LiteralValue)("null", "undefined", "NaN", "Infinity"),
     keywords
   )
   

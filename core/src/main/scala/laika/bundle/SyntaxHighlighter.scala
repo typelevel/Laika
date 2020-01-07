@@ -19,7 +19,7 @@ package laika.bundle
 import cats.data.NonEmptyList
 import laika.ast.Text
 import laika.parse.Parser
-import laika.parse.code.{CodeSpan, CodeSpanParser}
+import laika.parse.code.{CodeSpan, CodeSpanParsers}
 import laika.parse.markup.InlineParsers
 import laika.parse.text.DelimitedText
 
@@ -39,11 +39,11 @@ object SyntaxHighlighter {
     * For formats that have stricter rules and require a dedicated, hand-written root 
     * parser, you can use the `apply` method.
     */
-  def build (language: String, aliases: String*)(parsers: Seq[CodeSpanParser]): SyntaxHighlighter = {
+  def build (language: String, aliases: String*)(parsers: CodeSpanParsers*): SyntaxHighlighter = {
     
     val languages = NonEmptyList.of(language, aliases:_*)
     
-    val spanParserMap = parsers.groupBy(_.startChar).map {
+    val spanParserMap = parsers.flatMap(_.parsers).groupBy(_.startChar).map {
       case (char, definitions) => (char, definitions.map(_.parser).reduceLeft(_ | _))
     }
     

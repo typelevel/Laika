@@ -26,21 +26,39 @@ sealed trait CodeSpanParser {
 
   def startChar: Char
   
-  def parser: Parser[CodeSpan]
+  def parser: Parser[Span]
   
 }
 
-object CodeSpanParser {
+sealed trait CodeSpanParsers {
   
-  def apply(category: CodeCategory, startChar: Char)(parser: Parser[String]): CodeSpanParser = {
-    
-    def create(s: Char, p: Parser[String]) = new CodeSpanParser {
-      val startChar = s
-      val parser = p.map(res => CodeSpan(s"$startChar$res", category))
+  def parsers: Seq[CodeSpanParser]
+  
+}
+
+object CodeSpanParsers {
+  
+  private def create(s: Char, p: Parser[CodeSpan]) = new CodeSpanParser {
+    val startChar = s
+    val parser = p
+  }
+  
+  def apply(category: CodeCategory, startChar: Char)(parser: Parser[String]): CodeSpanParsers =
+    new CodeSpanParsers {
+      val parsers = Seq(create(startChar, parser.map(res => CodeSpan(s"$startChar$res", category))))
     }
     
-    create(startChar, parser)
-  }
+  def apply(category: CodeCategory, startChars: Set[Char])(parser: Parser[String]): CodeSpanParsers =
+    new CodeSpanParsers {
+      val parsers = startChars.map(c => create(c, parser.map(res => CodeSpan(s"$c$res", category)))).toSeq
+    }
+
+  def apply(category: CodeCategory)(startCharAndParsers: Seq[(Char, Parser[String])]): CodeSpanParsers =
+    new CodeSpanParsers {
+      val parsers = startCharAndParsers.map { case (char, parser) =>
+        create(char, parser.map(res => CodeSpan(s"$char$res", category)))
+      }
+    }
   
 }
 

@@ -17,24 +17,24 @@
 package laika.parse.code.common
 
 import laika.parse.text.TextParsers._
-import laika.parse.code.{CodeCategory, CodeSpanParser}
+import laika.parse.code.{CodeCategory, CodeSpanParsers}
 
 /**
   * @author Jens Halm
   */
 object Comment {
   
-  def singleLine (start: String): CodeSpanParser = {
+  def singleLine (start: String): CodeSpanParsers = {
     require(start.nonEmpty)
-    CodeSpanParser(CodeCategory.Comment, start.head) {
+    CodeSpanParsers(CodeCategory.Comment, start.head) {
       start.tail ~> restOfLine ^^ { text => start.tail + text + "\n" }
     }
     // TODO - create restOfLine variant that keeps final \n
   }
 
-  def multiLine (start: String, end: String): CodeSpanParser = {
+  def multiLine (start: String, end: String): CodeSpanParsers = {
     require(start.nonEmpty)
-    CodeSpanParser(CodeCategory.Comment, start.head) {
+    CodeSpanParsers(CodeCategory.Comment, start.head) {
       start.tail ~> delimitedBy(end) ^^ { text => start.tail + text + end }
     }
   }

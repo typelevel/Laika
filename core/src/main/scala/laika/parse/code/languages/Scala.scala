@@ -25,12 +25,11 @@ import laika.parse.code.common.{Comment, Keywords}
   */
 object Scala {
 
-  lazy val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("scala")(Seq(
+  lazy val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("scala")(
     Comment.singleLine("//"),
-    Comment.multiLine("/*", "*/")
-  ) ++
-    Keywords(BooleanLiteral)("true", "false") ++
-    Keywords(LiteralValue)("null") ++
+    Comment.multiLine("/*", "*/"),
+    Keywords(BooleanLiteral)("true", "false"),
+    Keywords(LiteralValue)("null"),
     Keywords("abstract", "break", "case", "catch", "class", "continue", "default", "def", "else", "extends",
       "finally", "final", "forSome", "for", "if", "implicit", "import", "lazy", "match",
       "new", "object", "override", "package", "private", "protected", "return", "sealed", "super",

@@ -23,24 +23,24 @@ import laika.bundle.SyntaxHighlighter
   */
 object TextMarkup {
 
-  lazy val markdown: SyntaxHighlighter = SyntaxHighlighter.build("markdown", "md")(Seq(
+  lazy val markdown: SyntaxHighlighter = SyntaxHighlighter.build("markdown", "md")(
 
-  ))
+  )
 
-  lazy val rst: SyntaxHighlighter = SyntaxHighlighter.build("reStructuredText", "rst")(Seq(
+  lazy val rst: SyntaxHighlighter = SyntaxHighlighter.build("reStructuredText", "rst")(
 
-  ))
+  )
 
-  lazy val laikaMarkdown: SyntaxHighlighter = SyntaxHighlighter.build("laikaMarkdown", "laika-md")(Seq(
+  lazy val laikaMarkdown: SyntaxHighlighter = SyntaxHighlighter.build("laikaMarkdown", "laika-md")(
 
-  ))
+  )
 
-  lazy val laikaRst: SyntaxHighlighter = SyntaxHighlighter.build("laikaReStructuredText", "laika-rst")(Seq(
+  lazy val laikaRst: SyntaxHighlighter = SyntaxHighlighter.build("laikaReStructuredText", "laika-rst")(
 
-  ))
+  )
 
-  lazy val laikaHTML: SyntaxHighlighter = SyntaxHighlighter.build("laikaHTML", "laika-html")(Seq(
+  lazy val laikaHTML: SyntaxHighlighter = SyntaxHighlighter.build("laikaHTML", "laika-html")(
 
-  ))
+  )
   
 }
