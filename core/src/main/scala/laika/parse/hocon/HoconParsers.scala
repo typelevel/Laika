@@ -38,7 +38,7 @@ object HoconParsers {
     Success((), in.consume(in.remaining))
   }
 
-  // TODO - promote to core parser
+  // TODO - 0.14 - promote to core parser
   implicit class String2ParserOps (val p: Parser[String ~ String]) extends AnyVal {
     def concat: Parser[String] = p.map { case a ~ b => a + b }
   }
