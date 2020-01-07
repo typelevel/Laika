@@ -43,6 +43,7 @@ class CommonSyntaxParserSpec extends WordSpec
     NumberLiteral.binary.withUnderscores.withSuffix(NumericSuffix.long).build,
     NumberLiteral.octal.withUnderscores.withSuffix(NumericSuffix.long).build,
     NumberLiteral.hex.withUnderscores.withSuffix(NumericSuffix.long).build,
+    NumberLiteral.decimalInt.withUnderscores.withSuffix(NumericSuffix.long).build,
   ).parser
   
   "The numeric literal parser" should {
@@ -150,6 +151,54 @@ class CommonSyntaxParserSpec extends WordSpec
         CodeSpan("one1", CodeCategory.Identifier),
         CodeSpan(" "),
         CodeSpan("0xff99eeL", CodeCategory.NumberLiteral),
+        CodeSpan(" "),
+        CodeSpan("three3", CodeCategory.Identifier),
+      ))
+    }
+
+    "parse a single-digit decimal literal" in {
+      val input = "one1 3 three3"
+
+      Parsing(input) should produce (Seq(
+        CodeSpan("one1", CodeCategory.Identifier),
+        CodeSpan(" "),
+        CodeSpan("3", CodeCategory.NumberLiteral),
+        CodeSpan(" "),
+        CodeSpan("three3", CodeCategory.Identifier),
+      ))
+    }
+
+    "parse a multi-digit decimal literal" in {
+      val input = "one1 902 three3"
+
+      Parsing(input) should produce (Seq(
+        CodeSpan("one1", CodeCategory.Identifier),
+        CodeSpan(" "),
+        CodeSpan("902", CodeCategory.NumberLiteral),
+        CodeSpan(" "),
+        CodeSpan("three3", CodeCategory.Identifier),
+      ))
+    }
+
+    "parse a decimal literal with underscores" in {
+      val input = "one1 12_000 three3"
+
+      Parsing(input) should produce (Seq(
+        CodeSpan("one1", CodeCategory.Identifier),
+        CodeSpan(" "),
+        CodeSpan("12_000", CodeCategory.NumberLiteral),
+        CodeSpan(" "),
+        CodeSpan("three3", CodeCategory.Identifier),
+      ))
+    }
+
+    "parse a decimal literal with L suffix" in {
+      val input = "one1 42L three3"
+
+      Parsing(input) should produce (Seq(
+        CodeSpan("one1", CodeCategory.Identifier),
+        CodeSpan(" "),
+        CodeSpan("42L", CodeCategory.NumberLiteral),
         CodeSpan(" "),
         CodeSpan("three3", CodeCategory.Identifier),
       ))

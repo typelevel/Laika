@@ -67,9 +67,11 @@ object NumberLiteral {
       
       def parse (chars: Set[Char]): Characters[String] = anyOf(chars.toSeq: _*)
       
+      val minDigits = if (idSequence.isEmpty) 0 else 1
+      
       val digitSequence =
-        if (underscores) parse(digits + '_').min(1) <~ lookBehind(1, not('_'))
-        else parse(digits).min(1)
+        if (underscores) parse(digits + '_').min(minDigits) <~ lookBehind(1, not('_'))
+        else parse(digits).min(minDigits)
 
       (idSequence.getOrElse(emptyString) ~ digitSequence ~ suffix.fold(emptyString)(opt(_).map(_.getOrElse("")))).concat
     }
@@ -82,7 +84,7 @@ object NumberLiteral {
 
   val hex: NumericParser = NumericParser(Set('0'), hexDigits, Some(anyOf('x', 'X').take(1)))
 
-  //val decimalInt: NumericParser = ???
+  val decimalInt: NumericParser = NumericParser(decimalDigits, decimalDigits) // TODO - prevent zero followed by more digits
 
 }
 
