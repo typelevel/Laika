@@ -16,9 +16,11 @@
 
 package laika.parse.code.common
 
+import laika.ast.Code
 import laika.bundle.SyntaxHighlighter
 import laika.parse.Parser
-import laika.parse.code.{CodeCategory, CodeSpan}
+import laika.parse.text.TextParsers._
+import laika.parse.code.{CodeCategory, CodeSpan, CodeSpanParsers}
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import org.scalatest.{Matchers, WordSpec}
 
@@ -30,11 +32,14 @@ class CommonSyntaxParserSpec extends WordSpec
                              with ParseResultHelpers
                              with DefaultParserHelpers[Seq[CodeSpan]] {
 
+  private val tempIdentifier: CodeSpanParsers = 
+    CodeSpanParsers(CodeCategory.Identifier, ('a' to 'z').toSet)(anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '_'))
   
   val defaultParser: Parser[Seq[CodeSpan]] = SyntaxHighlighter.build("test-lang")(
     Comment.multiLine("/*", "*/"),
     Comment.singleLine("//"),
-    Keywords("foo", "bar", "baz")
+    Keywords("foo", "bar", "baz"),
+    tempIdentifier
   ).parser
   
   
@@ -43,28 +48,33 @@ class CommonSyntaxParserSpec extends WordSpec
     "parse a single line comment" in {
       
       val input =
-        """line 1
-          |line 2 // comment
-          |line 3""".stripMargin
+        """line1
+          |line2 // comment
+          |line3""".stripMargin
       
       Parsing(input) should produce (Seq(
-        CodeSpan("line 1\nline 2 "),
+        CodeSpan("line1", CodeCategory.Identifier),
+        CodeSpan("\n"),
+        CodeSpan("line2", CodeCategory.Identifier),
+        CodeSpan(" "),
         CodeSpan("// comment\n", CodeCategory.Comment),
-        CodeSpan("line 3"),
+        CodeSpan("line3", CodeCategory.Identifier),
       ))
     }
 
     "parse a multi-line comment" in {
 
       val input =
-        """line 1 /* moo
+        """line1 /* moo
           |mar
-          |maz */ line 3""".stripMargin
+          |maz */ line3""".stripMargin
 
       Parsing(input) should produce (Seq(
-        CodeSpan("line 1 "),
+        CodeSpan("line1", CodeCategory.Identifier),
+        CodeSpan(" "),
         CodeSpan("/* moo\nmar\nmaz */", CodeCategory.Comment),
-        CodeSpan(" line 3"),
+        CodeSpan(" "),
+        CodeSpan("line3", CodeCategory.Identifier),
       ))
     }
     
@@ -73,20 +83,28 @@ class CommonSyntaxParserSpec extends WordSpec
   "The keyword parser" should {
     
     "parse keywords" in {
-      val input = "one two foo three"
+      val input = "one foo three"
 
       Parsing(input) should produce (Seq(
-        CodeSpan("one two "),
+        CodeSpan("one", CodeCategory.Identifier),
+        CodeSpan(" "),
         CodeSpan("foo", CodeCategory.Keyword),
-        CodeSpan(" three"),
+        CodeSpan(" "),
+        CodeSpan("three", CodeCategory.Identifier),
       ))
     }
     
     "ignore keywords when they are followed by more characters" in {
-      val input = "one two foo1 bar2 three"
+      val input = "one foo1 bar2 four"
 
       Parsing(input) should produce (Seq(
-        CodeSpan("one two foo1 bar2 three")
+        CodeSpan("one", CodeCategory.Identifier),
+        CodeSpan(" "),
+        CodeSpan("foo1", CodeCategory.Identifier),
+        CodeSpan(" "),
+        CodeSpan("bar2", CodeCategory.Identifier),
+        CodeSpan(" "),
+        CodeSpan("four", CodeCategory.Identifier),
       ))
     }
     
