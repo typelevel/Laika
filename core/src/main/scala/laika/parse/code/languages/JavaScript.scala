@@ -18,12 +18,16 @@ package laika.parse.code.languages
 
 import laika.bundle.SyntaxHighlighter
 import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue}
-import laika.parse.code.common.{Comment, Keywords}
+import laika.parse.code.CodeSpanParsers
+import laika.parse.code.common.NumberLiteral.NumericParser
+import laika.parse.code.common.{Comment, Keywords, NumberLiteral, NumericSuffix}
 
 /**
   * @author Jens Halm
   */
 object JavaScript {
+  
+  def number(parser: NumericParser): CodeSpanParsers = parser.withUnderscores.withSuffix(NumericSuffix.bigInt).build
   
   val keywords = Keywords("async", "as", "await", "break", "case", "catch", "const", "continue", "debugger", "default", "delete",
     "do", "else", "export", "finally", "for", "from", "function", "if", "import", "instanceof", "in",
@@ -35,7 +39,12 @@ object JavaScript {
     Comment.multiLine("/*", "*/"),
     Keywords(BooleanLiteral)("true", "false"),
     Keywords(LiteralValue)("null", "undefined", "NaN", "Infinity"),
-    keywords
+    keywords,
+    number(NumberLiteral.binary),
+    number(NumberLiteral.octal),
+    number(NumberLiteral.hex),
+    number(NumberLiteral.decimalFloat),
+    number(NumberLiteral.decimalInt),
   )
   
 }

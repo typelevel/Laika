@@ -18,7 +18,7 @@ package laika.parse.code.languages
 
 import laika.bundle.SyntaxHighlighter
 import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue, TypeName}
-import laika.parse.code.common.{Comment, Keywords}
+import laika.parse.code.common.{Comment, Keywords, NumberLiteral, NumericSuffix}
 
 /**
   * @author Jens Halm
@@ -35,7 +35,13 @@ object Java {
       "default", "do", "else", "enum", "exports", "finally", "final", "for", "if", 
       "import", "instanceof", "module", "native", "package", "private", "protected", 
       "public", "requires", "static", "strictfp", "super", "switch", "synchronized",
-      "this", "throws","transient", "try", "var", "void", "volatile", "while")
+      "this", "throws","transient", "try", "var", "void", "volatile", "while"),
+    NumberLiteral.binary.withUnderscores.withSuffix(NumericSuffix.long).build,
+    NumberLiteral.octal.withUnderscores.withSuffix(NumericSuffix.long).build,
+    NumberLiteral.hexFloat.withUnderscores.withSuffix(NumericSuffix.float).build,
+    NumberLiteral.hex.withUnderscores.withSuffix(NumericSuffix.long).build,
+    NumberLiteral.decimalFloat.withUnderscores.withSuffix(NumericSuffix.float).build,
+    NumberLiteral.decimalInt.withUnderscores.withSuffix(NumericSuffix.long | NumericSuffix.float).build,
   )
   
 }

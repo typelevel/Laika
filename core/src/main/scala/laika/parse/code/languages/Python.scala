@@ -18,7 +18,7 @@ package laika.parse.code.languages
 
 import laika.bundle.SyntaxHighlighter
 import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue}
-import laika.parse.code.common.{Comment, Keywords}
+import laika.parse.code.common.{Comment, Keywords, NumberLiteral, NumericSuffix}
 
 /**
   * @author Jens Halm
@@ -31,7 +31,12 @@ object Python {
     Keywords(LiteralValue)("None"),
     Keywords("and", "assert", "async", "as", "await", "break", "class", "continue", "def", "del", "elif", "else", 
       "except", "exec", "finally", "for", "from", "global", "if", "import", "in", "is", "lambda", 
-      "nonlocal", "not", "or", "pass", "print", "raise", "return", "try", "with", "while", "yield")
+      "nonlocal", "not", "or", "pass", "print", "raise", "return", "try", "with", "while", "yield"),
+    NumberLiteral.binary.withUnderscores.build,
+    NumberLiteral.octal.withUnderscores.build,
+    NumberLiteral.hex.withUnderscores.build,
+    NumberLiteral.decimalFloat.withUnderscores.withSuffix(NumericSuffix.imaginary).build,
+    NumberLiteral.decimalInt.withUnderscores.withSuffix(NumericSuffix.imaginary).build,
   )
   
 }

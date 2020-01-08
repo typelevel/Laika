@@ -18,7 +18,7 @@ package laika.parse.code.languages
 
 import laika.bundle.SyntaxHighlighter
 import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue}
-import laika.parse.code.common.{Comment, Keywords}
+import laika.parse.code.common.{Comment, Keywords, NumberLiteral, NumericSuffix}
 
 /**
   * @author Jens Halm
@@ -33,7 +33,10 @@ object Scala {
     Keywords("abstract", "break", "case", "catch", "class", "continue", "default", "def", "else", "extends",
       "finally", "final", "forSome", "for", "if", "implicit", "import", "lazy", "match",
       "new", "object", "override", "package", "private", "protected", "return", "sealed", "super",
-      "this", "throw", "throws", "trait", "try", "type", "yield", "val", "var", "while", "with")
+      "this", "throw", "throws", "trait", "try", "type", "yield", "val", "var", "while", "with"),
+    NumberLiteral.hex.withUnderscores.withSuffix(NumericSuffix.long).build,
+    NumberLiteral.decimalFloat.withUnderscores.withSuffix(NumericSuffix.float).build,
+    NumberLiteral.decimalInt.withUnderscores.withSuffix(NumericSuffix.long | NumericSuffix.float).build,
   )
   
 }
