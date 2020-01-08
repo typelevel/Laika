@@ -111,6 +111,8 @@ object NumberLiteral {
   val decimalInt: NumericParser = NumericParser(Digits.decimal, Digits.decimal) // TODO - prevent zero followed by more digits
   
   val decimalFloat: NumericParser = NumericParser(Digits.decimal + '.', Digits.decimal, exponent = Some(exponent))
+  
+  val hexFloat: NumericParser = NumericParser(Set('0'), Digits.hex, Some(anyOf('x', 'X').take(1)), exponent = Some(binaryExponent))
 
 }
 

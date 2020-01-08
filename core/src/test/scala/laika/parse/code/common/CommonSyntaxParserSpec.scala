@@ -41,6 +41,7 @@ class CommonSyntaxParserSpec extends WordSpec
     tempIdentifier,
     NumberLiteral.binary.withUnderscores.withSuffix(NumericSuffix.long).build,
     NumberLiteral.octal.withUnderscores.withSuffix(NumericSuffix.long).build,
+    NumberLiteral.hexFloat.withUnderscores.withSuffix(NumericSuffix.float).build,
     NumberLiteral.hex.withUnderscores.withSuffix(NumericSuffix.long).build,
     NumberLiteral.decimalFloat.withUnderscores.withSuffix(NumericSuffix.float).build,
     NumberLiteral.decimalInt.withUnderscores.withSuffix(NumericSuffix.long).build,
@@ -134,6 +135,14 @@ class CommonSyntaxParserSpec extends WordSpec
 
     "parse a decimal float literal with exponent and D suffix" in {
       test("23.45e24D")
+    }
+
+    "parse a hex float literal" in {
+      test("0x23.f5")
+    }
+
+    "parse a hex float literal with an exponent" in {
+      test("0x23.f5p-23")
     }
     
   }
