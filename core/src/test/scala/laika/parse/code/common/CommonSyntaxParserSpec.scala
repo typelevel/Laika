@@ -42,6 +42,7 @@ class CommonSyntaxParserSpec extends WordSpec
     NumberLiteral.binary.withUnderscores.withSuffix(NumericSuffix.long).build,
     NumberLiteral.octal.withUnderscores.withSuffix(NumericSuffix.long).build,
     NumberLiteral.hex.withUnderscores.withSuffix(NumericSuffix.long).build,
+    NumberLiteral.decimalFloat.withUnderscores.withSuffix(NumericSuffix.float).build,
     NumberLiteral.decimalInt.withUnderscores.withSuffix(NumericSuffix.long).build,
   ).parser
   
@@ -105,6 +106,34 @@ class CommonSyntaxParserSpec extends WordSpec
 
     "parse a decimal literal with L suffix" in {
       test("42L")
+    }
+
+    "parse a decimal float literal" in {
+      test("23.45")
+    }
+
+    "parse a decimal float literal with leading dot" in {
+      test(".456")
+    }
+
+    "parse a decimal float literal with underscores" in {
+      test("23_427.45")
+    }
+
+    "parse a decimal float literal with D suffix" in {
+      test("23.45D")
+    }
+
+    "parse a decimal float literal with exponent" in {
+      test("23.45e24")
+    }
+
+    "parse a decimal float literal with a signed exponent" in {
+      test("23.45e-24")
+    }
+
+    "parse a decimal float literal with exponent and D suffix" in {
+      test("23.45e24D")
     }
     
   }
