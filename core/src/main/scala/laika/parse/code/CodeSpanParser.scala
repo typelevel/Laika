@@ -44,19 +44,26 @@ object CodeSpanParsers {
   }
   
   def apply(category: CodeCategory, startChar: Char)(parser: Parser[String]): CodeSpanParsers =
-    new CodeSpanParsers {
-      val parsers = Seq(create(startChar, parser.map(res => CodeSpan(s"$startChar$res", category))))
-    }
+    apply(category)(Seq((startChar, parser)))
     
   def apply(category: CodeCategory, startChars: Set[Char])(parser: Parser[String]): CodeSpanParsers =
-    new CodeSpanParsers {
-      val parsers = startChars.map(c => create(c, parser.map(res => CodeSpan(s"$c$res", category)))).toSeq
-    }
+    apply(category)(startChars.toSeq.map((_, parser)))
 
   def apply(category: CodeCategory)(startCharAndParsers: Seq[(Char, Parser[String])]): CodeSpanParsers =
+    apply(startCharAndParsers.map { case (char, parser) =>
+      (char, parser.map(res => CodeSpan(s"$char$res", category)))
+    })
+
+  def apply(startChar: Char)(parser: Parser[CodeSpan]): CodeSpanParsers =
+    apply(Seq((startChar, parser)))
+
+  def apply(startChars: Set[Char])(parser: Parser[CodeSpan]): CodeSpanParsers =
+    apply(startChars.toSeq.map((_, parser)))
+
+  def apply(startCharAndParsers: Seq[(Char, Parser[CodeSpan])]): CodeSpanParsers =
     new CodeSpanParsers {
       val parsers = startCharAndParsers.map { case (char, parser) =>
-        create(char, parser.map(res => CodeSpan(s"$char$res", category)))
+        create(char, parser)
       }
     }
   
@@ -70,7 +77,10 @@ object CodeCategory {
   case object Keyword extends CodeCategory
   case object BooleanLiteral extends CodeCategory
   case object NumberLiteral extends CodeCategory
+  case object StringLiteral extends CodeCategory
   case object LiteralValue extends CodeCategory
+  case object EscapeSequence extends CodeCategory
+  case object Substitution extends CodeCategory
   case object TypeName extends CodeCategory
   case object Identifier extends CodeCategory
   
