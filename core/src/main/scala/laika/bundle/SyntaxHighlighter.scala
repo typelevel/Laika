@@ -19,7 +19,7 @@ package laika.bundle
 import cats.data.NonEmptyList
 import laika.ast.Text
 import laika.parse.Parser
-import laika.parse.code.{CodeSpan, CodeSpanParsers}
+import laika.parse.code.{CodeSpan, CodeSpanParsers, CodeSpanSequence}
 import laika.parse.markup.InlineParsers
 import laika.parse.text.DelimitedText
 
@@ -48,9 +48,10 @@ object SyntaxHighlighter {
     }
     
     val rootParser = InlineParsers.spans(DelimitedText.Undelimited, spanParserMap).map(
-      _.map {
-        case Text(content, _) => CodeSpan(content)
-        case codeSpan: CodeSpan => codeSpan
+      _.flatMap {
+        case Text(content, _) => Seq(CodeSpan(content))
+        case codeSpan: CodeSpan => Seq(codeSpan)
+        case codeSeq: CodeSpanSequence => codeSeq.collect { case cs: CodeSpan => cs }
       }
     )
     

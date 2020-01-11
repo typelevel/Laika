@@ -16,7 +16,7 @@
 
 package laika.parse.code
 
-import laika.ast.{NoOpt, Options, Span, TextContainer}
+import laika.ast.{CodeBlock, ElementContainer, NoOpt, Options, RewritableContainer, Span, SpanContainer, TemplateSpan, TemplateSpanContainer, TemplateSpanSequence, TextContainer}
 import laika.parse.Parser
 
 /**
@@ -38,7 +38,7 @@ sealed trait CodeSpanParsers {
 
 object CodeSpanParsers {
   
-  private def create(s: Char, p: Parser[CodeSpan]) = new CodeSpanParser {
+  private def create(s: Char, p: Parser[Span]) = new CodeSpanParser {
     val startChar = s
     val parser = p
   }
@@ -50,20 +50,22 @@ object CodeSpanParsers {
     apply(category)(startChars.toSeq.map((_, parser)))
 
   def apply(category: CodeCategory)(startCharAndParsers: Seq[(Char, Parser[String])]): CodeSpanParsers =
-    apply(startCharAndParsers.map { case (char, parser) =>
-      (char, parser.map(res => CodeSpan(s"$char$res", category)))
-    })
-
-  def apply(startChar: Char)(parser: Parser[CodeSpan]): CodeSpanParsers =
-    apply(Seq((startChar, parser)))
-
-  def apply(startChars: Set[Char])(parser: Parser[CodeSpan]): CodeSpanParsers =
-    apply(startChars.toSeq.map((_, parser)))
-
-  def apply(startCharAndParsers: Seq[(Char, Parser[CodeSpan])]): CodeSpanParsers =
     new CodeSpanParsers {
       val parsers = startCharAndParsers.map { case (char, parser) =>
-        create(char, parser)
+        create(char, parser.map(res => CodeSpan(s"$char$res", category)))
+      }
+    }
+
+  def apply(startChar: Char)(parser: Parser[Seq[CodeSpan]]): CodeSpanParsers =
+    apply(Seq((startChar, parser)))
+
+  def apply(startChars: Set[Char])(parser: Parser[Seq[CodeSpan]]): CodeSpanParsers =
+    apply(startChars.toSeq.map((_, parser)))
+
+  def apply(startCharAndParsers: Seq[(Char, Parser[Seq[CodeSpan]])]): CodeSpanParsers =
+    new CodeSpanParsers {
+      val parsers = startCharAndParsers.map { case (char, parser) =>
+        create(char, parser.map(CodeSpanSequence(_)))
       }
     }
   
@@ -97,4 +99,10 @@ object CodeSpan {
 
   def apply (content: String): CodeSpan = apply(content, Set(), NoOpt)
   
+}
+
+case class CodeSpanSequence (content: Seq[Span], options: Options = NoOpt) extends Span with SpanContainer {
+  type Self = CodeSpanSequence
+  def withContent (newContent: Seq[Span]): CodeSpanSequence = copy(content = newContent)
+  def withOptions (options: Options): CodeSpanSequence = copy(options = options)
 }
