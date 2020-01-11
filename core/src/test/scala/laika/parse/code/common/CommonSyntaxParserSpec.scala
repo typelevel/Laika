@@ -39,6 +39,8 @@ class CommonSyntaxParserSpec extends WordSpec
     Comment.singleLine("//"),
     Keywords("foo", "bar", "baz"),
     tempIdentifier,
+    StringLiteral.multiLine("'''").build,
+    StringLiteral.singleLine('\'').build,
     NumberLiteral.binary.withUnderscores.withSuffix(NumericSuffix.long).build,
     NumberLiteral.octal.withUnderscores.withSuffix(NumericSuffix.long).build,
     NumberLiteral.hexFloat.withUnderscores.withSuffix(NumericSuffix.float).build,
@@ -143,6 +145,26 @@ class CommonSyntaxParserSpec extends WordSpec
 
     "parse a hex float literal with an exponent" in {
       test("0x23.f5p-23")
+    }
+    
+  }
+  
+  "The string literal parser" should {
+
+    def test(literal: String): Assertion = Parsing(s"one1 $literal three3") should produce (Seq(
+      CodeSpan("one1", CodeCategory.Identifier),
+      CodeSpan(" "),
+      CodeSpan(literal, CodeCategory.StringLiteral),
+      CodeSpan(" "),
+      CodeSpan("three3", CodeCategory.Identifier)
+    ))
+
+    "parse a single-line literal" in {
+      test("'foo'")
+    }
+
+    "parse a multi-line literal" in {
+      test("'''foo bar'''")
     }
     
   }

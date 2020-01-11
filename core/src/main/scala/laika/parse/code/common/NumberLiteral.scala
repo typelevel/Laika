@@ -52,6 +52,14 @@ object NumberLiteral {
     val hex: Set[Char] = ('0' to '9').toSet ++ ('a' to 'f').toSet ++ ('A' to 'F').toSet
   }
 
+  object DigitParsers {
+    val binary: Characters[String] = anyOf(Digits.binary.toSeq:_*)
+    val octal: Characters[String] = anyOf(Digits.octal.toSeq:_*)
+    val decimal: Characters[String] = anyOf(Digits.decimal.toSeq:_*)
+    val decimalNonZero: Characters[String] = anyOf(Digits.decimalNonZero.toSeq:_*)
+    val hex: Characters[String] = anyOf(Digits.hex.toSeq:_*)
+  }
+
   private val sign: Parser[String] = anyOf('-', '+').max(1)
   val exponent: Parser[String]       = (anyOf('E', 'e').take(1) ~ sign ~ anyOf(Digits.decimal.toSeq: _*).min(1)).concat
   val binaryExponent: Parser[String] = (anyOf('P', 'p').take(1) ~ sign ~ anyOf(Digits.decimal.toSeq: _*).min(1)).concat
