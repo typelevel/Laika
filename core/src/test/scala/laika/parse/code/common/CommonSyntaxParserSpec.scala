@@ -40,7 +40,12 @@ class CommonSyntaxParserSpec extends WordSpec
     Keywords("foo", "bar", "baz"),
     tempIdentifier,
     StringLiteral.multiLine("'''").build,
-    StringLiteral.singleLine('\'').build,
+    StringLiteral.singleLine('\'').embed(
+      StringLiteral.Escape.unicode,
+      StringLiteral.Escape.hex,
+      StringLiteral.Escape.octal,
+      StringLiteral.Escape.char,
+    ).build,
     NumberLiteral.binary.withUnderscores.withSuffix(NumericSuffix.long).build,
     NumberLiteral.octal.withUnderscores.withSuffix(NumericSuffix.long).build,
     NumberLiteral.hexFloat.withUnderscores.withSuffix(NumericSuffix.float).build,
@@ -167,6 +172,36 @@ class CommonSyntaxParserSpec extends WordSpec
       test("'''foo bar'''")
     }
     
+  }
+
+  "The embedded parsers for the string literal parser" should {
+
+    def test(escape: String): Assertion = Parsing(s"one1 'aa $escape bb' three3") should produce (Seq(
+      CodeSpan("one1", CodeCategory.Identifier),
+      CodeSpan(" "),
+      CodeSpan("'aa ", CodeCategory.StringLiteral),
+      CodeSpan(escape, CodeCategory.EscapeSequence),
+      CodeSpan(" bb'", CodeCategory.StringLiteral),
+      CodeSpan(" "),
+      CodeSpan("three3", CodeCategory.Identifier)
+    ))
+
+    "parse a single character escape" in {
+      test("\\t")
+    }
+
+    "parse a unicode escape" in {
+      test("\\ua24f")
+    }
+
+    "parse an octal escape" in {
+      test("\\322")
+    }
+
+    "parse a hex escape" in {
+      test("\\x7f")
+    }
+
   }
   
   "The comment parser" should {
