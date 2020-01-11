@@ -21,7 +21,7 @@ import laika.ast.Text
 import laika.parse.Parser
 import laika.parse.code.{CodeCategory, CodeSpan, CodeSpanParsers, CodeSpanSequence}
 import laika.parse.markup.InlineParsers
-import laika.parse.text.DelimitedText
+import laika.parse.text.{DelimitedText, TextParsers}
 import laika.parse.text.TextParsers._
 
 /**
@@ -46,6 +46,31 @@ object StringLiteral {
     val octal: CodeSpanParsers = CodeSpanParsers(CodeCategory.EscapeSequence, '\\') {
       (anyIn('0' to '3').take(1) ~ DigitParsers.octal.max(2)).concat | DigitParsers.octal.min(1).max(2)
     }
+    
+    def literal(value: String): CodeSpanParsers = {
+      require(value.nonEmpty)
+      CodeSpanParsers(CodeCategory.EscapeSequence, value.head) {
+        TextParsers.literal(value.tail)
+      }
+    }
+  }
+  
+  object Substitution {
+    
+    def apply(startChar: Char)(parser: Parser[String]): CodeSpanParsers = 
+      CodeSpanParsers(CodeCategory.Substitution, startChar)(parser)
+    
+    def between(start: String, end: String): CodeSpanParsers = {
+      require(start.nonEmpty)
+      require(end.nonEmpty)
+      apply(start.head) {
+        if (start.tail.isEmpty) (delimitedBy(end).keepDelimiter.failOn('\n') ~ end).concat
+        else (literal(start.tail) ~ delimitedBy(end).keepDelimiter.failOn('\n') ~ end).concat
+      }
+    }
+    
+    def between(delimiter: String): CodeSpanParsers = between(delimiter, delimiter)
+    
   }
   
   case class StringParser(startChar: Char,

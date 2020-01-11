@@ -45,6 +45,9 @@ class CommonSyntaxParserSpec extends WordSpec
       StringLiteral.Escape.hex,
       StringLiteral.Escape.octal,
       StringLiteral.Escape.char,
+      StringLiteral.Escape.literal("$$"),
+      StringLiteral.Substitution.between("${", "}"),
+      StringLiteral.Substitution('$')(anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '_').min(1))
     ).build,
     NumberLiteral.binary.withUnderscores.withSuffix(NumericSuffix.long).build,
     NumberLiteral.octal.withUnderscores.withSuffix(NumericSuffix.long).build,
@@ -176,34 +179,49 @@ class CommonSyntaxParserSpec extends WordSpec
 
   "The embedded parsers for the string literal parser" should {
 
-    def test(escape: String): Assertion = Parsing(s"one1 'aa $escape bb' three3") should produce (Seq(
+    def test(category: CodeCategory, text: String): Assertion = Parsing(s"one1 'aa $text bb' three3") should produce (Seq(
       CodeSpan("one1", CodeCategory.Identifier),
       CodeSpan(" "),
       CodeSpan("'aa ", CodeCategory.StringLiteral),
-      CodeSpan(escape, CodeCategory.EscapeSequence),
+      CodeSpan(text, category),
       CodeSpan(" bb'", CodeCategory.StringLiteral),
       CodeSpan(" "),
       CodeSpan("three3", CodeCategory.Identifier)
     ))
+    
+    def testEscape(escape: String): Assertion = test(CodeCategory.EscapeSequence, escape)
+    def testSubstitution(subst: String): Assertion = test(CodeCategory.Substitution, subst)
 
     "parse a single character escape" in {
-      test("\\t")
+      testEscape("\\t")
     }
 
     "parse a unicode escape" in {
-      test("\\ua24f")
+      testEscape("\\ua24f")
     }
 
     "parse an octal escape" in {
-      test("\\322")
+      testEscape("\\322")
     }
 
     "parse a hex escape" in {
-      test("\\x7f")
+      testEscape("\\x7f")
+    }
+
+    "parse a literl escape" in {
+      testEscape("$$")
+    }
+
+    "parse a substitution expression" in {
+      testSubstitution("${ref}")
+    }
+
+    "parse a substitution identifier" in {
+      testSubstitution("$ref22")
     }
 
   }
-  
+
   "The comment parser" should {
     
     "parse a single line comment" in {
