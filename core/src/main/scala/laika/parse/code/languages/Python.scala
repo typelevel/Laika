@@ -17,6 +17,7 @@
 package laika.parse.code.languages
 
 import laika.bundle.SyntaxHighlighter
+import laika.parse.Parser
 import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue}
 import laika.parse.code.CodeSpanParsers
 import laika.parse.code.common.StringLiteral.StringParser
@@ -30,28 +31,18 @@ object Python {
   
   import NumberLiteral._
   
-  def embedEscapes(parser: StringParser): CodeSpanParsers = parser.embed(
+  def embedEscapes(parser: StringParser): StringParser = parser.embed(
     StringLiteral.Escape.unicode,
     StringLiteral.Escape.hex,
     StringLiteral.Escape.octal,
     StringLiteral.Escape.char
-  ).build
+  )
 
-  def embedEscapesAndSubstitutions(parser: StringParser): CodeSpanParsers = parser.embed(
-    StringLiteral.Escape.unicode,
-    StringLiteral.Escape.hex,
-    StringLiteral.Escape.octal,
-    StringLiteral.Escape.char,
+  def embedSubstitutions(parser: StringParser): StringParser = parser.embed(
     StringLiteral.Escape.literal("{{"),
     StringLiteral.Escape.literal("}}"),
     StringLiteral.Substitution.between("{", "}")
-  ).build
-
-  def embedSubstitutions(parser: StringParser): CodeSpanParsers = parser.embed(
-    StringLiteral.Escape.literal("{{"),
-    StringLiteral.Escape.literal("}}"),
-    StringLiteral.Substitution.between("{", "}")
-  ).build
+  )
   
   object Prefix {
     val u: Set[Char] = Set('u','U')
@@ -59,55 +50,39 @@ object Python {
     val f: Set[Char] = Set('f', 'F')
     val b: Set[Char] = Set('b', 'B')
   }
+
+  def stringNoPrefix (embed: StringParser => StringParser): CodeSpanParsers = {
+    embed(StringLiteral.singleLine('\'')).build ++
+    embed(StringLiteral.singleLine('"')).build ++
+    embed(StringLiteral.multiLine("'''")).build ++
+    embed(StringLiteral.multiLine("\"\"\"")).build
+  }
   
-  def singleLine(prefixChars: Set[Char], delim: Char): StringParser =
-    StringLiteral.singleLine(prefixChars, delim).withPrefix(anyOf(delim).take(1))
+  def stringSinglePrefix (prefixChars: Set[Char], embed: StringParser => StringParser): CodeSpanParsers = {
+    embed(StringLiteral.singleLine(prefixChars, '\'').withPrefix(anyOf('\'').take(1))).build ++
+    embed(StringLiteral.singleLine(prefixChars, '"').withPrefix(anyOf('"').take(1))).build ++
+    embed(StringLiteral.multiLine(prefixChars, "'''").withPrefix(anyOf('\'').take(3))).build ++ 
+    embed(StringLiteral.multiLine(prefixChars, "\"\"\"").withPrefix(anyOf('"').take(3))).build
+  }
 
-  def singleLine(prefixChars: Set[Char], optFollowingChars: Set[Char], delim: Char): StringParser =
-    StringLiteral.singleLine(prefixChars, delim).withPrefix((anyOf(optFollowingChars.toSeq:_*).max(1) ~ anyOf(delim).take(1)).concat)
-
-  def singleLineDoublePrefix(prefixChars: Set[Char], followingChars: Set[Char], delim: Char): StringParser =
-    StringLiteral.singleLine(prefixChars, delim).withPrefix((anyOf(followingChars.toSeq:_*).take(1) ~ anyOf(delim).take(1)).concat)
-
-  def multiLine(prefixChars: Set[Char], delim: Char): StringParser =
-    StringLiteral.multiLine(prefixChars, s"$delim$delim$delim").withPrefix(anyOf(delim).take(3))
-
-  def multiLine(prefixChars: Set[Char], optFollowingChars: Set[Char], delim: Char): StringParser =
-    StringLiteral.multiLine(prefixChars, s"$delim$delim$delim").withPrefix((anyOf(optFollowingChars.toSeq:_*).max(1) ~ anyOf(delim).take(3)).concat)
-
-  def multiLineDoublePrefix(prefixChars: Set[Char], followingChars: Set[Char], delim: Char): StringParser =
-    StringLiteral.multiLine(prefixChars, s"$delim$delim$delim").withPrefix((anyOf(followingChars.toSeq:_*).take(1) ~ anyOf(delim).take(3)).concat)
-
+  def stringDoublePrefix (prefixChars: Set[Char], followingChars: Set[Char], embed: StringParser => StringParser): CodeSpanParsers = {
+    def prefix(delim: Char, num: Int): Parser[String] = (anyOf(followingChars.toSeq:_*).take(1) ~ anyOf(delim).take(num)).concat
+    embed(StringLiteral.singleLine(prefixChars, '\'').withPrefix(prefix('\'', 1))).build ++
+    embed(StringLiteral.singleLine(prefixChars, '"').withPrefix(prefix('"', 1))).build ++
+    embed(StringLiteral.multiLine(prefixChars, "'''").withPrefix(prefix('\'', 3))).build ++
+    embed(StringLiteral.multiLine(prefixChars, "\"\"\"").withPrefix(prefix('"', 3))).build
+  }
+  
   lazy val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("python", "py")(
     Comment.singleLine("#"),
-    embedEscapes(StringLiteral.singleLine('\'')),
-    embedEscapes(StringLiteral.singleLine('\"')),
-    embedEscapes(StringLiteral.multiLine("'''")),
-    embedEscapes(StringLiteral.multiLine("\"\"\"")),
-    embedEscapes(singleLine(Prefix.u ++ Prefix.b, '\'')),
-    embedEscapes(singleLine(Prefix.u ++ Prefix.b, '"')),
-    embedEscapes(multiLine(Prefix.u ++ Prefix.b, '\'')),
-    embedEscapes(multiLine(Prefix.u ++ Prefix.b, '"')),
-    singleLine(Prefix.r, Prefix.b, '\'').build,
-    singleLine(Prefix.r, Prefix.b, '"').build,
-    singleLineDoublePrefix(Prefix.b, Prefix.r, '\'').build,
-    singleLineDoublePrefix(Prefix.b, Prefix.r, '"').build,
-    multiLine(Prefix.r, Prefix.b, '\'').build,
-    multiLine(Prefix.r, Prefix.b, '"').build,
-    multiLineDoublePrefix(Prefix.b, Prefix.r, '\'').build,
-    multiLineDoublePrefix(Prefix.b, Prefix.r, '"').build,
-    embedEscapesAndSubstitutions(singleLine(Prefix.f, '\'')),
-    embedEscapesAndSubstitutions(singleLine(Prefix.f, '"')),
-    embedEscapesAndSubstitutions(multiLine(Prefix.f, '\'')),
-    embedEscapesAndSubstitutions(multiLine(Prefix.f, '"')),
-    embedSubstitutions(singleLineDoublePrefix(Prefix.r, Prefix.f, '\'')),
-    embedSubstitutions(singleLineDoublePrefix(Prefix.f, Prefix.r, '\'')),
-    embedSubstitutions(singleLineDoublePrefix(Prefix.r, Prefix.f, '"')),
-    embedSubstitutions(singleLineDoublePrefix(Prefix.f, Prefix.r, '"')),
-    embedSubstitutions(multiLineDoublePrefix(Prefix.r, Prefix.f, '\'')),
-    embedSubstitutions(multiLineDoublePrefix(Prefix.f, Prefix.r, '\'')),
-    embedSubstitutions(multiLineDoublePrefix(Prefix.r, Prefix.f, '"')),
-    embedSubstitutions(multiLineDoublePrefix(Prefix.f, Prefix.r, '"')),
+    stringNoPrefix(embedEscapes),
+    stringSinglePrefix(Prefix.u ++ Prefix.b, embedEscapes),
+    stringSinglePrefix(Prefix.f, (embedEscapes _).andThen(embedSubstitutions)),
+    stringDoublePrefix(Prefix.r, Prefix.f, embedSubstitutions),
+    stringDoublePrefix(Prefix.f, Prefix.r, embedSubstitutions),
+    stringDoublePrefix(Prefix.r, Prefix.b, identity),
+    stringDoublePrefix(Prefix.b, Prefix.r, identity),
+    stringSinglePrefix(Prefix.r, identity),
     Keywords(BooleanLiteral)("True", "False"),
     Keywords(LiteralValue)("None"),
     Keywords("and", "assert", "async", "as", "await", "break", "class", "continue", "def", "del", "elif", "else", 
