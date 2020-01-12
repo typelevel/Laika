@@ -19,7 +19,7 @@ package laika.parse.code.common
 import laika.bundle.SyntaxHighlighter
 import laika.parse.Parser
 import laika.parse.text.TextParsers._
-import laika.parse.code.{CodeCategory, CodeSpan, CodeSpanParsers}
+import laika.parse.code.{CodeCategory, CodeSpan}
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import org.scalatest.{Assertion, Matchers, WordSpec}
 
@@ -31,14 +31,11 @@ class CommonSyntaxParserSpec extends WordSpec
                              with ParseResultHelpers
                              with DefaultParserHelpers[Seq[CodeSpan]] {
 
-  private val tempIdentifier: CodeSpanParsers = 
-    CodeSpanParsers(CodeCategory.Identifier, ('a' to 'z').toSet)(anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '_'))
   
   val defaultParser: Parser[Seq[CodeSpan]] = SyntaxHighlighter.build("test-lang")(
     Comment.multiLine("/*", "*/"),
     Comment.singleLine("//"),
     Keywords("foo", "bar", "baz"),
-    tempIdentifier,
     CharLiteral.standard.embed(
       StringLiteral.Escape.unicode,
       StringLiteral.Escape.hex,
@@ -56,6 +53,7 @@ class CommonSyntaxParserSpec extends WordSpec
       StringLiteral.Substitution.between("${", "}"),
       StringLiteral.Substitution('$')(anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '_').min(1))
     ).build,
+    Identifier.standard.withIdStartChars('_','$').withCategoryChooser(Identifier.upperCaseTypeName).build,
     NumberLiteral.binary.withUnderscores.withSuffix(NumericSuffix.long).build,
     NumberLiteral.octal.withUnderscores.withSuffix(NumericSuffix.long).build,
     NumberLiteral.hexFloat.withUnderscores.withSuffix(NumericSuffix.float).build,
@@ -63,6 +61,42 @@ class CommonSyntaxParserSpec extends WordSpec
     NumberLiteral.decimalFloat.withUnderscores.withSuffix(NumericSuffix.float).build,
     NumberLiteral.decimalInt.withUnderscores.withSuffix(NumericSuffix.long).build,
   ).parser
+  
+  
+  "The identifier parser" should {
+
+    def test(id: String, category: CodeCategory): Assertion = Parsing(s"+- $id *^") should produce (Seq(
+      CodeSpan("+- "),
+      CodeSpan(id, category),
+      CodeSpan(" *^")
+    ))
+    
+    "parse an identifier starting with a lower-case letter" in {
+      test("id", CodeCategory.Identifier)
+    }
+
+    "parse an identifier starting with an underscore" in {
+      test("_id", CodeCategory.Identifier)
+    }
+
+    "parse an identifier containing a digit" in {
+      test("id9", CodeCategory.Identifier)
+    }
+
+    "parse a type name starting with an upper-case letter" in {
+      test("Type", CodeCategory.TypeName)
+    }
+
+    "parse a type name containing a digit" in {
+      test("Type9", CodeCategory.TypeName)
+    }
+
+    "parse a type name containing an underscore" in {
+      test("Type_Foo", CodeCategory.TypeName)
+    }
+    
+  }
+  
   
   "The numeric literal parser" should {
     

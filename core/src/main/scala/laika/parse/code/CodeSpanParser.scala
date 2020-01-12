@@ -30,9 +30,13 @@ sealed trait CodeSpanParser {
   
 }
 
-sealed trait CodeSpanParsers {
+sealed trait CodeSpanParsers { self =>
   
   def parsers: Seq[CodeSpanParser]
+  
+  def ++ (other: CodeSpanParsers): CodeSpanParsers = new CodeSpanParsers {
+    override def parsers = self.parsers ++ other.parsers
+  }
   
 }
 

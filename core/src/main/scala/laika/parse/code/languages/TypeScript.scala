@@ -18,7 +18,7 @@ package laika.parse.code.languages
 
 import laika.bundle.SyntaxHighlighter
 import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue}
-import laika.parse.code.common.{Comment, Keywords, NumberLiteral, RegexLiteral, StringLiteral}
+import laika.parse.code.common.{Comment, Identifier, Keywords, NumberLiteral, RegexLiteral, StringLiteral}
 
 /**
   * @author Jens Halm
@@ -53,6 +53,7 @@ object TypeScript {
     Keywords("abstract", "class", "declare", "enum", "extends", "get", "implements", "namespace", 
       "public", "private", "protected", "set", "type"),
     JavaScript.keywords,
+    Identifier.standard.withIdStartChars('_','$').build,
     JavaScript.number(NumberLiteral.binary),
     JavaScript.number(NumberLiteral.octal),
     JavaScript.number(NumberLiteral.hex),
