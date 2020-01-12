@@ -18,7 +18,7 @@ package laika.parse.code.languages
 
 import laika.bundle.SyntaxHighlighter
 import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue}
-import laika.parse.code.common.{Comment, Keywords, NumberLiteral, NumericSuffix, StringLiteral}
+import laika.parse.code.common.{CharLiteral, Comment, Keywords, NumberLiteral, NumericSuffix, StringLiteral}
 import laika.parse.text.TextParsers._
 
 /**
@@ -33,6 +33,10 @@ object Scala {
   lazy val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("scala")(
     Comment.singleLine("//"),
     Comment.multiLine("/*", "*/"),
+    CharLiteral.standard.embed(
+      StringLiteral.Escape.unicode,
+      StringLiteral.Escape.char
+    ).build,
     StringLiteral.multiLine("\"\"\"").build,
     StringLiteral.multiLine(interpolatedStartChars, "\"\"\"").withPrefix((anyIn('a' to 'z', 'A' to 'Z') ~ "\"\"\"").concat).embed(
       StringLiteral.Escape.literal("$$"),

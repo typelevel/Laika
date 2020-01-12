@@ -39,6 +39,12 @@ class CommonSyntaxParserSpec extends WordSpec
     Comment.singleLine("//"),
     Keywords("foo", "bar", "baz"),
     tempIdentifier,
+    CharLiteral.standard.embed(
+      StringLiteral.Escape.unicode,
+      StringLiteral.Escape.hex,
+      StringLiteral.Escape.octal,
+      StringLiteral.Escape.char
+    ).build,
     StringLiteral.multiLine("'''").build,
     StringLiteral.singleLine('\'').embed(
       StringLiteral.Escape.unicode,
@@ -218,6 +224,52 @@ class CommonSyntaxParserSpec extends WordSpec
 
     "parse a substitution identifier" in {
       testSubstitution("$ref22")
+    }
+
+  }
+
+  "The char literal parser" should {
+
+    def test(literal: String): Assertion = Parsing(s"one1 $literal three3") should produce (Seq(
+      CodeSpan("one1", CodeCategory.Identifier),
+      CodeSpan(" "),
+      CodeSpan(literal, CodeCategory.CharLiteral),
+      CodeSpan(" "),
+      CodeSpan("three3", CodeCategory.Identifier)
+    ))
+
+    "parse a literal" in {
+      test("'c'")
+    }
+
+  }
+
+  "The embedded parsers for the char literal parser" should {
+
+    def test (text: String): Assertion = Parsing(s"one1 '$text' three3") should produce(Seq(
+      CodeSpan("one1", CodeCategory.Identifier),
+      CodeSpan(" "),
+      CodeSpan("'", CodeCategory.CharLiteral),
+      CodeSpan(text, CodeCategory.EscapeSequence),
+      CodeSpan("'", CodeCategory.CharLiteral),
+      CodeSpan(" "),
+      CodeSpan("three3", CodeCategory.Identifier)
+    ))
+
+    "parse a single character escape" in {
+      test("\\t")
+    }
+
+    "parse a unicode escape" in {
+      test("\\ua24f")
+    }
+
+    "parse an octal escape" in {
+      test("\\322")
+    }
+
+    "parse a hex escape" in {
+      test("\\x7f")
     }
 
   }
