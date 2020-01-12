@@ -81,6 +81,7 @@ object CodeCategory {
   case object NumberLiteral extends CodeCategory
   case object StringLiteral extends CodeCategory
   case object CharLiteral extends CodeCategory
+  case object RegexLiteral extends CodeCategory
   case object LiteralValue extends CodeCategory
   case object EscapeSequence extends CodeCategory
   case object Substitution extends CodeCategory

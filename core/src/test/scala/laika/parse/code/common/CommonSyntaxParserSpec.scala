@@ -45,6 +45,7 @@ class CommonSyntaxParserSpec extends WordSpec
       StringLiteral.Escape.octal,
       StringLiteral.Escape.char
     ).build,
+    RegexLiteral.standard,
     StringLiteral.multiLine("'''").build,
     StringLiteral.singleLine('\'').embed(
       StringLiteral.Escape.unicode,
@@ -270,6 +271,42 @@ class CommonSyntaxParserSpec extends WordSpec
 
     "parse a hex escape" in {
       test("\\x7f")
+    }
+
+  }
+
+  "The regex literal parser" should {
+
+    "parse a regex literal" in {
+      Parsing(s"one1 /[a-z]*/ three3") should produce (Seq(
+        CodeSpan("one1", CodeCategory.Identifier),
+        CodeSpan(" "),
+        CodeSpan("/[a-z]*/", CodeCategory.RegexLiteral),
+        CodeSpan(" "),
+        CodeSpan("three3", CodeCategory.Identifier)
+      ))
+    }
+
+    "parse a regex literal with an escape sequence" in {
+      Parsing(s"one1 /[\\\\]*/ three3") should produce (Seq(
+        CodeSpan("one1", CodeCategory.Identifier),
+        CodeSpan(" "),
+        CodeSpan("/[", CodeCategory.RegexLiteral),
+        CodeSpan("\\\\", CodeCategory.EscapeSequence),
+        CodeSpan("]*/", CodeCategory.RegexLiteral),
+        CodeSpan(" "),
+        CodeSpan("three3", CodeCategory.Identifier)
+      ))
+    }
+
+    "parse a regex literal with flags" in {
+      Parsing(s"one1 /[a-z]*/gi three3") should produce (Seq(
+        CodeSpan("one1", CodeCategory.Identifier),
+        CodeSpan(" "),
+        CodeSpan("/[a-z]*/gi", CodeCategory.RegexLiteral),
+        CodeSpan(" "),
+        CodeSpan("three3", CodeCategory.Identifier)
+      ))
     }
 
   }

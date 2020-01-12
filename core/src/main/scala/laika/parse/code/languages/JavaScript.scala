@@ -21,7 +21,7 @@ import laika.bundle.SyntaxHighlighter
 import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue}
 import laika.parse.code.{CodeCategory, CodeSpanParsers}
 import laika.parse.code.common.NumberLiteral.{DigitParsers, NumericParser}
-import laika.parse.code.common.{Comment, Keywords, NumberLiteral, NumericSuffix, StringLiteral}
+import laika.parse.code.common.{Comment, Keywords, NumberLiteral, NumericSuffix, RegexLiteral, StringLiteral}
 import laika.parse.text.TextParsers._
 
 /**
@@ -62,6 +62,7 @@ object JavaScript {
       StringLiteral.Escape.char,
       StringLiteral.Substitution.between("${", "}"),
     ).build,
+    RegexLiteral.standard,
     Keywords(BooleanLiteral)("true", "false"),
     Keywords(LiteralValue)("null", "undefined", "NaN", "Infinity"),
     keywords,

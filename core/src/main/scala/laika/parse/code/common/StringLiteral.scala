@@ -77,7 +77,8 @@ object StringLiteral {
                           parser: DelimitedText[String],
                           prefix: Option[Parser[String]] = None,
                           postfix: Option[Parser[String]] = None,
-                          embedded: Seq[CodeSpanParsers] = Nil) {
+                          embedded: Seq[CodeSpanParsers] = Nil,
+                          category: CodeCategory = CodeCategory.StringLiteral) {
     
     def embed(childSpans: CodeSpanParsers*): StringParser = {
       copy(embedded = embedded ++ childSpans)
@@ -94,17 +95,17 @@ object StringLiteral {
       CodeSpanParsers(startChars) {
         val contentParser = InlineParsers.spans(parser, spanParserMap).map(
           _.flatMap {
-            case Text(content, _)          => Seq(CodeSpan(content, CodeCategory.StringLiteral))
+            case Text(content, _)          => Seq(CodeSpan(content, category))
             case codeSpan: CodeSpan        => Seq(codeSpan)
             case codeSeq: CodeSpanSequence => codeSeq.collect { case cs: CodeSpan => cs }
           }
         )
         def optParser(p: Option[Parser[String]]): Parser[List[CodeSpan]] = 
-          p.map(_.map(res => List(CodeSpan(res, CodeCategory.StringLiteral)))).getOrElse(success(Nil))
+          p.map(_.map(res => List(CodeSpan(res, category)))).getOrElse(success(Nil))
         
         (lookBehind(1, any.take(1)) ~ optParser(prefix) ~ contentParser ~ optParser(postfix)).map {
           case startChar ~ pre ~ content ~ post => 
-            val spans = CodeSpan(startChar.toString, CodeCategory.StringLiteral) +: (pre ++ content ++ post)
+            val spans = CodeSpan(startChar.toString, category) +: (pre ++ content ++ post)
             spans.tail.foldLeft(List(spans.head)) { case (acc, next) =>
               if (acc.last.categories == next.categories) acc.init :+ CodeSpan(acc.last.content + next.content, next.categories)
               else acc :+ next

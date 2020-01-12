@@ -18,7 +18,7 @@ package laika.parse.code.languages
 
 import laika.bundle.SyntaxHighlighter
 import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue}
-import laika.parse.code.common.{Comment, Keywords, NumberLiteral, StringLiteral}
+import laika.parse.code.common.{Comment, Keywords, NumberLiteral, RegexLiteral, StringLiteral}
 
 /**
   * @author Jens Halm
@@ -47,6 +47,7 @@ object TypeScript {
       StringLiteral.Escape.char,
       StringLiteral.Substitution.between("${", "}"),
     ).build,
+    RegexLiteral.standard,
     Keywords(BooleanLiteral)("true", "false"),
     Keywords(LiteralValue)("null", "undefined", "NaN", "Infinity"),
     Keywords("abstract", "class", "declare", "enum", "extends", "get", "implements", "namespace", 
