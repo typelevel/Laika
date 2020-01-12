@@ -18,7 +18,7 @@ package laika.parse.code.languages
 
 import laika.bundle.SyntaxHighlighter
 import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue, TypeName}
-import laika.parse.code.common.{Comment, Keywords, NumberLiteral, NumericSuffix}
+import laika.parse.code.common.{Comment, Keywords, NumberLiteral, NumericSuffix, StringLiteral}
 
 /**
   * @author Jens Halm
@@ -28,6 +28,11 @@ object Java {
   lazy val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("java")(
     Comment.singleLine("//"),
     Comment.multiLine("/*", "*/"),
+    StringLiteral.singleLine('"').embed(
+      StringLiteral.Escape.unicode,
+      StringLiteral.Escape.octal,
+      StringLiteral.Escape.char,
+    ).build,
     Keywords(BooleanLiteral)("true", "false"),
     Keywords(LiteralValue)("null"),
     Keywords(TypeName)("boolean", "byte", "char", "double", "float", "int", "long", "short"),

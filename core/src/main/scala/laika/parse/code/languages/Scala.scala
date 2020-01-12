@@ -18,16 +18,38 @@ package laika.parse.code.languages
 
 import laika.bundle.SyntaxHighlighter
 import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue}
-import laika.parse.code.common.{Comment, Keywords, NumberLiteral, NumericSuffix}
+import laika.parse.code.common.{Comment, Keywords, NumberLiteral, NumericSuffix, StringLiteral}
+import laika.parse.text.TextParsers._
 
 /**
   * @author Jens Halm
   */
 object Scala {
 
+  import NumberLiteral._
+  
+  private val interpolatedStartChars: Set[Char] = ('a' to 'z').toSet ++ ('A' to 'Z').toSet
+
   lazy val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("scala")(
     Comment.singleLine("//"),
     Comment.multiLine("/*", "*/"),
+    StringLiteral.multiLine("\"\"\"").build,
+    StringLiteral.multiLine(interpolatedStartChars, "\"\"\"").withPrefix((anyIn('a' to 'z', 'A' to 'Z') ~ "\"\"\"").concat).embed(
+      StringLiteral.Escape.literal("$$"),
+      StringLiteral.Substitution.between("${", "}"),
+      StringLiteral.Substitution('$')(anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '_').min(1))
+    ).build,
+    StringLiteral.singleLine('"').embed(
+      StringLiteral.Escape.unicode,
+      StringLiteral.Escape.char,
+    ).build,
+    StringLiteral.singleLine(interpolatedStartChars, '\"').withPrefix((anyIn('a' to 'z', 'A' to 'Z') ~ "\"").concat).embed(
+      StringLiteral.Escape.unicode,
+      StringLiteral.Escape.char,
+      StringLiteral.Escape.literal("$$"),
+      StringLiteral.Substitution.between("${", "}"),
+      StringLiteral.Substitution('$')(anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '_').min(1))
+    ).build,
     Keywords(BooleanLiteral)("true", "false"),
     Keywords(LiteralValue)("null"),
     Keywords("abstract", "break", "case", "catch", "class", "continue", "default", "def", "else", "extends",

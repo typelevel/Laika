@@ -16,16 +16,22 @@
 
 package laika.parse.code.languages
 
+import laika.ast.~
 import laika.bundle.SyntaxHighlighter
 import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue}
-import laika.parse.code.CodeSpanParsers
-import laika.parse.code.common.NumberLiteral.NumericParser
-import laika.parse.code.common.{Comment, Keywords, NumberLiteral, NumericSuffix}
+import laika.parse.code.{CodeCategory, CodeSpanParsers}
+import laika.parse.code.common.NumberLiteral.{DigitParsers, NumericParser}
+import laika.parse.code.common.{Comment, Keywords, NumberLiteral, NumericSuffix, StringLiteral}
+import laika.parse.text.TextParsers._
 
 /**
   * @author Jens Halm
   */
 object JavaScript {
+
+  val unicodeCodePointEscape: CodeSpanParsers = CodeSpanParsers(CodeCategory.EscapeSequence, '\\') {
+    ("u{" ~ DigitParsers.hex.min(1) ~ '}').map { case a ~ b ~ c => a + b + c.toString }
+  }
   
   def number(parser: NumericParser): CodeSpanParsers = parser.withUnderscores.withSuffix(NumericSuffix.bigInt).build
   
@@ -37,6 +43,25 @@ object JavaScript {
   lazy val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("javascript", "js")(
     Comment.singleLine("//"),
     Comment.multiLine("/*", "*/"),
+    StringLiteral.singleLine('"').embed(
+      unicodeCodePointEscape,
+      StringLiteral.Escape.unicode,
+      StringLiteral.Escape.hex,
+      StringLiteral.Escape.char,
+    ).build,
+    StringLiteral.singleLine('\'').embed(
+      unicodeCodePointEscape,
+      StringLiteral.Escape.unicode,
+      StringLiteral.Escape.hex,
+      StringLiteral.Escape.char,
+    ).build,
+    StringLiteral.multiLine("`").embed(
+      unicodeCodePointEscape,
+      StringLiteral.Escape.unicode,
+      StringLiteral.Escape.hex,
+      StringLiteral.Escape.char,
+      StringLiteral.Substitution.between("${", "}"),
+    ).build,
     Keywords(BooleanLiteral)("true", "false"),
     Keywords(LiteralValue)("null", "undefined", "NaN", "Infinity"),
     keywords,

@@ -73,7 +73,7 @@ object StringLiteral {
     
   }
   
-  case class StringParser(startChar: Char,
+  case class StringParser(startChars: Set[Char],
                           parser: DelimitedText[String],
                           prefix: Option[Parser[String]] = None,
                           postfix: Option[Parser[String]] = None,
@@ -83,11 +83,15 @@ object StringLiteral {
       copy(embedded = embedded ++ childSpans)
     }
     
+    def withPrefix (parser: Parser[String]): StringParser = copy(prefix = prefix.fold(Some(parser)) { oldPrefix =>
+      Some((oldPrefix ~ parser).concat)
+    })
+    
     def build: CodeSpanParsers = {
       val spanParserMap = embedded.flatMap(_.parsers).groupBy(_.startChar).map {
         case (char, definitions) => (char, definitions.map(_.parser).reduceLeft(_ | _))
       }
-      CodeSpanParsers(startChar) {
+      CodeSpanParsers(startChars) {
         val contentParser = InlineParsers.spans(parser, spanParserMap).map(
           _.flatMap {
             case Text(content, _)          => Seq(CodeSpan(content, CodeCategory.StringLiteral))
@@ -98,8 +102,8 @@ object StringLiteral {
         def optParser(p: Option[Parser[String]]): Parser[List[CodeSpan]] = 
           p.map(_.map(res => List(CodeSpan(res, CodeCategory.StringLiteral)))).getOrElse(success(Nil))
         
-        (optParser(prefix) ~ contentParser ~ optParser(postfix)).map {
-          case pre ~ content ~ post => 
+        (lookBehind(1, any.take(1)) ~ optParser(prefix) ~ contentParser ~ optParser(postfix)).map {
+          case startChar ~ pre ~ content ~ post => 
             val spans = CodeSpan(startChar.toString, CodeCategory.StringLiteral) +: (pre ++ content ++ post)
             spans.tail.foldLeft(List(spans.head)) { case (acc, next) =>
               if (acc.last.categories == next.categories) acc.init :+ CodeSpan(acc.last.content + next.content, next.categories)
@@ -114,27 +118,26 @@ object StringLiteral {
   def singleLine (between: Char): StringParser = {
     require(between.nonEmpty)
     val parser = delimitedBy(between, '\n').keepDelimiter
-    StringParser(between.head, parser, postfix = Some(anyOf(between).take(1)))
+    StringParser(Set(between.head), parser, postfix = Some(anyOf(between).take(1)))
   }
 
-  def singleLineTemplate (between: Char): StringParser =  {
-    require(between.nonEmpty)
-    val parser = delimitedBy(between, '\n').keepDelimiter
-    StringParser(between.head, parser, postfix = Some(anyOf(between).take(1)))
+  def singleLine (startChars: Set[Char], end: Char): StringParser = {
+    require(startChars.nonEmpty)
+    val parser = delimitedBy(end, '\n').keepDelimiter
+    StringParser(startChars, parser, postfix = Some(anyOf(end).take(1)))
   }
-  
+
   def multiLine (between: String): StringParser = {
     require(between.nonEmpty)
     val prefix = if (between.tail.nonEmpty) Some(literal(between.tail)) else None
     val parser = delimitedBy(between).keepDelimiter
-    StringParser(between.head, parser, prefix, postfix = Some(literal(between)))
+    StringParser(Set(between.head), parser, prefix, postfix = Some(literal(between)))
   }
-  
-  def multiLineTemplate (between: String): StringParser =  {
-    require(between.nonEmpty)
-    val prefix = if (between.tail.nonEmpty) Some(literal(between.tail)) else None
-    val parser = delimitedBy(between)
-    StringParser(between.head, parser, prefix, postfix = Some(literal(between)))
+
+  def multiLine (startChars: Set[Char], end: String): StringParser = {
+    require(startChars.nonEmpty)
+    val parser = delimitedBy(end).keepDelimiter
+    StringParser(startChars, parser, postfix = Some(literal(end)))
   }
   
 }

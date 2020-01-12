@@ -16,7 +16,7 @@
 
 package laika.parse.code
 
-import laika.ast.{CodeBlock, ElementContainer, NoOpt, Options, RewritableContainer, Span, SpanContainer, TemplateSpan, TemplateSpanContainer, TemplateSpanSequence, TextContainer}
+import laika.ast.{NoOpt, Options, Span, SpanContainer, TextContainer}
 import laika.parse.Parser
 
 /**
