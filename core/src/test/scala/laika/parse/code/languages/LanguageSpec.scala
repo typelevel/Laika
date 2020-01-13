@@ -35,9 +35,6 @@ class LanguageSpec extends WordSpec with Matchers {
     def parse (input: String): RootElement = 
       MarkupParser.of(Markdown).using(GitHubFlavor).build.parse(input).toOption.get.content
     
-    def s (category: CodeCategory, text: String): CodeSpan = CodeSpan(text, category)
-    def t (text: String): CodeSpan = CodeSpan(text)
-    
     val space: CodeSpan = CodeSpan(" ")
     val colonSpace: CodeSpan = CodeSpan(": ")
     val comma: CodeSpan = CodeSpan(", ")
@@ -54,6 +51,7 @@ class LanguageSpec extends WordSpec with Matchers {
     def escape(value: String): CodeSpan = CodeSpan(value, EscapeSequence)
     def subst(value: String): CodeSpan = CodeSpan(value, Substitution)
     def literal(value: String): CodeSpan = CodeSpan(value, LiteralValue)
+    def comment(value: String): CodeSpan = CodeSpan(value, CodeCategory.Comment)
     def other(value: String): CodeSpan = CodeSpan(value)
     
     "parse Scala code" in {
@@ -80,54 +78,15 @@ class LanguageSpec extends WordSpec with Matchers {
       parse(input) shouldBe RootElement(Seq(
         Title(Seq(Text("Code")), Styles("title") + Id("code")),
         CodeBlock("scala", Seq(
-          CodeSpan("case", Keyword),
-          space,
-          CodeSpan("class", Keyword),
-          space,
-          CodeSpan("Foo", TypeName),
-          CodeSpan(" ("),
-          CodeSpan("bar", Identifier),
-          CodeSpan(": "),
-          CodeSpan("Int", TypeName),
-          comma,
-          CodeSpan("baz", Identifier),
-          CodeSpan(": "),
-          CodeSpan("String", TypeName),
-          CodeSpan(") {\n\n  "),
-          CodeSpan("val", Keyword),
-          space,
-          CodeSpan("xx", Identifier),
-          equals,
-          CodeSpan("\"some ", StringLiteral),
-          CodeSpan("\\t", EscapeSequence),
-          CodeSpan(" value\"", StringLiteral),
-          CodeSpan("\n  \n  "),
-          CodeSpan("lazy", Keyword),
-          space,
-          CodeSpan("val", Keyword),
-          space,
-          CodeSpan("`y-y`", Identifier),
-          equals,
-          CodeSpan("\"\"\"line 1\n    |line 2\"\"\"", StringLiteral),
-          CodeSpan("."),
-          CodeSpan("stripMargin", Identifier),
-          CodeSpan("\n  \n  "),
-          CodeSpan("def", Keyword),
-          space,
-          CodeSpan("bag", Identifier),
-          equals,
-          CodeSpan("Seq", TypeName),
-          CodeSpan("("),
-          CodeSpan("true", BooleanLiteral),
-          comma,
-          CodeSpan("null", LiteralValue),
-          comma,
-          CodeSpan("'s'", CharLiteral),
-          comma,
-          CodeSpan("0xff", NumberLiteral),
-          CodeSpan(")\n  \n  "),
-          CodeSpan("// just a short example\n", CodeCategory.Comment),
-          CodeSpan("  \n}")
+          keyword("case"), space, keyword("class"), space, typeName("Foo"), 
+          other(" ("), id("bar"), colonSpace, typeName("Int"), comma, id("baz"), colonSpace, typeName("String"), other(") {\n\n  "),
+          keyword("val"), space, id("xx"), equals, string("\"some "), escape("\\t"), string(" value\""), other("\n  \n  "),
+          keyword("lazy"), space, keyword("val"), space, id("`y-y`"), equals,
+          string("\"\"\"line 1\n    |line 2\"\"\""), dot, id("stripMargin"), other("\n  \n  "),
+          keyword("def"), space, id("bag"), equals, typeName("Seq"), other("("), 
+          boolean("true"), comma, literal("null"), comma, char("'s'"), comma, number("0xff"), other(")\n  \n  "),
+          comment("// just a short example\n"),
+          other("  \n}")
         ))
       ))
       
@@ -154,54 +113,15 @@ class LanguageSpec extends WordSpec with Matchers {
       parse(input) shouldBe RootElement(Seq(
         Title(Seq(Text("Code")), Styles("title") + Id("code")),
         CodeBlock("java", Seq(
-          CodeSpan("class", Keyword),
-          space,
-          CodeSpan("Foo", TypeName),
-          CodeSpan(" {\n\n  "),
-          CodeSpan("private", Keyword),
-          space,
-          CodeSpan("List", TypeName),
-          CodeSpan("<"),
-          CodeSpan("Object", TypeName),
-          CodeSpan("> "),
-          CodeSpan("xx", Identifier),
-          equals,
-          CodeSpan("new", Keyword),
-          space,
-          CodeSpan("List", TypeName),
-          CodeSpan("<"),
-          CodeSpan("Object", TypeName),
-          CodeSpan(">("),
-          CodeSpan("true", BooleanLiteral),
-          comma,
-          CodeSpan("null", LiteralValue),
-          comma,
-          CodeSpan("'s'", CharLiteral),
-          comma,
-          CodeSpan("0xff", NumberLiteral),
-          comma,
-          CodeSpan("\"some ", StringLiteral),
-          CodeSpan("\\t", EscapeSequence),
-          CodeSpan(" value\"", StringLiteral),
-          CodeSpan(")\n  \n  "),
-          CodeSpan("int", TypeName),
-          space,
-          CodeSpan("calc", Identifier),
-          CodeSpan(" ("),
-          CodeSpan("int", TypeName),
-          space,
-          CodeSpan("bar", Identifier),
-          comma,
-          CodeSpan("String", TypeName),
-          space,
-          CodeSpan("baz", Identifier),
-          CodeSpan(") { "),
-          CodeSpan("return", Keyword),
-          space,
-          CodeSpan("bar", Identifier),
-          CodeSpan("; }\n  \n  "),
-          CodeSpan("// just a short example\n", CodeCategory.Comment),
-          CodeSpan("  \n}")
+          keyword("class"), space, typeName("Foo"), other(" {\n\n  "),
+          keyword("private"), space, typeName("List"), other("<"), typeName("Object"), other("> "), id("xx"), equals,
+          keyword("new"), space, typeName("List"), other("<"), typeName("Object"), other(">("),
+          boolean("true"), comma, literal("null"), comma, char("'s'"), comma, number("0xff"), comma, 
+          string("\"some "), escape("\\t"), string(" value\""), other(")\n  \n  "),
+          typeName("int"), space, id("calc"), other(" ("), typeName("int"), space, id("bar"), comma, typeName("String"), space, id("baz"), other(") { "),
+          keyword("return"), space, id("bar"), other("; }\n  \n  "),
+          comment("// just a short example\n"),
+          other("  \n}")
         ))
       ))
 
@@ -225,44 +145,11 @@ class LanguageSpec extends WordSpec with Matchers {
       parse(input) shouldBe RootElement(Seq(
         Title(Seq(Text("Code")), Styles("title") + Id("code")),
         CodeBlock("python", Seq(
-          keyword("import"),
-          space,
-          id("re"),
-          other("\n"),
-          keyword("for"),
-          space,
-          id("test_string"),
-          space,
-          keyword("in"),
-          other(" ["),
-          string("'555-1212'"),
-          comma,
-          string("'ILL-EGAL'"),
-          other("]:\n    "),
-          keyword("if"),
-          space,
-          id("re"),
-          dot,
-          id("match"),
-          other("("),
-          string("r'^\\d{3}-\\d{4}$'"),
-          comma,
-          id("test_string"),
-          other("):\n        "),
-          keyword("print"),
-          other(" ("),
-          id("test_string"),
-          comma,
-          string("'is a valid US local phone number'"),
-          other(")\n    "),
-          keyword("else"),
-          other(":\n        "),
-          keyword("print"),
-          other(" ("),
-          id("test_string"),
-          comma,
-          string("'rejected'"),
-          other(")")
+          keyword("import"), space, id("re"), other("\n"), 
+          keyword("for"), space, id("test_string"), space, keyword("in"), other(" ["), string("'555-1212'"), comma, string("'ILL-EGAL'"), other("]:\n    "),
+          keyword("if"), space, id("re"), dot, id("match"), other("("), string("r'^\\d{3}-\\d{4}$'"), comma, id("test_string"), other("):\n        "),
+          keyword("print"), other(" ("), id("test_string"), comma, string("'is a valid US local phone number'"), other(")\n    "),
+          keyword("else"), other(":\n        "), keyword("print"), other(" ("), id("test_string"), comma, string("'rejected'"), other(")")
         ))
       ))
 
