@@ -42,6 +42,17 @@ class LanguageSpec extends WordSpec with Matchers {
     val comma: CodeSpan = CodeSpan(", ")
     val equals: CodeSpan = CodeSpan(" = ")
     
+    def keyword(value: String): CodeSpan = CodeSpan(value, Keyword)
+    def id(value: String): CodeSpan = CodeSpan(value, Identifier)
+    def typeName(value: String): CodeSpan = CodeSpan(value, TypeName)
+    def boolean(value: String): CodeSpan = CodeSpan(value, BooleanLiteral)
+    def string(value: String): CodeSpan = CodeSpan(value, StringLiteral)
+    def number(value: String): CodeSpan = CodeSpan(value, NumberLiteral)
+    def char(value: String): CodeSpan = CodeSpan(value, CharLiteral)
+    def escape(value: String): CodeSpan = CodeSpan(value, EscapeSequence)
+    def literal(value: String): CodeSpan = CodeSpan(value, LiteralValue)
+    def other(value: String): CodeSpan = CodeSpan(value)
+    
     "parse Scala code" in {
       
       val input =
@@ -188,6 +199,67 @@ class LanguageSpec extends WordSpec with Matchers {
           CodeSpan("; }\n  \n  "),
           CodeSpan("// just a short example\n", CodeCategory.Comment),
           CodeSpan("  \n}")
+        ))
+      ))
+
+    }
+
+    "parse Python code" in {
+
+      val input =
+        """# Code
+          |
+          |```python
+          |import re
+          |for test_string in ['555-1212', 'ILL-EGAL']:
+          |    if re.match(r'^\d{3}-\d{4}$', test_string):
+          |        print (test_string, 'is a valid US local phone number')
+          |    else:
+          |        print (test_string, 'rejected')
+          |```
+        """.stripMargin.replaceAllLiterally("+++", "\"\"\"")
+
+      parse(input) shouldBe RootElement(Seq(
+        Title(Seq(Text("Code")), Styles("title") + Id("code")),
+        CodeBlock("python", Seq(
+          keyword("import"),
+          space,
+          id("re"),
+          other("\n"),
+          keyword("for"),
+          space,
+          id("test_string"),
+          space,
+          keyword("in"),
+          other(" ["),
+          string("'555-1212'"),
+          comma,
+          string("'ILL-EGAL'"),
+          other("]:\n    "),
+          keyword("if"),
+          space,
+          id("re"),
+          other("."),
+          id("match"),
+          other("("),
+          string("r'^\\d{3}-\\d{4}$'"),
+          comma,
+          id("test_string"),
+          other("):\n        "),
+          keyword("print"),
+          other(" ("),
+          id("test_string"),
+          comma,
+          string("'is a valid US local phone number'"),
+          other(")\n    "),
+          keyword("else"),
+          other(":\n        "),
+          keyword("print"),
+          other(" ("),
+          id("test_string"),
+          comma,
+          string("'rejected'"),
+          other(")")
         ))
       ))
 
