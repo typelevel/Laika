@@ -118,6 +118,80 @@ class LanguageSpec extends WordSpec with Matchers {
       ))
       
     }
+
+    "parse Java code" in {
+
+      val input =
+        """# Code
+          |
+          |```java
+          |class Foo {
+          |
+          |  private List<Object> xx = new List<Object>(true, null, 's', 0xff, "some \t value")
+          |  
+          |  int calc (int bar, String baz) { return bar; }
+          |  
+          |  // just a short example
+          |  
+          |}
+          |```
+        """.stripMargin.replaceAllLiterally("+++", "\"\"\"")
+
+      parse(input) shouldBe RootElement(Seq(
+        Title(Seq(Text("Code")), Styles("title") + Id("code")),
+        CodeBlock("java", Seq(
+          CodeSpan("class", Keyword),
+          space,
+          CodeSpan("Foo", TypeName),
+          CodeSpan(" {\n\n  "),
+          CodeSpan("private", Keyword),
+          space,
+          CodeSpan("List", TypeName),
+          CodeSpan("<"),
+          CodeSpan("Object", TypeName),
+          CodeSpan("> "),
+          CodeSpan("xx", Identifier),
+          equals,
+          CodeSpan("new", Keyword),
+          space,
+          CodeSpan("List", TypeName),
+          CodeSpan("<"),
+          CodeSpan("Object", TypeName),
+          CodeSpan(">("),
+          CodeSpan("true", BooleanLiteral),
+          comma,
+          CodeSpan("null", LiteralValue),
+          comma,
+          CodeSpan("'s'", CharLiteral),
+          comma,
+          CodeSpan("0xff", NumberLiteral),
+          comma,
+          CodeSpan("\"some ", StringLiteral),
+          CodeSpan("\\t", EscapeSequence),
+          CodeSpan(" value\"", StringLiteral),
+          CodeSpan(")\n  \n  "),
+          CodeSpan("int", TypeName),
+          space,
+          CodeSpan("calc", Identifier),
+          CodeSpan(" ("),
+          CodeSpan("int", TypeName),
+          space,
+          CodeSpan("bar", Identifier),
+          comma,
+          CodeSpan("String", TypeName),
+          space,
+          CodeSpan("baz", Identifier),
+          CodeSpan(") { "),
+          CodeSpan("return", Keyword),
+          space,
+          CodeSpan("bar", Identifier),
+          CodeSpan("; }\n  \n  "),
+          CodeSpan("// just a short example\n", CodeCategory.Comment),
+          CodeSpan("  \n}")
+        ))
+      ))
+
+    }
     
   }
   
