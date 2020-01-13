@@ -16,6 +16,7 @@
 
 package laika.parse.code.common
 
+import laika.parse.Parser
 import laika.parse.code.{CodeCategory, CodeSpan, CodeSpanParsers}
 import laika.parse.text.TextParsers.{any, anyOf, lookBehind}
 
@@ -27,7 +28,9 @@ object Identifier {
   /* TODO - support for non-ASCII identifier characters requires changes in the low-level optimizer
      for the span parser. This ASCII-only support will probably already cover a large range of common use cases.
   */
-
+  val idStartChars: Set[Char] = ('a' to 'z').toSet ++ ('A' to 'Z').toSet
+  val idPartChars: Set[Char] = ('0' to '9').toSet
+  
   
   val upperCaseTypeName: String => CodeCategory = s => 
     if (s.nonEmpty && s.head.isUpper) CodeCategory.TypeName else CodeCategory.Identifier 
@@ -58,19 +61,16 @@ object Identifier {
         
       }
     }
+    
+    def standaloneParser: Parser[CodeSpan] = {
+      val idStart = anyOf(idStartChars.toSeq:_*).take(1)
+      val idRest = anyOf((idStartChars ++ idNonStartChars).toSeq:_*)
+
+      (idStart ~ idRest).concat.map(id => CodeSpan(id, category(id)))
+    }
 
   }
   
-  val $groo = "meh"
-  
-  val _groo = "meh"
-  
-  def standard: IdParser = IdParser(('a' to 'z').toSet ++ ('A' to 'Z').toSet, ('0' to '9').toSet)
-  
-  /*
-  Scala/Java: start: _ $
-  JS/TS:      start: _ $
-  Python:     start: _
-  */
+  def standard: IdParser = IdParser(idStartChars, idPartChars)
   
 }

@@ -18,6 +18,7 @@ package laika.parse.code.languages
 
 import laika.bundle.SyntaxHighlighter
 import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue}
+import laika.parse.code.{CodeCategory, CodeSpanParsers}
 import laika.parse.code.common.{CharLiteral, Comment, Identifier, Keywords, NumberLiteral, NumericSuffix, StringLiteral}
 import laika.parse.text.TextParsers._
 
@@ -29,6 +30,17 @@ object Scala {
   import NumberLiteral._
   
   private val interpolatedStartChars: Set[Char] = ('a' to 'z').toSet ++ ('A' to 'Z').toSet
+  
+  val symbolParser: CodeSpanParsers = CodeSpanParsers('\'') {
+    Identifier.standard
+      .withCategoryChooser(_ => CodeCategory.SymbolLiteral)
+      .standaloneParser
+      .map(Seq(_))
+  }
+  
+  val backtickIdParser: CodeSpanParsers = CodeSpanParsers(CodeCategory.Identifier, '`') {
+    (anyBut('\n', '`') ~ anyOf('`').take(1)).concat
+  }
 
   lazy val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("scala")(
     Comment.singleLine("//"),
@@ -37,6 +49,8 @@ object Scala {
       StringLiteral.Escape.unicode,
       StringLiteral.Escape.char
     ).build,
+    symbolParser,
+    backtickIdParser,
     StringLiteral.multiLine("\"\"\"").build,
     StringLiteral.multiLine(interpolatedStartChars, "\"\"\"").withPrefix((anyIn('a' to 'z', 'A' to 'Z') ~ "\"\"\"").concat).embed(
       StringLiteral.Escape.literal("$$"),
