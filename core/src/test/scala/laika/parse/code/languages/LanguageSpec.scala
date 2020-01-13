@@ -41,6 +41,7 @@ class LanguageSpec extends WordSpec with Matchers {
     val space: CodeSpan = CodeSpan(" ")
     val comma: CodeSpan = CodeSpan(", ")
     val equals: CodeSpan = CodeSpan(" = ")
+    val dot: CodeSpan = CodeSpan(".")
     
     def keyword(value: String): CodeSpan = CodeSpan(value, Keyword)
     def id(value: String): CodeSpan = CodeSpan(value, Identifier)
@@ -50,6 +51,7 @@ class LanguageSpec extends WordSpec with Matchers {
     def number(value: String): CodeSpan = CodeSpan(value, NumberLiteral)
     def char(value: String): CodeSpan = CodeSpan(value, CharLiteral)
     def escape(value: String): CodeSpan = CodeSpan(value, EscapeSequence)
+    def subst(value: String): CodeSpan = CodeSpan(value, Substitution)
     def literal(value: String): CodeSpan = CodeSpan(value, LiteralValue)
     def other(value: String): CodeSpan = CodeSpan(value)
     
@@ -239,7 +241,7 @@ class LanguageSpec extends WordSpec with Matchers {
           keyword("if"),
           space,
           id("re"),
-          other("."),
+          dot,
           id("match"),
           other("("),
           string("r'^\\d{3}-\\d{4}$'"),
@@ -263,6 +265,41 @@ class LanguageSpec extends WordSpec with Matchers {
         ))
       ))
 
+    }
+    
+    "parse JavaScript code" in {
+      val input = 
+      """# Code
+        |
+        |```js
+        |class App extends Component {
+        |
+        |  state = {
+        |    lastResult: this.message('Apocalypse started')
+        |  }
+        |
+        |  handleError = error => {
+        |    console.log(error);
+        |    const msg = (error.response) ? `Status: ${error.response.status}` : 'Unknown error';
+        |    this.setState({ lastResult: this.message(`Server Error (${msg})`) });
+        |  }
+        |}""".stripMargin
+
+      parse(input) shouldBe RootElement(Seq(
+        Title(Seq(Text("Code")), Styles("title") + Id("code")),
+        CodeBlock("js", Seq(
+          keyword("class"), space, id("App"), space, keyword("extends"), space, id("Component"), other(" {\n\n  "),
+          id("state"), other(" = {\n    "),
+          id("lastResult"), other(": "), keyword("this"), dot, id("message"), other("("), string("'Apocalypse started'"), other(")\n  }\n\n  "),
+          id("handleError"), equals, id("error"), other(" => {\n    "),
+          id("console"), dot, id("log"), other("("), id("error"), other(");\n    "),
+          keyword("const"), space, id("msg"), other(" = ("), id("error"), dot, id("response"), other(") ? "),
+          string("`Status: "), subst("${error.response.status}"), string("`"), other(" : "), string("'Unknown error'"), other(";\n    "),
+          keyword("this"), dot, id("setState"), other("({ "), id("lastResult"), other(": "), 
+          keyword("this"), dot, id("message"), other("("), string("`Server Error ("), subst("${msg}"), string(")`"), 
+          other(") });\n  }\n}")
+        ))
+      ))
     }
     
   }

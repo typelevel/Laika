@@ -35,11 +35,11 @@ object JavaScript {
   
   def number(parser: NumericParser): CodeSpanParsers = parser.withUnderscores.withSuffix(NumericSuffix.bigInt).build
   
-  val keywords = Keywords("async", "as", "await", "break", "case", "catch", "const", "continue", "debugger", "default", "delete",
-    "do", "else", "export", "finally", "for", "from", "function", "if", "import", "instanceof", "in",
-    "let", "new", "of", "return", "static", "super", "switch", "this", "throw", "try", "typeof",
-    "var", "void", "while", "with", "yield")
-
+  val keywords = Keywords("async", "as", "await", "break", "case", "catch", "class", "const", "continue", 
+    "debugger", "default", "delete", "do", "else", "export", "extends", "finally", "for", "from", "function", 
+    "if", "import", "instanceof", "in", "let", "new", "of", "return", "static", "super", "switch", 
+    "this", "throw", "try", "typeof", "var", "void", "while", "with", "yield")
+  
   lazy val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("javascript", "js")(
     Comment.singleLine("//"),
     Comment.multiLine("/*", "*/"),
