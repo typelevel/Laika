@@ -56,7 +56,7 @@ trait TagBasedFormats {
                        tagName: Parser[String],
                        embedded: Seq[CodeSpanParsers] = Nil) extends EmbeddedCodeSpans {
 
-    val category: CodeCategory = CodeCategory.XML.Punctuation
+    val defaultCategories: Set[CodeCategory] = Set(CodeCategory.XML.Punctuation)
 
     def embed(childSpans: CodeSpanParsers*): TagParser = {
       copy(embedded = embedded ++ childSpans)

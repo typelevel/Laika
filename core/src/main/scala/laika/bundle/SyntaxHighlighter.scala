@@ -17,9 +17,9 @@
 package laika.bundle
 
 import cats.data.NonEmptyList
-import laika.ast.Text
 import laika.parse.Parser
-import laika.parse.code.{CodeSpan, CodeSpanParsers, CodeSpanSequence}
+import laika.parse.code.common.EmbeddedCodeSpans
+import laika.parse.code.{CodeCategory, CodeSpan, CodeSpanParsers}
 import laika.parse.markup.InlineParsers
 import laika.parse.text.DelimitedText
 
@@ -28,22 +28,14 @@ import laika.parse.text.DelimitedText
   * @param language the names of the language as used in text markup
   * @param spanParsers the root-level parsers for code spans written in this language
   */
-case class SyntaxHighlighter (language: NonEmptyList[String], spanParsers: Seq[CodeSpanParsers]) {
+case class SyntaxHighlighter (language: NonEmptyList[String], spanParsers: Seq[CodeSpanParsers]) extends EmbeddedCodeSpans {
   
-  lazy val rootParser: Parser[Seq[CodeSpan]] = {
-    
-    val spanParserMap = spanParsers.flatMap(_.parsers).groupBy(_.startChar).map {
-      case (char, definitions) => (char, definitions.map(_.parser).reduceLeft(_ | _))
-    }
-
-    InlineParsers.spans(DelimitedText.Undelimited, spanParserMap).map(
-      _.flatMap {
-        case Text(content, _) => Seq(CodeSpan(content))
-        case codeSpan: CodeSpan => Seq(codeSpan)
-        case codeSeq: CodeSpanSequence => codeSeq.collect { case cs: CodeSpan => cs }
-      }
-    )
-  }
+  val embedded: Seq[CodeSpanParsers] = spanParsers
+  
+  val defaultCategories: Set[CodeCategory] = Set.empty
+  
+  lazy val rootParser: Parser[Seq[CodeSpan]] =
+    InlineParsers.spans(DelimitedText.Undelimited, spanParserMap).map(_.flatMap(toCodeSpans))
   
 }
 

@@ -28,7 +28,7 @@ object CharLiteral {
   case class CharParser(delim: Char,
                         embedded: Seq[CodeSpanParsers] = Nil) extends EmbeddedCodeSpans {
     
-    val category: CodeCategory = CodeCategory.CharLiteral
+    val defaultCategories: Set[CodeCategory] = Set(CodeCategory.CharLiteral)
 
     def embed(childSpans: CodeSpanParsers*): CharParser = {
       copy(embedded = embedded ++ childSpans)
@@ -36,8 +36,8 @@ object CharLiteral {
 
     def build: CodeSpanParsers = CodeSpanParsers(delim) {
 
-      val plainChar = lookBehind(1, anyBut('\'', '\n').take(1)).map(CodeSpan(_, category))
-      val closingDelim = anyOf(delim).take(1).map(CodeSpan(_, category))
+      val plainChar = lookBehind(1, anyBut('\'', '\n').take(1)).map(CodeSpan(_, defaultCategories))
+      val closingDelim = anyOf(delim).take(1).map(CodeSpan(_, defaultCategories))
       
       any.take(1).flatMap { char =>
         (spanParserMap.getOrElse(char.head, plainChar) ~ closingDelim).map { 

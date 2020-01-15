@@ -78,7 +78,7 @@ object StringLiteral {
                           prefix: Option[Parser[String]] = None,
                           postfix: Option[Parser[String]] = None,
                           embedded: Seq[CodeSpanParsers] = Nil,
-                          category: CodeCategory = CodeCategory.StringLiteral) extends EmbeddedCodeSpans {
+                          defaultCategories: Set[CodeCategory] = Set(CodeCategory.StringLiteral)) extends EmbeddedCodeSpans {
     
     def embed(childSpans: CodeSpanParsers*): StringParser = {
       copy(embedded = embedded ++ childSpans)
@@ -93,7 +93,7 @@ object StringLiteral {
       val contentParser = InlineParsers.spans(parser, spanParserMap).map(_.flatMap(toCodeSpans))
       
       def optParser(p: Option[Parser[String]]): Parser[List[CodeSpan]] = 
-        p.map(_.map(res => List(CodeSpan(res, category)))).getOrElse(success(Nil))
+        p.map(_.map(res => List(CodeSpan(res, defaultCategories)))).getOrElse(success(Nil))
       
       (lookBehind(1, any.take(1)) ~ optParser(prefix) ~ contentParser ~ optParser(postfix)).map {
         case startChar ~ pre ~ content ~ post => mergeCodeSpans(startChar.head, pre ++ content ++ post)

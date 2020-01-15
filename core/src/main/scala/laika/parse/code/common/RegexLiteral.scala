@@ -32,7 +32,7 @@ object RegexLiteral {
     parser = delimitedBy("/").failOn('\n').keepDelimiter,
     postfix = Some((anyOf('/').take(1) ~ anyIn('a' to 'z', 'A' to 'Z')).concat),
     embedded = Seq(StringLiteral.Escape.char),
-    category = CodeCategory.RegexLiteral
+    defaultCategories = Set(CodeCategory.RegexLiteral)
   ).build
   
 }

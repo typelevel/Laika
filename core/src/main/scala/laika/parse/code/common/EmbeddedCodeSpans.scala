@@ -26,23 +26,21 @@ trait EmbeddedCodeSpans {
   
   def embedded: Seq[CodeSpanParsers]
   
-  def category: CodeCategory
+  def defaultCategories: Set[CodeCategory]
   
   protected lazy val spanParserMap = embedded.flatMap(_.parsers).groupBy(_.startChar).map {
     case (char, definitions) => (char, definitions.map(_.parser).reduceLeft(_ | _))
   }
   
-  protected def toCodeSpans (span: Span): Seq[CodeSpan] = toCodeSpans(span, Set(category))
-
-  protected def toCodeSpans (span: Span, categories: Set[CodeCategory]): Seq[CodeSpan] = span match {
-    case Text(content, _)          => Seq(CodeSpan(content, categories))
+  protected def toCodeSpans (span: Span): Seq[CodeSpan] = span match {
+    case Text(content, _)          => Seq(CodeSpan(content, defaultCategories))
     case codeSpan: CodeSpan        => Seq(codeSpan)
     case codeSeq: CodeSpanSequence => codeSeq.collect { case cs: CodeSpan => cs }
     case _                         => Nil
   }
   
   protected def mergeCodeSpans (startChar: Char, spans: Seq[CodeSpan]): Seq[CodeSpan] = {
-    val startSpan = CodeSpan(startChar.toString, category)
+    val startSpan = CodeSpan(startChar.toString, defaultCategories)
     spans.foldLeft(List(startSpan)) { case (acc, next) =>
       if (acc.last.categories == next.categories) acc.init :+ CodeSpan(acc.last.content + next.content, next.categories)
       else acc :+ next
