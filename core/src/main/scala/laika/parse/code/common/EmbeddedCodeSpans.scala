@@ -17,7 +17,10 @@
 package laika.parse.code.common
 
 import laika.ast.{Span, Text}
+import laika.parse.Parser
 import laika.parse.code.{CodeCategory, CodeSpan, CodeSpanParsers, CodeSpanSequence}
+import laika.parse.markup.InlineParsers
+import laika.parse.text.DelimitedText
 
 /**
   * @author Jens Halm
@@ -31,6 +34,9 @@ trait EmbeddedCodeSpans {
   protected lazy val spanParserMap = embedded.flatMap(_.parsers).groupBy(_.startChar).map {
     case (char, definitions) => (char, definitions.map(_.parser).reduceLeft(_ | _))
   }
+  
+  def contentParser (textParser: DelimitedText[String]): Parser[Seq[CodeSpan]] =
+    InlineParsers.spans(textParser, spanParserMap).map(_.flatMap(toCodeSpans))
   
   protected def toCodeSpans (span: Span): Seq[CodeSpan] = span match {
     case Text(content, _)          => Seq(CodeSpan(content, defaultCategories))

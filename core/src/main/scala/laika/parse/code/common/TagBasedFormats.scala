@@ -18,9 +18,7 @@ package laika.parse.code.common
 
 import laika.ast.~
 import laika.parse.Parser
-import laika.parse.code.languages.XML.{name, nameParser, stringWithEntities}
 import laika.parse.code.{CodeCategory, CodeSpan, CodeSpanParsers}
-import laika.parse.markup.InlineParsers
 import laika.parse.text.TextParsers.{delimitedBy, literal, success}
 
 /**
@@ -61,21 +59,20 @@ trait TagBasedFormats {
     def embed(childSpans: CodeSpanParsers*): TagParser = {
       copy(embedded = embedded ++ childSpans)
     }
-
-    def build: CodeSpanParsers = CodeSpanParsers(start.head) {
-
+    
+    def standaloneParser: Parser[Seq[CodeSpan]] = {
       def codeParser(p: Parser[String], category: CodeCategory): Parser[CodeSpan] = p.map(CodeSpan(_, category))
 
-      val contentParser = InlineParsers.spans(delimitedBy(end).keepDelimiter, spanParserMap).map(_.flatMap(toCodeSpans))
       val startParser = codeParser(if (start.length > 1) literal(start.tail) else success(""), CodeCategory.XML.Punctuation)
-      val endParser = codeParser(literal(end), CodeCategory.XML.Punctuation)
       val tagNameParser = codeParser(tagName, tagCategory)
 
-      (startParser ~ tagNameParser ~ contentParser ~ endParser).map {
-        case startPunct ~ tagNameSpan ~ content ~ endPunct =>
-          mergeCodeSpans(start.head, Seq(startPunct, tagNameSpan) ++ content :+ endPunct)
+      (startParser ~ tagNameParser ~ contentParser(delimitedBy(end))).map {
+        case startPunct ~ tagNameSpan ~ content =>
+          mergeCodeSpans(start.head, Seq(startPunct, tagNameSpan) ++ content :+ CodeSpan(end, defaultCategories))
       }
     }
+
+    def build: CodeSpanParsers = CodeSpanParsers(start.head)(standaloneParser)
 
   }
 

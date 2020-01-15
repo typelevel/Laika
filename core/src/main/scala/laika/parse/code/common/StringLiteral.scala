@@ -90,12 +90,10 @@ object StringLiteral {
     
     def build: CodeSpanParsers = CodeSpanParsers(startChars) {
       
-      val contentParser = InlineParsers.spans(parser, spanParserMap).map(_.flatMap(toCodeSpans))
-      
       def optParser(p: Option[Parser[String]]): Parser[List[CodeSpan]] = 
         p.map(_.map(res => List(CodeSpan(res, defaultCategories)))).getOrElse(success(Nil))
       
-      (lookBehind(1, any.take(1)) ~ optParser(prefix) ~ contentParser ~ optParser(postfix)).map {
+      (lookBehind(1, any.take(1)) ~ optParser(prefix) ~ contentParser(parser) ~ optParser(postfix)).map {
         case startChar ~ pre ~ content ~ post => mergeCodeSpans(startChar.head, pre ++ content ++ post)
       }
     }
