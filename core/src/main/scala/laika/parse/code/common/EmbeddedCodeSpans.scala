@@ -32,8 +32,10 @@ trait EmbeddedCodeSpans {
     case (char, definitions) => (char, definitions.map(_.parser).reduceLeft(_ | _))
   }
   
-  protected def toCodeSpans (span: Span): Seq[CodeSpan] = span match {
-    case Text(content, _)          => Seq(CodeSpan(content, category))
+  protected def toCodeSpans (span: Span): Seq[CodeSpan] = toCodeSpans(span, Set(category))
+
+  protected def toCodeSpans (span: Span, categories: Set[CodeCategory]): Seq[CodeSpan] = span match {
+    case Text(content, _)          => Seq(CodeSpan(content, categories))
     case codeSpan: CodeSpan        => Seq(codeSpan)
     case codeSeq: CodeSpanSequence => codeSeq.collect { case cs: CodeSpan => cs }
     case _                         => Nil

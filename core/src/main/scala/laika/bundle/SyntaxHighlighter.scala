@@ -26,9 +26,26 @@ import laika.parse.text.DelimitedText
 /** The parser for syntax highlighting a particular language.
   *
   * @param language the names of the language as used in text markup
-  * @param parser the parser for code blocks written in this language
+  * @param spanParsers the root-level parsers for code spans written in this language
   */
-case class SyntaxHighlighter (language: NonEmptyList[String], parser: Parser[Seq[CodeSpan]])
+case class SyntaxHighlighter (language: NonEmptyList[String], spanParsers: Seq[CodeSpanParsers]) {
+  
+  lazy val rootParser: Parser[Seq[CodeSpan]] = {
+    
+    val spanParserMap = spanParsers.flatMap(_.parsers).groupBy(_.startChar).map {
+      case (char, definitions) => (char, definitions.map(_.parser).reduceLeft(_ | _))
+    }
+
+    InlineParsers.spans(DelimitedText.Undelimited, spanParserMap).map(
+      _.flatMap {
+        case Text(content, _) => Seq(CodeSpan(content))
+        case codeSpan: CodeSpan => Seq(codeSpan)
+        case codeSeq: CodeSpanSequence => codeSeq.collect { case cs: CodeSpan => cs }
+      }
+    )
+  }
+  
+}
 
 object SyntaxHighlighter {
 
@@ -42,25 +59,14 @@ object SyntaxHighlighter {
   def build (language: String, aliases: String*)(parsers: CodeSpanParsers*): SyntaxHighlighter = {
     
     val languages = NonEmptyList.of(language, aliases:_*)
+
+    SyntaxHighlighter(languages, parsers)
     
-    val spanParserMap = parsers.flatMap(_.parsers).groupBy(_.startChar).map {
-      case (char, definitions) => (char, definitions.map(_.parser).reduceLeft(_ | _))
-    }
-    
-    val rootParser = InlineParsers.spans(DelimitedText.Undelimited, spanParserMap).map(
-      _.flatMap {
-        case Text(content, _) => Seq(CodeSpan(content))
-        case codeSpan: CodeSpan => Seq(codeSpan)
-        case codeSeq: CodeSpanSequence => codeSeq.collect { case cs: CodeSpan => cs }
-      }
-    )
-    
-    SyntaxHighlighter(languages, rootParser)
   }
 
-  /** Creates a syntax highlighter with the specified, dedicated root parser.
-    */
-  def apply (language: String, aliases: String*)(rootParser: Parser[Seq[CodeSpan]]): SyntaxHighlighter =
-    SyntaxHighlighter(NonEmptyList.of(language, aliases:_*), rootParser)
+//  /** Creates a syntax highlighter with the specified, dedicated root parser.
+//    */
+//  def apply (language: String, aliases: String*)(rootParser: Parser[Seq[CodeSpan]]): SyntaxHighlighter =
+//    SyntaxHighlighter(NonEmptyList.of(language, aliases:_*), rootParser)
   
 }

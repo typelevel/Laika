@@ -17,14 +17,12 @@
 package laika.parse.code.languages
 
 import laika.bundle.SyntaxHighlighter
-import laika.parse.code.CodeSpan
-import laika.parse.text.TextParsers.any
 
 /**
   * @author Jens Halm
   */
 object CSS {
   
-  val highlighter: SyntaxHighlighter = SyntaxHighlighter("css")(any ^^ { txt => Seq(CodeSpan(txt)) })
+  val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("css")()
 
 }

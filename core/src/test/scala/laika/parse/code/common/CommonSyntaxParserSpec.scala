@@ -60,7 +60,7 @@ class CommonSyntaxParserSpec extends WordSpec
     NumberLiteral.hex.withUnderscores.withSuffix(NumericSuffix.long).build,
     NumberLiteral.decimalFloat.withUnderscores.withSuffix(NumericSuffix.float).build,
     NumberLiteral.decimalInt.withUnderscores.withSuffix(NumericSuffix.long).build,
-  ).parser
+  ).rootParser
   
   
   "The identifier parser" should {

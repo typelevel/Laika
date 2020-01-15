@@ -31,7 +31,7 @@ class RootParser (markupParser: MarkupFormat, markupExtensions: MarkupExtensions
 
   private lazy val highlighterMap: Map[String, Parser[Seq[Span]]] = 
     markupExtensions.syntaxHighlighters.flatMap { highlighter =>
-      highlighter.language.toList.map(lang => (lang.toLowerCase, highlighter.parser))
+      highlighter.language.toList.map(lang => (lang.toLowerCase, highlighter.rootParser))
     }.toMap
 
   def getSyntaxHighlighter (language: String): Option[Parser[Seq[Span]]] = highlighterMap.get(language.toLowerCase)
