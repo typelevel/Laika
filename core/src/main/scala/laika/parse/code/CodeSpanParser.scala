@@ -18,6 +18,7 @@ package laika.parse.code
 
 import laika.ast.{NoOpt, Options, Span, SpanContainer, TextContainer}
 import laika.parse.Parser
+import laika.parse.text.TextParsers._
 
 /**
   * @author Jens Halm
@@ -45,6 +46,13 @@ object CodeSpanParsers {
   private def create(s: Char, p: Parser[Span]) = new CodeSpanParser {
     val startChar = s
     val parser = p
+  }
+
+  def apply (category: CodeCategory, start: String, end: String): CodeSpanParsers = {
+    require(start.nonEmpty)
+    CodeSpanParsers(category, start.head) {
+      start.tail ~> delimitedBy(end) ^^ { text => start.tail + text + end }
+    }
   }
   
   def apply(category: CodeCategory, startChar: Char)(parser: Parser[String]): CodeSpanParsers =
@@ -91,7 +99,16 @@ object CodeCategory {
   case object EscapeSequence extends CodeCategory
   case object Substitution extends CodeCategory
   case object TypeName extends CodeCategory
+  case object AttributeName extends CodeCategory
   case object Identifier extends CodeCategory
+  
+  object XML {
+    case object TagName extends CodeCategory
+    case object Punctuation extends CodeCategory
+    case object DTDTagName extends CodeCategory
+    case object ProcessingInstruction extends CodeCategory
+    case object CData extends CodeCategory
+  }
   
 }
 

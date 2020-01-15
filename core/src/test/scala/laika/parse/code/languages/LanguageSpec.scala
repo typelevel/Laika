@@ -51,6 +51,8 @@ class LanguageSpec extends WordSpec with Matchers {
     def escape(value: String): CodeSpan = CodeSpan(value, EscapeSequence)
     def subst(value: String): CodeSpan = CodeSpan(value, Substitution)
     def literal(value: String): CodeSpan = CodeSpan(value, LiteralValue)
+    def tagName(value: String): CodeSpan = CodeSpan(value, CodeCategory.XML.TagName)
+    def attrName(value: String): CodeSpan = CodeSpan(value, CodeCategory.AttributeName)
     def comment(value: String): CodeSpan = CodeSpan(value, CodeCategory.Comment)
     def other(value: String): CodeSpan = CodeSpan(value)
     
@@ -225,6 +227,59 @@ class LanguageSpec extends WordSpec with Matchers {
           id("React"), dot, id("useState"), other("("), id("props"), dot, id("initialUserName"), other(");\n\n  "),
           keyword("const"), space, id("onChange"), other(" = ("), id("e"), colonSpace, id("React"), dot, id("ChangeEvent"), other("<"), id("HTMLInputElement"), other(">) => {\n    "),
           id("setEditingName"), other("("), id("e"), dot, id("target"), dot, id("value"), other(");\n  };\n\n}")
+        ))
+      ))
+    }
+    
+    "parse an XML document" in {
+      val input =
+        """# Doc
+          |
+          |```xml
+          |<?xml version="1.0"?>
+          |<!DOCTYPE foo [
+          |  <!ELEMENT bar (baz)>
+          |  <!ELEMENT baz (#PCDATA)>
+          |  <!ATTLIST bar bar_no CDATA #REQUIRED>
+          |  <!ENTITY logo PUBLIC  "-//W3C//GIF logo//EN" "http://www.w3.org/logo.gif" NDATA gif>
+          |]>
+          |<foo>
+          |  <bar bar_no="xyz-123">
+          |    <baz>Some text with &lt; entities &#x20;</baz>
+          |  </bar>
+          |  <!-- some comment -->
+          |  <? some pi ?>
+          |  <![CDATA[some cdata content]]>
+          |</foo>
+        """.stripMargin
+
+      def string(value: String): CodeSpan = CodeSpan("\"" + value + "\"", StringLiteral)
+      def dtdTag(value: String): CodeSpan = CodeSpan(value, CodeCategory.XML.DTDTagName)
+      def nl(indent: Int): CodeSpan = CodeSpan("\n" + (" " * indent))
+      def punct(content: String): CodeSpan = CodeSpan(content, CodeCategory.XML.Punctuation)
+      val open: CodeSpan = CodeSpan("<", CodeCategory.XML.Punctuation)
+      val close: CodeSpan = CodeSpan(">", CodeCategory.XML.Punctuation)
+      val space: CodeSpan = CodeSpan(" ", CodeCategory.XML.Punctuation)
+      val eq: CodeSpan = CodeSpan("=", CodeCategory.XML.Punctuation)
+
+      parse(input) shouldBe RootElement(Seq(
+        Title(Seq(Text("Doc")), Styles("title") + Id("doc")),
+        CodeBlock("xml", Seq(
+          punct("<?"), tagName("xml"), space, attrName("version"), eq, string("1.0"), punct("?>"), nl(0),
+          punct("<!"), dtdTag("DOCTYPE"), space, id("foo"), punct(" [\n  <!"),
+          dtdTag("ELEMENT"), space, id("bar"), punct(" ("), id("baz"), punct(")>\n  <!"),
+          dtdTag("ELEMENT"), space, id("baz"), punct(" ("), keyword("#PCDATA"), punct(")>\n  <!"),
+          dtdTag("ATTLIST"), space, id("bar"), space, id("bar_no"), space, keyword("CDATA"), space, keyword("#REQUIRED"), punct(">\n  <!"),
+          dtdTag("ENTITY"), space, id("logo"), space, keyword("PUBLIC"), punct("  "), string("-//W3C//GIF logo//EN"), space, 
+          string("http://www.w3.org/logo.gif"), space, keyword("NDATA"), space, id("gif"), punct(">\n]>"), nl(0),
+          open, tagName("foo"), close, nl(2),
+          open, tagName("bar"), space, attrName("bar_no"), eq, string("xyz-123"), close, nl(4),
+          open, tagName("baz"), close, other("Some text with "), subst("&lt;"), other(" entities "), escape("&#x20;"), punct("</"), tagName("baz"), close, nl(2),
+          punct("</"), tagName("bar"), close, nl(2),
+          comment("<!-- some comment -->"), nl(2),
+          CodeSpan("<? some pi ?>", CodeCategory.XML.ProcessingInstruction), nl(2),
+          CodeSpan("<![CDATA[some cdata content]]>", CodeCategory.XML.CData), nl(0),
+          punct("</"), tagName("foo"), close
         ))
       ))
     }

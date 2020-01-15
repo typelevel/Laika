@@ -16,15 +16,147 @@
 
 package laika.parse.code.languages
 
+import laika.ast.~
 import laika.bundle.SyntaxHighlighter
-import laika.parse.code.CodeSpan
-import laika.parse.text.TextParsers.any
+import laika.parse.Parser
+import laika.parse.code.common.{Comment, EmbeddedCodeSpans, Identifier, Keywords, NumberLiteral, StringLiteral}
+import laika.parse.code.{CodeCategory, CodeSpan, CodeSpanParsers}
+import laika.parse.markup.InlineParsers
+import laika.parse.text.TextParsers._
 
 /**
   * @author Jens Halm
   */
 object XML {
+  
+  import NumberLiteral._
+  
+  val comment: CodeSpanParsers = Comment.multiLine("<!--", "-->")
+  
+  val pi: CodeSpanParsers = CodeSpanParsers(CodeCategory.XML.ProcessingInstruction, "<?", "?>")
+  val cdata: CodeSpanParsers = CodeSpanParsers(CodeCategory.XML.CData, "<![CDATA[", "]]>")
 
-  val highlighter: SyntaxHighlighter = SyntaxHighlighter("xml")(any ^^ { txt => Seq(CodeSpan(txt)) })
+  private val id = Identifier.standard.withIdStartChars('_',':').withIdPartChars('-','.') 
+  val nameParser: Parser[String] = id.standaloneParser.map(_.content)
+  def name(category: CodeCategory): CodeSpanParsers = id.withCategoryChooser(_ => category).build
+  
+  val ref: CodeSpanParsers =
+    CodeSpanParsers(CodeCategory.EscapeSequence, '&') {
+      ("#x" ~ DigitParsers.hex.min(1) ~ ";").concat
+    } ++
+    CodeSpanParsers(CodeCategory.EscapeSequence, '&') {
+      ("#" ~ DigitParsers.decimal.min(1) ~ ";").concat
+    } ++
+    CodeSpanParsers(CodeCategory.Substitution, '&') {
+      (nameParser ~ ";").concat
+    }
+
+  val string: CodeSpanParsers = StringLiteral.singleLine('\'').build ++ StringLiteral.singleLine('"').build
+  val stringWithEntities: CodeSpanParsers = StringLiteral.singleLine('\'').embed(ref).build ++ StringLiteral.singleLine('"').embed(ref).build
+  
+  case class TagParser(tagCategory: CodeCategory,
+                       start: String,
+                       end: String,
+                       tagName: Parser[String],
+                       embedded: Seq[CodeSpanParsers] = Nil) extends EmbeddedCodeSpans {
+
+    val category: CodeCategory = CodeCategory.XML.Punctuation
+    
+    def embed(childSpans: CodeSpanParsers*): TagParser = {
+      copy(embedded = embedded ++ childSpans)
+    }
+
+    def build: CodeSpanParsers = CodeSpanParsers(start.head) {
+     
+      def codeParser(p: Parser[String], category: CodeCategory): Parser[CodeSpan] = p.map(CodeSpan(_, category))
+      
+      val contentParser = InlineParsers.spans(delimitedBy(end).keepDelimiter, spanParserMap).map(_.flatMap(toCodeSpans))
+      val startParser = codeParser(if (start.length > 1) literal(start.tail) else success(""), CodeCategory.XML.Punctuation)
+      val endParser = codeParser(literal(end), CodeCategory.XML.Punctuation)
+      val tagNameParser = codeParser(tagName, tagCategory)
+
+      (startParser ~ tagNameParser ~ contentParser ~ endParser).map {
+        case startPunct ~ tagNameSpan ~ content ~ endPunct => 
+          mergeCodeSpans(start.head, Seq(startPunct, tagNameSpan) ++ content :+ endPunct)
+      }
+    }
+    
+  }
+  
+  object TagParser {
+    def apply (tagCategory: CodeCategory,
+               start: String,
+               end: String,
+               tagName: String): TagParser = 
+      new TagParser(tagCategory, start, end, literal(tagName))
+  }
+  
+  object DTD {
+    
+    val notation: CodeSpanParsers = TagParser(CodeCategory.XML.DTDTagName, "<!", ">", "NOTATION").embed(
+      Keywords("SYSTEM", "PUBLIC"),
+      string,
+      name(CodeCategory.Identifier),
+    ).build
+  
+    val entity: CodeSpanParsers = TagParser(CodeCategory.XML.DTDTagName, "<!", ">", "ENTITY").embed(
+      Keywords("SYSTEM", "PUBLIC", "NDATA"),
+      string,
+      name(CodeCategory.Identifier),
+    ).build
+  
+    val attribute: CodeSpanParsers = TagParser(CodeCategory.XML.DTDTagName, "<!", ">", "ATTLIST").embed(
+      Keywords("CDATA", "ID", "IDREF", "IDREFS", "ENTITY", "ENTITIES", "NMTOKEN", "NMTOKENS", "#REQUIRED", "#IMPLIED", "#FIXED", "NOTATION"),
+      string,
+      name(CodeCategory.Identifier),
+    ).build
+
+    val element: CodeSpanParsers = TagParser(CodeCategory.XML.DTDTagName, "<!", ">", "ELEMENT").embed(
+      Keywords("EMPTY", "ANY", "#PCDATA"),
+      name(CodeCategory.Identifier)
+    ).build
+    
+  }
+
+  val xmlDecl: CodeSpanParsers = TagParser(CodeCategory.XML.TagName, "<?", "?>", "xml").embed(
+    string,
+    name(CodeCategory.AttributeName)
+  ).build
+
+  val docType: CodeSpanParsers = TagParser(CodeCategory.XML.DTDTagName, "<!", ">", "DOCTYPE").embed(
+    Keywords("SYSTEM", "PUBLIC"),
+    string,
+    pi,
+    comment,
+    DTD.notation,
+    DTD.entity,
+    DTD.attribute,
+    DTD.element,
+    name(CodeCategory.Identifier)
+  ).build
+  
+  val emptyTag: CodeSpanParsers = TagParser(CodeCategory.XML.TagName, "<", "/>", nameParser).embed(
+    stringWithEntities,
+    name(CodeCategory.AttributeName)
+  ).build
+
+  val startTag: CodeSpanParsers = TagParser(CodeCategory.XML.TagName, "<", ">", nameParser).embed(
+    stringWithEntities,
+    name(CodeCategory.AttributeName)
+  ).build
+  
+  val endTag: CodeSpanParsers = TagParser(CodeCategory.XML.TagName, "</", ">", nameParser).build
+  
+  val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("xml")(
+    xmlDecl,
+    docType,
+    pi,
+    comment,
+    cdata,
+    ref,
+    emptyTag,
+    startTag,
+    endTag
+  )
   
 }
