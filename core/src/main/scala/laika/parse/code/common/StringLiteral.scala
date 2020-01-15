@@ -78,7 +78,7 @@ object StringLiteral {
                           prefix: Option[Parser[String]] = None,
                           postfix: Option[Parser[String]] = None,
                           embedded: Seq[CodeSpanParsers] = Nil,
-                          category: CodeCategory = CodeCategory.StringLiteral) {
+                          category: CodeCategory = CodeCategory.StringLiteral) extends EmbeddedCodeSpans {
     
     def embed(childSpans: CodeSpanParsers*): StringParser = {
       copy(embedded = embedded ++ childSpans)
@@ -88,39 +88,21 @@ object StringLiteral {
       Some((oldPrefix ~ parser).concat)
     })
     
-    def build: CodeSpanParsers = {
-      val spanParserMap = embedded.flatMap(_.parsers).groupBy(_.startChar).map {
-        case (char, definitions) => (char, definitions.map(_.parser).reduceLeft(_ | _))
-      }
-      CodeSpanParsers(startChars) {
-        val contentParser = InlineParsers.spans(parser, spanParserMap).map(
-          _.flatMap {
-            case Text(content, _)          => Seq(CodeSpan(content, category))
-            case codeSpan: CodeSpan        => Seq(codeSpan)
-            case codeSeq: CodeSpanSequence => codeSeq.collect { case cs: CodeSpan => cs }
-          }
-        )
-        def optParser(p: Option[Parser[String]]): Parser[List[CodeSpan]] = 
-          p.map(_.map(res => List(CodeSpan(res, category)))).getOrElse(success(Nil))
-        
-        (lookBehind(1, any.take(1)) ~ optParser(prefix) ~ contentParser ~ optParser(postfix)).map {
-          case startChar ~ pre ~ content ~ post => 
-            val spans = CodeSpan(startChar.toString, category) +: (pre ++ content ++ post)
-            spans.tail.foldLeft(List(spans.head)) { case (acc, next) =>
-              if (acc.last.categories == next.categories) acc.init :+ CodeSpan(acc.last.content + next.content, next.categories)
-              else acc :+ next
-            }
-        }
+    def build: CodeSpanParsers = CodeSpanParsers(startChars) {
+      
+      val contentParser = InlineParsers.spans(parser, spanParserMap).map(_.flatMap(toCodeSpans))
+      
+      def optParser(p: Option[Parser[String]]): Parser[List[CodeSpan]] = 
+        p.map(_.map(res => List(CodeSpan(res, category)))).getOrElse(success(Nil))
+      
+      (lookBehind(1, any.take(1)) ~ optParser(prefix) ~ contentParser ~ optParser(postfix)).map {
+        case startChar ~ pre ~ content ~ post => mergeCodeSpans(startChar.head, pre ++ content ++ post)
       }
     }
     
   }
   
-  def singleLine (between: Char): StringParser = {
-    require(between.nonEmpty)
-    val parser = delimitedBy(between, '\n').keepDelimiter
-    StringParser(Set(between.head), parser, postfix = Some(anyOf(between).take(1)))
-  }
+  def singleLine (between: Char): StringParser = singleLine(Set(between), between)
 
   def singleLine (startChars: Set[Char], end: Char): StringParser = {
     require(startChars.nonEmpty)

@@ -16,9 +16,8 @@
 
 package laika.parse.code.common
 
-import laika.ast.{Span, Text, ~}
-import laika.parse.Parser
-import laika.parse.code.{CodeCategory, CodeSpan, CodeSpanParsers, CodeSpanSequence}
+import laika.ast.~
+import laika.parse.code.{CodeCategory, CodeSpan, CodeSpanParsers}
 import laika.parse.text.TextParsers._
 
 /**
@@ -27,40 +26,25 @@ import laika.parse.text.TextParsers._
 object CharLiteral {
   
   case class CharParser(delim: Char,
-                          embedded: Seq[CodeSpanParsers] = Nil) {
+                        embedded: Seq[CodeSpanParsers] = Nil) extends EmbeddedCodeSpans {
+    
+    val category: CodeCategory = CodeCategory.CharLiteral
 
-    private val defaultParser = lookBehind(1, anyBut('\'', '\n').take(1))
-      .map(CodeSpan(_, CodeCategory.CharLiteral))
-    
-    private val closingDelimParser = anyOf(delim).take(1)
-      .map(CodeSpan(_, CodeCategory.CharLiteral))
-    
     def embed(childSpans: CodeSpanParsers*): CharParser = {
       copy(embedded = embedded ++ childSpans)
     }
 
-    def build: CodeSpanParsers = {
-      val spanParserMap = embedded.flatMap(_.parsers).groupBy(_.startChar).map {
-        case (char, definitions) => (char, definitions.map(_.parser).reduceLeft(_ | _))
-      }
-      CodeSpanParsers(delim) {
+    def build: CodeSpanParsers = CodeSpanParsers(delim) {
 
-        val contentParser = any.take(1).flatMap { char =>
-          (spanParserMap.getOrElse(char.head, defaultParser) ~ closingDelimParser).map { case a ~ b => Seq(a, b) }: Parser[Seq[Span]]
-        }.map {
-          case Seq(Text(content, _), delim: CodeSpan) => Seq(CodeSpan(content, CodeCategory.CharLiteral), delim)
-          case Seq(codeSpan: CodeSpan, delim: CodeSpan) => Seq(codeSpan, delim)
-          case Seq(codeSeq: CodeSpanSequence, delim: CodeSpan) => codeSeq.collect { case cs: CodeSpan => cs } :+ delim
-        }
-
-        contentParser.map { content =>
-          val spans = CodeSpan(delim.toString, CodeCategory.CharLiteral) +: content
-          spans.tail.foldLeft(List(spans.head)) { case (acc, next) =>
-            if (acc.last.categories == next.categories) acc.init :+ CodeSpan(acc.last.content + next.content, next.categories)
-            else acc :+ next
-          }
+      val plainChar = lookBehind(1, anyBut('\'', '\n').take(1)).map(CodeSpan(_, category))
+      val closingDelim = anyOf(delim).take(1).map(CodeSpan(_, category))
+      
+      any.take(1).flatMap { char =>
+        (spanParserMap.getOrElse(char.head, plainChar) ~ closingDelim).map { 
+          case span ~ closingDel => mergeCodeSpans(delim, toCodeSpans(span) :+ closingDel) 
         }
       }
+
     }
 
   }
