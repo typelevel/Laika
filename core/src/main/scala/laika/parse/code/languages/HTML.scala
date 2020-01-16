@@ -16,13 +16,59 @@
 
 package laika.parse.code.languages
 
+import laika.ast.~
 import laika.bundle.SyntaxHighlighter
+import laika.parse.Parser
+import laika.parse.code.common.{EmbeddedCodeSpans, Keywords, TagBasedFormats, NumberLiteral}
+import laika.parse.code.{CodeCategory, CodeSpan, CodeSpanParsers}
+import laika.parse.text.TextParsers._
 
 /**
   * @author Jens Halm
   */
-object HTML {
+object HTML extends TagBasedFormats {
+  
+  import NumberLiteral._
 
-  val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("html")()
+  val docType: CodeSpanParsers = TagParser(CodeCategory.XML.DTDTagName, "<!", ">", "DOCTYPE").embed(
+    Keywords("SYSTEM", "PUBLIC"),
+    string,
+    comment,
+    name(CodeCategory.Identifier)
+  ).build
+
+  object EmbeddedJs extends EmbeddedCodeSpans {
+    val embedded: Seq[CodeSpanParsers] = JavaScript.highlighter.spanParsers
+    val defaultCategories: Set[CodeCategory] = Set()
+    
+    private val endTag: Seq[CodeSpan] = Seq(
+      CodeSpan("</", CodeCategory.XML.Punctuation),
+      CodeSpan("script", CodeCategory.XML.TagName)
+    )
+    val rootParser: Parser[Seq[CodeSpan]] =
+      (contentParser(delimitedBy("</script")) ~ (ws ~ ">").concat).map {
+        case content ~ close => content ++ endTag :+ CodeSpan(close, CodeCategory.XML.Punctuation)
+      }
+  }
+  
+  val scriptTag: CodeSpanParsers = CodeSpanParsers('<') {
+    
+    val startTag: Parser[Seq[CodeSpan]] = TagParser(CodeCategory.XML.TagName, "<", ">", literal("script")).embed(
+      stringWithEntities,
+      name(CodeCategory.AttributeName)
+    ).standaloneParser
+    
+    (startTag ~ EmbeddedJs.rootParser).map { case tag ~ js => tag ++ js }
+  }
+  
+  val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("html")(
+    docType,
+    comment,
+    ref,
+    emptyTag,
+    scriptTag,
+    startTag,
+    endTag
+  )
   
 }

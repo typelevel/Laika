@@ -65,8 +65,9 @@ trait TagBasedFormats {
 
       val startParser = codeParser(if (start.length > 1) literal(start.tail) else success(""), CodeCategory.XML.Punctuation)
       val tagNameParser = codeParser(tagName, tagCategory)
+      val delim = if (end == "/>") delimitedBy(end).failOn('>') else delimitedBy(end) 
 
-      (startParser ~ tagNameParser ~ contentParser(delimitedBy(end))).map {
+      (startParser ~ tagNameParser ~ contentParser(delim)).map {
         case startPunct ~ tagNameSpan ~ content =>
           mergeCodeSpans(start.head, Seq(startPunct, tagNameSpan) ++ content :+ CodeSpan(end, defaultCategories))
       }

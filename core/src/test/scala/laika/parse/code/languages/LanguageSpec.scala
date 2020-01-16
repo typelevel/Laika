@@ -56,6 +56,17 @@ class LanguageSpec extends WordSpec with Matchers {
     def comment(value: String): CodeSpan = CodeSpan(value, CodeCategory.Comment)
     def other(value: String): CodeSpan = CodeSpan(value)
     
+    trait TagFormats {
+      def string(value: String): CodeSpan = CodeSpan("\"" + value + "\"", StringLiteral)
+      def dtdTag(value: String): CodeSpan = CodeSpan(value, CodeCategory.XML.DTDTagName)
+      def nl(indent: Int): CodeSpan = CodeSpan("\n" + (" " * indent))
+      def punct(content: String): CodeSpan = CodeSpan(content, CodeCategory.XML.Punctuation)
+      val open: CodeSpan = CodeSpan("<", CodeCategory.XML.Punctuation)
+      val close: CodeSpan = CodeSpan(">", CodeCategory.XML.Punctuation)
+      val space: CodeSpan = CodeSpan(" ", CodeCategory.XML.Punctuation)
+      val eq: CodeSpan = CodeSpan("=", CodeCategory.XML.Punctuation)
+    }
+    
     "parse Scala code" in {
       
       val input =
@@ -173,7 +184,8 @@ class LanguageSpec extends WordSpec with Matchers {
         |    const msg = (error.response) ? `Status: ${error.response.status}` : 'Unknown error';
         |    this.setState({ lastResult: this.message(`Server Error (${msg})`) });
         |  }
-        |}""".stripMargin
+        |}
+        |```""".stripMargin
 
       parse(input) shouldBe RootElement(Seq(
         Title(Seq(Text("Code")), Styles("title") + Id("code")),
@@ -213,6 +225,7 @@ class LanguageSpec extends WordSpec with Matchers {
         |  };
         |
         |}
+        |```
         """.stripMargin
 
       parse(input) shouldBe RootElement(Seq(
@@ -231,7 +244,7 @@ class LanguageSpec extends WordSpec with Matchers {
       ))
     }
     
-    "parse an XML document" in {
+    "parse an XML document" in new TagFormats {
       val input =
         """# Doc
           |
@@ -251,16 +264,10 @@ class LanguageSpec extends WordSpec with Matchers {
           |  <? some pi ?>
           |  <![CDATA[some cdata content]]>
           |</foo>
+          |```
         """.stripMargin
 
-      def string(value: String): CodeSpan = CodeSpan("\"" + value + "\"", StringLiteral)
-      def dtdTag(value: String): CodeSpan = CodeSpan(value, CodeCategory.XML.DTDTagName)
-      def nl(indent: Int): CodeSpan = CodeSpan("\n" + (" " * indent))
-      def punct(content: String): CodeSpan = CodeSpan(content, CodeCategory.XML.Punctuation)
-      val open: CodeSpan = CodeSpan("<", CodeCategory.XML.Punctuation)
-      val close: CodeSpan = CodeSpan(">", CodeCategory.XML.Punctuation)
-      val space: CodeSpan = CodeSpan(" ", CodeCategory.XML.Punctuation)
-      val eq: CodeSpan = CodeSpan("=", CodeCategory.XML.Punctuation)
+      
 
       parse(input) shouldBe RootElement(Seq(
         Title(Seq(Text("Doc")), Styles("title") + Id("doc")),
@@ -283,7 +290,47 @@ class LanguageSpec extends WordSpec with Matchers {
         ))
       ))
     }
-    
+
+    "parse an HTML document" in new TagFormats {
+      val input =
+        """# Doc
+          |
+          |```html
+          |<!DOCTYPE html>
+          |<html>
+          |  <body>
+          |    <script>
+          |      var x = "foo";
+          |      var y = 97.5;
+          |    </script>
+          |    <script src="foo.js"/>
+          |    <p class="big">Some text with &lt; entities &#x20;</p>
+          |    <!-- some comment -->
+          |  </body>
+          |</html>
+          |``` 
+        """.stripMargin
+
+      parse(input) shouldBe RootElement(Seq(
+        Title(Seq(Text("Doc")), Styles("title") + Id("doc")),
+        CodeBlock("html", Seq(
+          punct("<!"), dtdTag("DOCTYPE"), space, id("html"), close, nl(0),
+          open, tagName("html"), close, nl(2),
+          open, tagName("body"), close, nl(4),
+          open, tagName("script"), close, nl(6),
+          keyword("var"), other(" "), id("x"), other(" = "), string("foo"), other(";\n      "),
+          keyword("var"), other(" "), id("y"), other(" = "), number("97.5"), other(";\n    "),
+          punct("</"), tagName("script"), close, nl(4),
+          open, tagName("script"), space, attrName("src"), eq, string("foo.js"), punct("/>"), nl(4),
+          open, tagName("p"), space, attrName("class"), eq, string("big"), close, other("Some text with "),
+          subst("&lt;"), other(" entities "), escape("&#x20;"), punct("</"), tagName("p"), close, nl(4),
+          comment("<!-- some comment -->"), nl(2),
+          punct("</"), tagName("body"), close, nl(0),
+          punct("</"), tagName("html"), close
+        ))
+      ))
+    }
+        
   }
   
   
