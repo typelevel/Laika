@@ -387,6 +387,29 @@ class LanguageSpec extends WordSpec with Matchers {
         ))
       ))
     }
+
+    "parse a JSON document" in {
+      val input =
+        """# Doc
+          |
+          |```json
+          |{
+          |  "foo": [false, 2.3e-2, null, "bar", { "nested": true }
+          |}
+          |``` 
+        """.stripMargin
+
+      def attrName(value: String): CodeSpan = CodeSpan("\"" + value + "\"", CodeCategory.AttributeName)
+
+      parse(input) shouldBe RootElement(Seq(
+        Title(Seq(Text("Doc")), Styles("title") + Id("doc")),
+        CodeBlock("json", Seq(
+          other("{\n  "),
+          attrName("foo"), other(": ["), boolean("false"), comma, number("2.3e-2"), comma, literal("null"), comma, string("\"bar\""),
+          other(", { "), attrName("nested"), colonSpace, boolean("true"), other(" }\n}")
+        ))
+      ))
+    }
         
   }
   

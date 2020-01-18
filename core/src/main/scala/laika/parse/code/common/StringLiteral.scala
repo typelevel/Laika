@@ -85,6 +85,10 @@ object StringLiteral {
     def withPrefix (parser: Parser[String]): StringParser = copy(prefix = prefix.fold(Some(parser)) { oldPrefix =>
       Some((oldPrefix ~ parser).concat)
     })
+
+    def withPostCondition (parser: Parser[Unit]): StringParser = copy(postfix = postfix.fold(Some(parser ^^^ "")) { oldPrefix =>
+      Some(oldPrefix <~ parser)
+    })
     
     def build: CodeSpanParsers = CodeSpanParsers(startChars) {
       
