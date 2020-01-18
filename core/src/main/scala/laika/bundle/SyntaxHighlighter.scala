@@ -20,7 +20,6 @@ import cats.data.NonEmptyList
 import laika.parse.Parser
 import laika.parse.code.common.EmbeddedCodeSpans
 import laika.parse.code.{CodeCategory, CodeSpan, CodeSpanParsers}
-import laika.parse.markup.InlineParsers
 import laika.parse.text.DelimitedText
 
 /** The parser for syntax highlighting a particular language.
@@ -34,8 +33,7 @@ case class SyntaxHighlighter (language: NonEmptyList[String], spanParsers: Seq[C
   
   val defaultCategories: Set[CodeCategory] = Set.empty
   
-  lazy val rootParser: Parser[Seq[CodeSpan]] =
-    InlineParsers.spans(DelimitedText.Undelimited, spanParserMap).map(_.flatMap(toCodeSpans))
+  lazy val rootParser: Parser[Seq[CodeSpan]] = contentParser(DelimitedText.Undelimited).map(mergeCodeSpans)
   
 }
 
@@ -55,10 +53,5 @@ object SyntaxHighlighter {
     SyntaxHighlighter(languages, parsers)
     
   }
-
-//  /** Creates a syntax highlighter with the specified, dedicated root parser.
-//    */
-//  def apply (language: String, aliases: String*)(rootParser: Parser[Seq[CodeSpan]]): SyntaxHighlighter =
-//    SyntaxHighlighter(NonEmptyList.of(language, aliases:_*), rootParser)
   
 }
