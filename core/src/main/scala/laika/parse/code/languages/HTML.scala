@@ -40,13 +40,27 @@ object HTML extends TagBasedFormats {
   object EmbeddedJs extends EmbeddedCodeSpans {
     val embedded: Seq[CodeSpanParsers] = JavaScript.highlighter.spanParsers
     val defaultCategories: Set[CodeCategory] = Set()
-    
+
     private val endTag: Seq[CodeSpan] = Seq(
       CodeSpan("</", CodeCategory.XML.Punctuation),
       CodeSpan("script", CodeCategory.XML.TagName)
     )
     val rootParser: Parser[Seq[CodeSpan]] =
       (contentParser(delimitedBy("</script")) ~ (ws ~ ">").concat).map {
+        case content ~ close => content ++ endTag :+ CodeSpan(close, CodeCategory.XML.Punctuation)
+      }
+  }
+
+  object EmbeddedCSS extends EmbeddedCodeSpans {
+    val embedded: Seq[CodeSpanParsers] = CSS.highlighter.spanParsers
+    val defaultCategories: Set[CodeCategory] = Set()
+
+    private val endTag: Seq[CodeSpan] = Seq(
+      CodeSpan("</", CodeCategory.XML.Punctuation),
+      CodeSpan("style", CodeCategory.XML.TagName)
+    )
+    val rootParser: Parser[Seq[CodeSpan]] =
+      (contentParser(delimitedBy("</style")) ~ (ws ~ ">").concat).map {
         case content ~ close => content ++ endTag :+ CodeSpan(close, CodeCategory.XML.Punctuation)
       }
   }
@@ -60,6 +74,16 @@ object HTML extends TagBasedFormats {
     
     (startTag ~ EmbeddedJs.rootParser).map { case tag ~ js => tag ++ js }
   }
+
+  val styleTag: CodeSpanParsers = CodeSpanParsers('<') {
+
+    val startTag: Parser[Seq[CodeSpan]] = TagParser(CodeCategory.XML.TagName, "<", ">", literal("style")).embed(
+      stringWithEntities,
+      name(CodeCategory.AttributeName)
+    ).standaloneParser
+
+    (startTag ~ EmbeddedCSS.rootParser).map { case tag ~ js => tag ++ js }
+  }
   
   val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("html")(
     docType,
@@ -67,6 +91,7 @@ object HTML extends TagBasedFormats {
     ref,
     emptyTag,
     scriptTag,
+    styleTag,
     startTag,
     endTag
   )

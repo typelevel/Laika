@@ -299,6 +299,9 @@ class LanguageSpec extends WordSpec with Matchers {
           |<!DOCTYPE html>
           |<html>
           |  <body>
+          |    <style>
+          |      p {color:blue;}
+          |    </style>
           |    <script>
           |      var x = "foo";
           |      var y = 97.5;
@@ -317,6 +320,9 @@ class LanguageSpec extends WordSpec with Matchers {
           punct("<!"), dtdTag("DOCTYPE"), space, id("html"), close, nl(0),
           open, tagName("html"), close, nl(2),
           open, tagName("body"), close, nl(4),
+          open, tagName("style"), close, nl(6),
+          id("p"), other(" {"), attrName("color"), other(":"), id("blue"), other(";}\n    "),
+          punct("</"), tagName("style"), close, nl(4),
           open, tagName("script"), close, nl(6),
           keyword("var"), other(" "), id("x"), other(" = "), string("foo"), other(";\n      "),
           keyword("var"), other(" "), id("y"), other(" = "), number("97.5"), other(";\n    "),
@@ -327,6 +333,57 @@ class LanguageSpec extends WordSpec with Matchers {
           comment("<!-- some comment -->"), nl(2),
           punct("</"), tagName("body"), close, nl(0),
           punct("</"), tagName("html"), close
+        ))
+      ))
+    }
+
+    "parse a CSS document" in {
+      val input =
+        """# Doc
+          |
+          |```css
+          |:first {
+          |  color: #3f51b5
+          |}
+          |p {
+          |  font-family: Monaco, "Courier New", monospace;
+          |  font-size: 1.5rem
+          |}
+          |.foo {
+          |  /* comment */
+          |  -custom: url(http://foo.bar/);
+          |  font-family: "Weird \\ Font", sans-serif
+          |}
+          |#bar {
+          |  border: 1px solid rgba(0, 0, 0, .06)
+          |}
+          |@media (max-width: 991.98px) {
+          |  font-size: 1rem
+          |}
+          |``` 
+        """.stripMargin
+      
+      val openDecl = other(" {\n  ")
+      val closeDecl = other("\n}\n")
+      val sep = other(";\n  ")
+
+      parse(input) shouldBe RootElement(Seq(
+        Title(Seq(Text("Doc")), Styles("title") + Id("doc")),
+        CodeBlock("css", Seq(
+          other(":"), id("first"), openDecl,
+          attrName("color"), colonSpace, number("#3f51b5"), closeDecl,
+          id("p"), openDecl,
+          attrName("font-family"), colonSpace, id("Monaco"), comma, string("\"Courier New\""), comma, id("monospace"), sep,
+          attrName("font-size"), colonSpace, number("1.5"), id("rem"), other("\n}\n."),
+          id("foo"), openDecl,
+          comment("/* comment */"), other("\n  "),
+          attrName("-custom"), colonSpace, id("url"), other("("), string("http://foo.bar/"), other(");\n  "),
+          attrName("font-family"), colonSpace, string("\"Weird "), escape("\\\\"), string(" Font\""), comma, id("sans-serif"), closeDecl,
+          id("#bar"), openDecl,
+          attrName("border"), colonSpace, number("1"), id("px"), space, id("solid"), space, id("rgba"), other("("),
+          number("0"), comma, number("0"), comma, number("0"), comma, number(".06"), other(")\n}\n"),
+          id("@media"), other(" ("), attrName("max-width"), colonSpace, number("991.98"), id("px"), other(") {\n  "),
+          attrName("font-size"), colonSpace, number("1"), id("rem"), other("\n}")
         ))
       ))
     }

@@ -52,5 +52,12 @@ trait EmbeddedCodeSpans {
       else acc :+ next
     }
   }
+
+  protected def mergeCodeSpans (spans: Seq[CodeSpan]): Seq[CodeSpan] = if (spans.isEmpty) spans else {
+    spans.tail.foldLeft(List(spans.head)) { case (acc, next) =>
+      if (acc.last.categories == next.categories) acc.init :+ CodeSpan(acc.last.content + next.content, next.categories)
+      else acc :+ next
+    }
+  }
   
 }

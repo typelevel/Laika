@@ -49,24 +49,23 @@ object Identifier {
     def withIdStartChars(chars: Char*): IdParser = copy(idStartChars = idStartChars ++ chars.toSet)
     
     def withIdPartChars(chars: Char*): IdParser = copy(idNonStartChars = idNonStartChars ++ chars.toSet)
+    
+    val idRestParser: Parser[String] = anyOf((idStartChars ++ idNonStartChars).toSeq:_*) // TODO - remove
 
     def build: CodeSpanParsers = {
       
       CodeSpanParsers(idStartChars) {
 
         val idStart = lookBehind(1, any.take(1))
-        val idRest = anyOf((idStartChars ++ idNonStartChars).toSeq:_*)
         
-        (idStart ~ idRest).concat.map(id => Seq(CodeSpan(id, category(id))))
+        (idStart ~ idRestParser).concat.map(id => Seq(CodeSpan(id, category(id))))
         
       }
     }
     
     def standaloneParser: Parser[CodeSpan] = {
       val idStart = anyOf(idStartChars.toSeq:_*).take(1)
-      val idRest = anyOf((idStartChars ++ idNonStartChars).toSeq:_*)
-
-      (idStart ~ idRest).concat.map(id => CodeSpan(id, category(id)))
+      (idStart ~ idRestParser).concat.map(id => CodeSpan(id, category(id)))
     }
 
   }

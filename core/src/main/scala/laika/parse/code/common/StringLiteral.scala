@@ -17,12 +17,10 @@
 package laika.parse.code.common
 
 import laika.ast.~
-import laika.ast.Text
 import laika.parse.Parser
-import laika.parse.code.{CodeCategory, CodeSpan, CodeSpanParsers, CodeSpanSequence}
-import laika.parse.markup.InlineParsers
-import laika.parse.text.{DelimitedText, TextParsers}
+import laika.parse.code.{CodeCategory, CodeSpan, CodeSpanParsers}
 import laika.parse.text.TextParsers._
+import laika.parse.text.{DelimitedText, TextParsers}
 
 /**
   * @author Jens Halm
