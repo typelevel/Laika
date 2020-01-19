@@ -17,12 +17,67 @@
 package laika.parse.code.languages
 
 import laika.bundle.SyntaxHighlighter
+import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue}
+import laika.parse.code.common.StringLiteral.StringParser
+import laika.parse.code.common.{Comment, Identifier, Keywords, NumberLiteral, StringLiteral}
+import laika.parse.code.{CodeCategory, CodeSpanParsers}
+import laika.parse.text.TextParsers.{lookAhead, ws, _}
 
 /**
   * @author Jens Halm
   */
 object HOCON {
 
-  val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("hocon")()
+  val string: StringParser = StringLiteral.singleLine('"').embed(
+    StringLiteral.Escape.unicode,
+    StringLiteral.Escape.char
+  )
+
+  val quotedAttributeName: StringParser = string
+    .withPostCondition(lookAhead(ws ~ anyOf(':','=','{').take(1)) ^^^ (()))
+    .copy(defaultCategories = Set(CodeCategory.AttributeName))
+  
+  val substitution: CodeSpanParsers = CodeSpanParsers(CodeCategory.Substitution, "${", "}")
+
+  private val unquotedChar = {
+    val validChar = anyBut('$', '"', '{', '}', '[', ']', ':', '=', ',', '+', '#', '`', '^', '?', '!', '@', '*', '&', '\\', ' ', '\t','\n').take(1) 
+    
+    validChar | anyOf(' ').take(1) <~ lookAhead(ws ~ validChar)
+  }.rep.map(_.mkString)
+  
+  val unquotedAttributeName: CodeSpanParsers = CodeSpanParsers(CodeCategory.AttributeName, Identifier.idStartChars) {
+    unquotedChar <~ lookAhead(ws ~ anyOf(':','=','{').take(1))
+  }
+  
+  val unquotedStringValue: CodeSpanParsers = CodeSpanParsers(CodeCategory.StringLiteral, Identifier.idStartChars) {
+    unquotedChar
+  }
+  
+  def functionNames(names: String*): CodeSpanParsers = names.map { name =>
+    CodeSpanParsers(CodeCategory.Identifier, name.head) {
+      literal(name.tail) <~ lookAhead('(')
+    }
+  }.reduceLeft(_ ++ _)
+  
+  val includeStatement: CodeSpanParsers = CodeSpanParsers(CodeCategory.Keyword, 'i') {
+    literal("nclude") <~ lookAhead(ws.min(1) ~ (literal("\"") | literal("required(") | literal("file(") | literal("url(") | literal("classpath(")))
+  }
+  
+  val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("hocon")(
+    Keywords(BooleanLiteral)("true", "false"),
+    Keywords(LiteralValue)("null"),
+    NumberLiteral.decimalFloat.build,
+    NumberLiteral.decimalInt.build,
+    StringLiteral.multiLine("\"\"\"").build,
+    quotedAttributeName.build,
+    string.build,
+    substitution,
+    Comment.singleLine("//"),
+    Comment.singleLine("#"),
+    functionNames("required", "file", "url", "classpath"),
+    includeStatement,
+    unquotedAttributeName,
+    unquotedStringValue
+  )
   
 }

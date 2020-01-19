@@ -55,6 +55,7 @@ class LanguageSpec extends WordSpec with Matchers {
     def attrName(value: String): CodeSpan = CodeSpan(value, CodeCategory.AttributeName)
     def comment(value: String): CodeSpan = CodeSpan(value, CodeCategory.Comment)
     def other(value: String): CodeSpan = CodeSpan(value)
+    def multiline(value: String): CodeSpan = string("\"\"\""+value+"\"\"\"")
     
     trait TagFormats {
       def string(value: String): CodeSpan = CodeSpan("\"" + value + "\"", StringLiteral)
@@ -407,6 +408,42 @@ class LanguageSpec extends WordSpec with Matchers {
           other("{\n  "),
           attrName("foo"), other(": ["), boolean("false"), comma, number("2.3e-2"), comma, literal("null"), comma, string("\"bar\""),
           other(", { "), attrName("nested"), colonSpace, boolean("true"), other(" }\n}")
+        ))
+      ))
+    }
+
+    "parse a HOCON document" in {
+      val input =
+        """# Doc
+          |
+          |```hocon
+          |{
+          |  a = [false, 2.3e-2, null, "bar", { nested = true }
+          |  
+          |  include required(file("xx.conf"))
+          |  
+          |  b = unquoted string # comment
+          |  
+          |  "c" : text ${subst} text
+          |  
+          |  d e f = +++multiline
+          |          string+++
+          |}
+          |``` 
+        """.stripMargin.replaceAllLiterally("+++","\"\"\"")
+
+      def nl(end: String): CodeSpan = CodeSpan(end + "\n  \n  ")
+      
+      parse(input) shouldBe RootElement(Seq(
+        Title(Seq(Text("Doc")), Styles("title") + Id("doc")),
+        CodeBlock("hocon", Seq(
+          other("{\n  "),
+          attrName("a"), other(" = ["), boolean("false"), comma, number("2.3e-2"), comma, literal("null"), comma, string("\"bar\""),
+          other(", { "), attrName("nested"), equals, boolean("true"), nl(" }"),
+          keyword("include"), space, id("required"), other("("), id("file"), other("("), string("\"xx.conf\""), nl("))"),
+          attrName("b"), equals, string("unquoted string"), space, comment("# comment\n"), other("  \n  "),
+          attrName("\"c\""), other(" : "), string("text"), space, subst("${subst}"), space, string("text"), nl(""),
+          attrName("d e f"), equals, multiline("multiline\n          string"), other("\n}"),
         ))
       ))
     }

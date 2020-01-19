@@ -34,7 +34,7 @@ object JSON {
   )
   
   val attributeName: StringParser = string
-    .withPostCondition(lookAhead(ws ~ ':') ^^^ ())
+    .withPostCondition(lookAhead(ws ~ ':') ^^^ (()))
     .copy(defaultCategories = Set(CodeCategory.AttributeName))
 
   val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("json")(
