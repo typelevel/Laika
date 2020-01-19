@@ -110,6 +110,14 @@ object CodeCategory {
     case object CData extends CodeCategory
   }
   
+  object Markup {
+    case object Fence extends CodeCategory
+    case object Headline extends CodeCategory
+    case object Emphasized extends CodeCategory
+    case object Quote extends CodeCategory
+    case object LinkText extends CodeCategory
+    case object LinkTarget extends CodeCategory
+  }
 }
 
 case class CodeSpan (content: String, categories: Set[CodeCategory], options: Options = NoOpt) extends Span with TextContainer {

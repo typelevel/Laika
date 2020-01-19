@@ -447,6 +447,43 @@ class LanguageSpec extends WordSpec with Matchers {
         ))
       ))
     }
+
+    "parse a Markdown document" in {
+      val input =
+        """# Doc
+          |
+          |```md
+          |Some *em* text **and** some `literal` text, an ![image](foo.jpg).
+          |A [link](http://foo/), another [link][ref] and one more [ref].
+          |
+          |Header
+          |======
+          |
+          |[ref]: http://foo
+          |
+          |### Header
+          |
+          |> Quote
+          |``` 
+        """.stripMargin.replaceAllLiterally("+++","\"\"\"")
+
+      def txt(content: String): CodeSpan = CodeSpan(content)
+      def header(content: String): CodeSpan = CodeSpan("\n" + content + "\n", CodeCategory.Markup.Headline)
+      def em(content: String): CodeSpan = CodeSpan(content, CodeCategory.Markup.Emphasized)
+      def linkText(content: String): CodeSpan = CodeSpan(content, CodeCategory.Markup.LinkText)
+      def linkTarget(content: String): CodeSpan = CodeSpan(content, CodeCategory.Markup.LinkTarget)
+
+      parse(input) shouldBe RootElement(Seq(
+        Title(Seq(Text("Doc")), Styles("title") + Id("doc")),
+        CodeBlock("md", Seq(
+          txt("Some "), em("*em*"), txt(" text "), em("**and**"), txt(" some "), string("`literal`"),
+          txt(" text, an "), linkText("![image]"),  linkTarget("(foo.jpg)"), txt(".\nA "),
+          linkText("[link]"), linkTarget("(http://foo/)"), txt(", another "), linkText("[link]"), id("[ref]"), txt(" and one more "), id("[ref]"), txt(".\n"),
+          header("Header\n======"), txt("\n"), id("[ref]:"), linkTarget(" http://foo"), txt("\n"),
+          header("### Header"), CodeSpan("\n>", CodeCategory.Markup.Quote), txt(" Quote")
+        ))
+      ))
+    }
         
   }
   
