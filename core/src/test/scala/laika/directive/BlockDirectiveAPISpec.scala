@@ -303,6 +303,21 @@ class BlockDirectiveAPISpec extends FlatSpec
     }
   }
 
+  it should "parse a directive with the allAttributes combinator and an additional nested config object" in {
+    new BlockParser with AllAttributes {
+      val input = """aa
+        |
+        |@:dir { 
+        |  foo=Planet 
+        |  bar=42
+        |  nested { xx = 9 } 
+        |}
+        |
+        |bb""".stripMargin
+      Parsing (input) should produce (root(p("aa"), p("Planet 42"), p("bb")))
+    }
+  }
+
   it should "parse a directive with a body" in {
     new BlockParser with Body {
       val input = """aa
