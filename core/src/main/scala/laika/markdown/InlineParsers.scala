@@ -157,16 +157,14 @@ object InlineParsers {
     */
   val image: SpanParserBuilder = SpanParser.forStartChar('!').recursive { recParsers =>
 
-    def escape (ctx: ParserContext): Either[Span, String] = recParsers.escapedText(DelimitedText.Undelimited).parse(ctx)  match {
-      case Success(span, _) => Right(span)
-      case f: Failure       => Left(InvalidElement(f.message, ctx.input).asSpan)
-    }
+    def escape (text: String, f: String => Span): Span = 
+      recParsers.escapedText(DelimitedText.Undelimited).parse(text).toEither.fold(InvalidElement(_, text).asSpan, f)
 
     def imageInline (p: RecParser, text: String, uri: String, title: Option[String]) =
-      escape(ParserContext(text)).map(Image(_, URI(uri), title = title)).fold(identity, identity)
+      escape(text, Image(_, URI(uri), title = title))
 
     def imageReference (p: RecParser, text: String, id: String, postFix: String): Span =
-      escape(ParserContext(text)).map(ImageReference(_, normalizeId(id), "![" + text + postFix)).fold(identity, identity)
+      escape(text, ImageReference(_, normalizeId(id), "![" + text + postFix))
 
     '[' ~> resource(imageInline, imageReference, recParsers)
   }
@@ -180,7 +178,7 @@ object InlineParsers {
                 ref: (RecParser, String, String, String) => Span,
                 recParsers: RecursiveSpanParsers): Parser[Span] = {
 
-    val linktext = text(delimitedBy(']'), Map(
+    val linkText = text(delimitedBy(']'), Map(
       '\\' -> (recParsers.escapedChar ^^ {"\\" + _}),
       '[' -> (delimitedBy(']') ^^ { "[" + _ + "]" })
     ))
@@ -202,7 +200,7 @@ object InlineParsers {
       case ws ~ lb ~ _  => (recParser: RecParser, text:String) =>
         ref(recParser, text, text, "]"+ws+ lb.getOrElse("") +"[]") }
 
-    recParsers.withRecursiveSpanParser(linktext) ~ opt(urlWithTitle | refEmpty | refId) ^^ {
+    recParsers.withRecursiveSpanParser(linkText) ~ opt(urlWithTitle | refEmpty | refId) ^^ {
       case (recParser, text) ~ None    => ref(recParser, text, text, "]")
       case (recParser, text) ~ Some(f) => f(recParser, text)
     }
