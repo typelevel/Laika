@@ -90,6 +90,8 @@ object StringLiteral {
       Some(oldPrefix <~ parser)
     })
     
+    def withCategory (category: CodeCategory): StringParser = copy(defaultCategories = Set(category))
+    
     def build: CodeSpanParsers = CodeSpanParsers(startChars) {
       
       def optParser(p: Option[Parser[String]]): Parser[List[CodeSpan]] = 
@@ -106,7 +108,7 @@ object StringLiteral {
 
   def singleLine (startChars: Set[Char], end: Char): StringParser = {
     require(startChars.nonEmpty)
-    val parser = delimitedBy(end, '\n').keepDelimiter
+    val parser = delimitedBy(end).failOn('\n').keepDelimiter
     StringParser(startChars, parser, postfix = Some(anyOf(end).take(1)))
   }
 
