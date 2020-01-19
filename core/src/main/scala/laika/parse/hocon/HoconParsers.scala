@@ -27,8 +27,7 @@ import scala.util.Try
 /** The parser implementation for the HOCON format.
   * 
   * It currently supports the full spec as documented in
-  * [[https://github.com/lightbend/config/blob/master/HOCON.md]]
-  * except for file includes which might be added in a later release.
+  * [[https://github.com/lightbend/config/blob/master/HOCON.md]].
   * 
   * @author Jens Halm
   */
