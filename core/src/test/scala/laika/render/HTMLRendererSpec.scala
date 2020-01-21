@@ -422,7 +422,7 @@ class HTMLRendererSpec extends FlatSpec
   
   it should "render a paragraph containing a code span" in {
     val elem = p(txt("some "), Code("banana-script", List(Text("code"))), txt(" span"))
-    render (elem) should be ("<p>some <code class=\"code banana-script\">code</code> span</p>") 
+    render (elem) should be ("<p>some <code class=\"banana-script\">code</code> span</p>") 
   }
   
   it should "render a paragraph containing a link without title" in {
@@ -610,7 +610,7 @@ class HTMLRendererSpec extends FlatSpec
       |
       |line 3""".stripMargin
     val elem = CodeBlock("banana-script", List(Text(code)))
-    render (elem) should be ("<pre class=\"code banana-script\"><code>" + code.replaceAllLiterally("<", "&lt;") + "</code></pre>") 
+    render (elem) should be ("<pre><code class=\"banana-script\">" + code.replaceAllLiterally("<", "&lt;") + "</code></pre>") 
   }
   
   it should "render a literal block inside a blockquote without indentation" in {
@@ -646,7 +646,7 @@ class HTMLRendererSpec extends FlatSpec
       |
       |line 3""".stripMargin
     val html = """<blockquote>
-      |  <pre class="code banana-script"><code>:<em>%s</em>:</code></pre>
+      |  <pre><code class="nohighlight">:<em>%s</em>:</code></pre>
       |</blockquote>""".stripMargin.format(code)
     val elem = quote(CodeBlock("banana-script", List(txt(":"),em(code),txt(":"))))
     render (elem) should be (html) 

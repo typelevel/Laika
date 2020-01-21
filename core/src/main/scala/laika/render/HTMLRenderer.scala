@@ -89,7 +89,8 @@ class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => Str
 
     def renderSpanContainer (con: SpanContainer): String = {
       
-      def codeStyles (language: String) = if (language.isEmpty) Styles("code") else Styles("code", language)
+      def codeStyles (language: String, hasHighlighting: Boolean) = 
+        if (hasHighlighting) Styles("nohighlight") else Styles(language)
       
       def crossLinkRef (path: PathInfo, ref: String) = {
         val target = path.relative.name.lastIndexOf(".") match {
@@ -112,8 +113,8 @@ class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => Str
         case Deleted(content,opt)           => fmt.element("del", opt, content)
         case Inserted(content,opt)          => fmt.element("ins", opt, content)
         case ParsedLiteralBlock(content,opt)=> fmt.rawElement("pre", opt, fmt.withoutIndentation(_.element("code", NoOpt, content)))
-        case CodeBlock(lang,content,opt)    => fmt.rawElement("pre", opt + codeStyles(lang), fmt.withoutIndentation(_.element("code", NoOpt, content)))
-        case Code(lang,content,opt)         => fmt.withoutIndentation(_.element("code", opt + codeStyles(lang), content))
+        case cb@CodeBlock(lang,content,opt) => fmt.rawElement("pre", opt, fmt.withoutIndentation(_.element("code", codeStyles(lang, cb.hasSyntaxHighlighting), content)))
+        case Code(lang,content,opt)         => fmt.withoutIndentation(_.element("code", opt + codeStyles(lang, false), content))
         case Line(content,opt)              => fmt.element("div", opt + Styles("line"), content)
         case Title(content, opt)            => fmt.element("h1", opt, content)
         case Header(level, content, opt)    => fmt.newLine + fmt.element("h"+level.toString, opt,content)
