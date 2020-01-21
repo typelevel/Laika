@@ -17,6 +17,7 @@
 package laika.render
 
 import laika.ast._
+import laika.parse.code.CodeSpan
 
 /** Default renderer implementation for the Formatted AST output format.
   *
@@ -64,7 +65,14 @@ object ASTRenderer extends ((TextFormatter, Element) => String) {
     }
 
     def textContainerDesc (con: TextContainer): String = {
-      val start = con.productPrefix + attributes(con.productIterator, con.content) + " - '"
+      val start = con match {
+        case CodeSpan(_, categories, _) => 
+          val props = if (categories.isEmpty) ""
+                      else categories.toSeq.map(_.name).sorted.mkString("(", ", ", ")")
+          s"CodeSpan$props - '"
+        case _ =>
+          con.productPrefix + attributes(con.productIterator, con.content) + " - '"
+      }
 
       val text = con.content.replaceAllLiterally("\n", "|")
       val len = text.length
