@@ -83,7 +83,14 @@ object CodeSpanParsers {
   
 }
 
-sealed trait CodeCategory
+sealed trait CodeCategory extends Product with Serializable {
+  private def camel2dash(text: String) = text.drop(1).foldLeft(text.head.toLower.toString) {
+    case (acc, c) if c.isUpper => acc + "-" + c.toLower
+    case (acc, c) => acc + c
+  }
+  def name: String = prefix + camel2dash(productPrefix)
+  protected def prefix: String = ""
+}
 
 object CodeCategory {
   
@@ -103,20 +110,26 @@ object CodeCategory {
   case object Identifier extends CodeCategory
   
   object XML {
-    case object TagName extends CodeCategory
-    case object Punctuation extends CodeCategory
-    case object DTDTagName extends CodeCategory
-    case object ProcessingInstruction extends CodeCategory
-    case object CData extends CodeCategory
+    sealed trait XMLCategory extends CodeCategory {
+      override def prefix: String = "xml-"
+    }
+    case object TagName extends XMLCategory
+    case object Punctuation extends XMLCategory
+    case object DTDTagName extends XMLCategory
+    case object ProcessingInstruction extends XMLCategory
+    case object CData extends XMLCategory
   }
   
   object Markup {
-    case object Fence extends CodeCategory
-    case object Headline extends CodeCategory
-    case object Emphasized extends CodeCategory
-    case object Quote extends CodeCategory
-    case object LinkText extends CodeCategory
-    case object LinkTarget extends CodeCategory
+    sealed trait MarkupCategory extends CodeCategory {
+      override def prefix: String = "markup-"
+    }
+    case object Fence extends MarkupCategory
+    case object Headline extends MarkupCategory
+    case object Emphasized extends MarkupCategory
+    case object Quote extends MarkupCategory
+    case object LinkText extends MarkupCategory
+    case object LinkTarget extends MarkupCategory
   }
 }
 
