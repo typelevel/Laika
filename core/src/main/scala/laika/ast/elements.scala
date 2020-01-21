@@ -424,6 +424,10 @@ case class CodeBlock (language: String, content: Seq[Span], options: Options = N
   type Self = CodeBlock
   def withContent (newContent: Seq[Span]): CodeBlock = copy(content = newContent)
   def withOptions (options: Options): CodeBlock = copy(options = options)
+  def hasSyntaxHighlighting: Boolean = content match {
+    case Seq(Text(_, _)) => false
+    case _ => true
+  }
 }
 
 /** A quoted block consisting of a list of blocks that may contain other
