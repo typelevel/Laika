@@ -267,7 +267,18 @@ object TextMarkup {
   )
 
   lazy val laikaHTML: SyntaxHighlighter = SyntaxHighlighter.build("laikaHTML", "laika-html")(
-
+    laikaSubstitution,
+    laikaDirective,
+    laikaFence,
+    laikaHoconBlock,
+    HTML.docType,
+    HTML.comment,
+    HTML.ref,
+    HTML.emptyTag,
+    HTML.scriptTag,
+    HTML.styleTag,
+    HTML.startTag,
+    HTML.endTag
   )
   
 }

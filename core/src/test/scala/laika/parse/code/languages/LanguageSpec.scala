@@ -615,6 +615,48 @@ class LanguageSpec extends WordSpec with Matchers {
         ))
       ))
     }
+
+    "parse an HTML document with Laika extensions" in new TagFormats {
+      val input =
+        """# Doc
+          |
+          |```laika-html
+          |{%
+          |  autonumbering {
+          |    scope: sections
+          |    depth: 2
+          |  }
+          |%}
+          |<html>
+          |  <body>
+          |    @:toc { depth: 2 }
+          |    <div class="content">
+          |      ${document.content}
+          |    </div>
+          |  </body>
+          |</html>
+          |``` 
+        """.stripMargin
+
+      parse(input) shouldBe RootElement(Seq(
+        Title(Seq(Text("Doc")), Styles("title") + Id("doc")),
+        CodeBlock("laika-html", Seq(
+          keyword("{%"), other("\n  "),
+          attrName("autonumbering"), other(" {\n    "),
+          attrName("scope"), colonSpace, CodeSpan("sections", CodeCategory.StringLiteral), other("\n    "),
+          attrName("depth"), colonSpace, number("2"), other("\n  }\n"),
+          keyword("%}"), other("\n"),
+          open, tagName("html"), close, nl(2),
+          open, tagName("body"), close, nl(4),
+          keyword("@:"), id("toc"), other(" { "), attrName("depth"), colonSpace, number("2"), other(" }\n    "),
+          open, tagName("div"), space, attrName("class"), eq, string("content"), close, nl(6),
+          subst("${document.content}"), nl(4),
+          punct("</"), tagName("div"), close, nl(2),
+          punct("</"), tagName("body"), close, nl(0),
+          punct("</"), tagName("html"), close
+        ))
+      ))
+    }
         
   }
   
