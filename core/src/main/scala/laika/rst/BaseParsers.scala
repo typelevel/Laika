@@ -26,12 +26,16 @@ import laika.parse.text.{Characters, TextParsers}
   */
 object BaseParsers {
 
+  /** Set of punctuation characters as supported by transitions (rules) and
+    *  overlines and underlines for header sections.
+    */
+  private[laika] val punctuationChars: Set[Char] = Set('!','"','#','$','%','&','\'','(',')','[',']','{','}','*','+',',','-','.',':',';','/','<','>','=','?','@','\\','^','_','`','|','~')
 
   /** Parses punctuation characters as supported by transitions (rules) and
     *  overlines and underlines for header sections.
     */
   val punctuationChar: Characters[String] =
-    anyOf('!','"','#','$','%','&','\'','(',')','[',']','{','}','*','+',',','-','.',':',';','/','<','>','=','?','@','\\','^','_','`','|','~')
+    anyOf(punctuationChars.toSeq:_*)
 
   /** Parses a simple reference name that only allows alphanumerical characters
     *  and the punctuation characters `-`, `_`, `.`, `:`, `+`.

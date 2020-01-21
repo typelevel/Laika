@@ -22,6 +22,8 @@ import laika.parse.Parser
 import laika.parse.code.common.{NumberLiteral, StringLiteral}
 import laika.parse.code.{CodeCategory, CodeSpan, CodeSpanParsers}
 import laika.parse.text.TextParsers._
+import laika.rst.BaseParsers
+import laika.rst.InlineParsers.{delimitedByMarkupEnd, markupStart}
 
 /**
   * @author Jens Halm
@@ -117,38 +119,85 @@ object TextMarkup {
     quoteChars,
   )
 
-  lazy val rst: SyntaxHighlighter = SyntaxHighlighter.build("reStructuredText", "rst")(
-    /*
-    InlineParsers.strong,
-    InlineParsers.em,
-    InlineParsers.inlineLiteral,
-    InlineParsers.phraseLinkRef,
-    InlineParsers.simpleLinkRef,
-    InlineParsers.footnoteRef,
-    InlineParsers.citationRef,
-    InlineParsers.substitutionRef,
-    InlineParsers.internalTarget,
-    InlineParsers.interpretedTextWithRolePrefix,
-    InlineParsers.uri,
-    InlineParsers.email
+  private def span (start: String, end: String): Parser[String] = span(start, end, success(()))
+
+  private def span (start: String, end: String, postCondition: Parser[Any]): Parser[String] = 
+    markupStart(start, end) ~> delimitedByMarkupEnd(end, postCondition) ^^ { text => s"$start$text$end" }
+
+  def rawSpan(start: String, end: String, category: CodeCategory): Parser[CodeSpan] = // does not perform checks for rst inline markup recognition
+    (start ~ delimitedBy(end).failOn('\n')).concat.map(res => CodeSpan(s"$res$end", category))
+
+  val strong: CodeSpanParsers = CodeSpanParsers(CodeCategory.Markup.Emphasized, '*')(span("*","**"))
+  val em: CodeSpanParsers = CodeSpanParsers(CodeCategory.Markup.Emphasized, '*')(span("","*",not("*")))
+  val lit: CodeSpanParsers = CodeSpanParsers(CodeCategory.StringLiteral, '`')(span("`","``"))
+  val ref: CodeSpanParsers = CodeSpanParsers(CodeCategory.Markup.LinkTarget, '`')(span("","`__")) ++
+    CodeSpanParsers(CodeCategory.Markup.LinkTarget, '`')(span("","`_"))
+  val subst: CodeSpanParsers = CodeSpanParsers(CodeCategory.Substitution, '|')(span("","|__")) ++ 
+    CodeSpanParsers(CodeCategory.Substitution, '|')(span("","|_")) ++
+    CodeSpanParsers(CodeCategory.Substitution, '|')(span("","|"))
+  val interpretedText: CodeSpanParsers = CodeSpanParsers(CodeCategory.Substitution, '`')(span("","`"))
+  val roleName: CodeSpanParsers = CodeSpanParsers(CodeCategory.Identifier, ':')(span("",":"))
+  val internalTarget: CodeSpanParsers = CodeSpanParsers(CodeCategory.Identifier, '_')(span("`","`"))
+  val footnote: CodeSpanParsers = CodeSpanParsers(CodeCategory.Markup.LinkTarget, '[')(span("","]_"))
+  
+  val header: CodeSpanParsers = CodeSpanParsers(CodeCategory.Markup.Headline, '\n') {
+    anyOf(BaseParsers.punctuationChars.toSeq:_*).take(1) >> { startChar =>
+      (anyOf(startChar.head).min(1) ~ ws ~ ('\n' ~> not(blankLine) ~> restOfLine) ~ anyOf(startChar.head).min(1) ~ ws <~ lookAhead('\n')).map {
+        case deco1 ~ spaces ~ text ~ deco2 ~ spaces2 => s"$startChar$deco1$spaces\n$text\n$deco2$spaces2"
+      }
+    }
+  }
+
+  val underlinedHeader: CodeSpanParsers = CodeSpanParsers(CodeCategory.Markup.Headline, '\n') {
+    (not(blankLine) ~> restOfLine.map(_+"\n") ~ anyOf(BaseParsers.punctuationChars.toSeq:_*).take(1)) >> {
+      case text ~ decoStart =>
+        (anyOf(decoStart.head).min(1) ~ ws <~ lookAhead('\n')).map {
+          case deco ~ spaces => s"$text$decoStart$deco$spaces"
+        }
+    }
+  }
+
+  val transition: CodeSpanParsers = CodeSpanParsers(CodeCategory.Markup.Fence, '\n') {
+    anyOf(BaseParsers.punctuationChars.toSeq:_*).take(1) >> { startChar =>
+      anyOf(startChar.head).min(1).map(startChar + _) <~ lookAhead(ws ~ '\n' ~ blankLine)
+    }
+  }
+  
+  val explicitItems: CodeSpanParsers = CodeSpanParsers('\n') {
     
-    ListParsers.bulletList,
-    ListParsers.enumList,
-    ListParsers.fieldList,
-    ListParsers.lineBlock,
-    ListParsers.optionList,
-    ExplicitBlockParsers.allBlocks,
-    ExplicitBlockParsers.shortAnonymousLinkTarget,
-    BlockParsers.doctest,
-    BlockParsers.blockQuote,
-    BlockParsers.headerWithOverline,
-    BlockParsers.transition,
-    BlockParsers.headerWithUnderline,
-    ListParsers.definitionList,
+    val subst = (rawSpan("|", "|", CodeCategory.Substitution) ~ ws ~ delimitedBy("::")).map {
+      case sub ~ space ~ name => Seq(sub, CodeSpan(space), CodeSpan(s"$name::", CodeCategory.Identifier))
+    }
+    val linkTarget = rawSpan("_", ":", CodeCategory.Markup.LinkTarget).map(Seq(_))
+    val footnote = rawSpan("[", "]", CodeCategory.Markup.LinkTarget).map(Seq(_))
+    val directive = rawSpan("", "::", CodeCategory.Identifier).map(Seq(_))
     
-    presentation:
-    examples for highlighters: VSCode no DTD, Scala docs: bad EBNF highlighting
-     */
+    (literal(".. ") ~> (subst | linkTarget | footnote | directive)).map(res => CodeSpan("\n.. ") +: res)
+  }
+  
+  val fieldDef: CodeSpanParsers = CodeSpanParsers('\n') {
+    (ws ~ rawSpan(":", ":", CodeCategory.Identifier)).map {
+      case space ~ name => Seq(CodeSpan(s"\n$space"), name)
+    }
+  }
+  
+  
+  val rst: SyntaxHighlighter = SyntaxHighlighter.build("reStructuredText", "rst")(
+    explicitItems,
+    fieldDef,
+    strong,
+    em,
+    subst,
+    footnote,
+    lit,
+    ref,
+    internalTarget,
+    interpretedText,
+    roleName,
+    StringLiteral.Escape.char,
+    header,
+    transition,
+    underlinedHeader
   )
 
   lazy val laikaMarkdown: SyntaxHighlighter = SyntaxHighlighter.build("laikaMarkdown", "laika-md")(

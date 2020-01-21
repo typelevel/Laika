@@ -465,7 +465,7 @@ class LanguageSpec extends WordSpec with Matchers {
           |
           |> Quote
           |``` 
-        """.stripMargin.replaceAllLiterally("+++","\"\"\"")
+        """.stripMargin
 
       def txt(content: String): CodeSpan = CodeSpan(content)
       def header(content: String): CodeSpan = CodeSpan("\n" + content + "\n", CodeCategory.Markup.Headline)
@@ -481,6 +481,59 @@ class LanguageSpec extends WordSpec with Matchers {
           linkText("[link]"), linkTarget("(http://foo/)"), txt(", another "), linkText("[link]"), id("[ref]"), txt(" and one more "), id("[ref]"), txt(".\n"),
           header("Header\n======"), txt("\n"), id("[ref]:"), linkTarget(" http://foo"), txt("\n"),
           header("### Header"), CodeSpan("\n>", CodeCategory.Markup.Quote), txt(" Quote")
+        ))
+      ))
+    }
+
+    "parse a reStructuredText document" in {
+      val input =
+        """# Doc
+          |
+          |```rst
+          |Some *em* text **and** some ``literal`` text.
+          |And a |subst| plus a [#note]_ and `one more ref`_ and `role text`
+          |and _`internal target`.
+          |
+          |Header1
+          |=======
+          |
+          |++++++++
+          |Header 2
+          |++++++++
+          |
+          |.. _ref: http://foo
+          |
+          |.. |subs| dir::
+          |
+          |.. [#label] footnote
+          |
+          |___
+          |
+          |.. dir::
+          | :name: value
+          |``` 
+        """.stripMargin
+
+      def txt(content: String): CodeSpan = CodeSpan(content)
+      def header(content: String): CodeSpan = CodeSpan("\n" + content, CodeCategory.Markup.Headline)
+      def em(content: String): CodeSpan = CodeSpan(content, CodeCategory.Markup.Emphasized)
+      def linkTarget(content: String): CodeSpan = CodeSpan(content, CodeCategory.Markup.LinkTarget)
+
+      parse(input) shouldBe RootElement(Seq(
+        Title(Seq(Text("Doc")), Styles("title") + Id("doc")),
+        CodeBlock("rst", Seq(
+          txt("Some "), em("*em*"), txt(" text "), em("**and**"), txt(" some "), string("``literal``"),
+          txt(" text.\nAnd a "), subst("|subst|"), txt(" plus a "), linkTarget("[#note]_"), txt(" and "),
+          linkTarget("`one more ref`_"), txt(" and "), subst("`role text`"),
+          txt("\nand "), id("_`internal target`"), txt(".\n"),
+          header("Header1\n======="), txt("\n"), 
+          header("++++++++\nHeader 2\n++++++++"),
+          txt("\n\n.. "), linkTarget("_ref:"), txt(" http://foo\n\n.. "),
+          subst("|subs|"), space, id("dir::"),
+          txt("\n\n.. "), linkTarget("[#label]"), txt(" footnote\n"),
+          CodeSpan("\n___", CodeCategory.Markup.Fence), 
+          txt("\n\n.. "), id("dir::"), txt("\n "),
+          id(":name:"), txt(" value")
         ))
       ))
     }
