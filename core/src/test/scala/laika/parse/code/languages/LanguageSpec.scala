@@ -485,6 +485,45 @@ class LanguageSpec extends WordSpec with Matchers {
       ))
     }
 
+    "parse a Markdown document with Laika extensions" in {
+      val input =
+        """# Doc
+          |
+          |```laika-md
+          |{%
+          |  autonumbering {
+          |    scope: sections
+          |    depth: 2
+          |  }
+          |%}
+          |Some *em* text **and** some ${subst.value}.
+          |
+          |Header
+          |======
+          |
+          |@:toc { depth: 2 }
+          |``` 
+        """.stripMargin
+
+      def txt(content: String): CodeSpan = CodeSpan(content)
+      def header(content: String): CodeSpan = CodeSpan("\n" + content + "\n", CodeCategory.Markup.Headline)
+      def em(content: String): CodeSpan = CodeSpan(content, CodeCategory.Markup.Emphasized)
+
+      parse(input) shouldBe RootElement(Seq(
+        Title(Seq(Text("Doc")), Styles("title") + Id("doc")),
+        CodeBlock("laika-md", Seq(
+          keyword("{%"), txt("\n  "), 
+          attrName("autonumbering"), txt(" {\n    "),
+          attrName("scope"), colonSpace, string("sections"), txt("\n    "),
+          attrName("depth"), colonSpace, number("2"), txt("\n  }\n"),
+          keyword("%}"),
+          txt("\nSome "), em("*em*"), txt(" text "), em("**and**"), txt(" some "), subst("${subst.value}"), txt(".\n"),
+          header("Header\n======"), txt("\n"), 
+          keyword("@:"), id("toc"), other(" { "), attrName("depth"), colonSpace, number("2"), other(" }")
+        ))
+      ))
+    }
+
     "parse a reStructuredText document" in {
       val input =
         """# Doc

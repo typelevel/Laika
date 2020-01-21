@@ -112,11 +112,14 @@ object StringLiteral {
     StringParser(startChars, parser, postfix = Some(anyOf(end).take(1)))
   }
 
-  def multiLine (between: String): StringParser = {
-    require(between.nonEmpty)
-    val prefix = if (between.tail.nonEmpty) Some(literal(between.tail)) else None
-    val parser = delimitedBy(between).keepDelimiter
-    StringParser(Set(between.head), parser, prefix, postfix = Some(literal(between)))
+  def multiLine (between: String): StringParser = multiLine(between, between)
+
+  def multiLine (startDelim: String, endDelim: String): StringParser = {
+    require(startDelim.nonEmpty)
+    require(endDelim.nonEmpty)
+    val prefix = if (startDelim.tail.nonEmpty) Some(literal(startDelim.tail)) else None
+    val parser = delimitedBy(endDelim).keepDelimiter
+    StringParser(Set(startDelim.head), parser, prefix, postfix = Some(literal(endDelim)))
   }
 
   def multiLine (startChars: Set[Char], end: String): StringParser = {

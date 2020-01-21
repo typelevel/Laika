@@ -19,7 +19,7 @@ package laika.parse.code.languages
 import laika.ast.~
 import laika.bundle.SyntaxHighlighter
 import laika.parse.Parser
-import laika.parse.code.common.{NumberLiteral, StringLiteral}
+import laika.parse.code.common.{EmbeddedCodeSpans, Identifier, Keywords, NumberLiteral, StringLiteral}
 import laika.parse.code.{CodeCategory, CodeSpan, CodeSpanParsers}
 import laika.parse.text.TextParsers._
 import laika.rst.BaseParsers
@@ -100,13 +100,15 @@ object TextMarkup {
   
   val quoteChars: CodeSpanParsers = CodeSpanParsers(CodeCategory.Markup.Quote, '\n')(anyOf('>').min(1))
 
+  val mdSpans: CodeSpanParsers = span(CodeCategory.Markup.Emphasized, "**") ++
+    span(CodeCategory.Markup.Emphasized, "*") ++
+    span(CodeCategory.Markup.Emphasized, "__") ++
+    span(CodeCategory.Markup.Emphasized, "_") ++
+    span(CodeCategory.StringLiteral, "``") ++
+    span(CodeCategory.StringLiteral, "`")
+  
   lazy val markdown: SyntaxHighlighter = SyntaxHighlighter.build("markdown", "md")(
-    span(CodeCategory.Markup.Emphasized, "**"),
-    span(CodeCategory.Markup.Emphasized, "*"),
-    span(CodeCategory.Markup.Emphasized, "__"),
-    span(CodeCategory.Markup.Emphasized, "_"),
-    span(CodeCategory.StringLiteral, "``"),
-    span(CodeCategory.StringLiteral, "`"),
+    mdSpans,
     singleLine(CodeCategory.Markup.LinkTarget, "<", '>'),
     image,
     link,
@@ -199,9 +201,47 @@ object TextMarkup {
     transition,
     underlinedHeader
   )
+  
+  val laikaSubstitution: CodeSpanParsers = StringLiteral.Substitution.between("${", "}")
+  
+  val laikaHoconBlock: CodeSpanParsers = CodeSpanParsers('{') {
+    embeddedHocon("%", "%}", Set(CodeCategory.Keyword)).map(res => CodeSpan("{", CodeCategory.Keyword) +: res)
+  }
+
+  def embeddedHocon(start: String, end: String, delimCategory: Set[CodeCategory] = Set()): Parser[Seq[CodeSpan]] = {
+    val embedded: EmbeddedCodeSpans = new EmbeddedCodeSpans {
+      val embedded: Seq[CodeSpanParsers] = HOCON.highlighter.spanParsers
+      val defaultCategories: Set[CodeCategory] = Set()
+    }
+    (literal(start) ~> embedded.contentParser(delimitedBy(end))).map { hocon => // TODO - support nested objects
+      CodeSpan(start, delimCategory) +: hocon :+ CodeSpan(end, delimCategory)
+    }
+  }
+  
+  val laikaDirective: CodeSpanParsers = CodeSpanParsers('@') {
+    (':' ~> Identifier.standard.standaloneParser ~ ws.min(1) ~ opt(embeddedHocon("{","}"))).map {
+      case name ~ spaces ~ hocon => CodeSpan("@:", CodeCategory.Keyword) +: name +: CodeSpan(spaces) +: hocon.getOrElse(Nil)
+    }
+  }
+  
+  val laikaFence: CodeSpanParsers = Keywords("@:@")
 
   lazy val laikaMarkdown: SyntaxHighlighter = SyntaxHighlighter.build("laikaMarkdown", "laika-md")(
-
+    laikaSubstitution,
+    laikaDirective,
+    laikaFence,
+    laikaHoconBlock,
+    mdSpans,
+    singleLine(CodeCategory.Markup.LinkTarget, "<", '>'),
+    image,
+    link,
+    StringLiteral.Escape.char,
+    linkTarget,
+    codeFence,
+    atxHeader,
+    setexHeader,
+    rules,
+    quoteChars,
   )
 
   lazy val laikaRst: SyntaxHighlighter = SyntaxHighlighter.build("laikaReStructuredText", "laika-rst")(
