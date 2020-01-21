@@ -17,6 +17,7 @@
 package laika.render
 
 import laika.ast._
+import laika.parse.code.CodeSpan
 import laika.render.FOFormatter._
 
 /** Default renderer implementation for the XSL-FO output format.
@@ -160,7 +161,8 @@ object FORenderer extends ((FOFormatter, Element) => String) {
     def renderTextContainer (con: TextContainer): String = con match {
       case e @ Text(content,_)           => fmt.text(e, content)
       case e @ TemplateString(content,_) => fmt.rawText(e, content)
-      case e @ RawContent(formats, content, _) => if (formats.contains("fo")) fmt.rawText(e, content) else ""
+      case e @ RawContent(formats, content, _)  => if (formats.contains("fo")) fmt.rawText(e, content) else ""
+      case e @ CodeSpan(content, categories, _) => fmt.textWithWS(e.mergeOptions(Styles(categories.map(_.name).toSeq:_*)), content)
       case e @ Literal(content,_)        => fmt.textWithWS(e, content)
       case e @ LiteralBlock(content,_)   => fmt.textBlockWithWS(e, content)
       case e: BookmarkTitle              => fmt.bookmarkTitle(e)

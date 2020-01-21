@@ -21,6 +21,7 @@ import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.bundle.BundleProvider
 import laika.format.XSLFO
+import laika.parse.code.{CodeCategory, CodeSpan}
 import org.scalatest.{FlatSpec, Matchers}
 
 class XSLFORendererSpec extends FlatSpec
@@ -610,6 +611,13 @@ class XSLFORendererSpec extends FlatSpec
     val elem = p(txt("some "), Code("banana-script", List(Text("code"))), txt(" span"))
     val fo = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">some <fo:inline font-family="monospace">code</fo:inline> span</fo:block>"""
     render (elem) should be (fo) 
+  }
+
+  it should "render a paragraph containing a code span with syntax highlighting" in {
+    val elem = p(txt("some "), CodeSpan("code", CodeCategory.Keyword), txt(" span"))
+    val fo = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">some <fo:inline font-weight="bold">code</fo:inline> span</fo:block>"""
+    val style = StyleDeclaration(StyleSelector(Set(StylePredicate.StyleName("keyword"))), Map("font-weight" -> "bold"))
+    render (elem, style) should be (fo)
   }
   
   it should "render a paragraph containing a link without title" in {
