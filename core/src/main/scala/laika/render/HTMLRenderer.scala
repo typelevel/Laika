@@ -17,6 +17,7 @@
 package laika.render
 
 import laika.ast._
+import laika.parse.code.CodeSpan
 
 /** Default renderer implementation for the HTML output format.
   *
@@ -165,6 +166,7 @@ class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => Str
         case NoOpt                     => content
         case _                         => fmt.rawElement("span", opt, content)
       }} else ""
+      case CodeSpan(content, categories, opt) => fmt.textElement("span", opt + Styles(categories.map(_.name).toSeq:_*), content) 
       case Literal(content,opt)        => fmt.withoutIndentation(_.textElement("code", opt, content))
       case LiteralBlock(content,opt)   => fmt.element("pre", opt, Seq(Literal(content)))
       case Comment(content,_)          => fmt.comment(content)

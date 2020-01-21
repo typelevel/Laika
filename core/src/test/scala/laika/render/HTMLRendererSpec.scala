@@ -20,6 +20,7 @@ import laika.api.Renderer
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.HTML
+import laika.parse.code.{CodeCategory, CodeSpan}
 import org.scalatest.{FlatSpec, Matchers}
 
 class HTMLRendererSpec extends FlatSpec 
@@ -611,6 +612,17 @@ class HTMLRendererSpec extends FlatSpec
       |line 3""".stripMargin
     val elem = CodeBlock("banana-script", List(Text(code)))
     render (elem) should be ("<pre><code class=\"banana-script\">" + code.replaceAllLiterally("<", "&lt;") + "</code></pre>") 
+  }
+
+  it should "render a code block with syntax highlighting" in {
+    val code = List(
+      CodeSpan("{{", CodeCategory.Keyword),
+      CodeSpan("foo"), 
+      CodeSpan("}}", Set(CodeCategory.XML.Punctuation, CodeCategory.Identifier))
+    )
+    val elem = CodeBlock("banana-script", code)
+    val renderedCode = """<span class="keyword">{{</span><span>foo</span><span class="xml-punctuation identifier">}}</span>"""
+    render (elem) should be (s"""<pre><code class="nohighlight">$renderedCode</code></pre>""")
   }
   
   it should "render a literal block inside a blockquote without indentation" in {
