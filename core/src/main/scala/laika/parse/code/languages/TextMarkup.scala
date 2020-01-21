@@ -245,7 +245,25 @@ object TextMarkup {
   )
 
   lazy val laikaRst: SyntaxHighlighter = SyntaxHighlighter.build("laikaReStructuredText", "laika-rst")(
-
+    laikaSubstitution,
+    laikaDirective,
+    laikaFence,
+    laikaHoconBlock,
+    explicitItems,
+    fieldDef,
+    strong,
+    em,
+    subst,
+    footnote,
+    lit,
+    ref,
+    internalTarget,
+    interpretedText,
+    roleName,
+    StringLiteral.Escape.char,
+    header,
+    transition,
+    underlinedHeader
   )
 
   lazy val laikaHTML: SyntaxHighlighter = SyntaxHighlighter.build("laikaHTML", "laika-html")(
