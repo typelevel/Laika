@@ -58,11 +58,13 @@ on nodes obtained by a separate parse operation. All three options are described
 The following example of an sbt build file shows how to turn each `Emphasized` node
 into a `Strong` node while processing everything else with default rules:
 
-    import laika.ast._
-    
-    laikaExtensions += laikaSpanRewriteRule { 
-      case Emphasized(content, opts) => Replace(Strong(content, opts))
-    }
+```scala
+import laika.ast._
+
+laikaExtensions += laikaSpanRewriteRule { 
+  case Emphasized(content, opts) => Replace(Strong(content, opts))
+}
+```
 
 
 ### Using the Transform API
@@ -73,12 +75,14 @@ in one go, as a step in the transformation process.
 
 Again we replace all `Emphasized` nodes with `Strong` nodes:
 
-    val transformer = Transformer
-      .from(ReStructuredText)
-      .to(HTML)
-      .usingSpanRule {
-        case Emphasized(content, opts) => Replace(Strong(content, opts))
-      }.build
+```scala
+val transformer = Transformer
+  .from(ReStructuredText)
+  .to(HTML)
+  .usingSpanRule {
+    case Emphasized(content, opts) => Replace(Strong(content, opts))
+  }.build
+```
 
 
 ### Working with the Tree Model
@@ -92,22 +96,25 @@ types support rewriting, too, so you can also apply it to elements like `Paragra
 
 Once again we are turning all `Emphasized` nodes in the text to `Strong` nodes:
 
-    val doc: Document = ??? // obtained through the Parse API
-    
-    val newDoc = doc.rewrite {
-      case Emphasized(content, opts) => Replace(Strong(content, opts))
-    }
+```scala
+val doc: Document = ??? // obtained through the Parse API
+
+val newDoc = doc.rewrite {
+  case Emphasized(content, opts) => Replace(Strong(content, opts))
+}
+```
 
 For a slightly more advanced example, let's assume you only want to replace `Emphasized`
 nodes inside headers. To accomplish this you need to nest a rewrite operation
 inside another one:
 
-    val newDoc = doc.rewrite {
-      case h: Header => Some(h rewriteChildren {
-        case Emphasized(content, opts) => Replace(Strong(content, opts))
-      })
-    }
-
+```scala
+val newDoc = doc.rewrite {
+  case h: Header => Some(h rewriteChildren {
+    case Emphasized(content, opts) => Replace(Strong(content, opts))
+  })
+}
+```
 
 [Kiama]: http://code.google.com/p/kiama/wiki/UserManual
   

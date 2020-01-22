@@ -31,31 +31,39 @@ as input, and for HTML as output. EPUB and PDF both require additional modules a
 
 First add the dependency to your build:
 
-    libraryDependencies += "org.planet42" %% "laika-core" % "0.12.1" 
+```scala
+libraryDependencies += "org.planet42" %% "laika-core" % "0.12.1" 
+```
 
 For most cases where you don't use any of the customization hooks, you should be fine with just these imports:
 
-    import laika.api._
-    import laika.format._
+```scala
+import laika.api._
+import laika.format._
+```
 
 
 ### Running a Transformation
 
 Converting a string from Markdown to HTML:
 
-    Transformer
-      .from(Markdown)
-      .to(HTML)
-      .build
-      .transform("hello *there*")
+```scala
+Transformer
+  .from(Markdown)
+  .to(HTML)
+  .build
+  .transform("hello *there*")
+```
 
 From reStructuredText to HTML:
 
-    Transformer
-      .from(ReStructuredText)
-      .to(HTML)
-      .build
-      .transform("hello *there*")
+```scala
+Transformer
+  .from(ReStructuredText)
+  .to(HTML)
+  .build
+  .transform("hello *there*")
+```
 
 
 ### Reusing Transformer Instances
@@ -63,10 +71,12 @@ From reStructuredText to HTML:
 You would normally keep the transformer instance for reuse with different
 inputs and outputs to reduce the memory footprint and initialization overhead:
 
-    val transformer = Transformer.from(Markdown).to(HTML).build
-    
-    val res1 = transformer.transform("example *1*)
-    val res2 = transformer.transform("example *2*)
+```scala
+val transformer = Transformer.from(Markdown).to(HTML).build
+
+val res1 = transformer.transform("example *1*")
+val res2 = transformer.transform("example *2*")
+```
 
 
 ### Adding Extensions
@@ -74,11 +84,13 @@ inputs and outputs to reduce the memory footprint and initialization overhead:
 The most likely bundle you would use in everyday scenarios is probably GitHub-Flavored Markdown,
 which is not installed by default:
 
-    val transformer = Transformer
-      .from(Markdown)
-      .to(HTML)
-      .using(GitHubFlavor)
-      .build
+```scala
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .using(GitHubFlavor)
+  .build
+```
 
 The `GitHubFlavor` object is an instance of `ExtensionBundle` an API that application
 or library authors can use themselves for bundling their own customizations. It has hooks
@@ -86,26 +98,30 @@ for all phases of the transformation process, parsing, AST transformation and re
 
 
 ### Debugging with AST Output
-    
+
 If you are investigating an unexpected result, it might help to get
 an insight into how Laika has interpreted the input and display the entire
 AST structure. It truncates longer strings, so it should normally be convenient
 to browse the entire tree structure:
 
-    val input = "some *text* example"
-    
-    Transformer
-      .from(Markdown)
-      .to(AST)
-      .build
-      .transform(input)
-    
-    res0: java.lang.String = Document - Blocks: 1
-    . Paragraph - Spans: 3
-    . . Text - 'some '
-    . . Emphasized - Spans: 1
-    . . . Text - 'text'
-    . . Text - ' example'
+```scala
+val input = "some *text* example"
+
+Transformer
+  .from(Markdown)
+  .to(AST)
+  .build
+  .transform(input)
+
+/*
+res0: java.lang.String = Document - Blocks: 1
+. Paragraph - Spans: 3
+. . Text - 'some '
+. . Emphasized - Spans: 1
+. . . Text - 'text'
+. . Text - ' example'
+*/
+```
 
 
 File/Stream IO and Binary Formats
@@ -114,7 +130,9 @@ File/Stream IO and Binary Formats
 In case you want to transform from files or directories, or use one of the binary formats
 like EPUB or PDF, you need to add another dependency to your build:
 
-    libraryDependencies += "org.planet42" %% "laika-io" % "0.12.1" 
+```scala
+libraryDependencies += "org.planet42" %% "laika-io" % "0.12.1" 
+```
 
 This module depends on cats-effect, and models all side effects in an abstract effect,
 so that you can use it with cats IO, Monix or Zio.
@@ -128,29 +146,33 @@ and for some use cases a `Parallel` instance.
 Laika gives full control over the `ExecutionContext` in which the blocking IO operations
 are performed. All the examples below will assume a setup like this:
 
-    implicit val cs: ContextShift[IO] = 
-      IO.contextShift(ExecutionContext.global)
-      
-    val blocker = Blocker.liftExecutionContext(
-      ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
-    )
+```scala
+implicit val cs: ContextShift[IO] = 
+  IO.contextShift(ExecutionContext.global)
+  
+val blocker = Blocker.liftExecutionContext(
+  ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
+)
+```
 
 
 ### Transforming a Single File
 
 You can use the sequential builder to transform single files or streams:
 
-    val transformer = Transformer
-      .from(Markdown)
-      .to(HTML)
-      .io(blocker)
-      .sequential[IO]
-      .build
-    
-    val res: IO[Unit] = transformer
-      .fromFile("hello.md")
-      .toFile("hello.html")
-      .transform
+```scala
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .io(blocker)
+  .sequential[IO]
+  .build
+
+val res: IO[Unit] = transformer
+  .fromFile("hello.md")
+  .toFile("hello.html")
+  .transform
+```
 
 Note that the first line builds a transformer in the same way as the examples
 for in-memory transformations. The IO module only wraps additional features
@@ -161,11 +183,13 @@ using a stack from the cats-effect ecosystem, like fs2 or http4s, you are good t
 
 If you run in a different stack, like Akka HTTP, you can convert the `IO` to a `Future`:
 
-    val res: Future[Unit] = transformer
-      .fromFile("hello.md")
-      .toFile("hello.html")
-      .transform
-      .unsafeToFuture()
+```scala
+val res: Future[Unit] = transformer
+  .fromFile("hello.md")
+  .toFile("hello.html")
+  .transform
+  .unsafeToFuture()
+```
 
 
 ### Using Streams
@@ -173,13 +197,15 @@ If you run in a different stack, like Akka HTTP, you can convert the `IO` to a `
 The API is similar to that for File IO, but the creation of the streams are treated
 as an effect, so you have to pass an `F[InputStream]` or `F[OutputStream]`:
 
-    val input: IO[InputStream] = ???
-    val output: IO[InputStream] = ???
-    
-    val res: IO[Unit] = transformer
-      .fromStream(input)
-      .toStream(output, autoClose = false)
-      .transform 
+```scala
+val input: IO[InputStream] = ???
+val output: IO[InputStream] = ???
+
+val res: IO[Unit] = transformer
+  .fromStream(input)
+  .toStream(output, autoClose = false)
+  .transform 
+```
 
 The `autoClose` flag is `true` by default, which means the stream will be closed
 after all input has been read or all output has been written.
@@ -189,18 +215,20 @@ after all input has been read or all output has been written.
 
 You can use the parallel builder to transform an entire directory of files:
 
-    val transformer = Transformer
-      .from(Markdown)
-      .to(HTML)
-      .using(GitHubFlavor)
-      .io(blocker)
-      .parallel[IO]
-      .build
-          
-    val res: IO[Unit] = transformer
-      .fromDirectory("src")
-      .toDirectory("target")
-      .transform
+```scala
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .using(GitHubFlavor)
+  .io(blocker)
+  .parallel[IO]
+  .build
+  
+val res: IO[Unit] = transformer
+  .fromDirectory("src")
+  .toDirectory("target")
+  .transform
+```
 
 The parser will pick up any document with a recognized suffix (`.md` or `.markdown`
 for Markdown, `.rst` for reStructuredText).
@@ -226,11 +254,12 @@ are treated as errors.
 
 Use the `fromDirectories` method to specify the directories to merge:
 
-    val res: IO[Unit] = transformer
-      .fromDirectories("markup", "theme")
-      .toDirectory("target")
-      .transform
-      
+```scala
+val res: IO[Unit] = transformer
+  .fromDirectories("markup", "theme")
+  .toDirectory("target")
+  .transform
+```
 
 ### Templates
 
@@ -238,16 +267,18 @@ The directories that contain the markup documents can optionally contain
 templates that get applied to the parsed documents. A very basic template
 for HTML output may look like this:
 
-    <html>
-      <head>
-        <title>${document.title}</title>
-      </head>
-      <body>
-        <div class="content">
-          ${document.content}
-        </div>
-      </body>
-    </html>
+```laika-html
+<html>
+  <head>
+    <title>${document.title}</title>
+  </head>
+  <body>
+    <div class="content">
+      ${document.content}
+    </div>
+  </body>
+</html>
+```
     
 The two placeholders enclosed in double curly braces will be replaced with the
 title and content of the parsed markup document. Everything else will be copied
@@ -272,19 +303,20 @@ and tables of content, see the chapter [Document Structure].
 These binary formats also rely on the laika-io module, and they always produce a single
 output file, even if the input is an entire directory:
 
-    val transformer = Transformer
-      .from(Markdown)
-      .to(EPUB)
-      .using(GitHubFlavor)
-      .io(blocker)
-      .parallel[IO]
-      .build
-          
-    val res: IO[Unit] = transformer
-      .fromDirectories("markup", "theme")
-      .toFile("output.epub")
-      .transform
-
+```scala
+val transformer = Transformer
+  .from(Markdown)
+  .to(EPUB)
+  .using(GitHubFlavor)
+  .io(blocker)
+  .parallel[IO]
+  .build
+  
+val res: IO[Unit] = transformer
+  .fromDirectories("markup", "theme")
+  .toFile("output.epub")
+  .transform
+```
 
 Note that the API recognizes the kind of transformer passed in and adjusts automatically 
 in which methods it offers. 
@@ -308,7 +340,9 @@ Laika uses the same platform-dependent defaults for file encodings as the
 IO classes in the Scala SDK. The most convenient way to specify an encoding
 is via an implicit:
 
-    implicit val codec:Codec = Codec.UTF8
+```scala
+implicit val codec:Codec = Codec.UTF8
+```
 
 This codec will then be used by the `fromDirectory` and `toDirectory` methods shown
 in the examples above.
@@ -334,8 +368,10 @@ users to edit text with markup, giving them visual feedback for their mistakes.
 
 The following example renders all message with the level `Warning` or higher:
 
-    val transformer = Transform
-      .from(Markdown)
-      .to(HTML)
-      .withMessageLevel(Warning)
-      .build
+```scala
+val transformer = Transform
+  .from(Markdown)
+  .to(HTML)
+  .withMessageLevel(Warning)
+  .build
+```

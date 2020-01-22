@@ -85,13 +85,14 @@ level content like paragraphs or lists can be used.
  
 A directive may consist of any combination of arguments, fields and body elements:
  
-    .. myDirective:: arg1 arg2
-      :field1: value1
-      :field2: value2
- 
-      This is the body of the directive. It may consist of any standard or 
-      custom block-level and inline markup.
- 
+```rst
+.. myDirective:: arg1 arg2
+  :field1: value1
+  :field2: value2
+
+  This is the body of the directive. It may consist of any standard or 
+  custom block-level and inline markup.
+```
   
 In the example above `arg1` and `arg2` are arguments, `field1` and `field2` are fields,
 and followed by body elements after a blank line. If there are no arguments or fields
@@ -106,34 +107,37 @@ parsed value.
 
 Consider the following simple example of a directive with just one argument and
 a body:
- 
-    .. note:: This is the title
-   
-       This is the body of the note.
- 
+
+```rst
+.. note:: This is the title
+
+   This is the body of the note.
+```
  
 The implementation of this directive could look like this:
  
-    case class Note (title: String, 
-                     content: Seq[Block], 
-                     options: Options = NoOpt) extends Block 
-                                               with BlockContainer[Note]
+```scala
+case class Note (title: String, 
+                 content: Seq[Block], 
+                 options: Options = NoOpt) extends Block 
+                                           with BlockContainer[Note]
 
-    object MyDirectives extends RstExtensionRegistry {
-      val blockDirectives = Seq(
-        BlockDirective("note") {
-          (argument(withWS = true) ~ blockContent)(Note(_,_))
-        }
-      )
-      val spanDirectives = Seq()
-      val textRoles = Seq()
+object MyDirectives extends RstExtensionRegistry {
+  val blockDirectives = Seq(
+    BlockDirective("note") {
+      (argument(withWS = true) ~ blockContent)(Note(_,_))
     }
-    
-    val transformer = Transformer
-      .from(ReStructuredText)
-      .to(HTML)
-      .using(MyDirectives)
-      .build
+  )
+  val spanDirectives = Seq()
+  val textRoles = Seq()
+}
+
+val transformer = Transformer
+  .from(ReStructuredText)
+  .to(HTML)
+  .using(MyDirectives)
+  .build
+```
 
 
 The `argument()` method specifies a required argument of type `String` (since no conversion
@@ -152,30 +156,32 @@ gets registered with the `ReStructuredText` parser.
 If any conversion or validation is required on the individual parts of the directive they can
 be passed to the corresponding function:
 
-    def nonNegativeInt (value: String) =
-      try {
-        val num = value.toInt
-        Either.cond(num >= 0, num, "not a positive int: " + num)
-      }
-      catch {
-        case e: NumberFormatException => Left("not a number: " + value)
-      }
- 
-    case class Message (severity: Int, 
-                        content: Seq[Block],
-                        options: Options = NoOpt) extends Block 
-                                                  with BlockContainer[Message]
- 
-    object MyDirectives extends RstExtensionRegistry {
-      val blockDirectives = Seq(
-        BlockDirective("message") {
-          (argument(nonNegativeInt) ~ blockContent)(Message(_,_))
-        }
-      )
-      val spanDirectives = Seq()
-      val textRoles = Seq()
+```scala
+def nonNegativeInt (value: String) =
+  try {
+    val num = value.toInt
+    Either.cond(num >= 0, num, "not a positive int: " + num)
+  }
+  catch {
+    case e: NumberFormatException => Left("not a number: " + value)
+  }
+
+case class Message (severity: Int, 
+                    content: Seq[Block],
+                    options: Options = NoOpt) extends Block 
+                                              with BlockContainer[Message]
+
+object MyDirectives extends RstExtensionRegistry {
+  val blockDirectives = Seq(
+    BlockDirective("message") {
+      (argument(nonNegativeInt) ~ blockContent)(Message(_,_))
     }
- 
+  )
+  val spanDirectives = Seq()
+  val textRoles = Seq()
+}
+```
+
 
 The function has to provide an `Either[String, T]` as a result. A `Left` result will be interpreted
 as an error by the parser with the string being used as the message and an instance of `InvalidBlock`
@@ -189,22 +195,24 @@ parameter.
 
 Finally arguments and fields can also be optional. In case they are missing, the directive is still
 considered valid and `None` will be passed to your function:
- 
-    case class Message (severity: Option[Int], 
-                        content: Seq[Block],
-                        options: Options = NoOpt) extends Block 
-                                                  with BlockContainer[Message]
 
-    object MyDirectives extends RstExtensionRegistry {
-      val blockDirectives = Seq(
-        BlockDirective("message") {
-          (optArgument(nonNegativeInt) ~ blockContent)(Message(_,_))
-        }
-      )
-      val spanDirectives = Seq()
-      val textRoles = Seq()
-    }  
- 
+```scala
+case class Message (severity: Option[Int], 
+                    content: Seq[Block],
+                    options: Options = NoOpt) extends Block 
+                                              with BlockContainer[Message]
+
+object MyDirectives extends RstExtensionRegistry {
+  val blockDirectives = Seq(
+    BlockDirective("message") {
+      (optArgument(nonNegativeInt) ~ blockContent)(Message(_,_))
+    }
+  )
+  val spanDirectives = Seq()
+  val textRoles = Seq()
+}  
+```
+
 The argument may be missing, but if it is present it has to pass the specified validator.
  
 In case of multiple arguments, the order you specify them is also the order in which they
@@ -240,10 +248,11 @@ aspects that define a text role:
   that the original interpreted text should be replaced with.
  
 A role directive may consist of any combination of fields and body elements:
- 
-    .. role:: ticket(link)
-      :base-url: http://www.company.com/tickets/
- 
+
+```rst 
+.. role:: ticket(link)
+  :base-url: http://www.company.com/tickets/
+```
   
 In the example above `ticket` is the name of the customized role, `link` the name
 of the base role and `base-url` the value that overrides the default defined in the
@@ -254,23 +263,24 @@ for the base role with the name `link`. For more details on implementing directi
 see the previous section.
  
 The implementation of the `link` text role could look like this:
- 
-    val textRole = TextRole("link", "http://www.company.com/main/")(field("base-url")) {
-      (base, text) => Link(List(Text(text)), base + text)
-    }
- 
-    object MyDirectives extends RstExtensionRegistry {
-      val textRoles = Seq(textRole)
-      val spanDirectives = Seq()
-      val blockDirectives = Seq()
-    }  
-    
-    val transformer = Transformer
-      .from(ReStructuredText)
-      .to(HTML)
-      .using(MyDirectives)
-      .build
 
+```scala
+val textRole = TextRole("link", "http://www.company.com/main/")(field("base-url")) {
+  (base, text) => Link(List(Text(text)), base + text)
+}
+
+object MyDirectives extends RstExtensionRegistry {
+  val textRoles = Seq(textRole)
+  val spanDirectives = Seq()
+  val blockDirectives = Seq()
+}  
+
+val transformer = Transformer
+  .from(ReStructuredText)
+  .to(HTML)
+  .using(MyDirectives)
+  .build
+```
 
 We specify the name of the role to be `link`, and the default value the URL provided as the
 second argument. The second parameter list specifies the role directive implementation,
@@ -291,22 +301,29 @@ fields and body values like documented above.
 Our example role can then be used in the following ways:
  
 Using the base role directly:
-   
-    For details read our :link:`documentation`.
-  
+
+```rst  
+For details read our :link:`documentation`.
+```
+
 This would result in the following HTML:
- 
-    For details read our <a href="http://www.company.com/main/documentation">documentation</a>.
+
+```html
+For details read our <a href="http://www.company.com/main/documentation">documentation</a>.
+``` 
 
  
 Using the customized role called `ticket`: 
- 
-    For details see ticket :ticket:`344`.
- 
+
+```rst 
+For details see ticket :ticket:`344`.
+```
+
 This would result in the following HTML:
- 
-    For details see ticket <a href="http://www.company.com/ticket/344">344</a>.
-   
+
+```html 
+For details see ticket <a href="http://www.company.com/ticket/344">344</a>.
+```
 
 
 Registering Extensions with the sbt Plugin
@@ -315,20 +332,22 @@ Registering Extensions with the sbt Plugin
 All previous examples showed how to register directives or text roles with the Laika API.
 This code sample shows how to register the same elements with the sbt plugin.
 
-    object MyExtensions extends RstExtensionRegisty {
-        
-      val blockDirectives = Seq(BlockDirective("name") {
-        // implementation producing a `Block` element
-      })
-        
-      val spanDirectives = Seq(SpanDirective("name") {
-        // implementation producing a `Span` element
-      })
+```scala
+object MyExtensions extends RstExtensionRegisty {
     
-      val textRoles = Seq(TextRole("name", "default") {
-        // implementation producing a `Span` element
-      })
-      
-    }  
+  val blockDirectives = Seq(BlockDirective("name") {
+    // implementation producing a `Block` element
+  })
     
-    laikaExtensions += MyExtensions
+  val spanDirectives = Seq(SpanDirective("name") {
+    // implementation producing a `Span` element
+  })
+
+  val textRoles = Seq(TextRole("name", "default") {
+    // implementation producing a `Span` element
+  })
+  
+}  
+
+laikaExtensions += MyExtensions
+```

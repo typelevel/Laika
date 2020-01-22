@@ -25,11 +25,13 @@ out the rendering step.
 
 Reading from a String:
 
-    val input = "some *text* example"    
-    val document = Parser
-      .of(Markdown)
-      .build
-      .parse(input)
+```scala
+val input = "some *text* example"    
+val document = Parser
+  .of(Markdown)
+  .build
+  .parse(input)
+```
 
 The `document` instance gives you the full document model. See
 the [AST Scaladoc][ast-scaladoc] for details.
@@ -49,26 +51,32 @@ it to various output formats.
 Similar to the full transformation step, you need to specify the `ContextShift`
 and `Blocker` to use for blocking IO and parallel processing:
 
-    implicit val cs: ContextShift[IO] = 
-      IO.contextShift(ExecutionContext.global)
-      
-    val blocker = Blocker.liftExecutionContext(
-      ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
-    )
+```scala
+implicit val cs: ContextShift[IO] = 
+  IO.contextShift(ExecutionContext.global)
+  
+val blocker = Blocker.liftExecutionContext(
+  ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
+)
+```
 
 These will then be used to build a parallel parser instance:
 
-    val parser = Parser
-      .of(Markdown)
-      .io(blocker)
-      .parallel[IO]
-      .build
+```scala
+val parser = Parser
+  .of(Markdown)
+  .io(blocker)
+  .parallel[IO]
+  .build
+```
 
 Finally, you can obtain a tree instance from the parser:
 
-    val tree: IO[DocumentTreeRoot] = parser
-      .fromDirectory("source")
-      .parse
+```scala
+val tree: IO[DocumentTreeRoot] = parser
+  .fromDirectory("source")
+  .parse
+```
 
 The tree instance is of type `DocumentTreeRoot` which gives you access
 to all documents, templates and subdirectories contained in the
@@ -82,7 +90,9 @@ Laika uses the same platform-dependent defaults for file encodings as the
 IO classes in the Scala SDK. The most convenient way to specify an encoding
 is via an implicit:
 
-    implicit val codec:Codec = Codec.UTF8
+```scala
+implicit val codec:Codec = Codec.UTF8
+```
 
 This codec will then be used by `fromDirectory` and other methods 
 shown in the examples above.
@@ -111,9 +121,11 @@ does not know about.
 For this reason it is always best to copy the parser configuration over
 to the Render API:
 
-    val parser = Parser.of(Markdown).strict.build
-    
-    val renderer = Renderer.of(HTML).withConfig(parser.config).build
+```scala
+val parser = Parser.of(Markdown).strict.build
+
+val renderer = Renderer.of(HTML).withConfig(parser.config).build
+```
 
 For the sake of brevity we omit this detail from the following examples.
 
@@ -122,10 +134,12 @@ For the sake of brevity we omit this detail from the following examples.
 
 Rendering as a string:
 
-    // obtained from a parse step or created programmatically
-    val doc: Document = ... 
-    
-    val res: String = renderer.render(doc)
+```scala
+// obtained from a parse step or created programmatically
+val doc: Document = ... 
+
+val res: String = renderer.render(doc)
+```
 
 
 ### Rendering an Entire Directory as HTML
@@ -133,28 +147,32 @@ Rendering as a string:
 Like for the Parser and Transformer APIs, you need to specify the `ContextShift`
 and `Blocker` to use for blocking IO and parallel processing:
 
-    implicit val cs: ContextShift[IO] = 
-      IO.contextShift(ExecutionContext.global)
-    
-    val blocker = Blocker.liftExecutionContext(
-      ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
-    )
+```scala
+implicit val cs: ContextShift[IO] = 
+  IO.contextShift(ExecutionContext.global)
+
+val blocker = Blocker.liftExecutionContext(
+  ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
+)
+```
 
 You can then render the result to a files in a target directory:
 
-    // obtained from a parse step or created programmatically
-    val tree: DocumentTreeRoot = ???
+```scala
+// obtained from a parse step or created programmatically
+val tree: DocumentTreeRoot = ???
+
+val renderer = Renderer
+  .of(HTML)
+  .io(blocker)
+  .parallel[IO]
+  .build
     
-    val renderer = Renderer
-      .of(HTML)
-      .io(blocker)
-      .parallel[IO]
-      .build
-        
-    val op: IO[Unit] = renderer
-      .from(tree)
-      .toDirectory("target")
-      .render
+val op: IO[Unit] = renderer
+  .from(tree)
+  .toDirectory("target")
+  .render
+```
 
 The `target` directory is expected to exist, while any required
 subdirectories will be automatically created during rendering. There
@@ -163,13 +181,15 @@ will be one HTML file for each input file in the same directory layout.
 
 ### Rendering an Entire Directory as PDF
 
-    // obtained from a parse step or created programmatically
-    val tree: DocumentTreeRoot = ???
-    
-    val op: IO[Unit] = renderer
-      .from(tree)
-      .toFile("out.pdf")
-      .render    
+```scala
+// obtained from a parse step or created programmatically
+val tree: DocumentTreeRoot = ???
+
+val op: IO[Unit] = renderer
+  .from(tree)
+  .toFile("out.pdf")
+  .render    
+```
 
 Here the input files get rendered into a single PDF document, with
 the directory structure getting translated into the document structure
@@ -182,8 +202,9 @@ Laika uses the same platform-dependent defaults for file encodings as the
 IO classes in the Scala SDK. The most convenient way to specify an encoding
 is via an implicit:
 
-    implicit val codec:Codec = Codec.UTF8
+```scala
+implicit val codec:Codec = Codec.UTF8
+```
 
 This codec will then be used by `toDirectory` and other methods 
 shown in the examples above.
-

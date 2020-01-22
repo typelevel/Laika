@@ -38,15 +38,19 @@ Directive Syntax
 A very minimal example is the `toc` directive for inserting a table of contents.
 Since all its attributes are optional, it can simply be used like this:
 
-    @:toc
+```laika-html
+@:toc
+```
 
 A directive always starts with `@:` followed by the name of the directive.
     
 A more complete example is the use of the `for` directive:
 
-    @:for { some.list.of.products }
-    <li><a href="#${_.id}">${_.description}</a></li>
-    @:@ 
+```laika-html
+@:for { some.list.of.products }
+<li><a href="#${_.id}">${_.description}</a></li>
+@:@ 
+```
 
 Here `for` is the name of the directive, `some.list.of.products` is an unnamed
 attribute (where in this case the value is interpreted as a variable reference,
@@ -69,19 +73,27 @@ Our `ticket` directive constructs an external link to our
 bugtracker. Since the base URL is always the same, we want to
 only write:
 
-    @:ticket {456}
-    
+```laika-html
+@:ticket {456}
+```
+
 to get the output:
 
-    <a href="http://tickets.cloud42.com/main-project/456">#456</a>
-    
+```html
+<a href="http://tickets.cloud42.com/main-project/456">#456</a>
+```
+
 Or optionally specify a different project than the main one:
 
-    @:ticket {456, project=pineapple}
+```laika-html
+@:ticket {456, project=pineapple}
+```
     
 to get the output:
 
-    <a href="http://tickets.cloud42.com/pineapple/456">#456</a>
+```html
+<a href="http://tickets.cloud42.com/pineapple/456">#456</a>
+```
 
 The following sections explain how to implement the tag
 and then how to add it either to the Markdown or reStructuredText
@@ -92,16 +104,18 @@ parser or to the template parser.
 
 ### Directive Implementation
 
-    val directive = Spans.create("ticket") {
-      val ticketAttr = defaultAttribute.as[String]
-      val projectAttr = attribute("project").as[String].optional
-      (ticketAttr, projectAttr).mapN { (ticketNo, project) => 
-        val base = "http://tickets.cloud42.com/"
-        val url = base + project.getOrElse("main-project") + "/" + ticketNo
-        val linkText = Seq(Text("#"+ticketNo))
-        ExternalLink(linkText, url, options = Styles("ticket"))
-      }
-    }
+```scala
+val directive = Spans.create("ticket") {
+  val ticketAttr = defaultAttribute.as[String]
+  val projectAttr = attribute("project").as[String].optional
+  (ticketAttr, projectAttr).mapN { (ticketNo, project) => 
+    val base = "http://tickets.cloud42.com/"
+    val url = base + project.getOrElse("main-project") + "/" + ticketNo
+    val linkText = Seq(Text("#"+ticketNo))
+    ExternalLink(linkText, url, options = Styles("ticket"))
+  }
+}
+```
 
 Let's examine the code:
 
@@ -146,8 +160,10 @@ in the example in the previous section.
 
 **sbt Plugin**:
 
-    laikaSpanDirectives += directive
-    
+```scala
+laikaSpanDirectives += directive
+```
+
 This registers the directive for both Markdown and reStructuredText
 parsers. 
 
@@ -160,17 +176,19 @@ and then added as a dependency of your build.
 
 **Library API**:
 
-    object MyDirectives extends DirectiveRegistry {
-      val spanDirectives = Seq(directive)
-      val blockDirectives = Seq()
-      val templateDirectives = Seq()
-    }
+```scala
+object MyDirectives extends DirectiveRegistry {
+  val spanDirectives = Seq(directive)
+  val blockDirectives = Seq()
+  val templateDirectives = Seq()
+}
 
-    val transformer = Transformer
-      .from(Markdown)
-      .to(HTML)
-      .using(MyDirectives)
-      .build
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .using(MyDirectives)
+  .build
+```
 
 The `directive` variable refers to the instance we created above.
 We can now use our `ticket` directive in Markdown files!
@@ -206,11 +224,15 @@ attribute is used and its meaning is obvious.
 
 Markup example:
 
-    @:name { arg }
+```laika-html
+@:name { arg }
+```
 
 Combinator:
 
-    defaultAttribute
+```scala
+defaultAttribute
+```
 
     
 ### Named Attributes
@@ -225,11 +247,16 @@ for file includes.
 
 Markup example:
 
-    @:name { myAttr=value }
+```laika-html
+@:name { myAttr=value }
+```
 
 Combinator:
 
-    attribute("myAttr")
+```scala
+attribute("myAttr")
+```
+
 
 
 ### All Attributes
@@ -237,13 +264,15 @@ Combinator:
 If you want the full flexibility of accepting any kind of attribute without
 knowing the expected names upfront, you can use the `allAttributes` combinator.
 
-    val directive = Spans.create("custom") {
-      (allAttributes, body).mapN { (attributes, bodyContent) => 
-        val path = attributes.getOpt[Path]("filePath")
-        val index = attributes.getOpt[Int]("index")
-        ...
-      }
-    }
+```scala
+val directive = Spans.create("custom") {
+  (allAttributes, body).mapN { (attributes, bodyContent) => 
+    val path = attributes.getOpt[Path]("filePath")
+    val index = attributes.getOpt[Int]("index")
+    ...
+  }
+}
+```
 
 This combinator gives you an instance of `Config` as a result, Laika's configuration API, 
 and you can manually inspect the values it contains. This naturally leaves the burden
@@ -258,20 +287,24 @@ The body is an element containing text markup that can follow the attribute sect
 
 Markup example:
 
-    @:name
-    
-    this is the content of the body 
-    
-    @:@
+```laika-html
+@:name
+
+this is the content of the body 
+
+@:@
+```
 
 Example with a custom fence:
 
-    @:name { foo=bar } ^^^
-    
-    this is the content of the body 
-    
-    ^^^
-    
+```laika-html
+@:name { foo=bar } ^^^
+
+this is the content of the body 
+
+^^^
+```
+
 A custom fence is only supported for block directives and can be used for disambiguation
 in case of nesting a directive inside another. It has to consist of exactly 3 characters
 on the same line right after the directive declaration. 
@@ -285,11 +318,15 @@ and finally, in a span directive it is `Seq[Span]`.
 
 Combinator:
 
-    parsedBody
+```scala
+parsedBody
+```
     
 There is an alternative combinator if you need the raw, unparsed body as a String:
 
-    rawBody    
+```scala
+rawBody    
+```
 
 
 ### Separated Body
@@ -300,17 +337,19 @@ need often.
 
 For an example from the built-in standard directives, let's have a look at the `@:if` directive:
 
-    @:if { showSidebar }
-    <div class="sidebar">...</div>
-    
-    @:elseIf { showInfobox }
-    <div class="infobox">...</div>
-    
-    @:else
-    <p>This document does not have any sections</p>
-    
-    @:@
-    
+```laika-html
+@:if { showSidebar }
+<div class="sidebar">...</div>
+
+@:elseIf { showInfobox }
+<div class="infobox">...</div>
+
+@:else
+<p>This document does not have any sections</p>
+
+@:@
+```
+
 The root `@if` directive is the parent directive in this case, and both the `@:elseIf` and `@:else`
 directives are separator directives that partition the body. Separator directives are different
 than normal directives in that they do not need to produce an AST element (e.g. `Block` or `Span`)
@@ -322,9 +361,11 @@ in the `StandardDirectives` source.
 In this section we'll just show a very small, contrived example. Declaring a separator directive looks just
 like declaring a normal directive, only that you call `separator` instead of `create`:
 
-    case class Child (content: Seq[Span])
-    
-    val sepDir = Spans.separator("child", min = 1) { body map Foo }   
+```scala
+case class Child (content: Seq[Span])
+
+val sepDir = Spans.separator("child", min = 1) { body map Foo }   
+```
 
 Here you specify the name of the directive `@:child`, as well as that it has to be present in 
 the body at least once. Then you use the regular combinators to declare the expected directive
@@ -332,14 +373,16 @@ parts, in this case only a body that you map to the `Child` type.
 
 Now you can use this directive in the parent:
 
-    val directive = Spans.create("parent") { 
-      separatedBody(Seq(sepDir)) map { multipart =>
-        val seps = multipart.children.flatMap { sep => 
-          Text("Child: ") +: sep.content 
-        }
-        SpanSequence(multipart.mainBody ++ seps)
-      }
+```scala
+val directive = Spans.create("parent") { 
+  separatedBody(Seq(sepDir)) map { multipart =>
+    val seps = multipart.children.flatMap { sep => 
+      Text("Child: ") +: sep.content 
     }
+    SpanSequence(multipart.mainBody ++ seps)
+  }
+}
+```
 
 You can use the `separatedBody` combinator where you pass all expected child directives (in this
 case only one) and then map the resulting `Multipart` instance to an AST element. The `Multipart`
@@ -347,14 +390,15 @@ gives you access to the main body as well as all processed separator directives 
 
 This entire directive can then be used like this:
 
-    @:parent
-    This is the main body
-    
-    @:child
-    This is the body of the separator
-    
-    @:@
-    
+```laika-html
+@:parent
+This is the main body
+
+@:child
+This is the body of the separator
+
+@:@
+```
 
 ### Optional Elements
 
@@ -362,7 +406,9 @@ Default and named attributes can be marked as optional.
 
 Combinator:
 
-    attribute("width").as[Int].optional
+```scala
+attribute("width").as[Int].optional
+```
 
 The parameter type of your directive function changes accordingly,
 from `T` to `Option[T]` where `T` is either the type returned by
@@ -380,7 +426,9 @@ you can set the `inherited` flag:
 
 Combinator:
 
-    attribute("width").as[Int].inherited
+```scala
+attribute("width").as[Int].inherited
+```
 
 With this flag set, the `width` attribute can be inherited from other scopes
 if it is not defined in the directive itself.
@@ -391,7 +439,9 @@ if it is not defined in the directive itself.
 You can specify a decoder for all attributes with the `as[T]`
 method:
 
-    attribute("depth").as[Int].optional
+```scala
+attribute("depth").as[Int].optional
+```
 
 Without a decoder the result type would be `ConfigValue`
 which is a data structure similar to those of popular JSON libraries.
@@ -412,10 +462,12 @@ options active for this operation (unless you manually duplicate it which
 is brittle). Therefore you can request a parser for your function in 
 addition to the other values:
 
-    (defaultAttribute, parser).mapN { (attrValue, parser) =>
-      val parsedSpans = parser("["+attrValue+"]")
-      SpanSequence(parsedSpans)
-    }
+```scala
+(defaultAttribute, parser).mapN { (attrValue, parser) =>
+  val parsedSpans = parser("["+attrValue+"]")
+  SpanSequence(parsedSpans)
+}
+```
 
 In this contrived example the attribute value is modified before being passed
 to the parser and then wrapped inside a sequence.
@@ -431,10 +483,12 @@ It is, for example, required for a directive like the `toc` directive,
 because for building a table of contents you have to look beyond your
 particular directive node.
 
-    (defaultAttribute, cursor).mapN { (attrValue, cursor) =>
-      val spans = Text("The title is: ") +: cursor.target.title
-      SpanSequence(spans)
-    }
+```scala
+(defaultAttribute, cursor).mapN { (attrValue, cursor) =>
+  val spans = Text("The title is: ") +: cursor.target.title
+  SpanSequence(spans)
+}
+```
 
 
 ### Differences between Directive Types
@@ -453,37 +507,41 @@ Use: in inline elements in text markup files
 
 Implementation:
 
-    import cats.implicits._
-    import laika.ast._
-    import laika.directive.Spans
-    import Spans.dsl._
-    
-    val directive = Spans.create("name") {
-      // implementation producing a `Span` element
-    }    
+```scala
+import cats.implicits._
+import laika.ast._
+import laika.directive.Spans
+import Spans.dsl._
+
+val directive = Spans.create("name") {
+  // implementation producing a `Span` element
+}    
+```
 
 Registration:
 
-    // for Markdown and reStructuredText with sbt plugin:
-    laikaSpanDirectives += directive // in build.sbt
+```scala
+// for Markdown and reStructuredText with sbt plugin:
+laikaSpanDirectives += directive // in build.sbt
 
-    // for Markdown and reStructuredText with Transformer or Parser API:
-    object MyDirectives extends DirectiveRegistry {
-      val spanDirectives = Seq(directive)
-      val blockDirectives = Seq()
-      val templateDirectives = Seq()
-    }
-    
-    val transformer = Transformer
-      .from(Markdown)
-      .to(HTML)
-      .using(MyDirectives)
-      .build
+// for Markdown and reStructuredText with Transformer or Parser API:
+object MyDirectives extends DirectiveRegistry {
+  val spanDirectives = Seq(directive)
+  val blockDirectives = Seq()
+  val templateDirectives = Seq()
+}
 
-    val parser = Parser
-      .of(Markdown)
-      .using(MyDirectives)
-      .build    
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .using(MyDirectives)
+  .build
+
+val parser = Parser
+  .of(Markdown)
+  .using(MyDirectives)
+  .build    
+```
 
 
 ### Block Directives
@@ -492,37 +550,41 @@ Use: in block elements in text markup files
 
 Implementation:
 
-    import cats.implicits._
-    import laika.ast._
-    import laika.directive.Blocks
-    import Blocks.dsl._
-    
-    val directive = Blocks.create("name") {
-      // implementation producing a `Block` element
-    }
+```scala
+import cats.implicits._
+import laika.ast._
+import laika.directive.Blocks
+import Blocks.dsl._
+
+val directive = Blocks.create("name") {
+  // implementation producing a `Block` element
+}
+```
 
 Registration:
 
-    // for Markdown and reStructuredText with sbt plugin:
-    laikaBlockDirectives += directive // in build.sbt
+```scala
+// for Markdown and reStructuredText with sbt plugin:
+laikaBlockDirectives += directive // in build.sbt
 
-    // for Markdown and reStructuredText with Transformer or Parser API:
-    object MyDirectives extends DirectiveRegistry {
-      val spanDirectives = Seq()
-      val blockDirectives = Seq(directive)
-      val templateDirectives = Seq()
-    }
-    
-    val transformer = Transformer
-      .from(Markdown)
-      .to(HTML)
-      .using(MyDirectives)
-      .build
+// for Markdown and reStructuredText with Transformer or Parser API:
+object MyDirectives extends DirectiveRegistry {
+  val spanDirectives = Seq()
+  val blockDirectives = Seq(directive)
+  val templateDirectives = Seq()
+}
 
-    val parser = Parser
-      .of(Markdown)
-      .using(MyDirectives)
-      .build    
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .using(MyDirectives)
+  .build
+
+val parser = Parser
+  .of(Markdown)
+  .using(MyDirectives)
+  .build    
+```
 
 
 ### Template Directives
@@ -531,34 +593,38 @@ Use: in template files
 
 Implementation:
 
-    import cats.implicits._
-    import laika.ast._
-    import laika.directive.Templates
-    Templates Blocks.dsl._
-    
-    val directive = Templates.create("name") {
-      // implementation producing a `TemplateSpan` element
-    }    
+```scala
+import cats.implicits._
+import laika.ast._
+import laika.directive.Templates
+Templates Blocks.dsl._
+
+val directive = Templates.create("name") {
+  // implementation producing a `TemplateSpan` element
+}    
+```
 
 Registration:
 
-    // for templates with sbt plugin:
-    laikaTemplateDirectives += directive // in build.sbt
+```scala
+// for templates with sbt plugin:
+laikaTemplateDirectives += directive // in build.sbt
 
-    // for Markdown and reStructuredText with Transformer or Parser API:
-    object MyDirectives extends DirectiveRegistry {
-      val spanDirectives = Seq()
-      val blockDirectives = Seq()
-      val templateDirectives = Seq(directive)
-    }
-    
-    val transformer = Transformer
-      .from(Markdown)
-      .to(HTML)
-      .using(MyDirectives)
-      .build
+// for Markdown and reStructuredText with Transformer or Parser API:
+object MyDirectives extends DirectiveRegistry {
+  val spanDirectives = Seq()
+  val blockDirectives = Seq()
+  val templateDirectives = Seq(directive)
+}
 
-    val parser = Parser
-      .of(Markdown)
-      .using(MyDirectives)
-      .build    
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .using(MyDirectives)
+  .build
+
+val parser = Parser
+  .of(Markdown)
+  .using(MyDirectives)
+  .build    
+```

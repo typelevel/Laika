@@ -30,24 +30,26 @@ Template Syntax
 The following example shows all three markup constructs you can use in
 templates:
 
-    {% 
-      autonumbering {
-        scope: sections
-        depth: 2      
-      }
-    %}  
-    <html>
-      <head>
-        <title>${document.title}</title>
-      </head>
-      <body>
-        @:toc
-        <div class="content">
-          ${document.content}
-        </div>
-      </body>
-    </html>
-    
+```laika-html
+{% 
+  autonumbering {
+    scope: sections
+    depth: 2      
+  }
+%}  
+<html>
+  <head>
+    <title>${document.title}</title>
+  </head>
+  <body>
+    @:toc
+    <div class="content">
+      ${document.content}
+    </div>
+  </body>
+</html>
+```
+
 It contains a configuration header (enclosed between `{%` and `%}`),
 two variable references (enclosed between `${` and `}`) and
 a standard directive (starting with `@:`), in this case the
@@ -137,15 +139,19 @@ body element ending on a `@:@` fence.
 A very minimal example is the `toc` directive for inserting a table of contents.
 Since all its attributes are optional, it can simply be used like this:
 
-    @:toc
-    
+```laika-html
+@:toc
+```
+
 A more complete example is the use of the `for` directive:
 
-    @:for { some.list.of.products }
-    
-    <li><a href="#${_.id}">${_.description}</a></li>
-    
-    @:@
+```laika-html
+@:for { some.list.of.products }
+
+<li><a href="#${_.id}">${_.description}</a></li>
+
+@:@
+```
 
 Here `for` is the name of the directive, `some.list.of.products` is an unnamed
 attribute (where in this case the value is interpreted as a variable reference,
@@ -179,9 +185,11 @@ subdirectories or by explicitly specifying a template in one of the text markup 
 Alternatively (or in addition to default templates) you can explicitly specify a template
 in a configuration header of a text markup document:
 
-    {%
-      template: custom.template.html
-    %}
+```laika-html
+{%
+  template: custom.template.html
+%}
+```
     
 This will override any default template for the directory. The path is relative to the
 document, but has to be somewhere below the root directory processed by Laika, as
@@ -232,12 +240,14 @@ Can only be used in block elements in text markup.
 The body of such a directive will only be included into the
 output by renderers for the specified type:
 
-    @:format { html }
-    
-    This text only appears in the HTML output,
-    not in PDF, EPUB or any other format.
-    
-    @:@
+```laika-html
+@:format { html }
+
+This text only appears in the HTML output,
+not in PDF, EPUB or any other format.
+
+@:@
+```
 
 Note that the body of a block directive needs to be indented,
 and does not appear between curly braces.
@@ -253,19 +263,22 @@ rendered element.
 
 Block directive: 
 
-    @:style { subtitle } 
-    
-    This paragraph gets the 
-    subtitle style applied.
-    
-    @:@
-      
-    While this paragraph does not.
+```laika-md
+@:style { subtitle } 
+
+This paragraph gets the 
+subtitle style applied.
+
+@:@
+  
+While this paragraph does not.
+```
 
 Span directive:
 
-    Burrito - @:style { price } £3.50 @:@.
-
+```laika-md
+Burrito - @:style { price } £3.50 @:@.
+```
 
 ### The `for` directive
 
@@ -279,11 +292,13 @@ empty collections, and exactly once for all other values.
 In case of non-empty values their properties will be made available
 for use inside the body part without any prefix:
 
-    @:for { some.list.of.products }
-    
-    <li><a href="#${_.id}">${_.description}</a></li>
-    
-    @:@ 
+```laika-html
+@:for { some.list.of.products }
+
+<li><a href="#${_.id}">${_.description}</a></li>
+
+@:@ 
+```
 
 In this example `id` and `title` are properties of the `SectionInfo`
 objects inside the `document.sections` collection.
@@ -291,13 +306,15 @@ objects inside the `document.sections` collection.
 You can also specify a fallback, a body part that gets executed
 for empty values:
 
-    @:for { some.list.of.products }
-    <li><a href="#${_.id}">${_.description}</a></li>
-     
-    @:empty
-    <p>No products available.</p>
-    
-    @:@
+```laika-html
+@:for { some.list.of.products }
+<li><a href="#${_.id}">${_.description}</a></li>
+ 
+@:empty
+<p>No products available.</p>
+
+@:@
+```
 
 Each directive can have one unnamed default body and any number
 of named bodies. The `for` directive supports a body element
@@ -314,9 +331,11 @@ Can only be used inside templates.
 Executes the body of the directive exactly once for a Boolean
 `true` or the strings `true`, `on`, `yes` and `enabled`.
 
-    @:if { showSidebar }
-    <div class="sidebar">...</div>
-    @:@
+```laika-html
+@:if { showSidebar }
+<div class="sidebar">...</div>
+@:@
+```
 
 In this example `showSidebar` is a custom configuration entry
 that you have set explicitly in a configuration header or file.
@@ -324,17 +343,18 @@ that you have set explicitly in a configuration header or file.
 You can also specify a fallback with `@:else`, 
 or even secondary conditions with `@:elseIf`:
 
-    @:if { showSidebar }
-    <div class="sidebar">...</div>
-    
-    @:elseIf { showInfobox }
-    <div class="infobox">...</div>
-    
-    @:else
-    <p>Something else</p>
-    
-    @:@
+```laika-html
+@:if { showSidebar }
+<div class="sidebar">...</div>
 
+@:elseIf { showInfobox }
+<div class="infobox">...</div>
+
+@:else
+<p>Something else</p>
+
+@:@
+```
 
 ### The `pageBreak` directive
 
@@ -345,5 +365,6 @@ know how to render page break elements.
 
 This directive does not support any attributes:
 
-    @:pageBreak
-
+```laika-md
+@:pageBreak
+```

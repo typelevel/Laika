@@ -15,17 +15,19 @@ Factory Contract
 The contract a parser factory has to adhere to is captured in the following
 trait:
 
-    trait MarkupFormat {
-  
-      def fileSuffixes: Set[String]
+```scala
+trait MarkupFormat {
 
-      def blockParsers: Seq[BlockParserBuilder]
-      
-      def spanParsers: Seq[SpanParserBuilder]
+  def fileSuffixes: Set[String]
+
+  def blockParsers: Seq[BlockParserBuilder]
   
-      def extensions: Seq[ExtensionBundle]
-      
-    }
+  def spanParsers: Seq[SpanParserBuilder]
+
+  def extensions: Seq[ExtensionBundle]
+  
+}
+```
 
 These are the four abstract method each parser has to implement.    
     
@@ -49,10 +51,12 @@ extension hooks.
 
 Finally there are two concrete methods that may be overridden if required:
 
-    def escapedChar: Parser[String] = TextParsers.any.take(1)
+```scala
+def escapedChar: Parser[String] = TextParsers.any.take(1)
 
-    def createBlockListParser (parser: Parser[Block]): Parser[Seq[Block]] = 
-      (parser <~ opt(blankLines))*
+def createBlockListParser (parser: Parser[Block]): Parser[Seq[Block]] = 
+  (parser <~ opt(blankLines))*
+```
 
 The first method controls the parsing of an escape sequence (the character after
 a backslash). The default implementation accepts any character.
@@ -89,20 +93,26 @@ We'll just show a few examples here:
 
 Parsing three or more lower-case characters:
 
-    "[a-z]{3,}".r              // regex
-    
-    anyIn('a' to 'z').min(3)   // Laika alternative
+```scala
+"[a-z]{3,}".r              // regex
+
+anyIn('a' to 'z').min(3)   // Laika alternative
+```
 
 Parsing any character apart from space or tab:
 
-    "[^ \t]*".r               // regex
-    
-    anyBut(' ','\t')          // Laika alternative
+```scala
+"[^ \t]*".r               // regex
+
+anyBut(' ','\t')          // Laika alternative
+```
 
 Note that for the Laika base parsers the default is to parse any number of characters,
 as this is the most common case. To read just one you can write:
 
-    anyBut(' ','\t').take(1)
+```scala
+anyBut(' ','\t').take(1)
+```
 
 The parsers of this trait will be faster than regex parsers in many scenarios, but
 there will be edge cases where it is the other way round. To be really sure it's best
@@ -129,9 +139,11 @@ reading. This works for nested structures, too.
 
 This is captured in the API for creating a parser:
 
-    SpanParser.forStartChar('*').standalone {
-      delimitedBy("*")
-    }    
+```scala
+SpanParser.forStartChar('*').standalone {
+  delimitedBy("*")
+}    
+```
 
 The parser above simply parses text between two asterisk. The `standalone` method means
 that the parser is independent of any parsers in the host language.
@@ -140,9 +152,11 @@ If the parser is allowed to contain nested spans with any of the parsers of the 
 or any installed extensions, your definition must ask for the recursive parser to be provided
 as you cannot anticipate the extensions a user might have configured:
 
-    SpanParser.forStartChar('*').recursive { recParsers =>
-      recParsers.delimitedRecursiveSpans(delimitedBy("*"))
-    } 
+```scala
+SpanParser.forStartChar('*').recursive { recParsers =>
+  recParsers.delimitedRecursiveSpans(delimitedBy("*"))
+} 
+```
 
 Here you simply pass the same text parser from the previous example to the recursive
 parsers provided by Laika which lifts the text parser into a span parser.
@@ -161,24 +175,30 @@ is that the start character is optional, as many types of blocks, like a plain p
 for example, do not have a concrete start character. In those cases you can create the block
 parser like this:
 
-    BlockParser.withoutStartChar.standalone {
-      // your parser impl
-    }    
+```scala
+BlockParser.withoutStartChar.standalone {
+  // your parser impl
+}    
+```
 
 If the parser allows the nesting of other blocks you can rely on the library to pass
 the recursive parsers for all installed block parsers to your parser definition, similar
 to the span parser mechanism:
 
-    BlockParser.forStartChar('*').recursive { recParsers =>
-      // your parser impl
-    } 
+```scala
+BlockParser.forStartChar('*').recursive { recParsers =>
+  // your parser impl
+} 
+```
 
 Laika offers a `BlockParsers` object with convenience methods for creating
 a typical block parser. This is the signature of the first one:
-  
-    def block (firstLinePrefix: Parser[Any], 
-               linePrefix: Parser[Any], 
-               nextBlockPrefix: Parser[Any]): Parser[List[String]]
+
+```scala
+def block (firstLinePrefix: Parser[Any], 
+           linePrefix: Parser[Any], 
+           nextBlockPrefix: Parser[Any]): Parser[List[String]]
+```
 
 It allows to parse a block based on three simple conditions, provided in form of
 the three parser parameters: detecting the first line of a block, any subsequent
@@ -189,17 +209,19 @@ blocks or list items that span multiple paragraphs.
 The following code is an example for a parser for quoted blocks, decorated
 by a `>` character at the start of each line:
 
-    BlockParser.forStartChar('>').recursive { recParsers =>
-      
-      val textAfterDeco = TextParsers.ws       // any whitespace
-      val decoratedLine = '>' ~ textAfterDeco  // '>' followed by whitespace
-      val afterBlankLine = Parsers.failure("blank line ends block")
-      
-      val textBlock = BlockParsers.block(textAfterDeco, decoratedLine, afterBlankLine)
-      
-      recParsers.recursiveBlocks(textBlock) ^^ (QuotedBlock(_, Nil))
-    }
-    
+```scala
+BlockParser.forStartChar('>').recursive { recParsers =>
+  
+  val textAfterDeco = TextParsers.ws       // any whitespace
+  val decoratedLine = '>' ~ textAfterDeco  // '>' followed by whitespace
+  val afterBlankLine = Parsers.failure("blank line ends block")
+  
+  val textBlock = BlockParsers.block(textAfterDeco, decoratedLine, afterBlankLine)
+  
+  recParsers.recursiveBlocks(textBlock) ^^ (QuotedBlock(_, Nil))
+}
+```
+ 
 This implementation uses the `BlockParsers` helper. It passes just the whitespace
 parser as the condition for the first line, as the start character has already 
 been consumed. For subsequent lines, the decoration needs to be present, so
@@ -211,11 +233,13 @@ passed to the `QuotedBlock` AST node.
 
 Finally there is a second utility that can be used for indented blocks:
 
-    def indentedBlock (minIndent: Int = 1,
-              linePredicate: => Parser[Any] = success(()),
-              endsOnBlankLine: Boolean = false,
-              firstLineIndented: Boolean = false,
-              maxIndent: Int = Int.MaxValue): Parser[String]
+```scala
+def indentedBlock (minIndent: Int = 1,
+          linePredicate: => Parser[Any] = success(()),
+          endsOnBlankLine: Boolean = false,
+          firstLineIndented: Boolean = false,
+          maxIndent: Int = Int.MaxValue): Parser[String]
+```
 
 Like the other utility it allows to specify a few predicates. This method
 is not used for parsing Markdown's indented blocks, though, as Markdown has

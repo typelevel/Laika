@@ -264,7 +264,7 @@ provided by Laika, you can skip the section on the DSL.
 * The old syntax is still supported, but will be removed at some point before the 1.0 release
 
 Before
-```
+```laika-html
 @:if "layout.showSidebar":
   <div class="sidebar">...</div>
 
@@ -273,7 +273,7 @@ Before
 ```
 
 After
-```
+```laika-html
 @:if { layout.showSidebar }
 <div class="sidebar">...</div>
 

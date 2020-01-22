@@ -15,17 +15,19 @@ API Contract
 
 A renderer has to implement the following trait:
 
-    trait RenderFormat[FMT] {
-      
-      def fileSuffix: String
-      
-      def defaultTheme: Theme
-      
-      def defaultRenderer: (FMT, Element) => String
-      
-      def formatterFactory: RenderContext[FMT] => FMT
+```scala
+trait RenderFormat[FMT] {
   
-    }
+  def fileSuffix: String
+  
+  def defaultTheme: Theme
+  
+  def defaultRenderer: (FMT, Element) => String
+  
+  def formatterFactory: RenderContext[FMT] => FMT
+
+}
+```
 
 The `fileSuffix` method returns the suffix to append when writing files in this format
 (without the ".").
@@ -70,18 +72,20 @@ convenient and straightforward to use.
 Finally, we'll show a minimal excerpt of the HTML render function we omitted above, just to
 give you an impression that it is often quite simple to implement:
 
-    def renderElement (fmt: HTMLFormatter, elem: Element): String = {
+```scala
+def renderElement (fmt: HTMLFormatter, elem: Element): String = {
+
+  elem match {
+    case Paragraph(content,opt) => fmt.element("p", opt, content)
     
-      elem match {
-        case Paragraph(content,opt) => fmt.element("p", opt, content)
-        
-        case Emphasized(content,opt) => fmt.element("em", opt, content)
-        
-        /* [other cases ...] */
-        
-        /* [fallbacks for unknown elements] */
-      }   
-    }
+    case Emphasized(content,opt) => fmt.element("em", opt, content)
+    
+    /* [other cases ...] */
+    
+    /* [fallbacks for unknown elements] */
+  }   
+}
+```
 
 As you see, the function never deals with children (the `content` attribute of many node
 types) directly. Instead it passes them to the Formatter API which delegates to the composed

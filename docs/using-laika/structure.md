@@ -10,12 +10,13 @@ explicitly.
 
 This is how you can switch them off for any markup format:
 
-    val transformer = Transformer
-      .from(Markdown)
-      .to(PDF)
-      .strict
-      .build 
-
+```scala
+val transformer = Transformer
+  .from(Markdown)
+  .to(PDF)
+  .strict
+  .build 
+```
 
 Document Title
 --------------
@@ -23,13 +24,17 @@ Document Title
 The document title can then be accessed in a template through
 a variable reference:
 
-    <title>${document.title}</title>
-    
+```laika-html
+<title>${document.title}</title>
+```
+
 Or in code through a `Document` instance:
 
-    val doc: Document = ...
-    doc.title // Seq[Span]
-    
+```scala
+val doc: Document = ???
+doc.title // Seq[Span]
+```
+
 The title can be specified in two ways.
 
 
@@ -53,10 +58,12 @@ option below.
 Like templates, markup documents can contain configuration headers,
 enclosed between `{%` and `%}` at the start of the document:
 
-    {%
-      title: So long and thanks for all the fish
-    %}
-    
+```laika-md
+{%
+  title: So long and thanks for all the fish
+%}
+```
+
 This would override a level 1 header, if present. Configuration
 entries currently do not support inline markup, so it is interpreted
 as plain text.
@@ -72,12 +79,16 @@ on the levels of the headlines.
 
 These sections can the be used when generating a table of content:
 
-    @:toc
+```laika-md
+@:toc
+```
 
 Or they can be accessed through a `Document` instance:
 
-    val doc: Document = ...
-    doc.sections // Seq[SectionInfo]
+```scala
+val doc: Document = ???
+doc.sections // Seq[SectionInfo]
+```
 
 
 ### Automatic Section Ids
@@ -143,27 +154,30 @@ Instead it can be referred to by `${document.fragments.<fragmentName>}`.
 
 Example:
 
-    @:fragment { sidebar } 
-    
-    This content will be *parsed* like all other
-    content, but will be available separately from the document content.
-    The block elements extend until the `@:@` fence below.
+```laika-md
+@:fragment { sidebar } 
+
+This content will be *parsed* like all other
+content, but will be available separately from the document content.
+The block elements extend until the `@:@` fence below.
   
-    Therefore this line still belongs to the fragment.
-      
-    * As does
-    * this list
-    
-    @:@
+Therefore this line still belongs to the fragment.
   
-    This line doesn't and will be part of the main document content.
+* As does
+* this list
+
+@:@
+  
+This line doesn't and will be part of the main document content.
+```
 
 
 Fragments are also available in code through a `Document` instance:
 
-    val doc: Document = ...
-    doc.fragments // Map[String, Element]
-
+```scala
+val doc: Document = ???
+doc.fragments // Map[String, Element]
+```
 
 
 Cross Linking
@@ -174,24 +188,31 @@ to add convenient cross linking between documents.
 
 If you have the following headline in one of your documents:
 
-    Monkey Gone To Heaven
-    ---------------------
+```markdown
+Monkey Gone To Heaven
+---------------------
+```
 
 Then you can use the title as an id in link references.
 
 Markdown:
 
-    Here are the lyrics for [Monkey Gone To Heaven].
-    
+```markdown
+Here are the lyrics for [Monkey Gone To Heaven].
+```
+
 reStructuredText:
 
-    Here are the lyrics for `Monkey Gone To Heaven`_.
-    
+```rst
+Here are the lyrics for `Monkey Gone To Heaven`_.
+```
+
 Like with other link ids, Markdown let's
 you specify link text and id separately:
 
-    You have to listen to this [song][Monkey Gone To Heaven].
- 
+```markdown
+You have to listen to this [song][Monkey Gone To Heaven].
+```
 It does not matter whether the headline is located in the same
 markup document or in another. In the latter case the headline only has
 to be unique for the current directory. It does not have to be globally unique if you reference
@@ -201,8 +222,10 @@ in separate directories, they can all have a section with the title `Intro` for 
 If the id is not unique within a directory, you can alternatively specify the
 target document explicitly:
 
-    For details see the [Introduction][../main.md:Introduction].
-    
+```markdown
+For details see the [Introduction][../main.md:Introduction].
+```
+
 The part of before the `:` is interpreted as the relative path to the target
 document, the part after the colon as the id of the section.
 
@@ -219,10 +242,12 @@ Auto-numbering can be switched on per configuration. Usually this is a global
 switch, so you would add this section to a file named `directory.conf` inside
 the root directory of your markup files:
 
-    autonumbering {
-      scope: all
-      depth: 3
-    }
+```hocon
+autonumbering {
+  scope: all
+  depth: 3
+}
+```
 
 The configuration above will number both documents and sections of documents,
 but stop after the third level. Other possible values for the `scope` attribute
@@ -248,12 +273,15 @@ visualized in a table of contents.
 
 When using the default settings, you can simply use an empty tag:
 
-    @:toc
-    
+```laika-md
+@:toc
+```
+
 If you specify all available options it would look like this:
 
-    @:toc { title="List of Chapters", root="../intro", depth=2 }
-   
+```laika-md
+@:toc { title="List of Chapters", root="../intro", depth=2 }
+```
    
 * The `title` attribute adds a title above the table. 
 
@@ -290,18 +318,19 @@ in alphabetical order.
 If you want a different ordering you can define it explicitly
 for each directory in the `directory.conf` file:
 
-    navigationOrder = [
-      apples.md
-      oranges.md
-      strawberries.md
-      some-subdirectory
-      other-subdirectory
-    ]
-    
+```hocon
+navigationOrder = [
+  apples.md
+  oranges.md
+  strawberries.md
+  some-subdirectory
+  other-subdirectory
+]
+```
+
 The example above contains both markup files and subdirectory.
 They would appear in this order in tables of contents and the
 same order would be applied when autonumbering.
-    
 
 
 Document Types
@@ -335,20 +364,24 @@ If you need to customize the document type recognition,
 you can do that with a simple function and install it as
 part of an extension bundle:
 
-    object MyExtensions extends ExtensionBundle {
-    
-        override val docTypeMatcher: PartialFunction[Path, DocumentType] = ...
-    
-        // ... optionally other customizations
-      }
-    
-    val transformer = Transformer
-      .from(Markdown)
-      .to(HTML)
-      .using(MyExtensions)
-      .build
+```scala
+object MyExtensions extends ExtensionBundle {
+
+  override val docTypeMatcher: PartialFunction[Path, DocumentType] = ...
+
+  // ... optionally other customizations
+}
+
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .using(MyExtensions)
+  .build
+```
 
 The valid return types of the matcher function correspond to the document types listed
 above:
 
-    Markup, Template, Styles, Static, Config, Ignored
+```scala
+Markup, Template, Styles, Static, Config, Ignored
+```

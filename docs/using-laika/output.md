@@ -20,24 +20,26 @@ HTML
 
 The HTML renderer can be used with the `Transform` or `Render` APIs:
 
-    val html: String = Transformer
-      .from(Markdown)
-      .to(HTML).
-      .build
-      .transform("hello *there*")
+```scala
+val html: String = Transformer
+  .from(Markdown)
+  .to(HTML).
+  .build
+  .transform("hello *there*")
 
-    val doc: Document = Parser
-      .of(Markdown)
-      .build
-      .parse("hello *there*")
-      
-    val html: String = Renderer
-      .of(HTML)
-      .build
-      .render(doc)
-    
+val doc: Document = Parser
+  .of(Markdown)
+  .build
+  .parse("hello *there*")
+  
+val html: String = Renderer
+  .of(HTML)
+  .build
+  .render(doc)
+```
+
 See [Using the Library API] for more details on these APIs.
-    
+
 If you are using the sbt plugin you can use several of its task for generating
 HTML output:
 
@@ -56,17 +58,19 @@ Laika supports Templating for most output formats. The following example
 uses variable references to include the title and content of the input
 document, as well as a directive called `@toc` to inset a table of contents:
 
-    <html>
-      <head>
-        <title>${document.title}</title>
-      </head>
-      <body>
-        @:toc
-        <div class="content">
-          ${document.content}
-        </div>
-      </body>
-    </html>
+```laika-html
+<html>
+  <head>
+    <title>${document.title}</title>
+  </head>
+  <body>
+    @:toc
+    <div class="content">
+      ${document.content}
+    </div>
+  </body>
+</html>
+```
     
 If you save such a template in a file called `default.template.html` in the
 root directory of your input sources it will get applied to all markup documents
@@ -82,11 +86,13 @@ See [Templates] for more details.
 The `unformatted` property tells the renderer to omit any formatting (line breaks or indentation) 
 around tags. Useful when storing the output in a database for example:
 
-    val transformer = Transformer
-      .from(Markdown)
-      .to(HTML)
-      .unformatted 
-      .build
+```scala
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .unformatted 
+  .build
+```
 
 The `withMessageLevel` property instructs the renderer to include system messages in the
 generated HTML. Messages may get inserted into the document tree for problems during
@@ -95,12 +101,13 @@ exist. By default these messages are not included in the output. They are mostly
 for testing and debugging, or for providing feedback to application users producing 
 markup input:
 
-    val transformer = Transformer
-      .from(Markdown)
-      .to(HTML)
-      .withMessageLevel(Warning)
-      .build
-
+```scala
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .withMessageLevel(Warning)
+  .build
+```
 
 ### CSS, JavaScript and other Files
 
@@ -115,15 +122,17 @@ It does that recursively including sub-directories.
 Finally you can adjust the rendered output for one or more node types
 of the document tree programmatically with a simple partial function:
 
-    val transformer = Transformer
-      .from(Markdown)
-      .to(HTML)
-      .rendering {
-        case (fmt, Emphasized(content, opt)) => 
-          fmt.element("em", opt, content, "class" -> "big")  
-      }
-      .build
-    
+```scala
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .rendering {
+    case (fmt, Emphasized(content, opt)) => 
+      fmt.element("em", opt, content, "class" -> "big")  
+  }
+  .build
+```
+
 Note that in some cases the simpler way to achieve the same result may be
 styling with CSS.
 
@@ -151,29 +160,33 @@ See [Using the sbt Plugin] for more details.
 If you want to produce EPUB files with the library API,
 the `laika-io` module is required for the binary output:
 
-    libraryDependencies += "org.planet42" %% "laika-io" % "0.12.1"
+```scala
+libraryDependencies += "org.planet42" %% "laika-io" % "0.12.1"
+```
 
 The EPUB renderer can be used with the `Transform` or `Render` APIs:
 
-    implicit val cs: ContextShift[IO] = 
-      IO.contextShift(ExecutionContext.global)
-      
-    val blocker = Blocker.liftExecutionContext(
-      ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
-    )
-    
-    val transformer = Transformer
-      .from(Markdown)
-      .to(EPUB)
-      .using(GitHubFlavor)
-      .io(blocker)
-      .parallel[IO]
-      .build
-    
-    transformer
-      .fromDirectory("src")
-      .toFile("hello.epub")
-      .transform
+```scala
+implicit val cs: ContextShift[IO] = 
+  IO.contextShift(ExecutionContext.global)
+  
+val blocker = Blocker.liftExecutionContext(
+  ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
+)
+
+val transformer = Transformer
+  .from(Markdown)
+  .to(EPUB)
+  .using(GitHubFlavor)
+  .io(blocker)
+  .parallel[IO]
+  .build
+
+transformer
+  .fromDirectory("src")
+  .toFile("hello.epub")
+  .transform
+```
 
 
 See [Using the Library API] for more details on these APIs.
@@ -232,24 +245,26 @@ by the EPUB renderer for reference.
 You can override it if required by saving a custom template in a file called 
 `default.template.epub.xhtml` in the root directory of your input sources.
 
-       
+   
 
 ### Configuration
 
 There are several configuration options for EPUB generation that can be set
 in the file `directory.conf` in the root directory of your input sources:
 
-    epub {
-      toc.depth = 3
-      toc.title = "Contents"
-      coverImage = "cover.png"
-    }  
-    metadata {
-      identifier = "urn:isbn:978-3-16-148410-0"
-      date = "2018-01-01T12:00:00Z"
-      language = "en:GB"
-      author = "Mia Miller"
-    }
+```hocon
+epub {
+  toc.depth = 3
+  toc.title = "Contents"
+  coverImage = "cover.png"
+}  
+metadata {
+  identifier = "urn:isbn:978-3-16-148410-0"
+  date = "2018-01-01T12:00:00Z"
+  language = "en:GB"
+  author = "Mia Miller"
+}
+```
 
 These properties control the following aspects of the rendering:
  
@@ -294,33 +309,37 @@ See [Using the sbt Plugin] for more details.
 If you want to produce PDF files with the library API,
 you need to add the `laika-pdf` module to your build:
 
-    libraryDependencies += "org.planet42" %% "laika-pdf" % "0.12.1"
+```scala
+libraryDependencies += "org.planet42" %% "laika-pdf" % "0.12.1"
+```
 
 The PDF renderer can be used with the `Transform` or `Render` APIs:
 
-    implicit val cs: ContextShift[IO] = 
-      IO.contextShift(ExecutionContext.global)
-      
-    val blocker = Blocker.liftExecutionContext(
-      ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
-    )
-    
-    val transformer = Transformer
-      .from(Markdown)
-      .to(PDF)
-      .using(GitHubFlavor)
-      .io(blocker)
-      .parallel[IO]
-      .build
-    
-    transformer
-      .fromDirectory("src")
-      .toFile("hello.pdf")
-      .transform
+```scala
+implicit val cs: ContextShift[IO] = 
+  IO.contextShift(ExecutionContext.global)
+  
+val blocker = Blocker.liftExecutionContext(
+  ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
+)
+
+val transformer = Transformer
+  .from(Markdown)
+  .to(PDF)
+  .using(GitHubFlavor)
+  .io(blocker)
+  .parallel[IO]
+  .build
+
+transformer
+  .fromDirectory("src")
+  .toFile("hello.pdf")
+  .transform
+```
 
 
 See [Using the Library API] for more details on these APIs.
-    
+
 
 
 ### CSS for PDF
@@ -333,11 +352,13 @@ of a web page.
 
 The following example shows the style for headers from Laika's default CSS:
 
-    Header {
-      font-family: sans-serif;
-      font-weight: bold;
-      font-size: 12pt;
-    }
+```css
+Header {
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 12pt;
+}
+```
 
 The font-related attributes in this case are identical to the ones you know from web CSS,
 but the type selector does not refer to an HTML tag, but instead to a class name from the
@@ -366,10 +387,11 @@ parsed input source. See [Elements Scaladoc][elements-scaladoc] for an overview 
 
 Example:
 
-    Paragraph {
-      font-size: 12pt;
-    }
-
+```css
+Paragraph {
+  font-size: 12pt;
+}
+```
 
 #### Class Selectors
 
@@ -387,9 +409,11 @@ If you customize the renderer you can also add custom styles to any Laika node.
 
 Example for using the `title` style:
 
-    .title {
-      font-size: 18pt;
-    }
+```css
+.title {
+  font-size: 18pt;
+}
+```
 
 
 #### Id Selectors
@@ -400,10 +424,12 @@ internal links refer to, like headers, footnotes or citations.
 
 Example:
 
-    #my-header {
-      font-size: 18pt;
-    }
-    
+```css
+#my-header {
+  font-size: 18pt;
+}
+```
+
 
 #### Selector Combinations
 
@@ -435,25 +461,30 @@ or programmatically on the `PDF` renderer.
 
 In `directory.conf` you can set the following options:
 
-    pdf {
-      bookmarks.depth = 3
-      toc.depth = 3
-      toc.title = "Contents"
-      coverImage = "cover.png"
-    }  
+```hocon
+pdf {
+  bookmarks.depth = 3
+  toc.depth = 3
+  toc.title = "Contents"
+  coverImage = "cover.png"
+}
+```
+
 
 The same options are available programmatically through the `withConfig` method on the `PDF` renderer:
 
-    val config = PDFConfig(
-      bookmarkDepth = 3,
-      tocDepth = 3,
-      tocTitle = Some("Contents")
-    )
-    
-    val transformer = Transformer
-      .from(Markdown)
-      .to(PDF.withConfig(config))
-      .build
+```scala
+val config = PDFConfig(
+  bookmarkDepth = 3,
+  tocDepth = 3,
+  tocTitle = Some("Contents")
+)
+
+val transformer = Transformer
+  .from(Markdown)
+  .to(PDF.withConfig(config))
+  .build
+```
 
 These properties control the following aspects of the rendering:
  
@@ -490,20 +521,24 @@ The available options are described in the [Apache FOP documentation][fop-config
 When you are using the sbt plugin, you can specify an Apache FOP configuration file with
 the `fopConfig` setting:
 
-    fopConfig := Some(baseDirectory.value / "customFop.xconf")
-    
+```scala
+fopConfig := Some(baseDirectory.value / "customFop.xconf")
+```
+
 Note that the default is `None` as FOPs default configuration is often sufficient.
 
 When you are using Laika embedded, the PDF renderer has a hook to specify a custom
 `FopFactory`:
 
-    val configFile = "/path/to/customFop.xconf"
-    val factory = FopFactory.newInstance(new File(configFile))
-    
-    val transformer = Transformer
-      .from(Markdown)
-      .to(PDF.withFopFactory(factory))
-      .build
+```scala
+val configFile = "/path/to/customFop.xconf"
+val factory = FopFactory.newInstance(new File(configFile))
+
+val transformer = Transformer
+  .from(Markdown)
+  .to(PDF.withFopFactory(factory))
+  .build
+```
 
 Note that a `FopFactory` is a fairly heavy-weight object, so make sure that you reuse
 either the `FopFactory` instance itself or the resulting `PDF` renderer.
@@ -534,14 +569,16 @@ You can override it if required by saving a custom template in a file called
 Finally you can adjust the `fo` tags rendered for one or more node types
 of the document tree programmatically with a simple partial function:
 
-    val transformer = Transformer
-      .from(Markdown)
-      .to(PDF)
-      .rendering {
-        case (fmt, elem @ Emphasized(content, _)) => 
-          fmt.inline(elem.copy(options = Style("myStyle")), content)   
-      }
-      .build
+```scala
+val transformer = Transformer
+  .from(Markdown)
+  .to(PDF)
+  .rendering {
+    case (fmt, elem @ Emphasized(content, _)) => 
+      fmt.inline(elem.copy(options = Style("myStyle")), content)   
+  }
+  .build
+```
 
 Note that in most cases the simpler way to achieve the same result will be
 styling with CSS.
@@ -558,24 +595,26 @@ tools.
 
 The XSL-FO renderer can be used with the `Transformer` or `Renderer` APIs:
 
-    val result: String = Transformer
-      .from(Markdown)
-      .to(XSLFO)
-      .build
-      .transform("hello *there*)
+```scala
+val result: String = Transformer
+  .from(Markdown)
+  .to(XSLFO)
+  .build
+  .transform("hello *there*)
 
-    val doc: Document = Parser
-      .of(Markdown)
-      .build
-      .parse("hello *there*")
-      
-    val html: String = Renderer
-      .of(XSLFO)
-      .build
-      .render(doc)
+val doc: Document = Parser
+  .of(Markdown)
+  .build
+  .parse("hello *there*")
+  
+val html: String = Renderer
+  .of(XSLFO)
+  .build
+  .render(doc)
+```
 
 See [Using the Library API] for more details on these APIs.
-    
+
 If you are using the sbt plugin you can use several of its task for generating
 XSL-FO output:
 
@@ -605,28 +644,34 @@ purposes.
 
 You can use this renderer with the Transformer API:
 
-    val input = "some *text* example"
-    
-    Transformer
-      .from(Markdown)
-      .to(AST)
-      .build
-      .transform(input)
-    
-    res0: java.lang.String = Document - Blocks: 1
-    . Paragraph - Spans: 3
-    . . Text - 'some '
-    . . Emphasized - Spans: 1
-    . . . Text - 'text'
-    . . Text - ' example'
+```scala
+val input = "some *text* example"
+
+Transformer
+  .from(Markdown)
+  .to(AST)
+  .build
+  .transform(input)
+
+/*
+res0: java.lang.String = Document - Blocks: 1
+. Paragraph - Spans: 3
+. . Text - 'some '
+. . Emphasized - Spans: 1
+. . . Text - 'text'
+. . Text - ' example'
+*/
+```
 
 Alternatively you can use the Render API to render an existing document:
-    
-    val input = "some *text* example"
-    
-    val doc = Parser.of(Markdown).build.parse(input)
-    
-    Renderer.of(AST).build.render(doc)
+
+```scala
+val input = "some *text* example"
+
+val doc = Parser.of(Markdown).build.parse(input)
+
+Renderer.of(AST).build.render(doc)
+```
 
 The above will yield the same result as the previous example.
 

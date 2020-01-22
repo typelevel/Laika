@@ -37,11 +37,15 @@ the final release for Scala 2.10 and sbt 0.13 was 0.7.0.
 
 Add the plugin to `project/plugins.sbt`:
 
-    addSbtPlugin("org.planet42" % "laika-sbt" % "0.12.1")
+```scala
+addSbtPlugin("org.planet42" % "laika-sbt" % "0.12.1")
+```
 
 Enable the plugin in your project's `build.sbt`:
 
-    enablePlugins(LaikaPlugin)
+```scala
+enablePlugins(LaikaPlugin)
+```
 
 Add Markdown, reStructuredText or HTML template files to `src/docs` in your
 project and run the `laikaSite` task from within sbt to generate the site
@@ -56,59 +60,69 @@ first, as there were significant changes in the Library API.
 
 Adding the Laika dependency to your sbt build:
 
-    libraryDependencies += "org.planet42" %% "laika-core" % "0.12.1"
+```scala
+libraryDependencies += "org.planet42" %% "laika-core" % "0.12.1"
+```
 
 Example for transforming Markdown to HTML:
 
-    import laika.api._
-    import laika.format._
-    
-    val transformer = Transformer
-      .from(Markdown)
-      .to(HTML)
-      .build
-      
-    val res: Either[ParserError, String] = transformer
-      .transform("hello *there*")
+```scala
+import laika.api._
+import laika.format._
 
-    
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .build
+  
+val res: Either[ParserError, String] = transformer
+  .transform("hello *there*")
+```
+
+
 For file/stream IO, parallel processing and/or EPUB support, based on cats-effect, 
 add the laika-io module to your build:
 
-    libraryDependencies += "org.planet42" %% "laika-io" % "0.12.1"  
-    
+```scala
+libraryDependencies += "org.planet42" %% "laika-io" % "0.12.1"  
+```
+
 Example for transforming an entire directory of markup files to a single EPUB file:
 
-    import laika.api._
-    import laika.format._
-    import laika.io.implicits._
+```scala
+import laika.api._
+import laika.format._
+import laika.io.implicits._
 
-    implicit val cs: ContextShift[IO] = 
-      IO.contextShift(ExecutionContext.global)
-      
-    val blocker = Blocker.liftExecutionContext(
-      ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
-    )
-    
-    val transformer = Transformer
-      .from(Markdown)
-      .to(EPUB)
-      .using(GitHubFlavor)
-      .io(blocker)
-      .parallel[IO]
-      .build
-      
-    val res: IO[Unit] = transformer
-      .fromDirectory("src")
-      .toFile("hello.epub")
-      .transform
+implicit val cs: ContextShift[IO] = 
+  IO.contextShift(ExecutionContext.global)
+  
+val blocker = Blocker.liftExecutionContext(
+  ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
+)
+
+val transformer = Transformer
+  .from(Markdown)
+  .to(EPUB)
+  .using(GitHubFlavor)
+  .io(blocker)
+  .parallel[IO]
+  .build
+  
+val res: IO[Unit] = transformer
+  .fromDirectory("src")
+  .toFile("hello.epub")
+  .transform
+```
 
 When using Laika's PDF support you need to add one more dependency to your build:
 
-    libraryDependencies += "org.planet42" %% "laika-pdf" % "0.12.1"
+```scala
+libraryDependencies += "org.planet42" %% "laika-pdf" % "0.12.1"
+```
 
 The example for how to transform a directory of input files into a PDF file looks
-the same as the EPUB example, apart from swapping `EPUB` for `PDF`    
+the same as the EPUB example, apart from swapping `EPUB` for `PDF`   
 
 
 ### Other Resources
@@ -185,15 +199,15 @@ Features
 
 * Purely functional library API
 
-* More than 1,200 tests
+* More than 1,500 tests
 
 
 Road Map
 --------
 
-* __0.13__: Support for Scala.js
+* __0.13__: Integrated support for syntax highlighting in source code
 
-* __0.14__: Integrated support for syntax highlighting in source code
+* __0.14__: Support for Scala.js
 
 * __0.15__: A set of default themes for all output formats
 
@@ -399,5 +413,3 @@ Release History
     * Various options for input and output (strings, files, java.io.Reader/Writer, java.io streams)
     * Generic base traits for markup parser implementations
 
-
-  

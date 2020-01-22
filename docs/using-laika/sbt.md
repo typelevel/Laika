@@ -20,15 +20,19 @@ supporting that sbt version.
 
 First add the plugin to `project/plugins.sbt`:
 
-    addSbtPlugin("org.planet42" % "laika-sbt" % "0.12.1")
+```scala
+addSbtPlugin("org.planet42" % "laika-sbt" % "0.12.1")
+```
 
 If you want to install it globally, add the line above to
 `~/.sbt/1.0/plugins/build.sbt` instead.
 
 Then enable the plugin in your project's `build.sbt`:
 
-    enablePlugins(LaikaPlugin)
-    
+```scala
+enablePlugins(LaikaPlugin)
+```
+
 You can now add content to the directory `src/docs` inside your project 
 and run `laikaSite` from within sbt to generate the site in 
 `target/docs/site`. See the following sections for details.
@@ -61,16 +65,18 @@ The directories can contain different types of files:
   `.epub.xhtml` for EPUB and `.fo` for PDF or XSL-FO output. A very basic HTML template may look 
   like this:
 
-        <html>
-          <head>
-            <title>${document.title}</title>
-          </head>
-          <body>
-            <div class="content">
-              ${document.content}
-            </div>
-          </body>
-        </html>
+```laika-html
+<html>
+  <head>
+    <title>${document.title}</title>
+  </head>
+  <body>
+    <div class="content">
+      ${document.content}
+    </div>
+  </body>
+</html>
+```
     
   The two placeholders enclosed in double curly braces will be replaced with the
   title and content of the parsed markup document.
@@ -189,8 +195,9 @@ to do that while still benefiting from the defaults for all other node types.
 When working with the document tree (the internal AST representing the document structure),
 it is most comfortable to add the following import to the build:
 
-    import laika.ast._
-
+```scala
+import laika.ast._
+```
 
 ### Custom Renderers
 
@@ -209,11 +216,13 @@ For all elements where this partial function is not defined, Laika will use the 
 The following simple example shows how you can add a style to the renderer for
 the `<em>` tag:
 
-    laikaExtensions += laikaHtmlRenderer {
-      case (fmt, Emphasized(content, opt)) => 
-          fmt.element("em", opt, content, "class" -> "big") 
-    }}
-  
+```scala
+laikaExtensions += laikaHtmlRenderer {
+  case (fmt, Emphasized(content, opt)) => 
+    fmt.element("em", opt, content, "class" -> "big") 
+}
+```
+
 For more details see the chapter [Customizing Renderers].
   
 Similarly the `laikaFoRenderer` shortcut can be used to add a custom `XSL-FO` renderer 
@@ -223,7 +232,7 @@ so this option would also allow to change the appearance of PDF documents.
 For EPUB the `laikaEpubRenderer` can be used to add a custom XHMTL renderer of type
 `PartialFunction[(HTMLFormatter, Element), String]`. 
 
-    
+
 
 ### Custom Rewrite Rules
 
@@ -241,9 +250,11 @@ want to rewrite.
 The following (somewhat contrived, but simple) example shows how to turn each `Emphasized` node
 into a `Strong` node:
 
-    laikaExtensions += laikaSpanRewriteRule { 
-      case Emphasized(content, opts) => Replace(Strong(content, opts))
-    }
+```scala
+laikaExtensions += laikaSpanRewriteRule { 
+  case Emphasized(content, opts) => Replace(Strong(content, opts))
+}
+```
 
 For more details see the chapter [Document Tree Rewriting].
 
@@ -255,19 +266,22 @@ It is a function that takes a `Path` instance (from the Laika API, not `sbt.Path
 and returns the matching `DocumentType` with valid values being one of the following
 objects:
 
-    Markup, Template, Dynamic, Static, Config, Ignored
-    
+```scala
+Markup, Template, Dynamic, Static, Config, Ignored
+```
+
 These values correspond to the descriptions provided in [Document Types].
 
 The function is of type `Path => DocumentType` and can be added to the `laikaExtensions` setting:
 
-    laikaExtensions += laikaDocTypeMatcher {
-      case path: Path => path.name match {
-        case "hello.md" => Markup
-        case "hello.js" => Static
-      }
-    }
- 
+```scala
+laikaExtensions += laikaDocTypeMatcher {
+  case path: Path => path.name match {
+    case "hello.md" => Markup
+    case "hello.js" => Static
+  }
+}
+```
 
 
 Settings for Directives
@@ -307,24 +321,26 @@ in one go, you can combine Laika and the sbt-ghpages plugin.
 
 Add the sbt-ghpages plugin to `project/plugins.sbt`:
 
-    resolvers += "jgit-repo" at "http://download.eclipse.org/jgit/maven"
+```scala
+resolvers += "jgit-repo" at "http://download.eclipse.org/jgit/maven"
 
-    addSbtPlugin("com.typesafe.sbt" % "sbt-ghpages" % "0.5.2")
+addSbtPlugin("com.typesafe.sbt" % "sbt-ghpages" % "0.5.2")
+```
 
 Configure the plugins in `build.sbt`:
 
-    enablePlugins(LaikaPluging, GhpagesPlugin)
-    
-    git.remoteRepo := "git@github.com:{your username}/{your project}.git"
+```scala
+enablePlugins(LaikaPluging, GhpagesPlugin)
 
-    git.gitCurrentBranch := "master"
+git.remoteRepo := "git@github.com:{your username}/{your project}.git"
 
-    mappings in synchLocal := (mappings in laikaSite).value
-    
+git.gitCurrentBranch := "master"
+
+mappings in synchLocal := (mappings in laikaSite).value
+```
+
 It is the last line that connects the two plugins, but there is no need
 to understand how that line works.
 
 Finally run the task `ghpages-push-site`. This will also trigger the 
 Laika transformation if the site output is not up-to-date.
-
-

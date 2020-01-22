@@ -9,8 +9,10 @@ or extending the existing renderer.
 
 This is the signature of a custom renderer hook:
 
-    PartialFunction[(Formatter, Element), String]
-    
+```scala
+PartialFunction[(Formatter, Element), String]
+```
+
 `Formatter` is a generic type representing the formatting API which is different for each 
 output format. For HTML it is `HTMLFormatterr`, for XSL-FO it is `FOFormatter`. 
 This way renderers can offer the most convenient API for a specific output format.
@@ -31,10 +33,12 @@ show the three different ways to register such a function.
 In the following example only the HTML output for emphasized text will be modified,
 adding a specific style class:
 
-    val renderer: PartialFunction[(HTMLFormatter, Element), String] = {
-      case (fmt, Emphasized(content, opt)) => 
-        fmt.element("em", opt, content, "class" -> "big") 
-    }
+```scala
+val renderer: PartialFunction[(HTMLFormatter, Element), String] = {
+  case (fmt, Emphasized(content, opt)) => 
+    fmt.element("em", opt, content, "class" -> "big") 
+}
+```
 
 For all node types where the partial function is not defined, the default renderer
 will be used.
@@ -63,35 +67,41 @@ render operation. All three options are described below.
 
 In `build.sbt`:
 
-    import laika.ast._
-    
-    laikaSiteRenderers += laikaSiteRenderer {
-      case (fmt, Emphasized(content, opt)) => 
-        fmt.element("em", opt, content, "class" -> "big")
-    }
+```scala
+import laika.ast._
+
+laikaSiteRenderers += laikaSiteRenderer {
+  case (fmt, Emphasized(content, opt)) => 
+    fmt.element("em", opt, content, "class" -> "big")
+}
+```
 
     
 ### Using the Transformer API
 
-    val transformer = Transformer
-      .from(Markdown)
-      .to(HTML)
-      .rendering {
-        case (fmt, Emphasized(content, opt)) => 
-          fmt.element("em", opt, content, "class" -> "big")
-      }.build
+```scala
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .rendering {
+    case (fmt, Emphasized(content, opt)) => 
+      fmt.element("em", opt, content, "class" -> "big")
+  }.build
+```
 
 
 ### Using the Renderer API
 
-    val doc: Document = ...
-    
-    val renderer = Renderer
-      .of(HTML)
-      .rendering { 
-        case (fmt, Emphasized(content, opt)) => 
-          fmt.element("em", opt, content, "class" -> "big")
-      }.build
+```scala
+val doc: Document = ...
+
+val renderer = Renderer
+  .of(HTML)
+  .rendering { 
+    case (fmt, Emphasized(content, opt)) => 
+      fmt.element("em", opt, content, "class" -> "big")
+  }.build
+```
 
 
 
@@ -143,9 +153,11 @@ directory.
 
 This is the signature of the `Theme` case class:
 
-    case class Theme (customRenderer: PartialFunction[(Formatter, Element), String],
-                      defaultTemplate: Option[TemplateRoot],
-                      defaultStyles: StyleDeclarationSet)
+```scala
+case class Theme (customRenderer: PartialFunction[(Formatter, Element), String],
+                  defaultTemplate: Option[TemplateRoot],
+                  defaultStyles: StyleDeclarationSet)
+```
 
 * The `customRenderer` is a renderer function that overrides the built-in renderers
   for one or more nodes, see the sections above for details on how to write such a function.
@@ -167,13 +179,15 @@ This is the signature of the `Theme` case class:
 
 A theme can be installed as part of an extension bundle:
 
-    object MyExtensions extends ExtensionBundle {
+```scala
+object MyExtensions extends ExtensionBundle {
+
+  override val themes = Seq(HTML.Theme(...), PDF.Theme(...))
     
-      override val themes = Seq(HTML.Theme(...), PDF.Theme(...))
-        
-    }
-    
-    val transformer = Transformer.from(Markdown).to(HTML).using(MyExtensions)
+}
+
+val transformer = Transformer.from(Markdown).to(HTML).using(MyExtensions)
+```
 
 A theme is specific to a particular output format, separate instances need to be 
 provided if you want to install themes for several formats like HTML, PDF or EPUB.
