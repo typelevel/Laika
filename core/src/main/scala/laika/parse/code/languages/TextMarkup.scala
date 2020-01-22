@@ -271,6 +271,12 @@ object TextMarkup {
     underlinedHeader
   )
 
+  val enhancedStartTag: CodeSpanParsers = HTML.TagParser(CodeCategory.XML.TagName, "<", ">", HTML.nameParser).embed(
+    StringLiteral.singleLine('\'').embed(ref, laikaSubstitution).build,
+    StringLiteral.singleLine('"').embed(ref, laikaSubstitution).build,
+    HTML.name(CodeCategory.AttributeName)
+  ).build
+
   lazy val laikaHTML: SyntaxHighlighter = SyntaxHighlighter.build("laikaHTML", "laika-html")(
     laikaSubstitution,
     laikaDirective,
@@ -282,7 +288,7 @@ object TextMarkup {
     HTML.emptyTag,
     HTML.scriptTag,
     HTML.styleTag,
-    HTML.startTag,
+    enhancedStartTag,
     HTML.endTag
   )
   
