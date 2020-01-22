@@ -219,8 +219,9 @@ object TextMarkup {
   }
   
   val laikaDirective: CodeSpanParsers = CodeSpanParsers('@') {
-    (':' ~> Identifier.standard.standaloneParser ~ ws.min(1) ~ opt(embeddedHocon("{","}"))).map {
-      case name ~ spaces ~ hocon => CodeSpan("@:", CodeCategory.Keyword) +: name +: CodeSpan(spaces) +: hocon.getOrElse(Nil)
+    (':' ~> Identifier.standard.standaloneParser ~ opt(ws.min(1) ~ embeddedHocon("{","}"))).map {
+      case name ~ Some(spaces ~ hocon) => CodeSpan("@:", CodeCategory.Keyword) +: name +: CodeSpan(spaces) +: hocon
+      case name ~ None                 => Seq(CodeSpan("@:", CodeCategory.Keyword), name)
     }
   }
   
