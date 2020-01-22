@@ -174,7 +174,11 @@ object TextMarkup {
     val footnote = rawSpan("[", "]", CodeCategory.Markup.LinkTarget).map(Seq(_))
     val directive = rawSpan("", "::", CodeCategory.Identifier).map(Seq(_))
     
-    (literal(".. ") ~> (subst | linkTarget | footnote | directive)).map(res => CodeSpan("\n.. ") +: res)
+    (opt(atStart).map(_.isDefined) ~ (literal(".. ") ~> (subst | linkTarget | footnote | directive))).map {
+      case startOfInput ~ res =>
+        val nl = if (startOfInput) "" else "\n"
+        CodeSpan(s"$nl.. ") +: res
+    }
   }
   
   val fieldDef: CodeSpanParsers = CodeSpanParsers('\n') {

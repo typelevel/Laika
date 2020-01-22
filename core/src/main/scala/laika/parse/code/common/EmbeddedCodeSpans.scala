@@ -16,11 +16,12 @@
 
 package laika.parse.code.common
 
-import laika.ast.{Span, Text}
+import laika.ast.{Span, Text, ~}
 import laika.parse.Parser
 import laika.parse.code.{CodeCategory, CodeSpan, CodeSpanParsers, CodeSpanSequence}
 import laika.parse.markup.InlineParsers
 import laika.parse.text.DelimitedText
+import laika.parse.text.TextParsers._
 
 /**
   * @author Jens Halm
@@ -35,8 +36,20 @@ trait EmbeddedCodeSpans {
     case (char, definitions) => (char, definitions.map(_.parser).reduceLeft(_ | _))
   }
   
-  def contentParser (textParser: DelimitedText[String]): Parser[Seq[CodeSpan]] =
-    InlineParsers.spans(textParser, spanParserMap).map(_.flatMap(toCodeSpans))
+  def contentParser (textParser: DelimitedText[String]): Parser[Seq[CodeSpan]] = {
+    val mainParser = InlineParsers.spans(textParser, spanParserMap)
+    def removeFirstChar(span: Span): Span = span match {
+      case CodeSpan(content, categories, opt) if content.nonEmpty => CodeSpan(content.drop(1), categories, opt)
+      case _ => span
+    }
+    spanParserMap.get('\n').fold(mainParser.map(_.flatMap(toCodeSpans))) { newLineParsers =>
+      (opt((atStart | lookBehind(1, '\n')) ~> newLineParsers) ~ mainParser).map {
+        case newLineSpan ~ mainSpans => 
+          (newLineSpan.map(removeFirstChar).toList ++ mainSpans).flatMap(toCodeSpans)
+      }
+    }
+    
+  }
   
   protected def toCodeSpans (span: Span): Seq[CodeSpan] = span match {
     case Text(content, _)          => Seq(CodeSpan(content, defaultCategories))

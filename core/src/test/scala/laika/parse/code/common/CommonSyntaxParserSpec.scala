@@ -19,7 +19,7 @@ package laika.parse.code.common
 import laika.bundle.SyntaxHighlighter
 import laika.parse.Parser
 import laika.parse.text.TextParsers._
-import laika.parse.code.{CodeCategory, CodeSpan}
+import laika.parse.code.{CodeCategory, CodeSpan, CodeSpanParsers}
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import org.scalatest.{Assertion, Matchers, WordSpec}
 
@@ -32,7 +32,10 @@ class CommonSyntaxParserSpec extends WordSpec
                              with DefaultParserHelpers[Seq[CodeSpan]] {
 
   
+  val rule = CodeSpanParsers(CodeCategory.Markup.Fence, '\n')(literal("==="))
+  
   val defaultParser: Parser[Seq[CodeSpan]] = SyntaxHighlighter.build("test-lang")(
+    rule,
     Comment.multiLine("/*", "*/"),
     Comment.singleLine("//"),
     Keywords("foo", "bar", "baz"),
@@ -407,6 +410,54 @@ class CommonSyntaxParserSpec extends WordSpec
         CodeSpan("bar2", CodeCategory.Identifier),
         CodeSpan(" "),
         CodeSpan("four", CodeCategory.Identifier),
+      ))
+    }
+    
+  }
+  
+  "The parser for newline detections" should {
+    
+    "recognize input at the start of a line" in {
+      val input =
+        """line1
+          |===
+          |line3""".stripMargin
+
+      Parsing(input) should produce (Seq(
+        CodeSpan("line1", CodeCategory.Identifier),
+        CodeSpan("\n===", CodeCategory.Markup.Fence),
+        CodeSpan("\n"),
+        CodeSpan("line3", CodeCategory.Identifier),
+      ))
+    }
+
+    "recognize input at the start of the input" in {
+      val input =
+        """===
+          |line2
+          |line3""".stripMargin
+
+      Parsing(input) should produce (Seq(
+        CodeSpan("===", CodeCategory.Markup.Fence),
+        CodeSpan("\n"),
+        CodeSpan("line2", CodeCategory.Identifier),
+        CodeSpan("\n"),
+        CodeSpan("line3", CodeCategory.Identifier),
+      ))
+    }
+
+    "not recognize input in the middle of a line" in {
+      val input =
+        """line1
+          |line2 ===
+          |line3""".stripMargin
+
+      Parsing(input) should produce (Seq(
+        CodeSpan("line1", CodeCategory.Identifier),
+        CodeSpan("\n"),
+        CodeSpan("line2", CodeCategory.Identifier),
+        CodeSpan(" ===\n"),
+        CodeSpan("line3", CodeCategory.Identifier),
       ))
     }
     
