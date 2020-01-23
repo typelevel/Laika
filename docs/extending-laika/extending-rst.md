@@ -265,7 +265,7 @@ see the previous section.
 The implementation of the `link` text role could look like this:
 
 ```scala
-val textRole = TextRole("link", "http://www.company.com/main/")(field("base-url")) {
+val textRole = TextRole("link", "http://www.company.com/")(field("base-url")) {
   (base, text) => Link(List(Text(text)), base + text)
 }
 
@@ -309,7 +309,7 @@ For details read our :link:`documentation`.
 This would result in the following HTML:
 
 ```html
-For details read our <a href="http://www.company.com/main/documentation">documentation</a>.
+For details read our <a href="http://www.company.com/documentation">documentation</a>.
 ``` 
 
  
