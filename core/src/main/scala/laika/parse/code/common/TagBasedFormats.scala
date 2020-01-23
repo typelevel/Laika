@@ -18,7 +18,7 @@ package laika.parse.code.common
 
 import laika.ast.~
 import laika.parse.Parser
-import laika.parse.code.{CodeCategory, CodeSpan, CodeSpanParsers}
+import laika.parse.code.{CodeCategory, CodeSpan, CodeSpanParsers, CodeSpans}
 import laika.parse.text.TextParsers.{delimitedBy, literal, success}
 
 /**
@@ -69,7 +69,7 @@ trait TagBasedFormats {
 
       (startParser ~ tagNameParser ~ contentParser(delim)).map {
         case startPunct ~ tagNameSpan ~ content =>
-          mergeCodeSpans(start.head, Seq(startPunct, tagNameSpan) ++ content :+ CodeSpan(end, defaultCategories))
+          CodeSpans.merge(start.head, Seq(startPunct, tagNameSpan) ++ content :+ CodeSpan(end, defaultCategories), defaultCategories)
       }
     }
 

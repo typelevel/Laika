@@ -16,9 +16,9 @@
 
 package laika.parse.code.common
 
-import laika.ast.{Span, Text, ~}
+import laika.ast.{Span, ~}
 import laika.parse.Parser
-import laika.parse.code.{CodeCategory, CodeSpan, CodeSpanParsers, CodeSpanSequence}
+import laika.parse.code.{CodeCategory, CodeSpan, CodeSpanParsers, CodeSpans}
 import laika.parse.markup.InlineParsers
 import laika.parse.text.DelimitedText
 import laika.parse.text.TextParsers._
@@ -42,32 +42,13 @@ trait EmbeddedCodeSpans {
       case CodeSpan(content, categories, opt) if content.nonEmpty => CodeSpan(content.drop(1), categories, opt)
       case _ => span
     }
-    spanParserMap.get('\n').fold(mainParser.map(_.flatMap(toCodeSpans))) { newLineParsers =>
+    spanParserMap.get('\n').fold(mainParser.map(_.flatMap(CodeSpans.extract(defaultCategories)))) { newLineParsers =>
       (opt((atStart | lookBehind(1, '\n')) ~> newLineParsers) ~ mainParser).map {
         case newLineSpan ~ mainSpans => 
-          (newLineSpan.map(removeFirstChar).toList ++ mainSpans).flatMap(toCodeSpans)
+          (newLineSpan.map(removeFirstChar).toList ++ mainSpans).flatMap(CodeSpans.extract(defaultCategories))
       }
     }
     
-  }
-  
-  protected def toCodeSpans (span: Span): Seq[CodeSpan] = span match {
-    case Text(content, _)          => Seq(CodeSpan(content, defaultCategories))
-    case codeSpan: CodeSpan        => Seq(codeSpan)
-    case codeSeq: CodeSpanSequence => codeSeq.collect { case cs: CodeSpan => cs }
-    case _                         => Nil
-  }
-  
-  protected def mergeCodeSpans (startChar: Char, spans: Seq[CodeSpan]): Seq[CodeSpan] = {
-    val startSpan = CodeSpan(startChar.toString, defaultCategories)
-    mergeCodeSpans(startSpan +: spans)
-  }
-
-  protected def mergeCodeSpans (spans: Seq[CodeSpan]): Seq[CodeSpan] = if (spans.isEmpty) spans else {
-    spans.tail.foldLeft(List(spans.head)) { case (acc, next) =>
-      if (acc.last.categories == next.categories) acc.init :+ CodeSpan(acc.last.content + next.content, next.categories)
-      else acc :+ next
-    }
   }
   
 }

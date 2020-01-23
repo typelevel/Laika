@@ -19,7 +19,7 @@ package laika.bundle
 import cats.data.NonEmptyList
 import laika.parse.Parser
 import laika.parse.code.common.EmbeddedCodeSpans
-import laika.parse.code.{CodeCategory, CodeSpan, CodeSpanParsers}
+import laika.parse.code.{CodeCategory, CodeSpan, CodeSpanParsers, CodeSpans}
 import laika.parse.text.DelimitedText
 
 /** The parser for syntax highlighting a particular language.
@@ -33,7 +33,7 @@ case class SyntaxHighlighter (language: NonEmptyList[String], spanParsers: Seq[C
   
   val defaultCategories: Set[CodeCategory] = Set.empty
   
-  lazy val rootParser: Parser[Seq[CodeSpan]] = contentParser(DelimitedText.Undelimited).map(mergeCodeSpans)
+  lazy val rootParser: Parser[Seq[CodeSpan]] = contentParser(DelimitedText.Undelimited).map(CodeSpans.merge)
   
 }
 

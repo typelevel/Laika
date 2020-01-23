@@ -16,7 +16,7 @@
 
 package laika.parse.code
 
-import laika.ast.{NoOpt, Options, Span, SpanContainer, TextContainer}
+import laika.ast.{NoOpt, Options, Span, SpanContainer, Text, TextContainer}
 import laika.parse.Parser
 import laika.parse.text.TextParsers._
 
@@ -143,6 +143,30 @@ object CodeSpan {
   def apply (content: String, category: CodeCategory): CodeSpan = apply(content, Set(category))
 
   def apply (content: String): CodeSpan = apply(content, Set(), NoOpt)
+  
+}
+
+object CodeSpans {
+
+  def extract (defaultCategories: Set[CodeCategory] = Set())(span: Span): Seq[CodeSpan] = span match {
+    case Text(content, _)          => Seq(CodeSpan(content, defaultCategories))
+    case codeSpan: CodeSpan        => Seq(codeSpan)
+    case codeSeq: CodeSpanSequence => codeSeq.collect { case cs: CodeSpan => cs }
+    case _                         => Nil
+  }
+
+  // TODO - 0.14 - this method should become obsolete in 0.14
+  def merge (startChar: Char, spans: Seq[CodeSpan], defaultCategories: Set[CodeCategory] = Set()): Seq[CodeSpan] = {
+    val startSpan = CodeSpan(startChar.toString, defaultCategories)
+    merge(startSpan +: spans)
+  }
+
+  def merge (spans: Seq[CodeSpan]): Seq[CodeSpan] = if (spans.isEmpty) spans else {
+    spans.tail.foldLeft(List(spans.head)) { case (acc, next) =>
+      if (acc.last.categories == next.categories) acc.init :+ CodeSpan(acc.last.content + next.content, next.categories)
+      else acc :+ next
+    }
+  }
   
 }
 

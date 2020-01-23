@@ -17,7 +17,7 @@
 package laika.parse.code.common
 
 import laika.ast.~
-import laika.parse.code.{CodeCategory, CodeSpan, CodeSpanParsers}
+import laika.parse.code.{CodeCategory, CodeSpan, CodeSpanParsers, CodeSpans}
 import laika.parse.text.TextParsers._
 
 /**
@@ -41,7 +41,9 @@ object CharLiteral {
       
       any.take(1).flatMap { char =>
         (spanParserMap.getOrElse(char.head, plainChar) ~ closingDelim).map { 
-          case span ~ closingDel => mergeCodeSpans(delim, toCodeSpans(span) :+ closingDel) 
+          case span ~ closingDel => 
+            val codeSpans = CodeSpans.extract(defaultCategories)(span) :+ closingDel
+            CodeSpans.merge(delim, codeSpans, defaultCategories) 
         }
       }
 

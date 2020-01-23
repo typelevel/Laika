@@ -18,7 +18,7 @@ package laika.parse.code.common
 
 import laika.ast.~
 import laika.parse.Parser
-import laika.parse.code.{CodeCategory, CodeSpan, CodeSpanParsers}
+import laika.parse.code.{CodeCategory, CodeSpan, CodeSpanParsers, CodeSpans}
 import laika.parse.text.TextParsers._
 import laika.parse.text.{DelimitedText, TextParsers}
 
@@ -98,7 +98,7 @@ object StringLiteral {
         p.map(_.map(res => List(CodeSpan(res, defaultCategories)))).getOrElse(success(Nil))
       
       (lookBehind(1, any.take(1)) ~ optParser(prefix) ~ contentParser(parser) ~ optParser(postfix)).map {
-        case startChar ~ pre ~ content ~ post => mergeCodeSpans(startChar.head, pre ++ content ++ post)
+        case startChar ~ pre ~ content ~ post => CodeSpans.merge(startChar.head, pre ++ content ++ post, defaultCategories)
       }
     }
     
