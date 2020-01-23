@@ -41,11 +41,11 @@ case object DefaultSyntaxHighlighters extends ExtensionBundle {
       JSON.highlighter,
       HOCON.highlighter,
       XML.highlighter,
-      TextMarkup.markdown,
-      TextMarkup.rst,
-      TextMarkup.laikaMarkdown,
-      TextMarkup.laikaRst,
-      TextMarkup.laikaHTML
+      TextMarkup.md.highlighter,
+      TextMarkup.rst.highlighter,
+      TextMarkup.laikaExtensions.extendedMarkdown,
+      TextMarkup.laikaExtensions.extendedRst,
+      TextMarkup.laikaExtensions.extendedHTML
     )
   )
   
