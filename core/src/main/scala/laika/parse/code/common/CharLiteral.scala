@@ -26,7 +26,7 @@ import laika.parse.text.TextParsers._
 object CharLiteral {
   
   case class CharParser(delim: Char,
-                        embedded: Seq[CodeSpanParsers] = Nil) extends EmbeddedCodeSpans {
+                        embedded: Seq[CodeSpanParsers] = Nil) {
     
     val defaultCategories: Set[CodeCategory] = Set(CodeCategory.CharLiteral)
 
@@ -40,7 +40,7 @@ object CharLiteral {
       val closingDelim = anyOf(delim).take(1).map(CodeSpan(_, defaultCategories))
       
       any.take(1).flatMap { char =>
-        (spanParserMap.getOrElse(char.head, plainChar) ~ closingDelim).map { 
+        (EmbeddedCodeSpans.parserMap(embedded).getOrElse(char.head, plainChar) ~ closingDelim).map { 
           case span ~ closingDel => 
             val codeSpans = CodeSpans.extract(defaultCategories)(span) :+ closingDel
             CodeSpans.merge(delim, codeSpans, defaultCategories) 

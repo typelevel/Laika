@@ -70,23 +70,20 @@ object CSS {
   
   val declaration: CodeSpanParsers = {
     
-    object ValueParser extends EmbeddedCodeSpans {
-      val defaultCategories: Set[CodeCategory] = Set()
-      val embedded: Seq[CodeSpanParsers] = Seq(
-        Comment.multiLine("/*", "*/"),
-        string,
-        color,
-        url,
-        number,
-        identifier(CodeCategory.Identifier),
-      )
-      def parser(inBlock: Boolean): Parser[Seq[CodeSpan]] = {
-        val separator = (ws ~ ":").concat.map(CodeSpan(_))
-        val delim = any.take(1).map(CodeSpan(_))
-        val text = if (inBlock) delimitedBy('}',';', ')') else delimitedBy('}',';')
-        (separator ~ contentParser(text.keepDelimiter) ~ delim).map {
-          case sep ~ con ~ del => sep +: con :+ del
-        }
+    val embedded: Seq[CodeSpanParsers] = Seq(
+      Comment.multiLine("/*", "*/"),
+      string,
+      color,
+      url,
+      number,
+      identifier(CodeCategory.Identifier),
+    )
+    def valueParser(inBlock: Boolean): Parser[Seq[CodeSpan]] = {
+      val separator = (ws ~ ":").concat.map(CodeSpan(_))
+      val delim = any.take(1).map(CodeSpan(_))
+      val text = if (inBlock) delimitedBy('}',';', ')') else delimitedBy('}',';')
+      (separator ~ EmbeddedCodeSpans.parser(text.keepDelimiter, embedded) ~ delim).map {
+        case sep ~ con ~ del => sep +: con :+ del
       }
     }
 
@@ -94,11 +91,11 @@ object CSS {
     val attrName = idChars(CodeCategory.AttributeName)
     CodeSpanParsers(attrName.idStartChars) {
       val attribute = (lookBehind(1, any.take(1)) ~ attrName.idRestParser).concat.map(CodeSpan(_, CodeCategory.AttributeName))
-      (attribute ~ ValueParser.parser(inBlock = false)).concat
+      (attribute ~ valueParser(inBlock = false)).concat
     } ++
     CodeSpanParsers('(') {
       val attribute = attrName.standaloneParser
-      (attribute ~ ValueParser.parser(inBlock = true)).concat.map(spans => CodeSpan("(") +: spans)
+      (attribute ~ valueParser(inBlock = true)).concat.map(spans => CodeSpan("(") +: spans)
     }
   }
 

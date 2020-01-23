@@ -19,7 +19,7 @@ package laika.bundle
 import cats.data.NonEmptyList
 import laika.parse.Parser
 import laika.parse.code.common.EmbeddedCodeSpans
-import laika.parse.code.{CodeCategory, CodeSpan, CodeSpanParsers, CodeSpans}
+import laika.parse.code.{CodeSpan, CodeSpanParsers, CodeSpans}
 import laika.parse.text.DelimitedText
 
 /** The parser for syntax highlighting a particular language.
@@ -27,13 +27,10 @@ import laika.parse.text.DelimitedText
   * @param language the names of the language as used in text markup
   * @param spanParsers the root-level parsers for code spans written in this language
   */
-case class SyntaxHighlighter (language: NonEmptyList[String], spanParsers: Seq[CodeSpanParsers]) extends EmbeddedCodeSpans {
+case class SyntaxHighlighter (language: NonEmptyList[String], spanParsers: Seq[CodeSpanParsers]) {
   
-  val embedded: Seq[CodeSpanParsers] = spanParsers
-  
-  val defaultCategories: Set[CodeCategory] = Set.empty
-  
-  lazy val rootParser: Parser[Seq[CodeSpan]] = contentParser(DelimitedText.Undelimited).map(CodeSpans.merge)
+  lazy val rootParser: Parser[Seq[CodeSpan]] = 
+    EmbeddedCodeSpans.parser(DelimitedText.Undelimited, spanParsers).map(CodeSpans.merge)
   
 }
 

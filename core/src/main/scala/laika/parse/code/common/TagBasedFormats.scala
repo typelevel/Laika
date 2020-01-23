@@ -52,7 +52,7 @@ trait TagBasedFormats {
                        start: String,
                        end: String,
                        tagName: Parser[String],
-                       embedded: Seq[CodeSpanParsers] = Nil) extends EmbeddedCodeSpans {
+                       embedded: Seq[CodeSpanParsers] = Nil) {
 
     val defaultCategories: Set[CodeCategory] = Set(CodeCategory.XML.Punctuation)
 
@@ -67,7 +67,7 @@ trait TagBasedFormats {
       val tagNameParser = codeParser(tagName, tagCategory)
       val delim = if (end == "/>") delimitedBy(end).failOn('>') else delimitedBy(end) 
 
-      (startParser ~ tagNameParser ~ contentParser(delim)).map {
+      (startParser ~ tagNameParser ~ EmbeddedCodeSpans.parser(delim, embedded, defaultCategories)).map {
         case startPunct ~ tagNameSpan ~ content =>
           CodeSpans.merge(start.head, Seq(startPunct, tagNameSpan) ++ content :+ CodeSpan(end, defaultCategories), defaultCategories)
       }

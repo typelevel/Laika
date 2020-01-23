@@ -26,29 +26,26 @@ import laika.parse.text.TextParsers._
 /**
   * @author Jens Halm
   */
-trait EmbeddedCodeSpans {
-  
-  def embedded: Seq[CodeSpanParsers]
-  
-  def defaultCategories: Set[CodeCategory]
-  
-  protected lazy val spanParserMap = embedded.flatMap(_.parsers).groupBy(_.startChar).map {
+object EmbeddedCodeSpans {
+
+  def parserMap (embedded: Seq[CodeSpanParsers]): Map[Char, Parser[Span]] = embedded.flatMap(_.parsers).groupBy(_.startChar).map {
     case (char, definitions) => (char, definitions.map(_.parser).reduceLeft(_ | _))
   }
-  
-  def contentParser (textParser: DelimitedText[String]): Parser[Seq[CodeSpan]] = {
-    val mainParser = InlineParsers.spans(textParser, spanParserMap)
+
+  def parser (textParser: DelimitedText[String], embedded: Seq[CodeSpanParsers], defaultCategories: Set[CodeCategory] = Set.empty): Parser[Seq[CodeSpan]] = {
+    val embeddedParserMap = parserMap(embedded)
+    val mainParser = InlineParsers.spans(textParser, embeddedParserMap)
     def removeFirstChar(span: Span): Span = span match {
       case CodeSpan(content, categories, opt) if content.nonEmpty => CodeSpan(content.drop(1), categories, opt)
       case _ => span
     }
-    spanParserMap.get('\n').fold(mainParser.map(_.flatMap(CodeSpans.extract(defaultCategories)))) { newLineParsers =>
+    embeddedParserMap.get('\n').fold(mainParser.map(_.flatMap(CodeSpans.extract(defaultCategories)))) { newLineParsers =>
       (opt((atStart | lookBehind(1, '\n')) ~> newLineParsers) ~ mainParser).map {
-        case newLineSpan ~ mainSpans => 
+        case newLineSpan ~ mainSpans =>
           (newLineSpan.map(removeFirstChar).toList ++ mainSpans).flatMap(CodeSpans.extract(defaultCategories))
       }
     }
-    
+
   }
-  
+
 }
