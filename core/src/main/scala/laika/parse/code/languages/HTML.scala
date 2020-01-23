@@ -39,27 +39,27 @@ object HTML extends TagBasedFormats {
 
   val embeddedJs: Parser[Seq[CodeSpan]] = {
     val endTag: Seq[CodeSpan] = Seq(
-      CodeSpan("</", CodeCategory.XML.Punctuation),
-      CodeSpan("script", CodeCategory.XML.TagName)
+      CodeSpan("</", CodeCategory.Tag.Punctuation),
+      CodeSpan("script", CodeCategory.Tag.Name)
     )
     (EmbeddedCodeSpans.parser(delimitedBy("</script"), JavaScript.highlighter.spanParsers) ~ (ws ~ ">").concat).map {
-      case content ~ close => content ++ endTag :+ CodeSpan(close, CodeCategory.XML.Punctuation)
+      case content ~ close => content ++ endTag :+ CodeSpan(close, CodeCategory.Tag.Punctuation)
     }
   }
 
   val embeddedCSS: Parser[Seq[CodeSpan]] = {
     val endTag: Seq[CodeSpan] = Seq(
-      CodeSpan("</", CodeCategory.XML.Punctuation),
-      CodeSpan("style", CodeCategory.XML.TagName)
+      CodeSpan("</", CodeCategory.Tag.Punctuation),
+      CodeSpan("style", CodeCategory.Tag.Name)
     )
     (EmbeddedCodeSpans.parser(delimitedBy("</style"), CSS.highlighter.spanParsers) ~ (ws ~ ">").concat).map {
-      case content ~ close => content ++ endTag :+ CodeSpan(close, CodeCategory.XML.Punctuation)
+      case content ~ close => content ++ endTag :+ CodeSpan(close, CodeCategory.Tag.Punctuation)
     }
   }
   
   val scriptTag: CodeSpanParsers = CodeSpanParsers('<') {
     
-    val startTag: Parser[Seq[CodeSpan]] = TagParser(CodeCategory.XML.TagName, "<", ">", literal("script")).embed(
+    val startTag: Parser[Seq[CodeSpan]] = TagParser(CodeCategory.Tag.Name, "<", ">", literal("script")).embed(
       stringWithEntities,
       name(CodeCategory.AttributeName)
     ).standaloneParser
@@ -69,7 +69,7 @@ object HTML extends TagBasedFormats {
 
   val styleTag: CodeSpanParsers = CodeSpanParsers('<') {
 
-    val startTag: Parser[Seq[CodeSpan]] = TagParser(CodeCategory.XML.TagName, "<", ">", literal("style")).embed(
+    val startTag: Parser[Seq[CodeSpan]] = TagParser(CodeCategory.Tag.Name, "<", ">", literal("style")).embed(
       stringWithEntities,
       name(CodeCategory.AttributeName)
     ).standaloneParser

@@ -270,7 +270,7 @@ object TextMarkup {
     underlinedHeader
   )
 
-  val enhancedStartTag: CodeSpanParsers = HTML.TagParser(CodeCategory.XML.TagName, "<", ">", HTML.nameParser).embed(
+  val enhancedStartTag: CodeSpanParsers = HTML.TagParser(CodeCategory.Tag.Name, "<", ">", HTML.nameParser).embed(
     StringLiteral.singleLine('\'').embed(ref, laikaSubstitution).build,
     StringLiteral.singleLine('"').embed(ref, laikaSubstitution).build,
     HTML.name(CodeCategory.AttributeName)

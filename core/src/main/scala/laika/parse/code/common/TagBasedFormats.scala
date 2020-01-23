@@ -54,7 +54,7 @@ trait TagBasedFormats {
                        tagName: Parser[String],
                        embedded: Seq[CodeSpanParsers] = Nil) {
 
-    val defaultCategories: Set[CodeCategory] = Set(CodeCategory.XML.Punctuation)
+    val defaultCategories: Set[CodeCategory] = Set(CodeCategory.Tag.Punctuation)
 
     def embed(childSpans: CodeSpanParsers*): TagParser = {
       copy(embedded = embedded ++ childSpans)
@@ -63,7 +63,7 @@ trait TagBasedFormats {
     def standaloneParser: Parser[Seq[CodeSpan]] = {
       def codeParser(p: Parser[String], category: CodeCategory): Parser[CodeSpan] = p.map(CodeSpan(_, category))
 
-      val startParser = codeParser(if (start.length > 1) literal(start.tail) else success(""), CodeCategory.XML.Punctuation)
+      val startParser = codeParser(if (start.length > 1) literal(start.tail) else success(""), CodeCategory.Tag.Punctuation)
       val tagNameParser = codeParser(tagName, tagCategory)
       val delim = if (end == "/>") delimitedBy(end).failOn('>') else delimitedBy(end) 
 
@@ -85,16 +85,16 @@ trait TagBasedFormats {
       new TagParser(tagCategory, start, end, literal(tagName))
   }
 
-  val emptyTag: CodeSpanParsers = TagParser(CodeCategory.XML.TagName, "<", "/>", nameParser).embed(
+  val emptyTag: CodeSpanParsers = TagParser(CodeCategory.Tag.Name, "<", "/>", nameParser).embed(
     stringWithEntities,
     name(CodeCategory.AttributeName)
   ).build
 
-  val startTag: CodeSpanParsers = TagParser(CodeCategory.XML.TagName, "<", ">", nameParser).embed(
+  val startTag: CodeSpanParsers = TagParser(CodeCategory.Tag.Name, "<", ">", nameParser).embed(
     stringWithEntities,
     name(CodeCategory.AttributeName)
   ).build
 
-  val endTag: CodeSpanParsers = TagParser(CodeCategory.XML.TagName, "</", ">", nameParser).build
+  val endTag: CodeSpanParsers = TagParser(CodeCategory.Tag.Name, "</", ">", nameParser).build
   
 }

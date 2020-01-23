@@ -18,6 +18,7 @@ package laika.parse.code
 
 import laika.ast.{NoOpt, Options, Span, SpanContainer, Text, TextContainer}
 import laika.parse.Parser
+import laika.parse.code.CodeCategory.XML.XMLCategory
 import laika.parse.text.TextParsers._
 
 /**
@@ -109,13 +110,21 @@ object CodeCategory {
   case object AttributeName extends CodeCategory
   case object Identifier extends CodeCategory
   
+  object Tag {
+    sealed trait TagCategory extends CodeCategory {
+      override def prefix: String = "tag-"
+    }
+    case object Name extends XMLCategory
+    case object Punctuation extends XMLCategory
+  }
+  
   object XML {
     sealed trait XMLCategory extends CodeCategory {
       override def prefix: String = "xml-"
     }
-    case object TagName extends XMLCategory
-    case object Punctuation extends XMLCategory
-    case object DTDTagName extends XMLCategory
+    case object DTDTagName extends XMLCategory {
+      override def name: String = "xml-dtd-tag-name"
+    }
     case object ProcessingInstruction extends XMLCategory
     case object CData extends XMLCategory
   }

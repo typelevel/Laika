@@ -51,7 +51,7 @@ class LanguageSpec extends WordSpec with Matchers {
     def escape(value: String): CodeSpan = CodeSpan(value, EscapeSequence)
     def subst(value: String): CodeSpan = CodeSpan(value, Substitution)
     def literal(value: String): CodeSpan = CodeSpan(value, LiteralValue)
-    def tagName(value: String): CodeSpan = CodeSpan(value, CodeCategory.XML.TagName)
+    def tagName(value: String): CodeSpan = CodeSpan(value, CodeCategory.Tag.Name)
     def attrName(value: String): CodeSpan = CodeSpan(value, CodeCategory.AttributeName)
     def comment(value: String): CodeSpan = CodeSpan(value, CodeCategory.Comment)
     def other(value: String): CodeSpan = CodeSpan(value)
@@ -61,11 +61,11 @@ class LanguageSpec extends WordSpec with Matchers {
       def string(value: String): CodeSpan = CodeSpan("\"" + value + "\"", StringLiteral)
       def dtdTag(value: String): CodeSpan = CodeSpan(value, CodeCategory.XML.DTDTagName)
       def nl(indent: Int): CodeSpan = CodeSpan("\n" + (" " * indent))
-      def punct(content: String): CodeSpan = CodeSpan(content, CodeCategory.XML.Punctuation)
-      val open: CodeSpan = CodeSpan("<", CodeCategory.XML.Punctuation)
-      val close: CodeSpan = CodeSpan(">", CodeCategory.XML.Punctuation)
-      val space: CodeSpan = CodeSpan(" ", CodeCategory.XML.Punctuation)
-      val eq: CodeSpan = CodeSpan("=", CodeCategory.XML.Punctuation)
+      def punct(content: String): CodeSpan = CodeSpan(content, CodeCategory.Tag.Punctuation)
+      val open: CodeSpan = CodeSpan("<", CodeCategory.Tag.Punctuation)
+      val close: CodeSpan = CodeSpan(">", CodeCategory.Tag.Punctuation)
+      val space: CodeSpan = CodeSpan(" ", CodeCategory.Tag.Punctuation)
+      val eq: CodeSpan = CodeSpan("=", CodeCategory.Tag.Punctuation)
     }
     
     "parse Scala code" in {

@@ -55,7 +55,7 @@ object XML extends TagBasedFormats {
     
   }
 
-  val xmlDecl: CodeSpanParsers = TagParser(CodeCategory.XML.TagName, "<?", "?>", "xml").embed(
+  val xmlDecl: CodeSpanParsers = TagParser(CodeCategory.Tag.Name, "<?", "?>", "xml").embed(
     string,
     name(CodeCategory.AttributeName)
   ).build
