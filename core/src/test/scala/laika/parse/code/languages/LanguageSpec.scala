@@ -68,6 +68,14 @@ class LanguageSpec extends WordSpec with Matchers {
       val eq: CodeSpan = CodeSpan("=", CodeCategory.Tag.Punctuation)
     }
     
+    trait MarkupFormats {
+      def txt(content: String): CodeSpan = CodeSpan(content)
+      def header(content: String): CodeSpan = CodeSpan("\n" + content + "\n", CodeCategory.Markup.Headline)
+      def em(content: String): CodeSpan = CodeSpan(content, CodeCategory.Markup.Emphasized)
+      def linkText(content: String): CodeSpan = CodeSpan(content, CodeCategory.Markup.LinkText)
+      def linkTarget(content: String): CodeSpan = CodeSpan(content, CodeCategory.Markup.LinkTarget)
+    }
+    
     "parse Scala code" in {
       
       val input =
@@ -448,7 +456,7 @@ class LanguageSpec extends WordSpec with Matchers {
       ))
     }
 
-    "parse a Markdown document" in {
+    "parse a Markdown document" in new MarkupFormats {
       val input =
         """# Doc
           |
@@ -467,12 +475,6 @@ class LanguageSpec extends WordSpec with Matchers {
           |``` 
         """.stripMargin
 
-      def txt(content: String): CodeSpan = CodeSpan(content)
-      def header(content: String): CodeSpan = CodeSpan("\n" + content + "\n", CodeCategory.Markup.Headline)
-      def em(content: String): CodeSpan = CodeSpan(content, CodeCategory.Markup.Emphasized)
-      def linkText(content: String): CodeSpan = CodeSpan(content, CodeCategory.Markup.LinkText)
-      def linkTarget(content: String): CodeSpan = CodeSpan(content, CodeCategory.Markup.LinkTarget)
-
       parse(input) shouldBe RootElement(Seq(
         Title(Seq(Text("Doc")), Styles("title") + Id("doc")),
         CodeBlock("md", Seq(
@@ -485,7 +487,7 @@ class LanguageSpec extends WordSpec with Matchers {
       ))
     }
 
-    "parse a Markdown document with Laika extensions" in {
+    "parse a Markdown document with Laika extensions" in new MarkupFormats {
       val input =
         """# Doc
           |
@@ -505,10 +507,6 @@ class LanguageSpec extends WordSpec with Matchers {
           |``` 
         """.stripMargin
 
-      def txt(content: String): CodeSpan = CodeSpan(content)
-      def header(content: String): CodeSpan = CodeSpan("\n" + content + "\n", CodeCategory.Markup.Headline)
-      def em(content: String): CodeSpan = CodeSpan(content, CodeCategory.Markup.Emphasized)
-
       parse(input) shouldBe RootElement(Seq(
         Title(Seq(Text("Doc")), Styles("title") + Id("doc")),
         CodeBlock("laika-md", Seq(
@@ -524,7 +522,7 @@ class LanguageSpec extends WordSpec with Matchers {
       ))
     }
 
-    "parse a reStructuredText document" in {
+    "parse a reStructuredText document" in new MarkupFormats {
       val input =
         """# Doc
           |
@@ -553,10 +551,7 @@ class LanguageSpec extends WordSpec with Matchers {
           |``` 
         """.stripMargin
 
-      def txt(content: String): CodeSpan = CodeSpan(content)
-      def header(content: String): CodeSpan = CodeSpan("\n" + content, CodeCategory.Markup.Headline)
-      def em(content: String): CodeSpan = CodeSpan(content, CodeCategory.Markup.Emphasized)
-      def linkTarget(content: String): CodeSpan = CodeSpan(content, CodeCategory.Markup.LinkTarget)
+      override def header(content: String): CodeSpan = CodeSpan("\n" + content, CodeCategory.Markup.Headline)
 
       parse(input) shouldBe RootElement(Seq(
         Title(Seq(Text("Doc")), Styles("title") + Id("doc")),
@@ -577,7 +572,7 @@ class LanguageSpec extends WordSpec with Matchers {
       ))
     }
 
-    "parse a reStructuredText document with Laika extensions" in {
+    "parse a reStructuredText document with Laika extensions" in new MarkupFormats {
       val input =
         """# Doc
           |
@@ -597,9 +592,7 @@ class LanguageSpec extends WordSpec with Matchers {
           |``` 
         """.stripMargin
 
-      def txt(content: String): CodeSpan = CodeSpan(content)
-      def header(content: String): CodeSpan = CodeSpan("\n" + content, CodeCategory.Markup.Headline)
-      def em(content: String): CodeSpan = CodeSpan(content, CodeCategory.Markup.Emphasized)
+      override def header(content: String): CodeSpan = CodeSpan("\n" + content, CodeCategory.Markup.Headline)
 
       parse(input) shouldBe RootElement(Seq(
         Title(Seq(Text("Doc")), Styles("title") + Id("doc")),
