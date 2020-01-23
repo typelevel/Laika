@@ -53,13 +53,13 @@ object TextMarkup {
   private def linkRest(prefix: String): Parser[Seq[CodeSpan]] = {
     
     val url = '(' ~> delimitedBy(')').nonEmpty.failOn('\n').map(url => CodeSpan(s"($url)", CodeCategory.Markup.LinkTarget))
-    val ref = '[' ~> delimitedBy(']').failOn('\n').map(ref => CodeSpan(s"[$ref]", CodeCategory.Identifier))
+    val ref = '[' ~> delimitedBy(']').failOn('\n').map(ref => CodeSpan(s"[$ref]", CodeCategory.Markup.LinkTarget))
     val link = (literal(prefix.tail) ~ delimitedBy(']').failOn('\n')).concat.map(prefix.head.toString+_+"]")
     
     (link ~ opt(url | ref)).map {
-      case link ~ Some(target) if target.content == "[]" => Seq(CodeSpan(link+"[]", CodeCategory.Identifier))  
+      case link ~ Some(target) if target.content == "[]" => Seq(CodeSpan(link+"[]", CodeCategory.Markup.LinkTarget))  
       case link ~ Some(target) => Seq(CodeSpan(link, CodeCategory.Markup.LinkText), target)  
-      case link ~ None => Seq(CodeSpan(link, CodeCategory.Identifier))  
+      case link ~ None => Seq(CodeSpan(link, CodeCategory.Markup.LinkTarget))  
     } 
   }
   
@@ -126,8 +126,10 @@ object TextMarkup {
   private def span (start: String, end: String, postCondition: Parser[Any]): Parser[String] = 
     markupStart(start, end) ~> delimitedByMarkupEnd(end, postCondition) ^^ { text => s"$start$text$end" }
 
-  def rawSpan(start: String, end: String, category: CodeCategory): Parser[CodeSpan] = // does not perform checks for rst inline markup recognition
-    (start ~ delimitedBy(end).failOn('\n')).concat.map(res => CodeSpan(s"$res$end", category))
+  def rawSpan(start: String, end: String, category: CodeCategory, includeDelim: Boolean = true): Parser[CodeSpan] = // does not perform checks for rst inline markup recognition
+    (start ~ delimitedBy(end).failOn('\n')).concat.map {
+      res => CodeSpan(if (includeDelim) s"$res$end" else res, category)
+    }
 
   val strong: CodeSpanParsers = CodeSpanParsers(CodeCategory.Markup.Emphasized, '*')(span("*","**"))
   val em: CodeSpanParsers = CodeSpanParsers(CodeCategory.Markup.Emphasized, '*')(span("","*",not("*")))
@@ -172,7 +174,8 @@ object TextMarkup {
     }
     val linkTarget = rawSpan("_", ":", CodeCategory.Markup.LinkTarget).map(Seq(_))
     val footnote = rawSpan("[", "]", CodeCategory.Markup.LinkTarget).map(Seq(_))
-    val directive = rawSpan("", "::", CodeCategory.Identifier).map(Seq(_))
+    val directive = rawSpan("", "::", CodeCategory.Identifier, includeDelim = false)
+      .map(Seq(_, CodeSpan("::", CodeCategory.Keyword)))
     
     (opt(atStart).map(_.isDefined) ~ (literal(".. ") ~> (subst | linkTarget | footnote | directive))).map {
       case startOfInput ~ res =>
@@ -182,7 +185,7 @@ object TextMarkup {
   }
   
   val fieldDef: CodeSpanParsers = CodeSpanParsers('\n') {
-    (ws ~ rawSpan(":", ":", CodeCategory.Identifier)).map {
+    (ws ~ rawSpan(":", ":", CodeCategory.AttributeName)).map {
       case space ~ name => Seq(CodeSpan(s"\n$space"), name)
     }
   }

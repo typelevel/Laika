@@ -478,7 +478,7 @@ class LanguageSpec extends WordSpec with Matchers {
         CodeBlock("md", Seq(
           txt("Some "), em("*em*"), txt(" text "), em("**and**"), txt(" some "), string("`literal`"),
           txt(" text, an "), linkText("![image]"),  linkTarget("(foo.jpg)"), txt(".\nA "),
-          linkText("[link]"), linkTarget("(http://foo/)"), txt(", another "), linkText("[link]"), id("[ref]"), txt(" and one more "), id("[ref]"), txt(".\n"),
+          linkText("[link]"), linkTarget("(http://foo/)"), txt(", another "), linkText("[link]"), linkTarget("[ref]"), txt(" and one more "), linkTarget("[ref]"), txt(".\n"),
           header("Header\n======"), txt("\n"), id("[ref]:"), linkTarget(" http://foo"), txt("\n"),
           header("### Header"), CodeSpan("\n>", CodeCategory.Markup.Quote), txt(" Quote")
         ))
@@ -571,8 +571,8 @@ class LanguageSpec extends WordSpec with Matchers {
           subst("|subs|"), space, id("dir::"),
           txt("\n\n.. "), linkTarget("[#label]"), txt(" footnote\n"),
           CodeSpan("\n___", CodeCategory.Markup.Fence), 
-          txt("\n\n.. "), id("dir::"), txt("\n "),
-          id(":name:"), txt(" value")
+          txt("\n\n.. "), id("dir"), keyword("::"), txt("\n "),
+          attrName(":name:"), txt(" value")
         ))
       ))
     }
