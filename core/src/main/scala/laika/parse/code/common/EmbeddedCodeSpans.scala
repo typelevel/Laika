@@ -60,10 +60,7 @@ trait EmbeddedCodeSpans {
   
   protected def mergeCodeSpans (startChar: Char, spans: Seq[CodeSpan]): Seq[CodeSpan] = {
     val startSpan = CodeSpan(startChar.toString, defaultCategories)
-    spans.foldLeft(List(startSpan)) { case (acc, next) =>
-      if (acc.last.categories == next.categories) acc.init :+ CodeSpan(acc.last.content + next.content, next.categories)
-      else acc :+ next
-    }
+    mergeCodeSpans(startSpan +: spans)
   }
 
   protected def mergeCodeSpans (spans: Seq[CodeSpan]): Seq[CodeSpan] = if (spans.isEmpty) spans else {
