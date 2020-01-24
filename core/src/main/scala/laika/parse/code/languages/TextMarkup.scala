@@ -127,28 +127,27 @@ object TextMarkup {
 
   object rst {
 
-    private def span (start: String, end: String): Parser[String] = span(start, end, success(()))
-
-    private def span (start: String, end: String, postCondition: Parser[Any]): Parser[String] =
-      markupStart(start, end) ~> delimitedByMarkupEnd(end, postCondition) ^^ { text => s"$start$text$end" }
-
-    def rawSpan (start: String, end: String, category: CodeCategory, includeDelim: Boolean = true): Parser[CodeSpan] = // does not perform checks for rst inline markup recognition
+    // raw = does not perform checks for rst inline markup recognition
+    def rawSpan (start: String, end: String, category: CodeCategory, includeDelim: Boolean = true): Parser[CodeSpan] =
       (start ~ delimitedBy(end).failOn('\n')).concat.map {
         res => CodeSpan(if (includeDelim) s"$res$end" else res, category)
       }
+    
+    private def span (start: String, end: String, category: CodeCategory, postCondition: Parser[Any] = success(())): CodeSpanParsers =
+      CodeSpanParsers(category, start.head) {
+        markupStart(start.tail, end) ~> delimitedByMarkupEnd(end, postCondition) ^^ { text => s"${start.tail}$text$end" }
+      }
 
-    val strong: CodeSpanParsers = CodeSpanParsers(CodeCategory.Markup.Emphasized, '*')(span("*", "**"))
-    val em: CodeSpanParsers = CodeSpanParsers(CodeCategory.Markup.Emphasized, '*')(span("", "*", not("*")))
-    val lit: CodeSpanParsers = CodeSpanParsers(CodeCategory.StringLiteral, '`')(span("`", "``"))
-    val ref: CodeSpanParsers = CodeSpanParsers(CodeCategory.Markup.LinkTarget, '`')(span("", "`__")) ++
-      CodeSpanParsers(CodeCategory.Markup.LinkTarget, '`')(span("", "`_"))
-    val subst: CodeSpanParsers = CodeSpanParsers(CodeCategory.Substitution, '|')(span("", "|__")) ++
-      CodeSpanParsers(CodeCategory.Substitution, '|')(span("", "|_")) ++
-      CodeSpanParsers(CodeCategory.Substitution, '|')(span("", "|"))
-    val interpretedText: CodeSpanParsers = CodeSpanParsers(CodeCategory.Substitution, '`')(span("", "`"))
-    val roleName: CodeSpanParsers = CodeSpanParsers(CodeCategory.Identifier, ':')(span("", ":"))
-    val internalTarget: CodeSpanParsers = CodeSpanParsers(CodeCategory.Identifier, '_')(span("`", "`"))
-    val footnote: CodeSpanParsers = CodeSpanParsers(CodeCategory.Markup.LinkTarget, '[')(span("", "]_"))
+    val strong: CodeSpanParsers = span("**", "**", CodeCategory.Markup.Emphasized)
+    val em: CodeSpanParsers     = span("*", "*", CodeCategory.Markup.Emphasized, not("*"))
+    val lit: CodeSpanParsers    = span("``", "``", CodeCategory.StringLiteral)
+    val ref: CodeSpanParsers    = span("`", "`__", CodeCategory.Markup.LinkTarget) ++ span("`", "`_", CodeCategory.Markup.LinkTarget)
+    val subst: CodeSpanParsers  = span("|", "|__", CodeCategory.Substitution) ++ span("|", "|_", CodeCategory.Substitution) ++ span("|", "|", CodeCategory.Substitution)
+    
+    val interpretedText: CodeSpanParsers = span("`", "`", CodeCategory.Substitution)
+    val roleName: CodeSpanParsers        = span(":", ":", CodeCategory.Identifier)
+    val internalTarget: CodeSpanParsers  = span("_`", "`", CodeCategory.Identifier)
+    val footnote: CodeSpanParsers        = span("[", "]_", CodeCategory.Markup.LinkTarget)
 
     val header: CodeSpanParsers = CodeSpanParsers(CodeCategory.Markup.Headline, '\n') {
       anyOf(BaseParsers.punctuationChars.toSeq: _*).take(1) >> { startChar =>
