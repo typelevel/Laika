@@ -33,18 +33,18 @@ object CSS {
   
   private val ws: Characters[String] = anyOf('\n', ' ')
   
-  private def idChars (category: CodeCategory): Identifier.IdParser = 
-    Identifier.standard.withIdStartChars('_','-').withCategoryChooser(_ => category)
+  private def idChars (category: CodeCategory, allowDigitBeforeStart: Boolean): Identifier.IdParser = 
+    Identifier.standard.withIdStartChars('_','-').withCategoryChooser(_ => category).copy(allowDigitBeforeStart = allowDigitBeforeStart)
   
-  def identifier (category: CodeCategory): CodeSpanParsers = {
+  def identifier (category: CodeCategory, allowDigitBeforeStart: Boolean): CodeSpanParsers = {
 
     def prefixedId(prefix: String): CodeSpanParsers = CodeSpanParsers(prefix.head) {
-      (literal(prefix.tail) ~> idChars(category).standaloneParser).map { id =>
+      (literal(prefix.tail) ~> idChars(category, allowDigitBeforeStart).standaloneParser).map { id =>
         Seq(id.copy(content = prefix + id.content)) // TODO - add prefixedBy() to Identifier parser
       }
     }
   
-    prefixedId("@") ++ prefixedId("#") ++ idChars(category).build
+    prefixedId("@") ++ prefixedId("#") ++ idChars(category, allowDigitBeforeStart).build
   }
   
   lazy val escape: CodeSpanParsers = 
@@ -66,7 +66,8 @@ object CSS {
   val string: CodeSpanParsers = StringLiteral.singleLine('"').embed(escape).build ++
     StringLiteral.singleLine('\'').embed(escape).build
   
-  val number: CodeSpanParsers = NumberLiteral.decimalFloat.build ++ NumberLiteral.decimalInt.build
+  val number: CodeSpanParsers = NumberLiteral.decimalFloat.copy(allowFollowingLetter = true).build ++ 
+    NumberLiteral.decimalInt.copy(allowFollowingLetter = true).build
   
   val declaration: CodeSpanParsers = {
     
@@ -76,7 +77,7 @@ object CSS {
       color,
       url,
       number,
-      identifier(CodeCategory.Identifier),
+      identifier(CodeCategory.Identifier, allowDigitBeforeStart = true),
     )
     def valueParser(inBlock: Boolean): Parser[Seq[CodeSpan]] = {
       val separator = (ws ~ ":").concat.map(CodeSpan(_))
@@ -88,7 +89,7 @@ object CSS {
     }
 
     // TODO - add prefixedBy() to Identifier parser
-    val attrName = idChars(CodeCategory.AttributeName)
+    val attrName = idChars(CodeCategory.AttributeName, allowDigitBeforeStart = false)
     CodeSpanParsers(attrName.idStartChars) {
       val attribute = (lookBehind(1, any.take(1)) ~ attrName.idRestParser).concat.map(CodeSpan(_, CodeCategory.AttributeName))
       (attribute ~ valueParser(inBlock = false)).concat
@@ -103,7 +104,7 @@ object CSS {
     Comment.multiLine("/*", "*/"),
     string,
     declaration,
-    identifier(CodeCategory.Identifier),
+    identifier(CodeCategory.Identifier, allowDigitBeforeStart = false),
     Keywords("!important")
   )
 

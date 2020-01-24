@@ -34,7 +34,7 @@ class CommonSyntaxParserSpec extends WordSpec
   
   val rule = CodeSpanParsers(CodeCategory.Markup.Fence, '\n')(literal("==="))
   
-  val defaultParser: Parser[Seq[CodeSpan]] = SyntaxHighlighter.build("test-lang")(
+  private def createParser (allowLetterAfterNumber: Boolean = false): Parser[Seq[CodeSpan]] = SyntaxHighlighter.build("test-lang")(
     rule,
     Comment.multiLine("/*", "*/"),
     Comment.singleLine("//"),
@@ -56,14 +56,16 @@ class CommonSyntaxParserSpec extends WordSpec
       StringLiteral.Substitution.between("${", "}"),
       StringLiteral.Substitution('$')(anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '_').min(1))
     ).build,
-    Identifier.standard.withIdStartChars('_','$').withCategoryChooser(Identifier.upperCaseTypeName).build,
+    Identifier.standard.withIdStartChars('_','$').withCategoryChooser(Identifier.upperCaseTypeName).copy(allowDigitBeforeStart = allowLetterAfterNumber).build,
     NumberLiteral.binary.withUnderscores.withSuffix(NumericSuffix.long).build,
     NumberLiteral.octal.withUnderscores.withSuffix(NumericSuffix.long).build,
     NumberLiteral.hexFloat.withUnderscores.withSuffix(NumericSuffix.float).build,
     NumberLiteral.hex.withUnderscores.withSuffix(NumericSuffix.long).build,
-    NumberLiteral.decimalFloat.withUnderscores.withSuffix(NumericSuffix.float).build,
-    NumberLiteral.decimalInt.withUnderscores.withSuffix(NumericSuffix.long).build,
+    NumberLiteral.decimalFloat.withUnderscores.withSuffix(NumericSuffix.float).copy(allowFollowingLetter = allowLetterAfterNumber).build,
+    NumberLiteral.decimalInt.withUnderscores.withSuffix(NumericSuffix.long).copy(allowFollowingLetter = allowLetterAfterNumber).build,
   ).rootParser
+  
+  val defaultParser: Parser[Seq[CodeSpan]] = createParser()
   
   
   "The identifier parser" should {
@@ -197,6 +199,25 @@ class CommonSyntaxParserSpec extends WordSpec
 
     "parse a hex float literal with an exponent" in {
       test("0x23.f5p-23")
+    }
+    
+    "not recognize a number immediately followed by a letter" in {
+      Parsing(s"one1 123bb three3") should produce (Seq(
+        CodeSpan("one1", CodeCategory.Identifier),
+        CodeSpan(" 123bb "),
+        CodeSpan("three3", CodeCategory.Identifier)
+      ))
+    }
+
+    "recognize a number immediately followed by a letter if explicitly allowed (e.g. for numbers with unit like in CSS)" in {
+      createParser(allowLetterAfterNumber = true).parse(s"one1 123bb three3") should produce (Seq(
+        CodeSpan("one1", CodeCategory.Identifier),
+        CodeSpan(" "),
+        CodeSpan("123", CodeCategory.NumberLiteral),
+        CodeSpan("bb", CodeCategory.Identifier),
+        CodeSpan(" "),
+        CodeSpan("three3", CodeCategory.Identifier)
+      ))
     }
     
   }

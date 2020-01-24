@@ -18,7 +18,7 @@ package laika.parse.code.common
 
 import laika.parse.Parser
 import laika.parse.code.{CodeCategory, CodeSpan, CodeSpanParsers}
-import laika.parse.text.TextParsers.{any, anyOf, lookBehind}
+import laika.parse.text.TextParsers._
 
 /**
   * @author Jens Halm
@@ -38,7 +38,8 @@ object Identifier {
 
   case class IdParser(idStartChars: Set[Char], 
                       idNonStartChars: Set[Char], 
-                      category: String => CodeCategory = _ => CodeCategory.Identifier) {
+                      category: String => CodeCategory = _ => CodeCategory.Identifier,
+                      allowDigitBeforeStart: Boolean = false) {
 
     import NumberLiteral._
     
@@ -55,10 +56,12 @@ object Identifier {
     def build: CodeSpanParsers = {
       
       CodeSpanParsers(idStartChars) {
+        
+        val prevChar = lookBehind(2, anyWhile(c => (!Character.isDigit(c) || allowDigitBeforeStart) && !Character.isLetter(c)).take(1)) | lookBehind(1, atStart)
 
         val idStart = lookBehind(1, any.take(1))
         
-        (idStart ~ idRestParser).concat.map(id => Seq(CodeSpan(id, category(id))))
+        (prevChar ~> idStart ~ idRestParser).concat.map(id => Seq(CodeSpan(id, category(id))))
         
       }
     }

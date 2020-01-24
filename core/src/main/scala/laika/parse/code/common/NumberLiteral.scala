@@ -70,7 +70,8 @@ object NumberLiteral {
                             idSequence: Option[Parser[String]] = None,
                             underscores: Boolean = false,
                             exponent: Option[Parser[String]] = None,
-                            suffix: Option[Parser[String]] = None) {
+                            suffix: Option[Parser[String]] = None,
+                            allowFollowingLetter: Boolean = false) {
 
     private val emptyString: Parser[String] = success("")
 
@@ -103,8 +104,9 @@ object NumberLiteral {
         
         val id = idSequence.getOrElse(emptyString)
         val optSuffix = suffix.fold(emptyString)(opt(_).map(_.getOrElse("")))
+        val postCondition = if (allowFollowingLetter) success(()) else not(anyWhile(java.lang.Character.isLetter).take(1)) // TODO - add char(Char => Boolean)
         
-        (id ~ number ~ optSuffix).concat
+        (id ~ number ~ optSuffix <~ postCondition).concat
       }
     }
 
