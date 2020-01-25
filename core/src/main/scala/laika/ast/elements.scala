@@ -898,13 +898,13 @@ case class Literal (content: String, options: Options = NoOpt) extends Span with
 }
 
 /** A span of program code. The content is a sequence of spans to support
- *  the later integration of syntax highlighting systems. Without this support
+ *  the integration of syntax highlighting systems. Without this support
  *  the sequence will only consist of a single `Text` element.
  */
-case class Code (language: String, content: Seq[Span], options: Options = NoOpt) extends Span with SpanContainer {
-  type Self = Code
-  def withContent (newContent: Seq[Span]): Code = copy(content = newContent)
-  def withOptions (options: Options): Code = copy(options = options)
+case class InlineCode (language: String, content: Seq[Span], options: Options = NoOpt) extends Span with SpanContainer {
+  type Self = InlineCode
+  def withContent (newContent: Seq[Span]): InlineCode = copy(content = newContent)
+  def withOptions (options: Options): InlineCode = copy(options = options)
 }
 
 /** A span representing deleted inline elements that may contain nested spans.

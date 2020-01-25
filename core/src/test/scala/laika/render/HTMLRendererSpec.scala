@@ -422,7 +422,7 @@ class HTMLRendererSpec extends FlatSpec
   }
   
   it should "render a paragraph containing a code span" in {
-    val elem = p(txt("some "), Code("banana-script", List(Text("code"))), txt(" span"))
+    val elem = p(txt("some "), InlineCode("banana-script", List(Text("code"))), txt(" span"))
     render (elem) should be ("<p>some <code class=\"banana-script\">code</code> span</p>") 
   }
   

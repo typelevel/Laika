@@ -105,7 +105,7 @@ object FOStyles {
     forElement("Deleted", "text-decoration" -> "line-through"),
     forElement("Inserted", "text-decoration" -> "underline"),
     forElement("Literal", fontFamily("monospace")),
-    forElement("Code", fontFamily("monospace")),
+    forElement("InlineCode", fontFamily("monospace")),
     forStyleName("subscript", fontSize(8), "vertical-align" -> "sub"),
     forStyleName("superscript", fontSize(8), "vertical-align" -> "super"),
     forStyleName("footnote-label", fontSize(8), "vertical-align" -> "super"),

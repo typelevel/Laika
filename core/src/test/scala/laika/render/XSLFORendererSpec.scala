@@ -608,7 +608,7 @@ class XSLFORendererSpec extends FlatSpec
   }
   
   it should "render a paragraph containing a code span" in {
-    val elem = p(txt("some "), Code("banana-script", List(Text("code"))), txt(" span"))
+    val elem = p(txt("some "), InlineCode("banana-script", List(Text("code"))), txt(" span"))
     val fo = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">some <fo:inline font-family="monospace">code</fo:inline> span</fo:block>"""
     render (elem) should be (fo) 
   }

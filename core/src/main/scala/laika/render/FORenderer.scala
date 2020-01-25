@@ -122,7 +122,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
         case e @ Strong(content,_)            => fmt.inline(e, content)
         case e @ Deleted(content,_)           => fmt.inline(e, content)
         case e @ Inserted(content,_)          => fmt.inline(e, content)
-        case e @ Code(lang,content,_)         => fmt.inline(e.copy(options=e.options + codeStyles(lang)),content)
+        case e @ InlineCode(lang,content,_)         => fmt.inline(e.copy(options=e.options + codeStyles(lang)),content)
         case e @ Line(content,_)              => fmt.block(e, content)
 
         case e @ ExternalLink(content, url, _, _)     => fmt.externalLink(e, url, content)

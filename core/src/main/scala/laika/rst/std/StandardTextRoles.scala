@@ -119,7 +119,7 @@ class StandardTextRoles {
     TextRole("code", ("",NoOpt:Options)) {
       (optField("language") ~ classOption).map { case lang ~ opt => (lang.getOrElse(""), opt) }
     }{
-      case ((lang, opt), text) => Code(lang, List(Text(text)), opt)
+      case ((lang, opt), text) => InlineCode(lang, List(Text(text)), opt)
     }  
     
   /** The raw text role, which is not enabled by default, 

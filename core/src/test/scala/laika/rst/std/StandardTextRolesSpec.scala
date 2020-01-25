@@ -156,7 +156,7 @@ class StandardTextRolesSpec extends FlatSpec
   
   "The code text role" should "produce a code span without styles" in {
     val input = "some :code:`text`"
-    val result = root(p(txt("some "), Code("", List(Text("text")))))
+    val result = root(p(txt("some "), InlineCode("", List(Text("text")))))
     parse(input) should be (result)
   }
   
@@ -166,7 +166,7 @@ class StandardTextRolesSpec extends FlatSpec
       | :language: banana-script
       |
       |some :foo:`text`""".stripMargin
-    val result = root(p(txt("some "), Code("banana-script", List(Text("text")), Styles("foo"))))
+    val result = root(p(txt("some "), InlineCode("banana-script", List(Text("text")), Styles("foo"))))
     parse(input) should be (result)
   }
   
