@@ -21,6 +21,7 @@ import laika.bundle.SyntaxHighlighter
 import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue}
 import laika.parse.code.{CodeCategory, CodeSpanParsers}
 import laika.parse.code.common.{CharLiteral, Comment, Identifier, Keywords, NumberLiteral, NumericSuffix, StringLiteral}
+import laika.parse.text.Characters
 import laika.parse.text.TextParsers._
 
 /**
@@ -29,6 +30,8 @@ import laika.parse.text.TextParsers._
 object ScalaSyntax extends SyntaxHighlighter {
 
   import NumberLiteral._
+  
+  val language: NonEmptyList[String] = NonEmptyList.of("scala")
   
   private val interpolatedStartChars: Set[Char] = ('a' to 'z').toSet ++ ('A' to 'Z').toSet
   
@@ -42,34 +45,29 @@ object ScalaSyntax extends SyntaxHighlighter {
   val backtickIdParser: CodeSpanParsers = CodeSpanParsers(CodeCategory.Identifier, '`') {
     (anyBut('\n', '`') ~ anyOf('`').take(1)).concat
   }
+  
+  val charEscapes: CodeSpanParsers = StringLiteral.Escape.unicode ++ StringLiteral.Escape.char
+  
+  val stringPrefixChar: Characters[String] = anyIn('a' to 'z', 'A' to 'Z')
 
-  val language: NonEmptyList[String] = NonEmptyList.of("scala")
-
+  val substitutions: CodeSpanParsers = 
+    StringLiteral.Substitution.between("${", "}") ++
+    StringLiteral.Substitution('$')(anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '_').min(1))
+  
   val spanParsers: Seq[CodeSpanParsers] = Seq(
     Comment.singleLine("//"),
     Comment.multiLine("/*", "*/"),
-    CharLiteral.standard.embed(
-      StringLiteral.Escape.unicode,
-      StringLiteral.Escape.char
-    ),
+    CharLiteral.standard.embed(charEscapes),
     symbolParser,
     backtickIdParser,
     StringLiteral.multiLine("\"\"\""),
-    StringLiteral.multiLine(interpolatedStartChars, "\"\"\"").withPrefix((anyIn('a' to 'z', 'A' to 'Z') ~ "\"\"\"").concat).embed(
-      StringLiteral.Escape.literal("$$"),
-      StringLiteral.Substitution.between("${", "}"),
-      StringLiteral.Substitution('$')(anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '_').min(1))
+    StringLiteral.multiLine(interpolatedStartChars, "\"\"\"").withPrefix((stringPrefixChar ~ "\"\"\"").concat).embed(
+      substitutions
     ),
-    StringLiteral.singleLine('"').embed(
-      StringLiteral.Escape.unicode,
-      StringLiteral.Escape.char,
-    ),
-    StringLiteral.singleLine(interpolatedStartChars, '\"').withPrefix((anyIn('a' to 'z', 'A' to 'Z') ~ "\"").concat).embed(
-      StringLiteral.Escape.unicode,
-      StringLiteral.Escape.char,
-      StringLiteral.Escape.literal("$$"),
-      StringLiteral.Substitution.between("${", "}"),
-      StringLiteral.Substitution('$')(anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '_').min(1))
+    StringLiteral.singleLine('"').embed(charEscapes),
+    StringLiteral.singleLine(interpolatedStartChars, '\"').withPrefix((stringPrefixChar ~ "\"").concat).embed(
+      charEscapes,
+      substitutions
     ),
     Keywords(BooleanLiteral)("true", "false"),
     Keywords(LiteralValue)("null"),
