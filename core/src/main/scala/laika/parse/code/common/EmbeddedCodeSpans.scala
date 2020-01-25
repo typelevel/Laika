@@ -17,6 +17,7 @@
 package laika.parse.code.common
 
 import laika.ast.{CodeSpan, CodeSpans, Span, ~}
+import laika.bundle.SyntaxHighlighter
 import laika.parse.Parser
 import laika.parse.code.{CodeCategory, CodeSpanParsers}
 import laika.parse.markup.InlineParsers
@@ -31,6 +32,9 @@ object EmbeddedCodeSpans {
   def parserMap (embedded: Seq[CodeSpanParsers]): Map[Char, Parser[Span]] = embedded.flatMap(_.parsers).groupBy(_.startChar).map {
     case (char, definitions) => (char, definitions.map(_.parser).reduceLeft(_ | _))
   }
+
+  def parser (textParser: DelimitedText[String], embedded: SyntaxHighlighter): Parser[Seq[CodeSpan]] =
+    parser(textParser, embedded.spanParsers)
 
   def parser (textParser: DelimitedText[String], embedded: Seq[CodeSpanParsers], defaultCategories: Set[CodeCategory] = Set.empty): Parser[Seq[CodeSpan]] = {
     val embeddedParserMap = parserMap(embedded)

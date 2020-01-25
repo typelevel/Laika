@@ -43,7 +43,7 @@ object HTML extends TagBasedFormats with SyntaxHighlighter {
       CodeSpan("</", CodeCategory.Tag.Punctuation),
       CodeSpan("script", CodeCategory.Tag.Name)
     )
-    (EmbeddedCodeSpans.parser(delimitedBy("</script"), JavaScript.spanParsers) ~ (ws ~ ">").concat).map {
+    (EmbeddedCodeSpans.parser(delimitedBy("</script"), JavaScript) ~ (ws ~ ">").concat).map {
       case content ~ close => content ++ endTag :+ CodeSpan(close, CodeCategory.Tag.Punctuation)
     }
   }
@@ -53,7 +53,7 @@ object HTML extends TagBasedFormats with SyntaxHighlighter {
       CodeSpan("</", CodeCategory.Tag.Punctuation),
       CodeSpan("style", CodeCategory.Tag.Name)
     )
-    (EmbeddedCodeSpans.parser(delimitedBy("</style"), CSS.spanParsers) ~ (ws ~ ">").concat).map {
+    (EmbeddedCodeSpans.parser(delimitedBy("</style"), CSS) ~ (ws ~ ">").concat).map {
       case content ~ close => content ++ endTag :+ CodeSpan(close, CodeCategory.Tag.Punctuation)
     }
   }
