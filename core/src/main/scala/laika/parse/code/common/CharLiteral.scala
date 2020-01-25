@@ -20,37 +20,46 @@ import laika.ast.{CodeSpan, CodeSpans, ~}
 import laika.parse.code.{CodeCategory, CodeSpanParser, CodeSpanParsers}
 import laika.parse.text.TextParsers._
 
-/**
+/** Configurable base parsers for character literals.
+  * 
   * @author Jens Halm
   */
 object CharLiteral {
-  
+
+  /** Configurable base parsers for character literals.
+    */
   case class CharParser(delim: Char,
                         embedded: Seq[CodeSpanParsers] = Nil) extends CodeSpanParsers {
     
-    val defaultCategories: Set[CodeCategory] = Set(CodeCategory.CharLiteral)
+    private val categories: Set[CodeCategory] = Set(CodeCategory.CharLiteral)
 
+    /** Embeds the specified parsers for child spans inside a character literal.
+      * 
+      * This is usually used for allowing escape sequences inside the literal.
+      */
     def embed(childSpans: CodeSpanParsers*): CharParser = {
       copy(embedded = embedded ++ childSpans)
     }
 
     lazy val parsers: Seq[CodeSpanParser] = CodeSpanParsers(delim) {
 
-      val plainChar = lookBehind(1, anyBut('\'', '\n').take(1)).map(CodeSpan(_, defaultCategories))
-      val closingDelim = anyOf(delim).take(1).map(CodeSpan(_, defaultCategories))
+      val plainChar = lookBehind(1, anyBut('\'', '\n').take(1)).map(CodeSpan(_, categories))
+      val closingDelim = anyOf(delim).take(1).map(CodeSpan(_, categories))
       
       any.take(1).flatMap { char =>
         (EmbeddedCodeSpans.parserMap(embedded).getOrElse(char.head, plainChar) ~ closingDelim).map { 
           case span ~ closingDel => 
-            val codeSpans = CodeSpans.extract(defaultCategories)(span) :+ closingDel
-            CodeSpans.merge(delim, codeSpans, defaultCategories) 
+            val codeSpans = CodeSpans.extract(categories)(span) :+ closingDel
+            CodeSpans.merge(delim, codeSpans, categories) 
         }
       }
 
     }.parsers
 
   }
-  
+
+  /** Parses a standard character literal enclosed by single quotes.
+    */
   def standard: CharParser = CharParser('\'')
   
 }

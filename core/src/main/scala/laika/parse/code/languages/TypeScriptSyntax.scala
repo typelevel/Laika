@@ -48,7 +48,7 @@ object TypeScriptSyntax extends SyntaxHighlighter {
       "package", "public", "private", "protected", "set", "type"),
     JavaScriptSyntax.keywords,
     Keywords(TypeName)("any", "number", "boolean", "string", "symbol", "void"),
-    Identifier.standard.withIdStartChars('_','$'),
+    Identifier.alphaNum.withIdStartChars('_','$'),
     JavaScriptSyntax.number(NumberLiteral.binary),
     JavaScriptSyntax.number(NumberLiteral.octal),
     JavaScriptSyntax.number(NumberLiteral.hex),

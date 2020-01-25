@@ -20,11 +20,9 @@ import cats.data.NonEmptyList
 import laika.ast.{CodeSpan, ~}
 import laika.bundle.SyntaxHighlighter
 import laika.parse.Parser
-import laika.parse.code.common.{EmbeddedCodeSpans, Identifier, Keywords, NumberLiteral, StringLiteral}
+import laika.parse.code.common.{EmbeddedCodeSpans, Identifier, Keywords, StringLiteral}
 import laika.parse.code.{CodeCategory, CodeSpanParsers}
 import laika.parse.text.TextParsers._
-import laika.rst.BaseParsers
-import laika.rst.InlineParsers.{delimitedByMarkupEnd, markupStart}
 
 /**
   * @author Jens Halm
@@ -44,7 +42,7 @@ object LaikaExtensionSyntax {
   }
 
   val directive: CodeSpanParsers = CodeSpanParsers('@') {
-    (':' ~> Identifier.standard.standaloneParser ~ opt(ws.min(1) ~ embeddedHocon("{", "}"))).map {
+    (':' ~> Identifier.alphaNum.standaloneParser ~ opt(ws.min(1) ~ embeddedHocon("{", "}"))).map {
       case name ~ Some(spaces ~ hocon) => CodeSpan("@:", CodeCategory.Keyword) +: name +: CodeSpan(spaces) +: hocon
       case name ~ None => Seq(CodeSpan("@:", CodeCategory.Keyword), name)
     }
@@ -64,7 +62,7 @@ object LaikaExtensionSyntax {
     lazy val spanParsers: Seq[CodeSpanParsers] = allExtensions ++ ReStructuredTextSyntax.spanParsers
   }
 
-  val enhancedStartTag: CodeSpanParsers = HTMLSyntax.TagParser(CodeCategory.Tag.Name, "<", ">", HTMLSyntax.nameParser).embed(
+  val enhancedStartTag: CodeSpanParsers = HTMLSyntax.TagParser(CodeCategory.Tag.Name, "<", ">").embed(
     StringLiteral.singleLine('\'').embed(HTMLSyntax.ref, substitution),
     StringLiteral.singleLine('"').embed(HTMLSyntax.ref, substitution),
     HTMLSyntax.name(CodeCategory.AttributeName)

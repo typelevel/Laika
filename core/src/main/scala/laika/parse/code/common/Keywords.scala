@@ -20,14 +20,18 @@ import laika.parse.code.{CodeCategory, CodeSpanParsers}
 import laika.parse.text.Literal
 import laika.parse.text.TextParsers._
 
-/**
+/** Base parsers for keywords in code blocks.
+  * 
   * @author Jens Halm
   */
 object Keywords {
 
+  /** Parses the specified list of keywords. */
   def apply (keyword: String, keywords: String*): CodeSpanParsers = 
     apply(CodeCategory.Keyword)(keyword, keywords:_*)
 
+  /** Parses the specified list of keywords, but associates it with the specified
+    * code category and not with the `Keyword` category. */
   def apply (category: CodeCategory)(keyword: String, keywords: String*): CodeSpanParsers = CodeSpanParsers(category) {
     (keyword +: keywords).map { kw =>
       require(kw.nonEmpty)

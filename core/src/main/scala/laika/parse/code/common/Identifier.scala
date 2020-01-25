@@ -21,7 +21,8 @@ import laika.parse.Parser
 import laika.parse.code.{CodeCategory, CodeSpanParser, CodeSpanParsers}
 import laika.parse.text.TextParsers._
 
-/**
+/** Configurable base parsers for identifiers in code blocks.
+  * 
   * @author Jens Halm
   */
 object Identifier {
@@ -31,28 +32,42 @@ object Identifier {
   */
   val idStartChars: Set[Char] = ('a' to 'z').toSet ++ ('A' to 'Z').toSet
   val idPartChars: Set[Char] = ('0' to '9').toSet
-  
-  
+
+
+  /** Function that applies the `TypeName` category to identifiers starting 
+    * with an uppercase letter, and the `Identifier` category to those starting
+    * with a lowercase letter.
+    */
   val upperCaseTypeName: String => CodeCategory = s => 
     if (s.nonEmpty && s.head.isUpper) CodeCategory.TypeName else CodeCategory.Identifier 
     
 
+  /** Configurable base parser for identifiers in code blocks. */
   case class IdParser(idStartChars: Set[Char], 
                       idNonStartChars: Set[Char], 
                       category: String => CodeCategory = _ => CodeCategory.Identifier,
                       allowDigitBeforeStart: Boolean = false) extends CodeSpanParsers {
 
     import NumberLiteral._
-    
+
+    /** Applies a function to the parser result to determine the code category.
+      */
     def withCategoryChooser(f: String => CodeCategory): IdParser = {
       copy(category = f)
     }
-    
+
+    /** Adds the specified characters to the set of characters allowed to start an identifier.
+      * Will also be added to the set of characters for the parser of the rest of the identifier.
+      */
     def withIdStartChars(chars: Char*): IdParser = copy(idStartChars = idStartChars ++ chars.toSet)
-    
+
+    /** Adds the specified characters to the set of characters allowed as part of an identifier,
+      * but not allowed as the first character.
+      */
     def withIdPartChars(chars: Char*): IdParser = copy(idNonStartChars = idNonStartChars ++ chars.toSet)
-    
-    val idRestParser: Parser[String] = anyOf((idStartChars ++ idNonStartChars).toSeq:_*) // TODO - remove
+
+    // TODO - 0.14 - remove or make private
+    private [code] val idRestParser: Parser[String] = anyOf((idStartChars ++ idNonStartChars).toSeq:_*)
 
     lazy val parsers: Seq[CodeSpanParser] = CodeSpanParsers(idStartChars) {
         
@@ -63,14 +78,20 @@ object Identifier {
       (prevChar ~> idStart ~ idRestParser).concat.map(id => Seq(CodeSpan(id, category(id))))
       
     }.parsers
-    
-    def standaloneParser: Parser[CodeSpan] = {
+
+    // TODO - 0.14 - remove or make private
+    private [code] def standaloneParser: Parser[CodeSpan] = {
       val idStart = anyOf(idStartChars.toSeq:_*).take(1)
       (idStart ~ idRestParser).concat.map(id => CodeSpan(id, category(id)))
     }
 
   }
-  
-  def standard: IdParser = IdParser(idStartChars, idPartChars)
+
+  /** Parses an alphanumeric identifier; digits are not allowed as start characters.
+    * 
+    * Other characters like underscore are not allowed by this base parser, but can be added
+    * to the returned instance with the `withIdStartChars` or `withIdPartChars` methods.
+    */
+  def alphaNum: IdParser = IdParser(idStartChars, idPartChars)
   
 }

@@ -19,11 +19,13 @@ package laika.parse.code.common
 import laika.parse.text.TextParsers._
 import laika.parse.code.{CodeCategory, CodeSpanParsers}
 
-/**
+/** Configurable base parsers for comments in code blocks.
+  * 
   * @author Jens Halm
   */
 object Comment {
   
+  /** Parses a single line comment from the speficied start delimiter to the end of the line. */
   def singleLine (start: String): CodeSpanParsers = {
     require(start.nonEmpty)
     CodeSpanParsers(CodeCategory.Comment, start.head) {
@@ -32,6 +34,7 @@ object Comment {
     // TODO - create restOfLine variant that keeps final \n
   }
 
+  /** Parses a multi-line comment enclosed by the specified start and end delimiters. */
   def multiLine (start: String, end: String): CodeSpanParsers = {
     require(start.nonEmpty)
     CodeSpanParsers(CodeCategory.Comment, start.head) {

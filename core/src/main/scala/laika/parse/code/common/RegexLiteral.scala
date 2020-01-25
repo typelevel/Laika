@@ -20,13 +20,15 @@ import laika.parse.code.{CodeCategory, CodeSpanParsers}
 import laika.parse.code.common.StringLiteral.StringParser
 import laika.parse.text.TextParsers._
 
-/**
+/** Base parsers for regular expression literals in code blocks.
+  * 
   * @author Jens Halm
   */
 object RegexLiteral {
   
   import NumberLiteral._
 
+  /** Parses a regular expression between `/` delimiters, followed by optional modifier characters. */
   val standard: CodeSpanParsers = StringParser(
     startChars = Set('/'), 
     parser = delimitedBy("/").failOn('\n').keepDelimiter,

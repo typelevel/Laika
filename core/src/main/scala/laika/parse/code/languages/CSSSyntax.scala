@@ -35,7 +35,7 @@ object CSSSyntax extends SyntaxHighlighter {
   private val ws: Characters[String] = anyOf('\n', ' ')
   
   private def idChars (category: CodeCategory, allowDigitBeforeStart: Boolean): Identifier.IdParser = 
-    Identifier.standard.withIdStartChars('_','-').withCategoryChooser(_ => category).copy(allowDigitBeforeStart = allowDigitBeforeStart)
+    Identifier.alphaNum.withIdStartChars('_','-').withCategoryChooser(_ => category).copy(allowDigitBeforeStart = allowDigitBeforeStart)
   
   def identifier (category: CodeCategory, allowDigitBeforeStart: Boolean): CodeSpanParsers = {
 

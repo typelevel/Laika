@@ -36,7 +36,7 @@ object ScalaSyntax extends SyntaxHighlighter {
   private val interpolatedStartChars: Set[Char] = ('a' to 'z').toSet ++ ('A' to 'Z').toSet
   
   val symbolParser: CodeSpanParsers = CodeSpanParsers('\'') {
-    Identifier.standard
+    Identifier.alphaNum
       .withCategoryChooser(_ => CodeCategory.SymbolLiteral)
       .standaloneParser
       .map(Seq(_))
@@ -75,7 +75,7 @@ object ScalaSyntax extends SyntaxHighlighter {
       "finally", "final", "forSome", "for", "if", "implicit", "import", "lazy", "match",
       "new", "object", "override", "package", "private", "protected", "return", "sealed", "super",
       "this", "throw", "throws", "trait", "try", "type", "yield", "val", "var", "while", "with"),
-    Identifier.standard.withIdStartChars('_','$').withCategoryChooser(Identifier.upperCaseTypeName),
+    Identifier.alphaNum.withIdStartChars('_','$').withCategoryChooser(Identifier.upperCaseTypeName),
     NumberLiteral.hex.withUnderscores.withSuffix(NumericSuffix.long),
     NumberLiteral.decimalFloat.withUnderscores.withSuffix(NumericSuffix.float),
     NumberLiteral.decimalInt.withUnderscores.withSuffix(NumericSuffix.long | NumericSuffix.float),

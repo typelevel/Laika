@@ -61,7 +61,7 @@ class CommonSyntaxParserSpec extends WordSpec
         StringLiteral.Substitution.between("${", "}"),
         StringLiteral.Substitution('$')(anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '_').min(1))
       ),
-      Identifier.standard.withIdStartChars('_','$').withCategoryChooser(Identifier.upperCaseTypeName).copy(allowDigitBeforeStart = allowLetterAfterNumber),
+      Identifier.alphaNum.withIdStartChars('_','$').withCategoryChooser(Identifier.upperCaseTypeName).copy(allowDigitBeforeStart = allowLetterAfterNumber),
       NumberLiteral.binary.withUnderscores.withSuffix(NumericSuffix.long),
       NumberLiteral.octal.withUnderscores.withSuffix(NumericSuffix.long),
       NumberLiteral.hexFloat.withUnderscores.withSuffix(NumericSuffix.float),

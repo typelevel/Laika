@@ -62,7 +62,7 @@ object JavaScriptSyntax extends SyntaxHighlighter {
     Keywords(BooleanLiteral)("true", "false"),
     Keywords(LiteralValue)("null", "undefined", "NaN", "Infinity"),
     keywords,
-    Identifier.standard.withIdStartChars('_','$'),
+    Identifier.alphaNum.withIdStartChars('_','$'),
     number(NumberLiteral.binary),
     number(NumberLiteral.octal),
     number(NumberLiteral.hex),

@@ -47,7 +47,7 @@ object JavaSyntax extends SyntaxHighlighter {
       "implements", "import", "instanceof", "interface", "module", "native", "new", "package", "private", 
       "protected", "public", "requires", "return", "static", "strictfp", "super", "switch", "synchronized",
       "this", "throws", "throw", "transient", "try", "var", "void", "volatile", "while"),
-    Identifier.standard.withIdStartChars('_','$').withCategoryChooser(Identifier.upperCaseTypeName),
+    Identifier.alphaNum.withIdStartChars('_','$').withCategoryChooser(Identifier.upperCaseTypeName),
     NumberLiteral.binary.withUnderscores.withSuffix(NumericSuffix.long),
     NumberLiteral.octal.withUnderscores.withSuffix(NumericSuffix.long),
     NumberLiteral.hexFloat.withUnderscores.withSuffix(NumericSuffix.float),

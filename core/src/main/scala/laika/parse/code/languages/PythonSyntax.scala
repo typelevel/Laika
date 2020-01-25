@@ -91,7 +91,7 @@ object PythonSyntax extends SyntaxHighlighter {
     Keywords("and", "assert", "async", "as", "await", "break", "class", "continue", "def", "del", "elif", "else", 
       "except", "exec", "finally", "for", "from", "global", "if", "import", "in", "is", "lambda", 
       "nonlocal", "not", "or", "pass", "print", "raise", "return", "try", "with", "while", "yield"),
-    Identifier.standard.withIdStartChars('_','$'),
+    Identifier.alphaNum.withIdStartChars('_','$'),
     NumberLiteral.binary.withUnderscores,
     NumberLiteral.octal.withUnderscores,
     NumberLiteral.hex.withUnderscores,
