@@ -29,19 +29,16 @@ object Java extends SyntaxHighlighter {
 
   val language: NonEmptyList[String] = NonEmptyList.of("java")
 
+  val charEscapes: CodeSpanParsers = 
+    StringLiteral.Escape.unicode ++
+    StringLiteral.Escape.octal ++
+    StringLiteral.Escape.char
+  
   val spanParsers: Seq[CodeSpanParsers] = Seq(
     Comment.singleLine("//"),
     Comment.multiLine("/*", "*/"),
-    CharLiteral.standard.embed(
-      StringLiteral.Escape.unicode,
-      StringLiteral.Escape.octal,
-      StringLiteral.Escape.char
-    ),
-    StringLiteral.singleLine('"').embed(
-      StringLiteral.Escape.unicode,
-      StringLiteral.Escape.octal,
-      StringLiteral.Escape.char,
-    ),
+    CharLiteral.standard.embed(charEscapes),
+    StringLiteral.singleLine('"').embed(charEscapes),
     Keywords(BooleanLiteral)("true", "false"),
     Keywords(LiteralValue)("null"),
     Keywords(TypeName)("boolean", "byte", "char", "double", "float", "int", "long", "short"),

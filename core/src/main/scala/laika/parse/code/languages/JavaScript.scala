@@ -33,6 +33,12 @@ object JavaScript extends SyntaxHighlighter {
   val unicodeCodePointEscape: CodeSpanParsers = CodeSpanParsers(CodeCategory.EscapeSequence, '\\') {
     ("u{" ~ DigitParsers.hex.min(1) ~ '}').map { case a ~ b ~ c => a + b + c.toString }
   }
+
+  val charEscapes: CodeSpanParsers =
+    unicodeCodePointEscape ++
+      StringLiteral.Escape.unicode ++
+      StringLiteral.Escape.hex ++
+      StringLiteral.Escape.char
   
   def number(parser: NumericParser): CodeSpanParsers = parser.withUnderscores.withSuffix(NumericSuffix.bigInt)
   
@@ -46,23 +52,10 @@ object JavaScript extends SyntaxHighlighter {
   val spanParsers: Seq[CodeSpanParsers] = Seq(
     Comment.singleLine("//"),
     Comment.multiLine("/*", "*/"),
-    StringLiteral.singleLine('"').embed(
-      unicodeCodePointEscape,
-      StringLiteral.Escape.unicode,
-      StringLiteral.Escape.hex,
-      StringLiteral.Escape.char,
-    ),
-    StringLiteral.singleLine('\'').embed(
-      unicodeCodePointEscape,
-      StringLiteral.Escape.unicode,
-      StringLiteral.Escape.hex,
-      StringLiteral.Escape.char,
-    ),
+    StringLiteral.singleLine('"').embed(charEscapes),
+    StringLiteral.singleLine('\'').embed(charEscapes),
     StringLiteral.multiLine("`").embed(
-      unicodeCodePointEscape,
-      StringLiteral.Escape.unicode,
-      StringLiteral.Escape.hex,
-      StringLiteral.Escape.char,
+      charEscapes,
       StringLiteral.Substitution.between("${", "}"),
     ),
     RegexLiteral.standard,
