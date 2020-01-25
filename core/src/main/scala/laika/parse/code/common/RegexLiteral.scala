@@ -33,6 +33,6 @@ object RegexLiteral {
     postfix = Some((anyOf('/').take(1) ~ anyIn('a' to 'z', 'A' to 'Z')).concat),
     embedded = Seq(StringLiteral.Escape.char),
     defaultCategories = Set(CodeCategory.RegexLiteral)
-  ).build
+  )
   
 }

@@ -33,7 +33,7 @@ object JavaScript {
     ("u{" ~ DigitParsers.hex.min(1) ~ '}').map { case a ~ b ~ c => a + b + c.toString }
   }
   
-  def number(parser: NumericParser): CodeSpanParsers = parser.withUnderscores.withSuffix(NumericSuffix.bigInt).build
+  def number(parser: NumericParser): CodeSpanParsers = parser.withUnderscores.withSuffix(NumericSuffix.bigInt)
   
   val keywords = Keywords("async", "as", "await", "break", "case", "catch", "class", "const", "continue", 
     "debugger", "default", "delete", "do", "else", "export", "extends", "finally", "for", "from", "function", 
@@ -48,25 +48,25 @@ object JavaScript {
       StringLiteral.Escape.unicode,
       StringLiteral.Escape.hex,
       StringLiteral.Escape.char,
-    ).build,
+    ),
     StringLiteral.singleLine('\'').embed(
       unicodeCodePointEscape,
       StringLiteral.Escape.unicode,
       StringLiteral.Escape.hex,
       StringLiteral.Escape.char,
-    ).build,
+    ),
     StringLiteral.multiLine("`").embed(
       unicodeCodePointEscape,
       StringLiteral.Escape.unicode,
       StringLiteral.Escape.hex,
       StringLiteral.Escape.char,
       StringLiteral.Substitution.between("${", "}"),
-    ).build,
+    ),
     RegexLiteral.standard,
     Keywords(BooleanLiteral)("true", "false"),
     Keywords(LiteralValue)("null", "undefined", "NaN", "Infinity"),
     keywords,
-    Identifier.standard.withIdStartChars('_','$').build,
+    Identifier.standard.withIdStartChars('_','$'),
     number(NumberLiteral.binary),
     number(NumberLiteral.octal),
     number(NumberLiteral.hex),

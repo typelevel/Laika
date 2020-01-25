@@ -33,7 +33,7 @@ class CommonSyntaxParserSpec extends WordSpec
                              with DefaultParserHelpers[Seq[CodeSpan]] {
 
   
-  val rule = CodeSpanParsers(CodeCategory.Markup.Fence, '\n')(literal("==="))
+  val rule: CodeSpanParsers = CodeSpanParsers(CodeCategory.Markup.Fence, '\n')(literal("==="))
   
   private def createParser (allowLetterAfterNumber: Boolean = false): Parser[Seq[CodeSpan]] = SyntaxHighlighter.build("test-lang")(
     rule,
@@ -45,9 +45,9 @@ class CommonSyntaxParserSpec extends WordSpec
       StringLiteral.Escape.hex,
       StringLiteral.Escape.octal,
       StringLiteral.Escape.char
-    ).build,
+    ),
     RegexLiteral.standard,
-    StringLiteral.multiLine("'''").build,
+    StringLiteral.multiLine("'''"),
     StringLiteral.singleLine('\'').embed(
       StringLiteral.Escape.unicode,
       StringLiteral.Escape.hex,
@@ -56,14 +56,14 @@ class CommonSyntaxParserSpec extends WordSpec
       StringLiteral.Escape.literal("$$"),
       StringLiteral.Substitution.between("${", "}"),
       StringLiteral.Substitution('$')(anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '_').min(1))
-    ).build,
-    Identifier.standard.withIdStartChars('_','$').withCategoryChooser(Identifier.upperCaseTypeName).copy(allowDigitBeforeStart = allowLetterAfterNumber).build,
-    NumberLiteral.binary.withUnderscores.withSuffix(NumericSuffix.long).build,
-    NumberLiteral.octal.withUnderscores.withSuffix(NumericSuffix.long).build,
-    NumberLiteral.hexFloat.withUnderscores.withSuffix(NumericSuffix.float).build,
-    NumberLiteral.hex.withUnderscores.withSuffix(NumericSuffix.long).build,
-    NumberLiteral.decimalFloat.withUnderscores.withSuffix(NumericSuffix.float).copy(allowFollowingLetter = allowLetterAfterNumber).build,
-    NumberLiteral.decimalInt.withUnderscores.withSuffix(NumericSuffix.long).copy(allowFollowingLetter = allowLetterAfterNumber).build,
+    ),
+    Identifier.standard.withIdStartChars('_','$').withCategoryChooser(Identifier.upperCaseTypeName).copy(allowDigitBeforeStart = allowLetterAfterNumber),
+    NumberLiteral.binary.withUnderscores.withSuffix(NumericSuffix.long),
+    NumberLiteral.octal.withUnderscores.withSuffix(NumericSuffix.long),
+    NumberLiteral.hexFloat.withUnderscores.withSuffix(NumericSuffix.float),
+    NumberLiteral.hex.withUnderscores.withSuffix(NumericSuffix.long),
+    NumberLiteral.decimalFloat.withUnderscores.withSuffix(NumericSuffix.float).copy(allowFollowingLetter = allowLetterAfterNumber),
+    NumberLiteral.decimalInt.withUnderscores.withSuffix(NumericSuffix.long).copy(allowFollowingLetter = allowLetterAfterNumber),
   ).rootParser
   
   val defaultParser: Parser[Seq[CodeSpan]] = createParser()

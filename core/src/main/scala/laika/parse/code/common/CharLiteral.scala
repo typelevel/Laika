@@ -17,7 +17,7 @@
 package laika.parse.code.common
 
 import laika.ast.{CodeSpan, CodeSpans, ~}
-import laika.parse.code.{CodeCategory, CodeSpanParsers}
+import laika.parse.code.{CodeCategory, CodeSpanParser, CodeSpanParsers}
 import laika.parse.text.TextParsers._
 
 /**
@@ -26,7 +26,7 @@ import laika.parse.text.TextParsers._
 object CharLiteral {
   
   case class CharParser(delim: Char,
-                        embedded: Seq[CodeSpanParsers] = Nil) {
+                        embedded: Seq[CodeSpanParsers] = Nil) extends CodeSpanParsers {
     
     val defaultCategories: Set[CodeCategory] = Set(CodeCategory.CharLiteral)
 
@@ -34,7 +34,7 @@ object CharLiteral {
       copy(embedded = embedded ++ childSpans)
     }
 
-    def build: CodeSpanParsers = CodeSpanParsers(delim) {
+    lazy val parsers: Seq[CodeSpanParser] = CodeSpanParsers(delim) {
 
       val plainChar = lookBehind(1, anyBut('\'', '\n').take(1)).map(CodeSpan(_, defaultCategories))
       val closingDelim = anyOf(delim).take(1).map(CodeSpan(_, defaultCategories))
@@ -47,7 +47,7 @@ object CharLiteral {
         }
       }
 
-    }
+    }.parsers
 
   }
   

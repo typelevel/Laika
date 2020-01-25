@@ -18,7 +18,7 @@ package laika.parse.code.common
 
 import laika.ast.{CodeSpan, CodeSpans, ~}
 import laika.parse.Parser
-import laika.parse.code.{CodeCategory, CodeSpanParsers}
+import laika.parse.code.{CodeCategory, CodeSpanParser, CodeSpanParsers}
 import laika.parse.text.TextParsers.{delimitedBy, literal, success}
 
 /**
@@ -32,7 +32,7 @@ trait TagBasedFormats {
 
   private val id = Identifier.standard.withIdStartChars('_',':').withIdPartChars('-','.')
   val nameParser: Parser[String] = id.standaloneParser.map(_.content)
-  def name(category: CodeCategory): CodeSpanParsers = id.withCategoryChooser(_ => category).build
+  def name(category: CodeCategory): CodeSpanParsers = id.withCategoryChooser(_ => category)
 
   val ref: CodeSpanParsers =
     CodeSpanParsers(CodeCategory.EscapeSequence, '&') {
@@ -45,14 +45,14 @@ trait TagBasedFormats {
         (nameParser ~ ";").concat
       }
 
-  val string: CodeSpanParsers = StringLiteral.singleLine('\'').build ++ StringLiteral.singleLine('"').build
-  val stringWithEntities: CodeSpanParsers = StringLiteral.singleLine('\'').embed(ref).build ++ StringLiteral.singleLine('"').embed(ref).build
+  val string: CodeSpanParsers = StringLiteral.singleLine('\'') ++ StringLiteral.singleLine('"')
+  val stringWithEntities: CodeSpanParsers = StringLiteral.singleLine('\'').embed(ref) ++ StringLiteral.singleLine('"').embed(ref)
 
   case class TagParser(tagCategory: CodeCategory,
                        start: String,
                        end: String,
                        tagName: Parser[String],
-                       embedded: Seq[CodeSpanParsers] = Nil) {
+                       embedded: Seq[CodeSpanParsers] = Nil) extends CodeSpanParsers {
 
     val defaultCategories: Set[CodeCategory] = Set(CodeCategory.Tag.Punctuation)
 
@@ -73,7 +73,7 @@ trait TagBasedFormats {
       }
     }
 
-    def build: CodeSpanParsers = CodeSpanParsers(start.head)(standaloneParser)
+    lazy val parsers: Seq[CodeSpanParser] = CodeSpanParsers(start.head)(standaloneParser).parsers
 
   }
 
@@ -88,13 +88,13 @@ trait TagBasedFormats {
   val emptyTag: CodeSpanParsers = TagParser(CodeCategory.Tag.Name, "<", "/>", nameParser).embed(
     stringWithEntities,
     name(CodeCategory.AttributeName)
-  ).build
+  )
 
   val startTag: CodeSpanParsers = TagParser(CodeCategory.Tag.Name, "<", ">", nameParser).embed(
     stringWithEntities,
     name(CodeCategory.AttributeName)
-  ).build
+  )
 
-  val endTag: CodeSpanParsers = TagParser(CodeCategory.Tag.Name, "</", ">", nameParser).build
+  val endTag: CodeSpanParsers = TagParser(CodeCategory.Tag.Name, "</", ">", nameParser)
   
 }

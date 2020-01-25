@@ -18,7 +18,7 @@ package laika.parse.code.common
 
 import laika.ast.{CodeSpan, CodeSpans, ~}
 import laika.parse.Parser
-import laika.parse.code.{CodeCategory, CodeSpanParsers}
+import laika.parse.code.{CodeCategory, CodeSpanParser, CodeSpanParsers}
 import laika.parse.text.TextParsers._
 import laika.parse.text.{DelimitedText, TextParsers}
 
@@ -76,7 +76,7 @@ object StringLiteral {
                           prefix: Option[Parser[String]] = None,
                           postfix: Option[Parser[String]] = None,
                           embedded: Seq[CodeSpanParsers] = Nil,
-                          defaultCategories: Set[CodeCategory] = Set(CodeCategory.StringLiteral)) {
+                          defaultCategories: Set[CodeCategory] = Set(CodeCategory.StringLiteral)) extends CodeSpanParsers {
     
     def embed(childSpans: CodeSpanParsers*): StringParser = {
       copy(embedded = embedded ++ childSpans)
@@ -92,7 +92,7 @@ object StringLiteral {
     
     def withCategory (category: CodeCategory): StringParser = copy(defaultCategories = Set(category))
     
-    def build: CodeSpanParsers = CodeSpanParsers(startChars) {
+    lazy val parsers: Seq[CodeSpanParser] = CodeSpanParsers(startChars) {
       
       def optParser(p: Option[Parser[String]]): Parser[List[CodeSpan]] = 
         p.map(_.map(res => List(CodeSpan(res, defaultCategories)))).getOrElse(success(Nil))
@@ -100,7 +100,7 @@ object StringLiteral {
       (lookBehind(1, any.take(1)) ~ optParser(prefix) ~ EmbeddedCodeSpans.parser(parser, embedded, defaultCategories) ~ optParser(postfix)).map {
         case startChar ~ pre ~ content ~ post => CodeSpans.merge(startChar.head, pre ++ content ++ post, defaultCategories)
       }
-    }
+    }.parsers
     
   }
   

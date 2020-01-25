@@ -40,10 +40,10 @@ object JSON {
   val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("json")(
     Keywords(BooleanLiteral)("true", "false"),
     Keywords(LiteralValue)("null"),
-    NumberLiteral.decimalFloat.build,
-    NumberLiteral.decimalInt.build,
-    attributeName.build,
-    string.build,
+    NumberLiteral.decimalFloat,
+    NumberLiteral.decimalInt,
+    attributeName,
+    string,
   )
   
 }

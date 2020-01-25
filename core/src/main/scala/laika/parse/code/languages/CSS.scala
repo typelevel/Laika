@@ -44,7 +44,7 @@ object CSS {
       }
     }
   
-    prefixedId("@") ++ prefixedId("#") ++ idChars(category, allowDigitBeforeStart).build
+    prefixedId("@") ++ prefixedId("#") ++ idChars(category, allowDigitBeforeStart)
   }
   
   lazy val escape: CodeSpanParsers = 
@@ -63,11 +63,11 @@ object CSS {
   
   val color: CodeSpanParsers = CodeSpanParsers(CodeCategory.NumberLiteral, '#')(DigitParsers.hex.min(1).max(6))
 
-  val string: CodeSpanParsers = StringLiteral.singleLine('"').embed(escape).build ++
-    StringLiteral.singleLine('\'').embed(escape).build
+  val string: CodeSpanParsers = StringLiteral.singleLine('"').embed(escape) ++
+    StringLiteral.singleLine('\'').embed(escape)
   
-  val number: CodeSpanParsers = NumberLiteral.decimalFloat.copy(allowFollowingLetter = true).build ++ 
-    NumberLiteral.decimalInt.copy(allowFollowingLetter = true).build
+  val number: CodeSpanParsers = NumberLiteral.decimalFloat.copy(allowFollowingLetter = true) ++ 
+    NumberLiteral.decimalInt.copy(allowFollowingLetter = true)
   
   val declaration: CodeSpanParsers = {
     

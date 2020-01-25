@@ -52,25 +52,25 @@ object Python {
   }
 
   def stringNoPrefix (embed: StringParser => StringParser): CodeSpanParsers = {
-    embed(StringLiteral.multiLine("'''")).build ++
-    embed(StringLiteral.multiLine("\"\"\"")).build ++
-    embed(StringLiteral.singleLine('\'')).build ++
-    embed(StringLiteral.singleLine('"')).build
+    embed(StringLiteral.multiLine("'''")) ++
+    embed(StringLiteral.multiLine("\"\"\"")) ++
+    embed(StringLiteral.singleLine('\'')) ++
+    embed(StringLiteral.singleLine('"'))
   }
   
   def stringSinglePrefix (prefixChars: Set[Char], embed: StringParser => StringParser): CodeSpanParsers = {
-    embed(StringLiteral.multiLine(prefixChars, "'''").withPrefix(anyOf('\'').take(3))).build ++ 
-    embed(StringLiteral.multiLine(prefixChars, "\"\"\"").withPrefix(anyOf('"').take(3))).build ++
-    embed(StringLiteral.singleLine(prefixChars, '\'').withPrefix(anyOf('\'').take(1))).build ++
-    embed(StringLiteral.singleLine(prefixChars, '"').withPrefix(anyOf('"').take(1))).build
+    embed(StringLiteral.multiLine(prefixChars, "'''").withPrefix(anyOf('\'').take(3))) ++ 
+    embed(StringLiteral.multiLine(prefixChars, "\"\"\"").withPrefix(anyOf('"').take(3))) ++
+    embed(StringLiteral.singleLine(prefixChars, '\'').withPrefix(anyOf('\'').take(1))) ++
+    embed(StringLiteral.singleLine(prefixChars, '"').withPrefix(anyOf('"').take(1)))
   }
 
   def stringDoublePrefix (prefixChars: Set[Char], followingChars: Set[Char], embed: StringParser => StringParser): CodeSpanParsers = {
     def prefix(delim: Char, num: Int): Parser[String] = (anyOf(followingChars.toSeq:_*).take(1) ~ anyOf(delim).take(num)).concat
-    embed(StringLiteral.multiLine(prefixChars, "'''").withPrefix(prefix('\'', 3))).build ++
-    embed(StringLiteral.multiLine(prefixChars, "\"\"\"").withPrefix(prefix('"', 3))).build ++
-    embed(StringLiteral.singleLine(prefixChars, '\'').withPrefix(prefix('\'', 1))).build ++
-    embed(StringLiteral.singleLine(prefixChars, '"').withPrefix(prefix('"', 1))).build
+    embed(StringLiteral.multiLine(prefixChars, "'''").withPrefix(prefix('\'', 3))) ++
+    embed(StringLiteral.multiLine(prefixChars, "\"\"\"").withPrefix(prefix('"', 3))) ++
+    embed(StringLiteral.singleLine(prefixChars, '\'').withPrefix(prefix('\'', 1))) ++
+    embed(StringLiteral.singleLine(prefixChars, '"').withPrefix(prefix('"', 1)))
   }
   
   lazy val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("python", "py")(
@@ -88,12 +88,12 @@ object Python {
     Keywords("and", "assert", "async", "as", "await", "break", "class", "continue", "def", "del", "elif", "else", 
       "except", "exec", "finally", "for", "from", "global", "if", "import", "in", "is", "lambda", 
       "nonlocal", "not", "or", "pass", "print", "raise", "return", "try", "with", "while", "yield"),
-    Identifier.standard.withIdStartChars('_','$').build,
-    NumberLiteral.binary.withUnderscores.build,
-    NumberLiteral.octal.withUnderscores.build,
-    NumberLiteral.hex.withUnderscores.build,
-    NumberLiteral.decimalFloat.withUnderscores.withSuffix(NumericSuffix.imaginary).build,
-    NumberLiteral.decimalInt.withUnderscores.withSuffix(NumericSuffix.imaginary).build,
+    Identifier.standard.withIdStartChars('_','$'),
+    NumberLiteral.binary.withUnderscores,
+    NumberLiteral.octal.withUnderscores,
+    NumberLiteral.hex.withUnderscores,
+    NumberLiteral.decimalFloat.withUnderscores.withSuffix(NumericSuffix.imaginary),
+    NumberLiteral.decimalInt.withUnderscores.withSuffix(NumericSuffix.imaginary),
   )
   
 }

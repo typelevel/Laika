@@ -34,31 +34,31 @@ object XML extends TagBasedFormats {
       Keywords("SYSTEM", "PUBLIC"),
       string,
       name(CodeCategory.Identifier),
-    ).build
+    )
   
     val entity: CodeSpanParsers = TagParser(CodeCategory.XML.DTDTagName, "<!", ">", "ENTITY").embed(
       Keywords("SYSTEM", "PUBLIC", "NDATA"),
       string,
       name(CodeCategory.Identifier),
-    ).build
+    )
   
     val attribute: CodeSpanParsers = TagParser(CodeCategory.XML.DTDTagName, "<!", ">", "ATTLIST").embed(
       Keywords("CDATA", "ID", "IDREF", "IDREFS", "ENTITY", "ENTITIES", "NMTOKEN", "NMTOKENS", "#REQUIRED", "#IMPLIED", "#FIXED", "NOTATION"),
       string,
       name(CodeCategory.Identifier),
-    ).build
+    )
 
     val element: CodeSpanParsers = TagParser(CodeCategory.XML.DTDTagName, "<!", ">", "ELEMENT").embed(
       Keywords("EMPTY", "ANY", "#PCDATA"),
       name(CodeCategory.Identifier)
-    ).build
+    )
     
   }
 
   val xmlDecl: CodeSpanParsers = TagParser(CodeCategory.Tag.Name, "<?", "?>", "xml").embed(
     string,
     name(CodeCategory.AttributeName)
-  ).build
+  )
 
   val docType: CodeSpanParsers = TagParser(CodeCategory.XML.DTDTagName, "<!", ">", "DOCTYPE").embed(
     Keywords("SYSTEM", "PUBLIC"),
@@ -70,7 +70,7 @@ object XML extends TagBasedFormats {
     DTD.attribute,
     DTD.element,
     name(CodeCategory.Identifier)
-  ).build
+  )
   
   val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("xml")(
     xmlDecl,

@@ -32,12 +32,12 @@ object Java {
       StringLiteral.Escape.unicode,
       StringLiteral.Escape.octal,
       StringLiteral.Escape.char
-    ).build,
+    ),
     StringLiteral.singleLine('"').embed(
       StringLiteral.Escape.unicode,
       StringLiteral.Escape.octal,
       StringLiteral.Escape.char,
-    ).build,
+    ),
     Keywords(BooleanLiteral)("true", "false"),
     Keywords(LiteralValue)("null"),
     Keywords(TypeName)("boolean", "byte", "char", "double", "float", "int", "long", "short"),
@@ -46,13 +46,13 @@ object Java {
       "implements", "import", "instanceof", "interface", "module", "native", "new", "package", "private", 
       "protected", "public", "requires", "return", "static", "strictfp", "super", "switch", "synchronized",
       "this", "throws", "throw", "transient", "try", "var", "void", "volatile", "while"),
-    Identifier.standard.withIdStartChars('_','$').withCategoryChooser(Identifier.upperCaseTypeName).build,
-    NumberLiteral.binary.withUnderscores.withSuffix(NumericSuffix.long).build,
-    NumberLiteral.octal.withUnderscores.withSuffix(NumericSuffix.long).build,
-    NumberLiteral.hexFloat.withUnderscores.withSuffix(NumericSuffix.float).build,
-    NumberLiteral.hex.withUnderscores.withSuffix(NumericSuffix.long).build,
-    NumberLiteral.decimalFloat.withUnderscores.withSuffix(NumericSuffix.float).build,
-    NumberLiteral.decimalInt.withUnderscores.withSuffix(NumericSuffix.long | NumericSuffix.float).build,
+    Identifier.standard.withIdStartChars('_','$').withCategoryChooser(Identifier.upperCaseTypeName),
+    NumberLiteral.binary.withUnderscores.withSuffix(NumericSuffix.long),
+    NumberLiteral.octal.withUnderscores.withSuffix(NumericSuffix.long),
+    NumberLiteral.hexFloat.withUnderscores.withSuffix(NumericSuffix.float),
+    NumberLiteral.hex.withUnderscores.withSuffix(NumericSuffix.long),
+    NumberLiteral.decimalFloat.withUnderscores.withSuffix(NumericSuffix.float),
+    NumberLiteral.decimalInt.withUnderscores.withSuffix(NumericSuffix.long | NumericSuffix.float),
   )
   
 }

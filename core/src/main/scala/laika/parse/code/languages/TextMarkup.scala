@@ -44,14 +44,12 @@ object TextMarkup {
         .withCategory(category)
         .withPrefix(noSpaceAhead(delim.head))
         .withPostCondition(noSpaceBefore(delim.length))
-        .build
 
     def singleLine (category: CodeCategory, start: String, end: Char): CodeSpanParsers =
       StringLiteral
         .singleLine(Set(start.head), end)
         .withCategory(category)
         .withPrefix(literal(start.tail))
-        .build
 
     private def linkRest (prefix: String): Parser[Seq[CodeSpan]] = {
 
@@ -250,10 +248,10 @@ object TextMarkup {
     )
 
     val enhancedStartTag: CodeSpanParsers = HTML.TagParser(CodeCategory.Tag.Name, "<", ">", HTML.nameParser).embed(
-      StringLiteral.singleLine('\'').embed(HTML.ref, substitution).build,
-      StringLiteral.singleLine('"').embed(HTML.ref, substitution).build,
+      StringLiteral.singleLine('\'').embed(HTML.ref, substitution),
+      StringLiteral.singleLine('"').embed(HTML.ref, substitution),
       HTML.name(CodeCategory.AttributeName)
-    ).build
+    )
 
     lazy val extendedHTML: SyntaxHighlighter = SyntaxHighlighter.build("laikaHTML", "laika-html")(
       allExtensions,

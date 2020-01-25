@@ -18,7 +18,7 @@ package laika.parse.code.common
 
 import laika.ast.~
 import laika.parse.Parser
-import laika.parse.code.{CodeCategory, CodeSpanParsers}
+import laika.parse.code.{CodeCategory, CodeSpanParser, CodeSpanParsers}
 import laika.parse.text.Characters
 import laika.parse.text.TextParsers._
 
@@ -71,7 +71,7 @@ object NumberLiteral {
                             underscores: Boolean = false,
                             exponent: Option[Parser[String]] = None,
                             suffix: Option[Parser[String]] = None,
-                            allowFollowingLetter: Boolean = false) {
+                            allowFollowingLetter: Boolean = false) extends CodeSpanParsers {
 
     private val emptyString: Parser[String] = success("")
 
@@ -79,7 +79,7 @@ object NumberLiteral {
 
     def withSuffix (parser: Parser[String]): NumericParser = copy(suffix = Some(parser))
 
-    def build: CodeSpanParsers = CodeSpanParsers(CodeCategory.NumberLiteral, startChars) {
+    lazy val parsers: Seq[CodeSpanParser] = CodeSpanParsers(CodeCategory.NumberLiteral, startChars) {
       
       lookBehind(1, any.take(1)) >> { startChar =>
         
@@ -108,7 +108,7 @@ object NumberLiteral {
         
         (id ~ number ~ optSuffix <~ postCondition).concat
       }
-    }
+    }.parsers
 
   }
 

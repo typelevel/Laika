@@ -48,36 +48,36 @@ object Scala {
     CharLiteral.standard.embed(
       StringLiteral.Escape.unicode,
       StringLiteral.Escape.char
-    ).build,
+    ),
     symbolParser,
     backtickIdParser,
-    StringLiteral.multiLine("\"\"\"").build,
+    StringLiteral.multiLine("\"\"\""),
     StringLiteral.multiLine(interpolatedStartChars, "\"\"\"").withPrefix((anyIn('a' to 'z', 'A' to 'Z') ~ "\"\"\"").concat).embed(
       StringLiteral.Escape.literal("$$"),
       StringLiteral.Substitution.between("${", "}"),
       StringLiteral.Substitution('$')(anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '_').min(1))
-    ).build,
+    ),
     StringLiteral.singleLine('"').embed(
       StringLiteral.Escape.unicode,
       StringLiteral.Escape.char,
-    ).build,
+    ),
     StringLiteral.singleLine(interpolatedStartChars, '\"').withPrefix((anyIn('a' to 'z', 'A' to 'Z') ~ "\"").concat).embed(
       StringLiteral.Escape.unicode,
       StringLiteral.Escape.char,
       StringLiteral.Escape.literal("$$"),
       StringLiteral.Substitution.between("${", "}"),
       StringLiteral.Substitution('$')(anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '_').min(1))
-    ).build,
+    ),
     Keywords(BooleanLiteral)("true", "false"),
     Keywords(LiteralValue)("null"),
     Keywords("abstract", "break", "case", "catch", "class", "continue", "default", "def", "else", "extends",
       "finally", "final", "forSome", "for", "if", "implicit", "import", "lazy", "match",
       "new", "object", "override", "package", "private", "protected", "return", "sealed", "super",
       "this", "throw", "throws", "trait", "try", "type", "yield", "val", "var", "while", "with"),
-    Identifier.standard.withIdStartChars('_','$').withCategoryChooser(Identifier.upperCaseTypeName).build,
-    NumberLiteral.hex.withUnderscores.withSuffix(NumericSuffix.long).build,
-    NumberLiteral.decimalFloat.withUnderscores.withSuffix(NumericSuffix.float).build,
-    NumberLiteral.decimalInt.withUnderscores.withSuffix(NumericSuffix.long | NumericSuffix.float).build,
+    Identifier.standard.withIdStartChars('_','$').withCategoryChooser(Identifier.upperCaseTypeName),
+    NumberLiteral.hex.withUnderscores.withSuffix(NumericSuffix.long),
+    NumberLiteral.decimalFloat.withUnderscores.withSuffix(NumericSuffix.float),
+    NumberLiteral.decimalInt.withUnderscores.withSuffix(NumericSuffix.long | NumericSuffix.float),
   )
   
 }

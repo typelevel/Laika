@@ -35,7 +35,7 @@ object HTML extends TagBasedFormats {
     string,
     comment,
     name(CodeCategory.Identifier)
-  ).build
+  )
 
   val embeddedJs: Parser[Seq[CodeSpan]] = {
     val endTag: Seq[CodeSpan] = Seq(

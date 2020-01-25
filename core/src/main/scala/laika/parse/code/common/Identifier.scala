@@ -18,7 +18,7 @@ package laika.parse.code.common
 
 import laika.ast.CodeSpan
 import laika.parse.Parser
-import laika.parse.code.{CodeCategory, CodeSpanParsers}
+import laika.parse.code.{CodeCategory, CodeSpanParser, CodeSpanParsers}
 import laika.parse.text.TextParsers._
 
 /**
@@ -40,7 +40,7 @@ object Identifier {
   case class IdParser(idStartChars: Set[Char], 
                       idNonStartChars: Set[Char], 
                       category: String => CodeCategory = _ => CodeCategory.Identifier,
-                      allowDigitBeforeStart: Boolean = false) {
+                      allowDigitBeforeStart: Boolean = false) extends CodeSpanParsers {
 
     import NumberLiteral._
     
@@ -54,18 +54,15 @@ object Identifier {
     
     val idRestParser: Parser[String] = anyOf((idStartChars ++ idNonStartChars).toSeq:_*) // TODO - remove
 
-    def build: CodeSpanParsers = {
-      
-      CodeSpanParsers(idStartChars) {
+    lazy val parsers: Seq[CodeSpanParser] = CodeSpanParsers(idStartChars) {
         
-        val prevChar = lookBehind(2, anyWhile(c => (!Character.isDigit(c) || allowDigitBeforeStart) && !Character.isLetter(c)).take(1)) | lookBehind(1, atStart)
+      val prevChar = lookBehind(2, anyWhile(c => (!Character.isDigit(c) || allowDigitBeforeStart) && !Character.isLetter(c)).take(1)) | lookBehind(1, atStart)
 
-        val idStart = lookBehind(1, any.take(1))
-        
-        (prevChar ~> idStart ~ idRestParser).concat.map(id => Seq(CodeSpan(id, category(id))))
-        
-      }
-    }
+      val idStart = lookBehind(1, any.take(1))
+      
+      (prevChar ~> idStart ~ idRestParser).concat.map(id => Seq(CodeSpan(id, category(id))))
+      
+    }.parsers
     
     def standaloneParser: Parser[CodeSpan] = {
       val idStart = anyOf(idStartChars.toSeq:_*).take(1)
