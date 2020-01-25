@@ -16,6 +16,7 @@
 
 package laika.parse.code.languages
 
+import cats.data.NonEmptyList
 import laika.bundle.SyntaxHighlighter
 import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue}
 import laika.parse.code.common.StringLiteral.StringParser
@@ -26,7 +27,7 @@ import laika.parse.text.TextParsers.{lookAhead, ws, _}
 /**
   * @author Jens Halm
   */
-object HOCON {
+object HOCON extends SyntaxHighlighter {
 
   val string: StringParser = StringLiteral.singleLine('"').embed(
     StringLiteral.Escape.unicode,
@@ -62,8 +63,10 @@ object HOCON {
   val includeStatement: CodeSpanParsers = CodeSpanParsers(CodeCategory.Keyword, 'i') {
     literal("nclude") <~ lookAhead(ws.min(1) ~ (literal("\"") | literal("required(") | literal("file(") | literal("url(") | literal("classpath(")))
   }
-  
-  val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("hocon")(
+
+  val language: NonEmptyList[String] = NonEmptyList.of("hocon")
+
+  val spanParsers: Seq[CodeSpanParsers] = Seq(
     Keywords(BooleanLiteral)("true", "false"),
     Keywords(LiteralValue)("null"),
     NumberLiteral.decimalInt,

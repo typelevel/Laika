@@ -16,6 +16,7 @@
 
 package laika.parse.code.languages
 
+import cats.data.NonEmptyList
 import laika.bundle.SyntaxHighlighter
 import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue}
 import laika.parse.code.{CodeCategory, CodeSpanParsers}
@@ -25,7 +26,7 @@ import laika.parse.text.TextParsers._
 /**
   * @author Jens Halm
   */
-object Scala {
+object Scala extends SyntaxHighlighter {
 
   import NumberLiteral._
   
@@ -42,7 +43,9 @@ object Scala {
     (anyBut('\n', '`') ~ anyOf('`').take(1)).concat
   }
 
-  lazy val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("scala")(
+  val language: NonEmptyList[String] = NonEmptyList.of("scala")
+
+  val spanParsers: Seq[CodeSpanParsers] = Seq(
     Comment.singleLine("//"),
     Comment.multiLine("/*", "*/"),
     CharLiteral.standard.embed(

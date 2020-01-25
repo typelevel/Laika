@@ -23,14 +23,18 @@ import laika.parse.code.CodeSpanParsers
 import laika.parse.code.common.EmbeddedCodeSpans
 import laika.parse.text.DelimitedText
 
-/** The parser for syntax highlighting a particular language.
-  *
-  * @param language the names of the language as used in text markup
-  * @param spanParsers the root-level parsers for code spans written in this language
-  */
-case class SyntaxHighlighter (language: NonEmptyList[String], spanParsers: Seq[CodeSpanParsers]) {
+
+trait SyntaxHighlighter {
   
-  lazy val rootParser: Parser[Seq[CodeSpan]] = 
+  /** The names of the language (and its optional aliases) as used in text markup */
+  def language: NonEmptyList[String]
+
+  /** The parsers for individual code spans written in this language */
+  def spanParsers: Seq[CodeSpanParsers]
+  
+  /** The resulting root parser composed of the individual span parsers to be used in 
+    * the parser for the host markup language */
+  lazy val rootParser: Parser[Seq[CodeSpan]] =
     EmbeddedCodeSpans.parser(DelimitedText.Undelimited, spanParsers).map(CodeSpans.merge)
   
 }
@@ -44,12 +48,9 @@ object SyntaxHighlighter {
     * For formats that have stricter rules and require a dedicated, hand-written root 
     * parser, you can use the `apply` method.
     */
-  def build (language: String, aliases: String*)(parsers: CodeSpanParsers*): SyntaxHighlighter = {
-    
-    val languages = NonEmptyList.of(language, aliases:_*)
-
-    SyntaxHighlighter(languages, parsers)
-    
+  def build (languageName: String, aliases: String*)(parsers: CodeSpanParsers*): SyntaxHighlighter = new SyntaxHighlighter {
+    val language = NonEmptyList.of(languageName, aliases:_*)
+    val spanParsers = parsers
   }
   
 }

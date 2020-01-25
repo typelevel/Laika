@@ -16,6 +16,7 @@
 
 package laika.parse.code.languages
 
+import cats.data.NonEmptyList
 import laika.bundle.SyntaxHighlighter
 import laika.parse.code.common.{Keywords, TagBasedFormats}
 import laika.parse.code.{CodeCategory, CodeSpanParsers}
@@ -23,7 +24,7 @@ import laika.parse.code.{CodeCategory, CodeSpanParsers}
 /**
   * @author Jens Halm
   */
-object XML extends TagBasedFormats {
+object XML extends TagBasedFormats with SyntaxHighlighter {
   
   val pi: CodeSpanParsers = CodeSpanParsers(CodeCategory.XML.ProcessingInstruction, "<?", "?>")
   val cdata: CodeSpanParsers = CodeSpanParsers(CodeCategory.XML.CData, "<![CDATA[", "]]>")
@@ -71,8 +72,10 @@ object XML extends TagBasedFormats {
     DTD.element,
     name(CodeCategory.Identifier)
   )
-  
-  val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("xml")(
+
+  val language: NonEmptyList[String] = NonEmptyList.of("xml")
+
+  val spanParsers: Seq[CodeSpanParsers] = Seq(
     xmlDecl,
     docType,
     pi,

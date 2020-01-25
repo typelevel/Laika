@@ -16,6 +16,7 @@
 
 package laika.parse.code.languages
 
+import cats.data.NonEmptyList
 import laika.ast.{CodeSpan, ~}
 import laika.bundle.SyntaxHighlighter
 import laika.parse.Parser
@@ -26,7 +27,7 @@ import laika.parse.text.TextParsers._
 /**
   * @author Jens Halm
   */
-object HTML extends TagBasedFormats {
+object HTML extends TagBasedFormats with SyntaxHighlighter {
   
   import NumberLiteral._
 
@@ -42,7 +43,7 @@ object HTML extends TagBasedFormats {
       CodeSpan("</", CodeCategory.Tag.Punctuation),
       CodeSpan("script", CodeCategory.Tag.Name)
     )
-    (EmbeddedCodeSpans.parser(delimitedBy("</script"), JavaScript.highlighter.spanParsers) ~ (ws ~ ">").concat).map {
+    (EmbeddedCodeSpans.parser(delimitedBy("</script"), JavaScript.spanParsers) ~ (ws ~ ">").concat).map {
       case content ~ close => content ++ endTag :+ CodeSpan(close, CodeCategory.Tag.Punctuation)
     }
   }
@@ -52,7 +53,7 @@ object HTML extends TagBasedFormats {
       CodeSpan("</", CodeCategory.Tag.Punctuation),
       CodeSpan("style", CodeCategory.Tag.Name)
     )
-    (EmbeddedCodeSpans.parser(delimitedBy("</style"), CSS.highlighter.spanParsers) ~ (ws ~ ">").concat).map {
+    (EmbeddedCodeSpans.parser(delimitedBy("</style"), CSS.spanParsers) ~ (ws ~ ">").concat).map {
       case content ~ close => content ++ endTag :+ CodeSpan(close, CodeCategory.Tag.Punctuation)
     }
   }
@@ -76,8 +77,10 @@ object HTML extends TagBasedFormats {
 
     (startTag ~ embeddedCSS).map { case tag ~ js => tag ++ js }
   }
-  
-  val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("html")(
+
+  val language: NonEmptyList[String] = NonEmptyList.of("html")
+
+  val spanParsers: Seq[CodeSpanParsers] = Seq(
     docType,
     comment,
     ref,

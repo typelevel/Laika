@@ -16,6 +16,7 @@
 
 package laika.parse.code.languages
 
+import cats.data.NonEmptyList
 import laika.ast.{CodeSpan, ~}
 import laika.bundle.SyntaxHighlighter
 import laika.parse.Parser
@@ -27,7 +28,7 @@ import laika.parse.text.TextParsers._
 /**
   * @author Jens Halm
   */
-object CSS {
+object CSS extends SyntaxHighlighter {
   
   import NumberLiteral._
   
@@ -99,8 +100,10 @@ object CSS {
       (attribute ~ valueParser(inBlock = true)).concat.map(spans => CodeSpan("(") +: spans)
     }
   }
+  
+  val language: NonEmptyList[String] = NonEmptyList.of("css")
 
-  val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("css")(
+  val spanParsers: Seq[CodeSpanParsers] = Seq(
     Comment.multiLine("/*", "*/"),
     string,
     declaration,

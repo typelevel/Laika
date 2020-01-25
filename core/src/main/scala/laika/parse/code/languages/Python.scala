@@ -16,6 +16,7 @@
 
 package laika.parse.code.languages
 
+import cats.data.NonEmptyList
 import laika.bundle.SyntaxHighlighter
 import laika.parse.Parser
 import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue}
@@ -27,7 +28,7 @@ import laika.parse.text.TextParsers._
 /**
   * @author Jens Halm
   */
-object Python {
+object Python extends SyntaxHighlighter {
   
   import NumberLiteral._
   
@@ -72,8 +73,10 @@ object Python {
     embed(StringLiteral.singleLine(prefixChars, '\'').withPrefix(prefix('\'', 1))) ++
     embed(StringLiteral.singleLine(prefixChars, '"').withPrefix(prefix('"', 1)))
   }
-  
-  lazy val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("python", "py")(
+
+  val language: NonEmptyList[String] = NonEmptyList.of("python", "py")
+
+  val spanParsers: Seq[CodeSpanParsers] = Seq(
     Comment.singleLine("#"),
     stringNoPrefix(embedEscapes),
     stringSinglePrefix(Prefix.u ++ Prefix.b, embedEscapes),

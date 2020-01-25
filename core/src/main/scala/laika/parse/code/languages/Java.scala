@@ -16,16 +16,20 @@
 
 package laika.parse.code.languages
 
+import cats.data.NonEmptyList
 import laika.bundle.SyntaxHighlighter
 import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue, TypeName}
+import laika.parse.code.CodeSpanParsers
 import laika.parse.code.common.{CharLiteral, Comment, Identifier, Keywords, NumberLiteral, NumericSuffix, StringLiteral}
 
 /**
   * @author Jens Halm
   */
-object Java {
+object Java extends SyntaxHighlighter {
 
-  lazy val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("java")(
+  val language: NonEmptyList[String] = NonEmptyList.of("java")
+
+  val spanParsers: Seq[CodeSpanParsers] = Seq(
     Comment.singleLine("//"),
     Comment.multiLine("/*", "*/"),
     CharLiteral.standard.embed(

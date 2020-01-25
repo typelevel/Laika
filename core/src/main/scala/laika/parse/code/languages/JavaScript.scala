@@ -16,6 +16,7 @@
 
 package laika.parse.code.languages
 
+import cats.data.NonEmptyList
 import laika.ast.~
 import laika.bundle.SyntaxHighlighter
 import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue}
@@ -27,7 +28,7 @@ import laika.parse.text.TextParsers._
 /**
   * @author Jens Halm
   */
-object JavaScript {
+object JavaScript extends SyntaxHighlighter {
 
   val unicodeCodePointEscape: CodeSpanParsers = CodeSpanParsers(CodeCategory.EscapeSequence, '\\') {
     ("u{" ~ DigitParsers.hex.min(1) ~ '}').map { case a ~ b ~ c => a + b + c.toString }
@@ -39,8 +40,10 @@ object JavaScript {
     "debugger", "default", "delete", "do", "else", "export", "extends", "finally", "for", "from", "function", 
     "if", "import", "instanceof", "in", "let", "new", "of", "return", "static", "super", "switch", 
     "this", "throw", "try", "typeof", "var", "void", "while", "with", "yield")
-  
-  lazy val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("javascript", "js")(
+
+  val language: NonEmptyList[String] = NonEmptyList.of("javascript", "js")
+
+  val spanParsers: Seq[CodeSpanParsers] = Seq(
     Comment.singleLine("//"),
     Comment.multiLine("/*", "*/"),
     StringLiteral.singleLine('"').embed(

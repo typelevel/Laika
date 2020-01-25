@@ -221,7 +221,7 @@ object TextMarkup {
     }
 
     def embeddedHocon (start: String, end: String, delimCategory: Set[CodeCategory] = Set()): Parser[Seq[CodeSpan]] = {
-      (literal(start) ~> EmbeddedCodeSpans.parser(delimitedBy(end), HOCON.highlighter.spanParsers)).map { hocon => // TODO - support nested objects
+      (literal(start) ~> EmbeddedCodeSpans.parser(delimitedBy(end), HOCON.spanParsers)).map { hocon => // TODO - support nested objects
         CodeSpan(start, delimCategory) +: hocon :+ CodeSpan(end, delimCategory)
       }
     }
