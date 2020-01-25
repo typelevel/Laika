@@ -41,7 +41,7 @@ object HtmlTemplate {
                                |  </body>
                                |</html>""".stripMargin
 
-  // TODO - 0.13 - temporary duplication of the styleLink directive until the directive impl has been rewritten
+  // TODO - 0.14 - temporary duplication of the styleLink directive until the directive impl has been rewritten
   case object StyleLinkSpan extends SpanResolver with TemplateSpan {
 
     type Self = this.type 

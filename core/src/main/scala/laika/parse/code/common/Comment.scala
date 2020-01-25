@@ -31,7 +31,7 @@ object Comment {
     CodeSpanParsers(CodeCategory.Comment, start.head) {
       start.tail ~> restOfLine ^^ { text => start.tail + text + "\n" }
     }
-    // TODO - create restOfLine variant that keeps final \n
+    // TODO - 0.14 - create restOfLine variant that does not consume final \n or use anyBut('\n') directly
   }
 
   /** Parses a multi-line comment enclosed by the specified start and end delimiters. */

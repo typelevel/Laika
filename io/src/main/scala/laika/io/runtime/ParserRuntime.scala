@@ -88,7 +88,7 @@ object ParserRuntime {
         case ConfigType         => Vector(parseDocument(in, parseConfig, ConfigResult(in.path, _, _))).validNel
       }}.combineAll.toEither.leftMap(es => ParserErrors(es.toList.toSet))
       
-      def rewriteTree (root: DocumentTreeRoot): ParsedTree[F] = { // TODO - 0.13 - move to TreeResultBuilder
+      def rewriteTree (root: DocumentTreeRoot): ParsedTree[F] = { // TODO - 0.14 - move to TreeResultBuilder
         val finalTree = root.rewrite(op.config.rewriteRules)
         val finalRoot = finalTree.copy(staticDocuments = inputs.binaryInputs.map(_.path), sourcePaths = inputs.sourcePaths)
         ParsedTree(finalRoot, inputs.binaryInputs)

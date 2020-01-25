@@ -109,7 +109,7 @@ object NumberLiteral {
         
         val id = idSequence.getOrElse(emptyString)
         val optSuffix = suffix.fold(emptyString)(opt(_).map(_.getOrElse("")))
-        val postCondition = if (allowFollowingLetter) success(()) else not(anyWhile(java.lang.Character.isLetter).take(1)) // TODO - add char(Char => Boolean)
+        val postCondition = if (allowFollowingLetter) success(()) else not(anyWhile(java.lang.Character.isLetter).take(1)) // TODO - 0.14 - add char(Char => Boolean) and anyChar
         
         (id ~ number ~ optSuffix <~ postCondition).concat
       }

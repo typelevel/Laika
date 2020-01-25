@@ -205,7 +205,7 @@ class ExtensionParsers(recParsers: RecursiveParsers,
 
       ((opt(wsEol) ~> (item +)) | success(Nil)) ^^? { fields =>
 
-        // TODO - 0.13 - might defer validation to a later step
+        // TODO - 0.14 - might defer validation to a later step
         
         val parsed = fields.map(_._1).toSet
 
