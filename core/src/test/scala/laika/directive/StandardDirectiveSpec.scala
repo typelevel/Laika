@@ -164,7 +164,7 @@ class StandardDirectiveSpec extends FlatSpec
   
   
   "The for directive" should "process the default body once if the referenced object is a map" in {
-    val input = """aaa @:for { config.person } ${_.name} ${_.age} @:@ bbb"""
+    val input = """aaa @:for { person } ${_.name} ${_.age} @:@ bbb"""
     val config = "person: { name: Mary, age: 35 }" 
     parseTemplateWithConfig(input, config) should be (root(tRoot(
       tt("aaa "),
@@ -176,7 +176,7 @@ class StandardDirectiveSpec extends FlatSpec
   } 
   
   it should "process the default body multiple times if the referenced object is a list" in {
-    val input = """aaa @:for { config.persons } ${_.name} ${_.age} @:@ bbb"""
+    val input = """aaa @:for { persons } ${_.name} ${_.age} @:@ bbb"""
     val config = "persons: [{ name: Mary, age: 35 },{ name: Lucy, age: 32 },{ name: Anna, age: 42 }]" 
     parseTemplateWithConfig(input, config) should be (root(tRoot(
       tt("aaa "),
@@ -196,7 +196,7 @@ class StandardDirectiveSpec extends FlatSpec
   } 
   
   it should "not process the default body if the referenced object is an empty collection" in {
-    val input = """aaa @:for { config.persons } ${_.name} ${_.age} @:@ bbb"""
+    val input = """aaa @:for { persons } ${_.name} ${_.age} @:@ bbb"""
     val config = "persons: []" 
     parseTemplateWithConfig(input, config) should be (root(tRoot(
       tt("aaa "),
@@ -206,7 +206,7 @@ class StandardDirectiveSpec extends FlatSpec
   }
 
   it should "process the @:empty body part if the referenced object is an empty collection" in {
-    val input = """aaa @:for { config.persons } ${_.name} ${_.age} @:empty none @:@ bbb"""
+    val input = """aaa @:for { persons } ${_.name} ${_.age} @:empty none @:@ bbb"""
     val config = "persons: []"
     parseTemplateWithConfig(input, config) should be (root(tRoot(
       tt("aaa "),
@@ -216,7 +216,7 @@ class StandardDirectiveSpec extends FlatSpec
   }
 
   it should "process the default body once if the referenced object is a scalar value" in {
-    val input = """aaa @:for { config.person } ${_} @:@ bbb"""
+    val input = """aaa @:for { person } ${_} @:@ bbb"""
     val config = "person: Mary" 
     parseTemplateWithConfig(input, config) should be (root(tRoot(
       tt("aaa "),
@@ -226,7 +226,7 @@ class StandardDirectiveSpec extends FlatSpec
   } 
   
   "The if directive" should "process the default body once if the referenced object is the string 'true'" in {
-    val input = """aaa @:if { config.monday } text @:@ bbb"""
+    val input = """aaa @:if { monday } text @:@ bbb"""
     val config = "monday: true" 
     parseTemplateWithConfig(input, config) should be (root(tRoot(
       tt("aaa "),
@@ -236,7 +236,7 @@ class StandardDirectiveSpec extends FlatSpec
   } 
   
   it should "process the default body once if the referenced object is the string 'on'" in {
-    val input = """aaa @:if { config.monday } text @:@ bbb"""
+    val input = """aaa @:if { monday } text @:@ bbb"""
     val config = "monday: on" 
     parseTemplateWithConfig(input, config) should be (root(tRoot(
       tt("aaa "),
@@ -246,7 +246,7 @@ class StandardDirectiveSpec extends FlatSpec
   } 
   
   it should "not process the default body if the referenced object does not exist" in {
-    val input = """aaa @:if { config.monday } text @:@ bbb"""
+    val input = """aaa @:if { monday } text @:@ bbb"""
     val config = "tuesday: on" 
     parseTemplateWithConfig(input, config) should be (root(tRoot(
       tt("aaa "),
@@ -256,7 +256,7 @@ class StandardDirectiveSpec extends FlatSpec
   }
 
   it should "process the @:else body if the referenced object does not exist" in {
-    val input = """aaa @:if { config.monday } text @:else none @:@ bbb"""
+    val input = """aaa @:if { monday } text @:else none @:@ bbb"""
     val config = "tuesday: on"
     parseTemplateWithConfig(input, config) should be (root(tRoot(
       tt("aaa "),
@@ -266,7 +266,7 @@ class StandardDirectiveSpec extends FlatSpec
   }
 
   it should "process the first @:elseIf body if it is defined" in {
-    val input = """111 @:if { config.aaa } aaa @:elseIf { "config.bbb" } bbb @:elseIf { "config.ccc" } ccc @:else none @:@ 222"""
+    val input = """111 @:if { aaa } aaa @:elseIf { "bbb" } bbb @:elseIf { "ccc" } ccc @:else none @:@ 222"""
     val config = "bbb: on"
     parseTemplateWithConfig(input, config) should be (root(tRoot(
       tt("111 "),
@@ -276,7 +276,7 @@ class StandardDirectiveSpec extends FlatSpec
   }
 
   it should "process the second @:elseIf body if it is defined" in {
-    val input = """111 @:if { config.aaa } aaa @:elseIf { "config.bbb" } bbb @:elseIf { "config.ccc" } ccc @:else none @:@ 222"""
+    val input = """111 @:if { aaa } aaa @:elseIf { "bbb" } bbb @:elseIf { "ccc" } ccc @:else none @:@ 222"""
     val config = "ccc: on"
     parseTemplateWithConfig(input, config) should be (root(tRoot(
       tt("111 "),
@@ -286,7 +286,7 @@ class StandardDirectiveSpec extends FlatSpec
   }
 
   it should "not process the default body if the referenced object is not a string recognized as true" in {
-    val input = """aaa @:if { config.monday } text @:@ bbb"""
+    val input = """aaa @:if { monday } text @:@ bbb"""
     val config = "monday: off" 
     parseTemplateWithConfig(input, config) should be (root(tRoot(
       tt("aaa "),
@@ -541,7 +541,7 @@ class StandardDirectiveSpec extends FlatSpec
     }
   } 
   
-  "The document toc directive"  should "produce a table of content starting from the root of the current document" in {
+  "The document toc directive" should "produce a table of content starting from the root of the current document" in {
     new TreeModel with TocModel {
       
       override val markup = """@:toc

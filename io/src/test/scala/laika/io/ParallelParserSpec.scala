@@ -76,7 +76,7 @@ class ParallelParserSpec extends IOSpec
       val template2 = """<div>
                        |xx${document.content}
                        |</div>""".stripMargin
-      val dynDoc = "${config.value}"
+      val dynDoc = "${value}"
       val conf = "value: abc"
       val order = """navigationOrder: [
         |  lemon.md

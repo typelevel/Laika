@@ -34,6 +34,7 @@ import laika.io.implicits._
 import laika.io.model.{StringTreeOutput, TreeInput}
 import laika.io.text.ParallelTransformer
 import laika.parse.Parser
+import laika.parse.code.SyntaxHighlighting
 import laika.parse.text.TextParsers
 import org.scalatest.Assertion
 
@@ -64,6 +65,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
     def describe: IO[TransformerDescriptor] = Transformer
       .from(Markdown)
       .to(AST)
+      .using(SyntaxHighlighting)
       .io(blocker)
       .parallel[IO]
       .withAlternativeParser(MarkupParser.of(ReStructuredText))
@@ -93,7 +95,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
       val style = "13"
       val link = "[link](foo)"
       val directive = "${document.content} @:foo bar. bb"
-      val templateConfigRef = "${document.content}{{config.value}}"
+      val templateConfigRef = "${document.content}${value}"
       val template1 = "${document.content}"
       val template2 = "(${document.content})"
       val conf = "value: abc"

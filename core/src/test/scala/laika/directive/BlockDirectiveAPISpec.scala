@@ -324,7 +324,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |
         |@:dir
         |some
-        |${config.ref}
+        |${ref}
         |text
         |@:@
         |
@@ -341,7 +341,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |@:dir
         |
         |some
-        |${config.ref}
+        |${ref}
         |text
         |  
         |@:@
@@ -359,7 +359,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |@:dir +++
         |
         |some
-        |${config.ref}
+        |${ref}
         |text
         |  
         |+++
@@ -480,7 +480,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |
         |@:dir { foo, strAttr=str, intAttr=7 }
         |
-        |1 ${config.ref} 2
+        |1 ${ref} 2
         |
         |@:@
         |
@@ -502,7 +502,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |  intAttr=7 
         |}
         |
-        |1 ${config.ref} 2
+        |1 ${ref} 2
         |
         |@:@
         |
@@ -521,7 +521,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |
         |@:dir { foo }
         | 
-        |1 ${config.ref} 2
+        |1 ${ref} 2
         |
         |@:@
         |
@@ -540,7 +540,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |
         |@:dir { foo } +++
         |
-        |1 ${config.ref} 2
+        |1 ${ref} 2
         |
         |+++
         |
@@ -570,7 +570,7 @@ class BlockDirectiveAPISpec extends FlatSpec
       val input = """aa
         |
         |@:dir
-        |some ${config.ref} text
+        |some ${ref} text
         |@:@
         |
         |bb""".stripMargin

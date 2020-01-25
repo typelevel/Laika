@@ -53,12 +53,12 @@ class ConfigSpec extends IOSpec
           |CCC""".stripMargin
 
       val templateWithMissingRef =
-        """<h1>${config.foox}</h1>
+        """<h1>${foox}</h1>
           |<div>${document.content}</div>
           |CCC""".stripMargin
 
       val templateWithOptRef =
-        """<h1>${?config.foox}</h1>
+        """<h1>${?foox}</h1>
           |<div>${document.content}</div>
           |CCC""".stripMargin
 
@@ -83,7 +83,7 @@ class ConfigSpec extends IOSpec
 
       val markupWithRef =
         """aaa
-          |${config.foo}
+          |${foo}
           |bbb""".stripMargin
 
       val markupWithRefs =
@@ -175,7 +175,7 @@ class ConfigSpec extends IOSpec
       val expected = root(
         TemplateRoot(List(
           TemplateString("<h1>"),
-          InvalidElement(SystemMessage(MessageLevel.Error, "Missing required reference: 'config.foox'"), "${config.foox}").asTemplateSpan,
+          InvalidElement(SystemMessage(MessageLevel.Error, "Missing required reference: 'foox'"), "${foox}").asTemplateSpan,
           TemplateString("</h1>\n<div>"),
           eRoot(p("aaa\nbbb")),
           TemplateString("</div>\nCCC")
@@ -300,11 +300,11 @@ class ConfigSpec extends IOSpec
 
       val template =
         """{% key2: val2 %}
-          |${config.key1}
-          |${config.key2}
-          |${config.key3}
-          |${config.key4}
-          |${config.key5}""".stripMargin
+          |${key1}
+          |${key2}
+          |${key3}
+          |${key4}
+          |${key5}""".stripMargin
 
       val md =
         """{% key1: val1 %}

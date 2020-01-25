@@ -409,7 +409,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
 
       val templateParser = config.templateParser
       templateParser should not be empty
-      templateParser.get.parse("{{document.content}}").toOption shouldBe Some(TemplateRoot.fallback)
+      templateParser.get.parse("${document.content}").toOption shouldBe Some(TemplateRoot.fallback)
     }
 
     "return None in strict mode when there is no parser installed" in new BundleSetup {

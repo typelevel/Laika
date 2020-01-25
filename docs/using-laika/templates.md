@@ -75,7 +75,7 @@ These are all documented in their respective chapters.
 
 But you can also add arbitrary entries and then refer to them
 from a variable reference. The `scope` entry above for example
-can be referred to with `${config.autonumbering.scope}`.
+can be referred to with `${autonumbering.scope}`.
 
 You can also have a configuration header in a markup document
 (supported for both Markdown and reStructuredText) and then
