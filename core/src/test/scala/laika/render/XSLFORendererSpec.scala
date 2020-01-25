@@ -21,7 +21,7 @@ import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.bundle.BundleProvider
 import laika.format.XSLFO
-import laika.parse.code.{CodeCategory, CodeSpan}
+import laika.parse.code.CodeCategory
 import org.scalatest.{FlatSpec, Matchers}
 
 class XSLFORendererSpec extends FlatSpec

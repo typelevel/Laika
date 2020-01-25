@@ -16,11 +16,11 @@
 
 package laika.parse.code.languages
 
-import laika.ast.~
+import laika.ast.{CodeSpan, ~}
 import laika.bundle.SyntaxHighlighter
 import laika.parse.Parser
-import laika.parse.code.common.{EmbeddedCodeSpans, Keywords, TagBasedFormats, NumberLiteral}
-import laika.parse.code.{CodeCategory, CodeSpan, CodeSpanParsers}
+import laika.parse.code.common.{EmbeddedCodeSpans, Keywords, NumberLiteral, TagBasedFormats}
+import laika.parse.code.{CodeCategory, CodeSpanParsers}
 import laika.parse.text.TextParsers._
 
 /**

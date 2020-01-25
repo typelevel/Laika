@@ -17,7 +17,6 @@
 package laika.render
 
 import laika.ast._
-import laika.parse.code.CodeSpan
 
 /** Default renderer implementation for the Formatted AST output format.
   *

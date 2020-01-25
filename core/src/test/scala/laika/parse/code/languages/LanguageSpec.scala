@@ -20,8 +20,8 @@ import laika.api.MarkupParser
 import laika.ast._
 import laika.format.Markdown
 import laika.markdown.github.GitHubFlavor
+import laika.parse.code.CodeCategory
 import laika.parse.code.CodeCategory._
-import laika.parse.code.{CodeCategory, CodeSpan}
 import org.scalatest.{Matchers, WordSpec}
 
 /**

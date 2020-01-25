@@ -21,6 +21,7 @@ import java.text.DecimalFormat
 import laika.api.Renderer
 import laika.config.{ConfigEncoder, ConfigValue}
 import laika.format.AST
+import laika.parse.code.CodeCategory
 
 import scala.math.Ordered
 
@@ -429,6 +430,69 @@ case class CodeBlock (language: String, content: Seq[Span], options: Options = N
     case _ => true
   }
 }
+
+/** A single span inside a code block that has been
+  * categorized by a syntax highlighter.
+  */
+sealed trait CategorizedCode extends Span
+
+/** A span of code associated with zero or more code categories.
+ */
+case class CodeSpan (content: String, categories: Set[CodeCategory], options: Options = NoOpt) extends CategorizedCode with TextContainer {
+  type Self = CodeSpan
+  def withOptions (options: Options): CodeSpan = copy(options = options)
+}
+
+object CodeSpan {
+
+  def apply (content: String, category: CodeCategory): CodeSpan = apply(content, Set(category))
+
+  def apply (content: String): CodeSpan = apply(content, Set(), NoOpt)
+
+}
+
+object CodeSpans {
+
+  /** Extracts all code spans from the given span while at the same time
+    * converting all regular text nodes to code spans associated with the specified
+    * set of categories.
+    * 
+    * This is a fairly low-level operation, usually performed after using a generic
+    * inline parser (like `InlineParsers.spans`) for syntax highlighting.
+    */
+  def extract (defaultCategories: Set[CodeCategory] = Set())(span: Span): Seq[CodeSpan] = span match {
+    case Text(content, _)          => Seq(CodeSpan(content, defaultCategories))
+    case codeSpan: CodeSpan        => Seq(codeSpan)
+    case codeSeq: CodeSpanSequence => codeSeq.collect { case cs: CodeSpan => cs }
+    case _                         => Nil
+  }
+
+  // TODO - 0.14 - this method should become obsolete in 0.14
+  def merge (startChar: Char, spans: Seq[CodeSpan], defaultCategories: Set[CodeCategory] = Set()): Seq[CodeSpan] = {
+    val startSpan = CodeSpan(startChar.toString, defaultCategories)
+    merge(startSpan +: spans)
+  }
+
+  /** Merges all occurrences of two or more adjacent spans with the exact same set of 
+    * associated code categories.
+    */
+  def merge (spans: Seq[CodeSpan]): Seq[CodeSpan] = if (spans.isEmpty) spans else {
+    spans.tail.foldLeft(List(spans.head)) { case (acc, next) =>
+      if (acc.last.categories == next.categories) acc.init :+ CodeSpan(acc.last.content + next.content, next.categories)
+      else acc :+ next
+    }
+  }
+
+}
+
+/** A sequence of code spans where most of them are usually associated with zero or more code categories.
+  */
+case class CodeSpanSequence (content: Seq[Span], options: Options = NoOpt) extends CategorizedCode with SpanContainer {
+  type Self = CodeSpanSequence
+  def withContent (newContent: Seq[Span]): CodeSpanSequence = copy(content = newContent)
+  def withOptions (options: Options): CodeSpanSequence = copy(options = options)
+}
+
 
 /** A quoted block consisting of a list of blocks that may contain other
  *  nested quoted blocks and an attribution which may be empty.

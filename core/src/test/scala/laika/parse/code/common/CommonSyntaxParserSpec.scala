@@ -16,11 +16,12 @@
 
 package laika.parse.code.common
 
+import laika.ast.CodeSpan
 import laika.bundle.SyntaxHighlighter
 import laika.parse.Parser
-import laika.parse.text.TextParsers._
-import laika.parse.code.{CodeCategory, CodeSpan, CodeSpanParsers}
+import laika.parse.code.{CodeCategory, CodeSpanParsers}
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
+import laika.parse.text.TextParsers._
 import org.scalatest.{Assertion, Matchers, WordSpec}
 
 /**

@@ -20,7 +20,7 @@ import laika.api.Renderer
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.HTML
-import laika.parse.code.{CodeCategory, CodeSpan}
+import laika.parse.code.CodeCategory
 import org.scalatest.{FlatSpec, Matchers}
 
 class HTMLRendererSpec extends FlatSpec 

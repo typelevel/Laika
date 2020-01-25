@@ -17,9 +17,10 @@
 package laika.bundle
 
 import cats.data.NonEmptyList
+import laika.ast.{CodeSpan, CodeSpans}
 import laika.parse.Parser
+import laika.parse.code.CodeSpanParsers
 import laika.parse.code.common.EmbeddedCodeSpans
-import laika.parse.code.{CodeSpan, CodeSpanParsers, CodeSpans}
 import laika.parse.text.DelimitedText
 
 /** The parser for syntax highlighting a particular language.

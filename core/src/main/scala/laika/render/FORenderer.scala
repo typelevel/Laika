@@ -17,7 +17,6 @@
 package laika.render
 
 import laika.ast._
-import laika.parse.code.CodeSpan
 import laika.render.FOFormatter._
 
 /** Default renderer implementation for the XSL-FO output format.
