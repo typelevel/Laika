@@ -22,7 +22,6 @@ import laika.bundle.{BundleOrigin, ConfigProvider, DocumentTypeMatcher, Extensio
 import laika.directive.{DirectiveSupport, StandardDirectives}
 import laika.factory.{MarkupFormat, RenderFormat}
 import laika.parse.Parser
-import laika.parse.code.DefaultSyntaxHighlighters
 import laika.parse.combinator.Parsers
 
 import scala.annotation.tailrec
@@ -209,7 +208,7 @@ object OperationConfig {
   /** A configuration instance with all the libraries default extension bundles.
     */
   val default: OperationConfig = OperationConfig(
-    bundles = Seq(ExtensionBundle.LaikaDefaults, DirectiveSupport, StandardDirectives, DefaultSyntaxHighlighters)
+    bundles = Seq(ExtensionBundle.LaikaDefaults, DirectiveSupport, StandardDirectives)
   )
 
   /** An empty configuration instance.

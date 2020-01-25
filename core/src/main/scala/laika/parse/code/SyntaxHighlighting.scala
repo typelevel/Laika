@@ -23,7 +23,7 @@ import laika.parse.code.languages._
   * 
   * @author Jens Halm
   */
-case object DefaultSyntaxHighlighters extends ExtensionBundle {
+case object SyntaxHighlighting extends ExtensionBundle {
   
   override val origin: BundleOrigin = BundleOrigin.Library
 

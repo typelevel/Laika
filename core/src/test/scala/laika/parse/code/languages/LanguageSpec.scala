@@ -20,7 +20,7 @@ import laika.api.MarkupParser
 import laika.ast._
 import laika.format.Markdown
 import laika.markdown.github.GitHubFlavor
-import laika.parse.code.CodeCategory
+import laika.parse.code.{CodeCategory, SyntaxHighlighting}
 import laika.parse.code.CodeCategory._
 import org.scalatest.{Matchers, WordSpec}
 
@@ -33,7 +33,7 @@ class LanguageSpec extends WordSpec with Matchers {
   "The syntax highlighter for code blocks" should {
     
     def parse (input: String): RootElement = 
-      MarkupParser.of(Markdown).using(GitHubFlavor).build.parse(input).toOption.get.content
+      MarkupParser.of(Markdown).using(GitHubFlavor, SyntaxHighlighting).build.parse(input).toOption.get.content
     
     val space: CodeSpan = CodeSpan(" ")
     val colonSpace: CodeSpan = CodeSpan(": ")
