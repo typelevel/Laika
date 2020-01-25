@@ -621,7 +621,7 @@ class HTMLRendererSpec extends FlatSpec
       CodeSpan("}}", Set(CodeCategory.Tag.Punctuation, CodeCategory.Identifier))
     )
     val elem = CodeBlock("banana-script", code)
-    val renderedCode = """<span class="keyword">{{</span><span>foo</span><span class="xml-punctuation identifier">}}</span>"""
+    val renderedCode = """<span class="keyword">{{</span><span>foo</span><span class="tag-punctuation identifier">}}</span>"""
     render (elem) should be (s"""<pre><code class="nohighlight">$renderedCode</code></pre>""")
   }
   

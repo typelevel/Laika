@@ -18,7 +18,6 @@ package laika.parse.code
 
 import laika.ast.{CodeSpan, CodeSpanSequence, Span}
 import laika.parse.Parser
-import laika.parse.code.CodeCategory.XML.XMLCategory
 import laika.parse.text.TextParsers._
 
 /**
@@ -82,62 +81,4 @@ object CodeSpanParsers {
       }
     }
   
-}
-
-sealed trait CodeCategory extends Product with Serializable {
-  private def camel2dash(text: String) = text.drop(1).foldLeft(text.head.toLower.toString) {
-    case (acc, c) if c.isUpper => acc + "-" + c.toLower
-    case (acc, c) => acc + c
-  }
-  def name: String = prefix + camel2dash(productPrefix)
-  protected def prefix: String = ""
-}
-
-object CodeCategory {
-  
-  case object Comment extends CodeCategory
-  case object Keyword extends CodeCategory
-  case object BooleanLiteral extends CodeCategory
-  case object NumberLiteral extends CodeCategory
-  case object StringLiteral extends CodeCategory
-  case object CharLiteral extends CodeCategory
-  case object SymbolLiteral extends CodeCategory
-  case object RegexLiteral extends CodeCategory
-  case object LiteralValue extends CodeCategory
-  case object EscapeSequence extends CodeCategory
-  case object Substitution extends CodeCategory
-  case object TypeName extends CodeCategory
-  case object AttributeName extends CodeCategory
-  case object Identifier extends CodeCategory
-  
-  object Tag {
-    sealed trait TagCategory extends CodeCategory {
-      override def prefix: String = "tag-"
-    }
-    case object Name extends XMLCategory
-    case object Punctuation extends XMLCategory
-  }
-  
-  object XML {
-    sealed trait XMLCategory extends CodeCategory {
-      override def prefix: String = "xml-"
-    }
-    case object DTDTagName extends XMLCategory {
-      override def name: String = "xml-dtd-tag-name"
-    }
-    case object ProcessingInstruction extends XMLCategory
-    case object CData extends XMLCategory
-  }
-  
-  object Markup {
-    sealed trait MarkupCategory extends CodeCategory {
-      override def prefix: String = "markup-"
-    }
-    case object Fence extends MarkupCategory
-    case object Headline extends MarkupCategory
-    case object Emphasized extends MarkupCategory
-    case object Quote extends MarkupCategory
-    case object LinkText extends MarkupCategory
-    case object LinkTarget extends MarkupCategory
-  }
 }
