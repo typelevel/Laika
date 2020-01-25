@@ -18,35 +18,26 @@ package laika.parse.code.languages
 
 import laika.bundle.SyntaxHighlighter
 import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue, TypeName}
+import laika.parse.code.CodeSpanParsers
 import laika.parse.code.common.{Comment, Identifier, Keywords, NumberLiteral, RegexLiteral, StringLiteral}
 
 /**
   * @author Jens Halm
   */
 object TypeScript {
+  
+  val stringEmbeds: CodeSpanParsers = 
+    JavaScript.unicodeCodePointEscape ++
+    StringLiteral.Escape.unicode ++
+    StringLiteral.Escape.hex ++
+    StringLiteral.Escape.char
 
   lazy val highlighter: SyntaxHighlighter = SyntaxHighlighter.build("typescript")(
     Comment.singleLine("//"),
     Comment.multiLine("/*", "*/"),
-    StringLiteral.singleLine('"').embed(
-      JavaScript.unicodeCodePointEscape,
-      StringLiteral.Escape.unicode,
-      StringLiteral.Escape.hex,
-      StringLiteral.Escape.char,
-    ),
-    StringLiteral.singleLine('\'').embed(
-      JavaScript.unicodeCodePointEscape,
-      StringLiteral.Escape.unicode,
-      StringLiteral.Escape.hex,
-      StringLiteral.Escape.char,
-    ),
-    StringLiteral.multiLine("`").embed(
-      JavaScript.unicodeCodePointEscape,
-      StringLiteral.Escape.unicode,
-      StringLiteral.Escape.hex,
-      StringLiteral.Escape.char,
-      StringLiteral.Substitution.between("${", "}"),
-    ),
+    StringLiteral.singleLine('"').embed(stringEmbeds),
+    StringLiteral.singleLine('\'').embed(stringEmbeds),
+    StringLiteral.multiLine("`").embed(stringEmbeds),
     RegexLiteral.standard,
     Keywords(BooleanLiteral)("true", "false"),
     Keywords(LiteralValue)("null", "undefined", "NaN", "Infinity"),
