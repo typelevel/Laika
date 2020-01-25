@@ -19,7 +19,18 @@ package laika.parse.code
 import laika.bundle.{BundleOrigin, ExtensionBundle, ParserBundle, SyntaxHighlighter}
 import laika.parse.code.languages._
 
-/** Registry for all code syntax highlighters provided out of the box.
+/** Extension that registers all code syntax highlighters provided out of the box.
+  * 
+  * The extension can be added to a transformer like any other extension:
+  *
+  * {{{
+  * val transformer = Transformer
+  *   .from(Markdown)
+  *   .to(HTML)
+  *   .using(GitHubFlavor)
+  *   .using(SyntaxHighlighting)
+  *   .build
+  * }}}
   * 
   * @author Jens Halm
   */
@@ -48,7 +59,10 @@ case object SyntaxHighlighting extends ExtensionBundle { self =>
       LaikaExtensionSyntax.forHTML
     )
   )
-  
+
+  /** Creates a new extension bundle that contains the built-in
+    * syntax highlighters as well as the specified list of custom highlighters. 
+    */
   def withSyntax (syntax: SyntaxHighlighter*): ExtensionBundle = new ExtensionBundle {
     
     override val origin: BundleOrigin = BundleOrigin.User

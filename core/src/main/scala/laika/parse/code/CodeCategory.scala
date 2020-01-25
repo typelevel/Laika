@@ -16,16 +16,19 @@
 
 package laika.parse.code
 
-/**
+/** Represents a category that can be assigned to a span inside a code block
+  * to facilitate syntax highlighting.
+  * 
   * @author Jens Halm
   */
 sealed trait CodeCategory extends Product with Serializable {
+  protected def prefix: String = ""
   private def camel2dash(text: String) = text.drop(1).foldLeft(text.head.toLower.toString) {
     case (acc, c) if c.isUpper => acc + "-" + c.toLower
     case (acc, c) => acc + c
   }
+  /** The name of the category which usually translates to styles in rendered output. */
   def name: String = prefix + camel2dash(productPrefix)
-  protected def prefix: String = ""
 }
 
 object CodeCategory {
@@ -45,6 +48,7 @@ object CodeCategory {
   case object AttributeName extends CodeCategory
   case object Identifier extends CodeCategory
 
+  /** Common categories for tag-based syntax such as HTML or XML. */
   object Tag {
     sealed trait TagCategory extends CodeCategory {
       override def prefix: String = "tag-"
@@ -53,6 +57,7 @@ object CodeCategory {
     case object Punctuation extends TagCategory
   }
 
+  /** Categories specific to the XML format. */
   object XML {
     sealed trait XMLCategory extends CodeCategory {
       override def prefix: String = "xml-"
@@ -64,6 +69,7 @@ object CodeCategory {
     case object CData extends XMLCategory
   }
 
+  /** Categories for text markup formats. */
   object Markup {
     sealed trait MarkupCategory extends CodeCategory {
       override def prefix: String = "markup-"
