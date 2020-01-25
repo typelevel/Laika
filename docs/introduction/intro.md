@@ -170,6 +170,9 @@ Features
   documents and auto-numbering of documents and sections for all 
   supported markup formats
   
+* Integrated parsers for syntax highlighting that work for all output
+  formats, not just HTML.
+  
 * Support for styling of PDF documents with CSS
   
 * sbt plugin, exposing all Laika features and customization hooks
@@ -205,8 +208,6 @@ Features
 Road Map
 --------
 
-* __0.13__: Integrated support for syntax highlighting in source code
-
 * __0.14__: Support for Scala.js
 
 * __0.15__: A set of default themes for all output formats
@@ -216,6 +217,27 @@ Road Map
 
 Release History
 ---------------
+
+* __0.13.0__ (Jan ??, 2020):
+
+    * Introduce integrated syntax highlighting based on the libraries own parsers
+        * Resulting AST nodes for code spans are part of the document AST and
+          can be processed or transformed like all other nodes
+        * Works with any renderer, including PDF
+        * Initially supported are Scala, Java, Python, JavaScript, TypeScript,
+          HTML, CSS, XML, JSON, HOCON
+        * Convenient base parsers for common syntax like string and number literals
+          or identifiers to facilitate development of new syntax highlighters
+    * HOCON parser: add support for `include` statements, this final feature addition 
+      makes Laika's HOCON support fully spec-compliant      
+    * New transformation hooks in the `laika-io` module for parallel transformers: 
+      `mapDocuments(Document => Document)`, `evalMapDocuments(Document => F[Document])` 
+      and the corresponsing `mapTree` and `evalMapTree`
+    * Transformer introspection: introduce `describe` method for parsers, renderers
+      and transformers and `laikaDescribe` setting in the sbt plugin that provides
+      formatted information about the transformer setup and installed extensions
+    * sbt plugin: improved accuracy for caching logic for EPUB and PDF output
+      that still works when the artifact name or version changes
 
 * __0.12.1__ (Dec 1, 2019):
 
