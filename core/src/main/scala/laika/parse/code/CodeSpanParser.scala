@@ -16,22 +16,22 @@
 
 package laika.parse.code
 
-import laika.ast.{CodeSpan, CodeSpanSequence, Span}
+import laika.ast.{CategorizedCode, CodeSpan, CodeSpanSequence}
 import laika.parse.Parser
 import laika.parse.text.TextParsers._
 
 /**
   * @author Jens Halm
   */
-sealed trait CodeSpanParser {
+trait CodeSpanParser {
 
   def startChar: Char
   
-  def parser: Parser[Span]
+  def parser: Parser[CategorizedCode]
   
 }
 
-sealed trait CodeSpanParsers { self =>
+trait CodeSpanParsers { self =>
   
   def parsers: Seq[CodeSpanParser]
   
@@ -43,7 +43,7 @@ sealed trait CodeSpanParsers { self =>
 
 object CodeSpanParsers {
   
-  private def create(s: Char, p: Parser[Span]) = new CodeSpanParser {
+  private def create(s: Char, p: Parser[CategorizedCode]) = new CodeSpanParser {
     val startChar = s
     val parser = p
   }
