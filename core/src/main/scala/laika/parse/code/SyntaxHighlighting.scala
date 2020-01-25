@@ -16,14 +16,14 @@
 
 package laika.parse.code
 
-import laika.bundle.{BundleOrigin, ExtensionBundle, ParserBundle}
+import laika.bundle.{BundleOrigin, ExtensionBundle, ParserBundle, SyntaxHighlighter}
 import laika.parse.code.languages._
 
 /** Registry for all code syntax highlighters provided out of the box.
   * 
   * @author Jens Halm
   */
-case object SyntaxHighlighting extends ExtensionBundle {
+case object SyntaxHighlighting extends ExtensionBundle { self =>
   
   override val origin: BundleOrigin = BundleOrigin.Library
 
@@ -48,5 +48,16 @@ case object SyntaxHighlighting extends ExtensionBundle {
       LaikaExtensionSyntax.forHTML
     )
   )
+  
+  def withSyntax (syntax: SyntaxHighlighter*): ExtensionBundle = new ExtensionBundle {
+    
+    override val origin: BundleOrigin = BundleOrigin.User
+    
+    val description: String = "Customized collection of Syntax Highlighters for Code"
+
+    override def parsers: ParserBundle = ParserBundle(
+      syntaxHighlighters = self.parsers.syntaxHighlighters ++ syntax
+    )
+  }
   
 }
