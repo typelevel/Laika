@@ -26,7 +26,7 @@ import laika.parse.text.TextParsers._
 /**
   * @author Jens Halm
   */
-object Scala extends SyntaxHighlighter {
+object ScalaSyntax extends SyntaxHighlighter {
 
   import NumberLiteral._
   

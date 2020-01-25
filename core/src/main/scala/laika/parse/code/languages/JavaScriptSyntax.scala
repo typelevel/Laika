@@ -28,7 +28,7 @@ import laika.parse.text.TextParsers._
 /**
   * @author Jens Halm
   */
-object JavaScript extends SyntaxHighlighter {
+object JavaScriptSyntax extends SyntaxHighlighter {
 
   val unicodeCodePointEscape: CodeSpanParsers = CodeSpanParsers(CodeCategory.EscapeSequence, '\\') {
     ("u{" ~ DigitParsers.hex.min(1) ~ '}').map { case a ~ b ~ c => a + b + c.toString }

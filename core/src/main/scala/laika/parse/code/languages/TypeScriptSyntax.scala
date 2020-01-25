@@ -25,10 +25,10 @@ import laika.parse.code.common.{Comment, Identifier, Keywords, NumberLiteral, Re
 /**
   * @author Jens Halm
   */
-object TypeScript extends SyntaxHighlighter {
+object TypeScriptSyntax extends SyntaxHighlighter {
   
   val stringEmbeds: CodeSpanParsers = 
-    JavaScript.unicodeCodePointEscape ++
+    JavaScriptSyntax.unicodeCodePointEscape ++
     StringLiteral.Escape.unicode ++
     StringLiteral.Escape.hex ++
     StringLiteral.Escape.char
@@ -46,14 +46,14 @@ object TypeScript extends SyntaxHighlighter {
     Keywords(LiteralValue)("null", "undefined", "NaN", "Infinity"),
     Keywords("abstract", "declare", "enum", "get", "implements", "interface", "namespace", 
       "package", "public", "private", "protected", "set", "type"),
-    JavaScript.keywords,
+    JavaScriptSyntax.keywords,
     Keywords(TypeName)("any", "number", "boolean", "string", "symbol", "void"),
     Identifier.standard.withIdStartChars('_','$'),
-    JavaScript.number(NumberLiteral.binary),
-    JavaScript.number(NumberLiteral.octal),
-    JavaScript.number(NumberLiteral.hex),
-    JavaScript.number(NumberLiteral.decimalFloat),
-    JavaScript.number(NumberLiteral.decimalInt),
+    JavaScriptSyntax.number(NumberLiteral.binary),
+    JavaScriptSyntax.number(NumberLiteral.octal),
+    JavaScriptSyntax.number(NumberLiteral.hex),
+    JavaScriptSyntax.number(NumberLiteral.decimalFloat),
+    JavaScriptSyntax.number(NumberLiteral.decimalInt),
   )
   
 }

@@ -27,7 +27,7 @@ import laika.parse.text.TextParsers._
 /**
   * @author Jens Halm
   */
-object JSON extends SyntaxHighlighter {
+object JSONSyntax extends SyntaxHighlighter {
 
   val string: StringParser = StringLiteral.singleLine('"').embed(
     StringLiteral.Escape.unicode,

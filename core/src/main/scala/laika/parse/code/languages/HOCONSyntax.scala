@@ -27,7 +27,7 @@ import laika.parse.text.TextParsers.{lookAhead, ws, _}
 /**
   * @author Jens Halm
   */
-object HOCON extends SyntaxHighlighter {
+object HOCONSyntax extends SyntaxHighlighter {
 
   val string: StringParser = StringLiteral.singleLine('"').embed(
     StringLiteral.Escape.unicode,

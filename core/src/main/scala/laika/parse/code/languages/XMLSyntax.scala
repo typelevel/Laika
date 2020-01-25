@@ -24,7 +24,7 @@ import laika.parse.code.{CodeCategory, CodeSpanParsers}
 /**
   * @author Jens Halm
   */
-object XML extends TagBasedFormats with SyntaxHighlighter {
+object XMLSyntax extends TagBasedFormats with SyntaxHighlighter {
   
   val pi: CodeSpanParsers = CodeSpanParsers(CodeCategory.XML.ProcessingInstruction, "<?", "?>")
   val cdata: CodeSpanParsers = CodeSpanParsers(CodeCategory.XML.CData, "<![CDATA[", "]]>")

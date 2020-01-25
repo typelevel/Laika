@@ -28,7 +28,7 @@ import laika.parse.text.TextParsers._
 /**
   * @author Jens Halm
   */
-object CSS extends SyntaxHighlighter {
+object CSSSyntax extends SyntaxHighlighter {
   
   import NumberLiteral._
   

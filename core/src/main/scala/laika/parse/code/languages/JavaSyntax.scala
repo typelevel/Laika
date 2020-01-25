@@ -25,7 +25,7 @@ import laika.parse.code.common.{CharLiteral, Comment, Identifier, Keywords, Numb
 /**
   * @author Jens Halm
   */
-object Java extends SyntaxHighlighter {
+object JavaSyntax extends SyntaxHighlighter {
 
   val language: NonEmptyList[String] = NonEmptyList.of("java")
 

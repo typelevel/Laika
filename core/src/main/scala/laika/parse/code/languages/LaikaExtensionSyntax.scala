@@ -38,7 +38,7 @@ object LaikaExtensionSyntax {
   }
 
   def embeddedHocon (start: String, end: String, delimCategory: Set[CodeCategory] = Set()): Parser[Seq[CodeSpan]] = {
-    (literal(start) ~> EmbeddedCodeSpans.parser(delimitedBy(end), HOCON)).map { hocon => // TODO - support nested objects
+    (literal(start) ~> EmbeddedCodeSpans.parser(delimitedBy(end), HOCONSyntax)).map { hocon => // TODO - support nested objects
       CodeSpan(start, delimCategory) +: hocon :+ CodeSpan(end, delimCategory)
     }
   }
@@ -64,21 +64,21 @@ object LaikaExtensionSyntax {
     lazy val spanParsers: Seq[CodeSpanParsers] = allExtensions ++ ReStructuredTextSyntax.spanParsers
   }
 
-  val enhancedStartTag: CodeSpanParsers = HTML.TagParser(CodeCategory.Tag.Name, "<", ">", HTML.nameParser).embed(
-    StringLiteral.singleLine('\'').embed(HTML.ref, substitution),
-    StringLiteral.singleLine('"').embed(HTML.ref, substitution),
-    HTML.name(CodeCategory.AttributeName)
+  val enhancedStartTag: CodeSpanParsers = HTMLSyntax.TagParser(CodeCategory.Tag.Name, "<", ">", HTMLSyntax.nameParser).embed(
+    StringLiteral.singleLine('\'').embed(HTMLSyntax.ref, substitution),
+    StringLiteral.singleLine('"').embed(HTMLSyntax.ref, substitution),
+    HTMLSyntax.name(CodeCategory.AttributeName)
   )
   
   val modifiedHTMLParsers: Seq[CodeSpanParsers] = Seq(
-    HTML.docType,
-    HTML.comment,
-    HTML.ref,
-    HTML.emptyTag,
-    HTML.scriptTag,
-    HTML.styleTag,
+    HTMLSyntax.docType,
+    HTMLSyntax.comment,
+    HTMLSyntax.ref,
+    HTMLSyntax.emptyTag,
+    HTMLSyntax.scriptTag,
+    HTMLSyntax.styleTag,
     enhancedStartTag,
-    HTML.endTag
+    HTMLSyntax.endTag
   )
 
   lazy val forHTML: SyntaxHighlighter = new SyntaxHighlighter {

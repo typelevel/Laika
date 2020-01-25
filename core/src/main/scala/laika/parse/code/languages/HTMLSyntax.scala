@@ -27,7 +27,7 @@ import laika.parse.text.TextParsers._
 /**
   * @author Jens Halm
   */
-object HTML extends TagBasedFormats with SyntaxHighlighter {
+object HTMLSyntax extends TagBasedFormats with SyntaxHighlighter {
   
   import NumberLiteral._
 
@@ -43,7 +43,7 @@ object HTML extends TagBasedFormats with SyntaxHighlighter {
       CodeSpan("</", CodeCategory.Tag.Punctuation),
       CodeSpan("script", CodeCategory.Tag.Name)
     )
-    (EmbeddedCodeSpans.parser(delimitedBy("</script"), JavaScript) ~ (ws ~ ">").concat).map {
+    (EmbeddedCodeSpans.parser(delimitedBy("</script"), JavaScriptSyntax) ~ (ws ~ ">").concat).map {
       case content ~ close => content ++ endTag :+ CodeSpan(close, CodeCategory.Tag.Punctuation)
     }
   }
@@ -53,7 +53,7 @@ object HTML extends TagBasedFormats with SyntaxHighlighter {
       CodeSpan("</", CodeCategory.Tag.Punctuation),
       CodeSpan("style", CodeCategory.Tag.Name)
     )
-    (EmbeddedCodeSpans.parser(delimitedBy("</style"), CSS) ~ (ws ~ ">").concat).map {
+    (EmbeddedCodeSpans.parser(delimitedBy("</style"), CSSSyntax) ~ (ws ~ ">").concat).map {
       case content ~ close => content ++ endTag :+ CodeSpan(close, CodeCategory.Tag.Punctuation)
     }
   }
