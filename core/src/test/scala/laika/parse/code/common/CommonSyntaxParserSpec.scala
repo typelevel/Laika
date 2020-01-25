@@ -16,6 +16,7 @@
 
 package laika.parse.code.common
 
+import cats.data.NonEmptyList
 import laika.ast.CodeSpan
 import laika.bundle.SyntaxHighlighter
 import laika.parse.Parser
@@ -35,36 +36,40 @@ class CommonSyntaxParserSpec extends WordSpec
   
   val rule: CodeSpanParsers = CodeSpanParsers(CodeCategory.Markup.Fence, '\n')(literal("==="))
   
-  private def createParser (allowLetterAfterNumber: Boolean = false): Parser[Seq[CodeSpan]] = SyntaxHighlighter.build("test-lang")(
-    rule,
-    Comment.multiLine("/*", "*/"),
-    Comment.singleLine("//"),
-    Keywords("foo", "bar", "baz"),
-    CharLiteral.standard.embed(
-      StringLiteral.Escape.unicode,
-      StringLiteral.Escape.hex,
-      StringLiteral.Escape.octal,
-      StringLiteral.Escape.char
-    ),
-    RegexLiteral.standard,
-    StringLiteral.multiLine("'''"),
-    StringLiteral.singleLine('\'').embed(
-      StringLiteral.Escape.unicode,
-      StringLiteral.Escape.hex,
-      StringLiteral.Escape.octal,
-      StringLiteral.Escape.char,
-      StringLiteral.Escape.literal("$$"),
-      StringLiteral.Substitution.between("${", "}"),
-      StringLiteral.Substitution('$')(anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '_').min(1))
-    ),
-    Identifier.standard.withIdStartChars('_','$').withCategoryChooser(Identifier.upperCaseTypeName).copy(allowDigitBeforeStart = allowLetterAfterNumber),
-    NumberLiteral.binary.withUnderscores.withSuffix(NumericSuffix.long),
-    NumberLiteral.octal.withUnderscores.withSuffix(NumericSuffix.long),
-    NumberLiteral.hexFloat.withUnderscores.withSuffix(NumericSuffix.float),
-    NumberLiteral.hex.withUnderscores.withSuffix(NumericSuffix.long),
-    NumberLiteral.decimalFloat.withUnderscores.withSuffix(NumericSuffix.float).copy(allowFollowingLetter = allowLetterAfterNumber),
-    NumberLiteral.decimalInt.withUnderscores.withSuffix(NumericSuffix.long).copy(allowFollowingLetter = allowLetterAfterNumber),
-  ).rootParser
+  private def createParser (allowLetterAfterNumber: Boolean = false): Parser[Seq[CodeSpan]] = new SyntaxHighlighter {
+    val language: NonEmptyList[String] = NonEmptyList.of("test-lang")
+    
+    val spanParsers: Seq[CodeSpanParsers] = Seq(
+      rule,
+      Comment.multiLine("/*", "*/"),
+      Comment.singleLine("//"),
+      Keywords("foo", "bar", "baz"),
+      CharLiteral.standard.embed(
+        StringLiteral.Escape.unicode,
+        StringLiteral.Escape.hex,
+        StringLiteral.Escape.octal,
+        StringLiteral.Escape.char
+      ),
+      RegexLiteral.standard,
+      StringLiteral.multiLine("'''"),
+      StringLiteral.singleLine('\'').embed(
+        StringLiteral.Escape.unicode,
+        StringLiteral.Escape.hex,
+        StringLiteral.Escape.octal,
+        StringLiteral.Escape.char,
+        StringLiteral.Escape.literal("$$"),
+        StringLiteral.Substitution.between("${", "}"),
+        StringLiteral.Substitution('$')(anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '_').min(1))
+      ),
+      Identifier.standard.withIdStartChars('_','$').withCategoryChooser(Identifier.upperCaseTypeName).copy(allowDigitBeforeStart = allowLetterAfterNumber),
+      NumberLiteral.binary.withUnderscores.withSuffix(NumericSuffix.long),
+      NumberLiteral.octal.withUnderscores.withSuffix(NumericSuffix.long),
+      NumberLiteral.hexFloat.withUnderscores.withSuffix(NumericSuffix.float),
+      NumberLiteral.hex.withUnderscores.withSuffix(NumericSuffix.long),
+      NumberLiteral.decimalFloat.withUnderscores.withSuffix(NumericSuffix.float).copy(allowFollowingLetter = allowLetterAfterNumber),
+      NumberLiteral.decimalInt.withUnderscores.withSuffix(NumericSuffix.long).copy(allowFollowingLetter = allowLetterAfterNumber)
+    )
+  }.rootParser
   
   val defaultParser: Parser[Seq[CodeSpan]] = createParser()
   

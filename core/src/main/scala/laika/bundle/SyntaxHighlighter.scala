@@ -38,19 +38,3 @@ trait SyntaxHighlighter {
     EmbeddedCodeSpans.parser(DelimitedText.Undelimited, spanParsers).map(CodeSpans.merge)
   
 }
-
-object SyntaxHighlighter {
-
-  /** Creates a syntax highlighter by combining the individual parsers for the various
-    * kinds of recognized code spans. This is the default factory for most languages
-    * where any unrecognized syntax will simply be put into a top-level default category.
-    * 
-    * For formats that have stricter rules and require a dedicated, hand-written root 
-    * parser, you can use the `apply` method.
-    */
-  def build (languageName: String, aliases: String*)(parsers: CodeSpanParsers*): SyntaxHighlighter = new SyntaxHighlighter {
-    val language = NonEmptyList.of(languageName, aliases:_*)
-    val spanParsers = parsers
-  }
-  
-}
