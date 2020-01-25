@@ -126,6 +126,7 @@ class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => Str
         case WithFallback(fallback)         => fmt.child(fallback)
         case c: Customizable                => c match {
           case SpanSequence(content, NoOpt) => fmt.children(content) // this case could be standalone above, but triggers a compiler bug then
+          case CodeSpanSequence(content, NoOpt) => fmt.children(content)
           case _                            => fmt.element("span", c.options, c.content)
         }
         case unknown                        => fmt.element("span", NoOpt, unknown.content)

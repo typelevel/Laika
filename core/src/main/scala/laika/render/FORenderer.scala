@@ -132,6 +132,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
         case WithFallback(fallback)         => fmt.child(fallback)
         case c: Customizable                => c match {
           case SpanSequence(content, NoOpt) => fmt.children(content) // this case could be standalone above, but triggers a compiler bug then
+          case CodeSpanSequence(content, NoOpt) => fmt.children(content)
           case unknown: Block               => fmt.block(unknown, unknown.content)
           case unknown                      => fmt.inline(unknown, unknown.content)
         }
