@@ -414,7 +414,7 @@ class XSLFORendererSpec extends FlatSpec
   }
   
   it should "render a table without header cells" in {
-    val elem = table(row(BodyCell("a"),BodyCell("b")),row(BodyCell("c"),BodyCell("d")))
+    val elem = Table(Row(BodyCell("a"),BodyCell("b")),Row(BodyCell("c"),BodyCell("d")))
     val fo = """<fo:table space-after="6mm">
       |  <fo:table-body>
       |    <fo:table-row>
@@ -439,8 +439,8 @@ class XSLFORendererSpec extends FlatSpec
   }
   
   it should "render a table with header cells" in {
-    val elem = Table(TableHead(List(row(BodyCell("a"), BodyCell("b")))),
-                     TableBody(List(row(BodyCell("c"), BodyCell("d")))))
+    val elem = Table(TableHead(List(Row(BodyCell("a"), BodyCell("b")))),
+                     TableBody(List(Row(BodyCell("c"), BodyCell("d")))))
     val fo = """<fo:table space-after="6mm">
       |  <fo:table-header border-bottom-style="solid" border-bottom-width="1pt">
       |    <fo:table-row>
@@ -468,7 +468,7 @@ class XSLFORendererSpec extends FlatSpec
   
   it should "render a table with a caption" in {
     val caption = Caption(List(Text("caption")))
-    val elem = table(row(BodyCell("a"),BodyCell("b")),row(BodyCell("c"),BodyCell("d"))).copy(caption = caption)
+    val elem = Table(Row(BodyCell("a"),BodyCell("b")),Row(BodyCell("c"),BodyCell("d"))).copy(caption = caption)
     val fo = """<fo:block background-color="#cccccc" padding-left="20mm" padding-right="20mm" space-after="6mm">
       |  <fo:block font-family="sans-serif" font-size="12pt" font-weight="bold" space-after="3mm">caption</fo:block>
       |  <fo:table space-after="6mm">

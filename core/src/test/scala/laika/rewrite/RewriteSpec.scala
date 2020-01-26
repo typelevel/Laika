@@ -97,8 +97,8 @@ class RewriteSpec extends FlatSpec
   }
 
   it should "rewrite text in table cells" in {
-    val before = root(table(row(BodyCell("a"), BodyCell("b")), row(BodyCell("a"), BodyCell("c"))))
-    before.rewriteSpans { case Text("a", _) => Replace(Text("x")) } should be (root(table(row(BodyCell("x"), BodyCell("b")), row(BodyCell("x"), BodyCell("c")))))
+    val before = root(Table(Row(BodyCell("a"), BodyCell("b")), Row(BodyCell("a"), BodyCell("c"))))
+    before.rewriteSpans { case Text("a", _) => Replace(Text("x")) } should be (root(Table(Row(BodyCell("x"), BodyCell("b")), Row(BodyCell("x"), BodyCell("c")))))
   }
    
 }

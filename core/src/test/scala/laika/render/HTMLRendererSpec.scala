@@ -257,7 +257,7 @@ class HTMLRendererSpec extends FlatSpec
   }
   
   it should "render a table without header cells" in {
-    val elem = table(row(BodyCell("a"),BodyCell("b")),row(BodyCell("c"),BodyCell("d")))
+    val elem = Table(Row(BodyCell("a"),BodyCell("b")),Row(BodyCell("c"),BodyCell("d")))
     val html = """<table>
       |  <tbody>
       |    <tr>
@@ -274,8 +274,8 @@ class HTMLRendererSpec extends FlatSpec
   }
   
   it should "render a table with header cells" in {
-    val elem = Table(TableHead(List(row(BodyCell("a"), BodyCell("b")))),
-                     TableBody(List(row(BodyCell("c"), BodyCell("d")))))
+    val elem = Table(TableHead(List(Row(BodyCell("a"), BodyCell("b")))),
+                     TableBody(List(Row(BodyCell("c"), BodyCell("d")))))
     val html = """<table>
       |  <thead>
       |    <tr>
@@ -295,7 +295,7 @@ class HTMLRendererSpec extends FlatSpec
   
   it should "render a table with a caption" in {
     val caption = Caption(List(Text("caption")))
-    val elem = table(row(BodyCell("a"),BodyCell("b")),row(BodyCell("c"),BodyCell("d"))).copy(caption = caption)
+    val elem = Table(Row(BodyCell("a"),BodyCell("b")),Row(BodyCell("c"),BodyCell("d"))).copy(caption = caption)
     val html = """<table>
       |  <caption>caption</caption>
       |  <tbody>

@@ -336,7 +336,7 @@ class ListParsersSpec extends FlatSpec
       | a   b 
       |=== ===""".stripMargin
     Parsing (input) should produce (root( defList + ("term 1", p("aaa")) + ("term 2", p("bbb")),
-        table(strrow("a","b"))))
+      Table(strrow("a","b"))))
   }
   
   it should "ignore subsequent directives" in {

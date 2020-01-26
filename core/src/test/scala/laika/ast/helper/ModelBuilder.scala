@@ -31,10 +31,6 @@ trait ModelBuilder {
 
   def p (text: String) = Paragraph(text)
 
-  def table (rows: Row*) = Table(TableHead(Nil), TableBody(rows.toList))
-
-  def row (cells: Cell*) = Row(cells.toList)
-
   def cell (content: String, colspan: Int, rowspan: Int) = Cell(BodyCell, List(p(Text(content))), colspan, rowspan)
 
   def strrow (cells: String*) = Row(cells.map(BodyCell(_)))

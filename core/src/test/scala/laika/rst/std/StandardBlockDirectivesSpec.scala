@@ -439,7 +439,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       | +---+---+
       | | c | d |
       | +---+---+""".stripMargin
-    val result = root (table(strrow("a","b"), strrow("c","d")).copy(caption = Caption(List(Emphasized("caption")))))
+    val result = root (Table(strrow("a","b"), strrow("c","d")).copy(caption = Caption(List(Emphasized("caption")))))
     parse(input) should be (result)
   }
   
@@ -450,7 +450,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       |  a    b
       |  c    d
       | ===  ===""".stripMargin
-    val result = root (table(strrow("a","b"), strrow("c","d")).copy(caption = Caption(List(Emphasized("caption")))))
+    val result = root (Table(strrow("a","b"), strrow("c","d")).copy(caption = Caption(List(Emphasized("caption")))))
     parse(input) should be (result)
   }
   
@@ -461,7 +461,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       |  a    b
       |  c    d
       | ===  ===""".stripMargin
-    val result = root (table(strrow("a","b"), strrow("c","d")))
+    val result = root (Table(strrow("a","b"), strrow("c","d")))
     parse(input) should be (result)
   }
   

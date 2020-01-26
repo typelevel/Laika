@@ -22,6 +22,7 @@ import laika.api.Renderer
 import laika.config.{ConfigEncoder, ConfigValue}
 import laika.format.AST
 import laika.parse.code.CodeCategory
+import laika.render.ASTRenderer
 
 import scala.math.Ordered
 
@@ -766,6 +767,13 @@ case class Table (head: TableHead, body: TableBody, caption: Caption = Caption()
 
   def withOptions (options: Options): Table = copy(options = options)
 }
+object Table {
+
+  /** Creates a table without header rows, all specified rows will 
+    * be treated as rows of the table body.
+    */
+  def apply(row: Row, rows: Row*): Table = Table(TableHead(Nil), TableBody(row +: rows.toList))
+}
 
 /** A table element, like a row, cell or column.
  */
@@ -832,6 +840,9 @@ case class Row (content: Seq[Cell], options: Options = NoOpt) extends TableEleme
   type Self = Row
   def rewriteChildren (rules: RewriteRules): Row = copy(content = content.map(_.rewriteChildren(rules)))
   def withOptions (options: Options): Row = copy(options = options)
+}
+object Row {
+  def apply(cell: Cell, cells: Cell*): Row = Row(cell +: cells.toList)
 }
 
 /** A single cell, potentially spanning multiple rows or columns, containing
