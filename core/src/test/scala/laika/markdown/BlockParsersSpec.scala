@@ -191,14 +191,14 @@ class BlockParsersSpec extends FlatSpec
     val input = """>aaa
       |>bbb
       |>ccc""".stripMargin
-    Parsing (input) should produce (root( quote("aaa\nbbb\nccc")))
+    Parsing (input) should produce (root( QuotedBlock("aaa\nbbb\nccc")))
   }
   
   it should "parse a paragraph decorated with '>' only at the beginning of the first line" in {
     val input = """>aaa
       |bbb
       |ccc""".stripMargin
-    Parsing (input) should produce (root( quote("aaa\nbbb\nccc")))
+    Parsing (input) should produce (root( QuotedBlock("aaa\nbbb\nccc")))
   }
   
   it should "parse two adjacent paragraphs decorated with '>' as a single blockquote with two paragraphs" in {
@@ -209,7 +209,7 @@ class BlockParsersSpec extends FlatSpec
       |>ddd
       |>eee
       |>fff""".stripMargin
-    Parsing (input) should produce (root( quote(p("aaa\nbbb\nccc"),p("ddd\neee\nfff"))))
+    Parsing (input) should produce (root( QuotedBlock(p("aaa\nbbb\nccc"),p("ddd\neee\nfff"))))
   }
   
   it should "parse a nested blockquote decorated with a second '>'" in {
@@ -218,7 +218,7 @@ class BlockParsersSpec extends FlatSpec
       |>>bbb
       |>
       |>ccc""".stripMargin
-    Parsing (input) should produce (root( quote(p("aaa"), quote("bbb"), p("ccc"))))
+    Parsing (input) should produce (root( QuotedBlock(p("aaa"), QuotedBlock("bbb"), p("ccc"))))
   }
 
   it should "prevent endless recursion and stop after the configured maximum of 12 nest levels" in {
@@ -238,7 +238,7 @@ class BlockParsersSpec extends FlatSpec
       |text
       |
       |    code""".stripMargin
-    Parsing (input) should produce (root( litBlock("code"), p("text"), litBlock("code"), p("text"), litBlock("code")))
+    Parsing (input) should produce (root( LiteralBlock("code"), p("text"), LiteralBlock("code"), p("text"), LiteralBlock("code")))
   }
   
   it should "parse paragraphs indented with 1 or more tabs as a code block" in {
@@ -251,7 +251,7 @@ class BlockParsersSpec extends FlatSpec
       |text
       |
       |	code""".stripMargin
-    Parsing (input) should produce (root( litBlock("code"), p("text"), litBlock("code"), p("text"), litBlock("code")))
+    Parsing (input) should produce (root( LiteralBlock("code"), p("text"), LiteralBlock("code"), p("text"), LiteralBlock("code")))
   }
   
   it should "parse indented lines separated by blank lines into a single code block" in {
@@ -260,7 +260,7 @@ class BlockParsersSpec extends FlatSpec
       |    code 2
       |
       |    code 3""".stripMargin
-    Parsing (input) should produce (root( litBlock("code 1\n\ncode 2\n\ncode 3")))
+    Parsing (input) should produce (root( LiteralBlock("code 1\n\ncode 2\n\ncode 3")))
   }
   
   
@@ -271,7 +271,7 @@ class BlockParsersSpec extends FlatSpec
       |
       |CCC
       |==""".stripMargin
-    Parsing (input) should produce (root( p("aaa\nbbb"), h(1, "CCC")))
+    Parsing (input) should produce (root( p("aaa\nbbb"), Header(1, "CCC")))
   }
   
   it should "parse a title decorated by one or more '-' on the following line as a level 2 header" in {
@@ -280,7 +280,7 @@ class BlockParsersSpec extends FlatSpec
       |
       |CCC
       |---""".stripMargin
-    Parsing (input) should produce (root( p("aaa\nbbb"), h(2, "CCC")))
+    Parsing (input) should produce (root( p("aaa\nbbb"), Header(2, "CCC")))
   }
   
   it should "parse a title that includes markup" in {
@@ -289,7 +289,7 @@ class BlockParsersSpec extends FlatSpec
       |
       |CCC *DDD* EEE
       |---""".stripMargin
-    Parsing (input) should produce (root( p("aaa\nbbb"), h(2, Text("CCC "), Emphasized("DDD"), Text(" EEE"))))
+    Parsing (input) should produce (root( p("aaa\nbbb"), Header(2, Text("CCC "), Emphasized("DDD"), Text(" EEE"))))
   }
   
   
@@ -299,7 +299,7 @@ class BlockParsersSpec extends FlatSpec
       |bbb
       |
       |# CCC""".stripMargin
-    Parsing (input) should produce (root( p("aaa\nbbb"), h(1, "CCC")))
+    Parsing (input) should produce (root( p("aaa\nbbb"), Header(1, "CCC")))
   }
   
   it should "parse a title decorated by three '#' on the beginning of the line as a level 3 header" in {
@@ -307,7 +307,7 @@ class BlockParsersSpec extends FlatSpec
       |bbb
       |
       |### CCC""".stripMargin
-    Parsing (input) should produce (root( p("aaa\nbbb"), h(3, "CCC")))
+    Parsing (input) should produce (root( p("aaa\nbbb"), Header(3, "CCC")))
   }
 
   it should "parse a title decorated by six '#' on the beginning of the line as a level 3 header" in {
@@ -315,7 +315,7 @@ class BlockParsersSpec extends FlatSpec
       |bbb
       |
       |###### CCC""".stripMargin
-    Parsing (input) should produce (root( p("aaa\nbbb"), h(6, "CCC")))
+    Parsing (input) should produce (root( p("aaa\nbbb"), Header(6, "CCC")))
   }
   
   it should "parse a title that includes markup" in {
@@ -323,7 +323,7 @@ class BlockParsersSpec extends FlatSpec
       |bbb
       |
       |##### CCC `DDD` EEE""".stripMargin
-    Parsing (input) should produce (root( p("aaa\nbbb"), h(5, Text("CCC "), lit("DDD"), Text(" EEE"))))
+    Parsing (input) should produce (root( p("aaa\nbbb"), Header(5, Text("CCC "), Literal("DDD"), Text(" EEE"))))
   }
   
   it should "strip all trailing '#' from the header" in {
@@ -331,7 +331,7 @@ class BlockParsersSpec extends FlatSpec
       |bbb
       |
       |#### CCC DDD EEE ###########""".stripMargin
-    Parsing (input) should produce (root( p("aaa\nbbb"), h(4, Text("CCC DDD EEE"))))
+    Parsing (input) should produce (root( p("aaa\nbbb"), Header(4, "CCC DDD EEE")))
   }
   
   it should "ignore title lines without title text" in {
@@ -471,7 +471,7 @@ class BlockParsersSpec extends FlatSpec
     val input = """[def]: <http://foo/> 
                   |
                   |       (Some Title)""".stripMargin
-    Parsing (input) should produce (root( ExternalLinkDefinition("def", "http://foo/", None), litBlock("   (Some Title)")))
+    Parsing (input) should produce (root( ExternalLinkDefinition("def", "http://foo/", None), LiteralBlock("   (Some Title)")))
   }
   
   
@@ -482,7 +482,7 @@ class BlockParsersSpec extends FlatSpec
       |
       |        code
       |* ccc""".stripMargin
-    Parsing (input) should produce (root( bulletList() + "aaa" + (p("bbb"), litBlock("code")) + "ccc"))
+    Parsing (input) should produce (root( bulletList() + "aaa" + (p("bbb"), LiteralBlock("code")) + "ccc"))
   }
   
   it should "parse a blockquote nested inside a list" in {
@@ -491,7 +491,7 @@ class BlockParsersSpec extends FlatSpec
       |
       |  >quote
       |* ccc""".stripMargin
-    Parsing (input) should produce (root( bulletList() + "aaa" + (p("bbb"), quote("quote")) + "ccc"))
+    Parsing (input) should produce (root( bulletList() + "aaa" + (p("bbb"), QuotedBlock("quote")) + "ccc"))
   }
   
   it should "parse a list nested inside a blockquote" in {
@@ -500,7 +500,7 @@ class BlockParsersSpec extends FlatSpec
       |>
       |>* ccc
       |>* ddd""".stripMargin
-    Parsing (input) should produce (root( quote( p("aaa\nbbb"), bulletList() + "ccc" + "ddd")))
+    Parsing (input) should produce (root( QuotedBlock( p("aaa\nbbb"), bulletList() + "ccc" + "ddd")))
   }
   
   it should "parse a code block nested inside a blockquote" in {
@@ -510,7 +510,7 @@ class BlockParsersSpec extends FlatSpec
       |>     code
       |>
       |>ccc""".stripMargin
-    Parsing (input) should produce (root( quote( p("aaa\nbbb"), litBlock("code"), p("ccc"))))
+    Parsing (input) should produce (root( QuotedBlock( p("aaa\nbbb"), LiteralBlock("code"), p("ccc"))))
   }
 
 

@@ -56,12 +56,12 @@ class RewriteSpec extends FlatSpec
   }
   
   it should "replace the content of the header of a section, which is not part of the content list" in {
-    val rootElem = root(Section(h(1, Text("Title")), List(p("Text"))))
-    rootElem rewriteSpans { case Text("Title", _) => Replace(Text("New")) } should be (root(Section(h(1, Text("New")), List(p("Text")))))
+    val rootElem = root(Section(Header(1, Text("Title")), List(p("Text"))))
+    rootElem rewriteSpans { case Text("Title", _) => Replace(Text("New")) } should be (root(Section(Header(1, Text("New")), List(p("Text")))))
   }
   
   it should "return a new instance for a branch in the document tree that contains one or more modified children" in {
-    val before = root(quote(p("a")), quote(p("b")), quote(p("c")))
+    val before = root(QuotedBlock("a"), QuotedBlock("b"), QuotedBlock("c"))
     val after = before rewriteBlocks { case Paragraph(Seq(Text("a",_)),_) => Replace(p("x")) }
     before.content(0) should not be theSameInstanceAs (after.content(0))
   }
@@ -97,8 +97,8 @@ class RewriteSpec extends FlatSpec
   }
 
   it should "rewrite text in table cells" in {
-    val before = root(table(row(cell("a"), cell("b")), row(cell("a"), cell("c"))))
-    before.rewriteSpans { case Text("a", _) => Replace(Text("x")) } should be (root(table(row(cell("x"), cell("b")), row(cell("x"), cell("c")))))
+    val before = root(table(row(BodyCell("a"), BodyCell("b")), row(BodyCell("a"), BodyCell("c"))))
+    before.rewriteSpans { case Text("a", _) => Replace(Text("x")) } should be (root(table(row(BodyCell("x"), BodyCell("b")), row(BodyCell("x"), BodyCell("c")))))
   }
    
 }

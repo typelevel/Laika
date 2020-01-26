@@ -132,7 +132,7 @@ class ParallelParserSpec extends IOSpec
         .build
         .fromInput(build(inputs)).parse.map { parsed =>
           parsed.root.tree.templates.map { tpl =>
-            tpl.content.rewriteChildren(TemplateRewriter.rewriteRules(DocumentCursor(Document(Root, RootElement(Nil)))))
+            tpl.content.rewriteChildren(TemplateRewriter.rewriteRules(DocumentCursor(Document(Root, RootElement.empty))))
           }
         }
     }
@@ -318,7 +318,7 @@ class ParallelParserSpec extends IOSpec
         Root / "main1.template.html" -> Contents.directive,
         Root / "main2.template.html" -> Contents.directive
       )
-      val template = tRoot(tt("aa "), tt("bar"), tt(" bb"))
+      val template = tRoot(t("aa "), t("bar"), t(" bb"))
       val result = Seq(template, template)
       parsedTemplates(BundleProvider.forTemplateDirective(directive)).assertEquals(result)
     }
@@ -332,9 +332,9 @@ class ParallelParserSpec extends IOSpec
         Root / "doc.md" -> Contents.multiline
       )
       val docResult = DocumentView(Root / "doc.md", Content(List(tRoot(
-        tt("<div>\n  "),
+        t("<div>\n  "),
         EmbeddedRoot(List(p("aaa"), p("bbb")), 2),
-        tt("\n</div>")
+        t("\n</div>")
       ))) :: Nil)
       val treeResult = TreeView(Root, List(Documents(Markup, List(docResult)))).asRoot
       parsedTree.assertEquals(treeResult)
@@ -349,9 +349,9 @@ class ParallelParserSpec extends IOSpec
         Root / "doc.md" -> Contents.multiline
       )
       val docResult = DocumentView(Root / "doc.md", Content(List(tRoot(
-        tt("<div>\nxx"),
-        EmbeddedRoot(List(p("aaa"), p("bbb"))),
-        tt("\n</div>")
+        t("<div>\nxx"),
+        EmbeddedRoot(p("aaa"), p("bbb")),
+        t("\n</div>")
       ))) :: Nil)
       val treeResult = TreeView(Root, List(Documents(Markup, List(docResult)))).asRoot
       parsedTree.assertEquals(treeResult)

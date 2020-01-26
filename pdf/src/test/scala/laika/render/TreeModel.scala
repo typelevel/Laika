@@ -34,10 +34,10 @@ trait TreeModel {
   
   def doc (num: Int): Document = {
     val parent = if (num > 4) Root / "tree2" else if (num > 2) Root / "tree1" else Root
-    Document(parent / s"doc$num.md", RootElement(Seq(
+    Document(parent / s"doc$num.md", RootElement(
       Title(Seq(Text(s"Title $num & More")), Id(s"title-$num") + Styles("title")),
       Paragraph(s"Text $num")
-    )))
+    ))
   }
     
   def configWithTreeTitle (num: Int): Config = ConfigBuilder
@@ -51,10 +51,10 @@ trait TreeModel {
   
   def subtreeTitle (subTreeNum: Int): Option[Document] = {
     val parent = Root / s"tree${subTreeNum - 1}"
-    if (useTitleDocuments) Some(Document(parent / "title.md", RootElement(Seq(
+    if (useTitleDocuments) Some(Document(parent / "title.md", RootElement(
       Title(Seq(Text(s"Title Doc $subTreeNum")), Id(s"title-$subTreeNum") + Styles("title")),
       Paragraph(s"Text $subTreeNum")
-    )))) else None
+    ))) else None
   }
   
   lazy val tree = DocumentTree(Root, Seq(

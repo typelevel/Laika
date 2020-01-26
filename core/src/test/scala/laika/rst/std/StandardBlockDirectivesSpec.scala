@@ -159,7 +159,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       | 1st *Para*
       |
       |  2nd Para""".stripMargin
-    val result = root (TitledBlock(List(Text("Attention!")), List(p(Text("1st "),Emphasized("Para")), quote("2nd Para")), Styles("attention")))
+    val result = root (TitledBlock(List(Text("Attention!")), List(p(Text("1st "),Emphasized("Para")), QuotedBlock("2nd Para")), Styles("attention")))
     parse(input) should be (result)
   }
   
@@ -564,7 +564,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       | a header
       |
       |This isn't""".stripMargin
-    val fragments = Map("header" -> BlockSequence(List(p("This is\na header"))))
+    val fragments = Map("header" -> BlockSequence("This is\na header"))
     val rootElem = root (p("This isn't"))
     parseWithFragments(input) should be ((fragments, rootElem))
   }
@@ -575,7 +575,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       | a footer
       |
       |This isn't""".stripMargin
-    val fragments = Map("footer" -> BlockSequence(List(p("This is\na footer"))))
+    val fragments = Map("footer" -> BlockSequence("This is\na footer"))
     val rootElem = root (p("This isn't"))
     parseWithFragments(input) should be ((fragments, rootElem))
   }
@@ -593,7 +593,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
     val tree = DocumentTree(Root, List(doc1, doc2), templates = List(template))
     val rewrittenTree = tree.rewrite(OperationConfig.default.withBundlesFor(ReStructuredText).rewriteRules)
     val templatesApplied = TemplateRewriter.applyTemplates(DocumentTreeRoot(rewrittenTree), "html").toOption.get.tree
-    templatesApplied.content.collect{ case doc: Document => doc }.head.content should be (root(BlockSequence(List(p("text")))))
+    templatesApplied.content.collect{ case doc: Document => doc }.head.content should be (root(BlockSequence("text")))
   }
   
   "The title directive" should "set the title in the document instance" in {

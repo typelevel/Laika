@@ -49,7 +49,7 @@ class HTMLRendererSpec extends FlatSpec
   }
   
   it should "render a blockquote with two paragraphs with plain text" in {
-    val elem = quote( p("aaa"), p("bbb"))
+    val elem = QuotedBlock( p("aaa"), p("bbb"))
     val html = """<blockquote>
       |  <p>aaa</p>
       |  <p>bbb</p>
@@ -67,7 +67,7 @@ class HTMLRendererSpec extends FlatSpec
   }
   
   it should "render a block sequence without a style" in {
-    val elem = root(p("aaa"), BlockSequence(List(p("bbb"), p("ccc"))))
+    val elem = root(p("aaa"), BlockSequence(p("bbb"), p("ccc")))
     val html = """<p>aaa</p>
       |<p>bbb</p>
       |<p>ccc</p>""".stripMargin
@@ -75,7 +75,7 @@ class HTMLRendererSpec extends FlatSpec
   }
   
   it should "render a block sequence with a single element" in {
-    val elem = root(p("aaa"), BlockSequence(List(p("bbb"))), p("ccc"))
+    val elem = root(p("aaa"), BlockSequence("bbb"), p("ccc"))
     val html = """<p>aaa</p>
       |<p>bbb</p>
       |<p>ccc</p>""".stripMargin
@@ -83,7 +83,7 @@ class HTMLRendererSpec extends FlatSpec
   }
   
   it should "render a blockquote with simple flow content" in {
-    val elem = quote(p("aaa"))
+    val elem = QuotedBlock("aaa")
     val html = "<blockquote>aaa</blockquote>"
     render (elem) should be (html) 
   }
@@ -257,7 +257,7 @@ class HTMLRendererSpec extends FlatSpec
   }
   
   it should "render a table without header cells" in {
-    val elem = table(row(cell("a"),cell("b")),row(cell("c"),cell("d")))
+    val elem = table(row(BodyCell("a"),BodyCell("b")),row(BodyCell("c"),BodyCell("d")))
     val html = """<table>
       |  <tbody>
       |    <tr>
@@ -274,8 +274,8 @@ class HTMLRendererSpec extends FlatSpec
   }
   
   it should "render a table with header cells" in {
-    val elem = Table(TableHead(List(row(cell("a"), cell("b")))),
-                     TableBody(List(row(cell("c"), cell("d")))))
+    val elem = Table(TableHead(List(row(BodyCell("a"), BodyCell("b")))),
+                     TableBody(List(row(BodyCell("c"), BodyCell("d")))))
     val html = """<table>
       |  <thead>
       |    <tr>
@@ -295,7 +295,7 @@ class HTMLRendererSpec extends FlatSpec
   
   it should "render a table with a caption" in {
     val caption = Caption(List(Text("caption")))
-    val elem = table(row(cell("a"),cell("b")),row(cell("c"),cell("d"))).copy(caption = caption)
+    val elem = table(row(BodyCell("a"),BodyCell("b")),row(BodyCell("c"),BodyCell("d"))).copy(caption = caption)
     val html = """<table>
       |  <caption>caption</caption>
       |  <tbody>
@@ -319,7 +319,7 @@ class HTMLRendererSpec extends FlatSpec
   } 
   
   it should "render a cell with two paragraphs" in {
-    val elem = cell(p("a"),p("b"))
+    val elem = BodyCell(p("a"),p("b"))
     val html = """<td>
       |  <p>a</p>
       |  <p>b</p>
@@ -373,8 +373,8 @@ class HTMLRendererSpec extends FlatSpec
   } 
   
   it should "render a document with two nested sections" in {
-    val nested = Section(h(2, Text("Title 2")), List(p("Line 1"), p("Line 2")))
-    val rootElem = root(Section(h(1, Text("Title 1")), List(p("Line 1"), p("Line 2"))), nested)
+    val nested = Section(Header(2, Text("Title 2")), List(p("Line 1"), p("Line 2")))
+    val rootElem = root(Section(Header(1, Text("Title 1")), List(p("Line 1"), p("Line 2"))), nested)
     val html = """
       |<h1>Title 1</h1>
       |<p>Line 1</p>
@@ -417,7 +417,7 @@ class HTMLRendererSpec extends FlatSpec
   }
   
   it should "render a paragraph containing a literal span" in {
-    val elem = p(Text("some "), lit("code"), Text(" span"))
+    val elem = p(Text("some "), Literal("code"), Text(" span"))
     render (elem) should be ("<p>some <code>code</code> span</p>") 
   }
   
@@ -515,22 +515,22 @@ class HTMLRendererSpec extends FlatSpec
   }
   
   it should "render a template root containing string elements" in {
-    val elem = tRoot(tt("aa"),tt("bb"),tt("cc"))
+    val elem = tRoot(t("aa"),t("bb"),t("cc"))
     render (elem) should be ("aabbcc")
   }
   
   it should "render a template span sequence containing string elements" in {
-    val elem = TemplateSpanSequence(List(tt("aa"),tt("bb"),tt("cc")))
+    val elem = TemplateSpanSequence(List(t("aa"),t("bb"),t("cc")))
     render (elem) should be ("aabbcc")
   }
   
   it should "render a template string without creating html entities" in {
-    val elem = tRoot(tt("aa & bb"))
+    val elem = tRoot(t("aa & bb"))
     render (elem) should be ("aa & bb")
   }
   
   it should "render a template root containing a TemplateElement" in {
-    val elem = tRoot(tt("aa"),tElem(BlockSequence(List(p("aaa"), p("bbb")),Styles("foo"))),tt("cc"))
+    val elem = tRoot(t("aa"),TemplateElement(BlockSequence(List(p("aaa"), p("bbb")),Styles("foo"))),t("cc"))
     val html = """aa<div class="foo">
       |  <p>aaa</p>
       |  <p>bbb</p>
@@ -589,7 +589,7 @@ class HTMLRendererSpec extends FlatSpec
       |    <line 2
       |
       |line 3""".stripMargin
-    val elem = litBlock(code)
+    val elem = LiteralBlock(code)
     render (elem) should be ("<pre><code>" + code.replaceAllLiterally("<", "&lt;") + "</code></pre>") 
   }
   
@@ -634,7 +634,7 @@ class HTMLRendererSpec extends FlatSpec
     val html = """<blockquote>
       |  <pre><code>%s</code></pre>
       |</blockquote>""".stripMargin.format(code)
-    val elem = quote(litBlock(code))
+    val elem = QuotedBlock(LiteralBlock(code))
     render (elem) should be (html) 
   }
   
@@ -647,7 +647,7 @@ class HTMLRendererSpec extends FlatSpec
     val html = """<blockquote>
       |  <pre><code>:<em>%s</em>:</code></pre>
       |</blockquote>""".stripMargin.format(code)
-    val elem = quote(ParsedLiteralBlock(List(Text(":"),Emphasized(code),Text(":"))))
+    val elem = QuotedBlock(ParsedLiteralBlock(List(Text(":"),Emphasized(code),Text(":"))))
     render (elem) should be (html) 
   }
   
@@ -660,12 +660,12 @@ class HTMLRendererSpec extends FlatSpec
     val html = """<blockquote>
       |  <pre><code class="nohighlight">:<em>%s</em>:</code></pre>
       |</blockquote>""".stripMargin.format(code)
-    val elem = quote(CodeBlock("banana-script", List(Text(":"),Emphasized(code),Text(":"))))
+    val elem = QuotedBlock(CodeBlock("banana-script", List(Text(":"),Emphasized(code),Text(":"))))
     render (elem) should be (html) 
   }
   
   it should "render a table cell unformatted" in {
-    val elem = cell(p("a"),p("b"))
+    val elem = BodyCell(p("a"),p("b"))
     val html = """<td>
       |<p>a</p>
       |<p>b</p>
@@ -687,9 +687,9 @@ class HTMLRendererSpec extends FlatSpec
   
   it should "render an embedded root with correct indentation" in {
     val elem = root(tRoot(
-      tt("<div>\n  "),
+      t("<div>\n  "),
       EmbeddedRoot(List(p("aaa"),p("bbb")), 2),
-      tt("\n</div>")
+      t("\n</div>")
     ))
     val html = """<div>
       |  <p>aaa</p>
@@ -700,9 +700,9 @@ class HTMLRendererSpec extends FlatSpec
   
   it should "render an embedded root without indentation" in {
     val elem = root(tRoot(
-      tt("<div>\n"),
-      EmbeddedRoot(List(p("aaa"),p("bbb"))),
-      tt("\n</div>")
+      t("<div>\n"),
+      EmbeddedRoot(p("aaa"),p("bbb")),
+      t("\n</div>")
     ))
     val html = """<div>
       |<p>aaa</p>

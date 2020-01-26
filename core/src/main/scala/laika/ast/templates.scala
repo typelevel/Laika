@@ -193,3 +193,7 @@ case class EmbeddedRoot (content: Seq[Block], indent: Int = 0, options: Options 
   def withContent (newContent: Seq[Block]): EmbeddedRoot = copy(content = content)
   def withOptions (options: Options): EmbeddedRoot = copy(options = options)
 }
+object EmbeddedRoot extends BlockContainerCompanion {
+  type ContainerType = EmbeddedRoot
+  override protected def createBlockContainer (blocks: Seq[Block]) = EmbeddedRoot(blocks)
+}

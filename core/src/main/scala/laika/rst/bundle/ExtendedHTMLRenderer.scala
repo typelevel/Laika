@@ -48,8 +48,8 @@ class ExtendedHTMLRenderer {
       case one :: two :: rest => one :: sep :: intersperse(two :: rest, sep)    
       case short              => short   
     }
-    def options (value: Seq[ProgramOption]) = Cell(BodyCell, List(ProgramOptions(intersperse(value.toList,Text(", ")))))
-    def body (value: Seq[Block]) = Cell(BodyCell, value)
+    def options (value: Seq[ProgramOption]) = BodyCell(ProgramOptions(intersperse(value.toList,Text(", "))))
+    def body (value: Seq[Block]) = BodyCell(value)
     val rows = ol.content map (o => Row(List(options(o.programOptions),body(o.content))))
     Table(TableHead(Nil), TableBody(rows), Caption(),
         Columns.options(Styles("option"),Styles("description")), Styles("option-list"))
@@ -58,8 +58,8 @@ class ExtendedHTMLRenderer {
   /** Converts a `FieldList` to an interim table model for rendering.
    */
   def toTable (fl: FieldList): Table = {
-    def name (value: Seq[Span]) = Cell(HeadCell, List(SpanSequence(value :+ Text(":"))))
-    def body (value: Seq[Block]) = Cell(BodyCell, value)
+    def name (value: Seq[Span]) = HeadCell(SpanSequence(value :+ Text(":")))
+    def body (value: Seq[Block]) = BodyCell(value)
     val rows = fl.content map (f => Row(List(name(f.name),body(f.content))))
     Table(TableHead(Nil), TableBody(rows), Caption(),
         Columns.options(Styles("field-name"),Styles("field-body")), Styles("field-list"))

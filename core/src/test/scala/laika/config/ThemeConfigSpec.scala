@@ -71,7 +71,7 @@ class ThemeConfigSpec extends WordSpec with Matchers {
     trait RenderSetup extends BundleSetup {
       val sb = new StringBuilder
       lazy val testRenderer = config.themeFor(TestFormat).customRenderer
-      val formatter = TextFormatter((_,_) => "", RootElement(Nil), Nil, Indentation.default)
+      val formatter = TextFormatter((_,_) => "", RootElement.empty, Nil, Indentation.default)
 
       def result: String = sb.toString
     }

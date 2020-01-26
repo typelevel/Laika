@@ -97,7 +97,7 @@ trait TemplateRewriter {
       val newRoot = newContent match {
         case TemplateRoot(List(TemplateElement(root: RootElement, _, _)), _) => root
         case TemplateRoot(List(EmbeddedRoot(content, _, _)), _) => RootElement(content)
-        case other => RootElement(Seq(other))
+        case other => RootElement(other)
       }
       cursorWithMergedConfig.target.copy(content = newRoot)
     }

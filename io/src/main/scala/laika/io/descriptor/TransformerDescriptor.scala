@@ -74,7 +74,7 @@ object TransformerDescriptor {
   
   def create[F[_]: Async: Runtime] (op: text.SequentialTransformer.Op[F]): F[TransformerDescriptor] = for {
     parserDesc <- ParserDescriptor.create(text.SequentialParser.Op(op.transformer.parser, op.input))
-    renderDesc <- RendererDescriptor.create(text.SequentialRenderer.Op(op.transformer.renderer, RootElement(Nil), Root, op.output))
+    renderDesc <- RendererDescriptor.create(text.SequentialRenderer.Op(op.transformer.renderer, RootElement.empty, Root, op.output))
   } yield apply(parserDesc, renderDesc)
 
   def create[F[_]: Async: Runtime] (op: text.ParallelTransformer.Op[F]): F[TransformerDescriptor] = for {
@@ -84,7 +84,7 @@ object TransformerDescriptor {
 
   def create[F[_]: Async: Runtime] (op: binary.SequentialTransformer.Op[F]): F[TransformerDescriptor] = for {
     parserDesc <- ParserDescriptor.create(text.SequentialParser.Op(op.transformer.markupParser, op.input))
-    renderDesc <- RendererDescriptor.create(binary.SequentialRenderer.Op(op.transformer.renderer, RootElement(Nil), Root, op.output))
+    renderDesc <- RendererDescriptor.create(binary.SequentialRenderer.Op(op.transformer.renderer, RootElement.empty, Root, op.output))
   } yield apply(parserDesc, renderDesc)
 
   def create[F[_]: Async: Runtime] (op: binary.ParallelTransformer.Op[F]): F[TransformerDescriptor] = for {

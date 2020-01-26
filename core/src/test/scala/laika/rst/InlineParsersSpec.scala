@@ -133,7 +133,7 @@ class InlineParsersSpec extends FlatSpec
   
   
   "The inline literal parser" should "parse content enclosed in ``" in {
-    Parsing ("some ``text`` here") should produce (spans(Text("some "),lit("text"),Text(" here")))
+    Parsing ("some ``text`` here") should produce (spans(Text("some "),Literal("text"),Text(" here")))
   }
   
   it should "ignore a ` character when it is not matched by a second `" in {
@@ -141,7 +141,7 @@ class InlineParsersSpec extends FlatSpec
   }
   
   it should "not treat a single ` as markup when the code span is enclosed in double ``" in {
-    Parsing ("some ``text`text`` here") should produce (spans(Text("some "),lit("text`text"),Text(" here")))
+    Parsing ("some ``text`text`` here") should produce (spans(Text("some "),Literal("text`text"),Text(" here")))
   }
   
   

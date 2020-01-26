@@ -131,7 +131,7 @@ class ListParsersSpec extends FlatSpec
       |* ccc
       |
       |* ddd""".stripMargin
-    Parsing (input) should produce (root( bulletList() + (p("aaa:"), litBlock("bbb\nbbb")) + fp("ccc") + fp("ddd")))
+    Parsing (input) should produce (root( bulletList() + (p("aaa:"), LiteralBlock("bbb\nbbb")) + fp("ccc") + fp("ddd")))
   }
   
   
@@ -313,7 +313,7 @@ class ListParsersSpec extends FlatSpec
       |
       |term 2
       |  ccc""".stripMargin
-    Parsing (input) should produce (root( defList + ("term 1", quote("aaa\naaa"), p("bbb")) + ("term 2", p("ccc"))))
+    Parsing (input) should produce (root( defList + ("term 1", QuotedBlock("aaa\naaa"), p("bbb")) + ("term 2", p("ccc"))))
   }
   
   it should "support inline markup in the term" in {

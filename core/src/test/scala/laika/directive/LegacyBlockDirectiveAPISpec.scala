@@ -252,7 +252,7 @@ class LegacyBlockDirectiveAPISpec extends FlatSpec
         |@:dir: some {{config.ref}} text
         |
         |bb""".stripMargin
-      val body = BlockSequence(List(p(Text("some value text"))))
+      val body = BlockSequence("some value text")
       Parsing (input) should produce (root(p("aa"), body, p("bb")))
     }
   }
@@ -267,7 +267,7 @@ class LegacyBlockDirectiveAPISpec extends FlatSpec
         |  text
         |
         |bb""".stripMargin
-      val body = BlockSequence(List(p(Text("some\nvalue\ntext"))))
+      val body = BlockSequence("some\nvalue\ntext")
       Parsing (input) should produce (root(p("aa"), body, p("bb")))
     }
   }
@@ -292,10 +292,10 @@ class LegacyBlockDirectiveAPISpec extends FlatSpec
         |  1 {{config.ref}} 2
         |
         |bb""".stripMargin
-      val body = BlockSequence(List(
+      val body = BlockSequence(
         p("foo:str:7"),
         p(Text("1 value 2"))
-      ))
+      )
       Parsing (input) should produce (root(p("aa"), body, p("bb")))
     }
   }
@@ -308,10 +308,10 @@ class LegacyBlockDirectiveAPISpec extends FlatSpec
         |  1 {{config.ref}} 2
         |
         |bb""".stripMargin
-      val body = BlockSequence(List(
+      val body = BlockSequence(
         p("foo:..:0"),
         p(Text("1 value 2"))
-      ))
+      )
       Parsing (input) should produce (root(p("aa"), body, p("bb")))
     }
   }
@@ -335,7 +335,7 @@ class LegacyBlockDirectiveAPISpec extends FlatSpec
         |@:dir: some {{config.ref}} text
         |
         |bb""".stripMargin
-      val body = BlockSequence(List(p(Text("e value text"))))
+      val body = BlockSequence("e value text")
       Parsing (input) should produce (root(p("aa"), body, p("bb")))
     }
   }

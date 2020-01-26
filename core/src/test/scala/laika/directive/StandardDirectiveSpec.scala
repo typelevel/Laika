@@ -159,7 +159,7 @@ class StandardDirectiveSpec extends FlatSpec
       |@:@
       |
       |bb""".stripMargin
-    parse(input).content should be (root(p("aa"), TargetFormat("foo", BlockSequence(List(p("11\n22"),p("33")))), p("bb")))
+    parse(input).content should be (root(p("aa"), TargetFormat("foo", BlockSequence(p("11\n22"),p("33"))), p("bb")))
   }
   
   
@@ -167,11 +167,11 @@ class StandardDirectiveSpec extends FlatSpec
     val input = """aaa @:for { person } ${_.name} ${_.age} @:@ bbb"""
     val config = "person: { name: Mary, age: 35 }" 
     parseTemplateWithConfig(input, config) should be (root(tRoot(
-      tt("aaa "),
+      t("aaa "),
       TemplateSpanSequence(List(
-        tt(" "),tt("Mary"),tt(" "),tt("35"),tt(" ")
+        t(" "),t("Mary"),t(" "),t("35"),t(" ")
       )),
-      tt(" bbb")
+      t(" bbb")
     )))  
   } 
   
@@ -179,19 +179,19 @@ class StandardDirectiveSpec extends FlatSpec
     val input = """aaa @:for { persons } ${_.name} ${_.age} @:@ bbb"""
     val config = "persons: [{ name: Mary, age: 35 },{ name: Lucy, age: 32 },{ name: Anna, age: 42 }]" 
     parseTemplateWithConfig(input, config) should be (root(tRoot(
-      tt("aaa "),
+      t("aaa "),
       TemplateSpanSequence(List(
         TemplateSpanSequence(List(
-          tt(" "),tt("Mary"),tt(" "),tt("35"),tt(" ")
+          t(" "),t("Mary"),t(" "),t("35"),t(" ")
         )),
         TemplateSpanSequence(List(
-          tt(" "),tt("Lucy"),tt(" "),tt("32"),tt(" ")
+          t(" "),t("Lucy"),t(" "),t("32"),t(" ")
         )),
         TemplateSpanSequence(List(
-          tt(" "),tt("Anna"),tt(" "),tt("42"),tt(" ")
+          t(" "),t("Anna"),t(" "),t("42"),t(" ")
         ))
       )),
-      tt(" bbb")
+      t(" bbb")
     )))  
   } 
   
@@ -199,9 +199,9 @@ class StandardDirectiveSpec extends FlatSpec
     val input = """aaa @:for { persons } ${_.name} ${_.age} @:@ bbb"""
     val config = "persons: []" 
     parseTemplateWithConfig(input, config) should be (root(tRoot(
-      tt("aaa "),
+      t("aaa "),
       TemplateSpanSequence(Nil),
-      tt(" bbb")
+      t(" bbb")
     )))  
   }
 
@@ -209,9 +209,9 @@ class StandardDirectiveSpec extends FlatSpec
     val input = """aaa @:for { persons } ${_.name} ${_.age} @:empty none @:@ bbb"""
     val config = "persons: []"
     parseTemplateWithConfig(input, config) should be (root(tRoot(
-      tt("aaa "),
-      TemplateSpanSequence(List(tt(" none "))),
-      tt(" bbb")
+      t("aaa "),
+      TemplateSpanSequence(List(t(" none "))),
+      t(" bbb")
     )))
   }
 
@@ -219,9 +219,9 @@ class StandardDirectiveSpec extends FlatSpec
     val input = """aaa @:for { person } ${_} @:@ bbb"""
     val config = "person: Mary" 
     parseTemplateWithConfig(input, config) should be (root(tRoot(
-      tt("aaa "),
-      TemplateSpanSequence(List(tt(" "),tt("Mary"),tt(" "))),
-      tt(" bbb")
+      t("aaa "),
+      TemplateSpanSequence(List(t(" "),t("Mary"),t(" "))),
+      t(" bbb")
     )))  
   } 
   
@@ -229,9 +229,9 @@ class StandardDirectiveSpec extends FlatSpec
     val input = """aaa @:if { monday } text @:@ bbb"""
     val config = "monday: true" 
     parseTemplateWithConfig(input, config) should be (root(tRoot(
-      tt("aaa "),
-      TemplateSpanSequence(List(tt(" text "))),
-      tt(" bbb")
+      t("aaa "),
+      TemplateSpanSequence(List(t(" text "))),
+      t(" bbb")
     )))  
   } 
   
@@ -239,9 +239,9 @@ class StandardDirectiveSpec extends FlatSpec
     val input = """aaa @:if { monday } text @:@ bbb"""
     val config = "monday: on" 
     parseTemplateWithConfig(input, config) should be (root(tRoot(
-      tt("aaa "),
-      TemplateSpanSequence(List(tt(" text "))),
-      tt(" bbb")
+      t("aaa "),
+      TemplateSpanSequence(List(t(" text "))),
+      t(" bbb")
     )))  
   } 
   
@@ -249,9 +249,9 @@ class StandardDirectiveSpec extends FlatSpec
     val input = """aaa @:if { monday } text @:@ bbb"""
     val config = "tuesday: on" 
     parseTemplateWithConfig(input, config) should be (root(tRoot(
-      tt("aaa "),
+      t("aaa "),
       TemplateSpanSequence(Nil),
-      tt(" bbb")
+      t(" bbb")
     )))  
   }
 
@@ -259,9 +259,9 @@ class StandardDirectiveSpec extends FlatSpec
     val input = """aaa @:if { monday } text @:else none @:@ bbb"""
     val config = "tuesday: on"
     parseTemplateWithConfig(input, config) should be (root(tRoot(
-      tt("aaa "),
-      TemplateSpanSequence(List(tt(" none "))),
-      tt(" bbb")
+      t("aaa "),
+      TemplateSpanSequence(List(t(" none "))),
+      t(" bbb")
     )))
   }
 
@@ -269,9 +269,9 @@ class StandardDirectiveSpec extends FlatSpec
     val input = """111 @:if { aaa } aaa @:elseIf { "bbb" } bbb @:elseIf { "ccc" } ccc @:else none @:@ 222"""
     val config = "bbb: on"
     parseTemplateWithConfig(input, config) should be (root(tRoot(
-      tt("111 "),
-      TemplateSpanSequence(List(tt(" bbb "))),
-      tt(" 222")
+      t("111 "),
+      TemplateSpanSequence(List(t(" bbb "))),
+      t(" 222")
     )))
   }
 
@@ -279,9 +279,9 @@ class StandardDirectiveSpec extends FlatSpec
     val input = """111 @:if { aaa } aaa @:elseIf { "bbb" } bbb @:elseIf { "ccc" } ccc @:else none @:@ 222"""
     val config = "ccc: on"
     parseTemplateWithConfig(input, config) should be (root(tRoot(
-      tt("111 "),
-      TemplateSpanSequence(List(tt(" ccc "))),
-      tt(" 222")
+      t("111 "),
+      TemplateSpanSequence(List(t(" ccc "))),
+      t(" 222")
     )))
   }
 
@@ -289,9 +289,9 @@ class StandardDirectiveSpec extends FlatSpec
     val input = """aaa @:if { monday } text @:@ bbb"""
     val config = "monday: off" 
     parseTemplateWithConfig(input, config) should be (root(tRoot(
-      tt("aaa "),
+      t("aaa "),
       TemplateSpanSequence(Nil),
-      tt(" bbb")
+      t(" bbb")
     )))  
   } 
   
@@ -447,10 +447,10 @@ class StandardDirectiveSpec extends FlatSpec
         case None       => BlockSequence(List(list), Styles("toc"))
       }
       root(tRoot(
-        tt("aaa "),
-        tElem(toc),
-        tt(" bbb "),
-        eRoot(
+        t("aaa "),
+        TemplateElement(toc),
+        t(" bbb "),
+        EmbeddedRoot(
           Section(Header(1, List(Text("Headline 1")), Id("headline-1") + Styles("section")), Nil),
           Section(Header(1, List(Text("Headline 2")), Id("headline-2") + Styles("section")), Nil)
         )

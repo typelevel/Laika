@@ -50,8 +50,8 @@ class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => Str
     def renderBlockContainer (con: BlockContainer): String = {
 
       def toTable (label: String, content: Seq[Block], options: Options): Table = {
-        val left = Cell(BodyCell, List(SpanSequence(s"[$label]")))
-        val right = Cell(BodyCell, content)
+        val left = BodyCell(SpanSequence(s"[$label]"))
+        val right = BodyCell(content)
         val row = Row(List(left,right))
         Table(TableHead(Nil), TableBody(List(row)), Caption(),
           Columns.options(Styles("label"),NoOpt), options)

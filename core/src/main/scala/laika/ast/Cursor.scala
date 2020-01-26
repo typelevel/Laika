@@ -243,7 +243,7 @@ object DocumentCursor {
     * a template that is not associated with any markup document.
     */
   def forEmptyDocument (name: String, parent: TreeCursor): DocumentCursor = {
-    val emptyDoc = Document(parent.target.path / name, RootElement(Nil))
+    val emptyDoc = Document(parent.target.path / name, RootElement.empty)
     apply(emptyDoc, parent, parent.config, TreePosition.root)
   }
 

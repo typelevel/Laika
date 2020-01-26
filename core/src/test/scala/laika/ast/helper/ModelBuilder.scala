@@ -23,8 +23,36 @@ trait ModelBuilder {
   
   def spans (elements: Span*): List[Span] = elements.toList
 
-  def lit (content: String) = Literal(content)
-   
+  def root (blocks: Block*) = RootElement(blocks.toList)
+
+  def tRoot (spans: TemplateSpan*) = TemplateRoot(spans)
+
+  def t (text: String) = TemplateString(text)
+
+  def p (spans: Span*) = Paragraph(spans.toList)
+
+  def p (text: String) = Paragraph(text)
+
+  def table (rows: Row*) = Table(TableHead(Nil), TableBody(rows.toList))
+
+  def row (cells: Cell*) = Row(cells.toList)
+
+  def cell (content: String, colspan: Int, rowspan: Int) = Cell(BodyCell, List(p(Text(content))), colspan, rowspan)
+
+  def strrow (cells: String*) = Row(cells.map(BodyCell(_)))
+
+  def lb (items: LineBlockItem*) = LineBlock(items.toList)
+
+  def quote (text: String, attribution: String) = QuotedBlock(List(p(text)), List(Text(attribution)))
+
+  def h (level: Int, content: String, id: String) = Header(level, List(Text(content)), Id(id))
+
+  def title (text: String) = Title(Seq(Text(text)), Id(text.replaceAll("[^a-zA-Z0-9-]+","-").replaceFirst("^-","").replaceFirst("-$","").toLowerCase) + Styles("title"))
+
+  def dh (deco: HeaderDecoration, content: String, id: String) = DecoratedHeader(deco, List(Text(content)), Id(id))
+
+
+
   def link (content: Span*): LinkBuilder = new LinkBuilder(content.toList)
   
   class LinkBuilder private[ModelBuilder] (content: List[Span], url: String = "", title: Option[String] = None) {
@@ -65,21 +93,6 @@ trait ModelBuilder {
     case AutonumberLabel(label) => s"[#$label]_"
     case NumericLabel(label) => s"[$label]_"
   }
-  
-  def root (blocks: Block*) = RootElement(blocks.toList)
-  
-  def tRoot (spans: TemplateSpan*) = TemplateRoot(spans)
-  
-  def eRoot (blocks: Block*) = EmbeddedRoot(blocks.toList)
-
-  def tt (text: String) = TemplateString(text)
-
-  def tElem (element: Element) = TemplateElement(element)
-  
-  def p (spans: Span*) = Paragraph(spans.toList)
-  
-  def p (text: String) = Paragraph(text)
-  
   
   def bulletList (bullet: String = "*") = new BulletListBuilder(bullet)
   
@@ -122,43 +135,6 @@ trait ModelBuilder {
     def toList = DefinitionList(items.toList)
     
   }
-  
-  
-  def table (rows: Row*) = Table(TableHead(Nil), TableBody(rows.toList))
-  
-  def row (cells: Cell*) = Row(cells.toList)
-  
-  def cell (content: String, colspan: Int, rowspan: Int) = Cell(BodyCell, List(p(Text(content))), colspan, rowspan)
-  
-  def cell (content: String): Cell = cell(p(Text(content)))
-  
-  def cell (content: Block*): Cell = Cell(BodyCell, content.toList)
-  
-  def strrow (cells: String*) = Row(cells map cell)
-  
-  
-  def lb (items: LineBlockItem*) = LineBlock(items.toList)
-  
-  def quote (items: Block*) = QuotedBlock(items.toList, Nil)
-  
-  def quote (text: String) = QuotedBlock(List(p(text)), Nil) 
-
-  def quote (text: String, attribution: String) = QuotedBlock(List(p(text)), List(Text(attribution))) 
-  
-  
-  def litBlock (content: String) = LiteralBlock(content)
-  
-  
-  def h (level: Int, content: Span*) = Header(level, content.toList)
-
-  def h (level: Int, content: String) = Header(level, content)
-
-  def h (level: Int, content: String, id: String) = Header(level, List(Text(content)), Id(id))
-  
-  def title (text: String) = Title(Seq(Text(text)), Id(text.replaceAll("[^a-zA-Z0-9-]+","-").replaceFirst("^-","").replaceFirst("-$","").toLowerCase) + Styles("title"))
-
-  def dh (deco: HeaderDecoration, content: String, id: String) = DecoratedHeader(deco, List(Text(content)), Id(id))
-  
   
   
   implicit def builderToEnumList (builder: EnumListBuilder): EnumList = builder.toList

@@ -329,7 +329,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |@:@
         |
         |bb""".stripMargin
-      val body = BlockSequence(List(p(Text("some\nvalue\ntext"))))
+      val body = BlockSequence(p(Text("some\nvalue\ntext")))
       Parsing (input) should produce (root(p("aa"), body, p("bb")))
     }
   }
@@ -347,7 +347,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |@:@
         |
         |bb""".stripMargin
-      val body = BlockSequence(List(p(Text("some\nvalue\ntext"))))
+      val body = BlockSequence(p(Text("some\nvalue\ntext")))
       Parsing (input) should produce (root(p("aa"), body, p("bb")))
     }
   }
@@ -365,7 +365,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |+++
         |
         |bb""".stripMargin
-      val body = BlockSequence(List(p(Text("some\nvalue\ntext"))))
+      val body = BlockSequence(p(Text("some\nvalue\ntext")))
       Parsing (input) should produce (root(p("aa"), body, p("bb")))
     }
   }
@@ -397,7 +397,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |@:@
         |
         |bb""".stripMargin
-      val body = BlockSequence(List(p("aaa"),p("foo"),p("bbb"),p("baz"),p("ccc")))
+      val body = BlockSequence(p("aaa"),p("foo"),p("bbb"),p("baz"),p("ccc"))
       Parsing (input) should produce (root(p("aa"), body, p("bb")))
     }
   }
@@ -485,10 +485,10 @@ class BlockDirectiveAPISpec extends FlatSpec
         |@:@
         |
         |bb""".stripMargin
-      val body = BlockSequence(List(
+      val body = BlockSequence(
         p("foo:str:7"),
         p(Text("1 value 2"))
-      ))
+      )
       Parsing (input) should produce (root(p("aa"), body, p("bb")))
     }
   }
@@ -507,10 +507,10 @@ class BlockDirectiveAPISpec extends FlatSpec
         |@:@
         |
         |bb""".stripMargin
-      val body = BlockSequence(List(
+      val body = BlockSequence(
         p("foo:str:7"),
         p(Text("1 value 2"))
-      ))
+      )
       Parsing (input) should produce (root(p("aa"), body, p("bb")))
     }
   }
@@ -526,10 +526,10 @@ class BlockDirectiveAPISpec extends FlatSpec
         |@:@
         |
         |bb""".stripMargin
-      val body = BlockSequence(List(
+      val body = BlockSequence(
         p("foo:..:0"),
         p(Text("1 value 2"))
-      ))
+      )
       Parsing (input) should produce (root(p("aa"), body, p("bb")))
     }
   }
@@ -545,10 +545,10 @@ class BlockDirectiveAPISpec extends FlatSpec
         |+++
         |
         |bb""".stripMargin
-      val body = BlockSequence(List(
+      val body = BlockSequence(
         p("foo:..:0"),
         p(Text("1 value 2"))
-      ))
+      )
       Parsing (input) should produce (root(p("aa"), body, p("bb")))
     }
   }
@@ -574,7 +574,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |@:@
         |
         |bb""".stripMargin
-      val body = BlockSequence(List(p(Text("e value text"))))
+      val body = BlockSequence("e value text")
       Parsing (input) should produce (root(p("aa"), body, p("bb")))
     }
   }

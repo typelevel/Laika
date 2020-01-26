@@ -123,7 +123,7 @@ class BlockParsersSpec extends FlatSpec
     val input = """ Paragraph 1
       |
       | Paragraph 2""".stripMargin
-    Parsing (input) should produce (root (quote(p("Paragraph 1"), p("Paragraph 2"))))  
+    Parsing (input) should produce (root (QuotedBlock(p("Paragraph 1"), p("Paragraph 2"))))  
   }
   
   it should "parse block quote with an attribution" in {

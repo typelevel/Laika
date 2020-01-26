@@ -38,18 +38,18 @@ class GitHubFlavorSpec extends WordSpec
   val defaultParser: Parser[RootElement] = rootParser.rootElement
 
   def headerRow(cells: String*): TableHead =
-    TableHead(Seq(Row(cells.map(c => Cell(HeadCell, Seq(Paragraph(c)))))))
+    TableHead(Seq(Row(cells.map(c => HeadCell(c)))))
 
   def bodyRow(cells: String*): Row =
-    Row(cells.map(c => Cell(BodyCell, Seq(Paragraph(c)))))
+    Row(cells.map(c => BodyCell(c)))
 
   def paddedBodyRow(count: Int, cells: String*): Row = {
     val cellsWithText = bodyRow(cells:_*).content
-    Row(cellsWithText.padTo(count, Cell(BodyCell, Nil)))
+    Row(cellsWithText.padTo(count, BodyCell.empty))
   }
 
   def bodyRowSpans(cells: Seq[Span]*): Row =
-    Row(cells.map(c => Cell(BodyCell, Seq(Paragraph(c)))))
+    Row(cells.map(c => BodyCell(Paragraph(c))))
 
   "The Markdown parser with GitHubFlavor extension" should {
 

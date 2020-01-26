@@ -137,7 +137,7 @@ object BlockParsers {
 
       (recParsers.withRecursiveSpanParser(textLine) ~ decorationOrLines) ^^ {
         case (parser, firstLine) ~ Right(restLines ~ None)       => paragraph(parser, firstLine, restLines)
-        case (parser, firstLine) ~ Right(restLines ~ Some(list)) => BlockSequence(Seq(paragraph(parser, firstLine, restLines), list))
+        case (parser, firstLine) ~ Right(restLines ~ Some(list)) => BlockSequence(paragraph(parser, firstLine, restLines), list)
         case (parser, text) ~      Left(decoration)              => Header(decoratedHeaderLevel(decoration), parser(text))
       }
     }

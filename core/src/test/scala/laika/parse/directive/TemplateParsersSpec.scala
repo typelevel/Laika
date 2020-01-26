@@ -39,7 +39,7 @@ class TemplateParsersSpec extends FlatSpec
   
   "The template parser" should "parse content without any markup as plain text" in {
     
-    Parsing ("some text") should produce (spans(tt("some text")))
+    Parsing ("some text") should produce (spans(t("some text")))
     
   }
   
@@ -52,25 +52,25 @@ class TemplateParsersSpec extends FlatSpec
   
   it should "parse a reference at the beginning of a template" in {
     
-    Parsing ("${document.content} some text") should produce (spans(TemplateContextReference(Key("document","content"), required = true), tt(" some text")))
+    Parsing ("${document.content} some text") should produce (spans(TemplateContextReference(Key("document","content"), required = true), t(" some text")))
     
   }
   
   it should "parse a reference at the end of a template" in {
     
-    Parsing ("some text ${document.content}") should produce (spans(tt("some text "), TemplateContextReference(Key("document","content"), required = true)))
+    Parsing ("some text ${document.content}") should produce (spans(t("some text "), TemplateContextReference(Key("document","content"), required = true)))
     
   }
   
   it should "parse a reference in the middle of a template" in {
     
-    Parsing ("some text ${document.content} some more") should produce (spans(tt("some text "), TemplateContextReference(Key("document","content"), required = true), tt(" some more")))
+    Parsing ("some text ${document.content} some more") should produce (spans(t("some text "), TemplateContextReference(Key("document","content"), required = true), t(" some more")))
     
   }
 
   it should "parse an optional reference" in {
 
-    Parsing ("some text ${?document.content} some more") should produce (spans(tt("some text "), TemplateContextReference(Key("document","content"), required = false), tt(" some more")))
+    Parsing ("some text ${?document.content} some more") should produce (spans(t("some text "), TemplateContextReference(Key("document","content"), required = false), t(" some more")))
 
   }
 
@@ -81,9 +81,9 @@ class TemplateParsersSpec extends FlatSpec
                     |some text ${document = content} some more
                     |                     ^""".stripMargin
 
-    Parsing ("some text ${document = content} some more") should produce (spans(tt("some text "), 
+    Parsing ("some text ${document = content} some more") should produce (spans(t("some text "), 
       TemplateElement(InvalidElement(errorMsg, "${document = content}").asSpan), 
-      tt(" some more")
+      t(" some more")
     ))
 
   }
@@ -96,19 +96,19 @@ class TemplateParsersSpec extends FlatSpec
 
   it should "parse a legacy reference at the beginning of a template" in {
 
-    Parsing ("{{document.content}} some text") should produce (spans(TemplateContextReference(Key("document","content"), required = true), tt(" some text")))
+    Parsing ("{{document.content}} some text") should produce (spans(TemplateContextReference(Key("document","content"), required = true), t(" some text")))
 
   }
 
   it should "parse a legacy reference at the end of a template" in {
 
-    Parsing ("some text {{document.content}}") should produce (spans(tt("some text "), TemplateContextReference(Key("document","content"), required = true)))
+    Parsing ("some text {{document.content}}") should produce (spans(t("some text "), TemplateContextReference(Key("document","content"), required = true)))
 
   }
 
   it should "parse a legacy reference in the middle of a template" in {
 
-    Parsing ("some text {{document.content}} some more") should produce (spans(tt("some text "), TemplateContextReference(Key("document","content"), required = true), tt(" some more")))
+    Parsing ("some text {{document.content}} some more") should produce (spans(t("some text "), TemplateContextReference(Key("document","content"), required = true), t(" some more")))
 
   }
   

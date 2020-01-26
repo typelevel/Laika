@@ -17,7 +17,7 @@
 package laika.markdown
 
 import laika.api.builder.OperationConfig
-import laika.ast.{Emphasized, Span, Strong, Text}
+import laika.ast.{Emphasized, Literal, Span, Strong, Text}
 import laika.ast.helper.ModelBuilder
 import laika.format.Markdown
 import laika.parse.Parser
@@ -112,23 +112,23 @@ class InlineParsersSpec extends FlatSpec
   
   
   "The code parser" should "parse content enclosed in ` at the beginning of a phrase" in {
-    Parsing ("`some` text") should produce (spans(lit("some"),Text(" text")))
+    Parsing ("`some` text") should produce (spans(Literal("some"),Text(" text")))
   }
   
   it should "parse content enclosed in ` at the end of a phrase" in {
-    Parsing ("some `text`") should produce (spans(Text("some "),lit("text")))
+    Parsing ("some `text`") should produce (spans(Text("some "),Literal("text")))
   }
   
   it should "parse content enclosed in ` in the middle of a phrase" in {
-    Parsing ("some `text` here") should produce (spans(Text("some "),lit("text"),Text(" here")))
+    Parsing ("some `text` here") should produce (spans(Text("some "),Literal("text"),Text(" here")))
   }
   
   it should "parse content enclosed in ` when it spans the entire phrase" in {
-    Parsing ("`text`") should produce (spans(lit("text")))
+    Parsing ("`text`") should produce (spans(Literal("text")))
   }
   
   it should "treat a ` character as markup even when it is enclosed in spaces" in {
-    Parsing ("some ` text ` here") should produce (spans(Text("some "),lit("text"),Text(" here")))
+    Parsing ("some ` text ` here") should produce (spans(Text("some "),Literal("text"),Text(" here")))
   }
   
   it should "ignore a ` character when it is not matched by a second `" in {
@@ -136,17 +136,17 @@ class InlineParsersSpec extends FlatSpec
   }
   
   it should "not treat a single ` as markup when the code span is enclosed in double ``" in {
-    Parsing ("some ``text`text`` here") should produce (spans(Text("some "),lit("text`text"),Text(" here")))
+    Parsing ("some ``text`text`` here") should produce (spans(Text("some "),Literal("text`text"),Text(" here")))
   }
   
   
   
   "The span parser" should "allow nesting of spans, in this case a code span inside emphasized text" in {
-    Parsing ("some *nested `code` span* here") should produce (spans(Text("some "), Emphasized(Text("nested "),lit("code"),Text(" span")), Text(" here")))
+    Parsing ("some *nested `code` span* here") should produce (spans(Text("some "), Emphasized(Text("nested "),Literal("code"),Text(" span")), Text(" here")))
   }
   
   it should "ignore the attempt to close an outer span inside an inner span" in {
-    Parsing ("some *nested `code* span` here") should produce (spans(Text("some *nested "),lit("code* span"),Text(" here")))
+    Parsing ("some *nested `code* span` here") should produce (spans(Text("some *nested "),Literal("code* span"),Text(" here")))
   }
   
   

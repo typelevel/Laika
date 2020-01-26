@@ -168,9 +168,9 @@ class ParserBundleSpec extends WordSpec with Matchers {
       }
 
     def doc (spans: (Char, String)*): Document =
-      Document(Root, RootElement(Seq(Paragraph(
+      Document(Root, RootElement(Paragraph(
         spans.map { case (deco, text) => DecoratedSpan(deco, text) }
-      ))), config = docConfig)
+      )), config = docConfig)
   }
 
   "The configuration for span parsers" should {
@@ -237,7 +237,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
       }
     }
 
-    def doc (text: String): Document = Document(Root, RootElement(Seq(Paragraph(text))), config = docConfig)
+    def doc (text: String): Document = Document(Root, RootElement(text), config = docConfig)
 
   }
 

@@ -248,7 +248,7 @@ class StandardBlockDirectives {
     (optSpanArgument ~ content(StandardDirectiveParsers.table(p)) ~ stdOpt).map { case caption ~ tableBlock ~ opt =>
       val table = tableBlock match {
         case t: Table => t
-        case block => Table(TableHead(Nil), TableBody(Seq(Row(Seq(Cell(BodyCell, Seq(block)))))))
+        case block => Table(TableHead(Nil), TableBody(Seq(Row(Seq(BodyCell(block))))))
       }
       table.copy(caption = Caption(caption.toList.flatten), options = opt)
     } 

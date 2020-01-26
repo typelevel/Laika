@@ -67,7 +67,7 @@ object PDFNavigation {
     val contentWithTitle =
       if (!hasDocuments(tree) || tree.titleDocument.isDefined) newContent
       else {
-        val root = RootElement(Seq(InternalLinkTarget(Id(""))))
+        val root = RootElement(InternalLinkTarget(Id("")))
         val doc = Document(
           path = tree.path / DocNames.treeTitle,
           content = root,

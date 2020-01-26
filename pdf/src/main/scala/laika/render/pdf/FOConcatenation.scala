@@ -72,7 +72,7 @@ object FOConcatenation {
       val finalConfig = resolveCoverImagePath
       val finalDoc = Document(
         Path.Root / "merged.fo",
-        RootElement(Seq(foElement)),
+        RootElement(foElement),
         fragments = PDFNavigation.generateBookmarks(resultWithoutToc, config.bookmarkDepth),
         config = finalConfig
       )

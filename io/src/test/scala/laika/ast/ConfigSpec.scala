@@ -143,7 +143,7 @@ class ConfigSpec extends IOSpec
           TemplateString("<h1>"),
           TemplateString("bar"),
           TemplateString("</h1>\n<div>"),
-          eRoot(p("aaa\nbbb")),
+          EmbeddedRoot("aaa\nbbb"),
           TemplateString("</div>\nCCC")
         ))
       )
@@ -160,7 +160,7 @@ class ConfigSpec extends IOSpec
           TemplateString("<h1>"),
           TemplateString("bar"),
           TemplateString("</h1>\n<div>"),
-          eRoot(p("aaa\nbbb")),
+          EmbeddedRoot("aaa\nbbb"),
           TemplateString("</div>\nCCC")
         ))
       )
@@ -177,7 +177,7 @@ class ConfigSpec extends IOSpec
           TemplateString("<h1>"),
           InvalidElement(SystemMessage(MessageLevel.Error, "Missing required reference: 'foox'"), "${foox}").asTemplateSpan,
           TemplateString("</h1>\n<div>"),
-          eRoot(p("aaa\nbbb")),
+          EmbeddedRoot("aaa\nbbb"),
           TemplateString("</div>\nCCC")
         ))
       )
@@ -194,7 +194,7 @@ class ConfigSpec extends IOSpec
           TemplateString("<h1>"),
           TemplateString(""),
           TemplateString("</h1>\n<div>"),
-          eRoot(p("aaa\nbbb")),
+          EmbeddedRoot("aaa\nbbb"),
           TemplateString("</div>\nCCC")
         ))
       )
@@ -210,7 +210,7 @@ class ConfigSpec extends IOSpec
       val expected = root(
         TemplateRoot(List(
           TemplateString("<div>"),
-          eRoot(p(Text("aaa\nbar\nbbb"))),
+          EmbeddedRoot("aaa\nbar\nbbb"),
           TemplateString("</div>\nCCC")
         ))
       )
@@ -226,7 +226,7 @@ class ConfigSpec extends IOSpec
       val expected = root(
         TemplateRoot(List(
           TemplateString("<div>"),
-          eRoot(p(Text("aaa\n1\n2\n3\nbbb"))),
+          EmbeddedRoot("aaa\n1\n2\n3\nbbb"),
           TemplateString("</div>\nCCC")
         ))
       )
@@ -242,7 +242,7 @@ class ConfigSpec extends IOSpec
       val expected = root(
         TemplateRoot(List(
           TemplateString("<div>"),
-          eRoot(p(Text("aaa\n1\n2\n3\nbbb"))),
+          EmbeddedRoot("aaa\n1\n2\n3\nbbb"),
           TemplateString("</div>\nCCC")
         ))
       )
@@ -289,7 +289,7 @@ class ConfigSpec extends IOSpec
           TemplateString("<h1>"),
           TemplateString("bar"),
           TemplateString("</h1>\n<div>"),
-          eRoot(p(Text("txt"))),
+          EmbeddedRoot("txt"),
           TemplateString("</div>\nCCC")
         ))
       )

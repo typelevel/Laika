@@ -80,7 +80,7 @@ object Tables {
       rows.map(row => row.copy(content =
         row.content
           .take(count)
-          .padTo(count, Cell(BodyCell, Nil))
+          .padTo(count, BodyCell.empty)
           .zip(columnOptions)
           .map {
             case (cell, opt) => cell.copy(options = opt)

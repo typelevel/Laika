@@ -17,7 +17,7 @@
 package laika.markdown
 
 import laika.api.{MarkupParser, Renderer}
-import laika.ast.{Element, Text}
+import laika.ast.{Element, QuotedBlock, Text}
 import laika.ast.helper.ModelBuilder
 import laika.format.{HTML, Markdown}
 import laika.markdown.ast.{HTMLAttribute, HTMLBlock, HTMLScriptElement, HTMLStartTag}
@@ -109,7 +109,7 @@ class VerbatimHTMLRendererSpec extends FlatSpec
   }
   
   it should "render a <pre> element without indentation" in {
-    val elem = quote(p("1st paragraph"),p(Text("some "), element(startTag("pre"), Text("Line1\nLine2")), Text(" text")), p("3rd paragraph"))
+    val elem = QuotedBlock(p("1st paragraph"),p(Text("some "), element(startTag("pre"), Text("Line1\nLine2")), Text(" text")), p("3rd paragraph"))
     val html = """<blockquote>
       |  <p>1st paragraph</p>
       |  <p>some <pre>Line1

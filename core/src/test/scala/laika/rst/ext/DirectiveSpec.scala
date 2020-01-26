@@ -343,12 +343,12 @@ class DirectiveSpec extends FlatSpec
     val input = """.. stdBody:: Line 1
       | 
       | Line 2""".stripMargin
-    Parsing (input) should produce (root (BlockSequence(List(p("Line 1"),p("Line 2")))))
+    Parsing (input) should produce (root (BlockSequence(p("Line 1"),p("Line 2"))))
   }
   
   it should "parse a directive with empty block content" in {
     val input = """.. stdBody::"""
-    Parsing (input) should produce (root (BlockSequence(Nil)))
+    Parsing (input) should produce (root (BlockSequence.empty))
   }
   
   it should "parse a directive with custom content" in {
@@ -371,12 +371,12 @@ class DirectiveSpec extends FlatSpec
       | Line 1
       | 
       | Line 2""".stripMargin
-    Parsing (input) should produce (root (BlockSequence(List(p("arg!"),p("Line 1"),p("Line 2")))))
+    Parsing (input) should produce (root (BlockSequence(p("arg!"),p("Line 1"),p("Line 2"))))
   }
   
   it should "parse a directive with an argument and empty block content" in {
     val input = """.. argAndBlocks:: arg"""
-    Parsing (input) should produce (root (BlockSequence(List(p("arg!")))))
+    Parsing (input) should produce (root (BlockSequence(p("arg!"))))
   }
   
   it should "parse a directive with an argument and standard span content" in {
@@ -399,13 +399,13 @@ class DirectiveSpec extends FlatSpec
       | Line 1
       | 
       | Line 2""".stripMargin
-    Parsing (input) should produce (root (BlockSequence(List(p("value!"),p("Line 1"),p("Line 2")))))
+    Parsing (input) should produce (root (BlockSequence(p("value!"),p("Line 1"),p("Line 2"))))
   }
   
   it should "parse a directive with a field and empty block content" in {
     val input = """.. fdAndBody::
       | :name: value""".stripMargin
-    Parsing (input) should produce (root (BlockSequence(List(p("value!")))))
+    Parsing (input) should produce (root (BlockSequence(p("value!"))))
   }
   
   it should "detect a directive with standard block content and a missing required field as invalid" in {
@@ -423,7 +423,7 @@ class DirectiveSpec extends FlatSpec
       | Line 1
       | 
       | Line 2""".stripMargin
-    Parsing (input) should produce (root (BlockSequence(List(p("arg:value"),p("Line 1"),p("Line 2")))))
+    Parsing (input) should produce (root (BlockSequence(p("arg:value"),p("Line 1"),p("Line 2"))))
   }
   
   it should "detect a directive with a field and standard block content, but a missing required argument as invalid" in {
@@ -450,7 +450,7 @@ class DirectiveSpec extends FlatSpec
   it should "parse a directive with an argument, a field and empty block content" in {
     val input = """.. all:: arg
       | :name: value""".stripMargin
-    Parsing (input) should produce (root (BlockSequence(List(p("arg:value")))))
+    Parsing (input) should produce (root (BlockSequence(p("arg:value"))))
   }
   
   it should "parse a directive with a converted argument, field and body" in {

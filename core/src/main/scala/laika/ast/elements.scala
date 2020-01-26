@@ -269,18 +269,31 @@ trait ListContainer extends ElementContainer[ListItem]
 /** Common methods for simple span containers (without additional parameters). */
 trait SpanContainerCompanion {
   
-  type SpanType
+  type ContainerType
   
   /** Creates an empty instance */
-  def empty: SpanType = createInstance(Nil)
+  def empty: ContainerType = createSpanContainer(Nil)
   
   /** Create an instance only containing a single Text span */
-  def apply(text: String): SpanType = createInstance(Seq(Text(text)))
+  def apply(text: String): ContainerType = createSpanContainer(Seq(Text(text)))
 
   /** Create an instance containing a one or more spans */
-  def apply(span: Span, spans: Span*): SpanType = createInstance(span +: spans)
+  def apply(span: Span, spans: Span*): ContainerType = createSpanContainer(span +: spans.toList)
 
-  protected def createInstance(spans: Seq[Span]): SpanType
+  protected def createSpanContainer (spans: Seq[Span]): ContainerType
+}
+
+/** Common methods for simple block containers (without additional parameters). */
+trait BlockContainerCompanion extends SpanContainerCompanion {
+
+  override def empty: ContainerType = createBlockContainer(Nil)
+  
+  protected def createSpanContainer (spans: Seq[Span]): ContainerType = createBlockContainer(Seq(Paragraph(spans)))
+
+  /** Create an instance containing a one or more blocks */
+  def apply(block: Block, blocks: Block*): ContainerType = createBlockContainer(block +: blocks.toList)
+
+  protected def createBlockContainer (blocks: Seq[Block]): ContainerType
 }
 
 /** The root element of a document tree.
@@ -289,6 +302,10 @@ case class RootElement (content: Seq[Block], options: Options = NoOpt) extends B
   type Self = RootElement
   def withContent (newContent: Seq[Block]): RootElement = copy(content = newContent)
   def withOptions (options: Options): RootElement = copy(options = options)
+}
+object RootElement extends BlockContainerCompanion {
+  type ContainerType = RootElement
+  override protected def createBlockContainer (blocks: Seq[Block]) = RootElement(blocks)
 }
 
 /** A named document fragment that usually gets rendered separately from the main root element
@@ -358,8 +375,8 @@ case class Title (content: Seq[Span], options: Options = NoOpt) extends Block wi
   def withOptions (options: Options): Title = copy(options = options)
 }
 object Title extends SpanContainerCompanion {
-  type SpanType = Title
-  protected def createInstance(spans: Seq[Span]): Title = Title(spans)
+  type ContainerType = Title
+  protected def createSpanContainer (spans: Seq[Span]): Title = Title(spans)
 }
 
 /** A decorated header where the level gets determined in the rewrite phase based
@@ -416,6 +433,10 @@ case class BlockSequence (content: Seq[Block], options: Options = NoOpt) extends
   def withContent (newContent: Seq[Block]): BlockSequence = copy(content = newContent)
   def withOptions (options: Options): BlockSequence = copy(options = options)
 }
+object BlockSequence extends BlockContainerCompanion {
+  type ContainerType = BlockSequence
+  override protected def createBlockContainer (blocks: Seq[Block]) = BlockSequence(blocks)
+}
 
 /** A generic container element containing a list of spans. Can be used where a sequence
  *  of spans must be inserted in a place where a single element is required by the API.
@@ -429,8 +450,8 @@ case class SpanSequence (content: Seq[Span], options: Options = NoOpt) extends B
   def withOptions (options: Options): SpanSequence = copy(options = options)
 }
 object SpanSequence extends SpanContainerCompanion {
-  type SpanType = SpanSequence
-  protected def createInstance(spans: Seq[Span]): SpanSequence = SpanSequence(spans)
+  type ContainerType = SpanSequence
+  protected def createSpanContainer (spans: Seq[Span]): SpanSequence = SpanSequence(spans)
 }
 
 
@@ -442,8 +463,8 @@ case class Paragraph (content: Seq[Span], options: Options = NoOpt) extends Bloc
   def withOptions (options: Options): Paragraph = copy(options = options)
 }
 object Paragraph extends SpanContainerCompanion {
-  type SpanType = Paragraph
-  protected def createInstance(spans: Seq[Span]): Paragraph = Paragraph(spans)
+  type ContainerType = Paragraph
+  protected def createSpanContainer (spans: Seq[Span]): Paragraph = Paragraph(spans)
 }
 
 /** A literal block with unparsed text content.
@@ -461,8 +482,8 @@ case class ParsedLiteralBlock (content: Seq[Span], options: Options = NoOpt) ext
   def withOptions (options: Options): ParsedLiteralBlock = copy(options = options)
 }
 object ParsedLiteralBlock extends SpanContainerCompanion {
-  type SpanType = ParsedLiteralBlock
-  protected def createInstance(spans: Seq[Span]): ParsedLiteralBlock = ParsedLiteralBlock(spans)
+  type ContainerType = ParsedLiteralBlock
+  protected def createSpanContainer (spans: Seq[Span]): ParsedLiteralBlock = ParsedLiteralBlock(spans)
 }
 
 /** A block of program code. The content is a sequence of spans to support
@@ -541,14 +562,14 @@ case class CodeSpanSequence (content: Seq[Span], options: Options = NoOpt) exten
   def withOptions (options: Options): CodeSpanSequence = copy(options = options)
 }
 object CodeSpanSequence extends SpanContainerCompanion {
-  type SpanType = CodeSpanSequence
-  protected def createInstance(spans: Seq[Span]): CodeSpanSequence = CodeSpanSequence(spans)
+  type ContainerType = CodeSpanSequence
+  protected def createSpanContainer (spans: Seq[Span]): CodeSpanSequence = CodeSpanSequence(spans)
 }
 
 /** A quoted block consisting of a list of blocks that may contain other
  *  nested quoted blocks and an attribution which may be empty.
  */
-case class QuotedBlock (content: Seq[Block], attribution: Seq[Span], options: Options = NoOpt) extends Block
+case class QuotedBlock (content: Seq[Block], attribution: Seq[Span] = Nil, options: Options = NoOpt) extends Block
                                                                                                with BlockContainer {
   type Self = QuotedBlock
   
@@ -557,6 +578,10 @@ case class QuotedBlock (content: Seq[Block], attribution: Seq[Span], options: Op
   
   def withContent (newContent: Seq[Block]): QuotedBlock = copy(content = newContent)
   def withOptions (options: Options): QuotedBlock = copy(options = options)
+}
+object QuotedBlock extends BlockContainerCompanion {
+  type ContainerType = QuotedBlock
+  override protected def createBlockContainer (blocks: Seq[Block]) = QuotedBlock(blocks)
 }
 
 /** Generic block element with a title.
@@ -716,8 +741,8 @@ case class Line (content: Seq[Span], options: Options = NoOpt) extends LineBlock
   def withOptions (options: Options): Line = copy(options = options)
 }
 object Line extends SpanContainerCompanion {
-  type SpanType = Line
-  protected def createInstance(spans: Seq[Span]): Line = Line(spans)
+  type ContainerType = Line
+  protected def createSpanContainer (spans: Seq[Span]): Line = Line(spans)
 }
 
 /** A block containing lines which preserve line breaks and optionally nested line blocks.
@@ -774,8 +799,8 @@ case class Caption (content: Seq[Span] = Nil, options: Options = NoOpt) extends 
   def withOptions (options: Options): Caption = copy(options = options)
 }
 object Caption extends SpanContainerCompanion {
-  type SpanType = Caption
-  protected def createInstance(spans: Seq[Span]): Caption = Caption(spans)
+  type ContainerType = Caption
+  protected def createSpanContainer (spans: Seq[Span]): Caption = Caption(spans)
 }
 
 /** Contains the (optional) column specification of a table.
@@ -825,11 +850,19 @@ sealed abstract class CellType
 
 /** A cell in the head part of the table.
  */
-case object HeadCell extends CellType
+case object HeadCell extends CellType with BlockContainerCompanion {
+  type ContainerType = Cell
+  def apply(blocks: Seq[Block]): Cell = Cell(this, blocks)
+  protected def createBlockContainer (blocks: Seq[Block]) = Cell(this, blocks)
+}
 
 /** A cell in the body part of the table.
  */
-case object BodyCell extends CellType
+case object BodyCell extends CellType with BlockContainerCompanion {
+  type ContainerType = Cell
+  def apply(blocks: Seq[Block]): Cell = Cell(this, blocks)
+  protected def createBlockContainer (blocks: Seq[Block]) = Cell(this, blocks)
+}
 
 
 /** An external link target, usually only part of the raw document tree and then
@@ -941,8 +974,8 @@ case class Emphasized (content: Seq[Span], options: Options = NoOpt) extends Spa
   def withOptions (options: Options): Emphasized = copy(options = options)
 }
 object Emphasized extends SpanContainerCompanion {
-  type SpanType = Emphasized
-  protected def createInstance(spans: Seq[Span]): Emphasized = Emphasized(spans)
+  type ContainerType = Emphasized
+  protected def createSpanContainer (spans: Seq[Span]): Emphasized = Emphasized(spans)
 }
 
 /** A span of strong inline elements that may contain nested spans.
@@ -953,8 +986,8 @@ case class Strong (content: Seq[Span], options: Options = NoOpt) extends Span wi
   def withOptions (options: Options): Strong = copy(options = options)
 }
 object Strong extends SpanContainerCompanion {
-  type SpanType = Strong
-  protected def createInstance(spans: Seq[Span]): Strong = Strong(spans)
+  type ContainerType = Strong
+  protected def createSpanContainer (spans: Seq[Span]): Strong = Strong(spans)
 }
 
 /** A span containing plain, unparsed text.
@@ -982,8 +1015,8 @@ case class Deleted (content: Seq[Span], options: Options = NoOpt) extends Span w
   def withOptions (options: Options): Deleted = copy(options = options)
 }
 object Deleted extends SpanContainerCompanion {
-  type SpanType = Deleted
-  protected def createInstance(spans: Seq[Span]): Deleted = Deleted(spans)
+  type ContainerType = Deleted
+  protected def createSpanContainer (spans: Seq[Span]): Deleted = Deleted(spans)
 }
 
 /** A span representing inserted inline elements that may contain nested spans.
@@ -994,8 +1027,8 @@ case class Inserted (content: Seq[Span], options: Options = NoOpt) extends Span 
   def withOptions (options: Options): Inserted = copy(options = options)
 }
 object Inserted extends SpanContainerCompanion {
-  type SpanType = Inserted
-  protected def createInstance(spans: Seq[Span]): Inserted = Inserted(spans)
+  type ContainerType = Inserted
+  protected def createSpanContainer (spans: Seq[Span]): Inserted = Inserted(spans)
 }
 
 /** Represents a URI which might also optionally be expressed as a local reference within the processed tree.
