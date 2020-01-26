@@ -39,8 +39,6 @@ class BlockParsersSpec extends FlatSpec
   
   def fp (content: String) = ForcedParagraph(List(Text(content)))
   
-  def ss (content: String) = SpanSequence(List(Text(content)))
-  
   
   "The paragraph parser" should "parse blocks without block-level markup as normal paragraphs" in {
     val input = """aaa
@@ -53,7 +51,7 @@ class BlockParsersSpec extends FlatSpec
   }
   
   it should "parse a double space at a line end as a hard line break" in {
-    Parsing ("some text  \nsome more") should produce (root( p(txt("some text"), LineBreak(), txt("\nsome more"))))
+    Parsing ("some text  \nsome more") should produce (root( p(Text("some text"), LineBreak(), Text("\nsome more"))))
   }
   
   
@@ -129,8 +127,8 @@ class BlockParsersSpec extends FlatSpec
                   |        * ccc""".stripMargin
 
     val list3 = bulletList() + "ccc"
-    val list2 = bulletList() + (ss("bbb"), list3)
-    val list1 = bulletList() + (ss("aaa"), list2)
+    val list2 = bulletList() + (SpanSequence("bbb"), list3)
+    val list1 = bulletList() + (SpanSequence("aaa"), list2)
 
     Parsing (input) should produce (root(list1))
   }
@@ -141,8 +139,8 @@ class BlockParsersSpec extends FlatSpec
       |		* ccc""".stripMargin
 
     val list3 = bulletList() + "ccc"
-    val list2 = bulletList() + (ss("bbb"), list3)
-    val list1 = bulletList() + (ss("aaa"), list2)
+    val list2 = bulletList() + (SpanSequence("bbb"), list3)
+    val list1 = bulletList() + (SpanSequence("aaa"), list2)
     
     Parsing (input) should produce (root(list1))
   }
@@ -157,7 +155,7 @@ class BlockParsersSpec extends FlatSpec
       
     val nestedList = bulletList() + "aaa" + "bbb" + "ccc"
     
-    Parsing (input) should produce (root(enumList() + "111" + (ss("222"), nestedList) + "333"))
+    Parsing (input) should produce (root(enumList() + "111" + (SpanSequence("222"), nestedList) + "333"))
   }
   
   it should "parse a bullet list nested inside an enumerated list with blank lines between the items" in {
@@ -291,7 +289,7 @@ class BlockParsersSpec extends FlatSpec
       |
       |CCC *DDD* EEE
       |---""".stripMargin
-    Parsing (input) should produce (root( p("aaa\nbbb"), h(2, txt("CCC "), em("DDD"), txt(" EEE"))))
+    Parsing (input) should produce (root( p("aaa\nbbb"), h(2, Text("CCC "), Emphasized("DDD"), Text(" EEE"))))
   }
   
   
@@ -325,7 +323,7 @@ class BlockParsersSpec extends FlatSpec
       |bbb
       |
       |##### CCC `DDD` EEE""".stripMargin
-    Parsing (input) should produce (root( p("aaa\nbbb"), h(5, txt("CCC "), lit("DDD"), txt(" EEE"))))
+    Parsing (input) should produce (root( p("aaa\nbbb"), h(5, Text("CCC "), lit("DDD"), Text(" EEE"))))
   }
   
   it should "strip all trailing '#' from the header" in {
@@ -333,7 +331,7 @@ class BlockParsersSpec extends FlatSpec
       |bbb
       |
       |#### CCC DDD EEE ###########""".stripMargin
-    Parsing (input) should produce (root( p("aaa\nbbb"), h(4, txt("CCC DDD EEE"))))
+    Parsing (input) should produce (root( p("aaa\nbbb"), h(4, Text("CCC DDD EEE"))))
   }
   
   it should "ignore title lines without title text" in {

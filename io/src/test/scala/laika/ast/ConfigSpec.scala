@@ -210,7 +210,7 @@ class ConfigSpec extends IOSpec
       val expected = root(
         TemplateRoot(List(
           TemplateString("<div>"),
-          eRoot(p(txt("aaa\nbar\nbbb"))),
+          eRoot(p(Text("aaa\nbar\nbbb"))),
           TemplateString("</div>\nCCC")
         ))
       )
@@ -226,7 +226,7 @@ class ConfigSpec extends IOSpec
       val expected = root(
         TemplateRoot(List(
           TemplateString("<div>"),
-          eRoot(p(txt("aaa\n1\n2\n3\nbbb"))),
+          eRoot(p(Text("aaa\n1\n2\n3\nbbb"))),
           TemplateString("</div>\nCCC")
         ))
       )
@@ -242,7 +242,7 @@ class ConfigSpec extends IOSpec
       val expected = root(
         TemplateRoot(List(
           TemplateString("<div>"),
-          eRoot(p(txt("aaa\n1\n2\n3\nbbb"))),
+          eRoot(p(Text("aaa\n1\n2\n3\nbbb"))),
           TemplateString("</div>\nCCC")
         ))
       )
@@ -289,7 +289,7 @@ class ConfigSpec extends IOSpec
           TemplateString("<h1>"),
           TemplateString("bar"),
           TemplateString("</h1>\n<div>"),
-          eRoot(p(txt("txt"))),
+          eRoot(p(Text("txt"))),
           TemplateString("</div>\nCCC")
         ))
       )

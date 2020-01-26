@@ -162,7 +162,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
         Root / "title.md" -> Contents.name,
         Root / "cover.md" -> Contents.name
       )
-      transformWithDocumentMapper(doc => doc.copy(content = doc.content.copy(content = Seq(Paragraph(Seq(Text("foo-bar")))))))
+      transformWithDocumentMapper(doc => doc.copy(content = doc.content.copy(content = Seq(Paragraph("foo-bar")))))
         .assertEquals(RenderedTreeViewRoot(
           root(List(
             TitleDocument(RenderedDocumentView(Root / "title.txt", mappedResult)),

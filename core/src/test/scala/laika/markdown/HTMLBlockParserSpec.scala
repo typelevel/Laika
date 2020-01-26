@@ -47,8 +47,8 @@ class HTMLBlockParserSpec extends FlatSpec
       |</div>
       |
       |bbb""".stripMargin
-    val inner = element("span", txt("foo"))
-    val outer = element("div", txt("\n  "), inner, txt("\n"))
+    val inner = element("span", Text("foo"))
+    val outer = element("div", Text("\n  "), inner, Text("\n"))
     Parsing (input) should produce (root(p("aaa"), HTMLBlock(outer), p("bbb")))
   }
   
@@ -60,8 +60,8 @@ class HTMLBlockParserSpec extends FlatSpec
       |</div>
       |
       |bbb""".stripMargin
-    val inner = element("span", txt("*foo*"))
-    val outer = element("div", txt("\n  "), inner, txt("\n"))
+    val inner = element("span", Text("*foo*"))
+    val outer = element("div", Text("\n  "), inner, Text("\n"))
     Parsing (input) should produce (root(p("aaa"), HTMLBlock(outer), p("bbb")))
   }
 
@@ -77,7 +77,7 @@ class HTMLBlockParserSpec extends FlatSpec
                   |
                   |bbb""".stripMargin
     val inner = HTMLScriptElement(Nil, "\n    var x = [1, 2, 3];\n    var y = 'foo';\n  ")
-    val outer = element("div", txt("\n  "), inner, txt("\n"))
+    val outer = element("div", Text("\n  "), inner, Text("\n"))
     Parsing (input) should produce (root(p("aaa"), HTMLBlock(outer), p("bbb")))
   }
 
@@ -96,7 +96,7 @@ class HTMLBlockParserSpec extends FlatSpec
       HTMLAttribute("type", List(Text("text/javascript")),Some('"')),
       HTMLAttribute("defer", List(),None)
     ), "\n    var x = [1, 2, 3];\n    var y = 'foo';\n  ")
-    val outer = element("div", txt("\n  "), inner, txt("\n"))
+    val outer = element("div", Text("\n  "), inner, Text("\n"))
     Parsing (input) should produce (root(p("aaa"), HTMLBlock(outer), p("bbb")))
   }
   
@@ -108,8 +108,8 @@ class HTMLBlockParserSpec extends FlatSpec
       |</span>
       |
       |bbb""".stripMargin
-    val inner = element("span", txt("foo"))
-    val outer = element("span", txt("\n  "), inner, txt("\n"))
+    val inner = element("span", Text("foo"))
+    val outer = element("span", Text("\n  "), inner, Text("\n"))
     Parsing (input) should produce (root(p("aaa"), p(outer), p("bbb")))
   }
   
@@ -121,9 +121,9 @@ class HTMLBlockParserSpec extends FlatSpec
       |</div>
       |
       |bbb""".stripMargin
-    val inner = element("span", txt("foo"))
-    val outer = element("div", txt("\n  "), inner, txt("\n"))
-    Parsing (input) should produce (root(p("aaa"), p(txt("xx"), outer), p("bbb")))
+    val inner = element("span", Text("foo"))
+    val outer = element("div", Text("\n  "), inner, Text("\n"))
+    Parsing (input) should produce (root(p("aaa"), p(Text("xx"), outer), p("bbb")))
   }
   
   

@@ -57,18 +57,18 @@ class APISpec extends FlatSpec
       |.. |two| twoArgs:: arg arg""".stripMargin
     MarkupParser.of(ReStructuredText).using(ExtensionProvider.forExtensions(spans = directives)).build.parse(input)
       .toOption.get.content should be (root
-        (p(txt("foo arg foo argarg"))))
+        (p(Text("foo arg foo argarg"))))
   }
   
   it should "support registration of text roles" in {
     import laika.rst.ext.TextRoles.{Parts => P}
     val roles = List(
       TextRole("oneArg", "foo1")(P.field("name")) { (res,text) =>
-       txt(res+text)
+       Text(res+text)
       },
       TextRole("twoArgs", "foo2")
         ((P.field("name1") ~ P.field("name2")).map { case arg1 ~ arg2 => arg1+arg2 }) 
-        { (res,text) => txt(res+text) }
+        { (res,text) => Text(res+text) }
     )
     val input = """foo `one`:one: foo :two:`two`
       |
@@ -79,7 +79,7 @@ class APISpec extends FlatSpec
       | :name1: val1
       | :name2: val2""".stripMargin
     MarkupParser.of(ReStructuredText).using(ExtensionProvider.forExtensions(roles = roles)).build.parse(input)
-      .toOption.get.content should be (root (p(txt("foo valone foo val1val2two"))))
+      .toOption.get.content should be (root (p(Text("foo valone foo val1val2two"))))
   }
   
   trait BlockDirectives {
@@ -105,10 +105,10 @@ class APISpec extends FlatSpec
     object TestDirectives extends DirectiveRegistry {
 
       val spanDirectives: List[Spans.Directive] = List(
-        Spans.create("oneArg")(defaultAttribute.as[String] map txt),
+        Spans.create("oneArg")(defaultAttribute.as[String].map(Text(_))),
         Spans.create("twoArgs") {
           (defaultAttribute.as[String], attribute("name").as[String].widen).mapN { 
-            (arg1, arg2) => txt(arg1+arg2) 
+            (arg1, arg2) => Text(arg1+arg2) 
           }
         }
       )

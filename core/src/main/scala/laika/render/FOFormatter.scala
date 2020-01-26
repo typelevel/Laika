@@ -179,7 +179,7 @@ case class FOFormatter (renderChild: (FOFormatter, Element) => String,
     val labelElement = Text(s"[$label]", Styles("footnote-label"))
     val bodyElements = body match {
       case Paragraph(spans, opts) +: rest => Paragraph(labelElement +: Text(" ") +: spans, opts) +: rest
-      case _ => Paragraph(List(labelElement)) +: body
+      case _ => Paragraph(labelElement) +: body
     }
     val content = List(labelElement, FootnoteBody(bodyElements, options))
     indentedElement("fo:footnote", styleHint, content)

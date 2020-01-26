@@ -123,7 +123,7 @@ case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor
       treeConfig.coverImage.fold(tree) { image =>
         treeWithStyles.copy(tree = treeWithStyles.tree.copy(
           content = Document(Root / "cover", 
-            RootElement(Seq(SpanSequence(Seq(Image("cover", URI(image)))))), 
+            RootElement(Seq(SpanSequence(Image("cover", URI(image))))), 
           config = ConfigBuilder.empty.withValue("title", "Cover").build) +: tree.tree.content
         ))
       }

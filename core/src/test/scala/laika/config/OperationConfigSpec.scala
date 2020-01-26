@@ -145,15 +145,15 @@ class OperationConfigSpec extends WordSpec with Matchers {
       val parserBundles = Seq(BundleProvider.forSpanRewriteRule { case s: Strong => Replace(Literal(s.extractText)) })
       val appBundles =    Seq(BundleProvider.forSpanRewriteRule { case s: Emphasized => Replace(Literal(s.extractText)) })
 
-      val doc = Document(Root, RootElement(Seq(Paragraph(Seq(
-        Strong(Seq(Text("foo"))),
-        Emphasized(Seq(Text("bar")))
-      )))))
+      val doc = Document(Root, RootElement(Seq(Paragraph(
+        Strong("foo"),
+        Emphasized("bar")
+      ))))
 
-      val expected = Document(Root, RootElement(Seq(Paragraph(Seq(
+      val expected = Document(Root, RootElement(Seq(Paragraph(
         Literal("foo"),
         Literal("bar")
-      )))))
+      ))))
 
       val rewriteRule = config.rewriteRulesFor(doc)
       doc.rewrite(rewriteRule) shouldBe expected
@@ -163,8 +163,8 @@ class OperationConfigSpec extends WordSpec with Matchers {
       val parserBundles = Seq(BundleProvider.forSpanRewriteRule { case Literal(text, _) => Replace(Literal(text+"!")) })
       val appBundles =    Seq(BundleProvider.forSpanRewriteRule { case Literal(text, _) => Replace(Literal(text+"?")) })
 
-      val doc =      Document(Root, RootElement(Seq(Paragraph(Seq(Literal("foo"))))))
-      val expected = Document(Root, RootElement(Seq(Paragraph(Seq(Literal("foo!?"))))))
+      val doc =      Document(Root, RootElement(Seq(Paragraph(Literal("foo")))))
+      val expected = Document(Root, RootElement(Seq(Paragraph(Literal("foo!?")))))
 
       val rewriteRule = config.rewriteRulesFor(doc)
       doc.rewrite(rewriteRule) shouldBe expected
@@ -177,8 +177,8 @@ class OperationConfigSpec extends WordSpec with Matchers {
         BundleProvider.forSpanRewriteRule { case Literal(text, _) => Replace(Literal(text+"?")) }
       )
 
-      val doc =      Document(Root, RootElement(Seq(Paragraph(Seq(Literal("foo"))))))
-      val expected = Document(Root, RootElement(Seq(Paragraph(Seq(Literal("foo!?"))))))
+      val doc =      Document(Root, RootElement(Seq(Paragraph(Literal("foo")))))
+      val expected = Document(Root, RootElement(Seq(Paragraph(Literal("foo!?")))))
 
       val rewriteRule = config.rewriteRulesFor(doc)
       doc.rewrite(rewriteRule) shouldBe expected

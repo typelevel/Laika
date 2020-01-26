@@ -204,7 +204,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
       override def spanParsers: Seq[SpanParserBuilder] = Seq(spanFor('>'), spanFor('+'))
 
       val bundle = BundleProvider.forMarkupParser(spanParsers = Seq(
-        SpanParser.forStartChar('+').standalone(Parsers.success(SpanSequence(Nil))).withLowPrecedence
+        SpanParser.forStartChar('+').standalone(Parsers.success(SpanSequence.empty)).withLowPrecedence
       ))
 
       MarkupParser.of(Parser).using(bundle).build.parse(input).toOption.get shouldBe doc('>' -> "aaa", '+' -> "bbb")
@@ -216,7 +216,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
   trait ParserHookSetup extends SetupBase {
 
     override def blockParsers: Seq[BlockParserBuilder] = Seq(BlockParser.withoutStartChar.standalone {
-      TextParsers.textLine ^^ { text => Paragraph(Seq(Text(text))) }
+      TextParsers.textLine ^^ { Paragraph(_) }
     })
 
     def preProcess (append: String): ParserInput => ParserInput = { input =>
@@ -227,17 +227,17 @@ class ParserBundleSpec extends WordSpec with Matchers {
     def processDoc (append: String): UnresolvedDocument => UnresolvedDocument = { unresolved => unresolved.copy(
        document =
          unresolved.document.copy(content = unresolved.document.content.copy(content = unresolved.document.content.content map {
-          case Paragraph(Seq(Text(text, _)), _) => Paragraph(Seq(Text(text + append)))
+          case Paragraph(Seq(Text(text, _)), _) => Paragraph(text + append)
         })))
       }
 
     def processBlocks (append: String): Seq[Block] => Seq[Block] = { blocks =>
       blocks map {
-        case Paragraph(Seq(Text(text, _)), _) => Paragraph(Seq(Text(text + append)))
+        case Paragraph(Seq(Text(text, _)), _) => Paragraph(text + append)
       }
     }
 
-    def doc (text: String): Document = Document(Root, RootElement(Seq(Paragraph(Seq(Text(text))))), config = docConfig)
+    def doc (text: String): Document = Document(Root, RootElement(Seq(Paragraph(text))), config = docConfig)
 
   }
 

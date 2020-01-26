@@ -38,17 +38,17 @@ class VerbatimHTMLRendererSpec extends FlatSpec
    
   
   "The Verbatim HTML renderer" should "render an HTML character reference unescaped" in {
-    val elem = p(txt("some "), charRef("&amp;"), txt(" & text"))
+    val elem = p(Text("some "), charRef("&amp;"), Text(" & text"))
     render (elem) should be ("<p>some &amp; &amp; text</p>") 
   }
   
   it should "render an HTML comment with content unescaped" in {
-    val elem = p(txt("some "), comment(" yes < no "), txt(" & text"))
+    val elem = p(Text("some "), comment(" yes < no "), Text(" & text"))
     render (elem) should be ("<p>some <!-- yes < no --> &amp; text</p>") 
   }
 
   it should "render a script element with content unescaped" in {
-    val elem = p(txt("some "), HTMLScriptElement(Nil, " var x = 'foo'; "), txt(" & text"))
+    val elem = p(Text("some "), HTMLScriptElement(Nil, " var x = 'foo'; "), Text(" & text"))
     render (elem) should be ("<p>some <script> var x = 'foo'; </script> &amp; text</p>")
   }
 
@@ -57,59 +57,59 @@ class VerbatimHTMLRendererSpec extends FlatSpec
       HTMLAttribute("type", List(Text("text/javascript")),Some('"')),
       HTMLAttribute("defer", List(),None)
     ), " var x = 'foo'; ")
-    val elem = p(txt("some "), script, txt(" & text"))
+    val elem = p(Text("some "), script, Text(" & text"))
     render (elem) should be ("<p>some <script type=\"text/javascript\" defer> var x = 'foo'; </script> &amp; text</p>")
   }
   
   it should "render an HTML end tag unescaped" in {
-    val elem = p(txt("some "), endTag("orphan"), txt(" & text"))
+    val elem = p(Text("some "), endTag("orphan"), Text(" & text"))
     render (elem) should be ("<p>some </orphan> &amp; text</p>") 
   }
   
   it should "render an HTML start tag without attributes unescaped" in {
-    val elem = p(txt("some "), startTag("hr"), txt(" & text"))
+    val elem = p(Text("some "), startTag("hr"), Text(" & text"))
     render (elem) should be ("<p>some <hr> &amp; text</p>") 
   }
   
   it should "render an HTML start tag with one attribute unescaped" in {
-    val elem = p(txt("some "), startTag("hr", ("foo",txt("bar"))), txt(" & text"))
+    val elem = p(Text("some "), startTag("hr", ("foo",Text("bar"))), Text(" & text"))
     render (elem) should be ("""<p>some <hr foo="bar"> &amp; text</p>""") 
   }
   
   it should "render an HTML start tag with two attributes unescaped" in {
-    val elem = p(txt("some "), startTag("hr", ("foo",txt("bar")), ("bar",txt("foo"))), txt(" & text"))
+    val elem = p(Text("some "), startTag("hr", ("foo",Text("bar")), ("bar",Text("foo"))), Text(" & text"))
     render (elem) should be ("""<p>some <hr foo="bar" bar="foo"> &amp; text</p>""") 
   }
   
   it should "render an empty HTML tag without attributes unescaped" in {
-    val elem = p(txt("some "), emptyTag("br"), txt(" & text"))
+    val elem = p(Text("some "), emptyTag("br"), Text(" & text"))
     render (elem) should be ("<p>some <br/> &amp; text</p>") 
   }
   
   it should "render an empty HTML tag with one attribute unescaped" in {
-    val elem = p(txt("some "), emptyTag("br", ("foo",txt("bar"))), txt(" & text"))
+    val elem = p(Text("some "), emptyTag("br", ("foo",Text("bar"))), Text(" & text"))
     render (elem) should be ("""<p>some <br foo="bar"/> &amp; text</p>""") 
   }
   
   it should "render an HTML element without attributes unescaped" in {
-    val elem = p(txt("some "), element(startTag("span"), txt("inner")), txt(" & text"))
+    val elem = p(Text("some "), element(startTag("span"), Text("inner")), Text(" & text"))
     render (elem) should be ("<p>some <span>inner</span> &amp; text</p>") 
   }
   
   it should "render an HTML element with one attribute unescaped" in {
-    val elem = p(txt("some "), element(startTag("span", ("foo",txt("bar"))), txt("inner")), txt(" & text"))
+    val elem = p(Text("some "), element(startTag("span", ("foo",Text("bar"))), Text("inner")), Text(" & text"))
     render (elem) should be ("""<p>some <span foo="bar">inner</span> &amp; text</p>""") 
   }
   
   it should "render two nested HTML elements unescaped" in {
-    val inner = element(startTag("span"), txt("inner"))
-    val outer = element(startTag("span"), txt("aaa "), inner, txt(" bbb"))
-    val elem = p(txt("some "), outer, txt(" & text"))
+    val inner = element(startTag("span"), Text("inner"))
+    val outer = element(startTag("span"), Text("aaa "), inner, Text(" bbb"))
+    val elem = p(Text("some "), outer, Text(" & text"))
     render (elem) should be ("<p>some <span>aaa <span>inner</span> bbb</span> &amp; text</p>") 
   }
   
   it should "render a <pre> element without indentation" in {
-    val elem = quote(p("1st paragraph"),p(txt("some "), element(startTag("pre"), txt("Line1\nLine2")), txt(" text")), p("3rd paragraph"))
+    val elem = quote(p("1st paragraph"),p(Text("some "), element(startTag("pre"), Text("Line1\nLine2")), Text(" text")), p("3rd paragraph"))
     val html = """<blockquote>
       |  <p>1st paragraph</p>
       |  <p>some <pre>Line1
@@ -120,13 +120,13 @@ class VerbatimHTMLRendererSpec extends FlatSpec
   }
   
   it should "render an HTML attribute with the value in single quotes" in {
-    val attr = HTMLAttribute("foo", List(txt("bar")), Some('\''))
+    val attr = HTMLAttribute("foo", List(Text("bar")), Some('\''))
     val tag = HTMLStartTag("x", List(attr))
     render (tag) should be ("<x foo='bar'>") 
   } 
   
   it should "render an HTML attribute with an unquoted value" in {
-    val attr = HTMLAttribute("foo", List(txt("bar")), None)
+    val attr = HTMLAttribute("foo", List(Text("bar")), None)
     val tag = HTMLStartTag("x", List(attr))
     render (tag) should be ("<x foo=bar>") 
   } 
@@ -138,8 +138,8 @@ class VerbatimHTMLRendererSpec extends FlatSpec
   } 
   
   it should "render an HTML block unescaped" in {
-    val inner = element(startTag("span"), txt("inner"))
-    val outer = element(startTag("span"), txt("aaa "), inner, txt(" bbb"))
+    val inner = element(startTag("span"), Text("inner"))
+    val outer = element(startTag("span"), Text("aaa "), inner, Text(" bbb"))
     val elem = HTMLBlock(outer)
     render (elem) should be ("<span>aaa <span>inner</span> bbb</span>") 
   }

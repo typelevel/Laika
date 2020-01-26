@@ -271,7 +271,7 @@ object InlineParsers {
     val refName = recParsers.escapedText(delimitedBy('`','<').keepDelimiter) ^^ ReferenceName
     markupStart("`") ~> refName ~ opt(url) ~ (markupEnd("`__") ^^^ false | markupEnd("`_") ^^^ true) ^^ {
       case refName ~ Some(url) ~ true   => 
-        SpanSequence(List(ExternalLink(List(Text(ref(refName.original, url))), url), ExternalLinkDefinition(ref(refName.normalized, url), url)))
+        SpanSequence(ExternalLink(List(Text(ref(refName.original, url))), url), ExternalLinkDefinition(ref(refName.normalized, url), url))
       case refName ~ Some(url) ~ false  => ExternalLink(List(Text(ref(refName.original, url))), url)
       case refName ~ None ~ true        => LinkReference(List(Text(refName.original)), refName.normalized, s"`${refName.original}`_") 
       case refName ~ None ~ false       => LinkReference(List(Text(refName.original)), "", s"`${refName.original}`__") 

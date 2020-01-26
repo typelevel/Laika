@@ -45,8 +45,6 @@ class ListParsersSpec extends FlatSpec
   
   def fp (content: String) = ForcedParagraph(List(Text(content)))
   
-  def ss (content: String) = SpanSequence(List(Text(content)))
-  
   
   def fl (fields: Field*) = FieldList(fields.toList)
   
@@ -113,8 +111,8 @@ class ListParsersSpec extends FlatSpec
                   |
                   |    * ccc""".stripMargin
     val list3 = bulletList() + "ccc"
-    val list2 = bulletList() + (ss("bbb"), list3)
-    val list1 = bulletList() + (ss("aaa"), list2)
+    val list2 = bulletList() + (SpanSequence("bbb"), list3)
+    val list1 = bulletList() + (SpanSequence("aaa"), list2)
     Parsing (input) should produce (root(list1))
   }
   
@@ -249,8 +247,8 @@ class ListParsersSpec extends FlatSpec
                   |
                   |      1. ccc""".stripMargin
     val list3 = enumList() + "ccc"
-    val list2 = enumList() + (ss("bbb"), list3)
-    val list1 = enumList() + (ss("aaa"), list2)
+    val list2 = enumList() + (SpanSequence("bbb"), list3)
+    val list1 = enumList() + (SpanSequence("aaa"), list2)
     Parsing (input) should produce (root(list1))
   }
   
@@ -291,7 +289,7 @@ class ListParsersSpec extends FlatSpec
       |
       |term 2 : classifier
       | bbb""".stripMargin
-    Parsing (input) should produce (root( defList + ("term 1", p("aaa")) + (List(txt("term 2 "), Classifier(List(txt("classifier")))), p("bbb"))))
+    Parsing (input) should produce (root( defList + ("term 1", p("aaa")) + (List(Text("term 2 "), Classifier(List(Text("classifier")))), p("bbb"))))
   }
   
   it should "parse items containing multiple paragraphs in a single item" in {
@@ -324,7 +322,7 @@ class ListParsersSpec extends FlatSpec
       |
       |term 2
       | bbb""".stripMargin
-    Parsing (input) should produce (root( defList + (List(txt("term "), em(txt("em"))), p("aaa")) + ("term 2", p("bbb"))))
+    Parsing (input) should produce (root( defList + (List(Text("term "), Emphasized("em")), p("aaa")) + ("term 2", p("bbb"))))
   }
   
   it should "ignore subsequent tables" in {
@@ -502,7 +500,7 @@ class ListParsersSpec extends FlatSpec
     val input = """|| Line1
       || Line2
       || Line3""".stripMargin
-    Parsing (input) should produce (root( lb( line("Line1"), line("Line2"), line("Line3"))))
+    Parsing (input) should produce (root( lb( Line("Line1"), Line("Line2"), Line("Line3"))))
   }
   
   it should "parse a block with a continuation line" in {
@@ -510,7 +508,7 @@ class ListParsersSpec extends FlatSpec
       |  Line2
       || Line3
       || Line4""".stripMargin
-    Parsing (input) should produce (root( lb( line("Line1\nLine2"), line("Line3"), line("Line4"))))
+    Parsing (input) should produce (root( lb( Line("Line1\nLine2"), Line("Line3"), Line("Line4"))))
   }
   
   it should "parse a nested structure (pointing right)" in {
@@ -519,7 +517,7 @@ class ListParsersSpec extends FlatSpec
       ||     Line3
       ||   Line4
       || Line5""".stripMargin
-    Parsing (input) should produce (root( lb( line("Line1"), lb(line("Line2"), lb(line("Line3")), line("Line4")), line("Line5"))))
+    Parsing (input) should produce (root( lb( Line("Line1"), lb(Line("Line2"), lb(Line("Line3")), Line("Line4")), Line("Line5"))))
   }
   
   it should "parse a nested structure (pointing left)" in {
@@ -528,7 +526,7 @@ class ListParsersSpec extends FlatSpec
       || Line3
       ||   Line4
       ||     Line5""".stripMargin
-    Parsing (input) should produce (root( lb( lb( lb(line("Line1")), line("Line2")), line("Line3"), lb(line("Line4"), lb(line("Line5"))))))
+    Parsing (input) should produce (root( lb( lb( lb(Line("Line1")), Line("Line2")), Line("Line3"), lb(Line("Line4"), lb(Line("Line5"))))))
   }
   
   

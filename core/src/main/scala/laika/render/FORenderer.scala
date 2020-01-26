@@ -54,7 +54,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
         else content :+ Paragraph(attr, Styles("attribution"))
 
       def figureContent (img: Span, caption: Seq[Span], legend: Seq[Block]): List[Block] =
-        List(Paragraph(List(img)), Paragraph(caption, Styles("caption")), BlockSequence(legend, Styles("legend")))
+        List(Paragraph(img), Paragraph(caption, Styles("caption")), BlockSequence(legend, Styles("legend")))
 
       def enumLabel (format: EnumFormat, num: Int): String = {
         import EnumType._

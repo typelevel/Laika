@@ -42,7 +42,7 @@ class ParseAPISpec extends FlatSpec
     val input = """[link][id]
       |
       |[id]: http://foo/""".stripMargin
-    parser.parse(input).toOption.get.content should be (root(p(link(txt("link")).url("http://foo/"))))
+    parser.parse(input).toOption.get.content should be (root(p(link(Text("link")).url("http://foo/"))))
   }
   
   it should "allow parsing Markdown into a raw document, without applying the default rewrite rules" in {

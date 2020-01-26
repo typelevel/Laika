@@ -56,8 +56,8 @@ class RewriteSpec extends FlatSpec
   }
   
   it should "replace the content of the header of a section, which is not part of the content list" in {
-    val rootElem = root(Section(h(1, txt("Title")), List(p("Text"))))
-    rootElem rewriteSpans { case Text("Title", _) => Replace(Text("New")) } should be (root(Section(h(1, txt("New")), List(p("Text")))))
+    val rootElem = root(Section(h(1, Text("Title")), List(p("Text"))))
+    rootElem rewriteSpans { case Text("Title", _) => Replace(Text("New")) } should be (root(Section(h(1, Text("New")), List(p("Text")))))
   }
   
   it should "return a new instance for a branch in the document tree that contains one or more modified children" in {
@@ -67,18 +67,18 @@ class RewriteSpec extends FlatSpec
   }
   
   it should "rewrite a span container" in {
-    val before = p(txt("a"), em("b"), txt("c"))
-    before rewriteSpans { case Emphasized(Seq(Text("b",_)),_) => Replace(str("x")) } should be (p(txt("a"), str("x"), txt("c")))
+    val before = p(Text("a"), Emphasized("b"), Text("c"))
+    before rewriteSpans { case Emphasized(Seq(Text("b",_)),_) => Replace(Strong("x")) } should be (p(Text("a"), Strong("x"), Text("c")))
   }
 
   it should "rewrite a nested span container" in {
-    val before = p(txt("a"), em("b"), txt("c"))
-    before rewriteSpans { case Text("b",_) => Replace(txt("x")) } should be (p(txt("a"), em("x"), txt("c")))
+    val before = p(Text("a"), Emphasized("b"), Text("c"))
+    before rewriteSpans { case Text("b",_) => Replace(Text("x")) } should be (p(Text("a"), Emphasized("x"), Text("c")))
   }
   
   it should "rewrite main content and attribution in a QuotedBlock" in {
-    val before = root(QuotedBlock(Seq(p("a"), p("b")), Seq(txt("a"), txt("c"))))
-    before.rewriteSpans { case Text("a", _) => Remove } should be (root(QuotedBlock(Seq(Paragraph(Nil), p("b")), Seq(txt("c")))))
+    val before = root(QuotedBlock(Seq(p("a"), p("b")), Seq(Text("a"), Text("c"))))
+    before.rewriteSpans { case Text("a", _) => Remove } should be (root(QuotedBlock(Seq(Paragraph.empty, p("b")), Seq(Text("c")))))
   }
 
   it should "rewrite text in bullet list items" in {
@@ -92,8 +92,8 @@ class RewriteSpec extends FlatSpec
   }
 
   it should "rewrite text in a template element" in {
-    val before = TemplateSpanSequence(Seq(TemplateElement(txt("a"))))
-    before.rewriteSpans { case Text("a", _) => Replace(Text("x")) } should be (TemplateSpanSequence(Seq(TemplateElement(txt("x")))))
+    val before = TemplateSpanSequence(Seq(TemplateElement(Text("a"))))
+    before.rewriteSpans { case Text("a", _) => Replace(Text("x")) } should be (TemplateSpanSequence(Seq(TemplateElement(Text("x")))))
   }
 
   it should "rewrite text in table cells" in {

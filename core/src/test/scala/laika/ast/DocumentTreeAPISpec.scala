@@ -101,7 +101,7 @@ class DocumentTreeAPISpec extends FlatSpec
     new TreeModel {
       val title = Seq(Text("from-content"))
       val tree = treeWithDoc(Root, "doc", root(laika.ast.Title(title)), Some("title: from-config"))
-      tree.content.head.title should be (Some(SpanSequence(Seq(Text("from-config")))))
+      tree.content.head.title should be (Some(SpanSequence("from-config")))
     }
   }
 

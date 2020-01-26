@@ -206,7 +206,7 @@ class BlockParsersSpec extends FlatSpec
       |
       |Header
       |======""".stripMargin
-    Parsing (input) should produce (root(DecoratedHeader(Underline('='), List(InternalLinkTarget(Id("target")),txt("Header")), Id("header"))))  
+    Parsing (input) should produce (root(DecoratedHeader(Underline('='), List(InternalLinkTarget(Id("target")),Text("Header")), Id("header"))))  
   }
 
   it should "treat an internal link target followed by another internal link target like an alias" in {

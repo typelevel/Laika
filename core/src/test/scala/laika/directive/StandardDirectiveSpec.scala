@@ -123,12 +123,12 @@ class StandardDirectiveSpec extends FlatSpec
   
   it should "parse a single nested span" in {
     val input = """aa @:style { foo } 11 @:@ bb"""
-    parse(input).content should be (root(p(txt("aa "), Text(" 11 ", Styles("foo")), txt(" bb"))))
+    parse(input).content should be (root(p(Text("aa "), Text(" 11 ", Styles("foo")), Text(" bb"))))
   }
   
   it should "parse two nested spans" in {
     val input = """aa @:style { foo } 11 *22* 33 @:@ bb"""
-    parse(input).content should be (root(p(txt("aa "), SpanSequence(List(txt(" 11 "),em("22"),txt(" 33 ")),Styles("foo")), txt(" bb"))))
+    parse(input).content should be (root(p(Text("aa "), SpanSequence(List(Text(" 11 "),Emphasized("22"),Text(" 33 ")),Styles("foo")), Text(" bb"))))
   }
   
   
@@ -359,7 +359,7 @@ class StandardDirectiveSpec extends FlatSpec
     def hasTitleDocLinks: Boolean = false
     
     def sectionCrossLink (path: Path, section: Int, level: Int) = 
-      Paragraph(Seq(CrossLink(List(txt("Section "+section)), "title"+section, PathInfo.fromPath(path, treeUnderTest))), Styles("toc","level"+level))
+      Paragraph(Seq(CrossLink(List(Text("Section "+section)), "title"+section, PathInfo.fromPath(path, treeUnderTest))), Styles("toc","level"+level))
       
     def leafLink (path: Path, section: Int, level: Int) = 
       BulletListItem(List(sectionCrossLink(path, section, level)), StringBullet("*"))
@@ -368,7 +368,7 @@ class StandardDirectiveSpec extends FlatSpec
       BulletListItem(List(sectionCrossLink(path, section, level), BulletList(List(leafLink(path, section+1, level+1)), StringBullet("*"))), StringBullet("*"))
       
     def docCrossLink (path: Path, doc: Int, level: Int) =
-      Paragraph(Seq(CrossLink(List(txt("Doc "+doc)), "", PathInfo.fromPath(path, treeUnderTest))), Styles("toc","level"+level))
+      Paragraph(Seq(CrossLink(List(Text("Doc "+doc)), "", PathInfo.fromPath(path, treeUnderTest))), Styles("toc","level"+level))
       
     def docList (path: Path, doc: Int, level: Int) = 
       BulletListItem(List(docCrossLink(path, doc, level), BulletList(List(
@@ -384,13 +384,13 @@ class StandardDirectiveSpec extends FlatSpec
       
     def internalLink (section: Int, level: Int) = 
       BulletListItem(List(
-        Paragraph(Seq(InternalLink(List(txt("Headline "+section)), "headline-"+section)), Styles("toc","level"+level))
+        Paragraph(Seq(InternalLink(List(Text("Headline "+section)), "headline-"+section)), Styles("toc","level"+level))
       ), StringBullet("*"))
       
     def extraDoc (treeNum: Int, level: Int) = 
       if (treeNum == 1) Nil
       else List(BulletListItem(List(
-        Paragraph(List(txt("Doc 7")), Styles("toc","level"+level,"active")), 
+        Paragraph(List(Text("Doc 7")), Styles("toc","level"+level,"active")), 
         BulletList(List(
           internalLink(1, level+1),
           internalLink(2, level+1)
@@ -398,7 +398,7 @@ class StandardDirectiveSpec extends FlatSpec
 
     def treeTitle (treeNum: Int) =
       if (!hasTitleDocLinks) Paragraph(List(Text("Tree "+treeNum)), Styles("toc","level1"))
-      else Paragraph(Seq(CrossLink(List(txt("TitleDoc")), "", PathInfo.fromPath(Root / ("sub"+treeNum) / "title", treeUnderTest))), Styles("toc","level1"))
+      else Paragraph(Seq(CrossLink(List(Text("TitleDoc")), "", PathInfo.fromPath(Root / ("sub"+treeNum) / "title", treeUnderTest))), Styles("toc","level1"))
       
     def treeList (treeNum: Int, docStart: Int) = 
       BulletListItem(List(
@@ -443,7 +443,7 @@ class StandardDirectiveSpec extends FlatSpec
       
     def result (list: BulletList) = {
       val toc = title match {
-        case Some(text) => TitledBlock(List(txt(text)), List(list), options=Styles("toc"))
+        case Some(text) => TitledBlock(List(Text(text)), List(list), options=Styles("toc"))
         case None       => BlockSequence(List(list), Styles("toc"))
       }
       root(tRoot(
@@ -451,16 +451,16 @@ class StandardDirectiveSpec extends FlatSpec
         tElem(toc),
         tt(" bbb "),
         eRoot(
-          Section(Header(1, List(txt("Headline 1")), Id("headline-1") + Styles("section")), Nil),
-          Section(Header(1, List(txt("Headline 2")), Id("headline-2") + Styles("section")), Nil)
+          Section(Header(1, List(Text("Headline 1")), Id("headline-1") + Styles("section")), Nil),
+          Section(Header(1, List(Text("Headline 2")), Id("headline-2") + Styles("section")), Nil)
         )
       ))
     }
     
     def markupTocResult = root(
       BlockSequence(List(currentDoc), Styles("toc")),
-      Section(Header(1, List(txt("Headline 1")), Id("headline-1") + Styles("section")), Nil),
-      Section(Header(1, List(txt("Headline 2")), Id("headline-2") + Styles("section")), Nil)
+      Section(Header(1, List(Text("Headline 1")), Id("headline-1") + Styles("section")), Nil),
+      Section(Header(1, List(Text("Headline 2")), Id("headline-2") + Styles("section")), Nil)
     )
   }
 

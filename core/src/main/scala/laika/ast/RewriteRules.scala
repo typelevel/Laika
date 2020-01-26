@@ -81,7 +81,7 @@ case class RewriteRules (spanRules: Seq[RewriteRule[Span]] = Nil,
     * specified span, therefore an element passed to the rule only contains 
     * children which have already been processed.
     */
-  def rewriteSpan (span: Span): Span = rewriteSpans(Seq(span)).headOption.getOrElse(SpanSequence(Nil))
+  def rewriteSpan (span: Span): Span = rewriteSpans(Seq(span)).headOption.getOrElse(SpanSequence.empty)
 
   /** Rewrites the specified block based on the set of rules in this instance.
     *

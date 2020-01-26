@@ -141,7 +141,7 @@ object RendererRuntime {
     * a binary output format.
     */
   def run[F[_]: Async: Runtime] (op: binary.SequentialRenderer.Op[F]): F[Unit] = {
-    val root = DocumentTreeRoot(DocumentTree(Root, Seq(Document(Root / "input", RootElement(Seq(SpanSequence(Seq(TemplateElement(op.input)))))))))
+    val root = DocumentTreeRoot(DocumentTree(Root, Seq(Document(Root / "input", RootElement(Seq(SpanSequence(TemplateElement(op.input))))))))
     val parOp = binary.ParallelRenderer.Op(op.renderer, root, op.output)
     run(parOp)
   }

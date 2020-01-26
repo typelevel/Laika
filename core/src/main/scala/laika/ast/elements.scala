@@ -30,7 +30,7 @@ import scala.math.Ordered
  *  `Block` should be picked as the base type for new element
  *  types.
  */
-abstract class Element extends Product
+abstract class Element extends Product with Serializable
 
 /** An element that can be customized. Represents options
  *  that are usually only used on few selected nodes and
@@ -266,6 +266,23 @@ trait SpanContainer extends ElementContainer[Span] with RewritableContainer {
  */
 trait ListContainer extends ElementContainer[ListItem]
 
+/** Common methods for simple span containers (without additional parameters). */
+trait SpanContainerCompanion {
+  
+  type SpanType
+  
+  /** Creates an empty instance */
+  def empty: SpanType = createInstance(Nil)
+  
+  /** Create an instance only containing a single Text span */
+  def apply(text: String): SpanType = createInstance(Seq(Text(text)))
+
+  /** Create an instance containing a one or more spans */
+  def apply(span: Span, spans: Span*): SpanType = createInstance(span +: spans)
+
+  protected def createInstance(spans: Seq[Span]): SpanType
+}
+
 /** The root element of a document tree.
  */
 case class RootElement (content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer {
@@ -325,6 +342,13 @@ case class Header (level: Int, content: Seq[Span], options: Options = NoOpt) ext
   def withContent (newContent: Seq[Span]): Header = copy(content = newContent)
   def withOptions (options: Options): Header = copy(options = options)
 }
+object Header {
+  /** Create an instance only containing a single Text span */
+  def apply(level: Int, text: String): Header = Header(level, Seq(Text(text)))
+
+  /** Create an instance containing a one or more spans */
+  def apply(level: Int, span: Span, spans: Span*): Header = Header(level, span +: spans)
+}
 
 /** The (optional) title of the document.
  */
@@ -332,6 +356,10 @@ case class Title (content: Seq[Span], options: Options = NoOpt) extends Block wi
   type Self = Title
   def withContent (newContent: Seq[Span]): Title = copy(content = newContent)
   def withOptions (options: Options): Title = copy(options = options)
+}
+object Title extends SpanContainerCompanion {
+  type SpanType = Title
+  protected def createInstance(spans: Seq[Span]): Title = Title(spans)
 }
 
 /** A decorated header where the level gets determined in the rewrite phase based
@@ -346,6 +374,14 @@ case class DecoratedHeader (decoration: HeaderDecoration, content: Seq[Span], op
   def withContent (newContent: Seq[Span]): DecoratedHeader = copy(content = newContent)
   def withOptions (options: Options): DecoratedHeader = copy(options = options)
 }
+object DecoratedHeader {
+  /** Create an instance only containing a single Text span */
+  def apply(decoration: HeaderDecoration, text: String): DecoratedHeader = DecoratedHeader(decoration, Seq(Text(text)))
+
+  /** Create an instance containing a one or more spans */
+  def apply(decoration: HeaderDecoration, span: Span, spans: Span*): DecoratedHeader = DecoratedHeader(decoration, span +: spans)
+}
+
 
 /** Represents the decoration of a header.
  *  Concrete implementations need to be provided by the parser.
@@ -392,6 +428,10 @@ case class SpanSequence (content: Seq[Span], options: Options = NoOpt) extends B
   def withContent (newContent: Seq[Span]): SpanSequence = copy(content = newContent)
   def withOptions (options: Options): SpanSequence = copy(options = options)
 }
+object SpanSequence extends SpanContainerCompanion {
+  type SpanType = SpanSequence
+  protected def createInstance(spans: Seq[Span]): SpanSequence = SpanSequence(spans)
+}
 
 
 /** A paragraph consisting of span elements.
@@ -400,6 +440,10 @@ case class Paragraph (content: Seq[Span], options: Options = NoOpt) extends Bloc
   type Self = Paragraph
   def withContent (newContent: Seq[Span]): Paragraph = copy(content = newContent)
   def withOptions (options: Options): Paragraph = copy(options = options)
+}
+object Paragraph extends SpanContainerCompanion {
+  type SpanType = Paragraph
+  protected def createInstance(spans: Seq[Span]): Paragraph = Paragraph(spans)
 }
 
 /** A literal block with unparsed text content.
@@ -415,6 +459,10 @@ case class ParsedLiteralBlock (content: Seq[Span], options: Options = NoOpt) ext
   type Self = ParsedLiteralBlock
   def withContent (newContent: Seq[Span]): ParsedLiteralBlock = copy(content = newContent)
   def withOptions (options: Options): ParsedLiteralBlock = copy(options = options)
+}
+object ParsedLiteralBlock extends SpanContainerCompanion {
+  type SpanType = ParsedLiteralBlock
+  protected def createInstance(spans: Seq[Span]): ParsedLiteralBlock = ParsedLiteralBlock(spans)
 }
 
 /** A block of program code. The content is a sequence of spans to support
@@ -492,7 +540,10 @@ case class CodeSpanSequence (content: Seq[Span], options: Options = NoOpt) exten
   def withContent (newContent: Seq[Span]): CodeSpanSequence = copy(content = newContent)
   def withOptions (options: Options): CodeSpanSequence = copy(options = options)
 }
-
+object CodeSpanSequence extends SpanContainerCompanion {
+  type SpanType = CodeSpanSequence
+  protected def createInstance(spans: Seq[Span]): CodeSpanSequence = CodeSpanSequence(spans)
+}
 
 /** A quoted block consisting of a list of blocks that may contain other
  *  nested quoted blocks and an attribution which may be empty.
@@ -664,6 +715,10 @@ case class Line (content: Seq[Span], options: Options = NoOpt) extends LineBlock
   def withContent (newContent: Seq[Span]): Line = copy(content = newContent)
   def withOptions (options: Options): Line = copy(options = options)
 }
+object Line extends SpanContainerCompanion {
+  type SpanType = Line
+  protected def createInstance(spans: Seq[Span]): Line = Line(spans)
+}
 
 /** A block containing lines which preserve line breaks and optionally nested line blocks.
  */
@@ -717,6 +772,10 @@ case class Caption (content: Seq[Span] = Nil, options: Options = NoOpt) extends 
   type Self = Caption
   def withContent (newContent: Seq[Span]): Caption = copy(content = newContent)
   def withOptions (options: Options): Caption = copy(options = options)
+}
+object Caption extends SpanContainerCompanion {
+  type SpanType = Caption
+  protected def createInstance(spans: Seq[Span]): Caption = Caption(spans)
 }
 
 /** Contains the (optional) column specification of a table.
@@ -881,6 +940,10 @@ case class Emphasized (content: Seq[Span], options: Options = NoOpt) extends Spa
   def withContent (newContent: Seq[Span]): Emphasized = copy(content = newContent)
   def withOptions (options: Options): Emphasized = copy(options = options)
 }
+object Emphasized extends SpanContainerCompanion {
+  type SpanType = Emphasized
+  protected def createInstance(spans: Seq[Span]): Emphasized = Emphasized(spans)
+}
 
 /** A span of strong inline elements that may contain nested spans.
  */
@@ -888,6 +951,10 @@ case class Strong (content: Seq[Span], options: Options = NoOpt) extends Span wi
   type Self = Strong
   def withContent (newContent: Seq[Span]): Strong = copy(content = newContent)
   def withOptions (options: Options): Strong = copy(options = options)
+}
+object Strong extends SpanContainerCompanion {
+  type SpanType = Strong
+  protected def createInstance(spans: Seq[Span]): Strong = Strong(spans)
 }
 
 /** A span containing plain, unparsed text.
@@ -914,6 +981,10 @@ case class Deleted (content: Seq[Span], options: Options = NoOpt) extends Span w
   def withContent (newContent: Seq[Span]): Deleted = copy(content = newContent)
   def withOptions (options: Options): Deleted = copy(options = options)
 }
+object Deleted extends SpanContainerCompanion {
+  type SpanType = Deleted
+  protected def createInstance(spans: Seq[Span]): Deleted = Deleted(spans)
+}
 
 /** A span representing inserted inline elements that may contain nested spans.
   */
@@ -921,6 +992,10 @@ case class Inserted (content: Seq[Span], options: Options = NoOpt) extends Span 
   type Self = Inserted
   def withContent (newContent: Seq[Span]): Inserted = copy(content = newContent)
   def withOptions (options: Options): Inserted = copy(options = options)
+}
+object Inserted extends SpanContainerCompanion {
+  type SpanType = Inserted
+  protected def createInstance(spans: Seq[Span]): Inserted = Inserted(spans)
 }
 
 /** Represents a URI which might also optionally be expressed as a local reference within the processed tree.

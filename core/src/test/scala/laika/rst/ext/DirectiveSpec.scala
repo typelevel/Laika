@@ -57,7 +57,7 @@ class DirectiveSpec extends FlatSpec
     BlockDirective("stdBody")(blockContent map (BlockSequence(_))),
     BlockDirective("customBody")(content(body => if (body.length > 10) Right(p(body)) else Left("body too short"))),
     BlockDirective("argAndBlocks")((argument() ~ blockContent).map { case arg ~ blocks => BlockSequence(p(arg+"!") +: blocks) }),
-    BlockDirective("argAndSpans")((argument() ~ spanContent).map { case arg ~ spans => Paragraph(txt(arg) +: spans) }),
+    BlockDirective("argAndSpans")((argument() ~ spanContent).map { case arg ~ spans => Paragraph(Text(arg) +: spans) }),
     BlockDirective("fdAndBody")((field("name") ~ blockContent).map { case field ~ blocks => BlockSequence(p(field+"!") +: blocks) }),
     BlockDirective("all")((argument() ~ field("name") ~ blockContent).map {
       case arg ~ field ~ blocks => BlockSequence(p(s"$arg:$field") +: blocks)
@@ -73,7 +73,7 @@ class DirectiveSpec extends FlatSpec
 
   val textRoles: Seq[TextRole] = Seq(
     TextRole("role", 7)(TextRoles.Parts.field("name",positiveInt)) { (res,text) =>
-      txt(s"$text($res)")
+      Text(s"$text($res)")
     }
   )
 
@@ -384,12 +384,12 @@ class DirectiveSpec extends FlatSpec
       |
       | Line 1
       | Line 2""".stripMargin
-    Parsing (input) should produce (root (p(txt("arg"),txt("Line 1\nLine 2"))))
+    Parsing (input) should produce (root (p(Text("arg"),Text("Line 1\nLine 2"))))
   }
   
   it should "parse a directive with an argument and empty span content" in {
     val input = """.. argAndSpans:: arg"""
-    Parsing (input) should produce (root (p(txt("arg"))))
+    Parsing (input) should produce (root (p(Text("arg"))))
   }
   
   it should "parse a directive with a field and standard block content" in {
@@ -530,7 +530,7 @@ class DirectiveSpec extends FlatSpec
   
   "The substitution definition parser" should "parse a simple definition" in {
     val input = ".. |def| spans:: text"
-    Parsing (input) should produce (root (SubstitutionDefinition("def", txt("text"))))
+    Parsing (input) should produce (root (SubstitutionDefinition("def", Text("text"))))
   }
   
   it should "detect a definition with an invalid directive" in {

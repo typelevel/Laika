@@ -50,7 +50,7 @@ class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => Str
     def renderBlockContainer (con: BlockContainer): String = {
 
       def toTable (label: String, content: Seq[Block], options: Options): Table = {
-        val left = Cell(BodyCell, List(SpanSequence(List(Text(s"[$label]")))))
+        val left = Cell(BodyCell, List(SpanSequence(s"[$label]")))
         val right = Cell(BodyCell, content)
         val row = Row(List(left,right))
         Table(TableHead(Nil), TableBody(List(row)), Caption(),
@@ -62,7 +62,7 @@ class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => Str
         else content :+ Paragraph(attr, Styles("attribution"))
 
       def figureContent (img: Span, caption: Seq[Span], legend: Seq[Block]): List[Block] =
-        List(SpanSequence(List(img)), Paragraph(caption, Styles("caption")), BlockSequence(legend, Styles("legend")))
+        List(SpanSequence(img), Paragraph(caption, Styles("caption")), BlockSequence(legend, Styles("legend")))
 
       con match {
         case RootElement(content, _)          => fmt.childPerLine(content)

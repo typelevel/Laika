@@ -102,12 +102,12 @@ class XHTMLRendererSpec extends IOSpec with ModelBuilder with FileIO {
     }
 
     "render a paragraph containing a citation link with an epub:type attribute" in {
-      val elem = p(txt("some "), CitationLink("ref", "label"), txt(" span"))
+      val elem = p(Text("some "), CitationLink("ref", "label"), Text(" span"))
       Renderer.of(EPUB.XHTML).build.render(elem) should be("""<p>some <a class="citation" href="#ref" epub:type="noteref">[label]</a> span</p>""")
     }
 
     "render a paragraph containing a footnote link with an epub:type attribute" in {
-      val elem = p(txt("some "), FootnoteLink("id", "label"), txt(" span"))
+      val elem = p(Text("some "), FootnoteLink("id", "label"), Text(" span"))
       Renderer.of(EPUB.XHTML).build.render(elem) should be("""<p>some <a class="footnote" href="#id" epub:type="noteref">[label]</a> span</p>""")
     }
 

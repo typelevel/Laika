@@ -22,17 +22,7 @@ trait ModelBuilder {
 
   
   def spans (elements: Span*): List[Span] = elements.toList
-  
-  def em (elements: Span*) = Emphasized(elements.toList)
 
-  def em (text: String) = Emphasized(List(txt(text)))
-
-  def str (elements: Span*) = Strong(elements.toList)
-  
-  def str (text: String) = Strong(List(txt(text)))
-  
-  def txt (content: String) = Text(content)
-  
   def lit (content: String) = Literal(content)
    
   def link (content: Span*): LinkBuilder = new LinkBuilder(content.toList)
@@ -88,7 +78,7 @@ trait ModelBuilder {
   
   def p (spans: Span*) = Paragraph(spans.toList)
   
-  def p (text: String) = Paragraph(List(Text(text)))
+  def p (text: String) = Paragraph(text)
   
   
   def bulletList (bullet: String = "*") = new BulletListBuilder(bullet)
@@ -138,9 +128,9 @@ trait ModelBuilder {
   
   def row (cells: Cell*) = Row(cells.toList)
   
-  def cell (content: String, colspan: Int, rowspan: Int) = Cell(BodyCell, List(p(txt(content))), colspan, rowspan)
+  def cell (content: String, colspan: Int, rowspan: Int) = Cell(BodyCell, List(p(Text(content))), colspan, rowspan)
   
-  def cell (content: String): Cell = cell(p(txt(content)))
+  def cell (content: String): Cell = cell(p(Text(content)))
   
   def cell (content: Block*): Cell = Cell(BodyCell, content.toList)
   
@@ -149,16 +139,11 @@ trait ModelBuilder {
   
   def lb (items: LineBlockItem*) = LineBlock(items.toList)
   
-  def line (text: String) = Line(List(Text(text)))
-
-  def line (spans: Span*) = Line(spans.toList)
-  
-  
   def quote (items: Block*) = QuotedBlock(items.toList, Nil)
   
   def quote (text: String) = QuotedBlock(List(p(text)), Nil) 
 
-  def quote (text: String, attribution: String) = QuotedBlock(List(p(text)), List(txt(attribution))) 
+  def quote (text: String, attribution: String) = QuotedBlock(List(p(text)), List(Text(attribution))) 
   
   
   def litBlock (content: String) = LiteralBlock(content)
@@ -166,13 +151,13 @@ trait ModelBuilder {
   
   def h (level: Int, content: Span*) = Header(level, content.toList)
 
-  def h (level: Int, content: String) = Header(level, List(txt(content)))
+  def h (level: Int, content: String) = Header(level, content)
 
-  def h (level: Int, content: String, id: String) = Header(level, List(txt(content)), Id(id))
+  def h (level: Int, content: String, id: String) = Header(level, List(Text(content)), Id(id))
   
   def title (text: String) = Title(Seq(Text(text)), Id(text.replaceAll("[^a-zA-Z0-9-]+","-").replaceFirst("^-","").replaceFirst("-$","").toLowerCase) + Styles("title"))
 
-  def dh (deco: HeaderDecoration, content: String, id: String) = DecoratedHeader(deco, List(txt(content)), Id(id))
+  def dh (deco: HeaderDecoration, content: String, id: String) = DecoratedHeader(deco, List(Text(content)), Id(id))
   
   
   

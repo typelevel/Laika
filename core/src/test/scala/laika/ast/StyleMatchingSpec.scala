@@ -48,7 +48,7 @@ class StyleMatchingSpec extends FlatSpec
   }
   
   it should "collect styles with matching type selectors" in {
-    styles.collectStyles(Paragraph(Nil), Nil) should be (Map("selector"->"type","foo"->"bar"))
+    styles.collectStyles(Paragraph.empty, Nil) should be (Map("selector"->"type","foo"->"bar"))
   }
   
   it should "collect styles with matching class selectors" in {
@@ -64,7 +64,7 @@ class StyleMatchingSpec extends FlatSpec
   }
   
   it should "collect styles with matching parent and child selectors" in {
-    styles.collectStyles(Text("", laika.ast.Styles("child")), List(Paragraph(Nil))) should be (Map("selector"->"child"))
+    styles.collectStyles(Text("", laika.ast.Styles("child")), List(Paragraph.empty)) should be (Map("selector"->"child"))
   }
   
   it should "not collect any styles when the parent selector does not match" in {
@@ -72,15 +72,15 @@ class StyleMatchingSpec extends FlatSpec
   }
   
   it should "collect styles with matching parent and immediate child selectors" in {
-    styles.collectStyles(Text("", laika.ast.Styles("immediateChild")), List(Paragraph(Nil))) should be (Map("selector"->"immediateChild"))
+    styles.collectStyles(Text("", laika.ast.Styles("immediateChild")), List(Paragraph.empty)) should be (Map("selector"->"immediateChild"))
   }
   
   it should "not collect any styles when the matching parent selector is not an immediate parent" in {
-    styles.collectStyles(Text("", laika.ast.Styles("immediateChild")), List(Emphasized(Nil), Paragraph(Nil))) should be (Map())
+    styles.collectStyles(Text("", laika.ast.Styles("immediateChild")), List(Emphasized(Nil), Paragraph.empty)) should be (Map())
   }
   
   it should "collect styles with two matching parent selectors" in {
-    styles.collectStyles(Text("", laika.ast.Id("bottom")), List(Emphasized(Nil, laika.ast.Styles("middle")), Paragraph(Nil))) should be (Map("selector"->"twoChildren"))
+    styles.collectStyles(Text("", laika.ast.Id("bottom")), List(Emphasized(Nil, laika.ast.Styles("middle")), Paragraph.empty)) should be (Map("selector"->"twoChildren"))
   }
   
   it should "not collect any styles when one of the parent selectors does not match" in {

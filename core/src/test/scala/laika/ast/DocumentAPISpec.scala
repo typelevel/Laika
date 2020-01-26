@@ -40,7 +40,7 @@ class DocumentAPISpec extends FlatSpec
       |
       |Some more text""".stripMargin
 
-    parser.parse(markup).toOption.get.title should be (Some(SpanSequence(Seq(txt("Foo and Bar")))))
+    parser.parse(markup).toOption.get.title should be (Some(SpanSequence("Foo and Bar")))
   }
   
   it should "use the title from the first headline if it is not overridden in a config section" in {
@@ -52,7 +52,7 @@ class DocumentAPISpec extends FlatSpec
       |
       |Some more text""".stripMargin
 
-    parser.parse(markup).toOption.get.title should be (Some(SpanSequence(Seq(txt("Title")))))
+    parser.parse(markup).toOption.get.title should be (Some(SpanSequence("Title")))
   }
   
   it should "return an empty list if there is neither a structure with a title nor a title in a config section" in {

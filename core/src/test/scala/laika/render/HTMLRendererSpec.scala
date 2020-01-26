@@ -328,7 +328,7 @@ class HTMLRendererSpec extends FlatSpec
   } 
   
   it should "render a titled block" in {
-    val elem = TitledBlock(List(txt("some "), em("em"), txt(" text")), List(p("aaa"), Rule(), p("bbb")))
+    val elem = TitledBlock(List(Text("some "), Emphasized("em"), Text(" text")), List(p("aaa"), Rule(), p("bbb")))
     val html = """<div>
       |  <p class="title">some <em>em</em> text</p>
       |  <p>aaa</p>
@@ -339,7 +339,7 @@ class HTMLRendererSpec extends FlatSpec
   }
   
   it should "render a figure" in {
-    val elem = Figure(Image("alt",URI("image.jpg")), List(txt("some "), em("caption"), txt(" text")), List(p("aaa"), Rule(), p("bbb")))
+    val elem = Figure(Image("alt",URI("image.jpg")), List(Text("some "), Emphasized("caption"), Text(" text")), List(p("aaa"), Rule(), p("bbb")))
     val html = """<div class="figure">
       |  <img src="image.jpg" alt="alt">
       |  <p class="caption">some <em>caption</em> text</p>
@@ -353,7 +353,7 @@ class HTMLRendererSpec extends FlatSpec
   }
   
   it should "render nested line blocks" in {
-    val elem = lb(lb(line("1"),line("2")), line("3"))
+    val elem = lb(lb(Line("1"),Line("2")), Line("3"))
     val html = """<div class="line-block">
       |  <div class="line-block">
       |    <div class="line">1</div>
@@ -373,8 +373,8 @@ class HTMLRendererSpec extends FlatSpec
   } 
   
   it should "render a document with two nested sections" in {
-    val nested = Section(h(2, txt("Title 2")), List(p("Line 1"), p("Line 2")))
-    val rootElem = root(Section(h(1, txt("Title 1")), List(p("Line 1"), p("Line 2"))), nested)
+    val nested = Section(h(2, Text("Title 2")), List(p("Line 1"), p("Line 2")))
+    val rootElem = root(Section(h(1, Text("Title 1")), List(p("Line 1"), p("Line 2"))), nested)
     val html = """
       |<h1>Title 1</h1>
       |<p>Line 1</p>
@@ -387,130 +387,130 @@ class HTMLRendererSpec extends FlatSpec
   }
   
   it should "render a title containing emphasized text" in {
-    val elem = Title(Seq(txt("some "), em("em"), txt(" text")))
+    val elem = Title(Text("some "), Emphasized("em"), Text(" text"))
     render (elem) should be ("<h1>some <em>em</em> text</h1>") 
   }
   
   it should "render a title containing a section number" in {
-    val elem = Title(Seq(SectionNumber(Seq(1,2,3)), txt(" Title")))
+    val elem = Title(SectionNumber(Seq(1,2,3)), Text(" Title"))
     render (elem) should be ("""<h1><span class="sectionNumber">1.2.3 </span> Title</h1>""") 
   }
   
   it should "render a paragraph containing emphasized text" in {
-    val elem = p(txt("some "), em("em"), txt(" text"))
+    val elem = p(Text("some "), Emphasized("em"), Text(" text"))
     render (elem) should be ("<p>some <em>em</em> text</p>") 
   }
   
   it should "render a paragraph containing strong text" in {
-    val elem = p(txt("some "), str("strong"), txt(" text")) 
+    val elem = p(Text("some "), Strong("strong"), Text(" text")) 
     render (elem) should be ("<p>some <strong>strong</strong> text</p>") 
   }
 
   it should "render a paragraph containing a deleted span" in {
-    val elem = p(txt("some "), Deleted(Seq(Text("deleted"))), txt(" text"))
+    val elem = p(Text("some "), Deleted("deleted"), Text(" text"))
     render (elem) should be ("<p>some <del>deleted</del> text</p>")
   }
 
   it should "render a paragraph containing an inserted span" in {
-    val elem = p(txt("some "), Inserted(Seq(Text("inserted"))), txt(" text"))
+    val elem = p(Text("some "), Inserted("inserted"), Text(" text"))
     render (elem) should be ("<p>some <ins>inserted</ins> text</p>")
   }
   
   it should "render a paragraph containing a literal span" in {
-    val elem = p(txt("some "), lit("code"), txt(" span"))
+    val elem = p(Text("some "), lit("code"), Text(" span"))
     render (elem) should be ("<p>some <code>code</code> span</p>") 
   }
   
   it should "render a paragraph containing a code span" in {
-    val elem = p(txt("some "), InlineCode("banana-script", List(Text("code"))), txt(" span"))
+    val elem = p(Text("some "), InlineCode("banana-script", List(Text("code"))), Text(" span"))
     render (elem) should be ("<p>some <code class=\"banana-script\">code</code> span</p>") 
   }
   
   it should "render a paragraph containing a link without title" in {
-    val elem = p(txt("some "), link(txt("link")).url("/foo"), txt(" span"))
+    val elem = p(Text("some "), link(Text("link")).url("/foo"), Text(" span"))
     render (elem) should be ("""<p>some <a href="/foo">link</a> span</p>""") 
   }
   
   it should "render a paragraph containing a link with title" in {
-    val elem = p(txt("some "), link(txt("link")).url("/foo").title("title"), txt(" span"))
+    val elem = p(Text("some "), link(Text("link")).url("/foo").title("title"), Text(" span"))
     render (elem) should be ("""<p>some <a href="/foo" title="title">link</a> span</p>""") 
   }
   
   it should "render a paragraph containing a link with emphasized text" in {
-    val elem = p(txt("some "), link(txt("link"),em("text")).url("/foo"), txt(" span"))
+    val elem = p(Text("some "), link(Text("link"),Emphasized("text")).url("/foo"), Text(" span"))
     render (elem) should be ("""<p>some <a href="/foo">link<em>text</em></a> span</p>""") 
   }
   
   it should "render a paragraph containing an internal link with emphasized text" in {
-    val elem = p(txt("some "), InternalLink(List(txt("link"),em("text")),"foo"), txt(" span"))
+    val elem = p(Text("some "), InternalLink(List(Text("link"),Emphasized("text")),"foo"), Text(" span"))
     render (elem) should be ("""<p>some <a href="#foo">link<em>text</em></a> span</p>""") 
   }
   
   it should "render a paragraph containing a cross link with a fragment part" in {
-    val elem = p(txt("some "), CrossLink(List(txt("link"),em("text")),"foo", PathInfo(Path("/bar"),Path("../bar.md"))), txt(" span"))
+    val elem = p(Text("some "), CrossLink(List(Text("link"),Emphasized("text")),"foo", PathInfo(Path("/bar"),Path("../bar.md"))), Text(" span"))
     render (elem) should be ("""<p>some <a href="../bar.html#foo">link<em>text</em></a> span</p>""") 
   }
   
   it should "render a paragraph containing a cross link without a fragment part" in {
-    val elem = p(txt("some "), CrossLink(List(txt("link"),em("text")),"", PathInfo(Path("/bar"),Path("../bar.md"))), txt(" span"))
+    val elem = p(Text("some "), CrossLink(List(Text("link"),Emphasized("text")),"", PathInfo(Path("/bar"),Path("../bar.md"))), Text(" span"))
     render (elem) should be ("""<p>some <a href="../bar.html">link<em>text</em></a> span</p>""") 
   }
   
   it should "render a paragraph containing a cross link with a filename without suffix" in {
-    val elem = p(txt("some "), CrossLink(List(txt("link"),em("text")),"", PathInfo(Path("/bar"),Path("../bar"))), txt(" span"))
+    val elem = p(Text("some "), CrossLink(List(Text("link"),Emphasized("text")),"", PathInfo(Path("/bar"),Path("../bar"))), Text(" span"))
     render (elem) should be ("""<p>some <a href="../bar">link<em>text</em></a> span</p>""") 
   }
   
   it should "render a paragraph containing a citation link" in {
-    val elem = p(txt("some "), CitationLink("ref","label"), txt(" span"))
+    val elem = p(Text("some "), CitationLink("ref","label"), Text(" span"))
     render (elem) should be ("""<p>some <a class="citation" href="#ref">[label]</a> span</p>""") 
   }
   
   it should "render a paragraph containing a footnote link" in {
-    val elem = p(txt("some "), FootnoteLink("id","label"), txt(" span"))
+    val elem = p(Text("some "), FootnoteLink("id","label"), Text(" span"))
     render (elem) should be ("""<p>some <a class="footnote" href="#id">[label]</a> span</p>""") 
   }
   
   it should "render a paragraph containing an image without title" in {
-    val elem = p(txt("some "), img("img", "foo.jpg"), txt(" span"))
+    val elem = p(Text("some "), img("img", "foo.jpg"), Text(" span"))
     render (elem) should be ("""<p>some <img src="foo.jpg" alt="img"> span</p>""") 
   }
   
   it should "render a paragraph containing an image with title" in {
-    val elem = p(txt("some "), img("img", "foo.jpg", title = Some("title")), txt(" span"))
+    val elem = p(Text("some "), img("img", "foo.jpg", title = Some("title")), Text(" span"))
     render (elem) should be ("""<p>some <img src="foo.jpg" alt="img" title="title"> span</p>""") 
   }
 
   it should "render a paragraph containing an image with width and height in pixels" in {
     val image = img("img", "foo.jpg", width = Some(Size(200,"px")), height = Some(Size(120,"px")))
-    val elem = p(txt("some "), image, txt(" span"))
+    val elem = p(Text("some "), image, Text(" span"))
     render (elem) should be ("""<p>some <img src="foo.jpg" alt="img" width="200" height="120"> span</p>""")
   }
 
   it should "render a paragraph containing an image with width and height in a unit other than pixels" in {
     val image = img("img", "foo.jpg", width = Some(Size(12.4,"in")), height = Some(Size(6.8,"in")))
-    val elem = p(txt("some "), image, txt(" span"))
+    val elem = p(Text("some "), image, Text(" span"))
     render (elem) should be ("""<p>some <img src="foo.jpg" alt="img" style="width:12.4in;height:6.8in"> span</p>""")
   }
 
   it should "render a paragraph containing an image with just width in a unit other than pixels" in {
     val image = img("img", "foo.jpg", width = Some(Size(12.4,"in")))
-    val elem = p(txt("some "), image, txt(" span"))
+    val elem = p(Text("some "), image, Text(" span"))
     render (elem) should be ("""<p>some <img src="foo.jpg" alt="img" style="width:12.4in"> span</p>""")
   }
   
   it should "render a paragraph containing an unresolved link reference" in {
-    val elem = p(txt("some "), linkRef(txt("link")).id("id").source("[link] [id]"), txt(" span"))
+    val elem = p(Text("some "), linkRef(Text("link")).id("id").source("[link] [id]"), Text(" span"))
     render (elem) should be ("""<p>some [link] [id] span</p>""")
   }
   
   it should "render a paragraph containing an unresolved image reference" in {
-    val elem = p(txt("some "), imgRef("img","id","![img] [id]"), txt(" span"))
+    val elem = p(Text("some "), imgRef("img","id","![img] [id]"), Text(" span"))
     render (elem) should be ("""<p>some ![img] [id] span</p>""") 
   }
   
   it should "render a paragraph containing an internal link target" in {
-    val elem = p(txt("some "), InternalLinkTarget(Id("target")), txt(" span"))
+    val elem = p(Text("some "), InternalLinkTarget(Id("target")), Text(" span"))
     render (elem) should be ("""<p>some <a id="target"></a> span</p>""") 
   }
   
@@ -568,17 +568,17 @@ class HTMLRendererSpec extends FlatSpec
   }
   
   it should "render an invalid span without the system message in default mode" in {
-    val elem = InvalidSpan(SystemMessage(Warning, "some message"), txt("fallback"))
+    val elem = InvalidSpan(SystemMessage(Warning, "some message"), Text("fallback"))
     render (elem) should be ("fallback")
   }
   
   it should "render an invalid span without the system message if the configured message level is higher" in {
-    val elem = InvalidSpan(SystemMessage(Warning, "some message"), txt("fallback"))
+    val elem = InvalidSpan(SystemMessage(Warning, "some message"), Text("fallback"))
     render (elem, Error) should be ("fallback")
   }
   
   it should "render an invalid span with the system message if the configured message level is lower or equal" in {
-    val elem = InvalidSpan(SystemMessage(Warning, "some message"), txt("fallback"))
+    val elem = InvalidSpan(SystemMessage(Warning, "some message"), Text("fallback"))
     val html = """<span class="system-message warning">some message</span> fallback"""
     render (elem, Info) should be (html)
   }
@@ -599,7 +599,7 @@ class HTMLRendererSpec extends FlatSpec
       |    #<line 2
       |
       |line 3""".stripMargin.split("#")
-    val elem = ParsedLiteralBlock(List(txt(code(0)), em("em"), txt(code(1))))
+    val elem = ParsedLiteralBlock(List(Text(code(0)), Emphasized("em"), Text(code(1))))
     val html = "<pre><code>" + code(0) + "<em>em</em>" + code(1).replaceAllLiterally("<", "&lt;") + "</code></pre>"
     render (elem) should be (html) 
   }
@@ -647,7 +647,7 @@ class HTMLRendererSpec extends FlatSpec
     val html = """<blockquote>
       |  <pre><code>:<em>%s</em>:</code></pre>
       |</blockquote>""".stripMargin.format(code)
-    val elem = quote(ParsedLiteralBlock(List(txt(":"),em(code),txt(":"))))
+    val elem = quote(ParsedLiteralBlock(List(Text(":"),Emphasized(code),Text(":"))))
     render (elem) should be (html) 
   }
   
@@ -660,7 +660,7 @@ class HTMLRendererSpec extends FlatSpec
     val html = """<blockquote>
       |  <pre><code class="nohighlight">:<em>%s</em>:</code></pre>
       |</blockquote>""".stripMargin.format(code)
-    val elem = quote(CodeBlock("banana-script", List(txt(":"),em(code),txt(":"))))
+    val elem = quote(CodeBlock("banana-script", List(Text(":"),Emphasized(code),Text(":"))))
     render (elem) should be (html) 
   }
   

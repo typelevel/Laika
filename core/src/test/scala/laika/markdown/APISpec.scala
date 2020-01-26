@@ -18,6 +18,7 @@ package laika.markdown
 
 import cats.implicits._
 import laika.api.MarkupParser
+import laika.ast.Text
 import laika.ast.helper.ModelBuilder
 import laika.directive.DirectiveRegistry
 import laika.format.Markdown
@@ -59,10 +60,10 @@ class APISpec extends FlatSpec
     object TestDirectives extends DirectiveRegistry {
 
       val spanDirectives: List[Spans.Directive] = List(
-        Spans.create("oneArg")(defaultAttribute.as[String] map txt),
+        Spans.create("oneArg")(defaultAttribute.as[String].map(Text(_))),
         Spans.create("twoArgs") {
           (defaultAttribute.as[String], attribute("name").as[String].widen).mapN { 
-            (arg1, arg2) => txt(arg1+arg2) 
+            (arg1, arg2) => Text(arg1+arg2) 
           }
         }
       )

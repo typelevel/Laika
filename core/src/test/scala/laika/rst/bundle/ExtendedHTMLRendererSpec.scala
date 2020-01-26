@@ -41,8 +41,8 @@ class ExtendedHTMLRendererSpec extends FlatSpec
   
   it should "render a field list" in {
     val elem = FieldList(List(
-      Field(List(txt("name 1")), List(p("value 1"))),
-      Field(List(txt("name 2")), List(p("value 2")))
+      Field(List(Text("name 1")), List(p("value 1"))),
+      Field(List(Text("name 2")), List(p("value 2")))
     ))
     val html = """<table class="field-list">
       |  <colgroup>

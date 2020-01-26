@@ -147,7 +147,7 @@ object PDFNavigation {
     }
 
     val toc = toBlockSequence(TocGenerator.fromTree(tree, depth, tree.path / DocNames.toc, treeTitleDoc = Some(DocNames.treeTitle)))
-    val root = title.fold(RootElement(toc)){ title => RootElement(Title(Seq(Text(title))) +: toc) }
+    val root = title.fold(RootElement(toc)){ title => RootElement(Title(title) +: toc) }
     val doc = Document(tree.path / DocNames.toc, root)
     tree.copy(content = doc +: tree.content)
   }

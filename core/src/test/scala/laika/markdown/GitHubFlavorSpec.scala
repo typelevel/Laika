@@ -38,10 +38,10 @@ class GitHubFlavorSpec extends WordSpec
   val defaultParser: Parser[RootElement] = rootParser.rootElement
 
   def headerRow(cells: String*): TableHead =
-    TableHead(Seq(Row(cells.map(c => Cell(HeadCell, Seq(Paragraph(Seq(Text(c)))))))))
+    TableHead(Seq(Row(cells.map(c => Cell(HeadCell, Seq(Paragraph(c)))))))
 
   def bodyRow(cells: String*): Row =
-    Row(cells.map(c => Cell(BodyCell, Seq(Paragraph(Seq(Text(c)))))))
+    Row(cells.map(c => Cell(BodyCell, Seq(Paragraph(c)))))
 
   def paddedBodyRow(count: Int, cells: String*): Row = {
     val cellsWithText = bodyRow(cells:_*).content
@@ -67,35 +67,32 @@ class GitHubFlavorSpec extends WordSpec
 
     def r (spans: Seq[Span]): RootElement = root(p(spans:_*))
 
-    def del (text: String): Span = Deleted(Seq(Text(text)))
-    def delS (span: Span): Span = Deleted(Seq(span))
-
     "parse content enclosed in ~~ at the beginning of a phrase" in {
-      Parsing ("~~some~~ text") should produce (r(spans(del("some"),txt(" text"))))
+      Parsing ("~~some~~ text") should produce (r(List(Deleted("some"),Text(" text"))))
     }
 
     "parse content enclosed in ~~ at the end of a phrase" in {
-      Parsing ("some ~~text~~") should produce (r(spans(txt("some "),del("text"))))
+      Parsing ("some ~~text~~") should produce (r(List(Text("some "),Deleted("text"))))
     }
 
     "parse content enclosed in ~~ in the middle of a phrase" in {
-      Parsing ("some ~~text~~ here") should produce (r(spans(txt("some "),del("text"),txt(" here"))))
+      Parsing ("some ~~text~~ here") should produce (r(List(Text("some "),Deleted("text"),Text(" here"))))
     }
 
     "parse content enclosed in ~~ with a nested em span" in {
-      Parsing ("some ~~*text*~~ here") should produce (r(spans(txt("some "),delS(em(txt("text"))),txt(" here"))))
+      Parsing ("some ~~*text*~~ here") should produce (r(List(Text("some "),Deleted(Emphasized("text")),Text(" here"))))
     }
 
     "parse content enclosed in ~~ when it spans the entire phrase" in {
-      Parsing ("~~text~~") should produce (r(spans(del("text"))))
+      Parsing ("~~text~~") should produce (r(List(Deleted("text"))))
     }
 
     "ignore a ~~ sequence when it is enclosed in spaces" in {
-      Parsing ("some ~~ text ~~ here") should produce (r(spans(txt("some ~~ text ~~ here"))))
+      Parsing ("some ~~ text ~~ here") should produce (r(List(Text("some ~~ text ~~ here"))))
     }
 
     "ignore a ~~ sequence when it is not matched by a second ~~" in {
-      Parsing ("some ~~text here") should produce (r(spans(txt("some ~~text here"))))
+      Parsing ("some ~~text here") should produce (r(List(Text("some ~~text here"))))
     }
 
   }
@@ -106,55 +103,55 @@ class GitHubFlavorSpec extends WordSpec
 
     "parse a http URI" in {
       val uri = "http://www.link.com"
-      Parsing ("some http://www.link.com here") should produce (r(spans(txt("some "),
-        link(txt(uri)).url(uri), txt(" here"))))
+      Parsing ("some http://www.link.com here") should produce (r(List(Text("some "),
+        link(Text(uri)).url(uri), Text(" here"))))
     }
 
     "parse a http URI containing an IP4 address" in {
       val uri = "http://127.0.0.1/path"
-      Parsing (s"some $uri here") should produce (r(spans(txt("some "),
-        link(txt(uri)).url(uri), txt(" here"))))
+      Parsing (s"some $uri here") should produce (r(List(Text("some "),
+        link(Text(uri)).url(uri), Text(" here"))))
     }
 
     "parse a https URI" in {
       val uri = "https://www.link.com"
-      Parsing ("some https://www.link.com here") should produce (r(spans(txt("some "),
-        link(txt(uri)).url(uri), txt(" here"))))
+      Parsing ("some https://www.link.com here") should produce (r(List(Text("some "),
+        link(Text(uri)).url(uri), Text(" here"))))
     }
 
     "parse a www URI" in {
       val uri = "www.link.com"
-      Parsing ("some www.link.com here") should produce (r(spans(txt("some "),
-        link(txt(uri)).url(uri), txt(" here"))))
+      Parsing ("some www.link.com here") should produce (r(List(Text("some "),
+        link(Text(uri)).url(uri), Text(" here"))))
     }
 
     "parse an email address" in {
       val email = "user@domain.com"
-      Parsing ("some user@domain.com here") should produce (r(spans(txt("some "),
-        link(txt(email)).url("mailto:"+email), txt(" here"))))
+      Parsing ("some user@domain.com here") should produce (r(List(Text("some "),
+        link(Text(email)).url("mailto:"+email), Text(" here"))))
     }
 
     "parse a http URI without trailing punctuation" in {
       val uri = "http://www.link.com"
-      Parsing ("some http://www.link.com. here") should produce (r(spans(txt("some "),
-        link(txt(uri)).url(uri), txt(". here"))))
+      Parsing ("some http://www.link.com. here") should produce (r(List(Text("some "),
+        link(Text(uri)).url(uri), Text(". here"))))
     }
 
     "parse a www URI without trailing punctuation" in {
       val uri = "www.link.com"
-      Parsing ("some www.link.com. here") should produce (r(spans(txt("some "),
-        link(txt(uri)).url(uri), txt(". here"))))
+      Parsing ("some www.link.com. here") should produce (r(List(Text("some "),
+        link(Text(uri)).url(uri), Text(". here"))))
     }
 
     "not parse a URI containing unicode characters" in {
       val text = "some http://www.link.com/fooá here"
-      Parsing (text) should produce (r(spans(txt(text))))
+      Parsing (text) should produce (r(List(Text(text))))
     }
 
     "parse an email address without surrounding punctuation" in {
       val email = "user@domain.com"
-      Parsing ("some (user@domain.com) here") should produce (r(spans(txt("some ("),
-        link(txt(email)).url("mailto:"+email), txt(") here"))))
+      Parsing ("some (user@domain.com) here") should produce (r(List(Text("some ("),
+        link(Text(email)).url("mailto:"+email), Text(") here"))))
     }
 
   }
@@ -288,7 +285,7 @@ class GitHubFlavorSpec extends WordSpec
       Parsing (input) should produce (root(
         Table(headerRow("AAA","BBB"), TableBody(Seq(
           bodyRow("CCC","DDD"),
-          bodyRowSpans(Seq(Text("EEE")), Seq(Text("FFF "), Emphasized(Seq(Text("GGG")))))
+          bodyRowSpans(Seq(Text("EEE")), Seq(Text("FFF "), Emphasized("GGG")))
         )))
       ))
     }

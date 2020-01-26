@@ -36,7 +36,7 @@ trait TreeModel {
     val parent = if (num > 4) Root / "tree2" else if (num > 2) Root / "tree1" else Root
     Document(parent / s"doc$num.md", RootElement(Seq(
       Title(Seq(Text(s"Title $num & More")), Id(s"title-$num") + Styles("title")),
-      Paragraph(Seq(Text(s"Text $num")))
+      Paragraph(s"Text $num")
     )))
   }
     
@@ -53,7 +53,7 @@ trait TreeModel {
     val parent = Root / s"tree${subTreeNum - 1}"
     if (useTitleDocuments) Some(Document(parent / "title.md", RootElement(Seq(
       Title(Seq(Text(s"Title Doc $subTreeNum")), Id(s"title-$subTreeNum") + Styles("title")),
-      Paragraph(Seq(Text(s"Text $subTreeNum")))
+      Paragraph(s"Text $subTreeNum")
     )))) else None
   }
   

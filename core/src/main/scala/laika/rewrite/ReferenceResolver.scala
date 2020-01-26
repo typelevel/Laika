@@ -35,7 +35,7 @@ case class ReferenceResolver (config: Config) {
  */
 object ReferenceResolver {
   
-  private val emptyTitle: SpanSequence = SpanSequence(Nil)
+  private val emptyTitle: SpanSequence = SpanSequence.empty
   
   /** Creates a new ReferenceResolver for the specified
    *  document and its parent and configuration.
