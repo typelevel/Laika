@@ -38,7 +38,7 @@ the final release for Scala 2.10 and sbt 0.13 was 0.7.0.
 Add the plugin to `project/plugins.sbt`:
 
 ```scala
-addSbtPlugin("org.planet42" % "laika-sbt" % "0.12.1")
+addSbtPlugin("org.planet42" % "laika-sbt" % "0.13.0")
 ```
 
 Enable the plugin in your project's `build.sbt`:
@@ -61,7 +61,7 @@ first, as there were significant changes in the Library API.
 Adding the Laika dependency to your sbt build:
 
 ```scala
-libraryDependencies += "org.planet42" %% "laika-core" % "0.12.1"
+libraryDependencies += "org.planet42" %% "laika-core" % "0.13.0"
 ```
 
 Example for transforming Markdown to HTML:
@@ -84,7 +84,7 @@ For file/stream IO, parallel processing and/or EPUB support, based on cats-effec
 add the laika-io module to your build:
 
 ```scala
-libraryDependencies += "org.planet42" %% "laika-io" % "0.12.1"  
+libraryDependencies += "org.planet42" %% "laika-io" % "0.13.0"  
 ```
 
 Example for transforming an entire directory of markup files to a single EPUB file:
@@ -118,7 +118,7 @@ val res: IO[Unit] = transformer
 When using Laika's PDF support you need to add one more dependency to your build:
 
 ```scala
-libraryDependencies += "org.planet42" %% "laika-pdf" % "0.12.1"
+libraryDependencies += "org.planet42" %% "laika-pdf" % "0.13.0"
 ```
 
 The example for how to transform a directory of input files into a PDF file looks
@@ -218,7 +218,7 @@ Road Map
 Release History
 ---------------
 
-* __0.13.0__ (Jan ??, 2020):
+* __0.13.0__ (Jan 26, 2020):
 
     * Introduce integrated syntax highlighting based on the libraries own parsers
         * Resulting AST nodes for code spans are part of the document AST and
@@ -238,6 +238,7 @@ Release History
       formatted information about the transformer setup and installed extensions
     * sbt plugin: improved accuracy for caching logic for EPUB and PDF output
       that still works when the artifact name or version changes
+    * Upgrade dependency on cats-core to 2.1.0
 
 * __0.12.1__ (Dec 1, 2019):
 

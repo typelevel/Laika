@@ -32,7 +32,7 @@ as input, and for HTML as output. EPUB and PDF both require additional modules a
 First add the dependency to your build:
 
 ```scala
-libraryDependencies += "org.planet42" %% "laika-core" % "0.12.1" 
+libraryDependencies += "org.planet42" %% "laika-core" % "0.13.0" 
 ```
 
 For most cases where you don't use any of the customization hooks, you should be fine with just these imports:
@@ -131,7 +131,7 @@ In case you want to transform from files or directories, or use one of the binar
 like EPUB or PDF, you need to add another dependency to your build:
 
 ```scala
-libraryDependencies += "org.planet42" %% "laika-io" % "0.12.1" 
+libraryDependencies += "org.planet42" %% "laika-io" % "0.13.0" 
 ```
 
 This module depends on cats-effect, and models all side effects in an abstract effect,

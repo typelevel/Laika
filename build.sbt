@@ -1,5 +1,5 @@
 lazy val basicSettings = Seq(
-  version               := "0.13.0-SNAPSHOT",
+  version               := "0.13.0",
   homepage              := Some(new URL("http://planet42.github.io/Laika/")),
   organization          := "org.planet42",
   organizationHomepage  := Some(new URL("http://planet42.org")),
@@ -59,7 +59,7 @@ lazy val noPublishSettings = Seq(
 
 val scalatest  = "org.scalatest"          %% "scalatest"   % "3.0.8" % "test"
 val jTidy      = "net.sf.jtidy"           %  "jtidy"       % "r938"  % "test"
-val catsCore   = "org.typelevel"          %% "cats-core"   % "2.0.0"
+val catsCore   = "org.typelevel"          %% "cats-core"   % "2.1.0"
 val catsEffect = "org.typelevel"          %% "cats-effect" % "2.0.0"
 val fop        = "org.apache.xmlgraphics" %  "fop"         % "2.3"
 
