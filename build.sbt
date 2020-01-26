@@ -1,5 +1,5 @@
 lazy val basicSettings = Seq(
-  version               := "0.13.0",
+  version               := "0.14.0-SNAPSHOT",
   homepage              := Some(new URL("http://planet42.github.io/Laika/")),
   organization          := "org.planet42",
   organizationHomepage  := Some(new URL("http://planet42.org")),
