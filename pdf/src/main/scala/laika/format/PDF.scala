@@ -97,7 +97,7 @@ class PDF private(val interimFormat: RenderFormat[FOFormatter], config: Option[P
   val postProcessor: BinaryPostProcessor = new BinaryPostProcessor {
     override def process[F[_]: Async: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput[F]): F[Unit] = {
       
-      val title = if (result.title.isEmpty) None else Some(SpanSequence(result.title).extractText)
+      val title = result.title.map(_.extractText)
       val pdfConfig = config.map(Right(_)).getOrElse(PDFConfigBuilder.fromTreeConfig(result.config))
       
       for {

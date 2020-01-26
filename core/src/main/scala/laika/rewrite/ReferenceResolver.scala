@@ -35,6 +35,8 @@ case class ReferenceResolver (config: Config) {
  */
 object ReferenceResolver {
   
+  private val emptyTitle: SpanSequence = SpanSequence(Nil)
+  
   /** Creates a new ReferenceResolver for the specified
    *  document and its parent and configuration.
    */
@@ -44,17 +46,17 @@ object ReferenceResolver {
       .withValue("document", ObjectValue(Seq(
         Field("path", StringValue(document.path.toString)),
         Field("content", ASTValue(document.content), config.origin),
-        Field("title", ASTValue(SpanSequence(document.title)), config.origin),
+        Field("title", ASTValue(document.title.getOrElse(emptyTitle)), config.origin),
         Field("fragments", ObjectValue(document.fragments.toSeq.map { 
           case (name, element) => Field(name, ASTValue(element), config.origin) 
         }), config.origin)
       )))
       .withValue("parent", ObjectValue(Seq(
          Field("path", StringValue(parent.path.toString)), 
-         Field("title", ASTValue(SpanSequence(parent.target.title))) 
+         Field("title", ASTValue(parent.target.title.getOrElse(emptyTitle))) 
       )))
       .withValue("root", ObjectValue(Seq(
-        Field("title", ASTValue(SpanSequence(parent.root.target.title)))
+        Field("title", ASTValue(parent.root.target.title.getOrElse(emptyTitle)))
       )))
       .build
     )

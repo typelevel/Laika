@@ -113,7 +113,7 @@ object RendererRuntime {
         }
 
         def buildNode (path: Path, content: Seq[RenderContent]): RenderedTree = {
-          val title = finalRoot.tree.selectSubtree(path.relativeTo(Root)).fold(Seq.empty[Span])(_.title)
+          val title = finalRoot.tree.selectSubtree(path.relativeTo(Root)).flatMap(_.title)
           val titleDoc = content.collectFirst {
             case doc: RenderedDocument if doc.path.basename == "title" => doc
           }

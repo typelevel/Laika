@@ -101,9 +101,10 @@ object DocumentViewBuilder {
   }
   
   def viewOf (doc: Document): DocumentView = {
-    def filterTitle (title: Seq[Span]) = title match {
-      case Text("",_) :: Nil => Nil
-      case other => other
+    def filterTitle (title: Option[SpanSequence]): Seq[Span] = title match {
+      case Some(SpanSequence(Seq(Text("",_), _), _)) => Nil
+      case Some(other) => other.content
+      case None => Nil
     }
     val content = (
       Content(doc.content.rewriteBlocks{ case CustomizedTextRole(_,_,_) => Remove }.content) :: 

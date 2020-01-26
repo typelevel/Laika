@@ -47,10 +47,10 @@ trait Navigatable {
   */
 sealed trait TreeContent extends Navigatable {
 
-  /** The title of this element or an empty sequence in case
-    * this element does not have a title.
+  /** The title of this element which can originate from
+    * the first header of a markup file or from configuration.
    */
-  def title: Seq[Span]
+  def title: Option[SpanSequence]
 
   /** The configuration associated with this element.
     */
@@ -70,14 +70,14 @@ sealed trait TreeContent extends Navigatable {
    */
   def selectTarget (selector: Selector): Option[TargetResolver] = globalLinkTargets.get(selector)
 
-  protected def titleFromConfig: Option[Seq[Span]] = {
+  protected def titleFromConfig: Option[SpanSequence] = {
     config.get[Traced[String]]("title").toOption.flatMap { tracedTitle =>
       if (tracedTitle.origin.scope == configScope) {
-        val title = List(Text(tracedTitle.value))
+        val title = Seq(Text(tracedTitle.value))
         val autonumberConfig = AutonumberConfig.fromConfig(config).toOption.getOrElse(AutonumberConfig.defaults)
         val autonumberEnabled = autonumberConfig.documents && position.depth < autonumberConfig.maxDepth
-        if (autonumberEnabled) Some(position.toSpan +: title)
-        else Some(title)
+        if (autonumberEnabled) Some(SpanSequence(position.toSpan +: title))
+        else Some(SpanSequence(title))
       } else None
     }
   }
@@ -225,16 +225,16 @@ trait DocumentStructure { this: TreeContent =>
 
   /** The title of this document, obtained from the document
     * structure or from the configuration. In case no title
-    * is defined in either of the two places the sequence will
-    * be empty.
+    * is defined in either of the two places the result will
+    * be `None`.
     */
-  def title: Seq[Span] = {
+  def title: Option[SpanSequence] = {
 
     def titleFromTree = (RootElement(findRoot) collect {
-      case Title(content, _) => content
+      case Title(content, _) => SpanSequence(content)
     }).headOption
 
-    titleFromConfig.orElse(titleFromTree).getOrElse(Seq())
+    titleFromConfig.orElse(titleFromTree)
   }
 
   /** The section structure of this document based on the hierarchy
@@ -279,7 +279,7 @@ trait TreeStructure { this: TreeContent =>
   
   /** The title of this tree, obtained from configuration.
    */
-  lazy val title: Seq[Span] = titleDocument.map(_.title).orElse(titleFromConfig).getOrElse(Nil)
+  lazy val title: Option[SpanSequence] = titleDocument.flatMap(_.title).orElse(titleFromConfig)
 
   /** The title document for this tree, if present.
     *
@@ -554,7 +554,7 @@ case class DocumentTreeRoot (tree: DocumentTree,
 
   /** The title of this tree, obtained from configuration.
     */
-  val title: Seq[Span] = tree.title
+  val title: Option[SpanSequence] = tree.title
 
   /** The title document for this tree, if present.
     *

@@ -16,14 +16,14 @@
 
 package laika.io.model
 
-import laika.ast.{Navigatable, Path, SectionInfo, Span, TemplateRoot}
+import laika.ast.{Navigatable, Path, SectionInfo, SpanSequence, TemplateRoot}
 import laika.config.Config
 
 /** A titled, positional element in the tree of rendered documents.
   */
 sealed trait RenderContent extends Navigatable {
   def path: Path
-  def title: Seq[Span]
+  def title: Option[SpanSequence]
 }
 
 /** Represents a node of the tree of rendered documents.
@@ -34,7 +34,7 @@ sealed trait RenderContent extends Navigatable {
   * @param titleDocument the optional title document of this tree   
   */
 case class RenderedTree (path: Path,
-                         title: Seq[Span],
+                         title: Option[SpanSequence],
                          content: Seq[RenderContent],
                          titleDocument: Option[RenderedDocument] = None) extends RenderContent
 
@@ -43,7 +43,7 @@ case class RenderedTree (path: Path,
   * The title and section info are still represented as an AST, so they be used in any subsequent
   * step that needs to produce navigation structures.
   */
-case class RenderedDocument (path: Path, title: Seq[Span], sections: Seq[SectionInfo], content: String) extends RenderContent
+case class RenderedDocument (path: Path, title: Option[SpanSequence], sections: Seq[SectionInfo], content: String) extends RenderContent
 
 /** Represents the root of a tree of rendered documents. In addition to the recursive structure of documents
   * it holds additional items like static or cover documents, which may contribute to the output of a site or an e-book.
@@ -65,7 +65,7 @@ case class RenderedTreeRoot[F[_]] (tree: RenderedTree,
 
   /** The title of the tree, either obtained from the title document or configuration 
     */
-  val title: Seq[Span] = tree.title
+  val title: Option[SpanSequence] = tree.title
 
   /** The optional title document of the tree.
     */

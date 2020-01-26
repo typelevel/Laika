@@ -70,12 +70,12 @@ object BookNavigation {
     else {
       for (nav <- tree.content if hasContent(depth - 1)(nav)) yield nav match {
         case doc: RenderedDocument =>
-          val title = if (doc.title.nonEmpty) SpanSequence(doc.title).extractText else doc.name
+          val title = doc.title.fold(doc.name)(_.extractText) 
           val parentPos = pos.next
           val children = forSections(doc.path, doc.sections, depth - 1, pos)
           BookNavigationLink(title, fullPath(doc.path, forceXhtml = true), parentPos, children)
         case subtree: RenderedTree =>
-          val title = if (subtree.title.nonEmpty) SpanSequence(subtree.title).extractText else subtree.name
+          val title = subtree.title.fold(subtree.name)(_.extractText)
           val parentPos = pos.next
           val children = forTree(subtree, depth - 1, pos)
           val targetDoc = subtree.titleDocument.orElse(subtree.content.collectFirst{ case d: RenderedDocument => d }).get

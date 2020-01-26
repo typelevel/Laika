@@ -28,7 +28,8 @@ trait InputTreeBuilder extends ModelBuilder with InputBuilder {
 
   val uuid = "some-uuid"
 
-  def doc(path: Path, num: Int, sections: Seq[SectionInfo] = Nil): RenderedDocument = RenderedDocument(path.withSuffix("xhtml"), Seq(Text(s"Title $num")), sections, "zzz")
+  def doc(path: Path, num: Int, sections: Seq[SectionInfo] = Nil): RenderedDocument = 
+    RenderedDocument(path.withSuffix("xhtml"), Some(SpanSequence(Seq(Text(s"Title $num")))), sections, "zzz")
 
   def section(letter: Char) = SectionInfo(letter.toString, TitleInfo(Seq(Text(s"Section $letter"))), Nil)
 
@@ -36,7 +37,7 @@ trait InputTreeBuilder extends ModelBuilder with InputBuilder {
 
   def configWithTreeTitle (num: Int): Config = ConfigBuilder.empty.withValue("title", s"Tree $num").build
   
-  def titleSpans (text: String): Seq[Span] = Seq(Text(text))
+  def titleSpans (text: String): SpanSequence = SpanSequence(Seq(Text(text)))
 
   def rootTree (path: Path, titleNum: Int, docs: RenderContent*): RenderedTreeRoot[IO] = {
     RenderedTreeRoot(tree(path, titleNum, docs: _*), TemplateRoot(Nil), Config.empty)
@@ -46,7 +47,7 @@ trait InputTreeBuilder extends ModelBuilder with InputBuilder {
     val titleDoc = docs.collectFirst { case doc: RenderedDocument if doc.path.basename == "title" => doc }
     val content = docs.filterNot(_.path.basename == "title")
     val title = titleDoc.fold(titleSpans(s"Tree $titleNum")) { doc => titleSpans(s"From TitleDoc") }
-    RenderedTree(path, title, content, titleDoc)
+    RenderedTree(path, Some(title), content, titleDoc)
   }
 
 }

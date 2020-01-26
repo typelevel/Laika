@@ -598,7 +598,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
   
   "The title directive" should "set the title in the document instance" in {
     val input = """.. title:: Title"""
-    parseDoc(input).title should be (Seq(txt("Title")))
+    parseDoc(input).title should be (Some(SpanSequence(Seq(txt("Title")))))
   }
   
   "The meta directive" should "create config entries in the document instance" in {

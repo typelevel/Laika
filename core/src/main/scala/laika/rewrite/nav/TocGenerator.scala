@@ -79,9 +79,8 @@ object TocGenerator {
   
   private def fromTree (tree: DocumentTree, curLevel: Int, maxLevel: Int, refPath: Path, treeTitleDoc: Option[String]): List[Block] = {
     
-    def titleOrName (content: TreeContent) = 
-      if (content.title.nonEmpty) content.title
-      else Seq(Text(content.name))
+    def titleOrName (content: TreeContent): Seq[Span] = 
+      content.title.fold(Seq(Text(content.name):Span))(_.content) 
     
     def hasContent (nav: Navigatable): Boolean = nav match {
       case _:Document => true
