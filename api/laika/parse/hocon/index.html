@@ -101,6 +101,22 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../index.html" class="extype" name="laika">laika</a></dd></dl></div>
+    </li><li name="laika.parse.code" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="code"></a><a id="code:code"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/code/index.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="../code/index.html"><span class="name">code</span></a>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika.parse">parse</a></dd></dl></div>
     </li><li name="laika.parse.combinator" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="combinator"></a><a id="combinator:combinator"></a>
       <span class="permalink">
@@ -392,7 +408,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="A single field of an object value." href="BuilderField.html"><span class="name">BuilderField</span></a><span class="params">(<span name="key">key: <span class="extype" name="scala.Either">Either</span>[<a href="InvalidStringValue.html" class="extype" name="laika.parse.hocon.InvalidStringValue">InvalidStringValue</a>, <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a>]</span>, <span name="value">value: <a href="ConfigBuilderValue.html" class="extype" name="laika.parse.hocon.ConfigBuilderValue">ConfigBuilderValue</a></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="A single field of an object value." href="BuilderField.html"><span class="name">BuilderField</span></a><span class="params">(<span name="key">key: <span class="extype" name="scala.Either">Either</span>[<a href="InvalidStringValue.html" class="extype" name="laika.parse.hocon.InvalidStringValue">InvalidStringValue</a>, <a href="../../config/Key.html" class="extype" name="laika.config.Key">Key</a>]</span>, <span name="value">value: <a href="ConfigBuilderValue.html" class="extype" name="laika.parse.hocon.ConfigBuilderValue">ConfigBuilderValue</a></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">A single field of an object value.</p>
@@ -651,7 +667,7 @@ values or substitution variables which will not be present in the final model.
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="A substitution reference that may be marked as optional." href="SubstitutionValue.html"><span class="name">SubstitutionValue</span></a><span class="params">(<span name="ref">ref: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="optional">optional: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result"> extends <a href="ConfigBuilderValue.html" class="extype" name="laika.parse.hocon.ConfigBuilderValue">ConfigBuilderValue</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="A substitution reference that may be marked as optional." href="SubstitutionValue.html"><span class="name">SubstitutionValue</span></a><span class="params">(<span name="ref">ref: <a href="../../config/Key.html" class="extype" name="laika.config.Key">Key</a></span>, <span name="optional">optional: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result"> extends <a href="ConfigBuilderValue.html" class="extype" name="laika.parse.hocon.ConfigBuilderValue">ConfigBuilderValue</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">A substitution reference that may be marked as optional.</p>
@@ -742,8 +758,7 @@ a root <code>ObjectValue</code>.</p><p>The translation step involves the followi
       </span>
       
       <p class="shortcomment cmt">The parser implementation for the HOCON format.</p><div class="fullcomment"><div class="comment cmt"><p>The parser implementation for the HOCON format.</p><p>It currently supports the full spec as documented in
-<a href="https://github.com/lightbend/config/blob/master/HOCON.md" target="_blank">https://github.com/lightbend/config/blob/master/HOCON.md</a>
-except for file includes which might be added in a later release.
+<a href="https://github.com/lightbend/config/blob/master/HOCON.md" target="_blank">https://github.com/lightbend/config/blob/master/HOCON.md</a>.
 </p></div></div>
     </li><li name="laika.parse.hocon.SelfReference" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="SelfReference"></a><a id="SelfReference:SelfReference"></a>

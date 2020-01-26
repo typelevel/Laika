@@ -10,12 +10,10 @@
     <meta name="description" content="Customizable and extensible toolkit for transforming lightweight markup languages to various types of output formats, written in Scala" />
     <meta name="keywords" content="scala, text, markup, markdown, restructuredtext, parser, transformer, html, template engine, site generation, open-source" />
 
+    <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
     <link href="../css/bootstrap.css" rel="stylesheet">
     <link href="../css/docs.css" rel="stylesheet">
-
-    <!--[if lt IE 9]>
-      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
 
   </head>
 
@@ -43,6 +41,7 @@
           <li class="active"><a href="#">Supported Output Formats</a></li>
           <li><a href="structure.html">Document Structure</a></li>
           <li><a href="templates.html">Templates</a></li>
+          <li><a href="syntax.html">Syntax Highlighting</a></li>
           <li class="nav-header">Customizing Laika</li>
           <li><a href="../customizing-laika/customize-rendering.html">Customizing Renderers</a></li>
           <li><a href="../customizing-laika/tree-rewriting.html">Document Tree Rewriting</a></li>
@@ -77,28 +76,27 @@
         markup syntax like Markdown or reStructuredText.</p>
         <p>Customization of the output is possible on two levels, first most formats (except
         for AST) can be styled with CSS. Secondly the rendering of specific nodes
-        can be overridden with a simple partial function as described in [Customizing Renderers].</p>
+        can be overridden with a simple partial function as described in <a href="../customizing-laika/customize-rendering.html">Customizing Renderers</a>.</p>
         <p>Finally you can develop an entirely new renderer for a format not supported by Laika
         out of the box. See chapter <a href="../extending-laika/renderer.html#implementing-a-renderer">Implementing a Renderer</a> for details.</p>
         
         <h2 id="html" class="section">HTML</h2>
         <p>The HTML renderer can be used with the <code>Transform</code> or <code>Render</code> APIs:</p>
-        <pre>val html: String = Transformer
-  .from(Markdown)
-  .to(HTML).
-  .build
-  .transform(&quot;hello *there*&quot;)
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">html</span><span>: </span><span class="type-name">String</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>).
+  .</span><span class="identifier">build</span><span>
+  .</span><span class="identifier">transform</span><span>(</span><span class="string-literal">&quot;hello *there*&quot;</span><span>)
 
-val doc: Document = Parser
-  .of(Markdown)
-  .build
-  .parse(&quot;hello *there*&quot;)
+</span><span class="keyword">val</span><span> </span><span class="identifier">doc</span><span>: </span><span class="type-name">Document</span><span> = </span><span class="type-name">Parser</span><span>
+  .</span><span class="identifier">of</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">build</span><span>
+  .</span><span class="identifier">parse</span><span>(</span><span class="string-literal">&quot;hello *there*&quot;</span><span>)
   
-val html: String = Renderer
-  .of(HTML)
-  .build
-  .render(doc)
-</pre>
+</span><span class="keyword">val</span><span> </span><span class="identifier">html</span><span>: </span><span class="type-name">String</span><span> = </span><span class="type-name">Renderer</span><span>
+  .</span><span class="identifier">of</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">build</span><span>
+  .</span><span class="identifier">render</span><span>(</span><span class="identifier">doc</span><span>)</span></code></pre>
         <p>See <a href="embedded.html#using-the-library-api">Using the Library API</a> for more details on these APIs.</p>
         <p>If you are using the sbt plugin you can use several of its task for generating
         HTML output:</p>
@@ -115,18 +113,17 @@ val html: String = Renderer
         <p>Laika supports Templating for most output formats. The following example
         uses variable references to include the title and content of the input
         document, as well as a directive called <code>@toc</code> to inset a table of contents:</p>
-        <pre>&lt;html&gt;
-  &lt;head&gt;
-    &lt;title&gt;${document.title}&lt;/title&gt;
-  &lt;/head&gt;
-  &lt;body&gt;
-    @:toc
-    &lt;div class=&quot;content&quot;&gt;
-      ${document.content}
-    &lt;/div&gt;
-  &lt;/body&gt;
-&lt;/html&gt;
-</pre>
+        <pre><code class="nohighlight"><span class="tag-punctuation">&lt;</span><span class="tag-name">html</span><span class="tag-punctuation">&gt;</span><span>
+  </span><span class="tag-punctuation">&lt;</span><span class="tag-name">head</span><span class="tag-punctuation">&gt;</span><span>
+    </span><span class="tag-punctuation">&lt;</span><span class="tag-name">title</span><span class="tag-punctuation">&gt;</span><span class="substitution">${document.title}</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">title</span><span class="tag-punctuation">&gt;</span><span>
+  </span><span class="tag-punctuation">&lt;/</span><span class="tag-name">head</span><span class="tag-punctuation">&gt;</span><span>
+  </span><span class="tag-punctuation">&lt;</span><span class="tag-name">body</span><span class="tag-punctuation">&gt;</span><span>
+    </span><span class="keyword">@:</span><span class="identifier">toc</span><span>
+    </span><span class="tag-punctuation">&lt;</span><span class="tag-name">div</span><span class="tag-punctuation"> </span><span class="attribute-name">class</span><span class="tag-punctuation">=</span><span class="string-literal">&quot;content&quot;</span><span class="tag-punctuation">&gt;</span><span>
+      </span><span class="substitution">${document.content}</span><span>
+    </span><span class="tag-punctuation">&lt;/</span><span class="tag-name">div</span><span class="tag-punctuation">&gt;</span><span>
+  </span><span class="tag-punctuation">&lt;/</span><span class="tag-name">body</span><span class="tag-punctuation">&gt;</span><span>
+</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">html</span><span class="tag-punctuation">&gt;</span></code></pre>
         <p>If you save such a template in a file called <code>default.template.html</code> in the
         root directory of your input sources it will get applied to all markup documents
         in those directories. You can optionally override the template for an individual
@@ -137,22 +134,22 @@ val html: String = Renderer
         <h3 id="html-renderer-properties" class="section">HTML Renderer Properties</h3>
         <p>The <code>unformatted</code> property tells the renderer to omit any formatting (line breaks or indentation) 
         around tags. Useful when storing the output in a database for example:</p>
-        <pre>val transformer = Transformer
-  .from(Markdown)
-  .to(HTML)
-  .unformatted 
-  .build</pre>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">unformatted</span><span> 
+  .</span><span class="identifier">build</span></code></pre>
         <p>The <code>withMessageLevel</code> property instructs the renderer to include system messages in the
         generated HTML. Messages may get inserted into the document tree for problems during
         parsing or reference resolution, e.g. an internal link to a destination that does not
         exist. By default these messages are not included in the output. They are mostly useful
         for testing and debugging, or for providing feedback to application users producing 
         markup input:</p>
-        <pre>val transformer = Transformer
-  .from(Markdown)
-  .to(HTML)
-  .withMessageLevel(Warning)
-  .build</pre>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">withMessageLevel</span><span>(</span><span class="type-name">Warning</span><span>)
+  .</span><span class="identifier">build</span></code></pre>
         
         <h3 id="css-javascript-and-other-files" class="section">CSS, JavaScript and other Files</h3>
         <p>The generated HTML can be styled with CSS like any other static HTML files.
@@ -163,18 +160,17 @@ val html: String = Renderer
         <h3 id="customizing-the-html-renderer" class="section">Customizing the HTML Renderer</h3>
         <p>Finally you can adjust the rendered output for one or more node types
         of the document tree programmatically with a simple partial function:</p>
-        <pre>val transformer = Transformer
-  .from(Markdown)
-  .to(HTML)
-  .rendering {
-    case (fmt, Emphasized(content, opt)) =&gt; 
-      fmt.element(&quot;em&quot;, opt, content, &quot;class&quot; -&gt; &quot;big&quot;)  
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">rendering</span><span> {
+    </span><span class="keyword">case</span><span> (</span><span class="identifier">fmt</span><span>, </span><span class="type-name">Emphasized</span><span>(</span><span class="identifier">content</span><span>, </span><span class="identifier">opt</span><span>)) =&gt; 
+      </span><span class="identifier">fmt</span><span>.</span><span class="identifier">element</span><span>(</span><span class="string-literal">&quot;em&quot;</span><span>, </span><span class="identifier">opt</span><span>, </span><span class="identifier">content</span><span>, </span><span class="string-literal">&quot;class&quot;</span><span> -&gt; </span><span class="string-literal">&quot;big&quot;</span><span>)  
   }
-  .build
-</pre>
+  .</span><span class="identifier">build</span></code></pre>
         <p>Note that in some cases the simpler way to achieve the same result may be
         styling with CSS.</p>
-        <p>See [Customizing Renderers] for more details.</p>
+        <p>See <a href="../customizing-laika/customize-rendering.html">Customizing Renderers</a> for more details.</p>
         
         <h2 id="epub" class="section">EPUB</h2>
         <p>Since version 0.11.0 Laika support the generation of e-books in the EPUB format.
@@ -192,27 +188,27 @@ val html: String = Renderer
         <p>See <a href="sbt.html#using-the-sbt-plugin">Using the sbt Plugin</a> for more details.</p>
         <p>If you want to produce EPUB files with the library API,
         the <code>laika-io</code> module is required for the binary output:</p>
-        <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika-io&quot; % &quot;0.12.1&quot;</pre>
+        <pre><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> += </span><span class="string-literal">&quot;org.planet42&quot;</span><span> %% </span><span class="string-literal">&quot;laika-io&quot;</span><span> % </span><span class="string-literal">&quot;0.13.0&quot;</span></code></pre>
         <p>The EPUB renderer can be used with the <code>Transform</code> or <code>Render</code> APIs:</p>
-        <pre>implicit val cs: ContextShift[IO] = 
-  IO.contextShift(ExecutionContext.global)
+        <pre><code class="nohighlight"><span class="keyword">implicit</span><span> </span><span class="keyword">val</span><span> </span><span class="identifier">cs</span><span>: </span><span class="type-name">ContextShift</span><span>[</span><span class="type-name">IO</span><span>] = 
+  </span><span class="type-name">IO</span><span>.</span><span class="identifier">contextShift</span><span>(</span><span class="type-name">ExecutionContext</span><span>.</span><span class="identifier">global</span><span>)
   
-val blocker = Blocker.liftExecutionContext(
-  ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
+</span><span class="keyword">val</span><span> </span><span class="identifier">blocker</span><span> = </span><span class="type-name">Blocker</span><span>.</span><span class="identifier">liftExecutionContext</span><span>(
+  </span><span class="type-name">ExecutionContext</span><span>.</span><span class="identifier">fromExecutor</span><span>(</span><span class="type-name">Executors</span><span>.</span><span class="identifier">newCachedThreadPool</span><span>())
 )
 
-val transformer = Transformer
-  .from(Markdown)
-  .to(EPUB)
-  .using(GitHubFlavor)
-  .io(blocker)
-  .parallel[IO]
-  .build
+</span><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">EPUB</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">GitHubFlavor</span><span>)
+  .</span><span class="identifier">io</span><span>(</span><span class="identifier">blocker</span><span>)
+  .</span><span class="identifier">parallel</span><span>[</span><span class="type-name">IO</span><span>]
+  .</span><span class="identifier">build</span><span>
 
-transformer
-  .fromDirectory(&quot;src&quot;)
-  .toFile(&quot;hello.epub&quot;)
-  .transform</pre>
+</span><span class="identifier">transformer</span><span>
+  .</span><span class="identifier">fromDirectory</span><span>(</span><span class="string-literal">&quot;src&quot;</span><span>)
+  .</span><span class="identifier">toFile</span><span>(</span><span class="string-literal">&quot;hello.epub&quot;</span><span>)
+  .</span><span class="identifier">transform</span></code></pre>
         <p>See <a href="embedded.html#using-the-library-api">Using the Library API</a> for more details on these APIs.</p>
         
         <h3 id="epub-directory-structure" class="section">EPUB Directory Structure</h3>
@@ -258,17 +254,17 @@ transformer
         <h3 id="configuration" class="section">Configuration</h3>
         <p>There are several configuration options for EPUB generation that can be set
         in the file <code>directory.conf</code> in the root directory of your input sources:</p>
-        <pre>epub {
-  toc.depth = 3
-  toc.title = &quot;Contents&quot;
-  coverImage = &quot;cover.png&quot;
+        <pre><code class="nohighlight"><span class="attribute-name">epub</span><span> {
+  </span><span class="attribute-name">toc.depth</span><span> = </span><span class="number-literal">3</span><span>
+  </span><span class="attribute-name">toc.title</span><span> = </span><span class="string-literal">&quot;Contents&quot;</span><span>
+  </span><span class="attribute-name">coverImage</span><span> = </span><span class="string-literal">&quot;cover.png&quot;</span><span>
 }  
-metadata {
-  identifier = &quot;urn:isbn:978-3-16-148410-0&quot;
-  date = &quot;2018-01-01T12:00:00Z&quot;
-  language = &quot;en:GB&quot;
-  author = &quot;Mia Miller&quot;
-}</pre>
+</span><span class="attribute-name">metadata</span><span> {
+  </span><span class="attribute-name">identifier</span><span> = </span><span class="string-literal">&quot;urn:isbn:978-3-16-148410-0&quot;</span><span>
+  </span><span class="attribute-name">date</span><span> = </span><span class="string-literal">&quot;2018-01-01T12:00:00Z&quot;</span><span>
+  </span><span class="attribute-name">language</span><span> = </span><span class="string-literal">&quot;en:GB&quot;</span><span>
+  </span><span class="attribute-name">author</span><span> = </span><span class="string-literal">&quot;Mia Miller&quot;</span><span>
+}</span></code></pre>
         <p>These properties control the following aspects of the rendering:</p>
         <ul>
           <li><code>toc.depth</code> the number of levels to generate a table of contents for. 
@@ -304,27 +300,27 @@ metadata {
         <p>See <a href="sbt.html#using-the-sbt-plugin">Using the sbt Plugin</a> for more details.</p>
         <p>If you want to produce PDF files with the library API,
         you need to add the <code>laika-pdf</code> module to your build:</p>
-        <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika-pdf&quot; % &quot;0.12.1&quot;</pre>
+        <pre><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> += </span><span class="string-literal">&quot;org.planet42&quot;</span><span> %% </span><span class="string-literal">&quot;laika-pdf&quot;</span><span> % </span><span class="string-literal">&quot;0.13.0&quot;</span></code></pre>
         <p>The PDF renderer can be used with the <code>Transform</code> or <code>Render</code> APIs:</p>
-        <pre>implicit val cs: ContextShift[IO] = 
-  IO.contextShift(ExecutionContext.global)
+        <pre><code class="nohighlight"><span class="keyword">implicit</span><span> </span><span class="keyword">val</span><span> </span><span class="identifier">cs</span><span>: </span><span class="type-name">ContextShift</span><span>[</span><span class="type-name">IO</span><span>] = 
+  </span><span class="type-name">IO</span><span>.</span><span class="identifier">contextShift</span><span>(</span><span class="type-name">ExecutionContext</span><span>.</span><span class="identifier">global</span><span>)
   
-val blocker = Blocker.liftExecutionContext(
-  ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
+</span><span class="keyword">val</span><span> </span><span class="identifier">blocker</span><span> = </span><span class="type-name">Blocker</span><span>.</span><span class="identifier">liftExecutionContext</span><span>(
+  </span><span class="type-name">ExecutionContext</span><span>.</span><span class="identifier">fromExecutor</span><span>(</span><span class="type-name">Executors</span><span>.</span><span class="identifier">newCachedThreadPool</span><span>())
 )
 
-val transformer = Transformer
-  .from(Markdown)
-  .to(PDF)
-  .using(GitHubFlavor)
-  .io(blocker)
-  .parallel[IO]
-  .build
+</span><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">PDF</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">GitHubFlavor</span><span>)
+  .</span><span class="identifier">io</span><span>(</span><span class="identifier">blocker</span><span>)
+  .</span><span class="identifier">parallel</span><span>[</span><span class="type-name">IO</span><span>]
+  .</span><span class="identifier">build</span><span>
 
-transformer
-  .fromDirectory(&quot;src&quot;)
-  .toFile(&quot;hello.pdf&quot;)
-  .transform</pre>
+</span><span class="identifier">transformer</span><span>
+  .</span><span class="identifier">fromDirectory</span><span>(</span><span class="string-literal">&quot;src&quot;</span><span>)
+  .</span><span class="identifier">toFile</span><span>(</span><span class="string-literal">&quot;hello.pdf&quot;</span><span>)
+  .</span><span class="identifier">transform</span></code></pre>
         <p>See <a href="embedded.html#using-the-library-api">Using the Library API</a> for more details on these APIs.</p>
         
         <h3 id="css-for-pdf" class="section">CSS for PDF</h3>
@@ -334,11 +330,11 @@ transformer
         that requires features like page breaks or footnotes that are not available in the context
         of a web page.</p>
         <p>The following example shows the style for headers from Laika&#39;s default CSS:</p>
-        <pre>Header {
-  font-family: sans-serif;
-  font-weight: bold;
-  font-size: 12pt;
-}</pre>
+        <pre><code class="nohighlight"><span class="identifier">Header</span><span> {
+  </span><span class="attribute-name">font-family</span><span>: </span><span class="identifier">sans-serif</span><span>;
+  </span><span class="attribute-name">font-weight</span><span>: </span><span class="identifier">bold</span><span>;
+  </span><span class="attribute-name">font-size</span><span>: </span><span class="number-literal">12</span><span class="identifier">pt</span><span>;
+}</span></code></pre>
         <p>The font-related attributes in this case are identical to the ones you know from web CSS,
         but the type selector does not refer to an HTML tag, but instead to a class name from the
         hierarchy of case classes forming the document tree of a parsed input source.</p>
@@ -355,9 +351,9 @@ transformer
         but instead to a class name from the hierarchy of case classes forming the document tree of a 
         parsed input source. See <a href="../api/laika/ast/">Elements Scaladoc</a> for an overview of all node types.</p>
         <p>Example:</p>
-        <pre>Paragraph {
-  font-size: 12pt;
-}</pre>
+        <pre><code class="nohighlight"><span class="identifier">Paragraph</span><span> {
+  </span><span class="attribute-name">font-size</span><span>: </span><span class="number-literal">12</span><span class="identifier">pt</span><span>;
+}</span></code></pre>
         
         <h4 id="class-selectors" class="section">Class Selectors</h4>
         <p>A class selector refers to a style attribute of a node in the document tree, similar to the
@@ -372,19 +368,18 @@ transformer
         </ul>
         <p>If you customize the renderer you can also add custom styles to any Laika node.</p>
         <p>Example for using the <code>title</code> style:</p>
-        <pre>.title {
-  font-size: 18pt;
-}</pre>
+        <pre><code class="nohighlight"><span>.</span><span class="identifier">title</span><span> {
+  </span><span class="attribute-name">font-size</span><span>: </span><span class="number-literal">18</span><span class="identifier">pt</span><span>;
+}</span></code></pre>
         
         <h4 id="id-selectors" class="section">Id Selectors</h4>
         <p>An id selector refers to the unique id of a node in the document tree, similar to the id
         of an HTML tag. Out of the box only a subset of nodes get rendered with an id: those that
         internal links refer to, like headers, footnotes or citations.</p>
         <p>Example:</p>
-        <pre>#my-header {
-  font-size: 18pt;
-}
-</pre>
+        <pre><code class="nohighlight"><span class="identifier">#my-header</span><span> {
+  </span><span class="attribute-name">font-size</span><span>: </span><span class="number-literal">18</span><span class="identifier">pt</span><span>;
+}</span></code></pre>
         
         <h4 id="selector-combinations" class="section">Selector Combinations</h4>
         <p>Like web CSS Laika supports combinations of selectors to refer to child elements
@@ -411,23 +406,23 @@ transformer
         either in the file <code>directory.conf</code> in the root directory of your input sources
         or programmatically on the <code>PDF</code> renderer.</p>
         <p>In <code>directory.conf</code> you can set the following options:</p>
-        <pre>pdf {
-  bookmarks.depth = 3
-  toc.depth = 3
-  toc.title = &quot;Contents&quot;
-  coverImage = &quot;cover.png&quot;
-}  </pre>
+        <pre><code class="nohighlight"><span class="attribute-name">pdf</span><span> {
+  </span><span class="attribute-name">bookmarks.depth</span><span> = </span><span class="number-literal">3</span><span>
+  </span><span class="attribute-name">toc.depth</span><span> = </span><span class="number-literal">3</span><span>
+  </span><span class="attribute-name">toc.title</span><span> = </span><span class="string-literal">&quot;Contents&quot;</span><span>
+  </span><span class="attribute-name">coverImage</span><span> = </span><span class="string-literal">&quot;cover.png&quot;</span><span>
+}</span></code></pre>
         <p>The same options are available programmatically through the <code>withConfig</code> method on the <code>PDF</code> renderer:</p>
-        <pre>val config = PDFConfig(
-  bookmarkDepth = 3,
-  tocDepth = 3,
-  tocTitle = Some(&quot;Contents&quot;)
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">config</span><span> = </span><span class="type-name">PDFConfig</span><span>(
+  </span><span class="identifier">bookmarkDepth</span><span> = </span><span class="number-literal">3</span><span>,
+  </span><span class="identifier">tocDepth</span><span> = </span><span class="number-literal">3</span><span>,
+  </span><span class="identifier">tocTitle</span><span> = </span><span class="type-name">Some</span><span>(</span><span class="string-literal">&quot;Contents&quot;</span><span>)
 )
 
-val transformer = Transformer
-  .from(Markdown)
-  .to(PDF.withConfig(config))
-  .build</pre>
+</span><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">PDF</span><span>.</span><span class="identifier">withConfig</span><span>(</span><span class="identifier">config</span><span>))
+  .</span><span class="identifier">build</span></code></pre>
         <p>These properties control the following aspects of the rendering:</p>
         <ul>
           <li><code>bookmarkDepth</code> the number of levels bookmarks should be generated for, 
@@ -458,18 +453,17 @@ val transformer = Transformer
         The available options are described in the <a href="https://xmlgraphics.apache.org/fop/2.1/configuration.html">Apache FOP documentation</a>.</p>
         <p>When you are using the sbt plugin, you can specify an Apache FOP configuration file with
         the <code>fopConfig</code> setting:</p>
-        <pre>fopConfig := Some(baseDirectory.value / &quot;customFop.xconf&quot;)
-</pre>
+        <pre><code class="nohighlight"><span class="identifier">fopConfig</span><span> := </span><span class="type-name">Some</span><span>(</span><span class="identifier">baseDirectory</span><span>.</span><span class="identifier">value</span><span> / </span><span class="string-literal">&quot;customFop.xconf&quot;</span><span>)</span></code></pre>
         <p>Note that the default is <code>None</code> as FOPs default configuration is often sufficient.</p>
         <p>When you are using Laika embedded, the PDF renderer has a hook to specify a custom
         <code>FopFactory</code>:</p>
-        <pre>val configFile = &quot;/path/to/customFop.xconf&quot;
-val factory = FopFactory.newInstance(new File(configFile))
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">configFile</span><span> = </span><span class="string-literal">&quot;/path/to/customFop.xconf&quot;</span><span>
+</span><span class="keyword">val</span><span> </span><span class="identifier">factory</span><span> = </span><span class="type-name">FopFactory</span><span>.</span><span class="identifier">newInstance</span><span>(</span><span class="keyword">new</span><span> </span><span class="type-name">File</span><span>(</span><span class="identifier">configFile</span><span>))
 
-val transformer = Transformer
-  .from(Markdown)
-  .to(PDF.withFopFactory(factory))
-  .build</pre>
+</span><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">PDF</span><span>.</span><span class="identifier">withFopFactory</span><span>(</span><span class="identifier">factory</span><span>))
+  .</span><span class="identifier">build</span></code></pre>
         <p>Note that a <code>FopFactory</code> is a fairly heavy-weight object, so make sure that you reuse
         either the <code>FopFactory</code> instance itself or the resulting <code>PDF</code> renderer.
         In case you do not specify a custom factory, Laika ensures that the default
@@ -488,38 +482,38 @@ val transformer = Transformer
         <h3 id="customizing-the-xsl-fo-renderer" class="section">Customizing the XSL-FO Renderer</h3>
         <p>Finally you can adjust the <code>fo</code> tags rendered for one or more node types
         of the document tree programmatically with a simple partial function:</p>
-        <pre>val transformer = Transformer
-  .from(Markdown)
-  .to(PDF)
-  .rendering {
-    case (fmt, elem @ Emphasized(content, _)) =&gt; 
-      fmt.inline(elem.copy(options = Style(&quot;myStyle&quot;)), content)   
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">PDF</span><span>)
+  .</span><span class="identifier">rendering</span><span> {
+    </span><span class="keyword">case</span><span> (</span><span class="identifier">fmt</span><span>, </span><span class="identifier">elem</span><span> @ </span><span class="type-name">Emphasized</span><span>(</span><span class="identifier">content</span><span>, </span><span class="identifier">_</span><span>)) =&gt; 
+      </span><span class="identifier">fmt</span><span>.</span><span class="identifier">inline</span><span>(</span><span class="identifier">elem</span><span>.</span><span class="identifier">copy</span><span>(</span><span class="identifier">options</span><span> = </span><span class="type-name">Style</span><span>(</span><span class="string-literal">&quot;myStyle&quot;</span><span>)), </span><span class="identifier">content</span><span>)   
   }
-  .build</pre>
+  .</span><span class="identifier">build</span></code></pre>
         <p>Note that in most cases the simpler way to achieve the same result will be
         styling with CSS.</p>
-        <p>See [Customizing Renderers] for more details.</p>
+        <p>See <a href="../customizing-laika/customize-rendering.html">Customizing Renderers</a> for more details.</p>
         
         <h2 id="xsl-fo" class="section">XSL-FO</h2>
         <p>XSL-FO is primarily intended as an interim format for producing PDF output, but you
         can alternatively use it as the final output format and then post-process it with other
         tools.</p>
         <p>The XSL-FO renderer can be used with the <code>Transformer</code> or <code>Renderer</code> APIs:</p>
-        <pre>val result: String = Transformer
-  .from(Markdown)
-  .to(XSLFO)
-  .build
-  .transform(&quot;hello *there*)
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">result</span><span>: </span><span class="type-name">String</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">XSLFO</span><span>)
+  .</span><span class="identifier">build</span><span>
+  .</span><span class="identifier">transform</span><span>(&quot;</span><span class="identifier">hello</span><span> *</span><span class="identifier">there</span><span>*)
 
-val doc: Document = Parser
-  .of(Markdown)
-  .build
-  .parse(&quot;hello *there*&quot;)
+</span><span class="keyword">val</span><span> </span><span class="identifier">doc</span><span>: </span><span class="type-name">Document</span><span> = </span><span class="type-name">Parser</span><span>
+  .</span><span class="identifier">of</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">build</span><span>
+  .</span><span class="identifier">parse</span><span>(</span><span class="string-literal">&quot;hello *there*&quot;</span><span>)
   
-val html: String = Renderer
-  .of(XSLFO)
-  .build
-  .render(doc)</pre>
+</span><span class="keyword">val</span><span> </span><span class="identifier">html</span><span>: </span><span class="type-name">String</span><span> = </span><span class="type-name">Renderer</span><span>
+  .</span><span class="identifier">of</span><span>(</span><span class="type-name">XSLFO</span><span>)
+  .</span><span class="identifier">build</span><span>
+  .</span><span class="identifier">render</span><span>(</span><span class="identifier">doc</span><span>)</span></code></pre>
         <p>See <a href="embedded.html#using-the-library-api">Using the Library API</a> for more details on these APIs.</p>
         <p>If you are using the sbt plugin you can use several of its task for generating
         XSL-FO output:</p>
@@ -543,26 +537,28 @@ val html: String = Renderer
         <code>toString</code> for a tree of case classes, mainly useful for testing and debugging
         purposes.</p>
         <p>You can use this renderer with the Transformer API:</p>
-        <pre>val input = &quot;some *text* example&quot;
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">input</span><span> = </span><span class="string-literal">&quot;some *text* example&quot;</span><span>
 
-Transformer
-  .from(Markdown)
-  .to(AST)
-  .build
-  .transform(input)
+</span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">AST</span><span>)
+  .</span><span class="identifier">build</span><span>
+  .</span><span class="identifier">transform</span><span>(</span><span class="identifier">input</span><span>)
 
+</span><span class="comment">/*
 res0: java.lang.String = Document - Blocks: 1
 . Paragraph - Spans: 3
 . . Text - &#39;some &#39;
 . . Emphasized - Spans: 1
 . . . Text - &#39;text&#39;
-. . Text - &#39; example&#39;</pre>
+. . Text - &#39; example&#39;
+*/</span></code></pre>
         <p>Alternatively you can use the Render API to render an existing document:</p>
-        <pre>val input = &quot;some *text* example&quot;
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">input</span><span> = </span><span class="string-literal">&quot;some *text* example&quot;</span><span>
 
-val doc = Parser.of(Markdown).build.parse(input)
+</span><span class="keyword">val</span><span> </span><span class="identifier">doc</span><span> = </span><span class="type-name">Parser</span><span>.</span><span class="identifier">of</span><span>(</span><span class="type-name">Markdown</span><span>).</span><span class="identifier">build</span><span>.</span><span class="identifier">parse</span><span>(</span><span class="identifier">input</span><span>)
 
-Renderer.of(AST).build.render(doc)</pre>
+</span><span class="type-name">Renderer</span><span>.</span><span class="identifier">of</span><span>(</span><span class="type-name">AST</span><span>).</span><span class="identifier">build</span><span>.</span><span class="identifier">render</span><span>(</span><span class="identifier">doc</span><span>)</span></code></pre>
         <p>The above will yield the same result as the previous example.</p>
         <p>Finally, if you are using the sbt plugin you can use the <code>laikaAST</code> task.</p>      
 

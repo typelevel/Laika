@@ -10,12 +10,10 @@
     <meta name="description" content="Customizable and extensible toolkit for transforming lightweight markup languages to various types of output formats, written in Scala" />
     <meta name="keywords" content="scala, text, markup, markdown, restructuredtext, parser, transformer, html, template engine, site generation, open-source" />
 
-    <link href="css/bootstrap.css" rel="stylesheet">
-    <link href="css/docs.css" rel="stylesheet">
-
-    <!--[if lt IE 9]>
-      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
+    <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+    <link href="../css/bootstrap.css" rel="stylesheet">
+    <link href="../css/docs.css" rel="stylesheet">
 
   </head>
 
@@ -30,7 +28,7 @@
       <div class="span4 toc" >
         
         <ul class="nav nav-list affix">
-          <div class="nav-top"><img src="img/laika-top.png"/></div>
+          <div class="nav-top"><img src="../img/laika-top.png"/></div>
           
           
           <li class="nav-header">Introduction</li>
@@ -43,6 +41,7 @@
           <li><a href="using-laika/output.html">Supported Output Formats</a></li>
           <li><a href="using-laika/structure.html">Document Structure</a></li>
           <li><a href="using-laika/templates.html">Templates</a></li>
+          <li><a href="using-laika/syntax.html">Syntax Highlighting</a></li>
           <li class="nav-header">Customizing Laika</li>
           <li><a href="customizing-laika/customize-rendering.html">Customizing Renderers</a></li>
           <li><a href="customizing-laika/tree-rewriting.html">Document Tree Rewriting</a></li>
@@ -55,13 +54,13 @@
           
           <li class="nav-header">Project Links</li>
           <li><a href="http://github.com/planet42/Laika">Source Code</a></li>
-          <li><a href="api/laika/api/">API Documentation</a></li>
+          <li><a href="../api/laika/api/">API Documentation</a></li>
           <li><a href="http://github.com/planet42/Laika/issues">Issue Tracker</a></li>
           <li><a href="http://planet42.org/">Transformer Web Tool</a></li>
           <li class="follow"><a href="https://twitter.com/_planet42" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false" data-dnt="true">Follow @_planet42</a>
           <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script></li>
           
-          <div class="nav-bottom"><img src="img/laika-bottom.png" border="1"/></div>
+          <div class="nav-bottom"><img src="../img/laika-bottom.png" border="1"/></div>
         </ul>
         
       </div>
@@ -87,8 +86,8 @@
         </ul>
         <p>This guide is written for users of the 0.9, 0.10 and 0.11 releases which had been compatible
         with each other. </p>
-        <p>If you migrate from an even earlier version, please start with the
-        <a href="https://github.com/planet42/Laika/releases/tag/0.9.0">Release Notes for 0.9</a> first.</p>
+        <p>If you migrate from an even earlier version, please start with the release
+        notes for 0.9 first <a href="https://github.com/planet42/Laika/releases/tag/0.9.0">https://github.com/planet42/Laika/releases/tag/0.9.0</a> </p>
         
         <h2 id="motivation" class="section">Motivation</h2>
         <p>The following design goals led to the partial rewrite:</p>
@@ -148,60 +147,59 @@
         </ul>
         <p>It&#39;s probably easiest to just show a few before/after examples below:</p>
         <p><strong>Transforming from Markdown to HTML in-memory</strong></p>
-        <p>Before</p>
-        <pre>val input = &quot;some *text* example&quot;
-
-val transformer = Transform
-  .from(Markdown)
-  .to(HTML)
-  .using(GitHubFlavor)
-  
-val res: String = transformer
-  .fromString(input)
-  .toString  </pre>
-        <p>After</p>
-        <pre>val input = &quot;some *text* example&quot;
-
-val transformer = Transformer
-  .from(Markdown)
-  .to(HTML)
-  .using(GitHubFlavor)
-  .build
-  
-val res: Either[ParserError, String] = transformer
-  .transform(input)</pre>
+        <p>Before
+        ```scala
+        val input = &quot;some <em>text</em> example&quot;</p>
+        <p>val transformer = Transform
+          .from(Markdown)
+          .to(HTML)
+          .using(GitHubFlavor)</p>
+        <p>val res: String = transformer
+          .fromString(input)
+          .toString<br>
+        ```</p>
+        <p>After
+        ```scala
+        val input = &quot;some <em>text</em> example&quot;</p>
+        <p>val transformer = Transformer
+          .from(Markdown)
+          .to(HTML)
+          .using(GitHubFlavor)
+          .build</p>
+        <p>val res: Either[ParserError, String] = transformer
+          .transform(input)
+        ```</p>
         <p><strong>Transforming a directory of files from Markdown to HTML</strong></p>
-        <p>Before</p>
-        <pre>val transformer = Transform
-  .from(Markdown)
-  .to(HTML)
-  .using(GitHubFlavor)
-  
-val res: Unit = transformer
-  .fromDirectory(&quot;src&quot;)
-  .toDirectory(&quot;target&quot;)  </pre>
-        <p>After (ensure you added the new <code>laika-io</code> dependency):</p>
-        <pre>import laika.io.implicits._
-
-implicit val cs: ContextShift[IO] = 
-  IO.contextShift(ExecutionContext.global)
-      
-val blocker = Blocker.liftExecutionContext(
-  ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
-)
-    
-val transformer = Transformer
-  .from(Markdown)
-  .to(HTML)
-  .using(GitHubFlavor)
-  .io(blocker)
-  .parallel[IO]
-  .build
-  
-val res: IO[Unit] = transformer
-  .fromDirectory(&quot;src&quot;)
-  .toDirectory(&quot;target&quot;)
-  .transform</pre>
+        <p>Before
+        ```scala
+        val transformer = Transform
+          .from(Markdown)
+          .to(HTML)
+          .using(GitHubFlavor)</p>
+        <p>val res: Unit = transformer
+          .fromDirectory(&quot;src&quot;)
+          .toDirectory(&quot;target&quot;)<br>
+        ```</p>
+        <p>After (ensure you added the new <code>laika-io</code> dependency):
+        ```scala
+        import laika.io.implicits._</p>
+        <p>implicit val cs: ContextShift[IO] = 
+          IO.contextShift(ExecutionContext.global)</p>
+        <p>val blocker = Blocker.liftExecutionContext(
+          ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
+        )</p>
+        <p>val transformer = Transformer
+          .from(Markdown)
+          .to(HTML)
+          .using(GitHubFlavor)
+          .io(blocker)
+          .parallel[IO]
+          .build</p>
+        <p>val res: IO[Unit] = transformer
+          .fromDirectory(&quot;src&quot;)
+          .toDirectory(&quot;target&quot;)
+          .transform
+        ```</p>
         <p>Note that while the new code sample looks more verbose, it now gives you full
         control over where your effects are run.</p>
         
@@ -210,23 +208,24 @@ val res: IO[Unit] = transformer
         Renderers now take AST elements and produce a string and will be invoked
         recursively as before. This model allows for easier testing and pure code
         at a minimal performance hit over the old design (&lt; 10%).</p>
-        <p>Before</p>
-        <pre>val transformer = Transform
+        <p>Before
+        <code>`scala
+val transformer = Transform
   .from(Markdown)
   .to(HTML)
   .rendering { out =&gt; 
     { case Emphasized(content, _) =&gt; 
       out &lt;&lt; &quot;&quot;&quot;&lt;em class=&quot;big&quot;&gt;&quot;&quot;&quot; &lt;&lt; content &lt;&lt; &quot;&lt;/em&gt;&quot; } 
-  }</pre>
-        <p>After</p>
-        <pre>val transformer = Transformer
+  }</code>`</p>
+        <p>After
+        <code>`scala
+val transformer = Transformer
   .from(Markdown)
   .to(HTML)
   .rendering {
     case (fmt, Emphasized(content, opt)) =&gt; 
       fmt.element(&quot;em&quot;, opt, content, &quot;class&quot; -&gt; &quot;big&quot;)
-    }
-  .build</pre>
+    }.build</code>`</p>
         <p>The engine passes the following instances to the partial function:</p>
         <ul>
           <li>The formatter (<code>fmt</code>) which has a different API for each supported output format,
@@ -243,21 +242,23 @@ val res: IO[Unit] = transformer
           <li>Rules for rewriting spans and blocks get registered separately for increased
           type-safety, as it is invalid to replace a span with a block element.</li>
         </ul>
-        <p>Before</p>
-        <pre>val transformer = Transform
+        <p>Before
+        <code>`scala
+val transformer = Transform
   .from(Markdown)
   .to(HTML)
   .usingRule {
     case Emphasized(content, opts) =&gt; Some(Strong(content, opts))
-  }</pre>
-        <p>After</p>
-        <pre>val transformer = Transformer
+  }</code>`</p>
+        <p>After
+        <code>`scala
+val transformer = Transformer
   .from(Markdown)
   .to(HTML)
   .usingSpanRule {
     case Emphasized(content, opts) =&gt; Replace(Strong(content, opts))
   }
-  .build</pre>
+  .build</code>`</p>
         
         <h2 id="templating" class="section">Templating</h2>
         <p>Variable substitutions now use HOCON syntax in line with the general deeper integration
@@ -279,20 +280,21 @@ val res: IO[Unit] = transformer
           <li>HOCON syntax is now used for attributes</li>
           <li>The old syntax is still supported, but will be removed at some point before the 1.0 release</li>
         </ul>
-        <p>Before</p>
-        <pre>@:if &quot;layout.showSidebar&quot;:
-  &lt;div class=&quot;sidebar&quot;&gt;...&lt;/div&gt;
-
-~else:
-  &lt;p&gt;Something else&lt;/p&gt;</pre>
-        <p>After</p>
-        <pre>@:if { layout.showSidebar }
-&lt;div class=&quot;sidebar&quot;&gt;...&lt;/div&gt;
-
-@:else
-&lt;p&gt;Something else&lt;/p&gt;
-
-@:@</pre>
+        <p>Before
+        ```laika-html
+        @:if &quot;layout.showSidebar&quot;:
+          &lt;div class=&quot;sidebar&quot;&gt;...&lt;/div&gt;</p>
+        <p>~else:
+          &lt;p&gt;Something else&lt;/p&gt;
+        ```</p>
+        <p>After
+        ```laika-html
+        @:if { layout.showSidebar }
+        &lt;div class=&quot;sidebar&quot;&gt;...&lt;/div&gt;</p>
+        <pre>@:else</pre>
+        <p>&lt;p&gt;Something else&lt;/p&gt;</p>
+        <p>@:@
+        ```</p>
         
         <h3 id="directive-dsl" class="section">Directive DSL</h3>
         <p>The building blocks for creating your own directives have also changed significantly:</p>
@@ -306,31 +308,31 @@ val res: IO[Unit] = transformer
           <li>The built-in helper for mapping directive parts with different arity has
           been replaced by cats <code>mapN</code></li>
         </ul>
-        <p>Before</p>
-        <pre>import laika.ast._
-import Spans.dsl._
-
-case class Note (title: String, 
-                 content: Seq[Span], 
-                 options: Options = NoOpt) extends Span 
-                                           with SpanContainer[Note]
- 
-val spanDirective = Spans.create(&quot;note&quot;) {
-  (attribute(Default) ~ body(Default)) (Note(_,_))
-}  </pre>
-        <p>After</p>
-        <pre>import cats.implicits._
-import laika.ast._
-import Spans.dsl._
-
-case class Note (title: String, 
-                 content: Seq[Span], 
-                 options: Options = NoOpt) extends Span 
-                                           with SpanContainer[Note]
- 
-val spanDirective = Spans.create(&quot;note&quot;) {
-  (defaultAttribute.as[String], parsedBody).mapN(Note(_,_))
-}  </pre>
+        <p>Before
+        ```scala
+        import laika.ast._
+        import Spans.dsl._</p>
+        <p>case class Note (title: String, 
+                         content: Seq[Span], 
+                         options: Options = NoOpt) extends Span 
+                                                   with SpanContainer[Note]</p>
+        <p>val spanDirective = Spans.create(&quot;note&quot;) {
+          (attribute(Default) ~ body(Default)) (Note(<em>,</em>))
+        }<br>
+        ```</p>
+        <p>After
+        ```scala
+        import cats.implicits._
+        import laika.ast._
+        import Spans.dsl._</p>
+        <p>case class Note (title: String, 
+                         content: Seq[Span], 
+                         options: Options = NoOpt) extends Span 
+                                                   with SpanContainer[Note]</p>
+        <p>val spanDirective = Spans.create(&quot;note&quot;) {
+          (defaultAttribute.as[String], parsedBody).mapN(Note(<em>,</em>))
+        }<br>
+        ```</p>
         <p>Note the additional import of cats implicits in the new version.</p>
         
         <h2 id="config-api" class="section">Config API</h2>

@@ -139,7 +139,7 @@
                         <a href="ConfigException.html" title="A ConfigError as a RuntimeException for use cases where a Throwable is required.">ConfigException</a>
                       </li><li class="current-entities indented2">
                         <a class="object" href="ConfigParser$.html" title=""></a>
-                        <a class="class" href="" title="A parser for obtaining a Config instance from a HOCON string."></a>
+                        <a class="trait" href="" title="A parser for obtaining a Config instance from a HOCON string."></a>
                         <a href="" title="A parser for obtaining a Config instance from a HOCON string.">ConfigParser</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
@@ -153,6 +153,10 @@
                         <span class="separator"></span>
                         <a class="class" href="ConfigResolverError.html" title="An error that occurred when resolving the interim result of a parsing operation."></a>
                         <a href="ConfigResolverError.html" title="An error that occurred when resolving the interim result of a parsing operation.">ConfigResolverError</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="ConfigResourceError.html" title="An error that occurred when loading a resource, before parsing could start."></a>
+                        <a href="ConfigResourceError.html" title="An error that occurred when loading a resource, before parsing could start.">ConfigResourceError</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="trait" href="ConfigValue.html" title="The base trait for all configuration values."></a>
@@ -182,9 +186,9 @@
                         <a class="class" href="InvalidType.html" title="Indicates that a value found in the configuration does not have the expected type so that type conversion is not even attempted."></a>
                         <a href="InvalidType.html" title="Indicates that a value found in the configuration does not have the expected type so that type conversion is not even attempted.">InvalidType</a>
                       </li><li class="current-entities indented2">
-                        <span class="separator"></span>
                         <a class="object" href="Key$.html" title=""></a>
-                        <a href="Key$.html" title="">Key</a>
+                        <a class="class" href="Key.html" title=""></a>
+                        <a href="Key.html" title="">Key</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="LongValue.html" title=""></a>
@@ -230,9 +234,9 @@
             </div>
           </div>
           <div id="content">
-            <body class="class type">
+            <body class="trait type">
       <div id="definition">
-        <a href="ConfigParser$.html" title="See companion object"><div class="big-circle class-companion-object">c</div></a>
+        <a href="ConfigParser$.html" title="See companion object"><div class="big-circle trait-companion-object">t</div></a>
         <p id="owner"><a href="../index.html" class="extype" name="laika">laika</a>.<a href="index.html" class="extype" name="laika.config">config</a></p>
         <h1><a href="ConfigParser$.html" title="See companion object">ConfigParser</a><span class="permalink">
       <a href="../../laika/config/ConfigParser.html" title="Permalink">
@@ -247,7 +251,7 @@
       <h4 id="signature" class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">class</span>
+        <span class="kind">trait</span>
       </span>
       <span class="symbol">
         <span class="name">ConfigParser</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
@@ -305,33 +309,86 @@
 
       <div id="template">
         <div id="allMembers">
-        <div id="constructors" class="members">
-              <h3>Instance Constructors</h3>
-              <ol><li name="laika.config.ConfigParser#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(input:String,origin:laika.config.Origin,fallback:laika.config.Config):laika.config.ConfigParser"></a><a id="&lt;init&gt;:ConfigParser"></a>
-      <span class="permalink">
-      <a href="../../laika/config/ConfigParser.html#&lt;init&gt;(input:String,origin:laika.config.Origin,fallback:laika.config.Config):laika.config.ConfigParser" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">new</span>
-      </span>
-      <span class="symbol">
-        <span class="name">ConfigParser</span><span class="params">(<span name="input">input: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="origin">origin: <a href="Origin.html" class="extype" name="laika.config.Origin">Origin</a></span>, <span name="fallback">fallback: <a href="Config.html" class="extype" name="laika.config.Config">Config</a> = <span class="symbol"><span class="name"><a href="EmptyConfig$.html">EmptyConfig</a></span></span></span>)</span>
-      </span>
-      
-      
-    </li></ol>
-            </div>
-
         
 
         
 
         <div class="values members">
-              <h3>Value Members</h3>
+              <h3>Abstract Value Members</h3>
+              <ol><li name="laika.config.ConfigParser#includes" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="includes:Seq[laika.parse.hocon.IncludeResource]"></a><a id="includes:Seq[IncludeResource]"></a>
+      <span class="permalink">
+      <a href="../../laika/config/ConfigParser.html#includes:Seq[laika.parse.hocon.IncludeResource]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">includes</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="../parse/hocon/IncludeResource.html" class="extype" name="laika.parse.hocon.IncludeResource">IncludeResource</a>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Extracts all unresolved requested includes the parsed configuration contains,
+including those nested inside other objects.</p><div class="fullcomment"><div class="comment cmt"><p>Extracts all unresolved requested includes the parsed configuration contains,
+including those nested inside other objects.</p><p>Since the pure core module does not support effectful IO, this hook
+can be used by a higher level API to resolve includes and pass them
+to the <code>resolve</code> method.
+</p></div></div>
+    </li><li name="laika.config.ConfigParser#resolve" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="resolve(origin:laika.config.Origin,fallback:laika.config.Config,includes:laika.config.Config.IncludeMap):Either[laika.config.ConfigError,laika.config.Config]"></a><a id="resolve(Origin,Config,IncludeMap):Either[ConfigError,Config]"></a>
+      <span class="permalink">
+      <a href="../../laika/config/ConfigParser.html#resolve(origin:laika.config.Origin,fallback:laika.config.Config,includes:laika.config.Config.IncludeMap):Either[laika.config.ConfigError,laika.config.Config]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">resolve</span><span class="params">(<span name="origin">origin: <a href="Origin.html" class="extype" name="laika.config.Origin">Origin</a> = <span class="symbol"><span class="name"><a href="Origin$.html">Origin.root</a></span></span></span>, <span name="fallback">fallback: <a href="Config.html" class="extype" name="laika.config.Config">Config</a> = <span class="symbol"><span class="name"><a href="EmptyConfig$.html">EmptyConfig</a></span></span></span>, <span name="includes">includes: <a href="Config$.html#IncludeMap=Map[laika.parse.hocon.IncludeResource,Either[laika.config.ConfigError,laika.parse.hocon.ObjectBuilderValue]]" class="extmbr" name="laika.config.Config.IncludeMap">IncludeMap</a> = <span class="symbol"><span class="name"><a href="ConfigParser$.html">ConfigParser.includesNotSupported</a></span></span></span>)</span><span class="result">: <span class="extype" name="scala.Either">Either</span>[<a href="ConfigError.html" class="extype" name="laika.config.ConfigError">ConfigError</a>, <a href="Config.html" class="extype" name="laika.config.Config">Config</a>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Parses and resolves the parsed HOCON input.</p><div class="fullcomment"><div class="comment cmt"><p>Parses and resolves the parsed HOCON input.
+This includes the resolving of substitution references
+and the merging of concatenated objects, arrays and strings.</p><p>Failures may be caused by both, the parser and resolver step.</p><p>The specified origin will be attached to every field.
+Origins can be used to distinguish values from a specific Config
+instance from those which were inherited from a fallback, which
+might be relevant in scenarios where relative paths need to be
+resolved for example.</p><p>The specified fallback will be used for resolving keys which are
+not present in the configuration created by this parser.</p><p>If an entire object is requested in the resulting Config instance,
+the keys will be merged from this parser with those present in the fallback.
+Simple values on the other hand will always override values with the same
+key in the fallback.</p><p>The specified includes contain all resources that could be loaded
+based on the requested resources exposed by the <code>includes</code> property.
+Keeping the actual loading separate allows the resource loading step
+to be separate and in a module designed for effectful operations.
+</p></div></div>
+    </li><li name="laika.config.ConfigParser#unresolved" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="unresolved:Either[laika.config.ConfigError,laika.parse.hocon.ObjectBuilderValue]"></a><a id="unresolved:Either[ConfigError,ObjectBuilderValue]"></a>
+      <span class="permalink">
+      <a href="../../laika/config/ConfigParser.html#unresolved:Either[laika.config.ConfigError,laika.parse.hocon.ObjectBuilderValue]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">unresolved</span><span class="result">: <span class="extype" name="scala.Either">Either</span>[<a href="ConfigError.html" class="extype" name="laika.config.ConfigError">ConfigError</a>, <a href="../parse/hocon/ObjectBuilderValue.html" class="extype" name="laika.parse.hocon.ObjectBuilderValue">ObjectBuilderValue</a>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">The unresolved result of the parser which can be used
+for processing inclusions that will be resolved in the
+context of the hosting configuration.</p>
+    </li></ol>
+            </div>
+
+        <div class="values members">
+              <h3>Concrete Value Members</h3>
               <ol>
                 <li name="scala.AnyRef#!=" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:Any):Boolean"></a><a id="!=(Any):Boolean"></a>
@@ -583,25 +640,6 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="laika.config.ConfigParser#resolve" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="resolve:Either[laika.config.ConfigError,laika.config.Config]"></a><a id="resolve:Either[ConfigError,Config]"></a>
-      <span class="permalink">
-      <a href="../../laika/config/ConfigParser.html#resolve:Either[laika.config.ConfigError,laika.config.Config]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">resolve</span><span class="result">: <span class="extype" name="scala.Either">Either</span>[<a href="ConfigError.html" class="extype" name="laika.config.ConfigError">ConfigError</a>, <a href="Config.html" class="extype" name="laika.config.Config">Config</a>]</span>
-      </span>
-      
-      <p class="shortcomment cmt">Parses and resolves the parsed HOCON input.</p><div class="fullcomment"><div class="comment cmt"><p>Parses and resolves the parsed HOCON input.
-This includes the resolving of substitution references
-and the merging of concatenated objects, arrays and strings.</p><p>Failures may be caused by both, the parser and resolver step.
-</p></div></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">
@@ -702,30 +740,6 @@ and the merging of concatenated objects, arrays and strings.</p><p>Failures may 
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="laika.config.ConfigParser#withFallback" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="withFallback(other:laika.config.Config):laika.config.ConfigParser"></a><a id="withFallback(Config):ConfigParser"></a>
-      <span class="permalink">
-      <a href="../../laika/config/ConfigParser.html#withFallback(other:laika.config.Config):laika.config.ConfigParser" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">withFallback</span><span class="params">(<span name="other">other: <a href="Config.html" class="extype" name="laika.config.Config">Config</a></span>)</span><span class="result">: <a href="" class="extype" name="laika.config.ConfigParser">ConfigParser</a></span>
-      </span>
-      
-      <p class="shortcomment cmt">Creates a new parser with the specified fallback which will be used
-for resolving keys which are not present in the configuration created
-by this parser.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new parser with the specified fallback which will be used
-for resolving keys which are not present in the configuration created
-by this parser.</p><p>If an entire object is requested in the resulting Config instance,
-the keys will be merged from this parser with those present in the fallback.
-Simple values on the other hand will always override values with the same
-key in the fallback.
-</p></div></div>
     </li>
               </ol>
             </div>

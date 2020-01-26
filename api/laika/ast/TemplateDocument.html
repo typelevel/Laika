@@ -155,6 +155,10 @@
                         <a href="Caption.html" title="The table caption.">Caption</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="trait" href="CategorizedCode.html" title="A single span inside a code block that has been categorized by a syntax highlighter."></a>
+                        <a href="CategorizedCode.html" title="A single span inside a code block that has been categorized by a syntax highlighter.">CategorizedCode</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="class" href="Cell.html" title="A single cell, potentially spanning multiple rows or columns, containing one or more block elements."></a>
                         <a href="Cell.html" title="A single cell, potentially spanning multiple rows or columns, containing one or more block elements.">Cell</a>
                       </li><li class="current-entities indented2">
@@ -175,12 +179,20 @@
                         <a href="CitationReference.html" title="A reference to a citation with a matching label.">CitationReference</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="class" href="Code.html" title="A span of program code."></a>
-                        <a href="Code.html" title="A span of program code.">Code</a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
                         <a class="class" href="CodeBlock.html" title="A block of program code."></a>
                         <a href="CodeBlock.html" title="A block of program code.">CodeBlock</a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="CodeSpan$.html" title=""></a>
+                        <a class="class" href="CodeSpan.html" title="A span of code associated with zero or more code categories."></a>
+                        <a href="CodeSpan.html" title="A span of code associated with zero or more code categories.">CodeSpan</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="CodeSpanSequence.html" title="A sequence of code spans where most of them are usually associated with zero or more code categories."></a>
+                        <a href="CodeSpanSequence.html" title="A sequence of code spans where most of them are usually associated with zero or more code categories.">CodeSpanSequence</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="object" href="CodeSpans$.html" title=""></a>
+                        <a href="CodeSpans$.html" title="">CodeSpans</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="Column.html" title="The options (like styles) for a column table."></a>
@@ -369,6 +381,10 @@
                         <span class="separator"></span>
                         <a class="class" href="ImageReference.html" title="An image reference, the id pointing to the id of a LinkTarget."></a>
                         <a href="ImageReference.html" title="An image reference, the id pointing to the id of a LinkTarget.">ImageReference</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="InlineCode.html" title="A span of program code."></a>
+                        <a href="InlineCode.html" title="A span of program code.">InlineCode</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="Inserted.html" title="A span representing inserted inline elements that may contain nested spans."></a>
@@ -764,7 +780,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">TemplateDocument</span><span class="params">(<span name="path">path: <a href="Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="content">content: <a href="TemplateRoot.html" class="extype" name="laika.ast.TemplateRoot">TemplateRoot</a></span>, <span name="config">config: <a href="../bundle/UnresolvedConfig.html" class="extype" name="laika.bundle.UnresolvedConfig">UnresolvedConfig</a> = <span class="symbol"><span class="name"><a href="../index.html">UnresolvedConfig.empty</a></span></span></span>)</span><span class="result"> extends <a href="Navigatable.html" class="extype" name="laika.ast.Navigatable">Navigatable</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">TemplateDocument</span><span class="params">(<span name="path">path: <a href="Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="content">content: <a href="TemplateRoot.html" class="extype" name="laika.ast.TemplateRoot">TemplateRoot</a></span>, <span name="config">config: <a href="../config/ConfigParser.html" class="extype" name="laika.config.ConfigParser">ConfigParser</a> = <span class="symbol"><span class="name"><a href="../index.html">ConfigParser.empty</a></span></span></span>)</span><span class="result"> extends <a href="Navigatable.html" class="extype" name="laika.ast.Navigatable">Navigatable</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
@@ -822,9 +838,9 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.ast.TemplateDocument#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(path:laika.ast.Path,content:laika.ast.TemplateRoot,config:laika.bundle.UnresolvedConfig):laika.ast.TemplateDocument"></a><a id="&lt;init&gt;:TemplateDocument"></a>
+      <a id="&lt;init&gt;(path:laika.ast.Path,content:laika.ast.TemplateRoot,config:laika.config.ConfigParser):laika.ast.TemplateDocument"></a><a id="&lt;init&gt;:TemplateDocument"></a>
       <span class="permalink">
-      <a href="../../laika/ast/TemplateDocument.html#&lt;init&gt;(path:laika.ast.Path,content:laika.ast.TemplateRoot,config:laika.bundle.UnresolvedConfig):laika.ast.TemplateDocument" title="Permalink">
+      <a href="../../laika/ast/TemplateDocument.html#&lt;init&gt;(path:laika.ast.Path,content:laika.ast.TemplateRoot,config:laika.config.ConfigParser):laika.ast.TemplateDocument" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -833,7 +849,7 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">TemplateDocument</span><span class="params">(<span name="path">path: <a href="Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="content">content: <a href="TemplateRoot.html" class="extype" name="laika.ast.TemplateRoot">TemplateRoot</a></span>, <span name="config">config: <a href="../bundle/UnresolvedConfig.html" class="extype" name="laika.bundle.UnresolvedConfig">UnresolvedConfig</a> = <span class="symbol"><span class="name"><a href="../index.html">UnresolvedConfig.empty</a></span></span></span>)</span>
+        <span class="name">TemplateDocument</span><span class="params">(<span name="path">path: <a href="Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="content">content: <a href="TemplateRoot.html" class="extype" name="laika.ast.TemplateRoot">TemplateRoot</a></span>, <span name="config">config: <a href="../config/ConfigParser.html" class="extype" name="laika.config.ConfigParser">ConfigParser</a> = <span class="symbol"><span class="name"><a href="../index.html">ConfigParser.empty</a></span></span></span>)</span>
       </span>
       
       
@@ -953,9 +969,9 @@
               
         </dd></dl></div>
     </li><li name="laika.ast.TemplateDocument#config" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="config:laika.bundle.UnresolvedConfig"></a><a id="config:UnresolvedConfig"></a>
+      <a id="config:laika.config.ConfigParser"></a><a id="config:ConfigParser"></a>
       <span class="permalink">
-      <a href="../../laika/ast/TemplateDocument.html#config:laika.bundle.UnresolvedConfig" title="Permalink">
+      <a href="../../laika/ast/TemplateDocument.html#config:laika.config.ConfigParser" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -964,7 +980,7 @@
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">config</span><span class="result">: <a href="../bundle/UnresolvedConfig.html" class="extype" name="laika.bundle.UnresolvedConfig">UnresolvedConfig</a></span>
+        <span class="name">config</span><span class="result">: <a href="../config/ConfigParser.html" class="extype" name="laika.config.ConfigParser">ConfigParser</a></span>
       </span>
       
       

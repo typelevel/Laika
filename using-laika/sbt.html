@@ -10,12 +10,10 @@
     <meta name="description" content="Customizable and extensible toolkit for transforming lightweight markup languages to various types of output formats, written in Scala" />
     <meta name="keywords" content="scala, text, markup, markdown, restructuredtext, parser, transformer, html, template engine, site generation, open-source" />
 
+    <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
     <link href="../css/bootstrap.css" rel="stylesheet">
     <link href="../css/docs.css" rel="stylesheet">
-
-    <!--[if lt IE 9]>
-      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
 
   </head>
 
@@ -43,6 +41,7 @@
           <li><a href="output.html">Supported Output Formats</a></li>
           <li><a href="structure.html">Document Structure</a></li>
           <li><a href="templates.html">Templates</a></li>
+          <li><a href="syntax.html">Syntax Highlighting</a></li>
           <li class="nav-header">Customizing Laika</li>
           <li><a href="../customizing-laika/customize-rendering.html">Customizing Renderers</a></li>
           <li><a href="../customizing-laika/tree-rewriting.html">Document Tree Rewriting</a></li>
@@ -81,12 +80,11 @@
         <p>If you still need to use sbt 0.13.x, you can use Laika 0.7.0 which was the last release
         supporting that sbt version.</p>
         <p>First add the plugin to <code>project/plugins.sbt</code>:</p>
-        <pre>addSbtPlugin(&quot;org.planet42&quot; % &quot;laika-sbt&quot; % &quot;0.12.1&quot;)</pre>
+        <pre><code class="nohighlight"><span class="identifier">addSbtPlugin</span><span>(</span><span class="string-literal">&quot;org.planet42&quot;</span><span> % </span><span class="string-literal">&quot;laika-sbt&quot;</span><span> % </span><span class="string-literal">&quot;0.13.0&quot;</span><span>)</span></code></pre>
         <p>If you want to install it globally, add the line above to
         <code>~/.sbt/1.0/plugins/build.sbt</code> instead.</p>
         <p>Then enable the plugin in your project&#39;s <code>build.sbt</code>:</p>
-        <pre>enablePlugins(LaikaPlugin)
-</pre>
+        <pre><code class="nohighlight"><span class="identifier">enablePlugins</span><span>(</span><span class="type-name">LaikaPlugin</span><span>)</span></code></pre>
         <p>You can now add content to the directory <code>src/docs</code> inside your project 
         and run <code>laikaSite</code> from within sbt to generate the site in 
         <code>target/docs/site</code>. See the following sections for details.</p>
@@ -116,22 +114,22 @@
             output format in Laika that supports templating, currently this is <code>.html</code> for HTML,
             <code>.epub.xhtml</code> for EPUB and <code>.fo</code> for PDF or XSL-FO output. A very basic HTML template may look 
             like this:</p>
-            <pre>&lt;html&gt;
-  &lt;head&gt;
-    &lt;title&gt;${document.title}&lt;/title&gt;
-  &lt;/head&gt;
-  &lt;body&gt;
-    &lt;div class=&quot;content&quot;&gt;
-      ${document.content}
-    &lt;/div&gt;
-  &lt;/body&gt;
-&lt;/html&gt;</pre>
-            <p>The two placeholders enclosed in double curly braces will be replaced with the
-            title and content of the parsed markup document.</p>
           </li>
-          <li>
-            <p>Other static files that simply get copied to the target directory.</p>
-          </li>
+        </ul>
+        <pre><code class="nohighlight"><span class="tag-punctuation">&lt;</span><span class="tag-name">html</span><span class="tag-punctuation">&gt;</span><span>
+  </span><span class="tag-punctuation">&lt;</span><span class="tag-name">head</span><span class="tag-punctuation">&gt;</span><span>
+    </span><span class="tag-punctuation">&lt;</span><span class="tag-name">title</span><span class="tag-punctuation">&gt;</span><span class="substitution">${document.title}</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">title</span><span class="tag-punctuation">&gt;</span><span>
+  </span><span class="tag-punctuation">&lt;/</span><span class="tag-name">head</span><span class="tag-punctuation">&gt;</span><span>
+  </span><span class="tag-punctuation">&lt;</span><span class="tag-name">body</span><span class="tag-punctuation">&gt;</span><span>
+    </span><span class="tag-punctuation">&lt;</span><span class="tag-name">div</span><span class="tag-punctuation"> </span><span class="attribute-name">class</span><span class="tag-punctuation">=</span><span class="string-literal">&quot;content&quot;</span><span class="tag-punctuation">&gt;</span><span>
+      </span><span class="substitution">${document.content}</span><span>
+    </span><span class="tag-punctuation">&lt;/</span><span class="tag-name">div</span><span class="tag-punctuation">&gt;</span><span>
+  </span><span class="tag-punctuation">&lt;/</span><span class="tag-name">body</span><span class="tag-punctuation">&gt;</span><span>
+</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">html</span><span class="tag-punctuation">&gt;</span></code></pre>
+        <p>The two placeholders enclosed in double curly braces will be replaced with the
+          title and content of the parsed markup document.</p>
+        <ul>
+          <li>Other static files that simply get copied to the target directory.</li>
         </ul>
         <p>For more details on the template engine, see the chapter [Templates].</p>
         <p>For features like titles, sections, cross-linking, auto-numbering, 
@@ -176,6 +174,8 @@
         </ul>
         <p>The default settings for these tasks should be sufficient for many use cases.
         The following sections show how you can override the defaults. </p>
+        <p>You can also get a formatted summary of all settings and extensions by running
+        <code>show laikaDescribe</code>.</p>
         
         <h2 id="basic-settings" class="section">Basic Settings</h2>
         <p>The following list shows the names, types and default values of the basic settings:</p>
@@ -241,7 +241,7 @@
         to do that while still benefiting from the defaults for all other node types.</p>
         <p>When working with the document tree (the internal AST representing the document structure),
         it is most comfortable to add the following import to the build:</p>
-        <pre>import laika.ast._</pre>
+        <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">ast</span><span>.</span><span class="identifier">_</span></code></pre>
         
         <h3 id="custom-renderers" class="section">Custom Renderers</h3>
         <p>A custom renderer allows to override the generated output for one or more specific node
@@ -254,11 +254,11 @@
         For all elements where this partial function is not defined, Laika will use the default renderers for all node types. </p>
         <p>The following simple example shows how you can add a style to the renderer for
         the <code>&lt;em&gt;</code> tag:</p>
-        <pre>laikaExtensions += laikaHtmlRenderer {
-  case (fmt, Emphasized(content, opt)) =&gt; 
-      fmt.element(&quot;em&quot;, opt, content, &quot;class&quot; -&gt; &quot;big&quot;) 
-}}</pre>
-        <p>For more details see the chapter [Customizing Renderers].</p>
+        <pre><code class="nohighlight"><span class="identifier">laikaExtensions</span><span> += </span><span class="identifier">laikaHtmlRenderer</span><span> {
+  </span><span class="keyword">case</span><span> (</span><span class="identifier">fmt</span><span>, </span><span class="type-name">Emphasized</span><span>(</span><span class="identifier">content</span><span>, </span><span class="identifier">opt</span><span>)) =&gt; 
+    </span><span class="identifier">fmt</span><span>.</span><span class="identifier">element</span><span>(</span><span class="string-literal">&quot;em&quot;</span><span>, </span><span class="identifier">opt</span><span>, </span><span class="identifier">content</span><span>, </span><span class="string-literal">&quot;class&quot;</span><span> -&gt; </span><span class="string-literal">&quot;big&quot;</span><span>) 
+}</span></code></pre>
+        <p>For more details see the chapter <a href="../customizing-laika/customize-rendering.html">Customizing Renderers</a>.</p>
         <p>Similarly the <code>laikaFoRenderer</code> shortcut can be used to add a custom <code>XSL-FO</code> renderer 
         of type <code>PartialFunction[(FOFormatter, Element), String]</code>. <code>XSL-FO</code> is an interim format for PDF output,
         so this option would also allow to change the appearance of PDF documents.</p>
@@ -277,9 +277,9 @@
         want to rewrite.</p>
         <p>The following (somewhat contrived, but simple) example shows how to turn each <code>Emphasized</code> node
         into a <code>Strong</code> node:</p>
-        <pre>laikaExtensions += laikaSpanRewriteRule { 
-  case Emphasized(content, opts) =&gt; Replace(Strong(content, opts))
-}</pre>
+        <pre><code class="nohighlight"><span class="identifier">laikaExtensions</span><span> += </span><span class="identifier">laikaSpanRewriteRule</span><span> { 
+  </span><span class="keyword">case</span><span> </span><span class="type-name">Emphasized</span><span>(</span><span class="identifier">content</span><span>, </span><span class="identifier">opts</span><span>) =&gt; </span><span class="type-name">Replace</span><span>(</span><span class="type-name">Strong</span><span>(</span><span class="identifier">content</span><span>, </span><span class="identifier">opts</span><span>))
+}</span></code></pre>
         <p>For more details see the chapter <a href="../customizing-laika/tree-rewriting.html#document-tree-rewriting">Document Tree Rewriting</a>.</p>
         
         <h3 id="custom-document-type-matcher" class="section">Custom Document Type Matcher</h3>
@@ -287,16 +287,15 @@
         It is a function that takes a <code>Path</code> instance (from the Laika API, not <code>sbt.Path</code>)
         and returns the matching <code>DocumentType</code> with valid values being one of the following
         objects:</p>
-        <pre>Markup, Template, Dynamic, Static, Config, Ignored
-</pre>
+        <pre><code class="nohighlight"><span class="type-name">Markup</span><span>, </span><span class="type-name">Template</span><span>, </span><span class="type-name">Dynamic</span><span>, </span><span class="type-name">Static</span><span>, </span><span class="type-name">Config</span><span>, </span><span class="type-name">Ignored</span></code></pre>
         <p>These values correspond to the descriptions provided in <a href="structure.html#document-types">Document Types</a>.</p>
         <p>The function is of type <code>Path =&gt; DocumentType</code> and can be added to the <code>laikaExtensions</code> setting:</p>
-        <pre>laikaExtensions += laikaDocTypeMatcher {
-  case path: Path =&gt; path.name match {
-    case &quot;hello.md&quot; =&gt; Markup
-    case &quot;hello.js&quot; =&gt; Static
+        <pre><code class="nohighlight"><span class="identifier">laikaExtensions</span><span> += </span><span class="identifier">laikaDocTypeMatcher</span><span> {
+  </span><span class="keyword">case</span><span> </span><span class="identifier">path</span><span>: </span><span class="type-name">Path</span><span> =&gt; </span><span class="identifier">path</span><span>.</span><span class="identifier">name</span><span> </span><span class="keyword">match</span><span> {
+    </span><span class="keyword">case</span><span> </span><span class="string-literal">&quot;hello.md&quot;</span><span> =&gt; </span><span class="type-name">Markup</span><span>
+    </span><span class="keyword">case</span><span> </span><span class="string-literal">&quot;hello.js&quot;</span><span> =&gt; </span><span class="type-name">Static</span><span>
   }
-}</pre>
+}</span></code></pre>
         
         <h2 id="settings-for-directives" class="section">Settings for Directives</h2>
         <p>Directives are Laika&#39;s extension hook for both, templates and text markup.
@@ -323,18 +322,17 @@
         <p>If you want to generate the site and push it up to the gh-pages branch of your GitHub repository
         in one go, you can combine Laika and the sbt-ghpages plugin.</p>
         <p>Add the sbt-ghpages plugin to <code>project/plugins.sbt</code>:</p>
-        <pre>resolvers += &quot;jgit-repo&quot; at &quot;http://download.eclipse.org/jgit/maven&quot;
+        <pre><code class="nohighlight"><span class="identifier">resolvers</span><span> += </span><span class="string-literal">&quot;jgit-repo&quot;</span><span> </span><span class="identifier">at</span><span> </span><span class="string-literal">&quot;http://download.eclipse.org/jgit/maven&quot;</span><span>
 
-addSbtPlugin(&quot;com.typesafe.sbt&quot; % &quot;sbt-ghpages&quot; % &quot;0.5.2&quot;)</pre>
+</span><span class="identifier">addSbtPlugin</span><span>(</span><span class="string-literal">&quot;com.typesafe.sbt&quot;</span><span> % </span><span class="string-literal">&quot;sbt-ghpages&quot;</span><span> % </span><span class="string-literal">&quot;0.5.2&quot;</span><span>)</span></code></pre>
         <p>Configure the plugins in <code>build.sbt</code>:</p>
-        <pre>enablePlugins(LaikaPluging, GhpagesPlugin)
+        <pre><code class="nohighlight"><span class="identifier">enablePlugins</span><span>(</span><span class="type-name">LaikaPluging</span><span>, </span><span class="type-name">GhpagesPlugin</span><span>)
 
-git.remoteRepo := &quot;git@github.com:{your username}/{your project}.git&quot;
+</span><span class="identifier">git</span><span>.</span><span class="identifier">remoteRepo</span><span> := </span><span class="string-literal">&quot;git@github.com:{your username}/{your project}.git&quot;</span><span>
 
-git.gitCurrentBranch := &quot;master&quot;
+</span><span class="identifier">git</span><span>.</span><span class="identifier">gitCurrentBranch</span><span> := </span><span class="string-literal">&quot;master&quot;</span><span>
 
-mappings in synchLocal := (mappings in laikaSite).value
-</pre>
+</span><span class="identifier">mappings</span><span> </span><span class="identifier">in</span><span> </span><span class="identifier">synchLocal</span><span> := (</span><span class="identifier">mappings</span><span> </span><span class="identifier">in</span><span> </span><span class="identifier">laikaSite</span><span>).</span><span class="identifier">value</span></code></pre>
         <p>It is the last line that connects the two plugins, but there is no need
         to understand how that line works.</p>
         <p>Finally run the task <code>ghpages-push-site</code>. This will also trigger the 

@@ -196,7 +196,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">TwoPhaseRenderer</span><span class="tparams">[<span name="PP">PP</span>]</span><span class="params">(<span name="interimRenderer">interimRenderer: <a href="../Renderer.html" class="extype" name="laika.api.Renderer">Renderer</a></span>, <span name="prepareTree">prepareTree: (<a href="../../ast/DocumentTreeRoot.html" class="extype" name="laika.ast.DocumentTreeRoot">DocumentTreeRoot</a>) ⇒ <a href="../../ast/DocumentTreeRoot.html" class="extype" name="laika.ast.DocumentTreeRoot">DocumentTreeRoot</a></span>, <span name="postProcessor">postProcessor: <span class="extype" name="laika.api.builder.TwoPhaseRenderer.PP">PP</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">TwoPhaseRenderer</span><span class="tparams">[<span name="PP">PP</span>]</span><span class="params">(<span name="interimRenderer">interimRenderer: <a href="../Renderer.html" class="extype" name="laika.api.Renderer">Renderer</a></span>, <span name="prepareTree">prepareTree: (<a href="../../ast/DocumentTreeRoot.html" class="extype" name="laika.ast.DocumentTreeRoot">DocumentTreeRoot</a>) ⇒ <span class="extype" name="scala.Either">Either</span>[<span class="extype" name="scala.Throwable">Throwable</span>, <a href="../../ast/DocumentTreeRoot.html" class="extype" name="laika.ast.DocumentTreeRoot">DocumentTreeRoot</a>]</span>, <span name="postProcessor">postProcessor: <span class="extype" name="laika.api.builder.TwoPhaseRenderer.PP">PP</span></span>, <span name="description">description: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
@@ -206,7 +206,7 @@ and PDF (with XSL-FO as the interim format).</p><p>This instance does not come w
 to a builder API in laika-io that knows how to execute such an operation.
 </p></div><dl class="paramcmts block"><dt class="tparam">PP</dt><dd class="cmt"><p>the type of the post processor</p></dd><dt class="param">interimRenderer</dt><dd class="cmt"><p>the renderer for the 1st phase, producing the interim result</p></dd><dt class="param">prepareTree</dt><dd class="cmt"><p>a hook with which the interim result can be modified before it gets
                    passed to the post processor</p></dd><dt class="param">postProcessor</dt><dd class="cmt"><p>the processor taking the interim result and producing the final
-                     result, the implementing type may vary from format to format</p></dd></dl><div class="toggleContainer block">
+                     result, the implementing type may vary from format to format</p></dd><dt class="param">description</dt><dd class="cmt"><p>short string describing the output format for tooling and logging</p></dd></dl><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
           </span>
@@ -257,9 +257,9 @@ to a builder API in laika-io that knows how to execute such an operation.
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.api.builder.TwoPhaseRenderer#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;init&gt;(interimRenderer:laika.api.Renderer,prepareTree:laika.ast.DocumentTreeRoot=&gt;laika.ast.DocumentTreeRoot,postProcessor:PP):laika.api.builder.TwoPhaseRenderer[PP]"></a><a id="&lt;init&gt;:TwoPhaseRenderer[PP]"></a>
+      <a id="&lt;init&gt;(interimRenderer:laika.api.Renderer,prepareTree:laika.ast.DocumentTreeRoot=&gt;Either[Throwable,laika.ast.DocumentTreeRoot],postProcessor:PP,description:String):laika.api.builder.TwoPhaseRenderer[PP]"></a><a id="&lt;init&gt;:TwoPhaseRenderer[PP]"></a>
       <span class="permalink">
-      <a href="../../../laika/api/builder/TwoPhaseRenderer.html#&lt;init&gt;(interimRenderer:laika.api.Renderer,prepareTree:laika.ast.DocumentTreeRoot=&gt;laika.ast.DocumentTreeRoot,postProcessor:PP):laika.api.builder.TwoPhaseRenderer[PP]" title="Permalink">
+      <a href="../../../laika/api/builder/TwoPhaseRenderer.html#&lt;init&gt;(interimRenderer:laika.api.Renderer,prepareTree:laika.ast.DocumentTreeRoot=&gt;Either[Throwable,laika.ast.DocumentTreeRoot],postProcessor:PP,description:String):laika.api.builder.TwoPhaseRenderer[PP]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -268,12 +268,12 @@ to a builder API in laika-io that knows how to execute such an operation.
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">TwoPhaseRenderer</span><span class="params">(<span name="interimRenderer">interimRenderer: <a href="../Renderer.html" class="extype" name="laika.api.Renderer">Renderer</a></span>, <span name="prepareTree">prepareTree: (<a href="../../ast/DocumentTreeRoot.html" class="extype" name="laika.ast.DocumentTreeRoot">DocumentTreeRoot</a>) ⇒ <a href="../../ast/DocumentTreeRoot.html" class="extype" name="laika.ast.DocumentTreeRoot">DocumentTreeRoot</a></span>, <span name="postProcessor">postProcessor: <span class="extype" name="laika.api.builder.TwoPhaseRenderer.PP">PP</span></span>)</span>
+        <span class="name">TwoPhaseRenderer</span><span class="params">(<span name="interimRenderer">interimRenderer: <a href="../Renderer.html" class="extype" name="laika.api.Renderer">Renderer</a></span>, <span name="prepareTree">prepareTree: (<a href="../../ast/DocumentTreeRoot.html" class="extype" name="laika.ast.DocumentTreeRoot">DocumentTreeRoot</a>) ⇒ <span class="extype" name="scala.Either">Either</span>[<span class="extype" name="scala.Throwable">Throwable</span>, <a href="../../ast/DocumentTreeRoot.html" class="extype" name="laika.ast.DocumentTreeRoot">DocumentTreeRoot</a>]</span>, <span name="postProcessor">postProcessor: <span class="extype" name="laika.api.builder.TwoPhaseRenderer.PP">PP</span></span>, <span name="description">description: <span class="extype" name="scala.Predef.String">String</span></span>)</span>
       </span>
       
       <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">interimRenderer</dt><dd class="cmt"><p>the renderer for the 1st phase, producing the interim result</p></dd><dt class="param">prepareTree</dt><dd class="cmt"><p>a hook with which the interim result can be modified before it gets
                    passed to the post processor</p></dd><dt class="param">postProcessor</dt><dd class="cmt"><p>the processor taking the interim result and producing the final
-                     result, the implementing type may vary from format to format</p></dd></dl></div>
+                     result, the implementing type may vary from format to format</p></dd><dt class="param">description</dt><dd class="cmt"><p>short string describing the output format for tooling and logging</p></dd></dl></div>
     </li></ol>
             </div>
 
@@ -372,6 +372,22 @@ to a builder API in laika-io that knows how to execute such an operation.
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li name="laika.api.builder.TwoPhaseRenderer#description" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="description:String"></a>
+      <span class="permalink">
+      <a href="../../../laika/api/builder/TwoPhaseRenderer.html#description:String" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">description</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      
+      
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
       <span class="permalink">
@@ -532,9 +548,9 @@ to a builder API in laika-io that knows how to execute such an operation.
       
       
     </li><li name="laika.api.builder.TwoPhaseRenderer#prepareTree" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="prepareTree:laika.ast.DocumentTreeRoot=&gt;laika.ast.DocumentTreeRoot"></a><a id="prepareTree:(DocumentTreeRoot)⇒DocumentTreeRoot"></a>
+      <a id="prepareTree:laika.ast.DocumentTreeRoot=&gt;Either[Throwable,laika.ast.DocumentTreeRoot]"></a><a id="prepareTree:(DocumentTreeRoot)⇒Either[Throwable,DocumentTreeRoot]"></a>
       <span class="permalink">
-      <a href="../../../laika/api/builder/TwoPhaseRenderer.html#prepareTree:laika.ast.DocumentTreeRoot=&gt;laika.ast.DocumentTreeRoot" title="Permalink">
+      <a href="../../../laika/api/builder/TwoPhaseRenderer.html#prepareTree:laika.ast.DocumentTreeRoot=&gt;Either[Throwable,laika.ast.DocumentTreeRoot]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -543,7 +559,7 @@ to a builder API in laika-io that knows how to execute such an operation.
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">prepareTree</span><span class="result">: (<a href="../../ast/DocumentTreeRoot.html" class="extype" name="laika.ast.DocumentTreeRoot">DocumentTreeRoot</a>) ⇒ <a href="../../ast/DocumentTreeRoot.html" class="extype" name="laika.ast.DocumentTreeRoot">DocumentTreeRoot</a></span>
+        <span class="name">prepareTree</span><span class="result">: (<a href="../../ast/DocumentTreeRoot.html" class="extype" name="laika.ast.DocumentTreeRoot">DocumentTreeRoot</a>) ⇒ <span class="extype" name="scala.Either">Either</span>[<span class="extype" name="scala.Throwable">Throwable</span>, <a href="../../ast/DocumentTreeRoot.html" class="extype" name="laika.ast.DocumentTreeRoot">DocumentTreeRoot</a>]</span>
       </span>
       
       

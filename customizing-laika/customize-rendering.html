@@ -10,12 +10,10 @@
     <meta name="description" content="Customizable and extensible toolkit for transforming lightweight markup languages to various types of output formats, written in Scala" />
     <meta name="keywords" content="scala, text, markup, markdown, restructuredtext, parser, transformer, html, template engine, site generation, open-source" />
 
+    <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
     <link href="../css/bootstrap.css" rel="stylesheet">
     <link href="../css/docs.css" rel="stylesheet">
-
-    <!--[if lt IE 9]>
-      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
 
   </head>
 
@@ -43,6 +41,7 @@
           <li><a href="../using-laika/output.html">Supported Output Formats</a></li>
           <li><a href="../using-laika/structure.html">Document Structure</a></li>
           <li><a href="../using-laika/templates.html">Templates</a></li>
+          <li><a href="../using-laika/syntax.html">Syntax Highlighting</a></li>
           <li class="nav-header">Customizing Laika</li>
           <li class="active"><a href="#">Customizing Renderers</a></li>
           <li><a href="tree-rewriting.html">Document Tree Rewriting</a></li>
@@ -76,8 +75,7 @@
         Transform and Render APIs offer a hook to easily do that without modifying
         or extending the existing renderer. </p>
         <p>This is the signature of a custom renderer hook:</p>
-        <pre>PartialFunction[(Formatter, Element), String]
-</pre>
+        <pre><code class="nohighlight"><span class="type-name">PartialFunction</span><span>[(</span><span class="type-name">Formatter</span><span>, </span><span class="type-name">Element</span><span>), </span><span class="type-name">String</span><span>]</span></code></pre>
         <p><code>Formatter</code> is a generic type representing the formatting API which is different for each 
         output format. For HTML it is <code>HTMLFormatterr</code>, for XSL-FO it is <code>FOFormatter</code>. 
         This way renderers can offer the most convenient API for a specific output format.
@@ -91,10 +89,10 @@
         show the three different ways to register such a function.</p>
         <p>In the following example only the HTML output for emphasized text will be modified,
         adding a specific style class:</p>
-        <pre>val renderer: PartialFunction[(HTMLFormatter, Element), String] = {
-  case (fmt, Emphasized(content, opt)) =&gt; 
-    fmt.element(&quot;em&quot;, opt, content, &quot;class&quot; -&gt; &quot;big&quot;) 
-}</pre>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">renderer</span><span>: </span><span class="type-name">PartialFunction</span><span>[(</span><span class="type-name">HTMLFormatter</span><span>, </span><span class="type-name">Element</span><span>), </span><span class="type-name">String</span><span>] = {
+  </span><span class="keyword">case</span><span> (</span><span class="identifier">fmt</span><span>, </span><span class="type-name">Emphasized</span><span>(</span><span class="identifier">content</span><span>, </span><span class="identifier">opt</span><span>)) =&gt; 
+    </span><span class="identifier">fmt</span><span>.</span><span class="identifier">element</span><span>(</span><span class="string-literal">&quot;em&quot;</span><span>, </span><span class="identifier">opt</span><span>, </span><span class="identifier">content</span><span>, </span><span class="string-literal">&quot;class&quot;</span><span> -&gt; </span><span class="string-literal">&quot;big&quot;</span><span>) 
+}</span></code></pre>
         <p>For all node types where the partial function is not defined, the default renderer
         will be used.</p>
         <p>Multiple custom renderers can be specified for the same transformation, they will be 
@@ -113,31 +111,31 @@
         
         <h3 id="using-the-sbt-plugin" class="section">Using the sbt Plugin</h3>
         <p>In <code>build.sbt</code>:</p>
-        <pre>import laika.ast._
+        <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">ast</span><span>.</span><span class="identifier">_</span><span>
 
-laikaSiteRenderers += laikaSiteRenderer {
-  case (fmt, Emphasized(content, opt)) =&gt; 
-    fmt.element(&quot;em&quot;, opt, content, &quot;class&quot; -&gt; &quot;big&quot;)
-}</pre>
+</span><span class="identifier">laikaSiteRenderers</span><span> += </span><span class="identifier">laikaSiteRenderer</span><span> {
+  </span><span class="keyword">case</span><span> (</span><span class="identifier">fmt</span><span>, </span><span class="type-name">Emphasized</span><span>(</span><span class="identifier">content</span><span>, </span><span class="identifier">opt</span><span>)) =&gt; 
+    </span><span class="identifier">fmt</span><span>.</span><span class="identifier">element</span><span>(</span><span class="string-literal">&quot;em&quot;</span><span>, </span><span class="identifier">opt</span><span>, </span><span class="identifier">content</span><span>, </span><span class="string-literal">&quot;class&quot;</span><span> -&gt; </span><span class="string-literal">&quot;big&quot;</span><span>)
+}</span></code></pre>
         
         <h3 id="using-the-transformer-api" class="section">Using the Transformer API</h3>
-        <pre>val transformer = Transformer
-  .from(Markdown)
-  .to(HTML)
-  .rendering {
-    case (fmt, Emphasized(content, opt)) =&gt; 
-      fmt.element(&quot;em&quot;, opt, content, &quot;class&quot; -&gt; &quot;big&quot;)
-  }.build</pre>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">rendering</span><span> {
+    </span><span class="keyword">case</span><span> (</span><span class="identifier">fmt</span><span>, </span><span class="type-name">Emphasized</span><span>(</span><span class="identifier">content</span><span>, </span><span class="identifier">opt</span><span>)) =&gt; 
+      </span><span class="identifier">fmt</span><span>.</span><span class="identifier">element</span><span>(</span><span class="string-literal">&quot;em&quot;</span><span>, </span><span class="identifier">opt</span><span>, </span><span class="identifier">content</span><span>, </span><span class="string-literal">&quot;class&quot;</span><span> -&gt; </span><span class="string-literal">&quot;big&quot;</span><span>)
+  }.</span><span class="identifier">build</span></code></pre>
         
         <h3 id="using-the-renderer-api" class="section">Using the Renderer API</h3>
-        <pre>val doc: Document = ...
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">doc</span><span>: </span><span class="type-name">Document</span><span> = ...
 
-val renderer = Renderer
-  .of(HTML)
-  .rendering { 
-    case (fmt, Emphasized(content, opt)) =&gt; 
-      fmt.element(&quot;em&quot;, opt, content, &quot;class&quot; -&gt; &quot;big&quot;)
-  }.build</pre>
+</span><span class="keyword">val</span><span> </span><span class="identifier">renderer</span><span> = </span><span class="type-name">Renderer</span><span>
+  .</span><span class="identifier">of</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">rendering</span><span> { 
+    </span><span class="keyword">case</span><span> (</span><span class="identifier">fmt</span><span>, </span><span class="type-name">Emphasized</span><span>(</span><span class="identifier">content</span><span>, </span><span class="identifier">opt</span><span>)) =&gt; 
+      </span><span class="identifier">fmt</span><span>.</span><span class="identifier">element</span><span>(</span><span class="string-literal">&quot;em&quot;</span><span>, </span><span class="identifier">opt</span><span>, </span><span class="identifier">content</span><span>, </span><span class="string-literal">&quot;class&quot;</span><span> -&gt; </span><span class="string-literal">&quot;big&quot;</span><span>)
+  }.</span><span class="identifier">build</span></code></pre>
         
         <h2 id="the-formatter-apis" class="section">The Formatter APIs</h2>
         <p>Each formatter provides functionality that is specific to the target format.
@@ -187,9 +185,9 @@ val renderer = Renderer
         plus optionally default templates and/or static files to be copied to the output
         directory.</p>
         <p>This is the signature of the <code>Theme</code> case class:</p>
-        <pre>case class Theme (customRenderer: PartialFunction[(Formatter, Element), String],
-                  defaultTemplate: Option[TemplateRoot],
-                  defaultStyles: StyleDeclarationSet)</pre>
+        <pre><code class="nohighlight"><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">Theme</span><span> (</span><span class="identifier">customRenderer</span><span>: </span><span class="type-name">PartialFunction</span><span>[(</span><span class="type-name">Formatter</span><span>, </span><span class="type-name">Element</span><span>), </span><span class="type-name">String</span><span>],
+                  </span><span class="identifier">defaultTemplate</span><span>: </span><span class="type-name">Option</span><span>[</span><span class="type-name">TemplateRoot</span><span>],
+                  </span><span class="identifier">defaultStyles</span><span>: </span><span class="type-name">StyleDeclarationSet</span><span>)</span></code></pre>
         <ul>
           <li>
             <p>The <code>customRenderer</code> is a renderer function that overrides the built-in renderers
@@ -212,13 +210,13 @@ val renderer = Renderer
           </li>
         </ul>
         <p>A theme can be installed as part of an extension bundle:</p>
-        <pre>object MyExtensions extends ExtensionBundle {
+        <pre><code class="nohighlight"><span class="keyword">object</span><span> </span><span class="type-name">MyExtensions</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">ExtensionBundle</span><span> {
 
-  override val themes = Seq(HTML.Theme(...), PDF.Theme(...))
+  </span><span class="keyword">override</span><span> </span><span class="keyword">val</span><span> </span><span class="identifier">themes</span><span> = </span><span class="type-name">Seq</span><span>(</span><span class="type-name">HTML</span><span>.</span><span class="type-name">Theme</span><span>(...), </span><span class="type-name">PDF</span><span>.</span><span class="type-name">Theme</span><span>(...))
     
 }
 
-val transformer = Transformer.from(Markdown).to(HTML).using(MyExtensions)</pre>
+</span><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>.</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>).</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>).</span><span class="identifier">using</span><span>(</span><span class="type-name">MyExtensions</span><span>)</span></code></pre>
         <p>A theme is specific to a particular output format, separate instances need to be 
         provided if you want to install themes for several formats like HTML, PDF or EPUB.</p>      
 

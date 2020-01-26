@@ -150,6 +150,10 @@
                         <a class="trait" href="BlockPosition.html" title="Specifies the position a block element is allowed to appear in."></a>
                         <a href="BlockPosition.html" title="Specifies the position a block element is allowed to appear in.">BlockPosition</a>
                       </li><li class="current-entities indented2">
+                        <a class="object" href="BundleOrigin$.html" title=""></a>
+                        <a class="trait" href="BundleOrigin.html" title="Indicates whether an extension bundle is a built-in default provided by the library, a collection of extensions installed by a markup format or user-defined."></a>
+                        <a href="BundleOrigin.html" title="Indicates whether an extension bundle is a built-in default provided by the library, a collection of extensions installed by a markup format or user-defined.">BundleOrigin</a>
+                      </li><li class="current-entities indented2">
                         <a class="object" href="ConfigProvider$.html" title=""></a>
                         <a class="trait" href="ConfigProvider.html" title="Responsible for providing the parsers for configuration files and configuration headers in markup documents as part of an ExtensionBundle."></a>
                         <a href="ConfigProvider.html" title="Responsible for providing the parsers for configuration files and configuration headers in markup documents as part of an ExtensionBundle.">ConfigProvider</a>
@@ -202,9 +206,9 @@
                         <a class="class" href="SpanParserDefinition.html" title="Defines a parser for a single kind of span element, like a literal text span or a link reference for example."></a>
                         <a href="SpanParserDefinition.html" title="Defines a parser for a single kind of span element, like a literal text span or a link reference for example.">SpanParserDefinition</a>
                       </li><li class="current-entities indented2">
-                        <a class="object" href="UnresolvedConfig$.html" title=""></a>
-                        <a class="trait" href="UnresolvedConfig.html" title="An unresolved Config instance that will be lazily resolved against a fallback."></a>
-                        <a href="UnresolvedConfig.html" title="An unresolved Config instance that will be lazily resolved against a fallback.">UnresolvedConfig</a>
+                        <span class="separator"></span>
+                        <a class="trait" href="SyntaxHighlighter.html" title=""></a>
+                        <a href="SyntaxHighlighter.html" title="">SyntaxHighlighter</a>
                       </li><li name="laika.collection" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="collection"></a><a id="collection:collection"></a>
       <span class="permalink">
@@ -516,6 +520,26 @@ the host language (high precedence) or after them</p></dd></dl></div>
 while <code>NestedOnly</code> can only appear nested within other elements, e.g. as part
 of a list item or within a quoted block. <code>Any</code> allows block elements in any position.
 </p></div></div>
+    </li><li name="laika.bundle.BundleOrigin" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="BundleOriginextendsAnyRef"></a><a id="BundleOrigin:BundleOrigin"></a>
+      <span class="permalink">
+      <a href="../../laika/bundle/BundleOrigin.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">sealed </span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a title="Indicates whether an extension bundle is a built-in default provided by the library, a collection of extensions installed by a markup format or user-defined." href="BundleOrigin.html"><span class="name">BundleOrigin</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Indicates whether an extension bundle is a built-in default provided by the library,
+a collection of extensions installed by a markup format or user-defined.</p><div class="fullcomment"><div class="comment cmt"><p>Indicates whether an extension bundle is a built-in default provided by the library,
+a collection of extensions installed by a markup format or user-defined.</p><p>This is relevant for determining the precedence of installed bundles when merging
+them, as user-supplied functionality always overrides library defaults.
+</p></div></div>
     </li><li name="laika.bundle.ConfigProvider" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="ConfigProviderextendsAnyRef"></a><a id="ConfigProvider:ConfigProvider"></a>
       <span class="permalink">
@@ -580,14 +604,14 @@ be to simply implement it as an object, like all built-in extensions do:</p><pre
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="Bundles extensions for the text markup parsers defined for the host language to support additional syntax not recognized by the base parsers." href="MarkupExtensions.html"><span class="name">MarkupExtensions</span></a><span class="params">(<span name="blockParsers">blockParsers: <span class="extype" name="scala.Seq">Seq</span>[<a href="BlockParserBuilder.html" class="extype" name="laika.bundle.BlockParserBuilder">BlockParserBuilder</a>]</span>, <span name="spanParsers">spanParsers: <span class="extype" name="scala.Seq">Seq</span>[<a href="SpanParserBuilder.html" class="extype" name="laika.bundle.SpanParserBuilder">SpanParserBuilder</a>]</span>, <span name="parserHooks">parserHooks: <a href="ParserHooks.html" class="extype" name="laika.bundle.ParserHooks">ParserHooks</a></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="Bundles extensions for the text markup parsers defined for the host language to support additional syntax not recognized by the base parsers." href="MarkupExtensions.html"><span class="name">MarkupExtensions</span></a><span class="params">(<span name="blockParsers">blockParsers: <span class="extype" name="scala.Seq">Seq</span>[<a href="BlockParserBuilder.html" class="extype" name="laika.bundle.BlockParserBuilder">BlockParserBuilder</a>]</span>, <span name="spanParsers">spanParsers: <span class="extype" name="scala.Seq">Seq</span>[<a href="SpanParserBuilder.html" class="extype" name="laika.bundle.SpanParserBuilder">SpanParserBuilder</a>]</span>, <span name="syntaxHighlighters">syntaxHighlighters: <span class="extype" name="scala.Seq">Seq</span>[<a href="SyntaxHighlighter.html" class="extype" name="laika.bundle.SyntaxHighlighter">SyntaxHighlighter</a>]</span>, <span name="parserHooks">parserHooks: <a href="ParserHooks.html" class="extype" name="laika.bundle.ParserHooks">ParserHooks</a></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">Bundles extensions for the text markup parsers defined for the host language to support additional
 syntax not recognized by the base parsers.</p><div class="fullcomment"><div class="comment cmt"><p>Bundles extensions for the text markup parsers defined for the host language to support additional
 syntax not recognized by the base parsers.</p><p>When extension parsers fail for a given input the built-in parsers
 will still be tried for the same block or span respectively.
-</p></div><dl class="paramcmts block"><dt class="param">blockParsers</dt><dd class="cmt"><p>parsers for block elements in text markup, complementing the parsers of the host language</p></dd><dt class="param">spanParsers</dt><dd class="cmt"><p>parsers for span elements in text markup, complementing the parsers of the host language</p></dd><dt class="param">parserHooks</dt><dd class="cmt"><p>hooks for markup parsers to control aspects beyond the individual span and block parsers</p></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">blockParsers</dt><dd class="cmt"><p>parsers for block elements in text markup, complementing the parsers of the host language</p></dd><dt class="param">spanParsers</dt><dd class="cmt"><p>parsers for span elements in text markup, complementing the parsers of the host language</p></dd><dt class="param">syntaxHighlighters</dt><dd class="cmt"><p>parsers for syntax highlighting of code blocks</p></dd><dt class="param">parserHooks</dt><dd class="cmt"><p>hooks for markup parsers to control aspects beyond the individual span and block parsers</p></dd></dl></div>
     </li><li name="laika.bundle.ParserBuilder" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="ParserBuilder[T&lt;:laika.bundle.ParserDefinition[_]]extendsAnyRef"></a><a id="ParserBuilder[T&lt;:ParserDefinition[_]]:ParserBuilder[T]"></a>
       <span class="permalink">
@@ -624,14 +648,14 @@ outside by the parser engine.
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="Bundles a collection of all types of parsers used in a transformation." href="ParserBundle.html"><span class="name">ParserBundle</span></a><span class="params">(<span name="blockParsers">blockParsers: <span class="extype" name="scala.Seq">Seq</span>[<a href="BlockParserBuilder.html" class="extype" name="laika.bundle.BlockParserBuilder">BlockParserBuilder</a>] = <span class="symbol">Nil</span></span>, <span name="spanParsers">spanParsers: <span class="extype" name="scala.Seq">Seq</span>[<a href="SpanParserBuilder.html" class="extype" name="laika.bundle.SpanParserBuilder">SpanParserBuilder</a>] = <span class="symbol">Nil</span></span>, <span name="markupParserHooks">markupParserHooks: <span class="extype" name="scala.Option">Option</span>[<a href="ParserHooks.html" class="extype" name="laika.bundle.ParserHooks">ParserHooks</a>] = <span class="symbol">None</span></span>, <span name="configProvider">configProvider: <span class="extype" name="scala.Option">Option</span>[<a href="ConfigProvider.html" class="extype" name="laika.bundle.ConfigProvider">ConfigProvider</a>] = <span class="symbol">None</span></span>, <span name="templateParser">templateParser: <span class="extype" name="scala.Option">Option</span>[<a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../ast/TemplateRoot.html" class="extype" name="laika.ast.TemplateRoot">TemplateRoot</a>]] = <span class="symbol">None</span></span>, <span name="styleSheetParser">styleSheetParser: <span class="extype" name="scala.Option">Option</span>[<a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.Set">Set</span>[<a href="../ast/StyleDeclaration.html" class="extype" name="laika.ast.StyleDeclaration">StyleDeclaration</a>]]] = <span class="symbol">None</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="Bundles a collection of all types of parsers used in a transformation." href="ParserBundle.html"><span class="name">ParserBundle</span></a><span class="params">(<span name="blockParsers">blockParsers: <span class="extype" name="scala.Seq">Seq</span>[<a href="BlockParserBuilder.html" class="extype" name="laika.bundle.BlockParserBuilder">BlockParserBuilder</a>] = <span class="symbol">Nil</span></span>, <span name="spanParsers">spanParsers: <span class="extype" name="scala.Seq">Seq</span>[<a href="SpanParserBuilder.html" class="extype" name="laika.bundle.SpanParserBuilder">SpanParserBuilder</a>] = <span class="symbol">Nil</span></span>, <span name="syntaxHighlighters">syntaxHighlighters: <span class="extype" name="scala.Seq">Seq</span>[<a href="SyntaxHighlighter.html" class="extype" name="laika.bundle.SyntaxHighlighter">SyntaxHighlighter</a>] = <span class="symbol">Nil</span></span>, <span name="markupParserHooks">markupParserHooks: <span class="extype" name="scala.Option">Option</span>[<a href="ParserHooks.html" class="extype" name="laika.bundle.ParserHooks">ParserHooks</a>] = <span class="symbol">None</span></span>, <span name="configProvider">configProvider: <span class="extype" name="scala.Option">Option</span>[<a href="ConfigProvider.html" class="extype" name="laika.bundle.ConfigProvider">ConfigProvider</a>] = <span class="symbol">None</span></span>, <span name="templateParser">templateParser: <span class="extype" name="scala.Option">Option</span>[<a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../ast/TemplateRoot.html" class="extype" name="laika.ast.TemplateRoot">TemplateRoot</a>]] = <span class="symbol">None</span></span>, <span name="styleSheetParser">styleSheetParser: <span class="extype" name="scala.Option">Option</span>[<a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.Set">Set</span>[<a href="../ast/StyleDeclaration.html" class="extype" name="laika.ast.StyleDeclaration">StyleDeclaration</a>]]] = <span class="symbol">None</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">Bundles a collection of all types of parsers used in a transformation.</p><div class="fullcomment"><div class="comment cmt"><p>Bundles a collection of all types of parsers used in a transformation.</p><p>The parsers for text markup and configuration headers are meant to complement
 base parsers defined by the host language. If they fail for a given input the built-in parsers
 will still be tried for the same block, span or configuration header respectively.</p><p>The parsers for stylesheets and templates on the other hand are meant to overwrite
 any previously installed parsers.
-</p></div><dl class="paramcmts block"><dt class="param">blockParsers</dt><dd class="cmt"><p>parsers for block elements in text markup, complementing the parsers of the host language</p></dd><dt class="param">spanParsers</dt><dd class="cmt"><p>parsers for span elements in text markup, complementing the parsers of the host language</p></dd><dt class="param">markupParserHooks</dt><dd class="cmt"><p>hooks for markup parsers to control aspects beyond the individual span and block parsers</p></dd><dt class="param">configProvider</dt><dd class="cmt"><p>parser for configuration headers in text markup and template documents and configuration documents</p></dd><dt class="param">templateParser</dt><dd class="cmt"><p>parser for template documents</p></dd><dt class="param">styleSheetParser</dt><dd class="cmt"><p>parser for CSS documents</p></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">blockParsers</dt><dd class="cmt"><p>parsers for block elements in text markup, complementing the parsers of the host language</p></dd><dt class="param">spanParsers</dt><dd class="cmt"><p>parsers for span elements in text markup, complementing the parsers of the host language</p></dd><dt class="param">syntaxHighlighters</dt><dd class="cmt"><p>parsers for syntax highlighting of code blocks</p></dd><dt class="param">markupParserHooks</dt><dd class="cmt"><p>hooks for markup parsers to control aspects beyond the individual span and block parsers</p></dd><dt class="param">configProvider</dt><dd class="cmt"><p>parser for configuration headers in text markup and template documents and configuration documents</p></dd><dt class="param">templateParser</dt><dd class="cmt"><p>parser for template documents</p></dd><dt class="param">styleSheetParser</dt><dd class="cmt"><p>parser for CSS documents</p></dd></dl></div>
     </li><li name="laika.bundle.ParserDefinition" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="ParserDefinition[E&lt;:laika.ast.Element]extendsAnyRef"></a><a id="ParserDefinition[E&lt;:Element]:ParserDefinition[E]"></a>
       <span class="permalink">
@@ -755,10 +779,10 @@ like a literal text span or a link reference for example.</p><div class="fullcom
 like a literal text span or a link reference for example.
 </p></div><dl class="paramcmts block"><dt class="param">startChar</dt><dd class="cmt"><p>the start character (allows performance optimizations)</p></dd><dt class="param">parser</dt><dd class="cmt"><p>the parser for the span element after the start character</p></dd><dt class="param">isRecursive</dt><dd class="cmt"><p>indicates whether this parser produces child elements by recursively applying the parsers for the host language</p></dd><dt class="param">precedence</dt><dd class="cmt"><p>indicates whether the parser should be applied before the base parsers of
 the host language (high precedence) or after them</p></dd></dl></div>
-    </li><li name="laika.bundle.UnresolvedConfig" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="UnresolvedConfigextendsAnyRef"></a><a id="UnresolvedConfig:UnresolvedConfig"></a>
+    </li><li name="laika.bundle.SyntaxHighlighter" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="SyntaxHighlighterextendsAnyRef"></a><a id="SyntaxHighlighter:SyntaxHighlighter"></a>
       <span class="permalink">
-      <a href="../../laika/bundle/UnresolvedConfig.html" title="Permalink">
+      <a href="../../laika/bundle/SyntaxHighlighter.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -767,10 +791,10 @@ the host language (high precedence) or after them</p></dd></dl></div>
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a title="An unresolved Config instance that will be lazily resolved against a fallback." href="UnresolvedConfig.html"><span class="name">UnresolvedConfig</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a title="" href="SyntaxHighlighter.html"><span class="name">SyntaxHighlighter</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       
-      <p class="shortcomment cmt">An unresolved Config instance that will be lazily resolved against a fallback.</p>
+      
     </li></ol>
             </div>
 
@@ -808,6 +832,22 @@ the host language (high precedence) or after them</p></dd></dl></div>
       </span>
       <span class="symbol">
         <a title="" href="BlockPosition$.html"><span class="name">BlockPosition</span></a>
+      </span>
+      
+      
+    </li><li name="laika.bundle.BundleOrigin" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="BundleOrigin"></a><a id="BundleOrigin:BundleOrigin"></a>
+      <span class="permalink">
+      <a href="../../laika/bundle/BundleOrigin$.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="BundleOrigin$.html"><span class="name">BundleOrigin</span></a>
       </span>
       
       
@@ -892,22 +932,6 @@ the host language (high precedence) or after them</p></dd></dl></div>
       </span>
       
       <p class="shortcomment cmt">Builder API for span parsers.</p>
-    </li><li name="laika.bundle.UnresolvedConfig" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="UnresolvedConfig"></a><a id="UnresolvedConfig:UnresolvedConfig"></a>
-      <span class="permalink">
-      <a href="../../laika/bundle/UnresolvedConfig$.html" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a title="" href="UnresolvedConfig$.html"><span class="name">UnresolvedConfig</span></a>
-      </span>
-      
-      
     </li>
               </ol>
             </div>

@@ -10,12 +10,10 @@
     <meta name="description" content="Customizable and extensible toolkit for transforming lightweight markup languages to various types of output formats, written in Scala" />
     <meta name="keywords" content="scala, text, markup, markdown, restructuredtext, parser, transformer, html, template engine, site generation, open-source" />
 
+    <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
     <link href="css/bootstrap.css" rel="stylesheet">
     <link href="css/docs.css" rel="stylesheet">
-
-    <!--[if lt IE 9]>
-      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
 
   </head>
 
@@ -43,6 +41,7 @@
           <li><a href="using-laika/output.html">Supported Output Formats</a></li>
           <li><a href="using-laika/structure.html">Document Structure</a></li>
           <li><a href="using-laika/templates.html">Templates</a></li>
+          <li><a href="using-laika/syntax.html">Syntax Highlighting</a></li>
           <li class="nav-header">Customizing Laika</li>
           <li><a href="customizing-laika/customize-rendering.html">Customizing Renderers</a></li>
           <li><a href="customizing-laika/tree-rewriting.html">Document Tree Rewriting</a></li>
@@ -95,9 +94,9 @@
         
         <h3 id="using-the-sbt-plugin" class="section">Using the sbt Plugin</h3>
         <p>Add the plugin to <code>project/plugins.sbt</code>:</p>
-        <pre>addSbtPlugin(&quot;org.planet42&quot; % &quot;laika-sbt&quot; % &quot;0.12.1&quot;)</pre>
+        <pre><code class="nohighlight"><span class="identifier">addSbtPlugin</span><span>(</span><span class="string-literal">&quot;org.planet42&quot;</span><span> % </span><span class="string-literal">&quot;laika-sbt&quot;</span><span> % </span><span class="string-literal">&quot;0.13.0&quot;</span><span>)</span></code></pre>
         <p>Enable the plugin in your project&#39;s <code>build.sbt</code>:</p>
-        <pre>enablePlugins(LaikaPlugin)</pre>
+        <pre><code class="nohighlight"><span class="identifier">enablePlugins</span><span>(</span><span class="type-name">LaikaPlugin</span><span>)</span></code></pre>
         <p>Add Markdown, reStructuredText or HTML template files to <code>src/docs</code> in your
         project and run the <code>laikaSite</code> task from within sbt to generate the site
         in <code>target/docs/site</code>.  <br></p>
@@ -107,50 +106,49 @@
         the <a href="http://planet42.github.io/Laika/migration-guide-0.12.html">Migration Guide</a> 
         first, as there were significant changes in the Library API.</p>
         <p>Adding the Laika dependency to your sbt build:</p>
-        <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika-core&quot; % &quot;0.12.1&quot;</pre>
+        <pre><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> += </span><span class="string-literal">&quot;org.planet42&quot;</span><span> %% </span><span class="string-literal">&quot;laika-core&quot;</span><span> % </span><span class="string-literal">&quot;0.13.0&quot;</span></code></pre>
         <p>Example for transforming Markdown to HTML:</p>
-        <pre>import laika.api._
-import laika.format._
+        <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">api</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">format</span><span>.</span><span class="identifier">_</span><span>
 
-val transformer = Transformer
-  .from(Markdown)
-  .to(HTML)
-  .build
+</span><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">build</span><span>
   
-val res: Either[ParserError, String] = transformer
-  .transform(&quot;hello *there*&quot;)</pre>
+</span><span class="keyword">val</span><span> </span><span class="identifier">res</span><span>: </span><span class="type-name">Either</span><span>[</span><span class="type-name">ParserError</span><span>, </span><span class="type-name">String</span><span>] = </span><span class="identifier">transformer</span><span>
+  .</span><span class="identifier">transform</span><span>(</span><span class="string-literal">&quot;hello *there*&quot;</span><span>)</span></code></pre>
         <p>For file/stream IO, parallel processing and/or EPUB support, based on cats-effect, 
         add the laika-io module to your build:</p>
-        <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika-io&quot; % &quot;0.12.1&quot;  
-</pre>
+        <pre><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> += </span><span class="string-literal">&quot;org.planet42&quot;</span><span> %% </span><span class="string-literal">&quot;laika-io&quot;</span><span> % </span><span class="string-literal">&quot;0.13.0&quot;</span><span>  </span></code></pre>
         <p>Example for transforming an entire directory of markup files to a single EPUB file:</p>
-        <pre>import laika.api._
-import laika.format._
-import laika.io.implicits._
+        <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">api</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">format</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">implicits</span><span>.</span><span class="identifier">_</span><span>
 
-implicit val cs: ContextShift[IO] = 
-  IO.contextShift(ExecutionContext.global)
+</span><span class="keyword">implicit</span><span> </span><span class="keyword">val</span><span> </span><span class="identifier">cs</span><span>: </span><span class="type-name">ContextShift</span><span>[</span><span class="type-name">IO</span><span>] = 
+  </span><span class="type-name">IO</span><span>.</span><span class="identifier">contextShift</span><span>(</span><span class="type-name">ExecutionContext</span><span>.</span><span class="identifier">global</span><span>)
   
-val blocker = Blocker.liftExecutionContext(
-  ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
+</span><span class="keyword">val</span><span> </span><span class="identifier">blocker</span><span> = </span><span class="type-name">Blocker</span><span>.</span><span class="identifier">liftExecutionContext</span><span>(
+  </span><span class="type-name">ExecutionContext</span><span>.</span><span class="identifier">fromExecutor</span><span>(</span><span class="type-name">Executors</span><span>.</span><span class="identifier">newCachedThreadPool</span><span>())
 )
 
-val transformer = Transformer
-  .from(Markdown)
-  .to(EPUB)
-  .using(GitHubFlavor)
-  .io(blocker)
-  .parallel[IO]
-  .build
+</span><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">EPUB</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">GitHubFlavor</span><span>)
+  .</span><span class="identifier">io</span><span>(</span><span class="identifier">blocker</span><span>)
+  .</span><span class="identifier">parallel</span><span>[</span><span class="type-name">IO</span><span>]
+  .</span><span class="identifier">build</span><span>
   
-val res: IO[Unit] = transformer
-  .fromDirectory(&quot;src&quot;)
-  .toFile(&quot;hello.epub&quot;)
-  .transform</pre>
+</span><span class="keyword">val</span><span> </span><span class="identifier">res</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] = </span><span class="identifier">transformer</span><span>
+  .</span><span class="identifier">fromDirectory</span><span>(</span><span class="string-literal">&quot;src&quot;</span><span>)
+  .</span><span class="identifier">toFile</span><span>(</span><span class="string-literal">&quot;hello.epub&quot;</span><span>)
+  .</span><span class="identifier">transform</span></code></pre>
         <p>When using Laika&#39;s PDF support you need to add one more dependency to your build:</p>
-        <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika-pdf&quot; % &quot;0.12.1&quot;</pre>
+        <pre><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> += </span><span class="string-literal">&quot;org.planet42&quot;</span><span> %% </span><span class="string-literal">&quot;laika-pdf&quot;</span><span> % </span><span class="string-literal">&quot;0.13.0&quot;</span></code></pre>
         <p>The example for how to transform a directory of input files into a PDF file looks
-        the same as the EPUB example, apart from swapping <code>EPUB</code> for <code>PDF</code>  <br></p>
+        the same as the EPUB example, apart from swapping <code>EPUB</code> for <code>PDF</code> <br></p>
         
         <h3 id="other-resources" class="section">Other Resources</h3>
         <ul>
@@ -199,6 +197,10 @@ val res: IO[Unit] = transformer
             supported markup formats</p>
           </li>
           <li>
+            <p>Integrated parsers for syntax highlighting that work for all output
+            formats, not just HTML.</p>
+          </li>
+          <li>
             <p>Support for styling of PDF documents with CSS</p>
           </li>
           <li>
@@ -238,17 +240,14 @@ val res: IO[Unit] = transformer
             <p>Purely functional library API</p>
           </li>
           <li>
-            <p>More than 1,200 tests</p>
+            <p>More than 1,500 tests</p>
           </li>
         </ul>
         
         <h2 id="road-map" class="section">Road Map</h2>
         <ul>
           <li>
-            <p><strong>0.13</strong>: Support for Scala.js</p>
-          </li>
-          <li>
-            <p><strong>0.14</strong>: Integrated support for syntax highlighting in source code</p>
+            <p><strong>0.14</strong>: Support for Scala.js</p>
           </li>
           <li>
             <p><strong>0.15</strong>: A set of default themes for all output formats</p>
@@ -260,6 +259,33 @@ val res: IO[Unit] = transformer
         
         <h2 id="release-history" class="section">Release History</h2>
         <ul>
+          <li>
+            <p><strong>0.13.0</strong> (Jan ??, 2020):</p>
+            <ul>
+              <li>
+                Introduce integrated syntax highlighting based on the libraries own parsers
+                <ul>
+                  <li>Resulting AST nodes for code spans are part of the document AST and
+                  can be processed or transformed like all other nodes</li>
+                  <li>Works with any renderer, including PDF</li>
+                  <li>Initially supported are Scala, Java, Python, JavaScript, TypeScript,
+                  HTML, CSS, XML, JSON, HOCON</li>
+                  <li>Convenient base parsers for common syntax like string and number literals
+                  or identifiers to facilitate development of new syntax highlighters</li>
+                </ul>
+              </li>
+              <li>HOCON parser: add support for <code>include</code> statements, this final feature addition 
+              makes Laika&#39;s HOCON support fully spec-compliant    <br></li>
+              <li>New transformation hooks in the <code>laika-io</code> module for parallel transformers: 
+              <code>mapDocuments(Document =&gt; Document)</code>, <code>evalMapDocuments(Document =&gt; F[Document])</code> 
+              and the corresponsing <code>mapTree</code> and <code>evalMapTree</code></li>
+              <li>Transformer introspection: introduce <code>describe</code> method for parsers, renderers
+              and transformers and <code>laikaDescribe</code> setting in the sbt plugin that provides
+              formatted information about the transformer setup and installed extensions</li>
+              <li>sbt plugin: improved accuracy for caching logic for EPUB and PDF output
+              that still works when the artifact name or version changes</li>
+            </ul>
+          </li>
           <li>
             <p><strong>0.12.1</strong> (Dec 1, 2019):</p>
             <ul>

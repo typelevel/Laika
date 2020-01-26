@@ -152,7 +152,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">AST</span><span class="result"> extends <a href="../factory/RenderFormat.html" class="extype" name="laika.factory.RenderFormat">RenderFormat</a>[<a href="../render/TextFormatter.html" class="extype" name="laika.render.TextFormatter">TextFormatter</a>]</span>
+        <span class="name">AST</span><span class="result"> extends <a href="../factory/RenderFormat.html" class="extype" name="laika.factory.RenderFormat">RenderFormat</a>[<a href="../render/TextFormatter.html" class="extype" name="laika.render.TextFormatter">TextFormatter</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
@@ -164,7 +164,7 @@ Transformer.from(Markdown).to(AST).build.transform(inputString)</pre></div><div 
           <span class="toggle">
             Linear Supertypes
           </span>
-          <div class="superTypes hiddenContent"><a href="../factory/RenderFormat.html" class="extype" name="laika.factory.RenderFormat">RenderFormat</a>[<a href="../render/TextFormatter.html" class="extype" name="laika.render.TextFormatter">TextFormatter</a>], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <a href="../factory/RenderFormat.html" class="extype" name="laika.factory.RenderFormat">RenderFormat</a>[<a href="../render/TextFormatter.html" class="extype" name="laika.render.TextFormatter">TextFormatter</a>], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -190,7 +190,7 @@ Transformer.from(Markdown).to(AST).build.transform(inputString)</pre></div><div 
                   <span class="filtertype">Inherited<br />
                   </span>
                   <ol id="linearization">
-                    <li class="in" name="laika.format.AST"><span>AST</span></li><li class="in" name="laika.factory.RenderFormat"><span>RenderFormat</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                    <li class="in" name="laika.format.AST"><span>AST</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="laika.factory.RenderFormat"><span>RenderFormat</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                   </ol>
                 </div><div class="ancestors">
               <span class="filtertype"></span>
@@ -378,6 +378,23 @@ and the element to render and returns a String in the target format.
 It allows to specify a default template and/or static files to include in the output,
 as well as custom overrides per element type for the renderer.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.format.AST">AST</a> → <a href="../factory/RenderFormat.html" class="extype" name="laika.factory.RenderFormat">RenderFormat</a></dd></dl></div>
+    </li><li name="laika.factory.RenderFormat#description" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="description:String"></a>
+      <span class="permalink">
+      <a href="../../laika/format/AST$.html#description:String" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">description</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Short string describing the output format for tooling and logging.</p><div class="fullcomment"><div class="comment cmt"><p>Short string describing the output format for tooling and logging.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../factory/RenderFormat.html" class="extype" name="laika.factory.RenderFormat">RenderFormat</a></dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
       <span class="permalink">
@@ -496,25 +513,6 @@ will be used when invoking the default renderer.
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="scala.AnyRef#hashCode" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="hashCode():Int"></a>
-      <span class="permalink">
-      <a href="../../laika/format/AST$.html#hashCode():Int" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
-        </dd></dl></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <span class="permalink">
@@ -601,22 +599,6 @@ will be used when invoking the default renderer.
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.AnyRef#toString" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toString():String"></a>
-      <span class="permalink">
-      <a href="../../laika/format/AST$.html#toString():String" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <span class="permalink">
@@ -695,7 +677,15 @@ will be used when invoking the default renderer.
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="laika.factory.RenderFormat">
+        <div class="parent" name="scala.Serializable">
+              <h3>Inherited from <span class="extype" name="scala.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="java.io.Serializable">
+              <h3>Inherited from <span class="extype" name="java.io.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="scala.Product">
+              <h3>Inherited from <span class="extype" name="scala.Product">Product</span></h3>
+            </div><div class="parent" name="scala.Equals">
+              <h3>Inherited from <span class="extype" name="scala.Equals">Equals</span></h3>
+            </div><div class="parent" name="laika.factory.RenderFormat">
               <h3>Inherited from <a href="../factory/RenderFormat.html" class="extype" name="laika.factory.RenderFormat">RenderFormat</a>[<a href="../render/TextFormatter.html" class="extype" name="laika.render.TextFormatter">TextFormatter</a>]</h3>
             </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>

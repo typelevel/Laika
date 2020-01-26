@@ -289,9 +289,9 @@ in text markup files, which are expected to be in HOCON format.
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="laika.parse.directive.ConfigHeaderParser#betweenLines" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="betweenLines(startDelim:String,endDelim:String):laika.parse.Parser[laika.bundle.UnresolvedConfig]"></a><a id="betweenLines(String,String):Parser[UnresolvedConfig]"></a>
+      <a id="betweenLines(startDelim:String,endDelim:String):laika.parse.Parser[laika.config.ConfigParser]"></a><a id="betweenLines(String,String):Parser[ConfigParser]"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/directive/ConfigHeaderParser$.html#betweenLines(startDelim:String,endDelim:String):laika.parse.Parser[laika.bundle.UnresolvedConfig]" title="Permalink">
+      <a href="../../../laika/parse/directive/ConfigHeaderParser$.html#betweenLines(startDelim:String,endDelim:String):laika.parse.Parser[laika.config.ConfigParser]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -300,7 +300,7 @@ in text markup files, which are expected to be in HOCON format.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">betweenLines</span><span class="params">(<span name="startDelim">startDelim: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="endDelim">endDelim: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../../bundle/UnresolvedConfig.html" class="extype" name="laika.bundle.UnresolvedConfig">UnresolvedConfig</a>]</span>
+        <span class="name">betweenLines</span><span class="params">(<span name="startDelim">startDelim: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="endDelim">endDelim: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../../config/ConfigParser.html" class="extype" name="laika.config.ConfigParser">ConfigParser</a>]</span>
       </span>
       
       <p class="shortcomment cmt">Parser for configuration headers which are enclosed
@@ -387,9 +387,9 @@ These delimiters are expected to be both on a separate line.
               
         </dd></dl></div>
     </li><li name="laika.parse.directive.ConfigHeaderParser#forTextParser" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="forTextParser(parser:laika.parse.Parser[String]):laika.parse.Parser[laika.bundle.UnresolvedConfig]"></a><a id="forTextParser(Parser[String]):Parser[UnresolvedConfig]"></a>
+      <a id="forTextParser(parser:laika.parse.Parser[String]):laika.parse.Parser[laika.config.ConfigParser]"></a><a id="forTextParser(Parser[String]):Parser[ConfigParser]"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/directive/ConfigHeaderParser$.html#forTextParser(parser:laika.parse.Parser[String]):laika.parse.Parser[laika.bundle.UnresolvedConfig]" title="Permalink">
+      <a href="../../../laika/parse/directive/ConfigHeaderParser$.html#forTextParser(parser:laika.parse.Parser[String]):laika.parse.Parser[laika.config.ConfigParser]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -398,7 +398,7 @@ These delimiters are expected to be both on a separate line.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">forTextParser</span><span class="params">(<span name="parser">parser: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../../bundle/UnresolvedConfig.html" class="extype" name="laika.bundle.UnresolvedConfig">UnresolvedConfig</a>]</span>
+        <span class="name">forTextParser</span><span class="params">(<span name="parser">parser: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../../config/ConfigParser.html" class="extype" name="laika.config.ConfigParser">ConfigParser</a>]</span>
       </span>
       
       <p class="shortcomment cmt">Generic base parser for configuration headers based on the specified string parser.</p><div class="fullcomment"><div class="comment cmt"><p>Generic base parser for configuration headers based on the specified string parser.</p><p>The parser is expected to detect and consume any start and end delimiters without
@@ -631,9 +631,9 @@ tried instead.
               
         </dd></dl></div>
     </li><li name="laika.parse.directive.ConfigHeaderParser#withDefaultLineDelimiters" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="withDefaultLineDelimiters:laika.parse.Parser[laika.bundle.UnresolvedConfig]"></a><a id="withDefaultLineDelimiters:Parser[UnresolvedConfig]"></a>
+      <a id="withDefaultLineDelimiters:laika.parse.Parser[laika.config.ConfigParser]"></a><a id="withDefaultLineDelimiters:Parser[ConfigParser]"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/directive/ConfigHeaderParser$.html#withDefaultLineDelimiters:laika.parse.Parser[laika.bundle.UnresolvedConfig]" title="Permalink">
+      <a href="../../../laika/parse/directive/ConfigHeaderParser$.html#withDefaultLineDelimiters:laika.parse.Parser[laika.config.ConfigParser]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -642,7 +642,7 @@ tried instead.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">withDefaultLineDelimiters</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../../bundle/UnresolvedConfig.html" class="extype" name="laika.bundle.UnresolvedConfig">UnresolvedConfig</a>]</span>
+        <span class="name">withDefaultLineDelimiters</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../../config/ConfigParser.html" class="extype" name="laika.config.ConfigParser">ConfigParser</a>]</span>
       </span>
       
       <p class="shortcomment cmt">Parser for default configuration headers which are enclosed

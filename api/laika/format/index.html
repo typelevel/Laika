@@ -457,7 +457,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a title="A renderer for AST output (a formatted Abstract Syntax Tree), primarily useful for debugging purposes." href="AST$.html"><span class="name">AST</span></a><span class="result"> extends <a href="../factory/RenderFormat.html" class="extype" name="laika.factory.RenderFormat">RenderFormat</a>[<a href="../render/TextFormatter.html" class="extype" name="laika.render.TextFormatter">TextFormatter</a>]</span>
+        <a title="A renderer for AST output (a formatted Abstract Syntax Tree), primarily useful for debugging purposes." href="AST$.html"><span class="name">AST</span></a><span class="result"> extends <a href="../factory/RenderFormat.html" class="extype" name="laika.factory.RenderFormat">RenderFormat</a>[<a href="../render/TextFormatter.html" class="extype" name="laika.render.TextFormatter">TextFormatter</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">A renderer for AST output (a formatted Abstract Syntax Tree), primarily useful for debugging purposes.</p><div class="fullcomment"><div class="comment cmt"><p>A renderer for AST output (a formatted Abstract Syntax Tree), primarily useful for debugging purposes.
@@ -476,7 +476,7 @@ Transformer.from(Markdown).to(AST).build.transform(inputString)</pre></div></div
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a title="A post processor for EPUB output, based on an interim HTML renderer." href="EPUB$.html"><span class="name">EPUB</span></a><span class="result"> extends <a href="../factory/TwoPhaseRenderFormat.html" class="extype" name="laika.factory.TwoPhaseRenderFormat">TwoPhaseRenderFormat</a>[<a href="../render/HTMLFormatter.html" class="extype" name="laika.render.HTMLFormatter">HTMLFormatter</a>, <a href="../factory/BinaryPostProcessor.html" class="extype" name="laika.factory.BinaryPostProcessor">BinaryPostProcessor</a>]</span>
+        <a title="A post processor for EPUB output, based on an interim HTML renderer." href="EPUB$.html"><span class="name">EPUB</span></a><span class="result"> extends <a href="../factory/TwoPhaseRenderFormat.html" class="extype" name="laika.factory.TwoPhaseRenderFormat">TwoPhaseRenderFormat</a>[<a href="../render/HTMLFormatter.html" class="extype" name="laika.render.HTMLFormatter">HTMLFormatter</a>, <a href="../factory/BinaryPostProcessor.html" class="extype" name="laika.factory.BinaryPostProcessor">BinaryPostProcessor</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">A post processor for EPUB output, based on an interim HTML renderer.</p><div class="fullcomment"><div class="comment cmt"><p>A post processor for EPUB output, based on an interim HTML renderer.
@@ -513,7 +513,7 @@ Transformer.from(Markdown).to(AST).build.transform(inputString)</pre></div></div
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a title="A render format for HTML output." href="HTML$.html"><span class="name">HTML</span></a><span class="result"> extends <a href="../factory/RenderFormat.html" class="extype" name="laika.factory.RenderFormat">RenderFormat</a>[<a href="../render/HTMLFormatter.html" class="extype" name="laika.render.HTMLFormatter">HTMLFormatter</a>]</span>
+        <a title="A render format for HTML output." href="HTML$.html"><span class="name">HTML</span></a><span class="result"> extends <a href="../factory/RenderFormat.html" class="extype" name="laika.factory.RenderFormat">RenderFormat</a>[<a href="../render/HTMLFormatter.html" class="extype" name="laika.render.HTMLFormatter">HTMLFormatter</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">A render format for HTML output.</p><div class="fullcomment"><div class="comment cmt"><p>A render format for HTML output. May be directly passed to the <code>Render</code> or <code>Transform</code> APIs:</p><pre>Renderer.of(HTML).build.render(document)
@@ -531,7 +531,7 @@ Transformer.from(Markdown).to(HTML).build.transform(inputString)</pre></div></di
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a title="A parser for Markdown text." href="Markdown$.html"><span class="name">Markdown</span></a><span class="result"> extends <a href="../factory/MarkupFormat.html" class="extype" name="laika.factory.MarkupFormat">MarkupFormat</a></span>
+        <a title="A parser for Markdown text." href="Markdown$.html"><span class="name">Markdown</span></a><span class="result"> extends <a href="../factory/MarkupFormat.html" class="extype" name="laika.factory.MarkupFormat">MarkupFormat</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">A parser for Markdown text.</p><div class="fullcomment"><div class="comment cmt"><p>A parser for Markdown text. Instances of this class may be passed directly
@@ -572,7 +572,7 @@ Transformer.from(Markdown).to(HTML).build.transform(inputString)</pre><p> Since 
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a title="A parser for text written in reStructuredText markup." href="ReStructuredText$.html"><span class="name">ReStructuredText</span></a><span class="result"> extends <a href="../factory/MarkupFormat.html" class="extype" name="laika.factory.MarkupFormat">MarkupFormat</a></span>
+        <a title="A parser for text written in reStructuredText markup." href="ReStructuredText$.html"><span class="name">ReStructuredText</span></a><span class="result"> extends <a href="../factory/MarkupFormat.html" class="extype" name="laika.factory.MarkupFormat">MarkupFormat</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">A parser for text written in reStructuredText markup.</p><div class="fullcomment"><div class="comment cmt"><p>A parser for text written in reStructuredText markup. Instances of this class may be passed directly

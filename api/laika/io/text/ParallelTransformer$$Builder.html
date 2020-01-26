@@ -169,7 +169,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">Builder</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="transformer">transformer: <a href="../../api/Transformer.html" class="extype" name="laika.api.Transformer">Transformer</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$3">evidence$3: <span class="extype" name="cats.effect.Async">Async</span>[<span class="extype" name="laika.io.text.ParallelTransformer.Builder.F">F</span>]</span>, <span name="evidence$4">evidence$4: <a href="../runtime/Runtime.html" class="extype" name="laika.io.runtime.Runtime">Runtime</a>[<span class="extype" name="laika.io.text.ParallelTransformer.Builder.F">F</span>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">Builder</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="parsers">parsers: <span class="extype" name="cats.data.NonEmptyList">NonEmptyList</span>[<a href="../../api/MarkupParser.html" class="extype" name="laika.api.MarkupParser">MarkupParser</a>]</span>, <span name="renderer">renderer: <a href="../../api/Renderer.html" class="extype" name="laika.api.Renderer">Renderer</a></span>, <span name="mapper">mapper: <a href="../binary/ParallelTransformer$.html#TreeMapper[F[_]]=cats.data.Kleisli[F,laika.io.model.ParsedTree[F],laika.io.model.ParsedTree[F]]" class="extmbr" name="laika.io.binary.ParallelTransformer.TreeMapper">TreeMapper</a>[<span class="extype" name="laika.io.text.ParallelTransformer.Builder.F">F</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$3">evidence$3: <span class="extype" name="cats.effect.Async">Async</span>[<span class="extype" name="laika.io.text.ParallelTransformer.Builder.F">F</span>]</span>, <span name="evidence$4">evidence$4: <a href="../runtime/Runtime.html" class="extype" name="laika.io.runtime.Runtime">Runtime</a>[<span class="extype" name="laika.io.text.ParallelTransformer.Builder.F">F</span>]</span>)</span><span class="result"> extends <a href="../ops/TreeMapperOps.html" class="extype" name="laika.io.ops.TreeMapperOps">TreeMapperOps</a>[<span class="extype" name="laika.io.text.ParallelTransformer.Builder.F">F</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
@@ -180,7 +180,7 @@ for blocking IO and CPU-bound tasks.
           <span class="toggle">
             Linear Supertypes
           </span>
-          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <a href="../ops/TreeMapperOps.html" class="extype" name="laika.io.ops.TreeMapperOps">TreeMapperOps</a>[<span class="extype" name="laika.io.text.ParallelTransformer.Builder.F">F</span>], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -206,7 +206,7 @@ for blocking IO and CPU-bound tasks.
                   <span class="filtertype">Inherited<br />
                   </span>
                   <ol id="linearization">
-                    <li class="in" name="laika.io.text.ParallelTransformer.Builder"><span>Builder</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                    <li class="in" name="laika.io.text.ParallelTransformer.Builder"><span>Builder</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="laika.io.ops.TreeMapperOps"><span>TreeMapperOps</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                   </ol>
                 </div><div class="ancestors">
               <span class="filtertype"></span>
@@ -227,9 +227,9 @@ for blocking IO and CPU-bound tasks.
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.io.text.ParallelTransformer.Builder#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(transformer:laika.api.Transformer)(implicitevidence$3:cats.effect.Async[F],implicitevidence$4:laika.io.runtime.Runtime[F]):laika.io.text.ParallelTransformer.Builder[F]"></a><a id="&lt;init&gt;:Builder[F]"></a>
+      <a id="&lt;init&gt;(parsers:cats.data.NonEmptyList[laika.api.MarkupParser],renderer:laika.api.Renderer,mapper:laika.io.binary.ParallelTransformer.TreeMapper[F])(implicitevidence$3:cats.effect.Async[F],implicitevidence$4:laika.io.runtime.Runtime[F]):laika.io.text.ParallelTransformer.Builder[F]"></a><a id="&lt;init&gt;:Builder[F]"></a>
       <span class="permalink">
-      <a href="../../../laika/io/text/ParallelTransformer$$Builder.html#&lt;init&gt;(transformer:laika.api.Transformer)(implicitevidence$3:cats.effect.Async[F],implicitevidence$4:laika.io.runtime.Runtime[F]):laika.io.text.ParallelTransformer.Builder[F]" title="Permalink">
+      <a href="../../../laika/io/text/ParallelTransformer$$Builder.html#&lt;init&gt;(parsers:cats.data.NonEmptyList[laika.api.MarkupParser],renderer:laika.api.Renderer,mapper:laika.io.binary.ParallelTransformer.TreeMapper[F])(implicitevidence$3:cats.effect.Async[F],implicitevidence$4:laika.io.runtime.Runtime[F]):laika.io.text.ParallelTransformer.Builder[F]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -238,14 +238,33 @@ for blocking IO and CPU-bound tasks.
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">Builder</span><span class="params">(<span name="transformer">transformer: <a href="../../api/Transformer.html" class="extype" name="laika.api.Transformer">Transformer</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Async">Async</span>[<span class="extype" name="laika.io.text.ParallelTransformer.Builder.F">F</span>]</span>, <span name="arg1">arg1: <a href="../runtime/Runtime.html" class="extype" name="laika.io.runtime.Runtime">Runtime</a>[<span class="extype" name="laika.io.text.ParallelTransformer.Builder.F">F</span>]</span>)</span>
+        <span class="name">Builder</span><span class="params">(<span name="parsers">parsers: <span class="extype" name="cats.data.NonEmptyList">NonEmptyList</span>[<a href="../../api/MarkupParser.html" class="extype" name="laika.api.MarkupParser">MarkupParser</a>]</span>, <span name="renderer">renderer: <a href="../../api/Renderer.html" class="extype" name="laika.api.Renderer">Renderer</a></span>, <span name="mapper">mapper: <a href="../binary/ParallelTransformer$.html#TreeMapper[F[_]]=cats.data.Kleisli[F,laika.io.model.ParsedTree[F],laika.io.model.ParsedTree[F]]" class="extmbr" name="laika.io.binary.ParallelTransformer.TreeMapper">TreeMapper</a>[<span class="extype" name="laika.io.text.ParallelTransformer.Builder.F">F</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Async">Async</span>[<span class="extype" name="laika.io.text.ParallelTransformer.Builder.F">F</span>]</span>, <span name="arg1">arg1: <a href="../runtime/Runtime.html" class="extype" name="laika.io.runtime.Runtime">Runtime</a>[<span class="extype" name="laika.io.text.ParallelTransformer.Builder.F">F</span>]</span>)</span>
       </span>
       
       
     </li></ol>
             </div>
 
-        
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="laika.io.text.ParallelTransformer.Builder.MapRes" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="MapRes=laika.io.text.ParallelTransformer.Builder[F]"></a><a id="MapRes:MapRes"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/text/ParallelTransformer$$Builder.html#MapRes=laika.io.text.ParallelTransformer.Builder[F]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">MapRes</span><span class="result alias"> = <a href="" class="extype" name="laika.io.text.ParallelTransformer.Builder">Builder</a>[<span class="extype" name="laika.io.text.ParallelTransformer.Builder.F">F</span>]</span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.io.text.ParallelTransformer.Builder">Builder</a> → <a href="../ops/TreeMapperOps.html" class="extype" name="laika.io.ops.TreeMapperOps">TreeMapperOps</a></dd></dl></div>
+    </li></ol>
+            </div>
 
         
 
@@ -300,6 +319,22 @@ for blocking IO and CPU-bound tasks.
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="laika.io.ops.TreeMapperOps#F" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="F:cats.effect.Async[F]"></a><a id="F:Async[F]"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/text/ParallelTransformer$$Builder.html#F:cats.effect.Async[F]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">F</span><span class="result">: <span class="extype" name="cats.effect.Async">Async</span>[<span class="extype" name="laika.io.text.ParallelTransformer.Builder.F">F</span>]</span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../ops/TreeMapperOps.html" class="extype" name="laika.io.ops.TreeMapperOps">TreeMapperOps</a></dd></dl></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <span class="permalink">
@@ -372,6 +407,44 @@ for blocking IO and CPU-bound tasks.
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="laika.io.ops.TreeMapperOps#evalMapDocuments" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="evalMapDocuments(f:laika.ast.Document=&gt;F[laika.ast.Document]):TreeMapperOps.this.MapRes"></a><a id="evalMapDocuments((Document)⇒F[Document]):MapRes"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/text/ParallelTransformer$$Builder.html#evalMapDocuments(f:laika.ast.Document=&gt;F[laika.ast.Document]):TreeMapperOps.this.MapRes" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">evalMapDocuments</span><span class="params">(<span name="f">f: (<a href="../../ast/Document.html" class="extype" name="laika.ast.Document">Document</a>) ⇒ <span class="extype" name="laika.io.text.ParallelTransformer.Builder.F">F</span>[<a href="../../ast/Document.html" class="extype" name="laika.ast.Document">Document</a>]</span>)</span><span class="result">: <a href="#MapRes=laika.io.text.ParallelTransformer.Builder[F]" class="extmbr" name="laika.io.text.ParallelTransformer.Builder.MapRes">MapRes</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Creates a new transformer that applies the specified effectful function to each document in the parsed tree
+before rendering.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new transformer that applies the specified effectful function to each document in the parsed tree
+before rendering.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../ops/TreeMapperOps.html" class="extype" name="laika.io.ops.TreeMapperOps">TreeMapperOps</a></dd></dl></div>
+    </li><li name="laika.io.text.ParallelTransformer.Builder#evalMapTree" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="evalMapTree(f:laika.io.model.ParsedTree[F]=&gt;F[laika.io.model.ParsedTree[F]]):Builder.this.MapRes"></a><a id="evalMapTree((ParsedTree[F])⇒F[ParsedTree[F]]):MapRes"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/text/ParallelTransformer$$Builder.html#evalMapTree(f:laika.io.model.ParsedTree[F]=&gt;F[laika.io.model.ParsedTree[F]]):Builder.this.MapRes" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">evalMapTree</span><span class="params">(<span name="f">f: (<a href="../model/ParsedTree.html" class="extype" name="laika.io.model.ParsedTree">ParsedTree</a>[<span class="extype" name="laika.io.text.ParallelTransformer.Builder.F">F</span>]) ⇒ <span class="extype" name="laika.io.text.ParallelTransformer.Builder.F">F</span>[<a href="../model/ParsedTree.html" class="extype" name="laika.io.model.ParsedTree">ParsedTree</a>[<span class="extype" name="laika.io.text.ParallelTransformer.Builder.F">F</span>]]</span>)</span><span class="result">: <a href="#MapRes=laika.io.text.ParallelTransformer.Builder[F]" class="extmbr" name="laika.io.text.ParallelTransformer.Builder.MapRes">MapRes</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Creates a new transformer that applies the specified effectful function to the parsed tree
+before rendering.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new transformer that applies the specified effectful function to the parsed tree
+before rendering.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.io.text.ParallelTransformer.Builder">Builder</a> → <a href="../ops/TreeMapperOps.html" class="extype" name="laika.io.ops.TreeMapperOps">TreeMapperOps</a></dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <span class="permalink">
@@ -429,6 +502,60 @@ for blocking IO and CPU-bound tasks.
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="laika.io.ops.TreeMapperOps#mapDocuments" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="mapDocuments(f:laika.ast.Document=&gt;laika.ast.Document):TreeMapperOps.this.MapRes"></a><a id="mapDocuments((Document)⇒Document):MapRes"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/text/ParallelTransformer$$Builder.html#mapDocuments(f:laika.ast.Document=&gt;laika.ast.Document):TreeMapperOps.this.MapRes" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">mapDocuments</span><span class="params">(<span name="f">f: (<a href="../../ast/Document.html" class="extype" name="laika.ast.Document">Document</a>) ⇒ <a href="../../ast/Document.html" class="extype" name="laika.ast.Document">Document</a></span>)</span><span class="result">: <a href="#MapRes=laika.io.text.ParallelTransformer.Builder[F]" class="extmbr" name="laika.io.text.ParallelTransformer.Builder.MapRes">MapRes</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Creates a new transformer that applies the specified function to each document in the parsed tree
+before rendering.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new transformer that applies the specified function to each document in the parsed tree
+before rendering.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../ops/TreeMapperOps.html" class="extype" name="laika.io.ops.TreeMapperOps">TreeMapperOps</a></dd></dl></div>
+    </li><li name="laika.io.ops.TreeMapperOps#mapTree" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="mapTree(f:laika.io.model.ParsedTree[F]=&gt;laika.io.model.ParsedTree[F]):TreeMapperOps.this.MapRes"></a><a id="mapTree((ParsedTree[F])⇒ParsedTree[F]):MapRes"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/text/ParallelTransformer$$Builder.html#mapTree(f:laika.io.model.ParsedTree[F]=&gt;laika.io.model.ParsedTree[F]):TreeMapperOps.this.MapRes" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">mapTree</span><span class="params">(<span name="f">f: (<a href="../model/ParsedTree.html" class="extype" name="laika.io.model.ParsedTree">ParsedTree</a>[<span class="extype" name="laika.io.text.ParallelTransformer.Builder.F">F</span>]) ⇒ <a href="../model/ParsedTree.html" class="extype" name="laika.io.model.ParsedTree">ParsedTree</a>[<span class="extype" name="laika.io.text.ParallelTransformer.Builder.F">F</span>]</span>)</span><span class="result">: <a href="#MapRes=laika.io.text.ParallelTransformer.Builder[F]" class="extmbr" name="laika.io.text.ParallelTransformer.Builder.MapRes">MapRes</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Creates a new transformer that applies the specified function to the parsed tree
+before rendering.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new transformer that applies the specified function to the parsed tree
+before rendering.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../ops/TreeMapperOps.html" class="extype" name="laika.io.ops.TreeMapperOps">TreeMapperOps</a></dd></dl></div>
+    </li><li name="laika.io.text.ParallelTransformer.Builder#mapper" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="mapper:laika.io.binary.ParallelTransformer.TreeMapper[F]"></a><a id="mapper:TreeMapper[F]"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/text/ParallelTransformer$$Builder.html#mapper:laika.io.binary.ParallelTransformer.TreeMapper[F]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">mapper</span><span class="result">: <a href="../binary/ParallelTransformer$.html#TreeMapper[F[_]]=cats.data.Kleisli[F,laika.io.model.ParsedTree[F],laika.io.model.ParsedTree[F]]" class="extmbr" name="laika.io.binary.ParallelTransformer.TreeMapper">TreeMapper</a>[<span class="extype" name="laika.io.text.ParallelTransformer.Builder.F">F</span>]</span>
+      </span>
+      
+      
     </li><li name="scala.AnyRef#ne" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a><a id="ne(AnyRef):Boolean"></a>
       <span class="permalink">
@@ -483,6 +610,38 @@ for blocking IO and CPU-bound tasks.
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li name="laika.io.text.ParallelTransformer.Builder#parsers" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="parsers:cats.data.NonEmptyList[laika.api.MarkupParser]"></a><a id="parsers:NonEmptyList[MarkupParser]"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/text/ParallelTransformer$$Builder.html#parsers:cats.data.NonEmptyList[laika.api.MarkupParser]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">parsers</span><span class="result">: <span class="extype" name="cats.data.NonEmptyList">NonEmptyList</span>[<a href="../../api/MarkupParser.html" class="extype" name="laika.api.MarkupParser">MarkupParser</a>]</span>
+      </span>
+      
+      
+    </li><li name="laika.io.text.ParallelTransformer.Builder#renderer" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="renderer:laika.api.Renderer"></a><a id="renderer:Renderer"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/text/ParallelTransformer$$Builder.html#renderer:laika.api.Renderer" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">renderer</span><span class="result">: <a href="../../api/Renderer.html" class="extype" name="laika.api.Renderer">Renderer</a></span>
+      </span>
+      
+      
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">
@@ -499,22 +658,6 @@ for blocking IO and CPU-bound tasks.
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="laika.io.text.ParallelTransformer.Builder#transformer" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="transformer:laika.api.Transformer"></a><a id="transformer:Transformer"></a>
-      <span class="permalink">
-      <a href="../../../laika/io/text/ParallelTransformer$$Builder.html#transformer:laika.api.Transformer" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">transformer</span><span class="result">: <a href="../../api/Transformer.html" class="extype" name="laika.api.Transformer">Transformer</a></span>
-      </span>
-      
-      
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <span class="permalink">
@@ -583,6 +726,44 @@ for blocking IO and CPU-bound tasks.
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li name="laika.io.text.ParallelTransformer.Builder#withAlternativeParser" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withAlternativeParser(parser:laika.api.builder.ParserBuilder):laika.io.text.ParallelTransformer.Builder[F]"></a><a id="withAlternativeParser(ParserBuilder):Builder[F]"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/text/ParallelTransformer$$Builder.html#withAlternativeParser(parser:laika.api.builder.ParserBuilder):laika.io.text.ParallelTransformer.Builder[F]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withAlternativeParser</span><span class="params">(<span name="parser">parser: <a href="../../api/builder/ParserBuilder.html" class="extype" name="laika.api.builder.ParserBuilder">ParserBuilder</a></span>)</span><span class="result">: <a href="" class="extype" name="laika.io.text.ParallelTransformer.Builder">Builder</a>[<span class="extype" name="laika.io.text.ParallelTransformer.Builder.F">F</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Specifies an additional parser for text markup.</p><div class="fullcomment"><div class="comment cmt"><p>Specifies an additional parser for text markup.</p><p>When multiple parsers exist for an operation, the target parser
+will be determined by the suffix of the input document, e.g.
+<code>.md</code> for Markdown and <code>.rst</code> for reStructuredText.
+</p></div></div>
+    </li><li name="laika.io.text.ParallelTransformer.Builder#withAlternativeParser" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withAlternativeParser(parser:laika.api.MarkupParser):laika.io.text.ParallelTransformer.Builder[F]"></a><a id="withAlternativeParser(MarkupParser):Builder[F]"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/text/ParallelTransformer$$Builder.html#withAlternativeParser(parser:laika.api.MarkupParser):laika.io.text.ParallelTransformer.Builder[F]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withAlternativeParser</span><span class="params">(<span name="parser">parser: <a href="../../api/MarkupParser.html" class="extype" name="laika.api.MarkupParser">MarkupParser</a></span>)</span><span class="result">: <a href="" class="extype" name="laika.io.text.ParallelTransformer.Builder">Builder</a>[<span class="extype" name="laika.io.text.ParallelTransformer.Builder.F">F</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Specifies an additional parser for text markup.</p><div class="fullcomment"><div class="comment cmt"><p>Specifies an additional parser for text markup.</p><p>When multiple parsers exist for an operation, the target parser
+will be determined by the suffix of the input document, e.g.
+<code>.md</code> for Markdown and <code>.rst</code> for reStructuredText.
+</p></div></div>
     </li>
               </ol>
             </div>
@@ -601,6 +782,8 @@ for blocking IO and CPU-bound tasks.
               <h3>Inherited from <span class="extype" name="scala.Product">Product</span></h3>
             </div><div class="parent" name="scala.Equals">
               <h3>Inherited from <span class="extype" name="scala.Equals">Equals</span></h3>
+            </div><div class="parent" name="laika.io.ops.TreeMapperOps">
+              <h3>Inherited from <a href="../ops/TreeMapperOps.html" class="extype" name="laika.io.ops.TreeMapperOps">TreeMapperOps</a>[<span class="extype" name="laika.io.text.ParallelTransformer.Builder.F">F</span>]</h3>
             </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">

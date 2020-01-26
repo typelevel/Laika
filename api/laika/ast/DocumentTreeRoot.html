@@ -155,6 +155,10 @@
                         <a href="Caption.html" title="The table caption.">Caption</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="trait" href="CategorizedCode.html" title="A single span inside a code block that has been categorized by a syntax highlighter."></a>
+                        <a href="CategorizedCode.html" title="A single span inside a code block that has been categorized by a syntax highlighter.">CategorizedCode</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="class" href="Cell.html" title="A single cell, potentially spanning multiple rows or columns, containing one or more block elements."></a>
                         <a href="Cell.html" title="A single cell, potentially spanning multiple rows or columns, containing one or more block elements.">Cell</a>
                       </li><li class="current-entities indented2">
@@ -175,12 +179,20 @@
                         <a href="CitationReference.html" title="A reference to a citation with a matching label.">CitationReference</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="class" href="Code.html" title="A span of program code."></a>
-                        <a href="Code.html" title="A span of program code.">Code</a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
                         <a class="class" href="CodeBlock.html" title="A block of program code."></a>
                         <a href="CodeBlock.html" title="A block of program code.">CodeBlock</a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="CodeSpan$.html" title=""></a>
+                        <a class="class" href="CodeSpan.html" title="A span of code associated with zero or more code categories."></a>
+                        <a href="CodeSpan.html" title="A span of code associated with zero or more code categories.">CodeSpan</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="CodeSpanSequence.html" title="A sequence of code spans where most of them are usually associated with zero or more code categories."></a>
+                        <a href="CodeSpanSequence.html" title="A sequence of code spans where most of them are usually associated with zero or more code categories.">CodeSpanSequence</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="object" href="CodeSpans$.html" title=""></a>
+                        <a href="CodeSpans$.html" title="">CodeSpans</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="Column.html" title="The options (like styles) for a column table."></a>
@@ -369,6 +381,10 @@
                         <span class="separator"></span>
                         <a class="class" href="ImageReference.html" title="An image reference, the id pointing to the id of a LinkTarget."></a>
                         <a href="ImageReference.html" title="An image reference, the id pointing to the id of a LinkTarget.">ImageReference</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="InlineCode.html" title="A span of program code."></a>
+                        <a href="InlineCode.html" title="A span of program code.">InlineCode</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="Inserted.html" title="A span representing inserted inline elements that may contain nested spans."></a>
@@ -764,7 +780,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">DocumentTreeRoot</span><span class="params">(<span name="tree">tree: <a href="DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>, <span name="coverDocument">coverDocument: <span class="extype" name="scala.Option">Option</span>[<a href="Document.html" class="extype" name="laika.ast.Document">Document</a>] = <span class="symbol">None</span></span>, <span name="styles">styles: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <a href="StyleDeclarationSet.html" class="extype" name="laika.ast.StyleDeclarationSet">StyleDeclarationSet</a>] = <span class="defval" name='<span class="name"><a href="StyleDeclarationSet$.html">Map.empty.withDefaultValue(StyleDeclarationSet.empty)</a></span>'>...</span></span>, <span name="staticDocuments">staticDocuments: <span class="extype" name="scala.Seq">Seq</span>[<a href="Path.html" class="extype" name="laika.ast.Path">Path</a>] = <span class="symbol">Nil</span></span>, <span name="sourcePaths">sourcePaths: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">Nil</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">DocumentTreeRoot</span><span class="params">(<span name="tree">tree: <a href="DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>, <span name="coverDocument">coverDocument: <span class="extype" name="scala.Option">Option</span>[<a href="Document.html" class="extype" name="laika.ast.Document">Document</a>] = <span class="symbol">None</span></span>, <span name="styles">styles: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <a href="StyleDeclarationSet.html" class="extype" name="laika.ast.StyleDeclarationSet">StyleDeclarationSet</a>] = <span class="defval" name='<span class="name"><a href="StyleDeclarationSet$.html">Map.empty.withDefaultValue(StyleDeclarationSet.empty)</a></span>'>...</span></span>, <span name="staticDocuments">staticDocuments: <span class="extype" name="scala.Seq">Seq</span>[<a href="Path.html" class="extype" name="laika.ast.Path">Path</a>] = <span class="symbol">Nil</span></span>, <span name="includes">includes: <a href="../config/Config$.html#IncludeMap=Map[laika.parse.hocon.IncludeResource,Either[laika.config.ConfigError,laika.parse.hocon.ObjectBuilderValue]]" class="extmbr" name="laika.config.Config.IncludeMap">IncludeMap</a> = <span class="symbol">Map.empty</span></span>, <span name="sourcePaths">sourcePaths: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">Nil</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
@@ -774,7 +790,7 @@ usually obtained by parsing text markup, it holds additional items like styles a
 which may contribute to the rendering of a site or an e-book.</p><p>The <code>styles</code> property of this type is currently only populated and processed when rendering PDF or XSL-FO.
 Styles for HTML or EPUB documents are part of the <code>staticDocuments</code> property instead and will be integrated
 into the final output, but not interpreted.
-</p></div><dl class="paramcmts block"><dt class="param">tree</dt><dd class="cmt"><p>the recursive structure of documents, usually obtained from parsing text markup</p></dd><dt class="param">coverDocument</dt><dd class="cmt"><p>the cover document (usually used with e-book formats like EPUB and PDF)</p></dd><dt class="param">styles</dt><dd class="cmt"><p>the styles to apply when rendering this tree, only populated for PDF or XSL-FO output</p></dd><dt class="param">staticDocuments</dt><dd class="cmt"><p>the paths of documents that were neither identified as text markup, config or templates, and will be copied as is to the final output</p></dd><dt class="param">sourcePaths</dt><dd class="cmt"><p>the paths this document tree has been built from or an empty list if this ast does not originate from the file system</p></dd></dl><div class="toggleContainer block">
+</p></div><dl class="paramcmts block"><dt class="param">tree</dt><dd class="cmt"><p>the recursive structure of documents, usually obtained from parsing text markup</p></dd><dt class="param">coverDocument</dt><dd class="cmt"><p>the cover document (usually used with e-book formats like EPUB and PDF)</p></dd><dt class="param">styles</dt><dd class="cmt"><p>the styles to apply when rendering this tree, only populated for PDF or XSL-FO output</p></dd><dt class="param">staticDocuments</dt><dd class="cmt"><p>the paths of documents that were neither identified as text markup, config or templates, and will be copied as is to the final output</p></dd><dt class="param">includes</dt><dd class="cmt"><p>the map of configuration includes that may be needed when resolving template configuration</p></dd><dt class="param">sourcePaths</dt><dd class="cmt"><p>the paths this document tree has been built from or an empty list if this ast does not originate from the file system</p></dd></dl><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
           </span>
@@ -825,9 +841,9 @@ into the final output, but not interpreted.
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.ast.DocumentTreeRoot#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;init&gt;(tree:laika.ast.DocumentTree,coverDocument:Option[laika.ast.Document],styles:Map[String,laika.ast.StyleDeclarationSet],staticDocuments:Seq[laika.ast.Path],sourcePaths:Seq[String]):laika.ast.DocumentTreeRoot"></a><a id="&lt;init&gt;:DocumentTreeRoot"></a>
+      <a id="&lt;init&gt;(tree:laika.ast.DocumentTree,coverDocument:Option[laika.ast.Document],styles:Map[String,laika.ast.StyleDeclarationSet],staticDocuments:Seq[laika.ast.Path],includes:laika.config.Config.IncludeMap,sourcePaths:Seq[String]):laika.ast.DocumentTreeRoot"></a><a id="&lt;init&gt;:DocumentTreeRoot"></a>
       <span class="permalink">
-      <a href="../../laika/ast/DocumentTreeRoot.html#&lt;init&gt;(tree:laika.ast.DocumentTree,coverDocument:Option[laika.ast.Document],styles:Map[String,laika.ast.StyleDeclarationSet],staticDocuments:Seq[laika.ast.Path],sourcePaths:Seq[String]):laika.ast.DocumentTreeRoot" title="Permalink">
+      <a href="../../laika/ast/DocumentTreeRoot.html#&lt;init&gt;(tree:laika.ast.DocumentTree,coverDocument:Option[laika.ast.Document],styles:Map[String,laika.ast.StyleDeclarationSet],staticDocuments:Seq[laika.ast.Path],includes:laika.config.Config.IncludeMap,sourcePaths:Seq[String]):laika.ast.DocumentTreeRoot" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -836,10 +852,10 @@ into the final output, but not interpreted.
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">DocumentTreeRoot</span><span class="params">(<span name="tree">tree: <a href="DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>, <span name="coverDocument">coverDocument: <span class="extype" name="scala.Option">Option</span>[<a href="Document.html" class="extype" name="laika.ast.Document">Document</a>] = <span class="symbol">None</span></span>, <span name="styles">styles: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <a href="StyleDeclarationSet.html" class="extype" name="laika.ast.StyleDeclarationSet">StyleDeclarationSet</a>] = <span class="defval" name='<span class="name"><a href="StyleDeclarationSet$.html">Map.empty.withDefaultValue(StyleDeclarationSet.empty)</a></span>'>...</span></span>, <span name="staticDocuments">staticDocuments: <span class="extype" name="scala.Seq">Seq</span>[<a href="Path.html" class="extype" name="laika.ast.Path">Path</a>] = <span class="symbol">Nil</span></span>, <span name="sourcePaths">sourcePaths: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">Nil</span></span>)</span>
+        <span class="name">DocumentTreeRoot</span><span class="params">(<span name="tree">tree: <a href="DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>, <span name="coverDocument">coverDocument: <span class="extype" name="scala.Option">Option</span>[<a href="Document.html" class="extype" name="laika.ast.Document">Document</a>] = <span class="symbol">None</span></span>, <span name="styles">styles: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <a href="StyleDeclarationSet.html" class="extype" name="laika.ast.StyleDeclarationSet">StyleDeclarationSet</a>] = <span class="defval" name='<span class="name"><a href="StyleDeclarationSet$.html">Map.empty.withDefaultValue(StyleDeclarationSet.empty)</a></span>'>...</span></span>, <span name="staticDocuments">staticDocuments: <span class="extype" name="scala.Seq">Seq</span>[<a href="Path.html" class="extype" name="laika.ast.Path">Path</a>] = <span class="symbol">Nil</span></span>, <span name="includes">includes: <a href="../config/Config$.html#IncludeMap=Map[laika.parse.hocon.IncludeResource,Either[laika.config.ConfigError,laika.parse.hocon.ObjectBuilderValue]]" class="extmbr" name="laika.config.Config.IncludeMap">IncludeMap</a> = <span class="symbol">Map.empty</span></span>, <span name="sourcePaths">sourcePaths: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">Nil</span></span>)</span>
       </span>
       
-      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">tree</dt><dd class="cmt"><p>the recursive structure of documents, usually obtained from parsing text markup</p></dd><dt class="param">coverDocument</dt><dd class="cmt"><p>the cover document (usually used with e-book formats like EPUB and PDF)</p></dd><dt class="param">styles</dt><dd class="cmt"><p>the styles to apply when rendering this tree, only populated for PDF or XSL-FO output</p></dd><dt class="param">staticDocuments</dt><dd class="cmt"><p>the paths of documents that were neither identified as text markup, config or templates, and will be copied as is to the final output</p></dd><dt class="param">sourcePaths</dt><dd class="cmt"><p>the paths this document tree has been built from or an empty list if this ast does not originate from the file system</p></dd></dl></div>
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">tree</dt><dd class="cmt"><p>the recursive structure of documents, usually obtained from parsing text markup</p></dd><dt class="param">coverDocument</dt><dd class="cmt"><p>the cover document (usually used with e-book formats like EPUB and PDF)</p></dd><dt class="param">styles</dt><dd class="cmt"><p>the styles to apply when rendering this tree, only populated for PDF or XSL-FO output</p></dd><dt class="param">staticDocuments</dt><dd class="cmt"><p>the paths of documents that were neither identified as text markup, config or templates, and will be copied as is to the final output</p></dd><dt class="param">includes</dt><dd class="cmt"><p>the map of configuration includes that may be needed when resolving template configuration</p></dd><dt class="param">sourcePaths</dt><dd class="cmt"><p>the paths this document tree has been built from or an empty list if this ast does not originate from the file system</p></dd></dl></div>
     </li></ol>
             </div>
 
@@ -1046,6 +1062,22 @@ only an effect in that sub-tree.
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li name="laika.ast.DocumentTreeRoot#includes" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="includes:laika.config.Config.IncludeMap"></a><a id="includes:IncludeMap"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/DocumentTreeRoot.html#includes:laika.config.Config.IncludeMap" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">includes</span><span class="result">: <a href="../config/Config$.html#IncludeMap=Map[laika.parse.hocon.IncludeResource,Either[laika.config.ConfigError,laika.parse.hocon.ObjectBuilderValue]]" class="extmbr" name="laika.config.Config.IncludeMap">IncludeMap</a></span>
+      </span>
+      
+      
     </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <span class="permalink">

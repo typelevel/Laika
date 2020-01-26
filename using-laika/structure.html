@@ -10,12 +10,10 @@
     <meta name="description" content="Customizable and extensible toolkit for transforming lightweight markup languages to various types of output formats, written in Scala" />
     <meta name="keywords" content="scala, text, markup, markdown, restructuredtext, parser, transformer, html, template engine, site generation, open-source" />
 
+    <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
     <link href="../css/bootstrap.css" rel="stylesheet">
     <link href="../css/docs.css" rel="stylesheet">
-
-    <!--[if lt IE 9]>
-      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
 
   </head>
 
@@ -43,6 +41,7 @@
           <li><a href="output.html">Supported Output Formats</a></li>
           <li class="active"><a href="#">Document Structure</a></li>
           <li><a href="templates.html">Templates</a></li>
+          <li><a href="syntax.html">Syntax Highlighting</a></li>
           <li class="nav-header">Customizing Laika</li>
           <li><a href="../customizing-laika/customize-rendering.html">Customizing Renderers</a></li>
           <li><a href="../customizing-laika/tree-rewriting.html">Document Tree Rewriting</a></li>
@@ -76,21 +75,20 @@
         <p>These features are enabled by default, but can be switched off
         explicitly.</p>
         <p>This is how you can switch them off for any markup format:</p>
-        <pre>val transformer = Transformer
-  .from(Markdown)
-  .to(PDF)
-  .strict
-  .build </pre>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">PDF</span><span>)
+  .</span><span class="identifier">strict</span><span>
+  .</span><span class="identifier">build</span><span> </span></code></pre>
         
         <h2 id="document-title" class="section">Document Title</h2>
         <p>The document title can then be accessed in a template through
         a variable reference:</p>
-        <pre>&lt;title&gt;${document.title}&lt;/title&gt;
-</pre>
+        <pre><code class="nohighlight"><span class="tag-punctuation">&lt;</span><span class="tag-name">title</span><span class="tag-punctuation">&gt;</span><span class="substitution">${document.title}</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">title</span><span class="tag-punctuation">&gt;</span></code></pre>
         <p>Or in code through a <code>Document</code> instance:</p>
-        <pre>val doc: Document = ...
-doc.title // Seq[Span]
-</pre>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">doc</span><span>: </span><span class="type-name">Document</span><span> = ???
+</span><span class="identifier">doc</span><span>.</span><span class="identifier">title</span><span> </span><span class="comment">// Seq[Span]
+</span></code></pre>
         <p>The title can be specified in two ways.</p>
         
         <h3 id="first-headline-in-the-document" class="section">First Headline in the Document</h3>
@@ -107,10 +105,9 @@ doc.title // Seq[Span]
         <h3 id="explicit-title-in-configuration-headers" class="section">Explicit Title in Configuration Headers</h3>
         <p>Like templates, markup documents can contain configuration headers,
         enclosed between <code>{%</code> and <code>%}</code> at the start of the document:</p>
-        <pre>{%
-  title: So long and thanks for all the fish
-%}
-</pre>
+        <pre><code class="nohighlight"><span class="keyword">{%</span><span>
+  </span><span class="attribute-name">title</span><span>: </span><span class="string-literal">So long and thanks for all the fish</span><span>
+</span><span class="keyword">%}</span></code></pre>
         <p>This would override a level 1 header, if present. Configuration
         entries currently do not support inline markup, so it is interpreted
         as plain text.</p>
@@ -120,10 +117,11 @@ doc.title // Seq[Span]
         (if present) will be used to build the section structure based
         on the levels of the headlines.</p>
         <p>These sections can the be used when generating a table of content:</p>
-        <pre>@:toc</pre>
+        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">toc</span></code></pre>
         <p>Or they can be accessed through a <code>Document</code> instance:</p>
-        <pre>val doc: Document = ...
-doc.sections // Seq[SectionInfo]</pre>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">doc</span><span>: </span><span class="type-name">Document</span><span> = ???
+</span><span class="identifier">doc</span><span>.</span><span class="identifier">sections</span><span> </span><span class="comment">// Seq[SectionInfo]
+</span></code></pre>
         
         <h3 id="automatic-section-ids" class="section">Automatic Section Ids</h3>
         <p>Laika will automatically generate an id for each headline, so that
@@ -179,40 +177,40 @@ doc.sections // Seq[SectionInfo]</pre>
         document (so will not be rendered with a <code>${document.content}</code> reference).
         Instead it can be referred to by <code>${document.fragments.&lt;fragmentName&gt;}</code>.</p>
         <p>Example:</p>
-        <pre>@:fragment { sidebar } 
+        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">fragment</span><span> { </span><span class="string-literal">sidebar</span><span> } 
 
-This content will be *parsed* like all other
+This content will be </span><span class="markup-emphasized">*parsed*</span><span> like all other
 content, but will be available separately from the document content.
-The block elements extend until the `@:@` fence below.
-
+The block elements extend until the </span><span class="string-literal">`@:@`</span><span> fence below.
+  
 Therefore this line still belongs to the fragment.
   
 * As does
 * this list
 
-@:@
-
-This line doesn&#39;t and will be part of the main document content.</pre>
+</span><span class="keyword">@:@</span><span>
+  
+This line doesn&#39;t and will be part of the main document content.</span></code></pre>
         <p>Fragments are also available in code through a <code>Document</code> instance:</p>
-        <pre>val doc: Document = ...
-doc.fragments // Map[String, Element]</pre>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">doc</span><span>: </span><span class="type-name">Document</span><span> = ???
+</span><span class="identifier">doc</span><span>.</span><span class="identifier">fragments</span><span> </span><span class="comment">// Map[String, Element]
+</span></code></pre>
         
         <h2 id="cross-linking" class="section">Cross Linking</h2>
         <p>Laika piggy-backs on the built-in linking syntax of both Markdown and reStructuredText
         to add convenient cross linking between documents.</p>
         <p>If you have the following headline in one of your documents:</p>
-        <pre>Monkey Gone To Heaven
----------------------</pre>
+        <pre><code class="nohighlight"><span class="markup-headline">Monkey Gone To Heaven
+---------------------
+</span></code></pre>
         <p>Then you can use the title as an id in link references.</p>
         <p>Markdown:</p>
-        <pre>Here are the lyrics for [Monkey Gone To Heaven].
-</pre>
+        <pre><code class="nohighlight"><span>Here are the lyrics for </span><span class="markup-link-target">[Monkey Gone To Heaven]</span><span>.</span></code></pre>
         <p>reStructuredText:</p>
-        <pre>Here are the lyrics for `Monkey Gone To Heaven`_.
-</pre>
+        <pre><code class="nohighlight"><span>Here are the lyrics for </span><span class="markup-link-target">`Monkey Gone To Heaven`_</span><span>.</span></code></pre>
         <p>Like with other link ids, Markdown let&#39;s
         you specify link text and id separately:</p>
-        <pre>You have to listen to this [song][Monkey Gone To Heaven].</pre>
+        <pre><code class="nohighlight"><span>You have to listen to this </span><span class="markup-link-text">[song]</span><span class="markup-link-target">[Monkey Gone To Heaven]</span><span>.</span></code></pre>
         <p>It does not matter whether the headline is located in the same
         markup document or in another. In the latter case the headline only has
         to be unique for the current directory. It does not have to be globally unique if you reference
@@ -220,8 +218,7 @@ doc.fragments // Map[String, Element]</pre>
         in separate directories, they can all have a section with the title <code>Intro</code> for example.</p>
         <p>If the id is not unique within a directory, you can alternatively specify the
         target document explicitly:</p>
-        <pre>For details see the [Introduction][../main.md:Introduction].
-</pre>
+        <pre><code class="nohighlight"><span>For details see the </span><span class="markup-link-text">[Introduction]</span><span class="markup-link-target">[../main.md:Introduction]</span><span>.</span></code></pre>
         <p>The part of before the <code>:</code> is interpreted as the relative path to the target
         document, the part after the colon as the id of the section.</p>
         
@@ -232,10 +229,10 @@ doc.fragments // Map[String, Element]</pre>
         <p>Auto-numbering can be switched on per configuration. Usually this is a global
         switch, so you would add this section to a file named <code>directory.conf</code> inside
         the root directory of your markup files:</p>
-        <pre>autonumbering {
-  scope: all
-  depth: 3
-}</pre>
+        <pre><code class="nohighlight"><span class="attribute-name">autonumbering</span><span> {
+  </span><span class="attribute-name">scope</span><span>: </span><span class="string-literal">all</span><span>
+  </span><span class="attribute-name">depth</span><span>: </span><span class="number-literal">3</span><span>
+}</span></code></pre>
         <p>The configuration above will number both documents and sections of documents,
         but stop after the third level. Other possible values for the <code>scope</code> attribute
         are <code>documents</code> (numbers documents, but not sections), <code>sections</code> (numbers
@@ -252,10 +249,9 @@ doc.fragments // Map[String, Element]</pre>
         Subdirectories can contain markup files, too, and the hierarchy can get
         visualized in a table of contents.</p>
         <p>When using the default settings, you can simply use an empty tag:</p>
-        <pre>@:toc
-</pre>
+        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">toc</span></code></pre>
         <p>If you specify all available options it would look like this:</p>
-        <pre>@:toc { title=&quot;List of Chapters&quot;, root=&quot;../intro&quot;, depth=2 }</pre>
+        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">toc</span><span> { </span><span class="attribute-name">title</span><span>=</span><span class="string-literal">&quot;List of Chapters&quot;</span><span>, </span><span class="attribute-name">root</span><span>=</span><span class="string-literal">&quot;../intro&quot;</span><span>, </span><span class="attribute-name">depth</span><span>=</span><span class="number-literal">2</span><span> }</span></code></pre>
         <ul>
           <li>
             <p>The <code>title</code> attribute adds a title above the table. </p>
@@ -291,14 +287,13 @@ doc.fragments // Map[String, Element]</pre>
         in alphabetical order.</p>
         <p>If you want a different ordering you can define it explicitly
         for each directory in the <code>directory.conf</code> file:</p>
-        <pre>navigationOrder = [
-  apples.md
-  oranges.md
-  strawberries.md
-  some-subdirectory
-  other-subdirectory
-]
-</pre>
+        <pre><code class="nohighlight"><span class="attribute-name">navigationOrder</span><span> = [
+  </span><span class="string-literal">apples.md</span><span>
+  </span><span class="string-literal">oranges.md</span><span>
+  </span><span class="string-literal">strawberries.md</span><span>
+  </span><span class="string-literal">some-subdirectory</span><span>
+  </span><span class="string-literal">other-subdirectory</span><span>
+]</span></code></pre>
         <p>The example above contains both markup files and subdirectory.
         They would appear in this order in tables of contents and the
         same order would be applied when autonumbering.</p>
@@ -331,21 +326,21 @@ doc.fragments // Map[String, Element]</pre>
         <p>If you need to customize the document type recognition,
         you can do that with a simple function and install it as
         part of an extension bundle:</p>
-        <pre>object MyExtensions extends ExtensionBundle {
+        <pre><code class="nohighlight"><span class="keyword">object</span><span> </span><span class="type-name">MyExtensions</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">ExtensionBundle</span><span> {
 
-    override val docTypeMatcher: PartialFunction[Path, DocumentType] = ...
+  </span><span class="keyword">override</span><span> </span><span class="keyword">val</span><span> </span><span class="identifier">docTypeMatcher</span><span>: </span><span class="type-name">PartialFunction</span><span>[</span><span class="type-name">Path</span><span>, </span><span class="type-name">DocumentType</span><span>] = ...
 
-    // ... optionally other customizations
-  }
+  </span><span class="comment">// ... optionally other customizations
+</span><span>}
 
-val transformer = Transformer
-  .from(Markdown)
-  .to(HTML)
-  .using(MyExtensions)
-  .build</pre>
+</span><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">MyExtensions</span><span>)
+  .</span><span class="identifier">build</span></code></pre>
         <p>The valid return types of the matcher function correspond to the document types listed
         above:</p>
-        <pre>Markup, Template, Styles, Static, Config, Ignored</pre>      
+        <pre><code class="nohighlight"><span class="type-name">Markup</span><span>, </span><span class="type-name">Template</span><span>, </span><span class="type-name">Styles</span><span>, </span><span class="type-name">Static</span><span>, </span><span class="type-name">Config</span><span>, </span><span class="type-name">Ignored</span></code></pre>      
 
       </div>
     </div>

@@ -152,7 +152,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">Markdown</span><span class="result"> extends <a href="../factory/MarkupFormat.html" class="extype" name="laika.factory.MarkupFormat">MarkupFormat</a></span>
+        <span class="name">Markdown</span><span class="result"> extends <a href="../factory/MarkupFormat.html" class="extype" name="laika.factory.MarkupFormat">MarkupFormat</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
@@ -170,7 +170,7 @@ Transformer.from(Markdown).to(HTML).build.transform(inputString)</pre><p> Since 
           <span class="toggle">
             Linear Supertypes
           </span>
-          <div class="superTypes hiddenContent"><a href="../factory/MarkupFormat.html" class="extype" name="laika.factory.MarkupFormat">MarkupFormat</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <a href="../factory/MarkupFormat.html" class="extype" name="laika.factory.MarkupFormat">MarkupFormat</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -196,7 +196,7 @@ Transformer.from(Markdown).to(HTML).build.transform(inputString)</pre><p> Since 
                   <span class="filtertype">Inherited<br />
                   </span>
                   <ol id="linearization">
-                    <li class="in" name="laika.format.Markdown"><span>Markdown</span></li><li class="in" name="laika.factory.MarkupFormat"><span>MarkupFormat</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                    <li class="in" name="laika.format.Markdown"><span>Markdown</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="laika.factory.MarkupFormat"><span>MarkupFormat</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                   </ol>
                 </div><div class="ancestors">
               <span class="filtertype"></span>
@@ -352,6 +352,23 @@ skipping blank lines between the parsed blocks. This method can get overridden
 for special requirements, for example when the previous result has an influence on
 which parser to pick for the subsequent block.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.format.Markdown">Markdown</a> → <a href="../factory/MarkupFormat.html" class="extype" name="laika.factory.MarkupFormat">MarkupFormat</a></dd></dl></div>
+    </li><li name="laika.factory.MarkupFormat#description" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="description:String"></a>
+      <span class="permalink">
+      <a href="../../laika/format/Markdown$.html#description:String" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">description</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Short string describing the markup format for tooling and logging.</p><div class="fullcomment"><div class="comment cmt"><p>Short string describing the markup format for tooling and logging.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../factory/MarkupFormat.html" class="extype" name="laika.factory.MarkupFormat">MarkupFormat</a></dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
       <span class="permalink">
@@ -414,7 +431,7 @@ the host language has more specific rules for escape sequences.
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">extensions</span><span class="result">: <span class="extype" name="scala.collection.Seq">Seq</span>[<a href="../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a>]</span>
+        <span class="name">extensions</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a>]</span>
       </span>
       
       <p class="shortcomment cmt">The parser-specific extensions that need to be installed
@@ -480,25 +497,6 @@ the host language has more specific rules for escape sequences.
       </span>
       <span class="symbol">
         <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
-        </dd></dl></div>
-    </li><li name="scala.AnyRef#hashCode" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="hashCode():Int"></a>
-      <span class="permalink">
-      <a href="../../laika/format/Markdown$.html#hashCode():Int" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd><dt>Annotations</dt><dd>
@@ -587,7 +585,7 @@ the host language has more specific rules for escape sequences.
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">spanParsers</span><span class="result">: <span class="extype" name="scala.collection.Seq">Seq</span>[<a href="../bundle/SpanParserBuilder.html" class="extype" name="laika.bundle.SpanParserBuilder">SpanParserBuilder</a>]</span>
+        <span class="name">spanParsers</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="../bundle/SpanParserBuilder.html" class="extype" name="laika.bundle.SpanParserBuilder">SpanParserBuilder</a>]</span>
       </span>
       
       <p class="shortcomment cmt">All span parsers for the markup language this parser processes.</p><div class="fullcomment"><div class="comment cmt"><p>All span parsers for the markup language this parser processes.
@@ -608,22 +606,6 @@ the host language has more specific rules for escape sequences.
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.AnyRef#toString" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toString():String"></a>
-      <span class="permalink">
-      <a href="../../laika/format/Markdown$.html#toString():String" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <span class="permalink">
@@ -718,7 +700,15 @@ the host language has more specific rules for escape sequences.
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="laika.factory.MarkupFormat">
+        <div class="parent" name="scala.Serializable">
+              <h3>Inherited from <span class="extype" name="scala.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="java.io.Serializable">
+              <h3>Inherited from <span class="extype" name="java.io.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="scala.Product">
+              <h3>Inherited from <span class="extype" name="scala.Product">Product</span></h3>
+            </div><div class="parent" name="scala.Equals">
+              <h3>Inherited from <span class="extype" name="scala.Equals">Equals</span></h3>
+            </div><div class="parent" name="laika.factory.MarkupFormat">
               <h3>Inherited from <a href="../factory/MarkupFormat.html" class="extype" name="laika.factory.MarkupFormat">MarkupFormat</a></h3>
             </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>

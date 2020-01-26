@@ -171,6 +171,10 @@
                         <a href="Caption.html" title="The table caption.">Caption</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="trait" href="CategorizedCode.html" title="A single span inside a code block that has been categorized by a syntax highlighter."></a>
+                        <a href="CategorizedCode.html" title="A single span inside a code block that has been categorized by a syntax highlighter.">CategorizedCode</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="class" href="Cell.html" title="A single cell, potentially spanning multiple rows or columns, containing one or more block elements."></a>
                         <a href="Cell.html" title="A single cell, potentially spanning multiple rows or columns, containing one or more block elements.">Cell</a>
                       </li><li class="current-entities indented2">
@@ -191,12 +195,20 @@
                         <a href="CitationReference.html" title="A reference to a citation with a matching label.">CitationReference</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="class" href="Code.html" title="A span of program code."></a>
-                        <a href="Code.html" title="A span of program code.">Code</a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
                         <a class="class" href="CodeBlock.html" title="A block of program code."></a>
                         <a href="CodeBlock.html" title="A block of program code.">CodeBlock</a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="CodeSpan$.html" title=""></a>
+                        <a class="class" href="CodeSpan.html" title="A span of code associated with zero or more code categories."></a>
+                        <a href="CodeSpan.html" title="A span of code associated with zero or more code categories.">CodeSpan</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="CodeSpanSequence.html" title="A sequence of code spans where most of them are usually associated with zero or more code categories."></a>
+                        <a href="CodeSpanSequence.html" title="A sequence of code spans where most of them are usually associated with zero or more code categories.">CodeSpanSequence</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="object" href="CodeSpans$.html" title=""></a>
+                        <a href="CodeSpans$.html" title="">CodeSpans</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="Column.html" title="The options (like styles) for a column table."></a>
@@ -385,6 +397,10 @@
                         <span class="separator"></span>
                         <a class="class" href="ImageReference.html" title="An image reference, the id pointing to the id of a LinkTarget."></a>
                         <a href="ImageReference.html" title="An image reference, the id pointing to the id of a LinkTarget.">ImageReference</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="InlineCode.html" title="A span of program code."></a>
+                        <a href="InlineCode.html" title="A span of program code.">InlineCode</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="Inserted.html" title="A span representing inserted inline elements that may contain nested spans."></a>
@@ -1201,6 +1217,23 @@
       </span>
       
       <p class="shortcomment cmt">The table caption.</p>
+    </li><li name="laika.ast.CategorizedCode" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="CategorizedCodeextendsElementwithSpan"></a><a id="CategorizedCode:CategorizedCode"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/CategorizedCode.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">sealed </span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a title="A single span inside a code block that has been categorized by a syntax highlighter." href="CategorizedCode.html"><span class="name">CategorizedCode</span></a><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Span.html" class="extype" name="laika.ast.Span">Span</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">A single span inside a code block that has been
+categorized by a syntax highlighter.</p>
     </li><li name="laika.ast.Cell" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="CellextendsElementwithTableElementwithBlockContainerwithProductwithSerializable"></a><a id="Cell:Cell"></a>
       <span class="permalink">
@@ -1284,25 +1317,6 @@
       <p class="shortcomment cmt">A reference to a citation with a matching label.</p><div class="fullcomment"><div class="comment cmt"><p>A reference to a citation with a matching label.  Only part of the
  raw document tree and then removed by the rewrite rule that resolves link and image references.
 </p></div></div>
-    </li><li name="laika.ast.Code" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="CodeextendsElementwithSpanwithSpanContainerwithProductwithSerializable"></a><a id="Code:Code"></a>
-      <span class="permalink">
-      <a href="../../laika/ast/Code.html" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a title="A span of program code." href="Code.html"><span class="name">Code</span></a><span class="params">(<span name="language">language: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="Span.html" class="extype" name="laika.ast.Span">Span</a>]</span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Span.html" class="extype" name="laika.ast.Span">Span</a> with <a href="SpanContainer.html" class="extype" name="laika.ast.SpanContainer">SpanContainer</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      
-      <p class="shortcomment cmt">A span of program code.</p><div class="fullcomment"><div class="comment cmt"><p>A span of program code. The content is a sequence of spans to support
- the later integration of syntax highlighting systems. Without this support
- the sequence will only consist of a single <code>Text</code> element.
-</p></div></div>
     </li><li name="laika.ast.CodeBlock" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="CodeBlockextendsElementwithBlockwithSpanContainerwithProductwithSerializable"></a><a id="CodeBlock:CodeBlock"></a>
       <span class="permalink">
@@ -1319,9 +1333,41 @@
       </span>
       
       <p class="shortcomment cmt">A block of program code.</p><div class="fullcomment"><div class="comment cmt"><p>A block of program code. The content is a sequence of spans to support
- the later integration of syntax highlighting systems. Without this support
+ the integration of syntax highlighting systems. For unsupported languages
  the sequence will only consist of a single <code>Text</code> element.
 </p></div></div>
+    </li><li name="laika.ast.CodeSpan" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="CodeSpanextendsElementwithCategorizedCodewithTextContainerwithProductwithSerializable"></a><a id="CodeSpan:CodeSpan"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/CodeSpan.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="A span of code associated with zero or more code categories." href="CodeSpan.html"><span class="name">CodeSpan</span></a><span class="params">(<span name="content">content: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="categories">categories: <span class="extype" name="scala.Predef.Set">Set</span>[<a href="../parse/code/CodeCategory.html" class="extype" name="laika.parse.code.CodeCategory">CodeCategory</a>]</span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="CategorizedCode.html" class="extype" name="laika.ast.CategorizedCode">CategorizedCode</a> with <a href="TextContainer.html" class="extype" name="laika.ast.TextContainer">TextContainer</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">A span of code associated with zero or more code categories.</p>
+    </li><li name="laika.ast.CodeSpanSequence" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="CodeSpanSequenceextendsElementwithCategorizedCodewithSpanContainerwithProductwithSerializable"></a><a id="CodeSpanSequence:CodeSpanSequence"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/CodeSpanSequence.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="A sequence of code spans where most of them are usually associated with zero or more code categories." href="CodeSpanSequence.html"><span class="name">CodeSpanSequence</span></a><span class="params">(<span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="Span.html" class="extype" name="laika.ast.Span">Span</a>]</span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="CategorizedCode.html" class="extype" name="laika.ast.CategorizedCode">CategorizedCode</a> with <a href="SpanContainer.html" class="extype" name="laika.ast.SpanContainer">SpanContainer</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">A sequence of code spans where most of them are usually associated with zero or more code categories.</p>
     </li><li name="laika.ast.Column" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="ColumnextendsElementwithTableElementwithProductwithSerializable"></a><a id="Column:Column"></a>
       <span class="permalink">
@@ -1677,7 +1723,7 @@ during a rewrite operation for this purpose.
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="Represents the root of a tree of documents." href="DocumentTreeRoot.html"><span class="name">DocumentTreeRoot</span></a><span class="params">(<span name="tree">tree: <a href="DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>, <span name="coverDocument">coverDocument: <span class="extype" name="scala.Option">Option</span>[<a href="Document.html" class="extype" name="laika.ast.Document">Document</a>] = <span class="symbol">None</span></span>, <span name="styles">styles: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <a href="StyleDeclarationSet.html" class="extype" name="laika.ast.StyleDeclarationSet">StyleDeclarationSet</a>] = <span class="defval" name='<span class="name"><a href="StyleDeclarationSet$.html">Map.empty.withDefaultValue(StyleDeclarationSet.empty)</a></span>'>...</span></span>, <span name="staticDocuments">staticDocuments: <span class="extype" name="scala.Seq">Seq</span>[<a href="Path.html" class="extype" name="laika.ast.Path">Path</a>] = <span class="symbol">Nil</span></span>, <span name="sourcePaths">sourcePaths: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">Nil</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="Represents the root of a tree of documents." href="DocumentTreeRoot.html"><span class="name">DocumentTreeRoot</span></a><span class="params">(<span name="tree">tree: <a href="DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>, <span name="coverDocument">coverDocument: <span class="extype" name="scala.Option">Option</span>[<a href="Document.html" class="extype" name="laika.ast.Document">Document</a>] = <span class="symbol">None</span></span>, <span name="styles">styles: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <a href="StyleDeclarationSet.html" class="extype" name="laika.ast.StyleDeclarationSet">StyleDeclarationSet</a>] = <span class="defval" name='<span class="name"><a href="StyleDeclarationSet$.html">Map.empty.withDefaultValue(StyleDeclarationSet.empty)</a></span>'>...</span></span>, <span name="staticDocuments">staticDocuments: <span class="extype" name="scala.Seq">Seq</span>[<a href="Path.html" class="extype" name="laika.ast.Path">Path</a>] = <span class="symbol">Nil</span></span>, <span name="includes">includes: <a href="../config/Config$.html#IncludeMap=Map[laika.parse.hocon.IncludeResource,Either[laika.config.ConfigError,laika.parse.hocon.ObjectBuilderValue]]" class="extmbr" name="laika.config.Config.IncludeMap">IncludeMap</a> = <span class="symbol">Map.empty</span></span>, <span name="sourcePaths">sourcePaths: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">Nil</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">Represents the root of a tree of documents.</p><div class="fullcomment"><div class="comment cmt"><p>Represents the root of a tree of documents. In addition to the recursive structure of documents,
@@ -1685,7 +1731,7 @@ usually obtained by parsing text markup, it holds additional items like styles a
 which may contribute to the rendering of a site or an e-book.</p><p>The <code>styles</code> property of this type is currently only populated and processed when rendering PDF or XSL-FO.
 Styles for HTML or EPUB documents are part of the <code>staticDocuments</code> property instead and will be integrated
 into the final output, but not interpreted.
-</p></div><dl class="paramcmts block"><dt class="param">tree</dt><dd class="cmt"><p>the recursive structure of documents, usually obtained from parsing text markup</p></dd><dt class="param">coverDocument</dt><dd class="cmt"><p>the cover document (usually used with e-book formats like EPUB and PDF)</p></dd><dt class="param">styles</dt><dd class="cmt"><p>the styles to apply when rendering this tree, only populated for PDF or XSL-FO output</p></dd><dt class="param">staticDocuments</dt><dd class="cmt"><p>the paths of documents that were neither identified as text markup, config or templates, and will be copied as is to the final output</p></dd><dt class="param">sourcePaths</dt><dd class="cmt"><p>the paths this document tree has been built from or an empty list if this ast does not originate from the file system</p></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">tree</dt><dd class="cmt"><p>the recursive structure of documents, usually obtained from parsing text markup</p></dd><dt class="param">coverDocument</dt><dd class="cmt"><p>the cover document (usually used with e-book formats like EPUB and PDF)</p></dd><dt class="param">styles</dt><dd class="cmt"><p>the styles to apply when rendering this tree, only populated for PDF or XSL-FO output</p></dd><dt class="param">staticDocuments</dt><dd class="cmt"><p>the paths of documents that were neither identified as text markup, config or templates, and will be copied as is to the final output</p></dd><dt class="param">includes</dt><dd class="cmt"><p>the map of configuration includes that may be needed when resolving template configuration</p></dd><dt class="param">sourcePaths</dt><dd class="cmt"><p>the paths this document tree has been built from or an empty list if this ast does not originate from the file system</p></dd></dl></div>
     </li><li name="laika.ast.DocumentType" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="DocumentTypeextendsAnyRef"></a><a id="DocumentType:DocumentType"></a>
       <span class="permalink">
@@ -2121,6 +2167,25 @@ into the final output, but not interpreted.
       <p class="shortcomment cmt">An image reference, the id pointing to the id of a <code>LinkTarget</code>.</p><div class="fullcomment"><div class="comment cmt"><p>An image reference, the id pointing to the id of a <code>LinkTarget</code>. Only part of the
  raw document tree and then removed by the rewrite rule that resolves link and image references.
 </p></div></div>
+    </li><li name="laika.ast.InlineCode" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="InlineCodeextendsElementwithSpanwithSpanContainerwithProductwithSerializable"></a><a id="InlineCode:InlineCode"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/InlineCode.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="A span of program code." href="InlineCode.html"><span class="name">InlineCode</span></a><span class="params">(<span name="language">language: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="Span.html" class="extype" name="laika.ast.Span">Span</a>]</span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Span.html" class="extype" name="laika.ast.Span">Span</a> with <a href="SpanContainer.html" class="extype" name="laika.ast.SpanContainer">SpanContainer</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">A span of program code.</p><div class="fullcomment"><div class="comment cmt"><p>A span of program code. The content is a sequence of spans to support
+ the integration of syntax highlighting systems. Without this support
+ the sequence will only consist of a single <code>Text</code> element.
+</p></div></div>
     </li><li name="laika.ast.Inserted" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="InsertedextendsElementwithSpanwithSpanContainerwithProductwithSerializable"></a><a id="Inserted:Inserted"></a>
       <span class="permalink">
@@ -2455,7 +2520,7 @@ Provides convenience converters to produce instances for any of these three posi
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="A context reference specifically for use in markup documents." href="MarkupContextReference.html"><span class="name">MarkupContextReference</span></a><span class="params">(<span name="ref">ref: <a href="Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="required">required: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="ContextReference.html" class="extype" name="laika.ast.ContextReference">ContextReference</a>[<a href="Span.html" class="extype" name="laika.ast.Span">Span</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="A context reference specifically for use in markup documents." href="MarkupContextReference.html"><span class="name">MarkupContextReference</span></a><span class="params">(<span name="ref">ref: <a href="../config/Key.html" class="extype" name="laika.config.Key">Key</a></span>, <span name="required">required: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="ContextReference.html" class="extype" name="laika.ast.ContextReference">ContextReference</a>[<a href="Span.html" class="extype" name="laika.ast.Span">Span</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">A context reference specifically for use in markup documents.</p>
@@ -3292,7 +3357,7 @@ part of the selector for a style declaration.</p>
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="A context reference specifically for use in template documents." href="TemplateContextReference.html"><span class="name">TemplateContextReference</span></a><span class="params">(<span name="ref">ref: <a href="Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="required">required: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="ContextReference.html" class="extype" name="laika.ast.ContextReference">ContextReference</a>[<a href="TemplateSpan.html" class="extype" name="laika.ast.TemplateSpan">TemplateSpan</a>] with <a href="TemplateSpan.html" class="extype" name="laika.ast.TemplateSpan">TemplateSpan</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="A context reference specifically for use in template documents." href="TemplateContextReference.html"><span class="name">TemplateContextReference</span></a><span class="params">(<span name="ref">ref: <a href="../config/Key.html" class="extype" name="laika.config.Key">Key</a></span>, <span name="required">required: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="ContextReference.html" class="extype" name="laika.ast.ContextReference">ContextReference</a>[<a href="TemplateSpan.html" class="extype" name="laika.ast.TemplateSpan">TemplateSpan</a>] with <a href="TemplateSpan.html" class="extype" name="laika.ast.TemplateSpan">TemplateSpan</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">A context reference specifically for use in template documents.</p>
@@ -3308,7 +3373,7 @@ part of the selector for a style declaration.</p>
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="A template document containing the element tree of a parsed template and its extracted configuration section (if present)." href="TemplateDocument.html"><span class="name">TemplateDocument</span></a><span class="params">(<span name="path">path: <a href="Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="content">content: <a href="TemplateRoot.html" class="extype" name="laika.ast.TemplateRoot">TemplateRoot</a></span>, <span name="config">config: <a href="../bundle/UnresolvedConfig.html" class="extype" name="laika.bundle.UnresolvedConfig">UnresolvedConfig</a> = <span class="symbol"><span class="name"><a href="../index.html">UnresolvedConfig.empty</a></span></span></span>)</span><span class="result"> extends <a href="Navigatable.html" class="extype" name="laika.ast.Navigatable">Navigatable</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="A template document containing the element tree of a parsed template and its extracted configuration section (if present)." href="TemplateDocument.html"><span class="name">TemplateDocument</span></a><span class="params">(<span name="path">path: <a href="Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="content">content: <a href="TemplateRoot.html" class="extype" name="laika.ast.TemplateRoot">TemplateRoot</a></span>, <span name="config">config: <a href="../config/ConfigParser.html" class="extype" name="laika.config.ConfigParser">ConfigParser</a> = <span class="symbol"><span class="name"><a href="../index.html">ConfigParser.empty</a></span></span></span>)</span><span class="result"> extends <a href="Navigatable.html" class="extype" name="laika.ast.Navigatable">Navigatable</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">A template document containing the element tree of a parsed template and its extracted
@@ -3635,7 +3700,7 @@ operations.
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="A temporary structure usually not exposed to user code." href="UnresolvedDocument.html"><span class="name">UnresolvedDocument</span></a><span class="params">(<span name="document">document: <a href="Document.html" class="extype" name="laika.ast.Document">Document</a></span>, <span name="config">config: <a href="../bundle/UnresolvedConfig.html" class="extype" name="laika.bundle.UnresolvedConfig">UnresolvedConfig</a></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="A temporary structure usually not exposed to user code." href="UnresolvedDocument.html"><span class="name">UnresolvedDocument</span></a><span class="params">(<span name="document">document: <a href="Document.html" class="extype" name="laika.ast.Document">Document</a></span>, <span name="config">config: <a href="../config/ConfigParser.html" class="extype" name="laika.config.ConfigParser">ConfigParser</a></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">A temporary structure usually not exposed to user code.</p><div class="fullcomment"><div class="comment cmt"><p>A temporary structure usually not exposed to user code.
@@ -3715,6 +3780,38 @@ needs to be resolved based on a fallback configuration later.
       </span>
       
       <p class="shortcomment cmt">A cell in the body part of the table.</p>
+    </li><li name="laika.ast.CodeSpan" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="CodeSpan"></a><a id="CodeSpan:CodeSpan"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/CodeSpan$.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="CodeSpan$.html"><span class="name">CodeSpan</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
+    </li><li name="laika.ast.CodeSpans" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="CodeSpans"></a><a id="CodeSpans:CodeSpans"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/CodeSpans$.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="CodeSpans$.html"><span class="name">CodeSpans</span></a>
+      </span>
+      
+      
     </li><li name="laika.ast.Columns" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Columns"></a><a id="Columns:Columns"></a>
       <span class="permalink">

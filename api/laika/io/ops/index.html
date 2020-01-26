@@ -117,6 +117,38 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika.io">io</a></dd></dl></div>
+    </li><li name="laika.io.config" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="config"></a><a id="config:config"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/config/index.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="../config/index.html"><span class="name">config</span></a>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika.io">io</a></dd></dl></div>
+    </li><li name="laika.io.descriptor" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="descriptor"></a><a id="descriptor:descriptor"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/descriptor/index.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="../descriptor/index.html"><span class="name">descriptor</span></a>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika.io">io</a></dd></dl></div>
     </li><li name="laika.io.model" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="model"></a><a id="model:model"></a>
       <span class="permalink">
@@ -173,6 +205,10 @@
                         <span class="separator"></span>
                         <a class="trait" href="SequentialTextOutputOps.html" title="API for specifying a single character output for a rendering operation."></a>
                         <a href="SequentialTextOutputOps.html" title="API for specifying a single character output for a rendering operation.">SequentialTextOutputOps</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="TreeMapperOps.html" title="Operations for builders of transformers that allow to modify the tree or documents between parsing and rendering."></a>
+                        <a href="TreeMapperOps.html" title="Operations for builders of transformers that allow to modify the tree or documents between parsing and rendering.">TreeMapperOps</a>
                       </li><li name="laika.io.runtime" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="runtime"></a><a id="runtime:runtime"></a>
       <span class="permalink">
@@ -349,6 +385,28 @@ in terms of the only abstract method <code>fromInput</code>.
       
       <p class="shortcomment cmt">API for specifying a single character output for a rendering operation.</p><div class="fullcomment"><div class="comment cmt"><p>API for specifying a single character output for a rendering operation.</p><p>It allows any class merging in this trait to define all output related operations
 in terms of the only abstract method <code>toOutput</code>.
+</p></div></div>
+    </li><li name="laika.io.ops.TreeMapperOps" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="TreeMapperOps[F[_]]extendsAnyRef"></a><a id="TreeMapperOps[F[_]]:TreeMapperOps[F]"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/ops/TreeMapperOps.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a title="Operations for builders of transformers that allow to modify the tree or documents between parsing and rendering." href="TreeMapperOps.html"><span class="name">TreeMapperOps</span></a><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Operations for builders of transformers that allow to modify the tree
+or documents between parsing and rendering.</p><div class="fullcomment"><div class="comment cmt"><p>Operations for builders of transformers that allow to modify the tree
+or documents between parsing and rendering.</p><p>This hook differs from the rewrite rules in two ways: first it does not
+only operate on the AST nodes of a document, therefore it can also change
+its path or config. Secondly it allows for effectful transformations
+which are not available in the pure laika-core module.
 </p></div></div>
     </li></ol>
             </div>

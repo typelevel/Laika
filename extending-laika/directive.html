@@ -10,12 +10,10 @@
     <meta name="description" content="Customizable and extensible toolkit for transforming lightweight markup languages to various types of output formats, written in Scala" />
     <meta name="keywords" content="scala, text, markup, markdown, restructuredtext, parser, transformer, html, template engine, site generation, open-source" />
 
+    <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
     <link href="../css/bootstrap.css" rel="stylesheet">
     <link href="../css/docs.css" rel="stylesheet">
-
-    <!--[if lt IE 9]>
-      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
 
   </head>
 
@@ -43,6 +41,7 @@
           <li><a href="../using-laika/output.html">Supported Output Formats</a></li>
           <li><a href="../using-laika/structure.html">Document Structure</a></li>
           <li><a href="../using-laika/templates.html">Templates</a></li>
+          <li><a href="../using-laika/syntax.html">Syntax Highlighting</a></li>
           <li class="nav-header">Customizing Laika</li>
           <li><a href="../customizing-laika/customize-rendering.html">Customizing Renderers</a></li>
           <li><a href="../customizing-laika/tree-rewriting.html">Document Tree Rewriting</a></li>
@@ -97,12 +96,12 @@
         <h2 id="directive-syntax" class="section">Directive Syntax</h2>
         <p>A very minimal example is the <code>toc</code> directive for inserting a table of contents.
         Since all its attributes are optional, it can simply be used like this:</p>
-        <pre>@:toc</pre>
+        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">toc</span></code></pre>
         <p>A directive always starts with <code>@:</code> followed by the name of the directive.</p>
         <p>A more complete example is the use of the <code>for</code> directive:</p>
-        <pre>@:for { some.list.of.products }
-&lt;li&gt;&lt;a href=&quot;#${_.id}&quot;&gt;${_.description}&lt;/a&gt;&lt;/li&gt;
-@:@ </pre>
+        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">for</span><span> { </span><span class="string-literal">some.list.of.products</span><span> }
+</span><span class="tag-punctuation">&lt;</span><span class="tag-name">li</span><span class="tag-punctuation">&gt;&lt;</span><span class="tag-name">a</span><span class="tag-punctuation"> </span><span class="attribute-name">href</span><span class="tag-punctuation">=</span><span class="string-literal">&quot;#</span><span class="substitution">${_.id}</span><span class="string-literal">&quot;</span><span class="tag-punctuation">&gt;</span><span class="substitution">${_.description}</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">a</span><span class="tag-punctuation">&gt;&lt;/</span><span class="tag-name">li</span><span class="tag-punctuation">&gt;</span><span>
+</span><span class="keyword">@:@</span><span> </span></code></pre>
         <p>Here <code>for</code> is the name of the directive, <code>some.list.of.products</code> is an unnamed
         attribute (where in this case the value is interpreted as a variable reference,
         a path the user has defined in the configuration),
@@ -118,31 +117,28 @@
         <p>Our <code>ticket</code> directive constructs an external link to our
         bugtracker. Since the base URL is always the same, we want to
         only write:</p>
-        <pre>@:ticket {456}
-</pre>
+        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">ticket</span><span> {</span><span class="number-literal">456</span><span>}</span></code></pre>
         <p>to get the output:</p>
-        <pre>&lt;a href=&quot;http://tickets.cloud42.com/main-project/456&quot;&gt;#456&lt;/a&gt;
-</pre>
+        <pre><code class="nohighlight"><span class="tag-punctuation">&lt;</span><span class="tag-name">a</span><span class="tag-punctuation"> </span><span class="attribute-name">href</span><span class="tag-punctuation">=</span><span class="string-literal">&quot;http://tickets.cloud42.com/main-project/456&quot;</span><span class="tag-punctuation">&gt;</span><span>#456</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">a</span><span class="tag-punctuation">&gt;</span></code></pre>
         <p>Or optionally specify a different project than the main one:</p>
-        <pre>@:ticket {456, project=pineapple}
-</pre>
+        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">ticket</span><span> {</span><span class="number-literal">456</span><span>, </span><span class="attribute-name">project</span><span>=</span><span class="string-literal">pineapple</span><span>}</span></code></pre>
         <p>to get the output:</p>
-        <pre>&lt;a href=&quot;http://tickets.cloud42.com/pineapple/456&quot;&gt;#456&lt;/a&gt;</pre>
+        <pre><code class="nohighlight"><span class="tag-punctuation">&lt;</span><span class="tag-name">a</span><span class="tag-punctuation"> </span><span class="attribute-name">href</span><span class="tag-punctuation">=</span><span class="string-literal">&quot;http://tickets.cloud42.com/pineapple/456&quot;</span><span class="tag-punctuation">&gt;</span><span>#456</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">a</span><span class="tag-punctuation">&gt;</span></code></pre>
         <p>The following sections explain how to implement the tag
         and then how to add it either to the Markdown or reStructuredText
         parser or to the template parser.</p>
         
         <h3 id="directive-implementation" class="section">Directive Implementation</h3>
-        <pre>val directive = Spans.create(&quot;ticket&quot;) {
-  val ticketAttr = defaultAttribute.as[String]
-  val projectAttr = attribute(&quot;project&quot;).as[String].optional
-  (ticketAttr, projectAttr).mapN { (ticketNo, project) =&gt; 
-    val base = &quot;http://tickets.cloud42.com/&quot;
-    val url = base + project.getOrElse(&quot;main-project&quot;) + &quot;/&quot; + ticketNo
-    val linkText = Seq(Text(&quot;#&quot;+ticketNo))
-    ExternalLink(linkText, url, options = Styles(&quot;ticket&quot;))
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">directive</span><span> = </span><span class="type-name">Spans</span><span>.</span><span class="identifier">create</span><span>(</span><span class="string-literal">&quot;ticket&quot;</span><span>) {
+  </span><span class="keyword">val</span><span> </span><span class="identifier">ticketAttr</span><span> = </span><span class="identifier">defaultAttribute</span><span>.</span><span class="identifier">as</span><span>[</span><span class="type-name">String</span><span>]
+  </span><span class="keyword">val</span><span> </span><span class="identifier">projectAttr</span><span> = </span><span class="identifier">attribute</span><span>(</span><span class="string-literal">&quot;project&quot;</span><span>).</span><span class="identifier">as</span><span>[</span><span class="type-name">String</span><span>].</span><span class="identifier">optional</span><span>
+  (</span><span class="identifier">ticketAttr</span><span>, </span><span class="identifier">projectAttr</span><span>).</span><span class="identifier">mapN</span><span> { (</span><span class="identifier">ticketNo</span><span>, </span><span class="identifier">project</span><span>) =&gt; 
+    </span><span class="keyword">val</span><span> </span><span class="identifier">base</span><span> = </span><span class="string-literal">&quot;http://tickets.cloud42.com/&quot;</span><span>
+    </span><span class="keyword">val</span><span> </span><span class="identifier">url</span><span> = </span><span class="identifier">base</span><span> + </span><span class="identifier">project</span><span>.</span><span class="identifier">getOrElse</span><span>(</span><span class="string-literal">&quot;main-project&quot;</span><span>) + </span><span class="string-literal">&quot;/&quot;</span><span> + </span><span class="identifier">ticketNo</span><span>
+    </span><span class="keyword">val</span><span> </span><span class="identifier">linkText</span><span> = </span><span class="type-name">Seq</span><span>(</span><span class="type-name">Text</span><span>(</span><span class="string-literal">&quot;#&quot;</span><span>+</span><span class="identifier">ticketNo</span><span>))
+    </span><span class="type-name">ExternalLink</span><span>(</span><span class="identifier">linkText</span><span>, </span><span class="identifier">url</span><span>, </span><span class="identifier">options</span><span> = </span><span class="type-name">Styles</span><span>(</span><span class="string-literal">&quot;ticket&quot;</span><span>))
   }
-}</pre>
+}</span></code></pre>
         <p>Let&#39;s examine the code:</p>
         <p>With <code>Spans.create(&quot;ticket&quot;)</code> we specify the name of the directive (<code>ticket</code>)
         which is also the name we are going to use in markup files (<code>@:ticket</code>).</p>
@@ -175,8 +171,7 @@
         All the examples below refer to the <code>directive</code> variable we declared
         in the example in the previous section.</p>
         <p><strong>sbt Plugin</strong>:</p>
-        <pre>laikaSpanDirectives += directive
-</pre>
+        <pre><code class="nohighlight"><span class="identifier">laikaSpanDirectives</span><span> += </span><span class="identifier">directive</span></code></pre>
         <p>This registers the directive for both Markdown and reStructuredText
         parsers. </p>
         <p>The directive implementation itself usually requires some
@@ -185,17 +180,17 @@
         <code>build.sbt</code>. Reusable directives are best packaged as a library
         and then added as a dependency of your build.</p>
         <p><strong>Library API</strong>:</p>
-        <pre>object MyDirectives extends DirectiveRegistry {
-  val spanDirectives = Seq(directive)
-  val blockDirectives = Seq()
-  val templateDirectives = Seq()
+        <pre><code class="nohighlight"><span class="keyword">object</span><span> </span><span class="type-name">MyDirectives</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">DirectiveRegistry</span><span> {
+  </span><span class="keyword">val</span><span> </span><span class="identifier">spanDirectives</span><span> = </span><span class="type-name">Seq</span><span>(</span><span class="identifier">directive</span><span>)
+  </span><span class="keyword">val</span><span> </span><span class="identifier">blockDirectives</span><span> = </span><span class="type-name">Seq</span><span>()
+  </span><span class="keyword">val</span><span> </span><span class="identifier">templateDirectives</span><span> = </span><span class="type-name">Seq</span><span>()
 }
 
-val transformer = Transformer
-  .from(Markdown)
-  .to(HTML)
-  .using(MyDirectives)
-  .build</pre>
+</span><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">MyDirectives</span><span>)
+  .</span><span class="identifier">build</span></code></pre>
         <p>The <code>directive</code> variable refers to the instance we created above.
         We can now use our <code>ticket</code> directive in Markdown files!</p>
         <p><strong>Templates</strong>:</p>
@@ -218,35 +213,52 @@ val transformer = Transformer
         It allows for more concise syntax in all the cases where usually only one
         attribute is used and its meaning is obvious.</p>
         <p>Markup example:</p>
-        <pre>@:name { arg }</pre>
+        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">name</span><span> { </span><span class="string-literal">arg</span><span> }</span></code></pre>
         <p>Combinator:</p>
-        <pre>defaultAttribute</pre>
+        <pre><code class="nohighlight"><span class="identifier">defaultAttribute</span></code></pre>
         
         <h3 id="named-attributes" class="section">Named Attributes</h3>
         <p>A named attribute can appear after the default attribute or right
         after the directory name in case there is no default attribute.
         The order of attributes does not matter, it does not need to match
         the order you declared them in (that&#39;s why they have names after all).</p>
+        <p>The syntax for attributes is HOCON and it supports the full spec except
+        for file includes.</p>
         <p>Markup example:</p>
-        <pre>@:name { myAttr=value }</pre>
+        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">name</span><span> { </span><span class="attribute-name">myAttr</span><span>=</span><span class="string-literal">value</span><span> }</span></code></pre>
         <p>Combinator:</p>
-        <pre>attribute(&quot;myAttr&quot;)</pre>
+        <pre><code class="nohighlight"><span class="identifier">attribute</span><span>(</span><span class="string-literal">&quot;myAttr&quot;</span><span>)</span></code></pre>
+        
+        <h3 id="all-attributes" class="section">All Attributes</h3>
+        <p>If you want the full flexibility of accepting any kind of attribute without
+        knowing the expected names upfront, you can use the <code>allAttributes</code> combinator.</p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">directive</span><span> = </span><span class="type-name">Spans</span><span>.</span><span class="identifier">create</span><span>(</span><span class="string-literal">&quot;custom&quot;</span><span>) {
+  (</span><span class="identifier">allAttributes</span><span>, </span><span class="identifier">body</span><span>).</span><span class="identifier">mapN</span><span> { (</span><span class="identifier">attributes</span><span>, </span><span class="identifier">bodyContent</span><span>) =&gt; 
+    </span><span class="keyword">val</span><span> </span><span class="identifier">path</span><span> = </span><span class="identifier">attributes</span><span>.</span><span class="identifier">getOpt</span><span>[</span><span class="type-name">Path</span><span>](</span><span class="string-literal">&quot;filePath&quot;</span><span>)
+    </span><span class="keyword">val</span><span> </span><span class="identifier">index</span><span> = </span><span class="identifier">attributes</span><span>.</span><span class="identifier">getOpt</span><span>[</span><span class="type-name">Int</span><span>](</span><span class="string-literal">&quot;index&quot;</span><span>)
+    ...
+  }
+}</span></code></pre>
+        <p>This combinator gives you an instance of <code>Config</code> as a result, Laika&#39;s configuration API, 
+        and you can manually inspect the values it contains. This naturally leaves the burden
+        of validation and error handling (e.g. for required values or type conversions)
+        with the implementor of the directive. It should therefore only be used when
+        this level of flexibility is really required.</p>
         
         <h3 id="body" class="section">Body</h3>
         <p>The body is an element containing text markup that can follow the attribute section. </p>
         <p>Markup example:</p>
-        <pre>@:name
+        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">name</span><span>
 
 this is the content of the body 
 
-@:@</pre>
+</span><span class="keyword">@:@</span></code></pre>
         <p>Example with a custom fence:</p>
-        <pre>@:name { foo=bar } ^^^
+        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">name</span><span> { </span><span class="attribute-name">foo</span><span>=</span><span class="string-literal">bar</span><span> } ^^^
 
 this is the content of the body 
 
-^^^
-</pre>
+^^^</span></code></pre>
         <p>A custom fence is only supported for block directives and can be used for disambiguation
         in case of nesting a directive inside another. It has to consist of exactly 3 characters
         on the same line right after the directive declaration. </p>
@@ -256,27 +268,25 @@ this is the content of the body
         In a template directive it is <code>Seq[TemplateSpan]</code>, in a block directive it is <code>Seq[Block]</code>,
         and finally, in a span directive it is <code>Seq[Span]</code>. </p>
         <p>Combinator:</p>
-        <pre>parsedBody
-</pre>
+        <pre><code class="nohighlight"><span class="identifier">parsedBody</span></code></pre>
         <p>There is an alternative combinator if you need the raw, unparsed body as a String:</p>
-        <pre>rawBody    </pre>
+        <pre><code class="nohighlight"><span class="identifier">rawBody</span><span>    </span></code></pre>
         
         <h3 id="separated-body" class="section">Separated Body</h3>
         <p>A separated body element is divided into multiple sub-sections by a special kind of directive,
         called a separator directive. It is a fairly advanced feature and probably not something you&#39;d
         need often. </p>
         <p>For an example from the built-in standard directives, let&#39;s have a look at the <code>@:if</code> directive:</p>
-        <pre>@:if { showSidebar }
-&lt;div class=&quot;sidebar&quot;&gt;...&lt;/div&gt;
+        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">if</span><span> { </span><span class="string-literal">showSidebar</span><span> }
+</span><span class="tag-punctuation">&lt;</span><span class="tag-name">div</span><span class="tag-punctuation"> </span><span class="attribute-name">class</span><span class="tag-punctuation">=</span><span class="string-literal">&quot;sidebar&quot;</span><span class="tag-punctuation">&gt;</span><span>...</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">div</span><span class="tag-punctuation">&gt;</span><span>
 
-@:elseIf { showInfobox }
-&lt;div class=&quot;infobox&quot;&gt;...&lt;/div&gt;
+</span><span class="keyword">@:</span><span class="identifier">elseIf</span><span> { </span><span class="string-literal">showInfobox</span><span> }
+</span><span class="tag-punctuation">&lt;</span><span class="tag-name">div</span><span class="tag-punctuation"> </span><span class="attribute-name">class</span><span class="tag-punctuation">=</span><span class="string-literal">&quot;infobox&quot;</span><span class="tag-punctuation">&gt;</span><span>...</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">div</span><span class="tag-punctuation">&gt;</span><span>
 
-@:else
-&lt;p&gt;This document does not have any sections&lt;/p&gt;
+</span><span class="keyword">@:</span><span class="identifier">else</span><span>
+</span><span class="tag-punctuation">&lt;</span><span class="tag-name">p</span><span class="tag-punctuation">&gt;</span><span>This document does not have any sections</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">p</span><span class="tag-punctuation">&gt;</span><span>
 
-@:@
-</pre>
+</span><span class="keyword">@:@</span></code></pre>
         <p>The root <code>@if</code> directive is the parent directive in this case, and both the <code>@:elseIf</code> and <code>@:else</code>
         directives are separator directives that partition the body. Separator directives are different
         than normal directives in that they do not need to produce an AST element (e.g. <code>Block</code> or <code>Span</code>)
@@ -285,38 +295,37 @@ this is the content of the body
         in the <code>StandardDirectives</code> source.</p>
         <p>In this section we&#39;ll just show a very small, contrived example. Declaring a separator directive looks just
         like declaring a normal directive, only that you call <code>separator</code> instead of <code>create</code>:</p>
-        <pre>case class Child (content: Seq[Span])
+        <pre><code class="nohighlight"><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">Child</span><span> (</span><span class="identifier">content</span><span>: </span><span class="type-name">Seq</span><span>[</span><span class="type-name">Span</span><span>])
 
-val sepDir = Spans.separator(&quot;child&quot;, min = 1) { body map Foo }   </pre>
+</span><span class="keyword">val</span><span> </span><span class="identifier">sepDir</span><span> = </span><span class="type-name">Spans</span><span>.</span><span class="identifier">separator</span><span>(</span><span class="string-literal">&quot;child&quot;</span><span>, </span><span class="identifier">min</span><span> = </span><span class="number-literal">1</span><span>) { </span><span class="identifier">body</span><span> </span><span class="identifier">map</span><span> </span><span class="type-name">Foo</span><span> }   </span></code></pre>
         <p>Here you specify the name of the directive <code>@:child</code>, as well as that it has to be present in 
         the body at least once. Then you use the regular combinators to declare the expected directive
         parts, in this case only a body that you map to the <code>Child</code> type.</p>
         <p>Now you can use this directive in the parent:</p>
-        <pre>val directive = Spans.create(&quot;parent&quot;) { 
-  separatedBody(Seq(sepDir)) map { multipart =&gt;
-    val seps = multipart.children.flatMap { sep =&gt; 
-      Text(&quot;Child: &quot;) +: sep.content 
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">directive</span><span> = </span><span class="type-name">Spans</span><span>.</span><span class="identifier">create</span><span>(</span><span class="string-literal">&quot;parent&quot;</span><span>) { 
+  </span><span class="identifier">separatedBody</span><span>(</span><span class="type-name">Seq</span><span>(</span><span class="identifier">sepDir</span><span>)) </span><span class="identifier">map</span><span> { </span><span class="identifier">multipart</span><span> =&gt;
+    </span><span class="keyword">val</span><span> </span><span class="identifier">seps</span><span> = </span><span class="identifier">multipart</span><span>.</span><span class="identifier">children</span><span>.</span><span class="identifier">flatMap</span><span> { </span><span class="identifier">sep</span><span> =&gt; 
+      </span><span class="type-name">Text</span><span>(</span><span class="string-literal">&quot;Child: &quot;</span><span>) +: </span><span class="identifier">sep</span><span>.</span><span class="identifier">content</span><span> 
     }
-    SpanSequence(multipart.mainBody ++ seps)
+    </span><span class="type-name">SpanSequence</span><span>(</span><span class="identifier">multipart</span><span>.</span><span class="identifier">mainBody</span><span> ++ </span><span class="identifier">seps</span><span>)
   }
-}</pre>
+}</span></code></pre>
         <p>You can use the <code>separatedBody</code> combinator where you pass all expected child directives (in this
         case only one) and then map the resulting <code>Multipart</code> instance to an AST element. The <code>Multipart</code>
         gives you access to the main body as well as all processed separator directives in <code>multipart.children</code>.</p>
         <p>This entire directive can then be used like this:</p>
-        <pre>@:parent
+        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">parent</span><span>
 This is the main body
 
-@:child
+</span><span class="keyword">@:</span><span class="identifier">child</span><span>
 This is the body of the separator
 
-@:@
-</pre>
+</span><span class="keyword">@:@</span></code></pre>
         
         <h3 id="optional-elements" class="section">Optional Elements</h3>
         <p>Default and named attributes can be marked as optional.</p>
         <p>Combinator:</p>
-        <pre>attribute(&quot;width&quot;).as[Int].optional</pre>
+        <pre><code class="nohighlight"><span class="identifier">attribute</span><span>(</span><span class="string-literal">&quot;width&quot;</span><span>).</span><span class="identifier">as</span><span>[</span><span class="type-name">Int</span><span>].</span><span class="identifier">optional</span></code></pre>
         <p>The parameter type of your directive function changes accordingly,
         from <code>T</code> to <code>Option[T]</code> where <code>T</code> is either the type returned by
         your converter (see below) or the default type.</p>
@@ -329,14 +338,14 @@ This is the body of the separator
         header of the markup or template files or in the <code>directory.conf</code> file,
         you can set the <code>inherited</code> flag:</p>
         <p>Combinator:</p>
-        <pre>attribute(&quot;width&quot;).as[Int].inherited</pre>
+        <pre><code class="nohighlight"><span class="identifier">attribute</span><span>(</span><span class="string-literal">&quot;width&quot;</span><span>).</span><span class="identifier">as</span><span>[</span><span class="type-name">Int</span><span>].</span><span class="identifier">inherited</span></code></pre>
         <p>With this flag set, the <code>width</code> attribute can be inherited from other scopes
         if it is not defined in the directive itself.</p>
         
         <h3 id="decoders" class="section">Decoders</h3>
         <p>You can specify a decoder for all attributes with the <code>as[T]</code>
         method:</p>
-        <pre>attribute(&quot;depth&quot;).as[Int].optional</pre>
+        <pre><code class="nohighlight"><span class="identifier">attribute</span><span>(</span><span class="string-literal">&quot;depth&quot;</span><span>).</span><span class="identifier">as</span><span>[</span><span class="type-name">Int</span><span>].</span><span class="identifier">optional</span></code></pre>
         <p>Without a decoder the result type would be <code>ConfigValue</code>
         which is a data structure similar to those of popular JSON libraries.
         But that type is rarely the most convenient type, which is why
@@ -352,10 +361,10 @@ This is the body of the separator
         options active for this operation (unless you manually duplicate it which
         is brittle). Therefore you can request a parser for your function in 
         addition to the other values:</p>
-        <pre>(defaultAttribute, parser).mapN { (attrValue, parser) =&gt;
-  val parsedSpans = parser(&quot;[&quot;+attrValue+&quot;]&quot;)
-  SpanSequence(parsedSpans)
-}</pre>
+        <pre><code class="nohighlight"><span>(</span><span class="identifier">defaultAttribute</span><span>, </span><span class="identifier">parser</span><span>).</span><span class="identifier">mapN</span><span> { (</span><span class="identifier">attrValue</span><span>, </span><span class="identifier">parser</span><span>) =&gt;
+  </span><span class="keyword">val</span><span> </span><span class="identifier">parsedSpans</span><span> = </span><span class="identifier">parser</span><span>(</span><span class="string-literal">&quot;[&quot;</span><span>+</span><span class="identifier">attrValue</span><span>+</span><span class="string-literal">&quot;]&quot;</span><span>)
+  </span><span class="type-name">SpanSequence</span><span>(</span><span class="identifier">parsedSpans</span><span>)
+}</span></code></pre>
         <p>In this contrived example the attribute value is modified before being passed
         to the parser and then wrapped inside a sequence.</p>
         
@@ -366,10 +375,10 @@ This is the body of the separator
         <p>It is, for example, required for a directive like the <code>toc</code> directive,
         because for building a table of contents you have to look beyond your
         particular directive node.</p>
-        <pre>(defaultAttribute, cursor).mapN { (attrValue, cursor) =&gt;
-  val spans = Text(&quot;The title is: &quot;) +: cursor.target.title
-  SpanSequence(spans)
-}</pre>
+        <pre><code class="nohighlight"><span>(</span><span class="identifier">defaultAttribute</span><span>, </span><span class="identifier">cursor</span><span>).</span><span class="identifier">mapN</span><span> { (</span><span class="identifier">attrValue</span><span>, </span><span class="identifier">cursor</span><span>) =&gt;
+  </span><span class="keyword">val</span><span> </span><span class="identifier">spans</span><span> = </span><span class="type-name">Text</span><span>(</span><span class="string-literal">&quot;The title is: &quot;</span><span>) +: </span><span class="identifier">cursor</span><span>.</span><span class="identifier">target</span><span>.</span><span class="identifier">title</span><span>
+  </span><span class="type-name">SpanSequence</span><span>(</span><span class="identifier">spans</span><span>)
+}</span></code></pre>
         
         <h3 id="differences-between-directive-types" class="section">Differences between Directive Types</h3>
         <p><a href="#directive-types">Directive Types</a> already gave a quick overview over the available types.
@@ -382,101 +391,101 @@ This is the body of the separator
         <h3 id="span-directives" class="section">Span Directives</h3>
         <p>Use: in inline elements in text markup files</p>
         <p>Implementation:</p>
-        <pre>import cats.implicits._
-import laika.ast._
-import laika.directive.Spans
-import Spans.dsl._
+        <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">implicits</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">ast</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">directive</span><span>.</span><span class="type-name">Spans</span><span>
+</span><span class="keyword">import</span><span> </span><span class="type-name">Spans</span><span>.</span><span class="identifier">dsl</span><span>.</span><span class="identifier">_</span><span>
 
-val directive = Spans.create(&quot;name&quot;) {
-  // implementation producing a `Span` element
-}    </pre>
+</span><span class="keyword">val</span><span> </span><span class="identifier">directive</span><span> = </span><span class="type-name">Spans</span><span>.</span><span class="identifier">create</span><span>(</span><span class="string-literal">&quot;name&quot;</span><span>) {
+  </span><span class="comment">// implementation producing a `Span` element
+</span><span>}    </span></code></pre>
         <p>Registration:</p>
-        <pre>// for Markdown and reStructuredText with sbt plugin:
-laikaSpanDirectives += directive // in build.sbt
-
-// for Markdown and reStructuredText with Transformer or Parser API:
-object MyDirectives extends DirectiveRegistry {
-  val spanDirectives = Seq(directive)
-  val blockDirectives = Seq()
-  val templateDirectives = Seq()
+        <pre><code class="nohighlight"><span class="comment">// for Markdown and reStructuredText with sbt plugin:
+</span><span class="identifier">laikaSpanDirectives</span><span> += </span><span class="identifier">directive</span><span> </span><span class="comment">// in build.sbt
+</span><span>
+</span><span class="comment">// for Markdown and reStructuredText with Transformer or Parser API:
+</span><span class="keyword">object</span><span> </span><span class="type-name">MyDirectives</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">DirectiveRegistry</span><span> {
+  </span><span class="keyword">val</span><span> </span><span class="identifier">spanDirectives</span><span> = </span><span class="type-name">Seq</span><span>(</span><span class="identifier">directive</span><span>)
+  </span><span class="keyword">val</span><span> </span><span class="identifier">blockDirectives</span><span> = </span><span class="type-name">Seq</span><span>()
+  </span><span class="keyword">val</span><span> </span><span class="identifier">templateDirectives</span><span> = </span><span class="type-name">Seq</span><span>()
 }
 
-val transformer = Transformer
-  .from(Markdown)
-  .to(HTML)
-  .using(MyDirectives)
-  .build
+</span><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">MyDirectives</span><span>)
+  .</span><span class="identifier">build</span><span>
 
-val parser = Parser
-  .of(Markdown)
-  .using(MyDirectives)
-  .build    </pre>
+</span><span class="keyword">val</span><span> </span><span class="identifier">parser</span><span> = </span><span class="type-name">Parser</span><span>
+  .</span><span class="identifier">of</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">MyDirectives</span><span>)
+  .</span><span class="identifier">build</span><span>    </span></code></pre>
         
         <h3 id="block-directives" class="section">Block Directives</h3>
         <p>Use: in block elements in text markup files</p>
         <p>Implementation:</p>
-        <pre>import cats.implicits._
-import laika.ast._
-import laika.directive.Blocks
-import Blocks.dsl._
+        <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">implicits</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">ast</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">directive</span><span>.</span><span class="type-name">Blocks</span><span>
+</span><span class="keyword">import</span><span> </span><span class="type-name">Blocks</span><span>.</span><span class="identifier">dsl</span><span>.</span><span class="identifier">_</span><span>
 
-val directive = Blocks.create(&quot;name&quot;) {
-  // implementation producing a `Block` element
-}</pre>
+</span><span class="keyword">val</span><span> </span><span class="identifier">directive</span><span> = </span><span class="type-name">Blocks</span><span>.</span><span class="identifier">create</span><span>(</span><span class="string-literal">&quot;name&quot;</span><span>) {
+  </span><span class="comment">// implementation producing a `Block` element
+</span><span>}</span></code></pre>
         <p>Registration:</p>
-        <pre>// for Markdown and reStructuredText with sbt plugin:
-laikaBlockDirectives += directive // in build.sbt
-
-// for Markdown and reStructuredText with Transformer or Parser API:
-object MyDirectives extends DirectiveRegistry {
-  val spanDirectives = Seq()
-  val blockDirectives = Seq(directive)
-  val templateDirectives = Seq()
+        <pre><code class="nohighlight"><span class="comment">// for Markdown and reStructuredText with sbt plugin:
+</span><span class="identifier">laikaBlockDirectives</span><span> += </span><span class="identifier">directive</span><span> </span><span class="comment">// in build.sbt
+</span><span>
+</span><span class="comment">// for Markdown and reStructuredText with Transformer or Parser API:
+</span><span class="keyword">object</span><span> </span><span class="type-name">MyDirectives</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">DirectiveRegistry</span><span> {
+  </span><span class="keyword">val</span><span> </span><span class="identifier">spanDirectives</span><span> = </span><span class="type-name">Seq</span><span>()
+  </span><span class="keyword">val</span><span> </span><span class="identifier">blockDirectives</span><span> = </span><span class="type-name">Seq</span><span>(</span><span class="identifier">directive</span><span>)
+  </span><span class="keyword">val</span><span> </span><span class="identifier">templateDirectives</span><span> = </span><span class="type-name">Seq</span><span>()
 }
 
-val transformer = Transformer
-  .from(Markdown)
-  .to(HTML)
-  .using(MyDirectives)
-  .build
+</span><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">MyDirectives</span><span>)
+  .</span><span class="identifier">build</span><span>
 
-val parser = Parser
-  .of(Markdown)
-  .using(MyDirectives)
-  .build    </pre>
+</span><span class="keyword">val</span><span> </span><span class="identifier">parser</span><span> = </span><span class="type-name">Parser</span><span>
+  .</span><span class="identifier">of</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">MyDirectives</span><span>)
+  .</span><span class="identifier">build</span><span>    </span></code></pre>
         
         <h3 id="template-directives" class="section">Template Directives</h3>
         <p>Use: in template files</p>
         <p>Implementation:</p>
-        <pre>import cats.implicits._
-import laika.ast._
-import laika.directive.Templates
-Templates Blocks.dsl._
+        <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">implicits</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">ast</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">directive</span><span>.</span><span class="type-name">Templates</span><span>
+</span><span class="type-name">Templates</span><span> </span><span class="type-name">Blocks</span><span>.</span><span class="identifier">dsl</span><span>.</span><span class="identifier">_</span><span>
 
-val directive = Templates.create(&quot;name&quot;) {
-  // implementation producing a `TemplateSpan` element
-}    </pre>
+</span><span class="keyword">val</span><span> </span><span class="identifier">directive</span><span> = </span><span class="type-name">Templates</span><span>.</span><span class="identifier">create</span><span>(</span><span class="string-literal">&quot;name&quot;</span><span>) {
+  </span><span class="comment">// implementation producing a `TemplateSpan` element
+</span><span>}    </span></code></pre>
         <p>Registration:</p>
-        <pre>// for templates with sbt plugin:
-laikaTemplateDirectives += directive // in build.sbt
-
-// for Markdown and reStructuredText with Transformer or Parser API:
-object MyDirectives extends DirectiveRegistry {
-  val spanDirectives = Seq()
-  val blockDirectives = Seq()
-  val templateDirectives = Seq(directive)
+        <pre><code class="nohighlight"><span class="comment">// for templates with sbt plugin:
+</span><span class="identifier">laikaTemplateDirectives</span><span> += </span><span class="identifier">directive</span><span> </span><span class="comment">// in build.sbt
+</span><span>
+</span><span class="comment">// for Markdown and reStructuredText with Transformer or Parser API:
+</span><span class="keyword">object</span><span> </span><span class="type-name">MyDirectives</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">DirectiveRegistry</span><span> {
+  </span><span class="keyword">val</span><span> </span><span class="identifier">spanDirectives</span><span> = </span><span class="type-name">Seq</span><span>()
+  </span><span class="keyword">val</span><span> </span><span class="identifier">blockDirectives</span><span> = </span><span class="type-name">Seq</span><span>()
+  </span><span class="keyword">val</span><span> </span><span class="identifier">templateDirectives</span><span> = </span><span class="type-name">Seq</span><span>(</span><span class="identifier">directive</span><span>)
 }
 
-val transformer = Transformer
-  .from(Markdown)
-  .to(HTML)
-  .using(MyDirectives)
-  .build
+</span><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">MyDirectives</span><span>)
+  .</span><span class="identifier">build</span><span>
 
-val parser = Parser
-  .of(Markdown)
-  .using(MyDirectives)
-  .build    </pre>      
+</span><span class="keyword">val</span><span> </span><span class="identifier">parser</span><span> = </span><span class="type-name">Parser</span><span>
+  .</span><span class="identifier">of</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">MyDirectives</span><span>)
+  .</span><span class="identifier">build</span><span>    </span></code></pre>      
 
       </div>
     </div>

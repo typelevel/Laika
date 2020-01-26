@@ -10,12 +10,10 @@
     <meta name="description" content="Customizable and extensible toolkit for transforming lightweight markup languages to various types of output formats, written in Scala" />
     <meta name="keywords" content="scala, text, markup, markdown, restructuredtext, parser, transformer, html, template engine, site generation, open-source" />
 
+    <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
     <link href="../css/bootstrap.css" rel="stylesheet">
     <link href="../css/docs.css" rel="stylesheet">
-
-    <!--[if lt IE 9]>
-      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
 
   </head>
 
@@ -43,6 +41,7 @@
           <li><a href="output.html">Supported Output Formats</a></li>
           <li><a href="structure.html">Document Structure</a></li>
           <li><a href="templates.html">Templates</a></li>
+          <li><a href="syntax.html">Syntax Highlighting</a></li>
           <li class="nav-header">Customizing Laika</li>
           <li><a href="../customizing-laika/customize-rendering.html">Customizing Renderers</a></li>
           <li><a href="../customizing-laika/tree-rewriting.html">Document Tree Rewriting</a></li>
@@ -90,41 +89,41 @@
         
         <h3 id="setup" class="section">Setup</h3>
         <p>First add the dependency to your build:</p>
-        <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika-core&quot; % &quot;0.12.1&quot; </pre>
+        <pre><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> += </span><span class="string-literal">&quot;org.planet42&quot;</span><span> %% </span><span class="string-literal">&quot;laika-core&quot;</span><span> % </span><span class="string-literal">&quot;0.13.0&quot;</span><span> </span></code></pre>
         <p>For most cases where you don&#39;t use any of the customization hooks, you should be fine with just these imports:</p>
-        <pre>import laika.api._
-import laika.format._</pre>
+        <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">api</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">format</span><span>.</span><span class="identifier">_</span></code></pre>
         
         <h3 id="running-a-transformation" class="section">Running a Transformation</h3>
         <p>Converting a string from Markdown to HTML:</p>
-        <pre>Transformer
-  .from(Markdown)
-  .to(HTML)
-  .build
-  .transform(&quot;hello *there*&quot;)</pre>
+        <pre><code class="nohighlight"><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">build</span><span>
+  .</span><span class="identifier">transform</span><span>(</span><span class="string-literal">&quot;hello *there*&quot;</span><span>)</span></code></pre>
         <p>From reStructuredText to HTML:</p>
-        <pre>Transformer
-  .from(ReStructuredText)
-  .to(HTML)
-  .build
-  .transform(&quot;hello *there*&quot;)</pre>
+        <pre><code class="nohighlight"><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">ReStructuredText</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">build</span><span>
+  .</span><span class="identifier">transform</span><span>(</span><span class="string-literal">&quot;hello *there*&quot;</span><span>)</span></code></pre>
         
         <h3 id="reusing-transformer-instances" class="section">Reusing Transformer Instances</h3>
         <p>You would normally keep the transformer instance for reuse with different
         inputs and outputs to reduce the memory footprint and initialization overhead:</p>
-        <pre>val transformer = Transformer.from(Markdown).to(HTML).build
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>.</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>).</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>).</span><span class="identifier">build</span><span>
 
-val res1 = transformer.transform(&quot;example *1*)
-val res2 = transformer.transform(&quot;example *2*)</pre>
+</span><span class="keyword">val</span><span> </span><span class="identifier">res1</span><span> = </span><span class="identifier">transformer</span><span>.</span><span class="identifier">transform</span><span>(</span><span class="string-literal">&quot;example *1*&quot;</span><span>)
+</span><span class="keyword">val</span><span> </span><span class="identifier">res2</span><span> = </span><span class="identifier">transformer</span><span>.</span><span class="identifier">transform</span><span>(</span><span class="string-literal">&quot;example *2*&quot;</span><span>)</span></code></pre>
         
         <h3 id="adding-extensions" class="section">Adding Extensions</h3>
         <p>The most likely bundle you would use in everyday scenarios is probably GitHub-Flavored Markdown,
         which is not installed by default:</p>
-        <pre>val transformer = Transformer
-  .from(Markdown)
-  .to(HTML)
-  .using(GitHubFlavor)
-  .build</pre>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">GitHubFlavor</span><span>)
+  .</span><span class="identifier">build</span></code></pre>
         <p>The <code>GitHubFlavor</code> object is an instance of <code>ExtensionBundle</code> an API that application
         or library authors can use themselves for bundling their own customizations. It has hooks
         for all phases of the transformation process, parsing, AST transformation and rendering.</p>
@@ -134,25 +133,27 @@ val res2 = transformer.transform(&quot;example *2*)</pre>
         an insight into how Laika has interpreted the input and display the entire
         AST structure. It truncates longer strings, so it should normally be convenient
         to browse the entire tree structure:</p>
-        <pre>val input = &quot;some *text* example&quot;
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">input</span><span> = </span><span class="string-literal">&quot;some *text* example&quot;</span><span>
 
-Transformer
-  .from(Markdown)
-  .to(AST)
-  .build
-  .transform(input)
+</span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">AST</span><span>)
+  .</span><span class="identifier">build</span><span>
+  .</span><span class="identifier">transform</span><span>(</span><span class="identifier">input</span><span>)
 
+</span><span class="comment">/*
 res0: java.lang.String = Document - Blocks: 1
 . Paragraph - Spans: 3
 . . Text - &#39;some &#39;
 . . Emphasized - Spans: 1
 . . . Text - &#39;text&#39;
-. . Text - &#39; example&#39;</pre>
+. . Text - &#39; example&#39;
+*/</span></code></pre>
         
         <h2 id="file-stream-io-and-binary-formats" class="section">File/Stream IO and Binary Formats</h2>
         <p>In case you want to transform from files or directories, or use one of the binary formats
         like EPUB or PDF, you need to add another dependency to your build:</p>
-        <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika-io&quot; % &quot;0.12.1&quot; </pre>
+        <pre><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> += </span><span class="string-literal">&quot;org.planet42&quot;</span><span> %% </span><span class="string-literal">&quot;laika-io&quot;</span><span> % </span><span class="string-literal">&quot;0.13.0&quot;</span><span> </span></code></pre>
         <p>This module depends on cats-effect, and models all side effects in an abstract effect,
         so that you can use it with cats IO, Monix or Zio.</p>
         <p>The type class constraints of the Library API are <code>Async</code>, <code>ContextShift</code> 
@@ -161,65 +162,65 @@ res0: java.lang.String = Document - Blocks: 1
         <h3 id="providing-contextshifts-for-blocking-io" class="section">Providing ContextShifts for Blocking IO</h3>
         <p>Laika gives full control over the <code>ExecutionContext</code> in which the blocking IO operations
         are performed. All the examples below will assume a setup like this:</p>
-        <pre>implicit val cs: ContextShift[IO] = 
-  IO.contextShift(ExecutionContext.global)
+        <pre><code class="nohighlight"><span class="keyword">implicit</span><span> </span><span class="keyword">val</span><span> </span><span class="identifier">cs</span><span>: </span><span class="type-name">ContextShift</span><span>[</span><span class="type-name">IO</span><span>] = 
+  </span><span class="type-name">IO</span><span>.</span><span class="identifier">contextShift</span><span>(</span><span class="type-name">ExecutionContext</span><span>.</span><span class="identifier">global</span><span>)
   
-val blocker = Blocker.liftExecutionContext(
-  ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
-)</pre>
+</span><span class="keyword">val</span><span> </span><span class="identifier">blocker</span><span> = </span><span class="type-name">Blocker</span><span>.</span><span class="identifier">liftExecutionContext</span><span>(
+  </span><span class="type-name">ExecutionContext</span><span>.</span><span class="identifier">fromExecutor</span><span>(</span><span class="type-name">Executors</span><span>.</span><span class="identifier">newCachedThreadPool</span><span>())
+)</span></code></pre>
         
         <h3 id="transforming-a-single-file" class="section">Transforming a Single File</h3>
         <p>You can use the sequential builder to transform single files or streams:</p>
-        <pre>val transformer = Transformer
-  .from(Markdown)
-  .to(HTML)
-  .io(blocker)
-  .sequential[IO]
-  .build
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">io</span><span>(</span><span class="identifier">blocker</span><span>)
+  .</span><span class="identifier">sequential</span><span>[</span><span class="type-name">IO</span><span>]
+  .</span><span class="identifier">build</span><span>
 
-val res: IO[Unit] = transformer
-  .fromFile(&quot;hello.md&quot;)
-  .toFile(&quot;hello.html&quot;)
-  .transform</pre>
+</span><span class="keyword">val</span><span> </span><span class="identifier">res</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] = </span><span class="identifier">transformer</span><span>
+  .</span><span class="identifier">fromFile</span><span>(</span><span class="string-literal">&quot;hello.md&quot;</span><span>)
+  .</span><span class="identifier">toFile</span><span>(</span><span class="string-literal">&quot;hello.html&quot;</span><span>)
+  .</span><span class="identifier">transform</span></code></pre>
         <p>Note that the first line builds a transformer in the same way as the examples
         for in-memory transformations. The IO module only wraps additional features
         around a transformer.</p>
         <p>The result of the above transformation is an <code>IO[Unit]</code>. If you build applications
         using a stack from the cats-effect ecosystem, like fs2 or http4s, you are good to go.</p>
         <p>If you run in a different stack, like Akka HTTP, you can convert the <code>IO</code> to a <code>Future</code>:</p>
-        <pre>val res: Future[Unit] = transformer
-  .fromFile(&quot;hello.md&quot;)
-  .toFile(&quot;hello.html&quot;)
-  .transform
-  .unsafeToFuture()</pre>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">res</span><span>: </span><span class="type-name">Future</span><span>[</span><span class="type-name">Unit</span><span>] = </span><span class="identifier">transformer</span><span>
+  .</span><span class="identifier">fromFile</span><span>(</span><span class="string-literal">&quot;hello.md&quot;</span><span>)
+  .</span><span class="identifier">toFile</span><span>(</span><span class="string-literal">&quot;hello.html&quot;</span><span>)
+  .</span><span class="identifier">transform</span><span>
+  .</span><span class="identifier">unsafeToFuture</span><span>()</span></code></pre>
         
         <h3 id="using-streams" class="section">Using Streams</h3>
         <p>The API is similar to that for File IO, but the creation of the streams are treated
         as an effect, so you have to pass an <code>F[InputStream]</code> or <code>F[OutputStream]</code>:</p>
-        <pre>val input: IO[InputStream] = ???
-val output: IO[InputStream] = ???
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">input</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">InputStream</span><span>] = ???
+</span><span class="keyword">val</span><span> </span><span class="identifier">output</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">InputStream</span><span>] = ???
 
-val res: IO[Unit] = transformer
-  .fromStream(input)
-  .toStream(output, autoClose = false)
-  .transform </pre>
+</span><span class="keyword">val</span><span> </span><span class="identifier">res</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] = </span><span class="identifier">transformer</span><span>
+  .</span><span class="identifier">fromStream</span><span>(</span><span class="identifier">input</span><span>)
+  .</span><span class="identifier">toStream</span><span>(</span><span class="identifier">output</span><span>, </span><span class="identifier">autoClose</span><span> = </span><span class="boolean-literal">false</span><span>)
+  .</span><span class="identifier">transform</span><span> </span></code></pre>
         <p>The <code>autoClose</code> flag is <code>true</code> by default, which means the stream will be closed
         after all input has been read or all output has been written.</p>
         
         <h3 id="transforming-an-entire-directory" class="section">Transforming an Entire Directory</h3>
         <p>You can use the parallel builder to transform an entire directory of files:</p>
-        <pre>val transformer = Transformer
-  .from(Markdown)
-  .to(HTML)
-  .using(GitHubFlavor)
-  .io(blocker)
-  .parallel[IO]
-  .build
-      
-val res: IO[Unit] = transformer
-  .fromDirectory(&quot;src&quot;)
-  .toDirectory(&quot;target&quot;)
-  .transform</pre>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">GitHubFlavor</span><span>)
+  .</span><span class="identifier">io</span><span>(</span><span class="identifier">blocker</span><span>)
+  .</span><span class="identifier">parallel</span><span>[</span><span class="type-name">IO</span><span>]
+  .</span><span class="identifier">build</span><span>
+  
+</span><span class="keyword">val</span><span> </span><span class="identifier">res</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] = </span><span class="identifier">transformer</span><span>
+  .</span><span class="identifier">fromDirectory</span><span>(</span><span class="string-literal">&quot;src&quot;</span><span>)
+  .</span><span class="identifier">toDirectory</span><span>(</span><span class="string-literal">&quot;target&quot;</span><span>)
+  .</span><span class="identifier">transform</span></code></pre>
         <p>The parser will pick up any document with a recognized suffix (<code>.md</code> or <code>.markdown</code>
         for Markdown, <code>.rst</code> for reStructuredText).</p>
         <p>The target may be a sub-directory of the source, the library will recognize this setup
@@ -237,27 +238,25 @@ val res: IO[Unit] = transformer
         will be merged recursively. Only files with the same name in the same folder
         are treated as errors.</p>
         <p>Use the <code>fromDirectories</code> method to specify the directories to merge:</p>
-        <pre>val res: IO[Unit] = transformer
-  .fromDirectories(&quot;markup&quot;, &quot;theme&quot;)
-  .toDirectory(&quot;target&quot;)
-  .transform
-  </pre>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">res</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] = </span><span class="identifier">transformer</span><span>
+  .</span><span class="identifier">fromDirectories</span><span>(</span><span class="string-literal">&quot;markup&quot;</span><span>, </span><span class="string-literal">&quot;theme&quot;</span><span>)
+  .</span><span class="identifier">toDirectory</span><span>(</span><span class="string-literal">&quot;target&quot;</span><span>)
+  .</span><span class="identifier">transform</span></code></pre>
         
         <h3 id="templates" class="section">Templates</h3>
         <p>The directories that contain the markup documents can optionally contain
         templates that get applied to the parsed documents. A very basic template
         for HTML output may look like this:</p>
-        <pre>&lt;html&gt;
-  &lt;head&gt;
-    &lt;title&gt;${document.title}&lt;/title&gt;
-  &lt;/head&gt;
-  &lt;body&gt;
-    &lt;div class=&quot;content&quot;&gt;
-      ${document.content}
-    &lt;/div&gt;
-  &lt;/body&gt;
-&lt;/html&gt;
-</pre>
+        <pre><code class="nohighlight"><span class="tag-punctuation">&lt;</span><span class="tag-name">html</span><span class="tag-punctuation">&gt;</span><span>
+  </span><span class="tag-punctuation">&lt;</span><span class="tag-name">head</span><span class="tag-punctuation">&gt;</span><span>
+    </span><span class="tag-punctuation">&lt;</span><span class="tag-name">title</span><span class="tag-punctuation">&gt;</span><span class="substitution">${document.title}</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">title</span><span class="tag-punctuation">&gt;</span><span>
+  </span><span class="tag-punctuation">&lt;/</span><span class="tag-name">head</span><span class="tag-punctuation">&gt;</span><span>
+  </span><span class="tag-punctuation">&lt;</span><span class="tag-name">body</span><span class="tag-punctuation">&gt;</span><span>
+    </span><span class="tag-punctuation">&lt;</span><span class="tag-name">div</span><span class="tag-punctuation"> </span><span class="attribute-name">class</span><span class="tag-punctuation">=</span><span class="string-literal">&quot;content&quot;</span><span class="tag-punctuation">&gt;</span><span>
+      </span><span class="substitution">${document.content}</span><span>
+    </span><span class="tag-punctuation">&lt;/</span><span class="tag-name">div</span><span class="tag-punctuation">&gt;</span><span>
+  </span><span class="tag-punctuation">&lt;/</span><span class="tag-name">body</span><span class="tag-punctuation">&gt;</span><span>
+</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">html</span><span class="tag-punctuation">&gt;</span></code></pre>
         <p>The two placeholders enclosed in double curly braces will be replaced with the
         title and content of the parsed markup document. Everything else will be copied
         to the final document unchanged.</p>
@@ -274,18 +273,18 @@ val res: IO[Unit] = transformer
         <h3 id="rendering-epub-and-pdf" class="section">Rendering EPUB and PDF</h3>
         <p>These binary formats also rely on the laika-io module, and they always produce a single
         output file, even if the input is an entire directory:</p>
-        <pre>val transformer = Transformer
-  .from(Markdown)
-  .to(EPUB)
-  .using(GitHubFlavor)
-  .io(blocker)
-  .parallel[IO]
-  .build
-      
-val res: IO[Unit] = transformer
-  .fromDirectories(&quot;markup&quot;, &quot;theme&quot;)
-  .toFile(&quot;output.epub&quot;)
-  .transform</pre>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">EPUB</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">GitHubFlavor</span><span>)
+  .</span><span class="identifier">io</span><span>(</span><span class="identifier">blocker</span><span>)
+  .</span><span class="identifier">parallel</span><span>[</span><span class="type-name">IO</span><span>]
+  .</span><span class="identifier">build</span><span>
+  
+</span><span class="keyword">val</span><span> </span><span class="identifier">res</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] = </span><span class="identifier">transformer</span><span>
+  .</span><span class="identifier">fromDirectories</span><span>(</span><span class="string-literal">&quot;markup&quot;</span><span>, </span><span class="string-literal">&quot;theme&quot;</span><span>)
+  .</span><span class="identifier">toFile</span><span>(</span><span class="string-literal">&quot;output.epub&quot;</span><span>)
+  .</span><span class="identifier">transform</span></code></pre>
         <p>Note that the API recognizes the kind of transformer passed in and adjusts automatically 
         in which methods it offers. 
         Where it offered the <code>toDirectory</code> method for HTML output for example, 
@@ -303,7 +302,7 @@ val res: IO[Unit] = transformer
         <p>Laika uses the same platform-dependent defaults for file encodings as the
         IO classes in the Scala SDK. The most convenient way to specify an encoding
         is via an implicit:</p>
-        <pre>implicit val codec:Codec = Codec.UTF8</pre>
+        <pre><code class="nohighlight"><span class="keyword">implicit</span><span> </span><span class="keyword">val</span><span> </span><span class="identifier">codec</span><span>:</span><span class="type-name">Codec</span><span> = </span><span class="type-name">Codec</span><span>.</span><span class="type-name">UTF8</span></code></pre>
         <p>This codec will then be used by the <code>fromDirectory</code> and <code>toDirectory</code> methods shown
         in the examples above.</p>
         
@@ -322,11 +321,11 @@ val res: IO[Unit] = transformer
         useful for your own debugging purposes, but also for applications that allow
         users to edit text with markup, giving them visual feedback for their mistakes.</p>
         <p>The following example renders all message with the level <code>Warning</code> or higher:</p>
-        <pre>val transformer = Transform
-  .from(Markdown)
-  .to(HTML)
-  .withMessageLevel(Warning)
-  .build</pre>      
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transform</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">withMessageLevel</span><span>(</span><span class="type-name">Warning</span><span>)
+  .</span><span class="identifier">build</span></code></pre>      
 
       </div>
     </div>

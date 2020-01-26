@@ -10,12 +10,10 @@
     <meta name="description" content="Customizable and extensible toolkit for transforming lightweight markup languages to various types of output formats, written in Scala" />
     <meta name="keywords" content="scala, text, markup, markdown, restructuredtext, parser, transformer, html, template engine, site generation, open-source" />
 
+    <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
     <link href="../css/bootstrap.css" rel="stylesheet">
     <link href="../css/docs.css" rel="stylesheet">
-
-    <!--[if lt IE 9]>
-      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
 
   </head>
 
@@ -43,6 +41,7 @@
           <li><a href="../using-laika/output.html">Supported Output Formats</a></li>
           <li><a href="../using-laika/structure.html">Document Structure</a></li>
           <li><a href="../using-laika/templates.html">Templates</a></li>
+          <li><a href="../using-laika/syntax.html">Syntax Highlighting</a></li>
           <li class="nav-header">Customizing Laika</li>
           <li><a href="customize-rendering.html">Customizing Renderers</a></li>
           <li><a href="tree-rewriting.html">Document Tree Rewriting</a></li>
@@ -87,11 +86,11 @@
         
         <h3 id="parsing-a-single-document" class="section">Parsing a Single Document</h3>
         <p>Reading from a String:</p>
-        <pre>val input = &quot;some *text* example&quot;    
-val document = Parser
-  .of(Markdown)
-  .build
-  .parse(input)</pre>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">input</span><span> = </span><span class="string-literal">&quot;some *text* example&quot;</span><span>    
+</span><span class="keyword">val</span><span> </span><span class="identifier">document</span><span> = </span><span class="type-name">Parser</span><span>
+  .</span><span class="identifier">of</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">build</span><span>
+  .</span><span class="identifier">parse</span><span>(</span><span class="identifier">input</span><span>)</span></code></pre>
         <p>The <code>document</code> instance gives you the full document model. See
         the <a href="../api/laika/ast/">AST Scaladoc</a> for details.</p>
         <p>The <code>content</code> property of the <code>document</code> instance holds
@@ -105,22 +104,22 @@ val document = Parser
         <h3 id="parsing-an-entire-directory" class="section">Parsing an Entire Directory</h3>
         <p>Similar to the full transformation step, you need to specify the <code>ContextShift</code>
         and <code>Blocker</code> to use for blocking IO and parallel processing:</p>
-        <pre>implicit val cs: ContextShift[IO] = 
-  IO.contextShift(ExecutionContext.global)
+        <pre><code class="nohighlight"><span class="keyword">implicit</span><span> </span><span class="keyword">val</span><span> </span><span class="identifier">cs</span><span>: </span><span class="type-name">ContextShift</span><span>[</span><span class="type-name">IO</span><span>] = 
+  </span><span class="type-name">IO</span><span>.</span><span class="identifier">contextShift</span><span>(</span><span class="type-name">ExecutionContext</span><span>.</span><span class="identifier">global</span><span>)
   
-val blocker = Blocker.liftExecutionContext(
-  ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
-)</pre>
+</span><span class="keyword">val</span><span> </span><span class="identifier">blocker</span><span> = </span><span class="type-name">Blocker</span><span>.</span><span class="identifier">liftExecutionContext</span><span>(
+  </span><span class="type-name">ExecutionContext</span><span>.</span><span class="identifier">fromExecutor</span><span>(</span><span class="type-name">Executors</span><span>.</span><span class="identifier">newCachedThreadPool</span><span>())
+)</span></code></pre>
         <p>These will then be used to build a parallel parser instance:</p>
-        <pre>val parser = Parser
-  .of(Markdown)
-  .io(blocker)
-  .parallel[IO]
-  .build</pre>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">parser</span><span> = </span><span class="type-name">Parser</span><span>
+  .</span><span class="identifier">of</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">io</span><span>(</span><span class="identifier">blocker</span><span>)
+  .</span><span class="identifier">parallel</span><span>[</span><span class="type-name">IO</span><span>]
+  .</span><span class="identifier">build</span></code></pre>
         <p>Finally, you can obtain a tree instance from the parser:</p>
-        <pre>val tree: IO[DocumentTreeRoot] = parser
-  .fromDirectory(&quot;source&quot;)
-  .parse</pre>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">tree</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">DocumentTreeRoot</span><span>] = </span><span class="identifier">parser</span><span>
+  .</span><span class="identifier">fromDirectory</span><span>(</span><span class="string-literal">&quot;source&quot;</span><span>)
+  .</span><span class="identifier">parse</span></code></pre>
         <p>The tree instance is of type <code>DocumentTreeRoot</code> which gives you access
         to all documents, templates and subdirectories contained in the
         parsed directory.</p>
@@ -129,7 +128,7 @@ val blocker = Blocker.liftExecutionContext(
         <p>Laika uses the same platform-dependent defaults for file encodings as the
         IO classes in the Scala SDK. The most convenient way to specify an encoding
         is via an implicit:</p>
-        <pre>implicit val codec:Codec = Codec.UTF8</pre>
+        <pre><code class="nohighlight"><span class="keyword">implicit</span><span> </span><span class="keyword">val</span><span> </span><span class="identifier">codec</span><span>:</span><span class="type-name">Codec</span><span> = </span><span class="type-name">Codec</span><span>.</span><span class="type-name">UTF8</span></code></pre>
         <p>This codec will then be used by <code>fromDirectory</code> and other methods 
         shown in the examples above.</p>
         
@@ -147,53 +146,53 @@ val blocker = Blocker.liftExecutionContext(
         does not know about.</p>
         <p>For this reason it is always best to copy the parser configuration over
         to the Render API:</p>
-        <pre>val parser = Parser.of(Markdown).strict.build
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">parser</span><span> = </span><span class="type-name">Parser</span><span>.</span><span class="identifier">of</span><span>(</span><span class="type-name">Markdown</span><span>).</span><span class="identifier">strict</span><span>.</span><span class="identifier">build</span><span>
 
-val renderer = Renderer.of(HTML).withConfig(parser.config).build</pre>
+</span><span class="keyword">val</span><span> </span><span class="identifier">renderer</span><span> = </span><span class="type-name">Renderer</span><span>.</span><span class="identifier">of</span><span>(</span><span class="type-name">HTML</span><span>).</span><span class="identifier">withConfig</span><span>(</span><span class="identifier">parser</span><span>.</span><span class="identifier">config</span><span>).</span><span class="identifier">build</span></code></pre>
         <p>For the sake of brevity we omit this detail from the following examples.</p>
         
         <h3 id="rendering-a-single-document" class="section">Rendering a Single Document</h3>
         <p>Rendering as a string:</p>
-        <pre>// obtained from a parse step or created programmatically
-val doc: Document = ... 
+        <pre><code class="nohighlight"><span class="comment">// obtained from a parse step or created programmatically
+</span><span class="keyword">val</span><span> </span><span class="identifier">doc</span><span>: </span><span class="type-name">Document</span><span> = ... 
 
-val res: String = renderer.render(doc)</pre>
+</span><span class="keyword">val</span><span> </span><span class="identifier">res</span><span>: </span><span class="type-name">String</span><span> = </span><span class="identifier">renderer</span><span>.</span><span class="identifier">render</span><span>(</span><span class="identifier">doc</span><span>)</span></code></pre>
         
         <h3 id="rendering-an-entire-directory-as-html" class="section">Rendering an Entire Directory as HTML</h3>
         <p>Like for the Parser and Transformer APIs, you need to specify the <code>ContextShift</code>
         and <code>Blocker</code> to use for blocking IO and parallel processing:</p>
-        <pre>implicit val cs: ContextShift[IO] = 
-  IO.contextShift(ExecutionContext.global)
+        <pre><code class="nohighlight"><span class="keyword">implicit</span><span> </span><span class="keyword">val</span><span> </span><span class="identifier">cs</span><span>: </span><span class="type-name">ContextShift</span><span>[</span><span class="type-name">IO</span><span>] = 
+  </span><span class="type-name">IO</span><span>.</span><span class="identifier">contextShift</span><span>(</span><span class="type-name">ExecutionContext</span><span>.</span><span class="identifier">global</span><span>)
 
-val blocker = Blocker.liftExecutionContext(
-  ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
-)</pre>
+</span><span class="keyword">val</span><span> </span><span class="identifier">blocker</span><span> = </span><span class="type-name">Blocker</span><span>.</span><span class="identifier">liftExecutionContext</span><span>(
+  </span><span class="type-name">ExecutionContext</span><span>.</span><span class="identifier">fromExecutor</span><span>(</span><span class="type-name">Executors</span><span>.</span><span class="identifier">newCachedThreadPool</span><span>())
+)</span></code></pre>
         <p>You can then render the result to a files in a target directory:</p>
-        <pre>// obtained from a parse step or created programmatically
-val tree: DocumentTreeRoot = ???
+        <pre><code class="nohighlight"><span class="comment">// obtained from a parse step or created programmatically
+</span><span class="keyword">val</span><span> </span><span class="identifier">tree</span><span>: </span><span class="type-name">DocumentTreeRoot</span><span> = ???
 
-val renderer = Renderer
-  .of(HTML)
-  .io(blocker)
-  .parallel[IO]
-  .build
+</span><span class="keyword">val</span><span> </span><span class="identifier">renderer</span><span> = </span><span class="type-name">Renderer</span><span>
+  .</span><span class="identifier">of</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">io</span><span>(</span><span class="identifier">blocker</span><span>)
+  .</span><span class="identifier">parallel</span><span>[</span><span class="type-name">IO</span><span>]
+  .</span><span class="identifier">build</span><span>
     
-val op: IO[Unit] = renderer
-  .from(tree)
-  .toDirectory(&quot;target&quot;)
-  .render</pre>
+</span><span class="keyword">val</span><span> </span><span class="identifier">op</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] = </span><span class="identifier">renderer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="identifier">tree</span><span>)
+  .</span><span class="identifier">toDirectory</span><span>(</span><span class="string-literal">&quot;target&quot;</span><span>)
+  .</span><span class="identifier">render</span></code></pre>
         <p>The <code>target</code> directory is expected to exist, while any required
         subdirectories will be automatically created during rendering. There
         will be one HTML file for each input file in the same directory layout.</p>
         
         <h3 id="rendering-an-entire-directory-as-pdf" class="section">Rendering an Entire Directory as PDF</h3>
-        <pre>// obtained from a parse step or created programmatically
-val tree: DocumentTreeRoot = ???
+        <pre><code class="nohighlight"><span class="comment">// obtained from a parse step or created programmatically
+</span><span class="keyword">val</span><span> </span><span class="identifier">tree</span><span>: </span><span class="type-name">DocumentTreeRoot</span><span> = ???
 
-val op: IO[Unit] = renderer
-  .from(tree)
-  .toFile(&quot;out.pdf&quot;)
-  .render    </pre>
+</span><span class="keyword">val</span><span> </span><span class="identifier">op</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] = </span><span class="identifier">renderer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="identifier">tree</span><span>)
+  .</span><span class="identifier">toFile</span><span>(</span><span class="string-literal">&quot;out.pdf&quot;</span><span>)
+  .</span><span class="identifier">render</span><span>    </span></code></pre>
         <p>Here the input files get rendered into a single PDF document, with
         the directory structure getting translated into the document structure
         (optionally including bookmarks and table of contents).</p>
@@ -202,7 +201,7 @@ val op: IO[Unit] = renderer
         <p>Laika uses the same platform-dependent defaults for file encodings as the
         IO classes in the Scala SDK. The most convenient way to specify an encoding
         is via an implicit:</p>
-        <pre>implicit val codec:Codec = Codec.UTF8</pre>
+        <pre><code class="nohighlight"><span class="keyword">implicit</span><span> </span><span class="keyword">val</span><span> </span><span class="identifier">codec</span><span>:</span><span class="type-name">Codec</span><span> = </span><span class="type-name">Codec</span><span>.</span><span class="type-name">UTF8</span></code></pre>
         <p>This codec will then be used by <code>toDirectory</code> and other methods 
         shown in the examples above.</p>      
 

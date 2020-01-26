@@ -155,6 +155,10 @@
                         <a href="Caption.html" title="The table caption.">Caption</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="trait" href="CategorizedCode.html" title="A single span inside a code block that has been categorized by a syntax highlighter."></a>
+                        <a href="CategorizedCode.html" title="A single span inside a code block that has been categorized by a syntax highlighter.">CategorizedCode</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="class" href="Cell.html" title="A single cell, potentially spanning multiple rows or columns, containing one or more block elements."></a>
                         <a href="Cell.html" title="A single cell, potentially spanning multiple rows or columns, containing one or more block elements.">Cell</a>
                       </li><li class="current-entities indented2">
@@ -175,12 +179,20 @@
                         <a href="CitationReference.html" title="A reference to a citation with a matching label.">CitationReference</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="class" href="Code.html" title="A span of program code."></a>
-                        <a href="Code.html" title="A span of program code.">Code</a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
                         <a class="class" href="CodeBlock.html" title="A block of program code."></a>
                         <a href="CodeBlock.html" title="A block of program code.">CodeBlock</a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="CodeSpan$.html" title=""></a>
+                        <a class="class" href="CodeSpan.html" title="A span of code associated with zero or more code categories."></a>
+                        <a href="CodeSpan.html" title="A span of code associated with zero or more code categories.">CodeSpan</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="CodeSpanSequence.html" title="A sequence of code spans where most of them are usually associated with zero or more code categories."></a>
+                        <a href="CodeSpanSequence.html" title="A sequence of code spans where most of them are usually associated with zero or more code categories.">CodeSpanSequence</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="object" href="CodeSpans$.html" title=""></a>
+                        <a href="CodeSpans$.html" title="">CodeSpans</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="Column.html" title="The options (like styles) for a column table."></a>
@@ -369,6 +381,10 @@
                         <span class="separator"></span>
                         <a class="class" href="ImageReference.html" title="An image reference, the id pointing to the id of a LinkTarget."></a>
                         <a href="ImageReference.html" title="An image reference, the id pointing to the id of a LinkTarget.">ImageReference</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="InlineCode.html" title="A span of program code."></a>
+                        <a href="InlineCode.html" title="A span of program code.">InlineCode</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="Inserted.html" title="A span representing inserted inline elements that may contain nested spans."></a>
@@ -764,7 +780,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">MarkupContextReference</span><span class="params">(<span name="ref">ref: <a href="Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="required">required: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="ContextReference.html" class="extype" name="laika.ast.ContextReference">ContextReference</a>[<a href="Span.html" class="extype" name="laika.ast.Span">Span</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">MarkupContextReference</span><span class="params">(<span name="ref">ref: <a href="../config/Key.html" class="extype" name="laika.config.Key">Key</a></span>, <span name="required">required: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="ContextReference.html" class="extype" name="laika.ast.ContextReference">ContextReference</a>[<a href="Span.html" class="extype" name="laika.ast.Span">Span</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
@@ -821,9 +837,9 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.ast.MarkupContextReference#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(ref:laika.ast.Path,required:Boolean,options:laika.ast.Options):laika.ast.MarkupContextReference"></a><a id="&lt;init&gt;:MarkupContextReference"></a>
+      <a id="&lt;init&gt;(ref:laika.config.Key,required:Boolean,options:laika.ast.Options):laika.ast.MarkupContextReference"></a><a id="&lt;init&gt;:MarkupContextReference"></a>
       <span class="permalink">
-      <a href="../../laika/ast/MarkupContextReference.html#&lt;init&gt;(ref:laika.ast.Path,required:Boolean,options:laika.ast.Options):laika.ast.MarkupContextReference" title="Permalink">
+      <a href="../../laika/ast/MarkupContextReference.html#&lt;init&gt;(ref:laika.config.Key,required:Boolean,options:laika.ast.Options):laika.ast.MarkupContextReference" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -832,7 +848,7 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">MarkupContextReference</span><span class="params">(<span name="ref">ref: <a href="Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="required">required: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span>
+        <span class="name">MarkupContextReference</span><span class="params">(<span name="ref">ref: <a href="../config/Key.html" class="extype" name="laika.config.Key">Key</a></span>, <span name="required">required: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span>
       </span>
       
       
@@ -1185,9 +1201,9 @@ to the existing value.
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.ast.MarkupContextReference">MarkupContextReference</a> → <a href="Customizable.html" class="extype" name="laika.ast.Customizable">Customizable</a></dd></dl></div>
     </li><li name="laika.ast.MarkupContextReference#ref" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="ref:laika.ast.Path"></a><a id="ref:Path"></a>
+      <a id="ref:laika.config.Key"></a><a id="ref:Key"></a>
       <span class="permalink">
-      <a href="../../laika/ast/MarkupContextReference.html#ref:laika.ast.Path" title="Permalink">
+      <a href="../../laika/ast/MarkupContextReference.html#ref:laika.config.Key" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -1196,7 +1212,7 @@ to the existing value.
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">ref</span><span class="result">: <a href="Path.html" class="extype" name="laika.ast.Path">Path</a></span>
+        <span class="name">ref</span><span class="result">: <a href="../config/Key.html" class="extype" name="laika.config.Key">Key</a></span>
       </span>
       
       

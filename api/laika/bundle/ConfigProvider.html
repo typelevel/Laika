@@ -118,6 +118,10 @@
                         <a class="trait" href="BlockPosition.html" title="Specifies the position a block element is allowed to appear in."></a>
                         <a href="BlockPosition.html" title="Specifies the position a block element is allowed to appear in.">BlockPosition</a>
                       </li><li class="current-entities indented2">
+                        <a class="object" href="BundleOrigin$.html" title=""></a>
+                        <a class="trait" href="BundleOrigin.html" title="Indicates whether an extension bundle is a built-in default provided by the library, a collection of extensions installed by a markup format or user-defined."></a>
+                        <a href="BundleOrigin.html" title="Indicates whether an extension bundle is a built-in default provided by the library, a collection of extensions installed by a markup format or user-defined.">BundleOrigin</a>
+                      </li><li class="current-entities indented2">
                         <a class="object" href="ConfigProvider$.html" title=""></a>
                         <a class="trait" href="" title="Responsible for providing the parsers for configuration files and configuration headers in markup documents as part of an ExtensionBundle."></a>
                         <a href="" title="Responsible for providing the parsers for configuration files and configuration headers in markup documents as part of an ExtensionBundle.">ConfigProvider</a>
@@ -170,9 +174,9 @@
                         <a class="class" href="SpanParserDefinition.html" title="Defines a parser for a single kind of span element, like a literal text span or a link reference for example."></a>
                         <a href="SpanParserDefinition.html" title="Defines a parser for a single kind of span element, like a literal text span or a link reference for example.">SpanParserDefinition</a>
                       </li><li class="current-entities indented2">
-                        <a class="object" href="UnresolvedConfig$.html" title=""></a>
-                        <a class="trait" href="UnresolvedConfig.html" title="An unresolved Config instance that will be lazily resolved against a fallback."></a>
-                        <a href="UnresolvedConfig.html" title="An unresolved Config instance that will be lazily resolved against a fallback.">UnresolvedConfig</a>
+                        <span class="separator"></span>
+                        <a class="trait" href="SyntaxHighlighter.html" title=""></a>
+                        <a href="SyntaxHighlighter.html" title="">SyntaxHighlighter</a>
                       </li>
               </ul>
             </div>
@@ -263,9 +267,9 @@ an instance of this trait to a <code>ParserBundle</code> within an <code>Extensi
         <div class="values members">
               <h3>Abstract Value Members</h3>
               <ol><li name="laika.bundle.ConfigProvider#configDocument" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="configDocument(input:String):laika.bundle.UnresolvedConfig"></a><a id="configDocument(String):UnresolvedConfig"></a>
+      <a id="configDocument(input:String):laika.config.ConfigParser"></a><a id="configDocument(String):ConfigParser"></a>
       <span class="permalink">
-      <a href="../../laika/bundle/ConfigProvider.html#configDocument(input:String):laika.bundle.UnresolvedConfig" title="Permalink">
+      <a href="../../laika/bundle/ConfigProvider.html#configDocument(input:String):laika.config.ConfigParser" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -274,18 +278,18 @@ an instance of this trait to a <code>ParserBundle</code> within an <code>Extensi
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">configDocument</span><span class="params">(<span name="input">input: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="UnresolvedConfig.html" class="extype" name="laika.bundle.UnresolvedConfig">UnresolvedConfig</a></span>
+        <span class="name">configDocument</span><span class="params">(<span name="input">input: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="../config/ConfigParser.html" class="extype" name="laika.config.ConfigParser">ConfigParser</a></span>
       </span>
       
-      <p class="shortcomment cmt">The parser for configuration files recognized in input directories.</p><div class="fullcomment"><div class="comment cmt"><p>The parser for configuration files recognized in input directories.</p><p>The returned <code>UnresolvedConfig</code> will be resolved lazily
+      <p class="shortcomment cmt">The parser for configuration files recognized in input directories.</p><div class="fullcomment"><div class="comment cmt"><p>The parser for configuration files recognized in input directories.</p><p>The returned <code>ConfigParser</code> will be resolved lazily
 with a fallback Config provided by the runtime. This deferred resolution
 is necessary as substitution references in configuration headers can
 refer to values defined in configuration files or programmatically.
 </p></div></div>
     </li><li name="laika.bundle.ConfigProvider#configHeader" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="configHeader:laika.parse.Parser[laika.bundle.UnresolvedConfig]"></a><a id="configHeader:Parser[UnresolvedConfig]"></a>
+      <a id="configHeader:laika.parse.Parser[laika.config.ConfigParser]"></a><a id="configHeader:Parser[ConfigParser]"></a>
       <span class="permalink">
-      <a href="../../laika/bundle/ConfigProvider.html#configHeader:laika.parse.Parser[laika.bundle.UnresolvedConfig]" title="Permalink">
+      <a href="../../laika/bundle/ConfigProvider.html#configHeader:laika.parse.Parser[laika.config.ConfigParser]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -294,13 +298,13 @@ refer to values defined in configuration files or programmatically.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">configHeader</span><span class="result">: <a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="UnresolvedConfig.html" class="extype" name="laika.bundle.UnresolvedConfig">UnresolvedConfig</a>]</span>
+        <span class="name">configHeader</span><span class="result">: <a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../config/ConfigParser.html" class="extype" name="laika.config.ConfigParser">ConfigParser</a>]</span>
       </span>
       
       <p class="shortcomment cmt">The parser for configuration headers in markup documents.</p><div class="fullcomment"><div class="comment cmt"><p>The parser for configuration headers in markup documents.</p><p>The parser is expected to fail if it does not recognize the fence
 before and after the configuration header. Otherwise it is expected
 to succeed, without parsing the actual string input from the configuration
-header. This will happen lazily when the <code>UnresolvedConfig</code> will be resolved
+header. This will happen lazily when the <code>ConfigParser</code> will be resolved
 with a fallback Config provided by the runtime. This deferred resolution
 is necessary as substitution references in configuration headers can
 refer to values defined in configuration files or programmatically.

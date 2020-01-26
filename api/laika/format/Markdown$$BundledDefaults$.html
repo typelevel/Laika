@@ -113,7 +113,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a title="A parser for Markdown text." href="Markdown$.html"><span class="name">Markdown</span></a><span class="result"> extends <a href="../factory/MarkupFormat.html" class="extype" name="laika.factory.MarkupFormat">MarkupFormat</a></span>
+        <a title="A parser for Markdown text." href="Markdown$.html"><span class="name">Markdown</span></a><span class="result"> extends <a href="../factory/MarkupFormat.html" class="extype" name="laika.factory.MarkupFormat">MarkupFormat</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">A parser for Markdown text.</p><div class="fullcomment"><div class="comment cmt"><p>A parser for Markdown text. Instances of this class may be passed directly
@@ -343,6 +343,24 @@ and/or config headers in markup and template documents.
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li name="laika.format.Markdown.BundledDefaults#description" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="description:String"></a>
+      <span class="permalink">
+      <a href="../../laika/format/Markdown$$BundledDefaults$.html#description:String" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">description</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Short string describing the output format for tooling and logging
+</p><div class="fullcomment"><div class="comment cmt"><p>Short string describing the output format for tooling and logging
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.format.Markdown.BundledDefaults">BundledDefaults</a> → <a href="../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a></dd></dl></div>
     </li><li name="laika.bundle.ExtensionBundle#docTypeMatcher" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="docTypeMatcher:PartialFunction[laika.ast.Path,laika.ast.DocumentType]"></a><a id="docTypeMatcher:PartialFunction[Path,DocumentType]"></a>
       <span class="permalink">
@@ -527,6 +545,26 @@ directory in transformations by default.
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li name="laika.format.Markdown.BundledDefaults#origin" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="origin:laika.bundle.BundleOrigin"></a><a id="origin:BundleOrigin"></a>
+      <span class="permalink">
+      <a href="../../laika/format/Markdown$$BundledDefaults$.html#origin:laika.bundle.BundleOrigin" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">origin</span><span class="result">: <a href="../bundle/BundleOrigin.html" class="extype" name="laika.bundle.BundleOrigin">BundleOrigin</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Indicates whether the bundle is a built-in default provided by the library,
+a collection of extensions installed by a markup format or user-defined.</p><div class="fullcomment"><div class="comment cmt"><p>Indicates whether the bundle is a built-in default provided by the library,
+a collection of extensions installed by a markup format or user-defined.</p><p>This is relevant for determining the precedence of installed bundles when merging
+them, as user-supplied functionality always overrides library defaults.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.format.Markdown.BundledDefaults">BundledDefaults</a> → <a href="../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a></dd></dl></div>
     </li><li name="laika.format.Markdown.BundledDefaults#parsers" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="parsers:laika.bundle.ParserBundle"></a><a id="parsers:ParserBundle"></a>
       <span class="permalink">

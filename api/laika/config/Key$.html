@@ -139,7 +139,7 @@
                         <a href="ConfigException.html" title="A ConfigError as a RuntimeException for use cases where a Throwable is required.">ConfigException</a>
                       </li><li class="current-entities indented2">
                         <a class="object" href="ConfigParser$.html" title=""></a>
-                        <a class="class" href="ConfigParser.html" title="A parser for obtaining a Config instance from a HOCON string."></a>
+                        <a class="trait" href="ConfigParser.html" title="A parser for obtaining a Config instance from a HOCON string."></a>
                         <a href="ConfigParser.html" title="A parser for obtaining a Config instance from a HOCON string.">ConfigParser</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
@@ -153,6 +153,10 @@
                         <span class="separator"></span>
                         <a class="class" href="ConfigResolverError.html" title="An error that occurred when resolving the interim result of a parsing operation."></a>
                         <a href="ConfigResolverError.html" title="An error that occurred when resolving the interim result of a parsing operation.">ConfigResolverError</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="ConfigResourceError.html" title="An error that occurred when loading a resource, before parsing could start."></a>
+                        <a href="ConfigResourceError.html" title="An error that occurred when loading a resource, before parsing could start.">ConfigResourceError</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="trait" href="ConfigValue.html" title="The base trait for all configuration values."></a>
@@ -182,9 +186,9 @@
                         <a class="class" href="InvalidType.html" title="Indicates that a value found in the configuration does not have the expected type so that type conversion is not even attempted."></a>
                         <a href="InvalidType.html" title="Indicates that a value found in the configuration does not have the expected type so that type conversion is not even attempted.">InvalidType</a>
                       </li><li class="current-entities indented2">
-                        <span class="separator"></span>
                         <a class="object" href="" title=""></a>
-                        <a href="" title="">Key</a>
+                        <a class="class" href="Key.html" title=""></a>
+                        <a href="Key.html" title="">Key</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="LongValue.html" title=""></a>
@@ -232,14 +236,16 @@
           <div id="content">
             <body class="object value">
       <div id="definition">
-        <div class="big-circle object">o</div>
+        <a href="Key.html" title="See companion class"><div class="big-circle object-companion-class">o</div></a>
         <p id="owner"><a href="../index.html" class="extype" name="laika">laika</a>.<a href="index.html" class="extype" name="laika.config">config</a></p>
-        <h1>Key<span class="permalink">
+        <h1><a href="Key.html" title="See companion class">Key</a><span class="permalink">
       <a href="../../laika/config/Key$.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span></h1>
-        <h3><span class="morelinks"></span></h3>
+        <h3><span class="morelinks"><div>
+            Companion <a href="Key.html" title="See companion class">class Key</a>
+          </div></span></h3>
       </div>
 
       <h4 id="signature" class="signature">
@@ -248,7 +254,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">Key</span>
+        <span class="name">Key</span><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
@@ -257,7 +263,7 @@
           <span class="toggle">
             Linear Supertypes
           </span>
-          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -283,7 +289,7 @@
                   <span class="filtertype">Inherited<br />
                   </span>
                   <ol id="linearization">
-                    <li class="in" name="laika.config.Key"><span>Key</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                    <li class="in" name="laika.config.Key"><span>Key</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                   </ol>
                 </div><div class="ancestors">
               <span class="filtertype"></span>
@@ -359,9 +365,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="laika.config.Key#apply" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="apply(key:String):laika.ast.Path"></a><a id="apply(String):Path"></a>
+      <a id="apply(segment:String,segments:String*):laika.config.Key"></a><a id="apply(String,String*):Key"></a>
       <span class="permalink">
-      <a href="../../laika/config/Key$.html#apply(key:String):laika.ast.Path" title="Permalink">
+      <a href="../../laika/config/Key$.html#apply(segment:String,segments:String*):laika.config.Key" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -370,7 +376,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>
+        <span class="name">apply</span><span class="params">(<span name="segment">segment: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="segments">segments: <span class="extype" name="scala.Predef.String">String</span>*</span>)</span><span class="result">: <a href="Key.html" class="extype" name="laika.config.Key">Key</a></span>
       </span>
       
       
@@ -468,6 +474,22 @@
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="laika.config.Key#fromPath" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="fromPath(path:laika.ast.Path):laika.config.Key"></a><a id="fromPath(Path):Key"></a>
+      <span class="permalink">
+      <a href="../../laika/config/Key$.html#fromPath(path:laika.ast.Path):laika.config.Key" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">fromPath</span><span class="params">(<span name="path">path: <a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>)</span><span class="result">: <a href="Key.html" class="extype" name="laika.config.Key">Key</a></span>
+      </span>
+      
+      
     </li><li name="scala.AnyRef#getClass" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <span class="permalink">
@@ -576,6 +598,38 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li name="laika.config.Key#parse" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="parse(key:String):laika.config.Key"></a><a id="parse(String):Key"></a>
+      <span class="permalink">
+      <a href="../../laika/config/Key$.html#parse(key:String):laika.config.Key" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">parse</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="Key.html" class="extype" name="laika.config.Key">Key</a></span>
+      </span>
+      
+      
+    </li><li name="laika.config.Key#root" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="root:laika.config.Key"></a><a id="root:Key"></a>
+      <span class="permalink">
+      <a href="../../laika/config/Key$.html#root:laika.config.Key" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">root</span><span class="result">: <a href="Key.html" class="extype" name="laika.config.Key">Key</a></span>
+      </span>
+      
+      
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">
@@ -686,7 +740,11 @@
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="scala.AnyRef">
+        <div class="parent" name="scala.Serializable">
+              <h3>Inherited from <span class="extype" name="scala.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="java.io.Serializable">
+              <h3>Inherited from <span class="extype" name="java.io.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>

@@ -10,12 +10,10 @@
     <meta name="description" content="Customizable and extensible toolkit for transforming lightweight markup languages to various types of output formats, written in Scala" />
     <meta name="keywords" content="scala, text, markup, markdown, restructuredtext, parser, transformer, html, template engine, site generation, open-source" />
 
+    <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
     <link href="../css/bootstrap.css" rel="stylesheet">
     <link href="../css/docs.css" rel="stylesheet">
-
-    <!--[if lt IE 9]>
-      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
 
   </head>
 
@@ -43,6 +41,7 @@
           <li><a href="../using-laika/output.html">Supported Output Formats</a></li>
           <li><a href="../using-laika/structure.html">Document Structure</a></li>
           <li><a href="../using-laika/templates.html">Templates</a></li>
+          <li><a href="../using-laika/syntax.html">Syntax Highlighting</a></li>
           <li class="nav-header">Customizing Laika</li>
           <li><a href="../customizing-laika/customize-rendering.html">Customizing Renderers</a></li>
           <li><a href="../customizing-laika/tree-rewriting.html">Document Tree Rewriting</a></li>
@@ -79,17 +78,17 @@
         
         <h2 id="api-contract" class="section">API Contract</h2>
         <p>A renderer has to implement the following trait:</p>
-        <pre>trait RenderFormat[FMT] {
+        <pre><code class="nohighlight"><span class="keyword">trait</span><span> </span><span class="type-name">RenderFormat</span><span>[</span><span class="type-name">FMT</span><span>] {
   
-  def fileSuffix: String
+  </span><span class="keyword">def</span><span> </span><span class="identifier">fileSuffix</span><span>: </span><span class="type-name">String</span><span>
   
-  def defaultTheme: Theme
+  </span><span class="keyword">def</span><span> </span><span class="identifier">defaultTheme</span><span>: </span><span class="type-name">Theme</span><span>
   
-  def defaultRenderer: (FMT, Element) =&gt; String
+  </span><span class="keyword">def</span><span> </span><span class="identifier">defaultRenderer</span><span>: (</span><span class="type-name">FMT</span><span>, </span><span class="type-name">Element</span><span>) =&gt; </span><span class="type-name">String</span><span>
   
-  def formatterFactory: RenderContext[FMT] =&gt; FMT
+  </span><span class="keyword">def</span><span> </span><span class="identifier">formatterFactory</span><span>: </span><span class="type-name">RenderContext</span><span>[</span><span class="type-name">FMT</span><span>] =&gt; </span><span class="type-name">FMT</span><span>
 
-}</pre>
+}</span></code></pre>
         <p>The <code>fileSuffix</code> method returns the suffix to append when writing files in this format
         (without the &quot;.&quot;).</p>
         <p>The <code>defaultTheme</code> specifies the theme to use when it is not overridden by the user.
@@ -127,18 +126,18 @@
         convenient and straightforward to use.</p>
         <p>Finally, we&#39;ll show a minimal excerpt of the HTML render function we omitted above, just to
         give you an impression that it is often quite simple to implement:</p>
-        <pre>def renderElement (fmt: HTMLFormatter, elem: Element): String = {
+        <pre><code class="nohighlight"><span class="keyword">def</span><span> </span><span class="identifier">renderElement</span><span> (</span><span class="identifier">fmt</span><span>: </span><span class="type-name">HTMLFormatter</span><span>, </span><span class="identifier">elem</span><span>: </span><span class="type-name">Element</span><span>): </span><span class="type-name">String</span><span> = {
 
-  elem match {
-    case Paragraph(content,opt) =&gt; fmt.element(&quot;p&quot;, opt, content)
+  </span><span class="identifier">elem</span><span> </span><span class="keyword">match</span><span> {
+    </span><span class="keyword">case</span><span> </span><span class="type-name">Paragraph</span><span>(</span><span class="identifier">content</span><span>,</span><span class="identifier">opt</span><span>) =&gt; </span><span class="identifier">fmt</span><span>.</span><span class="identifier">element</span><span>(</span><span class="string-literal">&quot;p&quot;</span><span>, </span><span class="identifier">opt</span><span>, </span><span class="identifier">content</span><span>)
     
-    case Emphasized(content,opt) =&gt; fmt.element(&quot;em&quot;, opt, content)
+    </span><span class="keyword">case</span><span> </span><span class="type-name">Emphasized</span><span>(</span><span class="identifier">content</span><span>,</span><span class="identifier">opt</span><span>) =&gt; </span><span class="identifier">fmt</span><span>.</span><span class="identifier">element</span><span>(</span><span class="string-literal">&quot;em&quot;</span><span>, </span><span class="identifier">opt</span><span>, </span><span class="identifier">content</span><span>)
     
-    /* [other cases ...] */
+    </span><span class="comment">/* [other cases ...] */</span><span>
     
-    /* [fallbacks for unknown elements] */
+    </span><span class="comment">/* [fallbacks for unknown elements] */</span><span>
   }   
-}</pre>
+}</span></code></pre>
         <p>As you see, the function never deals with children (the <code>content</code> attribute of many node
         types) directly. Instead it passes them to the Formatter API which delegates to the composed
         render function. This way customized renderers can kick in on every step of the recursion.</p>

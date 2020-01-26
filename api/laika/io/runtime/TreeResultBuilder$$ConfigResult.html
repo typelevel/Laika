@@ -180,7 +180,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">ConfigResult</span><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="config">config: <a href="../../bundle/UnresolvedConfig.html" class="extype" name="laika.bundle.UnresolvedConfig">UnresolvedConfig</a></span>)</span><span class="result"> extends <a href="TreeResultBuilder$$ParserResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.ParserResult">ParserResult</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">ConfigResult</span><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="config">config: <a href="../../config/ConfigParser.html" class="extype" name="laika.config.ConfigParser">ConfigParser</a></span>, <span name="sourceFile">sourceFile: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="java.io.File">File</span>]</span>)</span><span class="result"> extends <a href="TreeResultBuilder$$ParserResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.ParserResult">ParserResult</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
@@ -236,9 +236,9 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.io.runtime.TreeResultBuilder.ConfigResult#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(path:laika.ast.Path,config:laika.bundle.UnresolvedConfig):laika.io.runtime.TreeResultBuilder.ConfigResult"></a><a id="&lt;init&gt;:ConfigResult"></a>
+      <a id="&lt;init&gt;(path:laika.ast.Path,config:laika.config.ConfigParser,sourceFile:Option[java.io.File]):laika.io.runtime.TreeResultBuilder.ConfigResult"></a><a id="&lt;init&gt;:ConfigResult"></a>
       <span class="permalink">
-      <a href="../../../laika/io/runtime/TreeResultBuilder$$ConfigResult.html#&lt;init&gt;(path:laika.ast.Path,config:laika.bundle.UnresolvedConfig):laika.io.runtime.TreeResultBuilder.ConfigResult" title="Permalink">
+      <a href="../../../laika/io/runtime/TreeResultBuilder$$ConfigResult.html#&lt;init&gt;(path:laika.ast.Path,config:laika.config.ConfigParser,sourceFile:Option[java.io.File]):laika.io.runtime.TreeResultBuilder.ConfigResult" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -247,7 +247,7 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">ConfigResult</span><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="config">config: <a href="../../bundle/UnresolvedConfig.html" class="extype" name="laika.bundle.UnresolvedConfig">UnresolvedConfig</a></span>)</span>
+        <span class="name">ConfigResult</span><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="config">config: <a href="../../config/ConfigParser.html" class="extype" name="laika.config.ConfigParser">ConfigParser</a></span>, <span name="sourceFile">sourceFile: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="java.io.File">File</span>]</span>)</span>
       </span>
       
       
@@ -350,9 +350,9 @@
               
         </dd></dl></div>
     </li><li name="laika.io.runtime.TreeResultBuilder.ConfigResult#config" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="config:laika.bundle.UnresolvedConfig"></a><a id="config:UnresolvedConfig"></a>
+      <a id="config:laika.config.ConfigParser"></a><a id="config:ConfigParser"></a>
       <span class="permalink">
-      <a href="../../../laika/io/runtime/TreeResultBuilder$$ConfigResult.html#config:laika.bundle.UnresolvedConfig" title="Permalink">
+      <a href="../../../laika/io/runtime/TreeResultBuilder$$ConfigResult.html#config:laika.config.ConfigParser" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -361,7 +361,7 @@
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">config</span><span class="result">: <a href="../../bundle/UnresolvedConfig.html" class="extype" name="laika.bundle.UnresolvedConfig">UnresolvedConfig</a></span>
+        <span class="name">config</span><span class="result">: <a href="../../config/ConfigParser.html" class="extype" name="laika.config.ConfigParser">ConfigParser</a></span>
       </span>
       
       
@@ -525,6 +525,22 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.io.runtime.TreeResultBuilder.ConfigResult">ConfigResult</a> → <a href="../../ast/Navigatable.html" class="extype" name="laika.ast.Navigatable">Navigatable</a></dd></dl></div>
+    </li><li name="laika.io.runtime.TreeResultBuilder.ConfigResult#sourceFile" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="sourceFile:Option[java.io.File]"></a><a id="sourceFile:Option[File]"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/runtime/TreeResultBuilder$$ConfigResult.html#sourceFile:Option[java.io.File]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">sourceFile</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="java.io.File">File</span>]</span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.io.runtime.TreeResultBuilder.ConfigResult">ConfigResult</a> → <a href="TreeResultBuilder$$ParserResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.ParserResult">ParserResult</a></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">

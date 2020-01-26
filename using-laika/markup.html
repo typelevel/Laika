@@ -10,12 +10,10 @@
     <meta name="description" content="Customizable and extensible toolkit for transforming lightweight markup languages to various types of output formats, written in Scala" />
     <meta name="keywords" content="scala, text, markup, markdown, restructuredtext, parser, transformer, html, template engine, site generation, open-source" />
 
+    <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
     <link href="../css/bootstrap.css" rel="stylesheet">
     <link href="../css/docs.css" rel="stylesheet">
-
-    <!--[if lt IE 9]>
-      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
 
   </head>
 
@@ -43,6 +41,7 @@
           <li><a href="output.html">Supported Output Formats</a></li>
           <li><a href="structure.html">Document Structure</a></li>
           <li><a href="templates.html">Templates</a></li>
+          <li><a href="syntax.html">Syntax Highlighting</a></li>
           <li class="nav-header">Customizing Laika</li>
           <li><a href="../customizing-laika/customize-rendering.html">Customizing Renderers</a></li>
           <li><a href="../customizing-laika/tree-rewriting.html">Document Tree Rewriting</a></li>
@@ -87,12 +86,12 @@
         <p>Laika supports several convenient features for processing groups of documents.
         These are built as extensions to both Markdown and reStructuredText parsers.
         They can be switched off when you run these two parsers in strict mode:</p>
-        <pre>Transformer
-  .from(Markdown)
-  .to(HTML)
-  .strict
-  .build
-  .transform(&quot;hello *there*)</pre>
+        <pre><code class="nohighlight"><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">strict</span><span>
+  .</span><span class="identifier">build</span><span>
+  .</span><span class="identifier">transform</span><span>(</span><span class="string-literal">&quot;hello *there*&quot;</span><span>)</span></code></pre>
         <p>The extensions are documented in their respective section linked to from
         the list below:</p>
         <ul>
@@ -155,14 +154,14 @@
         <h3 id="github-flavored-markdown" class="section">GitHub Flavored Markdown</h3>
         <p>Laika supports the syntax of GitHubFlavored Markdown through an <code>ExtensionBundle</code> that must
         be enabled explicitly:</p>
-        <pre>Transformer
-  .from(Markdown)
-  .to(HTML)
-  .using(GitHubFlavor)
-  .build
-  .transform(&quot;hello *there*)</pre>
+        <pre><code class="nohighlight"><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">GitHubFlavor</span><span>)
+  .</span><span class="identifier">build</span><span>
+  .</span><span class="identifier">transform</span><span>(</span><span class="string-literal">&quot;hello *there*&quot;</span><span>)</span></code></pre>
         <p>When using the sbt plugin it can be added to the <code>laikaExtensions</code> settings:</p>
-        <pre>laikaExtensions += GitHubFlavor      </pre>
+        <pre><code class="nohighlight"><span class="identifier">laikaExtensions</span><span> += </span><span class="type-name">GitHubFlavor</span><span>  </span></code></pre>
         <p>These are the parsers this extension adds to standard Markdown:</p>
         <ul>
           <li>strikethrough (<a href="https://github.github.com/gfm/#strikethrough-extension-">spec</a>)</li>
@@ -211,13 +210,12 @@
         <p>When the markup originates from user input in a web application, it would not be safe 
         to use without additional filtering. By default Laika does not filter any tags, not
         even <code>&lt;script&gt;</code> tags, but whitelist filtering can be added fairly easily through Laika&#39;s 
-        customization hooks like <a href="../customizing-laika/tree-rewriting.html#document-tree-rewriting">Document Tree Rewriting</a> or [Customizing Renderers].</p>
+        customization hooks like <a href="../customizing-laika/tree-rewriting.html">Document Tree Rewriting</a> or
+        <a href="../customizing-laika/customize-rendering.html">Customizing Renderers</a>.</p>
         <p>To enable verbatim HTML elements you have to change this standard expression:</p>
-        <pre>Transformer.from(Markdown).to(HTML)
-</pre>
+        <pre><code class="nohighlight"><span class="type-name">Transformer</span><span>.</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>).</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)</span></code></pre>
         <p>to</p>
-        <pre>Transformer.from(Markdown).to(HTML).withRawContent
-</pre>
+        <pre><code class="nohighlight"><span class="type-name">Transformer</span><span>.</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>).</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>).</span><span class="identifier">withRawContent</span></code></pre>
         <p>This installs both, the required parser and renderer extensions. </p>
         
         <h2 id="restructuredtext" class="section">reStructuredText</h2>
@@ -350,27 +348,25 @@
         
         <h3 id="extension-options" class="section">Extension Options</h3>
         <p>Finally some of the defaults for these extensions can be changed through the API:</p>
-        <pre>val transformer = Transformer
-  .from(ReStructuredText)
-  .to(HTML)
-  .withRawContent
-  .build
-</pre>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">ReStructuredText</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">withRawContent</span><span>
+  .</span><span class="identifier">build</span></code></pre>
         <p>enables both the <code>raw</code> directive and the <code>raw</code> text role. They are disabled by default as
         they present a potential security risk.</p>
-        <pre>object RstExtensions extends RstExtensionRegistry {
-  val blockDirectives = Nil
-  val spanDirectives = Nil
-  val textRoles = Nil
-  override val defaultTextRole = &quot;my-role-name&quot;
+        <pre><code class="nohighlight"><span class="keyword">object</span><span> </span><span class="type-name">RstExtensions</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">RstExtensionRegistry</span><span> {
+  </span><span class="keyword">val</span><span> </span><span class="identifier">blockDirectives</span><span> = </span><span class="type-name">Nil</span><span>
+  </span><span class="keyword">val</span><span> </span><span class="identifier">spanDirectives</span><span> = </span><span class="type-name">Nil</span><span>
+  </span><span class="keyword">val</span><span> </span><span class="identifier">textRoles</span><span> = </span><span class="type-name">Nil</span><span>
+  </span><span class="keyword">override</span><span> </span><span class="keyword">val</span><span> </span><span class="identifier">defaultTextRole</span><span> = </span><span class="string-literal">&quot;my-role-name&quot;</span><span>
 }
 
-val transformer = Transformer
-  .from(ReStructuredText)
-  .to(HTML)
-  .using(RstExtensions)
-  .build
-</pre>
+</span><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">ReStructuredText</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">RstExtensions</span><span>)
+  .</span><span class="identifier">build</span></code></pre>
         <p>sets the text role <code>my-role-name</code> as the default role for the transformer.</p>
         
         <h3 id="implementing-a-custom-directive" class="section">Implementing a Custom Directive</h3>

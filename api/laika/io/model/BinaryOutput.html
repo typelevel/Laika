@@ -220,7 +220,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">BinaryOutput</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="resource">resource: <span class="extype" name="cats.effect.Resource">Resource</span>[<span class="extype" name="laika.io.model.BinaryOutput.F">F</span>, <span class="extype" name="java.io.OutputStream">OutputStream</span>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">BinaryOutput</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="resource">resource: <span class="extype" name="cats.effect.Resource">Resource</span>[<span class="extype" name="laika.io.model.BinaryOutput.F">F</span>, <span class="extype" name="java.io.OutputStream">OutputStream</span>]</span>, <span name="targetFile">targetFile: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="java.io.File">File</span>] = <span class="symbol">None</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
@@ -278,9 +278,9 @@ require a binary stream to write to.
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.io.model.BinaryOutput#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(path:laika.ast.Path,resource:cats.effect.Resource[F,java.io.OutputStream]):laika.io.model.BinaryOutput[F]"></a><a id="&lt;init&gt;:BinaryOutput[F]"></a>
+      <a id="&lt;init&gt;(path:laika.ast.Path,resource:cats.effect.Resource[F,java.io.OutputStream],targetFile:Option[java.io.File]):laika.io.model.BinaryOutput[F]"></a><a id="&lt;init&gt;:BinaryOutput[F]"></a>
       <span class="permalink">
-      <a href="../../../laika/io/model/BinaryOutput.html#&lt;init&gt;(path:laika.ast.Path,resource:cats.effect.Resource[F,java.io.OutputStream]):laika.io.model.BinaryOutput[F]" title="Permalink">
+      <a href="../../../laika/io/model/BinaryOutput.html#&lt;init&gt;(path:laika.ast.Path,resource:cats.effect.Resource[F,java.io.OutputStream],targetFile:Option[java.io.File]):laika.io.model.BinaryOutput[F]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -289,7 +289,7 @@ require a binary stream to write to.
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">BinaryOutput</span><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="resource">resource: <span class="extype" name="cats.effect.Resource">Resource</span>[<span class="extype" name="laika.io.model.BinaryOutput.F">F</span>, <span class="extype" name="java.io.OutputStream">OutputStream</span>]</span>)</span>
+        <span class="name">BinaryOutput</span><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="resource">resource: <span class="extype" name="cats.effect.Resource">Resource</span>[<span class="extype" name="laika.io.model.BinaryOutput.F">F</span>, <span class="extype" name="java.io.OutputStream">OutputStream</span>]</span>, <span name="targetFile">targetFile: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="java.io.File">File</span>] = <span class="symbol">None</span></span>)</span>
       </span>
       
       
@@ -566,6 +566,22 @@ require a binary stream to write to.
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="laika.io.model.BinaryOutput#targetFile" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="targetFile:Option[java.io.File]"></a><a id="targetFile:Option[File]"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/model/BinaryOutput.html#targetFile:Option[java.io.File]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">targetFile</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="java.io.File">File</span>]</span>
+      </span>
+      
+      
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <span class="permalink">

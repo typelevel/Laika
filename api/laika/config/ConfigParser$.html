@@ -139,7 +139,7 @@
                         <a href="ConfigException.html" title="A ConfigError as a RuntimeException for use cases where a Throwable is required.">ConfigException</a>
                       </li><li class="current-entities indented2">
                         <a class="object" href="" title=""></a>
-                        <a class="class" href="ConfigParser.html" title="A parser for obtaining a Config instance from a HOCON string."></a>
+                        <a class="trait" href="ConfigParser.html" title="A parser for obtaining a Config instance from a HOCON string."></a>
                         <a href="ConfigParser.html" title="A parser for obtaining a Config instance from a HOCON string.">ConfigParser</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
@@ -153,6 +153,10 @@
                         <span class="separator"></span>
                         <a class="class" href="ConfigResolverError.html" title="An error that occurred when resolving the interim result of a parsing operation."></a>
                         <a href="ConfigResolverError.html" title="An error that occurred when resolving the interim result of a parsing operation.">ConfigResolverError</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="ConfigResourceError.html" title="An error that occurred when loading a resource, before parsing could start."></a>
+                        <a href="ConfigResourceError.html" title="An error that occurred when loading a resource, before parsing could start.">ConfigResourceError</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="trait" href="ConfigValue.html" title="The base trait for all configuration values."></a>
@@ -182,9 +186,9 @@
                         <a class="class" href="InvalidType.html" title="Indicates that a value found in the configuration does not have the expected type so that type conversion is not even attempted."></a>
                         <a href="InvalidType.html" title="Indicates that a value found in the configuration does not have the expected type so that type conversion is not even attempted.">InvalidType</a>
                       </li><li class="current-entities indented2">
-                        <span class="separator"></span>
                         <a class="object" href="Key$.html" title=""></a>
-                        <a href="Key$.html" title="">Key</a>
+                        <a class="class" href="Key.html" title=""></a>
+                        <a href="Key.html" title="">Key</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="LongValue.html" title=""></a>
@@ -232,15 +236,15 @@
           <div id="content">
             <body class="object value">
       <div id="definition">
-        <a href="ConfigParser.html" title="See companion class"><div class="big-circle object-companion-class">o</div></a>
+        <a href="ConfigParser.html" title="See companion trait"><div class="big-circle object-companion-trait">o</div></a>
         <p id="owner"><a href="../index.html" class="extype" name="laika">laika</a>.<a href="index.html" class="extype" name="laika.config">config</a></p>
-        <h1><a href="ConfigParser.html" title="See companion class">ConfigParser</a><span class="permalink">
+        <h1><a href="ConfigParser.html" title="See companion trait">ConfigParser</a><span class="permalink">
       <a href="../../laika/config/ConfigParser$.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span></h1>
         <h3><span class="morelinks"><div>
-            Companion <a href="ConfigParser.html" title="See companion class">class ConfigParser</a>
+            Companion <a href="ConfigParser.html" title="See companion trait">trait ConfigParser</a>
           </div></span></h3>
       </div>
 
@@ -400,6 +404,22 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li name="laika.config.ConfigParser#empty" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="empty:laika.config.ConfigParser"></a><a id="empty:ConfigParser"></a>
+      <span class="permalink">
+      <a href="../../laika/config/ConfigParser$.html#empty:laika.config.ConfigParser" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">empty</span><span class="result">: <a href="ConfigParser.html" class="extype" name="laika.config.ConfigParser">ConfigParser</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Creates a new parser that will produce an empty result.</p>
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
       <span class="permalink">
@@ -562,28 +582,6 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="laika.config.ConfigParser#parse" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="parse(input:String,origin:laika.config.Origin):laika.config.ConfigParser"></a><a id="parse(String,Origin):ConfigParser"></a>
-      <span class="permalink">
-      <a href="../../laika/config/ConfigParser$.html#parse(input:String,origin:laika.config.Origin):laika.config.ConfigParser" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">parse</span><span class="params">(<span name="input">input: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="origin">origin: <a href="Origin.html" class="extype" name="laika.config.Origin">Origin</a></span>)</span><span class="result">: <a href="ConfigParser.html" class="extype" name="laika.config.ConfigParser">ConfigParser</a></span>
-      </span>
-      
-      <p class="shortcomment cmt">Creates a new parser for the specified HOCON input and origin which will be attached
-to every field specified with the new builder.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new parser for the specified HOCON input and origin which will be attached
-to every field specified with the new builder.</p><p>Origins can be used to distinguish values from a specific Config
-instance from those which were inherited from a fallback, which
-might be relevant in scenarios where relative paths need to be
-resolved for example.
-</p></div></div>
     </li><li name="laika.config.ConfigParser#parse" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="parse(input:String):laika.config.ConfigParser"></a><a id="parse(String):ConfigParser"></a>
       <span class="permalink">

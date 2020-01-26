@@ -425,9 +425,9 @@ a root <code>ObjectValue</code>.</p><p>The translation step involves the followi
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="laika.parse.hocon.ConfigResolver#expandPaths" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="expandPaths(obj:laika.parse.hocon.ObjectBuilderValue,path:laika.ast.Path):laika.parse.hocon.ObjectBuilderValue"></a><a id="expandPaths(ObjectBuilderValue,Path):ObjectBuilderValue"></a>
+      <a id="expandPaths(obj:laika.parse.hocon.ObjectBuilderValue,key:laika.config.Key):laika.parse.hocon.ObjectBuilderValue"></a><a id="expandPaths(ObjectBuilderValue,Key):ObjectBuilderValue"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/hocon/ConfigResolver$.html#expandPaths(obj:laika.parse.hocon.ObjectBuilderValue,path:laika.ast.Path):laika.parse.hocon.ObjectBuilderValue" title="Permalink">
+      <a href="../../../laika/parse/hocon/ConfigResolver$.html#expandPaths(obj:laika.parse.hocon.ObjectBuilderValue,key:laika.config.Key):laika.parse.hocon.ObjectBuilderValue" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -436,7 +436,7 @@ a root <code>ObjectValue</code>.</p><p>The translation step involves the followi
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">expandPaths</span><span class="params">(<span name="obj">obj: <a href="ObjectBuilderValue.html" class="extype" name="laika.parse.hocon.ObjectBuilderValue">ObjectBuilderValue</a></span>, <span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a> = <span class="symbol"><span class="name"><a href="../../index.html">Path.Root</a></span></span></span>)</span><span class="result">: <a href="ObjectBuilderValue.html" class="extype" name="laika.parse.hocon.ObjectBuilderValue">ObjectBuilderValue</a></span>
+        <span class="name">expandPaths</span><span class="params">(<span name="obj">obj: <a href="ObjectBuilderValue.html" class="extype" name="laika.parse.hocon.ObjectBuilderValue">ObjectBuilderValue</a></span>, <span name="key">key: <a href="../../config/Key.html" class="extype" name="laika.config.Key">Key</a> = <span class="symbol"><span class="name"><a href="../../index.html">Key.root</a></span></span></span>)</span><span class="result">: <a href="ObjectBuilderValue.html" class="extype" name="laika.parse.hocon.ObjectBuilderValue">ObjectBuilderValue</a></span>
       </span>
       
       <p class="shortcomment cmt">Expands all flattened path expressions to nested objects.</p><div class="fullcomment"><div class="comment cmt"><p>Expands all flattened path expressions to nested objects.</p><p><code><code><code>
@@ -614,9 +614,9 @@ a = { b = { c = 7, d = 9 }}
               
         </dd></dl></div>
     </li><li name="laika.parse.hocon.ConfigResolver#resolve" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="resolve(root:laika.parse.hocon.ObjectBuilderValue,origin:laika.config.Origin,fallback:laika.config.Config):Either[laika.config.ConfigError,laika.config.ObjectValue]"></a><a id="resolve(ObjectBuilderValue,Origin,Config):Either[ConfigError,ObjectValue]"></a>
+      <a id="resolve(root:laika.parse.hocon.ObjectBuilderValue,origin:laika.config.Origin,fallback:laika.config.Config,includes:laika.config.Config.IncludeMap):Either[laika.config.ConfigError,laika.config.ObjectValue]"></a><a id="resolve(ObjectBuilderValue,Origin,Config,IncludeMap):Either[ConfigError,ObjectValue]"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/hocon/ConfigResolver$.html#resolve(root:laika.parse.hocon.ObjectBuilderValue,origin:laika.config.Origin,fallback:laika.config.Config):Either[laika.config.ConfigError,laika.config.ObjectValue]" title="Permalink">
+      <a href="../../../laika/parse/hocon/ConfigResolver$.html#resolve(root:laika.parse.hocon.ObjectBuilderValue,origin:laika.config.Origin,fallback:laika.config.Config,includes:laika.config.Config.IncludeMap):Either[laika.config.ConfigError,laika.config.ObjectValue]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -625,7 +625,7 @@ a = { b = { c = 7, d = 9 }}
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">resolve</span><span class="params">(<span name="root">root: <a href="ObjectBuilderValue.html" class="extype" name="laika.parse.hocon.ObjectBuilderValue">ObjectBuilderValue</a></span>, <span name="origin">origin: <a href="../../config/Origin.html" class="extype" name="laika.config.Origin">Origin</a></span>, <span name="fallback">fallback: <a href="../../config/Config.html" class="extype" name="laika.config.Config">Config</a></span>)</span><span class="result">: <span class="extype" name="scala.Either">Either</span>[<a href="../../config/ConfigError.html" class="extype" name="laika.config.ConfigError">ConfigError</a>, <a href="../../config/ObjectValue.html" class="extype" name="laika.config.ObjectValue">ObjectValue</a>]</span>
+        <span class="name">resolve</span><span class="params">(<span name="root">root: <a href="ObjectBuilderValue.html" class="extype" name="laika.parse.hocon.ObjectBuilderValue">ObjectBuilderValue</a></span>, <span name="origin">origin: <a href="../../config/Origin.html" class="extype" name="laika.config.Origin">Origin</a></span>, <span name="fallback">fallback: <a href="../../config/Config.html" class="extype" name="laika.config.Config">Config</a></span>, <span name="includes">includes: <a href="../../config/Config$.html#IncludeMap=Map[laika.parse.hocon.IncludeResource,Either[laika.config.ConfigError,laika.parse.hocon.ObjectBuilderValue]]" class="extmbr" name="laika.config.Config.IncludeMap">IncludeMap</a></span>)</span><span class="result">: <span class="extype" name="scala.Either">Either</span>[<a href="../../config/ConfigError.html" class="extype" name="laika.config.ConfigError">ConfigError</a>, <a href="../../config/ObjectValue.html" class="extype" name="laika.config.ObjectValue">ObjectValue</a>]</span>
       </span>
       
       <p class="shortcomment cmt">Translates the interim configuration model (usually obtained from a HOCON parser)

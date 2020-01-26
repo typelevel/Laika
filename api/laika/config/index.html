@@ -203,7 +203,7 @@
                         <a href="ConfigException.html" title="A ConfigError as a RuntimeException for use cases where a Throwable is required.">ConfigException</a>
                       </li><li class="current-entities indented2">
                         <a class="object" href="ConfigParser$.html" title=""></a>
-                        <a class="class" href="ConfigParser.html" title="A parser for obtaining a Config instance from a HOCON string."></a>
+                        <a class="trait" href="ConfigParser.html" title="A parser for obtaining a Config instance from a HOCON string."></a>
                         <a href="ConfigParser.html" title="A parser for obtaining a Config instance from a HOCON string.">ConfigParser</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
@@ -217,6 +217,10 @@
                         <span class="separator"></span>
                         <a class="class" href="ConfigResolverError.html" title="An error that occurred when resolving the interim result of a parsing operation."></a>
                         <a href="ConfigResolverError.html" title="An error that occurred when resolving the interim result of a parsing operation.">ConfigResolverError</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="ConfigResourceError.html" title="An error that occurred when loading a resource, before parsing could start."></a>
+                        <a href="ConfigResourceError.html" title="An error that occurred when loading a resource, before parsing could start.">ConfigResourceError</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="trait" href="ConfigValue.html" title="The base trait for all configuration values."></a>
@@ -246,9 +250,9 @@
                         <a class="class" href="InvalidType.html" title="Indicates that a value found in the configuration does not have the expected type so that type conversion is not even attempted."></a>
                         <a href="InvalidType.html" title="Indicates that a value found in the configuration does not have the expected type so that type conversion is not even attempted.">InvalidType</a>
                       </li><li class="current-entities indented2">
-                        <span class="separator"></span>
                         <a class="object" href="Key$.html" title=""></a>
-                        <a href="Key$.html" title="">Key</a>
+                        <a class="class" href="Key.html" title=""></a>
+                        <a href="Key.html" title="">Key</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="LongValue.html" title=""></a>
@@ -663,7 +667,7 @@ configuration values.</p>
       </span>
       
       <p class="shortcomment cmt">A ConfigError as a RuntimeException for use cases where a Throwable is required.</p>
-    </li><li name="laika.config.ConfigParser" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="laika.config.ConfigParser" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="ConfigParserextendsAnyRef"></a><a id="ConfigParser:ConfigParser"></a>
       <span class="permalink">
       <a href="../../laika/config/ConfigParser.html" title="Permalink">
@@ -672,7 +676,7 @@ configuration values.</p>
     </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">class</span>
+        <span class="kind">trait</span>
       </span>
       <span class="symbol">
         <a title="A parser for obtaining a Config instance from a HOCON string." href="ConfigParser.html"><span class="name">ConfigParser</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
@@ -729,6 +733,22 @@ configuration values.</p>
       </span>
       
       <p class="shortcomment cmt">An error that occurred when resolving the interim result of a parsing operation.</p>
+    </li><li name="laika.config.ConfigResourceError" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ConfigResourceErrorextendsConfigErrorwithProductwithSerializable"></a><a id="ConfigResourceError:ConfigResourceError"></a>
+      <span class="permalink">
+      <a href="../../laika/config/ConfigResourceError.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="An error that occurred when loading a resource, before parsing could start." href="ConfigResourceError.html"><span class="name">ConfigResourceError</span></a><span class="params">(<span name="message">message: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="ConfigError.html" class="extype" name="laika.config.ConfigError">ConfigError</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">An error that occurred when loading a resource, before parsing could start.</p>
     </li><li name="laika.config.ConfigValue" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="ConfigValueextendsProductwithSerializable"></a><a id="ConfigValue:ConfigValue"></a>
       <span class="permalink">
@@ -839,6 +859,22 @@ with the associated key being specified by an implicit <code>DefaultKey</code>.
       
       <p class="shortcomment cmt">Indicates that a value found in the configuration does not have the expected
 type so that type conversion is not even attempted.</p>
+    </li><li name="laika.config.Key" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="KeyextendsProductwithSerializable"></a><a id="Key:Key"></a>
+      <span class="permalink">
+      <a href="../../laika/config/Key.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="Key.html"><span class="name">Key</span></a><span class="params">(<span name="segments">segments: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt"></p>
     </li><li name="laika.config.LongValue" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="LongValueextendsSimpleConfigValuewithProductwithSerializable"></a><a id="LongValue:LongValue"></a>
       <span class="permalink">
@@ -867,7 +903,7 @@ type so that type conversion is not even attempted.</p>
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="A required value that could not be found." href="NotFound.html"><span class="name">NotFound</span></a><span class="params">(<span name="path">path: <a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>)</span><span class="result"> extends <a href="ConfigError.html" class="extype" name="laika.config.ConfigError">ConfigError</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="A required value that could not be found." href="NotFound.html"><span class="name">NotFound</span></a><span class="params">(<span name="key">key: <a href="Key.html" class="extype" name="laika.config.Key">Key</a></span>)</span><span class="result"> extends <a href="ConfigError.html" class="extype" name="laika.config.ConfigError">ConfigError</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">A required value that could not be found.</p>
@@ -1121,7 +1157,7 @@ resolved.
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a title="" href="Key$.html"><span class="name">Key</span></a>
+        <a title="" href="Key$.html"><span class="name">Key</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       
