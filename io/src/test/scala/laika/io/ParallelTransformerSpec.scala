@@ -534,8 +534,8 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
         targetDir  <- newTempDirectory
         _          <- transformer.fromDirectory(sourceName).toDirectory(targetDir).transform
         contents   <- readFilesFiltered(targetDir.getPath)
-        fileExists <- exists(new File(targetDir + "/doc1.txt"))
-        dirExists  <- exists(new File(targetDir + "/dir1"))
+        fileExists <- exists(new File(targetDir, "/doc1.txt"))
+        dirExists  <- exists(new File(targetDir, "/dir1"))
       } yield (contents, fileExists, dirExists)
       
       res.assertEquals((expectedFileContents, false, false))
@@ -550,8 +550,8 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
         targetDir  <- newTempDirectory
         _          <- transformer.fromDirectory(sourceName, fileFilter).toDirectory(targetDir).transform
         contents   <- readFilesFiltered(targetDir.getPath)
-        fileExists <- exists(new File(targetDir + "/doc1.txt"))
-        dirExists  <- exists(new File(targetDir + "/dir1"))
+        fileExists <- exists(new File(targetDir, "/doc1.txt"))
+        dirExists  <- exists(new File(targetDir, "/dir1"))
       } yield (contents, fileExists, dirExists)
 
       res.assertEquals((expectedFileContents, false, false))
