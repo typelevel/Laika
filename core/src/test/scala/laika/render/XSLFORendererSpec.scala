@@ -538,7 +538,7 @@ class XSLFORendererSpec extends FlatSpec
   }
   
   it should "render nested line blocks" in {
-    val elem = lb(lb(Line("1"),Line("2")), Line("3"))
+    val elem = LineBlock(LineBlock(Line("1"),Line("2")), Line("3"))
     val fo = """<fo:block margin-left="20mm">
       |  <fo:block margin-left="20mm">
       |    <fo:block>1</fo:block>

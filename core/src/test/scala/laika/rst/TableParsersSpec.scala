@@ -41,7 +41,8 @@ class TableParsersSpec extends FlatSpec
   def blockDirective (name: String): Option[DirectivePart[Block]] = None
   def spanDirective (name: String): Option[DirectivePart[Span]] = None
   def textRole (name: String): Option[RoleDirectivePart[String => Span]] = None
-  
+
+  def textRow (cells: String*) = Row(cells.map(BodyCell(_)))
   
   
   "The grid table parser" should "parse a small table with 2 rows and 2 cells" in {
@@ -50,7 +51,7 @@ class TableParsersSpec extends FlatSpec
       |+---+---+
       || c | d |
       |+---+---+""".stripMargin
-    Parsing (input) should produce (root( Table(strrow("a","b"), strrow("c","d"))))
+    Parsing (input) should produce (root( Table(textRow("a","b"), textRow("c","d"))))
   }
   
   it should "parse a table with horizontally merged cells in the first row" in {
@@ -59,7 +60,7 @@ class TableParsersSpec extends FlatSpec
       |+---+---+
       || c | d |
       |+---+---+""".stripMargin
-    Parsing (input) should produce (root( Table(Row(cell("a b", 2, 1)), strrow("c","d"))))
+    Parsing (input) should produce (root( Table(Row(cell("a b", 2, 1)), textRow("c","d"))))
   }
   
   it should "parse a table with horizontally merged cells in the second row" in {
@@ -68,7 +69,7 @@ class TableParsersSpec extends FlatSpec
       |+---+---+
       ||  c d  |
       |+---+---+""".stripMargin
-    Parsing (input) should produce (root( Table(strrow("a","b"), Row(cell("c d", 2, 1)))))
+    Parsing (input) should produce (root( Table(textRow("a","b"), Row(cell("c d", 2, 1)))))
   }
   
   it should "parse a table with vertically merged cells in the left column" in {
@@ -77,7 +78,7 @@ class TableParsersSpec extends FlatSpec
       |+ b +---+
       || c | e |
       |+---+---+""".stripMargin
-    Parsing (input) should produce (root( Table(Row(cell("a\nb\nc", 1, 2), BodyCell("d")), strrow("e"))))
+    Parsing (input) should produce (root( Table(Row(cell("a\nb\nc", 1, 2), BodyCell("d")), textRow("e"))))
   }
   
   it should "parse a table with vertically merged cells in the right column" in {
@@ -86,7 +87,7 @@ class TableParsersSpec extends FlatSpec
       |+---+ c +
       || e | d |
       |+---+---+""".stripMargin
-    Parsing (input) should produce (root( Table(Row(BodyCell("a"), cell("b\nc\nd", 1, 2)), strrow("e"))))
+    Parsing (input) should produce (root( Table(Row(BodyCell("a"), cell("b\nc\nd", 1, 2)), textRow("e"))))
   }
   
   it should "parse a table with vertically and horizontally merged cells" in {
@@ -97,7 +98,7 @@ class TableParsersSpec extends FlatSpec
       ||  2-2  +---+
       ||  3-3  | e |
       |+---+---+---+""".stripMargin
-    Parsing (input) should produce (root( Table(strrow("a","b","c"), Row(cell("1-1\n2-2\n3-3", 2, 2), BodyCell("d")), strrow("e"))))
+    Parsing (input) should produce (root( Table(textRow("a","b","c"), Row(cell("1-1\n2-2\n3-3", 2, 2), BodyCell("d")), textRow("e"))))
   }
   
   it should "parse tables with empty cells" in {
@@ -156,7 +157,7 @@ class TableParsersSpec extends FlatSpec
       |+---+---------+
       || c | d       |
       |+---+---------+""".stripMargin
-    Parsing (input) should produce (root( Table(Row(BodyCell("a"), BodyCell(p("Text"), bulletList() + "Line1\nLine2" + "Line3")), strrow("c","d"))))
+    Parsing (input) should produce (root( Table(Row(BodyCell("a"), BodyCell(p("Text"), bulletList() + "Line1\nLine2" + "Line3")), textRow("c","d"))))
   }
   
   it should "parse tables with header cells" in {
@@ -166,7 +167,7 @@ class TableParsersSpec extends FlatSpec
       || c | d |
       |+---+---+""".stripMargin
     Parsing (input) should produce (root( Table(TableHead(List(Row(HeadCell("a"), HeadCell("b")))), 
-                                               TableBody(List(strrow("c","d"))))))
+                                               TableBody(List(textRow("c","d"))))))
   }
   
   
@@ -176,7 +177,7 @@ class TableParsersSpec extends FlatSpec
       | a    b
       | c    d
       |===  ===""".stripMargin
-    Parsing (input) should produce (root( Table(strrow("a","b"), strrow("c","d"))))
+    Parsing (input) should produce (root( Table(textRow("a","b"), textRow("c","d"))))
   }
   
   it should "parse a table with horizontally merged cells in the first row" in {
@@ -185,7 +186,7 @@ class TableParsersSpec extends FlatSpec
       |--------
       | c    d
       |===  ===""".stripMargin
-    Parsing (input) should produce (root( Table(Row(cell("a    b", 2, 1)), strrow("c","d"))))
+    Parsing (input) should produce (root( Table(Row(cell("a    b", 2, 1)), textRow("c","d"))))
   }
   
   it should "parse a table with horizontally merged cells in the second row" in {
@@ -193,7 +194,7 @@ class TableParsersSpec extends FlatSpec
       | a    b
       | c    d
       |========""".stripMargin
-    Parsing (input) should produce (root( Table(strrow("a","b"), Row(cell("c    d", 2, 1)))))
+    Parsing (input) should produce (root( Table(textRow("a","b"), Row(cell("c    d", 2, 1)))))
   }
   
   it should "parse tables with empty cells" in {
@@ -215,7 +216,7 @@ class TableParsersSpec extends FlatSpec
       |
       | c    d
       |===  ===""".stripMargin
-    Parsing (input) should produce (root( Table(Row(BodyCell("a"), BodyCell(p("Text"), bulletList() + "Line1\nLine2" + "Line3")), strrow("c","d"))))
+    Parsing (input) should produce (root( Table(Row(BodyCell("a"), BodyCell(p("Text"), bulletList() + "Line1\nLine2" + "Line3")), textRow("c","d"))))
   }
   
   it should "parse tables with header cells" in {
@@ -225,7 +226,7 @@ class TableParsersSpec extends FlatSpec
       | c    d
       |===  ===""".stripMargin
     Parsing (input) should produce (root( Table(TableHead(List(Row(HeadCell("a"), HeadCell("b")))), 
-                                               TableBody(List(strrow("c","d"))))))
+                                               TableBody(List(textRow("c","d"))))))
   }
   
   

@@ -45,8 +45,9 @@ class BlockParsersSpec extends FlatSpec
   
   def ul (char: Char) = Underline(char)
   def ulol (char: Char) = OverlineAndUnderline(char)
-  
-  
+  def dh (deco: HeaderDecoration, content: String, id: String) = DecoratedHeader(deco, List(Text(content)), Id(id))
+
+
   "The doctest parser" should "parse a doctest block" in {
     val input = """>>> print 'this is a doctest block'
       |this is a doctest block""".stripMargin

@@ -33,18 +33,9 @@ trait ModelBuilder {
 
   def cell (content: String, colspan: Int, rowspan: Int) = Cell(BodyCell, List(p(Text(content))), colspan, rowspan)
 
-  def strrow (cells: String*) = Row(cells.map(BodyCell(_)))
-
-  def lb (items: LineBlockItem*) = LineBlock(items.toList)
-
   def quote (text: String, attribution: String) = QuotedBlock(List(p(text)), List(Text(attribution)))
 
-  def h (level: Int, content: String, id: String) = Header(level, List(Text(content)), Id(id))
-
-  def title (text: String) = Title(Seq(Text(text)), Id(text.replaceAll("[^a-zA-Z0-9-]+","-").replaceFirst("^-","").replaceFirst("-$","").toLowerCase) + Styles("title"))
-
-  def dh (deco: HeaderDecoration, content: String, id: String) = DecoratedHeader(deco, List(Text(content)), Id(id))
-
+  def titleWithId (text: String) = Title(Seq(Text(text)), Id(text.replaceAll("[^a-zA-Z0-9-]+","-").replaceFirst("^-","").replaceFirst("-$","").toLowerCase) + Styles("title"))
 
 
   def link (content: Span*): LinkBuilder = new LinkBuilder(content.toList)

@@ -95,19 +95,19 @@ class ParallelRendererSpec extends IOSpec
   }
 
   trait HTMLRenderer extends TreeRenderer[HTMLFormatter] {
-    val rootElem: RootElement = root(title("Title"), p("bbb"))
+    val rootElem: RootElement = root(titleWithId("Title"), p("bbb"))
     lazy val renderer: ParallelRenderer[IO] = Renderer.of(HTML).io(blocker).parallel[IO].build
   }
 
   trait EPUB_XHTMLRenderer extends TreeRenderer[HTMLFormatter] {
-    val rootElem: RootElement = root(title("Title"), p("bbb"))
+    val rootElem: RootElement = root(titleWithId("Title"), p("bbb"))
     lazy val renderer: ParallelRenderer[IO] = Renderer.of(EPUB.XHTML).io(blocker).parallel[IO].build
   }
 
   trait FORenderer extends TreeRenderer[FOFormatter] {
     def foStyles (path: Path = Root): Map[String, StyleDeclarationSet] = Map("fo" -> StyleDeclarationSet(path / "styles.fo.css", StyleDeclaration(StylePredicate.ElementType("Paragraph"), "font-size" -> "11pt")))
-    val rootElem: RootElement = root(self.title("Title"), p("bbb"))
-    val subElem: RootElement = root(self.title("Sub Title"), p("ccc"))
+    val rootElem: RootElement = root(self.titleWithId("Title"), p("bbb"))
+    val subElem: RootElement = root(self.titleWithId("Sub Title"), p("ccc"))
 
     def marker(text: String) = s"""<fo:marker marker-class-name="chapter"><fo:block>$text</fo:block></fo:marker>"""
 
@@ -373,8 +373,8 @@ class ParallelRendererSpec extends IOSpec
     }
     
     trait TwoPhaseRenderer {
-      val rootElem: RootElement = root(self.title("Title"), p("bbb"))
-      val subElem: RootElement = root(self.title("Sub Title"), p("ccc"))
+      val rootElem: RootElement = root(self.titleWithId("Title"), p("bbb"))
+      val subElem: RootElement = root(self.titleWithId("Sub Title"), p("ccc"))
   
       val input = DocumentTree(Root, List(
         Document(Root / "doc", rootElem),

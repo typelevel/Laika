@@ -22,7 +22,6 @@ import laika.api.Renderer
 import laika.config.{ConfigEncoder, ConfigValue}
 import laika.format.AST
 import laika.parse.code.CodeCategory
-import laika.render.ASTRenderer
 
 import scala.math.Ordered
 
@@ -752,6 +751,9 @@ case class LineBlock (content: Seq[LineBlockItem], options: Options = NoOpt) ext
   type Self = LineBlock
   def rewriteChildren (rules: RewriteRules): LineBlock = copy(content = content.map(_.rewriteChildren(rules)))
   def withOptions (options: Options): LineBlock = copy(options = options)
+}
+object LineBlock {
+  def apply(item: LineBlockItem, items: LineBlockItem*): LineBlock = LineBlock(item +: items.toList)
 }
 
 

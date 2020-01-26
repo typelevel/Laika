@@ -336,7 +336,7 @@ class ListParsersSpec extends FlatSpec
       | a   b 
       |=== ===""".stripMargin
     Parsing (input) should produce (root( defList + ("term 1", p("aaa")) + ("term 2", p("bbb")),
-      Table(strrow("a","b"))))
+      Table(Row(BodyCell("a"),BodyCell("b")))))
   }
   
   it should "ignore subsequent directives" in {
@@ -500,7 +500,7 @@ class ListParsersSpec extends FlatSpec
     val input = """|| Line1
       || Line2
       || Line3""".stripMargin
-    Parsing (input) should produce (root( lb( Line("Line1"), Line("Line2"), Line("Line3"))))
+    Parsing (input) should produce (root( LineBlock( Line("Line1"), Line("Line2"), Line("Line3"))))
   }
   
   it should "parse a block with a continuation line" in {
@@ -508,7 +508,7 @@ class ListParsersSpec extends FlatSpec
       |  Line2
       || Line3
       || Line4""".stripMargin
-    Parsing (input) should produce (root( lb( Line("Line1\nLine2"), Line("Line3"), Line("Line4"))))
+    Parsing (input) should produce (root( LineBlock( Line("Line1\nLine2"), Line("Line3"), Line("Line4"))))
   }
   
   it should "parse a nested structure (pointing right)" in {
@@ -517,7 +517,7 @@ class ListParsersSpec extends FlatSpec
       ||     Line3
       ||   Line4
       || Line5""".stripMargin
-    Parsing (input) should produce (root( lb( Line("Line1"), lb(Line("Line2"), lb(Line("Line3")), Line("Line4")), Line("Line5"))))
+    Parsing (input) should produce (root( LineBlock( Line("Line1"), LineBlock(Line("Line2"), LineBlock(Line("Line3")), Line("Line4")), Line("Line5"))))
   }
   
   it should "parse a nested structure (pointing left)" in {
@@ -526,7 +526,7 @@ class ListParsersSpec extends FlatSpec
       || Line3
       ||   Line4
       ||     Line5""".stripMargin
-    Parsing (input) should produce (root( lb( lb( lb(Line("Line1")), Line("Line2")), Line("Line3"), lb(Line("Line4"), lb(Line("Line5"))))))
+    Parsing (input) should produce (root( LineBlock( LineBlock( LineBlock(Line("Line1")), Line("Line2")), Line("Line3"), LineBlock(Line("Line4"), LineBlock(Line("Line5"))))))
   }
   
   
