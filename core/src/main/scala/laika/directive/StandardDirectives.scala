@@ -71,7 +71,7 @@ object StandardDirectives extends DirectiveRegistry {
       
       def rewriteContent (value: ConfigValue): TemplateSpanSequence = rewrite(multipart.mainBody, cursor.withReferenceContext(value))
 
-      def rewriteFallback = multipart.children.headOption.map(_.spans).map(rewrite(_, cursor)).getOrElse(TemplateSpanSequence(Nil))
+      def rewriteFallback = multipart.children.headOption.map(_.spans).map(rewrite(_, cursor)).getOrElse(TemplateSpanSequence.empty)
       
       cursor.resolveReference(Key.parse(ref)) match {
         case Right(Some(o: ObjectValue))             => rewriteContent(o) 
@@ -113,7 +113,7 @@ object StandardDirectives extends DirectiveRegistry {
       def rewriteFallback = multipart.children
         .collectFirst { case e: Else => e }
         .map(_.body).map(rewrite)
-        .getOrElse(TemplateSpanSequence(Nil))
+        .getOrElse(TemplateSpanSequence.empty)
       
       @tailrec
       def process (parts: Seq[ElseIf]): TemplateSpanSequence = 

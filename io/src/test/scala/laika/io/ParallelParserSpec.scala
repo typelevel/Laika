@@ -207,7 +207,7 @@ class ParallelParserSpec extends IOSpec
       val inputs = Seq(
         Root / "main.template.html" -> Contents.name
       )
-      val template = TemplateView(Root / "main.template.html", TemplateRoot(List(TemplateString("foo"))))
+      val template = TemplateView(Root / "main.template.html", TemplateRoot("foo"))
       val treeResult = TreeView(Root, List(TemplateDocuments(List(template)))).asRoot
       parsedTree.assertEquals(treeResult)
     }
@@ -246,9 +246,9 @@ class ParallelParserSpec extends IOSpec
         Root / "dir2" / "doc6.md" -> Contents.name,
       )
 
-      def template (char: Char, path: Path) = TemplateView(path / s"main$char.template.html", TemplateRoot(List(TemplateString("foo"))))
+      def template (char: Char, path: Path) = TemplateView(path / s"main$char.template.html", TemplateRoot("foo"))
 
-      val dyn = TemplateView(Root / "dir2" / "main.dynamic.html", TemplateRoot(List(TemplateString("foo"))))
+      val dyn = TemplateView(Root / "dir2" / "main.dynamic.html", TemplateRoot("foo"))
       val subtree1 = TreeView(Root / "dir1", List(
         Documents(Markup, List(docView(3, Root / "dir1"), docView(4, Root / "dir1"))),
         TemplateDocuments(List(template('B', Root / "dir1")))
@@ -266,13 +266,13 @@ class ParallelParserSpec extends IOSpec
     }
 
     "allow to specify a custom template engine" ignore new TreeParser {
-      val parser: Parser[TemplateRoot] = TextParsers.any ^^ { str => TemplateRoot(List(TemplateString("$$" + str))) }
+      val parser: Parser[TemplateRoot] = TextParsers.any ^^ { str => TemplateRoot("$$" + str) }
       val inputs = Seq(
         Root / "main1.template.html" -> Contents.name,
         Root / "main2.template.html" -> Contents.name
       )
 
-      def template (num: Int) = TemplateView(Root / s"main$num.template.html", TemplateRoot(List(TemplateString("$$foo"))))
+      def template (num: Int) = TemplateView(Root / s"main$num.template.html", TemplateRoot("$$foo"))
 
       val treeResult = TreeView(Root, List(TemplateDocuments(List(template(1), template(2))))).asRoot
       parsedWith(BundleProvider.forTemplateParser(parser)).assertEquals(treeResult)
@@ -318,7 +318,7 @@ class ParallelParserSpec extends IOSpec
         Root / "main1.template.html" -> Contents.directive,
         Root / "main2.template.html" -> Contents.directive
       )
-      val template = tRoot(t("aa "), t("bar"), t(" bb"))
+      val template = TemplateRoot(t("aa "), t("bar"), t(" bb"))
       val result = Seq(template, template)
       parsedTemplates(BundleProvider.forTemplateDirective(directive)).assertEquals(result)
     }
@@ -331,7 +331,7 @@ class ParallelParserSpec extends IOSpec
         Root / "default.template.html" -> Contents.template,
         Root / "doc.md" -> Contents.multiline
       )
-      val docResult = DocumentView(Root / "doc.md", Content(List(tRoot(
+      val docResult = DocumentView(Root / "doc.md", Content(List(TemplateRoot(
         t("<div>\n  "),
         EmbeddedRoot(List(p("aaa"), p("bbb")), 2),
         t("\n</div>")
@@ -348,7 +348,7 @@ class ParallelParserSpec extends IOSpec
         Root / "default.template.html" -> Contents.template2,
         Root / "doc.md" -> Contents.multiline
       )
-      val docResult = DocumentView(Root / "doc.md", Content(List(tRoot(
+      val docResult = DocumentView(Root / "doc.md", Content(List(TemplateRoot(
         t("<div>\nxx"),
         EmbeddedRoot(p("aaa"), p("bbb")),
         t("\n</div>")

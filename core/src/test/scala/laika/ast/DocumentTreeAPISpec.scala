@@ -162,7 +162,7 @@ class DocumentTreeAPISpec extends FlatSpec
   
   it should "allow to specify a template for a document using an absolute path" in {
     new TreeModel {
-      val template = TemplateDocument(Root / "main.template.html", TemplateRoot(Nil))
+      val template = TemplateDocument(Root / "main.template.html", TemplateRoot.empty)
       val tree = treeWithSubtree(Root, "sub", "doc", root(), Some("template: /main.template.html")).copy(templates = List(template))
       val targetDoc = tree.selectDocument("sub/doc").get
       val cursor = TreeCursor(tree).children.head.asInstanceOf[TreeCursor].children.head.asInstanceOf[DocumentCursor]
@@ -172,7 +172,7 @@ class DocumentTreeAPISpec extends FlatSpec
   
   it should "allow to specify a template for a document for a specific output format" in {
     new TreeModel {
-      val template = TemplateDocument(Root / "main.template.html", TemplateRoot(Nil))
+      val template = TemplateDocument(Root / "main.template.html", TemplateRoot.empty)
       val tree = treeWithSubtree(Root, "sub", "doc", root(), Some("html.template: /main.template.html")).copy(templates = List(template))
       val targetDoc = tree.selectDocument("sub/doc").get
       val cursor = TreeCursor(tree).children.head.asInstanceOf[TreeCursor].children.head.asInstanceOf[DocumentCursor]
@@ -182,7 +182,7 @@ class DocumentTreeAPISpec extends FlatSpec
   
   it should "allow to specify a template for a document using a relative path" in {
     new TreeModel {
-      val template = TemplateDocument(Root / "main.template.html", TemplateRoot(Nil))
+      val template = TemplateDocument(Root / "main.template.html", TemplateRoot.empty)
       val tree = treeWithSubtree(Root, "sub", "doc", root(), Some("template: ../main.template.html")).copy(templates = List(template))
       val targetDoc = tree.selectDocument("sub/doc").get
       val cursor = TreeCursor(tree).children.head.asInstanceOf[TreeCursor].children.head.asInstanceOf[DocumentCursor]

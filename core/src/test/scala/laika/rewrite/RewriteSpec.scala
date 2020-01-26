@@ -92,8 +92,8 @@ class RewriteSpec extends FlatSpec
   }
 
   it should "rewrite text in a template element" in {
-    val before = TemplateSpanSequence(Seq(TemplateElement(Text("a"))))
-    before.rewriteSpans { case Text("a", _) => Replace(Text("x")) } should be (TemplateSpanSequence(Seq(TemplateElement(Text("x")))))
+    val before = TemplateSpanSequence(TemplateElement(Text("a")))
+    before.rewriteSpans { case Text("a", _) => Replace(Text("x")) } should be (TemplateSpanSequence(TemplateElement(Text("x"))))
   }
 
   it should "rewrite text in table cells" in {

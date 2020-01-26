@@ -46,13 +46,13 @@ object HTMLTemplate {
     */
   val default: TemplateRoot = {
     val templateSpans = templateText.split("#").map(TemplateString(_))
-    TemplateRoot(Seq(
+    TemplateRoot(
       templateSpans(0),
       TemplateContextReference(Key("document","title"), required = true),
       templateSpans(1),
       TemplateContextReference(Key("document","content"), required = true),
       templateSpans(2)
-    ))
+    )
   }
   
 }

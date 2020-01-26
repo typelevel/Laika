@@ -38,7 +38,7 @@ trait InputTreeBuilder extends ModelBuilder with InputBuilder {
   def configWithTreeTitle (num: Int): Config = ConfigBuilder.empty.withValue("title", s"Tree $num").build
   
   def rootTree (path: Path, titleNum: Int, docs: RenderContent*): RenderedTreeRoot[IO] = {
-    RenderedTreeRoot(tree(path, titleNum, docs: _*), TemplateRoot(Nil), Config.empty)
+    RenderedTreeRoot(tree(path, titleNum, docs: _*), TemplateRoot.empty, Config.empty)
   }
 
   def tree (path: Path, titleNum: Int, docs: RenderContent*): RenderedTree = {

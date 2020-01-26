@@ -25,8 +25,6 @@ trait ModelBuilder {
 
   def root (blocks: Block*) = RootElement(blocks.toList)
 
-  def tRoot (spans: TemplateSpan*) = TemplateRoot(spans)
-
   def t (text: String) = TemplateString(text)
 
   def p (spans: Span*) = Paragraph(spans.toList)

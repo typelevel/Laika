@@ -92,7 +92,7 @@ object FOTemplate {
       cursor.config
         .get[String](coverImagePath)
         .toOption
-        .fold[TemplateSpan](TemplateSpanSequence(Nil)) { coverPath =>
+        .fold[TemplateSpan](TemplateSpanSequence.empty) { coverPath =>
           val fo = s"""    <fox:external-document src="$coverPath"
                     |      width="21cm" height="29.7cm" content-width="21cm"/>""".stripMargin
           TemplateString(fo)
@@ -109,7 +109,7 @@ object FOTemplate {
     */
   val default: TemplateRoot = {
     val templateSpans = templateText.split("#").map(TemplateString(_))
-    TemplateRoot(Seq(
+    TemplateRoot(
       templateSpans(0),
       TemplateContextReference(Key("document","fragments","bookmarks"), required = false),
       templateSpans(1),
@@ -117,7 +117,7 @@ object FOTemplate {
       templateSpans(2),
       TemplateContextReference(Key("document","content"), required = true),
       templateSpans(3)
-    ))
+    )
   }
   
 }

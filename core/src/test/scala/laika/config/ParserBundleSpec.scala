@@ -380,27 +380,25 @@ class ParserBundleSpec extends WordSpec with Matchers {
 
   "The configuration for the template parser" should {
 
-    def template (text: String): TemplateRoot = TemplateRoot(Seq(TemplateString("foo")))
-
     "let an app config override a parser in the extension config" in new BundleSetup {
-      val parserBundles = Seq(BundleProvider.forTemplateParser(Parsers.success(template("foo"))))
-      val appBundles = Seq(BundleProvider.forTemplateParser(Parsers.success(template("bar"))))
+      val parserBundles = Seq(BundleProvider.forTemplateParser(Parsers.success(TemplateRoot("foo"))))
+      val appBundles = Seq(BundleProvider.forTemplateParser(Parsers.success(TemplateRoot("bar"))))
 
       val templateParser = config.templateParser
       templateParser should not be empty
-      templateParser.get.parse("anything").toOption shouldBe Some(template("bar"))
+      templateParser.get.parse("anything").toOption shouldBe Some(TemplateRoot("bar"))
     }
 
     "let an app config override a parser in a previously installed app config" in new BundleSetup {
       val parserBundles = Nil
       val appBundles = Seq(
-        BundleProvider.forTemplateParser(Parsers.success(template("foo"))),
-        BundleProvider.forTemplateParser(Parsers.success(template("bar")))
+        BundleProvider.forTemplateParser(Parsers.success(TemplateRoot("foo"))),
+        BundleProvider.forTemplateParser(Parsers.success(TemplateRoot("bar")))
       )
 
       val templateParser = config.templateParser
       templateParser should not be empty
-      templateParser.get.parse("anything").toOption shouldBe Some(template("bar"))
+      templateParser.get.parse("anything").toOption shouldBe Some(TemplateRoot("bar"))
     }
 
     "use the default parser when there is no parser installed" in new BundleSetup {

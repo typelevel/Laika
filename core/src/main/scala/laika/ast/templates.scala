@@ -136,7 +136,25 @@ trait TemplateSpanContainer extends ElementContainer[TemplateSpan] with Rewritab
     */
   def withContent (newContent: Seq[TemplateSpan]): Self
   
-} 
+}
+
+/** Common methods for simple template span containers (without additional parameters). */
+trait TemplateSpanContainerCompanion {
+
+  type ContainerType
+
+  /** Creates an empty instance */
+  def empty: ContainerType = createSpanContainer(Nil)
+
+  /** Create an instance only containing a single TemplateString span */
+  def apply(text: String): ContainerType = createSpanContainer(Seq(TemplateString(text)))
+
+  /** Create an instance containing a one or more spans */
+  def apply(span: TemplateSpan, spans: TemplateSpan*): ContainerType = createSpanContainer(span +: spans.toList)
+
+  protected def createSpanContainer (spans: Seq[TemplateSpan]): ContainerType
+  
+}
 
 /** Wraps a generic element that otherwise could not be placed directly into
  *  a template document tree. Useful when custom tags which are placed inside
@@ -159,6 +177,10 @@ case class TemplateSpanSequence (content: Seq[TemplateSpan], options: Options = 
   def withContent (newContent: Seq[TemplateSpan]): TemplateSpanSequence = copy(content = newContent)
   def withOptions (options: Options): TemplateSpanSequence = copy(options = options)
 }
+object TemplateSpanSequence extends TemplateSpanContainerCompanion {
+  type ContainerType = TemplateSpanSequence
+  protected def createSpanContainer (spans: Seq[TemplateSpan]): ContainerType = TemplateSpanSequence(spans)
+}
 
 /** A simple string element, representing the parts of a template
  *  that are not detected as special markup constructs and treated as raw text.
@@ -175,14 +197,16 @@ case class TemplateRoot (content: Seq[TemplateSpan], options: Options = NoOpt) e
   def withContent (newContent: Seq[TemplateSpan]): TemplateRoot = copy(content = newContent)
   def withOptions (options: Options): TemplateRoot = copy(options = options)
 }
-
 /** Companion with a fallback instance for setups without a default template */
-object TemplateRoot {
+object TemplateRoot extends TemplateSpanContainerCompanion {
+
+  type ContainerType = TemplateRoot
+  protected def createSpanContainer (spans: Seq[TemplateSpan]): ContainerType = TemplateRoot(spans)
 
   /** A fallback instance that can be used when no user-specified template
     * is available. It simply inserts the content of the parsed markup document
     * without any surrounding decoration. */
-  val fallback = TemplateRoot(List(TemplateContextReference(Key("document","content"), required = true)))
+  val fallback: TemplateRoot = TemplateRoot(TemplateContextReference(Key("document","content"), required = true))
 }
 
 /** The root element of a document tree (originating from text markup) inside a template.

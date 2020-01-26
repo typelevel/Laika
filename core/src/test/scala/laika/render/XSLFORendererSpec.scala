@@ -708,22 +708,22 @@ class XSLFORendererSpec extends FlatSpec
   }
   
   it should "render a template root containing string elements" in {
-    val elem = tRoot(t("aa"),t("bb"),t("cc"))
+    val elem = TemplateRoot(t("aa"),t("bb"),t("cc"))
     render (elem) should be ("aabbcc")
   }
   
   it should "render a template span sequence containing string elements" in {
-    val elem = TemplateSpanSequence(List(t("aa"),t("bb"),t("cc")))
+    val elem = TemplateSpanSequence(t("aa"),t("bb"),t("cc"))
     render (elem) should be ("aabbcc")
   }
   
   it should "render a template string without creating XML entities" in {
-    val elem = tRoot(t("aa & bb"))
+    val elem = TemplateRoot(t("aa & bb"))
     render (elem) should be ("aa & bb")
   }
   
   it should "render a template root containing a TemplateElement" in {
-    val elem = tRoot(t("aa"),TemplateElement(BlockSequence(List(p("aaa"), p("bbb")),Styles("foo"))),t("cc"))
+    val elem = TemplateRoot(t("aa"),TemplateElement(BlockSequence(List(p("aaa"), p("bbb")),Styles("foo"))),t("cc"))
     val fo = """aa<fo:block>
       |  <fo:block font-family="serif" font-size="10pt" space-after="3mm">aaa</fo:block>
       |  <fo:block font-family="serif" font-size="10pt" space-after="3mm">bbb</fo:block>
@@ -872,7 +872,7 @@ class XSLFORendererSpec extends FlatSpec
   }
   
   it should "render an embedded root with correct indentation" in {
-    val elem = root(tRoot(
+    val elem = root(TemplateRoot(
       t("<fo:block>\n  "),
       EmbeddedRoot(List(p("aaa"),p("bbb")), 2),
       t("\n</fo:block>")
@@ -885,7 +885,7 @@ class XSLFORendererSpec extends FlatSpec
   }
   
   it should "render an embedded root without indentation" in {
-    val elem = root(tRoot(
+    val elem = root(TemplateRoot(
       t("<fo:block>\n"),
       EmbeddedRoot(p("aaa"),p("bbb")),
       t("\n</fo:block>")

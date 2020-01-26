@@ -38,9 +38,6 @@ class ThemeConfigSpec extends WordSpec with Matchers {
       appBundles.foldLeft(base){ (acc, bundle) => acc.withBundles(Seq(bundle)) }
     }
 
-    def template (text: String): TemplateRoot = TemplateRoot(Seq(TemplateString(text)))
-
-
     object TestFormat extends RenderFormat[TextFormatter] {
 
       override val fileSuffix = "test"
@@ -104,7 +101,7 @@ class ThemeConfigSpec extends WordSpec with Matchers {
         ))
       )
 
-      testRenderer((formatter, Strong(Nil))) shouldBe "override"
+      testRenderer((formatter, Strong.empty)) shouldBe "override"
     }
 
   }
@@ -112,30 +109,30 @@ class ThemeConfigSpec extends WordSpec with Matchers {
   "The configuration for the default template" should {
 
     "let an app config override the default template in the default theme" in new BundleSetup {
-      override lazy val defaultTemplate = Some(template("foo"))
-      val appBundles = Seq(BundleProvider.forTheme(TestFormat.Theme(defaultTemplate = Some(template("bar")))))
+      override lazy val defaultTemplate = Some(TemplateRoot("foo"))
+      val appBundles = Seq(BundleProvider.forTheme(TestFormat.Theme(defaultTemplate = Some(TemplateRoot("bar")))))
 
       val template = config.themeFor(TestFormat).defaultTemplateOrFallback
-      template shouldBe template("bar")
+      template shouldBe TemplateRoot("bar")
     }
 
     "let an app config override the default template in a previously installed app config" in new BundleSetup {
-      override lazy val defaultTemplate = Some(template("foo"))
+      override lazy val defaultTemplate = Some(TemplateRoot("foo"))
       val appBundles = Seq(
-        BundleProvider.forTheme(TestFormat.Theme(defaultTemplate = Some(template("foo")))),
-        BundleProvider.forTheme(TestFormat.Theme(defaultTemplate = Some(template("bar"))))
+        BundleProvider.forTheme(TestFormat.Theme(defaultTemplate = Some(TemplateRoot("foo")))),
+        BundleProvider.forTheme(TestFormat.Theme(defaultTemplate = Some(TemplateRoot("bar"))))
       )
 
       val template = config.themeFor(TestFormat).defaultTemplateOrFallback
-      template shouldBe template("bar")
+      template shouldBe TemplateRoot("bar")
     }
 
     "use the default template from the default theme when no other template is installed" in new BundleSetup {
-      override lazy val defaultTemplate = Some(template("foo"))
+      override lazy val defaultTemplate = Some(TemplateRoot("foo"))
       val appBundles = Nil
 
       val template = config.themeFor(TestFormat).defaultTemplateOrFallback
-      template shouldBe template("foo")
+      template shouldBe TemplateRoot("foo")
     }
 
     "use the fallback template if no other template is installed" in new BundleSetup {

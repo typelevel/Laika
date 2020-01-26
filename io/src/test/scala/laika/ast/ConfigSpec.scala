@@ -139,13 +139,13 @@ class ConfigSpec extends IOSpec
         Root / "input.md" -> Contents.markupWithConfig
       )
       val expected = root(
-        TemplateRoot(List(
+        TemplateRoot(
           TemplateString("<h1>"),
           TemplateString("bar"),
           TemplateString("</h1>\n<div>"),
           EmbeddedRoot("aaa\nbbb"),
           TemplateString("</div>\nCCC")
-        ))
+        )
       )
       markdownParser.fromInput(IO.pure(builder(inputs, mdMatcher))).parse.map(toResult).assertEquals(expected)
     }
@@ -156,13 +156,13 @@ class ConfigSpec extends IOSpec
         Root / "input.rst" -> Contents.markupWithConfig
       )
       val expected = root(
-        TemplateRoot(List(
+        TemplateRoot(
           TemplateString("<h1>"),
           TemplateString("bar"),
           TemplateString("</h1>\n<div>"),
           EmbeddedRoot("aaa\nbbb"),
           TemplateString("</div>\nCCC")
-        ))
+        )
       )
       rstParser.fromInput(IO.pure(builder(inputs, rstMatcher))).parse.map(toResult).assertEquals(expected)
     }
@@ -173,13 +173,13 @@ class ConfigSpec extends IOSpec
         Root / "input.rst" -> Contents.markupWithConfig
       )
       val expected = root(
-        TemplateRoot(List(
+        TemplateRoot(
           TemplateString("<h1>"),
           InvalidElement(SystemMessage(MessageLevel.Error, "Missing required reference: 'foox'"), "${foox}").asTemplateSpan,
           TemplateString("</h1>\n<div>"),
           EmbeddedRoot("aaa\nbbb"),
           TemplateString("</div>\nCCC")
-        ))
+        )
       )
       rstParser.fromInput(IO.pure(builder(inputs, rstMatcher))).parse.map(toResult).assertEquals(expected)
     }
@@ -190,13 +190,13 @@ class ConfigSpec extends IOSpec
         Root / "input.rst" -> Contents.markupWithConfig
       )
       val expected = root(
-        TemplateRoot(List(
+        TemplateRoot(
           TemplateString("<h1>"),
           TemplateString(""),
           TemplateString("</h1>\n<div>"),
           EmbeddedRoot("aaa\nbbb"),
           TemplateString("</div>\nCCC")
-        ))
+        )
       )
       rstParser.fromInput(IO.pure(builder(inputs, rstMatcher))).parse.map(toResult).assertEquals(expected)
     }
@@ -208,11 +208,11 @@ class ConfigSpec extends IOSpec
         Root / "input.md" -> Contents.markupWithRef
       )
       val expected = root(
-        TemplateRoot(List(
+        TemplateRoot(
           TemplateString("<div>"),
           EmbeddedRoot("aaa\nbar\nbbb"),
           TemplateString("</div>\nCCC")
-        ))
+        )
       )
       markdownParser.fromInput(IO.pure(builder(inputs, mdMatcher))).parse.map(toResult).assertEquals(expected)
     }
@@ -224,11 +224,11 @@ class ConfigSpec extends IOSpec
         Root / "input.md" -> Contents.markupWithRefs
       )
       val expected = root(
-        TemplateRoot(List(
+        TemplateRoot(
           TemplateString("<div>"),
           EmbeddedRoot("aaa\n1\n2\n3\nbbb"),
           TemplateString("</div>\nCCC")
-        ))
+        )
       )
       markdownParser.fromInput(IO.pure(builder(inputs, mdMatcher))).parse.map(toResult).assertEquals(expected)
     }
@@ -240,11 +240,11 @@ class ConfigSpec extends IOSpec
         Root / "input.md" -> Contents.markupWithRefs
       )
       val expected = root(
-        TemplateRoot(List(
+        TemplateRoot(
           TemplateString("<div>"),
           EmbeddedRoot("aaa\n1\n2\n3\nbbb"),
           TemplateString("</div>\nCCC")
-        ))
+        )
       )
       val bConf =
         """include "c.conf" 
@@ -285,13 +285,13 @@ class ConfigSpec extends IOSpec
         Root / "input.rst" -> "txt"
       )
       val expected = root(
-        TemplateRoot(List(
+        TemplateRoot(
           TemplateString("<h1>"),
           TemplateString("bar"),
           TemplateString("</h1>\n<div>"),
           EmbeddedRoot("txt"),
           TemplateString("</div>\nCCC")
-        ))
+        )
       )
       rstParser.fromInput(IO.pure(builder(inputs, rstMatcher))).parse.map(toResult).assertEquals(expected)
     }
