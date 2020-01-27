@@ -18,102 +18,326 @@ package laika.ast
 
 import laika.ast.Path._
 import laika.ast.RelativePath.{Current, Parent}
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.{Matchers, WordSpec}
 
-class PathAPISpec extends FlatSpec 
+class PathAPISpec extends WordSpec 
                   with Matchers {
 
   
-  "The Path API" should "construct an absolute path from a string" in {
-    PathBase.decode("/foo/bar/baz") should be (Root / "foo" / "bar" / "baz")
+  private val abs_a = Root / "a"
+  private val abs_b = abs_a / "b"
+  private val abs_c = abs_b / "c"
+
+  private val rel_a = Current / "a"
+  private val rel_b = rel_a / "b"
+  private val rel_c = rel_b / "c"
+
+  private val up_a = Parent(1) / "a"
+  private val up_b = up_a / "b"
+  private val up_c = up_b / "c"
+  
+  
+  "The String decoder for paths" should {
+
+    "decode an absolute path with three segments" in {
+      PathBase.decode("/foo/bar/baz") shouldBe (Root / "foo" / "bar" / "baz")
+    }
+
+    "decode an absolute path with one segment" in {
+      PathBase.decode("/foo") shouldBe (Root / "foo")
+    }
+
+    "ignore trailing slashes for absolute paths" in {
+      PathBase.decode("/foo/") shouldBe (Root / "foo")
+    }
+    
+    "decode the root path from a single slash" in {
+      PathBase.decode("/") shouldBe Root
+    }
+
+    "decode a relative path with three segments" in {
+      PathBase.decode("foo/bar/baz") shouldBe (Current / "foo" / "bar" / "baz")
+    }
+
+    "decode a relative path with one segment" in {
+      PathBase.decode("foo/") shouldBe (Current / "foo")
+    }
+
+    "ignore trailing slashes for relative paths" in {
+      PathBase.decode("foo/") shouldBe (Current / "foo")
+    }
+
+    "decode the current relative path from the empty string" in {
+      PathBase.decode("") shouldBe Current
+    }
+
+    "decode the current relative path from a dot" in {
+      PathBase.decode(".") shouldBe Current
+    }
+
+    "decode a relative path to a parent with three segments" in {
+      PathBase.decode("../foo/bar/baz") shouldBe (Parent(1) / "foo" / "bar" / "baz")
+    }
+    
+    "decode a relative path to a parent with one segment" in {
+      PathBase.decode("../foo/") shouldBe (Parent(1) / "foo")
+    }
+
+    "decode a relative path to a parent three levels up" in {
+      PathBase.decode("../../../foo/") shouldBe (Parent(3) / "foo")
+    }
+
+    "decode a relative path to a parent two levels up without any path segments" in {
+      PathBase.decode("../../") shouldBe Parent(2)
+    }
+
+    "decode a relative path to a parent one level up without any path segments" in {
+      PathBase.decode("../") shouldBe Parent(1)
+    }
+
+    "decode a relative path to a parent two levels up without trailing slash" in {
+      PathBase.decode("../..") shouldBe Parent(2)
+    }
+
+    "decode a relative path to a parent one level up without trailing slash" in {
+      PathBase.decode("..") shouldBe Parent(1)
+    }
+
   }
   
-  it should "ignore trailing spaces" in {
-    PathBase.decode("/foo/bar/baz/") should be (Root / "foo" / "bar" / "baz")
+  "The parent property" should {
+    
+    "return Root for Root" in {
+      Root.parent shouldBe Root
+    }
+
+    "return Root for a path with a single segment" in {
+      abs_a.parent shouldBe Root
+    }
+
+    "return a path with 2 segments for an absolute path with 3 segments" in {
+      abs_c.parent shouldBe abs_b
+    }
+
+    "return Parent(1) for Current" in {
+      Current.parent shouldBe Parent(1)
+    }
+
+    "return Current for a path with a single segment" in {
+      rel_a.parent shouldBe Current
+    }
+
+    "return a path with 2 segments for a relative path with 3 segments" in {
+      rel_c.parent shouldBe rel_b
+    }
+
+    "return Parent(2) for Parent(1)" in {
+      Parent(1).parent shouldBe Parent(2)
+    }
+
+    "return Parent(1) for a path with a single segment" in {
+      up_a.parent shouldBe Parent(1)
+    }
+
+    "return a path with 2 segments for a parent path with 3 segments" in {
+      up_c.parent shouldBe up_b
+    }
+    
   }
   
-  it should "construct the root path from a single slash" in {
-    PathBase.decode("/") should be (Root)
+  "The depth property" should {
+    
+    "be 0 for Root" in {
+      Root.depth shouldBe 0
+    }
+
+    "be 1 for a path with one segment" in {
+      abs_a.depth shouldBe 1
+    }
+
+    "be 3 for a path with three segments" in {
+      abs_c.depth shouldBe 3
+    }
+    
+  }
+
+  "The suffix property" should {
+
+    "be empty for Root" in {
+      Root.suffix shouldBe None
+    }
+
+    "be empty for Current" in {
+      Current.suffix shouldBe None
+    }
+
+    "be empty for Parent(1)" in {
+      Parent(1).suffix shouldBe None
+    }
+
+    "be empty for an absolute path without suffix" in {
+      abs_a.suffix shouldBe None
+    }
+
+    "be empty for a relative path without suffix" in {
+      rel_a.suffix shouldBe None
+    }
+
+    "be defined for an absolute path with suffix" in {
+      (abs_c / "foo.jpg").suffix shouldBe Some("jpg")
+    }
+
+    "be defined for a relative path with suffix" in {
+      (rel_c / "foo.jpg").suffix shouldBe Some("jpg")
+    }
+    
+    "be defined after calling withSuffix on an absolute path without suffix" in {
+      val result = abs_c.withSuffix("foo")
+      result.toString shouldBe "/a/b/c.foo"
+      result.name shouldBe "c.foo"
+      result.suffix shouldBe Some("foo")
+    }
+
+    "be defined after calling withSuffix on a relative path without suffix" in {
+      val result = rel_c.withSuffix("foo")
+      result.toString shouldBe "a/b/c.foo"
+      result.name shouldBe "c.foo"
+      result.suffix shouldBe Some("foo")
+    }
+
+    "be updated after calling withSuffix on an absolute path with suffix" in {
+      val result = (abs_c / "foo.jpg").withSuffix("baz")
+      result.toString shouldBe "/a/b/c/foo.baz"
+      result.name shouldBe "foo.baz"
+      result.suffix shouldBe Some("baz")
+    }
+
+    "be updated after calling withSuffix on a relative path with suffix" in {
+      val result = (rel_c / "foo.jpg").withSuffix("baz")
+      result.toString shouldBe "a/b/c/foo.baz"
+      result.name shouldBe "foo.baz"
+      result.suffix shouldBe Some("baz")
+    }
+
   }
   
-  it should "construct an absolute path with one path element" in {
-    PathBase.decode("/foo/") should be (Root / "foo")
+  "The path concatenation for absolute paths" should {
+
+    "return the same instance when invoked with Current" in {
+      abs_c / Current shouldBe abs_c
+    }
+
+    "return the parent when invoked with Parent(1)" in {
+      abs_c / Parent(1) shouldBe abs_b
+    }
+
+    "return Root when invoked with Parent(3)" in {
+      abs_c / Parent(3) shouldBe Root
+    }
+    
+    "combine two paths with segments" in {
+      Root / "foo" / "bar" / (Current / "baz") shouldBe (Root / "foo" / "bar" / "baz")
+    }
+
+    "concatenate a path pointing to a parent one level up" in {
+      Root / "foo" / "bar" / (Parent(1) / "baz") should be(Root / "foo" / "baz")
+    }
+
+    "concatenate a path pointing to a parent two levels up" in {
+      Root / "foo" / "bar" / (Parent(2) / "baz") should be(Root / "baz")
+    }
+
+  }
+
+  "The path concatenation for relative paths" should {
+
+    "return the same instance when invoked with Current" in {
+      rel_c / Current shouldBe rel_c
+    }
+
+    "return the parent when invoked with Parent(1)" in {
+      rel_c / Parent(1) shouldBe rel_b
+    }
+
+    "return Root when invoked with Parent(3)" in {
+      rel_c / Parent(3) shouldBe Current
+    }
+
+    "return Parent(1) when invoked with Parent(4)" in {
+      rel_c / Parent(4) shouldBe Parent(1)
+    }
+
+    "combine two paths with segments" in {
+      Current / "foo" / "bar" / (Current / "baz") shouldBe (Current / "foo" / "bar" / "baz")
+    }
+
+    "concatenate a path pointing to a parent one level up" in {
+      Current / "foo" / "bar" / (Parent(1) / "baz") shouldBe (Current / "foo" / "baz")
+    }
+
+    "concatenate a path pointing to a parent two levels up" in {
+      Current / "foo" / "bar" / (Parent(2) / "baz") shouldBe (Current / "baz")
+    }
+    
+    "append to Current" in {
+      Current / (Parent(1) / "baz") shouldBe (Parent(1) / "baz")
+    }
+
+    "append to Parent(1)" in {
+      Parent(1) / (Parent(1) / "baz") shouldBe (Parent(2) / "baz")
+    }
+
+    "concatenate a path pointing to a parent one level up to another path pointing one level up" in {
+      Parent(1) / "foo" / "bar" / (Parent(1) / "baz") shouldBe (Parent(1) / "foo" / "baz")
+    }
+
+    "concatenate a path pointing to a parent two levels up to another path pointing one level up" in {
+      Parent(1) / "foo" / "bar" / (Parent(2) / "baz") shouldBe (Parent(1) / "baz")
+    }
+
+  }
+
+  "The relativeTo method" should {
+    
+    "create a relative path pointing to the same directory" in {
+      (Root / "a").relativeTo(Root / "a") shouldBe Current
+    }
+
+    "create a relative path pointing to a parent directory" in {
+      (Root / "a").relativeTo(Root / "a" / "b") shouldBe Parent(1)
+    }
+
+    "create a relative path pointing to a child directory" in {
+      (Root / "a" / "b").relativeTo(Root / "a") shouldBe (Current / "b")
+    }
+
+    "create a relative path pointing to a sibling directory" in {
+      (Root / "a" / "b").relativeTo(Root / "a" / "c") shouldBe (Parent(1) / "b")
+    }
+
+    "create a path relative path to Root" in {
+      (Root / "a" / "b").relativeTo(Root) shouldBe (Current / "a" / "b")
+    }
+
+    "create a relative path pointing upwards to Root" in {
+      Root.relativeTo(Root / "a" / "c") shouldBe Parent(2)
+    }
   }
   
-  it should "construct a relative path from a string" in {
-    PathBase.decode("foo/bar/baz") should be (Current / "foo" / "bar" / "baz")
-  }
-  
-  it should "construct a relative path with one path element" in {
-    PathBase.decode("foo/") should be (Current / "foo")
-  }
-  
-  it should "construct an empty relative path from the empty string" in {
-    PathBase.decode("") should be (Current)
-  }
-  
-  it should "construct a relative path to a parent with one path element" in {
-    PathBase.decode("../foo/") should be (Parent(1) / "foo")
-  }
-  
-  it should "construct a relative path to a parent with three path elements" in {
-    PathBase.decode("../foo/bar/baz") should be (Parent(1) / "foo" / "bar" / "baz")
-  }
-  
-  it should "construct a relative path to a parent three levels up" in {
-    PathBase.decode("../../../foo/") should be (Parent(3) / "foo")
-  }
-  
-  it should "construct a relative path to a parent two levels up without any path elements" in {
-    PathBase.decode("../../") should be (Parent(2))
-  }
-  
-  it should "construct a relative path to a parent one level up without any path elements" in {
-    PathBase.decode("../") should be (Parent(1))
-  }
-  
-  it should "construct a relative path to a parent two levels up without trailing slash" in {
-    PathBase.decode("../..") should be (Parent(2))
-  }
-  
-  it should "construct a relative path to a parent one level up without trailing slash" in {
-    PathBase.decode("..") should be (Parent(1))
-  }
-  
-  it should "combine an absolute and a relative path" in {
-    Root / "foo" / "bar" / (Current / "baz") should be (Root / "foo" / "bar" / "baz")
-  }
-  
-  it should "combine an absolute and an empty relative path" in {
-    Root / "foo" / "bar" / Current should be (Root / "foo" / "bar")
-  }
-  
-  it should "combine an absolute and a relative path pointing to a parent one level up" in {
-    Root / "foo" / "bar" / (Parent(1) / "baz") should be (Root / "foo" / "baz")
-  }
-  
-  it should "combine an absolute and a relative path pointing to a parent two levels up" in {
-    Root / "foo" / "bar" / (Parent(2) / "baz") should be (Root / "baz")
-  }
-  
-  it should "combine an absolute and a relative path pointing to a parent two levels up without a path element" in {
-    Root / "foo" / "bar" / (Parent(2)) should be (Root)
-  }
-  
-  it should "create a relative path pointing to the same directory" in {
-    (Root / "a").relativeTo(Root / "a") should be (Current)
-  }
-  
-  it should "create a relative path pointing to a parent directory" in {
-    (Root / "a").relativeTo(Root / "a" / "b") should be (Parent(1))
-  }
-  
-  it should "create a relative path pointing to a child directory" in {
-    (Root / "a" / "b").relativeTo(Root / "a") should be (Current / "b")
-  }
-  
-  it should "create a relative path pointing to a sibling directory" in {
-    (Root / "a" / "b").relativeTo(Root / "a" / "c") should be (Parent(1) / "b")
+  "The isSubPath method" should {
+    
+    "be true for two identical paths" in {
+      abs_c.isSubPath(abs_c) shouldBe true
+    }
+
+    "be true for a child path" in {
+      abs_c.isSubPath(abs_a) shouldBe true
+    }
+
+    "be false for a parent path" in {
+      abs_a.isSubPath(abs_c) shouldBe false
+    }
+    
   }
   
 }
