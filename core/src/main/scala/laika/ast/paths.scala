@@ -57,6 +57,11 @@ sealed trait Path extends PathBase {
    */
   def / (path: RelativePath): Path
 
+  /** Interprets this path as a relative path - a shortcut
+    * for `relativeTo(Root)`.
+    */
+  def relative: RelativePath = relativeTo(Root)
+
   /** Interprets this path relative to some other path.
    */
   def relativeTo (path: Path): RelativePath

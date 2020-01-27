@@ -113,7 +113,7 @@ trait TemplateRewriter {
 
     templatePath match {
       case Some(path) =>
-        cursor.root.target.tree.selectTemplate(path.relativeTo(Root)) // TODO - error handling 
+        cursor.root.target.tree.selectTemplate(path.relative) // TODO - error handling 
 
       case None =>
         val filename = "default.template." + format

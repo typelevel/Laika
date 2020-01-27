@@ -42,7 +42,7 @@ object ZipWriter {
     def copy (inputs: Vector[(InputStream, Path)], zipOut: ZipOutputStream): F[Unit] = {
     
       def writeEntry (input: (InputStream, Path), prepareEntry: ZipEntry => F[Unit] = _ => Async[F].unit): F[Unit] = for {
-        entry <- Async[F].delay(new ZipEntry(input._2.relativeTo(Path.Root).toString))
+        entry <- Async[F].delay(new ZipEntry(input._2.relative.toString))
         _     <- prepareEntry(entry)
         _     <- Async[F].delay(zipOut.putNextEntry(entry))
         _     <- CopyRuntime.copy(input._1, zipOut)
