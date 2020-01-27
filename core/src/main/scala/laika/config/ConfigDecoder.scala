@@ -82,7 +82,7 @@ object ConfigDecoder {
 
   implicit lazy val path: ConfigDecoder[Path] = tracedValue[String].map { tracedValue =>
     PathBase.parse(tracedValue.value) match {
-      case p: RelativePath => tracedValue.origin.path.parent / p // TODO - 0.14 - distinguish between tree and doc origins
+      case p: RelativePath => tracedValue.origin.path.parent / p
       case p: Path => p
     }
   }
