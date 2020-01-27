@@ -76,7 +76,7 @@ object LinkResolver extends (DocumentCursor => RewriteRules) {
         select(cursor.parent.target.path.relative)
       }
       def selectFromRoot (path: String, name: String) = 
-        (cursor.root.target.tree.selectTarget(PathSelector(cursor.parent.target.path / RelativePath(path), name)),Some(cursor.target.path))
+        (cursor.root.target.tree.selectTarget(PathSelector(cursor.parent.target.path / RelativePath.parse(path), name)),Some(cursor.target.path))
       
       val (target, path) = {
         val local = targets.local.get(selector)

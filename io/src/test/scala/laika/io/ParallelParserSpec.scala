@@ -297,8 +297,8 @@ class ParallelParserSpec extends IOSpec
         Root / "main3.aaa.css" -> Contents.name
       )
       val treeResult = RootView(List(StyleSheets(Map(
-        "aaa" -> StyleDeclarationSet(Set(Path("/main1.aaa.css"), Path("/main3.aaa.css")), Set(styleDecl("foo"), styleDecl("foo", 1))),
-        "bbb" -> StyleDeclarationSet(Set(Path("/main2.bbb.css")), Set(styleDecl("bar")))
+        "aaa" -> StyleDeclarationSet(Set(Path.parse("/main1.aaa.css"), Path.parse("/main3.aaa.css")), Set(styleDecl("foo"), styleDecl("foo", 1))),
+        "bbb" -> StyleDeclarationSet(Set(Path.parse("/main2.bbb.css")), Set(styleDecl("bar")))
       ))))
       parsedWith(BundleProvider.forDocTypeMatcher(docTypeMatcher)
         .withBase(BundleProvider.forStyleSheetParser(parser))).assertEquals(treeResult)

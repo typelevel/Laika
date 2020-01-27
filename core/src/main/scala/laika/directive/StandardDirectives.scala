@@ -147,7 +147,7 @@ object StandardDirectives extends DirectiveRegistry {
       case "<currentDocument>" | "#currentDocument" => cursor.target
       case pathString =>
         val root = cursor.root.target.tree
-        val configPath = PathBase.decode(pathString) match {
+        val configPath = PathBase.parse(pathString) match {
           case p: RelativePath => cursor.parent.target.path / p
           case p: Path => p
         }

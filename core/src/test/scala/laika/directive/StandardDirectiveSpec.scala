@@ -18,6 +18,7 @@ package laika.directive
 
 import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
+import laika.ast.Path.Root
 import laika.ast.RelativePath.Current
 import laika.config.{Config, ConfigBuilder, ConfigParser, Origin}
 import laika.ast._
@@ -299,7 +300,7 @@ class StandardDirectiveSpec extends FlatSpec
   
   trait TreeModel {
 
-    import Path._
+    import Path.Root
     
     val pathUnderTest = Root / "sub2" / "doc7"
 

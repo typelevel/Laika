@@ -298,7 +298,7 @@ trait TreeStructure { this: TreeContent =>
     * The path needs to be relative and not point to a parent tree (neither start
     * with `/` nor with `..`).
     */
-  def selectDocument (path: String): Option[Document] = selectDocument(RelativePath(path))
+  def selectDocument (path: String): Option[Document] = selectDocument(RelativePath.parse(path))
 
   /** Selects a document from this tree or one of its subtrees by the specified path.
     * The path must not point to a parent tree (start with `../`) 
@@ -313,7 +313,7 @@ trait TreeStructure { this: TreeContent =>
   /** Selects a template from this tree or one of its subtrees by the specified path.
     * The path needs to be relative.
     */
-  def selectTemplate (path: String): Option[TemplateDocument] = selectTemplate(RelativePath(path))
+  def selectTemplate (path: String): Option[TemplateDocument] = selectTemplate(RelativePath.parse(path))
 
   /** Selects a template from this tree or one of its subtrees by the specified path.
     * The path must not point to a parent tree (start with `../`) 
@@ -325,7 +325,7 @@ trait TreeStructure { this: TreeContent =>
     case _ => None
   }
   
-  private val defaultTemplatePathBase: RelativePath = RelativePath("default.template.<format>")
+  private val defaultTemplatePathBase: RelativePath = Current / "default.template.<format>"
   
   /** Selects the template with the name `default.template.&lt;suffix&gt;` for the 
     * specified format suffix from this level of the document tree.
@@ -345,7 +345,7 @@ trait TreeStructure { this: TreeContent =>
    *  The path needs to be relative and it may point to a deeply nested
    *  subtree, not just immediate children.
    */
-  def selectSubtree (path: String): Option[DocumentTree] = selectSubtree(RelativePath(path))
+  def selectSubtree (path: String): Option[DocumentTree] = selectSubtree(RelativePath.parse(path))
 
   /** Selects a subtree of this tree by the specified path.
     * The path must not point to a parent tree (start with `../`) 

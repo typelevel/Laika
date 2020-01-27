@@ -40,67 +40,67 @@ class PathAPISpec extends WordSpec
   "The String decoder for paths" should {
 
     "decode an absolute path with three segments" in {
-      PathBase.decode("/foo/bar/baz") shouldBe (Root / "foo" / "bar" / "baz")
+      PathBase.parse("/foo/bar/baz") shouldBe (Root / "foo" / "bar" / "baz")
     }
 
     "decode an absolute path with one segment" in {
-      PathBase.decode("/foo") shouldBe (Root / "foo")
+      PathBase.parse("/foo") shouldBe (Root / "foo")
     }
 
     "ignore trailing slashes for absolute paths" in {
-      PathBase.decode("/foo/") shouldBe (Root / "foo")
+      PathBase.parse("/foo/") shouldBe (Root / "foo")
     }
     
     "decode the root path from a single slash" in {
-      PathBase.decode("/") shouldBe Root
+      PathBase.parse("/") shouldBe Root
     }
 
     "decode a relative path with three segments" in {
-      PathBase.decode("foo/bar/baz") shouldBe (Current / "foo" / "bar" / "baz")
+      PathBase.parse("foo/bar/baz") shouldBe (Current / "foo" / "bar" / "baz")
     }
 
     "decode a relative path with one segment" in {
-      PathBase.decode("foo/") shouldBe (Current / "foo")
+      PathBase.parse("foo/") shouldBe (Current / "foo")
     }
 
     "ignore trailing slashes for relative paths" in {
-      PathBase.decode("foo/") shouldBe (Current / "foo")
+      PathBase.parse("foo/") shouldBe (Current / "foo")
     }
 
     "decode the current relative path from the empty string" in {
-      PathBase.decode("") shouldBe Current
+      PathBase.parse("") shouldBe Current
     }
 
     "decode the current relative path from a dot" in {
-      PathBase.decode(".") shouldBe Current
+      PathBase.parse(".") shouldBe Current
     }
 
     "decode a relative path to a parent with three segments" in {
-      PathBase.decode("../foo/bar/baz") shouldBe (Parent(1) / "foo" / "bar" / "baz")
+      PathBase.parse("../foo/bar/baz") shouldBe (Parent(1) / "foo" / "bar" / "baz")
     }
     
     "decode a relative path to a parent with one segment" in {
-      PathBase.decode("../foo/") shouldBe (Parent(1) / "foo")
+      PathBase.parse("../foo/") shouldBe (Parent(1) / "foo")
     }
 
     "decode a relative path to a parent three levels up" in {
-      PathBase.decode("../../../foo/") shouldBe (Parent(3) / "foo")
+      PathBase.parse("../../../foo/") shouldBe (Parent(3) / "foo")
     }
 
     "decode a relative path to a parent two levels up without any path segments" in {
-      PathBase.decode("../../") shouldBe Parent(2)
+      PathBase.parse("../../") shouldBe Parent(2)
     }
 
     "decode a relative path to a parent one level up without any path segments" in {
-      PathBase.decode("../") shouldBe Parent(1)
+      PathBase.parse("../") shouldBe Parent(1)
     }
 
     "decode a relative path to a parent two levels up without trailing slash" in {
-      PathBase.decode("../..") shouldBe Parent(2)
+      PathBase.parse("../..") shouldBe Parent(2)
     }
 
     "decode a relative path to a parent one level up without trailing slash" in {
-      PathBase.decode("..") shouldBe Parent(1)
+      PathBase.parse("..") shouldBe Parent(1)
     }
 
   }

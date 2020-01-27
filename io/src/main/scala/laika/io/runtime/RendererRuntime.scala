@@ -101,7 +101,7 @@ object RendererRuntime {
     def filterOutput (staticDocs: Seq[BinaryInput[F]], outPath: String): Seq[BinaryInput[F]] = {
       op.input.sourcePaths.collectFirst { 
         case inPath if outPath.startsWith(inPath) =>
-          Root / RelativePath(outPath.drop(inPath.length).stripPrefix("/")) 
+          Root / RelativePath.parse(outPath.drop(inPath.length).stripPrefix("/")) 
       }.fold(staticDocs) { nestedOut => staticDocs.filterNot(_.path.isSubPath(nestedOut)) }
     }
     

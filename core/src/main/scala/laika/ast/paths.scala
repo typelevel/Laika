@@ -56,7 +56,7 @@ sealed trait SegmentedPathBase extends PathBase {
 
 object PathBase {
   
-  def decode(path: String): PathBase = if (path.startsWith("/")) Path(path) else RelativePath(path)
+  def parse (path: String): PathBase = if (path.startsWith("/")) Path.parse(path) else RelativePath.parse(path)
   
 }
 
@@ -114,23 +114,21 @@ case class SegmentedPath (segments: NonEmptyList[String]) extends Path with Segm
       case _ => Nil
     }
     val combinedSegments = segments.toList.dropRight(path.parentLevels) ++ otherSegments
-    NonEmptyList.fromList(combinedSegments).fold[Path](Root)(SegmentedPath)
+    Path(combinedSegments)
   }
   
   def relativeTo (path: Path): RelativePath = {
-    def buildRelativePath = {
-      def removeCommonParts (a: List[String], b: List[String]): (List[String],List[String]) = (a,b) match {
-        case (p1 :: rest1, p2 :: rest2) if p1 == p2 => removeCommonParts(rest1,rest2)
-        case _ => (a,b)
-      }
-      val (a, b) = path match {
-        case Root => (Nil, segments.toList)
-        case SegmentedPath(otherSegments) => removeCommonParts(otherSegments.toList, segments.toList)
-      } 
-      val base = if (a.isEmpty) Current else Parent(a.length)
-      NonEmptyList.fromList(b).fold[RelativePath](base)(seg => base / SegmentedRelativePath(seg))
+    
+    def removeCommonParts (a: List[String], b: List[String]): (List[String],List[String]) = (a,b) match {
+      case (p1 :: rest1, p2 :: rest2) if p1 == p2 => removeCommonParts(rest1,rest2)
+      case _ => (a,b)
     }
-    buildRelativePath
+    val (a, b) = path match {
+      case Root => (Nil, segments.toList)
+      case SegmentedPath(otherSegments) => removeCommonParts(otherSegments.toList, segments.toList)
+    } 
+    val base = if (a.isEmpty) Current else Parent(a.length)
+    NonEmptyList.fromList(b).fold[RelativePath](base)(seg => base / SegmentedRelativePath(seg))
   }
 
   def isSubPath (other: Path): Boolean = other match {
@@ -171,7 +169,7 @@ object Path {
   /** Creates path from interpreting the specified string representation.
     * The path must be absolute (start with a `/`).
     */
-  def apply(str: String): Path = {
+  def parse (str: String): Path = {
     require(str.headOption.contains('/'), "path must be absolute")
     str match {
       case "/"   => Root
@@ -283,7 +281,7 @@ object RelativePath {
     * if it starts with `../` as a relative path pointing to some parent
     * path. Otherwise it will be interpreted as a relative path.
     */
-  def apply (str: String): RelativePath = {
+  def parse (str: String): RelativePath = {
     require(!str.headOption.contains('/'), "path must not be absolute")
     str.stripSuffix("/") match {
       case "" | "." => Current

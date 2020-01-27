@@ -237,7 +237,7 @@ class LegacyStandardDirectiveSpec extends FlatSpec
   
   trait TreeModel {
 
-    import Path._
+    import Path.Root
     
     val pathUnderTest = Root / "sub2" / "doc7"
 

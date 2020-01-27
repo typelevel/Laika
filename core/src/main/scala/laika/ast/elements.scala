@@ -1069,7 +1069,7 @@ object PathInfo {
   def fromURI (uri: String, refPath: Path): Option[PathInfo] = {
     val jURI = new java.net.URI(uri)
     if (jURI.getScheme != null && jURI.getScheme != "file") None
-    else Some(fromPath(PathBase.decode(jURI.getPath), refPath))
+    else Some(fromPath(PathBase.parse(jURI.getPath), refPath))
   }
 
 }
