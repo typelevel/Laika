@@ -16,7 +16,7 @@
 
 package laika.config
 
-import laika.ast.Path
+import laika.ast.{Path, PathBase, RelativePath}
 
 import scala.util.Try
 
@@ -81,8 +81,10 @@ object ConfigDecoder {
   }
 
   implicit lazy val path: ConfigDecoder[Path] = tracedValue[String].map { tracedValue =>
-    val basePath = tracedValue.origin.path
-    (basePath.parent / Path(tracedValue.value)).relativeTo(Path.Root)
+    PathBase.decode(tracedValue.value) match {
+      case p: RelativePath => tracedValue.origin.path.parent / p // TODO - 0.14 - distinguish between tree and doc origins
+      case p: Path => p
+    }
   }
 
   implicit def seq[T] (implicit elementDecoder: ConfigDecoder[T]): ConfigDecoder[Seq[T]] = new ConfigDecoder[Seq[T]] {

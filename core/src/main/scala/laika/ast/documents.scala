@@ -266,8 +266,6 @@ trait DocumentStructure { this: TreeContent =>
   */
 trait TreeStructure { this: TreeContent =>
 
-  import Path.Current
-
   /** The actual document tree that this ast structure represents.
     */
   def targetTree: DocumentTree
@@ -296,34 +294,34 @@ trait TreeStructure { this: TreeContent =>
   def templates: Seq[TemplateDocument]
 
   /** Selects a document from this tree or one of its subtrees by the specified path.
-   *  The path needs to be relative.
-   */
-  def selectDocument (path: String): Option[Document] = selectDocument(Path(path))
+    * The path needs to be relative and not point to a parent tree (neither start
+    * with `/` nor with `..`).
+    */
+  def selectDocument (path: String): Option[Document] = selectDocument(RelativePath(path))
 
   /** Selects a document from this tree or one of its subtrees by the specified path.
-   *  The path needs to be relative.
-   */
-  def selectDocument (path: Path): Option[Document] = path match {
-    case Current / localName => content.collectFirst { case d: Document if d.path.name == localName => d }
-    case base / localName    => selectSubtree(base) flatMap (_.selectDocument(localName))
-    case _                   => None
-  }
+    * The path needs to be relative and not point to a parent tree (neither start
+    * with `/` nor with `..`).
+    */
+  def selectDocument (path: RelativePath): Option[Document] =
+    if (path.parentLevels > 0 || path.components.isEmpty) None
+    else if (path.components.size == 1) content.collectFirst { case d: Document if d.path.name == path.name => d }
+    else selectSubtree(path.parent).flatMap(_.selectDocument(path.name))
+
+  /** Selects a template from this tree or one of its subtrees by the specified path.
+    * The path needs to be relative.
+    */
+  def selectTemplate (path: String): Option[TemplateDocument] = selectTemplate(RelativePath(path))
 
   /** Selects a template from this tree or one of its subtrees by the specified path.
    *  The path needs to be relative.
    */
-  def selectTemplate (path: String): Option[TemplateDocument] = selectTemplate(Path(path))
-
-  /** Selects a template from this tree or one of its subtrees by the specified path.
-   *  The path needs to be relative.
-   */
-  def selectTemplate (path: Path): Option[TemplateDocument] = path match {
-    case Current / localName => templates.find(_.path.name == localName)
-    case base / localName => selectSubtree(base) flatMap (_.selectTemplate(localName))
-    case _ => None
-  }
+  def selectTemplate (path: RelativePath): Option[TemplateDocument] = 
+    if (path.parentLevels > 0 || path.components.isEmpty) None // TODO - 0.14 - reintroduce pattern matches
+    else if (path.components.size == 1) templates.find(_.path.name == path.name)
+    else selectSubtree(path.parent).flatMap(_.selectTemplate(path.name))
   
-  private val defaultTemplatePathBase: Path = Path.Current / "default.template.<format>"
+  private val defaultTemplatePathBase: RelativePath = RelativePath("default.template.<format>")
   
   /** Selects the template with the name `default.template.&lt;suffix&gt;` for the 
     * specified format suffix from this level of the document tree.
@@ -336,25 +334,24 @@ trait TreeStructure { this: TreeContent =>
     */
   def withDefaultTemplate (template: TemplateRoot, formatSuffix: String): DocumentTree = {
     targetTree.copy(templates = targetTree.templates :+ 
-      TemplateDocument(defaultTemplatePathBase.withSuffix(formatSuffix), template))
+      TemplateDocument(path / defaultTemplatePathBase.withSuffix(formatSuffix), template))
   }
 
   /** Selects a subtree of this tree by the specified path.
    *  The path needs to be relative and it may point to a deeply nested
    *  subtree, not just immediate children.
    */
-  def selectSubtree (path: String): Option[DocumentTree] = selectSubtree(Path(path))
+  def selectSubtree (path: String): Option[DocumentTree] = selectSubtree(RelativePath(path))
 
   /** Selects a subtree of this tree by the specified path.
    *  The path needs to be relative and it may point to a deeply nested
    *  subtree, not just immediate children.
    */
-  def selectSubtree (path: Path): Option[DocumentTree] = path match {
-    case Current => Some(targetTree)
-    case Current / localName => content.collectFirst { case t: DocumentTree if t.path.name == localName => t }
-    case base / localName => selectSubtree(base) flatMap (_.selectSubtree(localName))
-    case _ => None
-  }
+  def selectSubtree (path: RelativePath): Option[DocumentTree] =
+    if (path.parentLevels > 0) None
+    else if (path.components.isEmpty) Some(targetTree) // TODO - 0.14 - reintroduce pattern matches
+    else if (path.components.size == 1) content.collectFirst { case t: DocumentTree if t.path.name == path.name => t }
+    else selectSubtree(path.parent).flatMap(_.selectSubtree(path.name))
 
   /** All link targets that can get referenced from anywhere
     * in the document tree.
@@ -383,9 +380,11 @@ object TreeBuilder {
     
     def buildNodes (depth: Int, contentMap: Map[Path, C]): Seq[T] = {
 
+      @tailrec def parent(p: Path, levels: Int): Path = if (levels <= 0) p else parent(p.parent, levels - 1)
+      
       val newNodes = content
         .filter(_.path.parent.depth >= depth)
-        .map(p => Path(Root, p.path.components.take(depth + 1)))
+        .map(p => parent(p.path, p.path.depth - depth - 1))
         .distinct
         .groupBy(_.parent)
         .map { 

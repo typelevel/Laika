@@ -337,7 +337,7 @@ class ConfigSpec extends IOSpec
         .parse
         .map(p => resultTree(p.root))
         .asserting { tree =>
-          tree.selectDocument(Path.Current / "dir" / "input.md").get.content should be(expected)
+          tree.selectDocument(RelativePath.Current / "dir" / "input.md").get.content should be(expected)
         }
       
     }
@@ -352,8 +352,8 @@ class ConfigSpec extends IOSpec
         .parse
         .map(p => resultTree(p.root))
         .asserting { tree =>
-          val doc = tree.selectDocument(Path.Current / "dir" / "input.md")
-          doc.get.config.get[Path]("foo") shouldBe Right(Path.Current / "foo.txt")
+          val doc = tree.selectDocument(RelativePath.Current / "dir" / "input.md")
+          doc.get.config.get[Path]("foo") shouldBe Right(Root / "foo.txt")
         }
     }
 
@@ -367,8 +367,8 @@ class ConfigSpec extends IOSpec
         .parse
         .map(p => resultTree(p.root))
         .asserting { tree =>
-          val subTree = tree.selectSubtree(Path.Current / "dir")
-          subTree.get.config.get[Path]("foo") shouldBe Right(Path.Current / "foo.txt")
+          val subTree = tree.selectSubtree(RelativePath.Current / "dir")
+          subTree.get.config.get[Path]("foo") shouldBe Right(Root / "foo.txt")
         }
       
     }

@@ -100,8 +100,9 @@ object RendererRuntime {
     
     def filterOutput (staticDocs: Seq[BinaryInput[F]], outPath: String): Seq[BinaryInput[F]] = {
       op.input.sourcePaths.collectFirst { 
-        case inPath if outPath.startsWith(inPath) => Path(outPath.drop(inPath.length)) 
-      }.fold(staticDocs) { nestedOut => staticDocs.filterNot(_.path.components.startsWith(nestedOut.components)) }
+        case inPath if outPath.startsWith(inPath) =>
+          Root / RelativePath(outPath.drop(inPath.length).stripPrefix("/")) 
+      }.fold(staticDocs) { nestedOut => staticDocs.filterNot(_.path.isSubPath(nestedOut)) }
     }
     
     def processBatch (finalRoot: DocumentTreeRoot, ops: Seq[F[RenderResult]], staticDocs: Seq[BinaryInput[F]]): F[RenderedTreeRoot[F]] =

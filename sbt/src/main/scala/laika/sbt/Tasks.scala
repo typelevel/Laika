@@ -19,9 +19,8 @@ package laika.sbt
 import java.util.concurrent.Executors
 
 import cats.effect.{Blocker, ContextShift, IO}
-import laika.api.builder.{BundleFilter, OperationConfig, ParserBuilder}
+import laika.api.builder.{BundleFilter, ParserBuilder}
 import laika.api.{MarkupParser, Renderer}
-import laika.ast./
 import laika.factory.{BinaryPostProcessor, MarkupFormat, RenderFormat, TwoPhaseRenderFormat}
 import laika.format._
 import laika.io.implicits._

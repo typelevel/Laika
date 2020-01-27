@@ -16,8 +16,6 @@
 
 package laika.io
 
-import java.io.{ByteArrayOutputStream, File}
-
 import cats.implicits._
 import cats.effect.IO
 import laika.api.Renderer

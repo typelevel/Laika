@@ -529,7 +529,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
         case Root / "doc1.md" => Ignored; case Root / "dir1" / _ => Ignored 
       })
       val expectedFileContents = List(2,5,6).map(renderedDoc)
-      
+
       val res = for {
         targetDir  <- newTempDirectory
         _          <- transformer.fromDirectory(sourceName).toDirectory(targetDir).transform
@@ -537,7 +537,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
         fileExists <- exists(new File(targetDir, "/doc1.txt"))
         dirExists  <- exists(new File(targetDir, "/dir1"))
       } yield (contents, fileExists, dirExists)
-      
+
       res.assertEquals((expectedFileContents, false, false))
     }
 
@@ -590,7 +590,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
 
       res.assertEquals(("Hello", "Text", result))
     }
-
+    
     "not copy files from the output directory if it's nested inside the input directory" in {
       new FileSystemTest {
 

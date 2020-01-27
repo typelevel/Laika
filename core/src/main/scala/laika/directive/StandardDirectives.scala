@@ -146,12 +146,16 @@ object StandardDirectives extends DirectiveRegistry {
       case "<currentTree>" | "#currentTree"     => cursor.parent.target
       case "<currentDocument>" | "#currentDocument" => cursor.target
       case pathString =>
-        val configPath = Path(pathString)
         val root = cursor.root.target.tree
-        val path =
-          (if (configPath.isAbsolute) configPath
-          else cursor.parent.target.path / configPath).relativeTo(root.path)
-        root.selectDocument(path).getOrElse(root.selectSubtree(path).getOrElse(cursor.root.target.tree))
+        val configPath = PathBase.decode(pathString) match {
+          case p: RelativePath => cursor.parent.target.path / p
+          case p: Path => p
+        }
+        val lookupPath = configPath.relativeTo(root.path)
+        root
+          .selectDocument(lookupPath)
+          .orElse(root.selectSubtree(lookupPath))
+          .getOrElse(cursor.root.target.tree)
     }
     
     val list = root match {

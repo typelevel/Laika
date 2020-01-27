@@ -57,8 +57,8 @@ class ContainerWriter {
     val contentRoot = Root / "EPUB" / "content"
 
     def shiftContentPath (path: Path): Path =
-      if (path.suffix == "html") Path(contentRoot, path.withSuffix("xhtml").components)
-      else Path(contentRoot, path.components)
+      if (path.suffix == "html") contentRoot / path.withSuffix("xhtml").relativeTo(Root)
+      else contentRoot / path.relativeTo(Root)
 
     def toBinaryInput (content: String, path: Path): BinaryInput[F] =
       BinaryInput(path, Resource.fromAutoCloseable(Async[F].delay {

@@ -18,12 +18,12 @@ package laika.directive
 
 import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
-import laika.config.{Config, ConfigBuilder, ConfigError, ConfigParser, Origin}
+import laika.ast.RelativePath.Current
+import laika.config.{Config, ConfigBuilder, ConfigParser, Origin}
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.Markdown
 import laika.parse.ParserContext
-import laika.parse.hocon.{IncludeResource, ObjectBuilderValue}
 import laika.rewrite.TemplateRewriter
 import org.scalatest.{FlatSpec, Matchers}
 

@@ -20,7 +20,8 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 import laika.api.MarkupParser
-import laika.ast.Path.{Current, Root}
+import laika.ast.Path.Root
+import laika.ast.RelativePath.Current
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.ReStructuredText

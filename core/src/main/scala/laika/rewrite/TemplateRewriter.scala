@@ -17,9 +17,9 @@
 package laika.rewrite
 
 import cats.implicits._
+import laika.ast.Path.Root
 import laika.config.{ConfigError, Key, Origin}
 import laika.ast._
-import laika.config.Config.IncludeMap
 import laika.config.Origin.TemplateScope
 
 import scala.annotation.tailrec
@@ -113,7 +113,7 @@ trait TemplateRewriter {
 
     templatePath match {
       case Some(path) =>
-        cursor.root.target.tree.selectTemplate(path) // TODO - error handling 
+        cursor.root.target.tree.selectTemplate(path.relativeTo(Root)) // TODO - error handling 
 
       case None =>
         val filename = "default.template." + format

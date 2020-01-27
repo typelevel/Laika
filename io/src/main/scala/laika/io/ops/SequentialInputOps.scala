@@ -64,7 +64,7 @@ trait SequentialInputOps[F[_]] {
     * @param codec the character encoding of the file, if not specified the platform default will be used.
     */
   def fromFile (file: File)(implicit codec: Codec): InputResult =
-    fromInput(TextInput.fromFile(Path(file.getName), docType, file, codec)(F))
+    fromInput(TextInput.fromFile(Root / file.getName, docType, file, codec)(F))
 
   /** Builder step that instructs the runtime to use the specified character stream as parser input.
     *

@@ -16,7 +16,7 @@
 
 package laika.parse.code.common
 
-import laika.ast.{/, CodeSpan, CodeSpans, ~}
+import laika.ast.{CodeSpan, CodeSpans, ~}
 import laika.parse.Parser
 import laika.parse.code.{CodeCategory, CodeSpanParser, CodeSpanParsers}
 import laika.parse.text.TextParsers.{delimitedBy, literal, success}

@@ -16,7 +16,8 @@
 
 package laika.config
 
-import laika.ast.Path
+import laika.ast.{Path, SegmentedPath}
+import laika.ast.Path.Root
 
 /**
   * @author Jens Halm
@@ -45,7 +46,10 @@ object Key {
     Key(segments)
   }
   
-  def fromPath(path: Path): Key = Key(path.components)
+  def fromPath(path: Path): Key = path match {
+    case Root => root
+    case SegmentedPath(segments) => Key(segments.toList)
+  }
   
   val root: Key = Key(Nil)
 }

@@ -53,7 +53,7 @@ trait SequentialTextOutputOps[F[_]] {
     * @param codec the character encoding of the file, if not specified the platform default will be used.
     */
   def toFile (file: File)(implicit codec: Codec): Result =
-    toOutput(TextOutput.forFile(Path(file.getName), file, codec)(F))
+    toOutput(TextOutput.forFile(Root / file.getName, file, codec)(F))
 
   /** Builder step that instructs the runtime to render the document to
     * the specified stream.

@@ -1050,16 +1050,17 @@ case class URI (uri: String, localRef: Option[PathInfo] = None)
 
 /** Represents a single path in absolute and relative form.
  */
-case class PathInfo (absolute: Path, relative: Path)
+case class PathInfo (absolute: Path, relative: RelativePath)
 
 object PathInfo {
 
   /** Creates an instance for the specified path relative to
    *  the provided reference path.
    */
-  def fromPath (path: Path, refPath: Path): PathInfo =
-    if (path.isAbsolute) PathInfo(path, path.relativeTo(refPath))
-    else PathInfo(Path.Root / path.relativeTo(refPath), path)
+  def fromPath (path: PathBase, refPath: Path): PathInfo = path match {
+    case p: Path         => PathInfo(p, p.relativeTo(refPath))
+    case p: RelativePath => PathInfo(refPath / p, p)
+  } 
 
   /** Creates an instance for the specified URI relative to
    *  the provided reference path. Returns `None` if the specified
@@ -1068,7 +1069,7 @@ object PathInfo {
   def fromURI (uri: String, refPath: Path): Option[PathInfo] = {
     val jURI = new java.net.URI(uri)
     if (jURI.getScheme != null && jURI.getScheme != "file") None
-    else Some(fromPath(Path(jURI.getPath), refPath))
+    else Some(fromPath(PathBase.decode(jURI.getPath), refPath))
   }
 
 }

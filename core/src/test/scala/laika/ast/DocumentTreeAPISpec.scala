@@ -18,7 +18,8 @@ package laika.ast
 
 import laika.config.{Config, ConfigParser, Origin}
 import laika.ast.DocumentType.Markup
-import laika.ast.Path.{Current, Root}
+import laika.ast.Path.Root
+import laika.ast.RelativePath.Current
 import laika.ast.helper.DocumentViewBuilder.{Documents => Docs, _}
 import laika.ast.helper.ModelBuilder
 import laika.config.Origin.{DocumentScope, Scope, TreeScope}
@@ -124,13 +125,6 @@ class DocumentTreeAPISpec extends FlatSpec
     }
   }
   
-  it should "not allow to select a document using an absolute path" in {
-    new TreeModel {
-      val tree = treeWithSubtree(Root, "sub", "doc", root())
-      tree.selectDocument(Root / "sub" / "doc").map(_.path) should be (None)
-    }
-  }
-  
   it should "allow to select a document in the current directory using a relative path" in {
     new TreeModel {
       val tree = treeWithDoc(Root, "doc", root())
@@ -150,13 +144,6 @@ class DocumentTreeAPISpec extends FlatSpec
     new TreeModel {
       val tree = treeWithSubtree(Root, "sub", "doc", root())
       tree.selectSubtree(Current / "sub").map(_.path) should be (Some(Root / "sub"))
-    }
-  }
-  
-  it should "not allow to select a subtree using an absolute path" in {
-    new TreeModel {
-      val tree = treeWithSubtree(Root, "sub", "doc", root())
-      tree.selectSubtree(Root / "sub").map(_.path) should be (None)
     }
   }
   

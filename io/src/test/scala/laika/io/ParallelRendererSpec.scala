@@ -157,7 +157,7 @@ class ParallelRendererSpec extends IOSpec
           .render
           .attempt
           .assertEquals(Left(
-            RendererErrors(Seq(DuplicatePath(Root / "sub" / "doc"), DuplicatePath(Root / "doc2")))
+            RendererErrors(Seq(DuplicatePath(Root / "doc2"), DuplicatePath(Root / "sub" / "doc")))
           ))
       }
     }

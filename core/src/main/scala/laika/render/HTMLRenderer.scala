@@ -93,10 +93,9 @@ class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => Str
         if (hasHighlighting) Styles("nohighlight") else Styles(language)
       
       def crossLinkRef (path: PathInfo, ref: String) = {
-        val target = path.relative.name.lastIndexOf(".") match {
-          case -1 => path.relative.toString
-          case i  => (path.relative.parent / (path.relative.name.take(i) + "." + fileSuffix)).toString
-        }
+        val target = 
+          if (path.relative.name.contains(".")) path.relative.withSuffix(fileSuffix).toString
+          else path.relative.toString // TODO - 0.14 - when does this occur?
         if (ref.isEmpty) target else s"$target#$ref"
       }
       

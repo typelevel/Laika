@@ -191,7 +191,7 @@ class RewriteRulesSpec extends FlatSpec
   
   "The rewrite rules for image references" should "resolve external link references" in {
     val rootElem = root(p(simpleImgRef()), ExternalLinkDefinition("name", "foo.jpg"))
-    rewritten (rootElem) should be (root(p(img("text", "foo.jpg", Some(PathInfo(Path.Root / "foo.jpg", Path.Current / "foo.jpg"))))))
+    rewritten (rootElem) should be (root(p(img("text", "foo.jpg", Some(PathInfo(Path.Root / "foo.jpg", RelativePath.Current / "foo.jpg"))))))
   }
   
   it should "replace an unresolvable reference with an invalid span" in {

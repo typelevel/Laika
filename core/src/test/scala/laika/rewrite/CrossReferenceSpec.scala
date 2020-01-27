@@ -19,6 +19,7 @@ package laika.rewrite
 import laika.api.builder.OperationConfig
 import laika.ast.DocumentType.Markup
 import laika.ast.Path._
+import laika.ast.RelativePath.{Current, Parent}
 import laika.ast._
 import laika.ast.helper.DocumentViewBuilder.{Documents => Docs, _}
 import laika.ast.helper.ModelBuilder
