@@ -16,14 +16,43 @@
 
 package laika.ast
 
-import cats.implicits._
 import cats.data.NonEmptyList
 import laika.ast.Path.Root
 import laika.ast.RelativePath.{Current, Parent}
 
 import scala.annotation.tailrec
 
-sealed trait PathBase extends Product with Serializable // TODO - promote shared methods
+/** The abstract base for absolute and relative paths. */
+sealed trait PathBase extends Product with Serializable {
+
+  /** The local name of this path.
+    */
+  def name: String
+
+  /** The base name of this path, without the suffix (if present).
+    */
+  def basename: String = name
+
+  /** The suffix of `None` if this path name does not have a file suffix
+    * separated by a `.`.
+    */
+  def suffix: Option[String] = None
+  
+}
+
+/** The common base for absolute and relative paths that contain one or more path segments. */
+sealed trait SegmentedPathBase extends PathBase {
+
+  /** The segments representing this path instance. */
+  def segments: NonEmptyList[String]
+
+  lazy val name: String = segments.last
+
+  override lazy val basename: String = if (name.contains('.')) name.take(name.lastIndexOf(".")) else name
+
+  override lazy val suffix: Option[String] = if (name.contains('.')) Some(name.drop(name.lastIndexOf(".")+1)) else None
+  
+}
 
 object PathBase {
   
@@ -44,14 +73,9 @@ sealed trait Path extends PathBase {
     */
   def depth: Int
 
-  /** The local name of this path.
-   */
-  def name: String
-
-  def basename: String = name
-
-  def suffix: Option[String] = None
-
+  /** Returns a new path that either replaces the existing suffix
+    * with the specified one or appends it if this path does not have a suffix yet.
+    */
   def withSuffix (suffix: String): Path = this
 
   /** Creates a new path with the specified name
@@ -76,11 +100,9 @@ sealed trait Path extends PathBase {
   
 }
 
-case class SegmentedPath (segments: NonEmptyList[String]) extends Path {
+case class SegmentedPath (segments: NonEmptyList[String]) extends Path with SegmentedPathBase {
   
   val depth: Int = segments.size
-  
-  lazy val name: String = segments.last
   
   lazy val parent: Path = NonEmptyList.fromList(segments.init).fold[Path](Root)(SegmentedPath)
 
@@ -115,10 +137,6 @@ case class SegmentedPath (segments: NonEmptyList[String]) extends Path {
     case Root => true
     case SegmentedPath(otherSegments) => segments.toList.startsWith(otherSegments.toList)
   } 
-  
-  override lazy val basename: String = if (name.contains('.')) name.take(name.lastIndexOf(".")) else name
-  
-  override lazy val suffix: Option[String] = if (name.contains('.')) Some(name.drop(name.lastIndexOf(".")+1)) else None
   
   override def withSuffix (newSuffix: String): Path = 
     if (name.endsWith(newSuffix)) this 
@@ -189,22 +207,16 @@ sealed trait RelativePath extends PathBase {
     */
   def / (path: RelativePath): RelativePath
 
-  def suffix: Option[String] = None
-  
-  def basename: String = name
-  
   def withSuffix (newSuffix: String): RelativePath = this
 }
 
-case class SegmentedRelativePath(segments: NonEmptyList[String], parentLevels: Int = 0) extends RelativePath {
+case class SegmentedRelativePath(segments: NonEmptyList[String], parentLevels: Int = 0) extends RelativePath with SegmentedPathBase {
 
   lazy val parent: RelativePath = {
     def noSegments = if (parentLevels == 0) Current else Parent(parentLevels)
     NonEmptyList.fromList(segments.init)
       .fold[RelativePath](noSegments)(SegmentedRelativePath(_, parentLevels))
   }
-
-  val name: String = segments.last
 
   def / (name: String): RelativePath = SegmentedRelativePath(segments :+ name, parentLevels)
 
@@ -228,8 +240,6 @@ case class SegmentedRelativePath(segments: NonEmptyList[String], parentLevels: I
     }
   }
 
-  override lazy val toString: String = ("../" * parentLevels) + (segments.toList mkString "/")
-
   override lazy val basename: String = if (name.contains('.')) name.take(name.lastIndexOf(".")) else name
 
   override lazy val suffix: Option[String] = if (name.contains('.')) Some(name.drop(name.lastIndexOf(".")+1)) else None
@@ -237,12 +247,13 @@ case class SegmentedRelativePath(segments: NonEmptyList[String], parentLevels: I
   override def withSuffix (newSuffix: String): RelativePath = 
     if (name.endsWith(newSuffix)) this
     else SegmentedRelativePath(NonEmptyList.ofInitLast(segments.init, basename + "." + newSuffix), parentLevels)
-  
+
+  override lazy val toString: String = ("../" * parentLevels) + (segments.toList mkString "/")
 }
 
 object RelativePath {
 
-  /** The root of an absolute path.
+  /** Represent the current path.
     */
   case object Current extends RelativePath {
     val name = "."
@@ -253,6 +264,8 @@ object RelativePath {
     override val toString: String = name
   }
 
+  /** Represent a parent path that is the specified number of levels above the current path.
+    */
   case class Parent(parentLevels: Int) extends RelativePath {
     val name: String = "../" * parentLevels
     lazy val parent: RelativePath = Parent(parentLevels + 1)
