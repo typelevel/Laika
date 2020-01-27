@@ -20,6 +20,7 @@ import java.time.Instant
 import java.util.Locale
 
 import laika.ast.Path.Root
+import laika.ast.RelativePath.Current
 import laika.config.Config.{ConfigResult, IncludeMap}
 import laika.config._
 import laika.rewrite.TemplateRewriter
@@ -300,13 +301,14 @@ trait TreeStructure { this: TreeContent =>
   def selectDocument (path: String): Option[Document] = selectDocument(RelativePath(path))
 
   /** Selects a document from this tree or one of its subtrees by the specified path.
-    * The path needs to be relative and not point to a parent tree (neither start
-    * with `/` nor with `..`).
+    * The path must not point to a parent tree (start with `../`) 
+    * as this instance is not aware of its parents.
     */
-  def selectDocument (path: RelativePath): Option[Document] =
-    if (path.parentLevels > 0 || path.components.isEmpty) None
-    else if (path.components.size == 1) content.collectFirst { case d: Document if d.path.name == path.name => d }
-    else selectSubtree(path.parent).flatMap(_.selectDocument(path.name))
+  def selectDocument (path: RelativePath): Option[Document] = path match {
+    case Current / localName => content.collectFirst { case d: Document if d.path.name == localName => d }
+    case other / localName if path.parentLevels == 0 => selectSubtree(other).flatMap(_.selectDocument(localName))
+    case _ => None
+  }
 
   /** Selects a template from this tree or one of its subtrees by the specified path.
     * The path needs to be relative.
@@ -314,12 +316,14 @@ trait TreeStructure { this: TreeContent =>
   def selectTemplate (path: String): Option[TemplateDocument] = selectTemplate(RelativePath(path))
 
   /** Selects a template from this tree or one of its subtrees by the specified path.
-   *  The path needs to be relative.
-   */
-  def selectTemplate (path: RelativePath): Option[TemplateDocument] = 
-    if (path.parentLevels > 0 || path.components.isEmpty) None // TODO - 0.14 - reintroduce pattern matches
-    else if (path.components.size == 1) templates.find(_.path.name == path.name)
-    else selectSubtree(path.parent).flatMap(_.selectTemplate(path.name))
+    * The path must not point to a parent tree (start with `../`) 
+    * as this instance is not aware of its parents.
+    */
+  def selectTemplate (path: RelativePath): Option[TemplateDocument] = path match {
+    case Current / localName => templates.find(_.path.name == localName)
+    case other / localName if path.parentLevels == 0 => selectSubtree(other).flatMap(_.selectTemplate(localName))
+    case _ => None
+  }
   
   private val defaultTemplatePathBase: RelativePath = RelativePath("default.template.<format>")
   
@@ -344,14 +348,15 @@ trait TreeStructure { this: TreeContent =>
   def selectSubtree (path: String): Option[DocumentTree] = selectSubtree(RelativePath(path))
 
   /** Selects a subtree of this tree by the specified path.
-   *  The path needs to be relative and it may point to a deeply nested
-   *  subtree, not just immediate children.
-   */
-  def selectSubtree (path: RelativePath): Option[DocumentTree] =
-    if (path.parentLevels > 0) None
-    else if (path.components.isEmpty) Some(targetTree) // TODO - 0.14 - reintroduce pattern matches
-    else if (path.components.size == 1) content.collectFirst { case t: DocumentTree if t.path.name == path.name => t }
-    else selectSubtree(path.parent).flatMap(_.selectSubtree(path.name))
+    * The path must not point to a parent tree (start with `../`) 
+    * as this instance is not aware of its parents.
+    */
+  def selectSubtree (path: RelativePath): Option[DocumentTree] = path match {
+    case Current => Some(targetTree)
+    case Current / localName => content.collectFirst { case t: DocumentTree if t.path.name == localName => t }
+    case other / localName if path.parentLevels == 0 => selectSubtree(other).flatMap(_.selectSubtree(localName))
+    case _ => None
+  }
 
   /** All link targets that can get referenced from anywhere
     * in the document tree.
