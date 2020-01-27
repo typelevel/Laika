@@ -292,7 +292,7 @@ object StandardDirectives extends DirectiveRegistry {
 
     cursor.map { docCursor =>
       val refPath = docCursor.parent.target.path
-      val allLinks = docCursor.root.target.staticDocuments.filter(_.suffix == "css").map { staticPath =>
+      val allLinks = docCursor.root.target.staticDocuments.filter(_.suffix.contains("css")).map { staticPath =>
         val path = staticPath.relativeTo(refPath).toString
         s"""<link rel="stylesheet" type="text/css" href="$path" />"""
       }

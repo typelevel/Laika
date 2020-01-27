@@ -50,7 +50,7 @@ object HtmlTemplate {
 
     def resolve (cursor: DocumentCursor): TemplateElement = {
       val refPath = cursor.parent.target.path
-      val allLinks = cursor.root.target.staticDocuments.filter(_.suffix == "css").map { staticPath =>
+      val allLinks = cursor.root.target.staticDocuments.filter(_.suffix.contains("css")).map { staticPath =>
         val path = staticPath.relativeTo(refPath).toString
         s"""<link rel="stylesheet" type="text/css" href="$path" />"""
       }

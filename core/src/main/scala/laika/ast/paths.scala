@@ -40,13 +40,19 @@ sealed trait Path extends PathBase {
    */
   def parent: Path
 
+  /** The depth of this path from the virtual root.
+    */
+  def depth: Int
+
   /** The local name of this path.
    */
   def name: String
 
-  /** The depth of this path from the virtual root.
-    */
-  def depth: Int
+  def basename: String = name
+
+  def suffix: Option[String] = None
+
+  def withSuffix (suffix: String): Path = this
 
   /** Creates a new path with the specified name
    *  as an immediate child of this path.
@@ -66,12 +72,8 @@ sealed trait Path extends PathBase {
    */
   def relativeTo (path: Path): RelativePath
   
-  def suffix: String = ""
-  def basename: String = name
-  
-  def withSuffix (suffix: String): Path = this
-  
   def isSubPath (other: Path): Boolean
+  
 }
 
 case class SegmentedPath (segments: NonEmptyList[String]) extends Path {
@@ -89,7 +91,8 @@ case class SegmentedPath (segments: NonEmptyList[String]) extends Path {
       case SegmentedRelativePath(s, _) => s.toList
       case _ => Nil
     }
-    NonEmptyList.fromList(segments.toList.dropRight(path.parentLevels) ++ otherSegments).fold[Path](Root)(SegmentedPath)
+    val combinedSegments = segments.toList.dropRight(path.parentLevels) ++ otherSegments
+    NonEmptyList.fromList(combinedSegments).fold[Path](Root)(SegmentedPath)
   }
   
   def relativeTo (path: Path): RelativePath = {
@@ -115,7 +118,7 @@ case class SegmentedPath (segments: NonEmptyList[String]) extends Path {
   
   override lazy val basename: String = if (name.contains('.')) name.take(name.lastIndexOf(".")) else name
   
-  override lazy val suffix: String = if (name.contains('.')) name.drop(name.lastIndexOf(".")+1) else ""
+  override lazy val suffix: Option[String] = if (name.contains('.')) Some(name.drop(name.lastIndexOf(".")+1)) else None
   
   override def withSuffix (newSuffix: String): Path = 
     if (name.endsWith(newSuffix)) this 
@@ -186,9 +189,11 @@ sealed trait RelativePath extends PathBase {
     */
   def / (path: RelativePath): RelativePath
 
-  def suffix: String = ""
+  def suffix: Option[String] = None
+  
   def basename: String = name
-  def withSuffix (newSuffix: String): RelativePath
+  
+  def withSuffix (newSuffix: String): RelativePath = this
 }
 
 case class SegmentedRelativePath(segments: NonEmptyList[String], parentLevels: Int = 0) extends RelativePath {
@@ -203,21 +208,31 @@ case class SegmentedRelativePath(segments: NonEmptyList[String], parentLevels: I
 
   def / (name: String): RelativePath = SegmentedRelativePath(segments :+ name, parentLevels)
 
-  def / (path: RelativePath): RelativePath = path match {
-    case Current => this
-    case Parent(otherLevels) => copy(parentLevels = parentLevels + otherLevels)
-    case SegmentedRelativePath(otherSegments, otherLevels) => SegmentedRelativePath(
-      // cats Nel lacks a prepend(List[A]), but we know it will be non-empty
-      NonEmptyList.fromListUnsafe(segments.toList.dropRight(path.parentLevels) ++ otherSegments.toList),
-      parentLevels + Math.max(0, otherLevels - segments.size)
-    )
+  def / (path: RelativePath): RelativePath = {
+
+    def construct(otherSegments: List[String], otherLevels: Int): RelativePath = {
+      
+      val newParentLevels = parentLevels + Math.max(0, otherLevels - segments.size)
+      
+      def noSegments = if (newParentLevels == 0) Current else Parent(newParentLevels)
+      
+      NonEmptyList.fromList(segments.toList.dropRight(otherLevels) ++ otherSegments).fold(noSegments){ newSegments =>
+        SegmentedRelativePath(newSegments, newParentLevels)
+      }
+    }
+    
+    path match {
+      case Current => this
+      case Parent(otherLevels) => construct(Nil, otherLevels)
+      case SegmentedRelativePath(otherSegments, otherLevels) => construct(otherSegments.toList, otherLevels)
+    }
   }
 
   override lazy val toString: String = ("../" * parentLevels) + (segments.toList mkString "/")
 
   override lazy val basename: String = if (name.contains('.')) name.take(name.lastIndexOf(".")) else name
 
-  override lazy val suffix: String = if (name.contains('.')) name.drop(name.lastIndexOf(".")+1) else ""
+  override lazy val suffix: Option[String] = if (name.contains('.')) Some(name.drop(name.lastIndexOf(".")+1)) else None
   
   override def withSuffix (newSuffix: String): RelativePath = 
     if (name.endsWith(newSuffix)) this
@@ -235,7 +250,6 @@ object RelativePath {
     val parentLevels: Int = 0
     def / (name: String): RelativePath = SegmentedRelativePath(NonEmptyList.of(name))
     def / (path: RelativePath): RelativePath = path
-    def withSuffix (newSuffix: String): RelativePath = this
     override val toString: String = name
   }
 
@@ -248,7 +262,6 @@ object RelativePath {
       case Parent(otherLevels) => Parent(parentLevels + otherLevels)
       case SegmentedRelativePath(segments, otherLevels) => SegmentedRelativePath(segments, parentLevels + otherLevels)
     }
-    def withSuffix (newSuffix: String): RelativePath = this
     override val toString: String = name
   }
 

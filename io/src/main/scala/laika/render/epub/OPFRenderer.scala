@@ -84,8 +84,10 @@ class OPFRenderer {
       DocumentRef(doc.path, "application/xhtml+xml", isSpine = true, forceXhtml = true)
     }
 
-    val staticDocs = result.staticDocuments.filter(in => MimeTypes.supportedTypes.contains(in.path.suffix)).map { in =>
-      DocumentRef(in.path, MimeTypes.supportedTypes(in.path.suffix), isSpine = false)
+    val staticDocs = result.staticDocuments.flatMap { in =>
+      in.path.suffix.flatMap(MimeTypes.supportedTypes.get).map { mediaType =>
+        DocumentRef(in.path, mediaType, isSpine = false)
+      }
     }
 
     val docRefs = coverDoc.toSeq ++ titleDoc.toSeq ++ renderedDocs ++ staticDocs

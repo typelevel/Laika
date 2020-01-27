@@ -42,7 +42,7 @@ object BookNavigation {
     * from the specified virtual path of the Laika document tree.
     */
   def fullPath (path: Path, forceXhtml: Boolean = false): String = {
-    val finalPath = if (forceXhtml || path.suffix == "html") path.withSuffix("epub.xhtml") else path
+    val finalPath = if (forceXhtml || path.suffix.contains("html")) path.withSuffix("epub.xhtml") else path
     val parent = finalPath.parent match {
       case Root => ""
       case _ => finalPath.parent.toString

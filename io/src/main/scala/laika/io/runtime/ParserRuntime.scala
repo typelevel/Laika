@@ -60,8 +60,8 @@ object ParserRuntime {
 
     def selectParser (path: Path): ValidatedNel[Throwable, MarkupParser] = op.parsers match {
       case NonEmptyList(parser, Nil) => parser.validNel
-      case multiple => op.parserMap
-        .get(path.suffix)
+      case multiple => path.suffix
+        .flatMap(op.parserMap.get)
         .toValidNel(NoMatchingParser(path, multiple.toList.flatMap(_.fileSuffixes).toSet))
     }
       

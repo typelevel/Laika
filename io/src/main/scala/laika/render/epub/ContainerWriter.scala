@@ -21,7 +21,7 @@ import java.nio.charset.Charset
 
 import cats.effect.{Async, Resource}
 import cats.implicits._
-import laika.ast.Path
+import laika.ast.{/, Path}
 import laika.ast.Path.Root
 import laika.config.ConfigException
 import laika.format.EPUB
@@ -57,7 +57,7 @@ class ContainerWriter {
     val contentRoot = Root / "EPUB" / "content"
 
     def shiftContentPath (path: Path): Path =
-      if (path.suffix == "html") contentRoot / path.withSuffix("xhtml").relative
+      if (path.suffix.contains("html")) contentRoot / path.withSuffix("xhtml").relative
       else contentRoot / path.relative
 
     def toBinaryInput (content: String, path: Path): BinaryInput[F] =
@@ -65,13 +65,13 @@ class ContainerWriter {
         new ByteArrayInputStream(content.getBytes(Charset.forName("UTF-8")))
       }))
 
-    val fallbackStyles = if (result.staticDocuments.exists(_.path.suffix == "css")) Vector() 
+    val fallbackStyles = if (result.staticDocuments.exists(_.path.suffix.contains("css"))) Vector() 
                          else Vector(toBinaryInput(StaticContent.fallbackStyles, StyleSupport.fallbackStylePath))
     
     val finalResult = result.copy[F](staticDocuments = result.staticDocuments ++ fallbackStyles)
     
     val staticDocs: Seq[BinaryInput[F]] = finalResult.staticDocuments
-      .filter(in => MimeTypes.supportedTypes.contains(in.path.suffix))
+      .filter(in => in.path.suffix.exists(MimeTypes.supportedTypes.contains))
       .map { doc =>
         doc.copy(path = shiftContentPath(doc.path))
       }

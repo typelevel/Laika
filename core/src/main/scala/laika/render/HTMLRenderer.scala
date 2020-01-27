@@ -94,8 +94,8 @@ class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => Str
       
       def crossLinkRef (path: PathInfo, ref: String) = {
         val target = 
-          if (path.relative.name.contains(".")) path.relative.withSuffix(fileSuffix).toString
-          else path.relative.toString // TODO - 0.14 - when does this occur?
+          if (path.relative.suffix.nonEmpty) path.relative.withSuffix(fileSuffix).toString
+          else path.relative.toString
         if (ref.isEmpty) target else s"$target#$ref"
       }
       
