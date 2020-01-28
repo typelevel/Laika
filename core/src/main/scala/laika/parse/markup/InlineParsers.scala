@@ -45,7 +45,7 @@ object InlineParsers {
    *  only produce a text result, they often require the same logic in how they
    *  deal with nested constructs.
    */
-  trait ResultBuilder[Elem, +To] {
+  private trait ResultBuilder[Elem, +To] {
     def fromString (str: String): Elem
     def += (item: Elem): Unit
     def result: To
@@ -53,7 +53,7 @@ object InlineParsers {
   
   /** ResultBuilder that produces a list of spans.
    */
-  class SpanBuilder extends ResultBuilder[Span, List[Span]] {
+  private class SpanBuilder extends ResultBuilder[Span, List[Span]] {
     
     private val buffer = new ListBuffer[Span]
 
@@ -90,7 +90,7 @@ object InlineParsers {
 
   /** ResultBuilder that produces a String.
    */
-  class TextBuilder extends ResultBuilder[String, String] {
+  private class TextBuilder extends ResultBuilder[String, String] {
     
     private val builder = new scala.collection.mutable.StringBuilder
     
@@ -105,18 +105,18 @@ object InlineParsers {
     *
     *  @tparam Elem the element type produced by a single parser for a nested span
     *  @tparam To the type of the result this parser produces
-    *  @param text the parser for the text of the current span element
+    *  @param baseParser the parser for the text of the current span element
     *  @param nested a mapping from the start character of a span to the corresponding parser for nested span elements
     *  @param resultBuilder responsible for building the final result of this parser based on the results of the helper parsers
     *  @return the resulting parser
     */
-  def inline [Elem,To] (text: => DelimitedText[String],
-                       nested: => Map[Char, Parser[Elem]],
-                       resultBuilder: => ResultBuilder[Elem,To]): Parser[To] = Parser { in =>
+  private def inline [Elem,To] (baseParser: => DelimitedText[String],
+                                nested: => Map[Char, Parser[Elem]],
+                                resultBuilder: => ResultBuilder[Elem,To]): Parser[To] = Parser { in =>
 
     lazy val builder = resultBuilder // evaluate only once
     lazy val nestedMap = nested
-    lazy val textParser = new DelimitedText(new InlineDelimiter(nestedMap.keySet, text.delimiter))
+    lazy val textParser = new DelimitedText(new InlineDelimiter(nestedMap.keySet, baseParser.delimiter))
 
     def addText (text: String): Unit = if (!text.isEmpty) builder += builder.fromString(text)
 
