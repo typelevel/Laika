@@ -103,17 +103,6 @@ object InlineParsers {
     ((lookBehind(1, beforeStartMarkup) | atStart ^^^ ' ') >> afterStartMarkup(start)) ~ not(end) // not(end) == rule 6
   }
   
-  /** Parses the start of an inline element without specific start markup 
-   *  according to reStructuredText markup recognition rules.
-   * 
-   *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#inline-markup-recognition-rules]].
-   * 
-   *  @param end the parser that recognizes the markup at the end of an inline element, needed to verify
-   *  the start sequence is not immediately followed by an end sequence as empty elements are not allowed.
-   *  @return a parser without a useful result, as it is only needed to verify it succeeds
-   */ 
-  def markupStart (end: Parser[String]): Parser[Any] = markupStart(success(()), end)
-  
   /** Parses the end of an inline element according to reStructuredText markup recognition rules.
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#inline-markup-recognition-rules]].
@@ -200,8 +189,8 @@ object InlineParsers {
   private def toSource (label: FootnoteLabel): String = label match {
     case Autonumber => "[#]_"
     case Autosymbol => "[*]_"
-    case AutonumberLabel(label) => s"[#$label]_"
-    case NumericLabel(label) => s"[$label]_"
+    case AutonumberLabel(name) => s"[#$name]_"
+    case NumericLabel(name) => s"[$name]_"
   }
   
   /** Parses a footnote reference.
@@ -301,21 +290,6 @@ object InlineParsers {
   }
   
   private lazy val reverseMarkupStart: Parser[Any] = lookAhead(eof | beforeStartMarkup)
-
-
-  private def trim (p: Parser[(String,String,String)]): Parser[Span] = p >> { res => Parser { in =>
-    val startChar = Set('-',':','/','\'','(','{')
-    val endChar   = Set('-',':','/','\'',')','}','.',',',';','!','?') 
-    res match {
-      case (start, sep, end) => 
-        val startTrimmed = start.dropWhile(startChar)
-        val endTrimmed = end.reverse.dropWhile(endChar).reverse
-        val uri = startTrimmed + sep + endTrimmed
-        val uriWithScheme = if (sep == "@" && !uri.startsWith("mailto:")) "mailto:"+uri else uri 
-        val nextIn = in.consume(endTrimmed.length - end.length)
-        Success(Reverse(startTrimmed.length, ExternalLink(List(Text(uri)), uriWithScheme), Text(sep+endTrimmed)), nextIn)
-    }
-  }}
 
   private val autoLinks = new AutoLinkParsers(
     reverseMarkupStart,
