@@ -141,8 +141,10 @@ object StringLiteral {
       def optParser(p: Option[Parser[String]]): Parser[List[CodeSpan]] = 
         p.map(_.map(res => List(CodeSpan(res, defaultCategories)))).getOrElse(success(Nil))
       
-      (any.take(1) ~ optParser(prefix) ~ EmbeddedCodeSpans.parser(parser, embedded, defaultCategories) ~ optParser(postfix)).map {
-        case startChar ~ pre ~ content ~ post => CodeSpans.merge(startChar.head, pre ++ content ++ post, defaultCategories)
+      val startChar = any.take(1).map(CodeSpan(_, defaultCategories))
+      
+      (startChar ~ optParser(prefix) ~ EmbeddedCodeSpans.parser(parser, embedded, defaultCategories) ~ optParser(postfix)).map {
+        case start ~ pre ~ content ~ post => CodeSpans.merge(start +: (pre ++ content ++ post))
       }
     }.parsers
     

@@ -536,12 +536,6 @@ object CodeSpans {
     case _                         => Nil
   }
 
-  // TODO - 0.14 - this method should become obsolete in 0.14
-  def merge (startChar: Char, spans: Seq[CodeSpan], defaultCategories: Set[CodeCategory] = Set()): Seq[CodeSpan] = {
-    val startSpan = CodeSpan(startChar.toString, defaultCategories)
-    merge(startSpan +: spans)
-  }
-
   /** Merges all occurrences of two or more adjacent spans with the exact same set of 
     * associated code categories.
     */
