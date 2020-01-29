@@ -35,6 +35,8 @@ class RootParser (markupParser: MarkupFormat, markupExtensions: MarkupExtensions
     }.toMap
 
   def getSyntaxHighlighter (language: String): Option[Parser[Seq[Span]]] = highlighterMap.get(language.toLowerCase)
+
+  override lazy val escapedChar: Parser[String] = markupParser.escapedChar
   
   /** Parses a full document, delegating most of the work to the `topLevelBlock` parser.
     */
@@ -48,7 +50,7 @@ class RootParser (markupParser: MarkupFormat, markupExtensions: MarkupExtensions
   protected lazy val fallbackBlock = merge(sortedBlockParsers.filterNot(_.isRecursive))
 
   protected lazy val spanParsers: Map[Char,Parser[Span]] = {
-    val escapedText = SpanParser.forStartChar('\\').standalone('\\' ~> markupParser.escapedChar.map(Text(_))).withLowPrecedence
+    val escapedText = SpanParser.forStartChar('\\').standalone(escapeSequence.map(Text(_))).withLowPrecedence
 
     createParsers(markupParser.spanParsers :+ escapedText, markupExtensions.spanParsers).groupBy(_.startChar).map {
       case (char, definitions) => (char, definitions.map(_.parser).reduceLeft(_ | _))

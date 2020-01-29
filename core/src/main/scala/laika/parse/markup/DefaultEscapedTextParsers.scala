@@ -32,12 +32,14 @@ trait DefaultEscapedTextParsers extends EscapedTextParsers {
     */
   lazy val escapedChar: Parser[String] = TextParsers.any take 1
 
+  lazy val escapeSequence: Parser[String] = '\\' ~> escapedChar
+
   /** Adds support for escape sequences to the specified text parser.
     *
     * @param p the parser to add support for escape sequences to
     * @return a parser for a text span that supports escape sequences
     */
-  def escapedText(p: DelimitedText[String]): Parser[String] = InlineParsers.text(p, Map('\\' -> '\\' ~> escapedChar))
+  def escapedText(p: DelimitedText[String]): Parser[String] = InlineParsers.text(p, Map('\\' -> escapeSequence))
 
   /** Parses a span of text until one of the specified characters is seen
     * (unless it is escaped),

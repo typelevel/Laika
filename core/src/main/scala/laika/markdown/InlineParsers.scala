@@ -42,10 +42,11 @@ object InlineParsers {
 
   /**  Parses a single escaped character, only recognizing the characters the Markdown syntax document
     *  specifies as escapable.
+    *  The `|` has been added to that list to support escaping in tables in the GitHub Flavor syntax.
     *
     *  Note: escaping > is not mandated by the official syntax description, but by the official test suite.
     */
-  val escapedChar: Parser[String] = anyOf('\\', '`', '*', '_', '{', '}', '[', ']', '(', ')', '#', '+', '-', '.', '!', '>') take 1
+  val escapedChar: Parser[String] = anyOf('\\', '`', '*', '_', '{', '}', '[', ']', '(', ')', '#', '+', '-', '.', '!', '>', '|') take 1
 
 
   /** Parses an explicit hard line break.
@@ -178,15 +179,15 @@ object InlineParsers {
                 recParsers: RecursiveSpanParsers): Parser[Span] = {
 
     val linkText = text(delimitedBy(']'), Map(
-      '\\' -> ('\\' ~> recParsers.escapedChar ^^ {"\\" + _}),
+      '\\' -> (recParsers.escapeSequence ^^ {"\\" + _}),
       '[' -> ('[' ~> delimitedBy(']') ^^ { "[" + _ + "]" })
     ))
 
     val titleEnd = lookAhead(ws.^ ~ ')')
     val title = ws.^ ~> (('"' ~> delimitedBy("\"", titleEnd)) | ('\'' ~> delimitedBy("'", titleEnd)))
 
-    val url = ('<' ~> text(delimitedBy('>',' ').keepDelimiter, Map('\\' -> '\\' ~> recParsers.escapedChar)) <~ '>') |
-       text(delimitedBy(')',' ','\t').keepDelimiter, Map('\\' -> '\\' ~> recParsers.escapedChar))
+    val url = ('<' ~> text(delimitedBy('>',' ').keepDelimiter, Map('\\' -> recParsers.escapeSequence)) <~ '>') |
+       text(delimitedBy(')',' ','\t').keepDelimiter, Map('\\' -> recParsers.escapeSequence))
     
     val urlWithTitle = '(' ~> url ~ opt(title) <~ ws ~ ')' ^^ {  
       case url ~ title => (recParser: RecParser, text:String) => inline(recParser, text, url, title)

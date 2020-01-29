@@ -128,7 +128,16 @@ trait EscapedTextParsers {
 
   /** Parses the character after the one that started the escape sequence (usually a backslash).
     */
+  @deprecated("use the escapeSequence parser that also parses the backslash itself", "0.14.0")
   def escapedChar: Parser[String]
+
+  /** Parses an escape sequence (usually a backslash followed by a single char).
+    * The characters allowed in an escape sequence might differ between
+    * markup languages, therefore custom parser implementations should
+    * use this parser as it is always configured correctly for the current
+    * host language.
+    */
+  def escapeSequence: Parser[String]
 
   /** Adds support for escape sequences to the specified text parser.
     */
