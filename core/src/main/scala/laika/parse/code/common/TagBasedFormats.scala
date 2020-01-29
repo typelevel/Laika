@@ -44,13 +44,13 @@ trait TagBasedFormats {
     */
   val ref: CodeSpanParsers =
     CodeSpanParsers(CodeCategory.EscapeSequence, '&') {
-      ("#x" ~ DigitParsers.hex.min(1) ~ ";").concat
+      ("&#x" ~ DigitParsers.hex.min(1) ~ ";").concat
     } ++
       CodeSpanParsers(CodeCategory.EscapeSequence, '&') {
-        ("#" ~ DigitParsers.decimal.min(1) ~ ";").concat
+        ("&#" ~ DigitParsers.decimal.min(1) ~ ";").concat
       } ++
       CodeSpanParsers(CodeCategory.Substitution, '&') {
-        (nameParser ~ ";").concat
+        ("&" ~ nameParser ~ ";").concat
       }
 
   val string: CodeSpanParsers = StringLiteral.singleLine('\'') ++ StringLiteral.singleLine('"')
@@ -76,13 +76,13 @@ trait TagBasedFormats {
     private[code] def standaloneParser: Parser[Seq[CodeSpan]] = {
       def codeParser(p: Parser[String], category: CodeCategory): Parser[CodeSpan] = p.map(CodeSpan(_, category))
 
-      val startParser = codeParser(if (start.length > 1) literal(start.tail) else success(""), CodeCategory.Tag.Punctuation)
+      val startParser = codeParser(literal(start), CodeCategory.Tag.Punctuation)
       val tagNameParser = codeParser(tagName, tagCategory)
       val delim = if (end == "/>") delimitedBy(end).failOn('>') else delimitedBy(end) 
 
       (startParser ~ tagNameParser ~ EmbeddedCodeSpans.parser(delim, embedded, categories)).map {
         case startPunct ~ tagNameSpan ~ content =>
-          CodeSpans.merge(start.head, Seq(startPunct, tagNameSpan) ++ content :+ CodeSpan(end, categories), categories)
+          CodeSpans.merge(Seq(startPunct, tagNameSpan) ++ content :+ CodeSpan(end, categories))
       }
     }
 

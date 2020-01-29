@@ -71,7 +71,7 @@ object CodeSpanParsers {
   def apply (category: CodeCategory, start: String, end: String): CodeSpanParsers = {
     require(start.nonEmpty)
     CodeSpanParsers(category, start.head) {
-      start.tail ~> delimitedBy(end) ^^ { text => start.tail + text + end }
+      start ~> delimitedBy(end) ^^ { text => start + text + end }
     }
   }
 
@@ -93,7 +93,7 @@ object CodeSpanParsers {
   def apply(category: CodeCategory)(startCharAndParsers: Seq[(Char, Parser[String])]): CodeSpanParsers = // TODO - 0.14 - might be obsolete after delimiter refactoring
     new CodeSpanParsers {
       val parsers = startCharAndParsers.map { case (char, parser) =>
-        create(char, parser.map(res => CodeSpan(s"$char$res", category)))
+        create(char, parser.map(res => CodeSpan(res, category)))
       }
     }
 

@@ -34,7 +34,10 @@ class CommonSyntaxParserSpec extends WordSpec
                              with DefaultParserHelpers[Seq[CodeSpan]] {
 
   
-  val rule: CodeSpanParsers = CodeSpanParsers(CodeCategory.Markup.Fence, '\n')(literal("==="))
+  import NumberLiteral._
+  
+  private val startOfLine: Parser[String] = atStart ^^^ "" | "\n"
+  val rule: CodeSpanParsers = CodeSpanParsers(CodeCategory.Markup.Fence, '\n')((startOfLine ~ literal("===")).concat)
   
   private def createParser (allowLetterAfterNumber: Boolean = false): Parser[Seq[CodeSpan]] = new SyntaxHighlighter {
     val language: NonEmptyList[String] = NonEmptyList.of("test-lang")
@@ -59,7 +62,7 @@ class CommonSyntaxParserSpec extends WordSpec
         StringLiteral.Escape.char,
         StringLiteral.Escape.literal("$$"),
         StringLiteral.Substitution.between("${", "}"),
-        StringLiteral.Substitution('$')(anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '_').min(1))
+        StringLiteral.Substitution('$')(("$" ~ anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '_').min(1)).concat)
       ),
       Identifier.alphaNum.withIdStartChars('_','$').withCategoryChooser(Identifier.upperCaseTypeName).copy(allowDigitBeforeStart = allowLetterAfterNumber),
       NumberLiteral.binary.withUnderscores.withSuffix(NumericSuffix.long),
@@ -279,7 +282,7 @@ class CommonSyntaxParserSpec extends WordSpec
       testEscape("\\x7f")
     }
 
-    "parse a literl escape" in {
+    "parse a literal escape" in {
       testEscape("$$")
     }
 

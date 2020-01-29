@@ -48,11 +48,11 @@ object MarkdownSyntax extends SyntaxHighlighter {
       .withCategory(category)
       .withPrefix(literal(start.tail))
 
-  private def linkRest (prefix: String): Parser[Seq[CodeSpan]] = {
+  private def linkParser (prefix: String): Parser[Seq[CodeSpan]] = {
 
     val url = '(' ~> delimitedBy(')').nonEmpty.failOn('\n').map(url => CodeSpan(s"($url)", CodeCategory.Markup.LinkTarget))
     val ref = '[' ~> delimitedBy(']').failOn('\n').map(ref => CodeSpan(s"[$ref]", CodeCategory.Markup.LinkTarget))
-    val link = (literal(prefix.tail) ~ delimitedBy(']').failOn('\n')).concat.map(prefix.head.toString + _ + "]")
+    val link = (literal(prefix) ~ delimitedBy(']').failOn('\n')).concat.map(_ + "]")
 
     (link ~ opt(url | ref)).map {
       case link ~ Some(target) if target.content == "[]" => Seq(CodeSpan(link + "[]", CodeCategory.Markup.LinkTarget))
@@ -61,11 +61,13 @@ object MarkdownSyntax extends SyntaxHighlighter {
     }
   }
 
-  val link: CodeSpanParsers = CodeSpanParsers('[')(linkRest("["))
-  val image: CodeSpanParsers = CodeSpanParsers('!')(linkRest("!["))
+  val link: CodeSpanParsers = CodeSpanParsers('[')(linkParser("["))
+  val image: CodeSpanParsers = CodeSpanParsers('!')(linkParser("!["))
+  
+  val startOfLine: Parser[String] = atStart ^^^ "" | "\n"
 
   val linkTarget: CodeSpanParsers = CodeSpanParsers('\n') {
-    ('[' ~> delimitedBy("]:").failOn('\n') ~ restOfLine).map {
+    (startOfLine ~> '[' ~> delimitedBy("]:").failOn('\n') ~ restOfLine).map {
       case ref ~ target => Seq(
         CodeSpan("\n"),
         CodeSpan(s"[$ref]:", CodeCategory.Identifier),
@@ -76,16 +78,16 @@ object MarkdownSyntax extends SyntaxHighlighter {
   }
 
   val atxHeader: CodeSpanParsers = CodeSpanParsers(CodeCategory.Markup.Headline, '\n') {
-    (anyOf('#').min(1).max(6) ~ restOfLine).concat.map(_ + "\n")
+    (startOfLine ~ anyOf('#').min(1).max(6) ~ restOfLine).concat.map(_ + "\n")
   }
 
   val setexHeader: CodeSpanParsers = CodeSpanParsers(CodeCategory.Markup.Headline, '\n') {
     val deco = (anyOf('=').min(1) | anyOf('-').min(1)) <~ wsEol
-    (restOfLine.map(_ + "\n") ~ deco).concat.map(_ + "\n")
+    (startOfLine ~ restOfLine.map(_ + "\n") ~ deco).concat.map(_ + "\n")
   }
 
   val codeFence: CodeSpanParsers = CodeSpanParsers(CodeCategory.Markup.Fence, '\n') {
-    (anyOf('`').take(3) ~ restOfLine).concat
+    (startOfLine ~ anyOf('`').take(3) ~ restOfLine).concat
   }
 
   val rules: CodeSpanParsers = CodeSpanParsers(CodeCategory.Markup.Fence, '\n') {
@@ -96,7 +98,7 @@ object MarkdownSyntax extends SyntaxHighlighter {
     }.reduceLeft(_ | _)
   }
 
-  val quoteChars: CodeSpanParsers = CodeSpanParsers(CodeCategory.Markup.Quote, '\n')(anyOf('>').min(1))
+  val quoteChars: CodeSpanParsers = CodeSpanParsers(CodeCategory.Markup.Quote, '\n')((startOfLine ~ anyOf('>').min(1)).concat)
 
   val mdSpans: CodeSpanParsers = span(CodeCategory.Markup.Emphasized, "**") ++
     span(CodeCategory.Markup.Emphasized, "*") ++

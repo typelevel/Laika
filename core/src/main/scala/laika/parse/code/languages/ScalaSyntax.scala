@@ -43,7 +43,7 @@ object ScalaSyntax extends SyntaxHighlighter {
   }
   
   val backtickIdParser: CodeSpanParsers = CodeSpanParsers(CodeCategory.Identifier, '`') {
-    (anyBut('\n', '`') ~ anyOf('`').take(1)).concat
+    (anyOf('`').take(1) ~ anyBut('\n', '`') ~ anyOf('`').take(1)).concat
   }
   
   val charEscapes: CodeSpanParsers = StringLiteral.Escape.unicode ++ StringLiteral.Escape.char

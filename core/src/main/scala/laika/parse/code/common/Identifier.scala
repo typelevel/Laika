@@ -71,9 +71,9 @@ object Identifier {
 
     lazy val parsers: Seq[CodeSpanParser] = CodeSpanParsers(idStartChars) {
         
-      val prevChar = lookBehind(2, anyWhile(c => (!Character.isDigit(c) || allowDigitBeforeStart) && !Character.isLetter(c)).take(1)) | lookBehind(1, atStart)
+      val prevChar = lookBehind(1, anyWhile(c => (!Character.isDigit(c) || allowDigitBeforeStart) && !Character.isLetter(c)).take(1)) | atStart
 
-      val idStart = lookBehind(1, any.take(1))
+      val idStart = any.take(1)
       
       (prevChar ~> idStart ~ idRestParser).concat.map(id => Seq(CodeSpan(id, category(id))))
       

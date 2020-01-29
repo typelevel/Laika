@@ -123,7 +123,7 @@ object InlineParsers {
     def nestedSpanOrNextChar (parser: Parser[Elem], input: ParserContext) = {
       parser.parse(input) match {
         case Success(result, next) => builder += result; next
-        case _ => builder += builder.fromString(input.charAt(-1).toString); input
+        case _ => builder += builder.fromString(input.char.toString); input.consume(1)
       }
     }
 

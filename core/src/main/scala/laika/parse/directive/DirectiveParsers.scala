@@ -49,12 +49,12 @@ object DirectiveParsers {
 
   /** Parses a legacy reference (version 0.1 to 0.11) enclosed between `{{` and `}}`.
     */
-  def legacyReference[T] (f: String => T): Parser[T] = '{' ~ ws ~> anyBut('}') <~ ws ~ "}}" ^^ f
+  def legacyReference[T] (f: String => T): Parser[T] = "{{" ~ ws ~> anyBut('}') <~ ws ~ "}}" ^^ f
 
   /** Parses a HOCON-style reference enclosed between `\${` and `}` that may be marked as optional (`\${?some.param}`).
     */
   def hoconReference[T] (f: (Key, Boolean) => T, e: InvalidElement => T): Parser[T] = 
-    ('{' ~> opt('?') ~ withSource(HoconParsers.concatenatedKey(Set('}'))) <~ '}').map {
+    ("${" ~> opt('?') ~ withSource(HoconParsers.concatenatedKey(Set('}'))) <~ '}').map {
       case opt ~ ((Right(key), _))  => f(key, opt.isEmpty)
       case _ ~ ((Left(invalid), src)) => e(InvalidElement(s"Invalid HOCON reference: '$src': ${invalid.failure.toString}", s"$${$src}"))
     }
@@ -163,7 +163,7 @@ object DirectiveParsers {
     (legacyDirective | newDirective) ^^ { case (name, attrs) ~ body => ParsedDirective(name, attrs, body) }
   }
   
-  val nestedBraces: Parser[Text] = delimitedBy('}') ^^ (str => Text(s"{$str}"))
+  val nestedBraces: Parser[Text] = "{" ~> delimitedBy('}') ^^ (str => Text(s"{$str}"))
 
 }
 
@@ -181,7 +181,7 @@ object SpanDirectiveParsers {
     SpanParser.forStartChar('{').standalone(legacyReference(key => MarkupContextReference(Key.parse(key), required = true)))
 
   def spanDirective (directives: Map[String, Spans.Directive]): SpanParserBuilder =
-    SpanParser.forStartChar('@').recursive(spanDirectiveParser(directives))
+    SpanParser.forStartChar('@').recursive(rec => any.take(1) ~> spanDirectiveParser(directives)(rec))
 
   def spanDirectiveParser(directives: Map[String, Spans.Directive])(recParsers: RecursiveSpanParsers): Parser[Span] = {
 

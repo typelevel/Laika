@@ -43,11 +43,11 @@ object CharLiteral {
 
     lazy val parsers: Seq[CodeSpanParser] = CodeSpanParsers(delim) {
 
-      val plainChar = lookBehind(1, anyBut('\'', '\n').take(1)).map(CodeSpan(_, categories))
+      def plainChar(char: String) = anyBut('\'', '\n').take(1).map(CodeSpan(_, categories))
       val closingDelim = anyOf(delim).take(1).map(CodeSpan(_, categories))
-      
-      any.take(1).flatMap { char =>
-        (EmbeddedCodeSpans.parserMap(embedded).getOrElse(char.head, plainChar) ~ closingDelim).map { 
+
+      (delim ~> lookAhead(any.take(1))).flatMap { char =>
+        (EmbeddedCodeSpans.parserMap(embedded).getOrElse(char.head, plainChar(char)) ~ closingDelim).map { 
           case span ~ closingDel => 
             val codeSpans = CodeSpans.extract(categories)(span) :+ closingDel
             CodeSpans.merge(delim, codeSpans, categories) 

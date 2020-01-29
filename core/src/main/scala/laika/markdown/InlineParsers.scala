@@ -50,7 +50,7 @@ object InlineParsers {
 
   /** Parses an explicit hard line break.
    */
-  val lineBreak: SpanParserBuilder = SpanParser.forStartChar('\\').standalone(anyOf('\r').take(1) ^^^ LineBreak())
+  val lineBreak: SpanParserBuilder = SpanParser.forStartChar('\\').standalone("\\\r" ^^^ LineBreak())
   
   /** Parses a span of strong text enclosed by two consecutive occurrences of the specified character. 
    */
@@ -87,7 +87,7 @@ object InlineParsers {
    *  Recursively parses nested spans, too. 
    */
   def enclosedBySingleChar (c: Char)(implicit recParsers: RecursiveSpanParsers): Parser[List[Span]] = {
-    val start = lookAhead(anyBut(' ','\n',c).take(1).^)
+    val start = c ~ lookAhead(anyBut(' ','\n',c).take(1).^)
     val end = not(lookBehind(2, ' '))
     span(start, c.toString, end)
   }
@@ -96,7 +96,7 @@ object InlineParsers {
    *  Recursively parses nested spans, too. 
    */
   def enclosedByDoubleChar (c: Char)(implicit recParsers: RecursiveSpanParsers): Parser[List[Span]] = {
-    val start = c ~ lookAhead(anyBut(' ','\n').take(1).^)
+    val start = anyOf(c).take(2) ~ lookAhead(anyBut(' ','\n').take(1).^)
     val end = c <~ not(lookBehind(3, ' '))
     span(start, c.toString, end)
   }
@@ -105,7 +105,7 @@ object InlineParsers {
    *  Does neither parse nested spans nor Markdown escapes. 
    */
   val literalEnclosedBySingleChar: Parser[Literal] = {
-    val start = not('`')
+    val start = '`' ~ not('`')
     val end = '`'
     start ~> delimitedBy(end) ^^ { s => Literal(s.trim) }
   }
@@ -114,9 +114,8 @@ object InlineParsers {
    *  Does neither parse nested spans nor Markdown escapes. 
    */
   val literalEnclosedByDoubleChar: Parser[Literal] = {
-    val start = '`'
-    val end = "``"
-    start ~> delimitedBy(end) ^^ { s => Literal(s.trim) }
+    val delim = "``"
+    delim ~> delimitedBy(delim) ^^ { s => Literal(s.trim) }
   }
 
   /** Parses a literal span enclosed by double or single backticks.
@@ -149,7 +148,7 @@ object InlineParsers {
       if (text == id) unwrap(ref, suffix) else ref
     }
 
-    resource(linkInline, linkReference, recParsers)
+    "[" ~> resource(linkInline, linkReference, recParsers)
   }
 
   /** Parses an inline image.
@@ -166,7 +165,7 @@ object InlineParsers {
     def imageReference (p: RecParser, text: String, id: String, postFix: String): Span =
       escape(text, ImageReference(_, normalizeId(id), "![" + text + postFix))
 
-    '[' ~> resource(imageInline, imageReference, recParsers)
+    "![" ~> resource(imageInline, imageReference, recParsers)
   }
   
   /** Helper function that abstracts the common parser logic of links and images.
@@ -179,15 +178,15 @@ object InlineParsers {
                 recParsers: RecursiveSpanParsers): Parser[Span] = {
 
     val linkText = text(delimitedBy(']'), Map(
-      '\\' -> (recParsers.escapedChar ^^ {"\\" + _}),
-      '[' -> (delimitedBy(']') ^^ { "[" + _ + "]" })
+      '\\' -> ('\\' ~> recParsers.escapedChar ^^ {"\\" + _}),
+      '[' -> ('[' ~> delimitedBy(']') ^^ { "[" + _ + "]" })
     ))
 
     val titleEnd = lookAhead(ws.^ ~ ')')
     val title = ws.^ ~> (('"' ~> delimitedBy("\"", titleEnd)) | ('\'' ~> delimitedBy("'", titleEnd)))
 
-    val url = ('<' ~> text(delimitedBy('>',' ').keepDelimiter, Map('\\' -> recParsers.escapedChar)) <~ '>') |
-       text(delimitedBy(')',' ','\t').keepDelimiter, Map('\\' -> recParsers.escapedChar))
+    val url = ('<' ~> text(delimitedBy('>',' ').keepDelimiter, Map('\\' -> '\\' ~> recParsers.escapedChar)) <~ '>') |
+       text(delimitedBy(')',' ','\t').keepDelimiter, Map('\\' -> '\\' ~> recParsers.escapedChar))
     
     val urlWithTitle = '(' ~> url ~ opt(title) <~ ws ~ ')' ^^ {  
       case url ~ title => (recParser: RecParser, text:String) => inline(recParser, text, url, title)
@@ -221,7 +220,7 @@ object InlineParsers {
 
     def toLink(s: String) = ExternalLink(List(Text(s)), s)
 
-    anyBut(' ','\r','\n','\t','>') <~ '>' ^? {
+    '<' ~> anyBut(' ','\r','\n','\t','>') <~ '>' ^? {
       case s if isURI(s) => toLink(s)
       case s if isEmail(s) => toLink(s"mailto:$s")
     }

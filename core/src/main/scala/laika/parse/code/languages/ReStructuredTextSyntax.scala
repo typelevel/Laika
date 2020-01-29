@@ -41,8 +41,10 @@ object ReStructuredTextSyntax extends SyntaxHighlighter {
 
   private def span (start: String, end: String, category: CodeCategory, postCondition: Parser[Any] = success(())): CodeSpanParsers =
     CodeSpanParsers(category, start.head) {
-      markupStart(start.tail, end) ~> delimitedByMarkupEnd(end, postCondition) ^^ { text => s"${start.tail}$text$end" }
+      markupStart(start, end) ~> delimitedByMarkupEnd(end, postCondition) ^^ { text => s"$start$text$end" }
     }
+
+  val newLine: Parser[String] = atStart ^^^ "" | "\n"
 
   val strong: CodeSpanParsers = span("**", "**", CodeCategory.Markup.Emphasized)
   val em: CodeSpanParsers     = span("*", "*", CodeCategory.Markup.Emphasized, not("*"))
@@ -56,25 +58,25 @@ object ReStructuredTextSyntax extends SyntaxHighlighter {
   val footnote: CodeSpanParsers        = span("[", "]_", CodeCategory.Markup.LinkTarget)
 
   val header: CodeSpanParsers = CodeSpanParsers(CodeCategory.Markup.Headline, '\n') {
-    anyOf(BaseParsers.punctuationChars.toSeq: _*).take(1) >> { startChar =>
+    newLine ~ anyOf(BaseParsers.punctuationChars.toSeq: _*).take(1) >> { case nl ~ startChar =>
       (anyOf(startChar.head).min(1) ~ ws ~ ('\n' ~> not(blankLine) ~> restOfLine) ~ anyOf(startChar.head).min(1) ~ ws <~ lookAhead('\n')).map {
-        case deco1 ~ spaces ~ text ~ deco2 ~ spaces2 => s"$startChar$deco1$spaces\n$text\n$deco2$spaces2"
+        case deco1 ~ spaces ~ text ~ deco2 ~ spaces2 => s"$nl$startChar$deco1$spaces\n$text\n$deco2$spaces2"
       }
     }
   }
 
   val underlinedHeader: CodeSpanParsers = CodeSpanParsers(CodeCategory.Markup.Headline, '\n') {
-    (not(blankLine) ~> restOfLine.map(_ + "\n") ~ anyOf(BaseParsers.punctuationChars.toSeq: _*).take(1)) >> {
-      case text ~ decoStart =>
+    (newLine ~ (not(blankLine) ~> restOfLine.map(_ + "\n")) ~ anyOf(BaseParsers.punctuationChars.toSeq: _*).take(1)) >> {
+      case nl ~ text ~ decoStart =>
         (anyOf(decoStart.head).min(1) ~ ws <~ lookAhead('\n')).map {
-          case deco ~ spaces => s"$text$decoStart$deco$spaces"
+          case deco ~ spaces => s"$nl$text$decoStart$deco$spaces"
         }
     }
   }
 
   val transition: CodeSpanParsers = CodeSpanParsers(CodeCategory.Markup.Fence, '\n') {
-    anyOf(BaseParsers.punctuationChars.toSeq: _*).take(1) >> { startChar =>
-      anyOf(startChar.head).min(1).map(startChar + _) <~ lookAhead(ws ~ '\n' ~ blankLine)
+    newLine ~ anyOf(BaseParsers.punctuationChars.toSeq: _*).take(1) >> { case nl ~ startChar =>
+      anyOf(startChar.head).min(1).map(nl + startChar + _) <~ lookAhead(ws ~ '\n' ~ blankLine)
     }
   }
 
@@ -88,16 +90,15 @@ object ReStructuredTextSyntax extends SyntaxHighlighter {
     val directive = rawSpan("", "::", CodeCategory.Identifier, includeDelim = false)
       .map(Seq(_, CodeSpan("::", CodeCategory.Keyword)))
 
-    (opt(atStart).map(_.isDefined) ~ (literal(".. ") ~> (subst | linkTarget | footnote | directive))).map {
-      case startOfInput ~ res =>
-        val nl = if (startOfInput) "" else "\n"
+    (newLine ~ (literal(".. ") ~> (subst | linkTarget | footnote | directive))).map {
+      case nl ~ res =>
         CodeSpan(s"$nl.. ") +: res
     }
   }
 
   val fieldDef: CodeSpanParsers = CodeSpanParsers('\n') {
-    (ws ~ rawSpan(":", ":", CodeCategory.AttributeName)).map {
-      case space ~ name => Seq(CodeSpan(s"\n$space"), name)
+    (newLine ~ ws ~ rawSpan(":", ":", CodeCategory.AttributeName)).map {
+      case nl ~ space ~ name => Seq(CodeSpan(s"\n$space"), name)
     }
   }
 

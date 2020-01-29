@@ -25,11 +25,11 @@ import laika.parse.code.{CodeCategory, CodeSpanParsers}
   */
 object Comment {
   
-  /** Parses a single line comment from the speficied start delimiter to the end of the line. */
+  /** Parses a single line comment from the specified start delimiter to the end of the line. */
   def singleLine (start: String): CodeSpanParsers = {
     require(start.nonEmpty)
     CodeSpanParsers(CodeCategory.Comment, start.head) {
-      start.tail ~> restOfLine ^^ { text => start.tail + text + "\n" }
+      start ~> restOfLine ^^ { text => start + text + "\n" }
     }
     // TODO - 0.14 - create restOfLine variant that does not consume final \n or use anyBut('\n') directly
   }
@@ -38,7 +38,7 @@ object Comment {
   def multiLine (start: String, end: String): CodeSpanParsers = {
     require(start.nonEmpty)
     CodeSpanParsers(CodeCategory.Comment, start.head) {
-      start.tail ~> delimitedBy(end) ^^ { text => start.tail + text + end }
+      start ~> delimitedBy(end) ^^ { text => start + text + end }
     }
   }
   

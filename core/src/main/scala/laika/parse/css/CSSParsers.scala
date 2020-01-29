@@ -114,7 +114,7 @@ object CSSParsers {
     *  any comments..
     */
   val styleValue: Parser[String] =
-    InlineParsers.text(delimitedBy(';'), Map('/' -> (('*' ~ delimitedBy("*/") ~ wsOrNl) ^^^ "")))
+    InlineParsers.text(delimitedBy(';'), Map('/' -> (("/*" ~ delimitedBy("*/") ~ wsOrNl) ^^^ "")))
 
   /** Parses a single style within a declaration.
     */

@@ -32,7 +32,7 @@ object LaikaExtensionSyntax {
   val substitution: CodeSpanParsers = StringLiteral.Substitution.between("${", "}")
 
   val hoconBlock: CodeSpanParsers = CodeSpanParsers('{') {
-    embeddedHocon("%", "%}", Set(CodeCategory.Keyword)).map(res => CodeSpan("{", CodeCategory.Keyword) +: res)
+    embeddedHocon("{%", "%}", Set(CodeCategory.Keyword))
   }
 
   def embeddedHocon (start: String, end: String, delimCategory: Set[CodeCategory] = Set()): Parser[Seq[CodeSpan]] = {
@@ -42,7 +42,7 @@ object LaikaExtensionSyntax {
   }
 
   val directive: CodeSpanParsers = CodeSpanParsers('@') {
-    (':' ~> Identifier.alphaNum.standaloneParser ~ opt(ws.min(1) ~ embeddedHocon("{", "}"))).map {
+    ("@:" ~> Identifier.alphaNum.standaloneParser ~ opt(ws.min(1) ~ embeddedHocon("{", "}"))).map {
       case name ~ Some(spaces ~ hocon) => CodeSpan("@:", CodeCategory.Keyword) +: name +: CodeSpan(spaces) +: hocon
       case name ~ None => Seq(CodeSpan("@:", CodeCategory.Keyword), name)
     }

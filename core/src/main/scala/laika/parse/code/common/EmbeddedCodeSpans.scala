@@ -30,6 +30,8 @@ import laika.parse.text.TextParsers._
   */
 object EmbeddedCodeSpans {
 
+  import NumberLiteral._
+  
   /** Creates a map for the specified code span parsers that maps the start character
     * for each parser to its combined parsers. If a character maps to multiple parsers
     * they will be combined with `|` in the specified order. 
@@ -60,15 +62,11 @@ object EmbeddedCodeSpans {
   def parser (textParser: DelimitedText[String], embedded: Seq[CodeSpanParsers], defaultCategories: Set[CodeCategory] = Set.empty): Parser[Seq[CodeSpan]] = {
     val embeddedParserMap = parserMap(embedded)
     val mainParser = InlineParsers.spans(textParser, embeddedParserMap)
-    def removeFirstChar(span: Span): Span = span match {
-      case CodeSpan(content, categories, opt) if content.nonEmpty => CodeSpan(content.drop(1), categories, opt)
-      case _ => span
-    }
-    embeddedParserMap.get('\n').fold(mainParser.map(_.flatMap(CodeSpans.extract(defaultCategories)))) { newLineParsers =>
-      (opt((atStart | lookBehind(1, '\n')) ~> newLineParsers) ~ mainParser).map {
-        case newLineSpan ~ mainSpans =>
-          (newLineSpan.map(removeFirstChar).toList ++ mainSpans).flatMap(CodeSpans.extract(defaultCategories))
-      }
+    
+    def extract(spans: Seq[Span]): List[CodeSpan] = spans.flatMap(CodeSpans.extract(defaultCategories)).toList
+    
+    embeddedParserMap.get('\n').fold(mainParser.map(extract)) { newLineParsers =>
+      (opt(lookAhead(atStart) ~> newLineParsers).map(_.toList) ~ mainParser).concat.map(extract)
     }
 
   }

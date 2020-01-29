@@ -45,6 +45,10 @@ object NumberLiteral {
     def concat: Parser[Seq[T]] = p.map { case x ~ xs => x +: xs }
   }
 
+  private[laika] implicit class List2ParsersOps[T] (val p: Parser[Seq[T] ~ Seq[T]]) extends AnyVal {
+    def concat: Parser[Seq[T]] = p.map { case x ~ xs => x ++ xs }
+  }
+
   /** Common sets of digits, like hex or decimal. */
   object Digits {
     val binary: Set[Char] = ('0' to '1').toSet
@@ -67,6 +71,8 @@ object NumberLiteral {
   private val exponent: Parser[String]       = (anyOf('E', 'e').take(1) ~ sign ~ anyOf(Digits.decimal.toSeq: _*).min(1)).concat
   private val binaryExponent: Parser[String] = (anyOf('P', 'p').take(1) ~ sign ~ anyOf(Digits.decimal.toSeq: _*).min(1)).concat
 
+  private def zeroPrefix(chars: Char*): Parser[String] = ("0" ~ anyOf(chars:_*)).concat 
+  
   /* Configurable base parser for number literals. */
   case class NumericParser (startChars: Set[Char],
                             digits: Set[Char],
@@ -121,19 +127,19 @@ object NumberLiteral {
     * It must start with  `0b` or `0B`, followed by one or more binary digits,
     * e.g. `\0b100110`.
     */
-  val binary: NumericParser = NumericParser(Set('0'), Digits.binary, Some(anyOf('b', 'B').take(1)))
+  val binary: NumericParser = NumericParser(Set('0'), Digits.binary, Some(zeroPrefix('b', 'B')))
 
   /** Parses an octal number literal.
     * It must start with  `0o` or `0O`, followed by one or more octal digits,
     * e.g. `\0o257`.
     */
-  val octal: NumericParser = NumericParser(Set('0'), Digits.octal, Some(anyOf('o', 'O').take(1)))
+  val octal: NumericParser = NumericParser(Set('0'), Digits.octal, Some(zeroPrefix('o', 'O')))
 
   /** Parses a hexadecimal number literal.
     * It must start with  `0x` or `0X`, followed by one or more hex digits,
     * e.g. `\0x25ff7`.
     */
-  val hex: NumericParser = NumericParser(Set('0'), Digits.hex, Some(anyOf('x', 'X').take(1)))
+  val hex: NumericParser = NumericParser(Set('0'), Digits.hex, Some(zeroPrefix('x', 'X')))
 
   /** Parses a decimal integer.
     */
@@ -147,7 +153,7 @@ object NumberLiteral {
     * It must start with  `0x` or `0X`, followed by one or more hex digits,
     * e.g. `\0x25ff7.fa`.
     */
-  val hexFloat: NumericParser = NumericParser(Set('0'), Digits.hex, Some(anyOf('x', 'X').take(1)), exponent = Some(binaryExponent))
+  val hexFloat: NumericParser = NumericParser(Set('0'), Digits.hex, Some(zeroPrefix('x', 'X')), exponent = Some(binaryExponent))
 
 }
 

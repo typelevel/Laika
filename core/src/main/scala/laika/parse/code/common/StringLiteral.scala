@@ -37,14 +37,16 @@ object StringLiteral {
     /** Parses a simple backslash character escape. Does except any character after the backslash,
       * if you want to be strict and apply the specific rules about which characters are valid
       * escapes you need to create a custom parser. */
-    val char: CodeSpanParsers = CodeSpanParsers(CodeCategory.EscapeSequence, '\\')(any.take(1))
+    val char: CodeSpanParsers = CodeSpanParsers(CodeCategory.EscapeSequence, '\\') {
+      (TextParsers.literal("\\") ~ any.take(1)).concat
+    }
 
     /** Parses a unicode character escape.
       * It must start with a backslash, followed by the letter `u` and exactly four hex digits,
       * e.g. `\\u20ff`.
       */
     val unicode: CodeSpanParsers = CodeSpanParsers(CodeCategory.EscapeSequence, '\\') {
-      (anyOf('u').take(1) ~ DigitParsers.hex.take(4)).concat
+      (TextParsers.literal("\\u") ~ DigitParsers.hex.take(4)).concat
     }
 
     /** Parses a hexadecimal character escape.
@@ -52,7 +54,7 @@ object StringLiteral {
       * e.g. `\\xf2`.
       */
     val hex: CodeSpanParsers = CodeSpanParsers(CodeCategory.EscapeSequence, '\\') {
-      (anyOf('x').take(1) ~ DigitParsers.hex.take(2)).concat
+      (TextParsers.literal("\\x") ~ DigitParsers.hex.take(2)).concat
     }
 
     /** Parses a octal character escape.
@@ -60,7 +62,7 @@ object StringLiteral {
       * e.g. `\\207`.
       */
     val octal: CodeSpanParsers = CodeSpanParsers(CodeCategory.EscapeSequence, '\\') {
-      (anyIn('0' to '3').take(1) ~ DigitParsers.octal.max(2)).concat | DigitParsers.octal.min(1).max(2)
+      (TextParsers.literal("\\") ~ anyIn('0' to '3').take(1) ~ DigitParsers.octal.max(2)).concat | DigitParsers.octal.min(1).max(2)
     }
 
     /** Parses a single literal escape. Example: `$$`. 
@@ -68,7 +70,7 @@ object StringLiteral {
     def literal(value: String): CodeSpanParsers = {
       require(value.nonEmpty)
       CodeSpanParsers(CodeCategory.EscapeSequence, value.head) {
-        TextParsers.literal(value.tail)
+        TextParsers.literal(value)
       }
     }
   }
@@ -90,8 +92,7 @@ object StringLiteral {
       require(start.nonEmpty)
       require(end.nonEmpty)
       apply(start.head) {
-        if (start.tail.isEmpty) (delimitedBy(end).keepDelimiter.failOn('\n') ~ end).concat
-        else (literal(start.tail) ~ delimitedBy(end).keepDelimiter.failOn('\n') ~ end).concat
+        (literal(start) ~ delimitedBy(end).keepDelimiter.failOn('\n') ~ end).concat
       }
     }
 
@@ -140,7 +141,7 @@ object StringLiteral {
       def optParser(p: Option[Parser[String]]): Parser[List[CodeSpan]] = 
         p.map(_.map(res => List(CodeSpan(res, defaultCategories)))).getOrElse(success(Nil))
       
-      (lookBehind(1, any.take(1)) ~ optParser(prefix) ~ EmbeddedCodeSpans.parser(parser, embedded, defaultCategories) ~ optParser(postfix)).map {
+      (any.take(1) ~ optParser(prefix) ~ EmbeddedCodeSpans.parser(parser, embedded, defaultCategories) ~ optParser(postfix)).map {
         case startChar ~ pre ~ content ~ post => CodeSpans.merge(startChar.head, pre ++ content ++ post, defaultCategories)
       }
     }.parsers

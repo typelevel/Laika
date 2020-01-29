@@ -35,7 +35,7 @@ object Keywords {
   def apply (category: CodeCategory)(keyword: String, keywords: String*): CodeSpanParsers = CodeSpanParsers(category) {
     (keyword +: keywords).map { kw =>
       require(kw.nonEmpty)
-      (kw.head, (Literal(kw.tail) <~ not(anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '_').take(1))) ^^^ kw.tail)
+      (kw.head, (Literal(kw) <~ not(anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '_').take(1))) ^^^ kw)
     }
   }
 

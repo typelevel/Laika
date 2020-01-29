@@ -18,6 +18,7 @@ package laika.parse.markup
 
 import laika.parse.Parser
 import laika.parse.text.{DelimitedText, TextParsers}
+import laika.parse.text.TextParsers.char
 
 /** Default implementation for parsing escape sequences.
   *
@@ -36,7 +37,7 @@ trait DefaultEscapedTextParsers extends EscapedTextParsers {
     * @param p the parser to add support for escape sequences to
     * @return a parser for a text span that supports escape sequences
     */
-  def escapedText(p: DelimitedText[String]): Parser[String] = InlineParsers.text(p, Map('\\' -> escapedChar))
+  def escapedText(p: DelimitedText[String]): Parser[String] = InlineParsers.text(p, Map('\\' -> '\\' ~> escapedChar))
 
   /** Parses a span of text until one of the specified characters is seen
     * (unless it is escaped),

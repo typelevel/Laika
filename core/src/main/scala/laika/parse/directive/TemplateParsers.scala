@@ -35,7 +35,7 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
     '{' -> legacyReference(key => TemplateContextReference(Key.parse(key), required = true)),
     '$' -> hoconReference(TemplateContextReference(_,_), _.asTemplateSpan),
     '@' -> templateDirective,
-    '\\'-> ((any take 1) ^^ { Text(_) })
+    '\\'-> '\\' ~> ((any take 1) ^^ { Text(_) })
   )
 
   lazy val templateDirective: Parser[TemplateSpan] = {
@@ -52,7 +52,7 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
       else success(None)
 
     val separators = directives.values.flatMap(_.separators).toSet
-    withSource(directiveParser(newBody, legacyBody, this)) ^^ { case (result, source) =>
+    '@' ~> withSource(directiveParser(newBody, legacyBody, this)) ^^ { case (result, source) =>
       if (separators.contains(result.name)) Templates.SeparatorInstance(result, source)
       else Templates.DirectiveInstance(directives.get(result.name), result, templateSpans, source)
     }

@@ -56,12 +56,12 @@ object HOCONSyntax extends SyntaxHighlighter {
   
   def functionNames(names: String*): CodeSpanParsers = names.map { name =>
     CodeSpanParsers(CodeCategory.Identifier, name.head) {
-      literal(name.tail) <~ lookAhead('(')
+      literal(name) <~ lookAhead('(')
     }
   }.reduceLeft(_ ++ _)
   
   val includeStatement: CodeSpanParsers = CodeSpanParsers(CodeCategory.Keyword, 'i') {
-    literal("nclude") <~ lookAhead(ws.min(1) ~ (literal("\"") | literal("required(") | literal("file(") | literal("url(") | literal("classpath(")))
+    literal("include") <~ lookAhead(ws.min(1) ~ (literal("\"") | literal("required(") | literal("file(") | literal("url(") | literal("classpath(")))
   }
 
   val language: NonEmptyList[String] = NonEmptyList.of("hocon")

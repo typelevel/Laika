@@ -33,9 +33,8 @@ class InlineDelimiter (nestedDelimiters: Set[Char], endDelimiters: Delimiter[Str
   def atStartChar (startChar: Char, charsConsumed: Int, context: ParserContext): DelimiterResult[InlineResult] = {
 
     def nestedDelimiter: DelimiterResult[InlineResult] = {
-      val totalConsumed = charsConsumed + 1
       val capturedText = context.capture(charsConsumed)
-      Complete(Success(NestedDelimiter(startChar, capturedText), context.consume(totalConsumed)))
+      Complete(Success(NestedDelimiter(startChar, capturedText), context.consume(charsConsumed)))
     }
 
     if (endDelimiters.startChars.contains(startChar))

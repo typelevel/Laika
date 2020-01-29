@@ -100,7 +100,7 @@ object InlineParsers {
    *  @return a parser without a useful result, as it is only needed to verify it succeeds
    */                          
   def markupStart (start: Parser[Any], end: Parser[String]): Parser[Any] = {
-    ((lookBehind(2, beforeStartMarkup) | lookBehind(1, atStart ^^^ ' ')) >> afterStartMarkup(start)) ~ not(end) // not(end) == rule 6
+    ((lookBehind(1, beforeStartMarkup) | atStart ^^^ ' ') >> afterStartMarkup(start)) ~ not(end) // not(end) == rule 6
   }
   
   /** Parses the start of an inline element without specific start markup 
@@ -171,7 +171,7 @@ object InlineParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#emphasis]]
    */
   lazy val em: SpanParserBuilder = SpanParser.forStartChar('*').recursive { implicit recParsers =>
-    span(not(lookBehind(2, '*')), "*", not('*')) ^^ (Emphasized(_))
+    span('*' ~> not(lookBehind(2, '*')), "*", not('*')) ^^ (Emphasized(_))
   }.withLowPrecedence
   
   /** Parses a span of text with strong emphasis.
@@ -179,7 +179,7 @@ object InlineParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#strong-emphasis]]
    */
   lazy val strong: SpanParserBuilder = SpanParser.forStartChar('*').recursive { implicit recParsers =>
-    span('*',"**") ^^ (Strong(_))
+    span("**","**") ^^ (Strong(_))
   }
 
 
@@ -194,7 +194,7 @@ object InlineParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#inline-literals]].
    */
   lazy val inlineLiteral: SpanParserBuilder = SpanParser.forStartChar('`').standalone {
-    markupStart('`', "``") ~> delimitedByMarkupEnd("``") ^^ (Literal(_))
+    markupStart("``", "``") ~> delimitedByMarkupEnd("``") ^^ (Literal(_))
   }
   
   private def toSource (label: FootnoteLabel): String = label match {
@@ -209,7 +209,7 @@ object InlineParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#footnote-references]].
    */
   lazy val footnoteRef: SpanParserBuilder = SpanParser.forStartChar('[').standalone {
-    markupStart("]_") ~> footnoteLabel <~ markupEnd("]_") ^^ { label => FootnoteReference(label, toSource(label)) }
+    markupStart("[", "]_") ~> footnoteLabel <~ markupEnd("]_") ^^ { label => FootnoteReference(label, toSource(label)) }
   }
   
   /** Parses a citation reference.
@@ -217,7 +217,7 @@ object InlineParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#citation-references]].
    */
   lazy val citationRef: SpanParserBuilder = SpanParser.forStartChar('[').standalone {
-    markupStart("]_") ~> simpleRefName <~ markupEnd("]_") ^^ { label => CitationReference(label, s"[$label]_") }
+    markupStart("[", "]_") ~> simpleRefName <~ markupEnd("]_") ^^ { label => CitationReference(label, s"[$label]_") }
   }
   
   /** Parses a substitution reference.
@@ -225,7 +225,7 @@ object InlineParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#substitution-references]].
    */
   lazy val substitutionRef: SpanParserBuilder = SpanParser.forStartChar('|').standalone {
-    markupStart("|") ~> simpleRefName >> { ref =>
+    markupStart("|", "|") ~> simpleRefName >> { ref =>
       markupEnd("|__") ^^ { _ => LinkReference(List(SubstitutionReference(ref)), "", s"|$ref|__") } |
       markupEnd("|_")  ^^ { _ => LinkReference(List(SubstitutionReference(ref)), ref, s"|$ref|_") } |
       markupEnd("|")   ^^ { _ => SubstitutionReference(ref) }
@@ -237,7 +237,7 @@ object InlineParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#inline-internal-targets]]
    */
   lazy val internalTarget: SpanParserBuilder = SpanParser.forStartChar('_').recursive { recParsers =>
-    markupStart('`', "`") ~>
+    markupStart("_`", "`") ~>
     (recParsers.escapedText(delimitedBy('`').nonEmpty) ^^ ReferenceName) <~
     markupEnd(1) ^^ (id => Text(id.original, Id(id.normalized) + Styles("target")))
   }
@@ -247,7 +247,7 @@ object InlineParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#interpreted-text]]
    */  
   lazy val interpretedTextWithRolePrefix: SpanParserBuilder = SpanParser.forStartChar(':').recursive { recParsers =>
-    (markupStart(":") ~> simpleRefName) ~ (":`" ~> recParsers.escapedText(delimitedBy('`').nonEmpty) <~ markupEnd(1)) ^^
+    (markupStart(":", ":") ~> simpleRefName) ~ (":`" ~> recParsers.escapedText(delimitedBy('`').nonEmpty) <~ markupEnd(1)) ^^
       { case role ~ text => InterpretedText(role,text,s":$role:`$text`") }
   }
   
@@ -257,7 +257,7 @@ object InlineParsers {
    */  
   def interpretedTextWithRoleSuffix (defaultTextRole: String): SpanParserBuilder =
     SpanParser.forStartChar('`').recursive { recParsers =>
-      (markupStart("`") ~> recParsers.escapedText(delimitedBy('`').nonEmpty) <~ markupEnd(1)) ~ opt(":" ~> simpleRefName <~ markupEnd(":")) ^^
+      (markupStart("`", "`") ~> recParsers.escapedText(delimitedBy('`').nonEmpty) <~ markupEnd(1)) ~ opt(":" ~> simpleRefName <~ markupEnd(":")) ^^
       { case text ~ role => InterpretedText(role.getOrElse(defaultTextRole), text, s"`$text`" + role.map(":"+_+":").getOrElse("")) }
     }.withLowPrecedence
   
@@ -269,7 +269,7 @@ object InlineParsers {
     def ref (refName: String, url: String) = if (refName.isEmpty) url else refName
     val url = '<' ~> delimitedBy('>') ^^ { _.replaceAll("[ \n]+", "") }
     val refName = recParsers.escapedText(delimitedBy('`','<').keepDelimiter) ^^ ReferenceName
-    markupStart("`") ~> refName ~ opt(url) ~ (markupEnd("`__") ^^^ false | markupEnd("`_") ^^^ true) ^^ {
+    markupStart("`", "`") ~> refName ~ opt(url) ~ (markupEnd("`__") ^^^ false | markupEnd("`_") ^^^ true) ^^ {
       case refName ~ Some(url) ~ true   => 
         SpanSequence(ExternalLink(List(Text(ref(refName.original, url))), url), ExternalLinkDefinition(ref(refName.normalized, url), url))
       case refName ~ Some(url) ~ false  => ExternalLink(List(Text(ref(refName.original, url))), url)
@@ -283,7 +283,7 @@ object InlineParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#hyperlink-references]]
    */
   lazy val simpleLinkRef: SpanParserBuilder = SpanParser.forStartChar('_').standalone {
-    markupEnd('_' ^^^ "__" | success("_")) >> {
+    markupEnd("__" | "_") >> {
       markup => reverse(markup.length, simpleRefName <~ reverseMarkupStart) ^^ { refName =>
         markup match {
           case "_"  => Reverse(refName.length, LinkReference(List(Text(refName)), ReferenceName(refName).normalized, s"${refName}_"), Text("_")) 

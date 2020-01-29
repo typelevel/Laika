@@ -61,8 +61,8 @@ object HTMLParsers {
   /** Parses a numeric or named character reference without the leading `'&'`.
     */
   val htmlCharReference: Parser[HTMLCharacterReference] =
-  (htmlNumericReference | htmlNamedReference) <~ ';' ^^
-    { s => HTMLCharacterReference("&" + s + ";") }
+    '&' ~> (htmlNumericReference | htmlNamedReference) <~ ';' ^^
+      { s => HTMLCharacterReference("&" + s + ";") }
 
 
   val htmlAttributeName: Parser[String] = anyBut(htmlAttrEndChars:_*) min 1
@@ -156,7 +156,7 @@ object HTMLParsers {
   /** Parses any of the HTML span elements supported by this trait, plus standard markdown inside HTML elements.
     */
   val htmlSpan: SpanParserBuilder = SpanParser.forStartChar('<').recursive { recParsers =>
-    htmlComment | htmlEmptyElement | htmlElementWithNestedMarkdown(recParsers) | htmlEndTag | htmlStartTag
+    '<' ~> (htmlComment | htmlEmptyElement | htmlElementWithNestedMarkdown(recParsers) | htmlEndTag | htmlStartTag)
   }
 
   /** Parses a numeric or named character reference.
@@ -165,7 +165,8 @@ object HTMLParsers {
 
   /** Parses any of the HTML span elements supported by this trait, but no standard markdown inside HTML elements.
    */
-  lazy val htmlSpanInsideBlock: Parser[HTMLSpan] = htmlComment | htmlScriptElement | htmlEmptyElement | htmlElement | htmlEndTag | htmlStartTag
+  lazy val htmlSpanInsideBlock: Parser[HTMLSpan] = 
+    '<' ~> (htmlComment | htmlScriptElement | htmlEmptyElement | htmlElement | htmlEndTag | htmlStartTag)
   
   
   private def mkString (result: ~[Char,String]): String = result._1.toString + result._2
