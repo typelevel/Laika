@@ -467,7 +467,7 @@ class BlockParsersSpec extends FlatSpec
     Parsing (input) should produce (root( ExternalLinkDefinition("def", "http://foo/", Some("Some Title"))))
   }
   
-  it should "parse a link target ignoring the title when it is following atfer a blank line" in {
+  it should "parse a link target ignoring the title when it is following after a blank line" in {
     val input = """[def]: <http://foo/> 
                   |
                   |       (Some Title)""".stripMargin

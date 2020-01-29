@@ -200,7 +200,7 @@ object TableParsers {
     val intersect = (anyOf('+') take 1) ^^^ Intersection
     
     val rowSep = anyOf('-').min(1).count
-    val topBorder = ((rowSep <~ intersect)+) <~ wsEol
+    val topBorder = intersect ~> ((rowSep <~ intersect)+) <~ wsEol
 
     val colSep = ((anyOf('|') take 1) ^^^ CellSeparator("|")) | intersect
     val colSepOrText = colSep | ((any take 1) ^^ CellElement)

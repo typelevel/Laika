@@ -77,7 +77,7 @@ class RootParser (markupParser: MarkupFormat, markupExtensions: MarkupExtensions
       case (Some(char), definition) => (char, definition)
     }
     val undecoratedBlock = grouped.getOrElse(None, failure("No undecorated block parser available"))
-    val startChars = anyOf(decoratedBlockParserMap.keySet.toSeq:_*).take(1) ^^ (_.charAt(0))
+    val startChars = lookAhead(anyOf(decoratedBlockParserMap.keySet.toSeq:_*).take(1)) ^^ (_.charAt(0))
     val decoratedBlock = startChars >> decoratedBlockParserMap
     decoratedBlock | undecoratedBlock
   }

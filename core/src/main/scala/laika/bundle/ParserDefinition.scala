@@ -58,12 +58,7 @@ case class BlockParserDefinition (startChar: Option[Char],
                                   parser: Parser[Block],
                                   isRecursive: Boolean,
                                   position: BlockPosition,
-                                  precedence: Precedence) extends ParserDefinition[Block] {
-
-  /** The full parser for the block element, including the start character.
-    */
-  val fullParser = startChar.fold(parser)(_ ~> parser)
-}
+                                  precedence: Precedence) extends ParserDefinition[Block]
 
 /** Defines a parser for a single kind of span element,
   * like a literal text span or a link reference for example.

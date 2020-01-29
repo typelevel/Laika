@@ -44,7 +44,7 @@ class ExtensionParsers(recParsers: RecursiveParsers,
   import recParsers._
 
   
-  private val explicitStart = "." ~ (ws min 1)
+  private val explicitStart = ".." ~ (ws min 1)
   
   
   /** Parses all types of explicit block items.

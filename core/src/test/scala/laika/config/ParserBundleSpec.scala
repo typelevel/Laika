@@ -28,6 +28,7 @@ import laika.parse.css.CSSParsers
 import laika.parse.directive.ConfigHeaderParser
 import laika.parse.markup.DocumentParser.ParserInput
 import laika.parse.text.TextParsers
+import laika.parse.text.TextParsers._
 import org.scalatest.{Matchers, WordSpec}
 
 /**
@@ -96,7 +97,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
 
     def blockFor (deco: Char, overrideDeco: Char): BlockParserBuilder =
       BlockParser.forStartChar(deco).withSpans { spanParsers =>
-        spanParsers.recursiveSpans(textBlockParser) ^^ (DecoratedBlock(overrideDeco, _))
+        char(deco) ~> spanParsers.recursiveSpans(textBlockParser) ^^ (DecoratedBlock(overrideDeco, _))
       }
 
     def doc (blocks: (Char, String)*): Document =

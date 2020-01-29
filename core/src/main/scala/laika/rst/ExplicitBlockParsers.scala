@@ -37,7 +37,7 @@ class ExplicitBlockParsers (recParsers: RecursiveParsers) {
   import recParsers._
 
   
-  private val explicitStart = "." ~ (ws min 1)
+  private val explicitStart = ".." ~ (ws min 1)
   
   
   /** Parses all types of explicit block items.
@@ -45,7 +45,7 @@ class ExplicitBlockParsers (recParsers: RecursiveParsers) {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#explicit-markup-blocks]].
    */
   lazy val explicitBlockItem: Parser[Block] = (explicitStart ~> (footnote | citation | linkTarget | comment)) |
-    ("." ~ lookAhead("\n") ~> comment)
+    (".." ~ lookAhead("\n") ~> comment)
   
 
   /** Parses a footnote.
@@ -140,7 +140,7 @@ object ExplicitBlockParsers {
     *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#anonymous-hyperlinks]].
     */
   lazy val shortAnonymousLinkTarget: BlockParserBuilder = BlockParser.forStartChar('_').standalone {
-    "_ " ~> linkDefinitionBody ^^ { body => ExternalLinkDefinition("", body) }
+    "__ " ~> linkDefinitionBody ^^ { body => ExternalLinkDefinition("", body) }
   }
 
 }

@@ -98,7 +98,7 @@ object BlockParsers {
     val lineCondition = not(ListParsers.bulletListItemStart | ListParsers.enumListItemStart | blankLine)
 
     val listParsers = (ListParsers.bulletLists ++ ListParsers.enumLists)
-      .map(_.createParser(recParsers).fullParser)
+      .map(_.createParser(recParsers).parser)
       .reduceLeft(_ | _)
 
     /**  Markdown allows nested lists without preceding blank lines,
@@ -149,7 +149,7 @@ object BlockParsers {
 
     import escapedParsers._
 
-    val id = escapedUntil(']') <~ ':' <~ ws.^
+    val id = '[' ~> escapedUntil(']') <~ ':' <~ ws.^
     val url = (('<' ~> escapedUntil('>')) | escapedText(delimitedBy(' ', '\n').acceptEOF.keepDelimiter)) ^^ { _.mkString }
 
     def enclosedBy(start: Char, end: Char) =
@@ -172,8 +172,8 @@ object BlockParsers {
       else trimmed
     } 
     
-    anyOf('#').max(5).count ~ (not(blankLine) ~> recParsers.recursiveSpans(restOfLine ^^ stripDecoration)) ^^ {
-      case level ~ spans => Header(level + 1, spans)
+    anyOf('#').max(6).count ~ (not(blankLine) ~> recParsers.recursiveSpans(restOfLine ^^ stripDecoration)) ^^ {
+      case level ~ spans => Header(level, spans)
     }
   }
 
@@ -182,7 +182,7 @@ object BlockParsers {
    */
   val rules: Seq[BlockParserBuilder] = Seq('*', '-', '_').map { decoChar =>
     BlockParser.forStartChar(decoChar).standalone {
-      val pattern = (anyOf(' ').^ ~ decoChar).rep.min(2)
+      val pattern = decoChar ~ (anyOf(' ').^ ~ decoChar).rep.min(2)
       pattern ~ wsEol ^^^ Rule()
     }
   }
@@ -192,7 +192,7 @@ object BlockParsers {
   val literalBlocks: Seq[BlockParserBuilder] = Seq(' ', '\t').map { startChar =>
     val wsPreProcessor = new WhitespacePreprocessor
     BlockParser.forStartChar(startChar).standalone {
-      decoratedBlock(success(()), tabOrSpace, tabOrSpace) ^^ { lines => LiteralBlock(wsPreProcessor(lines)) }
+      decoratedBlock(tabOrSpace, tabOrSpace, tabOrSpace) ^^ { lines => LiteralBlock(wsPreProcessor(lines)) }
     }
   }
 
@@ -200,9 +200,8 @@ object BlockParsers {
    *  with subsequent lines optionally starting with a `'>'`, too.
    */
   val quotedBlock: BlockParserBuilder = BlockParser.forStartChar('>').recursive { recParsers =>
-    val textAfterDeco = ws.max(1).noCapture
-    val decoratedLine = '>' ~ textAfterDeco
-    recParsers.recursiveBlocks(decoratedBlock(textAfterDeco, decoratedLine | not(blankLine), '>')) ^^ (QuotedBlock(_, Nil))
+    val decoratedLine = '>' ~ ws.max(1).noCapture
+    recParsers.recursiveBlocks(decoratedBlock(decoratedLine, decoratedLine | not(blankLine), '>')) ^^ (QuotedBlock(_, Nil))
   }
 
   /** Parses just a plain paragraph after the maximum nest level has been reached.

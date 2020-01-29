@@ -581,7 +581,7 @@ object Spans extends BuilderContext[Span] {
       def apply (source: String): Seq[Span] = recursiveParser(source)
     }
     def withOptions (options: Options): DirectiveInstance = copy(options = options)
-    def createInvalidElement (message: String): Span = InvalidElement(message, "@"+source).asSpan
+    def createInvalidElement (message: String): Span = InvalidElement(message, source).asSpan
   }
 
   case class SeparatorInstance (parsedResult: ParsedDirective,
@@ -590,7 +590,7 @@ object Spans extends BuilderContext[Span] {
     type Self = SeparatorInstance
     def withOptions (options: Options): SeparatorInstance = copy(options = options)
     def resolve (cursor: DocumentCursor): Span =
-      InvalidElement(s"Orphaned separator directive with name '${parsedResult.name}'", "@" + source).asSpan
+      InvalidElement(s"Orphaned separator directive with name '${parsedResult.name}'", source).asSpan
   }
   
 }
@@ -618,7 +618,7 @@ object Blocks extends BuilderContext[Block] {
       def parseInline (source: String): Seq[Span] = recursiveSpanParser(source)
     }
     def withOptions (options: Options): DirectiveInstance = copy(options = options)
-    def createInvalidElement (message: String): Block = InvalidElement(message, s"@$source").asBlock
+    def createInvalidElement (message: String): Block = InvalidElement(message, source).asBlock
   }
   
   case class SeparatorInstance (parsedResult: ParsedDirective,
@@ -627,7 +627,7 @@ object Blocks extends BuilderContext[Block] {
     type Self = SeparatorInstance
     def withOptions (options: Options): SeparatorInstance = copy(options = options)
     def resolve (cursor: DocumentCursor): Block =
-      InvalidElement(s"Orphaned separator directive with name '${parsedResult.name}'", "@" + source).asBlock
+      InvalidElement(s"Orphaned separator directive with name '${parsedResult.name}'", source).asBlock
   }
 
 }
@@ -655,7 +655,7 @@ object Templates extends BuilderContext[TemplateSpan] {
       }
     }
     def withOptions (options: Options): DirectiveInstance = copy(options = options)
-    def createInvalidElement (message: String): TemplateSpan = InvalidElement(message, "@" + source).asTemplateSpan
+    def createInvalidElement (message: String): TemplateSpan = InvalidElement(message, source).asTemplateSpan
   }
 
   case class SeparatorInstance (parsedResult: ParsedDirective,
@@ -664,7 +664,7 @@ object Templates extends BuilderContext[TemplateSpan] {
     type Self = SeparatorInstance
     def withOptions (options: Options): SeparatorInstance = copy(options = options)
     def resolve (cursor: DocumentCursor): TemplateSpan = 
-      InvalidElement(s"Orphaned separator directive with name '${parsedResult.name}'", "@" + source).asTemplateSpan
+      InvalidElement(s"Orphaned separator directive with name '${parsedResult.name}'", source).asTemplateSpan
   }
 
 }

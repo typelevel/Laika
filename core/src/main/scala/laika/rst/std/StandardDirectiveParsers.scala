@@ -57,8 +57,8 @@ object StandardDirectiveParsers {
    *  @return `Right` in case of parser success and `Left` in case of failure, to adjust to the Directive API
    */
   def table (p: RecursiveParsers)(input: String): Either[String, Block] = {
-    val gridTable = TableParsers.gridTable.createParser(p).fullParser
-    val simpleTable = TableParsers.simpleTable.createParser(p).fullParser
+    val gridTable = TableParsers.gridTable.createParser(p).parser
+    val simpleTable = TableParsers.simpleTable.createParser(p).parser
     parseDirectivePart(gridTable | simpleTable, input)
   }
 

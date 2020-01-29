@@ -42,11 +42,11 @@ object FencedCodeBlocks {
       .filter(_.nonEmpty)
       .flatMap(_.trim.split(" ").headOption)
     )
-    val openingFence = anyOf(fenceChar).min(2).count ~ infoString
+    val openingFence = anyOf(fenceChar).min(3).count ~ infoString
 
     openingFence >> { case charCount ~ info =>
 
-      val closingFence = anyOf(fenceChar).min(charCount + 1) ~ wsEol
+      val closingFence = anyOf(fenceChar).min(charCount) ~ wsEol
 
       (not(closingFence | eof) ~> restOfLine).rep <~ opt(closingFence) ^^? { lines =>
         val trimmedLines = if (lines.lastOption.exists(_.trim.isEmpty)) lines.dropRight(1) else lines

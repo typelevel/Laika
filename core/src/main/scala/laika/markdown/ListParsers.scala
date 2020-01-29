@@ -83,14 +83,11 @@ object ListParsers {
 
     val itemStart = itemStartChar ~ itemStartRest
 
-    val firstListItem: Parser[Seq[Block]] = recParsers.recursiveBlocks(BlockParsers.mdBlock(
-      not(rule) ~> itemStartRest, not(blankLine | itemStart) ~ opt(BlockParsers.tabOrSpace), BlockParsers.tabOrSpace
-    ))
     val listItem: Parser[Seq[Block]] = recParsers.recursiveBlocks(BlockParsers.mdBlock(
       not(rule) ~> itemStart, not(blankLine | itemStart) ~ opt(BlockParsers.tabOrSpace), BlockParsers.tabOrSpace
     ))
 
-    firstListItem ~ ((opt(blankLines) ~ listItem) *) ^^
+    listItem ~ ((opt(blankLines) ~ listItem) *) ^^
       { case firstItem ~ items => newList(flattenItems(firstItem, items)) }
   }
 

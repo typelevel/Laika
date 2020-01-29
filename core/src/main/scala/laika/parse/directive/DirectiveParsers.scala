@@ -122,7 +122,7 @@ object DirectiveParsers {
         }
     }
     
-    (":" ~> nameDecl ~ opt(attributeSection) ~ fence) ^^ { 
+    ("@:" ~> nameDecl ~ opt(attributeSection) ~ fence) ^^ { 
       case name ~ attrs ~ fencePattern => 
         (name, attrs.getOrElse(ObjectBuilderValue(Nil)), fencePattern) 
     }
@@ -133,7 +133,7 @@ object DirectiveParsers {
    *  are not enclosed in braces.
    */
   def legacyDeclarationParser (escapedText: EscapedTextParsers): Parser[(String, ObjectBuilderValue)] =
-    (":" ~> nameDecl ~ legacyAttributeParser(escapedText)) ^^ { case name ~ attrs => (name, attrs) }
+    ("@:" ~> nameDecl ~ legacyAttributeParser(escapedText)) ^^ { case name ~ attrs => (name, attrs) }
 
   /** Parses one directive instance containing its name declaration,
    *  all attributes and all body elements.
@@ -181,7 +181,7 @@ object SpanDirectiveParsers {
     SpanParser.forStartChar('{').standalone(legacyReference(key => MarkupContextReference(Key.parse(key), required = true)))
 
   def spanDirective (directives: Map[String, Spans.Directive]): SpanParserBuilder =
-    SpanParser.forStartChar('@').recursive(rec => any.take(1) ~> spanDirectiveParser(directives)(rec))
+    SpanParser.forStartChar('@').recursive(rec => spanDirectiveParser(directives)(rec))
 
   def spanDirectiveParser(directives: Map[String, Spans.Directive])(recParsers: RecursiveSpanParsers): Parser[Span] = {
 
