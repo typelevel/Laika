@@ -86,7 +86,7 @@ object ListParsers {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#bullet-lists]].
    */
-  lazy val bulletList: BlockParserBuilder = BlockParser.withoutStartChar.recursive { implicit recParsers =>
+  lazy val bulletList: BlockParserBuilder = BlockParser.recursive { implicit recParsers =>
     lookAhead(bulletListStart <~ (ws min 1)) >> { symbol =>
       val bullet = StringBullet(symbol)
       (listItem(symbol, BulletListItem(_, bullet)) +) ^^
@@ -122,7 +122,7 @@ object ListParsers {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#enumerated-lists]].
    */
-  lazy val enumList: BlockParserBuilder = BlockParser.withoutStartChar.recursive { implicit recParsers =>
+  lazy val enumList: BlockParserBuilder = BlockParser.recursive { implicit recParsers =>
     import EnumType._
 
     val lowerRoman = anyOf('i','v','x','l','c','d','m').min(1)
@@ -156,7 +156,7 @@ object ListParsers {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#definition-lists]].
    */
-  lazy val definitionList: BlockParserBuilder = BlockParser.withoutStartChar.recursive { recParsers =>
+  lazy val definitionList: BlockParserBuilder = BlockParser.recursive { recParsers =>
     
     val tableStart = anyOf(' ','=') ~ eol
     val explicitStart = ".. " | "__ "
@@ -181,7 +181,7 @@ object ListParsers {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#field-lists]].
    */
-  lazy val fieldList: BlockParserBuilder = BlockParser.withoutStartChar.recursive { recParsers =>
+  lazy val fieldList: BlockParserBuilder = BlockParser.recursive { recParsers =>
     
     val name = ':' ~> recParsers.escapedUntil(':') <~ (lookAhead(eol) | ' ')
     
@@ -197,7 +197,7 @@ object ListParsers {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#option-lists]].
    */
-  lazy val optionList: BlockParserBuilder = BlockParser.withoutStartChar.recursive { recParsers =>
+  lazy val optionList: BlockParserBuilder = BlockParser.recursive { recParsers =>
     
     def mkString (result: ~[Char,String]) = result._1.toString + result._2
     
@@ -231,7 +231,7 @@ object ListParsers {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#line-blocks]].
    */
-  lazy val lineBlock: BlockParserBuilder = BlockParser.withoutStartChar.recursive { recParsers =>
+  lazy val lineBlock: BlockParserBuilder = BlockParser.recursive { recParsers =>
     val itemStart = anyOf('|').take(1)
     
     val line: Parser[(Line, Int)] = {

@@ -279,7 +279,7 @@ object TableParsers {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#simple-tables]].
    */
-  lazy val simpleTable: BlockParserBuilder = BlockParser.withoutStartChar.recursive { recParsers =>
+  lazy val simpleTable: BlockParserBuilder = BlockParser.recursive { recParsers =>
     
     val intersect = anyOf(' ').min(1).count
     val tableBorder = anyOf('=').min(1).count

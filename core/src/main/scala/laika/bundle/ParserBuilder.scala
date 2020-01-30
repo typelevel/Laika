@@ -165,12 +165,7 @@ object BlockParser {
     */
   def forStartChar (char: Char): LegacySyntax = new LegacySyntax(Set(char))
 
-  /** Creates a builder for a block element that does not start with a specific character.
-    *
-    * For parsers that rely on pattern detection or other mechanisms to recognize a matching block,
-    * this method allows to avoid the definition of a distinct start character by occurring a little
-    * performance penalty.
-    */
+  @deprecated("use standalone, recursive, withSpans, withEscapedText methods directly", "0.14.0")
   def withoutStartChar: LegacySyntax = new LegacySyntax()
 
   class LegacySyntax (startChars: Set[Char] = Set.empty) {

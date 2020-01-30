@@ -49,14 +49,14 @@ object BlockParsers {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#transitions]].
    */  
-  val transition: BlockParserBuilder = BlockParser.withoutStartChar.standalone {
+  val transition: BlockParserBuilder = BlockParser.standalone {
     (punctuationChar min 4) ~ wsEol ~ lookAhead(blankLine) ^^^ Rule()
   }
     
   /** Parses a single paragraph. Everything between two blank lines that is not
    *  recognized as a special reStructuredText block type will be parsed as a regular paragraph.
    */
-  lazy val paragraph: BlockParserBuilder = BlockParser.withoutStartChar.withSpans { spanParsers =>
+  lazy val paragraph: BlockParserBuilder = BlockParser.withSpans { spanParsers =>
     spanParsers.recursiveSpans((textLine +) ^^ (_.mkString("\n"))) ^^ {
       Paragraph(_)
     }
@@ -66,7 +66,7 @@ object BlockParsers {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#sections]].
    */
-  lazy val headerWithOverline: BlockParserBuilder = BlockParser.withoutStartChar.withSpans { spanParsers =>
+  lazy val headerWithOverline: BlockParserBuilder = BlockParser.withSpans { spanParsers =>
     (punctuationChar take 1) >> { start =>
       val char = start.charAt(0)
       anyOf(char) >> { deco =>
@@ -85,7 +85,7 @@ object BlockParsers {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#sections]].
    */
-  lazy val headerWithUnderline: BlockParserBuilder = BlockParser.withoutStartChar.withSpans { spanParsers =>
+  lazy val headerWithUnderline: BlockParserBuilder = BlockParser.withSpans { spanParsers =>
     (anyBut(' ') take 1) ~ restOfLine >> { case char ~ rest =>
       val title = (char + rest).trim
       (punctuationChar take 1) >> { start =>
@@ -115,7 +115,7 @@ object BlockParsers {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#block-quotes]]
    */
-  lazy val blockQuote: BlockParserBuilder = BlockParser.withoutStartChar.recursive { recParsers =>
+  lazy val blockQuote: BlockParserBuilder = BlockParser.recursive { recParsers =>
     
     val attributionStart = "---" | "--" | '\u2014' // em dash
         

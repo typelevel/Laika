@@ -151,7 +151,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
 
     val input = ">aaa +bbb"
 
-    override def blockParsers: Seq[BlockParserBuilder] = Seq(BlockParser.withoutStartChar.withSpans { spanParsers =>
+    override def blockParsers: Seq[BlockParserBuilder] = Seq(BlockParser.withSpans { spanParsers =>
       spanParsers.recursiveSpans(textBlockParser) ^^ (Paragraph(_))
     })
 
@@ -229,7 +229,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
 
   trait ParserHookSetup extends SetupBase {
 
-    override def blockParsers: Seq[BlockParserBuilder] = Seq(BlockParser.withoutStartChar.standalone {
+    override def blockParsers: Seq[BlockParserBuilder] = Seq(BlockParser.standalone {
       TextParsers.textLine ^^ { Paragraph(_) }
     })
 

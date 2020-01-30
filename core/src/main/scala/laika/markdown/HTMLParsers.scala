@@ -211,7 +211,7 @@ object HTMLParsers {
 
   lazy val htmlBlockElement: Parser[Block] = '<' ~> (htmlComment | htmlEmptyElement | htmlStartTag) <~ wsEol ~ blankLine
 
-  lazy val htmlBlockFragment: BlockParserBuilder = BlockParser.withoutStartChar.standalone(htmlBlock | htmlBlockElement).rootOnly // TODO - keep separate
+  lazy val htmlBlockFragment: BlockParserBuilder = BlockParser.standalone(htmlBlock | htmlBlockElement).rootOnly // TODO - keep separate
 
 
 }

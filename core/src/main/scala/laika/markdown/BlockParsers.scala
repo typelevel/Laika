@@ -83,7 +83,7 @@ object BlockParsers {
     * is not a setext header decoration. Only used for root level blocks where lists starting
     * in the middle of a paragraph are not allowed.
     */
-  lazy val rootHeaderOrParagraph: BlockParserBuilder = BlockParser.withoutStartChar.recursive { implicit recParsers =>
+  lazy val rootHeaderOrParagraph: BlockParserBuilder = BlockParser.recursive { implicit recParsers =>
     val lineCondition = not(blankLine)
     val listWithoutBlankline = success(None)
     headerOrParagraph(lineCondition, listWithoutBlankline)
@@ -93,7 +93,7 @@ object BlockParsers {
     * is not a setext header decoration. Only used for nested blocks where lists starting
     * in the middle of a paragraph are allowed.
     */
-  lazy val nestedHeaderOrParagraph: BlockParserBuilder = BlockParser.withoutStartChar.recursive { implicit recParsers =>
+  lazy val nestedHeaderOrParagraph: BlockParserBuilder = BlockParser.recursive { implicit recParsers =>
 
     val lineCondition = not(ListParsers.bulletListItemStart | ListParsers.enumListItemStart | blankLine)
 
@@ -208,7 +208,7 @@ object BlockParsers {
     * This is necessary as a separate parser as the default markdown paragraph parser
     * is combined with potentially nested lists which makes that parser recursive.
     */
-  val fallbackParagraph: BlockParserBuilder = BlockParser.withoutStartChar.withSpans { spanParsers =>
+  val fallbackParagraph: BlockParserBuilder = BlockParser.withSpans { spanParsers =>
     val block: Parser[String] = textLine.rep.min(1) ^^ (_.mkString)
     spanParsers.recursiveSpans(block).map(Paragraph(_))
   }.nestedOnly.withLowPrecedence
