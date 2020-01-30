@@ -200,11 +200,13 @@ object SpanDirectiveParsers {
       } | success(None)
       else success(None)
     
-    PrefixedParser(withRecursiveSpanParser(withSource(directiveParser(newBody, legacyBody, recParsers))) ^^ {
-      case (recParser, (result, source)) => 
-        if (separators.contains(result.name)) Spans.SeparatorInstance(result, source)
-        else Spans.DirectiveInstance(directives.get(result.name), result, recParser, source)
-    }, '@')
+    PrefixedParser('@') {
+      withRecursiveSpanParser(withSource(directiveParser(newBody, legacyBody, recParsers))) ^^ {
+        case (recParser, (result, source)) =>
+          if (separators.contains(result.name)) Spans.SeparatorInstance(result, source)
+          else Spans.DirectiveInstance(directives.get(result.name), result, recParser, source)
+      }
+    }
   }
 
 }

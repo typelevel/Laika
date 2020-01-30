@@ -56,10 +56,14 @@ class AutoLinkParsers (reverseMarkupStart: Parser[Any],
   }}
 
   private def uri (reverseParser: Parser[String], forwardParser: PrefixedParser[String], separator: String): PrefixedParser[Span] =
-    PrefixedParser(trim(reverse(0, reverseParser <~ reverseMarkupStart) ~
-      forwardParser <~ lookAhead(eol | afterEndMarkup) ^^ {
+    PrefixedParser(forwardParser.startChars) {
+      val rev = reverse(0, reverseParser <~ reverseMarkupStart)
+      val fwd = forwardParser <~ lookAhead(eol | afterEndMarkup)
+      val parser = (rev ~ fwd) ^^ {
         case scheme ~ rest => (scheme, separator, rest)
-      }), forwardParser.startChars)
+      }
+      trim(parser)
+    }
 
   /** Parses a standalone HTTP or HTTPS hyperlink (with no surrounding markup).
     */
@@ -76,15 +80,14 @@ class AutoLinkParsers (reverseMarkupStart: Parser[Any],
   /** Parses a standalone email address (with no surrounding markup).
     */
   lazy val email: SpanParserBuilder = SpanParser.standalone {
-    val rev = reverse(0, URIParsers.localPart <~ reverseMarkupStart)
-    val fwd = '@' ~> URIParsers.domain <~ lookAhead(eol | afterEndMarkup)
-    
-    val parser = (rev ~ fwd) ^? {
-      case local ~ domain if local.nonEmpty && domain.nonEmpty => (local, "@", domain)
+    PrefixedParser('@') {
+      val rev = reverse(0, URIParsers.localPart <~ reverseMarkupStart)
+      val fwd = '@' ~> URIParsers.domain <~ lookAhead(eol | afterEndMarkup)
+      val parser = (rev ~ fwd) ^? {
+        case local ~ domain if local.nonEmpty && domain.nonEmpty => (local, "@", domain)
+      }
+      trim(parser)
     }
-    
-    PrefixedParser(trim(parser), '@'): PrefixedParser[Span]
-    
   }.withLowPrecedence
 
 }

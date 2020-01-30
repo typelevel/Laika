@@ -49,7 +49,7 @@ object TextParsers extends Parsers {
       else if (in.char == expected) Success(in.char, in.consume(1))
       else Failure(errMsg(in.char), in)
     }
-    PrefixedParser(p, expected)
+    PrefixedParser(expected)(p)
   }
 
   /**  A parser that matches only the specified literal string.

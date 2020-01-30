@@ -119,8 +119,9 @@ object InlineParsers {
       val excluded = (matching + ' ' + '\n').toList
       start ~ lookAhead(anyBut(excluded:_*) take 1)
     }
-    
-    (PrefixedParser(lookBehind(1, beforeStartMarkup) | atStart ^^^ ' ', start.startChars) >> afterStartMarkup) ~ not(end) // not(end) == rule 6
+    PrefixedParser(start.startChars) {
+      ((lookBehind(1, beforeStartMarkup) | atStart ^^^ ' ') >> afterStartMarkup) ~ not(end) // not(end) == rule 6
+    }
   }
   
   /** Parses the end of an inline element according to reStructuredText markup recognition rules.

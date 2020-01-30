@@ -33,24 +33,24 @@ trait PrefixedParser[+T] extends Parser[T] { self =>
   def parse (in: ParserContext): Parsed[T] = underlying.parse(in)
 
 
-  override def ~ [U] (p: Parser[U]): PrefixedParser[T ~ U]       = PrefixedParser(super.~(p), startChars)
-  override def ~> [U] (p: Parser[U]): PrefixedParser[U]          = PrefixedParser(super.~>(p), startChars)
-  override def <~[U] (p: Parser[U]): PrefixedParser[T]           = PrefixedParser(super.<~(p), startChars)
-  override def flatMap[U] (f: T => Parser[U]): PrefixedParser[U] = PrefixedParser(super.flatMap(f), startChars)
-  override def >>[U] (fq: T => Parser[U]): PrefixedParser[U]     = PrefixedParser(super.flatMap(fq), startChars)
-  override def map[U] (f: T => U): PrefixedParser[U]             = PrefixedParser(super.map(f), startChars)
-  override def ^^[U] (f: T => U): PrefixedParser[U]              = PrefixedParser(super.map(f), startChars)
-  override def ^^^[U] (v: => U): PrefixedParser[U]               = PrefixedParser(super.^^^(v), startChars)
+  override def ~ [U] (p: Parser[U]): PrefixedParser[T ~ U]       = PrefixedParser(startChars)(super.~(p))
+  override def ~> [U] (p: Parser[U]): PrefixedParser[U]          = PrefixedParser(startChars)(super.~>(p))
+  override def <~[U] (p: Parser[U]): PrefixedParser[T]           = PrefixedParser(startChars)(super.<~(p))
+  override def flatMap[U] (f: T => Parser[U]): PrefixedParser[U] = PrefixedParser(startChars)(super.flatMap(f))
+  override def >>[U] (fq: T => Parser[U]): PrefixedParser[U]     = PrefixedParser(startChars)(super.flatMap(fq))
+  override def map[U] (f: T => U): PrefixedParser[U]             = PrefixedParser(startChars)(super.map(f))
+  override def ^^[U] (f: T => U): PrefixedParser[U]              = PrefixedParser(startChars)(super.map(f))
+  override def ^^^[U] (v: => U): PrefixedParser[U]               = PrefixedParser(startChars)(super.^^^(v))
   
-  override def ^^?[U] (f: T => Either[String, U]): PrefixedParser[U]                   = PrefixedParser(super.^^?(f), startChars)
+  override def ^^?[U] (f: T => Either[String, U]): PrefixedParser[U] = PrefixedParser(startChars)(super.^^?(f))
   override def ^?[U] (f: PartialFunction[T, U], 
                       error: T => String = r => s"Constructor function not defined at $r"): PrefixedParser[U] = 
-    PrefixedParser(super.^?(f, error), startChars)
+    PrefixedParser(startChars)(super.^?(f, error))
   
 
-  def orElse[U >: T] (p: => PrefixedParser[U]): PrefixedParser[U] = PrefixedParser(super.orElse(p), startChars ++ p.startChars)
+  def orElse[U >: T] (p: => PrefixedParser[U]): PrefixedParser[U] = PrefixedParser(startChars  ++ p.startChars)(super.orElse(p))
 
-  def | [U >: T] (p: => PrefixedParser[U]): PrefixedParser[U] = PrefixedParser(super.orElse(p), startChars ++ p.startChars)
+  def | [U >: T] (p: => PrefixedParser[U]): PrefixedParser[U] = PrefixedParser(startChars ++ p.startChars)(super.orElse(p))
 
 
 }
@@ -59,12 +59,12 @@ object PrefixedParser {
   
   import cats.implicits._
   
-  def apply[U] (p: Parser[U], sc: NonEmptySet[Char]): PrefixedParser[U] = new PrefixedParser[U] {
+  def apply[U] (sc: NonEmptySet[Char])(p: Parser[U]): PrefixedParser[U] = new PrefixedParser[U] {
     def startChars: NonEmptySet[Char] = sc
     override def underlying = p
   }
 
-  def apply[U] (p: Parser[U], char: Char, chars: Char*): PrefixedParser[U] = new PrefixedParser[U] {
+  def apply[U] (char: Char, chars: Char*)(p: Parser[U]): PrefixedParser[U] = new PrefixedParser[U] {
     def startChars: NonEmptySet[Char] = NonEmptySet.of(char, chars:_*)
     override def underlying = p
   }

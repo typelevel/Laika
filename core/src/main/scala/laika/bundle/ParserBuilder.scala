@@ -76,9 +76,9 @@ object SpanParser {
   
   class LegacySyntax (startChars: NonEmptySet[Char]) {
     def standalone (parser: Parser[Span]): SpanParserBuilderOps = 
-      new SpanParserBuilderOps(_ => PrefixedParser(parser, startChars), false, Precedence.High)
+      new SpanParserBuilderOps(_ => PrefixedParser(startChars)(parser), false, Precedence.High)
     def recursive (factory: RecursiveSpanParsers => Parser[Span]): SpanParserBuilderOps =
-      new SpanParserBuilderOps(rec => PrefixedParser(factory(rec), startChars), true, Precedence.High)
+      new SpanParserBuilderOps(rec => PrefixedParser(startChars)(factory(rec)), true, Precedence.High)
   }
   
   import cats.implicits._
@@ -95,7 +95,7 @@ object SpanParser {
   def recursive (factory: RecursiveSpanParsers => PrefixedParser[Span]): SpanParserBuilderOps =
     new SpanParserBuilderOps(factory, true, Precedence.High)
 
-  // TODO - deprecate
+  @deprecated("use standalone or recursive methods directly", "0.14.0")
   def forStartChar (char: Char): LegacySyntax = new LegacySyntax(NonEmptySet.one(char))
 
 }
