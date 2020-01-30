@@ -24,6 +24,7 @@ import laika.parse.text.TextParsers._
 import laika.parse.Parser
 import laika.rst.ast._
 import BaseParsers._
+import laika.parse.text.PrefixedParser
 
 /** Provides the parsers for all types of explicit block elements.
  *  In reStructuredText an explicit block element starts with `.. `,
@@ -44,7 +45,7 @@ class ExplicitBlockParsers (recParsers: RecursiveParsers) {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#explicit-markup-blocks]].
    */
-  lazy val explicitBlockItem: Parser[Block] = (explicitStart ~> (footnote | citation | linkTarget | comment)) |
+  lazy val explicitBlockItem: PrefixedParser[Block] = (explicitStart ~> (footnote | citation | linkTarget | comment)) |
     (".." ~ lookAhead("\n") ~> comment)
   
 
@@ -122,7 +123,7 @@ object ExplicitBlockParsers {
   /** The parser builder for all explicit block items that start with `..` except
     * for directives which are provided by an extension.
     */
-  val allBlocks: BlockParserBuilder = BlockParser.forStartChar('.').recursive { recParsers =>
+  val allBlocks: BlockParserBuilder = BlockParser.recursive { recParsers =>
     new ExplicitBlockParsers(recParsers).explicitBlockItem
   }
 
@@ -139,7 +140,7 @@ object ExplicitBlockParsers {
     *
     *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#anonymous-hyperlinks]].
     */
-  lazy val shortAnonymousLinkTarget: BlockParserBuilder = BlockParser.forStartChar('_').standalone {
+  lazy val shortAnonymousLinkTarget: BlockParserBuilder = BlockParser.standalone {
     "__ " ~> linkDefinitionBody ^^ { body => ExternalLinkDefinition("", body) }
   }
 

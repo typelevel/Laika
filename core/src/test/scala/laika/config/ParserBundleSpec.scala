@@ -96,6 +96,13 @@ class ParserBundleSpec extends WordSpec with Matchers {
     def blockFor (deco: Char): BlockParserBuilder = blockFor(deco, deco)
 
     def blockFor (deco: Char, overrideDeco: Char): BlockParserBuilder =
+      BlockParser.withSpans { spanParsers =>
+        char(deco) ~> spanParsers.recursiveSpans(textBlockParser) ^^ (DecoratedBlock(overrideDeco, _))
+      }
+
+    def legacyBlockFor (deco: Char): BlockParserBuilder = blockFor(deco, deco)
+
+    def legacyBlockFor (deco: Char, overrideDeco: Char): BlockParserBuilder =
       BlockParser.forStartChar(deco).withSpans { spanParsers =>
         char(deco) ~> spanParsers.recursiveSpans(textBlockParser) ^^ (DecoratedBlock(overrideDeco, _))
       }
@@ -139,6 +146,14 @@ class ParserBundleSpec extends WordSpec with Matchers {
       val bundle = BundleProvider.forMarkupParser(blockParsers = Seq(
         BlockParser.forStartChar('+').standalone(Parsers.success(Rule())).withLowPrecedence
       ))
+
+      MarkupParser.of(Parser).using(bundle).build.parse(input).toOption.get shouldBe doc('>' -> "aaa\naaa", '+' -> "bbb\nbbb")
+    }
+
+    "still support the legacy registration format" in new BlockParserSetup {
+      override def blockParsers: Seq[BlockParserBuilder] = Seq(legacyBlockFor('>'))
+
+      val bundle = BundleProvider.forMarkupParser(blockParsers = Seq(legacyBlockFor('+')))
 
       MarkupParser.of(Parser).using(bundle).build.parse(input).toOption.get shouldBe doc('>' -> "aaa\naaa", '+' -> "bbb\nbbb")
     }

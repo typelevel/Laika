@@ -195,7 +195,7 @@ object TableParsers {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#grid-tables]].
    */
-  lazy val gridTable: BlockParserBuilder = BlockParser.forStartChar('+').recursive { recParsers =>
+  lazy val gridTable: BlockParserBuilder = BlockParser.recursive { recParsers =>
     
     val intersect = (anyOf('+') take 1) ^^^ Intersection
     

@@ -105,7 +105,7 @@ object BlockParsers {
    *  
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#doctest-blocks]]
    */
-  val doctest: BlockParserBuilder = BlockParser.forStartChar('>').standalone {
+  val doctest: BlockParserBuilder = BlockParser.standalone {
     ">>> " ~> restOfLine ~ ((not(blankLine) ~> restOfLine) *) ^^ {
       case first ~ rest => DoctestBlock((first :: rest) mkString "\n")
     }

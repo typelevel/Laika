@@ -21,6 +21,7 @@ import laika.bundle.{BlockParser, BlockParserBuilder}
 import laika.parse.Parser
 import laika.parse.text.TextParsers._
 import laika.markdown.BlockParsers._
+import laika.parse.text.PrefixedParser
 
 /** Parser for the table extension of GitHub Flavored Markdown.
   *
@@ -30,25 +31,30 @@ import laika.markdown.BlockParsers._
   */
 object Tables {
 
-  val parser: BlockParserBuilder = BlockParser.forStartChar('|').withSpans { spanParsers =>
+  val parser: BlockParserBuilder = BlockParser.withSpans { spanParsers =>
 
     def cell (textParser: Parser[String], cellType: CellType): Parser[Cell] =
       spanParsers.recursiveSpans(textParser.map(_.trim)) ^^ { spans =>
         Cell(cellType, Seq(Paragraph(spans)))
       }
 
-    def row (cellType: CellType): Parser[Row] = {
+    def rowRest (cellType: CellType): Parser[Row] = {
       val cellText = spanParsers.escapedUntil('|','\n')
       val finalCellText = textLine
 
       val delimitedCells = (cell(cellText, cellType) <~ lookBehind(1,'|')).rep
       val optFinalCell = cell(finalCellText, cellType).map(Some(_)) | restOfLine ^^^ None
 
-      val rowStart = insignificantSpaces ~ not(anyOf('*','+','-','>','_','#','[',' ','\t').take(1)) ~ opt('|')
-
-      rowStart ~> delimitedCells ~ optFinalCell ^? {
+      delimitedCells ~ optFinalCell ^? {
         case cells ~ optFinal if cells.nonEmpty || optFinal.nonEmpty => Row(cells ++ optFinal.toSeq)
       }
+    }
+    
+    val firstRow: PrefixedParser[Row] = '|' ~> rowRest(HeadCell)
+    
+    val bodyRow: Parser[Row] = {
+      val rowStart = insignificantSpaces ~ not(anyOf('*','+','-','>','_','#','[',' ','\t').take(1)) ~ opt('|')
+      rowStart ~> rowRest(BodyCell)
     }
 
     val sepRow: Parser[Seq[Options]] = {
@@ -71,8 +77,8 @@ object Tables {
 
     case class Header (row: Row, columnOptions: Seq[Options])
 
-    val header: Parser[Header] = row(HeadCell) ~ sepRow ^? {
-      case row ~ sepRow if row.content.size == sepRow.size => Header(row, sepRow)
+    val header: PrefixedParser[Header] = firstRow ~ sepRow ^? {
+      case row ~ sep if row.content.size == sep.size => Header(row, sep)
     }
 
     def applyColumnOptions (rows: Seq[Row], columnOptions: Seq[Options]): Seq[Row] = {
@@ -88,10 +94,10 @@ object Tables {
       ))
     }
 
-    header ~ row(BodyCell).rep ^^ { case header ~ bodyRows =>
+    header ~ bodyRow.rep ^^ { case headerRow ~ bodyRows =>
       laika.ast.Table(
-        TableHead(applyColumnOptions(Seq(header.row), header.columnOptions)),
-        TableBody(applyColumnOptions(bodyRows, header.columnOptions))
+        TableHead(applyColumnOptions(Seq(headerRow.row), headerRow.columnOptions)),
+        TableBody(applyColumnOptions(bodyRows, headerRow.columnOptions))
       )
     }
   }

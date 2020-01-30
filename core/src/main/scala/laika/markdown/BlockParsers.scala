@@ -145,7 +145,7 @@ object BlockParsers {
   /** Parses a link definition in the form `[id]: <url> "title"`.
     * The title is optional as well as the quotes around it and the angle brackets around the url.
     */
-  val linkTarget: BlockParserBuilder = BlockParser.forStartChar('[').withEscapedText { escapedParsers =>
+  val linkTarget: BlockParserBuilder = BlockParser.withEscapedText { escapedParsers =>
 
     import escapedParsers._
 

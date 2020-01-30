@@ -20,7 +20,7 @@ import laika.ast._
 import laika.bundle.{BlockParser, BlockParserBuilder}
 import laika.parse.markup.BlockParsers._
 import laika.parse.markup.RecursiveParsers
-import laika.parse.text.DelimitedText
+import laika.parse.text.{DelimitedText, PrefixedParser}
 import laika.parse.text.TextParsers._
 import laika.parse.{Failure, Parser, Success}
 import laika.rst.BaseParsers._
@@ -51,7 +51,7 @@ class ExtensionParsers(recParsers: RecursiveParsers,
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#explicit-markup-blocks]].
    */
-  lazy val explicitBlockItem: Parser[Block] = explicitStart ~> (substitutionDefinition | roleDirective | blockDirective)
+  lazy val explicitBlockItem: PrefixedParser[Block] = explicitStart ~> (substitutionDefinition | roleDirective | blockDirective)
   
   /** Parses a substitution definition.
    * 
@@ -273,7 +273,7 @@ object ExtensionParsers {
   def allBlocks(blockDirectives: Seq[Directive[Block]],
                 spanDirectives: Seq[Directive[Span]],
                 textRoles: Seq[TextRole],
-                defaultTextRole: String): BlockParserBuilder = BlockParser.forStartChar('.').recursive { recParsers =>
+                defaultTextRole: String): BlockParserBuilder = BlockParser.recursive { recParsers =>
     new ExtensionParsers(recParsers,
       RstExtension.createAsMap(blockDirectives, recParsers),
       RstExtension.createAsMap(spanDirectives, recParsers),

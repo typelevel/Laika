@@ -220,9 +220,9 @@ object BlockDirectiveParsers {
   import laika.parse.markup.BlockParsers._
 
   def blockDirective (directives: Map[String, Blocks.Directive]): BlockParserBuilder =
-    BlockParser.forStartChar('@').recursive(blockDirectiveParser(directives))
+    BlockParser.recursive(blockDirectiveParser(directives))
 
-  def blockDirectiveParser (directives: Map[String, Blocks.Directive])(recParsers: RecursiveParsers): Parser[Block] = {
+  def blockDirectiveParser (directives: Map[String, Blocks.Directive])(recParsers: RecursiveParsers): PrefixedParser[Block] = {
 
     import recParsers._
 
@@ -241,14 +241,16 @@ object BlockDirectiveParsers {
         }
       } | noBody
       else noBody
-    
-    withRecursiveSpanParser(withRecursiveBlockParser(withSource(
-      directiveParser(newBody, legacyBody, recParsers, supportsCustomFence = true)
-    ))) ^^ {
-      case (recSpanParser, (recBlockParser, (result, source))) =>
-        val trimmedSource = if (source.lastOption.contains('\n')) source.dropRight(1) else source
-        if (separators.contains(result.name)) Blocks.SeparatorInstance(result, trimmedSource)
-        else Blocks.DirectiveInstance(directives.get(result.name), result, recBlockParser, recSpanParser, trimmedSource)
+
+    PrefixedParser('@') {
+      withRecursiveSpanParser(withRecursiveBlockParser(withSource(
+        directiveParser(newBody, legacyBody, recParsers, supportsCustomFence = true)
+      ))) ^^ {
+        case (recSpanParser, (recBlockParser, (result, source))) =>
+          val trimmedSource = if (source.lastOption.contains('\n')) source.dropRight(1) else source
+          if (separators.contains(result.name)) Blocks.SeparatorInstance(result, trimmedSource)
+          else Blocks.DirectiveInstance(directives.get(result.name), result, recBlockParser, recSpanParser, trimmedSource)
+      }
     }
   }
 
