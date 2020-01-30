@@ -62,12 +62,12 @@ case object Markdown extends MarkupFormat {
     BlockParsers.quotedBlock,
     BlockParsers.rootHeaderOrParagraph,
     BlockParsers.nestedHeaderOrParagraph,
-    BlockParsers.fallbackParagraph
-  ) ++
-    BlockParsers.literalBlocks ++
-    BlockParsers.rules ++
-    ListParsers.enumLists ++
+    BlockParsers.fallbackParagraph,
+    BlockParsers.literalBlocks,
+    BlockParsers.rules,
+    ListParsers.enumLists,
     ListParsers.bulletLists
+  )
 
   val spanParsers: Seq[SpanParserBuilder] = Seq(
     InlineParsers.enclosedByAsterisk,

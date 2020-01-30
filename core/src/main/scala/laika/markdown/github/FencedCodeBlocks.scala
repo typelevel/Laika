@@ -36,13 +36,13 @@ object FencedCodeBlocks {
 
   /** Creates a parser for a fenced code block with the specified fence character.
     */
-  def codeBlock (fenceChar: Char): BlockParserBuilder = BlockParser.forStartChar(fenceChar).recursive { recParsers =>
+  def codeBlock (fenceChar: Char): BlockParserBuilder = BlockParser.recursive { recParsers =>
 
     val infoString = restOfLine.map(Some(_)
       .filter(_.nonEmpty)
       .flatMap(_.trim.split(" ").headOption)
     )
-    val openingFence = anyOf(fenceChar).min(3).count ~ infoString
+    val openingFence = prefix(fenceChar).min(3).count ~ infoString
 
     openingFence >> { case charCount ~ info =>
 

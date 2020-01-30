@@ -413,7 +413,7 @@ class BlockParsersSpec extends FlatSpec
       |ccc""".stripMargin
     Parsing (input) should produce (root( p("aaa\nbbb"), Rule(), p("ccc")))
   }
-  
+
   it should "parse a line decorated by '_' and space characters" in {
     val input = """aaa
       |bbb

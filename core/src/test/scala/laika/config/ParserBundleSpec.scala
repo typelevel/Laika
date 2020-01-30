@@ -144,7 +144,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
       override def blockParsers: Seq[BlockParserBuilder] = Seq(blockFor('>'), blockFor('+'))
 
       val bundle = BundleProvider.forMarkupParser(blockParsers = Seq(
-        BlockParser.forStartChar('+').standalone(Parsers.success(Rule())).withLowPrecedence
+        BlockParser.standalone(literal("+").map(_ => Rule())).withLowPrecedence
       ))
 
       MarkupParser.of(Parser).using(bundle).build.parse(input).toOption.get shouldBe doc('>' -> "aaa\naaa", '+' -> "bbb\nbbb")

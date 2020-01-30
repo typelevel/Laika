@@ -21,6 +21,7 @@ import laika.bundle.{BlockParser, BlockParserBuilder}
 import laika.parse.Parser
 import laika.parse.combinator.Parsers.opt
 import laika.parse.markup.RecursiveParsers
+import laika.parse.text.{CharGroup, PrefixedParser}
 import laika.parse.text.TextParsers._
 
 /** Provides parsers for bullet lists ("unordered list" in the Markdown spec)
@@ -79,7 +80,7 @@ object ListParsers {
       blockItems map { item => rewriteItemContent(item, pos.next) }
     }
 
-    val rule = BlockParsers.rules.map(_.createParser(recParsers).parser).reduceLeft(_ | _)
+    val rule = BlockParsers.rules.createParser(recParsers).parser
 
     val itemStart = itemStartChar ~ itemStartRest
 
@@ -93,19 +94,23 @@ object ListParsers {
 
   /** Parses a bullet list, called "unordered list" in the Markdown syntax description.
     */
-  val bulletLists: Seq[BlockParserBuilder] = Seq('+', '*', '-').map { bulletChar =>
-    BlockParser.forStartChar(bulletChar).recursive { implicit recParsers =>
-      val bullet = StringBullet(bulletChar.toString)
-      list(bulletChar, wsAfterItemStart, BulletList(_: List[BulletListItem], bullet), (_, blocks) => BulletListItem(blocks, bullet))
+  val bulletLists: BlockParserBuilder = 
+    BlockParser.recursive { implicit recParsers =>
+      PrefixedParser('+', '*', '-') {
+        lookAhead(any.take(1)) >> { char =>
+          val bullet = StringBullet(char)
+          list(bulletChar, wsAfterItemStart, BulletList(_: List[BulletListItem], bullet), (_, blocks) => BulletListItem(blocks, bullet))
+        }
+      }
     }.withLowPrecedence
-  }
 
   /** Parses an enumerated list, called "ordered list" in the Markdown syntax description.
     */
-  val enumLists: Seq[BlockParserBuilder] = ('0' to '9').map { enumChar =>
-    BlockParser.forStartChar(enumChar).recursive { implicit recParsers =>
-      list(this.enumChar, enumStartRest, EnumList(_: List[EnumListItem], EnumFormat()), (pos, blocks) => EnumListItem(blocks, EnumFormat(), pos))
+  val enumLists: BlockParserBuilder = 
+    BlockParser.recursive { implicit recParsers =>
+      PrefixedParser(CharGroup.digit) {
+        list(enumChar, enumStartRest, EnumList(_: List[EnumListItem], EnumFormat()), (pos, blocks) => EnumListItem(blocks, EnumFormat(), pos))
+      }
     }
-  }
 
 }

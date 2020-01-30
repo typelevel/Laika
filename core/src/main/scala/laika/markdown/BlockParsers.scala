@@ -22,7 +22,7 @@ import laika.parse.Parser
 import laika.parse.markup.BlockParsers.block
 import laika.parse.markup.RecursiveParsers
 import laika.parse.text.TextParsers._
-import laika.parse.text.WhitespacePreprocessor
+import laika.parse.text.{PrefixedParser, WhitespacePreprocessor}
 
 
 /** Provides all block parsers for Markdown text except for for lists which
@@ -97,7 +97,7 @@ object BlockParsers {
 
     val lineCondition = not(ListParsers.bulletListItemStart | ListParsers.enumListItemStart | blankLine)
 
-    val listParsers = (ListParsers.bulletLists ++ ListParsers.enumLists)
+    val listParsers = Seq(ListParsers.bulletLists, ListParsers.enumLists)
       .map(_.createParser(recParsers).parser)
       .reduceLeft(_ | _)
 
@@ -165,14 +165,14 @@ object BlockParsers {
    *  Markdown also allows to decorate the line with trailing `'#'` characters which
    *  this parser will remove.
    */
-  val atxHeader: BlockParserBuilder = BlockParser.forStartChar('#').recursive { recParsers =>
+  val atxHeader: BlockParserBuilder = BlockParser.recursive { recParsers =>
     def stripDecoration (text: String) = {
       val trimmed = text.trim 
       if (trimmed.last == '#') trimmed.take(trimmed.lastIndexWhere(_ != '#') + 1).trim
       else trimmed
     } 
     
-    anyOf('#').max(6).count ~ (not(blankLine) ~> recParsers.recursiveSpans(restOfLine ^^ stripDecoration)) ^^ {
+    prefix('#').max(6).count ~ (not(blankLine) ~> recParsers.recursiveSpans(restOfLine ^^ stripDecoration)) ^^ {
       case level ~ spans => Header(level, spans)
     }
   }
@@ -180,28 +180,29 @@ object BlockParsers {
   /** Parses a horizontal rule, a line only decorated with three or more `'*'`, `'-'` or `'_'`
    *  characters with optional spaces between them
    */
-  val rules: Seq[BlockParserBuilder] = Seq('*', '-', '_').map { decoChar =>
-    BlockParser.forStartChar(decoChar).standalone {
-      val pattern = decoChar ~ (anyOf(' ').^ ~ decoChar).rep.min(2)
-      pattern ~ wsEol ^^^ Rule()
-    }
+  val rules: BlockParserBuilder = BlockParser.standalone {
+    val decoChar = prefix('*', '-', '_').take(1)
+    val pattern = decoChar ~ (anyOf(' ').^ ~ decoChar).rep.min(2)
+    pattern ~ wsEol ^^^ Rule()
   }
 
   /** Parses a literal block, text indented by a tab or 4 spaces.
    */
-  val literalBlocks: Seq[BlockParserBuilder] = Seq(' ', '\t').map { startChar =>
+  val literalBlocks: BlockParserBuilder = BlockParser.standalone {
     val wsPreProcessor = new WhitespacePreprocessor
-    BlockParser.forStartChar(startChar).standalone {
+    PrefixedParser(' ', '\t') {
       decoratedBlock(tabOrSpace, tabOrSpace, tabOrSpace) ^^ { lines => LiteralBlock(wsPreProcessor(lines)) }
-    }
+   }
   }
 
   /** Parses a quoted block, a paragraph starting with a `'>'` character,
    *  with subsequent lines optionally starting with a `'>'`, too.
    */
-  val quotedBlock: BlockParserBuilder = BlockParser.forStartChar('>').recursive { recParsers =>
-    val decoratedLine = '>' ~ ws.max(1).noCapture
-    recParsers.recursiveBlocks(decoratedBlock(decoratedLine, decoratedLine | not(blankLine), '>')) ^^ (QuotedBlock(_, Nil))
+  val quotedBlock: BlockParserBuilder = BlockParser.recursive { recParsers =>
+    PrefixedParser('>') {
+      val decoratedLine = '>' ~ ws.max(1).noCapture
+      recParsers.recursiveBlocks(decoratedBlock(decoratedLine, decoratedLine | not(blankLine), '>')) ^^ (QuotedBlock(_, Nil))
+    }
   }
 
   /** Parses just a plain paragraph after the maximum nest level has been reached.

@@ -158,11 +158,7 @@ object BlockParser {
   def withEscapedText (factory: EscapedTextParsers => Parser[Block]): BlockParserBuilderOps =
     BlockParserBuilderOps(factory)
 
-  /** Creates a builder for a block element that starts with the specified character.
-    *
-    * For block elements a known start character is optional and can be used by the host
-    * language for performance optimizations.
-    */
+  @deprecated("use standalone, recursive, withSpans, withEscapedText methods directly", "0.14.0")
   def forStartChar (char: Char): LegacySyntax = new LegacySyntax(Set(char))
 
   @deprecated("use standalone, recursive, withSpans, withEscapedText methods directly", "0.14.0")
