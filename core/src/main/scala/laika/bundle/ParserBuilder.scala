@@ -22,6 +22,8 @@ import laika.parse.Parser
 import laika.parse.markup.{EscapedTextParsers, RecursiveParsers, RecursiveSpanParsers}
 import laika.parse.text.PrefixedParser
 
+import scala.collection.immutable.SortedSet
+
 /** Builds a parser definition lazily by passing the recursive parsers
   * of the host language.
   *
@@ -53,11 +55,11 @@ trait SpanParserBuilder extends ParserBuilder[SpanParserDefinition]
 
 /** Builder API for span parsers.
   */
-class SpanParserBuilderOps (parserFactory: RecursiveSpanParsers => PrefixedParser[Span],
-                            recursive: Boolean,
-                            precedence: Precedence) extends SpanParserBuilder {
+case class SpanParserBuilderOps (parserFactory: RecursiveSpanParsers => PrefixedParser[Span],
+                                 recursive: Boolean,
+                                 precedence: Precedence) extends SpanParserBuilder {
 
-    override def createParser (recursiveParsers: RecursiveParsers): SpanParserDefinition = {
+    def createParser (recursiveParsers: RecursiveParsers): SpanParserDefinition = {
       val p = parserFactory(recursiveParsers)
       SpanParserDefinition(p.startChars, p.underlying, recursive, precedence)
     }
@@ -65,8 +67,7 @@ class SpanParserBuilderOps (parserFactory: RecursiveSpanParsers => PrefixedParse
     /** Indicates that this parser should only be applied after all built-in
       * parsers have failed on a specific markup element.
       */
-    def withLowPrecedence: SpanParserBuilderOps = 
-      new SpanParserBuilderOps(parserFactory, recursive, Precedence.Low)
+    def withLowPrecedence: SpanParserBuilderOps = copy(precedence = Precedence.Low)
 
 }
 
@@ -74,82 +75,59 @@ class SpanParserBuilderOps (parserFactory: RecursiveSpanParsers => PrefixedParse
   */
 object SpanParser {
   
-  class LegacySyntax (startChars: NonEmptySet[Char]) {
-    def standalone (parser: Parser[Span]): SpanParserBuilderOps = 
-      new SpanParserBuilderOps(_ => PrefixedParser(startChars)(parser), false, Precedence.High)
-    def recursive (factory: RecursiveSpanParsers => Parser[Span]): SpanParserBuilderOps =
-      new SpanParserBuilderOps(rec => PrefixedParser(startChars)(factory(rec)), true, Precedence.High)
-  }
-  
   import cats.implicits._
 
   /** Creates a parser definition for a parser that is independent from the parsers
     * of the host languages.
     */
   def standalone (parser: PrefixedParser[Span]): SpanParserBuilderOps = 
-    new SpanParserBuilderOps(_ => parser, false, Precedence.High)
+    SpanParserBuilderOps(_ => parser, false, Precedence.High)
 
   /** Creates a parser definition for a parser that depends on the parsers
     * of the host languages for recursively parsing child elements.
     */
   def recursive (factory: RecursiveSpanParsers => PrefixedParser[Span]): SpanParserBuilderOps =
-    new SpanParserBuilderOps(factory, true, Precedence.High)
+    SpanParserBuilderOps(factory, true, Precedence.High)
 
+  
   @deprecated("use standalone or recursive methods directly", "0.14.0")
   def forStartChar (char: Char): LegacySyntax = new LegacySyntax(NonEmptySet.one(char))
 
+  class LegacySyntax (startChars: NonEmptySet[Char]) {
+    def standalone (parser: Parser[Span]): SpanParserBuilderOps =
+      SpanParserBuilderOps(_ => PrefixedParser(startChars)(parser), false, Precedence.High)
+    def recursive (factory: RecursiveSpanParsers => Parser[Span]): SpanParserBuilderOps =
+      SpanParserBuilderOps(rec => PrefixedParser(startChars)(factory(rec)), true, Precedence.High)
+  }
 }
 
-/** Builder API for block parsers.
-  */
-class BlockParser (startChar: Option[Char] = None) {
+case class BlockParserBuilderOps (parserFactory: RecursiveParsers => Parser[Block],
+                                  recursive: Boolean = false,
+                                  position: BlockPosition = BlockPosition.Any,
+                                  precedence: Precedence = Precedence.High) extends BlockParserBuilder {
 
-  case class DefinitionBuilder (parserFactory: RecursiveParsers => Parser[Block],
-                                recursive: Boolean = false,
-                                position: BlockPosition = BlockPosition.Any,
-                                precedence: Precedence = Precedence.High) extends BlockParserBuilder {
-
-    override def createParser (recursiveParsers: RecursiveParsers): BlockParserDefinition =
-      BlockParserDefinition(startChar, parserFactory(recursiveParsers), recursive, position, precedence)
-
-    /** Indicates that this parser should only be applied after all built-in
-      * parsers have failed on a specific markup element.
-      */
-    def withLowPrecedence: DefinitionBuilder = copy(precedence = Precedence.Low)
-
-    /** Indicates that this parser should only be applied for top level block items,
-      * but not for blocks nested within other blocks.
-      */
-    def rootOnly: DefinitionBuilder = copy(position = BlockPosition.RootOnly)
-
-    /** Indicates that this parser should only be applied for blocks nested within other blocks.
-      */
-    def nestedOnly: DefinitionBuilder = copy(position = BlockPosition.NestedOnly)
-
+  def createParser (recursiveParsers: RecursiveParsers): BlockParserDefinition = {
+    val p = parserFactory(recursiveParsers)
+    val startChars = p match {
+      case pp: PrefixedParser[_] => pp.startChars.toSortedSet
+      case _                     => Set.empty[Char]
+    }
+    BlockParserDefinition(startChars, p, recursive, position, precedence)
   }
 
-  /** Creates a parser definition for a parser that is independent from the parsers
-    * of the host languages.
+  /** Indicates that this parser should only be applied after all built-in
+    * parsers have failed on a specific markup element.
     */
-  def standalone (parser: Parser[Block]): DefinitionBuilder = DefinitionBuilder(_ => parser)
+  def withLowPrecedence: BlockParserBuilderOps = copy(precedence = Precedence.Low)
 
-  /** Creates a parser definition for a parser that depends on the parsers
-    * of the host languages for recursively parsing child elements.
+  /** Indicates that this parser should only be applied for top level block items,
+    * but not for blocks nested within other blocks.
     */
-  def recursive (factory: RecursiveParsers => Parser[Block]): DefinitionBuilder =
-    DefinitionBuilder(factory, recursive = true)
+  def rootOnly: BlockParserBuilderOps = copy(position = BlockPosition.RootOnly)
 
-  /** Creates a parser definition for a parser that depends on the span parsers
-    * of the host languages for recursively parsing child elements.
+  /** Indicates that this parser should only be applied for blocks nested within other blocks.
     */
-  def withSpans (factory: RecursiveSpanParsers => Parser[Block]): DefinitionBuilder =
-    DefinitionBuilder(factory)
-
-  /** Creates a parser definition for a parser that depends on the parsers for escape sequences
-    * of the host languages for parsing text.
-    */
-  def withEscapedText (factory: EscapedTextParsers => Parser[Block]): DefinitionBuilder =
-    DefinitionBuilder(factory)
+  def nestedOnly: BlockParserBuilderOps = copy(position = BlockPosition.NestedOnly)
 
 }
 
@@ -157,12 +135,35 @@ class BlockParser (startChar: Option[Char] = None) {
   */
 object BlockParser {
 
+  /** Creates a parser definition for a parser that is independent from the parsers
+    * of the host languages.
+    */
+  def standalone (parser: Parser[Block]): BlockParserBuilderOps = BlockParserBuilderOps(_ => parser)
+
+  /** Creates a parser definition for a parser that depends on the parsers
+    * of the host languages for recursively parsing child blocks.
+    */
+  def recursive (factory: RecursiveParsers => Parser[Block]): BlockParserBuilderOps =
+    BlockParserBuilderOps(factory, recursive = true)
+
+  /** Creates a parser definition for a parser that depends on the span parsers
+    * of the host languages for recursively parsing spans inside block elements.
+    */
+  def withSpans (factory: RecursiveSpanParsers => Parser[Block]): BlockParserBuilderOps =
+    BlockParserBuilderOps(factory)
+
+  /** Creates a parser definition for a parser that depends on the parsers for escape sequences
+    * of the host languages for parsing text.
+    */
+  def withEscapedText (factory: EscapedTextParsers => Parser[Block]): BlockParserBuilderOps =
+    BlockParserBuilderOps(factory)
+
   /** Creates a builder for a block element that starts with the specified character.
     *
     * For block elements a known start character is optional and can be used by the host
     * language for performance optimizations.
     */
-  def forStartChar (char: Char): BlockParser = new BlockParser(Some(char))
+  def forStartChar (char: Char): LegacySyntax = new LegacySyntax(Set(char))
 
   /** Creates a builder for a block element that does not start with a specific character.
     *
@@ -170,6 +171,21 @@ object BlockParser {
     * this method allows to avoid the definition of a distinct start character by occurring a little
     * performance penalty.
     */
-  def withoutStartChar: BlockParser = new BlockParser()
+  def withoutStartChar: LegacySyntax = new LegacySyntax()
 
+  class LegacySyntax (startChars: Set[Char] = Set.empty) {
+    private def createParser(p: Parser[Block]): Parser[Block] = 
+      NonEmptySet.fromSet[Char](SortedSet(startChars.toSeq:_*)) match {
+        case Some(chars) => PrefixedParser(chars)(p)
+        case _ => p
+      }
+    def standalone (parser: Parser[Block]): BlockParserBuilderOps =
+      BlockParserBuilderOps(_ => createParser(parser))
+    def recursive (factory: RecursiveParsers => Parser[Block]): BlockParserBuilderOps =
+      BlockParserBuilderOps(rec => createParser(factory(rec)), recursive = true)
+    def withSpans (factory: RecursiveSpanParsers => Parser[Block]): BlockParserBuilderOps =
+      BlockParserBuilderOps(rec => createParser(factory(rec)))
+    def withEscapedText (factory: EscapedTextParsers => Parser[Block]): BlockParserBuilderOps =
+      BlockParserBuilderOps(rec => createParser(factory(rec)))
+  }
 }

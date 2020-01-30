@@ -44,7 +44,7 @@ class RootParser (markupParser: MarkupFormat, markupExtensions: MarkupExtensions
   lazy val rootElement: Parser[RootElement] = opt(blankLines) ~> blockList(rootBlock) ^^ { RootElement(_) }
 
   private lazy val sortedBlockParsers: Seq[BlockParserDefinition] =
-    createParsers(markupParser.blockParsers, markupExtensions.blockParsers)
+    createAndSortParsers(markupParser.blockParsers, markupExtensions.blockParsers)
 
   protected lazy val rootBlock     = merge(sortedBlockParsers.filter(_.position != BlockPosition.NestedOnly))
   protected lazy val nestedBlock   = merge(sortedBlockParsers.filter(_.position != BlockPosition.RootOnly))
@@ -54,7 +54,7 @@ class RootParser (markupParser: MarkupFormat, markupExtensions: MarkupExtensions
     val escapedText = SpanParser.standalone(escapeSequence.map(Text(_))).withLowPrecedence
     val mainParsers = markupParser.spanParsers :+ escapedText
     
-    createParsers(mainParsers, markupExtensions.spanParsers)
+    createAndSortParsers(mainParsers, markupExtensions.spanParsers)
       .flatMap { parserDef =>
         parserDef.startChars.toList.map(c => (c, parserDef))
       }
@@ -67,8 +67,8 @@ class RootParser (markupParser: MarkupFormat, markupExtensions: MarkupExtensions
   def blockList (p: => Parser[Block]): Parser[Seq[Block]] =
     markupParser.createBlockListParser(p) ^^ markupExtensions.parserHooks.postProcessBlocks
 
-  private def createParsers[T <: ParserDefinition[_]] (mainParsers: Seq[ParserBuilder[T]],
-                                                       extParsers: Seq[ParserBuilder[T]]): Seq[T] = {
+  private def createAndSortParsers[T <: ParserDefinition[_]] (mainParsers: Seq[ParserBuilder[T]],
+                                                              extParsers: Seq[ParserBuilder[T]]): Seq[T] = {
 
     def createParsers (builders: Seq[ParserBuilder[T]]): (Seq[T],Seq[T]) =
       builders.map(_.createParser(this)).partition(_.precedence == Precedence.High)
@@ -79,16 +79,26 @@ class RootParser (markupParser: MarkupFormat, markupExtensions: MarkupExtensions
   }
 
   private def merge (parserDefinitions: Seq[BlockParserDefinition]): Parser[Block] = {
-    val grouped = parserDefinitions.groupBy(_.startChar).map {
-      case (char, definitions) => (char, definitions.map(_.parser).reduceLeft(_ | _))
-    }
-    val decoratedBlockParserMap = grouped.collect {
-      case (Some(char), definition) => (char, definition)
-    }
-    val undecoratedBlock = grouped.getOrElse(None, failure("No undecorated block parser available"))
-    val startChars = lookAhead(anyOf(decoratedBlockParserMap.keySet.toSeq:_*).take(1)) ^^ (_.charAt(0))
-    val decoratedBlock = startChars >> decoratedBlockParserMap
-    decoratedBlock | undecoratedBlock
+    
+    val (prefixed, unprefixed) = parserDefinitions.partition(_.startChars.nonEmpty)
+    
+    val groupedPrefixed: Map[Char, Parser[Block]] = prefixed
+      .flatMap { parserDef =>
+        parserDef.startChars.toList.map(c => (c, parserDef))
+      }
+      .groupBy(_._1)
+      .map {
+        case (char, definitions) => (char, definitions.map(_._2.parser).reduceLeft(_ | _))
+      }
+    
+    val unprefixedBlock = unprefixed
+      .map(_.parser)
+      .reduceLeftOption(_ | _)
+      .getOrElse(failure("No undecorated block parser available"))
+    
+    val startChars = lookAhead(anyOf(groupedPrefixed.keySet.toSeq:_*).take(1)) ^^ (_.charAt(0))
+    val prefixedBlock = startChars >> groupedPrefixed
+    prefixedBlock | unprefixedBlock
   }
 
 }

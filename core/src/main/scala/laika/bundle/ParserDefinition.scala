@@ -47,14 +47,14 @@ sealed trait ParserDefinition[E <: Element] {
 /** Defines a parser for a single kind of block element,
   * like a quoted block or a bullet list for example.
   *
-  * @param startChar the optional start character (allows performance optimizations when defined)
+  * @param startChars the optional start characters that can start this block (allows performance optimizations when defined)
   * @param parser the parser for the block element after the start character
   * @param isRecursive indicates whether this parser produces child elements by recursively applying the parsers for the host language
   * @param position indicates whether this parser is responsible for root or nested elements only, or for both
   * @param precedence indicates whether the parser should be applied before the base parsers of
   * the host language (high precedence) or after them
   */
-case class BlockParserDefinition (startChar: Option[Char],
+case class BlockParserDefinition (startChars: Set[Char],
                                   parser: Parser[Block],
                                   isRecursive: Boolean,
                                   position: BlockPosition,
