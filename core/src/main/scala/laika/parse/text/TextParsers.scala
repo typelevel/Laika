@@ -42,13 +42,14 @@ object TextParsers extends Parsers {
     *
     *  The method is implicit so that characters can automatically be lifted to their parsers.
     */
-  implicit def char (expected: Char): Parser[Char] = {
+  implicit def char (expected: Char): PrefixedParser[Char] = {
     val errMsg: Char => Message = Message.forRuntimeValue[Char] { found => s"'$expected' expected but $found found" }
-    Parser { in =>
+    val p = Parser { in =>
       if (in.atEnd) Failure(Message.UnexpectedEOF, in)
       else if (in.char == expected) Success(in.char, in.consume(1))
       else Failure(errMsg(in.char), in)
     }
+    PrefixedParser(p, expected)
   }
 
   /**  A parser that matches only the specified literal string.
