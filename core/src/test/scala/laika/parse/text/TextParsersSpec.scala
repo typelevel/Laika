@@ -245,6 +245,10 @@ class TextParsersSpec extends WordSpec with Matchers with ParseResultHelpers wit
       Parsing ("ababccab") using anyOf() should produce ("")
     }
 
+    "succeed with an empty result when no characters match" in {
+      Parsing ("ababccab") using anyOf('x') should produce ("")
+    }
+
     "succeed for the matching character when 1 character is specified" in {
       Parsing ("xxabc") using anyOf('x') should produce ("xx")
     }
@@ -267,6 +271,38 @@ class TextParsersSpec extends WordSpec with Matchers with ParseResultHelpers wit
 
     "stop, but still succeed, when it has consumed the specified maximum number of characters" in {
       Parsing ("xxxxxx") using (anyOf('x') max 3) should produce ("xxx")
+    }
+
+  }
+
+  "The prefix parser" should {
+
+    "succeed for the matching character when 1 character is specified" in {
+      Parsing ("xxabc") using prefix('x') should produce ("xx")
+    }
+
+    "succeed for all matching characters when 3 characters are specified" in {
+      Parsing ("xxyzxabc") using prefix('x','y','z') should produce ("xxyzx")
+    }
+
+    "succeed in case the end of the input is reached" in {
+      Parsing ("xxyzx") using prefix('x','y','z') should produce ("xxyzx")
+    }
+
+    "fail when it does not consume the specified minimum number of characters" in {
+      Parsing ("xxabc") using prefix('x').min(3) should cause [Failure]
+    }
+
+    "fail when it does not consume any characters as min(1) is implicit in prefix parsers" in {
+      Parsing ("abcde") using prefix('x') should cause [Failure]
+    }
+
+    "succeed when it does consume the specified minimum number of characters" in {
+      Parsing ("xxxxabc") using prefix('x').min(3) should produce ("xxxx")
+    }
+
+    "stop, but still succeed, when it has consumed the specified maximum number of characters" in {
+      Parsing ("xxxxxx") using prefix('x').max(3) should produce ("xxx")
     }
 
   }

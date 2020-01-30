@@ -16,7 +16,9 @@
 
 package laika.parse.text
 
-import laika.ast.{~, Size}
+import cats.implicits._
+import cats.data.NonEmptySet
+import laika.ast.{Size, ~}
 import laika.parse.{Failure, Message, Parser, Success}
 import laika.parse.combinator.Parsers
 
@@ -50,6 +52,15 @@ object TextParsers extends Parsers {
       else Failure(errMsg(in.char), in)
     }
     PrefixedParser(expected)(p)
+  }
+  
+  def prefix (char: Char, chars: Char*): PrefixCharacters[String] = {
+    val startChars = NonEmptySet.of(char, chars:_*)
+    new PrefixCharacters(anyOf(startChars).min(1), startChars)
+  }
+
+  def prefix (chars: NonEmptySet[Char]): PrefixCharacters[String] = {
+    new PrefixCharacters(anyOf(chars).min(1), chars)
   }
 
   /**  A parser that matches only the specified literal string.
@@ -154,11 +165,21 @@ object TextParsers extends Parsers {
    *  Always succeeds unless a minimum number of required matches is specified.
    */
   def anyOf (chars: Char*): Characters[String] = Characters.include(chars)
+
+  /** Consumes any number of consecutive occurrences of the specified characters.
+    * Always succeeds unless a minimum number of required matches is specified.
+    */
+  def anyOf (chars: NonEmptySet[Char]): Characters[String] = Characters.include(chars.toSortedSet.toSeq)
   
   /** Consumes any number of consecutive characters that are not one of the specified characters.
    *  Always succeeds unless a minimum number of required matches is specified.
    */
   def anyBut (chars: Char*): Characters[String] = Characters.exclude(chars)
+
+  /** Consumes any number of consecutive occurrences that are not one of the specified characters.
+    * Always succeeds unless a minimum number of required matches is specified.
+    */
+  def anyBut (chars: NonEmptySet[Char]): Characters[String] = Characters.exclude(chars.toSortedSet.toSeq)
   
   /** Consumes any number of consecutive characters that are in one of the specified character ranges.
    *  Always succeeds unless a minimum number of required matches is specified.
