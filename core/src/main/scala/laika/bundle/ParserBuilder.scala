@@ -53,32 +53,20 @@ trait SpanParserBuilder extends ParserBuilder[SpanParserDefinition]
 
 /** Builder API for span parsers.
   */
-class SpanParser (startChars: NonEmptySet[Char]) {
+class SpanParserBuilderOps (parserFactory: RecursiveSpanParsers => PrefixedParser[Span],
+                            recursive: Boolean,
+                            precedence: Precedence) extends SpanParserBuilder {
 
-  class DefinitionBuilder (parserFactory: RecursiveSpanParsers => Parser[Span],
-                           recursive: Boolean,
-                           precedence: Precedence) extends SpanParserBuilder {
-
-    override def createParser (recursiveParsers: RecursiveParsers): SpanParserDefinition =
-      SpanParserDefinition(startChars, parserFactory(recursiveParsers), recursive, precedence)
+    override def createParser (recursiveParsers: RecursiveParsers): SpanParserDefinition = {
+      val p = parserFactory(recursiveParsers)
+      SpanParserDefinition(p.startChars, p.underlying, recursive, precedence)
+    }
 
     /** Indicates that this parser should only be applied after all built-in
       * parsers have failed on a specific markup element.
       */
-    def withLowPrecedence: DefinitionBuilder = new DefinitionBuilder(parserFactory, recursive, Precedence.Low)
-
-  }
-
-  /** Creates a parser definition for a parser that is independent from the parsers
-    * of the host languages.
-    */
-  def standalone (parser: Parser[Span]): DefinitionBuilder = new DefinitionBuilder(_ => parser, false, Precedence.High)
-
-  /** Creates a parser definition for a parser that depends on the parsers
-    * of the host languages for recursively parsing child elements.
-    */
-  def recursive (factory: RecursiveSpanParsers => Parser[Span]): DefinitionBuilder =
-    new DefinitionBuilder(factory, true, Precedence.High)
+    def withLowPrecedence: SpanParserBuilderOps = 
+      new SpanParserBuilderOps(parserFactory, recursive, Precedence.Low)
 
 }
 
@@ -86,19 +74,29 @@ class SpanParser (startChars: NonEmptySet[Char]) {
   */
 object SpanParser {
   
+  class LegacySyntax (startChars: NonEmptySet[Char]) {
+    def standalone (parser: Parser[Span]): SpanParserBuilderOps = 
+      new SpanParserBuilderOps(_ => PrefixedParser(parser, startChars), false, Precedence.High)
+    def recursive (factory: RecursiveSpanParsers => Parser[Span]): SpanParserBuilderOps =
+      new SpanParserBuilderOps(rec => PrefixedParser(factory(rec), startChars), true, Precedence.High)
+  }
+  
   import cats.implicits._
-  
-  // TODO - these currently does not allow to call withLowPrecedence
-  def standalone (parser: PrefixedParser[Span]): SpanParserBuilder = new SpanParser(parser.startChars).standalone(parser)
 
-  // def recursive (factory: RecursiveSpanParsers => PrefixedParser[Span]): SpanParserBuilder = new SpanParser(parser.startChars)
-  
-  /** Creates a builder for a span element that starts with the specified character.
-    *
-    * For span elements a known start character is mandatory as parsing would be too expensive
-    * otherwise when the engine has to try a parser on every character.
+  /** Creates a parser definition for a parser that is independent from the parsers
+    * of the host languages.
     */
-  def forStartChar (char: Char): SpanParser = new SpanParser(NonEmptySet.one(char))
+  def standalone (parser: PrefixedParser[Span]): SpanParserBuilder = 
+    new SpanParserBuilderOps(_ => parser, false, Precedence.High)
+
+  /** Creates a parser definition for a parser that depends on the parsers
+    * of the host languages for recursively parsing child elements.
+    */
+  def recursive (factory: RecursiveSpanParsers => PrefixedParser[Span]): SpanParserBuilderOps =
+    new SpanParserBuilderOps(factory, true, Precedence.High)
+
+  // TODO - deprecate
+  def forStartChar (char: Char): LegacySyntax = new LegacySyntax(NonEmptySet.one(char))
 
 }
 
