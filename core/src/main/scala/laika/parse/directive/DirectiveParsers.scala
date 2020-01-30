@@ -182,9 +182,9 @@ object SpanDirectiveParsers {
     SpanParser.standalone(legacyReference(key => MarkupContextReference(Key.parse(key), required = true)))
 
   def spanDirective (directives: Map[String, Spans.Directive]): SpanParserBuilder =
-    SpanParser.forStartChar('@').recursive(rec => spanDirectiveParser(directives)(rec))
+    SpanParser.recursive(rec => spanDirectiveParser(directives)(rec))
 
-  def spanDirectiveParser(directives: Map[String, Spans.Directive])(recParsers: RecursiveSpanParsers): Parser[Span] = {
+  def spanDirectiveParser(directives: Map[String, Spans.Directive])(recParsers: RecursiveSpanParsers): PrefixedParser[Span] = {
 
     import recParsers._
     
@@ -200,11 +200,11 @@ object SpanDirectiveParsers {
       } | success(None)
       else success(None)
     
-    withRecursiveSpanParser(withSource(directiveParser(newBody, legacyBody, recParsers))) ^^ {
+    PrefixedParser(withRecursiveSpanParser(withSource(directiveParser(newBody, legacyBody, recParsers))) ^^ {
       case (recParser, (result, source)) => 
         if (separators.contains(result.name)) Spans.SeparatorInstance(result, source)
         else Spans.DirectiveInstance(directives.get(result.name), result, recParser, source)
-    }
+    }, '@')
   }
 
 }
