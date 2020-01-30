@@ -38,16 +38,28 @@ class TextParsersSpec extends WordSpec with Matchers with ParseResultHelpers wit
 
   "The literal parser" should {
 
-    "always succeed with an empty string" in {
-      Parsing ("") using "" should produce ("")
-    }
-
     "succeed with a matching string literal" in {
       Parsing ("abcd") using "abc" should produce ("abc")
     }
 
     "fail when the string literal does not match" in {
       Parsing ("abcd") using "bcd" should cause [Failure]
+    }
+
+  }
+
+  "The literal or empty parser" should {
+
+    "always succeed with an empty string" in {
+      Parsing ("") using literalOrEmpty("") should produce ("")
+    }
+
+    "succeed with a matching string literal" in {
+      Parsing ("abcd") using literalOrEmpty("abc") should produce ("abc")
+    }
+
+    "fail when the string literal does not match" in {
+      Parsing ("abcd") using literalOrEmpty("bcd") should cause [Failure]
     }
 
   }

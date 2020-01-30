@@ -43,7 +43,10 @@ trait PrefixedParser[+T] extends Parser[T] { self =>
   override def ^^^[U] (v: => U): PrefixedParser[U]               = PrefixedParser(super.^^^(v), startChars)
   
   override def ^^?[U] (f: T => Either[String, U]): PrefixedParser[U]                   = PrefixedParser(super.^^?(f), startChars)
-  override def ^?[U] (f: PartialFunction[T, U], error: T => String): PrefixedParser[U] = PrefixedParser(super.^?(f, error), startChars)
+  override def ^?[U] (f: PartialFunction[T, U], 
+                      error: T => String = r => s"Constructor function not defined at $r"): PrefixedParser[U] = 
+    PrefixedParser(super.^?(f, error), startChars)
+  
 
   def orElse[U >: T] (p: => PrefixedParser[U]): PrefixedParser[U] = PrefixedParser(super.orElse(p), startChars ++ p.startChars)
 

@@ -143,7 +143,7 @@ object ListParsers {
     def enumType (et: EnumType) = enumTypes(et) | autoNumber
     
     def itemStart (format: EnumFormat): Parser[String] = 
-      (format.prefix ~ enumType(format.enumType) ~ format.suffix) ^^ { case prefix ~ enumType ~ suffix => prefix + enumType + suffix }
+      (literalOrEmpty(format.prefix) ~ enumType(format.enumType) ~ literalOrEmpty(format.suffix)) ^^ { case prefix ~ enumType ~ suffix => prefix + enumType + suffix }
       
     lookAhead(enumListStart <~ (ws min 1)) >> { case (format, start) =>
       val pos = Iterator.from(start)

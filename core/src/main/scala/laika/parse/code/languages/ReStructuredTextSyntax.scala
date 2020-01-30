@@ -35,7 +35,7 @@ object ReStructuredTextSyntax extends SyntaxHighlighter {
 
   // raw = does not perform checks for rst inline markup recognition
   def rawSpan (start: String, end: String, category: CodeCategory, includeDelim: Boolean = true): Parser[CodeSpan] =
-    (start ~ delimitedBy(end).failOn('\n')).concat.map {
+    (literalOrEmpty(start) ~ delimitedBy(end).failOn('\n')).concat.map {
       res => CodeSpan(if (includeDelim) s"$res$end" else res, category)
     }
 

@@ -55,7 +55,9 @@ object TextParsers extends Parsers {
     *
     *  The method is implicit so that strings can automatically be lifted to their parsers.
     */
-  implicit def literal (expected: String): Parser[String] = Literal(expected)
+  implicit def literal (expected: String): PrefixedParser[String] = Literal(expected)
+
+  def literalOrEmpty (expected: String): Parser[String] = if (expected.nonEmpty) literal(expected) else success("")
 
   /** Parses horizontal whitespace (space and tab).
     * Always succeeds, consuming all whitespace found.

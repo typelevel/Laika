@@ -16,6 +16,8 @@
 
 package laika.parse.text
 
+import cats.implicits._
+import cats.data.NonEmptySet
 import laika.parse._
 
 /**
@@ -23,15 +25,19 @@ import laika.parse._
   *
   * @author Jens Halm
   */
-case class Literal (expected: String) extends Parser[String] {
+case class Literal (expected: String) extends PrefixedParser[String] {
+  
+  require(expected.nonEmpty, "string may not be empty")
+  
+  val startChars: NonEmptySet[Char] = NonEmptySet.one(expected.head)
 
   private val msgProvider = Message.forContext { context =>
     val toCapture = Math.min(context.remaining, expected.length)
     val found = context.capture(toCapture)
     s"`$expected' expected but `$found` found"
   }
-
-  def parse (in: ParserContext): Parsed[String] = {
+  
+  val underlying: Parser[String] = Parser { in =>
     val source = in.input
     val start = in.offset
     var i = 0

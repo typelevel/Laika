@@ -46,7 +46,7 @@ object MarkdownSyntax extends SyntaxHighlighter {
     StringLiteral
       .singleLine(Set(start.head), end)
       .withCategory(category)
-      .withPrefix(literal(start.tail))
+      .withPrefix(literalOrEmpty(start.tail))
 
   private def linkParser (prefix: String): Parser[Seq[CodeSpan]] = {
 
