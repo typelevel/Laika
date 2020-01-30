@@ -16,13 +16,11 @@
 
 package laika.bundle
 
-import cats.data.NonEmptySet
 import laika.ast.{Block, Span}
 import laika.parse.Parser
 import laika.parse.markup.{EscapedTextParsers, RecursiveParsers, RecursiveSpanParsers}
 import laika.parse.text.PrefixedParser
-
-import scala.collection.immutable.SortedSet
+import laika.parse.text.TextParsers._
 
 /** Builds a parser definition lazily by passing the recursive parsers
   * of the host language.
@@ -91,13 +89,13 @@ object SpanParser {
 
   
   @deprecated("use standalone or recursive methods directly", "0.14.0")
-  def forStartChar (char: Char): LegacySyntax = new LegacySyntax(NonEmptySet.one(char))
+  def forStartChar (char: Char): LegacySyntax = new LegacySyntax(char)
 
-  class LegacySyntax (startChars: NonEmptySet[Char]) {
+  class LegacySyntax (startChar: Char) {
     def standalone (parser: Parser[Span]): SpanParserBuilderOps =
-      SpanParserBuilderOps(_ => PrefixedParser(startChars)(parser), false, Precedence.High)
+      SpanParserBuilderOps(_ => startChar ~> parser, recursive = false, Precedence.High)
     def recursive (factory: RecursiveSpanParsers => Parser[Span]): SpanParserBuilderOps =
-      SpanParserBuilderOps(rec => PrefixedParser(startChars)(factory(rec)), true, Precedence.High)
+      SpanParserBuilderOps(rec => startChar ~> factory(rec), recursive = true, Precedence.High)
   }
 }
 
@@ -159,17 +157,14 @@ object BlockParser {
     BlockParserBuilderOps(factory)
 
   @deprecated("use standalone, recursive, withSpans, withEscapedText methods directly", "0.14.0")
-  def forStartChar (char: Char): LegacySyntax = new LegacySyntax(Set(char))
+  def forStartChar (char: Char): LegacySyntax = new LegacySyntax(Some(char))
 
   @deprecated("use standalone, recursive, withSpans, withEscapedText methods directly", "0.14.0")
   def withoutStartChar: LegacySyntax = new LegacySyntax()
 
-  class LegacySyntax (startChars: Set[Char] = Set.empty) {
-    private def createParser(p: Parser[Block]): Parser[Block] = 
-      NonEmptySet.fromSet[Char](SortedSet(startChars.toSeq:_*)) match {
-        case Some(chars) => PrefixedParser(chars)(p)
-        case _ => p
-      }
+  class LegacySyntax (startChar: Option[Char] = None) {
+    private def createParser(p: Parser[Block]): Parser[Block] =
+      startChar.fold(p){ c => c ~> p }
     def standalone (parser: Parser[Block]): BlockParserBuilderOps =
       BlockParserBuilderOps(_ => createParser(parser))
     def recursive (factory: RecursiveParsers => Parser[Block]): BlockParserBuilderOps =
