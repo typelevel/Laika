@@ -16,9 +16,9 @@
 
 package laika.bundle
 
+import cats.data.NonEmptySet
 import laika.ast.{Block, Element, Span}
 import laika.parse.Parser
-import laika.parse.text.TextParsers.char
 
 /** Defines a parser for a single kind of text markup,
   * like a literal text span or a bullet list for example.
@@ -63,13 +63,13 @@ case class BlockParserDefinition (startChar: Option[Char],
 /** Defines a parser for a single kind of span element,
   * like a literal text span or a link reference for example.
   *
-  * @param startChar the start character (allows performance optimizations)
+  * @param startChars all start characters that can start this span (allows performance optimizations)
   * @param parser the parser for the span element after the start character
   * @param isRecursive indicates whether this parser produces child elements by recursively applying the parsers for the host language
   * @param precedence indicates whether the parser should be applied before the base parsers of
   * the host language (high precedence) or after them
   */
-case class SpanParserDefinition (startChar: Char,
+case class SpanParserDefinition (startChars: NonEmptySet[Char],
                                  parser: Parser[Span],
                                  isRecursive: Boolean,
                                  precedence: Precedence) extends ParserDefinition[Span]

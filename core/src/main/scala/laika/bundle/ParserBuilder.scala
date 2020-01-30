@@ -16,6 +16,7 @@
 
 package laika.bundle
 
+import cats.data.NonEmptySet
 import laika.ast.{Block, Span}
 import laika.parse.Parser
 import laika.parse.markup.{EscapedTextParsers, RecursiveParsers, RecursiveSpanParsers}
@@ -51,14 +52,14 @@ trait SpanParserBuilder extends ParserBuilder[SpanParserDefinition]
 
 /** Builder API for span parsers.
   */
-class SpanParser (startChar: Char) {
+class SpanParser (startChars: NonEmptySet[Char]) {
 
   class DefinitionBuilder (parserFactory: RecursiveSpanParsers => Parser[Span],
                            recursive: Boolean,
                            precedence: Precedence) extends SpanParserBuilder {
 
     override def createParser (recursiveParsers: RecursiveParsers): SpanParserDefinition =
-      SpanParserDefinition(startChar, parserFactory(recursiveParsers), recursive, precedence)
+      SpanParserDefinition(startChars, parserFactory(recursiveParsers), recursive, precedence)
 
     /** Indicates that this parser should only be applied after all built-in
       * parsers have failed on a specific markup element.
@@ -83,13 +84,15 @@ class SpanParser (startChar: Char) {
 /** Builder API for span parsers.
   */
 object SpanParser {
-
+  
+  import cats.implicits._
+  
   /** Creates a builder for a span element that starts with the specified character.
     *
     * For span elements a known start character is mandatory as parsing would be too expensive
     * otherwise when the engine has to try a parser on every character.
     */
-  def forStartChar (char: Char): SpanParser = new SpanParser(char)
+  def forStartChar (char: Char): SpanParser = new SpanParser(NonEmptySet.one(char))
 
 }
 

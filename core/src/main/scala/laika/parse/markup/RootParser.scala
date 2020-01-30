@@ -16,6 +16,7 @@
 
 package laika.parse.markup
 
+import cats.implicits._
 import laika.ast._
 import laika.bundle._
 import laika.factory.MarkupFormat
@@ -51,10 +52,16 @@ class RootParser (markupParser: MarkupFormat, markupExtensions: MarkupExtensions
 
   protected lazy val spanParsers: Map[Char,Parser[Span]] = {
     val escapedText = SpanParser.forStartChar('\\').standalone(escapeSequence.map(Text(_))).withLowPrecedence
-
-    createParsers(markupParser.spanParsers :+ escapedText, markupExtensions.spanParsers).groupBy(_.startChar).map {
-      case (char, definitions) => (char, definitions.map(_.parser).reduceLeft(_ | _))
-    }
+    val mainParsers = markupParser.spanParsers :+ escapedText
+    
+    createParsers(mainParsers, markupExtensions.spanParsers)
+      .flatMap { parserDef =>
+        parserDef.startChars.toList.map(c => (c, parserDef))
+      }
+      .groupBy(_._1)
+      .map {
+        case (char, definitions) => (char, definitions.map(_._2.parser).reduceLeft(_ | _))
+      }
   }
 
   def blockList (p: => Parser[Block]): Parser[Seq[Block]] =
