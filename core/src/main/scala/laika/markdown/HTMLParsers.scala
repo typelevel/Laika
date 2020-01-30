@@ -155,7 +155,7 @@ object HTMLParsers {
 
   /** Parses any of the HTML span elements supported by this trait, plus standard markdown inside HTML elements.
     */
-  val htmlSpan: SpanParserBuilder = SpanParser.forStartChar('<').recursive { recParsers =>
+  val htmlSpan: SpanParserBuilder = SpanParser.recursive { recParsers =>
     '<' ~> (htmlComment | htmlEmptyElement | htmlElementWithNestedMarkdown(recParsers) | htmlEndTag | htmlStartTag)
   }
 

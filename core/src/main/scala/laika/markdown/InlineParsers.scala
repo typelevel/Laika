@@ -55,11 +55,11 @@ object InlineParsers {
   
   /** Parses a span of strong text enclosed by two consecutive occurrences of the specified character. 
    */
-  def strong (char: Char)(implicit recParsers: RecursiveSpanParsers): Parser[Strong] = enclosedByDoubleChar(char) ^^ { Strong(_) }
+  def strong (char: Char)(implicit recParsers: RecursiveSpanParsers): PrefixedParser[Strong] = enclosedByDoubleChar(char) ^^ { Strong(_) }
   
   /** Parses a span of emphasized text enclosed by one occurrence of the specified character.
    */
-  def em (char: Char)(implicit recParsers: RecursiveSpanParsers): Parser[Emphasized] = enclosedBySingleChar(char) ^^ { Emphasized(_) }
+  def em (char: Char)(implicit recParsers: RecursiveSpanParsers): PrefixedParser[Emphasized] = enclosedBySingleChar(char) ^^ { Emphasized(_) }
 
   
   /** Creates a parser for an inline span based on the specified parsers that
@@ -69,25 +69,25 @@ object InlineParsers {
    *  @param endDelim the end delimiter of the span
    *  @param postCondition the parser that checks any post conditions after the end delimiter has been read
    */
-  def span (start: Parser[Any], endDelim: String, postCondition: Parser[Any])(implicit recParsers: RecursiveSpanParsers): Parser[List[Span]]
+  def span (start: PrefixedParser[Any], endDelim: String, postCondition: Parser[Any])(implicit recParsers: RecursiveSpanParsers): PrefixedParser[List[Span]]
     = start ~> recParsers.delimitedRecursiveSpans(delimitedBy(endDelim, postCondition))
 
   /** Parses either strong spans enclosed in double asterisks or emphasized spans enclosed in single asterisks.
     */
-  val enclosedByAsterisk: SpanParserBuilder = SpanParser.forStartChar('*').recursive { implicit recParsers =>
+  val enclosedByAsterisk: SpanParserBuilder = SpanParser.recursive { implicit recParsers =>
     strong('*') | em('*')
   }
 
   /** Parses either strong spans enclosed in double underscores or emphasized spans enclosed in single underscores.
     */
-  val enclosedByUnderscore: SpanParserBuilder = SpanParser.forStartChar('_').recursive { implicit recParsers =>
+  val enclosedByUnderscore: SpanParserBuilder = SpanParser.recursive { implicit recParsers =>
     strong('_') | em('_')
   }
 
   /** Parses a span enclosed by a single occurrence of the specified character.
    *  Recursively parses nested spans, too. 
    */
-  def enclosedBySingleChar (c: Char)(implicit recParsers: RecursiveSpanParsers): Parser[List[Span]] = {
+  def enclosedBySingleChar (c: Char)(implicit recParsers: RecursiveSpanParsers): PrefixedParser[List[Span]] = {
     val start = c ~ lookAhead(anyBut(' ','\n',c).take(1).^)
     val end = not(lookBehind(2, ' '))
     span(start, c.toString, end)
@@ -96,8 +96,8 @@ object InlineParsers {
   /** Parses a span enclosed by two consecutive occurrences of the specified character.
    *  Recursively parses nested spans, too. 
    */
-  def enclosedByDoubleChar (c: Char)(implicit recParsers: RecursiveSpanParsers): Parser[List[Span]] = {
-    val start = anyOf(c).take(2) ~ lookAhead(anyBut(' ','\n').take(1).^)
+  def enclosedByDoubleChar (c: Char)(implicit recParsers: RecursiveSpanParsers): PrefixedParser[List[Span]] = {
+    val start = (c.toString * 2) ~ lookAhead(anyBut(' ','\n').take(1).^)
     val end = c <~ not(lookBehind(3, ' '))
     span(start, c.toString, end)
   }
@@ -131,7 +131,7 @@ object InlineParsers {
   /** Parses a link, including nested spans in the link text.
     *  Recognizes both, an inline link `[text](url)` and a link reference `[text][id]`.
     */
-  lazy val link: SpanParserBuilder = SpanParser.forStartChar('[').recursive { recParsers =>
+  lazy val link: SpanParserBuilder = SpanParser.recursive { recParsers =>
 
     def unwrap (ref: LinkReference, suffix: String) = {
       if ((ref select (_.isInstanceOf[LinkReference])).tail.nonEmpty)
@@ -154,7 +154,7 @@ object InlineParsers {
   /** Parses an inline image.
     *  Recognizes both, an inline image `![text](url)` and an image reference `![text][id]`.
     */
-  val image: SpanParserBuilder = SpanParser.forStartChar('!').recursive { recParsers =>
+  val image: SpanParserBuilder = SpanParser.recursive { recParsers =>
 
     def escape (text: String, f: String => Span): Span = 
       recParsers.escapedText(DelimitedText.Undelimited).parse(text).toEither.fold(InvalidElement(_, text).asSpan, f)

@@ -212,7 +212,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
       override def spanParsers: Seq[SpanParserBuilder] = Seq(spanFor('>'), spanFor('+'))
 
       val bundle = BundleProvider.forMarkupParser(spanParsers = Seq(
-        SpanParser.forStartChar('+').standalone(Parsers.success(SpanSequence.empty)).withLowPrecedence
+        SpanParser.standalone(literal("+").map(Text(_))).withLowPrecedence
       ))
 
       MarkupParser.of(Parser).using(bundle).build.parse(input).toOption.get shouldBe doc('>' -> "aaa", '+' -> "bbb")

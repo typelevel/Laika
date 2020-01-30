@@ -86,7 +86,7 @@ object SpanParser {
   /** Creates a parser definition for a parser that is independent from the parsers
     * of the host languages.
     */
-  def standalone (parser: PrefixedParser[Span]): SpanParserBuilder = 
+  def standalone (parser: PrefixedParser[Span]): SpanParserBuilderOps = 
     new SpanParserBuilderOps(_ => parser, false, Precedence.High)
 
   /** Creates a parser definition for a parser that depends on the parsers

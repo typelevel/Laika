@@ -51,7 +51,7 @@ class RootParser (markupParser: MarkupFormat, markupExtensions: MarkupExtensions
   protected lazy val fallbackBlock = merge(sortedBlockParsers.filterNot(_.isRecursive))
 
   protected lazy val spanParsers: Map[Char,Parser[Span]] = {
-    val escapedText = SpanParser.forStartChar('\\').standalone(escapeSequence.map(Text(_))).withLowPrecedence
+    val escapedText = SpanParser.standalone(escapeSequence.map(Text(_))).withLowPrecedence
     val mainParsers = markupParser.spanParsers :+ escapedText
     
     createParsers(mainParsers, markupExtensions.spanParsers)

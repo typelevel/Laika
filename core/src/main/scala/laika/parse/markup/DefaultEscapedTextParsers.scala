@@ -17,7 +17,7 @@
 package laika.parse.markup
 
 import laika.parse.Parser
-import laika.parse.text.{DelimitedText, TextParsers}
+import laika.parse.text.{DelimitedText, PrefixedParser, TextParsers}
 import laika.parse.text.TextParsers.char
 
 /** Default implementation for parsing escape sequences.
@@ -32,7 +32,7 @@ trait DefaultEscapedTextParsers extends EscapedTextParsers {
     */
   lazy val escapedChar: Parser[String] = TextParsers.any take 1
 
-  lazy val escapeSequence: Parser[String] = '\\' ~> escapedChar
+  lazy val escapeSequence: PrefixedParser[String] = '\\' ~> escapedChar
 
   /** Adds support for escape sequences to the specified text parser.
     *
