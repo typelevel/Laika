@@ -57,8 +57,15 @@ trait PrefixedParser[+T] extends Parser[T] { self =>
 
 object PrefixedParser {
   
+  import cats.implicits._
+  
   def apply[U] (p: Parser[U], sc: NonEmptySet[Char]): PrefixedParser[U] = new PrefixedParser[U] {
     def startChars: NonEmptySet[Char] = sc
+    override def underlying = p
+  }
+
+  def apply[U] (p: Parser[U], char: Char, chars: Char*): PrefixedParser[U] = new PrefixedParser[U] {
+    def startChars: NonEmptySet[Char] = NonEmptySet.of(char, chars:_*)
     override def underlying = p
   }
   

@@ -20,6 +20,7 @@ import cats.data.NonEmptySet
 import laika.ast.{Block, Span}
 import laika.parse.Parser
 import laika.parse.markup.{EscapedTextParsers, RecursiveParsers, RecursiveSpanParsers}
+import laika.parse.text.PrefixedParser
 
 /** Builds a parser definition lazily by passing the recursive parsers
   * of the host language.
@@ -86,6 +87,11 @@ class SpanParser (startChars: NonEmptySet[Char]) {
 object SpanParser {
   
   import cats.implicits._
+  
+  // TODO - these currently does not allow to call withLowPrecedence
+  def standalone (parser: PrefixedParser[Span]): SpanParserBuilder = new SpanParser(parser.startChars).standalone(parser)
+
+  // def recursive (factory: RecursiveSpanParsers => PrefixedParser[Span]): SpanParserBuilder = new SpanParser(parser.startChars)
   
   /** Creates a builder for a span element that starts with the specified character.
     *

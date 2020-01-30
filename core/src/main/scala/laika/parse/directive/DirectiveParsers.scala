@@ -23,6 +23,7 @@ import laika.directive._
 import laika.parse.{Failure, Message, Parser, ParserContext}
 import laika.parse.hocon.{BuilderField, ConfigResolver, HoconParsers, InvalidBuilderValue, ObjectBuilderValue, ResolvedBuilderValue, SelfReference}
 import laika.parse.markup.{EscapedTextParsers, RecursiveParsers, RecursiveSpanParsers}
+import laika.parse.text.PrefixedParser
 import laika.parse.text.TextParsers._
 
 /** Parsers for all types of custom directives that can be used
@@ -49,11 +50,11 @@ object DirectiveParsers {
 
   /** Parses a legacy reference (version 0.1 to 0.11) enclosed between `{{` and `}}`.
     */
-  def legacyReference[T] (f: String => T): Parser[T] = "{{" ~ ws ~> anyBut('}') <~ ws ~ "}}" ^^ f
+  def legacyReference[T] (f: String => T): PrefixedParser[T] = "{{" ~ ws ~> anyBut('}') <~ ws ~ "}}" ^^ f
 
   /** Parses a HOCON-style reference enclosed between `\${` and `}` that may be marked as optional (`\${?some.param}`).
     */
-  def hoconReference[T] (f: (Key, Boolean) => T, e: InvalidElement => T): Parser[T] = 
+  def hoconReference[T] (f: (Key, Boolean) => T, e: InvalidElement => T): PrefixedParser[T] = 
     ("${" ~> opt('?') ~ withSource(HoconParsers.concatenatedKey(Set('}'))) <~ '}').map {
       case opt ~ ((Right(key), _))  => f(key, opt.isEmpty)
       case _ ~ ((Left(invalid), src)) => e(InvalidElement(s"Invalid HOCON reference: '$src': ${invalid.failure.toString}", s"$${$src}"))
@@ -175,10 +176,10 @@ object SpanDirectiveParsers {
   import laika.directive.Spans
 
   val contextRef: SpanParserBuilder =
-    SpanParser.forStartChar('$').standalone(hoconReference(MarkupContextReference(_,_), _.asSpan))
+    SpanParser.standalone(hoconReference(MarkupContextReference(_,_), _.asSpan))
 
   val legacyContextRef: SpanParserBuilder =
-    SpanParser.forStartChar('{').standalone(legacyReference(key => MarkupContextReference(Key.parse(key), required = true)))
+    SpanParser.standalone(legacyReference(key => MarkupContextReference(Key.parse(key), required = true)))
 
   def spanDirective (directives: Map[String, Spans.Directive]): SpanParserBuilder =
     SpanParser.forStartChar('@').recursive(rec => spanDirectiveParser(directives)(rec))

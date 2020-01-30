@@ -164,6 +164,13 @@ class ParserBundleSpec extends WordSpec with Matchers {
     def spanFor (deco: Char): SpanParserBuilder = spanFor(deco, deco)
 
     def spanFor (deco: Char, overrideDeco: Char): SpanParserBuilder =
+      SpanParser.standalone {
+        (deco ~> anyBut(' ') <~ opt(' ')) ^^ (DecoratedSpan(overrideDeco, _))
+      }
+
+    def legacySpanFor (deco: Char): SpanParserBuilder = spanFor(deco, deco)
+
+    def legacySpanFor (deco: Char, overrideDeco: Char): SpanParserBuilder =
       SpanParser.forStartChar(deco).standalone {
         (deco ~> anyBut(' ') <~ opt(' ')) ^^ (DecoratedSpan(overrideDeco, _))
       }
@@ -211,7 +218,13 @@ class ParserBundleSpec extends WordSpec with Matchers {
       MarkupParser.of(Parser).using(bundle).build.parse(input).toOption.get shouldBe doc('>' -> "aaa", '+' -> "bbb")
     }
 
+    "still support the legacy registration format" in new SpanParserSetup {
+      override def spanParsers: Seq[SpanParserBuilder] = Seq(legacySpanFor('>'))
 
+      val bundle = BundleProvider.forMarkupParser(spanParsers = Seq(legacySpanFor('+')))
+
+      MarkupParser.of(Parser).using(bundle).build.parse(input).toOption.get shouldBe doc('>' -> "aaa", '+' -> "bbb")
+    }
   }
 
   trait ParserHookSetup extends SetupBase {

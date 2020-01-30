@@ -22,7 +22,7 @@ import laika.markdown.ast._
 import laika.parse.Parser
 import laika.parse.markup.InlineParsers.spans
 import laika.parse.markup.RecursiveSpanParsers
-import laika.parse.text.DelimitedText
+import laika.parse.text.{DelimitedText, PrefixedParser}
 import laika.parse.text.TextParsers._
 
 /** Parses verbatim HTML elements which may interleave with standard Markdown markup.
@@ -60,7 +60,7 @@ object HTMLParsers {
 
   /** Parses a numeric or named character reference without the leading `'&'`.
     */
-  val htmlCharReference: Parser[HTMLCharacterReference] =
+  val htmlCharReference: PrefixedParser[HTMLCharacterReference] =
     '&' ~> (htmlNumericReference | htmlNamedReference) <~ ';' ^^
       { s => HTMLCharacterReference("&" + s + ";") }
 
@@ -161,7 +161,7 @@ object HTMLParsers {
 
   /** Parses a numeric or named character reference.
     */
-  val htmlCharRef: SpanParserBuilder = SpanParser.forStartChar('&').standalone(htmlCharReference)
+  val htmlCharRef: SpanParserBuilder = SpanParser.standalone(htmlCharReference)
 
   /** Parses any of the HTML span elements supported by this trait, but no standard markdown inside HTML elements.
    */

@@ -22,7 +22,7 @@ import laika.parse.{Failure, Parser, ParserContext, Success}
 import laika.parse.markup.InlineParsers.text
 import laika.parse.markup.RecursiveSpanParsers
 import laika.parse.text.TextParsers._
-import laika.parse.text.DelimitedText
+import laika.parse.text.{DelimitedText, PrefixedParser}
 
 import scala.util.Try
 
@@ -51,7 +51,7 @@ object InlineParsers {
 
   /** Parses an explicit hard line break.
    */
-  val lineBreak: SpanParserBuilder = SpanParser.forStartChar('\\').standalone("\\\r" ^^^ LineBreak())
+  val lineBreak: SpanParserBuilder = SpanParser.standalone("\\\r" ^^^ LineBreak())
   
   /** Parses a span of strong text enclosed by two consecutive occurrences of the specified character. 
    */
@@ -105,7 +105,7 @@ object InlineParsers {
   /** Parses a literal span enclosed by a single backtick.
    *  Does neither parse nested spans nor Markdown escapes. 
    */
-  val literalEnclosedBySingleChar: Parser[Literal] = {
+  val literalEnclosedBySingleChar: PrefixedParser[Literal] = {
     val start = '`' ~ not('`')
     val end = '`'
     start ~> delimitedBy(end) ^^ { s => Literal(s.trim) }
@@ -114,15 +114,14 @@ object InlineParsers {
   /** Parses a literal span enclosed by double backticks.
    *  Does neither parse nested spans nor Markdown escapes. 
    */
-  val literalEnclosedByDoubleChar: Parser[Literal] = {
+  val literalEnclosedByDoubleChar: PrefixedParser[Literal] = {
     val delim = "``"
     delim ~> delimitedBy(delim) ^^ { s => Literal(s.trim) }
   }
 
   /** Parses a literal span enclosed by double or single backticks.
     */
-  val literalSpan: SpanParserBuilder = SpanParser.forStartChar('`')
-    .standalone(literalEnclosedByDoubleChar | literalEnclosedBySingleChar)
+  val literalSpan: SpanParserBuilder = SpanParser.standalone(literalEnclosedByDoubleChar | literalEnclosedBySingleChar)
   
   
   private def normalizeId (id: String): String = id.toLowerCase.replaceAll("[\n ]+", " ")
@@ -208,7 +207,7 @@ object InlineParsers {
 
   /** Parses a simple inline link in the form of &lt;http://someURL/&gt;
     */
-  val simpleLink: SpanParserBuilder = SpanParser.forStartChar('<').standalone {
+  val simpleLink: SpanParserBuilder = SpanParser.standalone {
 
     def isAcceptedScheme (s: String) = s == "http" || s == "https" || s == "ftp" || s == "mailto"
     
@@ -225,6 +224,7 @@ object InlineParsers {
       case s if isURI(s) => toLink(s)
       case s if isEmail(s) => toLink(s"mailto:$s")
     }
+    
   }
 
 }
