@@ -60,9 +60,15 @@ trait RecursiveSpanParsers extends EscapedTextParsers {
   /** Lifts the specified text parser to parse the string result
     * as a sequence of spans.
     *
-    * This type of span parser is usually used in block parsers,
+    * This type of span parser is usually either used in block parsers,
     * that need to process inline markup after the text for the block
-    * has been parsed from the input string.
+    * has been parsed from the input string or for inline parsers,
+    * that need to process inline markup for a span with
+    * a delimiter while supporting nested spans. 
+    * 
+    * In the latter case the passed parser is usually of type `DelimitedText[String]`
+    * which is an optimized parser that parses text and recursive spans in one pass.
+    * For other kinds of parsers the resulting parser will be a two-pass parser.
     */
   def recursiveSpans (parser: Parser[String]): Parser[List[Span]]
 
@@ -85,23 +91,10 @@ trait RecursiveSpanParsers extends EscapedTextParsers {
     */
   def recursiveSpans: Parser[List[Span]]
 
-  /** Lifts the specified text parser to parse the string result
-    * as a sequence of spans.
-    *
-    * This type of span parser is usually used in inline parsers,
-    * that need to process inline markup for a span with
-    * a delimiter while supporting nested spans.
-    */
+  @deprecated("use the recursiveSpans method", "0.14.0")
   def delimitedRecursiveSpans (textParser: DelimitedText[String]): Parser[List[Span]]
 
-  /** Lifts the specified text parser to parse the string result
-    * as a sequence of spans. Adds the specified additional parsers
-    * to the span parsers of the host markup language.
-    *
-    * This type of span parser is usually used in inline parsers,
-    * that need to process inline markup for a span with
-    * a delimiter while supporting nested spans.
-    */
+  @deprecated("use the recursiveSpans method", "0.14.0")
   def delimitedRecursiveSpans (textParser: DelimitedText[String],
                                additionalSpanParsers: => Map[Char, Parser[Span]]): Parser[List[Span]]
 

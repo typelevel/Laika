@@ -42,11 +42,11 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
 
     val legacyBody = {
       val contextRefOrNestedBraces = Map('{' -> (legacyReference(key => TemplateContextReference(Key.parse(key), required = true)) | nestedBraces))
-      wsOrNl ~ '{' ~> (withSource(delimitedRecursiveSpans(delimitedBy('}'), contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
+      wsOrNl ~ '{' ~> (withSource(recursiveSpans(delimitedBy('}'), contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
     }
     
     val newBody: BodyParserBuilder = spec =>
-      if (directives.get(spec.name).exists(_.hasBody)) withSource(delimitedRecursiveSpans(delimitedBy(spec.fence))) ^^ { src =>
+      if (directives.get(spec.name).exists(_.hasBody)) withSource(recursiveSpans(delimitedBy(spec.fence))) ^^ { src =>
         Some(src._2.dropRight(spec.fence.length))
       } | success(None)
       else success(None)

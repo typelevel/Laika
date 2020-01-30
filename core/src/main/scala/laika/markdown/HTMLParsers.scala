@@ -148,7 +148,7 @@ object HTMLParsers {
     * all the nested HTML and Text elements, as well as any nested Markdown spans.
     */
   def htmlElementWithNestedMarkdown (recParsers: RecursiveSpanParsers): Parser[HTMLElement] = htmlStartTag >> {
-    tag => recParsers.delimitedRecursiveSpans(htmlEndTag(tag.name)) ^^ {
+    tag => recParsers.recursiveSpans(htmlEndTag(tag.name)) ^^ {
       spans => HTMLElement(tag, spans)
     }
   }

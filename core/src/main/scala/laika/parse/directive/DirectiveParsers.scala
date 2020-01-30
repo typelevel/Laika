@@ -190,12 +190,12 @@ object SpanDirectiveParsers {
     
     val legacyBody = {
       val contextRefOrNestedBraces = Map('{' -> (legacyReference(key => MarkupContextReference(Key.parse(key), required = true)) | nestedBraces))
-      wsOrNl ~ '{' ~> (withSource(delimitedRecursiveSpans(delimitedBy('}'), contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
+      wsOrNl ~ '{' ~> (withSource(recursiveSpans(delimitedBy('}'), contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
     }
     
     val separators = directives.values.flatMap(_.separators).toSet
     val newBody: BodyParserBuilder = spec => 
-      if (directives.get(spec.name).exists(_.hasBody)) withSource(delimitedRecursiveSpans(delimitedBy(spec.fence))) ^^ { src => 
+      if (directives.get(spec.name).exists(_.hasBody)) withSource(recursiveSpans(delimitedBy(spec.fence))) ^^ { src => 
         Some(src._2.dropRight(spec.fence.length)) 
       } | success(None)
       else success(None)

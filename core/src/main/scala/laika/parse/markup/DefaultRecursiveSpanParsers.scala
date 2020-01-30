@@ -58,21 +58,25 @@ trait DefaultRecursiveSpanParsers extends RecursiveSpanParsers with DefaultEscap
   }
 
 
-  def recursiveSpans (p: Parser[String]): Parser[List[Span]] =
-    createRecursiveSpanParser(p, defaultSpanParser)
+  def recursiveSpans (p: Parser[String]): Parser[List[Span]] = p match {
+    case dt: DelimitedText[String] => InlineParsers.spans(dt, spanParsers)
+    case _ => createRecursiveSpanParser(p, defaultSpanParser)
+  }
 
   def recursiveSpans (p: Parser[String],
-                      additionalParsers: => Map[Char, Parser[Span]] = Map.empty): Parser[List[Span]] =
-    createRecursiveSpanParser(p, InlineParsers.spans(DelimitedText.Undelimited, spanParsers ++ additionalParsers))
-
+                      additionalParsers: => Map[Char, Parser[Span]] = Map.empty): Parser[List[Span]] = p match {
+    case dt: DelimitedText[String] => InlineParsers.spans(dt, spanParsers ++ additionalParsers)
+    case _ => createRecursiveSpanParser(p, InlineParsers.spans(DelimitedText.Undelimited, spanParsers ++ additionalParsers))
+  }
+  
   def recursiveSpans: Parser[List[Span]] = defaultSpanParser
 
   def delimitedRecursiveSpans (textParser: DelimitedText[String],
                                additionalSpanParsers: => Map[Char, Parser[Span]]): Parser[List[Span]] =
-    InlineParsers.spans(textParser, spanParsers ++ additionalSpanParsers)
+    recursiveSpans(textParser, additionalSpanParsers)
 
   def delimitedRecursiveSpans (textParser: DelimitedText[String]): Parser[List[Span]] =
-    InlineParsers.spans(textParser, spanParsers)
+    recursiveSpans(textParser)
 
   def withRecursiveSpanParser [T] (p: Parser[T]): Parser[(String => List[Span], T)] = Parser { ctx =>
     p.parse(ctx) match {

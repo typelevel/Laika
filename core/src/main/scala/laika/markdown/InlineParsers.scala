@@ -70,7 +70,7 @@ object InlineParsers {
    *  @param postCondition the parser that checks any post conditions after the end delimiter has been read
    */
   def span (start: PrefixedParser[Any], endDelim: String, postCondition: Parser[Any])(implicit recParsers: RecursiveSpanParsers): PrefixedParser[List[Span]]
-    = start ~> recParsers.delimitedRecursiveSpans(delimitedBy(endDelim, postCondition))
+    = start ~> recParsers.recursiveSpans(delimitedBy(endDelim, postCondition))
 
   /** Parses either strong spans enclosed in double asterisks or emphasized spans enclosed in single asterisks.
     */
