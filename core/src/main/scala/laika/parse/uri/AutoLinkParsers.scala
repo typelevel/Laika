@@ -18,9 +18,10 @@ package laika.parse.uri
 
 import laika.ast.{ExternalLink, Reverse, Span, Text, ~}
 import laika.bundle.{SpanParser, SpanParserBuilder}
+import laika.parse.text.PrefixedParser
 import laika.parse.{Failure, Parser, Success}
 import laika.parse.text.TextParsers._
-import laika.parse.uri.URIParsers.{regName, path, query, fragment, flatten}
+import laika.parse.uri.URIParsers.{flatten, fragment, path, query, regName}
 
 /** Parser for inline auto-links, which are urls or email addresses that are recognized and
   * inserted as links into the AST without any surrounding markup delimiters.
@@ -54,31 +55,36 @@ class AutoLinkParsers (reverseMarkupStart: Parser[Any],
     }
   }}
 
-  private def uri (reverseParser: Parser[String], forwardParser: Parser[String], separator: String): Parser[Span] =
-    trim(reverse(0, reverseParser <~ reverseMarkupStart) ~
+  private def uri (reverseParser: Parser[String], forwardParser: PrefixedParser[String], separator: String): PrefixedParser[Span] =
+    PrefixedParser(trim(reverse(0, reverseParser <~ reverseMarkupStart) ~
       forwardParser <~ lookAhead(eol | afterEndMarkup) ^^ {
         case scheme ~ rest => (scheme, separator, rest)
-      })
+      }), forwardParser.startChars)
 
   /** Parses a standalone HTTP or HTTPS hyperlink (with no surrounding markup).
     */
-  lazy val http: SpanParserBuilder = SpanParser.forStartChar(':')
-    .standalone(uri("ptth" | "sptth", ':' ~> URIParsers.httpUriNoScheme, ":"))
-    .withLowPrecedence
+  lazy val http: SpanParserBuilder = SpanParser.standalone {
+    uri("ptth" | "sptth", ':' ~> URIParsers.httpUriNoScheme, ":")
+  }.withLowPrecedence
 
   /** Parses a standalone www hyperlink (with no surrounding markup).
     */
-  lazy val www: SpanParserBuilder = SpanParser.forStartChar('.')
-    .standalone(uri("www", ('.' ~> regName ~ path ~ opt('?' ~ query) ~ opt('#' ~ fragment)) ^^ flatten, "."))
-    .withLowPrecedence
+  lazy val www: SpanParserBuilder = SpanParser.standalone {
+    uri("www", ('.' ~> regName ~ path ~ opt('?' ~ query) ~ opt('#' ~ fragment)) ^^ flatten, ".")
+  }.withLowPrecedence
 
   /** Parses a standalone email address (with no surrounding markup).
     */
-  lazy val email: SpanParserBuilder = SpanParser.forStartChar('@').standalone {
-    trim(reverse(0, URIParsers.localPart <~ reverseMarkupStart) ~
-      ('@' ~> URIParsers.domain <~ lookAhead(eol | afterEndMarkup)) ^? {
+  lazy val email: SpanParserBuilder = SpanParser.standalone {
+    val rev = reverse(0, URIParsers.localPart <~ reverseMarkupStart)
+    val fwd = '@' ~> URIParsers.domain <~ lookAhead(eol | afterEndMarkup)
+    
+    val parser = (rev ~ fwd) ^? {
       case local ~ domain if local.nonEmpty && domain.nonEmpty => (local, "@", domain)
-    })
+    }
+    
+    PrefixedParser(trim(parser), '@'): PrefixedParser[Span]
+    
   }.withLowPrecedence
 
 }
