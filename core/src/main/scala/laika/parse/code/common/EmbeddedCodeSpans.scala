@@ -32,13 +32,6 @@ object EmbeddedCodeSpans {
 
   import NumberLiteral._
   
-  /** Creates a map for the specified code span parsers that maps the start character
-    * for each parser to its combined parsers. If a character maps to multiple parsers
-    * they will be combined with `|` in the specified order. 
-    */
-  def parserMap (embedded: Seq[CodeSpanParser]): Map[Char, Parser[Span]] = // TODO - might be obsolete now
-    PrefixedParser.mapAndMerge(embedded.flatMap(_.parsers))
-
   /** Creates a new parser for code spans based on the specified parser for delimited text
     * and the embedded "foreign" syntax.
     *
@@ -59,13 +52,15 @@ object EmbeddedCodeSpans {
     * are responsible for detecting attribute names and values and entity references.
     */
   def parser (textParser: DelimitedText[String], embedded: Seq[CodeSpanParser], defaultCategories: Set[CodeCategory] = Set.empty): Parser[Seq[CodeSpan]] = {
-    val embeddedParserMap = parserMap(embedded) // TODO - this map is created twice now
-    val mainParser = InlineParsers.spans(textParser).embedAll(embedded.flatMap(_.parsers))
+    
+    val codeSpanParsers = embedded.flatMap(_.parsers)
+    val newLineParsers  = codeSpanParsers.filter(_.startChars.contains('\n')).reduceLeftOption(_ | _)
+    val mainParser      = InlineParsers.spans(textParser).embedAll(codeSpanParsers)
     
     def extract(spans: Seq[Span]): List[CodeSpan] = spans.flatMap(CodeSpans.extract(defaultCategories)).toList
-    
-    embeddedParserMap.get('\n').fold(mainParser.map(extract)) { newLineParsers =>
-      (opt(lookAhead(atStart) ~> newLineParsers).map(_.toList) ~ mainParser).concat.map(extract)
+
+    newLineParsers.fold(mainParser.map(extract)) { newLineParser =>
+      (opt(atStart ~> newLineParser).map(_.toList) ~ mainParser).concat.map(extract)
     }
 
   }

@@ -38,7 +38,7 @@ class CommonSyntaxParserSpec extends WordSpec
   import NumberLiteral._
   
   private val startOfLine: Parser[String] = atStart ^^^ "" | "\n"
-  val rule: CodeSpanParser = CodeSpanParser(CodeCategory.Markup.Fence)(PrefixedParser('\n') {(startOfLine ~ literal("===")).concat})
+  val rule: CodeSpanParser = CodeSpanParser.onLineStart(CodeCategory.Markup.Fence)((startOfLine ~ literal("===")).concat)
   
   private def createParser (allowLetterAfterNumber: Boolean = false): Parser[Seq[CodeSpan]] = new SyntaxHighlighter {
     val language: NonEmptyList[String] = NonEmptyList.of("test-lang")

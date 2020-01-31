@@ -17,6 +17,7 @@
 package laika.parse.code
 
 import laika.ast.{CategorizedCode, CodeSpan, CodeSpanSequence}
+import laika.parse.Parser
 import laika.parse.text.PrefixedParser
 import laika.parse.text.TextParsers._
 
@@ -71,4 +72,14 @@ object CodeSpanParser {
       val parsers = Seq(parser.map(CodeSpanSequence(_)))
     }
 
+  /** Parses code spans that can only start on a new line or at the start of the input.
+    */
+  def onLineStart (parser: Parser[Seq[CodeSpan]]): CodeSpanParser = apply(PrefixedParser('\n')(parser))
+
+  /** Parses a single code span that can only start on a new line or at the start of the input
+    * and associates it with the given code category.
+    */
+  def onLineStart (category: CodeCategory)(parser: Parser[String]): CodeSpanParser = 
+    apply(category)(PrefixedParser('\n')(parser))
+  
 }
