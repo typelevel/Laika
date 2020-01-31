@@ -16,10 +16,9 @@
 
 package laika.parse.markup
 
-import cats.syntax.nested
 import laika.ast._
 import laika.parse._
-import laika.parse.text.DelimitedText
+import laika.parse.text.{DelimitedText, PrefixedParser}
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
@@ -112,10 +111,10 @@ object InlineParsers {
     * @return the resulting parser
     */
   class InlineParser [Elem,To] (baseParser: => DelimitedText[String],
-                                nested: => Map[Char, Parser[Elem]],
-                                resultBuilder: => ResultBuilder[Elem,To]) extends Parser[To] {
+                                nested: => Seq[PrefixedParser[Elem]],
+                                resultBuilder: => ResultBuilder[Elem, To]) extends Parser[To] {
     
-    private lazy val nestedMap = nested
+    private lazy val nestedMap = PrefixedParser.mapAndMerge(nested)
     private lazy val textParser = new DelimitedText(new InlineDelimiter(nestedMap.keySet, baseParser.delimiter))
 
     def parse (in: ParserContext): Parsed[To] = {
@@ -159,7 +158,7 @@ object InlineParsers {
     *  @return the resulting parser
     */
   def spans (parser: => DelimitedText[String], spanParsers: => Map[Char, Parser[Span]]): Parser[List[Span]]
-      = new InlineParser(parser, spanParsers, new SpanBuilder)
+      = new InlineParser(parser, spanParsers.toSeq.map { case (c, p) => PrefixedParser(c)(p) }, new SpanBuilder)
 
   /** Parses text based on the specified helper parsers.
     *
@@ -168,7 +167,7 @@ object InlineParsers {
     *  @return the resulting parser
     */
   def text (parser: => DelimitedText[String], nested: => Map[Char, Parser[String]]): Parser[String]
-      = new InlineParser(parser, nested, new TextBuilder)
+      = new InlineParser(parser, nested.toSeq.map { case (c, p) => PrefixedParser(c)(p) }, new TextBuilder)
 
 
 }

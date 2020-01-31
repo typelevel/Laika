@@ -68,5 +68,14 @@ object PrefixedParser {
     def startChars: NonEmptySet[Char] = NonEmptySet.of(char, chars:_*)
     override def underlying = p
   }
+
+  def mapAndMerge[T] (parsers: Seq[PrefixedParser[T]]): Map[Char, Parser[T]] = parsers
+    .flatMap { parserDef =>
+      parserDef.startChars.toList.map(c => (c, parserDef))
+    }
+    .groupBy(_._1)
+    .map {
+      case (char, definitions) => (char, definitions.map(_._2).reduceLeft(_ | _))
+    }
   
 }
