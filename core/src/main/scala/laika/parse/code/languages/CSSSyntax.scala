@@ -49,7 +49,7 @@ object CSSSyntax extends SyntaxHighlighter {
   }
   
   lazy val escape: CodeSpanParser = 
-    CodeSpanParser(CodeCategory.EscapeSequence, '\\')(("\\" ~ DigitParsers.hex.min(1)).concat) ++ StringLiteral.Escape.char
+    CodeSpanParser(CodeCategory.EscapeSequence)(("\\" ~ DigitParsers.hex.min(1)).concat) ++ StringLiteral.Escape.char
 
   lazy val url: CodeSpanParser = CodeSpanParser('u') {
     (literal("url(") ~ ws ~ anyBut('"', '\'', '(', ')', ' ', '\n') ~ ws ~ ")").map {
@@ -62,7 +62,7 @@ object CSSSyntax extends SyntaxHighlighter {
     }
   }
   
-  val color: CodeSpanParser = CodeSpanParser(CodeCategory.NumberLiteral, '#')(("#" ~ DigitParsers.hex.min(1).max(6)).concat)
+  val color: CodeSpanParser = CodeSpanParser(CodeCategory.NumberLiteral)(("#" ~ DigitParsers.hex.min(1).max(6)).concat)
 
   val string: CodeSpanParser = StringLiteral.singleLine('"').embed(escape) ++
     StringLiteral.singleLine('\'').embed(escape)

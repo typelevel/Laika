@@ -38,7 +38,7 @@ class CommonSyntaxParserSpec extends WordSpec
   import NumberLiteral._
   
   private val startOfLine: Parser[String] = atStart ^^^ "" | "\n"
-  val rule: CodeSpanParser = CodeSpanParser(CodeCategory.Markup.Fence, '\n')(PrefixedParser('\n') {(startOfLine ~ literal("===")).concat})
+  val rule: CodeSpanParser = CodeSpanParser(CodeCategory.Markup.Fence)(PrefixedParser('\n') {(startOfLine ~ literal("===")).concat})
   
   private def createParser (allowLetterAfterNumber: Boolean = false): Parser[Seq[CodeSpan]] = new SyntaxHighlighter {
     val language: NonEmptyList[String] = NonEmptyList.of("test-lang")
@@ -63,7 +63,7 @@ class CommonSyntaxParserSpec extends WordSpec
         StringLiteral.Escape.char,
         StringLiteral.Escape.literal("$$"),
         StringLiteral.Substitution.between("${", "}"),
-        StringLiteral.Substitution('$')(("$" ~ anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '_').min(1)).concat)
+        StringLiteral.Substitution(("$" ~ anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '_').min(1)).concat)
       ),
       Identifier.alphaNum.withIdStartChars('_','$').withCategoryChooser(Identifier.upperCaseTypeName).copy(allowDigitBeforeStart = allowLetterAfterNumber),
       NumberLiteral.binary.withUnderscores.withSuffix(NumericSuffix.long),

@@ -43,13 +43,13 @@ trait TagBasedFormats {
   /** Parses a named entity reference like `&lt;` or a numeric character reference like `&#xff`.
     */
   val ref: CodeSpanParser =
-    CodeSpanParser(CodeCategory.EscapeSequence, '&') {
+    CodeSpanParser(CodeCategory.EscapeSequence) {
       ("&#x" ~ DigitParsers.hex.min(1) ~ ";").concat
     } ++
-      CodeSpanParser(CodeCategory.EscapeSequence, '&') {
+      CodeSpanParser(CodeCategory.EscapeSequence) {
         ("&#" ~ DigitParsers.decimal.min(1) ~ ";").concat
       } ++
-      CodeSpanParser(CodeCategory.Substitution, '&') {
+      CodeSpanParser(CodeCategory.Substitution) {
         ("&" ~ nameParser ~ ";").concat
       }
 

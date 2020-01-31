@@ -47,21 +47,21 @@ object HOCONSyntax extends SyntaxHighlighter {
     validChar | anyOf(' ').take(1) <~ lookAhead(ws ~ validChar)
   }.rep.map(_.mkString)
   
-  val unquotedAttributeName: CodeSpanParser = CodeSpanParser(CodeCategory.AttributeName, CharGroup.alpha.toSortedSet) {
+  val unquotedAttributeName: CodeSpanParser = CodeSpanParser(CodeCategory.AttributeName) {
     PrefixedParser(CharGroup.alpha)(unquotedChar <~ lookAhead(ws ~ anyOf(':','=','{').take(1))) // TODO - 0.14 - this is inaccurate
   }
   
-  val unquotedStringValue: CodeSpanParser = CodeSpanParser(CodeCategory.StringLiteral, CharGroup.alpha.toSortedSet) {
+  val unquotedStringValue: CodeSpanParser = CodeSpanParser(CodeCategory.StringLiteral) {
     PrefixedParser(CharGroup.alpha)(unquotedChar) // TODO - 0.14 - this is inaccurate
   }
   
   def functionNames(names: String*): CodeSpanParser = names.map { name =>
-    CodeSpanParser(CodeCategory.Identifier, name.head) {
+    CodeSpanParser(CodeCategory.Identifier) {
       literal(name) <~ lookAhead('(')
     }
   }.reduceLeft(_ ++ _)
   
-  val includeStatement: CodeSpanParser = CodeSpanParser(CodeCategory.Keyword, 'i') {
+  val includeStatement: CodeSpanParser = CodeSpanParser(CodeCategory.Keyword) {
     literal("include") <~ lookAhead(ws.min(1) ~ (literal("\"") | literal("required(") | literal("file(") | literal("url(") | literal("classpath(")))
   }
 

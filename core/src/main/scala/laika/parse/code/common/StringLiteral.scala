@@ -39,7 +39,7 @@ object StringLiteral {
     /** Parses a simple backslash character escape. Does except any character after the backslash,
       * if you want to be strict and apply the specific rules about which characters are valid
       * escapes you need to create a custom parser. */
-    val char: CodeSpanParser = CodeSpanParser(CodeCategory.EscapeSequence, '\\') {
+    val char: CodeSpanParser = CodeSpanParser(CodeCategory.EscapeSequence) {
       (TextParsers.literal("\\") ~ any.take(1)).concat
     }
 
@@ -47,7 +47,7 @@ object StringLiteral {
       * It must start with a backslash, followed by the letter `u` and exactly four hex digits,
       * e.g. `\\u20ff`.
       */
-    val unicode: CodeSpanParser = CodeSpanParser(CodeCategory.EscapeSequence, '\\') {
+    val unicode: CodeSpanParser = CodeSpanParser(CodeCategory.EscapeSequence) {
       (TextParsers.literal("\\u") ~ DigitParsers.hex.take(4)).concat
     }
 
@@ -55,7 +55,7 @@ object StringLiteral {
       * It must start with a backslash, followed by the letter `x` and exactly two hex digits,
       * e.g. `\\xf2`.
       */
-    val hex: CodeSpanParser = CodeSpanParser(CodeCategory.EscapeSequence, '\\') {
+    val hex: CodeSpanParser = CodeSpanParser(CodeCategory.EscapeSequence) {
       (TextParsers.literal("\\x") ~ DigitParsers.hex.take(2)).concat
     }
 
@@ -63,17 +63,15 @@ object StringLiteral {
       * It must start with a backslash, followed by one to three octal digits,
       * e.g. `\\207`.
       */
-    val octal: CodeSpanParser = CodeSpanParser(CodeCategory.EscapeSequence, '\\') {
-      (TextParsers.literal("\\") ~ anyIn('0' to '3').take(1) ~ DigitParsers.octal.max(2)).concat | DigitParsers.octal.min(1).max(2)
+    val octal: CodeSpanParser = CodeSpanParser(CodeCategory.EscapeSequence) {
+      (TextParsers.literal("\\") ~ ((anyIn('0' to '3').take(1) ~ DigitParsers.octal.max(2)).concat | DigitParsers.octal.min(1).max(2))).concat
     }
 
     /** Parses a single literal escape. Example: `$$`. 
       */
     def literal(value: String): CodeSpanParser = {
       require(value.nonEmpty)
-      CodeSpanParser(CodeCategory.EscapeSequence, value.head) {
-        TextParsers.literal(value)
-      }
+      CodeSpanParser(CodeCategory.EscapeSequence)(TextParsers.literal(value))
     }
   }
 
@@ -85,15 +83,15 @@ object StringLiteral {
     /** Parses a substitution code span based on the specified trigger character
       * and string parser. 
       */
-    def apply(startChar: Char)(parser: PrefixedParser[String]): CodeSpanParser = 
-      CodeSpanParser(CodeCategory.Substitution, startChar)(parser)
+    def apply (parser: PrefixedParser[String]): CodeSpanParser = 
+      CodeSpanParser(CodeCategory.Substitution)(parser)
 
     /** Parses a substitution code span based on the specified start and end delimiters. 
       */
     def between(start: String, end: String): CodeSpanParser = {
       require(start.nonEmpty)
       require(end.nonEmpty)
-      apply(start.head) {
+      apply {
         (literal(start) ~ delimitedBy(end).keepDelimiter.failOn('\n') ~ end).concat
       }
     }

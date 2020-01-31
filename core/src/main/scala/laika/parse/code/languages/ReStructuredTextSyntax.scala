@@ -41,7 +41,7 @@ object ReStructuredTextSyntax extends SyntaxHighlighter {
     }
 
   private def span (start: String, end: String, category: CodeCategory, postCondition: Parser[Any] = success(())): CodeSpanParser =
-    CodeSpanParser(category, start.head) {
+    CodeSpanParser(category) {
       markupStart(start, end) ~> delimitedByMarkupEnd(end, postCondition) ^^ { text => s"$start$text$end" }
     }
 
@@ -58,7 +58,7 @@ object ReStructuredTextSyntax extends SyntaxHighlighter {
   val internalTarget: CodeSpanParser  = span("_`", "`", CodeCategory.Identifier)
   val footnote: CodeSpanParser        = span("[", "]_", CodeCategory.Markup.LinkTarget)
 
-  val header: CodeSpanParser = CodeSpanParser(CodeCategory.Markup.Headline, '\n') {
+  val header: CodeSpanParser = CodeSpanParser(CodeCategory.Markup.Headline) {
     PrefixedParser('\n') {
       newLine ~ anyOf(BaseParsers.punctuationChars.toSeq: _*).take(1) >> { case nl ~ startChar =>
         (anyOf(startChar.head).min(1) ~ ws ~ ('\n' ~> not(blankLine) ~> restOfLine) ~ anyOf(startChar.head).min(1) ~ ws <~ lookAhead('\n')).map {
@@ -68,7 +68,7 @@ object ReStructuredTextSyntax extends SyntaxHighlighter {
     }
   }
 
-  val underlinedHeader: CodeSpanParser = CodeSpanParser(CodeCategory.Markup.Headline, '\n') {
+  val underlinedHeader: CodeSpanParser = CodeSpanParser(CodeCategory.Markup.Headline) {
     PrefixedParser('\n') {
       (newLine ~ (not(blankLine) ~> restOfLine.map(_ + "\n")) ~ anyOf(BaseParsers.punctuationChars.toSeq: _*).take(1)) >> {
         case nl ~ text ~ decoStart =>
@@ -79,7 +79,7 @@ object ReStructuredTextSyntax extends SyntaxHighlighter {
     }
   }
 
-  val transition: CodeSpanParser = CodeSpanParser(CodeCategory.Markup.Fence, '\n') {
+  val transition: CodeSpanParser = CodeSpanParser(CodeCategory.Markup.Fence) {
     PrefixedParser('\n') {
       newLine ~ anyOf(BaseParsers.punctuationChars.toSeq: _*).take(1) >> { case nl ~ startChar =>
         anyOf(startChar.head).min(1).map(nl + startChar + _) <~ lookAhead(ws ~ '\n' ~ blankLine)

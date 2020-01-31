@@ -52,31 +52,16 @@ object CodeSpanParser {
     */
   def apply (category: CodeCategory, start: String, end: String): CodeSpanParser = {
     require(start.nonEmpty)
-    CodeSpanParser(category, start.head) {
+    CodeSpanParser(category) {
       start ~> delimitedBy(end) ^^ { text => start + text + end }
     }
   }
 
-  /** Parses a single span triggered by the specified start character 
-    * and associates it with the given code category.
+  /** Parses a single text span and associates it with the given code category.
     */
-  def apply(category: CodeCategory, startChar: Char)(parser: PrefixedParser[String]): CodeSpanParser =
-    apply(category)(Seq((startChar, parser)))
-
-  /** Parses a single span triggered by any of the specified start characters 
-    * and associates it with the given code category.
-    */
-  def apply(category: CodeCategory, startChars: Set[Char])(parser: PrefixedParser[String]): CodeSpanParser =
-    apply(category)(startChars.toSeq.map((_, parser)))
-
-  /** Parses code spans based on a sequence mapping start characters to string
-    * parsers and associates all results with the given code category.
-    */
-  def apply(category: CodeCategory)(startCharAndParsers: Seq[(Char, PrefixedParser[String])]): CodeSpanParser =
+  def apply (category: CodeCategory)(parser: PrefixedParser[String]): CodeSpanParser =
     new CodeSpanParser {
-      val parsers = startCharAndParsers.map { case (char, parser) =>
-        PrefixedParser(char)(parser.map(res => CodeSpan(res, category)))
-      }
+      val parsers = Seq(parser.map(res => CodeSpan(res, category)))
     }
 
   /** Parses a sequence of spans triggered by the specified start character. 

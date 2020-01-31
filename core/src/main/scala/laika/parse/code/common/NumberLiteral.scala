@@ -95,7 +95,7 @@ object NumberLiteral {
     /** Accepts a suffix after a number literal, usually to denote a concrete number type as in `123L`. */
     def withSuffix (parser: Parser[String]): NumericParser = copy(suffix = Some(parser))
 
-    lazy val parsers: Seq[PrefixedParser[CategorizedCode]] = CodeSpanParser(CodeCategory.NumberLiteral, startChars.toSortedSet) {
+    lazy val parsers: Seq[PrefixedParser[CategorizedCode]] = CodeSpanParser(CodeCategory.NumberLiteral) {
       
       PrefixedParser(startChars) { // TODO - 0.14 - fix this
         lookBehind(1, any.take(1)) >> { startChar =>

@@ -40,7 +40,7 @@ object ScalaSyntax extends SyntaxHighlighter {
       .map(Seq(_))
   }
   
-  val backtickIdParser: CodeSpanParser = CodeSpanParser(CodeCategory.Identifier, '`') {
+  val backtickIdParser: CodeSpanParser = CodeSpanParser(CodeCategory.Identifier) {
     (prefix('`').take(1) ~ anyBut('\n', '`') ~ anyOf('`').take(1)).concat
   }
   
@@ -50,7 +50,7 @@ object ScalaSyntax extends SyntaxHighlighter {
 
   val substitutions: CodeSpanParser = 
     StringLiteral.Substitution.between("${", "}") ++
-    StringLiteral.Substitution('$')(prefix(CharGroup.alphaNum.add('_')))
+    StringLiteral.Substitution(prefix(CharGroup.alphaNum.add('_')))
   
   val spanParsers: Seq[CodeSpanParser] = Seq(
     Comment.singleLine("//"),
