@@ -18,7 +18,7 @@ package laika.parse.code.common
 
 import cats.implicits._
 import cats.data.NonEmptySet
-import laika.ast.{CategorizedCode, ~}
+import laika.ast.{CategorizedCode, CodeSpan, ~}
 import laika.parse.Parser
 import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.text.{CharGroup, Characters, PrefixCharacters, PrefixedParser}
@@ -63,6 +63,10 @@ object NumberLiteral {
     def concat: Parser[Seq[T]] = p.map { case x ~ xs => x ++ xs }
   }
 
+  private[laika] implicit class List2PrefixedParsersOps[T] (val p: PrefixedParser[Seq[T] ~ Seq[T]]) extends AnyVal {
+    def concat: PrefixedParser[Seq[T]] = p.map { case x ~ xs => x ++ xs }
+  }
+
   /** Parsers for common sets of digits, like hex or decimal. */
   object DigitParsers {
     val binary: PrefixCharacters[String] = prefix('0', '1')
@@ -79,13 +83,13 @@ object NumberLiteral {
   private def zeroPrefix(chars: Char*): Parser[String] = ("0" ~ anyOf(chars:_*)).concat 
   
   /* Configurable base parser for number literals. */
-  case class NumericParser (startChars: NonEmptySet[Char],
+  case class NumericParser (numberStartChars: NonEmptySet[Char],
                             digits: NonEmptySet[Char],
                             idSequence: Option[Parser[String]] = None,
                             underscores: Boolean = false,
                             exponent: Option[Parser[String]] = None,
                             suffix: Option[Parser[String]] = None,
-                            allowFollowingLetter: Boolean = false) extends CodeSpanParser {
+                            allowFollowingLetter: Boolean = false) extends CodeParserBase {
 
     private val emptyString: Parser[String] = success("")
 
@@ -95,9 +99,9 @@ object NumberLiteral {
     /** Accepts a suffix after a number literal, usually to denote a concrete number type as in `123L`. */
     def withSuffix (parser: Parser[String]): NumericParser = copy(suffix = Some(parser))
 
-    lazy val parsers: Seq[PrefixedParser[CategorizedCode]] = CodeSpanParser(CodeCategory.NumberLiteral) {
+    lazy val underlying: PrefixedParser[Seq[CodeSpan]] = {
       
-      PrefixedParser(startChars) { // TODO - 0.14 - fix this
+      PrefixedParser(numberStartChars) { // TODO - 0.14 - fix this
         lookBehind(1, any.take(1)) >> { startChar =>
 
           val digitParser = {
@@ -124,10 +128,10 @@ object NumberLiteral {
           val optSuffix = suffix.fold(emptyString)(opt(_).map(_.getOrElse("")))
           val postCondition = if (allowFollowingLetter) success(()) else not(anyWhile(java.lang.Character.isLetter).take(1)) // TODO - 0.14 - add char(Char => Boolean) and anyChar
 
-          (id ~ number ~ optSuffix <~ postCondition).concat
+          (id ~ number ~ optSuffix <~ postCondition).concat.map(res => Seq(CodeSpan(res, CodeCategory.NumberLiteral)))
         }
       }
-    }.parsers
+    }
 
   }
 

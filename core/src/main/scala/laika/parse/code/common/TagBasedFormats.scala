@@ -61,7 +61,7 @@ trait TagBasedFormats {
                        start: String,
                        end: String,
                        tagName: PrefixedParser[String] = nameParser,
-                       embedded: Seq[CodeSpanParser] = Nil) extends CodeSpanParser {
+                       embedded: Seq[CodeSpanParser] = Nil) extends CodeParserBase {
 
     private val categories: Set[CodeCategory] = Set(CodeCategory.Tag.Punctuation)
 
@@ -73,7 +73,8 @@ trait TagBasedFormats {
       copy(embedded = embedded ++ childSpans)
     }
     
-    private[code] def standaloneParser: PrefixedParser[Seq[CodeSpan]] = {
+    def underlying: PrefixedParser[Seq[CodeSpan]] = {
+      
       def codeParser(p: PrefixedParser[String], category: CodeCategory): PrefixedParser[CodeSpan] = p.map(CodeSpan(_, category))
 
       val startParser = codeParser(literal(start), CodeCategory.Tag.Punctuation)
@@ -85,8 +86,6 @@ trait TagBasedFormats {
           CodeSpans.merge(Seq(startPunct, tagNameSpan) ++ content :+ CodeSpan(end, categories))
       }
     }
-
-    lazy val parsers: Seq[PrefixedParser[CategorizedCode]] = CodeSpanParser(standaloneParser).parsers
 
   }
 

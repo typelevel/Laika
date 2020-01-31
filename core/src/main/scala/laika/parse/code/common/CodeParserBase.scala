@@ -16,27 +16,23 @@
 
 package laika.parse.code.common
 
-import cats.implicits._
 import cats.data.NonEmptySet
-import laika.parse.code.{CodeCategory, CodeSpanParser}
-import laika.parse.code.common.StringLiteral.StringParser
-import laika.parse.text.TextParsers._
+import laika.ast.{CategorizedCode, CodeSpan, CodeSpanSequence}
+import laika.parse.code.CodeSpanParser
+import laika.parse.text.PrefixedParser
 
-/** Base parsers for regular expression literals in code blocks.
+/** Convenient base trait that allows for passing the implementing
+  * instances anywhere either a `PrefixedParser[Seq[CodeSpan]]` or
+  * a `CodeSpanParser` is required for easier composition.
   * 
   * @author Jens Halm
   */
-object RegexLiteral {
+trait CodeParserBase extends PrefixedParser[Seq[CodeSpan]] with CodeSpanParser {
   
-  import NumberLiteral._
+  def underlying: PrefixedParser[Seq[CodeSpan]]
 
-  /** Parses a regular expression between `/` delimiters, followed by optional modifier characters. */
-  val standard: CodeSpanParser = StringParser(
-    chars = NonEmptySet.one('/'),
-    parser = delimitedBy("/").failOn('\n').keepDelimiter,
-    postfix = Some((anyOf('/').take(1) ~ anyIn('a' to 'z', 'A' to 'Z')).concat),
-    embedded = Seq(StringLiteral.Escape.char),
-    defaultCategories = Set(CodeCategory.RegexLiteral)
-  )
+  override def startChars: NonEmptySet[Char] = underlying.startChars
+  
+  override def parsers: Seq[PrefixedParser[CategorizedCode]] = Seq(map(CodeSpanSequence(_)))
   
 }

@@ -16,13 +16,13 @@
 
 package laika.parse.code.common
 
-import cats.implicits._
 import cats.data.NonEmptySet
-import laika.ast.{CategorizedCode, CodeSpan}
+import cats.implicits._
+import laika.ast.CodeSpan
 import laika.parse.Parser
-import laika.parse.code.{CodeCategory, CodeSpanParser}
-import laika.parse.text.{CharGroup, PrefixedParser}
+import laika.parse.code.CodeCategory
 import laika.parse.text.TextParsers._
+import laika.parse.text.{CharGroup, PrefixedParser}
 
 /** Configurable base parsers for identifiers in code blocks.
   * 
@@ -46,7 +46,7 @@ object Identifier {
   case class IdParser(idStartChars: NonEmptySet[Char],
                       idNonStartChars: NonEmptySet[Char],
                       category: String => CodeCategory = _ => CodeCategory.Identifier,
-                      allowDigitBeforeStart: Boolean = false) extends CodeSpanParser {
+                      allowDigitBeforeStart: Boolean = false) extends CodeParserBase {
 
     import NumberLiteral._
 
@@ -71,7 +71,7 @@ object Identifier {
     // TODO - 0.14 - remove or make private
     private [code] val idRestParser: Parser[String] = anyOf(idStartChars ++ idNonStartChars)
 
-    lazy val parsers: Seq[PrefixedParser[CategorizedCode]] = CodeSpanParser {
+    lazy val underlying: PrefixedParser[Seq[CodeSpan]] = {
         
       val prevChar = lookBehind(2, anyWhile(c => (!Character.isDigit(c) || allowDigitBeforeStart) && !Character.isLetter(c)).take(1)) | lookBehind(1, atStart)
 
@@ -79,7 +79,7 @@ object Identifier {
       
       (idStart ~ idRestParser).concat.map(id => Seq(CodeSpan(id, category(id))))
       
-    }.parsers
+    }
 
     // TODO - 0.14 - remove??
     private [code] def standaloneParser: PrefixedParser[CodeSpan] = {

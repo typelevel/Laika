@@ -30,7 +30,7 @@ object CharLiteral {
   /** Configurable base parsers for character literals.
     */
   case class CharParser(delim: Char,
-                        embedded: Seq[CodeSpanParser] = Nil) extends CodeSpanParser {
+                        embedded: Seq[CodeSpanParser] = Nil) extends CodeParserBase {
     
     private val categories: Set[CodeCategory] = Set(CodeCategory.CharLiteral)
 
@@ -42,7 +42,7 @@ object CharLiteral {
       copy(embedded = embedded ++ childSpans)
     }
 
-    lazy val parsers: Seq[PrefixedParser[CategorizedCode]] = CodeSpanParser {
+    lazy val underlying: PrefixedParser[Seq[CodeSpan]] = {
 
       def plainChar(char: String) = anyBut('\'', '\n').take(1).map(CodeSpan(_, categories))
       val delimParser = anyOf(delim).take(1).map(CodeSpan(_, categories))
@@ -55,7 +55,7 @@ object CharLiteral {
         }
       }
 
-    }.parsers
+    }
 
   }
 

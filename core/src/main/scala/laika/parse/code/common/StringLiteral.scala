@@ -18,7 +18,7 @@ package laika.parse.code.common
 
 import cats.implicits._
 import cats.data.NonEmptySet
-import laika.ast.{CategorizedCode, CodeSpan, CodeSpans, ~}
+import laika.ast.{CodeSpan, CodeSpans, ~}
 import laika.parse.Parser
 import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.text.TextParsers._
@@ -103,12 +103,12 @@ object StringLiteral {
   }
   
   /** Configurable base parser for string literals. */
-  case class StringParser(startChars: NonEmptySet[Char],
+  case class StringParser(chars: NonEmptySet[Char],
                           parser: DelimitedText[String],
                           prefix: Option[Parser[String]] = None,
                           postfix: Option[Parser[String]] = None,
                           embedded: Seq[CodeSpanParser] = Nil,
-                          defaultCategories: Set[CodeCategory] = Set(CodeCategory.StringLiteral)) extends CodeSpanParser {
+                          defaultCategories: Set[CodeCategory] = Set(CodeCategory.StringLiteral)) extends CodeParserBase {
 
     /** Embeds the specified parsers for child spans inside a character literal.
       *
@@ -136,17 +136,17 @@ object StringLiteral {
       */
     def withCategory (category: CodeCategory): StringParser = copy(defaultCategories = Set(category))
     
-    lazy val parsers: Seq[PrefixedParser[CategorizedCode]] = CodeSpanParser {
+    lazy val underlying: PrefixedParser[Seq[CodeSpan]] = {
       
       def optParser(p: Option[Parser[String]]): Parser[List[CodeSpan]] = 
         p.map(_.map(res => List(CodeSpan(res, defaultCategories)))).getOrElse(success(Nil))
       
-      val startChar = TextParsers.prefix(startChars).take(1).map(CodeSpan(_, defaultCategories))
+      val startChar = TextParsers.prefix(chars).take(1).map(CodeSpan(_, defaultCategories))
       
       (startChar ~ optParser(prefix) ~ EmbeddedCodeSpans.parser(parser, embedded, defaultCategories) ~ optParser(postfix)).map {
         case start ~ pre ~ content ~ post => CodeSpans.merge(start +: (pre ++ content ++ post))
       }
-    }.parsers
+    }
     
   }
 

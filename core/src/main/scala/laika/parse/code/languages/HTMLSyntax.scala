@@ -22,7 +22,6 @@ import laika.bundle.SyntaxHighlighter
 import laika.parse.Parser
 import laika.parse.code.common.{EmbeddedCodeSpans, Keywords, NumberLiteral, TagBasedFormats}
 import laika.parse.code.{CodeCategory, CodeSpanParser}
-import laika.parse.text.PrefixedParser
 import laika.parse.text.TextParsers._
 
 /**
@@ -61,22 +60,22 @@ object HTMLSyntax extends TagBasedFormats with SyntaxHighlighter {
   
   val scriptTag: CodeSpanParser = CodeSpanParser {
     
-    val startTag: PrefixedParser[Seq[CodeSpan]] = TagParser(CodeCategory.Tag.Name, "<", ">", literal("script")).embed(
+    val startTag = TagParser(CodeCategory.Tag.Name, "<", ">", literal("script")).embed(
       stringWithEntities,
       name(CodeCategory.AttributeName)
-    ).standaloneParser
+    )
     
-    (startTag ~ embeddedJs).map { case tag ~ js => tag ++ js }
+    (startTag ~ embeddedJs).concat
   }
 
   val styleTag: CodeSpanParser = CodeSpanParser {
 
-    val startTag: PrefixedParser[Seq[CodeSpan]] = TagParser(CodeCategory.Tag.Name, "<", ">", literal("style")).embed(
+    val startTag = TagParser(CodeCategory.Tag.Name, "<", ">", literal("style")).embed(
       stringWithEntities,
       name(CodeCategory.AttributeName)
-    ).standaloneParser
-
-    (startTag ~ embeddedCSS).map { case tag ~ js => tag ++ js }
+    )
+    
+    (startTag ~ embeddedCSS).concat
   }
 
   val language: NonEmptyList[String] = NonEmptyList.of("html")
