@@ -87,7 +87,7 @@ trait DefaultRecursiveSpanParsers extends RecursiveSpanParsers with DefaultEscap
 
   def delimitedRecursiveSpans (textParser: DelimitedText[String],
                                additionalSpanParsers: => Map[Char, Parser[Span]]): Parser[List[Span]] =
-    recursiveSpans(textParser, additionalSpanParsers)
+    recursiveSpans(textParser).embedAll(PrefixedParser.fromLegacyMap(additionalSpanParsers))
 
   def delimitedRecursiveSpans (textParser: DelimitedText[String]): Parser[List[Span]] =
     recursiveSpans(textParser)

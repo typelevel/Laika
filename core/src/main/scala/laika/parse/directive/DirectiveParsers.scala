@@ -164,7 +164,7 @@ object DirectiveParsers {
     (legacyDirective | newDirective) ^^ { case (name, attrs) ~ body => ParsedDirective(name, attrs, body) }
   }
   
-  val nestedBraces: Parser[Text] = "{" ~> delimitedBy('}') ^^ (str => Text(s"{$str}"))
+  val nestedBraces: PrefixedParser[Text] = "{" ~> delimitedBy('}') ^^ (str => Text(s"{$str}"))
 
 }
 
@@ -189,8 +189,10 @@ object SpanDirectiveParsers {
     import recParsers._
     
     val legacyBody = {
-      val contextRefOrNestedBraces = Map('{' -> (legacyReference(key => MarkupContextReference(Key.parse(key), required = true)) | nestedBraces))
-      wsOrNl ~ '{' ~> (withSource(recursiveSpans(delimitedBy('}'), contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
+      val contextRef = legacyReference(key => MarkupContextReference(Key.parse(key), required = true))
+      val spanParser = recursiveSpans(delimitedBy('}')).embed(contextRef).embed(nestedBraces)
+      
+      wsOrNl ~ '{' ~> withSource(spanParser) ^^ (_._2.dropRight(1))
     }
     
     val separators = directives.values.flatMap(_.separators).toSet

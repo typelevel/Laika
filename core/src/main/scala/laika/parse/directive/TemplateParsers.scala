@@ -42,8 +42,10 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
   lazy val templateDirective: PrefixedParser[TemplateSpan] = {
 
     val legacyBody = {
-      val contextRefOrNestedBraces = Map('{' -> (legacyReference(key => TemplateContextReference(Key.parse(key), required = true)) | nestedBraces))
-      wsOrNl ~ '{' ~> (withSource(recursiveSpans(delimitedBy('}'), contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
+      val contextRef = legacyReference(key => TemplateContextReference(Key.parse(key), required = true))
+      val spanParser = recursiveSpans(delimitedBy('}')).embed(contextRef).embed(nestedBraces)
+      
+      wsOrNl ~ '{' ~> (withSource(spanParser) ^^ (_._2.dropRight(1)))
     }
     
     val newBody: BodyParserBuilder = spec =>
