@@ -99,29 +99,18 @@ object InlineParsers {
     def result: String = builder.toString
   }
 
-  /** Generic base parser that parses inline elements based on the specified
-    * helper parsers. Usually not used directly by parser implementations,
-    * this is the base parser the other inline parsers of this trait delegate to.
-    *
-    * @tparam Elem the element type produced by a single parser for a nested span
-    * @tparam To the type of the result this parser produces
-    * @param baseParser the parser for the text of the current span element
-    * @param nested a mapping from the start character of a span to the corresponding parser for nested span elements
-    * @param resultBuilder responsible for building the final result of this parser based on the results of the helper parsers
-    * @return the resulting parser
-    */
-  class InlineParser [Elem,To] (baseParser: => DelimitedText[String],
+  private class DefaultInlineParser [Elem,To] (baseParser: => DelimitedText[String],
                                 nested: => Seq[PrefixedParser[Elem]],
-                                resultBuilder: => ResultBuilder[Elem, To]) extends Parser[To] {
+                                resultBuilder: => ResultBuilder[Elem, To]) extends InlineParser[Elem,To] {
     
     private lazy val nestedMap = PrefixedParser.mapAndMerge(nested)
     private lazy val textParser = new DelimitedText(new InlineDelimiter(nestedMap.keySet, baseParser.delimiter))
 
     def embed (parser: => PrefixedParser[Elem]): InlineParser[Elem, To] = 
-      new InlineParser(baseParser, nested :+ parser, resultBuilder)
+      new DefaultInlineParser(baseParser, nested :+ parser, resultBuilder)
 
     def embedAll (parsers: => Seq[PrefixedParser[Elem]]): InlineParser[Elem, To] =
-      new InlineParser(baseParser, nested ++ parsers, resultBuilder)
+      new DefaultInlineParser(baseParser, nested ++ parsers, resultBuilder)
     
     def parse (in: ParserContext): Parsed[To] = {
 
@@ -162,22 +151,44 @@ object InlineParsers {
     * The returned parser allows to register parsers for child spans with its `embed` method.
     * Without calling it, the result of this parser would always just be a single span of type `Text`.
     */
-  def spans (parser: => DelimitedText[String]): InlineParser[Span, List[Span]] = new InlineParser(parser, Nil, new SpanBuilder)
+  def spans (parser: => DelimitedText[String]): InlineParser[Span, List[Span]] = new DefaultInlineParser(parser, Nil, new SpanBuilder)
 
   /** Creates a new parser that reads text until the delimiters in the specified parser are detected.
     * 
     * The returned parser allows to register parsers for child spans with its `embed` method,
     * for example for reading escape sequences.
     */
-  def text (parser: => DelimitedText[String]): InlineParser[String, String] = new InlineParser(parser, Nil, new TextBuilder)
+  def text (parser: => DelimitedText[String]): InlineParser[String, String] = new DefaultInlineParser(parser, Nil, new TextBuilder)
 
   @deprecated("use .spans(...).embed(...) instead", "0.14.0")
   def spans (parser: => DelimitedText[String], spanParsers: => Map[Char, Parser[Span]]): Parser[List[Span]]
-      = new InlineParser(parser, PrefixedParser.fromLegacyMap(spanParsers), new SpanBuilder)
+      = new DefaultInlineParser(parser, PrefixedParser.fromLegacyMap(spanParsers), new SpanBuilder)
 
   @deprecated("use .text(...).embed(...) instead", "0.14.0")
   def text (parser: => DelimitedText[String], nested: => Map[Char, Parser[String]]): Parser[String]
-      = new InlineParser(parser, PrefixedParser.fromLegacyMap(nested), new TextBuilder)
+      = new DefaultInlineParser(parser, PrefixedParser.fromLegacyMap(nested), new TextBuilder)
 
 
+}
+
+/** Generic base parser that parses inline elements with potentially nested spans. 
+  * 
+  * The two embed methods allow the registration of parsers for nested child spans.
+  * They can be invoked multiple times. Child parsers passed first have higher
+  * precedence than those passed later.
+  * 
+  * Only parsers of type `PrefixedParser[T]` can be passed to the embed methods,
+  * which are parsers with known, stable prefixes of the child span consisting
+  * of a limited set of characters so that the checks that need to be performed
+  * for each character can be optimized for performance.
+  *
+  * @tparam Elem the element type produced by a single parser for a nested span
+  * @tparam To the type of the result this parser produces
+  */
+trait InlineParser[Elem,To] extends Parser[To] {
+
+  def embed (parser: => PrefixedParser[Elem]): InlineParser[Elem, To]
+
+  def embedAll (parsers: => Seq[PrefixedParser[Elem]]): InlineParser[Elem, To]
+  
 }

@@ -69,19 +69,12 @@ trait RecursiveSpanParsers extends EscapedTextParsers {
     * In the latter case the passed parser is usually of type `DelimitedText[String]`
     * which is an optimized parser that parses text and recursive spans in one pass.
     * For other kinds of parsers the resulting parser will be a two-pass parser.
+    * 
+    * The returned parser allows to register parsers for child spans with its `embed` method
+    * for parsing types of child spans in addition to the available span types of the
+    * host markup language
     */
-  def recursiveSpans (parser: Parser[String]): Parser[List[Span]]
-
-  /** Lifts the specified text parser to parse the string result
-    * as a sequence of spans. Adds the specified additional parsers
-    * to the span parsers of the host markup language.
-    *
-    * This type of span parser is usually used in block parsers,
-    * that need to process inline markup after the text for the block
-    * has been parsed from the input string.
-    */
-  def recursiveSpans (parser: Parser[String],
-                      additionalParsers: => Map[Char, Parser[Span]] = Map.empty): Parser[List[Span]]
+  def recursiveSpans (parser: Parser[String]): InlineParser[Span, List[Span]]
 
   /** Parses the input into a sequence of spans based on the available span types
     * of the host markup language.
@@ -89,14 +82,7 @@ trait RecursiveSpanParsers extends EscapedTextParsers {
     * This parser always parses to the end of the input, therefore is usually applied to
     * the string result of a previous parser invocation.
     */
-  def recursiveSpans: Parser[List[Span]]
-
-  @deprecated("use the recursiveSpans method", "0.14.0")
-  def delimitedRecursiveSpans (textParser: DelimitedText[String]): Parser[List[Span]]
-
-  @deprecated("use the recursiveSpans method", "0.14.0")
-  def delimitedRecursiveSpans (textParser: DelimitedText[String],
-                               additionalSpanParsers: => Map[Char, Parser[Span]]): Parser[List[Span]]
+  def recursiveSpans: InlineParser[Span, List[Span]]
 
   /** Adds a span parser function to the result of the specified parser.
     * The function can be used for any kind of custom span parsing of portions of the
@@ -111,6 +97,18 @@ trait RecursiveSpanParsers extends EscapedTextParsers {
     */
   def getSyntaxHighlighter (language: String): Option[Parser[Seq[Span]]]
 
+  
+  @deprecated("use recursiveSpans(parser).embedAll() method", "0.14.0")
+  def recursiveSpans (parser: Parser[String],
+                      additionalParsers: => Map[Char, Parser[Span]] = Map.empty): Parser[List[Span]]
+  
+  @deprecated("use the recursiveSpans method", "0.14.0")
+  def delimitedRecursiveSpans (textParser: DelimitedText[String]): Parser[List[Span]]
+
+  @deprecated("use the recursiveSpans method", "0.14.0")
+  def delimitedRecursiveSpans (textParser: DelimitedText[String],
+                               additionalSpanParsers: => Map[Char, Parser[Span]]): Parser[List[Span]]
+  
 }
 
 /** Provides parsers for escaped text, custom span parser implementations
