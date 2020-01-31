@@ -132,16 +132,16 @@ or a regular paragraph for example). It then further parses the text of each blo
 for inline markup, which is what this trait does.
 
 Like described in the previous section, Laika inline parsers avoid the performance bottleneck
-of trying a long list of choices for each character. Instead it builds a map of available
-span parsers, mapping from the first character to the parser, and then performs a simple
-map lookup for each character. If no parser is mapped to the character it simply continues
+of trying a long list of choices for each character. Instead it builds an index of available
+span parsers, mapping from the first character to the parser, and then performs a fast
+array index lookup for each character. If no parser is mapped to the character it simply continues
 reading. This works for nested structures, too.
 
 This is captured in the API for creating a parser:
 
 ```scala
-SpanParser.forStartChar('*').standalone {
-  delimitedBy("*")
+SpanParser.standalone {
+  ('*' ~> anyBut('*','\n') <~ '*').map(Emphasized(_))
 }    
 ```
 
@@ -153,45 +153,52 @@ or any installed extensions, your definition must ask for the recursive parser t
 as you cannot anticipate the extensions a user might have configured:
 
 ```scala
-SpanParser.forStartChar('*').recursive { recParsers =>
-  recParsers.delimitedRecursiveSpans(delimitedBy("*"))
+SpanParser.recursive { recParsers =>
+  ('*' ~> recParsers.recursiveSpans(delimitedBy("*"))).map(Emphasized(_))
 } 
 ```
 
-Here you simply pass the same text parser from the previous example to the recursive
-parsers provided by Laika which lifts the text parser into a span parser.
+This parser also parses markup between two asterisk. But in contrast to the parser above,
+it also detects and parses any spans kinds provided by the host markup language between
+these two delimiters.
 
-It's important that parsers do not look for the initial character as this will be consumed by the map lookup already. 
-And they are still allowed to fail, in which case the special character will be treated as
-normal text input.
+The parser you are passing to the `standalone` or `recursive` methods must be of type `PrefixedParser[Span]`,
+a subtype of `Parser[T]`. This is a trait implemented by all parsers with a stable prefix that can be
+optimized, like literal string parsers. In most cases you do not need to worry about this limitation,
+as constructs like the above parser starting with `'*' ~> ...` already implemented this trait.
 
 
 
 Block Parsers
 -------------
 
-The API for creating block parsers is similar to that for span parsers. One difference
-is that the start character is optional, as many types of blocks, like a plain paragraph
-for example, do not have a concrete start character. In those cases you can create the block
-parser like this:
+The API for creating block parsers is very similar to that for span parsers.
+There is a variant for a parser that does not recursively parse nested blocks:
 
 ```scala
-BlockParser.withoutStartChar.standalone {
+BlockParser.standalone {
   // your parser impl
 }    
 ```
 
-If the parser allows the nesting of other blocks you can rely on the library to pass
-the recursive parsers for all installed block parsers to your parser definition, similar
-to the span parser mechanism:
+Or the parser is allowed to contain nested blocks from the host language
+or any installed extensions, your can ask for the recursive parser to be provided:
 
 ```scala
-BlockParser.forStartChar('*').recursive { recParsers =>
+BlockParser.recursive { recParsers =>
   // your parser impl
 } 
 ```
 
-Laika offers a `BlockParsers` object with convenience methods for creating
+One difference is that the block parser API does not require instances of `PrefixedParser[Block]`,
+a plain `Parser[Block]` suffices. If your parser does implement the `PrefixedParser` trait,
+it will still get optimized like span parsers, but for some typical markup blocks like underlined
+headlines, provided a finite, reasonably small set of possible start characters is not feasible.
+
+The performance hit for non-optimized block parsers is much smaller though than for span parsers,
+as it is only invoked (more or less) after blank line has been read, not on each input character. 
+
+Laika also offers a `BlockParsers` object with convenience methods for creating
 a typical block parser. This is the signature of the first one:
 
 ```scala
@@ -210,22 +217,20 @@ The following code is an example for a parser for quoted blocks, decorated
 by a `>` character at the start of each line:
 
 ```scala
-BlockParser.forStartChar('>').recursive { recParsers =>
+BlockParser.recursive { recParsers =>
   
   val textAfterDeco = TextParsers.ws       // any whitespace
   val decoratedLine = '>' ~ textAfterDeco  // '>' followed by whitespace
   val afterBlankLine = Parsers.failure("blank line ends block")
   
-  val textBlock = BlockParsers.block(textAfterDeco, decoratedLine, afterBlankLine)
+  val textBlock = BlockParsers.block(decoratedLine, decoratedLine, afterBlankLine)
   
   recParsers.recursiveBlocks(textBlock) ^^ (QuotedBlock(_, Nil))
 }
 ```
  
-This implementation uses the `BlockParsers` helper. It passes just the whitespace
-parser as the condition for the first line, as the start character has already 
-been consumed. For subsequent lines, the decoration needs to be present, so
-we pass `decoratedLine` as the condition for them.
+This implementation uses the `BlockParsers` helper. It passes just the same `decoratedLine`
+parser for the first and subsequent lines.
 
 Finally we pass the `textBlock` parser to the recursive parsers which lift our
 `Parser[String]` to a `Parser[Seq[Block]]` and the result of that parser is 

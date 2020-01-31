@@ -27,8 +27,7 @@ import laika.parse.Parser
   */
 sealed trait ParserDefinition[E <: Element] {
 
-  /** The parser for the block or span element apart from the (optional)
-    * start character.
+  /** The parser for the block or span element.
     */
   def parser: Parser[E]
 
@@ -48,7 +47,7 @@ sealed trait ParserDefinition[E <: Element] {
   * like a quoted block or a bullet list for example.
   *
   * @param startChars the optional start characters that can start this block (allows performance optimizations when defined)
-  * @param parser the parser for the block element after the start character
+  * @param parser the parser for the block element
   * @param isRecursive indicates whether this parser produces child elements by recursively applying the parsers for the host language
   * @param position indicates whether this parser is responsible for root or nested elements only, or for both
   * @param precedence indicates whether the parser should be applied before the base parsers of
@@ -64,7 +63,7 @@ case class BlockParserDefinition (startChars: Set[Char],
   * like a literal text span or a link reference for example.
   *
   * @param startChars all start characters that can start this span (allows performance optimizations)
-  * @param parser the parser for the span element after the start character
+  * @param parser the parser for the span element
   * @param isRecursive indicates whether this parser produces child elements by recursively applying the parsers for the host language
   * @param precedence indicates whether the parser should be applied before the base parsers of
   * the host language (high precedence) or after them
