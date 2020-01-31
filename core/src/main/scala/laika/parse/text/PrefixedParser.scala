@@ -78,4 +78,7 @@ object PrefixedParser {
       case (char, definitions) => (char, definitions.map(_._2).reduceLeft(_ | _))
     }
   
+  private[laika] def fromLegacyMap[T] (map: Map[Char, Parser[T]]): Seq[PrefixedParser[T]] =
+    map.toSeq.map { case (c, p) => PrefixedParser(c)(p) }
+  
 }

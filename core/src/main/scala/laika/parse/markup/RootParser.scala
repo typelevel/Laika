@@ -21,6 +21,7 @@ import laika.ast._
 import laika.bundle._
 import laika.factory.MarkupFormat
 import laika.parse.Parser
+import laika.parse.text.PrefixedParser
 import laika.parse.text.TextParsers._
 
 /** Responsible of assembling all the block, inline, text and configuration parsers
@@ -50,18 +51,13 @@ class RootParser (markupParser: MarkupFormat, markupExtensions: MarkupExtensions
   protected lazy val nestedBlock   = merge(sortedBlockParsers.filter(_.position != BlockPosition.RootOnly))
   protected lazy val fallbackBlock = merge(sortedBlockParsers.filterNot(_.isRecursive))
 
-  protected lazy val spanParsers: Map[Char,Parser[Span]] = {
+  protected lazy val spanParsers: Seq[PrefixedParser[Span]] = {
     val escapedText = SpanParser.standalone(escapeSequence.map(Text(_))).withLowPrecedence
     val mainParsers = markupParser.spanParsers :+ escapedText
     
-    createAndSortParsers(mainParsers, markupExtensions.spanParsers)
-      .flatMap { parserDef =>
-        parserDef.startChars.toList.map(c => (c, parserDef))
-      }
-      .groupBy(_._1)
-      .map {
-        case (char, definitions) => (char, definitions.map(_._2.parser).reduceLeft(_ | _))
-      }
+    createAndSortParsers(mainParsers, markupExtensions.spanParsers).map { parserDef =>
+      PrefixedParser(parserDef.startChars)(parserDef.parser)
+    }
   }
 
   def blockList (p: => Parser[Block]): Parser[Seq[Block]] =

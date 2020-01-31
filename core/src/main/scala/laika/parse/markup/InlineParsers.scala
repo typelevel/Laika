@@ -173,11 +173,11 @@ object InlineParsers {
 
   @deprecated("use .spans(...).embed(...) instead", "0.14.0")
   def spans (parser: => DelimitedText[String], spanParsers: => Map[Char, Parser[Span]]): Parser[List[Span]]
-      = new InlineParser(parser, spanParsers.toSeq.map { case (c, p) => PrefixedParser(c)(p) }, new SpanBuilder)
+      = new InlineParser(parser, PrefixedParser.fromLegacyMap(spanParsers), new SpanBuilder)
 
   @deprecated("use .text(...).embed(...) instead", "0.14.0")
   def text (parser: => DelimitedText[String], nested: => Map[Char, Parser[String]]): Parser[String]
-      = new InlineParser(parser, nested.toSeq.map { case (c, p) => PrefixedParser(c)(p) }, new TextBuilder)
+      = new InlineParser(parser, PrefixedParser.fromLegacyMap(nested), new TextBuilder)
 
 
 }

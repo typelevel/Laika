@@ -139,7 +139,7 @@ trait EscapedTextParsers {
   /** Parses a span of text until one of the specified characters is seen
     * (unless it is escaped),
     * while also processing escaped characters, but no other nested
-    *  spans. The final character is not included in the result.
+    * spans. The final character is not included in the result.
     *
     * @param char the character(s) that signals the end of the text span
     * @return a parser for a text span that supports escape sequences

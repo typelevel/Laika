@@ -21,6 +21,7 @@ import laika.ast._
 import laika.directive.Templates
 import laika.parse.Parser
 import laika.parse.markup.DefaultRecursiveSpanParsers
+import laika.parse.text.PrefixedParser
 import laika.parse.text.TextParsers._
 
 /** Provides the parsers for directives and context references in templates.
@@ -31,14 +32,14 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
 
   import DirectiveParsers._
 
-  lazy val spanParsers: Map[Char, Parser[Span]] = Map(
-    '{' -> legacyReference(key => TemplateContextReference(Key.parse(key), required = true)),
-    '$' -> hoconReference(TemplateContextReference(_,_), _.asTemplateSpan),
-    '@' -> templateDirective,
-    '\\'-> '\\' ~> ((any take 1) ^^ { Text(_) })
+  lazy val spanParsers: Seq[PrefixedParser[Span]] = Seq(
+    legacyReference(key => TemplateContextReference(Key.parse(key), required = true)),
+    hoconReference(TemplateContextReference(_,_), _.asTemplateSpan),
+    templateDirective,
+    '\\' ~> ((any take 1) ^^ { Text(_) })
   )
 
-  lazy val templateDirective: Parser[TemplateSpan] = {
+  lazy val templateDirective: PrefixedParser[TemplateSpan] = {
 
     val legacyBody = {
       val contextRefOrNestedBraces = Map('{' -> (legacyReference(key => TemplateContextReference(Key.parse(key), required = true)) | nestedBraces))
@@ -52,9 +53,12 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
       else success(None)
 
     val separators = directives.values.flatMap(_.separators).toSet
-    withSource(directiveParser(newBody, legacyBody, this)) ^^ { case (result, source) =>
-      if (separators.contains(result.name)) Templates.SeparatorInstance(result, source)
-      else Templates.DirectiveInstance(directives.get(result.name), result, templateSpans, source)
+    
+    PrefixedParser('@') {
+      withSource(directiveParser(newBody, legacyBody, this)) ^^ { case (result, source) =>
+        if (separators.contains(result.name)) Templates.SeparatorInstance(result, source)
+        else Templates.DirectiveInstance(directives.get(result.name), result, templateSpans, source)
+      }
     }
   }
 

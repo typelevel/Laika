@@ -17,7 +17,7 @@
 package laika.parse.markup
 
 import laika.ast.{InvalidElement, Span}
-import laika.parse.text.DelimitedText
+import laika.parse.text.{DelimitedText, PrefixedParser}
 import laika.parse.{Failure, Parser, Success}
 
 /** Default implementation for parsing inline markup recursively.
@@ -27,21 +27,12 @@ import laika.parse.{Failure, Parser, Success}
 trait DefaultRecursiveSpanParsers extends RecursiveSpanParsers with DefaultEscapedTextParsers {
 
 
-  /** The mapping of markup start characters to their corresponding
-    *  span parsers.
-    *
-    *  A parser mapped to a start character is not required
-    *  to successfully parse the subsequent input. If it fails the
-    *  character that triggered the parser invocation will be treated
-    *  as normal text. The mapping is merely used as a performance
-    *  optimization. The parser will be invoked with the input
-    *  offset pointing to the character after the one
-    *  specified as the key for the mapping.
+  /** All default span parsers registered for a host markup language.
     */
-  protected def spanParsers: Map[Char,Parser[Span]]
+  protected def spanParsers: Seq[PrefixedParser[Span]]
 
-
-  private lazy val defaultSpanParser: Parser[List[Span]] = InlineParsers.spans(DelimitedText.Undelimited, spanParsers)
+  private lazy val defaultSpanParser: Parser[List[Span]] = 
+    InlineParsers.spans(DelimitedText.Undelimited).embedAll(spanParsers)
 
   private def createRecursiveSpanParser (textParser: Parser[String], spanParser: => Parser[List[Span]]): Parser[List[Span]] = {
     lazy val spanParser0 = spanParser
@@ -59,15 +50,18 @@ trait DefaultRecursiveSpanParsers extends RecursiveSpanParsers with DefaultEscap
 
 
   def recursiveSpans (p: Parser[String]): Parser[List[Span]] = p match {
-    case dt: DelimitedText[String] => InlineParsers.spans(dt, spanParsers)
-    case _ => createRecursiveSpanParser(p, defaultSpanParser)
+    case dt: DelimitedText[String] => InlineParsers.spans(dt).embedAll(spanParsers)
+    case _                         => createRecursiveSpanParser(p, defaultSpanParser)
   }
 
   def recursiveSpans (p: Parser[String],
-                      additionalParsers: => Map[Char, Parser[Span]] = Map.empty): Parser[List[Span]] = p match {
-    case dt: DelimitedText[String] => InlineParsers.spans(dt, spanParsers ++ additionalParsers)
-    case _ => createRecursiveSpanParser(p, InlineParsers.spans(DelimitedText.Undelimited, spanParsers ++ additionalParsers))
-  }
+                      additionalParsers: => Map[Char, Parser[Span]] = Map.empty): Parser[List[Span]] = {
+    lazy val embedded = spanParsers ++ PrefixedParser.fromLegacyMap(additionalParsers)
+    p match {
+      case dt: DelimitedText[String] => InlineParsers.spans(dt).embedAll(embedded)
+      case _ => createRecursiveSpanParser(p, InlineParsers.spans(DelimitedText.Undelimited).embedAll(embedded))
+    }
+  } 
   
   def recursiveSpans: Parser[List[Span]] = defaultSpanParser
 
