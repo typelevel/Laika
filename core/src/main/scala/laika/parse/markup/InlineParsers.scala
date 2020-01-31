@@ -117,6 +117,12 @@ object InlineParsers {
     private lazy val nestedMap = PrefixedParser.mapAndMerge(nested)
     private lazy val textParser = new DelimitedText(new InlineDelimiter(nestedMap.keySet, baseParser.delimiter))
 
+    def embed (parser: => PrefixedParser[Elem]): InlineParser[Elem, To] = 
+      new InlineParser(baseParser, nested :+ parser, resultBuilder)
+
+    def embedAll (parsers: => Seq[PrefixedParser[Elem]]): InlineParser[Elem, To] =
+      new InlineParser(baseParser, nested ++ parsers, resultBuilder)
+    
     def parse (in: ParserContext): Parsed[To] = {
 
       lazy val builder = resultBuilder // need a fresh one on each invocation
@@ -151,21 +157,25 @@ object InlineParsers {
 
   }
 
-  /** Parses a list of spans based on the specified helper parsers.
-    *
-    *  @param parser the parser for the text of the current span element
-    *  @param spanParsers a mapping from the start character of a span to the corresponding parser for nested span elements
-    *  @return the resulting parser
+  /** Creates a new parser that reads input until the delimiters in the specified parser are detected.
+    * 
+    * The returned parser allows to register parsers for child spans with its `embed` method.
+    * Without calling it, the result of this parser would always just be a single span of type `Text`.
     */
+  def spans (parser: => DelimitedText[String]): InlineParser[Span, List[Span]] = new InlineParser(parser, Nil, new SpanBuilder)
+
+  /** Creates a new parser that reads text until the delimiters in the specified parser are detected.
+    * 
+    * The returned parser allows to register parsers for child spans with its `embed` method,
+    * for example for reading escape sequences.
+    */
+  def text (parser: => DelimitedText[String]): InlineParser[String, String] = new InlineParser(parser, Nil, new TextBuilder)
+
+  @deprecated("use .spans(...).embed(...) instead", "0.14.0")
   def spans (parser: => DelimitedText[String], spanParsers: => Map[Char, Parser[Span]]): Parser[List[Span]]
       = new InlineParser(parser, spanParsers.toSeq.map { case (c, p) => PrefixedParser(c)(p) }, new SpanBuilder)
 
-  /** Parses text based on the specified helper parsers.
-    *
-    *  @param parser the parser for the text of the current element
-    *  @param nested a mapping from the start character of a span to the corresponding parser for nested span elements
-    *  @return the resulting parser
-    */
+  @deprecated("use .text(...).embed(...) instead", "0.14.0")
   def text (parser: => DelimitedText[String], nested: => Map[Char, Parser[String]]): Parser[String]
       = new InlineParser(parser, nested.toSeq.map { case (c, p) => PrefixedParser(c)(p) }, new TextBuilder)
 

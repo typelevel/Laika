@@ -18,7 +18,7 @@ package laika.parse.markup
 
 import laika.ast.{Block, Span}
 import laika.parse.Parser
-import laika.parse.text.DelimitedText
+import laika.parse.text.{DelimitedText, PrefixedParser}
 
 /** Provides parsers for nested blocks, custom block parser implementations
   * can use these without knowing the available span types of the host
@@ -130,7 +130,7 @@ trait EscapedTextParsers {
     * use this parser as it is always configured correctly for the current
     * host language.
     */
-  def escapeSequence: Parser[String]
+  def escapeSequence: PrefixedParser[String]
 
   /** Adds support for escape sequences to the specified text parser.
     */

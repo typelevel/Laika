@@ -68,13 +68,13 @@ object HTMLParsers {
   val htmlAttributeName: Parser[String] = anyBut(htmlAttrEndChars:_*) min 1
 
   val htmlUnquotedAttributeValue: Parser[(List[Span with TextContainer], Option[Char])] =
-    spans(delimitedBy(htmlAttrEndChars:_*).keepDelimiter, Map('&' -> htmlCharReference)) ^?
+    spans(delimitedBy(htmlAttrEndChars:_*).keepDelimiter).embed(htmlCharReference) ^?
       { case x :: xs => ((x::xs).asInstanceOf[List[Span with TextContainer]], None) }
 
   /** Parses an attribute value enclosed by the specified character.
    */
   def htmlQuotedAttributeValue (c: Char): Parser[(List[Span with TextContainer], Option[Char])] =
-    c ~> spans(delimitedBy(c), Map('&' -> htmlCharReference)) ^^
+    c ~> spans(delimitedBy(c)).embed(htmlCharReference) ^^
       { spans => (spans.asInstanceOf[List[Span with TextContainer]], Some(c)) }
 
   /** Parses quoted and unquoted attribute values.
@@ -139,7 +139,7 @@ object HTMLParsers {
    *  all the nested HTML and Text elements.
    */
   lazy val htmlElement: Parser[HTMLElement] = htmlStartTag >> {
-    tag => spans(htmlEndTag(tag.name), htmlBlockParsers) ^^ {
+    tag => spans(htmlEndTag(tag.name)).embedAll(htmlBlockParsers) ^^ {
       spans => HTMLElement(tag, spans)
     }
   }
@@ -165,7 +165,7 @@ object HTMLParsers {
 
   /** Parses any of the HTML span elements supported by this trait, but no standard markdown inside HTML elements.
    */
-  lazy val htmlSpanInsideBlock: Parser[HTMLSpan] = 
+  lazy val htmlSpanInsideBlock: PrefixedParser[HTMLSpan] = 
     '<' ~> (htmlComment | htmlScriptElement | htmlEmptyElement | htmlElement | htmlEndTag | htmlStartTag)
   
   
@@ -195,16 +195,13 @@ object HTMLParsers {
     case t @ HTMLStartTag(name, _, _) if htmlBlockElements.contains(name) => t 
   }
 
-  private lazy val htmlBlockParsers: Map[Char, Parser[Span]] = Map(
-    '<' -> htmlSpanInsideBlock,
-    '&' -> htmlCharReference
-  )
+  private lazy val htmlBlockParsers: Seq[PrefixedParser[Span]] = Seq(htmlSpanInsideBlock, htmlCharReference)
   
   /** Parses a full HTML block, with the root element being a block-level HTML element
    *  and without parsing any standard Markdown markup.
    */
   lazy val htmlBlock: Parser[HTMLBlock] = htmlBlockStart >> {
-    tag => spans(htmlEndTag(tag.name), htmlBlockParsers) <~ wsEol ^^ {
+    tag => spans(htmlEndTag(tag.name)).embedAll(htmlBlockParsers) <~ wsEol ^^ {
       spans => HTMLBlock(HTMLElement(tag, spans))  
     } 
   }

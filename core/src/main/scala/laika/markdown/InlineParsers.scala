@@ -177,16 +177,15 @@ object InlineParsers {
                 ref: (RecParser, String, String, String) => Span,
                 recParsers: RecursiveSpanParsers): Parser[Span] = {
 
-    val linkText = text(delimitedBy(']'), Map(
-      '\\' -> (recParsers.escapeSequence ^^ {"\\" + _}),
-      '[' -> ('[' ~> delimitedBy(']') ^^ { "[" + _ + "]" })
-    ))
+    val linkText = text(delimitedBy(']'))
+      .embed(recParsers.escapeSequence ^^ {"\\" + _})
+      .embed('[' ~> delimitedBy(']') ^^ { "[" + _ + "]" })
 
     val titleEnd = lookAhead(ws.^ ~ ')')
     val title = ws.^ ~> (('"' ~> delimitedBy("\"", titleEnd)) | ('\'' ~> delimitedBy("'", titleEnd)))
 
-    val url = ('<' ~> text(delimitedBy('>',' ').keepDelimiter, Map('\\' -> recParsers.escapeSequence)) <~ '>') |
-       text(delimitedBy(')',' ','\t').keepDelimiter, Map('\\' -> recParsers.escapeSequence))
+    val url = ('<' ~> text(delimitedBy('>',' ').keepDelimiter).embed(recParsers.escapeSequence) <~ '>') |
+       text(delimitedBy(')',' ','\t').keepDelimiter).embed(recParsers.escapeSequence)
     
     val urlWithTitle = '(' ~> url ~ opt(title) <~ ws ~ ')' ^^ {  
       case url ~ title => (recParser: RecParser, text:String) => inline(recParser, text, url, title)

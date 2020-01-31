@@ -39,7 +39,7 @@ trait DefaultEscapedTextParsers extends EscapedTextParsers {
     * @param p the parser to add support for escape sequences to
     * @return a parser for a text span that supports escape sequences
     */
-  def escapedText(p: DelimitedText[String]): Parser[String] = InlineParsers.text(p, Map('\\' -> escapeSequence))
+  def escapedText(p: DelimitedText[String]): Parser[String] = InlineParsers.text(p).embed(escapeSequence)
 
   /** Parses a span of text until one of the specified characters is seen
     * (unless it is escaped),

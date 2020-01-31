@@ -113,8 +113,10 @@ object CSSParsers {
   /** Parses the value of a single style, ignoring
     *  any comments..
     */
-  val styleValue: Parser[String] =
-    InlineParsers.text(delimitedBy(';'), Map('/' -> (("/*" ~ delimitedBy("*/") ~ wsOrNl) ^^^ "")))
+  val styleValue: Parser[String] = {
+    val comment = ("/*" ~ delimitedBy("*/") ~ wsOrNl) ^^^ ""
+    InlineParsers.text(delimitedBy(';')).embed(comment)
+  }
 
   /** Parses a single style within a declaration.
     */

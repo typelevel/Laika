@@ -21,7 +21,7 @@ import laika.bundle.SyntaxHighlighter
 import laika.parse.Parser
 import laika.parse.code.{CodeCategory, CodeSpanParsers}
 import laika.parse.markup.InlineParsers
-import laika.parse.text.DelimitedText
+import laika.parse.text.{DelimitedText, PrefixedParser}
 import laika.parse.text.TextParsers._
 
 /** Factories for creating a span parser that detects other syntax as part of the span.
@@ -60,8 +60,11 @@ object EmbeddedCodeSpans {
     * are responsible for detecting attribute names and values and entity references.
     */
   def parser (textParser: DelimitedText[String], embedded: Seq[CodeSpanParsers], defaultCategories: Set[CodeCategory] = Set.empty): Parser[Seq[CodeSpan]] = {
-    val embeddedParserMap = parserMap(embedded)
-    val mainParser = InlineParsers.spans(textParser, embeddedParserMap)
+    val embeddedParserMap = parserMap(embedded) // TODO - this map is created twice now
+    val prefixedParsers = embedded.flatMap { codeParsers =>
+      codeParsers.parsers.map { parser => PrefixedParser(parser.startChar)(parser.parser) }
+    }
+    val mainParser = InlineParsers.spans(textParser).embedAll(prefixedParsers)
     
     def extract(spans: Seq[Span]): List[CodeSpan] = spans.flatMap(CodeSpans.extract(defaultCategories)).toList
     
