@@ -86,7 +86,7 @@ trait TagBasedFormats {
       }
     }
 
-    lazy val parsers: Seq[PrefixedParser[CategorizedCode]] = CodeSpanParser(start.head)(standaloneParser).parsers
+    lazy val parsers: Seq[PrefixedParser[CategorizedCode]] = CodeSpanParser(standaloneParser).parsers
 
   }
 

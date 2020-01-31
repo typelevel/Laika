@@ -42,7 +42,7 @@ object CharLiteral {
       copy(embedded = embedded ++ childSpans)
     }
 
-    lazy val parsers: Seq[PrefixedParser[CategorizedCode]] = CodeSpanParser(delim) {
+    lazy val parsers: Seq[PrefixedParser[CategorizedCode]] = CodeSpanParser {
 
       def plainChar(char: String) = anyBut('\'', '\n').take(1).map(CodeSpan(_, categories))
       val delimParser = anyOf(delim).take(1).map(CodeSpan(_, categories))

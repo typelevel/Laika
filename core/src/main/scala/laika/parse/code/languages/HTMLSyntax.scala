@@ -59,7 +59,7 @@ object HTMLSyntax extends TagBasedFormats with SyntaxHighlighter {
     }
   }
   
-  val scriptTag: CodeSpanParser = CodeSpanParser('<') {
+  val scriptTag: CodeSpanParser = CodeSpanParser {
     
     val startTag: PrefixedParser[Seq[CodeSpan]] = TagParser(CodeCategory.Tag.Name, "<", ">", literal("script")).embed(
       stringWithEntities,
@@ -69,7 +69,7 @@ object HTMLSyntax extends TagBasedFormats with SyntaxHighlighter {
     (startTag ~ embeddedJs).map { case tag ~ js => tag ++ js }
   }
 
-  val styleTag: CodeSpanParser = CodeSpanParser('<') {
+  val styleTag: CodeSpanParser = CodeSpanParser {
 
     val startTag: PrefixedParser[Seq[CodeSpan]] = TagParser(CodeCategory.Tag.Name, "<", ">", literal("style")).embed(
       stringWithEntities,

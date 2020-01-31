@@ -64,23 +64,11 @@ object CodeSpanParser {
       val parsers = Seq(parser.map(res => CodeSpan(res, category)))
     }
 
-  /** Parses a sequence of spans triggered by the specified start character. 
+  /** Parses a sequence of code spans. 
     */
-  def apply(startChar: Char)(parser: PrefixedParser[Seq[CodeSpan]]): CodeSpanParser =
-    apply(Seq((startChar, parser)))
-
-  /** Parses a sequence of spans triggered by any of the specified start characters. 
-    */
-  def apply(startChars: Set[Char])(parser: PrefixedParser[Seq[CodeSpan]]): CodeSpanParser =
-    apply(startChars.toSeq.map((_, parser)))
-
-  /** Parses code spans based on a sequence mapping start characters to code span parsers.
-    */
-  def apply(startCharAndParsers: Seq[(Char, PrefixedParser[Seq[CodeSpan]])]): CodeSpanParser =
+  def apply(parser: PrefixedParser[Seq[CodeSpan]]): CodeSpanParser =
     new CodeSpanParser {
-      val parsers = startCharAndParsers.map { case (char, parser) =>
-        PrefixedParser(char)(parser.map(CodeSpanSequence(_)))
-      }
+      val parsers = Seq(parser.map(CodeSpanSequence(_)))
     }
-  
+
 }

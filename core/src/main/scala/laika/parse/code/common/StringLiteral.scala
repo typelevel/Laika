@@ -136,7 +136,7 @@ object StringLiteral {
       */
     def withCategory (category: CodeCategory): StringParser = copy(defaultCategories = Set(category))
     
-    lazy val parsers: Seq[PrefixedParser[CategorizedCode]] = CodeSpanParser(startChars.toSortedSet) {
+    lazy val parsers: Seq[PrefixedParser[CategorizedCode]] = CodeSpanParser {
       
       def optParser(p: Option[Parser[String]]): Parser[List[CodeSpan]] = 
         p.map(_.map(res => List(CodeSpan(res, defaultCategories)))).getOrElse(success(Nil))

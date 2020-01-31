@@ -87,7 +87,7 @@ object ReStructuredTextSyntax extends SyntaxHighlighter {
     }
   }
 
-  val explicitItems: CodeSpanParser = CodeSpanParser('\n') {
+  val explicitItems: CodeSpanParser = CodeSpanParser {
 
     PrefixedParser('\n') {
       val subst = (rawSpan("|", "|", CodeCategory.Substitution) ~ ws ~ delimitedBy("::")).map {
@@ -105,7 +105,7 @@ object ReStructuredTextSyntax extends SyntaxHighlighter {
     }
   }
 
-  val fieldDef: CodeSpanParser = CodeSpanParser('\n') {
+  val fieldDef: CodeSpanParser = CodeSpanParser {
     PrefixedParser('\n') {
       (newLine ~ ws ~ rawSpan(":", ":", CodeCategory.AttributeName)).map {
         case nl ~ space ~ name => Seq(CodeSpan(s"\n$space"), name)

@@ -39,7 +39,7 @@ object CSSSyntax extends SyntaxHighlighter {
   
   def identifier (category: CodeCategory, allowDigitBeforeStart: Boolean): CodeSpanParser = {
 
-    def prefixedId(prefix: String): CodeSpanParser = CodeSpanParser(prefix.head) {
+    def prefixedId(prefix: String): CodeSpanParser = CodeSpanParser {
       (literal(prefix) ~> idChars(category, allowDigitBeforeStart).standaloneParser).map { id =>
         Seq(id.copy(content = prefix + id.content)) // TODO - add prefixedBy() to Identifier parser
       }
@@ -51,7 +51,7 @@ object CSSSyntax extends SyntaxHighlighter {
   lazy val escape: CodeSpanParser = 
     CodeSpanParser(CodeCategory.EscapeSequence)(("\\" ~ DigitParsers.hex.min(1)).concat) ++ StringLiteral.Escape.char
 
-  lazy val url: CodeSpanParser = CodeSpanParser('u') {
+  lazy val url: CodeSpanParser = CodeSpanParser {
     (literal("url(") ~ ws ~ anyBut('"', '\'', '(', ')', ' ', '\n') ~ ws ~ ")").map {
       case _ ~ ws1 ~ value ~ ws2 ~ _ => Seq(
         CodeSpan("url", CodeCategory.Identifier),
@@ -91,11 +91,11 @@ object CSSSyntax extends SyntaxHighlighter {
 
     // TODO - add prefixedBy() to Identifier parser
     val attrName = idChars(CodeCategory.AttributeName, allowDigitBeforeStart = false)
-    CodeSpanParser(attrName.idStartChars.toSortedSet) {
+    CodeSpanParser {
       val attribute = (prefix(attrName.idStartChars) ~ attrName.idRestParser).concat.map(CodeSpan(_, CodeCategory.AttributeName))
       (attribute ~ valueParser(inBlock = false)).concat
     } ++
-    CodeSpanParser('(') {
+    CodeSpanParser {
       val attribute = attrName.standaloneParser
       ("(" ~> attribute ~ valueParser(inBlock = true)).concat.map(spans => CodeSpan("(") +: spans)
     }

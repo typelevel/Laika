@@ -63,12 +63,12 @@ object MarkdownSyntax extends SyntaxHighlighter {
     }
   }
 
-  val link: CodeSpanParser = CodeSpanParser('[')(linkParser("["))
-  val image: CodeSpanParser = CodeSpanParser('!')(linkParser("!["))
+  val link: CodeSpanParser = CodeSpanParser(linkParser("["))
+  val image: CodeSpanParser = CodeSpanParser(linkParser("!["))
   
   val startOfLine: Parser[String] = atStart ^^^ "" | "\n"
 
-  val linkTarget: CodeSpanParser = CodeSpanParser('\n') {
+  val linkTarget: CodeSpanParser = CodeSpanParser {
     PrefixedParser('\n') {
       (startOfLine ~> '[' ~> delimitedBy("]:").failOn('\n') ~ restOfLine).map {
         case ref ~ target => Seq(

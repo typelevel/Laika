@@ -71,7 +71,7 @@ object Identifier {
     // TODO - 0.14 - remove or make private
     private [code] val idRestParser: Parser[String] = anyOf(idStartChars ++ idNonStartChars)
 
-    lazy val parsers: Seq[PrefixedParser[CategorizedCode]] = CodeSpanParser(idStartChars.toSortedSet) {
+    lazy val parsers: Seq[PrefixedParser[CategorizedCode]] = CodeSpanParser {
         
       val prevChar = lookBehind(2, anyWhile(c => (!Character.isDigit(c) || allowDigitBeforeStart) && !Character.isLetter(c)).take(1)) | lookBehind(1, atStart)
 
