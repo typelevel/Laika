@@ -17,8 +17,9 @@
 package laika.rst.std
 
 import laika.ast._
-import laika.parse.{Failure, Parser, Success}
+import laika.parse.Parser
 import laika.parse.markup.RecursiveParsers
+import laika.parse.text.CharGroup
 import laika.parse.text.TextParsers._
 import laika.rst.BaseParsers.simpleRefName
 import laika.rst.TableParsers
@@ -108,9 +109,9 @@ object StandardDirectiveParsers {
    *  @return `Right` in case of parser success and `Left` in case of failure, to adjust to the Directive API
    */
   def unicode (input: String): Either[String,String] = {
-    val hexNum = anyIn('0' to '9', 'A' to 'F', 'a' to 'f') 
+    val hexNum = anyOf(CharGroup.hexDigit)
     val hex = ((("0x" | "x" | "\\x" | "U+" | "u" | "\\u") ~> hexNum) | ("&#x" ~> hexNum <~ ";")) ^^ { Integer.parseInt(_,16) }
-    val dec = (anyIn('0' to '9') min 1) ^^ { Integer.parseInt }
+    val dec = anyOf(CharGroup.digit).min(1) ^^ { Integer.parseInt }
     val unicode = (hex | dec) ^^ { int => new String(Character.toChars(int)) }
     val text = anyBut(' ') min 1
     val parser = (((unicode | text) <~ ws)*) ^^ { _.mkString(" ") }

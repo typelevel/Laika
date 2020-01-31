@@ -23,7 +23,7 @@ import laika.directive._
 import laika.parse.{Failure, Message, Parser, ParserContext}
 import laika.parse.hocon.{BuilderField, ConfigResolver, HoconParsers, InvalidBuilderValue, ObjectBuilderValue, ResolvedBuilderValue, SelfReference}
 import laika.parse.markup.{EscapedTextParsers, RecursiveParsers, RecursiveSpanParsers}
-import laika.parse.text.PrefixedParser
+import laika.parse.text.{CharGroup, PrefixedParser}
 import laika.parse.text.TextParsers._
 
 /** Parsers for all types of custom directives that can be used
@@ -76,8 +76,10 @@ object DirectiveParsers {
   /** Parses a name declaration that start with a letter and 
    *  continues with letters, numbers or the symbols '-' or '_'.
    */
-  lazy val nameDecl: Parser[String] = (anyIn('a' to 'z', 'A' to 'Z') take 1) ~ 
-    anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '-', '_') ^^ { case first ~ rest => first + rest }
+  lazy val nameDecl: Parser[String] = 
+    anyOf(CharGroup.alpha).take(1) ~ anyOf(CharGroup.alphaNum.add('-').add('_')) ^^ { 
+      case first ~ rest => first + rest 
+    }
   
   
   def legacyAttributeParser (escapedText: EscapedTextParsers): Parser[ObjectBuilderValue] = {

@@ -18,7 +18,7 @@ package laika.rst.std
 
 import laika.ast._
 import laika.parse.markup.RecursiveParsers
-import laika.parse.text.TextParsers
+import laika.parse.text.{CharGroup, TextParsers}
 import laika.rst.ext.Directives.{DirectivePart, DirectivePartBuilder}
 import laika.rst.ext.Directives.Parts._
 
@@ -59,7 +59,7 @@ object StandardDirectiveParts {
     val align = ("top" | "middle" | "bottom" | "left" | "center" | "right" |
       any.flatMap(s => failure(s"illegal value for align: '$s'"))) ^^ { a => Styles(s"align-$a") }
 
-    val scale = sizeAndUnit | (anyIn('0' to '9') ^^ { amt => Size(amt.toInt, "%") })
+    val scale = sizeAndUnit | (anyOf(CharGroup.digit) ^^ { amt => Size(amt.toInt, "%") })
 
     (argument(multilineURI, withWS = true) ~
         optField("alt") ~

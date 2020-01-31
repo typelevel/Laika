@@ -17,6 +17,7 @@
 package laika.parse.code.common
 
 import laika.parse.code.{CodeCategory, CodeSpanParser}
+import laika.parse.text.CharGroup
 import laika.parse.text.TextParsers._
 
 /** Base parsers for keywords in code blocks.
@@ -33,7 +34,7 @@ object Keywords {
     * code category and not with the `Keyword` category. */
   def apply (category: CodeCategory)(keyword: String, keywords: String*): CodeSpanParser = {
     
-    val validNextChar = not(anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '_').take(1))
+    val validNextChar = not(anyOf(CharGroup.alphaNum.add('_')).take(1))
     
     (keyword +: keywords).map { kw =>
       require(kw.nonEmpty)

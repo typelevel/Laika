@@ -385,7 +385,7 @@ class TextParsersSpec extends WordSpec with Matchers with ParseResultHelpers wit
 
   "The DelimitedBy parser for character delimiters" should {
 
-    val az = delimitedBy(('a' to 'z'): _*)
+    val az = delimitedBy(CharGroup.lowerAlpha)
 
     "stop as soon as one of the specified delimiter characters is seen" in {
       Parsing ("123abc") using az should produce ("123")

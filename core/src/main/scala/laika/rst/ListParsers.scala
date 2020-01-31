@@ -22,6 +22,7 @@ import laika.collection.Stack
 import laika.parse.Parser
 import laika.parse.markup.BlockParsers._
 import laika.parse.markup.RecursiveParsers
+import laika.parse.text.CharGroup
 import laika.parse.text.TextParsers._
 import laika.rst.ast._
 
@@ -109,7 +110,7 @@ object ListParsers {
       { char => (char.charAt(0) + 1 - 'A', UpperAlpha) }
     
     val firstAutoNumber = anyOf('#').take(1) ^^^ { (1,Arabic) }
-    val firstArabic = anyIn('0' to '9').min(1) ^^ { num => (num.toInt, Arabic) }
+    val firstArabic = anyOf(CharGroup.digit).min(1) ^^ { num => (num.toInt, Arabic) }
     
     lazy val firstEnumType: Parser[(Int,EnumType)] = 
       firstAutoNumber | firstArabic | firstLowerAlpha | firstUpperAlpha | firstLowerRoman | firstUpperRoman
@@ -127,9 +128,9 @@ object ListParsers {
 
     val lowerRoman = anyOf('i','v','x','l','c','d','m').min(1)
     val upperRoman = anyOf('I','V','X','L','C','D','M').min(1)
-    val lowerAlpha = anyIn('a' to 'z').take(1)
-    val upperAlpha = anyIn('A' to 'Z').take(1)
-    val arabic = anyIn('0' to '9').min(1)
+    val lowerAlpha = anyOf(CharGroup.lowerAlpha).take(1)
+    val upperAlpha = anyOf(CharGroup.upperAlpha).take(1)
+    val arabic = anyOf(CharGroup.digit).min(1)
     val autoNumber = anyOf('#').take(1)
     
     lazy val enumTypes = Map[EnumType,Parser[String]] (
@@ -201,11 +202,11 @@ object ListParsers {
     
     def mkString (result: ~[Char,String]) = result._1.toString + result._2
     
-    val optionString = anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '_', '-').min(1)
+    val optionString = anyOf(CharGroup.alphaNum.add('_').add('-')).min(1)
     val optionArg = optionString | (('<' ~> delimitedBy('>')) ^^ { "<" + _ + ">" } )
     
-    val gnu =        '+' ~ anyIn('a' to 'z', 'A' to 'Z', '0' to '9').take(1) ^^ mkString
-    val shortPosix = '-' ~ anyIn('a' to 'z', 'A' to 'Z', '0' to '9').take(1) ^^ mkString
+    val gnu =        '+' ~ anyOf(CharGroup.alphaNum).take(1) ^^ mkString
+    val shortPosix = '-' ~ anyOf(CharGroup.alphaNum).take(1) ^^ mkString
     val longPosix = ("--" <~ not('-')) ~ optionString ^^ { case a ~ b => a+b }
     val dos = '/' ~ optionString ^^ mkString
     

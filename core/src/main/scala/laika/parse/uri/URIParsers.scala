@@ -19,7 +19,7 @@ package laika.parse.uri
 import laika.ast.~
 import laika.parse.Parser
 import laika.parse.text.TextParsers._
-import laika.parse.text.Characters
+import laika.parse.text.{CharGroup, Characters}
 
 /**
  * Parses URIs as defined in RFC 3986 and email addresses as defined in
@@ -51,7 +51,7 @@ object URIParsers {
    *  ALPHA =  %x41-5A / %x61-7A ; A-Z / a-z
    *  }}}
    */
-  val alpha: Characters[String] = anyIn('a' to 'z', 'A' to 'Z')
+  val alpha: Characters[String] = anyOf(CharGroup.alpha)
 
   /** Parses digits according to RFC 2234.
    * 
@@ -59,7 +59,7 @@ object URIParsers {
    *  DIGIT =  %x30-39; 0-9
    *  }}}
    */
-  val digit: Characters[String] = anyIn('0' to '9')
+  val digit: Characters[String] = anyOf(CharGroup.digit)
 
   /** Parses a hexadecimal value according to RFC 2234.
    * 

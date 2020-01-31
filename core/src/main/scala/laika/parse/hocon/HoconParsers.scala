@@ -18,7 +18,8 @@ package laika.parse.hocon
 
 import laika.ast.{Path, ~}
 import laika.config._
-import laika.parse.text.{Characters, TextParsers}
+import laika.parse.code.common.NumberLiteral.DigitParsers
+import laika.parse.text.{CharGroup, Characters, TextParsers}
 import laika.parse.text.TextParsers._
 import laika.parse.{Failure, Message, Parser, ParserContext, Success}
 
@@ -121,7 +122,7 @@ object HoconParsers {
   val numberValue: Parser[ConfigBuilderValue] = {
     
     val zero = anyIn('0').take(1)
-    val digits = anyIn('0' to '9')
+    val digits = anyOf(CharGroup.digit)
     val oneToNine = anyIn('1' to '9')
     val nonZero = (oneToNine.take(1) ~ digits).concat
     val negativeSign = opt('-').map(_.fold("")(_.toString))
@@ -154,7 +155,7 @@ object HoconParsers {
       case "t" => "\t"
     }
     val literalChar = anyIn('"','\\','/').take(1)
-    val unicode = anyIn('0' to '9', 'a' to 'f', 'A' to 'F').take(4).map(Integer.parseInt(_, 16).toChar.toString)
+    val unicode = DigitParsers.hex.take(4).map(Integer.parseInt(_, 16).toChar.toString)
     val escape = '\\' ~> ((literalChar | specialChar | unicode).map(Right(_)) | any.take(1).withContext.map(Left(_)) )
     
     import cats.implicits._

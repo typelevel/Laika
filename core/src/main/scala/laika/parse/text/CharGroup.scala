@@ -28,7 +28,7 @@ object CharGroup {
   
   val digit: NonEmptySet[Char] = setForRange('0' to '9')
 
-  val hexDigit: NonEmptySet[Char] = digit ++ setForRange('a' to 'f')
+  val hexDigit: NonEmptySet[Char] = digit ++ setForRange('a' to 'f') ++ setForRange('A' to 'F')
   
   val octalDigit: NonEmptySet[Char] = digit ++ setForRange('0' to '7')
   

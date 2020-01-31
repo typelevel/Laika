@@ -22,7 +22,7 @@ import laika.markdown.ast._
 import laika.parse.Parser
 import laika.parse.markup.InlineParsers.spans
 import laika.parse.markup.RecursiveSpanParsers
-import laika.parse.text.{DelimitedText, PrefixedParser}
+import laika.parse.text.{CharGroup, DelimitedText, PrefixedParser}
 import laika.parse.text.TextParsers._
 
 /** Parses verbatim HTML elements which may interleave with standard Markdown markup.
@@ -45,14 +45,14 @@ object HTMLParsers {
 
 
   val htmlHexReference: Parser[String] = {
-    val hexNumber = anyIn('0' to '9', 'a' to 'f', 'A' to 'F') min 1
+    val hexNumber = anyOf(CharGroup.hexDigit).min(1)
 
     (char('x') | char('X')) ~ hexNumber ^^ { mkString }
   }
 
-  val htmlDecReference: Parser[String] = anyIn('0' to '9') min 1
+  val htmlDecReference: Parser[String] = anyOf(CharGroup.digit).min(1)
 
-  val htmlNamedReference: Parser[String] = anyIn('0' to '9', 'a' to 'z', 'A' to 'Z') min 1
+  val htmlNamedReference: Parser[String] = anyOf(CharGroup.alphaNum).min(1)
 
   /** Parses a numeric character reference (decimal or hexadecimal) without the leading `'&'`.
     */
@@ -94,7 +94,7 @@ object HTMLParsers {
     }
 
 
-  val htmlTagName: Parser[String] = (anyIn('a' to 'z', 'A' to 'Z') min 1) ~ anyBut('/' :: '>' :: htmlWSChars:_*) ^^ {
+  val htmlTagName: Parser[String] = anyOf(CharGroup.alpha).min(1) ~ anyBut('/' :: '>' :: htmlWSChars:_*) ^^ {
     case first ~ rest => first + rest
   }
 

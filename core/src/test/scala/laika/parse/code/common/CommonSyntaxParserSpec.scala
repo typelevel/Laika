@@ -22,7 +22,7 @@ import laika.bundle.SyntaxHighlighter
 import laika.parse.Parser
 import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
-import laika.parse.text.PrefixedParser
+import laika.parse.text.{CharGroup, PrefixedParser}
 import laika.parse.text.TextParsers._
 import org.scalatest.{Assertion, Matchers, WordSpec}
 
@@ -63,7 +63,7 @@ class CommonSyntaxParserSpec extends WordSpec
         StringLiteral.Escape.char,
         StringLiteral.Escape.literal("$$"),
         StringLiteral.Substitution.between("${", "}"),
-        StringLiteral.Substitution(("$" ~ anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '_').min(1)).concat)
+        StringLiteral.Substitution(("$" ~ anyOf(CharGroup.alphaNum.add('_')).min(1)).concat)
       ),
       Identifier.alphaNum.withIdStartChars('_','$').withCategoryChooser(Identifier.upperCaseTypeName).copy(allowDigitBeforeStart = allowLetterAfterNumber),
       NumberLiteral.binary.withUnderscores.withSuffix(NumericSuffix.long),

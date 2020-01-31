@@ -32,10 +32,10 @@ import laika.parse.text.TextParsers._
 object ListParsers {
 
   private val bulletChar: Parser[String] = anyOf('*','-','+').take(1)
-  private val enumChar: Parser[String] = anyIn('0' to '9').take(1)
+  private val enumChar: Parser[String] = anyOf(CharGroup.digit).take(1)
 
   private val wsAfterItemStart: Parser[Unit] = anyOf(' ', '\t').min(1).^
-  private val enumStartRest: Parser[String] = anyIn('0' to '9') ~ '.' ~ wsAfterItemStart ^^^ ""
+  private val enumStartRest: Parser[String] = anyOf(CharGroup.digit) ~ '.' ~ wsAfterItemStart ^^^ ""
 
   /** Parses the start of a bullet list item.
     */

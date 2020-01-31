@@ -43,7 +43,7 @@ object ScalaSyntax extends SyntaxHighlighter {
   
   val charEscapes: CodeSpanParser = StringLiteral.Escape.unicode ++ StringLiteral.Escape.char
   
-  val stringPrefixChar: Characters[String] = anyIn('a' to 'z', 'A' to 'Z')
+  val stringPrefixChar: Characters[String] = anyOf(CharGroup.alpha)
 
   val substitutions: CodeSpanParser = 
     StringLiteral.Substitution.between("${", "}") ++

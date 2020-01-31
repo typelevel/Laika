@@ -147,7 +147,7 @@ object TextParsers extends Parsers {
     * The unit is mandatory and not validated.
     */
   val sizeAndUnit: Parser[Size] = {
-    val digit = anyIn('0' to '9').min(1)
+    val digit = anyOf(CharGroup.digit).min(1)
     val amount = digit ~ opt("." ~ digit) ^^ {
       case num1 ~ Some(_ ~ num2) => s"$num1.$num2".toDouble
       case num ~ None => num.toDouble
@@ -197,6 +197,12 @@ object TextParsers extends Parsers {
     */
   def delimitedBy (chars: Char*): DelimitedText[String] with DelimiterOptions =
     DelimiterOptions(ConfigurableDelimiter(chars.toSet))
+
+  /** Consumes any number of consecutive characters until one of the specified characters
+    * is encountered on the input string.
+    */
+  def delimitedBy (chars: NonEmptySet[Char]): DelimitedText[String] with DelimiterOptions =
+    DelimiterOptions(ConfigurableDelimiter(chars.toSortedSet))
 
   /** Consumes any number of consecutive characters until the specified string delimiter
     * is encountered on the input string.
