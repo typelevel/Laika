@@ -18,7 +18,7 @@ package laika.parse.code.languages
 
 import cats.data.NonEmptyList
 import laika.bundle.SyntaxHighlighter
-import laika.parse.code.{CodeCategory, CodeSpanParsers}
+import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue}
 import laika.parse.code.common.StringLiteral.StringParser
 import laika.parse.code.common.{Keywords, NumberLiteral, StringLiteral}
@@ -40,7 +40,7 @@ object JSONSyntax extends SyntaxHighlighter {
 
   val language: NonEmptyList[String] = NonEmptyList.of("json")
 
-  val spanParsers: Seq[CodeSpanParsers] = Seq(
+  val spanParsers: Seq[CodeSpanParser] = Seq(
     Keywords(BooleanLiteral)("true", "false"),
     Keywords(LiteralValue)("null"),
     NumberLiteral.decimalFloat,

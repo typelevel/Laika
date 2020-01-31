@@ -16,11 +16,12 @@
 
 package laika.parse.code.languages
 
-import cats.data.NonEmptyList
+import cats.implicits._
+import cats.data.{NonEmptyList, NonEmptySet}
 import laika.bundle.SyntaxHighlighter
 import laika.parse.Parser
 import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue}
-import laika.parse.code.CodeSpanParsers
+import laika.parse.code.CodeSpanParser
 import laika.parse.code.common.StringLiteral.StringParser
 import laika.parse.code.common.{Comment, Identifier, Keywords, NumberLiteral, NumericSuffix, StringLiteral}
 import laika.parse.text.TextParsers._
@@ -46,28 +47,28 @@ object PythonSyntax extends SyntaxHighlighter {
   )
   
   object Prefix {
-    val u: Set[Char] = Set('u','U')
-    val r: Set[Char] = Set('r', 'R')
-    val f: Set[Char] = Set('f', 'F')
-    val b: Set[Char] = Set('b', 'B')
+    val u: NonEmptySet[Char] = NonEmptySet.of('u','U')
+    val r: NonEmptySet[Char] = NonEmptySet.of('r', 'R')
+    val f: NonEmptySet[Char] = NonEmptySet.of('f', 'F')
+    val b: NonEmptySet[Char] = NonEmptySet.of('b', 'B')
   }
 
-  def stringNoPrefix (embed: StringParser => StringParser): CodeSpanParsers = {
+  def stringNoPrefix (embed: StringParser => StringParser): CodeSpanParser = {
     embed(StringLiteral.multiLine("'''")) ++
     embed(StringLiteral.multiLine("\"\"\"")) ++
     embed(StringLiteral.singleLine('\'')) ++
     embed(StringLiteral.singleLine('"'))
   }
   
-  def stringSinglePrefix (prefixChars: Set[Char], embed: StringParser => StringParser): CodeSpanParsers = {
+  def stringSinglePrefix (prefixChars: NonEmptySet[Char], embed: StringParser => StringParser): CodeSpanParser = {
     embed(StringLiteral.multiLine(prefixChars, "'''").withPrefix(anyOf('\'').take(3))) ++ 
     embed(StringLiteral.multiLine(prefixChars, "\"\"\"").withPrefix(anyOf('"').take(3))) ++
     embed(StringLiteral.singleLine(prefixChars, '\'').withPrefix(anyOf('\'').take(1))) ++
     embed(StringLiteral.singleLine(prefixChars, '"').withPrefix(anyOf('"').take(1)))
   }
 
-  def stringDoublePrefix (prefixChars: Set[Char], followingChars: Set[Char], embed: StringParser => StringParser): CodeSpanParsers = {
-    def prefix(delim: Char, num: Int): Parser[String] = (anyOf(followingChars.toSeq:_*).take(1) ~ anyOf(delim).take(num)).concat
+  def stringDoublePrefix (prefixChars: NonEmptySet[Char], followingChars: NonEmptySet[Char], embed: StringParser => StringParser): CodeSpanParser = {
+    def prefix(delim: Char, num: Int): Parser[String] = (anyOf(followingChars).take(1) ~ anyOf(delim).take(num)).concat
     embed(StringLiteral.multiLine(prefixChars, "'''").withPrefix(prefix('\'', 3))) ++
     embed(StringLiteral.multiLine(prefixChars, "\"\"\"").withPrefix(prefix('"', 3))) ++
     embed(StringLiteral.singleLine(prefixChars, '\'').withPrefix(prefix('\'', 1))) ++
@@ -76,7 +77,7 @@ object PythonSyntax extends SyntaxHighlighter {
 
   val language: NonEmptyList[String] = NonEmptyList.of("python", "py")
 
-  val spanParsers: Seq[CodeSpanParsers] = Seq(
+  val spanParsers: Seq[CodeSpanParser] = Seq(
     Comment.singleLine("#"),
     stringNoPrefix(embedEscapes),
     stringSinglePrefix(Prefix.u ++ Prefix.b, embedEscapes),

@@ -16,8 +16,9 @@
 
 package laika.parse.code.common
 
-import laika.ast.{CodeSpan, CodeSpans, ~}
-import laika.parse.code.{CodeCategory, CodeSpanParser, CodeSpanParsers}
+import laika.ast.{CategorizedCode, CodeSpan, CodeSpans, ~}
+import laika.parse.code.{CodeCategory, CodeSpanParser}
+import laika.parse.text.PrefixedParser
 import laika.parse.text.TextParsers._
 
 /** Configurable base parsers for character literals.
@@ -29,7 +30,7 @@ object CharLiteral {
   /** Configurable base parsers for character literals.
     */
   case class CharParser(delim: Char,
-                        embedded: Seq[CodeSpanParsers] = Nil) extends CodeSpanParsers {
+                        embedded: Seq[CodeSpanParser] = Nil) extends CodeSpanParser {
     
     private val categories: Set[CodeCategory] = Set(CodeCategory.CharLiteral)
 
@@ -37,11 +38,11 @@ object CharLiteral {
       * 
       * This is usually used for allowing escape sequences inside the literal.
       */
-    def embed(childSpans: CodeSpanParsers*): CharParser = {
+    def embed(childSpans: CodeSpanParser*): CharParser = {
       copy(embedded = embedded ++ childSpans)
     }
 
-    lazy val parsers: Seq[CodeSpanParser] = CodeSpanParsers(delim) {
+    lazy val parsers: Seq[PrefixedParser[CategorizedCode]] = CodeSpanParser(delim) {
 
       def plainChar(char: String) = anyBut('\'', '\n').take(1).map(CodeSpan(_, categories))
       val delimParser = anyOf(delim).take(1).map(CodeSpan(_, categories))

@@ -16,10 +16,10 @@
 
 package laika.parse.code.common
 
-import laika.ast.{CodeSpan, CodeSpans, ~}
-import laika.parse.Parser
-import laika.parse.code.{CodeCategory, CodeSpanParser, CodeSpanParsers}
-import laika.parse.text.TextParsers.{delimitedBy, literal, success}
+import laika.ast.{CategorizedCode, CodeSpan, CodeSpans, ~}
+import laika.parse.code.{CodeCategory, CodeSpanParser}
+import laika.parse.text.PrefixedParser
+import laika.parse.text.TextParsers.{delimitedBy, literal}
 
 /** Configurable base parsers for tag based formats like HTML or XML.
   * 
@@ -30,38 +30,38 @@ trait TagBasedFormats {
   import NumberLiteral._
 
   /** Parses a comment enclosed between `<!--` and `-->`. */
-  val comment: CodeSpanParsers = Comment.multiLine("<!--", "-->")
+  val comment: CodeSpanParser = Comment.multiLine("<!--", "-->")
 
   private val id = Identifier.alphaNum.withIdStartChars('_',':').withIdPartChars('-','.')
   
-  private val nameParser: Parser[String] = id.standaloneParser.map(_.content)
+  private val nameParser: PrefixedParser[String] = id.standaloneParser.map(_.content)
 
   /** Parses a valid attribute, tag or entity name.
     */
-  def name(category: CodeCategory): CodeSpanParsers = id.withCategoryChooser(_ => category)
+  def name(category: CodeCategory): CodeSpanParser = id.withCategoryChooser(_ => category)
 
   /** Parses a named entity reference like `&lt;` or a numeric character reference like `&#xff`.
     */
-  val ref: CodeSpanParsers =
-    CodeSpanParsers(CodeCategory.EscapeSequence, '&') {
+  val ref: CodeSpanParser =
+    CodeSpanParser(CodeCategory.EscapeSequence, '&') {
       ("&#x" ~ DigitParsers.hex.min(1) ~ ";").concat
     } ++
-      CodeSpanParsers(CodeCategory.EscapeSequence, '&') {
+      CodeSpanParser(CodeCategory.EscapeSequence, '&') {
         ("&#" ~ DigitParsers.decimal.min(1) ~ ";").concat
       } ++
-      CodeSpanParsers(CodeCategory.Substitution, '&') {
+      CodeSpanParser(CodeCategory.Substitution, '&') {
         ("&" ~ nameParser ~ ";").concat
       }
 
-  val string: CodeSpanParsers = StringLiteral.singleLine('\'') ++ StringLiteral.singleLine('"')
-  val stringWithEntities: CodeSpanParsers = StringLiteral.singleLine('\'').embed(ref) ++ StringLiteral.singleLine('"').embed(ref)
+  val string: CodeSpanParser = StringLiteral.singleLine('\'') ++ StringLiteral.singleLine('"')
+  val stringWithEntities: CodeSpanParser = StringLiteral.singleLine('\'').embed(ref) ++ StringLiteral.singleLine('"').embed(ref)
 
   /** Configurable base parser for tags in formats like HTML or XML. */
   case class TagParser(tagCategory: CodeCategory,
                        start: String,
                        end: String,
-                       tagName: Parser[String] = nameParser,
-                       embedded: Seq[CodeSpanParsers] = Nil) extends CodeSpanParsers {
+                       tagName: PrefixedParser[String] = nameParser,
+                       embedded: Seq[CodeSpanParser] = Nil) extends CodeSpanParser {
 
     private val categories: Set[CodeCategory] = Set(CodeCategory.Tag.Punctuation)
 
@@ -69,12 +69,12 @@ trait TagBasedFormats {
       *
       * This is usually used for the detection of attribute names or entity references.
       */
-    def embed(childSpans: CodeSpanParsers*): TagParser = {
+    def embed(childSpans: CodeSpanParser*): TagParser = {
       copy(embedded = embedded ++ childSpans)
     }
     
-    private[code] def standaloneParser: Parser[Seq[CodeSpan]] = {
-      def codeParser(p: Parser[String], category: CodeCategory): Parser[CodeSpan] = p.map(CodeSpan(_, category))
+    private[code] def standaloneParser: PrefixedParser[Seq[CodeSpan]] = {
+      def codeParser(p: PrefixedParser[String], category: CodeCategory): PrefixedParser[CodeSpan] = p.map(CodeSpan(_, category))
 
       val startParser = codeParser(literal(start), CodeCategory.Tag.Punctuation)
       val tagNameParser = codeParser(tagName, tagCategory)
@@ -86,7 +86,7 @@ trait TagBasedFormats {
       }
     }
 
-    lazy val parsers: Seq[CodeSpanParser] = CodeSpanParsers(start.head)(standaloneParser).parsers
+    lazy val parsers: Seq[PrefixedParser[CategorizedCode]] = CodeSpanParser(start.head)(standaloneParser).parsers
 
   }
 
@@ -99,19 +99,19 @@ trait TagBasedFormats {
   }
 
   /** Parses an empty tag (closed by `/>`) with optional attributes. */
-  val emptyTag: CodeSpanParsers = TagParser(CodeCategory.Tag.Name, "<", "/>").embed(
+  val emptyTag: CodeSpanParser = TagParser(CodeCategory.Tag.Name, "<", "/>").embed(
     stringWithEntities,
     name(CodeCategory.AttributeName)
   )
 
   /** Parses a start tag with optional attributes. */
-  val startTag: CodeSpanParsers = TagParser(CodeCategory.Tag.Name, "<", ">").embed(
+  val startTag: CodeSpanParser = TagParser(CodeCategory.Tag.Name, "<", ">").embed(
     stringWithEntities,
     name(CodeCategory.AttributeName)
   )
 
   /** Parses an end tag.
     */
-  val endTag: CodeSpanParsers = TagParser(CodeCategory.Tag.Name, "</", ">")
+  val endTag: CodeSpanParser = TagParser(CodeCategory.Tag.Name, "</", ">")
   
 }

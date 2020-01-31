@@ -20,8 +20,9 @@ import cats.data.NonEmptyList
 import laika.bundle.SyntaxHighlighter
 import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue}
 import laika.parse.code.common.StringLiteral.StringParser
-import laika.parse.code.common.{Comment, Identifier, Keywords, NumberLiteral, StringLiteral}
-import laika.parse.code.{CodeCategory, CodeSpanParsers}
+import laika.parse.code.common.{Comment, Keywords, NumberLiteral, StringLiteral}
+import laika.parse.code.{CodeCategory, CodeSpanParser}
+import laika.parse.text.{CharGroup, PrefixedParser}
 import laika.parse.text.TextParsers.{lookAhead, ws, _}
 
 /**
@@ -38,7 +39,7 @@ object HOCONSyntax extends SyntaxHighlighter {
     .withPostCondition(lookAhead(ws ~ anyOf(':','=','{').take(1)) ^^^ (()))
     .copy(defaultCategories = Set(CodeCategory.AttributeName))
   
-  val substitution: CodeSpanParsers = CodeSpanParsers(CodeCategory.Substitution, "${", "}")
+  val substitution: CodeSpanParser = CodeSpanParser(CodeCategory.Substitution, "${", "}")
 
   private val unquotedChar = {
     val validChar = anyBut('$', '"', '{', '}', '[', ']', ':', '=', ',', '+', '#', '`', '^', '?', '!', '@', '*', '&', '\\', ' ', '\t','\n').take(1) 
@@ -46,27 +47,27 @@ object HOCONSyntax extends SyntaxHighlighter {
     validChar | anyOf(' ').take(1) <~ lookAhead(ws ~ validChar)
   }.rep.map(_.mkString)
   
-  val unquotedAttributeName: CodeSpanParsers = CodeSpanParsers(CodeCategory.AttributeName, Identifier.idStartChars) {
-    unquotedChar <~ lookAhead(ws ~ anyOf(':','=','{').take(1))
+  val unquotedAttributeName: CodeSpanParser = CodeSpanParser(CodeCategory.AttributeName, CharGroup.alpha.toSortedSet) {
+    PrefixedParser(CharGroup.alpha)(unquotedChar <~ lookAhead(ws ~ anyOf(':','=','{').take(1))) // TODO - 0.14 - this is inaccurate
   }
   
-  val unquotedStringValue: CodeSpanParsers = CodeSpanParsers(CodeCategory.StringLiteral, Identifier.idStartChars) {
-    unquotedChar
+  val unquotedStringValue: CodeSpanParser = CodeSpanParser(CodeCategory.StringLiteral, CharGroup.alpha.toSortedSet) {
+    PrefixedParser(CharGroup.alpha)(unquotedChar) // TODO - 0.14 - this is inaccurate
   }
   
-  def functionNames(names: String*): CodeSpanParsers = names.map { name =>
-    CodeSpanParsers(CodeCategory.Identifier, name.head) {
+  def functionNames(names: String*): CodeSpanParser = names.map { name =>
+    CodeSpanParser(CodeCategory.Identifier, name.head) {
       literal(name) <~ lookAhead('(')
     }
   }.reduceLeft(_ ++ _)
   
-  val includeStatement: CodeSpanParsers = CodeSpanParsers(CodeCategory.Keyword, 'i') {
+  val includeStatement: CodeSpanParser = CodeSpanParser(CodeCategory.Keyword, 'i') {
     literal("include") <~ lookAhead(ws.min(1) ~ (literal("\"") | literal("required(") | literal("file(") | literal("url(") | literal("classpath(")))
   }
 
   val language: NonEmptyList[String] = NonEmptyList.of("hocon")
 
-  val spanParsers: Seq[CodeSpanParsers] = Seq(
+  val spanParsers: Seq[CodeSpanParser] = Seq(
     Keywords(BooleanLiteral)("true", "false"),
     Keywords(LiteralValue)("null"),
     NumberLiteral.decimalInt,

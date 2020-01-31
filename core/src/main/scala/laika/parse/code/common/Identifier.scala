@@ -16,9 +16,12 @@
 
 package laika.parse.code.common
 
-import laika.ast.CodeSpan
+import cats.implicits._
+import cats.data.NonEmptySet
+import laika.ast.{CategorizedCode, CodeSpan}
 import laika.parse.Parser
-import laika.parse.code.{CodeCategory, CodeSpanParser, CodeSpanParsers}
+import laika.parse.code.{CodeCategory, CodeSpanParser}
+import laika.parse.text.{CharGroup, PrefixedParser}
 import laika.parse.text.TextParsers._
 
 /** Configurable base parsers for identifiers in code blocks.
@@ -30,9 +33,6 @@ object Identifier {
   /* TODO - support for non-ASCII identifier characters requires changes in the low-level optimizer
      for the span parser. This ASCII-only support will probably already cover a large range of common use cases.
   */
-  val idStartChars: Set[Char] = ('a' to 'z').toSet ++ ('A' to 'Z').toSet
-  val idPartChars: Set[Char] = ('0' to '9').toSet
-
 
   /** Function that applies the `TypeName` category to identifiers starting 
     * with an uppercase letter, and the `Identifier` category to those starting
@@ -43,10 +43,10 @@ object Identifier {
     
 
   /** Configurable base parser for identifiers in code blocks. */
-  case class IdParser(idStartChars: Set[Char], 
-                      idNonStartChars: Set[Char], 
+  case class IdParser(idStartChars: NonEmptySet[Char],
+                      idNonStartChars: NonEmptySet[Char],
                       category: String => CodeCategory = _ => CodeCategory.Identifier,
-                      allowDigitBeforeStart: Boolean = false) extends CodeSpanParsers {
+                      allowDigitBeforeStart: Boolean = false) extends CodeSpanParser {
 
     import NumberLiteral._
 
@@ -59,29 +59,31 @@ object Identifier {
     /** Adds the specified characters to the set of characters allowed to start an identifier.
       * Will also be added to the set of characters for the parser of the rest of the identifier.
       */
-    def withIdStartChars(chars: Char*): IdParser = copy(idStartChars = idStartChars ++ chars.toSet)
+    def withIdStartChars(char: Char, chars: Char*): IdParser = 
+      copy(idStartChars = idStartChars ++ NonEmptySet.of(char, chars:_*))
 
     /** Adds the specified characters to the set of characters allowed as part of an identifier,
       * but not allowed as the first character.
       */
-    def withIdPartChars(chars: Char*): IdParser = copy(idNonStartChars = idNonStartChars ++ chars.toSet)
+    def withIdPartChars(char: Char, chars: Char*): IdParser = 
+      copy(idNonStartChars = idNonStartChars ++ NonEmptySet.of(char, chars:_*))
 
     // TODO - 0.14 - remove or make private
-    private [code] val idRestParser: Parser[String] = anyOf((idStartChars ++ idNonStartChars).toSeq:_*)
+    private [code] val idRestParser: Parser[String] = anyOf(idStartChars ++ idNonStartChars)
 
-    lazy val parsers: Seq[CodeSpanParser] = CodeSpanParsers(idStartChars) {
+    lazy val parsers: Seq[PrefixedParser[CategorizedCode]] = CodeSpanParser(idStartChars.toSortedSet) {
         
-      val prevChar = lookBehind(1, anyWhile(c => (!Character.isDigit(c) || allowDigitBeforeStart) && !Character.isLetter(c)).take(1)) | atStart
+      val prevChar = lookBehind(2, anyWhile(c => (!Character.isDigit(c) || allowDigitBeforeStart) && !Character.isLetter(c)).take(1)) | lookBehind(1, atStart)
 
-      val idStart = any.take(1)
+      val idStart = prefix(idStartChars).take(1) <~ prevChar
       
-      (prevChar ~> idStart ~ idRestParser).concat.map(id => Seq(CodeSpan(id, category(id))))
+      (idStart ~ idRestParser).concat.map(id => Seq(CodeSpan(id, category(id))))
       
     }.parsers
 
-    // TODO - 0.14 - remove or make private
-    private [code] def standaloneParser: Parser[CodeSpan] = {
-      val idStart = anyOf(idStartChars.toSeq:_*).take(1)
+    // TODO - 0.14 - remove??
+    private [code] def standaloneParser: PrefixedParser[CodeSpan] = {
+      val idStart = prefix(idStartChars).take(1)
       (idStart ~ idRestParser).concat.map(id => CodeSpan(id, category(id)))
     }
 
@@ -92,6 +94,6 @@ object Identifier {
     * Other characters like underscore are not allowed by this base parser, but can be added
     * to the returned instance with the `withIdStartChars` or `withIdPartChars` methods.
     */
-  def alphaNum: IdParser = IdParser(idStartChars, idPartChars)
+  def alphaNum: IdParser = IdParser(CharGroup.alpha, CharGroup.digit)
   
 }

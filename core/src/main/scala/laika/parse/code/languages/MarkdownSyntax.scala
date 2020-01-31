@@ -16,12 +16,14 @@
 
 package laika.parse.code.languages
 
-import cats.data.NonEmptyList
+import cats.implicits._
+import cats.data.{NonEmptyList, NonEmptySet}
 import laika.ast.{CodeSpan, ~}
 import laika.bundle.SyntaxHighlighter
 import laika.parse.Parser
-import laika.parse.code.{CodeCategory, CodeSpanParsers}
+import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.code.common.{NumberLiteral, StringLiteral}
+import laika.parse.text.PrefixedParser
 import laika.parse.text.TextParsers._
 
 /**
@@ -35,20 +37,20 @@ object MarkdownSyntax extends SyntaxHighlighter {
 
   private def noSpaceBefore (numDelimChars: Int): Parser[Unit] = lookBehind(numDelimChars + 1, anyBut(' ', '\n').take(1)).map(_ => ())
 
-  def span (category: CodeCategory, delim: String): CodeSpanParsers =
+  def span (category: CodeCategory, delim: String): CodeSpanParser =
     StringLiteral
       .multiLine(delim)
       .withCategory(category)
       .withPrefix(noSpaceAhead(delim.head))
       .withPostCondition(noSpaceBefore(delim.length))
 
-  def singleLine (category: CodeCategory, start: String, end: Char): CodeSpanParsers =
+  def singleLine (category: CodeCategory, start: String, end: Char): CodeSpanParser =
     StringLiteral
-      .singleLine(Set(start.head), end)
+      .singleLine(NonEmptySet.one(start.head), end)
       .withCategory(category)
       .withPrefix(literalOrEmpty(start.tail))
 
-  private def linkParser (prefix: String): Parser[Seq[CodeSpan]] = {
+  private def linkParser (prefix: String): PrefixedParser[Seq[CodeSpan]] = {
 
     val url = '(' ~> delimitedBy(')').nonEmpty.failOn('\n').map(url => CodeSpan(s"($url)", CodeCategory.Markup.LinkTarget))
     val ref = '[' ~> delimitedBy(']').failOn('\n').map(ref => CodeSpan(s"[$ref]", CodeCategory.Markup.LinkTarget))
@@ -61,36 +63,40 @@ object MarkdownSyntax extends SyntaxHighlighter {
     }
   }
 
-  val link: CodeSpanParsers = CodeSpanParsers('[')(linkParser("["))
-  val image: CodeSpanParsers = CodeSpanParsers('!')(linkParser("!["))
+  val link: CodeSpanParser = CodeSpanParser('[')(linkParser("["))
+  val image: CodeSpanParser = CodeSpanParser('!')(linkParser("!["))
   
   val startOfLine: Parser[String] = atStart ^^^ "" | "\n"
 
-  val linkTarget: CodeSpanParsers = CodeSpanParsers('\n') {
-    (startOfLine ~> '[' ~> delimitedBy("]:").failOn('\n') ~ restOfLine).map {
-      case ref ~ target => Seq(
-        CodeSpan("\n"),
-        CodeSpan(s"[$ref]:", CodeCategory.Identifier),
-        CodeSpan(target, CodeCategory.Markup.LinkTarget),
-        CodeSpan("\n"),
-      )
+  val linkTarget: CodeSpanParser = CodeSpanParser('\n') {
+    PrefixedParser('\n') {
+      (startOfLine ~> '[' ~> delimitedBy("]:").failOn('\n') ~ restOfLine).map {
+        case ref ~ target => Seq(
+          CodeSpan("\n"),
+          CodeSpan(s"[$ref]:", CodeCategory.Identifier),
+          CodeSpan(target, CodeCategory.Markup.LinkTarget),
+          CodeSpan("\n"),
+        )
+      }
     }
   }
 
-  val atxHeader: CodeSpanParsers = CodeSpanParsers(CodeCategory.Markup.Headline, '\n') {
-    (startOfLine ~ anyOf('#').min(1).max(6) ~ restOfLine).concat.map(_ + "\n")
+  val atxHeader: CodeSpanParser = CodeSpanParser(CodeCategory.Markup.Headline, '\n') {
+    PrefixedParser('\n')((startOfLine ~ anyOf('#').min(1).max(6) ~ restOfLine).concat.map(_ + "\n"))
   }
 
-  val setexHeader: CodeSpanParsers = CodeSpanParsers(CodeCategory.Markup.Headline, '\n') {
-    val deco = (anyOf('=').min(1) | anyOf('-').min(1)) <~ wsEol
-    (startOfLine ~ restOfLine.map(_ + "\n") ~ deco).concat.map(_ + "\n")
+  val setexHeader: CodeSpanParser = CodeSpanParser(CodeCategory.Markup.Headline, '\n') {
+    PrefixedParser('\n') {
+      val deco = (anyOf('=').min(1) | anyOf('-').min(1)) <~ wsEol
+      (startOfLine ~ restOfLine.map(_ + "\n") ~ deco).concat.map(_ + "\n")
+    }
   }
 
-  val codeFence: CodeSpanParsers = CodeSpanParsers(CodeCategory.Markup.Fence, '\n') {
-    (startOfLine ~ anyOf('`').take(3) ~ restOfLine).concat
+  val codeFence: CodeSpanParser = CodeSpanParser(CodeCategory.Markup.Fence, '\n') {
+    PrefixedParser('\n')((startOfLine ~ anyOf('`').take(3) ~ restOfLine).concat)
   }
 
-  val rules: CodeSpanParsers = CodeSpanParsers(CodeCategory.Markup.Fence, '\n') {
+  val rules: CodeSpanParser = CodeSpanParser(CodeCategory.Markup.Fence, '\n') {
     Seq('*', '-', '_').map { decoChar =>
       (char(decoChar) ~ (anyOf(' ') ~ literal(decoChar.toString)).concat.rep.min(2) ~ ws ~ '\n').map {
         case start ~ pattern ~ s ~ nl => start.toString + pattern.mkString + s + nl
@@ -98,9 +104,11 @@ object MarkdownSyntax extends SyntaxHighlighter {
     }.reduceLeft(_ | _)
   }
 
-  val quoteChars: CodeSpanParsers = CodeSpanParsers(CodeCategory.Markup.Quote, '\n')((startOfLine ~ anyOf('>').min(1)).concat)
+  val quoteChars: CodeSpanParser = CodeSpanParser(CodeCategory.Markup.Quote, '\n') {
+    PrefixedParser('\n')((startOfLine ~ anyOf('>').min(1)).concat)
+  }
 
-  val mdSpans: CodeSpanParsers = span(CodeCategory.Markup.Emphasized, "**") ++
+  val mdSpans: CodeSpanParser = span(CodeCategory.Markup.Emphasized, "**") ++
     span(CodeCategory.Markup.Emphasized, "*") ++
     span(CodeCategory.Markup.Emphasized, "__") ++
     span(CodeCategory.Markup.Emphasized, "_") ++
@@ -109,7 +117,7 @@ object MarkdownSyntax extends SyntaxHighlighter {
 
   val language: NonEmptyList[String] = NonEmptyList.of("markdown", "md")
   
-  val spanParsers: Seq[CodeSpanParsers] = Seq(mdSpans,
+  val spanParsers: Seq[CodeSpanParser] = Seq(mdSpans,
     singleLine(CodeCategory.Markup.LinkTarget, "<", '>'),
     image,
     link,

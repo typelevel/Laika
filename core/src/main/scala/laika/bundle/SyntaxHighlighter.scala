@@ -19,7 +19,7 @@ package laika.bundle
 import cats.data.NonEmptyList
 import laika.ast.{CodeSpan, CodeSpans}
 import laika.parse.Parser
-import laika.parse.code.CodeSpanParsers
+import laika.parse.code.CodeSpanParser
 import laika.parse.code.common.EmbeddedCodeSpans
 import laika.parse.text.DelimitedText
 
@@ -30,7 +30,7 @@ trait SyntaxHighlighter {
   def language: NonEmptyList[String]
 
   /** The parsers for individual code spans written in this language */
-  def spanParsers: Seq[CodeSpanParsers]
+  def spanParsers: Seq[CodeSpanParser]
   
   /** The resulting root parser composed of the individual span parsers to be used in 
     * the parser for the host markup language */

@@ -16,10 +16,10 @@
 
 package laika.parse.code.common
 
-import laika.ast.{CodeSpan, CodeSpans, Span, ~}
+import laika.ast.{CategorizedCode, CodeSpan, CodeSpans, Span, ~}
 import laika.bundle.SyntaxHighlighter
 import laika.parse.Parser
-import laika.parse.code.{CodeCategory, CodeSpanParsers}
+import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.markup.InlineParsers
 import laika.parse.text.{DelimitedText, PrefixedParser}
 import laika.parse.text.TextParsers._
@@ -36,9 +36,8 @@ object EmbeddedCodeSpans {
     * for each parser to its combined parsers. If a character maps to multiple parsers
     * they will be combined with `|` in the specified order. 
     */
-  def parserMap (embedded: Seq[CodeSpanParsers]): Map[Char, Parser[Span]] = embedded.flatMap(_.parsers).groupBy(_.startChar).map {
-    case (char, definitions) => (char, definitions.map(_.parser).reduceLeft(_ | _))
-  }
+  def parserMap (embedded: Seq[CodeSpanParser]): Map[Char, Parser[Span]] = // TODO - might be obsolete now
+    PrefixedParser.mapAndMerge(embedded.flatMap(_.parsers))
 
   /** Creates a new parser for code spans based on the specified parser for delimited text
     * and the embedded "foreign" syntax.
@@ -59,12 +58,9 @@ object EmbeddedCodeSpans {
     * for detecting the end of the tag (e.g. `/>` for an empty tag) whereas the embedded child parsers
     * are responsible for detecting attribute names and values and entity references.
     */
-  def parser (textParser: DelimitedText[String], embedded: Seq[CodeSpanParsers], defaultCategories: Set[CodeCategory] = Set.empty): Parser[Seq[CodeSpan]] = {
+  def parser (textParser: DelimitedText[String], embedded: Seq[CodeSpanParser], defaultCategories: Set[CodeCategory] = Set.empty): Parser[Seq[CodeSpan]] = {
     val embeddedParserMap = parserMap(embedded) // TODO - this map is created twice now
-    val prefixedParsers = embedded.flatMap { codeParsers =>
-      codeParsers.parsers.map { parser => PrefixedParser(parser.startChar)(parser.parser) }
-    }
-    val mainParser = InlineParsers.spans(textParser).embedAll(prefixedParsers)
+    val mainParser = InlineParsers.spans(textParser).embedAll(embedded.flatMap(_.parsers))
     
     def extract(spans: Seq[Span]): List[CodeSpan] = spans.flatMap(CodeSpans.extract(defaultCategories)).toList
     

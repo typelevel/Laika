@@ -21,7 +21,8 @@ import laika.ast.{CodeSpan, ~}
 import laika.bundle.SyntaxHighlighter
 import laika.parse.Parser
 import laika.parse.code.common.{EmbeddedCodeSpans, Keywords, NumberLiteral, TagBasedFormats}
-import laika.parse.code.{CodeCategory, CodeSpanParsers}
+import laika.parse.code.{CodeCategory, CodeSpanParser}
+import laika.parse.text.PrefixedParser
 import laika.parse.text.TextParsers._
 
 /**
@@ -31,7 +32,7 @@ object HTMLSyntax extends TagBasedFormats with SyntaxHighlighter {
   
   import NumberLiteral._
 
-  val docType: CodeSpanParsers = TagParser(CodeCategory.XML.DTDTagName, "<!", ">", "DOCTYPE").embed(
+  val docType: CodeSpanParser = TagParser(CodeCategory.XML.DTDTagName, "<!", ">", "DOCTYPE").embed(
     Keywords("SYSTEM", "PUBLIC"),
     string,
     comment,
@@ -58,9 +59,9 @@ object HTMLSyntax extends TagBasedFormats with SyntaxHighlighter {
     }
   }
   
-  val scriptTag: CodeSpanParsers = CodeSpanParsers('<') {
+  val scriptTag: CodeSpanParser = CodeSpanParser('<') {
     
-    val startTag: Parser[Seq[CodeSpan]] = TagParser(CodeCategory.Tag.Name, "<", ">", literal("script")).embed(
+    val startTag: PrefixedParser[Seq[CodeSpan]] = TagParser(CodeCategory.Tag.Name, "<", ">", literal("script")).embed(
       stringWithEntities,
       name(CodeCategory.AttributeName)
     ).standaloneParser
@@ -68,9 +69,9 @@ object HTMLSyntax extends TagBasedFormats with SyntaxHighlighter {
     (startTag ~ embeddedJs).map { case tag ~ js => tag ++ js }
   }
 
-  val styleTag: CodeSpanParsers = CodeSpanParsers('<') {
+  val styleTag: CodeSpanParser = CodeSpanParser('<') {
 
-    val startTag: Parser[Seq[CodeSpan]] = TagParser(CodeCategory.Tag.Name, "<", ">", literal("style")).embed(
+    val startTag: PrefixedParser[Seq[CodeSpan]] = TagParser(CodeCategory.Tag.Name, "<", ">", literal("style")).embed(
       stringWithEntities,
       name(CodeCategory.AttributeName)
     ).standaloneParser
@@ -80,7 +81,7 @@ object HTMLSyntax extends TagBasedFormats with SyntaxHighlighter {
 
   val language: NonEmptyList[String] = NonEmptyList.of("html")
 
-  val spanParsers: Seq[CodeSpanParsers] = Seq(
+  val spanParsers: Seq[CodeSpanParser] = Seq(
     docType,
     comment,
     ref,

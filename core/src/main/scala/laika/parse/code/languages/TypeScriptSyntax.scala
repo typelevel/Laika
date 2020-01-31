@@ -19,7 +19,7 @@ package laika.parse.code.languages
 import cats.data.NonEmptyList
 import laika.bundle.SyntaxHighlighter
 import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue, TypeName}
-import laika.parse.code.CodeSpanParsers
+import laika.parse.code.CodeSpanParser
 import laika.parse.code.common.{Comment, Identifier, Keywords, NumberLiteral, RegexLiteral, StringLiteral}
 
 /**
@@ -27,7 +27,7 @@ import laika.parse.code.common.{Comment, Identifier, Keywords, NumberLiteral, Re
   */
 object TypeScriptSyntax extends SyntaxHighlighter {
   
-  val stringEmbeds: CodeSpanParsers = 
+  val stringEmbeds: CodeSpanParser = 
     JavaScriptSyntax.unicodeCodePointEscape ++
     StringLiteral.Escape.unicode ++
     StringLiteral.Escape.hex ++
@@ -35,7 +35,7 @@ object TypeScriptSyntax extends SyntaxHighlighter {
 
   val language: NonEmptyList[String] = NonEmptyList.of("typescript")
 
-  val spanParsers: Seq[CodeSpanParsers] = Seq(
+  val spanParsers: Seq[CodeSpanParser] = Seq(
     Comment.singleLine("//"),
     Comment.multiLine("/*", "*/"),
     StringLiteral.singleLine('"').embed(stringEmbeds),

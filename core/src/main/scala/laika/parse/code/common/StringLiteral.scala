@@ -16,11 +16,13 @@
 
 package laika.parse.code.common
 
-import laika.ast.{CodeSpan, CodeSpans, ~}
+import cats.implicits._
+import cats.data.NonEmptySet
+import laika.ast.{CategorizedCode, CodeSpan, CodeSpans, ~}
 import laika.parse.Parser
-import laika.parse.code.{CodeCategory, CodeSpanParser, CodeSpanParsers}
+import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.text.TextParsers._
-import laika.parse.text.{DelimitedText, TextParsers}
+import laika.parse.text.{DelimitedText, PrefixedParser, TextParsers}
 
 /** Configurable base parsers for string literals.
   * 
@@ -37,7 +39,7 @@ object StringLiteral {
     /** Parses a simple backslash character escape. Does except any character after the backslash,
       * if you want to be strict and apply the specific rules about which characters are valid
       * escapes you need to create a custom parser. */
-    val char: CodeSpanParsers = CodeSpanParsers(CodeCategory.EscapeSequence, '\\') {
+    val char: CodeSpanParser = CodeSpanParser(CodeCategory.EscapeSequence, '\\') {
       (TextParsers.literal("\\") ~ any.take(1)).concat
     }
 
@@ -45,7 +47,7 @@ object StringLiteral {
       * It must start with a backslash, followed by the letter `u` and exactly four hex digits,
       * e.g. `\\u20ff`.
       */
-    val unicode: CodeSpanParsers = CodeSpanParsers(CodeCategory.EscapeSequence, '\\') {
+    val unicode: CodeSpanParser = CodeSpanParser(CodeCategory.EscapeSequence, '\\') {
       (TextParsers.literal("\\u") ~ DigitParsers.hex.take(4)).concat
     }
 
@@ -53,7 +55,7 @@ object StringLiteral {
       * It must start with a backslash, followed by the letter `x` and exactly two hex digits,
       * e.g. `\\xf2`.
       */
-    val hex: CodeSpanParsers = CodeSpanParsers(CodeCategory.EscapeSequence, '\\') {
+    val hex: CodeSpanParser = CodeSpanParser(CodeCategory.EscapeSequence, '\\') {
       (TextParsers.literal("\\x") ~ DigitParsers.hex.take(2)).concat
     }
 
@@ -61,15 +63,15 @@ object StringLiteral {
       * It must start with a backslash, followed by one to three octal digits,
       * e.g. `\\207`.
       */
-    val octal: CodeSpanParsers = CodeSpanParsers(CodeCategory.EscapeSequence, '\\') {
+    val octal: CodeSpanParser = CodeSpanParser(CodeCategory.EscapeSequence, '\\') {
       (TextParsers.literal("\\") ~ anyIn('0' to '3').take(1) ~ DigitParsers.octal.max(2)).concat | DigitParsers.octal.min(1).max(2)
     }
 
     /** Parses a single literal escape. Example: `$$`. 
       */
-    def literal(value: String): CodeSpanParsers = {
+    def literal(value: String): CodeSpanParser = {
       require(value.nonEmpty)
-      CodeSpanParsers(CodeCategory.EscapeSequence, value.head) {
+      CodeSpanParser(CodeCategory.EscapeSequence, value.head) {
         TextParsers.literal(value)
       }
     }
@@ -83,12 +85,12 @@ object StringLiteral {
     /** Parses a substitution code span based on the specified trigger character
       * and string parser. 
       */
-    def apply(startChar: Char)(parser: Parser[String]): CodeSpanParsers = 
-      CodeSpanParsers(CodeCategory.Substitution, startChar)(parser)
+    def apply(startChar: Char)(parser: PrefixedParser[String]): CodeSpanParser = 
+      CodeSpanParser(CodeCategory.Substitution, startChar)(parser)
 
     /** Parses a substitution code span based on the specified start and end delimiters. 
       */
-    def between(start: String, end: String): CodeSpanParsers = {
+    def between(start: String, end: String): CodeSpanParser = {
       require(start.nonEmpty)
       require(end.nonEmpty)
       apply(start.head) {
@@ -98,23 +100,23 @@ object StringLiteral {
 
     /** Parses a substitution code span based on the specified start and end delimiter. 
       */
-    def between(delimiter: String): CodeSpanParsers = between(delimiter, delimiter)
+    def between(delimiter: String): CodeSpanParser = between(delimiter, delimiter)
     
   }
   
   /** Configurable base parser for string literals. */
-  case class StringParser(startChars: Set[Char],
+  case class StringParser(startChars: NonEmptySet[Char],
                           parser: DelimitedText[String],
                           prefix: Option[Parser[String]] = None,
                           postfix: Option[Parser[String]] = None,
-                          embedded: Seq[CodeSpanParsers] = Nil,
-                          defaultCategories: Set[CodeCategory] = Set(CodeCategory.StringLiteral)) extends CodeSpanParsers {
+                          embedded: Seq[CodeSpanParser] = Nil,
+                          defaultCategories: Set[CodeCategory] = Set(CodeCategory.StringLiteral)) extends CodeSpanParser {
 
     /** Embeds the specified parsers for child spans inside a character literal.
       *
       * This is usually used for allowing escape sequences or substitution expressions inside the literal.
       */
-    def embed(childSpans: CodeSpanParsers*): StringParser = {
+    def embed(childSpans: CodeSpanParser*): StringParser = {
       copy(embedded = embedded ++ childSpans)
     }
     
@@ -136,12 +138,12 @@ object StringLiteral {
       */
     def withCategory (category: CodeCategory): StringParser = copy(defaultCategories = Set(category))
     
-    lazy val parsers: Seq[CodeSpanParser] = CodeSpanParsers(startChars) {
+    lazy val parsers: Seq[PrefixedParser[CategorizedCode]] = CodeSpanParser(startChars.toSortedSet) {
       
       def optParser(p: Option[Parser[String]]): Parser[List[CodeSpan]] = 
         p.map(_.map(res => List(CodeSpan(res, defaultCategories)))).getOrElse(success(Nil))
       
-      val startChar = any.take(1).map(CodeSpan(_, defaultCategories))
+      val startChar = TextParsers.prefix(startChars).take(1).map(CodeSpan(_, defaultCategories))
       
       (startChar ~ optParser(prefix) ~ EmbeddedCodeSpans.parser(parser, embedded, defaultCategories) ~ optParser(postfix)).map {
         case start ~ pre ~ content ~ post => CodeSpans.merge(start +: (pre ++ content ++ post))
@@ -152,13 +154,12 @@ object StringLiteral {
 
   /** Parses a string literal on a single line enclosed by the specified start and end delimiter.
     */
-  def singleLine (between: Char): StringParser = singleLine(Set(between), between)
+  def singleLine (between: Char): StringParser = singleLine(NonEmptySet.one(between), between)
 
   /** Parses a string literal on a single line, started by any of the specified start characters
     * and terminating with the specified end character.
     */
-  def singleLine (startChars: Set[Char], end: Char): StringParser = {
-    require(startChars.nonEmpty)
+  def singleLine (startChars: NonEmptySet[Char], end: Char): StringParser = {
     val parser = delimitedBy(end).failOn('\n').keepDelimiter
     StringParser(startChars, parser, postfix = Some(anyOf(end).take(1)))
   }
@@ -174,13 +175,13 @@ object StringLiteral {
     require(endDelim.nonEmpty)
     val prefix = if (startDelim.tail.nonEmpty) Some(literal(startDelim.tail)) else None
     val parser = delimitedBy(endDelim).keepDelimiter
-    StringParser(Set(startDelim.head), parser, prefix, postfix = Some(literal(endDelim)))
+    StringParser(NonEmptySet.one(startDelim.head), parser, prefix, postfix = Some(literal(endDelim)))
   }
 
   /** Parses a string literal that can span multiple lines, started by any of the specified start characters
     * and terminating with the specified end delimiter.
     */
-  def multiLine (startChars: Set[Char], end: String): StringParser = {
+  def multiLine (startChars: NonEmptySet[Char], end: String): StringParser = {
     require(startChars.nonEmpty)
     val parser = delimitedBy(end).keepDelimiter
     StringParser(startChars, parser, postfix = Some(literal(end)))

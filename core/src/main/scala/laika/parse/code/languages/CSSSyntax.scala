@@ -21,7 +21,7 @@ import laika.ast.{CodeSpan, ~}
 import laika.bundle.SyntaxHighlighter
 import laika.parse.Parser
 import laika.parse.code.common._
-import laika.parse.code.{CodeCategory, CodeSpanParsers}
+import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.text.Characters
 import laika.parse.text.TextParsers._
 
@@ -37,9 +37,9 @@ object CSSSyntax extends SyntaxHighlighter {
   private def idChars (category: CodeCategory, allowDigitBeforeStart: Boolean): Identifier.IdParser = 
     Identifier.alphaNum.withIdStartChars('_','-').withCategoryChooser(_ => category).copy(allowDigitBeforeStart = allowDigitBeforeStart)
   
-  def identifier (category: CodeCategory, allowDigitBeforeStart: Boolean): CodeSpanParsers = {
+  def identifier (category: CodeCategory, allowDigitBeforeStart: Boolean): CodeSpanParser = {
 
-    def prefixedId(prefix: String): CodeSpanParsers = CodeSpanParsers(prefix.head) {
+    def prefixedId(prefix: String): CodeSpanParser = CodeSpanParser(prefix.head) {
       (literal(prefix) ~> idChars(category, allowDigitBeforeStart).standaloneParser).map { id =>
         Seq(id.copy(content = prefix + id.content)) // TODO - add prefixedBy() to Identifier parser
       }
@@ -48,10 +48,10 @@ object CSSSyntax extends SyntaxHighlighter {
     prefixedId("@") ++ prefixedId("#") ++ idChars(category, allowDigitBeforeStart)
   }
   
-  lazy val escape: CodeSpanParsers = 
-    CodeSpanParsers(CodeCategory.EscapeSequence, '\\')(("\\" ~ DigitParsers.hex.min(1)).concat) ++ StringLiteral.Escape.char
+  lazy val escape: CodeSpanParser = 
+    CodeSpanParser(CodeCategory.EscapeSequence, '\\')(("\\" ~ DigitParsers.hex.min(1)).concat) ++ StringLiteral.Escape.char
 
-  lazy val url: CodeSpanParsers = CodeSpanParsers('u') {
+  lazy val url: CodeSpanParser = CodeSpanParser('u') {
     (literal("url(") ~ ws ~ anyBut('"', '\'', '(', ')', ' ', '\n') ~ ws ~ ")").map {
       case _ ~ ws1 ~ value ~ ws2 ~ _ => Seq(
         CodeSpan("url", CodeCategory.Identifier),
@@ -62,17 +62,17 @@ object CSSSyntax extends SyntaxHighlighter {
     }
   }
   
-  val color: CodeSpanParsers = CodeSpanParsers(CodeCategory.NumberLiteral, '#')(("#" ~ DigitParsers.hex.min(1).max(6)).concat)
+  val color: CodeSpanParser = CodeSpanParser(CodeCategory.NumberLiteral, '#')(("#" ~ DigitParsers.hex.min(1).max(6)).concat)
 
-  val string: CodeSpanParsers = StringLiteral.singleLine('"').embed(escape) ++
+  val string: CodeSpanParser = StringLiteral.singleLine('"').embed(escape) ++
     StringLiteral.singleLine('\'').embed(escape)
   
-  val number: CodeSpanParsers = NumberLiteral.decimalFloat.copy(allowFollowingLetter = true) ++ 
+  val number: CodeSpanParser = NumberLiteral.decimalFloat.copy(allowFollowingLetter = true) ++ 
     NumberLiteral.decimalInt.copy(allowFollowingLetter = true)
   
-  val declaration: CodeSpanParsers = {
+  val declaration: CodeSpanParser = {
     
-    val embedded: Seq[CodeSpanParsers] = Seq(
+    val embedded: Seq[CodeSpanParser] = Seq(
       Comment.multiLine("/*", "*/"),
       string,
       color,
@@ -91,11 +91,11 @@ object CSSSyntax extends SyntaxHighlighter {
 
     // TODO - add prefixedBy() to Identifier parser
     val attrName = idChars(CodeCategory.AttributeName, allowDigitBeforeStart = false)
-    CodeSpanParsers(attrName.idStartChars) {
-      val attribute = (any.take(1) ~ attrName.idRestParser).concat.map(CodeSpan(_, CodeCategory.AttributeName))
+    CodeSpanParser(attrName.idStartChars.toSortedSet) {
+      val attribute = (prefix(attrName.idStartChars) ~ attrName.idRestParser).concat.map(CodeSpan(_, CodeCategory.AttributeName))
       (attribute ~ valueParser(inBlock = false)).concat
     } ++
-    CodeSpanParsers('(') {
+    CodeSpanParser('(') {
       val attribute = attrName.standaloneParser
       ("(" ~> attribute ~ valueParser(inBlock = true)).concat.map(spans => CodeSpan("(") +: spans)
     }
@@ -103,7 +103,7 @@ object CSSSyntax extends SyntaxHighlighter {
   
   val language: NonEmptyList[String] = NonEmptyList.of("css")
 
-  val spanParsers: Seq[CodeSpanParsers] = Seq(
+  val spanParsers: Seq[CodeSpanParser] = Seq(
     Comment.multiLine("/*", "*/"),
     string,
     declaration,

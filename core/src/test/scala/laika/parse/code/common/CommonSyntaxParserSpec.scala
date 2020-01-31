@@ -20,8 +20,9 @@ import cats.data.NonEmptyList
 import laika.ast.CodeSpan
 import laika.bundle.SyntaxHighlighter
 import laika.parse.Parser
-import laika.parse.code.{CodeCategory, CodeSpanParsers}
+import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
+import laika.parse.text.PrefixedParser
 import laika.parse.text.TextParsers._
 import org.scalatest.{Assertion, Matchers, WordSpec}
 
@@ -37,12 +38,12 @@ class CommonSyntaxParserSpec extends WordSpec
   import NumberLiteral._
   
   private val startOfLine: Parser[String] = atStart ^^^ "" | "\n"
-  val rule: CodeSpanParsers = CodeSpanParsers(CodeCategory.Markup.Fence, '\n')((startOfLine ~ literal("===")).concat)
+  val rule: CodeSpanParser = CodeSpanParser(CodeCategory.Markup.Fence, '\n')(PrefixedParser('\n') {(startOfLine ~ literal("===")).concat})
   
   private def createParser (allowLetterAfterNumber: Boolean = false): Parser[Seq[CodeSpan]] = new SyntaxHighlighter {
     val language: NonEmptyList[String] = NonEmptyList.of("test-lang")
     
-    val spanParsers: Seq[CodeSpanParsers] = Seq(
+    val spanParsers: Seq[CodeSpanParser] = Seq(
       rule,
       Comment.multiLine("/*", "*/"),
       Comment.singleLine("//"),

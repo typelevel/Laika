@@ -19,9 +19,9 @@ package laika.parse.code.languages
 import cats.data.NonEmptyList
 import laika.bundle.SyntaxHighlighter
 import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue}
-import laika.parse.code.{CodeCategory, CodeSpanParsers}
+import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.code.common.{CharLiteral, Comment, Identifier, Keywords, NumberLiteral, NumericSuffix, StringLiteral}
-import laika.parse.text.Characters
+import laika.parse.text.{CharGroup, Characters}
 import laika.parse.text.TextParsers._
 
 /**
@@ -33,39 +33,37 @@ object ScalaSyntax extends SyntaxHighlighter {
   
   val language: NonEmptyList[String] = NonEmptyList.of("scala")
   
-  private val interpolatedStartChars: Set[Char] = ('a' to 'z').toSet ++ ('A' to 'Z').toSet
-  
-  val symbolParser: CodeSpanParsers = CodeSpanParsers('\'') {
+  val symbolParser: CodeSpanParser = CodeSpanParser('\'') {
     Identifier.alphaNum
       .withCategoryChooser(_ => CodeCategory.SymbolLiteral)
       .standaloneParser
       .map(Seq(_))
   }
   
-  val backtickIdParser: CodeSpanParsers = CodeSpanParsers(CodeCategory.Identifier, '`') {
-    (anyOf('`').take(1) ~ anyBut('\n', '`') ~ anyOf('`').take(1)).concat
+  val backtickIdParser: CodeSpanParser = CodeSpanParser(CodeCategory.Identifier, '`') {
+    (prefix('`').take(1) ~ anyBut('\n', '`') ~ anyOf('`').take(1)).concat
   }
   
-  val charEscapes: CodeSpanParsers = StringLiteral.Escape.unicode ++ StringLiteral.Escape.char
+  val charEscapes: CodeSpanParser = StringLiteral.Escape.unicode ++ StringLiteral.Escape.char
   
   val stringPrefixChar: Characters[String] = anyIn('a' to 'z', 'A' to 'Z')
 
-  val substitutions: CodeSpanParsers = 
+  val substitutions: CodeSpanParser = 
     StringLiteral.Substitution.between("${", "}") ++
-    StringLiteral.Substitution('$')(anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '_').min(1))
+    StringLiteral.Substitution('$')(prefix(CharGroup.alphaNum.add('_')))
   
-  val spanParsers: Seq[CodeSpanParsers] = Seq(
+  val spanParsers: Seq[CodeSpanParser] = Seq(
     Comment.singleLine("//"),
     Comment.multiLine("/*", "*/"),
     CharLiteral.standard.embed(charEscapes),
     symbolParser,
     backtickIdParser,
     StringLiteral.multiLine("\"\"\""),
-    StringLiteral.multiLine(interpolatedStartChars, "\"\"\"").withPrefix((stringPrefixChar ~ "\"\"\"").concat).embed(
+    StringLiteral.multiLine(CharGroup.alpha, "\"\"\"").withPrefix((stringPrefixChar ~ "\"\"\"").concat).embed(
       substitutions
     ),
     StringLiteral.singleLine('"').embed(charEscapes),
-    StringLiteral.singleLine(interpolatedStartChars, '\"').withPrefix((stringPrefixChar ~ "\"").concat).embed(
+    StringLiteral.singleLine(CharGroup.alpha, '\"').withPrefix((stringPrefixChar ~ "\"").concat).embed(
       charEscapes,
       substitutions
     ),

@@ -20,7 +20,7 @@ import cats.data.NonEmptyList
 import laika.ast.~
 import laika.bundle.SyntaxHighlighter
 import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue}
-import laika.parse.code.{CodeCategory, CodeSpanParsers}
+import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.code.common.NumberLiteral.{DigitParsers, NumericParser}
 import laika.parse.code.common.{Comment, Identifier, Keywords, NumberLiteral, NumericSuffix, RegexLiteral, StringLiteral}
 import laika.parse.text.TextParsers._
@@ -30,17 +30,17 @@ import laika.parse.text.TextParsers._
   */
 object JavaScriptSyntax extends SyntaxHighlighter {
 
-  val unicodeCodePointEscape: CodeSpanParsers = CodeSpanParsers(CodeCategory.EscapeSequence, '\\') {
+  val unicodeCodePointEscape: CodeSpanParser = CodeSpanParser(CodeCategory.EscapeSequence, '\\') {
     ("u{" ~ DigitParsers.hex.min(1) ~ '}').map { case a ~ b ~ c => a + b + c.toString }
   }
 
-  val charEscapes: CodeSpanParsers =
+  val charEscapes: CodeSpanParser =
     unicodeCodePointEscape ++
       StringLiteral.Escape.unicode ++
       StringLiteral.Escape.hex ++
       StringLiteral.Escape.char
   
-  def number(parser: NumericParser): CodeSpanParsers = parser.withUnderscores.withSuffix(NumericSuffix.bigInt)
+  def number(parser: NumericParser): CodeSpanParser = parser.withUnderscores.withSuffix(NumericSuffix.bigInt)
   
   val keywords = Keywords("async", "as", "await", "break", "case", "catch", "class", "const", "continue", 
     "debugger", "default", "delete", "do", "else", "export", "extends", "finally", "for", "from", "function", 
@@ -49,7 +49,7 @@ object JavaScriptSyntax extends SyntaxHighlighter {
 
   val language: NonEmptyList[String] = NonEmptyList.of("javascript", "js")
 
-  val spanParsers: Seq[CodeSpanParsers] = Seq(
+  val spanParsers: Seq[CodeSpanParser] = Seq(
     Comment.singleLine("//"),
     Comment.multiLine("/*", "*/"),
     StringLiteral.singleLine('"').embed(charEscapes),

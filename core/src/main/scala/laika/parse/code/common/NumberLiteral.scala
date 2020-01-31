@@ -16,10 +16,12 @@
 
 package laika.parse.code.common
 
-import laika.ast.~
+import cats.implicits._
+import cats.data.NonEmptySet
+import laika.ast.{CategorizedCode, ~}
 import laika.parse.Parser
-import laika.parse.code.{CodeCategory, CodeSpanParser, CodeSpanParsers}
-import laika.parse.text.Characters
+import laika.parse.code.{CodeCategory, CodeSpanParser}
+import laika.parse.text.{CharGroup, Characters, PrefixCharacters, PrefixedParser}
 import laika.parse.text.TextParsers._
 
 /** Configurable base parsers for number literals.
@@ -33,8 +35,16 @@ object NumberLiteral {
     def concat: Parser[String] = p.map { case a ~ b => a + b }
   }
 
+  private[laika] implicit class String2PrefixedParserOps (val p: PrefixedParser[String ~ String]) extends AnyVal {
+    def concat: PrefixedParser[String] = p.map { case a ~ b => a + b }
+  }
+
   private[laika] implicit class String3ParserOps (val p: Parser[String ~ String ~ String]) extends AnyVal {
     def concat: Parser[String] = p.map { case a ~ b ~ c => a + b + c }
+  }
+
+  private[laika] implicit class String3PrefixedParserOps (val p: PrefixedParser[String ~ String ~ String]) extends AnyVal {
+    def concat: PrefixedParser[String] = p.map { case a ~ b ~ c => a + b + c }
   }
 
   private[laika] implicit class String4ParserOps (val p: Parser[String ~ String ~ String ~ String]) extends AnyVal {
@@ -45,42 +55,37 @@ object NumberLiteral {
     def concat: Parser[Seq[T]] = p.map { case x ~ xs => x +: xs }
   }
 
+  private[laika] implicit class PrependPrefixedParserOps[T] (val p: PrefixedParser[T ~ Seq[T]]) extends AnyVal {
+    def concat: PrefixedParser[Seq[T]] = p.map { case x ~ xs => x +: xs }
+  }
+
   private[laika] implicit class List2ParsersOps[T] (val p: Parser[Seq[T] ~ Seq[T]]) extends AnyVal {
     def concat: Parser[Seq[T]] = p.map { case x ~ xs => x ++ xs }
   }
 
-  /** Common sets of digits, like hex or decimal. */
-  object Digits {
-    val binary: Set[Char] = ('0' to '1').toSet
-    val octal: Set[Char] = ('0' to '7').toSet
-    val decimal: Set[Char] = ('0' to '9').toSet
-    val decimalNonZero: Set[Char] = ('1' to '9').toSet
-    val hex: Set[Char] = ('0' to '9').toSet ++ ('a' to 'f').toSet ++ ('A' to 'F').toSet
-  }
-
   /** Parsers for common sets of digits, like hex or decimal. */
   object DigitParsers {
-    val binary: Characters[String] = anyOf(Digits.binary.toSeq:_*)
-    val octal: Characters[String] = anyOf(Digits.octal.toSeq:_*)
-    val decimal: Characters[String] = anyOf(Digits.decimal.toSeq:_*)
-    val decimalNonZero: Characters[String] = anyOf(Digits.decimalNonZero.toSeq:_*)
-    val hex: Characters[String] = anyOf(Digits.hex.toSeq:_*)
+    val binary: PrefixCharacters[String] = prefix('0', '1')
+    val octal: PrefixCharacters[String] = prefix(CharGroup.octalDigit)
+    val decimal: PrefixCharacters[String] = prefix(CharGroup.digit)
+    val decimalNonZero: PrefixCharacters[String] = prefix(NonEmptySet.fromSetUnsafe(CharGroup.digit - '0'))
+    val hex: PrefixCharacters[String] = prefix(CharGroup.hexDigit)
   }
 
   private val sign: Parser[String] = anyOf('-', '+').max(1)
-  private val exponent: Parser[String]       = (anyOf('E', 'e').take(1) ~ sign ~ anyOf(Digits.decimal.toSeq: _*).min(1)).concat
-  private val binaryExponent: Parser[String] = (anyOf('P', 'p').take(1) ~ sign ~ anyOf(Digits.decimal.toSeq: _*).min(1)).concat
+  private val exponent: Parser[String]       = (anyOf('E', 'e').take(1) ~ sign ~ DigitParsers.decimal.min(1)).concat
+  private val binaryExponent: Parser[String] = (anyOf('P', 'p').take(1) ~ sign ~ DigitParsers.decimal.min(1)).concat
 
   private def zeroPrefix(chars: Char*): Parser[String] = ("0" ~ anyOf(chars:_*)).concat 
   
   /* Configurable base parser for number literals. */
-  case class NumericParser (startChars: Set[Char],
-                            digits: Set[Char],
+  case class NumericParser (startChars: NonEmptySet[Char],
+                            digits: NonEmptySet[Char],
                             idSequence: Option[Parser[String]] = None,
                             underscores: Boolean = false,
                             exponent: Option[Parser[String]] = None,
                             suffix: Option[Parser[String]] = None,
-                            allowFollowingLetter: Boolean = false) extends CodeSpanParsers {
+                            allowFollowingLetter: Boolean = false) extends CodeSpanParser {
 
     private val emptyString: Parser[String] = success("")
 
@@ -90,34 +95,37 @@ object NumberLiteral {
     /** Accepts a suffix after a number literal, usually to denote a concrete number type as in `123L`. */
     def withSuffix (parser: Parser[String]): NumericParser = copy(suffix = Some(parser))
 
-    lazy val parsers: Seq[CodeSpanParser] = CodeSpanParsers(CodeCategory.NumberLiteral, startChars) {
+    lazy val parsers: Seq[PrefixedParser[CategorizedCode]] = CodeSpanParser(CodeCategory.NumberLiteral, startChars.toSortedSet) {
       
-      lookBehind(1, any.take(1)) >> { startChar =>
-        
-        val digitParser = {
-          def parse (chars: Set[Char]): Characters[String] = anyOf(chars.toSeq: _*)
-          val minDigits = if (idSequence.nonEmpty || startChar == ".") 1 else 0  
-          if (underscores) parse(digits + '_').min(minDigits) <~ lookBehind(1, not('_'))
-          else parse(digits).min(minDigits)
-        }
-  
-        val number = exponent.fold(digitParser) { exp =>
-          val optExp = opt(exp).map(_.getOrElse(""))
-          if (startChar == ".") {
-            (digitParser ~ optExp).concat
+      PrefixedParser(startChars) { // TODO - 0.14 - fix this
+        lookBehind(1, any.take(1)) >> { startChar =>
+
+          val digitParser = {
+            def parse (chars: NonEmptySet[Char]): Characters[String] = anyOf(chars.toSortedSet.toSeq: _*)
+
+            val minDigits = if (idSequence.nonEmpty || startChar == ".") 1 else 0
+            if (underscores) parse(digits.add('_')).min(minDigits) <~ lookBehind(1, not('_'))
+            else parse(digits).min(minDigits)
           }
-          else {
-            val withDot = (digitParser ~ anyOf('.').take(1) ~ digitParser ~ optExp).concat
-            val withoutDot = (digitParser ~ exp).concat
-            withDot | withoutDot
+
+          val number = exponent.fold(digitParser) { exp =>
+            val optExp = opt(exp).map(_.getOrElse(""))
+            if (startChar == ".") {
+              (digitParser ~ optExp).concat
+            }
+            else {
+              val withDot = (digitParser ~ anyOf('.').take(1) ~ digitParser ~ optExp).concat
+              val withoutDot = (digitParser ~ exp).concat
+              withDot | withoutDot
+            }
           }
+
+          val id = idSequence.getOrElse(emptyString)
+          val optSuffix = suffix.fold(emptyString)(opt(_).map(_.getOrElse("")))
+          val postCondition = if (allowFollowingLetter) success(()) else not(anyWhile(java.lang.Character.isLetter).take(1)) // TODO - 0.14 - add char(Char => Boolean) and anyChar
+
+          (id ~ number ~ optSuffix <~ postCondition).concat
         }
-        
-        val id = idSequence.getOrElse(emptyString)
-        val optSuffix = suffix.fold(emptyString)(opt(_).map(_.getOrElse("")))
-        val postCondition = if (allowFollowingLetter) success(()) else not(anyWhile(java.lang.Character.isLetter).take(1)) // TODO - 0.14 - add char(Char => Boolean) and anyChar
-        
-        (id ~ number ~ optSuffix <~ postCondition).concat
       }
     }.parsers
 
@@ -127,33 +135,33 @@ object NumberLiteral {
     * It must start with  `0b` or `0B`, followed by one or more binary digits,
     * e.g. `\0b100110`.
     */
-  val binary: NumericParser = NumericParser(Set('0'), Digits.binary, Some(zeroPrefix('b', 'B')))
+  val binary: NumericParser = NumericParser(NonEmptySet.one('0'), NonEmptySet.of('0','1'), Some(zeroPrefix('b', 'B')))
 
   /** Parses an octal number literal.
     * It must start with  `0o` or `0O`, followed by one or more octal digits,
     * e.g. `\0o257`.
     */
-  val octal: NumericParser = NumericParser(Set('0'), Digits.octal, Some(zeroPrefix('o', 'O')))
+  val octal: NumericParser = NumericParser(NonEmptySet.one('0'), CharGroup.octalDigit, Some(zeroPrefix('o', 'O')))
 
   /** Parses a hexadecimal number literal.
     * It must start with  `0x` or `0X`, followed by one or more hex digits,
     * e.g. `\0x25ff7`.
     */
-  val hex: NumericParser = NumericParser(Set('0'), Digits.hex, Some(zeroPrefix('x', 'X')))
+  val hex: NumericParser = NumericParser(NonEmptySet.one('0'), CharGroup.hexDigit, Some(zeroPrefix('x', 'X')))
 
   /** Parses a decimal integer.
     */
-  val decimalInt: NumericParser = NumericParser(Digits.decimal, Digits.decimal) // TODO - prevent zero followed by more digits
+  val decimalInt: NumericParser = NumericParser(CharGroup.digit, CharGroup.digit) // TODO - prevent zero followed by more digits
 
   /** Parses a decimal float with an optional exponent. 
     */
-  val decimalFloat: NumericParser = NumericParser(Digits.decimal + '.', Digits.decimal, exponent = Some(exponent))
+  val decimalFloat: NumericParser = NumericParser(CharGroup.digit.add('.'), CharGroup.digit, exponent = Some(exponent))
 
   /** Parses a hexadecimal float literal.
     * It must start with  `0x` or `0X`, followed by one or more hex digits,
     * e.g. `\0x25ff7.fa`.
     */
-  val hexFloat: NumericParser = NumericParser(Set('0'), Digits.hex, Some(zeroPrefix('x', 'X')), exponent = Some(binaryExponent))
+  val hexFloat: NumericParser = NumericParser(NonEmptySet.one('0'), CharGroup.hexDigit, Some(zeroPrefix('x', 'X')), exponent = Some(binaryExponent))
 
 }
 
