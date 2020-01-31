@@ -16,7 +16,8 @@
 
 package laika.parse.code.common
 
-import laika.ast.{CategorizedCode, CodeSpan, CodeSpans, ~}
+import laika.ast.{CodeSpan, CodeSpans, ~}
+import laika.parse.code.common.Identifier.IdParser
 import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.text.PrefixedParser
 import laika.parse.text.TextParsers.{delimitedBy, literal}
@@ -32,13 +33,11 @@ trait TagBasedFormats {
   /** Parses a comment enclosed between `<!--` and `-->`. */
   val comment: CodeSpanParser = Comment.multiLine("<!--", "-->")
 
-  private val id = Identifier.alphaNum.withIdStartChars('_',':').withIdPartChars('-','.')
-  
-  private val nameParser: PrefixedParser[String] = id.standaloneParser.map(_.content)
+  private val nameParser: IdParser = Identifier.alphaNum.withIdStartChars('_',':').withIdPartChars('-','.')
 
   /** Parses a valid attribute, tag or entity name.
     */
-  def name(category: CodeCategory): CodeSpanParser = id.withCategoryChooser(_ => category)
+  def name(category: CodeCategory): CodeSpanParser = nameParser.withCategory(category)
 
   /** Parses a named entity reference like `&lt;` or a numeric character reference like `&#xff`.
     */
@@ -50,7 +49,7 @@ trait TagBasedFormats {
         ("&#" ~ DigitParsers.decimal.min(1) ~ ";").concat
       } ++
       CodeSpanParser(CodeCategory.Substitution) {
-        ("&" ~ nameParser ~ ";").concat
+        ("&" ~ nameParser.map(_.content) ~ ";").concat
       }
 
   val string: CodeSpanParser = StringLiteral.singleLine('\'') ++ StringLiteral.singleLine('"')
@@ -60,7 +59,7 @@ trait TagBasedFormats {
   case class TagParser(tagCategory: CodeCategory,
                        start: String,
                        end: String,
-                       tagName: PrefixedParser[String] = nameParser,
+                       tagName: PrefixedParser[String] = nameParser.map(_.content),
                        embedded: Seq[CodeSpanParser] = Nil) extends CodeParserBase {
 
     private val categories: Set[CodeCategory] = Set(CodeCategory.Tag.Punctuation)

@@ -35,13 +35,13 @@ object CSSSyntax extends SyntaxHighlighter {
   private val ws: Characters[String] = anyOf('\n', ' ')
   
   private def idChars (category: CodeCategory, allowDigitBeforeStart: Boolean): Identifier.IdParser = 
-    Identifier.alphaNum.withIdStartChars('_','-').withCategoryChooser(_ => category).copy(allowDigitBeforeStart = allowDigitBeforeStart)
+    Identifier.alphaNum.withIdStartChars('_','-').withCategory(category).copy(allowDigitBeforeStart = allowDigitBeforeStart)
   
   def identifier (category: CodeCategory, allowDigitBeforeStart: Boolean): CodeSpanParser = {
 
     def prefixedId(prefix: String): CodeSpanParser = CodeSpanParser {
-      (literal(prefix) ~> idChars(category, allowDigitBeforeStart).standaloneParser).map { id =>
-        Seq(id.copy(content = prefix + id.content)) // TODO - add prefixedBy() to Identifier parser
+      (literal(prefix) ~> idChars(category, allowDigitBeforeStart)).map { id =>
+        Seq(CodeSpan(prefix + id.content, category)) // TODO - add prefixedBy() to Identifier parser
       }
     }
   
@@ -89,15 +89,13 @@ object CSSSyntax extends SyntaxHighlighter {
       }
     }
 
-    // TODO - add prefixedBy() to Identifier parser
+    // TODO - add prefixedBy() to Identifier parser?
     val attrName = idChars(CodeCategory.AttributeName, allowDigitBeforeStart = false)
     CodeSpanParser {
-      val attribute = (prefix(attrName.idStartChars) ~ attrName.idRestParser).concat.map(CodeSpan(_, CodeCategory.AttributeName))
-      (attribute ~ valueParser(inBlock = false)).concat
+      (attrName ~ valueParser(inBlock = false)).concat
     } ++
     CodeSpanParser {
-      val attribute = attrName.standaloneParser
-      ("(" ~> attribute ~ valueParser(inBlock = true)).concat.map(spans => CodeSpan("(") +: spans)
+      ("(" ~> attrName ~ valueParser(inBlock = true)).concat.map(spans => CodeSpan("(") +: spans)
     }
   }
   

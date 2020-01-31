@@ -19,7 +19,7 @@ package laika.parse.code.languages
 import cats.data.NonEmptyList
 import laika.ast.{CodeSpan, ~}
 import laika.bundle.SyntaxHighlighter
-import laika.parse.code.common.{EmbeddedCodeSpans, Identifier, Keywords, StringLiteral}
+import laika.parse.code.common.{EmbeddedCodeSpans, Identifier, Keywords, StringLiteral, NumberLiteral}
 import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.text.PrefixedParser
 import laika.parse.text.TextParsers._
@@ -28,6 +28,8 @@ import laika.parse.text.TextParsers._
   * @author Jens Halm
   */
 object LaikaExtensionSyntax {
+  
+  import NumberLiteral._
   
   val substitution: CodeSpanParser = StringLiteral.Substitution.between("${", "}")
 
@@ -42,10 +44,13 @@ object LaikaExtensionSyntax {
   }
 
   val directive: CodeSpanParser = CodeSpanParser {
-    ("@:" ~> Identifier.alphaNum.standaloneParser ~ opt(ws.min(1) ~ embeddedHocon("{", "}"))).map {
-      case name ~ Some(spaces ~ hocon) => CodeSpan("@:", CodeCategory.Keyword) +: name +: CodeSpan(spaces) +: hocon
-      case name ~ None => Seq(CodeSpan("@:", CodeCategory.Keyword), name)
-    }
+    val nameParser = Identifier.alphaNum.map(name => 
+      Seq(CodeSpan("@:", CodeCategory.Keyword), name)
+    )
+    val whiteSpace = ws.min(1).map(CodeSpan(_))
+    val hoconParser = (whiteSpace ~ embeddedHocon("{", "}")).concat.rep.max(1).map(_.flatten)
+    
+    ("@:" ~> nameParser ~ hoconParser).concat
   }
 
   val fence: CodeSpanParser = Keywords("@:@")

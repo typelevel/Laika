@@ -18,9 +18,8 @@ package laika.parse.code.common
 
 import cats.data.NonEmptySet
 import cats.implicits._
-import laika.ast.CodeSpan
-import laika.parse.Parser
-import laika.parse.code.CodeCategory
+import laika.ast.{CategorizedCode, CodeSpan}
+import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.text.TextParsers._
 import laika.parse.text.{CharGroup, PrefixedParser}
 
@@ -43,49 +42,46 @@ object Identifier {
     
 
   /** Configurable base parser for identifiers in code blocks. */
-  case class IdParser(idStartChars: NonEmptySet[Char],
-                      idNonStartChars: NonEmptySet[Char],
+  case class IdParser(startChars: NonEmptySet[Char],
+                      nonStartChars: NonEmptySet[Char],
                       category: String => CodeCategory = _ => CodeCategory.Identifier,
-                      allowDigitBeforeStart: Boolean = false) extends CodeParserBase {
+                      allowDigitBeforeStart: Boolean = false) extends PrefixedParser[CodeSpan] with CodeSpanParser {
 
     import NumberLiteral._
 
     /** Applies a function to the parser result to determine the code category.
       */
-    def withCategoryChooser(f: String => CodeCategory): IdParser = {
-      copy(category = f)
-    }
+    def withCategoryChooser(f: String => CodeCategory): IdParser = copy(category = f)
+
+    /** Associates the result with the specified code category.
+      */
+    def withCategory(category: CodeCategory): IdParser = copy(category = _ => category)
 
     /** Adds the specified characters to the set of characters allowed to start an identifier.
       * Will also be added to the set of characters for the parser of the rest of the identifier.
       */
     def withIdStartChars(char: Char, chars: Char*): IdParser = 
-      copy(idStartChars = idStartChars ++ NonEmptySet.of(char, chars:_*))
+      copy(startChars = startChars ++ NonEmptySet.of(char, chars:_*))
 
     /** Adds the specified characters to the set of characters allowed as part of an identifier,
       * but not allowed as the first character.
       */
     def withIdPartChars(char: Char, chars: Char*): IdParser = 
-      copy(idNonStartChars = idNonStartChars ++ NonEmptySet.of(char, chars:_*))
+      copy(nonStartChars = nonStartChars ++ NonEmptySet.of(char, chars:_*))
 
-    // TODO - 0.14 - remove or make private
-    private [code] val idRestParser: Parser[String] = anyOf(idStartChars ++ idNonStartChars)
 
-    lazy val underlying: PrefixedParser[Seq[CodeSpan]] = {
+    lazy val underlying: PrefixedParser[CodeSpan] = {
         
       val prevChar = lookBehind(2, anyWhile(c => (!Character.isDigit(c) || allowDigitBeforeStart) && !Character.isLetter(c)).take(1)) | lookBehind(1, atStart)
 
-      val idStart = prefix(idStartChars).take(1) <~ prevChar
+      val idStart = prefix(startChars).take(1) <~ prevChar
+      val idRest  = anyOf(startChars ++ nonStartChars)
       
-      (idStart ~ idRestParser).concat.map(id => Seq(CodeSpan(id, category(id))))
+      (idStart ~ idRest).concat.map(id => CodeSpan(id, category(id)))
       
     }
 
-    // TODO - 0.14 - remove??
-    private [code] def standaloneParser: PrefixedParser[CodeSpan] = {
-      val idStart = prefix(idStartChars).take(1)
-      (idStart ~ idRestParser).concat.map(id => CodeSpan(id, category(id)))
-    }
+    override def parsers: Seq[PrefixedParser[CategorizedCode]] = Seq(this)
 
   }
 

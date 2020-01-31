@@ -33,13 +33,8 @@ object ScalaSyntax extends SyntaxHighlighter {
   
   val language: NonEmptyList[String] = NonEmptyList.of("scala")
   
-  val symbolParser: CodeSpanParser = CodeSpanParser {
-    prefix('\'').take(1) ~> Identifier.alphaNum
-      .withCategoryChooser(_ => CodeCategory.SymbolLiteral)
-      .standaloneParser.map { span =>
-      Seq(span.copy(content = "'" + span.content))
-    }
-      
+  val symbolParser: CodeSpanParser = CodeSpanParser(CodeCategory.SymbolLiteral) {
+    prefix('\'').take(1) ~> Identifier.alphaNum.map { id => "'" + id.content }
   }
   
   val backtickIdParser: CodeSpanParser = CodeSpanParser(CodeCategory.Identifier) {
