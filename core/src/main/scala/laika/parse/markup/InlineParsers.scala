@@ -16,6 +16,7 @@
 
 package laika.parse.markup
 
+import cats.syntax.nested
 import laika.ast._
 import laika.parse._
 import laika.parse.text.DelimitedText
@@ -100,50 +101,55 @@ object InlineParsers {
   }
 
   /** Generic base parser that parses inline elements based on the specified
-    *  helper parsers. Usually not used directly by parser implementations,
-    *  this is the base parser the other inline parsers of this trait delegate to.
+    * helper parsers. Usually not used directly by parser implementations,
+    * this is the base parser the other inline parsers of this trait delegate to.
     *
-    *  @tparam Elem the element type produced by a single parser for a nested span
-    *  @tparam To the type of the result this parser produces
-    *  @param baseParser the parser for the text of the current span element
-    *  @param nested a mapping from the start character of a span to the corresponding parser for nested span elements
-    *  @param resultBuilder responsible for building the final result of this parser based on the results of the helper parsers
-    *  @return the resulting parser
+    * @tparam Elem the element type produced by a single parser for a nested span
+    * @tparam To the type of the result this parser produces
+    * @param baseParser the parser for the text of the current span element
+    * @param nested a mapping from the start character of a span to the corresponding parser for nested span elements
+    * @param resultBuilder responsible for building the final result of this parser based on the results of the helper parsers
+    * @return the resulting parser
     */
-  private def inline [Elem,To] (baseParser: => DelimitedText[String],
+  class InlineParser [Elem,To] (baseParser: => DelimitedText[String],
                                 nested: => Map[Char, Parser[Elem]],
-                                resultBuilder: => ResultBuilder[Elem,To]): Parser[To] = Parser { in =>
+                                resultBuilder: => ResultBuilder[Elem,To]) extends Parser[To] {
+    
+    private lazy val nestedMap = nested
+    private lazy val textParser = new DelimitedText(new InlineDelimiter(nestedMap.keySet, baseParser.delimiter))
 
-    lazy val builder = resultBuilder // evaluate only once
-    lazy val nestedMap = nested
-    lazy val textParser = new DelimitedText(new InlineDelimiter(nestedMap.keySet, baseParser.delimiter))
+    def parse (in: ParserContext): Parsed[To] = {
 
-    def addText (text: String): Unit = if (!text.isEmpty) builder += builder.fromString(text)
+      lazy val builder = resultBuilder // need a fresh one on each invocation
 
-    def nestedSpanOrNextChar (parser: Parser[Elem], input: ParserContext) = {
-      parser.parse(input) match {
-        case Success(result, next) => builder += result; next
-        case _ => builder += builder.fromString(input.char.toString); input.consume(1)
+      def addText (text: String): Unit = if (!text.isEmpty) builder += builder.fromString(text)
+
+      def nestedSpanOrNextChar (parser: Parser[Elem], input: ParserContext) = {
+        parser.parse(input) match {
+          case Success(result, next) => builder += result; next
+          case _ => builder += builder.fromString(input.char.toString); input.consume(1)
+        }
       }
+
+      @tailrec
+      def parse (input: ParserContext) : Parsed[To] = {
+        textParser.parse(input) match {
+          case Failure(msg, _, maxOffset) =>
+            Failure(msg, in, maxOffset)
+          case Success(EndDelimiter(text), next) =>
+            addText(text)
+            Success(builder.result, next)
+          case Success(NestedDelimiter(startChar, text), next) =>
+            addText(text)
+            val parser = nestedMap(startChar)
+            val newIn = nestedSpanOrNextChar(parser, next)
+            parse(newIn)
+        }
+      }
+
+      parse(in)
     }
 
-    @tailrec
-    def parse (input: ParserContext) : Parsed[To] = {
-      textParser.parse(input) match {
-        case Failure(msg, _, maxOffset) =>
-          Failure(msg, in, maxOffset)
-        case Success(EndDelimiter(text), next) =>
-          addText(text)
-          Success(builder.result, next)
-        case Success(NestedDelimiter(startChar, text), next) =>
-          addText(text)
-          val parser = nestedMap(startChar)
-          val newIn = nestedSpanOrNextChar(parser, next)
-          parse(newIn)
-      }
-    }
-
-    parse(in)
   }
 
   /** Parses a list of spans based on the specified helper parsers.
@@ -153,7 +159,7 @@ object InlineParsers {
     *  @return the resulting parser
     */
   def spans (parser: => DelimitedText[String], spanParsers: => Map[Char, Parser[Span]]): Parser[List[Span]]
-      = inline(parser, spanParsers, new SpanBuilder)
+      = new InlineParser(parser, spanParsers, new SpanBuilder)
 
   /** Parses text based on the specified helper parsers.
     *
@@ -162,7 +168,7 @@ object InlineParsers {
     *  @return the resulting parser
     */
   def text (parser: => DelimitedText[String], nested: => Map[Char, Parser[String]]): Parser[String]
-      = inline(parser, nested, new TextBuilder)
+      = new InlineParser(parser, nested, new TextBuilder)
 
 
 }
