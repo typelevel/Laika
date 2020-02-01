@@ -17,7 +17,10 @@
 package laika.parse.text
 import cats.data.NonEmptySet
 
-/**
+/** A variant of the Characters type that can be used as a stable prefix for an optimized
+  * span parser as it is always non-empty. It's created by the `oneOf` method in `TextParsers`
+  * and usually not used directly.
+  * 
   * @author Jens Halm
   */
 class PrefixCharacters[T] (val underlying: Characters[T], val startChars: NonEmptySet[Char]) extends PrefixedParser[T] {

@@ -51,7 +51,7 @@ trait BlockParserBuilder extends ParserBuilder[BlockParserDefinition]
   * of the host language. */
 trait SpanParserBuilder extends ParserBuilder[SpanParserDefinition]
 
-/** Builder API for span parsers.
+/** Builder API for span parsers that allows to set the parser precedence.
   */
 case class SpanParserBuilderOps (parserFactory: RecursiveSpanParsers => PrefixedParser[Span],
                                  recursive: Boolean,
@@ -70,22 +70,24 @@ case class SpanParserBuilderOps (parserFactory: RecursiveSpanParsers => Prefixed
 }
 
 /** Builder API for span parsers.
+  * 
+  * The two entry points are either `recursive` if your parser implementation
+  * needs to recursively parse child spans defined by the host language
+  * or `standalone` if it doesn't.
   */
 object SpanParser {
   
-  import cats.implicits._
-
   /** Creates a parser definition for a parser that is independent from the parsers
     * of the host languages.
     */
   def standalone (parser: PrefixedParser[Span]): SpanParserBuilderOps = 
-    SpanParserBuilderOps(_ => parser, false, Precedence.High)
+    SpanParserBuilderOps(_ => parser, recursive = false, Precedence.High)
 
   /** Creates a parser definition for a parser that depends on the parsers
     * of the host languages for recursively parsing child elements.
     */
   def recursive (factory: RecursiveSpanParsers => PrefixedParser[Span]): SpanParserBuilderOps =
-    SpanParserBuilderOps(factory, true, Precedence.High)
+    SpanParserBuilderOps(factory, recursive = true, Precedence.High)
 
   
   @deprecated("use standalone or recursive methods directly", "0.14.0")
@@ -99,6 +101,8 @@ object SpanParser {
   }
 }
 
+/** Builder API for block parsers that allows to set the parser precedence.
+  */
 case class BlockParserBuilderOps (parserFactory: RecursiveParsers => Parser[Block],
                                   recursive: Boolean = false,
                                   position: BlockPosition = BlockPosition.Any,
@@ -130,6 +134,14 @@ case class BlockParserBuilderOps (parserFactory: RecursiveParsers => Parser[Bloc
 }
 
 /** Builder API for block parsers.
+  * 
+  * The entry points provide access to the parsers for child blocks (`recursive`),
+  * child spans (`withSpans`) or escape sequences (`withEscapedText`). These
+  * are methods with decreasing power, as the parser for recursive blocks does
+  * also provide the span parsers.
+  * 
+  * If your parser implementation is completely independent from the host markup
+  * language you can use the `standalone` method.
   */
 object BlockParser {
 
