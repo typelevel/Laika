@@ -183,7 +183,7 @@ object InlineParsers {
     val titleEnd = ws.^ ~ ')'
     val title = ws.^ ~> (('"' ~> delimitedBy("\"", titleEnd)) | ('\'' ~> delimitedBy("'", titleEnd)))
 
-    val url = ('<' ~> text(delimitedBy('>',' ').keepDelimiter).embed(recParsers.escapeSequence) <~ '>') |
+    val url = ('<' ~> text(delimitedBy('>').failOn(' ')).embed(recParsers.escapeSequence)) |
        text(delimitedBy(')',' ','\t').keepDelimiter).embed(recParsers.escapeSequence)
     
     val urlWithTitle = '(' ~> url ~ opt(title) <~ ws ~ ')' ^^ {  
