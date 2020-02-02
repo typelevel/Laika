@@ -226,5 +226,11 @@ object TextParsers extends Parsers {
     else if (len == 1) DelimiterOptions(ConfigurableDelimiter(Set(str.head), Some(postCondition)))
     else delimitedBy(str.head.toString, Literal(str.tail) ~ postCondition)
   }
+  
+  def delimiter (char: Char, chars: Char*): DelimiterParser = new DelimiterParser(prefix(char, chars:_*).take(1))
+  
+  def delimiter (delim: String): DelimiterParser = new DelimiterParser(literal(delim))
+  
+  def delimiter (parser: PrefixedParser[String]): DelimiterParser = new DelimiterParser(parser)
 
 }
