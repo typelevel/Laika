@@ -289,7 +289,7 @@ class ListParsersSpec extends FlatSpec
       |
       |term 2 : classifier
       | bbb""".stripMargin
-    Parsing (input) should produce (root( defList + ("term 1", p("aaa")) + (List(Text("term 2 "), Classifier(List(Text("classifier")))), p("bbb"))))
+    Parsing (input) should produce (root( defList + ("term 1", p("aaa")) + (List(Text("term 2"), Classifier(List(Text("classifier")))), p("bbb"))))
   }
   
   it should "parse items containing multiple paragraphs in a single item" in {

@@ -167,7 +167,7 @@ object ListParsers {
     val term: Parser[String] = not(blankLine | tableStart | explicitStart | listStart | headerStart) ~> 
         anyBut('\n') <~ eol ~ lookAhead((ws min 1) ~ not(blankLine))
     
-    val classifier = ": " ~ lookBehind(3,' ') ~> recParsers.recursiveSpans ^^ (Classifier(_))
+    val classifier = delimiter(" : ") ~> recParsers.recursiveSpans ^^ (Classifier(_))
     val termWithClassifier = recParsers.recursiveSpans(term).embed(classifier)
 
     val item = (termWithClassifier ~ recParsers.recursiveBlocks(indentedBlock(firstLineIndented = true))) ^? {
