@@ -27,11 +27,40 @@ import scala.annotation.tailrec
   *
   * @author Jens Halm
   */
-class DelimitedText (val delimiter: ConfigurableDelimiter) extends Parser[String] {
+class DelimitedText (private[laika] val delimiter: TextDelimiter) extends Parser[String] {
 
   private lazy val parser: DelimitedParser[String] = new DelimitedParser[String](delimiter)
 
+  /** Creates a delimiter that also allows reaching the end of the input.
+    * By default a delimiter based parser fails in that case.
+    */
+  def acceptEOF: DelimitedText = new DelimitedText(delimiter.copy(acceptEOF = true))
+
+  /** Creates a delimiter that also allows empty result, meaning reaching the delimiter before any non-delimiter
+    * characters have been parsed.
+    * By default a delimiter based parser fails in that case.
+    */
+  def nonEmpty: DelimitedText = new DelimitedText(delimiter.copy(nonEmpty = true))
+
+  /** Creates a delimiter that keeps the delimiter itself on the remaining input.
+    * By default all delimiter characters are consumed.
+    */
+  def keepDelimiter: DelimitedText = new DelimitedText(delimiter.copy(keepDelimiter = true))
+
+  /** Creates a delimiter that fails when parsing any of the specified characters before a delimiter is encountered.
+    */
+  def failOn (chars: Char*): DelimitedText = new DelimitedText(delimiter.copy(failOn = chars.toSet))
+  
   def parse (ctx: ParserContext): Parsed[String] = parser.parse(ctx)
+
+}
+
+object DelimitedText {
+
+  /** A parser that reads to the end of the input, unless further conditions
+    * are set on the returned `DelimiterOptions`.
+    */
+  lazy val Undelimited: DelimitedText = new DelimitedText(TextDelimiter(Set())).acceptEOF
 
 }
 
@@ -73,21 +102,11 @@ private[laika] class DelimitedParser [T] (val delimiter: Delimiter[T]) extends P
 
 }
 
-
-object DelimitedText {
-
-  /** A parser that reads to the end of the input, unless further conditions
-    * are set on the returned `DelimiterOptions`.
-    */
-  lazy val Undelimited: DelimitedText with DelimiterOptions = DelimiterOptions(ConfigurableDelimiter(Set())).acceptEOF
-
-}
-
 /** Represents the logic of a specific kind of text delimiter.
   *
   * @tparam T the type of result produced by this delimiter
   */
-trait Delimiter[T] {
+private[laika] trait Delimiter[T] {
 
   /** The start characters that mark the (potential) end of the delimited text
     * in case the conditions implemented in `atStartChar` are met.
@@ -121,63 +140,12 @@ trait Delimiter[T] {
 
 /** Delimiter implementation that allows for various kinds of customization.
   */
-case class ConfigurableDelimiter (endDelimiters: Set[Char],
-                                  postCondition: Option[Parser[Any]] = None,
-                                  acceptEOF: Boolean = false,
-                                  nonEmpty: Boolean = false,
-                                  keepDelimiter: Boolean = false,
-                                  failOn: Set[Char] = Set()) extends Delimiter[String] {
-
-  // TODO - 0.14 - remove once all use cases are migrated to the new TextDelimiter
-  
-  val startChars: Set[Char] = endDelimiters ++ failOn
-
-  private val emptyResult = Message.fixed(s"expected at least 1 character before end delimiter")
-  private val unexpectedInput: Char => Message =
-    Message.forRuntimeValue[Char] (char => s"unexpected input in delimited text: `$char`")
-
-
-  def atStartChar (startChar: Char, charsConsumed: Int, context: ParserContext): DelimiterResult[String] = {
-
-    def applyPostCondition: Option[Int] = postCondition.fold(Option(0)) { parser =>
-      parser.parse(context.consume(charsConsumed + 1)) match {
-        case Success(_, next) => Some(next.offset - (context.offset + charsConsumed + 1))
-        case _ => None
-      }
-    }
-
-    def result (delimConsumed: Int): Success[String] = {
-      val capturedText = context.capture(charsConsumed)
-      val totalConsumed = if (keepDelimiter) charsConsumed else charsConsumed + 1 + delimConsumed
-      Success(capturedText, context.consume(totalConsumed))
-    }
-
-    if (failOn.contains(startChar)) Complete(Failure(unexpectedInput(startChar), context, context.offset + charsConsumed))
-    else {
-      applyPostCondition match {
-        case None                                      => Continue
-        case Some(_) if charsConsumed == 0 && nonEmpty => Complete(Failure(emptyResult, context))
-        case Some(delimConsumed)                       => Complete(result(delimConsumed))
-      }
-    }
-  }
-
-  def atEOF (charsConsumed: Int, context: ParserContext): Parsed[String] = {
-    if (!acceptEOF) Failure(Message.UnexpectedEOF, context, context.offset + charsConsumed)
-    else if (charsConsumed == 0 && nonEmpty) Failure(emptyResult, context)
-    else Success(context.capture(charsConsumed), context.consume(charsConsumed))
-  }
-
-}
-
-/** Delimiter for text parsers.
-  */
-case class TextDelimiter (endDelimiters: Set[Char],
-                          postCondition: Option[Parser[Any]] = None,
-                          acceptEOF: Boolean = false,
-                          nonEmpty: Boolean = false,
-                          keepDelimiter: Boolean = false,
-                          failOn: Set[Char] = Set()) extends Delimiter[String] {
+private[laika] case class TextDelimiter (endDelimiters: Set[Char],
+                                         postCondition: Option[Parser[Any]] = None,
+                                         acceptEOF: Boolean = false,
+                                         nonEmpty: Boolean = false,
+                                         keepDelimiter: Boolean = false,
+                                         failOn: Set[Char] = Set()) extends Delimiter[String] {
 
   val startChars: Set[Char] = endDelimiters ++ failOn
 
@@ -223,9 +191,9 @@ case class TextDelimiter (endDelimiters: Set[Char],
   *
   * @tparam T the type of result produced by this delimiter
   */
-trait DelimiterResult[+T]
+private[laika] trait DelimiterResult[+T]
 
-object DelimiterResult {
+private[laika] object DelimiterResult {
 
   /** Signals that the parsing should continue, meaning some conditions
     * for the delimiter at this positions have not been met.
@@ -236,44 +204,5 @@ object DelimiterResult {
     * the parsing of the delimited text and providing the result.
     */
   case class Complete[T] (result: Parsed[T]) extends DelimiterResult[T]
-
-}
-
-/** API for customizing a delimiter.
-  */
-trait DelimiterOptions {
-
-  protected def delimiter: ConfigurableDelimiter
-
-  /** Creates a delimiter that also allows reaching the end of the input.
-    * By default a delimiter based parser fails in that case.
-    */
-  def acceptEOF: DelimitedText with DelimiterOptions = DelimiterOptions(delimiter.copy(acceptEOF = true))
-
-  /** Creates a delimiter that also allows empty result, meaning reaching the delimiter before any non-delimiter
-    * characters have been parsed.
-    * By default a delimiter based parser fails in that case.
-    */
-  def nonEmpty: DelimitedText with DelimiterOptions = DelimiterOptions(delimiter.copy(nonEmpty = true))
-
-  /** Creates a delimiter that keeps the delimiter itself on the remaining input.
-    * By default all delimiter characters are consumed.
-    */
-  def keepDelimiter: DelimitedText with DelimiterOptions = DelimiterOptions(delimiter.copy(keepDelimiter = true))
-
-  /** Creates a delimiter that fails when parsing any of the specified characters before a delimiter is encountered.
-    */
-  def failOn (chars: Char*): DelimitedText with DelimiterOptions = DelimiterOptions(delimiter.copy(failOn = chars.toSet))
-
-}
-
-object DelimiterOptions {
-
-  def apply (delim: ConfigurableDelimiter): DelimitedText with DelimiterOptions
-      = new DelimitedText(delim) with DelimiterOptions {
-
-    override val delimiter = delim
-
-  }
 
 }

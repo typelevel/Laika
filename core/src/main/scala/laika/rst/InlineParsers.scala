@@ -21,8 +21,8 @@ import laika.bundle.{SpanParser, SpanParserBuilder}
 import laika.collection.TransitionalCollectionOps._
 import laika.parse.markup.RecursiveSpanParsers
 import laika.parse.text.TextParsers._
-import laika.parse.text.{DelimitedText, DelimiterOptions, PrefixedParser}
-import laika.parse.uri.{AutoLinkParsers, URIParsers}
+import laika.parse.text.{DelimitedText, PrefixedParser}
+import laika.parse.uri.{AutoLinkParsers}
 import laika.parse.{Failure, Parser, Success}
 import laika.rst.BaseParsers._
 import laika.rst.ast.{InterpretedText, ReferenceName, SubstitutionReference}
@@ -135,12 +135,12 @@ object InlineParsers {
     end >> { markup => (lookBehind(markup.length + 1, beforeEndMarkup) ~ lookAhead(eol | afterEndMarkup)) ^^^ markup }
   }
 
-  def delimitedByMarkupEnd (end: String): DelimitedText with DelimiterOptions = {
+  def delimitedByMarkupEnd (end: String): DelimitedText = {
     val postCondition = lookBehind(end.length + 1, beforeEndMarkup) ~ lookAhead(eol | afterEndMarkup)
     delimitedBy(end, postCondition)
   }
 
-  def delimitedByMarkupEnd (end: String, postCondition: Parser[Any]): DelimitedText with DelimiterOptions = {
+  def delimitedByMarkupEnd (end: String, postCondition: Parser[Any]): DelimitedText = {
     val combinedPostCondition = lookBehind(end.length + 1, beforeEndMarkup) ~ lookAhead(eol | afterEndMarkup) ~ postCondition
     delimitedBy(end, combinedPostCondition)
   }

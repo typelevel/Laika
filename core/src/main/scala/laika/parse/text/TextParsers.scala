@@ -195,22 +195,20 @@ object TextParsers extends Parsers {
   /** Consumes any number of consecutive characters until one of the specified characters
     * is encountered on the input string.
     */
-  def delimitedBy (chars: Char*): DelimitedText with DelimiterOptions =
-    DelimiterOptions(ConfigurableDelimiter(chars.toSet))
+  def delimitedBy (chars: Char*): DelimitedText = new DelimitedText(TextDelimiter(chars.toSet))
 
   /** Consumes any number of consecutive characters until one of the specified characters
     * is encountered on the input string.
     */
-  def delimitedBy (chars: NonEmptySet[Char]): DelimitedText with DelimiterOptions =
-    DelimiterOptions(ConfigurableDelimiter(chars.toSortedSet))
+  def delimitedBy (chars: NonEmptySet[Char]): DelimitedText = new DelimitedText(TextDelimiter(chars.toSortedSet))
 
   /** Consumes any number of consecutive characters until the specified string delimiter
     * is encountered on the input string.
     */
-  def delimitedBy (str: String): DelimitedText with DelimiterOptions = {
+  def delimitedBy (str: String): DelimitedText = {
     val len = str.length
     if (len == 0) DelimitedText.Undelimited
-    else if (len == 1) DelimiterOptions(ConfigurableDelimiter(Set(str.head)))
+    else if (len == 1) new DelimitedText(TextDelimiter(Set(str.head)))
     else delimitedBy(str.head.toString, Literal(str.tail))
   }
 
@@ -220,10 +218,10 @@ object TextParsers extends Parsers {
     * Only succeeds if the specified `postCondition` parser succeeds at the offset after
     * the consumed delimiter string.
     */
-  def delimitedBy (str: String, postCondition: Parser[Any]): DelimitedText with DelimiterOptions = {
+  def delimitedBy (str: String, postCondition: Parser[Any]): DelimitedText = {
     val len = str.length
     if (len == 0) DelimitedText.Undelimited
-    else if (len == 1) DelimiterOptions(ConfigurableDelimiter(Set(str.head), Some(postCondition)))
+    else if (len == 1) new DelimitedText(TextDelimiter(Set(str.head), Some(postCondition)))
     else delimitedBy(str.head.toString, Literal(str.tail) ~ postCondition)
   }
   
