@@ -88,7 +88,7 @@ object InlineParsers {
    *  Recursively parses nested spans, too. 
    */
   def enclosedBySingleChar (c: Char)(implicit recParsers: RecursiveSpanParsers): PrefixedParser[List[Span]] = {
-    val start = c ~ lookAhead(anyBut(' ','\n',c).take(1).^)
+    val start = delimiter(c).nextNot(' ','\n',c)
     val end = not(lookBehind(2, ' '))
     span(start, c.toString, end)
   }
@@ -97,7 +97,7 @@ object InlineParsers {
    *  Recursively parses nested spans, too. 
    */
   def enclosedByDoubleChar (c: Char)(implicit recParsers: RecursiveSpanParsers): PrefixedParser[List[Span]] = {
-    val start = (c.toString * 2) ~ lookAhead(anyBut(' ','\n').take(1).^)
+    val start = delimiter(s"$c$c").nextNot(' ','\n')
     val end = c <~ not(lookBehind(3, ' '))
     span(start, c.toString, end)
   }
@@ -106,7 +106,7 @@ object InlineParsers {
    *  Does neither parse nested spans nor Markdown escapes. 
    */
   val literalEnclosedBySingleChar: PrefixedParser[Literal] = {
-    val start = '`' ~ not('`')
+    val start = delimiter('`').nextNot('`')
     val end = '`'
     start ~> delimitedBy(end) ^^ { s => Literal(s.trim) }
   }
