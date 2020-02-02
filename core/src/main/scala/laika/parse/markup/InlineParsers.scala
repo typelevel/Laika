@@ -18,7 +18,7 @@ package laika.parse.markup
 
 import laika.ast._
 import laika.parse._
-import laika.parse.text.{DelimitedText, PrefixedParser}
+import laika.parse.text.{DelimitedParser, DelimitedText, Delimiter, PrefixedParser}
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
@@ -99,18 +99,18 @@ object InlineParsers {
     def result: String = builder.toString
   }
 
-  private class DefaultInlineParser [Elem,To] (baseParser: => DelimitedText[String],
-                                nested: => Seq[PrefixedParser[Elem]],
-                                resultBuilder: => ResultBuilder[Elem, To]) extends InlineParser[Elem,To] {
+  private class DefaultInlineParser [Elem,To] (textDelimiter: => Delimiter[String],
+                                               nested: => Seq[PrefixedParser[Elem]],
+                                               resultBuilder: => ResultBuilder[Elem, To]) extends InlineParser[Elem,To] {
     
     private lazy val nestedMap = PrefixedParser.mapAndMerge(nested)
-    private lazy val textParser = new DelimitedText(new InlineDelimiter(nestedMap.keySet, baseParser.delimiter))
+    private lazy val textParser = new DelimitedParser(new InlineDelimiter(nestedMap.keySet, textDelimiter))
 
     def embed (parser: => PrefixedParser[Elem]): InlineParser[Elem, To] = 
-      new DefaultInlineParser(baseParser, nested :+ parser, resultBuilder)
+      new DefaultInlineParser(textDelimiter, nested :+ parser, resultBuilder)
 
     def embedAll (parsers: => Seq[PrefixedParser[Elem]]): InlineParser[Elem, To] =
-      new DefaultInlineParser(baseParser, nested ++ parsers, resultBuilder)
+      new DefaultInlineParser(textDelimiter, nested ++ parsers, resultBuilder)
     
     def parse (in: ParserContext): Parsed[To] = {
 
@@ -151,22 +151,24 @@ object InlineParsers {
     * The returned parser allows to register parsers for child spans with its `embed` method.
     * Without calling it, the result of this parser would always just be a single span of type `Text`.
     */
-  def spans (parser: => DelimitedText[String]): InlineParser[Span, List[Span]] = new DefaultInlineParser(parser, Nil, new SpanBuilder)
+  def spans (parser: => DelimitedText[String]): InlineParser[Span, List[Span]] = 
+    new DefaultInlineParser(parser.delimiter, Nil, new SpanBuilder)
 
   /** Creates a new parser that reads text until the delimiters in the specified parser are detected.
     * 
     * The returned parser allows to register parsers for child spans with its `embed` method,
     * for example for reading escape sequences.
     */
-  def text (parser: => DelimitedText[String]): InlineParser[String, String] = new DefaultInlineParser(parser, Nil, new TextBuilder)
+  def text (parser: => DelimitedText[String]): InlineParser[String, String] = 
+    new DefaultInlineParser(parser.delimiter, Nil, new TextBuilder)
 
   @deprecated("use .spans(...).embed(...) instead", "0.14.0")
   def spans (parser: => DelimitedText[String], spanParsers: => Map[Char, Parser[Span]]): Parser[List[Span]]
-      = new DefaultInlineParser(parser, PrefixedParser.fromLegacyMap(spanParsers), new SpanBuilder)
+      = new DefaultInlineParser(parser.delimiter, PrefixedParser.fromLegacyMap(spanParsers), new SpanBuilder)
 
   @deprecated("use .text(...).embed(...) instead", "0.14.0")
   def text (parser: => DelimitedText[String], nested: => Map[Char, Parser[String]]): Parser[String]
-      = new DefaultInlineParser(parser, PrefixedParser.fromLegacyMap(nested), new TextBuilder)
+      = new DefaultInlineParser(parser.delimiter, PrefixedParser.fromLegacyMap(nested), new TextBuilder)
 
 
 }

@@ -27,7 +27,18 @@ import scala.annotation.tailrec
   *
   * @author Jens Halm
   */
-class DelimitedText[T] (val delimiter: Delimiter[T]) extends Parser[T] {
+class DelimitedText[T] (val delimiter: ConfigurableDelimiter) extends Parser[String] {
+
+  private lazy val parser: DelimitedParser[String] = new DelimitedParser[String](delimiter)
+
+  def parse (ctx: ParserContext): Parsed[String] = parser.parse(ctx)
+
+}
+
+/** Internal parser implementation that both, the public DelimitedText parser
+  * and the internal InlineParser delegate to.
+  */
+private[laika] class DelimitedParser [T] (val delimiter: Delimiter[T]) extends Parser[T] {
 
 
   private val maxChar: Char = if (delimiter.startChars.nonEmpty) delimiter.startChars.max else 0
@@ -62,11 +73,11 @@ class DelimitedText[T] (val delimiter: Delimiter[T]) extends Parser[T] {
 
 }
 
+
 object DelimitedText {
 
   /** A parser that reads to the end of the input, unless further conditions
-    * are set on the returned `DelimierOptions`.
-    *
+    * are set on the returned `DelimiterOptions`.
     */
   lazy val Undelimited: DelimitedText[String] with DelimiterOptions = DelimiterOptions(ConfigurableDelimiter(Set())).acceptEOF
 
@@ -116,6 +127,57 @@ case class ConfigurableDelimiter (endDelimiters: Set[Char],
                                   nonEmpty: Boolean = false,
                                   keepDelimiter: Boolean = false,
                                   failOn: Set[Char] = Set()) extends Delimiter[String] {
+
+  // TODO - 0.14 - remove once all use cases are migrated to the new TextDelimiter
+  
+  val startChars: Set[Char] = endDelimiters ++ failOn
+
+  private val emptyResult = Message.fixed(s"expected at least 1 character before end delimiter")
+  private val unexpectedInput: Char => Message =
+    Message.forRuntimeValue[Char] (char => s"unexpected input in delimited text: `$char`")
+
+
+  def atStartChar (startChar: Char, charsConsumed: Int, context: ParserContext): DelimiterResult[String] = {
+
+    def applyPostCondition: Option[Int] = postCondition.fold(Option(0)) { parser =>
+      parser.parse(context.consume(charsConsumed + 1)) match {
+        case Success(_, next) => Some(next.offset - (context.offset + charsConsumed + 1))
+        case _ => None
+      }
+    }
+
+    def result (delimConsumed: Int): Success[String] = {
+      val capturedText = context.capture(charsConsumed)
+      val totalConsumed = if (keepDelimiter) charsConsumed else charsConsumed + 1 + delimConsumed
+      Success(capturedText, context.consume(totalConsumed))
+    }
+
+    if (failOn.contains(startChar)) Complete(Failure(unexpectedInput(startChar), context, context.offset + charsConsumed))
+    else {
+      applyPostCondition match {
+        case None                                      => Continue
+        case Some(_) if charsConsumed == 0 && nonEmpty => Complete(Failure(emptyResult, context))
+        case Some(delimConsumed)                       => Complete(result(delimConsumed))
+      }
+    }
+  }
+
+  def atEOF (charsConsumed: Int, context: ParserContext): Parsed[String] = {
+    if (!acceptEOF) Failure(Message.UnexpectedEOF, context, context.offset + charsConsumed)
+    else if (charsConsumed == 0 && nonEmpty) Failure(emptyResult, context)
+    else Success(context.capture(charsConsumed), context.consume(charsConsumed))
+  }
+
+}
+
+/** Delimiter for text parsers.
+  */
+case class TextDelimiter (endDelimiters: Set[Char],
+                          postCondition: Option[Parser[Any]] = None,
+                          acceptEOF: Boolean = false,
+                          nonEmpty: Boolean = false,
+                          keepDelimiter: Boolean = false,
+                          failOn: Set[Char] = Set()) extends Delimiter[String] {
 
   val startChars: Set[Char] = endDelimiters ++ failOn
 
@@ -208,7 +270,7 @@ trait DelimiterOptions {
 object DelimiterOptions {
 
   def apply (delim: ConfigurableDelimiter): DelimitedText[String] with DelimiterOptions
-      = new DelimitedText(delim) with DelimiterOptions {
+      = new DelimitedText[String](delim) with DelimiterOptions {
 
     override val delimiter = delim
 
