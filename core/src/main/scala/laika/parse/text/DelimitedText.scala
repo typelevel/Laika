@@ -27,7 +27,7 @@ import scala.annotation.tailrec
   *
   * @author Jens Halm
   */
-class DelimitedText[T] (val delimiter: ConfigurableDelimiter) extends Parser[String] {
+class DelimitedText (val delimiter: ConfigurableDelimiter) extends Parser[String] {
 
   private lazy val parser: DelimitedParser[String] = new DelimitedParser[String](delimiter)
 
@@ -79,7 +79,7 @@ object DelimitedText {
   /** A parser that reads to the end of the input, unless further conditions
     * are set on the returned `DelimiterOptions`.
     */
-  lazy val Undelimited: DelimitedText[String] with DelimiterOptions = DelimiterOptions(ConfigurableDelimiter(Set())).acceptEOF
+  lazy val Undelimited: DelimitedText with DelimiterOptions = DelimiterOptions(ConfigurableDelimiter(Set())).acceptEOF
 
 }
 
@@ -248,29 +248,29 @@ trait DelimiterOptions {
   /** Creates a delimiter that also allows reaching the end of the input.
     * By default a delimiter based parser fails in that case.
     */
-  def acceptEOF: DelimitedText[String] with DelimiterOptions = DelimiterOptions(delimiter.copy(acceptEOF = true))
+  def acceptEOF: DelimitedText with DelimiterOptions = DelimiterOptions(delimiter.copy(acceptEOF = true))
 
   /** Creates a delimiter that also allows empty result, meaning reaching the delimiter before any non-delimiter
     * characters have been parsed.
     * By default a delimiter based parser fails in that case.
     */
-  def nonEmpty: DelimitedText[String] with DelimiterOptions = DelimiterOptions(delimiter.copy(nonEmpty = true))
+  def nonEmpty: DelimitedText with DelimiterOptions = DelimiterOptions(delimiter.copy(nonEmpty = true))
 
   /** Creates a delimiter that keeps the delimiter itself on the remaining input.
     * By default all delimiter characters are consumed.
     */
-  def keepDelimiter: DelimitedText[String] with DelimiterOptions = DelimiterOptions(delimiter.copy(keepDelimiter = true))
+  def keepDelimiter: DelimitedText with DelimiterOptions = DelimiterOptions(delimiter.copy(keepDelimiter = true))
 
   /** Creates a delimiter that fails when parsing any of the specified characters before a delimiter is encountered.
     */
-  def failOn (chars: Char*): DelimitedText[String] with DelimiterOptions = DelimiterOptions(delimiter.copy(failOn = chars.toSet))
+  def failOn (chars: Char*): DelimitedText with DelimiterOptions = DelimiterOptions(delimiter.copy(failOn = chars.toSet))
 
 }
 
 object DelimiterOptions {
 
-  def apply (delim: ConfigurableDelimiter): DelimitedText[String] with DelimiterOptions
-      = new DelimitedText[String](delim) with DelimiterOptions {
+  def apply (delim: ConfigurableDelimiter): DelimitedText with DelimiterOptions
+      = new DelimitedText(delim) with DelimiterOptions {
 
     override val delimiter = delim
 

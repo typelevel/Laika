@@ -151,7 +151,7 @@ object InlineParsers {
     * The returned parser allows to register parsers for child spans with its `embed` method.
     * Without calling it, the result of this parser would always just be a single span of type `Text`.
     */
-  def spans (parser: => DelimitedText[String]): InlineParser[Span, List[Span]] = 
+  def spans (parser: => DelimitedText): InlineParser[Span, List[Span]] = 
     new DefaultInlineParser(parser.delimiter, Nil, new SpanBuilder)
 
   /** Creates a new parser that reads text until the delimiters in the specified parser are detected.
@@ -159,15 +159,15 @@ object InlineParsers {
     * The returned parser allows to register parsers for child spans with its `embed` method,
     * for example for reading escape sequences.
     */
-  def text (parser: => DelimitedText[String]): InlineParser[String, String] = 
+  def text (parser: => DelimitedText): InlineParser[String, String] = 
     new DefaultInlineParser(parser.delimiter, Nil, new TextBuilder)
 
   @deprecated("use .spans(...).embed(...) instead", "0.14.0")
-  def spans (parser: => DelimitedText[String], spanParsers: => Map[Char, Parser[Span]]): Parser[List[Span]]
+  def spans (parser: => DelimitedText, spanParsers: => Map[Char, Parser[Span]]): Parser[List[Span]]
       = new DefaultInlineParser(parser.delimiter, PrefixedParser.fromLegacyMap(spanParsers), new SpanBuilder)
 
   @deprecated("use .text(...).embed(...) instead", "0.14.0")
-  def text (parser: => DelimitedText[String], nested: => Map[Char, Parser[String]]): Parser[String]
+  def text (parser: => DelimitedText, nested: => Map[Char, Parser[String]]): Parser[String]
       = new DefaultInlineParser(parser.delimiter, PrefixedParser.fromLegacyMap(nested), new TextBuilder)
 
 

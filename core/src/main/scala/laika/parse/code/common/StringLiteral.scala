@@ -104,7 +104,7 @@ object StringLiteral {
   
   /** Configurable base parser for string literals. */
   case class StringParser(chars: NonEmptySet[Char],
-                          parser: DelimitedText[String],
+                          parser: DelimitedText,
                           prefix: Option[Parser[String]] = None,
                           postfix: Option[Parser[String]] = None,
                           embedded: Seq[CodeSpanParser] = Nil,

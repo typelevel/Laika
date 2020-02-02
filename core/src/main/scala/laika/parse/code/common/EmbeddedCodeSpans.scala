@@ -38,7 +38,7 @@ object EmbeddedCodeSpans {
     * An example is a parser for an HTML script element, where the text parser is responsible
     * for detecting the end of the tag (`</script>`) whereas the embedded syntax is JavaScript, not HTML.
     */
-  def parser (textParser: DelimitedText[String], embedded: SyntaxHighlighter): Parser[Seq[CodeSpan]] =
+  def parser (textParser: DelimitedText, embedded: SyntaxHighlighter): Parser[Seq[CodeSpan]] =
     parser(textParser, embedded.spanParsers)
 
   /** Creates a new parser for code spans based on the specified parser for delimited text
@@ -51,7 +51,7 @@ object EmbeddedCodeSpans {
     * for detecting the end of the tag (e.g. `/>` for an empty tag) whereas the embedded child parsers
     * are responsible for detecting attribute names and values and entity references.
     */
-  def parser (textParser: DelimitedText[String], embedded: Seq[CodeSpanParser], defaultCategories: Set[CodeCategory] = Set.empty): Parser[Seq[CodeSpan]] = {
+  def parser (textParser: DelimitedText, embedded: Seq[CodeSpanParser], defaultCategories: Set[CodeCategory] = Set.empty): Parser[Seq[CodeSpan]] = {
     
     val codeSpanParsers = embedded.flatMap(_.parsers)
     val newLineParsers  = codeSpanParsers.filter(_.startChars.contains('\n')).reduceLeftOption(_ | _)

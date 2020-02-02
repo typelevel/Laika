@@ -135,12 +135,12 @@ object InlineParsers {
     end >> { markup => (lookBehind(markup.length + 1, beforeEndMarkup) ~ lookAhead(eol | afterEndMarkup)) ^^^ markup }
   }
 
-  def delimitedByMarkupEnd (end: String): DelimitedText[String] with DelimiterOptions = {
+  def delimitedByMarkupEnd (end: String): DelimitedText with DelimiterOptions = {
     val postCondition = lookBehind(end.length + 1, beforeEndMarkup) ~ lookAhead(eol | afterEndMarkup)
     delimitedBy(end, postCondition)
   }
 
-  def delimitedByMarkupEnd (end: String, postCondition: Parser[Any]): DelimitedText[String] with DelimiterOptions = {
+  def delimitedByMarkupEnd (end: String, postCondition: Parser[Any]): DelimitedText with DelimiterOptions = {
     val combinedPostCondition = lookBehind(end.length + 1, beforeEndMarkup) ~ lookAhead(eol | afterEndMarkup) ~ postCondition
     delimitedBy(end, combinedPostCondition)
   }
