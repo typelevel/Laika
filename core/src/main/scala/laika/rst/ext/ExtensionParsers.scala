@@ -51,15 +51,16 @@ class ExtensionParsers(recParsers: RecursiveParsers,
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#explicit-markup-blocks]].
    */
-  lazy val explicitBlockItem: PrefixedParser[Block] = explicitStart ~> (substitutionDefinition | roleDirective | blockDirective)
+  lazy val explicitBlockItem: PrefixedParser[Block] = 
+    explicitStart ~> (substitutionDefinition | roleDirective | blockDirective)
   
   /** Parses a substitution definition.
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#substitution-definitions]].
    */
   lazy val substitutionDefinition: Parser[Block] = {
-    val text = not(ws take 1) ~> escapedText(delimitedBy('|','\n').keepDelimiter.nonEmpty)
-    val prefix = '|' ~> text <~ not(lookBehind(1, ' ')) ~ '|'
+    val prefix = delimiter('|').nextNot(' ') ~> 
+      escapedText(delimitedBy(delimiter('|').prevNot(' ')).failOn('\n').nonEmpty)
     
     ((prefix <~ ws) ~ spanDirectiveParser) ^^ { 
       case name ~ InvalidDirective(msg, source, _) =>
@@ -80,7 +81,9 @@ class ExtensionParsers(recParsers: RecursiveParsers,
    */
   lazy val blockDirective: Parser[Block] = directive(blockDirectives.get) ^^ replaceInvalidDirective
 
-  private val recBlocks: String => Result[Seq[Block]] = s => recursiveBlocks(DelimitedText.Undelimited).parse(s).toEither
+  private val recBlocks: String => Result[Seq[Block]] = 
+    s => recursiveBlocks(DelimitedText.Undelimited).parse(s).toEither
+  
   private val recSpans: String => Result[Seq[Span]] = s => recursiveSpans.parse(s).toEither
   
   private def directive [E](provider: String => Option[DirectivePartBuilder[E]]): Parser[E] = {

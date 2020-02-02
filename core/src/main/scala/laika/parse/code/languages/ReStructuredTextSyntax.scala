@@ -25,7 +25,7 @@ import laika.parse.code.common.{NumberLiteral, StringLiteral}
 import laika.parse.text.PrefixedParser
 import laika.parse.text.TextParsers._
 import laika.rst.BaseParsers
-import laika.rst.InlineParsers.{delimitedByMarkupEnd, markupStart}
+import laika.rst.InlineParsers.{markupEnd, markupStart}
 
 /**
   * @author Jens Halm
@@ -40,15 +40,16 @@ object ReStructuredTextSyntax extends SyntaxHighlighter {
       res => CodeSpan(if (includeDelim) s"$res$end" else res, category)
     }
 
-  private def span (start: String, end: String, category: CodeCategory, postCondition: Parser[Any] = success(())): CodeSpanParser =
+  private def span (start: String, end: String, category: CodeCategory): CodeSpanParser =
     CodeSpanParser(category) {
-      markupStart(start, end) ~> delimitedByMarkupEnd(end, postCondition) ^^ { text => s"$start$text$end" }
+      val endDelim = if (end == "*") delimiter("*").nextNot('*') else delimiter(end)
+      markupStart(start, end) ~> delimitedBy(markupEnd(endDelim)) ^^ { text => s"$start$text$end" }
     }
 
   val newLine: Parser[String] = atStart ^^^ "" | "\n"
 
   val strong: CodeSpanParser = span("**", "**", CodeCategory.Markup.Emphasized)
-  val em: CodeSpanParser     = span("*", "*", CodeCategory.Markup.Emphasized, not("*"))
+  val em: CodeSpanParser     = span("*", "*", CodeCategory.Markup.Emphasized)
   val lit: CodeSpanParser    = span("``", "``", CodeCategory.StringLiteral)
   val ref: CodeSpanParser    = span("`", "`__", CodeCategory.Markup.LinkTarget) ++ span("`", "`_", CodeCategory.Markup.LinkTarget)
   val subst: CodeSpanParser  = span("|", "|__", CodeCategory.Substitution) ++ span("|", "|_", CodeCategory.Substitution) ++ span("|", "|", CodeCategory.Substitution)

@@ -16,14 +16,16 @@
 
 package laika.rst
 
+import cats.data.NonEmptySet
+import cats.implicits._
 import laika.ast._
 import laika.bundle.{SpanParser, SpanParserBuilder}
 import laika.collection.TransitionalCollectionOps._
 import laika.parse.markup.RecursiveSpanParsers
+import laika.parse.text.PrefixedParser
 import laika.parse.text.TextParsers._
-import laika.parse.text.{DelimitedText, PrefixedParser}
-import laika.parse.uri.{AutoLinkParsers}
-import laika.parse.{Failure, Parser, Success}
+import laika.parse.uri.AutoLinkParsers
+import laika.parse.{Failure, Message, Parser, Success}
 import laika.rst.BaseParsers._
 import laika.rst.ast.{InterpretedText, ReferenceName, SubstitutionReference}
 
@@ -39,6 +41,15 @@ import laika.rst.ast.{InterpretedText, ReferenceName, SubstitutionReference}
  */
 object InlineParsers {
 
+  // TODO - 0.14 - promote to TextParser
+  def ensureNot (pred: Char => Boolean): Parser[Unit] = {
+    val errMsg: Char => Message = Message.forRuntimeValue[Char] { found => s"character '$found' does not satisfy this predicate" }
+    Parser { in =>
+      if (in.atEnd) Success((), in)
+      else if (!pred(in.char)) Success((), in)
+      else Failure(errMsg(in.char), in)
+    }
+  }
 
   /** Parses an escaped character. For most characters it produces the character
     *  itself as the result with the only exception being an escaped space character
@@ -79,50 +90,50 @@ object InlineParsers {
                   .groupBy(_._1).mapValuesStrict(_.map(_._2).toSet)
 
                   
-  private val startChars = anyOf(' ','-',':','/','\'','"','<','(','[','{','\n') take 1
+  private val startChars = NonEmptySet.of(' ','-',':','/','\'','"','<','(','[','{','\n')
   
   private val startCategories = Set[Int](Character.DASH_PUNCTUATION, Character.OTHER_PUNCTUATION, Character.START_PUNCTUATION,
                             Character.INITIAL_QUOTE_PUNCTUATION, Character.FINAL_QUOTE_PUNCTUATION)
    
-  private val endChars = anyOf(' ','-','.',',',':',';','!','?','\\','/','\'','"','>',')',']','}','\u201a','\u201e') take 1
+  private val endChars = NonEmptySet.of(' ','-','.',',',':',';','!','?','\\','/','\'','"','>',')',']','}','\u201a','\u201e')
   
   private val endCategories = Set[Int](Character.DASH_PUNCTUATION, Character.OTHER_PUNCTUATION, Character.END_PUNCTUATION,
                             Character.INITIAL_QUOTE_PUNCTUATION, Character.FINAL_QUOTE_PUNCTUATION)
 
-
-  /** Inline markup recognition rules 3
+  /** Inline markup recognition rules 1 and 2 
+    * (applies to the character after the start delimiter and before the end delimiter).
     */
-  private val beforeEndMarkup: Parser[String] = anyBut(' ','\n') take 1
+  private val invalidInsideDelimiter: NonEmptySet[Char] = NonEmptySet.of(' ','\n')
 
-  /** Inline markup recognition rule 1
+  /** Inline markup recognition rule 6.
     */
-  private val beforeStartMarkup: Parser[Char] = (startChars | anyWhile(char => startCategories(Character.getType(char))).take(1)) ^^ {_.charAt(0)}
-
-  /** Inline markup recognition rule 4
-    */
-  private val afterEndMarkup: Parser[Any] = endChars | anyWhile(char => endCategories(Character.getType(char))).take(1)
+  private val invalidBeforeStartMarkup: Char => Boolean =
+    char => !startChars.contains(char) && !startCategories.contains(Character.getType(char))
   
-  /** Parses the markup at the start of an inline element according to reStructuredText markup recognition rules.
-   * 
-   *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#inline-markup-recognition-rules]].
-   * 
-   *  @param start the parser that recognizes the markup at the start of an inline element
-   *  @param end the parser that recognizes the markup at the end of an inline element, needed to verify
-   *  the start sequence is not immediately followed by an end sequence as empty elements are not allowed.
-   *  @return a parser without a useful result, as it is only needed to verify it succeeds
-   */                          
-  def markupStart (start: PrefixedParser[Any], end: Parser[String]): PrefixedParser[Any] = {
+  /** Inline markup recognition rule 7.
+    */
+  private val invalidAfterEndMarkup: Char => Boolean = char =>
+    !endChars.contains(char) && !endCategories.contains(Character.getType(char)) && char != '\n' // TODO - could \n be in endCharSet?
 
-    /* Inline markup recognition rules 2 and 5 */
-    def afterStartMarkup (before: Char): Parser[Any ~ String] = {
-      val matching = pairs.getOrElse(before, Set())
-      val excluded = (matching + ' ' + '\n').toList
-      start ~ lookAhead(anyBut(excluded:_*) take 1)
-    }
-    PrefixedParser(start.startChars) {
-      ((lookBehind(1, beforeStartMarkup) | atStart ^^^ ' ') >> afterStartMarkup) ~ not(end) // not(end) == rule 6
-    }
-  }
+  /** Parses the markup at the start of an inline element according to reStructuredText markup recognition rules.
+    *
+    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#inline-markup-recognition-rules]].
+    *
+    *  @param start the parser that recognizes the markup at the start of an inline element
+    *  @param end the parser that recognizes the markup at the end of an inline element, needed to verify
+    *  the start sequence is not immediately followed by an end sequence as empty elements are not allowed.
+    *  @return a parser without a useful result, as it is only needed to verify it succeeds
+    */
+  def markupStart (start: PrefixedParser[String], end: Parser[String]): PrefixedParser[Any] = {
+
+    /* Inline markup recognition rules 5 */
+    def invalidPair (before: Char, after: Char): Boolean = pairs.getOrElse(before, Set()).contains(after)
+
+    delimiter(start)
+      .prevNot(invalidBeforeStartMarkup)
+      .nextNot(invalidInsideDelimiter)
+      .notEnclosedBy(invalidPair) ~ not(end) // not(end) == rule 3
+  }  
   
   /** Parses the end of an inline element according to reStructuredText markup recognition rules.
    * 
@@ -131,37 +142,18 @@ object InlineParsers {
    *  @param end the parser that recognizes the markup at the end of an inline element
    *  @return a parser that produces the same result as the parser passed as an argument
    */
-  def markupEnd (end: PrefixedParser[String]): PrefixedParser[String] = {
-    end >> { markup => (lookBehind(markup.length + 1, beforeEndMarkup) ~ lookAhead(eol | afterEndMarkup)) ^^^ markup }
-  }
+  def markupEnd (end: PrefixedParser[String]): PrefixedParser[String] =
+    delimiter(end)
+      .prevNot(invalidInsideDelimiter)
+      .nextNot(invalidAfterEndMarkup)
 
-  def delimitedByMarkupEnd (end: String): DelimitedText = {
-    val postCondition = lookBehind(end.length + 1, beforeEndMarkup) ~ lookAhead(eol | afterEndMarkup)
-    delimitedBy(end, postCondition)
-  }
-
-  def delimitedByMarkupEnd (end: String, postCondition: Parser[Any]): DelimitedText = {
-    val combinedPostCondition = lookBehind(end.length + 1, beforeEndMarkup) ~ lookAhead(eol | afterEndMarkup) ~ postCondition
-    delimitedBy(end, combinedPostCondition)
-  }
-
-  /** Parses the end of an inline element according to reStructuredText markup recognition rules.
-    *
-    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#inline-markup-recognition-rules]].
-    *
-    *  @param delimLength the length of the end delimiter that has already been consumed from the input
-    *  @return a parser that succeeds without consuming any input when the rst markup end conditions are met
-    */
-  def markupEnd (delimLength: Int): Parser[Any] = {
-    lookBehind(delimLength + 1, beforeEndMarkup) ~ lookAhead(eol | afterEndMarkup)
-  }
   
   /** Parses a span of emphasized text.
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#emphasis]]
    */
   lazy val em: SpanParserBuilder = SpanParser.recursive { implicit recParsers =>
-    span('*' ~> not(lookBehind(2, '*')), "*", not('*')) ^^ (Emphasized(_))
+    span(delimiter('*').prevNot('*'), delimiter("*").nextNot('*')) ^^ (Emphasized(_))
   }.withLowPrecedence
   
   /** Parses a span of text with strong emphasis.
@@ -172,19 +164,17 @@ object InlineParsers {
     span("**","**") ^^ (Strong(_))
   }
 
+  private def span (start: PrefixedParser[String], 
+                    end: PrefixedParser[String])(implicit recParsers: RecursiveSpanParsers): PrefixedParser[List[Span]]
+    = markupStart(start, end) ~> recParsers.escapedText(delimitedBy(markupEnd(end))) ^^ { text => List(Text(text)) }
 
-  private def span (start: PrefixedParser[Any], end: String)(implicit recParsers: RecursiveSpanParsers): PrefixedParser[List[Span]]
-    = markupStart(start, end) ~> recParsers.escapedText(delimitedByMarkupEnd(end)) ^^ { text => List(Text(text)) }
-
-  private def span (start: PrefixedParser[Any], end: String, postCondition: Parser[Any])(implicit recParsers: RecursiveSpanParsers): PrefixedParser[List[Span]]
-    = markupStart(start, end) ~> recParsers.escapedText(delimitedByMarkupEnd(end, postCondition)) ^^ { text => List(Text(text)) }
-
+  
   /** Parses an inline literal element.
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#inline-literals]].
    */
   lazy val inlineLiteral: SpanParserBuilder = SpanParser.standalone {
-    markupStart("``", "``") ~> delimitedByMarkupEnd("``") ^^ (Literal(_))
+    markupStart("``", "``") ~> delimitedBy(markupEnd("``")) ^^ (Literal(_))
   }
   
   private def toSource (label: FootnoteLabel): String = label match {
@@ -228,8 +218,9 @@ object InlineParsers {
    */
   lazy val internalTarget: SpanParserBuilder = SpanParser.recursive { recParsers =>
     markupStart("_`", "`") ~>
-    (recParsers.escapedText(delimitedBy('`').nonEmpty) ^^ ReferenceName) <~
-    markupEnd(1) ^^ (id => Text(id.original, Id(id.normalized) + Styles("target")))
+    (recParsers.escapedText(delimitedBy(markupEnd("`")).nonEmpty) ^^ ReferenceName) ^^ { id => 
+      Text(id.original, Id(id.normalized) + Styles("target")) 
+    }
   }
   
   /** Parses an interpreted text element with the role name as a prefix.
@@ -237,7 +228,7 @@ object InlineParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#interpreted-text]]
    */  
   lazy val interpretedTextWithRolePrefix: SpanParserBuilder = SpanParser.recursive { recParsers =>
-    (markupStart(":", ":") ~> simpleRefName) ~ (":`" ~> recParsers.escapedText(delimitedBy('`').nonEmpty) <~ markupEnd(1)) ^^
+    (markupStart(":", ":") ~> simpleRefName) ~ (":`" ~> recParsers.escapedText(delimitedBy(markupEnd("`")).nonEmpty)) ^^
       { case role ~ text => InterpretedText(role,text,s":$role:`$text`") }
   }
   
@@ -246,7 +237,7 @@ object InlineParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#interpreted-text]]
    */  
   def interpretedTextWithRoleSuffix (defaultTextRole: String): SpanParserBuilder = SpanParser.recursive { recParsers =>
-    (markupStart("`", "`") ~> recParsers.escapedText(delimitedBy('`').nonEmpty) <~ markupEnd(1)) ~ opt(":" ~> simpleRefName <~ markupEnd(":")) ^^
+    markupStart("`", "`") ~> recParsers.escapedText(delimitedBy(markupEnd("`")).nonEmpty) ~ opt(":" ~> simpleRefName <~ markupEnd(":")) ^^
     { case text ~ role => InterpretedText(role.getOrElse(defaultTextRole), text, s"`$text`" + role.map(":"+_+":").getOrElse("")) }
   }.withLowPrecedence
   
@@ -273,7 +264,7 @@ object InlineParsers {
    */
   lazy val simpleLinkRef: SpanParserBuilder = SpanParser.standalone {
     markupEnd("__" | "_") >> {
-      markup => reverse(markup.length, simpleRefName <~ reverseMarkupStart) ^^ { refName =>
+      markup => reverse(markup.length, simpleRefName <~ ensureNot(invalidBeforeStartMarkup)) ^^ { refName =>
         markup match {
           case "_"  => Reverse(refName.length, LinkReference(List(Text(refName)), ReferenceName(refName).normalized, s"${refName}_"), Text("_")) 
           case "__" => Reverse(refName.length, LinkReference(List(Text(refName)), "", s"${refName}__"), Text("__")) 
@@ -289,11 +280,9 @@ object InlineParsers {
     }
   }
   
-  private lazy val reverseMarkupStart: Parser[Any] = lookAhead(eof | beforeStartMarkup)
-
   private val autoLinks = new AutoLinkParsers(
-    reverseMarkupStart,
-    afterEndMarkup,
+    ensureNot(invalidBeforeStartMarkup),
+    ensureNot(invalidAfterEndMarkup),
     Set('-',':','/','\'','(','{'),
     Set('-',':','/','\'',')','}','.',',',';','!','?')
   )
