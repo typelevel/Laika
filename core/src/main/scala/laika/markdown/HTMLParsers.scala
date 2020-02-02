@@ -16,6 +16,8 @@
 
 package laika.markdown
 
+import cats.implicits._
+import cats.data.NonEmptySet
 import laika.ast._
 import laika.bundle.{BlockParser, BlockParserBuilder, SpanParser, SpanParserBuilder}
 import laika.markdown.ast._
@@ -34,14 +36,14 @@ import laika.parse.text.TextParsers._
 object HTMLParsers {
 
 
-  private val htmlWSChars = List(' ','\t','\f','\n','\r')
+  private val htmlWSChars = NonEmptySet.of(' ','\t','\f','\n','\r')
 
-  private val htmlAttrEndChars = List('"','\'','<','=','/','>') ::: htmlWSChars
+  private val htmlAttrEndChars = NonEmptySet.of('"','\'','<','=','/','>') ++ htmlWSChars
 
 
   /** Parses and consumes optional whitespace, always succeeds.
    */
-  val htmlWS: Parser[String] = anyOf(htmlWSChars:_*)
+  val htmlWS: Parser[String] = anyOf(htmlWSChars)
 
 
   val htmlHexReference: Parser[String] = {
@@ -65,10 +67,10 @@ object HTMLParsers {
       { s => HTMLCharacterReference("&" + s + ";") }
 
 
-  val htmlAttributeName: Parser[String] = anyBut(htmlAttrEndChars:_*) min 1
+  val htmlAttributeName: Parser[String] = anyBut(htmlAttrEndChars).min(1)
 
   val htmlUnquotedAttributeValue: Parser[(List[Span with TextContainer], Option[Char])] =
-    spans(delimitedBy(htmlAttrEndChars:_*).keepDelimiter).embed(htmlCharReference) ^?
+    spans(delimitedBy(htmlAttrEndChars).keepDelimiter).embed(htmlCharReference) ^?
       { case x :: xs => ((x::xs).asInstanceOf[List[Span with TextContainer]], None) }
 
   /** Parses an attribute value enclosed by the specified character.
@@ -94,7 +96,7 @@ object HTMLParsers {
     }
 
 
-  val htmlTagName: Parser[String] = anyOf(CharGroup.alpha).min(1) ~ anyBut('/' :: '>' :: htmlWSChars:_*) ^^ {
+  val htmlTagName: Parser[String] = anyOf(CharGroup.alpha).min(1) ~ anyBut(htmlWSChars.add('/').add('>')) ^^ {
     case first ~ rest => first + rest
   }
 
@@ -108,7 +110,7 @@ object HTMLParsers {
 
   /** Parses an HTML end tag if it matches the specified tag name.
    */
-  def htmlEndTag (tagName: String): DelimitedText = delimitedBy("</", tagName ~ htmlWS ~ '>')
+  def htmlEndTag (tagName: String): DelimitedText = delimitedBy(("</" ~ tagName ~ htmlWS ~ '>') ^^^ "")
 
   /** Parses an HTML comment without the leading `'<'`.
    */

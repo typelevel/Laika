@@ -60,7 +60,7 @@ object DelimitedText {
   /** A parser that reads to the end of the input, unless further conditions
     * are set on the returned `DelimiterOptions`.
     */
-  lazy val Undelimited: DelimitedText = new DelimitedText(TextDelimiter(Set())).acceptEOF
+  lazy val Undelimited: DelimitedText = new DelimitedText(TextDelimiter(None)).acceptEOF
 
 }
 
@@ -140,14 +140,13 @@ private[laika] trait Delimiter[T] {
 
 /** Delimiter implementation that allows for various kinds of customization.
   */
-private[laika] case class TextDelimiter (endDelimiters: Set[Char],
-                                         postCondition: Option[Parser[Any]] = None,
+private[laika] case class TextDelimiter (parser: Option[PrefixedParser[String]],
                                          acceptEOF: Boolean = false,
                                          nonEmpty: Boolean = false,
                                          keepDelimiter: Boolean = false,
                                          failOn: Set[Char] = Set()) extends Delimiter[String] {
 
-  val startChars: Set[Char] = endDelimiters ++ failOn
+  val startChars: Set[Char] = parser.fold(failOn) { _.startChars.toSortedSet ++ failOn }
 
   private val emptyResult = Message.fixed(s"expected at least 1 character before end delimiter")
   private val unexpectedInput: Char => Message =
@@ -156,16 +155,16 @@ private[laika] case class TextDelimiter (endDelimiters: Set[Char],
 
   def atStartChar (startChar: Char, charsConsumed: Int, context: ParserContext): DelimiterResult[String] = {
 
-    def applyPostCondition: Option[Int] = postCondition.fold(Option(0)) { parser =>
-      parser.parse(context.consume(charsConsumed + 1)) match {
-        case Success(_, next) => Some(next.offset - (context.offset + charsConsumed + 1))
+    def applyPostCondition: Option[Int] = parser.fold(Option(0)) { parser =>
+      parser.parse(context.consume(charsConsumed)) match {
+        case Success(_, next) => Some(next.offset - (context.offset + charsConsumed))
         case _ => None
       }
     }
 
     def result (delimConsumed: Int): Success[String] = {
       val capturedText = context.capture(charsConsumed)
-      val totalConsumed = if (keepDelimiter) charsConsumed else charsConsumed + 1 + delimConsumed
+      val totalConsumed = if (keepDelimiter) charsConsumed else charsConsumed + delimConsumed
       Success(capturedText, context.consume(totalConsumed))
     }
 
@@ -185,6 +184,10 @@ private[laika] case class TextDelimiter (endDelimiters: Set[Char],
     else Success(context.capture(charsConsumed), context.consume(charsConsumed))
   }
 
+}
+
+private[laika] object TextDelimiter {
+  def apply(parser: PrefixedParser[String]): TextDelimiter = apply(Some(parser))
 }
 
 /** Represents the result of parsing a delimiter.

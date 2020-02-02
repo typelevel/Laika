@@ -195,22 +195,19 @@ object TextParsers extends Parsers {
   /** Consumes any number of consecutive characters until one of the specified characters
     * is encountered on the input string.
     */
-  def delimitedBy (chars: Char*): DelimitedText = new DelimitedText(TextDelimiter(chars.toSet))
+  def delimitedBy (char: Char, chars: Char*): DelimitedText = new DelimitedText(TextDelimiter(prefix(char, chars: _*).take(1)))
 
   /** Consumes any number of consecutive characters until one of the specified characters
     * is encountered on the input string.
     */
-  def delimitedBy (chars: NonEmptySet[Char]): DelimitedText = new DelimitedText(TextDelimiter(chars.toSortedSet))
+  def delimitedBy (chars: NonEmptySet[Char]): DelimitedText = new DelimitedText(TextDelimiter(prefix(chars)))
 
   /** Consumes any number of consecutive characters until the specified string delimiter
     * is encountered on the input string.
     */
-  def delimitedBy (str: String): DelimitedText = {
-    val len = str.length
-    if (len == 0) DelimitedText.Undelimited
-    else if (len == 1) new DelimitedText(TextDelimiter(Set(str.head)))
-    else delimitedBy(str.head.toString, Literal(str.tail))
-  }
+  def delimitedBy (str: String): DelimitedText =
+    if (str.isEmpty) DelimitedText.Undelimited
+    else delimitedBy(literal(str))
 
   /** Consumes any number of consecutive characters until the specified string delimiter
     * is encountered on the input string.
@@ -218,12 +215,11 @@ object TextParsers extends Parsers {
     * Only succeeds if the specified `postCondition` parser succeeds at the offset after
     * the consumed delimiter string.
     */
-  def delimitedBy (str: String, postCondition: Parser[Any]): DelimitedText = {
-    val len = str.length
-    if (len == 0) DelimitedText.Undelimited
-    else if (len == 1) new DelimitedText(TextDelimiter(Set(str.head), Some(postCondition)))
-    else delimitedBy(str.head.toString, Literal(str.tail) ~ postCondition)
-  }
+  def delimitedBy (str: String, postCondition: Parser[Any]): DelimitedText =
+    if (str.isEmpty) DelimitedText.Undelimited
+    else delimitedBy(literal(str) <~ lookAhead(postCondition))
+
+  def delimitedBy (delimiter: PrefixedParser[String]): DelimitedText = new DelimitedText(TextDelimiter(delimiter))
   
   def delimiter (char: Char, chars: Char*): DelimiterParser = new DelimiterParser(prefix(char, chars:_*).take(1))
   

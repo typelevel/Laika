@@ -18,10 +18,10 @@ package laika.markdown.github
 
 import laika.ast._
 import laika.bundle.{BlockParser, BlockParserBuilder}
-import laika.parse.Parser
-import laika.parse.text.TextParsers._
 import laika.markdown.BlockParsers._
+import laika.parse.Parser
 import laika.parse.text.PrefixedParser
+import laika.parse.text.TextParsers._
 
 /** Parser for the table extension of GitHub Flavored Markdown.
   *

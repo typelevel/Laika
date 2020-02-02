@@ -153,7 +153,7 @@ object BlockParsers {
     val url = (('<' ~> escapedUntil('>')) | escapedText(delimitedBy(' ', '\n').acceptEOF.keepDelimiter)) ^^ { _.mkString }
 
     def enclosedBy(start: Char, end: Char) =
-      start ~> delimitedBy(end.toString, lookAhead(wsEol)).failOn('\r', '\n') ^^ { _.mkString }
+      start ~> delimitedBy(end.toString, wsEol).failOn('\r', '\n') ^^ { _.mkString }
 
     val title = (ws.^ ~ opt(eol) ~ ws.^) ~> (enclosedBy('"', '"') | enclosedBy('\'', '\'') | enclosedBy('(', ')'))
 

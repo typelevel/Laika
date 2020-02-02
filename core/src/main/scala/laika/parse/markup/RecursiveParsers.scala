@@ -138,10 +138,7 @@ trait EscapedTextParsers {
     * (unless it is escaped),
     * while also processing escaped characters, but no other nested
     * spans. The final character is not included in the result.
-    *
-    * @param char the character(s) that signals the end of the text span
-    * @return a parser for a text span that supports escape sequences
     */
-  def escapedUntil(char: Char*): Parser[String]
+  def escapedUntil(char: Char, chars: Char*): Parser[String]
 
 }

@@ -66,11 +66,10 @@ object InlineParsers {
    *  represent the start and end condition.
    * 
    *  @param start the parser that parses the beginning of the span, result will be discarded
-   *  @param endDelim the end delimiter of the span
-   *  @param postCondition the parser that checks any post conditions after the end delimiter has been read
+   *  @param end the end delimiter of the span
    */
-  def span (start: PrefixedParser[Any], endDelim: String, postCondition: Parser[Any])(implicit recParsers: RecursiveSpanParsers): PrefixedParser[List[Span]]
-    = start ~> recParsers.recursiveSpans(delimitedBy(endDelim, postCondition))
+  def span (start: PrefixedParser[Any], end: PrefixedParser[String])(implicit recParsers: RecursiveSpanParsers): PrefixedParser[List[Span]]
+  = start ~> recParsers.recursiveSpans(delimitedBy(end))
 
   /** Parses either strong spans enclosed in double asterisks or emphasized spans enclosed in single asterisks.
     */
@@ -88,18 +87,18 @@ object InlineParsers {
    *  Recursively parses nested spans, too. 
    */
   def enclosedBySingleChar (c: Char)(implicit recParsers: RecursiveSpanParsers): PrefixedParser[List[Span]] = {
-    val start = delimiter(c).nextNot(' ','\n',c)
-    val end = not(lookBehind(2, ' '))
-    span(start, c.toString, end)
+    val start = delimiter(c).nextNot(' ', '\n', c)
+    val end   = delimiter(c).prevNot(' ')
+    span(start, end)
   }
   
   /** Parses a span enclosed by two consecutive occurrences of the specified character.
    *  Recursively parses nested spans, too. 
    */
   def enclosedByDoubleChar (c: Char)(implicit recParsers: RecursiveSpanParsers): PrefixedParser[List[Span]] = {
-    val start = delimiter(s"$c$c").nextNot(' ','\n')
-    val end = c <~ not(lookBehind(3, ' '))
-    span(start, c.toString, end)
+    val start = delimiter(s"$c$c").nextNot(' ', '\n')
+    val end   = delimiter(s"$c$c").prevNot(' ')
+    span(start, end)
   }
   
   /** Parses a literal span enclosed by a single backtick.
@@ -181,7 +180,7 @@ object InlineParsers {
       .embed(recParsers.escapeSequence ^^ {"\\" + _})
       .embed('[' ~> delimitedBy(']') ^^ { "[" + _ + "]" })
 
-    val titleEnd = lookAhead(ws.^ ~ ')')
+    val titleEnd = ws.^ ~ ')'
     val title = ws.^ ~> (('"' ~> delimitedBy("\"", titleEnd)) | ('\'' ~> delimitedBy("'", titleEnd)))
 
     val url = ('<' ~> text(delimitedBy('>',' ').keepDelimiter).embed(recParsers.escapeSequence) <~ '>') |
