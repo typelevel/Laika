@@ -18,7 +18,7 @@ package laika.markdown
 
 import laika.ast._
 import laika.bundle.{SpanParser, SpanParserBuilder}
-import laika.parse.{Failure, Parser, ParserContext, Success}
+import laika.parse.Parser
 import laika.parse.markup.InlineParsers.text
 import laika.parse.markup.RecursiveSpanParsers
 import laika.parse.text.TextParsers._
@@ -181,7 +181,8 @@ object InlineParsers {
       .embed('[' ~> delimitedBy(']') ^^ { "[" + _ + "]" })
 
     val titleEnd = ws.^ ~ ')'
-    val title = ws.^ ~> (('"' ~> delimitedBy("\"", titleEnd)) | ('\'' ~> delimitedBy("'", titleEnd)))
+    def enclosedIn(c: Char): Parser[String] = c ~> delimitedBy(c.toString <~ lookAhead(titleEnd))
+    val title = ws.^ ~> (enclosedIn('"') | enclosedIn('\''))
 
     val url = ('<' ~> text(delimitedBy('>').failOn(' ')).embed(recParsers.escapeSequence)) |
        text(delimitedBy(')',' ','\t').keepDelimiter).embed(recParsers.escapeSequence)

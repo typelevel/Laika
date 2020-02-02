@@ -209,12 +209,7 @@ object TextParsers extends Parsers {
     if (str.isEmpty) DelimitedText.Undelimited
     else delimitedBy(literal(str))
 
-  /** Consumes any number of consecutive characters until the specified string delimiter
-    * is encountered on the input string.
-    *
-    * Only succeeds if the specified `postCondition` parser succeeds at the offset after
-    * the consumed delimiter string.
-    */
+  @deprecated("compose the post condition manually, e.g. delimitedBy(':' <~ eol)", "0.14.0")
   def delimitedBy (str: String, postCondition: Parser[Any]): DelimitedText =
     if (str.isEmpty) DelimitedText.Undelimited
     else delimitedBy(literal(str) <~ lookAhead(postCondition))
