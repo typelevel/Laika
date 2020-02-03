@@ -18,7 +18,7 @@ package laika.parse.code.common
 
 import cats.data.NonEmptySet
 import cats.implicits._
-import laika.ast.{CategorizedCode, CodeSpan}
+import laika.ast.{CategorizedCode, CodeSpan, ~}
 import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.text.TextParsers._
 import laika.parse.text.{CharGroup, PrefixedParser}
@@ -42,9 +42,10 @@ object Identifier {
     
 
   /** Configurable base parser for identifiers in code blocks. */
-  case class IdParser(startChars: NonEmptySet[Char],
+  case class IdParser(idStartChars: NonEmptySet[Char],
                       nonStartChars: NonEmptySet[Char],
                       category: String => CodeCategory = _ => CodeCategory.Identifier,
+                      prefixParser: Option[PrefixedParser[String]] = None,
                       allowDigitBeforeStart: Boolean = false) extends PrefixedParser[CodeSpan] with CodeSpanParser {
 
     import NumberLiteral._
@@ -61,7 +62,7 @@ object Identifier {
       * Will also be added to the set of characters for the parser of the rest of the identifier.
       */
     def withIdStartChars(char: Char, chars: Char*): IdParser = 
-      copy(startChars = startChars ++ NonEmptySet.of(char, chars:_*))
+      copy(idStartChars = idStartChars ++ NonEmptySet.of(char, chars:_*))
 
     /** Adds the specified characters to the set of characters allowed as part of an identifier,
       * but not allowed as the first character.
@@ -69,20 +70,32 @@ object Identifier {
     def withIdPartChars(char: Char, chars: Char*): IdParser = 
       copy(nonStartChars = nonStartChars ++ NonEmptySet.of(char, chars:_*))
 
+    /** Adds the specified prefix to this identifier.
+      * 
+      * The resulting parser will first parse this prefix and subsequently the
+      * base parser for this identifier that will still apply the rules
+      * for which characters are allowed to start the identifier.
+      * 
+      * An example would be an identifier like `#foo` in CSS, where `#` is the prefix,
+      * and `foo` follows the rules of this identifier parser.
+      */
+    def withPrefix (parser: PrefixedParser[String]): IdParser = copy(prefixParser = Some(parser))
 
     lazy val underlying: PrefixedParser[CodeSpan] = {
-        
-      val idStart = delimiter(prefix(startChars).take(1)).prevNot { c =>
+
+      val firstChar = prefix(idStartChars).take(1)
+      val idStart = prefixParser.fold[PrefixedParser[String]](firstChar)(p => (p ~ firstChar).concat)
+      val idDelim = delimiter(idStart).prevNot { c =>
         (Character.isDigit(c) && !allowDigitBeforeStart) || Character.isLetter(c)
       }
-      val idRest  = anyOf(startChars ++ nonStartChars)
+      val idRest = anyOf(idStartChars ++ nonStartChars)
       
-      (idStart ~ idRest).concat.map(id => CodeSpan(id, category(id)))
-      
+      (idDelim ~ idRest).concat.map(id => CodeSpan(id, category(id)))
     }
 
     override def parsers: Seq[PrefixedParser[CategorizedCode]] = Seq(this)
-
+    override def startChars: NonEmptySet[Char] = underlying.startChars
+    
   }
 
   /** Parses an alphanumeric identifier; digits are not allowed as start characters.

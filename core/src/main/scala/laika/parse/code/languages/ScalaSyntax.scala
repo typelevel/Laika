@@ -21,7 +21,7 @@ import laika.bundle.SyntaxHighlighter
 import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue}
 import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.code.common.{CharLiteral, Comment, Identifier, Keywords, NumberLiteral, NumericSuffix, StringLiteral}
-import laika.parse.text.{CharGroup, Characters, PrefixedParser}
+import laika.parse.text.{CharGroup, PrefixedParser}
 import laika.parse.text.TextParsers._
 
 /**
@@ -33,9 +33,9 @@ object ScalaSyntax extends SyntaxHighlighter {
   
   val language: NonEmptyList[String] = NonEmptyList.of("scala")
   
-  val symbolParser: CodeSpanParser = CodeSpanParser(CodeCategory.SymbolLiteral) {
-    prefix('\'').take(1) ~> Identifier.alphaNum.map { id => "'" + id.content }
-  }
+  val symbolParser: CodeSpanParser = Identifier.alphaNum
+    .withPrefix(literal("'"))
+    .withCategory(CodeCategory.SymbolLiteral)
   
   val backtickIdParser: CodeSpanParser = CodeSpanParser(CodeCategory.Identifier) {
     (prefix('`').take(1) ~ anyBut('\n', '`') ~ anyOf('`').take(1)).concat
