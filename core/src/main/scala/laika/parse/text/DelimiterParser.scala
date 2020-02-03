@@ -20,7 +20,28 @@ import cats.implicits._
 import cats.data.NonEmptySet
 import laika.parse.{Failure, Message, Parser, Success}
 
-/**
+/** A parser that simplifies the expression of typical conditions for start and end
+  * delimiters of inline spans.
+  * 
+  * It allows to specify conditions for the immediately preceding and following character
+  * of the parsed delimiter.
+  * 
+  * As an example, the following parser is only composed of base combinators
+  * {{{
+  *   lookBehind(1, not(' ')) ~ "**" ~ lookAhead(not(' '))
+  * }}}
+  * 
+  * It looks for the string "**" as a delimiter and does not allow any space character
+  * before or after the delimiter
+  * 
+  * With this API it can be rewritten as:
+  * {{{
+  *   delimiter("**").prevNot(' ').nextNot(' ')
+  * }}}
+  * 
+  * The only characters that this parser will consume and return as a result
+  * are those of the delimiter itself, not the surrounding characters that it validated.
+  * 
   * @author Jens Halm
   */
 class DelimiterParser (prefix: PrefixedParser[String],
@@ -58,24 +79,49 @@ class DelimiterParser (prefix: PrefixedParser[String],
       case f: Failure => f
     }
   }
-  
+
+  /** Ensures that the character immediately preceding the delimiter
+    * is not one of the specified characters.
+    */
   def prevNot (char: Char, chars: Char*): DelimiterParser = prevNot(NonEmptySet.of(char, chars:_*))
-  
+
+  /** Ensures that the character immediately preceding the delimiter
+    * is not in the specified set.
+    */
   def prevNot (chars: NonEmptySet[Char]): DelimiterParser = prevNot(chars.contains(_))
-  
+
+  /** Ensures that the character immediately preceding the delimiter
+    * does not satisfy the given predicate.
+    */
   def prevNot (predicate: Char => Boolean): DelimiterParser = 
     new DelimiterParser(prefix, predicate, nextCharInvalid, enclosingCharsInvalid)
 
+  /** Ensures that the character immediately following the delimiter
+    * is not one of the specified characters.
+    */
   def nextNot (char: Char, chars: Char*): DelimiterParser = nextNot(NonEmptySet.of(char, chars:_*))
 
+  /** Ensures that the character immediately following the delimiter
+    * is not in the specified set.
+    */
   def nextNot (chars: NonEmptySet[Char]): DelimiterParser = nextNot(chars.contains(_))
 
+  /** Ensures that the character immediately following the delimiter
+    * does not satisfy the given predicate.
+    */
   def nextNot (predicate: Char => Boolean): DelimiterParser = 
     new DelimiterParser(prefix, prevCharInvalid, predicate, enclosingCharsInvalid)
-  
+
+  /** Ensures that the characters immediately preceding and following the delimiter
+    * do not satisfy the given predicate.
+    * 
+    * This option exists for the rare occasion where certain kinds of pairs of
+    * characters surrounding a delimiter cannot be allowed. This logic would
+    * be particularly cumbersome to express with the basic combinators.
+    */
   def notEnclosedBy (predicate: (Char, Char) => Boolean): DelimiterParser = 
     new DelimiterParser(prefix, prevCharInvalid, nextCharInvalid, predicate)
   
-  def postCondition (parser: Parser[Any]): DelimiterParser = ??? // TODO - implement
+  // def postCondition (parser: Parser[Any]): DelimiterParser = ??? // TODO - implement
   
 }

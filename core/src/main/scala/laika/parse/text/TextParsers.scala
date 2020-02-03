@@ -214,12 +214,37 @@ object TextParsers extends Parsers {
     if (str.isEmpty) DelimitedText.Undelimited
     else delimitedBy(literal(str) <~ lookAhead(postCondition))
 
+  /** Consumes any number of consecutive characters until the specified delimiter parser
+    * succeeds on the input. 
+    * 
+    * This constructor is limited to the sub-trait `PrefixedParser`
+    * as only those can be optimized for an assertion that needs to be performed on each
+    * character. Most parsers for non-empty text implement this trait, e.g `oneOf`, `someOf`,
+    * `delimiter` or the literal parsers for a character or string.
+    */
   def delimitedBy (delimiter: PrefixedParser[String]): DelimitedText = new DelimitedText(TextDelimiter(delimiter))
-  
+
+  /** Creates a parser for a delimiter based on the given set of delimiter characters 
+    * with an API that allows to specify predicates for the characters immediately 
+    * preceding or following the delimiter, a common task in markup parsing.
+    */
   def delimiter (char: Char, chars: Char*): DelimiterParser = new DelimiterParser(prefix(char, chars:_*).take(1))
-  
+
+  /** Creates a parser for a delimiter based on a literal string with an API that 
+    * allows to specify predicates for the characters immediately 
+    * preceding or following the delimiter, a common task in markup parsing.
+    */
   def delimiter (delim: String): DelimiterParser = new DelimiterParser(literal(delim))
-  
+
+  /** Creates a parser for a delimiter with an API that allows to specify 
+    * predicates for the characters immediately preceding or following 
+    * the delimiter, a common task in markup parsing.
+    * 
+    * This specified underlying parser needs to implement the sub-trait `PrefixedParser`
+    * as only those can be optimized for an assertion that needs to be performed on each
+    * character. Most parsers for non-empty text implement this trait, e.g `oneOf`, `someOf`,
+    * `delimiter` or the literal parsers for a character or string.
+    */
   def delimiter (parser: PrefixedParser[String]): DelimiterParser = new DelimiterParser(parser)
 
 }
