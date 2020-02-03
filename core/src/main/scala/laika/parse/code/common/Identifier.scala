@@ -72,9 +72,9 @@ object Identifier {
 
     lazy val underlying: PrefixedParser[CodeSpan] = {
         
-      val prevChar = lookBehind(2, anyWhile(c => (!Character.isDigit(c) || allowDigitBeforeStart) && !Character.isLetter(c)).take(1)) | lookBehind(1, atStart)
-
-      val idStart = prefix(startChars).take(1) <~ prevChar
+      val idStart = delimiter(prefix(startChars).take(1)).prevNot { c =>
+        (Character.isDigit(c) && !allowDigitBeforeStart) || Character.isLetter(c)
+      }
       val idRest  = anyOf(startChars ++ nonStartChars)
       
       (idStart ~ idRest).concat.map(id => CodeSpan(id, category(id)))

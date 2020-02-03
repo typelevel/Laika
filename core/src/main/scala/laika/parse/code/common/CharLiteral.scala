@@ -16,7 +16,7 @@
 
 package laika.parse.code.common
 
-import laika.ast.{CategorizedCode, CodeSpan, CodeSpans, ~}
+import laika.ast.{CodeSpan, CodeSpans, ~}
 import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.text.PrefixedParser
 import laika.parse.text.TextParsers._
@@ -49,8 +49,8 @@ object CharLiteral {
 
       (delim ~> lookAhead(any.take(1))).flatMap { char =>
         (PrefixedParser.mapAndMerge(embedded.flatMap(_.parsers)).getOrElse(char.head, plainChar(char)) ~ delimParser).map { 
-          case span ~ delim => 
-            val codeSpans = delim +: CodeSpans.extract(categories)(span) :+ delim
+          case span ~ delimSpan => 
+            val codeSpans = delimSpan +: CodeSpans.extract(categories)(span) :+ delimSpan
             CodeSpans.merge(codeSpans) 
         }
       }
