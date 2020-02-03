@@ -16,13 +16,12 @@
 
 package laika.parse.code.languages
 
-import cats.implicits._
-import cats.data.{NonEmptyList, NonEmptySet}
+import cats.data.NonEmptyList
 import laika.ast.{CodeSpan, ~}
 import laika.bundle.SyntaxHighlighter
 import laika.parse.Parser
-import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.code.common.{NumberLiteral, StringLiteral}
+import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.text.PrefixedParser
 import laika.parse.text.TextParsers._
 
@@ -33,22 +32,15 @@ object MarkdownSyntax extends SyntaxHighlighter {
 
   import NumberLiteral._
 
-  private def noSpaceAhead (delimChar: Char): Parser[String] = lookAhead(anyBut(' ', '\n', delimChar).take(1)).map(_ => "")
-
-  private def noSpaceBefore (numDelimChars: Int): Parser[Unit] = lookBehind(numDelimChars + 1, anyBut(' ', '\n').take(1)).map(_ => ())
-
   def span (category: CodeCategory, delim: String): CodeSpanParser =
     StringLiteral
-      .multiLine(delim)
+      .multiLine(delimiter(delim).nextNot(' '), delimiter(delim).prevNot(' '))
       .withCategory(category)
-      .withPrefix(noSpaceAhead(delim.head))
-      .withPostCondition(noSpaceBefore(delim.length))
 
   def singleLine (category: CodeCategory, start: String, end: Char): CodeSpanParser =
     StringLiteral
-      .singleLine(NonEmptySet.one(start.head), end)
+      .singleLine(start, end.toString)
       .withCategory(category)
-      .withPrefix(literalOrEmpty(start.tail))
 
   private def linkParser (prefix: String): PrefixedParser[Seq[CodeSpan]] = {
 
@@ -57,9 +49,9 @@ object MarkdownSyntax extends SyntaxHighlighter {
     val link = (literal(prefix) ~ delimitedBy(']').failOn('\n')).concat.map(_ + "]")
 
     (link ~ opt(url | ref)).map {
-      case link ~ Some(target) if target.content == "[]" => Seq(CodeSpan(link + "[]", CodeCategory.Markup.LinkTarget))
-      case link ~ Some(target) => Seq(CodeSpan(link, CodeCategory.Markup.LinkText), target)
-      case link ~ None => Seq(CodeSpan(link, CodeCategory.Markup.LinkTarget))
+      case linkText ~ Some(target) if target.content == "[]" => Seq(CodeSpan(linkText + "[]", CodeCategory.Markup.LinkTarget))
+      case linkText ~ Some(target) => Seq(CodeSpan(linkText, CodeCategory.Markup.LinkText), target)
+      case linkText ~ None         => Seq(CodeSpan(linkText, CodeCategory.Markup.LinkTarget))
     }
   }
 
@@ -104,7 +96,8 @@ object MarkdownSyntax extends SyntaxHighlighter {
     (startOfLine ~ anyOf('>').min(1)).concat
   }
 
-  val mdSpans: CodeSpanParser = span(CodeCategory.Markup.Emphasized, "**") ++
+  val mdSpans: CodeSpanParser = 
+    span(CodeCategory.Markup.Emphasized, "**") ++
     span(CodeCategory.Markup.Emphasized, "*") ++
     span(CodeCategory.Markup.Emphasized, "__") ++
     span(CodeCategory.Markup.Emphasized, "_") ++

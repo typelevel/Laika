@@ -16,22 +16,17 @@
 
 package laika.parse.code.languages
 
-import cats.implicits._
-import cats.data.{NonEmptyList, NonEmptySet}
+import cats.data.NonEmptyList
 import laika.bundle.SyntaxHighlighter
-import laika.parse.Parser
 import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue}
 import laika.parse.code.CodeSpanParser
 import laika.parse.code.common.StringLiteral.StringParser
-import laika.parse.code.common.{Comment, Identifier, Keywords, NumberLiteral, NumericSuffix, StringLiteral}
-import laika.parse.text.TextParsers._
+import laika.parse.code.common._
 
 /**
   * @author Jens Halm
   */
 object PythonSyntax extends SyntaxHighlighter {
-  
-  import NumberLiteral._
   
   def embedEscapes(parser: StringParser): StringParser = parser.embed(
     StringLiteral.Escape.unicode,
@@ -46,47 +41,23 @@ object PythonSyntax extends SyntaxHighlighter {
     StringLiteral.Substitution.between("{", "}")
   )
   
-  object Prefix {
-    val u: NonEmptySet[Char] = NonEmptySet.of('u','U')
-    val r: NonEmptySet[Char] = NonEmptySet.of('r', 'R')
-    val f: NonEmptySet[Char] = NonEmptySet.of('f', 'F')
-    val b: NonEmptySet[Char] = NonEmptySet.of('b', 'B')
-  }
-
-  def stringNoPrefix (embed: StringParser => StringParser): CodeSpanParser = {
-    embed(StringLiteral.multiLine("'''")) ++
-    embed(StringLiteral.multiLine("\"\"\"")) ++
-    embed(StringLiteral.singleLine('\'')) ++
-    embed(StringLiteral.singleLine('"'))
-  }
-  
-  def stringSinglePrefix (prefixChars: NonEmptySet[Char], embed: StringParser => StringParser): CodeSpanParser = {
-    embed(StringLiteral.multiLine(prefixChars, "'''").withPrefix(anyOf('\'').take(3))) ++ 
-    embed(StringLiteral.multiLine(prefixChars, "\"\"\"").withPrefix(anyOf('"').take(3))) ++
-    embed(StringLiteral.singleLine(prefixChars, '\'').withPrefix(anyOf('\'').take(1))) ++
-    embed(StringLiteral.singleLine(prefixChars, '"').withPrefix(anyOf('"').take(1)))
-  }
-
-  def stringDoublePrefix (prefixChars: NonEmptySet[Char], followingChars: NonEmptySet[Char], embed: StringParser => StringParser): CodeSpanParser = {
-    def prefix(delim: Char, num: Int): Parser[String] = (anyOf(followingChars).take(1) ~ anyOf(delim).take(num)).concat
-    embed(StringLiteral.multiLine(prefixChars, "'''").withPrefix(prefix('\'', 3))) ++
-    embed(StringLiteral.multiLine(prefixChars, "\"\"\"").withPrefix(prefix('"', 3))) ++
-    embed(StringLiteral.singleLine(prefixChars, '\'').withPrefix(prefix('\'', 1))) ++
-    embed(StringLiteral.singleLine(prefixChars, '"').withPrefix(prefix('"', 1)))
-  }
+  def stringLiteral (embed: StringParser => StringParser) (prefix: String, prefixes: String*): CodeSpanParser =
+    (prefix +: prefixes).map { pref =>
+      embed(StringLiteral.multiLine(pref + "'''", "'''")) ++
+      embed(StringLiteral.multiLine(pref + "\"\"\"", "\"\"\"")) ++
+      embed(StringLiteral.singleLine(pref + "'", "'")) ++
+      embed(StringLiteral.singleLine(pref + "\"", "\""))
+    }.reduceLeft(_ ++ _)
 
   val language: NonEmptyList[String] = NonEmptyList.of("python", "py")
 
   val spanParsers: Seq[CodeSpanParser] = Seq(
     Comment.singleLine("#"),
-    stringNoPrefix(embedEscapes),
-    stringSinglePrefix(Prefix.u ++ Prefix.b, embedEscapes),
-    stringSinglePrefix(Prefix.f, (embedEscapes _).andThen(embedSubstitutions)),
-    stringDoublePrefix(Prefix.r, Prefix.f, embedSubstitutions),
-    stringDoublePrefix(Prefix.f, Prefix.r, embedSubstitutions),
-    stringDoublePrefix(Prefix.r, Prefix.b, identity),
-    stringDoublePrefix(Prefix.b, Prefix.r, identity),
-    stringSinglePrefix(Prefix.r, identity),
+    stringLiteral(embedEscapes)("","u","U","b","B"),
+    stringLiteral((embedEscapes _).andThen(embedSubstitutions))("f","F"),
+    stringLiteral(embedSubstitutions)("rf","Rf","rF","RF","fr","fR","Fr","FR"),
+    stringLiteral(embedSubstitutions)("rb","Rb","rB","RB","br","bR","Br","BR"),
+    stringLiteral(identity)("r", "R"),
     Keywords(BooleanLiteral)("True", "False"),
     Keywords(LiteralValue)("None"),
     Keywords("and", "assert", "async", "as", "await", "break", "class", "continue", "def", "del", "elif", "else", 

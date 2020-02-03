@@ -21,7 +21,7 @@ import laika.bundle.SyntaxHighlighter
 import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue}
 import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.code.common.{CharLiteral, Comment, Identifier, Keywords, NumberLiteral, NumericSuffix, StringLiteral}
-import laika.parse.text.{CharGroup, Characters}
+import laika.parse.text.{CharGroup, Characters, PrefixedParser}
 import laika.parse.text.TextParsers._
 
 /**
@@ -43,7 +43,7 @@ object ScalaSyntax extends SyntaxHighlighter {
   
   val charEscapes: CodeSpanParser = StringLiteral.Escape.unicode ++ StringLiteral.Escape.char
   
-  val stringPrefixChar: Characters[String] = anyOf(CharGroup.alpha)
+  val stringPrefixChar: PrefixedParser[String] = prefix(CharGroup.alpha)
 
   val substitutions: CodeSpanParser = 
     StringLiteral.Substitution.between("${", "}") ++
@@ -56,11 +56,9 @@ object ScalaSyntax extends SyntaxHighlighter {
     symbolParser,
     backtickIdParser,
     StringLiteral.multiLine("\"\"\""),
-    StringLiteral.multiLine(CharGroup.alpha, "\"\"\"").withPrefix((stringPrefixChar ~ "\"\"\"").concat).embed(
-      substitutions
-    ),
+    StringLiteral.multiLine((stringPrefixChar ~ "\"\"\"").concat, literal("\"\"\"")).embed(substitutions),
     StringLiteral.singleLine('"').embed(charEscapes),
-    StringLiteral.singleLine(CharGroup.alpha, '\"').withPrefix((stringPrefixChar ~ "\"").concat).embed(
+    StringLiteral.singleLine((stringPrefixChar ~ "\"").concat, literal("\"")).embed(
       charEscapes,
       substitutions
     ),

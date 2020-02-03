@@ -16,10 +16,7 @@
 
 package laika.parse.code.common
 
-import cats.implicits._
-import cats.data.NonEmptySet
 import laika.parse.code.{CodeCategory, CodeSpanParser}
-import laika.parse.code.common.StringLiteral.StringParser
 import laika.parse.text.CharGroup
 import laika.parse.text.TextParsers._
 
@@ -32,12 +29,13 @@ object RegexLiteral {
   import NumberLiteral._
 
   /** Parses a regular expression between `/` delimiters, followed by optional modifier characters. */
-  val standard: CodeSpanParser = StringParser(
-    chars = NonEmptySet.one('/'),
-    parser = delimitedBy("/").failOn('\n').keepDelimiter,
-    postfix = Some((anyOf('/').take(1) ~ anyOf(CharGroup.alpha)).concat),
-    embedded = Seq(StringLiteral.Escape.char),
-    defaultCategories = Set(CodeCategory.RegexLiteral)
-  )
-  
+  val standard: CodeSpanParser = {
+    val startDelim = literal("/")
+    val endDelim = (startDelim ~ anyOf(CharGroup.alpha)).concat
+    StringLiteral
+      .singleLine(startDelim, endDelim)
+      .embed(StringLiteral.Escape.char)
+      .withCategory(CodeCategory.RegexLiteral)
+  }
+
 }

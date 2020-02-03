@@ -53,7 +53,10 @@ trait TagBasedFormats {
       }
 
   val string: CodeSpanParser = StringLiteral.singleLine('\'') ++ StringLiteral.singleLine('"')
-  val stringWithEntities: CodeSpanParser = StringLiteral.singleLine('\'').embed(ref) ++ StringLiteral.singleLine('"').embed(ref)
+  
+  val stringWithEntities: CodeSpanParser = 
+    StringLiteral.singleLine('\'').embed(ref) ++ 
+      StringLiteral.singleLine('"').embed(ref)
 
   /** Configurable base parser for tags in formats like HTML or XML. */
   case class TagParser(tagCategory: CodeCategory,

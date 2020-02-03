@@ -16,13 +16,11 @@
 
 package laika.parse.code.common
 
-import cats.implicits._
-import cats.data.NonEmptySet
 import laika.ast.{CodeSpan, CodeSpans, ~}
 import laika.parse.Parser
 import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.text.TextParsers._
-import laika.parse.text.{DelimitedText, PrefixedParser, TextParsers}
+import laika.parse.text.{PrefixedParser, TextParsers}
 
 /** Configurable base parsers for string literals.
   * 
@@ -103,10 +101,10 @@ object StringLiteral {
   }
   
   /** Configurable base parser for string literals. */
-  case class StringParser(chars: NonEmptySet[Char],
-                          parser: DelimitedText,
-                          prefix: Option[Parser[String]] = None,
-                          postfix: Option[Parser[String]] = None,
+  case class StringParser(startDelimParser: PrefixedParser[String],
+                          endDelimParser: PrefixedParser[String],
+                          multiline: Boolean = false,
+                          postCondition: Option[Parser[Unit]] = None,
                           embedded: Seq[CodeSpanParser] = Nil,
                           defaultCategories: Set[CodeCategory] = Set(CodeCategory.StringLiteral)) extends CodeParserBase {
 
@@ -118,16 +116,9 @@ object StringLiteral {
       copy(embedded = embedded ++ childSpans)
     }
     
-    // TODO - 0.14 - remove or improve or document, this functionality is currently quite counter-intuitive
-    def withPrefix (parser: Parser[String]): StringParser = copy(prefix = prefix.fold(Some(parser)) { oldPrefix =>
-      Some((oldPrefix ~ parser).concat)
-    })
-
     /** Tests and consumes a post condition after the end delimiter has been read.
       */
-    def withPostCondition (parser: Parser[Unit]): StringParser = copy(postfix = postfix.fold(Some(parser ^^^ "")) { oldPostfix =>
-      Some(oldPostfix <~ parser)
-    })
+    def withPostCondition (parser: Parser[Unit]): StringParser = copy(postCondition = Some(parser))
 
     /** Applies the specified category to the result.
       * 
@@ -138,13 +129,18 @@ object StringLiteral {
     
     lazy val underlying: PrefixedParser[Seq[CodeSpan]] = {
       
-      def optParser(p: Option[Parser[String]]): Parser[List[CodeSpan]] = 
-        p.map(_.map(res => List(CodeSpan(res, defaultCategories)))).getOrElse(success(Nil))
+      val startParser = startDelimParser.map(CodeSpan(_, defaultCategories))
+      val endParser = postCondition.fold(endDelimParser)(endDelimParser <~ _).map(CodeSpan(_, defaultCategories))
       
-      val startChar = TextParsers.prefix(chars).take(1).map(CodeSpan(_, defaultCategories))
-      
-      (startChar ~ optParser(prefix) ~ EmbeddedCodeSpans.parser(parser, embedded, defaultCategories) ~ optParser(postfix)).map {
-        case start ~ pre ~ content ~ post => CodeSpans.merge(start +: (pre ++ content ++ post))
+      val textParser = {
+        val base = delimitedBy(endDelimParser).keepDelimiter
+        if (multiline) base else base.failOn('\n')
+      }
+
+      val embeddedParser = EmbeddedCodeSpans.parser(textParser, embedded, defaultCategories)
+
+      (startParser ~ embeddedParser ~ endParser).map {
+        case start ~ content ~ post => CodeSpans.merge(start +: (content :+ post))
       }
     }
     
@@ -152,37 +148,38 @@ object StringLiteral {
 
   /** Parses a string literal on a single line enclosed by the specified start and end delimiter.
     */
-  def singleLine (between: Char): StringParser = singleLine(NonEmptySet.one(between), between)
+  def singleLine (between: Char): StringParser = singleLine(between.toString, between.toString)
 
-  /** Parses a string literal on a single line, started by any of the specified start characters
-    * and terminating with the specified end character.
+  /** Parses a string literal on a single line enclosed by the specified start and end delimiters.
     */
-  def singleLine (startChars: NonEmptySet[Char], end: Char): StringParser = {
-    val parser = delimitedBy(end).failOn('\n').keepDelimiter
-    StringParser(startChars, parser, postfix = Some(anyOf(end).take(1)))
+  def singleLine (startDelim: String, endDelim: String): StringParser = {
+    require(startDelim.nonEmpty)
+    require(endDelim.nonEmpty)
+    StringParser(literal(startDelim), literal(endDelim))
   }
 
-  /** Parses a string literal that can span multiple lines enclosed by the specified start and end delimiter.
+  /** Parses a string literal on a single line enclosed by the specified start and end delimiters.
+    */
+  def singleLine (startDelim: PrefixedParser[String], endDelim: PrefixedParser[String]): StringParser = {
+    StringParser(startDelim, endDelim)
+  }
+
+  /** Parses a string literal that can span multiple lines, enclosed by the specified start and end delimiter.
     */
   def multiLine (between: String): StringParser = multiLine(between, between)
 
-  /** Parses a string literal that can span multiple lines enclosed by the specified start and end delimiters.
+  /** Parses a string literal that can span multiple lines, enclosed by the specified start and end delimiters.
     */
   def multiLine (startDelim: String, endDelim: String): StringParser = {
     require(startDelim.nonEmpty)
     require(endDelim.nonEmpty)
-    val prefix = if (startDelim.tail.nonEmpty) Some(literal(startDelim.tail)) else None
-    val parser = delimitedBy(endDelim).keepDelimiter
-    StringParser(NonEmptySet.one(startDelim.head), parser, prefix, postfix = Some(literal(endDelim)))
+    StringParser(literal(startDelim), literal(endDelim), multiline = true)
   }
 
-  /** Parses a string literal that can span multiple lines, started by any of the specified start characters
-    * and terminating with the specified end delimiter.
+  /** Parses a string literal that can span multiple lines, enclosed by the specified delimiters.
     */
-  def multiLine (startChars: NonEmptySet[Char], end: String): StringParser = {
-    require(startChars.nonEmpty)
-    val parser = delimitedBy(end).keepDelimiter
-    StringParser(startChars, parser, postfix = Some(literal(end)))
+  def multiLine (startDelim: PrefixedParser[String], endDelim: PrefixedParser[String]): StringParser = {
+    StringParser(startDelim, endDelim, multiline = true)
   }
   
 }

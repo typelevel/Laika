@@ -108,7 +108,7 @@ object NumberLiteral {
             def parse (chars: NonEmptySet[Char]): Characters[String] = anyOf(chars.toSortedSet.toSeq: _*)
 
             val minDigits = if (idSequence.nonEmpty || startChar == ".") 1 else 0
-            if (underscores) parse(digits.add('_')).min(minDigits) <~ lookBehind(1, not('_'))
+            if (underscores) parse(digits.add('_')).min(minDigits) <~ lookBehind(1, not('_')) // TODO - 0.14 - add ensurePrevCharNot/ensureNextCharNot with options like in DelimiterParser
             else parse(digits).min(minDigits)
           }
 
@@ -126,7 +126,7 @@ object NumberLiteral {
 
           val id = idSequence.getOrElse(emptyString)
           val optSuffix = suffix.fold(emptyString)(opt(_).map(_.getOrElse("")))
-          val postCondition = if (allowFollowingLetter) success(()) else not(anyWhile(java.lang.Character.isLetter).take(1)) // TODO - 0.14 - add char(Char => Boolean) and anyChar
+          val postCondition = if (allowFollowingLetter) success(()) else not(anyWhile(java.lang.Character.isLetter).take(1)) // TODO - 0.14 - like above
 
           (id ~ number ~ optSuffix <~ postCondition).concat.map(res => Seq(CodeSpan(res, CodeCategory.NumberLiteral)))
         }
