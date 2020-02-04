@@ -36,7 +36,7 @@ object HOCONSyntax extends SyntaxHighlighter {
   )
 
   val quotedAttributeName: StringParser = string
-    .withPostCondition(lookAhead(ws ~ oneOf(':','=','{')).as(()))
+    .withPostCondition(lookAhead(ws ~ oneOf(':','=','{')).void)
     .copy(defaultCategories = Set(CodeCategory.AttributeName))
   
   val substitution: CodeSpanParser = CodeSpanParser(CodeCategory.Substitution, "${", "}")

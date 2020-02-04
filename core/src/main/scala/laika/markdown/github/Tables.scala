@@ -60,7 +60,7 @@ object Tables {
     val sepRow: Parser[Seq[Options]] = {
 
       val separator: Parser[Option[Char] ~ Option[Char]] =
-        (ws ~> opt(':')) ~ (someOf('-').^ ~> opt(':') <~ ws)
+        (ws ~> opt(':')) ~ (someOf('-').void ~> opt(':') <~ ws)
 
       val delimitedSeparators = (separator <~ '|').rep
       val optFinalSep = opt(separator)

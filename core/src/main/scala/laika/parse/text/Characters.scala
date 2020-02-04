@@ -50,15 +50,16 @@ class Characters[T] (predicate:     Char => Boolean,
     */
   def count: Characters[Int] = new Characters(predicate, Characters.CountResultBuilder, minChar, maxChar)
 
+  @deprecated("renamed to void to align with cats", "0.14.0")
+  def ^ : Characters[Unit] = void
+  
+  @deprecated("renamed to void to align with cats", "0.14.0")
+  def noCapture: Characters[Unit] = void
+
   /** Creates and returns a new parser that does not produce a result, but instead
     * only consumes the number of characters successfully parsed.
     */
-  def noCapture: Characters[Unit] = new Characters(predicate, Characters.UnitResultBuilder, minChar, maxChar)
-
-  /** Operator synonym for `noCapture`.
-    */
-  def ^ : Characters[Unit] = noCapture
-
+  override def void: Characters[Unit] = new Characters(predicate, Characters.UnitResultBuilder, minChar, maxChar)
 
   private val msgProvider: Int => Message =
     Message.forRuntimeValue[Int]( actual => s"expected at least $minChar characters, got only $actual" )

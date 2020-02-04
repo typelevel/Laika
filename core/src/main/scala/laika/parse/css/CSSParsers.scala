@@ -126,7 +126,7 @@ object CSSParsers {
 
   /** Parses a single CSS comment.
     */
-  val comment: Parser[Unit] = ("/*" ~ delimitedBy("*/") ~ wsOrNl).as(())
+  val comment: Parser[Unit] = ("/*" ~ delimitedBy("*/") ~ wsOrNl).void
   
   /** Parses a sequence of style declarations, ignoring
    *  any comments.

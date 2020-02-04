@@ -78,7 +78,7 @@ object TextParsers extends Parsers {
   /** Parses any number of whitespace characters followed
     * by a newline character.
     */
-  val wsEol: Parser[Unit] = ws.^ ~> eol
+  val wsEol: Parser[Unit] = ws.void ~> eol
   
   /** Succeeds at the end of the input.
    */

@@ -157,10 +157,14 @@ abstract class Parser[+T] {
     *  Subclasses may override this method to avoid any expensive
     *  result processing.
     */
-  def as [U] (v: => U): Parser[U] =  new Parser[U] {
+  def as [U] (v: => U): Parser[U] = new Parser[U] {
     lazy val v0 = v
     def parse (in: ParserContext) = Parser.this.parse(in) map (x => v0)
   }
+
+  /** Discards the result of a successful parser.
+    */
+  def void: Parser[Unit] = map(_ => ())
 
   /** Operator synonym for `collect`.
     */

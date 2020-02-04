@@ -61,10 +61,6 @@ class PrefixCharacters[T] (val underlying: Characters[T], val startChars: NonEmp
   /** Creates and returns a new parser that does not produce a result, but instead
     * only consumes the number of characters successfully parsed.
     */
-  def noCapture: PrefixCharacters[Unit] = new PrefixCharacters(underlying.noCapture, startChars)
-
-  /** Operator synonym for `noCapture`.
-    */
-  def ^ : PrefixCharacters[Unit] = noCapture
+  override def void: PrefixCharacters[Unit] = new PrefixCharacters(underlying.void, startChars)
   
 }

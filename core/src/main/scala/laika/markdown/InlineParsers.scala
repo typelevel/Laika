@@ -180,9 +180,9 @@ object InlineParsers {
       .embed(recParsers.escapeSequence ^^ {"\\" + _})
       .embed('[' ~> delimitedBy(']') ^^ { "[" + _ + "]" })
 
-    val titleEnd = ws.^ ~ ')'
+    val titleEnd = ws.void ~ ')'
     def enclosedIn(c: Char): Parser[String] = c ~> delimitedBy(c.toString <~ lookAhead(titleEnd))
-    val title = ws.^ ~> (enclosedIn('"') | enclosedIn('\''))
+    val title = ws.void ~> (enclosedIn('"') | enclosedIn('\''))
 
     val url = ('<' ~> text(delimitedBy('>').failOn(' ')).embed(recParsers.escapeSequence)) |
        text(delimitedBy(')',' ','\t').keepDelimiter).embed(recParsers.escapeSequence)

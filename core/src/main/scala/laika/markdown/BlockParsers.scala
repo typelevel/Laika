@@ -41,13 +41,13 @@ object BlockParsers {
 
   /** Parses a single tab or space character.
    */
-  val tabOrSpace: Parser[Unit] = anyOf(' ','\t').take(1).noCapture
+  val tabOrSpace: Parser[Unit] = oneOf(' ','\t').void
 
   /** Parses up to 3 space characters. In Markdown an indentation
    *  of up to 3 spaces is optional and does not have any influence
    *  on the parsing logic.
    */
-  val insignificantSpaces: Parser[Unit] = anyOf(' ').max(3).noCapture
+  val insignificantSpaces: Parser[Unit] = anyOf(' ').max(3).void
 
   /** Parses the decoration (underline) of a setext header.
     */
@@ -74,7 +74,7 @@ object BlockParsers {
     *  @param nextBlockPrefix parser that recognizes whether a line after one or more blank lines still belongs to the same block
     */
   def decoratedBlock (firstLinePrefix: Parser[Any], linePrefix: Parser[Any], nextBlockPrefix: Parser[Any]): Parser[String] = {
-    val skipLine = anyBut('\n','\r').^ <~ eol
+    val skipLine = anyBut('\n','\r').void <~ eol
     val noHeader = lookAhead(skipLine ~ not(setextDecoration))
     mdBlock(noHeader ~ firstLinePrefix, linePrefix, nextBlockPrefix)
   }
@@ -149,13 +149,13 @@ object BlockParsers {
 
     import escapedParsers._
 
-    val id = '[' ~> escapedUntil(']') <~ ':' <~ ws.^
+    val id = '[' ~> escapedUntil(']') <~ ':' <~ ws.void
     val url = (('<' ~> escapedUntil('>')) | escapedText(delimitedBy(' ', '\n').acceptEOF.keepDelimiter)) ^^ { _.mkString }
 
     def enclosedBy(start: Char, end: Char) =
       start ~> delimitedBy(end.toString <~ lookAhead(wsEol)).failOn('\r', '\n') ^^ { _.mkString }
 
-    val title = (ws.^ ~ opt(eol) ~ ws.^) ~> (enclosedBy('"', '"') | enclosedBy('\'', '\'') | enclosedBy('(', ')'))
+    val title = (ws.void ~ opt(eol) ~ ws.void) ~> (enclosedBy('"', '"') | enclosedBy('\'', '\'') | enclosedBy('(', ')'))
 
     id ~ url ~ opt(title) <~ wsEol ^^ { case id ~ url ~ title => ExternalLinkDefinition(id.toLowerCase, url, title) }
   }.rootOnly
@@ -182,7 +182,7 @@ object BlockParsers {
    */
   val rules: BlockParserBuilder = BlockParser.standalone {
     val decoChar = oneOf('*', '-', '_')
-    val pattern = (decoChar ~ (anyOf(' ').^ ~ decoChar).rep.min(2)).as(Rule())
+    val pattern = (decoChar ~ (anyOf(' ').void ~ decoChar).rep.min(2)).as(Rule())
     pattern <~ wsEol
   }
 
@@ -200,7 +200,7 @@ object BlockParsers {
    */
   val quotedBlock: BlockParserBuilder = BlockParser.recursive { recParsers =>
     PrefixedParser('>') {
-      val decoratedLine = '>' ~ ws.max(1).noCapture
+      val decoratedLine = '>' ~ ws.max(1).void
       recParsers.recursiveBlocks(decoratedBlock(decoratedLine, decoratedLine | not(blankLine), '>')) ^^ (QuotedBlock(_, Nil))
     }
   }

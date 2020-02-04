@@ -28,7 +28,7 @@ import org.scalatest.{Matchers, WordSpec}
   */
 class DelimiterParserSpec extends WordSpec with Matchers with ParseResultHelpers with StringParserHelpers {
 
-  val skip: Parser[Unit] = anyChars.take(1).noCapture
+  val skip: Parser[Unit] = oneChar.void
   
   val abc: NonEmptySet[Char] = NonEmptySet.of('a', 'b', 'c')
   
