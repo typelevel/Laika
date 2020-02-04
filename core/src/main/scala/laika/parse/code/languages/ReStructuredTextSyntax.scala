@@ -34,10 +34,13 @@ object ReStructuredTextSyntax extends SyntaxHighlighter {
   import NumberLiteral._
 
   // raw = does not perform checks for rst inline markup recognition
-  def rawSpan (start: String, end: String, category: CodeCategory, includeDelim: Boolean = true): Parser[CodeSpan] =
-    (literalOrEmpty(start) ~ delimitedBy(end).failOn('\n')).concat.map {
-      res => CodeSpan(if (includeDelim) s"$res$end" else res, category)
+  def rawSpan (start: String, end: String, category: CodeCategory): Parser[CodeSpan] =
+    (literal(start) ~ delimitedBy(end).failOn('\n')).concat.map {
+      res => CodeSpan(s"$res$end", category)
     }
+
+  def rawSpan (end: String, category: CodeCategory): Parser[CodeSpan] =
+    delimitedBy(end).failOn('\n').map { res => CodeSpan(res, category) }
 
   private def span (start: String, end: String, category: CodeCategory): CodeSpanParser =
     CodeSpanParser(category) {
@@ -91,8 +94,7 @@ object ReStructuredTextSyntax extends SyntaxHighlighter {
     }
     val linkTarget = rawSpan("_", ":", CodeCategory.Markup.LinkTarget).map(Seq(_))
     val footnote   = rawSpan("[", "]", CodeCategory.Markup.LinkTarget).map(Seq(_))
-    val directive  = rawSpan("", "::", CodeCategory.Identifier, includeDelim = false)
-      .map(Seq(_, CodeSpan("::", CodeCategory.Keyword)))
+    val directive  = rawSpan("::", CodeCategory.Identifier).map(Seq(_, CodeSpan("::", CodeCategory.Keyword)))
 
     (newLine ~ (literal(".. ") ~> (subst | linkTarget | footnote | directive))).map {
       case nl ~ res =>

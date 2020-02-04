@@ -60,8 +60,6 @@ object TextParsers extends Parsers {
     */
   implicit def literal (expected: String): PrefixedParser[String] = Literal(expected)
 
-  def literalOrEmpty (expected: String): Parser[String] = if (expected.nonEmpty) literal(expected) else success("")
-
   /** Parses horizontal whitespace (space and tab).
     * Always succeeds, consuming all whitespace found.
     */
