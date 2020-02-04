@@ -134,7 +134,7 @@ object HoconParsers {
     val fraction = opt((oneOf('.') ~ digits).concat).map(_.getOrElse(""))
     val exponent = opt((oneOf('E','e') ~ sign ~ digits).concat).map(_.getOrElse(""))
 
-    (integer ~ (fraction ~ exponent).concat) ^^? {
+    (integer ~ (fraction ~ exponent).concat).evalMap {
       case int ~ ""         => 
         Try(int.toLong).toEither
           .left.map(_.getMessage)

@@ -181,24 +181,29 @@ abstract class Parser[+T] {
     }
   }
 
+  /** Operator synonym for `evalMap`.
+    */
+  def ^^? [U] (f: T => Either[String, U]): Parser[U] = evalMap(f)
+
   /**  Returns a parser that applies a function to the result of this parser producing an `Either`
     *  where `Left` is interpreted as failure. It is an alternative to `^?` for scenarios
     *  where the conditional check cannot be easily performed in a pattern match.
     *
-    *  `p ^^? f` succeeds if `p` succeeds and `f` returns a `Right` when applied to the result
+    *  `p.evalMap(f)` succeeds if `p` succeeds and `f` returns a `Right` when applied to the result
     *  of `p`.
     */
-  def ^^? [U] (f: T => Either[String, U]): Parser[U] = Parser { in =>
+  def evalMap [U] (f: T => Either[String, U]): Parser[U] = Parser { in =>
 
     parse(in) match {
       case Success(result, next) => f(result).fold(
-        msg => Failure(Message.fixed(msg), in, next.offset), 
+        msg => Failure(Message.fixed(msg), in, next.offset),
         res => Success(res,next)
       )
       case f: Failure => f
     }
 
   }
+  
 
   /** Operator synonym for `flatMap`.
     */

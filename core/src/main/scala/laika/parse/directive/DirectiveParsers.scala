@@ -233,7 +233,7 @@ object BlockDirectiveParsers {
     import recParsers._
 
     val separators = directives.values.flatMap(_.separators).toSet
-    val legacyBody = indentedBlock() ^^? { block =>
+    val legacyBody = indentedBlock().evalMap { block =>
       val trimmed = block.trim
       Either.cond(trimmed.nonEmpty, trimmed, "empty body")
     }

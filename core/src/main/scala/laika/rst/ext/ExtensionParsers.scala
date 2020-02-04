@@ -93,7 +93,7 @@ class ExtensionParsers(recParsers: RecursiveParsers,
     def directiveParser [E] (builder: DirectivePartBuilder[E]): Parser[E] = {
       val builderAPI = new DefaultDirectiveParserBuilder
       val (parserBuilder, directivePart) = builder(builderAPI)
-      parserBuilder.parser ^^? { parts =>
+      parserBuilder.parser.evalMap { parts =>
         val parsed = ParsedDirective(parts, recBlocks, recSpans)
         directivePart.apply(parsed)
       }
@@ -130,7 +130,7 @@ class ExtensionParsers(recParsers: RecursiveParsers,
       val delegate = new DefaultDirectiveParserBuilder
       val builderAPI = new DefaultRoleDirectiveParserBuilder(delegate)
       val (parserBuilder, directivePart) = builder(builderAPI)
-      parserBuilder.parser ^^? { parts =>
+      parserBuilder.parser.evalMap { parts =>
         val parsed = ParsedDirective(parts, recBlocks, recSpans)
         directivePart.apply(parsed).map(CustomizedTextRole(name, _))
       }
@@ -186,7 +186,7 @@ class ExtensionParsers(recParsers: RecursiveParsers,
     val arg: Parser[String] = requiredArg(anyBut(' ','\n').min(1) <~ ws)
 
     val argWithWS: Parser[String] = {
-      val p = indentedBlock(linePredicate = not(":"), endsOnBlankLine = true) ^^? { block =>
+      val p = indentedBlock(linePredicate = not(":"), endsOnBlankLine = true).evalMap { block =>
         val text = block.trim
         if (text.nonEmpty) Right(text) else Left("missing required argument")
       }
@@ -206,7 +206,7 @@ class ExtensionParsers(recParsers: RecursiveParsers,
             (name, block.trim)
           }}
 
-      ((opt(wsEol) ~> (item +)) | success(Nil)) ^^? { fields =>
+      ((opt(wsEol) ~> (item +)) | success(Nil)).evalMap { fields =>
 
         // TODO - 0.14 - might defer validation to a later step
         

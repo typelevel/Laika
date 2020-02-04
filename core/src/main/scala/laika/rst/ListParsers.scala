@@ -41,8 +41,8 @@ object ListParsers {
                                        (implicit recParsers: RecursiveParsers): Parser[I] = {
       (itemStart ^^ {_.length}) ~ ws.min(1).count >> {
         case start ~ ws =>
-          recParsers.recursiveBlocks(indentedBlock(minIndent = start + ws, maxIndent = start + ws) ~
-              opt(blankLines | eof | lookAhead(itemStart)) ^^? {
+          recParsers.recursiveBlocks((indentedBlock(minIndent = start + ws, maxIndent = start + ws) ~
+              opt(blankLines | eof | lookAhead(itemStart))).evalMap {
             case (block ~ None) if block.linesIterator.length < 2 => Left("not a list item")
             case (block ~ _) => Right(block)
           }).map(newListItem)
@@ -97,10 +97,10 @@ object ListParsers {
   
   private lazy val enumListStart: Parser[(EnumFormat, Int)] = {
     import EnumType._
-    val firstLowerRoman = (anyOf('i','v','x','l','c','d','m').min(2) | oneOf('i')) ^^? 
+    val firstLowerRoman = (anyOf('i','v','x','l','c','d','m').min(2) | oneOf('i')).evalMap
       { num => RomanNumerals.romanToInt(num.toUpperCase).map(_ -> LowerRoman) }
     
-    val firstUpperRoman = (anyOf('I','V','X','L','C','D','M').min(2) | oneOf('I')) ^^? 
+    val firstUpperRoman = (anyOf('I','V','X','L','C','D','M').min(2) | oneOf('I')).evalMap
       { num => RomanNumerals.romanToInt(num.toUpperCase).map(_ -> UpperRoman) }
     
     val firstLowerAlpha = anyIn('a' to 'h', 'j' to 'z').take(1) ^^ 

@@ -120,7 +120,7 @@ object URIParsers {
    *  check its value.
    */
   val ipv4address: Parser[String] = {
-    val decOctet = digit.min(1).max(3) ^^? { res => 
+    val decOctet = digit.min(1).max(3).evalMap { res => 
       val num = res.toInt
       if (num >= 0 && num < 256) Right(num) else Left("Number must be between 1 and 255")
     }

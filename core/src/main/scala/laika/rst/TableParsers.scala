@@ -256,7 +256,7 @@ object TableParsers {
       
       val boundaryRow = tableBoundary <~ oneChar ~ wsEol
       val tablePart = ((not(tableBoundary) ~> row <~ oneChar ~ wsEol)*)
-      (tablePart ~ opt(boundaryRow ~> tablePart)) ^^? { result =>
+      (tablePart ~ opt(boundaryRow ~> tablePart)).evalMap { result =>
         
       /* Need to fail for certain illegal constructs in the interim model, 
        * so that the next parser can pick up the (broken) table input */

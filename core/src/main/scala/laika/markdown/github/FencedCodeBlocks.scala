@@ -47,8 +47,9 @@ object FencedCodeBlocks {
     openingFence >> { case charCount ~ info =>
 
       val closingFence = anyOf(fenceChar).min(charCount) ~ wsEol
+      val lines = (not(closingFence | eof) ~> restOfLine).rep
 
-      (not(closingFence | eof) ~> restOfLine).rep <~ opt(closingFence) ^^? { lines =>
+      (lines <~ opt(closingFence)).evalMap { lines =>
         val trimmedLines = if (lines.lastOption.exists(_.trim.isEmpty)) lines.dropRight(1) else lines
         val code = trimmedLines.mkString("\n")
         info.fold[Either[String, Block]](Right(LiteralBlock(code))) { lang =>

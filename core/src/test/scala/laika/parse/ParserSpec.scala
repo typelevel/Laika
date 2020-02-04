@@ -70,7 +70,7 @@ class ParserSpec extends WordSpec with Matchers with ParseResultHelpers with Str
     }
 
     "succeed if the specified Either function produces a Right" in {
-      Parsing("abc") using (parser1 ^^? { res => Right(res.length) }) should produce (2)
+      Parsing("abc") using parser1.evalMap { res => Right(res.length) } should produce (2)
     }
 
     "fail if the specified Either function produces a Left" in {
