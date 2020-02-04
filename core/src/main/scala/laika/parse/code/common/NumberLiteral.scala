@@ -106,7 +106,7 @@ object NumberLiteral {
         
         val digitParser = {
           val minDigits = if (prefix.nonEmpty || prefixOrFirstDigit == ".") 1 else 0
-          if (underscores) anyOf(digits.add('_')).min(minDigits) <~ lookBehind(1, not('_')) // TODO - 0.14 - add ensurePrevCharNot/ensureNextCharNot with options like in DelimiterParser
+          if (underscores) anyOf(digits.add('_')).min(minDigits) <~ prevNot('_')
           else anyOf(digits).min(minDigits)
         }
 
@@ -123,7 +123,7 @@ object NumberLiteral {
         }
 
         val optSuffix = suffix.fold(emptyString)(opt(_).map(_.getOrElse("")))
-        val postCondition = if (allowFollowingLetter) success(()) else not(oneIf(java.lang.Character.isLetter)) // TODO - 0.14 - like above
+        val postCondition = if (allowFollowingLetter) success(()) else nextNot(java.lang.Character.isLetter(_))
 
         (number ~ optSuffix <~ postCondition).concat.map { rest => 
           Seq(CodeSpan(prefixOrFirstDigit + rest, CodeCategory.NumberLiteral))

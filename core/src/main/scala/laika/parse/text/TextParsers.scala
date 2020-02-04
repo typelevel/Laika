@@ -147,7 +147,64 @@ object TextParsers extends Parsers {
     amount ~ (ws ~> (refName | "%")) ^^ { case amount ~ unit => Size(amount, unit) }
   }
 
-  
+
+  /** Verifies that the previous character is not one of those specified.
+    * Succeeds at the start of the input and does not consume any input
+    * or produce a result when it succeeds.
+    */
+  def prevNot (char: Char, chars: Char*): Parser[Unit] = prevNot(NonEmptySet.of(char, chars:_*))
+
+  /** Verifies that the previous character is not one of those specified.
+    * Succeeds at the start of the input and does not consume any input
+    * or produce a result when it succeeds.
+    */
+  def prevNot (chars: NonEmptySet[Char]): Parser[Unit] = prevNot(chars.contains(_))
+
+  /** Verifies that the previous character does not satisfy the specified predicate.
+    * Succeeds at the start of the input and does not consume any input
+    * or produce a result when it succeeds.
+    */
+  def prevNot (predicate: Char => Boolean): Parser[Unit] = {
+    val errMsg: Char => Message = Message.forRuntimeValue[Char] { found =>
+      s"previous character '$found' does not satisfy the specified predicate"
+    }
+    Parser { in =>
+      if (in.offset == 0) Success((), in)
+      else if (!predicate(in.charAt(-1))) Success((), in)
+      else Failure(errMsg(in.char), in)
+    }
+  }
+
+  /** Verifies that the next character is not one of those specified.
+    * Succeeds at the end of the input and does not consume any input
+    * or produce a result when it succeeds.
+    */
+  def nextNot (char: Char, chars: Char*): Parser[Unit] = nextNot(NonEmptySet.of(char, chars:_*))
+
+  /** Verifies that the next character is not one of those specified.
+    * Succeeds at the end of the input and does not consume any input
+    * or produce a result when it succeeds.
+    */
+  def nextNot (chars: NonEmptySet[Char]): Parser[Unit] = nextNot(chars.contains(_))
+
+  /** Verifies that the next character does not satisfy the specified predicate.
+    * Succeeds at the end of the input and does not consume any input
+    * or produce a result when it succeeds.
+    */
+  def nextNot (predicate: Char => Boolean): Parser[Unit] = {
+    val errMsg: Char => Message = Message.forRuntimeValue[Char] { found =>
+      s"next character '$found' does not satisfy the specified predicate"
+    }
+    Parser { in =>
+      if (in.remaining == 0) Success((), in)
+      else if (!predicate(in.char)) Success((), in)
+      else Failure(errMsg(in.char), in)
+    }
+  }
+
+
+
+
   /** Consumes any kind of input, always succeeds.
    *  This parser would consume the entire input unless a `max` constraint
    *  is specified.

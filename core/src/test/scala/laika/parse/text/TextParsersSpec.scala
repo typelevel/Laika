@@ -35,6 +35,54 @@ class TextParsersSpec extends WordSpec with Matchers with ParseResultHelpers wit
     }
 
   }
+  
+  "The prevNot validators" should {
+    
+    "succeed if the previous character is not one of those specified" in {
+      Parsing("abc") using oneChar ~> prevNot('x') should produce(())
+    }
+
+    "fail if the previous character is one of those specified" in {
+      Parsing("abc") using oneChar ~> prevNot('a') should cause [Failure]
+    }
+    
+    "succeed at the start of the input" in {
+      Parsing("abc") using prevNot('x') should produce(())
+    }
+
+    "succeed if the predicate is not satisfied" in {
+      Parsing("abc") using oneChar ~> prevNot(_ == 'b') should produce(())
+    }
+
+    "fail if the the predicate is satisfied" in {
+      Parsing("abc") using oneChar ~> prevNot(_ == 'a') should cause [Failure]
+    }
+
+  }
+
+  "The nextNot validators" should {
+
+    "succeed if the next character is not one of those specified" in {
+      Parsing("abc") using oneChar ~> nextNot('x') should produce(())
+    }
+
+    "fail if the next character is one of those specified" in {
+      Parsing("abc") using oneChar ~> nextNot('b') should cause [Failure]
+    }
+
+    "succeed at the end of the input" in {
+      Parsing("a") using oneChar ~> nextNot('x') should produce(())
+    }
+
+    "succeed if the predicate is not satisfied" in {
+      Parsing("abc") using oneChar ~> nextNot(_ == 'a') should produce(())
+    }
+
+    "fail if the the predicate is satisfied" in {
+      Parsing("abc") using oneChar ~> nextNot(_ == 'b') should cause [Failure]
+    }
+
+  }
 
   "The literal parser" should {
 
