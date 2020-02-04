@@ -46,7 +46,7 @@ object InlineParsers {
     *
     *  Note: escaping > is not mandated by the official syntax description, but by the official test suite.
     */
-  val escapedChar: Parser[String] = anyOf('\\', '`', '*', '_', '{', '}', '[', ']', '(', ')', '#', '+', '-', '.', '!', '>', '|') take 1
+  val escapedChar: Parser[String] = oneOf('\\', '`', '*', '_', '{', '}', '[', ']', '(', ')', '#', '+', '-', '.', '!', '>', '|')
 
 
   /** Parses an explicit hard line break.

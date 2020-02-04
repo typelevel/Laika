@@ -56,7 +56,7 @@ trait MarkupFormat {
     * The default implementation parses any character as is, this can be overridden in case
     * the host language has more specific rules for escape sequences.
     */
-  def escapedChar: Parser[String] = TextParsers.any.take(1)
+  def escapedChar: Parser[String] = TextParsers.one
 
   /** The parser-specific extensions that need to be installed
    *  for each transformation that involves this parser.

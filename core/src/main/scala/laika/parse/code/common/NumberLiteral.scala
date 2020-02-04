@@ -69,18 +69,18 @@ object NumberLiteral {
 
   /** Parsers for common sets of digits, like hex or decimal. */
   object DigitParsers {
-    val binary: PrefixCharacters[String] = prefix('0', '1')
-    val octal: PrefixCharacters[String] = prefix(CharGroup.octalDigit)
-    val decimal: PrefixCharacters[String] = prefix(CharGroup.digit)
-    val decimalNonZero: PrefixCharacters[String] = prefix(NonEmptySet.fromSetUnsafe(CharGroup.digit - '0'))
-    val hex: PrefixCharacters[String] = prefix(CharGroup.hexDigit)
+    val binary: PrefixCharacters[String]         = someOf('0', '1')
+    val octal: PrefixCharacters[String]          = someOf(CharGroup.octalDigit)
+    val decimal: PrefixCharacters[String]        = someOf(CharGroup.digit)
+    val decimalNonZero: PrefixCharacters[String] = someOf(NonEmptySet.fromSetUnsafe(CharGroup.digit - '0'))
+    val hex: PrefixCharacters[String]            = someOf(CharGroup.hexDigit)
   }
 
   private val sign: Parser[String] = anyOf('-', '+').max(1)
-  private val exponent: Parser[String]       = (anyOf('E', 'e').take(1) ~ sign ~ DigitParsers.decimal.min(1)).concat
-  private val binaryExponent: Parser[String] = (anyOf('P', 'p').take(1) ~ sign ~ DigitParsers.decimal.min(1)).concat
+  private val exponent: Parser[String]       = (oneOf('E', 'e') ~ sign ~ DigitParsers.decimal.min(1)).concat
+  private val binaryExponent: Parser[String] = (oneOf('P', 'p') ~ sign ~ DigitParsers.decimal.min(1)).concat
 
-  private def zeroPrefix(char1: Char, char2: Char): PrefixedParser[String] = ("0" ~ anyOf(char1, char2).take(1)).concat 
+  private def zeroPrefix(char1: Char, char2: Char): PrefixedParser[String] = ("0" ~ oneOf(char1, char2)).concat 
   
   /* Configurable base parser for number literals. */
   case class NumericParser (digits: NonEmptySet[Char],
@@ -102,7 +102,7 @@ object NumberLiteral {
       
       def firstDigit = if (exponent.isDefined) digits.add('.') else digits
       
-      prefix.getOrElse(TextParsers.prefix(firstDigit).take(1)) >> { prefixOrFirstDigit =>
+      prefix.getOrElse(oneOf(firstDigit)) >> { prefixOrFirstDigit =>
         
         val digitParser = {
           val minDigits = if (prefix.nonEmpty || prefixOrFirstDigit == ".") 1 else 0
@@ -116,7 +116,7 @@ object NumberLiteral {
             (digitParser ~ optExp).concat
           }
           else {
-            val withDot = (digitParser ~ anyOf('.').take(1) ~ digitParser ~ optExp).concat
+            val withDot = (digitParser ~ oneOf('.') ~ digitParser ~ optExp).concat
             val withoutDot = (digitParser ~ exp).concat
             withDot | withoutDot
           }
@@ -174,9 +174,9 @@ object NumberLiteral {
   */
 object NumericSuffix {
 
-  val float: Parser[String] = anyOf('f', 'F', 'd', 'D').take(1)
-  val long: Parser[String] = anyOf('l', 'L').take(1)
-  val bigInt: Parser[String] = anyOf('n').take(1)
-  val imaginary: Parser[String] = anyOf('j', 'J').take(1)
+  val float: Parser[String] = oneOf('f', 'F', 'd', 'D')
+  val long: Parser[String] = oneOf('l', 'L')
+  val bigInt: Parser[String] = oneOf('n')
+  val imaginary: Parser[String] = oneOf('j', 'J')
   
 }

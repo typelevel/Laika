@@ -38,16 +38,16 @@ object ScalaSyntax extends SyntaxHighlighter {
     .withCategory(CodeCategory.SymbolLiteral)
   
   val backtickIdParser: CodeSpanParser = CodeSpanParser(CodeCategory.Identifier) {
-    (prefix('`').take(1) ~ anyBut('\n', '`') ~ anyOf('`').take(1)).concat
+    (oneOf('`') ~ anyBut('\n', '`') ~ oneOf('`')).concat
   }
   
   val charEscapes: CodeSpanParser = StringLiteral.Escape.unicode ++ StringLiteral.Escape.char
   
-  val stringPrefixChar: PrefixedParser[String] = prefix(CharGroup.alpha)
+  val stringPrefixChar: PrefixedParser[String] = someOf(CharGroup.alpha)
 
   val substitutions: CodeSpanParser = 
     StringLiteral.Substitution.between("${", "}") ++
-    StringLiteral.Substitution(prefix(CharGroup.alphaNum.add('_')))
+    StringLiteral.Substitution(someOf(CharGroup.alphaNum.add('_')))
   
   val spanParsers: Seq[CodeSpanParser] = Seq(
     Comment.singleLine("//"),

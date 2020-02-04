@@ -28,7 +28,7 @@ import org.scalatest.{Matchers, WordSpec}
   */
 class DelimiterParserSpec extends WordSpec with Matchers with ParseResultHelpers with StringParserHelpers {
 
-  val skip: Parser[Unit] = any.take(1).^
+  val skip: Parser[Unit] = any.take(1).noCapture
   
   val abc: NonEmptySet[Char] = NonEmptySet.of('a', 'b', 'c')
   
@@ -47,11 +47,11 @@ class DelimiterParserSpec extends WordSpec with Matchers with ParseResultHelpers
     }
 
     "parse a character group delimiter" in {
-      Parsing ("cb") using delimiter(prefix(abc).take(2)) should produce("cb")
+      Parsing ("cb") using delimiter(someOf(abc).take(2)) should produce("cb")
     }
 
     "fail if a character group delimiter is not matched" in {
-      Parsing ("cd") using delimiter(prefix(abc).take(2)) should cause[Failure]
+      Parsing ("cd") using delimiter(someOf(abc).take(2)) should cause[Failure]
     }
 
     "parse a delimiter with a character post-condition" in {

@@ -36,7 +36,7 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
     legacyReference(key => TemplateContextReference(Key.parse(key), required = true)),
     hoconReference(TemplateContextReference(_,_), _.asTemplateSpan),
     templateDirective,
-    '\\' ~> ((any take 1) ^^ { Text(_) })
+    '\\' ~> one.map(Text(_))
   )
 
   lazy val templateDirective: PrefixedParser[TemplateSpan] = {

@@ -50,7 +50,7 @@ object BlockParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#transitions]].
    */  
   val transition: BlockParserBuilder = BlockParser.standalone {
-    (punctuationChar min 4) ~ wsEol ~ lookAhead(blankLine) ^^^ Rule()
+    punctuationChar.min(4) ~ wsEol ~ lookAhead(blankLine) ^^^ Rule()
   }
     
   /** Parses a single paragraph. Everything between two blank lines that is not
@@ -67,7 +67,7 @@ object BlockParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#sections]].
    */
   lazy val headerWithOverline: BlockParserBuilder = BlockParser.withSpans { spanParsers =>
-    (punctuationChar take 1) >> { start =>
+    punctuationChar.take(1) >> { start =>
       val char = start.charAt(0)
       anyOf(char) >> { deco =>
         val len = deco.length + 1
@@ -86,11 +86,11 @@ object BlockParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#sections]].
    */
   lazy val headerWithUnderline: BlockParserBuilder = BlockParser.withSpans { spanParsers =>
-    (anyBut(' ') take 1) ~ restOfLine >> { case char ~ rest =>
+    anyBut(' ').take(1) ~ restOfLine >> { case char ~ rest =>
       val title = (char + rest).trim
-      (punctuationChar take 1) >> { start =>
+      punctuationChar.take(1) >> { start =>
         val char = start.charAt(0)
-        spanParsers.withRecursiveSpanParser((anyOf(char) min (title.length - 1)) ~ wsEol) ^^ {
+        spanParsers.withRecursiveSpanParser(anyOf(char).min(title.length - 1) ~ wsEol) ^^ {
           case (recParser, _) => DecoratedHeader(Underline(char), recParser(title))
         }
       }
@@ -119,10 +119,10 @@ object BlockParsers {
     
     val attributionStart = "---" | "--" | '\u2014' // em dash
         
-    def attribution (indent: Int) = (ws take indent) ~ attributionStart ~ (ws max 1) ~>
+    def attribution (indent: Int) = ws.take(indent) ~ attributionStart ~ ws.max(1) ~>
       recParsers.recursiveSpans(indentedBlock(minIndent = indent, endsOnBlankLine = true))
       
-    lookAhead(ws take 1) ~> recParsers.withRecursiveBlockParser(indentedBlockWithLevel(
+    lookAhead(ws.take(1)) ~> recParsers.withRecursiveBlockParser(indentedBlockWithLevel(
         firstLineIndented = true, linePredicate = not(attributionStart))) >> {
       case (recParser, (block, minIndent)) => opt(opt(blankLines) ~> attribution(minIndent)) ^^ {
         spans => QuotedBlock(recParser(block), spans.getOrElse(Nil))
@@ -138,7 +138,7 @@ object BlockParsers {
   val literalBlock: Parser[Block] = {
     val indented = indentedBlock(firstLineIndented = true) ^^ { LiteralBlock(_) }
 
-    val quotedLine = lookAhead(punctuationChar min 1)
+    val quotedLine = lookAhead(punctuationChar.min(1))
     val quoted = block(quotedLine, quotedLine, failure("blank line always ends quoted block")) ^^ { LiteralBlock(_) }
 
     indented | quoted

@@ -123,16 +123,16 @@ object HoconParsers {
   /** Parses a literal number value into a Long or Double depending on whether a fraction part is present. */
   val numberValue: Parser[ConfigBuilderValue] = {
     
-    val zero = anyIn('0').take(1)
+    val zero = oneOf('0')
     val digits = anyOf(CharGroup.digit)
     val oneToNine = anyIn('1' to '9')
     val nonZero = (oneToNine.take(1) ~ digits).concat
     val negativeSign = opt('-').map(_.fold("")(_.toString))
-    val sign = opt(char('-') | char('+')).map(_.fold("")(_.toString))
+    val sign = opt(oneOf('-') | oneOf('+')).map(_.getOrElse(""))
     
     val integer = (negativeSign ~ (zero | nonZero)).concat
-    val fraction = opt((anyIn('.').take(1) ~ digits).concat).map(_.getOrElse(""))
-    val exponent = opt((anyIn('E','e').take(1) ~ sign ~ digits).concat).map(_.getOrElse(""))
+    val fraction = opt((oneOf('.') ~ digits).concat).map(_.getOrElse(""))
+    val exponent = opt((oneOf('E','e') ~ sign ~ digits).concat).map(_.getOrElse(""))
 
     (integer ~ (fraction ~ exponent).concat) ^^? {
       case int ~ ""         => 
@@ -149,16 +149,16 @@ object HoconParsers {
   /** Parses a string enclosed in quotes. */
   val quotedString: Parser[StringBuilderValue] = {
     val chars = anyBut('"','\\','\n').min(1).map(Right(_))
-    val specialChar = anyIn('b','f','n','r','t').take(1).map {
+    val specialChar = oneOf('b','f','n','r','t').map {
       case "b" => "\b"
       case "f" => "\f"
       case "n" => "\n"
       case "r" => "\r"
       case "t" => "\t"
     }
-    val literalChar = anyIn('"','\\','/').take(1)
+    val literalChar = oneOf('"','\\','/')
     val unicode = DigitParsers.hex.take(4).map(Integer.parseInt(_, 16).toChar.toString)
-    val escape = '\\' ~> ((literalChar | specialChar | unicode).map(Right(_)) | any.take(1).withContext.map(Left(_)) )
+    val escape = '\\' ~> ((literalChar | specialChar | unicode).map(Right(_)) | one.withContext.map(Left(_)) )
     
     import cats.implicits._
     
@@ -190,7 +190,7 @@ object HoconParsers {
     val mainParser = unquotedChar.min(1).map(ValidStringValue)
     val closingParser = 
       if (delimiters.contains('\u0001')) success(()) 
-      else lookAhead(ws ~ (anyOf(delimiters.add('"').add('$')).take(1) | unquotedChar.take(1) | eof)) // TODO - '0001' delimiters are a temp workaround until deprecated directive syntax gets removed
+      else lookAhead(ws ~ (oneOf(delimiters.add('"').add('$')) | unquotedChar.take(1) | eof)) // TODO - '0001' delimiters are a temp workaround until deprecated directive syntax gets removed
     val delimMsg = if (delimiters.size == 1) " is" else "s are one of"
     val renderedDelimiters = delimiters.toSortedSet.map {
       case '\n' => "'\\n'"
@@ -298,7 +298,7 @@ object HoconParsers {
     val keySeparators = NonEmptySet.of(':','=','{','+')
     lazy val key = wsOrNl ~> concatenatedKey(keySeparators) <~ ws
     lazy val value = wsOrNl ~> concatenatedValue(NonEmptySet.of('}',',','\n','#')) <~ ws
-    lazy val withSeparator = ((anyOf(':','=').take(1) | "+=") ~ value).map {
+    lazy val withSeparator = ((oneOf(':','=') | "+=") ~ value).map {
       case "+=" ~ element => ConcatValue(SelfReference, Seq(ConcatPart("", ArrayBuilderValue(Seq(element))))) 
       case _ ~ v => v 
     }

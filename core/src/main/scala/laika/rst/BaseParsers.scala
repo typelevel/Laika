@@ -20,7 +20,7 @@ import cats.implicits._
 import cats.data.NonEmptySet
 import laika.ast._
 import laika.parse.Parser
-import laika.parse.text.TextParsers.{anyOf, char}
+import laika.parse.text.TextParsers.{anyOf, char, someOf}
 import laika.parse.text.{CharGroup, Characters, TextParsers}
 
 /**
@@ -51,7 +51,7 @@ object BaseParsers {
     *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#footnote-references]].
     */
   val footnoteLabel: Parser[FootnoteLabel] = {
-    val decimal = anyOf(CharGroup.digit).min(1) ^^ { n => NumericLabel(n.toInt) }
+    val decimal = someOf(CharGroup.digit) ^^ { n => NumericLabel(n.toInt) }
     val autonumber = '#' ^^^ Autonumber
     val autosymbol = '*' ^^^ Autosymbol
     val autonumberLabel = '#' ~> simpleRefName ^^ AutonumberLabel

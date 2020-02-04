@@ -47,14 +47,14 @@ object HTMLParsers {
 
 
   val htmlHexReference: Parser[String] = {
-    val hexNumber = anyOf(CharGroup.hexDigit).min(1)
+    val hexNumber = someOf(CharGroup.hexDigit)
 
     (char('x') | char('X')) ~ hexNumber ^^ { mkString }
   }
 
-  val htmlDecReference: Parser[String] = anyOf(CharGroup.digit).min(1)
+  val htmlDecReference: Parser[String] = someOf(CharGroup.digit)
 
-  val htmlNamedReference: Parser[String] = anyOf(CharGroup.alphaNum).min(1)
+  val htmlNamedReference: Parser[String] = someOf(CharGroup.alphaNum)
 
   /** Parses a numeric character reference (decimal or hexadecimal) without the leading `'&'`.
     */
@@ -96,7 +96,7 @@ object HTMLParsers {
     }
 
 
-  val htmlTagName: Parser[String] = anyOf(CharGroup.alpha).min(1) ~ anyBut(htmlWSChars.add('/').add('>')) ^^ {
+  val htmlTagName: Parser[String] = someOf(CharGroup.alpha) ~ anyBut(htmlWSChars.add('/').add('>')) ^^ {
     case first ~ rest => first + rest
   }
 

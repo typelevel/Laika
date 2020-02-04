@@ -38,7 +38,7 @@ object StringLiteral {
       * if you want to be strict and apply the specific rules about which characters are valid
       * escapes you need to create a custom parser. */
     val char: CodeSpanParser = CodeSpanParser(CodeCategory.EscapeSequence) {
-      (TextParsers.literal("\\") ~ any.take(1)).concat
+      (TextParsers.literal("\\") ~ one).concat
     }
 
     /** Parses a unicode character escape.
@@ -62,7 +62,7 @@ object StringLiteral {
       * e.g. `\\207`.
       */
     val octal: CodeSpanParser = CodeSpanParser(CodeCategory.EscapeSequence) {
-      (TextParsers.literal("\\") ~ ((anyIn('0' to '3').take(1) ~ DigitParsers.octal.max(2)).concat | DigitParsers.octal.min(1).max(2))).concat
+      (TextParsers.literal("\\") ~ ((oneOf('0','1','2','3') ~ DigitParsers.octal.max(2)).concat | DigitParsers.octal.min(1).max(2))).concat
     }
 
     /** Parses a single literal escape. Example: `$$`. 

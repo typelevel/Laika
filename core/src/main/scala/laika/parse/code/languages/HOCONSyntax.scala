@@ -36,7 +36,7 @@ object HOCONSyntax extends SyntaxHighlighter {
   )
 
   val quotedAttributeName: StringParser = string
-    .withPostCondition(lookAhead(ws ~ anyOf(':','=','{').take(1)) ^^^ (()))
+    .withPostCondition(lookAhead(ws ~ oneOf(':','=','{')) ^^^ (()))
     .copy(defaultCategories = Set(CodeCategory.AttributeName))
   
   val substitution: CodeSpanParser = CodeSpanParser(CodeCategory.Substitution, "${", "}")
@@ -44,11 +44,11 @@ object HOCONSyntax extends SyntaxHighlighter {
   private val unquotedChar = {
     val validChar = anyBut('$', '"', '{', '}', '[', ']', ':', '=', ',', '+', '#', '`', '^', '?', '!', '@', '*', '&', '\\', ' ', '\t','\n').take(1) 
     
-    validChar | anyOf(' ').take(1) <~ lookAhead(ws ~ validChar)
+    validChar | oneOf(' ') <~ lookAhead(ws ~ validChar)
   }.rep.map(_.mkString)
   
   val unquotedAttributeName: CodeSpanParser = CodeSpanParser(CodeCategory.AttributeName) {
-    PrefixedParser(CharGroup.alpha)(unquotedChar <~ lookAhead(ws ~ anyOf(':','=','{').take(1))) // TODO - 0.14 - this is inaccurate
+    PrefixedParser(CharGroup.alpha)(unquotedChar <~ lookAhead(ws ~ oneOf(':','=','{'))) // TODO - 0.14 - this is inaccurate
   }
   
   val unquotedStringValue: CodeSpanParser = CodeSpanParser(CodeCategory.StringLiteral) {

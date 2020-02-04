@@ -31,8 +31,8 @@ class ParserSpec extends WordSpec with Matchers with ParseResultHelpers with Str
 
   val context = ParserContext("abc\ndef")
 
-  val parser1 = TextParsers.anyOf('a','b').min(1)
-  val parser2 = TextParsers.anyOf('b','c').min(1)
+  val parser1 = TextParsers.someOf('a','b')
+  val parser2 = TextParsers.someOf('b','c')
 
 
   "The monadic Parser" should {

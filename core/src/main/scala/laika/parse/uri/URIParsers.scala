@@ -76,7 +76,7 @@ object URIParsers {
    *                   / "*" / "+" / "," / ";" / "="
    *  }}}
    */
-  val subDelims: Parser[String] = anyOf('!', '$', '&', '\'', '(', ')', '*', '+', ',', ';', '=') take 1
+  val subDelims: Parser[String] = oneOf('!', '$', '&', '\'', '(', ')', '*', '+', ',', ';', '=')
   
   /** Parses a single unreserved character as defined in RFC 3986.
    * 
@@ -84,7 +84,7 @@ object URIParsers {
    *  unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
    *  }}}
    */
-  val unreserved: Parser[String] = (alpha take 1) | (digit take 1) | (anyOf('-', '.', '_', '~') take 1)
+  val unreserved: Parser[String] = alpha.take(1) | digit.take(1) | oneOf('-', '.', '_', '~')
   
   /** Parses a percent-encoded character as defined in RFC 3986.
    * 
@@ -92,7 +92,7 @@ object URIParsers {
    *  pct-encoded = "%" HEXDIG HEXDIG
    *  }}}
    */
-  val pctEncoded: Parser[Char ~ String] = '%' ~ (hexdig take 2)
+  val pctEncoded: Parser[Char ~ String] = '%' ~ hexdig.take(2)
   
   
   /* authority */  
@@ -103,7 +103,7 @@ object URIParsers {
    *  IPvFuture = "v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" )
    *  }}}
    */
-  val ipvFuture: Parser[Char ~ String ~ Char ~ List[Any]] = 'v' ~ (hexdig min 1) ~ '.' ~ ((unreserved | subDelims | ':')+)
+  val ipvFuture: Parser[Char ~ String ~ Char ~ List[Any]] = 'v' ~ hexdig.min(1) ~ '.' ~ ((unreserved | subDelims | ':')+)
   
   /** Parses an IPv4 address as defined in RFC 3986.
    * 
@@ -120,7 +120,7 @@ object URIParsers {
    *  check its value.
    */
   val ipv4address: Parser[String] = {
-    val decOctet = (digit min 1 max 3) ^^? { res => 
+    val decOctet = digit.min(1).max(3) ^^? { res => 
       val num = res.toInt
       if (num >= 0 && num < 256) Right(num) else Left("Number must be between 1 and 255")
     }
@@ -148,7 +148,7 @@ object URIParsers {
    */
   val ipv6address: Parser[Any ~ Any] = {
     
-    val h16 = hexdig min 1 max 4
+    val h16 = hexdig.min(1).max(4)
   
     val h16Col = h16 ~ ':'
   
@@ -196,7 +196,7 @@ object URIParsers {
    *  port = *DIGIT
    *  }}}
    */
-  val port: Parser[String] = digit min 1
+  val port: Parser[String] = digit.min(1)
   
   /** Parses the user info portion of a URI as defined in RFC 3986.
    * 
@@ -223,7 +223,7 @@ object URIParsers {
    *  pchar = unreserved / pct-encoded / sub-delims / ":" / "@"
    *  }}}
    */
-  val pChar: Parser[Any] = unreserved | pctEncoded | subDelims | (anyOf(':', '@') take 1)
+  val pChar: Parser[Any] = unreserved | pctEncoded | subDelims | oneOf(':', '@')
     
   /** Parses the path of a URI as defined in RFC 3986, but only the path
    *  variant following an authority component.
@@ -245,7 +245,7 @@ object URIParsers {
    *  query = *( pchar / "/" / "?" )
    *  }}}
    */
-  val query: Parser[String] = ((pChar | (anyOf('/','?') take 1))*) ^^ flatten
+  val query: Parser[String] = ((pChar | oneOf('/','?'))*) ^^ flatten
   
   /** Parses the fragment part of a URI as defined in RFC 3986.
    * 
@@ -312,8 +312,8 @@ object URIParsers {
    */
   val dotAtomText: Parser[String] = {
     
-    val atext = (alpha min 1) | (digit min 1) | 
-        (anyOf('!','#','$','%','&','\'','*','+','-','/','=','?','^','_','`','{','|','}','~') min 1)
+    val atext = alpha.min(1) | digit.min(1) | 
+        someOf('!','#','$','%','&','\'','*','+','-','/','=','?','^','_','`','{','|','}','~')
         
     ((atext*) ~ (('.' ~ (atext*))*)) ^^ flatten 
   }
@@ -376,7 +376,7 @@ object URIParsers {
    */
   val hfields: Parser[String] = {
         
-    val someDelims = anyOf('!', '$', '\'', '(', ')', '*', '+', ',', ';', ':', '@') min 1
+    val someDelims = someOf('!', '$', '\'', '(', ')', '*', '+', ',', ';', ':', '@')
     val qChar = unreserved | pctEncoded | someDelims
         
     val hfname  = qChar*

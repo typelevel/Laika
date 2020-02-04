@@ -271,34 +271,54 @@ class TextParsersSpec extends WordSpec with Matchers with ParseResultHelpers wit
 
   }
 
-  "The prefix parser" should {
+  "The someOf parser" should {
 
     "succeed for the matching character when 1 character is specified" in {
-      Parsing ("xxabc") using prefix('x') should produce ("xx")
+      Parsing ("xxabc") using someOf('x') should produce ("xx")
     }
 
     "succeed for all matching characters when 3 characters are specified" in {
-      Parsing ("xxyzxabc") using prefix('x','y','z') should produce ("xxyzx")
+      Parsing ("xxyzxabc") using someOf('x','y','z') should produce ("xxyzx")
     }
 
     "succeed in case the end of the input is reached" in {
-      Parsing ("xxyzx") using prefix('x','y','z') should produce ("xxyzx")
+      Parsing ("xxyzx") using someOf('x','y','z') should produce ("xxyzx")
     }
 
     "fail when it does not consume the specified minimum number of characters" in {
-      Parsing ("xxabc") using prefix('x').min(3) should cause [Failure]
+      Parsing ("xxabc") using someOf('x').min(3) should cause [Failure]
     }
 
-    "fail when it does not consume any characters as min(1) is implicit in prefix parsers" in {
-      Parsing ("abcde") using prefix('x') should cause [Failure]
+    "fail when it does not consume any characters as min(1) is implicit in someOf parsers" in {
+      Parsing ("abcde") using someOf('x') should cause [Failure]
     }
 
     "succeed when it does consume the specified minimum number of characters" in {
-      Parsing ("xxxxabc") using prefix('x').min(3) should produce ("xxxx")
+      Parsing ("xxxxabc") using someOf('x').min(3) should produce ("xxxx")
     }
 
     "stop, but still succeed, when it has consumed the specified maximum number of characters" in {
-      Parsing ("xxxxxx") using prefix('x').max(3) should produce ("xxx")
+      Parsing ("xxxxxx") using someOf('x').max(3) should produce ("xxx")
+    }
+
+  }
+
+  "The oneOf parser" should {
+
+    "succeed for the matching character when 1 character is specified" in {
+      Parsing ("xxabc") using TextParsers.oneOf('x') should produce ("x")
+    }
+
+    "succeed for any of the specified 3 characters" in {
+      Parsing ("yzxabc") using TextParsers.oneOf('x','y','z') should produce ("y")
+    }
+
+    "fail in case the end of the input is reached" in {
+      Parsing ("") using TextParsers.oneOf('x','y','z') should cause [Failure]
+    }
+
+    "fail when the first character does not match" in {
+      Parsing ("yxxabc") using TextParsers.oneOf('x') should cause [Failure]
     }
 
   }

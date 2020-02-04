@@ -51,7 +51,7 @@ object BlockParsers {
 
   /** Parses the decoration (underline) of a setext header.
     */
-  val setextDecoration: Parser[String] = (anyOf('=').min(1) | anyOf('-').min(1)) <~ wsEol
+  val setextDecoration: Parser[String] = (someOf('=') | someOf('-')) <~ wsEol
 
   /**  Parses a single Markdown block. In contrast to the generic block parser of the
     *  generic block parsers this method also consumes and ignores up to three optional space
@@ -172,7 +172,7 @@ object BlockParsers {
       else trimmed
     } 
     
-    prefix('#').max(6).count ~ (not(blankLine) ~> recParsers.recursiveSpans(restOfLine ^^ stripDecoration)) ^^ {
+    someOf('#').max(6).count ~ (not(blankLine) ~> recParsers.recursiveSpans(restOfLine ^^ stripDecoration)) ^^ {
       case level ~ spans => Header(level, spans)
     }
   }
@@ -181,7 +181,7 @@ object BlockParsers {
    *  characters with optional spaces between them
    */
   val rules: BlockParserBuilder = BlockParser.standalone {
-    val decoChar = prefix('*', '-', '_').take(1)
+    val decoChar = someOf('*', '-', '_').take(1)
     val pattern = decoChar ~ (anyOf(' ').^ ~ decoChar).rep.min(2)
     pattern ~ wsEol ^^^ Rule()
   }

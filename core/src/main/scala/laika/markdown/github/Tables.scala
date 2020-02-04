@@ -53,14 +53,14 @@ object Tables {
     val firstRow: PrefixedParser[Row] = '|' ~> rowRest(HeadCell)
     
     val bodyRow: Parser[Row] = {
-      val rowStart = insignificantSpaces ~ not(anyOf('*','+','-','>','_','#','[',' ','\t').take(1)) ~ opt('|')
+      val rowStart = insignificantSpaces ~ not(oneOf('*','+','-','>','_','#','[',' ','\t')) ~ opt('|')
       rowStart ~> rowRest(BodyCell)
     }
 
     val sepRow: Parser[Seq[Options]] = {
 
       val separator: Parser[Option[Char] ~ Option[Char]] =
-        (ws ~> opt(':')) ~ (anyOf('-').min(1).^ ~> opt(':') <~ ws)
+        (ws ~> opt(':')) ~ (someOf('-').^ ~> opt(':') <~ ws)
 
       val delimitedSeparators = (separator <~ '|').rep
       val optFinalSep = opt(separator)

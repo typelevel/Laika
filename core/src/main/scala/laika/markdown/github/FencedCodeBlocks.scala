@@ -42,7 +42,7 @@ object FencedCodeBlocks {
       .filter(_.nonEmpty)
       .flatMap(_.trim.split(" ").headOption)
     )
-    val openingFence = prefix(fenceChar).min(3).count ~ infoString
+    val openingFence = someOf(fenceChar).min(3).count ~ infoString
 
     openingFence >> { case charCount ~ info =>
 

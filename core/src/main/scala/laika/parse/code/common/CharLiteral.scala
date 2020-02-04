@@ -45,9 +45,9 @@ object CharLiteral {
     lazy val underlying: PrefixedParser[Seq[CodeSpan]] = {
 
       def plainChar(char: String) = anyBut('\'', '\n').take(1).map(CodeSpan(_, categories))
-      val delimParser = anyOf(delim).take(1).map(CodeSpan(_, categories))
+      val delimParser = oneOf(delim).map(CodeSpan(_, categories))
 
-      (delim ~> lookAhead(any.take(1))).flatMap { char =>
+      (delim ~> lookAhead(one)).flatMap { char =>
         (PrefixedParser.mapAndMerge(embedded.flatMap(_.parsers)).getOrElse(char.head, plainChar(char)) ~ delimParser).map { 
           case span ~ delimSpan => 
             val codeSpans = delimSpan +: CodeSpans.extract(categories)(span) :+ delimSpan

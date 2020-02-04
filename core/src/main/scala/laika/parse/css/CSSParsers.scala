@@ -59,9 +59,9 @@ object CSSParsers {
    *  letters, digits or one of the symbols `'-'` or `'_'`.
    */
   val styleRefName: Parser[String] = {
-    val alpha = anyWhile(c => Character.isLetter(c)) min 1
-    val alphanum = anyWhile(c => Character.isDigit(c) || Character.isLetter(c)) min 1
-    val symbol = anyOf('-', '_') max 1
+    val alpha = anyWhile(c => Character.isLetter(c)).min(1)
+    val alphanum = anyWhile(c => Character.isDigit(c) || Character.isLetter(c)).min(1)
+    val symbol = anyOf('-', '_').max(1)
     
     alpha ~ ((symbol ~ alphanum)*) ^^ { 
       case start ~ rest => start + (rest map { case a~b => a+b }).mkString

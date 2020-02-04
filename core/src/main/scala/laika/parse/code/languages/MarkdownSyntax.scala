@@ -72,11 +72,11 @@ object MarkdownSyntax extends SyntaxHighlighter {
   }
 
   val atxHeader: CodeSpanParser = CodeSpanParser.onLineStart(CodeCategory.Markup.Headline) {
-    (startOfLine ~ anyOf('#').min(1).max(6) ~ restOfLine).concat.map(_ + "\n")
+    (startOfLine ~ someOf('#').max(6) ~ restOfLine).concat.map(_ + "\n")
   }
 
   val setexHeader: CodeSpanParser = CodeSpanParser.onLineStart(CodeCategory.Markup.Headline) {
-    val deco = (anyOf('=').min(1) | anyOf('-').min(1)) <~ wsEol
+    val deco = (someOf('=') | someOf('-')) <~ wsEol
     (startOfLine ~ restOfLine.map(_ + "\n") ~ deco).concat.map(_ + "\n")
   }
 
@@ -93,7 +93,7 @@ object MarkdownSyntax extends SyntaxHighlighter {
   }
 
   val quoteChars: CodeSpanParser = CodeSpanParser.onLineStart(CodeCategory.Markup.Quote) {
-    (startOfLine ~ anyOf('>').min(1)).concat
+    (startOfLine ~ someOf('>')).concat
   }
 
   val mdSpans: CodeSpanParser = 

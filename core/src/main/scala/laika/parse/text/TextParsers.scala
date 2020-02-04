@@ -54,15 +54,6 @@ object TextParsers extends Parsers {
     PrefixedParser(expected)(p)
   }
   
-  def prefix (char: Char, chars: Char*): PrefixCharacters[String] = {
-    val startChars = NonEmptySet.of(char, chars:_*)
-    new PrefixCharacters(anyOf(startChars).min(1), startChars)
-  }
-
-  def prefix (chars: NonEmptySet[Char]): PrefixCharacters[String] = {
-    new PrefixCharacters(anyOf(chars).min(1), chars)
-  }
-
   /**  A parser that matches only the specified literal string.
     *
     *  The method is implicit so that strings can automatically be lifted to their parsers.
@@ -136,7 +127,7 @@ object TextParsers extends Parsers {
    */
   val refName: Parser[String] = {
     val alphanum = anyWhile(c => Character.isDigit(c) || Character.isLetter(c)) min 1
-    val symbol = anyOf('-', '_', '.', ':', '+') take 1
+    val symbol = oneOf('-', '_', '.', ':', '+')
     
     alphanum ~ ((symbol ~ alphanum)*) ^^ { 
       case start ~ rest => start + (rest map { case a~b => a+b }).mkString
@@ -147,7 +138,7 @@ object TextParsers extends Parsers {
     * The unit is mandatory and not validated.
     */
   val sizeAndUnit: Parser[Size] = {
-    val digit = anyOf(CharGroup.digit).min(1)
+    val digit = someOf(CharGroup.digit)
     val amount = digit ~ opt("." ~ digit) ^^ {
       case num1 ~ Some(_ ~ num2) => s"$num1.$num2".toDouble
       case num ~ None => num.toDouble
@@ -155,6 +146,7 @@ object TextParsers extends Parsers {
     amount ~ (ws ~> (refName | "%")) ^^ { case amount ~ unit => Size(amount, unit) }
   }
 
+  
   /** Consumes any kind of input, always succeeds.
    *  This parser would consume the entire input unless a `max` constraint
    *  is specified.
@@ -192,15 +184,42 @@ object TextParsers extends Parsers {
   def anyWhile (p: Char => Boolean): Characters[String] = Characters.anyWhile(p)
 
 
-  /** Consumes any number of consecutive characters until one of the specified characters
-    * is encountered on the input string.
+  /** Consumes one character if it matches one of the specified characters, fails otherwise.
     */
-  def delimitedBy (char: Char, chars: Char*): DelimitedText = new DelimitedText(TextDelimiter(prefix(char, chars: _*).take(1)))
+  def oneOf (char: Char, chars: Char*): PrefixedParser[String] = {
+    val startChars = NonEmptySet.of(char, chars:_*)
+    new PrefixCharacters(anyOf(startChars).take(1), startChars)
+  }
+
+  /** Consumes one character if it matches one of the specified characters, fails otherwise.
+    */
+  def oneOf (chars: NonEmptySet[Char]): PrefixedParser[String] = new PrefixCharacters(anyOf(chars).take(1), chars)
+
+  /** Parses exactly one character from the input, fails only at the end of the input.
+    */
+  val one: Parser[String] = any.take(1)
+
+  /** Consumes one character if it matches one of the specified characters, fails otherwise.
+    */
+  def someOf (char: Char, chars: Char*): PrefixCharacters[String] = {
+    val startChars = NonEmptySet.of(char, chars:_*)
+    new PrefixCharacters(anyOf(startChars).min(1), startChars)
+  }
+
+  /** Consumes one character if it matches one of the specified characters, fails otherwise.
+    */
+  def someOf (chars: NonEmptySet[Char]): PrefixCharacters[String] = new PrefixCharacters(anyOf(chars).min(1), chars)
+  
 
   /** Consumes any number of consecutive characters until one of the specified characters
     * is encountered on the input string.
     */
-  def delimitedBy (chars: NonEmptySet[Char]): DelimitedText = new DelimitedText(TextDelimiter(prefix(chars)))
+  def delimitedBy (char: Char, chars: Char*): DelimitedText = new DelimitedText(TextDelimiter(someOf(char, chars: _*).take(1)))
+
+  /** Consumes any number of consecutive characters until one of the specified characters
+    * is encountered on the input string.
+    */
+  def delimitedBy (chars: NonEmptySet[Char]): DelimitedText = new DelimitedText(TextDelimiter(someOf(chars)))
 
   /** Consumes any number of consecutive characters until the specified string delimiter
     * is encountered on the input string.
@@ -228,7 +247,7 @@ object TextParsers extends Parsers {
     * with an API that allows to specify predicates for the characters immediately 
     * preceding or following the delimiter, a common task in markup parsing.
     */
-  def delimiter (char: Char, chars: Char*): DelimiterParser = new DelimiterParser(prefix(char, chars:_*).take(1))
+  def delimiter (char: Char, chars: Char*): DelimiterParser = new DelimiterParser(someOf(char, chars:_*).take(1))
 
   /** Creates a parser for a delimiter based on a literal string with an API that 
     * allows to specify predicates for the characters immediately 

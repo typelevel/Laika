@@ -38,7 +38,7 @@ class ExplicitBlockParsers (recParsers: RecursiveParsers) {
   import recParsers._
 
   
-  private val explicitStart = ".." ~ (ws min 1)
+  private val explicitStart = ".." ~ ws.min(1)
   
   
   /** Parses all types of explicit block items.
@@ -128,7 +128,7 @@ object ExplicitBlockParsers {
   }
 
   private[rst] lazy val linkDefinitionBody: Parser[String] = {
-    val notEmpty = not(blankLine) | lookAhead(restOfLine ~ (ws min 1) ~ not(blankLine))
+    val notEmpty = not(blankLine) | lookAhead(restOfLine ~ ws.min(1) ~ not(blankLine))
 
     (notEmpty ~> indentedBlock()) ^^ {
       _.linesIterator map (_.trim) mkString

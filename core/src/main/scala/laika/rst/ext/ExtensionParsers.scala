@@ -44,7 +44,7 @@ class ExtensionParsers(recParsers: RecursiveParsers,
   import recParsers._
 
   
-  private val explicitStart = ".." ~ (ws min 1)
+  private val explicitStart = ".." ~ ws.min(1)
   
   
   /** Parses all types of explicit block items.
@@ -183,7 +183,7 @@ class ExtensionParsers(recParsers: RecursiveParsers,
     
     def requiredArg (p: => Parser[String]): Parser[String] = p.withFailureMessage("missing required argument")
 
-    val arg: Parser[String] = requiredArg((anyBut(' ','\n') min 1) <~ ws)
+    val arg: Parser[String] = requiredArg(anyBut(' ','\n').min(1) <~ ws)
 
     val argWithWS: Parser[String] = {
       val p = indentedBlock(linePredicate = not(":"), endsOnBlankLine = true) ^^? { block =>
@@ -200,7 +200,7 @@ class ExtensionParsers(recParsers: RecursiveParsers,
 
       val name = ':' ~> escapedUntil(':') <~ (lookAhead(eol) | ' ')
 
-      val item = (ws min 1) >> { firstIndent =>
+      val item = ws.min(1) >> { firstIndent =>
         (name ~ indentedBlock(firstIndent.length + 1)) ^^
           { case name ~ block =>
             (name, block.trim)

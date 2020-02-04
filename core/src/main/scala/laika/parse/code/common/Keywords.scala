@@ -34,7 +34,7 @@ object Keywords {
     * code category and not with the `Keyword` category. */
   def apply (category: CodeCategory)(keyword: String, keywords: String*): CodeSpanParser = {
     
-    val validNextChar = not(anyOf(CharGroup.alphaNum.add('_')).take(1))
+    val validNextChar = not(oneOf(CharGroup.alphaNum.add('_')))
     
     (keyword +: keywords).map { kw =>
       require(kw.nonEmpty)

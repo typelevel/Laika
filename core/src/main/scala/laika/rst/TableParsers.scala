@@ -196,14 +196,14 @@ object TableParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#grid-tables]].
    */
   lazy val gridTable: BlockParserBuilder = BlockParser.recursive { recParsers =>
-    
-    val intersect = (anyOf('+') take 1) ^^^ Intersection
-    
-    val rowSep = anyOf('-').min(1).count
+
+    val intersect = oneOf('+') ^^^ Intersection
+
+    val rowSep = someOf('-').count
     val topBorder = intersect ~> ((rowSep <~ intersect)+) <~ wsEol
 
-    val colSep = ((anyOf('|') take 1) ^^^ CellSeparator("|")) | intersect
-    val colSepOrText = colSep | ((any take 1) ^^ CellElement)
+    val colSep = (oneOf('|') ^^^ CellSeparator("|")) | intersect
+    val colSepOrText = colSep | (one ^^ CellElement)
 
     recParsers.withRecursiveBlockParser(topBorder) >> { case (recParser, cols) =>
       
@@ -211,13 +211,13 @@ object TableParsers {
       val colsWithSep = Zip3Iterator(separators, cols, separators.reverse)
       
       def rowSep (width: Int): Parser[Any] = 
-        intersect ~ ((anyOf('-') take width) ^^^ RowSeparator) <~ lookAhead(intersect)
+        intersect ~ (anyOf('-').take(width) ^^^ RowSeparator) <~ lookAhead(intersect)
         
       def boundaryPart (width: Int): Parser[Any] = 
-        intersect ~ ((anyOf('=') take width) ^^^ TableBoundary) <~ lookAhead(intersect)
+        intersect ~ (anyOf('=').take(width) ^^^ TableBoundary) <~ lookAhead(intersect)
         
       def cell (sepL: Parser[Any], width: Int, sepR: Parser[Any]): Parser[Any] = 
-        sepL ~ ((any take width) ^^ CellElement) <~ lookAhead(sepR)
+        sepL ~ ((any.take(width)) ^^ CellElement) <~ lookAhead(sepR)
       
       val row = (colsWithSep map { case (separatorL, colWidth, separatorR) => 
         rowSep(colWidth) | cell(separatorL, colWidth, separatorR)
@@ -254,8 +254,8 @@ object TableParsers {
         if (rows.isEmpty || !isSeparatorRow(rows.last)) throw new MalformedTableException("Table not terminated correctly")
       }
       
-      val boundaryRow = tableBoundary <~ (any take 1) ~ wsEol
-      val tablePart = ((not(tableBoundary) ~> row <~ (any take 1) ~ wsEol)*)
+      val boundaryRow = tableBoundary <~ one ~ wsEol
+      val tablePart = ((not(tableBoundary) ~> row <~ one ~ wsEol)*)
       (tablePart ~ opt(boundaryRow ~> tablePart)) ^^? { result =>
         
       /* Need to fail for certain illegal constructs in the interim model, 
@@ -281,8 +281,8 @@ object TableParsers {
    */
   lazy val simpleTable: BlockParserBuilder = BlockParser.recursive { recParsers =>
     
-    val intersect = anyOf(' ').min(1).count
-    val tableBorder = anyOf('=').min(1).count
+    val intersect = someOf(' ').count
+    val tableBorder = someOf('=').count
     val columnSpec = tableBorder ~ opt(intersect) ^^ {
       case col ~ Some(sep) => (col, sep)
       case col ~ None      => (col, 0)
@@ -292,20 +292,20 @@ object TableParsers {
     recParsers.withRecursiveBlockParser(topBorder) >> { case (recParser, cols) =>
       
       val (rowColumns, boundaryColumns): (Seq[Parser[Any]],Seq[Parser[Any]]) = (cols map { case (col, sep) =>
-        val cellText = if (sep == 0) anyBut('\n', '\r') ^^ CellElement
-                       else (any take col) ^^ CellElement 
-        val separator = (anyOf(' ') take sep) ^^ CellSeparator
-        val textInSep = (any take sep) ^^ CellSeparator
+        val cellText = if (sep == 0) anyBut('\n', '\r').map(CellElement)
+                       else any.take(col).map(CellElement) 
+        val separator = anyOf(' ').take(sep).map(CellSeparator)
+        val textInSep = any.take(sep).map(CellSeparator)
         val textColumn = cellText ~ (separator | textInSep)
         
-        val rowSep = (anyOf('-') take col) ^^^ RowSeparator
-        val merged = (anyOf('-') take sep) ^^^ RowSeparator
-        val split =  (anyOf(' ') take sep) ^^^ Intersection
+        val rowSep = anyOf('-').take(col) ^^^ RowSeparator
+        val merged = anyOf('-').take(sep) ^^^ RowSeparator
+        val split =  anyOf(' ').take(sep) ^^^ Intersection
         val underline = rowSep ~ (split | merged)
         
-        val bCell = (anyOf('=') take col) ^^^ TableBoundary
-        val bMerged = (anyOf('=') take sep) ^^^ TableBoundary
-        val bSplit =  (anyOf(' ') take sep) ^^^ Intersection
+        val bCell = anyOf('=').take(col) ^^^ TableBoundary
+        val bMerged = anyOf('=').take(sep) ^^^ TableBoundary
+        val bSplit =  anyOf(' ').take(sep) ^^^ Intersection
         val boundary = bCell ~ (bSplit | bMerged)
         
         (underline | not(boundary) ~> textColumn, boundary)

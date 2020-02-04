@@ -79,7 +79,7 @@ object CSSSyntax extends SyntaxHighlighter {
     )
     def valueParser(inBlock: Boolean): Parser[Seq[CodeSpan]] = {
       val separator = (ws ~ ":").concat.map(CodeSpan(_))
-      val delim = any.take(1).map(CodeSpan(_))
+      val delim = one.map(CodeSpan(_))
       val text = if (inBlock) delimitedBy('}',';', ')') else delimitedBy('}',';')
       (separator ~ EmbeddedCodeSpans.parser(text.keepDelimiter, embedded) ~ delim).map {
         case sep ~ con ~ del => sep +: con :+ del

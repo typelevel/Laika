@@ -98,7 +98,7 @@ class RootParser (markupParser: MarkupFormat, markupExtensions: MarkupExtensions
     val prefixedBlock = NonEmptySet
       .fromSet(TreeSet.empty[Char] ++ groupedPrefixed.keySet)
       .fold[Parser[Block]](failure("No decorated block parser available")) { set =>
-        val startChars = lookAhead(anyOf(set).take(1)).map(_.charAt(0))
+        val startChars = lookAhead(oneOf(set)).map(_.charAt(0))
         startChars >> groupedPrefixed
       } 
     

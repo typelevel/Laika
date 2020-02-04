@@ -63,7 +63,7 @@ class CommonSyntaxParserSpec extends WordSpec
         StringLiteral.Escape.char,
         StringLiteral.Escape.literal("$$"),
         StringLiteral.Substitution.between("${", "}"),
-        StringLiteral.Substitution(("$" ~ anyOf(CharGroup.alphaNum.add('_')).min(1)).concat)
+        StringLiteral.Substitution(("$" ~ someOf(CharGroup.alphaNum.add('_'))).concat)
       ),
       Identifier.alphaNum.withIdStartChars('_','$').withCategoryChooser(Identifier.upperCaseTypeName).copy(allowDigitBeforeStart = allowLetterAfterNumber),
       NumberLiteral.binary.withUnderscores.withSuffix(NumericSuffix.long),

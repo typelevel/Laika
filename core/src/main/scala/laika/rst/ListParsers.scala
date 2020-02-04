@@ -81,14 +81,14 @@ object ListParsers {
   }
 
   
-  private lazy val bulletListStart = anyOf('*','-','+','\u2022','\u2023','\u2043').take(1)
+  private lazy val bulletListStart = oneOf('*','-','+','\u2022','\u2023','\u2043')
   
   /** Parses a bullet list with any of the supported bullet characters.
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#bullet-lists]].
    */
   lazy val bulletList: BlockParserBuilder = BlockParser.recursive { implicit recParsers =>
-    lookAhead(bulletListStart <~ (ws min 1)) >> { symbol =>
+    lookAhead(bulletListStart <~ ws.min(1)) >> { symbol =>
       val bullet = StringBullet(symbol)
       (listItem(symbol, BulletListItem(_, bullet)) +) ^^
         { items => BulletList(rewriteListItems(items,(item:BulletListItem,content) => item.copy(content = content)),bullet) }
@@ -97,10 +97,10 @@ object ListParsers {
   
   private lazy val enumListStart: Parser[(EnumFormat, Int)] = {
     import EnumType._
-    val firstLowerRoman = (anyOf('i','v','x','l','c','d','m').min(2) | anyOf('i').take(1)) ^^? 
+    val firstLowerRoman = (anyOf('i','v','x','l','c','d','m').min(2) | oneOf('i')) ^^? 
       { num => RomanNumerals.romanToInt(num.toUpperCase).map(_ -> LowerRoman) }
     
-    val firstUpperRoman = (anyOf('I','V','X','L','C','D','M').min(2) | anyOf('I').take(1)) ^^? 
+    val firstUpperRoman = (anyOf('I','V','X','L','C','D','M').min(2) | oneOf('I')) ^^? 
       { num => RomanNumerals.romanToInt(num.toUpperCase).map(_ -> UpperRoman) }
     
     val firstLowerAlpha = anyIn('a' to 'h', 'j' to 'z').take(1) ^^ 
@@ -109,8 +109,8 @@ object ListParsers {
     val firstUpperAlpha = anyIn('A' to 'H', 'J' to 'Z').take(1) ^^ 
       { char => (char.charAt(0) + 1 - 'A', UpperAlpha) }
     
-    val firstAutoNumber = anyOf('#').take(1) ^^^ { (1,Arabic) }
-    val firstArabic = anyOf(CharGroup.digit).min(1) ^^ { num => (num.toInt, Arabic) }
+    val firstAutoNumber = oneOf('#') ^^^ { (1,Arabic) }
+    val firstArabic = someOf(CharGroup.digit) ^^ { num => (num.toInt, Arabic) }
     
     lazy val firstEnumType: Parser[(Int,EnumType)] = 
       firstAutoNumber | firstArabic | firstLowerAlpha | firstUpperAlpha | firstLowerRoman | firstUpperRoman
@@ -126,12 +126,12 @@ object ListParsers {
   lazy val enumList: BlockParserBuilder = BlockParser.recursive { implicit recParsers =>
     import EnumType._
 
-    val lowerRoman = anyOf('i','v','x','l','c','d','m').min(1)
-    val upperRoman = anyOf('I','V','X','L','C','D','M').min(1)
-    val lowerAlpha = anyOf(CharGroup.lowerAlpha).take(1)
-    val upperAlpha = anyOf(CharGroup.upperAlpha).take(1)
-    val arabic = anyOf(CharGroup.digit).min(1)
-    val autoNumber = anyOf('#').take(1)
+    val lowerRoman = someOf('i','v','x','l','c','d','m')
+    val upperRoman = someOf('I','V','X','L','C','D','M')
+    val lowerAlpha = oneOf(CharGroup.lowerAlpha)
+    val upperAlpha = oneOf(CharGroup.upperAlpha)
+    val arabic     = someOf(CharGroup.digit)
+    val autoNumber = oneOf('#')
     
     lazy val enumTypes = Map[EnumType,Parser[String]] (
       Arabic -> arabic,
@@ -146,7 +146,7 @@ object ListParsers {
     def itemStart (format: EnumFormat): Parser[String] = 
       (literalOrEmpty(format.prefix) ~ enumType(format.enumType) ~ literalOrEmpty(format.suffix)) ^^ { case prefix ~ enumType ~ suffix => prefix + enumType + suffix }
       
-    lookAhead(enumListStart <~ (ws min 1)) >> { case (format, start) =>
+    lookAhead(enumListStart <~ ws.min(1)) >> { case (format, start) =>
       val pos = Iterator.from(start)
       (listItem(itemStart(format), EnumListItem(_, format, pos.next)) +) ^^ 
         { items => EnumList(rewriteListItems(items,(item:EnumListItem,content) => item.copy(content = content)), format, start) }
@@ -161,11 +161,11 @@ object ListParsers {
     
     val tableStart = anyOf(' ','=') ~ eol
     val explicitStart = ".. " | "__ "
-    val listStart = (bulletListStart | enumListStart) ~ (ws min 1)
-    val headerStart = (BaseParsers.punctuationChar take 1) >> { start => (anyOf(start.charAt(0)) min 2) ~ wsEol }
+    val listStart = (bulletListStart | enumListStart) ~ ws.min(1)
+    val headerStart = BaseParsers.punctuationChar.take(1) >> { start => anyOf(start.charAt(0)).min(2) ~ wsEol }
     
     val term: Parser[String] = not(blankLine | tableStart | explicitStart | listStart | headerStart) ~> 
-        anyBut('\n') <~ eol ~ lookAhead((ws min 1) ~ not(blankLine))
+        anyBut('\n') <~ eol ~ lookAhead(ws.min(1) ~ not(blankLine))
     
     val classifier = delimiter(" : ") ~> recParsers.recursiveSpans ^^ (Classifier(_))
     val termWithClassifier = recParsers.recursiveSpans(term).embed(classifier)
@@ -202,11 +202,11 @@ object ListParsers {
     
     def mkString (result: ~[Char,String]) = result._1.toString + result._2
     
-    val optionString = anyOf(CharGroup.alphaNum.add('_').add('-')).min(1)
+    val optionString = someOf(CharGroup.alphaNum.add('_').add('-'))
     val optionArg = optionString | (('<' ~> delimitedBy('>')) ^^ { "<" + _ + ">" } )
     
-    val gnu =        '+' ~ anyOf(CharGroup.alphaNum).take(1) ^^ mkString
-    val shortPosix = '-' ~ anyOf(CharGroup.alphaNum).take(1) ^^ mkString
+    val gnu =        '+' ~ oneOf(CharGroup.alphaNum) ^^ mkString
+    val shortPosix = '-' ~ oneOf(CharGroup.alphaNum) ^^ mkString
     val longPosix = ("--" <~ not('-')) ~ optionString ^^ { case a ~ b => a+b }
     val dos = '/' ~ optionString ^^ mkString
     
@@ -219,7 +219,7 @@ object ListParsers {
     
     val options = (option ~ ((", " ~> option)*)) ^^ { case x ~ xs => x :: xs }
     
-    val descStart = ((anyOf(' ') min 2) ~ not(blankLine)) | lookAhead(blankLine ~ (ws min 1) ~ not(blankLine)) ^^^ ""
+    val descStart = (anyOf(' ').min(2) ~ not(blankLine)) | lookAhead(blankLine ~ ws.min(1) ~ not(blankLine)) ^^^ ""
     
     val item = (options ~ (descStart ~> recParsers.recursiveBlocks(indentedBlock()))) ^^ {
       case name ~ blocks => OptionListItem(name, blocks)
@@ -233,10 +233,10 @@ object ListParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#line-blocks]].
    */
   lazy val lineBlock: BlockParserBuilder = BlockParser.recursive { recParsers =>
-    val itemStart = anyOf('|').take(1)
+    val itemStart = oneOf('|')
     
     val line: Parser[(Line, Int)] = {
-      itemStart ~> (ws min 1) ~ recParsers.recursiveSpans(indentedBlock(endsOnBlankLine = true)) ^^ {
+      itemStart ~> (ws.min(1)) ~ recParsers.recursiveSpans(indentedBlock(endsOnBlankLine = true)) ^^ {
         case indent ~ block => (Line(block), indent.length)
       }
     }

@@ -83,7 +83,7 @@ object Identifier {
 
     lazy val underlying: PrefixedParser[CodeSpan] = {
 
-      val firstChar = prefix(idStartChars).take(1)
+      val firstChar = oneOf(idStartChars)
       val idStart = prefixParser.fold[PrefixedParser[String]](firstChar)(p => (p ~ firstChar).concat)
       val idDelim = delimiter(idStart).prevNot { c =>
         (Character.isDigit(c) && !allowDigitBeforeStart) || Character.isLetter(c)

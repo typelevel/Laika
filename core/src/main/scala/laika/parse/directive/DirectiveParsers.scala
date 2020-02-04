@@ -78,8 +78,8 @@ object DirectiveParsers {
   /** Parses a name declaration that start with a letter and 
    *  continues with letters, numbers or the symbols '-' or '_'.
    */
-  lazy val nameDecl: Parser[String] = 
-    anyOf(CharGroup.alpha).take(1) ~ anyOf(CharGroup.alphaNum.add('-').add('_')) ^^ { 
+  lazy val nameDecl: Parser[String] =
+    oneOf(CharGroup.alpha) ~ anyOf(CharGroup.alphaNum.add('-').add('_')) ^^ { 
       case first ~ rest => first + rest 
     }
   
