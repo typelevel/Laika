@@ -345,10 +345,6 @@ class TextParsersSpec extends WordSpec with Matchers with ParseResultHelpers wit
       Parsing ("abcdxyzff") using anyIn('a' to 'd', 'x' to 'z') should produce ("abcdxyz")
     }
 
-    "succeed for any matching character when 2 ranges and a single character are specified" in {
-      Parsing ("abcd__xyzff") using anyIn('a' to 'd', 'x' to 'z', '_') should produce ("abcd__xyz")
-    }
-
     "succeed in case the end of the input is reached" in {
       Parsing ("abcabd") using anyIn('a' to 'd') should produce ("abcabd")
     }

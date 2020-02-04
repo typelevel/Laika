@@ -34,15 +34,9 @@ import laika.parse.combinator.Parsers
  */
 object TextParsers extends Parsers {
 
-  
-  /** Implicit conversion that allows to pass a single
-   *  character to the range-based `anyIn` parser. 
-   */
-  implicit def charToIterable (char: Char): Iterable[Char] = Set(char)
-
-  /**  A parser that matches only the specified character.
+  /** A parser that matches only the specified character.
     *
-    *  The method is implicit so that characters can automatically be lifted to their parsers.
+    * The method is implicit so that characters can automatically be lifted to their parsers.
     */
   implicit def char (expected: Char): PrefixedParser[Char] = {
     val errMsg: Char => Message = Message.forRuntimeValue[Char] { found => s"'$expected' expected but $found found" }
