@@ -228,7 +228,7 @@ class SpanDirectiveAPISpec extends FlatSpec
 
   it should "detect a directive with an invalid HOCON string attribute (invalid character in unquoted string)" in {
     new SpanParser with RequiredNamedAttribute {
-      val msg = """One or more errors processing directive 'dir': Multiple errors parsing HOCON: [1.23] failure: Illegal character in unquoted string, expected delimiters are one of '}', ',', '\n', '#'
+      val msg = """One or more errors processing directive 'dir': Multiple errors parsing HOCON: [1.23] failure: Illegal character in unquoted string, expected delimiters are one of '#', ',', '\n', '}'
                   |
                   |aa @:dir { name = foo ? bar } bb
                   |                      ^""".stripMargin

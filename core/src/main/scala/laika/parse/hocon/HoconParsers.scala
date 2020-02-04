@@ -16,7 +16,9 @@
 
 package laika.parse.hocon
 
-import laika.ast.{Path, ~}
+import cats.implicits._
+import cats.data.NonEmptySet
+import laika.ast.~
 import laika.config._
 import laika.parse.code.common.NumberLiteral.DigitParsers
 import laika.parse.text.{CharGroup, Characters, TextParsers}
@@ -183,25 +185,27 @@ object HoconParsers {
   }
 
   /** Parses an unquoted string that is not allowed to contain any of the reserved characters listed in the HOCON spec. */
-  def unquotedString(delimiters: Set[Char]): Parser[StringBuilderValue] = {
+  def unquotedString(delimiters: NonEmptySet[Char]): Parser[StringBuilderValue] = {
     val unquotedChar = anyBut('$', '"', '{', '}', '[', ']', ':', '=', ',', '+', '#', '`', '^', '?', '!', '@', '*', '&', '\\', ' ','\t','\n')
     val mainParser = unquotedChar.min(1).map(ValidStringValue)
-    val closingParser = if (delimiters.isEmpty) success(()) else lookAhead(ws ~ (anyOf((delimiters + '"' + '$').toSeq:_*).take(1) | unquotedChar.take(1) | eof)) // TODO - empty delimiters are a temp workaround
+    val closingParser = 
+      if (delimiters.contains('\u0001')) success(()) 
+      else lookAhead(ws ~ (anyOf(delimiters.add('"').add('$')).take(1) | unquotedChar.take(1) | eof)) // TODO - '0001' delimiters are a temp workaround until deprecated directive syntax gets removed
     val delimMsg = if (delimiters.size == 1) " is" else "s are one of"
-    val renderedDelimiters = delimiters.map {
+    val renderedDelimiters = delimiters.toSortedSet.map {
       case '\n' => "'\\n'"
       case '+' => "'+='"
       case c => "'" + c + "'"
     }.mkString(", ")
     val msg = s"Illegal character in unquoted string, expected delimiter$delimMsg $renderedDelimiters"
-    mainParser.closeWith[StringBuilderValue](closingParser, ws.count <~ anyBut((delimiters + '\n').toSeq:_*), msg)((v, f) => InvalidStringValue(v.value, f))
+    mainParser.closeWith[StringBuilderValue](closingParser, ws.count <~ anyBut(delimiters.add('\n')), msg)((v, f) => InvalidStringValue(v.value, f))
   }
 
   /** Parses any of the 3 string types (quoted, unquoted, triple-quoted). */
-  def stringBuilderValue(delimiter: Set[Char]): Parser[ConfigBuilderValue] =
+  def stringBuilderValue(delimiter: NonEmptySet[Char]): Parser[ConfigBuilderValue] =
     multilineString | quotedString | unquotedString(delimiter)
   
-  def concatenatedValue(delimiter: Set[Char]): Parser[ConfigBuilderValue] = {
+  def concatenatedValue(delimiter: NonEmptySet[Char]): Parser[ConfigBuilderValue] = {
     lazy val parts = (ws ~ (not(comment) ~> anyValue(delimiter))).map { case s ~ v => ConcatPart(s,v) }.rep
     lazily {
       (anyValue(delimiter) ~ parts).map {
@@ -212,7 +216,7 @@ object HoconParsers {
   }
 
   /** Parses a key based on the HOCON rules where a '.' in a quoted string is not interpreted as a path separator. */
-  def concatenatedKey(delimiter: Set[Char]): Parser[Either[InvalidStringValue, Key]] = {
+  def concatenatedKey(delimiter: NonEmptySet[Char]): Parser[Either[InvalidStringValue, Key]] = {
     val string = quotedString.map(PathFragments.quoted) | unquotedString(delimiter).map(PathFragments.unquoted)
     val parts = (ws.map(PathFragments.whitespace) ~ string).map { case s ~ fr => s.join(fr) }
     (string ~ parts.rep).map {
@@ -230,7 +234,7 @@ object HoconParsers {
 
   /** Parses a substitution variable. */
   val substitutionValue: Parser[ConfigBuilderValue] = {
-    val mainParser = ("${" ~> opt('?') ~ concatenatedKey(Set('}'))).map {
+    val mainParser = ("${" ~> opt('?') ~ concatenatedKey(NonEmptySet.one('}'))).map {
       case opt ~ Right(key)  => SubstitutionValue(key, opt.isDefined)
       case _ ~ Left(invalid) => invalid
     }
@@ -283,7 +287,7 @@ object HoconParsers {
 
   /** Parses an array value recursively. */
   lazy val arrayValue: Parser[ConfigBuilderValue] = {
-    lazy val value = wsOrNl ~> concatenatedValue(Set(']',',','\n','#')) <~ ws
+    lazy val value = wsOrNl ~> concatenatedValue(NonEmptySet.of(']',',','\n','#')) <~ ws
     lazy val values = wsOrComment ~> opt(value ~ (separator ~> value).rep).map(_.fold(Seq.empty[ConfigBuilderValue]){ case v ~ vs => v +: vs }) <~ wsOrComment
     val mainParser = lazily(('[' ~> values <~ trailingComma).map(ArrayBuilderValue))
     mainParser.closeWith[ConfigBuilderValue](']')(InvalidBuilderValue)
@@ -291,9 +295,9 @@ object HoconParsers {
 
   /** Parses the members of an object without the enclosing braces. */
   private[laika] lazy val objectMembers: Parser[ObjectBuilderValue] = {
-    val keySeparators = Set(':','=','{','+')
+    val keySeparators = NonEmptySet.of(':','=','{','+')
     lazy val key = wsOrNl ~> concatenatedKey(keySeparators) <~ ws
-    lazy val value = wsOrNl ~> concatenatedValue(Set('}',',','\n','#')) <~ ws
+    lazy val value = wsOrNl ~> concatenatedValue(NonEmptySet.of('}',',','\n','#')) <~ ws
     lazy val withSeparator = ((anyOf(':','=').take(1) | "+=") ~ value).map {
       case "+=" ~ element => ConcatValue(SelfReference, Seq(ConcatPart("", ArrayBuilderValue(Seq(element))))) 
       case _ ~ v => v 
@@ -326,7 +330,7 @@ object HoconParsers {
   }
 
   /** Parses any kind of value supported by the HOCON format. */
-  def anyValue(delimiter: Set[Char]): Parser[ConfigBuilderValue] = 
+  def anyValue(delimiter: NonEmptySet[Char]): Parser[ConfigBuilderValue] = 
     objectValue | 
       arrayValue | 
       numberValue | 

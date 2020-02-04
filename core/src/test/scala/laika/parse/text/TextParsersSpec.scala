@@ -241,10 +241,6 @@ class TextParsersSpec extends WordSpec with Matchers with ParseResultHelpers wit
 
   "The anyOf parser" should {
 
-    "succeed with an empty result when no characters are specified" in {
-      Parsing ("ababccab") using anyOf() should produce ("")
-    }
-
     "succeed with an empty result when no characters match" in {
       Parsing ("ababccab") using anyOf('x') should produce ("")
     }
@@ -308,10 +304,6 @@ class TextParsersSpec extends WordSpec with Matchers with ParseResultHelpers wit
   }
   
   "The anyBut parser" should {
-
-    "succeed consuming the entire input when no characters are specified" in {
-      Parsing ("abcde $&") using anyBut() should produce ("abcde $&")
-    }
 
     "succeed for all non-matching characters when 1 character is specified" in {
       Parsing ("abcxxabc") using anyBut('x') should produce ("abc")

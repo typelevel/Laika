@@ -16,6 +16,8 @@
 
 package laika.rst
 
+import cats.implicits._
+import cats.data.NonEmptySet
 import laika.ast._
 import laika.parse.Parser
 import laika.parse.text.TextParsers.{anyOf, char}
@@ -27,22 +29,22 @@ import laika.parse.text.{CharGroup, Characters, TextParsers}
 object BaseParsers {
 
   /** Set of punctuation characters as supported by transitions (rules) and
-    *  overlines and underlines for header sections.
+    * overlines and underlines for header sections.
     */
-  private[laika] val punctuationChars: Set[Char] = Set('!','"','#','$','%','&','\'','(',')','[',']','{','}','*','+',',','-','.',':',';','/','<','>','=','?','@','\\','^','_','`','|','~')
+  private[laika] val punctuationChars: NonEmptySet[Char] = 
+    NonEmptySet.of('!','"','#','$','%','&','\'','(',')','[',']','{','}','*','+',',','-','.',':',';','/','<','>','=','?','@','\\','^','_','`','|','~')
 
   /** Parses punctuation characters as supported by transitions (rules) and
     *  overlines and underlines for header sections.
     */
-  val punctuationChar: Characters[String] =
-    anyOf(punctuationChars.toSeq:_*)
+  val punctuationChar: Characters[String] = anyOf(punctuationChars)
 
   /** Parses a simple reference name that only allows alphanumerical characters
     *  and the punctuation characters `-`, `_`, `.`, `:`, `+`.
     *
     *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#reference-names]].
     */
-  val simpleRefName = TextParsers.refName
+  val simpleRefName: Parser[String] = TextParsers.refName
 
   /** Parses any of the four supported types of footnote labels.
     *

@@ -17,12 +17,15 @@
 package laika.parse.markup
 
 import cats.implicits._
+import cats.data.NonEmptySet
 import laika.ast._
 import laika.bundle._
 import laika.factory.MarkupFormat
 import laika.parse.Parser
 import laika.parse.text.PrefixedParser
 import laika.parse.text.TextParsers._
+
+import scala.collection.immutable.TreeSet
 
 /** Responsible of assembling all the block, inline, text and configuration parsers
   * supported by a text markup language.
@@ -92,8 +95,13 @@ class RootParser (markupParser: MarkupFormat, markupExtensions: MarkupExtensions
       .reduceLeftOption(_ | _)
       .getOrElse(failure("No undecorated block parser available"))
     
-    val startChars = lookAhead(anyOf(groupedPrefixed.keySet.toSeq:_*).take(1)) ^^ (_.charAt(0))
-    val prefixedBlock = startChars >> groupedPrefixed
+    val prefixedBlock = NonEmptySet
+      .fromSet(TreeSet.empty[Char] ++ groupedPrefixed.keySet)
+      .fold[Parser[Block]](failure("No decorated block parser available")) { set =>
+        val startChars = lookAhead(anyOf(set).take(1)).map(_.charAt(0))
+        startChars >> groupedPrefixed
+      } 
+    
     prefixedBlock | unprefixedBlock
   }
 

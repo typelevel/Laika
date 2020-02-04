@@ -16,6 +16,8 @@
 
 package laika.markdown.github
 
+import cats.implicits._
+import cats.data.NonEmptySet
 import laika.parse.Parser
 import laika.parse.text.TextParsers._
 import laika.parse.uri.AutoLinkParsers
@@ -31,19 +33,19 @@ import laika.parse.uri.AutoLinkParsers
   */
 object AutoLinks {
 
-  private val startChars = Set('*', '_', '~', '(', ' ', '\n')
-  private val endChars   = Set('*', '_', '~', ')', '?', '!', '.', ',', ':', ' ', '\n')
+  private val startChars = NonEmptySet.of('*', '_', '~', '(', ' ', '\n')
+  private val endChars   = NonEmptySet.of('*', '_', '~', ')', '?', '!', '.', ',', ':', ' ', '\n')
 
-  private val reverseMarkupStart: Parser[Any] = lookAhead(eof | anyOf(startChars.toSeq:_*).take(1))
-  private val afterMarkupEnd: Parser[Any] = anyOf(endChars.toSeq:_*).take(1)
+  private val reverseMarkupStart: Parser[Any] = lookAhead(eof | anyOf(startChars).take(1))
+  private val afterMarkupEnd: Parser[Any] = anyOf(endChars).take(1)
 
   /** The parsers for http and email auto-links.
     */
   val parsers = new AutoLinkParsers(
     reverseMarkupStart,
     afterMarkupEnd,
-    startChars,
-    endChars
+    startChars.toSortedSet,
+    endChars.toSortedSet
   )
 
 }

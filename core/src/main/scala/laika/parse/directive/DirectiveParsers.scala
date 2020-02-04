@@ -16,6 +16,8 @@
 
 package laika.parse.directive
 
+import cats.implicits._
+import cats.data.NonEmptySet
 import laika.config.{Key, StringValue}
 import laika.ast._
 import laika.bundle.{BlockParser, BlockParserBuilder, SpanParser, SpanParserBuilder}
@@ -55,7 +57,7 @@ object DirectiveParsers {
   /** Parses a HOCON-style reference enclosed between `\${` and `}` that may be marked as optional (`\${?some.param}`).
     */
   def hoconReference[T] (f: (Key, Boolean) => T, e: InvalidElement => T): PrefixedParser[T] = 
-    ("${" ~> opt('?') ~ withSource(HoconParsers.concatenatedKey(Set('}'))) <~ '}').map {
+    ("${" ~> opt('?') ~ withSource(HoconParsers.concatenatedKey(NonEmptySet.one('}'))) <~ '}').map {
       case opt ~ ((Right(key), _))  => f(key, opt.isEmpty)
       case _ ~ ((Left(invalid), src)) => e(InvalidElement(s"Invalid HOCON reference: '$src': ${invalid.failure.toString}", s"$${$src}"))
     }
@@ -110,7 +112,7 @@ object DirectiveParsers {
     val fence = if (supportsCustomFence) (ws ~> anyBut(' ', '\n', '\t').take(3)) | defaultFence else defaultFence
     val defaultAttribute = {
       val delim = (ws ~ (',' | eol)) | lookAhead(hoconWS ~ '}')
-      opt((hoconWS ~> stringBuilderValue(/*Set(',','}','\n')*/ Set()) <~ delim ~ hoconWS)
+      opt((hoconWS ~> stringBuilderValue(/*Set(',','}','\n')*/ NonEmptySet.one('\u0001')) <~ delim ~ hoconWS)
         .map(sv => BuilderField(AttributeKey.Default.key, sv)))
     }
     val closingAttributes = '}' ^^^ Option.empty[ParserContext] | success(()).withContext.map { case (_, ctx) => Some(ctx) }

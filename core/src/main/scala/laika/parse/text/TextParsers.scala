@@ -164,7 +164,7 @@ object TextParsers extends Parsers {
   /** Consumes any number of consecutive occurrences of the specified characters.
    *  Always succeeds unless a minimum number of required matches is specified.
    */
-  def anyOf (chars: Char*): Characters[String] = Characters.include(chars)
+  def anyOf (char: Char, chars: Char*): Characters[String] = Characters.include(char +: chars)
 
   /** Consumes any number of consecutive occurrences of the specified characters.
     * Always succeeds unless a minimum number of required matches is specified.
@@ -174,7 +174,7 @@ object TextParsers extends Parsers {
   /** Consumes any number of consecutive characters that are not one of the specified characters.
    *  Always succeeds unless a minimum number of required matches is specified.
    */
-  def anyBut (chars: Char*): Characters[String] = Characters.exclude(chars)
+  def anyBut (char: Char, chars: Char*): Characters[String] = Characters.exclude(char +: chars)
 
   /** Consumes any number of consecutive occurrences that are not one of the specified characters.
     * Always succeeds unless a minimum number of required matches is specified.

@@ -21,7 +21,7 @@ import cats.implicits._
 import laika.ast.{CodeSpan, ~}
 import laika.parse.code.CodeCategory
 import laika.parse.text.TextParsers._
-import laika.parse.text.{CharGroup, Characters, PrefixCharacters, PrefixedParser, TextParsers}
+import laika.parse.text.{CharGroup, PrefixCharacters, PrefixedParser, TextParsers}
 import laika.parse.Parser
 
 /** Configurable base parsers for number literals.
@@ -80,7 +80,7 @@ object NumberLiteral {
   private val exponent: Parser[String]       = (anyOf('E', 'e').take(1) ~ sign ~ DigitParsers.decimal.min(1)).concat
   private val binaryExponent: Parser[String] = (anyOf('P', 'p').take(1) ~ sign ~ DigitParsers.decimal.min(1)).concat
 
-  private def zeroPrefix(chars: Char*): PrefixedParser[String] = ("0" ~ anyOf(chars:_*).take(1)).concat 
+  private def zeroPrefix(char1: Char, char2: Char): PrefixedParser[String] = ("0" ~ anyOf(char1, char2).take(1)).concat 
   
   /* Configurable base parser for number literals. */
   case class NumericParser (digits: NonEmptySet[Char],
@@ -105,11 +105,9 @@ object NumberLiteral {
       prefix.getOrElse(TextParsers.prefix(firstDigit).take(1)) >> { prefixOrFirstDigit =>
         
         val digitParser = {
-          def parse (chars: NonEmptySet[Char]): Characters[String] = anyOf(chars.toSortedSet.toSeq: _*)
-
           val minDigits = if (prefix.nonEmpty || prefixOrFirstDigit == ".") 1 else 0
-          if (underscores) parse(digits.add('_')).min(minDigits) <~ lookBehind(1, not('_')) // TODO - 0.14 - add ensurePrevCharNot/ensureNextCharNot with options like in DelimiterParser
-          else parse(digits).min(minDigits)
+          if (underscores) anyOf(digits.add('_')).min(minDigits) <~ lookBehind(1, not('_')) // TODO - 0.14 - add ensurePrevCharNot/ensureNextCharNot with options like in DelimiterParser
+          else anyOf(digits).min(minDigits)
         }
 
         val number = exponent.fold(digitParser) { exp =>
