@@ -184,7 +184,7 @@ object TextParsers extends Parsers {
   def anyIn (ranges: Iterable[Char]*): Characters[String] = Characters.include(ranges.flatten)
 
   /** Consumes any number of consecutive characters which satisfy the specified predicate.
-    *  Always succeeds unless a minimum number of required matches is specified.
+    * Always succeeds unless a minimum number of required matches is specified.
     */
   def anyWhile (p: Char => Boolean): Characters[String] = Characters.anyWhile(p)
 
@@ -216,18 +216,34 @@ object TextParsers extends Parsers {
     */
   val oneChar: Parser[String] = anyChars.take(1)
 
-  /** Consumes one character if it matches one of the specified characters, fails otherwise.
+  /** Consumes one or more characters if they match one of the specified characters, 
+    * fails if the first character does not match.
     */
   def someOf (char: Char, chars: Char*): PrefixCharacters[String] = {
     val startChars = NonEmptySet.of(char, chars:_*)
     new PrefixCharacters(anyOf(startChars).min(1), startChars)
   }
 
-  /** Consumes one character if it matches one of the specified characters, fails otherwise.
+  /** Consumes one or more characters if they match one of the specified characters, 
+    * fails if the first character does not match.
     */
   def someOf (chars: NonEmptySet[Char]): PrefixCharacters[String] = new PrefixCharacters(anyOf(chars).min(1), chars)
-  
 
+  /** Consumes one or more characters that are not one of the specified characters, 
+    * fails for empty results.
+    */
+  def someNot (char: Char, chars: Char*): Characters[String] = Characters.exclude(char +: chars).min(1)
+
+  /** Consumes one or more characters that are not one of the specified characters, 
+    * fails for empty results.
+    */
+  def someNot (chars: NonEmptySet[Char]): Characters[String] = Characters.exclude(chars.toSortedSet.toSeq).min(1)
+
+  /** Consumes one or more characters which satisfy the specified predicate, 
+    * fails for empty results.
+    */
+  def someWhile (p: Char => Boolean): Characters[String] = Characters.anyWhile(p).min(1)
+  
   /** Consumes any number of consecutive characters until one of the specified characters
     * is encountered on the input string.
     */

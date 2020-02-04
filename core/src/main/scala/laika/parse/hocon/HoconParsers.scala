@@ -148,7 +148,7 @@ object HoconParsers {
 
   /** Parses a string enclosed in quotes. */
   val quotedString: Parser[StringBuilderValue] = {
-    val chars = anyNot('"','\\','\n').min(1).map(Right(_))
+    val chars = someNot('"','\\','\n').map(Right(_))
     val specialChar = oneOf('b','f','n','r','t').map {
       case "b" => "\b"
       case "f" => "\f"

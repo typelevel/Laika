@@ -324,13 +324,45 @@ class TextParsersSpec extends WordSpec with Matchers with ParseResultHelpers wit
     "fail when it does not consume the specified minimum number of characters" in {
       Parsing ("abxx") using (anyNot('x') min 3) should cause [Failure]
     }
-
+    
     "succeed when it does consume the specified minimum number of characters" in {
       Parsing ("abcdxxxx") using (anyNot('x') min 3) should produce ("abcd")
     }
 
     "stop, but still succeed, when it has consumed the specified maximum number of characters" in {
       Parsing ("abcdxxxx") using (anyNot('x') max 3) should produce ("abc")
+    }
+
+  }
+
+  "The someNot parser" should {
+
+    "succeed for all non-matching characters when 1 character is specified" in {
+      Parsing ("abcxxabc") using someNot('x') should produce ("abc")
+    }
+
+    "succeed for all non-matching characters when 3 characters are specified" in {
+      Parsing ("abczyxabc") using someNot('x','y','z') should produce ("abc")
+    }
+
+    "succeed in case the end of the input is reached" in {
+      Parsing ("abcabc") using someNot('x','y','z') should produce ("abcabc")
+    }
+
+    "fail when it does not consume the specified minimum number of characters" in {
+      Parsing ("abxx") using someNot('x').min(3) should cause [Failure]
+    }
+
+    "fail when it does not consume any characters as min(1) is implicit in someNot parsers" in {
+      Parsing ("abcde") using someNot('a','b') should cause [Failure]
+    }
+
+    "succeed when it does consume the specified minimum number of characters" in {
+      Parsing ("abcdxxxx") using someNot('x').min(3) should produce ("abcd")
+    }
+
+    "stop, but still succeed, when it has consumed the specified maximum number of characters" in {
+      Parsing ("abcdxxxx") using (someNot('x') max 3) should produce ("abc")
     }
 
   }
@@ -373,6 +405,10 @@ class TextParsersSpec extends WordSpec with Matchers with ParseResultHelpers wit
   
   "The anyWhile parser" should {
 
+    "succeed with an empty result when no characters match" in {
+      Parsing ("xyzzyw") using anyWhile(_ < 'd') should produce ("")
+    }
+    
     "succeed as long as the specified condition is met" in {
       Parsing ("abcde $&") using anyWhile(_ < 'd') should produce ("abc")
     }
@@ -391,6 +427,34 @@ class TextParsersSpec extends WordSpec with Matchers with ParseResultHelpers wit
 
     "stop, but still succeed, when it has consumed the specified maximum number of characters" in {
       Parsing ("abcdxxxx") using anyWhile(_ < 'd').max(2) should produce ("ab")
+    }
+
+  }
+
+  "The someWhile parser" should {
+
+    "succeed as long as the specified condition is met" in {
+      Parsing ("abcde $&") using someWhile(_ < 'd') should produce ("abc")
+    }
+
+    "succeed in case the end of the input is reached" in {
+      Parsing ("abcabc") using someWhile(_ < 'd') should produce ("abcabc")
+    }
+
+    "fail when it does not consume the specified minimum number of characters" in {
+      Parsing ("abxx") using someWhile(_ < 'd').min(3) should cause [Failure]
+    }
+
+    "fail when it does not consume any characters as min(1) is implicit in someNot parsers" in {
+      Parsing ("xxyyzz") using someWhile(_ < 'd') should cause [Failure]
+    }
+
+    "succeed when it does consume the specified minimum number of characters" in {
+      Parsing ("abcdxxxx") using someWhile(_ < 'd').min(3) should produce ("abc")
+    }
+
+    "stop, but still succeed, when it has consumed the specified maximum number of characters" in {
+      Parsing ("abcdxxxx") using someWhile(_ < 'd').max(2) should produce ("ab")
     }
 
   }

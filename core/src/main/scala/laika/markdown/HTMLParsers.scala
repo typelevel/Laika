@@ -67,7 +67,7 @@ object HTMLParsers {
       { s => HTMLCharacterReference("&" + s + ";") }
 
 
-  val htmlAttributeName: Parser[String] = anyNot(htmlAttrEndChars).min(1)
+  val htmlAttributeName: Parser[String] = someNot(htmlAttrEndChars)
 
   val htmlUnquotedAttributeValue: Parser[(List[Span with TextContainer], Option[Char])] =
     spans(delimitedBy(htmlAttrEndChars).keepDelimiter).embed(htmlCharReference).collect { 
