@@ -83,7 +83,7 @@ class AutoLinkParsers (reverseMarkupStart: Parser[Any],
     PrefixedParser('@') {
       val rev = reverse(0, URIParsers.localPart <~ reverseMarkupStart)
       val fwd = '@' ~> URIParsers.domain <~ lookAhead(eol | afterEndMarkup)
-      val parser = (rev ~ fwd) ^? {
+      val parser = (rev ~ fwd).collect {
         case local ~ domain if local.nonEmpty && domain.nonEmpty => (local, "@", domain)
       }
       trim(parser)

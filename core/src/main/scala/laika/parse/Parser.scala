@@ -158,15 +158,20 @@ abstract class Parser[+T] {
     def parse (in: ParserContext) = Parser.this.parse(in) map (x => v0)
   }
 
-  /**  Returns a parser that applies a partial function to the result of this parser.
+  /** Operator synonym for `collect`.
+    */
+  def ^? [U](f: PartialFunction[T, U],
+             error: T => String = r => s"Constructor function not defined at $r"): Parser[U] = collect(f, error)
+  
+  /** Returns a parser that applies a partial function to the result of this parser.
     *
-    *  `p ^? f` succeeds if `p` succeeds and `f` is defined at the result of `p`,
-    *  In that case it returns `f` applied to the result of `p`.
+    * `p.collect(f)` succeeds if `p` succeeds and `f` is defined at the result of `p`,
+    * In that case it returns `f` applied to the result of `p`.
     *
     * @param f a partial function that will be applied to this parser's result.
     * @param error an optional function that takes the same argument as `f` and produces an error message.
     */
-  def ^? [U](f: PartialFunction[T, U],
+  def collect [U](f: PartialFunction[T, U],
              error: T => String = r => s"Constructor function not defined at $r"): Parser[U] = {
     val msg: T => Message = Message.forRuntimeValue(error)
     Parser { in =>
@@ -176,8 +181,6 @@ abstract class Parser[+T] {
           else Failure(msg(result), in, next.offset)
         case f: Failure => f
       }
-
-
     }
   }
 

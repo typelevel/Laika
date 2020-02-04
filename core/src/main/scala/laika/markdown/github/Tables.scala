@@ -45,7 +45,7 @@ object Tables {
       val delimitedCells = (cell(cellText, cellType) <~ lookBehind(1,'|')).rep
       val optFinalCell = cell(finalCellText, cellType).map(Some(_)) | restOfLine ^^^ None
 
-      delimitedCells ~ optFinalCell ^? {
+      (delimitedCells ~ optFinalCell).collect {
         case cells ~ optFinal if cells.nonEmpty || optFinal.nonEmpty => Row(cells ++ optFinal.toSeq)
       }
     }
@@ -77,7 +77,7 @@ object Tables {
 
     case class Header (row: Row, columnOptions: Seq[Options])
 
-    val header: PrefixedParser[Header] = firstRow ~ sepRow ^? {
+    val header: PrefixedParser[Header] = (firstRow ~ sepRow).collect {
       case row ~ sep if row.content.size == sep.size => Header(row, sep)
     }
 

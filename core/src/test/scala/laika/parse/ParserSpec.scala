@@ -66,7 +66,7 @@ class ParserSpec extends WordSpec with Matchers with ParseResultHelpers with Str
     }
 
     "fail if the specified partial function is not defined for the result" in {
-      Parsing("abc") using (parser1 ^? { case "xx" => 9 }) should cause [Failure]
+      Parsing("abc") using parser1.collect { case "xx" => 9 } should cause [Failure]
     }
 
     "succeed if the specified Either function produces a Right" in {

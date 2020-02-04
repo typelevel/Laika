@@ -70,8 +70,9 @@ object HTMLParsers {
   val htmlAttributeName: Parser[String] = anyBut(htmlAttrEndChars).min(1)
 
   val htmlUnquotedAttributeValue: Parser[(List[Span with TextContainer], Option[Char])] =
-    spans(delimitedBy(htmlAttrEndChars).keepDelimiter).embed(htmlCharReference) ^?
-      { case x :: xs => ((x::xs).asInstanceOf[List[Span with TextContainer]], None) }
+    spans(delimitedBy(htmlAttrEndChars).keepDelimiter).embed(htmlCharReference).collect { 
+      case x :: xs => ((x::xs).asInstanceOf[List[Span with TextContainer]], None) 
+    }
 
   /** Parses an attribute value enclosed by the specified character.
    */
@@ -193,7 +194,7 @@ object HTMLParsers {
   /** Parses the start tag of an HTML block, only matches when the tag name is an
    *  actual block-level HTML tag.
    */
-  val htmlBlockStart: Parser[HTMLStartTag] = '<' ~> htmlStartTag ^? {
+  val htmlBlockStart: Parser[HTMLStartTag] = ('<' ~> htmlStartTag).collect {
     case t @ HTMLStartTag(name, _, _) if htmlBlockElements.contains(name) => t 
   }
 

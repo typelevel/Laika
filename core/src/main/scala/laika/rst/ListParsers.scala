@@ -172,7 +172,7 @@ object ListParsers {
     val classifier = delimiter(" : ") ~> recParsers.recursiveSpans ^^ (Classifier(_))
     val termWithClassifier = recParsers.recursiveSpans(term).embed(classifier)
 
-    val item = (termWithClassifier ~ recParsers.recursiveBlocks(indentedBlock(firstLineIndented = true))) ^? {
+    val item = (termWithClassifier ~ recParsers.recursiveBlocks(indentedBlock(firstLineIndented = true))).collect {
       case term ~ blocks => DefinitionListItem(term, blocks)
     }
     
