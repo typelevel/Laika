@@ -181,9 +181,9 @@ object BlockParsers {
    *  characters with optional spaces between them
    */
   val rules: BlockParserBuilder = BlockParser.standalone {
-    val decoChar = someOf('*', '-', '_').take(1)
-    val pattern = decoChar ~ (anyOf(' ').^ ~ decoChar).rep.min(2)
-    pattern ~ wsEol ^^^ Rule()
+    val decoChar = oneOf('*', '-', '_')
+    val pattern = (decoChar ~ (anyOf(' ').^ ~ decoChar).rep.min(2)).as(Rule())
+    pattern <~ wsEol
   }
 
   /** Parses a literal block, text indented by a tab or 4 spaces.

@@ -103,7 +103,7 @@ object TextParsers extends Parsers {
     *  it should never be used in the form of `(blankLine *)` or `(blankLine +)`. Use
     *  the `blankLines` parser instead in these cases.
     */
-  val blankLine: Parser[String] = wsEol ^^^ ""
+  val blankLine: Parser[String] = wsEol.as("")
 
   /** Parses one or more blanklines, producing a list of empty strings corresponding
     *  to the number of blank lines consumed.

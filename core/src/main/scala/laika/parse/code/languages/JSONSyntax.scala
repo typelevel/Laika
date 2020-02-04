@@ -35,7 +35,7 @@ object JSONSyntax extends SyntaxHighlighter {
   )
   
   val attributeName: StringParser = string
-    .withPostCondition(lookAhead(ws ~ ':') ^^^ (()))
+    .withPostCondition(lookAhead(ws ~ ':').as(()))
     .copy(defaultCategories = Set(CodeCategory.AttributeName))
 
   val language: NonEmptyList[String] = NonEmptyList.of("json")

@@ -147,13 +147,17 @@ abstract class Parser[+T] {
     */
   def ^^ [U](f: T => U): Parser[U] = map(f)
 
+  /** Operator synonym for `as`.
+    */
+  def ^^^ [U] (v: => U): Parser[U] = as(v)
+  
   /**  Returns a parser that ignores the result of this parser (if it succeeds)
     *  and returns the specified result instead.
     *
     *  Subclasses may override this method to avoid any expensive
     *  result processing.
     */
-  def ^^^ [U] (v: => U): Parser[U] =  new Parser[U] {
+  def as [U] (v: => U): Parser[U] =  new Parser[U] {
     lazy val v0 = v
     def parse (in: ParserContext) = Parser.this.parse(in) map (x => v0)
   }

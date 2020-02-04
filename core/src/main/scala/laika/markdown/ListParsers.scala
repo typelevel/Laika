@@ -35,7 +35,7 @@ object ListParsers {
   private val enumChar: Parser[String] = oneOf(CharGroup.digit)
 
   private val wsAfterItemStart: Parser[Unit] = someOf(' ', '\t').noCapture
-  private val enumStartRest: Parser[String] = anyOf(CharGroup.digit) ~ '.' ~ wsAfterItemStart ^^^ ""
+  private val enumStartRest: Parser[String] = (anyOf(CharGroup.digit) ~ '.' ~ wsAfterItemStart).as("")
 
   /** Parses the start of a bullet list item.
     */

@@ -43,7 +43,7 @@ object Tables {
       val finalCellText = textLine
 
       val delimitedCells = (cell(cellText, cellType) <~ lookBehind(1,'|')).rep
-      val optFinalCell = cell(finalCellText, cellType).map(Some(_)) | restOfLine ^^^ None
+      val optFinalCell = cell(finalCellText, cellType).map(Some(_)) | restOfLine.as(None)
 
       (delimitedCells ~ optFinalCell).collect {
         case cells ~ optFinal if cells.nonEmpty || optFinal.nonEmpty => Row(cells ++ optFinal.toSeq)

@@ -52,8 +52,8 @@ object BaseParsers {
     */
   val footnoteLabel: Parser[FootnoteLabel] = {
     val decimal = someOf(CharGroup.digit) ^^ { n => NumericLabel(n.toInt) }
-    val autonumber = '#' ^^^ Autonumber
-    val autosymbol = '*' ^^^ Autosymbol
+    val autonumber = '#'.as(Autonumber)
+    val autosymbol = '*'.as(Autosymbol)
     val autonumberLabel = '#' ~> simpleRefName ^^ AutonumberLabel
 
     decimal | autonumberLabel | autonumber | autosymbol

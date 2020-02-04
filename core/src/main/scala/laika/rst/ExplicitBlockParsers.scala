@@ -84,7 +84,7 @@ class ExplicitBlockParsers (recParsers: RecursiveParsers) {
     val internal = named ^^ (id => InternalLinkTarget(Id(id)))
     
     val external = {
-      val anonymous = "__:" ^^^ ""
+      val anonymous = "__:".as("")
     
       (anonymous | named) ~ ExplicitBlockParsers.linkDefinitionBody ^^ {
         case name ~ body => ExternalLinkDefinition(name, body)

@@ -50,7 +50,7 @@ object BlockParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#transitions]].
    */  
   val transition: BlockParserBuilder = BlockParser.standalone {
-    punctuationChar.min(4) ~ wsEol ~ lookAhead(blankLine) ^^^ Rule()
+    (punctuationChar.min(4) ~ wsEol ~ lookAhead(blankLine)).as(Rule())
   }
     
   /** Parses a single paragraph. Everything between two blank lines that is not

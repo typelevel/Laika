@@ -58,7 +58,7 @@ object MarkdownSyntax extends SyntaxHighlighter {
   val link: CodeSpanParser = CodeSpanParser(linkParser("["))
   val image: CodeSpanParser = CodeSpanParser(linkParser("!["))
   
-  val startOfLine: Parser[String] = atStart ^^^ "" | "\n"
+  val startOfLine: Parser[String] = atStart.as("") | "\n"
 
   val linkTarget: CodeSpanParser = CodeSpanParser.onLineStart {
     (startOfLine ~> '[' ~> delimitedBy("]:").failOn('\n') ~ restOfLine).map {

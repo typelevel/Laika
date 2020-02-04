@@ -58,7 +58,7 @@ class ParserSpec extends WordSpec with Matchers with ParseResultHelpers with Str
     }
 
     "provide a fixed result" in {
-      Parsing("abccbb") using (parser1 ^^^ 7) should produce (7)
+      Parsing("abccbb") using parser1.as(7) should produce (7)
     }
 
     "apply a partial function to the result" in {

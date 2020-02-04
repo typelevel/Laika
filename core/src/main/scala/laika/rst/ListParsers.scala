@@ -28,7 +28,6 @@ import laika.rst.ast._
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
-import scala.util.Try
 
 /** Provides the parsers for all reStructuredText list types.
  * 
@@ -109,7 +108,7 @@ object ListParsers {
     val firstUpperAlpha = anyIn('A' to 'H', 'J' to 'Z').take(1) ^^ 
       { char => (char.charAt(0) + 1 - 'A', UpperAlpha) }
     
-    val firstAutoNumber = oneOf('#') ^^^ { (1,Arabic) }
+    val firstAutoNumber = oneOf('#').as((1,Arabic))
     val firstArabic = someOf(CharGroup.digit) ^^ { num => (num.toInt, Arabic) }
     
     lazy val firstEnumType: Parser[(Int,EnumType)] = 
@@ -221,7 +220,7 @@ object ListParsers {
     
     val options = (option ~ ((", " ~> option)*)) ^^ { case x ~ xs => x :: xs }
     
-    val descStart = (anyOf(' ').min(2) ~ not(blankLine)) | lookAhead(blankLine ~ ws.min(1) ~ not(blankLine)) ^^^ ""
+    val descStart = (anyOf(' ').min(2) ~ not(blankLine)) | lookAhead(blankLine ~ ws.min(1) ~ not(blankLine)).as("")
     
     val item = (options ~ (descStart ~> recParsers.recursiveBlocks(indentedBlock()))) ^^ {
       case name ~ blocks => OptionListItem(name, blocks)

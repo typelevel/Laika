@@ -52,12 +52,12 @@ object InlineParsers {
   }
 
   /** Parses an escaped character. For most characters it produces the character
-    *  itself as the result with the only exception being an escaped space character
-    *  which is removed from the output in reStructuredText.
+    * itself as the result with the only exception being an escaped space character
+    * which is removed from the output in reStructuredText.
     *
-    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#escaping-mechanism]].
+    * See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#escaping-mechanism]].
     */
-  val escapedChar: Parser[String] = (" " ^^^ "") | oneChar
+  val escapedChar: Parser[String] = " ".as("") | oneChar
 
 
   private val pairs: Map[Char, Set[Char]] = List(/* Ps/Pe pairs */
@@ -246,15 +246,18 @@ object InlineParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#hyperlink-references]]
    */
   lazy val phraseLinkRef: SpanParserBuilder = SpanParser.recursive { recParsers =>
+    
     def ref (refName: String, url: String) = if (refName.isEmpty) url else refName
-    val url = '<' ~> delimitedBy('>') ^^ { _.replaceAll("[ \n]+", "") }
+    val urlPart = '<' ~> delimitedBy('>') ^^ { _.replaceAll("[ \n]+", "") }
     val refName = recParsers.escapedText(delimitedBy('`','<').keepDelimiter) ^^ ReferenceName
-    markupStart("`", "`") ~> refName ~ opt(url) ~ (markupEnd("`__") ^^^ false | markupEnd("`_") ^^^ true) ^^ {
-      case refName ~ Some(url) ~ true   => 
-        SpanSequence(ExternalLink(List(Text(ref(refName.original, url))), url), ExternalLinkDefinition(ref(refName.normalized, url), url))
-      case refName ~ Some(url) ~ false  => ExternalLink(List(Text(ref(refName.original, url))), url)
-      case refName ~ None ~ true        => LinkReference(List(Text(refName.original)), refName.normalized, s"`${refName.original}`_") 
-      case refName ~ None ~ false       => LinkReference(List(Text(refName.original)), "", s"`${refName.original}`__") 
+    val end = markupEnd("`__").as(false) | markupEnd("`_").as(true)
+    
+    markupStart("`", "`") ~> refName ~ opt(urlPart) ~ end ^^ {
+      case name ~ Some(url) ~ true   => 
+        SpanSequence(ExternalLink(List(Text(ref(name.original, url))), url), ExternalLinkDefinition(ref(name.normalized, url), url))
+      case name ~ Some(url) ~ false  => ExternalLink(List(Text(ref(name.original, url))), url)
+      case name ~ None ~ true        => LinkReference(List(Text(name.original)), name.normalized, s"`${name.original}`_") 
+      case name ~ None ~ false       => LinkReference(List(Text(name.original)), "", s"`${name.original}`__") 
     }
   }
   
@@ -263,7 +266,7 @@ object InlineParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#hyperlink-references]]
    */
   lazy val simpleLinkRef: SpanParserBuilder = SpanParser.standalone {
-    markupEnd("__" | "_") >> {
+    markupEnd("__" | "_").flatMap {
       markup => reverse(markup.length, simpleRefName <~ ensureNot(invalidBeforeStartMarkup)) ^^ { refName =>
         markup match {
           case "_"  => Reverse(refName.length, LinkReference(List(Text(refName)), ReferenceName(refName).normalized, s"${refName}_"), Text("_")) 

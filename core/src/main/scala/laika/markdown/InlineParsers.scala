@@ -51,7 +51,7 @@ object InlineParsers {
 
   /** Parses an explicit hard line break.
    */
-  val lineBreak: SpanParserBuilder = SpanParser.standalone("\\\r" ^^^ LineBreak())
+  val lineBreak: SpanParserBuilder = SpanParser.standalone("\\\r".as(LineBreak()))
   
   /** Parses a span of strong text enclosed by two consecutive occurrences of the specified character. 
    */

@@ -58,7 +58,8 @@ trait PrefixedParser[+T] extends Parser[T] { self =>
   override def >>[U] (fq: T => Parser[U]): PrefixedParser[U]     = PrefixedParser(startChars)(super.flatMap(fq))
   override def map[U] (f: T => U): PrefixedParser[U]             = PrefixedParser(startChars)(super.map(f))
   override def ^^[U] (f: T => U): PrefixedParser[U]              = PrefixedParser(startChars)(super.map(f))
-  override def ^^^[U] (v: => U): PrefixedParser[U]               = PrefixedParser(startChars)(super.^^^(v))
+  override def as[U] (v: => U): PrefixedParser[U]               = PrefixedParser(startChars)(super.as(v))
+  override def ^^^[U] (v: => U): PrefixedParser[U]               = PrefixedParser(startChars)(super.as(v))
   
   override def evalMap[U] (f: T => Either[String, U]): PrefixedParser[U] = PrefixedParser(startChars)(super.evalMap(f))
   override def ^^?[U] (f: T => Either[String, U]): PrefixedParser[U]     = PrefixedParser(startChars)(super.evalMap(f))

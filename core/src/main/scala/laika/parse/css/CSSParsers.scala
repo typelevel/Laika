@@ -71,12 +71,12 @@ object CSSParsers {
   /** Parses a combinator between two predicates.
    */
   val combinator: Parser[Combinator] =
-    ((ws ~ '>' ~ ws) ^^^ Child) | (ws min 1) ^^^ Descendant
+    (ws ~ '>' ~ ws).as(Child) | ws.min(1).as(Descendant)
 
   /** Parses a single type selector.
    */
   val typeSelector: Parser[List[StylePredicate]] =
-    (styleRefName ^^ { name => List(StylePredicate.ElementType(name)) }) | ('*' ^^^ Nil)
+    (styleRefName ^^ { name => List(StylePredicate.ElementType(name)) }) | '*'.as(Nil)
     
   /** Parses a single predicate.
    */
@@ -114,7 +114,7 @@ object CSSParsers {
     *  any comments..
     */
   val styleValue: Parser[String] = {
-    val comment = ("/*" ~ delimitedBy("*/") ~ wsOrNl) ^^^ ""
+    val comment = ("/*" ~ delimitedBy("*/") ~ wsOrNl).as("")
     InlineParsers.text(delimitedBy(';')).embed(comment)
   }
 
@@ -126,7 +126,7 @@ object CSSParsers {
 
   /** Parses a single CSS comment.
     */
-  val comment: Parser[Unit] = ("/*" ~ delimitedBy("*/") ~ wsOrNl) ^^^ (())
+  val comment: Parser[Unit] = ("/*" ~ delimitedBy("*/") ~ wsOrNl).as(())
   
   /** Parses a sequence of style declarations, ignoring
    *  any comments.

@@ -48,7 +48,7 @@ object ReStructuredTextSyntax extends SyntaxHighlighter {
       markupStart(start, end) ~> delimitedBy(markupEnd(endDelim)) ^^ { text => s"$start$text$end" }
     }
 
-  val newLine: Parser[String] = atStart ^^^ "" | "\n"
+  val newLine: Parser[String] = atStart.as("") | "\n"
 
   val strong: CodeSpanParser = span("**", "**", CodeCategory.Markup.Emphasized)
   val em: CodeSpanParser     = span("*", "*", CodeCategory.Markup.Emphasized)

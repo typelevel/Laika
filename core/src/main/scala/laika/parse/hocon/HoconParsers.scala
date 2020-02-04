@@ -54,7 +54,7 @@ object HoconParsers {
   implicit class ClosingParserOps[T] (parser: Parser[T]) {
 
     def closeWith[R >: T] (char: Char)(captureError: (T, Failure) => R): Parser[R] =
-      closeWith[R](TextParsers.char(char), anyBut('\n') ^^^ 0, s"Expected closing '$char'")(captureError)
+      closeWith[R](TextParsers.char(char), anyBut('\n').as(0), s"Expected closing '$char'")(captureError)
     
     def closeWith[R >: T] (closingParser: Parser[Any],
                            fallbackParser: Parser[Int],
@@ -114,11 +114,11 @@ object HoconParsers {
   val wsOrNl: Characters[String] = anyOf(' ','\t','\n')
 
   /** Parses a null value. */
-  val nullValue: Parser[ConfigBuilderValue] = "null" ^^^ ResolvedBuilderValue(NullValue)
+  val nullValue: Parser[ConfigBuilderValue] = "null".as(ResolvedBuilderValue(NullValue))
   /** Parses a literal true value. */
-  val trueValue: Parser[ConfigBuilderValue] = "true" ^^^ ResolvedBuilderValue(BooleanValue(true))
+  val trueValue: Parser[ConfigBuilderValue] = "true".as(ResolvedBuilderValue(BooleanValue(true)))
   /** Parses a literal false value. */
-  val falseValue: Parser[ConfigBuilderValue] = "false" ^^^ ResolvedBuilderValue(BooleanValue(false))
+  val falseValue: Parser[ConfigBuilderValue] = "false".as(ResolvedBuilderValue(BooleanValue(false)))
 
   /** Parses a literal number value into a Long or Double depending on whether a fraction part is present. */
   val numberValue: Parser[ConfigBuilderValue] = {
@@ -248,7 +248,7 @@ object HoconParsers {
   val include: Parser[ConfigBuilderValue] = {
     
     def resource(kind: String, f: StringBuilderValue => IncludeResource): Parser[IncludeResource] = {
-      val noOpeningQuote = failWith(anyBut('\n') ^^^ 0, "Expected quoted string")(InvalidStringValue("",_))
+      val noOpeningQuote = failWith(anyBut('\n').as(0), "Expected quoted string")(InvalidStringValue("",_))
       val resourceId = (quotedString | noOpeningQuote)
         .closeWith(')') { 
           case (inv: InvalidStringValue, _) => inv
@@ -261,7 +261,7 @@ object HoconParsers {
       resource("file", IncludeFile(_)) | 
       resource("classpath", IncludeClassPath(_)) | 
       resource("url", IncludeUrl(_)) |
-      failWith(anyBut('\n') ^^^ 0, "Expected quoted string")(f => IncludeAny(InvalidStringValue("", f)))
+      failWith(anyBut('\n').as(0), "Expected quoted string")(f => IncludeAny(InvalidStringValue("", f)))
     
     val required = "required(" ~> includeResource
       .map(_.asRequired)

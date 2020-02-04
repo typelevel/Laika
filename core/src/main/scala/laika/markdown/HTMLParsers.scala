@@ -111,7 +111,7 @@ object HTMLParsers {
 
   /** Parses an HTML end tag if it matches the specified tag name.
    */
-  def htmlEndTag (tagName: String): DelimitedText = delimitedBy(("</" ~ tagName ~ htmlWS ~ '>') ^^^ "")
+  def htmlEndTag (tagName: String): DelimitedText = delimitedBy(("</" ~ tagName ~ htmlWS ~ '>').as(""))
 
   /** Parses an HTML comment without the leading `'<'`.
    */

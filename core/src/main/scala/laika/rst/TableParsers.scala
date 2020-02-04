@@ -82,8 +82,9 @@ object TableParsers {
       object BlankLine extends CellLine(Int.MaxValue) { def padTo (indent: Int) = "" }
       class TextLine (i: Int, text: String) extends CellLine(i) { def padTo (minIndent: Int) = " " * (indent - minIndent) + text }
       
-      val cellLine = not(eof) ~> ((blankLine ^^^ BlankLine) |
-        (ws ~ restOfLine) ^^ { case indent ~ text => new TextLine(indent.length, text.trim) }) 
+      val cellLine = not(eof) ~> (blankLine.as(BlankLine) | (ws ~ restOfLine) ^^ { 
+        case indent ~ text => new TextLine(indent.length, text.trim) 
+      }) 
       
       consumeAll(cellLine*).parse(cellContent) match {
         case Success(lines, _) => 
@@ -170,7 +171,7 @@ object TableParsers {
     val columns: List[ColumnBuilder] = List.fill(columnWidths.length)(ColumnFactory.next)
     private val rows = new ListBuffer[RowBuilder]
     
-    private def init () = {
+    private def init (): Unit = {
       val row = nextRow
       columns foreach (col => row.addCell(col.nextCell))
     }
@@ -197,12 +198,12 @@ object TableParsers {
    */
   lazy val gridTable: BlockParserBuilder = BlockParser.recursive { recParsers =>
 
-    val intersect = oneOf('+') ^^^ Intersection
+    val intersect = oneOf('+').as(Intersection)
 
     val rowSep = someOf('-').count
     val topBorder = intersect ~> ((rowSep <~ intersect)+) <~ wsEol
 
-    val colSep = (oneOf('|') ^^^ CellSeparator("|")) | intersect
+    val colSep = oneOf('|').as(CellSeparator("|")) | intersect
     val colSepOrText = colSep | (oneChar ^^ CellElement)
 
     recParsers.withRecursiveBlockParser(topBorder) >> { case (recParser, cols) =>
@@ -211,19 +212,20 @@ object TableParsers {
       val colsWithSep = Zip3Iterator(separators, cols, separators.reverse)
       
       def rowSep (width: Int): Parser[Any] = 
-        intersect ~ (anyOf('-').take(width) ^^^ RowSeparator) <~ lookAhead(intersect)
+        intersect ~ anyOf('-').take(width).as(RowSeparator) <~ lookAhead(intersect)
         
       def boundaryPart (width: Int): Parser[Any] = 
-        intersect ~ (anyOf('=').take(width) ^^^ TableBoundary) <~ lookAhead(intersect)
+        intersect ~ anyOf('=').take(width).as(TableBoundary) <~ lookAhead(intersect)
         
       def cell (sepL: Parser[Any], width: Int, sepR: Parser[Any]): Parser[Any] = 
-        sepL ~ ((anyChars.take(width)) ^^ CellElement) <~ lookAhead(sepR)
+        sepL ~ anyChars.take(width).map(CellElement) <~ lookAhead(sepR)
       
       val row = (colsWithSep map { case (separatorL, colWidth, separatorR) => 
         rowSep(colWidth) | cell(separatorL, colWidth, separatorR)
       } reduceRight (_ ~ _)) ^^ flattenElements
       
-      val tableBoundary: Parser[TableDecoration] = (cols map { col => boundaryPart(col) } reduceRight (_ ~ _)) ^^^ TableBoundary
+      val tableBoundary: Parser[TableDecoration] = 
+        cols.map(boundaryPart).reduceRight(_ ~ _).as(TableBoundary)
       
       def isSeparatorRow (row: List[TableElement]): Boolean = {
         row.forall {
@@ -298,14 +300,14 @@ object TableParsers {
         val textInSep = anyChars.take(sep).map(CellSeparator)
         val textColumn = cellText ~ (separator | textInSep)
         
-        val rowSep = anyOf('-').take(col) ^^^ RowSeparator
-        val merged = anyOf('-').take(sep) ^^^ RowSeparator
-        val split =  anyOf(' ').take(sep) ^^^ Intersection
+        val rowSep = anyOf('-').take(col).as(RowSeparator)
+        val merged = anyOf('-').take(sep).as(RowSeparator)
+        val split =  anyOf(' ').take(sep).as(Intersection)
         val underline = rowSep ~ (split | merged)
         
-        val bCell = anyOf('=').take(col) ^^^ TableBoundary
-        val bMerged = anyOf('=').take(sep) ^^^ TableBoundary
-        val bSplit =  anyOf(' ').take(sep) ^^^ Intersection
+        val bCell = anyOf('=').take(col).as(TableBoundary)
+        val bMerged = anyOf('=').take(sep).as(TableBoundary)
+        val bSplit =  anyOf(' ').take(sep).as(Intersection)
         val boundary = bCell ~ (bSplit | bMerged)
         
         (underline | not(boundary) ~> textColumn, boundary)
@@ -349,7 +351,7 @@ object TableParsers {
         
         rowBuffer foreach { row =>
           
-          def foreachColumn (row: List[TableElement])(f: ((List[TableElement], ColumnBuilder)) => Any) = {
+          def foreachColumn (row: List[TableElement])(f: ((List[TableElement], ColumnBuilder)) => Any): Unit = {
             row.tail.dropRight(1).sliding(2,2).zip(tableBuilder.columns.tail.iterator).foreach(f)
           }
           row.head match {

@@ -115,7 +115,7 @@ object DirectiveParsers {
       opt((hoconWS ~> stringBuilderValue(/*Set(',','}','\n')*/ NonEmptySet.one('\u0001')) <~ delim ~ hoconWS)
         .map(sv => BuilderField(AttributeKey.Default.key, sv)))
     }
-    val closingAttributes = '}' ^^^ Option.empty[ParserContext] | success(()).withContext.map { case (_, ctx) => Some(ctx) }
+    val closingAttributes = '}'.as(Option.empty[ParserContext]) | success(()).withContext.map { case (_, ctx) => Some(ctx) }
     val attributeSection = (ws ~> lazily('{' ~> defaultAttribute ~ objectMembers ~ closingAttributes)).map {
       case defAttr ~ obj ~ optCtx =>
         val attrs = obj.copy(values = defAttr.toSeq ++ obj.values)
@@ -152,7 +152,7 @@ object DirectiveParsers {
                        supportsCustomFence: Boolean = false): Parser[ParsedDirective] = {
 
     val legacyDirective: Parser[(String, ObjectBuilderValue) ~ Option[String]] = {
-      val noBody: Parser[Option[String]] = '.' ^^^ None
+      val noBody: Parser[Option[String]] = '.'.as(None)
       val body: Parser[Option[String]] = ':' ~> legacyBody.map(Some(_))
       legacyDeclarationParser(escapedText) ~ (noBody | body)
     }
@@ -237,7 +237,7 @@ object BlockDirectiveParsers {
       val trimmed = block.trim
       Either.cond(trimmed.nonEmpty, trimmed, "empty body")
     }
-    val noBody = wsEol ^^^ None
+    val noBody = wsEol.as(None)
     val newBody: BodyParserBuilder = spec =>
       if (directives.get(spec.name).exists(_.hasBody)) {
         val closingFenceP = spec.fence <~ wsEol
