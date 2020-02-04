@@ -102,10 +102,10 @@ object ListParsers {
     val firstUpperRoman = (anyOf('I','V','X','L','C','D','M').min(2) | oneOf('I')).evalMap
       { num => RomanNumerals.romanToInt(num.toUpperCase).map(_ -> UpperRoman) }
     
-    val firstLowerAlpha = anyIn('a' to 'h', 'j' to 'z').take(1) ^^ 
+    val firstLowerAlpha = oneOf(range('a', 'h') ++ range('j', 'z')).map
       { char => (char.charAt(0) + 1 - 'a', LowerAlpha) } // 'i' is interpreted as Roman numerical
     
-    val firstUpperAlpha = anyIn('A' to 'H', 'J' to 'Z').take(1) ^^ 
+    val firstUpperAlpha = oneOf(range('A', 'H') ++ range('J', 'Z')).map
       { char => (char.charAt(0) + 1 - 'A', UpperAlpha) }
     
     val firstAutoNumber = oneOf('#').as((1,Arabic))

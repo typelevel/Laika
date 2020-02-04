@@ -34,6 +34,15 @@ import laika.parse.combinator.Parsers
  */
 object TextParsers extends Parsers {
 
+  /** Creates a NonEmptySet from a Character range.
+    * This set can then be passed to parsers like `anyOf` or `oneOf`
+    * which expect a NonEmptySet as a parameter.
+    */
+  def range(fromChar: Char, toChar: Char): NonEmptySet[Char] = {
+    val range = if (fromChar > toChar) toChar to fromChar else fromChar to toChar
+    NonEmptySet.of(range.head, range.tail:_*)
+  }
+
   /** A parser that matches only the specified character.
     *
     * The method is implicit so that characters can automatically be lifted to their parsers.
@@ -168,9 +177,7 @@ object TextParsers extends Parsers {
     */
   def anyBut (chars: NonEmptySet[Char]): Characters[String] = Characters.exclude(chars.toSortedSet.toSeq)
   
-  /** Consumes any number of consecutive characters that are in one of the specified character ranges.
-   *  Always succeeds unless a minimum number of required matches is specified.
-   */
+  @deprecated("use anyOf, someOf, oneOf with the range method, e.g. oneOf(range('a','z'))", "0.14.0")
   def anyIn (ranges: Iterable[Char]*): Characters[String] = Characters.include(ranges.flatten)
 
   /** Consumes any number of consecutive characters which satisfy the specified predicate.

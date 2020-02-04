@@ -67,7 +67,7 @@ object URIParsers {
    *  HEXDIG = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
    *  }}}
    */
-  val hexdig: Characters[String] = anyIn('0' to '9', 'A' to 'F')
+  val hexdig: Characters[String] = anyOf(range('0', '9') ++ range('A', 'F'))
   
   /** Parses a single sub-delimiter as defined in RFC 3986.
    * 
@@ -340,7 +340,7 @@ object URIParsers {
    *  }}} 
    */
   val domain: Parser[String] = {
-    val dtextNoObs = anyIn('!' to 'Z', '^' to '~') // all printable ASCII except "[", "]", "\"
+    val dtextNoObs = anyOf(range('!', 'Z') ++ range('^', '~')) // all printable ASCII except "[", "]", "\"
     
     (dotAtomText | ('[' ~ dtextNoObs ~ ']')) ^^ flatten
   }   

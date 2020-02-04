@@ -125,7 +125,7 @@ object HoconParsers {
     
     val zero = oneOf('0')
     val digits = anyOf(CharGroup.digit)
-    val oneToNine = anyIn('1' to '9')
+    val oneToNine = anyOf(range('1', '9'))
     val nonZero = (oneToNine.take(1) ~ digits).concat
     val negativeSign = opt('-').map(_.fold("")(_.toString))
     val sign = opt(oneOf('-') | oneOf('+')).map(_.getOrElse(""))

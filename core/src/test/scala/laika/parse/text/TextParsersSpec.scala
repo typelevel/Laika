@@ -335,18 +335,18 @@ class TextParsersSpec extends WordSpec with Matchers with ParseResultHelpers wit
 
   }
   
-  "The anyIn parser" should {
+  "The anyOf parser with the range builder" should {
 
     "succeed for any character within the specified range when 1 range is specified" in {
-      Parsing ("abcde $&") using anyIn('a' to 'd') should produce ("abcd")
+      Parsing ("abcde $&") using anyOf(range('a', 'd')) should produce ("abcd")
     }
 
     "succeed for any character within the specified ranges when 2 ranges are specified" in {
-      Parsing ("abcdxyzff") using anyIn('a' to 'd', 'x' to 'z') should produce ("abcdxyz")
+      Parsing ("abcdxyzff") using anyOf(range('a', 'd') ++ range('x', 'z')) should produce ("abcdxyz")
     }
 
     "succeed in case the end of the input is reached" in {
-      Parsing ("abcabd") using anyIn('a' to 'd') should produce ("abcabd")
+      Parsing ("abcabd") using anyOf(range('a', 'd')) should produce ("abcabd")
     }
 
   }
