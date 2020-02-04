@@ -57,7 +57,7 @@ object InlineParsers {
     *
     *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#escaping-mechanism]].
     */
-  val escapedChar: Parser[String] = (" " ^^^ "") | one
+  val escapedChar: Parser[String] = (" " ^^^ "") | oneChar
 
 
   private val pairs: Map[Char, Set[Char]] = List(/* Ps/Pe pairs */

@@ -30,7 +30,7 @@ trait DefaultEscapedTextParsers extends EscapedTextParsers {
     * In the default implementation any character can be escaped.
     * Sub-traits may override this parser to restrict the number of escapable characters.
     */
-  lazy val escapedChar: Parser[String] = TextParsers.one
+  lazy val escapedChar: Parser[String] = TextParsers.oneChar
 
   lazy val escapeSequence: PrefixedParser[String] = '\\' ~> escapedChar
 

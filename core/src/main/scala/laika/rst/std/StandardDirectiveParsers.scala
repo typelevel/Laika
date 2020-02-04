@@ -72,7 +72,7 @@ object StandardDirectiveParsers {
   def captionAndLegend (p: RecursiveParsers)(input: String): Either[String,(Seq[Span],Seq[Block])] = {
     val caption = p.recursiveSpans((textLine *) ^^ (_.mkString("\n")))
     val parser = p.withRecursiveBlockParser(caption) >> {
-      case (parserF, captionSpans) => opt(blankLines) ~> (any ^^ { text =>
+      case (parserF, captionSpans) => opt(blankLines) ~> (anyChars ^^ { text =>
         val legendBlocks = parserF(text.trim)
         (captionSpans, legendBlocks)
       })
@@ -97,7 +97,7 @@ object StandardDirectiveParsers {
         refName => LinkReference(Nil, refName, s"${refName}_")
       }
     }
-    val uri = any ^^ {
+    val uri = anyChars ^^ {
       uri => ExternalLink(Nil, uri)
     }
     parseDirectivePart(phraseLinkRef | simpleLinkRef | uri, input)

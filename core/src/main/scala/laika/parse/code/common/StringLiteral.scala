@@ -38,7 +38,7 @@ object StringLiteral {
       * if you want to be strict and apply the specific rules about which characters are valid
       * escapes you need to create a custom parser. */
     val char: CodeSpanParser = CodeSpanParser(CodeCategory.EscapeSequence) {
-      (TextParsers.literal("\\") ~ one).concat
+      (TextParsers.literal("\\") ~ oneChar).concat
     }
 
     /** Parses a unicode character escape.

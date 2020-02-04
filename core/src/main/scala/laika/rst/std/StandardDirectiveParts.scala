@@ -57,7 +57,7 @@ object StandardDirectiveParts {
     def multilineURI (text: String) = Right(text.split("\n").map(_.trim).mkString("\n").trim)
 
     val align = ("top" | "middle" | "bottom" | "left" | "center" | "right" |
-      any.flatMap(s => failure(s"illegal value for align: '$s'"))) ^^ { a => Styles(s"align-$a") }
+      anyChars.flatMap(s => failure(s"illegal value for align: '$s'"))) ^^ { a => Styles(s"align-$a") }
 
     val scale = sizeAndUnit | (anyOf(CharGroup.digit) ^^ { amt => Size(amt.toInt, "%") })
 

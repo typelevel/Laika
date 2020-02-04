@@ -203,7 +203,7 @@ object TableParsers {
     val topBorder = intersect ~> ((rowSep <~ intersect)+) <~ wsEol
 
     val colSep = (oneOf('|') ^^^ CellSeparator("|")) | intersect
-    val colSepOrText = colSep | (one ^^ CellElement)
+    val colSepOrText = colSep | (oneChar ^^ CellElement)
 
     recParsers.withRecursiveBlockParser(topBorder) >> { case (recParser, cols) =>
       
@@ -217,7 +217,7 @@ object TableParsers {
         intersect ~ (anyOf('=').take(width) ^^^ TableBoundary) <~ lookAhead(intersect)
         
       def cell (sepL: Parser[Any], width: Int, sepR: Parser[Any]): Parser[Any] = 
-        sepL ~ ((any.take(width)) ^^ CellElement) <~ lookAhead(sepR)
+        sepL ~ ((anyChars.take(width)) ^^ CellElement) <~ lookAhead(sepR)
       
       val row = (colsWithSep map { case (separatorL, colWidth, separatorR) => 
         rowSep(colWidth) | cell(separatorL, colWidth, separatorR)
@@ -254,8 +254,8 @@ object TableParsers {
         if (rows.isEmpty || !isSeparatorRow(rows.last)) throw new MalformedTableException("Table not terminated correctly")
       }
       
-      val boundaryRow = tableBoundary <~ one ~ wsEol
-      val tablePart = ((not(tableBoundary) ~> row <~ one ~ wsEol)*)
+      val boundaryRow = tableBoundary <~ oneChar ~ wsEol
+      val tablePart = ((not(tableBoundary) ~> row <~ oneChar ~ wsEol)*)
       (tablePart ~ opt(boundaryRow ~> tablePart)) ^^? { result =>
         
       /* Need to fail for certain illegal constructs in the interim model, 
@@ -293,9 +293,9 @@ object TableParsers {
       
       val (rowColumns, boundaryColumns): (Seq[Parser[Any]],Seq[Parser[Any]]) = (cols map { case (col, sep) =>
         val cellText = if (sep == 0) anyBut('\n', '\r').map(CellElement)
-                       else any.take(col).map(CellElement) 
+                       else anyChars.take(col).map(CellElement) 
         val separator = anyOf(' ').take(sep).map(CellSeparator)
-        val textInSep = any.take(sep).map(CellSeparator)
+        val textInSep = anyChars.take(sep).map(CellSeparator)
         val textColumn = cellText ~ (separator | textInSep)
         
         val rowSep = anyOf('-').take(col) ^^^ RowSeparator

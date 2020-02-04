@@ -151,6 +151,9 @@ object TextParsers extends Parsers {
    *  This parser would consume the entire input unless a `max` constraint
    *  is specified.
    */
+  val anyChars: Characters[String] = Characters.anyWhile(_ => true)
+  
+  @deprecated("renamed to anyChars", "0.14.0")
   val any: Characters[String] = Characters.anyWhile(_ => true)
   
   /** Consumes any number of consecutive occurrences of the specified characters.
@@ -197,7 +200,7 @@ object TextParsers extends Parsers {
 
   /** Parses exactly one character from the input, fails only at the end of the input.
     */
-  val one: Parser[String] = any.take(1)
+  val oneChar: Parser[String] = anyChars.take(1)
 
   /** Consumes one character if it matches one of the specified characters, fails otherwise.
     */

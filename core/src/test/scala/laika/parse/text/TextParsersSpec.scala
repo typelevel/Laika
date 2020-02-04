@@ -231,11 +231,11 @@ class TextParsersSpec extends WordSpec with Matchers with ParseResultHelpers wit
   "The any parser" should {
 
     "always succeed consuming the entire input" in {
-      Parsing ("abcde $&") using any should produce ("abcde $&")
+      Parsing ("abcde $&") using anyChars should produce ("abcde $&")
     }
 
     "only consume the specified maximum number of characters" in {
-      Parsing ("abcde $&") using any.max(3) should produce ("abc")
+      Parsing ("abcde $&") using anyChars.max(3) should produce ("abc")
     }
   }
 

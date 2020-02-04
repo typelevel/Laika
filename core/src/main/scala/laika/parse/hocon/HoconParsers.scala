@@ -158,7 +158,7 @@ object HoconParsers {
     }
     val literalChar = oneOf('"','\\','/')
     val unicode = DigitParsers.hex.take(4).map(Integer.parseInt(_, 16).toChar.toString)
-    val escape = '\\' ~> ((literalChar | specialChar | unicode).map(Right(_)) | one.withContext.map(Left(_)) )
+    val escape = '\\' ~> ((literalChar | specialChar | unicode).map(Right(_)) | oneChar.withContext.map(Left(_)) )
     
     import cats.implicits._
     
@@ -177,7 +177,7 @@ object HoconParsers {
   /** Parses a string enclosed in triple quotes. */
   val multilineString: Parser[ConfigBuilderValue] = {
     val msg = "Expected closing triple quote"
-    val fallback = failWith(any.count, msg)(InvalidBuilderValue(SelfReference,_))
+    val fallback = failWith(anyChars.count, msg)(InvalidBuilderValue(SelfReference,_))
     val content = delimitedBy("\"\"\"") ~ anyOf('\"') ^^ {
       case text ~ extraQuotes => ValidStringValue(text + extraQuotes)
     }
