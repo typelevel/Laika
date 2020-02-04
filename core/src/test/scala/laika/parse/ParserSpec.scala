@@ -29,13 +29,11 @@ import org.scalatest.{Assertion, Matchers, WordSpec}
 class ParserSpec extends WordSpec with Matchers with ParseResultHelpers with StringParserHelpers {
 
 
-  val context = ParserContext("abc\ndef")
-
-  val parser1 = TextParsers.someOf('a','b')
-  val parser2 = TextParsers.someOf('b','c')
+  private val parser1 = TextParsers.someOf('a','b')
+  private val parser2 = TextParsers.someOf('b','c')
 
 
-  "The monadic Parser" should {
+  "A Parser" should {
 
     "provide the result of the parsing operation" in {
       Parsing("abc") using parser1 should produce ("ab")
@@ -75,6 +73,22 @@ class ParserSpec extends WordSpec with Matchers with ParseResultHelpers with Str
 
     "fail if the specified Either function produces a Left" in {
       Parsing("abc") using (parser1 ^^? { res => Left("wrong") }) should cause [Failure]
+    }
+    
+    "handle errors from a failed parser" in {
+      Parsing("ccbb") using parser1.handleErrorWith(_ => parser2) should produce("ccbb")
+    }
+
+    "handle errors from a failed parser with information from the error" in {
+      Parsing("ccbb") using parser1.handleErrorWith(e => success(e.next.remaining.toString)) should produce("4")
+    }
+
+    "recover from a failed parser" in {
+      Parsing("ccbb") using parser1.recoverWith { case _ => parser2 } should produce("ccbb")
+    }
+
+    "recover from a failed parser with information from the error" in {
+      Parsing("ccbb") using parser1.recoverWith { case e => success(e.next.remaining.toString) } should produce("4")
     }
   }
 

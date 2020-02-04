@@ -159,7 +159,7 @@ abstract class Parser[+T] {
     */
   def as [U] (v: => U): Parser[U] = new Parser[U] {
     lazy val v0 = v
-    def parse (in: ParserContext) = Parser.this.parse(in) map (x => v0)
+    def parse (in: ParserContext) = Parser.this.parse(in) map (_ => v0)
   }
 
   /** Discards the result of a successful parser.
@@ -180,7 +180,7 @@ abstract class Parser[+T] {
     * @param error an optional function that takes the same argument as `f` and produces an error message.
     */
   def collect [U](f: PartialFunction[T, U],
-             error: T => String = r => s"Constructor function not defined at $r"): Parser[U] = {
+                  error: T => String = r => s"Constructor function not defined at $r"): Parser[U] = {
     val msg: T => Message = Message.forRuntimeValue(error)
     Parser { in =>
       parse(in) match {
@@ -215,7 +215,6 @@ abstract class Parser[+T] {
 
   }
   
-
   /** Operator synonym for `flatMap`.
     */
   def >>[U] (fq: T => Parser[U]): Parser[U] = flatMap(fq)
@@ -224,20 +223,20 @@ abstract class Parser[+T] {
     *  The returned parser offers an API to specify further constraints
     *  like `min` or `max`.
     */
-  def rep = new Repeat(this)
+  def rep: Repeat[T] = new Repeat(this)
 
   /**  Returns a parser that repeatedly applies this parser.
     *  It will always succeed, potentially with an empty list as the result.
     */
-  def * = new Repeat(this)
+  def * : Repeat[T] = new Repeat(this)
 
   /** Returns a parser that repeatedly applies this parser (at least once).
     */
-  def + = rep.min(1)
+  def + : Repeat[T] = rep.min(1)
 
   /** Returns a parser that optionally parses what this parser parses.
     */
-  def ? = opt(this)
+  def ? : Parser[Option[T]] = opt(this)
 
   /** Returns a parser that invokes the specified function repeatedly,
     * passing the result of this parser if it succeeds, to produce new
@@ -264,6 +263,29 @@ abstract class Parser[+T] {
     parse(in, this)
   }
 
+  /** Handle any error, potentially recovering from it, by mapping it to a new parser that
+    * will be applied at the same starting position than the failing parser.
+    * 
+    * This is similar to the `orElse` or `|` method, but allows the alternative
+    * parser to inspect the error of the preceding one.
+    *
+    * @see [[recoverWith]] to recover from only certain errors.
+    */
+  def handleErrorWith[U >: T] (f: Failure => Parser[U]): Parser[U] = Parser { in =>
+    parse(in) match {
+      case error: Failure => f(error).parse(in)
+      case other => other
+    }
+  }
+
+  /** Handle certain errors, potentially recovering from it, by mapping them to a new parser that
+    * will be applied at the same starting position than the failing parser.
+    *
+    * @see [[handleErrorWith]] to handle any/all errors.
+    */
+  def recoverWith[U >: T] (pf: PartialFunction[Failure, Parser[U]]): Parser[U] =
+    handleErrorWith(e => pf.applyOrElse[Failure, Parser[U]](e, { f => Parser[U] { _ => f }}))
+  
   /**  Changes the failure message produced by a parser.
     */
   def withFailureMessage (msg: String): Parser[T] = Parser { in =>
@@ -274,7 +296,7 @@ abstract class Parser[+T] {
   }
 
   /** Adds the position at the end of a successful application of this 
-    * parser to the result.
+    * parser to the result in a tuple.
     */
   def withPosition: Parser[(T, Position)] = Parser { in =>
     parse(in) match {
@@ -282,6 +304,10 @@ abstract class Parser[+T] {
       case Success(result, rest) => Success((result, rest.position), rest)
     }
   }
+
+  /** Adds the ParserContext positioned at the end of a successful application of this 
+    * parser to the result in a tuple.
+    */
   def withContext: Parser[(T, ParserContext)] = Parser { in =>
     parse(in) match {
       case f: Failure => f
