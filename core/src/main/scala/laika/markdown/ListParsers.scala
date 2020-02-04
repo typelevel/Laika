@@ -97,7 +97,7 @@ object ListParsers {
   val bulletLists: BlockParserBuilder = 
     BlockParser.recursive { implicit recParsers =>
       PrefixedParser('+', '*', '-') {
-        lookAhead(anyChars.take(1)) >> { char =>
+        lookAhead(oneChar) >> { char =>
           val bullet = StringBullet(char)
           list(bulletChar, wsAfterItemStart, BulletList(_: List[BulletListItem], bullet), (_, blocks) => BulletListItem(blocks, bullet))
         }

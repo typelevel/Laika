@@ -42,7 +42,7 @@ object HOCONSyntax extends SyntaxHighlighter {
   val substitution: CodeSpanParser = CodeSpanParser(CodeCategory.Substitution, "${", "}")
 
   private val unquotedChar = {
-    val validChar = anyNot('$', '"', '{', '}', '[', ']', ':', '=', ',', '+', '#', '`', '^', '?', '!', '@', '*', '&', '\\', ' ', '\t','\n').take(1) 
+    val validChar = oneNot('$', '"', '{', '}', '[', ']', ':', '=', ',', '+', '#', '`', '^', '?', '!', '@', '*', '&', '\\', ' ', '\t','\n')
     
     validChar | oneOf(' ') <~ lookAhead(ws ~ validChar)
   }.rep.map(_.mkString)

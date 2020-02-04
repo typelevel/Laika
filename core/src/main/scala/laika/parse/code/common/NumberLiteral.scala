@@ -123,7 +123,7 @@ object NumberLiteral {
         }
 
         val optSuffix = suffix.fold(emptyString)(opt(_).map(_.getOrElse("")))
-        val postCondition = if (allowFollowingLetter) success(()) else not(anyWhile(java.lang.Character.isLetter).take(1)) // TODO - 0.14 - like above
+        val postCondition = if (allowFollowingLetter) success(()) else not(oneIf(java.lang.Character.isLetter)) // TODO - 0.14 - like above
 
         (number ~ optSuffix <~ postCondition).concat.map { rest => 
           Seq(CodeSpan(prefixOrFirstDigit + rest, CodeCategory.NumberLiteral))

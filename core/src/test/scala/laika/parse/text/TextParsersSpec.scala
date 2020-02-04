@@ -212,7 +212,7 @@ class TextParsersSpec extends WordSpec with Matchers with ParseResultHelpers wit
 
   }
 
-  "The any parser" should {
+  "The anyChars parser" should {
 
     "always succeed consuming the entire input" in {
       Parsing ("abcde $&") using anyChars should produce ("abcde $&")
@@ -307,7 +307,7 @@ class TextParsersSpec extends WordSpec with Matchers with ParseResultHelpers wit
 
   }
   
-  "The anyBut parser" should {
+  "The anyNot parser" should {
 
     "succeed for all non-matching characters when 1 character is specified" in {
       Parsing ("abcxxabc") using anyNot('x') should produce ("abc")
@@ -331,6 +331,26 @@ class TextParsersSpec extends WordSpec with Matchers with ParseResultHelpers wit
 
     "stop, but still succeed, when it has consumed the specified maximum number of characters" in {
       Parsing ("abcdxxxx") using (anyNot('x') max 3) should produce ("abc")
+    }
+
+  }
+
+  "The oneNot parser" should {
+
+    "succeed for a non-matching character when 1 character is specified" in {
+      Parsing ("xxabc") using TextParsers.oneNot('a') should produce ("x")
+    }
+
+    "succeed for any of the specified 3 characters" in {
+      Parsing ("yzxabc") using TextParsers.oneNot('a','b','c') should produce ("y")
+    }
+
+    "fail in case the end of the input is reached" in {
+      Parsing ("") using TextParsers.oneNot('x','y','z') should cause [Failure]
+    }
+
+    "fail when the first character does not match" in {
+      Parsing ("yxxabc") using TextParsers.oneNot('x','y') should cause [Failure]
     }
 
   }
@@ -371,6 +391,22 @@ class TextParsersSpec extends WordSpec with Matchers with ParseResultHelpers wit
 
     "stop, but still succeed, when it has consumed the specified maximum number of characters" in {
       Parsing ("abcdxxxx") using anyWhile(_ < 'd').max(2) should produce ("ab")
+    }
+
+  }
+
+  "The oneIf parser" should {
+
+    "succeed as long as the specified condition is met" in {
+      Parsing ("abcde $&") using oneIf(_ < 'd') should produce ("a")
+    }
+
+    "fail in case the end of the input is reached" in {
+      Parsing ("") using oneIf(_ < 'd') should cause [Failure]
+    }
+
+    "fail in case the specified predicate is not met" in {
+      Parsing ("zxxxyyyz") using oneIf(_ < 'd') should cause [Failure]
     }
 
   }

@@ -200,6 +200,18 @@ object TextParsers extends Parsers {
     */
   def oneOf (chars: NonEmptySet[Char]): PrefixedParser[String] = new PrefixCharacters(anyOf(chars).take(1), chars)
 
+  /** Consumes one character if it is not one of the specified characters.
+    */
+  def oneNot (char: Char, chars: Char*): Parser[String] = Characters.exclude(char +: chars).take(1)
+
+  /** Consumes one character if it is not one of the specified characters.
+    */
+  def oneNot (chars: NonEmptySet[Char]): Parser[String] = Characters.exclude(chars.toSortedSet.toSeq).take(1)
+
+  /** Consumes one character if it satisfies the specified predicate, fails otherwise.
+    */
+  def oneIf (p: Char => Boolean): Parser[String] = Characters.anyWhile(p).take(1)
+
   /** Parses exactly one character from the input, fails only at the end of the input.
     */
   val oneChar: Parser[String] = anyChars.take(1)
@@ -219,12 +231,12 @@ object TextParsers extends Parsers {
   /** Consumes any number of consecutive characters until one of the specified characters
     * is encountered on the input string.
     */
-  def delimitedBy (char: Char, chars: Char*): DelimitedText = new DelimitedText(TextDelimiter(someOf(char, chars: _*).take(1)))
+  def delimitedBy (char: Char, chars: Char*): DelimitedText = new DelimitedText(TextDelimiter(oneOf(char, chars: _*)))
 
   /** Consumes any number of consecutive characters until one of the specified characters
     * is encountered on the input string.
     */
-  def delimitedBy (chars: NonEmptySet[Char]): DelimitedText = new DelimitedText(TextDelimiter(someOf(chars)))
+  def delimitedBy (chars: NonEmptySet[Char]): DelimitedText = new DelimitedText(TextDelimiter(oneOf(chars)))
 
   /** Consumes any number of consecutive characters until the specified string delimiter
     * is encountered on the input string.
@@ -252,7 +264,7 @@ object TextParsers extends Parsers {
     * with an API that allows to specify predicates for the characters immediately 
     * preceding or following the delimiter, a common task in markup parsing.
     */
-  def delimiter (char: Char, chars: Char*): DelimiterParser = new DelimiterParser(someOf(char, chars:_*).take(1))
+  def delimiter (char: Char, chars: Char*): DelimiterParser = new DelimiterParser(oneOf(char, chars:_*))
 
   /** Creates a parser for a delimiter based on a literal string with an API that 
     * allows to specify predicates for the characters immediately 

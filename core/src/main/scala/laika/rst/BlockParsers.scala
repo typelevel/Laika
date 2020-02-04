@@ -86,7 +86,7 @@ object BlockParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#sections]].
    */
   lazy val headerWithUnderline: BlockParserBuilder = BlockParser.withSpans { spanParsers =>
-    anyNot(' ').take(1) ~ restOfLine >> { case char ~ rest =>
+    oneNot(' ') ~ restOfLine >> { case char ~ rest =>
       val title = (char + rest).trim
       punctuationChar.take(1) >> { start =>
         val char = start.charAt(0)
