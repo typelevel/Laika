@@ -113,7 +113,7 @@ object StandardDirectiveParsers {
     val hex = ((("0x" | "x" | "\\x" | "U+" | "u" | "\\u") ~> hexNum) | ("&#x" ~> hexNum <~ ";")) ^^ { Integer.parseInt(_,16) }
     val dec = someOf(CharGroup.digit) ^^ { Integer.parseInt }
     val unicode = (hex | dec) ^^ { int => new String(Character.toChars(int)) }
-    val text = anyBut(' ') min 1
+    val text = anyNot(' ') min 1
     val parser = (((unicode | text) <~ ws)*) ^^ { _.mkString(" ") }
     parseDirectivePart(parser, input)
   }

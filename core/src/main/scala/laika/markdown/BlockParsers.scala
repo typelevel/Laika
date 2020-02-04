@@ -74,7 +74,7 @@ object BlockParsers {
     *  @param nextBlockPrefix parser that recognizes whether a line after one or more blank lines still belongs to the same block
     */
   def decoratedBlock (firstLinePrefix: Parser[Any], linePrefix: Parser[Any], nextBlockPrefix: Parser[Any]): Parser[String] = {
-    val skipLine = anyBut('\n','\r').void <~ eol
+    val skipLine = anyNot('\n','\r').void <~ eol
     val noHeader = lookAhead(skipLine ~ not(setextDecoration))
     mdBlock(noHeader ~ firstLinePrefix, linePrefix, nextBlockPrefix)
   }

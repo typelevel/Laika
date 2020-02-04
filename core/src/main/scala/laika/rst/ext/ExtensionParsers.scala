@@ -180,7 +180,7 @@ class ExtensionParsers(recParsers: RecursiveParsers,
     
     def requiredArg (p: => Parser[String]): Parser[String] = p.withFailureMessage("missing required argument")
 
-    val arg: Parser[String] = requiredArg(anyBut(' ','\n').min(1) <~ ws)
+    val arg: Parser[String] = requiredArg(anyNot(' ','\n').min(1) <~ ws)
 
     val argWithWS: Parser[String] = {
       val p = indentedBlock(linePredicate = not(":"), endsOnBlankLine = true).evalMap { block =>

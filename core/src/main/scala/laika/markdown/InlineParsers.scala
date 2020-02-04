@@ -219,7 +219,7 @@ object InlineParsers {
 
     def toLink(s: String) = ExternalLink(List(Text(s)), s)
 
-    ('<' ~> anyBut(' ','\r','\n','\t','>') <~ '>').collect {
+    ('<' ~> anyNot(' ','\r','\n','\t','>') <~ '>').collect {
       case s if isURI(s) => toLink(s)
       case s if isEmail(s) => toLink(s"mailto:$s")
     }

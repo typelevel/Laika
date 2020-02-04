@@ -294,7 +294,7 @@ object TableParsers {
     recParsers.withRecursiveBlockParser(topBorder) >> { case (recParser, cols) =>
       
       val (rowColumns, boundaryColumns): (Seq[Parser[Any]],Seq[Parser[Any]]) = (cols map { case (col, sep) =>
-        val cellText = if (sep == 0) anyBut('\n', '\r').map(CellElement)
+        val cellText = if (sep == 0) anyNot('\n', '\r').map(CellElement)
                        else anyChars.take(col).map(CellElement) 
         val separator = anyOf(' ').take(sep).map(CellSeparator)
         val textInSep = anyChars.take(sep).map(CellSeparator)

@@ -310,27 +310,27 @@ class TextParsersSpec extends WordSpec with Matchers with ParseResultHelpers wit
   "The anyBut parser" should {
 
     "succeed for all non-matching characters when 1 character is specified" in {
-      Parsing ("abcxxabc") using anyBut('x') should produce ("abc")
+      Parsing ("abcxxabc") using anyNot('x') should produce ("abc")
     }
 
     "succeed for all non-matching characters when 3 characters are specified" in {
-      Parsing ("abczyxabc") using anyBut('x','y','z') should produce ("abc")
+      Parsing ("abczyxabc") using anyNot('x','y','z') should produce ("abc")
     }
 
     "succeed in case the end of the input is reached" in {
-      Parsing ("abcabc") using anyBut('x','y','z') should produce ("abcabc")
+      Parsing ("abcabc") using anyNot('x','y','z') should produce ("abcabc")
     }
 
     "fail when it does not consume the specified minimum number of characters" in {
-      Parsing ("abxx") using (anyBut('x') min 3) should cause [Failure]
+      Parsing ("abxx") using (anyNot('x') min 3) should cause [Failure]
     }
 
     "succeed when it does consume the specified minimum number of characters" in {
-      Parsing ("abcdxxxx") using (anyBut('x') min 3) should produce ("abcd")
+      Parsing ("abcdxxxx") using (anyNot('x') min 3) should produce ("abcd")
     }
 
     "stop, but still succeed, when it has consumed the specified maximum number of characters" in {
-      Parsing ("abcdxxxx") using (anyBut('x') max 3) should produce ("abc")
+      Parsing ("abcdxxxx") using (anyNot('x') max 3) should produce ("abc")
     }
 
   }

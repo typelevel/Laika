@@ -49,7 +49,7 @@ object CSSSyntax extends SyntaxHighlighter {
     CodeSpanParser(CodeCategory.EscapeSequence)(("\\" ~ DigitParsers.hex.min(1)).concat) ++ StringLiteral.Escape.char
 
   lazy val url: CodeSpanParser = CodeSpanParser {
-    (literal("url(") ~ ws ~ anyBut('"', '\'', '(', ')', ' ', '\n') ~ ws ~ ")").map {
+    (literal("url(") ~ ws ~ anyNot('"', '\'', '(', ')', ' ', '\n') ~ ws ~ ")").map {
       case _ ~ ws1 ~ value ~ ws2 ~ _ => Seq(
         CodeSpan("url", CodeCategory.Identifier),
         CodeSpan("(" + ws1),

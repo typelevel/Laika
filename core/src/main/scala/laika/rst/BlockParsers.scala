@@ -71,7 +71,7 @@ object BlockParsers {
       val char = start.charAt(0)
       anyOf(char) >> { deco =>
         val len = deco.length + 1
-        val text = spanParsers.recursiveSpans((anyBut('\n') max len) ^^ (_.trim))
+        val text = spanParsers.recursiveSpans((anyNot('\n') max len) ^^ (_.trim))
         val decoLine = anyOf(char) take len
 
         (wsEol ~> text <~ wsEol ~ decoLine ~ wsEol) ^^ {
@@ -86,7 +86,7 @@ object BlockParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#sections]].
    */
   lazy val headerWithUnderline: BlockParserBuilder = BlockParser.withSpans { spanParsers =>
-    anyBut(' ').take(1) ~ restOfLine >> { case char ~ rest =>
+    anyNot(' ').take(1) ~ restOfLine >> { case char ~ rest =>
       val title = (char + rest).trim
       punctuationChar.take(1) >> { start =>
         val char = start.charAt(0)

@@ -180,14 +180,14 @@ class ParserBundleSpec extends WordSpec with Matchers {
 
     def spanFor (deco: Char, overrideDeco: Char): SpanParserBuilder =
       SpanParser.standalone {
-        (deco ~> anyBut(' ') <~ opt(' ')) ^^ (DecoratedSpan(overrideDeco, _))
+        (deco ~> anyNot(' ') <~ opt(' ')) ^^ (DecoratedSpan(overrideDeco, _))
       }
 
     def legacySpanFor (deco: Char): SpanParserBuilder = spanFor(deco, deco)
 
     def legacySpanFor (deco: Char, overrideDeco: Char): SpanParserBuilder =
       SpanParser.forStartChar(deco).standalone {
-        (deco ~> anyBut(' ') <~ opt(' ')) ^^ (DecoratedSpan(overrideDeco, _))
+        (deco ~> anyNot(' ') <~ opt(' ')) ^^ (DecoratedSpan(overrideDeco, _))
       }
 
     def doc (spans: (Char, String)*): Document =

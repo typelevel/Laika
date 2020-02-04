@@ -54,7 +54,7 @@ object HoconParsers {
   implicit class ClosingParserOps[T] (parser: Parser[T]) {
 
     def closeWith[R >: T] (char: Char)(captureError: (T, Failure) => R): Parser[R] =
-      closeWith[R](TextParsers.char(char), anyBut('\n').as(0), s"Expected closing '$char'")(captureError)
+      closeWith[R](TextParsers.char(char), anyNot('\n').as(0), s"Expected closing '$char'")(captureError)
     
     def closeWith[R >: T] (closingParser: Parser[Any],
                            fallbackParser: Parser[Int],
@@ -148,7 +148,7 @@ object HoconParsers {
 
   /** Parses a string enclosed in quotes. */
   val quotedString: Parser[StringBuilderValue] = {
-    val chars = anyBut('"','\\','\n').min(1).map(Right(_))
+    val chars = anyNot('"','\\','\n').min(1).map(Right(_))
     val specialChar = oneOf('b','f','n','r','t').map {
       case "b" => "\b"
       case "f" => "\f"
@@ -186,7 +186,7 @@ object HoconParsers {
 
   /** Parses an unquoted string that is not allowed to contain any of the reserved characters listed in the HOCON spec. */
   def unquotedString(delimiters: NonEmptySet[Char]): Parser[StringBuilderValue] = {
-    val unquotedChar = anyBut('$', '"', '{', '}', '[', ']', ':', '=', ',', '+', '#', '`', '^', '?', '!', '@', '*', '&', '\\', ' ','\t','\n')
+    val unquotedChar = anyNot('$', '"', '{', '}', '[', ']', ':', '=', ',', '+', '#', '`', '^', '?', '!', '@', '*', '&', '\\', ' ','\t','\n')
     val mainParser = unquotedChar.min(1).map(ValidStringValue)
     val closingParser = 
       if (delimiters.contains('\u0001')) success(()) 
@@ -198,7 +198,7 @@ object HoconParsers {
       case c => "'" + c + "'"
     }.mkString(", ")
     val msg = s"Illegal character in unquoted string, expected delimiter$delimMsg $renderedDelimiters"
-    mainParser.closeWith[StringBuilderValue](closingParser, ws.count <~ anyBut(delimiters.add('\n')), msg)((v, f) => InvalidStringValue(v.value, f))
+    mainParser.closeWith[StringBuilderValue](closingParser, ws.count <~ anyNot(delimiters.add('\n')), msg)((v, f) => InvalidStringValue(v.value, f))
   }
 
   /** Parses any of the 3 string types (quoted, unquoted, triple-quoted). */
@@ -248,7 +248,7 @@ object HoconParsers {
   val include: Parser[ConfigBuilderValue] = {
     
     def resource(kind: String, f: StringBuilderValue => IncludeResource): Parser[IncludeResource] = {
-      val noOpeningQuote = failWith(anyBut('\n').as(0), "Expected quoted string")(InvalidStringValue("",_))
+      val noOpeningQuote = failWith(anyNot('\n').as(0), "Expected quoted string")(InvalidStringValue("",_))
       val resourceId = (quotedString | noOpeningQuote)
         .closeWith(')') { 
           case (inv: InvalidStringValue, _) => inv
@@ -261,7 +261,7 @@ object HoconParsers {
       resource("file", IncludeFile(_)) | 
       resource("classpath", IncludeClassPath(_)) | 
       resource("url", IncludeUrl(_)) |
-      failWith(anyBut('\n').as(0), "Expected quoted string")(f => IncludeAny(InvalidStringValue("", f)))
+      failWith(anyNot('\n').as(0), "Expected quoted string")(f => IncludeAny(InvalidStringValue("", f)))
     
     val required = "required(" ~> includeResource
       .map(_.asRequired)
@@ -304,7 +304,7 @@ object HoconParsers {
     }
     lazy val withoutSeparator = ws ~> objectValue <~ ws
     val msg = "Expected separator after key ('=', '+=', ':' or '{')"
-    val fallback = failWith(ws.count <~ anyBut('\n'), msg)(InvalidBuilderValue(SelfReference,_))
+    val fallback = failWith(ws.count <~ anyNot('\n'), msg)(InvalidBuilderValue(SelfReference,_))
     val includeField = include.map(BuilderField(Right(Key.root), _))
     val valueField = (key ~ (withSeparator | withoutSeparator | fallback)).map { case k ~ v => BuilderField(k, v) }
     lazy val member = includeField | valueField

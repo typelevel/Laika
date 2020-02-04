@@ -52,7 +52,7 @@ object DirectiveParsers {
 
   /** Parses a legacy reference (version 0.1 to 0.11) enclosed between `{{` and `}}`.
     */
-  def legacyReference[T] (f: String => T): PrefixedParser[T] = "{{" ~ ws ~> anyBut('}') <~ ws ~ "}}" ^^ f
+  def legacyReference[T] (f: String => T): PrefixedParser[T] = "{{" ~ ws ~> anyNot('}') <~ ws ~ "}}" ^^ f
 
   /** Parses a HOCON-style reference enclosed between `\${` and `}` that may be marked as optional (`\${?some.param}`).
     */
@@ -88,7 +88,7 @@ object DirectiveParsers {
     lazy val attrName: Parser[String] = nameDecl <~ wsOrNl ~ '=' ~ wsOrNl
 
     lazy val attrValue: Parser[String] =
-      '"' ~> escapedText.escapedUntil('"') | (anyBut(' ','\t','\n','.',':') min 1)
+      '"' ~> escapedText.escapedUntil('"') | (anyNot(' ','\t','\n','.',':') min 1)
 
     lazy val defaultAttribute: Parser[BuilderField] = not(attrName) ~> attrValue ^^ { v => 
       BuilderField(AttributeKey.Default.key, ResolvedBuilderValue(StringValue(v))) 
@@ -109,7 +109,7 @@ object DirectiveParsers {
     import HoconParsers.{wsOrNl => hoconWS, _}
     
     val defaultFence = success("@:@")
-    val fence = if (supportsCustomFence) (ws ~> anyBut(' ', '\n', '\t').take(3)) | defaultFence else defaultFence
+    val fence = if (supportsCustomFence) (ws ~> anyNot(' ', '\n', '\t').take(3)) | defaultFence else defaultFence
     val defaultAttribute = {
       val delim = (ws ~ (',' | eol)) | lookAhead(hoconWS ~ '}')
       opt((hoconWS ~> stringBuilderValue(/*Set(',','}','\n')*/ NonEmptySet.one('\u0001')) <~ delim ~ hoconWS)

@@ -166,7 +166,7 @@ object ListParsers {
     val headerStart = BaseParsers.punctuationChar.take(1) >> { start => anyOf(start.charAt(0)).min(2) ~ wsEol }
     
     val term: Parser[String] = not(blankLine | tableStart | explicitStart | listStart | headerStart) ~> 
-        anyBut('\n') <~ eol ~ lookAhead(ws.min(1) ~ not(blankLine))
+        anyNot('\n') <~ eol ~ lookAhead(ws.min(1) ~ not(blankLine))
     
     val classifier = delimiter(" : ") ~> recParsers.recursiveSpans ^^ (Classifier(_))
     val termWithClassifier = recParsers.recursiveSpans(term).embed(classifier)

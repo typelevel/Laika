@@ -67,7 +67,7 @@ object HTMLParsers {
       { s => HTMLCharacterReference("&" + s + ";") }
 
 
-  val htmlAttributeName: Parser[String] = anyBut(htmlAttrEndChars).min(1)
+  val htmlAttributeName: Parser[String] = anyNot(htmlAttrEndChars).min(1)
 
   val htmlUnquotedAttributeValue: Parser[(List[Span with TextContainer], Option[Char])] =
     spans(delimitedBy(htmlAttrEndChars).keepDelimiter).embed(htmlCharReference).collect { 
@@ -97,7 +97,7 @@ object HTMLParsers {
     }
 
 
-  val htmlTagName: Parser[String] = someOf(CharGroup.alpha) ~ anyBut(htmlWSChars.add('/').add('>')) ^^ {
+  val htmlTagName: Parser[String] = someOf(CharGroup.alpha) ~ anyNot(htmlWSChars.add('/').add('>')) ^^ {
     case first ~ rest => first + rest
   }
 

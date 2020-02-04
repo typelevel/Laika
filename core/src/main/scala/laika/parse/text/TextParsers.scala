@@ -116,7 +116,7 @@ object TextParsers extends Parsers {
   /** Parses the rest of the line from the current input offset no matter whether
     *  it consist of whitespace only or some text. Does not include the eol character(s).
     */
-  val restOfLine: Parser[String] = anyBut('\n','\r') <~ eol
+  val restOfLine: Parser[String] = anyNot('\n','\r') <~ eol
 
   /** Parses a single text line from the current input offset (which may not be at the
     *  start of the line). Fails for blank lines. Does not include the eol character(s).
@@ -170,12 +170,15 @@ object TextParsers extends Parsers {
   /** Consumes any number of consecutive characters that are not one of the specified characters.
    *  Always succeeds unless a minimum number of required matches is specified.
    */
-  def anyBut (char: Char, chars: Char*): Characters[String] = Characters.exclude(char +: chars)
+  def anyNot (char: Char, chars: Char*): Characters[String] = Characters.exclude(char +: chars)
 
   /** Consumes any number of consecutive occurrences that are not one of the specified characters.
     * Always succeeds unless a minimum number of required matches is specified.
     */
-  def anyBut (chars: NonEmptySet[Char]): Characters[String] = Characters.exclude(chars.toSortedSet.toSeq)
+  def anyNot (chars: NonEmptySet[Char]): Characters[String] = Characters.exclude(chars.toSortedSet.toSeq)
+
+  @deprecated("renamed to anyNot", "0.14.0")
+  def anyBut (char: Char, chars: Char*): Characters[String] = Characters.exclude(char +: chars)
   
   @deprecated("use anyOf, someOf, oneOf with the range method, e.g. oneOf(range('a','z'))", "0.14.0")
   def anyIn (ranges: Iterable[Char]*): Characters[String] = Characters.include(ranges.flatten)
