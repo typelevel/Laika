@@ -330,6 +330,17 @@ class ParserSpec extends WordSpec with Matchers with ParseResultHelpers with Str
     }
     
   }
+
+  "The count parser" should {
+
+    import TextParsers._
+
+    "produce the length of the consumed string as a result" in {
+      val p = anyOf('a') ~ opt(TextParsers.oneOf('d')) ~ TextParsers.oneOf('b').rep
+      Parsing("aabbcc") using p.count should produce (4)
+    }
+
+  }
   
   "The maxOffset property" should {
     

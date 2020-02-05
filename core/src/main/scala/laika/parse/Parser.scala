@@ -337,6 +337,11 @@ abstract class Parser[+T] {
     */
   def source: Parser[String] = withSource.map(_._2)
 
+  /** Returns a parser that produces the number of characters
+    * consumed by this parser while discarding the original result.
+    */
+  def count: Parser[Int] = withSource.map(_._2.length)
+
 }
 
 /** Companion factory for creating new parser instances.

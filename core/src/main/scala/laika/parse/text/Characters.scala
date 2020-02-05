@@ -48,7 +48,7 @@ class Characters[T] (predicate:     Char => Boolean,
   /** Creates and returns a new parser that does not produce a string result, but instead
     * only the number of characters successfully parsed as an `Int`.
     */
-  def count: Characters[Int] = new Characters(predicate, Characters.CountResultBuilder, minChar, maxChar)
+  override def count: Characters[Int] = new Characters(predicate, Characters.CountResultBuilder, minChar, maxChar)
 
   @deprecated("renamed to void to align with cats", "0.14.0")
   def ^ : Characters[Unit] = void

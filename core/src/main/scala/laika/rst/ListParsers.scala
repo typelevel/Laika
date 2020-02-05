@@ -38,7 +38,7 @@ object ListParsers {
 
   private def listItem [I <: ListItem] (itemStart: Parser[String], newListItem: Seq[Block] => I)
                                        (implicit recParsers: RecursiveParsers): Parser[I] = {
-      (itemStart ^^ {_.length}) ~ ws.min(1).count >> {
+      itemStart.count ~ ws.min(1).count >> {
         case startCount ~ wsCount =>
           recParsers.recursiveBlocks((indentedBlock(minIndent = startCount + wsCount, maxIndent = startCount + wsCount) ~
               opt(blankLines | eof | lookAhead(itemStart))).evalMap {

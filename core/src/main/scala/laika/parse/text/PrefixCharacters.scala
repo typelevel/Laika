@@ -56,7 +56,7 @@ class PrefixCharacters[T] (val underlying: Characters[T], val startChars: NonEmp
   /** Creates and returns a new parser that does not produce a string result, but instead
     * only the number of characters successfully parsed as an `Int`.
     */
-  def count: PrefixCharacters[Int] = new PrefixCharacters(underlying.count, startChars)
+  override def count: PrefixCharacters[Int] = new PrefixCharacters(underlying.count, startChars)
 
   /** Creates and returns a new parser that does not produce a result, but instead
     * only consumes the number of characters successfully parsed.
