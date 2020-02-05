@@ -49,7 +49,7 @@ object HTMLParsers {
   val htmlHexReference: Parser[String] = {
     val hexNumber = someOf(CharGroup.hexDigit)
 
-    (char('x') | char('X')) ~ hexNumber ^^ { mkString }
+    ((char('x') | char('X')) ~ hexNumber).source
   }
 
   val htmlDecReference: Parser[String] = someOf(CharGroup.digit)
@@ -58,13 +58,12 @@ object HTMLParsers {
 
   /** Parses a numeric character reference (decimal or hexadecimal) without the leading `'&'`.
     */
-  val htmlNumericReference: Parser[String] = '#' ~ (htmlHexReference | htmlDecReference) ^^ { mkString }
+  val htmlNumericReference: Parser[String] = ('#' ~ (htmlHexReference | htmlDecReference)).source
 
   /** Parses a numeric or named character reference without the leading `'&'`.
     */
   val htmlCharReference: PrefixedParser[HTMLCharacterReference] =
-    '&' ~> (htmlNumericReference | htmlNamedReference) <~ ';' ^^
-      { s => HTMLCharacterReference("&" + s + ";") }
+    ('&' ~> (htmlNumericReference | htmlNamedReference) <~ ';').source.map(HTMLCharacterReference(_))
 
 
   val htmlAttributeName: Parser[String] = someNot(htmlAttrEndChars)
@@ -97,9 +96,8 @@ object HTMLParsers {
     }
 
 
-  val htmlTagName: Parser[String] = someOf(CharGroup.alpha) ~ anyNot(htmlWSChars.add('/').add('>')) ^^ {
-    case first ~ rest => first + rest
-  }
+  val htmlTagName: Parser[String] = (someOf(CharGroup.alpha) ~ anyNot(htmlWSChars.add('/').add('>'))).source
+  
 
   /** Parses an HTML tag without the enclosing `'<'` and `'>'` characters.
    */
@@ -171,10 +169,6 @@ object HTMLParsers {
   lazy val htmlSpanInsideBlock: PrefixedParser[HTMLSpan] = 
     '<' ~> (htmlComment | htmlScriptElement | htmlEmptyElement | htmlElement | htmlEndTag | htmlStartTag)
   
-  
-  private def mkString (result: ~[Char,String]): String = result._1.toString + result._2
-
-
   
   /**
    * Elements that the HTML specification does not define as "Phrasing Content".

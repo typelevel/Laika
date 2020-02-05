@@ -38,7 +38,7 @@ object StringLiteral {
       * if you want to be strict and apply the specific rules about which characters are valid
       * escapes you need to create a custom parser. */
     val char: CodeSpanParser = CodeSpanParser(CodeCategory.EscapeSequence) {
-      (TextParsers.literal("\\") ~ oneChar).concat
+      (TextParsers.literal("\\") ~ oneChar).source
     }
 
     /** Parses a unicode character escape.
@@ -46,7 +46,7 @@ object StringLiteral {
       * e.g. `\\u20ff`.
       */
     val unicode: CodeSpanParser = CodeSpanParser(CodeCategory.EscapeSequence) {
-      (TextParsers.literal("\\u") ~ DigitParsers.hex.take(4)).concat
+      (TextParsers.literal("\\u") ~ DigitParsers.hex.take(4)).source
     }
 
     /** Parses a hexadecimal character escape.
@@ -54,7 +54,7 @@ object StringLiteral {
       * e.g. `\\xf2`.
       */
     val hex: CodeSpanParser = CodeSpanParser(CodeCategory.EscapeSequence) {
-      (TextParsers.literal("\\x") ~ DigitParsers.hex.take(2)).concat
+      (TextParsers.literal("\\x") ~ DigitParsers.hex.take(2)).source
     }
 
     /** Parses a octal character escape.
@@ -62,7 +62,7 @@ object StringLiteral {
       * e.g. `\\207`.
       */
     val octal: CodeSpanParser = CodeSpanParser(CodeCategory.EscapeSequence) {
-      (TextParsers.literal("\\") ~ ((oneOf('0','1','2','3') ~ DigitParsers.octal.max(2)).concat | DigitParsers.octal.min(1).max(2))).concat
+      (TextParsers.literal("\\") ~ ((oneOf('0','1','2','3') ~ DigitParsers.octal.max(2)).source | DigitParsers.octal.min(1).max(2))).source
     }
 
     /** Parses a single literal escape. Example: `$$`. 
@@ -90,7 +90,7 @@ object StringLiteral {
       require(start.nonEmpty)
       require(end.nonEmpty)
       apply {
-        (literal(start) ~ delimitedBy(end).keepDelimiter.failOn('\n') ~ end).concat
+        (literal(start) ~ delimitedBy(end).keepDelimiter.failOn('\n') ~ end).source
       }
     }
 

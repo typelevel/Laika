@@ -29,7 +29,6 @@ import laika.parse.text.TextParsers._
   */
 object ScalaSyntax extends SyntaxHighlighter {
 
-  import NumberLiteral._
   
   val language: NonEmptyList[String] = NonEmptyList.of("scala")
   
@@ -38,7 +37,7 @@ object ScalaSyntax extends SyntaxHighlighter {
     .withCategory(CodeCategory.SymbolLiteral)
   
   val backtickIdParser: CodeSpanParser = CodeSpanParser(CodeCategory.Identifier) {
-    (oneOf('`') ~ anyNot('\n', '`') ~ oneOf('`')).concat
+    (oneOf('`') ~ anyNot('\n', '`') ~ oneOf('`')).source
   }
   
   val charEscapes: CodeSpanParser = StringLiteral.Escape.unicode ++ StringLiteral.Escape.char
@@ -56,9 +55,9 @@ object ScalaSyntax extends SyntaxHighlighter {
     symbolParser,
     backtickIdParser,
     StringLiteral.multiLine("\"\"\""),
-    StringLiteral.multiLine((stringPrefixChar ~ "\"\"\"").concat, literal("\"\"\"")).embed(substitutions),
+    StringLiteral.multiLine((stringPrefixChar ~ "\"\"\"").source, literal("\"\"\"")).embed(substitutions),
     StringLiteral.singleLine('"').embed(charEscapes),
-    StringLiteral.singleLine((stringPrefixChar ~ "\"").concat, literal("\"")).embed(
+    StringLiteral.singleLine((stringPrefixChar ~ "\"").source, literal("\"")).embed(
       charEscapes,
       substitutions
     ),

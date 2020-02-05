@@ -315,6 +315,28 @@ abstract class Parser[+T] {
     }
   }
 
+  /** Groups the result of the parser and the source string
+    * that it successfully parsed into a tupled result. 
+    */
+  def withSource: Parser[(T, String)] = Parser { in =>
+    parse(in) match {
+      case Success(result, next) => Success((result, in.capture(next.offset - in.offset)), next)
+      case f: Failure            => f
+    }
+  }
+
+  /** Retrieves the part of the input consumed by this parser
+    * while discarding the result.
+    * 
+    * This is useful in scenarios where many string-based parsers
+    * are combined and produce a deeply nested result like
+    * `String ~ Option[String] ~ List[String]` where it would require
+    * some boilerplate to concatenate the results. Using the source
+    * method, the entire text consumed by this combination of parsers
+    * will be returned.
+    */
+  def source: Parser[String] = withSource.map(_._2)
+
 }
 
 /** Companion factory for creating new parser instances.

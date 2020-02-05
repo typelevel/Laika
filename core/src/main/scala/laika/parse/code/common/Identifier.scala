@@ -48,8 +48,6 @@ object Identifier {
                       prefixParser: Option[PrefixedParser[String]] = None,
                       allowDigitBeforeStart: Boolean = false) extends PrefixedParser[CodeSpan] with CodeSpanParser {
 
-    import NumberLiteral._
-
     /** Applies a function to the parser result to determine the code category.
       */
     def withCategoryChooser(f: String => CodeCategory): IdParser = copy(category = f)
@@ -84,13 +82,13 @@ object Identifier {
     lazy val underlying: PrefixedParser[CodeSpan] = {
 
       val firstChar = oneOf(idStartChars)
-      val idStart = prefixParser.fold[PrefixedParser[String]](firstChar)(p => (p ~ firstChar).concat)
+      val idStart = prefixParser.fold[PrefixedParser[String]](firstChar)(p => (p ~ firstChar).source)
       val idDelim = delimiter(idStart).prevNot { c =>
         (Character.isDigit(c) && !allowDigitBeforeStart) || Character.isLetter(c)
       }
       val idRest = anyOf(idStartChars ++ nonStartChars)
       
-      (idDelim ~ idRest).concat.map(id => CodeSpan(id, category(id)))
+      (idDelim ~ idRest).source.map(id => CodeSpan(id, category(id)))
     }
 
     override def parsers: Seq[PrefixedParser[CategorizedCode]] = Seq(this)

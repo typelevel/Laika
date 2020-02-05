@@ -31,12 +31,11 @@ import laika.rst.InlineParsers.{markupEnd, markupStart}
   */
 object ReStructuredTextSyntax extends SyntaxHighlighter {
 
-  import NumberLiteral._
-
+  
   // raw = does not perform checks for rst inline markup recognition
   def rawSpan (start: String, end: String, category: CodeCategory): Parser[CodeSpan] =
-    (literal(start) ~ delimitedBy(end).failOn('\n')).concat.map {
-      res => CodeSpan(s"$res$end", category)
+    (literal(start) ~ delimitedBy(end).failOn('\n')).source.map {
+      res => CodeSpan(res, category)
     }
 
   def rawSpan (end: String, category: CodeCategory): Parser[CodeSpan] =
@@ -45,7 +44,7 @@ object ReStructuredTextSyntax extends SyntaxHighlighter {
   private def span (start: String, end: String, category: CodeCategory): CodeSpanParser =
     CodeSpanParser(category) {
       val endDelim = if (end == "*") delimiter("*").nextNot('*') else delimiter(end)
-      markupStart(start, end) ~> delimitedBy(markupEnd(endDelim)) ^^ { text => s"$start$text$end" }
+      (markupStart(start, end) ~ delimitedBy(markupEnd(endDelim))).source
     }
 
   val newLine: Parser[String] = atStart.as("") | "\n"

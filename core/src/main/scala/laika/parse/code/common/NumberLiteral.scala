@@ -31,25 +31,6 @@ import laika.parse.Parser
 object NumberLiteral {
 
   // TODO - 0.14 - promote to core parser and make them public
-  private[laika] implicit class String2ParserOps (val p: Parser[String ~ String]) extends AnyVal {
-    def concat: Parser[String] = p.map { case a ~ b => a + b }
-  }
-
-  private[laika] implicit class String2PrefixedParserOps (val p: PrefixedParser[String ~ String]) extends AnyVal {
-    def concat: PrefixedParser[String] = p.map { case a ~ b => a + b }
-  }
-
-  private[laika] implicit class String3ParserOps (val p: Parser[String ~ String ~ String]) extends AnyVal {
-    def concat: Parser[String] = p.map { case a ~ b ~ c => a + b + c }
-  }
-
-  private[laika] implicit class String3PrefixedParserOps (val p: PrefixedParser[String ~ String ~ String]) extends AnyVal {
-    def concat: PrefixedParser[String] = p.map { case a ~ b ~ c => a + b + c }
-  }
-
-  private[laika] implicit class String4ParserOps (val p: Parser[String ~ String ~ String ~ String]) extends AnyVal {
-    def concat: Parser[String] = p.map { case a ~ b ~ c ~ d => a + b + c + d }
-  }
 
   private[laika] implicit class PrependParserOps[T] (val p: Parser[T ~ Seq[T]]) extends AnyVal {
     def concat: Parser[Seq[T]] = p.map { case x ~ xs => x +: xs }
@@ -77,10 +58,10 @@ object NumberLiteral {
   }
 
   private val sign: Parser[String] = anyOf('-', '+').max(1)
-  private val exponent: Parser[String]       = (oneOf('E', 'e') ~ sign ~ DigitParsers.decimal.min(1)).concat
-  private val binaryExponent: Parser[String] = (oneOf('P', 'p') ~ sign ~ DigitParsers.decimal.min(1)).concat
+  private val exponent: Parser[String]       = (oneOf('E', 'e') ~ sign ~ DigitParsers.decimal.min(1)).source
+  private val binaryExponent: Parser[String] = (oneOf('P', 'p') ~ sign ~ DigitParsers.decimal.min(1)).source
 
-  private def zeroPrefix(char1: Char, char2: Char): PrefixedParser[String] = ("0" ~ oneOf(char1, char2)).concat 
+  private def zeroPrefix(char1: Char, char2: Char): PrefixedParser[String] = ("0" ~ oneOf(char1, char2)).source 
   
   /* Configurable base parser for number literals. */
   case class NumericParser (digits: NonEmptySet[Char],
@@ -113,11 +94,11 @@ object NumberLiteral {
         val number = exponent.fold(digitParser) { exp =>
           val optExp = opt(exp).map(_.getOrElse(""))
           if (prefixOrFirstDigit == ".") {
-            (digitParser ~ optExp).concat
+            (digitParser ~ optExp).source
           }
           else {
-            val withDot = (digitParser ~ oneOf('.') ~ digitParser ~ optExp).concat
-            val withoutDot = (digitParser ~ exp).concat
+            val withDot = (digitParser ~ oneOf('.') ~ digitParser ~ optExp).source
+            val withoutDot = (digitParser ~ exp).source
             withDot | withoutDot
           }
         }
@@ -125,7 +106,7 @@ object NumberLiteral {
         val optSuffix = suffix.fold(emptyString)(opt(_).map(_.getOrElse("")))
         val postCondition = if (allowFollowingLetter) success(()) else nextNot(java.lang.Character.isLetter(_))
 
-        (number ~ optSuffix <~ postCondition).concat.map { rest => 
+        (number ~ optSuffix <~ postCondition).source.map { rest => 
           Seq(CodeSpan(prefixOrFirstDigit + rest, CodeCategory.NumberLiteral))
         }
       }

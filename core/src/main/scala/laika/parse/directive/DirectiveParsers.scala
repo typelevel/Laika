@@ -39,16 +39,6 @@ object DirectiveParsers {
   
   type BodyParserBuilder = DirectiveSpec => Parser[Option[String]]
   
-  /** Groups the result of the parser and the source string
-   *  that it successfully parsed into a tupled result. 
-   */
-  def withSource[T] (p: Parser[T]): Parser[(T, String)] = Parser { in =>
-    p.parse(in) match {
-      case laika.parse.Success(result, next) => laika.parse.Success((result, in.capture(next.offset - in.offset)), next)
-      case f: laika.parse.Failure            => f
-    }
-  }
-
 
   /** Parses a legacy reference (version 0.1 to 0.11) enclosed between `{{` and `}}`.
     */
@@ -57,7 +47,7 @@ object DirectiveParsers {
   /** Parses a HOCON-style reference enclosed between `\${` and `}` that may be marked as optional (`\${?some.param}`).
     */
   def hoconReference[T] (f: (Key, Boolean) => T, e: InvalidElement => T): PrefixedParser[T] = 
-    ("${" ~> opt('?') ~ withSource(HoconParsers.concatenatedKey(NonEmptySet.one('}'))) <~ '}').map {
+    ("${" ~> opt('?') ~ HoconParsers.concatenatedKey(NonEmptySet.one('}')).withSource <~ '}').map {
       case opt ~ ((Right(key), _))  => f(key, opt.isEmpty)
       case _ ~ ((Left(invalid), src)) => e(InvalidElement(s"Invalid HOCON reference: '$src': ${invalid.failure.toString}", s"$${$src}"))
     }
@@ -78,10 +68,7 @@ object DirectiveParsers {
   /** Parses a name declaration that start with a letter and 
    *  continues with letters, numbers or the symbols '-' or '_'.
    */
-  lazy val nameDecl: Parser[String] =
-    oneOf(CharGroup.alpha) ~ anyOf(CharGroup.alphaNum.add('-').add('_')) ^^ { 
-      case first ~ rest => first + rest 
-    }
+  lazy val nameDecl: Parser[String] = (oneOf(CharGroup.alpha) ~ anyOf(CharGroup.alphaNum.add('-').add('_'))).source
   
   
   def legacyAttributeParser (escapedText: EscapedTextParsers): Parser[ObjectBuilderValue] = {
@@ -168,7 +155,7 @@ object DirectiveParsers {
     (legacyDirective | newDirective).map { case (name, attrs) ~ body => ParsedDirective(name, attrs, body) }
   }
   
-  val nestedBraces: PrefixedParser[Text] = "{" ~> delimitedBy('}').map(str => Text(s"{$str}"))
+  val nestedBraces: PrefixedParser[Text] = ("{" ~> delimitedBy('}')).source.map(Text(_))
 
 }
 
@@ -196,18 +183,18 @@ object SpanDirectiveParsers {
       val contextRef = legacyReference(key => MarkupContextReference(Key.parse(key), required = true))
       val spanParser = recursiveSpans(delimitedBy('}')).embed(contextRef).embed(nestedBraces)
       
-      wsOrNl ~ '{' ~> withSource(spanParser).map(_._2.dropRight(1))
+      wsOrNl ~ '{' ~> spanParser.source.map(_.dropRight(1))
     }
     
     val separators = directives.values.flatMap(_.separators).toSet
     val newBody: BodyParserBuilder = spec => 
-      if (directives.get(spec.name).exists(_.hasBody)) withSource(recursiveSpans(delimitedBy(spec.fence))).map { src => 
-        Some(src._2.dropRight(spec.fence.length)) 
+      if (directives.get(spec.name).exists(_.hasBody)) recursiveSpans(delimitedBy(spec.fence)).source.map { src => 
+        Some(src.dropRight(spec.fence.length)) 
       } | success(None)
       else success(None)
     
     PrefixedParser('@') {
-      withRecursiveSpanParser(withSource(directiveParser(newBody, legacyBody, recParsers))).map {
+      withRecursiveSpanParser(directiveParser(newBody, legacyBody, recParsers).withSource).map {
         case (recParser, (result, source)) =>
           if (separators.contains(result.name)) Spans.SeparatorInstance(result, source)
           else Spans.DirectiveInstance(directives.get(result.name), result, recParser, source)
@@ -249,9 +236,9 @@ object BlockDirectiveParsers {
       else noBody
 
     PrefixedParser('@') {
-      withRecursiveSpanParser(withRecursiveBlockParser(withSource(
-        directiveParser(newBody, legacyBody, recParsers, supportsCustomFence = true)
-      ))).map {
+      withRecursiveSpanParser(withRecursiveBlockParser(
+        directiveParser(newBody, legacyBody, recParsers, supportsCustomFence = true).withSource
+      )).map {
         case (recSpanParser, (recBlockParser, (result, source))) =>
           val trimmedSource = if (source.lastOption.contains('\n')) source.dropRight(1) else source
           if (separators.contains(result.name)) Blocks.SeparatorInstance(result, trimmedSource)

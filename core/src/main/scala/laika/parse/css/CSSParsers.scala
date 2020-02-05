@@ -60,12 +60,10 @@ object CSSParsers {
    */
   val styleRefName: Parser[String] = {
     val alpha = someWhile(c => Character.isLetter(c))
-    val alphanum = someWhile(c => Character.isDigit(c) || Character.isLetter(c))
+    val alphaNum = someWhile(c => Character.isDigit(c) || Character.isLetter(c))
     val symbol = anyOf('-', '_').max(1)
     
-    alpha ~ ((symbol ~ alphanum)*) ^^ { 
-      case start ~ rest => start + (rest map { case a~b => a+b }).mkString
-    }
+    (alpha ~ (symbol ~ alphaNum).rep).source
   }
   
   /** Parses a combinator between two predicates.

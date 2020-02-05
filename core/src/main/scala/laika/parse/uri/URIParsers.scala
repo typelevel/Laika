@@ -29,21 +29,6 @@ import laika.parse.text.{CharGroup, Characters}
  */
 object URIParsers {
 
-  
-  /** Flattens the result from various combinators,
-   *  including the `repX` variants and `~` into 
-   *  a single string.
-   */
-  def flatten (result: Any): String = result match {
-    case Some(x)      => flatten(x)
-    case None         => ""
-    case i: Int       => i.toString
-    case c: Char      => c.toString
-    case s: String    => s
-    case l: List[_]   => l.map(flatten).mkString
-    case x ~ y        => flatten(x) + flatten(y)
-  }
-  
 
   /** Parses letters according to RFC 2234.
    * 
@@ -125,7 +110,7 @@ object URIParsers {
       if (num >= 0 && num < 256) Right(num) else Left("Number must be between 1 and 255")
     }
     
-    decOctet ~ ('.' ~ decOctet).rep.take(3) ^^ flatten
+    (decOctet ~ ('.' ~ decOctet).rep.take(3)).source
   }
   
   /** Parses an IPv6 address as defined in RFC 3986.
@@ -171,7 +156,7 @@ object URIParsers {
    *  IP-literal = "[" ( IPv6address / IPvFuture  ) "]"
    *  }}}
    */
-  val ipLiteral: Parser[String] = '[' ~ (ipv6address | ipvFuture) ~ ']' ^^ flatten
+  val ipLiteral: Parser[String] = ('[' ~ (ipv6address | ipvFuture) ~ ']').source
   
   /** Parses a server name as defined in RFC 3986.
    * 
@@ -179,7 +164,7 @@ object URIParsers {
    *  reg-name = *( unreserved / pct-encoded / sub-delims )
    *  }}}
    */
-  val regName: Parser[String] = ((unreserved | pctEncoded | subDelims)*) ^^ flatten
+  val regName: Parser[String] = ((unreserved | pctEncoded | subDelims)*).source
   
   /** Parses a host as defined in RFC 3986.
    * 
@@ -204,7 +189,7 @@ object URIParsers {
    *  userinfo = *( unreserved / pct-encoded / sub-delims / ":" )
    *  }}}
    */
-  val userInfo: Parser[String] = ((unreserved | pctEncoded | subDelims | ':')*) ^^ flatten
+  val userInfo: Parser[String] = ((unreserved | pctEncoded | subDelims | ':')*).source
   
   /** Parses the authority part of a URI as defined in RFC 3986.
    * 
@@ -212,7 +197,7 @@ object URIParsers {
    *  authority = [ userinfo "@" ] host [ ":" port ]
    *  }}}
    */
-  val authority: Parser[String] = opt(userInfo ~ '@') ~ host ~ opt(':' ~ port) ^^ flatten
+  val authority: Parser[String] = (opt(userInfo ~ '@') ~ host ~ opt(':' ~ port)).source
   
 
   /* path */                  
@@ -236,7 +221,7 @@ object URIParsers {
    */
   val path: Parser[String] = {
     val segment = '/' ~ (pChar*)
-    (segment*) ^^ flatten  
+    (segment*).source  
   }
 
   /** Parses the query part of a URI as defined in RFC 3986.
@@ -245,7 +230,7 @@ object URIParsers {
    *  query = *( pchar / "/" / "?" )
    *  }}}
    */
-  val query: Parser[String] = ((pChar | oneOf('/','?'))*) ^^ flatten
+  val query: Parser[String] = ((pChar | oneOf('/','?'))*).source
   
   /** Parses the fragment part of a URI as defined in RFC 3986.
    * 
@@ -268,7 +253,7 @@ object URIParsers {
    *                / path-empty    ; excluded
    *  }}}
    */  
-  val hierPart: Parser[String] = ("//" ~ authority ~ path) ^^ flatten
+  val hierPart: Parser[String] = ("//" ~ authority ~ path).source
   
   /** Parses an HTTP or HTTPS URI with an authority component, but without the scheme part 
    *  (therefore starting with "//") as defined in RFC 3986.
@@ -277,17 +262,17 @@ object URIParsers {
    *  URI = scheme ":" hier-part [ "?" query ] [ "#" fragment ]
    *  }}}
    */
-  val httpUriNoScheme: Parser[String] = hierPart ~ opt('?' ~ query) ~ opt('#' ~ fragment) ^^ flatten
+  val httpUriNoScheme: Parser[String] = (hierPart ~ opt('?' ~ query) ~ opt('#' ~ fragment)).source
 
   /** Parses a full HTTP URI including the scheme part and an authority component 
    *  as defined in RFC 3986.
    */
-  val httpUri: Parser[String] = "http:" ~ httpUriNoScheme ^^ flatten
+  val httpUri: Parser[String] = ("http:" ~ httpUriNoScheme).source
 
   /** Parses a full HTTPS URI including the scheme part and an authority component 
    *  as defined in RFC 3986.
    */
-  val httpsUri: Parser[String] = "https:" ~ httpUriNoScheme ^^ flatten
+  val httpsUri: Parser[String] = ("https:" ~ httpUriNoScheme).source
   
   
   /* email */
@@ -315,7 +300,7 @@ object URIParsers {
     val atext = alpha.min(1) | digit.min(1) | 
         someOf('!','#','$','%','&','\'','*','+','-','/','=','?','^','_','`','{','|','}','~')
         
-    ((atext*) ~ (('.' ~ (atext*))*)) ^^ flatten 
+    ((atext*) ~ (('.' ~ (atext*))*)).source 
   }
 
   /** Parses the local part of an email address (before the @), with one 
@@ -342,7 +327,7 @@ object URIParsers {
   val domain: Parser[String] = {
     val dtextNoObs = anyOf(range('!', 'Z') ++ range('^', '~')) // all printable ASCII except "[", "]", "\"
     
-    (dotAtomText | ('[' ~ dtextNoObs ~ ']')) ^^ flatten
+    (dotAtomText | ('[' ~ dtextNoObs ~ ']')).source
   }   
   
   /** Parses a single email address as defined in RFC 6068.
@@ -351,7 +336,7 @@ object URIParsers {
    *  addr-spec = local-part "@" domain
    *  }}}
    */
-  val addrSpec: Parser[String] = (localPart ~ '@' ~ domain) ^^ flatten
+  val addrSpec: Parser[String] = (localPart ~ '@' ~ domain).source
   
   /** Parses a sequence of email addresses as defined in RFC 6068.
    * 
@@ -359,7 +344,7 @@ object URIParsers {
    *  to = addr-spec *("," addr-spec )
    *  }}}
    */
-  val to: Parser[String] = (addrSpec ~ ((',' ~ addrSpec)*)) ^^ flatten
+  val to: Parser[String] = (addrSpec ~ ((',' ~ addrSpec)*)).source
   
   /** Parses header fields of an email address as defined in RFC 6068.
    * 
@@ -384,12 +369,12 @@ object URIParsers {
 
     val hfield = hfname ~ '=' ~ hfvalue
     
-    ('?' ~ hfield ~ (('&' ~ hfield)*)) ^^ flatten
+    ('?' ~ hfield ~ (('&' ~ hfield)*)).source
   }
   
   /** Parses a mailto URI without the scheme part as defined in RFC 6068.
    */
-  val emailAddress: Parser[String] = to ~ opt(hfields) ^^ flatten
+  val emailAddress: Parser[String] = (to ~ opt(hfields)).source
   
   /** Parses a full mailto URI as defined in RFC 6068.
    * 
@@ -397,6 +382,6 @@ object URIParsers {
    *  mailtoURI = "mailto:" [ to ] [ hfields ]
    *  }}}
    */
-  val emailURI: Parser[String] = "mailto:" ~ opt(emailAddress) ^^ flatten
+  val emailURI: Parser[String] = ("mailto:" ~ opt(emailAddress)).source
   
 }

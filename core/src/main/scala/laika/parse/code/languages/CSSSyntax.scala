@@ -46,7 +46,7 @@ object CSSSyntax extends SyntaxHighlighter {
   }
   
   lazy val escape: CodeSpanParser = 
-    CodeSpanParser(CodeCategory.EscapeSequence)(("\\" ~ DigitParsers.hex.min(1)).concat) ++ StringLiteral.Escape.char
+    CodeSpanParser(CodeCategory.EscapeSequence)(("\\" ~ DigitParsers.hex.min(1)).source) ++ StringLiteral.Escape.char
 
   lazy val url: CodeSpanParser = CodeSpanParser {
     (literal("url(") ~ ws ~ anyNot('"', '\'', '(', ')', ' ', '\n') ~ ws ~ ")").map {
@@ -59,7 +59,7 @@ object CSSSyntax extends SyntaxHighlighter {
     }
   }
   
-  val color: CodeSpanParser = CodeSpanParser(CodeCategory.NumberLiteral)(("#" ~ DigitParsers.hex.min(1).max(6)).concat)
+  val color: CodeSpanParser = CodeSpanParser(CodeCategory.NumberLiteral)(("#" ~ DigitParsers.hex.min(1).max(6)).source)
 
   val string: CodeSpanParser = StringLiteral.singleLine('"').embed(escape) ++
     StringLiteral.singleLine('\'').embed(escape)
@@ -78,7 +78,7 @@ object CSSSyntax extends SyntaxHighlighter {
       identifier(CodeCategory.Identifier, allowDigitBeforeStart = true),
     )
     def valueParser(inBlock: Boolean): Parser[Seq[CodeSpan]] = {
-      val separator = (ws ~ ":").concat.map(CodeSpan(_))
+      val separator = (ws ~ ":").source.map(CodeSpan(_))
       val delim = oneChar.map(CodeSpan(_))
       val text = if (inBlock) delimitedBy('}',';', ')') else delimitedBy('}',';')
       (separator ~ EmbeddedCodeSpans.parser(text.keepDelimiter, embedded) ~ delim).map {

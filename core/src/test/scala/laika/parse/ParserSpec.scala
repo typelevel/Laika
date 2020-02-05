@@ -320,6 +320,17 @@ class ParserSpec extends WordSpec with Matchers with ParseResultHelpers with Str
 
   }
   
+  "The source parser" should {
+    
+    import TextParsers._
+    
+    "produce the consumed string as a result" in {
+      val p = anyOf('a') ~ opt(TextParsers.oneOf('d')) ~ TextParsers.oneOf('b').rep
+      Parsing("aabbcc") using p.source should produce ("aabb")
+    }
+    
+  }
+  
   "The maxOffset property" should {
     
     def validate(res: Parsed[_], expectedMaxOffset: Int): Assertion = {

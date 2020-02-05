@@ -54,7 +54,7 @@ object CodeSpanParser {
   def apply (category: CodeCategory, start: String, end: String): CodeSpanParser = {
     require(start.nonEmpty)
     CodeSpanParser(category) {
-      start ~> delimitedBy(end) ^^ { text => start + text + end }
+      (start ~ delimitedBy(end)).source
     }
   }
 

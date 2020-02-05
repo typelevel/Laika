@@ -43,13 +43,13 @@ trait TagBasedFormats {
     */
   val ref: CodeSpanParser =
     CodeSpanParser(CodeCategory.EscapeSequence) {
-      ("&#x" ~ DigitParsers.hex.min(1) ~ ";").concat
+      ("&#x" ~ DigitParsers.hex.min(1) ~ ";").source
     } ++
       CodeSpanParser(CodeCategory.EscapeSequence) {
-        ("&#" ~ DigitParsers.decimal.min(1) ~ ";").concat
+        ("&#" ~ DigitParsers.decimal.min(1) ~ ";").source
       } ++
       CodeSpanParser(CodeCategory.Substitution) {
-        ("&" ~ nameParser.map(_.content) ~ ";").concat
+        ("&" ~ nameParser.map(_.content) ~ ";").source
       }
 
   val string: CodeSpanParser = StringLiteral.singleLine('\'') ++ StringLiteral.singleLine('"')

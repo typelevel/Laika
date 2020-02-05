@@ -45,19 +45,19 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
       val contextRef = legacyReference(key => TemplateContextReference(Key.parse(key), required = true))
       val spanParser = recursiveSpans(delimitedBy('}')).embed(contextRef).embed(nestedBraces)
       
-      wsOrNl ~ '{' ~> withSource(spanParser).map(_._2.dropRight(1))
+      wsOrNl ~ '{' ~> spanParser.source.map(_.dropRight(1))
     }
     
     val newBody: BodyParserBuilder = spec =>
-      if (directives.get(spec.name).exists(_.hasBody)) withSource(recursiveSpans(delimitedBy(spec.fence))).map { src =>
-        Some(src._2.dropRight(spec.fence.length))
+      if (directives.get(spec.name).exists(_.hasBody)) recursiveSpans(delimitedBy(spec.fence)).source.map { src =>
+        Some(src.dropRight(spec.fence.length))
       } | success(None)
       else success(None)
 
     val separators = directives.values.flatMap(_.separators).toSet
     
     PrefixedParser('@') {
-      withSource(directiveParser(newBody, legacyBody, this)).map { case (result, source) =>
+      directiveParser(newBody, legacyBody, this).withSource.map { case (result, source) =>
         if (separators.contains(result.name)) Templates.SeparatorInstance(result, source)
         else Templates.DirectiveInstance(directives.get(result.name), result, templateSpans, source)
       }

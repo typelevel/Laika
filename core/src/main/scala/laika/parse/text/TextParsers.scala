@@ -127,12 +127,10 @@ object TextParsers extends Parsers {
    *  and the punctuation characters `-`, `_`, `.`, `:`, `+`.
    */
   val refName: Parser[String] = {
-    val alphanum = anyWhile(c => Character.isDigit(c) || Character.isLetter(c)) min 1
+    val alphaNum = anyWhile(c => Character.isDigit(c) || Character.isLetter(c)) min 1
     val symbol = oneOf('-', '_', '.', ':', '+')
     
-    alphanum ~ ((symbol ~ alphanum)*) ^^ { 
-      case start ~ rest => start + (rest map { case a~b => a+b }).mkString
-    }
+    (alphaNum ~ (symbol ~ alphaNum).rep).source
   }
 
   /** Parses a size and its amount, e.g. 12px.
@@ -140,11 +138,8 @@ object TextParsers extends Parsers {
     */
   val sizeAndUnit: Parser[Size] = {
     val digit = someOf(CharGroup.digit)
-    val amount = digit ~ opt("." ~ digit) ^^ {
-      case num1 ~ Some(_ ~ num2) => s"$num1.$num2".toDouble
-      case num ~ None => num.toDouble
-    }
-    amount ~ (ws ~> (refName | "%")) ^^ { case amount ~ unit => Size(amount, unit) }
+    val amount = (digit ~ opt("." ~ digit)).source.map(_.toDouble)
+    amount ~ (ws ~> (refName | "%")) ^^ { case amt ~ unit => Size(amt, unit) }
   }
 
 
