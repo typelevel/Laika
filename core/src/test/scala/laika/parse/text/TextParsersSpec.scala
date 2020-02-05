@@ -84,6 +84,54 @@ class TextParsersSpec extends WordSpec with Matchers with ParseResultHelpers wit
 
   }
 
+  "The prevIn and prevIs validators" should {
+
+    "succeed if the previous character is one of those specified" in {
+      Parsing("abc") using oneChar ~> prevIn('a','c') should produce(())
+    }
+
+    "fail if the previous character is not one of those specified" in {
+      Parsing("abc") using oneChar ~> prevIn('x','y') should cause [Failure]
+    }
+
+    "fail at the start of the input" in {
+      Parsing("abc") using prevIn('x') should cause [Failure]
+    }
+
+    "succeed if the predicate is satisfied" in {
+      Parsing("abc") using oneChar ~> prevIs(_ == 'a') should produce(())
+    }
+
+    "fail if the the predicate is not satisfied" in {
+      Parsing("abc") using oneChar ~> prevIs(_ == 'b') should cause [Failure]
+    }
+
+  }
+
+  "The nextIn and nextIs validators" should {
+
+    "succeed if the next character is one of those specified" in {
+      Parsing("abc") using oneChar ~> nextIn('b') should produce(())
+    }
+
+    "fail if the next character is not one of those specified" in {
+      Parsing("abc") using oneChar ~> nextIn('x') should cause [Failure]
+    }
+
+    "fail at the end of the input" in {
+      Parsing("a") using oneChar ~> nextIn('x') should cause [Failure]
+    }
+
+    "succeed if the predicate is satisfied" in {
+      Parsing("abc") using oneChar ~> nextIs(_ == 'b') should produce(())
+    }
+
+    "fail if the the predicate is not satisfied" in {
+      Parsing("abc") using oneChar ~> nextIs(_ == 'a') should cause [Failure]
+    }
+
+  }
+
   "The literal parser" should {
 
     "succeed with a matching string literal" in {

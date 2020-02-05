@@ -190,7 +190,7 @@ class ExtensionParsers(recParsers: RecursiveParsers,
       requiredArg(p)
     }
 
-    val bodyParser: Parser[String] = lookBehind(1, '\n') ~> indentedBlock(firstLineIndented = true) | indentedBlock()
+    val bodyParser: Parser[String] = prevIn('\n') ~> indentedBlock(firstLineIndented = true) | indentedBlock()
 
     // TODO - some duplicate logic with original fieldList parser
     lazy val directiveFieldList: Parser[Vector[Part]] = {
@@ -222,7 +222,7 @@ class ExtensionParsers(recParsers: RecursiveParsers,
     }
 
     val contentSeparator: Parser[Unit] =
-      ((lookBehind(1, '\n') | eol) ~ blankLine).void | failure("blank line required to separate arguments and/or options from the body")
+      ((prevIn('\n') | eol) ~ blankLine).void | failure("blank line required to separate arguments and/or options from the body")
 
     def argument (withWS: Boolean = false): (Key, DirectiveParserBuilder) =
       if (withWS) (Key.Argument(2, 0), copy(requiredArgWithWS = true))

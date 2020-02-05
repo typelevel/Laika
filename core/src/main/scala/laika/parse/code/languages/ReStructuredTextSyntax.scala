@@ -66,7 +66,7 @@ object ReStructuredTextSyntax extends SyntaxHighlighter {
 
   val header: CodeSpanParser = CodeSpanParser.onLineStart(CodeCategory.Markup.Headline) {
     newLine ~ oneOf(BaseParsers.punctuationChars) >> { case nl ~ startChar =>
-      (someOf(startChar.head) ~ ws ~ ('\n' ~> not(blankLine) ~> restOfLine) ~ someOf(startChar.head) ~ ws <~ lookAhead('\n')).map {
+      (someOf(startChar.head) ~ ws ~ ('\n' ~> not(blankLine) ~> restOfLine) ~ someOf(startChar.head) ~ ws <~ nextIn('\n')).map {
         case deco1 ~ spaces ~ text ~ deco2 ~ spaces2 => s"$nl$startChar$deco1$spaces\n$text\n$deco2$spaces2"
       }
     }
@@ -75,7 +75,7 @@ object ReStructuredTextSyntax extends SyntaxHighlighter {
   val underlinedHeader: CodeSpanParser = CodeSpanParser.onLineStart(CodeCategory.Markup.Headline) {
     (newLine ~ (not(blankLine) ~> restOfLine.map(_ + "\n")) ~ oneOf(BaseParsers.punctuationChars)) >> {
       case nl ~ text ~ decoStart =>
-        (someOf(decoStart.head) ~ ws <~ lookAhead('\n')).map {
+        (someOf(decoStart.head) ~ ws <~ nextIn('\n')).map {
           case deco ~ spaces => s"$nl$text$decoStart$deco$spaces"
         }
     }

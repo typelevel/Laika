@@ -46,7 +46,7 @@ class ExplicitBlockParsers (recParsers: RecursiveParsers) {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#explicit-markup-blocks]].
    */
   lazy val explicitBlockItem: PrefixedParser[Block] = (explicitStart ~> (footnote | citation | linkTarget | comment)) |
-    (".." ~ lookAhead("\n") ~> comment)
+    (".." ~ nextIn('\n') ~> comment)
   
 
   /** Parses a footnote.

@@ -198,7 +198,8 @@ object TableParsers {
    */
   lazy val gridTable: BlockParserBuilder = BlockParser.recursive { recParsers =>
 
-    val intersect = oneOf('+').as(Intersection)
+    val intersectChar = '+'
+    val intersect = oneOf(intersectChar).as(Intersection)
 
     val rowSep = someOf('-').count
     val topBorder = intersect ~> ((rowSep <~ intersect)+) <~ wsEol
@@ -212,10 +213,10 @@ object TableParsers {
       val colsWithSep = Zip3Iterator(separators, cols, separators.reverse)
       
       def rowSep (width: Int): Parser[Any] = 
-        intersect ~ anyOf('-').take(width).as(RowSeparator) <~ lookAhead(intersect)
+        intersect ~ anyOf('-').take(width).as(RowSeparator) <~ nextIn(intersectChar)
         
       def boundaryPart (width: Int): Parser[Any] = 
-        intersect ~ anyOf('=').take(width).as(TableBoundary) <~ lookAhead(intersect)
+        intersect ~ anyOf('=').take(width).as(TableBoundary) <~ nextIn(intersectChar)
         
       def cell (sepL: Parser[Any], width: Int, sepR: Parser[Any]): Parser[Any] = 
         sepL ~ anyChars.take(width).map(CellElement) <~ lookAhead(sepR)

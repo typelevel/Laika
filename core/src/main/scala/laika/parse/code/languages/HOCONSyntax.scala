@@ -57,7 +57,7 @@ object HOCONSyntax extends SyntaxHighlighter {
   
   def functionNames(names: String*): CodeSpanParser = names.map { name =>
     CodeSpanParser(CodeCategory.Identifier) {
-      literal(name) <~ lookAhead('(')
+      literal(name) <~ nextIn('(')
     }
   }.reduceLeft(_ ++ _)
   

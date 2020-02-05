@@ -171,7 +171,7 @@ object TextParsers extends Parsers {
     Parser { in =>
       if (in.offset == 0) Success((), in)
       else if (!predicate(in.charAt(-1))) Success((), in)
-      else Failure(errMsg(in.char), in)
+      else Failure(errMsg(in.charAt(-1)), in)
     }
   }
 
@@ -198,6 +198,63 @@ object TextParsers extends Parsers {
     Parser { in =>
       if (in.remaining == 0) Success((), in)
       else if (!predicate(in.char)) Success((), in)
+      else Failure(errMsg(in.char), in)
+    }
+  }
+
+
+  /** Verifies that the previous character is one of those specified.
+    * Fails at the start of the input and does not consume any input
+    * or produce a result when it succeeds.
+    */
+  def prevIn (char: Char, chars: Char*): Parser[Unit] = prevIn(NonEmptySet.of(char, chars:_*))
+
+  /** Verifies that the previous character is one of those specified.
+    * Fails at the start of the input and does not consume any input
+    * or produce a result when it succeeds.
+    */
+  def prevIn (chars: NonEmptySet[Char]): Parser[Unit] = prevIs(chars.contains(_))
+
+  /** Verifies that the previous character satisfies the specified predicate.
+    * Fails at the start of the input and does not consume any input
+    * or produce a result when it succeeds.
+    */
+  def prevIs (predicate: Char => Boolean): Parser[Unit] = {
+    val errMsg: Char => Message = Message.forRuntimeValue[Char] { found =>
+      s"previous character '$found' does not satisfy the specified predicate"
+    }
+    def atStart: Message = Message.fixed("unable to check predicate on start of input")
+    Parser { in =>
+      if (in.offset == 0) Failure(atStart, in)
+      else if (predicate(in.charAt(-1))) Success((), in)
+      else Failure(errMsg(in.charAt(-1)), in)
+    }
+  }
+
+  /** Verifies that the next character is one of those specified.
+    * Fails at the end of the input and does not consume any input
+    * or produce a result when it succeeds.
+    */
+  def nextIn (char: Char, chars: Char*): Parser[Unit] = nextIn(NonEmptySet.of(char, chars:_*))
+
+  /** Verifies that the next character is one of those specified.
+    * Fails at the end of the input and does not consume any input
+    * or produce a result when it succeeds.
+    */
+  def nextIn (chars: NonEmptySet[Char]): Parser[Unit] = nextIs(chars.contains(_))
+
+  /** Verifies that the next character does not satisfy the specified predicate.
+    * Fails at the end of the input and does not consume any input
+    * or produce a result when it succeeds.
+    */
+  def nextIs (predicate: Char => Boolean): Parser[Unit] = {
+    val errMsg: Char => Message = Message.forRuntimeValue[Char] { found =>
+      s"next character '$found' does not satisfy the specified predicate"
+    }
+    def atEnd: Message = Message.fixed("unable to check predicate on end of input")
+    Parser { in =>
+      if (in.remaining == 0) Failure(atEnd, in)
+      else if (predicate(in.char)) Success((), in)
       else Failure(errMsg(in.char), in)
     }
   }

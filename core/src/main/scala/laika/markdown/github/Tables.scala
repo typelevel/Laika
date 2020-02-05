@@ -42,7 +42,7 @@ object Tables {
       val cellText = spanParsers.escapedUntil('|','\n')
       val finalCellText = textLine
 
-      val delimitedCells = (cell(cellText, cellType) <~ lookBehind(1,'|')).rep
+      val delimitedCells = (cell(cellText, cellType) <~ prevIn('|')).rep
       val optFinalCell = cell(finalCellText, cellType).map(Some(_)) | restOfLine.as(None)
 
       (delimitedCells ~ optFinalCell).collect {

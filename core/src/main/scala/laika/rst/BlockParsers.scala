@@ -122,7 +122,7 @@ object BlockParsers {
     def attribution (indent: Int) = ws.take(indent) ~ attributionStart ~ ws.max(1) ~>
       recParsers.recursiveSpans(indentedBlock(minIndent = indent, endsOnBlankLine = true))
       
-    lookAhead(ws.take(1)) ~> recParsers.withRecursiveBlockParser(indentedBlockWithLevel(
+    nextIn(' ') ~> recParsers.withRecursiveBlockParser(indentedBlockWithLevel(
         firstLineIndented = true, linePredicate = not(attributionStart))) >> {
       case (recParser, (block, minIndent)) => opt(opt(blankLines) ~> attribution(minIndent)) ^^ {
         spans => QuotedBlock(recParser(block), spans.getOrElse(Nil))
@@ -138,7 +138,7 @@ object BlockParsers {
   val literalBlock: Parser[Block] = {
     val indented = indentedBlock(firstLineIndented = true) ^^ { LiteralBlock(_) }
 
-    val quotedLine = lookAhead(punctuationChar.min(1))
+    val quotedLine = nextIn(punctuationChars)
     val quoted = block(quotedLine, quotedLine, failure("blank line always ends quoted block")) ^^ { LiteralBlock(_) }
 
     indented | quoted
