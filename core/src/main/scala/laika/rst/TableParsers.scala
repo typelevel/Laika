@@ -82,8 +82,8 @@ object TableParsers {
       object BlankLine extends CellLine(Int.MaxValue) { def padTo (indent: Int) = "" }
       class TextLine (i: Int, text: String) extends CellLine(i) { def padTo (minIndent: Int) = " " * (indent - minIndent) + text }
       
-      val cellLine = not(eof) ~> (blankLine.as(BlankLine) | (ws ~ restOfLine) ^^ { 
-        case indent ~ text => new TextLine(indent.length, text.trim) 
+      val cellLine = not(eof) ~> (blankLine.as(BlankLine) | (ws.count ~ restOfLine) ^^ { 
+        case indent ~ text => new TextLine(indent, text.trim) 
       }) 
       
       consumeAll(cellLine*).parse(cellContent) match {
@@ -205,7 +205,7 @@ object TableParsers {
     val topBorder = intersect ~> ((rowSep <~ intersect)+) <~ wsEol
 
     val colSep = oneOf('|').as(CellSeparator("|")) | intersect
-    val colSepOrText = colSep | (oneChar ^^ CellElement)
+    val colSepOrText = colSep | oneChar.map(CellElement)
 
     recParsers.withRecursiveBlockParser(topBorder) >> { case (recParser, cols) =>
       
@@ -221,9 +221,12 @@ object TableParsers {
       def cell (sepL: Parser[Any], width: Int, sepR: Parser[Any]): Parser[Any] = 
         sepL ~ anyChars.take(width).map(CellElement) <~ lookAhead(sepR)
       
-      val row = (colsWithSep map { case (separatorL, colWidth, separatorR) => 
-        rowSep(colWidth) | cell(separatorL, colWidth, separatorR)
-      } reduceRight (_ ~ _)) ^^ flattenElements
+      val row = colsWithSep.map { 
+        case (separatorL, colWidth, separatorR) => 
+          rowSep(colWidth) | cell(separatorL, colWidth, separatorR)
+        }
+        .reduceRight(_ ~ _)
+        .map(flattenElements)
       
       val tableBoundary: Parser[TableDecoration] = 
         cols.map(boundaryPart).reduceRight(_ ~ _).as(TableBoundary)
@@ -318,8 +321,9 @@ object TableParsers {
       val boundary: Parser[Any] = (boundaryColumns reduceRight (_ ~ _)) <~ wsEol
       val blank: Parser[Any] = not(eof) ~> blankLine
       
-      val tablePart: Parser[List[Any]] = (((blank | row)*) ~ boundary) ^^ { case rows ~ boundary => rows :+ boundary }
-      
+      val tablePart: Parser[List[Any]] = (((blank | row)*) ~ boundary).map { 
+        case rows ~ boundary => rows :+ boundary 
+      }
       
       def buildRowList (rows: List[Any], ct: CellType): List[Row] = {
         

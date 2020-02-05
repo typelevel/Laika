@@ -55,11 +55,11 @@ object InlineParsers {
   
   /** Parses a span of strong text enclosed by two consecutive occurrences of the specified character. 
    */
-  def strong (char: Char)(implicit recParsers: RecursiveSpanParsers): PrefixedParser[Strong] = enclosedByDoubleChar(char) ^^ { Strong(_) }
+  def strong (char: Char)(implicit recParsers: RecursiveSpanParsers): PrefixedParser[Strong] = enclosedByDoubleChar(char).map { Strong(_) }
   
   /** Parses a span of emphasized text enclosed by one occurrence of the specified character.
    */
-  def em (char: Char)(implicit recParsers: RecursiveSpanParsers): PrefixedParser[Emphasized] = enclosedBySingleChar(char) ^^ { Emphasized(_) }
+  def em (char: Char)(implicit recParsers: RecursiveSpanParsers): PrefixedParser[Emphasized] = enclosedBySingleChar(char).map { Emphasized(_) }
 
   
   /** Creates a parser for an inline span based on the specified parsers that
@@ -107,7 +107,7 @@ object InlineParsers {
   val literalEnclosedBySingleChar: PrefixedParser[Literal] = {
     val start = delimiter('`').nextNot('`')
     val end = '`'
-    start ~> delimitedBy(end) ^^ { s => Literal(s.trim) }
+    start ~> delimitedBy(end).map { s => Literal(s.trim) }
   }
   
   /** Parses a literal span enclosed by double backticks.
@@ -115,7 +115,7 @@ object InlineParsers {
    */
   val literalEnclosedByDoubleChar: PrefixedParser[Literal] = {
     val delim = "``"
-    delim ~> delimitedBy(delim) ^^ { s => Literal(s.trim) }
+    delim ~> delimitedBy(delim).map { s => Literal(s.trim) }
   }
 
   /** Parses a literal span enclosed by double or single backticks.
@@ -177,8 +177,8 @@ object InlineParsers {
                 recParsers: RecursiveSpanParsers): Parser[Span] = {
 
     val linkText = text(delimitedBy(']'))
-      .embed(recParsers.escapeSequence ^^ {"\\" + _})
-      .embed('[' ~> delimitedBy(']') ^^ { "[" + _ + "]" })
+      .embed(recParsers.escapeSequence.map {"\\" + _})
+      .embed('[' ~> delimitedBy(']').map { "[" + _ + "]" })
 
     val titleEnd = ws.void ~ ')'
     def enclosedIn(c: Char): Parser[String] = c ~> delimitedBy(c.toString <~ lookAhead(titleEnd))

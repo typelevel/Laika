@@ -53,8 +53,8 @@ object FencedCodeBlocks {
         val trimmedLines = if (lines.lastOption.exists(_.trim.isEmpty)) lines.dropRight(1) else lines
         val code = trimmedLines.mkString("\n")
         info.fold[Either[String, Block]](Right(LiteralBlock(code))) { lang =>
-          val highlighter = recParsers.getSyntaxHighlighter(lang).getOrElse(anyChars ^^ { txt => Seq(Text(txt)) })
-          val blockParser = highlighter ^^ { codeSpans => CodeBlock(lang, codeSpans) }
+          val highlighter = recParsers.getSyntaxHighlighter(lang).getOrElse(anyChars.map { txt => Seq(Text(txt)) })
+          val blockParser = highlighter.map { codeSpans => CodeBlock(lang, codeSpans) }
           blockParser.parse(code).toEither
         }
       }

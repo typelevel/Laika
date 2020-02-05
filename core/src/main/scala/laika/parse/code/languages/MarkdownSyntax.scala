@@ -44,8 +44,12 @@ object MarkdownSyntax extends SyntaxHighlighter {
 
   private def linkParser (prefix: String): PrefixedParser[Seq[CodeSpan]] = {
 
-    val url = '(' ~> delimitedBy(')').nonEmpty.failOn('\n').map(url => CodeSpan(s"($url)", CodeCategory.Markup.LinkTarget))
-    val ref = '[' ~> delimitedBy(']').failOn('\n').map(ref => CodeSpan(s"[$ref]", CodeCategory.Markup.LinkTarget))
+    val url = '(' ~> delimitedBy(')').nonEmpty.failOn('\n')
+      .map(url => CodeSpan(s"($url)", CodeCategory.Markup.LinkTarget))
+    
+    val ref = '[' ~> delimitedBy(']').failOn('\n')
+      .map(ref => CodeSpan(s"[$ref]", CodeCategory.Markup.LinkTarget))
+    
     val link = (literal(prefix) ~ delimitedBy(']').failOn('\n')).concat.map(_ + "]")
 
     (link ~ opt(url | ref)).map {

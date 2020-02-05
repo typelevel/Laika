@@ -51,10 +51,10 @@ object BaseParsers {
     *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#footnote-references]].
     */
   val footnoteLabel: Parser[FootnoteLabel] = {
-    val decimal = someOf(CharGroup.digit) ^^ { n => NumericLabel(n.toInt) }
+    val decimal = someOf(CharGroup.digit).map(n => NumericLabel(n.toInt))
     val autonumber = '#'.as(Autonumber)
     val autosymbol = '*'.as(Autosymbol)
-    val autonumberLabel = '#' ~> simpleRefName ^^ AutonumberLabel
+    val autonumberLabel = '#' ~> simpleRefName.map(AutonumberLabel)
 
     decimal | autonumberLabel | autonumber | autosymbol
   }

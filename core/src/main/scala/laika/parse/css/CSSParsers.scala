@@ -76,14 +76,14 @@ object CSSParsers {
   /** Parses a single type selector.
    */
   val typeSelector: Parser[List[StylePredicate]] =
-    (styleRefName ^^ { name => List(StylePredicate.ElementType(name)) }) | '*'.as(Nil)
+    styleRefName.map { name => List(StylePredicate.ElementType(name)) } | '*'.as(Nil)
     
   /** Parses a single predicate.
    */
   val predicate: Parser[StylePredicate] = {
     
-    val id: Parser[StylePredicate] = ('#' ~> styleRefName) ^^ StylePredicate.Id
-    val styleName: Parser[StylePredicate] = ('.' ~> styleRefName) ^^ StylePredicate.StyleName
+    val id: Parser[StylePredicate]        = '#' ~> styleRefName.map(StylePredicate.Id)
+    val styleName: Parser[StylePredicate] = '.' ~> styleRefName.map(StylePredicate.StyleName)
     
     id | styleName
   }
@@ -91,7 +91,7 @@ object CSSParsers {
   /** Parses the sub-part of a selector without any combinators, e.g. `Paragraph#title`.
     */
   val simpleSelectorSequence: Parser[StyleSelector] =
-    (((typeSelector ~ (predicate*)) ^^ { case preds1 ~ preds2 => preds1 ::: preds2 }) | (predicate+)) ^^ {
+    ((typeSelector ~ predicate.rep).map { case preds1 ~ preds2 => preds1 ::: preds2 } | (predicate+)).map {
       preds => StyleSelector(preds.toSet)
     }
 
@@ -132,7 +132,7 @@ object CSSParsers {
    *  any comments.
    */
   val styleDeclarations: Parser[Seq[StyleDeclaration]] =
-    ((selectorGroup <~ wsOrNl ~ '{' ~ wsOrNl) ~ ((comment | style)*) <~ (wsOrNl ~ '}')) ^^ {
+    ((selectorGroup <~ wsOrNl ~ '{' ~ wsOrNl) ~ ((comment | style)*) <~ (wsOrNl ~ '}')).map {
       case selectors ~ stylesAndComments => 
         val styles = stylesAndComments collect { case st: Style => (st.name, st.value) } toMap;
         selectors map (StyleDeclaration(_, styles))
@@ -143,7 +143,7 @@ object CSSParsers {
    */
   lazy val styleDeclarationSet: Parser[Set[StyleDeclaration]] = {
 
-    (wsOrNl ~ (comment*) ~> ((styleDeclarations <~ wsOrNl ~ (comment*))*)) ^^ {
+    (wsOrNl ~ (comment*) ~> ((styleDeclarations <~ wsOrNl ~ (comment*))*)).map {
       _.flatten.zipWithIndex.map({
         case (decl,pos) => decl.increaseOrderBy(pos)
       }).toSet

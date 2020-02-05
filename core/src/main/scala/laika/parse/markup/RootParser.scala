@@ -45,7 +45,7 @@ class RootParser (markupParser: MarkupFormat, markupExtensions: MarkupExtensions
   
   /** Parses a full document, delegating most of the work to the `topLevelBlock` parser.
     */
-  lazy val rootElement: Parser[RootElement] = opt(blankLines) ~> blockList(rootBlock) ^^ { RootElement(_) }
+  lazy val rootElement: Parser[RootElement] = opt(blankLines) ~> blockList(rootBlock).map(RootElement(_))
 
   private lazy val sortedBlockParsers: Seq[BlockParserDefinition] =
     createAndSortParsers(markupParser.blockParsers, markupExtensions.blockParsers)
@@ -64,7 +64,7 @@ class RootParser (markupParser: MarkupFormat, markupExtensions: MarkupExtensions
   }
 
   def blockList (p: => Parser[Block]): Parser[Seq[Block]] =
-    markupParser.createBlockListParser(p) ^^ markupExtensions.parserHooks.postProcessBlocks
+    markupParser.createBlockListParser(p).map(markupExtensions.parserHooks.postProcessBlocks)
 
   private def createAndSortParsers[T <: ParserDefinition[_]] (mainParsers: Seq[ParserBuilder[T]],
                                                               extParsers: Seq[ParserBuilder[T]]): Seq[T] = {

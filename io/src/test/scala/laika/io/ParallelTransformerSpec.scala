@@ -233,7 +233,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
       def styleDecl (fontSize: String) =
         StyleDeclaration(StylePredicate.ElementType("Paragraph"), "font-size" -> s"${fontSize}pt")
 
-      val parser: Parser[Set[StyleDeclaration]] = TextParsers.anyChars ^^ { n => Set(styleDecl(n)) }
+      val parser: Parser[Set[StyleDeclaration]] = TextParsers.anyChars.map { n => Set(styleDecl(n)) }
 
       val inputs = Seq(
         Root / "doc1.md" -> Contents.name,

@@ -72,7 +72,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
 
     final val parserBundles = Nil
 
-    val textBlockParser  = (TextParsers.textLine +) ^^ (_.mkString("\n"))
+    val textBlockParser  = (TextParsers.textLine +).map(_.mkString("\n"))
 
   }
 
@@ -97,14 +97,14 @@ class ParserBundleSpec extends WordSpec with Matchers {
 
     def blockFor (deco: Char, overrideDeco: Char): BlockParserBuilder =
       BlockParser.withSpans { spanParsers =>
-        char(deco) ~> spanParsers.recursiveSpans(textBlockParser) ^^ (DecoratedBlock(overrideDeco, _))
+        char(deco) ~> spanParsers.recursiveSpans(textBlockParser).map(DecoratedBlock(overrideDeco, _))
       }
 
     def legacyBlockFor (deco: Char): BlockParserBuilder = blockFor(deco, deco)
 
     def legacyBlockFor (deco: Char, overrideDeco: Char): BlockParserBuilder =
       BlockParser.forStartChar(deco).withSpans { spanParsers =>
-        char(deco) ~> spanParsers.recursiveSpans(textBlockParser) ^^ (DecoratedBlock(overrideDeco, _))
+        char(deco) ~> spanParsers.recursiveSpans(textBlockParser).map(DecoratedBlock(overrideDeco, _))
       }
 
     def doc (blocks: (Char, String)*): Document =
@@ -167,7 +167,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
     val input = ">aaa +bbb"
 
     override def blockParsers: Seq[BlockParserBuilder] = Seq(BlockParser.withSpans { spanParsers =>
-      spanParsers.recursiveSpans(textBlockParser) ^^ (Paragraph(_))
+      spanParsers.recursiveSpans(textBlockParser).map(Paragraph(_))
     })
 
     case class DecoratedSpan (deco: Char, text: String) extends Span {
@@ -180,14 +180,14 @@ class ParserBundleSpec extends WordSpec with Matchers {
 
     def spanFor (deco: Char, overrideDeco: Char): SpanParserBuilder =
       SpanParser.standalone {
-        (deco ~> anyNot(' ') <~ opt(' ')) ^^ (DecoratedSpan(overrideDeco, _))
+        (deco ~> anyNot(' ') <~ opt(' ')).map(DecoratedSpan(overrideDeco, _))
       }
 
     def legacySpanFor (deco: Char): SpanParserBuilder = spanFor(deco, deco)
 
     def legacySpanFor (deco: Char, overrideDeco: Char): SpanParserBuilder =
       SpanParser.forStartChar(deco).standalone {
-        (deco ~> anyNot(' ') <~ opt(' ')) ^^ (DecoratedSpan(overrideDeco, _))
+        (deco ~> anyNot(' ') <~ opt(' ')).map(DecoratedSpan(overrideDeco, _))
       }
 
     def doc (spans: (Char, String)*): Document =
@@ -245,7 +245,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
   trait ParserHookSetup extends SetupBase {
 
     override def blockParsers: Seq[BlockParserBuilder] = Seq(BlockParser.standalone {
-      TextParsers.textLine ^^ { Paragraph(_) }
+      TextParsers.textLine.map(Paragraph(_))
     })
 
     def preProcess (append: String): ParserInput => ParserInput = { input =>

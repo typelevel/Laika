@@ -71,9 +71,7 @@ object BlockParsers {
                      endsOnBlankLine: Boolean = false,
                      firstLineIndented: Boolean = false,
                      maxIndent: Int = Int.MaxValue): Parser[String] =
-    indentedBlockWithLevel(minIndent, linePredicate, endsOnBlankLine, firstLineIndented, maxIndent) ^^ {
-      case (block, _) => block
-    }
+    indentedBlockWithLevel(minIndent, linePredicate, endsOnBlankLine, firstLineIndented, maxIndent).map(_._1)
 
 
   /**  Parses a full block based on the specified helper parsers, expecting an indentation for
@@ -106,7 +104,7 @@ object BlockParsers {
     
     def lineStart (curIndent: Int) = ws.min(minIndent).max(curIndent).count <~ composedLinePredicate
     
-    def textLine (curIndent: Int) = (lineStart(curIndent) ~ ws.count ~ restOfLine) ^^ {
+    def textLine (curIndent: Int) = (lineStart(curIndent) ~ ws.count ~ restOfLine).map {
       case indent1 ~ indent2 ~ text => List(IndentedLine(min(min(indent1, curIndent), maxIndent), indent1 + indent2, text.trim)) 
     }
     
@@ -116,7 +114,7 @@ object BlockParsers {
     
     val firstLine = 
       if (firstLineIndented) textLine(Int.MaxValue) 
-      else restOfLine ^^ { s => List(FirstLine(s)) }
+      else restOfLine.map(s => List(FirstLine(s)))
     
     val firstLineGuard = if (firstLineIndented) ws.min(minIndent).count ~ composedLinePredicate else success(())
     

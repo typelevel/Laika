@@ -266,7 +266,7 @@ class ParallelParserSpec extends IOSpec
     }
 
     "allow to specify a custom template engine" ignore new TreeParser {
-      val parser: Parser[TemplateRoot] = TextParsers.anyChars ^^ { str => TemplateRoot("$$" + str) }
+      val parser: Parser[TemplateRoot] = TextParsers.anyChars.map { str => TemplateRoot("$$" + str) }
       val inputs = Seq(
         Root / "main1.template.html" -> Contents.name,
         Root / "main2.template.html" -> Contents.name
@@ -290,7 +290,7 @@ class ParallelParserSpec extends IOSpec
       def styleDecl (styleName: String, order: Int = 0) =
         StyleDeclaration(StylePredicate.ElementType("Type"), styleName -> "foo").increaseOrderBy(order)
 
-      val parser: Parser[Set[StyleDeclaration]] = TextParsers.anyChars ^^ { n => Set(styleDecl(n)) }
+      val parser: Parser[Set[StyleDeclaration]] = TextParsers.anyChars.map { n => Set(styleDecl(n)) }
       val inputs = Seq(
         Root / "main1.aaa.css" -> Contents.name,
         Root / "main2.bbb.css" -> Contents.name2,

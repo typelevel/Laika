@@ -70,12 +70,12 @@ object StandardDirectiveParsers {
    *  @return `Right` in case of parser success and `Left` in case of failure, to adjust to the Directive API
    */
   def captionAndLegend (p: RecursiveParsers)(input: String): Either[String,(Seq[Span],Seq[Block])] = {
-    val caption = p.recursiveSpans((textLine *) ^^ (_.mkString("\n")))
+    val caption = p.recursiveSpans((textLine *).map(_.mkString("\n")))
     val parser = p.withRecursiveBlockParser(caption) >> {
-      case (parserF, captionSpans) => opt(blankLines) ~> (anyChars ^^ { text =>
+      case (parserF, captionSpans) => opt(blankLines) ~> anyChars.map { text =>
         val legendBlocks = parserF(text.trim)
         (captionSpans, legendBlocks)
-      })
+      }
     }
     parseDirectivePart(parser, input)
   }
@@ -87,7 +87,7 @@ object StandardDirectiveParsers {
    */
   def target (p: RecursiveParsers)(input: String): Either[String,Span] = {
     val phraseLinkRef = {
-      val refName = p.escapedText(delimitedBy('`','<').keepDelimiter) ^^ ReferenceName
+      val refName = p.escapedText(delimitedBy('`','<').keepDelimiter).map(ReferenceName)
       "`" ~> refName <~ "`_" ~ ws ~ eof ^^ {
         refName => LinkReference(Nil, refName.normalized, s"`${refName.original}`_") 
       }
@@ -97,9 +97,8 @@ object StandardDirectiveParsers {
         refName => LinkReference(Nil, refName, s"${refName}_")
       }
     }
-    val uri = anyChars ^^ {
-      uri => ExternalLink(Nil, uri)
-    }
+    val uri = anyChars.map(ExternalLink(Nil, _))
+    
     parseDirectivePart(phraseLinkRef | simpleLinkRef | uri, input)
   }
   
@@ -110,11 +109,12 @@ object StandardDirectiveParsers {
    */
   def unicode (input: String): Either[String,String] = {
     val hexNum = anyOf(CharGroup.hexDigit)
-    val hex = ((("0x" | "x" | "\\x" | "U+" | "u" | "\\u") ~> hexNum) | ("&#x" ~> hexNum <~ ";")) ^^ { Integer.parseInt(_,16) }
-    val dec = someOf(CharGroup.digit) ^^ { Integer.parseInt }
-    val unicode = (hex | dec) ^^ { int => new String(Character.toChars(int)) }
-    val text = anyNot(' ') min 1
-    val parser = (((unicode | text) <~ ws)*) ^^ { _.mkString(" ") }
+    val hex = ((("0x" | "x" | "\\x" | "U+" | "u" | "\\u") ~> hexNum) | 
+      ("&#x" ~> hexNum <~ ";")).map(Integer.parseInt(_,16))
+    val dec = someOf(CharGroup.digit).map(Integer.parseInt)
+    val unicode = (hex | dec).map { int => new String(Character.toChars(int)) }
+    val text = someNot(' ')
+    val parser = (((unicode | text) <~ ws)*).map(_.mkString(" "))
     parseDirectivePart(parser, input)
   }
   

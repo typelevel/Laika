@@ -29,7 +29,7 @@ import laika.markdown.InlineParsers.enclosedByDoubleChar
 object Strikethrough {
 
   val parser: SpanParserBuilder = SpanParser.recursive { implicit recParsers =>
-    enclosedByDoubleChar('~') ^^ { Deleted(_) }
+    enclosedByDoubleChar('~').map { Deleted(_) }
   }
 
 }

@@ -39,11 +39,11 @@ object ListParsers {
   private def listItem [I <: ListItem] (itemStart: Parser[String], newListItem: Seq[Block] => I)
                                        (implicit recParsers: RecursiveParsers): Parser[I] = {
       (itemStart ^^ {_.length}) ~ ws.min(1).count >> {
-        case start ~ ws =>
-          recParsers.recursiveBlocks((indentedBlock(minIndent = start + ws, maxIndent = start + ws) ~
+        case startCount ~ wsCount =>
+          recParsers.recursiveBlocks((indentedBlock(minIndent = startCount + wsCount, maxIndent = startCount + wsCount) ~
               opt(blankLines | eof | lookAhead(itemStart))).evalMap {
-            case (block ~ None) if block.linesIterator.length < 2 => Left("not a list item")
-            case (block ~ _) => Right(block)
+            case block ~ None if block.linesIterator.length < 2 => Left("not a list item")
+            case block ~ _ => Right(block)
           }).map(newListItem)
       } 
   }
@@ -89,17 +89,18 @@ object ListParsers {
   lazy val bulletList: BlockParserBuilder = BlockParser.recursive { implicit recParsers =>
     lookAhead(bulletListStart <~ ws.min(1)) >> { symbol =>
       val bullet = StringBullet(symbol)
-      (listItem(symbol, BulletListItem(_, bullet)) +) ^^
-        { items => BulletList(rewriteListItems(items,(item:BulletListItem,content) => item.copy(content = content)),bullet) }
+      (listItem(symbol, BulletListItem(_, bullet)) +).map { items => 
+        BulletList(rewriteListItems(items,(item:BulletListItem,content) => item.copy(content = content)),bullet) 
+      }
     }
   }
   
   private lazy val enumListStart: Parser[(EnumFormat, Int)] = {
     import EnumType._
-    val firstLowerRoman = (anyOf('i','v','x','l','c','d','m').min(2) | oneOf('i')).evalMap
+    val firstLowerRoman = (someOf('i','v','x','l','c','d','m').min(2) | oneOf('i')).evalMap
       { num => RomanNumerals.romanToInt(num.toUpperCase).map(_ -> LowerRoman) }
     
-    val firstUpperRoman = (anyOf('I','V','X','L','C','D','M').min(2) | oneOf('I')).evalMap
+    val firstUpperRoman = (someOf('I','V','X','L','C','D','M').min(2) | oneOf('I')).evalMap
       { num => RomanNumerals.romanToInt(num.toUpperCase).map(_ -> UpperRoman) }
     
     val firstLowerAlpha = oneOf(range('a', 'h') ++ range('j', 'z')).map
@@ -109,13 +110,16 @@ object ListParsers {
       { char => (char.charAt(0) + 1 - 'A', UpperAlpha) }
     
     val firstAutoNumber = oneOf('#').as((1,Arabic))
-    val firstArabic = someOf(CharGroup.digit) ^^ { num => (num.toInt, Arabic) }
+    val firstArabic = someOf(CharGroup.digit).map(num => (num.toInt, Arabic))
     
     lazy val firstEnumType: Parser[(Int,EnumType)] = 
       firstAutoNumber | firstArabic | firstLowerAlpha | firstUpperAlpha | firstLowerRoman | firstUpperRoman
       
-      ('(' ~ firstEnumType ~ ')') ^^ { case prefix ~ enumType ~ suffix => (EnumFormat(enumType._2, prefix.toString, suffix.toString), enumType._1) } | 
-      (firstEnumType ~ ')' | firstEnumType ~ '.') ^^ { case enumType ~ suffix => (EnumFormat(enumType._2, "", suffix.toString), enumType._1) }
+      ('(' ~ firstEnumType ~ ')').map { 
+        case prefix ~ enumType ~ suffix => (EnumFormat(enumType._2, prefix.toString, suffix.toString), enumType._1) 
+      } | (firstEnumType ~ ')' | firstEnumType ~ '.').map { 
+        case enumType ~ suffix => (EnumFormat(enumType._2, "", suffix.toString), enumType._1) 
+      }
   }
   
   /** Parses an enumerated list in any of the supported combinations of enumeration style and formatting.
@@ -144,13 +148,16 @@ object ListParsers {
     
     def itemStart (format: EnumFormat): Parser[String] = {
       def literalOrEmpty(str: String) = if (str.nonEmpty) literal(str) else success("")
-      (literalOrEmpty(format.prefix) ~ enumType(format.enumType) ~ literalOrEmpty(format.suffix)) ^^ { case prefix ~ enumType ~ suffix => prefix + enumType + suffix }
+      (literalOrEmpty(format.prefix) ~ enumType(format.enumType) ~ literalOrEmpty(format.suffix)).map { 
+        case prefix ~ enumType ~ suffix => prefix + enumType + suffix 
+      }
     }
       
     lookAhead(enumListStart <~ ws.min(1)) >> { case (format, start) =>
       val pos = Iterator.from(start)
-      (listItem(itemStart(format), EnumListItem(_, format, pos.next)) +) ^^ 
-        { items => EnumList(rewriteListItems(items,(item:EnumListItem,content) => item.copy(content = content)), format, start) }
+      (listItem(itemStart(format), EnumListItem(_, format, pos.next)) +).map { items => 
+        EnumList(rewriteListItems(items, (item:EnumListItem, content) => item.copy(content = content)), format, start) 
+      }
     }
   }
   
@@ -168,14 +175,14 @@ object ListParsers {
     val term: Parser[String] = not(blankLine | tableStart | explicitStart | listStart | headerStart) ~> 
         anyNot('\n') <~ eol ~ lookAhead(ws.min(1) ~ not(blankLine))
     
-    val classifier = delimiter(" : ") ~> recParsers.recursiveSpans ^^ (Classifier(_))
+    val classifier = delimiter(" : ") ~> recParsers.recursiveSpans.map(Classifier(_))
     val termWithClassifier = recParsers.recursiveSpans(term).embed(classifier)
 
     val item = (termWithClassifier ~ recParsers.recursiveBlocks(indentedBlock(firstLineIndented = true))).collect {
-      case term ~ blocks => DefinitionListItem(term, blocks)
+      case termRes ~ blocks => DefinitionListItem(termRes, blocks)
     }
     
-    ((item <~ opt(blankLines)) +) ^^ (DefinitionList(_))
+    ((item <~ opt(blankLines)) +).map(DefinitionList(_))
   }
   
   
@@ -185,13 +192,13 @@ object ListParsers {
    */
   lazy val fieldList: BlockParserBuilder = BlockParser.recursive { recParsers =>
     
-    val name = ':' ~> recParsers.escapedUntil(':') <~ (lookAhead(eol) | ' ')
+    val nameParser = ':' ~> recParsers.escapedUntil(':') <~ (lookAhead(eol) | ' ')
     
-    val item = (recParsers.recursiveSpans(name) ~ recParsers.recursiveBlocks(indentedBlock())) ^^ {
+    val item = (recParsers.recursiveSpans(nameParser) ~ recParsers.recursiveBlocks(indentedBlock())) ^^ {
       case name ~ blocks => Field(name, blocks)
     }
     
-    (item +) ^^ (FieldList(_))
+    (item +).map(FieldList(_))
   }
   
   
@@ -204,7 +211,7 @@ object ListParsers {
     def mkString (result: ~[Char,String]) = result._1.toString + result._2
     
     val optionString = someOf(CharGroup.alphaNum.add('_').add('-'))
-    val optionArg = optionString | (('<' ~> delimitedBy('>')) ^^ { "<" + _ + ">" } )
+    val optionArg = optionString | ('<' ~> delimitedBy('>')).map { "<" + _ + ">" }
     
     val gnu =        '+' ~ oneOf(CharGroup.alphaNum) ^^ mkString
     val shortPosix = '-' ~ oneOf(CharGroup.alphaNum) ^^ mkString
@@ -226,7 +233,7 @@ object ListParsers {
       case name ~ blocks => OptionListItem(name, blocks)
     }
     
-    ((item <~ opt(blankLines)) +) ^^ (OptionList(_))
+    ((item <~ opt(blankLines)) +).map(OptionList(_))
   }
   
   /** Parses a block of lines with line breaks preserved.
@@ -236,13 +243,10 @@ object ListParsers {
   lazy val lineBlock: BlockParserBuilder = BlockParser.recursive { recParsers =>
     val itemStart = oneOf('|')
     
-    val line: Parser[(Line, Int)] = {
-      itemStart ~> (ws.min(1)) ~ recParsers.recursiveSpans(indentedBlock(endsOnBlankLine = true)) ^^ {
-        case indent ~ block => (Line(block), indent.length)
-      }
-    }
+    val line: Parser[Int ~ Line] = 
+      itemStart ~> ws.min(1).count ~ recParsers.recursiveSpans(indentedBlock(endsOnBlankLine = true)).map(Line(_))
     
-    def nest (lines: Seq[(Line,Int)]) : LineBlock = {
+    def nest (lines: Seq[Int ~ Line]) : LineBlock = {
       
       val stack = new Stack[(ListBuffer[LineBlockItem],Int)]
   
@@ -263,7 +267,7 @@ object ListParsers {
       }
       
       lines.foreach { 
-        case (line, level) => addItem(line, level)
+        case level ~ line => addItem(line, level)
       }
   
       val (topBuffer, _) = stack.elements.reduceLeft { (top, next) =>
@@ -274,7 +278,7 @@ object ListParsers {
       LineBlock(topBuffer.toList)
     }
     
-    (line +) ^^ nest
+    line.rep.min(1).map(nest)
   } 
   
   

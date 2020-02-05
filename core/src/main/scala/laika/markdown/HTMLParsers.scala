@@ -115,7 +115,7 @@ object HTMLParsers {
 
   /** Parses an HTML comment without the leading `'<'`.
    */
-  val htmlComment: Parser[HTMLComment] = "!--" ~> delimitedBy("-->") ^^ { HTMLComment(_) }
+  val htmlComment: Parser[HTMLComment] = "!--" ~> delimitedBy("-->").map { HTMLComment(_) }
 
   /** Parses an HTML comment without the leading `'<'`.
     */

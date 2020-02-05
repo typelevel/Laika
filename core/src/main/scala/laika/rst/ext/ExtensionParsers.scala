@@ -62,7 +62,7 @@ class ExtensionParsers(recParsers: RecursiveParsers,
     val prefix = delimiter('|').nextNot(' ') ~> 
       escapedText(delimitedBy(delimiter('|').prevNot(' ')).failOn('\n').nonEmpty)
     
-    ((prefix <~ ws) ~ spanDirectiveParser) ^^ { 
+    ((prefix <~ ws) ~ spanDirectiveParser).map { 
       case name ~ InvalidDirective(msg, source, _) =>
         InvalidElement(msg, source.replaceFirst(".. ",s".. |$name| ")).asBlock
       case name ~ content => SubstitutionDefinition(name, content) 
@@ -79,7 +79,7 @@ class ExtensionParsers(recParsers: RecursiveParsers,
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#directives]].
    */
-  lazy val blockDirective: Parser[Block] = directive(blockDirectives.get) ^^ replaceInvalidDirective
+  lazy val blockDirective: Parser[Block] = directive(blockDirectives.get).map(replaceInvalidDirective)
 
   private val recBlocks: String => Result[Seq[Block]] = 
     s => recursiveBlocks(DelimitedText.Undelimited).parse(s).toEither
@@ -110,7 +110,7 @@ class ExtensionParsers(recParsers: RecursiveParsers,
   }
   
   private def directive [E](p: Parser[E], name: String): Parser[E] = p.handleErrorWith { f => 
-    indentedBlock() ^^ { block =>
+    indentedBlock().map { block =>
       InvalidDirective(f.message, s".. $name " + block).asInstanceOf[E]
     }
   }
@@ -135,9 +135,9 @@ class ExtensionParsers(recParsers: RecursiveParsers,
     
     nameParser >> { case name ~ baseName =>
       val base = baseName.getOrElse(defaultTextRole)
-      val fullname = s"role::$name" + (baseName map ("("+_+")") getOrElse "")
+      val fullName = s"role::$name" + (baseName map ("("+_+")") getOrElse "")
       directive(textRoles.get(base.toLowerCase).map(directiveParser(name))
-          .getOrElse(failure(s"unknown text role: $base")), fullname) ^^ replaceInvalidDirective
+          .getOrElse(failure(s"unknown text role: $base")), fullName).map(replaceInvalidDirective)
     }
     
   }
@@ -159,10 +159,10 @@ class ExtensionParsers(recParsers: RecursiveParsers,
       val optArgsWithWS = if (optionalArgWithWS) Seq(opt(argWithWS).map(_.map(Part(Key.Argument(4, 0), _)))) else Nil
       
       val allReqArgs = (reqArgs ++ reqArgsWithWS).foldLeft[Parser[Vector[Part]]](success(Vector())) {
-        case (acc, p) => (acc ~ p) ^^ { case parts ~ part => parts :+ part }
+        case (acc, p) => (acc ~ p).map { case parts ~ part => parts :+ part }
       }
       val allOptArgs = (optArgs ++ optArgsWithWS).foldLeft[Parser[Vector[Part]]](success(Vector())) {
-        case (acc, p) => (acc ~ p) ^^ { case parts ~ part => parts ++ part.toSeq }
+        case (acc, p) => (acc ~ p).map { case parts ~ part => parts ++ part.toSeq }
       }
  
       val fields = if (requiredFields.nonEmpty || optionalFields.nonEmpty) directiveFieldList else success(Vector())
@@ -197,8 +197,8 @@ class ExtensionParsers(recParsers: RecursiveParsers,
 
       val name = ':' ~> escapedUntil(':') <~ (lookAhead(eol) | ' ')
 
-      val item = ws.min(1) >> { firstIndent =>
-        (name ~ indentedBlock(firstIndent.length + 1)) ^^
+      val item = ws.min(1).count >> { firstIndent =>
+        (name ~ indentedBlock(firstIndent + 1)) ^^
           { case name ~ block =>
             (name, block.trim)
           }}

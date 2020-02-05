@@ -116,7 +116,7 @@ object BlockParsers {
       val lines = (lineCondition ~> restOfLine) *
 
       val decorationOrLines: Parser[Either[String, List[String] ~ Option[Block]]] =
-        (setextDecoration ^^ { Left(_) }) | ((lines ~ listWithoutBlankline) ^^ { Right(_) })
+        setextDecoration.map { Left(_) } | (lines ~ listWithoutBlankline).map { Right(_) }
 
       def decoratedHeaderLevel (decoration: String) = if (decoration.head == '=') 1 else 2
 
@@ -135,7 +135,7 @@ object BlockParsers {
       def paragraph (parser: String => List[Span], firstLine: String, restLines: List[String]): Paragraph =
         Paragraph(parser(processLineBreaks(firstLine +: restLines)))
 
-      (recParsers.withRecursiveSpanParser(textLine) ~ decorationOrLines) ^^ {
+      (recParsers.withRecursiveSpanParser(textLine) ~ decorationOrLines).map {
         case (parser, firstLine) ~ Right(restLines ~ None)       => paragraph(parser, firstLine, restLines)
         case (parser, firstLine) ~ Right(restLines ~ Some(list)) => BlockSequence(paragraph(parser, firstLine, restLines), list)
         case (parser, text) ~      Left(decoration)              => Header(decoratedHeaderLevel(decoration), parser(text))
@@ -150,10 +150,10 @@ object BlockParsers {
     import escapedParsers._
 
     val id = '[' ~> escapedUntil(']') <~ ':' <~ ws.void
-    val url = (('<' ~> escapedUntil('>')) | escapedText(delimitedBy(' ', '\n').acceptEOF.keepDelimiter)) ^^ { _.mkString }
+    val url = ('<' ~> escapedUntil('>')) | escapedText(delimitedBy(' ', '\n').acceptEOF.keepDelimiter)
 
     def enclosedBy(start: Char, end: Char) =
-      start ~> delimitedBy(end.toString <~ lookAhead(wsEol)).failOn('\r', '\n') ^^ { _.mkString }
+      start ~> delimitedBy(end.toString <~ lookAhead(wsEol)).failOn('\r', '\n')
 
     val title = (ws.void ~ opt(eol) ~ ws.void) ~> (enclosedBy('"', '"') | enclosedBy('\'', '\'') | enclosedBy('(', ')'))
 
@@ -166,13 +166,10 @@ object BlockParsers {
    *  this parser will remove.
    */
   val atxHeader: BlockParserBuilder = BlockParser.recursive { recParsers =>
-    def stripDecoration (text: String) = {
-      val trimmed = text.trim 
-      if (trimmed.last == '#') trimmed.take(trimmed.lastIndexWhere(_ != '#') + 1).trim
-      else trimmed
-    } 
     
-    someOf('#').max(6).count ~ (not(blankLine) ~> recParsers.recursiveSpans(restOfLine ^^ stripDecoration)) ^^ {
+    def stripDecoration (text: String) = text.trim.reverse.dropWhile(_ == '#').reverse.trim
+
+    someOf('#').max(6).count ~ (not(blankLine) ~> recParsers.recursiveSpans(restOfLine.map(stripDecoration))) ^^ {
       case level ~ spans => Header(level, spans)
     }
   }
@@ -191,7 +188,7 @@ object BlockParsers {
   val literalBlocks: BlockParserBuilder = BlockParser.standalone {
     val wsPreProcessor = new WhitespacePreprocessor
     PrefixedParser(' ', '\t') {
-      decoratedBlock(tabOrSpace, tabOrSpace, tabOrSpace) ^^ { lines => LiteralBlock(wsPreProcessor(lines)) }
+      decoratedBlock(tabOrSpace, tabOrSpace, tabOrSpace).map { lines => LiteralBlock(wsPreProcessor(lines)) }
    }
   }
 
@@ -201,7 +198,9 @@ object BlockParsers {
   val quotedBlock: BlockParserBuilder = BlockParser.recursive { recParsers =>
     PrefixedParser('>') {
       val decoratedLine = '>' ~ ws.max(1).void
-      recParsers.recursiveBlocks(decoratedBlock(decoratedLine, decoratedLine | not(blankLine), '>')) ^^ (QuotedBlock(_, Nil))
+      recParsers
+        .recursiveBlocks(decoratedBlock(decoratedLine, decoratedLine | not(blankLine), '>'))
+        .map(QuotedBlock(_, Nil))
     }
   }
 
@@ -210,7 +209,7 @@ object BlockParsers {
     * is combined with potentially nested lists which makes that parser recursive.
     */
   val fallbackParagraph: BlockParserBuilder = BlockParser.withSpans { spanParsers =>
-    val block: Parser[String] = textLine.rep.min(1) ^^ (_.mkString)
+    val block: Parser[String] = textLine.rep.min(1).map (_.mkString)
     spanParsers.recursiveSpans(block).map(Paragraph(_))
   }.nestedOnly.withLowPrecedence
 

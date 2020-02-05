@@ -153,7 +153,7 @@ object InlineParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#emphasis]]
    */
   lazy val em: SpanParserBuilder = SpanParser.recursive { implicit recParsers =>
-    span(delimiter('*').prevNot('*'), delimiter("*").nextNot('*')) ^^ (Emphasized(_))
+    span(delimiter('*').prevNot('*'), delimiter("*").nextNot('*')).map(Emphasized(_))
   }.withLowPrecedence
   
   /** Parses a span of text with strong emphasis.
@@ -161,12 +161,12 @@ object InlineParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#strong-emphasis]]
    */
   lazy val strong: SpanParserBuilder = SpanParser.recursive { implicit recParsers =>
-    span("**","**") ^^ (Strong(_))
+    span("**","**").map(Strong(_))
   }
 
   private def span (start: PrefixedParser[String], 
                     end: PrefixedParser[String])(implicit recParsers: RecursiveSpanParsers): PrefixedParser[List[Span]]
-    = markupStart(start, end) ~> recParsers.escapedText(delimitedBy(markupEnd(end))) ^^ { text => List(Text(text)) }
+    = markupStart(start, end) ~> recParsers.escapedText(delimitedBy(markupEnd(end))).map { text => List(Text(text)) }
 
   
   /** Parses an inline literal element.
@@ -174,7 +174,7 @@ object InlineParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#inline-literals]].
    */
   lazy val inlineLiteral: SpanParserBuilder = SpanParser.standalone {
-    markupStart("``", "``") ~> delimitedBy(markupEnd("``")) ^^ (Literal(_))
+    markupStart("``", "``") ~> delimitedBy(markupEnd("``")).map(Literal(_))
   }
   
   private def toSource (label: FootnoteLabel): String = label match {
@@ -206,9 +206,9 @@ object InlineParsers {
    */
   lazy val substitutionRef: SpanParserBuilder = SpanParser.standalone {
     markupStart("|", "|") ~> simpleRefName >> { ref =>
-      markupEnd("|__") ^^ { _ => LinkReference(List(SubstitutionReference(ref)), "", s"|$ref|__") } |
-      markupEnd("|_")  ^^ { _ => LinkReference(List(SubstitutionReference(ref)), ref, s"|$ref|_") } |
-      markupEnd("|")   ^^ { _ => SubstitutionReference(ref) }
+      markupEnd("|__").as(LinkReference(List(SubstitutionReference(ref)), "", s"|$ref|__")) |
+      markupEnd("|_").as(LinkReference(List(SubstitutionReference(ref)), ref, s"|$ref|_")) |
+      markupEnd("|").as(SubstitutionReference(ref))
     }
   }
   
@@ -218,7 +218,8 @@ object InlineParsers {
    */
   lazy val internalTarget: SpanParserBuilder = SpanParser.recursive { recParsers =>
     markupStart("_`", "`") ~>
-    (recParsers.escapedText(delimitedBy(markupEnd("`")).nonEmpty) ^^ ReferenceName) ^^ { id => 
+    recParsers.escapedText(delimitedBy(markupEnd("`")).nonEmpty).map { name => 
+      val id = ReferenceName(name)
       Text(id.original, Id(id.normalized) + Styles("target")) 
     }
   }
@@ -229,7 +230,7 @@ object InlineParsers {
    */  
   lazy val interpretedTextWithRolePrefix: SpanParserBuilder = SpanParser.recursive { recParsers =>
     (markupStart(":", ":") ~> simpleRefName) ~ (":`" ~> recParsers.escapedText(delimitedBy(markupEnd("`")).nonEmpty)) ^^
-      { case role ~ text => InterpretedText(role,text,s":$role:`$text`") }
+      { case role ~ text => InterpretedText(role, text, s":$role:`$text`") }
   }
   
   /** Parses an interpreted text element with the role name as a suffix.
@@ -248,8 +249,8 @@ object InlineParsers {
   lazy val phraseLinkRef: SpanParserBuilder = SpanParser.recursive { recParsers =>
     
     def ref (refName: String, url: String) = if (refName.isEmpty) url else refName
-    val urlPart = '<' ~> delimitedBy('>') ^^ { _.replaceAll("[ \n]+", "") }
-    val refName = recParsers.escapedText(delimitedBy('`','<').keepDelimiter) ^^ ReferenceName
+    val urlPart = '<' ~> delimitedBy('>').map { _.replaceAll("[ \n]+", "") }
+    val refName = recParsers.escapedText(delimitedBy('`','<').keepDelimiter).map(ReferenceName)
     val end = markupEnd("`__").as(false) | markupEnd("`_").as(true)
     
     markupStart("`", "`") ~> refName ~ opt(urlPart) ~ end ^^ {
@@ -267,7 +268,7 @@ object InlineParsers {
    */
   lazy val simpleLinkRef: SpanParserBuilder = SpanParser.standalone {
     markupEnd("__" | "_").flatMap {
-      markup => reverse(markup.length, simpleRefName <~ ensureNot(invalidBeforeStartMarkup)) ^^ { refName =>
+      markup => reverse(markup.length, simpleRefName <~ ensureNot(invalidBeforeStartMarkup)).map { refName =>
         markup match {
           case "_"  => Reverse(refName.length, LinkReference(List(Text(refName)), ReferenceName(refName).normalized, s"${refName}_"), Text("_")) 
           case "__" => Reverse(refName.length, LinkReference(List(Text(refName)), "", s"${refName}__"), Text("__")) 

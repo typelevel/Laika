@@ -79,9 +79,9 @@ class ExplicitBlockParsers (recParsers: RecursiveParsers) {
    */
   lazy val linkTarget: Parser[Block with Span] = {
     
-    val named = '_' ~> (('`' ~> escapedUntil('`') <~ ':') | escapedUntil(':')) ^^ { ReferenceName(_).normalized }
+    val named = '_' ~> (('`' ~> escapedUntil('`') <~ ':') | escapedUntil(':')).map { ReferenceName(_).normalized }
       
-    val internal = named ^^ (id => InternalLinkTarget(Id(id)))
+    val internal = named.map(id => InternalLinkTarget(Id(id)))
     
     val external = {
       val anonymous = "__:".as("")
@@ -105,7 +105,7 @@ class ExplicitBlockParsers (recParsers: RecursiveParsers) {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#comments]].
    */
   val comment: Parser[Comment] = {
-    indentedBlock() ^^ { block =>
+    indentedBlock().map { block =>
       Comment(block.trim)
     }
   }
@@ -130,8 +130,8 @@ object ExplicitBlockParsers {
   private[rst] lazy val linkDefinitionBody: Parser[String] = {
     val notEmpty = not(blankLine) | lookAhead(restOfLine ~ ws.min(1) ~ not(blankLine))
 
-    (notEmpty ~> indentedBlock()) ^^ {
-      _.linesIterator map (_.trim) mkString
+    (notEmpty ~> indentedBlock()).map {
+      _.linesIterator.map(_.trim).mkString
     }
   }
 
@@ -141,7 +141,7 @@ object ExplicitBlockParsers {
     *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#anonymous-hyperlinks]].
     */
   lazy val shortAnonymousLinkTarget: BlockParserBuilder = BlockParser.standalone {
-    "__ " ~> linkDefinitionBody ^^ { body => ExternalLinkDefinition("", body) }
+    "__ " ~> linkDefinitionBody.map(ExternalLinkDefinition("", _))
   }
 
 }

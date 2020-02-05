@@ -57,7 +57,7 @@ object ListParsers {
                                         newList: List[I] => T,
                                         newItem: (Int, Seq[Block]) => I)(implicit recParsers: RecursiveParsers): Parser[T] = {
 
-    def flattenItems (firstItem: Seq[Block], items: List[~[Option[Any], Seq[Block]]]) = {
+    def flattenItems (firstItem: Seq[Block], items: List[Option[Any] ~ Seq[Block]]) = {
 
       val hasBlankLines = items.exists(_._1.isDefined)
       val blockItems = firstItem +: items.map(_._2)

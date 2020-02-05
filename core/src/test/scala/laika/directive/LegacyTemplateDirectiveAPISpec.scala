@@ -95,7 +95,7 @@ class LegacyTemplateDirectiveAPISpec extends FlatSpec
 
     val templateParsers = new TemplateParsers(Map(directive.name -> directive))
     
-    val defaultParser: Parser[TemplateRoot] = templateParsers.templateSpans ^^ { spans =>
+    val defaultParser: Parser[TemplateRoot] = templateParsers.templateSpans.map { spans =>
       val root = TemplateRoot(spans)
       TemplateRewriter.rewriteRules(DocumentCursor(
         Document(Root, RootElement(root), config = ConfigBuilder.empty.withValue("ref","value").build)

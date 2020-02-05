@@ -59,7 +59,7 @@ class AutoLinkParsers (reverseMarkupStart: Parser[Any],
     PrefixedParser(forwardParser.startChars) {
       val rev = reverse(0, reverseParser <~ reverseMarkupStart)
       val fwd = forwardParser <~ lookAhead(eol | afterEndMarkup)
-      val parser = (rev ~ fwd) ^^ {
+      val parser = (rev ~ fwd).map {
         case scheme ~ rest => (scheme, separator, rest)
       }
       trim(parser)
@@ -74,7 +74,7 @@ class AutoLinkParsers (reverseMarkupStart: Parser[Any],
   /** Parses a standalone www hyperlink (with no surrounding markup).
     */
   lazy val www: SpanParserBuilder = SpanParser.standalone {
-    uri("www", ('.' ~> regName ~ path ~ opt('?' ~ query) ~ opt('#' ~ fragment)) ^^ flatten, ".")
+    uri("www", ('.' ~> regName ~ path ~ opt('?' ~ query) ~ opt('#' ~ fragment)).map(flatten), ".")
   }.withLowPrecedence
 
   /** Parses a standalone email address (with no surrounding markup).
