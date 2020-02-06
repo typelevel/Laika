@@ -23,6 +23,7 @@ import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.markup.InlineParsers
 import laika.parse.text.{DelimitedText, PrefixedParser}
 import laika.parse.api._
+import laika.parse.implicits._
 
 /** Factories for creating a span parser that detects other syntax as part of the span.
   * 
@@ -30,8 +31,6 @@ import laika.parse.api._
   */
 object EmbeddedCodeSpans {
 
-  import NumberLiteral._
-  
   /** Creates a new parser for code spans based on the specified parser for delimited text
     * and the embedded "foreign" syntax.
     *

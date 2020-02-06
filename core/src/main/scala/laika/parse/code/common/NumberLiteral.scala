@@ -30,24 +30,6 @@ import laika.parse.Parser
   */
 object NumberLiteral {
 
-  // TODO - 0.14 - promote to core parser and make them public
-
-  private[laika] implicit class PrependParserOps[T] (val p: Parser[T ~ Seq[T]]) extends AnyVal {
-    def concat: Parser[Seq[T]] = p.map { case x ~ xs => x +: xs }
-  }
-
-  private[laika] implicit class PrependPrefixedParserOps[T] (val p: PrefixedParser[T ~ Seq[T]]) extends AnyVal {
-    def concat: PrefixedParser[Seq[T]] = p.map { case x ~ xs => x +: xs }
-  }
-
-  private[laika] implicit class List2ParsersOps[T] (val p: Parser[Seq[T] ~ Seq[T]]) extends AnyVal {
-    def concat: Parser[Seq[T]] = p.map { case x ~ xs => x ++ xs }
-  }
-
-  private[laika] implicit class List2PrefixedParsersOps[T] (val p: PrefixedParser[Seq[T] ~ Seq[T]]) extends AnyVal {
-    def concat: PrefixedParser[Seq[T]] = p.map { case x ~ xs => x ++ xs }
-  }
-
   /** Parsers for common sets of digits, like hex or decimal. */
   object DigitParsers {
     val binary: PrefixCharacters[String]         = someOf('0', '1')

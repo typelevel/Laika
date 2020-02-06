@@ -20,17 +20,16 @@ import cats.data.NonEmptyList
 import laika.ast.{CodeSpan, ~}
 import laika.bundle.SyntaxHighlighter
 import laika.parse.Parser
-import laika.parse.code.common.{EmbeddedCodeSpans, Keywords, NumberLiteral, TagBasedFormats}
+import laika.parse.code.common.{EmbeddedCodeSpans, Keywords, TagBasedFormats}
 import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.api._
+import laika.parse.implicits._
 
 /**
   * @author Jens Halm
   */
 object HTMLSyntax extends TagBasedFormats with SyntaxHighlighter {
   
-  import NumberLiteral._
-
   val docType: CodeSpanParser = TagParser(CodeCategory.XML.DTDTagName, "<!", ">", "DOCTYPE").embed(
     Keywords("SYSTEM", "PUBLIC"),
     string,

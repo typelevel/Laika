@@ -40,17 +40,6 @@ object HoconParsers {
     Success((), in.consume(in.remaining))
   }
 
-  // TODO - 0.14 - promote to core parser
-  implicit class String2ParserOps (val p: Parser[String ~ String]) extends AnyVal {
-    def concat: Parser[String] = p.map { case a ~ b => a + b }
-  }
-  implicit class String3ParserOps (val p: Parser[String ~ String ~ String]) extends AnyVal {
-    def concat: Parser[String] = p.map { case a ~ b ~ c => a + b + c }
-  }
-  implicit class PrependParserOps[T] (val p: Parser[T ~ Seq[T]]) extends AnyVal {
-    def concat: Parser[Seq[T]] = p.map { case x ~ xs => x +: xs }
-  }
-  
   implicit class ClosingParserOps[T] (parser: Parser[T]) {
 
     def closeWith[R >: T] (char: Char)(captureError: (T, Failure) => R): Parser[R] =
@@ -126,15 +115,15 @@ object HoconParsers {
     val zero = oneOf('0')
     val digits = anyOf(CharGroup.digit)
     val oneToNine = oneOf(range('1', '9'))
-    val nonZero = (oneToNine ~ digits).concat
+    val nonZero = (oneToNine ~ digits).source
     val negativeSign = opt('-').map(_.fold("")(_.toString))
     val sign = opt(oneOf('-') | oneOf('+')).map(_.getOrElse(""))
     
-    val integer = (negativeSign ~ (zero | nonZero)).concat
-    val fraction = opt((oneOf('.') ~ digits).concat).map(_.getOrElse(""))
-    val exponent = opt((oneOf('E','e') ~ sign ~ digits).concat).map(_.getOrElse(""))
+    val integer = (negativeSign ~ (zero | nonZero)).source
+    val fraction = opt((oneOf('.') ~ digits).source).map(_.getOrElse(""))
+    val exponent = opt((oneOf('E','e') ~ sign ~ digits).source).map(_.getOrElse(""))
 
-    (integer ~ (fraction ~ exponent).concat).evalMap {
+    (integer ~ (fraction ~ exponent).source).evalMap {
       case int ~ ""         => 
         Try(int.toLong).toEither
           .left.map(_.getMessage)

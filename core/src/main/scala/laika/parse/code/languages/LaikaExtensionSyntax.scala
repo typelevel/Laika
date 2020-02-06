@@ -23,13 +23,12 @@ import laika.parse.code.common.{EmbeddedCodeSpans, Identifier, Keywords, StringL
 import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.text.PrefixedParser
 import laika.parse.api._
+import laika.parse.implicits._
 
 /**
   * @author Jens Halm
   */
 object LaikaExtensionSyntax {
-  
-  import NumberLiteral._
   
   val substitution: CodeSpanParser = StringLiteral.Substitution.between("${", "}")
 
