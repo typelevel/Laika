@@ -23,6 +23,7 @@ import laika.parse.Parser
 import laika.parse.markup.RecursiveParsers
 import laika.parse.text.CharGroup
 import laika.parse.api._
+import laika.parse.implicits._
 import laika.rst.ast._
 
 import scala.annotation.tailrec
@@ -147,9 +148,7 @@ object ListParsers {
     
     def itemStart (format: EnumFormat): Parser[String] = {
       def literalOrEmpty(str: String) = if (str.nonEmpty) literal(str) else success("")
-      (literalOrEmpty(format.prefix) ~ enumType(format.enumType) ~ literalOrEmpty(format.suffix)).map { 
-        case prefix ~ enumType ~ suffix => prefix + enumType + suffix 
-      }
+      (literalOrEmpty(format.prefix) ~ enumType(format.enumType) ~ literalOrEmpty(format.suffix)).source
     }
       
     lookAhead(enumListStart <~ ws.min(1)) >> { case (format, start) =>
@@ -207,24 +206,21 @@ object ListParsers {
    */
   lazy val optionList: BlockParserBuilder = BlockParser.recursive { recParsers =>
     
-    def mkString (result: ~[Char,String]) = result._1.toString + result._2
-    
     val optionString = someOf(CharGroup.alphaNum.add('_').add('-'))
     val optionArg = optionString | ('<' ~> delimitedBy('>')).map { "<" + _ + ">" }
     
-    val gnu =        '+' ~ oneOf(CharGroup.alphaNum) ^^ mkString
-    val shortPosix = '-' ~ oneOf(CharGroup.alphaNum) ^^ mkString
-    val longPosix = ("--" <~ not('-')) ~ optionString ^^ { case a ~ b => a+b }
-    val dos = '/' ~ optionString ^^ mkString
+    val gnu =        ("+" ~ oneOf(CharGroup.alphaNum)).source
+    val shortPosix = ("-" ~ oneOf(CharGroup.alphaNum)).source
+    val longPosix = (("--" <~ nextNot('-')) ~ optionString).source
+    val dos        = ("/" ~ optionString).source
     
-    val arg = opt(char('=') | ' ') ~ optionArg ^^ {
-      case Some(delim) ~ argStr => OptionArgument(argStr, delim.toString)
-      case None ~ argStr => OptionArgument(argStr, "") 
+    val arg = anyOf('=', ' ').max(1) ~ optionArg ^^ {
+      case delim ~ argStr => OptionArgument(argStr, delim)
     }
     
     val option = (gnu | shortPosix | longPosix | dos) ~ opt(arg) ^^ { case option ~ arg => ProgramOption(option, arg) }
     
-    val options = (option ~ ((", " ~> option)*)) ^^ { case x ~ xs => x :: xs }
+    val options = (option ~ (", " ~> option).rep).concat
     
     val descStart = (anyOf(' ').min(2) ~ not(blankLine)) | lookAhead(blankLine ~ ws.min(1) ~ not(blankLine)).as("")
     

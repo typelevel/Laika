@@ -27,6 +27,7 @@ import laika.parse.hocon.{BuilderField, ConfigResolver, HoconParsers, InvalidBui
 import laika.parse.markup.{EscapedTextParsers, RecursiveParsers, RecursiveSpanParsers}
 import laika.parse.text.{CharGroup, PrefixedParser}
 import laika.parse.api._
+import laika.parse.implicits._
 
 /** Parsers for all types of custom directives that can be used
  *  in templates or as inline or block elements in markup documents.
@@ -87,6 +88,9 @@ object DirectiveParsers {
 
     (wsOrNl ~> opt(defaultAttribute <~ wsOrNl) ~ ((wsOrNl ~> attribute)*)) <~ ws ^^
       { case defAttr ~ attrs => ObjectBuilderValue(defAttr.toList ++ attrs) }
+
+    ((wsOrNl ~> opt(defaultAttribute <~ wsOrNl).map(_.toList) ~ (wsOrNl ~> attribute).rep).concat <~ ws)
+      .map(ObjectBuilderValue)
   }
   
   /** Parses a full directive declaration, containing all its attributes,

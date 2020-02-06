@@ -20,6 +20,7 @@ import laika.ast._
 import laika.parse.Parser
 import laika.parse.markup.InlineParsers
 import laika.parse.api._
+import laika.parse.implicits._
 
 /**
  * Parsers for the subset of CSS supported by Laika.
@@ -89,9 +90,7 @@ object CSSParsers {
   /** Parses the sub-part of a selector without any combinators, e.g. `Paragraph#title`.
     */
   val simpleSelectorSequence: Parser[StyleSelector] =
-    ((typeSelector ~ predicate.rep).map { case preds1 ~ preds2 => preds1 ::: preds2 } | (predicate+)).map {
-      preds => StyleSelector(preds.toSet)
-    }
+    ((typeSelector ~ predicate.rep).concat | (predicate+)).map(preds => StyleSelector(preds.toSet))
 
   /** Parses a single selector.
     */
@@ -105,8 +104,7 @@ object CSSParsers {
 
   /** Parses a sequence of selectors, separated by a comma.
     */
-  val selectorGroup: Parser[Seq[StyleSelector]] =
-    selector ~ ((ws ~ ',' ~ ws ~> selector)*) ^^ { case sel ~ sels => sel :: sels }
+  val selectorGroup: Parser[Seq[StyleSelector]] = (selector ~ (ws ~ ',' ~ ws ~> selector).rep).concat
 
   /** Parses the value of a single style, ignoring
     *  any comments..
