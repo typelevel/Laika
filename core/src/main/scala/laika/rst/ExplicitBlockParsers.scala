@@ -18,9 +18,8 @@ package laika.rst
 
 import laika.ast._
 import laika.bundle.{BlockParser, BlockParserBuilder}
-import laika.parse.markup.BlockParsers._
 import laika.parse.markup.RecursiveParsers
-import laika.parse.text.TextParsers._
+import laika.parse.api._
 import laika.parse.Parser
 import laika.rst.ast._
 import BaseParsers._

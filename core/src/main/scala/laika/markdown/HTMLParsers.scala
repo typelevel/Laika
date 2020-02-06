@@ -25,7 +25,7 @@ import laika.parse.Parser
 import laika.parse.markup.InlineParsers.spans
 import laika.parse.markup.RecursiveSpanParsers
 import laika.parse.text.{CharGroup, DelimitedText, PrefixedParser}
-import laika.parse.text.TextParsers._
+import laika.parse.api._
 
 /** Parses verbatim HTML elements which may interleave with standard Markdown markup.
  *  Extends the Markdown block and inline parsers, overriding several of their

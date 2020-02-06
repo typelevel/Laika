@@ -18,7 +18,7 @@ package laika.parse.markup
 
 import laika.ast._
 import laika.parse._
-import laika.parse.text.TextParsers._
+import laika.parse.api._
 
 /** Default implementation for parsing inline markup and blocks recursively.
   *

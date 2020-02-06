@@ -23,7 +23,7 @@ import laika.parse.Parser
 import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import laika.parse.text.{CharGroup, PrefixedParser}
-import laika.parse.text.TextParsers._
+import laika.parse.api._
 import org.scalatest.{Assertion, Matchers, WordSpec}
 
 /**

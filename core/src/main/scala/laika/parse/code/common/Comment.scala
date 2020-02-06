@@ -16,7 +16,7 @@
 
 package laika.parse.code.common
 
-import laika.parse.text.TextParsers._
+import laika.parse.api._
 import laika.parse.code.{CodeCategory, CodeSpanParser}
 
 /** Configurable base parsers for comments in code blocks.

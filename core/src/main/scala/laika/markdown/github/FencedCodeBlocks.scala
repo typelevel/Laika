@@ -18,7 +18,7 @@ package laika.markdown.github
 
 import laika.ast.{Block, CodeBlock, LiteralBlock, Text, ~}
 import laika.bundle.{BlockParser, BlockParserBuilder}
-import laika.parse.text.TextParsers._
+import laika.parse.api._
 
 /** Parser for fenced code blocks as defined by GitHub Flavored Markdown and CommonMark.
   *

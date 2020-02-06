@@ -19,7 +19,7 @@ package laika.parse.css
 import laika.ast._
 import laika.parse.Parser
 import laika.parse.markup.InlineParsers
-import laika.parse.text.TextParsers._
+import laika.parse.api._
 
 /**
  * Parsers for the subset of CSS supported by Laika.

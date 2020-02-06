@@ -20,7 +20,7 @@ import cats.data.NonEmptySet
 import cats.implicits._
 import laika.ast.{CodeSpan, ~}
 import laika.parse.code.CodeCategory
-import laika.parse.text.TextParsers._
+import laika.parse.api._
 import laika.parse.text.{CharGroup, PrefixCharacters, PrefixedParser, TextParsers}
 import laika.parse.Parser
 

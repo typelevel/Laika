@@ -22,7 +22,7 @@ import laika.directive.Templates
 import laika.parse.Parser
 import laika.parse.markup.DefaultRecursiveSpanParsers
 import laika.parse.text.PrefixedParser
-import laika.parse.text.TextParsers._
+import laika.parse.api._
 
 /** Provides the parsers for directives and context references in templates.
   *

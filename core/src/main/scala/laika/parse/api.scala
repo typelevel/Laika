@@ -14,26 +14,18 @@
  * limitations under the License.
  */
 
-package laika.parse.code.common
+package laika.parse
 
-import laika.parse.code.{CodeCategory, CodeSpanParser}
-import laika.parse.text.CharGroup
-import laika.parse.api._
+import laika.parse.markup.{BlockParsers, InlineParsers}
+import laika.parse.text.TextParsers
 
-/** Base parsers for regular expression literals in code blocks.
+/** Grouping of all parser builders that allows to construct most common parsers with a single import.
+  * 
+  * These include the base parsers like `opt` and `not`, the text parsers like `literal` and `anyOf(Char*)`,
+  * as well as the more specialized parsers for text markup like `spans` and `blocks`.
+  * 
+  * Alternatively these groups can be brought into scope individually.
   * 
   * @author Jens Halm
   */
-object RegexLiteral {
-  
-  /** Parses a regular expression between `/` delimiters, followed by optional modifier characters. */
-  val standard: CodeSpanParser = {
-    val startDelim = literal("/")
-    val endDelim = (startDelim ~ anyOf(CharGroup.alpha)).source
-    StringLiteral
-      .singleLine(startDelim, endDelim)
-      .embed(StringLiteral.Escape.char)
-      .withCategory(CodeCategory.RegexLiteral)
-  }
-
-}
+object api extends TextParsers with InlineParsers with BlockParsers

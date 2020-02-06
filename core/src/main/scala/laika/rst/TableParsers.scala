@@ -21,7 +21,7 @@ import laika.bundle.{BlockParser, BlockParserBuilder}
 import laika.collection.TransitionalCollectionOps.Zip3Iterator
 import laika.collection.Stack
 import laika.parse.{Parser, Success}
-import laika.parse.text.TextParsers._
+import laika.parse.api._
 
 import scala.collection.mutable.ListBuffer
 

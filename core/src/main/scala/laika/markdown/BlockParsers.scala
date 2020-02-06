@@ -21,7 +21,7 @@ import laika.bundle.{BlockParser, BlockParserBuilder}
 import laika.parse.Parser
 import laika.parse.markup.BlockParsers.block
 import laika.parse.markup.RecursiveParsers
-import laika.parse.text.TextParsers._
+import laika.parse.api._
 import laika.parse.text.{PrefixedParser, WhitespacePreprocessor}
 
 

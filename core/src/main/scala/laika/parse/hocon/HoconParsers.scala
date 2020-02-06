@@ -22,7 +22,7 @@ import laika.ast.~
 import laika.config._
 import laika.parse.code.common.NumberLiteral.DigitParsers
 import laika.parse.text.{CharGroup, Characters, TextParsers}
-import laika.parse.text.TextParsers._
+import laika.parse.api._
 import laika.parse.{Failure, Message, Parser, ParserContext, Success}
 
 import scala.util.Try

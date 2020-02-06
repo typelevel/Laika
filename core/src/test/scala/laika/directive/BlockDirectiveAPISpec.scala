@@ -26,7 +26,7 @@ import laika.parse.Parser
 import laika.parse.combinator.Parsers
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import laika.parse.markup.RootParserProvider
-import laika.parse.text.TextParsers._
+import laika.parse.api._
 import laika.rewrite.TemplateRewriter
 import org.scalatest.{FlatSpec, Matchers}
 

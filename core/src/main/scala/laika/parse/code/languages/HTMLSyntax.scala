@@ -22,7 +22,7 @@ import laika.bundle.SyntaxHighlighter
 import laika.parse.Parser
 import laika.parse.code.common.{EmbeddedCodeSpans, Keywords, NumberLiteral, TagBasedFormats}
 import laika.parse.code.{CodeCategory, CodeSpanParser}
-import laika.parse.text.TextParsers._
+import laika.parse.api._
 
 /**
   * @author Jens Halm

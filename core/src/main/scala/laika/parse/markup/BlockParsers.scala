@@ -18,7 +18,7 @@ package laika.parse.markup
 
 import laika.ast.~
 import laika.parse.Parser
-import laika.parse.text.TextParsers._
+import laika.parse.api._
 
 /** Provides base parsers that abstract aspects of block parsing common to most lightweight markup languages.
  *  
@@ -27,7 +27,7 @@ import laika.parse.text.TextParsers._
  * 
  *  @author Jens Halm
  */
-object BlockParsers {
+trait BlockParsers {
 
   
   /** Parses a full block based on the specified helper parsers.
@@ -134,5 +134,11 @@ object BlockParsers {
     lookAhead(firstLineGuard) ~> firstLine.repWith(nextLine) ^^ result
   }
 
-
 }
+
+/** Instance that allows to import all block parsers in isolation.
+  *
+  * Usually it is more convenient to import laika.parse.api._ 
+  * to get all parser builders with one import.
+  */
+object BlockParsers extends BlockParsers

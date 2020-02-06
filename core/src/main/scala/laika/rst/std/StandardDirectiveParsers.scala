@@ -20,7 +20,7 @@ import laika.ast._
 import laika.parse.Parser
 import laika.parse.markup.RecursiveParsers
 import laika.parse.text.CharGroup
-import laika.parse.text.TextParsers._
+import laika.parse.api._
 import laika.rst.BaseParsers.simpleRefName
 import laika.rst.TableParsers
 import laika.rst.ast.ReferenceName

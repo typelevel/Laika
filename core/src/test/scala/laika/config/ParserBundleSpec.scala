@@ -28,7 +28,7 @@ import laika.parse.css.CSSParsers
 import laika.parse.directive.ConfigHeaderParser
 import laika.parse.markup.DocumentParser.ParserInput
 import laika.parse.text.TextParsers
-import laika.parse.text.TextParsers._
+import laika.parse.api._
 import org.scalatest.{Matchers, WordSpec}
 
 /**

@@ -37,7 +37,7 @@ import scala.collection.mutable.ListBuffer
  *  
  *  @author Jens Halm
  */
-object InlineParsers {
+trait InlineParsers {
   
 
   /** Abstracts the internal process of building up the result of an inline parser.
@@ -172,6 +172,13 @@ object InlineParsers {
 
 
 }
+
+/** Instance that allows to import all inline parsers in isolation.
+  *
+  * Usually it is more convenient to import laika.parse.api._ 
+  * to get all parser builders with one import.
+  */
+object InlineParsers extends InlineParsers
 
 /** Generic base parser that parses inline elements with potentially nested spans. 
   * 

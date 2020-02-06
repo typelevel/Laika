@@ -18,10 +18,9 @@ package laika.rst.ext
 
 import laika.ast._
 import laika.bundle.{BlockParser, BlockParserBuilder}
-import laika.parse.markup.BlockParsers._
 import laika.parse.markup.RecursiveParsers
 import laika.parse.text.{DelimitedText, PrefixedParser}
-import laika.parse.text.TextParsers._
+import laika.parse.api._
 import laika.parse.{Failure, Parser, Success}
 import laika.rst.BaseParsers._
 import laika.rst.ast.{CustomizedTextRole, SubstitutionDefinition}

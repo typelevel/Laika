@@ -18,7 +18,7 @@ package laika.parse.uri
 
 import laika.ast.~
 import laika.parse.Parser
-import laika.parse.text.TextParsers._
+import laika.parse.api._
 import laika.parse.text.{CharGroup, Characters}
 
 /**

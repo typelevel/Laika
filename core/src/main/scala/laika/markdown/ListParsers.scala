@@ -22,7 +22,7 @@ import laika.parse.Parser
 import laika.parse.combinator.Parsers.opt
 import laika.parse.markup.RecursiveParsers
 import laika.parse.text.{CharGroup, PrefixedParser}
-import laika.parse.text.TextParsers._
+import laika.parse.api._
 
 /** Provides parsers for bullet lists ("unordered list" in the Markdown spec)
   * and enumerated lists ("ordered list" in the Markdown spec).

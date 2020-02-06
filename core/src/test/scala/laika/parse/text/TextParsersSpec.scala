@@ -17,7 +17,7 @@
 package laika.parse.text
 
 import laika.parse.helper.{ParseResultHelpers, StringParserHelpers}
-import laika.parse.text.TextParsers._
+import laika.parse.api._
 import laika.parse.{Failure, ParserContext}
 import org.scalatest.{Matchers, WordSpec}
    

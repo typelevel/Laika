@@ -32,7 +32,7 @@ import laika.parse.combinator.Parsers
  * 
  *  @author Jens Halm
  */
-object TextParsers extends Parsers {
+trait TextParsers extends Parsers {
 
   /** Creates a NonEmptySet from a Character range.
     * This set can then be passed to parsers like `anyOf` or `oneOf`
@@ -409,3 +409,10 @@ object TextParsers extends Parsers {
   def delimiter (parser: PrefixedParser[String]): DelimiterParser = new DelimiterParser(parser)
 
 }
+
+/** Instance that allows to import all text parsers in isolation.
+  * 
+  * Usually it is more convenient to import laika.parse.api._ 
+  * to get all parser builders with one import.
+  */
+object TextParsers extends TextParsers

@@ -20,7 +20,7 @@ import laika.ast.{ExternalLink, Reverse, Span, Text, ~}
 import laika.bundle.{SpanParser, SpanParserBuilder}
 import laika.parse.text.PrefixedParser
 import laika.parse.{Failure, Parser, Success}
-import laika.parse.text.TextParsers._
+import laika.parse.api._
 import laika.parse.uri.URIParsers.{fragment, path, query, regName}
 
 /** Parser for inline auto-links, which are urls or email addresses that are recognized and
