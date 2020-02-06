@@ -148,7 +148,7 @@ object HoconParsers {
     }
     val literalChar = oneOf('"','\\','/')
     val unicode = DigitParsers.hex.take(4).map(Integer.parseInt(_, 16).toChar.toString)
-    val escape = '\\' ~> ((literalChar | specialChar | unicode).map(Right(_)) | oneChar.withContext.map(Left(_)) )
+    val escape = "\\" ~> ((literalChar | specialChar | unicode).map(Right(_)) | oneChar.withContext.map(Left(_)) )
     
     import cats.implicits._
     
@@ -161,7 +161,7 @@ object HoconParsers {
         parts => ValidStringValue(parts.mkString)
       )
     }
-    ('"' ~> value).closeWith('"')((v,f) => InvalidStringValue(v.value, f))
+    ("\"" ~> value).closeWith('"')((v,f) => InvalidStringValue(v.value, f))
   }
 
   /** Parses a string enclosed in triple quotes. */
@@ -224,7 +224,7 @@ object HoconParsers {
 
   /** Parses a substitution variable. */
   val substitutionValue: Parser[ConfigBuilderValue] = {
-    val mainParser = ("${" ~> opt('?') ~ concatenatedKey(NonEmptySet.one('}'))).map {
+    val mainParser = ("${" ~> opt("?") ~ concatenatedKey(NonEmptySet.one('}'))).map {
       case opt ~ Right(key)  => SubstitutionValue(key, opt.isDefined)
       case _ ~ Left(invalid) => invalid
     }
@@ -273,13 +273,13 @@ object HoconParsers {
   
   private val separator: Parser[Any] = (char(',') | eol | comment) ~ wsOrComment
   
-  private val trailingComma: Parser[Any] = opt(',' ~ wsOrComment)
+  private val trailingComma: Parser[Any] = opt("," ~ wsOrComment)
 
   /** Parses an array value recursively. */
   lazy val arrayValue: Parser[ConfigBuilderValue] = {
     lazy val value = wsOrNl ~> concatenatedValue(NonEmptySet.of(']',',','\n','#')) <~ ws
     lazy val values = wsOrComment ~> opt((value ~ (separator ~> value).rep).concat).map(_.toList.flatten) <~ wsOrComment
-    val mainParser = lazily(('[' ~> values <~ trailingComma).map(ArrayBuilderValue))
+    val mainParser = lazily(("[" ~> values <~ trailingComma).map(ArrayBuilderValue))
     mainParser.closeWith[ConfigBuilderValue](']')(InvalidBuilderValue)
   }
 
@@ -309,7 +309,7 @@ object HoconParsers {
 
   /** Parses an object value enclosed in braces. */
   lazy val objectValue: Parser[ConfigBuilderValue] = {
-    val mainParser = lazily('{' ~> objectMembers)
+    val mainParser = lazily("{" ~> objectMembers)
     mainParser.closeWith[ConfigBuilderValue]('}')(InvalidBuilderValue)
   }
 

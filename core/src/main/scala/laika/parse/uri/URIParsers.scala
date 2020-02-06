@@ -77,7 +77,7 @@ object URIParsers {
    *  pct-encoded = "%" HEXDIG HEXDIG
    *  }}}
    */
-  val pctEncoded: Parser[Char ~ String] = '%' ~ hexdig.take(2)
+  val pctEncoded: Parser[String ~ String] = "%" ~ hexdig.take(2)
   
   
   /* authority */  
@@ -88,7 +88,7 @@ object URIParsers {
    *  IPvFuture = "v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" )
    *  }}}
    */
-  val ipvFuture: Parser[Char ~ String ~ Char ~ List[Any]] = 'v' ~ hexdig.min(1) ~ '.' ~ ((unreserved | subDelims | ':')+)
+  val ipvFuture: Parser[String ~ String ~ String ~ List[Any]] = "v" ~ hexdig.min(1) ~ "." ~ ((unreserved | subDelims | ":")+)
   
   /** Parses an IPv4 address as defined in RFC 3986.
    * 
@@ -110,7 +110,7 @@ object URIParsers {
       if (num >= 0 && num < 256) Right(num) else Left("Number must be between 1 and 255")
     }
     
-    (decOctet ~ ('.' ~ decOctet).rep.take(3)).source
+    (decOctet ~ ("." ~ decOctet).rep.take(3)).source
   }
   
   /** Parses an IPv6 address as defined in RFC 3986.
@@ -135,9 +135,9 @@ object URIParsers {
     
     val h16 = hexdig.min(1).max(4)
   
-    val h16Col = h16 ~ ':'
+    val h16Col = h16 ~ ":"
   
-    val ls32 = (h16 ~ ':' ~ h16) | ipv4address
+    val ls32 = (h16 ~ ":" ~ h16) | ipv4address
   
     (h16Col.rep.take(6) ~ ls32) |
     ("::" ~ h16Col.rep.take(5) ~ ls32) |
@@ -156,7 +156,7 @@ object URIParsers {
    *  IP-literal = "[" ( IPv6address / IPvFuture  ) "]"
    *  }}}
    */
-  val ipLiteral: Parser[String] = ('[' ~ (ipv6address | ipvFuture) ~ ']').source
+  val ipLiteral: Parser[String] = ("[" ~ (ipv6address | ipvFuture) ~ "]").source
   
   /** Parses a server name as defined in RFC 3986.
    * 
@@ -189,7 +189,7 @@ object URIParsers {
    *  userinfo = *( unreserved / pct-encoded / sub-delims / ":" )
    *  }}}
    */
-  val userInfo: Parser[String] = ((unreserved | pctEncoded | subDelims | ':')*).source
+  val userInfo: Parser[String] = ((unreserved | pctEncoded | subDelims | ":")*).source
   
   /** Parses the authority part of a URI as defined in RFC 3986.
    * 
@@ -197,7 +197,7 @@ object URIParsers {
    *  authority = [ userinfo "@" ] host [ ":" port ]
    *  }}}
    */
-  val authority: Parser[String] = (opt(userInfo ~ '@') ~ host ~ opt(':' ~ port)).source
+  val authority: Parser[String] = (opt(userInfo ~ "@") ~ host ~ opt(":" ~ port)).source
   
 
   /* path */                  
@@ -220,7 +220,7 @@ object URIParsers {
    *  }}}
    */
   val path: Parser[String] = {
-    val segment = '/' ~ (pChar*)
+    val segment = "/" ~ (pChar*)
     (segment*).source  
   }
 
@@ -262,7 +262,7 @@ object URIParsers {
    *  URI = scheme ":" hier-part [ "?" query ] [ "#" fragment ]
    *  }}}
    */
-  val httpUriNoScheme: Parser[String] = (hierPart ~ opt('?' ~ query) ~ opt('#' ~ fragment)).source
+  val httpUriNoScheme: Parser[String] = (hierPart ~ opt("?" ~ query) ~ opt("#" ~ fragment)).source
 
   /** Parses a full HTTP URI including the scheme part and an authority component 
    *  as defined in RFC 3986.
@@ -300,7 +300,7 @@ object URIParsers {
     val atext = alpha.min(1) | digit.min(1) | 
         someOf('!','#','$','%','&','\'','*','+','-','/','=','?','^','_','`','{','|','}','~')
         
-    ((atext*) ~ (('.' ~ (atext*))*)).source 
+    ((atext*) ~ (("." ~ (atext*))*)).source 
   }
 
   /** Parses the local part of an email address (before the @), with one 
@@ -327,7 +327,7 @@ object URIParsers {
   val domain: Parser[String] = {
     val dtextNoObs = anyOf(range('!', 'Z') ++ range('^', '~')) // all printable ASCII except "[", "]", "\"
     
-    (dotAtomText | ('[' ~ dtextNoObs ~ ']')).source
+    (dotAtomText | ("[" ~ dtextNoObs ~ "]")).source
   }   
   
   /** Parses a single email address as defined in RFC 6068.
@@ -336,7 +336,7 @@ object URIParsers {
    *  addr-spec = local-part "@" domain
    *  }}}
    */
-  val addrSpec: Parser[String] = (localPart ~ '@' ~ domain).source
+  val addrSpec: Parser[String] = (localPart ~ "@" ~ domain).source
   
   /** Parses a sequence of email addresses as defined in RFC 6068.
    * 
@@ -344,7 +344,7 @@ object URIParsers {
    *  to = addr-spec *("," addr-spec )
    *  }}}
    */
-  val to: Parser[String] = (addrSpec ~ ((',' ~ addrSpec)*)).source
+  val to: Parser[String] = (addrSpec ~ (("," ~ addrSpec)*)).source
   
   /** Parses header fields of an email address as defined in RFC 6068.
    * 
@@ -367,9 +367,9 @@ object URIParsers {
     val hfname  = qChar*
     val hfvalue = qChar*
 
-    val hfield = hfname ~ '=' ~ hfvalue
+    val hfield = hfname ~ "=" ~ hfvalue
     
-    ('?' ~ hfield ~ (('&' ~ hfield)*)).source
+    ("?" ~ hfield ~ (("&" ~ hfield)*)).source
   }
   
   /** Parses a mailto URI without the scheme part as defined in RFC 6068.

@@ -20,9 +20,9 @@ import cats.data.NonEmptyList
 import laika.ast.{CodeSpan, ~}
 import laika.bundle.SyntaxHighlighter
 import laika.parse.Parser
-import laika.parse.code.{CodeCategory, CodeSpanParser}
-import laika.parse.code.common.{NumberLiteral, StringLiteral}
 import laika.parse.api._
+import laika.parse.code.common.StringLiteral
+import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.rst.BaseParsers
 import laika.rst.InlineParsers.{markupEnd, markupStart}
 
@@ -65,7 +65,7 @@ object ReStructuredTextSyntax extends SyntaxHighlighter {
 
   val header: CodeSpanParser = CodeSpanParser.onLineStart(CodeCategory.Markup.Headline) {
     newLine ~ oneOf(BaseParsers.punctuationChars) >> { case nl ~ startChar =>
-      (someOf(startChar.head) ~ ws ~ ('\n' ~> not(blankLine) ~> restOfLine) ~ someOf(startChar.head) ~ ws <~ nextIn('\n')).map {
+      (someOf(startChar.head) ~ ws ~ ("\n" ~> not(blankLine) ~> restOfLine) ~ someOf(startChar.head) ~ ws <~ nextIn('\n')).map {
         case deco1 ~ spaces ~ text ~ deco2 ~ spaces2 => s"$nl$startChar$deco1$spaces\n$text\n$deco2$spaces2"
       }
     }
@@ -82,7 +82,7 @@ object ReStructuredTextSyntax extends SyntaxHighlighter {
 
   val transition: CodeSpanParser = CodeSpanParser.onLineStart(CodeCategory.Markup.Fence) {
     newLine ~ oneOf(BaseParsers.punctuationChars) >> { case nl ~ startChar =>
-      someOf(startChar.head).map(nl + startChar + _) <~ lookAhead(ws ~ '\n' ~ blankLine)
+      someOf(startChar.head).map(nl + startChar + _) <~ lookAhead(ws ~ "\n" ~ blankLine)
     }
   }
 

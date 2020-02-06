@@ -54,7 +54,7 @@ class ExplicitBlockParsers (recParsers: RecursiveParsers) {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#footnotes]]. 
    */
   lazy val footnote: Parser[FootnoteDefinition] = {
-    val prefix = '[' ~> footnoteLabel <~ ']' ~ ws
+    val prefix = "[" ~> footnoteLabel <~ "]" ~ ws
     
     (prefix ~ recursiveBlocks(indentedBlock())).mapN(FootnoteDefinition(_, _))
   }
@@ -64,7 +64,7 @@ class ExplicitBlockParsers (recParsers: RecursiveParsers) {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#citations]]. 
    */
   lazy val citation: Parser[Citation] = {
-    val prefix = '[' ~> simpleRefName <~ ']' ~ ws
+    val prefix = "[" ~> simpleRefName <~ "]" ~ ws
     
     (prefix ~ recursiveBlocks(indentedBlock())).mapN(Citation(_, _))
   }
@@ -75,18 +75,18 @@ class ExplicitBlockParsers (recParsers: RecursiveParsers) {
    */
   lazy val linkTarget: Parser[Block with Span] = {
     
-    val named = '_' ~> (('`' ~> escapedUntil('`') <~ ':') | escapedUntil(':')).map { ReferenceName(_).normalized }
+    val named = "_" ~> (("`" ~> escapedUntil('`') <~ ":") | escapedUntil(':')).map { ReferenceName(_).normalized }
       
     val internal = named.map(id => InternalLinkTarget(Id(id)))
     
     val external = {
-      val anonymous = "__:".as("")
+      val anonymous = literal("__:").as("")
     
       ((anonymous | named) ~ ExplicitBlockParsers.linkDefinitionBody).mapN(ExternalLinkDefinition(_, _))
     }
     
     val indirect = {
-      (named <~ ws) ~ ((opt(eol ~ ws) ~ "`" ~> escapedText(delimitedBy('`')) | simpleRefName) <~ '_' ~ wsEol) ^^ {
+      (named <~ ws) ~ ((opt(eol ~ ws) ~ "`" ~> escapedText(delimitedBy('`')) | simpleRefName) <~ "_" ~ wsEol) ^^ {
         case name ~ refName => LinkAlias(name, refName.replaceAll("\n", "")) 
       }
     }

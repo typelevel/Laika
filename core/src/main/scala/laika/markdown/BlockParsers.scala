@@ -150,11 +150,11 @@ object BlockParsers {
 
     import escapedParsers._
 
-    val id = '[' ~> escapedUntil(']').map(_.toLowerCase) <~ ':' <~ ws.void
-    val url = ('<' ~> escapedUntil('>')) | escapedText(delimitedBy(' ', '\n').acceptEOF.keepDelimiter)
+    val id = "[" ~> escapedUntil(']').map(_.toLowerCase) <~ ":" <~ ws.void
+    val url = ("<" ~> escapedUntil('>')) | escapedText(delimitedBy(' ', '\n').acceptEOF.keepDelimiter)
 
     def enclosedBy(start: Char, end: Char) =
-      start ~> delimitedBy(end.toString <~ lookAhead(wsEol)).failOn('\r', '\n')
+      start.toString ~> delimitedBy(end.toString <~ lookAhead(wsEol)).failOn('\r', '\n')
 
     val title = (ws.void ~ opt(eol) ~ ws.void) ~> (enclosedBy('"', '"') | enclosedBy('\'', '\'') | enclosedBy('(', ')'))
 
@@ -199,9 +199,9 @@ object BlockParsers {
    */
   val quotedBlock: BlockParserBuilder = BlockParser.recursive { recParsers =>
     PrefixedParser('>') {
-      val decoratedLine = '>' ~ ws.max(1).void
+      val decoratedLine = ">" ~ ws.max(1).void
       recParsers
-        .recursiveBlocks(decoratedBlock(decoratedLine, decoratedLine | not(blankLine), '>'))
+        .recursiveBlocks(decoratedBlock(decoratedLine, decoratedLine | not(blankLine), ">"))
         .map(QuotedBlock(_, Nil))
     }
   }

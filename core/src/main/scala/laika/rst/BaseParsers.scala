@@ -20,7 +20,7 @@ import cats.implicits._
 import cats.data.NonEmptySet
 import laika.ast._
 import laika.parse.Parser
-import laika.parse.text.TextParsers.{anyOf, char, someOf}
+import laika.parse.text.TextParsers.{anyOf, literal, someOf}
 import laika.parse.text.{CharGroup, Characters, TextParsers}
 
 /**
@@ -52,9 +52,9 @@ object BaseParsers {
     */
   val footnoteLabel: Parser[FootnoteLabel] = {
     val decimal = someOf(CharGroup.digit).map(n => NumericLabel(n.toInt))
-    val autonumber = '#'.as(Autonumber)
-    val autosymbol = '*'.as(Autosymbol)
-    val autonumberLabel = '#' ~> simpleRefName.map(AutonumberLabel)
+    val autonumber = literal("#").as(Autonumber)
+    val autosymbol = literal("*").as(Autosymbol)
+    val autonumberLabel = "#" ~> simpleRefName.map(AutonumberLabel)
 
     decimal | autonumberLabel | autonumber | autosymbol
   }

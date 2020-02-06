@@ -269,19 +269,19 @@ class ParserSpec extends WordSpec with Matchers with ParseResultHelpers with Str
     import TextParsers._
 
     "succeed when the underlying parser succeeds at the current offset" in {
-      Parsing("abcd") using lookAhead('a') should produce('a')
+      Parsing("abcd") using lookAhead("a") should produce("a")
     }
 
     "succeed when the underlying parser succeeds at the specified offset" in {
-      Parsing("abcd") using lookAhead(2, 'c') should produce('c')
+      Parsing("abcd") using lookAhead(2, "c") should produce("c")
     }
 
     "fail when the underlying parser fails at the current offset" in {
-      Parsing("abcd") using lookAhead('c') should cause [Failure]
+      Parsing("abcd") using lookAhead("c") should cause [Failure]
     }
 
     "fail when the underlying parser fails at the specified offset" in {
-      Parsing("abcd") using lookAhead(2, 'a') should cause [Failure]
+      Parsing("abcd") using lookAhead(2, "a") should cause [Failure]
     }
 
 
@@ -295,15 +295,15 @@ class ParserSpec extends WordSpec with Matchers with ParseResultHelpers with Str
     import TextParsers._
 
     "succeed when the specified parser succeeds at the given negative offset" in {
-      lookBehind(2, 'a').parse(input) should produce('a')
+      lookBehind(2, "a").parse(input) should produce("a")
     }
 
     "fail when the specified parser fails at the given negative offset" in {
-      lookBehind(2, 'b').parse(input) should cause[Failure]
+      lookBehind(2, "b").parse(input) should cause[Failure]
     }
 
     "fail when the specified negative offset is too big" in {
-      lookBehind(7, 'a').parse(input) should cause[Failure]
+      lookBehind(7, "a").parse(input) should cause[Failure]
     }
 
   }

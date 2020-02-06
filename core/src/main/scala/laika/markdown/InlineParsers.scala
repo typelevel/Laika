@@ -177,21 +177,21 @@ object InlineParsers {
                 ref: (RecParser, String, String, String) => Span,
                 recParsers: RecursiveSpanParsers): Parser[Span] = {
 
-    val linkText = text(delimitedBy(']'))
+    val linkText = text(delimitedBy("]"))
       .embed(recParsers.escapeSequence.map {"\\" + _})
-      .embed('[' ~> delimitedBy(']').map { "[" + _ + "]" })
+      .embed("[" ~> delimitedBy("]").map { "[" + _ + "]" })
 
-    val titleEnd = ws.void ~ ')'
-    def enclosedIn(c: Char): Parser[String] = c ~> delimitedBy(c.toString <~ lookAhead(titleEnd))
-    val title = ws.void ~> (enclosedIn('"') | enclosedIn('\''))
+    val titleEnd = ws.void ~ ")"
+    def enclosedIn(delim: String): Parser[String] = delim ~> delimitedBy(delim <~ lookAhead(titleEnd))
+    val title = ws.void ~> (enclosedIn("\"") | enclosedIn("'"))
 
-    val url = ('<' ~> text(delimitedBy('>').failOn(' ')).embed(recParsers.escapeSequence)) |
+    val url = ("<" ~> text(delimitedBy('>').failOn(' ')).embed(recParsers.escapeSequence)) |
        text(delimitedBy(')',' ','\t').keepDelimiter).embed(recParsers.escapeSequence)
     
-    val urlWithTitle = '(' ~> url ~ opt(title) <~ ws ~ ')' ^^ {  
+    val urlWithTitle = "(" ~> url ~ opt(title) <~ ws ~ ")" ^^ {  
       case url ~ title => (recParser: RecParser, text:String) => inline(recParser, text, url, title)
     }
-    val refId =    ws ~ opt(eol).source ~ ('[' ~> recParsers.escapedUntil(']')) ^^ {
+    val refId =    ws ~ opt(eol).source ~ ("[" ~> recParsers.escapedUntil(']')) ^^ {
       case ws ~ lb ~ id => (recParser: RecParser, text:String) =>
         ref(recParser, text, id,   s"]$ws$lb[$id]") }
 
@@ -220,7 +220,7 @@ object InlineParsers {
 
     def toLink(s: String) = ExternalLink(List(Text(s)), s)
 
-    ('<' ~> anyNot(' ','\r','\n','\t','>') <~ '>').collect {
+    ("<" ~> anyNot(' ','\r','\n','\t','>') <~ ">").collect {
       case s if isURI(s) => toLink(s)
       case s if isEmail(s) => toLink(s"mailto:$s")
     }

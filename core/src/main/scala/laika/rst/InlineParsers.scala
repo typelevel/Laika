@@ -251,7 +251,7 @@ object InlineParsers {
   lazy val phraseLinkRef: SpanParserBuilder = SpanParser.recursive { recParsers =>
     
     def ref (refName: String, url: String) = if (refName.isEmpty) url else refName
-    val urlPart = '<' ~> delimitedBy('>').map { _.replaceAll("[ \n]+", "") }
+    val urlPart = "<" ~> delimitedBy('>').map { _.replaceAll("[ \n]+", "") }
     val refName = recParsers.escapedText(delimitedBy('`','<').keepDelimiter).map(ReferenceName)
     val end = markupEnd("`__").as(false) | markupEnd("`_").as(true)
     

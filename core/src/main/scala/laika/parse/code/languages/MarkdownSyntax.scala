@@ -20,7 +20,7 @@ import cats.data.NonEmptyList
 import laika.ast.{CodeSpan, ~}
 import laika.bundle.SyntaxHighlighter
 import laika.parse.Parser
-import laika.parse.code.common.{NumberLiteral, StringLiteral}
+import laika.parse.code.common.StringLiteral
 import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.text.PrefixedParser
 import laika.parse.api._
@@ -42,10 +42,10 @@ object MarkdownSyntax extends SyntaxHighlighter {
 
   private def linkParser (prefix: String): PrefixedParser[Seq[CodeSpan]] = {
 
-    val url = '(' ~> delimitedBy(')').nonEmpty.failOn('\n')
+    val url = "(" ~> delimitedBy(')').nonEmpty.failOn('\n')
       .map(url => CodeSpan(s"($url)", CodeCategory.Markup.LinkTarget))
     
-    val ref = '[' ~> delimitedBy(']').failOn('\n')
+    val ref = "[" ~> delimitedBy(']').failOn('\n')
       .map(ref => CodeSpan(s"[$ref]", CodeCategory.Markup.LinkTarget))
     
     val link = (literal(prefix) ~ delimitedBy(']').failOn('\n')).source
@@ -63,7 +63,7 @@ object MarkdownSyntax extends SyntaxHighlighter {
   val startOfLine: Parser[String] = atStart.as("") | "\n"
 
   val linkTarget: CodeSpanParser = CodeSpanParser.onLineStart {
-    (startOfLine ~> '[' ~> delimitedBy("]:").failOn('\n') ~ restOfLine).map {
+    (startOfLine ~> "[" ~> delimitedBy("]:").failOn('\n') ~ restOfLine).map {
       case ref ~ target => Seq(
         CodeSpan("\n"),
         CodeSpan(s"[$ref]:", CodeCategory.Identifier),
@@ -88,7 +88,7 @@ object MarkdownSyntax extends SyntaxHighlighter {
 
   val rules: CodeSpanParser = CodeSpanParser.onLineStart(CodeCategory.Markup.Fence) {
     Seq('*', '-', '_').map { decoChar =>
-      (char(decoChar) ~ (anyOf(' ') ~ literal(decoChar.toString)).source.rep.min(2) ~ ws ~ '\n').map {
+      (char(decoChar) ~ (anyOf(' ') ~ literal(decoChar.toString)).source.rep.min(2) ~ ws ~ "\n").map {
         case start ~ pattern ~ s ~ nl => start.toString + pattern.mkString + s + nl
       }
     }.reduceLeft(_ | _)

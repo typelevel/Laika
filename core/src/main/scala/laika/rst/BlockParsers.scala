@@ -116,7 +116,7 @@ object BlockParsers {
    */
   lazy val blockQuote: BlockParserBuilder = BlockParser.recursive { recParsers =>
     
-    val attributionStart = "---" | "--" | '\u2014' // em dash
+    val attributionStart = "---" | "--" | "\u2014" // em dash
         
     def attribution (indent: Int) = ws.take(indent) ~ attributionStart ~ ws.max(1) ~>
       recParsers.recursiveSpans(indentedBlock(minIndent = indent, endsOnBlankLine = true))

@@ -95,9 +95,9 @@ object SpanParser {
 
   class LegacySyntax (startChar: Char) {
     def standalone (parser: Parser[Span]): SpanParserBuilderOps =
-      SpanParserBuilderOps(_ => startChar ~> parser, recursive = false, Precedence.High)
+      SpanParserBuilderOps(_ => literal(startChar.toString) ~> parser, recursive = false, Precedence.High)
     def recursive (factory: RecursiveSpanParsers => Parser[Span]): SpanParserBuilderOps =
-      SpanParserBuilderOps(rec => startChar ~> factory(rec), recursive = true, Precedence.High)
+      SpanParserBuilderOps(rec => literal(startChar.toString) ~> factory(rec), recursive = true, Precedence.High)
   }
 }
 
@@ -176,7 +176,7 @@ object BlockParser {
 
   class LegacySyntax (startChar: Option[Char] = None) {
     private def createParser(p: Parser[Block]): Parser[Block] =
-      startChar.fold(p){ c => c ~> p }
+      startChar.fold(p){ c => c.toString ~> p }
     def standalone (parser: Parser[Block]): BlockParserBuilderOps =
       BlockParserBuilderOps(_ => createParser(parser))
     def recursive (factory: RecursiveParsers => Parser[Block]): BlockParserBuilderOps =

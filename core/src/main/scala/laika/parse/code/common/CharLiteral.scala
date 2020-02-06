@@ -47,7 +47,7 @@ object CharLiteral {
       def plainChar(char: String) = oneNot('\'', '\n').map(CodeSpan(_, categories))
       val delimParser = oneOf(delim).map(CodeSpan(_, categories))
 
-      (delim ~> lookAhead(oneChar)).flatMap { char =>
+      (delim.toString ~> lookAhead(oneChar)).flatMap { char =>
         (PrefixedParser.mapAndMerge(embedded.flatMap(_.parsers)).getOrElse(char.head, plainChar(char)) ~ delimParser).map { 
           case span ~ delimSpan => 
             val codeSpans = delimSpan +: CodeSpans.extract(categories)(span) :+ delimSpan

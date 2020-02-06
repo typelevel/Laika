@@ -70,19 +70,19 @@ object CSSParsers {
   /** Parses a combinator between two predicates.
    */
   val combinator: Parser[Combinator] =
-    (ws ~ '>' ~ ws).as(Child) | ws.min(1).as(Descendant)
+    (ws ~ ">" ~ ws).as(Child) | ws.min(1).as(Descendant)
 
   /** Parses a single type selector.
    */
   val typeSelector: Parser[List[StylePredicate]] =
-    styleRefName.map { name => List(StylePredicate.ElementType(name)) } | '*'.as(Nil)
+    styleRefName.map { name => List(StylePredicate.ElementType(name)) } | "*".as(Nil)
     
   /** Parses a single predicate.
    */
   val predicate: Parser[StylePredicate] = {
     
-    val id: Parser[StylePredicate]        = '#' ~> styleRefName.map(StylePredicate.Id)
-    val styleName: Parser[StylePredicate] = '.' ~> styleRefName.map(StylePredicate.StyleName)
+    val id: Parser[StylePredicate]        = "#" ~> styleRefName.map(StylePredicate.Id)
+    val styleName: Parser[StylePredicate] = "." ~> styleRefName.map(StylePredicate.StyleName)
     
     id | styleName
   }
@@ -104,7 +104,7 @@ object CSSParsers {
 
   /** Parses a sequence of selectors, separated by a comma.
     */
-  val selectorGroup: Parser[Seq[StyleSelector]] = (selector ~ (ws ~ ',' ~ ws ~> selector).rep).concat
+  val selectorGroup: Parser[Seq[StyleSelector]] = (selector ~ (ws ~ "," ~ ws ~> selector).rep).concat
 
   /** Parses the value of a single style, ignoring
     *  any comments..
@@ -116,7 +116,7 @@ object CSSParsers {
 
   /** Parses a single style within a declaration.
     */
-  val style: Parser[Style] = ((styleRefName <~ ws ~ ':' ~ ws) ~ (styleValue <~ wsOrNl)).mapN(Style)
+  val style: Parser[Style] = ((styleRefName <~ ws ~ ":" ~ ws) ~ (styleValue <~ wsOrNl)).mapN(Style)
 
   /** Parses a single CSS comment.
     */
@@ -126,7 +126,7 @@ object CSSParsers {
    *  any comments.
    */
   val styleDeclarations: Parser[Seq[StyleDeclaration]] =
-    ((selectorGroup <~ wsOrNl ~ '{' ~ wsOrNl) ~ ((comment | style)*) <~ (wsOrNl ~ '}')).map {
+    ((selectorGroup <~ wsOrNl ~ "{" ~ wsOrNl) ~ ((comment | style)*) <~ (wsOrNl ~ "}")).map {
       case selectors ~ stylesAndComments => 
         val styles = stylesAndComments collect { case st: Style => (st.name, st.value) } toMap;
         selectors map (StyleDeclaration(_, styles))

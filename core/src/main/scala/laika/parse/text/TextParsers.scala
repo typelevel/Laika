@@ -44,10 +44,7 @@ trait TextParsers extends Parsers {
     NonEmptySet.of(range.head, range.tail:_*)
   }
 
-  /** A parser that matches only the specified character.
-    *
-    * The method is implicit so that characters can automatically be lifted to their parsers.
-    */
+  @deprecated("use oneOf(char) or literal(char.toString) to parse a single character", "0.14.0")
   implicit def char (expected: Char): PrefixedParser[Char] = {
     val errMsg: Char => Message = Message.forRuntimeValue[Char] { found => s"'$expected' expected but $found found" }
     val p = Parser { in =>

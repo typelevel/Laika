@@ -36,7 +36,7 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
     legacyReference(key => TemplateContextReference(Key.parse(key), required = true)),
     hoconReference(TemplateContextReference(_,_), _.asTemplateSpan),
     templateDirective,
-    '\\' ~> oneChar.map(Text(_))
+    "\\" ~> oneChar.map(Text(_))
   )
 
   lazy val templateDirective: PrefixedParser[TemplateSpan] = {
@@ -45,7 +45,7 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
       val contextRef = legacyReference(key => TemplateContextReference(Key.parse(key), required = true))
       val spanParser = recursiveSpans(delimitedBy('}')).embed(contextRef).embed(nestedBraces)
       
-      wsOrNl ~ '{' ~> spanParser.source.map(_.dropRight(1))
+      wsOrNl ~ "{" ~> spanParser.source.map(_.dropRight(1))
     }
     
     val newBody: BodyParserBuilder = spec =>

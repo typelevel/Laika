@@ -51,22 +51,22 @@ object Tables {
       }
     }
     
-    val firstRow: PrefixedParser[Row] = '|' ~> rowRest(HeadCell)
+    val firstRow: PrefixedParser[Row] = "|" ~> rowRest(HeadCell)
     
     val bodyRow: Parser[Row] = {
-      val rowStart = insignificantSpaces ~ not(oneOf('*','+','-','>','_','#','[',' ','\t')) ~ opt('|')
+      val rowStart = insignificantSpaces ~ not(oneOf('*','+','-','>','_','#','[',' ','\t')) ~ opt("|")
       rowStart ~> rowRest(BodyCell)
     }
 
     val sepRow: Parser[Seq[Options]] = {
 
-      val separator: Parser[Option[Char] ~ Option[Char]] =
-        (ws ~> opt(':')) ~ (someOf('-').void ~> opt(':') <~ ws)
+      val separator: Parser[Option[String] ~ Option[String]] =
+        (ws ~> opt(":")) ~ (someOf('-').void ~> opt(":") <~ ws)
 
-      val delimitedSeparators = (separator <~ '|').rep
+      val delimitedSeparators = (separator <~ "|").rep
       val optFinalSep = opt(separator)
 
-      opt('|') ~> delimitedSeparators ~ optFinalSep <~ wsEol ^^ {
+      opt("|") ~> delimitedSeparators ~ optFinalSep <~ wsEol ^^ {
         case seps ~ finalSep => (seps ++ finalSep.toSeq).map {
           case Some(_) ~ Some(_) => Styles("align-center")
           case Some(_) ~ None    => Styles("align-left")

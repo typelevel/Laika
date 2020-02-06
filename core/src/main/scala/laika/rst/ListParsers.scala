@@ -115,9 +115,9 @@ object ListParsers {
     lazy val firstEnumType: Parser[(Int,EnumType)] = 
       firstAutoNumber | firstArabic | firstLowerAlpha | firstUpperAlpha | firstLowerRoman | firstUpperRoman
       
-      ('(' ~ firstEnumType ~ ')').map { 
+      ("(" ~ firstEnumType ~ ")").map { 
         case prefix ~ enumType ~ suffix => (EnumFormat(enumType._2, prefix.toString, suffix.toString), enumType._1) 
-      } | (firstEnumType ~ ')' | firstEnumType ~ '.').map { 
+      } | (firstEnumType ~ ")" | firstEnumType ~ ".").map { 
         case enumType ~ suffix => (EnumFormat(enumType._2, "", suffix.toString), enumType._1) 
       }
   }
@@ -190,7 +190,7 @@ object ListParsers {
    */
   lazy val fieldList: BlockParserBuilder = BlockParser.recursive { recParsers =>
     
-    val nameParser = ':' ~> recParsers.escapedUntil(':') <~ (lookAhead(eol) | ' ')
+    val nameParser = ":" ~> recParsers.escapedUntil(':') <~ (lookAhead(eol) | " ")
     
     val name    = recParsers.recursiveSpans(nameParser)
     val content = recParsers.recursiveBlocks(indentedBlock())
@@ -208,7 +208,7 @@ object ListParsers {
   lazy val optionList: BlockParserBuilder = BlockParser.recursive { recParsers =>
     
     val optionString = someOf(CharGroup.alphaNum.add('_').add('-'))
-    val optionArg = optionString | ('<' ~> delimitedBy('>')).map { "<" + _ + ">" }
+    val optionArg = optionString | ("<" ~> delimitedBy('>')).map { "<" + _ + ">" }
     
     val gnu =        ("+" ~ oneOf(CharGroup.alphaNum)).source
     val shortPosix = ("-" ~ oneOf(CharGroup.alphaNum)).source

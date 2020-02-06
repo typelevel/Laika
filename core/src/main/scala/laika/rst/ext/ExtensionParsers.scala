@@ -121,7 +121,7 @@ class ExtensionParsers(recParsers: RecursiveParsers,
    */
   lazy val roleDirective: Parser[Block] = {
     
-    val nameParser = "role::" ~ ws ~> simpleRefName ~ opt('(' ~> simpleRefName <~ ')')
+    val nameParser = "role::" ~ ws ~> simpleRefName ~ opt("(" ~> simpleRefName <~ ")")
     
     def directiveParser (name: String)(builder: RoleDirectivePartBuilder[String => Span]): Parser[Block] = {
       val delegate = new DefaultDirectiveParserBuilder
@@ -195,7 +195,7 @@ class ExtensionParsers(recParsers: RecursiveParsers,
     // TODO - some duplicate logic with original fieldList parser
     lazy val directiveFieldList: Parser[Vector[Part]] = {
 
-      val nameParser = ':' ~> escapedUntil(':') <~ (lookAhead(eol) | ' ')
+      val nameParser = ":" ~> escapedUntil(':') <~ (lookAhead(eol) | " ")
 
       val item = ws.min(1).count >> { firstIndent =>
         nameParser ~ indentedBlock(firstIndent + 1).trim
