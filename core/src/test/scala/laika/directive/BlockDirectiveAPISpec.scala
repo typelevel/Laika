@@ -27,6 +27,7 @@ import laika.parse.combinator.Parsers
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import laika.parse.markup.RootParserProvider
 import laika.parse.api._
+import laika.parse.implicits._
 import laika.rewrite.TemplateRewriter
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -136,7 +137,7 @@ class BlockDirectiveAPISpec extends FlatSpec
     lazy val directiveSupport: ParserBundle = DirectiveSupport.withDirectives(Seq(directive), Seq(), Seq()).parsers
 
     lazy val paragraphParser: BlockParserBuilder = BlockParser.recursive { recParser =>
-      recParser.recursiveSpans(((Parsers.not(blankLine) ~> restOfLine) +).map(_.mkString("\n"))) ^^ { Paragraph(_) }
+      recParser.recursiveSpans(((Parsers.not(blankLine) ~> restOfLine) +).mkLines) ^^ { Paragraph(_) }
     }
 
     lazy val defaultParser: Parser[RootElement] = RootParserProvider.forParsers(

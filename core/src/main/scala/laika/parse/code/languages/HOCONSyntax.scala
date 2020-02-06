@@ -45,7 +45,7 @@ object HOCONSyntax extends SyntaxHighlighter {
     val validChar = oneNot('$', '"', '{', '}', '[', ']', ':', '=', ',', '+', '#', '`', '^', '?', '!', '@', '*', '&', '\\', ' ', '\t','\n')
     
     validChar | oneOf(' ') <~ lookAhead(ws ~ validChar)
-  }.rep.map(_.mkString)
+  }.rep.source
   
   val unquotedAttributeName: CodeSpanParser = CodeSpanParser(CodeCategory.AttributeName) {
     PrefixedParser(CharGroup.alpha)(unquotedChar <~ lookAhead(ws ~ oneOf(':','=','{'))) // TODO - 0.14 - this is inaccurate

@@ -19,6 +19,7 @@ package laika.parse.markup
 import laika.ast.~
 import laika.parse.Parser
 import laika.parse.api._
+import laika.parse.implicits._
 
 /** Provides base parsers that abstract aspects of block parsing common to most lightweight markup languages.
  *  
@@ -45,12 +46,9 @@ trait BlockParsers {
     
     lazy val line = linePrefix ~> restOfLine
     
-    lazy val nextBlock = blankLines <~ lookAhead(nextBlockPrefix) ^^ { _.mkString("\n") }
+    lazy val nextBlock = (blankLines <~ lookAhead(nextBlockPrefix)).mkLines
     
-    firstLine ~ ( (line | nextBlock)* ) ^^ {
-      case first ~ Nil  => first
-      case first ~ rest => first + "\n" + rest.mkString("\n")
-    }
+    (firstLine ~ ( (line | nextBlock)* )).concat.mkLines
     
   }
 

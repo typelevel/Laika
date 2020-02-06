@@ -29,6 +29,7 @@ import laika.parse.directive.ConfigHeaderParser
 import laika.parse.markup.DocumentParser.ParserInput
 import laika.parse.text.TextParsers
 import laika.parse.api._
+import laika.parse.implicits._
 import org.scalatest.{Matchers, WordSpec}
 
 /**
@@ -72,7 +73,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
 
     final val parserBundles = Nil
 
-    val textBlockParser  = (TextParsers.textLine +).map(_.mkString("\n"))
+    val textBlockParser: Parser[String] = TextParsers.textLine.rep.min(1).mkLines
 
   }
 

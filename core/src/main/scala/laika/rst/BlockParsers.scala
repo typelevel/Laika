@@ -19,6 +19,7 @@ package laika.rst
 import laika.ast._
 import laika.bundle.{BlockParser, BlockParserBuilder}
 import laika.parse.api._
+import laika.parse.implicits._
 import laika.parse.text.Characters
 import laika.parse.{Parsed, Parser, ParserContext, Success}
 import laika.rst.ast.{DoctestBlock, OverlineAndUnderline, Underline}
@@ -57,7 +58,7 @@ object BlockParsers {
    */
   lazy val paragraph: BlockParserBuilder = BlockParser.withSpans { spanParsers =>
     spanParsers
-      .recursiveSpans((textLine +).map(_.mkString("\n")))
+      .recursiveSpans(textLine.rep.min(1).mkLines)
       .map(Paragraph(_))
   }
 
@@ -70,7 +71,7 @@ object BlockParsers {
       val char = start.charAt(0)
       anyOf(char) >> { deco =>
         val len = deco.length + 1
-        val text = spanParsers.recursiveSpans((anyNot('\n') max len).map(_.trim))
+        val text = spanParsers.recursiveSpans(anyNot('\n').max(len).map(_.trim))
         val decoLine = anyOf(char) take len
 
         (wsEol ~> text <~ wsEol ~ decoLine ~ wsEol).map {
@@ -105,9 +106,8 @@ object BlockParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#doctest-blocks]]
    */
   val doctest: BlockParserBuilder = BlockParser.standalone {
-    ">>> " ~> restOfLine ~ ((not(blankLine) ~> restOfLine) *) ^^ {
-      case first ~ rest => DoctestBlock((first :: rest) mkString "\n")
-    }
+    val lineParser = restOfLine ~ (not(blankLine) ~> restOfLine).rep
+    ">>> " ~> lineParser.concat.mkLines.map(DoctestBlock(_))
   }
   
   /** Parses a block quote with an optional attribution.
