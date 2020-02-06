@@ -238,8 +238,10 @@ object InlineParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#interpreted-text]]
    */  
   def interpretedTextWithRoleSuffix (defaultTextRole: String): SpanParserBuilder = SpanParser.recursive { recParsers =>
-    markupStart("`", "`") ~> recParsers.escapedText(delimitedBy(markupEnd("`")).nonEmpty) ~ opt(":" ~> simpleRefName <~ markupEnd(":")) ^^
-    { case text ~ role => InterpretedText(role.getOrElse(defaultTextRole), text, s"`$text`" + role.map(":"+_+":").getOrElse("")) }
+    val textParser = markupStart("`", "`") ~> recParsers.escapedText(delimitedBy(markupEnd("`")).nonEmpty)
+    val roleSuffix = opt(":" ~> simpleRefName <~ markupEnd(":"))
+    (textParser ~ roleSuffix).map { case text ~ role => 
+      InterpretedText(role.getOrElse(defaultTextRole), text, s"`$text`" + role.map(":"+_+":").getOrElse("")) }
   }.withLowPrecedence
   
   /** Parses a phrase link reference (enclosed in back ticks).

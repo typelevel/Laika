@@ -117,12 +117,12 @@ object HoconParsers {
     val digits = anyOf(CharGroup.digit)
     val oneToNine = oneOf(range('1', '9'))
     val nonZero = (oneToNine ~ digits).source
-    val negativeSign = opt('-').map(_.fold("")(_.toString))
-    val sign = opt(oneOf('-') | oneOf('+')).map(_.getOrElse(""))
+    val negativeSign = opt(oneOf('-')).source
+    val sign = opt(oneOf('-') | oneOf('+')).source
     
     val integer = (negativeSign ~ (zero | nonZero)).source
-    val fraction = opt((oneOf('.') ~ digits).source).map(_.getOrElse(""))
-    val exponent = opt((oneOf('E','e') ~ sign ~ digits).source).map(_.getOrElse(""))
+    val fraction = opt((oneOf('.') ~ digits).source).source
+    val exponent = opt((oneOf('E','e') ~ sign ~ digits).source).source
 
     (integer ~ (fraction ~ exponent).source).evalMap {
       case int ~ ""         => 

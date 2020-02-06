@@ -21,7 +21,7 @@ import cats.implicits._
 import laika.ast.{CodeSpan, ~}
 import laika.parse.code.CodeCategory
 import laika.parse.api._
-import laika.parse.text.{CharGroup, PrefixCharacters, PrefixedParser, TextParsers}
+import laika.parse.text.{CharGroup, PrefixCharacters, PrefixedParser}
 import laika.parse.Parser
 
 /** Configurable base parsers for number literals.
@@ -74,7 +74,7 @@ object NumberLiteral {
         }
 
         val number = exponent.fold(digitParser) { exp =>
-          val optExp = opt(exp).map(_.getOrElse(""))
+          val optExp = opt(exp).source
           if (prefixOrFirstDigit == ".") {
             (digitParser ~ optExp).source
           }
@@ -85,7 +85,7 @@ object NumberLiteral {
           }
         }
 
-        val optSuffix = suffix.fold(emptyString)(opt(_).map(_.getOrElse("")))
+        val optSuffix = suffix.fold(emptyString)(opt(_).source)
         val postCondition = if (allowFollowingLetter) success(()) else nextNot(java.lang.Character.isLetter(_))
 
         (number ~ optSuffix <~ postCondition).source.map { rest => 

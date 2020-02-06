@@ -191,13 +191,13 @@ object InlineParsers {
     val urlWithTitle = '(' ~> url ~ opt(title) <~ ws ~ ')' ^^ {  
       case url ~ title => (recParser: RecParser, text:String) => inline(recParser, text, url, title)
     }
-    val refId =    ws ~ opt(eol) ~ ('[' ~> recParsers.escapedUntil(']')) ^^ {
+    val refId =    ws ~ opt(eol).source ~ ('[' ~> recParsers.escapedUntil(']')) ^^ {
       case ws ~ lb ~ id => (recParser: RecParser, text:String) =>
-        ref(recParser, text, id,   "]"+ws+ lb.getOrElse("") +"["+id+"]") }
+        ref(recParser, text, id,   s"]$ws$lb[$id]") }
 
-    val refEmpty = ws ~ opt(eol) ~ "[]" ^^ {
+    val refEmpty = ws ~ opt(eol).source ~ "[]" ^^ {
       case ws ~ lb ~ _  => (recParser: RecParser, text:String) =>
-        ref(recParser, text, text, "]"+ws+ lb.getOrElse("") +"[]") }
+        ref(recParser, text, text, s"]$ws$lb[]") }
 
     recParsers.withRecursiveSpanParser(linkText) ~ opt(urlWithTitle | refEmpty | refId) ^^ {
       case (recParser, text) ~ None    => ref(recParser, text, text, "]")
