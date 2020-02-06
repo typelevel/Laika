@@ -70,8 +70,12 @@ object implicits {
     def concat: PrefixedParser[Seq[T]] = p.map { case s1 ~ s2 ~ s3 ~ s4 => s1 ++ s2 ++ s3 ++ s4 }
   }
 
-  implicit class SeqStringOps[T] (val p: Parser[Seq[String]]) extends AnyVal {
+  implicit class SeqStringParserOps[T] (val p: Parser[Seq[String]]) extends AnyVal {
     def mkLines: Parser[String] = p.map { _.mkString("\n") }
+  }
+
+  implicit class StringParserOps[T] (val p: Parser[String]) extends AnyVal {
+    def trim: Parser[String] = p.map(_.trim)
   }
   
   implicit class Map2Ops[A, B] (val p: Parser[A ~ B]) extends AnyVal {

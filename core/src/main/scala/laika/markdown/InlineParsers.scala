@@ -22,6 +22,7 @@ import laika.parse.Parser
 import laika.parse.markup.InlineParsers.text
 import laika.parse.markup.RecursiveSpanParsers
 import laika.parse.api._
+import laika.parse.implicits._
 import laika.parse.text.{DelimitedText, PrefixedParser}
 
 import scala.util.Try
@@ -107,7 +108,7 @@ object InlineParsers {
   val literalEnclosedBySingleChar: PrefixedParser[Literal] = {
     val start = delimiter('`').nextNot('`')
     val end = '`'
-    start ~> delimitedBy(end).map { s => Literal(s.trim) }
+    start ~> delimitedBy(end).trim.map(Literal(_))
   }
   
   /** Parses a literal span enclosed by double backticks.
@@ -115,7 +116,7 @@ object InlineParsers {
    */
   val literalEnclosedByDoubleChar: PrefixedParser[Literal] = {
     val delim = "``"
-    delim ~> delimitedBy(delim).map { s => Literal(s.trim) }
+    delim ~> delimitedBy(delim).trim.map(Literal(_))
   }
 
   /** Parses a literal span enclosed by double or single backticks.

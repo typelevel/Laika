@@ -22,6 +22,7 @@ import laika.markdown.BlockParsers._
 import laika.parse.Parser
 import laika.parse.text.PrefixedParser
 import laika.parse.api._
+import laika.parse.implicits._
 
 /** Parser for the table extension of GitHub Flavored Markdown.
   *
@@ -34,7 +35,7 @@ object Tables {
   val parser: BlockParserBuilder = BlockParser.withSpans { spanParsers =>
 
     def cell (textParser: Parser[String], cellType: CellType): Parser[Cell] =
-      spanParsers.recursiveSpans(textParser.map(_.trim)).map { spans =>
+      spanParsers.recursiveSpans(textParser.trim).map { spans =>
         Cell(cellType, Seq(Paragraph(spans)))
       }
 

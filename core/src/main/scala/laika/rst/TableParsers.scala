@@ -83,7 +83,7 @@ object TableParsers {
       case object BlankLine extends CellLine(Int.MaxValue) { def padTo (indent: Int) = "" }
       case class TextLine (i: Int, text: String) extends CellLine(i) { def padTo (minIndent: Int) = " " * (indent - minIndent) + text }
       
-      val cellLine = not(eof) ~> (blankLine.as(BlankLine) | (ws.count ~ restOfLine.map(_.trim)).mapN(TextLine))
+      val cellLine = not(eof) ~> (blankLine.as(BlankLine) | (ws.count ~ restOfLine.trim).mapN(TextLine))
 
       consumeAll(cellLine*).parse(cellContent) match {
         case Success(lines, _) => 

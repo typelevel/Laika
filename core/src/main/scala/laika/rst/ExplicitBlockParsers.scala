@@ -98,11 +98,7 @@ class ExplicitBlockParsers (recParsers: RecursiveParsers) {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#comments]].
    */
-  val comment: Parser[Comment] = {
-    indentedBlock().map { block =>
-      Comment(block.trim)
-    }
-  }
+  val comment: Parser[Comment] = indentedBlock().trim.map(Comment(_))
   
 }
 

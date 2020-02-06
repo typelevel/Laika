@@ -71,7 +71,7 @@ object BlockParsers {
       val char = start.charAt(0)
       anyOf(char) >> { deco =>
         val len = deco.length + 1
-        val text = spanParsers.recursiveSpans(anyNot('\n').max(len).map(_.trim))
+        val text = spanParsers.recursiveSpans(anyNot('\n').max(len).trim)
         val decoLine = anyOf(char) take len
 
         (wsEol ~> text <~ wsEol ~ decoLine ~ wsEol).map {

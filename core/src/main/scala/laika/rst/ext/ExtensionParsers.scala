@@ -21,7 +21,8 @@ import laika.bundle.{BlockParser, BlockParserBuilder}
 import laika.parse.markup.RecursiveParsers
 import laika.parse.text.{DelimitedText, PrefixedParser}
 import laika.parse.api._
-import laika.parse.{Failure, Parser, Success}
+import laika.parse.implicits._
+import laika.parse.Parser
 import laika.rst.BaseParsers._
 import laika.rst.ast.{CustomizedTextRole, SubstitutionDefinition}
 import laika.rst.bundle.RstExtension
@@ -194,13 +195,11 @@ class ExtensionParsers(recParsers: RecursiveParsers,
     // TODO - some duplicate logic with original fieldList parser
     lazy val directiveFieldList: Parser[Vector[Part]] = {
 
-      val name = ':' ~> escapedUntil(':') <~ (lookAhead(eol) | ' ')
+      val nameParser = ':' ~> escapedUntil(':') <~ (lookAhead(eol) | ' ')
 
       val item = ws.min(1).count >> { firstIndent =>
-        (name ~ indentedBlock(firstIndent + 1)) ^^
-          { case name ~ block =>
-            (name, block.trim)
-          }}
+        nameParser ~ indentedBlock(firstIndent + 1).trim
+      }
 
       ((opt(wsEol) ~> (item +)) | success(Nil)).evalMap { fields =>
 
@@ -211,7 +210,7 @@ class ExtensionParsers(recParsers: RecursiveParsers,
         val unknown = parsed.diff(requiredFields).diff(optionalFields)
         val missing = requiredFields.diff(parsed)
         
-        def parts: Vector[Part] = fields.map { case (name, value) => Part(Key.Field(name), value) }.toVector
+        def parts: Vector[Part] = fields.map { case name ~ value => Part(Key.Field(name), value) }.toVector
 
         val errors = 
           (if (unknown.nonEmpty) Seq(unknown.mkString("unknown options: ",", ","")) else Nil) ++ 
