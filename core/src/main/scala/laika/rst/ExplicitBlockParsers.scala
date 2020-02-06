@@ -20,6 +20,7 @@ import laika.ast._
 import laika.bundle.{BlockParser, BlockParserBuilder}
 import laika.parse.markup.RecursiveParsers
 import laika.parse.api._
+import laika.parse.implicits._
 import laika.parse.Parser
 import laika.rst.ast._
 import BaseParsers._
@@ -55,9 +56,7 @@ class ExplicitBlockParsers (recParsers: RecursiveParsers) {
   lazy val footnote: Parser[FootnoteDefinition] = {
     val prefix = '[' ~> footnoteLabel <~ ']' ~ ws
     
-    prefix ~ recursiveBlocks(indentedBlock()) ^^ {
-      case label ~ blocks => FootnoteDefinition(label, blocks)
-    }
+    (prefix ~ recursiveBlocks(indentedBlock())).mapN(FootnoteDefinition(_, _))
   }
   
   /** Parses a citation.
@@ -67,9 +66,7 @@ class ExplicitBlockParsers (recParsers: RecursiveParsers) {
   lazy val citation: Parser[Citation] = {
     val prefix = '[' ~> simpleRefName <~ ']' ~ ws
     
-    prefix ~ recursiveBlocks(indentedBlock()) ^^ {
-      case label ~ blocks => Citation(label, blocks)
-    }
+    (prefix ~ recursiveBlocks(indentedBlock())).mapN(Citation(_, _))
   }
   
   /** Parses a link definition, either an internal, external or indirect link.
@@ -85,9 +82,7 @@ class ExplicitBlockParsers (recParsers: RecursiveParsers) {
     val external = {
       val anonymous = "__:".as("")
     
-      (anonymous | named) ~ ExplicitBlockParsers.linkDefinitionBody ^^ {
-        case name ~ body => ExternalLinkDefinition(name, body)
-      }
+      ((anonymous | named) ~ ExplicitBlockParsers.linkDefinitionBody).mapN(ExternalLinkDefinition(_, _))
     }
     
     val indirect = {

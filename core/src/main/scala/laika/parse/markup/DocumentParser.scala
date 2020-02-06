@@ -22,6 +22,7 @@ import laika.config.{ConfigError, ConfigParser}
 import laika.factory.MarkupFormat
 import laika.parse.combinator.Parsers
 import laika.parse.{Parser, ParserContext}
+import laika.parse.implicits._
 
 /** Responsible for creating the top level parsers for text markup and template documents,
   * by combining the parser for the root element with a parser for an (optional) configuration
@@ -45,9 +46,8 @@ object DocumentParser {
     (docFactory: (Path, ConfigParser, R) => D): ParserInput => Either[ParserError, D] = {
 
     forParser { path =>
-      (configProvider.configHeader | Parsers.success(ConfigParser.empty)) ~ rootParser ^^ { case configHeader ~ root =>
-        docFactory(path, configHeader, root)
-      }
+      val configHeader = configProvider.configHeader | Parsers.success(ConfigParser.empty)
+      (configHeader ~ rootParser).mapN(docFactory(path, _, _))
     }
   }
 

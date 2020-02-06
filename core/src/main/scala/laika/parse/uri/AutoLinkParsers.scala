@@ -21,6 +21,7 @@ import laika.bundle.{SpanParser, SpanParserBuilder}
 import laika.parse.text.PrefixedParser
 import laika.parse.{Failure, Parser, Success}
 import laika.parse.api._
+import laika.parse.implicits._
 import laika.parse.uri.URIParsers.{fragment, path, query, regName}
 
 /** Parser for inline auto-links, which are urls or email addresses that are recognized and
@@ -59,9 +60,7 @@ class AutoLinkParsers (reverseMarkupStart: Parser[Any],
     PrefixedParser(forwardParser.startChars) {
       val rev = reverse(0, reverseParser <~ reverseMarkupStart)
       val fwd = forwardParser <~ lookAhead(eol | afterEndMarkup)
-      val parser = (rev ~ fwd).map {
-        case scheme ~ rest => (scheme, separator, rest)
-      }
+      val parser = (rev ~ fwd).mapN((_, separator, _))
       trim(parser)
     }
 

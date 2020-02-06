@@ -116,9 +116,7 @@ object CSSParsers {
 
   /** Parses a single style within a declaration.
     */
-  val style: Parser[Style] = ((styleRefName <~ ws ~ ':' ~ ws) ~ (styleValue <~ wsOrNl)) ^^ {
-    case name ~ value => Style(name, value)
-  }
+  val style: Parser[Style] = ((styleRefName <~ ws ~ ':' ~ ws) ~ (styleValue <~ wsOrNl)).mapN(Style)
 
   /** Parses a single CSS comment.
     */

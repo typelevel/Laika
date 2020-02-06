@@ -26,6 +26,7 @@ import laika.parse.markup.InlineParsers.spans
 import laika.parse.markup.RecursiveSpanParsers
 import laika.parse.text.{CharGroup, DelimitedText, PrefixedParser}
 import laika.parse.api._
+import laika.parse.implicits._
 
 /** Parses verbatim HTML elements which may interleave with standard Markdown markup.
  *  Extends the Markdown block and inline parsers, overriding several of their
@@ -113,34 +114,29 @@ object HTMLParsers {
 
   /** Parses an HTML comment without the leading `'<'`.
    */
-  val htmlComment: Parser[HTMLComment] = "!--" ~> delimitedBy("-->").map { HTMLComment(_) }
+  val htmlComment: Parser[HTMLComment] = "!--" ~> delimitedBy("-->").map(HTMLComment(_))
 
   /** Parses an HTML comment without the leading `'<'`.
     */
   val htmlScriptElement: Parser[HTMLScriptElement] =
-    ("script" ~> (htmlWS ~> (htmlAttribute *) <~ htmlWS) <~ '>') ~ delimitedBy("</script>") ^^ {
-      case attributes ~ content => HTMLScriptElement(attributes, content) 
-    }
+    (("script" ~> (htmlWS ~> htmlAttribute.rep <~ htmlWS) <~ '>') ~ delimitedBy("</script>"))
+      .mapN(HTMLScriptElement(_, _)) 
 
   /** Parses an empty HTML element without the leading `'<'`.
    *  Only recognizes empty tags explicitly closed.
    */
-  val htmlEmptyElement: Parser[HTMLEmptyElement] = htmlTagContent <~ "/>" ^^ {
-    case tagName ~ attributes => HTMLEmptyElement(tagName, attributes)
-  }
+  val htmlEmptyElement: Parser[HTMLEmptyElement] = (htmlTagContent <~ "/>").mapN(HTMLEmptyElement(_, _))
 
   /** Parses an HTML start tag without the leading `'<'`.
    *  Only recognizes empty tags explicitly closed.
    */
-  val htmlStartTag: Parser[HTMLStartTag] = htmlTagContent <~ '>' ^^ {
-    case tagName ~ attributes => HTMLStartTag(tagName, attributes)
-  }
+  val htmlStartTag: Parser[HTMLStartTag] = (htmlTagContent <~ '>').mapN(HTMLStartTag(_, _))
 
   /** Parses an HTML element without the leading `'<'`, but including
    *  all the nested HTML and Text elements.
    */
   lazy val htmlElement: Parser[HTMLElement] = htmlStartTag >> {
-    tag => spans(htmlEndTag(tag.name)).embedAll(htmlBlockParsers) ^^ {
+    tag => spans(htmlEndTag(tag.name)).embedAll(htmlBlockParsers).map {
       spans => HTMLElement(tag, spans)
     }
   }
@@ -149,7 +145,7 @@ object HTMLParsers {
     * all the nested HTML and Text elements, as well as any nested Markdown spans.
     */
   def htmlElementWithNestedMarkdown (recParsers: RecursiveSpanParsers): Parser[HTMLElement] = htmlStartTag >> {
-    tag => recParsers.recursiveSpans(htmlEndTag(tag.name)) ^^ {
+    tag => recParsers.recursiveSpans(htmlEndTag(tag.name)).map {
       spans => HTMLElement(tag, spans)
     }
   }

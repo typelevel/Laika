@@ -22,6 +22,7 @@ import laika.parse.Parser
 import laika.parse.markup.BlockParsers.block
 import laika.parse.markup.RecursiveParsers
 import laika.parse.api._
+import laika.parse.implicits._
 import laika.parse.text.{PrefixedParser, WhitespacePreprocessor}
 
 
@@ -149,7 +150,7 @@ object BlockParsers {
 
     import escapedParsers._
 
-    val id = '[' ~> escapedUntil(']') <~ ':' <~ ws.void
+    val id = '[' ~> escapedUntil(']').map(_.toLowerCase) <~ ':' <~ ws.void
     val url = ('<' ~> escapedUntil('>')) | escapedText(delimitedBy(' ', '\n').acceptEOF.keepDelimiter)
 
     def enclosedBy(start: Char, end: Char) =
@@ -157,7 +158,7 @@ object BlockParsers {
 
     val title = (ws.void ~ opt(eol) ~ ws.void) ~> (enclosedBy('"', '"') | enclosedBy('\'', '\'') | enclosedBy('(', ')'))
 
-    id ~ url ~ opt(title) <~ wsEol ^^ { case id ~ url ~ title => ExternalLinkDefinition(id.toLowerCase, url, title) }
+    (id ~ url ~ opt(title) <~ wsEol).mapN(ExternalLinkDefinition(_, _, _))
   }.rootOnly
 
   /** Parses an ATX header, a line that starts with 1 to 6 `'#'` characters,
@@ -168,10 +169,11 @@ object BlockParsers {
   val atxHeader: BlockParserBuilder = BlockParser.recursive { recParsers =>
     
     def stripDecoration (text: String) = text.trim.reverse.dropWhile(_ == '#').reverse.trim
+    
+    val level = someOf('#').max(6).count
+    val text = recParsers.recursiveSpans(restOfLine.map(stripDecoration))
 
-    someOf('#').max(6).count ~ (not(blankLine) ~> recParsers.recursiveSpans(restOfLine.map(stripDecoration))) ^^ {
-      case level ~ spans => Header(level, spans)
-    }
+    (level ~ (not(blankLine) ~> text)).mapN(Header(_,_))
   }
 
   /** Parses a horizontal rule, a line only decorated with three or more `'*'`, `'-'` or `'_'`

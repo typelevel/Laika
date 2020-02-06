@@ -21,6 +21,7 @@ import cats.data.NonEmptySet
 import laika.ast.{Size, ~}
 import laika.parse.{Failure, Message, Parser, Success}
 import laika.parse.combinator.Parsers
+import laika.parse.implicits._
 
 /** Base text parsers that provide optimized low-level parsers for typical requirements
  *  of text markup parsers. In particular they are meant as an efficient replacement
@@ -139,7 +140,7 @@ trait TextParsers extends Parsers {
   val sizeAndUnit: Parser[Size] = {
     val digit = someOf(CharGroup.digit)
     val amount = (digit ~ opt("." ~ digit)).source.map(_.toDouble)
-    amount ~ (ws ~> (refName | "%")) ^^ { case amt ~ unit => Size(amt, unit) }
+    (amount ~ (ws ~> (refName | "%"))).mapN(Size)
   }
 
 

@@ -192,11 +192,12 @@ object ListParsers {
     
     val nameParser = ':' ~> recParsers.escapedUntil(':') <~ (lookAhead(eol) | ' ')
     
-    val item = (recParsers.recursiveSpans(nameParser) ~ recParsers.recursiveBlocks(indentedBlock())) ^^ {
-      case name ~ blocks => Field(name, blocks)
-    }
+    val name    = recParsers.recursiveSpans(nameParser)
+    val content = recParsers.recursiveBlocks(indentedBlock())
     
-    (item +).map(FieldList(_))
+    val item = (name ~ content).mapN(Field(_, _))
+    
+    item.rep.min(1).map(FieldList(_))
   }
   
   
@@ -218,15 +219,13 @@ object ListParsers {
       case delim ~ argStr => OptionArgument(argStr, delim)
     }
     
-    val option = (gnu | shortPosix | longPosix | dos) ~ opt(arg) ^^ { case option ~ arg => ProgramOption(option, arg) }
+    val option = ((gnu | shortPosix | longPosix | dos) ~ opt(arg)).mapN(ProgramOption)
     
     val options = (option ~ (", " ~> option).rep).concat
     
     val descStart = (anyOf(' ').min(2) ~ not(blankLine)) | lookAhead(blankLine ~ ws.min(1) ~ not(blankLine)).as("")
     
-    val item = (options ~ (descStart ~> recParsers.recursiveBlocks(indentedBlock()))) ^^ {
-      case name ~ blocks => OptionListItem(name, blocks)
-    }
+    val item = (options ~ (descStart ~> recParsers.recursiveBlocks(indentedBlock()))).mapN(OptionListItem(_,_))
     
     ((item <~ opt(blankLines)) +).map(OptionList(_))
   }

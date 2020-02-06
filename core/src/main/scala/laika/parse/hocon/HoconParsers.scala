@@ -23,6 +23,7 @@ import laika.config._
 import laika.parse.code.common.NumberLiteral.DigitParsers
 import laika.parse.text.{CharGroup, Characters, TextParsers}
 import laika.parse.api._
+import laika.parse.implicits._
 import laika.parse.{Failure, Message, Parser, ParserContext, Success}
 
 import scala.util.Try
@@ -277,7 +278,7 @@ object HoconParsers {
   /** Parses an array value recursively. */
   lazy val arrayValue: Parser[ConfigBuilderValue] = {
     lazy val value = wsOrNl ~> concatenatedValue(NonEmptySet.of(']',',','\n','#')) <~ ws
-    lazy val values = wsOrComment ~> opt(value ~ (separator ~> value).rep).map(_.fold(Seq.empty[ConfigBuilderValue]){ case v ~ vs => v +: vs }) <~ wsOrComment
+    lazy val values = wsOrComment ~> opt((value ~ (separator ~> value).rep).concat).map(_.toList.flatten) <~ wsOrComment
     val mainParser = lazily(('[' ~> values <~ trailingComma).map(ArrayBuilderValue))
     mainParser.closeWith[ConfigBuilderValue](']')(InvalidBuilderValue)
   }
@@ -287,17 +288,22 @@ object HoconParsers {
     val keySeparators = NonEmptySet.of(':','=','{','+')
     lazy val key = wsOrNl ~> concatenatedKey(keySeparators) <~ ws
     lazy val value = wsOrNl ~> concatenatedValue(NonEmptySet.of('}',',','\n','#')) <~ ws
+    
     lazy val withSeparator = ((oneOf(':','=') | "+=") ~ value).map {
       case "+=" ~ element => ConcatValue(SelfReference, Seq(ConcatPart("", ArrayBuilderValue(Seq(element))))) 
       case _ ~ v => v 
     }
     lazy val withoutSeparator = ws ~> objectValue <~ ws
+    
     val msg = "Expected separator after key ('=', '+=', ':' or '{')"
     val fallback = failWith(ws.count <~ anyNot('\n'), msg)(InvalidBuilderValue(SelfReference,_))
+    
     val includeField = include.map(BuilderField(Right(Key.root), _))
     val valueField = (key ~ (withSeparator | withoutSeparator | fallback)).map { case k ~ v => BuilderField(k, v) }
-    lazy val member = includeField | valueField
-    lazy val members = opt(member ~ (separator ~> member).rep).map(_.fold(Seq.empty[BuilderField]) { case m ~ ms => m +: ms })
+    
+    lazy val member  = includeField | valueField
+    lazy val members = opt((member ~ (separator ~> member).rep).concat).map(_.toList.flatten)
+    
     (wsOrComment ~> members <~ wsOrComment <~ trailingComma).map(ObjectBuilderValue)
   }
 

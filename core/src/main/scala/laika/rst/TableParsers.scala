@@ -22,6 +22,7 @@ import laika.collection.TransitionalCollectionOps.Zip3Iterator
 import laika.collection.Stack
 import laika.parse.{Parser, Success}
 import laika.parse.api._
+import laika.parse.implicits._
 
 import scala.collection.mutable.ListBuffer
 
@@ -79,13 +80,11 @@ object TableParsers {
     
     def trimmedCellContent: String = {
       abstract class CellLine (val indent: Int) { def padTo (indent: Int): String }
-      object BlankLine extends CellLine(Int.MaxValue) { def padTo (indent: Int) = "" }
-      class TextLine (i: Int, text: String) extends CellLine(i) { def padTo (minIndent: Int) = " " * (indent - minIndent) + text }
+      case object BlankLine extends CellLine(Int.MaxValue) { def padTo (indent: Int) = "" }
+      case class TextLine (i: Int, text: String) extends CellLine(i) { def padTo (minIndent: Int) = " " * (indent - minIndent) + text }
       
-      val cellLine = not(eof) ~> (blankLine.as(BlankLine) | (ws.count ~ restOfLine) ^^ { 
-        case indent ~ text => new TextLine(indent, text.trim) 
-      }) 
-      
+      val cellLine = not(eof) ~> (blankLine.as(BlankLine) | (ws.count ~ restOfLine.map(_.trim)).mapN(TextLine))
+
       consumeAll(cellLine*).parse(cellContent) match {
         case Success(lines, _) => 
           val minIndent = lines map (_.indent) min;

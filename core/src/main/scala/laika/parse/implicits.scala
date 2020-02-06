@@ -74,4 +74,20 @@ object implicits {
     def mkLines: Parser[String] = p.map { _.mkString("\n") }
   }
   
+  implicit class Map2Ops[A, B] (val p: Parser[A ~ B]) extends AnyVal {
+    def mapN[Z] (f: (A,B) => Z): Parser[Z] = p.map { case a ~ b => f(a,b) }
+  }
+
+  implicit class Map3Ops[A, B, C] (val p: Parser[A ~ B ~ C]) extends AnyVal {
+    def mapN[Z] (f: (A,B,C) => Z): Parser[Z] = p.map { case a ~ b ~ c => f(a,b,c) }
+  }
+
+  implicit class Map4Ops[A, B, C, D] (val p: Parser[A ~ B ~ C ~ D]) extends AnyVal {
+    def mapN[Z] (f: (A,B,C,D) => Z): Parser[Z] = p.map { case a ~ b ~ c ~ d => f(a,b,c,d) }
+  }
+
+  implicit class Map5Ops[A, B, C, D, E] (val p: Parser[A ~ B ~ C ~ D ~ E]) extends AnyVal {
+    def mapN[Z] (f: (A,B,C,D,E) => Z): Parser[Z] = p.map { case a ~ b ~ c ~ d ~ e => f(a,b,c,d,e) }
+  }
+  
 }
