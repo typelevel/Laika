@@ -86,7 +86,7 @@ object DirectiveParsers {
       BuilderField(name, ResolvedBuilderValue(StringValue(value)))
     }
 
-    (wsOrNl ~> opt(defaultAttribute <~ wsOrNl) ~ ((wsOrNl ~> attribute)*)) <~ ws ^^
+    (wsOrNl ~> opt(defaultAttribute <~ wsOrNl) ~ (wsOrNl ~> attribute).rep) <~ ws ^^
       { case defAttr ~ attrs => ObjectBuilderValue(defAttr.toList ++ attrs) }
 
     ((wsOrNl ~> opt(defaultAttribute <~ wsOrNl).map(_.toList) ~ (wsOrNl ~> attribute).rep).concat <~ ws)

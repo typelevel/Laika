@@ -19,6 +19,7 @@ package laika.factory
 import laika.ast.Block
 import laika.bundle.{BlockParserBuilder, ExtensionBundle, SpanParserBuilder}
 import laika.parse.Parser
+import laika.parse.combinator.Parsers
 import laika.parse.text.TextParsers
 
 /** Responsible for creating parser instances for a specific markup format.
@@ -79,6 +80,7 @@ trait MarkupFormat {
     * for special requirements, for example when the previous result has an influence on
     * which parser to pick for the subsequent block.
     */
-  def createBlockListParser (parser: Parser[Block]): Parser[Seq[Block]] = (parser <~ TextParsers.blankLines.?)*
+  def createBlockListParser (parser: Parser[Block]): Parser[Seq[Block]] = 
+    (parser <~ Parsers.opt(TextParsers.blankLines)).rep
 
 }

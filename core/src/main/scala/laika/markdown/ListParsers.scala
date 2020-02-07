@@ -57,9 +57,9 @@ object ListParsers {
                                         newList: List[I] => T,
                                         newItem: (Int, Seq[Block]) => I)(implicit recParsers: RecursiveParsers): Parser[T] = {
 
-    def flattenItems (firstItem: Seq[Block], items: List[Option[Any] ~ Seq[Block]]) = {
+    def flattenItems (firstItem: Seq[Block], items: List[Boolean ~ Seq[Block]]) = {
 
-      val hasBlankLines = items.exists(_._1.isDefined)
+      val hasBlankLines = items.exists(_._1)
       val blockItems = firstItem +: items.map(_._2)
 
       def rewriteItemContent (blocks: Seq[Block], pos: Int) = {
@@ -88,7 +88,7 @@ object ListParsers {
       not(rule) ~> itemStart, not(blankLine | itemStart) ~ opt(BlockParsers.tabOrSpace), BlockParsers.tabOrSpace
     ))
 
-    listItem ~ ((opt(blankLines) ~ listItem) *) ^^
+    listItem ~ (opt(blankLines).map(_.isDefined) ~ listItem).rep ^^
       { case firstItem ~ items => newList(flattenItems(firstItem, items)) }
   }
 

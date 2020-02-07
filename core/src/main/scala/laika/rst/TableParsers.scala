@@ -85,7 +85,7 @@ object TableParsers {
       
       val cellLine = not(eof) ~> (blankLine.as(BlankLine) | (ws.count ~ restOfLine.trim).mapN(TextLine))
 
-      consumeAll(cellLine*).parse(cellContent) match {
+      consumeAll(cellLine.rep).parse(cellContent) match {
         case Success(lines, _) => 
           val minIndent = lines map (_.indent) min;
           lines map (_.padTo(minIndent)) mkString ("\n")
@@ -201,7 +201,7 @@ object TableParsers {
     val intersect = oneOf(intersectChar).as(Intersection)
 
     val rowSep = someOf('-').count
-    val topBorder = intersect ~> ((rowSep <~ intersect)+) <~ wsEol
+    val topBorder = intersect ~> (rowSep <~ intersect).rep.min(1) <~ wsEol
 
     val colSep = oneOf('|').as(CellSeparator("|")) | intersect
     val colSepOrText = colSep | oneChar.map(CellElement)
@@ -260,7 +260,7 @@ object TableParsers {
       }
       
       val boundaryRow = tableBoundary <~ oneChar ~ wsEol
-      val tablePart = ((not(tableBoundary) ~> row <~ oneChar ~ wsEol)*)
+      val tablePart = (not(tableBoundary) ~> row <~ oneChar ~ wsEol).rep
       (tablePart ~ opt(boundaryRow ~> tablePart)).evalMap { result =>
         
       /* Need to fail for certain illegal constructs in the interim model, 
@@ -320,7 +320,7 @@ object TableParsers {
       val boundary: Parser[Any] = (boundaryColumns reduceRight (_ ~ _)) <~ wsEol
       val blank: Parser[Any] = not(eof) ~> blankLine
       
-      val tablePart: Parser[List[Any]] = (((blank | row)*) ~ boundary).map { 
+      val tablePart: Parser[List[Any]] = ((blank | row).rep ~ boundary).map { 
         case rows ~ boundary => rows :+ boundary 
       }
       

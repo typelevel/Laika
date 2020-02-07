@@ -89,7 +89,7 @@ object ListParsers {
   lazy val bulletList: BlockParserBuilder = BlockParser.recursive { implicit recParsers =>
     lookAhead(bulletListStart <~ ws.min(1)) >> { symbol =>
       val bullet = StringBullet(symbol)
-      (listItem(literal(symbol), BulletListItem(_, bullet)) +).map { items => 
+      listItem(literal(symbol), BulletListItem(_, bullet)).rep.min(1).map { items => 
         BulletList(rewriteListItems(items,(item:BulletListItem,content) => item.copy(content = content)),bullet) 
       }
     }
@@ -153,7 +153,7 @@ object ListParsers {
       
     lookAhead(enumListStart <~ ws.min(1)) >> { case (format, start) =>
       val pos = Iterator.from(start)
-      (listItem(itemStart(format), EnumListItem(_, format, pos.next)) +).map { items => 
+      listItem(itemStart(format), EnumListItem(_, format, pos.next)).rep.min(1).map { items => 
         EnumList(rewriteListItems(items, (item:EnumListItem, content) => item.copy(content = content)), format, start) 
       }
     }
@@ -180,7 +180,7 @@ object ListParsers {
       case termRes ~ blocks => DefinitionListItem(termRes, blocks)
     }
     
-    ((item <~ opt(blankLines)) +).map(DefinitionList(_))
+    (item <~ opt(blankLines)).rep.min(1).map(DefinitionList(_))
   }
   
   
@@ -227,7 +227,7 @@ object ListParsers {
     
     val item = (options ~ (descStart ~> recParsers.recursiveBlocks(indentedBlock()))).mapN(OptionListItem(_,_))
     
-    ((item <~ opt(blankLines)) +).map(OptionList(_))
+    (item <~ opt(blankLines)).rep.min(1).map(OptionList(_))
   }
   
   /** Parses a block of lines with line breaks preserved.

@@ -201,7 +201,7 @@ class ExtensionParsers(recParsers: RecursiveParsers,
         nameParser ~ indentedBlock(firstIndent + 1).trim
       }
 
-      ((opt(wsEol) ~> (item +)) | success(Nil)).evalMap { fields =>
+      ((opt(wsEol) ~> item.rep.min(1)) | success(Nil)).evalMap { fields =>
 
         // TODO - 0.14 - might defer validation to a later step
         

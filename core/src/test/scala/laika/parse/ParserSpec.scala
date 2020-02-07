@@ -167,11 +167,11 @@ class ParserSpec extends WordSpec with Matchers with ParseResultHelpers with Str
   "The optional parser" should {
 
     "produce a Some when the underlying parser succeeds" in {
-      Parsing("abc") using (parser1 ?) should produce (Option("ab"))
+      Parsing("abc") using opt(parser1) should produce (Option("ab"))
     }
 
     "produce a None when the underlying parser fails" in {
-      Parsing("xxx") using (parser1 ?) should produce (Option.empty[String])
+      Parsing("xxx") using opt(parser1) should produce (Option.empty[String])
     }
 
   }
@@ -223,7 +223,7 @@ class ParserSpec extends WordSpec with Matchers with ParseResultHelpers with Str
     }
 
     "succeed if at least one invocation succeeds" in {
-      Parsing("abc") using parser1.max(1).+ should produce (List("a","b"))
+      Parsing("abc") using parser1.max(1).rep.min(1) should produce (List("a","b"))
     }
 
     "succeed if the specified number of successful invocations is reached" in {

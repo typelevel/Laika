@@ -114,7 +114,7 @@ object BlockParsers {
   private def headerOrParagraph (lineCondition: Parser[Any], listWithoutBlankline: Parser[Option[Block]])
                         (implicit recParsers: RecursiveParsers) : Parser[Block] = {
 
-      val lines = (lineCondition ~> restOfLine) *
+      val lines = (lineCondition ~> restOfLine).rep
 
       val decorationOrLines: Parser[Either[String, List[String] ~ Option[Block]]] =
         setextDecoration.map { Left(_) } | (lines ~ listWithoutBlankline).map { Right(_) }

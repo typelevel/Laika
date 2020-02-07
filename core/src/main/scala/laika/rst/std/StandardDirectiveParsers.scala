@@ -115,7 +115,7 @@ object StandardDirectiveParsers {
     val dec = someOf(CharGroup.digit).map(Integer.parseInt)
     val unicode = (hex | dec).map { int => new String(Character.toChars(int)) }
     val text = someNot(' ')
-    val parser = (((unicode | text) <~ ws)*).map(_.mkString(" "))
+    val parser = ((unicode | text) <~ ws).rep.map(_.mkString(" "))
     parseDirectivePart(parser, input)
   }
   

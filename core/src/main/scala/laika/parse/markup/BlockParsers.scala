@@ -48,7 +48,7 @@ trait BlockParsers {
     
     lazy val nextBlock = (blankLines <~ lookAhead(nextBlockPrefix)).mkLines
     
-    (firstLine ~ ( (line | nextBlock)* )).concat.mkLines
+    (firstLine ~ (line | nextBlock).rep).concat.mkLines
     
   }
 

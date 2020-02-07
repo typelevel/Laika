@@ -90,12 +90,12 @@ object CSSParsers {
   /** Parses the sub-part of a selector without any combinators, e.g. `Paragraph#title`.
     */
   val simpleSelectorSequence: Parser[StyleSelector] =
-    ((typeSelector ~ predicate.rep).concat | (predicate+)).map(preds => StyleSelector(preds.toSet))
+    ((typeSelector ~ predicate.rep).concat | predicate.rep.min(1)).map(preds => StyleSelector(preds.toSet))
 
   /** Parses a single selector.
     */
   val selector: Parser[StyleSelector] =
-    simpleSelectorSequence ~ ((combinator ~ simpleSelectorSequence)*) ^^ {
+    simpleSelectorSequence ~ (combinator ~ simpleSelectorSequence).rep ^^ {
       case sel ~ sels =>  sels.foldLeft(sel) {
         case (parent, Child ~ sel)      => sel.copy(parent = Some(ParentSelector(parent, immediate = true)))
         case (parent, Descendant ~ sel) => sel.copy(parent = Some(ParentSelector(parent, immediate = false)))
@@ -126,18 +126,18 @@ object CSSParsers {
    *  any comments.
    */
   val styleDeclarations: Parser[Seq[StyleDeclaration]] =
-    ((selectorGroup <~ wsOrNl ~ "{" ~ wsOrNl) ~ ((comment | style)*) <~ (wsOrNl ~ "}")).map {
-      case selectors ~ stylesAndComments => 
+    ((selectorGroup <~ wsOrNl ~ "{" ~ wsOrNl) ~ (comment | style).rep <~ (wsOrNl ~ "}"))
+      .mapN { (selectors, stylesAndComments) =>
         val styles = stylesAndComments collect { case st: Style => (st.name, st.value) } toMap;
         selectors map (StyleDeclaration(_, styles))
-    }
+      }
   
   /** Parses an entire set of style declarations.
    *  This is the top level parser of this trait.
    */
   lazy val styleDeclarationSet: Parser[Set[StyleDeclaration]] = {
 
-    (wsOrNl ~ (comment*) ~> ((styleDeclarations <~ wsOrNl ~ (comment*))*)).map {
+    (wsOrNl ~ comment.rep ~> (styleDeclarations <~ wsOrNl ~ comment.rep).rep).map {
       _.flatten.zipWithIndex.map({
         case (decl,pos) => decl.increaseOrderBy(pos)
       }).toSet

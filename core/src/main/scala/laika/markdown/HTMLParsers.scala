@@ -102,7 +102,7 @@ object HTMLParsers {
 
   /** Parses an HTML tag without the enclosing `'<'` and `'>'` characters.
    */
-  val htmlTagContent: Parser[String ~ List[HTMLAttribute]] = htmlTagName ~ (htmlWS ~> (htmlAttribute *) <~ htmlWS)
+  val htmlTagContent: Parser[String ~ List[HTMLAttribute]] = htmlTagName ~ (htmlWS ~> htmlAttribute.rep <~ htmlWS)
 
   /** Parses an HTML end tag without the leading `'<'`.
    */

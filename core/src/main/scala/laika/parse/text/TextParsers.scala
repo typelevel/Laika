@@ -109,7 +109,7 @@ trait TextParsers extends Parsers {
   /** Parses one or more blanklines, producing a list of empty strings corresponding
     *  to the number of blank lines consumed.
     */
-  val blankLines: Parser[List[String]] = (not(eof) ~> blankLine)+
+  val blankLines: Parser[List[String]] = (not(eof) ~> blankLine).rep.min(1)
 
   /** Parses the rest of the line from the current input offset no matter whether
     *  it consist of whitespace only or some text. Does not include the eol character(s).
