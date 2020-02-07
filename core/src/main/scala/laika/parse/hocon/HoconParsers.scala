@@ -51,7 +51,7 @@ object HoconParsers {
                            msg: => String)
                            (captureError: (T, Failure) => R): Parser[R] = {
 
-      (parser ~ (closingParser.^^^((0,())) | fallbackParser.withContext)).map {
+      (parser ~ (closingParser.as((0,())) | fallbackParser.withContext)).map {
         case res ~ ((cnt: Int, ctx: ParserContext)) =>
           captureError(res, Failure(Message.fixed(msg), ctx.consume(cnt)))
         case res ~ _ =>

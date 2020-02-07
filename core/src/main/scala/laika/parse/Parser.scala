@@ -182,8 +182,7 @@ abstract class Parser[+T] {
     */
   def ^^ [U](f: T => U): Parser[U] = map(f)
 
-  /** Operator synonym for `as`.
-    */
+  @deprecated("use as() instead", "0.14.0")
   def ^^^ [U] (v: => U): Parser[U] = as(v)
   
   /**  Returns a parser that ignores the result of this parser (if it succeeds)
@@ -201,8 +200,7 @@ abstract class Parser[+T] {
     */
   def void: Parser[Unit] = map(_ => ())
 
-  /** Operator synonym for `collect`.
-    */
+  @deprecated("use collect instead", "0.14.0")
   def ^? [U](f: PartialFunction[T, U],
              error: T => String = r => s"Constructor function not defined at $r"): Parser[U] = collect(f, error)
   
@@ -227,8 +225,7 @@ abstract class Parser[+T] {
     }
   }
 
-  /** Operator synonym for `evalMap`.
-    */
+  @deprecated("use evalMap instead", "0.14.0")
   def ^^? [U] (f: T => Either[String, U]): Parser[U] = evalMap(f)
 
   /**  Returns a parser that applies a function to the result of this parser producing an `Either`

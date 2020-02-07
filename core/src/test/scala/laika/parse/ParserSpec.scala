@@ -60,7 +60,7 @@ class ParserSpec extends WordSpec with Matchers with ParseResultHelpers with Str
     }
 
     "apply a partial function to the result" in {
-      Parsing("abc") using (parser1 ^? { case "ab" => 9 }) should produce (9)
+      Parsing("abc") using parser1.collect { case "ab" => 9 } should produce (9)
     }
 
     "fail if the specified partial function is not defined for the result" in {
@@ -72,7 +72,7 @@ class ParserSpec extends WordSpec with Matchers with ParseResultHelpers with Str
     }
 
     "fail if the specified Either function produces a Left" in {
-      Parsing("abc") using (parser1 ^^? { res => Left("wrong") }) should cause [Failure]
+      Parsing("abc") using parser1.evalMap { res => Left("wrong") } should cause [Failure]
     }
     
     "handle errors from a failed parser" in {
