@@ -59,7 +59,7 @@ trait TextParsers extends Parsers {
     *
     *  The method is implicit so that strings can automatically be lifted to their parsers.
     */
-  implicit def literal (expected: String): PrefixedParser[String] = Literal(expected)
+  def literal (expected: String): PrefixedParser[String] = Literal(expected)
 
   /** Parses horizontal whitespace (space and tab).
     * Always succeeds, consuming all whitespace found.

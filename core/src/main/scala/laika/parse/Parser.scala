@@ -19,6 +19,7 @@ package laika.parse
 import laika.ast.~
 import laika.parse.combinator.Parsers.opt
 import laika.parse.combinator.Repeat
+import laika.parse.text.TextParsers
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
@@ -87,6 +88,20 @@ abstract class Parser[+T] {
     }
   }
 
+  /** Attempts to parse the specified literal string from the input left over 
+    * by this parser and combines the two results.
+    *
+    *  `a ~ b` only succeeds if both parsers succeed, with the results
+    *  in a wrapper class named `~` for convenient pattern matching:
+    *
+    *  {{{
+    *    a ~ b ~ c ^^ {
+    *      case a ~ b ~ c => processResult(a, b, c)
+    *    }
+    *  }}}
+    */
+  def ~ (value: String): Parser[T ~ String] = this.~(TextParsers.literal(value))
+  
   /**  Applies the specified parser to the input left over by this parser
     *  and combines the two results.
     *
@@ -106,6 +121,13 @@ abstract class Parser[+T] {
     }
   }
 
+  /** Attempts to parse the specified literal string from the input left over by this parser,
+    * but only keeps the right result.
+    *
+    *  `a ~> b` only succeeds if both parsers succeed.
+    */
+  def ~> (value: String): Parser[String] = this.~>(TextParsers.literal(value))
+
   /**  Applies the specified parser to the input left over by this parser,
     *  but only keeps the right result.
     *
@@ -117,6 +139,13 @@ abstract class Parser[+T] {
       case f: Failure => f
     }
   }
+
+  /** Attempts to parse the specified literal string from the input left over by this parser,
+    * but only keeps the left result.
+    *
+    * `a <~ b` only succeeds if both parsers succeed.
+    */
+  def <~ (value: String): Parser[T] = this.<~(TextParsers.literal(value))
 
   /**  Applies the specified parser to the input left over by this parser,
     *  but only keeps the left result.
@@ -142,6 +171,12 @@ abstract class Parser[+T] {
     *  in all other places the additional cost is avoided.
     */
   def | [U >: T] (p: => Parser[U]): Parser[U] = orElse(p)
+
+  /**  Attempts to parse the specified literal string when this parser fails.
+    *
+    *  `a | b` succeeds if either of the parsers succeeds.
+    */
+  def | (value: String)(implicit ev: T <:< String): Parser[String] = map(ev).orElse(TextParsers.literal(value))
 
   /**  A synonym for `map`, allowing the grammar to be declared in a concise way.
     */

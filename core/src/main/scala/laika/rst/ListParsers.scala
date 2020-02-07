@@ -89,7 +89,7 @@ object ListParsers {
   lazy val bulletList: BlockParserBuilder = BlockParser.recursive { implicit recParsers =>
     lookAhead(bulletListStart <~ ws.min(1)) >> { symbol =>
       val bullet = StringBullet(symbol)
-      (listItem(symbol, BulletListItem(_, bullet)) +).map { items => 
+      (listItem(literal(symbol), BulletListItem(_, bullet)) +).map { items => 
         BulletList(rewriteListItems(items,(item:BulletListItem,content) => item.copy(content = content)),bullet) 
       }
     }
@@ -190,7 +190,7 @@ object ListParsers {
    */
   lazy val fieldList: BlockParserBuilder = BlockParser.recursive { recParsers =>
     
-    val nameParser = ":" ~> recParsers.escapedUntil(':') <~ (lookAhead(eol) | " ")
+    val nameParser = ":" ~> recParsers.escapedUntil(':') <~ (lookAhead(eol).as("") | " ")
     
     val name    = recParsers.recursiveSpans(nameParser)
     val content = recParsers.recursiveBlocks(indentedBlock())

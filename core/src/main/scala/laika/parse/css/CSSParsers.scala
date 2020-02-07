@@ -75,7 +75,7 @@ object CSSParsers {
   /** Parses a single type selector.
    */
   val typeSelector: Parser[List[StylePredicate]] =
-    styleRefName.map { name => List(StylePredicate.ElementType(name)) } | "*".as(Nil)
+    styleRefName.map { name => List(StylePredicate.ElementType(name)) } | literal("*").as(Nil)
     
   /** Parses a single predicate.
    */

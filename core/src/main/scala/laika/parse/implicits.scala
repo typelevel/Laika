@@ -17,7 +17,7 @@
 package laika.parse
 
 import laika.ast.~
-import laika.parse.text.PrefixedParser
+import laika.parse.text.{PrefixedParser, TextParsers}
 
 /** Collection of extension methods that helps keeping parser definitions concise.
   * 
@@ -74,24 +74,60 @@ object implicits {
     def mkLines: Parser[String] = p.map { _.mkString("\n") }
   }
 
+  implicit class SeqStringPrefixedParserOps[T] (val p: PrefixedParser[Seq[String]]) extends AnyVal {
+    def mkLines: PrefixedParser[String] = p.map { _.mkString("\n") }
+  }
+
   implicit class StringParserOps[T] (val p: Parser[String]) extends AnyVal {
     def trim: Parser[String] = p.map(_.trim)
+  }
+
+  implicit class PrefixedStringParserOps[T] (val p: PrefixedParser[String]) extends AnyVal {
+    def trim: PrefixedParser[String] = p.map(_.trim)
   }
   
   implicit class Map2Ops[A, B] (val p: Parser[A ~ B]) extends AnyVal {
     def mapN[Z] (f: (A,B) => Z): Parser[Z] = p.map { case a ~ b => f(a,b) }
   }
 
+  implicit class PrefixedMap2Ops[A, B] (val p: PrefixedParser[A ~ B]) extends AnyVal {
+    def mapN[Z] (f: (A,B) => Z): PrefixedParser[Z] = p.map { case a ~ b => f(a,b) }
+  }
+
   implicit class Map3Ops[A, B, C] (val p: Parser[A ~ B ~ C]) extends AnyVal {
     def mapN[Z] (f: (A,B,C) => Z): Parser[Z] = p.map { case a ~ b ~ c => f(a,b,c) }
+  }
+
+  implicit class PrefixedMap3Ops[A, B, C] (val p: PrefixedParser[A ~ B ~ C]) extends AnyVal {
+    def mapN[Z] (f: (A,B,C) => Z): PrefixedParser[Z] = p.map { case a ~ b ~ c => f(a,b,c) }
   }
 
   implicit class Map4Ops[A, B, C, D] (val p: Parser[A ~ B ~ C ~ D]) extends AnyVal {
     def mapN[Z] (f: (A,B,C,D) => Z): Parser[Z] = p.map { case a ~ b ~ c ~ d => f(a,b,c,d) }
   }
 
+  implicit class PrefixedMap4Ops[A, B, C, D] (val p: PrefixedParser[A ~ B ~ C ~ D]) extends AnyVal {
+    def mapN[Z] (f: (A,B,C,D) => Z): PrefixedParser[Z] = p.map { case a ~ b ~ c ~ d => f(a,b,c,d) }
+  }
+
   implicit class Map5Ops[A, B, C, D, E] (val p: Parser[A ~ B ~ C ~ D ~ E]) extends AnyVal {
     def mapN[Z] (f: (A,B,C,D,E) => Z): Parser[Z] = p.map { case a ~ b ~ c ~ d ~ e => f(a,b,c,d,e) }
+  }
+
+  implicit class PrefixedMap5Ops[A, B, C, D, E] (val p: PrefixedParser[A ~ B ~ C ~ D ~ E]) extends AnyVal {
+    def mapN[Z] (f: (A,B,C,D,E) => Z): PrefixedParser[Z] = p.map { case a ~ b ~ c ~ d ~ e => f(a,b,c,d,e) }
+  }
+
+  implicit class LiteralStringOps (val str: String) extends AnyVal {
+    def ~ [U] (p: Parser[U]): PrefixedParser[String ~ U] = TextParsers.literal(str) ~ p
+    def ~ [U] (value: String): PrefixedParser[String ~ String] = TextParsers.literal(str) ~ TextParsers.literal(value)
+    def <~ [U] (p: Parser[U]): PrefixedParser[String] = TextParsers.literal(str) <~ p
+    def <~ [U] (value: String): PrefixedParser[String] = TextParsers.literal(str) <~ TextParsers.literal(value)
+    def ~> [U] (p: Parser[U]): PrefixedParser[U] = TextParsers.literal(str) ~> p
+    def ~> [U] (value: String): PrefixedParser[String] = TextParsers.literal(str) ~> TextParsers.literal(value)
+    def | (p: PrefixedParser[String]): PrefixedParser[String] = TextParsers.literal(str) | p
+    def | (p: Parser[String]): Parser[String] = TextParsers.literal(str) | p
+    def | (value: String): PrefixedParser[String] = TextParsers.literal(str) | TextParsers.literal(value)
   }
   
 }

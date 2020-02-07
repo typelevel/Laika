@@ -135,11 +135,11 @@ class TextParsersSpec extends WordSpec with Matchers with ParseResultHelpers wit
   "The literal parser" should {
 
     "succeed with a matching string literal" in {
-      Parsing ("abcd") using "abc" should produce ("abc")
+      Parsing ("abcd") using literal("abc") should produce ("abc")
     }
 
     "fail when the string literal does not match" in {
-      Parsing ("abcd") using "bcd" should cause [Failure]
+      Parsing ("abcd") using literal("bcd") should cause [Failure]
     }
 
   }

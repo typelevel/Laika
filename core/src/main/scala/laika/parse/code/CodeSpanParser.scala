@@ -20,6 +20,7 @@ import laika.ast.{CategorizedCode, CodeSpan, CodeSpanSequence}
 import laika.parse.Parser
 import laika.parse.text.PrefixedParser
 import laika.parse.api._
+import laika.parse.implicits._
 
 /** A collection of code span parsers that are intended to be applied together. 
   */

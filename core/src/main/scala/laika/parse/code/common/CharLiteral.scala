@@ -20,6 +20,7 @@ import laika.ast.{CodeSpan, CodeSpans, ~}
 import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.text.PrefixedParser
 import laika.parse.api._
+import laika.parse.implicits._
 
 /** Configurable base parsers for character literals.
   * 

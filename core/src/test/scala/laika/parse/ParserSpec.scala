@@ -248,7 +248,7 @@ class ParserSpec extends WordSpec with Matchers with ParseResultHelpers with Str
 
     import TextParsers._
 
-    val parser = literal("1").repWith { res:String => (res.toInt + 1).toString }
+    val parser = literal("1").repWith { res:String => literal((res.toInt + 1).toString) }
 
     "parse a sequence based on a dynamically changing parser" in {
       Parsing ("12345999") using parser should produce (List("1","2","3","4","5"))
@@ -295,15 +295,15 @@ class ParserSpec extends WordSpec with Matchers with ParseResultHelpers with Str
     import TextParsers._
 
     "succeed when the specified parser succeeds at the given negative offset" in {
-      lookBehind(2, "a").parse(input) should produce("a")
+      lookBehind(2, literal("a")).parse(input) should produce("a")
     }
 
     "fail when the specified parser fails at the given negative offset" in {
-      lookBehind(2, "b").parse(input) should cause[Failure]
+      lookBehind(2, literal("b")).parse(input) should cause[Failure]
     }
 
     "fail when the specified negative offset is too big" in {
-      lookBehind(7, "a").parse(input) should cause[Failure]
+      lookBehind(7, literal("a")).parse(input) should cause[Failure]
     }
 
   }

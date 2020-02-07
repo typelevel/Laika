@@ -24,6 +24,7 @@ import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.code.common.NumberLiteral.{DigitParsers, NumericParser}
 import laika.parse.code.common.{Comment, Identifier, Keywords, NumberLiteral, NumericSuffix, RegexLiteral, StringLiteral}
 import laika.parse.api._
+import laika.parse.implicits._
 
 /**
   * @author Jens Halm

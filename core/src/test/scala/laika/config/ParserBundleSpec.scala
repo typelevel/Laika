@@ -98,14 +98,14 @@ class ParserBundleSpec extends WordSpec with Matchers {
 
     def blockFor (deco: Char, overrideDeco: Char): BlockParserBuilder =
       BlockParser.withSpans { spanParsers =>
-        char(deco) ~> spanParsers.recursiveSpans(textBlockParser).map(DecoratedBlock(overrideDeco, _))
+        api.oneOf(deco) ~> spanParsers.recursiveSpans(textBlockParser).map(DecoratedBlock(overrideDeco, _))
       }
 
     def legacyBlockFor (deco: Char): BlockParserBuilder = blockFor(deco, deco)
 
     def legacyBlockFor (deco: Char, overrideDeco: Char): BlockParserBuilder =
       BlockParser.forStartChar(deco).withSpans { spanParsers =>
-        char(deco) ~> spanParsers.recursiveSpans(textBlockParser).map(DecoratedBlock(overrideDeco, _))
+        api.oneOf(deco) ~> spanParsers.recursiveSpans(textBlockParser).map(DecoratedBlock(overrideDeco, _))
       }
 
     def doc (blocks: (Char, String)*): Document =

@@ -18,7 +18,7 @@ package laika.parse.markup
 
 import laika.parse.Parser
 import laika.parse.text.{DelimitedText, PrefixedParser, TextParsers}
-import laika.parse.text.TextParsers.literal
+import laika.parse.implicits._
 
 /** Default implementation for parsing escape sequences.
   *

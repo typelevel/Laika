@@ -19,6 +19,7 @@ package laika.parse.uri
 import laika.ast.~
 import laika.parse.Parser
 import laika.parse.api._
+import laika.parse.implicits._
 import laika.parse.text.{CharGroup, Characters}
 
 /**
@@ -189,7 +190,7 @@ object URIParsers {
    *  userinfo = *( unreserved / pct-encoded / sub-delims / ":" )
    *  }}}
    */
-  val userInfo: Parser[String] = ((unreserved | pctEncoded | subDelims | ":")*).source
+  val userInfo: Parser[String] = ((unreserved | pctEncoded.source | subDelims | ":")*).source
   
   /** Parses the authority part of a URI as defined in RFC 3986.
    * 

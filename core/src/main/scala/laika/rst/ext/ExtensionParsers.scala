@@ -195,7 +195,7 @@ class ExtensionParsers(recParsers: RecursiveParsers,
     // TODO - some duplicate logic with original fieldList parser
     lazy val directiveFieldList: Parser[Vector[Part]] = {
 
-      val nameParser = ":" ~> escapedUntil(':') <~ (lookAhead(eol) | " ")
+      val nameParser = ":" ~> escapedUntil(':') <~ (lookAhead(eol).as("") | " ")
 
       val item = ws.min(1).count >> { firstIndent =>
         nameParser ~ indentedBlock(firstIndent + 1).trim

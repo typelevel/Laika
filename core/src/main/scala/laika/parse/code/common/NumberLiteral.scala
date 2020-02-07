@@ -21,6 +21,7 @@ import cats.implicits._
 import laika.ast.{CodeSpan, ~}
 import laika.parse.code.CodeCategory
 import laika.parse.api._
+import laika.parse.implicits._
 import laika.parse.text.{CharGroup, PrefixCharacters, PrefixedParser}
 import laika.parse.Parser
 

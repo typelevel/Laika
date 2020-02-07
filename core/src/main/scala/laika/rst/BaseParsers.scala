@@ -20,6 +20,7 @@ import cats.implicits._
 import cats.data.NonEmptySet
 import laika.ast._
 import laika.parse.Parser
+import laika.parse.implicits._
 import laika.parse.text.TextParsers.{anyOf, literal, someOf}
 import laika.parse.text.{CharGroup, Characters, TextParsers}
 

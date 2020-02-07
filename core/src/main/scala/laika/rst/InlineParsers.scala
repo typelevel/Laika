@@ -24,6 +24,7 @@ import laika.collection.TransitionalCollectionOps._
 import laika.parse.markup.RecursiveSpanParsers
 import laika.parse.text.PrefixedParser
 import laika.parse.api._
+import laika.parse.implicits._
 import laika.parse.uri.AutoLinkParsers
 import laika.parse.{Failure, Message, Parser, Success}
 import laika.rst.BaseParsers._
@@ -57,7 +58,7 @@ object InlineParsers {
     *
     * See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#escaping-mechanism]].
     */
-  val escapedChar: Parser[String] = " ".as("") | oneChar
+  val escapedChar: Parser[String] = literal(" ").as("") | oneChar
 
 
   private val pairs: Map[Char, Set[Char]] = List(/* Ps/Pe pairs */
@@ -119,6 +120,17 @@ object InlineParsers {
     *
     *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#inline-markup-recognition-rules]].
     *
+    *  @param start the literal string at the start of an inline element
+    *  @param end the literal string at the end of an inline element, needed to verify
+    *  the start sequence is not immediately followed by an end sequence as empty elements are not allowed.
+    *  @return a parser without a useful result, as it is only needed to verify it succeeds
+    */
+  def markupStart (start: String, end: String): PrefixedParser[Any] = markupStart(literal(start), literal(end))
+  
+  /** Parses the markup at the start of an inline element according to reStructuredText markup recognition rules.
+    *
+    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#inline-markup-recognition-rules]].
+    *
     *  @param start the parser that recognizes the markup at the start of an inline element
     *  @param end the parser that recognizes the markup at the end of an inline element, needed to verify
     *  the start sequence is not immediately followed by an end sequence as empty elements are not allowed.
@@ -133,7 +145,16 @@ object InlineParsers {
       .prevNot(invalidBeforeStartMarkup)
       .nextNot(invalidInsideDelimiter)
       .notEnclosedBy(invalidPair) ~ not(end) // not(end) == rule 3
-  }  
+  }
+
+  /** Parses the end of an inline element according to reStructuredText markup recognition rules.
+    *
+    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#inline-markup-recognition-rules]].
+    *
+    *  @param end the literal string expected as the delimiter at the end of an inline element
+    *  @return a parser that produces the same result as the parser passed as an argument
+    */
+  def markupEnd (end: String): PrefixedParser[String] = markupEnd(literal(end))
   
   /** Parses the end of an inline element according to reStructuredText markup recognition rules.
    * 
@@ -161,7 +182,8 @@ object InlineParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#strong-emphasis]]
    */
   lazy val strong: SpanParserBuilder = SpanParser.recursive { implicit recParsers =>
-    span("**","**").map(Strong(_))
+    val delim = literal("**")
+    span(delim, delim).map(Strong(_))
   }
 
   private def span (start: PrefixedParser[String], 
@@ -269,8 +291,8 @@ object InlineParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#hyperlink-references]]
    */
   lazy val simpleLinkRef: SpanParserBuilder = SpanParser.standalone {
-    markupEnd("__" | "_").flatMap {
-      markup => reverse(markup.length, simpleRefName <~ ensureNot(invalidBeforeStartMarkup)).map { refName =>
+    markupEnd("__" | "_").flatMap { markup => 
+      reverse(markup.length, simpleRefName <~ ensureNot(invalidBeforeStartMarkup)).map { refName =>
         markup match {
           case "_"  => Reverse(refName.length, LinkReference(List(Text(refName)), ReferenceName(refName).normalized, s"${refName}_"), Text("_")) 
           case "__" => Reverse(refName.length, LinkReference(List(Text(refName)), "", s"${refName}__"), Text("__")) 

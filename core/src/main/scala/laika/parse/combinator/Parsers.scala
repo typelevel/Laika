@@ -17,6 +17,7 @@
 package laika.parse.combinator
 
 import laika.parse._
+import laika.parse.text.TextParsers
 
 import scala.util.{Try, Failure => TFailure, Success => TSuccess}
 
@@ -40,6 +41,13 @@ trait Parsers {
     }
   }
 
+  /** A parser for an optional literal string that always succeeds.
+    *
+    * If the underlying parser succeeds this parser will contain its result as a `Some`,
+    * if it fails this parser will succeed with a `None`.
+    */
+  def opt (value: String): Parser[Option[String]] = opt(TextParsers.literal(value))
+
   /** A parser that only succeeds if the specified parser fails and
     *  vice versa, it never consumes any input.
     */
@@ -50,6 +58,11 @@ trait Parsers {
     }
   }
 
+  /** A parser that only succeeds if the parsing the specified literal value 
+    * fails and vice versa, it never consumes any input.
+    */
+  def not (value: String): Parser[Unit] = not(TextParsers.literal(value))
+
   /**  Applies the specified parser at the current
     *  position. Never consumes any input.
     */
@@ -59,6 +72,11 @@ trait Parsers {
       case e => e
     }
   }
+
+  /** Attempts to parse the specified literal value at the current
+    * position. Never consumes any input.
+    */
+  def lookAhead (value: String): Parser[String] = lookAhead(TextParsers.literal(value))
 
   /**  Applies the specified parser at the specified offset behind the current
     *  position. Never consumes any input.
@@ -73,6 +91,11 @@ trait Parsers {
       }
     }
   }
+
+  /** Attempts to parse the specified literal value at the specified offset 
+    * behind the current position. Never consumes any input.
+    */
+  def lookAhead (offset: Int, value: String): Parser[String] = lookAhead(offset, TextParsers.literal(value))
 
   /** Applies the specified parser at the specified offset behind the current
    *  position. Never consumes any input.

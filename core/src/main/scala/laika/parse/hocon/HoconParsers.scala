@@ -104,11 +104,11 @@ object HoconParsers {
   val wsOrNl: Characters[String] = anyOf(' ','\t','\n')
 
   /** Parses a null value. */
-  val nullValue: Parser[ConfigBuilderValue] = "null".as(ResolvedBuilderValue(NullValue))
+  val nullValue: Parser[ConfigBuilderValue] = literal("null").as(ResolvedBuilderValue(NullValue))
   /** Parses a literal true value. */
-  val trueValue: Parser[ConfigBuilderValue] = "true".as(ResolvedBuilderValue(BooleanValue(true)))
+  val trueValue: Parser[ConfigBuilderValue] = literal("true").as(ResolvedBuilderValue(BooleanValue(true)))
   /** Parses a literal false value. */
-  val falseValue: Parser[ConfigBuilderValue] = "false".as(ResolvedBuilderValue(BooleanValue(false)))
+  val falseValue: Parser[ConfigBuilderValue] = literal("false").as(ResolvedBuilderValue(BooleanValue(false)))
 
   /** Parses a literal number value into a Long or Double depending on whether a fraction part is present. */
   val numberValue: Parser[ConfigBuilderValue] = {

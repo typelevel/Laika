@@ -19,6 +19,7 @@ package laika.parse.code.common
 import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.text.CharGroup
 import laika.parse.api._
+import laika.parse.implicits._
 
 /** Base parsers for keywords in code blocks.
   * 

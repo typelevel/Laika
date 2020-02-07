@@ -73,7 +73,7 @@ class AutoLinkParsers (reverseMarkupStart: Parser[Any],
   /** Parses a standalone www hyperlink (with no surrounding markup).
     */
   lazy val www: SpanParserBuilder = SpanParser.standalone {
-    uri("www", "." ~> (regName ~ path ~ opt("?" ~ query) ~ opt("#" ~ fragment)).source, ".")
+    uri(literal("www"), "." ~> (regName ~ path ~ opt("?" ~ query) ~ opt("#" ~ fragment)).source, ".")
   }.withLowPrecedence
 
   /** Parses a standalone email address (with no surrounding markup).
