@@ -213,15 +213,11 @@ trait DocumentStructure { this: TreeContent =>
   def content: RootElement
 
   private def findRoot: Seq[Block] = {
-    (content select {
-      case RootElement(TemplateRoot(_,_) :: Nil, _) => false
-      case RootElement(_, _) => true
-      case EmbeddedRoot(_, _, _) => true
-      case _ => false
-    }).headOption map {
-      case EmbeddedRoot(content, _, _) => content
-      case RootElement(content, _) => content 
-    } getOrElse Nil
+    content.collect {
+      case RootElement(TemplateRoot(_,_) :: Nil, _) => Nil
+      case RootElement(content, _)      => Seq(content)
+      case EmbeddedRoot(content, _, _)  => Seq(content)
+    }.flatten.headOption.getOrElse(Nil)
   }
 
   /** The title of this document, obtained from the document
