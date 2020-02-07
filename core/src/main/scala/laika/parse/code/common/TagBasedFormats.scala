@@ -20,6 +20,7 @@ import laika.ast.{CodeSpan, CodeSpans, ~}
 import laika.parse.code.common.Identifier.IdParser
 import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.implicits._
+import laika.parse.code.implicits._
 import laika.parse.text.PrefixedParser
 import laika.parse.text.TextParsers.{delimitedBy, literal}
 
@@ -78,7 +79,7 @@ trait TagBasedFormats {
     
     def underlying: PrefixedParser[Seq[CodeSpan]] = {
       
-      def codeParser(p: PrefixedParser[String], category: CodeCategory): PrefixedParser[CodeSpan] = p.map(CodeSpan(_, category))
+      def codeParser(p: PrefixedParser[String], category: CodeCategory): PrefixedParser[CodeSpan] = p.asCode(category)
 
       val startParser = codeParser(literal(start), CodeCategory.Tag.Punctuation)
       val tagNameParser = codeParser(tagName, tagCategory)

@@ -24,6 +24,7 @@ import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.text.PrefixedParser
 import laika.parse.builders._
 import laika.parse.implicits._
+import laika.parse.code.implicits._
 
 /**
   * @author Jens Halm
@@ -46,7 +47,7 @@ object LaikaExtensionSyntax {
     val nameParser = Identifier.alphaNum.map(name => 
       Seq(CodeSpan("@:", CodeCategory.Keyword), name)
     )
-    val whiteSpace = ws.min(1).map(CodeSpan(_))
+    val whiteSpace = ws.min(1).asCode()
     val hoconParser = (whiteSpace ~ embeddedHocon("{", "}")).concat.rep.max(1).map(_.flatten)
     
     ("@:" ~> nameParser ~ hoconParser).concat

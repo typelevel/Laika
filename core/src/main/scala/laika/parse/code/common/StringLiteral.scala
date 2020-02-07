@@ -20,6 +20,8 @@ import laika.ast.{CodeSpan, CodeSpans, ~}
 import laika.parse.Parser
 import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.builders._
+import laika.parse.implicits._
+import laika.parse.code.implicits._
 import laika.parse.text.{PrefixedParser, TextParsers}
 
 /** Configurable base parsers for string literals.
@@ -38,7 +40,7 @@ object StringLiteral {
       * if you want to be strict and apply the specific rules about which characters are valid
       * escapes you need to create a custom parser. */
     val char: CodeSpanParser = CodeSpanParser(CodeCategory.EscapeSequence) {
-      (TextParsers.literal("\\") ~ oneChar).source
+      ("\\" ~ oneChar).source
     }
 
     /** Parses a unicode character escape.
@@ -46,7 +48,7 @@ object StringLiteral {
       * e.g. `\\u20ff`.
       */
     val unicode: CodeSpanParser = CodeSpanParser(CodeCategory.EscapeSequence) {
-      (TextParsers.literal("\\u") ~ DigitParsers.hex.take(4)).source
+      ("\\u" ~ DigitParsers.hex.take(4)).source
     }
 
     /** Parses a hexadecimal character escape.
@@ -54,7 +56,7 @@ object StringLiteral {
       * e.g. `\\xf2`.
       */
     val hex: CodeSpanParser = CodeSpanParser(CodeCategory.EscapeSequence) {
-      (TextParsers.literal("\\x") ~ DigitParsers.hex.take(2)).source
+      ("\\x" ~ DigitParsers.hex.take(2)).source
     }
 
     /** Parses a octal character escape.
@@ -62,7 +64,7 @@ object StringLiteral {
       * e.g. `\\207`.
       */
     val octal: CodeSpanParser = CodeSpanParser(CodeCategory.EscapeSequence) {
-      (TextParsers.literal("\\") ~ ((oneOf('0','1','2','3') ~ DigitParsers.octal.max(2)).source | DigitParsers.octal.min(1).max(2))).source
+      ("\\" ~ ((oneOf('0','1','2','3') ~ DigitParsers.octal.max(2)).source | DigitParsers.octal.min(1).max(2))).source
     }
 
     /** Parses a single literal escape. Example: `$$`. 
@@ -130,7 +132,7 @@ object StringLiteral {
     lazy val underlying: PrefixedParser[Seq[CodeSpan]] = {
       
       val startParser = startDelimParser.map(CodeSpan(_, defaultCategories))
-      val endParser = postCondition.fold(endDelimParser)(endDelimParser <~ _).map(CodeSpan(_, defaultCategories))
+      val endParser = postCondition.fold(endDelimParser)(endDelimParser <~ _).asCode(defaultCategories)
       
       val textParser = {
         val base = delimitedBy(endDelimParser).keepDelimiter

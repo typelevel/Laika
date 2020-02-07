@@ -20,6 +20,7 @@ import laika.ast.{CodeSpan, CodeSpans, ~}
 import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.text.PrefixedParser
 import laika.parse.builders._
+import laika.parse.code.implicits._
 import laika.parse.implicits._
 
 /** Configurable base parsers for character literals.
@@ -45,8 +46,8 @@ object CharLiteral {
 
     lazy val underlying: PrefixedParser[Seq[CodeSpan]] = {
 
-      def plainChar(char: String) = oneNot('\'', '\n').map(CodeSpan(_, categories))
-      val delimParser = oneOf(delim).map(CodeSpan(_, categories))
+      def plainChar(char: String) = oneNot('\'', '\n').asCode(categories)
+      val delimParser = oneOf(delim).asCode(categories)
 
       (delim.toString ~> lookAhead(oneChar)).flatMap { char =>
         (PrefixedParser.mapAndMerge(embedded.flatMap(_.parsers)).getOrElse(char.head, plainChar(char)) ~ delimParser).map { 

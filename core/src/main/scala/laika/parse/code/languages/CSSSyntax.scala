@@ -25,6 +25,7 @@ import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.text.Characters
 import laika.parse.builders._
 import laika.parse.code.common.NumberLiteral.DigitParsers
+import laika.parse.code.implicits._
 import laika.parse.implicits._
 
 /**
@@ -78,8 +79,8 @@ object CSSSyntax extends SyntaxHighlighter {
       identifier(CodeCategory.Identifier, allowDigitBeforeStart = true),
     )
     def valueParser(inBlock: Boolean): Parser[Seq[CodeSpan]] = {
-      val separator = (ws ~ ":").source.map(CodeSpan(_))
-      val delim = oneChar.map(CodeSpan(_))
+      val separator = (ws ~ ":").source.asCode()
+      val delim = oneChar.asCode()
       val text = if (inBlock) delimitedBy('}',';', ')') else delimitedBy('}',';')
       (separator ~ EmbeddedCodeSpans.parser(text.keepDelimiter, embedded) ~ delim).map {
         case sep ~ con ~ del => sep +: con :+ del

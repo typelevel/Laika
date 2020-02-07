@@ -17,13 +17,11 @@
 package laika.parse.code.languages
 
 import cats.data.NonEmptyList
-import laika.ast.~
 import laika.bundle.SyntaxHighlighter
 import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue}
 import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.code.common.NumberLiteral.{DigitParsers, NumericParser}
 import laika.parse.code.common.{Comment, Identifier, Keywords, NumberLiteral, NumericSuffix, RegexLiteral, StringLiteral}
-import laika.parse.builders._
 import laika.parse.implicits._
 
 /**
@@ -32,7 +30,7 @@ import laika.parse.implicits._
 object JavaScriptSyntax extends SyntaxHighlighter {
 
   val unicodeCodePointEscape: CodeSpanParser = CodeSpanParser(CodeCategory.EscapeSequence) {
-    ("\\u{" ~ DigitParsers.hex.min(1) ~ "}").map { case a ~ b ~ c => a + b + c.toString }
+    ("\\u{" ~ DigitParsers.hex.min(1) ~ "}").source
   }
 
   val charEscapes: CodeSpanParser =

@@ -22,6 +22,7 @@ import laika.bundle.SyntaxHighlighter
 import laika.parse.Parser
 import laika.parse.builders._
 import laika.parse.implicits._
+import laika.parse.code.implicits._
 import laika.parse.code.common.StringLiteral
 import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.rst.BaseParsers
@@ -35,12 +36,10 @@ object ReStructuredTextSyntax extends SyntaxHighlighter {
   
   // raw = does not perform checks for rst inline markup recognition
   def rawSpan (start: String, end: String, category: CodeCategory): Parser[CodeSpan] =
-    (literal(start) ~ delimitedBy(end).failOn('\n')).source.map {
-      res => CodeSpan(res, category)
-    }
+    (literal(start) ~ delimitedBy(end).failOn('\n')).source.asCode(category)
 
   def rawSpan (end: String, category: CodeCategory): Parser[CodeSpan] =
-    delimitedBy(end).failOn('\n').map { res => CodeSpan(res, category) }
+    delimitedBy(end).failOn('\n').asCode(category)
 
   private def span (start: String, end: String, category: CodeCategory): CodeSpanParser =
     CodeSpanParser(category) {
