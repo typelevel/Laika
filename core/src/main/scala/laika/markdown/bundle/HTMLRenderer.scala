@@ -16,7 +16,7 @@
 
 package laika.markdown.bundle
 
-import laika.ast.{Element, Text, TextContainer}
+import laika.ast.{Element, Span, TextContainer}
 import laika.markdown.ast._
 import laika.render.HTMLFormatter
 
@@ -39,8 +39,8 @@ object HTMLRenderer {
 
   def prepareAttributeValue (spans: List[TextContainer]): String =
     spans.foldLeft("") {
-      case (acc, Text(content,_)) => acc + content.replace("&","&amp;").replace("\"","&quot;").replace("'","$#39;")
-      case (acc, span) => acc + span.content
+      case (acc, span: HTMLCharacterReference) => acc + span.content
+      case (acc, text)                         => acc + text.content.replace("&","&amp;").replace("\"","&quot;").replace("'","$#39;")
     }
 
   def tagStart (tagName: String, attributes: List[HTMLAttribute]): String = {

@@ -91,6 +91,6 @@ case class HTMLCharacterReference (content: String, options: Options = NoOpt) ex
 }
 
 /** Represents a single HTML attribute. The value is provided as a list of TextContainers
-  *  as it may contain HTML character references alongside regular Text elements.
+  * as it may contain HTML character references alongside regular Text elements.
   */
-case class HTMLAttribute (name: String, value: List[Span with TextContainer], quotedWith: Option[Char])
+case class HTMLAttribute (name: String, value: List[TextContainer], quotedWith: Option[Char])

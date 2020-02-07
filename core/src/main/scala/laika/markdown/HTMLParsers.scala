@@ -68,21 +68,24 @@ object HTMLParsers {
 
 
   val htmlAttributeName: Parser[String] = someNot(htmlAttrEndChars)
+  
+  private def asTextContainers (spans: List[Span]): List[TextContainer] = spans.collect {
+    case tc: TextContainer => tc
+  }
 
-  val htmlUnquotedAttributeValue: Parser[(List[Span with TextContainer], Option[Char])] =
-    spans(delimitedBy(htmlAttrEndChars).keepDelimiter).embed(htmlCharReference).collect { 
-      case x :: xs => ((x::xs).asInstanceOf[List[Span with TextContainer]], None) 
-    }
+  val htmlUnquotedAttributeValue: Parser[(List[TextContainer], Option[Char])] =
+    spans(delimitedBy(htmlAttrEndChars).keepDelimiter).embed(htmlCharReference)
+      .map { spans => (asTextContainers(spans), None) }
 
   /** Parses an attribute value enclosed by the specified character.
    */
-  def htmlQuotedAttributeValue (c: String): Parser[(List[Span with TextContainer], Option[Char])] =
-    c ~> spans(delimitedBy(c)).embed(htmlCharReference) ^^
-      { spans => (spans.asInstanceOf[List[Span with TextContainer]], Some(c.head)) }
+  def htmlQuotedAttributeValue (c: String): Parser[(List[TextContainer], Option[Char])] =
+    c ~> spans(delimitedBy(c)).embed(htmlCharReference)
+      .map { spans => (asTextContainers(spans), Some(c.head)) }
 
   /** Parses quoted and unquoted attribute values.
    */
-  val htmlAttributeValue: Parser[(List[Span with TextContainer], Option[Char])] =
+  val htmlAttributeValue: Parser[(List[TextContainer], Option[Char])] =
     htmlQuotedAttributeValue("\"") |
     htmlQuotedAttributeValue("'") |
     htmlUnquotedAttributeValue
