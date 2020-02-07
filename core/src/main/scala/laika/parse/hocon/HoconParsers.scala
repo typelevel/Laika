@@ -44,7 +44,7 @@ object HoconParsers {
   implicit class ClosingParserOps[T] (parser: Parser[T]) {
 
     def closeWith[R >: T] (char: Char)(captureError: (T, Failure) => R): Parser[R] =
-      closeWith[R](TextParsers.char(char), anyNot('\n').as(0), s"Expected closing '$char'")(captureError)
+      closeWith[R](oneOf(char), anyNot('\n').as(0), s"Expected closing '$char'")(captureError)
     
     def closeWith[R >: T] (closingParser: Parser[Any],
                            fallbackParser: Parser[Int],

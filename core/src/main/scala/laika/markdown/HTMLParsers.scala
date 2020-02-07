@@ -50,7 +50,7 @@ object HTMLParsers {
   val htmlHexReference: Parser[String] = {
     val hexNumber = someOf(CharGroup.hexDigit)
 
-    ((char('x') | char('X')) ~ hexNumber).source
+    ((oneOf('x') | oneOf('X')) ~ hexNumber).source
   }
 
   val htmlDecReference: Parser[String] = someOf(CharGroup.digit)
