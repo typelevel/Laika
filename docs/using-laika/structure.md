@@ -155,7 +155,7 @@ Instead it can be referred to by `${document.fragments.<fragmentName>}`.
 Example:
 
 ```laika-md
-@:fragment { sidebar } 
+@:fragment(sidebar)
 
 This content will be *parsed* like all other
 content, but will be available separately from the document content.

@@ -146,14 +146,14 @@ Since all its attributes are optional, it can simply be used like this:
 A more complete example is the use of the `for` directive:
 
 ```laika-html
-@:for { some.list.of.products }
+@:for(catalog.products)
 
 <li><a href="#${_.id}">${_.description}</a></li>
 
 @:@
 ```
 
-Here `for` is the name of the directive, `some.list.of.products` is an unnamed
+Here `for` is the name of the directive, `catalog.products` is an unnamed
 attribute (where in this case the value is interpreted as a variable reference,
 pointing to a path the user defined in the configuration),
 and finally, the body of the directive followed by the `@:@` fence. The exact
@@ -241,7 +241,7 @@ The body of such a directive will only be included into the
 output by renderers for the specified type:
 
 ```laika-html
-@:format { html }
+@:format(html)
 
 This text only appears in the HTML output,
 not in PDF, EPUB or any other format.
@@ -264,7 +264,7 @@ rendered element.
 Block directive: 
 
 ```laika-md
-@:style { subtitle } 
+@:style(subtitle) 
 
 This paragraph gets the 
 subtitle style applied.
@@ -277,7 +277,7 @@ While this paragraph does not.
 Span directive:
 
 ```laika-md
-Burrito - @:style { price } £3.50 @:@.
+Burrito - @:style(price) £3.50 @:@.
 ```
 
 ### The `for` directive
@@ -293,21 +293,22 @@ In case of non-empty values their properties will be made available
 for use inside the body part without any prefix:
 
 ```laika-html
-@:for { some.list.of.products }
+@:for(catalog.products)
 
 <li><a href="#${_.id}">${_.description}</a></li>
 
 @:@ 
 ```
 
-In this example `id` and `title` are properties of the `SectionInfo`
-objects inside the `document.sections` collection.
+In this example `id` and `title` are properties of the `catalog.products`
+property that the user needs to define in once of the locations where 
+HOCON attributes are accepted.
 
 You can also specify a fallback, a body part that gets executed
 for empty values:
 
 ```laika-html
-@:for { some.list.of.products }
+@:for(catalog.products)
 <li><a href="#${_.id}">${_.description}</a></li>
  
 @:empty
@@ -332,7 +333,7 @@ Executes the body of the directive exactly once for a Boolean
 `true` or the strings `true`, `on`, `yes` and `enabled`.
 
 ```laika-html
-@:if { showSidebar }
+@:if(showSidebar)
 <div class="sidebar">...</div>
 @:@
 ```
@@ -344,10 +345,10 @@ You can also specify a fallback with `@:else`,
 or even secondary conditions with `@:elseIf`:
 
 ```laika-html
-@:if { showSidebar }
+@:if(showSidebar)
 <div class="sidebar">...</div>
 
-@:elseIf { showInfobox }
+@:elseIf(showInfobox)
 <div class="infobox">...</div>
 
 @:else

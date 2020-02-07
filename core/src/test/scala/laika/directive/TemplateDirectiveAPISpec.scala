@@ -154,6 +154,12 @@ class TemplateDirectiveAPISpec extends FlatSpec
   
   it should "parse a directive with one required default string attribute" in {
     new RequiredDefaultAttribute with TemplateParser {
+      Parsing ("aa @:dir(foo) bb") should produce (TemplateRoot(t("aa "), t("foo"), t(" bb")))
+    }
+  }
+
+  it should "parse a directive with one required legacy default string attribute" in {
+    new RequiredDefaultAttribute with TemplateParser {
       Parsing ("aa @:dir { foo } bb") should produce (TemplateRoot(t("aa "), t("foo"), t(" bb")))
     }
   }
@@ -167,14 +173,14 @@ class TemplateDirectiveAPISpec extends FlatSpec
   
   it should "parse a directive with an optional default int attribute" in {
     new OptionalDefaultAttribute with TemplateParser {
-      Parsing ("aa @:dir { 5 } bb") should produce (TemplateRoot(t("aa "), t("5"), t(" bb")))
+      Parsing ("aa @:dir(5) bb") should produce (TemplateRoot(t("aa "), t("5"), t(" bb")))
     }
   }
   
   it should "detect a directive with an optional invalid default int attribute" in {
     new OptionalDefaultAttribute with TemplateParser {
       val msg = "One or more errors processing directive 'dir': error converting default attribute: not an integer: foo"
-      Parsing ("aa @:dir { foo } bb") should produce (TemplateRoot(t("aa "), TemplateElement(invalid("@:dir { foo }",msg)), t(" bb")))
+      Parsing ("aa @:dir(foo) bb") should produce (TemplateRoot(t("aa "), TemplateElement(invalid("@:dir(foo)",msg)), t(" bb")))
     }
   }
   
@@ -297,6 +303,16 @@ class TemplateDirectiveAPISpec extends FlatSpec
         t("foo:str:7"), 
         t(" 1 "), t("value"), t(" 2 ")
       )
+      Parsing ("aa @:dir(foo) { strAttr=str, intAttr=7 } 1 ${ref} 2 @:@ bb") should produce (TemplateRoot(t("aa "), body, t(" bb")))
+    }
+  }
+
+  it should "parse a full directive spec with all elements present, including a legacy default argument" in {
+    new FullDirectiveSpec with TemplateParser {
+      val body = tss(
+        t("foo:str:7"),
+        t(" 1 "), t("value"), t(" 2 ")
+      )
       Parsing ("aa @:dir { foo, strAttr=str, intAttr=7 } 1 ${ref} 2 @:@ bb") should produce (TemplateRoot(t("aa "), body, t(" bb")))
     }
   }
@@ -307,7 +323,7 @@ class TemplateDirectiveAPISpec extends FlatSpec
         t("foo:str:7"),
         t(" 1 "), t("value"), t(" 2 ")
       )
-      Parsing ("aa @:dir { foo\nstrAttr=str\nintAttr=7 } 1 ${ref} 2 @:@ bb") should produce (TemplateRoot(t("aa "), body, t(" bb")))
+      Parsing ("aa @:dir(foo) { \nstrAttr=str\nintAttr=7\n } 1 ${ref} 2 @:@ bb") should produce (TemplateRoot(t("aa "), body, t(" bb")))
     }
   }
   
@@ -317,7 +333,7 @@ class TemplateDirectiveAPISpec extends FlatSpec
         t("foo:..:0"), 
         t(" 1 "), t("value"), t(" 2 ")
       )
-      Parsing ("aa @:dir { foo } 1 ${ref} 2 @:@ bb") should produce (TemplateRoot(t("aa "), body, t(" bb")))
+      Parsing ("aa @:dir(foo) 1 ${ref} 2 @:@ bb") should produce (TemplateRoot(t("aa "), body, t(" bb")))
     }
   }
   

@@ -47,12 +47,12 @@ A directive always starts with `@:` followed by the name of the directive.
 A more complete example is the use of the `for` directive:
 
 ```laika-html
-@:for { some.list.of.products }
+@:for(catalog.products)
 <li><a href="#${_.id}">${_.description}</a></li>
 @:@ 
 ```
 
-Here `for` is the name of the directive, `some.list.of.products` is an unnamed
+Here `for` is the name of the directive, `catalog.products` is an unnamed
 attribute (where in this case the value is interpreted as a variable reference,
 a path the user has defined in the configuration),
 and finally the body of the directive followed by the `@:@` fence. 
@@ -74,7 +74,7 @@ bugtracker. Since the base URL is always the same, we want to
 only write:
 
 ```laika-html
-@:ticket {456}
+@:ticket(456)
 ```
 
 to get the output:
@@ -86,7 +86,7 @@ to get the output:
 Or optionally specify a different project than the main one:
 
 ```laika-html
-@:ticket {456, project=pineapple}
+@:ticket(456) { project = pineapple }
 ```
     
 to get the output:
@@ -218,14 +218,15 @@ different objects, so we assemble them here for easier reference.
 ### Default Attributes
 
 A default attribute is an attribute without a name. 
-It has to be the first attribute before any named attributes.
+It has to be enclosed in parentheses and appear before an optionally
+following block of HOCON attributes or a markup body.
 It allows for more concise syntax in all the cases where usually only one
 attribute is used and its meaning is obvious.
 
 Markup example:
 
 ```laika-html
-@:name { arg }
+@:name(arg)
 ```
 
 Combinator:
@@ -338,10 +339,10 @@ need often.
 For an example from the built-in standard directives, let's have a look at the `@:if` directive:
 
 ```laika-html
-@:if { showSidebar }
+@:if(showSidebar)
 <div class="sidebar">...</div>
 
-@:elseIf { showInfobox }
+@:elseIf(showInfobox)
 <div class="infobox">...</div>
 
 @:else

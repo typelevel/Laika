@@ -19,7 +19,7 @@ package laika.parse.code.languages
 import cats.data.NonEmptyList
 import laika.ast.{CodeSpan, ~}
 import laika.bundle.SyntaxHighlighter
-import laika.parse.code.common.{EmbeddedCodeSpans, Identifier, Keywords, StringLiteral, NumberLiteral}
+import laika.parse.code.common.{EmbeddedCodeSpans, Identifier, Keywords, StringLiteral}
 import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.text.PrefixedParser
 import laika.parse.builders._
@@ -48,9 +48,14 @@ object LaikaExtensionSyntax {
       Seq(CodeSpan("@:", CodeCategory.Keyword), name)
     )
     val whiteSpace = ws.min(1).asCode()
+    
+    val defaultAttribute = (ws.asCode() ~ ("(" ~> delimitedBy(")")).map { attr =>
+      Seq(CodeSpan("("), CodeSpan(attr, CodeCategory.StringLiteral), CodeSpan(")"))
+    }).concat.rep.max(1).map(_.flatten)
+    
     val hoconParser = (whiteSpace ~ embeddedHocon("{", "}")).concat.rep.max(1).map(_.flatten)
     
-    ("@:" ~> nameParser ~ hoconParser).concat
+    ("@:" ~> nameParser ~ defaultAttribute ~ hoconParser).concat
   }
 
   val fence: CodeSpanParser = Keywords("@:@")

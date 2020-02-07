@@ -260,7 +260,8 @@ provided by Laika, you can skip the section on the DSL.
 ### Directive Syntax
 
 * The separators for the attribute and body sections have changed
-* HOCON syntax is now used for attributes
+* HOCON syntax is now used for named attributes between curly braces or a plain string for an 
+  unnamed attribute in parenthesis
 * The old syntax is still supported, but will be removed at some point before the 1.0 release
 
 Before
@@ -274,7 +275,7 @@ Before
 
 After
 ```laika-html
-@:if { layout.showSidebar }
+@:if(layout.showSidebar)
 <div class="sidebar">...</div>
 
 @:else

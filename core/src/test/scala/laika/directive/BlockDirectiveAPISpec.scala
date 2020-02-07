@@ -171,9 +171,20 @@ class BlockDirectiveAPISpec extends FlatSpec
     new BlockParser with RequiredDefaultAttribute {
       val input = """aa
         |
-        |@:dir { foo }
+        |@:dir(foo)
         |
         |bb""".stripMargin
+      Parsing (input) should produce (root(p("aa"), p("foo"), p("bb")))
+    }
+  }
+
+  it should "parse a directive with one required legacy default string attribute" in {
+    new BlockParser with RequiredDefaultAttribute {
+      val input = """aa
+                    |
+                    |@:dir { foo }
+                    |
+                    |bb""".stripMargin
       Parsing (input) should produce (root(p("aa"), p("foo"), p("bb")))
     }
   }
@@ -194,9 +205,20 @@ class BlockDirectiveAPISpec extends FlatSpec
     new BlockParser with OptionalDefaultAttribute {
       val input = """aa
         |
-        |@:dir { 5 }
+        |@:dir(5)
         |
         |bb""".stripMargin
+      Parsing (input) should produce (root(p("aa"), p("5"), p("bb")))
+    }
+  }
+
+  it should "parse a directive with an optional legacy default int attribute" in {
+    new BlockParser with OptionalDefaultAttribute {
+      val input = """aa
+                    |
+                    |@:dir { 5 }
+                    |
+                    |bb""".stripMargin
       Parsing (input) should produce (root(p("aa"), p("5"), p("bb")))
     }
   }
@@ -205,11 +227,11 @@ class BlockDirectiveAPISpec extends FlatSpec
     new BlockParser with OptionalDefaultAttribute {
       val input = """aa
         |
-        |@:dir { foo }
+        |@:dir(foo)
         |
         |bb""".stripMargin
       val msg = "One or more errors processing directive 'dir': error converting default attribute: not an integer: foo"
-      Parsing (input) should produce (root(p("aa"), invalid("@:dir { foo }",msg), p("bb")))
+      Parsing (input) should produce (root(p("aa"), invalid("@:dir(foo)",msg), p("bb")))
     }
   }
 
@@ -479,13 +501,32 @@ class BlockDirectiveAPISpec extends FlatSpec
     new FullDirectiveSpec with BlockParser {
       val input = """aa
         |
-        |@:dir { foo, strAttr=str, intAttr=7 }
+        |@:dir(foo) { strAttr=str, intAttr=7 }
         |
         |1 ${ref} 2
         |
         |@:@
         |
         |bb""".stripMargin
+      val body = BlockSequence(
+        p("foo:str:7"),
+        p(Text("1 value 2"))
+      )
+      Parsing (input) should produce (root(p("aa"), body, p("bb")))
+    }
+  }
+
+  it should "parse a full directive spec with all elements present, including a legacy default argument" in {
+    new FullDirectiveSpec with BlockParser {
+      val input = """aa
+                    |
+                    |@:dir { foo, strAttr=str, intAttr=7 }
+                    |
+                    |1 ${ref} 2
+                    |
+                    |@:@
+                    |
+                    |bb""".stripMargin
       val body = BlockSequence(
         p("foo:str:7"),
         p(Text("1 value 2"))
@@ -520,7 +561,7 @@ class BlockDirectiveAPISpec extends FlatSpec
     new FullDirectiveSpec with BlockParser {
       val input = """aa
         |
-        |@:dir { foo }
+        |@:dir(foo)
         | 
         |1 ${ref} 2
         |
@@ -539,7 +580,7 @@ class BlockDirectiveAPISpec extends FlatSpec
     new FullDirectiveSpec with BlockParser {
       val input = """aa
         |
-        |@:dir { foo } +++
+        |@:dir(foo) +++
         |
         |1 ${ref} 2
         |

@@ -157,6 +157,12 @@ class SpanDirectiveAPISpec extends FlatSpec
 
   it should "parse a directive with one required default string attribute" in {
     new SpanParser with RequiredDefaultAttribute {
+      Parsing ("aa @:dir(foo) bb") should produce (ss(Text("aa foo bb")))
+    }
+  }
+
+  it should "parse a directive with one required legacy default string attribute" in {
+    new SpanParser with RequiredDefaultAttribute {
       Parsing ("aa @:dir { foo } bb") should produce (ss(Text("aa foo bb")))
     }
   }
@@ -168,7 +174,7 @@ class SpanDirectiveAPISpec extends FlatSpec
     }
   }
 
-  it should "detect a directive with an invalid default attribute" in {
+  it should "detect a directive with an invalid legacy default attribute" in {
     new SpanParser with RequiredDefaultAttribute {
       val msg = """One or more errors processing directive 'dir': Multiple errors parsing HOCON: [1.16] failure: Expected separator after key ('=', '+=', ':' or '{')
                   |
@@ -180,14 +186,20 @@ class SpanDirectiveAPISpec extends FlatSpec
   
   it should "parse a directive with an optional default int attribute" in {
     new SpanParser with OptionalDefaultAttribute {
-      Parsing ("aa @:dir { 5 } bb") should produce (ss(Text("aa 5 bb")))
+      Parsing ("aa @:dir(5) bb") should produce (ss(Text("aa 5 bb")))
     }
   }
   
   it should "detect a directive with an optional invalid default int attribute" in {
     new SpanParser with OptionalDefaultAttribute {
       val msg = "One or more errors processing directive 'dir': error converting default attribute: not an integer: foo"
-      Parsing ("aa @:dir { foo } bb") should produce (ss(Text("aa "), invalid("@:dir { foo }",msg), Text(" bb")))
+      Parsing ("aa @:dir(foo) bb") should produce (ss(Text("aa "), invalid("@:dir(foo)",msg), Text(" bb")))
+    }
+  }
+
+  it should "parse a directive with an optional legacy default int attribute" in {
+    new SpanParser with OptionalDefaultAttribute {
+      Parsing ("aa @:dir { 5 } bb") should produce (ss(Text("aa 5 bb")))
     }
   }
   
@@ -329,7 +341,7 @@ class SpanDirectiveAPISpec extends FlatSpec
       val body = ss(
         Text("foo:str:7 1 value 2 ")
       )
-      Parsing ("aa @:dir { foo, strAttr=str, intAttr=7 } 1 ${ref} 2 @:@ bb") should produce (ss(Text("aa "), body, Text(" bb")))
+      Parsing ("aa @:dir(foo) { strAttr=str, intAttr=7 } 1 ${ref} 2 @:@ bb") should produce (ss(Text("aa "), body, Text(" bb")))
     }
   }
 
@@ -338,7 +350,16 @@ class SpanDirectiveAPISpec extends FlatSpec
       val body = ss(
         Text("foo:str:7 1 value 2 ")
       )
-      Parsing ("aa @:dir { foo, strAttr=str\nintAttr=7 } 1 ${ref} 2 @:@ bb") should produce (ss(Text("aa "), body, Text(" bb")))
+      Parsing ("aa @:dir(foo) {\n strAttr=str\nintAttr=7 \n} 1 ${ref} 2 @:@ bb") should produce (ss(Text("aa "), body, Text(" bb")))
+    }
+  }
+
+  it should "parse a full directive spec with all elements present, including a legacy default attribute" in {
+    new FullDirectiveSpec with SpanParser {
+      val body = ss(
+        Text("foo:str:7 1 value 2 ")
+      )
+      Parsing ("aa @:dir { foo, strAttr=str, intAttr=7 } 1 ${ref} 2 @:@ bb") should produce (ss(Text("aa "), body, Text(" bb")))
     }
   }
   
@@ -347,7 +368,7 @@ class SpanDirectiveAPISpec extends FlatSpec
       val body = ss(
         Text("foo:..:0 1 value 2 ")
       )
-      Parsing ("aa @:dir { foo } 1 ${ref} 2 @:@ bb") should produce (ss(Text("aa "), body, Text(" bb")))
+      Parsing ("aa @:dir(foo) 1 ${ref} 2 @:@ bb") should produce (ss(Text("aa "), body, Text(" bb")))
     }
   }
   

@@ -22,8 +22,8 @@ import laika.config.{Key, StringValue}
 import laika.ast._
 import laika.bundle.{BlockParser, BlockParserBuilder, SpanParser, SpanParserBuilder}
 import laika.directive._
-import laika.parse.{Failure, Message, Parser, ParserContext}
-import laika.parse.hocon.{BuilderField, ConfigResolver, HoconParsers, InvalidBuilderValue, ObjectBuilderValue, ResolvedBuilderValue, SelfReference}
+import laika.parse.{Failure, Message, Parser, ParserContext, Success}
+import laika.parse.hocon.{BuilderField, ConfigResolver, HoconParsers, InvalidBuilderValue, ObjectBuilderValue, ResolvedBuilderValue, SelfReference, ValidStringValue}
 import laika.parse.markup.{EscapedTextParsers, RecursiveParsers, RecursiveSpanParsers}
 import laika.parse.text.{CharGroup, PrefixedParser}
 import laika.parse.builders._
@@ -101,26 +101,36 @@ object DirectiveParsers {
     
     val defaultFence = success("@:@")
     val fence = if (supportsCustomFence) (ws ~> anyNot(' ', '\n', '\t').take(3)) | defaultFence else defaultFence
-    val defaultAttribute = {
+    
+    val legacyDefaultAttribute = { /* versions 0.12 and 0.13 allowed to have an unnamed attribute in the HOCON section */
       val delim = (ws ~ ("," | eol.as(""))) | lookAhead(hoconWS ~ "}")
       opt((hoconWS ~> stringBuilderValue(/*Set(',','}','\n')*/ NonEmptySet.one('\u0001')) <~ delim ~ hoconWS)
         .map(sv => BuilderField(AttributeKey.Default.key, sv)))
     }
-    val closingAttributes = literal("}").as(Option.empty[ParserContext]) | success(()).withContext.map { case (_, ctx) => Some(ctx) }
-    val attributeSection = (ws ~> lazily("{" ~> defaultAttribute ~ objectMembers ~ closingAttributes)).map {
-      case defAttr ~ obj ~ optCtx =>
-        val attrs = obj.copy(values = defAttr.toSeq ++ obj.values)
+    val defaultAttribute = opt(ws ~> "(" ~> text(delimitedBy(')')).embed("\\" ~> oneChar)
+      .map(sv => BuilderField(AttributeKey.Default.key, ValidStringValue(sv.trim))))
+    
+    val closingAttributes = literal("}").as(Option.empty[ParserContext]) | 
+                            success(()).withContext.map { case (_, ctx) => Some(ctx) }
+    
+    val hoconAttributes = opt(ws ~> lazily("{" ~> legacyDefaultAttribute ~ objectMembers ~ closingAttributes))
+    
+    val attributeSection = (defaultAttribute ~ hoconAttributes).map {
+      case defAttr ~ Some(legacyDefAttr ~ obj ~ optCtx) =>
+        val default = defAttr.orElse(legacyDefAttr).toSeq
+        val attrs = obj.copy(values = default ++ obj.values)
         optCtx match {
           case Some(ctx) if ConfigResolver.extractErrors(obj).isEmpty =>
-            ObjectBuilderValue(Seq(BuilderField("failure", InvalidBuilderValue(SelfReference, Failure(Message.fixed("Missing closing brace for attribute section"), ctx)))))
+            val fail = Failure(Message.fixed("Missing closing brace for attribute section"), ctx)
+            ObjectBuilderValue(Seq(BuilderField("failure", InvalidBuilderValue(SelfReference, fail))))
           case _ => 
             attrs
         }
+      case defAttr ~ None => ObjectBuilderValue(defAttr.toSeq)
     }
     
-    ("@:" ~> nameDecl ~ opt(attributeSection) ~ fence).map { 
-      case name ~ attrs ~ fencePattern => 
-        (name, attrs.getOrElse(ObjectBuilderValue(Nil)), fencePattern) 
+    ("@:" ~> nameDecl ~ attributeSection ~ fence).map { 
+      case name ~ attrs ~ fencePattern => (name, attrs, fencePattern) 
     }
   }
     

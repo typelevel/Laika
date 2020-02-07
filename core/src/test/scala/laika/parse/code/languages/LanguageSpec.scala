@@ -504,7 +504,7 @@ class LanguageSpec extends WordSpec with Matchers {
           |Header
           |======
           |
-          |@:toc { depth: 2 }
+          |@:toc(foo) { depth: 2 }
           |``` 
         """.stripMargin
 
@@ -518,7 +518,7 @@ class LanguageSpec extends WordSpec with Matchers {
           keyword("%}"),
           txt("\nSome "), em("*em*"), txt(" text "), em("**and**"), txt(" some "), subst("${subst.value}"), txt(".\n\n"),
           header("Header\n======"), txt("\n"), 
-          keyword("@:"), id("toc"), other(" { "), attrName("depth"), colonSpace, number("2"), other(" }")
+          keyword("@:"), id("toc"), other("("), string("foo"), other(") { "), attrName("depth"), colonSpace, number("2"), other(" }")
         ))
       )
     }
@@ -589,7 +589,7 @@ class LanguageSpec extends WordSpec with Matchers {
           |Header
           |======
           |
-          |@:toc { depth: 2 }
+          |@:toc(foo) { depth: 2 }
           |``` 
         """.stripMargin
 
@@ -605,7 +605,7 @@ class LanguageSpec extends WordSpec with Matchers {
           keyword("%}"),
           txt("\nSome "), em("*em*"), txt(" text "), em("**and**"), txt(" some "), subst("${subst.value}"), txt(".\n\n"),
           header("Header\n======"), txt("\n\n"),
-          keyword("@:"), id("toc"), other(" { "), attrName("depth"), colonSpace, number("2"), other(" }")
+          keyword("@:"), id("toc"), other("("), string("foo"), other(") { "), attrName("depth"), colonSpace, number("2"), other(" }")
         ))
       )
     }
