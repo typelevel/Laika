@@ -16,6 +16,7 @@
 
 package laika.config
 
+import cats.implicits._
 import laika.ast.{Path, SegmentedPath}
 import laika.ast.Path.Root
 

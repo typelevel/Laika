@@ -16,7 +16,8 @@
 
 package laika.ast
 
-import cats.data.NonEmptyList
+import cats.data.NonEmptyChain
+import cats.implicits._
 import laika.ast.Path.Root
 import laika.ast.RelativePath.{Current, Parent}
 
@@ -44,7 +45,7 @@ sealed trait PathBase extends Product with Serializable {
 sealed trait SegmentedPathBase extends PathBase {
 
   /** The segments representing this path instance. */
-  def segments: NonEmptyList[String]
+  def segments: NonEmptyChain[String]
 
   lazy val name: String = segments.last
 
@@ -100,11 +101,11 @@ sealed trait Path extends PathBase {
   
 }
 
-case class SegmentedPath (segments: NonEmptyList[String]) extends Path with SegmentedPathBase {
+case class SegmentedPath (segments: NonEmptyChain[String]) extends Path with SegmentedPathBase {
   
-  val depth: Int = segments.size
+  val depth: Int = segments.length.toInt
   
-  lazy val parent: Path = NonEmptyList.fromList(segments.init).fold[Path](Root)(SegmentedPath)
+  lazy val parent: Path = NonEmptyChain.fromChain(segments.init).fold[Path](Root)(SegmentedPath)
 
   def / (name: String): Path = SegmentedPath(segments :+ name)
 
@@ -128,7 +129,7 @@ case class SegmentedPath (segments: NonEmptyList[String]) extends Path with Segm
       case SegmentedPath(otherSegments) => removeCommonParts(otherSegments.toList, segments.toList)
     } 
     val base = if (a.isEmpty) Current else Parent(a.length)
-    NonEmptyList.fromList(b).fold[RelativePath](base)(seg => base / SegmentedRelativePath(seg))
+    NonEmptyChain.fromSeq(b).fold[RelativePath](base)(seg => base / SegmentedRelativePath(seg))
   }
 
   def isSubPath (other: Path): Boolean = other match {
@@ -138,7 +139,7 @@ case class SegmentedPath (segments: NonEmptyList[String]) extends Path with Segm
   
   override def withSuffix (newSuffix: String): Path = 
     if (name.endsWith(newSuffix)) this 
-    else SegmentedPath(NonEmptyList.ofInitLast(segments.init, basename + "." + newSuffix))
+    else SegmentedPath(NonEmptyChain.fromChainAppend(segments.init, basename + "." + newSuffix))
   
   override lazy val toString: String = "/" + (segments.toList mkString "/")
 }
@@ -153,14 +154,14 @@ object Path {
     val depth: Int = 0
     val parent: Path = this
     val name: String = "/"
-    def / (name: String): Path = SegmentedPath(NonEmptyList.of(name))
+    def / (name: String): Path = SegmentedPath(NonEmptyChain(name))
     def / (path: RelativePath): Path = path match {
       case SegmentedRelativePath(segments, _) => SegmentedPath(segments)
       case _ => this
     }
     def relativeTo (path: Path): RelativePath = path match {
       case Root => Current
-      case SegmentedPath(segments) => Parent(segments.size)
+      case SegmentedPath(segments) => Parent(segments.length.toInt)
     }
     def isSubPath (other: Path): Boolean = other == Root
     override val toString: String = "/"
@@ -177,7 +178,7 @@ object Path {
     }
   }
 
-  def apply (segments: List[String]): Path = NonEmptyList.fromList(segments).fold[Path](Root)(SegmentedPath)
+  def apply (segments: List[String]): Path = NonEmptyChain.fromSeq(segments).fold[Path](Root)(SegmentedPath)
 
 }
 
@@ -208,11 +209,11 @@ sealed trait RelativePath extends PathBase {
   def withSuffix (newSuffix: String): RelativePath = this
 }
 
-case class SegmentedRelativePath(segments: NonEmptyList[String], parentLevels: Int = 0) extends RelativePath with SegmentedPathBase {
+case class SegmentedRelativePath(segments: NonEmptyChain[String], parentLevels: Int = 0) extends RelativePath with SegmentedPathBase {
 
   lazy val parent: RelativePath = {
     def noSegments = if (parentLevels == 0) Current else Parent(parentLevels)
-    NonEmptyList.fromList(segments.init)
+    NonEmptyChain.fromSeq(segments.toList.init)
       .fold[RelativePath](noSegments)(SegmentedRelativePath(_, parentLevels))
   }
 
@@ -222,11 +223,11 @@ case class SegmentedRelativePath(segments: NonEmptyList[String], parentLevels: I
 
     def construct(otherSegments: List[String], otherLevels: Int): RelativePath = {
       
-      val newParentLevels = parentLevels + Math.max(0, otherLevels - segments.size)
+      val newParentLevels = parentLevels + Math.max(0, otherLevels - segments.size.toInt)
       
       def noSegments = if (newParentLevels == 0) Current else Parent(newParentLevels)
       
-      NonEmptyList.fromList(segments.toList.dropRight(otherLevels) ++ otherSegments).fold(noSegments){ newSegments =>
+      NonEmptyChain.fromSeq(segments.toList.dropRight(otherLevels) ++ otherSegments).fold(noSegments){ newSegments =>
         SegmentedRelativePath(newSegments, newParentLevels)
       }
     }
@@ -244,7 +245,7 @@ case class SegmentedRelativePath(segments: NonEmptyList[String], parentLevels: I
   
   override def withSuffix (newSuffix: String): RelativePath = 
     if (name.endsWith(newSuffix)) this
-    else SegmentedRelativePath(NonEmptyList.ofInitLast(segments.init, basename + "." + newSuffix), parentLevels)
+    else SegmentedRelativePath(NonEmptyChain.fromChainAppend(segments.init, basename + "." + newSuffix), parentLevels)
 
   override lazy val toString: String = ("../" * parentLevels) + (segments.toList mkString "/")
 }
@@ -257,7 +258,7 @@ object RelativePath {
     val name = "."
     val parent: RelativePath = Parent(1)
     val parentLevels: Int = 0
-    def / (name: String): RelativePath = SegmentedRelativePath(NonEmptyList.of(name))
+    def / (name: String): RelativePath = SegmentedRelativePath(NonEmptyChain(name))
     def / (path: RelativePath): RelativePath = path
     override val toString: String = name
   }
@@ -267,7 +268,7 @@ object RelativePath {
   case class Parent(parentLevels: Int) extends RelativePath {
     val name: String = "../" * parentLevels
     lazy val parent: RelativePath = Parent(parentLevels + 1)
-    def / (name: String): RelativePath = SegmentedRelativePath(NonEmptyList.of(name), parentLevels)
+    def / (name: String): RelativePath = SegmentedRelativePath(NonEmptyChain(name), parentLevels)
     def / (path: RelativePath): RelativePath = path match {
       case Current => this
       case Parent(otherLevels) => Parent(parentLevels + otherLevels)
@@ -291,7 +292,7 @@ object RelativePath {
           else (current, path)
         val (levels, rest) = countParents(0, other)
         val segments = if (rest.isEmpty) Nil else rest.split("/").toList
-        NonEmptyList.fromList(segments)
+        NonEmptyChain.fromSeq(segments)
           .fold[RelativePath](Parent(levels))(SegmentedRelativePath(_, levels))
     }
   }
