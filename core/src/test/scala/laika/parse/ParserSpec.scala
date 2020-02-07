@@ -207,7 +207,7 @@ class ParserSpec extends WordSpec with Matchers with ParseResultHelpers with Str
   "The repetition parser for an arbitrary number of results" should {
 
     "produce an empty result when the first invocation fails" in {
-      Parsing("xxx") using (parser1 *) should produce (List.empty[String])
+      Parsing("xxx") using parser1.rep should produce (List.empty[String])
     }
 
     "provide all matching substrings" in {
@@ -242,6 +242,25 @@ class ParserSpec extends WordSpec with Matchers with ParseResultHelpers with Str
       Parsing("abacc") using parser1.max(1).rep.max(2) should produce (List("a","b"))
     }
 
+  }
+
+  "The repetition parser with a separator" should {
+
+    "produce an empty result when the first invocation fails" in {
+      Parsing("xxx") using parser1.take(2).rep("-") should produce (List.empty[String])
+    }
+
+    "provide all matching substrings" in {
+      Parsing("ab-ba-c") using parser1.take(2).rep("-") should produce (List("ab","ba"))
+    }
+
+    "succeed if the specified number of successful invocations is reached" in {
+      Parsing("ab-ba-bb-cc") using parser1.take(2).rep("-").min(3) should produce (List("ab","ba","bb"))
+    }
+
+    "fail if the required minimum number of successful invocations is not reached" in {
+      Parsing("ab-cc-bb-cc") using parser1.take(2).rep("-").min(3) should cause [Failure]
+    }
   }
 
   "The parser for dynamic repetition" should {

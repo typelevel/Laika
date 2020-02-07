@@ -106,8 +106,8 @@ object BlockParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#doctest-blocks]]
    */
   val doctest: BlockParserBuilder = BlockParser.standalone {
-    val lineParser = restOfLine ~ (not(blankLine) ~> restOfLine).rep
-    ">>> " ~> lineParser.concat.mkLines.map(DoctestBlock(_))
+    val lineParser = restOfLine.rep(not(blankLine)).min(1)
+    ">>> " ~> lineParser.mkLines.map(DoctestBlock(_))
   }
   
   /** Parses a block quote with an optional attribution.

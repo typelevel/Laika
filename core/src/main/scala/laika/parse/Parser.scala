@@ -257,6 +257,26 @@ abstract class Parser[+T] {
     */
   def rep: Repeat[T] = new Repeat(this)
 
+  /** Returns a parser that repeatedly applies this parser with the specified
+    * separator parser between those invocations.
+    * 
+    * `p.rep(sep).min(1)` is equivalent to `(p ~ (sep ~> p).rep).concat`.
+    * 
+    * The returned parser offers an API to specify further constraints
+    * like `min` or `max`.
+    */
+  def rep (separator: Parser[Unit]): Repeat[T] = new Repeat(this, sep = Some(separator))
+
+  /** Returns a parser that repeatedly applies this parser with the specified
+    * separator string between those invocations.
+    *
+    * `p.rep(sep).min(1)` is equivalent to `(p ~ (sep ~> p).rep).concat`.
+    *
+    * The returned parser offers an API to specify further constraints
+    * like `min` or `max`.
+    */
+  def rep (separator: String): Repeat[T] = new Repeat(this, sep = Some(TextParsers.literal(separator).void))
+
   /**  Returns a parser that repeatedly applies this parser.
     *  It will always succeed, potentially with an empty list as the result.
     */

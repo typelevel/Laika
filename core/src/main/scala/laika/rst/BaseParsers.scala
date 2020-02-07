@@ -46,10 +46,10 @@ object BaseParsers {
     * See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#reference-names]].
     */
   val simpleRefName: Parser[String] = {
-    val alphaNum = anyWhile(c => Character.isDigit(c) || Character.isLetter(c)) min 1
-    val symbol = oneOf('-', '_', '.', ':', '+')
+    val alphaNum = someWhile(c => Character.isDigit(c) || Character.isLetter(c))
+    val symbol = oneOf('-', '_', '.', ':', '+').void
 
-    (alphaNum ~ (symbol ~ alphaNum).rep).source
+    alphaNum.rep(symbol).min(1).source
   }
 
   /** Parses a size and its amount, e.g. 12px.

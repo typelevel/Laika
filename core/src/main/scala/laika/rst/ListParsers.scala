@@ -221,7 +221,7 @@ object ListParsers {
     
     val option = ((gnu | shortPosix | longPosix | dos) ~ opt(arg)).mapN(ProgramOption)
     
-    val options = (option ~ (", " ~> option).rep).concat
+    val options = option.rep(", ").min(1)
     
     val descStart = (anyOf(' ').min(2) ~ not(blankLine)) | lookAhead(blankLine ~ ws.min(1) ~ not(blankLine)).as("")
     

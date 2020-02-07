@@ -104,7 +104,7 @@ object CSSParsers {
 
   /** Parses a sequence of selectors, separated by a comma.
     */
-  val selectorGroup: Parser[Seq[StyleSelector]] = (selector ~ (ws ~ "," ~ ws ~> selector).rep).concat
+  val selectorGroup: Parser[Seq[StyleSelector]] = selector.rep((ws ~ "," ~ ws).void).min(1)
 
   /** Parses the value of a single style, ignoring
     *  any comments..

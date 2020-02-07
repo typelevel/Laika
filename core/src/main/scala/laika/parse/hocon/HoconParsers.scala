@@ -270,14 +270,14 @@ object HoconParsers {
   /** Parses the rest of the current line if it contains either just whitespace or a comment. */
   val wsOrComment: Parser[Any] = wsOrNl ~ (comment | wsOrNl.min(1)).rep
   
-  private val separator: Parser[Any] = (char(',') | eol | comment) ~ wsOrComment
+  private val separator: Parser[Unit] = ((oneOf(',') | eol | comment) ~ wsOrComment).void
   
   private val trailingComma: Parser[Any] = opt("," ~ wsOrComment)
 
   /** Parses an array value recursively. */
   lazy val arrayValue: Parser[ConfigBuilderValue] = {
     lazy val value = wsOrNl ~> concatenatedValue(NonEmptySet.of(']',',','\n','#')) <~ ws
-    lazy val values = wsOrComment ~> opt((value ~ (separator ~> value).rep).concat).map(_.toList.flatten) <~ wsOrComment
+    lazy val values = wsOrComment ~> value.rep(separator) <~ wsOrComment
     val mainParser = lazily(("[" ~> values <~ trailingComma).map(ArrayBuilderValue))
     mainParser.closeWith[ConfigBuilderValue](']')(InvalidBuilderValue)
   }
@@ -301,7 +301,7 @@ object HoconParsers {
     val valueField = (key ~ (withSeparator | withoutSeparator | fallback)).map { case k ~ v => BuilderField(k, v) }
     
     lazy val member  = includeField | valueField
-    lazy val members = opt((member ~ (separator ~> member).rep).concat).map(_.toList.flatten)
+    lazy val members = member.rep(separator)
     
     (wsOrComment ~> members <~ wsOrComment <~ trailingComma).map(ObjectBuilderValue)
   }

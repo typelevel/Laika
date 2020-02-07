@@ -112,7 +112,7 @@ object URIParsers {
       if (num >= 0 && num < 256) Right(num) else Left("Number must be between 1 and 255")
     }
     
-    (decOctet ~ ("." ~ decOctet).rep.take(3)).source
+    decOctet.rep(".").take(4).source
   }
   
   /** Parses an IPv6 address as defined in RFC 3986.
@@ -301,8 +301,8 @@ object URIParsers {
     
     val atext = alpha.min(1) | digit.min(1) | 
         someOf('!','#','$','%','&','\'','*','+','-','/','=','?','^','_','`','{','|','}','~')
-        
-    (atext.rep ~ ("." ~ atext.rep).rep).source 
+
+    atext.rep.rep(".").min(1).source 
   }
 
   /** Parses the local part of an email address (before the @), with one 
@@ -346,7 +346,7 @@ object URIParsers {
    *  to = addr-spec *("," addr-spec )
    *  }}}
    */
-  val to: Parser[String] = (addrSpec ~ ("," ~ addrSpec).rep).source
+  val to: Parser[String] = addrSpec.rep(",").min(1).source
   
   /** Parses header fields of an email address as defined in RFC 6068.
    * 
@@ -371,7 +371,7 @@ object URIParsers {
 
     val hfield = hfname ~ "=" ~ hfvalue
     
-    ("?" ~ hfield ~ ("&" ~ hfield).rep).source
+    ("?" ~ hfield.rep("&").min(1)).source
   }
   
   /** Parses a mailto URI without the scheme part as defined in RFC 6068.
