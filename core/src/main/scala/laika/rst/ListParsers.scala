@@ -22,7 +22,7 @@ import laika.collection.Stack
 import laika.parse.Parser
 import laika.parse.markup.RecursiveParsers
 import laika.parse.text.CharGroup
-import laika.parse.api._
+import laika.parse.builders._
 import laika.parse.implicits._
 import laika.rst.ast._
 

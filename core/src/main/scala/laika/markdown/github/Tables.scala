@@ -21,7 +21,7 @@ import laika.bundle.{BlockParser, BlockParserBuilder}
 import laika.markdown.BlockParsers._
 import laika.parse.Parser
 import laika.parse.text.PrefixedParser
-import laika.parse.api._
+import laika.parse.builders._
 import laika.parse.implicits._
 
 /** Parser for the table extension of GitHub Flavored Markdown.

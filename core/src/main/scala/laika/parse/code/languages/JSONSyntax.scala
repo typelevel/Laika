@@ -22,7 +22,7 @@ import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue}
 import laika.parse.code.common.StringLiteral.StringParser
 import laika.parse.code.common.{Keywords, NumberLiteral, StringLiteral}
-import laika.parse.api._
+import laika.parse.builders._
 
 /**
   * @author Jens Halm

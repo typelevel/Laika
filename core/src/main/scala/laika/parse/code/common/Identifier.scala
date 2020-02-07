@@ -20,7 +20,7 @@ import cats.data.NonEmptySet
 import cats.implicits._
 import laika.ast.{CategorizedCode, CodeSpan, ~}
 import laika.parse.code.{CodeCategory, CodeSpanParser}
-import laika.parse.api._
+import laika.parse.builders._
 import laika.parse.text.{CharGroup, PrefixedParser}
 
 /** Configurable base parsers for identifiers in code blocks.

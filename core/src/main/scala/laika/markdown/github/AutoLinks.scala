@@ -19,7 +19,7 @@ package laika.markdown.github
 import cats.implicits._
 import cats.data.NonEmptySet
 import laika.parse.Parser
-import laika.parse.api._
+import laika.parse.builders._
 import laika.parse.uri.AutoLinkParsers
 
 /** Parsers for inline auto-links, which are urls or email addresses that are recognized and

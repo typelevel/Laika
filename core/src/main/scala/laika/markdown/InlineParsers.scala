@@ -21,7 +21,7 @@ import laika.bundle.{SpanParser, SpanParserBuilder}
 import laika.parse.Parser
 import laika.parse.markup.InlineParsers.text
 import laika.parse.markup.RecursiveSpanParsers
-import laika.parse.api._
+import laika.parse.builders._
 import laika.parse.implicits._
 import laika.parse.text.{DelimitedText, PrefixedParser}
 

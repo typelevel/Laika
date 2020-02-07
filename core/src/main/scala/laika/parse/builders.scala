@@ -28,4 +28,4 @@ import laika.parse.text.TextParsers
   * 
   * @author Jens Halm
   */
-object api extends TextParsers with InlineParsers with BlockParsers
+object builders extends TextParsers with InlineParsers with BlockParsers

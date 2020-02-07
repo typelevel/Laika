@@ -20,7 +20,7 @@ import laika.ast._
 import laika.bundle.{BlockParser, BlockParserBuilder}
 import laika.parse.markup.RecursiveParsers
 import laika.parse.text.{DelimitedText, PrefixedParser}
-import laika.parse.api._
+import laika.parse.builders._
 import laika.parse.implicits._
 import laika.parse.Parser
 import laika.rst.BaseParsers._

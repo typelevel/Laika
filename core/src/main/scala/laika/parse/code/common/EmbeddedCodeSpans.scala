@@ -22,7 +22,7 @@ import laika.parse.Parser
 import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.markup.InlineParsers
 import laika.parse.text.{DelimitedText, PrefixedParser}
-import laika.parse.api._
+import laika.parse.builders._
 import laika.parse.implicits._
 
 /** Factories for creating a span parser that detects other syntax as part of the span.

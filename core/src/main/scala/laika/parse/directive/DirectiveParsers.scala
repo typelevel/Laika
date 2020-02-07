@@ -26,7 +26,7 @@ import laika.parse.{Failure, Message, Parser, ParserContext}
 import laika.parse.hocon.{BuilderField, ConfigResolver, HoconParsers, InvalidBuilderValue, ObjectBuilderValue, ResolvedBuilderValue, SelfReference}
 import laika.parse.markup.{EscapedTextParsers, RecursiveParsers, RecursiveSpanParsers}
 import laika.parse.text.{CharGroup, PrefixedParser}
-import laika.parse.api._
+import laika.parse.builders._
 import laika.parse.implicits._
 
 /** Parsers for all types of custom directives that can be used

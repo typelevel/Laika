@@ -23,7 +23,7 @@ import laika.bundle._
 import laika.factory.MarkupFormat
 import laika.parse.Parser
 import laika.parse.text.PrefixedParser
-import laika.parse.api._
+import laika.parse.builders._
 
 import scala.collection.immutable.TreeSet
 

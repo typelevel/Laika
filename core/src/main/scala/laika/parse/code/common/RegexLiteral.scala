@@ -18,7 +18,7 @@ package laika.parse.code.common
 
 import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.text.CharGroup
-import laika.parse.api._
+import laika.parse.builders._
 
 /** Base parsers for regular expression literals in code blocks.
   * 

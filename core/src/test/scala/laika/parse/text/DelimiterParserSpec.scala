@@ -19,7 +19,7 @@ package laika.parse.text
 import cats.implicits._
 import cats.data.NonEmptySet
 import laika.parse.{Failure, Parser}
-import laika.parse.api._
+import laika.parse.builders._
 import laika.parse.helper.{ParseResultHelpers, StringParserHelpers}
 import org.scalatest.{Matchers, WordSpec}
 

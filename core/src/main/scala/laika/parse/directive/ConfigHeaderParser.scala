@@ -18,7 +18,7 @@ package laika.parse.directive
 
 import laika.config.{Config, ConfigBuilder, ConfigParser, ConfigValue}
 import laika.parse.Parser
-import laika.parse.api._
+import laika.parse.builders._
 import laika.parse.implicits._
 
 /** Provides parser implementation for configuration header sections

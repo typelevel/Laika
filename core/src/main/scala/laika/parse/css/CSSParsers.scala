@@ -19,7 +19,7 @@ package laika.parse.css
 import laika.ast._
 import laika.parse.Parser
 import laika.parse.markup.InlineParsers
-import laika.parse.api._
+import laika.parse.builders._
 import laika.parse.implicits._
 
 /**
