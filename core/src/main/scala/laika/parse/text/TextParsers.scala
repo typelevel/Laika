@@ -121,26 +121,6 @@ trait TextParsers extends Parsers {
     */
   val textLine: Parser[String] = not(blankLine) ~> restOfLine
 
-  /** Parses a simple reference name that only allows alphanumerical characters
-   *  and the punctuation characters `-`, `_`, `.`, `:`, `+`.
-   */
-  val refName: Parser[String] = {
-    val alphaNum = anyWhile(c => Character.isDigit(c) || Character.isLetter(c)) min 1
-    val symbol = oneOf('-', '_', '.', ':', '+')
-    
-    (alphaNum ~ (symbol ~ alphaNum).rep).source
-  }
-
-  /** Parses a size and its amount, e.g. 12px.
-    * The unit is mandatory and not validated.
-    */
-  val sizeAndUnit: Parser[Size] = {
-    val digit = someOf(CharGroup.digit)
-    val amount = (digit ~ opt("." ~ digit)).source.map(_.toDouble)
-    (amount ~ (ws ~> (refName | "%"))).mapN(Size)
-  }
-
-
   /** Verifies that the previous character is not one of those specified.
     * Succeeds at the start of the input and does not consume any input
     * or produce a result when it succeeds.

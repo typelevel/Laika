@@ -20,6 +20,7 @@ import laika.ast._
 import laika.parse.implicits._
 import laika.parse.markup.RecursiveParsers
 import laika.parse.text.{CharGroup, TextParsers}
+import laika.rst.BaseParsers.sizeAndUnit
 import laika.rst.ext.Directives.DirectivePartBuilder
 import laika.rst.ext.Directives.Parts._
 

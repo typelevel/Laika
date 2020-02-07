@@ -272,42 +272,6 @@ class TextParsersSpec extends WordSpec with Matchers with ParseResultHelpers wit
 
   }
 
-  "The reference name parser" should {
-
-    "parse a name consisting of characters" in {
-      Parsing ("name") using refName should produce ("name")
-    }
-
-    "parse a name consisting of characters and digits" in {
-      Parsing ("7name9") using refName should produce ("7name9")
-    }
-
-    "parse a name consisting of characters and any of the supported symbols" in {
-      Parsing ("a-a_a.a:a+a") using refName should produce ("a-a_a.a:a+a")
-    }
-
-    "fail if the name starts with a symbol" in {
-      Parsing ("-a_a.a:a+a") using refName should cause [Failure]
-    }
-
-    "ignore a trailing symbol" in {
-      Parsing ("a-a_a.a:a+") using refName should produce ("a-a_a.a:a")
-    }
-
-    "stop parsing at two consecutive symbols" in {
-      Parsing ("a-a.+a") using refName should produce ("a-a")
-    }
-
-    "stop parsing at unsupported symbols" in {
-      Parsing ("a-a(a") using refName should produce ("a-a")
-    }
-
-    "parse a name containing non-ASCII characters" in {
-      Parsing ("näme") using refName should produce ("näme")
-    }
-
-  }
-
   "The anyChars parser" should {
 
     "always succeed consuming the entire input" in {

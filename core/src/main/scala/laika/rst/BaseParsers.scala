@@ -21,7 +21,7 @@ import cats.data.NonEmptySet
 import laika.ast._
 import laika.parse.Parser
 import laika.parse.implicits._
-import laika.parse.text.TextParsers.{anyOf, literal, someOf}
+import laika.parse.builders._
 import laika.parse.text.{CharGroup, Characters, TextParsers}
 
 /**
@@ -36,16 +36,30 @@ object BaseParsers {
     NonEmptySet.of('!','"','#','$','%','&','\'','(',')','[',']','{','}','*','+',',','-','.',':',';','/','<','>','=','?','@','\\','^','_','`','|','~')
 
   /** Parses punctuation characters as supported by transitions (rules) and
-    *  overlines and underlines for header sections.
+    * overlines and underlines for header sections.
     */
   val punctuationChar: Characters[String] = anyOf(punctuationChars)
 
   /** Parses a simple reference name that only allows alphanumerical characters
-    *  and the punctuation characters `-`, `_`, `.`, `:`, `+`.
+    * and the punctuation characters `-`, `_`, `.`, `:`, `+`.
     *
-    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#reference-names]].
+    * See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#reference-names]].
     */
-  val simpleRefName: Parser[String] = TextParsers.refName
+  val simpleRefName: Parser[String] = {
+    val alphaNum = anyWhile(c => Character.isDigit(c) || Character.isLetter(c)) min 1
+    val symbol = oneOf('-', '_', '.', ':', '+')
+
+    (alphaNum ~ (symbol ~ alphaNum).rep).source
+  }
+
+  /** Parses a size and its amount, e.g. 12px.
+    * The unit is mandatory and not validated.
+    */
+  val sizeAndUnit: Parser[Size] = {
+    val digit = someOf(CharGroup.digit)
+    val amount = (digit ~ opt("." ~ digit)).source.map(_.toDouble)
+    (amount ~ (ws ~> (simpleRefName | "%"))).mapN(Size)
+  }
 
   /** Parses any of the four supported types of footnote labels.
     *
