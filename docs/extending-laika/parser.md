@@ -94,9 +94,9 @@ We'll just show a few examples here:
 Parsing three or more lower-case characters:
 
 ```scala
-"[a-z]{3,}".r              // regex
+"[a-z]{3,}".r                   // regex
 
-anyIn('a' to 'z').min(3)   // Laika alternative
+someOf(range('a','z')).min(3)   // Laika API
 ```
 
 Parsing any character apart from space or tab:
@@ -104,14 +104,14 @@ Parsing any character apart from space or tab:
 ```scala
 "[^ \t]*".r               // regex
 
-anyBut(' ','\t')          // Laika alternative
+anyNot(' ','\t')          // Laika API
 ```
 
 Note that for the Laika base parsers the default is to parse any number of characters,
 as this is the most common case. To read just one you can write:
 
 ```scala
-anyBut(' ','\t').take(1)
+oneNot(' ','\t')
 ```
 
 The parsers of this trait will be faster than regex parsers in many scenarios, but
@@ -141,7 +141,7 @@ This is captured in the API for creating a parser:
 
 ```scala
 SpanParser.standalone {
-  ('*' ~> anyBut('*','\n') <~ '*').map(Emphasized(_))
+  ('*' ~> anyNot('*','\n') <~ '*').map(Emphasized(_))
 }    
 ```
 
@@ -220,12 +220,12 @@ by a `>` character at the start of each line:
 BlockParser.recursive { recParsers =>
   
   val textAfterDeco = TextParsers.ws       // any whitespace
-  val decoratedLine = '>' ~ textAfterDeco  // '>' followed by whitespace
+  val decoratedLine = ">" ~ textAfterDeco  // '>' followed by whitespace
   val afterBlankLine = Parsers.failure("blank line ends block")
   
   val textBlock = BlockParsers.block(decoratedLine, decoratedLine, afterBlankLine)
   
-  recParsers.recursiveBlocks(textBlock) ^^ (QuotedBlock(_, Nil))
+  recParsers.recursiveBlocks(textBlock).map(QuotedBlock(_, Nil))
 }
 ```
  
