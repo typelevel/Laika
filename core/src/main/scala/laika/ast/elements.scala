@@ -539,10 +539,13 @@ object CodeSpans {
   /** Merges all occurrences of two or more adjacent spans with the exact same set of 
     * associated code categories.
     */
-  def merge (spans: Seq[CodeSpan]): Seq[CodeSpan] = if (spans.isEmpty) spans else {
-    spans.tail.foldLeft(List(spans.head)) { case (acc, next) =>
-      if (acc.last.categories == next.categories) acc.init :+ CodeSpan(acc.last.content + next.content, next.categories)
-      else acc :+ next
+  def merge (spans: Seq[CodeSpan]): Seq[CodeSpan] = {
+    val filtered = spans.filterNot(_.content.isEmpty)
+    if (filtered.isEmpty) Nil else {
+      filtered.tail.foldLeft(List(filtered.head)) { case (acc, next) =>
+        if (acc.last.categories == next.categories) acc.init :+ CodeSpan(acc.last.content + next.content, next.categories)
+        else acc :+ next
+      }
     }
   }
 

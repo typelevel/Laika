@@ -19,7 +19,6 @@ package laika.parse.code.languages
 import cats.data.NonEmptyList
 import laika.ast.{CodeSpan, ~}
 import laika.bundle.SyntaxHighlighter
-import laika.parse.Parser
 import laika.parse.code.common.StringLiteral
 import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.text.PrefixedParser
@@ -60,12 +59,9 @@ object MarkdownSyntax extends SyntaxHighlighter {
   val link: CodeSpanParser = CodeSpanParser(linkParser("["))
   val image: CodeSpanParser = CodeSpanParser(linkParser("!["))
   
-  val startOfLine: Parser[String] = atStart.as("") | "\n"
-
   val linkTarget: CodeSpanParser = CodeSpanParser.onLineStart {
-    (startOfLine ~> "[" ~> delimitedBy("]:").failOn('\n') ~ restOfLine).map {
+    ("[" ~> delimitedBy("]:").failOn('\n') ~ restOfLine).map {
       case ref ~ target => Seq(
-        CodeSpan("\n"),
         CodeSpan(s"[$ref]:", CodeCategory.Identifier),
         CodeSpan(target, CodeCategory.Markup.LinkTarget),
         CodeSpan("\n"),
@@ -74,28 +70,26 @@ object MarkdownSyntax extends SyntaxHighlighter {
   }
 
   val atxHeader: CodeSpanParser = CodeSpanParser.onLineStart(CodeCategory.Markup.Headline) {
-    (startOfLine ~ someOf('#').max(6) ~ restOfLine).source
+    (someOf('#').max(6) ~ restOfLine).source
   }
 
   val setexHeader: CodeSpanParser = CodeSpanParser.onLineStart(CodeCategory.Markup.Headline) {
     val deco = (someOf('=') | someOf('-')) <~ wsEol
-    (startOfLine ~ restOfLine ~ deco).source
+    (restOfLine ~ deco).source
   }
 
   val codeFence: CodeSpanParser = CodeSpanParser.onLineStart(CodeCategory.Markup.Fence) {
-    (startOfLine ~ anyOf('`').take(3) ~ restOfLine).source
+    (anyOf('`').take(3) ~ restOfLine).source
   }
 
   val rules: CodeSpanParser = CodeSpanParser.onLineStart(CodeCategory.Markup.Fence) {
     Seq('*', '-', '_').map { decoChar =>
-      (char(decoChar) ~ (anyOf(' ') ~ literal(decoChar.toString)).source.rep.min(2) ~ ws ~ "\n").map {
-        case start ~ pattern ~ s ~ nl => start.toString + pattern.mkString + s + nl
-      }
+      (oneOf(decoChar) ~ (anyOf(' ') ~ oneOf(decoChar)).rep.min(2) ~ ws ~ "\n").source
     }.reduceLeft(_ | _)
   }
 
   val quoteChars: CodeSpanParser = CodeSpanParser.onLineStart(CodeCategory.Markup.Quote) {
-    (startOfLine ~ someOf('>')).source
+    someOf('>').source
   }
 
   val mdSpans: CodeSpanParser = 

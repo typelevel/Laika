@@ -22,7 +22,7 @@ import laika.bundle.SyntaxHighlighter
 import laika.parse.Parser
 import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
-import laika.parse.text.{CharGroup, PrefixedParser}
+import laika.parse.text.CharGroup
 import laika.parse.builders._
 import laika.parse.implicits._
 import org.scalatest.{Assertion, Matchers, WordSpec}
@@ -36,8 +36,7 @@ class CommonSyntaxParserSpec extends WordSpec
                              with DefaultParserHelpers[Seq[CodeSpan]] {
 
   
-  private val startOfLine: Parser[String] = atStart.as("") | "\n"
-  val rule: CodeSpanParser = CodeSpanParser.onLineStart(CodeCategory.Markup.Fence)((startOfLine ~ literal("===")).source)
+  val rule: CodeSpanParser = CodeSpanParser.onLineStart(CodeCategory.Markup.Fence)(literal("===").source)
   
   private def createParser (allowLetterAfterNumber: Boolean = false): Parser[Seq[CodeSpan]] = new SyntaxHighlighter {
     val language: NonEmptyList[String] = NonEmptyList.of("test-lang")
@@ -455,7 +454,8 @@ class CommonSyntaxParserSpec extends WordSpec
 
       Parsing(input) should produce (Seq(
         CodeSpan("line1", CodeCategory.Identifier),
-        CodeSpan("\n===", CodeCategory.Markup.Fence),
+        CodeSpan("\n"),
+        CodeSpan("===", CodeCategory.Markup.Fence),
         CodeSpan("\n"),
         CodeSpan("line3", CodeCategory.Identifier),
       ))

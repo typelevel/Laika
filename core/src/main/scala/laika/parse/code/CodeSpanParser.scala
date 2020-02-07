@@ -21,6 +21,7 @@ import laika.parse.Parser
 import laika.parse.text.PrefixedParser
 import laika.parse.builders._
 import laika.parse.implicits._
+import laika.parse.code.implicits._
 
 /** A collection of code span parsers that are intended to be applied together. 
   */
@@ -73,14 +74,19 @@ object CodeSpanParser {
       val parsers = Seq(parser.map(CodeSpanSequence(_)))
     }
 
+  private val newLine: Parser[CodeSpan] = (atStart.as("") | "\n").asCode()
+  
   /** Parses code spans that can only start on a new line or at the start of the input.
     */
-  def onLineStart (parser: Parser[Seq[CodeSpan]]): CodeSpanParser = apply(PrefixedParser('\n')(parser))
-
+  def onLineStart (parser: Parser[Seq[CodeSpan]]): CodeSpanParser = {
+    val combinedParser = (newLine ~ parser).concat
+    apply(PrefixedParser('\n')(combinedParser))
+  }
+  
   /** Parses a single code span that can only start on a new line or at the start of the input
     * and associates it with the given code category.
     */
   def onLineStart (category: CodeCategory)(parser: Parser[String]): CodeSpanParser = 
-    apply(category)(PrefixedParser('\n')(parser))
+    onLineStart(parser.asCode(category).map(Seq(_)))
   
 }

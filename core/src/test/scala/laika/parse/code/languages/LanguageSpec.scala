@@ -70,7 +70,7 @@ class LanguageSpec extends WordSpec with Matchers {
     
     trait MarkupFormats {
       def txt(content: String): CodeSpan = CodeSpan(content)
-      def header(content: String): CodeSpan = CodeSpan("\n" + content + "\n", CodeCategory.Markup.Headline)
+      def header(content: String): CodeSpan = CodeSpan(content + "\n", CodeCategory.Markup.Headline)
       def em(content: String): CodeSpan = CodeSpan(content, CodeCategory.Markup.Emphasized)
       def linkText(content: String): CodeSpan = CodeSpan(content, CodeCategory.Markup.LinkText)
       def linkTarget(content: String): CodeSpan = CodeSpan(content, CodeCategory.Markup.LinkTarget)
@@ -480,9 +480,10 @@ class LanguageSpec extends WordSpec with Matchers {
         CodeBlock("md", Seq(
           txt("Some "), em("*em*"), txt(" text "), em("**and**"), txt(" some "), string("`literal`"),
           txt(" text, an "), linkText("![image]"),  linkTarget("(foo.jpg)"), txt(".\nA "),
-          linkText("[link]"), linkTarget("(http://foo/)"), txt(", another "), linkText("[link]"), linkTarget("[ref]"), txt(" and one more "), linkTarget("[ref]"), txt(".\n"),
-          header("Header\n======"), txt("\n"), id("[ref]:"), linkTarget(" http://foo"), txt("\n"),
-          header("### Header"), CodeSpan("\n>", CodeCategory.Markup.Quote), txt(" Quote")
+          linkText("[link]"), linkTarget("(http://foo/)"), txt(", another "), linkText("[link]"), linkTarget("[ref]"), txt(" and one more "), linkTarget("[ref]"), txt(".\n\n"),
+          header("Header\n======"), txt("\n"), id("[ref]:"), linkTarget(" http://foo"), txt("\n\n"),
+          header("### Header"), txt("\n"), 
+          CodeSpan(">", CodeCategory.Markup.Quote), txt(" Quote")
         ))
       )
     }
@@ -515,7 +516,7 @@ class LanguageSpec extends WordSpec with Matchers {
           attrName("scope"), colonSpace, string("sections"), txt("\n    "),
           attrName("depth"), colonSpace, number("2"), txt("\n  }\n"),
           keyword("%}"),
-          txt("\nSome "), em("*em*"), txt(" text "), em("**and**"), txt(" some "), subst("${subst.value}"), txt(".\n"),
+          txt("\nSome "), em("*em*"), txt(" text "), em("**and**"), txt(" some "), subst("${subst.value}"), txt(".\n\n"),
           header("Header\n======"), txt("\n"), 
           keyword("@:"), id("toc"), other(" { "), attrName("depth"), colonSpace, number("2"), other(" }")
         ))
@@ -551,7 +552,7 @@ class LanguageSpec extends WordSpec with Matchers {
           |``` 
         """.stripMargin
 
-      override def header(content: String): CodeSpan = CodeSpan("\n" + content, CodeCategory.Markup.Headline)
+      override def header(content: String): CodeSpan = CodeSpan(content, CodeCategory.Markup.Headline)
 
       parse(input) shouldBe RootElement(
         Title(Seq(Text("Doc")), Styles("title") + Id("doc")),
@@ -559,13 +560,13 @@ class LanguageSpec extends WordSpec with Matchers {
           txt("Some "), em("*em*"), txt(" text "), em("**and**"), txt(" some "), string("``literal``"),
           txt(" text.\nAnd a "), subst("|subst|"), txt(" plus a "), linkTarget("[#note]_"), txt(" and "),
           linkTarget("`one more ref`_"), txt(" and "), subst("`role text`"),
-          txt("\nand "), id("_`internal target`"), txt(".\n"),
-          header("Header1\n======="), txt("\n"), 
+          txt("\nand "), id("_`internal target`"), txt(".\n\n"),
+          header("Header1\n======="), txt("\n\n"), 
           header("++++++++\nHeader 2\n++++++++"),
           txt("\n\n.. "), linkTarget("_ref:"), txt(" http://foo\n\n.. "),
           subst("|subs|"), space, id("dir::"),
-          txt("\n\n.. "), linkTarget("[#label]"), txt(" footnote\n"),
-          CodeSpan("\n___", CodeCategory.Markup.Fence), 
+          txt("\n\n.. "), linkTarget("[#label]"), txt(" footnote\n\n"),
+          CodeSpan("___", CodeCategory.Markup.Fence), 
           txt("\n\n.. "), id("dir"), keyword("::"), txt("\n "),
           attrName(":name:"), txt(" value")
         ))
@@ -592,7 +593,7 @@ class LanguageSpec extends WordSpec with Matchers {
           |``` 
         """.stripMargin
 
-      override def header(content: String): CodeSpan = CodeSpan("\n" + content, CodeCategory.Markup.Headline)
+      override def header(content: String): CodeSpan = CodeSpan(content, CodeCategory.Markup.Headline)
 
       parse(input) shouldBe RootElement(
         Title(Seq(Text("Doc")), Styles("title") + Id("doc")),
@@ -602,7 +603,7 @@ class LanguageSpec extends WordSpec with Matchers {
           attrName("scope"), colonSpace, string("sections"), txt("\n    "),
           attrName("depth"), colonSpace, number("2"), txt("\n  }\n"),
           keyword("%}"),
-          txt("\nSome "), em("*em*"), txt(" text "), em("**and**"), txt(" some "), subst("${subst.value}"), txt(".\n"),
+          txt("\nSome "), em("*em*"), txt(" text "), em("**and**"), txt(" some "), subst("${subst.value}"), txt(".\n\n"),
           header("Header\n======"), txt("\n\n"),
           keyword("@:"), id("toc"), other(" { "), attrName("depth"), colonSpace, number("2"), other(" }")
         ))
