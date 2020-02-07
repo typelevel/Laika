@@ -196,7 +196,7 @@ object HoconParsers {
     multilineString | quotedString | unquotedString(delimiter)
   
   def concatenatedValue(delimiter: NonEmptySet[Char]): Parser[ConfigBuilderValue] = {
-    lazy val parts = (ws ~ (not(comment) ~> anyValue(delimiter))).map { case s ~ v => ConcatPart(s,v) }.rep
+    lazy val parts = (ws ~ (not(comment) ~> anyValue(delimiter))).mapN(ConcatPart).rep
     lazily {
       (anyValue(delimiter) ~ parts).map {
         case first ~ Nil => first
@@ -208,17 +208,16 @@ object HoconParsers {
   /** Parses a key based on the HOCON rules where a '.' in a quoted string is not interpreted as a path separator. */
   def concatenatedKey(delimiter: NonEmptySet[Char]): Parser[Either[InvalidStringValue, Key]] = {
     val string = quotedString.map(PathFragments.quoted) | unquotedString(delimiter).map(PathFragments.unquoted)
-    val parts = (ws.map(PathFragments.whitespace) ~ string).map { case s ~ fr => s.join(fr) }
-    (string ~ parts.rep).map {
-      case first ~ rest =>
-        val res = (first +: rest).reduce(_ join _)
-        val keyStrings = res.fragments.map(_.value)
-        res.fragments.toList.collect { case inv: InvalidStringValue => inv } match {
-          case error :: _ => Left(InvalidStringValue(keyStrings.mkString("."), error.failure.copy(
-            msgProvider = res => "Invalid key: " + error.failure.msgProvider.message(res)))
-          )
-          case _          => Right(Key(keyStrings.toList))
-        }
+    val parts = (ws.map(PathFragments.whitespace) ~ string).mapN(_ join _)
+    (string ~ parts.rep).concat.map { allParts =>
+      val fragments = allParts.reduce(_ join _).fragments
+      val keyStrings = fragments.map(_.value)
+      fragments.toList.collect { case inv: InvalidStringValue => inv } match {
+        case error :: _ => Left(InvalidStringValue(keyStrings.mkString("."), error.failure.copy(
+          msgProvider = res => "Invalid key: " + error.failure.msgProvider.message(res)))
+        )
+        case _          => Right(Key(keyStrings.toList))
+      }
     }
   }
 
