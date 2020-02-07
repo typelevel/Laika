@@ -61,7 +61,7 @@ object RendererRuntime {
         case p if p.size > 1 => DuplicatePath(p.head)
       }
       if (duplicates.isEmpty) Async[F].unit
-      else Async[F].raiseError(RendererErrors(duplicates.toSeq))
+      else Async[F].raiseError(RendererErrors(duplicates.toSeq.sortBy(_.path.toString)))
     }
 
     val fileSuffix = op.renderer.format.fileSuffix
