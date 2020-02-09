@@ -57,6 +57,11 @@ class LanguageSpec extends WordSpec with Matchers {
     def other(value: String): CodeSpan = CodeSpan(value)
     def multiline(value: String): CodeSpan = string("\"\"\""+value+"\"\"\"")
     
+    def result(lang: String, spans: CodeSpan*): RootElement = RootElement(
+      Title(Seq(Text("Doc")), Styles("title") + Id("doc")),
+      CodeBlock(lang, spans.toSeq)
+    )
+    
     trait TagFormats {
       def string(value: String): CodeSpan = CodeSpan("\"" + value + "\"", StringLiteral)
       def dtdTag(value: String): CodeSpan = CodeSpan(value, CodeCategory.XML.DTDTagName)
@@ -70,7 +75,7 @@ class LanguageSpec extends WordSpec with Matchers {
     
     trait MarkupFormats {
       def txt(content: String): CodeSpan = CodeSpan(content)
-      def header(content: String): CodeSpan = CodeSpan(content + "\n", CodeCategory.Markup.Headline)
+      def header(content: String): CodeSpan = CodeSpan(content, CodeCategory.Markup.Headline)
       def em(content: String): CodeSpan = CodeSpan(content, CodeCategory.Markup.Emphasized)
       def linkText(content: String): CodeSpan = CodeSpan(content, CodeCategory.Markup.LinkText)
       def linkTarget(content: String): CodeSpan = CodeSpan(content, CodeCategory.Markup.LinkTarget)
@@ -79,7 +84,7 @@ class LanguageSpec extends WordSpec with Matchers {
     "parse Scala code" in {
       
       val input =
-        """# Code
+        """#Doc
           |
           |```scala
           |case class Foo (bar: Int, baz: String) {
@@ -97,19 +102,16 @@ class LanguageSpec extends WordSpec with Matchers {
           |```
         """.stripMargin.replaceAllLiterally("+++", "\"\"\"")
       
-      parse(input) shouldBe RootElement(
-        Title(Seq(Text("Code")), Styles("title") + Id("code")),
-        CodeBlock("scala", Seq(
-          keyword("case"), space, keyword("class"), space, typeName("Foo"), 
-          other(" ("), id("bar"), colonSpace, typeName("Int"), comma, id("baz"), colonSpace, typeName("String"), other(") {\n\n  "),
-          keyword("val"), space, id("xx"), equals, string("\"some "), escape("\\t"), string(" value\""), other("\n  \n  "),
-          keyword("lazy"), space, keyword("val"), space, id("`y-y`"), equals,
-          string("\"\"\"line 1\n    |line 2\"\"\""), dot, id("stripMargin"), other("\n  \n  "),
-          keyword("def"), space, id("bag"), equals, typeName("Seq"), other("("), 
-          boolean("true"), comma, literal("null"), comma, char("'s'"), comma, number("0xff"), other(")\n  \n  "),
-          comment("// just a short example\n"),
-          other("  \n}")
-        ))
+      parse(input) shouldBe result("scala",
+        keyword("case"), space, keyword("class"), space, typeName("Foo"), 
+        other(" ("), id("bar"), colonSpace, typeName("Int"), comma, id("baz"), colonSpace, typeName("String"), other(") {\n\n  "),
+        keyword("val"), space, id("xx"), equals, string("\"some "), escape("\\t"), string(" value\""), other("\n  \n  "),
+        keyword("lazy"), space, keyword("val"), space, id("`y-y`"), equals,
+        string("\"\"\"line 1\n    |line 2\"\"\""), dot, id("stripMargin"), other("\n  \n  "),
+        keyword("def"), space, id("bag"), equals, typeName("Seq"), other("("), 
+        boolean("true"), comma, literal("null"), comma, char("'s'"), comma, number("0xff"), other(")\n  \n  "),
+        comment("// just a short example\n"),
+        other("  \n}")
       )
       
     }
@@ -117,7 +119,7 @@ class LanguageSpec extends WordSpec with Matchers {
     "parse Java code" in {
 
       val input =
-        """# Code
+        """#Doc
           |
           |```java
           |class Foo {
@@ -132,19 +134,16 @@ class LanguageSpec extends WordSpec with Matchers {
           |```
         """.stripMargin.replaceAllLiterally("+++", "\"\"\"")
 
-      parse(input) shouldBe RootElement(
-        Title(Seq(Text("Code")), Styles("title") + Id("code")),
-        CodeBlock("java", Seq(
-          keyword("class"), space, typeName("Foo"), other(" {\n\n  "),
-          keyword("private"), space, typeName("List"), other("<"), typeName("Object"), other("> "), id("xx"), equals,
-          keyword("new"), space, typeName("List"), other("<"), typeName("Object"), other(">("),
-          boolean("true"), comma, literal("null"), comma, char("'s'"), comma, number("0xff"), comma, 
-          string("\"some "), escape("\\t"), string(" value\""), other(")\n  \n  "),
-          typeName("int"), space, id("calc"), other(" ("), typeName("int"), space, id("bar"), comma, typeName("String"), space, id("baz"), other(") { "),
-          keyword("return"), space, id("bar"), other("; }\n  \n  "),
-          comment("// just a short example\n"),
-          other("  \n}")
-        ))
+      parse(input) shouldBe result("java",
+        keyword("class"), space, typeName("Foo"), other(" {\n\n  "),
+        keyword("private"), space, typeName("List"), other("<"), typeName("Object"), other("> "), id("xx"), equals,
+        keyword("new"), space, typeName("List"), other("<"), typeName("Object"), other(">("),
+        boolean("true"), comma, literal("null"), comma, char("'s'"), comma, number("0xff"), comma, 
+        string("\"some "), escape("\\t"), string(" value\""), other(")\n  \n  "),
+        typeName("int"), space, id("calc"), other(" ("), typeName("int"), space, id("bar"), comma, typeName("String"), space, id("baz"), other(") { "),
+        keyword("return"), space, id("bar"), other("; }\n  \n  "),
+        comment("// just a short example\n"),
+        other("  \n}")
       )
 
     }
@@ -152,7 +151,7 @@ class LanguageSpec extends WordSpec with Matchers {
     "parse Python code" in {
 
       val input =
-        """# Code
+        """#Doc
           |
           |```python
           |import re
@@ -164,22 +163,19 @@ class LanguageSpec extends WordSpec with Matchers {
           |```
         """.stripMargin.replaceAllLiterally("+++", "\"\"\"")
 
-      parse(input) shouldBe RootElement(
-        Title(Seq(Text("Code")), Styles("title") + Id("code")),
-        CodeBlock("python", Seq(
-          keyword("import"), space, id("re"), other("\n"), 
-          keyword("for"), space, id("test_string"), space, keyword("in"), other(" ["), string("'555-1212'"), comma, string("'ILL-EGAL'"), other("]:\n    "),
-          keyword("if"), space, id("re"), dot, id("match"), other("("), string("r'^\\d{3}-\\d{4}$'"), comma, id("test_string"), other("):\n        "),
-          keyword("print"), other(" ("), id("test_string"), comma, string("'is a valid US local phone number'"), other(")\n    "),
-          keyword("else"), other(":\n        "), keyword("print"), other(" ("), id("test_string"), comma, string("'rejected'"), other(")")
-        ))
+      parse(input) shouldBe result("python",
+        keyword("import"), space, id("re"), other("\n"), 
+        keyword("for"), space, id("test_string"), space, keyword("in"), other(" ["), string("'555-1212'"), comma, string("'ILL-EGAL'"), other("]:\n    "),
+        keyword("if"), space, id("re"), dot, id("match"), other("("), string("r'^\\d{3}-\\d{4}$'"), comma, id("test_string"), other("):\n        "),
+        keyword("print"), other(" ("), id("test_string"), comma, string("'is a valid US local phone number'"), other(")\n    "),
+        keyword("else"), other(":\n        "), keyword("print"), other(" ("), id("test_string"), comma, string("'rejected'"), other(")")
       )
 
     }
     
     "parse JavaScript code" in {
       val input = 
-      """# Code
+      """#Doc
         |
         |```js
         |class App extends Component {
@@ -196,26 +192,23 @@ class LanguageSpec extends WordSpec with Matchers {
         |}
         |```""".stripMargin
 
-      parse(input) shouldBe RootElement(
-        Title(Seq(Text("Code")), Styles("title") + Id("code")),
-        CodeBlock("js", Seq(
-          keyword("class"), space, id("App"), space, keyword("extends"), space, id("Component"), other(" {\n\n  "),
-          id("state"), other(" = {\n    "),
-          id("lastResult"), colonSpace, keyword("this"), dot, id("message"), other("("), string("'Apocalypse started'"), other(")\n  }\n\n  "),
-          id("handleError"), equals, id("error"), other(" => {\n    "),
-          id("console"), dot, id("log"), other("("), id("error"), other(");\n    "),
-          keyword("const"), space, id("msg"), other(" = ("), id("error"), dot, id("response"), other(") ? "),
-          string("`Status: "), subst("${error.response.status}"), string("`"), other(" : "), string("'Unknown error'"), other(";\n    "),
-          keyword("this"), dot, id("setState"), other("({ "), id("lastResult"), colonSpace, 
-          keyword("this"), dot, id("message"), other("("), string("`Server Error ("), subst("${msg}"), string(")`"), 
-          other(") });\n  }\n}")
-        ))
+      parse(input) shouldBe result("js",
+        keyword("class"), space, id("App"), space, keyword("extends"), space, id("Component"), other(" {\n\n  "),
+        id("state"), other(" = {\n    "),
+        id("lastResult"), colonSpace, keyword("this"), dot, id("message"), other("("), string("'Apocalypse started'"), other(")\n  }\n\n  "),
+        id("handleError"), equals, id("error"), other(" => {\n    "),
+        id("console"), dot, id("log"), other("("), id("error"), other(");\n    "),
+        keyword("const"), space, id("msg"), other(" = ("), id("error"), dot, id("response"), other(") ? "),
+        string("`Status: "), subst("${error.response.status}"), string("`"), other(" : "), string("'Unknown error'"), other(";\n    "),
+        keyword("this"), dot, id("setState"), other("({ "), id("lastResult"), colonSpace, 
+        keyword("this"), dot, id("message"), other("("), string("`Server Error ("), subst("${msg}"), string(")`"), 
+        other(") });\n  }\n}")
       )
     }
     
     "parse TypeScript code" in {
       val input =
-      """# Code
+      """#Doc
         |
         |```typescript
         |import * as React from "react";
@@ -237,19 +230,16 @@ class LanguageSpec extends WordSpec with Matchers {
         |```
         """.stripMargin
 
-      parse(input) shouldBe RootElement(
-        Title(Seq(Text("Code")), Styles("title") + Id("code")),
-        CodeBlock("typescript", Seq(
-          keyword("import"), other(" * "), keyword("as"), space, id("React"), space, keyword("from"), space, string("\"react\""), other(";\n\n"),
-          keyword("interface"), space, id("Props"), other(" {\n  "),
-          id("initialUserName"), colonSpace, typeName("string"), other(";\n  "),
-          id("onNameUpdated"), other(": ("), id("newName"), colonSpace, typeName("string"), other(") => "), typeName("any"), other(";\n}\n\n"),
-          keyword("export"), space, keyword("const"), space, id("NameEditComponent"), other(" = ("), id("props"), colonSpace, id("Props"), other(") => {\n\n  "),
-          keyword("const"), other(" ["), id("editingName"), comma, id("setEditingName"), other("] = "), 
-          id("React"), dot, id("useState"), other("("), id("props"), dot, id("initialUserName"), other(");\n\n  "),
-          keyword("const"), space, id("onChange"), other(" = ("), id("e"), colonSpace, id("React"), dot, id("ChangeEvent"), other("<"), id("HTMLInputElement"), other(">) => {\n    "),
-          id("setEditingName"), other("("), id("e"), dot, id("target"), dot, id("value"), other(");\n  };\n\n}")
-        ))
+      parse(input) shouldBe result("typescript",
+        keyword("import"), other(" * "), keyword("as"), space, id("React"), space, keyword("from"), space, string("\"react\""), other(";\n\n"),
+        keyword("interface"), space, id("Props"), other(" {\n  "),
+        id("initialUserName"), colonSpace, typeName("string"), other(";\n  "),
+        id("onNameUpdated"), other(": ("), id("newName"), colonSpace, typeName("string"), other(") => "), typeName("any"), other(";\n}\n\n"),
+        keyword("export"), space, keyword("const"), space, id("NameEditComponent"), other(" = ("), id("props"), colonSpace, id("Props"), other(") => {\n\n  "),
+        keyword("const"), other(" ["), id("editingName"), comma, id("setEditingName"), other("] = "), 
+        id("React"), dot, id("useState"), other("("), id("props"), dot, id("initialUserName"), other(");\n\n  "),
+        keyword("const"), space, id("onChange"), other(" = ("), id("e"), colonSpace, id("React"), dot, id("ChangeEvent"), other("<"), id("HTMLInputElement"), other(">) => {\n    "),
+        id("setEditingName"), other("("), id("e"), dot, id("target"), dot, id("value"), other(");\n  };\n\n}")
       )
     }
     
@@ -278,25 +268,22 @@ class LanguageSpec extends WordSpec with Matchers {
 
       
 
-      parse(input) shouldBe RootElement(
-        Title(Seq(Text("Doc")), Styles("title") + Id("doc")),
-        CodeBlock("xml", Seq(
-          punct("<?"), tagName("xml"), space, attrName("version"), eq, string("1.0"), punct("?>"), nl(0),
-          punct("<!"), dtdTag("DOCTYPE"), space, id("foo"), punct(" [\n  <!"),
-          dtdTag("ELEMENT"), space, id("bar"), punct(" ("), id("baz"), punct(")>\n  <!"),
-          dtdTag("ELEMENT"), space, id("baz"), punct(" ("), keyword("#PCDATA"), punct(")>\n  <!"),
-          dtdTag("ATTLIST"), space, id("bar"), space, id("bar_no"), space, keyword("CDATA"), space, keyword("#REQUIRED"), punct(">\n  <!"),
-          dtdTag("ENTITY"), space, id("logo"), space, keyword("PUBLIC"), punct("  "), string("-//W3C//GIF logo//EN"), space, 
-          string("http://www.w3.org/logo.gif"), space, keyword("NDATA"), space, id("gif"), punct(">\n]>"), nl(0),
-          open, tagName("foo"), close, nl(2),
-          open, tagName("bar"), space, attrName("bar_no"), eq, string("xyz-123"), close, nl(4),
-          open, tagName("baz"), close, other("Some text with "), subst("&lt;"), other(" entities "), escape("&#x20;"), punct("</"), tagName("baz"), close, nl(2),
-          punct("</"), tagName("bar"), close, nl(2),
-          comment("<!-- some comment -->"), nl(2),
-          CodeSpan("<? some pi ?>", CodeCategory.XML.ProcessingInstruction), nl(2),
-          CodeSpan("<![CDATA[some cdata content]]>", CodeCategory.XML.CData), nl(0),
-          punct("</"), tagName("foo"), close
-        ))
+      parse(input) shouldBe result("xml",
+        punct("<?"), tagName("xml"), space, attrName("version"), eq, string("1.0"), punct("?>"), nl(0),
+        punct("<!"), dtdTag("DOCTYPE"), space, id("foo"), punct(" [\n  <!"),
+        dtdTag("ELEMENT"), space, id("bar"), punct(" ("), id("baz"), punct(")>\n  <!"),
+        dtdTag("ELEMENT"), space, id("baz"), punct(" ("), keyword("#PCDATA"), punct(")>\n  <!"),
+        dtdTag("ATTLIST"), space, id("bar"), space, id("bar_no"), space, keyword("CDATA"), space, keyword("#REQUIRED"), punct(">\n  <!"),
+        dtdTag("ENTITY"), space, id("logo"), space, keyword("PUBLIC"), punct("  "), string("-//W3C//GIF logo//EN"), space, 
+        string("http://www.w3.org/logo.gif"), space, keyword("NDATA"), space, id("gif"), punct(">\n]>"), nl(0),
+        open, tagName("foo"), close, nl(2),
+        open, tagName("bar"), space, attrName("bar_no"), eq, string("xyz-123"), close, nl(4),
+        open, tagName("baz"), close, other("Some text with "), subst("&lt;"), other(" entities "), escape("&#x20;"), punct("</"), tagName("baz"), close, nl(2),
+        punct("</"), tagName("bar"), close, nl(2),
+        comment("<!-- some comment -->"), nl(2),
+        CodeSpan("<? some pi ?>", CodeCategory.XML.ProcessingInstruction), nl(2),
+        CodeSpan("<![CDATA[some cdata content]]>", CodeCategory.XML.CData), nl(0),
+        punct("</"), tagName("foo"), close
       )
     }
 
@@ -323,26 +310,23 @@ class LanguageSpec extends WordSpec with Matchers {
           |``` 
         """.stripMargin
 
-      parse(input) shouldBe RootElement(
-        Title(Seq(Text("Doc")), Styles("title") + Id("doc")),
-        CodeBlock("html", Seq(
-          punct("<!"), dtdTag("DOCTYPE"), space, id("html"), close, nl(0),
-          open, tagName("html"), close, nl(2),
-          open, tagName("body"), close, nl(4),
-          open, tagName("style"), close, nl(6),
-          id("p"), other(" {"), attrName("color"), other(":"), id("blue"), other(";}\n    "),
-          punct("</"), tagName("style"), close, nl(4),
-          open, tagName("script"), close, nl(6),
-          keyword("var"), other(" "), id("x"), other(" = "), string("foo"), other(";\n      "),
-          keyword("var"), other(" "), id("y"), other(" = "), number("97.5"), other(";\n    "),
-          punct("</"), tagName("script"), close, nl(4),
-          open, tagName("script"), space, attrName("src"), eq, string("foo.js"), punct("/>"), nl(4),
-          open, tagName("p"), space, attrName("class"), eq, string("big"), close, other("Some text with "),
-          subst("&lt;"), other(" entities "), escape("&#x20;"), punct("</"), tagName("p"), close, nl(4),
-          comment("<!-- some comment -->"), nl(2),
-          punct("</"), tagName("body"), close, nl(0),
-          punct("</"), tagName("html"), close
-        ))
+      parse(input) shouldBe result("html",
+        punct("<!"), dtdTag("DOCTYPE"), space, id("html"), close, nl(0),
+        open, tagName("html"), close, nl(2),
+        open, tagName("body"), close, nl(4),
+        open, tagName("style"), close, nl(6),
+        id("p"), other(" {"), attrName("color"), other(":"), id("blue"), other(";}\n    "),
+        punct("</"), tagName("style"), close, nl(4),
+        open, tagName("script"), close, nl(6),
+        keyword("var"), other(" "), id("x"), other(" = "), string("foo"), other(";\n      "),
+        keyword("var"), other(" "), id("y"), other(" = "), number("97.5"), other(";\n    "),
+        punct("</"), tagName("script"), close, nl(4),
+        open, tagName("script"), space, attrName("src"), eq, string("foo.js"), punct("/>"), nl(4),
+        open, tagName("p"), space, attrName("class"), eq, string("big"), close, other("Some text with "),
+        subst("&lt;"), other(" entities "), escape("&#x20;"), punct("</"), tagName("p"), close, nl(4),
+        comment("<!-- some comment -->"), nl(2),
+        punct("</"), tagName("body"), close, nl(0),
+        punct("</"), tagName("html"), close
       )
     }
 
@@ -376,24 +360,21 @@ class LanguageSpec extends WordSpec with Matchers {
       val closeDecl = other("\n}\n")
       val sep = other(";\n  ")
 
-      parse(input) shouldBe RootElement(
-        Title(Seq(Text("Doc")), Styles("title") + Id("doc")),
-        CodeBlock("css", Seq(
-          other(":"), id("first"), openDecl,
-          attrName("color"), colonSpace, number("#3f51b5"), closeDecl,
-          id("p"), openDecl,
-          attrName("font-family"), colonSpace, id("Monaco"), comma, string("\"Courier New\""), comma, id("monospace"), sep,
-          attrName("font-size"), colonSpace, number("1.5"), id("rem"), other("\n}\n."),
-          id("foo"), openDecl,
-          comment("/* comment */"), other("\n  "),
-          attrName("-custom"), colonSpace, id("url"), other("("), string("http://foo.bar/"), other(");\n  "),
-          attrName("font-family"), colonSpace, string("\"Weird "), escape("\\\\"), string(" Font\""), comma, id("sans-serif"), closeDecl,
-          id("#bar"), openDecl,
-          attrName("border"), colonSpace, number("1"), id("px"), space, id("solid"), space, id("rgba"), other("("),
-          number("0"), comma, number("0"), comma, number("0"), comma, number(".06"), other(")\n}\n"),
-          id("@media"), other(" ("), attrName("max-width"), colonSpace, number("991.98"), id("px"), other(") {\n  "),
-          attrName("font-size"), colonSpace, number("1"), id("rem"), other("\n}")
-        ))
+      parse(input) shouldBe result("css",
+        other(":"), id("first"), openDecl,
+        attrName("color"), colonSpace, number("#3f51b5"), closeDecl,
+        id("p"), openDecl,
+        attrName("font-family"), colonSpace, id("Monaco"), comma, string("\"Courier New\""), comma, id("monospace"), sep,
+        attrName("font-size"), colonSpace, number("1.5"), id("rem"), other("\n}\n."),
+        id("foo"), openDecl,
+        comment("/* comment */"), other("\n  "),
+        attrName("-custom"), colonSpace, id("url"), other("("), string("http://foo.bar/"), other(");\n  "),
+        attrName("font-family"), colonSpace, string("\"Weird "), escape("\\\\"), string(" Font\""), comma, id("sans-serif"), closeDecl,
+        id("#bar"), openDecl,
+        attrName("border"), colonSpace, number("1"), id("px"), space, id("solid"), space, id("rgba"), other("("),
+        number("0"), comma, number("0"), comma, number("0"), comma, number(".06"), other(")\n}\n"),
+        id("@media"), other(" ("), attrName("max-width"), colonSpace, number("991.98"), id("px"), other(") {\n  "),
+        attrName("font-size"), colonSpace, number("1"), id("rem"), other("\n}")
       )
     }
 
@@ -410,13 +391,10 @@ class LanguageSpec extends WordSpec with Matchers {
 
       def attrName(value: String): CodeSpan = CodeSpan("\"" + value + "\"", CodeCategory.AttributeName)
 
-      parse(input) shouldBe RootElement(
-        Title(Seq(Text("Doc")), Styles("title") + Id("doc")),
-        CodeBlock("json", Seq(
-          other("{\n  "),
-          attrName("foo"), other(": ["), boolean("false"), comma, number("2.3e-2"), comma, literal("null"), comma, string("\"bar\""),
-          other(", { "), attrName("nested"), colonSpace, boolean("true"), other(" }\n}")
-        ))
+      parse(input) shouldBe result("json",
+        other("{\n  "),
+        attrName("foo"), other(": ["), boolean("false"), comma, number("2.3e-2"), comma, literal("null"), comma, string("\"bar\""),
+        other(", { "), attrName("nested"), colonSpace, boolean("true"), other(" }\n}")
       )
     }
 
@@ -442,17 +420,14 @@ class LanguageSpec extends WordSpec with Matchers {
 
       def nl(end: String): CodeSpan = CodeSpan(end + "\n  \n  ")
       
-      parse(input) shouldBe RootElement(
-        Title(Seq(Text("Doc")), Styles("title") + Id("doc")),
-        CodeBlock("hocon", Seq(
-          other("{\n  "),
-          attrName("a"), other(" = ["), boolean("false"), comma, number("2.3e-2"), comma, literal("null"), comma, string("\"bar\""),
-          other(", { "), attrName("nested"), equals, boolean("true"), nl(" }"),
-          keyword("include"), space, id("required"), other("("), id("file"), other("("), string("\"xx.conf\""), nl("))"),
-          attrName("b"), equals, string("unquoted string"), space, comment("# comment\n"), other("  \n  "),
-          attrName("\"c\""), other(" : "), string("text"), space, subst("${subst}"), space, string("text"), nl(""),
-          attrName("d e f"), equals, multiline("multiline\n          string"), other("\n}"),
-        ))
+      parse(input) shouldBe result("hocon",
+        other("{\n  "),
+        attrName("a"), other(" = ["), boolean("false"), comma, number("2.3e-2"), comma, literal("null"), comma, string("\"bar\""),
+        other(", { "), attrName("nested"), equals, boolean("true"), nl(" }"),
+        keyword("include"), space, id("required"), other("("), id("file"), other("("), string("\"xx.conf\""), nl("))"),
+        attrName("b"), equals, string("unquoted string"), space, comment("# comment\n"), other("  \n  "),
+        attrName("\"c\""), other(" : "), string("text"), space, subst("${subst}"), space, string("text"), nl(""),
+        attrName("d e f"), equals, multiline("multiline\n          string"), other("\n}"),
       )
     }
 
@@ -472,19 +447,16 @@ class LanguageSpec extends WordSpec with Matchers {
           |### Header
           |
           |> Quote
-          |``` 
+          |```
         """.stripMargin
 
-      parse(input) shouldBe RootElement(
-        Title(Seq(Text("Doc")), Styles("title") + Id("doc")),
-        CodeBlock("md", Seq(
-          txt("Some "), em("*em*"), txt(" text "), em("**and**"), txt(" some "), string("`literal`"),
-          txt(" text, an "), linkText("![image]"),  linkTarget("(foo.jpg)"), txt(".\nA "),
-          linkText("[link]"), linkTarget("(http://foo/)"), txt(", another "), linkText("[link]"), linkTarget("[ref]"), txt(" and one more "), linkTarget("[ref]"), txt(".\n\n"),
-          header("Header\n======"), txt("\n"), id("[ref]:"), linkTarget(" http://foo"), txt("\n\n"),
-          header("### Header"), txt("\n"), 
-          CodeSpan(">", CodeCategory.Markup.Quote), txt(" Quote")
-        ))
+      parse(input) shouldBe result("md",
+        txt("Some "), em("*em*"), txt(" text "), em("**and**"), txt(" some "), string("`literal`"),
+        txt(" text, an "), linkText("![image]"),  linkTarget("(foo.jpg)"), txt(".\nA "),
+        linkText("[link]"), linkTarget("(http://foo/)"), txt(", another "), linkText("[link]"), linkTarget("[ref]"), txt(" and one more "), linkTarget("[ref]"), txt(".\n\n"),
+        header("Header\n======"), txt("\n\n"), id("[ref]:"), linkTarget(" http://foo"), txt("\n\n"),
+        header("### Header"), txt("\n\n"), 
+        CodeSpan(">", CodeCategory.Markup.Quote), txt(" Quote")
       )
     }
 
@@ -508,18 +480,15 @@ class LanguageSpec extends WordSpec with Matchers {
           |``` 
         """.stripMargin
 
-      parse(input) shouldBe RootElement(
-        Title(Seq(Text("Doc")), Styles("title") + Id("doc")),
-        CodeBlock("laika-md", Seq(
-          keyword("{%"), txt("\n  "), 
-          attrName("autonumbering"), txt(" {\n    "),
-          attrName("scope"), colonSpace, string("sections"), txt("\n    "),
-          attrName("depth"), colonSpace, number("2"), txt("\n  }\n"),
-          keyword("%}"),
-          txt("\nSome "), em("*em*"), txt(" text "), em("**and**"), txt(" some "), subst("${subst.value}"), txt(".\n\n"),
-          header("Header\n======"), txt("\n"), 
-          keyword("@:"), id("toc"), other("("), string("foo"), other(") { "), attrName("depth"), colonSpace, number("2"), other(" }")
-        ))
+      parse(input) shouldBe result("laika-md",
+        keyword("{%"), txt("\n  "), 
+        attrName("autonumbering"), txt(" {\n    "),
+        attrName("scope"), colonSpace, string("sections"), txt("\n    "),
+        attrName("depth"), colonSpace, number("2"), txt("\n  }\n"),
+        keyword("%}"),
+        txt("\nSome "), em("*em*"), txt(" text "), em("**and**"), txt(" some "), subst("${subst.value}"), txt(".\n\n"),
+        header("Header\n======"), txt("\n\n"), 
+        keyword("@:"), id("toc"), other("("), string("foo"), other(") { "), attrName("depth"), colonSpace, number("2"), other(" }")
       )
     }
 
@@ -552,24 +521,19 @@ class LanguageSpec extends WordSpec with Matchers {
           |``` 
         """.stripMargin
 
-      override def header(content: String): CodeSpan = CodeSpan(content, CodeCategory.Markup.Headline)
-
-      parse(input) shouldBe RootElement(
-        Title(Seq(Text("Doc")), Styles("title") + Id("doc")),
-        CodeBlock("rst", Seq(
-          txt("Some "), em("*em*"), txt(" text "), em("**and**"), txt(" some "), string("``literal``"),
-          txt(" text.\nAnd a "), subst("|subst|"), txt(" plus a "), linkTarget("[#note]_"), txt(" and "),
-          linkTarget("`one more ref`_"), txt(" and "), subst("`role text`"),
-          txt("\nand "), id("_`internal target`"), txt(".\n\n"),
-          header("Header1\n======="), txt("\n\n"), 
-          header("++++++++\nHeader 2\n++++++++"),
-          txt("\n\n.. "), linkTarget("_ref:"), txt(" http://foo\n\n.. "),
-          subst("|subs|"), space, id("dir::"),
-          txt("\n\n.. "), linkTarget("[#label]"), txt(" footnote\n\n"),
-          CodeSpan("___", CodeCategory.Markup.Fence), 
-          txt("\n\n.. "), id("dir"), keyword("::"), txt("\n "),
-          attrName(":name:"), txt(" value")
-        ))
+      parse(input) shouldBe result("rst",
+        txt("Some "), em("*em*"), txt(" text "), em("**and**"), txt(" some "), string("``literal``"),
+        txt(" text.\nAnd a "), subst("|subst|"), txt(" plus a "), linkTarget("[#note]_"), txt(" and "),
+        linkTarget("`one more ref`_"), txt(" and "), subst("`role text`"),
+        txt("\nand "), id("_`internal target`"), txt(".\n\n"),
+        header("Header1\n======="), txt("\n\n"), 
+        header("++++++++\nHeader 2\n++++++++"),
+        txt("\n\n.. "), linkTarget("_ref:"), txt(" http://foo\n\n.. "),
+        subst("|subs|"), space, id("dir::"),
+        txt("\n\n.. "), linkTarget("[#label]"), txt(" footnote\n\n"),
+        CodeSpan("___", CodeCategory.Markup.Fence), 
+        txt("\n\n.. "), id("dir"), keyword("::"), txt("\n "),
+        attrName(":name:"), txt(" value")
       )
     }
 
@@ -593,20 +557,15 @@ class LanguageSpec extends WordSpec with Matchers {
           |``` 
         """.stripMargin
 
-      override def header(content: String): CodeSpan = CodeSpan(content, CodeCategory.Markup.Headline)
-
-      parse(input) shouldBe RootElement(
-        Title(Seq(Text("Doc")), Styles("title") + Id("doc")),
-        CodeBlock("laika-rst", Seq(
-          keyword("{%"), txt("\n  "),
-          attrName("autonumbering"), txt(" {\n    "),
-          attrName("scope"), colonSpace, string("sections"), txt("\n    "),
-          attrName("depth"), colonSpace, number("2"), txt("\n  }\n"),
-          keyword("%}"),
-          txt("\nSome "), em("*em*"), txt(" text "), em("**and**"), txt(" some "), subst("${subst.value}"), txt(".\n\n"),
-          header("Header\n======"), txt("\n\n"),
-          keyword("@:"), id("toc"), other("("), string("foo"), other(") { "), attrName("depth"), colonSpace, number("2"), other(" }")
-        ))
+      parse(input) shouldBe result("laika-rst",
+        keyword("{%"), txt("\n  "),
+        attrName("autonumbering"), txt(" {\n    "),
+        attrName("scope"), colonSpace, string("sections"), txt("\n    "),
+        attrName("depth"), colonSpace, number("2"), txt("\n  }\n"),
+        keyword("%}"),
+        txt("\nSome "), em("*em*"), txt(" text "), em("**and**"), txt(" some "), subst("${subst.value}"), txt(".\n\n"),
+        header("Header\n======"), txt("\n\n"),
+        keyword("@:"), id("toc"), other("("), string("foo"), other(") { "), attrName("depth"), colonSpace, number("2"), other(" }")
       )
     }
 
@@ -632,23 +591,20 @@ class LanguageSpec extends WordSpec with Matchers {
           |``` 
         """.stripMargin
 
-      parse(input) shouldBe RootElement(
-        Title(Seq(Text("Doc")), Styles("title") + Id("doc")),
-        CodeBlock("laika-html", Seq(
-          keyword("{%"), other("\n  "),
-          attrName("autonumbering"), other(" {\n    "),
-          attrName("scope"), colonSpace, CodeSpan("sections", CodeCategory.StringLiteral), other("\n    "),
-          attrName("depth"), colonSpace, number("2"), other("\n  }\n"),
-          keyword("%}"), other("\n"),
-          open, tagName("html"), close, nl(2),
-          open, tagName("body"), close, nl(4),
-          keyword("@:"), id("toc"), other(" { "), attrName("depth"), colonSpace, number("2"), other(" }\n    "),
-          open, tagName("div"), space, attrName("class"), eq, string("content"), close, nl(6),
-          subst("${document.content}"), nl(4),
-          punct("</"), tagName("div"), close, nl(2),
-          punct("</"), tagName("body"), close, nl(0),
-          punct("</"), tagName("html"), close
-        ))
+      parse(input) shouldBe result("laika-html",
+        keyword("{%"), other("\n  "),
+        attrName("autonumbering"), other(" {\n    "),
+        attrName("scope"), colonSpace, CodeSpan("sections", CodeCategory.StringLiteral), other("\n    "),
+        attrName("depth"), colonSpace, number("2"), other("\n  }\n"),
+        keyword("%}"), other("\n"),
+        open, tagName("html"), close, nl(2),
+        open, tagName("body"), close, nl(4),
+        keyword("@:"), id("toc"), other(" { "), attrName("depth"), colonSpace, number("2"), other(" }\n    "),
+        open, tagName("div"), space, attrName("class"), eq, string("content"), close, nl(6),
+        subst("${document.content}"), nl(4),
+        punct("</"), tagName("div"), close, nl(2),
+        punct("</"), tagName("body"), close, nl(0),
+        punct("</"), tagName("html"), close
       )
     }
         

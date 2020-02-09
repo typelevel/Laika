@@ -70,16 +70,16 @@ object MarkdownSyntax extends SyntaxHighlighter {
   }
 
   val atxHeader: CodeSpanParser = CodeSpanParser.onLineStart(CodeCategory.Markup.Headline) {
-    (someOf('#').max(6) ~ restOfLine).source
+    (someOf('#').max(6) ~ anyNot('\n')).source
   }
 
   val setexHeader: CodeSpanParser = CodeSpanParser.onLineStart(CodeCategory.Markup.Headline) {
-    val deco = (someOf('=') | someOf('-')) <~ wsEol
+    val deco = (someOf('=') | someOf('-')) <~ lookAhead(wsEol)
     (restOfLine ~ deco).source
   }
 
   val codeFence: CodeSpanParser = CodeSpanParser.onLineStart(CodeCategory.Markup.Fence) {
-    (anyOf('`').take(3) ~ restOfLine).source
+    (anyOf('`').take(3) ~ anyNot('\n')).source
   }
 
   val rules: CodeSpanParser = CodeSpanParser.onLineStart(CodeCategory.Markup.Fence) {
