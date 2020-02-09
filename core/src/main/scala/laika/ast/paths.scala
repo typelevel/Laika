@@ -23,7 +23,16 @@ import laika.ast.RelativePath.{Current, Parent}
 
 import scala.annotation.tailrec
 
-/** The abstract base for absolute and relative paths. */
+/** The abstract base for absolute and relative paths.
+  * 
+  * A path in Laika is always virtual and not pointing
+  * to a path in the file system, even if the data was obtained
+  * by scanning a directory. This is because in Laika transformation
+  * input can come from different sources, e.g. from two different
+  * directories merged into a single virtual tree in memory with
+  * some additional documents added programmatically without any
+  * file system reference.
+  */
 sealed trait PathBase extends Product with Serializable {
 
   /** The local name of this path.
@@ -56,7 +65,14 @@ sealed trait SegmentedPathBase extends PathBase {
 }
 
 object PathBase {
-  
+
+  /** Creates path from interpreting the specified string representation.
+    *
+    * A path with a slash prefix will be interpreted as absolute, all other input is
+    * interpreted as a relative path.
+    *
+    * Empty path segments are allowed, but should usually be avoided for usability reasons.
+    */
   def parse (path: String): PathBase = if (path.startsWith("/")) Path.parse(path) else RelativePath.parse(path)
   
 }
@@ -167,14 +183,19 @@ object Path {
     override val toString: String = "/"
   }
 
-  /** Creates path from interpreting the specified string representation.
-    * The path must be absolute (start with a `/`).
+  /** Creates an absolute path from interpreting the specified string representation.
+    * 
+    * A slash prefix, even if not present, will be assumed. 
+    * 
+    * If you need to parse a string that can potentially represent both, an absolute or a relative
+    * path, use the `PathBase.parse` method instead.
+    * 
+    * Empty path segments are allowed, but should usually be avoided for usability reasons.
     */
   def parse (str: String): Path = {
-    require(str.headOption.contains('/'), "path must be absolute")
     str match {
       case "/"   => Root
-      case other => apply(other.drop(1).stripSuffix("/").split("/").toList)
+      case other => apply(other.stripPrefix("/").stripSuffix("/").split("/").toList)
     }
   }
 
@@ -278,13 +299,17 @@ object RelativePath {
   }
 
   /** Creates a relative path from interpreting the specified string representation.
-    * If it starts with `/` it will be interpreted as an absolute path,
-    * if it starts with `../` as a relative path pointing to some parent
-    * path. Otherwise it will be interpreted as a relative path.
+    * 
+    * A slash prefix, if present, will be discarded. Paths starting with one or more `../`
+    * path prefixes will be interpreted as expected, pointing to parent trees. 
+    * 
+    * If you need to parse a string that can potentially represent both, an absolute or a relative
+    * path, use the `PathBase.parse` method instead.
+    * 
+    * Empty path segments are allowed, but should usually be avoided for usability reasons.
     */
   def parse (str: String): RelativePath = {
-    require(!str.headOption.contains('/'), "path must not be absolute")
-    str.stripSuffix("/") match {
+    str.stripPrefix("/").stripSuffix("/") match {
       case "" | "." => Current
       case other =>
         @tailrec def countParents(current: Int, path: String): (Int, String) = 

@@ -102,6 +102,14 @@ class PathAPISpec extends WordSpec
     "decode a relative path to a parent one level up without trailing slash" in {
       PathBase.parse("..") shouldBe Parent(1)
     }
+    
+    "ignore leading slashes when RelativePath.parse is invoked directly" in {
+      RelativePath.parse("/foo/") shouldBe (Current / "foo")
+    }
+
+    "assume leading slashes when Path.parse is invoked directly" in {
+      Path.parse("foo/") shouldBe (Root / "foo")
+    }
 
   }
   
