@@ -77,7 +77,7 @@ library API. The following changes had been implemented for this purpose:
   Laika can be used with cats-IO, Monix or Zio.
 * The dependency on the Typesafe Config library and its impure Java API has
   been removed in favor of a new lightweight and pure HOCON parser provided
-  by Laika, supporting the full spec except for file includes (for now).
+  by Laika, supporting the full spec.
 
 
 Parser, Renderer and Transformer APIs
@@ -95,6 +95,7 @@ It's probably easiest to just show a few before/after examples below:
 **Transforming from Markdown to HTML in-memory**
 
 Before
+
 ```scala
 val input = "some *text* example"
 
@@ -109,6 +110,7 @@ val res: String = transformer
 ```
 
 After
+
 ```scala
 val input = "some *text* example"
 
@@ -125,6 +127,7 @@ val res: Either[ParserError, String] = transformer
 **Transforming a directory of files from Markdown to HTML**
 
 Before
+
 ```scala
 val transformer = Transform
   .from(Markdown)
@@ -137,6 +140,7 @@ val res: Unit = transformer
 ```
 
 After (ensure you added the new `laika-io` dependency):
+
 ```scala
 import laika.io.implicits._
 
@@ -174,6 +178,7 @@ recursively as before. This model allows for easier testing and pure code
 at a minimal performance hit over the old design (< 10%).
 
 Before
+
 ```scala
 val transformer = Transform
   .from(Markdown)
@@ -185,6 +190,7 @@ val transformer = Transform
 ```
 
 After
+
 ```scala
 val transformer = Transformer
   .from(Markdown)
@@ -215,6 +221,7 @@ On the API surface, there are only two changes:
   type-safety, as it is invalid to replace a span with a block element.
 
 Before
+
 ```scala
 val transformer = Transform
   .from(Markdown)
@@ -225,6 +232,7 @@ val transformer = Transform
 ```
 
 After
+
 ```scala
 val transformer = Transformer
   .from(Markdown)
@@ -265,6 +273,7 @@ provided by Laika, you can skip the section on the DSL.
 * The old syntax is still supported, but will be removed at some point before the 1.0 release
 
 Before
+
 ```laika-html
 @:if "layout.showSidebar":
   <div class="sidebar">...</div>
@@ -274,6 +283,7 @@ Before
 ```
 
 After
+
 ```laika-html
 @:if(layout.showSidebar)
 <div class="sidebar">...</div>
@@ -298,6 +308,7 @@ The building blocks for creating your own directives have also changed significa
   been replaced by cats `mapN`
   
 Before
+
 ```scala
 import laika.ast._
 import Spans.dsl._
@@ -313,6 +324,7 @@ val spanDirective = Spans.create("note") {
 ```
 
 After
+
 ```scala
 import cats.implicits._
 import laika.ast._
