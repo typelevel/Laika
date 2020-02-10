@@ -68,7 +68,7 @@
       <div class="span8" id="top">
 
         <div class="page-header">
-        <h1>Using the sbt Plugin</h1>
+        <h1 id="using-the-sbt-plugin" class="title">Using the sbt Plugin</h1>
         </div>
         <p>The core of the Laika toolkit does not depend on sbt in any way, and therefore comes with a plugin
         that provides the glue necessary to expose Laika&#39;s feature set as sbt tasks and settings.</p>
@@ -131,9 +131,9 @@
         <ul>
           <li>Other static files that simply get copied to the target directory.</li>
         </ul>
-        <p>For more details on the template engine, see the chapter [Templates].</p>
+        <p>For more details on the template engine, see the chapter <a href="templates.html">Templates</a>.</p>
         <p>For features like titles, sections, cross-linking, auto-numbering, 
-        document order and tables of content, see the chapter <a href="structure.html#document-structure">Document Structure</a>.</p>
+        document order and tables of content, see the chapter <a href="structure.html">Document Structure</a>.</p>
         <p>For details about Markdown and reStructuredText see the chapter
         <a href="markup.html#supported-markup">Supported Markup</a>.</p>
         <p>For details about rendering see the chapter <a href="output.html#supported-output-formats">Supported Output Formats</a>.</p>
@@ -280,7 +280,7 @@
         <pre><code class="nohighlight"><span class="identifier">laikaExtensions</span><span> += </span><span class="identifier">laikaSpanRewriteRule</span><span> { 
   </span><span class="keyword">case</span><span> </span><span class="type-name">Emphasized</span><span>(</span><span class="identifier">content</span><span>, </span><span class="identifier">opts</span><span>) =&gt; </span><span class="type-name">Replace</span><span>(</span><span class="type-name">Strong</span><span>(</span><span class="identifier">content</span><span>, </span><span class="identifier">opts</span><span>))
 }</span></code></pre>
-        <p>For more details see the chapter <a href="../customizing-laika/tree-rewriting.html#document-tree-rewriting">Document Tree Rewriting</a>.</p>
+        <p>For more details see the chapter <a href="../customizing-laika/tree-rewriting.html">Document Tree Rewriting</a>.</p>
         
         <h3 id="custom-document-type-matcher" class="section">Custom Document Type Matcher</h3>
         <p>A document type matcher categorizes an input document based on its path. 
@@ -308,13 +308,13 @@
         directives. Laika supports almost all of the directives defined in the
         specification. Add an instance of type <code>RstExtensionRegistry</code> to the <code>laikaExtensions</code> 
         setting for adding custom implementations to the built-in ones.
-        For more details on this directive type see <a href="../extending-laika/extending-rst.html#extending-restructuredtext">Extending reStructuredText</a>.</p>
+        For more details on this directive type see <a href="../extending-laika/extending-rst.html">Extending reStructuredText</a>.</p>
         <p>The Laika variant is more flexible, as it can be used in template files as well
         as Markdown and reStructuredText markup. It is also somewhat simpler in syntax
         and configuration while offering the same functionality. It comes with a small
         set of predefined directives in this syntax. Add an instance of type <code>DirectiveRegistry</code> 
         to the <code>laikaExtensions</code> setting for adding custom implementations to the built-in ones.
-        For more details on this directive type see <a href="../extending-laika/directive.html#directives">Directives</a>.</p>
+        For more details on this directive type see <a href="../extending-laika/directive.html">Directives</a>.</p>
         <p>The examples in the two chapters linked above show how to implement a directive
         and register it either for use in sbt or in embedded mode.</p>
         

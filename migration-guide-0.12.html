@@ -12,8 +12,8 @@
 
     <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>  
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
-    <link href="../css/bootstrap.css" rel="stylesheet">
-    <link href="../css/docs.css" rel="stylesheet">
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="css/docs.css" rel="stylesheet">
 
   </head>
 
@@ -28,7 +28,7 @@
       <div class="span4 toc" >
         
         <ul class="nav nav-list affix">
-          <div class="nav-top"><img src="../img/laika-top.png"/></div>
+          <div class="nav-top"><img src="img/laika-top.png"/></div>
           
           
           <li class="nav-header">Introduction</li>
@@ -54,13 +54,13 @@
           
           <li class="nav-header">Project Links</li>
           <li><a href="http://github.com/planet42/Laika">Source Code</a></li>
-          <li><a href="../api/laika/api/">API Documentation</a></li>
+          <li><a href="api/laika/api/">API Documentation</a></li>
           <li><a href="http://github.com/planet42/Laika/issues">Issue Tracker</a></li>
           <li><a href="http://planet42.org/">Transformer Web Tool</a></li>
           <li class="follow"><a href="https://twitter.com/_planet42" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false" data-dnt="true">Follow @_planet42</a>
           <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script></li>
           
-          <div class="nav-bottom"><img src="../img/laika-bottom.png" border="1"/></div>
+          <div class="nav-bottom"><img src="img/laika-bottom.png" border="1"/></div>
         </ul>
         
       </div>
@@ -68,7 +68,7 @@
       <div class="span8" id="top">
 
         <div class="page-header">
-        <h1>Migration Guide for Version 0.12</h1>
+        <h1 id="migration-guide-for-version-0-12" class="title">Migration Guide for Version 0.12</h1>
         </div>
         <p>The 0.12 release contains the most significant number of breaking changes
         of any release since the 0.1 version in 2012.</p>
@@ -147,59 +147,60 @@
         </ul>
         <p>It&#39;s probably easiest to just show a few before/after examples below:</p>
         <p><strong>Transforming from Markdown to HTML in-memory</strong></p>
-        <p>Before
-        ```scala
-        val input = &quot;some <em>text</em> example&quot;</p>
-        <p>val transformer = Transform
-          .from(Markdown)
-          .to(HTML)
-          .using(GitHubFlavor)</p>
-        <p>val res: String = transformer
-          .fromString(input)
-          .toString<br>
-        ```</p>
-        <p>After
-        ```scala
-        val input = &quot;some <em>text</em> example&quot;</p>
-        <p>val transformer = Transformer
-          .from(Markdown)
-          .to(HTML)
-          .using(GitHubFlavor)
-          .build</p>
-        <p>val res: Either[ParserError, String] = transformer
-          .transform(input)
-        ```</p>
+        <p>Before</p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">input</span><span> = </span><span class="string-literal">&quot;some *text* example&quot;</span><span>
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transform</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">GitHubFlavor</span><span>)
+  
+</span><span class="keyword">val</span><span> </span><span class="identifier">res</span><span>: </span><span class="type-name">String</span><span> = </span><span class="identifier">transformer</span><span>
+  .</span><span class="identifier">fromString</span><span>(</span><span class="identifier">input</span><span>)
+  .</span><span class="identifier">toString</span><span>  </span></code></pre>
+        <p>After</p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">input</span><span> = </span><span class="string-literal">&quot;some *text* example&quot;</span><span>
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">GitHubFlavor</span><span>)
+  .</span><span class="identifier">build</span><span>
+  
+</span><span class="keyword">val</span><span> </span><span class="identifier">res</span><span>: </span><span class="type-name">Either</span><span>[</span><span class="type-name">ParserError</span><span>, </span><span class="type-name">String</span><span>] = </span><span class="identifier">transformer</span><span>
+  .</span><span class="identifier">transform</span><span>(</span><span class="identifier">input</span><span>)</span></code></pre>
         <p><strong>Transforming a directory of files from Markdown to HTML</strong></p>
-        <p>Before
-        ```scala
-        val transformer = Transform
-          .from(Markdown)
-          .to(HTML)
-          .using(GitHubFlavor)</p>
-        <p>val res: Unit = transformer
-          .fromDirectory(&quot;src&quot;)
-          .toDirectory(&quot;target&quot;)<br>
-        ```</p>
-        <p>After (ensure you added the new <code>laika-io</code> dependency):
-        ```scala
-        import laika.io.implicits._</p>
-        <p>implicit val cs: ContextShift[IO] = 
-          IO.contextShift(ExecutionContext.global)</p>
-        <p>val blocker = Blocker.liftExecutionContext(
-          ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
-        )</p>
-        <p>val transformer = Transformer
-          .from(Markdown)
-          .to(HTML)
-          .using(GitHubFlavor)
-          .io(blocker)
-          .parallel[IO]
-          .build</p>
-        <p>val res: IO[Unit] = transformer
-          .fromDirectory(&quot;src&quot;)
-          .toDirectory(&quot;target&quot;)
-          .transform
-        ```</p>
+        <p>Before</p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transform</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">GitHubFlavor</span><span>)
+  
+</span><span class="keyword">val</span><span> </span><span class="identifier">res</span><span>: </span><span class="type-name">Unit</span><span> = </span><span class="identifier">transformer</span><span>
+  .</span><span class="identifier">fromDirectory</span><span>(</span><span class="string-literal">&quot;src&quot;</span><span>)
+  .</span><span class="identifier">toDirectory</span><span>(</span><span class="string-literal">&quot;target&quot;</span><span>)  </span></code></pre>
+        <p>After (ensure you added the new <code>laika-io</code> dependency):</p>
+        <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">implicits</span><span>.</span><span class="identifier">_</span><span>
+
+</span><span class="keyword">implicit</span><span> </span><span class="keyword">val</span><span> </span><span class="identifier">cs</span><span>: </span><span class="type-name">ContextShift</span><span>[</span><span class="type-name">IO</span><span>] = 
+  </span><span class="type-name">IO</span><span>.</span><span class="identifier">contextShift</span><span>(</span><span class="type-name">ExecutionContext</span><span>.</span><span class="identifier">global</span><span>)
+      
+</span><span class="keyword">val</span><span> </span><span class="identifier">blocker</span><span> = </span><span class="type-name">Blocker</span><span>.</span><span class="identifier">liftExecutionContext</span><span>(
+  </span><span class="type-name">ExecutionContext</span><span>.</span><span class="identifier">fromExecutor</span><span>(</span><span class="type-name">Executors</span><span>.</span><span class="identifier">newCachedThreadPool</span><span>())
+)
+    
+</span><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">GitHubFlavor</span><span>)
+  .</span><span class="identifier">io</span><span>(</span><span class="identifier">blocker</span><span>)
+  .</span><span class="identifier">parallel</span><span>[</span><span class="type-name">IO</span><span>]
+  .</span><span class="identifier">build</span><span>
+  
+</span><span class="keyword">val</span><span> </span><span class="identifier">res</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] = </span><span class="identifier">transformer</span><span>
+  .</span><span class="identifier">fromDirectory</span><span>(</span><span class="string-literal">&quot;src&quot;</span><span>)
+  .</span><span class="identifier">toDirectory</span><span>(</span><span class="string-literal">&quot;target&quot;</span><span>)
+  .</span><span class="identifier">transform</span></code></pre>
         <p>Note that while the new code sample looks more verbose, it now gives you full
         control over where your effects are run.</p>
         
@@ -208,24 +209,22 @@
         Renderers now take AST elements and produce a string and will be invoked
         recursively as before. This model allows for easier testing and pure code
         at a minimal performance hit over the old design (&lt; 10%).</p>
-        <p>Before
-        <code>`scala
-val transformer = Transform
-  .from(Markdown)
-  .to(HTML)
-  .rendering { out =&gt; 
-    { case Emphasized(content, _) =&gt; 
-      out &lt;&lt; &quot;&quot;&quot;&lt;em class=&quot;big&quot;&gt;&quot;&quot;&quot; &lt;&lt; content &lt;&lt; &quot;&lt;/em&gt;&quot; } 
-  }</code>`</p>
-        <p>After
-        <code>`scala
-val transformer = Transformer
-  .from(Markdown)
-  .to(HTML)
-  .rendering {
-    case (fmt, Emphasized(content, opt)) =&gt; 
-      fmt.element(&quot;em&quot;, opt, content, &quot;class&quot; -&gt; &quot;big&quot;)
-    }.build</code>`</p>
+        <p>Before</p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transform</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">rendering</span><span> { </span><span class="identifier">out</span><span> =&gt; 
+    { </span><span class="keyword">case</span><span> </span><span class="type-name">Emphasized</span><span>(</span><span class="identifier">content</span><span>, </span><span class="identifier">_</span><span>) =&gt; 
+      </span><span class="identifier">out</span><span> &lt;&lt; </span><span class="string-literal">&quot;&quot;&quot;&lt;em class=&quot;big&quot;&gt;&quot;&quot;&quot;</span><span> &lt;&lt; </span><span class="identifier">content</span><span> &lt;&lt; </span><span class="string-literal">&quot;&lt;/em&gt;&quot;</span><span> } 
+  }</span></code></pre>
+        <p>After</p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">rendering</span><span> {
+    </span><span class="keyword">case</span><span> (</span><span class="identifier">fmt</span><span>, </span><span class="type-name">Emphasized</span><span>(</span><span class="identifier">content</span><span>, </span><span class="identifier">opt</span><span>)) =&gt; 
+      </span><span class="identifier">fmt</span><span>.</span><span class="identifier">element</span><span>(</span><span class="string-literal">&quot;em&quot;</span><span>, </span><span class="identifier">opt</span><span>, </span><span class="identifier">content</span><span>, </span><span class="string-literal">&quot;class&quot;</span><span> -&gt; </span><span class="string-literal">&quot;big&quot;</span><span>)
+    }.</span><span class="identifier">build</span></code></pre>
         <p>The engine passes the following instances to the partial function:</p>
         <ul>
           <li>The formatter (<code>fmt</code>) which has a different API for each supported output format,
@@ -242,23 +241,21 @@ val transformer = Transformer
           <li>Rules for rewriting spans and blocks get registered separately for increased
           type-safety, as it is invalid to replace a span with a block element.</li>
         </ul>
-        <p>Before
-        <code>`scala
-val transformer = Transform
-  .from(Markdown)
-  .to(HTML)
-  .usingRule {
-    case Emphasized(content, opts) =&gt; Some(Strong(content, opts))
-  }</code>`</p>
-        <p>After
-        <code>`scala
-val transformer = Transformer
-  .from(Markdown)
-  .to(HTML)
-  .usingSpanRule {
-    case Emphasized(content, opts) =&gt; Replace(Strong(content, opts))
+        <p>Before</p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transform</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">usingRule</span><span> {
+    </span><span class="keyword">case</span><span> </span><span class="type-name">Emphasized</span><span>(</span><span class="identifier">content</span><span>, </span><span class="identifier">opts</span><span>) =&gt; </span><span class="type-name">Some</span><span>(</span><span class="type-name">Strong</span><span>(</span><span class="identifier">content</span><span>, </span><span class="identifier">opts</span><span>))
+  }</span></code></pre>
+        <p>After</p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">usingSpanRule</span><span> {
+    </span><span class="keyword">case</span><span> </span><span class="type-name">Emphasized</span><span>(</span><span class="identifier">content</span><span>, </span><span class="identifier">opts</span><span>) =&gt; </span><span class="type-name">Replace</span><span>(</span><span class="type-name">Strong</span><span>(</span><span class="identifier">content</span><span>, </span><span class="identifier">opts</span><span>))
   }
-  .build</code>`</p>
+  .</span><span class="identifier">build</span></code></pre>
         
         <h2 id="templating" class="section">Templating</h2>
         <p>Variable substitutions now use HOCON syntax in line with the general deeper integration
@@ -277,24 +274,24 @@ val transformer = Transformer
         <h3 id="directive-syntax" class="section">Directive Syntax</h3>
         <ul>
           <li>The separators for the attribute and body sections have changed</li>
-          <li>HOCON syntax is now used for attributes</li>
+          <li>HOCON syntax is now used for named attributes between curly braces or a plain string for an 
+          unnamed attribute in parenthesis</li>
           <li>The old syntax is still supported, but will be removed at some point before the 1.0 release</li>
         </ul>
-        <p>Before
-        ```laika-html
-        @:if &quot;layout.showSidebar&quot;:
-          &lt;div class=&quot;sidebar&quot;&gt;...&lt;/div&gt;</p>
-        <p>~else:
-          &lt;p&gt;Something else&lt;/p&gt;
-        ```</p>
-        <p>After
-        ```laika-html
-        @:if { layout.showSidebar }
-        &lt;div class=&quot;sidebar&quot;&gt;...&lt;/div&gt;</p>
-        <pre>@:else</pre>
-        <p>&lt;p&gt;Something else&lt;/p&gt;</p>
-        <p>@:@
-        ```</p>
+        <p>Before</p>
+        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">if</span><span> &quot;layout.showSidebar&quot;:
+  </span><span class="tag-punctuation">&lt;</span><span class="tag-name">div</span><span class="tag-punctuation"> </span><span class="attribute-name">class</span><span class="tag-punctuation">=</span><span class="string-literal">&quot;sidebar&quot;</span><span class="tag-punctuation">&gt;</span><span>...</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">div</span><span class="tag-punctuation">&gt;</span><span>
+
+~else:
+  </span><span class="tag-punctuation">&lt;</span><span class="tag-name">p</span><span class="tag-punctuation">&gt;</span><span>Something else</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">p</span><span class="tag-punctuation">&gt;</span></code></pre>
+        <p>After</p>
+        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">if</span><span>(layout.showSidebar)
+</span><span class="tag-punctuation">&lt;</span><span class="tag-name">div</span><span class="tag-punctuation"> </span><span class="attribute-name">class</span><span class="tag-punctuation">=</span><span class="string-literal">&quot;sidebar&quot;</span><span class="tag-punctuation">&gt;</span><span>...</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">div</span><span class="tag-punctuation">&gt;</span><span>
+
+</span><span class="keyword">@:</span><span class="identifier">else</span><span>
+</span><span class="tag-punctuation">&lt;</span><span class="tag-name">p</span><span class="tag-punctuation">&gt;</span><span>Something else</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">p</span><span class="tag-punctuation">&gt;</span><span>
+
+</span><span class="keyword">@:@</span></code></pre>
         
         <h3 id="directive-dsl" class="section">Directive DSL</h3>
         <p>The building blocks for creating your own directives have also changed significantly:</p>
@@ -308,31 +305,31 @@ val transformer = Transformer
           <li>The built-in helper for mapping directive parts with different arity has
           been replaced by cats <code>mapN</code></li>
         </ul>
-        <p>Before
-        ```scala
-        import laika.ast._
-        import Spans.dsl._</p>
-        <p>case class Note (title: String, 
-                         content: Seq[Span], 
-                         options: Options = NoOpt) extends Span 
-                                                   with SpanContainer[Note]</p>
-        <p>val spanDirective = Spans.create(&quot;note&quot;) {
-          (attribute(Default) ~ body(Default)) (Note(<em>,</em>))
-        }<br>
-        ```</p>
-        <p>After
-        ```scala
-        import cats.implicits._
-        import laika.ast._
-        import Spans.dsl._</p>
-        <p>case class Note (title: String, 
-                         content: Seq[Span], 
-                         options: Options = NoOpt) extends Span 
-                                                   with SpanContainer[Note]</p>
-        <p>val spanDirective = Spans.create(&quot;note&quot;) {
-          (defaultAttribute.as[String], parsedBody).mapN(Note(<em>,</em>))
-        }<br>
-        ```</p>
+        <p>Before</p>
+        <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">ast</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="type-name">Spans</span><span>.</span><span class="identifier">dsl</span><span>.</span><span class="identifier">_</span><span>
+
+</span><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">Note</span><span> (</span><span class="identifier">title</span><span>: </span><span class="type-name">String</span><span>, 
+                 </span><span class="identifier">content</span><span>: </span><span class="type-name">Seq</span><span>[</span><span class="type-name">Span</span><span>], 
+                 </span><span class="identifier">options</span><span>: </span><span class="type-name">Options</span><span> = </span><span class="type-name">NoOpt</span><span>) </span><span class="keyword">extends</span><span> </span><span class="type-name">Span</span><span> 
+                                           </span><span class="keyword">with</span><span> </span><span class="type-name">SpanContainer</span><span>[</span><span class="type-name">Note</span><span>]
+ 
+</span><span class="keyword">val</span><span> </span><span class="identifier">spanDirective</span><span> = </span><span class="type-name">Spans</span><span>.</span><span class="identifier">create</span><span>(</span><span class="string-literal">&quot;note&quot;</span><span>) {
+  (</span><span class="identifier">attribute</span><span>(</span><span class="type-name">Default</span><span>) ~ </span><span class="identifier">body</span><span>(</span><span class="type-name">Default</span><span>)) (</span><span class="type-name">Note</span><span>(</span><span class="identifier">_</span><span>,</span><span class="identifier">_</span><span>))
+}  </span></code></pre>
+        <p>After</p>
+        <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">implicits</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">ast</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="type-name">Spans</span><span>.</span><span class="identifier">dsl</span><span>.</span><span class="identifier">_</span><span>
+
+</span><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">Note</span><span> (</span><span class="identifier">title</span><span>: </span><span class="type-name">String</span><span>, 
+                 </span><span class="identifier">content</span><span>: </span><span class="type-name">Seq</span><span>[</span><span class="type-name">Span</span><span>], 
+                 </span><span class="identifier">options</span><span>: </span><span class="type-name">Options</span><span> = </span><span class="type-name">NoOpt</span><span>) </span><span class="keyword">extends</span><span> </span><span class="type-name">Span</span><span> 
+                                           </span><span class="keyword">with</span><span> </span><span class="type-name">SpanContainer</span><span>[</span><span class="type-name">Note</span><span>]
+ 
+</span><span class="keyword">val</span><span> </span><span class="identifier">spanDirective</span><span> = </span><span class="type-name">Spans</span><span>.</span><span class="identifier">create</span><span>(</span><span class="string-literal">&quot;note&quot;</span><span>) {
+  (</span><span class="identifier">defaultAttribute</span><span>.</span><span class="identifier">as</span><span>[</span><span class="type-name">String</span><span>], </span><span class="identifier">parsedBody</span><span>).</span><span class="identifier">mapN</span><span>(</span><span class="type-name">Note</span><span>(</span><span class="identifier">_</span><span>,</span><span class="identifier">_</span><span>))
+}  </span></code></pre>
         <p>Note the additional import of cats implicits in the new version.</p>
         
         <h2 id="config-api" class="section">Config API</h2>

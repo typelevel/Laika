@@ -68,7 +68,7 @@
       <div class="span8" id="top">
 
         <div class="page-header">
-        <h1>Supported Output Formats</h1>
+        <h1 id="supported-output-formats" class="title">Supported Output Formats</h1>
         </div>
         <p>The current release supports HTML, EPUB, PDF, XSL-FO and AST.
         Rendering happens from a generic document tree model shared between all parsers,
@@ -76,15 +76,16 @@
         markup syntax like Markdown or reStructuredText.</p>
         <p>Customization of the output is possible on two levels, first most formats (except
         for AST) can be styled with CSS. Secondly the rendering of specific nodes
-        can be overridden with a simple partial function as described in <a href="../customizing-laika/customize-rendering.html">Customizing Renderers</a>.</p>
+        can be overridden with a simple partial function as described in 
+        <a href="../customizing-laika/customize-rendering.html">Customizing Renderers</a>.</p>
         <p>Finally you can develop an entirely new renderer for a format not supported by Laika
-        out of the box. See chapter <a href="../extending-laika/renderer.html#implementing-a-renderer">Implementing a Renderer</a> for details.</p>
+        out of the box. See chapter <a href="../extending-laika/renderer.html">Implementing a Renderer</a> for details.</p>
         
         <h2 id="html" class="section">HTML</h2>
         <p>The HTML renderer can be used with the <code>Transform</code> or <code>Render</code> APIs:</p>
         <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">html</span><span>: </span><span class="type-name">String</span><span> = </span><span class="type-name">Transformer</span><span>
   .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
-  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>).
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
   .</span><span class="identifier">build</span><span>
   .</span><span class="identifier">transform</span><span>(</span><span class="string-literal">&quot;hello *there*&quot;</span><span>)
 
@@ -97,7 +98,7 @@
   .</span><span class="identifier">of</span><span>(</span><span class="type-name">HTML</span><span>)
   .</span><span class="identifier">build</span><span>
   .</span><span class="identifier">render</span><span>(</span><span class="identifier">doc</span><span>)</span></code></pre>
-        <p>See <a href="embedded.html#using-the-library-api">Using the Library API</a> for more details on these APIs.</p>
+        <p>See <a href="embedded.html">Using the Library API</a> for more details on these APIs.</p>
         <p>If you are using the sbt plugin you can use several of its task for generating
         HTML output:</p>
         <ul>
@@ -129,7 +130,7 @@
         in those directories. You can optionally override the template for an individual
         sub-directory simply by including a different template named <code>default.template.html</code>
         in that sub-directory.</p>
-        <p>See [Templates] for more details.</p>
+        <p>See <a href="templates.html">Templates</a> for more details.</p>
         
         <h3 id="html-renderer-properties" class="section">HTML Renderer Properties</h3>
         <p>The <code>unformatted</code> property tells the renderer to omit any formatting (line breaks or indentation) 

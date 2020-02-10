@@ -68,7 +68,7 @@
       <div class="span8" id="top">
 
         <div class="page-header">
-        <h1>Supported Markup</h1>
+        <h1 id="supported-markup" class="title">Supported Markup</h1>
         </div>
         <p>The current release supports Markdown and reStructuredText. Both implementations stay as close
         as possible to the original descriptions and specifications of these formats. </p>
@@ -210,7 +210,7 @@
         <p>When the markup originates from user input in a web application, it would not be safe 
         to use without additional filtering. By default Laika does not filter any tags, not
         even <code>&lt;script&gt;</code> tags, but whitelist filtering can be added fairly easily through Laika&#39;s 
-        customization hooks like <a href="../customizing-laika/tree-rewriting.html">Document Tree Rewriting</a> or
+        customization hooks like <a href="../customizing-laika/tree-rewriting.html">Document Tree Rewriting</a> or 
         <a href="../customizing-laika/customize-rendering.html">Customizing Renderers</a>.</p>
         <p>To enable verbatim HTML elements you have to change this standard expression:</p>
         <pre><code class="nohighlight"><span class="type-name">Transformer</span><span>.</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>).</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)</span></code></pre>
