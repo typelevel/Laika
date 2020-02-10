@@ -32,9 +32,9 @@ templates:
 
 ```laika-html
 {% 
-  autonumbering {
-    scope: sections
-    depth: 2      
+  siteLinks {
+    catalogue: ../catalogue/
+    contact: ../contact/
   }
 %}  
 <html>
@@ -70,17 +70,23 @@ to retain the overall design of full referential transparency
 and avoid the Java API of the Typesafe Config library.
 
 There are a few configuration entries that have a special meaning
-for Laika, like the `autonumbering` entry in the example above.
+for Laika, e.g the `autonumbering`, `pdf` or `epub` entries.
 These are all documented in their respective chapters.
 
-But you can also add arbitrary entries and then refer to them
-from a variable reference. The `scope` entry above for example
-can be referred to with `${autonumbering.scope}`.
+But you can also add arbitrary entries like in the example above 
+and then refer to them from a variable reference. 
+The `contact` entry above for example can be referred to with 
+`${siteLinks.contact}` anywhere inside this template. 
 
-You can also have a configuration header in a markup document
-(supported for both Markdown and reStructuredText) and then
-refer to entries in a header in a markup document from
-inside the corresponding template (and vice versa)
+Likewise you can refer to variables defined in:
+
+* The document that is rendered with this template
+* The configuration of the directory the rendered document resides in 
+  and all its parent directories up to the (virtual) root of the tree. 
+
+HOCON configuration is more often found in headers of text markup
+documents or in directory configuration, but nevertheless also
+supported in template headers if needed.
 
 [Typesafe Config]: https://github.com/typesafehub/config
 [HOCON]: https://github.com/typesafehub/config#features-of-hocon
