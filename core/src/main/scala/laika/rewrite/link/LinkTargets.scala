@@ -54,11 +54,6 @@ object LinkTargets {
    */
   case object AutosymbolSelector extends Selector
   
-  /** Converts the specified string to a Selector instance
-   *  that represents a unique identifier.
-   */
-  implicit def stringToSelector (name: String): UniqueSelector = UniqueSelector(name)
-  
   
   /** The definition of a link target in the document tree, holding
    *  the element itself and its identifier. Three abstract methods
@@ -99,10 +94,10 @@ object LinkTargets {
     
   }
   
-  class CitationTarget (citation: Citation) extends TargetDefinition(citation, citation.label, false) {
+  class CitationTarget (citation: Citation) extends TargetDefinition(citation, Named(citation.label), false) {
     
     def withResolvedIds (documentId: String, displayId: String): SingleTargetResolver = 
-      SingleTargetResolver(this, citation.label, documentId)
+      SingleTargetResolver(this, UniqueSelector(citation.label), Named(documentId))
     
     val replace: ((Element,Id)) => Option[Element] = lift { 
       case (Citation(label,content,opt),    Named(id)) => Citation(label, content, opt + Id(id)) 
@@ -140,8 +135,11 @@ object LinkTargets {
     }
   }
   
-  class LinkAliasTarget (alias: LinkAlias) extends TargetDefinition(alias, alias.id, false) {
-    def withResolvedIds (documentId: String, displayId: String): SingleTargetResolver = SingleTargetResolver(this, alias.id, Hidden)
+  class LinkAliasTarget (alias: LinkAlias) extends TargetDefinition(alias, Named(alias.id), false) {
+    
+    def withResolvedIds (documentId: String, displayId: String): SingleTargetResolver = 
+      SingleTargetResolver(this, UniqueSelector(alias.id), Hidden)
+    
     val replace: ((Element,Id)) => Option[Element] = lift (PartialFunction.empty)
     val resolve: ((Span,Id)) => Option[Span] = lift (PartialFunction.empty)
     val ref: String = alias.target
@@ -183,12 +181,15 @@ object LinkTargets {
     def targetTitle: Option[Seq[Span]] = None
   }
   
-  class CustomizableTarget (target: Customizable, id: String, path: Path) extends DefaultTarget(target, id, path) {
-    def withResolvedIds (documentId: String, displayId: String): SingleTargetResolver = SingleTargetResolver(this, id, documentId)
+  class CustomizableTarget (target: Customizable, id: String, path: Path) extends DefaultTarget(target, Named(id), path) {
+    def withResolvedIds (documentId: String, displayId: String): SingleTargetResolver = 
+      SingleTargetResolver(this, UniqueSelector(id), Named(documentId))
   }
   
   class HeaderTarget (header: Block, id: Id, path: Path) extends DefaultTarget(header, id, path) {
-    override def withResolvedIds (documentId: String, displayId: String): SingleTargetResolver = SingleTargetResolver(this, displayId, documentId)
+    override def withResolvedIds (documentId: String, displayId: String): SingleTargetResolver = 
+      SingleTargetResolver(this, UniqueSelector(displayId), Named(documentId))
+    
     override def targetTitle: Option[Seq[Span]] = header match {
       case Header(_, content, _) => Some(content)
       case _ => None

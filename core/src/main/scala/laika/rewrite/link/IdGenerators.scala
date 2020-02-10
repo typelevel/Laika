@@ -69,11 +69,6 @@ object IdGenerators {
    */
   case object Hidden extends Id
 
-  /** Converts the specified string to an Id instance
-   *  that represents a unique identifier.
-   */
-  implicit def stringToId (name: String): Id = Named(name)
-  
   
   /** Generates symbol identifiers. 
    *  Contains a predefined list of ten symbols to generate.

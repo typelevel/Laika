@@ -48,12 +48,12 @@ class LinkTargetProvider (path: Path, root: RootElement) {
       case f: FootnoteDefinition => f.label match {
         case Autosymbol            => new FootnoteTarget(f, Generated(symbols), AutosymbolSelector)
         case Autonumber            => new FootnoteTarget(f, Generated(numbers), AutonumberSelector)
-        case AutonumberLabel(id)   => new FootnoteTarget(f, Hybrid(id, Generated(numbers)), id)
-        case NumericLabel(num)     => new FootnoteTarget(f, Named(num.toString), num.toString)
+        case AutonumberLabel(id)   => new FootnoteTarget(f, Hybrid(id, Generated(numbers)), UniqueSelector(id))
+        case NumericLabel(num)     => new FootnoteTarget(f, Named(num.toString), UniqueSelector(num.toString))
       }
       
       case lt: ExternalLinkDefinition => if (lt.id.isEmpty) new ExternalLinkTarget(lt, Anonymous(anonPos.next), AnonymousSelector, path) 
-                                         else               new ExternalLinkTarget(lt, Named(lt.id), lt.id, path)
+                                         else               new ExternalLinkTarget(lt, Named(lt.id), UniqueSelector(lt.id), path)
       
       case lt: LinkAlias              => new LinkAliasTarget(lt)
       
@@ -123,7 +123,7 @@ class LinkTargetProvider (path: Path, root: RootElement) {
       def doResolve (current: LinkAliasTarget, visited: Set[Any]): SingleTargetResolver = {
         if (visited.contains(current.id)) alias.invalid(s"circular link reference: ${alias.from}").withResolvedIds("","")
         else
-          map.get(current.ref) map {
+          map.get(UniqueSelector(current.ref)) map {
             case SingleTargetResolver(alias2: LinkAliasTarget, _, _, _) => doResolve(alias2, visited + current.id)
             case other => other.forAlias(selector)
           } getOrElse alias.invalid(s"unresolved link alias: ${alias.ref}").withResolvedIds("","")

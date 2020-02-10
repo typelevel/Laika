@@ -18,8 +18,6 @@ package laika.rewrite.link
 
 import laika.ast._
 import LinkTargets._
-import laika.ast.Path.Root
-import laika.ast.RelativePath.Current
 
 import scala.annotation.tailrec
 
@@ -50,8 +48,8 @@ object LinkResolver extends (DocumentCursor => RewriteRules) {
     val headerId = targets.headerIds
     
     def replaceHeader (h: Block, origId: String, lookup: String => Option[String]): RewriteAction[Block] = 
-      lookup(origId).fold[RewriteAction[Block]](Remove)(replace(h,_))
-    
+      lookup(origId).fold[RewriteAction[Block]](Remove)(id => replace(h, UniqueSelector(id)))
+
     def replace (element: Block, selector: Selector): RewriteAction[Block] =
       targets.local.get(selector)
         .flatMap(_.replaceTarget(element))
@@ -63,7 +61,7 @@ object LinkResolver extends (DocumentCursor => RewriteRules) {
         .flatMap(_.replaceTarget(element))
         .collect{ case s: Span => s }
         .fold[RewriteAction[Span]](Remove)(Replace(_))
-    
+
     def resolve (ref: Reference, selector: Selector, msg: => String, global: Boolean = false): RewriteAction[Span] = {
       
       def selectFromParent = {
@@ -97,26 +95,26 @@ object LinkResolver extends (DocumentCursor => RewriteRules) {
     RewriteRules.forBlocks {
       
       case f: FootnoteDefinition => f.label match {
-        case NumericLabel(num)   => replace(f, num.toString)
-        case AutonumberLabel(id) => replace(f, id)
+        case NumericLabel(num)   => replace(f, UniqueSelector(num.toString))
+        case AutonumberLabel(id) => replace(f, UniqueSelector(id))
         case Autonumber          => replace(f, AutonumberSelector)
         case Autosymbol          => replace(f, AutosymbolSelector)
       }
-      case c: Citation           => replace(c, c.label)
+      case c: Citation           => replace(c, UniqueSelector(c.label))
       case h: DecoratedHeader    => replaceHeader(h, h.options.id.get, headerId)
       case h@ Header(_,_,Id(id)) => replaceHeader(h, id, headerId)
       
       case _: Temporary => Remove
 
-      case c: Customizable if c.options.id.isDefined => replace(c, c.options.id.get)
+      case c: Customizable if c.options.id.isDefined => replace(c, UniqueSelector(c.options.id.get))
       
     } ++ RewriteRules.forSpans {
       
-      case c @ CitationReference(label,_,_) => resolve(c, label, s"unresolved citation reference: $label")
+      case c @ CitationReference(label,_,_) => resolve(c, UniqueSelector(label), s"unresolved citation reference: $label")
 
       case ref: FootnoteReference => ref.label match {
-        case NumericLabel(num)   => resolve(ref, num.toString, s"unresolved footnote reference: $num")
-        case AutonumberLabel(id) => resolve(ref, id, s"unresolved footnote reference: $id")
+        case NumericLabel(num)   => resolve(ref, UniqueSelector(num.toString), s"unresolved footnote reference: $num")
+        case AutonumberLabel(id) => resolve(ref, UniqueSelector(id), s"unresolved footnote reference: $id")
         case Autonumber          => resolve(ref, AutonumberSelector, "too many autonumber references")
         case Autosymbol          => resolve(ref, AutosymbolSelector, "too many autosymbol references")
       }
@@ -124,13 +122,13 @@ object LinkResolver extends (DocumentCursor => RewriteRules) {
       case img @ Image(_,URI(uri, None),_,_,_,_) => Replace(img.copy(uri = URI(uri, PathInfo.fromURI(uri, cursor.parent.target.path))))
         
       case ref: LinkReference => if (ref.id.isEmpty) resolve(ref, AnonymousSelector, "too many anonymous link references")
-                                 else                resolve(ref, ref.id, s"unresolved link reference: ${ref.id}", global = true)
+                                 else                resolve(ref, UniqueSelector(ref.id), s"unresolved link reference: ${ref.id}", global = true)
 
-      case ref: ImageReference => resolve(ref, ref.id, s"unresolved image reference: ${ref.id}", global = true)
+      case ref: ImageReference => resolve(ref, UniqueSelector(ref.id), s"unresolved image reference: ${ref.id}", global = true)
 
       case _: Temporary => Remove
 
-      case c: Customizable if c.options.id.isDefined => replaceSpan(c, c.options.id.get)
+      case c: Customizable if c.options.id.isDefined => replaceSpan(c, UniqueSelector(c.options.id.get))
 
     }
   }

@@ -358,9 +358,9 @@ trait TreeStructure { this: TreeContent =>
     * in the document tree.
     */
   lazy val globalLinkTargets: Map[Selector, TargetResolver] = {
-    content.flatMap(_.globalLinkTargets.toList).groupBy(_._1) collect {
+    content.flatMap(_.globalLinkTargets.toList).groupBy(_._1).collect {
       case (selector, Seq((_, target))) => (selector, target)
-      case (s@UniqueSelector(sName), _) => (s, DuplicateTargetResolver(path, sName))
+      case (s: UniqueSelector, _) => (s, DuplicateTargetResolver(path, s))
     }
   }
 
