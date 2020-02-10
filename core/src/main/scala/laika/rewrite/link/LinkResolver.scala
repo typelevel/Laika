@@ -67,16 +67,17 @@ object LinkResolver extends (DocumentCursor => RewriteRules) {
     def resolve (ref: Reference, selector: Selector, msg: => String, global: Boolean = false): RewriteAction[Span] = {
       
       def selectFromParent = {
-        @tailrec def select (path: RelativePath): (Option[TargetResolver],Option[Path]) = {
-          val tree = cursor.root.target.tree.selectSubtree(path)
-          val target = tree.flatMap(_.selectTarget(selector))
-          if (target.isDefined || path == Current || path.parentLevels > 0) (target,Some(cursor.target.path))
-          else select(path.parent)
+        @tailrec def select (treeCursor: TreeCursor): Option[TargetResolver] = {
+          val target = treeCursor.target.selectTarget(selector)
+          treeCursor.parent match {
+            case Some(parent) if target.isEmpty => select(parent)
+            case _ => target
+          }
         }
-        select(cursor.parent.target.path.relative)
+        select(cursor.parent)
       }
-      def selectFromRoot (path: String, name: String) = 
-        (cursor.root.target.tree.selectTarget(PathSelector(cursor.parent.target.path / RelativePath.parse(path), name)),Some(cursor.target.path))
+      def selectFromRoot (path: String, name: String): Option[TargetResolver] = 
+        cursor.root.target.tree.selectTarget(PathSelector(cursor.parent.target.path / RelativePath.parse(path), name))
       
       val (target, path) = {
         val local = targets.local.get(selector)
@@ -84,8 +85,8 @@ object LinkResolver extends (DocumentCursor => RewriteRules) {
         else (selector, global) match {
           case (UniqueSelector(targetName), true) =>
             val index = targetName.indexOf(":")
-            if (index == -1) selectFromParent
-            else selectFromRoot(targetName take index, targetName drop (index+1))
+            if (index == -1) (selectFromParent, Some(cursor.path))
+            else (selectFromRoot(targetName take index, targetName drop (index+1)), Some(cursor.path))
           case _ => (None,None)
         }
       }
