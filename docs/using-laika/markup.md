@@ -174,7 +174,8 @@ files containing raw HTML could not be used for those.
 When the markup originates from user input in a web application, it would not be safe 
 to use without additional filtering. By default Laika does not filter any tags, not
 even `<script>` tags, but whitelist filtering can be added fairly easily through Laika's 
-customization hooks like [Document Tree Rewriting] or [Customizing Renderers].
+customization hooks like [Document Tree Rewriting] or 
+[Customizing Renderers][../customizing-laika/customize-rendering.md:Customizing Renderers].
  
 To enable verbatim HTML elements you have to change this standard expression:
 

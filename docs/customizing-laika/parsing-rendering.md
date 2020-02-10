@@ -2,7 +2,7 @@
 Separate Parsing and Rendering
 ==============================
 
-The chapter [Using the Library API] introduced the API
+The chapter [Using the Library API][../using-laika/embedded.md:Using the Library API] introduced the API
 for performing a full transformation from text markup to
 output format. In many cases this is all you need.
 

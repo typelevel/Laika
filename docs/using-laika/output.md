@@ -9,7 +9,8 @@ markup syntax like Markdown or reStructuredText.
 
 Customization of the output is possible on two levels, first most formats (except
 for AST) can be styled with CSS. Secondly the rendering of specific nodes
-can be overridden with a simple partial function as described in [Customizing Renderers].
+can be overridden with a simple partial function as described in 
+[Customizing Renderers][../customizing-laika/customize-rendering.md:Customizing Renderers].
 
 Finally you can develop an entirely new renderer for a format not supported by Laika
 out of the box. See chapter [Implementing a Renderer] for details.
@@ -23,7 +24,7 @@ The HTML renderer can be used with the `Transform` or `Render` APIs:
 ```scala
 val html: String = Transformer
   .from(Markdown)
-  .to(HTML).
+  .to(HTML)
   .build
   .transform("hello *there*")
 
@@ -78,7 +79,7 @@ in those directories. You can optionally override the template for an individual
 sub-directory simply by including a different template named `default.template.html`
 in that sub-directory.
 
-See [Templates] for more details.
+See [Templates][../using-laika/templates.md:Templates] for more details.
 
 
 ### HTML Renderer Properties
@@ -136,7 +137,7 @@ val transformer = Transformer
 Note that in some cases the simpler way to achieve the same result may be
 styling with CSS.
 
-See [Customizing Renderers] for more details.
+See [Customizing Renderers][../customizing-laika/customize-rendering.md:Customizing Renderers] for more details.
 
 
 EPUB
@@ -583,7 +584,7 @@ val transformer = Transformer
 Note that in most cases the simpler way to achieve the same result will be
 styling with CSS.
 
-See [Customizing Renderers] for more details.
+See [Customizing Renderers][../customizing-laika/customize-rendering.md:Customizing Renderers] for more details.
 
 
 XSL-FO

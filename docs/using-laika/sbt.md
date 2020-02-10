@@ -83,7 +83,7 @@ The directories can contain different types of files:
   
 * Other static files that simply get copied to the target directory.
 
-For more details on the template engine, see the chapter [Templates].
+For more details on the template engine, see the chapter [Templates][../using-laika/templates.md:Templates].
 
 For features like titles, sections, cross-linking, auto-numbering, 
 document order and tables of content, see the chapter [Document Structure].
@@ -223,7 +223,7 @@ laikaExtensions += laikaHtmlRenderer {
 }
 ```
 
-For more details see the chapter [Customizing Renderers].
+For more details see the chapter [Customizing Renderers][../customizing-laika/customize-rendering.md:Customizing Renderers].
   
 Similarly the `laikaFoRenderer` shortcut can be used to add a custom `XSL-FO` renderer 
 of type `PartialFunction[(FOFormatter, Element), String]`. `XSL-FO` is an interim format for PDF output,
@@ -231,7 +231,6 @@ so this option would also allow to change the appearance of PDF documents.
 
 For EPUB the `laikaEpubRenderer` can be used to add a custom XHMTL renderer of type
 `PartialFunction[(HTMLFormatter, Element), String]`. 
-
 
 
 ### Custom Rewrite Rules

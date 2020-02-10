@@ -113,7 +113,7 @@ For `highlight.js` Laika already provides this kind of blocker, in that it adds 
 `nohighligting` class to all code blocks it has already analyzed itself.
 
 If you are using different tools you might need to customize the rendering of the
-`CodeBlock` AST element. For details see [Customizing Renderers].
+`CodeBlock` AST element. For details see [Customizing Renderers][../customizing-laika/customize-rendering.md:Customizing Renderers].
 
 
 Adding Your Own Highlighters
