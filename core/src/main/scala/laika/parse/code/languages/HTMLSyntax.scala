@@ -17,12 +17,9 @@
 package laika.parse.code.languages
 
 import cats.data.NonEmptyList
-import laika.ast.{CodeSpan, ~}
 import laika.bundle.SyntaxHighlighter
-import laika.parse.Parser
-import laika.parse.code.common.{EmbeddedCodeSpans, Keywords, TagBasedFormats, TagParser}
+import laika.parse.code.common.{Keywords, TagBasedFormats, TagParser}
 import laika.parse.code.{CodeCategory, CodeSpanParser}
-import laika.parse.builders._
 import laika.parse.implicits._
 
 /**
@@ -36,45 +33,18 @@ object HTMLSyntax extends TagBasedFormats with SyntaxHighlighter {
     comment,
     name(CodeCategory.Identifier)
   )
-
-  val embeddedJs: Parser[Seq[CodeSpan]] = {
-    val endTag: Seq[CodeSpan] = Seq(
-      CodeSpan("</", CodeCategory.Tag.Punctuation),
-      CodeSpan("script", CodeCategory.Tag.Name)
-    )
-    (EmbeddedCodeSpans.parser(delimitedBy("</script"), JavaScriptSyntax) ~ (ws ~ ">").source).map {
-      case content ~ close => content ++ endTag :+ CodeSpan(close, CodeCategory.Tag.Punctuation)
-    }
-  }
-
-  val embeddedCSS: Parser[Seq[CodeSpan]] = {
-    val endTag: Seq[CodeSpan] = Seq(
-      CodeSpan("</", CodeCategory.Tag.Punctuation),
-      CodeSpan("style", CodeCategory.Tag.Name)
-    )
-    (EmbeddedCodeSpans.parser(delimitedBy("</style"), CSSSyntax) ~ (ws ~ ">").source).map {
-      case content ~ close => content ++ endTag :+ CodeSpan(close, CodeCategory.Tag.Punctuation)
-    }
-  }
   
+  private def startTag(tagName: String): TagParser = TagParser(CodeCategory.Tag.Name, "<", ">", tagName).embed(
+    stringWithEntities,
+    name(CodeCategory.AttributeName)
+  )
+
   val scriptTag: CodeSpanParser = CodeSpanParser {
-    
-    val startTag: TagParser = TagParser(CodeCategory.Tag.Name, "<", ">", "script").embed(
-      stringWithEntities,
-      name(CodeCategory.AttributeName)
-    )
-    
-    (startTag ~ embeddedJs).concat
+    (startTag("script") ~ elementRest("script", JavaScriptSyntax.spanParsers)).concat
   }
 
   val styleTag: CodeSpanParser = CodeSpanParser {
-
-    val startTag = TagParser(CodeCategory.Tag.Name, "<", ">", "style").embed(
-      stringWithEntities,
-      name(CodeCategory.AttributeName)
-    )
-    
-    (startTag ~ embeddedCSS).concat
+    (startTag("style") ~ elementRest("style", CSSSyntax.spanParsers)).concat
   }
 
   val language: NonEmptyList[String] = NonEmptyList.of("html")

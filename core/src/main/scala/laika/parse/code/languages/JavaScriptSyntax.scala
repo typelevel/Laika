@@ -17,13 +17,11 @@
 package laika.parse.code.languages
 
 import cats.data.NonEmptyList
-import laika.ast.{CodeSpan, ~}
 import laika.bundle.SyntaxHighlighter
-import laika.parse.Parser
 import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue}
-import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.code.common.NumberLiteral.{DigitParsers, NumericParser}
-import laika.parse.code.common.{Comment, EmbeddedCodeSpans, Identifier, Keywords, NumberLiteral, NumericSuffix, RegexLiteral, StringLiteral, TagBasedFormats, TagParser}
+import laika.parse.code.common._
+import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.implicits._
 
 /**
@@ -75,14 +73,10 @@ object JavaScriptSyntax extends SyntaxHighlighter {
 
     val language: NonEmptyList[String] = NonEmptyList.of("jsx")
 
-    import laika.parse.builders._
-
-    private def tagParser(p: TagParser): TagParser = p.copy(tagCategory = tagCategory)
-
     private def tagCategory(name: String): CodeCategory =
      if (name.head.isUpper) CodeCategory.TypeName else CodeCategory.Tag.Name
     
-    val emptyJsxTag: CodeSpanParser = tagParser(HTMLSyntax.emptyTag) 
+    val emptyJsxTag: CodeSpanParser = HTMLSyntax.emptyTag.copy(tagCategory = tagCategory)
 
     lazy val element: CodeSpanParser = CodeSpanParser {
 
@@ -94,24 +88,15 @@ object JavaScriptSyntax extends SyntaxHighlighter {
         substitution
       )
 
-      def embeddedJSX(tagName: String): Parser[Seq[CodeSpan]] = {
-        val endTag: Seq[CodeSpan] = Seq(
-          CodeSpan("</", CodeCategory.Tag.Punctuation),
-          CodeSpan(tagName, tagCategory(tagName))
-        )
-        val embedded = Seq(
-          CodeSpanParser.recursive(element),
-          emptyJsxTag,
-          substitution
-        )
-        (EmbeddedCodeSpans.parser(delimitedBy(s"</$tagName"), embedded) ~ (ws ~ ">").source).map {
-          case content ~ close => content ++ endTag :+ CodeSpan(close, CodeCategory.Tag.Punctuation)
-        }
-      }
-
+      val embedded = Seq(
+        CodeSpanParser.recursive(element),
+        emptyJsxTag,
+        substitution
+      )
+      
       startTag >> { startSpans =>
         val tagName = startSpans.tail.head.content
-        embeddedJSX(tagName).map(startSpans ++ _)
+        elementRest(tagName, embedded, tagCategory(tagName)).map(startSpans ++ _)
       }
     }
 

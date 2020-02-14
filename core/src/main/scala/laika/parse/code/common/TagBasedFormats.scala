@@ -17,10 +17,12 @@
 package laika.parse.code.common
 
 import laika.ast.{CodeSpan, CodeSpans, ~}
+import laika.parse.Parser
+import laika.parse.builders._
 import laika.parse.code.common.Identifier.IdParser
+import laika.parse.code.implicits._
 import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.implicits._
-import laika.parse.code.implicits._
 import laika.parse.text.PrefixedParser
 import laika.parse.text.TextParsers.{delimitedBy, literal}
 
@@ -73,6 +75,23 @@ trait TagBasedFormats {
   /** Parses an end tag.
     */
   val endTag: TagParser = TagParser(CodeCategory.Tag.Name, "</", ">")
+
+  /** Parses the content and the end tag of an element, with optionally
+    * embedding syntax for the content of the element.
+    * Assumes that the start tag has already been parsed.
+    */
+  def elementRest(tagName: String, 
+                  embedded: Seq[CodeSpanParser] = Nil, 
+                  tagNameCategory: CodeCategory = CodeCategory.Tag.Name): Parser[Seq[CodeSpan]] = {
+    
+    val endTag: Seq[CodeSpan] = Seq(
+      CodeSpan("</", CodeCategory.Tag.Punctuation),
+      CodeSpan(tagName, tagNameCategory)
+    )
+    (EmbeddedCodeSpans.parser(delimitedBy(s"</$tagName"), embedded) ~ (ws ~ ">").source).map {
+      case content ~ close => content ++ endTag :+ CodeSpan(close, CodeCategory.Tag.Punctuation)
+    }
+  }
   
 }
 
