@@ -249,6 +249,45 @@ class LanguageSpec extends WordSpec with Matchers {
         other(") });\n  }\n}")
       )
     }
+
+    "parse JSX code" in {
+      val input =
+        """#Doc
+          |
+          |```jsx
+          |class App extends Component {
+          |
+          |  state = {
+          |    lastResult: this.message('Apocalypse started')
+          |  }
+          |
+          |  tag = <div className="big"><Comp.Hello>See {props.foo}</Comp.Hello></div>
+          |
+          |  handleError = error => {
+          |    console.log(error);
+          |    const msg = (error.response) ? `Status: ${error.response.status}` : 'Unknown error';
+          |    this.setState({ lastResult: this.message(`Server Error (${msg})`) });
+          |  }
+          |}
+          |```""".stripMargin
+
+      val tags = new TagFormats {}
+      parse(input) shouldBe result("jsx",
+        keyword("class"), space, id("App"), space, keyword("extends"), space, id("Component"), other(" {\n\n  "),
+        id("state"), other(" = {\n    "),
+        id("lastResult"), colonSpace, keyword("this"), dot, id("message"), other("("), string("'Apocalypse started'"), other(")\n  }\n\n  "),
+        id("tag"), equals, tags.punct("<"), tagName("div"), tags.space, attrName("className"), tags.eq,
+        string("\"big\""), tags.punct("><"), typeName("Comp.Hello"), tags.punct(">"), other("See "), subst("{props.foo}"),
+        tags.punct("</"), typeName("Comp.Hello"), tags.punct("></"), tagName("div"), tags.punct(">"), other("\n\n  "),
+        id("handleError"), equals, id("error"), other(" => {\n    "),
+        id("console"), dot, id("log"), other("("), id("error"), other(");\n    "),
+        keyword("const"), space, id("msg"), other(" = ("), id("error"), dot, id("response"), other(") ? "),
+        string("`Status: "), subst("${error.response.status}"), string("`"), other(" : "), string("'Unknown error'"), other(";\n    "),
+        keyword("this"), dot, id("setState"), other("({ "), id("lastResult"), colonSpace,
+        keyword("this"), dot, id("message"), other("("), string("`Server Error ("), subst("${msg}"), string(")`"),
+        other(") });\n  }\n}")
+      )
+    }
     
     "parse TypeScript code" in {
       val input =

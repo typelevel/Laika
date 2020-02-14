@@ -48,6 +48,7 @@ case object SyntaxHighlighting extends ExtensionBundle { self =>
       PythonSyntax,
       TypeScriptSyntax,
       JavaScriptSyntax,
+      JavaScriptSyntax.JSX,
       HTMLSyntax,
       CSSSyntax,
       JSONSyntax,

@@ -89,4 +89,9 @@ object CodeSpanParser {
   def onLineStart (category: CodeCategory)(parser: Parser[String]): CodeSpanParser = 
     onLineStart(parser.asCode(category).map(Seq(_)))
   
+  def recursive (parser: => CodeSpanParser): CodeSpanParser =
+    new CodeSpanParser {
+      lazy val parsers = parser.parsers
+    }
+  
 }
