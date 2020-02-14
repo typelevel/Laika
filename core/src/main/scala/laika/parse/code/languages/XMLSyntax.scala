@@ -18,7 +18,7 @@ package laika.parse.code.languages
 
 import cats.data.NonEmptyList
 import laika.bundle.SyntaxHighlighter
-import laika.parse.code.common.{Keywords, TagBasedFormats}
+import laika.parse.code.common.{Keywords, TagBasedFormats, TagParser}
 import laika.parse.code.{CodeCategory, CodeSpanParser}
 
 /**

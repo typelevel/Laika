@@ -20,7 +20,7 @@ import cats.data.NonEmptyList
 import laika.ast.{CodeSpan, ~}
 import laika.bundle.SyntaxHighlighter
 import laika.parse.Parser
-import laika.parse.code.common.{EmbeddedCodeSpans, Keywords, TagBasedFormats}
+import laika.parse.code.common.{EmbeddedCodeSpans, Keywords, TagBasedFormats, TagParser}
 import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.builders._
 import laika.parse.implicits._

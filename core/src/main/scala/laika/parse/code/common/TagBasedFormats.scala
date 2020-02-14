@@ -35,11 +35,9 @@ trait TagBasedFormats {
   /** Parses a comment enclosed between `<!--` and `-->`. */
   val comment: CodeSpanParser = Comment.multiLine("<!--", "-->")
 
-  private val nameParser: IdParser = Identifier.alphaNum.withIdStartChars('_',':').withIdPartChars('-','.')
-
   /** Parses a valid attribute, tag or entity name.
     */
-  def name(category: CodeCategory): CodeSpanParser = nameParser.withCategory(category)
+  def name(category: CodeCategory): CodeSpanParser = TagParser.nameParser.withCategory(category)
 
   /** Parses a named entity reference like `&lt;` or a numeric character reference like `&#xff`.
     */
@@ -51,7 +49,7 @@ trait TagBasedFormats {
         ("&#" ~ DigitParsers.decimal.min(1) ~ ";").source
       } ++
       CodeSpanParser(CodeCategory.Substitution) {
-        ("&" ~ nameParser.map(_.content) ~ ";").source
+        ("&" ~ TagParser.nameParser.map(_.content) ~ ";").source
       }
 
   val string: CodeSpanParser = StringLiteral.singleLine('\'') ++ StringLiteral.singleLine('"')
@@ -60,64 +58,66 @@ trait TagBasedFormats {
     StringLiteral.singleLine('\'').embed(ref) ++ 
       StringLiteral.singleLine('"').embed(ref)
 
-  /** Configurable base parser for tags in formats like HTML or XML. */
-  case class TagParser(tagCategory: String => CodeCategory,
-                       start: String,
-                       end: String,
-                       tagName: PrefixedParser[String] = nameParser.map(_.content),
-                       embedded: Seq[CodeSpanParser] = Nil) extends CodeParserBase {
-
-    private val categories: Set[CodeCategory] = Set(CodeCategory.Tag.Punctuation)
-
-    /** Embeds the specified parsers for child spans inside a tag.
-      *
-      * This is usually used for the detection of attribute names or entity references.
-      */
-    def embed(childSpans: CodeSpanParser*): TagParser = {
-      copy(embedded = embedded ++ childSpans)
-    }
-    
-    def underlying: PrefixedParser[Seq[CodeSpan]] = {
-      
-      val startParser = literal(start).asCode(CodeCategory.Tag.Punctuation)
-      val tagNameParser = tagName.map(name => CodeSpan(name, tagCategory(name)))
-      val delim = if (end == "/>") delimitedBy(end).failOn('>') else delimitedBy(end) 
-
-      (startParser ~ tagNameParser ~ EmbeddedCodeSpans.parser(delim, embedded, categories)).map {
-        case startPunct ~ tagNameSpan ~ content =>
-          CodeSpans.merge(Seq(startPunct, tagNameSpan) ++ content :+ CodeSpan(end, categories))
-      }
-    }
-
-  }
-
-  object TagParser {
-    def apply (tagCategory: CodeCategory,
-               start: String,
-               end: String,
-               tagName: String): TagParser =
-      new TagParser(_ => tagCategory, start, end, literal(tagName))
-
-    def apply (tagCategory: CodeCategory,
-               start: String,
-               end: String): TagParser =
-      new TagParser(_ => tagCategory, start, end)
-  }
-
   /** Parses an empty tag (closed by `/>`) with optional attributes. */
-  val emptyTag: CodeSpanParser = TagParser(CodeCategory.Tag.Name, "<", "/>").embed(
+  val emptyTag: TagParser = TagParser(CodeCategory.Tag.Name, "<", "/>").embed(
     stringWithEntities,
     name(CodeCategory.AttributeName)
   )
 
   /** Parses a start tag with optional attributes. */
-  val startTag: CodeSpanParser = TagParser(CodeCategory.Tag.Name, "<", ">").embed(
+  val startTag: TagParser = TagParser(CodeCategory.Tag.Name, "<", ">").embed(
     stringWithEntities,
     name(CodeCategory.AttributeName)
   )
 
   /** Parses an end tag.
     */
-  val endTag: CodeSpanParser = TagParser(CodeCategory.Tag.Name, "</", ">")
+  val endTag: TagParser = TagParser(CodeCategory.Tag.Name, "</", ">")
   
+}
+
+/** Configurable base parser for tags in formats like HTML or XML. */
+case class TagParser(tagCategory: String => CodeCategory,
+                     start: String,
+                     end: String,
+                     tagName: PrefixedParser[String] = TagParser.nameParser.map(_.content),
+                     embedded: Seq[CodeSpanParser] = Nil) extends CodeParserBase {
+
+  private val categories: Set[CodeCategory] = Set(CodeCategory.Tag.Punctuation)
+
+  /** Embeds the specified parsers for child spans inside a tag.
+    *
+    * This is usually used for the detection of attribute names or entity references.
+    */
+  def embed(childSpans: CodeSpanParser*): TagParser = {
+    copy(embedded = embedded ++ childSpans)
+  }
+
+  def underlying: PrefixedParser[Seq[CodeSpan]] = {
+
+    val startParser = literal(start).asCode(CodeCategory.Tag.Punctuation)
+    val tagNameParser = tagName.map(name => CodeSpan(name, tagCategory(name)))
+    val delim = if (end == "/>") delimitedBy(end).failOn('>') else delimitedBy(end)
+
+    (startParser ~ tagNameParser ~ EmbeddedCodeSpans.parser(delim, embedded, categories)).map {
+      case startPunct ~ tagNameSpan ~ content =>
+        CodeSpans.merge(Seq(startPunct, tagNameSpan) ++ content :+ CodeSpan(end, categories))
+    }
+  }
+
+}
+
+object TagParser {
+  val nameParser: IdParser = Identifier.alphaNum.withIdStartChars('_',':').withIdPartChars('-','.')
+  
+  def apply (tagCategory: CodeCategory,
+             start: String,
+             end: String,
+             tagName: String): TagParser =
+    new TagParser(_ => tagCategory, start, end, literal(tagName))
+
+  def apply (tagCategory: CodeCategory,
+             start: String,
+             end: String): TagParser =
+    new TagParser(_ => tagCategory, start, end)
 }

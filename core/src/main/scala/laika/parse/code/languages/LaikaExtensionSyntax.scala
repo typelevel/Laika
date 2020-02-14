@@ -19,7 +19,7 @@ package laika.parse.code.languages
 import cats.data.NonEmptyList
 import laika.ast.{CodeSpan, ~}
 import laika.bundle.SyntaxHighlighter
-import laika.parse.code.common.{EmbeddedCodeSpans, Identifier, Keywords, StringLiteral}
+import laika.parse.code.common.{EmbeddedCodeSpans, Identifier, Keywords, StringLiteral, TagParser}
 import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.text.PrefixedParser
 import laika.parse.builders._
@@ -72,7 +72,7 @@ object LaikaExtensionSyntax {
     lazy val spanParsers: Seq[CodeSpanParser] = allExtensions ++ ReStructuredTextSyntax.spanParsers
   }
 
-  val enhancedStartTag: CodeSpanParser = HTMLSyntax.TagParser(CodeCategory.Tag.Name, "<", ">").embed(
+  val enhancedStartTag: CodeSpanParser = TagParser(CodeCategory.Tag.Name, "<", ">").embed(
     StringLiteral.singleLine('\'').embed(HTMLSyntax.ref, substitution),
     StringLiteral.singleLine('"').embed(HTMLSyntax.ref, substitution),
     HTMLSyntax.name(CodeCategory.AttributeName)
