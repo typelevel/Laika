@@ -428,7 +428,7 @@ class CommonSyntaxParserSpec extends WordSpec
       ))
     }
     
-    "ignore keywords when they are followed by more characters" in {
+    "ignore keywords when they are followed by more letters or digits" in {
       val input = "one foo1 bar2 four"
 
       Parsing(input) should produce (Seq(
@@ -437,6 +437,18 @@ class CommonSyntaxParserSpec extends WordSpec
         CodeSpan("foo1", CodeCategory.Identifier),
         CodeSpan(" "),
         CodeSpan("bar2", CodeCategory.Identifier),
+        CodeSpan(" "),
+        CodeSpan("four", CodeCategory.Identifier),
+      ))
+    }
+
+    "ignore keywords when they are preceded by letters or digits" in {
+      val input = "one 1foo bbar four"
+
+      Parsing(input) should produce (Seq(
+        CodeSpan("one", CodeCategory.Identifier),
+        CodeSpan(" 1foo "),
+        CodeSpan("bbar", CodeCategory.Identifier),
         CodeSpan(" "),
         CodeSpan("four", CodeCategory.Identifier),
       ))
