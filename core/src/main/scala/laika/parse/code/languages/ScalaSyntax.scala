@@ -68,6 +68,7 @@ object ScalaSyntax extends SyntaxHighlighter {
       charEscapes,
       substitutions
     ),
+    JavaSyntax.annotation,
     Keywords(BooleanLiteral)("true", "false"),
     Keywords(LiteralValue)("null"),
     keywords,

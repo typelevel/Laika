@@ -41,6 +41,7 @@ class LanguageSpec extends WordSpec with Matchers {
     val equals: CodeSpan = CodeSpan(" = ")
     val dot: CodeSpan = CodeSpan(".")
     
+    def annotation(value: String): CodeSpan = CodeSpan(s"@$value", Annotation)
     def keyword(value: String): CodeSpan = CodeSpan(value, Keyword)
     def id(value: String): CodeSpan = CodeSpan(value, Identifier)
     def typeName(value: String): CodeSpan = CodeSpan(value, TypeName)
@@ -87,7 +88,7 @@ class LanguageSpec extends WordSpec with Matchers {
         """#Doc
           |
           |```scala
-          |case class Foo (bar: Int, baz: String) {
+          |@Thing case class Foo (bar: Int, baz: String) {
           |
           |  val xx = "some \t value"
           |  
@@ -103,7 +104,7 @@ class LanguageSpec extends WordSpec with Matchers {
         """.stripMargin.replaceAllLiterally("+++", "\"\"\"")
       
       parse(input) shouldBe result("scala",
-        keyword("case"), space, keyword("class"), space, typeName("Foo"), 
+        annotation("Thing"), space, keyword("case"), space, keyword("class"), space, typeName("Foo"), 
         other(" ("), id("bar"), colonSpace, typeName("Int"), comma, id("baz"), colonSpace, typeName("String"), other(") {\n\n  "),
         keyword("val"), space, id("xx"), equals, string("\"some "), escape("\\t"), string(" value\""), other("\n  \n  "),
         keyword("lazy"), space, keyword("val"), space, id("`y-y`"), equals,
@@ -122,7 +123,7 @@ class LanguageSpec extends WordSpec with Matchers {
         """#Doc
           |
           |```java
-          |class Foo {
+          |@Thing class Foo {
           |
           |  private List<Object> xx = new List<Object>(true, null, 's', 0xff, "some \t value")
           |  
@@ -135,7 +136,7 @@ class LanguageSpec extends WordSpec with Matchers {
         """.stripMargin.replaceAllLiterally("+++", "\"\"\"")
 
       parse(input) shouldBe result("java",
-        keyword("class"), space, typeName("Foo"), other(" {\n\n  "),
+        annotation("Thing"), space, keyword("class"), space, typeName("Foo"), other(" {\n\n  "),
         keyword("private"), space, typeName("List"), other("<"), typeName("Object"), other("> "), id("xx"), equals,
         keyword("new"), space, typeName("List"), other("<"), typeName("Object"), other(">("),
         boolean("true"), comma, literal("null"), comma, char("'s'"), comma, number("0xff"), comma, 

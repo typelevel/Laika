@@ -18,8 +18,9 @@ package laika.parse.code.languages
 
 import cats.data.NonEmptyList
 import laika.bundle.SyntaxHighlighter
+import laika.parse.implicits._
 import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue, TypeName}
-import laika.parse.code.CodeSpanParser
+import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.code.common.{CharLiteral, Comment, Identifier, Keywords, NumberLiteral, NumericSuffix, StringLiteral}
 
 /**
@@ -28,6 +29,12 @@ import laika.parse.code.common.{CharLiteral, Comment, Identifier, Keywords, Numb
 object JavaSyntax extends SyntaxHighlighter {
 
   val language: NonEmptyList[String] = NonEmptyList.of("java")
+  
+  val annotation: CodeSpanParser = CodeSpanParser {
+    "@" ~> Identifier.alphaNum.withCategory(CodeCategory.Annotation).map { name => 
+      Seq(name.copy(content = "@" + name.content))
+    }
+  }
 
   val charEscapes: CodeSpanParser = 
     StringLiteral.Escape.unicode ++
@@ -39,6 +46,7 @@ object JavaSyntax extends SyntaxHighlighter {
     Comment.multiLine("/*", "*/"),
     CharLiteral.standard.embed(charEscapes),
     StringLiteral.singleLine('"').embed(charEscapes),
+    annotation,
     Keywords(BooleanLiteral)("true", "false"),
     Keywords(LiteralValue)("null"),
     Keywords(TypeName)("boolean", "byte", "char", "double", "float", "int", "long", "short"),

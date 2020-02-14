@@ -34,6 +34,7 @@ sealed trait CodeCategory extends Product with Serializable {
 object CodeCategory {
 
   case object Comment extends CodeCategory
+  case object Annotation extends CodeCategory
   case object Keyword extends CodeCategory
   case object BooleanLiteral extends CodeCategory
   case object NumberLiteral extends CodeCategory
