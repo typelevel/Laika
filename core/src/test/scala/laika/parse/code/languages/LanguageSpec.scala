@@ -474,6 +474,42 @@ class LanguageSpec extends WordSpec with Matchers {
         attrName("d e f"), equals, multiline("multiline\n          string"), other("\n}"),
       )
     }
+    
+    "parse an SQL document" in {
+      val input =
+        """# Doc
+          |
+          |```sql
+          |SELECT DISTINCT f.bar, f.baz
+          |  FROM Foo f
+          |  JOIN Bar b ON f.foo_id = b.bar_id
+          |  WHERE f.up = 'lol' AND f.down = 27;
+          |
+          |CREATE TABLE `baz`(
+          |  `BAZ_ID`         int(11),
+          |  `BAZ_NAME`       varchar(120),
+          |  `BAZ_VALID`      BOOLEAN,
+          |  PRIMARY KEY (`BAZ_ID`)
+          |);
+          |``` 
+        """.stripMargin
+
+      val dot = other(".")
+      val nlIndent = other("\n  ")
+      parse(input) shouldBe result("sql",
+        keyword("SELECT"), space, keyword("DISTINCT"), space, id("f"), dot, id("bar"), other(", "), id("f"), dot, id("baz"), nlIndent,
+        keyword("FROM"), space, id("Foo"), space, id("f"), nlIndent,
+        keyword("JOIN"), space, id("Bar"), space, id("b"), space, keyword("ON"), space,
+        id("f"), dot, id("foo_id"), equals, id("b"), dot, id("bar_id"), nlIndent,
+        keyword("WHERE"), space, id("f"), dot, id("up"), equals, string("'lol'"), space, 
+        keyword("AND"), space, id("f"), dot, id("down"), equals, number("27"), other(";\n\n"),
+        keyword("CREATE"), space, keyword("TABLE"), space, id("`baz`"), other("(\n  "),
+        id("`BAZ_ID`"), other("         "), typeName("int"), other("("), number("11"), other("),\n  "),
+        id("`BAZ_NAME`"), other("       "), typeName("varchar"), other("("), number("120"), other("),\n  "),
+        id("`BAZ_VALID`"), other("      "), typeName("BOOLEAN"), other(",\n  "),
+        keyword("PRIMARY"), space, keyword("KEY"), other(" ("), id("`BAZ_ID`"), other(")\n);")
+      )
+    }
 
     "parse a Markdown document" in new MarkupFormats {
       val input =
