@@ -54,6 +54,7 @@ class LanguageSpec extends WordSpec with Matchers {
     def literal(value: String): CodeSpan = CodeSpan(value, LiteralValue)
     def tagName(value: String): CodeSpan = CodeSpan(value, CodeCategory.Tag.Name)
     def attrName(value: String): CodeSpan = CodeSpan(value, CodeCategory.AttributeName)
+    def declName(value: String): CodeSpan = CodeSpan(value, CodeCategory.DeclarationName)
     def comment(value: String): CodeSpan = CodeSpan(value, CodeCategory.Comment)
     def other(value: String): CodeSpan = CodeSpan(value)
     def multiline(value: String): CodeSpan = string("\"\"\""+value+"\"\"\"")
@@ -590,6 +591,29 @@ class LanguageSpec extends WordSpec with Matchers {
         id("`BAZ_NAME`"), other("       "), typeName("varchar"), other("("), number("120"), other("),\n  "),
         id("`BAZ_VALID`"), other("      "), typeName("BOOLEAN"), other(",\n  "),
         keyword("PRIMARY"), space, keyword("KEY"), other(" ("), id("`BAZ_ID`"), other(")\n);")
+      )
+    }
+    
+    "parse an EBNF document" in {
+      val input =
+        """# Doc
+          |
+          |```ebnf
+          |FunType      ::=  FunArgTypes (‘=>’ | ‘?=>’) Type
+          |               |  HKTypeParamClause ‘=>’ Type
+          |FunArgTypes  ::=  InfixType
+          |               |  ‘(’ [ FunArgType {‘,’ FunArgType } ] ‘)’
+          |``` 
+        """.stripMargin
+
+      def lit(value: String): CodeSpan = string(s"‘$value’")
+      def punct(content: String): CodeSpan = CodeSpan(content, CodeCategory.Tag.Punctuation)
+      parse(input) shouldBe result("ebnf",
+        declName("FunType"), other("      "), punct("::="), other("  "), id("FunArgTypes"), other(" ("),
+        lit("=>"), other(" | "), lit("?=>"), other(") "), id("Type"), other("\n               |  "),
+        id("HKTypeParamClause"), space, lit("=>"), space, id("Type"), other("\n"),
+        declName("FunArgTypes"), other("  "), punct("::="), other("  "), id("InfixType"), other("\n               |  "),
+        lit("("), other(" [ "), id("FunArgType"), other(" {"), lit(","), space, id("FunArgType"), other(" } ] "), lit(")")
       )
     }
 

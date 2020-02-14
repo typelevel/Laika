@@ -56,6 +56,7 @@ case object SyntaxHighlighting extends ExtensionBundle { self =>
       HOCONSyntax,
       XMLSyntax,
       SQLSyntax,
+      EBNFSyntax,
       MarkdownSyntax,
       ReStructuredTextSyntax,
       LaikaExtensionSyntax.forMarkdown,

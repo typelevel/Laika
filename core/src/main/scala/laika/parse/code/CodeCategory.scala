@@ -47,6 +47,7 @@ object CodeCategory {
   case object Substitution extends CodeCategory
   case object TypeName extends CodeCategory
   case object AttributeName extends CodeCategory
+  case object DeclarationName extends CodeCategory
   case object Identifier extends CodeCategory
 
   /** Common categories for tag-based syntax such as HTML or XML. */
