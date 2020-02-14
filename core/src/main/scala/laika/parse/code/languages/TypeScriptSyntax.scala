@@ -20,7 +20,7 @@ import cats.data.NonEmptyList
 import laika.bundle.SyntaxHighlighter
 import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue, TypeName}
 import laika.parse.code.CodeSpanParser
-import laika.parse.code.common.{Comment, Identifier, Keywords, NumberLiteral, RegexLiteral, StringLiteral}
+import laika.parse.code.common._
 
 /**
   * @author Jens Halm
@@ -55,5 +55,16 @@ object TypeScriptSyntax extends SyntaxHighlighter {
     JavaScriptSyntax.number(NumberLiteral.decimalFloat),
     JavaScriptSyntax.number(NumberLiteral.decimalInt),
   )
+
+  object TSX extends SyntaxHighlighter {
+
+    val language: NonEmptyList[String] = NonEmptyList.of("tsx")
+    
+    lazy val spanParsers: Seq[CodeSpanParser] = TypeScriptSyntax.spanParsers ++ Seq(
+      JavaScriptSyntax.JSX.element,
+      JavaScriptSyntax.JSX.emptyJsxTag
+    )
+
+  }
   
 }

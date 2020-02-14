@@ -325,6 +325,49 @@ class LanguageSpec extends WordSpec with Matchers {
         id("setEditingName"), other("("), id("e"), dot, id("target"), dot, id("value"), other(");\n  };\n\n}")
       )
     }
+
+    "parse TSX code" in {
+      val input =
+        """#Doc
+          |
+          |```tsx
+          |import * as React from "react";
+          |
+          |interface Props {
+          |  initialUserName: string;
+          |  onNameUpdated: (newName: string) => any;
+          |}
+          |
+          |export const NameEditComponent = (props: Props) => {
+          |
+          |  const [editingName, setEditingName] = React.useState(props.initialUserName);
+          |
+          |  const tag = <div className="big"><Comp.Hello>See {props.foo}</Comp.Hello></div>;
+          |
+          |  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+          |    setEditingName(e.target.value);
+          |  };
+          |
+          |}
+          |```
+        """.stripMargin
+
+      val tags = new TagFormats {}
+      parse(input) shouldBe result("tsx",
+        keyword("import"), other(" * "), keyword("as"), space, id("React"), space, keyword("from"), space, string("\"react\""), other(";\n\n"),
+        keyword("interface"), space, id("Props"), other(" {\n  "),
+        id("initialUserName"), colonSpace, typeName("string"), other(";\n  "),
+        id("onNameUpdated"), other(": ("), id("newName"), colonSpace, typeName("string"), other(") => "), typeName("any"), other(";\n}\n\n"),
+        keyword("export"), space, keyword("const"), space, id("NameEditComponent"), other(" = ("), id("props"), colonSpace, id("Props"), other(") => {\n\n  "),
+        keyword("const"), other(" ["), id("editingName"), comma, id("setEditingName"), other("] = "),
+        id("React"), dot, id("useState"), other("("), id("props"), dot, id("initialUserName"), other(");\n\n  "),
+        keyword("const"), space, id("tag"), equals, tags.punct("<"), tagName("div"), tags.space, attrName("className"), tags.eq,
+        string("\"big\""), tags.punct("><"), typeName("Comp.Hello"), tags.punct(">"), other("See "), subst("{props.foo}"),
+        tags.punct("</"), typeName("Comp.Hello"), tags.punct("></"), tagName("div"), tags.punct(">"), other(";\n\n  "),
+        keyword("const"), space, id("onChange"), other(" = ("), id("e"), colonSpace, id("React"), dot, id("ChangeEvent"), other("<"), id("HTMLInputElement"), other(">) => {\n    "),
+        id("setEditingName"), other("("), id("e"), dot, id("target"), dot, id("value"), other(");\n  };\n\n}")
+      )
+    }
     
     "parse an XML document" in new TagFormats {
       val input =

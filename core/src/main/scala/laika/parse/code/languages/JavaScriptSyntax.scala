@@ -82,10 +82,7 @@ object JavaScriptSyntax extends SyntaxHighlighter {
     private def tagCategory(name: String): CodeCategory =
      if (name.head.isUpper) CodeCategory.TypeName else CodeCategory.Tag.Name
     
-    val orphanedTags: CodeSpanParser = 
-      tagParser(HTMLSyntax.emptyTag) ++ 
-      tagParser(HTMLSyntax.startTag) ++ 
-      tagParser(HTMLSyntax.endTag)
+    val emptyJsxTag: CodeSpanParser = tagParser(HTMLSyntax.emptyTag) 
 
     lazy val element: CodeSpanParser = CodeSpanParser {
 
@@ -104,7 +101,7 @@ object JavaScriptSyntax extends SyntaxHighlighter {
         )
         val embedded = Seq(
           CodeSpanParser.recursive(element),
-          orphanedTags,
+          emptyJsxTag,
           substitution
         )
         (EmbeddedCodeSpans.parser(delimitedBy(s"</$tagName"), embedded) ~ (ws ~ ">").source).map {
@@ -120,7 +117,7 @@ object JavaScriptSyntax extends SyntaxHighlighter {
 
     lazy val spanParsers: Seq[CodeSpanParser] = JavaScriptSyntax.spanParsers ++ Seq(
       element,
-      orphanedTags
+      emptyJsxTag
     )
     
   }

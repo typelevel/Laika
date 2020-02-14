@@ -88,7 +88,13 @@ object CodeSpanParser {
     */
   def onLineStart (category: CodeCategory)(parser: Parser[String]): CodeSpanParser = 
     onLineStart(parser.asCode(category).map(Seq(_)))
-  
+
+  /** Lazily initializes the specified parser for recursive application.
+    * 
+    * Standard constructors avoid the cost of by-name arguments, but this
+    * factory method can be used for the cases where recursive embedding of
+    * a syntax needs to occur.
+    */
   def recursive (parser: => CodeSpanParser): CodeSpanParser =
     new CodeSpanParser {
       lazy val parsers = parser.parsers
