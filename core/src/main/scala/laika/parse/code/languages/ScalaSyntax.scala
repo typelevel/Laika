@@ -47,6 +47,13 @@ object ScalaSyntax extends SyntaxHighlighter {
   val substitutions: CodeSpanParser = 
     StringLiteral.Substitution.between("${", "}") ++
     StringLiteral.Substitution(someOf(CharGroup.alphaNum.add('_')))
+
+  /** Keywords for both Scala2 and Dotty/Scala3
+    */
+  val keywords: CodeSpanParser = Keywords("abstract", "case", "catch", "class", "def", "else", "extends",
+    "finally", "final", "for", "if", "implicit", "import", "lazy", "match",
+    "new", "object", "override", "package", "private", "protected", "return", "sealed", "super",
+    "this", "throw", "trait", "try", "type", "yield", "val", "var", "while", "with")
   
   val spanParsers: Seq[CodeSpanParser] = Seq(
     Comment.singleLine("//"),
@@ -63,10 +70,8 @@ object ScalaSyntax extends SyntaxHighlighter {
     ),
     Keywords(BooleanLiteral)("true", "false"),
     Keywords(LiteralValue)("null"),
-    Keywords("abstract", "break", "case", "catch", "class", "continue", "default", "def", "else", "extends",
-      "finally", "final", "forSome", "for", "if", "implicit", "import", "lazy", "match",
-      "new", "object", "override", "package", "private", "protected", "return", "sealed", "super",
-      "this", "throw", "throws", "trait", "try", "type", "yield", "val", "var", "while", "with"),
+    keywords,
+    Keywords("break", "continue", "default", "forSome", "throws"), // keywords removed in Dotty/Scala3
     Identifier.alphaNum.withIdStartChars('_','$').withCategoryChooser(Identifier.upperCaseTypeName),
     NumberLiteral.hex.withUnderscores.withSuffix(NumericSuffix.long),
     NumberLiteral.decimalFloat.withUnderscores.withSuffix(NumericSuffix.float),
