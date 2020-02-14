@@ -125,14 +125,16 @@ class LanguageSpec extends WordSpec with Matchers {
           |```dotty
           |@Thing case class Foo (bar: Int, baz: String) {
           |
+          |  opaque type Xyz = Int
+          |
           |  given global as ExecutionContext = new ForkJoinPool()
           |
-          |  val xx = "some \t value"
+          |  inline val xx = "some \t value"
           |  
           |  lazy val `y-y` = +++line 1
           |    |line 2+++.stripMargin
           |  
-          |  def bag = Seq(true, null, 's', 0xff)
+          |  def bag(using ExecutionContext) = Seq(true, null, 's', 0xff)
           |  
           |  // just a short example
           |  
@@ -143,12 +145,14 @@ class LanguageSpec extends WordSpec with Matchers {
       parse(input) shouldBe result("dotty",
         annotation("Thing"), space, keyword("case"), space, keyword("class"), space, typeName("Foo"),
         other(" ("), id("bar"), colonSpace, typeName("Int"), comma, id("baz"), colonSpace, typeName("String"), other(") {\n\n  "),
-        keyword("given"), space, id("global"), space, id("as"), space, typeName("ExecutionContext"), equals, 
+        keyword("opaque"), space, keyword("type"), space, typeName("Xyz"), equals, typeName("Int"), other("\n\n  "),
+        keyword("given"), space, id("global"), space, keyword("as"), space, typeName("ExecutionContext"), equals, 
         keyword("new"), space, typeName("ForkJoinPool"), other("()\n\n  "),
-        keyword("val"), space, id("xx"), equals, string("\"some "), escape("\\t"), string(" value\""), other("\n  \n  "),
+        keyword("inline"), space, keyword("val"), space, id("xx"), equals, string("\"some "), escape("\\t"), string(" value\""), other("\n  \n  "),
         keyword("lazy"), space, keyword("val"), space, id("`y-y`"), equals,
         string("\"\"\"line 1\n    |line 2\"\"\""), dot, id("stripMargin"), other("\n  \n  "),
-        keyword("def"), space, id("bag"), equals, typeName("Seq"), other("("),
+        keyword("def"), space, id("bag"), other("("), keyword("using"), space, typeName("ExecutionContext"), 
+        other(") = "), typeName("Seq"), other("("),
         boolean("true"), comma, literal("null"), comma, char("'s'"), comma, number("0xff"), other(")\n  \n  "),
         comment("// just a short example\n"),
         other("  \n}")

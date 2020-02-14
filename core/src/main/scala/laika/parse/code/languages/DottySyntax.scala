@@ -18,7 +18,9 @@ package laika.parse.code.languages
 
 import cats.data.NonEmptyList
 import laika.bundle.SyntaxHighlighter
-import laika.parse.code.CodeSpanParser
+import laika.parse.builders._
+import laika.parse.implicits._
+import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.code.common.{CharLiteral, Keywords}
 
 /**
@@ -30,6 +32,20 @@ object DottySyntax extends SyntaxHighlighter {
 
   val language: NonEmptyList[String] = NonEmptyList.of("dotty")
 
+  /** Soft keywords would require too much context to be fully accurate.
+    * For example, we do not even attempt to detect inline matches.
+    * It should be sufficient to be right for the most basic cases.
+    */
+  val softKeywords: CodeSpanParser = CodeSpanParser(CodeCategory.Keyword) {
+    "opaque"    <~ lookAhead(ws ~ "type") |
+    "open"      <~ lookAhead(ws ~ "class") |
+    "as"        <~ lookAhead(ws ~ identifier) |
+    "derives"   <~ lookAhead(ws ~ identifier) |
+    "extension" <~ lookAhead(ws ~ opt(identifier ~ ws) ~ "on") |
+    "inline"    <~ lookAhead(ws ~ ("def" | "val" | "if")) |
+    "using"     <~ lookAhead(ws ~ identifier)
+  }
+
   val spanParsers: Seq[CodeSpanParser] = Seq(
     comment,
     CharLiteral.standard.embed(charEscapes),
@@ -39,6 +55,7 @@ object DottySyntax extends SyntaxHighlighter {
     JavaSyntax.annotation,
     keywords,
     Keywords("enum", "export", "given", "then"), // keywords added in Dotty/Scala3
+    softKeywords,
     identifier,
     numberLiteral
   )

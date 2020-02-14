@@ -23,6 +23,7 @@ import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.code.common.{CharLiteral, Comment, Identifier, Keywords, NumberLiteral, NumericSuffix, StringLiteral}
 import laika.parse.text.{CharGroup, PrefixedParser}
 import laika.parse.builders._
+import laika.parse.code.common.Identifier.IdParser
 
 /**
   * @author Jens Halm
@@ -74,7 +75,7 @@ object ScalaSyntax extends SyntaxHighlighter {
       "new", "object", "override", "package", "private", "protected", "return", "sealed", "super",
       "this", "throw", "trait", "try", "type", "yield", "val", "var", "while", "with")
   
-  val identifier: CodeSpanParser = Identifier.alphaNum
+  val identifier: IdParser = Identifier.alphaNum
     .withIdStartChars('_','$')
     .withCategoryChooser(Identifier.upperCaseTypeName)
   
