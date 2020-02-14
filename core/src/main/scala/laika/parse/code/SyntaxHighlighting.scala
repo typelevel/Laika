@@ -43,6 +43,7 @@ case object SyntaxHighlighting extends ExtensionBundle { self =>
   override def parsers: ParserBundle = ParserBundle(
     syntaxHighlighters = Seq(
       ScalaSyntax,
+      DottySyntax,
       JavaSyntax,
       PythonSyntax,
       TypeScriptSyntax,

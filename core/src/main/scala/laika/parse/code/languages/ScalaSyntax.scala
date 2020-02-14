@@ -32,11 +32,13 @@ object ScalaSyntax extends SyntaxHighlighter {
   
   val language: NonEmptyList[String] = NonEmptyList.of("scala")
   
-  val symbolParser: CodeSpanParser = Identifier.alphaNum
+  val comment: CodeSpanParser = Comment.singleLine("//") ++ Comment.multiLine("/*", "*/")
+  
+  val symbol: CodeSpanParser = Identifier.alphaNum
     .withPrefix(literal("'"))
     .withCategory(CodeCategory.SymbolLiteral)
   
-  val backtickIdParser: CodeSpanParser = CodeSpanParser(CodeCategory.Identifier) {
+  val backtickId: CodeSpanParser = CodeSpanParser(CodeCategory.Identifier) {
     (oneOf('`') ~ anyNot('\n', '`') ~ oneOf('`')).source
   }
   
@@ -47,36 +49,46 @@ object ScalaSyntax extends SyntaxHighlighter {
   val substitutions: CodeSpanParser = 
     StringLiteral.Substitution.between("${", "}") ++
     StringLiteral.Substitution(someOf(CharGroup.alphaNum.add('_')))
-
-  /** Keywords for both Scala2 and Dotty/Scala3
-    */
-  val keywords: CodeSpanParser = Keywords("abstract", "case", "catch", "class", "def", "else", "extends",
-    "finally", "final", "for", "if", "implicit", "import", "lazy", "match",
-    "new", "object", "override", "package", "private", "protected", "return", "sealed", "super",
-    "this", "throw", "trait", "try", "type", "yield", "val", "var", "while", "with")
   
-  val spanParsers: Seq[CodeSpanParser] = Seq(
-    Comment.singleLine("//"),
-    Comment.multiLine("/*", "*/"),
-    CharLiteral.standard.embed(charEscapes),
-    symbolParser,
-    backtickIdParser,
-    StringLiteral.multiLine("\"\"\""),
-    StringLiteral.multiLine((stringPrefixChar ~ "\"\"\"").source, literal("\"\"\"")).embed(substitutions),
-    StringLiteral.singleLine('"').embed(charEscapes),
+  val stringLiteral: CodeSpanParser = 
+    StringLiteral.multiLine("\"\"\"") ++
+    StringLiteral.multiLine((stringPrefixChar ~ "\"\"\"").source, literal("\"\"\"")).embed(substitutions) ++
+    StringLiteral.singleLine('"').embed(charEscapes) ++
     StringLiteral.singleLine((stringPrefixChar ~ "\"").source, literal("\"")).embed(
       charEscapes,
       substitutions
-    ),
+    )
+  
+  val numberLiteral: CodeSpanParser = 
+    NumberLiteral.hex.withUnderscores.withSuffix(NumericSuffix.long) ++
+    NumberLiteral.decimalFloat.withUnderscores.withSuffix(NumericSuffix.float) ++
+    NumberLiteral.decimalInt.withUnderscores.withSuffix(NumericSuffix.long | NumericSuffix.float)
+  
+  /** Keywords for both Scala2 and Dotty/Scala3
+    */
+  val keywords: CodeSpanParser = 
+    Keywords(BooleanLiteral)("true", "false") ++
+    Keywords(LiteralValue)("null") ++
+    Keywords("abstract", "case", "catch", "class", "def", "else", "extends",
+      "finally", "final", "for", "if", "implicit", "import", "lazy", "match",
+      "new", "object", "override", "package", "private", "protected", "return", "sealed", "super",
+      "this", "throw", "trait", "try", "type", "yield", "val", "var", "while", "with")
+  
+  val identifier: CodeSpanParser = Identifier.alphaNum
+    .withIdStartChars('_','$')
+    .withCategoryChooser(Identifier.upperCaseTypeName)
+  
+  val spanParsers: Seq[CodeSpanParser] = Seq(
+    comment,
+    CharLiteral.standard.embed(charEscapes),
+    symbol,
+    backtickId,
+    stringLiteral,
     JavaSyntax.annotation,
-    Keywords(BooleanLiteral)("true", "false"),
-    Keywords(LiteralValue)("null"),
     keywords,
     Keywords("break", "continue", "default", "forSome", "throws"), // keywords removed in Dotty/Scala3
-    Identifier.alphaNum.withIdStartChars('_','$').withCategoryChooser(Identifier.upperCaseTypeName),
-    NumberLiteral.hex.withUnderscores.withSuffix(NumericSuffix.long),
-    NumberLiteral.decimalFloat.withUnderscores.withSuffix(NumericSuffix.float),
-    NumberLiteral.decimalInt.withUnderscores.withSuffix(NumericSuffix.long | NumericSuffix.float),
+    identifier,
+    numberLiteral
   )
   
 }
