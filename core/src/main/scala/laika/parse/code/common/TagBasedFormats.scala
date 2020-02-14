@@ -61,7 +61,7 @@ trait TagBasedFormats {
       StringLiteral.singleLine('"').embed(ref)
 
   /** Configurable base parser for tags in formats like HTML or XML. */
-  case class TagParser(tagCategory: CodeCategory,
+  case class TagParser(tagCategory: String => CodeCategory,
                        start: String,
                        end: String,
                        tagName: PrefixedParser[String] = nameParser.map(_.content),
@@ -79,10 +79,8 @@ trait TagBasedFormats {
     
     def underlying: PrefixedParser[Seq[CodeSpan]] = {
       
-      def codeParser(p: PrefixedParser[String], category: CodeCategory): PrefixedParser[CodeSpan] = p.asCode(category)
-
-      val startParser = codeParser(literal(start), CodeCategory.Tag.Punctuation)
-      val tagNameParser = codeParser(tagName, tagCategory)
+      val startParser = literal(start).asCode(CodeCategory.Tag.Punctuation)
+      val tagNameParser = tagName.map(name => CodeSpan(name, tagCategory(name)))
       val delim = if (end == "/>") delimitedBy(end).failOn('>') else delimitedBy(end) 
 
       (startParser ~ tagNameParser ~ EmbeddedCodeSpans.parser(delim, embedded, categories)).map {
@@ -98,7 +96,12 @@ trait TagBasedFormats {
                start: String,
                end: String,
                tagName: String): TagParser =
-      new TagParser(tagCategory, start, end, literal(tagName))
+      new TagParser(_ => tagCategory, start, end, literal(tagName))
+
+    def apply (tagCategory: CodeCategory,
+               start: String,
+               end: String): TagParser =
+      new TagParser(_ => tagCategory, start, end)
   }
 
   /** Parses an empty tag (closed by `/>`) with optional attributes. */
