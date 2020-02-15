@@ -53,3 +53,7 @@ release/
 \#*#
 *~
 .#*
+
+# demo project
+node_modules/
+demo/src/main/resources/public/
