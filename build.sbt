@@ -62,6 +62,8 @@ val jTidy      = "net.sf.jtidy"           %  "jtidy"       % "r938"  % "test"
 val catsCore   = "org.typelevel"          %% "cats-core"   % "2.1.0"
 val catsEffect = "org.typelevel"          %% "cats-effect" % "2.0.0"
 val fop        = "org.apache.xmlgraphics" %  "fop"         % "2.3"
+val playJson   = "com.typesafe.play"      %% "play-json"   % "2.6.3"
+val akkaHttp   = "com.typesafe.akka"      %% "akka-http"   % "10.0.10"
 
 lazy val root = project.in(file("."))
   .aggregate(core, pdf, plugin)
@@ -109,4 +111,12 @@ lazy val plugin = project.in(file("sbt"))
     bintrayOrganization := None,
     scriptedLaunchOpts ++= Seq("-Xmx1024M", "-Dplugin.version=" + version.value),
     scriptedBufferLog := false
+  )
+
+lazy val demo = project.in(file("demo"))
+  .dependsOn(core)
+  .settings(basicSettings)
+  .settings(
+    name := "laika-demo",
+    libraryDependencies ++= Seq(akkaHttp, playJson)
   )
