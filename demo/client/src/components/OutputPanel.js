@@ -6,7 +6,7 @@ class OutputPanel extends Component {
   render() {
     return (
       <Panel kind="output" title={this.props.title}>
-        <div className="output" dangerouslySetInnerHTML={{__html: this.props.content}} />
+        <div className="render" dangerouslySetInnerHTML={{__html: this.props.content}} />
       </Panel>
     );
   }

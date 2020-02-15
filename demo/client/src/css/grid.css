@@ -1,17 +1,26 @@
 .row {
   width: 90%;
   height: 100%;
-  margin-top: 50px;
+  padding-top: 50px;
   margin-left: auto;
   margin-right: auto;
   text-align: center;
+  border: 3px solid red;
+  box-sizing: border-box;
+}
+
+#app {
+  border: 3px solid green;
+  height: 100%;
 }
 
 .left, .right {
   margin-left: auto;
   margin-right: auto;
   width: 48%;
+  height: 75%;
   text-align: center;
+  border: 3px solid cyan;
 }
 
 .left {

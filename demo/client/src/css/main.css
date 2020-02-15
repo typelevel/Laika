@@ -1,9 +1,14 @@
 
 @import url('http://fonts.googleapis.com/css?family=Ubuntu:400,700,400italic,700italic');
 
+html {
+  height: 100%;
+}
+
 body {
   display: block;
   position: relative;
+  height: 100%;
   font-family: 'Ubuntu', sans-serif;
 }
 
@@ -51,7 +56,7 @@ a:hover {
   top: 5px;
 }
 
-.output {
+.render {
   font-size: 15px;
   background-color: #006180;
   color: #ffffff;
@@ -62,6 +67,7 @@ a:hover {
   padding-left: 5px;
   padding-right: 5px;
   margin-bottom: -3px;
+  margin-top: 30px;
 
   box-sizing: border-box;
 
@@ -88,9 +94,14 @@ textarea {
   border-radius: 7px;
 }
 
+.panel {
+  height: 100%;
+}
+
 .panel-body {
+  padding: 4px;
   background-color: #ebf6f7;
-  border: 1px solid #c3d6d8;
+  border: 5px solid #c3d6d8;
   border-bottom-left-radius: 7px;
   border-bottom-right-radius: 7px;
 
@@ -98,13 +109,13 @@ textarea {
   margin: 0px;
   line-height: 20px;
   min-height: 20px;
+  height: calc(100% - 30px);
   word-wrap: break-word;
 }
 
-.input {
-  padding: 4px;
+/* .input {
   line-height: 17px;
-}
+} */
 
 pre {
   font-family: Monaco, Menlo, Consolas, "Courier New", monospace;

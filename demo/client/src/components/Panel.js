@@ -10,14 +10,12 @@ class Panel extends Component {
   render() {
     const bodyClasses = `panel-body ${this.props.kind}`;
     return (
-      <div>
+      <div className="panel">
         
         <TitleBar title={this.props.title} />
         
-        <div>
-          <div className={bodyClasses}>
-            {this.props.children}
-          </div>
+        <div className={bodyClasses}>
+          {this.props.children}
         </div>
 
       </div>  
