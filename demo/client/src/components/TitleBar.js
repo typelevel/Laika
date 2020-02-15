@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import '../css/icon.css'
 
 class TitleBar extends Component {
   render() {
