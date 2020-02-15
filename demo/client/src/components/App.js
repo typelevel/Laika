@@ -9,32 +9,38 @@ import logo from '../images/laika-top.png'
 
 class App extends Component {
 
-  emptyResultWithMessage = msg => { return {
-    rawTree: msg, 
-    rewrittenTree: '', 
-    html: ''
-  }}
-
   state = {
-    lastResult: this.emptyResultWithMessage('Transformation starts a second after you stop typing')
+    lastResult: "<p>Transformation starts a second after you stop typing.</p>",
+    selectedInputFormat: "md",
+    selectedOutputFormat: "html-rendered",
+    markupInput: ""
   }
 
-  handleResponse = response => { console.log(response); this.setState({lastResult: response.data})}
+  handleResponse = response => { 
+    console.log(`Received data: ${response.data}`); 
+    this.setState({ lastResult: response.data })
+  }
 
   handleError = error => { 
     console.log(error); 
     const msg = (error.response) ? `Status: ${error.response.status}` : 'Unable to call server'; 
-    this.setState({ lastResult: this.emptyResultWithMessage(`Server Error (${msg})`) }); 
+    this.setState({ lastResult: `<p>Server Error (${msg})</p>` }); 
+  }
+
+  fetchResult = () => {
+    console.log(`fetching result for format: ${this.state.selectedInputFormat}`);
+    const url = `/transform/${this.state.selectedInputFormat}/${this.state.selectedOutputFormat}`;
+    axios.post(url, this.state.markupInput, {responseType: 'text'}).then(this.handleResponse).catch(this.handleError);
   }
 
   handleInputChange = (format, input) => {
-    console.log(`fetching result for format: ${format} - input: ${input}`);
-    const url = `/transform/${format}`;
-    axios.post(url, input).then(this.handleResponse).catch(this.handleError);
+    console.log(`input format changed to: ${format}`)
+    this.setState({ selectedInputFormat: format, markupInput: input }, this.fetchResult)
   }
 
   handleOutputChange = format => {
     console.log(`output format changed to: ${format}`)
+    this.setState({ selectedOutputFormat: format }, this.fetchResult)
   }
 
   render() {
@@ -50,7 +56,7 @@ class App extends Component {
         </div>
         
         <div className="right">
-          <OutputPanel title="Output" content={lastResult.html} onChange={this.handleOutputChange}/>        
+          <OutputPanel title="Output" content={lastResult} onChange={this.handleOutputChange}/>        
         </div>          
       
       </div>
