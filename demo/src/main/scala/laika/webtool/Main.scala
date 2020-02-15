@@ -16,27 +16,29 @@
 
 package laika.webtool
 
-import akka.actor.ActorSystem
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.server.Directives._
-import akka.stream.ActorMaterializer
+import cats.effect.{Blocker, ExitCode, IO, IOApp, Resource}
+import cats.implicits._
+import org.http4s.implicits._
+import org.http4s.server.Server
+import org.http4s.server.blaze.BlazeServerBuilder
 
 /**
   * @author Jens Halm
   */
-object Main {
+object Main extends IOApp {
 
-  def main (args: Array[String]): Unit = {
+  private def service(blocker: Blocker) = 
+    (new StaticRoutes(blocker).all <+> TransformerRoutes.all <+> StatusRoutes.all).orNotFound
 
-    val serviceName = "Laika-Demo"
+  override def run(args: List[String]): IO[ExitCode] =
+    app.use(_ => IO.never).as(ExitCode.Success)
 
-    implicit val system = ActorSystem(serviceName)
-    implicit val mat = ActorMaterializer()
-
-    val routes = TransformerRoutes.all ~ StaticRoutes.all ~ StatusRoutes.all
-
-    Http().bindAndHandle(routes, "0.0.0.0", 8080)
-
-  }
-
+  val app: Resource[IO, Server[IO]] =
+    for {
+      blocker <- Blocker[IO]
+      server <- BlazeServerBuilder[IO]
+        .bindHttp(8080, "0.0.0.0")
+        .withHttpApp(service(blocker))
+        .resource
+    } yield server
 }

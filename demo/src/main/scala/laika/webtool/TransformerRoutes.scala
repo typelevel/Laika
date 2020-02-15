@@ -16,24 +16,30 @@
 
 package laika.webtool
 
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
-import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.Route
+import cats.effect.IO
+import laika.factory.MarkupFormat
 import laika.format.{Markdown, ReStructuredText}
+import org.http4s.HttpRoutes
+import org.http4s._
+import org.http4s.dsl.io._
+import org.http4s.headers.`Content-Type`
 
 /**
   * @author Jens Halm
   */
 object TransformerRoutes {
 
-  def all: Route = {
+  private def transform(format: MarkupFormat, body: IO[String]): IO[Response[IO]] = for {
+    input  <- body
+    result <- IO.fromEither(Transformer.transform(format, input))
+    resp   <- Ok(result)
+  } yield resp.withContentType(`Content-Type`(MediaType.application.json))
 
-    (post & path("transform" / Map("md" -> Markdown, "rst" -> ReStructuredText))) { format =>
-      entity(as[String]) { input =>
-        complete(HttpEntity(ContentTypes.`application/json`, Transformer.transform(format, input).toOption.get))
-      }
-    }
+  val all: HttpRoutes[IO] = HttpRoutes.of[IO] {
 
+    case req @ POST -> Root / "transform" / "md"  => transform(Markdown, req.as[String])
+    case req @ POST -> Root / "transform" / "rst" => transform(ReStructuredText, req.as[String])
+    
   }
 
 }

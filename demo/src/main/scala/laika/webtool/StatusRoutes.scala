@@ -16,9 +16,9 @@
 
 package laika.webtool
 
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
-import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.Route
+import cats.effect.IO
+import org.http4s.HttpRoutes
+import org.http4s.dsl.io._
 
 import scala.util.Properties
 
@@ -27,12 +27,10 @@ import scala.util.Properties
   */
 object StatusRoutes {
 
-  lazy val version = Properties.envOrElse("VERSION", "<unknown>")
+  private lazy val version = Properties.envOrElse("VERSION", "<unknown>")
 
-  val all: Route = {
-    (get & path("status")) {
-      complete(HttpEntity(ContentTypes.`text/plain(UTF-8)`, version))
-    }
+  val all: HttpRoutes[IO] = HttpRoutes.of[IO] {
+    case GET -> Root / "status" => Ok(version)
   }
 
 }

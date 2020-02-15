@@ -16,23 +16,26 @@
 
 package laika.webtool
 
-import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.Route
+import cats.effect.{Blocker, ContextShift, IO}
+import org.http4s.{HttpRoutes, Request, Response, StaticFile}
+import org.http4s.dsl.io._
 
 /**
   * @author Jens Halm
   */
-object StaticRoutes {
+class StaticRoutes(blocker: Blocker)(implicit cs: ContextShift[IO]) {
 
-  val all: Route = {
-    (pathEndOrSingleSlash & redirectToTrailingSlashIfMissing(StatusCodes.TemporaryRedirect)) {
-      getFromResource("public/index.html")
-    } ~ pathPrefix("bundle.js") {
-      getFromResource("public/bundle.js")
-    } ~ pathPrefix("assets") {
-      getFromResourceDirectory("public/assets")
-    }
+  def static(file: String, blocker: Blocker, request: Request[IO]): IO[Response[IO]] =
+    StaticFile.fromResource("/public/" + file, blocker, Some(request)).getOrElseF(NotFound())
+
+  val all: HttpRoutes[IO] = HttpRoutes.of[IO] {
+
+    case req @ GET -> Root => static("index.html", blocker, req)
+      
+    case req @ GET -> Root / "bundle.js" => static("bundle.js", blocker, req)
+      
+    case req @ GET -> Root / "assets" / file => static(s"assets/$file", blocker, req)
+    
   }
-
+  
 }

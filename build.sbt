@@ -63,7 +63,10 @@ val catsCore   = "org.typelevel"          %% "cats-core"   % "2.1.0"
 val catsEffect = "org.typelevel"          %% "cats-effect" % "2.0.0"
 val fop        = "org.apache.xmlgraphics" %  "fop"         % "2.3"
 val circe      = "io.circe"               %% "circe-core"  % "0.13.0"
-val akkaHttp   = "com.typesafe.akka"      %% "akka-http"   % "10.0.10"
+val http4s     = Seq(
+                   "org.http4s"           %% "http4s-dsl"  % "0.21.0",
+                   "org.http4s"           %% "http4s-blaze-server" % "0.21.0"
+                 )
 
 lazy val root = project.in(file("."))
   .aggregate(core, pdf, plugin)
@@ -118,5 +121,6 @@ lazy val demo = project.in(file("demo"))
   .settings(basicSettings)
   .settings(
     name := "laika-demo",
-    libraryDependencies ++= Seq(akkaHttp, circe)
+    libraryDependencies ++= (http4s :+ circe),
+    scalacOptions ++= Seq("-Ypartial-unification")
   )
