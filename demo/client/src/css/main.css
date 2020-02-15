@@ -64,7 +64,7 @@ a:hover {
   height: calc(100% - 80px);
   resize: none;
 
-  padding-left: 5px;
+  padding-left: 10px;
   padding-right: 5px;
   margin-bottom: -3px;
 
@@ -72,6 +72,9 @@ a:hover {
 
   border: 1px solid #c3d6d8;
   border-radius: 7px;
+
+  overflow-y: auto;
+  text-align: left;
 }
 
 textarea {
