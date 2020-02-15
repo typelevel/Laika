@@ -61,7 +61,8 @@ case object SyntaxHighlighting extends ExtensionBundle { self =>
       ReStructuredTextSyntax,
       LaikaExtensionSyntax.forMarkdown,
       LaikaExtensionSyntax.forRst,
-      LaikaExtensionSyntax.forHTML
+      LaikaExtensionSyntax.forHTML,
+      LaikaASTSyntax
     )
   )
 

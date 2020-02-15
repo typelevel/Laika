@@ -793,6 +793,33 @@ class LanguageSpec extends WordSpec with Matchers {
         punct("</"), tagName("html"), close
       )
     }
+
+    "parse a Laika AST document" in new TagFormats {
+      val input =
+        """# Doc
+          |
+          |```laika-ast
+          |RootElement - Blocks: 2
+          |. Title(Id(title) + Styles(title)) - Spans: 1
+          |. . Text - 'This is the Title'
+          |. Paragraph - Spans: 1
+          |. . Text - 'text|second line [...] the end'
+          |```
+        """.stripMargin
+
+      override def string(value: String): CodeSpan = CodeSpan(value, StringLiteral)
+      def header(content: String): CodeSpan = CodeSpan(content, CodeCategory.Markup.Headline)
+      val nl = other("\n")
+      parse(input) shouldBe result("laika-ast",
+        typeName("RootElement"), other(" - "), keyword("Blocks"), other(": "), number("2"), nl,
+        punct(". "), header("Title"), other("("), id("Id"), other("("), string("title"), other(") + "), 
+        id("Styles"), other("("), string("title"), other(")) - "), keyword("Spans"), other(": "), number("1"), nl,
+        punct(". . "), typeName("Text"), other(" - "), string("'This is the Title'"), nl,
+        punct(". "), typeName("Paragraph"), other(" - "), keyword("Spans"), other(": "), number("1"), nl,
+        punct(". . "), typeName("Text"), other(" - "), string("'text"), escape("|"), string("second line "),
+        punct("[...]"), string(" the end'")
+      )
+    }
         
   }
   

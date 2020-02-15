@@ -653,15 +653,17 @@ Transformer
   .to(AST)
   .build
   .transform(input)
+```
 
-/*
-res0: java.lang.String = Document - Blocks: 1
+The output for the small example above will have the following format:
+
+```laika-ast
+RootElement - Blocks: 1
 . Paragraph - Spans: 3
 . . Text - 'some '
 . . Emphasized - Spans: 1
 . . . Text - 'text'
 . . Text - ' example'
-*/
 ```
 
 Alternatively you can use the Render API to render an existing document:
