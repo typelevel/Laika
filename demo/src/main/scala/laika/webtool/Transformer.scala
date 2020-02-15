@@ -16,10 +16,8 @@
 
 package laika.webtool
 
-import io.circe.Json
-import io.circe.syntax._
 import laika.api.{MarkupParser, Renderer}
-import laika.ast.{CodeBlock, Document, Path}
+import laika.ast.{CodeBlock, Path}
 import laika.bundle.SyntaxHighlighter
 import laika.factory.MarkupFormat
 import laika.format.{AST, HTML, Markdown, ReStructuredText}
@@ -64,32 +62,5 @@ object Transformer {
     parsers(format).parse(input)
       .map(r => astRenderer.render(r.content))
       .flatMap(highlightAndRender(LaikaASTSyntax, _))
-
-  /** Note that in application code the transformation is usually done
-   *  in one line. Here we want to first obtain the raw document tree
-   *  and then rewrite it manually (which is usually performed automatically)
-   *  as we want to show both in the result.
-   */
-  def transform (format: MarkupFormat, input: String): Either[ParserError, String] = { // TODO - remove
-
-    val parser = MarkupParser.of(format).build
-    
-    for {
-      unresolvedDoc <- parser.parseUnresolved(input)
-      resolvedDoc   <- parser.parse(input)
-    } yield {
-
-      val html = Renderer.of(HTML).build.render(resolvedDoc).toString
-  
-      def jsonAST (doc: Document): Json = Json.fromString(doc.content.toString)
-      def jsonString (str: String): Json = Json.fromString(str.trim)
-  
-      Map(
-        "rawTree"       -> jsonAST(unresolvedDoc.document),
-        "rewrittenTree" -> jsonAST(resolvedDoc),
-        "html"          -> jsonString(html)
-      ).asJson.spaces2
-    }
-  }
 
 }

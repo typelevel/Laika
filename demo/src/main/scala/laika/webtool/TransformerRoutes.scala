@@ -50,12 +50,6 @@ object TransformerRoutes {
     }
   }
 
-  private def transform(format: MarkupFormat, body: IO[String]): IO[Response[IO]] = for {
-    input  <- body
-    result <- IO.fromEither(Transformer.transform(format, input))
-    resp   <- Ok(result)
-  } yield resp.withContentType(`Content-Type`(MediaType.application.json))
-
   private def transform(format: MarkupFormat, f: TransformFunction, body: IO[String]): IO[Response[IO]] = for {
     input  <- body
     result <- IO.fromEither(f(format, input))
@@ -63,9 +57,6 @@ object TransformerRoutes {
   } yield resp.withContentType(`Content-Type`(MediaType.text.html))
 
   val all: HttpRoutes[IO] = HttpRoutes.of[IO] {
-
-    case req @ POST -> Root / "transform" / "md"  => transform(Markdown, req.as[String]) // TODO - remove
-    case req @ POST -> Root / "transform" / "rst" => transform(ReStructuredText, req.as[String]) // TODO - remove
 
     case req @ POST -> Root / "transform" / InputFormat(inFormat) / OutputFormat(outFormat) =>
       transform(inFormat, outFormat, req.as[String])
