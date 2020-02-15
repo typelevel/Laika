@@ -19,8 +19,7 @@ package laika.webtool
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import laika.parse.markdown.Markdown
-import laika.parse.rst.ReStructuredText
+import laika.format.{Markdown, ReStructuredText}
 
 /**
   * @author Jens Halm
@@ -31,7 +30,7 @@ object TransformerRoutes {
 
     (post & path("transform" / Map("md" -> Markdown, "rst" -> ReStructuredText))) { format =>
       entity(as[String]) { input =>
-        complete(HttpEntity(ContentTypes.`application/json`, Transformer.transform(format, input)))
+        complete(HttpEntity(ContentTypes.`application/json`, Transformer.transform(format, input).toOption.get))
       }
     }
 

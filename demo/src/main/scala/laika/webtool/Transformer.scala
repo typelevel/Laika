@@ -16,11 +16,11 @@
 
 package laika.webtool
 
-import laika.api.{Parse, Render}
-import laika.factory.ParserFactory
-import laika.render.HTML
-import laika.rewrite.{DocumentCursor, RewriteRules}
-import laika.tree.Documents.Document
+import laika.api.{MarkupParser, Renderer}
+import laika.ast.Document
+import laika.factory.MarkupFormat
+import laika.format.HTML
+import laika.parse.markup.DocumentParser.ParserError
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.{prettyPrint, toJson}
 
@@ -34,23 +34,26 @@ object Transformer {
    *  and then rewrite it manually (which is usually performed automatically)
    *  as we want to show both in the result.
    */
-  def transform (format: ParserFactory, input: String): String = {
+  def transform (format: MarkupFormat, input: String): Either[ParserError, String] = {
 
-    val rawDoc = Parse.as(format).withoutRewrite.fromString(input)
-    val rules = RewriteRules.defaultsFor(format)(DocumentCursor(rawDoc))
+    val parser = MarkupParser.of(format).build
+    
+    for {
+      unresolvedDoc <- parser.parseUnresolved(input)
+      resolvedDoc   <- parser.parse(input)
+    } yield {
 
-    val rewrittenDoc = rawDoc.rewrite(rules)
-    val html = Render.as(HTML).from(rewrittenDoc).toString
-
-    def jsonAST (doc: Document): JsValue = jsonString(doc.content.toString)
-    def jsonString (str: String): JsValue = toJson(str.trim)
-
-    prettyPrint(toJson(Map(
-      "rawTree"       -> jsonAST(rawDoc),
-      "rewrittenTree" -> jsonAST(rewrittenDoc),
-      "html"          -> jsonString(html)
-    )))
+      val html = Renderer.of(HTML).build.render(resolvedDoc).toString
+  
+      def jsonAST (doc: Document): JsValue = jsonString(doc.content.toString)
+      def jsonString (str: String): JsValue = toJson(str.trim)
+  
+      prettyPrint(toJson(Map(
+        "rawTree"       -> jsonAST(unresolvedDoc.document),
+        "rewrittenTree" -> jsonAST(resolvedDoc),
+        "html"          -> jsonString(html)
+      )))
+    }
   }
-
 
 }

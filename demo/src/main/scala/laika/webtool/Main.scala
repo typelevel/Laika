@@ -28,7 +28,7 @@ object Main {
 
   def main (args: Array[String]): Unit = {
 
-    val serviceName = "Laika-Webtool"
+    val serviceName = "Laika-Demo"
 
     implicit val system = ActorSystem(serviceName)
     implicit val mat = ActorMaterializer()
