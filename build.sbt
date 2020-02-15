@@ -62,7 +62,7 @@ val jTidy      = "net.sf.jtidy"           %  "jtidy"       % "r938"  % "test"
 val catsCore   = "org.typelevel"          %% "cats-core"   % "2.1.0"
 val catsEffect = "org.typelevel"          %% "cats-effect" % "2.0.0"
 val fop        = "org.apache.xmlgraphics" %  "fop"         % "2.3"
-val playJson   = "com.typesafe.play"      %% "play-json"   % "2.6.3"
+val circe      = "io.circe"               %% "circe-core"  % "0.13.0"
 val akkaHttp   = "com.typesafe.akka"      %% "akka-http"   % "10.0.10"
 
 lazy val root = project.in(file("."))
@@ -118,5 +118,5 @@ lazy val demo = project.in(file("demo"))
   .settings(basicSettings)
   .settings(
     name := "laika-demo",
-    libraryDependencies ++= Seq(akkaHttp, playJson)
+    libraryDependencies ++= Seq(akkaHttp, circe)
   )

@@ -16,13 +16,13 @@
 
 package laika.webtool
 
+import io.circe.Json
+import io.circe.syntax._
 import laika.api.{MarkupParser, Renderer}
 import laika.ast.Document
 import laika.factory.MarkupFormat
 import laika.format.HTML
 import laika.parse.markup.DocumentParser.ParserError
-import play.api.libs.json.JsValue
-import play.api.libs.json.Json.{prettyPrint, toJson}
 
 /**
   * @author Jens Halm
@@ -45,14 +45,14 @@ object Transformer {
 
       val html = Renderer.of(HTML).build.render(resolvedDoc).toString
   
-      def jsonAST (doc: Document): JsValue = jsonString(doc.content.toString)
-      def jsonString (str: String): JsValue = toJson(str.trim)
+      def jsonAST (doc: Document): Json = Json.fromString(doc.content.toString)
+      def jsonString (str: String): Json = Json.fromString(str.trim)
   
-      prettyPrint(toJson(Map(
+      Map(
         "rawTree"       -> jsonAST(unresolvedDoc.document),
         "rewrittenTree" -> jsonAST(resolvedDoc),
         "html"          -> jsonString(html)
-      )))
+      ).asJson.spaces2
     }
   }
 
