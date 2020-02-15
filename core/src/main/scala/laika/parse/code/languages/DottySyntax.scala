@@ -53,6 +53,7 @@ object DottySyntax extends SyntaxHighlighter {
     backtickId,
     stringLiteral,
     JavaSyntax.annotation,
+    declaration,
     keywords,
     Keywords("enum", "export", "given", "then"), // keywords added in Dotty/Scala3
     softKeywords,

@@ -110,7 +110,7 @@ class LanguageSpec extends WordSpec with Matchers {
         keyword("val"), space, id("xx"), equals, string("\"some "), escape("\\t"), string(" value\""), other("\n  \n  "),
         keyword("lazy"), space, keyword("val"), space, id("`y-y`"), equals,
         string("\"\"\"line 1\n    |line 2\"\"\""), dot, id("stripMargin"), other("\n  \n  "),
-        keyword("def"), space, id("bag"), equals, typeName("Seq"), other("("), 
+        keyword("def"), space, declName("bag"), equals, typeName("Seq"), other("("), 
         boolean("true"), comma, literal("null"), comma, char("'s'"), comma, number("0xff"), other(")\n  \n  "),
         comment("// just a short example\n"),
         other("  \n}")
@@ -152,7 +152,7 @@ class LanguageSpec extends WordSpec with Matchers {
         keyword("inline"), space, keyword("val"), space, id("xx"), equals, string("\"some "), escape("\\t"), string(" value\""), other("\n  \n  "),
         keyword("lazy"), space, keyword("val"), space, id("`y-y`"), equals,
         string("\"\"\"line 1\n    |line 2\"\"\""), dot, id("stripMargin"), other("\n  \n  "),
-        keyword("def"), space, id("bag"), other("("), keyword("using"), space, typeName("ExecutionContext"), 
+        keyword("def"), space, declName("bag"), other("("), keyword("using"), space, typeName("ExecutionContext"), 
         other(") = "), typeName("Seq"), other("("),
         boolean("true"), comma, literal("null"), comma, char("'s'"), comma, number("0xff"), other(")\n  \n  "),
         comment("// just a short example\n"),

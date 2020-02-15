@@ -23,7 +23,9 @@ import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.code.common.{CharLiteral, Comment, Identifier, Keywords, NumberLiteral, NumericSuffix, StringLiteral}
 import laika.parse.text.{CharGroup, PrefixedParser}
 import laika.parse.builders._
+import laika.parse.implicits._
 import laika.parse.code.common.Identifier.IdParser
+import laika.parse.code.implicits._
 
 /**
   * @author Jens Halm
@@ -79,6 +81,12 @@ object ScalaSyntax extends SyntaxHighlighter {
     .withIdStartChars('_','$')
     .withCategoryChooser(Identifier.upperCaseTypeName)
   
+  val declaration: CodeSpanParser = CodeSpanParser {
+    val keyword = literal("def").asCode(CodeCategory.Keyword)
+    val name = identifier.withCategory(CodeCategory.DeclarationName)
+    (keyword ~ ws.asCode() ~ name).mapN { Seq(_,_,_) }
+  }
+  
   val spanParsers: Seq[CodeSpanParser] = Seq(
     comment,
     CharLiteral.standard.embed(charEscapes),
@@ -86,6 +94,7 @@ object ScalaSyntax extends SyntaxHighlighter {
     backtickId,
     stringLiteral,
     JavaSyntax.annotation,
+    declaration,
     keywords,
     Keywords("break", "continue", "default", "forSome", "throws"), // keywords removed in Dotty/Scala3
     identifier,
