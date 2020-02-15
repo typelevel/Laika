@@ -96,6 +96,8 @@ trait PrefixedParser[+T] extends Parser[T] { self =>
     */
   def | [U >: T] (p: => PrefixedParser[U]): PrefixedParser[U] = PrefixedParser(startChars ++ p.startChars)(super.orElse(p))
 
+  override def | (value: String)(implicit ev: T <:< String): PrefixedParser[String] = map(ev).orElse(TextParsers.literal(value))
+
   override def withSource: PrefixedParser[(T, String)] = PrefixedParser(startChars)(super.withSource)
 
   override def source: PrefixedParser[String] = PrefixedParser(startChars)(super.source)
