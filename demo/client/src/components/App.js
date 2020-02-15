@@ -33,6 +33,10 @@ class App extends Component {
     axios.post(url, input).then(this.handleResponse).catch(this.handleError);
   }
 
+  handleOutputChange = format => {
+    console.log(`output format changed to: ${format}`)
+  }
+
   render() {
     const lastResult = this.state.lastResult;
     return (
@@ -46,7 +50,7 @@ class App extends Component {
         </div>
         
         <div className="right">
-          <OutputPanel title="Output" content={lastResult.html} />        
+          <OutputPanel title="Output" content={lastResult.html} onChange={this.handleOutputChange}/>        
         </div>          
       
       </div>
