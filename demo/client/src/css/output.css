@@ -1,0 +1,65 @@
+
+.output a {
+  color: #931813;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.output a:hover {
+  text-decoration: underline;
+}
+
+.output h1, .output h2, .output h3, .output h4, .output h5, .output h6 {
+  color: #006180;
+  background-color: #ebf6f7;
+  font-weight: bold;
+  text-align: left;
+  padding-left: 7px;
+}
+
+.output h1 {
+  font-size: 19px;
+}
+.output h2 {
+  font-size: 18px;
+}
+.output h3 {
+  font-size: 17px;
+}
+.output h4 {
+  font-size: 16px;
+}
+.output h5 {
+  font-size: 15px;
+}
+.output h6 {
+  font-size: 15px;
+}
+
+.output ol.lowerroman {
+  list-style-type:lower-roman
+}
+
+.output ol.upperroman {
+  list-style-type:upper-roman
+}
+
+.output ol.loweralpha {
+  list-style-type:lower-alpha
+}
+
+.output ol.upperalpha {
+  list-style-type:upper-alpha
+}
+
+.output pre {
+  background-color: white;
+  
+  border-top-left-radius: 7px;
+  border-top-right-radius: 7px;
+}
+
+.output blockquote {
+  font-style: italic;
+}
+

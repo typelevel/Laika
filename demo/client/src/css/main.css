@@ -1,0 +1,155 @@
+
+@import url('http://fonts.googleapis.com/css?family=Ubuntu:400,700,400italic,700italic');
+
+body {
+  display: block;
+  position: relative;
+  font-family: 'Ubuntu', sans-serif;
+}
+
+h2 {
+  color: #006180;
+  font-size: 18px;
+  margin-top: 0px;
+  margin-bottom: 18px;
+  font-weight: normal;
+}
+
+a {
+  text-decoration: none;
+  cursor: default;
+}
+
+a:hover {
+  color: #006180;
+}
+
+.title-bar {
+  font-family: 'Ubuntu', sans-serif;
+  font-weight: normal;
+  
+  text-align: center;
+  color: #fff;
+  background-color: #006180;
+  font-size: 18px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  
+  border-top-left-radius: 7px;
+  border-top-right-radius: 7px;
+
+  position: relative;
+  height: 20px;
+}
+
+.title-text {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  top: 5px;
+}
+
+.collapse-button {
+  position: absolute;
+  text-align: right;
+  width: 10px;
+  right: 14px;
+  top: 5px;
+}
+
+textarea {
+  color: #006180;
+  font-family: Monaco, Menlo, Consolas, "Courier New", monospace;
+  font-size: 13px;
+
+  width: 100%;
+  height: 280px;
+  resize: none;
+
+  padding-left: 5px;
+  padding-right: 5px;
+  margin-bottom: -3px;
+
+  box-sizing: border-box;
+
+  border: 1px solid #c3d6d8;
+  border-radius: 7px;
+}
+
+.panel-body {
+  background-color: #ebf6f7;
+  border: 1px solid #c3d6d8;
+  border-bottom-left-radius: 7px;
+  border-bottom-right-radius: 7px;
+
+  padding: 0 12px 0 12px;
+  margin: 0px;
+  line-height: 20px;
+  min-height: 20px;
+  word-wrap: break-word;
+}
+
+.collapsible {
+  position: relative;
+  overflow: hidden;
+  transition: height .35s ease;
+}
+
+.input {
+  padding: 4px;
+  line-height: 17px;
+}
+
+.docs {
+  font-size: 14px;
+  text-align: left;
+  padding-top: 6px;
+}
+
+.docs a {
+  font-weight: bold;
+  color: #931813;
+  cursor: pointer;
+}
+
+.docs a:hover {
+  text-decoration: underline;
+}
+
+pre {
+  font-family: Monaco, Menlo, Consolas, "Courier New", monospace;
+  color: #006180;
+  font-size: 13px;
+}
+
+.output {
+  font-size: 15px;
+  color: #006180;
+}
+
+.bottom-panel {
+  margin-top: 10px;
+}
+
+.counter {
+  text-align: right;
+  margin-top: 3px;
+  padding-right: 3px;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  color: #006180;
+  font-size: 12px;
+  width: auto;
+}
+
+.red {
+  background-color: #931813;
+  color: #fff;
+  padding: 1px;
+  padding-bottom: 2px;
+  padding-right: 3px;
+  
+  border-radius: 3px;
+}
