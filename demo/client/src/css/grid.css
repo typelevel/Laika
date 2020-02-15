@@ -1,39 +1,32 @@
 .row {
-  width: 1526px;
-  margin-top: 150px;
+  width: 90%;
+  height: 100%;
+  margin-top: 50px;
   margin-left: auto;
   margin-right: auto;
-}
-
-.left, .middle, .right {
-  float: left;
-  width: 480px;
-}
-
-.left {
   text-align: center;
 }
 
-.middle, .right {
-  margin-left: 40px;
+.left, .right {
+  margin-left: auto;
+  margin-right: auto;
+  width: 48%;
+  text-align: center;
 }
 
-.middle-right {
+.left {
   float: left;
 }
 
-.right {
+.right { 
   float: right;
 }
 
+/*
 @media (max-width: 1536px) {
   .right {
     float: none;
     margin-left: 0px;
-  }
-    
-  .middle {
-    float: none;
   }
     
   .row {
@@ -48,13 +41,8 @@
 }
   
 @media (max-width: 1016px) {
-  .middle-right {
-    float: none;
-    margin-left: 0px;
-    margin-top: 10px;
-  }
   
-  .middle, .right {
+  .right {
     margin-left: 0px;
   }
     
@@ -68,3 +56,4 @@
   }
     
 }
+*/

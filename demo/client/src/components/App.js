@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import DocPanel from './DocPanel'
 import InputPanel from './InputPanel'
-import TextPanel from './TextPanel'
-import HtmlPanel from './HtmlPanel';
+import OutputPanel from './OutputPanel';
 import '../css/grid.css';
 import '../css/main.css'; 
 import logo from '../images/laika-top.png'
@@ -39,27 +37,18 @@ class App extends Component {
     const lastResult = this.state.lastResult;
     return (
       <div className="row">
+
+        <img src={logo}/>
+        <h2>Transformer Demo App</h2>
  
         <div className="left">
-          <img src={logo}/>
-          <h2>Transformer Webtool</h2>
-
           <InputPanel onChange={this.handleInputChange}/>
-          <DocPanel />
         </div>
         
-        <div className="middle-right">
+        <div className="right">
+          <OutputPanel title="Output" content={lastResult.html} />        
+        </div>          
       
-          <div className="middle">    
-            <TextPanel title="Raw Document Tree Model" content={lastResult.rawTree} />
-            <TextPanel title="Rewritten Document Tree Model" content={lastResult.rewrittenTree} bottom />          
-          </div>
-          
-          <div className="right">        
-            <TextPanel title="HTML Source" content={lastResult.html} />
-            <HtmlPanel title="Rendered HTML" content={lastResult.html} />        
-          </div>          
-        </div>
       </div>
     );    
   }
