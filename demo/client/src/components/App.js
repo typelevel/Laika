@@ -13,12 +13,13 @@ class App extends Component {
     lastResult: "<p>Transformation starts a second after you stop typing.</p>",
     selectedInputFormat: "md",
     selectedOutputFormat: "html-rendered",
+    renderedOutputFormat: "html-rendered",
     markupInput: ""
   }
 
   handleResponse = response => { 
     console.log(`Received data: ${response.data}`); 
-    this.setState({ lastResult: response.data })
+    this.setState({ lastResult: response.data, renderedOutputFormat: this.state.selectedOutputFormat })
   }
 
   handleError = error => { 
@@ -56,7 +57,7 @@ class App extends Component {
         </div>
         
         <div className="right">
-          <OutputPanel title="Output" content={lastResult} onChange={this.handleOutputChange}/>        
+          <OutputPanel title="Output" content={lastResult} renderedOutputFormat={this.state.renderedOutputFormat} onChange={this.handleOutputChange}/>        
         </div>          
       
       </div>

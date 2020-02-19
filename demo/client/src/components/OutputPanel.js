@@ -6,7 +6,7 @@ import '../css/output.css';
 class OutputPanel extends Component {
 
   state = {
-    selectedOutput: "html-rendered"
+    selectedOutputFormat: "html-rendered"
   }
 
   formats = [
@@ -16,15 +16,15 @@ class OutputPanel extends Component {
     { value: "ast-unresolved", display: "Unresolved AST" }
   ]
 
-  fireEvent = () => { this.props.onChange(this.state.selectedOutput) }
+  fireEvent = () => { this.props.onChange(this.state.selectedOutputFormat) }
 
-  handleFormatChange = newFormat => { this.setState({ selectedOutput: newFormat }, this.fireEvent); }
+  handleFormatChange = newFormat => { this.setState({ selectedOutputFormat: newFormat }, this.fireEvent); }
 
   render() {
     return (
       <Panel kind="output" title={this.props.title}>
-        <ButtonGroup items={this.formats} value={this.state.selectedOutput} onChange={this.handleFormatChange}/>
-        <div className={`render ${this.state.selectedOutput}`} dangerouslySetInnerHTML={{__html: this.props.content}} />
+        <ButtonGroup items={this.formats} value={this.state.selectedOutputFormat} onChange={this.handleFormatChange}/>
+        <div className={`render ${this.props.renderedOutputFormat}`} dangerouslySetInnerHTML={{__html: this.props.content}} />
       </Panel>
     );
   }
