@@ -121,6 +121,7 @@ lazy val demo = project.in(file("demo"))
   .settings(basicSettings)
   .settings(
     name := "laika-demo",
+    version := "0.14.0.1",
     libraryDependencies ++= http4s,
     scalacOptions ++= Seq("-Ypartial-unification"),
     javaOptions in Universal ++= Seq(
