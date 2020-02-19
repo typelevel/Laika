@@ -17,7 +17,7 @@
 package laika.webtool
 
 import laika.api.{MarkupParser, Renderer}
-import laika.ast.{CodeBlock, Path}
+import laika.ast.{CodeBlock, Paragraph, Path, Styles}
 import laika.bundle.SyntaxHighlighter
 import laika.factory.MarkupFormat
 import laika.format.{AST, HTML, Markdown, ReStructuredText}
@@ -36,8 +36,19 @@ object Transformer {
     ReStructuredText -> MarkupParser.of(ReStructuredText).using(SyntaxHighlighting).build
   )
   
-  private val htmlRenderer = Renderer.of(HTML).build
   private val astRenderer = Renderer.of(AST).build
+  
+  private val htmlRenderer = Renderer.of(HTML).build
+  
+  private val htmlSourceRenderer = Renderer.of(HTML)
+    .rendering {
+      case (fmt, Paragraph(content,opt)) => 
+        fmt.indentedElement("p", opt, content)
+        
+      case (fmt, cb@CodeBlock(lang,content,opt)) => 
+        val codeStyles = if (cb.hasSyntaxHighlighting) Styles("nohighlight") else Styles(lang)
+        "<pre>" + fmt.indentedElement("code", codeStyles, content) + "</pre>"
+    }.build
 
   private def highlightAndRender (highlighter: SyntaxHighlighter, src: String): Either[ParserError, String] =
     highlighter.rootParser
@@ -45,13 +56,15 @@ object Transformer {
       .left.map(msg => ParserError(msg, Path.Root))
       .map(CodeBlock(highlighter.language.head, _))
       .map(htmlRenderer.render)
-  
+
+  private def transformToRenderedHTML (format: MarkupFormat, input: String, renderer: Renderer): Either[ParserError, String] =
+    parsers(format).parse(input).map(renderer.render)
   
   def transformToRenderedHTML (format: MarkupFormat, input: String): Either[ParserError, String] =
-    parsers(format).parse(input).map(htmlRenderer.render)
+    transformToRenderedHTML(format, input, htmlRenderer)
   
   def transformToHTMLSource (format: MarkupFormat, input: String): Either[ParserError, String] =
-    transformToRenderedHTML(format, input).flatMap(highlightAndRender(HTMLSyntax, _))
+    transformToRenderedHTML(format, input, htmlSourceRenderer).flatMap(highlightAndRender(HTMLSyntax, _))
   
   def transformToUnresolvedAST (format: MarkupFormat, input: String): Either[ParserError, String] =
     parsers(format).parseUnresolved(input)
