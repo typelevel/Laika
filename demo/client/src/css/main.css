@@ -79,6 +79,7 @@ a:hover {
 }
 .html-rendered {
   background-color: #ffffff;
+  overflow-x: hidden;
 }
 
 textarea {
