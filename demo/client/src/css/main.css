@@ -1,5 +1,6 @@
 
 @import url('http://fonts.googleapis.com/css?family=Ubuntu:400,700,400italic,700italic');
+@import url('https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css');
 
 html {
   height: 100%;
@@ -84,8 +85,8 @@ a:hover {
 
 textarea {
   color: #006180;
-  font-family: Monaco, Menlo, Consolas, "Courier New", monospace;
-  font-size: 13px;
+  font-family: "Fira Code", monospace;
+  font-size: 14px;
 
   width: 100%;
   height: calc(100% - 80px);
@@ -120,16 +121,6 @@ textarea {
   min-height: 20px;
   height: calc(100% - 30px);
   word-wrap: break-word;
-}
-
-/* .input {
-  line-height: 17px;
-} */
-
-pre {
-  font-family: Monaco, Menlo, Consolas, "Courier New", monospace;
-  color: #006180;
-  font-size: 13px;
 }
 
 .counter {

@@ -1,19 +1,13 @@
 
-.output a {
-  color: #931813;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.output a:hover {
-  text-decoration: underline;
+.output {
+  color: #5f5f5f;
 }
 
 .output h1, .output h2, .output h3, .output h4, .output h5, .output h6 {
   color: #006180;
   font-weight: bold;
   text-align: left;
-  padding-left: 7px;
+  padding-left: 5px;
 }
 
 .output h1 {
@@ -28,10 +22,7 @@
 .output h4 {
   font-size: 16px;
 }
-.output h5 {
-  font-size: 15px;
-}
-.output h6 {
+.output h5, .output h6 {
   font-size: 15px;
 }
 
@@ -48,41 +39,32 @@ tbody tr:nth-child(odd) {
 thead tr, tbody tr:nth-child(even) {
   background-color: #ebf6f7;
 }
-
 th {
   padding: 7px;
 }
-
 td {
   padding: 7px;
 }
 
 .output a {
+  cursor: pointer;
   color: #931813;
   font-weight: bold;
 }
 .output a:hover {
   color: #931813;
-}
-.output h1, h2, h3, h4, h5, h6 {
-  color: #931813;
-}
-.output {
-  color: #5f5f5f;
+  text-decoration: underline;
 }
 
 .output ol.lowerroman {
   list-style-type:lower-roman
 }
-
 .output ol.upperroman {
   list-style-type:upper-roman
 }
-
 .output ol.loweralpha {
   list-style-type:lower-alpha
 }
-
 .output ol.upperalpha {
   list-style-type:upper-alpha
 }
@@ -107,20 +89,17 @@ td {
 }
 code {
   color: #006180;
-  border: 1px solid #c3d6d8;
   background-color: #ebf6f7;
+  border: 1px solid #c3d6d8;
   border-radius: 5px;
   font-family: 'Fira Code', monospace;
   font-size: 13px;
 }
 pre code {
+  color: #e8e8e8;
   background-color: #2a3236;
   border-style: none;
-  color: #e8e8e8;
   font-size: 14px;
-}
-code .keyword-intellij {
-  color: #cc7832;
 }
 code .keyword, .escape-sequence {
   color: #ef9725;
@@ -131,21 +110,17 @@ code .type-name, code .tag-name {
 code .attribute-name, code .declaration-name {
   color: #ffc66d;
 }
-code .identifier-1 {
-  color: #f3d6b5;
-}
-code .identifier-2 {
-  color: #c2e1f3;
-}
 code .identifier {
   color: #bddcee;
 }
-code .number-literal-ij, .string-literal-ij, .literal-value-ij, .boolean-literal-ij, code .markup-link-text {
+code .number-literal, .string-literal, .literal-value, .boolean-literal, .char-literal {
+  color: #7fb971;
+}
+code .markup-link-text {
   color: #65A861;
 }
-code .number-literal, .string-literal, .literal-value, .boolean-literal, .char-literal {
-  /*color: #7abd76;*/
-  color: #7fb971;
+code .markup-link-target {
+  color: #c1d225;
 }
 code .markup-headline {
   color: #bb88d2;
@@ -153,14 +128,8 @@ code .markup-headline {
 code .markup-emphasized {
   color: #d27b84;
 }
-code .markup-link-target {
-  color: #c1d225;
-}
 code .substitution {
   color: #e28e93;
-}
-code .xml-tag-name-1 {
-  color: #98a3ee;
 }
 code .tag-punctuation {
   color: #b2adb4;

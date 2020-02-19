@@ -26,43 +26,6 @@
 .left {
   float: left;
 }
-
 .right { 
   float: right;
 }
-
-/*
-@media (max-width: 1536px) {
-  .right {
-    float: none;
-    margin-left: 0px;
-  }
-    
-  .row {
-    width: 1006px;
-  }
-    
-  .right {
-    margin-top: 10px;
-    margin-left: 40px;
-  }
-    
-}
-  
-@media (max-width: 1016px) {
-  
-  .right {
-    margin-left: 0px;
-  }
-    
-  .left {
-    float: none;
-  }
-    
-  .row {
-    width: 480px;
-    margin-top: 30px;
-  }
-    
-}
-*/
