@@ -11,7 +11,6 @@
 
 .output h1, .output h2, .output h3, .output h4, .output h5, .output h6 {
   color: #006180;
-  background-color: #ebf6f7;
   font-weight: bold;
   text-align: left;
   padding-left: 7px;
@@ -69,7 +68,7 @@
 
 .output blockquote {
   font-style: italic;
-  margin-left: 10px;
+  margin-left: 15px;
 }
 
 .output pre {
@@ -79,9 +78,9 @@
   border-top-right-radius: 7px;
 }
 .html-rendered pre {
+  background-color: #2a3236;
   border-radius: 5px;
-  padding-left: 15px;
-  padding-right: 10px;
+  padding: 7px 15px;
   box-sizing: border-box;
 }
 code {
@@ -107,7 +106,7 @@ code .keyword, .escape-sequence {
 code .type-name, code .tag-name {
   color: #4dbed4;
 }
-code .attribute-name {
+code .attribute-name, code .declaration-name {
   color: #ffc66d;
 }
 code .identifier-1 {
@@ -125,6 +124,9 @@ code .number-literal-ij, .string-literal-ij, .literal-value-ij, .boolean-literal
 code .number-literal, .string-literal, .literal-value, .boolean-literal, .char-literal {
   /*color: #7abd76;*/
   color: #7fb971;
+}
+code .markup-headline {
+  color: #bb88d2;
 }
 code .markup-emphasized {
   color: #d27b84;

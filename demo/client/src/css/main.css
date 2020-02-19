@@ -58,13 +58,11 @@ a:hover {
 
 .render {
   font-size: 15px;
-  color: #ffffff;
   width: 100%;
   height: calc(100% - 80px);
   resize: none;
 
-  padding-left: 10px;
-  padding-right: 5px;
+  padding: 7px 15px;
   margin-bottom: -3px;
 
   box-sizing: border-box;
