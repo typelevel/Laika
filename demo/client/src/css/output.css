@@ -35,6 +35,28 @@
   font-size: 15px;
 }
 
+table {
+  border-spacing: 0;
+  border-collapse: collapse;
+}
+table, th, td {
+  border: 1px solid #c3d6d8;
+}
+tbody tr:nth-child(odd) {
+  background-color: #ffffff;
+}
+thead tr, tbody tr:nth-child(even) {
+  background-color: #ebf6f7;
+}
+
+th {
+  padding: 7px;
+}
+
+td {
+  padding: 7px;
+}
+
 .output a {
   color: #931813;
   font-weight: bold;
