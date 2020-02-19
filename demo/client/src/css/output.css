@@ -18,10 +18,10 @@
 }
 
 .output h1 {
-  font-size: 19px;
+  font-size: 24px;
 }
 .output h2 {
-  font-size: 18px;
+  font-size: 20px;
 }
 .output h3 {
   font-size: 17px;
@@ -34,6 +34,21 @@
 }
 .output h6 {
   font-size: 15px;
+}
+
+.output a {
+  color: #931813;
+  font-weight: bold;
+}
+.output a:hover {
+  color: #931813;
+}
+.output h1, h2, h3, h4, h5, h6 {
+  color: #931813;
+}
+.output {
+  color: #5f5f5f;
+  overflow: scroll;
 }
 
 .output ol.lowerroman {
@@ -52,14 +67,80 @@
   list-style-type:upper-alpha
 }
 
+.output blockquote {
+  font-style: italic;
+  margin-left: 10px;
+}
+
 .output pre {
-  background-color: white;
-  
+  color: #ffffff;
+  width: 100%;
   border-top-left-radius: 7px;
   border-top-right-radius: 7px;
 }
-
-.output blockquote {
-  font-style: italic;
+.html-rendered pre {
+  border-radius: 5px;
+  padding-left: 15px;
+  padding-right: 10px;
+  box-sizing: border-box;
 }
-
+code {
+  color: #006180;
+  border: 1px solid #c3d6d8;
+  background-color: #ebf6f7;
+  border-radius: 5px;
+  font-family: 'Fira Code', monospace;
+  font-size: 13px;
+}
+pre code {
+  background-color: #2a3236;
+  border-style: none;
+  color: #e8e8e8;
+  font-size: 14px;
+}
+code .keyword-intellij {
+  color: #cc7832;
+}
+code .keyword, .escape-sequence {
+  color: #ef9725;
+}
+code .type-name, code .tag-name {
+  color: #4dbed4;
+}
+code .attribute-name {
+  color: #ffc66d;
+}
+code .identifier-1 {
+  color: #f3d6b5;
+}
+code .identifier-2 {
+  color: #c2e1f3;
+}
+code .identifier {
+  color: #bddcee;
+}
+code .number-literal-ij, .string-literal-ij, .literal-value-ij, .boolean-literal-ij, code .markup-link-text {
+  color: #65A861;
+}
+code .number-literal, .string-literal, .literal-value, .boolean-literal, .char-literal {
+  /*color: #7abd76;*/
+  color: #7fb971;
+}
+code .markup-emphasized {
+  color: #d27b84;
+}
+code .markup-link-target {
+  color: #c1d225;
+}
+code .substitution {
+  color: #e28e93;
+}
+code .xml-tag-name-1 {
+  color: #98a3ee;
+}
+code .tag-punctuation {
+  color: #b2adb4;
+}
+code .comment {
+  color: #8c878e;
+}

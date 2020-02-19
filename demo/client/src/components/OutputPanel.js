@@ -24,7 +24,7 @@ class OutputPanel extends Component {
     return (
       <Panel kind="output" title={this.props.title}>
         <ButtonGroup items={this.formats} value={this.state.selectedOutput} onChange={this.handleFormatChange}/>
-        <div className="render" dangerouslySetInnerHTML={{__html: this.props.content}} />
+        <div className={`render ${this.state.selectedOutput}`} dangerouslySetInnerHTML={{__html: this.props.content}} />
       </Panel>
     );
   }

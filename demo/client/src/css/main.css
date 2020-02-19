@@ -58,7 +58,6 @@ a:hover {
 
 .render {
   font-size: 15px;
-  background-color: #006180;
   color: #ffffff;
   width: 100%;
   height: calc(100% - 80px);
@@ -75,6 +74,13 @@ a:hover {
 
   overflow-y: auto;
   text-align: left;
+}
+
+.html-source, .ast-resolved, .ast-unresolved {
+  background-color: #2a3236;
+}
+.html-rendered {
+  background-color: #ffffff;
 }
 
 textarea {
