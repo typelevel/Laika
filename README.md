@@ -117,7 +117,7 @@ For further information:
 
 * Read the [Manual].
 
-* Try out Laika with the [Web Tool].
+* Try out Laika with the [Demo App].
 
 * Browse the [API].
 
@@ -129,7 +129,7 @@ For further information:
  
 
 [Manual]: http://planet42.github.com/Laika/index.html
-[Web Tool]: http://planet42.org/
+[Demo App]: http://planet42.org/
 [API]: http://planet42.github.com/Laika/api/laika/api/
 [Twitter]: https://twitter.com/_planet42
 [Issues]: https://github.com/planet42/Laika/issues
