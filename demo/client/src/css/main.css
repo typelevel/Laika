@@ -13,6 +13,11 @@ body {
   font-family: 'Ubuntu', sans-serif;
 }
 
+.logo {
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+
 h2 {
   color: #006180;
   font-size: 18px;

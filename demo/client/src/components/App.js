@@ -48,9 +48,11 @@ class App extends Component {
     const lastResult = this.state.lastResult;
     return (
       <div className="row">
-
-        <img src={logo}/>
-        <h2>Transformer Demo App</h2>
+        
+        <div className="logo">
+          <img src={logo}/>
+          <h2>Transformer Demo App</h2>
+        </div>
  
         <div className="left">
           <InputPanel onChange={this.handleInputChange}/>

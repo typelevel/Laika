@@ -1,7 +1,6 @@
 .row {
-  width: 90%;
+  width: 93%;
   height: 100%;
-  padding-top: 50px;
   margin-left: auto;
   margin-right: auto;
   text-align: center;
@@ -18,7 +17,7 @@
   margin-left: auto;
   margin-right: auto;
   width: 48%;
-  height: 75%;
+  height: calc(100% - 190px);
   text-align: center;
   border: 3px solid cyan;
 }

@@ -15,7 +15,7 @@ class InputPanel extends Component {
   ]
 
   eventDelay = 1500
-  maxInputChars = 500
+  maxInputChars = 800
 
   inputTooLong = () => this.state.markupInput.length > this.maxInputChars
 
