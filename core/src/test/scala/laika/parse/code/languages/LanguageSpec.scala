@@ -96,7 +96,7 @@ class LanguageSpec extends WordSpec with Matchers {
           |  lazy val `y-y` = +++line 1
           |    |line 2+++.stripMargin
           |  
-          |  def bag = Seq(true, null, 's', 0xff)
+          |  def bag = Seq(true, null, 's', 0xff, s"one $subst, two ${subst.get}")
           |  
           |  // just a short example
           |  
@@ -111,7 +111,8 @@ class LanguageSpec extends WordSpec with Matchers {
         keyword("lazy"), space, keyword("val"), space, id("`y-y`"), equals,
         string("\"\"\"line 1\n    |line 2\"\"\""), dot, id("stripMargin"), other("\n  \n  "),
         keyword("def"), space, declName("bag"), equals, typeName("Seq"), other("("), 
-        boolean("true"), comma, literal("null"), comma, char("'s'"), comma, number("0xff"), other(")\n  \n  "),
+        boolean("true"), comma, literal("null"), comma, char("'s'"), comma, number("0xff"), comma,
+        string("s\"one "), subst("$subst"), string(", two "), subst("${subst.get}"), string("\""), other(")\n  \n  "),
         comment("// just a short example\n"),
         other("  \n}")
       )

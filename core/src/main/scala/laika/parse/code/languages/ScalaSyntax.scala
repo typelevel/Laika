@@ -51,7 +51,7 @@ object ScalaSyntax extends SyntaxHighlighter {
 
   val substitutions: CodeSpanParser = 
     StringLiteral.Substitution.between("${", "}") ++
-    StringLiteral.Substitution(someOf(CharGroup.alphaNum.add('_')))
+    StringLiteral.Substitution(("$" ~ someOf(CharGroup.alphaNum.add('_'))).source)
   
   val stringLiteral: CodeSpanParser = 
     StringLiteral.multiLine("\"\"\"") ++
