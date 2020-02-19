@@ -117,9 +117,36 @@ lazy val plugin = project.in(file("sbt"))
 
 lazy val demo = project.in(file("demo"))
   .dependsOn(core)
+  .enablePlugins(sbtdocker.DockerPlugin, JavaAppPackaging)
   .settings(basicSettings)
   .settings(
     name := "laika-demo",
     libraryDependencies ++= http4s,
-    scalacOptions ++= Seq("-Ypartial-unification")
+    scalacOptions ++= Seq("-Ypartial-unification"),
+    javaOptions in Universal ++= Seq(
+      "-J-Xms512M",
+      "-J-Xmx896M"
+    ),
+    buildOptions in docker := BuildOptions (
+      cache = false,
+      removeIntermediateContainers = BuildOptions.Remove.Always,
+      pullBaseImage = BuildOptions.Pull.Always
+    ),
+    dockerfile in docker := {
+      val appDir: File = stage.value
+      val targetDir = "/app"
+
+      new Dockerfile {
+        from("openjdk:8")
+        expose(8080)
+        env("VERSION", version.value)
+        entryPoint(s"$targetDir/bin/${executableScriptName.value}")
+        copy(appDir, targetDir)
+      }
+    },
+    imageNames in docker := Seq(ImageName(
+      namespace = None,
+      repository = name.value,
+      tag = Some(version.value)
+    ))
   )
