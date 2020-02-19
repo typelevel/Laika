@@ -96,7 +96,8 @@ abstract class BaseFormatter[Rep <: BaseFormatter[Rep]] (renderChild: (Rep, Elem
    *  each of them on a new line with the indentation increased one level to the right.
    */
   def indentedChildren (elements: Seq[Element]): String = {
-    indented { fmt =>
+    if (elements.isEmpty) ""
+    else indented { fmt =>
       fmt.newLine + fmt.childPerLine(elements)
     }
   }

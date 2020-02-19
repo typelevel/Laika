@@ -59,7 +59,8 @@ object ASTRenderer extends ((TextFormatter, Element) => String) {
       val prefix = con.productPrefix + attributes(rest, con.content)
       
       val contentDesc = s" - $elementType: ${con.content.length.toString}"
-      if (elements.nonEmpty) prefix + fmt.indentedChildren(elements.toList.asInstanceOf[Seq[Element]] ++ List(Content(con.content, "Content" + contentDesc)))
+      if (elements.nonEmpty) prefix + fmt.indentedChildren(elements.toList.asInstanceOf[Seq[Element]] ++ 
+        List(Content(con.content, "Content" + contentDesc)))
       else prefix + contentDesc + fmt.indentedChildren(con.content)
     }
 
@@ -82,11 +83,11 @@ object ASTRenderer extends ((TextFormatter, Element) => String) {
 
     def renderElement (e: Element): String = {
       val (elements, rest) = e.productIterator partition (_.isInstanceOf[Element])
-      e.productPrefix + attributes(rest) + fmt.indented(_.childPerLine(elements.toList.asInstanceOf[Seq[Element]]))
+      e.productPrefix + attributes(rest) + fmt.indentedChildren(elements.toList.asInstanceOf[Seq[Element]])
     }
 
     def lists (desc: String, lists: (Seq[Element], String)*): String =
-      desc + fmt.indented(_.childPerLine(lists map {case (elems,d) => Content(elems, d + elems.length)}))
+      desc + fmt.indentedChildren(lists map { case (elems, d) => Content(elems, d + elems.length) })
 
     element match {
       case QuotedBlock(content,attr,_)    => lists("QuotedBlock", (content, "Content - Blocks: "), (attr, "Attribution - Spans: "))
@@ -96,7 +97,7 @@ object ASTRenderer extends ((TextFormatter, Element) => String) {
       case sc: SpanContainer              => elementContainerDesc(sc, "Spans")
       case tsc: TemplateSpanContainer     => elementContainerDesc(tsc, "TemplateSpans")
       case tc: TextContainer              => textContainerDesc(tc)
-      case Content(content,desc)          => desc + fmt.indented(_.childPerLine(content))
+      case Content(content,desc)          => desc + fmt.indentedChildren(content)
       case ec: ElementContainer[_]        => elementContainerDesc(ec, "Elements")
       case e                              => renderElement(e)
     }
