@@ -62,49 +62,34 @@ a:hover {
   top: 5px;
 }
 
-.render {
-  font-size: 15px;
+.render, textarea {
   width: 100%;
   height: calc(100% - 80px);
-  resize: none;
-
-  padding: 7px 15px;
-  margin-bottom: -3px;
-
   box-sizing: border-box;
-
+  resize: none;
   border: 1px solid #c3d6d8;
   border-radius: 7px;
-
+  margin-bottom: -3px;
+}
+textarea {
+  color: #006180;
+  font-family: "Fira Code", monospace;
+  font-size: 14px;
+  padding-left: 7px;
+  padding-right: 7px;
+}
+.render {
+  font-size: 15px;
+  padding: 7px 15px;
   overflow-y: auto;
   text-align: left;
 }
-
 .html-source, .ast-resolved, .ast-unresolved {
   background-color: #2a3236;
 }
 .html-rendered {
   background-color: #ffffff;
   overflow-x: hidden;
-}
-
-textarea {
-  color: #006180;
-  font-family: "Fira Code", monospace;
-  font-size: 14px;
-
-  width: 100%;
-  height: calc(100% - 80px);
-  resize: none;
-
-  padding-left: 5px;
-  padding-right: 5px;
-  margin-bottom: -3px;
-
-  box-sizing: border-box;
-
-  border: 1px solid #c3d6d8;
-  border-radius: 7px;
 }
 
 .panel {
@@ -114,7 +99,7 @@ textarea {
 .panel-body {
   padding: 4px;
   background-color: #ebf6f7;
-  border: 5px solid #c3d6d8;
+  border: 1px solid #c3d6d8;
   border-bottom-left-radius: 7px;
   border-bottom-right-radius: 7px;
 

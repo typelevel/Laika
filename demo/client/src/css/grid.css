@@ -4,12 +4,10 @@
   margin-left: auto;
   margin-right: auto;
   text-align: center;
-  border: 3px solid red;
   box-sizing: border-box;
 }
 
 #app {
-  border: 3px solid green;
   height: 100%;
 }
 
@@ -19,7 +17,6 @@
   width: 48%;
   height: calc(100% - 190px);
   text-align: center;
-  border: 3px solid cyan;
 }
 
 .left {
