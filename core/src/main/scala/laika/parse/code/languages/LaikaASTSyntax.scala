@@ -44,7 +44,7 @@ object LaikaASTSyntax extends SyntaxHighlighter {
     ),
     Keywords(CodeCategory.Markup.Headline)("Header", "Title"),
     Keywords(CodeCategory.Identifier)("Id", "Styles"),
-    Keywords("Blocks", "Spans"),
+    Keywords("Blocks", "Spans", "Elements", "TemplateSpans"),
     NumberLiteral.decimalInt,
     Identifier.alphaNum.withCategoryChooser(upperCaseTypeName)
   )
