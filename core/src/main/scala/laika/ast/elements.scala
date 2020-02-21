@@ -16,8 +16,6 @@
 
 package laika.ast
 
-import java.text.DecimalFormat
-
 import laika.api.Renderer
 import laika.config.{ConfigEncoder, ConfigValue}
 import laika.format.AST
@@ -1127,9 +1125,8 @@ case class Image (text: String,
 /** Encapsulates size information with a unit.
   */
 case class Size (amount: Double, unit: String) {
-  val formatter = new DecimalFormat("#.##")
   def scale (percent: Double): Size = copy(amount = amount * percent / 100)
-  def displayValue: String = s"${formatter.format(amount)}$unit"
+  def displayValue: String = amount.toString.stripSuffix(".0") + unit
 }
 
 
