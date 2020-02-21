@@ -16,8 +16,6 @@
 
 package laika.parse
 
-import java.io.StringReader
-
 import org.scalatest.{Matchers, WordSpec}
 
 /**
