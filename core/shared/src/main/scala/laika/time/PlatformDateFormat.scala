@@ -16,12 +16,7 @@
 
 package laika.time
 
-import java.text.SimpleDateFormat
-import java.time.{Instant, LocalDateTime, ZoneId}
-import java.time.format.{DateTimeFormatter, DateTimeFormatterBuilder}
 import java.util.Date
-
-import scala.util.Try
 
 /** A little abstraction that isolates aspects of parsing and formatting
   * dates from the underlying Date API which may differ between JVM
@@ -39,12 +34,7 @@ import scala.util.Try
   * 
   * @author Jens Halm
   */
-object PlatformDateFormat {
-
-  private val offsetDateTime: DateTimeFormatter = new DateTimeFormatterBuilder()
-    .append(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-    .appendPattern("[XXX][X]")
-    .toFormatter
+trait PlatformDateFormat {
 
   /** Parses the specified string either as a date with time zone,
     * or a local date time, or just a date.
@@ -60,26 +50,27 @@ object PlatformDateFormat {
     * 
     * This is also designed to be somewhat aligned to `Date.parse` in JavaScript.
     */
-  def parse (dateString: String): Either[String, Date] = {
-    
-    def parseOffsetDateTime(input: String): Either[String, Date] = Try {
-      Date.from(Instant.from(offsetDateTime.parse(input)))
-    }.toEither.left.map(_.getMessage)
-
-    def parseLocalDateTime(input: String): Either[String, Date] = Try {
-      Date.from(LocalDateTime.parse(input).atZone(ZoneId.systemDefault()).toInstant )
-    }.toEither.left.map(_.getMessage)
-    
-    if (dateString.matches(".*(Z|[+-]\\d\\d[:]?\\d\\d)")) parseOffsetDateTime(dateString)
-    else if (dateString.contains("T")) parseLocalDateTime(dateString)
-    else parseOffsetDateTime(dateString + "T00:00:00Z") 
-  }
+  def parse (dateString: String): Either[String, Date]
 
   /** Formats the specified date with the given pattern.
     * 
     * The result will be a `Left` in case the pattern is invalid.
     */
-  private[laika] def format (date: Date, pattern: String): Either[String, String] =
-    Try(new SimpleDateFormat(pattern).format(date)).toEither.left.map(_.getMessage)
+  private[laika] def format (date: Date, pattern: String): Either[String, String]
   
+}
+
+object PlatformDateFormat extends PlatformDateFormat {
+  
+  /*
+  This indirection is not strictly necessary, but reduces good-code-red in IDEs,
+  which are struggling to deal with classes in the shared folder pointing to classes
+  which are implemented twice (with the same signatures) in jvm and js projects.
+   */
+
+  def parse (dateString: String): Either[String, Date] = 
+    PlatformDateFormatImpl.parse(dateString)
+
+  private[laika] def format (date: Date, pattern: String): Either[String, String] = 
+    PlatformDateFormatImpl.format(date, pattern)
 }
