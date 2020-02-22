@@ -16,8 +16,7 @@
 
 package laika.ast
 
-import java.time.Instant
-import java.util.Locale
+import java.util.Date
 
 import laika.ast.Path.Root
 import laika.ast.RelativePath.Current
@@ -29,7 +28,6 @@ import laika.rewrite.link.LinkTargets._
 import laika.rewrite.nav.AutonumberConfig
 
 import scala.annotation.tailrec
-import scala.util.Try
 
 
 /** A navigatable object is anything that has an associated path.
@@ -122,16 +120,9 @@ case class TitleInfo (content: Seq[Span], options: Options = NoOpt) extends Span
 
 /** Metadata associated with a document.
   */
-case class DocumentMetadata (identifier: Option[String] = None, authors: Seq[String] = Nil, language: Option[Locale] = None, date: Option[Instant] = None)
+case class DocumentMetadata (identifier: Option[String] = None, authors: Seq[String] = Nil, language: Option[String] = None, date: Option[Date] = None)
 
 object DocumentMetadata {
-  
-  implicit val localeDecoder: ConfigDecoder[Locale] = ConfigDecoder.string.flatMap { lang => 
-    Try(Locale.forLanguageTag(lang)).toEither.left.map(e => DecodingError(e.getMessage)) 
-  }
-
-  def toInstant[C] (in: ConfigResult[Option[String]])(f: String => ConfigResult[Instant]): ConfigResult[Option[Instant]] = 
-    in.flatMap(_.fold[ConfigResult[Option[Instant]]](Right(None))(f(_).map(Some(_))))
   
   implicit val decoder: ConfigDecoder[DocumentMetadata] = {
     case Traced(ov: ObjectValue, _) =>
@@ -140,10 +131,8 @@ object DocumentMetadata {
         identifier <- config.getOpt[String]("identifier")
         author     <- config.getOpt[String]("author")
         authors    <- config.get[Seq[String]]("authors", Nil)
-        lang       <- config.getOpt[Locale]("language")
-        date       <- toInstant(config.getOpt[String]("date")) { ds => 
-                        Try(Instant.parse(ds)).toEither.left.map(f => DecodingError(s"Invalid date format: ${f.getMessage}")) 
-                      }
+        lang       <- config.getOpt[String]("language")
+        date       <- config.getOpt[Date]("date")
       } yield {
         DocumentMetadata(identifier, authors ++ author.toSeq, lang, date)
       }

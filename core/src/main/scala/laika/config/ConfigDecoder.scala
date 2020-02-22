@@ -16,7 +16,10 @@
 
 package laika.config
 
+import java.util.Date
+
 import laika.ast.{Path, PathBase, RelativePath}
+import laika.time.PlatformDateFormat
 
 import scala.util.Try
 
@@ -85,6 +88,10 @@ object ConfigDecoder {
       case p: RelativePath => tracedValue.origin.path.parent / p
       case p: Path => p
     }
+  }
+
+  implicit lazy val date: ConfigDecoder[Date] = string.flatMap { dateString =>
+    PlatformDateFormat.parse(dateString).left.map(err => DecodingError(s"Invalid date format: $err"))
   }
 
   implicit def seq[T] (implicit elementDecoder: ConfigDecoder[T]): ConfigDecoder[Seq[T]] = new ConfigDecoder[Seq[T]] {
