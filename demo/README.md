@@ -3,7 +3,7 @@ Laika Demo App
 
 Online Tool for trying out the Laika transformer.
 
-The server is built with Akka HTTP, the client with React.
+The server is built with http4s, the client with React.
 
 
 Trying the Demo App online
