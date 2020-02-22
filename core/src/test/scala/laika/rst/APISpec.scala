@@ -26,9 +26,10 @@ import laika.rst.ext.Directives.Parts._
 import laika.rst.ext.Directives._
 import laika.rst.ext.ExtensionProvider
 import laika.rst.ext.TextRoles._
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class APISpec extends FlatSpec 
+class APISpec extends AnyFlatSpec 
                  with Matchers
                  with ModelBuilder {
   

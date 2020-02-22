@@ -24,9 +24,10 @@ import laika.markdown.github.GitHubFlavor
 import laika.parse.Parser
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import laika.parse.markup.RootParser
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
-class GitHubFlavorSpec extends WordSpec
+class GitHubFlavorSpec extends AnyWordSpec
   with Matchers
   with ParseResultHelpers
   with DefaultParserHelpers[RootElement]

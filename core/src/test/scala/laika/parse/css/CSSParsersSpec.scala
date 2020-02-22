@@ -22,9 +22,10 @@ import laika.ast.helper.StyleBuilders
 import laika.parse.Parser
 import laika.parse.css.CSSParsers._
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class CSSParsersSpec extends FlatSpec 
+class CSSParsersSpec extends AnyFlatSpec 
                         with Matchers 
                         with ParseResultHelpers
                         with DefaultParserHelpers[Set[StyleDeclaration]] 

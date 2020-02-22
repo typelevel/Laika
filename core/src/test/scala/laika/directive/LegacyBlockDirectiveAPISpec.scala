@@ -28,10 +28,11 @@ import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import laika.parse.markup.RootParserProvider
 import laika.parse.builders._
 import laika.rewrite.TemplateRewriter
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 
-class LegacyBlockDirectiveAPISpec extends FlatSpec
+class LegacyBlockDirectiveAPISpec extends AnyFlatSpec
                           with Matchers
                           with ModelBuilder {
 

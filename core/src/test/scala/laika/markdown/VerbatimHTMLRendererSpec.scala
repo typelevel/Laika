@@ -21,10 +21,11 @@ import laika.ast.{Element, QuotedBlock, Text}
 import laika.ast.helper.ModelBuilder
 import laika.format.{HTML, Markdown}
 import laika.markdown.ast.{HTMLAttribute, HTMLBlock, HTMLScriptElement, HTMLStartTag}
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
  
 
-class VerbatimHTMLRendererSpec extends FlatSpec 
+class VerbatimHTMLRendererSpec extends AnyFlatSpec 
                                with Matchers
                                with ModelBuilder 
                                with HTMLModelBuilder {

@@ -20,9 +20,10 @@ import laika.api.builder.OperationConfig
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.rst.ast.Underline
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class RewriteRulesSpec extends FlatSpec 
+class RewriteRulesSpec extends AnyFlatSpec 
                   with Matchers
                   with ModelBuilder {
 

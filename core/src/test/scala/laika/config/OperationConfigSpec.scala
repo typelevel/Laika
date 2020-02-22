@@ -26,12 +26,13 @@ import laika.bundle.{BundleProvider, ExtensionBundle}
 import laika.factory.MarkupFormat
 import laika.markdown.bundle.VerbatimHTML
 import laika.markdown.github.GitHubFlavor
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
 /**
   * @author Jens Halm
   */
-class OperationConfigSpec extends WordSpec with Matchers {
+class OperationConfigSpec extends AnyWordSpec with Matchers {
 
 
   trait BundleSetup {

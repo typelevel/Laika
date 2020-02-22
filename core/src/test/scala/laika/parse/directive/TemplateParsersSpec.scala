@@ -22,9 +22,10 @@ import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.parse.Parser
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class TemplateParsersSpec extends FlatSpec 
+class TemplateParsersSpec extends AnyFlatSpec 
                           with Matchers 
                           with ParseResultHelpers
                           with DefaultParserHelpers[List[Span]] 

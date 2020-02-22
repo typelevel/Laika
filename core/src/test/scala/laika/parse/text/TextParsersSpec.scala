@@ -19,9 +19,10 @@ package laika.parse.text
 import laika.parse.helper.{ParseResultHelpers, StringParserHelpers}
 import laika.parse.builders._
 import laika.parse.{Failure, ParserContext}
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
    
-class TextParsersSpec extends WordSpec with Matchers with ParseResultHelpers with StringParserHelpers {
+class TextParsersSpec extends AnyWordSpec with Matchers with ParseResultHelpers with StringParserHelpers {
 
 
   "The char parser" should {

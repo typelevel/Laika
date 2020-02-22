@@ -21,12 +21,13 @@ import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.ReStructuredText
 import laika.rst.ext.ExtensionProvider
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 /**
  * @author Jens Halm
  */
-class StandardTextRolesSpec extends FlatSpec 
+class StandardTextRolesSpec extends AnyFlatSpec 
                             with Matchers 
                             with ModelBuilder {
 

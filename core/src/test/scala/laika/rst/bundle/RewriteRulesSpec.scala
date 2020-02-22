@@ -21,9 +21,10 @@ import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.ReStructuredText
 import laika.rst.ast.{CustomizedTextRole, InterpretedText, SubstitutionDefinition, SubstitutionReference}
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
  
-class RewriteRulesSpec extends FlatSpec 
+class RewriteRulesSpec extends AnyFlatSpec 
                   with Matchers
                   with ModelBuilder {
 

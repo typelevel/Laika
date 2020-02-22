@@ -25,12 +25,13 @@ import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.ReStructuredText
 import laika.time.PlatformDateFormat
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 /**
  * @author Jens Halm
  */
-class StandardSpanDirectivesSpec extends FlatSpec 
+class StandardSpanDirectivesSpec extends AnyFlatSpec 
                                   with Matchers 
                                   with ModelBuilder {
 

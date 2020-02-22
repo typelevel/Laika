@@ -19,9 +19,10 @@ package laika.api
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format._
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class RenderAPISpec extends FlatSpec 
+class RenderAPISpec extends AnyFlatSpec 
                     with Matchers
                     with ModelBuilder { self =>
 

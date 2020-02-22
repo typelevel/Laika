@@ -18,12 +18,13 @@ package laika.parse.hocon
 
 import laika.config.Config.IncludeMap
 import laika.config.{ArrayValue, Config, ConfigBuilder, ConfigError, ConfigResolverError, EmptyConfig, Field, Key, LongValue, ObjectValue, Origin, StringValue, ValidationError}
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
 /**
   * @author Jens Halm
   */
-class ConfigResolverSpec extends WordSpec with Matchers with ResultBuilders {
+class ConfigResolverSpec extends AnyWordSpec with Matchers with ResultBuilders {
 
   def parseAndResolve(input: String): ObjectValue = {
     val builder = HoconParsers.rootObject.parse(input).toOption.get

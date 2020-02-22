@@ -21,12 +21,13 @@ import laika.ast._
 import laika.bundle.{BundleProvider, ExtensionBundle}
 import laika.factory.{RenderContext, RenderFormat}
 import laika.render.{ASTRenderer, Indentation, TextFormatter}
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
 /**
   * @author Jens Halm
   */
-class ThemeConfigSpec extends WordSpec with Matchers {
+class ThemeConfigSpec extends AnyWordSpec with Matchers {
 
 
   trait BundleSetup {

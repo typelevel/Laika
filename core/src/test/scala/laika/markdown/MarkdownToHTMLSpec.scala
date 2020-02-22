@@ -20,14 +20,15 @@ import laika.api.Transformer
 import laika.ast.QuotedBlock
 import laika.format.{HTML, Markdown}
 import laika.transform.helper.FileTransformerUtil
-import org.scalatest.{FlatSpec, Matchers}
 
 import scala.io.Codec
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 /**
  * @author Jens Halm
  */
-class MarkdownToHTMLSpec extends FlatSpec 
+class MarkdownToHTMLSpec extends AnyFlatSpec 
                          with Matchers
                          with FileTransformerUtil {
   

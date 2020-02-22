@@ -24,9 +24,9 @@ import laika.api.Transformer
 import laika.format._
 import laika.io.implicits._
 import laika.io.text.SequentialTransformer
-import org.scalatest.Matchers
 
 import scala.io.Codec
+import org.scalatest.matchers.should.Matchers
 
 class SequentialTransformerSpec extends IOSpec 
                                 with Matchers

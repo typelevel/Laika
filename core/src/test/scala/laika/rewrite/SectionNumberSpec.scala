@@ -21,9 +21,10 @@ import laika.api.builder.OperationConfig
 import laika.ast._
 import laika.ast.helper.DocumentViewBuilder.{Documents => Docs, _}
 import laika.ast.helper.ModelBuilder
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class SectionNumberSpec extends FlatSpec
+class SectionNumberSpec extends AnyFlatSpec
                         with Matchers
                         with ModelBuilder {
 

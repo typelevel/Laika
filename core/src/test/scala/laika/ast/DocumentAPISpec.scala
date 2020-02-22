@@ -20,9 +20,10 @@ import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
 import laika.ast.helper.ModelBuilder
 import laika.format.Markdown
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class DocumentAPISpec extends FlatSpec 
+class DocumentAPISpec extends AnyFlatSpec 
                       with Matchers
                       with ModelBuilder {
 

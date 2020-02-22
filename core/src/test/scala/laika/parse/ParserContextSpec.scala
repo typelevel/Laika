@@ -16,12 +16,13 @@
 
 package laika.parse
 
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
 /**
   * @author Jens Halm
   */
-class ParserContextSpec extends WordSpec with Matchers {
+class ParserContextSpec extends AnyWordSpec with Matchers {
 
 
   val context = ParserContext("abc\ndef")

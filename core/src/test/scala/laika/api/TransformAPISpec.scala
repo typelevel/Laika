@@ -18,10 +18,11 @@ package laika.api
 
 import laika.ast._
 import laika.format._
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 
-class TransformAPISpec extends FlatSpec 
+class TransformAPISpec extends AnyFlatSpec 
                        with Matchers {
 
    

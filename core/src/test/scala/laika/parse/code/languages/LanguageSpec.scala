@@ -22,12 +22,13 @@ import laika.format.Markdown
 import laika.markdown.github.GitHubFlavor
 import laika.parse.code.{CodeCategory, SyntaxHighlighting}
 import laika.parse.code.CodeCategory._
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
 /**
   * @author Jens Halm
   */
-class LanguageSpec extends WordSpec with Matchers {
+class LanguageSpec extends AnyWordSpec with Matchers {
 
   
   "The syntax highlighter for code blocks" should {

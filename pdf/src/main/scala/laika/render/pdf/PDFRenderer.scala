@@ -56,7 +56,7 @@ class PDFRenderer (config: Option[PDF.Config], fopFactory: Option[FopFactory]) {
   def render[F[_] : Async: Runtime] (foInput: String, output: BinaryOutput[F], metadata: DocumentMetadata, title: Option[String] = None, sourcePaths: Seq[String] = Nil): F[Unit] = {
 
     def applyMetadata (agent: FOUserAgent): F[Unit] = Async[F].delay {
-      metadata.date.foreach(d => agent.setCreationDate(Date.from(d)))
+      metadata.date.foreach(d => agent.setCreationDate(d))
       metadata.authors.headOption.foreach(a => agent.setAuthor(a))
       title.foreach(t => agent.setTitle(t))
     }

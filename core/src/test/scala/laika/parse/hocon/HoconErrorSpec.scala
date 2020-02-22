@@ -17,14 +17,16 @@
 package laika.parse.hocon
 
 import laika.config.{ConfigParser, ConfigParserErrors}
-import org.scalatest.{Assertion, Matchers, WordSpec}
+import org.scalatest.Assertion
 
 import scala.collection.immutable.TreeSet
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
 /**
   * @author Jens Halm
   */
-class HoconErrorSpec extends WordSpec with Matchers {
+class HoconErrorSpec extends AnyWordSpec with Matchers {
   
   def parseAndValidate(input: String, expectedMessage: String): Assertion = {
 

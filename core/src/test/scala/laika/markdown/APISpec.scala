@@ -22,9 +22,10 @@ import laika.ast.Text
 import laika.ast.helper.ModelBuilder
 import laika.directive.DirectiveRegistry
 import laika.format.Markdown
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class APISpec extends FlatSpec 
+class APISpec extends AnyFlatSpec 
                  with Matchers
                  with ModelBuilder {
   

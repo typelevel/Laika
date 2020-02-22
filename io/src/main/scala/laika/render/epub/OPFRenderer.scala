@@ -93,7 +93,7 @@ class OPFRenderer {
     val docRefs = coverDoc.toSeq ++ titleDoc.toSeq ++ renderedDocs ++ staticDocs
 
     val title = result.title.fold("UNTITLED")(_.extractText)
-    fileContent(config.identifier, config.language.toLanguageTag, title, config.coverImage.map("content/"+_), config.formattedDate, docRefs, config.metadata.authors)
+    fileContent(config.identifier, config.language, title, config.coverImage.map("content/"+_), config.formattedDate, docRefs, config.metadata.authors)
   }
 
 

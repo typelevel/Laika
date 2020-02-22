@@ -21,9 +21,10 @@ import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.HTML
 import laika.parse.code.CodeCategory
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class HTMLRendererSpec extends FlatSpec 
+class HTMLRendererSpec extends AnyFlatSpec 
                        with Matchers
                        with ModelBuilder {
  

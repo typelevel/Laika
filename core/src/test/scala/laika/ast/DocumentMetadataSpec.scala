@@ -20,9 +20,10 @@ import java.time.Instant
 import java.util.Date
 
 import laika.config.{ConfigBuilder, ConfigParser, DecodingError}
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class DocumentMetadataSpec extends FlatSpec with Matchers {
+class DocumentMetadataSpec extends AnyFlatSpec with Matchers {
 
   "The config-based builder for document metadata" should "fully populate the model from the provided config" in {
     val configString =

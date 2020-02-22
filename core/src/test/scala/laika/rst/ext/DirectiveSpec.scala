@@ -25,9 +25,10 @@ import laika.rst.ast.{CustomizedTextRole, SubstitutionDefinition}
 import laika.rst.ext.Directives.Parts._
 import laika.rst.ext.Directives._
 import laika.rst.ext.TextRoles.TextRole
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
    
-class DirectiveSpec extends FlatSpec 
+class DirectiveSpec extends AnyFlatSpec 
                         with Matchers 
                         with ParseResultHelpers
                         with DefaultParserHelpers[RootElement] 

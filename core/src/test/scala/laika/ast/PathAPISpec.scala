@@ -18,9 +18,10 @@ package laika.ast
 
 import laika.ast.Path._
 import laika.ast.RelativePath.{Current, Parent}
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
-class PathAPISpec extends WordSpec 
+class PathAPISpec extends AnyWordSpec 
                   with Matchers {
 
   

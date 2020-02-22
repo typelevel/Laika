@@ -16,10 +16,9 @@
 
 package laika.format
 
-import java.time.Instant
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import java.util.{Locale, UUID}
+import java.util.{Date, Locale, UUID}
 
 import cats.effect.Async
 import laika.ast.Path.Root
@@ -96,9 +95,9 @@ case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor
     */
   case class Config(metadata: DocumentMetadata = DocumentMetadata(), tocDepth: Int = Int.MaxValue, tocTitle: Option[String] = None, coverImage: Option[String] = None) {
     lazy val identifier: String = metadata.identifier.getOrElse(s"urn:uuid:${UUID.randomUUID.toString}")
-    lazy val date: Instant = metadata.date.getOrElse(Instant.now)
-    lazy val formattedDate: String = DateTimeFormatter.ISO_INSTANT.format(date.truncatedTo(ChronoUnit.SECONDS))
-    lazy val language: Locale = metadata.language.getOrElse(Locale.getDefault)
+    lazy val date: Date = metadata.date.getOrElse(new Date)
+    lazy val formattedDate: String = DateTimeFormatter.ISO_INSTANT.format(date.toInstant.truncatedTo(ChronoUnit.SECONDS))
+    lazy val language: String = metadata.language.getOrElse(Locale.getDefault.getDisplayName)
   }
 
   /** Companion for the creation of `Config` instances.

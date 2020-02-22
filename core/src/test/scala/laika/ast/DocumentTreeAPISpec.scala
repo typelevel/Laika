@@ -24,9 +24,11 @@ import laika.ast.helper.DocumentViewBuilder.{Documents => Docs, _}
 import laika.ast.helper.ModelBuilder
 import laika.config.Origin.{DocumentScope, Scope, TreeScope}
 import laika.rewrite.TemplateRewriter
-import org.scalatest.{FlatSpec, Matchers, path}
+import org.scalatest.path
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class DocumentTreeAPISpec extends FlatSpec 
+class DocumentTreeAPISpec extends AnyFlatSpec 
                       with Matchers
                       with ModelBuilder {
   

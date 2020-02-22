@@ -25,12 +25,14 @@ import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import laika.parse.text.CharGroup
 import laika.parse.builders._
 import laika.parse.implicits._
-import org.scalatest.{Assertion, Matchers, WordSpec}
+import org.scalatest.Assertion
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
 /**
   * @author Jens Halm
   */
-class CommonSyntaxParserSpec extends WordSpec 
+class CommonSyntaxParserSpec extends AnyWordSpec 
                              with Matchers
                              with ParseResultHelpers
                              with DefaultParserHelpers[Seq[CodeSpan]] {

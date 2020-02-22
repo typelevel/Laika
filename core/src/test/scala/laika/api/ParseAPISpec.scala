@@ -19,11 +19,12 @@ package laika.api
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.Markdown
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 
 
-class ParseAPISpec extends FlatSpec 
+class ParseAPISpec extends AnyFlatSpec 
                    with Matchers
                    with ModelBuilder {
   

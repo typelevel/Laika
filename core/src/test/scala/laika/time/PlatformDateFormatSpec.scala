@@ -19,9 +19,10 @@ package laika.time
 import java.time.{Instant, LocalDateTime, ZoneId}
 import java.util.Date
 
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
-class PlatformDateFormatSpec extends WordSpec with Matchers {
+class PlatformDateFormatSpec extends AnyWordSpec with Matchers {
 
   
   private def getDate(dateString: String): Date = Date.from(Instant.parse(dateString))

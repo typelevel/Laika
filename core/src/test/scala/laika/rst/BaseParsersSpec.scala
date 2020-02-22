@@ -19,12 +19,13 @@ package laika.rst
 import laika.parse.Failure
 import laika.parse.helper.{ParseResultHelpers, StringParserHelpers}
 import laika.rst.BaseParsers.simpleRefName
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
 /**
   * @author Jens Halm
   */
-class BaseParsersSpec extends WordSpec with Matchers with ParseResultHelpers with StringParserHelpers  {
+class BaseParsersSpec extends AnyWordSpec with Matchers with ParseResultHelpers with StringParserHelpers  {
 
   "The reference name parser" should {
 

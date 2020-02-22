@@ -17,25 +17,26 @@
 package laika.render.epub
 
 import java.time.Instant
-import java.util.Locale
+import java.util.{Date, Locale}
 
 import cats.effect.IO
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.EPUB
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class OPFRendererSpec extends FlatSpec with Matchers with ModelBuilder {
+class OPFRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
 
   val renderer = new OPFRenderer
 
   val timestamp = "2018-01-01T12:00:00Z"
-  val instant = Instant.parse(timestamp)
+  val instant = Date.from(Instant.parse(timestamp))
   val identifier = s"urn:uuid:${new InputTreeBuilder{}.uuid}"
   val config: EPUB.Config = EPUB.Config.default.copy(metadata = DocumentMetadata(
     identifier = Some(identifier),
     date = Some(instant),
-    language = Some(Locale.UK),
+    language = Some(Locale.UK.toLanguageTag),
     authors = Seq("Mia Miller")
   ))
 

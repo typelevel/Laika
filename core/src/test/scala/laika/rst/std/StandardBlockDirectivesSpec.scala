@@ -26,12 +26,13 @@ import laika.config.{ConfigValue, Field, Key, ObjectValue, StringValue}
 import laika.format.ReStructuredText
 import laika.rewrite.TemplateRewriter
 import laika.rst.ast.{Contents, Include}
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 /**
  * @author Jens Halm
  */
-class StandardBlockDirectivesSpec extends FlatSpec 
+class StandardBlockDirectivesSpec extends AnyFlatSpec 
                                   with Matchers 
                                   with ModelBuilder {
 

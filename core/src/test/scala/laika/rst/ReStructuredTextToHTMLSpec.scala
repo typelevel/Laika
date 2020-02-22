@@ -21,14 +21,15 @@ import laika.ast._
 import laika.format.{HTML, ReStructuredText}
 import laika.render.HTMLFormatter
 import laika.transform.helper.FileTransformerUtil
-import org.scalatest.{FlatSpec, Matchers}
 
 import scala.io.Codec
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 /**
  * @author Jens Halm
  */
-class ReStructuredTextToHTMLSpec extends FlatSpec 
+class ReStructuredTextToHTMLSpec extends AnyFlatSpec 
                                  with Matchers
                                  with FileTransformerUtil {
   

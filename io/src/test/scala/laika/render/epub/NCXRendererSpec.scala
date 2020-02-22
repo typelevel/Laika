@@ -18,9 +18,10 @@ package laika.render.epub
 
 import laika.ast._
 import laika.ast.helper.ModelBuilder
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class NCXRendererSpec extends FlatSpec with Matchers with ModelBuilder {
+class NCXRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
 
   val renderer = new NCXRenderer
 

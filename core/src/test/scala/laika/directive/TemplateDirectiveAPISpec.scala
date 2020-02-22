@@ -25,9 +25,10 @@ import laika.parse.Parser
 import laika.parse.directive.TemplateParsers
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import laika.rewrite.TemplateRewriter
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class TemplateDirectiveAPISpec extends FlatSpec
+class TemplateDirectiveAPISpec extends AnyFlatSpec
                           with Matchers
                           with ModelBuilder {
 

@@ -26,10 +26,11 @@ import laika.ast.helper.ModelBuilder
 import laika.format.Markdown
 import laika.parse.ParserContext
 import laika.rewrite.TemplateRewriter
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 
-class StandardDirectiveSpec extends FlatSpec
+class StandardDirectiveSpec extends AnyFlatSpec
                             with Matchers
                             with ModelBuilder {
 

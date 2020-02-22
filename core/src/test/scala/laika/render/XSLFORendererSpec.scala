@@ -22,9 +22,10 @@ import laika.ast.helper.ModelBuilder
 import laika.bundle.BundleProvider
 import laika.format.XSLFO
 import laika.parse.code.CodeCategory
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class XSLFORendererSpec extends FlatSpec
+class XSLFORendererSpec extends AnyFlatSpec
                         with Matchers
                         with ModelBuilder {
  

@@ -21,9 +21,10 @@ import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.{HTML, ReStructuredText}
 import laika.rst.ast._
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class ExtendedHTMLRendererSpec extends FlatSpec
+class ExtendedHTMLRendererSpec extends AnyFlatSpec
                        with Matchers
                        with ModelBuilder {
  

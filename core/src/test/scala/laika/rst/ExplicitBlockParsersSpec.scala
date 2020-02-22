@@ -25,9 +25,10 @@ import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import laika.parse.markup.RootParser
 import laika.rst.ext.Directives.DirectivePart
 import laika.rst.ext.TextRoles.RoleDirectivePart
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
     
-class ExplicitBlockParsersSpec extends FlatSpec 
+class ExplicitBlockParsersSpec extends AnyFlatSpec 
                         with Matchers 
                         with ParseResultHelpers
                         with DefaultParserHelpers[RootElement] 

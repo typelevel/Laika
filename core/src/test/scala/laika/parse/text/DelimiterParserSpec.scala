@@ -21,12 +21,13 @@ import cats.data.NonEmptySet
 import laika.parse.{Failure, Parser}
 import laika.parse.builders._
 import laika.parse.helper.{ParseResultHelpers, StringParserHelpers}
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
 /**
   * @author Jens Halm
   */
-class DelimiterParserSpec extends WordSpec with Matchers with ParseResultHelpers with StringParserHelpers {
+class DelimiterParserSpec extends AnyWordSpec with Matchers with ParseResultHelpers with StringParserHelpers {
 
   val skip: Parser[Unit] = oneChar.void
   

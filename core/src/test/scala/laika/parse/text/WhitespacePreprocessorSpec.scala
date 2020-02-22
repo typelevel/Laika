@@ -16,9 +16,10 @@
 
 package laika.parse.text
 
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class WhitespacePreprocessorSpec extends FlatSpec
+class WhitespacePreprocessorSpec extends AnyFlatSpec
                                  with Matchers {
 
   

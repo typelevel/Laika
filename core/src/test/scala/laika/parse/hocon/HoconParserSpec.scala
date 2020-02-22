@@ -20,12 +20,13 @@ import laika.config.{ConfigParser, Key}
 import laika.parse.helper.{ParseResultHelpers, StringParserHelpers}
 import laika.parse.hocon.HoconParsers._
 import laika.transform.helper.FileTransformerUtil
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
 /**
   * @author Jens Halm
   */
-class HoconParserSpec extends WordSpec with Matchers with ParseResultHelpers with StringParserHelpers with ResultBuilders {
+class HoconParserSpec extends AnyWordSpec with Matchers with ParseResultHelpers with StringParserHelpers with ResultBuilders {
 
   def f (key: String, value: String): BuilderField = BuilderField(key, stringValue(value))
   

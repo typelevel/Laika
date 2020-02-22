@@ -30,12 +30,13 @@ import laika.parse.markup.DocumentParser.ParserInput
 import laika.parse.text.TextParsers
 import laika.parse.builders._
 import laika.parse.implicits._
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
 /**
   * @author Jens Halm
   */
-class ParserBundleSpec extends WordSpec with Matchers {
+class ParserBundleSpec extends AnyWordSpec with Matchers {
 
 
   trait SetupBase { self =>
