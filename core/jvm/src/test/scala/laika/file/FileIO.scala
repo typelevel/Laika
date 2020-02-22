@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package laika.io
+package laika.file
 
 import scala.io.Codec
 

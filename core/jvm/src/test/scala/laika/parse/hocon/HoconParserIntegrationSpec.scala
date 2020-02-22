@@ -17,7 +17,7 @@
 package laika.parse.hocon
 
 import laika.config.ConfigParser
-import laika.io.FileIO
+import laika.file.FileIO
 import laika.parse.helper.{ParseResultHelpers, StringParserHelpers}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec

@@ -18,9 +18,9 @@ package laika.markdown
 
 import laika.api.Transformer
 import laika.ast.QuotedBlock
+import laika.file.FileIO
 import laika.format.{HTML, Markdown}
 import laika.html.TidyHTML
-import laika.io.FileIO
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 

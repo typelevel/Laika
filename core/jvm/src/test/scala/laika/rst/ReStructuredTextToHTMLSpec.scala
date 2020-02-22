@@ -18,9 +18,9 @@ package laika.rst
 
 import laika.api.Transformer
 import laika.ast._
+import laika.file.FileIO
 import laika.format.{HTML, ReStructuredText}
 import laika.html.TidyHTML
-import laika.io.FileIO
 import laika.render.HTMLFormatter
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
