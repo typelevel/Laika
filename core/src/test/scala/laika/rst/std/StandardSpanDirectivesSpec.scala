@@ -16,7 +16,6 @@
 
 package laika.rst.std
 
-import java.text.SimpleDateFormat
 import java.util.Date
 
 import laika.api.MarkupParser
@@ -25,6 +24,7 @@ import laika.ast.RelativePath.Current
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.ReStructuredText
+import laika.time.PlatformDateFormat
 import org.scalatest.{FlatSpec, Matchers}
 
 /**
@@ -144,7 +144,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
     val input = """.. |subst| date::
       |
       |Some |subst|""".stripMargin
-    val date = new SimpleDateFormat("yyyy-MM-dd").format(new Date)
+    val date = PlatformDateFormat.format(new Date, "yyyy-MM-dd").toOption.get
     val result = root (p(Text(s"Some $date")))
     parse(input) should be (result)
   }
@@ -153,7 +153,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
     val input = """.. |subst| date:: yyyy-MMM-dd
       |
       |Some |subst|""".stripMargin
-    val date = new SimpleDateFormat("yyyy-MMM-dd").format(new Date)
+    val date = PlatformDateFormat.format(new Date, "yyyy-MMM-dd").toOption.get
     val result = root (p(Text(s"Some $date")))
     parse(input) should be (result)
   }

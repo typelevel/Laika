@@ -16,6 +16,7 @@
 
 package laika.time
 
+import java.text.SimpleDateFormat
 import java.time.{Instant, LocalDateTime, ZoneId}
 import java.time.format.{DateTimeFormatter, DateTimeFormatterBuilder}
 import java.util.Date
@@ -72,8 +73,13 @@ object PlatformDateFormat {
     if (dateString.matches(".*(Z|[+-]\\d\\d[:]?\\d\\d)")) parseOffsetDateTime(dateString)
     else if (dateString.contains("T")) parseLocalDateTime(dateString)
     else parseOffsetDateTime(dateString + "T00:00:00Z") 
-    
-      
   }
+
+  /** Formats the specified date with the given pattern.
+    * 
+    * The result will be a `Left` in case the pattern is invalid.
+    */
+  private[laika] def format (date: Date, pattern: String): Either[String, String] =
+    Try(new SimpleDateFormat(pattern).format(date)).toEither.left.map(_.getMessage)
   
 }
