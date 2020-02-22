@@ -19,7 +19,6 @@ package laika.parse.hocon
 import laika.config.{ConfigParser, Key}
 import laika.parse.helper.{ParseResultHelpers, StringParserHelpers}
 import laika.parse.hocon.HoconParsers._
-import laika.transform.helper.FileTransformerUtil
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
@@ -435,13 +434,4 @@ class HoconParserSpec extends AnyWordSpec with Matchers with ParseResultHelpers 
     
   }
   
-  "The root parser" should {
-    
-    "successfully parse the full Akka default configuration" in new FileTransformerUtil {
-      val input = readFile(classPathResourcePath("/akka.conf"))
-      ConfigParser.parse(input).resolve().isRight shouldBe true
-    }
-    
-  }
-
 }

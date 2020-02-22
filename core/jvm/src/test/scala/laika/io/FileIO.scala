@@ -14,43 +14,22 @@
  * limitations under the License.
  */
 
-package laika.transform.helper
-
-import java.io.{StringReader, StringWriter}
-
-import org.w3c.tidy.Tidy
+package laika.io
 
 import scala.io.Codec
 
-/** Helpers for tests that read entire sample files with markup and compare
- *  them to pre-rendered reference files containing the expected HTML.
- * 
- * @author Jens Halm
- */
-trait FileTransformerUtil {
+/**
+  * @author Jens Halm
+  */
+object FileIO {
 
   def classPathResourcePath (path: String): String = getClass.getResource(path).getFile
-  
+
   def readFile (name: String): String = {
     val source = scala.io.Source.fromFile(name)(Codec.UTF8)
     val lines = source.mkString
     source.close()
     lines
   }
-  
-  def tidy (html: String): String = {
-    val in = new StringReader(html)
-    val out = new StringWriter
-    val t = new Tidy
-    t.setTabsize(4)
-    t.setPrintBodyOnly(true)
-    t.setShowWarnings(false)
-    t.setQuiet(true)
-    t.setInputEncoding("UTF-8")
-    t.setOutputEncoding("UTF-8")
-    t.parse(in, out)
-    out.toString
-  }
-  
   
 }

@@ -19,19 +19,19 @@ package laika.rst
 import laika.api.Transformer
 import laika.ast._
 import laika.format.{HTML, ReStructuredText}
+import laika.html.TidyHTML
+import laika.io.FileIO
 import laika.render.HTMLFormatter
-import laika.transform.helper.FileTransformerUtil
-
-import scala.io.Codec
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
+
+import scala.io.Codec
 
 /**
  * @author Jens Halm
  */
 class ReStructuredTextToHTMLSpec extends AnyFlatSpec 
-                                 with Matchers
-                                 with FileTransformerUtil {
+                                 with Matchers {
   
   implicit val codec: Codec = Codec.UTF8
     
@@ -47,7 +47,7 @@ class ReStructuredTextToHTMLSpec extends AnyFlatSpec
       .replace("$Revision: 7629 $","7629").replace("$Date: 2013-03-11 21:01:03 +0000 (Mon, 11 Mar 2013) $","2013-03-11") // RCS field substitution not supported
       .replace("""class="field-list"""", """class="docinfo"""").replace("""class="field-name"""","""class="docinfo-name"""").replace("""class="field-body"""","""class="docinfo-content"""") // docinfo field lists deferred to 0.4
     
-    tidy(prepared)
+    TidyHTML(prepared)
       .replace("<col></colgroup>", "<col>\n</colgroup>") // fix for JTidy oddity
       .replace(">\n\n<",">\n<") // rst often adds blank lines between tags
       .replace("§§§§","&mdash;") // JTidy converts it back to utf-8 char otherwise
@@ -56,8 +56,8 @@ class ReStructuredTextToHTMLSpec extends AnyFlatSpec
   
 
   def transformAndCompare (name: String): Unit = {
-    val path = classPathResourcePath("/rstSpec") + "/" + name
-    val input = readFile(path + ".rst")
+    val path = FileIO.classPathResourcePath("/rstSpec") + "/" + name
+    val input = FileIO.readFile(path + ".rst")
 
     def quotedBlockContent (content: Seq[Block], attr: Seq[Span]) =
       if (attr.isEmpty) content
@@ -87,7 +87,7 @@ class ReStructuredTextToHTMLSpec extends AnyFlatSpec
       case (_, i: InvalidBlock)                 => ""
     }.build.transform(input).toOption.get
     
-    val expected = readFile(path + "-tidy.html")
+    val expected = FileIO.readFile(path + "-tidy.html")
     tidyAndAdjust(actual) should be (expected)
   }
   

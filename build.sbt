@@ -1,3 +1,4 @@
+
 lazy val basicSettings = Seq(
   version               := "0.14.0-SNAPSHOT",
   homepage              := Some(new URL("http://planet42.github.io/Laika/")),
@@ -60,7 +61,6 @@ lazy val noPublishSettings = Seq(
 val scalatest  = "org.scalatest"          %% "scalatest"   % "3.1.1" % "test"
 val jTidy      = "net.sf.jtidy"           %  "jtidy"       % "r938"  % "test"
 
-val catsCore   = "org.typelevel"          %% "cats-core"   % "2.1.0"
 val catsEffect = "org.typelevel"          %% "cats-effect" % "2.1.1"
 
 val fop        = "org.apache.xmlgraphics" %  "fop"         % "2.3"
@@ -70,22 +70,32 @@ val http4s     = Seq(
                  )
 
 lazy val root = project.in(file("."))
-  .aggregate(core, pdf, plugin)
+  .aggregate(core.js, core.jvm, pdf, plugin)
   .settings(basicSettings)
   .settings(noPublishSettings)
   .enablePlugins(ScalaUnidocPlugin)
   .settings(unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(plugin))
 
-lazy val core = project.in(file("core"))
+lazy val core = crossProject(JSPlatform, JVMPlatform)
+  .withoutSuffixFor(JVMPlatform)
+  .crossType(CrossType.Full)
+  .in(file("core"))
   .settings(moduleSettings)
   .settings(publishSettings)
   .settings(
     name := "laika-core",
-    libraryDependencies ++= Seq(catsCore, scalatest, jTidy)
+    moduleName := "laika-core",
+    libraryDependencies ++= Seq(
+      "org.scalatest" %%% "scalatest" % "3.1.1" % "test",
+      "org.typelevel" %%% "cats-core" % "2.1.0"
+    )
+  )
+  .jvmSettings(
+    libraryDependencies += jTidy
   )
 
 lazy val io = project.in(file("io"))
-  .dependsOn(core % "compile->compile;test->test")
+  .dependsOn(core.jvm % "compile->compile;test->test")
   .settings(moduleSettings)
   .settings(publishSettings)
   .settings(
@@ -94,7 +104,7 @@ lazy val io = project.in(file("io"))
   )
   
 lazy val pdf = project.in(file("pdf"))
-  .dependsOn(core % "compile->compile;test->test", io % "compile->compile;test->test")
+  .dependsOn(core.jvm % "compile->compile;test->test", io % "compile->compile;test->test")
   .settings(moduleSettings)
   .settings(publishSettings)
   .settings(
@@ -103,7 +113,7 @@ lazy val pdf = project.in(file("pdf"))
   )
   
 lazy val plugin = project.in(file("sbt"))
-  .dependsOn(core, io, pdf)
+  .dependsOn(core.jvm, io, pdf)
   .enablePlugins(SbtPlugin)
   .settings(basicSettings)
   .settings(
@@ -118,7 +128,7 @@ lazy val plugin = project.in(file("sbt"))
   )
 
 lazy val demo = project.in(file("demo"))
-  .dependsOn(core)
+  .dependsOn(core.jvm)
   .enablePlugins(sbtdocker.DockerPlugin, JavaAppPackaging)
   .settings(basicSettings)
   .settings(

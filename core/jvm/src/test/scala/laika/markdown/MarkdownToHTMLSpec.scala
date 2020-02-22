@@ -19,18 +19,18 @@ package laika.markdown
 import laika.api.Transformer
 import laika.ast.QuotedBlock
 import laika.format.{HTML, Markdown}
-import laika.transform.helper.FileTransformerUtil
-
-import scala.io.Codec
+import laika.html.TidyHTML
+import laika.io.FileIO
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
+
+import scala.io.Codec
 
 /**
  * @author Jens Halm
  */
 class MarkdownToHTMLSpec extends AnyFlatSpec 
-                         with Matchers
-                         with FileTransformerUtil {
+                         with Matchers {
   
   implicit val codec: Codec = Codec.UTF8
   
@@ -46,12 +46,12 @@ class MarkdownToHTMLSpec extends AnyFlatSpec
       .replace(" class=\"arabic\"", "") // Standard Laika HTML renderer adds this class for ordered lists
       .replaceAll("\n[ ]+\n","\n\n") // Markdown removes spaces from blank lines in code blocks
     
-    tidy(cleaned).replace(">\n\n<",">\n<") // Markdown often adds blank lines between tags
+    TidyHTML(cleaned).replace(">\n\n<",">\n<") // Markdown often adds blank lines between tags
   }
 
   def transformAndCompare (name: String): Unit = {
-    val path = classPathResourcePath("/markdownTestSuite") + "/" + name
-    val input = readFile(path + ".md")
+    val path = FileIO.classPathResourcePath("/markdownTestSuite") + "/" + name
+    val input = FileIO.readFile(path + ".md")
     val actual = Transformer
       .from(Markdown).to(HTML)
       .strict.withRawContent
@@ -62,7 +62,7 @@ class MarkdownToHTMLSpec extends AnyFlatSpec
       .transform(input)
       .toOption
       .get
-    val expected = readFile(path + ".html")
+    val expected = FileIO.readFile(path + ".html")
     tidyAndAdjust(actual) should be (tidyAndAdjust(expected))
   }
   
