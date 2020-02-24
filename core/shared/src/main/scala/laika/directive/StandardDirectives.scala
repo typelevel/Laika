@@ -18,7 +18,7 @@ package laika.directive
 
 import cats.implicits._
 import laika.config.{ArrayValue, BooleanValue, ConfigValue, Key, NullValue, ObjectValue, StringValue}
-import laika.ast._
+import laika.ast.{SpanResolver, TemplateSpan, _}
 import laika.bundle.BundleOrigin
 import laika.rewrite.TemplateRewriter
 import laika.rewrite.nav.TocGenerator
@@ -282,22 +282,36 @@ object StandardDirectives extends DirectiveRegistry {
     spanStyle
   )
 
+  /** Template resolver that inserts links to all CSS inputs found in the document tree, using a path
+    * relative to the currently processed document. 
+    *
+    * Only has an effect for HTML and EPUB output, will be ignored for PDF output.
+    * 
+    * This is an alternative to the `@styleLinks` directive that can be used where
+    * template ASTs are created programmatically for extensions.
+    */
+  case object StyleLinks extends SpanResolver with TemplateSpan {
+    type Self = this.type
+    def withOptions (options: Options): this.type = this
+    val options: Options = NoOpt
+
+    def resolve (cursor: DocumentCursor): TemplateElement = {
+      val refPath = cursor.parent.target.path
+      val allLinks = cursor.root.target.staticDocuments.filter(_.suffix.contains("css")).map { staticPath =>
+        val path = staticPath.relativeTo(refPath).toString
+        s"""<link rel="stylesheet" type="text/css" href="$path" />"""
+      }
+      TemplateElement(RawContent(Seq("html","xhtml"), allLinks.mkString("\n    ")))
+    }
+  }
+
   /** Template directive that inserts links to all CSS inputs found in the document tree, using a path
     * relative to the currently processed document. 
     * 
     * Only has an effect for HTML and EPUB output, will be ignored for PDF output.
     */
   lazy val styleLinksDirective: Templates.Directive = Templates.create("styleLinks") {
-    import Templates.dsl._
-
-    cursor.map { docCursor =>
-      val refPath = docCursor.parent.target.path
-      val allLinks = docCursor.root.target.staticDocuments.filter(_.suffix.contains("css")).map { staticPath =>
-        val path = staticPath.relativeTo(refPath).toString
-        s"""<link rel="stylesheet" type="text/css" href="$path" />"""
-      }
-      TemplateElement(RawContent(Seq("html","xhtml"), allLinks.mkString("\n    ")))
-    }
+    Templates.dsl.cursor.map(StyleLinks.resolve)
   }
 
   /** The complete list of standard directives for templates.

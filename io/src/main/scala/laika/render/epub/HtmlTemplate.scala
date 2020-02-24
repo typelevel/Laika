@@ -16,8 +16,9 @@
 
 package laika.render.epub
 
-import laika.config.Key
 import laika.ast._
+import laika.config.Key
+import laika.directive.StandardDirectives.StyleLinks
 
 /** The default template for EPUB XHTML renderers.
   *
@@ -41,23 +42,6 @@ object HtmlTemplate {
                                |  </body>
                                |</html>""".stripMargin
 
-  // TODO - 0.14 - temporary duplication of the styleLink directive until the directive impl has been rewritten
-  case object StyleLinkSpan extends SpanResolver with TemplateSpan {
-
-    type Self = this.type 
-    def withOptions (options: Options): this.type = this
-    val options = NoOpt
-
-    def resolve (cursor: DocumentCursor): TemplateElement = {
-      val refPath = cursor.parent.target.path
-      val allLinks = cursor.root.target.staticDocuments.filter(_.suffix.contains("css")).map { staticPath =>
-        val path = staticPath.relativeTo(refPath).toString
-        s"""<link rel="stylesheet" type="text/css" href="$path" />"""
-      }
-      TemplateElement(RawContent(Seq("html","xhtml"), allLinks.mkString("\n    ")))
-    }
-  }
-
   /** The default template for EPUB XHTML renderers.
     *
     * It can be overridden by placing a custom template document
@@ -71,7 +55,7 @@ object HtmlTemplate {
       templateSpans(0),
       TemplateContextReference(Key("document","title"), required = true),
       templateSpans(1),
-      StyleLinkSpan,
+      StyleLinks,
       templateSpans(2),
       TemplateContextReference(Key("document","content"), required = true),
       templateSpans(3)
