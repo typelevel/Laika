@@ -42,16 +42,6 @@ import laika.rst.ast.{InterpretedText, ReferenceName, SubstitutionReference}
  */
 object InlineParsers {
 
-  // TODO - 0.14 - promote to TextParser
-  def ensureNot (pred: Char => Boolean): Parser[Unit] = {
-    val errMsg: Char => Message = Message.forRuntimeValue[Char] { found => s"character '$found' does not satisfy this predicate" }
-    Parser { in =>
-      if (in.atEnd) Success((), in)
-      else if (!pred(in.char)) Success((), in)
-      else Failure(errMsg(in.char), in)
-    }
-  }
-
   /** Parses an escaped character. For most characters it produces the character
     * itself as the result with the only exception being an escaped space character
     * which is removed from the output in reStructuredText.
@@ -292,7 +282,7 @@ object InlineParsers {
    */
   lazy val simpleLinkRef: SpanParserBuilder = SpanParser.standalone {
     markupEnd("__" | "_").flatMap { markup => 
-      reverse(markup.length, simpleRefName <~ ensureNot(invalidBeforeStartMarkup)).map { refName =>
+      reverse(markup.length, simpleRefName <~ nextNot(invalidBeforeStartMarkup)).map { refName =>
         markup match {
           case "_"  => Reverse(refName.length, LinkReference(List(Text(refName)), ReferenceName(refName).normalized, s"${refName}_"), Text("_")) 
           case "__" => Reverse(refName.length, LinkReference(List(Text(refName)), "", s"${refName}__"), Text("__")) 
@@ -309,8 +299,8 @@ object InlineParsers {
   }
   
   private val autoLinks = new AutoLinkParsers(
-    ensureNot(invalidBeforeStartMarkup),
-    ensureNot(invalidAfterEndMarkup),
+    nextNot(invalidBeforeStartMarkup),
+    nextNot(invalidAfterEndMarkup),
     Set('-',':','/','\'','(','{'),
     Set('-',':','/','\'',')','}','.',',',';','!','?')
   )
