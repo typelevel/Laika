@@ -203,8 +203,6 @@ class ExtensionParsers(recParsers: RecursiveParsers,
 
       ((opt(wsEol) ~> item.rep.min(1)) | success(Nil)).evalMap { fields =>
 
-        // TODO - 0.14 - might defer validation to a later step
-        
         val parsed = fields.map(_._1).toSet
 
         val unknown = parsed.diff(requiredFields).diff(optionalFields)

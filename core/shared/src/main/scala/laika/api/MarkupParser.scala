@@ -82,7 +82,7 @@ class MarkupParser (val format: MarkupFormat, val config: OperationConfig) {
       resolvedConfig <- unresolved.config.resolve(Origin(DocumentScope, input.path), 
                           config.baseConfig).left.map(ParserError(_, input.path))
     } yield {
-      val processedConfig = ConfigHeaderParser.merge(resolvedConfig, extractConfigValues(unresolved.document)) // TODO - 0.14 - move this somewhere else
+      val processedConfig = ConfigHeaderParser.merge(resolvedConfig, extractConfigValues(unresolved.document)) // TODO - move this somewhere else
       val resolvedDoc = unresolved.document.copy(config = processedConfig)
       val phase1 = resolvedDoc.rewrite(config.rewriteRulesFor(resolvedDoc))
       phase1.rewrite(TemplateRewriter.rewriteRules(DocumentCursor(phase1)))
