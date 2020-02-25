@@ -26,7 +26,6 @@ def priorTo2_13(version: String): Boolean =
   }
 
 lazy val moduleSettings = basicSettings ++ Seq(
-  crossVersion       := CrossVersion.binary,
   crossScalaVersions := Seq("2.12.10", "2.13.1")
 )
 
@@ -74,7 +73,10 @@ lazy val root = project.in(file("."))
   .settings(basicSettings)
   .settings(noPublishSettings)
   .enablePlugins(ScalaUnidocPlugin)
-  .settings(unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(plugin))
+  .settings(
+    crossScalaVersions := Nil,
+    unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(plugin)
+  )
 
 lazy val core = crossProject(JSPlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
@@ -84,10 +86,9 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
   .settings(publishSettings)
   .settings(
     name := "laika-core",
-    moduleName := "laika-core",
     libraryDependencies ++= Seq(
       "org.scalatest" %%% "scalatest" % "3.1.1" % "test",
-      "org.typelevel" %%% "cats-core" % "2.1.0"
+      "org.typelevel" %%% "cats-core" % "2.1.1"
     )
   )
   .jvmSettings(
