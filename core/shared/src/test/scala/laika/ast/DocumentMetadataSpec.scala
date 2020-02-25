@@ -61,7 +61,7 @@ class DocumentMetadataSpec extends AnyFlatSpec with Matchers {
         |}
       """.stripMargin
     val config = ConfigParser.parse(configString).resolve().toOption.get
-    DocumentMetadata.fromConfig(config) shouldBe Left(DecodingError("Invalid date format: Text '2000-XX-01T00:00:00Z' could not be parsed at index 5"))
+    DocumentMetadata.fromConfig(config).isLeft shouldBe true
   }
 
 }

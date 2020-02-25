@@ -27,9 +27,11 @@ import scala.util.Try
 object PlatformDateFormatImpl extends PlatformDateFormat {
 
   def parse (dateString: String): Either[String, Date] = {
-    Try(new Date(js.Date.parse(dateString).toLong)).toEither.left.map(_.getMessage)
+    val ms = js.Date.parse(dateString)
+    if (ms.isNaN) Left(s"Invalid date format: $dateString")
+    else Right(new Date(ms.toLong))
   }
-
+  
   // For now the js impl ignores the pattern, this might be enhanced in the future
   private[laika] def format (date: Date, pattern: String): Either[String, String] =
     Try(new js.Date(date.getTime.toDouble).toLocaleString).toEither.left.map(_.getMessage)
