@@ -1,3 +1,4 @@
+import sbt.Keys.artifactPath
 
 lazy val basicSettings = Seq(
   version               := "0.14.0-SNAPSHOT",
@@ -171,7 +172,9 @@ lazy val demo = crossProject(JSPlatform, JVMPlatform)
   .jsSettings(
     scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
     artifactPath in (Compile, fastOptJS) :=
-      (crossTarget in Compile).value / "transformer.mjs"
+      (ThisBuild / baseDirectory).value / "demo" / "client" / "src" / "transformer" / "transformer.mjs", 
+    artifactPath in (Compile, fullOptJS) :=
+      (ThisBuild / baseDirectory).value / "demo" / "client" / "src" / "transformer" / "transformer-opt.mjs"
   )
 
   
