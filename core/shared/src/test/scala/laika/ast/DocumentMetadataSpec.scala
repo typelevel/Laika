@@ -16,10 +16,8 @@
 
 package laika.ast
 
-import java.time.Instant
-import java.util.Date
-
 import laika.config.{ConfigBuilder, ConfigParser, DecodingError}
+import laika.time.PlatformDateFormat
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
@@ -37,7 +35,7 @@ class DocumentMetadataSpec extends AnyFlatSpec with Matchers {
       """.stripMargin
     val config = ConfigParser.parse(configString).resolve().toOption.get
     DocumentMetadata.fromConfig(config) shouldBe Right(DocumentMetadata(Some("urn:isbn:9781449325299"), Seq("Mia Miller"),
-      Some("en:UK"), Some(Date.from(Instant.parse("2000-01-01T00:00:00Z")))))
+      Some("en:UK"), Some(PlatformDateFormat.parse("2000-01-01T00:00:00Z").toOption.get)))
   }
 
   it should "populate multiple authors" in {
