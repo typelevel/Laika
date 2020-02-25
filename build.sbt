@@ -171,7 +171,7 @@ lazy val demo = crossProject(JSPlatform, JVMPlatform)
   .jsSettings(
     scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
     artifactPath in (Compile, fastOptJS) :=
-      (crossTarget in Compile).value / "export.mjs"
+      (crossTarget in Compile).value / "transformer.mjs"
   )
 
   

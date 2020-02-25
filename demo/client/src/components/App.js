@@ -5,6 +5,7 @@ import OutputPanel from './OutputPanel';
 import '../css/grid.css';
 import '../css/main.css'; 
 import logo from '../images/laika-top.png'
+import { ClientTransformer } from '../transformer/transformer.mjs'
 
 
 class App extends Component {
@@ -14,7 +15,23 @@ class App extends Component {
     selectedInputFormat: "md",
     selectedOutputFormat: "html-rendered",
     renderedOutputFormat: "html-rendered",
+    selectedExecutionMode: "jvm",
     markupInput: ""
+  }
+
+  transformInClient = () => {
+    console.log("transforming via client API");
+    var res;
+    if (this.state.selectedOutputFormat == "html-rendered") {
+      res = ClientTransformer.transformToRenderedHTML(this.state.selectedInputFormat, this.state.markupInput);
+    } else if (this.state.selectedOutputFormat == "html-source") {
+      res = ClientTransformer.transformToHTMLSource(this.state.selectedInputFormat, this.state.markupInput);
+    } else if (this.state.selectedOutputFormat == "ast-resolved") {
+      res = ClientTransformer.transformToResolvedAST(this.state.selectedInputFormat, this.state.markupInput);
+    } else {
+      res = ClientTransformer.transformToUnresolvedAST(this.state.selectedInputFormat, this.state.markupInput);
+    }
+    this.setState({ lastResult: res, renderedOutputFormat: this.state.selectedOutputFormat });
   }
 
   handleResponse = response => { 
@@ -29,14 +46,19 @@ class App extends Component {
   }
 
   fetchResult = () => {
-    console.log(`fetching result for format: ${this.state.selectedInputFormat}`);
-    const url = `/transform/${this.state.selectedInputFormat}/${this.state.selectedOutputFormat}`;
-    axios.post(url, this.state.markupInput, {responseType: 'text'}).then(this.handleResponse).catch(this.handleError);
+    console.log(`fetching result for format '${this.state.selectedInputFormat}' in mode '${this.state.selectedExecutionMode}'`);
+    if (this.state.selectedExecutionMode == "jvm") {
+      const url = `/transform/${this.state.selectedInputFormat}/${this.state.selectedOutputFormat}`;
+      axios.post(url, this.state.markupInput, {responseType: 'text'}).then(this.handleResponse).catch(this.handleError);
+    }
+    else {
+      this.transformInClient();
+    }
   }
 
-  handleInputChange = (format, input) => {
-    console.log(`input format changed to: ${format}`)
-    this.setState({ selectedInputFormat: format, markupInput: input }, this.fetchResult)
+  handleInputChange = (format, mode, input) => {
+    console.log(`setup change - input format: ${format} - execution mode: ${mode}`)
+    this.setState({ selectedInputFormat: format, selectedExecutionMode: mode, markupInput: input }, this.fetchResult)
   }
 
   handleOutputChange = format => {

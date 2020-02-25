@@ -38,6 +38,13 @@
   position: relative;
   border-radius: 0;
 }
+
+.btn-group.grp-left {
+  padding-right: 18px;
+}
+.btn-group.grp-right {
+  padding-left: 18px;
+}
   
 .btn-group > .btn:first-child {
   margin-left: 0;

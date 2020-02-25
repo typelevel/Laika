@@ -16,8 +16,9 @@ class ButtonGroup extends Component {
         </button>
       ); 
     });
+    const groupClasses = "btn-group " + this.props.position;
     return (
-      <div className="btn-group">
+      <div className={groupClasses}>
         {buttons}
       </div>
     );
