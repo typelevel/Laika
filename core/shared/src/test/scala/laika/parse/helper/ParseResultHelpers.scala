@@ -22,28 +22,6 @@ import org.scalatest.matchers.{MatchResult, Matcher}
 
 trait ParseResultHelpers {
 
-  class ParserFailureMatcher[T <: Failure](m: Manifest[T]) extends Matcher[Parsed[_]] {
-
-    def apply (left: Parsed[_]): MatchResult = {
-
-      val failureMessageSuffix = left match {
-        case Success(result,_)  => s"parser produced result $result instead of failing with result type ${m.runtimeClass.getSimpleName}"
-        case f @ Failure(_,_,_) => s"parser result type ${f.getClass.getSimpleName} was not the expected type ${m.runtimeClass.getSimpleName}"
-      }
-      val negatedFailureMessageSuffix = s"parser '$left' did have the unexpected result type ${m.runtimeClass.getSimpleName}"
-
-      MatchResult(
-        left.isFailure && m.runtimeClass.isInstance(left),
-        "The " + failureMessageSuffix,
-        "The " + negatedFailureMessageSuffix,
-        "the " + failureMessageSuffix,
-        "the " + negatedFailureMessageSuffix
-      )
-    }
-  }
-
-  def cause [T <: Failure] (implicit m: Manifest[T]): ParserFailureMatcher[T] = new ParserFailureMatcher[T](m)
-  
   class ParserSuccessMatcher[T] (expected: T) extends Matcher[Parsed[T]] {
 
     def apply (left: Parsed[T]): MatchResult = {

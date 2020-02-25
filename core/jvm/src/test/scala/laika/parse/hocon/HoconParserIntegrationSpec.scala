@@ -18,14 +18,13 @@ package laika.parse.hocon
 
 import laika.config.ConfigParser
 import laika.file.FileIO
-import laika.parse.helper.{ParseResultHelpers, StringParserHelpers}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
 /**
   * @author Jens Halm
   */
-class HoconParserIntegrationSpec extends AnyWordSpec with Matchers with ParseResultHelpers with StringParserHelpers with ResultBuilders {
+class HoconParserIntegrationSpec extends AnyWordSpec with Matchers with ResultBuilders {
 
   "The root parser" should {
 

@@ -16,8 +16,6 @@
 
 package laika.rst
 
-import laika.parse.Failure
-import laika.parse.helper.{ParseResultHelpers, StringParserHelpers}
 import laika.rst.BaseParsers.simpleRefName
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -25,40 +23,40 @@ import org.scalatest.wordspec.AnyWordSpec
 /**
   * @author Jens Halm
   */
-class BaseParsersSpec extends AnyWordSpec with Matchers with ParseResultHelpers with StringParserHelpers  {
+class BaseParsersSpec extends AnyWordSpec with Matchers {
 
   "The reference name parser" should {
 
     "parse a name consisting of characters" in {
-      Parsing ("name") using simpleRefName should produce ("name")
+       simpleRefName.parse("name").toEither shouldBe Right("name")
     }
-
+      
     "parse a name consisting of characters and digits" in {
-      Parsing ("7name9") using simpleRefName should produce ("7name9")
+      simpleRefName.parse("7name9").toEither shouldBe Right("7name9")
     }
 
     "parse a name consisting of characters and any of the supported symbols" in {
-      Parsing ("a-a_a.a:a+a") using simpleRefName should produce ("a-a_a.a:a+a")
+      simpleRefName.parse("a-a_a.a:a+a").toEither shouldBe Right("a-a_a.a:a+a")
     }
 
     "fail if the name starts with a symbol" in {
-      Parsing ("-a_a.a:a+a") using simpleRefName should cause [Failure]
+      simpleRefName.parse("-a_a.a:a+a").toEither.isLeft shouldBe true
     }
 
     "ignore a trailing symbol" in {
-      Parsing ("a-a_a.a:a+") using simpleRefName should produce ("a-a_a.a:a")
+      simpleRefName.parse("a-a_a.a:a+").toEither shouldBe Right("a-a_a.a:a")
     }
 
     "stop parsing at two consecutive symbols" in {
-      Parsing ("a-a.+a") using simpleRefName should produce ("a-a")
+      simpleRefName.parse("a-a.+a").toEither shouldBe Right("a-a")
     }
 
     "stop parsing at unsupported symbols" in {
-      Parsing ("a-a(a") using simpleRefName should produce ("a-a")
+      simpleRefName.parse("a-a(a").toEither shouldBe Right("a-a")
     }
 
     "parse a name containing non-ASCII characters" in {
-      Parsing ("näme") using simpleRefName should produce ("näme")
+      simpleRefName.parse("näme").toEither shouldBe Right("näme")
     }
 
   }

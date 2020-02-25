@@ -16,18 +16,17 @@
 
 package laika.parse.text
 
-import cats.implicits._
 import cats.data.NonEmptySet
-import laika.parse.{Failure, Parser}
+import cats.implicits._
+import laika.parse.Parser
 import laika.parse.builders._
-import laika.parse.helper.{ParseResultHelpers, StringParserHelpers}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
 /**
   * @author Jens Halm
   */
-class DelimiterParserSpec extends AnyWordSpec with Matchers with ParseResultHelpers with StringParserHelpers {
+class DelimiterParserSpec extends AnyWordSpec with Matchers {
 
   val skip: Parser[Unit] = oneChar.void
   
@@ -36,79 +35,80 @@ class DelimiterParserSpec extends AnyWordSpec with Matchers with ParseResultHelp
   "The delimiter parser" should {
     
     "parse a character delimiter" in {
-      Parsing ("*") using delimiter('*') should produce("*") 
+      delimiter('*').parse("*").toEither shouldBe Right("*") 
     }
 
     "parse a string literal delimiter" in {
-      Parsing ("**") using delimiter("**") should produce("**")
+      delimiter("**").parse("**").toEither shouldBe Right("**")
     }
 
     "fail if a string literal delimiter is not matched" in {
-      Parsing ("*") using delimiter("**") should cause[Failure]
+      delimiter("**").parse("*").toEither.isLeft shouldBe true
     }
 
     "parse a character group delimiter" in {
-      Parsing ("cb") using delimiter(someOf(abc).take(2)) should produce("cb")
+      delimiter(someOf(abc).take(2)).parse("cb").toEither shouldBe Right("cb")
     }
 
     "fail if a character group delimiter is not matched" in {
-      Parsing ("cd") using delimiter(someOf(abc).take(2)) should cause[Failure]
+      delimiter(someOf(abc).take(2)).parse("cd").toEither.isLeft shouldBe true
     }
 
     "parse a delimiter with a character post-condition" in {
-      Parsing ("**:") using delimiter("**").nextNot('.') should produce("**")
+      delimiter("**").nextNot('.').parse("**:").toEither shouldBe Right("**")
     }
 
     "fail when a character post-condition is not satisfied" in {
-      Parsing ("**.") using delimiter("**").nextNot('.') should cause[Failure]
+      delimiter("**").nextNot('.').parse("**.").toEither.isLeft shouldBe true
     }
 
     "parse a delimiter with a character set post-condition" in {
-      Parsing ("**:") using delimiter("**").nextNot(abc) should produce("**")
+      delimiter("**").nextNot(abc).parse("**:").toEither shouldBe Right("**")
     }
 
     "fail when a character set post-condition is not satisfied" in {
-      Parsing ("**a") using delimiter("**").nextNot(abc) should cause[Failure]
+      delimiter("**").nextNot(abc).parse("**a").toEither.isLeft shouldBe true
     }
 
     "parse a delimiter with a post-condition function" in {
-      Parsing ("**:") using delimiter("**").nextNot(_ > 'a') should produce("**")
+      delimiter("**").nextNot(_ > 'a').parse("**:").toEither shouldBe Right("**")
     }
 
     "fail when a post-condition function is not satisfied" in {
-      Parsing ("**z") using delimiter("**").nextNot(_ > 'a') should cause[Failure]
+      delimiter("**").nextNot(_ > 'a').parse("**z").toEither.isLeft shouldBe true
     }
 
     "parse a delimiter with a character pre-condition" in {
-      Parsing (":**") using skip ~> delimiter("**").prevNot('.') should produce("**")
+      (skip ~> delimiter("**").prevNot('.')).parse(":**").toEither shouldBe Right("**")
     }
 
     "fail when a character pre-condition is not satisfied" in {
-      Parsing (".**") using skip ~> delimiter("**").prevNot('.') should cause[Failure]
+      (skip ~> delimiter("**").prevNot('.')).parse(".**").toEither.isLeft shouldBe true
     }
 
     "parse a delimiter with a character set pre-condition" in {
-      Parsing (":**") using skip ~> delimiter("**").prevNot(abc) should produce("**")
+      (skip ~> delimiter("**").prevNot(abc)).parse(":**").toEither shouldBe Right("**")
     }
 
     "fail when a character set pre-condition is not satisfied" in {
-      Parsing ("a**") using skip ~> delimiter("**").prevNot(abc) should cause[Failure]
+      (skip ~> delimiter("**").prevNot(abc)).parse("a**").toEither.isLeft shouldBe true
     }
 
     "parse a delimiter with a pre-condition function" in {
-      Parsing (":**") using skip ~> delimiter("**").prevNot(_ > 'a') should produce("**")
+      (skip ~> delimiter("**").prevNot(_ > 'a')).parse(":**").toEither shouldBe Right("**")
     }
 
     "fail when a pre-condition function is not satisfied" in {
-      Parsing ("z**") using skip ~> delimiter("**").prevNot(_ > 'a') should cause[Failure]
+      (skip ~> delimiter("**").prevNot(_ > 'a')).parse("z**").toEither.isLeft shouldBe true
     }
     
     "allow composing of two delimiters" in {
       val inner = delimiter("*").nextNot('a')
       val outer = delimiter(inner).nextNot('b')
-      Parsing ("*a") using outer should cause[Failure]
-      Parsing ("*b") using outer should cause[Failure]
-      Parsing ("*c") using outer should produce("*")
+      
+      outer.parse("*a").toEither.isLeft shouldBe true
+      outer.parse("*b").toEither.isLeft shouldBe true
+      outer.parse("*c").toEither shouldBe Right("*")
     }
     
   }

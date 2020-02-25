@@ -45,49 +45,49 @@ class StyleMatchingSpec extends AnyFlatSpec
   
   
   "The style matching logic" should "not collect any styles when no selector matches" in {
-    styles.collectStyles(Text(""), Nil) should be (Map())
+    styles.collectStyles(Text(""), Nil).isEmpty shouldBe true
   }
   
   it should "collect styles with matching type selectors" in {
     styles.collectStyles(Paragraph.empty, Nil) should be (Map("selector"->"type","foo"->"bar"))
   }
-  
+
   it should "collect styles with matching class selectors" in {
     styles.collectStyles(Text("", laika.ast.Styles("class")), Nil) should be (Map("selector"->"class"))
   }
-  
+
   it should "collect styles with matching id selectors" in {
     styles.collectStyles(Text("", laika.ast.Id("id")), Nil) should be (Map("selector"->"id"))
   }
-  
+
   it should "collect styles with matching type and class selectors" in {
     styles.collectStyles(Paragraph(Nil, laika.ast.Styles("twoSelectors")), Nil) should be (Map("selector"->"twoSelectors","foo"->"bar","bar"->"foo"))
   }
-  
+
   it should "collect styles with matching parent and child selectors" in {
     styles.collectStyles(Text("", laika.ast.Styles("child")), List(Paragraph.empty)) should be (Map("selector"->"child"))
   }
-  
+
   it should "not collect any styles when the parent selector does not match" in {
     styles.collectStyles(Text("", laika.ast.Styles("child")), List(Emphasized(Nil))) should be (Map())
   }
-  
+
   it should "collect styles with matching parent and immediate child selectors" in {
     styles.collectStyles(Text("", laika.ast.Styles("immediateChild")), List(Paragraph.empty)) should be (Map("selector"->"immediateChild"))
   }
-  
+
   it should "not collect any styles when the matching parent selector is not an immediate parent" in {
     styles.collectStyles(Text("", laika.ast.Styles("immediateChild")), List(Emphasized(Nil), Paragraph.empty)) should be (Map())
   }
-  
+
   it should "collect styles with two matching parent selectors" in {
     styles.collectStyles(Text("", laika.ast.Id("bottom")), List(Emphasized(Nil, laika.ast.Styles("middle")), Paragraph.empty)) should be (Map("selector"->"twoChildren"))
   }
-  
+
   it should "not collect any styles when one of the parent selectors does not match" in {
     styles.collectStyles(Text("", laika.ast.Id("bottom")), List(Emphasized(Nil, laika.ast.Styles("middle")), Header(1, Nil))) should be (Map())
   }
-  
+
   it should "should apply styles based on order if two declarations have the same specificity" in {
     styles.collectStyles(Text("", laika.ast.Styles("pos")), Nil) should be (Map("selector"->"pos8","foo"->"bar","bar"->"foo"))
   }
