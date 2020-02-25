@@ -128,15 +128,19 @@ lazy val plugin = project.in(file("sbt"))
     scriptedBufferLog := false
   )
 
-lazy val demo = project.in(file("demo"))
-  .dependsOn(core.jvm)
+lazy val demo = crossProject(JSPlatform, JVMPlatform)
+  .withoutSuffixFor(JVMPlatform)
+  .crossType(CrossType.Full)
+  .in(file("demo"))
+  .dependsOn(core)
   .enablePlugins(sbtdocker.DockerPlugin, JavaAppPackaging)
   .settings(basicSettings)
   .settings(
     name := "laika-demo",
-    version := "0.14.0.1",
+    version := "0.14.0.2"
+  )
+  .jvmSettings(
     libraryDependencies ++= http4s,
-    scalacOptions ++= Seq("-Ypartial-unification"),
     javaOptions in Universal ++= Seq(
       "-J-Xms512M",
       "-J-Xmx896M"
@@ -164,3 +168,10 @@ lazy val demo = project.in(file("demo"))
       tag = Some(version.value)
     ))
   )
+  .jsSettings(
+    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
+    artifactPath in (Compile, fastOptJS) :=
+      (crossTarget in Compile).value / "export.mjs"
+  )
+
+  
