@@ -17,7 +17,9 @@ Running the Demo App locally
 
 * Clone the Laika repository and cd into its root folder
 
-* Start the server with `sbt "project demo" run`
+* Start the server with `sbt demo/run`
+
+* Build the Scala.js ES module with `sbt demoJS/fastOptJS`
 
 * Start the client with `cd demo/client` and `npm start`
 
