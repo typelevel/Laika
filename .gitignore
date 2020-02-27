@@ -57,3 +57,4 @@ release/
 # demo project
 node_modules/
 demo/jvm/src/main/resources/public/
+demo/client/src/transformer/
