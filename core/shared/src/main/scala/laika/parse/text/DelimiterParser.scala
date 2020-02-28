@@ -122,6 +122,4 @@ class DelimiterParser (prefix: PrefixedParser[String],
   def notEnclosedBy (predicate: (Char, Char) => Boolean): DelimiterParser = 
     new DelimiterParser(prefix, prevCharInvalid, nextCharInvalid, predicate)
   
-  // def postCondition (parser: Parser[Any]): DelimiterParser = ??? // TODO - implement
-  
 }
