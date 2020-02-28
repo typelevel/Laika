@@ -68,7 +68,7 @@
       <div class="span8" id="top">
 
         <div class="page-header">
-        <h1>Directives</h1>
+        <h1 id="directives" class="title">Directives</h1>
         </div>
         <p>Directives are Laika&#39;s extension hook for both, templates and text markup.
         They allow to add new tag-like constructs without touching the existing parsers.</p>
@@ -99,10 +99,10 @@
         <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">toc</span></code></pre>
         <p>A directive always starts with <code>@:</code> followed by the name of the directive.</p>
         <p>A more complete example is the use of the <code>for</code> directive:</p>
-        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">for</span><span> { </span><span class="string-literal">some.list.of.products</span><span> }
+        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">for</span><span>(catalog.products)
 </span><span class="tag-punctuation">&lt;</span><span class="tag-name">li</span><span class="tag-punctuation">&gt;&lt;</span><span class="tag-name">a</span><span class="tag-punctuation"> </span><span class="attribute-name">href</span><span class="tag-punctuation">=</span><span class="string-literal">&quot;#</span><span class="substitution">${_.id}</span><span class="string-literal">&quot;</span><span class="tag-punctuation">&gt;</span><span class="substitution">${_.description}</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">a</span><span class="tag-punctuation">&gt;&lt;/</span><span class="tag-name">li</span><span class="tag-punctuation">&gt;</span><span>
 </span><span class="keyword">@:@</span><span> </span></code></pre>
-        <p>Here <code>for</code> is the name of the directive, <code>some.list.of.products</code> is an unnamed
+        <p>Here <code>for</code> is the name of the directive, <code>catalog.products</code> is an unnamed
         attribute (where in this case the value is interpreted as a variable reference,
         a path the user has defined in the configuration),
         and finally the body of the directive followed by the <code>@:@</code> fence. </p>
@@ -117,11 +117,11 @@
         <p>Our <code>ticket</code> directive constructs an external link to our
         bugtracker. Since the base URL is always the same, we want to
         only write:</p>
-        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">ticket</span><span> {</span><span class="number-literal">456</span><span>}</span></code></pre>
+        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">ticket</span><span>(456)</span></code></pre>
         <p>to get the output:</p>
         <pre><code class="nohighlight"><span class="tag-punctuation">&lt;</span><span class="tag-name">a</span><span class="tag-punctuation"> </span><span class="attribute-name">href</span><span class="tag-punctuation">=</span><span class="string-literal">&quot;http://tickets.cloud42.com/main-project/456&quot;</span><span class="tag-punctuation">&gt;</span><span>#456</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">a</span><span class="tag-punctuation">&gt;</span></code></pre>
         <p>Or optionally specify a different project than the main one:</p>
-        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">ticket</span><span> {</span><span class="number-literal">456</span><span>, </span><span class="attribute-name">project</span><span>=</span><span class="string-literal">pineapple</span><span>}</span></code></pre>
+        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">ticket</span><span>(456) { project = pineapple }</span></code></pre>
         <p>to get the output:</p>
         <pre><code class="nohighlight"><span class="tag-punctuation">&lt;</span><span class="tag-name">a</span><span class="tag-punctuation"> </span><span class="attribute-name">href</span><span class="tag-punctuation">=</span><span class="string-literal">&quot;http://tickets.cloud42.com/pineapple/456&quot;</span><span class="tag-punctuation">&gt;</span><span>#456</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">a</span><span class="tag-punctuation">&gt;</span></code></pre>
         <p>The following sections explain how to implement the tag
@@ -209,11 +209,12 @@
         
         <h3 id="default-attributes" class="section">Default Attributes</h3>
         <p>A default attribute is an attribute without a name. 
-        It has to be the first attribute before any named attributes.
+        It has to be enclosed in parentheses and appear before an optionally
+        following block of HOCON attributes or a markup body.
         It allows for more concise syntax in all the cases where usually only one
         attribute is used and its meaning is obvious.</p>
         <p>Markup example:</p>
-        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">name</span><span> { </span><span class="string-literal">arg</span><span> }</span></code></pre>
+        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">name</span><span>(arg)</span></code></pre>
         <p>Combinator:</p>
         <pre><code class="nohighlight"><span class="identifier">defaultAttribute</span></code></pre>
         
@@ -277,10 +278,10 @@ this is the content of the body
         called a separator directive. It is a fairly advanced feature and probably not something you&#39;d
         need often. </p>
         <p>For an example from the built-in standard directives, let&#39;s have a look at the <code>@:if</code> directive:</p>
-        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">if</span><span> { </span><span class="string-literal">showSidebar</span><span> }
+        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">if</span><span>(showSidebar)
 </span><span class="tag-punctuation">&lt;</span><span class="tag-name">div</span><span class="tag-punctuation"> </span><span class="attribute-name">class</span><span class="tag-punctuation">=</span><span class="string-literal">&quot;sidebar&quot;</span><span class="tag-punctuation">&gt;</span><span>...</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">div</span><span class="tag-punctuation">&gt;</span><span>
 
-</span><span class="keyword">@:</span><span class="identifier">elseIf</span><span> { </span><span class="string-literal">showInfobox</span><span> }
+</span><span class="keyword">@:</span><span class="identifier">elseIf</span><span>(showInfobox)
 </span><span class="tag-punctuation">&lt;</span><span class="tag-name">div</span><span class="tag-punctuation"> </span><span class="attribute-name">class</span><span class="tag-punctuation">=</span><span class="string-literal">&quot;infobox&quot;</span><span class="tag-punctuation">&gt;</span><span>...</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">div</span><span class="tag-punctuation">&gt;</span><span>
 
 </span><span class="keyword">@:</span><span class="identifier">else</span><span>

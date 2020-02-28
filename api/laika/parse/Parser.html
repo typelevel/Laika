@@ -261,6 +261,14 @@
                         <span class="separator"></span>
                         <a class="class" href="Success.html" title="The success case of Parsed containing the result and the remaining input."></a>
                         <a href="Success.html" title="The success case of Parsed containing the result and the remaining input.">Success</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="object" href="builders$.html" title="Grouping of all parser builders that allows to construct most common parsers with a single import."></a>
+                        <a href="builders$.html" title="Grouping of all parser builders that allows to construct most common parsers with a single import.">builders</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="object" href="implicits$.html" title="Collection of extension methods that helps keeping parser definitions concise."></a>
+                        <a href="implicits$.html" title="Collection of extension methods that helps keeping parser definitions concise.">implicits</a>
                       </li>
               </ul>
             </div>
@@ -302,7 +310,7 @@
             <span class="toggle">
               Known Subclasses
             </span>
-            <div class="subClasses hiddenContent"><a href="combinator/Repeat.html" class="extype" name="laika.parse.combinator.Repeat">Repeat</a>, <a href="text/Characters.html" class="extype" name="laika.parse.text.Characters">Characters</a>, <a href="text/DelimitedText.html" class="extype" name="laika.parse.text.DelimitedText">DelimitedText</a>, <a href="text/Literal.html" class="extype" name="laika.parse.text.Literal">Literal</a></div>
+            <div class="subClasses hiddenContent"><a href="code/common/CharLiteral$$CharParser.html" class="extype" name="laika.parse.code.common.CharLiteral.CharParser">CharParser</a>, <a href="code/common/CodeParserBase.html" class="extype" name="laika.parse.code.common.CodeParserBase">CodeParserBase</a>, <a href="code/common/Identifier$$IdParser.html" class="extype" name="laika.parse.code.common.Identifier.IdParser">IdParser</a>, <a href="code/common/NumberLiteral$$NumericParser.html" class="extype" name="laika.parse.code.common.NumberLiteral.NumericParser">NumericParser</a>, <a href="code/common/StringLiteral$$StringParser.html" class="extype" name="laika.parse.code.common.StringLiteral.StringParser">StringParser</a>, <a href="code/common/TagParser.html" class="extype" name="laika.parse.code.common.TagParser">TagParser</a>, <a href="combinator/Repeat.html" class="extype" name="laika.parse.combinator.Repeat">Repeat</a>, <a href="markup/InlineParser.html" class="extype" name="laika.parse.markup.InlineParser">InlineParser</a>, <a href="text/Characters.html" class="extype" name="laika.parse.text.Characters">Characters</a>, <a href="text/DelimitedText.html" class="extype" name="laika.parse.text.DelimitedText">DelimitedText</a>, <a href="text/DelimiterParser.html" class="extype" name="laika.parse.text.DelimiterParser">DelimiterParser</a>, <a href="text/Literal.html" class="extype" name="laika.parse.text.Literal">Literal</a>, <a href="text/PrefixCharacters.html" class="extype" name="laika.parse.text.PrefixCharacters">PrefixCharacters</a>, <a href="text/PrefixedParser.html" class="extype" name="laika.parse.text.PrefixedParser">PrefixedParser</a></div>
           </div></div>
         
 
@@ -482,6 +490,25 @@ concrete implementations need to implement.
  but only keeps the left result.</p><div class="fullcomment"><div class="comment cmt"><p> Applies the specified parser to the input left over by this parser,
  but only keeps the left result.</p><p> <code>a &lt;~ b</code> only succeeds if both parsers succeed.
 </p></div></div>
+    </li><li name="laika.parse.Parser#&lt;~" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="&lt;~(value:String):laika.parse.Parser[T]"></a><a id="&lt;~(String):Parser[T]"></a>
+      <span class="permalink">
+      <a href="../../laika/parse/Parser.html#&lt;~(value:String):laika.parse.Parser[T]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $less$tilde" class="name">&lt;~</span><span class="params">(<span name="value">value: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="laika.parse.Parser.T">T</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Attempts to parse the specified literal string from the input left over by this parser,
+but only keeps the left result.</p><div class="fullcomment"><div class="comment cmt"><p>Attempts to parse the specified literal string from the input left over by this parser,
+but only keeps the left result.</p><p><code>a &lt;~ b</code> only succeeds if both parsers succeed.
+</p></div></div>
     </li><li name="scala.AnyRef#==" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="==(x$1:Any):Boolean"></a><a id="==(Any):Boolean"></a>
       <span class="permalink">
@@ -530,24 +557,6 @@ concrete implementations need to implement.
       </span>
       
       <p class="shortcomment cmt">Returns a parser that optionally parses what this parser parses.</p>
-    </li><li name="laika.parse.Parser#^?" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="^?[U](f:PartialFunction[T,U],error:T=&gt;String):laika.parse.Parser[U]"></a><a id="^?[U](PartialFunction[T,U],(T)⇒String):Parser[U]"></a>
-      <span class="permalink">
-      <a href="../../laika/parse/Parser.html#^?[U](f:PartialFunction[T,U],error:T=&gt;String):laika.parse.Parser[U]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span title="gt4s: $up$qmark" class="name">^?</span><span class="tparams">[<span name="U">U</span>]</span><span class="params">(<span name="f">f: <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<span class="extype" name="laika.parse.Parser.T">T</span>, <span class="extype" name="laika.parse.Parser.^?.U">U</span>]</span>, <span name="error">error: (<span class="extype" name="laika.parse.Parser.T">T</span>) ⇒ <span class="extype" name="scala.Predef.String">String</span> = <span class="defval" name="r =&gt; s&quot;Constructor function not defined at $r&quot;">...</span></span>)</span><span class="result">: <a href="" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="laika.parse.Parser.^?.U">U</span>]</span>
-      </span>
-      
-      <p class="shortcomment cmt"> Returns a parser that applies a partial function to the result of this parser.</p><div class="fullcomment"><div class="comment cmt"><p> Returns a parser that applies a partial function to the result of this parser.</p><p> <code>p ^? f<code> succeeds if </code>p<code> succeeds and </code>f<code> is defined at the result of </code>p<code>,
- In that case it returns </code>f<code> applied to the result of </code>p<code>.
-</code></code></p></div><dl class="paramcmts block"><dt class="param">f</dt><dd class="cmt"><p>a partial function that will be applied to this parser's result.</p></dd><dt class="param">error</dt><dd class="cmt"><p>an optional function that takes the same argument as <code>f</code> and produces an error message.</p></dd></dl></div>
     </li><li name="laika.parse.Parser#^^" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="^^[U](f:T=&gt;U):laika.parse.Parser[U]"></a><a id="^^[U]((T)⇒U):Parser[U]"></a>
       <span class="permalink">
@@ -564,10 +573,10 @@ concrete implementations need to implement.
       </span>
       
       <p class="shortcomment cmt"> A synonym for <code>map</code>, allowing the grammar to be declared in a concise way.</p>
-    </li><li name="laika.parse.Parser#^^?" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="^^?[U](f:T=&gt;Either[String,U]):laika.parse.Parser[U]"></a><a id="^^?[U]((T)⇒Either[String,U]):Parser[U]"></a>
+    </li><li name="laika.parse.Parser#as" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="as[U](v:=&gt;U):laika.parse.Parser[U]"></a><a id="as[U](⇒U):Parser[U]"></a>
       <span class="permalink">
-      <a href="../../laika/parse/Parser.html#^^?[U](f:T=&gt;Either[String,U]):laika.parse.Parser[U]" title="Permalink">
+      <a href="../../laika/parse/Parser.html#as[U](v:=&gt;U):laika.parse.Parser[U]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -576,28 +585,7 @@ concrete implementations need to implement.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $up$up$qmark" class="name">^^?</span><span class="tparams">[<span name="U">U</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="laika.parse.Parser.T">T</span>) ⇒ <span class="extype" name="scala.Either">Either</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="laika.parse.Parser.^^?.U">U</span>]</span>)</span><span class="result">: <a href="" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="laika.parse.Parser.^^?.U">U</span>]</span>
-      </span>
-      
-      <p class="shortcomment cmt"> Returns a parser that applies a function to the result of this parser producing an <code>Either</code>
- where <code>Left</code> is interpreted as failure.</p><div class="fullcomment"><div class="comment cmt"><p> Returns a parser that applies a function to the result of this parser producing an <code>Either</code>
- where <code>Left</code> is interpreted as failure. It is an alternative to <code>^?<code> for scenarios
- where the conditional check cannot be easily performed in a pattern match.</code></code></p><p> <code>p ^^? f<code> succeeds if </code>p<code> succeeds and </code>f<code> returns a </code>Right<code> when applied to the result
- of </code>p<code>.
-</code></code></p></div></div>
-    </li><li name="laika.parse.Parser#^^^" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="^^^[U](v:=&gt;U):laika.parse.Parser[U]"></a><a id="^^^[U](⇒U):Parser[U]"></a>
-      <span class="permalink">
-      <a href="../../laika/parse/Parser.html#^^^[U](v:=&gt;U):laika.parse.Parser[U]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span title="gt4s: $up$up$up" class="name">^^^</span><span class="tparams">[<span name="U">U</span>]</span><span class="params">(<span name="v">v: ⇒ <span class="extype" name="laika.parse.Parser.^^^.U">U</span></span>)</span><span class="result">: <a href="" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="laika.parse.Parser.^^^.U">U</span>]</span>
+        <span class="name">as</span><span class="tparams">[<span name="U">U</span>]</span><span class="params">(<span name="v">v: ⇒ <span class="extype" name="laika.parse.Parser.as.U">U</span></span>)</span><span class="result">: <a href="" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="laika.parse.Parser.as.U">U</span>]</span>
       </span>
       
       <p class="shortcomment cmt"> Returns a parser that ignores the result of this parser (if it succeeds)
@@ -645,6 +633,41 @@ concrete implementations need to implement.
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li name="laika.parse.Parser#collect" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="collect[U](f:PartialFunction[T,U],error:T=&gt;String):laika.parse.Parser[U]"></a><a id="collect[U](PartialFunction[T,U],(T)⇒String):Parser[U]"></a>
+      <span class="permalink">
+      <a href="../../laika/parse/Parser.html#collect[U](f:PartialFunction[T,U],error:T=&gt;String):laika.parse.Parser[U]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">collect</span><span class="tparams">[<span name="U">U</span>]</span><span class="params">(<span name="f">f: <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<span class="extype" name="laika.parse.Parser.T">T</span>, <span class="extype" name="laika.parse.Parser.collect.U">U</span>]</span>, <span name="error">error: (<span class="extype" name="laika.parse.Parser.T">T</span>) ⇒ <span class="extype" name="scala.Predef.String">String</span> = <span class="defval" name="r =&gt; s&quot;Constructor function not defined at $r&quot;">...</span></span>)</span><span class="result">: <a href="" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="laika.parse.Parser.collect.U">U</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Returns a parser that applies a partial function to the result of this parser.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a parser that applies a partial function to the result of this parser.</p><p><code>p.collect(f)</code> succeeds if <code>p</code> succeeds and <code>f</code> is defined at the result of <code>p</code>,
+In that case it returns <code>f</code> applied to the result of <code>p</code>.
+</p></div><dl class="paramcmts block"><dt class="param">f</dt><dd class="cmt"><p>a partial function that will be applied to this parser's result.</p></dd><dt class="param">error</dt><dd class="cmt"><p>an optional function that takes the same argument as <code>f</code> and produces an error message.</p></dd></dl></div>
+    </li><li name="laika.parse.Parser#count" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="count:laika.parse.Parser[Int]"></a><a id="count:Parser[Int]"></a>
+      <span class="permalink">
+      <a href="../../laika/parse/Parser.html#count:laika.parse.Parser[Int]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">count</span><span class="result">: <a href="" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Int">Int</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Returns a parser that produces the number of characters
+consumed by this parser while discarding the original result.</p>
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
       <span class="permalink">
@@ -677,6 +700,27 @@ concrete implementations need to implement.
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="laika.parse.Parser#evalMap" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="evalMap[U](f:T=&gt;Either[String,U]):laika.parse.Parser[U]"></a><a id="evalMap[U]((T)⇒Either[String,U]):Parser[U]"></a>
+      <span class="permalink">
+      <a href="../../laika/parse/Parser.html#evalMap[U](f:T=&gt;Either[String,U]):laika.parse.Parser[U]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">evalMap</span><span class="tparams">[<span name="U">U</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="laika.parse.Parser.T">T</span>) ⇒ <span class="extype" name="scala.Either">Either</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="laika.parse.Parser.evalMap.U">U</span>]</span>)</span><span class="result">: <a href="" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="laika.parse.Parser.evalMap.U">U</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt"> Returns a parser that applies a function to the result of this parser producing an <code>Either</code>
+ where <code>Left</code> is interpreted as failure.</p><div class="fullcomment"><div class="comment cmt"><p> Returns a parser that applies a function to the result of this parser producing an <code>Either</code>
+ where <code>Left</code> is interpreted as failure. It is an alternative to <code>^?<code> for scenarios
+ where the conditional check cannot be easily performed in a pattern match.</code></code></p><p> <code>p.evalMap(f)</code> succeeds if <code>p</code> succeeds and <code>f</code> returns a <code>Right</code> when applied to the result
+ of <code>p</code>.
+</p></div></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <span class="permalink">
@@ -737,6 +781,26 @@ over by this parser.</p>
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li name="laika.parse.Parser#handleErrorWith" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="handleErrorWith[U&gt;:T](f:laika.parse.Failure=&gt;laika.parse.Parser[U]):laika.parse.Parser[U]"></a><a id="handleErrorWith[U&gt;:T]((Failure)⇒Parser[U]):Parser[U]"></a>
+      <span class="permalink">
+      <a href="../../laika/parse/Parser.html#handleErrorWith[U&gt;:T](f:laika.parse.Failure=&gt;laika.parse.Parser[U]):laika.parse.Parser[U]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">handleErrorWith</span><span class="tparams">[<span name="U">U &gt;: <span class="extype" name="laika.parse.Parser.T">T</span></span>]</span><span class="params">(<span name="f">f: (<a href="Failure.html" class="extype" name="laika.parse.Failure">Failure</a>) ⇒ <a href="" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="laika.parse.Parser.handleErrorWith.U">U</span>]</span>)</span><span class="result">: <a href="" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="laika.parse.Parser.handleErrorWith.U">U</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Handle any error, potentially recovering from it, by mapping it to a new parser that
+will be applied at the same starting position than the failing parser.</p><div class="fullcomment"><div class="comment cmt"><p>Handle any error, potentially recovering from it, by mapping it to a new parser that
+will be applied at the same starting position than the failing parser.</p><p>This is similar to the <code>orElse</code> or <code>|</code> method, but allows the alternative
+parser to inspect the error of the preceding one.
+</p></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="#recoverWith[U&gt;:T](pf:PartialFunction[laika.parse.Failure,laika.parse.Parser[U]]):laika.parse.Parser[U]" class="extmbr" name="laika.parse.Parser#recoverWith">recoverWith</a> to recover from only certain errors.</p></span></dd></dl></div>
     </li><li name="scala.AnyRef#hashCode" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="hashCode():Int"></a>
       <span class="permalink">
@@ -884,6 +948,65 @@ to the result of this parser.</p>
       </span>
       
       <p class="shortcomment cmt">Parses the specified string and returns the result.</p>
+    </li><li name="laika.parse.Parser#recoverWith" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="recoverWith[U&gt;:T](pf:PartialFunction[laika.parse.Failure,laika.parse.Parser[U]]):laika.parse.Parser[U]"></a><a id="recoverWith[U&gt;:T](PartialFunction[Failure,Parser[U]]):Parser[U]"></a>
+      <span class="permalink">
+      <a href="../../laika/parse/Parser.html#recoverWith[U&gt;:T](pf:PartialFunction[laika.parse.Failure,laika.parse.Parser[U]]):laika.parse.Parser[U]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">recoverWith</span><span class="tparams">[<span name="U">U &gt;: <span class="extype" name="laika.parse.Parser.T">T</span></span>]</span><span class="params">(<span name="pf">pf: <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="Failure.html" class="extype" name="laika.parse.Failure">Failure</a>, <a href="" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="laika.parse.Parser.recoverWith.U">U</span>]]</span>)</span><span class="result">: <a href="" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="laika.parse.Parser.recoverWith.U">U</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Handle certain errors, potentially recovering from it, by mapping them to a new parser that
+will be applied at the same starting position than the failing parser.</p><div class="fullcomment"><div class="comment cmt"><p>Handle certain errors, potentially recovering from it, by mapping them to a new parser that
+will be applied at the same starting position than the failing parser.
+</p></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="#handleErrorWith[U&gt;:T](f:laika.parse.Failure=&gt;laika.parse.Parser[U]):laika.parse.Parser[U]" class="extmbr" name="laika.parse.Parser#handleErrorWith">handleErrorWith</a> to handle any/all errors.</p></span></dd></dl></div>
+    </li><li name="laika.parse.Parser#rep" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rep(separator:String):laika.parse.combinator.Repeat[T]"></a><a id="rep(String):Repeat[T]"></a>
+      <span class="permalink">
+      <a href="../../laika/parse/Parser.html#rep(separator:String):laika.parse.combinator.Repeat[T]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">rep</span><span class="params">(<span name="separator">separator: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="combinator/Repeat.html" class="extype" name="laika.parse.combinator.Repeat">Repeat</a>[<span class="extype" name="laika.parse.Parser.T">T</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Returns a parser that repeatedly applies this parser with the specified
+separator string between those invocations.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a parser that repeatedly applies this parser with the specified
+separator string between those invocations.</p><p><code>p.rep(sep).min(1)</code> is equivalent to <code>(p ~ (sep ~&gt; p).rep).concat</code>.</p><p>The returned parser offers an API to specify further constraints
+like <code>min</code> or <code>max</code>.
+</p></div></div>
+    </li><li name="laika.parse.Parser#rep" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rep(separator:laika.parse.Parser[Unit]):laika.parse.combinator.Repeat[T]"></a><a id="rep(Parser[Unit]):Repeat[T]"></a>
+      <span class="permalink">
+      <a href="../../laika/parse/Parser.html#rep(separator:laika.parse.Parser[Unit]):laika.parse.combinator.Repeat[T]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">rep</span><span class="params">(<span name="separator">separator: <a href="" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Unit">Unit</span>]</span>)</span><span class="result">: <a href="combinator/Repeat.html" class="extype" name="laika.parse.combinator.Repeat">Repeat</a>[<span class="extype" name="laika.parse.Parser.T">T</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Returns a parser that repeatedly applies this parser with the specified
+separator parser between those invocations.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a parser that repeatedly applies this parser with the specified
+separator parser between those invocations.</p><p><code>p.rep(sep).min(1)</code> is equivalent to <code>(p ~ (sep ~&gt; p).rep).concat</code>.</p><p>The returned parser offers an API to specify further constraints
+like <code>min</code> or <code>max</code>.
+</p></div></div>
     </li><li name="laika.parse.Parser#rep" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="rep:laika.parse.combinator.Repeat[T]"></a><a id="rep:Repeat[T]"></a>
       <span class="permalink">
@@ -927,6 +1050,30 @@ result of this parser (if it succeeds) plus the results of
 successful invocations of the parsers returned by the specified
 function.
 </p></div></div>
+    </li><li name="laika.parse.Parser#source" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="source:laika.parse.Parser[String]"></a><a id="source:Parser[String]"></a>
+      <span class="permalink">
+      <a href="../../laika/parse/Parser.html#source:laika.parse.Parser[String]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">source</span><span class="result">: <a href="" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Retrieves the part of the input consumed by this parser
+while discarding the result.</p><div class="fullcomment"><div class="comment cmt"><p>Retrieves the part of the input consumed by this parser
+while discarding the result.</p><p>This is useful in scenarios where many string-based parsers
+are combined and produce a deeply nested result like
+<code>String ~ Option[String] ~ List[String]</code> where it would require
+some boilerplate to concatenate the results. Using the source
+method, the entire text consumed by this combination of parsers
+will be returned.
+</p></div></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">
@@ -959,6 +1106,22 @@ function.
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="laika.parse.Parser#void" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="void:laika.parse.Parser[Unit]"></a><a id="void:Parser[Unit]"></a>
+      <span class="permalink">
+      <a href="../../laika/parse/Parser.html#void:laika.parse.Parser[Unit]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">void</span><span class="result">: <a href="" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Unit">Unit</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Discards the result of a successful parser.</p>
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <span class="permalink">
@@ -1042,7 +1205,8 @@ function.
         <span class="name">withContext</span><span class="result">: <a href="" class="extype" name="laika.parse.Parser">Parser</a>[(<span class="extype" name="laika.parse.Parser.T">T</span>, <a href="ParserContext.html" class="extype" name="laika.parse.ParserContext">ParserContext</a>)]</span>
       </span>
       
-      
+      <p class="shortcomment cmt">Adds the ParserContext positioned at the end of a successful application of this
+parser to the result in a tuple.</p>
     </li><li name="laika.parse.Parser#withFailureMessage" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="withFailureMessage(msg:String):laika.parse.Parser[T]"></a><a id="withFailureMessage(String):Parser[T]"></a>
       <span class="permalink">
@@ -1075,7 +1239,41 @@ function.
       </span>
       
       <p class="shortcomment cmt">Adds the position at the end of a successful application of this
-parser to the result.</p>
+parser to the result in a tuple.</p>
+    </li><li name="laika.parse.Parser#withSource" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="withSource:laika.parse.Parser[(T,String)]"></a><a id="withSource:Parser[(T,String)]"></a>
+      <span class="permalink">
+      <a href="../../laika/parse/Parser.html#withSource:laika.parse.Parser[(T,String)]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withSource</span><span class="result">: <a href="" class="extype" name="laika.parse.Parser">Parser</a>[(<span class="extype" name="laika.parse.Parser.T">T</span>, <span class="extype" name="scala.Predef.String">String</span>)]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Groups the result of the parser and the source string
+that it successfully parsed into a tupled result.</p>
+    </li><li name="laika.parse.Parser#|" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="|(value:String)(implicitev:T&lt;:&lt;String):laika.parse.Parser[String]"></a><a id="|(String)(&lt;:&lt;[T,String]):Parser[String]"></a>
+      <span class="permalink">
+      <a href="../../laika/parse/Parser.html#|(value:String)(implicitev:T&lt;:&lt;String):laika.parse.Parser[String]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bar" class="name">|</span><span class="params">(<span name="value">value: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ev">ev: <span class="extype" name="scala.Predef.&lt;:&lt;">&lt;:&lt;</span>[<span class="extype" name="laika.parse.Parser.T">T</span>, <span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result">: <a href="" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt"> Attempts to parse the specified literal string when this parser fails.</p><div class="fullcomment"><div class="comment cmt"><p> Attempts to parse the specified literal string when this parser fails.</p><p> <code>a | b</code> succeeds if either of the parsers succeeds.
+</p></div></div>
     </li><li name="laika.parse.Parser#|" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="|[U&gt;:T](p:=&gt;laika.parse.Parser[U]):laika.parse.Parser[U]"></a><a id="|[U&gt;:T](⇒Parser[U]):Parser[U]"></a>
       <span class="permalink">
@@ -1119,6 +1317,27 @@ parser to the result.</p>
  in a wrapper class named <code>~</code> for convenient pattern matching:</p><pre>a ~ b ~ c ^^ {
   <span class="kw">case</span> a ~ b ~ c <span class="kw">=&gt;</span> processResult(a, b, c)
 }</pre></div></div>
+    </li><li name="laika.parse.Parser#~" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="~(value:String):laika.parse.Parser[T~String]"></a><a id="~(String):Parser[~[T,String]]"></a>
+      <span class="permalink">
+      <a href="../../laika/parse/Parser.html#~(value:String):laika.parse.Parser[T~String]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $tilde" class="name">~</span><span class="params">(<span name="value">value: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../ast/package$$$tilde.html" class="extype" name="laika.ast.~">~</a>[<span class="extype" name="laika.parse.Parser.T">T</span>, <span class="extype" name="scala.Predef.String">String</span>]]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Attempts to parse the specified literal string from the input left over
+by this parser and combines the two results.</p><div class="fullcomment"><div class="comment cmt"><p>Attempts to parse the specified literal string from the input left over
+by this parser and combines the two results.</p><p> <code>a ~ b</code> only succeeds if both parsers succeed, with the results
+ in a wrapper class named <code>~</code> for convenient pattern matching:</p><pre>a ~ b ~ c ^^ {
+  <span class="kw">case</span> a ~ b ~ c <span class="kw">=&gt;</span> processResult(a, b, c)
+}</pre></div></div>
     </li><li name="laika.parse.Parser#~&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="~&gt;[U](p:laika.parse.Parser[U]):laika.parse.Parser[U]"></a><a id="~&gt;[U](Parser[U]):Parser[U]"></a>
       <span class="permalink">
@@ -1138,13 +1357,92 @@ parser to the result.</p>
  but only keeps the right result.</p><div class="fullcomment"><div class="comment cmt"><p> Applies the specified parser to the input left over by this parser,
  but only keeps the right result.</p><p> <code>a ~&gt; b</code> only succeeds if both parsers succeed.
 </p></div></div>
+    </li><li name="laika.parse.Parser#~&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="~&gt;(value:String):laika.parse.Parser[String]"></a><a id="~&gt;(String):Parser[String]"></a>
+      <span class="permalink">
+      <a href="../../laika/parse/Parser.html#~&gt;(value:String):laika.parse.Parser[String]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $tilde$greater" class="name">~&gt;</span><span class="params">(<span name="value">value: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Attempts to parse the specified literal string from the input left over by this parser,
+but only keeps the right result.</p><div class="fullcomment"><div class="comment cmt"><p>Attempts to parse the specified literal string from the input left over by this parser,
+but only keeps the right result.</p><p> <code>a ~&gt; b</code> only succeeds if both parsers succeed.
+</p></div></div>
     </li>
               </ol>
             </div>
 
         
 
-        
+        <div class="values members">
+              <h3>Deprecated Value Members</h3>
+              <ol><li name="laika.parse.Parser#^?" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="^?[U](f:PartialFunction[T,U],error:T=&gt;String):laika.parse.Parser[U]"></a><a id="^?[U](PartialFunction[T,U],(T)⇒String):Parser[U]"></a>
+      <span class="permalink">
+      <a href="../../laika/parse/Parser.html#^?[U](f:PartialFunction[T,U],error:T=&gt;String):laika.parse.Parser[U]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $up$qmark. Deprecated: (Since version 0.14.0) use collect instead" class="name deprecated">^?</span><span class="tparams">[<span name="U">U</span>]</span><span class="params">(<span name="f">f: <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<span class="extype" name="laika.parse.Parser.T">T</span>, <span class="extype" name="laika.parse.Parser.^?.U">U</span>]</span>, <span name="error">error: (<span class="extype" name="laika.parse.Parser.T">T</span>) ⇒ <span class="extype" name="scala.Predef.String">String</span> = <span class="defval" name="r =&gt; s&quot;Constructor function not defined at $r&quot;">...</span></span>)</span><span class="result">: <a href="" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="laika.parse.Parser.^?.U">U</span>]</span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.14.0)</i> use collect instead</p></dd></dl></div>
+    </li><li name="laika.parse.Parser#^^?" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="^^?[U](f:T=&gt;Either[String,U]):laika.parse.Parser[U]"></a><a id="^^?[U]((T)⇒Either[String,U]):Parser[U]"></a>
+      <span class="permalink">
+      <a href="../../laika/parse/Parser.html#^^?[U](f:T=&gt;Either[String,U]):laika.parse.Parser[U]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $up$up$qmark. Deprecated: (Since version 0.14.0) use evalMap instead" class="name deprecated">^^?</span><span class="tparams">[<span name="U">U</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="laika.parse.Parser.T">T</span>) ⇒ <span class="extype" name="scala.Either">Either</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="laika.parse.Parser.^^?.U">U</span>]</span>)</span><span class="result">: <a href="" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="laika.parse.Parser.^^?.U">U</span>]</span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.14.0)</i> use evalMap instead</p></dd></dl></div>
+    </li><li name="laika.parse.Parser#^^^" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="^^^[U](v:=&gt;U):laika.parse.Parser[U]"></a><a id="^^^[U](⇒U):Parser[U]"></a>
+      <span class="permalink">
+      <a href="../../laika/parse/Parser.html#^^^[U](v:=&gt;U):laika.parse.Parser[U]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $up$up$up. Deprecated: (Since version 0.14.0) use as() instead" class="name deprecated">^^^</span><span class="tparams">[<span name="U">U</span>]</span><span class="params">(<span name="v">v: ⇒ <span class="extype" name="laika.parse.Parser.^^^.U">U</span></span>)</span><span class="result">: <a href="" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="laika.parse.Parser.^^^.U">U</span>]</span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.14.0)</i> use as() instead</p></dd></dl></div>
+    </li></ol>
+            </div>
         </div>
 
         <div id="inheritedMembers">

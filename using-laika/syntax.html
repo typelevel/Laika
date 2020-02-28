@@ -103,15 +103,18 @@
         <p>Laika currently supports the following languages and formats:</p>
         <ul>
           <li>Scala</li>
+          <li>Dotty</li>
           <li>Java</li>
           <li>Python</li>
-          <li>JavaScript</li>
-          <li>TypeScript</li>
+          <li>JavaScript / JSX</li>
+          <li>TypeScript / TSX</li>
           <li>HTML</li>
           <li>CSS</li>
           <li>XML</li>
           <li>JSON</li>
           <li>HOCON</li>
+          <li>SQL</li>
+          <li>EBNF</li>
           <li>Laika Extensions</li>
         </ul>
         <p>The last highlighter can be used when writing documentation about Laika itself: it includes
@@ -159,7 +162,7 @@
         <p>For <code>highlight.js</code> Laika already provides this kind of blocker, in that it adds the 
         <code>nohighligting</code> class to all code blocks it has already analyzed itself.</p>
         <p>If you are using different tools you might need to customize the rendering of the
-        <code>CodeBlock</code> AST element. For details see <a href="../customizing-laika/customize-rendering.html">Customizing Renderers</a>.</p>
+        <code>CodeBlock</code> AST element. For details see <a href="../customizing-laika/customize-rendering.html#customizing-renderers">Customizing Renderers</a>.</p>
         
         <h2 id="adding-your-own-highlighters" class="section">Adding Your Own Highlighters</h2>
         <p>Creating your own highlighter can potentially be quite easy, in cases where the syntax

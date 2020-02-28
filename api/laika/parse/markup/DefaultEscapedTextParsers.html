@@ -118,9 +118,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika.parse">parse</a></dd></dl></div>
     </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="object" href="BlockParsers$.html" title="Provides base parsers that abstract aspects of block parsing common to most lightweight markup languages."></a>
-                        <a href="BlockParsers$.html" title="Provides base parsers that abstract aspects of block parsing common to most lightweight markup languages.">BlockParsers</a>
+                        <a class="object" href="BlockParsers$.html" title="Instance that allows to import all block parsers in isolation."></a>
+                        <a class="trait" href="BlockParsers.html" title="Provides base parsers that abstract aspects of block parsing common to most lightweight markup languages."></a>
+                        <a href="BlockParsers.html" title="Provides base parsers that abstract aspects of block parsing common to most lightweight markup languages.">BlockParsers</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="trait" href="" title="Default implementation for parsing escape sequences."></a>
@@ -151,8 +151,12 @@
                         <a href="InlineDelimiter.html" title="Delimiter implementation for parsing inline spans that distinguishes between a delimiter that marks the end of the span and a delimiter that marks the start of a nested span.">InlineDelimiter</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="object" href="InlineParsers$.html" title="Provides base parsers that abstract aspects of inline parsing common to most lightweight markup languages."></a>
-                        <a href="InlineParsers$.html" title="Provides base parsers that abstract aspects of inline parsing common to most lightweight markup languages.">InlineParsers</a>
+                        <a class="trait" href="InlineParser.html" title="Generic base parser that parses inline elements with potentially nested spans."></a>
+                        <a href="InlineParser.html" title="Generic base parser that parses inline elements with potentially nested spans.">InlineParser</a>
+                      </li><li class="current-entities indented3">
+                        <a class="object" href="InlineParsers$.html" title="Instance that allows to import all inline parsers in isolation."></a>
+                        <a class="trait" href="InlineParsers.html" title="Provides base parsers that abstract aspects of inline parsing common to most lightweight markup languages."></a>
+                        <a href="InlineParsers.html" title="Provides base parsers that abstract aspects of inline parsing common to most lightweight markup languages.">InlineParsers</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="trait" href="InlineResult.html" title="The result of text parsed with an InlineDelimiter."></a>
@@ -384,6 +388,27 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="laika.parse.markup.DefaultEscapedTextParsers#escapeSequence" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="escapeSequence:laika.parse.text.PrefixedParser[String]"></a><a id="escapeSequence:PrefixedParser[String]"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/markup/DefaultEscapedTextParsers.html#escapeSequence:laika.parse.text.PrefixedParser[String]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">lazy val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">escapeSequence</span><span class="result">: <a href="../text/PrefixedParser.html" class="extype" name="laika.parse.text.PrefixedParser">PrefixedParser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Parses an escape sequence (usually a backslash followed by a single char).</p><div class="fullcomment"><div class="comment cmt"><p>Parses an escape sequence (usually a backslash followed by a single char).
+The characters allowed in an escape sequence might differ between
+markup languages, therefore custom parser implementations should
+use this parser as it is always configured correctly for the current
+host language.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.parse.markup.DefaultEscapedTextParsers">DefaultEscapedTextParsers</a> → <a href="EscapedTextParsers.html" class="extype" name="laika.parse.markup.EscapedTextParsers">EscapedTextParsers</a></dd></dl></div>
     </li><li name="laika.parse.markup.DefaultEscapedTextParsers#escapedChar" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="escapedChar:laika.parse.Parser[String]"></a><a id="escapedChar:Parser[String]"></a>
       <span class="permalink">
@@ -404,9 +429,9 @@ In the default implementation any character can be escaped.
 Sub-traits may override this parser to restrict the number of escapable characters.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.parse.markup.DefaultEscapedTextParsers">DefaultEscapedTextParsers</a> → <a href="EscapedTextParsers.html" class="extype" name="laika.parse.markup.EscapedTextParsers">EscapedTextParsers</a></dd></dl></div>
     </li><li name="laika.parse.markup.DefaultEscapedTextParsers#escapedText" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="escapedText(p:laika.parse.text.DelimitedText[String]):laika.parse.Parser[String]"></a><a id="escapedText(DelimitedText[String]):Parser[String]"></a>
+      <a id="escapedText(p:laika.parse.text.DelimitedText):laika.parse.Parser[String]"></a><a id="escapedText(DelimitedText):Parser[String]"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/markup/DefaultEscapedTextParsers.html#escapedText(p:laika.parse.text.DelimitedText[String]):laika.parse.Parser[String]" title="Permalink">
+      <a href="../../../laika/parse/markup/DefaultEscapedTextParsers.html#escapedText(p:laika.parse.text.DelimitedText):laika.parse.Parser[String]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -415,15 +440,15 @@ Sub-traits may override this parser to restrict the number of escapable characte
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">escapedText</span><span class="params">(<span name="p">p: <a href="../text/DelimitedText.html" class="extype" name="laika.parse.text.DelimitedText">DelimitedText</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+        <span class="name">escapedText</span><span class="params">(<span name="p">p: <a href="../text/DelimitedText.html" class="extype" name="laika.parse.text.DelimitedText">DelimitedText</a></span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
       </span>
       
       <p class="shortcomment cmt">Adds support for escape sequences to the specified text parser.</p><div class="fullcomment"><div class="comment cmt"><p>Adds support for escape sequences to the specified text parser.
 </p></div><dl class="paramcmts block"><dt class="param">p</dt><dd class="cmt"><p>the parser to add support for escape sequences to</p></dd><dt>returns</dt><dd class="cmt"><p>a parser for a text span that supports escape sequences</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.parse.markup.DefaultEscapedTextParsers">DefaultEscapedTextParsers</a> → <a href="EscapedTextParsers.html" class="extype" name="laika.parse.markup.EscapedTextParsers">EscapedTextParsers</a></dd></dl></div>
     </li><li name="laika.parse.markup.DefaultEscapedTextParsers#escapedUntil" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="escapedUntil(char:Char*):laika.parse.Parser[String]"></a><a id="escapedUntil(Char*):Parser[String]"></a>
+      <a id="escapedUntil(char:Char,chars:Char*):laika.parse.Parser[String]"></a><a id="escapedUntil(Char,Char*):Parser[String]"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/markup/DefaultEscapedTextParsers.html#escapedUntil(char:Char*):laika.parse.Parser[String]" title="Permalink">
+      <a href="../../../laika/parse/markup/DefaultEscapedTextParsers.html#escapedUntil(char:Char,chars:Char*):laika.parse.Parser[String]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -432,7 +457,7 @@ Sub-traits may override this parser to restrict the number of escapable characte
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">escapedUntil</span><span class="params">(<span name="char">char: <span class="extype" name="scala.Char">Char</span>*</span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+        <span class="name">escapedUntil</span><span class="params">(<span name="char">char: <span class="extype" name="scala.Char">Char</span></span>, <span name="chars">chars: <span class="extype" name="scala.Char">Char</span>*</span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
       </span>
       
       <p class="shortcomment cmt">Parses a span of text until one of the specified characters is seen
@@ -442,7 +467,7 @@ while also processing escaped characters, but no other nested
 (unless it is escaped),
 while also processing escaped characters, but no other nested
  spans. The final character is not included in the result.
-</p></div><dl class="paramcmts block"><dt class="param">char</dt><dd class="cmt"><p>the character(s) that signals the end of the text span</p></dd><dt>returns</dt><dd class="cmt"><p>a parser for a text span that supports escape sequences</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.parse.markup.DefaultEscapedTextParsers">DefaultEscapedTextParsers</a> → <a href="EscapedTextParsers.html" class="extype" name="laika.parse.markup.EscapedTextParsers">EscapedTextParsers</a></dd></dl></div>
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.parse.markup.DefaultEscapedTextParsers">DefaultEscapedTextParsers</a> → <a href="EscapedTextParsers.html" class="extype" name="laika.parse.markup.EscapedTextParsers">EscapedTextParsers</a></dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <span class="permalink">

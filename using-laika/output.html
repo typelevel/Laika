@@ -77,9 +77,9 @@
         <p>Customization of the output is possible on two levels, first most formats (except
         for AST) can be styled with CSS. Secondly the rendering of specific nodes
         can be overridden with a simple partial function as described in 
-        <a href="../customizing-laika/customize-rendering.html">Customizing Renderers</a>.</p>
+        <a href="../customizing-laika/customize-rendering.html#customizing-renderers">Customizing Renderers</a>.</p>
         <p>Finally you can develop an entirely new renderer for a format not supported by Laika
-        out of the box. See chapter <a href="../extending-laika/renderer.html">Implementing a Renderer</a> for details.</p>
+        out of the box. See chapter <a href="../extending-laika/renderer.html#implementing-a-renderer">Implementing a Renderer</a> for details.</p>
         
         <h2 id="html" class="section">HTML</h2>
         <p>The HTML renderer can be used with the <code>Transform</code> or <code>Render</code> APIs:</p>
@@ -98,7 +98,7 @@
   .</span><span class="identifier">of</span><span>(</span><span class="type-name">HTML</span><span>)
   .</span><span class="identifier">build</span><span>
   .</span><span class="identifier">render</span><span>(</span><span class="identifier">doc</span><span>)</span></code></pre>
-        <p>See <a href="embedded.html">Using the Library API</a> for more details on these APIs.</p>
+        <p>See <a href="embedded.html#using-the-library-api">Using the Library API</a> for more details on these APIs.</p>
         <p>If you are using the sbt plugin you can use several of its task for generating
         HTML output:</p>
         <ul>
@@ -130,7 +130,7 @@
         in those directories. You can optionally override the template for an individual
         sub-directory simply by including a different template named <code>default.template.html</code>
         in that sub-directory.</p>
-        <p>See <a href="templates.html">Templates</a> for more details.</p>
+        <p>See <a href="templates.html#templates">Templates</a> for more details.</p>
         
         <h3 id="html-renderer-properties" class="section">HTML Renderer Properties</h3>
         <p>The <code>unformatted</code> property tells the renderer to omit any formatting (line breaks or indentation) 
@@ -171,7 +171,7 @@
   .</span><span class="identifier">build</span></code></pre>
         <p>Note that in some cases the simpler way to achieve the same result may be
         styling with CSS.</p>
-        <p>See <a href="../customizing-laika/customize-rendering.html">Customizing Renderers</a> for more details.</p>
+        <p>See <a href="../customizing-laika/customize-rendering.html#customizing-renderers">Customizing Renderers</a> for more details.</p>
         
         <h2 id="epub" class="section">EPUB</h2>
         <p>Since version 0.11.0 Laika support the generation of e-books in the EPUB format.
@@ -189,7 +189,7 @@
         <p>See <a href="sbt.html#using-the-sbt-plugin">Using the sbt Plugin</a> for more details.</p>
         <p>If you want to produce EPUB files with the library API,
         the <code>laika-io</code> module is required for the binary output:</p>
-        <pre><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> += </span><span class="string-literal">&quot;org.planet42&quot;</span><span> %% </span><span class="string-literal">&quot;laika-io&quot;</span><span> % </span><span class="string-literal">&quot;0.13.0&quot;</span></code></pre>
+        <pre><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> += </span><span class="string-literal">&quot;org.planet42&quot;</span><span> %% </span><span class="string-literal">&quot;laika-io&quot;</span><span> % </span><span class="string-literal">&quot;0.14.0&quot;</span></code></pre>
         <p>The EPUB renderer can be used with the <code>Transform</code> or <code>Render</code> APIs:</p>
         <pre><code class="nohighlight"><span class="keyword">implicit</span><span> </span><span class="keyword">val</span><span> </span><span class="identifier">cs</span><span>: </span><span class="type-name">ContextShift</span><span>[</span><span class="type-name">IO</span><span>] = 
   </span><span class="type-name">IO</span><span>.</span><span class="identifier">contextShift</span><span>(</span><span class="type-name">ExecutionContext</span><span>.</span><span class="identifier">global</span><span>)
@@ -301,7 +301,7 @@
         <p>See <a href="sbt.html#using-the-sbt-plugin">Using the sbt Plugin</a> for more details.</p>
         <p>If you want to produce PDF files with the library API,
         you need to add the <code>laika-pdf</code> module to your build:</p>
-        <pre><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> += </span><span class="string-literal">&quot;org.planet42&quot;</span><span> %% </span><span class="string-literal">&quot;laika-pdf&quot;</span><span> % </span><span class="string-literal">&quot;0.13.0&quot;</span></code></pre>
+        <pre><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> += </span><span class="string-literal">&quot;org.planet42&quot;</span><span> %% </span><span class="string-literal">&quot;laika-pdf&quot;</span><span> % </span><span class="string-literal">&quot;0.14.0&quot;</span></code></pre>
         <p>The PDF renderer can be used with the <code>Transform</code> or <code>Render</code> APIs:</p>
         <pre><code class="nohighlight"><span class="keyword">implicit</span><span> </span><span class="keyword">val</span><span> </span><span class="identifier">cs</span><span>: </span><span class="type-name">ContextShift</span><span>[</span><span class="type-name">IO</span><span>] = 
   </span><span class="type-name">IO</span><span>.</span><span class="identifier">contextShift</span><span>(</span><span class="type-name">ExecutionContext</span><span>.</span><span class="identifier">global</span><span>)
@@ -493,7 +493,7 @@
   .</span><span class="identifier">build</span></code></pre>
         <p>Note that in most cases the simpler way to achieve the same result will be
         styling with CSS.</p>
-        <p>See <a href="../customizing-laika/customize-rendering.html">Customizing Renderers</a> for more details.</p>
+        <p>See <a href="../customizing-laika/customize-rendering.html#customizing-renderers">Customizing Renderers</a> for more details.</p>
         
         <h2 id="xsl-fo" class="section">XSL-FO</h2>
         <p>XSL-FO is primarily intended as an interim format for producing PDF output, but you
@@ -544,16 +544,14 @@
   .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
   .</span><span class="identifier">to</span><span>(</span><span class="type-name">AST</span><span>)
   .</span><span class="identifier">build</span><span>
-  .</span><span class="identifier">transform</span><span>(</span><span class="identifier">input</span><span>)
-
-</span><span class="comment">/*
-res0: java.lang.String = Document - Blocks: 1
+  .</span><span class="identifier">transform</span><span>(</span><span class="identifier">input</span><span>)</span></code></pre>
+        <p>The output for the small example above will have the following format:</p>
+        <pre><code class="laika-ast">RootElement - Blocks: 1
 . Paragraph - Spans: 3
 . . Text - &#39;some &#39;
 . . Emphasized - Spans: 1
 . . . Text - &#39;text&#39;
-. . Text - &#39; example&#39;
-*/</span></code></pre>
+. . Text - &#39; example&#39;</code></pre>
         <p>Alternatively you can use the Render API to render an existing document:</p>
         <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">input</span><span> = </span><span class="string-literal">&quot;some *text* example&quot;</span><span>
 

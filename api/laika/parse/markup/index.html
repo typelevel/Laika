@@ -198,9 +198,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika.parse">parse</a></dd></dl></div>
     </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="object" href="BlockParsers$.html" title="Provides base parsers that abstract aspects of block parsing common to most lightweight markup languages."></a>
-                        <a href="BlockParsers$.html" title="Provides base parsers that abstract aspects of block parsing common to most lightweight markup languages.">BlockParsers</a>
+                        <a class="object" href="BlockParsers$.html" title="Instance that allows to import all block parsers in isolation."></a>
+                        <a class="trait" href="BlockParsers.html" title="Provides base parsers that abstract aspects of block parsing common to most lightweight markup languages."></a>
+                        <a href="BlockParsers.html" title="Provides base parsers that abstract aspects of block parsing common to most lightweight markup languages.">BlockParsers</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="trait" href="DefaultEscapedTextParsers.html" title="Default implementation for parsing escape sequences."></a>
@@ -231,8 +231,12 @@
                         <a href="InlineDelimiter.html" title="Delimiter implementation for parsing inline spans that distinguishes between a delimiter that marks the end of the span and a delimiter that marks the start of a nested span.">InlineDelimiter</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="object" href="InlineParsers$.html" title="Provides base parsers that abstract aspects of inline parsing common to most lightweight markup languages."></a>
-                        <a href="InlineParsers$.html" title="Provides base parsers that abstract aspects of inline parsing common to most lightweight markup languages.">InlineParsers</a>
+                        <a class="trait" href="InlineParser.html" title="Generic base parser that parses inline elements with potentially nested spans."></a>
+                        <a href="InlineParser.html" title="Generic base parser that parses inline elements with potentially nested spans.">InlineParser</a>
+                      </li><li class="current-entities indented3">
+                        <a class="object" href="InlineParsers$.html" title="Instance that allows to import all inline parsers in isolation."></a>
+                        <a class="trait" href="InlineParsers.html" title="Provides base parsers that abstract aspects of inline parsing common to most lightweight markup languages."></a>
+                        <a href="InlineParsers.html" title="Provides base parsers that abstract aspects of inline parsing common to most lightweight markup languages.">InlineParsers</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="trait" href="InlineResult.html" title="The result of text parsed with an InlineDelimiter."></a>
@@ -348,7 +352,25 @@
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="laika.parse.markup.DefaultEscapedTextParsers" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
+              <ol><li name="laika.parse.markup.BlockParsers" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="BlockParsersextendsAnyRef"></a><a id="BlockParsers:BlockParsers"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/markup/BlockParsers.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a title="Provides base parsers that abstract aspects of block parsing common to most lightweight markup languages." href="BlockParsers.html"><span class="name">BlockParsers</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Provides base parsers that abstract aspects of block parsing common to most lightweight markup languages.</p><div class="fullcomment"><div class="comment cmt"><p>Provides base parsers that abstract aspects of block parsing common to most lightweight markup languages.</p><p> A block parser in Laika can always safely assume that it is invoked at
+ the start of the current line and that the line is not empty.
+</p></div></div>
+    </li><li name="laika.parse.markup.DefaultEscapedTextParsers" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="DefaultEscapedTextParsersextendsEscapedTextParsers"></a><a id="DefaultEscapedTextParsers:DefaultEscapedTextParsers"></a>
       <span class="permalink">
       <a href="../../../laika/parse/markup/DefaultEscapedTextParsers.html" title="Permalink">
@@ -442,12 +464,57 @@ escaping text.</p>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a title="Delimiter implementation for parsing inline spans that distinguishes between a delimiter that marks the end of the span and a delimiter that marks the start of a nested span." href="InlineDelimiter.html"><span class="name">InlineDelimiter</span></a><span class="result"> extends <a href="../text/Delimiter.html" class="extype" name="laika.parse.text.Delimiter">Delimiter</a>[<a href="InlineResult.html" class="extype" name="laika.parse.markup.InlineResult">InlineResult</a>]</span>
+        <a title="Delimiter implementation for parsing inline spans that distinguishes between a delimiter that marks the end of the span and a delimiter that marks the start of a nested span." href="InlineDelimiter.html"><span class="name">InlineDelimiter</span></a><span class="result"> extends <span class="extype" name="laika.parse.text.Delimiter">Delimiter</span>[<a href="InlineResult.html" class="extype" name="laika.parse.markup.InlineResult">InlineResult</a>]</span>
       </span>
       
       <p class="shortcomment cmt">Delimiter implementation for parsing inline spans that distinguishes
 between a delimiter that marks the end of the span and a delimiter
 that marks the start of a nested span.</p>
+    </li><li name="laika.parse.markup.InlineParser" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="InlineParser[Elem,To]extendsParser[To]"></a><a id="InlineParser[Elem,To]:InlineParser[Elem,To]"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/markup/InlineParser.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a title="Generic base parser that parses inline elements with potentially nested spans." href="InlineParser.html"><span class="name">InlineParser</span></a><span class="tparams">[<span name="Elem">Elem</span>, <span name="To">To</span>]</span><span class="result"> extends <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="laika.parse.markup.InlineParser.To">To</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Generic base parser that parses inline elements with potentially nested spans.</p><div class="fullcomment"><div class="comment cmt"><p>Generic base parser that parses inline elements with potentially nested spans.</p><p>The two embed methods allow the registration of parsers for nested child spans.
+They can be invoked multiple times. Child parsers passed first have higher
+precedence than those passed later.</p><p>Only parsers of type <code>PrefixedParser[T]</code> can be passed to the embed methods,
+which are parsers with known, stable prefixes of the child span consisting
+of a limited set of characters so that the checks that need to be performed
+for each character can be optimized for performance.
+</p></div><dl class="paramcmts block"><dt class="tparam">Elem</dt><dd class="cmt"><p>the element type produced by a single parser for a nested span</p></dd><dt class="tparam">To</dt><dd class="cmt"><p>the type of the result this parser produces</p></dd></dl></div>
+    </li><li name="laika.parse.markup.InlineParsers" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="InlineParsersextendsAnyRef"></a><a id="InlineParsers:InlineParsers"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/markup/InlineParsers.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a title="Provides base parsers that abstract aspects of inline parsing common to most lightweight markup languages." href="InlineParsers.html"><span class="name">InlineParsers</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Provides base parsers that abstract aspects of inline parsing common to most lightweight markup languages.</p><div class="fullcomment"><div class="comment cmt"><p>Provides base parsers that abstract aspects of inline parsing common to most lightweight markup languages.</p><p> It contains helper parsers that abstract the typical logic required for parsing
+ nested spans. In many cases a parser has to recognize the end of the span as well
+ as potentially the start of a nested span. These two concerns are usually unrelated.</p><p> This object offers helpers that simplify creating these types of parsers and also
+ optimize performance of inline parsing. Due to the nature of lightweight text markup
+ inline parsing would usually require trying a long list of choices on each input
+ character, which is slow. These base parsers work based on mappings from the first
+ character of an inline span to the corresponding full parser.
+</p></div></div>
     </li><li name="laika.parse.markup.InlineResult" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="InlineResultextendsAnyRef"></a><a id="InlineResult:InlineResult"></a>
       <span class="permalink">
@@ -559,11 +626,11 @@ supported by a text markup language.</p>
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a title="Provides base parsers that abstract aspects of block parsing common to most lightweight markup languages." href="BlockParsers$.html"><span class="name">BlockParsers</span></a>
+        <a title="Instance that allows to import all block parsers in isolation." href="BlockParsers$.html"><span class="name">BlockParsers</span></a><span class="result"> extends <a href="BlockParsers.html" class="extype" name="laika.parse.markup.BlockParsers">BlockParsers</a></span>
       </span>
       
-      <p class="shortcomment cmt">Provides base parsers that abstract aspects of block parsing common to most lightweight markup languages.</p><div class="fullcomment"><div class="comment cmt"><p>Provides base parsers that abstract aspects of block parsing common to most lightweight markup languages.</p><p> A block parser in Laika can always safely assume that it is invoked at
- the start of the current line and that the line is not empty.
+      <p class="shortcomment cmt">Instance that allows to import all block parsers in isolation.</p><div class="fullcomment"><div class="comment cmt"><p>Instance that allows to import all block parsers in isolation.</p><p>Usually it is more convenient to import laika.parse.api._
+to get all parser builders with one import.
 </p></div></div>
     </li><li name="laika.parse.markup.DocumentParser" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="DocumentParser"></a><a id="DocumentParser:DocumentParser"></a>
@@ -595,16 +662,11 @@ header.</p>
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a title="Provides base parsers that abstract aspects of inline parsing common to most lightweight markup languages." href="InlineParsers$.html"><span class="name">InlineParsers</span></a>
+        <a title="Instance that allows to import all inline parsers in isolation." href="InlineParsers$.html"><span class="name">InlineParsers</span></a><span class="result"> extends <a href="InlineParsers.html" class="extype" name="laika.parse.markup.InlineParsers">InlineParsers</a></span>
       </span>
       
-      <p class="shortcomment cmt">Provides base parsers that abstract aspects of inline parsing common to most lightweight markup languages.</p><div class="fullcomment"><div class="comment cmt"><p>Provides base parsers that abstract aspects of inline parsing common to most lightweight markup languages.</p><p> It contains helper parsers that abstract the typical logic required for parsing
- nested spans. In many cases a parser has to recognize the end of the span as well
- as potentially the start of a nested span. These two concerns are usually unrelated.</p><p> This object offers helpers that simplify creating these types of parsers and also
- optimize performance of inline parsing. Due to the nature of lightweight text markup
- inline parsing would usually require trying a long list of choices on each input
- character, which is slow. These base parsers work based on mappings from the first
- character of an inline span to the corresponding full parser.
+      <p class="shortcomment cmt">Instance that allows to import all inline parsers in isolation.</p><div class="fullcomment"><div class="comment cmt"><p>Instance that allows to import all inline parsers in isolation.</p><p>Usually it is more convenient to import laika.parse.api._
+to get all parser builders with one import.
 </p></div></div>
     </li>
               </ol>

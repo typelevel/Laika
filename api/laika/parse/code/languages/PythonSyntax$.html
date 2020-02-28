@@ -139,6 +139,14 @@
                         <a href="CSSSyntax$.html" title="">CSSSyntax</a>
                       </li><li class="current-entities indented4">
                         <span class="separator"></span>
+                        <a class="object" href="DottySyntax$.html" title=""></a>
+                        <a href="DottySyntax$.html" title="">DottySyntax</a>
+                      </li><li class="current-entities indented4">
+                        <span class="separator"></span>
+                        <a class="object" href="EBNFSyntax$.html" title="This highlighter is very loosely defined with the aim to work for most of the dozens of flavors of EBNF that are widely used."></a>
+                        <a href="EBNFSyntax$.html" title="This highlighter is very loosely defined with the aim to work for most of the dozens of flavors of EBNF that are widely used.">EBNFSyntax</a>
+                      </li><li class="current-entities indented4">
+                        <span class="separator"></span>
                         <a class="object" href="HOCONSyntax$.html" title=""></a>
                         <a href="HOCONSyntax$.html" title="">HOCONSyntax</a>
                       </li><li class="current-entities indented4">
@@ -159,6 +167,10 @@
                         <a href="JavaSyntax$.html" title="">JavaSyntax</a>
                       </li><li class="current-entities indented4">
                         <span class="separator"></span>
+                        <a class="object" href="LaikaASTSyntax$.html" title=""></a>
+                        <a href="LaikaASTSyntax$.html" title="">LaikaASTSyntax</a>
+                      </li><li class="current-entities indented4">
+                        <span class="separator"></span>
                         <a class="object" href="LaikaExtensionSyntax$.html" title=""></a>
                         <a href="LaikaExtensionSyntax$.html" title="">LaikaExtensionSyntax</a>
                       </li><li class="current-entities indented4">
@@ -173,6 +185,10 @@
                         <span class="separator"></span>
                         <a class="object" href="ReStructuredTextSyntax$.html" title=""></a>
                         <a href="ReStructuredTextSyntax$.html" title="">ReStructuredTextSyntax</a>
+                      </li><li class="current-entities indented4">
+                        <span class="separator"></span>
+                        <a class="object" href="SQLSyntax$.html" title=""></a>
+                        <a href="SQLSyntax$.html" title="">SQLSyntax</a>
                       </li><li class="current-entities indented4">
                         <span class="separator"></span>
                         <a class="object" href="ScalaSyntax$.html" title=""></a>
@@ -587,9 +603,9 @@
 the parser for the host markup language</p><div class="fullcomment"><div class="comment cmt"><p>The resulting root parser composed of the individual span parsers to be used in
 the parser for the host markup language</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../../bundle/SyntaxHighlighter.html" class="extype" name="laika.bundle.SyntaxHighlighter">SyntaxHighlighter</a></dd></dl></div>
     </li><li name="laika.parse.code.languages.PythonSyntax#spanParsers" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="spanParsers:Seq[laika.parse.code.CodeSpanParsers]"></a><a id="spanParsers:Seq[CodeSpanParsers]"></a>
+      <a id="spanParsers:Seq[laika.parse.code.CodeSpanParser]"></a><a id="spanParsers:Seq[CodeSpanParser]"></a>
       <span class="permalink">
-      <a href="../../../../laika/parse/code/languages/PythonSyntax$.html#spanParsers:Seq[laika.parse.code.CodeSpanParsers]" title="Permalink">
+      <a href="../../../../laika/parse/code/languages/PythonSyntax$.html#spanParsers:Seq[laika.parse.code.CodeSpanParser]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -598,14 +614,14 @@ the parser for the host markup language</p></div><dl class="attributes block"> <
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">spanParsers</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="../CodeSpanParsers.html" class="extype" name="laika.parse.code.CodeSpanParsers">CodeSpanParsers</a>]</span>
+        <span class="name">spanParsers</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="../CodeSpanParser.html" class="extype" name="laika.parse.code.CodeSpanParser">CodeSpanParser</a>]</span>
       </span>
       
       <p class="shortcomment cmt">The parsers for individual code spans written in this language</p><div class="fullcomment"><div class="comment cmt"><p>The parsers for individual code spans written in this language</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.parse.code.languages.PythonSyntax">PythonSyntax</a> → <a href="../../../bundle/SyntaxHighlighter.html" class="extype" name="laika.bundle.SyntaxHighlighter">SyntaxHighlighter</a></dd></dl></div>
-    </li><li name="laika.parse.code.languages.PythonSyntax#stringDoublePrefix" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="stringDoublePrefix(prefixChars:Set[Char],followingChars:Set[Char],embed:laika.parse.code.common.StringLiteral.StringParser=&gt;laika.parse.code.common.StringLiteral.StringParser):laika.parse.code.CodeSpanParsers"></a><a id="stringDoublePrefix(Set[Char],Set[Char],(StringParser)⇒StringParser):CodeSpanParsers"></a>
+    </li><li name="laika.parse.code.languages.PythonSyntax#stringLiteral" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="stringLiteral(embed:laika.parse.code.common.StringLiteral.StringParser=&gt;laika.parse.code.common.StringLiteral.StringParser)(prefix:String,prefixes:String*):laika.parse.code.CodeSpanParser"></a><a id="stringLiteral((StringParser)⇒StringParser)(String,String*):CodeSpanParser"></a>
       <span class="permalink">
-      <a href="../../../../laika/parse/code/languages/PythonSyntax$.html#stringDoublePrefix(prefixChars:Set[Char],followingChars:Set[Char],embed:laika.parse.code.common.StringLiteral.StringParser=&gt;laika.parse.code.common.StringLiteral.StringParser):laika.parse.code.CodeSpanParsers" title="Permalink">
+      <a href="../../../../laika/parse/code/languages/PythonSyntax$.html#stringLiteral(embed:laika.parse.code.common.StringLiteral.StringParser=&gt;laika.parse.code.common.StringLiteral.StringParser)(prefix:String,prefixes:String*):laika.parse.code.CodeSpanParser" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -614,39 +630,7 @@ the parser for the host markup language</p></div><dl class="attributes block"> <
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">stringDoublePrefix</span><span class="params">(<span name="prefixChars">prefixChars: <span class="extype" name="scala.Predef.Set">Set</span>[<span class="extype" name="scala.Char">Char</span>]</span>, <span name="followingChars">followingChars: <span class="extype" name="scala.Predef.Set">Set</span>[<span class="extype" name="scala.Char">Char</span>]</span>, <span name="embed">embed: (<a href="../common/StringLiteral$$StringParser.html" class="extype" name="laika.parse.code.common.StringLiteral.StringParser">StringParser</a>) ⇒ <a href="../common/StringLiteral$$StringParser.html" class="extype" name="laika.parse.code.common.StringLiteral.StringParser">StringParser</a></span>)</span><span class="result">: <a href="../CodeSpanParsers.html" class="extype" name="laika.parse.code.CodeSpanParsers">CodeSpanParsers</a></span>
-      </span>
-      
-      
-    </li><li name="laika.parse.code.languages.PythonSyntax#stringNoPrefix" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="stringNoPrefix(embed:laika.parse.code.common.StringLiteral.StringParser=&gt;laika.parse.code.common.StringLiteral.StringParser):laika.parse.code.CodeSpanParsers"></a><a id="stringNoPrefix((StringParser)⇒StringParser):CodeSpanParsers"></a>
-      <span class="permalink">
-      <a href="../../../../laika/parse/code/languages/PythonSyntax$.html#stringNoPrefix(embed:laika.parse.code.common.StringLiteral.StringParser=&gt;laika.parse.code.common.StringLiteral.StringParser):laika.parse.code.CodeSpanParsers" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">stringNoPrefix</span><span class="params">(<span name="embed">embed: (<a href="../common/StringLiteral$$StringParser.html" class="extype" name="laika.parse.code.common.StringLiteral.StringParser">StringParser</a>) ⇒ <a href="../common/StringLiteral$$StringParser.html" class="extype" name="laika.parse.code.common.StringLiteral.StringParser">StringParser</a></span>)</span><span class="result">: <a href="../CodeSpanParsers.html" class="extype" name="laika.parse.code.CodeSpanParsers">CodeSpanParsers</a></span>
-      </span>
-      
-      
-    </li><li name="laika.parse.code.languages.PythonSyntax#stringSinglePrefix" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="stringSinglePrefix(prefixChars:Set[Char],embed:laika.parse.code.common.StringLiteral.StringParser=&gt;laika.parse.code.common.StringLiteral.StringParser):laika.parse.code.CodeSpanParsers"></a><a id="stringSinglePrefix(Set[Char],(StringParser)⇒StringParser):CodeSpanParsers"></a>
-      <span class="permalink">
-      <a href="../../../../laika/parse/code/languages/PythonSyntax$.html#stringSinglePrefix(prefixChars:Set[Char],embed:laika.parse.code.common.StringLiteral.StringParser=&gt;laika.parse.code.common.StringLiteral.StringParser):laika.parse.code.CodeSpanParsers" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">stringSinglePrefix</span><span class="params">(<span name="prefixChars">prefixChars: <span class="extype" name="scala.Predef.Set">Set</span>[<span class="extype" name="scala.Char">Char</span>]</span>, <span name="embed">embed: (<a href="../common/StringLiteral$$StringParser.html" class="extype" name="laika.parse.code.common.StringLiteral.StringParser">StringParser</a>) ⇒ <a href="../common/StringLiteral$$StringParser.html" class="extype" name="laika.parse.code.common.StringLiteral.StringParser">StringParser</a></span>)</span><span class="result">: <a href="../CodeSpanParsers.html" class="extype" name="laika.parse.code.CodeSpanParsers">CodeSpanParsers</a></span>
+        <span class="name">stringLiteral</span><span class="params">(<span name="embed">embed: (<a href="../common/StringLiteral$$StringParser.html" class="extype" name="laika.parse.code.common.StringLiteral.StringParser">StringParser</a>) ⇒ <a href="../common/StringLiteral$$StringParser.html" class="extype" name="laika.parse.code.common.StringLiteral.StringParser">StringParser</a></span>)</span><span class="params">(<span name="prefix">prefix: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="prefixes">prefixes: <span class="extype" name="scala.Predef.String">String</span>*</span>)</span><span class="result">: <a href="../CodeSpanParser.html" class="extype" name="laika.parse.code.CodeSpanParser">CodeSpanParser</a></span>
       </span>
       
       
@@ -750,22 +734,6 @@ the parser for the host markup language</p></div><dl class="attributes block"> <
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="laika.parse.code.languages.PythonSyntax.Prefix" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Prefix"></a><a id="Prefix:Prefix"></a>
-      <span class="permalink">
-      <a href="../../../../laika/parse/code/languages/PythonSyntax$$Prefix$.html" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a title="" href="PythonSyntax$$Prefix$.html"><span class="name">Prefix</span></a>
-      </span>
-      
-      
     </li>
               </ol>
             </div>

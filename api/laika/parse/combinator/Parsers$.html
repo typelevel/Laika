@@ -479,6 +479,25 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="laika.parse.combinator.Parsers#lookAhead" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="lookAhead(offset:Int,value:String):laika.parse.Parser[String]"></a><a id="lookAhead(Int,String):Parser[String]"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/combinator/Parsers$.html#lookAhead(offset:Int,value:String):laika.parse.Parser[String]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">lookAhead</span><span class="params">(<span name="offset">offset: <span class="extype" name="scala.Int">Int</span></span>, <span name="value">value: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Attempts to parse the specified literal value at the specified offset
+behind the current position.</p><div class="fullcomment"><div class="comment cmt"><p>Attempts to parse the specified literal value at the specified offset
+behind the current position. Never consumes any input.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Parsers.html" class="extype" name="laika.parse.combinator.Parsers">Parsers</a></dd></dl></div>
+    </li><li name="laika.parse.combinator.Parsers#lookAhead" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="lookAhead[T](offset:Int,p:laika.parse.Parser[T]):laika.parse.Parser[T]"></a><a id="lookAhead[T](Int,Parser[T]):Parser[T]"></a>
       <span class="permalink">
       <a href="../../../laika/parse/combinator/Parsers$.html#lookAhead[T](offset:Int,p:laika.parse.Parser[T]):laika.parse.Parser[T]" title="Permalink">
@@ -496,6 +515,25 @@
       <p class="shortcomment cmt"> Applies the specified parser at the specified offset behind the current
  position.</p><div class="fullcomment"><div class="comment cmt"><p> Applies the specified parser at the specified offset behind the current
  position. Never consumes any input.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Parsers.html" class="extype" name="laika.parse.combinator.Parsers">Parsers</a></dd></dl></div>
+    </li><li name="laika.parse.combinator.Parsers#lookAhead" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="lookAhead(value:String):laika.parse.Parser[String]"></a><a id="lookAhead(String):Parser[String]"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/combinator/Parsers$.html#lookAhead(value:String):laika.parse.Parser[String]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">lookAhead</span><span class="params">(<span name="value">value: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Attempts to parse the specified literal value at the current
+position.</p><div class="fullcomment"><div class="comment cmt"><p>Attempts to parse the specified literal value at the current
+position. Never consumes any input.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Parsers.html" class="extype" name="laika.parse.combinator.Parsers">Parsers</a></dd></dl></div>
     </li><li name="laika.parse.combinator.Parsers#lookAhead" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="lookAhead[T](p:laika.parse.Parser[T]):laika.parse.Parser[T]"></a><a id="lookAhead[T](Parser[T]):Parser[T]"></a>
@@ -551,6 +589,25 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="laika.parse.combinator.Parsers#not" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="not(value:String):laika.parse.Parser[Unit]"></a><a id="not(String):Parser[Unit]"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/combinator/Parsers$.html#not(value:String):laika.parse.Parser[Unit]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">not</span><span class="params">(<span name="value">value: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Unit">Unit</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">A parser that only succeeds if the parsing the specified literal value
+fails and vice versa, it never consumes any input.</p><div class="fullcomment"><div class="comment cmt"><p>A parser that only succeeds if the parsing the specified literal value
+fails and vice versa, it never consumes any input.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Parsers.html" class="extype" name="laika.parse.combinator.Parsers">Parsers</a></dd></dl></div>
     </li><li name="laika.parse.combinator.Parsers#not" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="not[T](p:laika.parse.Parser[T]):laika.parse.Parser[Unit]"></a><a id="not[T](Parser[T]):Parser[Unit]"></a>
       <span class="permalink">
@@ -608,6 +665,24 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li name="laika.parse.combinator.Parsers#opt" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="opt(value:String):laika.parse.Parser[Option[String]]"></a><a id="opt(String):Parser[Option[String]]"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/combinator/Parsers$.html#opt(value:String):laika.parse.Parser[Option[String]]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">opt</span><span class="params">(<span name="value">value: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
+      </span>
+      
+      <p class="shortcomment cmt">A parser for an optional literal string that always succeeds.</p><div class="fullcomment"><div class="comment cmt"><p>A parser for an optional literal string that always succeeds.</p><p>If the underlying parser succeeds this parser will contain its result as a <code>Some</code>,
+if it fails this parser will succeed with a <code>None</code>.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Parsers.html" class="extype" name="laika.parse.combinator.Parsers">Parsers</a></dd></dl></div>
     </li><li name="laika.parse.combinator.Parsers#opt" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="opt[T](p:laika.parse.Parser[T]):laika.parse.Parser[Option[T]]"></a><a id="opt[T](Parser[T]):Parser[Option[T]]"></a>
       <span class="permalink">

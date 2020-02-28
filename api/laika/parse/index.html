@@ -421,6 +421,14 @@
                         <span class="separator"></span>
                         <a class="class" href="Success.html" title="The success case of Parsed containing the result and the remaining input."></a>
                         <a href="Success.html" title="The success case of Parsed containing the result and the remaining input.">Success</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="object" href="builders$.html" title="Grouping of all parser builders that allows to construct most common parsers with a single import."></a>
+                        <a href="builders$.html" title="Grouping of all parser builders that allows to construct most common parsers with a single import.">builders</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="object" href="implicits$.html" title="Collection of extension methods that helps keeping parser definitions concise."></a>
+                        <a href="implicits$.html" title="Collection of extension methods that helps keeping parser definitions concise.">implicits</a>
                       </li><li name="laika.render" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="render"></a><a id="render:render"></a>
       <span class="permalink">
@@ -466,6 +474,22 @@
       </span>
       <span class="symbol">
         <a title="" href="../rst/index.html"><span class="name">rst</span></a>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika">laika</a></dd></dl></div>
+    </li><li name="laika.time" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="time"></a><a id="time:time"></a>
+      <span class="permalink">
+      <a href="../../laika/time/index.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="../time/index.html"><span class="name">time</span></a>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika">laika</a></dd></dl></div>
@@ -751,6 +775,44 @@ and factory methods.</p>
       </span>
       
       <p class="shortcomment cmt">Companion for creating new <code>ParserContext</code> instances.</p>
+    </li><li name="laika.parse.builders" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="builders"></a><a id="builders:builders"></a>
+      <span class="permalink">
+      <a href="../../laika/parse/builders$.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="Grouping of all parser builders that allows to construct most common parsers with a single import." href="builders$.html"><span class="name">builders</span></a><span class="result"> extends <a href="text/TextParsers.html" class="extype" name="laika.parse.text.TextParsers">TextParsers</a> with <a href="markup/InlineParsers.html" class="extype" name="laika.parse.markup.InlineParsers">InlineParsers</a> with <a href="markup/BlockParsers.html" class="extype" name="laika.parse.markup.BlockParsers">BlockParsers</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Grouping of all parser builders that allows to construct most common parsers with a single import.</p><div class="fullcomment"><div class="comment cmt"><p>Grouping of all parser builders that allows to construct most common parsers with a single import.</p><p>These include the base parsers like <code>opt</code> and <code>not</code>, the text parsers like <code>literal</code> and <code>anyOf(Char*)</code>,
+as well as the more specialized parsers for text markup like <code>spans</code> and <code>blocks</code>.</p><p>Alternatively these groups can be brought into scope individually.
+</p></div></div>
+    </li><li name="laika.parse.implicits" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="implicits"></a><a id="implicits:implicits"></a>
+      <span class="permalink">
+      <a href="../../laika/parse/implicits$.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="Collection of extension methods that helps keeping parser definitions concise." href="implicits$.html"><span class="name">implicits</span></a>
+      </span>
+      
+      <p class="shortcomment cmt">Collection of extension methods that helps keeping parser definitions concise.</p><div class="fullcomment"><div class="comment cmt"><p>Collection of extension methods that helps keeping parser definitions concise.</p><p>It includes extension methods on string that allows to use string literals in
+parser definitions like <code>&quot;{&quot; ~ anyNot('}') ~ &quot;}&quot;</code> and extensions for parsers
+for particular target types, e.g. <code>concat</code> for a <code>Parser[Seq[A], Seq[A]]</code>
+and <code>mapN</code> for any parser <code>Parser[A ~ B ~ C]</code> (up to 5 concatenated elements).
+</p></div></div>
     </li>
               </ol>
             </div>

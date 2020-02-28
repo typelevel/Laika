@@ -220,7 +220,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">RenderedDocument</span><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="title">title: <span class="extype" name="scala.Seq">Seq</span>[<a href="../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>]</span>, <span name="sections">sections: <span class="extype" name="scala.Seq">Seq</span>[<a href="../../ast/SectionInfo.html" class="extype" name="laika.ast.SectionInfo">SectionInfo</a>]</span>, <span name="content">content: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="RenderContent.html" class="extype" name="laika.io.model.RenderContent">RenderContent</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">RenderedDocument</span><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="title">title: <span class="extype" name="scala.Option">Option</span>[<a href="../../ast/SpanSequence.html" class="extype" name="laika.ast.SpanSequence">SpanSequence</a>]</span>, <span name="sections">sections: <span class="extype" name="scala.Seq">Seq</span>[<a href="../../ast/SectionInfo.html" class="extype" name="laika.ast.SectionInfo">SectionInfo</a>]</span>, <span name="content">content: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="RenderContent.html" class="extype" name="laika.io.model.RenderContent">RenderContent</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
@@ -278,9 +278,9 @@ step that needs to produce navigation structures.
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.io.model.RenderedDocument#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(path:laika.ast.Path,title:Seq[laika.ast.Span],sections:Seq[laika.ast.SectionInfo],content:String):laika.io.model.RenderedDocument"></a><a id="&lt;init&gt;:RenderedDocument"></a>
+      <a id="&lt;init&gt;(path:laika.ast.Path,title:Option[laika.ast.SpanSequence],sections:Seq[laika.ast.SectionInfo],content:String):laika.io.model.RenderedDocument"></a><a id="&lt;init&gt;:RenderedDocument"></a>
       <span class="permalink">
-      <a href="../../../laika/io/model/RenderedDocument.html#&lt;init&gt;(path:laika.ast.Path,title:Seq[laika.ast.Span],sections:Seq[laika.ast.SectionInfo],content:String):laika.io.model.RenderedDocument" title="Permalink">
+      <a href="../../../laika/io/model/RenderedDocument.html#&lt;init&gt;(path:laika.ast.Path,title:Option[laika.ast.SpanSequence],sections:Seq[laika.ast.SectionInfo],content:String):laika.io.model.RenderedDocument" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -289,7 +289,7 @@ step that needs to produce navigation structures.
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">RenderedDocument</span><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="title">title: <span class="extype" name="scala.Seq">Seq</span>[<a href="../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>]</span>, <span name="sections">sections: <span class="extype" name="scala.Seq">Seq</span>[<a href="../../ast/SectionInfo.html" class="extype" name="laika.ast.SectionInfo">SectionInfo</a>]</span>, <span name="content">content: <span class="extype" name="scala.Predef.String">String</span></span>)</span>
+        <span class="name">RenderedDocument</span><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="title">title: <span class="extype" name="scala.Option">Option</span>[<a href="../../ast/SpanSequence.html" class="extype" name="laika.ast.SpanSequence">SpanSequence</a>]</span>, <span name="sections">sections: <span class="extype" name="scala.Seq">Seq</span>[<a href="../../ast/SectionInfo.html" class="extype" name="laika.ast.SectionInfo">SectionInfo</a>]</span>, <span name="content">content: <span class="extype" name="scala.Predef.String">String</span></span>)</span>
       </span>
       
       
@@ -600,9 +600,9 @@ step that needs to produce navigation structures.
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="laika.io.model.RenderedDocument#title" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="title:Seq[laika.ast.Span]"></a><a id="title:Seq[Span]"></a>
+      <a id="title:Option[laika.ast.SpanSequence]"></a><a id="title:Option[SpanSequence]"></a>
       <span class="permalink">
-      <a href="../../../laika/io/model/RenderedDocument.html#title:Seq[laika.ast.Span]" title="Permalink">
+      <a href="../../../laika/io/model/RenderedDocument.html#title:Option[laika.ast.SpanSequence]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -611,7 +611,7 @@ step that needs to produce navigation structures.
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">title</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>]</span>
+        <span class="name">title</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="../../ast/SpanSequence.html" class="extype" name="laika.ast.SpanSequence">SpanSequence</a>]</span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.io.model.RenderedDocument">RenderedDocument</a> → <a href="RenderContent.html" class="extype" name="laika.io.model.RenderContent">RenderContent</a></dd></dl></div>

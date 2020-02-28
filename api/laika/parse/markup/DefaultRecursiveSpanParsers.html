@@ -118,9 +118,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika.parse">parse</a></dd></dl></div>
     </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="object" href="BlockParsers$.html" title="Provides base parsers that abstract aspects of block parsing common to most lightweight markup languages."></a>
-                        <a href="BlockParsers$.html" title="Provides base parsers that abstract aspects of block parsing common to most lightweight markup languages.">BlockParsers</a>
+                        <a class="object" href="BlockParsers$.html" title="Instance that allows to import all block parsers in isolation."></a>
+                        <a class="trait" href="BlockParsers.html" title="Provides base parsers that abstract aspects of block parsing common to most lightweight markup languages."></a>
+                        <a href="BlockParsers.html" title="Provides base parsers that abstract aspects of block parsing common to most lightweight markup languages.">BlockParsers</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="trait" href="DefaultEscapedTextParsers.html" title="Default implementation for parsing escape sequences."></a>
@@ -151,8 +151,12 @@
                         <a href="InlineDelimiter.html" title="Delimiter implementation for parsing inline spans that distinguishes between a delimiter that marks the end of the span and a delimiter that marks the start of a nested span.">InlineDelimiter</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="object" href="InlineParsers$.html" title="Provides base parsers that abstract aspects of inline parsing common to most lightweight markup languages."></a>
-                        <a href="InlineParsers$.html" title="Provides base parsers that abstract aspects of inline parsing common to most lightweight markup languages.">InlineParsers</a>
+                        <a class="trait" href="InlineParser.html" title="Generic base parser that parses inline elements with potentially nested spans."></a>
+                        <a href="InlineParser.html" title="Generic base parser that parses inline elements with potentially nested spans.">InlineParser</a>
+                      </li><li class="current-entities indented3">
+                        <a class="object" href="InlineParsers$.html" title="Instance that allows to import all inline parsers in isolation."></a>
+                        <a class="trait" href="InlineParsers.html" title="Provides base parsers that abstract aspects of inline parsing common to most lightweight markup languages."></a>
+                        <a href="InlineParsers.html" title="Provides base parsers that abstract aspects of inline parsing common to most lightweight markup languages.">InlineParsers</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="trait" href="InlineResult.html" title="The result of text parsed with an InlineDelimiter."></a>
@@ -279,9 +283,9 @@
       <p class="shortcomment cmt">Provides the syntax highlighter for the specified language if present.</p><div class="fullcomment"><div class="comment cmt"><p>Provides the syntax highlighter for the specified language if present.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RecursiveSpanParsers.html" class="extype" name="laika.parse.markup.RecursiveSpanParsers">RecursiveSpanParsers</a></dd></dl></div>
     </li><li name="laika.parse.markup.DefaultRecursiveSpanParsers#spanParsers" visbl="prt" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="spanParsers:Map[Char,laika.parse.Parser[laika.ast.Span]]"></a><a id="spanParsers:Map[Char,Parser[Span]]"></a>
+      <a id="spanParsers:Seq[laika.parse.text.PrefixedParser[laika.ast.Span]]"></a><a id="spanParsers:Seq[PrefixedParser[Span]]"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/markup/DefaultRecursiveSpanParsers.html#spanParsers:Map[Char,laika.parse.Parser[laika.ast.Span]]" title="Permalink">
+      <a href="../../../laika/parse/markup/DefaultRecursiveSpanParsers.html#spanParsers:Seq[laika.parse.text.PrefixedParser[laika.ast.Span]]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -290,18 +294,10 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">spanParsers</span><span class="result">: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Char">Char</span>, <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>]]</span>
+        <span class="name">spanParsers</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="../text/PrefixedParser.html" class="extype" name="laika.parse.text.PrefixedParser">PrefixedParser</a>[<a href="../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>]]</span>
       </span>
       
-      <p class="shortcomment cmt">The mapping of markup start characters to their corresponding
- span parsers.</p><div class="fullcomment"><div class="comment cmt"><p>The mapping of markup start characters to their corresponding
- span parsers.</p><p> A parser mapped to a start character is not required
- to successfully parse the subsequent input. If it fails the
- character that triggered the parser invocation will be treated
- as normal text. The mapping is merely used as a performance
- optimization. The parser will be invoked with the input
- offset pointing to the character after the one
- specified as the key for the mapping.
+      <p class="shortcomment cmt">All default span parsers registered for a host markup language.</p><div class="fullcomment"><div class="comment cmt"><p>All default span parsers registered for a host markup language.
 </p></div><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
     </li></ol>
             </div>
@@ -398,9 +394,9 @@
               
         </dd></dl></div>
     </li><li name="laika.parse.markup.DefaultRecursiveSpanParsers#delimitedRecursiveSpans" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="delimitedRecursiveSpans(textParser:laika.parse.text.DelimitedText[String]):laika.parse.Parser[List[laika.ast.Span]]"></a><a id="delimitedRecursiveSpans(DelimitedText[String]):Parser[List[Span]]"></a>
+      <a id="delimitedRecursiveSpans(textParser:laika.parse.text.DelimitedText):laika.parse.Parser[List[laika.ast.Span]]"></a><a id="delimitedRecursiveSpans(DelimitedText):Parser[List[Span]]"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/markup/DefaultRecursiveSpanParsers.html#delimitedRecursiveSpans(textParser:laika.parse.text.DelimitedText[String]):laika.parse.Parser[List[laika.ast.Span]]" title="Permalink">
+      <a href="../../../laika/parse/markup/DefaultRecursiveSpanParsers.html#delimitedRecursiveSpans(textParser:laika.parse.text.DelimitedText):laika.parse.Parser[List[laika.ast.Span]]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -409,19 +405,14 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">delimitedRecursiveSpans</span><span class="params">(<span name="textParser">textParser: <a href="../text/DelimitedText.html" class="extype" name="laika.parse.text.DelimitedText">DelimitedText</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.List">List</span>[<a href="../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>]]</span>
+        <span class="name">delimitedRecursiveSpans</span><span class="params">(<span name="textParser">textParser: <a href="../text/DelimitedText.html" class="extype" name="laika.parse.text.DelimitedText">DelimitedText</a></span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.List">List</span>[<a href="../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>]]</span>
       </span>
       
-      <p class="shortcomment cmt">Lifts the specified text parser to parse the string result
-as a sequence of spans.</p><div class="fullcomment"><div class="comment cmt"><p>Lifts the specified text parser to parse the string result
-as a sequence of spans.</p><p>This type of span parser is usually used in inline parsers,
-that need to process inline markup for a span with
-a delimiter while supporting nested spans.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.parse.markup.DefaultRecursiveSpanParsers">DefaultRecursiveSpanParsers</a> → <a href="RecursiveSpanParsers.html" class="extype" name="laika.parse.markup.RecursiveSpanParsers">RecursiveSpanParsers</a></dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.parse.markup.DefaultRecursiveSpanParsers">DefaultRecursiveSpanParsers</a> → <a href="RecursiveSpanParsers.html" class="extype" name="laika.parse.markup.RecursiveSpanParsers">RecursiveSpanParsers</a></dd></dl></div>
     </li><li name="laika.parse.markup.DefaultRecursiveSpanParsers#delimitedRecursiveSpans" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="delimitedRecursiveSpans(textParser:laika.parse.text.DelimitedText[String],additionalSpanParsers:=&gt;Map[Char,laika.parse.Parser[laika.ast.Span]]):laika.parse.Parser[List[laika.ast.Span]]"></a><a id="delimitedRecursiveSpans(DelimitedText[String],⇒Map[Char,Parser[Span]]):Parser[List[Span]]"></a>
+      <a id="delimitedRecursiveSpans(textParser:laika.parse.text.DelimitedText,additionalSpanParsers:=&gt;Map[Char,laika.parse.Parser[laika.ast.Span]]):laika.parse.Parser[List[laika.ast.Span]]"></a><a id="delimitedRecursiveSpans(DelimitedText,⇒Map[Char,Parser[Span]]):Parser[List[Span]]"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/markup/DefaultRecursiveSpanParsers.html#delimitedRecursiveSpans(textParser:laika.parse.text.DelimitedText[String],additionalSpanParsers:=&gt;Map[Char,laika.parse.Parser[laika.ast.Span]]):laika.parse.Parser[List[laika.ast.Span]]" title="Permalink">
+      <a href="../../../laika/parse/markup/DefaultRecursiveSpanParsers.html#delimitedRecursiveSpans(textParser:laika.parse.text.DelimitedText,additionalSpanParsers:=&gt;Map[Char,laika.parse.Parser[laika.ast.Span]]):laika.parse.Parser[List[laika.ast.Span]]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -430,16 +421,10 @@ a delimiter while supporting nested spans.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">delimitedRecursiveSpans</span><span class="params">(<span name="textParser">textParser: <a href="../text/DelimitedText.html" class="extype" name="laika.parse.text.DelimitedText">DelimitedText</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="additionalSpanParsers">additionalSpanParsers: ⇒ <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Char">Char</span>, <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>]]</span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.List">List</span>[<a href="../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>]]</span>
+        <span class="name">delimitedRecursiveSpans</span><span class="params">(<span name="textParser">textParser: <a href="../text/DelimitedText.html" class="extype" name="laika.parse.text.DelimitedText">DelimitedText</a></span>, <span name="additionalSpanParsers">additionalSpanParsers: ⇒ <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Char">Char</span>, <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>]]</span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.List">List</span>[<a href="../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>]]</span>
       </span>
       
-      <p class="shortcomment cmt">Lifts the specified text parser to parse the string result
-as a sequence of spans.</p><div class="fullcomment"><div class="comment cmt"><p>Lifts the specified text parser to parse the string result
-as a sequence of spans. Adds the specified additional parsers
-to the span parsers of the host markup language.</p><p>This type of span parser is usually used in inline parsers,
-that need to process inline markup for a span with
-a delimiter while supporting nested spans.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.parse.markup.DefaultRecursiveSpanParsers">DefaultRecursiveSpanParsers</a> → <a href="RecursiveSpanParsers.html" class="extype" name="laika.parse.markup.RecursiveSpanParsers">RecursiveSpanParsers</a></dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.parse.markup.DefaultRecursiveSpanParsers">DefaultRecursiveSpanParsers</a> → <a href="RecursiveSpanParsers.html" class="extype" name="laika.parse.markup.RecursiveSpanParsers">RecursiveSpanParsers</a></dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
       <span class="permalink">
@@ -472,6 +457,27 @@ a delimiter while supporting nested spans.
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="laika.parse.markup.DefaultEscapedTextParsers#escapeSequence" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="escapeSequence:laika.parse.text.PrefixedParser[String]"></a><a id="escapeSequence:PrefixedParser[String]"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/markup/DefaultRecursiveSpanParsers.html#escapeSequence:laika.parse.text.PrefixedParser[String]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">lazy val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">escapeSequence</span><span class="result">: <a href="../text/PrefixedParser.html" class="extype" name="laika.parse.text.PrefixedParser">PrefixedParser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Parses an escape sequence (usually a backslash followed by a single char).</p><div class="fullcomment"><div class="comment cmt"><p>Parses an escape sequence (usually a backslash followed by a single char).
+The characters allowed in an escape sequence might differ between
+markup languages, therefore custom parser implementations should
+use this parser as it is always configured correctly for the current
+host language.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="DefaultEscapedTextParsers.html" class="extype" name="laika.parse.markup.DefaultEscapedTextParsers">DefaultEscapedTextParsers</a> → <a href="EscapedTextParsers.html" class="extype" name="laika.parse.markup.EscapedTextParsers">EscapedTextParsers</a></dd></dl></div>
     </li><li name="laika.parse.markup.DefaultEscapedTextParsers#escapedChar" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="escapedChar:laika.parse.Parser[String]"></a><a id="escapedChar:Parser[String]"></a>
       <span class="permalink">
@@ -492,9 +498,9 @@ In the default implementation any character can be escaped.
 Sub-traits may override this parser to restrict the number of escapable characters.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="DefaultEscapedTextParsers.html" class="extype" name="laika.parse.markup.DefaultEscapedTextParsers">DefaultEscapedTextParsers</a> → <a href="EscapedTextParsers.html" class="extype" name="laika.parse.markup.EscapedTextParsers">EscapedTextParsers</a></dd></dl></div>
     </li><li name="laika.parse.markup.DefaultEscapedTextParsers#escapedText" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="escapedText(p:laika.parse.text.DelimitedText[String]):laika.parse.Parser[String]"></a><a id="escapedText(DelimitedText[String]):Parser[String]"></a>
+      <a id="escapedText(p:laika.parse.text.DelimitedText):laika.parse.Parser[String]"></a><a id="escapedText(DelimitedText):Parser[String]"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/markup/DefaultRecursiveSpanParsers.html#escapedText(p:laika.parse.text.DelimitedText[String]):laika.parse.Parser[String]" title="Permalink">
+      <a href="../../../laika/parse/markup/DefaultRecursiveSpanParsers.html#escapedText(p:laika.parse.text.DelimitedText):laika.parse.Parser[String]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -503,15 +509,15 @@ Sub-traits may override this parser to restrict the number of escapable characte
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">escapedText</span><span class="params">(<span name="p">p: <a href="../text/DelimitedText.html" class="extype" name="laika.parse.text.DelimitedText">DelimitedText</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+        <span class="name">escapedText</span><span class="params">(<span name="p">p: <a href="../text/DelimitedText.html" class="extype" name="laika.parse.text.DelimitedText">DelimitedText</a></span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
       </span>
       
       <p class="shortcomment cmt">Adds support for escape sequences to the specified text parser.</p><div class="fullcomment"><div class="comment cmt"><p>Adds support for escape sequences to the specified text parser.
 </p></div><dl class="paramcmts block"><dt class="param">p</dt><dd class="cmt"><p>the parser to add support for escape sequences to</p></dd><dt>returns</dt><dd class="cmt"><p>a parser for a text span that supports escape sequences</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="DefaultEscapedTextParsers.html" class="extype" name="laika.parse.markup.DefaultEscapedTextParsers">DefaultEscapedTextParsers</a> → <a href="EscapedTextParsers.html" class="extype" name="laika.parse.markup.EscapedTextParsers">EscapedTextParsers</a></dd></dl></div>
     </li><li name="laika.parse.markup.DefaultEscapedTextParsers#escapedUntil" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="escapedUntil(char:Char*):laika.parse.Parser[String]"></a><a id="escapedUntil(Char*):Parser[String]"></a>
+      <a id="escapedUntil(char:Char,chars:Char*):laika.parse.Parser[String]"></a><a id="escapedUntil(Char,Char*):Parser[String]"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/markup/DefaultRecursiveSpanParsers.html#escapedUntil(char:Char*):laika.parse.Parser[String]" title="Permalink">
+      <a href="../../../laika/parse/markup/DefaultRecursiveSpanParsers.html#escapedUntil(char:Char,chars:Char*):laika.parse.Parser[String]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -520,7 +526,7 @@ Sub-traits may override this parser to restrict the number of escapable characte
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">escapedUntil</span><span class="params">(<span name="char">char: <span class="extype" name="scala.Char">Char</span>*</span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+        <span class="name">escapedUntil</span><span class="params">(<span name="char">char: <span class="extype" name="scala.Char">Char</span></span>, <span name="chars">chars: <span class="extype" name="scala.Char">Char</span>*</span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
       </span>
       
       <p class="shortcomment cmt">Parses a span of text until one of the specified characters is seen
@@ -530,7 +536,7 @@ while also processing escaped characters, but no other nested
 (unless it is escaped),
 while also processing escaped characters, but no other nested
  spans. The final character is not included in the result.
-</p></div><dl class="paramcmts block"><dt class="param">char</dt><dd class="cmt"><p>the character(s) that signals the end of the text span</p></dd><dt>returns</dt><dd class="cmt"><p>a parser for a text span that supports escape sequences</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="DefaultEscapedTextParsers.html" class="extype" name="laika.parse.markup.DefaultEscapedTextParsers">DefaultEscapedTextParsers</a> → <a href="EscapedTextParsers.html" class="extype" name="laika.parse.markup.EscapedTextParsers">EscapedTextParsers</a></dd></dl></div>
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="DefaultEscapedTextParsers.html" class="extype" name="laika.parse.markup.DefaultEscapedTextParsers">DefaultEscapedTextParsers</a> → <a href="EscapedTextParsers.html" class="extype" name="laika.parse.markup.EscapedTextParsers">EscapedTextParsers</a></dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <span class="permalink">
@@ -662,26 +668,6 @@ while also processing escaped characters, but no other nested
               
         </dd></dl></div>
     </li><li name="laika.parse.markup.DefaultRecursiveSpanParsers#recursiveSpans" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="recursiveSpans:laika.parse.Parser[List[laika.ast.Span]]"></a><a id="recursiveSpans:Parser[List[Span]]"></a>
-      <span class="permalink">
-      <a href="../../../laika/parse/markup/DefaultRecursiveSpanParsers.html#recursiveSpans:laika.parse.Parser[List[laika.ast.Span]]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">recursiveSpans</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.List">List</span>[<a href="../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>]]</span>
-      </span>
-      
-      <p class="shortcomment cmt">Parses the input into a sequence of spans based on the available span types
-of the host markup language.</p><div class="fullcomment"><div class="comment cmt"><p>Parses the input into a sequence of spans based on the available span types
-of the host markup language.</p><p>This parser always parses to the end of the input, therefore is usually applied to
-the string result of a previous parser invocation.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.parse.markup.DefaultRecursiveSpanParsers">DefaultRecursiveSpanParsers</a> → <a href="RecursiveSpanParsers.html" class="extype" name="laika.parse.markup.RecursiveSpanParsers">RecursiveSpanParsers</a></dd></dl></div>
-    </li><li name="laika.parse.markup.DefaultRecursiveSpanParsers#recursiveSpans" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="recursiveSpans(p:laika.parse.Parser[String],additionalParsers:=&gt;Map[Char,laika.parse.Parser[laika.ast.Span]]):laika.parse.Parser[List[laika.ast.Span]]"></a><a id="recursiveSpans(Parser[String],⇒Map[Char,Parser[Span]]):Parser[List[Span]]"></a>
       <span class="permalink">
       <a href="../../../laika/parse/markup/DefaultRecursiveSpanParsers.html#recursiveSpans(p:laika.parse.Parser[String],additionalParsers:=&gt;Map[Char,laika.parse.Parser[laika.ast.Span]]):laika.parse.Parser[List[laika.ast.Span]]" title="Permalink">
@@ -696,17 +682,11 @@ the string result of a previous parser invocation.
         <span class="name">recursiveSpans</span><span class="params">(<span name="p">p: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="additionalParsers">additionalParsers: ⇒ <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Char">Char</span>, <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>]] = <span class="symbol">Map.empty</span></span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.List">List</span>[<a href="../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>]]</span>
       </span>
       
-      <p class="shortcomment cmt">Lifts the specified text parser to parse the string result
-as a sequence of spans.</p><div class="fullcomment"><div class="comment cmt"><p>Lifts the specified text parser to parse the string result
-as a sequence of spans. Adds the specified additional parsers
-to the span parsers of the host markup language.</p><p>This type of span parser is usually used in block parsers,
-that need to process inline markup after the text for the block
-has been parsed from the input string.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.parse.markup.DefaultRecursiveSpanParsers">DefaultRecursiveSpanParsers</a> → <a href="RecursiveSpanParsers.html" class="extype" name="laika.parse.markup.RecursiveSpanParsers">RecursiveSpanParsers</a></dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.parse.markup.DefaultRecursiveSpanParsers">DefaultRecursiveSpanParsers</a> → <a href="RecursiveSpanParsers.html" class="extype" name="laika.parse.markup.RecursiveSpanParsers">RecursiveSpanParsers</a></dd></dl></div>
     </li><li name="laika.parse.markup.DefaultRecursiveSpanParsers#recursiveSpans" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="recursiveSpans(p:laika.parse.Parser[String]):laika.parse.Parser[List[laika.ast.Span]]"></a><a id="recursiveSpans(Parser[String]):Parser[List[Span]]"></a>
+      <a id="recursiveSpans:laika.parse.markup.InlineParser[laika.ast.Span,List[laika.ast.Span]]"></a><a id="recursiveSpans:InlineParser[Span,List[Span]]"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/markup/DefaultRecursiveSpanParsers.html#recursiveSpans(p:laika.parse.Parser[String]):laika.parse.Parser[List[laika.ast.Span]]" title="Permalink">
+      <a href="../../../laika/parse/markup/DefaultRecursiveSpanParsers.html#recursiveSpans:laika.parse.markup.InlineParser[laika.ast.Span,List[laika.ast.Span]]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -715,14 +695,40 @@ has been parsed from the input string.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">recursiveSpans</span><span class="params">(<span name="p">p: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.List">List</span>[<a href="../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>]]</span>
+        <span class="name">recursiveSpans</span><span class="result">: <a href="InlineParser.html" class="extype" name="laika.parse.markup.InlineParser">InlineParser</a>[<a href="../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>, <span class="extype" name="scala.List">List</span>[<a href="../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>]]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Parses the input into a sequence of spans based on the available span types
+of the host markup language.</p><div class="fullcomment"><div class="comment cmt"><p>Parses the input into a sequence of spans based on the available span types
+of the host markup language.</p><p>This parser always parses to the end of the input, therefore is usually applied to
+the string result of a previous parser invocation.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.parse.markup.DefaultRecursiveSpanParsers">DefaultRecursiveSpanParsers</a> → <a href="RecursiveSpanParsers.html" class="extype" name="laika.parse.markup.RecursiveSpanParsers">RecursiveSpanParsers</a></dd></dl></div>
+    </li><li name="laika.parse.markup.DefaultRecursiveSpanParsers#recursiveSpans" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="recursiveSpans(p:laika.parse.Parser[String]):laika.parse.markup.InlineParser[laika.ast.Span,List[laika.ast.Span]]"></a><a id="recursiveSpans(Parser[String]):InlineParser[Span,List[Span]]"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/markup/DefaultRecursiveSpanParsers.html#recursiveSpans(p:laika.parse.Parser[String]):laika.parse.markup.InlineParser[laika.ast.Span,List[laika.ast.Span]]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">recursiveSpans</span><span class="params">(<span name="p">p: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result">: <a href="InlineParser.html" class="extype" name="laika.parse.markup.InlineParser">InlineParser</a>[<a href="../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>, <span class="extype" name="scala.List">List</span>[<a href="../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>]]</span>
       </span>
       
       <p class="shortcomment cmt">Lifts the specified text parser to parse the string result
 as a sequence of spans.</p><div class="fullcomment"><div class="comment cmt"><p>Lifts the specified text parser to parse the string result
-as a sequence of spans.</p><p>This type of span parser is usually used in block parsers,
+as a sequence of spans.</p><p>This type of span parser is usually either used in block parsers,
 that need to process inline markup after the text for the block
-has been parsed from the input string.
+has been parsed from the input string or for inline parsers,
+that need to process inline markup for a span with
+a delimiter while supporting nested spans.</p><p>In the latter case the passed parser is usually of type <code>DelimitedText</code>
+which is an optimized parser that parses text and recursive spans in one pass.
+For other kinds of parsers the resulting parser will be a two-pass parser.</p><p>The returned parser allows to register parsers for child spans with its <code>embed</code> method
+for parsing types of child spans in addition to the available span types of the
+host markup language
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.parse.markup.DefaultRecursiveSpanParsers">DefaultRecursiveSpanParsers</a> → <a href="RecursiveSpanParsers.html" class="extype" name="laika.parse.markup.RecursiveSpanParsers">RecursiveSpanParsers</a></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>

@@ -118,9 +118,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika.parse">parse</a></dd></dl></div>
     </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="object" href="BlockParsers$.html" title="Provides base parsers that abstract aspects of block parsing common to most lightweight markup languages."></a>
-                        <a href="BlockParsers$.html" title="Provides base parsers that abstract aspects of block parsing common to most lightweight markup languages.">BlockParsers</a>
+                        <a class="object" href="BlockParsers$.html" title="Instance that allows to import all block parsers in isolation."></a>
+                        <a class="trait" href="BlockParsers.html" title="Provides base parsers that abstract aspects of block parsing common to most lightweight markup languages."></a>
+                        <a href="BlockParsers.html" title="Provides base parsers that abstract aspects of block parsing common to most lightweight markup languages.">BlockParsers</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="trait" href="DefaultEscapedTextParsers.html" title="Default implementation for parsing escape sequences."></a>
@@ -151,8 +151,12 @@
                         <a href="" title="Delimiter implementation for parsing inline spans that distinguishes between a delimiter that marks the end of the span and a delimiter that marks the start of a nested span.">InlineDelimiter</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="object" href="InlineParsers$.html" title="Provides base parsers that abstract aspects of inline parsing common to most lightweight markup languages."></a>
-                        <a href="InlineParsers$.html" title="Provides base parsers that abstract aspects of inline parsing common to most lightweight markup languages.">InlineParsers</a>
+                        <a class="trait" href="InlineParser.html" title="Generic base parser that parses inline elements with potentially nested spans."></a>
+                        <a href="InlineParser.html" title="Generic base parser that parses inline elements with potentially nested spans.">InlineParser</a>
+                      </li><li class="current-entities indented3">
+                        <a class="object" href="InlineParsers$.html" title="Instance that allows to import all inline parsers in isolation."></a>
+                        <a class="trait" href="InlineParsers.html" title="Provides base parsers that abstract aspects of inline parsing common to most lightweight markup languages."></a>
+                        <a href="InlineParsers.html" title="Provides base parsers that abstract aspects of inline parsing common to most lightweight markup languages.">InlineParsers</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="trait" href="InlineResult.html" title="The result of text parsed with an InlineDelimiter."></a>
@@ -196,7 +200,7 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <span class="name">InlineDelimiter</span><span class="result"> extends <a href="../text/Delimiter.html" class="extype" name="laika.parse.text.Delimiter">Delimiter</a>[<a href="InlineResult.html" class="extype" name="laika.parse.markup.InlineResult">InlineResult</a>]</span>
+        <span class="name">InlineDelimiter</span><span class="result"> extends <span class="extype" name="laika.parse.text.Delimiter">Delimiter</span>[<a href="InlineResult.html" class="extype" name="laika.parse.markup.InlineResult">InlineResult</a>]</span>
       </span>
       </h4>
 
@@ -208,7 +212,7 @@ that marks the start of a nested span.
           <span class="toggle">
             Linear Supertypes
           </span>
-          <div class="superTypes hiddenContent"><a href="../text/Delimiter.html" class="extype" name="laika.parse.text.Delimiter">Delimiter</a>[<a href="InlineResult.html" class="extype" name="laika.parse.markup.InlineResult">InlineResult</a>], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="laika.parse.text.Delimiter">Delimiter</span>[<a href="InlineResult.html" class="extype" name="laika.parse.markup.InlineResult">InlineResult</a>], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -266,7 +270,7 @@ that marks the start of a nested span.
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">InlineDelimiter</span><span class="params">(<span name="nestedDelimiters">nestedDelimiters: <span class="extype" name="scala.Predef.Set">Set</span>[<span class="extype" name="scala.Char">Char</span>]</span>, <span name="endDelimiters">endDelimiters: <a href="../text/Delimiter.html" class="extype" name="laika.parse.text.Delimiter">Delimiter</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span>
+        <span class="name">InlineDelimiter</span><span class="params">(<span name="nestedDelimiters">nestedDelimiters: <span class="extype" name="scala.Predef.Set">Set</span>[<span class="extype" name="scala.Char">Char</span>]</span>, <span name="endDelimiters">endDelimiters: <span class="extype" name="laika.parse.text.Delimiter">Delimiter</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span>
       </span>
       
       
@@ -360,7 +364,7 @@ that marks the start of a nested span.
       </span>
       
       <p class="shortcomment cmt">Method invoked when the end of the input is reached.</p><div class="fullcomment"><div class="comment cmt"><p>Method invoked when the end of the input is reached.
-</p></div><dl class="paramcmts block"><dt class="param">charsConsumed</dt><dd class="cmt"><p>the number of characters consumed before EOF has been reached</p></dd><dt class="param">context</dt><dd class="cmt"><p>the parser context at the position EOF has been reached</p></dd><dt>returns</dt><dd class="cmt"><p>the result of the parser</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.parse.markup.InlineDelimiter">InlineDelimiter</a> → <a href="../text/Delimiter.html" class="extype" name="laika.parse.text.Delimiter">Delimiter</a></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">charsConsumed</dt><dd class="cmt"><p>the number of characters consumed before EOF has been reached</p></dd><dt class="param">context</dt><dd class="cmt"><p>the parser context at the position EOF has been reached</p></dd><dt>returns</dt><dd class="cmt"><p>the result of the parser</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.parse.markup.InlineDelimiter">InlineDelimiter</a> → Delimiter</dd></dl></div>
     </li><li name="laika.parse.markup.InlineDelimiter#atStartChar" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="atStartChar(startChar:Char,charsConsumed:Int,context:laika.parse.ParserContext):laika.parse.text.DelimiterResult[laika.parse.markup.InlineResult]"></a><a id="atStartChar(Char,Int,ParserContext):DelimiterResult[InlineResult]"></a>
       <span class="permalink">
@@ -373,7 +377,7 @@ that marks the start of a nested span.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">atStartChar</span><span class="params">(<span name="startChar">startChar: <span class="extype" name="scala.Char">Char</span></span>, <span name="charsConsumed">charsConsumed: <span class="extype" name="scala.Int">Int</span></span>, <span name="context">context: <a href="../ParserContext.html" class="extype" name="laika.parse.ParserContext">ParserContext</a></span>)</span><span class="result">: <a href="../text/DelimiterResult.html" class="extype" name="laika.parse.text.DelimiterResult">DelimiterResult</a>[<a href="InlineResult.html" class="extype" name="laika.parse.markup.InlineResult">InlineResult</a>]</span>
+        <span class="name">atStartChar</span><span class="params">(<span name="startChar">startChar: <span class="extype" name="scala.Char">Char</span></span>, <span name="charsConsumed">charsConsumed: <span class="extype" name="scala.Int">Int</span></span>, <span name="context">context: <a href="../ParserContext.html" class="extype" name="laika.parse.ParserContext">ParserContext</a></span>)</span><span class="result">: <span class="extype" name="laika.parse.text.DelimiterResult">DelimiterResult</span>[<a href="InlineResult.html" class="extype" name="laika.parse.markup.InlineResult">InlineResult</a>]</span>
       </span>
       
       <p class="shortcomment cmt">Method invoked every time the parser encounters any of the <code>startChars</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Method invoked every time the parser encounters any of the <code>startChars</code>.
@@ -383,7 +387,7 @@ the result.
 </p></div><dl class="paramcmts block"><dt class="param">startChar</dt><dd class="cmt"><p>the start character that was encountered on the input string (matches one of the characters
                  in the <code>startChar</code> set)</p></dd><dt class="param">charsConsumed</dt><dd class="cmt"><p>the number of characters consumed before the delimiter has been reached</p></dd><dt class="param">context</dt><dd class="cmt"><p>the parser context at the position the delimiter has been reached</p></dd><dt>returns</dt><dd class="cmt"><p>either <code>Continue</code> in case the additional conditions for the
         delimiter are not met at this position, or a <code>Complete</code> instance containing
-        the result</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.parse.markup.InlineDelimiter">InlineDelimiter</a> → <a href="../text/Delimiter.html" class="extype" name="laika.parse.text.Delimiter">Delimiter</a></dd></dl></div>
+        the result</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.parse.markup.InlineDelimiter">InlineDelimiter</a> → Delimiter</dd></dl></div>
     </li><li name="scala.AnyRef#clone" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a><a id="clone():AnyRef"></a>
       <span class="permalink">
@@ -588,7 +592,7 @@ the result.
       <p class="shortcomment cmt">The start characters that mark the (potential) end of the delimited text
 in case the conditions implemented in <code>atStartChar</code> are met.</p><div class="fullcomment"><div class="comment cmt"><p>The start characters that mark the (potential) end of the delimited text
 in case the conditions implemented in <code>atStartChar</code> are met.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.parse.markup.InlineDelimiter">InlineDelimiter</a> → <a href="../text/Delimiter.html" class="extype" name="laika.parse.text.Delimiter">Delimiter</a></dd></dl></div>
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.parse.markup.InlineDelimiter">InlineDelimiter</a> → Delimiter</dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">
@@ -700,7 +704,7 @@ in case the conditions implemented in <code>atStartChar</code> are met.
 
         <div id="inheritedMembers">
         <div class="parent" name="laika.parse.text.Delimiter">
-              <h3>Inherited from <a href="../text/Delimiter.html" class="extype" name="laika.parse.text.Delimiter">Delimiter</a>[<a href="InlineResult.html" class="extype" name="laika.parse.markup.InlineResult">InlineResult</a>]</h3>
+              <h3>Inherited from <span class="extype" name="laika.parse.text.Delimiter">Delimiter</span>[<a href="InlineResult.html" class="extype" name="laika.parse.markup.InlineResult">InlineResult</a>]</h3>
             </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">

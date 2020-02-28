@@ -497,24 +497,6 @@ dtext-no-obs = %d33-<span class="num">90</span> / ; Printable US-ASCII
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="laika.parse.uri.URIParsers#flatten" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="flatten(result:Any):String"></a><a id="flatten(Any):String"></a>
-      <span class="permalink">
-      <a href="../../../laika/parse/uri/URIParsers$.html#flatten(result:Any):String" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">flatten</span><span class="params">(<span name="result">result: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
-      </span>
-      
-      <p class="shortcomment cmt">Flattens the result from various combinators,
- including the <code>repX</code> variants and <code>~</code> into
- a single string.</p>
     </li><li name="laika.parse.uri.URIParsers#fragment" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="fragment:laika.parse.Parser[String]"></a><a id="fragment:Parser[String]"></a>
       <span class="permalink">
@@ -738,9 +720,9 @@ dec-octet     = DIGIT                 ; <span class="num">0</span>-<span class="
  check its value.
 </p></div></div>
     </li><li name="laika.parse.uri.URIParsers#ipv6address" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="ipv6address:laika.parse.Parser[Any~Any]"></a><a id="ipv6address:Parser[~[Any,Any]]"></a>
+      <a id="ipv6address:laika.parse.Parser[String]"></a><a id="ipv6address:Parser[String]"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/uri/URIParsers$.html#ipv6address:laika.parse.Parser[Any~Any]" title="Permalink">
+      <a href="../../../laika/parse/uri/URIParsers$.html#ipv6address:laika.parse.Parser[String]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -749,7 +731,7 @@ dec-octet     = DIGIT                 ; <span class="num">0</span>-<span class="
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">ipv6address</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../../ast/package$$$tilde.html" class="extype" name="laika.ast.~">~</a>[<span class="extype" name="scala.Any">Any</span>, <span class="extype" name="scala.Any">Any</span>]]</span>
+        <span class="name">ipv6address</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
       </span>
       
       <p class="shortcomment cmt">Parses an IPv6 address as defined in RFC 3986.</p><div class="fullcomment"><div class="comment cmt"><p>Parses an IPv6 address as defined in RFC 3986.</p><pre>IPv6address  =                            <span class="num">6</span>( h16 <span class="lit">":"</span> ) ls32
@@ -766,9 +748,9 @@ h16          = <span class="num">1</span>*<span class="num">4</span>HEXDIG
 
 ls32         = ( h16 <span class="lit">":"</span> h16 ) / IPv4address</pre></div></div>
     </li><li name="laika.parse.uri.URIParsers#ipvFuture" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="ipvFuture:laika.parse.Parser[Char~String~Char~List[Any]]"></a><a id="ipvFuture:Parser[~[~[~[Char,String],Char],List[Any]]]"></a>
+      <a id="ipvFuture:laika.parse.Parser[String]"></a><a id="ipvFuture:Parser[String]"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/uri/URIParsers$.html#ipvFuture:laika.parse.Parser[Char~String~Char~List[Any]]" title="Permalink">
+      <a href="../../../laika/parse/uri/URIParsers$.html#ipvFuture:laika.parse.Parser[String]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -777,7 +759,7 @@ ls32         = ( h16 <span class="lit">":"</span> h16 ) / IPv4address</pre></div
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">ipvFuture</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../../ast/package$$$tilde.html" class="extype" name="laika.ast.~">~</a>[<a href="../../ast/package$$$tilde.html" class="extype" name="laika.ast.~">~</a>[<a href="../../ast/package$$$tilde.html" class="extype" name="laika.ast.~">~</a>[<span class="extype" name="scala.Char">Char</span>, <span class="extype" name="scala.Predef.String">String</span>], <span class="extype" name="scala.Char">Char</span>], <span class="extype" name="scala.List">List</span>[<span class="extype" name="scala.Any">Any</span>]]]</span>
+        <span class="name">ipvFuture</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
       </span>
       
       <p class="shortcomment cmt">Parses a future IP address as defined in RFC 3986.</p><div class="fullcomment"><div class="comment cmt"><p>Parses a future IP address as defined in RFC 3986.</p><pre>IPvFuture = <span class="lit">"v"</span> <span class="num">1</span>*HEXDIG <span class="lit">"."</span> <span class="num">1</span>*( unreserved / sub-delims / <span class="lit">":"</span> )</pre></div></div>
@@ -873,9 +855,9 @@ ls32         = ( h16 <span class="lit">":"</span> h16 ) / IPv4address</pre></div
               
         </dd></dl></div>
     </li><li name="laika.parse.uri.URIParsers#pChar" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="pChar:laika.parse.Parser[Any]"></a><a id="pChar:Parser[Any]"></a>
+      <a id="pChar:laika.parse.Parser[String]"></a><a id="pChar:Parser[String]"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/uri/URIParsers$.html#pChar:laika.parse.Parser[Any]" title="Permalink">
+      <a href="../../../laika/parse/uri/URIParsers$.html#pChar:laika.parse.Parser[String]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -884,7 +866,7 @@ ls32         = ( h16 <span class="lit">":"</span> h16 ) / IPv4address</pre></div
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">pChar</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Any">Any</span>]</span>
+        <span class="name">pChar</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
       </span>
       
       <p class="shortcomment cmt">Parses one path character as defined in RFC 3986.</p><div class="fullcomment"><div class="comment cmt"><p>Parses one path character as defined in RFC 3986.</p><pre>pchar = unreserved / pct-encoded / sub-delims / <span class="lit">":"</span> / <span class="lit">"@"</span></pre></div></div>
@@ -909,9 +891,9 @@ ls32         = ( h16 <span class="lit">":"</span> h16 ) / IPv4address</pre></div
 
 segment       = *pchar</pre></div></div>
     </li><li name="laika.parse.uri.URIParsers#pctEncoded" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="pctEncoded:laika.parse.Parser[Char~String]"></a><a id="pctEncoded:Parser[~[Char,String]]"></a>
+      <a id="pctEncoded:laika.parse.Parser[String]"></a><a id="pctEncoded:Parser[String]"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/uri/URIParsers$.html#pctEncoded:laika.parse.Parser[Char~String]" title="Permalink">
+      <a href="../../../laika/parse/uri/URIParsers$.html#pctEncoded:laika.parse.Parser[String]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -920,7 +902,7 @@ segment       = *pchar</pre></div></div>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">pctEncoded</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../../ast/package$$$tilde.html" class="extype" name="laika.ast.~">~</a>[<span class="extype" name="scala.Char">Char</span>, <span class="extype" name="scala.Predef.String">String</span>]]</span>
+        <span class="name">pctEncoded</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
       </span>
       
       <p class="shortcomment cmt">Parses a percent-encoded character as defined in RFC 3986.</p><div class="fullcomment"><div class="comment cmt"><p>Parses a percent-encoded character as defined in RFC 3986.</p><pre>pct-encoded = <span class="lit">"%"</span> HEXDIG HEXDIG</pre></div></div>

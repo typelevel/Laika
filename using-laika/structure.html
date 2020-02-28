@@ -68,7 +68,7 @@
       <div class="span8" id="top">
 
         <div class="page-header">
-        <h1>Document Structure</h1>
+        <h1 id="document-structure" class="title">Document Structure</h1>
         </div>
         <p>Laika adds several features on top of the supported markup languages
         that make it easier to deal with structured content.</p>
@@ -177,7 +177,7 @@
         document (so will not be rendered with a <code>${document.content}</code> reference).
         Instead it can be referred to by <code>${document.fragments.&lt;fragmentName&gt;}</code>.</p>
         <p>Example:</p>
-        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">fragment</span><span> { </span><span class="string-literal">sidebar</span><span> } 
+        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">fragment</span><span>(sidebar)
 
 This content will be </span><span class="markup-emphasized">*parsed*</span><span> like all other
 content, but will be available separately from the document content.

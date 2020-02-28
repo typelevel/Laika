@@ -319,54 +319,6 @@
       </span>
       
       
-    </li><li name="laika.parse.hocon.HoconParsers.PrependParserOps" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="PrependParserOps[T]extendsAnyVal"></a><a id="PrependParserOps[T]:PrependParserOps[T]"></a>
-      <span class="permalink">
-      <a href="../../../laika/parse/hocon/HoconParsers$$PrependParserOps.html" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier">implicit final </span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a title="" href="HoconParsers$$PrependParserOps.html"><span class="name">PrependParserOps</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span></span>
-      </span>
-      
-      
-    </li><li name="laika.parse.hocon.HoconParsers.String2ParserOps" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="String2ParserOpsextendsAnyVal"></a><a id="String2ParserOps:String2ParserOps"></a>
-      <span class="permalink">
-      <a href="../../../laika/parse/hocon/HoconParsers$$String2ParserOps.html" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier">implicit final </span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a title="" href="HoconParsers$$String2ParserOps.html"><span class="name">String2ParserOps</span></a><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span></span>
-      </span>
-      
-      
-    </li><li name="laika.parse.hocon.HoconParsers.String3ParserOps" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="String3ParserOpsextendsAnyVal"></a><a id="String3ParserOps:String3ParserOps"></a>
-      <span class="permalink">
-      <a href="../../../laika/parse/hocon/HoconParsers$$String3ParserOps.html" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier">implicit final </span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a title="" href="HoconParsers$$String3ParserOps.html"><span class="name">String3ParserOps</span></a><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span></span>
-      </span>
-      
-      
     </li></ol>
             </div>
 
@@ -424,9 +376,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="laika.parse.hocon.HoconParsers#anyValue" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="anyValue(delimiter:Set[Char]):laika.parse.Parser[laika.parse.hocon.ConfigBuilderValue]"></a><a id="anyValue(Set[Char]):Parser[ConfigBuilderValue]"></a>
+      <a id="anyValue(delimiter:cats.data.NonEmptySet[Char]):laika.parse.Parser[laika.parse.hocon.ConfigBuilderValue]"></a><a id="anyValue(NonEmptySet[Char]):Parser[ConfigBuilderValue]"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/hocon/HoconParsers$.html#anyValue(delimiter:Set[Char]):laika.parse.Parser[laika.parse.hocon.ConfigBuilderValue]" title="Permalink">
+      <a href="../../../laika/parse/hocon/HoconParsers$.html#anyValue(delimiter:cats.data.NonEmptySet[Char]):laika.parse.Parser[laika.parse.hocon.ConfigBuilderValue]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -435,7 +387,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">anyValue</span><span class="params">(<span name="delimiter">delimiter: <span class="extype" name="scala.Predef.Set">Set</span>[<span class="extype" name="scala.Char">Char</span>]</span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="ConfigBuilderValue.html" class="extype" name="laika.parse.hocon.ConfigBuilderValue">ConfigBuilderValue</a>]</span>
+        <span class="name">anyValue</span><span class="params">(<span name="delimiter">delimiter: <span class="extype" name="cats.data.NonEmptySet">NonEmptySet</span>[<span class="extype" name="scala.Char">Char</span>]</span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="ConfigBuilderValue.html" class="extype" name="laika.parse.hocon.ConfigBuilderValue">ConfigBuilderValue</a>]</span>
       </span>
       
       <p class="shortcomment cmt">Parses any kind of value supported by the HOCON format.</p>
@@ -512,9 +464,9 @@
       
       <p class="shortcomment cmt">Parses a comment.</p>
     </li><li name="laika.parse.hocon.HoconParsers#concatenatedKey" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="concatenatedKey(delimiter:Set[Char]):laika.parse.Parser[Either[laika.parse.hocon.InvalidStringValue,laika.config.Key]]"></a><a id="concatenatedKey(Set[Char]):Parser[Either[InvalidStringValue,Key]]"></a>
+      <a id="concatenatedKey(delimiter:cats.data.NonEmptySet[Char]):laika.parse.Parser[Either[laika.parse.hocon.InvalidStringValue,laika.config.Key]]"></a><a id="concatenatedKey(NonEmptySet[Char]):Parser[Either[InvalidStringValue,Key]]"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/hocon/HoconParsers$.html#concatenatedKey(delimiter:Set[Char]):laika.parse.Parser[Either[laika.parse.hocon.InvalidStringValue,laika.config.Key]]" title="Permalink">
+      <a href="../../../laika/parse/hocon/HoconParsers$.html#concatenatedKey(delimiter:cats.data.NonEmptySet[Char]):laika.parse.Parser[Either[laika.parse.hocon.InvalidStringValue,laika.config.Key]]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -523,14 +475,14 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">concatenatedKey</span><span class="params">(<span name="delimiter">delimiter: <span class="extype" name="scala.Predef.Set">Set</span>[<span class="extype" name="scala.Char">Char</span>]</span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Either">Either</span>[<a href="InvalidStringValue.html" class="extype" name="laika.parse.hocon.InvalidStringValue">InvalidStringValue</a>, <a href="../../config/Key.html" class="extype" name="laika.config.Key">Key</a>]]</span>
+        <span class="name">concatenatedKey</span><span class="params">(<span name="delimiter">delimiter: <span class="extype" name="cats.data.NonEmptySet">NonEmptySet</span>[<span class="extype" name="scala.Char">Char</span>]</span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Either">Either</span>[<a href="InvalidStringValue.html" class="extype" name="laika.parse.hocon.InvalidStringValue">InvalidStringValue</a>, <a href="../../config/Key.html" class="extype" name="laika.config.Key">Key</a>]]</span>
       </span>
       
       <p class="shortcomment cmt">Parses a key based on the HOCON rules where a '.' in a quoted string is not interpreted as a path separator.</p>
     </li><li name="laika.parse.hocon.HoconParsers#concatenatedValue" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="concatenatedValue(delimiter:Set[Char]):laika.parse.Parser[laika.parse.hocon.ConfigBuilderValue]"></a><a id="concatenatedValue(Set[Char]):Parser[ConfigBuilderValue]"></a>
+      <a id="concatenatedValue(delimiter:cats.data.NonEmptySet[Char]):laika.parse.Parser[laika.parse.hocon.ConfigBuilderValue]"></a><a id="concatenatedValue(NonEmptySet[Char]):Parser[ConfigBuilderValue]"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/hocon/HoconParsers$.html#concatenatedValue(delimiter:Set[Char]):laika.parse.Parser[laika.parse.hocon.ConfigBuilderValue]" title="Permalink">
+      <a href="../../../laika/parse/hocon/HoconParsers$.html#concatenatedValue(delimiter:cats.data.NonEmptySet[Char]):laika.parse.Parser[laika.parse.hocon.ConfigBuilderValue]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -539,7 +491,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">concatenatedValue</span><span class="params">(<span name="delimiter">delimiter: <span class="extype" name="scala.Predef.Set">Set</span>[<span class="extype" name="scala.Char">Char</span>]</span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="ConfigBuilderValue.html" class="extype" name="laika.parse.hocon.ConfigBuilderValue">ConfigBuilderValue</a>]</span>
+        <span class="name">concatenatedValue</span><span class="params">(<span name="delimiter">delimiter: <span class="extype" name="cats.data.NonEmptySet">NonEmptySet</span>[<span class="extype" name="scala.Char">Char</span>]</span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="ConfigBuilderValue.html" class="extype" name="laika.parse.hocon.ConfigBuilderValue">ConfigBuilderValue</a>]</span>
       </span>
       
       
@@ -882,9 +834,9 @@
       
       <p class="shortcomment cmt">Parses a root configuration object where the enclosing braces may be omitted.</p>
     </li><li name="laika.parse.hocon.HoconParsers#stringBuilderValue" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="stringBuilderValue(delimiter:Set[Char]):laika.parse.Parser[laika.parse.hocon.ConfigBuilderValue]"></a><a id="stringBuilderValue(Set[Char]):Parser[ConfigBuilderValue]"></a>
+      <a id="stringBuilderValue(delimiter:cats.data.NonEmptySet[Char]):laika.parse.Parser[laika.parse.hocon.ConfigBuilderValue]"></a><a id="stringBuilderValue(NonEmptySet[Char]):Parser[ConfigBuilderValue]"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/hocon/HoconParsers$.html#stringBuilderValue(delimiter:Set[Char]):laika.parse.Parser[laika.parse.hocon.ConfigBuilderValue]" title="Permalink">
+      <a href="../../../laika/parse/hocon/HoconParsers$.html#stringBuilderValue(delimiter:cats.data.NonEmptySet[Char]):laika.parse.Parser[laika.parse.hocon.ConfigBuilderValue]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -893,7 +845,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">stringBuilderValue</span><span class="params">(<span name="delimiter">delimiter: <span class="extype" name="scala.Predef.Set">Set</span>[<span class="extype" name="scala.Char">Char</span>]</span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="ConfigBuilderValue.html" class="extype" name="laika.parse.hocon.ConfigBuilderValue">ConfigBuilderValue</a>]</span>
+        <span class="name">stringBuilderValue</span><span class="params">(<span name="delimiter">delimiter: <span class="extype" name="cats.data.NonEmptySet">NonEmptySet</span>[<span class="extype" name="scala.Char">Char</span>]</span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="ConfigBuilderValue.html" class="extype" name="laika.parse.hocon.ConfigBuilderValue">ConfigBuilderValue</a>]</span>
       </span>
       
       <p class="shortcomment cmt">Parses any of the 3 string types (quoted, unquoted, triple-quoted).</p>
@@ -962,9 +914,9 @@
       
       <p class="shortcomment cmt">Parses a literal true value.</p>
     </li><li name="laika.parse.hocon.HoconParsers#unquotedString" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="unquotedString(delimiters:Set[Char]):laika.parse.Parser[laika.parse.hocon.StringBuilderValue]"></a><a id="unquotedString(Set[Char]):Parser[StringBuilderValue]"></a>
+      <a id="unquotedString(delimiters:cats.data.NonEmptySet[Char]):laika.parse.Parser[laika.parse.hocon.StringBuilderValue]"></a><a id="unquotedString(NonEmptySet[Char]):Parser[StringBuilderValue]"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/hocon/HoconParsers$.html#unquotedString(delimiters:Set[Char]):laika.parse.Parser[laika.parse.hocon.StringBuilderValue]" title="Permalink">
+      <a href="../../../laika/parse/hocon/HoconParsers$.html#unquotedString(delimiters:cats.data.NonEmptySet[Char]):laika.parse.Parser[laika.parse.hocon.StringBuilderValue]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -973,7 +925,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">unquotedString</span><span class="params">(<span name="delimiters">delimiters: <span class="extype" name="scala.Predef.Set">Set</span>[<span class="extype" name="scala.Char">Char</span>]</span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="StringBuilderValue.html" class="extype" name="laika.parse.hocon.StringBuilderValue">StringBuilderValue</a>]</span>
+        <span class="name">unquotedString</span><span class="params">(<span name="delimiters">delimiters: <span class="extype" name="cats.data.NonEmptySet">NonEmptySet</span>[<span class="extype" name="scala.Char">Char</span>]</span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="StringBuilderValue.html" class="extype" name="laika.parse.hocon.StringBuilderValue">StringBuilderValue</a>]</span>
       </span>
       
       <p class="shortcomment cmt">Parses an unquoted string that is not allowed to contain any of the reserved characters listed in the HOCON spec.</p>

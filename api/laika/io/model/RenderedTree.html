@@ -220,7 +220,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">RenderedTree</span><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="title">title: <span class="extype" name="scala.Seq">Seq</span>[<a href="../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>]</span>, <span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="RenderContent.html" class="extype" name="laika.io.model.RenderContent">RenderContent</a>]</span>, <span name="titleDocument">titleDocument: <span class="extype" name="scala.Option">Option</span>[<a href="RenderedDocument.html" class="extype" name="laika.io.model.RenderedDocument">RenderedDocument</a>] = <span class="symbol">None</span></span>)</span><span class="result"> extends <a href="RenderContent.html" class="extype" name="laika.io.model.RenderContent">RenderContent</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">RenderedTree</span><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="title">title: <span class="extype" name="scala.Option">Option</span>[<a href="../../ast/SpanSequence.html" class="extype" name="laika.ast.SpanSequence">SpanSequence</a>]</span>, <span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="RenderContent.html" class="extype" name="laika.io.model.RenderContent">RenderContent</a>]</span>, <span name="titleDocument">titleDocument: <span class="extype" name="scala.Option">Option</span>[<a href="RenderedDocument.html" class="extype" name="laika.io.model.RenderedDocument">RenderedDocument</a>] = <span class="symbol">None</span></span>)</span><span class="result"> extends <a href="RenderContent.html" class="extype" name="laika.io.model.RenderContent">RenderContent</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
@@ -277,9 +277,9 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.io.model.RenderedTree#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;init&gt;(path:laika.ast.Path,title:Seq[laika.ast.Span],content:Seq[laika.io.model.RenderContent],titleDocument:Option[laika.io.model.RenderedDocument]):laika.io.model.RenderedTree"></a><a id="&lt;init&gt;:RenderedTree"></a>
+      <a id="&lt;init&gt;(path:laika.ast.Path,title:Option[laika.ast.SpanSequence],content:Seq[laika.io.model.RenderContent],titleDocument:Option[laika.io.model.RenderedDocument]):laika.io.model.RenderedTree"></a><a id="&lt;init&gt;:RenderedTree"></a>
       <span class="permalink">
-      <a href="../../../laika/io/model/RenderedTree.html#&lt;init&gt;(path:laika.ast.Path,title:Seq[laika.ast.Span],content:Seq[laika.io.model.RenderContent],titleDocument:Option[laika.io.model.RenderedDocument]):laika.io.model.RenderedTree" title="Permalink">
+      <a href="../../../laika/io/model/RenderedTree.html#&lt;init&gt;(path:laika.ast.Path,title:Option[laika.ast.SpanSequence],content:Seq[laika.io.model.RenderContent],titleDocument:Option[laika.io.model.RenderedDocument]):laika.io.model.RenderedTree" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -288,7 +288,7 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">RenderedTree</span><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="title">title: <span class="extype" name="scala.Seq">Seq</span>[<a href="../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>]</span>, <span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="RenderContent.html" class="extype" name="laika.io.model.RenderContent">RenderContent</a>]</span>, <span name="titleDocument">titleDocument: <span class="extype" name="scala.Option">Option</span>[<a href="RenderedDocument.html" class="extype" name="laika.io.model.RenderedDocument">RenderedDocument</a>] = <span class="symbol">None</span></span>)</span>
+        <span class="name">RenderedTree</span><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="title">title: <span class="extype" name="scala.Option">Option</span>[<a href="../../ast/SpanSequence.html" class="extype" name="laika.ast.SpanSequence">SpanSequence</a>]</span>, <span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="RenderContent.html" class="extype" name="laika.io.model.RenderContent">RenderContent</a>]</span>, <span name="titleDocument">titleDocument: <span class="extype" name="scala.Option">Option</span>[<a href="RenderedDocument.html" class="extype" name="laika.io.model.RenderedDocument">RenderedDocument</a>] = <span class="symbol">None</span></span>)</span>
       </span>
       
       <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">path</dt><dd class="cmt"><p>the full, absolute path of this (virtual) document tree</p></dd><dt class="param">title</dt><dd class="cmt"><p>the title of this tree, either obtained from the title document or configuration</p></dd><dt class="param">content</dt><dd class="cmt"><p>the rendered documents and subtrees in a recursive structure</p></dd><dt class="param">titleDocument</dt><dd class="cmt"><p>the optional title document of this tree</p></dd></dl></div>
@@ -583,9 +583,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="laika.io.model.RenderedTree#title" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="title:Seq[laika.ast.Span]"></a><a id="title:Seq[Span]"></a>
+      <a id="title:Option[laika.ast.SpanSequence]"></a><a id="title:Option[SpanSequence]"></a>
       <span class="permalink">
-      <a href="../../../laika/io/model/RenderedTree.html#title:Seq[laika.ast.Span]" title="Permalink">
+      <a href="../../../laika/io/model/RenderedTree.html#title:Option[laika.ast.SpanSequence]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -594,7 +594,7 @@
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">title</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>]</span>
+        <span class="name">title</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="../../ast/SpanSequence.html" class="extype" name="laika.ast.SpanSequence">SpanSequence</a>]</span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.io.model.RenderedTree">RenderedTree</a> → <a href="RenderContent.html" class="extype" name="laika.io.model.RenderContent">RenderContent</a></dd></dl></div>

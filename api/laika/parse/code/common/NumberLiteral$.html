@@ -139,6 +139,10 @@
                         <a href="CharLiteral$.html" title="Configurable base parsers for character literals.">CharLiteral</a>
                       </li><li class="current-entities indented4">
                         <span class="separator"></span>
+                        <a class="trait" href="CodeParserBase.html" title="Convenient base trait that allows for passing the implementing instances anywhere either a PrefixedParser[Seq[CodeSpan]] or a CodeSpanParser is required for easier composition."></a>
+                        <a href="CodeParserBase.html" title="Convenient base trait that allows for passing the implementing instances anywhere either a PrefixedParser[Seq[CodeSpan]] or a CodeSpanParser is required for easier composition.">CodeParserBase</a>
+                      </li><li class="current-entities indented4">
+                        <span class="separator"></span>
                         <a class="object" href="Comment$.html" title="Configurable base parsers for comments in code blocks."></a>
                         <a href="Comment$.html" title="Configurable base parsers for comments in code blocks.">Comment</a>
                       </li><li class="current-entities indented4">
@@ -173,6 +177,10 @@
                         <span class="separator"></span>
                         <a class="trait" href="TagBasedFormats.html" title="Configurable base parsers for tag based formats like HTML or XML."></a>
                         <a href="TagBasedFormats.html" title="Configurable base parsers for tag based formats like HTML or XML.">TagBasedFormats</a>
+                      </li><li class="current-entities indented4">
+                        <a class="object" href="TagParser$.html" title=""></a>
+                        <a class="class" href="TagParser.html" title="Configurable base parser for tags in formats like HTML or XML."></a>
+                        <a href="TagParser.html" title="Configurable base parser for tags in formats like HTML or XML.">TagParser</a>
                       </li>
               </ul>
             </div>
@@ -255,7 +263,7 @@
         <div id="types" class="types members">
               <h3>Type Members</h3>
               <ol><li name="laika.parse.code.common.NumberLiteral.NumericParser" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="NumericParserextendsCodeSpanParserswithProductwithSerializable"></a><a id="NumericParser:NumericParser"></a>
+      <a id="NumericParserextendsParser[Seq[laika.ast.CodeSpan]]withCodeParserBasewithProductwithSerializable"></a><a id="NumericParser:NumericParser"></a>
       <span class="permalink">
       <a href="../../../../laika/parse/code/common/NumberLiteral$$NumericParser.html" title="Permalink">
         <i class="material-icons"></i>
@@ -266,7 +274,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="" href="NumberLiteral$$NumericParser.html"><span class="name">NumericParser</span></a><span class="params">(<span name="startChars">startChars: <span class="extype" name="scala.Predef.Set">Set</span>[<span class="extype" name="scala.Char">Char</span>]</span>, <span name="digits">digits: <span class="extype" name="scala.Predef.Set">Set</span>[<span class="extype" name="scala.Char">Char</span>]</span>, <span name="idSequence">idSequence: <span class="extype" name="scala.Option">Option</span>[<a href="../../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]] = <span class="symbol">None</span></span>, <span name="underscores">underscores: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>, <span name="exponent">exponent: <span class="extype" name="scala.Option">Option</span>[<a href="../../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]] = <span class="symbol">None</span></span>, <span name="suffix">suffix: <span class="extype" name="scala.Option">Option</span>[<a href="../../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]] = <span class="symbol">None</span></span>, <span name="allowFollowingLetter">allowFollowingLetter: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>)</span><span class="result"> extends <a href="../CodeSpanParsers.html" class="extype" name="laika.parse.code.CodeSpanParsers">CodeSpanParsers</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="" href="NumberLiteral$$NumericParser.html"><span class="name">NumericParser</span></a><span class="params">(<span name="digits">digits: <span class="extype" name="cats.data.NonEmptySet">NonEmptySet</span>[<span class="extype" name="scala.Char">Char</span>]</span>, <span name="prefix">prefix: <span class="extype" name="scala.Option">Option</span>[<a href="../../text/PrefixedParser.html" class="extype" name="laika.parse.text.PrefixedParser">PrefixedParser</a>[<span class="extype" name="scala.Predef.String">String</span>]] = <span class="symbol">None</span></span>, <span name="underscores">underscores: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>, <span name="exponent">exponent: <span class="extype" name="scala.Option">Option</span>[<a href="../../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]] = <span class="symbol">None</span></span>, <span name="suffix">suffix: <span class="extype" name="scala.Option">Option</span>[<a href="../../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]] = <span class="symbol">None</span></span>, <span name="allowFollowingLetter">allowFollowingLetter: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>)</span><span class="result"> extends <a href="../../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Seq">Seq</span>[<a href="../../../ast/CodeSpan.html" class="extype" name="laika.ast.CodeSpan">CodeSpan</a>]] with <a href="CodeParserBase.html" class="extype" name="laika.parse.code.common.CodeParserBase">CodeParserBase</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       
@@ -752,22 +760,6 @@ e.g. <code>\0o257</code>.
       </span>
       
       <p class="shortcomment cmt">Parsers for common sets of digits, like hex or decimal.</p>
-    </li><li name="laika.parse.code.common.NumberLiteral.Digits" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Digits"></a><a id="Digits:Digits"></a>
-      <span class="permalink">
-      <a href="../../../../laika/parse/code/common/NumberLiteral$$Digits$.html" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a title="Common sets of digits, like hex or decimal." href="NumberLiteral$$Digits$.html"><span class="name">Digits</span></a>
-      </span>
-      
-      <p class="shortcomment cmt">Common sets of digits, like hex or decimal.</p>
     </li>
               </ol>
             </div>

@@ -118,9 +118,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika.parse">parse</a></dd></dl></div>
     </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="object" href="" title="Provides base parsers that abstract aspects of block parsing common to most lightweight markup languages."></a>
-                        <a href="" title="Provides base parsers that abstract aspects of block parsing common to most lightweight markup languages.">BlockParsers</a>
+                        <a class="object" href="" title="Instance that allows to import all block parsers in isolation."></a>
+                        <a class="trait" href="BlockParsers.html" title="Provides base parsers that abstract aspects of block parsing common to most lightweight markup languages."></a>
+                        <a href="BlockParsers.html" title="Provides base parsers that abstract aspects of block parsing common to most lightweight markup languages.">BlockParsers</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="trait" href="DefaultEscapedTextParsers.html" title="Default implementation for parsing escape sequences."></a>
@@ -151,8 +151,12 @@
                         <a href="InlineDelimiter.html" title="Delimiter implementation for parsing inline spans that distinguishes between a delimiter that marks the end of the span and a delimiter that marks the start of a nested span.">InlineDelimiter</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="object" href="InlineParsers$.html" title="Provides base parsers that abstract aspects of inline parsing common to most lightweight markup languages."></a>
-                        <a href="InlineParsers$.html" title="Provides base parsers that abstract aspects of inline parsing common to most lightweight markup languages.">InlineParsers</a>
+                        <a class="trait" href="InlineParser.html" title="Generic base parser that parses inline elements with potentially nested spans."></a>
+                        <a href="InlineParser.html" title="Generic base parser that parses inline elements with potentially nested spans.">InlineParser</a>
+                      </li><li class="current-entities indented3">
+                        <a class="object" href="InlineParsers$.html" title="Instance that allows to import all inline parsers in isolation."></a>
+                        <a class="trait" href="InlineParsers.html" title="Provides base parsers that abstract aspects of inline parsing common to most lightweight markup languages."></a>
+                        <a href="InlineParsers.html" title="Provides base parsers that abstract aspects of inline parsing common to most lightweight markup languages.">InlineParsers</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="trait" href="InlineResult.html" title="The result of text parsed with an InlineDelimiter."></a>
@@ -180,14 +184,16 @@
           <div id="content">
             <body class="object value">
       <div id="definition">
-        <div class="big-circle object">o</div>
+        <a href="BlockParsers.html" title="See companion trait"><div class="big-circle object-companion-trait">o</div></a>
         <p id="owner"><a href="../../index.html" class="extype" name="laika">laika</a>.<a href="../index.html" class="extype" name="laika.parse">parse</a>.<a href="index.html" class="extype" name="laika.parse.markup">markup</a></p>
-        <h1>BlockParsers<span class="permalink">
+        <h1><a href="BlockParsers.html" title="See companion trait">BlockParsers</a><span class="permalink">
       <a href="../../../laika/parse/markup/BlockParsers$.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span></h1>
-        <h3><span class="morelinks"></span></h3>
+        <h3><span class="morelinks"><div>
+            Companion <a href="BlockParsers.html" title="See companion trait">trait BlockParsers</a>
+          </div></span></h3>
       </div>
 
       <h4 id="signature" class="signature">
@@ -196,18 +202,18 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">BlockParsers</span>
+        <span class="name">BlockParsers</span><span class="result"> extends <a href="BlockParsers.html" class="extype" name="laika.parse.markup.BlockParsers">BlockParsers</a></span>
       </span>
       </h4>
 
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Provides base parsers that abstract aspects of block parsing common to most lightweight markup languages.</p><p> A block parser in Laika can always safely assume that it is invoked at
- the start of the current line and that the line is not empty.
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Instance that allows to import all block parsers in isolation.</p><p>Usually it is more convenient to import laika.parse.api._
+to get all parser builders with one import.
 </p></div><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
           </span>
-          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><a href="BlockParsers.html" class="extype" name="laika.parse.markup.BlockParsers">BlockParsers</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -233,7 +239,7 @@
                   <span class="filtertype">Inherited<br />
                   </span>
                   <ol id="linearization">
-                    <li class="in" name="laika.parse.markup.BlockParsers"><span>BlockParsers</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                    <li class="in" name="laika.parse.markup.BlockParsers"><span>BlockParsers</span></li><li class="in" name="laika.parse.markup.BlockParsers"><span>BlockParsers</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                   </ol>
                 </div><div class="ancestors">
               <span class="filtertype"></span>
@@ -341,7 +347,7 @@
       
       <p class="shortcomment cmt">Parses a full block based on the specified helper parsers.</p><div class="fullcomment"><div class="comment cmt"><p>Parses a full block based on the specified helper parsers.</p><p>The string result of this parser will not contain the characters consumed by any of the specified prefix
 parsers.
-</p></div><dl class="paramcmts block"><dt class="param">firstLinePrefix</dt><dd class="cmt"><p>parser that recognizes the start of the first line of this block</p></dd><dt class="param">linePrefix</dt><dd class="cmt"><p>parser that recognizes the start of subsequent lines that still belong to the same block</p></dd><dt class="param">nextBlockPrefix</dt><dd class="cmt"><p>parser that recognizes whether a line after one or more blank lines still belongs to the same block</p></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">firstLinePrefix</dt><dd class="cmt"><p>parser that recognizes the start of the first line of this block</p></dd><dt class="param">linePrefix</dt><dd class="cmt"><p>parser that recognizes the start of subsequent lines that still belong to the same block</p></dd><dt class="param">nextBlockPrefix</dt><dd class="cmt"><p>parser that recognizes whether a line after one or more blank lines still belongs to the same block</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="BlockParsers.html" class="extype" name="laika.parse.markup.BlockParsers">BlockParsers</a></dd></dl></div>
     </li><li name="scala.AnyRef#clone" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a><a id="clone():AnyRef"></a>
       <span class="permalink">
@@ -478,7 +484,7 @@ parsers.
  all lines except the first. The indentation may vary between the parts of the indented
  block, so that this parser only cuts off the minimum indentation shared by all lines,
  but each line must have at least the specified minimum indentation.
-</p></div><dl class="paramcmts block"><dt class="param">minIndent</dt><dd class="cmt"><p>the minimum indentation that each line in this block must have</p></dd><dt class="param">linePredicate</dt><dd class="cmt"><p>parser that recognizes the start of subsequent lines that still belong to the same block</p></dd><dt class="param">endsOnBlankLine</dt><dd class="cmt"><p>indicates whether parsing should end on the first blank line</p></dd><dt class="param">firstLineIndented</dt><dd class="cmt"><p>indicates whether the first line is expected to be indented, too</p></dd><dt class="param">maxIndent</dt><dd class="cmt"><p>the maximum indentation that will get dropped from the start of each line of the result</p></dd><dt>returns</dt><dd class="cmt"><p>a parser that produces the raw text of the parsed block with the indentation removed</p></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">minIndent</dt><dd class="cmt"><p>the minimum indentation that each line in this block must have</p></dd><dt class="param">linePredicate</dt><dd class="cmt"><p>parser that recognizes the start of subsequent lines that still belong to the same block</p></dd><dt class="param">endsOnBlankLine</dt><dd class="cmt"><p>indicates whether parsing should end on the first blank line</p></dd><dt class="param">firstLineIndented</dt><dd class="cmt"><p>indicates whether the first line is expected to be indented, too</p></dd><dt class="param">maxIndent</dt><dd class="cmt"><p>the maximum indentation that will get dropped from the start of each line of the result</p></dd><dt>returns</dt><dd class="cmt"><p>a parser that produces the raw text of the parsed block with the indentation removed</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="BlockParsers.html" class="extype" name="laika.parse.markup.BlockParsers">BlockParsers</a></dd></dl></div>
     </li><li name="laika.parse.markup.BlockParsers#indentedBlockWithLevel" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="indentedBlockWithLevel(minIndent:Int,linePredicate:=&gt;laika.parse.Parser[Any],endsOnBlankLine:Boolean,firstLineIndented:Boolean,maxIndent:Int):laika.parse.Parser[(String,Int)]"></a><a id="indentedBlockWithLevel(Int,⇒Parser[Any],Boolean,Boolean,Int):Parser[(String,Int)]"></a>
       <span class="permalink">
@@ -500,7 +506,7 @@ parsers.
  block, so that this parser only cuts off the minimum indentation shared by all lines,
  but each line must have at least the specified minimum indentation.
 </p></div><dl class="paramcmts block"><dt class="param">minIndent</dt><dd class="cmt"><p>the minimum indentation that each line in this block must have</p></dd><dt class="param">linePredicate</dt><dd class="cmt"><p>parser that recognizes the start of subsequent lines that still belong to the same block</p></dd><dt class="param">endsOnBlankLine</dt><dd class="cmt"><p>indicates whether parsing should end on the first blank line</p></dd><dt class="param">firstLineIndented</dt><dd class="cmt"><p>indicates whether the first line is expected to be indented, too</p></dd><dt class="param">maxIndent</dt><dd class="cmt"><p>the maximum indentation that will get dropped from the start of each line of the result</p></dd><dt>returns</dt><dd class="cmt"><p>a parser that produces the raw text of the parsed block with the indentation removed and the
-         indentation level (number of whitespace characters removed from the text lines)</p></dd></dl></div>
+         indentation level (number of whitespace characters removed from the text lines)</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="BlockParsers.html" class="extype" name="laika.parse.markup.BlockParsers">BlockParsers</a></dd></dl></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <span class="permalink">
@@ -681,7 +687,9 @@ parsers.
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="scala.AnyRef">
+        <div class="parent" name="laika.parse.markup.BlockParsers">
+              <h3>Inherited from <a href="BlockParsers.html" class="extype" name="laika.parse.markup.BlockParsers">BlockParsers</a></h3>
+            </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>

@@ -139,6 +139,10 @@
                         <a href="CharLiteral$.html" title="Configurable base parsers for character literals.">CharLiteral</a>
                       </li><li class="current-entities indented4">
                         <span class="separator"></span>
+                        <a class="trait" href="CodeParserBase.html" title="Convenient base trait that allows for passing the implementing instances anywhere either a PrefixedParser[Seq[CodeSpan]] or a CodeSpanParser is required for easier composition."></a>
+                        <a href="CodeParserBase.html" title="Convenient base trait that allows for passing the implementing instances anywhere either a PrefixedParser[Seq[CodeSpan]] or a CodeSpanParser is required for easier composition.">CodeParserBase</a>
+                      </li><li class="current-entities indented4">
+                        <span class="separator"></span>
                         <a class="object" href="Comment$.html" title="Configurable base parsers for comments in code blocks."></a>
                         <a href="Comment$.html" title="Configurable base parsers for comments in code blocks.">Comment</a>
                       </li><li class="current-entities indented4">
@@ -173,6 +177,10 @@
                         <span class="separator"></span>
                         <a class="trait" href="TagBasedFormats.html" title="Configurable base parsers for tag based formats like HTML or XML."></a>
                         <a href="TagBasedFormats.html" title="Configurable base parsers for tag based formats like HTML or XML.">TagBasedFormats</a>
+                      </li><li class="current-entities indented4">
+                        <a class="object" href="TagParser$.html" title=""></a>
+                        <a class="class" href="TagParser.html" title="Configurable base parser for tags in formats like HTML or XML."></a>
+                        <a href="TagParser.html" title="Configurable base parser for tags in formats like HTML or XML.">TagParser</a>
                       </li>
               </ul>
             </div>
@@ -510,9 +518,9 @@
               
         </dd></dl></div>
     </li><li name="laika.parse.code.common.EmbeddedCodeSpans#parser" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="parser(textParser:laika.parse.text.DelimitedText[String],embedded:Seq[laika.parse.code.CodeSpanParsers],defaultCategories:Set[laika.parse.code.CodeCategory]):laika.parse.Parser[Seq[laika.ast.CodeSpan]]"></a><a id="parser(DelimitedText[String],Seq[CodeSpanParsers],Set[CodeCategory]):Parser[Seq[CodeSpan]]"></a>
+      <a id="parser(textParser:laika.parse.text.DelimitedText,embedded:Seq[laika.parse.code.CodeSpanParser],defaultCategories:Set[laika.parse.code.CodeCategory]):laika.parse.Parser[Seq[laika.ast.CodeSpan]]"></a><a id="parser(DelimitedText,Seq[CodeSpanParser],Set[CodeCategory]):Parser[Seq[CodeSpan]]"></a>
       <span class="permalink">
-      <a href="../../../../laika/parse/code/common/EmbeddedCodeSpans$.html#parser(textParser:laika.parse.text.DelimitedText[String],embedded:Seq[laika.parse.code.CodeSpanParsers],defaultCategories:Set[laika.parse.code.CodeCategory]):laika.parse.Parser[Seq[laika.ast.CodeSpan]]" title="Permalink">
+      <a href="../../../../laika/parse/code/common/EmbeddedCodeSpans$.html#parser(textParser:laika.parse.text.DelimitedText,embedded:Seq[laika.parse.code.CodeSpanParser],defaultCategories:Set[laika.parse.code.CodeCategory]):laika.parse.Parser[Seq[laika.ast.CodeSpan]]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -521,7 +529,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">parser</span><span class="params">(<span name="textParser">textParser: <a href="../../text/DelimitedText.html" class="extype" name="laika.parse.text.DelimitedText">DelimitedText</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="embedded">embedded: <span class="extype" name="scala.Seq">Seq</span>[<a href="../CodeSpanParsers.html" class="extype" name="laika.parse.code.CodeSpanParsers">CodeSpanParsers</a>]</span>, <span name="defaultCategories">defaultCategories: <span class="extype" name="scala.Predef.Set">Set</span>[<a href="../CodeCategory.html" class="extype" name="laika.parse.code.CodeCategory">CodeCategory</a>] = <span class="symbol">Set.empty</span></span>)</span><span class="result">: <a href="../../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Seq">Seq</span>[<a href="../../../ast/CodeSpan.html" class="extype" name="laika.ast.CodeSpan">CodeSpan</a>]]</span>
+        <span class="name">parser</span><span class="params">(<span name="textParser">textParser: <a href="../../text/DelimitedText.html" class="extype" name="laika.parse.text.DelimitedText">DelimitedText</a></span>, <span name="embedded">embedded: <span class="extype" name="scala.Seq">Seq</span>[<a href="../CodeSpanParser.html" class="extype" name="laika.parse.code.CodeSpanParser">CodeSpanParser</a>]</span>, <span name="defaultCategories">defaultCategories: <span class="extype" name="scala.Predef.Set">Set</span>[<a href="../CodeCategory.html" class="extype" name="laika.parse.code.CodeCategory">CodeCategory</a>] = <span class="symbol">Set.empty</span></span>)</span><span class="result">: <a href="../../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Seq">Seq</span>[<a href="../../../ast/CodeSpan.html" class="extype" name="laika.ast.CodeSpan">CodeSpan</a>]]</span>
       </span>
       
       <p class="shortcomment cmt">Creates a new parser for code spans based on the specified parser for delimited text
@@ -532,9 +540,9 @@ for detecting the end of the tag (e.g. <code>/&gt;</code> for an empty tag) wher
 are responsible for detecting attribute names and values and entity references.
 </p></div></div>
     </li><li name="laika.parse.code.common.EmbeddedCodeSpans#parser" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="parser(textParser:laika.parse.text.DelimitedText[String],embedded:laika.bundle.SyntaxHighlighter):laika.parse.Parser[Seq[laika.ast.CodeSpan]]"></a><a id="parser(DelimitedText[String],SyntaxHighlighter):Parser[Seq[CodeSpan]]"></a>
+      <a id="parser(textParser:laika.parse.text.DelimitedText,embedded:laika.bundle.SyntaxHighlighter):laika.parse.Parser[Seq[laika.ast.CodeSpan]]"></a><a id="parser(DelimitedText,SyntaxHighlighter):Parser[Seq[CodeSpan]]"></a>
       <span class="permalink">
-      <a href="../../../../laika/parse/code/common/EmbeddedCodeSpans$.html#parser(textParser:laika.parse.text.DelimitedText[String],embedded:laika.bundle.SyntaxHighlighter):laika.parse.Parser[Seq[laika.ast.CodeSpan]]" title="Permalink">
+      <a href="../../../../laika/parse/code/common/EmbeddedCodeSpans$.html#parser(textParser:laika.parse.text.DelimitedText,embedded:laika.bundle.SyntaxHighlighter):laika.parse.Parser[Seq[laika.ast.CodeSpan]]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -543,33 +551,13 @@ are responsible for detecting attribute names and values and entity references.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">parser</span><span class="params">(<span name="textParser">textParser: <a href="../../text/DelimitedText.html" class="extype" name="laika.parse.text.DelimitedText">DelimitedText</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="embedded">embedded: <a href="../../../bundle/SyntaxHighlighter.html" class="extype" name="laika.bundle.SyntaxHighlighter">SyntaxHighlighter</a></span>)</span><span class="result">: <a href="../../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Seq">Seq</span>[<a href="../../../ast/CodeSpan.html" class="extype" name="laika.ast.CodeSpan">CodeSpan</a>]]</span>
+        <span class="name">parser</span><span class="params">(<span name="textParser">textParser: <a href="../../text/DelimitedText.html" class="extype" name="laika.parse.text.DelimitedText">DelimitedText</a></span>, <span name="embedded">embedded: <a href="../../../bundle/SyntaxHighlighter.html" class="extype" name="laika.bundle.SyntaxHighlighter">SyntaxHighlighter</a></span>)</span><span class="result">: <a href="../../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Seq">Seq</span>[<a href="../../../ast/CodeSpan.html" class="extype" name="laika.ast.CodeSpan">CodeSpan</a>]]</span>
       </span>
       
       <p class="shortcomment cmt">Creates a new parser for code spans based on the specified parser for delimited text
 and the embedded &quot;foreign&quot; syntax.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new parser for code spans based on the specified parser for delimited text
 and the embedded &quot;foreign&quot; syntax.</p><p>An example is a parser for an HTML script element, where the text parser is responsible
 for detecting the end of the tag (<code>&lt;/script&gt;</code>) whereas the embedded syntax is JavaScript, not HTML.
-</p></div></div>
-    </li><li name="laika.parse.code.common.EmbeddedCodeSpans#parserMap" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="parserMap(embedded:Seq[laika.parse.code.CodeSpanParsers]):Map[Char,laika.parse.Parser[laika.ast.Span]]"></a><a id="parserMap(Seq[CodeSpanParsers]):Map[Char,Parser[Span]]"></a>
-      <span class="permalink">
-      <a href="../../../../laika/parse/code/common/EmbeddedCodeSpans$.html#parserMap(embedded:Seq[laika.parse.code.CodeSpanParsers]):Map[Char,laika.parse.Parser[laika.ast.Span]]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">parserMap</span><span class="params">(<span name="embedded">embedded: <span class="extype" name="scala.Seq">Seq</span>[<a href="../CodeSpanParsers.html" class="extype" name="laika.parse.code.CodeSpanParsers">CodeSpanParsers</a>]</span>)</span><span class="result">: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Char">Char</span>, <a href="../../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>]]</span>
-      </span>
-      
-      <p class="shortcomment cmt">Creates a map for the specified code span parsers that maps the start character
-for each parser to its combined parsers.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a map for the specified code span parsers that maps the start character
-for each parser to its combined parsers. If a character maps to multiple parsers
-they will be combined with <code>|</code> in the specified order.
 </p></div></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>

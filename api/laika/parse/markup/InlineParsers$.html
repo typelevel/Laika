@@ -118,9 +118,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika.parse">parse</a></dd></dl></div>
     </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="object" href="BlockParsers$.html" title="Provides base parsers that abstract aspects of block parsing common to most lightweight markup languages."></a>
-                        <a href="BlockParsers$.html" title="Provides base parsers that abstract aspects of block parsing common to most lightweight markup languages.">BlockParsers</a>
+                        <a class="object" href="BlockParsers$.html" title="Instance that allows to import all block parsers in isolation."></a>
+                        <a class="trait" href="BlockParsers.html" title="Provides base parsers that abstract aspects of block parsing common to most lightweight markup languages."></a>
+                        <a href="BlockParsers.html" title="Provides base parsers that abstract aspects of block parsing common to most lightweight markup languages.">BlockParsers</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="trait" href="DefaultEscapedTextParsers.html" title="Default implementation for parsing escape sequences."></a>
@@ -151,8 +151,12 @@
                         <a href="InlineDelimiter.html" title="Delimiter implementation for parsing inline spans that distinguishes between a delimiter that marks the end of the span and a delimiter that marks the start of a nested span.">InlineDelimiter</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="object" href="" title="Provides base parsers that abstract aspects of inline parsing common to most lightweight markup languages."></a>
-                        <a href="" title="Provides base parsers that abstract aspects of inline parsing common to most lightweight markup languages.">InlineParsers</a>
+                        <a class="trait" href="InlineParser.html" title="Generic base parser that parses inline elements with potentially nested spans."></a>
+                        <a href="InlineParser.html" title="Generic base parser that parses inline elements with potentially nested spans.">InlineParser</a>
+                      </li><li class="current-entities indented3">
+                        <a class="object" href="" title="Instance that allows to import all inline parsers in isolation."></a>
+                        <a class="trait" href="InlineParsers.html" title="Provides base parsers that abstract aspects of inline parsing common to most lightweight markup languages."></a>
+                        <a href="InlineParsers.html" title="Provides base parsers that abstract aspects of inline parsing common to most lightweight markup languages.">InlineParsers</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="trait" href="InlineResult.html" title="The result of text parsed with an InlineDelimiter."></a>
@@ -180,14 +184,16 @@
           <div id="content">
             <body class="object value">
       <div id="definition">
-        <div class="big-circle object">o</div>
+        <a href="InlineParsers.html" title="See companion trait"><div class="big-circle object-companion-trait">o</div></a>
         <p id="owner"><a href="../../index.html" class="extype" name="laika">laika</a>.<a href="../index.html" class="extype" name="laika.parse">parse</a>.<a href="index.html" class="extype" name="laika.parse.markup">markup</a></p>
-        <h1>InlineParsers<span class="permalink">
+        <h1><a href="InlineParsers.html" title="See companion trait">InlineParsers</a><span class="permalink">
       <a href="../../../laika/parse/markup/InlineParsers$.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span></h1>
-        <h3><span class="morelinks"></span></h3>
+        <h3><span class="morelinks"><div>
+            Companion <a href="InlineParsers.html" title="See companion trait">trait InlineParsers</a>
+          </div></span></h3>
       </div>
 
       <h4 id="signature" class="signature">
@@ -196,23 +202,18 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">InlineParsers</span>
+        <span class="name">InlineParsers</span><span class="result"> extends <a href="InlineParsers.html" class="extype" name="laika.parse.markup.InlineParsers">InlineParsers</a></span>
       </span>
       </h4>
 
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Provides base parsers that abstract aspects of inline parsing common to most lightweight markup languages.</p><p> It contains helper parsers that abstract the typical logic required for parsing
- nested spans. In many cases a parser has to recognize the end of the span as well
- as potentially the start of a nested span. These two concerns are usually unrelated.</p><p> This object offers helpers that simplify creating these types of parsers and also
- optimize performance of inline parsing. Due to the nature of lightweight text markup
- inline parsing would usually require trying a long list of choices on each input
- character, which is slow. These base parsers work based on mappings from the first
- character of an inline span to the corresponding full parser.
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Instance that allows to import all inline parsers in isolation.</p><p>Usually it is more convenient to import laika.parse.api._
+to get all parser builders with one import.
 </p></div><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
           </span>
-          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><a href="InlineParsers.html" class="extype" name="laika.parse.markup.InlineParsers">InlineParsers</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -238,7 +239,7 @@
                   <span class="filtertype">Inherited<br />
                   </span>
                   <ol id="linearization">
-                    <li class="in" name="laika.parse.markup.InlineParsers"><span>InlineParsers</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                    <li class="in" name="laika.parse.markup.InlineParsers"><span>InlineParsers</span></li><li class="in" name="laika.parse.markup.InlineParsers"><span>InlineParsers</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                   </ol>
                 </div><div class="ancestors">
               <span class="filtertype"></span>
@@ -258,62 +259,7 @@
         <div id="allMembers">
         
 
-        <div id="types" class="types members">
-              <h3>Type Members</h3>
-              <ol><li name="laika.parse.markup.InlineParsers.ResultBuilder" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="ResultBuilder[Elem,+To]extendsAnyRef"></a><a id="ResultBuilder[Elem,+To]:ResultBuilder[Elem,To]"></a>
-      <span class="permalink">
-      <a href="../../../laika/parse/markup/InlineParsers$$ResultBuilder.html" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">trait</span>
-      </span>
-      <span class="symbol">
-        <a title="Abstracts the internal process of building up the result of an inline parser." href="InlineParsers$$ResultBuilder.html"><span class="name">ResultBuilder</span></a><span class="tparams">[<span name="Elem">Elem</span>, <span name="To">+To</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
-      </span>
-      
-      <p class="shortcomment cmt">Abstracts the internal process of building up the result of an inline parser.</p><div class="fullcomment"><div class="comment cmt"><p>Abstracts the internal process of building up the result of an inline parser.
- Since some inline parser produce a tree of nested spans whereas others may
- only produce a text result, they often require the same logic in how they
- deal with nested constructs.
-</p></div></div>
-    </li><li name="laika.parse.markup.InlineParsers.SpanBuilder" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="SpanBuilderextendsInlineParsers.ResultBuilder[laika.ast.Span,List[laika.ast.Span]]"></a><a id="SpanBuilder:SpanBuilder"></a>
-      <span class="permalink">
-      <a href="../../../laika/parse/markup/InlineParsers$$SpanBuilder.html" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a title="ResultBuilder that produces a list of spans." href="InlineParsers$$SpanBuilder.html"><span class="name">SpanBuilder</span></a><span class="result"> extends <a href="InlineParsers$$ResultBuilder.html" class="extype" name="laika.parse.markup.InlineParsers.ResultBuilder">ResultBuilder</a>[<a href="../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>, <span class="extype" name="scala.List">List</span>[<a href="../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>]]</span>
-      </span>
-      
-      <p class="shortcomment cmt">ResultBuilder that produces a list of spans.</p>
-    </li><li name="laika.parse.markup.InlineParsers.TextBuilder" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="TextBuilderextendsInlineParsers.ResultBuilder[String,String]"></a><a id="TextBuilder:TextBuilder"></a>
-      <span class="permalink">
-      <a href="../../../laika/parse/markup/InlineParsers$$TextBuilder.html" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a title="ResultBuilder that produces a String." href="InlineParsers$$TextBuilder.html"><span class="name">TextBuilder</span></a><span class="result"> extends <a href="InlineParsers$$ResultBuilder.html" class="extype" name="laika.parse.markup.InlineParsers.ResultBuilder">ResultBuilder</a>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>]</span>
-      </span>
-      
-      <p class="shortcomment cmt">ResultBuilder that produces a String.</p>
-    </li></ol>
-            </div>
+        
 
         
 
@@ -500,26 +446,6 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="laika.parse.markup.InlineParsers#inline" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="inline[Elem,To](text:=&gt;laika.parse.text.DelimitedText[String],nested:=&gt;Map[Char,laika.parse.Parser[Elem]],resultBuilder:=&gt;laika.parse.markup.InlineParsers.ResultBuilder[Elem,To]):laika.parse.Parser[To]"></a><a id="inline[Elem,To](⇒DelimitedText[String],⇒Map[Char,Parser[Elem]],⇒ResultBuilder[Elem,To]):Parser[To]"></a>
-      <span class="permalink">
-      <a href="../../../laika/parse/markup/InlineParsers$.html#inline[Elem,To](text:=&gt;laika.parse.text.DelimitedText[String],nested:=&gt;Map[Char,laika.parse.Parser[Elem]],resultBuilder:=&gt;laika.parse.markup.InlineParsers.ResultBuilder[Elem,To]):laika.parse.Parser[To]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">inline</span><span class="tparams">[<span name="Elem">Elem</span>, <span name="To">To</span>]</span><span class="params">(<span name="text">text: ⇒ <a href="../text/DelimitedText.html" class="extype" name="laika.parse.text.DelimitedText">DelimitedText</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="nested">nested: ⇒ <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Char">Char</span>, <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="laika.parse.markup.InlineParsers.inline.Elem">Elem</span>]]</span>, <span name="resultBuilder">resultBuilder: ⇒ <a href="InlineParsers$$ResultBuilder.html" class="extype" name="laika.parse.markup.InlineParsers.ResultBuilder">ResultBuilder</a>[<span class="extype" name="laika.parse.markup.InlineParsers.inline.Elem">Elem</span>, <span class="extype" name="laika.parse.markup.InlineParsers.inline.To">To</span>]</span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="laika.parse.markup.InlineParsers.inline.To">To</span>]</span>
-      </span>
-      
-      <p class="shortcomment cmt">Generic base parser that parses inline elements based on the specified
- helper parsers.</p><div class="fullcomment"><div class="comment cmt"><p>Generic base parser that parses inline elements based on the specified
- helper parsers. Usually not used directly by parser implementations,
- this is the base parser the other inline parsers of this trait delegate to.
-</p></div><dl class="paramcmts block"><dt class="tparam">Elem</dt><dd class="cmt"><p>the element type produced by a single parser for a nested span</p></dd><dt class="tparam">To</dt><dd class="cmt"><p>the type of the result this parser produces</p></dd><dt class="param">text</dt><dd class="cmt"><p>the parser for the text of the current span element</p></dd><dt class="param">nested</dt><dd class="cmt"><p>a mapping from the start character of a span to the corresponding parser for nested span elements</p></dd><dt class="param">resultBuilder</dt><dd class="cmt"><p>responsible for building the final result of this parser based on the results of the helper parsers</p></dd><dt>returns</dt><dd class="cmt"><p>the resulting parser</p></dd></dl></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <span class="permalink">
@@ -591,9 +517,9 @@
               
         </dd></dl></div>
     </li><li name="laika.parse.markup.InlineParsers#spans" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="spans(parser:=&gt;laika.parse.text.DelimitedText[String],spanParsers:=&gt;Map[Char,laika.parse.Parser[laika.ast.Span]]):laika.parse.Parser[List[laika.ast.Span]]"></a><a id="spans(⇒DelimitedText[String],⇒Map[Char,Parser[Span]]):Parser[List[Span]]"></a>
+      <a id="spans(parser:=&gt;laika.parse.text.DelimitedText):laika.parse.markup.InlineParser[laika.ast.Span,List[laika.ast.Span]]"></a><a id="spans(⇒DelimitedText):InlineParser[Span,List[Span]]"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/markup/InlineParsers$.html#spans(parser:=&gt;laika.parse.text.DelimitedText[String],spanParsers:=&gt;Map[Char,laika.parse.Parser[laika.ast.Span]]):laika.parse.Parser[List[laika.ast.Span]]" title="Permalink">
+      <a href="../../../laika/parse/markup/InlineParsers$.html#spans(parser:=&gt;laika.parse.text.DelimitedText):laika.parse.markup.InlineParser[laika.ast.Span,List[laika.ast.Span]]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -602,11 +528,12 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">spans</span><span class="params">(<span name="parser">parser: ⇒ <a href="../text/DelimitedText.html" class="extype" name="laika.parse.text.DelimitedText">DelimitedText</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="spanParsers">spanParsers: ⇒ <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Char">Char</span>, <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>]]</span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.List">List</span>[<a href="../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>]]</span>
+        <span class="name">spans</span><span class="params">(<span name="parser">parser: ⇒ <a href="../text/DelimitedText.html" class="extype" name="laika.parse.text.DelimitedText">DelimitedText</a></span>)</span><span class="result">: <a href="InlineParser.html" class="extype" name="laika.parse.markup.InlineParser">InlineParser</a>[<a href="../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>, <span class="extype" name="scala.List">List</span>[<a href="../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>]]</span>
       </span>
       
-      <p class="shortcomment cmt">Parses a list of spans based on the specified helper parsers.</p><div class="fullcomment"><div class="comment cmt"><p>Parses a list of spans based on the specified helper parsers.
-</p></div><dl class="paramcmts block"><dt class="param">parser</dt><dd class="cmt"><p>the parser for the text of the current span element</p></dd><dt class="param">spanParsers</dt><dd class="cmt"><p>a mapping from the start character of a span to the corresponding parser for nested span elements</p></dd><dt>returns</dt><dd class="cmt"><p>the resulting parser</p></dd></dl></div>
+      <p class="shortcomment cmt">Creates a new parser that reads input until the delimiters in the specified parser are detected.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new parser that reads input until the delimiters in the specified parser are detected.</p><p>The returned parser allows to register parsers for child spans with its <code>embed</code> method.
+Without calling it, the result of this parser would always just be a single span of type <code>Text</code>.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="InlineParsers.html" class="extype" name="laika.parse.markup.InlineParsers">InlineParsers</a></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">
@@ -624,9 +551,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="laika.parse.markup.InlineParsers#text" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="text(parser:=&gt;laika.parse.text.DelimitedText[String],nested:=&gt;Map[Char,laika.parse.Parser[String]]):laika.parse.Parser[String]"></a><a id="text(⇒DelimitedText[String],⇒Map[Char,Parser[String]]):Parser[String]"></a>
+      <a id="text(parser:=&gt;laika.parse.text.DelimitedText):laika.parse.markup.InlineParser[String,String]"></a><a id="text(⇒DelimitedText):InlineParser[String,String]"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/markup/InlineParsers$.html#text(parser:=&gt;laika.parse.text.DelimitedText[String],nested:=&gt;Map[Char,laika.parse.Parser[String]]):laika.parse.Parser[String]" title="Permalink">
+      <a href="../../../laika/parse/markup/InlineParsers$.html#text(parser:=&gt;laika.parse.text.DelimitedText):laika.parse.markup.InlineParser[String,String]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -635,11 +562,12 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">text</span><span class="params">(<span name="parser">parser: ⇒ <a href="../text/DelimitedText.html" class="extype" name="laika.parse.text.DelimitedText">DelimitedText</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="nested">nested: ⇒ <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Char">Char</span>, <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]]</span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+        <span class="name">text</span><span class="params">(<span name="parser">parser: ⇒ <a href="../text/DelimitedText.html" class="extype" name="laika.parse.text.DelimitedText">DelimitedText</a></span>)</span><span class="result">: <a href="InlineParser.html" class="extype" name="laika.parse.markup.InlineParser">InlineParser</a>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>]</span>
       </span>
       
-      <p class="shortcomment cmt">Parses text based on the specified helper parsers.</p><div class="fullcomment"><div class="comment cmt"><p>Parses text based on the specified helper parsers.
-</p></div><dl class="paramcmts block"><dt class="param">parser</dt><dd class="cmt"><p>the parser for the text of the current element</p></dd><dt class="param">nested</dt><dd class="cmt"><p>a mapping from the start character of a span to the corresponding parser for nested span elements</p></dd><dt>returns</dt><dd class="cmt"><p>the resulting parser</p></dd></dl></div>
+      <p class="shortcomment cmt">Creates a new parser that reads text until the delimiters in the specified parser are detected.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new parser that reads text until the delimiters in the specified parser are detected.</p><p>The returned parser allows to register parsers for child spans with its <code>embed</code> method,
+for example for reading escape sequences.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="InlineParsers.html" class="extype" name="laika.parse.markup.InlineParsers">InlineParsers</a></dd></dl></div>
     </li><li name="scala.AnyRef#toString" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <span class="permalink">
@@ -730,11 +658,54 @@
 
         
 
-        
+        <div class="values members">
+              <h3>Deprecated Value Members</h3>
+              <ol><li name="laika.parse.markup.InlineParsers#spans" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="spans(parser:=&gt;laika.parse.text.DelimitedText,spanParsers:=&gt;Map[Char,laika.parse.Parser[laika.ast.Span]]):laika.parse.Parser[List[laika.ast.Span]]"></a><a id="spans(⇒DelimitedText,⇒Map[Char,Parser[Span]]):Parser[List[Span]]"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/markup/InlineParsers$.html#spans(parser:=&gt;laika.parse.text.DelimitedText,spanParsers:=&gt;Map[Char,laika.parse.Parser[laika.ast.Span]]):laika.parse.Parser[List[laika.ast.Span]]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.14.0) use .spans(...).embed(...) instead">spans</span><span class="params">(<span name="parser">parser: ⇒ <a href="../text/DelimitedText.html" class="extype" name="laika.parse.text.DelimitedText">DelimitedText</a></span>, <span name="spanParsers">spanParsers: ⇒ <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Char">Char</span>, <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>]]</span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.List">List</span>[<a href="../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>]]</span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="InlineParsers.html" class="extype" name="laika.parse.markup.InlineParsers">InlineParsers</a></dd><dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.14.0)</i> use .spans(...).embed(...) instead</p></dd></dl></div>
+    </li><li name="laika.parse.markup.InlineParsers#text" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="text(parser:=&gt;laika.parse.text.DelimitedText,nested:=&gt;Map[Char,laika.parse.Parser[String]]):laika.parse.Parser[String]"></a><a id="text(⇒DelimitedText,⇒Map[Char,Parser[String]]):Parser[String]"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/markup/InlineParsers$.html#text(parser:=&gt;laika.parse.text.DelimitedText,nested:=&gt;Map[Char,laika.parse.Parser[String]]):laika.parse.Parser[String]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.14.0) use .text(...).embed(...) instead">text</span><span class="params">(<span name="parser">parser: ⇒ <a href="../text/DelimitedText.html" class="extype" name="laika.parse.text.DelimitedText">DelimitedText</a></span>, <span name="nested">nested: ⇒ <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Char">Char</span>, <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]]</span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="InlineParsers.html" class="extype" name="laika.parse.markup.InlineParsers">InlineParsers</a></dd><dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.14.0)</i> use .text(...).embed(...) instead</p></dd></dl></div>
+    </li></ol>
+            </div>
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="scala.AnyRef">
+        <div class="parent" name="laika.parse.markup.InlineParsers">
+              <h3>Inherited from <a href="InlineParsers.html" class="extype" name="laika.parse.markup.InlineParsers">InlineParsers</a></h3>
+            </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>

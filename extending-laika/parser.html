@@ -68,7 +68,7 @@
       <div class="span8" id="top">
 
         <div class="page-header">
-        <h1>Implementing a Parser</h1>
+        <h1 id="implementing-a-parser" class="title">Implementing a Parser</h1>
         </div>
         <p>This document describes the best practices for adding an entirely new parser to the toolkit.
         It is only useful if you either plan to implement a parser for a markup language not (yet)
@@ -133,18 +133,18 @@
         object. You can see the full list of provided parsers in the <a href="../api/laika/parse/core/text/TextParsers$.html">Scaladoc</a>.
         We&#39;ll just show a few examples here:</p>
         <p>Parsing three or more lower-case characters:</p>
-        <pre><code class="nohighlight"><span class="string-literal">&quot;[a-z]{3,}&quot;</span><span>.</span><span class="identifier">r</span><span>              </span><span class="comment">// regex
+        <pre><code class="nohighlight"><span class="string-literal">&quot;[a-z]{3,}&quot;</span><span>.</span><span class="identifier">r</span><span>                   </span><span class="comment">// regex
 </span><span>
-</span><span class="identifier">anyIn</span><span>(</span><span class="char-literal">&#39;a&#39;</span><span> </span><span class="identifier">to</span><span> </span><span class="char-literal">&#39;z&#39;</span><span>).</span><span class="identifier">min</span><span>(</span><span class="number-literal">3</span><span>)   </span><span class="comment">// Laika alternative
+</span><span class="identifier">someOf</span><span>(</span><span class="identifier">range</span><span>(</span><span class="char-literal">&#39;a&#39;</span><span>,</span><span class="char-literal">&#39;z&#39;</span><span>)).</span><span class="identifier">min</span><span>(</span><span class="number-literal">3</span><span>)   </span><span class="comment">// Laika API
 </span></code></pre>
         <p>Parsing any character apart from space or tab:</p>
         <pre><code class="nohighlight"><span class="string-literal">&quot;[^ </span><span class="escape-sequence">\t</span><span class="string-literal">]*&quot;</span><span>.</span><span class="identifier">r</span><span>               </span><span class="comment">// regex
 </span><span>
-</span><span class="identifier">anyBut</span><span>(</span><span class="char-literal">&#39; &#39;</span><span>,</span><span class="char-literal">&#39;</span><span class="escape-sequence">\t</span><span class="char-literal">&#39;</span><span>)          </span><span class="comment">// Laika alternative
+</span><span class="identifier">anyNot</span><span>(</span><span class="char-literal">&#39; &#39;</span><span>,</span><span class="char-literal">&#39;</span><span class="escape-sequence">\t</span><span class="char-literal">&#39;</span><span>)          </span><span class="comment">// Laika API
 </span></code></pre>
         <p>Note that for the Laika base parsers the default is to parse any number of characters,
         as this is the most common case. To read just one you can write:</p>
-        <pre><code class="nohighlight"><span class="identifier">anyBut</span><span>(</span><span class="char-literal">&#39; &#39;</span><span>,</span><span class="char-literal">&#39;</span><span class="escape-sequence">\t</span><span class="char-literal">&#39;</span><span>).</span><span class="identifier">take</span><span>(</span><span class="number-literal">1</span><span>)</span></code></pre>
+        <pre><code class="nohighlight"><span class="identifier">oneNot</span><span>(</span><span class="char-literal">&#39; &#39;</span><span>,</span><span class="char-literal">&#39;</span><span class="escape-sequence">\t</span><span class="char-literal">&#39;</span><span>)</span></code></pre>
         <p>The parsers of this trait will be faster than regex parsers in many scenarios, but
         there will be edge cases where it is the other way round. To be really sure it&#39;s best
         to do some benchmarks first. </p>
@@ -155,43 +155,48 @@
         or a regular paragraph for example). It then further parses the text of each block to look
         for inline markup, which is what this trait does.</p>
         <p>Like described in the previous section, Laika inline parsers avoid the performance bottleneck
-        of trying a long list of choices for each character. Instead it builds a map of available
-        span parsers, mapping from the first character to the parser, and then performs a simple
-        map lookup for each character. If no parser is mapped to the character it simply continues
+        of trying a long list of choices for each character. Instead it builds an index of available
+        span parsers, mapping from the first character to the parser, and then performs a fast
+        array index lookup for each character. If no parser is mapped to the character it simply continues
         reading. This works for nested structures, too.</p>
         <p>This is captured in the API for creating a parser:</p>
-        <pre><code class="nohighlight"><span class="type-name">SpanParser</span><span>.</span><span class="identifier">forStartChar</span><span>(</span><span class="char-literal">&#39;*&#39;</span><span>).</span><span class="identifier">standalone</span><span> {
-  </span><span class="identifier">delimitedBy</span><span>(</span><span class="string-literal">&quot;*&quot;</span><span>)
+        <pre><code class="nohighlight"><span class="type-name">SpanParser</span><span>.</span><span class="identifier">standalone</span><span> {
+  (</span><span class="char-literal">&#39;*&#39;</span><span> ~&gt; </span><span class="identifier">anyNot</span><span>(</span><span class="char-literal">&#39;*&#39;</span><span>,</span><span class="char-literal">&#39;</span><span class="escape-sequence">\n</span><span class="char-literal">&#39;</span><span>) &lt;~ </span><span class="char-literal">&#39;*&#39;</span><span>).</span><span class="identifier">map</span><span>(</span><span class="type-name">Emphasized</span><span>(</span><span class="identifier">_</span><span>))
 }    </span></code></pre>
         <p>The parser above simply parses text between two asterisk. The <code>standalone</code> method means
         that the parser is independent of any parsers in the host language.</p>
         <p>If the parser is allowed to contain nested spans with any of the parsers of the host language
         or any installed extensions, your definition must ask for the recursive parser to be provided
         as you cannot anticipate the extensions a user might have configured:</p>
-        <pre><code class="nohighlight"><span class="type-name">SpanParser</span><span>.</span><span class="identifier">forStartChar</span><span>(</span><span class="char-literal">&#39;*&#39;</span><span>).</span><span class="identifier">recursive</span><span> { </span><span class="identifier">recParsers</span><span> =&gt;
-  </span><span class="identifier">recParsers</span><span>.</span><span class="identifier">delimitedRecursiveSpans</span><span>(</span><span class="identifier">delimitedBy</span><span>(</span><span class="string-literal">&quot;*&quot;</span><span>))
+        <pre><code class="nohighlight"><span class="type-name">SpanParser</span><span>.</span><span class="identifier">recursive</span><span> { </span><span class="identifier">recParsers</span><span> =&gt;
+  (</span><span class="char-literal">&#39;*&#39;</span><span> ~&gt; </span><span class="identifier">recParsers</span><span>.</span><span class="identifier">recursiveSpans</span><span>(</span><span class="identifier">delimitedBy</span><span>(</span><span class="string-literal">&quot;*&quot;</span><span>))).</span><span class="identifier">map</span><span>(</span><span class="type-name">Emphasized</span><span>(</span><span class="identifier">_</span><span>))
 } </span></code></pre>
-        <p>Here you simply pass the same text parser from the previous example to the recursive
-        parsers provided by Laika which lifts the text parser into a span parser.</p>
-        <p>It&#39;s important that parsers do not look for the initial character as this will be consumed by the map lookup already. 
-        And they are still allowed to fail, in which case the special character will be treated as
-        normal text input.</p>
+        <p>This parser also parses markup between two asterisk. But in contrast to the parser above,
+        it also detects and parses any spans kinds provided by the host markup language between
+        these two delimiters.</p>
+        <p>The parser you are passing to the <code>standalone</code> or <code>recursive</code> methods must be of type <code>PrefixedParser[Span]</code>,
+        a subtype of <code>Parser[T]</code>. This is a trait implemented by all parsers with a stable prefix that can be
+        optimized, like literal string parsers. In most cases you do not need to worry about this limitation,
+        as constructs like the above parser starting with <code>&#39;*&#39; ~&gt; ...</code> already implemented this trait.</p>
         
         <h2 id="block-parsers" class="section">Block Parsers</h2>
-        <p>The API for creating block parsers is similar to that for span parsers. One difference
-        is that the start character is optional, as many types of blocks, like a plain paragraph
-        for example, do not have a concrete start character. In those cases you can create the block
-        parser like this:</p>
-        <pre><code class="nohighlight"><span class="type-name">BlockParser</span><span>.</span><span class="identifier">withoutStartChar</span><span>.</span><span class="identifier">standalone</span><span> {
+        <p>The API for creating block parsers is very similar to that for span parsers.
+        There is a variant for a parser that does not recursively parse nested blocks:</p>
+        <pre><code class="nohighlight"><span class="type-name">BlockParser</span><span>.</span><span class="identifier">standalone</span><span> {
   </span><span class="comment">// your parser impl
 </span><span>}    </span></code></pre>
-        <p>If the parser allows the nesting of other blocks you can rely on the library to pass
-        the recursive parsers for all installed block parsers to your parser definition, similar
-        to the span parser mechanism:</p>
-        <pre><code class="nohighlight"><span class="type-name">BlockParser</span><span>.</span><span class="identifier">forStartChar</span><span>(</span><span class="char-literal">&#39;*&#39;</span><span>).</span><span class="identifier">recursive</span><span> { </span><span class="identifier">recParsers</span><span> =&gt;
+        <p>Or the parser is allowed to contain nested blocks from the host language
+        or any installed extensions, your can ask for the recursive parser to be provided:</p>
+        <pre><code class="nohighlight"><span class="type-name">BlockParser</span><span>.</span><span class="identifier">recursive</span><span> { </span><span class="identifier">recParsers</span><span> =&gt;
   </span><span class="comment">// your parser impl
 </span><span>} </span></code></pre>
-        <p>Laika offers a <code>BlockParsers</code> object with convenience methods for creating
+        <p>One difference is that the block parser API does not require instances of <code>PrefixedParser[Block]</code>,
+        a plain <code>Parser[Block]</code> suffices. If your parser does implement the <code>PrefixedParser</code> trait,
+        it will still get optimized like span parsers, but for some typical markup blocks like underlined
+        headlines, provided a finite, reasonably small set of possible start characters is not feasible.</p>
+        <p>The performance hit for non-optimized block parsers is much smaller though than for span parsers,
+        as it is only invoked (more or less) after blank line has been read, not on each input character. </p>
+        <p>Laika also offers a <code>BlockParsers</code> object with convenience methods for creating
         a typical block parser. This is the signature of the first one:</p>
         <pre><code class="nohighlight"><span class="keyword">def</span><span> </span><span class="identifier">block</span><span> (</span><span class="identifier">firstLinePrefix</span><span>: </span><span class="type-name">Parser</span><span>[</span><span class="type-name">Any</span><span>], 
            </span><span class="identifier">linePrefix</span><span>: </span><span class="type-name">Parser</span><span>[</span><span class="type-name">Any</span><span>], 
@@ -203,20 +208,18 @@
         blocks or list items that span multiple paragraphs.</p>
         <p>The following code is an example for a parser for quoted blocks, decorated
         by a <code>&gt;</code> character at the start of each line:</p>
-        <pre><code class="nohighlight"><span class="type-name">BlockParser</span><span>.</span><span class="identifier">forStartChar</span><span>(</span><span class="char-literal">&#39;&gt;&#39;</span><span>).</span><span class="identifier">recursive</span><span> { </span><span class="identifier">recParsers</span><span> =&gt;
+        <pre><code class="nohighlight"><span class="type-name">BlockParser</span><span>.</span><span class="identifier">recursive</span><span> { </span><span class="identifier">recParsers</span><span> =&gt;
   
   </span><span class="keyword">val</span><span> </span><span class="identifier">textAfterDeco</span><span> = </span><span class="type-name">TextParsers</span><span>.</span><span class="identifier">ws</span><span>       </span><span class="comment">// any whitespace
-</span><span>  </span><span class="keyword">val</span><span> </span><span class="identifier">decoratedLine</span><span> = </span><span class="char-literal">&#39;&gt;&#39;</span><span> ~ </span><span class="identifier">textAfterDeco</span><span>  </span><span class="comment">// &#39;&gt;&#39; followed by whitespace
+</span><span>  </span><span class="keyword">val</span><span> </span><span class="identifier">decoratedLine</span><span> = </span><span class="string-literal">&quot;&gt;&quot;</span><span> ~ </span><span class="identifier">textAfterDeco</span><span>  </span><span class="comment">// &#39;&gt;&#39; followed by whitespace
 </span><span>  </span><span class="keyword">val</span><span> </span><span class="identifier">afterBlankLine</span><span> = </span><span class="type-name">Parsers</span><span>.</span><span class="identifier">failure</span><span>(</span><span class="string-literal">&quot;blank line ends block&quot;</span><span>)
   
-  </span><span class="keyword">val</span><span> </span><span class="identifier">textBlock</span><span> = </span><span class="type-name">BlockParsers</span><span>.</span><span class="identifier">block</span><span>(</span><span class="identifier">textAfterDeco</span><span>, </span><span class="identifier">decoratedLine</span><span>, </span><span class="identifier">afterBlankLine</span><span>)
+  </span><span class="keyword">val</span><span> </span><span class="identifier">textBlock</span><span> = </span><span class="type-name">BlockParsers</span><span>.</span><span class="identifier">block</span><span>(</span><span class="identifier">decoratedLine</span><span>, </span><span class="identifier">decoratedLine</span><span>, </span><span class="identifier">afterBlankLine</span><span>)
   
-  </span><span class="identifier">recParsers</span><span>.</span><span class="identifier">recursiveBlocks</span><span>(</span><span class="identifier">textBlock</span><span>) ^^ (</span><span class="type-name">QuotedBlock</span><span>(</span><span class="identifier">_</span><span>, </span><span class="type-name">Nil</span><span>))
+  </span><span class="identifier">recParsers</span><span>.</span><span class="identifier">recursiveBlocks</span><span>(</span><span class="identifier">textBlock</span><span>).</span><span class="identifier">map</span><span>(</span><span class="type-name">QuotedBlock</span><span>(</span><span class="identifier">_</span><span>, </span><span class="type-name">Nil</span><span>))
 }</span></code></pre>
-        <p>This implementation uses the <code>BlockParsers</code> helper. It passes just the whitespace
-        parser as the condition for the first line, as the start character has already 
-        been consumed. For subsequent lines, the decoration needs to be present, so
-        we pass <code>decoratedLine</code> as the condition for them.</p>
+        <p>This implementation uses the <code>BlockParsers</code> helper. It passes just the same <code>decoratedLine</code>
+        parser for the first and subsequent lines.</p>
         <p>Finally we pass the <code>textBlock</code> parser to the recursive parsers which lift our
         <code>Parser[String]</code> to a <code>Parser[Seq[Block]]</code> and the result of that parser is 
         passed to the <code>QuotedBlock</code> AST node.</p>

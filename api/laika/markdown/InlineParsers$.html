@@ -364,9 +364,9 @@
               
         </dd></dl></div>
     </li><li name="laika.markdown.InlineParsers#em" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="em(char:Char)(implicitrecParsers:laika.parse.markup.RecursiveSpanParsers):laika.parse.Parser[laika.ast.Emphasized]"></a><a id="em(Char)(RecursiveSpanParsers):Parser[Emphasized]"></a>
+      <a id="em(char:Char)(implicitrecParsers:laika.parse.markup.RecursiveSpanParsers):laika.parse.text.PrefixedParser[laika.ast.Emphasized]"></a><a id="em(Char)(RecursiveSpanParsers):PrefixedParser[Emphasized]"></a>
       <span class="permalink">
-      <a href="../../laika/markdown/InlineParsers$.html#em(char:Char)(implicitrecParsers:laika.parse.markup.RecursiveSpanParsers):laika.parse.Parser[laika.ast.Emphasized]" title="Permalink">
+      <a href="../../laika/markdown/InlineParsers$.html#em(char:Char)(implicitrecParsers:laika.parse.markup.RecursiveSpanParsers):laika.parse.text.PrefixedParser[laika.ast.Emphasized]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -375,7 +375,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">em</span><span class="params">(<span name="char">char: <span class="extype" name="scala.Char">Char</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="recParsers">recParsers: <a href="../parse/markup/RecursiveSpanParsers.html" class="extype" name="laika.parse.markup.RecursiveSpanParsers">RecursiveSpanParsers</a></span>)</span><span class="result">: <a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../ast/Emphasized.html" class="extype" name="laika.ast.Emphasized">Emphasized</a>]</span>
+        <span class="name">em</span><span class="params">(<span name="char">char: <span class="extype" name="scala.Char">Char</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="recParsers">recParsers: <a href="../parse/markup/RecursiveSpanParsers.html" class="extype" name="laika.parse.markup.RecursiveSpanParsers">RecursiveSpanParsers</a></span>)</span><span class="result">: <a href="../parse/text/PrefixedParser.html" class="extype" name="laika.parse.text.PrefixedParser">PrefixedParser</a>[<a href="../ast/Emphasized.html" class="extype" name="laika.ast.Emphasized">Emphasized</a>]</span>
       </span>
       
       <p class="shortcomment cmt">Parses a span of emphasized text enclosed by one occurrence of the specified character.</p>
@@ -396,9 +396,9 @@
       
       <p class="shortcomment cmt">Parses either strong spans enclosed in double asterisks or emphasized spans enclosed in single asterisks.</p>
     </li><li name="laika.markdown.InlineParsers#enclosedByDoubleChar" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="enclosedByDoubleChar(c:Char)(implicitrecParsers:laika.parse.markup.RecursiveSpanParsers):laika.parse.Parser[List[laika.ast.Span]]"></a><a id="enclosedByDoubleChar(Char)(RecursiveSpanParsers):Parser[List[Span]]"></a>
+      <a id="enclosedByDoubleChar(c:Char)(implicitrecParsers:laika.parse.markup.RecursiveSpanParsers):laika.parse.text.PrefixedParser[List[laika.ast.Span]]"></a><a id="enclosedByDoubleChar(Char)(RecursiveSpanParsers):PrefixedParser[List[Span]]"></a>
       <span class="permalink">
-      <a href="../../laika/markdown/InlineParsers$.html#enclosedByDoubleChar(c:Char)(implicitrecParsers:laika.parse.markup.RecursiveSpanParsers):laika.parse.Parser[List[laika.ast.Span]]" title="Permalink">
+      <a href="../../laika/markdown/InlineParsers$.html#enclosedByDoubleChar(c:Char)(implicitrecParsers:laika.parse.markup.RecursiveSpanParsers):laika.parse.text.PrefixedParser[List[laika.ast.Span]]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -407,16 +407,16 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">enclosedByDoubleChar</span><span class="params">(<span name="c">c: <span class="extype" name="scala.Char">Char</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="recParsers">recParsers: <a href="../parse/markup/RecursiveSpanParsers.html" class="extype" name="laika.parse.markup.RecursiveSpanParsers">RecursiveSpanParsers</a></span>)</span><span class="result">: <a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.List">List</span>[<a href="../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>]]</span>
+        <span class="name">enclosedByDoubleChar</span><span class="params">(<span name="c">c: <span class="extype" name="scala.Char">Char</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="recParsers">recParsers: <a href="../parse/markup/RecursiveSpanParsers.html" class="extype" name="laika.parse.markup.RecursiveSpanParsers">RecursiveSpanParsers</a></span>)</span><span class="result">: <a href="../parse/text/PrefixedParser.html" class="extype" name="laika.parse.text.PrefixedParser">PrefixedParser</a>[<span class="extype" name="scala.List">List</span>[<a href="../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>]]</span>
       </span>
       
       <p class="shortcomment cmt">Parses a span enclosed by two consecutive occurrences of the specified character.</p><div class="fullcomment"><div class="comment cmt"><p>Parses a span enclosed by two consecutive occurrences of the specified character.
  Recursively parses nested spans, too.
 </p></div></div>
     </li><li name="laika.markdown.InlineParsers#enclosedBySingleChar" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="enclosedBySingleChar(c:Char)(implicitrecParsers:laika.parse.markup.RecursiveSpanParsers):laika.parse.Parser[List[laika.ast.Span]]"></a><a id="enclosedBySingleChar(Char)(RecursiveSpanParsers):Parser[List[Span]]"></a>
+      <a id="enclosedBySingleChar(c:Char)(implicitrecParsers:laika.parse.markup.RecursiveSpanParsers):laika.parse.text.PrefixedParser[List[laika.ast.Span]]"></a><a id="enclosedBySingleChar(Char)(RecursiveSpanParsers):PrefixedParser[List[Span]]"></a>
       <span class="permalink">
-      <a href="../../laika/markdown/InlineParsers$.html#enclosedBySingleChar(c:Char)(implicitrecParsers:laika.parse.markup.RecursiveSpanParsers):laika.parse.Parser[List[laika.ast.Span]]" title="Permalink">
+      <a href="../../laika/markdown/InlineParsers$.html#enclosedBySingleChar(c:Char)(implicitrecParsers:laika.parse.markup.RecursiveSpanParsers):laika.parse.text.PrefixedParser[List[laika.ast.Span]]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -425,7 +425,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">enclosedBySingleChar</span><span class="params">(<span name="c">c: <span class="extype" name="scala.Char">Char</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="recParsers">recParsers: <a href="../parse/markup/RecursiveSpanParsers.html" class="extype" name="laika.parse.markup.RecursiveSpanParsers">RecursiveSpanParsers</a></span>)</span><span class="result">: <a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.List">List</span>[<a href="../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>]]</span>
+        <span class="name">enclosedBySingleChar</span><span class="params">(<span name="c">c: <span class="extype" name="scala.Char">Char</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="recParsers">recParsers: <a href="../parse/markup/RecursiveSpanParsers.html" class="extype" name="laika.parse.markup.RecursiveSpanParsers">RecursiveSpanParsers</a></span>)</span><span class="result">: <a href="../parse/text/PrefixedParser.html" class="extype" name="laika.parse.text.PrefixedParser">PrefixedParser</a>[<span class="extype" name="scala.List">List</span>[<a href="../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>]]</span>
       </span>
       
       <p class="shortcomment cmt">Parses a span enclosed by a single occurrence of the specified character.</p><div class="fullcomment"><div class="comment cmt"><p>Parses a span enclosed by a single occurrence of the specified character.
@@ -496,7 +496,8 @@
       
       <p class="shortcomment cmt"> Parses a single escaped character, only recognizing the characters the Markdown syntax document
  specifies as escapable.</p><div class="fullcomment"><div class="comment cmt"><p> Parses a single escaped character, only recognizing the characters the Markdown syntax document
- specifies as escapable.</p><p> Note: escaping &gt; is not mandated by the official syntax description, but by the official test suite.
+ specifies as escapable.
+ The <code>|</code> has been added to that list to support escaping in tables in the GitHub Flavor syntax.</p><p> Note: escaping &gt; is not mandated by the official syntax description, but by the official test suite.
 </p></div></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
@@ -627,9 +628,9 @@
  Recognizes both, an inline link <code>[text](url)</code> and a link reference <code>[text][id]</code>.
 </p></div></div>
     </li><li name="laika.markdown.InlineParsers#literalEnclosedByDoubleChar" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="literalEnclosedByDoubleChar:laika.parse.Parser[laika.ast.Literal]"></a><a id="literalEnclosedByDoubleChar:Parser[Literal]"></a>
+      <a id="literalEnclosedByDoubleChar:laika.parse.text.PrefixedParser[laika.ast.Literal]"></a><a id="literalEnclosedByDoubleChar:PrefixedParser[Literal]"></a>
       <span class="permalink">
-      <a href="../../laika/markdown/InlineParsers$.html#literalEnclosedByDoubleChar:laika.parse.Parser[laika.ast.Literal]" title="Permalink">
+      <a href="../../laika/markdown/InlineParsers$.html#literalEnclosedByDoubleChar:laika.parse.text.PrefixedParser[laika.ast.Literal]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -638,16 +639,16 @@
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">literalEnclosedByDoubleChar</span><span class="result">: <a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../ast/Literal.html" class="extype" name="laika.ast.Literal">Literal</a>]</span>
+        <span class="name">literalEnclosedByDoubleChar</span><span class="result">: <a href="../parse/text/PrefixedParser.html" class="extype" name="laika.parse.text.PrefixedParser">PrefixedParser</a>[<a href="../ast/Literal.html" class="extype" name="laika.ast.Literal">Literal</a>]</span>
       </span>
       
       <p class="shortcomment cmt">Parses a literal span enclosed by double backticks.</p><div class="fullcomment"><div class="comment cmt"><p>Parses a literal span enclosed by double backticks.
  Does neither parse nested spans nor Markdown escapes.
 </p></div></div>
     </li><li name="laika.markdown.InlineParsers#literalEnclosedBySingleChar" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="literalEnclosedBySingleChar:laika.parse.Parser[laika.ast.Literal]"></a><a id="literalEnclosedBySingleChar:Parser[Literal]"></a>
+      <a id="literalEnclosedBySingleChar:laika.parse.text.PrefixedParser[laika.ast.Literal]"></a><a id="literalEnclosedBySingleChar:PrefixedParser[Literal]"></a>
       <span class="permalink">
-      <a href="../../laika/markdown/InlineParsers$.html#literalEnclosedBySingleChar:laika.parse.Parser[laika.ast.Literal]" title="Permalink">
+      <a href="../../laika/markdown/InlineParsers$.html#literalEnclosedBySingleChar:laika.parse.text.PrefixedParser[laika.ast.Literal]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -656,7 +657,7 @@
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">literalEnclosedBySingleChar</span><span class="result">: <a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../ast/Literal.html" class="extype" name="laika.ast.Literal">Literal</a>]</span>
+        <span class="name">literalEnclosedBySingleChar</span><span class="result">: <a href="../parse/text/PrefixedParser.html" class="extype" name="laika.parse.text.PrefixedParser">PrefixedParser</a>[<a href="../ast/Literal.html" class="extype" name="laika.ast.Literal">Literal</a>]</span>
       </span>
       
       <p class="shortcomment cmt">Parses a literal span enclosed by a single backtick.</p><div class="fullcomment"><div class="comment cmt"><p>Parses a literal span enclosed by a single backtick.
@@ -767,9 +768,9 @@
       <p class="shortcomment cmt">Parses a simple inline link in the form of &lt;http://someURL/&gt;
 </p>
     </li><li name="laika.markdown.InlineParsers#span" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="span(start:laika.parse.Parser[Any],endDelim:String,postCondition:laika.parse.Parser[Any])(implicitrecParsers:laika.parse.markup.RecursiveSpanParsers):laika.parse.Parser[List[laika.ast.Span]]"></a><a id="span(Parser[Any],String,Parser[Any])(RecursiveSpanParsers):Parser[List[Span]]"></a>
+      <a id="span(start:laika.parse.text.PrefixedParser[Any],end:laika.parse.text.PrefixedParser[String])(implicitrecParsers:laika.parse.markup.RecursiveSpanParsers):laika.parse.text.PrefixedParser[List[laika.ast.Span]]"></a><a id="span(PrefixedParser[Any],PrefixedParser[String])(RecursiveSpanParsers):PrefixedParser[List[Span]]"></a>
       <span class="permalink">
-      <a href="../../laika/markdown/InlineParsers$.html#span(start:laika.parse.Parser[Any],endDelim:String,postCondition:laika.parse.Parser[Any])(implicitrecParsers:laika.parse.markup.RecursiveSpanParsers):laika.parse.Parser[List[laika.ast.Span]]" title="Permalink">
+      <a href="../../laika/markdown/InlineParsers$.html#span(start:laika.parse.text.PrefixedParser[Any],end:laika.parse.text.PrefixedParser[String])(implicitrecParsers:laika.parse.markup.RecursiveSpanParsers):laika.parse.text.PrefixedParser[List[laika.ast.Span]]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -778,17 +779,17 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">span</span><span class="params">(<span name="start">start: <a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Any">Any</span>]</span>, <span name="endDelim">endDelim: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="postCondition">postCondition: <a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Any">Any</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="recParsers">recParsers: <a href="../parse/markup/RecursiveSpanParsers.html" class="extype" name="laika.parse.markup.RecursiveSpanParsers">RecursiveSpanParsers</a></span>)</span><span class="result">: <a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.List">List</span>[<a href="../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>]]</span>
+        <span class="name">span</span><span class="params">(<span name="start">start: <a href="../parse/text/PrefixedParser.html" class="extype" name="laika.parse.text.PrefixedParser">PrefixedParser</a>[<span class="extype" name="scala.Any">Any</span>]</span>, <span name="end">end: <a href="../parse/text/PrefixedParser.html" class="extype" name="laika.parse.text.PrefixedParser">PrefixedParser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="recParsers">recParsers: <a href="../parse/markup/RecursiveSpanParsers.html" class="extype" name="laika.parse.markup.RecursiveSpanParsers">RecursiveSpanParsers</a></span>)</span><span class="result">: <a href="../parse/text/PrefixedParser.html" class="extype" name="laika.parse.text.PrefixedParser">PrefixedParser</a>[<span class="extype" name="scala.List">List</span>[<a href="../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>]]</span>
       </span>
       
       <p class="shortcomment cmt">Creates a parser for an inline span based on the specified parsers that
  represent the start and end condition.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a parser for an inline span based on the specified parsers that
  represent the start and end condition.
-</p></div><dl class="paramcmts block"><dt class="param">start</dt><dd class="cmt"><p>the parser that parses the beginning of the span, result will be discarded</p></dd><dt class="param">endDelim</dt><dd class="cmt"><p>the end delimiter of the span</p></dd><dt class="param">postCondition</dt><dd class="cmt"><p>the parser that checks any post conditions after the end delimiter has been read</p></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">start</dt><dd class="cmt"><p>the parser that parses the beginning of the span, result will be discarded</p></dd><dt class="param">end</dt><dd class="cmt"><p>the end delimiter of the span</p></dd></dl></div>
     </li><li name="laika.markdown.InlineParsers#strong" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="strong(char:Char)(implicitrecParsers:laika.parse.markup.RecursiveSpanParsers):laika.parse.Parser[laika.ast.Strong]"></a><a id="strong(Char)(RecursiveSpanParsers):Parser[Strong]"></a>
+      <a id="strong(char:Char)(implicitrecParsers:laika.parse.markup.RecursiveSpanParsers):laika.parse.text.PrefixedParser[laika.ast.Strong]"></a><a id="strong(Char)(RecursiveSpanParsers):PrefixedParser[Strong]"></a>
       <span class="permalink">
-      <a href="../../laika/markdown/InlineParsers$.html#strong(char:Char)(implicitrecParsers:laika.parse.markup.RecursiveSpanParsers):laika.parse.Parser[laika.ast.Strong]" title="Permalink">
+      <a href="../../laika/markdown/InlineParsers$.html#strong(char:Char)(implicitrecParsers:laika.parse.markup.RecursiveSpanParsers):laika.parse.text.PrefixedParser[laika.ast.Strong]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -797,7 +798,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">strong</span><span class="params">(<span name="char">char: <span class="extype" name="scala.Char">Char</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="recParsers">recParsers: <a href="../parse/markup/RecursiveSpanParsers.html" class="extype" name="laika.parse.markup.RecursiveSpanParsers">RecursiveSpanParsers</a></span>)</span><span class="result">: <a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../ast/Strong.html" class="extype" name="laika.ast.Strong">Strong</a>]</span>
+        <span class="name">strong</span><span class="params">(<span name="char">char: <span class="extype" name="scala.Char">Char</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="recParsers">recParsers: <a href="../parse/markup/RecursiveSpanParsers.html" class="extype" name="laika.parse.markup.RecursiveSpanParsers">RecursiveSpanParsers</a></span>)</span><span class="result">: <a href="../parse/text/PrefixedParser.html" class="extype" name="laika.parse.text.PrefixedParser">PrefixedParser</a>[<a href="../ast/Strong.html" class="extype" name="laika.ast.Strong">Strong</a>]</span>
       </span>
       
       <p class="shortcomment cmt">Parses a span of strong text enclosed by two consecutive occurrences of the specified character.</p>

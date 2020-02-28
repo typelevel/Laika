@@ -68,7 +68,7 @@
       <div class="span8" id="top">
 
         <div class="page-header">
-        <h1>Laika</h1>
+        <h1 id="laika" class="title">Laika</h1>
         </div>
         <p>Laika is a customizable and extensible toolkit for transforming lightweight text markup 
         and template based site and e-book generation.</p>
@@ -87,14 +87,14 @@
         you can read about her <a href="http://en.wikipedia.org/wiki/Laika">here</a>.</p>
         
         <h2 id="getting-started" class="section">Getting Started</h2>
-        <p>The current version is published to Maven Central for Scala 2.13 and 2.12.</p>
+        <p>The current version is published to Maven Central for Scala 2.13, 2.12 and Scala.js 1.0.</p>
         <p>The sbt plugin is published to the sbt plugin repository for sbt 1.x.</p>
         <p>The final release for Scala 2.11 had been 0.10.0, 
         the final release for Scala 2.10 and sbt 0.13 was 0.7.0.</p>
         
         <h3 id="using-the-sbt-plugin" class="section">Using the sbt Plugin</h3>
         <p>Add the plugin to <code>project/plugins.sbt</code>:</p>
-        <pre><code class="nohighlight"><span class="identifier">addSbtPlugin</span><span>(</span><span class="string-literal">&quot;org.planet42&quot;</span><span> % </span><span class="string-literal">&quot;laika-sbt&quot;</span><span> % </span><span class="string-literal">&quot;0.13.0&quot;</span><span>)</span></code></pre>
+        <pre><code class="nohighlight"><span class="identifier">addSbtPlugin</span><span>(</span><span class="string-literal">&quot;org.planet42&quot;</span><span> % </span><span class="string-literal">&quot;laika-sbt&quot;</span><span> % </span><span class="string-literal">&quot;0.14.0&quot;</span><span>)</span></code></pre>
         <p>Enable the plugin in your project&#39;s <code>build.sbt</code>:</p>
         <pre><code class="nohighlight"><span class="identifier">enablePlugins</span><span>(</span><span class="type-name">LaikaPlugin</span><span>)</span></code></pre>
         <p>Add Markdown, reStructuredText or HTML template files to <code>src/docs</code> in your
@@ -106,7 +106,12 @@
         the <a href="http://planet42.github.io/Laika/migration-guide-0.12.html">Migration Guide</a> 
         first, as there were significant changes in the Library API.</p>
         <p>Adding the Laika dependency to your sbt build:</p>
-        <pre><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> += </span><span class="string-literal">&quot;org.planet42&quot;</span><span> %% </span><span class="string-literal">&quot;laika-core&quot;</span><span> % </span><span class="string-literal">&quot;0.13.0&quot;</span></code></pre>
+        <pre><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> += </span><span class="string-literal">&quot;org.planet42&quot;</span><span> %% </span><span class="string-literal">&quot;laika-core&quot;</span><span> % </span><span class="string-literal">&quot;0.14.0&quot;</span></code></pre>
+        <p>If you want to use Laika with Scala.js, use the standard triple-%:
+        <code>`scala
+libraryDependencies += &quot;org.planet42&quot; %%% &quot;laika-core&quot; % &quot;0.14.0&quot;</code>`</p>
+        <p>Note that only <code>laika-core</code> has been published for Scala.js, the <code>laika-io</code>
+        and <code>laika-pdf</code> modules are only available for the JVM.</p>
         <p>Example for transforming Markdown to HTML:</p>
         <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">api</span><span>.</span><span class="identifier">_</span><span>
 </span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">format</span><span>.</span><span class="identifier">_</span><span>
@@ -120,7 +125,7 @@
   .</span><span class="identifier">transform</span><span>(</span><span class="string-literal">&quot;hello *there*&quot;</span><span>)</span></code></pre>
         <p>For file/stream IO, parallel processing and/or EPUB support, based on cats-effect, 
         add the laika-io module to your build:</p>
-        <pre><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> += </span><span class="string-literal">&quot;org.planet42&quot;</span><span> %% </span><span class="string-literal">&quot;laika-io&quot;</span><span> % </span><span class="string-literal">&quot;0.13.0&quot;</span><span>  </span></code></pre>
+        <pre><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> += </span><span class="string-literal">&quot;org.planet42&quot;</span><span> %% </span><span class="string-literal">&quot;laika-io&quot;</span><span> % </span><span class="string-literal">&quot;0.14.0&quot;</span><span>  </span></code></pre>
         <p>Example for transforming an entire directory of markup files to a single EPUB file:</p>
         <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">api</span><span>.</span><span class="identifier">_</span><span>
 </span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">format</span><span>.</span><span class="identifier">_</span><span>
@@ -146,7 +151,7 @@
   .</span><span class="identifier">toFile</span><span>(</span><span class="string-literal">&quot;hello.epub&quot;</span><span>)
   .</span><span class="identifier">transform</span></code></pre>
         <p>When using Laika&#39;s PDF support you need to add one more dependency to your build:</p>
-        <pre><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> += </span><span class="string-literal">&quot;org.planet42&quot;</span><span> %% </span><span class="string-literal">&quot;laika-pdf&quot;</span><span> % </span><span class="string-literal">&quot;0.13.0&quot;</span></code></pre>
+        <pre><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> += </span><span class="string-literal">&quot;org.planet42&quot;</span><span> %% </span><span class="string-literal">&quot;laika-pdf&quot;</span><span> % </span><span class="string-literal">&quot;0.14.0&quot;</span></code></pre>
         <p>The example for how to transform a directory of input files into a PDF file looks
         the same as the EPUB example, apart from swapping <code>EPUB</code> for <code>PDF</code> <br></p>
         
@@ -208,6 +213,9 @@
             as sbt settings and tasks</p>
           </li>
           <li>
+            <p>Support for Scala.js for all of Laika&#39;s features except File/Stream IO, EPUB and PDF</p>
+          </li>
+          <li>
             <p>Purely Functional Library API, respecting referential transparency,
             no exceptions, no mutable state</p>
           </li>
@@ -244,21 +252,85 @@
           </li>
         </ul>
         
-        <h2 id="road-map" class="section">Road Map</h2>
-        <ul>
-          <li>
-            <p><strong>0.14</strong>: Support for Scala.js</p>
-          </li>
-          <li>
-            <p><strong>0.15</strong>: A set of default themes for all output formats</p>
-          </li>
-          <li>
-            <p><strong>1.0</strong>: Separation of public and internal APIs and removal of all deprecations</p>
-          </li>
-        </ul>
-        
         <h2 id="release-history" class="section">Release History</h2>
         <ul>
+          <li>
+            <p><strong>0.14.0</strong> (Feb 28, 2020):</p>
+            <ul>
+              <li>
+                Introduce support for Scala.js for the entire laika-core module:
+                <ul>
+                  <li>Brings the complete functionality of Laika to Scala.js with the only
+                  exceptions being File/Stream IO and support for PDF and EPUB output</li>
+                  <li>Eliminate the last, semi-hidden usages of Java reflection to enable Scala.js support</li>
+                  <li>Avoid use of <code>java.time.Instant</code> in the shared base to not force another heavy dependency
+                  on Scala.js users</li>
+                </ul>
+              </li>
+              <li>
+                Laika&#39;s integrated syntax highlighting:
+                <ul>
+                  <li>Add support for Dotty, JSX/TSX, SQL, EBNF, Laika&#39;s own AST format</li>
+                </ul>
+              </li>
+              <li>
+                Parser APIs:
+                <ul>
+                  <li>Introduce <code>PrefixedParser</code> trait to make span parser optimizations implicit
+                  for 90% of the use cases and no longer require the developer to explicitly 
+                  supply a set of possible start characters for the span</li>
+                  <li>Introduce new parser for delimiters that generalizes typical checks for preceding
+                  and following characters in markup parsers (e.g. <code>delimiter(&quot;**&quot;).prevNot(whitespace)</code>),
+                  to reduce boilerplate for inline parsers</li>
+                  <li>Introduce shortcuts for very common usages of text parsers (e.g. <code>oneOf(&#39;a&#39;,&#39;b&#39;)</code> instead of
+                  <code>anyOf(&#39;a&#39;,&#39;b&#39;).take(1)</code>)</li>
+                  <li>Expand the API of the <code>Parser</code> base trait: add <code>source</code> method for obtaining the consumed
+                  part of the input instead of the result of the parser, and <code>count</code> to obtain the number of
+                  consumed characters</li>
+                  <li>Introduce <code>laika.parse.implicits._</code> for extension methods for common parsers, e.g.
+                  <code>.concat</code>, <code>mapN</code>.</li>
+                  <li>Introduce shortcut for repeating a parser with a separator</li>
+                  <li>Deprecate all APIs that relied on implicit conversions</li>
+                  <li>Deprecate some of the rather cryptic symbol methods on <code>Parser</code> in favor of named methods</li>
+                  <li><code>DelimitedText</code> does no longer have a type parameter</li>
+                </ul>
+              </li>
+              <li>
+                AST changes and improvements:
+                <ul>
+                  <li>Introduce RelativePath as a separate type in addition to the existing Path type
+                  which is now only used for absolute paths</li>
+                  <li>Introduce a range of shortcut constructors for Laika&#39;s AST nodes, that allow you
+                  to write <code>Paragraph(&quot;some text&quot;)</code> instead of <code>Paragraph(Seq(Text(&quot;some text&quot;)))</code>
+                  for example</li>
+                </ul>
+              </li>
+              <li>
+                Directives:
+                <ul>
+                  <li>Cleaner syntax for default attributes which are no longer part of the HOCON
+                  attribute block for named attributes</li>
+                </ul>
+              </li>
+              <li>
+                Demo App:
+                <ul>
+                  <li>Cleanup from six to two (bigger) panels for improved usability</li>
+                  <li>Use Laika&#39;s own syntax highlighting in the output</li>
+                  <li>Allow to switch from JVM execution to Java.js</li>
+                  <li>Move from Akka HTTP to http4s</li>
+                  <li>Integrate source into Laika&#39;s main repository</li>
+                </ul>
+              </li>
+              <li>
+                Bugfix:
+                <ul>
+                  <li>Syntax highlighting for interpolated strings in Scala was broken in 0.13.0</li>
+                  <li>Fix a flaky test that relied on the ordering of HashMap entries</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
           <li>
             <p><strong>0.13.0</strong> (Jan 26, 2020):</p>
             <ul>
@@ -284,6 +356,7 @@
               formatted information about the transformer setup and installed extensions</li>
               <li>sbt plugin: improved accuracy for caching logic for EPUB and PDF output
               that still works when the artifact name or version changes</li>
+              <li>Upgrade dependency on cats-core to 2.1.0</li>
             </ul>
           </li>
           <li>

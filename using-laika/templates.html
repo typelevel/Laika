@@ -68,7 +68,7 @@
       <div class="span8" id="top">
 
         <div class="page-header">
-        <h1>Templates</h1>
+        <h1 id="templates" class="title">Templates</h1>
         </div>
         <p>Laika comes with a lightweight, logic-less template engine that allows you to customize the output
         of the transformed markup documents.</p>
@@ -92,9 +92,9 @@
         <p>The following example shows all three markup constructs you can use in
         templates:</p>
         <pre><code class="nohighlight"><span class="keyword">{%</span><span> 
-  </span><span class="attribute-name">autonumbering</span><span> {
-    </span><span class="attribute-name">scope</span><span>: </span><span class="string-literal">sections</span><span>
-    </span><span class="attribute-name">depth</span><span>: </span><span class="number-literal">2</span><span>      
+  </span><span class="attribute-name">siteLinks</span><span> {
+    </span><span class="attribute-name">catalogue</span><span>: ../</span><span class="string-literal">catalogue/</span><span>
+    </span><span class="attribute-name">contact</span><span>: ../</span><span class="string-literal">contact/</span><span>
   }
 </span><span class="keyword">%}</span><span>  
 </span><span class="tag-punctuation">&lt;</span><span class="tag-name">html</span><span class="tag-punctuation">&gt;</span><span>
@@ -123,15 +123,21 @@
         to retain the overall design of full referential transparency
         and avoid the Java API of the Typesafe Config library.</p>
         <p>There are a few configuration entries that have a special meaning
-        for Laika, like the <code>autonumbering</code> entry in the example above.
+        for Laika, e.g the <code>autonumbering</code>, <code>pdf</code> or <code>epub</code> entries.
         These are all documented in their respective chapters.</p>
-        <p>But you can also add arbitrary entries and then refer to them
-        from a variable reference. The <code>scope</code> entry above for example
-        can be referred to with <code>${autonumbering.scope}</code>.</p>
-        <p>You can also have a configuration header in a markup document
-        (supported for both Markdown and reStructuredText) and then
-        refer to entries in a header in a markup document from
-        inside the corresponding template (and vice versa)</p>
+        <p>But you can also add arbitrary entries like in the example above 
+        and then refer to them from a variable reference. 
+        The <code>contact</code> entry above for example can be referred to with 
+        <code>${siteLinks.contact}</code> anywhere inside this template. </p>
+        <p>Likewise you can refer to variables defined in:</p>
+        <ul>
+          <li>The document that is rendered with this template</li>
+          <li>The configuration of the directory the rendered document resides in 
+          and all its parent directories up to the (virtual) root of the tree. </li>
+        </ul>
+        <p>HOCON configuration is more often found in headers of text markup
+        documents or in directory configuration, but nevertheless also
+        supported in template headers if needed.</p>
         
         <h3 id="variable-references" class="section">Variable References</h3>
         <p>A variable reference can appear anywhere in a template
@@ -185,12 +191,12 @@
         Since all its attributes are optional, it can simply be used like this:</p>
         <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">toc</span></code></pre>
         <p>A more complete example is the use of the <code>for</code> directive:</p>
-        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">for</span><span> { </span><span class="string-literal">some.list.of.products</span><span> }
+        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">for</span><span>(catalog.products)
 
 </span><span class="tag-punctuation">&lt;</span><span class="tag-name">li</span><span class="tag-punctuation">&gt;&lt;</span><span class="tag-name">a</span><span class="tag-punctuation"> </span><span class="attribute-name">href</span><span class="tag-punctuation">=</span><span class="string-literal">&quot;#</span><span class="substitution">${_.id}</span><span class="string-literal">&quot;</span><span class="tag-punctuation">&gt;</span><span class="substitution">${_.description}</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">a</span><span class="tag-punctuation">&gt;&lt;/</span><span class="tag-name">li</span><span class="tag-punctuation">&gt;</span><span>
 
 </span><span class="keyword">@:@</span></code></pre>
-        <p>Here <code>for</code> is the name of the directive, <code>some.list.of.products</code> is an unnamed
+        <p>Here <code>for</code> is the name of the directive, <code>catalog.products</code> is an unnamed
         attribute (where in this case the value is interpreted as a variable reference,
         pointing to a path the user defined in the configuration),
         and finally, the body of the directive followed by the <code>@:@</code> fence. The exact
@@ -245,7 +251,7 @@
         <p>Can only be used in block elements in text markup.</p>
         <p>The body of such a directive will only be included into the
         output by renderers for the specified type:</p>
-        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">format</span><span> { </span><span class="string-literal">html</span><span> }
+        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">format</span><span>(html)
 
 This text only appears in the HTML output,
 not in PDF, EPUB or any other format.
@@ -260,7 +266,7 @@ not in PDF, EPUB or any other format.
         that can be used by renderers to change the appearance of the
         rendered element.</p>
         <p>Block directive: </p>
-        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">style</span><span> { </span><span class="string-literal">subtitle</span><span> } 
+        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">style</span><span>(subtitle) 
 
 This paragraph gets the 
 subtitle style applied.
@@ -269,7 +275,7 @@ subtitle style applied.
   
 While this paragraph does not.</span></code></pre>
         <p>Span directive:</p>
-        <pre><code class="nohighlight"><span>Burrito - </span><span class="keyword">@:</span><span class="identifier">style</span><span> { </span><span class="string-literal">price</span><span> } £3.50 </span><span class="keyword">@:@</span><span>.</span></code></pre>
+        <pre><code class="nohighlight"><span>Burrito - </span><span class="keyword">@:</span><span class="identifier">style</span><span>(price) £3.50 </span><span class="keyword">@:@</span><span>.</span></code></pre>
         
         <h3 id="the-for-directive" class="section">The <code>for</code> directive</h3>
         <p>Can only be used inside templates.</p>
@@ -279,16 +285,17 @@ While this paragraph does not.</span></code></pre>
         empty collections, and exactly once for all other values.</p>
         <p>In case of non-empty values their properties will be made available
         for use inside the body part without any prefix:</p>
-        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">for</span><span> { </span><span class="string-literal">some.list.of.products</span><span> }
+        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">for</span><span>(catalog.products)
 
 </span><span class="tag-punctuation">&lt;</span><span class="tag-name">li</span><span class="tag-punctuation">&gt;&lt;</span><span class="tag-name">a</span><span class="tag-punctuation"> </span><span class="attribute-name">href</span><span class="tag-punctuation">=</span><span class="string-literal">&quot;#</span><span class="substitution">${_.id}</span><span class="string-literal">&quot;</span><span class="tag-punctuation">&gt;</span><span class="substitution">${_.description}</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">a</span><span class="tag-punctuation">&gt;&lt;/</span><span class="tag-name">li</span><span class="tag-punctuation">&gt;</span><span>
 
 </span><span class="keyword">@:@</span><span> </span></code></pre>
-        <p>In this example <code>id</code> and <code>title</code> are properties of the <code>SectionInfo</code>
-        objects inside the <code>document.sections</code> collection.</p>
+        <p>In this example <code>id</code> and <code>title</code> are properties of the <code>catalog.products</code>
+        property that the user needs to define in once of the locations where 
+        HOCON attributes are accepted.</p>
         <p>You can also specify a fallback, a body part that gets executed
         for empty values:</p>
-        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">for</span><span> { </span><span class="string-literal">some.list.of.products</span><span> }
+        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">for</span><span>(catalog.products)
 </span><span class="tag-punctuation">&lt;</span><span class="tag-name">li</span><span class="tag-punctuation">&gt;&lt;</span><span class="tag-name">a</span><span class="tag-punctuation"> </span><span class="attribute-name">href</span><span class="tag-punctuation">=</span><span class="string-literal">&quot;#</span><span class="substitution">${_.id}</span><span class="string-literal">&quot;</span><span class="tag-punctuation">&gt;</span><span class="substitution">${_.description}</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">a</span><span class="tag-punctuation">&gt;&lt;/</span><span class="tag-name">li</span><span class="tag-punctuation">&gt;</span><span>
  
 </span><span class="keyword">@:</span><span class="identifier">empty</span><span>
@@ -306,17 +313,17 @@ While this paragraph does not.</span></code></pre>
         <p>Can only be used inside templates.</p>
         <p>Executes the body of the directive exactly once for a Boolean
         <code>true</code> or the strings <code>true</code>, <code>on</code>, <code>yes</code> and <code>enabled</code>.</p>
-        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">if</span><span> { </span><span class="string-literal">showSidebar</span><span> }
+        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">if</span><span>(showSidebar)
 </span><span class="tag-punctuation">&lt;</span><span class="tag-name">div</span><span class="tag-punctuation"> </span><span class="attribute-name">class</span><span class="tag-punctuation">=</span><span class="string-literal">&quot;sidebar&quot;</span><span class="tag-punctuation">&gt;</span><span>...</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">div</span><span class="tag-punctuation">&gt;</span><span>
 </span><span class="keyword">@:@</span></code></pre>
         <p>In this example <code>showSidebar</code> is a custom configuration entry
         that you have set explicitly in a configuration header or file.</p>
         <p>You can also specify a fallback with <code>@:else</code>, 
         or even secondary conditions with <code>@:elseIf</code>:</p>
-        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">if</span><span> { </span><span class="string-literal">showSidebar</span><span> }
+        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">if</span><span>(showSidebar)
 </span><span class="tag-punctuation">&lt;</span><span class="tag-name">div</span><span class="tag-punctuation"> </span><span class="attribute-name">class</span><span class="tag-punctuation">=</span><span class="string-literal">&quot;sidebar&quot;</span><span class="tag-punctuation">&gt;</span><span>...</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">div</span><span class="tag-punctuation">&gt;</span><span>
 
-</span><span class="keyword">@:</span><span class="identifier">elseIf</span><span> { </span><span class="string-literal">showInfobox</span><span> }
+</span><span class="keyword">@:</span><span class="identifier">elseIf</span><span>(showInfobox)
 </span><span class="tag-punctuation">&lt;</span><span class="tag-name">div</span><span class="tag-punctuation"> </span><span class="attribute-name">class</span><span class="tag-punctuation">=</span><span class="string-literal">&quot;infobox&quot;</span><span class="tag-punctuation">&gt;</span><span>...</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">div</span><span class="tag-punctuation">&gt;</span><span>
 
 </span><span class="keyword">@:</span><span class="identifier">else</span><span>

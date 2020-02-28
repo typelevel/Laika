@@ -139,6 +139,10 @@
                         <a href="CharLiteral$.html" title="Configurable base parsers for character literals.">CharLiteral</a>
                       </li><li class="current-entities indented4">
                         <span class="separator"></span>
+                        <a class="trait" href="CodeParserBase.html" title="Convenient base trait that allows for passing the implementing instances anywhere either a PrefixedParser[Seq[CodeSpan]] or a CodeSpanParser is required for easier composition."></a>
+                        <a href="CodeParserBase.html" title="Convenient base trait that allows for passing the implementing instances anywhere either a PrefixedParser[Seq[CodeSpan]] or a CodeSpanParser is required for easier composition.">CodeParserBase</a>
+                      </li><li class="current-entities indented4">
+                        <span class="separator"></span>
                         <a class="object" href="" title="Configurable base parsers for comments in code blocks."></a>
                         <a href="" title="Configurable base parsers for comments in code blocks.">Comment</a>
                       </li><li class="current-entities indented4">
@@ -173,6 +177,10 @@
                         <span class="separator"></span>
                         <a class="trait" href="TagBasedFormats.html" title="Configurable base parsers for tag based formats like HTML or XML."></a>
                         <a href="TagBasedFormats.html" title="Configurable base parsers for tag based formats like HTML or XML.">TagBasedFormats</a>
+                      </li><li class="current-entities indented4">
+                        <a class="object" href="TagParser$.html" title=""></a>
+                        <a class="class" href="TagParser.html" title="Configurable base parser for tags in formats like HTML or XML."></a>
+                        <a href="TagParser.html" title="Configurable base parser for tags in formats like HTML or XML.">TagParser</a>
                       </li>
               </ul>
             </div>
@@ -456,9 +464,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="laika.parse.code.common.Comment#multiLine" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="multiLine(start:String,end:String):laika.parse.code.CodeSpanParsers"></a><a id="multiLine(String,String):CodeSpanParsers"></a>
+      <a id="multiLine(start:String,end:String):laika.parse.code.CodeSpanParser"></a><a id="multiLine(String,String):CodeSpanParser"></a>
       <span class="permalink">
-      <a href="../../../../laika/parse/code/common/Comment$.html#multiLine(start:String,end:String):laika.parse.code.CodeSpanParsers" title="Permalink">
+      <a href="../../../../laika/parse/code/common/Comment$.html#multiLine(start:String,end:String):laika.parse.code.CodeSpanParser" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -467,7 +475,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">multiLine</span><span class="params">(<span name="start">start: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="end">end: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="../CodeSpanParsers.html" class="extype" name="laika.parse.code.CodeSpanParsers">CodeSpanParsers</a></span>
+        <span class="name">multiLine</span><span class="params">(<span name="start">start: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="end">end: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="../CodeSpanParser.html" class="extype" name="laika.parse.code.CodeSpanParser">CodeSpanParser</a></span>
       </span>
       
       <p class="shortcomment cmt">Parses a multi-line comment enclosed by the specified start and end delimiters.</p>
@@ -526,9 +534,9 @@
               
         </dd></dl></div>
     </li><li name="laika.parse.code.common.Comment#singleLine" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="singleLine(start:String):laika.parse.code.CodeSpanParsers"></a><a id="singleLine(String):CodeSpanParsers"></a>
+      <a id="singleLine(start:String):laika.parse.code.CodeSpanParser"></a><a id="singleLine(String):CodeSpanParser"></a>
       <span class="permalink">
-      <a href="../../../../laika/parse/code/common/Comment$.html#singleLine(start:String):laika.parse.code.CodeSpanParsers" title="Permalink">
+      <a href="../../../../laika/parse/code/common/Comment$.html#singleLine(start:String):laika.parse.code.CodeSpanParser" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -537,10 +545,10 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">singleLine</span><span class="params">(<span name="start">start: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="../CodeSpanParsers.html" class="extype" name="laika.parse.code.CodeSpanParsers">CodeSpanParsers</a></span>
+        <span class="name">singleLine</span><span class="params">(<span name="start">start: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="../CodeSpanParser.html" class="extype" name="laika.parse.code.CodeSpanParser">CodeSpanParser</a></span>
       </span>
       
-      <p class="shortcomment cmt">Parses a single line comment from the speficied start delimiter to the end of the line.</p>
+      <p class="shortcomment cmt">Parses a single line comment from the specified start delimiter to the end of the line.</p>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">

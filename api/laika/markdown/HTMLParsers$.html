@@ -467,9 +467,9 @@
       
       
     </li><li name="laika.markdown.HTMLParsers#htmlAttributeValue" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="htmlAttributeValue:laika.parse.Parser[(List[laika.ast.Spanwithlaika.ast.TextContainer],Option[Char])]"></a><a id="htmlAttributeValue:Parser[(List[SpanwithTextContainer],Option[Char])]"></a>
+      <a id="htmlAttributeValue:laika.parse.Parser[(List[laika.ast.TextContainer],Option[Char])]"></a><a id="htmlAttributeValue:Parser[(List[TextContainer],Option[Char])]"></a>
       <span class="permalink">
-      <a href="../../laika/markdown/HTMLParsers$.html#htmlAttributeValue:laika.parse.Parser[(List[laika.ast.Spanwithlaika.ast.TextContainer],Option[Char])]" title="Permalink">
+      <a href="../../laika/markdown/HTMLParsers$.html#htmlAttributeValue:laika.parse.Parser[(List[laika.ast.TextContainer],Option[Char])]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -478,7 +478,7 @@
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">htmlAttributeValue</span><span class="result">: <a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[(<span class="extype" name="scala.List">List</span>[<a href="../ast/Span.html" class="extype" name="laika.ast.Span">Span</a> with <a href="../ast/TextContainer.html" class="extype" name="laika.ast.TextContainer">TextContainer</a>], <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Char">Char</span>])]</span>
+        <span class="name">htmlAttributeValue</span><span class="result">: <a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[(<span class="extype" name="scala.List">List</span>[<a href="../ast/TextContainer.html" class="extype" name="laika.ast.TextContainer">TextContainer</a>], <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Char">Char</span>])]</span>
       </span>
       
       <p class="shortcomment cmt">Parses quoted and unquoted attribute values.</p>
@@ -585,9 +585,9 @@ inside p tags as it would do with a normal paragraph.
       
       <p class="shortcomment cmt">Parses a numeric or named character reference.</p>
     </li><li name="laika.markdown.HTMLParsers#htmlCharReference" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="htmlCharReference:laika.parse.Parser[laika.markdown.ast.HTMLCharacterReference]"></a><a id="htmlCharReference:Parser[HTMLCharacterReference]"></a>
+      <a id="htmlCharReference:laika.parse.text.PrefixedParser[laika.markdown.ast.HTMLCharacterReference]"></a><a id="htmlCharReference:PrefixedParser[HTMLCharacterReference]"></a>
       <span class="permalink">
-      <a href="../../laika/markdown/HTMLParsers$.html#htmlCharReference:laika.parse.Parser[laika.markdown.ast.HTMLCharacterReference]" title="Permalink">
+      <a href="../../laika/markdown/HTMLParsers$.html#htmlCharReference:laika.parse.text.PrefixedParser[laika.markdown.ast.HTMLCharacterReference]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -596,7 +596,7 @@ inside p tags as it would do with a normal paragraph.
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">htmlCharReference</span><span class="result">: <a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="ast/HTMLCharacterReference.html" class="extype" name="laika.markdown.ast.HTMLCharacterReference">HTMLCharacterReference</a>]</span>
+        <span class="name">htmlCharReference</span><span class="result">: <a href="../parse/text/PrefixedParser.html" class="extype" name="laika.parse.text.PrefixedParser">PrefixedParser</a>[<a href="ast/HTMLCharacterReference.html" class="extype" name="laika.markdown.ast.HTMLCharacterReference">HTMLCharacterReference</a>]</span>
       </span>
       
       <p class="shortcomment cmt">Parses a numeric or named character reference without the leading <code>'&amp;'</code>.</p>
@@ -685,9 +685,9 @@ all the nested HTML and Text elements, as well as any nested Markdown spans.</p>
  Only recognizes empty tags explicitly closed.
 </p></div></div>
     </li><li name="laika.markdown.HTMLParsers#htmlEndTag" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="htmlEndTag(tagName:String):laika.parse.text.DelimitedText[String]"></a><a id="htmlEndTag(String):DelimitedText[String]"></a>
+      <a id="htmlEndTag(tagName:String):laika.parse.text.DelimitedText"></a><a id="htmlEndTag(String):DelimitedText"></a>
       <span class="permalink">
-      <a href="../../laika/markdown/HTMLParsers$.html#htmlEndTag(tagName:String):laika.parse.text.DelimitedText[String]" title="Permalink">
+      <a href="../../laika/markdown/HTMLParsers$.html#htmlEndTag(tagName:String):laika.parse.text.DelimitedText" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -696,7 +696,7 @@ all the nested HTML and Text elements, as well as any nested Markdown spans.</p>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">htmlEndTag</span><span class="params">(<span name="tagName">tagName: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="../parse/text/DelimitedText.html" class="extype" name="laika.parse.text.DelimitedText">DelimitedText</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+        <span class="name">htmlEndTag</span><span class="params">(<span name="tagName">tagName: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="../parse/text/DelimitedText.html" class="extype" name="laika.parse.text.DelimitedText">DelimitedText</a></span>
       </span>
       
       <p class="shortcomment cmt">Parses an HTML end tag if it matches the specified tag name.</p>
@@ -765,9 +765,9 @@ all the nested HTML and Text elements, as well as any nested Markdown spans.</p>
       
       <p class="shortcomment cmt">Parses a numeric character reference (decimal or hexadecimal) without the leading <code>'&amp;'</code>.</p>
     </li><li name="laika.markdown.HTMLParsers#htmlQuotedAttributeValue" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="htmlQuotedAttributeValue(c:Char):laika.parse.Parser[(List[laika.ast.Spanwithlaika.ast.TextContainer],Option[Char])]"></a><a id="htmlQuotedAttributeValue(Char):Parser[(List[SpanwithTextContainer],Option[Char])]"></a>
+      <a id="htmlQuotedAttributeValue(c:String):laika.parse.Parser[(List[laika.ast.TextContainer],Option[Char])]"></a><a id="htmlQuotedAttributeValue(String):Parser[(List[TextContainer],Option[Char])]"></a>
       <span class="permalink">
-      <a href="../../laika/markdown/HTMLParsers$.html#htmlQuotedAttributeValue(c:Char):laika.parse.Parser[(List[laika.ast.Spanwithlaika.ast.TextContainer],Option[Char])]" title="Permalink">
+      <a href="../../laika/markdown/HTMLParsers$.html#htmlQuotedAttributeValue(c:String):laika.parse.Parser[(List[laika.ast.TextContainer],Option[Char])]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -776,7 +776,7 @@ all the nested HTML and Text elements, as well as any nested Markdown spans.</p>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">htmlQuotedAttributeValue</span><span class="params">(<span name="c">c: <span class="extype" name="scala.Char">Char</span></span>)</span><span class="result">: <a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[(<span class="extype" name="scala.List">List</span>[<a href="../ast/Span.html" class="extype" name="laika.ast.Span">Span</a> with <a href="../ast/TextContainer.html" class="extype" name="laika.ast.TextContainer">TextContainer</a>], <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Char">Char</span>])]</span>
+        <span class="name">htmlQuotedAttributeValue</span><span class="params">(<span name="c">c: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[(<span class="extype" name="scala.List">List</span>[<a href="../ast/TextContainer.html" class="extype" name="laika.ast.TextContainer">TextContainer</a>], <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Char">Char</span>])]</span>
       </span>
       
       <p class="shortcomment cmt">Parses an attribute value enclosed by the specified character.</p>
@@ -813,9 +813,9 @@ all the nested HTML and Text elements, as well as any nested Markdown spans.</p>
       
       <p class="shortcomment cmt">Parses any of the HTML span elements supported by this trait, plus standard markdown inside HTML elements.</p>
     </li><li name="laika.markdown.HTMLParsers#htmlSpanInsideBlock" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="htmlSpanInsideBlock:laika.parse.Parser[laika.markdown.ast.HTMLSpan]"></a><a id="htmlSpanInsideBlock:Parser[HTMLSpan]"></a>
+      <a id="htmlSpanInsideBlock:laika.parse.text.PrefixedParser[laika.markdown.ast.HTMLSpan]"></a><a id="htmlSpanInsideBlock:PrefixedParser[HTMLSpan]"></a>
       <span class="permalink">
-      <a href="../../laika/markdown/HTMLParsers$.html#htmlSpanInsideBlock:laika.parse.Parser[laika.markdown.ast.HTMLSpan]" title="Permalink">
+      <a href="../../laika/markdown/HTMLParsers$.html#htmlSpanInsideBlock:laika.parse.text.PrefixedParser[laika.markdown.ast.HTMLSpan]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -824,7 +824,7 @@ all the nested HTML and Text elements, as well as any nested Markdown spans.</p>
         <span class="kind">lazy val</span>
       </span>
       <span class="symbol">
-        <span class="name">htmlSpanInsideBlock</span><span class="result">: <a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="ast/HTMLSpan.html" class="extype" name="laika.markdown.ast.HTMLSpan">HTMLSpan</a>]</span>
+        <span class="name">htmlSpanInsideBlock</span><span class="result">: <a href="../parse/text/PrefixedParser.html" class="extype" name="laika.parse.text.PrefixedParser">PrefixedParser</a>[<a href="ast/HTMLSpan.html" class="extype" name="laika.markdown.ast.HTMLSpan">HTMLSpan</a>]</span>
       </span>
       
       <p class="shortcomment cmt">Parses any of the HTML span elements supported by this trait, but no standard markdown inside HTML elements.</p>
@@ -879,9 +879,9 @@ all the nested HTML and Text elements, as well as any nested Markdown spans.</p>
       
       
     </li><li name="laika.markdown.HTMLParsers#htmlUnquotedAttributeValue" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="htmlUnquotedAttributeValue:laika.parse.Parser[(List[laika.ast.Spanwithlaika.ast.TextContainer],Option[Char])]"></a><a id="htmlUnquotedAttributeValue:Parser[(List[SpanwithTextContainer],Option[Char])]"></a>
+      <a id="htmlUnquotedAttributeValue:laika.parse.Parser[(List[laika.ast.TextContainer],Option[Char])]"></a><a id="htmlUnquotedAttributeValue:Parser[(List[TextContainer],Option[Char])]"></a>
       <span class="permalink">
-      <a href="../../laika/markdown/HTMLParsers$.html#htmlUnquotedAttributeValue:laika.parse.Parser[(List[laika.ast.Spanwithlaika.ast.TextContainer],Option[Char])]" title="Permalink">
+      <a href="../../laika/markdown/HTMLParsers$.html#htmlUnquotedAttributeValue:laika.parse.Parser[(List[laika.ast.TextContainer],Option[Char])]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -890,7 +890,7 @@ all the nested HTML and Text elements, as well as any nested Markdown spans.</p>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">htmlUnquotedAttributeValue</span><span class="result">: <a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[(<span class="extype" name="scala.List">List</span>[<a href="../ast/Span.html" class="extype" name="laika.ast.Span">Span</a> with <a href="../ast/TextContainer.html" class="extype" name="laika.ast.TextContainer">TextContainer</a>], <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Char">Char</span>])]</span>
+        <span class="name">htmlUnquotedAttributeValue</span><span class="result">: <a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[(<span class="extype" name="scala.List">List</span>[<a href="../ast/TextContainer.html" class="extype" name="laika.ast.TextContainer">TextContainer</a>], <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Char">Char</span>])]</span>
       </span>
       
       

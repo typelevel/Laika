@@ -80,7 +80,7 @@
         <p>If you still need to use sbt 0.13.x, you can use Laika 0.7.0 which was the last release
         supporting that sbt version.</p>
         <p>First add the plugin to <code>project/plugins.sbt</code>:</p>
-        <pre><code class="nohighlight"><span class="identifier">addSbtPlugin</span><span>(</span><span class="string-literal">&quot;org.planet42&quot;</span><span> % </span><span class="string-literal">&quot;laika-sbt&quot;</span><span> % </span><span class="string-literal">&quot;0.13.0&quot;</span><span>)</span></code></pre>
+        <pre><code class="nohighlight"><span class="identifier">addSbtPlugin</span><span>(</span><span class="string-literal">&quot;org.planet42&quot;</span><span> % </span><span class="string-literal">&quot;laika-sbt&quot;</span><span> % </span><span class="string-literal">&quot;0.14.0&quot;</span><span>)</span></code></pre>
         <p>If you want to install it globally, add the line above to
         <code>~/.sbt/1.0/plugins/build.sbt</code> instead.</p>
         <p>Then enable the plugin in your project&#39;s <code>build.sbt</code>:</p>
@@ -131,9 +131,9 @@
         <ul>
           <li>Other static files that simply get copied to the target directory.</li>
         </ul>
-        <p>For more details on the template engine, see the chapter <a href="templates.html">Templates</a>.</p>
+        <p>For more details on the template engine, see the chapter <a href="templates.html#templates">Templates</a>.</p>
         <p>For features like titles, sections, cross-linking, auto-numbering, 
-        document order and tables of content, see the chapter <a href="structure.html">Document Structure</a>.</p>
+        document order and tables of content, see the chapter <a href="structure.html#document-structure">Document Structure</a>.</p>
         <p>For details about Markdown and reStructuredText see the chapter
         <a href="markup.html#supported-markup">Supported Markup</a>.</p>
         <p>For details about rendering see the chapter <a href="output.html#supported-output-formats">Supported Output Formats</a>.</p>
@@ -258,7 +258,7 @@
   </span><span class="keyword">case</span><span> (</span><span class="identifier">fmt</span><span>, </span><span class="type-name">Emphasized</span><span>(</span><span class="identifier">content</span><span>, </span><span class="identifier">opt</span><span>)) =&gt; 
     </span><span class="identifier">fmt</span><span>.</span><span class="identifier">element</span><span>(</span><span class="string-literal">&quot;em&quot;</span><span>, </span><span class="identifier">opt</span><span>, </span><span class="identifier">content</span><span>, </span><span class="string-literal">&quot;class&quot;</span><span> -&gt; </span><span class="string-literal">&quot;big&quot;</span><span>) 
 }</span></code></pre>
-        <p>For more details see the chapter <a href="../customizing-laika/customize-rendering.html">Customizing Renderers</a>.</p>
+        <p>For more details see the chapter <a href="../customizing-laika/customize-rendering.html#customizing-renderers">Customizing Renderers</a>.</p>
         <p>Similarly the <code>laikaFoRenderer</code> shortcut can be used to add a custom <code>XSL-FO</code> renderer 
         of type <code>PartialFunction[(FOFormatter, Element), String]</code>. <code>XSL-FO</code> is an interim format for PDF output,
         so this option would also allow to change the appearance of PDF documents.</p>
@@ -280,7 +280,7 @@
         <pre><code class="nohighlight"><span class="identifier">laikaExtensions</span><span> += </span><span class="identifier">laikaSpanRewriteRule</span><span> { 
   </span><span class="keyword">case</span><span> </span><span class="type-name">Emphasized</span><span>(</span><span class="identifier">content</span><span>, </span><span class="identifier">opts</span><span>) =&gt; </span><span class="type-name">Replace</span><span>(</span><span class="type-name">Strong</span><span>(</span><span class="identifier">content</span><span>, </span><span class="identifier">opts</span><span>))
 }</span></code></pre>
-        <p>For more details see the chapter <a href="../customizing-laika/tree-rewriting.html">Document Tree Rewriting</a>.</p>
+        <p>For more details see the chapter <a href="../customizing-laika/tree-rewriting.html#document-tree-rewriting">Document Tree Rewriting</a>.</p>
         
         <h3 id="custom-document-type-matcher" class="section">Custom Document Type Matcher</h3>
         <p>A document type matcher categorizes an input document based on its path. 
@@ -308,13 +308,13 @@
         directives. Laika supports almost all of the directives defined in the
         specification. Add an instance of type <code>RstExtensionRegistry</code> to the <code>laikaExtensions</code> 
         setting for adding custom implementations to the built-in ones.
-        For more details on this directive type see <a href="../extending-laika/extending-rst.html">Extending reStructuredText</a>.</p>
+        For more details on this directive type see <a href="../extending-laika/extending-rst.html#extending-restructuredtext">Extending reStructuredText</a>.</p>
         <p>The Laika variant is more flexible, as it can be used in template files as well
         as Markdown and reStructuredText markup. It is also somewhat simpler in syntax
         and configuration while offering the same functionality. It comes with a small
         set of predefined directives in this syntax. Add an instance of type <code>DirectiveRegistry</code> 
         to the <code>laikaExtensions</code> setting for adding custom implementations to the built-in ones.
-        For more details on this directive type see <a href="../extending-laika/directive.html">Directives</a>.</p>
+        For more details on this directive type see <a href="../extending-laika/directive.html#directives">Directives</a>.</p>
         <p>The examples in the two chapters linked above show how to implement a directive
         and register it either for use in sbt or in embedded mode.</p>
         

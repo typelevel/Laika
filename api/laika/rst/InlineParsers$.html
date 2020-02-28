@@ -383,38 +383,6 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="laika.rst.InlineParsers#delimitedByMarkupEnd" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="delimitedByMarkupEnd(end:String,postCondition:laika.parse.Parser[Any]):laika.parse.text.DelimitedText[String]withlaika.parse.text.DelimiterOptions"></a><a id="delimitedByMarkupEnd(String,Parser[Any]):DelimitedText[String]withDelimiterOptions"></a>
-      <span class="permalink">
-      <a href="../../laika/rst/InlineParsers$.html#delimitedByMarkupEnd(end:String,postCondition:laika.parse.Parser[Any]):laika.parse.text.DelimitedText[String]withlaika.parse.text.DelimiterOptions" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">delimitedByMarkupEnd</span><span class="params">(<span name="end">end: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="postCondition">postCondition: <a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Any">Any</span>]</span>)</span><span class="result">: <a href="../parse/text/DelimitedText.html" class="extype" name="laika.parse.text.DelimitedText">DelimitedText</a>[<span class="extype" name="scala.Predef.String">String</span>] with <a href="../parse/text/DelimiterOptions.html" class="extype" name="laika.parse.text.DelimiterOptions">DelimiterOptions</a></span>
-      </span>
-      
-      
-    </li><li name="laika.rst.InlineParsers#delimitedByMarkupEnd" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="delimitedByMarkupEnd(end:String):laika.parse.text.DelimitedText[String]withlaika.parse.text.DelimiterOptions"></a><a id="delimitedByMarkupEnd(String):DelimitedText[String]withDelimiterOptions"></a>
-      <span class="permalink">
-      <a href="../../laika/rst/InlineParsers$.html#delimitedByMarkupEnd(end:String):laika.parse.text.DelimitedText[String]withlaika.parse.text.DelimiterOptions" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">delimitedByMarkupEnd</span><span class="params">(<span name="end">end: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="../parse/text/DelimitedText.html" class="extype" name="laika.parse.text.DelimitedText">DelimitedText</a>[<span class="extype" name="scala.Predef.String">String</span>] with <a href="../parse/text/DelimiterOptions.html" class="extype" name="laika.parse.text.DelimiterOptions">DelimiterOptions</a></span>
-      </span>
-      
-      
     </li><li name="laika.rst.InlineParsers#em" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="em:laika.bundle.SpanParserBuilder"></a><a id="em:SpanParserBuilder"></a>
       <span class="permalink">
@@ -497,8 +465,8 @@
       </span>
       
       <p class="shortcomment cmt">Parses an escaped character.</p><div class="fullcomment"><div class="comment cmt"><p>Parses an escaped character. For most characters it produces the character
- itself as the result with the only exception being an escaped space character
- which is removed from the output in reStructuredText.</p><p> See <a href="http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#escaping-mechanism" target="_blank">http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#escaping-mechanism</a>.
+itself as the result with the only exception being an escaped space character
+which is removed from the output in reStructuredText.</p><p>See <a href="http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#escaping-mechanism" target="_blank">http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#escaping-mechanism</a>.
 </p></div></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
@@ -662,9 +630,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="laika.rst.InlineParsers#markupEnd" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="markupEnd(delimLength:Int):laika.parse.Parser[Any]"></a><a id="markupEnd(Int):Parser[Any]"></a>
+      <a id="markupEnd(end:laika.parse.text.PrefixedParser[String]):laika.parse.text.PrefixedParser[String]"></a><a id="markupEnd(PrefixedParser[String]):PrefixedParser[String]"></a>
       <span class="permalink">
-      <a href="../../laika/rst/InlineParsers$.html#markupEnd(delimLength:Int):laika.parse.Parser[Any]" title="Permalink">
+      <a href="../../laika/rst/InlineParsers$.html#markupEnd(end:laika.parse.text.PrefixedParser[String]):laika.parse.text.PrefixedParser[String]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -673,32 +641,15 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">markupEnd</span><span class="params">(<span name="delimLength">delimLength: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Any">Any</span>]</span>
-      </span>
-      
-      <p class="shortcomment cmt">Parses the end of an inline element according to reStructuredText markup recognition rules.</p><div class="fullcomment"><div class="comment cmt"><p>Parses the end of an inline element according to reStructuredText markup recognition rules.</p><p> See <a href="http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#inline-markup-recognition-rules" target="_blank">http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#inline-markup-recognition-rules</a>.
-</p></div><dl class="paramcmts block"><dt class="param">delimLength</dt><dd class="cmt"><p>the length of the end delimiter that has already been consumed from the input</p></dd><dt>returns</dt><dd class="cmt"><p>a parser that succeeds without consuming any input when the rst markup end conditions are met</p></dd></dl></div>
-    </li><li name="laika.rst.InlineParsers#markupEnd" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="markupEnd(end:laika.parse.Parser[String]):laika.parse.Parser[String]"></a><a id="markupEnd(Parser[String]):Parser[String]"></a>
-      <span class="permalink">
-      <a href="../../laika/rst/InlineParsers$.html#markupEnd(end:laika.parse.Parser[String]):laika.parse.Parser[String]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">markupEnd</span><span class="params">(<span name="end">end: <a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result">: <a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+        <span class="name">markupEnd</span><span class="params">(<span name="end">end: <a href="../parse/text/PrefixedParser.html" class="extype" name="laika.parse.text.PrefixedParser">PrefixedParser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result">: <a href="../parse/text/PrefixedParser.html" class="extype" name="laika.parse.text.PrefixedParser">PrefixedParser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
       </span>
       
       <p class="shortcomment cmt">Parses the end of an inline element according to reStructuredText markup recognition rules.</p><div class="fullcomment"><div class="comment cmt"><p>Parses the end of an inline element according to reStructuredText markup recognition rules.</p><p> See <a href="http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#inline-markup-recognition-rules" target="_blank">http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#inline-markup-recognition-rules</a>.
 </p></div><dl class="paramcmts block"><dt class="param">end</dt><dd class="cmt"><p>the parser that recognizes the markup at the end of an inline element</p></dd><dt>returns</dt><dd class="cmt"><p>a parser that produces the same result as the parser passed as an argument</p></dd></dl></div>
-    </li><li name="laika.rst.InlineParsers#markupStart" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="markupStart(end:laika.parse.Parser[String]):laika.parse.Parser[Any]"></a><a id="markupStart(Parser[String]):Parser[Any]"></a>
+    </li><li name="laika.rst.InlineParsers#markupEnd" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="markupEnd(end:String):laika.parse.text.PrefixedParser[String]"></a><a id="markupEnd(String):PrefixedParser[String]"></a>
       <span class="permalink">
-      <a href="../../laika/rst/InlineParsers$.html#markupStart(end:laika.parse.Parser[String]):laika.parse.Parser[Any]" title="Permalink">
+      <a href="../../laika/rst/InlineParsers$.html#markupEnd(end:String):laika.parse.text.PrefixedParser[String]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -707,18 +658,15 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">markupStart</span><span class="params">(<span name="end">end: <a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result">: <a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Any">Any</span>]</span>
+        <span class="name">markupEnd</span><span class="params">(<span name="end">end: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="../parse/text/PrefixedParser.html" class="extype" name="laika.parse.text.PrefixedParser">PrefixedParser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
       </span>
       
-      <p class="shortcomment cmt">Parses the start of an inline element without specific start markup
- according to reStructuredText markup recognition rules.</p><div class="fullcomment"><div class="comment cmt"><p>Parses the start of an inline element without specific start markup
- according to reStructuredText markup recognition rules.</p><p> See <a href="http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#inline-markup-recognition-rules" target="_blank">http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#inline-markup-recognition-rules</a>.
-</p></div><dl class="paramcmts block"><dt class="param">end</dt><dd class="cmt"><p>the parser that recognizes the markup at the end of an inline element, needed to verify
- the start sequence is not immediately followed by an end sequence as empty elements are not allowed.</p></dd><dt>returns</dt><dd class="cmt"><p>a parser without a useful result, as it is only needed to verify it succeeds</p></dd></dl></div>
+      <p class="shortcomment cmt">Parses the end of an inline element according to reStructuredText markup recognition rules.</p><div class="fullcomment"><div class="comment cmt"><p>Parses the end of an inline element according to reStructuredText markup recognition rules.</p><p> See <a href="http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#inline-markup-recognition-rules" target="_blank">http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#inline-markup-recognition-rules</a>.
+</p></div><dl class="paramcmts block"><dt class="param">end</dt><dd class="cmt"><p>the literal string expected as the delimiter at the end of an inline element</p></dd><dt>returns</dt><dd class="cmt"><p>a parser that produces the same result as the parser passed as an argument</p></dd></dl></div>
     </li><li name="laika.rst.InlineParsers#markupStart" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="markupStart(start:laika.parse.Parser[Any],end:laika.parse.Parser[String]):laika.parse.Parser[Any]"></a><a id="markupStart(Parser[Any],Parser[String]):Parser[Any]"></a>
+      <a id="markupStart(start:laika.parse.text.PrefixedParser[String],end:laika.parse.Parser[String]):laika.parse.text.PrefixedParser[Any]"></a><a id="markupStart(PrefixedParser[String],Parser[String]):PrefixedParser[Any]"></a>
       <span class="permalink">
-      <a href="../../laika/rst/InlineParsers$.html#markupStart(start:laika.parse.Parser[Any],end:laika.parse.Parser[String]):laika.parse.Parser[Any]" title="Permalink">
+      <a href="../../laika/rst/InlineParsers$.html#markupStart(start:laika.parse.text.PrefixedParser[String],end:laika.parse.Parser[String]):laika.parse.text.PrefixedParser[Any]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -727,11 +675,29 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">markupStart</span><span class="params">(<span name="start">start: <a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Any">Any</span>]</span>, <span name="end">end: <a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result">: <a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Any">Any</span>]</span>
+        <span class="name">markupStart</span><span class="params">(<span name="start">start: <a href="../parse/text/PrefixedParser.html" class="extype" name="laika.parse.text.PrefixedParser">PrefixedParser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="end">end: <a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result">: <a href="../parse/text/PrefixedParser.html" class="extype" name="laika.parse.text.PrefixedParser">PrefixedParser</a>[<span class="extype" name="scala.Any">Any</span>]</span>
       </span>
       
       <p class="shortcomment cmt">Parses the markup at the start of an inline element according to reStructuredText markup recognition rules.</p><div class="fullcomment"><div class="comment cmt"><p>Parses the markup at the start of an inline element according to reStructuredText markup recognition rules.</p><p> See <a href="http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#inline-markup-recognition-rules" target="_blank">http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#inline-markup-recognition-rules</a>.
 </p></div><dl class="paramcmts block"><dt class="param">start</dt><dd class="cmt"><p>the parser that recognizes the markup at the start of an inline element</p></dd><dt class="param">end</dt><dd class="cmt"><p>the parser that recognizes the markup at the end of an inline element, needed to verify
+ the start sequence is not immediately followed by an end sequence as empty elements are not allowed.</p></dd><dt>returns</dt><dd class="cmt"><p>a parser without a useful result, as it is only needed to verify it succeeds</p></dd></dl></div>
+    </li><li name="laika.rst.InlineParsers#markupStart" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="markupStart(start:String,end:String):laika.parse.text.PrefixedParser[Any]"></a><a id="markupStart(String,String):PrefixedParser[Any]"></a>
+      <span class="permalink">
+      <a href="../../laika/rst/InlineParsers$.html#markupStart(start:String,end:String):laika.parse.text.PrefixedParser[Any]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">markupStart</span><span class="params">(<span name="start">start: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="end">end: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="../parse/text/PrefixedParser.html" class="extype" name="laika.parse.text.PrefixedParser">PrefixedParser</a>[<span class="extype" name="scala.Any">Any</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Parses the markup at the start of an inline element according to reStructuredText markup recognition rules.</p><div class="fullcomment"><div class="comment cmt"><p>Parses the markup at the start of an inline element according to reStructuredText markup recognition rules.</p><p> See <a href="http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#inline-markup-recognition-rules" target="_blank">http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#inline-markup-recognition-rules</a>.
+</p></div><dl class="paramcmts block"><dt class="param">start</dt><dd class="cmt"><p>the literal string at the start of an inline element</p></dd><dt class="param">end</dt><dd class="cmt"><p>the literal string at the end of an inline element, needed to verify
  the start sequence is not immediately followed by an end sequence as empty elements are not allowed.</p></dd><dt>returns</dt><dd class="cmt"><p>a parser without a useful result, as it is only needed to verify it succeeds</p></dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a><a id="ne(AnyRef):Boolean"></a>

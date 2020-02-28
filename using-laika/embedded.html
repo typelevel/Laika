@@ -68,7 +68,7 @@
       <div class="span8" id="top">
 
         <div class="page-header">
-        <h1>Using the Library API</h1>
+        <h1 id="using-the-library-api" class="title">Using the Library API</h1>
         </div>
         <p>Apart from using Laika via its sbt plugin, you can alternatively use its library API
         in your own applications (or libraries). Laika is very lightweight, it does not
@@ -89,7 +89,7 @@
         
         <h3 id="setup" class="section">Setup</h3>
         <p>First add the dependency to your build:</p>
-        <pre><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> += </span><span class="string-literal">&quot;org.planet42&quot;</span><span> %% </span><span class="string-literal">&quot;laika-core&quot;</span><span> % </span><span class="string-literal">&quot;0.13.0&quot;</span><span> </span></code></pre>
+        <pre><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> += </span><span class="string-literal">&quot;org.planet42&quot;</span><span> %% </span><span class="string-literal">&quot;laika-core&quot;</span><span> % </span><span class="string-literal">&quot;0.14.0&quot;</span><span> </span></code></pre>
         <p>For most cases where you don&#39;t use any of the customization hooks, you should be fine with just these imports:</p>
         <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">api</span><span>.</span><span class="identifier">_</span><span>
 </span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">format</span><span>.</span><span class="identifier">_</span></code></pre>
@@ -139,21 +139,19 @@
   .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
   .</span><span class="identifier">to</span><span>(</span><span class="type-name">AST</span><span>)
   .</span><span class="identifier">build</span><span>
-  .</span><span class="identifier">transform</span><span>(</span><span class="identifier">input</span><span>)
-
-</span><span class="comment">/*
-res0: java.lang.String = Document - Blocks: 1
+  .</span><span class="identifier">transform</span><span>(</span><span class="identifier">input</span><span>)</span></code></pre>
+        <p>The output for the small example above will have the following format:</p>
+        <pre><code class="laika-ast">RootElement - Blocks: 1
 . Paragraph - Spans: 3
 . . Text - &#39;some &#39;
 . . Emphasized - Spans: 1
 . . . Text - &#39;text&#39;
-. . Text - &#39; example&#39;
-*/</span></code></pre>
+. . Text - &#39; example&#39;</code></pre>
         
         <h2 id="file-stream-io-and-binary-formats" class="section">File/Stream IO and Binary Formats</h2>
         <p>In case you want to transform from files or directories, or use one of the binary formats
         like EPUB or PDF, you need to add another dependency to your build:</p>
-        <pre><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> += </span><span class="string-literal">&quot;org.planet42&quot;</span><span> %% </span><span class="string-literal">&quot;laika-io&quot;</span><span> % </span><span class="string-literal">&quot;0.13.0&quot;</span><span> </span></code></pre>
+        <pre><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> += </span><span class="string-literal">&quot;org.planet42&quot;</span><span> %% </span><span class="string-literal">&quot;laika-io&quot;</span><span> % </span><span class="string-literal">&quot;0.14.0&quot;</span><span> </span></code></pre>
         <p>This module depends on cats-effect, and models all side effects in an abstract effect,
         so that you can use it with cats IO, Monix or Zio.</p>
         <p>The type class constraints of the Library API are <code>Async</code>, <code>ContextShift</code> 

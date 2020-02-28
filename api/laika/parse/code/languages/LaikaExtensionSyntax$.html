@@ -139,6 +139,14 @@
                         <a href="CSSSyntax$.html" title="">CSSSyntax</a>
                       </li><li class="current-entities indented4">
                         <span class="separator"></span>
+                        <a class="object" href="DottySyntax$.html" title=""></a>
+                        <a href="DottySyntax$.html" title="">DottySyntax</a>
+                      </li><li class="current-entities indented4">
+                        <span class="separator"></span>
+                        <a class="object" href="EBNFSyntax$.html" title="This highlighter is very loosely defined with the aim to work for most of the dozens of flavors of EBNF that are widely used."></a>
+                        <a href="EBNFSyntax$.html" title="This highlighter is very loosely defined with the aim to work for most of the dozens of flavors of EBNF that are widely used.">EBNFSyntax</a>
+                      </li><li class="current-entities indented4">
+                        <span class="separator"></span>
                         <a class="object" href="HOCONSyntax$.html" title=""></a>
                         <a href="HOCONSyntax$.html" title="">HOCONSyntax</a>
                       </li><li class="current-entities indented4">
@@ -159,6 +167,10 @@
                         <a href="JavaSyntax$.html" title="">JavaSyntax</a>
                       </li><li class="current-entities indented4">
                         <span class="separator"></span>
+                        <a class="object" href="LaikaASTSyntax$.html" title=""></a>
+                        <a href="LaikaASTSyntax$.html" title="">LaikaASTSyntax</a>
+                      </li><li class="current-entities indented4">
+                        <span class="separator"></span>
                         <a class="object" href="" title=""></a>
                         <a href="" title="">LaikaExtensionSyntax</a>
                       </li><li class="current-entities indented4">
@@ -173,6 +185,10 @@
                         <span class="separator"></span>
                         <a class="object" href="ReStructuredTextSyntax$.html" title=""></a>
                         <a href="ReStructuredTextSyntax$.html" title="">ReStructuredTextSyntax</a>
+                      </li><li class="current-entities indented4">
+                        <span class="separator"></span>
+                        <a class="object" href="SQLSyntax$.html" title=""></a>
+                        <a href="SQLSyntax$.html" title="">SQLSyntax</a>
                       </li><li class="current-entities indented4">
                         <span class="separator"></span>
                         <a class="object" href="ScalaSyntax$.html" title=""></a>
@@ -319,9 +335,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="laika.parse.code.languages.LaikaExtensionSyntax#allExtensions" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="allExtensions:Seq[laika.parse.code.CodeSpanParsers]"></a><a id="allExtensions:Seq[CodeSpanParsers]"></a>
+      <a id="allExtensions:Seq[laika.parse.code.CodeSpanParser]"></a><a id="allExtensions:Seq[CodeSpanParser]"></a>
       <span class="permalink">
-      <a href="../../../../laika/parse/code/languages/LaikaExtensionSyntax$.html#allExtensions:Seq[laika.parse.code.CodeSpanParsers]" title="Permalink">
+      <a href="../../../../laika/parse/code/languages/LaikaExtensionSyntax$.html#allExtensions:Seq[laika.parse.code.CodeSpanParser]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -330,7 +346,7 @@
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">allExtensions</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="../CodeSpanParsers.html" class="extype" name="laika.parse.code.CodeSpanParsers">CodeSpanParsers</a>]</span>
+        <span class="name">allExtensions</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="../CodeSpanParser.html" class="extype" name="laika.parse.code.CodeSpanParser">CodeSpanParser</a>]</span>
       </span>
       
       
@@ -375,9 +391,9 @@
               
         </dd></dl></div>
     </li><li name="laika.parse.code.languages.LaikaExtensionSyntax#directive" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="directive:laika.parse.code.CodeSpanParsers"></a><a id="directive:CodeSpanParsers"></a>
+      <a id="directive:laika.parse.code.CodeSpanParser"></a><a id="directive:CodeSpanParser"></a>
       <span class="permalink">
-      <a href="../../../../laika/parse/code/languages/LaikaExtensionSyntax$.html#directive:laika.parse.code.CodeSpanParsers" title="Permalink">
+      <a href="../../../../laika/parse/code/languages/LaikaExtensionSyntax$.html#directive:laika.parse.code.CodeSpanParser" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -386,14 +402,14 @@
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">directive</span><span class="result">: <a href="../CodeSpanParsers.html" class="extype" name="laika.parse.code.CodeSpanParsers">CodeSpanParsers</a></span>
+        <span class="name">directive</span><span class="result">: <a href="../CodeSpanParser.html" class="extype" name="laika.parse.code.CodeSpanParser">CodeSpanParser</a></span>
       </span>
       
       
     </li><li name="laika.parse.code.languages.LaikaExtensionSyntax#embeddedHocon" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="embeddedHocon(start:String,end:String,delimCategory:Set[laika.parse.code.CodeCategory]):laika.parse.Parser[Seq[laika.ast.CodeSpan]]"></a><a id="embeddedHocon(String,String,Set[CodeCategory]):Parser[Seq[CodeSpan]]"></a>
+      <a id="embeddedHocon(start:String,end:String,delimCategory:Set[laika.parse.code.CodeCategory]):laika.parse.text.PrefixedParser[Seq[laika.ast.CodeSpan]]"></a><a id="embeddedHocon(String,String,Set[CodeCategory]):PrefixedParser[Seq[CodeSpan]]"></a>
       <span class="permalink">
-      <a href="../../../../laika/parse/code/languages/LaikaExtensionSyntax$.html#embeddedHocon(start:String,end:String,delimCategory:Set[laika.parse.code.CodeCategory]):laika.parse.Parser[Seq[laika.ast.CodeSpan]]" title="Permalink">
+      <a href="../../../../laika/parse/code/languages/LaikaExtensionSyntax$.html#embeddedHocon(start:String,end:String,delimCategory:Set[laika.parse.code.CodeCategory]):laika.parse.text.PrefixedParser[Seq[laika.ast.CodeSpan]]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -402,14 +418,14 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">embeddedHocon</span><span class="params">(<span name="start">start: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="end">end: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="delimCategory">delimCategory: <span class="extype" name="scala.Predef.Set">Set</span>[<a href="../CodeCategory.html" class="extype" name="laika.parse.code.CodeCategory">CodeCategory</a>] = <span class="symbol">Set()</span></span>)</span><span class="result">: <a href="../../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Seq">Seq</span>[<a href="../../../ast/CodeSpan.html" class="extype" name="laika.ast.CodeSpan">CodeSpan</a>]]</span>
+        <span class="name">embeddedHocon</span><span class="params">(<span name="start">start: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="end">end: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="delimCategory">delimCategory: <span class="extype" name="scala.Predef.Set">Set</span>[<a href="../CodeCategory.html" class="extype" name="laika.parse.code.CodeCategory">CodeCategory</a>] = <span class="symbol">Set()</span></span>)</span><span class="result">: <a href="../../text/PrefixedParser.html" class="extype" name="laika.parse.text.PrefixedParser">PrefixedParser</a>[<span class="extype" name="scala.Seq">Seq</span>[<a href="../../../ast/CodeSpan.html" class="extype" name="laika.ast.CodeSpan">CodeSpan</a>]]</span>
       </span>
       
       
     </li><li name="laika.parse.code.languages.LaikaExtensionSyntax#enhancedStartTag" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="enhancedStartTag:laika.parse.code.CodeSpanParsers"></a><a id="enhancedStartTag:CodeSpanParsers"></a>
+      <a id="enhancedStartTag:laika.parse.code.CodeSpanParser"></a><a id="enhancedStartTag:CodeSpanParser"></a>
       <span class="permalink">
-      <a href="../../../../laika/parse/code/languages/LaikaExtensionSyntax$.html#enhancedStartTag:laika.parse.code.CodeSpanParsers" title="Permalink">
+      <a href="../../../../laika/parse/code/languages/LaikaExtensionSyntax$.html#enhancedStartTag:laika.parse.code.CodeSpanParser" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -418,7 +434,7 @@
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">enhancedStartTag</span><span class="result">: <a href="../CodeSpanParsers.html" class="extype" name="laika.parse.code.CodeSpanParsers">CodeSpanParsers</a></span>
+        <span class="name">enhancedStartTag</span><span class="result">: <a href="../CodeSpanParser.html" class="extype" name="laika.parse.code.CodeSpanParser">CodeSpanParser</a></span>
       </span>
       
       
@@ -455,9 +471,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="laika.parse.code.languages.LaikaExtensionSyntax#fence" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="fence:laika.parse.code.CodeSpanParsers"></a><a id="fence:CodeSpanParsers"></a>
+      <a id="fence:laika.parse.code.CodeSpanParser"></a><a id="fence:CodeSpanParser"></a>
       <span class="permalink">
-      <a href="../../../../laika/parse/code/languages/LaikaExtensionSyntax$.html#fence:laika.parse.code.CodeSpanParsers" title="Permalink">
+      <a href="../../../../laika/parse/code/languages/LaikaExtensionSyntax$.html#fence:laika.parse.code.CodeSpanParser" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -466,7 +482,7 @@
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">fence</span><span class="result">: <a href="../CodeSpanParsers.html" class="extype" name="laika.parse.code.CodeSpanParsers">CodeSpanParsers</a></span>
+        <span class="name">fence</span><span class="result">: <a href="../CodeSpanParser.html" class="extype" name="laika.parse.code.CodeSpanParser">CodeSpanParser</a></span>
       </span>
       
       
@@ -579,9 +595,9 @@
               
         </dd></dl></div>
     </li><li name="laika.parse.code.languages.LaikaExtensionSyntax#hoconBlock" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="hoconBlock:laika.parse.code.CodeSpanParsers"></a><a id="hoconBlock:CodeSpanParsers"></a>
+      <a id="hoconBlock:laika.parse.code.CodeSpanParser"></a><a id="hoconBlock:CodeSpanParser"></a>
       <span class="permalink">
-      <a href="../../../../laika/parse/code/languages/LaikaExtensionSyntax$.html#hoconBlock:laika.parse.code.CodeSpanParsers" title="Permalink">
+      <a href="../../../../laika/parse/code/languages/LaikaExtensionSyntax$.html#hoconBlock:laika.parse.code.CodeSpanParser" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -590,7 +606,7 @@
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">hoconBlock</span><span class="result">: <a href="../CodeSpanParsers.html" class="extype" name="laika.parse.code.CodeSpanParsers">CodeSpanParsers</a></span>
+        <span class="name">hoconBlock</span><span class="result">: <a href="../CodeSpanParser.html" class="extype" name="laika.parse.code.CodeSpanParser">CodeSpanParser</a></span>
       </span>
       
       
@@ -611,9 +627,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="laika.parse.code.languages.LaikaExtensionSyntax#modifiedHTMLParsers" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="modifiedHTMLParsers:Seq[laika.parse.code.CodeSpanParsers]"></a><a id="modifiedHTMLParsers:Seq[CodeSpanParsers]"></a>
+      <a id="modifiedHTMLParsers:Seq[laika.parse.code.CodeSpanParser]"></a><a id="modifiedHTMLParsers:Seq[CodeSpanParser]"></a>
       <span class="permalink">
-      <a href="../../../../laika/parse/code/languages/LaikaExtensionSyntax$.html#modifiedHTMLParsers:Seq[laika.parse.code.CodeSpanParsers]" title="Permalink">
+      <a href="../../../../laika/parse/code/languages/LaikaExtensionSyntax$.html#modifiedHTMLParsers:Seq[laika.parse.code.CodeSpanParser]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -622,7 +638,7 @@
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">modifiedHTMLParsers</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="../CodeSpanParsers.html" class="extype" name="laika.parse.code.CodeSpanParsers">CodeSpanParsers</a>]</span>
+        <span class="name">modifiedHTMLParsers</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="../CodeSpanParser.html" class="extype" name="laika.parse.code.CodeSpanParser">CodeSpanParser</a>]</span>
       </span>
       
       
@@ -681,9 +697,9 @@
               
         </dd></dl></div>
     </li><li name="laika.parse.code.languages.LaikaExtensionSyntax#substitution" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="substitution:laika.parse.code.CodeSpanParsers"></a><a id="substitution:CodeSpanParsers"></a>
+      <a id="substitution:laika.parse.code.CodeSpanParser"></a><a id="substitution:CodeSpanParser"></a>
       <span class="permalink">
-      <a href="../../../../laika/parse/code/languages/LaikaExtensionSyntax$.html#substitution:laika.parse.code.CodeSpanParsers" title="Permalink">
+      <a href="../../../../laika/parse/code/languages/LaikaExtensionSyntax$.html#substitution:laika.parse.code.CodeSpanParser" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -692,7 +708,7 @@
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">substitution</span><span class="result">: <a href="../CodeSpanParsers.html" class="extype" name="laika.parse.code.CodeSpanParsers">CodeSpanParsers</a></span>
+        <span class="name">substitution</span><span class="result">: <a href="../CodeSpanParser.html" class="extype" name="laika.parse.code.CodeSpanParser">CodeSpanParser</a></span>
       </span>
       
       

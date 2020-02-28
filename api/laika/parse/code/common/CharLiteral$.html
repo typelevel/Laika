@@ -139,6 +139,10 @@
                         <a href="" title="Configurable base parsers for character literals.">CharLiteral</a>
                       </li><li class="current-entities indented4">
                         <span class="separator"></span>
+                        <a class="trait" href="CodeParserBase.html" title="Convenient base trait that allows for passing the implementing instances anywhere either a PrefixedParser[Seq[CodeSpan]] or a CodeSpanParser is required for easier composition."></a>
+                        <a href="CodeParserBase.html" title="Convenient base trait that allows for passing the implementing instances anywhere either a PrefixedParser[Seq[CodeSpan]] or a CodeSpanParser is required for easier composition.">CodeParserBase</a>
+                      </li><li class="current-entities indented4">
+                        <span class="separator"></span>
                         <a class="object" href="Comment$.html" title="Configurable base parsers for comments in code blocks."></a>
                         <a href="Comment$.html" title="Configurable base parsers for comments in code blocks.">Comment</a>
                       </li><li class="current-entities indented4">
@@ -173,6 +177,10 @@
                         <span class="separator"></span>
                         <a class="trait" href="TagBasedFormats.html" title="Configurable base parsers for tag based formats like HTML or XML."></a>
                         <a href="TagBasedFormats.html" title="Configurable base parsers for tag based formats like HTML or XML.">TagBasedFormats</a>
+                      </li><li class="current-entities indented4">
+                        <a class="object" href="TagParser$.html" title=""></a>
+                        <a class="class" href="TagParser.html" title="Configurable base parser for tags in formats like HTML or XML."></a>
+                        <a href="TagParser.html" title="Configurable base parser for tags in formats like HTML or XML.">TagParser</a>
                       </li>
               </ul>
             </div>
@@ -255,7 +263,7 @@
         <div id="types" class="types members">
               <h3>Type Members</h3>
               <ol><li name="laika.parse.code.common.CharLiteral.CharParser" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="CharParserextendsCodeSpanParserswithProductwithSerializable"></a><a id="CharParser:CharParser"></a>
+      <a id="CharParserextendsParser[Seq[laika.ast.CodeSpan]]withCodeParserBasewithProductwithSerializable"></a><a id="CharParser:CharParser"></a>
       <span class="permalink">
       <a href="../../../../laika/parse/code/common/CharLiteral$$CharParser.html" title="Permalink">
         <i class="material-icons"></i>
@@ -266,7 +274,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="Configurable base parsers for character literals." href="CharLiteral$$CharParser.html"><span class="name">CharParser</span></a><span class="params">(<span name="delim">delim: <span class="extype" name="scala.Char">Char</span></span>, <span name="embedded">embedded: <span class="extype" name="scala.Seq">Seq</span>[<a href="../CodeSpanParsers.html" class="extype" name="laika.parse.code.CodeSpanParsers">CodeSpanParsers</a>] = <span class="symbol">Nil</span></span>)</span><span class="result"> extends <a href="../CodeSpanParsers.html" class="extype" name="laika.parse.code.CodeSpanParsers">CodeSpanParsers</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="Configurable base parsers for character literals." href="CharLiteral$$CharParser.html"><span class="name">CharParser</span></a><span class="params">(<span name="delim">delim: <span class="extype" name="scala.Char">Char</span></span>, <span name="embedded">embedded: <span class="extype" name="scala.Seq">Seq</span>[<a href="../CodeSpanParser.html" class="extype" name="laika.parse.code.CodeSpanParser">CodeSpanParser</a>] = <span class="symbol">Nil</span></span>)</span><span class="result"> extends <a href="../../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Seq">Seq</span>[<a href="../../../ast/CodeSpan.html" class="extype" name="laika.ast.CodeSpan">CodeSpan</a>]] with <a href="CodeParserBase.html" class="extype" name="laika.parse.code.common.CodeParserBase">CodeParserBase</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">Configurable base parsers for character literals.</p>

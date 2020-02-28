@@ -139,6 +139,10 @@
                         <a href="CharLiteral$.html" title="Configurable base parsers for character literals.">CharLiteral</a>
                       </li><li class="current-entities indented4">
                         <span class="separator"></span>
+                        <a class="trait" href="CodeParserBase.html" title="Convenient base trait that allows for passing the implementing instances anywhere either a PrefixedParser[Seq[CodeSpan]] or a CodeSpanParser is required for easier composition."></a>
+                        <a href="CodeParserBase.html" title="Convenient base trait that allows for passing the implementing instances anywhere either a PrefixedParser[Seq[CodeSpan]] or a CodeSpanParser is required for easier composition.">CodeParserBase</a>
+                      </li><li class="current-entities indented4">
+                        <span class="separator"></span>
                         <a class="object" href="Comment$.html" title="Configurable base parsers for comments in code blocks."></a>
                         <a href="Comment$.html" title="Configurable base parsers for comments in code blocks.">Comment</a>
                       </li><li class="current-entities indented4">
@@ -173,6 +177,10 @@
                         <span class="separator"></span>
                         <a class="trait" href="TagBasedFormats.html" title="Configurable base parsers for tag based formats like HTML or XML."></a>
                         <a href="TagBasedFormats.html" title="Configurable base parsers for tag based formats like HTML or XML.">TagBasedFormats</a>
+                      </li><li class="current-entities indented4">
+                        <a class="object" href="TagParser$.html" title=""></a>
+                        <a class="class" href="TagParser.html" title="Configurable base parser for tags in formats like HTML or XML."></a>
+                        <a href="TagParser.html" title="Configurable base parser for tags in formats like HTML or XML.">TagParser</a>
                       </li>
               </ul>
             </div>
@@ -255,7 +263,7 @@
         <div id="types" class="types members">
               <h3>Type Members</h3>
               <ol><li name="laika.parse.code.common.StringLiteral.StringParser" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="StringParserextendsCodeSpanParserswithProductwithSerializable"></a><a id="StringParser:StringParser"></a>
+      <a id="StringParserextendsParser[Seq[laika.ast.CodeSpan]]withCodeParserBasewithProductwithSerializable"></a><a id="StringParser:StringParser"></a>
       <span class="permalink">
       <a href="../../../../laika/parse/code/common/StringLiteral$$StringParser.html" title="Permalink">
         <i class="material-icons"></i>
@@ -266,7 +274,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="Configurable base parser for string literals." href="StringLiteral$$StringParser.html"><span class="name">StringParser</span></a><span class="params">(<span name="startChars">startChars: <span class="extype" name="scala.Predef.Set">Set</span>[<span class="extype" name="scala.Char">Char</span>]</span>, <span name="parser">parser: <a href="../../text/DelimitedText.html" class="extype" name="laika.parse.text.DelimitedText">DelimitedText</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="prefix">prefix: <span class="extype" name="scala.Option">Option</span>[<a href="../../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]] = <span class="symbol">None</span></span>, <span name="postfix">postfix: <span class="extype" name="scala.Option">Option</span>[<a href="../../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]] = <span class="symbol">None</span></span>, <span name="embedded">embedded: <span class="extype" name="scala.Seq">Seq</span>[<a href="../CodeSpanParsers.html" class="extype" name="laika.parse.code.CodeSpanParsers">CodeSpanParsers</a>] = <span class="symbol">Nil</span></span>, <span name="defaultCategories">defaultCategories: <span class="extype" name="scala.Predef.Set">Set</span>[<a href="../CodeCategory.html" class="extype" name="laika.parse.code.CodeCategory">CodeCategory</a>] = <span class="symbol"><span class="name"><a href="../../../index.html">Set(CodeCategory.StringLiteral)</a></span></span></span>)</span><span class="result"> extends <a href="../CodeSpanParsers.html" class="extype" name="laika.parse.code.CodeSpanParsers">CodeSpanParsers</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="Configurable base parser for string literals." href="StringLiteral$$StringParser.html"><span class="name">StringParser</span></a><span class="params">(<span name="startDelimParser">startDelimParser: <a href="../../text/PrefixedParser.html" class="extype" name="laika.parse.text.PrefixedParser">PrefixedParser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="endDelimParser">endDelimParser: <a href="../../text/PrefixedParser.html" class="extype" name="laika.parse.text.PrefixedParser">PrefixedParser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="multiline">multiline: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>, <span name="postCondition">postCondition: <span class="extype" name="scala.Option">Option</span>[<a href="../../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Unit">Unit</span>]] = <span class="symbol">None</span></span>, <span name="embedded">embedded: <span class="extype" name="scala.Seq">Seq</span>[<a href="../CodeSpanParser.html" class="extype" name="laika.parse.code.CodeSpanParser">CodeSpanParser</a>] = <span class="symbol">Nil</span></span>, <span name="defaultCategories">defaultCategories: <span class="extype" name="scala.Predef.Set">Set</span>[<a href="../CodeCategory.html" class="extype" name="laika.parse.code.CodeCategory">CodeCategory</a>] = <span class="symbol"><span class="name"><a href="../../../index.html">Set(CodeCategory.StringLiteral)</a></span></span></span>)</span><span class="result"> extends <a href="../../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Seq">Seq</span>[<a href="../../../ast/CodeSpan.html" class="extype" name="laika.ast.CodeSpan">CodeSpan</a>]] with <a href="CodeParserBase.html" class="extype" name="laika.parse.code.common.CodeParserBase">CodeParserBase</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">Configurable base parser for string literals.</p>
@@ -475,9 +483,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="laika.parse.code.common.StringLiteral#multiLine" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="multiLine(startChars:Set[Char],end:String):laika.parse.code.common.StringLiteral.StringParser"></a><a id="multiLine(Set[Char],String):StringParser"></a>
+      <a id="multiLine(startDelim:laika.parse.text.PrefixedParser[String],endDelim:laika.parse.text.PrefixedParser[String]):laika.parse.code.common.StringLiteral.StringParser"></a><a id="multiLine(PrefixedParser[String],PrefixedParser[String]):StringParser"></a>
       <span class="permalink">
-      <a href="../../../../laika/parse/code/common/StringLiteral$.html#multiLine(startChars:Set[Char],end:String):laika.parse.code.common.StringLiteral.StringParser" title="Permalink">
+      <a href="../../../../laika/parse/code/common/StringLiteral$.html#multiLine(startDelim:laika.parse.text.PrefixedParser[String],endDelim:laika.parse.text.PrefixedParser[String]):laika.parse.code.common.StringLiteral.StringParser" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -486,11 +494,10 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">multiLine</span><span class="params">(<span name="startChars">startChars: <span class="extype" name="scala.Predef.Set">Set</span>[<span class="extype" name="scala.Char">Char</span>]</span>, <span name="end">end: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="StringLiteral$$StringParser.html" class="extype" name="laika.parse.code.common.StringLiteral.StringParser">StringParser</a></span>
+        <span class="name">multiLine</span><span class="params">(<span name="startDelim">startDelim: <a href="../../text/PrefixedParser.html" class="extype" name="laika.parse.text.PrefixedParser">PrefixedParser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="endDelim">endDelim: <a href="../../text/PrefixedParser.html" class="extype" name="laika.parse.text.PrefixedParser">PrefixedParser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result">: <a href="StringLiteral$$StringParser.html" class="extype" name="laika.parse.code.common.StringLiteral.StringParser">StringParser</a></span>
       </span>
       
-      <p class="shortcomment cmt">Parses a string literal that can span multiple lines, started by any of the specified start characters
-and terminating with the specified end delimiter.</p>
+      <p class="shortcomment cmt">Parses a string literal that can span multiple lines, enclosed by the specified delimiters.</p>
     </li><li name="laika.parse.code.common.StringLiteral#multiLine" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="multiLine(startDelim:String,endDelim:String):laika.parse.code.common.StringLiteral.StringParser"></a><a id="multiLine(String,String):StringParser"></a>
       <span class="permalink">
@@ -506,7 +513,7 @@ and terminating with the specified end delimiter.</p>
         <span class="name">multiLine</span><span class="params">(<span name="startDelim">startDelim: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="endDelim">endDelim: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="StringLiteral$$StringParser.html" class="extype" name="laika.parse.code.common.StringLiteral.StringParser">StringParser</a></span>
       </span>
       
-      <p class="shortcomment cmt">Parses a string literal that can span multiple lines enclosed by the specified start and end delimiters.</p>
+      <p class="shortcomment cmt">Parses a string literal that can span multiple lines, enclosed by the specified start and end delimiters.</p>
     </li><li name="laika.parse.code.common.StringLiteral#multiLine" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="multiLine(between:String):laika.parse.code.common.StringLiteral.StringParser"></a><a id="multiLine(String):StringParser"></a>
       <span class="permalink">
@@ -522,7 +529,7 @@ and terminating with the specified end delimiter.</p>
         <span class="name">multiLine</span><span class="params">(<span name="between">between: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="StringLiteral$$StringParser.html" class="extype" name="laika.parse.code.common.StringLiteral.StringParser">StringParser</a></span>
       </span>
       
-      <p class="shortcomment cmt">Parses a string literal that can span multiple lines enclosed by the specified start and end delimiter.</p>
+      <p class="shortcomment cmt">Parses a string literal that can span multiple lines, enclosed by the specified start and end delimiter.</p>
     </li><li name="scala.AnyRef#ne" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a><a id="ne(AnyRef):Boolean"></a>
       <span class="permalink">
@@ -578,9 +585,9 @@ and terminating with the specified end delimiter.</p>
               
         </dd></dl></div>
     </li><li name="laika.parse.code.common.StringLiteral#singleLine" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="singleLine(startChars:Set[Char],end:Char):laika.parse.code.common.StringLiteral.StringParser"></a><a id="singleLine(Set[Char],Char):StringParser"></a>
+      <a id="singleLine(startDelim:laika.parse.text.PrefixedParser[String],endDelim:laika.parse.text.PrefixedParser[String]):laika.parse.code.common.StringLiteral.StringParser"></a><a id="singleLine(PrefixedParser[String],PrefixedParser[String]):StringParser"></a>
       <span class="permalink">
-      <a href="../../../../laika/parse/code/common/StringLiteral$.html#singleLine(startChars:Set[Char],end:Char):laika.parse.code.common.StringLiteral.StringParser" title="Permalink">
+      <a href="../../../../laika/parse/code/common/StringLiteral$.html#singleLine(startDelim:laika.parse.text.PrefixedParser[String],endDelim:laika.parse.text.PrefixedParser[String]):laika.parse.code.common.StringLiteral.StringParser" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -589,11 +596,26 @@ and terminating with the specified end delimiter.</p>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">singleLine</span><span class="params">(<span name="startChars">startChars: <span class="extype" name="scala.Predef.Set">Set</span>[<span class="extype" name="scala.Char">Char</span>]</span>, <span name="end">end: <span class="extype" name="scala.Char">Char</span></span>)</span><span class="result">: <a href="StringLiteral$$StringParser.html" class="extype" name="laika.parse.code.common.StringLiteral.StringParser">StringParser</a></span>
+        <span class="name">singleLine</span><span class="params">(<span name="startDelim">startDelim: <a href="../../text/PrefixedParser.html" class="extype" name="laika.parse.text.PrefixedParser">PrefixedParser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="endDelim">endDelim: <a href="../../text/PrefixedParser.html" class="extype" name="laika.parse.text.PrefixedParser">PrefixedParser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result">: <a href="StringLiteral$$StringParser.html" class="extype" name="laika.parse.code.common.StringLiteral.StringParser">StringParser</a></span>
       </span>
       
-      <p class="shortcomment cmt">Parses a string literal on a single line, started by any of the specified start characters
-and terminating with the specified end character.</p>
+      <p class="shortcomment cmt">Parses a string literal on a single line enclosed by the specified start and end delimiters.</p>
+    </li><li name="laika.parse.code.common.StringLiteral#singleLine" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="singleLine(startDelim:String,endDelim:String):laika.parse.code.common.StringLiteral.StringParser"></a><a id="singleLine(String,String):StringParser"></a>
+      <span class="permalink">
+      <a href="../../../../laika/parse/code/common/StringLiteral$.html#singleLine(startDelim:String,endDelim:String):laika.parse.code.common.StringLiteral.StringParser" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">singleLine</span><span class="params">(<span name="startDelim">startDelim: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="endDelim">endDelim: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="StringLiteral$$StringParser.html" class="extype" name="laika.parse.code.common.StringLiteral.StringParser">StringParser</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Parses a string literal on a single line enclosed by the specified start and end delimiters.</p>
     </li><li name="laika.parse.code.common.StringLiteral#singleLine" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="singleLine(between:Char):laika.parse.code.common.StringLiteral.StringParser"></a><a id="singleLine(Char):StringParser"></a>
       <span class="permalink">

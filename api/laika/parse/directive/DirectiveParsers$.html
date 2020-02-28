@@ -508,9 +508,9 @@
               
         </dd></dl></div>
     </li><li name="laika.parse.directive.DirectiveParsers#hoconReference" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="hoconReference[T](f:(laika.config.Key,Boolean)=&gt;T,e:laika.ast.InvalidElement=&gt;T):laika.parse.Parser[T]"></a><a id="hoconReference[T]((Key,Boolean)⇒T,(InvalidElement)⇒T):Parser[T]"></a>
+      <a id="hoconReference[T](f:(laika.config.Key,Boolean)=&gt;T,e:laika.ast.InvalidElement=&gt;T):laika.parse.text.PrefixedParser[T]"></a><a id="hoconReference[T]((Key,Boolean)⇒T,(InvalidElement)⇒T):PrefixedParser[T]"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/directive/DirectiveParsers$.html#hoconReference[T](f:(laika.config.Key,Boolean)=&gt;T,e:laika.ast.InvalidElement=&gt;T):laika.parse.Parser[T]" title="Permalink">
+      <a href="../../../laika/parse/directive/DirectiveParsers$.html#hoconReference[T](f:(laika.config.Key,Boolean)=&gt;T,e:laika.ast.InvalidElement=&gt;T):laika.parse.text.PrefixedParser[T]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -519,7 +519,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">hoconReference</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="f">f: (<a href="../../config/Key.html" class="extype" name="laika.config.Key">Key</a>, <span class="extype" name="scala.Boolean">Boolean</span>) ⇒ <span class="extype" name="laika.parse.directive.DirectiveParsers.hoconReference.T">T</span></span>, <span name="e">e: (<a href="../../ast/InvalidElement.html" class="extype" name="laika.ast.InvalidElement">InvalidElement</a>) ⇒ <span class="extype" name="laika.parse.directive.DirectiveParsers.hoconReference.T">T</span></span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="laika.parse.directive.DirectiveParsers.hoconReference.T">T</span>]</span>
+        <span class="name">hoconReference</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="f">f: (<a href="../../config/Key.html" class="extype" name="laika.config.Key">Key</a>, <span class="extype" name="scala.Boolean">Boolean</span>) ⇒ <span class="extype" name="laika.parse.directive.DirectiveParsers.hoconReference.T">T</span></span>, <span name="e">e: (<a href="../../ast/InvalidElement.html" class="extype" name="laika.ast.InvalidElement">InvalidElement</a>) ⇒ <span class="extype" name="laika.parse.directive.DirectiveParsers.hoconReference.T">T</span></span>)</span><span class="result">: <a href="../text/PrefixedParser.html" class="extype" name="laika.parse.text.PrefixedParser">PrefixedParser</a>[<span class="extype" name="laika.parse.directive.DirectiveParsers.hoconReference.T">T</span>]</span>
       </span>
       
       <p class="shortcomment cmt">Parses a HOCON-style reference enclosed between <code>${</code> and <code>}</code> that may be marked as optional (<code>${?some.param}</code>).</p>
@@ -576,9 +576,9 @@
  are not enclosed in braces.
 </p></div></div>
     </li><li name="laika.parse.directive.DirectiveParsers#legacyReference" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="legacyReference[T](f:String=&gt;T):laika.parse.Parser[T]"></a><a id="legacyReference[T]((String)⇒T):Parser[T]"></a>
+      <a id="legacyReference[T](f:String=&gt;T):laika.parse.text.PrefixedParser[T]"></a><a id="legacyReference[T]((String)⇒T):PrefixedParser[T]"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/directive/DirectiveParsers$.html#legacyReference[T](f:String=&gt;T):laika.parse.Parser[T]" title="Permalink">
+      <a href="../../../laika/parse/directive/DirectiveParsers$.html#legacyReference[T](f:String=&gt;T):laika.parse.text.PrefixedParser[T]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -587,7 +587,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">legacyReference</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="scala.Predef.String">String</span>) ⇒ <span class="extype" name="laika.parse.directive.DirectiveParsers.legacyReference.T">T</span></span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="laika.parse.directive.DirectiveParsers.legacyReference.T">T</span>]</span>
+        <span class="name">legacyReference</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="scala.Predef.String">String</span>) ⇒ <span class="extype" name="laika.parse.directive.DirectiveParsers.legacyReference.T">T</span></span>)</span><span class="result">: <a href="../text/PrefixedParser.html" class="extype" name="laika.parse.text.PrefixedParser">PrefixedParser</a>[<span class="extype" name="laika.parse.directive.DirectiveParsers.legacyReference.T">T</span>]</span>
       </span>
       
       <p class="shortcomment cmt">Parses a legacy reference (version 0.1 to 0.11) enclosed between <code>{{</code> and <code>}}</code>.</p>
@@ -625,9 +625,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="laika.parse.directive.DirectiveParsers#nestedBraces" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="nestedBraces:laika.parse.Parser[laika.ast.Text]"></a><a id="nestedBraces:Parser[Text]"></a>
+      <a id="nestedBraces:laika.parse.text.PrefixedParser[laika.ast.Text]"></a><a id="nestedBraces:PrefixedParser[Text]"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/directive/DirectiveParsers$.html#nestedBraces:laika.parse.Parser[laika.ast.Text]" title="Permalink">
+      <a href="../../../laika/parse/directive/DirectiveParsers$.html#nestedBraces:laika.parse.text.PrefixedParser[laika.ast.Text]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -636,7 +636,7 @@
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">nestedBraces</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../../ast/Text.html" class="extype" name="laika.ast.Text">Text</a>]</span>
+        <span class="name">nestedBraces</span><span class="result">: <a href="../text/PrefixedParser.html" class="extype" name="laika.parse.text.PrefixedParser">PrefixedParser</a>[<a href="../../ast/Text.html" class="extype" name="laika.ast.Text">Text</a>]</span>
       </span>
       
       
@@ -778,23 +778,6 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="laika.parse.directive.DirectiveParsers#withSource" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="withSource[T](p:laika.parse.Parser[T]):laika.parse.Parser[(T,String)]"></a><a id="withSource[T](Parser[T]):Parser[(T,String)]"></a>
-      <span class="permalink">
-      <a href="../../../laika/parse/directive/DirectiveParsers$.html#withSource[T](p:laika.parse.Parser[T]):laika.parse.Parser[(T,String)]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">withSource</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="p">p: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="laika.parse.directive.DirectiveParsers.withSource.T">T</span>]</span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[(<span class="extype" name="laika.parse.directive.DirectiveParsers.withSource.T">T</span>, <span class="extype" name="scala.Predef.String">String</span>)]</span>
-      </span>
-      
-      <p class="shortcomment cmt">Groups the result of the parser and the source string
- that it successfully parsed into a tupled result.</p>
     </li><li name="laika.parse.directive.DirectiveParsers#wsOrNl" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="wsOrNl:laika.parse.Parser[String]"></a><a id="wsOrNl:Parser[String]"></a>
       <span class="permalink">

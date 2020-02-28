@@ -102,13 +102,17 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika">laika</a></dd></dl></div>
     </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="object" href="" title="Builder API for block parsers."></a>
-                        <a class="class" href="BlockParser.html" title="Builder API for block parsers."></a>
-                        <a href="BlockParser.html" title="Builder API for block parsers.">BlockParser</a>
+                        <a href="" title="Builder API for block parsers.">BlockParser</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="trait" href="BlockParserBuilder.html" title="Builds a block parser definition lazily by passing the recursive parsers of the host language."></a>
                         <a href="BlockParserBuilder.html" title="Builds a block parser definition lazily by passing the recursive parsers of the host language.">BlockParserBuilder</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="BlockParserBuilderOps.html" title="Builder API for block parsers that allows to set the parser precedence."></a>
+                        <a href="BlockParserBuilderOps.html" title="Builder API for block parsers that allows to set the parser precedence.">BlockParserBuilderOps</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="BlockParserDefinition.html" title="Defines a parser for a single kind of block element, like a quoted block or a bullet list for example."></a>
@@ -162,13 +166,17 @@
                         <a class="trait" href="RenderTheme.html" title="Collects templates, styles and custom render functions to form a theme for a specific output format."></a>
                         <a href="RenderTheme.html" title="Collects templates, styles and custom render functions to form a theme for a specific output format.">RenderTheme</a>
                       </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="object" href="SpanParser$.html" title="Builder API for span parsers."></a>
-                        <a class="class" href="SpanParser.html" title="Builder API for span parsers."></a>
-                        <a href="SpanParser.html" title="Builder API for span parsers.">SpanParser</a>
+                        <a href="SpanParser$.html" title="Builder API for span parsers.">SpanParser</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="trait" href="SpanParserBuilder.html" title="Builds a span parser definition lazily by passing the recursive parsers of the host language."></a>
                         <a href="SpanParserBuilder.html" title="Builds a span parser definition lazily by passing the recursive parsers of the host language.">SpanParserBuilder</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="SpanParserBuilderOps.html" title="Builder API for span parsers that allows to set the parser precedence."></a>
+                        <a href="SpanParserBuilderOps.html" title="Builder API for span parsers that allows to set the parser precedence.">SpanParserBuilderOps</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="SpanParserDefinition.html" title="Defines a parser for a single kind of span element, like a literal text span or a link reference for example."></a>
@@ -184,16 +192,14 @@
           <div id="content">
             <body class="object value">
       <div id="definition">
-        <a href="BlockParser.html" title="See companion class"><div class="big-circle object-companion-class">o</div></a>
+        <div class="big-circle object">o</div>
         <p id="owner"><a href="../index.html" class="extype" name="laika">laika</a>.<a href="index.html" class="extype" name="laika.bundle">bundle</a></p>
-        <h1><a href="BlockParser.html" title="See companion class">BlockParser</a><span class="permalink">
+        <h1>BlockParser<span class="permalink">
       <a href="../../laika/bundle/BlockParser$.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span></h1>
-        <h3><span class="morelinks"><div>
-            Companion <a href="BlockParser.html" title="See companion class">class BlockParser</a>
-          </div></span></h3>
+        <h3><span class="morelinks"></span></h3>
       </div>
 
       <h4 id="signature" class="signature">
@@ -207,7 +213,11 @@
       </h4>
 
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Builder API for block parsers.
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Builder API for block parsers.</p><p>The entry points provide access to the parsers for child blocks (<code>recursive</code>),
+child spans (<code>withSpans</code>) or escape sequences (<code>withEscapedText</code>). These
+are methods with decreasing power, as the parser for recursive blocks does
+also provide the span parsers.</p><p>If your parser implementation is completely independent from the host markup
+language you can use the <code>standalone</code> method.
 </p></div><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
@@ -258,7 +268,26 @@
         <div id="allMembers">
         
 
-        
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="laika.bundle.BlockParser.LegacySyntax" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="LegacySyntaxextendsAnyRef"></a><a id="LegacySyntax:LegacySyntax"></a>
+      <span class="permalink">
+      <a href="../../laika/bundle/BlockParser$$LegacySyntax.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="BlockParser$$LegacySyntax.html"><span class="name">LegacySyntax</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      
+      
+    </li></ol>
+            </div>
 
         
 
@@ -407,24 +436,6 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="laika.bundle.BlockParser#forStartChar" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="forStartChar(char:Char):laika.bundle.BlockParser"></a><a id="forStartChar(Char):BlockParser"></a>
-      <span class="permalink">
-      <a href="../../laika/bundle/BlockParser$.html#forStartChar(char:Char):laika.bundle.BlockParser" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">forStartChar</span><span class="params">(<span name="char">char: <span class="extype" name="scala.Char">Char</span></span>)</span><span class="result">: <a href="BlockParser.html" class="extype" name="laika.bundle.BlockParser">BlockParser</a></span>
-      </span>
-      
-      <p class="shortcomment cmt">Creates a builder for a block element that starts with the specified character.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a builder for a block element that starts with the specified character.</p><p>For block elements a known start character is optional and can be used by the host
-language for performance optimizations.
-</p></div></div>
     </li><li name="scala.AnyRef#getClass" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <span class="permalink">
@@ -533,6 +544,40 @@ language for performance optimizations.
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li name="laika.bundle.BlockParser#recursive" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="recursive(factory:laika.parse.markup.RecursiveParsers=&gt;laika.parse.Parser[laika.ast.Block]):laika.bundle.BlockParserBuilderOps"></a><a id="recursive((RecursiveParsers)⇒Parser[Block]):BlockParserBuilderOps"></a>
+      <span class="permalink">
+      <a href="../../laika/bundle/BlockParser$.html#recursive(factory:laika.parse.markup.RecursiveParsers=&gt;laika.parse.Parser[laika.ast.Block]):laika.bundle.BlockParserBuilderOps" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">recursive</span><span class="params">(<span name="factory">factory: (<a href="../parse/markup/RecursiveParsers.html" class="extype" name="laika.parse.markup.RecursiveParsers">RecursiveParsers</a>) ⇒ <a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>)</span><span class="result">: <a href="BlockParserBuilderOps.html" class="extype" name="laika.bundle.BlockParserBuilderOps">BlockParserBuilderOps</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Creates a parser definition for a parser that depends on the parsers
+of the host languages for recursively parsing child blocks.</p>
+    </li><li name="laika.bundle.BlockParser#standalone" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="standalone(parser:laika.parse.Parser[laika.ast.Block]):laika.bundle.BlockParserBuilderOps"></a><a id="standalone(Parser[Block]):BlockParserBuilderOps"></a>
+      <span class="permalink">
+      <a href="../../laika/bundle/BlockParser$.html#standalone(parser:laika.parse.Parser[laika.ast.Block]):laika.bundle.BlockParserBuilderOps" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">standalone</span><span class="params">(<span name="parser">parser: <a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>)</span><span class="result">: <a href="BlockParserBuilderOps.html" class="extype" name="laika.bundle.BlockParserBuilderOps">BlockParserBuilderOps</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Creates a parser definition for a parser that is independent from the parsers
+of the host languages.</p>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">
@@ -633,10 +678,10 @@ language for performance optimizations.
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="laika.bundle.BlockParser#withoutStartChar" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="withoutStartChar:laika.bundle.BlockParser"></a><a id="withoutStartChar:BlockParser"></a>
+    </li><li name="laika.bundle.BlockParser#withEscapedText" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="withEscapedText(factory:laika.parse.markup.EscapedTextParsers=&gt;laika.parse.Parser[laika.ast.Block]):laika.bundle.BlockParserBuilderOps"></a><a id="withEscapedText((EscapedTextParsers)⇒Parser[Block]):BlockParserBuilderOps"></a>
       <span class="permalink">
-      <a href="../../laika/bundle/BlockParser$.html#withoutStartChar:laika.bundle.BlockParser" title="Permalink">
+      <a href="../../laika/bundle/BlockParser$.html#withEscapedText(factory:laika.parse.markup.EscapedTextParsers=&gt;laika.parse.Parser[laika.ast.Block]):laika.bundle.BlockParserBuilderOps" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -645,20 +690,76 @@ language for performance optimizations.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">withoutStartChar</span><span class="result">: <a href="BlockParser.html" class="extype" name="laika.bundle.BlockParser">BlockParser</a></span>
+        <span class="name">withEscapedText</span><span class="params">(<span name="factory">factory: (<a href="../parse/markup/EscapedTextParsers.html" class="extype" name="laika.parse.markup.EscapedTextParsers">EscapedTextParsers</a>) ⇒ <a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>)</span><span class="result">: <a href="BlockParserBuilderOps.html" class="extype" name="laika.bundle.BlockParserBuilderOps">BlockParserBuilderOps</a></span>
       </span>
       
-      <p class="shortcomment cmt">Creates a builder for a block element that does not start with a specific character.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a builder for a block element that does not start with a specific character.</p><p>For parsers that rely on pattern detection or other mechanisms to recognize a matching block,
-this method allows to avoid the definition of a distinct start character by occurring a little
-performance penalty.
-</p></div></div>
+      <p class="shortcomment cmt">Creates a parser definition for a parser that depends on the parsers for escape sequences
+of the host languages for parsing text.</p>
+    </li><li name="laika.bundle.BlockParser#withSpans" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="withSpans(factory:laika.parse.markup.RecursiveSpanParsers=&gt;laika.parse.Parser[laika.ast.Block]):laika.bundle.BlockParserBuilderOps"></a><a id="withSpans((RecursiveSpanParsers)⇒Parser[Block]):BlockParserBuilderOps"></a>
+      <span class="permalink">
+      <a href="../../laika/bundle/BlockParser$.html#withSpans(factory:laika.parse.markup.RecursiveSpanParsers=&gt;laika.parse.Parser[laika.ast.Block]):laika.bundle.BlockParserBuilderOps" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withSpans</span><span class="params">(<span name="factory">factory: (<a href="../parse/markup/RecursiveSpanParsers.html" class="extype" name="laika.parse.markup.RecursiveSpanParsers">RecursiveSpanParsers</a>) ⇒ <a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>)</span><span class="result">: <a href="BlockParserBuilderOps.html" class="extype" name="laika.bundle.BlockParserBuilderOps">BlockParserBuilderOps</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Creates a parser definition for a parser that depends on the span parsers
+of the host languages for recursively parsing spans inside block elements.</p>
     </li>
               </ol>
             </div>
 
         
 
-        
+        <div class="values members">
+              <h3>Deprecated Value Members</h3>
+              <ol><li name="laika.bundle.BlockParser#forStartChar" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="forStartChar(char:Char):laika.bundle.BlockParser.LegacySyntax"></a><a id="forStartChar(Char):LegacySyntax"></a>
+      <span class="permalink">
+      <a href="../../laika/bundle/BlockParser$.html#forStartChar(char:Char):laika.bundle.BlockParser.LegacySyntax" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.14.0) use standalone, recursive, withSpans, withEscapedText methods directly">forStartChar</span><span class="params">(<span name="char">char: <span class="extype" name="scala.Char">Char</span></span>)</span><span class="result">: <a href="BlockParser$$LegacySyntax.html" class="extype" name="laika.bundle.BlockParser.LegacySyntax">LegacySyntax</a></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.14.0)</i> use standalone, recursive, withSpans, withEscapedText methods directly</p></dd></dl></div>
+    </li><li name="laika.bundle.BlockParser#withoutStartChar" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withoutStartChar:laika.bundle.BlockParser.LegacySyntax"></a><a id="withoutStartChar:LegacySyntax"></a>
+      <span class="permalink">
+      <a href="../../laika/bundle/BlockParser$.html#withoutStartChar:laika.bundle.BlockParser.LegacySyntax" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.14.0) use standalone, recursive, withSpans, withEscapedText methods directly">withoutStartChar</span><span class="result">: <a href="BlockParser$$LegacySyntax.html" class="extype" name="laika.bundle.BlockParser.LegacySyntax">LegacySyntax</a></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.14.0)</i> use standalone, recursive, withSpans, withEscapedText methods directly</p></dd></dl></div>
+    </li></ol>
+            </div>
         </div>
 
         <div id="inheritedMembers">

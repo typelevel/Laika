@@ -214,37 +214,37 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika.parse">parse</a></dd></dl></div>
     </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="CharGroup$.html" title="Common groups of characters as input for parser definitions."></a>
+                        <a href="CharGroup$.html" title="Common groups of characters as input for parser definitions.">CharGroup</a>
+                      </li><li class="current-entities indented3">
                         <a class="object" href="Characters$.html" title="Companion with factory methods for creating optimized character parsers."></a>
                         <a class="class" href="Characters.html" title="Optimized parser for character input."></a>
                         <a href="Characters.html" title="Optimized parser for character input.">Characters</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="class" href="ConfigurableDelimiter.html" title="Delimiter implementation that allows for various kinds of customization."></a>
-                        <a href="ConfigurableDelimiter.html" title="Delimiter implementation that allows for various kinds of customization.">ConfigurableDelimiter</a>
                       </li><li class="current-entities indented3">
                         <a class="object" href="DelimitedText$.html" title=""></a>
                         <a class="class" href="DelimitedText.html" title="A parser for text that ends with a specific delimiter condition, either marking the end of the text span or the start of an embedded inner span."></a>
                         <a href="DelimitedText.html" title="A parser for text that ends with a specific delimiter condition, either marking the end of the text span or the start of an embedded inner span.">DelimitedText</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="trait" href="Delimiter.html" title="Represents the logic of a specific kind of text delimiter."></a>
-                        <a href="Delimiter.html" title="Represents the logic of a specific kind of text delimiter.">Delimiter</a>
-                      </li><li class="current-entities indented3">
-                        <a class="object" href="DelimiterOptions$.html" title=""></a>
-                        <a class="trait" href="DelimiterOptions.html" title="API for customizing a delimiter."></a>
-                        <a href="DelimiterOptions.html" title="API for customizing a delimiter.">DelimiterOptions</a>
-                      </li><li class="current-entities indented3">
-                        <a class="object" href="DelimiterResult$.html" title=""></a>
-                        <a class="trait" href="DelimiterResult.html" title="Represents the result of parsing a delimiter."></a>
-                        <a href="DelimiterResult.html" title="Represents the result of parsing a delimiter.">DelimiterResult</a>
+                        <a class="class" href="DelimiterParser.html" title="A parser that simplifies the expression of typical conditions for start and end delimiters of inline spans."></a>
+                        <a href="DelimiterParser.html" title="A parser that simplifies the expression of typical conditions for start and end delimiters of inline spans.">DelimiterParser</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="class" href="Literal.html" title="A parser that matches a literal string."></a>
                         <a href="Literal.html" title="A parser that matches a literal string.">Literal</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="object" href="TextParsers$.html" title="Base text parsers that provide optimized low-level parsers for typical requirements of text markup parsers."></a>
-                        <a href="TextParsers$.html" title="Base text parsers that provide optimized low-level parsers for typical requirements of text markup parsers.">TextParsers</a>
+                        <a class="class" href="PrefixCharacters.html" title="A variant of the Characters type that can be used as a stable prefix for an optimized span parser as it is always non-empty."></a>
+                        <a href="PrefixCharacters.html" title="A variant of the Characters type that can be used as a stable prefix for an optimized span parser as it is always non-empty.">PrefixCharacters</a>
+                      </li><li class="current-entities indented3">
+                        <a class="object" href="PrefixedParser$.html" title="Factories and utilities for creating or processing PrefixedParser instances."></a>
+                        <a class="trait" href="PrefixedParser.html" title="A parser that is associated with a non-empty set of trigger characters for performance optimizations."></a>
+                        <a href="PrefixedParser.html" title="A parser that is associated with a non-empty set of trigger characters for performance optimizations.">PrefixedParser</a>
+                      </li><li class="current-entities indented3">
+                        <a class="object" href="TextParsers$.html" title="Instance that allows to import all text parsers in isolation."></a>
+                        <a class="trait" href="TextParsers.html" title="Base text parsers that provide optimized low-level parsers for typical requirements of text markup parsers."></a>
+                        <a href="TextParsers.html" title="Base text parsers that provide optimized low-level parsers for typical requirements of text markup parsers.">TextParsers</a>
                       </li><li class="current-entities indented3">
                         <a class="object" href="WhitespacePreprocessor$.html" title="Companion for creating instances of WhitespacePreprocessor."></a>
                         <a class="class" href="WhitespacePreprocessor.html" title="Processes whitespace, removing or replacing most whitespace characters except for newline and space."></a>
@@ -344,24 +344,8 @@
       </span>
       
       <p class="shortcomment cmt">Optimized parser for character input.</p>
-    </li><li name="laika.parse.text.ConfigurableDelimiter" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="ConfigurableDelimiterextendsDelimiter[String]withProductwithSerializable"></a><a id="ConfigurableDelimiter:ConfigurableDelimiter"></a>
-      <span class="permalink">
-      <a href="../../../laika/parse/text/ConfigurableDelimiter.html" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a title="Delimiter implementation that allows for various kinds of customization." href="ConfigurableDelimiter.html"><span class="name">ConfigurableDelimiter</span></a><span class="params">(<span name="endDelimiters">endDelimiters: <span class="extype" name="scala.Predef.Set">Set</span>[<span class="extype" name="scala.Char">Char</span>]</span>, <span name="postCondition">postCondition: <span class="extype" name="scala.Option">Option</span>[<a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Any">Any</span>]] = <span class="symbol">None</span></span>, <span name="acceptEOF">acceptEOF: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>, <span name="nonEmpty">nonEmpty: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>, <span name="keepDelimiter">keepDelimiter: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>, <span name="failOn">failOn: <span class="extype" name="scala.Predef.Set">Set</span>[<span class="extype" name="scala.Char">Char</span>] = <span class="symbol">Set()</span></span>)</span><span class="result"> extends <a href="Delimiter.html" class="extype" name="laika.parse.text.Delimiter">Delimiter</a>[<span class="extype" name="scala.Predef.String">String</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      
-      <p class="shortcomment cmt">Delimiter implementation that allows for various kinds of customization.</p>
     </li><li name="laika.parse.text.DelimitedText" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DelimitedText[T]extendsParser[T]"></a><a id="DelimitedText[T]:DelimitedText[T]"></a>
+      <a id="DelimitedTextextendsParser[String]"></a><a id="DelimitedText:DelimitedText"></a>
       <span class="permalink">
       <a href="../../../laika/parse/text/DelimitedText.html" title="Permalink">
         <i class="material-icons"></i>
@@ -372,64 +356,36 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a title="A parser for text that ends with a specific delimiter condition, either marking the end of the text span or the start of an embedded inner span." href="DelimitedText.html"><span class="name">DelimitedText</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="laika.parse.text.DelimitedText.T">T</span>]</span>
+        <a title="A parser for text that ends with a specific delimiter condition, either marking the end of the text span or the start of an embedded inner span." href="DelimitedText.html"><span class="name">DelimitedText</span></a><span class="result"> extends <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
       </span>
       
       <p class="shortcomment cmt">A parser for text that ends with a specific delimiter condition,
 either marking the end of the text span or the start of an embedded
 inner span.</p>
-    </li><li name="laika.parse.text.Delimiter" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="Delimiter[T]extendsAnyRef"></a><a id="Delimiter[T]:Delimiter[T]"></a>
+    </li><li name="laika.parse.text.DelimiterParser" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="DelimiterParserextendsParser[String]withPrefixedParser[String]"></a><a id="DelimiterParser:DelimiterParser"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/text/Delimiter.html" title="Permalink">
+      <a href="../../../laika/parse/text/DelimiterParser.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">trait</span>
+        <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a title="Represents the logic of a specific kind of text delimiter." href="Delimiter.html"><span class="name">Delimiter</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a title="A parser that simplifies the expression of typical conditions for start and end delimiters of inline spans." href="DelimiterParser.html"><span class="name">DelimiterParser</span></a><span class="result"> extends <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>] with <a href="PrefixedParser.html" class="extype" name="laika.parse.text.PrefixedParser">PrefixedParser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
       </span>
       
-      <p class="shortcomment cmt">Represents the logic of a specific kind of text delimiter.</p><div class="fullcomment"><div class="comment cmt"><p>Represents the logic of a specific kind of text delimiter.
-</p></div><dl class="paramcmts block"><dt class="tparam">T</dt><dd class="cmt"><p>the type of result produced by this delimiter</p></dd></dl></div>
-    </li><li name="laika.parse.text.DelimiterOptions" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="DelimiterOptionsextendsAnyRef"></a><a id="DelimiterOptions:DelimiterOptions"></a>
-      <span class="permalink">
-      <a href="../../../laika/parse/text/DelimiterOptions.html" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">trait</span>
-      </span>
-      <span class="symbol">
-        <a title="API for customizing a delimiter." href="DelimiterOptions.html"><span class="name">DelimiterOptions</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
-      </span>
-      
-      <p class="shortcomment cmt">API for customizing a delimiter.</p>
-    </li><li name="laika.parse.text.DelimiterResult" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="DelimiterResult[+T]extendsAnyRef"></a><a id="DelimiterResult[+T]:DelimiterResult[T]"></a>
-      <span class="permalink">
-      <a href="../../../laika/parse/text/DelimiterResult.html" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">trait</span>
-      </span>
-      <span class="symbol">
-        <a title="Represents the result of parsing a delimiter." href="DelimiterResult.html"><span class="name">DelimiterResult</span></a><span class="tparams">[<span name="T">+T</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
-      </span>
-      
-      <p class="shortcomment cmt">Represents the result of parsing a delimiter.</p><div class="fullcomment"><div class="comment cmt"><p>Represents the result of parsing a delimiter.
-</p></div><dl class="paramcmts block"><dt class="tparam">T</dt><dd class="cmt"><p>the type of result produced by this delimiter</p></dd></dl></div>
+      <p class="shortcomment cmt">A parser that simplifies the expression of typical conditions for start and end
+delimiters of inline spans.</p><div class="fullcomment"><div class="comment cmt"><p>A parser that simplifies the expression of typical conditions for start and end
+delimiters of inline spans.</p><p>It allows to specify conditions for the immediately preceding and following character
+of the parsed delimiter.</p><p>As an example, the following parser is only composed of base combinators</p><pre>lookBehind(<span class="num">1</span>, not(<span class="lit">' '</span>)) ~ <span class="lit">"**"</span> ~ lookAhead(not(<span class="lit">' '</span>))</pre><p>It looks for the string &quot;**&quot; as a delimiter and does not allow any space character
+before or after the delimiter</p><p>With this API it can be rewritten as:</p><pre>delimiter(<span class="lit">"**"</span>).prevNot(<span class="lit">' '</span>).nextNot(<span class="lit">' '</span>)</pre><p>The only characters that this parser will consume and return as a result
+are those of the delimiter itself, not the surrounding characters that it validated.
+</p></div></div>
     </li><li name="laika.parse.text.Literal" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="LiteralextendsParser[String]withProductwithSerializable"></a><a id="Literal:Literal"></a>
+      <a id="LiteralextendsParser[String]withPrefixedParser[String]withProductwithSerializable"></a><a id="Literal:Literal"></a>
       <span class="permalink">
       <a href="../../../laika/parse/text/Literal.html" title="Permalink">
         <i class="material-icons"></i>
@@ -440,10 +396,81 @@ inner span.</p>
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="A parser that matches a literal string." href="Literal.html"><span class="name">Literal</span></a><span class="params">(<span name="expected">expected: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="A parser that matches a literal string." href="Literal.html"><span class="name">Literal</span></a><span class="params">(<span name="expected">expected: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>] with <a href="PrefixedParser.html" class="extype" name="laika.parse.text.PrefixedParser">PrefixedParser</a>[<span class="extype" name="scala.Predef.String">String</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">A parser that matches a literal string.</p>
+    </li><li name="laika.parse.text.PrefixCharacters" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="PrefixCharacters[T]extendsParser[T]withPrefixedParser[T]"></a><a id="PrefixCharacters[T]:PrefixCharacters[T]"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/text/PrefixCharacters.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a title="A variant of the Characters type that can be used as a stable prefix for an optimized span parser as it is always non-empty." href="PrefixCharacters.html"><span class="name">PrefixCharacters</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="laika.parse.text.PrefixCharacters.T">T</span>] with <a href="PrefixedParser.html" class="extype" name="laika.parse.text.PrefixedParser">PrefixedParser</a>[<span class="extype" name="laika.parse.text.PrefixCharacters.T">T</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">A variant of the Characters type that can be used as a stable prefix for an optimized
+span parser as it is always non-empty.</p><div class="fullcomment"><div class="comment cmt"><p>A variant of the Characters type that can be used as a stable prefix for an optimized
+span parser as it is always non-empty. It's created by the <code>oneOf</code> method in <code>TextParsers</code>
+and usually not used directly.
+</p></div></div>
+    </li><li name="laika.parse.text.PrefixedParser" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="PrefixedParser[+T]extendsParser[T]"></a><a id="PrefixedParser[+T]:PrefixedParser[T]"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/text/PrefixedParser.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a title="A parser that is associated with a non-empty set of trigger characters for performance optimizations." href="PrefixedParser.html"><span class="name">PrefixedParser</span></a><span class="tparams">[<span name="T">+T</span>]</span><span class="result"> extends <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="laika.parse.text.PrefixedParser.T">T</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">A parser that is associated with a non-empty set of trigger
+characters for performance optimizations.</p><div class="fullcomment"><div class="comment cmt"><p>A parser that is associated with a non-empty set of trigger
+characters for performance optimizations.</p><p>There is usually no need to create such a parser manually,
+as some of the basic building blocks in <code>TextParsers</code> create
+such a parser (e.g. the <code>literal</code>, <code>oneOf</code> or <code>someOf</code>
+parsers).</p><p>This set only has only an effect when this parser is used in
+an optimized parser for recursive spans, meaning it is
+either registered as a top-level parser (with <code>SpanParser.standalone</code>
+or <code>SpanParser.recursive</code>) or passed to a custom span parser
+with <code>InlineParser.embed</code>. In all other use cases this
+parser behaves just like plain parser.
+</p></div></div>
+    </li><li name="laika.parse.text.TextParsers" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="TextParsersextendsParsers"></a><a id="TextParsers:TextParsers"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/text/TextParsers.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a title="Base text parsers that provide optimized low-level parsers for typical requirements of text markup parsers." href="TextParsers.html"><span class="name">TextParsers</span></a><span class="result"> extends <a href="../combinator/Parsers.html" class="extype" name="laika.parse.combinator.Parsers">Parsers</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Base text parsers that provide optimized low-level parsers for typical requirements
+ of text markup parsers.</p><div class="fullcomment"><div class="comment cmt"><p>Base text parsers that provide optimized low-level parsers for typical requirements
+ of text markup parsers. In particular they are meant as an efficient replacement
+ for scenarios where usually regex parsers are used. In cases where different parsers
+ need to be tried for relatively short input sequences, regex parsers tend to be less
+ efficient. Furthermore, these base parsers may also improve readability, as it
+ allows to combine simple low-level parsers to higher-level parsers based on the
+ Laika combinator API, instead of producing long regexes which may be hard to read.
+</p></div></div>
     </li><li name="laika.parse.text.WhitespacePreprocessor" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="WhitespacePreprocessorextendsString=&gt;String"></a><a id="WhitespacePreprocessor:WhitespacePreprocessor"></a>
       <span class="permalink">
@@ -473,7 +500,26 @@ inner span.</p>
         <div class="values members">
               <h3>Value Members</h3>
               <ol>
-                <li name="laika.parse.text.Characters" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+                <li name="laika.parse.text.CharGroup" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="CharGroup"></a><a id="CharGroup:CharGroup"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/text/CharGroup$.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="Common groups of characters as input for parser definitions." href="CharGroup$.html"><span class="name">CharGroup</span></a>
+      </span>
+      
+      <p class="shortcomment cmt">Common groups of characters as input for parser definitions.</p><div class="fullcomment"><div class="comment cmt"><p>Common groups of characters as input for parser definitions.</p><p>These groups are all in the ASCII range. For dealing with
+the entire unicode range you can use the generic <code>anyWhile</code>
+parser that accepts a <code>Char =&gt; Boolean</code> predicate.
+</p></div></div>
+    </li><li name="laika.parse.text.Characters" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Characters"></a><a id="Characters:Characters"></a>
       <span class="permalink">
       <a href="../../../laika/parse/text/Characters$.html" title="Permalink">
@@ -505,10 +551,10 @@ inner span.</p>
       </span>
       
       
-    </li><li name="laika.parse.text.DelimiterOptions" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DelimiterOptions"></a><a id="DelimiterOptions:DelimiterOptions"></a>
+    </li><li name="laika.parse.text.PrefixedParser" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="PrefixedParser"></a><a id="PrefixedParser:PrefixedParser"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/text/DelimiterOptions$.html" title="Permalink">
+      <a href="../../../laika/parse/text/PrefixedParser$.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -517,26 +563,10 @@ inner span.</p>
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a title="" href="DelimiterOptions$.html"><span class="name">DelimiterOptions</span></a>
+        <a title="Factories and utilities for creating or processing PrefixedParser instances." href="PrefixedParser$.html"><span class="name">PrefixedParser</span></a>
       </span>
       
-      
-    </li><li name="laika.parse.text.DelimiterResult" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DelimiterResult"></a><a id="DelimiterResult:DelimiterResult"></a>
-      <span class="permalink">
-      <a href="../../../laika/parse/text/DelimiterResult$.html" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a title="" href="DelimiterResult$.html"><span class="name">DelimiterResult</span></a>
-      </span>
-      
-      
+      <p class="shortcomment cmt">Factories and utilities for creating or processing PrefixedParser instances.</p>
     </li><li name="laika.parse.text.TextParsers" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="TextParsers"></a><a id="TextParsers:TextParsers"></a>
       <span class="permalink">
@@ -549,17 +579,11 @@ inner span.</p>
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a title="Base text parsers that provide optimized low-level parsers for typical requirements of text markup parsers." href="TextParsers$.html"><span class="name">TextParsers</span></a><span class="result"> extends <a href="../combinator/Parsers.html" class="extype" name="laika.parse.combinator.Parsers">Parsers</a></span>
+        <a title="Instance that allows to import all text parsers in isolation." href="TextParsers$.html"><span class="name">TextParsers</span></a><span class="result"> extends <a href="TextParsers.html" class="extype" name="laika.parse.text.TextParsers">TextParsers</a></span>
       </span>
       
-      <p class="shortcomment cmt">Base text parsers that provide optimized low-level parsers for typical requirements
- of text markup parsers.</p><div class="fullcomment"><div class="comment cmt"><p>Base text parsers that provide optimized low-level parsers for typical requirements
- of text markup parsers. In particular they are meant as an efficient replacement
- for scenarios where usually regex parsers are used. In cases where different parsers
- need to be tried for relatively short input sequences, regex parsers tend to be less
- efficient. Furthermore, these base parsers may also improve readability, as it
- allows to combine simple low-level parsers to higher-level parsers based on the
- Laika combinator API, instead of producing long regexes which may be hard to read.
+      <p class="shortcomment cmt">Instance that allows to import all text parsers in isolation.</p><div class="fullcomment"><div class="comment cmt"><p>Instance that allows to import all text parsers in isolation.</p><p>Usually it is more convenient to import laika.parse.api._
+to get all parser builders with one import.
 </p></div></div>
     </li><li name="laika.parse.text.WhitespacePreprocessor" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="WhitespacePreprocessor"></a><a id="WhitespacePreprocessor:WhitespacePreprocessor"></a>

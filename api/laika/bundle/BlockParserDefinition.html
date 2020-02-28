@@ -102,13 +102,17 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika">laika</a></dd></dl></div>
     </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="object" href="BlockParser$.html" title="Builder API for block parsers."></a>
-                        <a class="class" href="BlockParser.html" title="Builder API for block parsers."></a>
-                        <a href="BlockParser.html" title="Builder API for block parsers.">BlockParser</a>
+                        <a href="BlockParser$.html" title="Builder API for block parsers.">BlockParser</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="trait" href="BlockParserBuilder.html" title="Builds a block parser definition lazily by passing the recursive parsers of the host language."></a>
                         <a href="BlockParserBuilder.html" title="Builds a block parser definition lazily by passing the recursive parsers of the host language.">BlockParserBuilder</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="BlockParserBuilderOps.html" title="Builder API for block parsers that allows to set the parser precedence."></a>
+                        <a href="BlockParserBuilderOps.html" title="Builder API for block parsers that allows to set the parser precedence.">BlockParserBuilderOps</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="" title="Defines a parser for a single kind of block element, like a quoted block or a bullet list for example."></a>
@@ -162,13 +166,17 @@
                         <a class="trait" href="RenderTheme.html" title="Collects templates, styles and custom render functions to form a theme for a specific output format."></a>
                         <a href="RenderTheme.html" title="Collects templates, styles and custom render functions to form a theme for a specific output format.">RenderTheme</a>
                       </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="object" href="SpanParser$.html" title="Builder API for span parsers."></a>
-                        <a class="class" href="SpanParser.html" title="Builder API for span parsers."></a>
-                        <a href="SpanParser.html" title="Builder API for span parsers.">SpanParser</a>
+                        <a href="SpanParser$.html" title="Builder API for span parsers.">SpanParser</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="trait" href="SpanParserBuilder.html" title="Builds a span parser definition lazily by passing the recursive parsers of the host language."></a>
                         <a href="SpanParserBuilder.html" title="Builds a span parser definition lazily by passing the recursive parsers of the host language.">SpanParserBuilder</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="SpanParserBuilderOps.html" title="Builder API for span parsers that allows to set the parser precedence."></a>
+                        <a href="SpanParserBuilderOps.html" title="Builder API for span parsers that allows to set the parser precedence.">SpanParserBuilderOps</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="SpanParserDefinition.html" title="Defines a parser for a single kind of span element, like a literal text span or a link reference for example."></a>
@@ -200,14 +208,14 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">BlockParserDefinition</span><span class="params">(<span name="startChar">startChar: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Char">Char</span>]</span>, <span name="parser">parser: <a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>, <span name="isRecursive">isRecursive: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="position">position: <a href="BlockPosition.html" class="extype" name="laika.bundle.BlockPosition">BlockPosition</a></span>, <span name="precedence">precedence: <a href="Precedence.html" class="extype" name="laika.bundle.Precedence">Precedence</a></span>)</span><span class="result"> extends <a href="ParserDefinition.html" class="extype" name="laika.bundle.ParserDefinition">ParserDefinition</a>[<a href="../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">BlockParserDefinition</span><span class="params">(<span name="startChars">startChars: <span class="extype" name="scala.Predef.Set">Set</span>[<span class="extype" name="scala.Char">Char</span>]</span>, <span name="parser">parser: <a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>, <span name="isRecursive">isRecursive: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="position">position: <a href="BlockPosition.html" class="extype" name="laika.bundle.BlockPosition">BlockPosition</a></span>, <span name="precedence">precedence: <a href="Precedence.html" class="extype" name="laika.bundle.Precedence">Precedence</a></span>)</span><span class="result"> extends <a href="ParserDefinition.html" class="extype" name="laika.bundle.ParserDefinition">ParserDefinition</a>[<a href="../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Defines a parser for a single kind of block element,
 like a quoted block or a bullet list for example.
-</p></div><dl class="paramcmts block"><dt class="param">startChar</dt><dd class="cmt"><p>the optional start character (allows performance optimizations when defined)</p></dd><dt class="param">parser</dt><dd class="cmt"><p>the parser for the block element after the start character</p></dd><dt class="param">isRecursive</dt><dd class="cmt"><p>indicates whether this parser produces child elements by recursively applying the parsers for the host language</p></dd><dt class="param">position</dt><dd class="cmt"><p>indicates whether this parser is responsible for root or nested elements only, or for both</p></dd><dt class="param">precedence</dt><dd class="cmt"><p>indicates whether the parser should be applied before the base parsers of
+</p></div><dl class="paramcmts block"><dt class="param">startChars</dt><dd class="cmt"><p>the optional start characters that can start this block (allows performance optimizations when defined)</p></dd><dt class="param">parser</dt><dd class="cmt"><p>the parser for the block element</p></dd><dt class="param">isRecursive</dt><dd class="cmt"><p>indicates whether this parser produces child elements by recursively applying the parsers for the host language</p></dd><dt class="param">position</dt><dd class="cmt"><p>indicates whether this parser is responsible for root or nested elements only, or for both</p></dd><dt class="param">precedence</dt><dd class="cmt"><p>indicates whether the parser should be applied before the base parsers of
 the host language (high precedence) or after them</p></dd></dl><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
@@ -259,9 +267,9 @@ the host language (high precedence) or after them</p></dd></dl><div class="toggl
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.bundle.BlockParserDefinition#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;init&gt;(startChar:Option[Char],parser:laika.parse.Parser[laika.ast.Block],isRecursive:Boolean,position:laika.bundle.BlockPosition,precedence:laika.bundle.Precedence):laika.bundle.BlockParserDefinition"></a><a id="&lt;init&gt;:BlockParserDefinition"></a>
+      <a id="&lt;init&gt;(startChars:Set[Char],parser:laika.parse.Parser[laika.ast.Block],isRecursive:Boolean,position:laika.bundle.BlockPosition,precedence:laika.bundle.Precedence):laika.bundle.BlockParserDefinition"></a><a id="&lt;init&gt;:BlockParserDefinition"></a>
       <span class="permalink">
-      <a href="../../laika/bundle/BlockParserDefinition.html#&lt;init&gt;(startChar:Option[Char],parser:laika.parse.Parser[laika.ast.Block],isRecursive:Boolean,position:laika.bundle.BlockPosition,precedence:laika.bundle.Precedence):laika.bundle.BlockParserDefinition" title="Permalink">
+      <a href="../../laika/bundle/BlockParserDefinition.html#&lt;init&gt;(startChars:Set[Char],parser:laika.parse.Parser[laika.ast.Block],isRecursive:Boolean,position:laika.bundle.BlockPosition,precedence:laika.bundle.Precedence):laika.bundle.BlockParserDefinition" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -270,10 +278,10 @@ the host language (high precedence) or after them</p></dd></dl><div class="toggl
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">BlockParserDefinition</span><span class="params">(<span name="startChar">startChar: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Char">Char</span>]</span>, <span name="parser">parser: <a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>, <span name="isRecursive">isRecursive: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="position">position: <a href="BlockPosition.html" class="extype" name="laika.bundle.BlockPosition">BlockPosition</a></span>, <span name="precedence">precedence: <a href="Precedence.html" class="extype" name="laika.bundle.Precedence">Precedence</a></span>)</span>
+        <span class="name">BlockParserDefinition</span><span class="params">(<span name="startChars">startChars: <span class="extype" name="scala.Predef.Set">Set</span>[<span class="extype" name="scala.Char">Char</span>]</span>, <span name="parser">parser: <a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>, <span name="isRecursive">isRecursive: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="position">position: <a href="BlockPosition.html" class="extype" name="laika.bundle.BlockPosition">BlockPosition</a></span>, <span name="precedence">precedence: <a href="Precedence.html" class="extype" name="laika.bundle.Precedence">Precedence</a></span>)</span>
       </span>
       
-      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">startChar</dt><dd class="cmt"><p>the optional start character (allows performance optimizations when defined)</p></dd><dt class="param">parser</dt><dd class="cmt"><p>the parser for the block element after the start character</p></dd><dt class="param">isRecursive</dt><dd class="cmt"><p>indicates whether this parser produces child elements by recursively applying the parsers for the host language</p></dd><dt class="param">position</dt><dd class="cmt"><p>indicates whether this parser is responsible for root or nested elements only, or for both</p></dd><dt class="param">precedence</dt><dd class="cmt"><p>indicates whether the parser should be applied before the base parsers of
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">startChars</dt><dd class="cmt"><p>the optional start characters that can start this block (allows performance optimizations when defined)</p></dd><dt class="param">parser</dt><dd class="cmt"><p>the parser for the block element</p></dd><dt class="param">isRecursive</dt><dd class="cmt"><p>indicates whether this parser produces child elements by recursively applying the parsers for the host language</p></dd><dt class="param">position</dt><dd class="cmt"><p>indicates whether this parser is responsible for root or nested elements only, or for both</p></dd><dt class="param">precedence</dt><dd class="cmt"><p>indicates whether the parser should be applied before the base parsers of
 the host language (high precedence) or after them</p></dd></dl></div>
     </li></ol>
             </div>
@@ -411,22 +419,6 @@ the host language (high precedence) or after them</p></dd></dl></div>
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="laika.bundle.BlockParserDefinition#fullParser" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="fullParser:laika.parse.Parser[laika.ast.Block]"></a><a id="fullParser:Parser[Block]"></a>
-      <span class="permalink">
-      <a href="../../laika/bundle/BlockParserDefinition.html#fullParser:laika.parse.Parser[laika.ast.Block]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">fullParser</span><span class="result">: <a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
-      </span>
-      
-      <p class="shortcomment cmt">The full parser for the block element, including the start character.</p>
     </li><li name="scala.AnyRef#getClass" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <span class="permalink">
@@ -550,9 +542,7 @@ by recursively applying the parsers for the host language.
         <span class="name">parser</span><span class="result">: <a href="../parse/Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
       </span>
       
-      <p class="shortcomment cmt">The parser for the block or span element apart from the (optional)
-start character.</p><div class="fullcomment"><div class="comment cmt"><p>The parser for the block or span element apart from the (optional)
-start character.
+      <p class="shortcomment cmt">The parser for the block or span element.</p><div class="fullcomment"><div class="comment cmt"><p>The parser for the block or span element.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.bundle.BlockParserDefinition">BlockParserDefinition</a> → <a href="ParserDefinition.html" class="extype" name="laika.bundle.ParserDefinition">ParserDefinition</a></dd></dl></div>
     </li><li name="laika.bundle.BlockParserDefinition#position" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="position:laika.bundle.BlockPosition"></a><a id="position:BlockPosition"></a>
@@ -589,10 +579,10 @@ start character.
 the host language (high precedence) or after them.</p><div class="fullcomment"><div class="comment cmt"><p>Indicates whether the parser should be applied before the base parsers of
 the host language (high precedence) or after them.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.bundle.BlockParserDefinition">BlockParserDefinition</a> → <a href="ParserDefinition.html" class="extype" name="laika.bundle.ParserDefinition">ParserDefinition</a></dd></dl></div>
-    </li><li name="laika.bundle.BlockParserDefinition#startChar" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="startChar:Option[Char]"></a>
+    </li><li name="laika.bundle.BlockParserDefinition#startChars" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="startChars:Set[Char]"></a>
       <span class="permalink">
-      <a href="../../laika/bundle/BlockParserDefinition.html#startChar:Option[Char]" title="Permalink">
+      <a href="../../laika/bundle/BlockParserDefinition.html#startChars:Set[Char]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -601,7 +591,7 @@ the host language (high precedence) or after them.
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">startChar</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Char">Char</span>]</span>
+        <span class="name">startChars</span><span class="result">: <span class="extype" name="scala.Predef.Set">Set</span>[<span class="extype" name="scala.Char">Char</span>]</span>
       </span>
       
       

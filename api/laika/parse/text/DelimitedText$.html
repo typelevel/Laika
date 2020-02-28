@@ -118,37 +118,37 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika.parse">parse</a></dd></dl></div>
     </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="CharGroup$.html" title="Common groups of characters as input for parser definitions."></a>
+                        <a href="CharGroup$.html" title="Common groups of characters as input for parser definitions.">CharGroup</a>
+                      </li><li class="current-entities indented3">
                         <a class="object" href="Characters$.html" title="Companion with factory methods for creating optimized character parsers."></a>
                         <a class="class" href="Characters.html" title="Optimized parser for character input."></a>
                         <a href="Characters.html" title="Optimized parser for character input.">Characters</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="class" href="ConfigurableDelimiter.html" title="Delimiter implementation that allows for various kinds of customization."></a>
-                        <a href="ConfigurableDelimiter.html" title="Delimiter implementation that allows for various kinds of customization.">ConfigurableDelimiter</a>
                       </li><li class="current-entities indented3">
                         <a class="object" href="" title=""></a>
                         <a class="class" href="DelimitedText.html" title="A parser for text that ends with a specific delimiter condition, either marking the end of the text span or the start of an embedded inner span."></a>
                         <a href="DelimitedText.html" title="A parser for text that ends with a specific delimiter condition, either marking the end of the text span or the start of an embedded inner span.">DelimitedText</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="trait" href="Delimiter.html" title="Represents the logic of a specific kind of text delimiter."></a>
-                        <a href="Delimiter.html" title="Represents the logic of a specific kind of text delimiter.">Delimiter</a>
-                      </li><li class="current-entities indented3">
-                        <a class="object" href="DelimiterOptions$.html" title=""></a>
-                        <a class="trait" href="DelimiterOptions.html" title="API for customizing a delimiter."></a>
-                        <a href="DelimiterOptions.html" title="API for customizing a delimiter.">DelimiterOptions</a>
-                      </li><li class="current-entities indented3">
-                        <a class="object" href="DelimiterResult$.html" title=""></a>
-                        <a class="trait" href="DelimiterResult.html" title="Represents the result of parsing a delimiter."></a>
-                        <a href="DelimiterResult.html" title="Represents the result of parsing a delimiter.">DelimiterResult</a>
+                        <a class="class" href="DelimiterParser.html" title="A parser that simplifies the expression of typical conditions for start and end delimiters of inline spans."></a>
+                        <a href="DelimiterParser.html" title="A parser that simplifies the expression of typical conditions for start and end delimiters of inline spans.">DelimiterParser</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="class" href="Literal.html" title="A parser that matches a literal string."></a>
                         <a href="Literal.html" title="A parser that matches a literal string.">Literal</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="object" href="TextParsers$.html" title="Base text parsers that provide optimized low-level parsers for typical requirements of text markup parsers."></a>
-                        <a href="TextParsers$.html" title="Base text parsers that provide optimized low-level parsers for typical requirements of text markup parsers.">TextParsers</a>
+                        <a class="class" href="PrefixCharacters.html" title="A variant of the Characters type that can be used as a stable prefix for an optimized span parser as it is always non-empty."></a>
+                        <a href="PrefixCharacters.html" title="A variant of the Characters type that can be used as a stable prefix for an optimized span parser as it is always non-empty.">PrefixCharacters</a>
+                      </li><li class="current-entities indented3">
+                        <a class="object" href="PrefixedParser$.html" title="Factories and utilities for creating or processing PrefixedParser instances."></a>
+                        <a class="trait" href="PrefixedParser.html" title="A parser that is associated with a non-empty set of trigger characters for performance optimizations."></a>
+                        <a href="PrefixedParser.html" title="A parser that is associated with a non-empty set of trigger characters for performance optimizations.">PrefixedParser</a>
+                      </li><li class="current-entities indented3">
+                        <a class="object" href="TextParsers$.html" title="Instance that allows to import all text parsers in isolation."></a>
+                        <a class="trait" href="TextParsers.html" title="Base text parsers that provide optimized low-level parsers for typical requirements of text markup parsers."></a>
+                        <a href="TextParsers.html" title="Base text parsers that provide optimized low-level parsers for typical requirements of text markup parsers.">TextParsers</a>
                       </li><li class="current-entities indented3">
                         <a class="object" href="WhitespacePreprocessor$.html" title="Companion for creating instances of WhitespacePreprocessor."></a>
                         <a class="class" href="WhitespacePreprocessor.html" title="Processes whitespace, removing or replacing most whitespace characters except for newline and space."></a>
@@ -289,9 +289,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="laika.parse.text.DelimitedText#Undelimited" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Undelimited:laika.parse.text.DelimitedText[String]withlaika.parse.text.DelimiterOptions"></a><a id="Undelimited:DelimitedText[String]withDelimiterOptions"></a>
+      <a id="Undelimited:laika.parse.text.DelimitedText"></a><a id="Undelimited:DelimitedText"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/text/DelimitedText$.html#Undelimited:laika.parse.text.DelimitedText[String]withlaika.parse.text.DelimiterOptions" title="Permalink">
+      <a href="../../../laika/parse/text/DelimitedText$.html#Undelimited:laika.parse.text.DelimitedText" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -300,11 +300,11 @@
         <span class="kind">lazy val</span>
       </span>
       <span class="symbol">
-        <span class="name">Undelimited</span><span class="result">: <a href="DelimitedText.html" class="extype" name="laika.parse.text.DelimitedText">DelimitedText</a>[<span class="extype" name="scala.Predef.String">String</span>] with <a href="DelimiterOptions.html" class="extype" name="laika.parse.text.DelimiterOptions">DelimiterOptions</a></span>
+        <span class="name">Undelimited</span><span class="result">: <a href="DelimitedText.html" class="extype" name="laika.parse.text.DelimitedText">DelimitedText</a></span>
       </span>
       
       <p class="shortcomment cmt">A parser that reads to the end of the input, unless further conditions
-are set on the returned <code>DelimierOptions</code>.</p>
+are set on the returned <code>DelimiterOptions</code>.</p>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <span class="permalink">
