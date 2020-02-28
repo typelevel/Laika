@@ -21,7 +21,7 @@ supporting that sbt version.
 First add the plugin to `project/plugins.sbt`:
 
 ```scala
-addSbtPlugin("org.planet42" % "laika-sbt" % "0.13.0")
+addSbtPlugin("org.planet42" % "laika-sbt" % "0.14.0")
 ```
 
 If you want to install it globally, add the line above to

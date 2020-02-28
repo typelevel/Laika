@@ -47,15 +47,18 @@ Supported Languages
 Laika currently supports the following languages and formats:
 
 * Scala
+* Dotty
 * Java
 * Python
-* JavaScript
-* TypeScript
+* JavaScript / JSX
+* TypeScript / TSX
 * HTML
 * CSS
 * XML
 * JSON
 * HOCON
+* SQL
+* EBNF
 * Laika Extensions
 
 The last highlighter can be used when writing documentation about Laika itself: it includes

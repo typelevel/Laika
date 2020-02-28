@@ -25,7 +25,7 @@ you can read about her [here][laika-wikipedia].
 Getting Started
 ---------------
 
-The current version is published to Maven Central for Scala 2.13 and 2.12.
+The current version is published to Maven Central for Scala 2.13, 2.12 and Scala.js 1.0.
 
 The sbt plugin is published to the sbt plugin repository for sbt 1.x.
 
@@ -38,7 +38,7 @@ the final release for Scala 2.10 and sbt 0.13 was 0.7.0.
 Add the plugin to `project/plugins.sbt`:
 
 ```scala
-addSbtPlugin("org.planet42" % "laika-sbt" % "0.13.0")
+addSbtPlugin("org.planet42" % "laika-sbt" % "0.14.0")
 ```
 
 Enable the plugin in your project's `build.sbt`:
@@ -61,8 +61,16 @@ first, as there were significant changes in the Library API.
 Adding the Laika dependency to your sbt build:
 
 ```scala
-libraryDependencies += "org.planet42" %% "laika-core" % "0.13.0"
+libraryDependencies += "org.planet42" %% "laika-core" % "0.14.0"
 ```
+
+If you want to use Laika with Scala.js, use the standard triple-%:
+```scala
+libraryDependencies += "org.planet42" %%% "laika-core" % "0.14.0"
+```
+
+Note that only `laika-core` has been published for Scala.js, the `laika-io`
+and `laika-pdf` modules are only available for the JVM.
 
 Example for transforming Markdown to HTML:
 
@@ -84,7 +92,7 @@ For file/stream IO, parallel processing and/or EPUB support, based on cats-effec
 add the laika-io module to your build:
 
 ```scala
-libraryDependencies += "org.planet42" %% "laika-io" % "0.13.0"  
+libraryDependencies += "org.planet42" %% "laika-io" % "0.14.0"  
 ```
 
 Example for transforming an entire directory of markup files to a single EPUB file:
@@ -118,7 +126,7 @@ val res: IO[Unit] = transformer
 When using Laika's PDF support you need to add one more dependency to your build:
 
 ```scala
-libraryDependencies += "org.planet42" %% "laika-pdf" % "0.13.0"
+libraryDependencies += "org.planet42" %% "laika-pdf" % "0.14.0"
 ```
 
 The example for how to transform a directory of input files into a PDF file looks
@@ -178,6 +186,8 @@ Features
 * sbt plugin, exposing all Laika features and customization hooks
   as sbt settings and tasks
   
+* Support for Scala.js for all of Laika's features except File/Stream IO, EPUB and PDF
+  
 * Purely Functional Library API, respecting referential transparency,
   no exceptions, no mutable state
 
@@ -205,18 +215,56 @@ Features
 * More than 1,500 tests
 
 
-Road Map
---------
-
-* __0.14__: Support for Scala.js
-
-* __0.15__: A set of default themes for all output formats
-
-* __1.0__: Separation of public and internal APIs and removal of all deprecations
-
-
 Release History
 ---------------
+
+* __0.14.0__ (Feb 28, 2020):
+
+    * Introduce support for Scala.js for the entire laika-core module:
+        * Brings the complete functionality of Laika to Scala.js with the only
+          exceptions being File/Stream IO and support for PDF and EPUB output
+        * Eliminate the last, semi-hidden usages of Java reflection to enable Scala.js support
+        * Avoid use of `java.time.Instant` in the shared base to not force another heavy dependency
+          on Scala.js users
+    * Laika's integrated syntax highlighting:
+        * Add support for Dotty, JSX/TSX, SQL, EBNF, Laika's own AST format
+    * Parser APIs:
+        * Introduce `PrefixedParser` trait to make span parser optimizations implicit
+          for 90% of the use cases and no longer require the developer to explicitly 
+          supply a set of possible start characters for the span
+        * Introduce new parser for delimiters that generalizes typical checks for preceding
+          and following characters in markup parsers (e.g. `delimiter("**").prevNot(whitespace)`),
+          to reduce boilerplate for inline parsers
+        * Introduce shortcuts for very common usages of text parsers (e.g. `oneOf('a','b')` instead of
+          `anyOf('a','b').take(1)`)
+        * Expand the API of the `Parser` base trait: add `source` method for obtaining the consumed
+          part of the input instead of the result of the parser, and `count` to obtain the number of
+          consumed characters
+        * Introduce `laika.parse.implicits._` for extension methods for common parsers, e.g.
+          `.concat`, `mapN`.
+        * Introduce shortcut for repeating a parser with a separator
+        * Deprecate all APIs that relied on implicit conversions
+        * Deprecate some of the rather cryptic symbol methods on `Parser` in favor of named methods
+        * `DelimitedText` does no longer have a type parameter
+    * AST changes and improvements:
+        * Introduce RelativePath as a separate type in addition to the existing Path type
+          which is now only used for absolute paths
+        * Introduce a range of shortcut constructors for Laika's AST nodes, that allow you
+          to write `Paragraph("some text")` instead of `Paragraph(Seq(Text("some text")))`
+          for example
+    * Directives:
+        * Cleaner syntax for default attributes which are no longer part of the HOCON
+          attribute block for named attributes
+    * Demo App:
+        * Cleanup from six to two (bigger) panels for improved usability
+        * Use Laika's own syntax highlighting in the output
+        * Allow to switch from JVM execution to Java.js
+        * Move from Akka HTTP to http4s
+        * Integrate source into Laika's main repository
+    * Bugfix:
+        * Syntax highlighting for interpolated strings in Scala was broken in 0.13.0
+        * Fix a flaky test that relied on the ordering of HashMap entries
+        
 
 * __0.13.0__ (Jan 26, 2020):
 

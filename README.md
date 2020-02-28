@@ -12,7 +12,7 @@ Open Source under the Apache 2.0 License.
 Getting Started
 ---------------
 
-The main artifact is published to Maven Central for Scala 2.13 and 2.12.
+The current version is published to Maven Central for Scala 2.13, 2.12 and Scala.js 1.0.
 
 The sbt plugin is published to the sbt plugin repository for sbt 1.x.
 
@@ -25,7 +25,7 @@ the final release for Scala 2.10 and sbt 0.13 was 0.7.0.
 Add the plugin to `project/plugins.sbt`:
 
 ```scala
-addSbtPlugin("org.planet42" % "laika-sbt" % "0.13.0")
+addSbtPlugin("org.planet42" % "laika-sbt" % "0.14.0")
 ```
 
 Enable the plugin in your project's `build.sbt`:
@@ -49,8 +49,16 @@ first, as there were significant changes in the Library API.
 Adding the Laika dependency to your sbt build:
 
 ```scala
-libraryDependencies += "org.planet42" %% "laika-core" % "0.13.0"
+libraryDependencies += "org.planet42" %% "laika-core" % "0.14.0"
 ```
+
+If you want to use Laika with Scala.js, use the standard triple-%:
+```scala
+libraryDependencies += "org.planet42" %%% "laika-core" % "0.14.0"
+```
+
+Note that only `laika-core` has been published for Scala.js, the `laika-io`
+and `laika-pdf` modules are only available for the JVM.
 
 Example for transforming Markdown to HTML:
 
@@ -71,7 +79,7 @@ For file/stream IO, parallel processing and/or EPUB support, based on cats-effec
 add the laika-io module to your build:
 
 ```scala
-libraryDependencies += "org.planet42" %% "laika-io" % "0.13.0"
+libraryDependencies += "org.planet42" %% "laika-io" % "0.14.0"
 ```
 Example for transforming an entire directory of markup files to a single EPUB file:
 
@@ -104,7 +112,7 @@ val res: IO[Unit] = transformer
 When using Laika's PDF support you need to add one more dependency to your build:
 
 ```scala
-libraryDependencies += "org.planet42" %% "laika-pdf" % "0.13.0"
+libraryDependencies += "org.planet42" %% "laika-pdf" % "0.14.0"
 ```
 
 The example for how to transform a directory of input files into a PDF file looks
