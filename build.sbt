@@ -1,7 +1,7 @@
 import sbt.Keys.artifactPath
 
 lazy val basicSettings = Seq(
-  version               := "0.14.0-SNAPSHOT",
+  version               := "0.14.0",
   homepage              := Some(new URL("http://planet42.github.io/Laika/")),
   organization          := "org.planet42",
   organizationHomepage  := Some(new URL("http://planet42.org")),
@@ -76,7 +76,7 @@ lazy val root = project.in(file("."))
   .enablePlugins(ScalaUnidocPlugin)
   .settings(
     crossScalaVersions := Nil,
-    unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(plugin)
+    unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(plugin, core.js, demo.jvm, demo.js)
   )
 
 lazy val core = crossProject(JSPlatform, JVMPlatform)
