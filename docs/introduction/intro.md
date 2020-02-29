@@ -258,7 +258,7 @@ Release History
     * Demo App:
         * Cleanup from six to two (bigger) panels for improved usability
         * Use Laika's own syntax highlighting in the output
-        * Allow to switch from JVM execution to Java.js
+        * Allow to switch from JVM execution to Scala.js
         * Move from Akka HTTP to http4s
         * Integrate source into Laika's main repository
     * Bugfix:
