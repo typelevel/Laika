@@ -35,7 +35,7 @@ import scala.annotation.tailrec
   */
 sealed trait PathBase extends Product with Serializable {
 
-  /** The local name of this path.
+  /** The local name of this path, without the optional fragment part, but including the suffix if present.
     */
   def name: String
 
@@ -47,6 +47,11 @@ sealed trait PathBase extends Product with Serializable {
     * separated by a `.`.
     */
   def suffix: Option[String] = None
+
+  /** The fragment part of the path (after a `#` in the last segment),
+    * or `None` if this path does not have a fragment component.
+    */
+  def fragment: Option[String] = None
   
 }
 
@@ -56,11 +61,17 @@ sealed trait SegmentedPathBase extends PathBase {
   /** The segments representing this path instance. */
   def segments: NonEmptyChain[String]
 
-  lazy val name: String = segments.last
+  lazy val name: String = fragment.fold(segments.last){ fr => 
+    segments.last.dropRight(fr.length + 1) 
+  }
 
-  override lazy val basename: String = if (name.contains('.')) name.take(name.lastIndexOf(".")) else name
+  override lazy val basename: String = suffix.fold(name){ sf =>
+    name.dropRight(sf.length + 1)
+  }
 
-  override lazy val suffix: Option[String] = if (name.contains('.')) Some(name.drop(name.lastIndexOf(".")+1)) else None
+  override lazy val suffix: Option[String] = name.split('.').tail.lastOption
+
+  override lazy val fragment: Option[String] = segments.last.split('#').tail.lastOption
   
 }
 
@@ -94,6 +105,11 @@ sealed trait Path extends PathBase {
     * with the specified one or appends it if this path does not have a suffix yet.
     */
   def withSuffix (suffix: String): Path = this
+
+  /** Returns a new path that either replaces the existing fragment component
+    * with the specified one or appends it if this path does not have a component yet.
+    */
+  def withFragment (fragment: String): Path = this
 
   /** Creates a new path with the specified name
    *  as an immediate child of this path.
@@ -154,8 +170,12 @@ case class SegmentedPath (segments: NonEmptyChain[String]) extends Path with Seg
   } 
   
   override def withSuffix (newSuffix: String): Path = 
-    if (name.endsWith(newSuffix)) this 
-    else SegmentedPath(NonEmptyChain.fromChainAppend(segments.init, basename + "." + newSuffix))
+    if (suffix.contains(newSuffix)) this 
+    else SegmentedPath(NonEmptyChain.fromChainAppend(segments.init, s"$basename.$newSuffix" + fragment.fold("")("#"+_)))
+
+  override def withFragment (newFragment: String): Path =
+    if (fragment.contains(newFragment)) this
+    else SegmentedPath(NonEmptyChain.fromChainAppend(segments.init, s"$name#$newFragment"))
   
   override lazy val toString: String = "/" + (segments.toList mkString "/")
 }
@@ -227,7 +247,15 @@ sealed trait RelativePath extends PathBase {
     */
   def / (path: RelativePath): RelativePath
 
+  /** Returns a new path that either replaces the existing suffix
+    * with the specified one or appends it if this path does not have a suffix yet.
+    */
   def withSuffix (newSuffix: String): RelativePath = this
+
+  /** Returns a new path that either replaces the existing fragment component
+    * with the specified one or appends it if this path does not have a component yet.
+    */
+  def withFragment (fragment: String): RelativePath = this
 }
 
 case class SegmentedRelativePath(segments: NonEmptyChain[String], parentLevels: Int = 0) extends RelativePath with SegmentedPathBase {
@@ -263,11 +291,15 @@ case class SegmentedRelativePath(segments: NonEmptyChain[String], parentLevels: 
   override lazy val basename: String = if (name.contains('.')) name.take(name.lastIndexOf(".")) else name
 
   override lazy val suffix: Option[String] = if (name.contains('.')) Some(name.drop(name.lastIndexOf(".")+1)) else None
-  
-  override def withSuffix (newSuffix: String): RelativePath = 
-    if (name.endsWith(newSuffix)) this
-    else SegmentedRelativePath(NonEmptyChain.fromChainAppend(segments.init, basename + "." + newSuffix), parentLevels)
 
+  override def withSuffix (newSuffix: String): RelativePath =
+    if (suffix.contains(newSuffix)) this
+    else SegmentedRelativePath(NonEmptyChain.fromChainAppend(segments.init, s"$basename.$newSuffix" + fragment.fold("")("#"+_)), parentLevels)
+
+  override def withFragment (newFragment: String): RelativePath =
+    if (fragment.contains(newFragment)) this
+    else SegmentedRelativePath(NonEmptyChain.fromChainAppend(segments.init, s"$name#$newFragment"), parentLevels)
+  
   override lazy val toString: String = ("../" * parentLevels) + (segments.toList mkString "/")
 }
 

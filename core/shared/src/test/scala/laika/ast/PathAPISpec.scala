@@ -196,8 +196,16 @@ class PathAPISpec extends AnyWordSpec
       (abs_c / "foo.jpg").suffix shouldBe Some("jpg")
     }
 
+    "be defined for an absolute path with suffix and fragment" in {
+      (abs_c / "foo.jpg#baz").suffix shouldBe Some("jpg")
+    }
+
     "be defined for a relative path with suffix" in {
       (rel_c / "foo.jpg").suffix shouldBe Some("jpg")
+    }
+
+    "be defined for a relative path with suffix and fragment" in {
+      (rel_c / "foo.jpg#baz").suffix shouldBe Some("jpg")
     }
     
     "be defined after calling withSuffix on an absolute path without suffix" in {
@@ -207,11 +215,25 @@ class PathAPISpec extends AnyWordSpec
       result.suffix shouldBe Some("foo")
     }
 
+    "be defined after calling withSuffix on an absolute path without suffix with fragment" in {
+      val result = (abs_c / "foo#baz").withSuffix("bar")
+      result.toString shouldBe "/a/b/c/foo.bar#baz"
+      result.name shouldBe "foo.bar"
+      result.suffix shouldBe Some("bar")
+    }
+
     "be defined after calling withSuffix on a relative path without suffix" in {
       val result = rel_c.withSuffix("foo")
       result.toString shouldBe "a/b/c.foo"
       result.name shouldBe "c.foo"
       result.suffix shouldBe Some("foo")
+    }
+
+    "be defined after calling withSuffix on a relative path without suffix with fragment" in {
+      val result = (rel_c / "foo#baz").withSuffix("bar")
+      result.toString shouldBe "a/b/c/foo.bar#baz"
+      result.name shouldBe "foo.bar"
+      result.suffix shouldBe Some("bar")
     }
 
     "be updated after calling withSuffix on an absolute path with suffix" in {
@@ -221,11 +243,121 @@ class PathAPISpec extends AnyWordSpec
       result.suffix shouldBe Some("baz")
     }
 
+    "be updated after calling withSuffix on an absolute path with suffix and with fragment" in {
+      val result = (abs_c / "foo.jpg#baz").withSuffix("bar")
+      result.toString shouldBe "/a/b/c/foo.bar#baz"
+      result.name shouldBe "foo.bar"
+      result.suffix shouldBe Some("bar")
+    }
+
     "be updated after calling withSuffix on a relative path with suffix" in {
       val result = (rel_c / "foo.jpg").withSuffix("baz")
       result.toString shouldBe "a/b/c/foo.baz"
       result.name shouldBe "foo.baz"
       result.suffix shouldBe Some("baz")
+    }
+
+    "be updated after calling withSuffix on a relative path with suffix with fragment" in {
+      val result = (rel_c / "foo.jpg#baz").withSuffix("bar")
+      result.toString shouldBe "a/b/c/foo.bar#baz"
+      result.name shouldBe "foo.bar"
+      result.suffix shouldBe Some("bar")
+    }
+
+  }
+
+  "The fragment property" should {
+
+    "be empty for Root" in {
+      Root.fragment shouldBe None
+    }
+
+    "be empty for Current" in {
+      Current.fragment shouldBe None
+    }
+
+    "be empty for Parent(1)" in {
+      Parent(1).fragment shouldBe None
+    }
+
+    "be empty for an absolute path without fragment" in {
+      abs_a.fragment shouldBe None
+    }
+
+    "be empty for a relative path without fragment" in {
+      rel_a.fragment shouldBe None
+    }
+
+    "be defined for an absolute path with fragment" in {
+      (abs_c / "foo#baz").fragment shouldBe Some("baz")
+    }
+
+    "be defined for an absolute path with suffix and fragment" in {
+      (abs_c / "foo.jpg#baz").fragment shouldBe Some("baz")
+    }
+
+    "be defined for a relative path with fragment" in {
+      (rel_c / "foo#baz").fragment shouldBe Some("baz")
+    }
+
+    "be defined for a relative path with suffix and fragment" in {
+      (rel_c / "foo.jpg#baz").fragment shouldBe Some("baz")
+    }
+
+    "be defined after calling withFragment on an absolute path without fragment" in {
+      val result = abs_c.withFragment("baz")
+      result.toString shouldBe "/a/b/c#baz"
+      result.name shouldBe "c"
+      result.fragment shouldBe Some("baz")
+    }
+
+    "be defined after calling withFragment on an absolute path without fragment with suffix" in {
+      val result = (abs_c / "foo.jpg").withFragment("baz")
+      result.toString shouldBe "/a/b/c/foo.jpg#baz"
+      result.name shouldBe "foo.jpg"
+      result.fragment shouldBe Some("baz")
+    }
+
+    "be defined after calling withFragment on a relative path without fragment" in {
+      val result = rel_c.withFragment("baz")
+      result.toString shouldBe "a/b/c#baz"
+      result.name shouldBe "c"
+      result.fragment shouldBe Some("baz")
+    }
+
+    "be defined after calling withFragment on a relative path without fragment with suffix" in {
+      val result = (rel_c / "foo.jpg").withFragment("baz")
+      result.toString shouldBe "a/b/c/foo.jpg#baz"
+      result.name shouldBe "foo.jpg"
+      result.fragment shouldBe Some("baz")
+    }
+
+    "be updated after calling withFragment on an absolute path with fragment" in {
+      val result = (abs_c / "foo#bar").withFragment("baz")
+      result.toString shouldBe "/a/b/c/foo#baz"
+      result.name shouldBe "foo"
+      result.fragment shouldBe Some("baz")
+    }
+
+    "be updated after calling withFragment on an absolute path with fragment and with suffix" in {
+      val result = (abs_c / "foo.jpg#bar").withFragment("baz")
+      result.toString shouldBe "/a/b/c/foo.jpg#baz"
+      result.name shouldBe "foo.jpg"
+      result.fragment shouldBe Some("baz")
+    }
+
+    "be updated after calling withFragment on a relative path with fragment" in {
+      val result = (rel_c / "foo#bar").withFragment("baz")
+      result.toString shouldBe "a/b/c/foo#baz"
+      result.name shouldBe "foo"
+      result.fragment shouldBe Some("baz")
+    }
+
+    "be updated after calling withSuffix on a relative path with fragment with suffix" in {
+      val result = (rel_c / "foo.jpg#baz").withFragment("baz")
+      result.toString shouldBe "a/b/c/foo.jpg#baz"
+      result.name shouldBe "foo.jpg"
+      result.fragment shouldBe Some("baz")
     }
 
   }
