@@ -98,7 +98,7 @@ object StandardDirectiveParsers {
         refName => LinkReference(Nil, refName, s"${refName}_")
       }
     }
-    val uri = anyChars.map(ExternalLink(Nil, _))
+    val uri = anyChars.map(Link.create(Nil, _))
     
     parseDirectivePart(phraseLinkRef | simpleLinkRef | uri, input)
   }

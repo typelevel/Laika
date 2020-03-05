@@ -139,7 +139,7 @@ object InlineParsers {
       else ref
     }
 
-    def linkInline (p: RecParser, text: String, url: String, title: Option[String]) = ExternalLink(p(text), url, title)
+    def linkInline (p: RecParser, text: String, url: String, title: Option[String]) = Link.create(p(text), url, title)
     def linkReference (p: RecParser, text: String, id: String, suffix: String): Span = {
       /* Markdown's design comes with a few arbitrary and inconsistent choices for how to handle nesting of brackets.
        * The logic here is constructed to make the official test suite pass, other edge cases might still yield unexpected results.

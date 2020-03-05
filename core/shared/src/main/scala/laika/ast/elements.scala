@@ -1129,6 +1129,9 @@ case class Size (amount: Double, unit: String) {
   def displayValue: String = amount.toString.stripSuffix(".0") + unit
 }
 
+object Link {
+  def create (linkText: Seq[Span], url: String, title: Option[String] = None): Span = ExternalLink(linkText, url, title)
+} 
 
 /** A link reference, the id pointing to the id of a `LinkTarget`. Only part of the
  *  raw document tree and then removed by the rewrite rule that resolves link and image references.

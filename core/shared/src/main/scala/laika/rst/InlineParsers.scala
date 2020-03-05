@@ -269,8 +269,8 @@ object InlineParsers {
     
     markupStart("`", "`") ~> refName ~ opt(urlPart) ~ end ^^ {
       case name ~ Some(url) ~ true   => 
-        SpanSequence(ExternalLink(List(Text(ref(name.original, url))), url), ExternalLinkDefinition(ref(name.normalized, url), url))
-      case name ~ Some(url) ~ false  => ExternalLink(List(Text(ref(name.original, url))), url)
+        SpanSequence(Link.create(List(Text(ref(name.original, url))), url), ExternalLinkDefinition(ref(name.normalized, url), url))
+      case name ~ Some(url) ~ false  => Link.create(List(Text(ref(name.original, url))), url)
       case name ~ None ~ true        => LinkReference(List(Text(name.original)), name.normalized, s"`${name.original}`_") 
       case name ~ None ~ false       => LinkReference(List(Text(name.original)), "", s"`${name.original}`__") 
     }
