@@ -1130,8 +1130,25 @@ case class Size (amount: Double, unit: String) {
 }
 
 object Link {
-  def create (linkText: Seq[Span], url: String, title: Option[String] = None): Span = ExternalLink(linkText, url, title)
-} 
+  def create (linkText: Seq[Span], url: String, source: String, title: Option[String] = None): Span = 
+    if (url.startsWith("http:") || url.startsWith("https:") || url.startsWith("/")) ExternalLink(linkText, url, title)
+    else CrossReference(linkText, RelativePath.parse(url), source, title)
+}
+
+/** A reference to content within the virtual input tree, the path pointing to the source path.
+  * Only part of the unresolved document tree and then removed by the rewrite rule that 
+  * replace the source path with the final target path of the output document, which might
+  * differ in more than just the file suffix, depending on configuration.
+  */
+case class CrossReference (content: Seq[Span], 
+                           path: RelativePath, 
+                           source: String, 
+                           title: Option[String] = None, 
+                           options: Options = NoOpt) extends Reference with SpanContainer {
+  type Self = CrossReference
+  def withContent (newContent: Seq[Span]): CrossReference = copy(content = newContent)
+  def withOptions (options: Options): CrossReference = copy(options = options)
+}
 
 /** A link reference, the id pointing to the id of a `LinkTarget`. Only part of the
  *  raw document tree and then removed by the rewrite rule that resolves link and image references.

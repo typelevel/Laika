@@ -139,16 +139,21 @@ object InlineParsers {
       else ref
     }
 
-    def linkInline (p: RecParser, text: String, url: String, title: Option[String]) = Link.create(p(text), url, title)
-    def linkReference (p: RecParser, text: String, id: String, suffix: String): Span = {
+    def linkReference (res: Resource, id: String): Span = {
       /* Markdown's design comes with a few arbitrary and inconsistent choices for how to handle nesting of brackets.
        * The logic here is constructed to make the official test suite pass, other edge cases might still yield unexpected results.
        * Users usually should not bother and simply escape brackets which are not meant to be markup. */
-      val ref = LinkReference(p(text), normalizeId(id), "[" + text + suffix)
-      if (text == id) unwrap(ref, suffix) else ref
+      val ref = LinkReference(res.parser(res.text), normalizeId(id), "[" + res.source)
+      if (res.text == id) unwrap(ref, res.suffix) else ref
     }
 
-    "[" ~> resource(linkInline, linkReference, recParsers)
+    "[" ~> resource(recParsers).map { res =>
+      res.target match {
+        case TargetUrl(url, title) => Link.create(res.parser(res.text), url, res.source, title)
+        case TargetId(id)   => linkReference(res, id)
+        case ImplicitTarget => linkReference(res, res.text)
+      }
+    }
   }
 
   /** Parses an inline image.
@@ -159,23 +164,26 @@ object InlineParsers {
     def escape (text: String, f: String => Span): Span = 
       recParsers.escapedText(DelimitedText.Undelimited).parse(text).toEither.fold(InvalidElement(_, text).asSpan, f)
 
-    def imageInline (p: RecParser, text: String, uri: String, title: Option[String]) =
-      escape(text, Image(_, URI(uri), title = title))
-
-    def imageReference (p: RecParser, text: String, id: String, postFix: String): Span =
-      escape(text, ImageReference(_, normalizeId(id), "![" + text + postFix))
-
-    "![" ~> resource(imageInline, imageReference, recParsers)
+    "![" ~> resource(recParsers).map { res =>
+      res.target match {
+        case TargetUrl(url, title) => escape(res.text, Image(_, URI(url), title = title))
+        case TargetId(id)   => escape(res.text, ImageReference(_, normalizeId(id),       "![" + res.source))
+        case ImplicitTarget => escape(res.text, ImageReference(_, normalizeId(res.text), "![" + res.source))
+      }
+    }
+  }
+  
+  private sealed trait ResourceTarget
+  private case class TargetId(id: String) extends ResourceTarget
+  private case class TargetUrl(url: String, title: Option[String] = None) extends ResourceTarget
+  private case object ImplicitTarget extends ResourceTarget
+  private case class Resource(parser: RecParser, text: String, target: ResourceTarget, suffix: String) {
+    def source: String = text + suffix
   }
   
   /** Helper function that abstracts the common parser logic of links and images.
-   * 
-   *  @param inline factory function for creating a new inline link or image based on the text, url and optional title parameters
-   *  @param ref factory function for creating a new link or image reference based on the text and id parameters
    */
-  def resource (inline: (RecParser, String, String, Option[String]) => Span,
-                ref: (RecParser, String, String, String) => Span,
-                recParsers: RecursiveSpanParsers): Parser[Span] = {
+  private def resource (recParsers: RecursiveSpanParsers): Parser[Resource] = {
 
     val linkText = text(delimitedBy("]"))
       .embed(recParsers.escapeSequence.map {"\\" + _})
@@ -188,20 +196,15 @@ object InlineParsers {
     val url = ("<" ~> text(delimitedBy('>').failOn(' ')).embed(recParsers.escapeSequence)) |
        text(delimitedBy(')',' ','\t').keepDelimiter).embed(recParsers.escapeSequence)
     
-    val urlWithTitle = "(" ~> url ~ opt(title) <~ ws ~ ")" ^^ {  
-      case url ~ title => (recParser: RecParser, text:String) => inline(recParser, text, url, title)
-    }
-    val refId =    ws ~ opt(eol).source ~ ("[" ~> recParsers.escapedUntil(']')) ^^ {
-      case ws ~ lb ~ id => (recParser: RecParser, text:String) =>
-        ref(recParser, text, id,   s"]$ws$lb[$id]") }
+    val urlWithTitle = ("(" ~> url ~ opt(title) <~ ws ~ ")").mapN(TargetUrl).withSource
+    
+    val refId = (ws ~ opt(eol) ~ "[" ~> recParsers.escapedUntil(']').map(TargetId)).withSource
 
-    val refEmpty = ws ~ opt(eol).source ~ "[]" ^^ {
-      case ws ~ lb ~ _  => (recParser: RecParser, text:String) =>
-        ref(recParser, text, text, s"]$ws$lb[]") }
+    val refEmpty = (ws ~ opt(eol) ~ "[]").source.map((ImplicitTarget, _))
+    val noRef = success((ImplicitTarget,""))
 
-    recParsers.withRecursiveSpanParser(linkText) ~ opt(urlWithTitle | refEmpty | refId) ^^ {
-      case (recParser, text) ~ None    => ref(recParser, text, text, "]")
-      case (recParser, text) ~ Some(f) => f(recParser, text)
+    recParsers.withRecursiveSpanParser(linkText) ~ (urlWithTitle | refEmpty | refId | noRef) ^^ {
+      case (recParser, text) ~ ((target, source)) => Resource(recParser, text, target, "]" + source)
     }
   }
 

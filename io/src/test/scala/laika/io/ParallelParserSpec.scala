@@ -63,7 +63,7 @@ class ParallelParserSpec extends IOSpec
     def inputs: Seq[(Path, String)] 
     
     object Contents {
-      val link = "[link](foo)"
+      val link = "[link](/foo)"
       val name = "foo"
       val name2 = "bar"
       val multiline = """aaa
@@ -257,7 +257,7 @@ class ParallelParserSpec extends IOSpec
         Documents(Markup, List(docView(5, Root / "dir2"), docView(6, Root / "dir2")))
       ))
       val tree = TreeView(Root, List(
-        Documents(Markup, List(customDocView("doc1.md", Seq(p(ExternalLink(Seq(Text("link")), "foo")))), customDocView("doc2.rst", Seq(p("[link](foo)"))))),
+        Documents(Markup, List(customDocView("doc1.md", Seq(p(ExternalLink(Seq(Text("link")), "/foo")))), customDocView("doc2.rst", Seq(p("[link](/foo)"))))),
         TemplateDocuments(List(template('A', Root))),
         Subtrees(List(subtree1, subtree2))
       ))

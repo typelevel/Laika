@@ -93,7 +93,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
       val name = "foo"
       val aa = "aa"
       val style = "13"
-      val link = "[link](foo)"
+      val link = "[link](/foo)"
       val directive = "${document.content} @:foo bar. bb"
       val templateConfigRef = "${document.content}${value}"
       val template1 = "${document.content}"
@@ -315,12 +315,12 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
       val markdown =
         """RootElement - Blocks: 1
           |. Paragraph - Spans: 1
-          |. . ExternalLink(foo,None) - Spans: 1
+          |. . ExternalLink(/foo,None) - Spans: 1
           |. . . Text - 'link'""".stripMargin
       val rst =
         """RootElement - Blocks: 1
           |. Paragraph - Spans: 1
-          |. . Text - '[link](foo)'""".stripMargin
+          |. . Text - '[link](/foo)'""".stripMargin
       transformMixedMarkup.assertEquals(RenderedTreeViewRoot(root(List(
         docs(
           (Root / "doc1.txt", markdown),
