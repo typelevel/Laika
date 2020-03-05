@@ -153,7 +153,7 @@ class LinkTargetProvider (path: Path, root: RootElement) {
   val global: Map[Selector, TargetResolver] = {
     val global = local filter (_._2.global) 
     global ++ (global collect {
-      case (UniqueSelector(name), target) => (PathSelector(path, name), target)
+      case (UniqueSelector(name), target) => (PathSelector(path.withFragment(name)), target)
     })
   }
   

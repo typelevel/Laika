@@ -36,11 +36,9 @@ object LinkTargets {
    */
   case class UniqueSelector (name: String) extends Selector
   
-  /** A selector based on a path and a string identifier.
-   *  The string identifier has to be unique within the 
-   *  context of the given path.
-   */
-  case class PathSelector (path: Path, name: String) extends Selector
+  /** A selector based on a path, optionally including a fragment component.
+    */
+  case class PathSelector (path: Path) extends Selector
   
   /** An anonymous selector (usually matched by position).
    */
