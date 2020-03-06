@@ -168,10 +168,13 @@ object LinkTargets {
     val replace: ((Element,Id)) => Option[Element] = lift { 
       case (c: Customizable, Named(name)) => c.withId(name)
     }
-    val resolve: ((Span,Id)) => Option[Span] = lift { 
-      case (LinkReference (content, _, _, opt), Named(name))            => InternalLink(linkContent(content,name), name, options = opt) 
-      case (LinkReference (content, _, _, opt), Relative(source, name)) => CrossLink(linkContent(content,name), name, PathInfo.fromPath(path, source.parent), options = opt) 
-    } 
+    val resolve: ((Span,Id)) => Option[Span] = lift {
+      case (CrossReference(content, path, _, title, opt), Relative(source, name)) => 
+        CrossLink(linkContent(content,name), name, PathInfo.fromPath(path, source.parent) , options = opt)
+        
+      case (LinkReference(content, _, _, opt), Named(name))            => InternalLink(linkContent(content,name), name, options = opt) 
+      case (LinkReference(content, _, _, opt), Relative(source, name)) => CrossLink(linkContent(content,name), name, PathInfo.fromPath(path, source.parent), options = opt) 
+    } // TODO - 0.15 - remove LinkRef and support for targetTitle from here 
     def linkContent (orig: Seq[Span], id: String): Seq[Span] = orig match {
       case Seq(Text(text,opt)) if text == id => targetTitle.getOrElse(orig)
       case other => other

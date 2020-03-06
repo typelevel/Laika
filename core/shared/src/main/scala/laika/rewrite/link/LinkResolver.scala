@@ -62,13 +62,15 @@ object LinkResolver extends (DocumentCursor => RewriteRules) {
         .collect{ case s: Span => s }
         .fold[RewriteAction[Span]](Remove)(Replace(_))
 
-    def selectFromRoot (path: RelativePath): Option[TargetResolver] = {
-      val targetPath = cursor.parent.target.path / path
-      cursor.root.target.tree.selectTarget(PathSelector(targetPath))
-    }
+    def selectFromRoot (selector: Selector): Option[TargetResolver] =
+      cursor.root.target.tree.selectTarget(selector)
 
-    def selectFromRootLegacy (path: String, name: String): Option[TargetResolver] =
-      selectFromRoot(RelativePath.parse(path).withFragment(name))
+    def selectorFor (path: RelativePath): Selector = PathSelector(cursor.parent.target.path / path)
+    
+    def selectFromRootLegacy (path: String, name: String): Option[TargetResolver] = {
+      val selector = selectorFor(RelativePath.parse(path).withFragment(name))
+      selectFromRoot(selector)
+    }
     
     def resolve (ref: Reference, selector: Selector, msg: => String, global: Boolean = false): RewriteAction[Span] = {
       
@@ -87,6 +89,7 @@ object LinkResolver extends (DocumentCursor => RewriteRules) {
         val local = targets.local.get(selector)
         if (local.isDefined) (local, None)
         else (selector, global) match {
+          case (sel: PathSelector, true) => (selectFromRoot(sel), Some(cursor.path))
           case (UniqueSelector(targetName), true) =>
             val index = targetName.indexOf(":")
             if (index == -1) (selectFromParent, Some(cursor.path))
@@ -127,6 +130,8 @@ object LinkResolver extends (DocumentCursor => RewriteRules) {
 
       case img @ Image(_,URI(uri, None),_,_,_,_) => Replace(img.copy(uri = URI(uri, PathInfo.fromURI(uri, cursor.parent.target.path))))
 
+      case ref: CrossReference => resolve(ref, selectorFor(ref.path), s"unresolved cross reference: ${ref.path.toString}", global = true)  
+        
       case ref: LinkReference => if (ref.id.isEmpty) resolve(ref, AnonymousSelector, "too many anonymous link references")
                                  else                resolve(ref, UniqueSelector(ref.id), s"unresolved link reference: ${ref.id}", global = true)
 

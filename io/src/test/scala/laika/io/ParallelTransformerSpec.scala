@@ -286,6 +286,50 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
       )
       transformTree.assertEquals(RenderedTreeViewRoot(RenderedTreeView(Root, Nil), staticDocuments = Seq(Root / "omg.js")))
     }
+    
+    "transform a tree with a cross reference" in new TreeTransformer {
+      // TODO - 0.15 - test with configurable slug
+      val targetSrc =
+        """
+          |Doc Title
+          |=========
+          |
+          |Section-Title
+          |-------------
+        """.stripMargin
+      val targetRes =
+        """RootElement - Blocks: 2
+          |. Title(Id(doc-title) + Styles(title)) - Spans: 1
+          |. . Text - 'Doc Title'
+          |. Section
+          |. . Header(2,Id(section-title) + Styles(section)) - Spans: 1
+          |. . . Text - 'Section-Title'
+          |. . Content - Blocks: 0""".stripMargin
+      val refSrc =
+        """
+          |This is a [cross ref](../baz.md#section-title)
+        """.stripMargin
+      val refRes =
+        """RootElement - Blocks: 1
+          |. Paragraph - Spans: 2
+          |. . Text - 'This is a '
+          |. . CrossLink(section-title,PathInfo(/baz.md#section-title,../baz.md#section-title),None) - Spans: 1
+          |. . . Text - 'cross ref'""".stripMargin
+      val inputs = Seq(
+        Root / "baz.md" -> targetSrc,
+        Root / "foo" / "bar.md" -> refSrc
+      )
+      transformTree.assertEquals(RenderedTreeViewRoot(RenderedTreeView(Root, Seq(
+        docs(
+          (Root / "baz.txt", targetRes)
+        ),
+        trees(
+          (Root / "foo", List(docs(
+            (Root / "foo" / "bar.txt", refRes)
+          )))
+        )
+      ))))
+    }
 
     "transform a tree with all available file types and multiple markup formats" in new TreeTransformer {
       val inputs = Seq(
