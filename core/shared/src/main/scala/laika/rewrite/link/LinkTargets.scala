@@ -169,11 +169,14 @@ object LinkTargets {
       case (c: Customizable, Named(name)) => c.withId(name)
     }
     val resolve: ((Span,Id)) => Option[Span] = lift {
-      case (CrossReference(content, path, _, title, opt), Relative(source, name)) => 
-        CrossLink(linkContent(content,name), name, PathInfo.fromPath(path, source.parent) , options = opt)
+      case (CrossReference(content, path, _, title, opt), Relative(sourcePath, name)) => 
+        CrossLink(linkContent(content,name), name, PathInfo.fromPath(path, sourcePath.parent) , options = opt)
         
-      case (LinkReference(content, _, _, opt), Named(name))            => InternalLink(linkContent(content,name), name, options = opt) 
-      case (LinkReference(content, _, _, opt), Relative(source, name)) => CrossLink(linkContent(content,name), name, PathInfo.fromPath(path, source.parent), options = opt) 
+      case (LinkReference(content, _, _, opt), Named(name)) => 
+        InternalLink(linkContent(content,name), name, options = opt) 
+      case (LinkReference(content, _, _, opt), Relative(sourcePath, name)) => 
+        CrossLink(linkContent(content,name), name, PathInfo.fromPath(path, sourcePath.parent), options = opt) 
+        
     } // TODO - 0.15 - remove LinkRef and support for targetTitle from here 
     def linkContent (orig: Seq[Span], id: String): Seq[Span] = orig match {
       case Seq(Text(text,opt)) if text == id => targetTitle.getOrElse(orig)
@@ -232,10 +235,10 @@ object LinkTargets {
      * 
      *  @param rewrittenRef the original reference node in the raw document, potentially
      *  already rewritten in case any of its children got rewritten
-     *  @param path if defined it defines the relative path between the document of the reference
-     *  and that of the link target, if empty it is a local reference 
+     *  @param sourcePath defines the absolute path to the source document of the reference,
+     *  if empty it is a local reference 
      */
-    def resolveReference (rewrittenRef: Span, path: Option[Path] = None): Option[Span]
+    def resolveReference (rewrittenRef: Span, sourcePath: Option[Path] = None): Option[Span]
 
     /** Creates the final target element (with its final, resolved identifiers).
      * 
@@ -252,8 +255,8 @@ object LinkTargets {
     
     def global: Boolean = target.global
     
-    def resolveReference (rewrittenRef: Span, path: Option[Path] = None): Option[Span] = {
-      val id = (path, render) match {
+    def resolveReference (rewrittenRef: Span, sourcePath: Option[Path] = None): Option[Span] = {
+      val id = (sourcePath, render) match {
         case (Some(path), Named(name)) => Relative(path, name) 
         case _ => render
       }
@@ -272,14 +275,14 @@ object LinkTargets {
     
     val global = true
     
-    def resolveReference (rewrittenRef: Span, path: Option[Path] = None): Option[Span] = rewrittenRef match { 
+    def resolveReference (rewrittenRef: Span, sourcePath: Option[Path] = None): Option[Span] = rewrittenRef match { 
       case ref: Reference =>
         Some(InvalidElement(s"More than one link target with name ${selector.name} in path $path", ref.source).asSpan)
       case _ => None
     }
     
     def replaceTarget (rewrittenOriginal: Element): Option[Element] = None
-    
+  
   }
 
   /** Represents a resolver for a sequence of targets where matching reference nodes
@@ -293,10 +296,11 @@ object LinkTargets {
     
     private def nextOption (it: Iterator[TargetResolver]) = if (it.hasNext) Some(it.next) else None
     
-    def resolveReference (rewrittenRef: Span, path: Option[Path] = None): Option[Span] 
-                                                                    = nextOption(refIt).flatMap(_.resolveReference(rewrittenRef))
+    def resolveReference (rewrittenRef: Span, sourcePath: Option[Path] = None): Option[Span] = 
+      nextOption(refIt).flatMap(_.resolveReference(rewrittenRef))
 
-    def replaceTarget (rewrittenOriginal: Element): Option[Element] = nextOption(targetIt).flatMap(_.replaceTarget(rewrittenOriginal))
+    def replaceTarget (rewrittenOriginal: Element): Option[Element] = 
+      nextOption(targetIt).flatMap(_.replaceTarget(rewrittenOriginal))
   }
   
   

@@ -49,7 +49,7 @@ object IdGenerators {
    *  between two paths. Useful for representing cross-references
    *  between two documents.
    */
-  case class Relative (path: Path, name: String) extends Id
+  case class Relative (sourcePath: Path, name: String) extends Id
   
   /** Represents a generated id based on the provided
    *  generator function. The Set passed to the function
