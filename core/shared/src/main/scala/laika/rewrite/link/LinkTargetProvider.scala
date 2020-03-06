@@ -69,14 +69,14 @@ class LinkTargetProvider (path: Path, root: RootElement) {
         val replacer = TargetReplacer.lift {
           case Citation(label, content, opt) => Citation(label, content, opt + Id(s"__cit-$label"))
         }
-        TargetResolver.create(UniqueSelector(c.label), resolver, replacer)
+        TargetResolver.create(TargetIdSelector(c.label), resolver, replacer)
       
       case f: FootnoteDefinition => 
         val (docId, displayId, selector) = f.label match {
           case Autosymbol            => (s"__fns-${symbolNumbers.next}", symbols.next, AutosymbolSelector) // TODO - move these prefix definitions somewhere else
           case Autonumber            => val num = numbers.next; (s"__fn-$num", num.toString, AutonumberSelector)
-          case AutonumberLabel(id)   => (id, numbers.next.toString, UniqueSelector(id)) // TODO - diff selector kind to avoid clashes
-          case NumericLabel(num)     => (s"__fnl-$num", num.toString, UniqueSelector(num.toString)) // TODO - diff selector kind to avoid clashes
+          case AutonumberLabel(id)   => (id, numbers.next.toString, TargetIdSelector(id)) // TODO - diff selector kind to avoid clashes
+          case NumericLabel(num)     => (s"__fnl-$num", num.toString, TargetIdSelector(num.toString)) // TODO - diff selector kind to avoid clashes
         }
         val resolver = ReferenceResolver.lift {
           case LinkSource(FootnoteReference(_, _, opt), _) => FootnoteLink(docId, displayId, opt)
@@ -87,7 +87,7 @@ class LinkTargetProvider (path: Path, root: RootElement) {
         TargetResolver.create(selector, resolver, replacer)
 
       case ld: ExternalLinkDefinition =>
-        val selector = if (ld.id.isEmpty) AnonymousSelector else UniqueSelector(ld.id) // TODO - diff selector kind to avoid clashes
+        val selector = if (ld.id.isEmpty) AnonymousSelector else TargetIdSelector(ld.id) // TODO - diff selector kind to avoid clashes
         val resolver = ReferenceResolver.lift {
           case LinkSource(LinkReference (content, _, _, opt), _) => ExternalLink(content, ld.url, ld.title, opt)
           case LinkSource(ImageReference (text, _, _, opt), _) =>
@@ -96,18 +96,18 @@ class LinkTargetProvider (path: Path, root: RootElement) {
         TargetResolver.create(selector, resolver, TargetReplacer.removeTarget)
       
       case DecoratedHeader(_,_,Id(id)) => // TODO - do not generate id upfront
-        val selector = UniqueSelector(slug(id))
+        val selector = TargetIdSelector(slug(id))
         val finalHeader = TargetReplacer.lift {
           case DecoratedHeader(deco, content, opt) => Header(levels.levelFor(deco), content, opt + Id(selector.name))
         }
         TargetResolver.create(selector, crossLinkResolver, finalHeader)
       
       case Header(_,_,Id(id)) => // TODO - do not generate id upfront
-        val selector = UniqueSelector(slug(id))
+        val selector = TargetIdSelector(slug(id))
         TargetResolver.create(selector, crossLinkResolver, TargetReplacer.addId(selector.name))
       
       case c: Block if c.options.id.isDefined =>
-        val selector = UniqueSelector(c.options.id.get)
+        val selector = TargetIdSelector(c.options.id.get)
         TargetResolver.create(selector, crossLinkResolver, TargetReplacer.addId(selector.name))
         
         
@@ -166,7 +166,7 @@ class LinkTargetProvider (path: Path, root: RootElement) {
    *  within the same document.
    */
   val local: Map[Selector, TargetResolver] = validateTargets(selectTargets).toList.groupBy(_.selector).map { 
-    case (selector: UniqueSelector, target :: Nil) => (selector, target)
+    case (selector: TargetIdSelector, target :: Nil) => (selector, target)
     case (selector, list) => (selector, TargetSequenceResolver(list, selector))
   }
   
@@ -176,7 +176,7 @@ class LinkTargetProvider (path: Path, root: RootElement) {
   val global: Map[Selector, TargetResolver] = {
     val global = local filter (_._2.global) 
     global ++ (global collect {
-      case (UniqueSelector(name), target) => (PathSelector(path.withFragment(name)), target)
+      case (TargetIdSelector(name), target) => (PathSelector(path.withFragment(name)), target)
     })
   }
   

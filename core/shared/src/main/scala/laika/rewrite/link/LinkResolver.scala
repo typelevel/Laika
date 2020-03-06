@@ -76,7 +76,7 @@ object LinkResolver extends (DocumentCursor => RewriteRules) {
         if (local.isDefined) local
         else (selector, global) match {
           case (sel: PathSelector, true) => selectFromRoot(sel)
-          case (UniqueSelector(_), true) => selectFromParent
+          case (TargetIdSelector(_), true) => selectFromParent
           case _ => None
         }
       }
@@ -87,26 +87,26 @@ object LinkResolver extends (DocumentCursor => RewriteRules) {
     RewriteRules.forBlocks {
       
       case f: FootnoteDefinition => f.label match {
-        case NumericLabel(num)   => replace(f, UniqueSelector(num.toString))
-        case AutonumberLabel(id) => replace(f, UniqueSelector(id))
+        case NumericLabel(num)   => replace(f, TargetIdSelector(num.toString))
+        case AutonumberLabel(id) => replace(f, TargetIdSelector(id))
         case Autonumber          => replace(f, AutonumberSelector)
         case Autosymbol          => replace(f, AutosymbolSelector)
       }
-      case c: Citation           => replace(c, UniqueSelector(c.label))
-      case h: DecoratedHeader    => replace(h, UniqueSelector(slug(h.options.id.get)))
-      case h@ Header(_,_,Id(id)) => replace(h, UniqueSelector(slug(id)))
+      case c: Citation           => replace(c, TargetIdSelector(c.label))
+      case h: DecoratedHeader    => replace(h, TargetIdSelector(slug(h.options.id.get)))
+      case h@ Header(_,_,Id(id)) => replace(h, TargetIdSelector(slug(id)))
       
       case _: Temporary => Remove
 
-      case c: Customizable if c.options.id.isDefined => replace(c, UniqueSelector(c.options.id.get))
+      case c: Customizable if c.options.id.isDefined => replace(c, TargetIdSelector(c.options.id.get))
       
     } ++ RewriteRules.forSpans {
       
-      case c @ CitationReference(label,_,_) => resolve(c, UniqueSelector(label), s"unresolved citation reference: $label")
+      case c @ CitationReference(label,_,_) => resolve(c, TargetIdSelector(label), s"unresolved citation reference: $label")
 
       case ref: FootnoteReference => ref.label match {
-        case NumericLabel(num)   => resolve(ref, UniqueSelector(num.toString), s"unresolved footnote reference: $num")
-        case AutonumberLabel(id) => resolve(ref, UniqueSelector(id), s"unresolved footnote reference: $id")
+        case NumericLabel(num)   => resolve(ref, TargetIdSelector(num.toString), s"unresolved footnote reference: $num")
+        case AutonumberLabel(id) => resolve(ref, TargetIdSelector(id), s"unresolved footnote reference: $id")
         case Autonumber          => resolve(ref, AutonumberSelector, "too many autonumber references")
         case Autosymbol          => resolve(ref, AutosymbolSelector, "too many autosymbol references")
       }
@@ -116,9 +116,9 @@ object LinkResolver extends (DocumentCursor => RewriteRules) {
       case ref: CrossReference => resolve(ref, selectorFor(ref.path), s"unresolved cross reference: ${ref.path.toString}", global = true)  
         
       case ref: LinkReference => if (ref.id.isEmpty) resolve(ref, AnonymousSelector, "too many anonymous link references")
-                                 else                resolve(ref, UniqueSelector(ref.id), s"unresolved link reference: ${ref.id}", global = true)
+                                 else                resolve(ref, TargetIdSelector(ref.id), s"unresolved link reference: ${ref.id}", global = true)
 
-      case ref: ImageReference => resolve(ref, UniqueSelector(ref.id), s"unresolved image reference: ${ref.id}", global = true)
+      case ref: ImageReference => resolve(ref, TargetIdSelector(ref.id), s"unresolved image reference: ${ref.id}", global = true)
 
       case _: Temporary => Remove
 

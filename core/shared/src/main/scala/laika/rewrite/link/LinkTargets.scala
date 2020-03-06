@@ -33,7 +33,7 @@ object LinkTargets {
   
   /** A selector based on a unique string identifier.
    */
-  case class UniqueSelector (name: String) extends Selector
+  case class TargetIdSelector (name: String) extends Selector
   
   /** A selector based on a path, optionally including a fragment component.
     */
@@ -103,7 +103,7 @@ object LinkTargets {
     def lift(f: PartialFunction[LinkSource, Span]): LinkSource => Option[Span] = f.lift // TODO - shouldn't non-matching nodes get an invalid span here?
     def forDuplicateTargetId(selector: Selector, path: Path): LinkSource => Option[Span] = {
       val msg = selector match {
-        case UniqueSelector(name) => s"More than one link target with id '$name' in path $path"
+        case TargetIdSelector(name) => s"More than one link target with id '$name' in path $path"
         case sel => s"More than one link target with selector $sel in path $path"
       }
       lift { case LinkSource(ref: Reference, _) => InvalidElement(msg, ref.source).asSpan }
