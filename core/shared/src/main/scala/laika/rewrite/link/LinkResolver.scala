@@ -45,32 +45,18 @@ object LinkResolver extends (DocumentCursor => RewriteRules) {
   def apply (cursor: DocumentCursor): RewriteRules = {
     
     val targets = cursor.target.linkTargets
-    val headerId = targets.headerIds
     
-    def replaceHeader (h: Block, origId: String, lookup: String => Option[String]): RewriteAction[Block] = 
-      lookup(origId).fold[RewriteAction[Block]](Remove)(id => replace(h, UniqueSelector(id)))
-
     def replace (element: Block, selector: Selector): RewriteAction[Block] =
       targets.local.get(selector)
         .flatMap(_.replaceTarget(element))
-        .collect{ case b: Block => b }
         .fold[RewriteAction[Block]](Remove)(Replace(_))
-
-    def replaceSpan (element: Span, selector: Selector): RewriteAction[Span] =
-      targets.local.get(selector)
-        .flatMap(_.replaceTarget(element))
-        .collect{ case s: Span => s }
-        .fold[RewriteAction[Span]](Remove)(Replace(_))
 
     def selectFromRoot (selector: Selector): Option[TargetResolver] =
       cursor.root.target.tree.selectTarget(selector)
 
-    def selectorFor (path: RelativePath): Selector = PathSelector(cursor.parent.target.path / path)
-    
-    def selectFromRootLegacy (path: String, name: String): Option[TargetResolver] = {
-      val selector = selectorFor(RelativePath.parse(path).withFragment(name))
-      selectFromRoot(selector)
-    }
+    def selectorFor (path: RelativePath): Selector =
+      if (path.name.isEmpty && path.fragment.nonEmpty) PathSelector(cursor.parent.target.path / (cursor.path.name + "#" + path.fragment.get))
+      else PathSelector(cursor.parent.target.path / path)
     
     def resolve (ref: Reference, selector: Selector, msg: => String, global: Boolean = false): RewriteAction[Span] = {
       
@@ -85,20 +71,17 @@ object LinkResolver extends (DocumentCursor => RewriteRules) {
         select(cursor.parent)
       }
       
-      val (target, path) = {
+      val target = {
         val local = targets.local.get(selector)
-        if (local.isDefined) (local, None)
+        if (local.isDefined) local
         else (selector, global) match {
-          case (sel: PathSelector, true) => (selectFromRoot(sel), Some(cursor.path))
-          case (UniqueSelector(targetName), true) =>
-            val index = targetName.indexOf(":")
-            if (index == -1) (selectFromParent, Some(cursor.path))
-            else (selectFromRootLegacy(targetName.take(index), targetName.drop(index+1)), Some(cursor.path))
-          case _ => (None,None)
+          case (sel: PathSelector, true) => selectFromRoot(sel)
+          case (UniqueSelector(_), true) => selectFromParent
+          case _ => None
         }
       }
-      Replace(target.flatMap(_.resolveReference(ref,path))
-          .getOrElse(InvalidElement(msg, ref.source).asSpan))
+      val resolvedTarget = target.flatMap(_.resolveReference(LinkSource(ref, cursor.path)))
+      Replace(resolvedTarget.getOrElse(InvalidElement(msg, ref.source).asSpan))
     }
       
     RewriteRules.forBlocks {
@@ -110,8 +93,8 @@ object LinkResolver extends (DocumentCursor => RewriteRules) {
         case Autosymbol          => replace(f, AutosymbolSelector)
       }
       case c: Citation           => replace(c, UniqueSelector(c.label))
-      case h: DecoratedHeader    => replaceHeader(h, h.options.id.get, headerId)
-      case h@ Header(_,_,Id(id)) => replaceHeader(h, id, headerId)
+      case h: DecoratedHeader    => replace(h, UniqueSelector(slug(h.options.id.get)))
+      case h@ Header(_,_,Id(id)) => replace(h, UniqueSelector(slug(id)))
       
       case _: Temporary => Remove
 
@@ -138,8 +121,6 @@ object LinkResolver extends (DocumentCursor => RewriteRules) {
       case ref: ImageReference => resolve(ref, UniqueSelector(ref.id), s"unresolved image reference: ${ref.id}", global = true)
 
       case _: Temporary => Remove
-
-      case c: Customizable if c.options.id.isDefined => replaceSpan(c, UniqueSelector(c.options.id.get))
 
     }
   }

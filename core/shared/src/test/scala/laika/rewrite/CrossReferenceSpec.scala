@@ -33,7 +33,7 @@ class CrossReferenceSpec extends AnyFlatSpec
   
   trait TreeModel {
     def rootWithLink (id: String, text: String, path: PathInfo): RootElement = rootElement(p(CrossLink(List(Text(text)), id, path)))
-    def rootWithRef (id: String, text: String): RootElement = rootElement(p(LinkReference(List(Text(text)), id, s"[$id]")))
+    def rootWithRef (id: String, text: String): RootElement = rootElement(p(CrossReference(List(Text(text)), RelativePath.parse(id), s"[$id]")))
     def rootWithTarget (id: String): RootElement = rootElement(InternalLinkTarget(Id(id)))
     def rootElement (b: Block): RootElement = root(p("A"), b, p("B"))
 
@@ -61,18 +61,18 @@ class CrossReferenceSpec extends AnyFlatSpec
   
   "The reference resolver" should "resolve a cross reference to a target in another document in the same directory" in {
      new TreeModel {
-      val tree = treeWithDocs(Root, "doc", rootWithRef("ref", "text"), rootWithTarget("ref"))
-      val treeResult = treeViewWithDocs(Root, "doc", rootWithLink("ref", "text", PathInfo(Root / "doc2",Current / "doc2")), rootWithTarget("ref"))
+      val tree = treeWithDocs(Root, "doc", rootWithRef("doc2#ref", "text"), rootWithTarget("ref"))
+      val treeResult = treeViewWithDocs(Root, "doc", rootWithLink("ref", "text", PathInfo(Root / "doc2#ref",Current / "doc2#ref")), rootWithTarget("ref"))
       viewOf(rewrite(tree)) should be (treeResult)
     } 
   }
   
   it should "resolve a cross reference to a target in a document in a parent directory" in {
      new TreeModel {
-      val subtree = treeWithDoc(Root / "sub", "doc1", rootWithRef("ref", "text"))
+      val subtree = treeWithDoc(Root / "sub", "doc1", rootWithRef("../doc2#ref", "text"))
       val rootTree = treeWithDoc(Root, "doc2", rootWithTarget("ref"), List(subtree))
       
-      val subtreeResult = treeViewWithDoc(Root / "sub", "doc1", rootWithLink("ref", "text", PathInfo(Root / "doc2", Parent(1) / "doc2")))
+      val subtreeResult = treeViewWithDoc(Root / "sub", "doc1", rootWithLink("ref", "text", PathInfo(Root / "doc2#ref", Parent(1) / "doc2#ref")))
       val treeResult = treeViewWithDoc(Root, "doc2", rootWithTarget("ref"), Some(subtreeResult))
       viewOf(rewrite(rootTree)) should be (treeResult)
     } 
@@ -81,64 +81,21 @@ class CrossReferenceSpec extends AnyFlatSpec
   it should "resolve a cross reference to a target in a document in a child directory" in {
      new TreeModel {
       val subtree = treeWithDoc(Root / "sub", "doc2", rootWithTarget("ref"))
-      val rootTree = treeWithDoc(Root, "doc1", rootWithRef("ref", "text"), List(subtree))
+      val rootTree = treeWithDoc(Root, "doc1", rootWithRef("sub/doc2#ref", "text"), List(subtree))
       
       val subtreeResult = treeViewWithDoc(Root / "sub", "doc2", rootWithTarget("ref"))
-      val treeResult = treeViewWithDoc(Root, "doc1", rootWithLink("ref", "text", PathInfo(Root / "sub" / "doc2", Current / "sub" / "doc2")), Some(subtreeResult))
+      val treeResult = treeViewWithDoc(Root, "doc1", rootWithLink("ref", "text", PathInfo(Root / "sub" / "doc2#ref", Current / "sub" / "doc2#ref")), Some(subtreeResult))
       viewOf(rewrite(rootTree)) should be (treeResult)
     } 
   }
   
   it should "resolve a cross reference to a target in a document in a sibling directory" in {
      new TreeModel {
-      val subtree1 = treeWithDoc(Root / "sub1", "doc1", rootWithRef("ref", "text"))
+      val subtree1 = treeWithDoc(Root / "sub1", "doc1", rootWithRef("../sub2/doc2#ref", "text"))
       val subtree2 = treeWithDoc(Root / "sub2", "doc2", rootWithTarget("ref"))
       val rootTree = treeWithSubtrees(Root, subtree1, subtree2)
       
-      val subtreeResult1 = treeViewWithDoc(Root / "sub1", "doc1", rootWithLink("ref", "text", PathInfo(Root / "sub2" / "doc2", Parent(1) / "sub2" / "doc2")))
-      val subtreeResult2 = treeViewWithDoc(Root / "sub2", "doc2", rootWithTarget("ref"))
-      val treeResult = treeViewWithSubtrees(Root, subtreeResult1, subtreeResult2)
-      viewOf(rewrite(rootTree)) should be (treeResult)
-    } 
-  }
-  
-  it should "resolve a cross reference to a target in another document in the same directory using an explicit path" in {
-     new TreeModel {
-      val tree = treeWithDocs(Root, "doc", rootWithRef("doc2:ref", "text"), rootWithTarget("ref"))
-      val treeResult = treeViewWithDocs(Root, "doc", rootWithLink("ref", "text", PathInfo(Root / "doc2",Current / "doc2")), rootWithTarget("ref"))
-      viewOf(rewrite(tree)) should be (treeResult)
-    } 
-  }
-  
-  it should "resolve a cross reference to a target in a document in a parent directory using an explicit path" in {
-     new TreeModel {
-      val subtree = treeWithDoc(Root / "sub", "doc1", rootWithRef("../doc2:ref", "text"))
-      val rootTree = treeWithDoc(Root, "doc2", rootWithTarget("ref"), List(subtree))
-      
-      val subtreeResult = treeViewWithDoc(Root / "sub", "doc1", rootWithLink("ref", "text", PathInfo(Root / "doc2", Parent(1) / "doc2")))
-      val treeResult = treeViewWithDoc(Root, "doc2", rootWithTarget("ref"), Some(subtreeResult))
-      viewOf(rewrite(rootTree)) should be (treeResult)
-    } 
-  }
-  
-  it should "resolve a cross reference to a target in a document in a child directory using an explicit path" in {
-     new TreeModel {
-      val subtree = treeWithDoc(Root / "sub", "doc2", rootWithTarget("ref"))
-      val rootTree = treeWithDoc(Root, "doc1", rootWithRef("sub/doc2:ref", "text"), List(subtree))
-      
-      val subtreeResult = treeViewWithDoc(Root / "sub", "doc2", rootWithTarget("ref"))
-      val treeResult = treeViewWithDoc(Root, "doc1", rootWithLink("ref", "text", PathInfo(Root / "sub" / "doc2", Current / "sub" / "doc2")), Some(subtreeResult))
-      viewOf(rewrite(rootTree)) should be (treeResult)
-    } 
-  }
-  
-  it should "resolve a cross reference to a target in a document in a sibling directory using an explicit path" in {
-     new TreeModel {
-      val subtree1 = treeWithDoc(Root / "sub1", "doc1", rootWithRef("../sub2/doc2:ref", "text"))
-      val subtree2 = treeWithDoc(Root / "sub2", "doc2", rootWithTarget("ref"))
-      val rootTree = treeWithSubtrees(Root, subtree1, subtree2)
-      
-      val subtreeResult1 = treeViewWithDoc(Root / "sub1", "doc1", rootWithLink("ref", "text", PathInfo(Root / "sub2" / "doc2", Parent(1) / "sub2" / "doc2")))
+      val subtreeResult1 = treeViewWithDoc(Root / "sub1", "doc1", rootWithLink("ref", "text", PathInfo(Root / "sub2" / "doc2#ref", Parent(1) / "sub2" / "doc2#ref")))
       val subtreeResult2 = treeViewWithDoc(Root / "sub2", "doc2", rootWithTarget("ref"))
       val treeResult = treeViewWithSubtrees(Root, subtreeResult1, subtreeResult2)
       viewOf(rewrite(rootTree)) should be (treeResult)

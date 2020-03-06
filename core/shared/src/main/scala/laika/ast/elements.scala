@@ -1061,6 +1061,7 @@ object PathInfo {
    *  the provided reference path. Returns `None` if the specified
    *  URI is not a file or relative URI.
    */
+  // TODO - 0.15 - align with logic for internal references
   def fromURI (uri: String, refPath: Path): Option[PathInfo] = {
     val jURI = new java.net.URI(uri)
     if (jURI.getScheme != null && jURI.getScheme != "file") None
