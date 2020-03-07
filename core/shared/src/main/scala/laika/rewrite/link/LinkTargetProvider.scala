@@ -58,7 +58,7 @@ class LinkTargetProvider (path: Path, root: RootElement) {
            
     val crossLinkResolver = ReferenceResolver.lift {
       case LinkSource(CrossReference(content, relPath, _, _, opt), sourcePath) => // TODO - deal with title?
-        CrossLink(content, relPath.fragment.get, PathInfo.fromPath(relPath, sourcePath.parent) , options = opt) // TODO - refactor to InternalLink without separare fragment property
+        CrossLink(content, relPath.fragment.get, PathInfo.fromPath(relPath, sourcePath.parent) , options = opt) // TODO - refactor to InternalLink without separate fragment property
     }
     
     root.collect {
@@ -75,8 +75,8 @@ class LinkTargetProvider (path: Path, root: RootElement) {
         val (docId, displayId, selector) = f.label match {
           case Autosymbol            => (s"__fns-${symbolNumbers.next}", symbols.next, AutosymbolSelector) // TODO - move these prefix definitions somewhere else
           case Autonumber            => val num = numbers.next; (s"__fn-$num", num.toString, AutonumberSelector)
-          case AutonumberLabel(id)   => (id, numbers.next.toString, TargetIdSelector(id)) // TODO - diff selector kind to avoid clashes
-          case NumericLabel(num)     => (s"__fnl-$num", num.toString, TargetIdSelector(num.toString)) // TODO - diff selector kind to avoid clashes
+          case AutonumberLabel(id)   => (id, numbers.next.toString, TargetIdSelector(id))
+          case NumericLabel(num)     => (s"__fnl-$num", num.toString, TargetIdSelector(num.toString))
         }
         val resolver = ReferenceResolver.lift {
           case LinkSource(FootnoteReference(_, _, opt), _) => FootnoteLink(docId, displayId, opt)
@@ -87,9 +87,10 @@ class LinkTargetProvider (path: Path, root: RootElement) {
         TargetResolver.create(selector, resolver, replacer)
 
       case ld: ExternalLinkDefinition =>
-        val selector = if (ld.id.isEmpty) AnonymousSelector else TargetIdSelector(ld.id) // TODO - diff selector kind to avoid clashes
+        val selector = if (ld.id.isEmpty) AnonymousSelector else LinkDefinitionSelector(ld.id)
         val resolver = ReferenceResolver.lift {
-          case LinkSource(LinkReference (content, _, _, opt), _) => ExternalLink(content, ld.url, ld.title, opt)
+          case LinkSource(LinkReference (content, _, _, opt), _) => 
+            ExternalLink(content, ld.url, ld.title, opt)
           case LinkSource(ImageReference (text, _, _, opt), _) =>
             Image(text, URI(ld.url, PathInfo.fromURI(ld.url, path.parent)), title = ld.title, options = opt)
         }
@@ -98,17 +99,17 @@ class LinkTargetProvider (path: Path, root: RootElement) {
       case DecoratedHeader(_,_,Id(id)) => // TODO - do not generate id upfront
         val selector = TargetIdSelector(slug(id))
         val finalHeader = TargetReplacer.lift {
-          case DecoratedHeader(deco, content, opt) => Header(levels.levelFor(deco), content, opt + Id(selector.name))
+          case DecoratedHeader(deco, content, opt) => Header(levels.levelFor(deco), content, opt + Id(selector.id))
         }
         TargetResolver.create(selector, crossLinkResolver, finalHeader)
       
       case Header(_,_,Id(id)) => // TODO - do not generate id upfront
         val selector = TargetIdSelector(slug(id))
-        TargetResolver.create(selector, crossLinkResolver, TargetReplacer.addId(selector.name))
+        TargetResolver.create(selector, crossLinkResolver, TargetReplacer.addId(selector.id))
       
       case c: Block if c.options.id.isDefined =>
         val selector = TargetIdSelector(c.options.id.get)
-        TargetResolver.create(selector, crossLinkResolver, TargetReplacer.addId(selector.name))
+        TargetResolver.create(selector, crossLinkResolver, TargetReplacer.addId(selector.id))
         
         
       //case lt: LinkAlias              => new LinkAliasTarget(lt)
@@ -167,6 +168,7 @@ class LinkTargetProvider (path: Path, root: RootElement) {
    */
   val local: Map[Selector, TargetResolver] = validateTargets(selectTargets).toList.groupBy(_.selector).map { 
     case (selector: TargetIdSelector, target :: Nil) => (selector, target)
+    case (selector: LinkDefinitionSelector, target :: Nil) => (selector, target) // TODO - use flag
     case (selector, list) => (selector, TargetSequenceResolver(list, selector))
   }
   

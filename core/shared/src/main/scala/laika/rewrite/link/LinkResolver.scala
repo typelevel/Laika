@@ -71,12 +71,14 @@ object LinkResolver extends (DocumentCursor => RewriteRules) {
         select(cursor.parent)
       }
       
+      // TODO - disentangle
       val target = {
         val local = targets.local.get(selector)
         if (local.isDefined) local
         else (selector, global) match {
-          case (sel: PathSelector, true) => selectFromRoot(sel)
-          case (TargetIdSelector(_), true) => selectFromParent
+          case (sel: PathSelector, true)         => selectFromRoot(sel)
+          case (TargetIdSelector(_), true)       => selectFromParent
+          case (LinkDefinitionSelector(_), true) => selectFromParent
           case _ => None
         }
       }
@@ -116,9 +118,9 @@ object LinkResolver extends (DocumentCursor => RewriteRules) {
       case ref: CrossReference => resolve(ref, selectorFor(ref.path), s"unresolved cross reference: ${ref.path.toString}", global = true)  
         
       case ref: LinkReference => if (ref.id.isEmpty) resolve(ref, AnonymousSelector, "too many anonymous link references")
-                                 else                resolve(ref, TargetIdSelector(ref.id), s"unresolved link reference: ${ref.id}", global = true)
+                                 else                resolve(ref, LinkDefinitionSelector(ref.id), s"unresolved link reference: ${ref.id}", global = true)
 
-      case ref: ImageReference => resolve(ref, TargetIdSelector(ref.id), s"unresolved image reference: ${ref.id}", global = true)
+      case ref: ImageReference => resolve(ref, LinkDefinitionSelector(ref.id), s"unresolved image reference: ${ref.id}", global = true)
 
       case _: Temporary => Remove
 
