@@ -92,11 +92,11 @@ class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => Str
       def codeStyles (language: String, hasHighlighting: Boolean) = 
         if (hasHighlighting) Styles("nohighlight") else Styles(language)
       
-      def crossLinkRef (path: LinkPath, ref: String) = {
+      def crossLinkRef (path: LinkPath) = {
         val target = 
-          if (path.relative.suffix.nonEmpty) path.relative.withSuffix(fileSuffix).toString
-          else path.relative.toString
-        if (ref.isEmpty) target else s"$target#$ref"
+          if (path.relative.suffix.nonEmpty) path.relative.withSuffix(fileSuffix)
+          else path.relative
+        target.toString
       }
       
       def linkAttributes (url: String, title: Option[String]): Seq[(String, String)] = fmt.optAttributes(
@@ -113,14 +113,13 @@ class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => Str
         case Inserted(content,opt)          => fmt.element("ins", opt, content)
         case ParsedLiteralBlock(content,opt)=> fmt.rawElement("pre", opt, fmt.withoutIndentation(_.element("code", NoOpt, content)))
         case cb@CodeBlock(lang,content,opt) => fmt.rawElement("pre", opt, fmt.withoutIndentation(_.element("code", codeStyles(lang, cb.hasSyntaxHighlighting), content)))
-        case InlineCode(lang,content,opt)         => fmt.withoutIndentation(_.element("code", opt + codeStyles(lang, false), content))
+        case InlineCode(lang,content,opt)   => fmt.withoutIndentation(_.element("code", opt + codeStyles(lang, false), content))
         case Line(content,opt)              => fmt.element("div", opt + Styles("line"), content)
         case Title(content, opt)            => fmt.element("h1", opt, content)
         case Header(level, content, opt)    => fmt.newLine + fmt.element("h"+level.toString, opt,content)
 
-        case ExternalLink(content, url, title, opt)     => fmt.element("a", opt, content, linkAttributes(url, title):_*)
-        case InternalLink(content, ref, title, opt)     => fmt.element("a", opt, content, linkAttributes("#"+ref, title):_*)
-        case CrossLink(content, ref, path, title, opt)  => fmt.element("a", opt, content, linkAttributes(crossLinkRef(path, ref), title):_*)
+        case ExternalLink(content, url, title, opt)  => fmt.element("a", opt, content, linkAttributes(url, title):_*)
+        case InternalLink(content, ref, title, opt)  => fmt.element("a", opt, content, linkAttributes(crossLinkRef(ref), title):_*)
 
         case WithFallback(fallback)         => fmt.child(fallback)
         case c: Customizable                => c match {

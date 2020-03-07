@@ -18,6 +18,7 @@ package laika.directive
 
 import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
+import laika.ast.Path.Root
 import laika.ast.RelativePath.Current
 import laika.config.{Config, ConfigBuilder, ConfigParser, Origin}
 import laika.ast._
@@ -37,10 +38,10 @@ class LegacyStandardDirectiveSpec extends AnyFlatSpec
   lazy val templateParser = StandardDirectives.processExtension(DirectiveSupport).parsers.templateParser.get
   lazy val markupParser = MarkupParser.of(Markdown).build
 
-  def parse (input: String): Document = markupParser.parse(input).toOption.get
+  def parse (input: String, path: Path = Root / "doc"): Document = markupParser.parse(input, path).toOption.get
 
-  def parseWithFragments (input: String): (Map[String,Element], RootElement) = {
-    val doc = parse(input)
+  def parseWithFragments (input: String, path: Path = Root / "doc"): (Map[String,Element], RootElement) = {
+    val doc = parse(input, path)
     (doc.fragments, doc.content)
   }
   
@@ -277,7 +278,7 @@ class LegacyStandardDirectiveSpec extends AnyFlatSpec
 
     def parseAndRewrite (template: String, markup: String): RootElement = {
       val templateDoc = TemplateDocument(Root / "test.html", parseTemplate(template))
-      val doc = Document(pathUnderTest, parse(markup).content, config =
+      val doc = Document(pathUnderTest, parse(markup, pathUnderTest).content, config =
         config(pathUnderTest, "Doc 7", Origin.DocumentScope).withValue("template","/test.html").build)
       val tree = buildTree(templateDoc, doc).rewrite(OperationConfig.default.rewriteRules)
       TemplateRewriter.applyTemplates(DocumentTreeRoot(tree), "html").toOption.get.tree.selectDocument(Current / "sub2" / "doc7").get.content
@@ -288,7 +289,7 @@ class LegacyStandardDirectiveSpec extends AnyFlatSpec
         |# Headline 2""".stripMargin
   }
   
-  trait TocModel {
+  trait TocModel extends TreeModel {
     import Path._
     import laika.ast.TitledBlock
     
@@ -297,9 +298,13 @@ class LegacyStandardDirectiveSpec extends AnyFlatSpec
     def title: Option[String] = None
 
     def hasTitleDocLinks: Boolean = false
+
+    def linkPathFor(path: Path): LinkPath =
+      if (path.parent == treeUnderTest && path.name == pathUnderTest.name) LinkPath.fromPath(path, pathUnderTest)
+      else LinkPath.fromPath(path, treeUnderTest)
     
     def sectionCrossLink (path: Path, section: Int, level: Int) = 
-      Paragraph(Seq(CrossLink(List(Text("Section "+section)), "title"+section, LinkPath.fromPath(path, treeUnderTest))), Styles("toc","level"+level))
+      Paragraph(Seq(InternalLink(List(Text("Section "+section)), linkPathFor(path.withFragment("title"+section)))), Styles("toc","level"+level))
       
     def leafLink (path: Path, section: Int, level: Int) = 
       BulletListItem(List(sectionCrossLink(path, section, level)), StringBullet("*"))
@@ -308,7 +313,7 @@ class LegacyStandardDirectiveSpec extends AnyFlatSpec
       BulletListItem(List(sectionCrossLink(path, section, level), BulletList(List(leafLink(path, section+1, level+1)), StringBullet("*"))), StringBullet("*"))
       
     def docCrossLink (path: Path, doc: Int, level: Int) =
-      Paragraph(Seq(CrossLink(List(Text("Doc "+doc)), "", LinkPath.fromPath(path, treeUnderTest))), Styles("toc","level"+level))
+      Paragraph(Seq(InternalLink(List(Text("Doc "+doc)), linkPathFor(path))), Styles("toc","level"+level))
       
     def docList (path: Path, doc: Int, level: Int) = 
       BulletListItem(List(docCrossLink(path, doc, level), BulletList(List(
@@ -324,7 +329,7 @@ class LegacyStandardDirectiveSpec extends AnyFlatSpec
       
     def internalLink (section: Int, level: Int) = 
       BulletListItem(List(
-        Paragraph(Seq(InternalLink(List(Text("Headline "+section)), "headline-"+section)), Styles("toc","level"+level))
+        Paragraph(Seq(InternalLink(List(Text("Headline "+section)), LinkPath(pathUnderTest.withFragment("headline-"+section), Current / ("#headline-"+section)))), Styles("toc","level"+level))
       ), StringBullet("*"))
       
     def extraDoc (treeNum: Int, level: Int) = 
@@ -338,7 +343,7 @@ class LegacyStandardDirectiveSpec extends AnyFlatSpec
 
     def treeTitle (treeNum: Int) =
       if (!hasTitleDocLinks) Paragraph(List(Text("Tree "+treeNum)), Styles("toc","level1"))
-      else Paragraph(Seq(CrossLink(List(Text("TitleDoc")), "", LinkPath.fromPath(Root / ("sub"+treeNum) / "title", treeUnderTest))), Styles("toc","level1"))
+      else Paragraph(Seq(InternalLink(List(Text("TitleDoc")), linkPathFor(Root / ("sub"+treeNum) / "title"))), Styles("toc","level1"))
       
     def treeList (treeNum: Int, docStart: Int) = 
       BulletListItem(List(

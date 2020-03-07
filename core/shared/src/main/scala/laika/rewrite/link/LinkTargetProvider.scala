@@ -56,9 +56,9 @@ class LinkTargetProvider (path: Path, root: RootElement) {
     val symbolNumbers = Iterator.from(1)
     val numbers = Iterator.from(1)
            
-    val crossLinkResolver = ReferenceResolver.lift {
+    val internalLinkResolver = ReferenceResolver.lift {
       case LinkSource(InternalReference(content, relPath, _, _, opt), sourcePath) => // TODO - deal with title?
-        CrossLink(content, relPath.fragment.get, LinkPath.fromPath(relPath, sourcePath.parent) , options = opt) // TODO - refactor to InternalLink without separate fragment property
+        InternalLink(content, LinkPath.fromPath(relPath, sourcePath.parent) , options = opt)
     }
     
     root.collect {
@@ -101,15 +101,15 @@ class LinkTargetProvider (path: Path, root: RootElement) {
         val finalHeader = TargetReplacer.lift {
           case DecoratedHeader(deco, content, opt) => Header(levels.levelFor(deco), content, opt + Id(selector.id))
         }
-        TargetResolver.create(selector, crossLinkResolver, finalHeader)
+        TargetResolver.create(selector, internalLinkResolver, finalHeader)
       
       case Header(_,_,Id(id)) => // TODO - do not generate id upfront
         val selector = TargetIdSelector(slug(id))
-        TargetResolver.create(selector, crossLinkResolver, TargetReplacer.addId(selector.id))
+        TargetResolver.create(selector, internalLinkResolver, TargetReplacer.addId(selector.id))
       
       case c: Block if c.options.id.isDefined =>
         val selector = TargetIdSelector(c.options.id.get)
-        TargetResolver.create(selector, crossLinkResolver, TargetReplacer.addId(selector.id))
+        TargetResolver.create(selector, internalLinkResolver, TargetReplacer.addId(selector.id))
         
         
       //case lt: LinkAlias              => new LinkAliasTarget(lt)

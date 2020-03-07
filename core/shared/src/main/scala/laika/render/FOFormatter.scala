@@ -16,6 +16,7 @@
 
 package laika.render
 
+import laika.ast.Path.Root
 import laika.ast._
 import laika.factory.RenderContext
 
@@ -84,16 +85,19 @@ case class FOFormatter (renderChild: (FOFormatter, Element) => String,
   /** Generates an id that is unique within the entire document tree for the 
     * specified path of the target document and its local reference.
    */
-  def buildId (path: Path, ref: String): String = {
-    val treePath = if (path.parent == Path.Root) "" else path.parent.toString.replaceAllLiterally("/", "_")
-    val docPath = if (path == Path.Root) "" else treePath + "_" + path.basename
-    docPath + "_" + ref
+  def buildId (path: Path): String = {
+    if (path == Path.Root) "" 
+    else path.withoutSuffix.toString.replaceAllLiterally("/", "_").replaceAllLiterally("#", "_")
   }
 
   /** Generates an id that is unique within the entire document tree for the 
     * specified local reference.
     */
-  def buildLocalId (ref: String): String = buildId(path, ref)
+  def buildLocalId (ref: String): String = {
+    if (ref.isEmpty) buildId(path)
+    else if (path == Root) buildId(Path.parse(s"#$ref"))
+    else buildId(path.withFragment(ref)) 
+  }
 
   /** Renders an FO `block` element, containing nested blocks.
    *  The content will be rendered indented one level to the right.
@@ -228,7 +232,10 @@ case class FOFormatter (renderChild: (FOFormatter, Element) => String,
    */
   def bookmark (bookmark: Bookmark): String = {
     val content = BookmarkTitle(bookmark.title) +: bookmark.children
-    indentedElement("fo:bookmark", bookmark, content, "internal-destination" -> buildId(bookmark.path.absolute, bookmark.ref))
+    val target = 
+      if (bookmark.ref.isEmpty) bookmark.path.absolute
+      else bookmark.path.absolute.withFragment(bookmark.ref)
+    indentedElement("fo:bookmark", bookmark, content, "internal-destination" -> buildId(target))
   }
 
   /** Renders an FO `bookmark-title` element.
@@ -254,11 +261,10 @@ object FOFormatter extends (RenderContext[FOFormatter] => FOFormatter) {
 
   /** An internal link to be rendered as a page number.
     *
-    *  @param ref the local reference to the target element
     *  @param path the path of the target document containing the local reference
     *  @param options optional render hints
     */
-  case class PageNumberCitation (ref: String, path: LinkPath, options: Options = NoOpt) extends Span {
+  case class PageNumberCitation (path: LinkPath, options: Options = NoOpt) extends Span {
     type Self = PageNumberCitation
     def withOptions (options: Options): PageNumberCitation = copy(options = options)
   }

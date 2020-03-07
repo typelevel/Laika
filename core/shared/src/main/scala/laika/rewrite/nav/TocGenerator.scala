@@ -16,6 +16,7 @@
 
 package laika.rewrite.nav
 
+import laika.ast.Path.Root
 import laika.ast._
 
 
@@ -36,7 +37,7 @@ object TocGenerator {
    *  @param doc the document to create a table of contents for
    *  @param depth the maximum depth to traverse when building the table, the depth is unlimited if the value is empty
    *  @param refPath the path from which the targets in the table will be linked
-   *  @return a block element containing the table of contents as a BulltetList and its title
+   *  @return a block element containing the table of contents as a BulletList and its title
    */
   def fromDocument (doc: Document, depth: Int, refPath: Path): List[Block] = fromDocument(doc, 1, depth, refPath)
   
@@ -44,11 +45,10 @@ object TocGenerator {
     
     def sectionTitle (section: SectionInfo, path: Path, level: Int): Paragraph = {
       val title = section.title.content
-      
-      if (path == refPath)
-        Paragraph(List(InternalLink(title, section.id)), options = styles(level))
-      else
-        Paragraph(List(CrossLink(title, section.id, LinkPath.fromPath(path, refPath.parent))), options = styles(level))
+      val resolvedRefPath = if (path == refPath) refPath else refPath.parent
+      val target = if (path == Root) Path.parse(s"#${section.id}") else path.withFragment(section.id)
+      val linkPath = LinkPath.fromPath(target, resolvedRefPath)
+      Paragraph(List(InternalLink(title, linkPath)), options = styles(level))
     }
     
     def sectionsToList (sections: Seq[SectionInfo], path: Path, curLevel: Int): List[Block] =
@@ -94,14 +94,14 @@ object TocGenerator {
         if (tree.path / doc == refPath)
           Paragraph(titleOrName(tree), options = styles(level) + Styles("active"))
         else
-          Paragraph(List(CrossLink(titleOrName(tree), "", LinkPath.fromPath(tree.path / doc, refPath.parent))), options = styles(level))
+          Paragraph(List(InternalLink(titleOrName(tree), LinkPath.fromPath(tree.path / doc, refPath.parent))), options = styles(level))
       )
     
     def docTitle (document: Document, level: Int): Paragraph =
       if (document.path == refPath)
         Paragraph(titleOrName(document), options = styles(level) + Styles("active"))
       else
-        Paragraph(List(CrossLink(titleOrName(document), "", LinkPath.fromPath(document.path, refPath.parent))), options = styles(level))
+        Paragraph(List(InternalLink(titleOrName(document), LinkPath.fromPath(document.path, refPath.parent))), options = styles(level))
     
     def treeToBulletList (tree: DocumentTree, curLevel: Int): List[Block] = {
       if (curLevel > maxLevel) Nil else {

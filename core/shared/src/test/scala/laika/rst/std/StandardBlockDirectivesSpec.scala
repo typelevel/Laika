@@ -641,8 +641,11 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
     def title (title: Int) =
       Title(List(Text("Title "+title)),Id("title"+title) + Styles("title"))
       
-    def link (level: Int, title: Int) =    
-      Paragraph(Seq(InternalLink(List(Text("Title "+title)), "title"+title)), Styles("toc","level"+level))
+    def link (level: Int, title: Int) = {
+      val linkPath = LinkPath.fromPath(Root / s"doc#title$title", Root / "doc")
+      val intLink = InternalLink(List(Text("Title "+title)), linkPath, None)
+      Paragraph(Seq(intLink), Styles("toc","level"+level))
+    }   
           
     val sectionsWithTitle = RootElement(
       header(1,1,"title") ::

@@ -125,9 +125,8 @@ object FORenderer extends ((FOFormatter, Element) => String) {
         case e @ InlineCode(lang,content,_)         => fmt.inline(e.copy(options=e.options + codeStyles(lang)),content)
         case e @ Line(content,_)              => fmt.block(e, content)
 
-        case e @ ExternalLink(content, url, _, _)     => fmt.externalLink(e, url, content)
-        case e @ InternalLink(content, ref, _, _)     => fmt.internalLink(e, fmt.buildLocalId(ref), content)
-        case e @ CrossLink(content, ref, path, _, _)  => fmt.internalLink(e, fmt.buildId(path.absolute, ref), content)
+        case e @ ExternalLink(content, url, _, _)  => fmt.externalLink(e, url, content)
+        case e @ InternalLink(content, ref, _, _)  => fmt.internalLink(e, fmt.buildId(ref.absolute), content)
 
         case WithFallback(fallback)         => fmt.child(fallback)
         case c: Customizable                => c match {
@@ -193,7 +192,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
       case SectionNumber(pos, opt)        => fmt.child(Text(pos.mkString(".") + " ", opt + Styles("sectionNumber")))
       case e @ Image(_,uri,width,height,_,_) => fmt.externalGraphic(e, uri.localRef.fold(uri.uri)(_.absolute.toString), width, height) // TODO - ignoring title for now
       case e: Leader                      => fmt.textElement("fo:leader", e, "", "leader-pattern"->"dots")
-      case e @ PageNumberCitation(ref,path,_) => s"""<fo:page-number-citation ref-id="${fmt.buildId(path.absolute, ref)}" />"""
+      case PageNumberCitation(path,_)     => s"""<fo:page-number-citation ref-id="${fmt.buildId(path.absolute)}" />"""
       case LineBreak(_)                   => "&#x2028;"
       case TemplateElement(elem,indent,_) => fmt.withMinIndentation(indent)(_.child(elem))
 

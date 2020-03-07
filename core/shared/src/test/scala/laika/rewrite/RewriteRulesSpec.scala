@@ -42,9 +42,9 @@ class RewriteRulesSpec extends AnyWordSpec
   def invalidSpan (message: String, fallback: Span): InvalidSpan =
     InvalidSpan(SystemMessage(MessageLevel.Error, message), fallback)
 
-  def fnRefs (labels: FootnoteLabel*): Paragraph = p((labels map { label => FootnoteReference(label,toSource(label))}):_*)
+  def fnRefs (labels: FootnoteLabel*): Paragraph = p(labels.map { label => FootnoteReference(label,toSource(label))}:_*)
 
-  def fnLinks (labels: (String,String)*): Paragraph = p((labels map { label => FootnoteLink(label._1,label._2)}):_*)
+  def fnLinks (labels: (String,String)*): Paragraph = p(labels.map { label => FootnoteLink(label._1,label._2)}:_*)
 
   def fn (label: FootnoteLabel, num: Any) = FootnoteDefinition(label, List(p(s"footnote$num")))
 
@@ -54,11 +54,13 @@ class RewriteRulesSpec extends AnyWordSpec
 
   def simpleLinkRef (id: String = "name") = LinkDefinitionReference(List(Text("text")), id, "text")
 
-  def crossLinkRef (id: String = "name") = InternalReference(List(Text("text")), RelativePath.parse(s"#$id"), "text")
+  def intRef (id: String = "name") = InternalReference(List(Text("text")), RelativePath.parse(s"#$id"), "text")
 
   def extLink (url: String) = ExternalLink(List(Text("text")), url)
 
-  def intLink (ref: String) = InternalLink(List(Text("text")), ref)
+  def intLink (ref: String) = InternalLink(List(Text("text")), rootLinkPath(ref))
+
+  def rootLinkPath (fragment: String): LinkPath = LinkPath.fromPath(RelativePath.parse(s"#$fragment"), Path.Root)
 
   def simpleImgRef (id: String = "name") = ImageDefinitionReference("text", id, "text")
 
@@ -153,7 +155,7 @@ class RewriteRulesSpec extends AnyWordSpec
 
     "resolve internal link references" ignore {
       // TODO - after merging of CrossLink + InternalLink
-      val rootElem = root(p(crossLinkRef()), InternalLinkTarget(Id("name")))
+      val rootElem = root(p(intRef()), InternalLinkTarget(Id("name")))
       rewritten(rootElem) should be(root(p(intLink("name")), InternalLinkTarget(Id("name"))))
     }
 
@@ -161,7 +163,10 @@ class RewriteRulesSpec extends AnyWordSpec
       // TODO - wait for header link support
       val header = Header(1, Seq(Text("Title 1")), Id("title-1"))
       val rootElem = root(p(LinkDefinitionReference(List(Text("title-1")), "title-1", "title-1")), header)
-      rewritten(rootElem) should be(root(p(InternalLink(List(Text("Title 1")), "title-1")), Title(header.content, header.options + Styles("title"))))
+      rewritten(rootElem) should be(root(
+        p(InternalLink(List(Text("Title 1")), rootLinkPath("title-1"))),
+        Title(header.content, header.options + Styles("title"))
+      ))
     }
 
     "resolve anonymous link references" in {

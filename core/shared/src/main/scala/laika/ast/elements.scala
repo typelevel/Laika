@@ -1053,8 +1053,8 @@ object LinkPath {
    *  the provided reference path.
    */
   def fromPath (path: PathBase, refPath: Path): LinkPath = path match {
-    case p: Path         => LinkPath(p, p.relativeTo(refPath))
-    case p: RelativePath => LinkPath(refPath / p, p)
+      case p: Path         => LinkPath(p, p.relativeTo(refPath))
+      case p: RelativePath => LinkPath(refPath / p, p)
   } 
 
   /** Creates an instance for the specified URI relative to
@@ -1081,20 +1081,11 @@ case class ExternalLink (content: Seq[Span], url: String, title: Option[String] 
 
 /** An internal link element, with the span content representing the text (description) of the link.
  */
-case class InternalLink (content: Seq[Span], ref: String, title: Option[String] = None, options: Options = NoOpt) extends Link
+case class InternalLink (content: Seq[Span], ref: LinkPath, title: Option[String] = None, options: Options = NoOpt) extends Link
                                                                                                                   with SpanContainer {
   type Self = InternalLink
   def withContent (newContent: Seq[Span]): InternalLink = copy(content = newContent)
   def withOptions (options: Options): InternalLink = copy(options = options)
-}
-
-/** A link element pointing to a location in a different document, with the span content representing the text (description) of the link.
- */
-case class CrossLink (content: Seq[Span], ref: String, path: LinkPath, title: Option[String] = None, options: Options = NoOpt) extends Link
-                                                                                                                     with SpanContainer {
-  type Self = CrossLink
-  def withContent (newContent: Seq[Span]): CrossLink = copy(content = newContent)
-  def withOptions (options: Options): CrossLink = copy(options = options)
 }
 
 /** A resolved link to a footnote.
