@@ -112,6 +112,12 @@ object LinkTargets {
 //    val ref: String = alias.target
 //    val from: String = alias.id
 //  }
+  //  case class SingleTargetResolver (target: TargetDefinition, selector: Selector, render: String, forAlias: Boolean = false) extends TargetResolver {
+  //    
+  //    def replaceTarget (rewrittenOriginal: Element): Option[Element] = if (forAlias) None else target.replace(rewrittenOriginal, render)
+  //    
+  //    def forAlias (newSelector: Selector): SingleTargetResolver = SingleTargetResolver(target, newSelector, render, forAlias = true)
+  
   
   /** Represents a resolver for a target that has its final identifier generated
     * (if necessary) and can be used to resolve matching reference nodes.
@@ -141,10 +147,6 @@ object LinkTargets {
   
   object ReferenceResolver {
     def lift(f: PartialFunction[LinkSource, Span]): LinkSource => Option[Span] = f.lift
-    def forDuplicateTargetId(selector: UniqueSelector, path: Path): LinkSource => Option[Span] = {
-      val msg = s"More than one ${selector.description} in path $path"
-      lift { case LinkSource(ref: Reference, _) => InvalidElement(msg, ref.source).asSpan }
-    }
   }
   
   object TargetReplacer {
@@ -163,14 +165,17 @@ object LinkTargets {
       override def resolveReference (linkSource: LinkSource): Option[Span] = referenceResolver(linkSource)
       override def replaceTarget (rewrittenOriginal: Block): Option[Block] = targetResolver(rewrittenOriginal)
     }
-    
+
+    def forDuplicateSelector (selector: UniqueSelector, path: Path, delegate: TargetResolver): TargetResolver = {
+      val msg = s"More than one ${selector.description} in path $path"
+      val sysMsg: SystemMessage = SystemMessage(MessageLevel.Error, msg)
+      
+      TargetResolver.create(selector,
+        ReferenceResolver.lift { case LinkSource(ref: Reference, _) => InvalidElement(msg, ref.source).asSpan },
+        block => Some(delegate.replaceTarget(block).fold[Block](sysMsg){ b => InvalidBlock(sysMsg, b.withoutId) })
+      )
+    }
   }
-  
-//  case class SingleTargetResolver (target: TargetDefinition, selector: Selector, render: String, forAlias: Boolean = false) extends TargetResolver {
-//    
-//    def replaceTarget (rewrittenOriginal: Element): Option[Element] = if (forAlias) None else target.replace(rewrittenOriginal, render)
-//    
-//    def forAlias (newSelector: Selector): SingleTargetResolver = SingleTargetResolver(target, newSelector, render, forAlias = true)
   
   /** Represents a resolver for a sequence of targets where matching reference nodes
    *  get determined by position. The `resolveReference` and `resolveTarget`

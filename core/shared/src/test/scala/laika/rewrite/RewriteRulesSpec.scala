@@ -153,8 +153,7 @@ class RewriteRulesSpec extends AnyWordSpec
       rewritten(rootElem) should be(root(p(extLink("http://foo/"))))
     }
 
-    "resolve internal link references" ignore {
-      // TODO - after merging of CrossLink + InternalLink
+    "resolve internal link references" in {
       val rootElem = root(p(intRef()), InternalLinkTarget(Id("name")))
       rewritten(rootElem) should be(root(p(intLink("name")), InternalLinkTarget(Id("name"))))
     }
@@ -261,25 +260,21 @@ class RewriteRulesSpec extends AnyWordSpec
 
   "The link resolver for duplicate ids" should {
 
-    "remove the id from all elements with duplicate ids" ignore {
-      // TODO - needs invalid blocks for targets
-      val target1a = Citation("name", List(p("citation")))
-      val target1b = fn(AutonumberLabel("name"), 1)
-      val msg = "duplicate target id: name"
+    "remove the id from all elements with duplicate ids" in {
+      val target1a = Citation("name", List(p("citation 1")))
+      val target1b = Citation("name", List(p("citation 2")))
+      val msg = "More than one link target with id 'name' in path /doc"
       val rootElem = root(target1a, target1b)
       rewritten(rootElem) should be(root
-      (invalidBlock(msg, target1a), invalidBlock(msg, Footnote("1", List(p("footnote1"))))))
+      (invalidBlock(msg, target1a), invalidBlock(msg, target1b)))
     }
 
-    "remove the id from elements with duplicate ids, but remove invalid external link definitions altogether" ignore {
-      // TODO - needs invalid blocks for targets
-      val target1 = Citation("id1", List(p("citation")))
-      val target2a = fn(AutonumberLabel("id2"), 1)
-      val target2b = ExternalLinkDefinition("id2", "http://foo/")
+    "remove invalid external link definitions altogether" in {
+      val target2a = ExternalLinkDefinition("id2", "http://foo/")
+      val target2b = ExternalLinkDefinition("id2", "http://bar/")
       val msg = "duplicate target id: id2"
-      val rootElem = root(target1, target2a, target2b)
-      rewritten(rootElem) should be(root
-      (target1.copy(options = Id("id1")), invalidBlock(msg, Footnote("1", List(p("footnote1"))))))
+      val rootElem = root(target2a, target2b)
+      rewritten(rootElem) should be(root())
     }
 
     "replace ambiguous references to duplicate ids with invalid spans" in {
@@ -290,7 +285,7 @@ class RewriteRulesSpec extends AnyWordSpec
       rewritten(rootElem) should be(root(p(invalidSpan(msg, "text"))))
     }
 
-    "replace ambiguous references a link alias pointing to duplicate ids with invalid spans" ignore {
+    "replace an ambiguous reference to a link alias pointing to duplicate ids with invalid spans" ignore {
       // TODO - needs alias support 
       val target1a = ExternalLinkDefinition("id2", "http://foo/1")
       val target1b = ExternalLinkDefinition("id2", "http://foo/2")

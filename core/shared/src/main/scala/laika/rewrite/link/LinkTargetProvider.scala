@@ -155,8 +155,8 @@ class LinkTargetProvider (path: Path, root: RootElement) {
   val local: Map[Selector, TargetResolver] = selectTargets.groupBy(_.selector).map {
     case (sel: UniqueSelector, target :: Nil) =>
       (sel, target)
-    case (sel: UniqueSelector, _) =>
-      (sel, TargetResolver.create(sel, ReferenceResolver.forDuplicateTargetId(sel, path), TargetReplacer.removeId))
+    case (sel: UniqueSelector, targets) =>
+      (sel, TargetResolver.forDuplicateSelector(sel, path, targets.head))
     case (selector, list) =>
       (selector, TargetSequenceResolver(list, selector))
   }
