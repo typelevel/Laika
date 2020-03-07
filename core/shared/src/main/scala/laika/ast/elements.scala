@@ -1041,20 +1041,20 @@ object Inserted extends SpanContainerCompanion {
 
 /** Represents a URI which might also optionally be expressed as a local reference within the processed tree.
  */
-case class URI (uri: String, localRef: Option[PathInfo] = None)
+case class URI (uri: String, localRef: Option[LinkPath] = None)
 
-/** Represents a single path in absolute and relative form.
+/** Represents a link between two paths, defining the target in absolute and relative form.
  */
-case class PathInfo (absolute: Path, relative: RelativePath)
+case class LinkPath (absolute: Path, relative: RelativePath)
 
-object PathInfo {
+object LinkPath {
 
   /** Creates an instance for the specified path relative to
    *  the provided reference path.
    */
-  def fromPath (path: PathBase, refPath: Path): PathInfo = path match {
-    case p: Path         => PathInfo(p, p.relativeTo(refPath))
-    case p: RelativePath => PathInfo(refPath / p, p)
+  def fromPath (path: PathBase, refPath: Path): LinkPath = path match {
+    case p: Path         => LinkPath(p, p.relativeTo(refPath))
+    case p: RelativePath => LinkPath(refPath / p, p)
   } 
 
   /** Creates an instance for the specified URI relative to
@@ -1062,7 +1062,7 @@ object PathInfo {
    *  URI is not a file or relative URI.
    */
   // TODO - 0.15 - align with logic for internal references
-  def fromURI (uri: String, refPath: Path): Option[PathInfo] = {
+  def fromURI (uri: String, refPath: Path): Option[LinkPath] = {
     val jURI = new java.net.URI(uri)
     if (jURI.getScheme != null && jURI.getScheme != "file") None
     else Some(fromPath(PathBase.parse(jURI.getPath), refPath))
@@ -1090,7 +1090,7 @@ case class InternalLink (content: Seq[Span], ref: String, title: Option[String] 
 
 /** A link element pointing to a location in a different document, with the span content representing the text (description) of the link.
  */
-case class CrossLink (content: Seq[Span], ref: String, path: PathInfo, title: Option[String] = None, options: Options = NoOpt) extends Link
+case class CrossLink (content: Seq[Span], ref: String, path: LinkPath, title: Option[String] = None, options: Options = NoOpt) extends Link
                                                                                                                      with SpanContainer {
   type Self = CrossLink
   def withContent (newContent: Seq[Span]): CrossLink = copy(content = newContent)
@@ -1133,7 +1133,7 @@ case class Size (amount: Double, unit: String) {
 object Link {
   def create (linkText: Seq[Span], url: String, source: String, title: Option[String] = None): Span = 
     if (url.startsWith("http:") || url.startsWith("https:") || url.startsWith("/")) ExternalLink(linkText, url, title)
-    else CrossReference(linkText, RelativePath.parse(url), source, title)
+    else InternalReference(linkText, RelativePath.parse(url), source, title)
 }
 
 /** A reference to content within the virtual input tree, the path pointing to the source path.
@@ -1141,32 +1141,32 @@ object Link {
   * replace the source path with the final target path of the output document, which might
   * differ in more than just the file suffix, depending on configuration.
   */
-case class CrossReference (content: Seq[Span], 
-                           path: RelativePath, 
-                           source: String, 
-                           title: Option[String] = None, 
-                           options: Options = NoOpt) extends Reference with SpanContainer {
-  type Self = CrossReference
-  def withContent (newContent: Seq[Span]): CrossReference = copy(content = newContent)
-  def withOptions (options: Options): CrossReference = copy(options = options)
+case class InternalReference (content: Seq[Span],
+                              path: RelativePath,
+                              source: String,
+                              title: Option[String] = None,
+                              options: Options = NoOpt) extends Reference with SpanContainer {
+  type Self = InternalReference
+  def withContent (newContent: Seq[Span]): InternalReference = copy(content = newContent)
+  def withOptions (options: Options): InternalReference = copy(options = options)
 }
 
 /** A link reference, the id pointing to the id of a `LinkTarget`. Only part of the
  *  raw document tree and then removed by the rewrite rule that resolves link and image references.
  */
-case class LinkReference (content: Seq[Span], id: String, source: String, options: Options = NoOpt) extends Reference
+case class LinkDefinitionReference (content: Seq[Span], id: String, source: String, options: Options = NoOpt) extends Reference
                                                                                                     with SpanContainer {
-  type Self = LinkReference
-  def withContent (newContent: Seq[Span]): LinkReference = copy(content = newContent)
-  def withOptions (options: Options): LinkReference = copy(options = options)
+  type Self = LinkDefinitionReference
+  def withContent (newContent: Seq[Span]): LinkDefinitionReference = copy(content = newContent)
+  def withOptions (options: Options): LinkDefinitionReference = copy(options = options)
 }
 
 /** An image reference, the id pointing to the id of a `LinkTarget`. Only part of the
  *  raw document tree and then removed by the rewrite rule that resolves link and image references.
  */
-case class ImageReference (text: String, id: String, source: String, options: Options = NoOpt) extends Reference {
-  type Self = ImageReference
-  def withOptions (options: Options): ImageReference = copy(options = options)
+case class ImageDefinitionReference (text: String, id: String, source: String, options: Options = NoOpt) extends Reference {
+  type Self = ImageDefinitionReference
+  def withOptions (options: Options): ImageDefinitionReference = copy(options = options)
 }
 
 /** A reference to a footnote with a matching label.  Only part of the

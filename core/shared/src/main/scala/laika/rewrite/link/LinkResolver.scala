@@ -113,14 +113,14 @@ object LinkResolver extends (DocumentCursor => RewriteRules) {
         case Autosymbol          => resolve(ref, AutosymbolSelector, "too many autosymbol references")
       }
 
-      case img @ Image(_,URI(uri, None),_,_,_,_) => Replace(img.copy(uri = URI(uri, PathInfo.fromURI(uri, cursor.parent.target.path))))
+      case img @ Image(_,URI(uri, None),_,_,_,_) => Replace(img.copy(uri = URI(uri, LinkPath.fromURI(uri, cursor.parent.target.path))))
 
-      case ref: CrossReference => resolve(ref, selectorFor(ref.path), s"unresolved cross reference: ${ref.path.toString}", global = true)  
+      case ref: InternalReference => resolve(ref, selectorFor(ref.path), s"unresolved cross reference: ${ref.path.toString}", global = true)  
         
-      case ref: LinkReference => if (ref.id.isEmpty) resolve(ref, AnonymousSelector, "too many anonymous link references")
+      case ref: LinkDefinitionReference => if (ref.id.isEmpty) resolve(ref, AnonymousSelector, "too many anonymous link references")
                                  else                resolve(ref, LinkDefinitionSelector(ref.id), s"unresolved link reference: ${ref.id}", global = true)
 
-      case ref: ImageReference => resolve(ref, LinkDefinitionSelector(ref.id), s"unresolved image reference: ${ref.id}", global = true)
+      case ref: ImageDefinitionReference => resolve(ref, LinkDefinitionSelector(ref.id), s"unresolved image reference: ${ref.id}", global = true)
 
       case _: Temporary => Remove
 

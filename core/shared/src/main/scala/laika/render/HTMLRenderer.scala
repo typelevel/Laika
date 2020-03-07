@@ -92,7 +92,7 @@ class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => Str
       def codeStyles (language: String, hasHighlighting: Boolean) = 
         if (hasHighlighting) Styles("nohighlight") else Styles(language)
       
-      def crossLinkRef (path: PathInfo, ref: String) = {
+      def crossLinkRef (path: LinkPath, ref: String) = {
         val target = 
           if (path.relative.suffix.nonEmpty) path.relative.withSuffix(fileSuffix).toString
           else path.relative.toString

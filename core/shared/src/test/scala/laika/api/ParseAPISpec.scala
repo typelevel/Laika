@@ -51,7 +51,7 @@ class ParseAPISpec extends AnyFlatSpec
       |
       |[id]: http://foo/""".stripMargin
     MarkupParser.of(Markdown).build.parseUnresolved(input).toOption.get.document.content should be (root 
-        (p (LinkReference(List(Text("link")), "id", "[link][id]")), ExternalLinkDefinition("id","http://foo/",None)))
+        (p (LinkDefinitionReference(List(Text("link")), "id", "[link][id]")), ExternalLinkDefinition("id","http://foo/",None)))
   }
   
 }

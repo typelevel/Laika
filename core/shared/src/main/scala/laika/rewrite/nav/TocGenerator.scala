@@ -48,7 +48,7 @@ object TocGenerator {
       if (path == refPath)
         Paragraph(List(InternalLink(title, section.id)), options = styles(level))
       else
-        Paragraph(List(CrossLink(title, section.id, PathInfo.fromPath(path, refPath.parent))), options = styles(level))
+        Paragraph(List(CrossLink(title, section.id, LinkPath.fromPath(path, refPath.parent))), options = styles(level))
     }
     
     def sectionsToList (sections: Seq[SectionInfo], path: Path, curLevel: Int): List[Block] =
@@ -94,14 +94,14 @@ object TocGenerator {
         if (tree.path / doc == refPath)
           Paragraph(titleOrName(tree), options = styles(level) + Styles("active"))
         else
-          Paragraph(List(CrossLink(titleOrName(tree), "", PathInfo.fromPath(tree.path / doc, refPath.parent))), options = styles(level))
+          Paragraph(List(CrossLink(titleOrName(tree), "", LinkPath.fromPath(tree.path / doc, refPath.parent))), options = styles(level))
       )
     
     def docTitle (document: Document, level: Int): Paragraph =
       if (document.path == refPath)
         Paragraph(titleOrName(document), options = styles(level) + Styles("active"))
       else
-        Paragraph(List(CrossLink(titleOrName(document), "", PathInfo.fromPath(document.path, refPath.parent))), options = styles(level))
+        Paragraph(List(CrossLink(titleOrName(document), "", LinkPath.fromPath(document.path, refPath.parent))), options = styles(level))
     
     def treeToBulletList (tree: DocumentTree, curLevel: Int): List[Block] = {
       if (curLevel > maxLevel) Nil else {

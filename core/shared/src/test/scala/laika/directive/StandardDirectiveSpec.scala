@@ -362,7 +362,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
     def hasTitleDocLinks: Boolean = false
     
     def sectionCrossLink (path: Path, section: Int, level: Int) = 
-      Paragraph(Seq(CrossLink(List(Text("Section "+section)), "title"+section, PathInfo.fromPath(path, treeUnderTest))), Styles("toc","level"+level))
+      Paragraph(Seq(CrossLink(List(Text("Section "+section)), "title"+section, LinkPath.fromPath(path, treeUnderTest))), Styles("toc","level"+level))
       
     def leafLink (path: Path, section: Int, level: Int) = 
       BulletListItem(List(sectionCrossLink(path, section, level)), StringBullet("*"))
@@ -371,7 +371,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
       BulletListItem(List(sectionCrossLink(path, section, level), BulletList(List(leafLink(path, section+1, level+1)), StringBullet("*"))), StringBullet("*"))
       
     def docCrossLink (path: Path, doc: Int, level: Int) =
-      Paragraph(Seq(CrossLink(List(Text("Doc "+doc)), "", PathInfo.fromPath(path, treeUnderTest))), Styles("toc","level"+level))
+      Paragraph(Seq(CrossLink(List(Text("Doc "+doc)), "", LinkPath.fromPath(path, treeUnderTest))), Styles("toc","level"+level))
       
     def docList (path: Path, doc: Int, level: Int) = 
       BulletListItem(List(docCrossLink(path, doc, level), BulletList(List(
@@ -401,7 +401,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
 
     def treeTitle (treeNum: Int) =
       if (!hasTitleDocLinks) Paragraph(List(Text("Tree "+treeNum)), Styles("toc","level1"))
-      else Paragraph(Seq(CrossLink(List(Text("TitleDoc")), "", PathInfo.fromPath(Root / ("sub"+treeNum) / "title", treeUnderTest))), Styles("toc","level1"))
+      else Paragraph(Seq(CrossLink(List(Text("TitleDoc")), "", LinkPath.fromPath(Root / ("sub"+treeNum) / "title", treeUnderTest))), Styles("toc","level1"))
       
     def treeList (treeNum: Int, docStart: Int) = 
       BulletListItem(List(

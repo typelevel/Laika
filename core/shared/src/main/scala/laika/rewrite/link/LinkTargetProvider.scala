@@ -57,8 +57,8 @@ class LinkTargetProvider (path: Path, root: RootElement) {
     val numbers = Iterator.from(1)
            
     val crossLinkResolver = ReferenceResolver.lift {
-      case LinkSource(CrossReference(content, relPath, _, _, opt), sourcePath) => // TODO - deal with title?
-        CrossLink(content, relPath.fragment.get, PathInfo.fromPath(relPath, sourcePath.parent) , options = opt) // TODO - refactor to InternalLink without separate fragment property
+      case LinkSource(InternalReference(content, relPath, _, _, opt), sourcePath) => // TODO - deal with title?
+        CrossLink(content, relPath.fragment.get, LinkPath.fromPath(relPath, sourcePath.parent) , options = opt) // TODO - refactor to InternalLink without separate fragment property
     }
     
     root.collect {
@@ -89,10 +89,10 @@ class LinkTargetProvider (path: Path, root: RootElement) {
       case ld: ExternalLinkDefinition =>
         val selector = if (ld.id.isEmpty) AnonymousSelector else LinkDefinitionSelector(ld.id)
         val resolver = ReferenceResolver.lift {
-          case LinkSource(LinkReference (content, _, _, opt), _) => 
+          case LinkSource(LinkDefinitionReference (content, _, _, opt), _) => 
             ExternalLink(content, ld.url, ld.title, opt)
-          case LinkSource(ImageReference (text, _, _, opt), _) =>
-            Image(text, URI(ld.url, PathInfo.fromURI(ld.url, path.parent)), title = ld.title, options = opt)
+          case LinkSource(ImageDefinitionReference (text, _, _, opt), _) =>
+            Image(text, URI(ld.url, LinkPath.fromURI(ld.url, path.parent)), title = ld.title, options = opt)
         }
         TargetResolver.create(selector, resolver, TargetReplacer.removeTarget)
       

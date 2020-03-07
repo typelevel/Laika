@@ -58,15 +58,15 @@ trait ModelBuilder {
     
     def source (value: String): LinkRefBuilder = new LinkRefBuilder(content, id, value)
     
-    def toLink = LinkReference(content, id, source)
+    def toLink = LinkDefinitionReference(content, id, source)
      
   }
   
-  def img (text: String, uri: String, pathInfo: Option[PathInfo] = None, title: Option[String] = None,
+  def img (text: String, uri: String, pathInfo: Option[LinkPath] = None, title: Option[String] = None,
            width: Option[Size] = None, height: Option[Size] = None) =
     Image(text, URI(uri, pathInfo), title = title, width = width, height = height)
 
-  def imgRef (text: String, id: String, source: String = "") = ImageReference(text, id, source)
+  def imgRef (text: String, id: String, source: String = "") = ImageDefinitionReference(text, id, source)
   
   def citRef (label: String) = CitationReference(label, s"[$label]_")
   
@@ -130,7 +130,7 @@ trait ModelBuilder {
 
   implicit def builderToLink (builder: LinkBuilder): Link = builder.toLink
 
-  implicit def builderToLinkRef (builder: LinkRefBuilder): LinkReference = builder.toLink
+  implicit def builderToLinkRef (builder: LinkRefBuilder): LinkDefinitionReference = builder.toLink
   
   
 }

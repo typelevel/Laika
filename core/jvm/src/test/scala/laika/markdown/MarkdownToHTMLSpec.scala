@@ -17,7 +17,7 @@
 package laika.markdown
 
 import laika.api.Transformer
-import laika.ast.{CrossReference, ExternalLink, QuotedBlock, RelativePath, Replace}
+import laika.ast.{InternalReference, ExternalLink, QuotedBlock, RelativePath, Replace}
 import laika.file.FileIO
 import laika.format.{HTML, Markdown}
 import laika.html.TidyHTML
@@ -58,7 +58,7 @@ class MarkdownToHTMLSpec extends AnyFlatSpec
       .from(Markdown).to(HTML)
       .strict.withRawContent
       .usingSpanRule {
-        case CrossReference(content, relPath, _, title, opt) => Replace(ExternalLink(content, renderPath(relPath), title, opt)) // We do not validate cross-links in these tests
+        case InternalReference(content, relPath, _, title, opt) => Replace(ExternalLink(content, renderPath(relPath), title, opt)) // We do not validate cross-links in these tests
       }
       .rendering {
         case (fmt, QuotedBlock(content, _, opt)) => fmt.indentedElement("blockquote", opt, content) // Markdown always writes p tags inside blockquotes

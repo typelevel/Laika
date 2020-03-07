@@ -258,7 +258,7 @@ object FOFormatter extends (RenderContext[FOFormatter] => FOFormatter) {
     *  @param path the path of the target document containing the local reference
     *  @param options optional render hints
     */
-  case class PageNumberCitation (ref: String, path: PathInfo, options: Options = NoOpt) extends Span {
+  case class PageNumberCitation (ref: String, path: LinkPath, options: Options = NoOpt) extends Span {
     type Self = PageNumberCitation
     def withOptions (options: Options): PageNumberCitation = copy(options = options)
   }
@@ -296,7 +296,7 @@ object FOFormatter extends (RenderContext[FOFormatter] => FOFormatter) {
 
   /** A single bookmark and its nested children.
     */
-  case class Bookmark (ref: String, path: PathInfo, title: String, children: Seq[Bookmark], options: Options = NoOpt) extends Block {
+  case class Bookmark (ref: String, path: LinkPath, title: String, children: Seq[Bookmark], options: Options = NoOpt) extends Block {
     type Self = Bookmark
     def withOptions (options: Options): Bookmark = copy(options = options)
   }

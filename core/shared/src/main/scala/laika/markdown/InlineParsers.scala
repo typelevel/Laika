@@ -133,8 +133,8 @@ object InlineParsers {
     */
   lazy val link: SpanParserBuilder = SpanParser.recursive { recParsers =>
 
-    def unwrap (ref: LinkReference, suffix: String) = {
-      if ((ref select (_.isInstanceOf[LinkReference])).tail.nonEmpty)
+    def unwrap (ref: LinkDefinitionReference, suffix: String) = {
+      if ((ref select (_.isInstanceOf[LinkDefinitionReference])).tail.nonEmpty)
         SpanSequence(Text("[") :: ref.content.toList ::: Text(suffix) :: Nil)
       else ref
     }
@@ -143,7 +143,7 @@ object InlineParsers {
       /* Markdown's design comes with a few arbitrary and inconsistent choices for how to handle nesting of brackets.
        * The logic here is constructed to make the official test suite pass, other edge cases might still yield unexpected results.
        * Users usually should not bother and simply escape brackets which are not meant to be markup. */
-      val ref = LinkReference(res.parser(res.text), normalizeId(id), "[" + res.source)
+      val ref = LinkDefinitionReference(res.parser(res.text), normalizeId(id), "[" + res.source)
       if (res.text == id) unwrap(ref, res.suffix) else ref
     }
 
@@ -167,8 +167,8 @@ object InlineParsers {
     "![" ~> resource(recParsers).map { res =>
       res.target match {
         case TargetUrl(url, title) => escape(res.text, Image(_, URI(url), title = title))
-        case TargetId(id)   => escape(res.text, ImageReference(_, normalizeId(id),       "![" + res.source))
-        case ImplicitTarget => escape(res.text, ImageReference(_, normalizeId(res.text), "![" + res.source))
+        case TargetId(id)   => escape(res.text, ImageDefinitionReference(_, normalizeId(id),       "![" + res.source))
+        case ImplicitTarget => escape(res.text, ImageDefinitionReference(_, normalizeId(res.text), "![" + res.source))
       }
     }
   }

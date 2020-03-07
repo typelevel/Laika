@@ -648,21 +648,21 @@ class XSLFORendererSpec extends AnyFlatSpec
   }
   
   it should "render a paragraph containing a cross link with a fragment part" in {
-    val elem = p(Text("some "), CrossLink(List(Text("link"),Emphasized("text")),"foo", PathInfo(Path.parse("/bar"),RelativePath.parse("../bar.md"))), Text(" span"))
+    val elem = p(Text("some "), CrossLink(List(Text("link"),Emphasized("text")),"foo", LinkPath(Path.parse("/bar"),RelativePath.parse("../bar.md"))), Text(" span"))
     val fo = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">some """ +
         """<fo:basic-link color="#3956ac" internal-destination="_bar_foo">link<fo:inline font-style="italic">text</fo:inline></fo:basic-link> span</fo:block>"""
     render (elem) should be (fo) 
   }
   
   it should "render a paragraph containing a cross link without a fragment part" in {
-    val elem = p(Text("some "), CrossLink(List(Text("link"),Emphasized("text")),"", PathInfo(Path.parse("/bar"),RelativePath.parse("../bar.md"))), Text(" span"))
+    val elem = p(Text("some "), CrossLink(List(Text("link"),Emphasized("text")),"", LinkPath(Path.parse("/bar"),RelativePath.parse("../bar.md"))), Text(" span"))
     val fo = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">some """ +
         """<fo:basic-link color="#3956ac" internal-destination="_bar_">link<fo:inline font-style="italic">text</fo:inline></fo:basic-link> span</fo:block>"""
     render (elem) should be (fo) 
   }
   
   it should "render a paragraph containing a cross link with a filename without suffix" in {
-    val elem = p(Text("some "), CrossLink(List(Text("link"),Emphasized("text")),"", PathInfo(Path.parse("/bar"),RelativePath.parse("../bar"))), Text(" span"))
+    val elem = p(Text("some "), CrossLink(List(Text("link"),Emphasized("text")),"", LinkPath(Path.parse("/bar"),RelativePath.parse("../bar"))), Text(" span"))
     val fo = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">some """ +
         """<fo:basic-link color="#3956ac" internal-destination="_bar_">link<fo:inline font-style="italic">text</fo:inline></fo:basic-link> span</fo:block>"""
     render (elem) should be (fo) 

@@ -108,7 +108,7 @@ object PDFNavigation {
       else for (section <- sections) yield {
         val title = section.title.extractText
         val children = sectionBookmarks(path, section.content, levels - 1)
-        Bookmark(section.id, PathInfo.fromPath(path, result.tree.path), title, children)
+        Bookmark(section.id, LinkPath.fromPath(path, result.tree.path), title, children)
       }
 
     def treeBookmarks (tree: RenderedTree, levels: Int): Seq[Bookmark] = {
@@ -119,11 +119,11 @@ object PDFNavigation {
           case doc: RenderedDocument =>
             val title = doc.title.fold(doc.name)(_.extractText)
             val children = sectionBookmarks(doc.path, doc.sections, levels - 1)
-            Seq(Bookmark("", PathInfo.fromPath(doc.path, result.tree.path), title, children))
+            Seq(Bookmark("", LinkPath.fromPath(doc.path, result.tree.path), title, children))
           case subtree: RenderedTree =>
             val title = subtree.title.fold(subtree.name)(_.extractText)
             val children = treeBookmarks(subtree, levels - 1)
-            Seq(Bookmark("", PathInfo.fromPath(subtree.path / DocNames.treeTitle, result.tree.path), title, children))
+            Seq(Bookmark("", LinkPath.fromPath(subtree.path / DocNames.treeTitle, result.tree.path), title, children))
         }).flatten
       }
     }

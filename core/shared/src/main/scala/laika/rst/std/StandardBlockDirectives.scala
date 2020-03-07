@@ -279,7 +279,7 @@ class StandardBlockDirectives {
     val content = img match {
       case img: Image => img.copy(options = imgOpt)
       case el: ExternalLink => el.copy(options = imgOpt)
-      case lr: LinkReference => lr.copy(options = imgOpt)
+      case lr: LinkDefinitionReference => lr.copy(options = imgOpt)
     }
     Paragraph(List(content), pOpt)
   }

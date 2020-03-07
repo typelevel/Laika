@@ -42,15 +42,15 @@ class InlineParsersSpec extends AnyFlatSpec
   def subst (name: String) = SubstitutionReference(name)
   
   
-  def pLinkRef (id: String, text: String): LinkReference = linkRef(Text(text)).id(id).source(s"`$text`_")
+  def pLinkRef (id: String, text: String): LinkDefinitionReference = linkRef(Text(text)).id(id).source(s"`$text`_")
 
-  def pLinkRef (id: String): LinkReference = pLinkRef(id,id)
+  def pLinkRef (id: String): LinkDefinitionReference = pLinkRef(id,id)
   
-  def anonPLinkRef (text: String): LinkReference = linkRef(Text(text)).source(s"`$text`__")
+  def anonPLinkRef (text: String): LinkDefinitionReference = linkRef(Text(text)).source(s"`$text`__")
   
-  def linkRef (id: String): LinkReference = linkRef(Text(id)).id(id).source(id+"_")
+  def linkRef (id: String): LinkDefinitionReference = linkRef(Text(id)).id(id).source(id+"_")
   
-  def anonLinkRef (text: String): LinkReference = linkRef(Text(text)).source(text+"__")
+  def anonLinkRef (text: String): LinkDefinitionReference = linkRef(Text(text)).source(text+"__")
   
   
   

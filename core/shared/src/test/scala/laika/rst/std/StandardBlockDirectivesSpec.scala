@@ -468,7 +468,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
   }
   
   
-  val imgPath = Some(PathInfo(Root / "picture.jpg", Current / "picture.jpg"))
+  val imgPath = Some(LinkPath(Root / "picture.jpg", Current / "picture.jpg"))
   
   "The image directive" should "parse the URI argument" in {
     val input = """.. image:: picture.jpg"""

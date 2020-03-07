@@ -52,15 +52,15 @@ class RewriteRulesSpec extends AnyWordSpec
 
   def fn (label: String) = Footnote(label, List(p(s"footnote$label")))
 
-  def simpleLinkRef (id: String = "name") = LinkReference(List(Text("text")), id, "text")
+  def simpleLinkRef (id: String = "name") = LinkDefinitionReference(List(Text("text")), id, "text")
 
-  def crossLinkRef (id: String = "name") = CrossReference(List(Text("text")), RelativePath.parse(s"#$id"), "text")
+  def crossLinkRef (id: String = "name") = InternalReference(List(Text("text")), RelativePath.parse(s"#$id"), "text")
 
   def extLink (url: String) = ExternalLink(List(Text("text")), url)
 
   def intLink (ref: String) = InternalLink(List(Text("text")), ref)
 
-  def simpleImgRef (id: String = "name") = ImageReference("text", id, "text")
+  def simpleImgRef (id: String = "name") = ImageDefinitionReference("text", id, "text")
 
 
   "The rewrite rules for citations" should {
@@ -160,7 +160,7 @@ class RewriteRulesSpec extends AnyWordSpec
     "use the headers text as link text when linking to a header" ignore {
       // TODO - wait for header link support
       val header = Header(1, Seq(Text("Title 1")), Id("title-1"))
-      val rootElem = root(p(LinkReference(List(Text("title-1")), "title-1", "title-1")), header)
+      val rootElem = root(p(LinkDefinitionReference(List(Text("title-1")), "title-1", "title-1")), header)
       rewritten(rootElem) should be(root(p(InternalLink(List(Text("Title 1")), "title-1")), Title(header.content, header.options + Styles("title"))))
     }
 
@@ -212,7 +212,7 @@ class RewriteRulesSpec extends AnyWordSpec
 
     "resolve external link references" in {
       val rootElem = root(p(simpleImgRef()), ExternalLinkDefinition("name", "foo.jpg"))
-      rewritten(rootElem) should be(root(p(img("text", "foo.jpg", Some(PathInfo(Path.Root / "foo.jpg", RelativePath.Current / "foo.jpg"))))))
+      rewritten(rootElem) should be(root(p(img("text", "foo.jpg", Some(LinkPath(Path.Root / "foo.jpg", RelativePath.Current / "foo.jpg"))))))
     }
 
     "replace an unresolvable reference with an invalid span" in {

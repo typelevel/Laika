@@ -80,7 +80,7 @@ object StandardDirectiveParts {
 
       (target map {
         case ref: ExternalLink  => ref.copy(content = List(image.copy(options = opt)), options = alignOpt)
-        case ref: LinkReference => ref.copy(content = List(image.copy(options = opt)), options = alignOpt)
+        case ref: LinkDefinitionReference => ref.copy(content = List(image.copy(options = opt)), options = alignOpt)
       }).getOrElse(image.copy(options = alignOpt + opt))
     }
   }

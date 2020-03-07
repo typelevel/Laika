@@ -38,7 +38,7 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec
 
   def parse (input: String): RootElement = MarkupParser.of(ReStructuredText).build.parse(input).toOption.get.content
   
-  val imgPath = Some(PathInfo(Root / "picture.jpg", Current / "picture.jpg"))
+  val imgPath = Some(LinkPath(Root / "picture.jpg", Current / "picture.jpg"))
   
   "The image directive" should "parse the URI argument" in {
     val input = """.. |subst| image:: picture.jpg
