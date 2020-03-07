@@ -80,7 +80,7 @@ class FOforPDFSpec extends IOSpec with FileIO {
     def resultsWithDocTitle (num: Int): String = (1 to num) map (resultWithDocTitle) reduce (_ + _)
     
     def resultWithDocTitle (num: Int): String = {
-      s"""<fo:block id="${idPrefix(num)}_doc${num}_">
+      s"""<fo:block id="${idPrefix(num)}_doc${num}">
         |  <fo:marker marker-class-name="chapter"><fo:block>Title $num &amp; More</fo:block></fo:marker>
         |  <fo:block id="${idPrefix(num)}_doc${num}_title-$num" font-family="sans-serif" font-size="16pt" font-weight="bold" keep-with-next="always" space-after="7mm" space-before="12mm">Title $num &amp; More</fo:block>
         |</fo:block>
@@ -90,7 +90,7 @@ class FOforPDFSpec extends IOSpec with FileIO {
     def treeTitleResult (num: Int): String = {
       val idPrefix = if (num == 3) "_tree2" else if (num == 2) "_tree1" else ""
 
-      s"""<fo:block id="${idPrefix}_title_">
+      s"""<fo:block id="${idPrefix}_title">
          |  <fo:marker marker-class-name="chapter"><fo:block>Title Doc $num</fo:block></fo:marker>
          |  <fo:block id="${idPrefix}_title_title-$num" font-family="sans-serif" font-size="16pt" font-weight="bold" keep-with-next="always" space-after="7mm" space-before="12mm">Title Doc $num</fo:block>
          |</fo:block>
@@ -99,7 +99,7 @@ class FOforPDFSpec extends IOSpec with FileIO {
 
     def treeLinkResult (num: Int): String = {
       val idPrefix = if (num == 3) "_tree2" else if (num == 2) "_tree1" else ""
-      s"""<fo:block id="${idPrefix}_title_"/>"""
+      s"""<fo:block id="${idPrefix}_title"/>"""
     }
     
     def tocTitle: String = """<fo:marker marker-class-name="chapter"><fo:block>Contents</fo:block></fo:marker>
@@ -110,24 +110,24 @@ class FOforPDFSpec extends IOSpec with FileIO {
       val margin = if (num > 2) """ margin-left="4mm"""" else ""
       val fontsize = if (num > 2) "11pt" else "12pt"
       val spaceBefore = if (num > 2) "2mm" else "5mm"
-      s"""<fo:block font-family="serif" font-size="$fontsize"$margin space-after="0mm" space-before="$spaceBefore" text-align-last="justify"><fo:basic-link color="#3956ac" internal-destination="${idPrefix(num)}_doc${num}_">Title $num &amp; More<fo:leader leader-pattern="dots"></fo:leader><fo:page-number-citation ref-id="${idPrefix(num)}_doc${num}_" /></fo:basic-link></fo:block>""" + "\n"
+      s"""<fo:block font-family="serif" font-size="$fontsize"$margin space-after="0mm" space-before="$spaceBefore" text-align-last="justify"><fo:basic-link color="#3956ac" internal-destination="${idPrefix(num)}_doc${num}">Title $num &amp; More<fo:leader leader-pattern="dots"></fo:leader><fo:page-number-citation ref-id="${idPrefix(num)}_doc${num}" /></fo:basic-link></fo:block>""" + "\n"
     }
     
     def tocTreeResult (num: Int, titleDoc: Boolean = false): String = {
       val title = if (!titleDoc) s"Tree ${num+1} &amp; More" else s"Title Doc ${num+1}"
-      s"""<fo:block font-family="serif" font-size="12pt" space-after="0mm" space-before="5mm" text-align-last="justify"><fo:basic-link color="#3956ac" internal-destination="_tree${num}_title_">$title<fo:leader leader-pattern="dots"></fo:leader><fo:page-number-citation ref-id="_tree${num}_title_" /></fo:basic-link></fo:block>""" + "\n"
+      s"""<fo:block font-family="serif" font-size="12pt" space-after="0mm" space-before="5mm" text-align-last="justify"><fo:basic-link color="#3956ac" internal-destination="_tree${num}_title">$title<fo:leader leader-pattern="dots"></fo:leader><fo:page-number-citation ref-id="_tree${num}_title" /></fo:basic-link></fo:block>""" + "\n"
     }
 
     def withDefaultTemplate(result: String, bookmarks: String = ""): String = RenderResult.fo.withDefaultTemplate(result, bookmarks)
     
     def bookmarkTreeResult(treeNum: Int, docNum: Int, titleDoc: Boolean = false): String = {
       val title = if (!titleDoc) s"Tree ${treeNum+1} &amp; More" else s"Title Doc ${treeNum+1}"
-      s"""    <fo:bookmark internal-destination="_tree${treeNum}_title_">
+      s"""    <fo:bookmark internal-destination="_tree${treeNum}_title">
          |      <fo:bookmark-title>$title</fo:bookmark-title>
-         |      <fo:bookmark internal-destination="_tree${treeNum}_doc${docNum}_">
+         |      <fo:bookmark internal-destination="_tree${treeNum}_doc${docNum}">
          |        <fo:bookmark-title>Title $docNum &amp; More</fo:bookmark-title>
          |      </fo:bookmark>
-         |      <fo:bookmark internal-destination="_tree${treeNum}_doc${docNum + 1}_">
+         |      <fo:bookmark internal-destination="_tree${treeNum}_doc${docNum + 1}">
          |        <fo:bookmark-title>Title ${docNum + 1} &amp; More</fo:bookmark-title>
          |      </fo:bookmark>
          |    </fo:bookmark>
@@ -135,10 +135,10 @@ class FOforPDFSpec extends IOSpec with FileIO {
     }
       
     val bookmarkRootResult = """<fo:bookmark-tree>
-      |    <fo:bookmark internal-destination="_doc1_">
+      |    <fo:bookmark internal-destination="_doc1">
       |      <fo:bookmark-title>Title 1 &amp; More</fo:bookmark-title>
       |    </fo:bookmark>
-      |    <fo:bookmark internal-destination="_doc2_">
+      |    <fo:bookmark internal-destination="_doc2">
       |      <fo:bookmark-title>Title 2 &amp; More</fo:bookmark-title>
       |    </fo:bookmark>
       |""".stripMargin  

@@ -111,6 +111,14 @@ sealed trait Path extends PathBase {
     */
   def withFragment (fragment: String): Path = this
 
+  /** Returns a new path that discards this path's suffix, if present.
+    */
+  def withoutSuffix: Path = this
+
+  /** Returns a new path that discards this path's fragment, if present.
+    */
+  def withoutFragment: Path = this
+
   /** Creates a new path with the specified name
    *  as an immediate child of this path.
    */
@@ -158,10 +166,16 @@ case class SegmentedPath (segments: NonEmptyChain[String]) extends Path with Seg
     }
     val (a, b) = path match {
       case Root => (Nil, segments.toList)
-      case SegmentedPath(otherSegments) => removeCommonParts(otherSegments.toList, segments.toList)
+      case SegmentedPath(otherSegments) => removeCommonParts(otherSegments.toList, segments.init.toList :+ name)
     } 
     val base = if (a.isEmpty) Current else Parent(a.length)
-    NonEmptyChain.fromSeq(b).fold[RelativePath](base)(seg => base / SegmentedRelativePath(seg))
+    val pathWithoutFragment = NonEmptyChain.fromSeq(b).fold[RelativePath](base)(seg => base / SegmentedRelativePath(seg))
+    fragment.fold[RelativePath](pathWithoutFragment){ fm =>
+      pathWithoutFragment match {
+        case Current => Current / s"#$fm" // TODO - Current.withFragment should work
+        case p => p.withFragment(fm)
+      }
+    }
   }
 
   def isSubPath (other: Path): Boolean = other match {
@@ -176,6 +190,14 @@ case class SegmentedPath (segments: NonEmptyChain[String]) extends Path with Seg
   override def withFragment (newFragment: String): Path =
     if (fragment.contains(newFragment)) this
     else SegmentedPath(NonEmptyChain.fromChainAppend(segments.init, s"$name#$newFragment"))
+
+  override def withoutSuffix: Path = suffix.fold(this)(_ =>
+    SegmentedPath(NonEmptyChain.fromChainAppend(segments.init, s"$basename${fragment.fold("")("#"+_)}"))
+  )
+
+  override def withoutFragment: Path = fragment.fold(this)(_ =>
+    SegmentedPath(NonEmptyChain.fromChainAppend(segments.init, name))
+  )
   
   override lazy val toString: String = "/" + (segments.toList mkString "/")
 }
@@ -256,6 +278,14 @@ sealed trait RelativePath extends PathBase {
     * with the specified one or appends it if this path does not have a component yet.
     */
   def withFragment (fragment: String): RelativePath = this
+
+  /** Returns a new path that discards this path's suffix, if present.
+    */
+  def withoutSuffix: RelativePath = this
+
+  /** Returns a new path that discards this path's fragment, if present.
+    */
+  def withoutFragment: RelativePath = this
 }
 
 case class SegmentedRelativePath(segments: NonEmptyChain[String], parentLevels: Int = 0) extends RelativePath with SegmentedPathBase {
@@ -299,6 +329,14 @@ case class SegmentedRelativePath(segments: NonEmptyChain[String], parentLevels: 
   override def withFragment (newFragment: String): RelativePath =
     if (fragment.contains(newFragment)) this
     else SegmentedRelativePath(NonEmptyChain.fromChainAppend(segments.init, s"$name#$newFragment"), parentLevels)
+
+  override def withoutSuffix: RelativePath = suffix.fold(this)(_ =>
+    SegmentedRelativePath(NonEmptyChain.fromChainAppend(segments.init, s"$basename${fragment.fold("")("#"+_)}"), parentLevels)
+  )
+
+  override def withoutFragment: RelativePath = fragment.fold(this)(_ =>
+    SegmentedRelativePath(NonEmptyChain.fromChainAppend(segments.init, name), parentLevels)
+  )
   
   override lazy val toString: String = ("../" * parentLevels) + (segments.toList mkString "/")
 }

@@ -141,8 +141,8 @@ object PDFNavigation {
     def toBlockSequence (blocks: Seq[Element]): Seq[Block] = blocks flatMap {
       case BulletList(items, _, _) => toBlockSequence(items)
       case BulletListItem(content, _, _) => toBlockSequence(content)
-      case Paragraph(Seq(link: CrossLink), opt) => Seq(Paragraph(Seq(link.copy(
-        content = link.content :+ Leader() :+ PageNumberCitation(link.ref, link.path)
+      case Paragraph(Seq(link: InternalLink), opt) => Seq(Paragraph(Seq(link.copy(
+        content = link.content :+ Leader() :+ PageNumberCitation(link.ref)
       )), opt))
     }
 
