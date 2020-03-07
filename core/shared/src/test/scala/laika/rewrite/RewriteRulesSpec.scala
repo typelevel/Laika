@@ -23,7 +23,9 @@ import laika.rst.ast.Underline
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
-class RewriteRulesSpec extends AnyWordSpec with Matchers with ModelBuilder {
+class RewriteRulesSpec extends AnyWordSpec
+  with Matchers
+  with ModelBuilder {
 
 
   def rewritten (root: RootElement): RootElement = {
@@ -93,28 +95,27 @@ class RewriteRulesSpec extends AnyWordSpec with Matchers with ModelBuilder {
 
   "The rewrite rules for footnotes" should {
 
-    "retain a group of footnotes with a mix of explicit numeric and autonumber labels" ignore {
+    "retain a group of footnotes with a mix of explicit numeric and autonumber labels" in {
       val rootElem = root(fnRefs(Autonumber, NumericLabel(1), Autonumber),
-        fn(Autonumber, 2), fn(NumericLabel(1), 1), fn(Autonumber, 3))
-      val resolved = root(fnLinks(("2", "2"), ("1", "1"), ("3", "3")),
-        fn("2", "2"), fn("1", "1"), fn("3", "3"))
+        fn(Autonumber, 1), fn(NumericLabel(1), 1), fn(Autonumber, 2))
+      val resolved = root(fnLinks(("__fn-1", "1"), ("__fnl-1", "1"), ("__fn-2", "2")),
+        fn("__fn-1", "1"), fn("__fnl-1", "1"), fn("__fn-2", "2"))
       rewritten(rootElem) should be(resolved)
     }
 
-    "retain a group of footnotes with a mix of explicit numeric, autonumber and autonumber-labeled footnotes" ignore {
+    "retain a group of footnotes with a mix of explicit numeric, autonumber and autonumber-labeled footnotes" in {
       val rootElem = root(fnRefs(NumericLabel(2), Autonumber, AutonumberLabel("label")),
-        fn(NumericLabel(2), 2), fn(AutonumberLabel("label"), 1), fn(Autonumber, 3))
-      val resolved = root(fnLinks(("__fnl-2", "2"), ("3", "3"), ("label", "1")),
-        fn("2", "2"), fn("label", "1"), fn("3", "3"))
+        fn(NumericLabel(2), 2), fn(AutonumberLabel("label"), 1), fn(Autonumber, 2))
+      val resolved = root(fnLinks(("__fnl-2", "2"), ("__fn-2", "2"), ("label", "1")),
+        fn("__fnl-2", "2"), fn("label", "1"), fn("__fn-2", "2"))
       rewritten(rootElem) should be(resolved)
     }
 
-    "retain a group of footnotes with autosymbol labels" ignore {
-      // TODO - needs unique flag on selector
+    "retain a group of footnotes with autosymbol labels" in {
       val rootElem = root(fnRefs(Autosymbol, Autosymbol, Autosymbol),
         fn(Autosymbol, "*"), fn(Autosymbol, "\u2020"), fn(Autosymbol, "\u2021"))
-      val resolved = root(fnLinks(("id-1", "*"), ("id-2", "\u2020"), ("id-3", "\u2021")),
-        fn("id-1", "*"), fn("id-2", "\u2020"), fn("id-3", "\u2021"))
+      val resolved = root(fnLinks(("__fns-1", "*"), ("__fns-2", "\u2020"), ("__fns-3", "\u2021")),
+        fn("__fns-1", "*"), fn("__fns-2", "\u2020"), fn("__fns-3", "\u2021"))
       rewritten(rootElem) should be(resolved)
     }
 
@@ -143,7 +144,6 @@ class RewriteRulesSpec extends AnyWordSpec with Matchers with ModelBuilder {
   }
 
 
-
   "The rewrite rules for link references" should {
 
     "resolve external link references" in {
@@ -158,18 +158,13 @@ class RewriteRulesSpec extends AnyWordSpec with Matchers with ModelBuilder {
     }
 
     "use the headers text as link text when linking to a header" ignore {
+      // TODO - wait for header link support
       val header = Header(1, Seq(Text("Title 1")), Id("title-1"))
       val rootElem = root(p(LinkReference(List(Text("title-1")), "title-1", "title-1")), header)
       rewritten(rootElem) should be(root(p(InternalLink(List(Text("Title 1")), "title-1")), Title(header.content, header.options + Styles("title"))))
     }
 
-    "resolve indirect link references" ignore {
-      val rootElem = root(p(simpleLinkRef()), LinkAlias("name", "ref"), InternalLinkTarget(Id("ref")))
-      rewritten(rootElem) should be(root(p(intLink("ref")), InternalLinkTarget(Id("ref"))))
-    }
-
-    "resolve anonymous link references" ignore {
-      // TODO - revive after global/unique flags have been introduced
+    "resolve anonymous link references" in {
       val rootElem = root(p(simpleLinkRef(""), simpleLinkRef("")), ExternalLinkDefinition("", "http://foo/"), ExternalLinkDefinition("", "http://bar/"))
       rewritten(rootElem) should be(root(p(extLink("http://foo/"), extLink("http://bar/"))))
     }
@@ -179,14 +174,30 @@ class RewriteRulesSpec extends AnyWordSpec with Matchers with ModelBuilder {
       rewritten(rootElem) should be(root(p(invalidSpan("unresolved link reference: name", "text"))))
     }
 
-    "replace an unresolvable reference to a link alias with an invalid span" ignore {
-      val rootElem = root(p(simpleLinkRef()), LinkAlias("name", "ref"))
-      rewritten(rootElem) should be(root(p(invalidSpan("unresolved link alias: ref", "text"))))
-    }
-
     "replace a surplus anonymous reference with an invalid span" in {
       val rootElem = root(p(simpleLinkRef("")))
       rewritten(rootElem) should be(root(p(invalidSpan("too many anonymous link references", "text"))))
+    }
+
+    "resolve references when some parent element also gets rewritten" in {
+      val rootElem = root(DecoratedHeader(Underline('#'), List(Text("text1"), simpleLinkRef()), Id("header")), ExternalLinkDefinition("name", "http://foo/"))
+      rewritten(rootElem) should be(root(Title(List(Text("text1"), extLink("http://foo/")), Id("header") + Styles("title"))))
+    }
+  }
+
+
+  "The rewrite rules for link aliases" should {
+
+    // TODO - needs alias support
+
+    "resolve indirect link references" ignore {
+      val rootElem = root(p(simpleLinkRef()), LinkAlias("name", "ref"), InternalLinkTarget(Id("ref")))
+      rewritten(rootElem) should be(root(p(intLink("ref")), InternalLinkTarget(Id("ref"))))
+    }
+
+    "replace an unresolvable reference to a link alias with an invalid span" ignore {
+      val rootElem = root(p(simpleLinkRef()), LinkAlias("name", "ref"))
+      rewritten(rootElem) should be(root(p(invalidSpan("unresolved link alias: ref", "text"))))
     }
 
     "replace circular indirect references with invalid spans" ignore {
@@ -194,10 +205,6 @@ class RewriteRulesSpec extends AnyWordSpec with Matchers with ModelBuilder {
       rewritten(rootElem) should be(root(p(invalidSpan("circular link reference: name", "text"))))
     }
 
-    "resolve references when some parent element also gets rewritten" in {
-      val rootElem = root(DecoratedHeader(Underline('#'), List(Text("text1"), simpleLinkRef()), Id("header")), ExternalLinkDefinition("name", "http://foo/"))
-      rewritten(rootElem) should be(root(Title(List(Text("text1"), extLink("http://foo/")), Id("header") + Styles("title"))))
-    }
   }
 
 
@@ -221,11 +228,6 @@ class RewriteRulesSpec extends AnyWordSpec with Matchers with ModelBuilder {
       rewritten(rootElem) should be(root(Title(List(Text("text")), Id("header") + Styles("title"))))
     }
 
-    "append numbers to duplicate ids" ignore {
-      val rootElem = root(Header(1, List(Text("text1")), Id("header")), Header(1, List(Text("text2")), Id("header")))
-      rewritten(rootElem) should be(root(Section(Header(1, List(Text("text1")), Id("header") + Styles("section")), Nil),
-        Section(Header(1, List(Text("text2")), Id("header-1") + Styles("section")), Nil)))
-    }
   }
 
 
@@ -249,19 +251,13 @@ class RewriteRulesSpec extends AnyWordSpec with Matchers with ModelBuilder {
         Section(Header(1, List(Text("text")), Id("header3") + Styles("section")), Nil)))
     }
 
-    "append numbers to duplicate ids" ignore {
-      val rootElem = root(DecoratedHeader(Underline('#'), List(Text("text1")), Id("header")),
-        DecoratedHeader(Underline('#'), List(Text("text2")), Id("header")))
-      rewritten(rootElem) should be(root(
-        Section(Header(1, List(Text("text1")), Id("header") + Styles("section")), Nil),
-        Section(Header(1, List(Text("text2")), Id("header-1") + Styles("section")), Nil)))
-    }
   }
 
 
-  "The link resolver" should {
+  "The link resolver for duplicate ids" should {
 
     "remove the id from all elements with duplicate ids" ignore {
+      // TODO - needs invalid blocks for targets
       val target1a = Citation("name", List(p("citation")))
       val target1b = fn(AutonumberLabel("name"), 1)
       val msg = "duplicate target id: name"
@@ -271,6 +267,7 @@ class RewriteRulesSpec extends AnyWordSpec with Matchers with ModelBuilder {
     }
 
     "remove the id from elements with duplicate ids, but remove invalid external link definitions altogether" ignore {
+      // TODO - needs invalid blocks for targets
       val target1 = Citation("id1", List(p("citation")))
       val target2a = fn(AutonumberLabel("id2"), 1)
       val target2b = ExternalLinkDefinition("id2", "http://foo/")
@@ -289,12 +286,14 @@ class RewriteRulesSpec extends AnyWordSpec with Matchers with ModelBuilder {
     }
 
     "replace ambiguous references a link alias pointing to duplicate ids with invalid spans" ignore {
+      // TODO - needs alias support 
       val target1a = ExternalLinkDefinition("id2", "http://foo/1")
       val target1b = ExternalLinkDefinition("id2", "http://foo/2")
       val msg = "duplicate target id: id2"
       val rootElem = root(p(simpleLinkRef()), LinkAlias("name", "id2"), target1a, target1b)
       rewritten(rootElem) should be(root(p(invalidSpan(msg, "text"))))
     }
+
   }
 
 
