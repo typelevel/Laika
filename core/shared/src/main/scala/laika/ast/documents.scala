@@ -347,13 +347,10 @@ trait TreeStructure { this: TreeContent =>
     * in the document tree.
     */
   lazy val globalLinkTargets: Map[Selector, TargetResolver] = {
-    def dup(s: Selector): TargetResolver =
-      TargetResolver.create(s, ReferenceResolver.forDuplicateTargetId(s, path), TargetReplacer.removeId)
-    
     content.flatMap(_.globalLinkTargets.toList).groupBy(_._1).collect {
-      case (selector, Seq((_, target)))   => (selector, target)
-      case (s: TargetIdSelector, _)       => (s, dup(s)) // TODO - use unique flag instead
-      case (s: LinkDefinitionSelector, _) => (s, dup(s))
+      case (selector, Seq((_, target))) => (selector, target)
+      case (s: UniqueSelector, _)       => 
+        (s, TargetResolver.create(s, ReferenceResolver.forDuplicateTargetId(s, path), TargetReplacer.removeId))
     }
   }
 

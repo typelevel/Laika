@@ -283,7 +283,7 @@ class RewriteRulesSpec extends AnyWordSpec with Matchers with ModelBuilder {
     "replace ambiguous references to duplicate ids with invalid spans" in {
       val target1a = ExternalLinkDefinition("name", "http://foo/1")
       val target1b = ExternalLinkDefinition("name", "http://foo/2")
-      val msg = "More than one link target with id 'name' in path /doc"
+      val msg = "More than one link definition with id 'name' in path /doc"
       val rootElem = root(p(simpleLinkRef()), target1a, target1b)
       rewritten(rootElem) should be(root(p(invalidSpan(msg, "text"))))
     }

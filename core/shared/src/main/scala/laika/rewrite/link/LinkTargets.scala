@@ -29,31 +29,68 @@ object LinkTargets {
    *  from both, the ids rendered in the final document
    *  and the ids used for display.
    */
-  sealed abstract class Selector
-  
+  sealed trait Selector {
+
+    /** Indicates whether this selector is applicable
+      * beyond the boundaries of a single document.
+      */
+    def global: Boolean
+
+    /** Indicates whether this selector has to be unique
+      * within its scope.
+      * 
+      * When the global flag is set it must be globally
+      * unique, otherwise it must only be unique within
+      * the document it occurs in.
+      */
+    def unique: Boolean
+    
+  }
+
+  /** A selector that can be used for a sequence of targets.
+    */
+  sealed trait SequenceSelector extends Selector {
+    val global = false
+    val unique = false
+  }
+
+  /** A selector that can is a globally unique identifier.
+    */
+  sealed trait UniqueSelector extends Selector {
+    val global = true
+    val unique = true
+    def description: String
+  }
+
   /** A selector for a rendered target in a document.
    */
-  case class TargetIdSelector (id: String) extends Selector
+  case class TargetIdSelector (id: String) extends UniqueSelector {
+    val description = s"link target with id '$id'"
+  }
 
   /** A selector for a definition for an internal or external link.
     */
-  case class LinkDefinitionSelector (id: String) extends Selector
+  case class LinkDefinitionSelector (id: String) extends UniqueSelector {
+    val description = s"link definition with id '$id'"
+  }
   
   /** A selector based on a path, optionally including a fragment component.
     */
-  case class PathSelector (path: Path) extends Selector
+  case class PathSelector (path: Path) extends UniqueSelector {
+    val description = s"link target with path '$path'"
+  }
   
   /** An anonymous selector (usually matched by position).
    */
-  case object AnonymousSelector extends Selector
+  case object AnonymousSelector extends SequenceSelector
   
   /** An auto-number selector (usually matched by position).
    */
-  case object AutonumberSelector extends Selector
+  case object AutonumberSelector extends SequenceSelector
   
   /** An auto-symbol selector (usually matched by position).
    */
-  case object AutosymbolSelector extends Selector
+  case object AutosymbolSelector extends SequenceSelector
 
 
   /** Represents the source of a link, its document path
@@ -82,9 +119,8 @@ object LinkTargets {
     * TODO - more detail
     *  
     * @param selector the selector to use to identify reference nodes matching this target 
-    * @param global indicates whether this target is global, so that it can get referenced from within other documents
     */
-  abstract sealed class TargetResolver (val selector: Selector, val global: Boolean) {
+  abstract sealed class TargetResolver (val selector: Selector) {
     
     /** Creates the final link element for the specified reference
      *  pointing to this target. In case this target does not know
@@ -104,19 +140,15 @@ object LinkTargets {
   }
   
   object ReferenceResolver {
-    def lift(f: PartialFunction[LinkSource, Span]): LinkSource => Option[Span] = f.lift // TODO - shouldn't non-matching nodes get an invalid span here?
-    def forDuplicateTargetId(selector: Selector, path: Path): LinkSource => Option[Span] = {
-      val msg = selector match {
-        case TargetIdSelector(id)       => s"More than one link target with id '$id' in path $path" // TODO - simplify
-        case LinkDefinitionSelector(id) => s"More than one link target with id '$id' in path $path"
-        case sel => s"More than one link target with selector $sel in path $path"
-      }
+    def lift(f: PartialFunction[LinkSource, Span]): LinkSource => Option[Span] = f.lift
+    def forDuplicateTargetId(selector: UniqueSelector, path: Path): LinkSource => Option[Span] = {
+      val msg = s"More than one ${selector.description} in path $path"
       lift { case LinkSource(ref: Reference, _) => InvalidElement(msg, ref.source).asSpan }
     }
   }
   
   object TargetReplacer {
-    def lift(f: PartialFunction[Block, Block]): Block => Option[Block] = f.lift // TODO - shouldn't non-matching nodes get an invalid span here?
+    def lift(f: PartialFunction[Block, Block]): Block => Option[Block] = f.lift
     def addId(id: String): Block => Option[Block] = block => Some(block.withId(id))
     val removeId: Block => Option[Block] = block => Some(block.withoutId)
     val removeTarget: Block => Option[Block] = Function.const(None)
@@ -126,8 +158,7 @@ object LinkTargets {
     
     def create(selector: Selector,
                referenceResolver: LinkSource => Option[Span],
-               targetResolver: Block => Option[Block],
-               global: Boolean = true): TargetResolver = new TargetResolver(selector, global) {
+               targetResolver: Block => Option[Block]): TargetResolver = new TargetResolver(selector) {
 
       override def resolveReference (linkSource: LinkSource): Option[Span] = referenceResolver(linkSource)
       override def replaceTarget (rewrittenOriginal: Block): Option[Block] = targetResolver(rewrittenOriginal)
@@ -145,7 +176,7 @@ object LinkTargets {
    *  get determined by position. The `resolveReference` and `resolveTarget`
    *  methods can be invoked as many times as this sequence contains elements.
    */
-  case class TargetSequenceResolver (targets: Seq[TargetResolver], sel: Selector) extends TargetResolver(sel, global = false) {
+  case class TargetSequenceResolver (targets: Seq[TargetResolver], sel: Selector) extends TargetResolver(sel) {
     private val refIt = targets.iterator
     private val targetIt = targets.iterator
     

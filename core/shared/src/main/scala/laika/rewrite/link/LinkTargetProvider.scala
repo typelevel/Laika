@@ -121,20 +121,6 @@ class LinkTargetProvider (path: Path, root: RootElement) {
 //      case (LinkReference(content, _, _, opt), Relative(sourcePath, name)) =>
 //        CrossLink(content, name, PathInfo.fromPath(path, sourcePath.parent), options = opt)
 
-  /** Validates the specified targets, ensuring that targets with
-    * duplicate selectors lead to any reference pointing to it
-    * being rendered as an invalid span. 
-    */
-  protected def validateTargets (targets: Seq[TargetResolver]): Seq[TargetResolver] = {
-
-    targets.groupBy(_.selector).values.toSeq.map {
-      case target :: Nil => target
-      case conflicting => 
-        val selector = conflicting.head.selector
-        TargetResolver.create(selector, ReferenceResolver.forDuplicateTargetId(selector, path), TargetReplacer.removeId)
-    }
-  }
-  
   /** Resolves all aliases contained in the specified target sequence,
    *  replacing them with the targets they are pointing to or with
    *  invalid block elements in case they cannot be resolved.
@@ -166,20 +152,23 @@ class LinkTargetProvider (path: Path, root: RootElement) {
   /** Provides a map of all targets that can be referenced from elements
    *  within the same document.
    */
-  val local: Map[Selector, TargetResolver] = validateTargets(selectTargets).toList.groupBy(_.selector).map { 
-    case (selector: TargetIdSelector, target :: Nil) => (selector, target)
-    case (selector: LinkDefinitionSelector, target :: Nil) => (selector, target) // TODO - use flag
-    case (selector, list) => (selector, TargetSequenceResolver(list, selector))
+  val local: Map[Selector, TargetResolver] = selectTargets.groupBy(_.selector).map {
+    case (sel: UniqueSelector, target :: Nil) =>
+      (sel, target)
+    case (sel: UniqueSelector, _) =>
+      (sel, TargetResolver.create(sel, ReferenceResolver.forDuplicateTargetId(sel, path), TargetReplacer.removeId))
+    case (selector, list) =>
+      (selector, TargetSequenceResolver(list, selector))
   }
   
   /** Provides a map of all targets that can be referenced from elements
    *  within any document within the document tree.
    */
   val global: Map[Selector, TargetResolver] = {
-    val global = local filter (_._2.global) 
-    global ++ (global collect {
+    val global = local filter (_._2.selector.global) 
+    global ++ global.collect {
       case (TargetIdSelector(name), target) => (PathSelector(path.withFragment(name)), target)
-    })
+    }
   }
   
 }
