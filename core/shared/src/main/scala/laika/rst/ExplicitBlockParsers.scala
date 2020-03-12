@@ -82,7 +82,7 @@ class ExplicitBlockParsers (recParsers: RecursiveParsers) {
     val external = {
       val anonymous = literal("__:").as("")
     
-      ((anonymous | named) ~ ExplicitBlockParsers.linkDefinitionBody).mapN(ExternalLinkDefinition(_, _))
+      ((anonymous | named) ~ ExplicitBlockParsers.linkDefinitionBody).mapN(LinkDefinition.create(_, _))
     }
     
     val indirect = {
@@ -131,7 +131,7 @@ object ExplicitBlockParsers {
     *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#anonymous-hyperlinks]].
     */
   lazy val shortAnonymousLinkTarget: BlockParserBuilder = BlockParser.standalone {
-    "__ " ~> linkDefinitionBody.map(ExternalLinkDefinition("", _))
+    "__ " ~> linkDefinitionBody.map(LinkDefinition.create("", _))
   }
 
 }

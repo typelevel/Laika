@@ -475,6 +475,16 @@ class BlockParsersSpec extends AnyFlatSpec
     Parsing (input) should produce (root( ExternalLinkDefinition("def", "http://foo/", None), LiteralBlock("   (Some Title)")))
   }
   
+  it should "parse an internal target" in {
+    val input = """[def]: ../foo/bar.md#xy""".stripMargin
+    Parsing (input) should produce (root(InternalLinkDefinition("def", RelativePath.parse("../foo/bar.md#xy"))))
+  }
+
+  it should "parse an internal target with title enclosed in parentheses" in {
+    val input = """[def]: foo/bar.md#xy (Some Title)""".stripMargin
+    Parsing (input) should produce (root(InternalLinkDefinition("def", RelativePath.parse("foo/bar.md#xy"), Some("Some Title"))))
+  }
+  
   
   
   "The block parser" should "parse a code block nested inside a list" in {

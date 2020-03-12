@@ -886,7 +886,7 @@ case class ExternalLinkDefinition (id: String, url: String, title: Option[String
   * removed by the rewrite rule that resolves link and image references.
   */
 case class InternalLinkDefinition (id: String, path: RelativePath, title: Option[String] = None, options: Options = NoOpt) extends Definition
-  with Span {
+                                                                                                                           with Span {
   type Self = InternalLinkDefinition
   def withOptions (options: Options): InternalLinkDefinition = copy(options = options)
 }
@@ -1136,8 +1136,8 @@ object Link {
     else InternalReference(linkText, RelativePath.parse(url), source, title)
 }
 
-object Definition {
-  def create (id: String, url: String, source: String, title: Option[String] = None): Block =
+object LinkDefinition {
+  def create (id: String, url: String, title: Option[String] = None): Block with Span =
     if (url.startsWith("http:") || url.startsWith("https:") || url.startsWith("/")) ExternalLinkDefinition(id, url, title)
     else InternalLinkDefinition(id, RelativePath.parse(url), title)
 }

@@ -270,7 +270,7 @@ object InlineParsers {
     (markupStart("`", "`") ~> refName ~ opt(urlPart) ~ end).withSource.map {
       case (name ~ Some(url) ~ true, src)   => SpanSequence(
         Link.create(List(Text(ref(name.original, url))), url, src), 
-        ExternalLinkDefinition(ref(name.normalized, url), url)
+        LinkDefinition.create(ref(name.normalized, url), url)
       )
       case (name ~ Some(url) ~ false, src)  => Link.create(List(Text(ref(name.original, url))), url, src)
       case (name ~ None ~ true, src)        => LinkDefinitionReference(List(Text(name.original)), name.normalized, src) 

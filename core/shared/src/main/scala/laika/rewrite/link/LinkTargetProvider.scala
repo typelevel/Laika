@@ -91,7 +91,17 @@ class LinkTargetProvider (path: Path, root: RootElement) {
           case LinkSource(LinkDefinitionReference (content, _, _, opt), _) => 
             ExternalLink(content, ld.url, ld.title, opt)
           case LinkSource(ImageDefinitionReference (text, _, _, opt), _) =>
-            Image(text, URI(ld.url, LinkPath.fromURI(ld.url, path.parent)), title = ld.title, options = opt)
+            Image(text, URI(ld.url), title = ld.title, options = opt)
+        }
+        TargetResolver.create(selector, resolver, TargetReplacer.removeTarget)
+
+      case ld: InternalLinkDefinition =>
+        val selector = if (ld.id.isEmpty) AnonymousSelector else LinkDefinitionSelector(ld.id)
+        val resolver = ReferenceResolver.lift {
+          case LinkSource(LinkDefinitionReference (content, _, _, opt), sourcePath) =>
+            InternalLink(content, LinkPath.fromPath(ld.path, sourcePath.parent), ld.title, opt)
+          case LinkSource(ImageDefinitionReference (text, _, _, opt), sourcePath) =>
+            Image(text, URI(ld.path.toString, Some(LinkPath.fromPath(ld.path, sourcePath.parent))), title = ld.title, options = opt)
         }
         TargetResolver.create(selector, resolver, TargetReplacer.removeTarget)
       

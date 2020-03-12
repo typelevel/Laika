@@ -158,7 +158,7 @@ object BlockParsers {
 
     val title = (ws.void ~ opt(eol) ~ ws.void) ~> (enclosedBy('"', '"') | enclosedBy('\'', '\'') | enclosedBy('(', ')'))
 
-    (id ~ url ~ opt(title) <~ wsEol).mapN(ExternalLinkDefinition(_, _, _))
+    (id ~ url ~ opt(title) <~ wsEol).mapN(LinkDefinition.create)
   }.rootOnly
 
   /** Parses an ATX header, a line that starts with 1 to 6 `'#'` characters,

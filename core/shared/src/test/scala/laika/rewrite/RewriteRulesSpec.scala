@@ -60,6 +60,8 @@ class RewriteRulesSpec extends AnyWordSpec
 
   def intLink (ref: String) = InternalLink(List(Text("text")), rootLinkPath(ref))
 
+  def intLink (path: RelativePath) = InternalLink(List(Text("text")), LinkPath.fromPath(path, Path.Root))
+
   def rootLinkPath (fragment: String): LinkPath = LinkPath.fromPath(RelativePath.parse(s"#$fragment"), Path.Root)
 
   def simpleImgRef (id: String = "name") = ImageDefinitionReference("text", id, "text")
@@ -147,6 +149,11 @@ class RewriteRulesSpec extends AnyWordSpec
       rewritten(rootElem) should be(root(p(extLink("http://foo/"))))
     }
 
+    "resolve internal link definitions" in {
+      val rootElem = root(p(simpleLinkRef()), InternalLinkDefinition("name", RelativePath.parse("foo.md#ref")))
+      rewritten(rootElem) should be(root(p(intLink(RelativePath.parse("foo.md#ref")))))
+    }
+
     "resolve internal link references" in {
       val rootElem = root(p(intRef()), InternalLinkTarget(Id("name")))
       rewritten(rootElem) should be(root(p(intLink("name")), InternalLinkTarget(Id("name"))))
@@ -155,6 +162,11 @@ class RewriteRulesSpec extends AnyWordSpec
     "resolve anonymous link references" in {
       val rootElem = root(p(simpleLinkRef(""), simpleLinkRef("")), ExternalLinkDefinition("", "http://foo/"), ExternalLinkDefinition("", "http://bar/"))
       rewritten(rootElem) should be(root(p(extLink("http://foo/"), extLink("http://bar/"))))
+    }
+
+    "resolve anonymous internal link definitions" in {
+      val rootElem = root(p(simpleLinkRef(""), simpleLinkRef("")), InternalLinkDefinition("", RelativePath.parse("foo.md#ref")), InternalLinkDefinition("", RelativePath.parse("bar.md#ref")))
+      rewritten(rootElem) should be(root(p(intLink(RelativePath.parse("foo.md#ref")), intLink(RelativePath.parse("bar.md#ref")))))
     }
 
     "replace an unresolvable reference with an invalid span" in {
@@ -197,7 +209,12 @@ class RewriteRulesSpec extends AnyWordSpec
   "The rewrite rules for image references" should {
 
     "resolve external link references" in {
-      val rootElem = root(p(simpleImgRef()), ExternalLinkDefinition("name", "foo.jpg"))
+      val rootElem = root(p(simpleImgRef()), ExternalLinkDefinition("name", "http://foo.com/bar.jpg"))
+      rewritten(rootElem) should be(root(p(img("text", "http://foo.com/bar.jpg"))))
+    }
+
+    "resolve internal link references" in {
+      val rootElem = root(p(simpleImgRef()), InternalLinkDefinition("name", RelativePath.parse("foo.jpg")))
       rewritten(rootElem) should be(root(p(img("text", "foo.jpg", Some(LinkPath(Path.Root / "foo.jpg", RelativePath.Current / "foo.jpg"))))))
     }
 

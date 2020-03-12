@@ -204,19 +204,32 @@ class InlineParsersSpec extends AnyFlatSpec
   }
   
   
+  private val relPath = RelativePath.parse("../foo/bar.rst#ref")
   
   "The link reference parser" should "parse a phrase link without url" in {
     Parsing ("some `link`_ here") should produce (spans(Text("some "), pLinkRef("link"), Text(" here")))
   }
   
-  it should "parse a phrase link with text and url" in {
+  it should "parse an external phrase link with text and url" in {
     val spanSeq = List(link(Text("link")).url("http://foo.com").toLink, ExternalLinkDefinition("link", "http://foo.com"))
     Parsing ("some `link<http://foo.com>`_ here") should produce (spans(Text("some "), SpanSequence(spanSeq), Text(" here")))
   }
+
+  it should "parse an internal phrase link with text and url" in {
+    val linkSrc = "`link<../foo/bar.rst#ref>`_"
+    val spanSeq = List(InternalReference(Seq(Text("link")), relPath, linkSrc), InternalLinkDefinition("link", relPath))
+    Parsing (s"some $linkSrc here") should produce (spans(Text("some "), SpanSequence(spanSeq), Text(" here")))
+  }
   
-  it should "parse a phrase link with only an url" in {
+  it should "parse a phrase link with only a url" in {
     Parsing ("some `<http://foo.com>`_ here") should produce (spans(Text("some "), 
         SpanSequence(link(Text("http://foo.com")).url("http://foo.com").toLink, ExternalLinkDefinition("http://foo.com", "http://foo.com")), Text(" here")))
+  }
+
+  it should "parse an internal phrase link with only a url" in {
+    val linkSrc = "`<../foo/bar.rst#ref>`_"
+    val spanSeq = List(InternalReference(Seq(Text("../foo/bar.rst#ref")), relPath, linkSrc), InternalLinkDefinition("../foo/bar.rst#ref", relPath))
+    Parsing ("some `<../foo/bar.rst#ref>`_ here") should produce (spans(Text("some "), SpanSequence(spanSeq), Text(" here")))
   }
   
   it should "remove whitespace from an url" in {

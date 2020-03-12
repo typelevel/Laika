@@ -44,10 +44,12 @@ object LinkTargetProcessor extends (Seq[Block] => Seq[Block]) {
     // TODO - simplify
     (Mock +: blocks :+ Mock).sliding(3).foldLeft(new ListBuffer[Block]()) {
 
-      case (buffer, _ :: (InternalLinkTarget(Id(id1))) :: (InternalLinkTarget(Id(id2))) :: Nil) =>
+      case (buffer, _ :: InternalLinkTarget(Id(id1)) :: InternalLinkTarget(Id(id2)) :: Nil) =>
         buffer += LinkAlias(id1, id2)
-      case (buffer, _ :: (InternalLinkTarget(Id(id))) :: (et: ExternalLinkDefinition) :: Nil) =>
+      case (buffer, _ :: InternalLinkTarget(Id(id)) :: (et: ExternalLinkDefinition) :: Nil) =>
         buffer += et.copy(id = id)
+      case (buffer, _ :: InternalLinkTarget(Id(id)) :: (it: InternalLinkDefinition) :: Nil) =>
+        buffer += it.copy(id = id)
       case (buffer, _ :: (_: InternalLinkTarget)  :: (_: DecoratedHeader) :: Nil) => buffer
       case (buffer, _ :: (it: InternalLinkTarget) :: (c: Customizable) :: Nil) =>
         if (c.options.id.isDefined) buffer += it else buffer
@@ -58,9 +60,11 @@ object LinkTargetProcessor extends (Seq[Block] => Seq[Block]) {
       case (buffer, _ :: (h @ DecoratedHeader(_,_,oldOpt)) :: _) =>
         buffer += h.copy(options = oldOpt + Id(toLinkId(h)))
 
-      case (buffer, (InternalLinkTarget(Id(_))) :: (et: ExternalLinkDefinition) :: _ :: Nil) =>
+      case (buffer, InternalLinkTarget(Id(_)) :: (et: ExternalLinkDefinition) :: _ :: Nil) =>
         buffer += et
-      case (buffer, (InternalLinkTarget(Id(id))) :: (c: Customizable) :: _ :: Nil) if c.options.id.isEmpty =>
+      case (buffer, InternalLinkTarget(Id(_)) :: (et: InternalLinkDefinition) :: _ :: Nil) =>
+        buffer += et
+      case (buffer, InternalLinkTarget(Id(id)) :: (c: Customizable) :: _ :: Nil) if c.options.id.isEmpty =>
         buffer += c.withId(id)
 
       case (buffer, _ :: _ :: Nil)   => buffer // only happens for empty results (with just the 2 mocks)
