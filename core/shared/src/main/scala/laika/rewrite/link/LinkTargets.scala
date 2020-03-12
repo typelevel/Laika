@@ -16,7 +16,7 @@
 
 package laika.rewrite.link
 
-import laika.ast.{Span, _}
+import laika.ast._
 
 /** Representations for various types of link targets.
  * 
@@ -103,22 +103,6 @@ object LinkTargets {
     text.replaceAll("[^a-zA-Z0-9-]+","-").replaceFirst("^-","").replaceFirst("-$","").toLowerCase // TODO - retain unicode characters
   }
   
-//  class LinkAliasTarget (alias: LinkAlias) extends TargetDefinition(alias, NamedX(alias.id), false) {
-//    
-//    def withResolvedIds (documentId: String, displayId: String): SingleTargetResolver = 
-//      SingleTargetResolver(this, UniqueSelector(alias.id), Hidden)
-//    
-//    val resolve: ((Span,String)) => Option[Span] = lift (PartialFunction.empty)
-//    val ref: String = alias.target
-//    val from: String = alias.id
-//  }
-  //  case class SingleTargetResolver (target: TargetDefinition, selector: Selector, render: String, forAlias: Boolean = false) extends TargetResolver {
-  //    
-  //    def replaceTarget (rewrittenOriginal: Element): Option[Element] = if (forAlias) None else target.replace(rewrittenOriginal, render)
-  //    
-  //    def forAlias (newSelector: Selector): SingleTargetResolver = SingleTargetResolver(target, newSelector, render, forAlias = true)
-  
-  
   /** Represents a resolver for a target that has its final identifier generated
     * (if necessary) and can be used to resolve matching reference nodes.
     * 
@@ -166,15 +150,18 @@ object LinkTargets {
       override def replaceTarget (rewrittenOriginal: Block): Option[Block] = targetResolver(rewrittenOriginal)
     }
 
-    def forDuplicateSelector (selector: UniqueSelector, path: Path, delegate: TargetResolver): TargetResolver = {
-      val msg = s"More than one ${selector.description} in path $path"
+    def forInvalidTarget (selector: UniqueSelector, msg: String, delegate: Option[TargetResolver] = None): TargetResolver = {
       val sysMsg: SystemMessage = SystemMessage(MessageLevel.Error, msg)
-      
+
       TargetResolver.create(selector,
         ReferenceResolver.lift { case LinkSource(ref: Reference, _) => InvalidElement(msg, ref.source).asSpan },
-        block => Some(delegate.replaceTarget(block).fold[Block](sysMsg){ b => InvalidBlock(sysMsg, b.withoutId) })
+        block => Some(delegate.flatMap(_.replaceTarget(block)).fold[Block](sysMsg){ b => InvalidBlock(sysMsg, b.withoutId) })
       )
     }
+    
+    def forDuplicateSelector (selector: UniqueSelector, path: Path, delegate: TargetResolver): TargetResolver =
+      forInvalidTarget(selector, s"More than one ${selector.description} in path $path", Some(delegate))
+    
   }
   
   /** Represents a resolver for a sequence of targets where matching reference nodes

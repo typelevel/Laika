@@ -19,6 +19,8 @@ package laika.rewrite.link
 import laika.ast._
 import LinkTargets._
 
+import scala.annotation.tailrec
+
 /** Provider for all tree elements that can be referenced from other
  *  elements, like images, footnotes, citations and other 
  *  inline targets. 
@@ -46,19 +48,16 @@ class LinkTargetProvider (path: Path, root: RootElement) {
     def levelFor (deco: HeaderDecoration): Int = levelMap.getOrElseUpdate(deco, levelIt.next)
   }
 
-  /** Selects all elements from the document that can serve
-   *  as a target for a reference element.
-   */
-  protected def selectTargets: List[TargetResolver] = {
+  private val directTargets: List[TargetResolver] = {
     
     val levels = new DecoratedHeaderLevels
     val symbols = new SymbolGenerator
     val symbolNumbers = Iterator.from(1)
     val numbers = Iterator.from(1)
            
-    val internalLinkResolver = ReferenceResolver.lift {
+    def internalLinkResolver (selector: TargetIdSelector) = ReferenceResolver.lift {
       case LinkSource(InternalReference(content, relPath, _, _, opt), sourcePath) => // TODO - deal with title?
-        InternalLink(content, LinkPath.fromPath(relPath, sourcePath.parent) , options = opt)
+        InternalLink(content, LinkPath.fromPath(relPath.withFragment(selector.id), sourcePath.parent) , options = opt)
     }
     
     root.collect {
@@ -101,58 +100,55 @@ class LinkTargetProvider (path: Path, root: RootElement) {
         val finalHeader = TargetReplacer.lift {
           case DecoratedHeader(deco, content, opt) => Header(levels.levelFor(deco), content, opt + Id(selector.id))
         }
-        TargetResolver.create(selector, internalLinkResolver, finalHeader)
+        TargetResolver.create(selector, internalLinkResolver(selector), finalHeader)
       
       case Header(_,_,Id(id)) => // TODO - do not generate id upfront
         val selector = TargetIdSelector(slug(id))
-        TargetResolver.create(selector, internalLinkResolver, TargetReplacer.addId(selector.id))
+        TargetResolver.create(selector, internalLinkResolver(selector), TargetReplacer.addId(selector.id))
       
       case c: Block if c.options.id.isDefined =>
         val selector = TargetIdSelector(c.options.id.get)
-        TargetResolver.create(selector, internalLinkResolver, TargetReplacer.addId(selector.id))
+        TargetResolver.create(selector, internalLinkResolver(selector), TargetReplacer.addId(selector.id))
         
-        
-      //case lt: LinkAlias              => new LinkAliasTarget(lt)
     }
   }
-
-//      case (LinkReference(content, _, _, opt), NamedX(name)) =>
-//        InternalLink(content, name, options = opt)
-//      case (LinkReference(content, _, _, opt), Relative(sourcePath, name)) =>
-//        CrossLink(content, name, PathInfo.fromPath(path, sourcePath.parent), options = opt)
-
-  /** Resolves all aliases contained in the specified target sequence,
-   *  replacing them with the targets they are pointing to or with
-   *  invalid block elements in case they cannot be resolved.
-   */
-//  protected def resolveAliases (targets: Seq[SingleTargetResolver]): Seq[TargetResolver] = {
-//
-//    val map = targets map (t => (t.selector, t)) toMap
-//    
-//    def resolve (alias: LinkAliasTarget, selector: Selector): SingleTargetResolver = {
-//      def doResolve (current: LinkAliasTarget, visited: Set[Any]): SingleTargetResolver = {
-//        if (visited.contains(current.id)) alias.invalid(s"circular link reference: ${alias.from}").withResolvedIds("","")
-//        else
-//          map.get(UniqueSelector(current.ref)) map {
-//            case SingleTargetResolver(alias2: LinkAliasTarget, _, _, _) => doResolve(alias2, visited + current.id)
-//            case other => other.forAlias(selector)
-//          } getOrElse alias.invalid(s"unresolved link alias: ${alias.ref}").withResolvedIds("","")
-//      }  
-//      
-//      doResolve(alias, Set())
-//    }
-//                                   
-//    targets map { 
-//      case SingleTargetResolver(alias: LinkAliasTarget, selector, _, _) => resolve(alias, selector)
-//      case other => other 
-//    } 
-//    
-//  }
   
+  private val allTargets: List[TargetResolver] = {
+
+    val aliasTargets = root.collect {
+      case lt: LinkAlias => lt
+    }
+    
+    val joinedTargets: Map[Selector, Either[LinkAlias, TargetResolver]] =
+      (directTargets.map(t => (t.selector, Right(t))) ++ 
+        aliasTargets.map(a => (TargetIdSelector(a.id), Left(a)))).toMap
+    
+    @tailrec
+    def resolve (alias: LinkAlias, targetSelector: TargetIdSelector, visited: Set[TargetIdSelector]): TargetResolver = {
+      val resolvedSelector = TargetIdSelector(alias.id)
+      if (visited.contains(targetSelector)) 
+        TargetResolver.forInvalidTarget(resolvedSelector, s"circular link reference: ${targetSelector.id}")
+      else joinedTargets.get(targetSelector) match {
+        case Some(Left(alias2)) => 
+          resolve(alias, TargetIdSelector(alias2.target), visited + TargetIdSelector(alias2.id))
+        case Some(Right(target)) => 
+          TargetResolver.create(resolvedSelector, target.resolveReference, TargetReplacer.removeTarget)
+        case None => 
+          TargetResolver.forInvalidTarget(resolvedSelector, s"unresolved link alias: ${targetSelector.id}")
+      }
+    }
+    
+    val resolvedTargets = aliasTargets.map { alias =>
+      resolve(alias, TargetIdSelector(alias.target), Set())
+    }
+    
+    resolvedTargets ++ directTargets
+  }
+
   /** Provides a map of all targets that can be referenced from elements
    *  within the same document.
    */
-  val local: Map[Selector, TargetResolver] = selectTargets.groupBy(_.selector).map {
+  val local: Map[Selector, TargetResolver] = allTargets.groupBy(_.selector).map {
     case (sel: UniqueSelector, target :: Nil) =>
       (sel, target)
     case (sel: UniqueSelector, targets) =>

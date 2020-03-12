@@ -73,12 +73,6 @@ class RewriteRulesSpec extends AnyWordSpec
       rewritten(rootElem) should be(resolved)
     }
 
-    "rewrite reference ids containing special characters" ignore {
-      val rootElem = root(p(CitationReference("§label", "[§label]_")), Citation("§label", List(p("citation"))))
-      val resolved = root(p(CitationLink("label", "§label")), Citation("§label", List(p("citation")), Id("label")))
-      rewritten(rootElem) should be(resolved)
-    }
-
     "retain multiple references when they all have a matching targets" in {
       val rootElem = root(p(CitationReference("label1", "[label1]_"), CitationReference("label2", "[label2]_"), CitationReference("label1", "[label1]_")),
         Citation("label1", List(p("citation1"))), Citation("label2", List(p("citation2"))))
@@ -158,16 +152,6 @@ class RewriteRulesSpec extends AnyWordSpec
       rewritten(rootElem) should be(root(p(intLink("name")), InternalLinkTarget(Id("name"))))
     }
 
-    "use the headers text as link text when linking to a header" ignore {
-      // TODO - wait for header link support
-      val header = Header(1, Seq(Text("Title 1")), Id("title-1"))
-      val rootElem = root(p(LinkDefinitionReference(List(Text("title-1")), "title-1", "title-1")), header)
-      rewritten(rootElem) should be(root(
-        p(InternalLink(List(Text("Title 1")), rootLinkPath("title-1"))),
-        Title(header.content, header.options + Styles("title"))
-      ))
-    }
-
     "resolve anonymous link references" in {
       val rootElem = root(p(simpleLinkRef(""), simpleLinkRef("")), ExternalLinkDefinition("", "http://foo/"), ExternalLinkDefinition("", "http://bar/"))
       rewritten(rootElem) should be(root(p(extLink("http://foo/"), extLink("http://bar/"))))
@@ -192,21 +176,19 @@ class RewriteRulesSpec extends AnyWordSpec
 
   "The rewrite rules for link aliases" should {
 
-    // TODO - needs alias support
-
-    "resolve indirect link references" ignore {
-      val rootElem = root(p(simpleLinkRef()), LinkAlias("name", "ref"), InternalLinkTarget(Id("ref")))
+    "resolve indirect link references" in {
+      val rootElem = root(p(intRef()), LinkAlias("name", "ref"), InternalLinkTarget(Id("ref")))
       rewritten(rootElem) should be(root(p(intLink("ref")), InternalLinkTarget(Id("ref"))))
     }
 
-    "replace an unresolvable reference to a link alias with an invalid span" ignore {
-      val rootElem = root(p(simpleLinkRef()), LinkAlias("name", "ref"))
+    "replace an unresolvable reference to a link alias with an invalid span" in {
+      val rootElem = root(p(intRef()), LinkAlias("name", "ref"))
       rewritten(rootElem) should be(root(p(invalidSpan("unresolved link alias: ref", "text"))))
     }
 
-    "replace circular indirect references with invalid spans" ignore {
-      val rootElem = root(p(simpleLinkRef()), LinkAlias("name", "ref"), LinkAlias("ref", "name"))
-      rewritten(rootElem) should be(root(p(invalidSpan("circular link reference: name", "text"))))
+    "replace circular indirect references with invalid spans" in {
+      val rootElem = root(p(intRef()), LinkAlias("name", "ref"), LinkAlias("ref", "name"))
+      rewritten(rootElem) should be(root(p(invalidSpan("circular link reference: ref", "text"))))
     }
 
   }
@@ -285,13 +267,14 @@ class RewriteRulesSpec extends AnyWordSpec
       rewritten(rootElem) should be(root(p(invalidSpan(msg, "text"))))
     }
 
-    "replace an ambiguous reference to a link alias pointing to duplicate ids with invalid spans" ignore {
-      // TODO - needs alias support 
-      val target1a = ExternalLinkDefinition("id2", "http://foo/1")
-      val target1b = ExternalLinkDefinition("id2", "http://foo/2")
-      val msg = "duplicate target id: id2"
-      val rootElem = root(p(simpleLinkRef()), LinkAlias("name", "id2"), target1a, target1b)
-      rewritten(rootElem) should be(root(p(invalidSpan(msg, "text"))))
+    "replace ambiguous references for a link alias pointing to duplicate ids with invalid spans" ignore {
+      // TODO - 0.15 - requires new hook as aliases are now resolved before duplicate target ids
+      val target = InternalLinkTarget(Id("ref"))
+      val refMsg = "duplicate target id: ref"
+      val targetMsg = "More than one link target with id 'ref' in path /doc"
+      val invalidTarget = invalidBlock(targetMsg, InternalLinkTarget())
+      val rootElem = root(p(intRef()), LinkAlias("name", "ref"), target, target)
+      rewritten(rootElem) should be(root(p(invalidSpan(refMsg, "text")), invalidTarget, invalidTarget))
     }
 
   }
