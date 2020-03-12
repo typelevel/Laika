@@ -873,13 +873,22 @@ case object BodyCell extends CellType with BlockContainerCompanion {
 }
 
 
-/** An external link target, usually only part of the raw document tree and then
+/** An external link target that can be referenced by id, usually only part of the raw document tree and then
  *  removed by the rewrite rule that resolves link and image references.
  */
 case class ExternalLinkDefinition (id: String, url: String, title: Option[String] = None, options: Options = NoOpt) extends Definition
                                                                                                                     with Span {
   type Self = ExternalLinkDefinition
   def withOptions (options: Options): ExternalLinkDefinition = copy(options = options)
+}
+
+/** An internal link target that can be referenced by id, usually only part of the raw document tree and then
+  * removed by the rewrite rule that resolves link and image references.
+  */
+case class InternalLinkDefinition (id: String, path: RelativePath, title: Option[String] = None, options: Options = NoOpt) extends Definition
+  with Span {
+  type Self = InternalLinkDefinition
+  def withOptions (options: Options): InternalLinkDefinition = copy(options = options)
 }
 
 /** A link target pointing to another link target, acting like an alias.
@@ -1125,6 +1134,12 @@ object Link {
   def create (linkText: Seq[Span], url: String, source: String, title: Option[String] = None): Span = 
     if (url.startsWith("http:") || url.startsWith("https:") || url.startsWith("/")) ExternalLink(linkText, url, title)
     else InternalReference(linkText, RelativePath.parse(url), source, title)
+}
+
+object Definition {
+  def create (id: String, url: String, source: String, title: Option[String] = None): Block =
+    if (url.startsWith("http:") || url.startsWith("https:") || url.startsWith("/")) ExternalLinkDefinition(id, url, title)
+    else InternalLinkDefinition(id, RelativePath.parse(url), title)
 }
 
 /** A reference to content within the virtual input tree, the path pointing to the source path.
