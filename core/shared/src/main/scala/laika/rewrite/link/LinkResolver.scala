@@ -51,39 +51,32 @@ object LinkResolver extends (DocumentCursor => RewriteRules) {
         .flatMap(_.replaceTarget(element))
         .fold[RewriteAction[Block]](Remove)(Replace(_))
 
-    def selectFromRoot (selector: Selector): Option[TargetResolver] =
-      cursor.root.target.tree.selectTarget(selector)
-
-    def selectorFor (path: RelativePath): Selector =
-      if (path.name.isEmpty && path.fragment.nonEmpty) PathSelector(cursor.parent.target.path / (cursor.path.name + "#" + path.fragment.get))
-      else PathSelector(cursor.parent.target.path / path)
-    
-    def resolve (ref: Reference, selector: Selector, msg: => String, global: Boolean = false): RewriteAction[Span] = {
-      
-      def selectFromParent = {
-        @tailrec def select (treeCursor: TreeCursor): Option[TargetResolver] = {
-          val target = treeCursor.target.selectTarget(selector)
-          treeCursor.parent match {
-            case Some(parent) if target.isEmpty => select(parent)
-            case _ => target
-          }
-        }
-        select(cursor.parent)
-      }
-      
-      // TODO - disentangle
-      val target = {
-        val local = targets.local.get(selector)
-        if (local.isDefined) local
-        else (selector, global) match {
-          case (sel: PathSelector, true)         => selectFromRoot(sel)
-          case (TargetIdSelector(_), true)       => selectFromParent
-          case (LinkDefinitionSelector(_), true) => selectFromParent
-          case _ => None
-        }
-      }
+    def resolveWith (ref: Reference, target: Option[TargetResolver], msg: => String): RewriteAction[Span] = {
       val resolvedTarget = target.flatMap(_.resolveReference(LinkSource(ref, cursor.path)))
       Replace(resolvedTarget.getOrElse(InvalidElement(msg, ref.source).asSpan))
+    }
+    
+    def resolveLocal (ref: Reference, selector: Selector, msg: => String): RewriteAction[Span] =
+      resolveWith(ref, targets.local.get(selector), msg)
+    
+    def resolveGlobal (ref: Reference, path: RelativePath, msg: => String): RewriteAction[Span] = {
+      val selector = 
+        if (path.name.isEmpty && path.fragment.nonEmpty) PathSelector(cursor.path.withFragment(path.fragment.get))
+        else PathSelector(cursor.parent.target.path / path)
+      resolveWith(ref, cursor.root.target.tree.selectTarget(selector), msg)
+    }
+    
+    def resolveRecursive (ref: Reference, selector: UniqueSelector, msg: => String): RewriteAction[Span] = {
+      
+      @tailrec def selectFromParent (treeCursor: TreeCursor): Option[TargetResolver] = {
+        val target = treeCursor.target.selectTarget(selector)
+        treeCursor.parent match {
+          case Some(parent) if target.isEmpty => selectFromParent(parent)
+          case _ => target
+        }
+      }
+    
+      resolveWith(ref, targets.local.get(selector).orElse(selectFromParent(cursor.parent)), msg)
     }
       
     RewriteRules.forBlocks {
@@ -104,23 +97,23 @@ object LinkResolver extends (DocumentCursor => RewriteRules) {
       
     } ++ RewriteRules.forSpans {
       
-      case c @ CitationReference(label,_,_) => resolve(c, TargetIdSelector(label), s"unresolved citation reference: $label")
+      case c @ CitationReference(label,_,_) => resolveLocal(c, TargetIdSelector(label), s"unresolved citation reference: $label")
 
       case ref: FootnoteReference => ref.label match {
-        case NumericLabel(num)   => resolve(ref, TargetIdSelector(num.toString), s"unresolved footnote reference: $num")
-        case AutonumberLabel(id) => resolve(ref, TargetIdSelector(id), s"unresolved footnote reference: $id")
-        case Autonumber          => resolve(ref, AutonumberSelector, "too many autonumber references")
-        case Autosymbol          => resolve(ref, AutosymbolSelector, "too many autosymbol references")
+        case NumericLabel(num)   => resolveLocal(ref, TargetIdSelector(num.toString), s"unresolved footnote reference: $num")
+        case AutonumberLabel(id) => resolveLocal(ref, TargetIdSelector(id), s"unresolved footnote reference: $id")
+        case Autonumber          => resolveLocal(ref, AutonumberSelector, "too many autonumber references")
+        case Autosymbol          => resolveLocal(ref, AutosymbolSelector, "too many autosymbol references")
       }
 
       case img @ Image(_,URI(uri, None),_,_,_,_) => Replace(img.copy(uri = URI(uri, LinkPath.fromURI(uri, cursor.parent.target.path))))
 
-      case ref: InternalReference => resolve(ref, selectorFor(ref.path), s"unresolved cross reference: ${ref.path.toString}", global = true)  
+      case ref: InternalReference => resolveGlobal(ref, ref.path, s"unresolved cross reference: ${ref.path.toString}")  
         
-      case ref: LinkDefinitionReference => if (ref.id.isEmpty) resolve(ref, AnonymousSelector, "too many anonymous link references")
-                                 else                resolve(ref, LinkDefinitionSelector(ref.id), s"unresolved link reference: ${ref.id}", global = true)
+      case ref: LinkDefinitionReference => if (ref.id.isEmpty) resolveLocal(ref, AnonymousSelector, "too many anonymous link references")
+                                           else resolveRecursive(ref, LinkDefinitionSelector(ref.id), s"unresolved link reference: ${ref.id}")
 
-      case ref: ImageDefinitionReference => resolve(ref, LinkDefinitionSelector(ref.id), s"unresolved image reference: ${ref.id}", global = true)
+      case ref: ImageDefinitionReference => resolveRecursive(ref, LinkDefinitionSelector(ref.id), s"unresolved image reference: ${ref.id}")
 
       case _: Temporary => Remove
 
