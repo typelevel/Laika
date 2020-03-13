@@ -93,8 +93,8 @@ class XHTMLRendererSpec extends IOSpec with ModelBuilder with FileIO {
         )
 
         val expected = Seq(
-          RenderedDocument(Root / "doc1.epub.xhtml", None, Nil, renderedXhtml(1, "sub/styles2.css", "styles1.css")),
-          RenderedDocument(Root / "sub" / "doc2.epub.xhtml", None, Nil, renderedXhtml(2, "styles2.css", "../styles1.css"))
+          RenderedDocument((Root / "doc1").withSuffix("epub.xhtml"), None, Nil, renderedXhtml(1, "sub/styles2.css", "styles1.css")),
+          RenderedDocument((Root / "sub" / "doc2").withSuffix("epub.xhtml"), None, Nil, renderedXhtml(2, "styles2.css", "../styles1.css"))
         )
 
         renderedDocs(input).assertEquals(expected)

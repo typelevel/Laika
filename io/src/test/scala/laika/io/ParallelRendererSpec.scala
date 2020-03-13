@@ -205,7 +205,8 @@ class ParallelRendererSpec extends IOSpec
         val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
         val expected = RenderResult.epub.withDefaultTemplate("Title", """<h1 id="title" class="title">Title</h1>
                                                                         |      <p>bbb</p>""".stripMargin)
-        renderedTree.assertEquals(RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(Root / "doc.epub.xhtml", expected))))))
+        val path = (Root / "doc").withSuffix("epub.xhtml")
+        renderedTree.assertEquals(RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(path, expected))))))
       }
     }
   
@@ -215,7 +216,8 @@ class ParallelRendererSpec extends IOSpec
         val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)), templates = Seq(template))
         val expected = """[<h1 id="title" class="title">Title</h1>
                          |<p>bbb</p>]""".stripMargin
-        renderedTree.assertEquals(RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(Root / "doc.epub.xhtml", expected))))))
+        val path = (Root / "doc").withSuffix("epub.xhtml")
+        renderedTree.assertEquals(RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(path, expected))))))
       }
     }
   
@@ -232,7 +234,8 @@ class ParallelRendererSpec extends IOSpec
         val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
         val expected = """[<h1 id="title" class="title">Title</h1>
                          |<p>bbb</p>]""".stripMargin
-        renderedTree.assertEquals(RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(Root / "doc.epub.xhtml", expected))))))
+        val path = (Root / "doc").withSuffix("epub.xhtml")
+        renderedTree.assertEquals(RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(path, expected))))))
       }
     }
   

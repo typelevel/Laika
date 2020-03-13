@@ -463,6 +463,10 @@ class PathAPISpec extends AnyWordSpec
     "create a relative path pointing upwards to Root" in {
       Root.relativeTo(Root / "a" / "c") shouldBe Parent(2)
     }
+
+    "preserve suffix and fragment" in {
+      (Root / "a" / "b.html#ref").relative shouldBe (Current / "a" / "b.html#ref")
+    }
   }
   
   "The isSubPath method" should {
