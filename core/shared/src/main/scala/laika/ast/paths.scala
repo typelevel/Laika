@@ -351,6 +351,7 @@ object RelativePath {
     val parentLevels: Int = 0
     def / (name: String): RelativePath = SegmentedRelativePath(NonEmptyChain(name))
     def / (path: RelativePath): RelativePath = path
+    override def withFragment (fragment: String): RelativePath = SegmentedRelativePath(NonEmptyChain(s"#fragment"))
     override val toString: String = name
   }
 
