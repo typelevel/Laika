@@ -222,9 +222,14 @@ class RewriteRulesSpec extends AnyWordSpec
       rewrittenTreeDoc(rootElem) should be(root(p(internalLink(RelativePath.parse("../tree2/doc5.md#ref"))), InternalLinkTarget(Id("ref"))))
     }
 
-    "resolve internal link references to a document" in {
+    "resolve internal link references to a markup document" in {
       val rootElem = root(p(internalRef("../tree2/doc5.md")), InternalLinkTarget(Id("ref")))
       rewrittenTreeDoc(rootElem) should be(root(p(internalLink(RelativePath.parse("../tree2/doc5.md"))), InternalLinkTarget(Id("ref"))))
+    }
+
+    "resolve internal link references to a static document" in {
+      val rootElem = root(p(internalRef("../images/frog.jpg")), InternalLinkTarget(Id("ref")))
+      rewrittenTreeDoc(rootElem) should be(root(p(internalLink(RelativePath.parse("../images/frog.jpg"))), InternalLinkTarget(Id("ref"))))
     }
 
     "produce an invalid span for an unresolved reference" in {

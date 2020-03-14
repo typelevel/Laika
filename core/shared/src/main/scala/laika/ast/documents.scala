@@ -563,6 +563,22 @@ case class DocumentTreeRoot (tree: DocumentTree,
     
     coverDocument.toSeq ++ collect(tree)
   }
+  
+  private val globalLinkTargets: Map[Selector, TargetResolver] = {
+    def staticTarget (path: Path) = {
+      val resolver = ReferenceResolver.lift { // TODO - avoid duplication
+        case LinkSource(InternalReference(content, relPath, _, _, opt), sourcePath) => // TODO - deal with title?
+          InternalLink(content, LinkPath.fromPath(relPath, sourcePath.parent) , options = opt)
+      }
+      TargetResolver.create(PathSelector(path), resolver, TargetReplacer.removeTarget)
+    }
+    tree.globalLinkTargets ++ staticDocuments.map(path => (PathSelector(path), staticTarget(path)))
+  }
+
+  /** Selects a link target by the specified selector
+    * if it is defined somewhere in a document inside this document tree.
+    */
+  def selectTarget (selector: Selector): Option[TargetResolver] = globalLinkTargets.get(selector)
 
   /** Returns a new tree, with all the document models contained in it
     *  rewritten based on the specified rewrite rules.

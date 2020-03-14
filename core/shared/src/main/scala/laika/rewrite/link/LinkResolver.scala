@@ -63,7 +63,7 @@ object LinkResolver extends (DocumentCursor => RewriteRules) {
       val selector = 
         if (path.name.isEmpty && path.fragment.nonEmpty) PathSelector(cursor.path.withFragment(path.fragment.get))
         else PathSelector(cursor.parent.target.path / path)
-      resolveWith(ref, cursor.root.target.tree.selectTarget(selector), msg)
+      resolveWith(ref, cursor.root.target.selectTarget(selector), msg)
     }
     
     def resolveRecursive (ref: Reference, selector: UniqueSelector, msg: => String): RewriteAction[Span] = {
