@@ -187,6 +187,7 @@ class RewriteRulesSpec extends AnyWordSpec
     val rootWithTarget = root(InternalLinkTarget(Id("ref")))
 
     def rewrittenTreeDoc (rootToRewrite: RootElement): RootElement = {
+      val doc = Document(Path.Root / "doc", rootToRewrite)
       val tree = DocumentTree(Root, Seq(
         Document(Root / "doc1.md", rootWithTarget),
         Document(Root / "doc2.md", rootWithTarget),
@@ -219,6 +220,11 @@ class RewriteRulesSpec extends AnyWordSpec
     "resolve internal link references to a target in a sibling tree" in {
       val rootElem = root(p(internalRef("../tree2/doc5.md#ref")), InternalLinkTarget(Id("ref")))
       rewrittenTreeDoc(rootElem) should be(root(p(internalLink(RelativePath.parse("../tree2/doc5.md#ref"))), InternalLinkTarget(Id("ref"))))
+    }
+
+    "resolve internal link references to a document" in {
+      val rootElem = root(p(internalRef("../tree2/doc5.md")), InternalLinkTarget(Id("ref")))
+      rewrittenTreeDoc(rootElem) should be(root(p(internalLink(RelativePath.parse("../tree2/doc5.md"))), InternalLinkTarget(Id("ref"))))
     }
 
     "produce an invalid span for an unresolved reference" in {

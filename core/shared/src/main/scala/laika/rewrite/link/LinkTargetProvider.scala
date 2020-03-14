@@ -47,14 +47,14 @@ class LinkTargetProvider (path: Path, root: RootElement) {
     private val levelIt = Iterator.from(1)
     def levelFor (deco: HeaderDecoration): Int = levelMap.getOrElseUpdate(deco, levelIt.next)
   }
-
+  
   private val directTargets: List[TargetResolver] = {
     
     val levels = new DecoratedHeaderLevels
     val symbols = new SymbolGenerator
     val symbolNumbers = Iterator.from(1)
     val numbers = Iterator.from(1)
-           
+
     def internalLinkResolver (selector: TargetIdSelector) = ReferenceResolver.lift {
       case LinkSource(InternalReference(content, relPath, _, _, opt), sourcePath) => // TODO - deal with title?
         InternalLink(content, LinkPath.fromPath(relPath.withFragment(selector.id), sourcePath.parent) , options = opt)
@@ -171,10 +171,17 @@ class LinkTargetProvider (path: Path, root: RootElement) {
    *  within any document within the document tree.
    */
   val global: Map[Selector, TargetResolver] = {
-    val global = local filter (_._2.selector.global) 
-    global ++ global.collect {
-      case (TargetIdSelector(name), target) => (PathSelector(path.withFragment(name)), target)
+    val global = local filter (_._2.selector.global)
+    val documentTarget = {
+      val resolver = ReferenceResolver.lift { // TODO - avoid duplication
+        case LinkSource(InternalReference(content, relPath, _, _, opt), sourcePath) => // TODO - deal with title?
+          InternalLink(content, LinkPath.fromPath(relPath, sourcePath.parent) , options = opt)
+      }
+      TargetResolver.create(PathSelector(path), resolver, TargetReplacer.removeTarget)
     }
+    (global ++ global.collect {
+      case (TargetIdSelector(name), target) => (PathSelector(path.withFragment(name)), target)
+    }) + ((documentTarget.selector, documentTarget))
   }
   
 }
