@@ -55,6 +55,8 @@ class RewriteRulesSpec extends AnyWordSpec
 
   def simpleLinkRef (id: String = "name") = LinkDefinitionReference(List(Text("text")), id, "text")
 
+  def genRef (id: String = "name"): GenericReference = GenericReference(List(Text("text")), id, "text")
+
   def intRef (id: String = "name") = InternalReference(List(Text("text")), RelativePath.parse(s"#$id"), "text")
 
   def extLink (url: String) = ExternalLink(List(Text("text")), url)
@@ -181,13 +183,55 @@ class RewriteRulesSpec extends AnyWordSpec
     }
   }
 
+  "The rewrite rules for generic references" should {
+
+    "resolve external link definitions" in {
+      val rootElem = root(p(genRef()), ExternalLinkDefinition("name", "http://foo/"))
+      rewritten(rootElem) should be(root(p(extLink("http://foo/"))))
+    }
+
+    "resolve internal link definitions" in {
+      val rootElem = root(p(genRef()), InternalLinkDefinition("name", RelativePath.parse("foo.md#ref")))
+      rewritten(rootElem) should be(root(p(intLink(RelativePath.parse("foo.md#ref")))))
+    }
+
+    "resolve internal link targets" in {
+      val rootElem = root(p(genRef("id 5")), InternalLinkTarget(Id("id-5")))
+      rewritten(rootElem) should be(root(p(intLink(RelativePath.parse("#id-5"))), InternalLinkTarget(Id("id-5"))))
+    }
+
+    "resolve anonymous link references" in {
+      val rootElem = root(p(genRef(""), genRef("")), ExternalLinkDefinition("", "http://foo/"), ExternalLinkDefinition("", "http://bar/"))
+      rewritten(rootElem) should be(root(p(extLink("http://foo/"), extLink("http://bar/"))))
+    }
+
+    "resolve anonymous internal link definitions" in {
+      val rootElem = root(p(genRef(""), genRef("")), InternalLinkDefinition("", RelativePath.parse("foo.md#ref")), InternalLinkDefinition("", RelativePath.parse("bar.md#ref")))
+      rewritten(rootElem) should be(root(p(intLink(RelativePath.parse("foo.md#ref")), intLink(RelativePath.parse("bar.md#ref")))))
+    }
+
+    "replace an unresolvable reference with an invalid span" in {
+      val rootElem = root(p(genRef()))
+      rewritten(rootElem) should be(root(p(invalidSpan("unresolved reference: name", "text"))))
+    }
+
+    "replace a surplus anonymous reference with an invalid span" in {
+      val rootElem = root(p(genRef("")))
+      rewritten(rootElem) should be(root(p(invalidSpan("too many anonymous references", "text"))))
+    }
+
+    "resolve references when some parent element also gets rewritten" in {
+      val rootElem = root(DecoratedHeader(Underline('#'), List(Text("text1"), genRef()), Id("header")), ExternalLinkDefinition("name", "http://foo/"))
+      rewritten(rootElem) should be(root(Title(List(Text("text1"), extLink("http://foo/")), Id("header") + Styles("title"))))
+    }
+  }
+
 
   "The rewrite rules for internal links" should {
 
     val rootWithTarget = root(InternalLinkTarget(Id("ref")))
 
     def rewrittenTreeDoc (rootToRewrite: RootElement): RootElement = {
-      val doc = Document(Path.Root / "doc", rootToRewrite)
       val tree = DocumentTree(Root, Seq(
         Document(Root / "doc1.md", rootWithTarget),
         Document(Root / "doc2.md", rootWithTarget),
@@ -200,7 +244,7 @@ class RewriteRulesSpec extends AnyWordSpec
           Document(Root / "tree2" / "doc6.md", rootWithTarget),
         ))
       ))
-      val rewrittenTree = DocumentTreeRoot(tree).rewrite(OperationConfig.default.rewriteRules)
+      val rewrittenTree = DocumentTreeRoot(tree, staticDocuments = Seq(Root / "images" / "frog.jpg")).rewrite(OperationConfig.default.rewriteRules)
       rewrittenTree.tree.selectDocument("tree1/doc3.md").get.content
     }
 
