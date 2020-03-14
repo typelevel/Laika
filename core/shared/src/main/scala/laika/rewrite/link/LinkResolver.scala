@@ -108,7 +108,7 @@ object LinkResolver extends (DocumentCursor => RewriteRules) {
 
       case img @ Image(_,URI(uri, None),_,_,_,_) => Replace(img.copy(uri = URI(uri, LinkPath.fromURI(uri, cursor.parent.target.path))))
 
-      case ref: InternalReference => resolveGlobal(ref, ref.path, s"unresolved cross reference: ${ref.path.toString}")  
+      case ref: InternalReference => resolveGlobal(ref, ref.path, s"unresolved internal reference: ${ref.path.toString}")  
         
       case ref: LinkDefinitionReference => if (ref.id.isEmpty) resolveLocal(ref, AnonymousSelector, "too many anonymous link references")
                                            else resolveRecursive(ref, LinkDefinitionSelector(ref.id), s"unresolved link reference: ${ref.id}")

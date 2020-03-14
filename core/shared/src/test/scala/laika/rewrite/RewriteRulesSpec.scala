@@ -17,6 +17,7 @@
 package laika.rewrite
 
 import laika.api.builder.OperationConfig
+import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.rst.ast.Underline
@@ -144,7 +145,7 @@ class RewriteRulesSpec extends AnyWordSpec
 
   "The rewrite rules for link references" should {
 
-    "resolve external link references" in {
+    "resolve external link definitions" in {
       val rootElem = root(p(simpleLinkRef()), ExternalLinkDefinition("name", "http://foo/"))
       rewritten(rootElem) should be(root(p(extLink("http://foo/"))))
     }
@@ -152,11 +153,6 @@ class RewriteRulesSpec extends AnyWordSpec
     "resolve internal link definitions" in {
       val rootElem = root(p(simpleLinkRef()), InternalLinkDefinition("name", RelativePath.parse("foo.md#ref")))
       rewritten(rootElem) should be(root(p(intLink(RelativePath.parse("foo.md#ref")))))
-    }
-
-    "resolve internal link references" in {
-      val rootElem = root(p(intRef()), InternalLinkTarget(Id("name")))
-      rewritten(rootElem) should be(root(p(intLink("name")), InternalLinkTarget(Id("name"))))
     }
 
     "resolve anonymous link references" in {
@@ -183,6 +179,54 @@ class RewriteRulesSpec extends AnyWordSpec
       val rootElem = root(DecoratedHeader(Underline('#'), List(Text("text1"), simpleLinkRef()), Id("header")), ExternalLinkDefinition("name", "http://foo/"))
       rewritten(rootElem) should be(root(Title(List(Text("text1"), extLink("http://foo/")), Id("header") + Styles("title"))))
     }
+  }
+
+
+  "The rewrite rules for internal links" should {
+
+    val rootWithTarget = root(InternalLinkTarget(Id("ref")))
+
+    def rewrittenTreeDoc (rootToRewrite: RootElement): RootElement = {
+      val tree = DocumentTree(Root, Seq(
+        Document(Root / "doc1.md", rootWithTarget),
+        Document(Root / "doc2.md", rootWithTarget),
+        DocumentTree(Root / "tree1", Seq(
+          Document(Root / "tree1" / "doc3.md", rootToRewrite),
+          Document(Root / "tree1" / "doc4.md", rootWithTarget),
+        )),
+        DocumentTree(Root / "tree2", Seq(
+          Document(Root / "tree2" / "doc5.md", rootWithTarget),
+          Document(Root / "tree2" / "doc6.md", rootWithTarget),
+        ))
+      ))
+      val rewrittenTree = DocumentTreeRoot(tree).rewrite(OperationConfig.default.rewriteRules)
+      rewrittenTree.tree.selectDocument("tree1/doc3.md").get.content
+    }
+
+    def internalRef (ref: String) = InternalReference(List(Text("text")), RelativePath.parse(ref), "text")
+    def internalLink (path: RelativePath) = InternalLink(List(Text("text")), LinkPath.fromPath(path, Root / "tree1"))
+
+    "resolve internal link references to a target in the same document" in {
+      val rootElem = root(p(internalRef("#ref")), InternalLinkTarget(Id("ref")))
+      rewrittenTreeDoc(rootElem) should be(root(p(internalLink(RelativePath.parse("#ref"))), InternalLinkTarget(Id("ref"))))
+    }
+
+    "resolve internal link references to a target in the parent tree" in {
+      val rootElem = root(p(internalRef("../doc1.md#ref")), InternalLinkTarget(Id("ref")))
+      rewrittenTreeDoc(rootElem) should be(root(p(internalLink(RelativePath.parse("../doc1.md#ref"))), InternalLinkTarget(Id("ref"))))
+    }
+
+    "resolve internal link references to a target in a sibling tree" in {
+      val rootElem = root(p(internalRef("../tree2/doc5.md#ref")), InternalLinkTarget(Id("ref")))
+      rewrittenTreeDoc(rootElem) should be(root(p(internalLink(RelativePath.parse("../tree2/doc5.md#ref"))), InternalLinkTarget(Id("ref"))))
+    }
+
+    "produce an invalid span for an unresolved reference" in {
+      val rootElem = root(p(internalRef("../tree2/doc99.md#ref")), InternalLinkTarget(Id("ref")))
+      val expected = root(p(invalidSpan("unresolved internal reference: ../tree2/doc99.md#ref", "text")), InternalLinkTarget(Id("ref")))
+      rewrittenTreeDoc(rootElem) should be(expected)
+    }
+
   }
 
 
