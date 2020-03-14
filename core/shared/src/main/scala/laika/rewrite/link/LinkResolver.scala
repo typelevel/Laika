@@ -65,19 +65,30 @@ object LinkResolver extends (DocumentCursor => RewriteRules) {
         else PathSelector(cursor.parent.target.path / path)
       resolveWith(ref, cursor.root.target.selectTarget(selector), msg)
     }
-    
-    def resolveRecursive (ref: Reference, selector: UniqueSelector, msg: => String): RewriteAction[Span] = {
-      
-      @tailrec def selectFromParent (treeCursor: TreeCursor): Option[TargetResolver] = {
+
+    def selectRecursive (selector: UniqueSelector): Option[TargetResolver] = {
+
+      @tailrec def selectFromParent (treeCursor: TreeCursor, selector: UniqueSelector): Option[TargetResolver] = {
         val target = treeCursor.target.selectTarget(selector)
         treeCursor.parent match {
-          case Some(parent) if target.isEmpty => selectFromParent(parent)
+          case Some(parent) if target.isEmpty => selectFromParent(parent, selector)
           case _ => target
         }
       }
-    
-      resolveWith(ref, targets.local.get(selector).orElse(selectFromParent(cursor.parent)), msg)
+      targets.local.get(selector).orElse(selectFromParent(cursor.parent, selector))
     }
+    
+    def resolveRecursive (ref: Reference, selector: UniqueSelector, msg: => String): RewriteAction[Span] =
+      resolveWith(ref, selectRecursive(selector), msg)
+        
+    def resolveGeneric (gen: GenericReference, msg: => String): RewriteAction[Span] =
+      selectRecursive(LinkDefinitionSelector(gen.ref)) match {
+        case None => 
+          val slugRef = slug(gen.ref)
+          resolveLocal(gen.copy(ref = slugRef).asInternalReference, TargetIdSelector(slugRef), msg)
+        case some => 
+          resolveWith(gen.asLinkDefinitionReference, some, msg)
+      }
       
     RewriteRules.forBlocks {
       
@@ -112,6 +123,9 @@ object LinkResolver extends (DocumentCursor => RewriteRules) {
         
       case ref: LinkDefinitionReference => if (ref.id.isEmpty) resolveLocal(ref, AnonymousSelector, "too many anonymous link references")
                                            else resolveRecursive(ref, LinkDefinitionSelector(ref.id), s"unresolved link reference: ${ref.id}")
+
+      case gen: GenericReference => if (gen.ref.isEmpty) resolveLocal(gen.asLinkDefinitionReference, AnonymousSelector, "too many anonymous references")
+                                    else resolveGeneric(gen, s"unresolved reference: ${gen.ref}")
 
       case ref: ImageDefinitionReference => resolveRecursive(ref, LinkDefinitionSelector(ref.id), s"unresolved image reference: ${ref.id}")
 

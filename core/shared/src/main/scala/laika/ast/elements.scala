@@ -1191,6 +1191,22 @@ case class CitationReference (label: String, source: String, options: Options = 
   def withOptions (options: Options): CitationReference = copy(options = options)
 }
 
+/** A reference to any kind of referencable object, e.g. a link definition or an internal target.
+  * 
+  * Not all markup languages support such a construct. For those supported by Laika out of the box,
+  * only reStructuredText produces such a node type. When parsing Markdown no instances of this kind
+  * will be in the document AST as Markdown makes a clear distinction whether a reference points
+  * to a link definition or an internal target.
+  */
+case class GenericReference (content: Seq[Span], ref: String, source: String, options: Options = NoOpt) extends Reference
+  with SpanContainer {
+  type Self = GenericReference
+  def withContent (newContent: Seq[Span]): GenericReference = copy(content = newContent)
+  def withOptions (options: Options): GenericReference = copy(options = options)
+  def asLinkDefinitionReference: LinkDefinitionReference = LinkDefinitionReference(content, ref, source, options)
+  def asInternalReference: InternalReference = 
+    InternalReference(content, RelativePath.Current.withFragment(ref), source, options = options)
+}
 
 
 /** An explicit hard line break.
