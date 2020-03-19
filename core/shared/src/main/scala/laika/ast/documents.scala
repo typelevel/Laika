@@ -564,7 +564,7 @@ case class DocumentTreeRoot (tree: DocumentTree,
     coverDocument.toSeq ++ collect(tree)
   }
   
-  private val globalLinkTargets: Map[Selector, TargetResolver] = {
+  private lazy val globalLinkTargets: Map[Selector, TargetResolver] = {
     def staticTarget (path: Path) = {
       val resolver = ReferenceResolver.lift { // TODO - avoid duplication
         case LinkSource(InternalReference(content, relPath, _, _, opt), sourcePath) => // TODO - deal with title?
