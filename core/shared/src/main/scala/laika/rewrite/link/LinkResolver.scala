@@ -46,10 +46,15 @@ object LinkResolver extends (DocumentCursor => RewriteRules) {
     
     val targets = cursor.target.linkTargets
     
-    def replace (element: Block, selector: Selector): RewriteAction[Block] =
+    def replace (element: Customizable, selector: Selector): Option[Customizable] =
       targets.local.get(selector)
         .flatMap(_.replaceTarget(element))
-        .fold[RewriteAction[Block]](Remove)(Replace(_))
+
+    def replaceBlock (element: Block, selector: Selector): RewriteAction[Block] =
+      replace(element, selector) match {
+        case Some(b: Block) => Replace(b)
+        case _              => Remove
+      }
 
     def resolveWith (ref: Reference, target: Option[TargetResolver], msg: => String): RewriteAction[Span] = {
       val resolvedTarget = target.flatMap(_.resolveReference(LinkSource(ref, cursor.path)))
@@ -93,18 +98,18 @@ object LinkResolver extends (DocumentCursor => RewriteRules) {
     RewriteRules.forBlocks {
       
       case f: FootnoteDefinition => f.label match {
-        case NumericLabel(num)   => replace(f, TargetIdSelector(num.toString))
-        case AutonumberLabel(id) => replace(f, TargetIdSelector(id))
-        case Autonumber          => replace(f, AutonumberSelector)
-        case Autosymbol          => replace(f, AutosymbolSelector)
+        case NumericLabel(num)   => replaceBlock(f, TargetIdSelector(num.toString))
+        case AutonumberLabel(id) => replaceBlock(f, TargetIdSelector(id))
+        case Autonumber          => replaceBlock(f, AutonumberSelector)
+        case Autosymbol          => replaceBlock(f, AutosymbolSelector)
       }
-      case c: Citation           => replace(c, TargetIdSelector(c.label))
-      case h: DecoratedHeader    => replace(h, TargetIdSelector(slug(h.options.id.get)))
-      case h@ Header(_,_,Id(id)) => replace(h, TargetIdSelector(slug(id)))
+      case c: Citation           => replaceBlock(c, TargetIdSelector(c.label))
+      case h: DecoratedHeader    => replaceBlock(h, TargetIdSelector(slug(h.options.id.get)))
+      case h@ Header(_,_,Id(id)) => replaceBlock(h, TargetIdSelector(slug(id)))
       
       case _: Temporary => Remove
 
-      case c: Customizable if c.options.id.isDefined => replace(c, TargetIdSelector(c.options.id.get))
+      case c: Customizable if c.options.id.isDefined => replaceBlock(c, TargetIdSelector(c.options.id.get))
       
     } ++ RewriteRules.forSpans {
       

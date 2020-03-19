@@ -125,7 +125,7 @@ object LinkTargets {
      *  @param rewrittenOriginal the original target node in the raw document, potentially
      *  already rewritten in case any of its children got rewritten
      */
-    def replaceTarget (rewrittenOriginal: Block): Option[Block]
+    def replaceTarget (rewrittenOriginal: Customizable): Option[Customizable]
     
   }
   
@@ -147,16 +147,24 @@ object LinkTargets {
                targetResolver: Block => Option[Block]): TargetResolver = new TargetResolver(selector) {
 
       override def resolveReference (linkSource: LinkSource): Option[Span] = referenceResolver(linkSource)
-      override def replaceTarget (rewrittenOriginal: Block): Option[Block] = targetResolver(rewrittenOriginal)
+
+      override def replaceTarget (rewrittenOriginal: Customizable): Option[Customizable] = rewrittenOriginal match {
+        case b: Block => targetResolver(b)
+        case _ => None
+      }
     }
 
-    def forInvalidTarget (selector: UniqueSelector, msg: String, delegate: Option[TargetResolver] = None): TargetResolver = {
+    def forInvalidTarget (selector: UniqueSelector, msg: String, delegate: Option[TargetResolver] = None): TargetResolver = new TargetResolver(selector) {
       val sysMsg: SystemMessage = SystemMessage(MessageLevel.Error, msg)
-
-      TargetResolver.create(selector,
-        ReferenceResolver.lift { case LinkSource(ref: Reference, _) => InvalidElement(msg, ref.source).asSpan },
-        block => Some(delegate.flatMap(_.replaceTarget(block)).fold[Block](sysMsg){ b => InvalidBlock(sysMsg, b.withoutId) })
-      )
+      val resolver = ReferenceResolver.lift { case LinkSource(ref: Reference, _) => InvalidElement(msg, ref.source).asSpan }
+      
+      override def resolveReference (linkSource: LinkSource): Option[Span] = resolver(linkSource)
+      
+      override def replaceTarget (rewrittenOriginal: Customizable): Option[Customizable] = rewrittenOriginal match {
+        case b: Block => Some(InvalidBlock(sysMsg, b.withoutId))
+        case s: Span => Some(InvalidSpan(sysMsg, s.withoutId))
+        case _ => None
+      }
     }
     
     def forDuplicateSelector (selector: UniqueSelector, path: Path, delegate: TargetResolver): TargetResolver =
@@ -177,7 +185,7 @@ object LinkTargets {
     def resolveReference (linkSource: LinkSource): Option[Span] = 
       nextOption(refIt).flatMap(_.resolveReference(linkSource))
 
-    def replaceTarget (rewrittenOriginal: Block): Option[Block] = 
+    def replaceTarget (rewrittenOriginal: Customizable): Option[Customizable] = 
       nextOption(targetIt).flatMap(_.replaceTarget(rewrittenOriginal))
   }
   
