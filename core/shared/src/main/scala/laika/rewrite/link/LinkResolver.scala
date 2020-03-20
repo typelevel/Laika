@@ -56,6 +56,12 @@ object LinkResolver extends (DocumentCursor => RewriteRules) {
         case _              => Remove
       }
 
+    def replaceSpan (element: Span, selector: Selector): RewriteAction[Span] =
+      replace(element, selector) match {
+        case Some(b: Span) => Replace(b)
+        case _             => Remove
+      }
+
     def resolveWith (ref: Reference, target: Option[TargetResolver], msg: => String): RewriteAction[Span] = {
       val resolvedTarget = target.flatMap(_.resolveReference(LinkSource(ref, cursor.path)))
       Replace(resolvedTarget.getOrElse(InvalidElement(msg, ref.source).asSpan))
@@ -134,6 +140,8 @@ object LinkResolver extends (DocumentCursor => RewriteRules) {
 
       case ref: ImageDefinitionReference => resolveRecursive(ref, LinkDefinitionSelector(ref.id), s"unresolved image reference: ${ref.id}")
 
+      case c: Customizable if c.options.id.isDefined => replaceSpan(c, TargetIdSelector(slug(c.options.id.get)))
+        
       case _: Temporary => Remove
 
     }

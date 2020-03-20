@@ -154,6 +154,17 @@ object LinkTargets {
       }
     }
 
+    def forSpanTarget(idSelector: TargetIdSelector,
+                      referenceResolver: LinkSource => Option[Span]): TargetResolver = new TargetResolver(idSelector) {
+
+      override def resolveReference (linkSource: LinkSource): Option[Span] = referenceResolver(linkSource)
+
+      override def replaceTarget (rewrittenOriginal: Customizable): Option[Customizable] = rewrittenOriginal match {
+        case s: Span => Some(s.withId(idSelector.id))
+        case _ => None
+      }
+    }
+
     def forInvalidTarget (selector: UniqueSelector, msg: String, delegate: Option[TargetResolver] = None): TargetResolver = new TargetResolver(selector) {
       val sysMsg: SystemMessage = SystemMessage(MessageLevel.Error, msg)
       val resolver = ReferenceResolver.lift { case LinkSource(ref: Reference, _) => InvalidElement(msg, ref.source).asSpan }

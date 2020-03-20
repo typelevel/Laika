@@ -117,8 +117,12 @@ class LinkTargetProvider (path: Path, root: RootElement) {
         TargetResolver.create(selector, internalLinkResolver(selector), TargetReplacer.addId(selector.id))
       
       case c: Block if c.options.id.isDefined =>
-        val selector = TargetIdSelector(c.options.id.get)
+        val selector = TargetIdSelector(slug(c.options.id.get))
         TargetResolver.create(selector, internalLinkResolver(selector), TargetReplacer.addId(selector.id))
+
+      case c: Span if c.options.id.isDefined =>
+        val selector = TargetIdSelector(slug(c.options.id.get))
+        TargetResolver.forSpanTarget(selector, internalLinkResolver(selector))
         
     }
   }
