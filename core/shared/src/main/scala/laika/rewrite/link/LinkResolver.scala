@@ -61,19 +61,30 @@ object LinkResolver extends (DocumentCursor => RewriteRules) {
         case Some(b: Span) => Replace(b)
         case _             => Remove
       }
+    
+    def pathSelectorFor (path: RelativePath): PathSelector = 
+      if (path.name.isEmpty && path.fragment.nonEmpty) PathSelector(cursor.path.withFragment(path.fragment.get))
+      else PathSelector(cursor.parent.target.path / path)
+    
+    def validateLink (link: InternalLink, ref: Reference): Span = {
+      if (cursor.root.target.selectTarget(pathSelectorFor(link.ref.relative)).isDefined) link
+      else InvalidElement(s"unresolved internal reference: ${link.ref.relative.toString}", ref.source).asSpan
+    }
 
     def resolveWith (ref: Reference, target: Option[TargetResolver], msg: => String): RewriteAction[Span] = {
-      val resolvedTarget = target.flatMap(_.resolveReference(LinkSource(ref, cursor.path)))
-      Replace(resolvedTarget.getOrElse(InvalidElement(msg, ref.source).asSpan))
+      val resolvedTarget = target.flatMap(_.resolveReference(LinkSource(ref, cursor.path))) match {
+        case Some(link: InternalLink) => link // Some(validateLink(link, ref)) TODO - 0.15 - activate
+        case Some(other)              => other
+        case None                     => InvalidElement(msg, ref.source).asSpan
+      }
+      Replace(resolvedTarget)
     }
     
     def resolveLocal (ref: Reference, selector: Selector, msg: => String): RewriteAction[Span] =
       resolveWith(ref, targets.local.get(selector), msg)
     
     def resolveGlobal (ref: Reference, path: RelativePath, msg: => String): RewriteAction[Span] = {
-      val selector = 
-        if (path.name.isEmpty && path.fragment.nonEmpty) PathSelector(cursor.path.withFragment(path.fragment.get))
-        else PathSelector(cursor.parent.target.path / path)
+      val selector = pathSelectorFor(path)
       resolveWith(ref, cursor.root.target.selectTarget(selector), msg)
     }
 
