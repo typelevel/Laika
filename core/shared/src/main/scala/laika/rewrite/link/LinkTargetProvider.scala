@@ -56,8 +56,8 @@ class LinkTargetProvider (path: Path, root: RootElement) {
     val numbers = Iterator.from(1)
 
     def internalLinkResolver (selector: TargetIdSelector) = ReferenceResolver.lift {
-      case LinkSource(InternalReference(content, relPath, _, _, opt), sourcePath) => // TODO - deal with title?
-        InternalLink(content, LinkPath.fromPath(relPath.withFragment(selector.id), sourcePath.parent) , options = opt)
+      case LinkSource(InternalReference(content, relPath, _, title, opt), sourcePath) =>
+        InternalLink(content, LinkPath.fromPath(relPath.withFragment(selector.id), sourcePath.parent), title, opt)
     }
     
     root.collect {
@@ -168,8 +168,8 @@ class LinkTargetProvider (path: Path, root: RootElement) {
     val global = local filter (_._2.selector.global)
     val documentTarget = {
       val resolver = ReferenceResolver.lift { // TODO - avoid duplication
-        case LinkSource(InternalReference(content, relPath, _, _, opt), sourcePath) => // TODO - deal with title?
-          InternalLink(content, LinkPath.fromPath(relPath, sourcePath.parent) , options = opt)
+        case LinkSource(InternalReference(content, relPath, _, title, opt), sourcePath) =>
+          InternalLink(content, LinkPath.fromPath(relPath, sourcePath.parent), title, opt)
       }
       TargetResolver.create(PathSelector(path), resolver, TargetReplacer.removeTarget)
     }
