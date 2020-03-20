@@ -92,9 +92,9 @@ class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => Str
       def codeStyles (language: String, hasHighlighting: Boolean) = 
         if (hasHighlighting) Styles("nohighlight") else Styles(language)
       
-      def crossLinkRef (path: LinkPath) = {
+      def internalLinkRef (path: LinkPath) = {
         val target = 
-          if (path.relative.suffix.nonEmpty) path.relative.withSuffix(fileSuffix)
+          if (path.relative.suffix.contains("md") || path.relative.suffix.contains("rst")) path.relative.withSuffix(fileSuffix) // TODO - 0.15 - generalize
           else path.relative
         target.toString
       }
@@ -119,7 +119,7 @@ class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => Str
         case Header(level, content, opt)    => fmt.newLine + fmt.element("h"+level.toString, opt,content)
 
         case ExternalLink(content, url, title, opt)  => fmt.element("a", opt, content, linkAttributes(url, title):_*)
-        case InternalLink(content, ref, title, opt)  => fmt.element("a", opt, content, linkAttributes(crossLinkRef(ref), title):_*)
+        case InternalLink(content, ref, title, opt)  => fmt.element("a", opt, content, linkAttributes(internalLinkRef(ref), title):_*)
 
         case WithFallback(fallback)         => fmt.child(fallback)
         case c: Customizable                => c match {
