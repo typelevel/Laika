@@ -64,7 +64,7 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec
       |.. _ref: http://foo.com/
       |
       |Some |subst|""".stripMargin
-    val result = root (p(Text("Some "),ExternalLink(List(img("", "picture.jpg")), "http://foo.com/")))
+    val result = root (p(Text("Some "),SpanLink(List(img("", "picture.jpg")), ExternalTarget("http://foo.com/"))))
     parse(input) should be (result)
   }
   
@@ -75,7 +75,7 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec
       |.. _`some ref`: http://foo.com/
       |
       |Some |subst|""".stripMargin
-    val result = root (p(Text("Some "),ExternalLink(List(img("", "picture.jpg")), "http://foo.com/")))
+    val result = root (p(Text("Some "),SpanLink(List(img("", "picture.jpg")), ExternalTarget("http://foo.com/"))))
     parse(input) should be (result)
   }
   
@@ -84,7 +84,7 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec
       | :target: http://foo.com/
       |
       |Some |subst|""".stripMargin
-    val result = root (p(Text("Some "),ExternalLink(List(img("", "picture.jpg")), "http://foo.com/")))
+    val result = root (p(Text("Some "),SpanLink(List(img("", "picture.jpg")), ExternalTarget("http://foo.com/"))))
     parse(input) should be (result)
   }
   

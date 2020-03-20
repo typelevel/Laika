@@ -85,7 +85,7 @@ class LinkTargetProvider (path: Path, root: RootElement) {
         val selector = if (ld.id.isEmpty) AnonymousSelector else LinkDefinitionSelector(ld.id)
         val resolver = ReferenceResolver.lift {
           case LinkSource(LinkDefinitionReference (content, _, _, opt), _) => 
-            ExternalLink(content, ld.url, ld.title, opt)
+            SpanLink(content, ExternalTarget(ld.url), ld.title, opt)
           case LinkSource(ImageDefinitionReference (text, _, _, opt), _) =>
             Image(text, URI(ld.url), title = ld.title, options = opt)
         }

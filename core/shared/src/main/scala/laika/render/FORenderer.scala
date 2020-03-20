@@ -125,7 +125,8 @@ object FORenderer extends ((FOFormatter, Element) => String) {
         case e @ InlineCode(lang,content,_)         => fmt.inline(e.copy(options=e.options + codeStyles(lang)),content)
         case e @ Line(content,_)              => fmt.block(e, content)
 
-        case e @ ExternalLink(content, url, _, _)  => fmt.externalLink(e, url, content)
+        case e @ SpanLink(content, ExternalTarget(url), _, _)         => fmt.externalLink(e, url, content)
+        case e @ SpanLink(content, InternalTarget(absolute, _), _, _) => fmt.internalLink(e, fmt.buildId(absolute), content)
         case e @ InternalLink(content, ref, _, _)  => fmt.internalLink(e, fmt.buildId(ref.absolute), content)
 
         case WithFallback(fallback)         => fmt.child(fallback)

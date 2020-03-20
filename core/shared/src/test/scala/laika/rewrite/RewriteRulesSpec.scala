@@ -59,7 +59,7 @@ class RewriteRulesSpec extends AnyWordSpec
 
   def intRef (id: String = "name") = InternalReference(List(Text("text")), RelativePath.parse(s"#$id"), "text")
 
-  def extLink (url: String) = ExternalLink(List(Text("text")), url)
+  def extLink (url: String) = SpanLink(List(Text("text")), ExternalTarget(url))
 
   def intLink (ref: String) = InternalLink(List(Text("text")), rootLinkPath(ref))
 

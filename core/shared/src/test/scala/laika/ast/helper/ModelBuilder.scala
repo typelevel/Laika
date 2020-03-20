@@ -46,7 +46,7 @@ trait ModelBuilder {
     
     def title (value: String): LinkBuilder = new LinkBuilder(content, url, Some(value))
     
-    def toLink = ExternalLink(content, url, title)
+    def toLink = SpanLink(content, ExternalTarget(url), title)
     
   }
   

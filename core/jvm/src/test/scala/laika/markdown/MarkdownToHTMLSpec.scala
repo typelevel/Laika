@@ -17,7 +17,7 @@
 package laika.markdown
 
 import laika.api.Transformer
-import laika.ast.{InternalReference, ExternalLink, QuotedBlock, RelativePath, Replace}
+import laika.ast.{ExternalTarget, InternalReference, QuotedBlock, RelativePath, Replace, SpanLink, Target}
 import laika.file.FileIO
 import laika.format.{HTML, Markdown}
 import laika.html.TidyHTML
@@ -50,15 +50,15 @@ class MarkdownToHTMLSpec extends AnyFlatSpec
   }
 
   def transformAndCompare (name: String): Unit = {
-    def renderPath(relPath: RelativePath): String = 
-      if (relPath == RelativePath.Current) "" else relPath.toString
+    def renderPath(relPath: RelativePath): Target = 
+      if (relPath == RelativePath.Current) ExternalTarget("") else ExternalTarget(relPath.toString)
     val path = FileIO.classPathResourcePath("/markdownTestSuite") + "/" + name
     val input = FileIO.readFile(path + ".md")
     val actual = Transformer
       .from(Markdown).to(HTML)
       .strict.withRawContent
       .usingSpanRule {
-        case InternalReference(content, relPath, _, title, opt) => Replace(ExternalLink(content, renderPath(relPath), title, opt)) // We do not validate cross-links in these tests
+        case InternalReference(content, relPath, _, title, opt) => Replace(SpanLink(content, renderPath(relPath), title, opt)) // We do not validate cross-links in these tests - TODO - 0.15 - might be obsolete with LinkConfig
       }
       .rendering {
         case (fmt, QuotedBlock(content, _, opt)) => fmt.indentedElement("blockquote", opt, content) // Markdown always writes p tags inside blockquotes

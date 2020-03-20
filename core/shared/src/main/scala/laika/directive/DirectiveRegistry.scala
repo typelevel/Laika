@@ -56,7 +56,7 @@ trait DirectiveRegistry extends ExtensionBundle {
     *        (defaultAttribute.as[String] ~ attribute("param").optional).map { case ticketNo ~ param =>
     *          val base = "http://tickets.service.com/"+ticketNo
     *          val url = base + (param map (p => "?param="+p) getOrElse "")
-    *          ExternalLink(Seq(Text("Ticket "+ticketNo)), url, options = Styles("ticket"))
+    *          SpanLink(Seq(Text("Ticket "+ticketNo)), ExternalTarget(url), options = Styles("ticket"))
     *        }
     *      }
     *    )
@@ -110,7 +110,7 @@ trait DirectiveRegistry extends ExtensionBundle {
     *        (defaultAttribute.as[String] ~ attribute("param").optional).map { case ticketNo ~ param =>
     *          val base = "http://tickets.service.com/"+ticketNo
     *          val url = base + (param map (p => "&param="+p) getOrElse "")
-    *          TemplateElement(ExternalLink(Seq(Text("Ticket "+ticketNo)), url, options = Styles("ticket")))
+    *          TemplateElement(SpanLink(Seq(Text("Ticket "+ticketNo)), ExternalTarget(url), options = Styles("ticket")))
     *        }
     *      }
     *    )

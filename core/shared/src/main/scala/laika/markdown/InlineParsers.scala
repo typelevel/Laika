@@ -221,7 +221,7 @@ object InlineParsers {
     
     def isEmail (s: String) = s.contains("@") && isURI(s"mailto:$s")
 
-    def toLink(s: String) = ExternalLink(List(Text(s)), s)
+    def toLink(s: String) = SpanLink(List(Text(s)), ExternalTarget(s))
 
     ("<" ~> anyNot(' ','\r','\n','\t','>') <~ ">").collect {
       case s if isURI(s) => toLink(s)

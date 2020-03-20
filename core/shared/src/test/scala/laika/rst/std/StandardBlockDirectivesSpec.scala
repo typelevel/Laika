@@ -488,7 +488,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | :target: ref_
       |
       |.. _ref: http://foo.com/""".stripMargin
-    val result = root (p(ExternalLink(List(img("", "picture.jpg", imgPath)), "http://foo.com/")))
+    val result = root (p(SpanLink(List(img("", "picture.jpg", imgPath)), ExternalTarget("http://foo.com/"))))
     parse(input) should be (result)
   }
   
@@ -497,14 +497,14 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | :target: `some ref`_
       |
       |.. _`some ref`: http://foo.com/""".stripMargin
-    val result = root (p(ExternalLink(List(img("", "picture.jpg", imgPath)), "http://foo.com/")))
+    val result = root (p(SpanLink(List(img("", "picture.jpg", imgPath)), ExternalTarget("http://foo.com/"))))
     parse(input) should be (result)
   }
   
   it should "support the target option with a uri" in {
     val input = """.. image:: picture.jpg
       | :target: http://foo.com/""".stripMargin
-    val result = root (p(ExternalLink(List(img("", "picture.jpg", imgPath)), "http://foo.com/")))
+    val result = root (p(SpanLink(List(img("", "picture.jpg", imgPath)), ExternalTarget("http://foo.com/"))))
     parse(input) should be (result)
   }
   
@@ -555,7 +555,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | This is the *caption*
       |
       |.. _ref: http://foo.com/""".stripMargin
-    val result = root (Figure(ExternalLink(List(img("", "picture.jpg", imgPath)), "http://foo.com/"), List(Text("This is the "),Emphasized("caption")), Nil))
+    val result = root (Figure(SpanLink(List(img("", "picture.jpg", imgPath)), ExternalTarget("http://foo.com/")), List(Text("This is the "),Emphasized("caption")), Nil))
     parse(input) should be (result)
   }
   

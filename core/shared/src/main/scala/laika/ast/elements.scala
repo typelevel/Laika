@@ -1079,13 +1079,29 @@ object LinkPath {
 
 }
 
-/** An external link element, with the span content representing the text (description) of the link.
- */
-case class ExternalLink (content: Seq[Span], url: String, title: Option[String] = None, options: Options = NoOpt) extends Link
-                                                                                                                  with SpanContainer {
-  type Self = ExternalLink
-  def withContent (newContent: Seq[Span]): ExternalLink = copy(content = newContent)
-  def withOptions (options: Options): ExternalLink = copy(options = options)
+sealed trait Target
+case class ExternalTarget (url: String) extends Target
+case class InternalTarget (absolutePath: Path, relativePath: RelativePath) extends Target
+object Target {
+  def create (url: String): Target = ???
+}
+object InternalTarget {
+  /** Creates an instance for the specified path relative to
+    * the provided reference path.
+    */
+  def fromPath (path: PathBase, refPath: Path): InternalTarget = path match {
+    case p: Path         => InternalTarget(p, p.relativeTo(refPath))
+    case p: RelativePath => InternalTarget(refPath / p, p)
+  }
+}
+
+/** An link element, with the span content representing the text (description) of the link.
+  */
+case class SpanLink (content: Seq[Span], target: Target, title: Option[String] = None, options: Options = NoOpt) extends Link
+  with SpanContainer {
+  type Self = SpanLink
+  def withContent (newContent: Seq[Span]): SpanLink = copy(content = newContent)
+  def withOptions (options: Options): SpanLink = copy(options = options)
 }
 
 /** An internal link element, with the span content representing the text (description) of the link.
@@ -1132,7 +1148,7 @@ case class Size (amount: Double, unit: String) {
 
 object Link {
   def create (linkText: Seq[Span], url: String, source: String, title: Option[String] = None): Span = 
-    if (url.startsWith("http:") || url.startsWith("https:") || url.startsWith("/")) ExternalLink(linkText, url, title)
+    if (url.startsWith("http:") || url.startsWith("https:") || url.startsWith("/")) SpanLink(linkText, ExternalTarget(url), title)
     else InternalReference(linkText, RelativePath.parse(url), source, title)
 }
 

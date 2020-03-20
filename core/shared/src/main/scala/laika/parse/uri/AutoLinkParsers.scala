@@ -16,7 +16,7 @@
 
 package laika.parse.uri
 
-import laika.ast.{ExternalLink, Reverse, Span, Text, ~}
+import laika.ast.{ExternalTarget, Reverse, Span, SpanLink, Text, ~}
 import laika.bundle.{SpanParser, SpanParserBuilder}
 import laika.parse.text.PrefixedParser
 import laika.parse.{Failure, Parser, Success}
@@ -52,7 +52,7 @@ class AutoLinkParsers (reverseMarkupStart: Parser[Any],
         val uri = startTrimmed + sep + endTrimmed
         val uriWithScheme = if (sep == "@" && !uri.startsWith("mailto:")) "mailto:"+uri else uri
         val nextIn = in.consume(endTrimmed.length - end.length)
-        Success(Reverse(startTrimmed.length, ExternalLink(List(Text(uri)), uriWithScheme), Text(sep+endTrimmed)), nextIn)
+        Success(Reverse(startTrimmed.length, SpanLink(List(Text(uri)), ExternalTarget(uriWithScheme)), Text(sep+endTrimmed)), nextIn)
     }
   }}
 

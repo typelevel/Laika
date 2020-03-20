@@ -359,7 +359,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
       val markdown =
         """RootElement - Blocks: 1
           |. Paragraph - Spans: 1
-          |. . ExternalLink(/foo,None) - Spans: 1
+          |. . SpanLink(ExternalTarget(/foo),None) - Spans: 1
           |. . . Text - 'link'""".stripMargin
       val rst =
         """RootElement - Blocks: 1

@@ -79,7 +79,7 @@ object StandardDirectiveParts {
       val image = Image(alt.getOrElse(""), URI(uri), width = actualWidth, height = actualHeight)
 
       (target map {
-        case ref: ExternalLink  => ref.copy(content = List(image.copy(options = opt)), options = alignOpt)
+        case ref: SpanLink  => ref.copy(content = List(image.copy(options = opt)), options = alignOpt)
         case ref: GenericReference => ref.copy(content = List(image.copy(options = opt)), options = alignOpt)
       }).getOrElse(image.copy(options = alignOpt + opt))
     }
