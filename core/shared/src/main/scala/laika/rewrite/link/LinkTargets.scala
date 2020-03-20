@@ -131,6 +131,11 @@ object LinkTargets {
   
   object ReferenceResolver {
     def lift(f: PartialFunction[LinkSource, Span]): LinkSource => Option[Span] = f.lift
+    def internalLink (fragment: Option[String] = None): LinkSource => Option[Span] = lift {
+      case LinkSource(InternalReference(content, relPath, _, title, opt), sourcePath) =>
+        val path = fragment.fold(relPath)(relPath.withFragment)
+        InternalLink(content, LinkPath.fromPath(path, sourcePath.parent), title, opt)
+    }
   }
   
   object TargetReplacer {

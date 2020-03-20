@@ -55,11 +55,6 @@ class LinkTargetProvider (path: Path, root: RootElement) {
     val symbolNumbers = Iterator.from(1)
     val numbers = Iterator.from(1)
 
-    def internalLinkResolver (selector: TargetIdSelector) = ReferenceResolver.lift {
-      case LinkSource(InternalReference(content, relPath, _, title, opt), sourcePath) =>
-        InternalLink(content, LinkPath.fromPath(relPath.withFragment(selector.id), sourcePath.parent), title, opt)
-    }
-    
     root.collect {
       case c: Citation =>
         val selector = TargetIdSelector(slug(c.label))
@@ -111,22 +106,22 @@ class LinkTargetProvider (path: Path, root: RootElement) {
         val finalHeader = TargetReplacer.lift {
           case DecoratedHeader(deco, content, opt) => Header(levels.levelFor(deco), content, opt + Id(selector.id))
         }
-        TargetResolver.create(selector, internalLinkResolver(selector), finalHeader)
+        TargetResolver.create(selector, ReferenceResolver.internalLink(Some(selector.id)), finalHeader)
       
       case Header(_,_,Id(id)) => // TODO - do not generate id upfront
         val selector = TargetIdSelector(slug(id))
-        TargetResolver.create(selector, internalLinkResolver(selector), TargetReplacer.addId(selector.id))
+        TargetResolver.create(selector, ReferenceResolver.internalLink(Some(selector.id)), TargetReplacer.addId(selector.id))
 
       case alias: LinkAlias => 
         LinkAliasResolver.unresolved(TargetIdSelector(slug(alias.id)), TargetIdSelector(slug(alias.target)))  
         
       case c: Block if c.options.id.isDefined =>
         val selector = TargetIdSelector(slug(c.options.id.get))
-        TargetResolver.create(selector, internalLinkResolver(selector), TargetReplacer.addId(selector.id))
+        TargetResolver.create(selector, ReferenceResolver.internalLink(Some(selector.id)), TargetReplacer.addId(selector.id))
 
       case c: Span if c.options.id.isDefined =>
         val selector = TargetIdSelector(slug(c.options.id.get))
-        TargetResolver.forSpanTarget(selector, internalLinkResolver(selector))
+        TargetResolver.forSpanTarget(selector, ReferenceResolver.internalLink(Some(selector.id)))
         
     }
   }
@@ -166,13 +161,8 @@ class LinkTargetProvider (path: Path, root: RootElement) {
    */
   val global: Map[Selector, TargetResolver] = {
     val global = local filter (_._2.selector.global)
-    val documentTarget = {
-      val resolver = ReferenceResolver.lift { // TODO - avoid duplication
-        case LinkSource(InternalReference(content, relPath, _, title, opt), sourcePath) =>
-          InternalLink(content, LinkPath.fromPath(relPath, sourcePath.parent), title, opt)
-      }
-      TargetResolver.create(PathSelector(path), resolver, TargetReplacer.removeTarget)
-    }
+    val documentTarget =
+      TargetResolver.create(PathSelector(path), ReferenceResolver.internalLink(), TargetReplacer.removeTarget)
     (global ++ global.collect {
       case (TargetIdSelector(name), target) => (PathSelector(path.withFragment(name)), target)
     }) + ((documentTarget.selector, documentTarget))

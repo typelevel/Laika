@@ -565,13 +565,8 @@ case class DocumentTreeRoot (tree: DocumentTree,
   }
   
   private lazy val globalLinkTargets: Map[Selector, TargetResolver] = {
-    def staticTarget (path: Path) = {
-      val resolver = ReferenceResolver.lift { // TODO - avoid duplication
-        case LinkSource(InternalReference(content, relPath, _, _, opt), sourcePath) => // TODO - deal with title?
-          InternalLink(content, LinkPath.fromPath(relPath, sourcePath.parent) , options = opt)
-      }
-      TargetResolver.create(PathSelector(path), resolver, TargetReplacer.removeTarget)
-    }
+    def staticTarget (path: Path) =
+      TargetResolver.create(PathSelector(path), ReferenceResolver.internalLink(), TargetReplacer.removeTarget)
     tree.globalLinkTargets ++ staticDocuments.map(path => (PathSelector(path), staticTarget(path)))
   }
 
