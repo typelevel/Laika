@@ -62,19 +62,20 @@ class LinkTargetProvider (path: Path, root: RootElement) {
     
     root.collect {
       case c: Citation =>
+        val selector = TargetIdSelector(slug(c.label))
         val resolver = ReferenceResolver.lift {
-          case LinkSource(CitationReference(label, _, opt), _) => CitationLink(label, label, opt)
+          case LinkSource(CitationReference(label, _, opt), _) => CitationLink(selector.id, label, opt)
         }
         val replacer = TargetReplacer.lift {
-          case Citation(label, content, opt) => Citation(label, content, opt + Id(s"__cit-$label"))
+          case Citation(label, content, opt) => Citation(label, content, opt + Id(s"__cit-${selector.id}"))
         }
-        TargetResolver.create(TargetIdSelector(c.label), resolver, replacer)
+        TargetResolver.create(selector, resolver, replacer)
       
       case f: FootnoteDefinition => 
         val (docId, displayId, selector) = f.label match {
           case Autosymbol            => (s"__fns-${symbolNumbers.next}", symbols.next, AutosymbolSelector) // TODO - move these prefix definitions somewhere else
           case Autonumber            => val num = numbers.next; (s"__fn-$num", num.toString, AutonumberSelector)
-          case AutonumberLabel(id)   => (id, numbers.next.toString, TargetIdSelector(id))
+          case AutonumberLabel(id)   => (slug(id), numbers.next.toString, TargetIdSelector(slug(id)))
           case NumericLabel(num)     => (s"__fnl-$num", num.toString, TargetIdSelector(num.toString))
         }
         val resolver = ReferenceResolver.lift {
@@ -138,22 +139,21 @@ class LinkTargetProvider (path: Path, root: RootElement) {
         aliasTargets.map(a => (TargetIdSelector(a.id), Left(a)))).toMap
     
     @tailrec
-    def resolve (alias: LinkAlias, targetSelector: TargetIdSelector, visited: Set[TargetIdSelector]): TargetResolver = {
-      val resolvedSelector = TargetIdSelector(alias.id)
+    def resolve (aliasSelector: TargetIdSelector, targetSelector: TargetIdSelector, visited: Set[TargetIdSelector]): TargetResolver = {
       if (visited.contains(targetSelector)) 
-        TargetResolver.forInvalidTarget(resolvedSelector, s"circular link reference: ${targetSelector.id}")
+        TargetResolver.forInvalidTarget(aliasSelector, s"circular link reference: ${targetSelector.id}")
       else joinedTargets.get(targetSelector) match {
         case Some(Left(alias2)) => 
-          resolve(alias, TargetIdSelector(alias2.target), visited + TargetIdSelector(alias2.id))
+          resolve(aliasSelector, TargetIdSelector(alias2.target), visited + TargetIdSelector(alias2.id))
         case Some(Right(target)) => 
-          TargetResolver.create(resolvedSelector, target.resolveReference, TargetReplacer.removeTarget)
+          TargetResolver.create(aliasSelector, target.resolveReference, TargetReplacer.removeTarget)
         case None => 
-          TargetResolver.forInvalidTarget(resolvedSelector, s"unresolved link alias: ${targetSelector.id}")
+          TargetResolver.forInvalidTarget(aliasSelector, s"unresolved link alias: ${targetSelector.id}")
       }
     }
     
     val resolvedTargets = aliasTargets.map { alias =>
-      resolve(alias, TargetIdSelector(alias.target), Set())
+      resolve(TargetIdSelector(slug(alias.id)), TargetIdSelector(slug(alias.target)), Set())
     }
     
     resolvedTargets ++ directTargets

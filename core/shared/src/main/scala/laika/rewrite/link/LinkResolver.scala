@@ -105,25 +105,25 @@ object LinkResolver extends (DocumentCursor => RewriteRules) {
       
       case f: FootnoteDefinition => f.label match {
         case NumericLabel(num)   => replaceBlock(f, TargetIdSelector(num.toString))
-        case AutonumberLabel(id) => replaceBlock(f, TargetIdSelector(id))
+        case AutonumberLabel(id) => replaceBlock(f, TargetIdSelector(slug(id)))
         case Autonumber          => replaceBlock(f, AutonumberSelector)
         case Autosymbol          => replaceBlock(f, AutosymbolSelector)
       }
-      case c: Citation           => replaceBlock(c, TargetIdSelector(c.label))
+      case c: Citation           => replaceBlock(c, TargetIdSelector(slug(c.label)))
       case h: DecoratedHeader    => replaceBlock(h, TargetIdSelector(slug(h.options.id.get)))
       case h@ Header(_,_,Id(id)) => replaceBlock(h, TargetIdSelector(slug(id)))
       
       case _: Temporary => Remove
 
-      case c: Customizable if c.options.id.isDefined => replaceBlock(c, TargetIdSelector(c.options.id.get))
+      case c: Customizable if c.options.id.isDefined => replaceBlock(c, TargetIdSelector(slug(c.options.id.get)))
       
     } ++ RewriteRules.forSpans {
       
-      case c @ CitationReference(label,_,_) => resolveLocal(c, TargetIdSelector(label), s"unresolved citation reference: $label")
+      case c @ CitationReference(label,_,_) => resolveLocal(c, TargetIdSelector(slug(label)), s"unresolved citation reference: $label")
 
       case ref: FootnoteReference => ref.label match {
         case NumericLabel(num)   => resolveLocal(ref, TargetIdSelector(num.toString), s"unresolved footnote reference: $num")
-        case AutonumberLabel(id) => resolveLocal(ref, TargetIdSelector(id), s"unresolved footnote reference: $id")
+        case AutonumberLabel(id) => resolveLocal(ref, TargetIdSelector(slug(id)), s"unresolved footnote reference: $id")
         case Autonumber          => resolveLocal(ref, AutonumberSelector, "too many autonumber references")
         case Autosymbol          => resolveLocal(ref, AutosymbolSelector, "too many autosymbol references")
       }
