@@ -116,7 +116,10 @@ class LinkTargetProvider (path: Path, root: RootElement) {
       case Header(_,_,Id(id)) => // TODO - do not generate id upfront
         val selector = TargetIdSelector(slug(id))
         TargetResolver.create(selector, internalLinkResolver(selector), TargetReplacer.addId(selector.id))
-      
+
+      case alias: LinkAlias => 
+        LinkAliasResolver.unresolved(TargetIdSelector(slug(alias.id)), TargetIdSelector(slug(alias.target)))  
+        
       case c: Block if c.options.id.isDefined =>
         val selector = TargetIdSelector(slug(c.options.id.get))
         TargetResolver.create(selector, internalLinkResolver(selector), TargetReplacer.addId(selector.id))
@@ -127,50 +130,37 @@ class LinkTargetProvider (path: Path, root: RootElement) {
         
     }
   }
-  
-  private val allTargets: List[TargetResolver] = {
 
-    val aliasTargets = root.collect {
-      case lt: LinkAlias => lt
+  /** Provides a map of all targets that can be referenced from elements
+    * within the same document.
+    */
+  val local: Map[Selector, TargetResolver] = {
+
+    val groupedTargets: Map[Selector, TargetResolver] = directTargets.groupBy(_.selector).map {
+      case (sel: UniqueSelector, target :: Nil) =>
+        (sel, target)
+      case (sel: UniqueSelector, targets) =>
+        (sel, TargetResolver.forDuplicateSelector(sel, path, targets.head))
+      case (selector, list) =>
+        (selector, TargetSequenceResolver(list, selector))
     }
     
-    val joinedTargets: Map[Selector, Either[LinkAlias, TargetResolver]] =
-      (directTargets.map(t => (t.selector, Right(t))) ++ 
-        aliasTargets.map(a => (TargetIdSelector(a.id), Left(a)))).toMap
-    
     @tailrec
-    def resolve (aliasSelector: TargetIdSelector, targetSelector: TargetIdSelector, visited: Set[TargetIdSelector]): TargetResolver = {
-      if (visited.contains(targetSelector)) 
-        TargetResolver.forInvalidTarget(aliasSelector, s"circular link reference: ${targetSelector.id}")
-      else joinedTargets.get(targetSelector) match {
-        case Some(Left(alias2)) => 
-          resolve(aliasSelector, TargetIdSelector(alias2.target), visited + TargetIdSelector(alias2.id))
-        case Some(Right(target)) => 
-          TargetResolver.create(aliasSelector, target.resolveReference, TargetReplacer.removeTarget)
-        case None => 
-          TargetResolver.forInvalidTarget(aliasSelector, s"unresolved link alias: ${targetSelector.id}")
+    def resolve (alias: LinkAliasResolver, targetSelector: TargetIdSelector, visited: Set[TargetIdSelector]): TargetResolver = {
+      if (visited.contains(alias.targetSelector)) alias.circularReference
+      else groupedTargets.get(alias.targetSelector) match {
+        case Some(alias2: LinkAliasResolver) => resolve(alias, alias2.targetSelector, visited + alias2.sourceSelector)
+        case Some(resolved)                  => alias.resolveWith(resolved.resolveReference)
+        case None                            => alias
       }
     }
     
-    val resolvedTargets = aliasTargets.map { alias =>
-      resolve(TargetIdSelector(slug(alias.id)), TargetIdSelector(slug(alias.target)), Set())
+    groupedTargets.map { 
+      case (sel, alias: LinkAliasResolver) => (sel, resolve(alias, alias.targetSelector, Set()))
+      case resolved => resolved
     }
-    
-    resolvedTargets ++ directTargets
   }
 
-  /** Provides a map of all targets that can be referenced from elements
-   *  within the same document.
-   */
-  val local: Map[Selector, TargetResolver] = allTargets.groupBy(_.selector).map {
-    case (sel: UniqueSelector, target :: Nil) =>
-      (sel, target)
-    case (sel: UniqueSelector, targets) =>
-      (sel, TargetResolver.forDuplicateSelector(sel, path, targets.head))
-    case (selector, list) =>
-      (selector, TargetSequenceResolver(list, selector))
-  }
-  
   /** Provides a map of all targets that can be referenced from elements
    *  within any document within the document tree.
    */

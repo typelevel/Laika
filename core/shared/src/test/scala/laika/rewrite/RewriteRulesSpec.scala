@@ -125,7 +125,7 @@ class RewriteRulesSpec extends AnyWordSpec
         fn(NumericLabel(3), 3), fn(AutonumberLabel("labelB"), 1))
       val resolved = root(p(invalidSpan("unresolved footnote reference: 2", "[2]_"),
         invalidSpan("unresolved footnote reference: labelA", "[#labelA]_")),
-        fn("__fnl-3", "3"), fn("labelB", "1"))
+        fn("__fnl-3", "3"), fn("labelb", "1"))
       rewritten(rootElem) should be(resolved)
     }
 
@@ -383,14 +383,12 @@ class RewriteRulesSpec extends AnyWordSpec
       rewritten(rootElem) should be(root(p(invalidSpan(msg, "text"))))
     }
 
-    "replace ambiguous references for a link alias pointing to duplicate ids with invalid spans" ignore {
-      // TODO - 0.15 - requires new hook as aliases are now resolved before duplicate target ids
+    "replace ambiguous references for a link alias pointing to duplicate ids with invalid spans" in {
       val target = InternalLinkTarget(Id("ref"))
-      val refMsg = "duplicate target id: ref"
       val targetMsg = "More than one link target with id 'ref' in path /doc"
       val invalidTarget = invalidBlock(targetMsg, InternalLinkTarget())
       val rootElem = root(p(intRef()), LinkAlias("name", "ref"), target, target)
-      rewritten(rootElem) should be(root(p(invalidSpan(refMsg, "text")), invalidTarget, invalidTarget))
+      rewritten(rootElem) should be(root(p(invalidSpan(targetMsg, "text")), invalidTarget, invalidTarget))
     }
 
   }

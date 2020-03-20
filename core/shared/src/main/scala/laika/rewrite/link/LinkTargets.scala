@@ -200,5 +200,23 @@ object LinkTargets {
       nextOption(targetIt).flatMap(_.replaceTarget(rewrittenOriginal))
   }
   
+  case class LinkAliasResolver (sourceSelector: TargetIdSelector, 
+                                targetSelector: TargetIdSelector,
+                                referenceResolver: LinkSource => Option[Span]) extends TargetResolver(sourceSelector) {
+    override def resolveReference (linkSource: LinkSource): Option[Span] = referenceResolver(linkSource)
+    override def replaceTarget (rewrittenOriginal: Customizable): Option[Customizable] = None
+    
+    def resolveWith (referenceResolver: LinkSource => Option[Span]): LinkAliasResolver = 
+      copy(referenceResolver = referenceResolver)
+    
+    def circularReference: LinkAliasResolver = copy(referenceResolver =
+      TargetResolver.forInvalidTarget(sourceSelector, s"circular link reference: ${targetSelector.id}").resolveReference)
+  }
+  object LinkAliasResolver {
+    def unresolved (sourceSelector: TargetIdSelector, targetSelector: TargetIdSelector): LinkAliasResolver =
+      apply(sourceSelector, targetSelector, 
+        TargetResolver.forInvalidTarget(sourceSelector, s"unresolved link alias: ${targetSelector.id}").resolveReference)
+  }
   
 }
+
