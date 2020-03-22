@@ -443,22 +443,22 @@ class HTMLRendererSpec extends AnyFlatSpec
   }
   
   it should "render a paragraph containing an internal link with emphasized text" in {
-    val elem = p(Text("some "), InternalLink(List(Text("link"),Emphasized("text")),LinkPath(Path.parse("/#foo"),RelativePath.parse("#foo"))), Text(" span"))
+    val elem = p(Text("some "), SpanLink(List(Text("link"),Emphasized("text")),InternalTarget(Path.parse("/#foo"),RelativePath.parse("#foo"))), Text(" span"))
     render (elem) should be ("""<p>some <a href="#foo">link<em>text</em></a> span</p>""") 
   }
   
   it should "render a paragraph containing a internal link with a fragment part" in {
-    val elem = p(Text("some "), InternalLink(List(Text("link"),Emphasized("text")), LinkPath(Path.parse("/bar#foo"),RelativePath.parse("../bar.md#foo"))), Text(" span"))
+    val elem = p(Text("some "), SpanLink(List(Text("link"),Emphasized("text")), InternalTarget(Path.parse("/bar#foo"),RelativePath.parse("../bar.md#foo"))), Text(" span"))
     render (elem) should be ("""<p>some <a href="../bar.html#foo">link<em>text</em></a> span</p>""") 
   }
   
   it should "render a paragraph containing a internal link without a fragment part" in {
-    val elem = p(Text("some "), InternalLink(List(Text("link"),Emphasized("text")), LinkPath(Path.parse("/bar"),RelativePath.parse("../bar.md"))), Text(" span"))
+    val elem = p(Text("some "), SpanLink(List(Text("link"),Emphasized("text")), InternalTarget(Path.parse("/bar"),RelativePath.parse("../bar.md"))), Text(" span"))
     render (elem) should be ("""<p>some <a href="../bar.html">link<em>text</em></a> span</p>""") 
   }
   
   it should "render a paragraph containing a internal link with a filename without suffix" in {
-    val elem = p(Text("some "), InternalLink(List(Text("link"),Emphasized("text")), LinkPath(Path.parse("/bar"),RelativePath.parse("../bar"))), Text(" span"))
+    val elem = p(Text("some "), SpanLink(List(Text("link"),Emphasized("text")), InternalTarget(Path.parse("/bar"),RelativePath.parse("../bar"))), Text(" span"))
     render (elem) should be ("""<p>some <a href="../bar">link<em>text</em></a> span</p>""") 
   }
   

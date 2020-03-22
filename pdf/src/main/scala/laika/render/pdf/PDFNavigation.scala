@@ -141,9 +141,10 @@ object PDFNavigation {
     def toBlockSequence (blocks: Seq[Element]): Seq[Block] = blocks flatMap {
       case BulletList(items, _, _) => toBlockSequence(items)
       case BulletListItem(content, _, _) => toBlockSequence(content)
-      case Paragraph(Seq(link: InternalLink), opt) => Seq(Paragraph(Seq(link.copy(
-        content = link.content :+ Leader() :+ PageNumberCitation(link.ref)
-      )), opt))
+      case Paragraph(Seq(link @ SpanLink(content, target: InternalTarget, _, _)), opt) => 
+        Seq(Paragraph(Seq(link.copy(
+          content = content :+ Leader() :+ PageNumberCitation(target)
+        )), opt))
     }
 
     val toc = toBlockSequence(TocGenerator.fromTree(tree, depth, tree.path / DocNames.toc, treeTitleDoc = Some(DocNames.treeTitle)))

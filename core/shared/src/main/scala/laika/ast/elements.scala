@@ -1104,15 +1104,6 @@ case class SpanLink (content: Seq[Span], target: Target, title: Option[String] =
   def withOptions (options: Options): SpanLink = copy(options = options)
 }
 
-/** An internal link element, with the span content representing the text (description) of the link.
- */
-case class InternalLink (content: Seq[Span], ref: LinkPath, title: Option[String] = None, options: Options = NoOpt) extends Link
-                                                                                                                  with SpanContainer {
-  type Self = InternalLink
-  def withContent (newContent: Seq[Span]): InternalLink = copy(content = newContent)
-  def withOptions (options: Options): InternalLink = copy(options = options)
-}
-
 /** A resolved link to a footnote.
  */
 case class FootnoteLink (ref: String, label: String, options: Options = NoOpt) extends Link {

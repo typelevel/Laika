@@ -61,11 +61,11 @@ class RewriteRulesSpec extends AnyWordSpec
 
   def extLink (url: String) = SpanLink(List(Text("text")), ExternalTarget(url))
 
-  def intLink (ref: String) = InternalLink(List(Text("text")), rootLinkPath(ref))
+  def intLink (ref: String) = SpanLink(List(Text("text")), rootLinkTarget(ref))
 
-  def intLink (path: RelativePath) = InternalLink(List(Text("text")), LinkPath.fromPath(path, Path.Root))
+  def intLink (path: RelativePath) = SpanLink(List(Text("text")), InternalTarget.fromPath(path, Path.Root))
 
-  def rootLinkPath (fragment: String): LinkPath = LinkPath.fromPath(RelativePath.parse(s"#$fragment"), Path.Root)
+  def rootLinkTarget (fragment: String): InternalTarget = InternalTarget.fromPath(RelativePath.parse(s"#$fragment"), Path.Root)
 
   def simpleImgRef (id: String = "name") = ImageDefinitionReference("text", id, "text")
 
@@ -249,7 +249,7 @@ class RewriteRulesSpec extends AnyWordSpec
     }
 
     def internalRef (ref: String) = InternalReference(List(Text("text")), RelativePath.parse(ref), "text")
-    def internalLink (path: RelativePath) = InternalLink(List(Text("text")), LinkPath.fromPath(path, Root / "tree1"))
+    def internalLink (path: RelativePath) = SpanLink(List(Text("text")), InternalTarget.fromPath(path, Root / "tree1"))
 
     "resolve internal link references to a target in the same document" in {
       val rootElem = root(p(internalRef("#ref")), InternalLinkTarget(Id("ref")))

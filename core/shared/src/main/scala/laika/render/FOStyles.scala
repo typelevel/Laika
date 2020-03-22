@@ -97,7 +97,6 @@ object FOStyles {
     forElement("FootnoteLink", color("3399FF")),
     forElement("CitationLink", color("3399FF")),
     forElement("SpanLink", color("3956ac"), bold),
-    forElement("InternalLink", color("3956ac"), bold),
     forElement("CrossLink", color("3956ac"), bold),
     forElement("Emphasized", italic),
     forElement("Strong", bold),

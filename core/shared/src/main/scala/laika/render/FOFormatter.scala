@@ -258,10 +258,10 @@ object FOFormatter extends (RenderContext[FOFormatter] => FOFormatter) {
 
   /** An internal link to be rendered as a page number.
     *
-    *  @param path the path of the target document containing the local reference
+    *  @param target the path of the target document containing the local reference
     *  @param options optional render hints
     */
-  case class PageNumberCitation (path: LinkPath, options: Options = NoOpt) extends Span {
+  case class PageNumberCitation (target: InternalTarget, options: Options = NoOpt) extends Span {
     type Self = PageNumberCitation
     def withOptions (options: Options): PageNumberCitation = copy(options = options)
   }

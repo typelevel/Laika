@@ -134,7 +134,7 @@ object LinkTargets {
     def internalLink (fragment: Option[String] = None): LinkSource => Option[Span] = lift {
       case LinkSource(InternalReference(content, relPath, _, title, opt), sourcePath) =>
         val path = fragment.fold(relPath)(relPath.withFragment)
-        InternalLink(content, LinkPath.fromPath(path, sourcePath.parent), title, opt)
+        SpanLink(content, InternalTarget.fromPath(path, sourcePath.parent), title, opt)
     }
   }
   

@@ -125,7 +125,6 @@ class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => Str
         case Header(level, content, opt)    => fmt.newLine + fmt.element("h"+level.toString, opt,content)
 
         case SpanLink(content, target, title, opt)  => fmt.element("a", opt, content, linkAttributes(target, title):_*)
-        case InternalLink(content, ref, title, opt) => fmt.element("a", opt, content, linkAttributes(InternalTarget(ref.absolute, ref.relative), title):_*)
 
         case WithFallback(fallback)         => fmt.child(fallback)
         case c: Customizable                => c match {

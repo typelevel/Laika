@@ -80,19 +80,14 @@ class ReStructuredTextToHTMLSpec extends AnyFlatSpec
       .to(HTML)
       .rendering { 
         case (fmt, Emphasized(content,opt)) if opt.styles.contains("title-reference") => fmt.element("cite", NoOpt, content) 
-        case (fmt, sl@ SpanLink(content, target, title, opt)) => 
-          val href = target match {
-            case ExternalTarget(url) => url
-            case InternalTarget(_, relativePath) =>
-              // rst makes a different kind of distinction between external and internal links, so we adjust Laika's renderers just for this test
-              if (relativePath.suffix.contains("html") || relativePath.fragment.isEmpty) fmt.child(sl.copy(target = ExternalTarget(relativePath.toString)))
-              else fmt.element("a", opt + Styles("reference","internal"), content, fmt.optAttributes("href" -> Some("#"+relativePath.fragment.get), "title"->title):_*)
-          }
-          fmt.element("a", opt + Styles("reference","external"), content, fmt.optAttributes("href" -> Some(href), "title" -> title):_*)
-        case (fmt, InternalLink(content, url, title, opt)) => 
-          // rst makes a different kind of distinction between external and internal links, so we adjust Laika's renderers just for this test
-          if (url.relative.suffix.contains("html") || url.relative.fragment.isEmpty) fmt.child(SpanLink(content, ExternalTarget(url.relative.toString), title, opt))
-          else fmt.element("a", opt + Styles("reference","internal"), content, fmt.optAttributes("href" -> Some("#"+url.relative.fragment.get), "title"->title):_*)
+        case (fmt, sl@ SpanLink(content, target, title, opt)) => target match {
+          case ExternalTarget(url) =>
+            fmt.element("a", opt + Styles("reference","external"), content, fmt.optAttributes("href" -> Some(url), "title" -> title):_*)
+          case InternalTarget(_, relativePath) =>
+            // rst makes a different kind of distinction between external and internal links, so we adjust Laika's renderers just for this test
+            if (relativePath.suffix.contains("html") || relativePath.fragment.isEmpty) fmt.child(sl.copy(target = ExternalTarget(relativePath.toString)))
+            else fmt.element("a", opt + Styles("reference","internal"), content, fmt.optAttributes("href" -> Some("#"+relativePath.fragment.get), "title"->title):_*)
+        }
         case (fmt, LiteralBlock(content,opt))     => fmt.withoutIndentation(_.textElement("pre", opt + Styles("literal-block"), content))
         case (fmt, Literal(content,opt))          => fmt.withoutIndentation(_.textElement("tt", opt + Styles("docutils","literal"), content))
         case (fmt, FootnoteLink(id,label,opt))    => fmt.textElement("a", opt + Styles("footnote-reference"), s"[$label]", "href"-> ("#"+dropLaikaPrefix(id))) 

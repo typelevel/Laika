@@ -313,7 +313,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
         """RootElement - Blocks: 1
           |. Paragraph - Spans: 2
           |. . Text - 'This is a '
-          |. . InternalLink(LinkPath(/baz.md#section-title,../baz.md#section-title),None) - Spans: 1
+          |. . SpanLink(InternalTarget(/baz.md#section-title,../baz.md#section-title),None) - Spans: 1
           |. . . Text - 'cross ref'""".stripMargin
       val inputs = Seq(
         Root / "baz.md" -> targetSrc,

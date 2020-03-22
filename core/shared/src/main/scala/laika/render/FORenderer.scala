@@ -127,7 +127,6 @@ object FORenderer extends ((FOFormatter, Element) => String) {
 
         case e @ SpanLink(content, ExternalTarget(url), _, _)         => fmt.externalLink(e, url, content)
         case e @ SpanLink(content, InternalTarget(absolute, _), _, _) => fmt.internalLink(e, fmt.buildId(absolute), content)
-        case e @ InternalLink(content, ref, _, _)  => fmt.internalLink(e, fmt.buildId(ref.absolute), content)
 
         case WithFallback(fallback)         => fmt.child(fallback)
         case c: Customizable                => c match {
@@ -193,7 +192,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
       case SectionNumber(pos, opt)        => fmt.child(Text(pos.mkString(".") + " ", opt + Styles("sectionNumber")))
       case e @ Image(_,uri,width,height,_,_) => fmt.externalGraphic(e, uri.localRef.fold(uri.uri)(_.absolute.toString), width, height) // TODO - ignoring title for now
       case e: Leader                      => fmt.textElement("fo:leader", e, "", "leader-pattern"->"dots")
-      case PageNumberCitation(path,_)     => s"""<fo:page-number-citation ref-id="${fmt.buildId(path.absolute)}" />"""
+      case PageNumberCitation(target,_)     => s"""<fo:page-number-citation ref-id="${fmt.buildId(target.absolutePath)}" />"""
       case LineBreak(_)                   => "&#x2028;"
       case TemplateElement(elem,indent,_) => fmt.withMinIndentation(indent)(_.child(elem))
 

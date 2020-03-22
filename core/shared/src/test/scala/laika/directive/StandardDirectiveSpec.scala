@@ -361,12 +361,12 @@ class StandardDirectiveSpec extends AnyFlatSpec
 
     def hasTitleDocLinks: Boolean = false
 
-    def linkPathFor(path: Path): LinkPath =
-      if (path.parent == treeUnderTest && path.name == pathUnderTest.name) LinkPath.fromPath(path, pathUnderTest)
-      else LinkPath.fromPath(path, treeUnderTest)
+    def targetFor (path: Path): InternalTarget =
+      if (path.parent == treeUnderTest && path.name == pathUnderTest.name) InternalTarget.fromPath(path, pathUnderTest)
+      else InternalTarget.fromPath(path, treeUnderTest)
 
     def sectionCrossLink (path: Path, section: Int, level: Int) =
-      Paragraph(Seq(InternalLink(List(Text("Section "+section)), linkPathFor(path.withFragment("title"+section)))), Styles("toc","level"+level))
+      Paragraph(Seq(SpanLink(List(Text("Section "+section)), targetFor(path.withFragment("title"+section)))), Styles("toc","level"+level))
 
     def leafLink (path: Path, section: Int, level: Int) =
       BulletListItem(List(sectionCrossLink(path, section, level)), StringBullet("*"))
@@ -375,7 +375,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
       BulletListItem(List(sectionCrossLink(path, section, level), BulletList(List(leafLink(path, section+1, level+1)), StringBullet("*"))), StringBullet("*"))
 
     def docCrossLink (path: Path, doc: Int, level: Int) =
-      Paragraph(Seq(InternalLink(List(Text("Doc "+doc)), linkPathFor(path))), Styles("toc","level"+level))
+      Paragraph(Seq(SpanLink(List(Text("Doc "+doc)), targetFor(path))), Styles("toc","level"+level))
 
     def docList (path: Path, doc: Int, level: Int) =
       BulletListItem(List(docCrossLink(path, doc, level), BulletList(List(
@@ -391,7 +391,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
 
     def internalLink (section: Int, level: Int) =
       BulletListItem(List(
-        Paragraph(Seq(InternalLink(List(Text("Headline "+section)), LinkPath(pathUnderTest.withFragment("headline-"+section), Current / ("#headline-"+section)))), Styles("toc","level"+level))
+        Paragraph(Seq(SpanLink(List(Text("Headline "+section)), InternalTarget(pathUnderTest.withFragment("headline-"+section), Current / ("#headline-"+section)))), Styles("toc","level"+level))
       ), StringBullet("*"))
 
     def extraDoc (treeNum: Int, level: Int): List[BulletListItem] =
@@ -405,7 +405,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
 
     def treeTitle (treeNum: Int): Paragraph =
       if (!hasTitleDocLinks) Paragraph(List(Text("Tree "+treeNum)), Styles("toc","level1"))
-      else Paragraph(Seq(InternalLink(List(Text("TitleDoc")), linkPathFor(Root / ("sub"+treeNum) / "title"))), Styles("toc","level1"))
+      else Paragraph(Seq(SpanLink(List(Text("TitleDoc")), targetFor(Root / ("sub"+treeNum) / "title"))), Styles("toc","level1"))
 
     def treeList (treeNum: Int, docStart: Int): BulletListItem =
       BulletListItem(List(
