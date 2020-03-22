@@ -17,6 +17,7 @@
 package laika.rst
 
 import laika.api.builder.OperationConfig
+import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.ReStructuredText
@@ -231,8 +232,8 @@ class BlockParsersSpec extends AnyFlatSpec
     val input = """.. _target1:
                   |.. _target2: ../foo/bar.md#xy""".stripMargin
     val path = RelativePath.parse("../foo/bar.md#xy")
-    Parsing (input) should produce (root (InternalLinkDefinition("target1", path),
-      InternalLinkDefinition("target2", path)))
+    Parsing (input) should produce (root (LinkDefinition("target1", InternalTarget(Root, path)),
+      LinkDefinition("target2", InternalTarget(Root, path))))
   }
   
   

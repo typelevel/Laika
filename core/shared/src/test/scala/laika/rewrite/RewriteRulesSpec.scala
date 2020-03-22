@@ -153,17 +153,25 @@ class RewriteRulesSpec extends AnyWordSpec
     }
 
     "resolve internal link definitions" in {
-      val rootElem = root(p(simpleLinkRef()), InternalLinkDefinition("name", RelativePath.parse("foo.md#ref")))
+      val rootElem = root(p(simpleLinkRef()), LinkDefinition("name", InternalTarget(Root, RelativePath.parse("foo.md#ref"))))
       rewritten(rootElem) should be(root(p(intLink(RelativePath.parse("foo.md#ref")))))
     }
 
     "resolve anonymous link references" in {
-      val rootElem = root(p(simpleLinkRef(""), simpleLinkRef("")), LinkDefinition("", ExternalTarget("http://foo/")), LinkDefinition("", ExternalTarget("http://bar/")))
+      val rootElem = root(
+        p(simpleLinkRef(""), simpleLinkRef("")),
+        LinkDefinition("", ExternalTarget("http://foo/")),
+        LinkDefinition("", ExternalTarget("http://bar/"))
+      )
       rewritten(rootElem) should be(root(p(extLink("http://foo/"), extLink("http://bar/"))))
     }
 
     "resolve anonymous internal link definitions" in {
-      val rootElem = root(p(simpleLinkRef(""), simpleLinkRef("")), InternalLinkDefinition("", RelativePath.parse("foo.md#ref")), InternalLinkDefinition("", RelativePath.parse("bar.md#ref")))
+      val rootElem = root(
+        p(simpleLinkRef(""), simpleLinkRef("")),
+        LinkDefinition("", InternalTarget(Root, RelativePath.parse("foo.md#ref"))),
+        LinkDefinition("", InternalTarget(Root, RelativePath.parse("bar.md#ref")))
+      )
       rewritten(rootElem) should be(root(p(intLink(RelativePath.parse("foo.md#ref")), intLink(RelativePath.parse("bar.md#ref")))))
     }
 
@@ -191,7 +199,7 @@ class RewriteRulesSpec extends AnyWordSpec
     }
 
     "resolve internal link definitions" in {
-      val rootElem = root(p(genRef()), InternalLinkDefinition("name", RelativePath.parse("foo.md#ref")))
+      val rootElem = root(p(genRef()), LinkDefinition("name", InternalTarget(Root, RelativePath.parse("foo.md#ref"))))
       rewritten(rootElem) should be(root(p(intLink(RelativePath.parse("foo.md#ref")))))
     }
 
@@ -206,7 +214,11 @@ class RewriteRulesSpec extends AnyWordSpec
     }
 
     "resolve anonymous internal link definitions" in {
-      val rootElem = root(p(genRef(""), genRef("")), InternalLinkDefinition("", RelativePath.parse("foo.md#ref")), InternalLinkDefinition("", RelativePath.parse("bar.md#ref")))
+      val rootElem = root(
+        p(genRef(""), genRef("")),
+        LinkDefinition("", InternalTarget(Root, RelativePath.parse("foo.md#ref"))),
+        LinkDefinition("", InternalTarget(Root, RelativePath.parse("bar.md#ref")))
+      )
       rewritten(rootElem) should be(root(p(intLink(RelativePath.parse("foo.md#ref")), intLink(RelativePath.parse("bar.md#ref")))))
     }
 
@@ -313,7 +325,7 @@ class RewriteRulesSpec extends AnyWordSpec
     }
 
     "resolve internal link references" in {
-      val rootElem = root(p(simpleImgRef()), InternalLinkDefinition("name", RelativePath.parse("foo.jpg")))
+      val rootElem = root(p(simpleImgRef()), LinkDefinition("name", InternalTarget(Root, RelativePath.parse("foo.jpg"))))
       rewritten(rootElem) should be(root(p(img("text", "foo.jpg", Some(LinkPath(Path.Root / "foo.jpg", RelativePath.Current / "foo.jpg"))))))
     }
 

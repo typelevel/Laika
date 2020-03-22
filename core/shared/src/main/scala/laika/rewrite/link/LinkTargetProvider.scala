@@ -84,27 +84,23 @@ class LinkTargetProvider (path: Path, root: RootElement) {
       case ld: LinkDefinition =>
         val selector = if (ld.id.isEmpty) AnonymousSelector else LinkDefinitionSelector(ld.id)
         val resolver = ReferenceResolver.lift {
-          case LinkSource(LinkDefinitionReference (content, _, _, opt), _) => 
-            SpanLink(content, ld.target, ld.title, opt)
-          case LinkSource(ImageDefinitionReference (text, _, _, opt), _) =>
+          case LinkSource(LinkDefinitionReference (content, _, _, opt), sourcePath) => 
+            val target = ld.target match {
+              case InternalTarget(_, relPath) => InternalTarget.fromPath(relPath, sourcePath.parent) // TODO - might move to InternalTarget.relativeTo
+              case external => external
+            }
+            SpanLink(content, target, ld.title, opt)
+          case LinkSource(ImageDefinitionReference (text, _, _, opt), sourcePath) =>
             val uri = ld.target match {
               case ExternalTarget(url) => URI(url)
-              case it: InternalTarget => URI(it.relativePath.toString, Some(LinkPath(it.absolutePath, it.relativePath)))
+              case it: InternalTarget =>
+                val resolvedTarget = InternalTarget.fromPath(it.relativePath, sourcePath.parent)
+                URI(it.relativePath.toString, Some(LinkPath(resolvedTarget.absolutePath, resolvedTarget.relativePath)))
             }
             Image(text, uri, title = ld.title, options = opt)
         }
         TargetResolver.create(selector, resolver, TargetReplacer.removeTarget)
 
-      case ld: InternalLinkDefinition =>
-        val selector = if (ld.id.isEmpty) AnonymousSelector else LinkDefinitionSelector(ld.id)
-        val resolver = ReferenceResolver.lift {
-          case LinkSource(LinkDefinitionReference (content, _, _, opt), sourcePath) =>
-            SpanLink(content, InternalTarget.fromPath(ld.path, sourcePath.parent), ld.title, opt)
-          case LinkSource(ImageDefinitionReference (text, _, _, opt), sourcePath) =>
-            Image(text, URI(ld.path.toString, Some(LinkPath.fromPath(ld.path, sourcePath.parent))), title = ld.title, options = opt)
-        }
-        TargetResolver.create(selector, resolver, TargetReplacer.removeTarget)
-      
       case DecoratedHeader(_,_,Id(id)) => // TODO - do not generate id upfront
         val selector = TargetIdSelector(slug(id))
         val finalHeader = TargetReplacer.lift {

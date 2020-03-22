@@ -881,15 +881,6 @@ case class LinkDefinition (id: String, target: Target, title: Option[String] = N
   def withOptions (options: Options): LinkDefinition = copy(options = options)
 }
 
-/** An internal link target that can be referenced by id, usually only part of the raw document tree and then
-  * removed by the rewrite rule that resolves link and image references.
-  */
-case class InternalLinkDefinition (id: String, path: RelativePath, title: Option[String] = None, options: Options = NoOpt) extends Definition
-                                                                                                                           with Span {
-  type Self = InternalLinkDefinition
-  def withOptions (options: Options): InternalLinkDefinition = copy(options = options)
-}
-
 /** A link target pointing to another link target, acting like an alias.
  */
 case class LinkAlias (id: String, target: String, options: Options = NoOpt) extends Definition with Span {
@@ -1145,7 +1136,7 @@ object Link {
 object LinkDefinition {
   def create (id: String, url: String, title: Option[String] = None): Block with Span =
     if (url.startsWith("http:") || url.startsWith("https:") || url.startsWith("/")) LinkDefinition(id, ExternalTarget(url), title)
-    else InternalLinkDefinition(id, RelativePath.parse(url), title)
+    else LinkDefinition(id, InternalTarget(Path.Root, RelativePath.parse(url)), title)
 }
 
 /** A reference to content within the virtual input tree, the path pointing to the source path.

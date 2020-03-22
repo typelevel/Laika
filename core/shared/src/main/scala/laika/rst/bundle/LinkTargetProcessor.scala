@@ -48,8 +48,6 @@ object LinkTargetProcessor extends (Seq[Block] => Seq[Block]) {
         buffer += LinkAlias(id1, id2)
       case (buffer, _ :: InternalLinkTarget(Id(id)) :: (ld: LinkDefinition) :: Nil) =>
         buffer += ld.copy(id = id)
-      case (buffer, _ :: InternalLinkTarget(Id(id)) :: (it: InternalLinkDefinition) :: Nil) =>
-        buffer += it.copy(id = id)
       case (buffer, _ :: (_: InternalLinkTarget)  :: (_: DecoratedHeader) :: Nil) => buffer
       case (buffer, _ :: (it: InternalLinkTarget) :: (c: Customizable) :: Nil) =>
         if (c.options.id.isDefined) buffer += it else buffer
@@ -62,8 +60,6 @@ object LinkTargetProcessor extends (Seq[Block] => Seq[Block]) {
 
       case (buffer, InternalLinkTarget(Id(_)) :: (ld: LinkDefinition) :: _ :: Nil) =>
         buffer += ld
-      case (buffer, InternalLinkTarget(Id(_)) :: (et: InternalLinkDefinition) :: _ :: Nil) =>
-        buffer += et
       case (buffer, InternalLinkTarget(Id(id)) :: (c: Customizable) :: _ :: Nil) if c.options.id.isEmpty =>
         buffer += c.withId(id)
 

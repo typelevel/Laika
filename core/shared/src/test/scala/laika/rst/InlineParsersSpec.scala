@@ -16,6 +16,7 @@
 
 package laika.rst
 
+import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.parse.Parser
@@ -216,7 +217,7 @@ class InlineParsersSpec extends AnyFlatSpec
 
   it should "parse an internal phrase link with text and url" in {
     val linkSrc = "`link<../foo/bar.rst#ref>`_"
-    val spanSeq = List(InternalReference(Seq(Text("link")), relPath, linkSrc), InternalLinkDefinition("link", relPath))
+    val spanSeq = List(InternalReference(Seq(Text("link")), relPath, linkSrc), LinkDefinition("link", InternalTarget(Root, relPath)))
     Parsing (s"some $linkSrc here") should produce (spans(Text("some "), SpanSequence(spanSeq), Text(" here")))
   }
   
@@ -227,7 +228,7 @@ class InlineParsersSpec extends AnyFlatSpec
 
   it should "parse an internal phrase link with only a url" in {
     val linkSrc = "`<../foo/bar.rst#ref>`_"
-    val spanSeq = List(InternalReference(Seq(Text("../foo/bar.rst#ref")), relPath, linkSrc), InternalLinkDefinition("../foo/bar.rst#ref", relPath))
+    val spanSeq = List(InternalReference(Seq(Text("../foo/bar.rst#ref")), relPath, linkSrc), LinkDefinition("../foo/bar.rst#ref", InternalTarget(Root, relPath)))
     Parsing ("some `<../foo/bar.rst#ref>`_ here") should produce (spans(Text("some "), SpanSequence(spanSeq), Text(" here")))
   }
   
