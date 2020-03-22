@@ -1039,37 +1039,6 @@ object Inserted extends SpanContainerCompanion {
   protected def createSpanContainer (spans: Seq[Span]): Inserted = Inserted(spans)
 }
 
-/** Represents a URI which might also optionally be expressed as a local reference within the processed tree.
- */
-case class URI (uri: String, localRef: Option[LinkPath] = None)
-
-/** Represents a link between two paths, defining the target in absolute and relative form.
- */
-case class LinkPath (absolute: Path, relative: RelativePath)
-
-object LinkPath {
-
-  /** Creates an instance for the specified path relative to
-   *  the provided reference path.
-   */
-  def fromPath (path: PathBase, refPath: Path): LinkPath = path match {
-      case p: Path         => LinkPath(p, p.relativeTo(refPath))
-      case p: RelativePath => LinkPath(refPath / p, p)
-  } 
-
-  /** Creates an instance for the specified URI relative to
-   *  the provided reference path. Returns `None` if the specified
-   *  URI is not a file or relative URI.
-   */
-  // TODO - 0.15 - align with logic for internal references
-  def fromURI (uri: String, refPath: Path): Option[LinkPath] = {
-    val jURI = new java.net.URI(uri)
-    if (jURI.getScheme != null && jURI.getScheme != "file") None
-    else Some(fromPath(PathBase.parse(jURI.getPath), refPath))
-  }
-
-}
-
 sealed trait Target
 case class ExternalTarget (url: String) extends Target
 case class InternalTarget (absolutePath: Path, relativePath: RelativePath) extends Target {

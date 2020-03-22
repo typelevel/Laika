@@ -61,7 +61,10 @@ object FOConcatenation {
 
     def resolveCoverImagePath: Config =
       result.config.get[String]("pdf.coverImage").toOption.fold(result.config) { uri =>
-        val resolvedUri = LinkPath.fromURI(uri, Root).fold(uri)(_.absolute.toString)
+        val resolvedUri = Target.create(uri) match {
+          case et: ExternalTarget => et.url
+          case it: InternalTarget => it.absolutePath.toString
+        }
         result.config.withValue("pdf.coverImage", resolvedUri).build
       }
 
