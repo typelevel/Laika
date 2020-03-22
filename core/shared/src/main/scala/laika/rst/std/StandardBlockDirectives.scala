@@ -277,7 +277,7 @@ class StandardBlockDirectives {
         else (pOpt, imgOpt + Styles(style))
     }
     val content = img match {
-      case img: Image => img.copy(options = imgOpt)
+      case img: ImageResolver => img.copy(options = imgOpt)
       case el: SpanLink => el.copy(options = imgOpt)
       case lr: GenericReference => lr.copy(options = imgOpt)
     }

@@ -93,7 +93,7 @@ case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor
     *  @param tocTitle the title for the table of contents
     *  @param coverImage the path to the cover image within the virtual document tree                
     */
-  case class Config(metadata: DocumentMetadata = DocumentMetadata(), tocDepth: Int = Int.MaxValue, tocTitle: Option[String] = None, coverImage: Option[String] = None) {
+  case class Config(metadata: DocumentMetadata = DocumentMetadata(), tocDepth: Int = Int.MaxValue, tocTitle: Option[String] = None, coverImage: Option[Path] = None) {
     lazy val identifier: String = metadata.identifier.getOrElse(s"urn:uuid:${UUID.randomUUID.toString}")
     lazy val date: Date = metadata.date.getOrElse(new Date)
     lazy val formattedDate: String = DateTimeFormatter.ISO_INSTANT.format(date.toInstant.truncatedTo(ChronoUnit.SECONDS))
@@ -121,7 +121,7 @@ case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor
       val treeWithStyles = StyleSupport.ensureContainsStyles(tree)
       treeConfig.coverImage.fold(tree) { image =>
         treeWithStyles.copy(tree = treeWithStyles.tree.copy(
-          content = Document(Root / "cover", RootElement(SpanSequence(Image("cover", URI(image)))), 
+          content = Document(Root / "cover", RootElement(SpanSequence(Image("cover", InternalTarget(image, image.relative)))), 
           config = ConfigBuilder.empty.withValue("title", "Cover").build) +: tree.tree.content
         ))
       }

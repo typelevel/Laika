@@ -166,7 +166,7 @@ object InlineParsers {
 
     "![" ~> resource(recParsers).map { res =>
       res.target match {
-        case TargetUrl(url, title) => escape(res.text, Image(_, URI(url), title = title))
+        case TargetUrl(url, title) => escape(res.text, Image(_, Target.create(url), title = title))
         case TargetId(id)   => escape(res.text, ImageDefinitionReference(_, normalizeId(id),       "![" + res.source))
         case ImplicitTarget => escape(res.text, ImageDefinitionReference(_, normalizeId(res.text), "![" + res.source))
       }

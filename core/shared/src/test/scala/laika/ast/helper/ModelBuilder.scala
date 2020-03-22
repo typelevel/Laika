@@ -62,10 +62,6 @@ trait ModelBuilder {
      
   }
   
-  def img (text: String, uri: String, pathInfo: Option[LinkPath] = None, title: Option[String] = None,
-           width: Option[Size] = None, height: Option[Size] = None) =
-    Image(text, URI(uri, pathInfo), title = title, width = width, height = height)
-
   def imgRef (text: String, id: String, source: String = "") = ImageDefinitionReference(text, id, source)
   
   def citRef (label: String) = CitationReference(label, s"[$label]_")

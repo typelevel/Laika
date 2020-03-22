@@ -18,6 +18,7 @@ package laika.rewrite
 
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
+import laika.ast.RelativePath.Current
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.rst.ast.Underline
@@ -321,12 +322,12 @@ class RewriteRulesSpec extends AnyWordSpec
 
     "resolve external link references" in {
       val rootElem = root(p(simpleImgRef()), LinkDefinition("name", ExternalTarget("http://foo.com/bar.jpg")))
-      rewritten(rootElem) should be(root(p(img("text", "http://foo.com/bar.jpg"))))
+      rewritten(rootElem) should be(root(p(Image("text", ExternalTarget("http://foo.com/bar.jpg")))))
     }
 
     "resolve internal link references" in {
       val rootElem = root(p(simpleImgRef()), LinkDefinition("name", InternalTarget(Root, RelativePath.parse("foo.jpg"))))
-      rewritten(rootElem) should be(root(p(img("text", "foo.jpg", Some(LinkPath(Path.Root / "foo.jpg", RelativePath.Current / "foo.jpg"))))))
+      rewritten(rootElem) should be(root(p(Image("text", InternalTarget(Root / "foo.jpg", Current / "foo.jpg")))))
     }
 
     "replace an unresolvable reference with an invalid span" in {

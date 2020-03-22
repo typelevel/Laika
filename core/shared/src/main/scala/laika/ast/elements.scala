@@ -17,6 +17,7 @@
 package laika.ast
 
 import laika.api.Renderer
+import laika.ast.Path.Root
 import laika.config.{ConfigEncoder, ConfigValue}
 import laika.format.AST
 import laika.parse.code.CodeCategory
@@ -1071,9 +1072,13 @@ object LinkPath {
 
 sealed trait Target
 case class ExternalTarget (url: String) extends Target
-case class InternalTarget (absolutePath: Path, relativePath: RelativePath) extends Target
+case class InternalTarget (absolutePath: Path, relativePath: RelativePath) extends Target {
+  def relativeTo (refPath: Path): InternalTarget = InternalTarget.fromPath(relativePath, refPath)
+}
 object Target {
-  def create (url: String): Target = ???
+  def create (url: String): Target = 
+    if (url.startsWith("http:") || url.startsWith("https:") || url.startsWith("/")) ExternalTarget(url)
+    else InternalTarget(Root, RelativePath.parse(url))
 }
 object InternalTarget {
   /** Creates an instance for the specified path relative to
@@ -1110,11 +1115,11 @@ case class CitationLink (ref: String, label: String, options: Options = NoOpt) e
 
 /** An inline image with a text description and optional title.
  */
-case class Image (text: String, 
-                  uri: URI, 
-                  width: Option[Size] = None, 
-                  height: Option[Size] = None, 
-                  title: Option[String] = None, 
+case class Image (text: String,
+                  target: Target,
+                  width: Option[Size] = None,
+                  height: Option[Size] = None,
+                  title: Option[String] = None,
                   options: Options = NoOpt) extends Link {
   type Self = Image
   def withOptions (options: Options): Image = copy(options = options)
@@ -1128,15 +1133,16 @@ case class Size (amount: Double, unit: String) {
 }
 
 object Link {
-  def create (linkText: Seq[Span], url: String, source: String, title: Option[String] = None): Span = 
-    if (url.startsWith("http:") || url.startsWith("https:") || url.startsWith("/")) SpanLink(linkText, ExternalTarget(url), title)
-    else InternalReference(linkText, RelativePath.parse(url), source, title)
+  def create (linkText: Seq[Span], url: String, source: String, title: Option[String] = None): Span =
+    Target.create(url) match {
+      case et: ExternalTarget => SpanLink(linkText, ExternalTarget(et.url), title)
+      case it: InternalTarget => InternalReference(linkText, it.relativePath, source, title)
+    }
 }
 
 object LinkDefinition {
-  def create (id: String, url: String, title: Option[String] = None): Block with Span =
-    if (url.startsWith("http:") || url.startsWith("https:") || url.startsWith("/")) LinkDefinition(id, ExternalTarget(url), title)
-    else LinkDefinition(id, InternalTarget(Path.Root, RelativePath.parse(url)), title)
+  def create (id: String, url: String, title: Option[String] = None): Block with Span = 
+    LinkDefinition(id, Target.create(url), title)
 }
 
 /** A reference to content within the virtual input tree, the path pointing to the source path.

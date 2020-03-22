@@ -190,7 +190,12 @@ object FORenderer extends ((FOFormatter, Element) => String) {
       case e @ CitationLink(ref,label,_)  => fmt.withCitation(ref)(c => fmt.footnote(e,label,c.content,c.options))
       case e @ FootnoteLink(ref,label,_)  => fmt.withFootnote(ref)(f => fmt.footnote(e,label,f.content,f.options))
       case SectionNumber(pos, opt)        => fmt.child(Text(pos.mkString(".") + " ", opt + Styles("sectionNumber")))
-      case e @ Image(_,uri,width,height,_,_) => fmt.externalGraphic(e, uri.localRef.fold(uri.uri)(_.absolute.toString), width, height) // TODO - ignoring title for now
+      case e @ Image(_,target,width,height,_,_) =>
+        val uri = target match {
+          case it: InternalTarget => it.relativePath.toString
+          case et: ExternalTarget => et.url
+        }
+        fmt.externalGraphic(e, uri, width, height) // TODO - ignoring title for now
       case e: Leader                      => fmt.textElement("fo:leader", e, "", "leader-pattern"->"dots")
       case PageNumberCitation(target,_)     => s"""<fo:page-number-citation ref-id="${fmt.buildId(target.absolutePath)}" />"""
       case LineBreak(_)                   => "&#x2028;"

@@ -20,6 +20,7 @@ import java.time.Instant
 import java.util.{Date, Locale}
 
 import cats.effect.IO
+import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.EPUB
@@ -89,7 +90,7 @@ class OPFRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
     val spineRefs =
       """    <itemref idref="foo_epub_xhtml" />
         |    <itemref idref="bar_epub_xhtml" />""".stripMargin
-    renderer.render(input, config.copy(coverImage = Some("cover.png"))) shouldBe fileContent(manifestItems, "", spineRefs, uuid, coverEntries = Some(coverEntries))
+    renderer.render(input, config.copy(coverImage = Some(Root / "cover.png"))) shouldBe fileContent(manifestItems, "", spineRefs, uuid, coverEntries = Some(coverEntries))
   }
 
   it should "render a tree with a nested tree" in new NestedTree {

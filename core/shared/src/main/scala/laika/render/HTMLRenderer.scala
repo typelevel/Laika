@@ -195,7 +195,7 @@ class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => Str
       case CitationLink(ref,label,opt) => fmt.textElement("a", opt + Styles("citation"), s"[$label]", "href"->("#"+ref))
       case FootnoteLink(ref,label,opt) => fmt.textElement("a", opt + Styles("footnote"), s"[$label]", "href"->("#"+ref))
 
-      case Image(text,uri,width,height,title,opt) =>
+      case Image(text,target,width,height,title,opt) =>
         def sizeAttr (size: Option[Size], styleName: String): (Option[String],Option[String]) = size map {
           case Size(amount, "px") => (Some(amount.toInt.toString), None)
           case Size(amount, unit) => (None, Some(s"$styleName:$amount$unit"))
@@ -203,7 +203,11 @@ class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => Str
         val (widthAttr, wStyle) = sizeAttr(width, "width")
         val (heightAttr, hStyle) = sizeAttr(height, "height")
         val styleAttr = (wStyle ++ hStyle).reduceLeftOption((a,b) => s"$a;$b")
-        val allAttr = fmt.optAttributes("src" -> Some(uri.uri), "alt" -> Some(text), "title" -> title,
+        val uri = target match {
+          case it: InternalTarget => it.relativePath.toString
+          case et: ExternalTarget => et.url
+        }
+        val allAttr = fmt.optAttributes("src" -> Some(uri), "alt" -> Some(text), "title" -> title,
           "width" -> widthAttr, "height" -> heightAttr, "style" -> styleAttr)
         fmt.emptyElement("img", opt, allAttr:_*)
 
