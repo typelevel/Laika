@@ -232,7 +232,7 @@ case class FOFormatter (renderChild: (FOFormatter, Element) => String,
    */
   def bookmark (bookmark: Bookmark): String = {
     val content = BookmarkTitle(bookmark.title) +: bookmark.children
-    indentedElement("fo:bookmark", bookmark, content, "internal-destination" -> buildId(bookmark.path.absolute))
+    indentedElement("fo:bookmark", bookmark, content, "internal-destination" -> buildId(bookmark.target.absolutePath))
   }
 
   /** Renders an FO `bookmark-title` element.
@@ -299,7 +299,7 @@ object FOFormatter extends (RenderContext[FOFormatter] => FOFormatter) {
 
   /** A single bookmark and its nested children.
     */
-  case class Bookmark (path: LinkPath, title: String, children: Seq[Bookmark], options: Options = NoOpt) extends Block {
+  case class Bookmark (target: InternalTarget, title: String, children: Seq[Bookmark], options: Options = NoOpt) extends Block {
     type Self = Bookmark
     def withOptions (options: Options): Bookmark = copy(options = options)
   }
