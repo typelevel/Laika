@@ -148,7 +148,7 @@ class RewriteRulesSpec extends AnyWordSpec
   "The rewrite rules for link references" should {
 
     "resolve external link definitions" in {
-      val rootElem = root(p(simpleLinkRef()), ExternalLinkDefinition("name", "http://foo/"))
+      val rootElem = root(p(simpleLinkRef()), LinkDefinition("name", ExternalTarget("http://foo/")))
       rewritten(rootElem) should be(root(p(extLink("http://foo/"))))
     }
 
@@ -158,7 +158,7 @@ class RewriteRulesSpec extends AnyWordSpec
     }
 
     "resolve anonymous link references" in {
-      val rootElem = root(p(simpleLinkRef(""), simpleLinkRef("")), ExternalLinkDefinition("", "http://foo/"), ExternalLinkDefinition("", "http://bar/"))
+      val rootElem = root(p(simpleLinkRef(""), simpleLinkRef("")), LinkDefinition("", ExternalTarget("http://foo/")), LinkDefinition("", ExternalTarget("http://bar/")))
       rewritten(rootElem) should be(root(p(extLink("http://foo/"), extLink("http://bar/"))))
     }
 
@@ -178,7 +178,7 @@ class RewriteRulesSpec extends AnyWordSpec
     }
 
     "resolve references when some parent element also gets rewritten" in {
-      val rootElem = root(DecoratedHeader(Underline('#'), List(Text("text1"), simpleLinkRef()), Id("header")), ExternalLinkDefinition("name", "http://foo/"))
+      val rootElem = root(DecoratedHeader(Underline('#'), List(Text("text1"), simpleLinkRef()), Id("header")), LinkDefinition("name", ExternalTarget("http://foo/")))
       rewritten(rootElem) should be(root(Title(List(Text("text1"), extLink("http://foo/")), Id("header") + Styles("title"))))
     }
   }
@@ -186,7 +186,7 @@ class RewriteRulesSpec extends AnyWordSpec
   "The rewrite rules for generic references" should {
 
     "resolve external link definitions" in {
-      val rootElem = root(p(genRef()), ExternalLinkDefinition("name", "http://foo/"))
+      val rootElem = root(p(genRef()), LinkDefinition("name", ExternalTarget("http://foo/")))
       rewritten(rootElem) should be(root(p(extLink("http://foo/"))))
     }
 
@@ -201,7 +201,7 @@ class RewriteRulesSpec extends AnyWordSpec
     }
 
     "resolve anonymous link references" in {
-      val rootElem = root(p(genRef(""), genRef("")), ExternalLinkDefinition("", "http://foo/"), ExternalLinkDefinition("", "http://bar/"))
+      val rootElem = root(p(genRef(""), genRef("")), LinkDefinition("", ExternalTarget("http://foo/")), LinkDefinition("", ExternalTarget("http://bar/")))
       rewritten(rootElem) should be(root(p(extLink("http://foo/"), extLink("http://bar/"))))
     }
 
@@ -221,7 +221,7 @@ class RewriteRulesSpec extends AnyWordSpec
     }
 
     "resolve references when some parent element also gets rewritten" in {
-      val rootElem = root(DecoratedHeader(Underline('#'), List(Text("text1"), genRef()), Id("header")), ExternalLinkDefinition("name", "http://foo/"))
+      val rootElem = root(DecoratedHeader(Underline('#'), List(Text("text1"), genRef()), Id("header")), LinkDefinition("name", ExternalTarget("http://foo/")))
       rewritten(rootElem) should be(root(Title(List(Text("text1"), extLink("http://foo/")), Id("header") + Styles("title"))))
     }
   }
@@ -308,7 +308,7 @@ class RewriteRulesSpec extends AnyWordSpec
   "The rewrite rules for image references" should {
 
     "resolve external link references" in {
-      val rootElem = root(p(simpleImgRef()), ExternalLinkDefinition("name", "http://foo.com/bar.jpg"))
+      val rootElem = root(p(simpleImgRef()), LinkDefinition("name", ExternalTarget("http://foo.com/bar.jpg")))
       rewritten(rootElem) should be(root(p(img("text", "http://foo.com/bar.jpg"))))
     }
 
@@ -368,16 +368,16 @@ class RewriteRulesSpec extends AnyWordSpec
     }
 
     "remove invalid external link definitions altogether" in {
-      val target2a = ExternalLinkDefinition("id2", "http://foo/")
-      val target2b = ExternalLinkDefinition("id2", "http://bar/")
+      val target2a = LinkDefinition("id2", ExternalTarget("http://foo/"))
+      val target2b = LinkDefinition("id2", ExternalTarget("http://bar/"))
       val msg = "duplicate target id: id2"
       val rootElem = root(target2a, target2b)
       rewritten(rootElem) should be(root())
     }
 
     "replace ambiguous references to duplicate ids with invalid spans" in {
-      val target1a = ExternalLinkDefinition("name", "http://foo/1")
-      val target1b = ExternalLinkDefinition("name", "http://foo/2")
+      val target1a = LinkDefinition("name", ExternalTarget("http://foo/1"))
+      val target1b = LinkDefinition("name", ExternalTarget("http://foo/2"))
       val msg = "More than one link definition with id 'name' in path /doc"
       val rootElem = root(p(simpleLinkRef()), target1a, target1b)
       rewritten(rootElem) should be(root(p(invalidSpan(msg, "text"))))

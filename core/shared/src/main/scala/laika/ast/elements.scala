@@ -872,14 +872,13 @@ case object BodyCell extends CellType with BlockContainerCompanion {
   protected def createBlockContainer (blocks: Seq[Block]) = Cell(this, blocks)
 }
 
-
-/** An external link target that can be referenced by id, usually only part of the raw document tree and then
- *  removed by the rewrite rule that resolves link and image references.
- */
-case class ExternalLinkDefinition (id: String, url: String, title: Option[String] = None, options: Options = NoOpt) extends Definition
-                                                                                                                    with Span {
-  type Self = ExternalLinkDefinition
-  def withOptions (options: Options): ExternalLinkDefinition = copy(options = options)
+/** An internal or external link target that can be referenced by id, usually only part of the raw document tree and then
+  * removed by the rewrite rule that resolves link and image references.
+  */
+case class LinkDefinition (id: String, target: Target, title: Option[String] = None, options: Options = NoOpt) extends Definition
+  with Span {
+  type Self = LinkDefinition
+  def withOptions (options: Options): LinkDefinition = copy(options = options)
 }
 
 /** An internal link target that can be referenced by id, usually only part of the raw document tree and then
@@ -1145,7 +1144,7 @@ object Link {
 
 object LinkDefinition {
   def create (id: String, url: String, title: Option[String] = None): Block with Span =
-    if (url.startsWith("http:") || url.startsWith("https:") || url.startsWith("/")) ExternalLinkDefinition(id, url, title)
+    if (url.startsWith("http:") || url.startsWith("https:") || url.startsWith("/")) LinkDefinition(id, ExternalTarget(url), title)
     else InternalLinkDefinition(id, RelativePath.parse(url), title)
 }
 

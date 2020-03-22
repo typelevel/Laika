@@ -210,7 +210,7 @@ class InlineParsersSpec extends AnyFlatSpec
   }
   
   it should "parse an external phrase link with text and url" in {
-    val spanSeq = List(link(Text("link")).url("http://foo.com").toLink, ExternalLinkDefinition("link", "http://foo.com"))
+    val spanSeq = List(link(Text("link")).url("http://foo.com").toLink, LinkDefinition("link", ExternalTarget("http://foo.com")))
     Parsing ("some `link<http://foo.com>`_ here") should produce (spans(Text("some "), SpanSequence(spanSeq), Text(" here")))
   }
 
@@ -222,7 +222,7 @@ class InlineParsersSpec extends AnyFlatSpec
   
   it should "parse a phrase link with only a url" in {
     Parsing ("some `<http://foo.com>`_ here") should produce (spans(Text("some "), 
-        SpanSequence(link(Text("http://foo.com")).url("http://foo.com").toLink, ExternalLinkDefinition("http://foo.com", "http://foo.com")), Text(" here")))
+        SpanSequence(link(Text("http://foo.com")).url("http://foo.com").toLink, LinkDefinition("http://foo.com", ExternalTarget("http://foo.com"))), Text(" here")))
   }
 
   it should "parse an internal phrase link with only a url" in {
@@ -235,7 +235,7 @@ class InlineParsersSpec extends AnyFlatSpec
     val input = """some `<http://
       | foo.com>`_ here""".stripMargin
     Parsing (input) should produce (spans(Text("some "), 
-        SpanSequence(link(Text("http://foo.com")).url("http://foo.com").toLink, ExternalLinkDefinition("http://foo.com", "http://foo.com")), Text(" here")))
+        SpanSequence(link(Text("http://foo.com")).url("http://foo.com").toLink, LinkDefinition("http://foo.com", ExternalTarget("http://foo.com"))), Text(" here")))
   }
   
   it should "parse an anonymous phrase link without url" in {

@@ -75,7 +75,7 @@ class ExplicitBlockParsersSpec extends AnyFlatSpec
   
   "The link target parser" should "parse a named external target on one line" in {
     val input = """.. _some-link: http://www.foo.bar/"""
-    Parsing (input) should produce (root(ExternalLinkDefinition("some-link", "http://www.foo.bar/")))
+    Parsing (input) should produce (root(LinkDefinition("some-link", ExternalTarget("http://www.foo.bar/"))))
   }
 
   it should "parse a named internal target on one line" in {
@@ -85,19 +85,19 @@ class ExplicitBlockParsersSpec extends AnyFlatSpec
   
   it should "parse a named external target with the reference name in backticks" in {
     val input = """.. _`some:link`: http://www.foo.bar/"""
-    Parsing (input) should produce (root(ExternalLinkDefinition("some:link", "http://www.foo.bar/")))
+    Parsing (input) should produce (root(LinkDefinition("some:link", ExternalTarget("http://www.foo.bar/"))))
   }
   
   it should "parse a named external target on two lines" in {
     val input = """.. _some-link: http://www.
       |     foo.bar/""".stripMargin
-    Parsing (input) should produce (root(ExternalLinkDefinition("some-link", "http://www.foo.bar/")))
+    Parsing (input) should produce (root(LinkDefinition("some-link", ExternalTarget("http://www.foo.bar/"))))
   }
   
   it should "parse a named external target with the URL entirely on the next line" in {
     val input = """.. _some-link: 
       |     http://www.foo.bar/""".stripMargin
-    Parsing (input) should produce (root(ExternalLinkDefinition("some-link", "http://www.foo.bar/")))
+    Parsing (input) should produce (root(LinkDefinition("some-link", ExternalTarget("http://www.foo.bar/"))))
   }
 
   it should "parse a named internal target with the URL entirely on the next line" in {
@@ -108,7 +108,7 @@ class ExplicitBlockParsersSpec extends AnyFlatSpec
   
   it should "parse an anonymous external target" in {
     val input = """.. __: http://www.foo.bar/"""
-    Parsing (input) should produce (root(ExternalLinkDefinition("", "http://www.foo.bar/")))
+    Parsing (input) should produce (root(LinkDefinition("", ExternalTarget("http://www.foo.bar/"))))
   }
 
   it should "parse an anonymous internal target" in {
@@ -118,7 +118,7 @@ class ExplicitBlockParsersSpec extends AnyFlatSpec
   
   it should "parse a short anonymous external target" in {
     val input = """__ http://www.foo.bar/"""
-    Parsing (input) should produce (root(ExternalLinkDefinition("", "http://www.foo.bar/")))
+    Parsing (input) should produce (root(LinkDefinition("", ExternalTarget("http://www.foo.bar/"))))
   }
 
   it should "parse a short anonymous internal target" in {

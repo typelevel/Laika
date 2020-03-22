@@ -223,8 +223,8 @@ class BlockParsersSpec extends AnyFlatSpec
   it should "treat an internal link target followed by an external link target as an external link target" in {
     val input = """.. _target1:
       |.. _target2: http://www.foo.com""".stripMargin
-    Parsing (input) should produce (root (ExternalLinkDefinition("target1","http://www.foo.com"), 
-                                         ExternalLinkDefinition("target2","http://www.foo.com")))
+    Parsing (input) should produce (root (LinkDefinition("target1",ExternalTarget("http://www.foo.com")), 
+                                          LinkDefinition("target2",ExternalTarget("http://www.foo.com"))))
   }
 
   it should "treat an internal reference followed by an internal link target as two internal link targets" in {
