@@ -1039,17 +1039,41 @@ object Inserted extends SpanContainerCompanion {
   protected def createSpanContainer (spans: Seq[Span]): Inserted = Inserted(spans)
 }
 
+/** Represents a target that can be referred to by links,
+  * either within the virtual tree or external.
+  */
 sealed trait Target
+
+/** An external link, outside of the virtual tree of the current transformation.
+  */
 case class ExternalTarget (url: String) extends Target
+
+/** Represents an internal target with an absolute and relative path, the latter
+  * relative to the document that referred to the target. 
+  */
 case class InternalTarget (absolutePath: Path, relativePath: RelativePath) extends Target {
   def relativeTo (refPath: Path): InternalTarget = InternalTarget.fromPath(relativePath, refPath)
 }
 object Target {
+  
+  /** Creates a new target from the specified URL.
+    * 
+    * If the target is an absolute URL (starting with '/' or 'http'/'https') the
+    * result will be an external target. 
+    * 
+    * Relative URLs will be interpreted as pointing to the target within the virtual tree of input and output
+    * documents and will be validated during transformation, 
+    * resulting in errors if the target does not exist. 
+    * 
+    * External targets on the other hand are not validated, 
+    * as the availability of the external resource during validation cannot be guaranteed.
+    */
   def create (url: String): Target = 
     if (url.startsWith("http:") || url.startsWith("https:") || url.startsWith("/")) ExternalTarget(url)
     else InternalTarget(Root, RelativePath.parse(url))
 }
 object InternalTarget {
+  
   /** Creates an instance for the specified path relative to
     * the provided reference path.
     */
@@ -1102,6 +1126,9 @@ case class Size (amount: Double, unit: String) {
 }
 
 object Link {
+  /** Creates a new span that acts as a link reference based on the specified
+    * URL which will be parsed and interpreted as an internal or external target.
+    */
   def create (linkText: Seq[Span], url: String, source: String, title: Option[String] = None): Span =
     Target.create(url) match {
       case et: ExternalTarget => SpanLink(linkText, ExternalTarget(et.url), title)
@@ -1110,6 +1137,9 @@ object Link {
 }
 
 object LinkDefinition {
+  /** Creates a new link definition that other references can point to based on the specified
+    * URL which will be parsed and interpreted as an internal or external target.
+    */
   def create (id: String, url: String, title: Option[String] = None): Block with Span = 
     LinkDefinition(id, Target.create(url), title)
 }
