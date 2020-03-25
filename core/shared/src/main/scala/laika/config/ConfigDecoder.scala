@@ -18,6 +18,7 @@ package laika.config
 
 import java.util.Date
 
+import cats.implicits._
 import laika.ast.{Path, PathBase, RelativePath}
 import laika.time.PlatformDateFormat
 
@@ -97,11 +98,20 @@ object ConfigDecoder {
   implicit def seq[T] (implicit elementDecoder: ConfigDecoder[T]): ConfigDecoder[Seq[T]] = new ConfigDecoder[Seq[T]] {
     def apply (value: Traced[ConfigValue]) = value.value match {
       case ArrayValue(values) =>
-        val elements = values.map(v => elementDecoder(Traced(v, value.origin)))
-        val errors = elements.collect { case Left(e) => e }
+        val (errors, results) = values.toList.map(v => elementDecoder(Traced(v, value.origin))).separate
         if (errors.nonEmpty) Left(DecodingError(s"One or more errors decoding array elements: ${errors.mkString(", ")}"))
-        else Right(elements.collect { case Right(r) => r })
+        else Right(results)
       case invalid => Left(InvalidType("Array", invalid))
     }
+  }
+
+  implicit def map[T] (implicit valueDecoder: ConfigDecoder[T]): ConfigDecoder[Map[String, T]] = {
+    case Traced(ov: ObjectValue, origin)      => 
+      val (errors, results) = ov.values.toList.map { field =>
+        valueDecoder(Traced(field.value, origin)).map((field.key, _))
+      }.separate
+      if (errors.nonEmpty) Left(DecodingError(s"One or more errors decoding map values: ${errors.mkString(", ")}"))
+      else Right(results.toMap)
+    case Traced(invalid: ConfigValue, _) => Left(InvalidType("Object", invalid))
   }
 }

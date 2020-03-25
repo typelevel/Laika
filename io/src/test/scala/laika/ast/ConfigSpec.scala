@@ -278,6 +278,21 @@ class ConfigSpec extends IOSpec
       }
     }
 
+    "decode merged objects as a Map" in new Inputs {
+      val inputs = Seq(
+        Root / "directory.conf" -> Contents.mergeableConfig,
+        Root / "default.template.html" -> Contents.templateWithoutConfig,
+        Root / "input.md" -> Contents.markupWithMergeableConfig
+      )
+      markdownParser.fromInput(IO.pure(builder(inputs, mdMatcher))).parse.asserting { tree =>
+        val doc = tree.root.tree.content.head.asInstanceOf[Document]
+        doc.config.get[Map[String, Int]]("foo").toOption.get.toSeq.sortBy(_._1) should be(Seq(
+          ("bar", 7),
+          ("baz", 9)
+        ))
+      }
+    }
+
     "make directory configuration available for references in templates" in new Inputs {
       val inputs = Seq(
         Root / "directory.conf" -> Contents.configDoc,
