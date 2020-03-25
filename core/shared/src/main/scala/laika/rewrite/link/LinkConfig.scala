@@ -26,6 +26,8 @@ case class LinkConfig (targets: Seq[TargetDefinition])
 
 object LinkConfig {
   
+  val empty: LinkConfig = LinkConfig(Nil)
+  
   implicit val key: DefaultKey[LinkConfig] = DefaultKey("links")
   
   implicit val decoder: ConfigDecoder[LinkConfig] = {

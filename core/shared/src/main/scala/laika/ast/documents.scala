@@ -239,7 +239,7 @@ trait DocumentStructure { this: TreeContent =>
 
   /** All link targets of this document, including global and local targets.
    */
-  lazy val linkTargets: LinkTargetProvider = new LinkTargetProvider(path,content)
+  lazy val linkTargets: LinkTargetProvider = new LinkTargetProvider(path, content, config)
 
   /** All link targets that can get referenced from anywhere
     * in the document tree.

@@ -18,6 +18,7 @@ package laika.rewrite.link
 
 import laika.ast._
 import LinkTargets._
+import laika.config.Config
 
 import scala.annotation.tailrec
 
@@ -27,7 +28,7 @@ import scala.annotation.tailrec
  * 
  *  @author Jens Halm
  */
-class LinkTargetProvider (path: Path, root: RootElement) {
+class LinkTargetProvider (path: Path, root: RootElement, config: Config) {
 
   /** Generates symbol identifiers. 
     *  Contains a predefined list of ten symbols to generate.
@@ -46,6 +47,21 @@ class LinkTargetProvider (path: Path, root: RootElement) {
     private val levelMap = scala.collection.mutable.Map.empty[HeaderDecoration,Int]
     private val levelIt = Iterator.from(1)
     def levelFor (deco: HeaderDecoration): Int = levelMap.getOrElseUpdate(deco, levelIt.next)
+  }
+  
+  private def linkDefinitionResolver (selector: Selector, target: Target, title: Option[String] = None): TargetResolver = {
+    
+    def resolveTarget (refPath: Path): Target = target match {
+      case it: InternalTarget => it.relativeTo(refPath)
+      case external => external
+    }
+    val resolver = ReferenceResolver.lift {
+      case LinkSource(LinkDefinitionReference (content, _, _, opt), sourcePath) =>
+        SpanLink(content, resolveTarget(sourcePath.parent), title, opt)
+      case LinkSource(ImageDefinitionReference (text, _, _, opt), sourcePath) =>
+        Image(text, resolveTarget(sourcePath.parent), title = title, options = opt)
+    }
+    TargetResolver.create(selector, resolver, TargetReplacer.removeTarget)
   }
   
   private val directTargets: List[TargetResolver] = {
@@ -83,17 +99,7 @@ class LinkTargetProvider (path: Path, root: RootElement) {
 
       case ld: LinkDefinition =>
         val selector = if (ld.id.isEmpty) AnonymousSelector else LinkDefinitionSelector(ld.id)
-        def target(refPath: Path) = ld.target match {
-          case it: InternalTarget => it.relativeTo(refPath)
-          case external => external
-        }
-        val resolver = ReferenceResolver.lift {
-          case LinkSource(LinkDefinitionReference (content, _, _, opt), sourcePath) => 
-            SpanLink(content, target(sourcePath.parent), ld.title, opt)
-          case LinkSource(ImageDefinitionReference (text, _, _, opt), sourcePath) =>
-            Image(text, target(sourcePath.parent), title = ld.title, options = opt)
-        }
-        TargetResolver.create(selector, resolver, TargetReplacer.removeTarget)
+        linkDefinitionResolver(selector, ld.target, ld.title)
 
       case DecoratedHeader(_,_,Id(id)) => // TODO - do not generate id upfront
         val selector = TargetIdSelector(slug(id))
@@ -116,7 +122,6 @@ class LinkTargetProvider (path: Path, root: RootElement) {
       case c: Span if c.options.id.isDefined =>
         val selector = TargetIdSelector(slug(c.options.id.get))
         TargetResolver.forSpanTarget(selector, ReferenceResolver.internalLink(Some(selector.id)))
-        
     }
   }
 
@@ -144,10 +149,16 @@ class LinkTargetProvider (path: Path, root: RootElement) {
       }
     }
     
+    val linkConfig = config.getOpt[LinkConfig].toOption.flatten.getOrElse(LinkConfig.empty) // TODO - 0.15 - error handling
+    val targetsFromConfig = linkConfig.targets.map { defn =>
+      val selector = LinkDefinitionSelector(defn.id)
+      (selector, linkDefinitionResolver(selector, defn.target))
+    }
+    
     groupedTargets.map { 
       case (sel, alias: LinkAliasResolver) => (sel, resolve(alias, alias.targetSelector, Set()))
       case resolved => resolved
-    }
+    } ++ targetsFromConfig
   }
 
   /** Provides a map of all targets that can be referenced from elements

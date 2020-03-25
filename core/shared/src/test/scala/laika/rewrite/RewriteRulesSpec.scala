@@ -21,6 +21,7 @@ import laika.ast.Path.Root
 import laika.ast.RelativePath.Current
 import laika.ast._
 import laika.ast.helper.ModelBuilder
+import laika.config.ConfigParser
 import laika.rst.ast.Underline
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -237,6 +238,60 @@ class RewriteRulesSpec extends AnyWordSpec
       val rootElem = root(DecoratedHeader(Underline('#'), List(Text("text1"), genRef()), Id("header")), LinkDefinition("name", ExternalTarget("http://foo/")))
       rewritten(rootElem) should be(root(Title(List(Text("text1"), extLink("http://foo/")), Id("header") + Styles("title"))))
     }
+  }
+
+  "The rewrite rules for global link definitions" should {
+
+    val rootWithTarget = root(InternalLinkTarget(Id("ref")))
+
+    val linkDefinitions =
+      """{ 
+        |  links.targets {
+        |    int = "../doc1.md#ref" 
+        |    ext = "https://www.foo.com/"
+        |    inv = "../doc99.md#ref"
+        |  }
+        |}""".stripMargin
+
+    println(ConfigParser.parse(linkDefinitions).resolve())
+
+    def rewrittenTreeDoc (rootToRewrite: RootElement): RootElement = {
+      val tree = DocumentTree(Root, Seq(
+        Document(Root / "doc1.md", rootWithTarget),
+        Document(Root / "doc2.md", rootWithTarget),
+        DocumentTree(Root / "tree1", Seq(
+          Document(Root / "tree1" / "doc3.md", rootToRewrite, config = ConfigParser.parse(linkDefinitions).resolve().toOption.get),
+          Document(Root / "tree1" / "doc4.md", rootWithTarget),
+        )),
+      ))
+      val rewrittenTree = DocumentTreeRoot(tree, staticDocuments = Seq(Root / "images" / "frog.jpg")).rewrite(OperationConfig.default.rewriteRules)
+      rewrittenTree.tree.selectDocument("tree1/doc3.md").get.content
+    }
+
+    "resolve internal link references to a target in the parent tree" in {
+      val rootElem = root(p(simpleLinkRef("int")))
+      val internalLink = SpanLink(List(Text("text")), InternalTarget.fromPath(RelativePath.parse("../doc1.md#ref"), Root / "tree1"))
+      rewrittenTreeDoc(rootElem) should be(root(p(internalLink)))
+    }
+
+    "resolve external link references" in {
+      val rootElem = root(p(simpleLinkRef("ext")))
+      val externalLink = SpanLink(List(Text("text")), ExternalTarget("https://www.foo.com/"))
+      rewrittenTreeDoc(rootElem) should be(root(p(externalLink)))
+    }
+
+    "produce an invalid span for an unresolved id" in {
+      val rootElem = root(p(simpleLinkRef("missing")))
+      val expected = root(p(invalidSpan("unresolved link reference: missing", "text")))
+      rewrittenTreeDoc(rootElem) should be(expected)
+    }
+
+    "produce an invalid span for an unresolved reference" ignore { // TODO - needs validation to become active
+      val rootElem = root(p(simpleLinkRef("inv")))
+      val expected = root(p(invalidSpan("unresolved internal reference: ../doc99.md#ref", "text")))
+      rewrittenTreeDoc(rootElem) should be(expected)
+    }
+
   }
 
 
