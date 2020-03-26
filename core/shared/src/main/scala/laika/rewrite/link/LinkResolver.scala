@@ -45,6 +45,7 @@ object LinkResolver extends (DocumentCursor => RewriteRules) {
   def apply (cursor: DocumentCursor): RewriteRules = {
     
     val targets = cursor.target.linkTargets
+    val excludeFromValidation = cursor.config.getOpt[LinkConfig].toOption.flatten.getOrElse(LinkConfig.empty).excludeFromValidation.toSet
     
     def replace (element: Customizable, selector: Selector): Option[Customizable] =
       targets.local.get(selector)
@@ -68,14 +69,15 @@ object LinkResolver extends (DocumentCursor => RewriteRules) {
     
     def validateLink (link: SpanLink, ref: Reference): Span = link.target match {
       case InternalTarget(_, relativePath) =>
-        if (cursor.root.target.selectTarget(pathSelectorFor(relativePath)).isDefined) link
+        val selector = pathSelectorFor(relativePath)
+        if (excludeFromValidation.exists(p => selector.path.isSubPath(p)) || cursor.root.target.selectTarget(selector).isDefined) link
         else InvalidElement(s"unresolved internal reference: ${relativePath.toString}", ref.source).asSpan
       case _ => link
     }
 
     def resolveWith (ref: Reference, target: Option[TargetResolver], msg: => String): RewriteAction[Span] = {
       val resolvedTarget = target.flatMap(_.resolveReference(LinkSource(ref, cursor.path))) match {
-        case Some(link: SpanLink) => link // Some(validateLink(link, ref)) TODO - 0.15 - activate
+        case Some(link: SpanLink) => validateLink(link, ref)
         case Some(other)          => other
         case None                 => InvalidElement(msg, ref.source).asSpan
       }

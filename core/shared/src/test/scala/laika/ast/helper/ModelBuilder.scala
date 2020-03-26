@@ -17,6 +17,7 @@
 package laika.ast.helper
 
 import laika.ast._
+import laika.config.{Config, ConfigParser}
 
 trait ModelBuilder {
 
@@ -116,6 +117,9 @@ trait ModelBuilder {
     def toList = DefinitionList(items.toList)
     
   }
+  
+  val disableInternalLinkValidation: Config = 
+    ConfigParser.parse("""{ links.excludeFromValidation = ["/"]}""").resolve().toOption.get
   
   
   implicit def builderToEnumList (builder: EnumListBuilder): EnumList = builder.toList

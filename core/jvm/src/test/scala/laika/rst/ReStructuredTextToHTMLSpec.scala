@@ -56,8 +56,14 @@ class ReStructuredTextToHTMLSpec extends AnyFlatSpec
   
 
   def transformAndCompare (name: String): Unit = {
+    val noValidation =
+      """{%
+        |links.excludeFromValidation = ["/"] 
+        |%}
+        |""".stripMargin
+    
     val path = FileIO.classPathResourcePath("/rstSpec") + "/" + name
-    val input = FileIO.readFile(path + ".rst")
+    val input = noValidation + FileIO.readFile(path + ".rst")
 
     def quotedBlockContent (content: Seq[Block], attr: Seq[Span]) =
       if (attr.isEmpty) content

@@ -32,7 +32,7 @@ class RewriteRulesSpec extends AnyWordSpec
 
 
   def rewritten (root: RootElement): RootElement = {
-    val doc = Document(Path.Root / "doc", root)
+    val doc = Document(Path.Root / "doc", root, config = disableInternalLinkValidation)
     val rules = OperationConfig.default.rewriteRules(DocumentCursor(doc))
     doc.rewrite(rules).content
   }
@@ -286,7 +286,7 @@ class RewriteRulesSpec extends AnyWordSpec
       rewrittenTreeDoc(rootElem) should be(expected)
     }
 
-    "produce an invalid span for an unresolved reference" ignore { // TODO - needs validation to become active
+    "produce an invalid span for an unresolved reference" in {
       val rootElem = root(p(simpleLinkRef("inv")))
       val expected = root(p(invalidSpan("unresolved internal reference: ../doc99.md#ref", "text")))
       rewrittenTreeDoc(rootElem) should be(expected)

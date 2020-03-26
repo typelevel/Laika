@@ -16,17 +16,17 @@
 
 package laika.rewrite.link
 
-import laika.ast.Target
+import laika.ast.{Path, Target}
 import laika.config._
 
 /**
   * @author Jens Halm
   */
-case class LinkConfig (targets: Seq[TargetDefinition])
+case class LinkConfig (targets: Seq[TargetDefinition], excludeFromValidation: Seq[Path])
 
 object LinkConfig {
   
-  val empty: LinkConfig = LinkConfig(Nil)
+  val empty: LinkConfig = LinkConfig(Nil, Nil)
   
   implicit val key: DefaultKey[LinkConfig] = DefaultKey("links")
   
@@ -35,11 +35,12 @@ object LinkConfig {
       val config = ov.toConfig
       for {
         targets <- config.get[Map[String, String]]("targets", Map.empty[String,String])
+        exclude <- config.get[Seq[Path]]("excludeFromValidation", Nil)
       } yield {
         val mappedTargets = targets.map {
           case (id, targetURL) => TargetDefinition(id, Target.create(targetURL))
         }
-        LinkConfig(mappedTargets.toSeq)
+        LinkConfig(mappedTargets.toSeq, exclude)
       }
 
     case Traced(invalid: ConfigValue, _) => Left(InvalidType("Object", invalid))
@@ -48,4 +49,3 @@ object LinkConfig {
 }
 
 case class TargetDefinition (id: String, target: Target)
-
