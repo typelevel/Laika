@@ -159,6 +159,11 @@ class RewriteRulesSpec extends AnyWordSpec
       rewritten(rootElem) should be(root(p(intLink(RelativePath.parse("foo.md#ref")))))
     }
 
+    "interpret internal link definitions as external when they point upwards beyond the virtual root" in {
+      val rootElem = root(p(simpleLinkRef()), LinkDefinition("name", InternalTarget(Root, RelativePath.parse("../../foo.md#ref"))))
+      rewritten(rootElem) should be(root(p(extLink("../../foo.md#ref"))))
+    }
+
     "resolve anonymous link references" in {
       val rootElem = root(
         p(simpleLinkRef(""), simpleLinkRef("")),
@@ -253,8 +258,6 @@ class RewriteRulesSpec extends AnyWordSpec
         |  }
         |}""".stripMargin
 
-    println(ConfigParser.parse(linkDefinitions).resolve())
-
     def rewrittenTreeDoc (rootToRewrite: RootElement): RootElement = {
       val tree = DocumentTree(Root, Seq(
         Document(Root / "doc1.md", rootWithTarget),
@@ -347,6 +350,12 @@ class RewriteRulesSpec extends AnyWordSpec
     "produce an invalid span for an unresolved reference" in {
       val rootElem = root(p(internalRef("../tree2/doc99.md#ref")), InternalLinkTarget(Id("ref")))
       val expected = root(p(invalidSpan("unresolved internal reference: ../tree2/doc99.md#ref", "text")), InternalLinkTarget(Id("ref")))
+      rewrittenTreeDoc(rootElem) should be(expected)
+    }
+
+    "avoid validation for references beyond the virtual root" in {
+      val rootElem = root(p(internalRef("../../doc99.md#ref")), InternalLinkTarget(Id("ref")))
+      val expected = root(p(extLink("../../doc99.md#ref")), InternalLinkTarget(Id("ref")))
       rewrittenTreeDoc(rootElem) should be(expected)
     }
 

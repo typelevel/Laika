@@ -52,6 +52,9 @@ class LinkTargetProvider (path: Path, root: RootElement, config: Config) {
   private def linkDefinitionResolver (selector: Selector, target: Target, title: Option[String] = None): TargetResolver = {
     
     def resolveTarget (refPath: Path): Target = target match {
+      /* If an internal target point upwards beyond the virtual root of the processed tree, 
+         it is treated as an external target and does not get validated. */
+      case it: InternalTarget if it.relativePath.parentLevels >= path.depth => ExternalTarget(it.relativePath.toString)
       case it: InternalTarget => it.relativeTo(refPath)
       case external => external
     }

@@ -143,6 +143,9 @@ object LinkResolver extends (DocumentCursor => RewriteRules) {
         case Autosymbol          => resolveLocal(ref, AutosymbolSelector, "too many autosymbol references")
       }
 
+      case ref: InternalReference if ref.path.parentLevels >= cursor.path.depth => 
+        Replace(SpanLink(ref.content, ExternalTarget(ref.path.toString), ref.title, ref.options))  
+      
       case ref: InternalReference => resolveGlobal(ref, ref.path, s"unresolved internal reference: ${ref.path.toString}")  
         
       case ref: LinkDefinitionReference => if (ref.id.isEmpty) resolveLocal(ref, AnonymousSelector, "too many anonymous link references")
