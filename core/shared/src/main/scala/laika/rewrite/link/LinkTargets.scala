@@ -131,10 +131,12 @@ object LinkTargets {
   
   object ReferenceResolver {
     def lift(f: PartialFunction[LinkSource, Span]): LinkSource => Option[Span] = f.lift
-    def internalLink (fragment: Option[String] = None): LinkSource => Option[Span] = lift {
-      case LinkSource(InternalReference(content, relPath, _, title, opt), sourcePath) =>
-        val path = fragment.fold(relPath)(relPath.withFragment)
-        SpanLink(content, InternalTarget.fromPath(path, sourcePath.parent), title, opt)
+    def internalLink (target: Path): LinkSource => Option[Span] = lift {
+      case LinkSource(InternalReference(content, _, _, title, opt), sourcePath) =>
+        val relPath = 
+          if (sourcePath == target.withoutFragment) target.relativeTo(sourcePath)
+          else target.relativeTo(sourcePath.parent)
+        SpanLink(content, InternalTarget(target, relPath), title, opt)
     }
   }
   

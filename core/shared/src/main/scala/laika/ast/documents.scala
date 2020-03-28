@@ -566,7 +566,7 @@ case class DocumentTreeRoot (tree: DocumentTree,
   
   private lazy val globalLinkTargets: Map[Selector, TargetResolver] = {
     def staticTarget (path: Path) =
-      TargetResolver.create(PathSelector(path), ReferenceResolver.internalLink(), TargetReplacer.removeTarget)
+      TargetResolver.create(PathSelector(path), ReferenceResolver.internalLink(path), TargetReplacer.removeTarget)
     tree.globalLinkTargets ++ staticDocuments.map(path => (PathSelector(path), staticTarget(path)))
   }
 

@@ -17,6 +17,7 @@
 package laika.rst
 
 import laika.api.Transformer
+import laika.ast.Path.Root
 import laika.ast._
 import laika.file.FileIO
 import laika.format.{HTML, ReStructuredText}
@@ -107,7 +108,7 @@ class ReStructuredTextToHTMLSpec extends AnyFlatSpec
         case (fmt, InternalLinkTarget(opt))       => fmt.textElement("span", opt, "")
         case (_, i: InvalidBlock)                 => ""
      }
-      .build.transform(input).toOption.get
+      .build.transform(input, Root / "doc").toOption.get
     
     val expected = FileIO.readFile(path + "-tidy.html")
     tidyAndAdjust(actual) should be (expected)

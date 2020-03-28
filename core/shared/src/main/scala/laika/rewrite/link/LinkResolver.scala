@@ -111,7 +111,7 @@ object LinkResolver extends (DocumentCursor => RewriteRules) {
       selectRecursive(LinkDefinitionSelector(gen.ref)) match {
         case None => 
           val slugRef = slug(gen.ref)
-          resolveLocal(gen.copy(ref = slugRef).asInternalReference, TargetIdSelector(slugRef), msg)
+          resolveRecursive(gen.copy(ref = slugRef).asInternalReference, TargetIdSelector(slugRef), msg)
         case some => 
           resolveWith(gen.asLinkDefinitionReference, some, msg)
       }

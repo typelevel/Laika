@@ -67,6 +67,8 @@ class RewriteRulesSpec extends AnyWordSpec
 
   def intLink (path: RelativePath) = SpanLink(List(Text("text")), InternalTarget.fromPath(path, Path.Root))
 
+  def docLink (ref: String) = SpanLink(List(Text("text")), InternalTarget((Root / "doc").withFragment(ref), Current.withFragment(ref)))
+
   def rootLinkTarget (fragment: String): InternalTarget = InternalTarget.fromPath(RelativePath.parse(s"#$fragment"), Path.Root)
 
   def simpleImgRef (id: String = "name") = ImageDefinitionReference("text", id, "text")
@@ -212,7 +214,7 @@ class RewriteRulesSpec extends AnyWordSpec
 
     "resolve internal link targets" in {
       val rootElem = root(p(genRef("id 5")), InternalLinkTarget(Id("id-5")))
-      rewritten(rootElem) should be(root(p(intLink(RelativePath.parse("#id-5"))), InternalLinkTarget(Id("id-5"))))
+      rewritten(rootElem) should be(root(p(docLink("id-5")), InternalLinkTarget(Id("id-5"))))
     }
 
     "resolve anonymous link references" in {
@@ -300,19 +302,19 @@ class RewriteRulesSpec extends AnyWordSpec
 
   "The rewrite rules for internal links" should {
 
-    val rootWithTarget = root(InternalLinkTarget(Id("ref")))
+    def rootWithTarget(id: String = "ref") = root(InternalLinkTarget(Id(id)))
 
     def rewrittenTreeDoc (rootToRewrite: RootElement): RootElement = {
       val tree = DocumentTree(Root, Seq(
-        Document(Root / "doc1.md", rootWithTarget),
-        Document(Root / "doc2.md", rootWithTarget),
+        Document(Root / "doc1.md", rootWithTarget()),
+        Document(Root / "doc2.md", rootWithTarget()),
         DocumentTree(Root / "tree1", Seq(
           Document(Root / "tree1" / "doc3.md", rootToRewrite),
-          Document(Root / "tree1" / "doc4.md", rootWithTarget),
+          Document(Root / "tree1" / "doc4.md", rootWithTarget("target-4")),
         )),
         DocumentTree(Root / "tree2", Seq(
-          Document(Root / "tree2" / "doc5.md", rootWithTarget),
-          Document(Root / "tree2" / "doc6.md", rootWithTarget),
+          Document(Root / "tree2" / "doc5.md", rootWithTarget()),
+          Document(Root / "tree2" / "doc6.md", rootWithTarget()),
         ))
       ))
       val rewrittenTree = DocumentTreeRoot(tree, staticDocuments = Seq(Root / "images" / "frog.jpg")).rewrite(OperationConfig.default.rewriteRules)
@@ -321,10 +323,12 @@ class RewriteRulesSpec extends AnyWordSpec
 
     def internalRef (ref: String) = InternalReference(List(Text("text")), RelativePath.parse(ref), "text")
     def internalLink (path: RelativePath) = SpanLink(List(Text("text")), InternalTarget.fromPath(path, Root / "tree1"))
+    def docLink (ref: String) =
+      SpanLink(List(Text("text")), InternalTarget((Root / "tree1" / "doc3.md").withFragment(ref), Current.withFragment(ref)))
 
     "resolve internal link references to a target in the same document" in {
       val rootElem = root(p(internalRef("#ref")), InternalLinkTarget(Id("ref")))
-      rewrittenTreeDoc(rootElem) should be(root(p(internalLink(RelativePath.parse("#ref"))), InternalLinkTarget(Id("ref"))))
+      rewrittenTreeDoc(rootElem) should be(root(p(docLink("ref")), InternalLinkTarget(Id("ref"))))
     }
 
     "resolve internal link references to a target in the parent tree" in {
@@ -359,6 +363,11 @@ class RewriteRulesSpec extends AnyWordSpec
       rewrittenTreeDoc(rootElem) should be(expected)
     }
 
+    "resolve a generic link to a target in the same tree" in {
+      val rootElem = root(p(genRef("target-4")), InternalLinkTarget(Id("ref")))
+      rewrittenTreeDoc(rootElem) should be(root(p(internalLink(RelativePath.parse("doc4.md#target-4"))), InternalLinkTarget(Id("ref"))))
+    }
+
   }
 
 
@@ -366,7 +375,7 @@ class RewriteRulesSpec extends AnyWordSpec
 
     "resolve indirect link references" in {
       val rootElem = root(p(intRef()), LinkAlias("name", "ref"), InternalLinkTarget(Id("ref")))
-      rewritten(rootElem) should be(root(p(intLink("ref")), InternalLinkTarget(Id("ref"))))
+      rewritten(rootElem) should be(root(p(docLink("ref")), InternalLinkTarget(Id("ref"))))
     }
 
     "replace an unresolvable reference to a link alias with an invalid span" in {

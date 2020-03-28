@@ -464,6 +464,10 @@ class PathAPISpec extends AnyWordSpec
       Root.relativeTo(Root / "a" / "c") shouldBe Parent(2)
     }
 
+    "create a relative path pointing to a fragment in the same document" in {
+      (Root / "a" / "b#ref").relativeTo(Root / "a" / "b") shouldBe Current.withFragment("ref")
+    }
+
     "preserve suffix and fragment" in {
       (Root / "a" / "b.html#ref").relative shouldBe (Current / "a" / "b.html#ref")
     }
