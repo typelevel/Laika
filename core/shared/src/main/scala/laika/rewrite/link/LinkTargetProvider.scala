@@ -140,7 +140,7 @@ class LinkTargetProvider (path: Path, root: RootElement, config: Config) {
       case (sel: UniqueSelector, target :: Nil) =>
         (sel, target)
       case (sel: UniqueSelector, targets) =>
-        (sel, TargetResolver.forDuplicateSelector(sel, path, targets.head))
+        (sel, TargetResolver.forDuplicateSelector(sel, path, targets))
       case (selector, list) =>
         (selector, TargetSequenceResolver(list, selector))
     }

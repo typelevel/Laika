@@ -109,8 +109,9 @@ object LinkTargets {
     * TODO - more detail
     *  
     * @param selector the selector to use to identify reference nodes matching this target 
+    * @param precedence the precedence in comparison to other resolvers with the same selector
     */
-  abstract sealed class TargetResolver (val selector: Selector) {
+  abstract sealed class TargetResolver (val selector: Selector, val precedence: Int = 0) {
     
     /** Creates the final link element for the specified reference
      *  pointing to this target. In case this target does not know
@@ -172,7 +173,7 @@ object LinkTargets {
       }
     }
 
-    def forInvalidTarget (selector: UniqueSelector, msg: String, delegate: Option[TargetResolver] = None): TargetResolver = new TargetResolver(selector) {
+    def forInvalidTarget (selector: UniqueSelector, msg: String): TargetResolver = new TargetResolver(selector) {
       val sysMsg: SystemMessage = SystemMessage(MessageLevel.Error, msg)
       val resolver = ReferenceResolver.lift { case LinkSource(ref: Reference, _) => InvalidElement(msg, ref.source).asSpan }
       
@@ -185,8 +186,13 @@ object LinkTargets {
       }
     }
     
-    def forDuplicateSelector (selector: UniqueSelector, path: Path, delegate: TargetResolver): TargetResolver =
-      forInvalidTarget(selector, s"More than one ${selector.description} in path $path", Some(delegate))
+    def forDuplicateSelector (selector: UniqueSelector, path: Path, targets: Seq[TargetResolver]): TargetResolver = {
+      val sorted = targets.sortBy(_.precedence).reverse
+      sorted.takeWhile(_.precedence == sorted.head.precedence) match {
+        case Seq(single) => single
+        case _ => forInvalidTarget(selector, s"More than one ${selector.description} in path $path")
+      }
+    }
     
   }
   
