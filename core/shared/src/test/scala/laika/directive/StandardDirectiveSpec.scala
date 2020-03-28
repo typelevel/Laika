@@ -125,12 +125,12 @@ class StandardDirectiveSpec extends AnyFlatSpec
   }
 
   it should "parse a single nested span" in {
-    val input = """aa @:style { foo } 11 @:@ bb"""
+    val input = """aa @:style(foo) 11 @:@ bb"""
     parse(input).content should be (root(p(Text("aa "), Text(" 11 ", Styles("foo")), Text(" bb"))))
   }
 
   it should "parse two nested spans" in {
-    val input = """aa @:style { foo } 11 *22* 33 @:@ bb"""
+    val input = """aa @:style(foo) 11 *22* 33 @:@ bb"""
     parse(input).content should be (root(p(Text("aa "), SpanSequence(List(Text(" 11 "),Emphasized("22"),Text(" 33 ")),Styles("foo")), Text(" bb"))))
   }
 
@@ -299,6 +299,12 @@ class StandardDirectiveSpec extends AnyFlatSpec
   }
 
 
+  "The ref directive" should "create a generic link" in {
+    val input = """aa @:ref(Some Id) bb"""
+    parse(input).content should be (root(p(Text("aa "), GenericReference(Seq(Text("Some Id")), "Some Id", "@:ref(Some Id)"), Text(" bb"))))
+  }
+  
+  
   trait TreeModel {
 
     import Path.Root

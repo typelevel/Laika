@@ -198,6 +198,21 @@ object StandardDirectives extends DirectiveRegistry {
     }
   }
   
+  /** Implementation of the `ref` directive that allows to refer to other sections by headline text
+    * or id.
+    * 
+    * The reference can be local, in the same document, or anywhere else in the input tree, as long
+    * as the id is not ambiguous. Search for a matching target happens recursively, from the current
+    * document, to the current tree (directory) upwards to the root tree.
+    */
+  lazy val ref: Spans.Directive = Spans.create("ref") {
+    import Spans.dsl._
+    
+    defaultAttribute.as[String].map { ref =>
+      GenericReference(Seq(Text(ref)), ref, s"@:ref($ref)")
+    }
+  }
+  
   
   private def asBlock (blocks: Seq[Block], options: Options = NoOpt): Block = blocks match {
     case block :: Nil => block.mergeOptions(options)
@@ -279,6 +294,7 @@ object StandardDirectives extends DirectiveRegistry {
    *  elements in markup documents.
    */
   lazy val spanDirectives: Seq[Spans.Directive] = List(
+    ref,
     spanStyle
   )
 
