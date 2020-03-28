@@ -152,7 +152,8 @@ object LinkTargets {
     
     def create(selector: Selector,
                referenceResolver: LinkSource => Option[Span],
-               targetResolver: Block => Option[Block]): TargetResolver = new TargetResolver(selector) {
+               targetResolver: Block => Option[Block],
+               precedence: Int = 0): TargetResolver = new TargetResolver(selector, precedence) {
 
       override def resolveReference (linkSource: LinkSource): Option[Span] = referenceResolver(linkSource)
 

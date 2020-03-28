@@ -303,11 +303,12 @@ class RewriteRulesSpec extends AnyWordSpec
   "The rewrite rules for internal links" should {
 
     def rootWithTarget(id: String = "ref") = root(InternalLinkTarget(Id(id)))
+    def rootWithHeader(level: Int, id: String = "ref") = root(Header(level, Seq(Text("text")), Id("header")), InternalLinkTarget(Id(id)))
 
     def rewrittenTreeDoc (rootToRewrite: RootElement): RootElement = {
       val tree = DocumentTree(Root, Seq(
-        Document(Root / "doc1.md", rootWithTarget()),
-        Document(Root / "doc2.md", rootWithTarget()),
+        Document(Root / "doc1.md", rootWithHeader(1)),
+        Document(Root / "doc2.md", rootWithHeader(2)),
         DocumentTree(Root / "tree1", Seq(
           Document(Root / "tree1" / "doc3.md", rootToRewrite),
           Document(Root / "tree1" / "doc4.md", rootWithTarget("target-4")),
@@ -366,6 +367,11 @@ class RewriteRulesSpec extends AnyWordSpec
     "resolve a generic link to a target in the same tree" in {
       val rootElem = root(p(genRef("target-4")), InternalLinkTarget(Id("ref")))
       rewrittenTreeDoc(rootElem) should be(root(p(internalLink(RelativePath.parse("doc4.md#target-4"))), InternalLinkTarget(Id("ref"))))
+    }
+
+    "resolve a generic link to a header with a duplicate id by precedence" in {
+      val rootElem = root(p(genRef("header")), InternalLinkTarget(Id("ref")))
+      rewrittenTreeDoc(rootElem) should be(root(p(internalLink(RelativePath.parse("../doc1.md#header"))), InternalLinkTarget(Id("ref"))))
     }
 
   }

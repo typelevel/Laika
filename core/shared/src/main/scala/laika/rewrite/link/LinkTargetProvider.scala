@@ -107,16 +107,17 @@ class LinkTargetProvider (path: Path, root: RootElement, config: Config) {
         val selector = if (ld.id.isEmpty) AnonymousSelector else LinkDefinitionSelector(ld.id)
         linkDefinitionResolver(selector, ld.target, ld.title)
 
-      case DecoratedHeader(_,_,Id(id)) => // TODO - do not generate id upfront
+      case DecoratedHeader(deco,_,Id(id)) => // TODO - do not generate id upfront
         val selector = TargetIdSelector(slug(id))
+        val level = levels.levelFor(deco)
         val finalHeader = TargetReplacer.lift {
-          case DecoratedHeader(deco, content, opt) => Header(levels.levelFor(deco), content, opt + Id(selector.id))
+          case DecoratedHeader(_, content, opt) => Header(level, content, opt + Id(selector.id))
         }
-        TargetResolver.create(selector, internalResolver(selector), finalHeader)
+        TargetResolver.create(selector, internalResolver(selector), finalHeader, 10 - level)
       
-      case Header(_,_,Id(id)) => // TODO - do not generate id upfront
+      case Header(level,_,Id(id)) => // TODO - do not generate id upfront
         val selector = TargetIdSelector(slug(id))
-        TargetResolver.create(selector, internalResolver(selector), TargetReplacer.addId(selector.id))
+        TargetResolver.create(selector, internalResolver(selector), TargetReplacer.addId(selector.id), 10 - level)
 
       case alias: LinkAlias => 
         LinkAliasResolver.unresolved(TargetIdSelector(slug(alias.id)), TargetIdSelector(slug(alias.target)))  
