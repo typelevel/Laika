@@ -240,7 +240,8 @@ object RewriteRules {
     * These are not installed as part of any default extension bundle as they have specific
     * ordering requirements not compatible with the standard bundle ordering in `OperationConfig`.
     */
-  val defaults = Seq(LinkResolver, SectionBuilder)
+  def defaultsFor (root: DocumentTreeRoot, slugBuilder: String => String): Seq[DocumentCursor => RewriteRules] = 
+    Seq(new LinkResolver(root, slugBuilder), SectionBuilder)
 
 }
 

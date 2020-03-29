@@ -23,6 +23,7 @@ import laika.directive.{DirectiveSupport, StandardDirectives}
 import laika.factory.{MarkupFormat, RenderFormat}
 import laika.parse.Parser
 import laika.parse.combinator.Parsers
+import laika.rewrite.link.LinkTargets
 
 import scala.annotation.tailrec
 
@@ -81,12 +82,24 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
     */
   lazy val docTypeMatcher: Path => DocumentType =
     mergedBundle.docTypeMatcher.lift.andThen(_.getOrElse(DocumentType.Ignored))
+
+  /** Function that receives the text of a headline, the name of a document
+    * or directory or a manually assigned identifier, and builds a slug from it
+    * that becomes part of the final URL or identifier (depending on output format).
+    *
+    * The result of the function must be:
+    *
+    * - a valid identifier in HTML and XML
+    * - a valid path segment in a URL
+    * - a valid file name
+    */
+  lazy val slugBuilder: String => String = mergedBundle.slugBuilder.getOrElse(LinkTargets.slug)
   
   /** The combined rewrite rule, obtained by merging the rewrite rules defined in all bundles.
     * This combined rule gets applied to the document between parse and render operations.
     */
   def rewriteRulesFor (root: DocumentTreeRoot): DocumentCursor => RewriteRules =
-    RewriteRules.chainFactories(mergedBundle.rewriteRules ++ RewriteRules.defaults)
+    RewriteRules.chainFactories(mergedBundle.rewriteRules ++ RewriteRules.defaultsFor(root, slugBuilder))
 
   /** The combined rewrite rule for the specified document, obtained by merging the rewrite rules defined in all bundles.
     * This combined rule gets applied to the document between parse and render operations.
