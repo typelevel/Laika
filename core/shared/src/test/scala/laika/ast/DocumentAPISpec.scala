@@ -79,8 +79,8 @@ class DocumentAPISpec extends AnyFlatSpec
     
     val doc = parser.parseUnresolved(markup).toOption.get.document
     
-    val rewritten1 = doc.rewrite(OperationConfig.default.rewriteRules(DocumentCursor(doc)))
-    val rewritten2 = rewritten1.rewrite(OperationConfig.default.rewriteRules(DocumentCursor(rewritten1)))
+    val rewritten1 = doc.rewrite(OperationConfig.default.rewriteRulesFor(doc))
+    val rewritten2 = rewritten1.rewrite(OperationConfig.default.rewriteRulesFor(rewritten1))
     rewritten1.content should be (rewritten2.content)
   }
   
@@ -98,7 +98,7 @@ class DocumentAPISpec extends AnyFlatSpec
     val testRule = RewriteRules.forSpans {
       case Text("Some text",_) => Replace(Text("Swapped"))
     }
-    val rules = testRule ++ OperationConfig.default.rewriteRules(cursor)
+    val rules = testRule ++ OperationConfig.default.rewriteRulesFor(cursor.target)
     val rewritten = raw rewrite rules
     rewritten.content should be (root(
       Section(Header(1, List(Text("Section 1")), Id("section-1") + Styles("section")), List(p("Swapped"))),

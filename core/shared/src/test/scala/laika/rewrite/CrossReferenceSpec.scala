@@ -56,7 +56,7 @@ class CrossReferenceSpec extends AnyFlatSpec
     def treeViewWithSubtrees (path: Path, trees: TreeView*): TreeView =
       TreeView(path, List(Subtrees(trees)))
       
-    def rewrite (tree: DocumentTree): DocumentTree = tree.rewrite(OperationConfig.default.rewriteRules)
+    def rewrite (tree: DocumentTree): DocumentTree = tree.rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(tree)))
   }
   
   "The reference resolver" should "resolve a cross reference to a target in another document in the same directory" in {

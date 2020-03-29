@@ -593,7 +593,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
     val doc2 = Document(Root / "doc2", root(p("text")))
     val template = TemplateDocument(Root / "default.template.html", TemplateRoot(TemplateContextReference(Key("document","content"), required = true)))
     val tree = DocumentTree(Root, List(doc1, doc2), templates = List(template))
-    val rewrittenTree = tree.rewrite(OperationConfig.default.withBundlesFor(ReStructuredText).rewriteRules)
+    val rewrittenTree = tree.rewrite(OperationConfig.default.withBundlesFor(ReStructuredText).rewriteRulesFor(DocumentTreeRoot(tree)))
     val templatesApplied = TemplateRewriter.applyTemplates(DocumentTreeRoot(rewrittenTree), "html").toOption.get.tree
     templatesApplied.content.collect{ case doc: Document => doc }.head.content should be (root(BlockSequence("text")))
   }
@@ -670,7 +670,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
     val document = Document(Root / "doc", sectionsWithTitle)
     val template = TemplateDocument(Root / "default.template.html", TemplateRoot(TemplateContextReference(Key("document","content"), required = true)))
     val tree = DocumentTree(Root, content = List(document), templates = List(template))
-    val rewrittenTree = tree.rewrite(OperationConfig.default.withBundlesFor(ReStructuredText).rewriteRules)
+    val rewrittenTree = tree.rewrite(OperationConfig.default.withBundlesFor(ReStructuredText).rewriteRulesFor(DocumentTreeRoot(tree)))
     val templatesApplied = TemplateRewriter.applyTemplates(DocumentTreeRoot(rewrittenTree), "html").toOption.get.tree
     templatesApplied.content.collect{case doc: Document => doc}.head.content should be (result)
   }

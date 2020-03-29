@@ -31,7 +31,7 @@ class RewriteRulesSpec extends AnyFlatSpec
   
   def rewritten (root: RootElement): RootElement = {
     val doc = Document(Path.Root, root)
-    val rules = OperationConfig.default.withBundlesFor(ReStructuredText).rewriteRules(DocumentCursor(doc))
+    val rules = OperationConfig.default.withBundlesFor(ReStructuredText).rewriteRulesFor(doc)
     doc.rewrite(rules).content
   }
   

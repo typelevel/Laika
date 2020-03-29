@@ -89,7 +89,7 @@ object ParserRuntime {
       }}.combineAll.toEither.leftMap(es => ParserErrors(es.toList.toSet))
       
       def rewriteTree (root: DocumentTreeRoot): ParsedTree[F] = { // TODO - move to TreeResultBuilder
-        val finalTree = root.rewrite(op.config.rewriteRules)
+        val finalTree = root.rewrite(op.config.rewriteRulesFor(root))
         val finalRoot = finalTree.copy(staticDocuments = inputs.binaryInputs.map(_.path), sourcePaths = inputs.sourcePaths)
         ParsedTree(finalRoot, inputs.binaryInputs)
       }

@@ -33,7 +33,7 @@ class RewriteRulesSpec extends AnyWordSpec
 
   def rewritten (root: RootElement): RootElement = {
     val doc = Document(Path.Root / "doc", root, config = disableInternalLinkValidation)
-    val rules = OperationConfig.default.rewriteRules(DocumentCursor(doc))
+    val rules = OperationConfig.default.rewriteRulesFor(doc)
     doc.rewrite(rules).content
   }
 
@@ -269,7 +269,8 @@ class RewriteRulesSpec extends AnyWordSpec
           Document(Root / "tree1" / "doc4.md", rootWithTarget),
         )),
       ))
-      val rewrittenTree = DocumentTreeRoot(tree, staticDocuments = Seq(Root / "images" / "frog.jpg")).rewrite(OperationConfig.default.rewriteRules)
+      val root = DocumentTreeRoot(tree, staticDocuments = Seq(Root / "images" / "frog.jpg"))
+      val rewrittenTree = root.rewrite(OperationConfig.default.rewriteRulesFor(root))
       rewrittenTree.tree.selectDocument("tree1/doc3.md").get.content
     }
 
@@ -318,7 +319,8 @@ class RewriteRulesSpec extends AnyWordSpec
           Document(Root / "tree2" / "doc6.md", rootWithTarget()),
         ))
       ))
-      val rewrittenTree = DocumentTreeRoot(tree, staticDocuments = Seq(Root / "images" / "frog.jpg")).rewrite(OperationConfig.default.rewriteRules)
+      val root = DocumentTreeRoot(tree, staticDocuments = Seq(Root / "images" / "frog.jpg"))
+      val rewrittenTree = root.rewrite(OperationConfig.default.rewriteRulesFor(root))
       rewrittenTree.tree.selectDocument("tree1/doc3.md").get.content
     }
 

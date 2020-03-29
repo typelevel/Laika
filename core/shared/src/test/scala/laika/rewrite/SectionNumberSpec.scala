@@ -154,7 +154,10 @@ class SectionNumberSpec extends AnyFlatSpec
     )
 
     lazy val expected: TreeView = treeView(resultView)
-    lazy val result: TreeView = viewOf(tree(sections).rewrite(OperationConfig.default.rewriteRules))
+    lazy val result: TreeView = {
+      val docTree = tree(sections)
+      viewOf(docTree.rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(docTree))))
+    }
   }
   
   trait SectionsWithoutTitle extends TreeModel {
@@ -178,7 +181,10 @@ class SectionNumberSpec extends AnyFlatSpec
     )
 
     lazy val expected: TreeView = treeView(resultView)
-    lazy val result: TreeView = viewOf(tree(sections).rewrite(OperationConfig.default.rewriteRules))
+    lazy val result: TreeView = {
+      val docTree = tree(sections)
+      viewOf(docTree.rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(docTree))))
+    }
   }
   
   trait SectionsWithConfigError extends SectionsWithoutTitle {
