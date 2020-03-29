@@ -16,9 +16,10 @@
 
 package laika.bundle
 
-import laika.config.{Config, ConfigBuilder}
 import laika.ast._
+import laika.config.Config
 import laika.parse.css.CSSParsers
+import laika.rewrite.link.LinkTargets
 
 /** An extension bundle is a collection of parser extensions, rewrite rules, render themes
   * and other features to be applied to parse, render and transform operations. It serves
@@ -80,6 +81,18 @@ trait ExtensionBundle { self =>
     */
   def docTypeMatcher: PartialFunction[Path, DocumentType] = PartialFunction.empty
 
+  /** Function that receives the text of a headline, the name of a document
+    * or directory or a manually assigned identifier, and builds a slug from it
+    * that becomes part of the final URL or identifier (depending on output format).
+    * 
+    * The result of the function must be:
+    * 
+    * - a valid identifier in HTML and XML
+    * - a valid path segment in a URL
+    * - a valid file name
+    */
+  def slugBuilder: Option[String => String] = None
+
   /** Specifies extensions and/or replacements for parsers that deal with
     * text markup, templates, CSS or configuration headers.
     */
@@ -139,6 +152,8 @@ trait ExtensionBundle { self =>
     override lazy val baseConfig = self.baseConfig.withFallback(base.baseConfig)
 
     override lazy val docTypeMatcher = self.docTypeMatcher.orElse(base.docTypeMatcher)
+    
+    override lazy val slugBuilder = self.slugBuilder.orElse(base.slugBuilder)
 
     override lazy val parsers: ParserBundle = self.parsers withBase base.parsers
 
@@ -198,6 +213,8 @@ object ExtensionBundle {
     override val useInStrictMode = true
 
     override val docTypeMatcher: PartialFunction[Path, DocumentType] = DocumentTypeMatcher.base
+    
+    override val slugBuilder: Option[String => String] = Some(LinkTargets.slug)
 
     override val parsers: ParserBundle = ParserBundle(
       styleSheetParser = Some(CSSParsers.styleDeclarationSet)
