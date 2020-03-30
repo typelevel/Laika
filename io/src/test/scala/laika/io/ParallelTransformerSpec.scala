@@ -36,6 +36,7 @@ import laika.io.text.ParallelTransformer
 import laika.parse.Parser
 import laika.parse.code.SyntaxHighlighting
 import laika.parse.text.TextParsers
+import laika.rewrite.link.LinkTargets
 import org.scalatest.Assertion
 
 class ParallelTransformerSpec extends IOSpec with FileIO {
@@ -58,6 +59,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
     def transformWithConfig (config: String): IO[RenderedTreeViewRoot] = transformWithBundle(BundleProvider.forConfigString(config))
     def transformWithDocTypeMatcher (matcher: PartialFunction[Path, DocumentType]): IO[RenderedTreeViewRoot] = transformWithBundle(BundleProvider.forDocTypeMatcher(matcher))
     def transformWithTemplates (parser: Parser[TemplateRoot]): IO[RenderedTreeViewRoot] = transformWithBundle(BundleProvider.forTemplateParser(parser))
+    def transformWithSlugBuilder (f: String => String): IO[RenderedTreeViewRoot] = transformWithBundle(BundleProvider.forSlugBuilder(f))
     def transformWithDirective (directive: Templates.Directive): IO[RenderedTreeViewRoot] = transformWithBundle(BundleProvider.forTemplateDirective(directive))
     def transformWithDocumentMapper (f: Document => Document): IO[RenderedTreeViewRoot] = 
       transformWith(Transformer.from(Markdown).to(AST).io(blocker).parallel[IO].mapDocuments(f).build)
@@ -287,39 +289,46 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
       transformTree.assertEquals(RenderedTreeViewRoot(RenderedTreeView(Root, Nil), staticDocuments = Seq(Root / "omg.js")))
     }
     
-    "transform a tree with a cross reference" in new TreeTransformer {
-      // TODO - 0.15 - test with configurable slug
-      val targetSrc =
+    trait DocWithSection extends TreeTransformer {
+      val targetSrc: String =
         """
           |Doc Title
           |=========
           |
-          |Section-Title
+          |Section Title
           |-------------
         """.stripMargin
-      val targetRes =
-        """RootElement - Blocks: 2
-          |. Title(Id(doc-title) + Styles(title)) - Spans: 1
+      
+      def titleSlug: String
+      def sectionSlug: String
+
+      def refSrc: String =
+        s"""
+          |This is a [cross ref](../baz.md#$sectionSlug)
+        """.stripMargin
+
+      def targetRes: String =
+        s"""RootElement - Blocks: 2
+          |. Title(Id($titleSlug) + Styles(title)) - Spans: 1
           |. . Text - 'Doc Title'
           |. Section
-          |. . Header(2,Id(section-title) + Styles(section)) - Spans: 1
-          |. . . Text - 'Section-Title'
+          |. . Header(2,Id($sectionSlug) + Styles(section)) - Spans: 1
+          |. . . Text - 'Section Title'
           |. . Content - Blocks: 0""".stripMargin
-      val refSrc =
-        """
-          |This is a [cross ref](../baz.md#section-title)
-        """.stripMargin
-      val refRes =
-        """RootElement - Blocks: 1
+
+      def refRes: String =
+        s"""RootElement - Blocks: 1
           |. Paragraph - Spans: 2
           |. . Text - 'This is a '
-          |. . SpanLink(InternalTarget(/baz.md#section-title,../baz.md#section-title),None) - Spans: 1
+          |. . SpanLink(InternalTarget(/baz.md#$sectionSlug,../baz.md#$sectionSlug),None) - Spans: 1
           |. . . Text - 'cross ref'""".stripMargin
-      val inputs = Seq(
+
+      def inputs: Seq[(Path, String)] = Seq(
         Root / "baz.md" -> targetSrc,
         Root / "foo" / "bar.md" -> refSrc
       )
-      transformTree.assertEquals(RenderedTreeViewRoot(RenderedTreeView(Root, Seq(
+
+      def assertTree(f: IO[RenderedTreeViewRoot]): Assertion = f.assertEquals(RenderedTreeViewRoot(RenderedTreeView(Root, Seq(
         docs(
           (Root / "baz.txt", targetRes)
         ),
@@ -329,6 +338,18 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
           )))
         )
       ))))
+    }
+    
+    "transform a tree with an internal reference using the default slug builder" in new DocWithSection {
+      val titleSlug = "doc-title"
+      val sectionSlug = "section-title"
+      assertTree(transformTree)
+    }
+
+    "transform a tree with an internal reference using a custom slug builder" in new DocWithSection {
+      val titleSlug = "doc-title-slug"
+      val sectionSlug = "section-title-slug"
+      assertTree(transformWithSlugBuilder(s => LinkTargets.slug(s) + "-slug"))
     }
 
     "transform a tree with all available file types and multiple markup formats" in new TreeTransformer {

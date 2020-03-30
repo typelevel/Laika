@@ -40,7 +40,7 @@ class TreeTargets (root: DocumentTreeRoot, slugBuilder: String => String) {
       } yield ((path, target.selector), target)
     
     val targets = root.allDocuments.flatMap { doc =>
-      val targets = DocumentTargets(doc).targets
+      val targets = DocumentTargets(doc, slugBuilder).targets
       val global = if (doc.path == Root) Nil else mapToKeys(allPaths(doc.path.parent), targets.filter(_.selector.global))
       val local = mapToKeys(Seq(doc.path), targets)
       global ++ local

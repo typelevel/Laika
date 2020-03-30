@@ -75,6 +75,12 @@ object BundleProvider {
 
   }
 
+  def forSlugBuilder (f: String => String): ExtensionBundle = new TestExtensionBundle {
+
+    override def slugBuilder: Option[String => String] = Some(f)
+
+  }
+
   def forSpanRewriteRule (rule: RewriteRule[Span]): ExtensionBundle = new TestExtensionBundle {
 
     override def rewriteRules: Seq[DocumentCursor => RewriteRules] = Seq(_ => laika.ast.RewriteRules.forSpans(rule))

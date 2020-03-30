@@ -26,7 +26,7 @@ import scala.annotation.tailrec
  * 
  *  @author Jens Halm
  */
-case class DocumentTargets (document: Document) {
+case class DocumentTargets (document: Document, slugBuilder: String => String) {
 
   /** Generates symbol identifiers. 
     * Contains a predefined list of ten symbols to generate.
@@ -77,7 +77,7 @@ case class DocumentTargets (document: Document) {
 
     document.content.collect {
       case c: Citation =>
-        val selector = TargetIdSelector(slug(c.label))
+        val selector = TargetIdSelector(slugBuilder(c.label))
         val resolver = ReferenceResolver.lift {
           case LinkSource(CitationReference(label, _, opt), _) => CitationLink(selector.id, label, opt)
         }
@@ -90,7 +90,7 @@ case class DocumentTargets (document: Document) {
         val (docId, displayId, selector) = f.label match {
           case Autosymbol            => (s"__fns-${symbolNumbers.next}", symbols.next, AutosymbolSelector) // TODO - move these prefix definitions somewhere else
           case Autonumber            => val num = numbers.next; (s"__fn-$num", num.toString, AutonumberSelector)
-          case AutonumberLabel(id)   => (slug(id), numbers.next.toString, TargetIdSelector(slug(id)))
+          case AutonumberLabel(id)   => (slugBuilder(id), numbers.next.toString, TargetIdSelector(slugBuilder(id)))
           case NumericLabel(num)     => (s"__fnl-$num", num.toString, TargetIdSelector(num.toString))
         }
         val resolver = ReferenceResolver.lift {
@@ -106,7 +106,7 @@ case class DocumentTargets (document: Document) {
         linkDefinitionResolver(selector, ld.target, ld.title)
 
       case DecoratedHeader(deco,_,Id(id)) => // TODO - do not generate id upfront
-        val selector = TargetIdSelector(slug(id))
+        val selector = TargetIdSelector(slugBuilder(id))
         val level = levels.levelFor(deco)
         val finalHeader = TargetReplacer.lift {
           case DecoratedHeader(_, content, opt) => Header(level, content, opt + Id(selector.id))
@@ -114,18 +114,18 @@ case class DocumentTargets (document: Document) {
         TargetResolver.create(selector, internalResolver(selector), finalHeader, 10 - level)
       
       case Header(level,_,Id(id)) => // TODO - do not generate id upfront
-        val selector = TargetIdSelector(slug(id))
+        val selector = TargetIdSelector(slugBuilder(id))
         TargetResolver.create(selector, internalResolver(selector), TargetReplacer.addId(selector.id), 10 - level)
 
       case alias: LinkAlias => 
-        LinkAliasResolver.unresolved(TargetIdSelector(slug(alias.id)), TargetIdSelector(slug(alias.target)))  
+        LinkAliasResolver.unresolved(TargetIdSelector(slugBuilder(alias.id)), TargetIdSelector(slugBuilder(alias.target)))  
         
       case c: Block if c.options.id.isDefined =>
-        val selector = TargetIdSelector(slug(c.options.id.get))
+        val selector = TargetIdSelector(slugBuilder(c.options.id.get))
         TargetResolver.create(selector, internalResolver(selector), TargetReplacer.addId(selector.id))
 
       case c: Span if c.options.id.isDefined =>
-        val selector = TargetIdSelector(slug(c.options.id.get))
+        val selector = TargetIdSelector(slugBuilder(c.options.id.get))
         TargetResolver.forSpanTarget(selector, internalResolver(selector))
     }
   }
