@@ -18,22 +18,20 @@ package laika.rewrite.link
 
 import laika.ast._
 import LinkTargets._
-import laika.config.Config
 
 import scala.annotation.tailrec
 
-/** Provider for all tree elements that can be referenced from other
- *  elements, like images, footnotes, citations and other 
- *  inline targets. 
+/** Collects all tree elements from a document that can be referenced from other elements, 
+  * like images, footnotes, citations and other inline targets. 
  * 
  *  @author Jens Halm
  */
-class LinkTargetProvider (path: Path, root: RootElement, config: Config) {
+class DocumentTargets (document: Document) {
 
   /** Generates symbol identifiers. 
-    *  Contains a predefined list of ten symbols to generate.
-    *  If more than ten symbols are required, the same sequence 
-    *  will be reused, doubled and then tripled, and so on ("**" etc.).
+    * Contains a predefined list of ten symbols to generate.
+    * If more than ten symbols are required, the same sequence 
+    * will be reused, doubled and then tripled, and so on ("**" etc.).
     */
   private class SymbolGenerator {
     private val symbols = List('*','\u2020','\u2021','\u00a7','\u00b6','#','\u2660','\u2665','\u2666','\u2663')
@@ -54,7 +52,7 @@ class LinkTargetProvider (path: Path, root: RootElement, config: Config) {
     def resolveTarget (refPath: Path): Target = target match {
       /* If an internal target point upwards beyond the virtual root of the processed tree, 
          it is treated as an external target and does not get validated. */
-      case it: InternalTarget if it.relativePath.parentLevels >= path.depth => ExternalTarget(it.relativePath.toString)
+      case it: InternalTarget if it.relativePath.parentLevels >= document.path.depth => ExternalTarget(it.relativePath.toString)
       case it: InternalTarget => it.relativeTo(refPath)
       case external => external
     }
@@ -75,9 +73,9 @@ class LinkTargetProvider (path: Path, root: RootElement, config: Config) {
     val numbers = Iterator.from(1)
     
     def internalResolver (selector: TargetIdSelector): LinkSource => Option[Span] =
-      ReferenceResolver.internalLink(path.withFragment(selector.id))
+      ReferenceResolver.internalLink(document.path.withFragment(selector.id))
 
-    root.collect {
+    document.content.collect {
       case c: Citation =>
         val selector = TargetIdSelector(slug(c.label))
         val resolver = ReferenceResolver.lift {
@@ -141,7 +139,7 @@ class LinkTargetProvider (path: Path, root: RootElement, config: Config) {
       case (sel: UniqueSelector, target :: Nil) =>
         (sel, target)
       case (sel: UniqueSelector, targets) =>
-        (sel, TargetResolver.forDuplicateSelector(sel, path, targets))
+        (sel, TargetResolver.forDuplicateSelector(sel, document.path, targets))
       case (selector, list) =>
         (selector, TargetSequenceResolver(list, selector))
     }
@@ -156,7 +154,7 @@ class LinkTargetProvider (path: Path, root: RootElement, config: Config) {
       }
     }
     
-    val linkConfig = config.getOpt[LinkConfig].toOption.flatten.getOrElse(LinkConfig.empty) // TODO - 0.15 - error handling
+    val linkConfig = document.config.getOpt[LinkConfig].toOption.flatten.getOrElse(LinkConfig.empty) // TODO - 0.15 - error handling
     val targetsFromConfig = linkConfig.targets.map { defn =>
       val selector = LinkDefinitionSelector(defn.id)
       (selector, linkDefinitionResolver(selector, defn.target))
@@ -174,9 +172,9 @@ class LinkTargetProvider (path: Path, root: RootElement, config: Config) {
   val global: Map[Selector, TargetResolver] = {
     val global = local filter (_._2.selector.global)
     val documentTarget =
-      TargetResolver.create(PathSelector(path), ReferenceResolver.internalLink(path), TargetReplacer.removeTarget)
+      TargetResolver.create(PathSelector(document.path), ReferenceResolver.internalLink(document.path), TargetReplacer.removeTarget)
     (global ++ global.collect {
-      case (TargetIdSelector(name), target) => (PathSelector(path.withFragment(name)), target)
+      case (TargetIdSelector(name), target) => (PathSelector(document.path.withFragment(name)), target)
     }) + ((documentTarget.selector, documentTarget))
   }
   

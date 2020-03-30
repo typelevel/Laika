@@ -23,7 +23,7 @@ import laika.ast.RelativePath.Current
 import laika.config.Config.{ConfigResult, IncludeMap}
 import laika.config._
 import laika.rewrite.TemplateRewriter
-import laika.rewrite.link.LinkTargetProvider
+import laika.rewrite.link.DocumentTargets
 import laika.rewrite.link.LinkTargets._
 import laika.rewrite.nav.AutonumberConfig
 
@@ -239,7 +239,7 @@ trait DocumentStructure { this: TreeContent =>
 
   /** All link targets of this document, including global and local targets.
    */
-  lazy val linkTargets: LinkTargetProvider = new LinkTargetProvider(path, content, config)
+  lazy val linkTargets: DocumentTargets = new DocumentTargets(Document(path, content, config = config))
 
   /** All link targets that can get referenced from anywhere
     * in the document tree.

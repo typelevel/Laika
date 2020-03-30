@@ -18,6 +18,7 @@ package laika.rewrite.link
 
 import laika.ast._
 import LinkTargets._
+import laika.ast.Path.Root
 
 import scala.annotation.tailrec
 
@@ -39,16 +40,17 @@ import scala.annotation.tailrec
  */
 class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) extends (DocumentCursor => RewriteRules) {
 
+  val targets = new TreeTargets(root, slugBuilder)
+  
   /** The default rules for resolving link references 
    *  to be applied to the document.
    */
   def apply (cursor: DocumentCursor): RewriteRules = {
     
-    val targets = cursor.target.linkTargets
     val excludeFromValidation = cursor.config.getOpt[LinkConfig].toOption.flatten.getOrElse(LinkConfig.empty).excludeFromValidation.toSet
     
-    def replace (element: Customizable, selector: Selector): Option[Customizable] =
-      targets.local.get(selector)
+    def replace (element: Customizable, selector: Selector): Option[Customizable] = 
+      targets.select(cursor.path, selector)
         .flatMap(_.replaceTarget(element))
 
     def replaceBlock (element: Block, selector: Selector): RewriteAction[Block] =
@@ -70,7 +72,7 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
     def validateLink (link: SpanLink, ref: Reference): Span = link.target match {
       case InternalTarget(_, relativePath) =>
         val selector = pathSelectorFor(relativePath)
-        if (excludeFromValidation.exists(p => selector.path.isSubPath(p)) || cursor.root.target.selectTarget(selector).isDefined) link
+        if (excludeFromValidation.exists(p => selector.path.isSubPath(p)) || targets.select(Root, selector).isDefined) link
         else InvalidElement(s"unresolved internal reference: ${relativePath.toString}", ref.source).asSpan
       case _ => link
     }
@@ -85,23 +87,23 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
     }
     
     def resolveLocal (ref: Reference, selector: Selector, msg: => String): RewriteAction[Span] =
-      resolveWith(ref, targets.local.get(selector), msg)
+      resolveWith(ref, targets.select(cursor.path, selector), msg)
     
     def resolveGlobal (ref: Reference, path: RelativePath, msg: => String): RewriteAction[Span] = {
       val selector = pathSelectorFor(path)
-      resolveWith(ref, cursor.root.target.selectTarget(selector), msg)
+      resolveWith(ref, targets.select(Root, selector), msg)
     }
 
     def selectRecursive (selector: UniqueSelector): Option[TargetResolver] = {
 
       @tailrec def selectFromParent (treeCursor: TreeCursor, selector: UniqueSelector): Option[TargetResolver] = {
-        val target = treeCursor.target.selectTarget(selector)
+        val target = targets.select(treeCursor.path, selector)
         treeCursor.parent match {
           case Some(parent) if target.isEmpty => selectFromParent(parent, selector)
           case _ => target
         }
       }
-      targets.local.get(selector).orElse(selectFromParent(cursor.parent, selector))
+      targets.select(cursor.path, selector).orElse(selectFromParent(cursor.parent, selector))
     }
     
     def resolveRecursive (ref: Reference, selector: UniqueSelector, msg: => String): RewriteAction[Span] =
