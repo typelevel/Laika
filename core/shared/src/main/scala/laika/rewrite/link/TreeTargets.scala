@@ -18,7 +18,6 @@ package laika.rewrite.link
 
 import laika.ast.Path.Root
 import laika.ast.{DocumentTreeRoot, Path}
-import laika.rewrite.link.LinkTargets.{PathSelector, ReferenceResolver, Selector, TargetReplacer, TargetResolver, UniqueSelector}
 
 /** Collects all elements from a document tree that can be referenced from other elements, 
   * like images, footnotes, citations and other inline targets. 

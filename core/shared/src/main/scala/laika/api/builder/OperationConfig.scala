@@ -23,7 +23,7 @@ import laika.directive.{DirectiveSupport, StandardDirectives}
 import laika.factory.{MarkupFormat, RenderFormat}
 import laika.parse.Parser
 import laika.parse.combinator.Parsers
-import laika.rewrite.link.LinkTargets
+import laika.rewrite.link.SlugBuilder
 
 import scala.annotation.tailrec
 
@@ -93,7 +93,7 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
     * - a valid path segment in a URL
     * - a valid file name
     */
-  lazy val slugBuilder: String => String = mergedBundle.slugBuilder.getOrElse(LinkTargets.slug)
+  lazy val slugBuilder: String => String = mergedBundle.slugBuilder.getOrElse(SlugBuilder.default)
   
   /** The combined rewrite rule, obtained by merging the rewrite rules defined in all bundles.
     * This combined rule gets applied to the document between parse and render operations.

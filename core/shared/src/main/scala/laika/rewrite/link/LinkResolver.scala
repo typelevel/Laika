@@ -17,7 +17,6 @@
 package laika.rewrite.link
 
 import laika.ast._
-import LinkTargets._
 import laika.ast.Path.Root
 
 import scala.annotation.tailrec

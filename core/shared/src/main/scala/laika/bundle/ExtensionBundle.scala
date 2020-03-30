@@ -19,7 +19,7 @@ package laika.bundle
 import laika.ast._
 import laika.config.Config
 import laika.parse.css.CSSParsers
-import laika.rewrite.link.LinkTargets
+import laika.rewrite.link.SlugBuilder
 
 /** An extension bundle is a collection of parser extensions, rewrite rules, render themes
   * and other features to be applied to parse, render and transform operations. It serves
@@ -214,7 +214,7 @@ object ExtensionBundle {
 
     override val docTypeMatcher: PartialFunction[Path, DocumentType] = DocumentTypeMatcher.base
     
-    override val slugBuilder: Option[String => String] = Some(LinkTargets.slug)
+    override val slugBuilder: Option[String => String] = Some(SlugBuilder.default)
 
     override val parsers: ParserBundle = ParserBundle(
       styleSheetParser = Some(CSSParsers.styleDeclarationSet)

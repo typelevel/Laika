@@ -36,7 +36,7 @@ import laika.io.text.ParallelTransformer
 import laika.parse.Parser
 import laika.parse.code.SyntaxHighlighting
 import laika.parse.text.TextParsers
-import laika.rewrite.link.LinkTargets
+import laika.rewrite.link.SlugBuilder
 import org.scalatest.Assertion
 
 class ParallelTransformerSpec extends IOSpec with FileIO {
@@ -349,7 +349,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
     "transform a tree with an internal reference using a custom slug builder" in new DocWithSection {
       val titleSlug = "doc-title-slug"
       val sectionSlug = "section-title-slug"
-      assertTree(transformWithSlugBuilder(s => LinkTargets.slug(s) + "-slug"))
+      assertTree(transformWithSlugBuilder(s => SlugBuilder.default(s) + "-slug"))
     }
 
     "transform a tree with all available file types and multiple markup formats" in new TreeTransformer {

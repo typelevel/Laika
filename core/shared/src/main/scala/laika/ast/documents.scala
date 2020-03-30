@@ -23,8 +23,6 @@ import laika.ast.RelativePath.Current
 import laika.config.Config.{ConfigResult, IncludeMap}
 import laika.config._
 import laika.rewrite.TemplateRewriter
-import laika.rewrite.link.DocumentTargets
-import laika.rewrite.link.LinkTargets._
 import laika.rewrite.nav.AutonumberConfig
 
 import scala.annotation.tailrec
