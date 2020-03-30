@@ -195,6 +195,11 @@ object LinkTargets {
       }
     }
     
+    def forDelegate (selector: Selector, delegate: TargetResolver): TargetResolver = new TargetResolver(selector) {
+      override def resolveReference (linkSource: LinkSource) = delegate.resolveReference(linkSource)
+      override def replaceTarget (rewrittenOriginal: Customizable) = delegate.replaceTarget(rewrittenOriginal)
+    }
+    
   }
   
   /** Represents a resolver for a sequence of targets where matching reference nodes

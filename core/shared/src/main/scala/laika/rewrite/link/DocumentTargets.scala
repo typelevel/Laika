@@ -26,7 +26,7 @@ import scala.annotation.tailrec
  * 
  *  @author Jens Halm
  */
-class DocumentTargets (document: Document) {
+case class DocumentTargets (document: Document) {
 
   /** Generates symbol identifiers. 
     * Contains a predefined list of ten symbols to generate.
@@ -130,10 +130,9 @@ class DocumentTargets (document: Document) {
     }
   }
 
-  /** Provides a map of all targets that can be referenced from elements
-    * within the same document.
+  /** Provides all targets that can be referenced inside the document.
     */
-  val local: Map[Selector, TargetResolver] = {
+  val targets: Seq[TargetResolver] = {
 
     val groupedTargets: Map[Selector, TargetResolver] = directTargets.groupBy(_.selector).map {
       case (sel: UniqueSelector, target :: Nil) =>
@@ -156,26 +155,25 @@ class DocumentTargets (document: Document) {
     
     val linkConfig = document.config.getOpt[LinkConfig].toOption.flatten.getOrElse(LinkConfig.empty) // TODO - 0.15 - error handling
     val targetsFromConfig = linkConfig.targets.map { defn =>
-      val selector = LinkDefinitionSelector(defn.id)
-      (selector, linkDefinitionResolver(selector, defn.target))
+      linkDefinitionResolver(LinkDefinitionSelector(defn.id), defn.target)
     }
     
-    groupedTargets.map { 
-      case (sel, alias: LinkAliasResolver) => (sel, resolve(alias, alias.targetSelector, Set()))
-      case resolved => resolved
-    } ++ targetsFromConfig
-  }
-
-  /** Provides a map of all targets that can be referenced from elements
-   *  within any document within the document tree.
-   */
-  val global: Map[Selector, TargetResolver] = {
-    val global = local filter (_._2.selector.global)
+    val resolvedTargets = groupedTargets.toSeq.map { 
+      case (_, alias: LinkAliasResolver) => resolve(alias, alias.targetSelector, Set())
+      case (_, resolved)                 => resolved
+    }
+    
+    val pathTargets = resolvedTargets.flatMap { target =>
+      target.selector match {
+        case TargetIdSelector(name) => Some(TargetResolver.forDelegate(PathSelector(document.path.withFragment(name)), target))
+        case _ => None
+      }
+    }
+  
     val documentTarget =
       TargetResolver.create(PathSelector(document.path), ReferenceResolver.internalLink(document.path), TargetReplacer.removeTarget)
-    (global ++ global.collect {
-      case (TargetIdSelector(name), target) => (PathSelector(document.path.withFragment(name)), target)
-    }) + ((documentTarget.selector, documentTarget))
+
+    resolvedTargets ++ pathTargets ++ targetsFromConfig :+ documentTarget
   }
   
 }

@@ -33,13 +33,16 @@ class TreeTargets (root: DocumentTreeRoot, slugBuilder: String => String) {
       if (path == Root) Seq(Root)
       else allPaths(path.parent) :+ path
     
-    val targets: Seq[((Path, Selector), TargetResolver)] = root.allDocuments.flatMap { doc =>
-      val targets = new DocumentTargets(doc)
-      val global = if (doc.path == Root) Nil else for {
-        path   <- allPaths(doc.path.parent)
-        target <- targets.global // TODO - should be a single Seq, not two Maps
-      } yield ((path, target._1), target._2)
-      val local = targets.local.map(target => ((doc.path, target._1), target._2))
+    def mapToKeys (paths: Seq[Path], targets: Seq[TargetResolver]): Seq[((Path, Selector), TargetResolver)] =
+      for {
+        path   <- paths
+        target <- targets
+      } yield ((path, target.selector), target)
+    
+    val targets = root.allDocuments.flatMap { doc =>
+      val targets = DocumentTargets(doc).targets
+      val global = if (doc.path == Root) Nil else mapToKeys(allPaths(doc.path.parent), targets.filter(_.selector.global))
+      val local = mapToKeys(Seq(doc.path), targets)
       global ++ local
     }
     def staticTarget (path: Path) =
