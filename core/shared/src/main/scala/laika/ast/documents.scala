@@ -59,16 +59,6 @@ sealed trait TreeContent extends Navigatable {
     */
   def position: TreePosition
 
-  /** All link targets that can get referenced from anywhere
-    * in the document tree.
-    */
-  def globalLinkTargets: Map[Selector, TargetResolver]
-
-  /** Selects a link target by the specified selector
-   *  if it is defined somewhere in a document inside this document tree.
-   */
-  def selectTarget (selector: Selector): Option[TargetResolver] = globalLinkTargets.get(selector)
-
   protected def titleFromConfig: Option[SpanSequence] = {
     config.get[Traced[String]]("title").toOption.flatMap { tracedTitle =>
       if (tracedTitle.origin.scope == configScope) {
@@ -237,15 +227,6 @@ trait DocumentStructure { this: TreeContent =>
     extractSections(findRoot)
   }
 
-  /** All link targets of this document, including global and local targets.
-   */
-  lazy val linkTargets: DocumentTargets = new DocumentTargets(Document(path, content, config = config))
-
-  /** All link targets that can get referenced from anywhere
-    * in the document tree.
-    */
-  lazy val globalLinkTargets: Map[Selector, TargetResolver] = linkTargets.global
-
 }
 
 /** The structure of a document tree.
@@ -341,16 +322,6 @@ trait TreeStructure { this: TreeContent =>
     case Current / localName => content.collectFirst { case t: DocumentTree if t.path.name == localName => t }
     case other / localName if path.parentLevels == 0 => selectSubtree(other).flatMap(_.selectSubtree(localName))
     case _ => None
-  }
-
-  /** All link targets that can get referenced from anywhere
-    * in the document tree.
-    */
-  lazy val globalLinkTargets: Map[Selector, TargetResolver] = {
-    content.flatMap(_.globalLinkTargets.toList).groupBy(_._1).collect {
-      case (selector, Seq((_, target))) => (selector, target)
-      case (s: UniqueSelector, targets) => (s, TargetResolver.forDuplicateSelector(s, path, targets.map(_._2)))
-    }
   }
 
 }
@@ -564,17 +535,6 @@ case class DocumentTreeRoot (tree: DocumentTree,
     coverDocument.toSeq ++ collect(tree)
   }
   
-  private lazy val globalLinkTargets: Map[Selector, TargetResolver] = {
-    def staticTarget (path: Path) =
-      TargetResolver.create(PathSelector(path), ReferenceResolver.internalLink(path), TargetReplacer.removeTarget)
-    tree.globalLinkTargets ++ staticDocuments.map(path => (PathSelector(path), staticTarget(path)))
-  }
-
-  /** Selects a link target by the specified selector
-    * if it is defined somewhere in a document inside this document tree.
-    */
-  def selectTarget (selector: Selector): Option[TargetResolver] = globalLinkTargets.get(selector)
-
   /** Returns a new tree, with all the document models contained in it
     *  rewritten based on the specified rewrite rules.
     *
