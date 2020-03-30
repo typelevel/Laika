@@ -28,18 +28,20 @@ class TransformAPISpec extends AnyFlatSpec
    
   val input = """# Title äöü
     |
-    |text""".stripMargin 
+    |text zzz *foo*""".stripMargin 
   
   val output = """RootElement - Blocks: 2
     |. Title(Id(title) + Styles(title)) - Spans: 1
     |. . Text - 'Title äöü'
-    |. Paragraph - Spans: 1
-    |. . Text - 'text'""".stripMargin
+    |. Paragraph - Spans: 2
+    |. . Text - 'text zzz '
+    |. . Emphasized - Spans: 1
+    |. . . Text - 'foo'""".stripMargin
     
   val builder = Transformer.from(Markdown).to(AST)
   
   
-  "The Transform API" should "Transformer.from(string to string" in {
+  "The Transform API" should "transform from string to string" in {
     builder.build.transform(input).toOption.get should be (output)
   }
   
@@ -50,22 +52,22 @@ class TransformAPISpec extends AnyFlatSpec
   }
   
   it should "allow to specify a custom rewrite rule" in {
-    val modifiedOutput = output.replaceAllLiterally("äöü", "zzz")
-    val transformCustom = builder usingSpanRule { case Text("Title äöü",_) => Replace(Text("Title zzz")) }
+    val modifiedOutput = output.replaceAllLiterally("zzz", "yyy")
+    val transformCustom = builder usingSpanRule { case Text("text zzz ",_) => Replace(Text("text yyy ")) }
     transformCustom.build.transform(input).toOption.get should be (modifiedOutput)
   }
   
   it should "allow to specify multiple rewrite rules" in {
-    val modifiedOutput = output.replaceAllLiterally("äöü", "zzz").replaceAllLiterally("text", "new")
-    val transformCustom = builder usingSpanRule { case Text("Title äöü",_) => Replace(Text("Title zzz")) } usingSpanRule
-                                                  { case Text("text",_)      => Replace(Text("new")) }
+    val modifiedOutput = output.replaceAllLiterally("zzz", "new").replaceAllLiterally("foo", "bar")
+    val transformCustom = builder usingSpanRule { case Text("foo" ,_) => Replace(Text("bar")) } usingSpanRule
+                                                { case Text("text zzz ",_)    => Replace(Text("text new ")) }
     transformCustom.build.transform(input).toOption.get should be (modifiedOutput)
   }
   
   it should "allow to specify a custom rewrite rule that depends on the document" in {
-    val modifiedOutput = output.replaceAllLiterally("äöü", "2")
+    val modifiedOutput = output.replaceAllLiterally("zzz", "2")
     val transformCustom = builder creatingRule { cursor => RewriteRules.forSpans { 
-      case Text("Title äöü",_) => Replace(Text("Title " + cursor.target.content.content.length)) 
+      case Text("text zzz ",_) => Replace(Text("text " + cursor.target.content.content.length + " ")) 
     }}
     transformCustom.build.transform(input).toOption.get should be (modifiedOutput)
   }

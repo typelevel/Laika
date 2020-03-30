@@ -47,7 +47,7 @@ class BlockParsersSpec extends AnyFlatSpec
   
   def ul (char: Char) = Underline(char)
   def ulol (char: Char) = OverlineAndUnderline(char)
-  def dh (deco: HeaderDecoration, content: String, id: String) = DecoratedHeader(deco, List(Text(content)), Id(id))
+  def dh (deco: HeaderDecoration, content: String) = DecoratedHeader(deco, List(Text(content)))
 
 
   "The doctest parser" should "parse a doctest block" in {
@@ -157,13 +157,13 @@ class BlockParsersSpec extends AnyFlatSpec
     val input = """========
       | Header
       |========""".stripMargin
-    Parsing (input) should produce (root (dh(ulol('='),"Header","header")))
+    Parsing (input) should produce (root (dh(ulol('='),"Header")))
   }
   
   it should "parse a header with underline only" in {
     val input = """Header
       |========""".stripMargin
-    Parsing (input) should produce (root (dh(ul('='),"Header","header")))
+    Parsing (input) should produce (root (dh(ul('='),"Header")))
   }
   
   it should "parse headers with varying levels" in {
@@ -179,8 +179,8 @@ class BlockParsersSpec extends AnyFlatSpec
       |
       |Header 2b
       |=========""".stripMargin
-    Parsing (input) should produce (root (dh(ulol('='),"Header 1","header 1"), dh(ul('='),"Header 2","header 2"), 
-                                         dh(ul('-'),"Header 3","header 3"), dh(ul('='),"Header 2b","header 2b")))
+    Parsing (input) should produce (root (dh(ulol('='),"Header 1"), dh(ul('='),"Header 2"), 
+                                         dh(ul('-'),"Header 3"), dh(ul('='),"Header 2b")))
   }
   
   it should "ignore headers where the underline is shorter than the text" in {
@@ -209,7 +209,7 @@ class BlockParsersSpec extends AnyFlatSpec
       |
       |Header
       |======""".stripMargin
-    Parsing (input) should produce (root(DecoratedHeader(Underline('='), List(InternalLinkTarget(Id("target")),Text("Header")), Id("header"))))  
+    Parsing (input) should produce (root(DecoratedHeader(Underline('='), List(InternalLinkTarget(Id("target")),Text("Header")))))  
   }
 
   it should "treat an internal link target followed by another internal link target like an alias" in {

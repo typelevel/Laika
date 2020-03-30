@@ -126,8 +126,8 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
         case Autosymbol          => replaceBlock(f, AutosymbolSelector)
       }
       case c: Citation           => replaceBlock(c, TargetIdSelector(slugBuilder(c.label)))
-      case h: DecoratedHeader    => replaceBlock(h, TargetIdSelector(slugBuilder(h.options.id.get)))
-      case h@ Header(_,_,Id(id)) => replaceBlock(h, TargetIdSelector(slugBuilder(id)))
+      case h: DecoratedHeader    => replaceBlock(h, TargetIdSelector(slugBuilder(h.extractText)))
+      case h: Header             => replaceBlock(h, TargetIdSelector(slugBuilder(h.extractText)))
       
       case _: Temporary => Remove
 

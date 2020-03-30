@@ -17,10 +17,10 @@
 package laika.format
 
 import laika.ast.Block
-import laika.bundle.{BlockParserBuilder, BundleOrigin, ExtensionBundle, ParserBundle, ParserHooks, SpanParserBuilder}
+import laika.bundle.{BlockParserBuilder, ExtensionBundle, SpanParserBuilder}
 import laika.factory.MarkupFormat
+import laika.markdown.bundle.VerbatimHTML
 import laika.markdown.{BlockParsers, InlineParsers, ListParsers}
-import laika.markdown.bundle.{HeaderIdInsertion, VerbatimHTML}
 import laika.parse.Parser
   
 /** A parser for Markdown text. Instances of this class may be passed directly
@@ -81,17 +81,7 @@ case object Markdown extends MarkupFormat {
 
   override lazy val escapedChar: Parser[String] = InlineParsers.escapedChar
 
-  object BundledDefaults extends ExtensionBundle {
-    val description: String = "Header ids for Markdown"
-    override val origin: BundleOrigin = BundleOrigin.Parser
-    override val parsers: ParserBundle = ParserBundle(
-      markupParserHooks = Some(ParserHooks(
-        postProcessBlocks = HeaderIdInsertion
-      ))
-    )
-  }
-
-  val extensions: Seq[ExtensionBundle] = Seq(BundledDefaults, VerbatimHTML)
+  val extensions: Seq[ExtensionBundle] = Seq(VerbatimHTML)
 
   override def createBlockListParser (parser: Parser[Block]): Parser[Seq[Block]] =
     super.createBlockListParser(BlockParsers.insignificantSpaces ~> parser)

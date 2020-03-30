@@ -24,7 +24,11 @@ package laika.rewrite.link
 object SlugBuilder {
 
   def default (text: String): String = {
-    text.replaceAll("[^a-zA-Z0-9-]+","-").replaceFirst("^-","").replaceFirst("-$","").toLowerCase // TODO - retain unicode characters
+    text
+      .replaceAll("[^a-zA-Z0-9-]+","-")
+      .stripPrefix("-")
+      .stripSuffix("-")
+      .toLowerCase // TODO - retain unicode characters
   }
   
 }

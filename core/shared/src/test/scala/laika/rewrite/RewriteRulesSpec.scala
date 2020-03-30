@@ -195,8 +195,8 @@ class RewriteRulesSpec extends AnyWordSpec
     }
 
     "resolve references when some parent element also gets rewritten" in {
-      val rootElem = root(DecoratedHeader(Underline('#'), List(Text("text1"), simpleLinkRef()), Id("header")), LinkDefinition("name", ExternalTarget("http://foo/")))
-      rewritten(rootElem) should be(root(Title(List(Text("text1"), extLink("http://foo/")), Id("header") + Styles("title"))))
+      val rootElem = root(DecoratedHeader(Underline('#'), List(Text("text "), simpleLinkRef())), LinkDefinition("name", ExternalTarget("http://foo/")))
+      rewritten(rootElem) should be(root(Title(List(Text("text "), extLink("http://foo/")), Id("text-text") + Styles("title"))))
     }
   }
 
@@ -242,8 +242,8 @@ class RewriteRulesSpec extends AnyWordSpec
     }
 
     "resolve references when some parent element also gets rewritten" in {
-      val rootElem = root(DecoratedHeader(Underline('#'), List(Text("text1"), genRef()), Id("header")), LinkDefinition("name", ExternalTarget("http://foo/")))
-      rewritten(rootElem) should be(root(Title(List(Text("text1"), extLink("http://foo/")), Id("header") + Styles("title"))))
+      val rootElem = root(DecoratedHeader(Underline('#'), List(Text("text "), genRef())), LinkDefinition("name", ExternalTarget("http://foo/")))
+      rewritten(rootElem) should be(root(Title(List(Text("text "), extLink("http://foo/")), Id("text-text") + Styles("title"))))
     }
   }
 
@@ -304,7 +304,7 @@ class RewriteRulesSpec extends AnyWordSpec
   "The rewrite rules for internal links" should {
 
     def rootWithTarget(id: String = "ref") = root(InternalLinkTarget(Id(id)))
-    def rootWithHeader(level: Int, id: String = "ref") = root(Header(level, Seq(Text("text")), Id("header")), InternalLinkTarget(Id(id)))
+    def rootWithHeader(level: Int, id: String = "ref") = root(Header(level, Seq(Text("Header"))), InternalLinkTarget(Id(id)))
 
     def rewrittenTreeDoc (rootToRewrite: RootElement): RootElement = {
       val tree = DocumentTree(Root, Seq(
@@ -419,9 +419,9 @@ class RewriteRulesSpec extends AnyWordSpec
 
   "The rewrite rules for header ids" should {
 
-    "retain the id of a header" in {
-      val rootElem = root(Header(1, List(Text("text")), Id("header")))
-      rewritten(rootElem) should be(root(Title(List(Text("text")), Id("header") + Styles("title"))))
+    "create the id for the header based on the header text" in {
+      val rootElem = root(Header(1, List(Text("Header"))))
+      rewritten(rootElem) should be(root(Title(List(Text("Header")), Id("header") + Styles("title"))))
     }
 
   }
@@ -430,21 +430,21 @@ class RewriteRulesSpec extends AnyWordSpec
   "The rewrite rules for decorated headers" should {
 
     "set the level of the header in a flat list of headers" in {
-      val rootElem = root(DecoratedHeader(Underline('#'), List(Text("text1")), Id("header1")),
-        DecoratedHeader(Underline('#'), List(Text("text2")), Id("header2")))
+      val rootElem = root(DecoratedHeader(Underline('#'), List(Text("Header 1"))),
+        DecoratedHeader(Underline('#'), List(Text("Header 2"))))
       rewritten(rootElem) should be(root(
-        Section(Header(1, List(Text("text1")), Id("header1") + Styles("section")), Nil),
-        Section(Header(1, List(Text("text2")), Id("header2") + Styles("section")), Nil)))
+        Section(Header(1, List(Text("Header 1")), Id("header-1") + Styles("section")), Nil),
+        Section(Header(1, List(Text("Header 2")), Id("header-2") + Styles("section")), Nil)))
     }
 
     "set the level of the header in a nested list of headers" in {
-      val rootElem = root(DecoratedHeader(Underline('#'), List(Text("text")), Id("header1")),
-        DecoratedHeader(Underline('-'), List(Text("nested")), Id("header2")),
-        DecoratedHeader(Underline('#'), List(Text("text")), Id("header3")))
+      val rootElem = root(DecoratedHeader(Underline('#'), List(Text("Header 1"))),
+        DecoratedHeader(Underline('-'), List(Text("Header 2"))),
+        DecoratedHeader(Underline('#'), List(Text("Header 3"))))
       rewritten(rootElem) should be(root(
-        Section(Header(1, List(Text("text")), Id("header1") + Styles("section")), List(
-          Section(Header(2, List(Text("nested")), Id("header2") + Styles("section")), Nil))),
-        Section(Header(1, List(Text("text")), Id("header3") + Styles("section")), Nil)))
+        Section(Header(1, List(Text("Header 1")), Id("header-1") + Styles("section")), List(
+          Section(Header(2, List(Text("Header 2")), Id("header-2") + Styles("section")), Nil))),
+        Section(Header(1, List(Text("Header 3")), Id("header-3") + Styles("section")), Nil)))
     }
 
   }

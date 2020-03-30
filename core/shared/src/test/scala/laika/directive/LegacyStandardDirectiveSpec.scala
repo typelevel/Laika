@@ -246,7 +246,7 @@ class LegacyStandardDirectiveSpec extends AnyFlatSpec
     def hasTitleDocs: Boolean = false
 
     def header (level: Int, title: Int, style: String = "section") =
-      Header(level,List(Text("Section "+title)),Id("title"+title) + Styles(style))
+      Header(level,List(Text("Section "+title)), Styles(style))
       
     val sectionsWithoutTitle = RootElement(
       header(1,1) ::
@@ -305,7 +305,7 @@ class LegacyStandardDirectiveSpec extends AnyFlatSpec
       else InternalTarget.fromPath(path, treeUnderTest)
     
     def sectionCrossLink (path: Path, section: Int, level: Int) = 
-      Paragraph(Seq(SpanLink(List(Text("Section "+section)), targetFor(path.withFragment("title"+section)))), Styles("toc","level"+level))
+      Paragraph(Seq(SpanLink(List(Text("Section "+section)), targetFor(path.withFragment("section-"+section)))), Styles("toc","level"+level))
       
     def leafLink (path: Path, section: Int, level: Int) = 
       BulletListItem(List(sectionCrossLink(path, section, level)), StringBullet("*"))

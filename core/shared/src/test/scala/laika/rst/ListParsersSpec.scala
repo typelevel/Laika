@@ -390,7 +390,7 @@ class ListParsersSpec extends AnyFlatSpec
       | Header
       |########""".stripMargin
     Parsing (input) should produce (root( defList + ("term 1", p("aaa")) + ("term 2", p("bbb")), 
-        DecoratedHeader(OverlineAndUnderline('#'), List(Text("Header")), Id("header"))))
+        DecoratedHeader(OverlineAndUnderline('#'), List(Text("Header")))))
   }
   
   

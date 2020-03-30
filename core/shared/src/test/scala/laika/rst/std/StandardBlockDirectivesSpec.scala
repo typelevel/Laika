@@ -636,13 +636,13 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
   
   "The contents rewriter" should "replace the node with the corresponding list element" in {
     def header (level: Int, title: Int, style: String = "section") =
-      Header(level,List(Text("Title "+title)),Id("title"+title) + Styles(style))
+      Header(level,List(Text("Title "+title)),Id("title-"+title) + Styles(style))
       
     def title (title: Int) =
-      Title(List(Text("Title "+title)),Id("title"+title) + Styles("title"))
+      Title(List(Text("Title "+title)),Id("title-"+title) + Styles("title"))
       
     def link (level: Int, title: Int) = {
-      val target = InternalTarget.fromPath(Root / s"doc#title$title", Root / "doc")
+      val target = InternalTarget.fromPath(Root / s"doc#title-$title", Root / "doc")
       val intLink = SpanLink(List(Text("Title "+title)), target, None)
       Paragraph(Seq(intLink), Styles("toc","level"+level))
     }   

@@ -59,7 +59,7 @@ class GitHubFlavorSpec extends AnyWordSpec
                     |bbb
                     |
                     |# CCC""".stripMargin
-      Parsing (input) should produce (root( p("aaa\nbbb"), Header(1, Seq(Text("CCC")), Id("ccc"))))
+      Parsing (input) should produce (root( p("aaa\nbbb"), Header(1, Seq(Text("CCC")))))
     }
 
   }

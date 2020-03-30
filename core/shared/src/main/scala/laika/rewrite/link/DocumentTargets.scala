@@ -104,16 +104,16 @@ case class DocumentTargets (document: Document, slugBuilder: String => String) {
         val selector = if (ld.id.isEmpty) AnonymousSelector else LinkDefinitionSelector(ld.id)
         linkDefinitionResolver(selector, ld.target, ld.title)
 
-      case DecoratedHeader(deco,_,Id(id)) => // TODO - do not generate id upfront
-        val selector = TargetIdSelector(slugBuilder(id))
+      case h @ DecoratedHeader(deco,_,_) =>
+        val selector = TargetIdSelector(slugBuilder(h.extractText))
         val level = levels.levelFor(deco)
         val finalHeader = TargetReplacer.lift {
           case DecoratedHeader(_, content, opt) => Header(level, content, opt + Id(selector.id))
         }
         TargetResolver.create(selector, internalResolver(selector), finalHeader, 10 - level)
       
-      case Header(level,_,Id(id)) => // TODO - do not generate id upfront
-        val selector = TargetIdSelector(slugBuilder(id))
+      case h @ Header(level,_,_) =>
+        val selector = TargetIdSelector(slugBuilder(h.extractText))
         TargetResolver.create(selector, internalResolver(selector), TargetReplacer.addId(selector.id), 10 - level)
 
       case alias: LinkAlias => 

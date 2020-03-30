@@ -39,8 +39,6 @@ object LinkTargetProcessor extends (Seq[Block] => Seq[Block]) {
       def withOptions (options: Options): Mock.type = this
     }
 
-    def toLinkId (h: DecoratedHeader) = ReferenceName(h.extractText).normalized
-
     // TODO - simplify
     (Mock +: blocks :+ Mock).sliding(3).foldLeft(new ListBuffer[Block]()) {
 
@@ -53,10 +51,8 @@ object LinkTargetProcessor extends (Seq[Block] => Seq[Block]) {
         if (c.options.id.isDefined) buffer += it else buffer
       case (buffer, _ :: (it: InternalLinkTarget) :: _ :: Nil) => buffer += it
 
-      case (buffer, (it: InternalLinkTarget) :: (h @ DecoratedHeader(_,_,oldOpt)) :: _) =>
-        buffer += h.copy(options = oldOpt + Id(toLinkId(h)), content = it +: h.content)
-      case (buffer, _ :: (h @ DecoratedHeader(_,_,oldOpt)) :: _) =>
-        buffer += h.copy(options = oldOpt + Id(toLinkId(h)))
+      case (buffer, (it: InternalLinkTarget) :: (h: DecoratedHeader) :: _) =>
+        buffer += h.copy(content = it +: h.content)
 
       case (buffer, InternalLinkTarget(Id(_)) :: (ld: LinkDefinition) :: _ :: Nil) =>
         buffer += ld
