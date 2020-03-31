@@ -23,12 +23,28 @@ package laika.rewrite.link
  */
 object SlugBuilder {
 
+  /** Default slug builder that turns the specified string into a slug suitable
+    * as HTML or XML id, as a path segment in a URL and as a file name.
+    * 
+    * Iterates over the input text one Unicode code point at a time. 
+    * All code points that are letters or numbers are considered valid characters. 
+    * They are mapped to lower case, and included in the output. 
+    * All other code points are considered invalid characters, 
+    * and any sequence of such code points will be replaced by a single dash character (`-`),
+    * unless the sequence starts or ends the string in which case it is simply dropped.
+    */
   def default (text: String): String = {
-    text
-      .replaceAll("[^a-zA-Z0-9-]+","-")
+    
+    text.foldLeft(("" , true)) {
+      case ((res, inWord), char) => 
+        if (Character.isLetter(char) || Character.isDigit(char)) (res + char.toLower, true)
+        else if (inWord) (res + "-", false)
+        else (res, false)
+    }
+      ._1
       .stripPrefix("-")
       .stripSuffix("-")
-      .toLowerCase // TODO - retain unicode characters
+    
   }
   
 }
