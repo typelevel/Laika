@@ -17,19 +17,20 @@
 package laika.directive
 
 import cats.implicits._
+import laika.api.MarkupParser
 import laika.config.ConfigBuilder
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.bundle.ParserBundle
+import laika.format.Markdown
 import laika.parse.Parser
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
+import laika.parse.markup.DocumentParser.ParserError
 import laika.parse.markup.RootParserProvider
 import laika.rewrite.TemplateRewriter
-import org.scalatest
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.tools
 
 import scala.util.Try
 
@@ -126,6 +127,31 @@ class SpanDirectiveAPISpec extends AnyFlatSpec
         }
       }
     }
+    
+    trait LinkDirectiveSetup {
+      val directive = Links.create("rfc") { linkId =>
+        Try(Integer.parseInt(linkId))
+          .toEither
+          .fold(
+            _ => Left(s"Not a valid RFC id: $linkId"),
+            id => Right(SpanLink(Seq(Text(s"RFC $id")), ExternalTarget(s"http://tools.ietf.org/html/rfc$linkId")))
+          )
+      }
+      object bundle extends DirectiveRegistry {
+        override def spanDirectives: Seq[Spans.Directive] = Nil
+        override def blockDirectives: Seq[Blocks.Directive] = Nil
+        override def templateDirectives: Seq[Templates.Directive] = Nil
+        override def linkDirectives: Seq[Links.Directive] = Seq(directive)
+      }
+
+      def parseAsMarkdown (input: String): Either[ParserError, Block] = MarkupParser
+        .of(Markdown)
+        .using(bundle)
+        .build
+        .parse(input)
+        .map(_.content.content.head)
+    }
+    
     
   }
   
@@ -411,18 +437,42 @@ class SpanDirectiveAPISpec extends AnyFlatSpec
     }
   }
   
-  it should "parse a link directive" in new LinkParser {
-    val directive = Links.create("rfc") { linkId =>
-      Try(Integer.parseInt(linkId))
-        .toEither
-        .fold(
-          _ => Left(s"Not a valid RFC id: $linkId"),
-          id => Right(SpanLink(Seq(Text(s"RFC $id")), ExternalTarget(s"http://tools.ietf.org/html/rfc$linkId")))
-        )
-      }
+  it should "parse a link directive" in new LinkParser with LinkDirectiveSetup {
     Parsing ("aa @:rfc(222) bb") should produce (ss(
       Text("aa "),
       SpanLink(Seq(Text("RFC 222")), ExternalTarget("http://tools.ietf.org/html/rfc222")),
+      Text(" bb")
+    ))
+  }
+
+  it should "parse a link directive inside a native link expression" in new LinkParser with LinkDirectiveSetup {
+    parseAsMarkdown("aa [RFC-222][@:rfc(222)] bb") shouldBe Right(p(
+      Text("aa "),
+      SpanLink(Seq(Text("RFC-222")), ExternalTarget("http://tools.ietf.org/html/rfc222")),
+      Text(" bb")
+    ))
+  }
+
+  it should "detect an unknown link directive" in new LinkParser with LinkDirectiveSetup {
+    parseAsMarkdown("aa [RFC-222][@:rfx(222)] bb") shouldBe Right(p(
+      Text("aa "),
+      InvalidElement("Unknown link directive: rfx", "[RFC-222][@:rfx(222)]").asSpan,
+      Text(" bb")
+    ))
+  }
+
+  it should "detect an invalid link directive" in new LinkParser with LinkDirectiveSetup {
+    parseAsMarkdown("aa [RFC-222][@:rfc(foo)] bb") shouldBe Right(p(
+      Text("aa "),
+      InvalidElement("Invalid link directive: Not a valid RFC id: foo", "[RFC-222][@:rfc(foo)]").asSpan,
+      Text(" bb")
+    ))
+  }
+
+  it should "detect an invalid link directive syntax" in new LinkParser with LinkDirectiveSetup {
+    parseAsMarkdown("aa [RFC-222][@:rfc foo] bb") shouldBe Right(p(
+      Text("aa "),
+      InvalidElement("Invalid link directive: `(' expected but `f` found", "[RFC-222][@:rfc foo]").asSpan,
       Text(" bb")
     ))
   }

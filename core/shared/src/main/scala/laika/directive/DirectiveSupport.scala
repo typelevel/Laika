@@ -16,10 +16,14 @@
 
 package laika.directive
 
+import laika.ast.{DocumentCursor, InvalidElement, LinkDefinitionReference, Replace, RewriteAction, RewriteRules, Span}
 import laika.bundle.{BundleOrigin, ConfigProvider, ExtensionBundle, ParserBundle}
 import laika.config.ConfigParser
 import laika.parse.Parser
-import laika.parse.directive.{BlockDirectiveParsers, ConfigHeaderParser, SpanDirectiveParsers, TemplateParsers}
+import laika.parse.builders.{delimitedBy, text, ws}
+import laika.parse.implicits._
+import laika.parse.directive.{BlockDirectiveParsers, ConfigHeaderParser, DirectiveParsers, SpanDirectiveParsers, TemplateParsers}
+import laika.parse.text.TextParsers
 
 /** Internal API that processes all directives defined
   * by one or more DirectiveRegistries. This extension
@@ -51,6 +55,26 @@ class DirectiveSupport (blockDirectives: Seq[Blocks.Directive],
     ),
     configProvider = Some(configProvider),
     templateParser = Some(new TemplateParsers(Templates.toMap(templateDirectives)).templateRoot)
+  )
+  
+  private val linkDirectiveMap = linkDirectives.map(d => (d.name, d)).toMap
+  private val linkParser = (DirectiveParsers.nameDecl <~ ws) ~ ("(" ~> text(delimitedBy(')')).embed("\\" ~> TextParsers.oneChar))
+  
+  override lazy val rewriteRules: Seq[DocumentCursor => RewriteRules] = Seq(
+    _ => RewriteRules.forSpans {
+      case LinkDefinitionReference(content, id, src, opt) if id.startsWith("@:") => 
+        println(linkDirectiveMap)
+        linkParser.parse(id.drop(2)).toEither.fold(
+          err => Replace(InvalidElement(s"Invalid link directive: $err", src).asSpan),
+          res => linkDirectiveMap.get(res._1)
+            .fold[RewriteAction[Span]](Replace(InvalidElement(s"Unknown link directive: ${res._1}", src).asSpan)) { dir =>
+              dir(res._2).fold(
+                err => Replace(InvalidElement(s"Invalid link directive: $err", src).asSpan),
+                res => Replace(res.copy(content = content, options = res.options + opt))
+              )
+            }
+        )
+    }
   )
 
   /** Hook for extension registries for adding block, span and template directives.

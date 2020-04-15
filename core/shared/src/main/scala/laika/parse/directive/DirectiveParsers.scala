@@ -94,7 +94,7 @@ object DirectiveParsers {
   }
   
   /** Parses a full directive declaration, containing all its attributes,
-    *  but not the body elements.
+    * but not the body elements.
     */
   def declarationParser (escapedText: EscapedTextParsers, supportsCustomFence: Boolean = false): Parser[(String, ObjectBuilderValue, String)] = {
     import HoconParsers.{wsOrNl => hoconWS, _}
