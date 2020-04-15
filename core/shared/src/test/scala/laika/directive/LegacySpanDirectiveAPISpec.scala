@@ -95,7 +95,7 @@ class LegacySpanDirectiveAPISpec extends AnyFlatSpec
     
     def directive: Spans.Directive
 
-    lazy val directiveSupport: ParserBundle = DirectiveSupport.withDirectives(Seq(), Seq(directive), Seq()).parsers
+    lazy val directiveSupport: ParserBundle = DirectiveSupport.withDirectives(Seq(), Seq(directive), Nil, Nil).parsers
 
     lazy val defaultParser: Parser[Span] = RootParserProvider.forParsers(
       markupExtensions = directiveSupport.markupExtensions

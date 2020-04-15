@@ -27,6 +27,7 @@ import laika.bundle.ExtensionBundle
   *   val spanDirectives = Seq(...)
   *   val blockDirectives = Seq(...)
   *   val templateDirectives = Seq(...)
+  *   val linkDirectives = Seq(...)
   * }
   * object OtherDirectives extends DirectiveRegistry {
   *   [...]
@@ -62,13 +63,14 @@ trait DirectiveRegistry extends ExtensionBundle {
     *    )
     *    val blockDirectives = Seq()
     *    val templateDirectives = Seq()
+    *    val linkDirectives = Seq()
     *  }
     *
     *  val transformer = Transformer.from(Markdown).to(HTML).using(MyDirectives).build
     *  }}}
     *
     *  The code above registers a span directive that detects markup like
-    *  `@:ticket 2356.` and turns it into an external link node for the
+    *  `@:ticket(2356)` and turns it into an external link node for the
     *  URL `http://tickets.service.com/2356`.
     *
     *  For more details on implementing Laika directives see [[laika.directive.BuilderContext.dsl]].
@@ -90,6 +92,7 @@ trait DirectiveRegistry extends ExtensionBundle {
     *    )
     *    val spanDirectives = Seq()
     *    val templateDirectives = Seq()
+    *    val linkDirectives = Seq()
     *  }
     *
     *  val transformer = Transformer.from(Markdown).to(HTML).using(MyDirectives).build
@@ -116,22 +119,54 @@ trait DirectiveRegistry extends ExtensionBundle {
     *    )
     *    val blockDirectives = Seq()
     *    val spanDirectives = Seq()
+    *    val linkDirectives = Seq()
     *  }
     *
     *  val transformer = Transformer.from(Markdown).to(HTML).using(MyDirectives).build
     *  }}}
     *
     *  The code above registers a template directive that detects markup like
-    *  `@:ticket 2356.` and turns it into an external link node for the
+    *  `@:ticket(2356)` and turns it into an external link node for the
     *  URL `http://tickets.service.com/2356`.
     *
     *  For more details on implementing Laika directives see [[laika.directive.BuilderContext.dsl]].
     */
   def templateDirectives: Seq[Templates.Directive]
 
+  /**  Registers the specified link directives.
+    *
+    *  Example:
+    *
+    *  {{{
+    *  object MyDirectives extends DirectiveRegistry {
+    *    val linkDirectives = Seq(
+    *      Links.create("rfc") { linkId => 
+    *        Try(Integer.parseInt(linkId))
+    *         .toEither
+    *         .fold(
+    *           _ => Left(s"Not a valid RFC id: $linkId"), 
+    *           id => Right(SpanLink(Seq(Text(s"RFC $id")), ExternalTarget(s"http://tools.ietf.org/html/rfc$linkId")))
+    *         )
+    *      }
+    *    )
+    *    val blockDirectives = Seq()
+    *    val spanDirectives = Seq()
+    *  }
+    *
+    *  val transformer = Transformer.from(Markdown).to(HTML).using(MyDirectives).build
+    *  }}}
+    *
+    *  The code above registers a link directive that detects markup like
+    *  `@:rfc(2356)` and turns it into an external link node for the
+    *  URL `http://tools.ietf.org/html/rfc2356`.
+    *
+    *  For more details on implementing Laika directives see [[laika.directive.BuilderContext.dsl]].
+    * */
+  def linkDirectives: Seq[Links.Directive]
+
 
   override def processExtension: PartialFunction[ExtensionBundle, ExtensionBundle] = {
-    case ds: DirectiveSupport => ds.withDirectives(blockDirectives, spanDirectives, templateDirectives)
+    case ds: DirectiveSupport => ds.withDirectives(blockDirectives, spanDirectives, templateDirectives, linkDirectives)
   }
 
 }

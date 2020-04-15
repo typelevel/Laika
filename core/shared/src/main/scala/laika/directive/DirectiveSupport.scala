@@ -30,7 +30,8 @@ import laika.parse.directive.{BlockDirectiveParsers, ConfigHeaderParser, SpanDir
   */
 class DirectiveSupport (blockDirectives: Seq[Blocks.Directive],
                         spanDirectives: Seq[Spans.Directive],
-                        templateDirectives: Seq[Templates.Directive]) extends ExtensionBundle {
+                        templateDirectives: Seq[Templates.Directive],
+                        linkDirectives: Seq[Links.Directive]) extends ExtensionBundle {
 
   val description: String = "Laika's directive support"
 
@@ -56,13 +57,15 @@ class DirectiveSupport (blockDirectives: Seq[Blocks.Directive],
     */
   def withDirectives (newBlockDirectives: Seq[Blocks.Directive],
                       newSpanDirectives: Seq[Spans.Directive],
-                      newTemplateDirectives: Seq[Templates.Directive]) : DirectiveSupport =
+                      newTemplateDirectives: Seq[Templates.Directive],
+                      newLinkDirectives: Seq[Links.Directive]) : DirectiveSupport =
     new DirectiveSupport(blockDirectives ++ newBlockDirectives,
       spanDirectives ++ newSpanDirectives,
-      templateDirectives ++ newTemplateDirectives)
+      templateDirectives ++ newTemplateDirectives,
+      linkDirectives ++ newLinkDirectives)
 
 }
 
 /** Empty default instance without any directives installed.
   */
-object DirectiveSupport extends DirectiveSupport(Nil, Nil, Nil)
+object DirectiveSupport extends DirectiveSupport(Nil, Nil, Nil, Nil)

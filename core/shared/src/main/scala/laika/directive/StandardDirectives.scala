@@ -338,5 +338,9 @@ object StandardDirectives extends DirectiveRegistry {
     templateIf,
     styleLinksDirective
   )
+
+  /** The complete list of standard directives for links.
+    */
+  lazy val linkDirectives: Seq[Links.Directive] = Nil
   
 }

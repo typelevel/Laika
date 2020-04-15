@@ -26,6 +26,7 @@ import laika.parse.hocon.ConfigResolver
 import laika.parse.{Failure, Success}
 
 import scala.reflect.ClassTag
+import scala.util.Try
 
 /** The id for a directive part.
   */
@@ -675,7 +676,7 @@ object Links {
   /** A directive that knows how to take a string identifier and turn it into 
     * a span link.
     */
-  trait LinkDirective {
+  trait Directive {
     /** The name of the directive, as it is used in text markup. */
     def name: String
     /** Turns the link identifier as specified by the user in text markup into a span link.
@@ -689,7 +690,7 @@ object Links {
     * The specified function receives the string used in the directive instance in text markup,
     * e.g. 
     */
-  def create (directiveName: String)(f: String => Either[String, SpanLink]): LinkDirective = new LinkDirective {
+  def create (directiveName: String)(f: String => Either[String, SpanLink]): Directive = new Directive {
     override def name = directiveName
     override def apply (linkId: String): Either[String, SpanLink] = f(linkId)
   }

@@ -100,6 +100,7 @@ object BundleProvider {
     val templateDirectives = Seq(directive)
     val spanDirectives = Seq()
     val blockDirectives = Seq()
+    val linkDirectives = Seq()
 
   }
 
