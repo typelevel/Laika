@@ -24,9 +24,9 @@ import laika.config.Origin.DirectiveScope
 import laika.parse.directive.DirectiveParsers.ParsedDirective
 import laika.parse.hocon.ConfigResolver
 import laika.parse.{Failure, Success}
+import laika.rst.ext.Directives.{DirectiveParserBuilder, DirectivePartBuilder}
 
 import scala.reflect.ClassTag
-import scala.util.Try
 
 /** The id for a directive part.
   */
@@ -118,6 +118,12 @@ trait BuilderContext[E <: Element] {
 
     def map [B](f: A => B): DirectivePart[B] = new DirectivePart[B] {
       def apply (p: DirectiveContext) = self(p) map f
+      def hasBody: Boolean = self.hasBody
+      def separators: Set[String] = self.separators
+    }
+
+    def evalMap [B](f: A => Either[String, B]): DirectivePart[B] = new DirectivePart[B] {
+      def apply (p: DirectiveContext) = self(p).flatMap(f(_).left.map(Seq(_)))
       def hasBody: Boolean = self.hasBody
       def separators: Set[String] = self.separators
     }
@@ -683,6 +689,11 @@ object Links {
       * If the link id is invalid this method should return a left with a textual description
       * of the problem. */
     def apply(linkId: String): Either[String, SpanLink]
+
+    /** Turns the link directive into a regular span directive. */
+    def asSpanDirective: Spans.Directive = Spans.create(name) {
+      Spans.dsl.defaultAttribute.as[String].evalMap(apply)
+    }
   }
 
   /** Creates a new link directive with the specified name and implementation.

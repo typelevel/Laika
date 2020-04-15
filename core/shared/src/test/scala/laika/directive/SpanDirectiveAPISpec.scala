@@ -26,8 +26,12 @@ import laika.parse.Parser
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import laika.parse.markup.RootParserProvider
 import laika.rewrite.TemplateRewriter
+import org.scalatest
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.tools
+
+import scala.util.Try
 
 class SpanDirectiveAPISpec extends AnyFlatSpec
                           with Matchers
@@ -125,13 +129,10 @@ class SpanDirectiveAPISpec extends AnyFlatSpec
     
   }
   
-  trait SpanParser extends ParseResultHelpers
-                   with DefaultParserHelpers[Span] {
+  trait BaseParser extends ParseResultHelpers with DefaultParserHelpers[Span] {
+
+    def directiveSupport: ParserBundle
     
-    def directive: Spans.Directive
-
-    lazy val directiveSupport: ParserBundle = DirectiveSupport.withDirectives(Seq(), Seq(directive), Nil, Nil).parsers
-
     lazy val defaultParser: Parser[Span] = RootParserProvider.forParsers(
       markupExtensions = directiveSupport.markupExtensions
     ).recursiveSpans.map { spans =>
@@ -140,11 +141,21 @@ class SpanDirectiveAPISpec extends AnyFlatSpec
         Document(Root, RootElement(seq), config = ConfigBuilder.empty.withValue("ref","value").build)
       )).rewriteSpan(seq)
     }
-    
-    def invalid (input: String, error: String): InvalidSpan = InvalidElement(error, input).asSpan
-        
-    def ss (spans: Span*): Span = SpanSequence(spans)
 
+    def invalid (input: String, error: String): InvalidSpan = InvalidElement(error, input).asSpan
+
+    def ss (spans: Span*): Span = SpanSequence(spans)
+    
+  }
+  
+  trait SpanParser extends BaseParser {
+    def directive: Spans.Directive
+    lazy val directiveSupport: ParserBundle = DirectiveSupport.withDirectives(Seq(), Seq(directive), Nil, Nil).parsers
+  }
+
+  trait LinkParser extends BaseParser {
+    def directive: Links.Directive
+    lazy val directiveSupport: ParserBundle = DirectiveSupport.withDirectives(Seq(), Nil, Nil, Seq(directive)).parsers
   }
   
 
@@ -400,5 +411,20 @@ class SpanDirectiveAPISpec extends AnyFlatSpec
     }
   }
   
+  it should "parse a link directive" in new LinkParser {
+    val directive = Links.create("rfc") { linkId =>
+      Try(Integer.parseInt(linkId))
+        .toEither
+        .fold(
+          _ => Left(s"Not a valid RFC id: $linkId"),
+          id => Right(SpanLink(Seq(Text(s"RFC $id")), ExternalTarget(s"http://tools.ietf.org/html/rfc$linkId")))
+        )
+      }
+    Parsing ("aa @:rfc(222) bb") should produce (ss(
+      Text("aa "),
+      SpanLink(Seq(Text("RFC 222")), ExternalTarget("http://tools.ietf.org/html/rfc222")),
+      Text(" bb")
+    ))
+  }
   
 }
