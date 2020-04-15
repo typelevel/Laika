@@ -436,7 +436,7 @@ trait BuilderContext[E <: Element] {
   /** Turns a collection of directives into a map,
     *  using the name of the directive as the key.
     */
-  def toMap (directives: Iterable[Directive]): Map[String, Directive] = directives map (dir => (dir.name, dir)) toMap
+  def toMap (directives: Iterable[Directive]): Map[String, Directive] = directives.map(dir => (dir.name, dir)).toMap
 
   /**  Provides the basic building blocks for defining directives, Laika's extension
     *  mechanism for creating custom tags for both, templates or text markup.
@@ -632,8 +632,7 @@ object Blocks extends BuilderContext[Block] {
 
 }
 
-/** The API for declaring directives that can be used
-  *  in templates.
+/** The API for declaring directives that can be used in templates.
   */
 object Templates extends BuilderContext[TemplateSpan] {
 
@@ -667,4 +666,32 @@ object Templates extends BuilderContext[TemplateSpan] {
       InvalidElement(s"Orphaned separator directive with name '${parsedResult.name}'", source).asTemplateSpan
   }
 
+}
+
+/** The API for declaring directives that can be used in links.
+  */
+object Links {
+
+  /** A directive that knows how to take a string identifier and turn it into 
+    * a span link.
+    */
+  trait LinkDirective {
+    /** The name of the directive, as it is used in text markup. */
+    def name: String
+    /** Turns the link identifier as specified by the user in text markup into a span link.
+      * If the link id is invalid this method should return a left with a textual description
+      * of the problem. */
+    def apply(linkId: String): Either[String, SpanLink]
+  }
+
+  /** Creates a new link directive with the specified name and implementation.
+    * 
+    * The specified function receives the string used in the directive instance in text markup,
+    * e.g. 
+    */
+  def create (directiveName: String)(f: String => Either[String, SpanLink]): LinkDirective = new LinkDirective {
+    override def name = directiveName
+    override def apply (linkId: String): Either[String, SpanLink] = f(linkId)
+  }
+  
 }
