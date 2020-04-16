@@ -36,7 +36,7 @@ object LinkConfig {
       for {
         targets  <- config.get[Map[String, String]]("targets", Map.empty[String,String])
         exclude  <- config.get[Seq[Path]]("excludeFromValidation", Nil)
-        apiLinks <- config.get[Seq[ApiLinks]]("apiLinks", Nil)
+        apiLinks <- config.get[Seq[ApiLinks]]("api", Nil)
       } yield {
         val mappedTargets = targets.map {
           case (id, targetURL) => TargetDefinition(id, Target.create(targetURL))

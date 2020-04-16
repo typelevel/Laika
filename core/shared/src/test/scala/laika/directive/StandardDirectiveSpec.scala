@@ -305,6 +305,56 @@ class StandardDirectiveSpec extends AnyFlatSpec
   }
 
 
+  trait ApiDirectiveSetup {
+    def input (typeName: String) =
+      s"""{%
+         |  links.api = [
+         |    { baseUri = "https://default.api/" },
+         |    { baseUri = "https://foo.api/", packagePrefix = foo },
+         |    { baseUri = "https://bar.api/", packagePrefix = foo.bar }
+         |  ]
+         |%}
+         |
+        |aa @:api($typeName) bb
+      """.stripMargin
+  }
+
+
+  "The api directive" should "create a span link based on the default base URI" in new ApiDirectiveSetup {
+    parse(input("def.bar.Baz")).content should be (root(p(
+      Text("aa "),
+      SpanLink(Seq(Text("def.bar.Baz")), ExternalTarget(s"https://default.api/def/bar/Baz.html")),
+      Text(" bb")
+    )))
+  }
+
+  it should "create a span link based on the longest prefix match" in new ApiDirectiveSetup {
+    parse(input("foo.bar.Baz")).content should be (root(p(
+      Text("aa "),
+      SpanLink(Seq(Text("foo.bar.Baz")), ExternalTarget(s"https://bar.api/foo/bar/Baz.html")),
+      Text(" bb")
+    )))
+  }
+
+  it should "create a span link based on the shorter prefix match" in new ApiDirectiveSetup {
+    parse(input("foo.baz.Baz")).content should be (root(p(
+      Text("aa "),
+      SpanLink(Seq(Text("foo.baz.Baz")), ExternalTarget(s"https://foo.api/foo/baz/Baz.html")),
+      Text(" bb")
+    )))
+  }
+
+  it should "fail when there is no matching base URI defined" in new ApiDirectiveSetup {
+    val res = parse("aa @:api(foo.bar.Baz) bb")
+    println(res)
+    parse("aa @:api(foo.bar.Baz) bb").content should be (root(p(
+      Text("aa "),
+      InvalidElement("One or more errors processing directive 'api': No base URI defined for 'foo.bar.Baz' and no default URI available.", "@:api(foo.bar.Baz)").asSpan,
+      Text(" bb")
+    )))
+  }
+
+
   trait TreeModel {
 
     import Path.Root

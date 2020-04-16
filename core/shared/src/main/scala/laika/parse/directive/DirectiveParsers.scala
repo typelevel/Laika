@@ -78,7 +78,7 @@ object DirectiveParsers {
     lazy val attrValue: Parser[String] =
       "\"" ~> escapedText.escapedUntil('"') | (anyNot(' ','\t','\n','.',':') min 1)
 
-    lazy val defaultAttribute: Parser[BuilderField] = not(attrName) ~> attrValue.map { v => 
+    lazy val defaultAttribute: Parser[BuilderField] = not(attrName) ~> not('(') ~> attrValue.map { v => 
       BuilderField(AttributeKey.Default.key, ResolvedBuilderValue(StringValue(v))) 
     }
 

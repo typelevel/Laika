@@ -21,6 +21,7 @@ import laika.config.{ArrayValue, BooleanValue, ConfigValue, Key, NullValue, Obje
 import laika.ast.{SpanResolver, TemplateSpan, _}
 import laika.bundle.BundleOrigin
 import laika.rewrite.TemplateRewriter
+import laika.rewrite.link.LinkConfig
 import laika.rewrite.nav.TocGenerator
 
 import scala.annotation.tailrec
@@ -212,6 +213,29 @@ object StandardDirectives extends DirectiveRegistry {
       GenericReference(Seq(Text(ref)), ref, s"@:ref($ref)")
     }
   }
+
+  /** Implementation of the `api` directive that creates links to API documentation based
+    * on a specified fully-qualified type name. The type name is the only (required) attribute
+    * of the directive.
+    *
+    * The directive relies on base URIs defined in the transformation's configuration and will
+    * otherwise fail. See [[laika.rewrite.link.LinkConfig]] for details.
+    */
+  lazy val api: Links.Directive = Links.eval("api") { (linkId, cursor) =>
+    cursor.config
+      .getOpt[LinkConfig]
+      .map(_.map(_.apiLinks).getOrElse(Nil))
+      .leftMap(_.message)
+      .flatMap { apiLinks =>
+        val matching = apiLinks.toList.filter(l => linkId.startsWith(l.packagePrefix)).maximumByOption(_.packagePrefix.length)
+        matching.orElse(apiLinks.find(_.packagePrefix == "*")).fold[Either[String, SpanLink]] (
+          Left(s"No base URI defined for '$linkId' and no default URI available.")
+        ) { link => 
+          println(linkId)
+          Right(SpanLink(Seq(Text(linkId)), Target.create(link.baseUri + linkId.replaceAllLiterally(".", "/") + ".html")))
+        }
+      }
+  } 
   
   
   private def asBlock (blocks: Seq[Block], options: Options = NoOpt): Block = blocks match {
@@ -341,6 +365,6 @@ object StandardDirectives extends DirectiveRegistry {
 
   /** The complete list of standard directives for links.
     */
-  lazy val linkDirectives: Seq[Links.Directive] = Nil
+  lazy val linkDirectives: Seq[Links.Directive] = Seq(api)
   
 }
