@@ -352,6 +352,14 @@ class StandardDirectiveSpec extends AnyFlatSpec
     )))
   }
 
+  it should "create a span link for a package" in new ApiDirectiveSetup {
+    parse(input("foo.bar.package")).content should be (root(p(
+      Text("aa "),
+      SpanLink(Seq(Text("foo.bar")), ExternalTarget(s"https://bar.api/foo/bar/index.html")),
+      Text(" bb")
+    )))
+  }
+
   it should "fail when there is no matching base URI defined" in new ApiDirectiveSetup {
     val res = parse("aa @:api(foo.bar.Baz) bb")
     println(res)

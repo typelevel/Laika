@@ -235,9 +235,15 @@ object StandardDirectives extends DirectiveRegistry {
             case Seq(single)  => (single, None)
             case init :+ last => (init.mkString(char.toString), Some(last))
           }
-          val (typeName, method) = splitAtLast(linkId, '#')
-          val text = splitAtLast(typeName, '.')._2.getOrElse(typeName) + method.fold("")(m => "." + m.split('(').head)
-          val uri = link.baseUri + typeName.replaceAllLiterally(".", "/") + ".html" + method.fold("")("#" + _)
+          val (fqName, method) = splitAtLast(linkId, '#')
+          val (packageName, className) = splitAtLast(fqName, '.')
+          val isPackage = className.contains("package")
+          val typeText = if (isPackage) packageName else className.getOrElse(fqName)
+          val text = typeText + method.fold("")(m => "." + m.split('(').head)
+          val typePath = 
+            if (isPackage) packageName.replaceAllLiterally(".", "/") + "/" + link.packageSummary 
+            else fqName.replaceAllLiterally(".", "/") + ".html"
+          val uri = link.baseUri + typePath + method.fold("")("#" + _)
           Right(SpanLink(Seq(Text(text)), Target.create(uri)))
         }
       }
