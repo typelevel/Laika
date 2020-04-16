@@ -323,7 +323,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
   "The api directive" should "create a span link based on the default base URI" in new ApiDirectiveSetup {
     parse(input("def.bar.Baz")).content should be (root(p(
       Text("aa "),
-      SpanLink(Seq(Text("def.bar.Baz")), ExternalTarget(s"https://default.api/def/bar/Baz.html")),
+      SpanLink(Seq(Text("Baz")), ExternalTarget(s"https://default.api/def/bar/Baz.html")),
       Text(" bb")
     )))
   }
@@ -331,7 +331,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
   it should "create a span link based on the longest prefix match" in new ApiDirectiveSetup {
     parse(input("foo.bar.Baz")).content should be (root(p(
       Text("aa "),
-      SpanLink(Seq(Text("foo.bar.Baz")), ExternalTarget(s"https://bar.api/foo/bar/Baz.html")),
+      SpanLink(Seq(Text("Baz")), ExternalTarget(s"https://bar.api/foo/bar/Baz.html")),
       Text(" bb")
     )))
   }
@@ -339,7 +339,15 @@ class StandardDirectiveSpec extends AnyFlatSpec
   it should "create a span link based on the shorter prefix match" in new ApiDirectiveSetup {
     parse(input("foo.baz.Baz")).content should be (root(p(
       Text("aa "),
-      SpanLink(Seq(Text("foo.baz.Baz")), ExternalTarget(s"https://foo.api/foo/baz/Baz.html")),
+      SpanLink(Seq(Text("Baz")), ExternalTarget(s"https://foo.api/foo/baz/Baz.html")),
+      Text(" bb")
+    )))
+  }
+
+  it should "create a span link to a method" in new ApiDirectiveSetup {
+    parse(input("foo.baz.Baz#canEqual(that:Any\\):Boolean")).content should be (root(p(
+      Text("aa "),
+      SpanLink(Seq(Text("Baz.canEqual")), ExternalTarget(s"https://foo.api/foo/baz/Baz.html#canEqual(that:Any):Boolean")),
       Text(" bb")
     )))
   }

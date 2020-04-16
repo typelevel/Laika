@@ -231,8 +231,14 @@ object StandardDirectives extends DirectiveRegistry {
         matching.orElse(apiLinks.find(_.packagePrefix == "*")).fold[Either[String, SpanLink]] (
           Left(s"No base URI defined for '$linkId' and no default URI available.")
         ) { link => 
-          println(linkId)
-          Right(SpanLink(Seq(Text(linkId)), Target.create(link.baseUri + linkId.replaceAllLiterally(".", "/") + ".html")))
+          def splitAtLast(in: String, char: Char) = in.split(char).toSeq match {
+            case Seq(single)  => (single, None)
+            case init :+ last => (init.mkString(char.toString), Some(last))
+          }
+          val (typeName, method) = splitAtLast(linkId, '#')
+          val text = splitAtLast(typeName, '.')._2.getOrElse(typeName) + method.fold("")(m => "." + m.split('(').head)
+          val uri = link.baseUri + typeName.replaceAllLiterally(".", "/") + ".html" + method.fold("")("#" + _)
+          Right(SpanLink(Seq(Text(text)), Target.create(uri)))
         }
       }
   } 
