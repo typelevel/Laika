@@ -129,7 +129,7 @@ class SpanDirectiveAPISpec extends AnyFlatSpec
     }
     
     trait LinkDirectiveSetup {
-      val directive = Links.create("rfc") { linkId =>
+      val directive = Links.eval("rfc") { (linkId, _) =>
         Try(Integer.parseInt(linkId))
           .toEither
           .fold(

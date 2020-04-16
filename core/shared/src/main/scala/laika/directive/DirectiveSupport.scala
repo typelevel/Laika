@@ -61,14 +61,14 @@ class DirectiveSupport (blockDirectives: Seq[Blocks.Directive],
   private val linkParser = (DirectiveParsers.nameDecl <~ ws) ~ ("(" ~> text(delimitedBy(')')).embed("\\" ~> TextParsers.oneChar))
   
   override lazy val rewriteRules: Seq[DocumentCursor => RewriteRules] = Seq(
-    _ => RewriteRules.forSpans {
+    cursor => RewriteRules.forSpans {
       case LinkDefinitionReference(content, id, src, opt) if id.startsWith("@:") => 
         println(linkDirectiveMap)
         linkParser.parse(id.drop(2)).toEither.fold(
           err => Replace(InvalidElement(s"Invalid link directive: $err", src).asSpan),
           res => linkDirectiveMap.get(res._1)
             .fold[RewriteAction[Span]](Replace(InvalidElement(s"Unknown link directive: ${res._1}", src).asSpan)) { dir =>
-              dir(res._2).fold(
+              dir(res._2, cursor).fold(
                 err => Replace(InvalidElement(s"Invalid link directive: $err", src).asSpan),
                 res => Replace(res.copy(content = content, options = res.options + opt))
               )

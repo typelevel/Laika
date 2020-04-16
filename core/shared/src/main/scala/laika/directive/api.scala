@@ -24,7 +24,6 @@ import laika.config.Origin.DirectiveScope
 import laika.parse.directive.DirectiveParsers.ParsedDirective
 import laika.parse.hocon.ConfigResolver
 import laika.parse.{Failure, Success}
-import laika.rst.ext.Directives.{DirectiveParserBuilder, DirectivePartBuilder}
 
 import scala.reflect.ClassTag
 
@@ -433,6 +432,13 @@ trait BuilderContext[E <: Element] {
   }
 
   /** Creates a new directive with the specified name and part specification.
+    * 
+    * When the result of the directive is a `Left`, the directive will produce
+    * an invalid AST element with the string as the error message.
+    */
+  def eval (name: String)(part: DirectivePart[Either[String, E]]): Directive = new Directive(name, part.evalMap(identity))
+
+  /** Creates a new directive with the specified name and part specification.
     */
   def create (name: String)(part: DirectivePart[E]): Directive = new Directive(name, part)
 
@@ -441,7 +447,7 @@ trait BuilderContext[E <: Element] {
   def separator[T] (name: String, min: Int = 0, max: Int = Int.MaxValue)(part: DirectivePart[T]): SeparatorDirective[T] = new SeparatorDirective(name, part, min, max)
 
   /** Turns a collection of directives into a map,
-    *  using the name of the directive as the key.
+    * using the name of the directive as the key.
     */
   def toMap (directives: Iterable[Directive]): Map[String, Directive] = directives.map(dir => (dir.name, dir)).toMap
 
@@ -683,27 +689,39 @@ object Links {
     * a span link.
     */
   trait Directive {
+    
     /** The name of the directive, as it is used in text markup. */
     def name: String
+    
     /** Turns the link identifier as specified by the user in text markup into a span link.
       * If the link id is invalid this method should return a left with a textual description
       * of the problem. */
-    def apply(linkId: String): Either[String, SpanLink]
+    def apply(linkId: String, cursor: DocumentCursor): Either[String, SpanLink]
 
     /** Turns the link directive into a regular span directive. */
-    def asSpanDirective: Spans.Directive = Spans.create(name) {
-      Spans.dsl.defaultAttribute.as[String].evalMap(apply)
+    def asSpanDirective: Spans.Directive = Spans.eval(name) {
+      import Spans.dsl._
+      import cats.implicits._
+      (defaultAttribute.as[String], cursor).mapN(apply)
     }
   }
 
   /** Creates a new link directive with the specified name and implementation.
     * 
-    * The specified function receives the string used in the directive instance in text markup,
-    * e.g. 
+    * The specified function receives the string used in the directive instance in text markup.
     */
-  def create (directiveName: String)(f: String => Either[String, SpanLink]): Directive = new Directive {
+  def create (directiveName: String)(f: (String, DocumentCursor) => SpanLink): Directive =
+    eval(directiveName)((s,c) => Right(f(s,c)))
+
+  /** Creates a new link directive with the specified name and implementation.
+    *
+    * The specified function receives the string used in the directive instance in text markup.
+    * When the result of the function call is a `Left`, the directive will produce
+    * an invalid AST element with the string as the error message.
+    */
+  def eval (directiveName: String)(f: (String, DocumentCursor) => Either[String, SpanLink]): Directive = new Directive {
     override def name = directiveName
-    override def apply (linkId: String): Either[String, SpanLink] = f(linkId)
+    override def apply (linkId: String, cursor: DocumentCursor): Either[String, SpanLink] = f(linkId, cursor)
   }
   
 }
