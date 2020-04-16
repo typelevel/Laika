@@ -22,11 +22,11 @@ import laika.config._
 /**
   * @author Jens Halm
   */
-case class LinkConfig (targets: Seq[TargetDefinition], excludeFromValidation: Seq[Path])
+case class LinkConfig (targets: Seq[TargetDefinition], excludeFromValidation: Seq[Path], apiLinks: Seq[ApiLinks])
 
 object LinkConfig {
   
-  val empty: LinkConfig = LinkConfig(Nil, Nil)
+  val empty: LinkConfig = LinkConfig(Nil, Nil, Nil)
   
   implicit val key: DefaultKey[LinkConfig] = DefaultKey("links")
   
@@ -34,13 +34,14 @@ object LinkConfig {
     case Traced(ov: ObjectValue, _) =>
       val config = ov.toConfig
       for {
-        targets <- config.get[Map[String, String]]("targets", Map.empty[String,String])
-        exclude <- config.get[Seq[Path]]("excludeFromValidation", Nil)
+        targets  <- config.get[Map[String, String]]("targets", Map.empty[String,String])
+        exclude  <- config.get[Seq[Path]]("excludeFromValidation", Nil)
+        apiLinks <- config.get[Seq[ApiLinks]]("apiLinks", Nil)
       } yield {
         val mappedTargets = targets.map {
           case (id, targetURL) => TargetDefinition(id, Target.create(targetURL))
         }
-        LinkConfig(mappedTargets.toSeq, exclude)
+        LinkConfig(mappedTargets.toSeq, exclude, apiLinks)
       }
 
     case Traced(invalid: ConfigValue, _) => Left(InvalidType("Object", invalid))
@@ -49,3 +50,22 @@ object LinkConfig {
 }
 
 case class TargetDefinition (id: String, target: Target)
+
+case class ApiLinks (baseUri: String, packagePrefix: String = "*", packageSummary: String = "index.html")
+
+object ApiLinks {
+  
+  implicit val decoder: ConfigDecoder[ApiLinks] = {
+    case Traced(ov: ObjectValue, _) =>
+      val config = ov.toConfig
+      for {
+        baseUri <- config.get[String]("baseUri")
+        prefix  <- config.get[String]("packagePrefix", "*")
+        summary <- config.get[String]("packageSummary", "index.html")
+      } yield {
+        ApiLinks(baseUri, prefix, summary)
+      }
+
+    case Traced(invalid: ConfigValue, _) => Left(InvalidType("Object", invalid))
+  }
+}
