@@ -22,21 +22,21 @@ import laika.io.model.{RenderedDocument, RenderedTree}
 
 /** Represents a recursive book navigation structure.
   */
-trait BookNavigation {
+trait NavigationItem {
   def title: String
   def pos: Int
-  def children: Seq[BookNavigation]
+  def children: Seq[NavigationItem]
 }
 
 /** Represents a book navigation entry that only serves as a section header without linking to content.
   */
-case class BookSectionHeader (title: String, pos: Int, children: Seq[BookNavigation]) extends BookNavigation
+case class NavigationHeader (title: String, pos: Int, children: Seq[NavigationItem]) extends NavigationItem
 
 /** Represents a book navigation entry that links to content in the document tree.
   */
-case class BookNavigationLink (title: String, link: String, pos: Int, children: Seq[BookNavigation]) extends BookNavigation
+case class NavigationLink (title: String, link: String, pos: Int, children: Seq[NavigationItem]) extends NavigationItem
 
-object BookNavigation {
+object NavigationItem {
 
   /** Provides the full path to the document relative to the EPUB container root
     * from the specified virtual path of the Laika document tree.
@@ -50,20 +50,20 @@ object BookNavigation {
     s"content$parent/${finalPath.name}"
   }
 
-  def forTree (tree: RenderedTree, depth: Int, pos: Iterator[Int] = Iterator.from(0)): Seq[BookNavigation] = {
+  def forTree (tree: RenderedTree, depth: Int, pos: Iterator[Int] = Iterator.from(0)): Seq[NavigationItem] = {
 
     def hasContent (level: Int)(nav: Navigatable): Boolean = nav match {
       case _: RenderedDocument => true
       case tree: RenderedTree => if (level > 0) (tree.titleDocument.toSeq ++ tree.content).exists(hasContent(level - 1)) else false
     }
 
-    def forSections (path: Path, sections: Seq[SectionInfo], levels: Int, pos: Iterator[Int]): Seq[BookNavigation] =
+    def forSections (path: Path, sections: Seq[SectionInfo], levels: Int, pos: Iterator[Int]): Seq[NavigationItem] =
       if (levels == 0) Nil
       else for (section <- sections) yield {
         val title = section.title.extractText
         val parentPos = pos.next
         val children = forSections(path, section.content, levels - 1, pos)
-        BookNavigationLink(title, fullPath(path, forceXhtml = true) + "#" + section.id, parentPos, children)
+        NavigationLink(title, fullPath(path, forceXhtml = true) + "#" + section.id, parentPos, children)
       }
 
     if (depth == 0) Nil
@@ -73,15 +73,15 @@ object BookNavigation {
           val title = doc.title.fold(doc.name)(_.extractText) 
           val parentPos = pos.next
           val children = forSections(doc.path, doc.sections, depth - 1, pos)
-          BookNavigationLink(title, fullPath(doc.path, forceXhtml = true), parentPos, children)
+          NavigationLink(title, fullPath(doc.path, forceXhtml = true), parentPos, children)
         case subtree: RenderedTree =>
           val title = subtree.title.fold(subtree.name)(_.extractText)
           val parentPos = pos.next
           val children = forTree(subtree, depth - 1, pos)
           val targetDoc = subtree.titleDocument.orElse(subtree.content.collectFirst{ case d: RenderedDocument => d }).get
           val link = fullPath(targetDoc.path, forceXhtml = true)
-          if (depth == 1 || subtree.titleDocument.nonEmpty) BookNavigationLink(title, link, parentPos, children)
-          else BookSectionHeader(title, parentPos, children)
+          if (depth == 1 || subtree.titleDocument.nonEmpty) NavigationLink(title, link, parentPos, children)
+          else NavigationHeader(title, parentPos, children)
       }
     }
   }

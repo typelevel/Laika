@@ -69,19 +69,19 @@ class NCXRenderer {
     * @param bookNav the structure to generate navPoints for
     * @return the navPoint XML nodes for the specified document tree
     */
-  def navPoints (bookNav: Seq[BookNavigation]): String = {
+  def navPoints (bookNav: Seq[NavigationItem]): String = {
 
-    def linkOfFirstChild(children: Seq[BookNavigation]): BookNavigationLink = children.head match {
-      case link: BookNavigationLink => link
-      case header: BookSectionHeader => linkOfFirstChild(header.children)
+    def linkOfFirstChild(children: Seq[NavigationItem]): NavigationLink = children.head match {
+      case link: NavigationLink => link
+      case header: NavigationHeader => linkOfFirstChild(header.children)
     }
 
     bookNav.map {
 
-      case BookSectionHeader(title, pos, children) =>
+      case NavigationHeader(title, pos, children) =>
         navPoint(title, linkOfFirstChild(children).link, pos, navPoints(children)) // NCX does not allow navigation headers without links
 
-      case BookNavigationLink(title, link, pos, children) =>
+      case NavigationLink(title, link, pos, children) =>
         navPoint(title, link, pos, navPoints(children))
 
     }.mkString("\n")
@@ -95,7 +95,7 @@ class NCXRenderer {
     */
   def render[F[_]] (result: RenderedTreeRoot[F], identifier: String, depth: Int): String = {
     val title = result.title.fold("UNTITLED")(_.extractText)
-    val bookNav = BookNavigation.forTree(result.tree, depth)
+    val bookNav = NavigationItem.forTree(result.tree, depth)
     val renderedNavPoints = navPoints(bookNav)
     fileContent(identifier, title, renderedNavPoints, depth)
   }

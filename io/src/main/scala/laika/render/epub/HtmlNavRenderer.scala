@@ -74,11 +74,11 @@ class HtmlNavRenderer {
     * @param bookNav the navigation items to generate navPoints for
     * @return the navPoint XML nodes for the specified document tree as a String
     */
-  def navItems (bookNav: Seq[BookNavigation]): String =
+  def navItems (bookNav: Seq[NavigationItem]): String =
     if (bookNav.isEmpty) ""
     else bookNav.map {
-      case BookSectionHeader(title, pos, children)        => navHeader(title, pos, navItems(children))
-      case BookNavigationLink(title, link, pos, children) => navLink(title, link, pos, navItems(children))
+      case NavigationHeader(title, pos, children)        => navHeader(title, pos, navItems(children))
+      case NavigationLink(title, link, pos, children) => navLink(title, link, pos, navItems(children))
     }.mkString("      <ol class=\"toc\">\n", "\n", "\n      </ol>")
 
   /** Renders the entire content of an EPUB HTML navigation file for
@@ -89,13 +89,13 @@ class HtmlNavRenderer {
     */
   def render[F[_]] (result: RenderedTreeRoot[F], depth: Int): String = {
     val title = result.title.fold("UNTITLED")(_.extractText)
-    val bookNav = BookNavigation.forTree(result.tree, depth)
+    val bookNav = NavigationItem.forTree(result.tree, depth)
     val styles = collectStylePaths(result).map { path =>
       s"""<link rel="stylesheet" type="text/css" href="content${path.toString}" />"""
     }.mkString("\n    ")
     val renderedNavPoints = navItems(bookNav)
-    val coverDoc = result.coverDocument.map(doc => BookNavigation.fullPath(doc.path, forceXhtml = true))
-    val titleDoc = result.titleDocument.map(doc => BookNavigation.fullPath(doc.path, forceXhtml = true))
+    val coverDoc = result.coverDocument.map(doc => NavigationItem.fullPath(doc.path, forceXhtml = true))
+    val titleDoc = result.titleDocument.map(doc => NavigationItem.fullPath(doc.path, forceXhtml = true))
 
     fileContent(title, styles, renderedNavPoints, coverDoc, titleDoc)
   }
