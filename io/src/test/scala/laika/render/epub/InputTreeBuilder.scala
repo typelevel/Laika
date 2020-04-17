@@ -31,7 +31,7 @@ trait InputTreeBuilder extends ModelBuilder with InputBuilder {
   def doc(path: Path, num: Int, sections: Seq[SectionInfo] = Nil): RenderedDocument = 
     RenderedDocument(path.withSuffix("xhtml"), Some(SpanSequence(Text(s"Title $num"))), sections, "zzz")
 
-  def section(letter: Char) = SectionInfo(letter.toString, TitleInfo(Seq(Text(s"Section $letter"))), Nil)
+  def section(letter: Char) = SectionInfo(letter.toString, SpanSequence(s"Section $letter"), Nil)
 
   def sections: Seq[SectionInfo] = Seq(section('A'), section('B'))
 

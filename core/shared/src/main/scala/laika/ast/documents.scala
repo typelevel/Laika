@@ -96,15 +96,7 @@ case class UnresolvedDocument (document: Document, config: ConfigParser)
 
 /** Captures information about a document section, without its content.
  */
-case class SectionInfo (id: String, title: TitleInfo, content: Seq[SectionInfo]) extends Element with ElementContainer[SectionInfo]
-
-/** Represents a section title.
- */
-case class TitleInfo (content: Seq[Span], options: Options = NoOpt) extends SpanContainer {
-  type Self = TitleInfo
-  def withContent (newContent: Seq[Span]): TitleInfo = copy(content = newContent)
-  def withOptions (options: Options): TitleInfo = copy(options = options)
-}
+case class SectionInfo (id: String, title: SpanSequence, content: Seq[SectionInfo]) extends Element with ElementContainer[SectionInfo]
 
 /** Metadata associated with a document.
   */
@@ -218,8 +210,8 @@ trait DocumentStructure { this: TreeContent =>
 
     def extractSections (blocks: Seq[Block]): Seq[SectionInfo] = {
       blocks collect {
-        case Section(Header(_,header,Id(id)), content, _) =>
-          SectionInfo(id, TitleInfo(header), extractSections(content))
+        case Section(Header(_, header, Id(id)), content, _) =>
+          SectionInfo(id, SpanSequence(header), extractSections(content))
       }
     }
     extractSections(findRoot)

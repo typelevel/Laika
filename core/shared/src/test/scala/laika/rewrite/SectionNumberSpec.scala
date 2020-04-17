@@ -55,7 +55,7 @@ class SectionNumberSpec extends AnyFlatSpec
       Section(numberedHeader(level, title, num), children)
 
     def numberedSectionInfo (level: Int, title: Int, num: List[Int], children: SectionInfo*): SectionInfo =
-      SectionInfo(s"title-$title", TitleInfo(numberedHeader(level, title, num).content), children)
+      SectionInfo(s"title-$title", SpanSequence(numberedHeader(level, title, num).content), children)
 
 
     def treeView (content: List[Int] => List[DocumentContent]): TreeView = {

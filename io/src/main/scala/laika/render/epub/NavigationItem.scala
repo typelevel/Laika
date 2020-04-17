@@ -23,17 +23,17 @@ import laika.io.model.{RenderedDocument, RenderedTree}
 /** Represents a recursive book navigation structure.
   */
 trait NavigationItem {
-  def title: String
+  def title: SpanSequence
   def children: Seq[NavigationItem]
 }
 
 /** Represents a book navigation entry that only serves as a section header without linking to content.
   */
-case class NavigationHeader (title: String, children: Seq[NavigationItem]) extends NavigationItem
+case class NavigationHeader (title: SpanSequence, children: Seq[NavigationItem]) extends NavigationItem
 
 /** Represents a book navigation entry that links to content in the document tree.
   */
-case class NavigationLink (title: String, link: String, children: Seq[NavigationItem]) extends NavigationItem
+case class NavigationLink (title: SpanSequence, link: String, children: Seq[NavigationItem]) extends NavigationItem
 
 object NavigationItem {
 
@@ -59,7 +59,7 @@ object NavigationItem {
     def forSections (path: Path, sections: Seq[SectionInfo], levels: Int): Seq[NavigationItem] =
       if (levels == 0) Nil
       else for (section <- sections) yield {
-        val title = section.title.extractText
+        val title = section.title
         val children = forSections(path, section.content, levels - 1)
         NavigationLink(title, fullPath(path, forceXhtml = true) + "#" + section.id, children)
       }
@@ -68,11 +68,11 @@ object NavigationItem {
     else {
       for (nav <- tree.content if hasContent(depth - 1)(nav)) yield nav match {
         case doc: RenderedDocument =>
-          val title = doc.title.fold(doc.name)(_.extractText) 
+          val title = doc.title.getOrElse(SpanSequence(doc.name)) 
           val children = forSections(doc.path, doc.sections, depth - 1)
           NavigationLink(title, fullPath(doc.path, forceXhtml = true), children)
         case subtree: RenderedTree =>
-          val title = subtree.title.fold(subtree.name)(_.extractText)
+          val title = subtree.title.getOrElse(SpanSequence(subtree.name))
           val children = forTree(subtree, depth - 1)
           val targetDoc = subtree.titleDocument.orElse(subtree.content.collectFirst{ case d: RenderedDocument => d }).get
           val link = fullPath(targetDoc.path, forceXhtml = true)
