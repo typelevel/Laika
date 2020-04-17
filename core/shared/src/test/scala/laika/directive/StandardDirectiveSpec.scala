@@ -362,7 +362,6 @@ class StandardDirectiveSpec extends AnyFlatSpec
 
   it should "fail when there is no matching base URI defined" in new ApiDirectiveSetup {
     val res = parse("aa @:api(foo.bar.Baz) bb")
-    println(res)
     parse("aa @:api(foo.bar.Baz) bb").content should be (root(p(
       Text("aa "),
       InvalidElement("One or more errors processing directive 'api': No base URI defined for 'foo.bar.Baz' and no default URI available.", "@:api(foo.bar.Baz)").asSpan,

@@ -78,10 +78,10 @@ class NCXRenderer {
     bookNav.map {
 
       case NavigationHeader(title, children) =>
-        navPoint(title.extractText, linkOfFirstChild(children).link, pos.next, navPoints(children, pos)) // NCX does not allow navigation headers without links
+        navPoint(title.extractText, linkOfFirstChild(children).target.render(), pos.next, navPoints(children, pos)) // NCX does not allow navigation headers without links
 
-      case NavigationLink(title, link, children) =>
-        navPoint(title.extractText, link, pos.next, navPoints(children, pos))
+      case NavigationLink(title, target, children) =>
+        navPoint(title.extractText, target.render(), pos.next, navPoints(children, pos))
 
     }.mkString("\n")
   }

@@ -33,7 +33,7 @@ case class NavigationHeader (title: SpanSequence, children: Seq[NavigationItem])
 
 /** Represents a book navigation entry that links to content in the document tree.
   */
-case class NavigationLink (title: SpanSequence, link: String, children: Seq[NavigationItem]) extends NavigationItem
+case class NavigationLink (title: SpanSequence, target: Target, children: Seq[NavigationItem]) extends NavigationItem
 
 object NavigationItem {
 
@@ -61,7 +61,7 @@ object NavigationItem {
       else for (section <- sections) yield {
         val title = section.title
         val children = forSections(path, section.content, levels - 1)
-        NavigationLink(title, fullPath(path, forceXhtml = true) + "#" + section.id, children)
+        NavigationLink(title, Target.create(fullPath(path, forceXhtml = true) + "#" + section.id), children)
       }
 
     if (depth == 0) Nil
@@ -70,12 +70,12 @@ object NavigationItem {
         case doc: RenderedDocument =>
           val title = doc.title.getOrElse(SpanSequence(doc.name)) 
           val children = forSections(doc.path, doc.sections, depth - 1)
-          NavigationLink(title, fullPath(doc.path, forceXhtml = true), children)
+          NavigationLink(title, Target.create(fullPath(doc.path, forceXhtml = true)), children)
         case subtree: RenderedTree =>
           val title = subtree.title.getOrElse(SpanSequence(subtree.name))
           val children = forTree(subtree, depth - 1)
           val targetDoc = subtree.titleDocument.orElse(subtree.content.collectFirst{ case d: RenderedDocument => d }).get
-          val link = fullPath(targetDoc.path, forceXhtml = true)
+          val link = Target.create(fullPath(targetDoc.path, forceXhtml = true))
           if (depth == 1 || subtree.titleDocument.nonEmpty) NavigationLink(title, link, children)
           else NavigationHeader(title, children)
       }
