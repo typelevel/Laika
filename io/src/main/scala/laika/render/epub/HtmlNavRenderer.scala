@@ -16,6 +16,7 @@
 
 package laika.render.epub
 
+import laika.ast.{NavigationHeader, NavigationItem, NavigationLink}
 import laika.io.model.RenderedTreeRoot
 import laika.render.epub.StyleSupport.collectStylePaths
 
@@ -88,13 +89,13 @@ class HtmlNavRenderer {
     */
   def render[F[_]] (result: RenderedTreeRoot[F], depth: Int): String = {
     val title = result.title.fold("UNTITLED")(_.extractText)
-    val bookNav = NavigationItem.forTree(result.tree, depth)
+    val bookNav = NavigationBuilder.forTree(result.tree, depth)
     val styles = collectStylePaths(result).map { path =>
       s"""<link rel="stylesheet" type="text/css" href="content${path.toString}" />"""
     }.mkString("\n    ")
     val renderedNavPoints = navItems(bookNav)
-    val coverDoc = result.coverDocument.map(doc => NavigationItem.fullPath(doc.path, forceXhtml = true))
-    val titleDoc = result.titleDocument.map(doc => NavigationItem.fullPath(doc.path, forceXhtml = true))
+    val coverDoc = result.coverDocument.map(doc => NavigationBuilder.fullPath(doc.path, forceXhtml = true))
+    val titleDoc = result.titleDocument.map(doc => NavigationBuilder.fullPath(doc.path, forceXhtml = true))
 
     fileContent(title, styles, renderedNavPoints, coverDoc, titleDoc)
   }

@@ -16,6 +16,7 @@
 
 package laika.render.epub
 
+import laika.ast.{NavigationHeader, NavigationItem, NavigationLink}
 import laika.io.model.RenderedTreeRoot
 
 /** Renders the entire content of an NCX navigation file.
@@ -94,7 +95,7 @@ class NCXRenderer {
     */
   def render[F[_]] (result: RenderedTreeRoot[F], identifier: String, depth: Int): String = {
     val title = result.title.fold("UNTITLED")(_.extractText)
-    val bookNav = NavigationItem.forTree(result.tree, depth)
+    val bookNav = NavigationBuilder.forTree(result.tree, depth)
     val renderedNavPoints = navPoints(bookNav)
     fileContent(identifier, title, renderedNavPoints, depth)
   }

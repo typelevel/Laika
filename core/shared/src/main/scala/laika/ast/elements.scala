@@ -421,6 +421,34 @@ case class SectionNumber(position: Seq[Int], options: Options = NoOpt) extends S
   def withOptions (options: Options): SectionNumber = copy(options = options)
 }
 
+/** Represents a recursive book navigation structure.
+  */
+trait NavigationItem extends Block with ElementContainer[NavigationItem] with RewritableContainer {
+  type Self <: NavigationItem
+  def title: SpanSequence
+}
+
+/** Represents a book navigation entry that only serves as a section header without linking to content.
+  */
+case class NavigationHeader (title: SpanSequence, content: Seq[NavigationItem], options: Options = NoOpt) extends NavigationItem {
+  type Self = NavigationHeader
+  def rewriteChildren (rules: RewriteRules): NavigationHeader = copy(
+    title = title.rewriteChildren(rules),
+    content = content.map(_.rewriteChildren(rules))
+  )
+  def withOptions (options: Options): NavigationHeader = copy(options = options)
+}
+
+/** Represents a book navigation entry that links to content in the document tree.
+  */
+case class NavigationLink (title: SpanSequence, target: Target, content: Seq[NavigationItem], options: Options = NoOpt) extends NavigationItem {
+  type Self = NavigationLink
+  def rewriteChildren (rules: RewriteRules): NavigationLink = copy(
+    title = title.rewriteChildren(rules),
+    content = content.map(_.rewriteChildren(rules))
+  )
+  def withOptions (options: Options): NavigationLink = copy(options = options)
+}
 
 /** A generic container element containing a list of blocks. Can be used where a sequence
  *  of blocks must be inserted in a place where a single element is required by the API.

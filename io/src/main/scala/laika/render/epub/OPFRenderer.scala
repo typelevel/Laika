@@ -66,7 +66,7 @@ class OPFRenderer {
 
   private case class DocumentRef (path: Path, mediaType: String, isSpine: Boolean, isTitle: Boolean = false, isCover: Boolean = false, forceXhtml: Boolean = false) {
 
-    val link = NavigationItem.fullPath(path, forceXhtml)
+    val link = NavigationBuilder.fullPath(path, forceXhtml)
 
     val id = link.drop(8).replaceAllLiterally("/", "_").replaceAllLiterally(".", "_")
 
