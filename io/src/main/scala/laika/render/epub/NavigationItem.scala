@@ -22,18 +22,32 @@ import laika.io.model.{RenderedDocument, RenderedTree}
 
 /** Represents a recursive book navigation structure.
   */
-trait NavigationItem {
+trait NavigationItem extends Block with ElementContainer[NavigationItem] with RewritableContainer {
+  type Self <: NavigationItem
   def title: SpanSequence
-  def children: Seq[NavigationItem]
 }
 
 /** Represents a book navigation entry that only serves as a section header without linking to content.
   */
-case class NavigationHeader (title: SpanSequence, children: Seq[NavigationItem]) extends NavigationItem
+case class NavigationHeader (title: SpanSequence, content: Seq[NavigationItem], options: Options = NoOpt) extends NavigationItem {
+  type Self = NavigationHeader
+  def rewriteChildren (rules: RewriteRules): NavigationHeader = copy(
+    title = title.rewriteChildren(rules), 
+    content = content.map(_.rewriteChildren(rules))
+  )
+  def withOptions (options: Options): NavigationHeader = copy(options = options)
+}
 
 /** Represents a book navigation entry that links to content in the document tree.
   */
-case class NavigationLink (title: SpanSequence, target: Target, children: Seq[NavigationItem]) extends NavigationItem
+case class NavigationLink (title: SpanSequence, target: Target, content: Seq[NavigationItem], options: Options = NoOpt) extends NavigationItem {
+  type Self = NavigationLink
+  def rewriteChildren (rules: RewriteRules): NavigationLink = copy(
+    title = title.rewriteChildren(rules),
+    content = content.map(_.rewriteChildren(rules))
+  )
+  def withOptions (options: Options): NavigationLink = copy(options = options)
+}
 
 object NavigationItem {
 

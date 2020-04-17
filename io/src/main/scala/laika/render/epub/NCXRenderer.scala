@@ -72,15 +72,15 @@ class NCXRenderer {
 
     def linkOfFirstChild(children: Seq[NavigationItem]): NavigationLink = children.head match {
       case link: NavigationLink => link
-      case header: NavigationHeader => linkOfFirstChild(header.children)
+      case header: NavigationHeader => linkOfFirstChild(header.content)
     }
 
     bookNav.map {
 
-      case NavigationHeader(title, children) =>
+      case NavigationHeader(title, children, _) =>
         navPoint(title.extractText, linkOfFirstChild(children).target.render(), pos.next, navPoints(children, pos)) // NCX does not allow navigation headers without links
 
-      case NavigationLink(title, target, children) =>
+      case NavigationLink(title, target, children, _) =>
         navPoint(title.extractText, target.render(), pos.next, navPoints(children, pos))
 
     }.mkString("\n")
