@@ -16,7 +16,6 @@
 
 package laika.render.epub
 
-import laika.ast._
 import laika.io.model.RenderedTreeRoot
 import laika.render.epub.StyleSupport.collectStylePaths
 
@@ -52,7 +51,7 @@ class HtmlNavRenderer {
 
   /** Renders a single navigation link.
     */
-  def navLink (title: String, link: String, pos: Int, children: String, epubType: String = ""): String =
+  private def navLink (title: String, link: String, pos: Int, children: String, epubType: String = ""): String =
     s"""        <li id="toc-li-$pos">
        |          <a ${epubType}href="$link">$title</a>
        |$children
@@ -60,7 +59,7 @@ class HtmlNavRenderer {
 
   /** Renders a single navigation header.
     */
-  def navHeader (title: String, pos: Int, children: String): String =
+  private def navHeader (title: String, pos: Int, children: String): String =
     s"""        <li id="toc-li-$pos">
        |          <span>$title</span>
        |$children
@@ -74,11 +73,11 @@ class HtmlNavRenderer {
     * @param bookNav the navigation items to generate navPoints for
     * @return the navPoint XML nodes for the specified document tree as a String
     */
-  def navItems (bookNav: Seq[NavigationItem]): String =
+  private def navItems (bookNav: Seq[NavigationItem], pos: Iterator[Int] = Iterator.from(0)): String =
     if (bookNav.isEmpty) ""
     else bookNav.map {
-      case NavigationHeader(title, pos, children)        => navHeader(title, pos, navItems(children))
-      case NavigationLink(title, link, pos, children) => navLink(title, link, pos, navItems(children))
+      case NavigationHeader(title, children)     => navHeader(title, pos.next, navItems(children, pos))
+      case NavigationLink(title, link, children) => navLink(title, link, pos.next, navItems(children, pos))
     }.mkString("      <ol class=\"toc\">\n", "\n", "\n      </ol>")
 
   /** Renders the entire content of an EPUB HTML navigation file for

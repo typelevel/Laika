@@ -16,7 +16,6 @@
 
 package laika.render.epub
 
-import laika.ast._
 import laika.io.model.RenderedTreeRoot
 
 /** Renders the entire content of an NCX navigation file.
@@ -52,7 +51,7 @@ class NCXRenderer {
 
   /** Renders a single navPoint node.
     */
-  def navPoint (title: String, link: String, pos: Int, children: String): String =
+  private def navPoint (title: String, link: String, pos: Int, children: String): String =
     s"""    <navPoint id="navPoint-$pos">
        |      <navLabel>
        |        <text>$title</text>
@@ -69,7 +68,7 @@ class NCXRenderer {
     * @param bookNav the structure to generate navPoints for
     * @return the navPoint XML nodes for the specified document tree
     */
-  def navPoints (bookNav: Seq[NavigationItem]): String = {
+  private def navPoints (bookNav: Seq[NavigationItem], pos: Iterator[Int] = Iterator.from(0)): String = {
 
     def linkOfFirstChild(children: Seq[NavigationItem]): NavigationLink = children.head match {
       case link: NavigationLink => link
@@ -78,11 +77,11 @@ class NCXRenderer {
 
     bookNav.map {
 
-      case NavigationHeader(title, pos, children) =>
-        navPoint(title, linkOfFirstChild(children).link, pos, navPoints(children)) // NCX does not allow navigation headers without links
+      case NavigationHeader(title, children) =>
+        navPoint(title, linkOfFirstChild(children).link, pos.next, navPoints(children, pos)) // NCX does not allow navigation headers without links
 
-      case NavigationLink(title, link, pos, children) =>
-        navPoint(title, link, pos, navPoints(children))
+      case NavigationLink(title, link, children) =>
+        navPoint(title, link, pos.next, navPoints(children, pos))
 
     }.mkString("\n")
   }
