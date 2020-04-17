@@ -96,7 +96,23 @@ case class UnresolvedDocument (document: Document, config: ConfigParser)
 
 /** Captures information about a document section, without its content.
  */
-case class SectionInfo (id: String, title: SpanSequence, content: Seq[SectionInfo]) extends Element with ElementContainer[SectionInfo]
+case class SectionInfo (id: String, title: SpanSequence, content: Seq[SectionInfo]) extends Element with ElementContainer[SectionInfo] {
+
+  /** Creates the navigation structure for this section up to the specified depth.
+    * The returned instance can be used as part of a bigger navigation structure comprising of documents and trees. 
+    * 
+    * @param docPath the path of the document this section belongs to
+    * @param refPath the path of document from which this section will be linked (for creating a corresponding relative path)
+    * @param levels the number of levels below this section to create navigation info for
+    * @return a navigation item that can be used as part of a bigger navigation structure comprising of documents and trees
+    */
+  def asNavigationItem (docPath: Path, refPath: Path = Root, levels: Int = Int.MaxValue): NavigationItem = {
+    val target = InternalTarget(docPath.withFragment(id), docPath.withFragment(id).relativeTo(refPath))
+    val children = if (levels == 0) Nil else content.map(_.asNavigationItem(docPath, refPath, levels - 1))
+    NavigationLink(title, target, children)
+  }
+
+}
 
 /** Metadata associated with a document.
   */
