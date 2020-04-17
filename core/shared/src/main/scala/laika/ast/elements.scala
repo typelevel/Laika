@@ -1042,17 +1042,24 @@ object Inserted extends SpanContainerCompanion {
 /** Represents a target that can be referred to by links,
   * either within the virtual tree or external.
   */
-sealed trait Target
+sealed trait Target {
+  def render (internalTargetsAbsolute: Boolean = false): String
+}
 
 /** An external link, outside of the virtual tree of the current transformation.
   */
-case class ExternalTarget (url: String) extends Target
+case class ExternalTarget (url: String) extends Target {
+  def render (internalTargetsAbsolute: Boolean = false): String = url
+}
 
 /** Represents an internal target with an absolute and relative path, the latter
   * relative to the document that referred to the target. 
   */
 case class InternalTarget (absolutePath: Path, relativePath: RelativePath) extends Target {
   def relativeTo (refPath: Path): InternalTarget = InternalTarget.fromPath(relativePath, refPath)
+  def render (internalTargetsAbsolute: Boolean = false): String = 
+    if (internalTargetsAbsolute) absolutePath.toString
+    else relativePath.toString
 }
 object Target {
   
