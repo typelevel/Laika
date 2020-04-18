@@ -35,36 +35,21 @@ object NavigationBuilder {
   }
 
   def forTree (tree: RenderedTree, depth: Int): Seq[NavigationItem] = {
-
-    def hasContent (level: Int)(nav: Navigatable): Boolean = nav match {
-      case _: RenderedDocument => true
-      case tree: RenderedTree => if (level > 0) (tree.titleDocument.toSeq ++ tree.content).exists(hasContent(level - 1)) else false
-    }
-
-    def forSections (path: Path, sections: Seq[SectionInfo], levels: Int): Seq[NavigationItem] =
-      if (levels == 0) Nil
-      else for (section <- sections) yield {
-        val title = section.title
-        val children = forSections(path, section.content, levels - 1)
-        NavigationLink(title, Target.create(fullPath(path, forceXhtml = true) + "#" + section.id), children)
-      }
-
-    if (depth == 0) Nil
-    else {
-      for (nav <- tree.content if hasContent(depth - 1)(nav)) yield nav match {
-        case doc: RenderedDocument =>
-          val title = doc.title.getOrElse(SpanSequence(doc.name)) 
-          val children = forSections(doc.path, doc.sections, depth - 1)
-          NavigationLink(title, Target.create(fullPath(doc.path, forceXhtml = true)), children)
-        case subtree: RenderedTree =>
-          val title = subtree.title.getOrElse(SpanSequence(subtree.name))
-          val children = forTree(subtree, depth - 1)
-          val targetDoc = subtree.titleDocument.orElse(subtree.content.collectFirst{ case d: RenderedDocument => d }).get
-          val link = Target.create(fullPath(targetDoc.path, forceXhtml = true))
-          if (depth == 1 || subtree.titleDocument.nonEmpty) NavigationLink(title, link, children)
-          else NavigationHeader(title, children)
+    
+    def adjustPath (item: NavigationItem): NavigationItem = item match {
+      case h: NavigationHeader => h.copy(content = h.content.map(adjustPath))
+      case l: NavigationLink => l.target match {
+        case _: ExternalTarget => l
+        case InternalTarget(_, rel) => 
+          val adjustedPath = (Root / "content" / rel).withSuffix("epub.xhtml")
+          l.copy(
+            content = l.content.map(adjustPath),
+            target = InternalTarget(adjustedPath, adjustedPath.relativeTo(Root))
+          )
       }
     }
+    
+    tree.asNavigationItem(levels = depth).content.map(adjustPath)
   }
-  
+
 }

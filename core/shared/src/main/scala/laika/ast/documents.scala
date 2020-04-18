@@ -376,12 +376,16 @@ trait TreeStructure { this: TreeContent =>
     * @return a navigation item that can be used as part of a bigger navigation structure comprising of trees, documents and their sections
     */
   def asNavigationItem (refPath: Path = Root, levels: Int = Int.MaxValue): NavigationItem = {
-    val children = if (levels == 0) Nil else content.map(_.asNavigationItem(refPath, levels - 1))
+    def hasLinks (item: NavigationItem): Boolean = item match {
+      case _: NavigationLink => true
+      case h: NavigationHeader => h.content.exists(hasLinks)
+    }
+    val children = if (levels == 0) Nil else content.map(_.asNavigationItem(refPath, levels - 1)).filter(hasLinks)
     val navTitle = title.getOrElse(SpanSequence(path.name))
     titleDocument.fold[NavigationItem](
       NavigationHeader(navTitle, children)
     ) { titleDoc =>
-      val target = InternalTarget(titleDoc.path, path.relativeTo(refPath))
+      val target = InternalTarget(titleDoc.path, titleDoc.path.relativeTo(refPath))
       NavigationLink(navTitle, target, children)
     }
   }
