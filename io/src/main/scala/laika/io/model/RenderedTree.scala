@@ -16,13 +16,12 @@
 
 package laika.io.model
 
-import laika.ast.{Navigatable, Path, SectionInfo, SpanSequence, TemplateRoot}
+import laika.ast.{DocumentNavigation, Navigatable, Path, SectionInfo, SpanSequence, TemplateRoot}
 import laika.config.Config
 
 /** A titled, positional element in the tree of rendered documents.
   */
 sealed trait RenderContent extends Navigatable {
-  def path: Path
   def title: Option[SpanSequence]
 }
 
@@ -43,7 +42,7 @@ case class RenderedTree (path: Path,
   * The title and section info are still represented as an AST, so they be used in any subsequent
   * step that needs to produce navigation structures.
   */
-case class RenderedDocument (path: Path, title: Option[SpanSequence], sections: Seq[SectionInfo], content: String) extends RenderContent
+case class RenderedDocument (path: Path, title: Option[SpanSequence], sections: Seq[SectionInfo], content: String) extends RenderContent with DocumentNavigation
 
 /** Represents the root of a tree of rendered documents. In addition to the recursive structure of documents
   * it holds additional items like static or cover documents, which may contribute to the output of a site or an e-book.

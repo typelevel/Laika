@@ -73,6 +73,36 @@ sealed trait TreeContent extends Navigatable {
 
 }
 
+/** Represents a document structure with sections that can be turned into a navigation structure.
+  */
+trait DocumentNavigation extends Navigatable {
+
+  /** The title of this document, obtained from the document
+    * structure or from the configuration. In case no title
+    * is defined in either of the two places the result will
+    * be `None`.
+    */
+  def title: Option[SpanSequence]
+
+  /** The section structure of this document based on the hierarchy
+    * of headers found in the original text markup.
+    */
+  def sections: Seq[SectionInfo]
+
+  /** Creates the navigation structure for this document up to the specified depth.
+    * The returned instance can be used as part of a bigger navigation structure comprising of trees, documents and their sections. 
+    *
+    * @param refPath the path of document from which this section will be linked (for creating a corresponding relative path)
+    * @param levels the number of section levels to create navigation info for
+    * @return a navigation item that can be used as part of a bigger navigation structure comprising of trees, documents and their sections
+    */
+  def asNavigationItem (refPath: Path = Root, levels: Int = Int.MaxValue): NavigationItem = {
+    val target = InternalTarget(path, path.relativeTo(refPath))
+    val children = if (levels == 0) Nil else sections.map(_.asNavigationItem(path, refPath, levels - 1))
+    NavigationLink(title.getOrElse(SpanSequence(path.name)), target, children)
+  }
+  
+}
 
 /** A template document containing the element tree of a parsed template and its extracted
  *  configuration section (if present).
@@ -191,7 +221,7 @@ object TreePosition {
 
 /** The structure of a markup document.
   */
-trait DocumentStructure { this: TreeContent =>
+trait DocumentStructure extends DocumentNavigation { this: TreeContent =>
 
   /** The tree model obtained from parsing the markup document.
     */
