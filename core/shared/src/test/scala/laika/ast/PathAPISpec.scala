@@ -440,7 +440,7 @@ class PathAPISpec extends AnyWordSpec
 
   "The relativeTo method" should {
     
-    "create a relative path pointing to the same directory" in {
+    "create a relative path pointing to the same document" in {
       (Root / "a").relativeTo(Root / "a") shouldBe Current
     }
 
@@ -448,12 +448,12 @@ class PathAPISpec extends AnyWordSpec
       (Root / "a").relativeTo(Root / "a" / "b") shouldBe Parent(1)
     }
 
-    "create a relative path pointing to a child directory" in {
-      (Root / "a" / "b").relativeTo(Root / "a") shouldBe (Current / "b")
+    "create a relative path pointing to a document in the parent directory" in {
+      (Root / "c").relativeTo(Root / "a" / "b") shouldBe (Parent(1) / "c")
     }
 
-    "create a relative path pointing to a sibling directory" in {
-      (Root / "a" / "b").relativeTo(Root / "a" / "c") shouldBe (Parent(1) / "b")
+    "create a relative path pointing to a document in the same directory" in {
+      (Root / "a" / "b").relativeTo(Root / "a" / "c") shouldBe (Current / "b")
     }
 
     "create a path relative path to Root" in {

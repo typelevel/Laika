@@ -150,9 +150,14 @@ sealed trait Path extends PathBase {
   def relative: RelativePath = relativeTo(Root)
 
   /** Interprets this path relative to some other path.
-   */
-  def relativeTo (path: Path): RelativePath
+    * 
+    * The reference path is interpreted as a document path,
+    * as relative paths are most commonly used from the perspective of a document, not a tree node.
+    */
+  def relativeTo (refPath: Path): RelativePath
   
+  /** Indicates whether this path is a sub-path of (or identical to) the specified other path. 
+    */
   def isSubPath (other: Path): Boolean
   
 }
@@ -174,12 +179,14 @@ case class SegmentedPath (segments: NonEmptyChain[String], suffix: Option[String
   }
   
   def relativeTo (path: Path): RelativePath = {
+
+    val refPath = if (path.isSubPath(withoutFragment)) path else path.parent
     
     def removeCommonParts (a: List[String], b: List[String]): (List[String],List[String]) = (a,b) match {
       case (p1 :: rest1, p2 :: rest2) if p1 == p2 => removeCommonParts(rest1,rest2)
       case _ => (a,b)
     }
-    val (a, b) = path match {
+    val (a, b) = refPath match {
       case Root => (Nil, segments.init.toList :+ name)
       case other: SegmentedPath => removeCommonParts(other.segments.init.toList :+ other.name, segments.init.toList :+ name)
     } 

@@ -348,9 +348,8 @@ object StandardDirectives extends DirectiveRegistry {
     val options: Options = NoOpt
 
     def resolve (cursor: DocumentCursor): TemplateElement = {
-      val refPath = cursor.parent.target.path
       val allLinks = cursor.root.target.staticDocuments.filter(_.suffix.contains("css")).map { staticPath =>
-        val path = staticPath.relativeTo(refPath).toString
+        val path = staticPath.relativeTo(cursor.path).toString
         s"""<link rel="stylesheet" type="text/css" href="$path" />"""
       }
       TemplateElement(RawContent(Seq("html","xhtml"), allLinks.mkString("\n    ")))

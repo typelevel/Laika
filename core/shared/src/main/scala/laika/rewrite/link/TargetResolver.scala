@@ -55,10 +55,7 @@ object ReferenceResolver {
   def lift(f: PartialFunction[LinkSource, Span]): LinkSource => Option[Span] = f.lift
   def internalLink (target: Path): LinkSource => Option[Span] = lift {
     case LinkSource(InternalReference(content, _, _, title, opt), sourcePath) =>
-      val relPath =
-        if (sourcePath == target.withoutFragment) target.relativeTo(sourcePath)
-        else target.relativeTo(sourcePath.parent)
-      SpanLink(content, InternalTarget(target, relPath), title, opt)
+      SpanLink(content, InternalTarget(target, target.relativeTo(sourcePath)), title, opt)
   }
 }
 

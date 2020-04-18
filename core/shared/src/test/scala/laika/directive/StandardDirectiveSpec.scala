@@ -433,9 +433,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
 
     def hasTitleDocLinks: Boolean = false
 
-    def targetFor (path: Path): InternalTarget =
-      if (path.parent == treeUnderTest && path.name == pathUnderTest.name) InternalTarget.fromPath(path, pathUnderTest)
-      else InternalTarget.fromPath(path, treeUnderTest)
+    def targetFor (path: Path): InternalTarget = InternalTarget.fromPath(path, pathUnderTest)
 
     def sectionCrossLink (path: Path, section: Int, level: Int) =
       Paragraph(Seq(SpanLink(List(Text("Section "+section)), targetFor(path.withFragment("section-"+section)))), Styles("toc","level"+level))

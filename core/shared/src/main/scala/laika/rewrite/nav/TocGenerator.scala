@@ -45,9 +45,8 @@ object TocGenerator {
     
     def sectionTitle (section: SectionInfo, path: Path, level: Int): Paragraph = {
       val title = section.title.content
-      val resolvedRefPath = if (path == refPath) refPath else refPath.parent
       val targetPath = if (path == Root) Path.parse(s"#${section.id}") else path.withFragment(section.id)
-      val target = InternalTarget.fromPath(targetPath, resolvedRefPath)
+      val target = InternalTarget.fromPath(targetPath, refPath)
       Paragraph(List(SpanLink(title, target)), options = styles(level))
     }
     
@@ -94,14 +93,14 @@ object TocGenerator {
         if (tree.path / doc == refPath)
           Paragraph(titleOrName(tree), options = styles(level) + Styles("active"))
         else
-          Paragraph(List(SpanLink(titleOrName(tree), InternalTarget.fromPath(tree.path / doc, refPath.parent))), options = styles(level))
+          Paragraph(List(SpanLink(titleOrName(tree), InternalTarget.fromPath(tree.path / doc, refPath))), options = styles(level))
       )
     
     def docTitle (document: Document, level: Int): Paragraph =
       if (document.path == refPath)
         Paragraph(titleOrName(document), options = styles(level) + Styles("active"))
       else
-        Paragraph(List(SpanLink(titleOrName(document), InternalTarget.fromPath(document.path, refPath.parent))), options = styles(level))
+        Paragraph(List(SpanLink(titleOrName(document), InternalTarget.fromPath(document.path, refPath))), options = styles(level))
     
     def treeToBulletList (tree: DocumentTree, curLevel: Int): List[Block] = {
       if (curLevel > maxLevel) Nil else {
