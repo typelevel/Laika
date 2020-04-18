@@ -71,6 +71,14 @@ sealed trait TreeContent extends Navigatable {
   
   protected def configScope: Origin.Scope
 
+  /** Creates the navigation structure for this instance up to the specified depth.
+    * The returned instance can be used as part of a bigger navigation structure comprising of trees, documents and their sections. 
+    *
+    * @param refPath the path of document from which this structure will be linked (for creating a corresponding relative path)
+    * @param levels the number of levels of sub-trees, documents or sections to create navigation info for
+    * @return a navigation item that can be used as part of a bigger navigation structure comprising of trees, documents and their sections
+    */
+  def asNavigationItem (refPath: Path = Root, levels: Int = Int.MaxValue): NavigationItem
 }
 
 /** Represents a document structure with sections that can be turned into a navigation structure.
@@ -92,7 +100,7 @@ trait DocumentNavigation extends Navigatable {
   /** Creates the navigation structure for this document up to the specified depth.
     * The returned instance can be used as part of a bigger navigation structure comprising of trees, documents and their sections. 
     *
-    * @param refPath the path of document from which this section will be linked (for creating a corresponding relative path)
+    * @param refPath the path of document from which this document will be linked (for creating a corresponding relative path)
     * @param levels the number of section levels to create navigation info for
     * @return a navigation item that can be used as part of a bigger navigation structure comprising of trees, documents and their sections
     */
@@ -358,6 +366,24 @@ trait TreeStructure { this: TreeContent =>
     case Current / localName => content.collectFirst { case t: DocumentTree if t.path.name == localName => t }
     case other / localName if path.parentLevels == 0 => selectSubtree(other).flatMap(_.selectSubtree(localName))
     case _ => None
+  }
+
+  /** Creates the navigation structure for this tree up to the specified depth.
+    * The returned instance can be used as part of a bigger navigation structure comprising of trees, documents and their sections. 
+    *
+    * @param refPath the path of document from which this tree will be linked (for creating a corresponding relative path)
+    * @param levels the number of levels of sub-trees, documents or sections to create navigation info for
+    * @return a navigation item that can be used as part of a bigger navigation structure comprising of trees, documents and their sections
+    */
+  def asNavigationItem (refPath: Path = Root, levels: Int = Int.MaxValue): NavigationItem = {
+    val children = if (levels == 0) Nil else content.map(_.asNavigationItem(refPath, levels - 1))
+    val navTitle = title.getOrElse(SpanSequence(path.name))
+    titleDocument.fold[NavigationItem](
+      NavigationHeader(navTitle, children)
+    ) { titleDoc =>
+      val target = InternalTarget(titleDoc.path, path.relativeTo(refPath))
+      NavigationLink(navTitle, target, children)
+    }
   }
 
 }

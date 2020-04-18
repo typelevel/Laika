@@ -16,13 +16,24 @@
 
 package laika.io.model
 
-import laika.ast.{DocumentNavigation, Navigatable, Path, SectionInfo, SpanSequence, TemplateRoot}
+import laika.ast.Path.Root
+import laika.ast.{DocumentNavigation, InternalTarget, Navigatable, NavigationHeader, NavigationItem, NavigationLink, Path, SectionInfo, SpanSequence, TemplateRoot}
 import laika.config.Config
 
 /** A titled, positional element in the tree of rendered documents.
   */
 sealed trait RenderContent extends Navigatable {
+  
   def title: Option[SpanSequence]
+  
+  /** Creates the navigation structure for this instance up to the specified depth.
+    * The returned instance can be used as part of a bigger navigation structure comprising of trees, documents and their sections. 
+    *
+    * @param refPath the path of document from which this structure will be linked (for creating a corresponding relative path)
+    * @param levels the number of levels of sub-trees, documents or sections to create navigation info for
+    * @return a navigation item that can be used as part of a bigger navigation structure comprising of trees, documents and their sections
+    */
+  def asNavigationItem (refPath: Path = Root, levels: Int = Int.MaxValue): NavigationItem
 }
 
 /** Represents a node of the tree of rendered documents.
@@ -35,7 +46,19 @@ sealed trait RenderContent extends Navigatable {
 case class RenderedTree (path: Path,
                          title: Option[SpanSequence],
                          content: Seq[RenderContent],
-                         titleDocument: Option[RenderedDocument] = None) extends RenderContent
+                         titleDocument: Option[RenderedDocument] = None) extends RenderContent {
+  
+  def asNavigationItem (refPath: Path = Root, levels: Int = Int.MaxValue): NavigationItem = {
+    val children = if (levels == 0) Nil else content.map(_.asNavigationItem(refPath, levels - 1))
+    val navTitle = title.getOrElse(SpanSequence(path.name))
+    titleDocument.fold[NavigationItem](
+      NavigationHeader(navTitle, children)
+    ) { titleDoc =>
+      val target = InternalTarget(titleDoc.path, path.relativeTo(refPath))
+      NavigationLink(navTitle, target, children)
+    }
+  }
+}
 
 /** A single rendered document with the content as a plain string in the target format.
   *
