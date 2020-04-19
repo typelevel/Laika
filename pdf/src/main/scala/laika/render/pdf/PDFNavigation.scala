@@ -23,8 +23,8 @@ import laika.io.model.{RenderContent, RenderedDocument, RenderedTree, RenderedTr
 import laika.render.FOFormatter.{Bookmark, BookmarkTree, Leader, PageNumberCitation}
 import laika.rewrite.nav.TocGenerator
 
-/** Prepares a document tree for the PDF rendering step by inserting all
-  * enabled navigation elements, like PDF bookmarks or table of contents.
+/** Prepares a document tree for the PDF rendering step by inserting all enabled navigation elements, 
+  * like PDF bookmarks or table of contents.
   * 
   * @author Jens Halm
   */
@@ -55,47 +55,47 @@ object PDFNavigation {
     case tree: RenderedTree => hasDocuments(tree)
   }
 
-  /** Adds title elements for each tree and subtree in the specified
-    *  root tree. Tree titles can be specified in the configuration file
-    *  for each tree.
+  /** Adds title elements for each tree and subtree in the specified root tree. 
+    * Tree titles can be specified in the configuration file for each tree.
     */
   def addTreeLinks (tree: DocumentTree): DocumentTree = {
     val newContent = tree.content map {
       case t: DocumentTree => addTreeLinks(t)
       case d: Document => d
     }
-    val contentWithTitle =
-      if (!hasDocuments(tree) || tree.titleDocument.isDefined) newContent
-      else {
-        val root = RootElement(InternalLinkTarget(Id("")))
-        val doc = Document(
-          path = tree.path / DocNames.treeTitle,
-          content = root,
-          config = ConfigBuilder.empty.withValue("title", tree.title.fold(tree.name)(_.extractText)).build
-        )
-        doc +: newContent
-      }
-    tree.copy(content = contentWithTitle)
+    val titleDoc = tree.titleDocument.orElse {
+      if (!hasDocuments(tree)) None
+      else Some(Document(
+        path = tree.path / DocNames.treeTitle,
+        content = RootElement(InternalLinkTarget(Id(""))),
+        config = ConfigBuilder.empty.withValue("title", tree.title.fold(tree.name)(_.extractText)).build
+      ))
+    }
+    tree.copy(
+      titleDocument = titleDoc,
+      content = newContent
+    )
   }
 
-  /** Adds title elements for each document in the specified
-    *  tree, including documents in subtrees. Document titles will be obtained either
-    *  from a `Title` element in the document's content or from its configuration header.
+  /** Adds title elements for each document in the specified tree, including documents in subtrees. 
+    * Document titles will be obtained either from a `Title` element in the document's content 
+    * or from its configuration header.
     */
   def addDocLinks (tree: DocumentTree): DocumentTree =
     tree rewrite { _ => RewriteRules.forBlocks {
       case title: Title =>
         // toc directives will link to an empty id, not the id of the title element
         Replace(BlockSequence(Seq(title), Id("")))
-      case root: RootElement if (root select { _.isInstanceOf[Title] }).isEmpty =>
+      case root: RootElement if root.collect { case t: Title => t }.isEmpty =>
         val insert = InternalLinkTarget(Id(""))
         Replace(RootElement(insert +: root.content))
     }}
 
-  /** Generates bookmarks for the structure of the DocumentTree. Individual
-    *  bookmarks can stem from tree or subtree titles, document titles or
-    *  document sections, depending on which recursion depth is configured.
-    *  The configuration key for setting the recursion depth is `pdf.bookmarks.depth`.
+  /** Generates bookmarks for the structure of the DocumentTree. 
+    * 
+    * Individual bookmarks can stem from tree or subtree titles, document titles or document sections, 
+    * depending on which recursion depth is configured.
+    * The configuration key for setting the recursion depth is `pdf.bookmarks.depth`.
     *
     *  @param result the rendered result tree to generate bookmarks for
     *  @param depth the recursion depth through trees, documents and sections
@@ -133,8 +133,7 @@ object PDFNavigation {
   }
 
   /** Inserts a table of content into the specified document tree.
-    *  The recursion depth can be set with the configuration key
-    *  `pdf.toc.depth`.
+    * The recursion depth can be set with the configuration key `pdf.toc.depth`.
     */
   def insertToc (tree: DocumentTree, depth: Int, title: Option[String]): DocumentTree = {
 
@@ -147,7 +146,7 @@ object PDFNavigation {
         )), opt))
     }
 
-    val toc = toBlockSequence(TocGenerator.fromTree(tree, depth, tree.path / DocNames.toc, treeTitleDoc = Some(DocNames.treeTitle)))
+    val toc = toBlockSequence(TocGenerator.fromTree(tree, depth, tree.path / DocNames.toc))
     val root = title.fold(RootElement(toc)){ title => RootElement(Title(title) +: toc) }
     val doc = Document(tree.path / DocNames.toc, root)
     tree.copy(content = doc +: tree.content)
@@ -158,10 +157,10 @@ object PDFNavigation {
     *  and a table of content, depending on configuration.
     */
   def prepareTree (root: DocumentTreeRoot, config: PDF.Config): DocumentTreeRoot = {
-    val insertLinks = config.bookmarkDepth > 0 || config.tocDepth > 0
-    val withDocTitles = if (insertLinks) addDocLinks(root.tree) else root.tree
-    val withToc = if (config.tocDepth > 0) insertToc(withDocTitles, config.tocDepth, config.tocTitle) else withDocTitles
-    val finalTree = if (insertLinks) addTreeLinks(withToc) else withToc
+    val withLinks = 
+      if (config.bookmarkDepth == 0 && config.tocDepth == 0) root.tree
+      else addTreeLinks(addDocLinks(root.tree))
+    val finalTree = if (config.tocDepth > 0) insertToc(withLinks, config.tocDepth, config.tocTitle) else withLinks
     root.copy(tree = finalTree)
   }
   
