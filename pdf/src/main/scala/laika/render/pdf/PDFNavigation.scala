@@ -19,7 +19,7 @@ package laika.render.pdf
 import laika.config.ConfigBuilder
 import laika.ast._
 import laika.format.PDF
-import laika.io.model.{RenderContent, RenderedDocument, RenderedTree, RenderedTreeRoot}
+import laika.io.model.{RenderedDocument, RenderedTree, RenderedTreeRoot}
 import laika.render.FOFormatter.{Bookmark, BookmarkTree, Leader, PageNumberCitation}
 import laika.rewrite.nav.TocGenerator
 
@@ -34,27 +34,7 @@ object PDFNavigation {
     val treeTitle = "title"
     val toc = "_toc_"
   }
-
-  /** Indicates whether the specified tree contains at least one document.
-    */
-  protected def hasDocuments (tree: DocumentTree): Boolean =
-    tree.content.exists(hasContent)
-
-  /** Indicates whether the specified navigatable contains at least one document.
-    */
-  protected def hasContent (nav: Navigatable): Boolean = nav match {
-    case _: Document => true
-    case tree: DocumentTree => hasDocuments(tree)
-  }
-
-  private def hasDocuments (tree: RenderedTree): Boolean =
-    tree.content.exists(hasContent)
-
-  private def hasContent (nav: RenderContent): Boolean = nav match {
-    case _: RenderedDocument => true
-    case tree: RenderedTree => hasDocuments(tree)
-  }
-
+  
   /** Adds title elements for each tree and subtree in the specified root tree. 
     * Tree titles can be specified in the configuration file for each tree.
     */
@@ -64,7 +44,7 @@ object PDFNavigation {
       case d: Document => d
     }
     val titleDoc = tree.titleDocument.orElse {
-      if (!hasDocuments(tree)) None
+      if (tree.isEmpty) None
       else Some(Document(
         path = tree.path / DocNames.treeTitle,
         content = RootElement(InternalLinkTarget(Id(""))),
@@ -113,19 +93,16 @@ object PDFNavigation {
 
     def treeBookmarks (tree: RenderedTree, levels: Int): Seq[Bookmark] = {
       if (levels == 0) Nil
-      else {
-        (for (nav <- tree.content if hasContent(nav)) yield nav match {
-          case doc: RenderedDocument if doc.name == DocNames.treeTitle || doc.name == DocNames.toc => Seq()
-          case doc: RenderedDocument =>
-            val title = doc.title.fold(doc.name)(_.extractText)
-            val children = sectionBookmarks(doc.path, doc.sections, levels - 1)
-            Seq(Bookmark(InternalTarget.fromPath(doc.path, result.tree.path), title, children))
-          case subtree: RenderedTree =>
-            val title = subtree.title.fold(subtree.name)(_.extractText)
-            val children = treeBookmarks(subtree, levels - 1)
-            Seq(Bookmark(InternalTarget.fromPath(subtree.path / DocNames.treeTitle, result.tree.path), title, children))
-        }).flatten
-      }
+      else tree.content.collect {
+        case doc: RenderedDocument if doc.name != DocNames.toc =>
+          val title = doc.title.fold(doc.name)(_.extractText)
+          val children = sectionBookmarks(doc.path, doc.sections, levels - 1)
+          Seq(Bookmark(InternalTarget.fromPath(doc.path, result.tree.path), title, children))
+        case subtree: RenderedTree if !tree.isEmpty =>
+          val title = subtree.title.fold(subtree.name)(_.extractText)
+          val children = treeBookmarks(subtree, levels - 1)
+          Seq(Bookmark(InternalTarget.fromPath(subtree.path / DocNames.treeTitle, result.tree.path), title, children))
+      }.flatten
     }
 
     if (depth == 0) Map()

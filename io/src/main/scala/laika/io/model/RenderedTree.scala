@@ -47,6 +47,32 @@ case class RenderedTree (path: Path,
                          title: Option[SpanSequence],
                          content: Seq[RenderContent],
                          titleDocument: Option[RenderedDocument] = None) extends RenderContent {
+
+  /** All documents contained in this tree, fetched recursively, depth-first.
+    */
+  lazy val allDocuments: Seq[RenderedDocument] = {
+
+    def collect (tree: RenderedTree): Seq[RenderedDocument] = tree.titleDocument.toSeq ++ tree.content.flatMap {
+      case doc: RenderedDocument => Seq(doc)
+      case sub: RenderedTree     => collect(sub)
+    }
+
+    collect(this)
+  }
+
+  /** Indicates whether this tree does not contain any markup document.
+    * Template documents do not count, as they would be ignored in rendering
+    * when there is no markup document.
+    */
+  lazy val isEmpty: Boolean = {
+
+    def nonEmpty (tree: RenderedTree): Boolean = tree.titleDocument.nonEmpty || tree.content.exists {
+      case _: RenderedDocument => true
+      case sub: RenderedTree   => nonEmpty(sub)
+    }
+
+    !nonEmpty(this)
+  }
   
   def asNavigationItem (refPath: Path = Root, levels: Int = Int.MaxValue): NavigationItem = {
     def hasLinks (item: NavigationItem): Boolean = item match {
@@ -99,13 +125,5 @@ case class RenderedTreeRoot[F[_]] (tree: RenderedTree,
 
   /** All documents contained in this tree, fetched recursively, depth-first.
     */
-  lazy val allDocuments: Seq[RenderedDocument] = {
-
-    def collect (tree: RenderedTree): Seq[RenderedDocument] = tree.titleDocument.toSeq ++ tree.content.flatMap {
-      case doc: RenderedDocument => Seq(doc)
-      case sub: RenderedTree     => collect(sub)
-    }
-
-    coverDocument.toSeq ++ collect(tree)
-  }
+  lazy val allDocuments: Seq[RenderedDocument] = coverDocument.toSeq ++ tree.allDocuments
 }

@@ -304,6 +304,32 @@ trait TreeStructure { this: TreeContent =>
     */
   def templates: Seq[TemplateDocument]
 
+  /** All documents contained in this tree, fetched recursively, depth-first.
+    */
+  lazy val allDocuments: Seq[Document] = {
+
+    def collect (tree: DocumentTree): Seq[Document] = tree.titleDocument.toSeq ++ tree.content.flatMap {
+      case doc: Document     => Seq(doc)
+      case sub: DocumentTree => collect(sub)
+    }
+
+    collect(targetTree)
+  }
+
+  /** Indicates whether this tree does not contain any markup document.
+    * Template documents do not count, as they would be ignored in rendering
+    * when there is no markup document.
+    */
+  lazy val isEmpty: Boolean = {
+
+    def nonEmpty (tree: DocumentTree): Boolean = tree.titleDocument.nonEmpty || tree.content.exists {
+      case _: Document       => true
+      case sub: DocumentTree => nonEmpty(sub)
+    }
+
+    !nonEmpty(targetTree)
+  }
+  
   /** Selects a document from this tree or one of its subtrees by the specified path.
     * The path needs to be relative and not point to a parent tree (neither start
     * with `/` nor with `..`).
@@ -591,15 +617,13 @@ case class DocumentTreeRoot (tree: DocumentTree,
 
   /** All documents contained in this tree, fetched recursively, depth-first.
     */
-  lazy val allDocuments: Seq[Document] = {
+  lazy val allDocuments: Seq[Document] = coverDocument.toSeq ++ tree.allDocuments
 
-    def collect (tree: DocumentTree): Seq[Document] = tree.titleDocument.toSeq ++ tree.content.flatMap {
-      case doc: Document     => Seq(doc)
-      case sub: DocumentTree => collect(sub)
-    }
-    
-    coverDocument.toSeq ++ collect(tree)
-  }
+  /** Indicates whether this tree does not contain any markup document.
+    * Template documents do not count, as they would be ignored in rendering
+    * when there is no markup document.
+    */
+  lazy val isEmpty: Boolean = coverDocument.isEmpty && tree.isEmpty
   
   /** Returns a new tree, with all the document models contained in it
     *  rewritten based on the specified rewrite rules.
