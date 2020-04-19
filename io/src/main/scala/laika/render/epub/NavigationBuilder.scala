@@ -49,7 +49,7 @@ object NavigationBuilder {
       }
     }
     
-    tree.asNavigationItem(levels = depth).content.map(adjustPath)
+    tree.asNavigationItem(NavigationBuilderContext(maxLevels = depth, currentLevel = 0)).content.map(adjustPath)
   }
 
 }

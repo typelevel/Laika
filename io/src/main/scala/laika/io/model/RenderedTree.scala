@@ -16,8 +16,7 @@
 
 package laika.io.model
 
-import laika.ast.Path.Root
-import laika.ast.{DocumentNavigation, InternalTarget, Navigatable, NavigationHeader, NavigationItem, NavigationLink, Path, SectionInfo, SpanSequence, TemplateRoot}
+import laika.ast._
 import laika.config.Config
 
 /** A titled, positional element in the tree of rendered documents.
@@ -29,11 +28,10 @@ sealed trait RenderContent extends Navigatable {
   /** Creates the navigation structure for this instance up to the specified depth.
     * The returned instance can be used as part of a bigger navigation structure comprising of trees, documents and their sections. 
     *
-    * @param refPath the path of document from which this structure will be linked (for creating a corresponding relative path)
-    * @param levels the number of levels of sub-trees, documents or sections to create navigation info for
+    * @param context captures the navigation depth, reference path and styles for the navigation tree being built
     * @return a navigation item that can be used as part of a bigger navigation structure comprising of trees, documents and their sections
-    */
-  def asNavigationItem (refPath: Path = Root, levels: Int = Int.MaxValue): NavigationItem
+    **/
+  def asNavigationItem(context: NavigationBuilderContext = NavigationBuilderContext()): NavigationItem
 }
 
 /** Represents a node of the tree of rendered documents.
@@ -73,18 +71,18 @@ case class RenderedTree (path: Path,
 
     !nonEmpty(this)
   }
-  
-  def asNavigationItem (refPath: Path = Root, levels: Int = Int.MaxValue): NavigationItem = {
+
+  def asNavigationItem (context: NavigationBuilderContext = NavigationBuilderContext()): NavigationItem = {
     def hasLinks (item: NavigationItem): Boolean = item match {
       case _: NavigationLink => true
       case h: NavigationHeader => h.content.exists(hasLinks)
     }
-    val children = if (levels == 0) Nil else content.map(_.asNavigationItem(refPath, levels - 1)).filter(hasLinks)
+    val children = if (context.isComplete) Nil else content.map(_.asNavigationItem(context.nextLevel)).filter(hasLinks)
     val navTitle = title.getOrElse(SpanSequence(path.name))
     titleDocument.fold[NavigationItem](
       NavigationHeader(navTitle, children)
     ) { titleDoc =>
-      val target = InternalTarget(titleDoc.path, titleDoc.path.relativeTo(refPath))
+      val target = InternalTarget(titleDoc.path, titleDoc.path.relativeTo(context.refPath))
       NavigationLink(navTitle, target, children)
     }
   }

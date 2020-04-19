@@ -74,11 +74,10 @@ sealed trait TreeContent extends Navigatable {
   /** Creates the navigation structure for this instance up to the specified depth.
     * The returned instance can be used as part of a bigger navigation structure comprising of trees, documents and their sections. 
     *
-    * @param refPath the path of document from which this structure will be linked (for creating a corresponding relative path)
-    * @param levels the number of levels of sub-trees, documents or sections to create navigation info for
+    * @param context captures the navigation depth, reference path and styles for the navigation tree being built
     * @return a navigation item that can be used as part of a bigger navigation structure comprising of trees, documents and their sections
-    */
-  def asNavigationItem (refPath: Path = Root, levels: Int = Int.MaxValue): NavigationItem
+    **/
+  def asNavigationItem(context: NavigationBuilderContext = NavigationBuilderContext()): NavigationItem
 }
 
 /** Represents a document structure with sections that can be turned into a navigation structure.
@@ -100,13 +99,12 @@ trait DocumentNavigation extends Navigatable {
   /** Creates the navigation structure for this document up to the specified depth.
     * The returned instance can be used as part of a bigger navigation structure comprising of trees, documents and their sections. 
     *
-    * @param refPath the path of document from which this document will be linked (for creating a corresponding relative path)
-    * @param levels the number of section levels to create navigation info for
+    * @param context captures the navigation depth, reference path and styles for the navigation tree being built
     * @return a navigation item that can be used as part of a bigger navigation structure comprising of trees, documents and their sections
     */
-  def asNavigationItem (refPath: Path = Root, levels: Int = Int.MaxValue): NavigationItem = {
-    val target = InternalTarget(path, path.relativeTo(refPath))
-    val children = if (levels == 0) Nil else sections.map(_.asNavigationItem(path, refPath, levels - 1))
+  def asNavigationItem (context: NavigationBuilderContext = NavigationBuilderContext()): NavigationItem = {
+    val target = InternalTarget(path, path.relativeTo(context.refPath))
+    val children = if (context.isComplete) Nil else sections.map(_.asNavigationItem(path, context.nextLevel))
     NavigationLink(title.getOrElse(SpanSequence(path.name)), target, children)
   }
   
@@ -132,21 +130,35 @@ case class TemplateDocument (path: Path, content: TemplateRoot, config: ConfigPa
   */
 case class UnresolvedDocument (document: Document, config: ConfigParser)
 
+/** The context of a navigation builder that can get passed down in recursive calls to the
+  * various types that have an asNavigationItem method.
+  * 
+  * @param refPath the path of document from which this document will be linked (for creating a corresponding relative path)
+  * @param itemStyles the styles to assign to each navigation item as a render hint
+  * @param maxLevels the number of levels of sub-trees, documents or sections to create navigation info for
+  * @param currentLevel the current level of the navigation tree being built
+  */
+case class NavigationBuilderContext (refPath: Path = Root, itemStyles: Set[String] = Set(), maxLevels: Int = Int.MaxValue, currentLevel: Int = 1) {
+  
+  lazy val nextLevel: NavigationBuilderContext = copy(currentLevel = currentLevel + 1)
+  
+  val isComplete: Boolean = currentLevel >= maxLevels 
+  
+}
+
 /** Captures information about a document section, without its content.
  */
 case class SectionInfo (id: String, title: SpanSequence, content: Seq[SectionInfo]) extends Element with ElementContainer[SectionInfo] {
 
   /** Creates the navigation structure for this section up to the specified depth.
     * The returned instance can be used as part of a bigger navigation structure comprising of documents and trees. 
-    * 
-    * @param docPath the path of the document this section belongs to
-    * @param refPath the path of document from which this section will be linked (for creating a corresponding relative path)
-    * @param levels the number of levels below this section to create navigation info for
-    * @return a navigation item that can be used as part of a bigger navigation structure comprising of documents and trees
+    *
+    * @param context captures the navigation depth, reference path and styles for the navigation tree being built
+    * @return a navigation item that can be used as part of a bigger navigation structure comprising of trees, documents and their sections
     */
-  def asNavigationItem (docPath: Path, refPath: Path = Root, levels: Int = Int.MaxValue): NavigationItem = {
-    val target = InternalTarget(docPath.withFragment(id), docPath.withFragment(id).relativeTo(refPath))
-    val children = if (levels == 0) Nil else content.map(_.asNavigationItem(docPath, refPath, levels - 1))
+  def asNavigationItem (docPath: Path, context: NavigationBuilderContext = NavigationBuilderContext()): NavigationItem = {
+    val target = InternalTarget(docPath.withFragment(id), docPath.withFragment(id).relativeTo(context.refPath))
+    val children = if (context.isComplete) Nil else content.map(_.asNavigationItem(docPath, context.nextLevel))
     NavigationLink(title, target, children)
   }
 
@@ -397,21 +409,20 @@ trait TreeStructure { this: TreeContent =>
   /** Creates the navigation structure for this tree up to the specified depth.
     * The returned instance can be used as part of a bigger navigation structure comprising of trees, documents and their sections. 
     *
-    * @param refPath the path of document from which this tree will be linked (for creating a corresponding relative path)
-    * @param levels the number of levels of sub-trees, documents or sections to create navigation info for
+    * @param context captures the navigation depth, reference path and styles for the navigation tree being built
     * @return a navigation item that can be used as part of a bigger navigation structure comprising of trees, documents and their sections
-    */
-  def asNavigationItem (refPath: Path = Root, levels: Int = Int.MaxValue): NavigationItem = {
+    **/
+  def asNavigationItem (context: NavigationBuilderContext = NavigationBuilderContext()): NavigationItem = {
     def hasLinks (item: NavigationItem): Boolean = item match {
       case _: NavigationLink => true
       case h: NavigationHeader => h.content.exists(hasLinks)
     }
-    val children = if (levels == 0) Nil else content.map(_.asNavigationItem(refPath, levels - 1)).filter(hasLinks)
+    val children = if (context.isComplete) Nil else content.map(_.asNavigationItem(context.nextLevel)).filter(hasLinks)
     val navTitle = title.getOrElse(SpanSequence(path.name))
     titleDocument.fold[NavigationItem](
       NavigationHeader(navTitle, children)
     ) { titleDoc =>
-      val target = InternalTarget(titleDoc.path, titleDoc.path.relativeTo(refPath))
+      val target = InternalTarget(titleDoc.path, titleDoc.path.relativeTo(context.refPath))
       NavigationLink(navTitle, target, children)
     }
   }
