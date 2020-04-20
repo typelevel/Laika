@@ -103,9 +103,8 @@ trait DocumentNavigation extends Navigatable {
     * @return a navigation item that can be used as part of a bigger navigation structure comprising of trees, documents and their sections
     */
   def asNavigationItem (context: NavigationBuilderContext = NavigationBuilderContext()): NavigationItem = {
-    val target = InternalTarget(path, path.relativeTo(context.refPath))
     val children = if (context.isComplete) Nil else sections.map(_.asNavigationItem(path, context.nextLevel))
-    NavigationLink(title.getOrElse(SpanSequence(path.name)), target, children)
+    context.newNavigationItem(title.getOrElse(SpanSequence(path.name)), Some(path), children)
   }
   
 }
@@ -144,6 +143,12 @@ case class NavigationBuilderContext (refPath: Path = Root, itemStyles: Set[Strin
   
   val isComplete: Boolean = currentLevel >= maxLevels 
   
+  def newNavigationItem (title: SpanSequence, target: Option[Path], children: Seq[NavigationItem]): NavigationItem = {
+    val styles = Styles("level" + currentLevel) + Styles(itemStyles)
+    target.fold[NavigationItem](NavigationHeader(title, children, styles)) { target =>
+      NavigationLink(title, InternalTarget.fromPath(target, refPath), children, styles)
+    }
+  }
 }
 
 /** Captures information about a document section, without its content.
@@ -157,9 +162,8 @@ case class SectionInfo (id: String, title: SpanSequence, content: Seq[SectionInf
     * @return a navigation item that can be used as part of a bigger navigation structure comprising of trees, documents and their sections
     */
   def asNavigationItem (docPath: Path, context: NavigationBuilderContext = NavigationBuilderContext()): NavigationItem = {
-    val target = InternalTarget(docPath.withFragment(id), docPath.withFragment(id).relativeTo(context.refPath))
     val children = if (context.isComplete) Nil else content.map(_.asNavigationItem(docPath, context.nextLevel))
-    NavigationLink(title, target, children)
+    context.newNavigationItem(title, Some(docPath.withFragment(id)), children)
   }
 
 }
@@ -419,12 +423,7 @@ trait TreeStructure { this: TreeContent =>
     }
     val children = if (context.isComplete) Nil else content.map(_.asNavigationItem(context.nextLevel)).filter(hasLinks)
     val navTitle = title.getOrElse(SpanSequence(path.name))
-    titleDocument.fold[NavigationItem](
-      NavigationHeader(navTitle, children)
-    ) { titleDoc =>
-      val target = InternalTarget(titleDoc.path, titleDoc.path.relativeTo(context.refPath))
-      NavigationLink(navTitle, target, children)
-    }
+    context.newNavigationItem(navTitle, titleDocument.map(_.path), children)
   }
 
 }

@@ -79,12 +79,7 @@ case class RenderedTree (path: Path,
     }
     val children = if (context.isComplete) Nil else content.map(_.asNavigationItem(context.nextLevel)).filter(hasLinks)
     val navTitle = title.getOrElse(SpanSequence(path.name))
-    titleDocument.fold[NavigationItem](
-      NavigationHeader(navTitle, children)
-    ) { titleDoc =>
-      val target = InternalTarget(titleDoc.path, titleDoc.path.relativeTo(context.refPath))
-      NavigationLink(navTitle, target, children)
-    }
+    context.newNavigationItem(navTitle, titleDocument.map(_.path), children)
   }
 }
 

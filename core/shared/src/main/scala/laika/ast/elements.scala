@@ -1405,6 +1405,7 @@ object Id {
  */
 object Styles {
   def apply (values: String*): Options = SomeOpt(styles = values.toSet)
+  def apply (values: Set[String]): Options = SomeOpt(styles = values)
   def unapplySeq (value: Options): Option[Seq[String]] = Some(value.styles.toSeq)
 }
 
