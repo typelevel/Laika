@@ -222,7 +222,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
       case l: NavigationItem if l.options.styles.contains("bookmark") => fmt.bookmark(l)
       case NavigationHeader(title, content, opt) =>
         fmt.childPerLine(Paragraph(title.content, Styles("toc") + opt) +: content)
-      case NavigationLink(title, target: InternalTarget, content, opt) =>
+      case NavigationLink(title, target: InternalTarget, content, _, opt) =>
         fmt.childPerLine(Paragraph(Seq(SpanLink(
           content = title.content :+ Leader() :+ PageNumberCitation(target),
           target = target

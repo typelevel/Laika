@@ -81,7 +81,7 @@ class NCXRenderer {
       case NavigationHeader(title, children, _) =>
         navPoint(title.extractText, linkOfFirstChild(children).target.render(), pos.next, navPoints(children, pos)) // NCX does not allow navigation headers without links
 
-      case NavigationLink(title, target, children, _) =>
+      case NavigationLink(title, target, children, _, _) =>
         navPoint(title.extractText, target.render(), pos.next, navPoints(children, pos))
 
     }.mkString("\n")

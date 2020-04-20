@@ -146,7 +146,7 @@ case class NavigationBuilderContext (refPath: Path = Root, itemStyles: Set[Strin
   def newNavigationItem (title: SpanSequence, target: Option[Path], children: Seq[NavigationItem]): NavigationItem = {
     val styles = Styles("level" + currentLevel) + Styles(itemStyles)
     target.fold[NavigationItem](NavigationHeader(title, children, styles)) { target =>
-      NavigationLink(title, InternalTarget.fromPath(target, refPath), children, styles)
+      NavigationLink(title, InternalTarget.fromPath(target, refPath), children, target == refPath, styles)
     }
   }
 }

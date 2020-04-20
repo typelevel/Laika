@@ -450,7 +450,11 @@ case class NavigationHeader (title: SpanSequence, content: Seq[NavigationItem], 
 
 /** Represents a book navigation entry that links to content in the document tree.
   */
-case class NavigationLink (title: SpanSequence, target: Target, content: Seq[NavigationItem], options: Options = NoOpt) extends NavigationItem {
+case class NavigationLink (title: SpanSequence, 
+                           target: Target, 
+                           content: Seq[NavigationItem],
+                           selfLink: Boolean = false, 
+                           options: Options = NoOpt) extends NavigationItem {
   type Self = NavigationLink
   def rewriteChildren (rules: RewriteRules): NavigationLink = copy(
     title = title.rewriteChildren(rules),

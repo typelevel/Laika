@@ -77,8 +77,8 @@ class HtmlNavRenderer {
   private def navItems (bookNav: Seq[NavigationItem], pos: Iterator[Int] = Iterator.from(0)): String =
     if (bookNav.isEmpty) ""
     else bookNav.map {
-      case NavigationHeader(title, children, _)       => navHeader(title.extractText, pos.next, navItems(children, pos))
-      case NavigationLink(title, target, children, _) => navLink(title.extractText, target.render(), pos.next, navItems(children, pos))
+      case NavigationHeader(title, children, _)          => navHeader(title.extractText, pos.next, navItems(children, pos))
+      case NavigationLink(title, target, children, _, _) => navLink(title.extractText, target.render(), pos.next, navItems(children, pos))
     }.mkString("      <ol class=\"toc\">\n", "\n", "\n      </ol>")
 
   /** Renders the entire content of an EPUB HTML navigation file for
