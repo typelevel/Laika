@@ -230,9 +230,19 @@ case class FOFormatter (renderChild: (FOFormatter, Element) => String,
 
   /** Renders an FO `bookmark` element and all of its nested bookmarks.
    */
-  def bookmark (bookmark: Bookmark): String = {
-    val content = BookmarkTitle(bookmark.title) +: bookmark.children
-    indentedElement("fo:bookmark", bookmark, content, "internal-destination" -> buildId(bookmark.target.absolutePath))
+  def bookmark (bookmark: NavigationItem): String = {
+    def internalTarget (link: NavigationLink): Option[Path] = link.target match {
+      case InternalTarget(absPath, _) => Some(absPath)
+      case _ => None
+    }
+    val target = bookmark match {
+      case l: NavigationLink => internalTarget(l)
+      case h: NavigationHeader => h.firstLink.flatMap(internalTarget)
+    }
+    target.fold("") { targetPath =>
+      val content = BookmarkTitle(bookmark.title.extractText) +: bookmark.content
+      indentedElement("fo:bookmark", bookmark, content, "internal-destination" -> buildId(targetPath))
+    }
   }
 
   /** Renders an FO `bookmark-title` element.
@@ -243,9 +253,8 @@ case class FOFormatter (renderChild: (FOFormatter, Element) => String,
 }
 
 /** Companion providing tree elements specific to the XSL-FO renderer. 
-  *  These are usually not part of the document AST produced by a parser,
-  *  but only inserted dynamically during the render process to drive
-  *  features specific to FO output. 
+  * These are usually not part of the document AST produced by a parser,
+  * but only inserted dynamically during the render process to drive features specific to FO output. 
   */
 object FOFormatter extends (RenderContext[FOFormatter] => FOFormatter) {
 
@@ -289,19 +298,11 @@ object FOFormatter extends (RenderContext[FOFormatter] => FOFormatter) {
     def withOptions (options: Options): FootnoteBody = copy(options = options)
   }
 
-  /** An entire bookmark tree and its nested bookmarks,
-    * the top level element for FO bookmarks.
+  /** An entire bookmark tree and its nested bookmarks, the top level element for FO bookmarks.
     */
-  case class BookmarkTree (bookmarks: Seq[Bookmark], options: Options = NoOpt) extends Block {
+  case class BookmarkTree (bookmarks: Seq[NavigationItem], options: Options = NoOpt) extends Block {
     type Self = BookmarkTree
     def withOptions (options: Options): BookmarkTree = copy(options = options)
-  }
-
-  /** A single bookmark and its nested children.
-    */
-  case class Bookmark (target: InternalTarget, title: String, children: Seq[Bookmark], options: Options = NoOpt) extends Block {
-    type Self = Bookmark
-    def withOptions (options: Options): Bookmark = copy(options = options)
   }
 
   /** A bookmark title. 

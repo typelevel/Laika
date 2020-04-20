@@ -177,7 +177,6 @@ object FORenderer extends ((FOFormatter, Element) => String) {
       case e: Rule                      => fmt.textElement("fo:leader", e, "", "leader-pattern"->"rule")
       case e: InternalLinkTarget        => fmt.internalLinkTarget(e)
       case e: BookmarkTree              => fmt.bookmarkTree(e)
-      case e: Bookmark                  => fmt.bookmark(e)
       case e: PageBreak                 => fmt.block(e)
       case e @ LineBlock(content,_)     => fmt.blockContainer(e, content)
       case TargetFormat("xslfo",e,_)    => fmt.child(e)
@@ -220,6 +219,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
     }
 
     def renderNavigationItem (elem: NavigationItem): String = elem match {
+      case l: NavigationItem if l.options.styles.contains("bookmark") => fmt.bookmark(l)
       case NavigationHeader(title, content, opt) =>
         fmt.childPerLine(Paragraph(title.content, Styles("toc") + opt) +: content)
       case NavigationLink(title, target: InternalTarget, content, opt) =>

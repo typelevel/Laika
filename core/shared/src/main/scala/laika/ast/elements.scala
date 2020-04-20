@@ -431,7 +431,16 @@ trait NavigationItem extends Block with ElementContainer[NavigationItem] with Re
 /** Represents a book navigation entry that only serves as a section header without linking to content.
   */
 case class NavigationHeader (title: SpanSequence, content: Seq[NavigationItem], options: Options = NoOpt) extends NavigationItem {
+  
   type Self = NavigationHeader
+  
+  /** Returns the first link from the children of this navigation header.
+    * This is useful for navigation systems where each entry must contain a concrete link.  */
+  def firstLink: Option[NavigationLink] = content.collectFirst {
+    case l: NavigationLink => Some(l)
+    case h: NavigationHeader => h.firstLink
+  }.flatten
+  
   def rewriteChildren (rules: RewriteRules): NavigationHeader = copy(
     title = title.rewriteChildren(rules),
     content = content.map(_.rewriteChildren(rules))

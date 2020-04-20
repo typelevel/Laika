@@ -19,8 +19,8 @@ package laika.render.pdf
 import laika.ast._
 import laika.config.ConfigBuilder
 import laika.format.PDF
-import laika.io.model.{RenderedDocument, RenderedTree, RenderedTreeRoot}
-import laika.render.FOFormatter.{Bookmark, BookmarkTree}
+import laika.io.model.RenderedTreeRoot
+import laika.render.FOFormatter.BookmarkTree
 
 /** Prepares a document tree for the PDF rendering step by inserting all enabled navigation elements, 
   * like PDF bookmarks or table of contents.
@@ -34,8 +34,8 @@ object PDFNavigation {
     val toc = "_toc_"
   }
   
-  /** Adds title elements for each tree and subtree in the specified root tree. 
-    * Tree titles can be specified in the configuration file for each tree.
+  /** Adds link targets for each tree and subtree in the specified root tree
+    * that does not already contain a title document.
     */
   def addTreeLinks (tree: DocumentTree): DocumentTree = {
     val newContent = tree.content map {
@@ -56,9 +56,7 @@ object PDFNavigation {
     )
   }
 
-  /** Adds title elements for each document in the specified tree, including documents in subtrees. 
-    * Document titles will be obtained either from a `Title` element in the document's content 
-    * or from its configuration header.
+  /** Adds link targets for each document in the specified tree, including documents in subtrees. 
     */
   def addDocLinks (tree: DocumentTree): DocumentTree =
     tree rewrite { _ => RewriteRules.forBlocks {
@@ -71,7 +69,7 @@ object PDFNavigation {
     }}
 
   /** Generates bookmarks for the structure of the DocumentTree. 
-    * 
+    *
     * Individual bookmarks can stem from tree or subtree titles, document titles or document sections, 
     * depending on which recursion depth is configured.
     * The configuration key for setting the recursion depth is `pdf.bookmarks.depth`.
@@ -80,34 +78,16 @@ object PDFNavigation {
     *  @param depth the recursion depth through trees, documents and sections
     *  @return a fragment map containing the generated bookmarks
     */
-  def generateBookmarks[F[_]] (result: RenderedTreeRoot[F], depth: Int): Map[String, Element] = {
-
-    def sectionBookmarks (path: Path, sections: Seq[SectionInfo], levels: Int): Seq[Bookmark] =
-      if (levels == 0) Nil
-      else for (section <- sections) yield {
-        val title = section.title.extractText
-        val children = sectionBookmarks(path, section.content, levels - 1)
-        Bookmark(InternalTarget.fromPath(path.withFragment(section.id), result.tree.path), title, children)
-      }
-
-    def treeBookmarks (tree: RenderedTree, levels: Int): Seq[Bookmark] = {
-      if (levels == 0) Nil
-      else tree.content.collect {
-        case doc: RenderedDocument if doc.name != DocNames.toc =>
-          val title = doc.title.fold(doc.name)(_.extractText)
-          val children = sectionBookmarks(doc.path, doc.sections, levels - 1)
-          Seq(Bookmark(InternalTarget.fromPath(doc.path, result.tree.path), title, children))
-        case subtree: RenderedTree if !tree.isEmpty =>
-          val title = subtree.title.fold(subtree.name)(_.extractText)
-          val children = treeBookmarks(subtree, levels - 1)
-          Seq(Bookmark(InternalTarget.fromPath(subtree.path / DocNames.treeTitle, result.tree.path), title, children))
-      }.flatten
-    }
-
-    if (depth == 0) Map()
-    else Map("bookmarks" -> BookmarkTree(treeBookmarks(result.tree, depth)))
+  def generateBookmarks[F[_]] (result: RenderedTreeRoot[F], depth: Int): Map[String, Element] = if (depth == 0) Map() else {
+    val context = NavigationBuilderContext(
+      maxLevels = depth,
+      currentLevel = 0,
+      itemStyles = Set("bookmark")
+    )
+    val toc = result.tree.asNavigationItem(context).content
+    Map("bookmarks" -> BookmarkTree(toc))
   }
-
+  
   /** Inserts a table of content into the specified document tree.
     * The recursion depth can be set with the configuration key `pdf.toc.depth`.
     */
