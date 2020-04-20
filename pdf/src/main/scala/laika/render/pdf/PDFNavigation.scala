@@ -16,12 +16,11 @@
 
 package laika.render.pdf
 
-import laika.config.ConfigBuilder
 import laika.ast._
+import laika.config.ConfigBuilder
 import laika.format.PDF
 import laika.io.model.{RenderedDocument, RenderedTree, RenderedTreeRoot}
-import laika.render.FOFormatter.{Bookmark, BookmarkTree, Leader, PageNumberCitation}
-import laika.rewrite.nav.TocGenerator
+import laika.render.FOFormatter.{Bookmark, BookmarkTree}
 
 /** Prepares a document tree for the PDF rendering step by inserting all enabled navigation elements, 
   * like PDF bookmarks or table of contents.
@@ -113,22 +112,17 @@ object PDFNavigation {
     * The recursion depth can be set with the configuration key `pdf.toc.depth`.
     */
   def insertToc (tree: DocumentTree, depth: Int, title: Option[String]): DocumentTree = {
-
-    def toBlockSequence (blocks: Seq[Element]): Seq[Block] = blocks flatMap {
-      case BulletList(items, _, _) => toBlockSequence(items)
-      case BulletListItem(content, _, _) => toBlockSequence(content)
-      case Paragraph(Seq(link @ SpanLink(content, target: InternalTarget, _, _)), opt) => 
-        Seq(Paragraph(Seq(link.copy(
-          content = content :+ Leader() :+ PageNumberCitation(target)
-        )), opt))
-    }
-
-    val toc = toBlockSequence(TocGenerator.fromTree(tree, depth, tree.path / DocNames.toc))
+    val context = NavigationBuilderContext(
+      refPath = tree.path / DocNames.toc,
+      maxLevels = depth,
+      currentLevel = 0
+    )
+    val toc = tree.asNavigationItem(context).content
     val root = title.fold(RootElement(toc)){ title => RootElement(Title(title) +: toc) }
     val doc = Document(tree.path / DocNames.toc, root)
     tree.copy(content = doc +: tree.content)
   }
-  
+
   /** Prepares the document tree before rendering the interim XSL-FO
     *  output. Preparation may include insertion of tree or document titles, PDF bookmarks
     *  and a table of content, depending on configuration.

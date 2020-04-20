@@ -16,7 +16,7 @@
 
 package laika.render
 
-import laika.ast._
+import laika.ast.{Styles, _}
 import laika.render.FOFormatter._
 
 /** Default renderer implementation for the XSL-FO output format.
@@ -219,6 +219,17 @@ object FORenderer extends ((FOFormatter, Element) => String) {
         )
     }
 
+    def renderNavigationItem (elem: NavigationItem): String = elem match {
+      case NavigationHeader(title, content, opt) =>
+        fmt.childPerLine(Paragraph(title.content, Styles("toc") + opt) +: content)
+      case NavigationLink(title, target: InternalTarget, content, opt) =>
+        fmt.childPerLine(Paragraph(Seq(SpanLink(
+          content = title.content :+ Leader() :+ PageNumberCitation(target),
+          target = target
+        )), Styles("toc") + opt) +: content)
+      case _ => ""
+    }
+
     def renderUnresolvedReference (ref: Reference): String = {
       fmt.child(InvalidElement(s"unresolved reference: $ref", ref.source).asSpan)
     }
@@ -240,6 +251,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
       case e: SystemMessage         => renderSystemMessage(e)
       case e: Table                 => renderTable(e)
       case e: TableElement          => renderTableElement(e)
+      case e: NavigationItem        => renderNavigationItem(e)
       case e: Reference             => renderUnresolvedReference(e)
       case e: Invalid[_]            => renderInvalidElement(e)
       case e: BlockContainer        => renderBlockContainer(e)
