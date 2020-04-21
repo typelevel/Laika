@@ -20,7 +20,6 @@ import laika.ast._
 import laika.config.ConfigBuilder
 import laika.format.PDF
 import laika.io.model.RenderedTreeRoot
-import laika.render.FOFormatter.BookmarkTree
 
 /** Prepares a document tree for the PDF rendering step by inserting all enabled navigation elements, 
   * like PDF bookmarks or table of contents.
@@ -85,7 +84,7 @@ object PDFNavigation {
       itemStyles = Set("bookmark")
     )
     val toc = result.tree.asNavigationItem(context).content
-    Map("bookmarks" -> BookmarkTree(toc))
+    Map("bookmarks" -> NavigationList(toc, Styles("bookmark")))
   }
   
   /** Inserts a table of content into the specified document tree.

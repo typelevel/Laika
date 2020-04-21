@@ -421,6 +421,15 @@ case class SectionNumber(position: Seq[Int], options: Options = NoOpt) extends S
   def withOptions (options: Options): SectionNumber = copy(options = options)
 }
 
+/** The root node of a navigation structure */
+case class NavigationList (content: Seq[NavigationItem], options: Options = NoOpt) extends Block with ElementContainer[NavigationItem] with RewritableContainer {
+  type Self = NavigationList
+  def rewriteChildren (rules: RewriteRules): NavigationList = copy(
+    content = content.map(_.rewriteChildren(rules))
+  )
+  def withOptions (options: Options): NavigationList = copy(options = options)
+}
+
 /** Represents a recursive book navigation structure.
   */
 trait NavigationItem extends Block with ElementContainer[NavigationItem] with RewritableContainer {

@@ -225,8 +225,7 @@ case class FOFormatter (renderChild: (FOFormatter, Element) => String,
 
   /** Renders an FO `bookmark-tree` element and all of its nested bookmarks.
    */
-  def bookmarkTree (tree: BookmarkTree): String =
-    indentedElement("fo:bookmark-tree", tree, tree.bookmarks)
+  def bookmarkTree (tree: NavigationList): String = indentedElement("fo:bookmark-tree", tree, tree.content)
 
   /** Renders an FO `bookmark` element and all of its nested bookmarks.
    */
@@ -296,13 +295,6 @@ object FOFormatter extends (RenderContext[FOFormatter] => FOFormatter) {
     type Self = FootnoteBody
     def withContent (newContent: Seq[Block]): FootnoteBody = copy(content = content)
     def withOptions (options: Options): FootnoteBody = copy(options = options)
-  }
-
-  /** An entire bookmark tree and its nested bookmarks, the top level element for FO bookmarks.
-    */
-  case class BookmarkTree (bookmarks: Seq[NavigationItem], options: Options = NoOpt) extends Block {
-    type Self = BookmarkTree
-    def withOptions (options: Options): BookmarkTree = copy(options = options)
   }
 
   /** A bookmark title. 
