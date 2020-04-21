@@ -19,7 +19,7 @@ package laika.render
 import laika.api.Renderer
 import laika.ast.Path.Root
 import laika.ast.RelativePath.Current
-import laika.ast._
+import laika.ast.{Styles, _}
 import laika.ast.helper.ModelBuilder
 import laika.format.HTML
 import laika.parse.code.CodeCategory
@@ -219,6 +219,35 @@ class HTMLRendererSpec extends AnyFlatSpec
       |  <dd>2</dd>
       |</dl>""".stripMargin
     render (elem) should be (html) 
+  }
+  
+  it should "render a navigation list" in {
+    val elem = NavigationList(Seq(
+      NavigationLink(SpanSequence("Link-1"), InternalTarget.fromPath(Root / "doc-1", Root), Seq(
+        NavigationLink(SpanSequence("Link-2"), InternalTarget.fromPath(Root / "doc-2", Root), Nil, options = Styles("level2"))
+      ), options = Styles("level1")),
+      NavigationHeader(SpanSequence("Header-3"), Seq(
+        NavigationLink(SpanSequence("Link-4"), InternalTarget.fromPath(Root / "doc-4", Root), Nil, selfLink = true, options = Styles("level2"))
+      ), options = Styles("level1")),
+      NavigationLink(SpanSequence("Link-5"), InternalTarget.fromPath(Root / "doc-5", Root), Nil,
+        options = Styles("level1"))
+    ))
+    val html = """<ul>
+                 |  <li>
+                 |    <p class="level1"><a href="doc-1">Link-1</a></p>
+                 |    <ul>
+                 |      <li><span class="level2"><a href="doc-2">Link-2</a></span></li>
+                 |    </ul>
+                 |  </li>
+                 |  <li>
+                 |    <p class="level1 nav-header">Header-3</p>
+                 |    <ul>
+                 |      <li><span class="level2 active"><a href="doc-4">Link-4</a></span></li>
+                 |    </ul>
+                 |  </li>
+                 |  <li><span class="level1"><a href="doc-5">Link-5</a></span></li>
+                 |</ul>""".stripMargin
+    render (elem) should be (html)
   }
   
   it should "render a footnote" in {

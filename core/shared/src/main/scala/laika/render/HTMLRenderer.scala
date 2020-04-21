@@ -39,6 +39,27 @@ class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => Str
       val children = List(table.caption,table.columns,table.head,table.body) filterNot (_.content.isEmpty)
       fmt.indentedElement("table", table.options, children)
     }
+    
+    def navigationToBulletList (navList: NavigationList): BulletList = {
+      
+      val bullet = StringBullet("*")
+      
+      def transformItems (items: Seq[NavigationItem]): Seq[BulletListItem] = {
+        items.map { item =>
+          val target: Paragraph = item match {
+            case nh: NavigationHeader => Paragraph(nh.title.content, nh.options + Styles("nav-header"))
+            case nl: NavigationLink   => 
+              val styles = if (nl.selfLink) Styles("active") else NoOpt
+              Paragraph(Seq(SpanLink(nl.title.content, nl.target)), nl.options + styles)
+          }
+          val children = if (item.content.isEmpty) Nil
+          else Seq(BulletList(transformItems(item.content), bullet))
+          BulletListItem(target +: children, bullet)
+        }
+      }
+      
+      BulletList(transformItems(navList.content), bullet)
+    }
 
     object WithFallback {
       def unapply (value: Element): Option[Element] = value match {
@@ -150,6 +171,7 @@ class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => Str
         fmt.indentedElement("ol", opt, content, fmt.optAttributes("class" -> Some(format.enumType.toString.toLowerCase), "start" -> noneIfDefault(start,1)):_*)
       case BulletList(content,_,opt)   => fmt.indentedElement("ul", opt, content)
       case DefinitionList(content,opt) => fmt.indentedElement("dl", opt, content)
+      case nl: NavigationList          => fmt.child(navigationToBulletList(nl))
 
       case WithFallback(fallback)      => fmt.child(fallback)
       case c: Customizable             => fmt.indentedElement("div", c.options, c.content)
