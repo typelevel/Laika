@@ -180,20 +180,16 @@ case class DocumentMetadata (identifier: Option[String] = None, authors: Seq[Str
 
 object DocumentMetadata {
   
-  implicit val decoder: ConfigDecoder[DocumentMetadata] = {
-    case Traced(ov: ObjectValue, _) =>
-      val config = ov.toConfig
-      for {
-        identifier <- config.getOpt[String]("identifier")
-        author     <- config.getOpt[String]("author")
-        authors    <- config.get[Seq[String]]("authors", Nil)
-        lang       <- config.getOpt[String]("language")
-        date       <- config.getOpt[Date]("date")
-      } yield {
-        DocumentMetadata(identifier, authors ++ author.toSeq, lang, date)
-      }
-
-    case Traced(invalid: ConfigValue, _) => Left(InvalidType("Object", invalid))
+  implicit val decoder: ConfigDecoder[DocumentMetadata] = ConfigDecoder.config.flatMap { config =>
+    for {
+      identifier <- config.getOpt[String]("identifier")
+      author     <- config.getOpt[String]("author")
+      authors    <- config.get[Seq[String]]("authors", Nil)
+      lang       <- config.getOpt[String]("language")
+      date       <- config.getOpt[Date]("date")
+    } yield {
+      DocumentMetadata(identifier, authors ++ author.toSeq, lang, date)
+    }
   }
   implicit val defaultKey: DefaultKey[DocumentMetadata] = DefaultKey("metadata")
 

@@ -30,21 +30,17 @@ object LinkConfig {
   
   implicit val key: DefaultKey[LinkConfig] = DefaultKey("links")
   
-  implicit val decoder: ConfigDecoder[LinkConfig] = {
-    case Traced(ov: ObjectValue, _) =>
-      val config = ov.toConfig
-      for {
-        targets  <- config.get[Map[String, String]]("targets", Map.empty[String,String])
-        exclude  <- config.get[Seq[Path]]("excludeFromValidation", Nil)
-        apiLinks <- config.get[Seq[ApiLinks]]("api", Nil)
-      } yield {
-        val mappedTargets = targets.map {
-          case (id, targetURL) => TargetDefinition(id, Target.create(targetURL))
-        }
-        LinkConfig(mappedTargets.toSeq, exclude, apiLinks)
+  implicit val decoder: ConfigDecoder[LinkConfig] = ConfigDecoder.config.flatMap { config =>
+    for {
+      targets  <- config.get[Map[String, String]]("targets", Map.empty[String,String])
+      exclude  <- config.get[Seq[Path]]("excludeFromValidation", Nil)
+      apiLinks <- config.get[Seq[ApiLinks]]("api", Nil)
+    } yield {
+      val mappedTargets = targets.map {
+        case (id, targetURL) => TargetDefinition(id, Target.create(targetURL))
       }
-
-    case Traced(invalid: ConfigValue, _) => Left(InvalidType("Object", invalid))
+      LinkConfig(mappedTargets.toSeq, exclude, apiLinks)
+    }
   }
   
 }
@@ -55,17 +51,13 @@ case class ApiLinks (baseUri: String, packagePrefix: String = "*", packageSummar
 
 object ApiLinks {
   
-  implicit val decoder: ConfigDecoder[ApiLinks] = {
-    case Traced(ov: ObjectValue, _) =>
-      val config = ov.toConfig
-      for {
-        baseUri <- config.get[String]("baseUri")
-        prefix  <- config.get[String]("packagePrefix", "*")
-        summary <- config.get[String]("packageSummary", "index.html")
-      } yield {
-        ApiLinks(baseUri, prefix, summary)
-      }
-
-    case Traced(invalid: ConfigValue, _) => Left(InvalidType("Object", invalid))
+  implicit val decoder: ConfigDecoder[ApiLinks] = ConfigDecoder.config.flatMap { config =>
+    for {
+      baseUri <- config.get[String]("baseUri")
+      prefix  <- config.get[String]("packagePrefix", "*")
+      summary <- config.get[String]("packageSummary", "index.html")
+    } yield {
+      ApiLinks(baseUri, prefix, summary)
+    }
   }
 }

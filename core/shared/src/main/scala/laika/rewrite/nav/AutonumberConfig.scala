@@ -43,23 +43,19 @@ object Scope {
 
 object AutonumberConfig {
 
-  implicit val decoder: ConfigDecoder[AutonumberConfig] = {
-    case Traced(ov: ObjectValue, _) => 
-      val config = ov.toConfig
-      for {
-        scope <- config.get[Scope]("scope", Scope.None)
-        depth <- config.get[Int]("depth", Int.MaxValue)
-      } yield {
-        val (documents, sections) = scope match {
-          case Scope.Documents => (true,  false)
-          case Scope.Sections  => (false, true)
-          case Scope.All       => (true,  true)
-          case Scope.None      => (false, false)
-        }
-        AutonumberConfig(documents, sections, depth)
+  implicit val decoder: ConfigDecoder[AutonumberConfig] = ConfigDecoder.config.flatMap { config =>
+    for {
+      scope <- config.get[Scope]("scope", Scope.None)
+      depth <- config.get[Int]("depth", Int.MaxValue)
+    } yield {
+      val (documents, sections) = scope match {
+        case Scope.Documents => (true,  false)
+        case Scope.Sections  => (false, true)
+        case Scope.All       => (true,  true)
+        case Scope.None      => (false, false)
       }
-
-    case Traced(invalid: ConfigValue, _) => Left(InvalidType("Object", invalid))
+      AutonumberConfig(documents, sections, depth)
+    }
   }
   implicit val defaultKey: DefaultKey[AutonumberConfig] = DefaultKey("autonumbering")
 

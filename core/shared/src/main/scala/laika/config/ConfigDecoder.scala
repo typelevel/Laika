@@ -76,6 +76,11 @@ object ConfigDecoder {
     }
   }
 
+  implicit val config: ConfigDecoder[Config] = {
+    case Traced(ov: ObjectValue, _)      => Right(ov.toConfig)
+    case Traced(invalid: ConfigValue, _) => Left(InvalidType("Object", invalid))
+  }
+
   implicit val configValue: ConfigDecoder[ConfigValue] = new ConfigDecoder[ConfigValue] {
     def apply (value: Traced[ConfigValue]) = Right(value.value)
   }
