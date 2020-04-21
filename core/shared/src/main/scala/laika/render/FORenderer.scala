@@ -151,6 +151,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
       case e @ EnumList(content,_,_,_)   => fmt.listBlock(e, content)
       case e @ BulletList(content,_,_)   => fmt.listBlock(e, content)
       case e @ DefinitionList(content,_) => fmt.listBlock(e, content)
+      case e: NavigationList             => if (e.options.styles.contains("bookmark")) fmt.bookmarkTree(e) else fmt.childPerLine(e.content)
 
       case WithFallback(fallback)      => fmt.child(fallback)
       case c: Customizable             => fmt.listBlock(c, c.content)
@@ -176,7 +177,6 @@ object FORenderer extends ((FOFormatter, Element) => String) {
       case e @ ListItemLabel(content,_) => fmt.listItemLabel(e, content)
       case e: Rule                      => fmt.textElement("fo:leader", e, "", "leader-pattern"->"rule")
       case e: InternalLinkTarget        => fmt.internalLinkTarget(e)
-      case e: NavigationList            => if (e.options.styles.contains("bookmark")) fmt.bookmarkTree(e) else fmt.childPerLine(e.content)
       case e: PageBreak                 => fmt.block(e)
       case e @ LineBlock(content,_)     => fmt.blockContainer(e, content)
       case TargetFormat("xslfo",e,_)    => fmt.child(e)

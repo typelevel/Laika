@@ -422,7 +422,7 @@ case class SectionNumber(position: Seq[Int], options: Options = NoOpt) extends S
 }
 
 /** The root node of a navigation structure */
-case class NavigationList (content: Seq[NavigationItem], options: Options = NoOpt) extends Block with ElementContainer[NavigationItem] with RewritableContainer {
+case class NavigationList (content: Seq[NavigationItem], options: Options = NoOpt) extends Block with ListContainer with RewritableContainer {
   type Self = NavigationList
   def rewriteChildren (rules: RewriteRules): NavigationList = copy(
     content = content.map(_.rewriteChildren(rules))
@@ -432,14 +432,14 @@ case class NavigationList (content: Seq[NavigationItem], options: Options = NoOp
 
 /** Represents a recursive book navigation structure.
   */
-trait NavigationItem extends Block with ElementContainer[NavigationItem] with RewritableContainer {
+trait NavigationItem extends Block with ListItem with ElementContainer[NavigationItem] with RewritableContainer {
   type Self <: NavigationItem
   def title: SpanSequence
 }
 
 /** Represents a book navigation entry that only serves as a section header without linking to content.
   */
-case class NavigationHeader (title: SpanSequence, content: Seq[NavigationItem], options: Options = NoOpt) extends NavigationItem {
+case class NavigationHeader (title: SpanSequence, content: Seq[NavigationItem], options: Options = NoOpt) extends NavigationItem with ListContainer {
   
   type Self = NavigationHeader
   
@@ -463,7 +463,7 @@ case class NavigationLink (title: SpanSequence,
                            target: Target, 
                            content: Seq[NavigationItem],
                            selfLink: Boolean = false, 
-                           options: Options = NoOpt) extends NavigationItem {
+                           options: Options = NoOpt) extends NavigationItem with ListContainer {
   type Self = NavigationLink
   def rewriteChildren (rules: RewriteRules): NavigationLink = copy(
     title = title.rewriteChildren(rules),
