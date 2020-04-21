@@ -103,7 +103,7 @@ trait DocumentNavigation extends Navigatable {
     * @return a navigation item that can be used as part of a bigger navigation structure comprising of trees, documents and their sections
     */
   def asNavigationItem (context: NavigationBuilderContext = NavigationBuilderContext()): NavigationItem = {
-    val children = if (context.isComplete) Nil else sections.map(_.asNavigationItem(path, context.nextLevel))
+    val children = if (context.isComplete || context.excludeSections) Nil else sections.map(_.asNavigationItem(path, context.nextLevel))
     context.newNavigationItem(title.getOrElse(SpanSequence(path.name)), Some(path), children)
   }
   
@@ -136,8 +136,14 @@ case class UnresolvedDocument (document: Document, config: ConfigParser)
   * @param itemStyles the styles to assign to each navigation item as a render hint
   * @param maxLevels the number of levels of sub-trees, documents or sections to create navigation info for
   * @param currentLevel the current level of the navigation tree being built
+  * @param excludeSections indicates whether the recursion should exclude sections of documents even when maxLevels
+  *                        has not been reached yet
   */
-case class NavigationBuilderContext (refPath: Path = Root, itemStyles: Set[String] = Set(), maxLevels: Int = Int.MaxValue, currentLevel: Int = 1) {
+case class NavigationBuilderContext (refPath: Path = Root, 
+                                     itemStyles: Set[String] = Set(), 
+                                     maxLevels: Int = Int.MaxValue, 
+                                     currentLevel: Int = 1,
+                                     excludeSections: Boolean = false) {
   
   lazy val nextLevel: NavigationBuilderContext = copy(currentLevel = currentLevel + 1)
   
