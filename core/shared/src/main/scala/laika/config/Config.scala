@@ -61,6 +61,14 @@ trait Config {
     */
   def origin: Origin
 
+  /** Verifies whether this config instance contains a value mapped to the specified key.
+    */
+  def hasKey (key: String): Boolean = hasKey(Key.parse(key))
+  
+  /** Verifies whether this config instance contains a value mapped to the specified key.
+    */
+  def hasKey (key: Key): Boolean
+
   /** Retrieve a required value for the specified key and decoder.
     */
   def get[T](key: Key)(implicit decoder: ConfigDecoder[T]): ConfigResult[T]
@@ -165,6 +173,8 @@ class ObjectConfig (private[laika] val root: ObjectValue,
       else None
     }
 
+  def hasKey (key: Key): Boolean = lookup(key).nonEmpty || fallback.hasKey(key)
+
   def get[T](key: Key)(implicit decoder: ConfigDecoder[T]): ConfigResult[T] = {
     lookup(key).fold(fallback.get[T](key)) { field =>
       val res = field match {
@@ -197,6 +207,8 @@ class ObjectConfig (private[laika] val root: ObjectValue,
 object EmptyConfig extends Config {
 
   val origin: Origin = Origin.root
+
+  def hasKey (key: Key): Boolean = false
   
   def get[T](key: Key)(implicit decoder: ConfigDecoder[T]): ConfigResult[T] = Left(NotFound(key))
 
