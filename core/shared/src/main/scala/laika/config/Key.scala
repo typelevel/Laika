@@ -42,7 +42,7 @@ object Key {
   
   def apply(segment: String, segments: String*): Key = Key(segment +: segments)
   
-  def parse(key: String): Key = {
+  def parse(key: String): Key = if (key.isEmpty) Key(Nil) else {
     val segments = key.split("\\.").toList
     Key(segments)
   }
