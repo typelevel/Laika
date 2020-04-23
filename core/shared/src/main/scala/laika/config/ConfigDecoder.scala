@@ -19,7 +19,7 @@ package laika.config
 import java.util.Date
 
 import cats.implicits._
-import laika.ast.{Path, PathBase, RelativePath}
+import laika.ast.{Path, PathBase, RelativePath, Target}
 import laika.time.PlatformDateFormat
 
 import scala.util.Try
@@ -51,6 +51,13 @@ trait ConfigDecoder[T] { self =>
   */
 object ConfigDecoder {
 
+  implicit val boolean: ConfigDecoder[Boolean] = new ConfigDecoder[Boolean] {
+    def apply (value: Traced[ConfigValue]) = value.value match {
+      case BooleanValue(b) => Right(b)
+      case invalid => Left(InvalidType("Boolean", invalid))
+    }
+  }
+  
   implicit val string: ConfigDecoder[String] = new ConfigDecoder[String] {
     def apply (value: Traced[ConfigValue]) = value.value match {
       case s: SimpleConfigValue => Right(s.render)
@@ -104,7 +111,7 @@ object ConfigDecoder {
     def apply (value: Traced[ConfigValue]) = value.value match {
       case ArrayValue(values) =>
         val (errors, results) = values.toList.map(v => elementDecoder(Traced(v, value.origin))).separate
-        if (errors.nonEmpty) Left(DecodingError(s"One or more errors decoding array elements: ${errors.mkString(", ")}"))
+        if (errors.nonEmpty) Left(DecodingError(s"One or more errors decoding array elements: ${errors.map(_.message).mkString(", ")}"))
         else Right(results)
       case invalid => Left(InvalidType("Array", invalid))
     }
