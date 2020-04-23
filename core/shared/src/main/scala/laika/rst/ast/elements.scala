@@ -162,8 +162,12 @@ case class Contents (title: String, depth: Int = Int.MaxValue, local: Boolean = 
   def withOptions (options: Options): Contents = copy(options = options)
   
   def resolve (cursor: DocumentCursor): Block = {
-    val toc = TocGenerator.fromDocument(cursor.target, depth, cursor.target.path) // TODO - find parent for local toc
-    TitledBlock(List(Text(title)), toc, options + Styles("toc"))
+    val nav = cursor.target.asNavigationItem(NavigationBuilderContext(
+      refPath = cursor.target.path,
+      maxLevels = depth,
+      currentLevel = 0,
+    )).content
+    TitledBlock(List(Text(title)), Seq(NavigationList(nav)), options + Styles("toc"))
   }
 }
 
