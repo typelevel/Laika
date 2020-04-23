@@ -284,15 +284,8 @@ object StandardDirectives extends DirectiveRegistry {
         .flatMap(_.eval(cursor))
     }
   }
-  
-  /** Creates the nodes for a table of content.
-   *  
-   *  @param depth the maximum depth to traverse when building the table, the depth is unlimited if the value is empty
-   *  @param rootConfig the string identifier that specifies the tree that should serve as the root for the table
-   *  @param title the title for the table
-   *  @param cursor the cursor of the document the table of content will be placed in
-   *  @return a block element containing the table and its title
-   */
+
+  @deprecated("use NavigationBuilderConfig instead", "0.15.0")
   def toc (depth: Option[Int], rootConfig: String, title: Option[String], cursor: DocumentCursor): Block = {
     
     val maxLevel = depth getOrElse Int.MaxValue
@@ -323,9 +316,8 @@ object StandardDirectives extends DirectiveRegistry {
       case None       => BlockSequence(list, Styles("toc"))
     }
   }
-  
-  /** Implementation of the `toc` directive for templates.
-   */
+
+  @deprecated("use @:nav directive instead", "0.15.0")
   lazy val templateToc: Templates.Directive  = Templates.create("toc") {
 
     import Templates.dsl._
@@ -338,9 +330,8 @@ object StandardDirectives extends DirectiveRegistry {
         TemplateElement(toc(depth, rootConfig.getOrElse("<rootTree>"), title, cursor))
     }
   }
-  
-  /** Implementation of the `toc` directive for block elements in markup documents.
-   */
+
+  @deprecated("use @:nav directive instead", "0.15.0")
   lazy val blockToc: Blocks.Directive  = Blocks.create("toc") {
 
     import Blocks.dsl._

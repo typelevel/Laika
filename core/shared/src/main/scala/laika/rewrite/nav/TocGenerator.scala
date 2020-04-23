@@ -20,9 +20,7 @@ import laika.ast.Path.Root
 import laika.ast._
 
 
-/** Generates the tree model (consisting of BulletList elements) for
- *  the table of contents for a document or an entire document tree.
- */
+@deprecated("use NavigationBuilderConfig instead", "0.15.0")
 object TocGenerator {
 
   
@@ -31,14 +29,6 @@ object TocGenerator {
   private def styles (level: Int) = Styles("toc","level"+level)
   
   
-  /** Generates the tree model (consisting of BulletList elements) for
-   *  the table of contents for the specified document.
-   *  
-   *  @param doc the document to create a table of contents for
-   *  @param depth the maximum depth to traverse when building the table, the depth is unlimited if the value is empty
-   *  @param refPath the path from which the targets in the table will be linked
-   *  @return a block element containing the table of contents as a BulletList and its title
-   */
   def fromDocument (doc: Document, depth: Int, refPath: Path): List[Block] = fromDocument(doc, 1, depth, refPath)
   
   private def fromDocument (doc: Document, curLevel: Int, maxLevel: Int, refPath: Path): List[Block] = {
@@ -63,15 +53,6 @@ object TocGenerator {
     sectionsToList(doc.sections, doc.path, curLevel)
   }
 
-  
-  /** Generates the tree model (consisting of BulletList elements) for
-   *  the table of contents for the specified document tree.
-   *  
-   *  @param tree the document tree to create a table of contents for
-   *  @param depth the maximum depth to traverse when building the table, the depth is unlimited if the value is empty
-   *  @param refPath the path from which the targets in the table will be linked
-   *  @return a block element containing the table of contents as a BulltetList and its title
-   */
   def fromTree (tree: DocumentTree, depth: Int, refPath: Path): List[Block] = 
     fromTree(tree, 1, depth, refPath)
   
