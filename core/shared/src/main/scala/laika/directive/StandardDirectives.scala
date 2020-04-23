@@ -16,8 +16,10 @@
 
 package laika.directive
 
+import cats.data.ValidatedNec
 import cats.implicits._
-import laika.config.{ArrayValue, BooleanValue, ConfigValue, Key, NullValue, ObjectValue, StringValue}
+import laika.ast.Path.Root
+import laika.config.{ArrayValue, BooleanValue, ConfigDecoder, ConfigError, ConfigValue, Key, NullValue, ObjectValue, StringValue}
 import laika.ast.{SpanResolver, TemplateSpan, _}
 import laika.bundle.BundleOrigin
 import laika.rewrite.TemplateRewriter
@@ -127,6 +129,159 @@ object StandardDirectives extends DirectiveRegistry {
       
       val alternatives = ElseIf(path, multipart.mainBody) +: multipart.collect[ElseIf] 
       process(alternatives)
+    }
+  }
+  
+  
+  case class NavigationBuilderConfig (entries: Seq[NavigationNodeConfig], 
+                                      defaultDepth: Int = Int.MaxValue, 
+                                      itemStyles: Set[String] = Set(),
+                                      excludeRoot: Boolean = false,
+                                      excludeSections: Boolean = false,
+                                      options: Options = NoOpt) extends BlockResolver {
+    
+    type Self = NavigationBuilderConfig
+
+    def eval (cursor: DocumentCursor): Either[String, NavigationList] = {
+
+      def generate (node: NavigationNodeConfig): ValidatedNec[String, List[NavigationItem]] = node match {
+
+        case ManualNavigationNode(title, target, children) =>
+          children.toList.map(generate).combineAll.map { childNodes =>
+            target.fold[List[NavigationItem]](
+              List(NavigationHeader(title, childNodes))
+            ) { externalTarget =>
+              List(NavigationLink(title, externalTarget, childNodes))
+            }
+          }
+
+        case GeneratedNavigationNode(targetPath, title, depth, optExcludeRoot, optExcludeSections) =>
+          val resolvedTarget = targetPath match {
+            case _: SegmentedRelativePath => InternalTarget.fromPath(targetPath, cursor.path.parent) // TODO - 0.16 - avoid differences
+            case _: RelativePath => InternalTarget.fromPath(targetPath, cursor.path)
+            case _: Path => InternalTarget.fromPath(targetPath, cursor.path)
+          } 
+          val target = cursor.root.target.tree.selectDocument(resolvedTarget.absolutePath.relativeTo(Root)).orElse(
+            cursor.root.target.tree.selectSubtree(resolvedTarget.absolutePath.relativeTo(Root))
+          )
+          target.fold[ValidatedNec[String, List[NavigationItem]]](
+            s"Unable to resolve document or tree with path: $targetPath".invalidNec
+          ) { treeContent =>
+            val noRoot = optExcludeRoot.getOrElse(excludeRoot)
+            val context = NavigationBuilderContext(
+              refPath = cursor.path,
+              itemStyles = itemStyles,
+              maxLevels = depth.getOrElse(defaultDepth),
+              currentLevel = if (noRoot) 0 else 1,
+              excludeSections = optExcludeSections.getOrElse(excludeSections)
+            )
+            val navItem = treeContent.asNavigationItem(context)
+            def replaceTitle (titleSpan: SpanSequence): NavigationItem = navItem match {
+              case nh: NavigationHeader => nh.copy(title = titleSpan)
+              case nl: NavigationLink   => nl.copy(title = titleSpan)
+            }
+            if (noRoot) navItem.content.toList.validNec
+            else List(title.fold(navItem)(replaceTitle)).validNec
+          }
+      }
+
+      entries.toList
+        .map(generate)
+        .combineAll
+        .toEither
+        .map(NavigationList(_))
+        .leftMap(errors => s"One or more errors generating navigation: ${errors.toList.mkString(",")}")
+    }
+
+    def resolve (cursor: DocumentCursor): Block =
+      eval(cursor).fold(error => InvalidElement(error, error).asBlock, identity)
+
+    def withOptions (options: Options): NavigationBuilderConfig = copy(options = options)
+  }
+  
+  object NavigationBuilderConfig {
+    
+    implicit val decoder: ConfigDecoder[NavigationBuilderConfig] = ConfigDecoder.config.flatMap { config =>
+      for {
+        entries         <- config.get[Seq[NavigationNodeConfig]]("entries", Nil)
+        defaultDepth    <- config.get[Int]("defaultDepth", Int.MaxValue)
+        itemStyles      <- config.get[Seq[String]]("itemStyles", Nil)
+        excludeRoot     <- config.get[Boolean]("excludeRoot", false)
+        excludeSections <- config.get[Boolean]("excludeSections", false)
+      } yield NavigationBuilderConfig(entries, defaultDepth, itemStyles.toSet, excludeRoot, excludeSections)
+    }
+    
+  }
+  
+  sealed trait NavigationNodeConfig
+
+  object NavigationNodeConfig {
+
+    implicit lazy val decoder: ConfigDecoder[NavigationNodeConfig] = ConfigDecoder.config.flatMap { config =>
+      
+      config.getOpt[String]("target").flatMap { optTarget =>
+        
+        def createManualNode (externalTarget: Option[ExternalTarget]): Either[ConfigError, NavigationNodeConfig] = for {
+            title    <- config.get[String]("title")
+            children <- config.get[Seq[NavigationNodeConfig]]("children", Nil)(ConfigDecoder.seq(decoder))
+          } yield {
+            ManualNavigationNode(SpanSequence(title), externalTarget, children)
+          }
+
+        def createGeneratedNode (internalTarget: PathBase): Either[ConfigError, NavigationNodeConfig] = for {
+            title           <- config.getOpt[String]("title")
+            depth           <- config.getOpt[Int]("depth")
+            excludeRoot     <- config.getOpt[Boolean]("excludeRoot")
+            excludeSections <- config.getOpt[Boolean]("excludeSections")
+          } yield {
+            val titleSpan = title.map(SpanSequence(_))
+            GeneratedNavigationNode(internalTarget, titleSpan, depth, excludeRoot, excludeSections)
+          }
+
+        optTarget.fold(createManualNode(None)) { targetStr =>
+          if (targetStr.startsWith("http:") || targetStr.startsWith("https:")) 
+            createManualNode(Some(ExternalTarget(targetStr)))
+          else
+            createGeneratedNode(PathBase.parse(targetStr))
+        }
+      }
+    }
+    
+  }
+  
+  case class GeneratedNavigationNode (target: PathBase,
+                                      title: Option[SpanSequence] = None, 
+                                      depth: Option[Int] = None,
+                                      excludeRoot: Option[Boolean] = None,
+                                      excludeSections: Option[Boolean] = None) extends NavigationNodeConfig
+  
+  case class ManualNavigationNode (title: SpanSequence, 
+                                   target: Option[ExternalTarget] = None, 
+                                   children: Seq[NavigationNodeConfig] = Nil) extends NavigationNodeConfig
+
+  /** Implementation of the `nav` directive for templates.
+    */
+  lazy val templateNav: Templates.Directive  = Templates.eval("nav") {
+
+    import Templates.dsl._
+
+    (allAttributes, cursor).mapN { (config, cursor) =>
+      config.get[NavigationBuilderConfig]("")
+        .leftMap(_.message)
+        .flatMap(_.eval(cursor).map(TemplateElement(_)))
+    }
+  }
+
+  /** Implementation of the `nav` directive for block elements in markup documents.
+    */
+  lazy val blockNav: Blocks.Directive  = Blocks.eval("nav") {
+
+    import Blocks.dsl._
+
+    (allAttributes, cursor).mapN { (config, cursor) =>
+      config.get[NavigationBuilderConfig]("")
+        .leftMap(_.message)
+        .flatMap(_.eval(cursor))
     }
   }
   
@@ -309,7 +464,7 @@ object StandardDirectives extends DirectiveRegistry {
   
   /** Implementation of the `pageBreak` directive.
    */
-  lazy val pageBreak: Blocks.Directive  = Blocks.create("pageBreak") {
+  lazy val pageBreak: Blocks.Directive = Blocks.create("pageBreak") {
     import Blocks.dsl._
     
     empty(PageBreak())
@@ -319,6 +474,7 @@ object StandardDirectives extends DirectiveRegistry {
    *  elements in markup documents.
    */
   lazy val blockDirectives: Seq[Blocks.Directive] = List(
+    blockNav,
     blockToc,
     blockFragment,
     blockStyle,
@@ -368,6 +524,7 @@ object StandardDirectives extends DirectiveRegistry {
   /** The complete list of standard directives for templates.
    */
   lazy val templateDirectives: Seq[Templates.Directive] = List(
+    templateNav,
     templateToc,
     templateFor,
     templateIf,

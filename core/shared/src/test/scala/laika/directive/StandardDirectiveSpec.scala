@@ -39,6 +39,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
   lazy val markupParser = MarkupParser.of(Markdown).build
 
   def parse (input: String, path: Path = Root / "doc"): Document = markupParser.parse(input, path).toOption.get
+  def parseUnresolved (input: String, path: Path = Root / "doc"): Document = markupParser.parseUnresolved(input, path).toOption.get.document
 
   def parseWithFragments (input: String, path: Path = Root / "doc"): (Map[String,Element], RootElement) = {
     val doc = parse(input, path)
@@ -374,7 +375,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
 
     import Path.Root
 
-    val pathUnderTest = Root / "sub2" / "doc7"
+    val pathUnderTest = Root / "sub2" / "doc7" // TODO - 0.16 - remove
 
     def hasTitleDocs: Boolean = false
 
@@ -398,24 +399,41 @@ class StandardDirectiveSpec extends AnyFlatSpec
       if (!hasTitleDocs || path == Root) None
       else Some(Document(path / "title", sectionsWithoutTitle, config = config(path / "title", "TitleDoc", Origin.DocumentScope)))
 
-    def docs (path: Path, nums: Int*): Seq[Document] = nums map {
-      n => Document(path / ("doc"+n), sectionsWithoutTitle, config = config(path / ("doc"+n), "Doc "+n, Origin.DocumentScope))
-    }
-
-    def buildTree (template: TemplateDocument, markup: Document): DocumentTree = {
+    def buildTree (templates: List[TemplateDocument] = Nil, docUnderTest: Option[Document] = None, legacyAdditionalMarkup: List[Document] = Nil): DocumentTree = {
+      def docs (parent: Path, nums: Int*): Seq[Document] = nums map { n =>
+        val docConfig = config(parent / ("doc"+n), "Doc "+n, Origin.DocumentScope)
+        (n, docUnderTest) match {
+          case (6, Some(doc)) => doc.copy(config = docConfig)
+          case _ => Document(parent / ("doc"+n), sectionsWithoutTitle, config = docConfig)
+        }
+      }
       DocumentTree(Root, docs(Root, 1,2) ++ List(
         DocumentTree(Root / "sub1", docs(Root / "sub1",3,4), titleDoc(Root / "sub1"), config = config(Root / "sub1", "Tree 1", Origin.TreeScope)),
-        DocumentTree(Root / "sub2", docs(Root / "sub2",5,6) ++ List(markup), titleDoc(Root / "sub1"), config = config(Root / "sub2", "Tree 2", Origin.TreeScope))
-      ), templates = List(template))
+        DocumentTree(Root / "sub2", docs(Root / "sub2",5,6) ++ legacyAdditionalMarkup, titleDoc(Root / "sub2"), config = config(Root / "sub2", "Tree 2", Origin.TreeScope))
+      ), templates = templates)
     }
 
-    def parseAndRewrite (template: String, markup: String): RootElement = {
+    def parseAndRewrite (template: String, legacyAdditionalMarkup: String): RootElement = { // TODO - 0.16 - remove
       val templateDoc = TemplateDocument(Root / "test.html", parseTemplate(template))
-      val doc = Document(pathUnderTest, parse(markup, pathUnderTest).content, config =
+      val doc = Document(pathUnderTest, parse(legacyAdditionalMarkup, pathUnderTest).content, config =
         config(pathUnderTest, "Doc 7", Origin.DocumentScope).withValue("template","/test.html").build)
-      val inputTree = buildTree(templateDoc, doc)
+      val inputTree = buildTree(List(templateDoc), legacyAdditionalMarkup = List(doc))
       val tree = inputTree.rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree)))
       TemplateRewriter.applyTemplates(DocumentTreeRoot(tree), "html").toOption.get.tree.selectDocument(Current / "sub2" / "doc7").get.content
+    }
+
+    def parseTemplateAndRewrite (template: String): RootElement = {
+      val templateDoc = TemplateDocument(Root / "default.template.html", parseTemplate(template))
+      val inputTree = buildTree(List(templateDoc))
+      val tree = inputTree.rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree)))
+      TemplateRewriter.applyTemplates(DocumentTreeRoot(tree), "html").toOption.get.tree.selectDocument(Current / "sub2" / "doc6").get.content
+    }
+
+    def parseDocumentAndRewrite (markup: String): RootElement = {
+      val markupDoc = parseUnresolved(markup, Root / "sub2" / "doc6")
+      val inputTree = buildTree(Nil, Some(markupDoc))
+      val tree = inputTree.rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree)))
+      TemplateRewriter.applyTemplates(DocumentTreeRoot(tree), "html").toOption.get.tree.selectDocument(Current / "sub2" / "doc6").get.content
     }
 
     def markup = """# Headline 1
@@ -423,6 +441,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
                    |# Headline 2""".stripMargin
   }
 
+  // TODO - 0.16 - remove
   trait TocModel extends TreeModel {
     import Path._
     import laika.ast.TitledBlock
@@ -540,6 +559,310 @@ class StandardDirectiveSpec extends AnyFlatSpec
       Section(Header(1, List(Text("Headline 2")), Id("headline-2") + Styles("section")), Nil)
     )
   }
+
+  trait NavModel {
+
+    def hasTitleDocs: Boolean
+
+    def maxLevels: Int = Int.MaxValue
+    def excludeSections: Boolean = false
+
+    val refPath: Path = Root / "sub2" / "doc6"
+
+    def styles (level: Int): Options = Styles(s"level$level")
+
+    def sectionList (path: Path, section: Int, level: Int): NavigationLink = NavigationLink(
+      SpanSequence(s"Section $section"),
+      InternalTarget.fromPath(path.withFragment(s"section-$section"), refPath),
+      if (section % 2 == 0 || level == maxLevels) Nil else Seq(
+        sectionList(path, section + 1, level+1)
+      ),
+      options = styles(level)
+    )
+
+    def docList (path: Path, doc: Int, level: Int, title: Option[String] = None): NavigationLink = NavigationLink(
+      SpanSequence(title.getOrElse(s"Doc $doc")),
+      InternalTarget.fromPath(path, refPath),
+      if (level == maxLevels || excludeSections) Nil else Seq(
+        sectionList(path, 1, level+1),
+        sectionList(path, 3, level+1)
+      ),
+      path == refPath,
+      styles(level)
+    )
+
+    def treeList (tree: Int, docStartNum: Int, level: Int): NavigationItem = {
+      val children = if (level == maxLevels) Nil else List(
+        docList(Root / s"sub$tree" / s"doc$docStartNum", docStartNum, level + 1),
+        docList(Root / s"sub$tree" / s"doc${docStartNum + 1}", docStartNum + 1, level + 1),
+      )
+      if (hasTitleDocs) NavigationLink(SpanSequence("TitleDoc"), InternalTarget.fromPath(Root / s"sub$tree" / "title", refPath), children, options = styles(level))
+      else NavigationHeader(SpanSequence(s"Tree $tree"), children, options = styles(level))
+    }
+
+    def rootList: NavigationHeader =
+      NavigationHeader(SpanSequence("/"), List(
+        docList(Root / "doc1", 1, 2),
+        docList(Root / "doc2", 2, 2),
+        treeList(1, 3, 2),
+        treeList(2, 5, 2)
+      ), options = styles(1))
+
+    def templateResult (items: NavigationItem*): RootElement = buildResult(NavigationList(items))
+
+    def error (msg: String, src: String): RootElement = {
+      buildResult(InvalidElement(msg, src).asSpan)
+    }
+
+    private val sections = Seq(
+      Section(Header(1, List(Text("Section 1")), Id("section-1") + Styles("section")), Seq(
+        Section(Header(2, List(Text("Section 2")), Id("section-2") + Styles("section")), Nil)
+      )),
+      Section(Header(1, List(Text("Section 3")), Id("section-3") + Styles("section")), Seq(
+        Section(Header(2, List(Text("Section 4")), Id("section-4") + Styles("section")), Nil)
+      ))
+    )
+
+    private def buildResult (element: Element): RootElement = {
+      root(TemplateRoot(
+        t("aaa "),
+        TemplateElement(element),
+        t(" bbb "),
+        EmbeddedRoot(sections)
+      ))
+    }
+
+    def blockResult (items: NavigationItem*): RootElement = root(
+      p("aaa"),
+      NavigationList(items),
+      p("bbb")
+    )
+
+    def extLink (num: Int): NavigationLink = NavigationLink(SpanSequence(s"Link $num"), ExternalTarget(s"http://domain-$num.com/"), Nil)
+  }
+
+  "The template nav directive" should "produce two manual entries" in new TreeModel with NavModel {
+
+    val template =
+      """aaa @:nav { 
+        |  entries = [
+        |    { title = Link 1, target = "http://domain-1.com/"}
+        |    { title = Link 2, target = "http://domain-2.com/"} 
+        |  ] 
+        |} bbb ${document.content}""".stripMargin
+
+    val res = parseTemplateAndRewrite(template)
+
+    parseTemplateAndRewrite(template) should be (templateResult(extLink(1), extLink(2)))
+  }
+
+  it should "produce a manual entry and a generated entry" in new TreeModel with NavModel {
+
+    val template =
+      """aaa @:nav { 
+        |  entries = [
+        |    { title = Link 1, target = "http://domain-1.com/"}
+        |    { target = "." }
+        |  ] 
+        |} bbb ${document.content}""".stripMargin
+
+    val res = parseTemplateAndRewrite(template)
+
+    parseTemplateAndRewrite(template) should be (templateResult(extLink(1), docList(Root / "sub2" / "doc6", 6, 1)))
+  }
+
+  it should "produce an entry generated from the root of the tree" in new TreeModel with NavModel {
+
+    val template =
+      """aaa @:nav { 
+        |  entries = [
+        |    { target = "/" }
+        |  ] 
+        |} bbb ${document.content}""".stripMargin
+
+    parseTemplateAndRewrite(template) should be (templateResult(rootList))
+  }
+
+  it should "produce an entry generated from the root of the tree with title documents" in new TreeModel with NavModel {
+
+    override val hasTitleDocs: Boolean = true
+
+    val template =
+      """aaa @:nav { 
+        |  entries = [
+        |    { target = "/" }
+        |  ] 
+        |} bbb ${document.content}""".stripMargin
+
+    parseTemplateAndRewrite(template) should be (templateResult(rootList))
+  }
+
+  it should "produce an entry generated from the current tree" in new TreeModel with NavModel {
+
+    val template =
+      """aaa @:nav { 
+        |  entries = [
+        |    { target = "../" }
+        |  ] 
+        |} bbb ${document.content}""".stripMargin
+
+    parseTemplateAndRewrite(template) should be (templateResult(treeList(2, 5, 1)))
+  }
+
+  it should "produce an entry generated from the current tree with a maximum depth" in new TreeModel with NavModel {
+
+    override def maxLevels: Int = 2
+
+    val template =
+      """aaa @:nav { 
+        |  entries = [
+        |    { target = "../", depth = 2 }
+        |  ] 
+        |} bbb ${document.content}""".stripMargin
+
+    parseTemplateAndRewrite(template) should be (templateResult(treeList(2, 5, 1)))
+  }
+
+  it should "produce an entry generated from the current tree with the root excluded" in new TreeModel with NavModel {
+
+    val template =
+      """aaa @:nav { 
+        |  entries = [
+        |    { target = "../", excludeRoot = true }
+        |  ] 
+        |} bbb ${document.content}""".stripMargin
+
+    parseTemplateAndRewrite(template) should be (templateResult(treeList(2, 5, 0).content: _*))
+  }
+
+  it should "produce an entry generated from the current tree with sections excluded" in new TreeModel with NavModel {
+
+    override def excludeSections: Boolean = true
+
+    val template =
+      """aaa @:nav { 
+        |  entries = [
+        |    { target = "../", excludeSections = true }
+        |  ] 
+        |} bbb ${document.content}""".stripMargin
+
+    parseTemplateAndRewrite(template) should be (templateResult(treeList(2, 5, 1)))
+  }
+
+  it should "produce an entry generated from the current document" in new TreeModel with NavModel {
+
+    val template =
+      """aaa @:nav { 
+        |  entries = [
+        |    { target = "." }
+        |  ] 
+        |} bbb ${document.content}""".stripMargin
+
+    parseTemplateAndRewrite(template) should be (templateResult(docList(Root / "sub2" / "doc6", 6, 1)))
+  }
+
+  it should "produce an entry generated from the current document with a custom title" in new TreeModel with NavModel {
+
+    val template =
+      """aaa @:nav { 
+        |  entries = [
+        |    { target = ".", title = Custom }
+        |  ] 
+        |} bbb ${document.content}""".stripMargin
+
+    parseTemplateAndRewrite(template) should be (templateResult(docList(Root / "sub2" / "doc6", 6, 1, title = Some("Custom"))))
+  }
+
+  it should "produce an entry generated from a document referred to with an absolute path" in new TreeModel with NavModel {
+
+    val template =
+      """aaa @:nav { 
+        |  entries = [
+        |    { target = "/sub1/doc3" }
+        |  ] 
+        |} bbb ${document.content}""".stripMargin
+
+    parseTemplateAndRewrite(template) should be (templateResult(docList(Root / "sub1" / "doc3", 3, 1)))
+  }
+
+  it should "fail when referring to a path that does not exist" in new TreeModel with NavModel {
+
+    val directive = """@:nav {
+                      |  entries = [
+                      |   { target = "/sub2/doc99" }
+                      |  ]
+                      |}""".stripMargin
+
+    val template =
+      s"""aaa $directive bbb $${document.content}""".stripMargin
+
+    val msg = "One or more errors processing directive 'nav': One or more errors generating navigation: Unable to resolve document or tree with path: /sub2/doc99"
+    parseTemplateAndRewrite(template) should be (error(msg, directive))
+  }
+
+  it should "fail with an invalid depth attribute" in new TreeModel with NavModel {
+
+    val directive = """@:nav {
+                      |  entries = [
+                      |   { target = "/", depth = foo }
+                      |  ]
+                      |}""".stripMargin
+
+    val template =
+      s"""aaa $directive bbb $${document.content}""".stripMargin
+
+    val msg = "One or more errors processing directive 'nav': One or more errors decoding array elements: not an integer: foo"
+    parseTemplateAndRewrite(template) should be (error(msg, directive))
+  }
+
+  it should "fail with a manual node without title" in new TreeModel with NavModel {
+
+    val directive = """@:nav {
+                      |  entries = [
+                      |   { target = "http://foo.bar" }
+                      |  ]
+                      |}""".stripMargin
+
+    val template =
+      s"""aaa $directive bbb $${document.content}""".stripMargin
+
+    val msg = "One or more errors processing directive 'nav': One or more errors decoding array elements: Not found: 'title'"
+    parseTemplateAndRewrite(template) should be (error(msg, directive))
+  }
+
+  "The block nav directive" should "produce two manual entries" in new TreeModel with NavModel {
+
+    val input =
+      """aaa
+        |
+        |@:nav { 
+        |  entries = [
+        |    { title = Link 1, target = "http://domain-1.com/"}
+        |    { title = Link 2, target = "http://domain-2.com/"} 
+        |  ] 
+        |}
+        |
+        |bbb""".stripMargin
+
+    parseDocumentAndRewrite(input) should be (blockResult(extLink(1), extLink(2)))
+  }
+
+  it should "produce an entry generated from a document referred to with a relative path" in new TreeModel with NavModel {
+
+    val input =
+      """aaa
+        |
+        |@:nav { 
+        |  entries = [
+        |    { target = "../sub1/doc3" }
+        |  ] 
+        |}
+        |
+        |bbb""".stripMargin
+
+    parseDocumentAndRewrite(input) should be (blockResult(docList(Root / "sub1" / "doc3", 3, 1)))
+  }
+
 
   "The template toc directive" should "produce a table of content starting from the root tree" in {
     new TreeModel with TocModel {
