@@ -20,7 +20,7 @@ import java.util.Date
 
 import laika.api.MarkupParser
 import laika.ast.Path.Root
-import laika.ast.RelativePath.Current
+import laika.ast.RelativePath.CurrentTree
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.ReStructuredText
@@ -38,7 +38,7 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec
 
   def parse (input: String): RootElement = MarkupParser.of(ReStructuredText).build.parse(input).toOption.get.content
   
-  val imgTarget = InternalTarget(Root / "picture.jpg", Current / "picture.jpg")
+  val imgTarget = InternalTarget(Root / "picture.jpg", CurrentTree / "picture.jpg")
   
   "The image directive" should "parse the URI argument" in {
     val input = """.. |subst| image:: picture.jpg

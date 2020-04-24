@@ -19,7 +19,7 @@ package laika.ast
 import java.util.Date
 
 import laika.ast.Path.Root
-import laika.ast.RelativePath.Current
+import laika.ast.RelativePath.CurrentTree
 import laika.config.Config.{ConfigResult, IncludeMap}
 import laika.config._
 import laika.rewrite.TemplateRewriter
@@ -359,7 +359,7 @@ trait TreeStructure { this: TreeContent =>
     * as this instance is not aware of its parents.
     */
   def selectDocument (path: RelativePath): Option[Document] = path match {
-    case Current / localName => content.collectFirst { case d: Document if d.path.name == localName => d }
+    case CurrentTree / localName => content.collectFirst { case d: Document if d.path.name == localName => d }
     case other / localName if path.parentLevels == 0 => selectSubtree(other).flatMap(_.selectDocument(localName))
     case _ => None
   }
@@ -374,12 +374,12 @@ trait TreeStructure { this: TreeContent =>
     * as this instance is not aware of its parents.
     */
   def selectTemplate (path: RelativePath): Option[TemplateDocument] = path match {
-    case Current / localName => templates.find(_.path.name == localName)
+    case CurrentTree / localName => templates.find(_.path.name == localName)
     case other / localName if path.parentLevels == 0 => selectSubtree(other).flatMap(_.selectTemplate(localName))
     case _ => None
   }
   
-  private val defaultTemplatePathBase: RelativePath = Current / "default.template.<format>"
+  private val defaultTemplatePathBase: RelativePath = CurrentTree / "default.template.<format>"
   
   /** Selects the template with the name `default.template.&lt;suffix&gt;` for the 
     * specified format suffix from this level of the document tree.
@@ -406,8 +406,8 @@ trait TreeStructure { this: TreeContent =>
     * as this instance is not aware of its parents.
     */
   def selectSubtree (path: RelativePath): Option[DocumentTree] = path match {
-    case Current => Some(targetTree)
-    case Current / localName => content.collectFirst { case t: DocumentTree if t.path.name == localName => t }
+    case CurrentTree => Some(targetTree)
+    case CurrentTree / localName => content.collectFirst { case t: DocumentTree if t.path.name == localName => t }
     case other / localName if path.parentLevels == 0 => selectSubtree(other).flatMap(_.selectSubtree(localName))
     case _ => None
   }

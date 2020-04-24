@@ -156,13 +156,9 @@ object StandardDirectives extends DirectiveRegistry {
           }
 
         case GeneratedNavigationNode(targetPath, title, depth, optExcludeRoot, optExcludeSections) =>
-          val resolvedTarget = targetPath match {
-            case _: SegmentedRelativePath => InternalTarget.fromPath(targetPath, cursor.path.parent) // TODO - 0.16 - avoid differences
-            case _: RelativePath => InternalTarget.fromPath(targetPath, cursor.path)
-            case _: Path => InternalTarget.fromPath(targetPath, cursor.path)
-          } 
-          val target = cursor.root.target.tree.selectDocument(resolvedTarget.absolutePath.relativeTo(Root)).orElse(
-            cursor.root.target.tree.selectSubtree(resolvedTarget.absolutePath.relativeTo(Root))
+          val resolvedTarget = InternalTarget.fromPath(targetPath, cursor.path).absolutePath.relativeTo(Root)
+          val target = cursor.root.target.tree.selectDocument(resolvedTarget).orElse(
+            cursor.root.target.tree.selectSubtree(resolvedTarget)
           )
           target.fold[ValidatedNec[String, List[NavigationItem]]](
             s"Unable to resolve document or tree with path: $targetPath".invalidNec

@@ -18,7 +18,7 @@ package laika.render
 
 import laika.api.Renderer
 import laika.ast.Path.Root
-import laika.ast.RelativePath.Current
+import laika.ast.RelativePath.{CurrentTree}
 import laika.ast.{Styles, _}
 import laika.ast.helper.ModelBuilder
 import laika.format.HTML
@@ -38,7 +38,7 @@ class HTMLRendererSpec extends AnyFlatSpec
     
   def renderUnformatted (elem: Element): String = Renderer.of(HTML).unformatted.build.render(elem)
   
-  val imageTarget = InternalTarget(Root / "foo.jpg", Current / "foo.jpg")
+  val imageTarget = InternalTarget(Root / "foo.jpg", CurrentTree / "foo.jpg")
 
 
   "The HTML renderer" should "render a paragraph with plain text" in {
@@ -373,7 +373,7 @@ class HTMLRendererSpec extends AnyFlatSpec
   }
   
   it should "render a figure" in {
-    val elem = Figure(Image("alt", InternalTarget(Root / "image.jpg", Current / "image.jpg")), List(Text("some "), Emphasized("caption"), Text(" text")), List(p("aaa"), Rule(), p("bbb")))
+    val elem = Figure(Image("alt", InternalTarget(Root / "image.jpg", CurrentTree / "image.jpg")), List(Text("some "), Emphasized("caption"), Text(" text")), List(p("aaa"), Rule(), p("bbb")))
     val html = """<div class="figure">
       |  <img src="image.jpg" alt="alt">
       |  <p class="caption">some <em>caption</em> text</p>

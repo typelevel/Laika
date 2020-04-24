@@ -18,7 +18,7 @@ package laika.rewrite
 
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
-import laika.ast.RelativePath.Current
+import laika.ast.RelativePath.{CurrentDocument, CurrentTree}
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.config.ConfigParser
@@ -67,7 +67,7 @@ class RewriteRulesSpec extends AnyWordSpec
 
   def intLink (path: RelativePath) = SpanLink(List(Text("text")), InternalTarget.fromPath(path, Path.Root))
 
-  def docLink (ref: String) = SpanLink(List(Text("text")), InternalTarget((Root / "doc").withFragment(ref), Current.withFragment(ref)))
+  def docLink (ref: String) = SpanLink(List(Text("text")), InternalTarget((Root / "doc").withFragment(ref), CurrentDocument(ref)))
 
   def rootLinkTarget (fragment: String): InternalTarget = InternalTarget.fromPath(RelativePath.parse(s"#$fragment"), Path.Root)
 
@@ -325,9 +325,9 @@ class RewriteRulesSpec extends AnyWordSpec
     }
 
     def internalRef (ref: String) = InternalReference(List(Text("text")), RelativePath.parse(ref), "text")
-    def internalLink (path: RelativePath) = SpanLink(List(Text("text")), InternalTarget.fromPath(path, Root / "tree1"))
+    def internalLink (path: RelativePath) = SpanLink(List(Text("text")), InternalTarget.fromPath(path, Root / "tree1" / "doc3.md"))
     def docLink (ref: String) =
-      SpanLink(List(Text("text")), InternalTarget((Root / "tree1" / "doc3.md").withFragment(ref), Current.withFragment(ref)))
+      SpanLink(List(Text("text")), InternalTarget((Root / "tree1" / "doc3.md").withFragment(ref), CurrentDocument(ref)))
 
     "resolve internal link references to a target in the same document" in {
       val rootElem = root(p(internalRef("#ref")), InternalLinkTarget(Id("ref")))
@@ -408,7 +408,7 @@ class RewriteRulesSpec extends AnyWordSpec
 
     "resolve internal link references" in {
       val rootElem = root(p(simpleImgRef()), LinkDefinition("name", InternalTarget(Root, RelativePath.parse("foo.jpg"))))
-      rewritten(rootElem) should be(root(p(Image("text", InternalTarget(Root / "foo.jpg", Current / "foo.jpg")))))
+      rewritten(rootElem) should be(root(p(Image("text", InternalTarget(Root / "foo.jpg", CurrentTree / "foo.jpg")))))
     }
 
     "replace an unresolvable reference with an invalid span" in {

@@ -19,7 +19,7 @@ package laika.rst.std
 import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
-import laika.ast.RelativePath.Current
+import laika.ast.RelativePath.CurrentTree
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.config.{ConfigValue, Field, Key, ObjectValue, StringValue}
@@ -468,7 +468,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
   }
   
   
-  val imgTarget = InternalTarget(Root / "picture.jpg", Current / "picture.jpg")
+  val imgTarget = InternalTarget(Root / "picture.jpg", CurrentTree / "picture.jpg")
   
   "The image directive" should "parse the URI argument" in {
     val input = """.. image:: picture.jpg"""

@@ -19,7 +19,7 @@ package laika.directive
 import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
-import laika.ast.RelativePath.Current
+import laika.ast.RelativePath.{CurrentDocument, CurrentTree}
 import laika.config.{Config, ConfigBuilder, ConfigParser, Origin}
 import laika.ast._
 import laika.ast.helper.ModelBuilder
@@ -282,7 +282,7 @@ class LegacyStandardDirectiveSpec extends AnyFlatSpec
         config(pathUnderTest, "Doc 7", Origin.DocumentScope).withValue("template","/test.html").build)
       val inputTree = buildTree(templateDoc, doc)
       val tree = inputTree.rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree)))
-      TemplateRewriter.applyTemplates(DocumentTreeRoot(tree), "html").toOption.get.tree.selectDocument(Current / "sub2" / "doc7").get.content
+      TemplateRewriter.applyTemplates(DocumentTreeRoot(tree), "html").toOption.get.tree.selectDocument(CurrentTree / "sub2" / "doc7").get.content
     }
     
     def markup = """# Headline 1
@@ -328,10 +328,10 @@ class LegacyStandardDirectiveSpec extends AnyFlatSpec
       
     def internalLink (section: Int, level: Int) = 
       BulletListItem(List(
-        Paragraph(Seq(SpanLink(List(Text("Headline "+section)), InternalTarget(pathUnderTest.withFragment("headline-"+section), Current / ("#headline-"+section)))), Styles("toc","level"+level))
+        Paragraph(Seq(SpanLink(List(Text("Headline "+section)), InternalTarget(pathUnderTest.withFragment("headline-"+section), CurrentDocument("headline-"+section)))), Styles("toc","level"+level))
       ), StringBullet("*"))
       
-    def extraDoc (treeNum: Int, level: Int) = 
+    def extraDoc (treeNum: Int, level: Int): List[BulletListItem] = 
       if (treeNum == 1) Nil
       else List(BulletListItem(List(
         Paragraph(List(Text("Doc 7")), Styles("toc","level"+level,"active")), 

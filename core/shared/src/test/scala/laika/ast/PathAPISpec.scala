@@ -17,7 +17,7 @@
 package laika.ast
 
 import laika.ast.Path._
-import laika.ast.RelativePath.{Current, Parent}
+import laika.ast.RelativePath.{CurrentDocument, CurrentTree, Parent}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
@@ -29,7 +29,7 @@ class PathAPISpec extends AnyWordSpec
   private val abs_b = abs_a / "b"
   private val abs_c = abs_b / "c"
 
-  private val rel_a = Current / "a"
+  private val rel_a = CurrentTree / "a"
   private val rel_b = rel_a / "b"
   private val rel_c = rel_b / "c"
 
@@ -57,23 +57,31 @@ class PathAPISpec extends AnyWordSpec
     }
 
     "decode a relative path with three segments" in {
-      PathBase.parse("foo/bar/baz") shouldBe (Current / "foo" / "bar" / "baz")
+      PathBase.parse("foo/bar/baz") shouldBe (CurrentTree / "foo" / "bar" / "baz")
     }
 
     "decode a relative path with one segment" in {
-      PathBase.parse("foo/") shouldBe (Current / "foo")
+      PathBase.parse("foo/") shouldBe (CurrentTree / "foo")
     }
 
     "ignore trailing slashes for relative paths" in {
-      PathBase.parse("foo/") shouldBe (Current / "foo")
+      PathBase.parse("foo/") shouldBe (CurrentTree / "foo")
     }
 
-    "decode the current relative path from the empty string" in {
-      PathBase.parse("") shouldBe Current
+    "decode the current document from the empty string" in {
+      PathBase.parse("") shouldBe CurrentDocument()
+    }
+
+    "decode the current document from a hash" in {
+      PathBase.parse("#") shouldBe CurrentDocument()
     }
 
     "decode the current relative path from a dot" in {
-      PathBase.parse(".") shouldBe Current
+      PathBase.parse(".") shouldBe CurrentTree
+    }
+
+    "decode a fragment of the current document" in {
+      PathBase.parse("#ref") shouldBe CurrentDocument("ref")
     }
 
     "decode a relative path to a parent with three segments" in {
@@ -105,7 +113,7 @@ class PathAPISpec extends AnyWordSpec
     }
     
     "ignore leading slashes when RelativePath.parse is invoked directly" in {
-      RelativePath.parse("/foo/") shouldBe (Current / "foo")
+      RelativePath.parse("/foo/") shouldBe (CurrentTree / "foo")
     }
 
     "assume leading slashes when Path.parse is invoked directly" in {
@@ -129,11 +137,15 @@ class PathAPISpec extends AnyWordSpec
     }
 
     "return Parent(1) for Current" in {
-      Current.parent shouldBe Parent(1)
+      CurrentTree.parent shouldBe Parent(1)
     }
 
-    "return Current for a path with a single segment" in {
-      rel_a.parent shouldBe Current
+    "return CurrentTree for CurrentDocument" in {
+      CurrentDocument("ref").parent shouldBe CurrentTree
+    }
+
+    "return CurrentTree for a path with a single segment" in {
+      rel_a.parent shouldBe CurrentTree
     }
 
     "return a path with 2 segments for a relative path with 3 segments" in {
@@ -176,8 +188,12 @@ class PathAPISpec extends AnyWordSpec
       Root.suffix shouldBe None
     }
 
-    "be empty for Current" in {
-      Current.suffix shouldBe None
+    "be empty for CurrentTree" in {
+      CurrentTree.suffix shouldBe None
+    }
+
+    "be empty for CurrentDocument" in {
+      CurrentDocument("ref").suffix shouldBe None
     }
 
     "be empty for Parent(1)" in {
@@ -272,8 +288,8 @@ class PathAPISpec extends AnyWordSpec
       Root.fragment shouldBe None
     }
 
-    "be empty for Current" in {
-      Current.fragment shouldBe None
+    "be empty for CurrentTree" in {
+      CurrentTree.fragment shouldBe None
     }
 
     "be empty for Parent(1)" in {
@@ -286,6 +302,14 @@ class PathAPISpec extends AnyWordSpec
 
     "be empty for a relative path without fragment" in {
       rel_a.fragment shouldBe None
+    }
+
+    "be empty for the current document without a fragment" in {
+      CurrentDocument().fragment shouldBe None
+    }
+
+    "be defined for the current document with a fragment" in {
+      CurrentDocument("baz").fragment shouldBe Some("baz")
     }
 
     "be defined for an absolute path with fragment" in {
@@ -364,8 +388,8 @@ class PathAPISpec extends AnyWordSpec
   
   "The path concatenation for absolute paths" should {
 
-    "return the same instance when invoked with Current" in {
-      abs_c / Current shouldBe abs_c
+    "return the same instance when invoked with CurrentTree" in {
+      abs_c / CurrentTree shouldBe abs_c
     }
 
     "return the parent when invoked with Parent(1)" in {
@@ -377,7 +401,7 @@ class PathAPISpec extends AnyWordSpec
     }
     
     "combine two paths with segments" in {
-      Root / "foo" / "bar" / (Current / "baz") shouldBe (Root / "foo" / "bar" / "baz")
+      Root / "foo" / "bar" / (CurrentTree / "baz") shouldBe (Root / "foo" / "bar" / "baz")
     }
 
     "concatenate a path pointing to a parent one level up" in {
@@ -393,15 +417,15 @@ class PathAPISpec extends AnyWordSpec
   "The path concatenation for relative paths" should {
 
     "return the same instance when invoked with Current" in {
-      rel_c / Current shouldBe rel_c
+      rel_c / CurrentTree shouldBe rel_c
     }
 
     "return the parent when invoked with Parent(1)" in {
       rel_c / Parent(1) shouldBe rel_b
     }
 
-    "return Root when invoked with Parent(3)" in {
-      rel_c / Parent(3) shouldBe Current
+    "return CurrentTree when invoked with Parent(3)" in {
+      rel_c / Parent(3) shouldBe CurrentTree
     }
 
     "return Parent(1) when invoked with Parent(4)" in {
@@ -409,19 +433,19 @@ class PathAPISpec extends AnyWordSpec
     }
 
     "combine two paths with segments" in {
-      Current / "foo" / "bar" / (Current / "baz") shouldBe (Current / "foo" / "bar" / "baz")
+      CurrentTree / "foo" / "bar" / (CurrentTree / "baz") shouldBe (CurrentTree / "foo" / "bar" / "baz")
     }
 
     "concatenate a path pointing to a parent one level up" in {
-      Current / "foo" / "bar" / (Parent(1) / "baz") shouldBe (Current / "foo" / "baz")
+      CurrentTree / "foo" / "bar" / (Parent(1) / "baz") shouldBe (CurrentTree / "foo" / "baz")
     }
 
     "concatenate a path pointing to a parent two levels up" in {
-      Current / "foo" / "bar" / (Parent(2) / "baz") shouldBe (Current / "baz")
+      CurrentTree / "foo" / "bar" / (Parent(2) / "baz") shouldBe (CurrentTree / "baz")
     }
     
-    "append to Current" in {
-      Current / (Parent(1) / "baz") shouldBe (Parent(1) / "baz")
+    "append to CurrentTree" in {
+      CurrentTree / (Parent(1) / "baz") shouldBe (Parent(1) / "baz")
     }
 
     "append to Parent(1)" in {
@@ -441,7 +465,7 @@ class PathAPISpec extends AnyWordSpec
   "The relativeTo method" should {
     
     "create a relative path pointing to the same document" in {
-      (Root / "a").relativeTo(Root / "a") shouldBe Current
+      (Root / "a").relativeTo(Root / "a") shouldBe CurrentDocument()
     }
 
     "create a relative path pointing to a parent directory" in {
@@ -453,11 +477,11 @@ class PathAPISpec extends AnyWordSpec
     }
 
     "create a relative path pointing to a document in the same directory" in {
-      (Root / "a" / "b").relativeTo(Root / "a" / "c") shouldBe (Current / "b")
+      (Root / "a" / "b").relativeTo(Root / "a" / "c") shouldBe (CurrentTree / "b")
     }
 
     "create a path relative path to Root" in {
-      (Root / "a" / "b").relativeTo(Root) shouldBe (Current / "a" / "b")
+      (Root / "a" / "b").relativeTo(Root) shouldBe (CurrentTree / "a" / "b")
     }
 
     "create a relative path pointing upwards to Root" in {
@@ -465,11 +489,11 @@ class PathAPISpec extends AnyWordSpec
     }
 
     "create a relative path pointing to a fragment in the same document" in {
-      (Root / "a" / "b#ref").relativeTo(Root / "a" / "b") shouldBe Current.withFragment("ref")
+      (Root / "a" / "b#ref").relativeTo(Root / "a" / "b") shouldBe CurrentDocument("ref")
     }
 
     "preserve suffix and fragment" in {
-      (Root / "a" / "b.html#ref").relative shouldBe (Current / "a" / "b.html#ref")
+      (Root / "a" / "b.html#ref").relative shouldBe (CurrentTree / "a" / "b.html#ref")
     }
   }
   

@@ -18,6 +18,7 @@ package laika.ast
 
 import laika.api.Renderer
 import laika.ast.Path.Root
+import laika.ast.RelativePath.CurrentDocument
 import laika.config.{ConfigEncoder, ConfigValue}
 import laika.format.AST
 import laika.parse.code.CodeCategory
@@ -1135,8 +1136,9 @@ object InternalTarget {
     * the provided reference path.
     */
   def fromPath (path: PathBase, refPath: Path): InternalTarget = path match {
-    case p: Path         => InternalTarget(p, p.relativeTo(refPath))
-    case p: RelativePath => InternalTarget(refPath / p, p)
+    case p: Path            => InternalTarget(p, p.relativeTo(refPath))
+    case p: CurrentDocument => InternalTarget(refPath / p, p)
+    case p: RelativePath    => InternalTarget(refPath.parent / p, p)
   }
 }
 
@@ -1264,7 +1266,7 @@ case class GenericReference (content: Seq[Span], ref: String, source: String, op
   def withOptions (options: Options): GenericReference = copy(options = options)
   def asLinkDefinitionReference: LinkDefinitionReference = LinkDefinitionReference(content, ref, source, options)
   def asInternalReference: InternalReference = 
-    InternalReference(content, RelativePath.Current.withFragment(ref), source, options = options)
+    InternalReference(content, RelativePath.CurrentDocument(ref), source, options = options)
 }
 
 

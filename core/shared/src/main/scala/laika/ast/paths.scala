@@ -19,7 +19,7 @@ package laika.ast
 import cats.data.{Chain, NonEmptyChain}
 import cats.implicits._
 import laika.ast.Path.Root
-import laika.ast.RelativePath.{Current, Parent}
+import laika.ast.RelativePath.{CurrentDocument, CurrentTree, Parent}
 
 import scala.annotation.tailrec
 
@@ -171,6 +171,7 @@ case class SegmentedPath (segments: NonEmptyChain[String], suffix: Option[String
   def / (path: RelativePath): Path = {
     val (otherSegments, otherSuffix, otherFragment) = path match {
       case SegmentedRelativePath(s, suf, frag, _) => (s.toList, suf, frag)
+      case CurrentDocument(frag) => (Nil, None, frag)
       case _ => (Nil, None, None)
     }
     val combinedSegments = segments.toList.dropRight(path.parentLevels) ++ otherSegments
@@ -190,11 +191,12 @@ case class SegmentedPath (segments: NonEmptyChain[String], suffix: Option[String
       case Root => (Nil, segments.init.toList :+ name)
       case other: SegmentedPath => removeCommonParts(other.segments.init.toList :+ other.name, segments.init.toList :+ name)
     } 
-    val base = if (a.isEmpty) Current else Parent(a.length)
     val segmentRest = segments.toList.drop(segments.size.toInt - b.size)
     NonEmptyChain.fromSeq(segmentRest).fold[RelativePath] {
+      val base = if (a.isEmpty) CurrentDocument() else Parent(a.length)
       fragment.fold[RelativePath](base)(base.withFragment)
     } { seg =>
+      val base = if (a.isEmpty) CurrentTree else Parent(a.length)
       base / SegmentedRelativePath(seg, suffix, fragment)
     }
   }
@@ -230,7 +232,7 @@ object Path {
       case _ => this
     }
     def relativeTo (path: Path): RelativePath = path match {
-      case Root => Current
+      case Root => CurrentTree
       case SegmentedPath(segments, _, _) => Parent(segments.length.toInt)
     }
     def isSubPath (other: Path): Boolean = other == Root
@@ -311,7 +313,7 @@ case class SegmentedRelativePath(segments: NonEmptyChain[String],
                                  parentLevels: Int = 0) extends RelativePath with SegmentedPathBase {
 
   lazy val parent: RelativePath = {
-    def noSegments = if (parentLevels == 0) Current else Parent(parentLevels)
+    def noSegments = if (parentLevels == 0) CurrentTree else Parent(parentLevels)
     NonEmptyChain.fromSeq(segments.toList.init)
       .fold[RelativePath](noSegments)(seg => copy(segments = seg, suffix = None, fragment = None))
   }
@@ -322,7 +324,7 @@ case class SegmentedRelativePath(segments: NonEmptyChain[String],
       
       val newParentLevels = parentLevels + Math.max(0, otherLevels - segments.size.toInt)
       
-      def noSegments: RelativePath = if (newParentLevels == 0) Current else Parent(newParentLevels)
+      def noSegments: RelativePath = if (newParentLevels == 0) CurrentTree else Parent(newParentLevels)
       
       NonEmptyChain.fromSeq(segments.toList.dropRight(otherLevels) ++ otherSegments).fold(noSegments){ newSegments =>
         SegmentedRelativePath(newSegments, otherSuffix, otherFragment, newParentLevels)
@@ -330,9 +332,10 @@ case class SegmentedRelativePath(segments: NonEmptyChain[String],
     }
     
     path match {
-      case Current                  => this
-      case Parent(otherLevels)      => construct(Nil, None, None, otherLevels)
-      case p: SegmentedRelativePath => construct(p.segments.toList, p.suffix, p.fragment, p.parentLevels)
+      case CurrentTree | CurrentDocument(None) => this
+      case CurrentDocument(Some(fr))           => withFragment(fr)
+      case Parent(otherLevels)                 => construct(Nil, None, None, otherLevels)
+      case p: SegmentedRelativePath            => construct(p.segments.toList, p.suffix, p.fragment, p.parentLevels)
     }
   }
 
@@ -346,18 +349,31 @@ case class SegmentedRelativePath(segments: NonEmptyChain[String],
 
 object RelativePath {
 
-  /** Represent the current path.
+  /** Represent the current tree node.
     */
-  case object Current extends RelativePath {
+  case object CurrentTree extends RelativePath {
     val name = "."
     val parent: RelativePath = Parent(1)
     val parentLevels: Int = 0
     val suffix: Option[String] = None
     val fragment: Option[String] = None
     def / (path: RelativePath): RelativePath = path
-    override def withFragment (fragment: String): RelativePath = 
-      SegmentedRelativePath(NonEmptyChain(""), fragment = Some(fragment))
     override val toString: String = name
+  }
+
+  /** Represent the current document.
+    */
+  case class CurrentDocument (fragment: Option[String] = None) extends RelativePath {
+    val name = ""
+    val parent: RelativePath = CurrentTree
+    val parentLevels: Int = 0
+    val suffix: Option[String] = None
+    def / (path: RelativePath): RelativePath = this
+    override def withFragment (fragment: String): RelativePath = copy(Some(fragment))
+    override val toString: String = s"#${fragment.getOrElse("")}"
+  }
+  object CurrentDocument {
+    def apply (fragment: String): CurrentDocument = apply(Some(fragment))
   }
 
   /** Represent a parent path that is the specified number of levels above the current path.
@@ -368,9 +384,9 @@ object RelativePath {
     val fragment: Option[String] = None
     lazy val parent: RelativePath = Parent(parentLevels + 1)
     def / (path: RelativePath): RelativePath = path match {
-      case Current => this
       case Parent(otherLevels) => Parent(parentLevels + otherLevels)
       case p: SegmentedRelativePath => SegmentedRelativePath(p.segments, p.suffix, p.fragment, parentLevels + p.parentLevels)
+      case _ => this
     }
     override val toString: String = name
   }
@@ -387,7 +403,9 @@ object RelativePath {
     */
   def parse (str: String): RelativePath = {
     str.stripPrefix("/").stripSuffix("/") match {
-      case "" | "." => Current
+      case "" | "#" => CurrentDocument()
+      case "." => CurrentTree
+      case other if other.startsWith("#") => CurrentDocument(other.drop(1))
       case other =>
         @tailrec def countParents(current: Int, path: String): (Int, String) = 
           if (path.startsWith("..")) countParents(current + 1, path.drop(2).stripPrefix("/"))
@@ -412,8 +430,7 @@ object / {
   }
 
   def unapply(p: RelativePath): Option[(RelativePath, String)] = p match {
-    case Current => None
-    case Parent(_) => None
-    case _ => Some((p.parent, p.name))
+    case _: SegmentedRelativePath => Some((p.parent, p.name))
+    case _ => None
   }
 }

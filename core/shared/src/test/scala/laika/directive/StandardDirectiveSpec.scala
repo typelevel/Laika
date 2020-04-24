@@ -19,10 +19,10 @@ package laika.directive
 import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
-import laika.ast.RelativePath.Current
+import laika.ast.RelativePath.{CurrentDocument, CurrentTree}
 import laika.ast._
 import laika.ast.helper.ModelBuilder
-import laika.config.{Config, ConfigBuilder, ConfigParser, Origin}
+import laika.config.{Config, ConfigBuilder, ConfigParser, Key, Origin}
 import laika.format.Markdown
 import laika.parse.ParserContext
 import laika.rewrite.TemplateRewriter
@@ -419,21 +419,21 @@ class StandardDirectiveSpec extends AnyFlatSpec
         config(pathUnderTest, "Doc 7", Origin.DocumentScope).withValue("template","/test.html").build)
       val inputTree = buildTree(List(templateDoc), legacyAdditionalMarkup = List(doc))
       val tree = inputTree.rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree)))
-      TemplateRewriter.applyTemplates(DocumentTreeRoot(tree), "html").toOption.get.tree.selectDocument(Current / "sub2" / "doc7").get.content
+      TemplateRewriter.applyTemplates(DocumentTreeRoot(tree), "html").toOption.get.tree.selectDocument(CurrentTree / "sub2" / "doc7").get.content
     }
 
     def parseTemplateAndRewrite (template: String): RootElement = {
       val templateDoc = TemplateDocument(Root / "default.template.html", parseTemplate(template))
       val inputTree = buildTree(List(templateDoc))
       val tree = inputTree.rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree)))
-      TemplateRewriter.applyTemplates(DocumentTreeRoot(tree), "html").toOption.get.tree.selectDocument(Current / "sub2" / "doc6").get.content
+      TemplateRewriter.applyTemplates(DocumentTreeRoot(tree), "html").toOption.get.tree.selectDocument(CurrentTree / "sub2" / "doc6").get.content
     }
 
     def parseDocumentAndRewrite (markup: String): RootElement = {
       val markupDoc = parseUnresolved(markup, Root / "sub2" / "doc6")
       val inputTree = buildTree(Nil, Some(markupDoc))
       val tree = inputTree.rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree)))
-      TemplateRewriter.applyTemplates(DocumentTreeRoot(tree), "html").toOption.get.tree.selectDocument(Current / "sub2" / "doc6").get.content
+      TemplateRewriter.applyTemplates(DocumentTreeRoot(tree), "html").toOption.get.tree.selectDocument(CurrentTree / "sub2" / "doc6").get.content
     }
 
     def markup = """# Headline 1
@@ -480,7 +480,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
 
     def internalLink (section: Int, level: Int) =
       BulletListItem(List(
-        Paragraph(Seq(SpanLink(List(Text("Headline "+section)), InternalTarget(pathUnderTest.withFragment("headline-"+section), Current / ("#headline-"+section)))), Styles("toc","level"+level))
+        Paragraph(Seq(SpanLink(List(Text("Headline "+section)), InternalTarget(pathUnderTest.withFragment("headline-"+section), CurrentDocument("headline-"+section)))), Styles("toc","level"+level))
       ), StringBullet("*"))
 
     def extraDoc (treeNum: Int, level: Int): List[BulletListItem] =
@@ -662,7 +662,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
       """aaa @:nav { 
         |  entries = [
         |    { title = Link 1, target = "http://domain-1.com/"}
-        |    { target = "." }
+        |    { target = "#" }
         |  ] 
         |} bbb ${document.content}""".stripMargin
 
@@ -702,7 +702,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
     val template =
       """aaa @:nav { 
         |  entries = [
-        |    { target = "../" }
+        |    { target = "." }
         |  ] 
         |} bbb ${document.content}""".stripMargin
 
@@ -716,7 +716,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
     val template =
       """aaa @:nav { 
         |  entries = [
-        |    { target = "../", depth = 2 }
+        |    { target = ".", depth = 2 }
         |  ] 
         |} bbb ${document.content}""".stripMargin
 
@@ -728,7 +728,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
     val template =
       """aaa @:nav { 
         |  entries = [
-        |    { target = "../", excludeRoot = true }
+        |    { target = ".", excludeRoot = true }
         |  ] 
         |} bbb ${document.content}""".stripMargin
 
@@ -742,7 +742,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
     val template =
       """aaa @:nav { 
         |  entries = [
-        |    { target = "../", excludeSections = true }
+        |    { target = ".", excludeSections = true }
         |  ] 
         |} bbb ${document.content}""".stripMargin
 
@@ -754,7 +754,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
     val template =
       """aaa @:nav { 
         |  entries = [
-        |    { target = "." }
+        |    { target = "#" }
         |  ] 
         |} bbb ${document.content}""".stripMargin
 
@@ -766,7 +766,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
     val template =
       """aaa @:nav { 
         |  entries = [
-        |    { target = ".", title = Custom }
+        |    { target = "#", title = Custom }
         |  ] 
         |} bbb ${document.content}""".stripMargin
 

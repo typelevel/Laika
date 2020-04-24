@@ -19,7 +19,7 @@ package laika.rewrite
 import laika.api.builder.OperationConfig
 import laika.ast.DocumentType.Markup
 import laika.ast.Path._
-import laika.ast.RelativePath.{Current, Parent}
+import laika.ast.RelativePath.{CurrentTree, Parent}
 import laika.ast._
 import laika.ast.helper.DocumentViewBuilder.{Documents => Docs, _}
 import laika.ast.helper.ModelBuilder
@@ -62,7 +62,7 @@ class CrossReferenceSpec extends AnyFlatSpec
   "The reference resolver" should "resolve a cross reference to a target in another document in the same directory" in {
      new TreeModel {
       val tree = treeWithDocs(Root, "doc", rootWithRef("doc2#ref", "text"), rootWithTarget("ref"))
-      val treeResult = treeViewWithDocs(Root, "doc", rootWithLink("text", InternalTarget(Root / "doc2#ref",Current / "doc2#ref")), rootWithTarget("ref"))
+      val treeResult = treeViewWithDocs(Root, "doc", rootWithLink("text", InternalTarget(Root / "doc2#ref", CurrentTree / "doc2#ref")), rootWithTarget("ref"))
       viewOf(rewrite(tree)) should be (treeResult)
     } 
   }
@@ -84,7 +84,7 @@ class CrossReferenceSpec extends AnyFlatSpec
       val rootTree = treeWithDoc(Root, "doc1", rootWithRef("sub/doc2#ref", "text"), List(subtree))
       
       val subtreeResult = treeViewWithDoc(Root / "sub", "doc2", rootWithTarget("ref"))
-      val treeResult = treeViewWithDoc(Root, "doc1", rootWithLink("text", InternalTarget(Root / "sub" / "doc2#ref", Current / "sub" / "doc2#ref")), Some(subtreeResult))
+      val treeResult = treeViewWithDoc(Root, "doc1", rootWithLink("text", InternalTarget(Root / "sub" / "doc2#ref", CurrentTree / "sub" / "doc2#ref")), Some(subtreeResult))
       viewOf(rewrite(rootTree)) should be (treeResult)
     } 
   }

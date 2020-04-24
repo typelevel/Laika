@@ -18,7 +18,7 @@ package laika.render
 
 import laika.api.Renderer
 import laika.ast.Path.Root
-import laika.ast.RelativePath.Current
+import laika.ast.RelativePath.CurrentTree
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.bundle.BundleProvider
@@ -43,7 +43,7 @@ class XSLFORendererSpec extends AnyFlatSpec
 
   def renderUnformatted (elem: Element): String = Renderer.of(XSLFO).unformatted.build.render(elem)
 
-  val imageTarget = InternalTarget(Root / "foo.jpg", Current / "foo.jpg")
+  val imageTarget = InternalTarget(Root / "foo.jpg", CurrentTree / "foo.jpg")
   
 
   "The XSLFO renderer" should "render a paragraph with plain text" in {
@@ -529,7 +529,7 @@ class XSLFORendererSpec extends AnyFlatSpec
   }
 
   it should "render a figure" in {
-    val elem = Figure(Image("alt", InternalTarget(Root / "image.jpg", Current / "image.jpg")), List(Text("some "), Emphasized("caption"), Text(" text")), List(p("aaa"), Rule(), p("bbb")))
+    val elem = Figure(Image("alt", InternalTarget(Root / "image.jpg", CurrentTree / "image.jpg")), List(Text("some "), Emphasized("caption"), Text(" text")), List(p("aaa"), Rule(), p("bbb")))
     val fo = """<fo:block space-after="6mm">
                |  <fo:block font-family="serif" font-size="10pt" space-after="3mm"><fo:external-graphic content-width="scale-down-to-fit" height="100%" scaling="uniform" src="image.jpg" width="100%"/></fo:block>
                |  <fo:block font-family="serif" font-size="9pt" font-style="italic" space-after="3mm">some <fo:inline font-style="italic">caption</fo:inline> text</fo:block>

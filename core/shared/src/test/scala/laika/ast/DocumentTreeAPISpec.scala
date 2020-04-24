@@ -19,12 +19,11 @@ package laika.ast
 import laika.config.{Config, ConfigParser, Origin}
 import laika.ast.DocumentType.Markup
 import laika.ast.Path.Root
-import laika.ast.RelativePath.Current
+import laika.ast.RelativePath.CurrentTree
 import laika.ast.helper.DocumentViewBuilder.{Documents => Docs, _}
 import laika.ast.helper.ModelBuilder
 import laika.config.Origin.{DocumentScope, Scope, TreeScope}
 import laika.rewrite.TemplateRewriter
-import org.scalatest.path
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
@@ -123,14 +122,14 @@ class DocumentTreeAPISpec extends AnyFlatSpec
   it should "allow to select a document from a subdirectory using a relative path" in {
     new TreeModel {
       val tree = treeWithSubtree(Root, "sub", "doc", root())
-      tree.selectDocument(Current / "sub" / "doc").map(_.path) should be (Some(Root / "sub" / "doc"))
+      tree.selectDocument(CurrentTree / "sub" / "doc").map(_.path) should be (Some(Root / "sub" / "doc"))
     }
   }
   
   it should "allow to select a document in the current directory using a relative path" in {
     new TreeModel {
       val tree = treeWithDoc(Root, "doc", root())
-      tree.selectDocument(Current / "doc").map(_.path) should be (Some(Root / "doc"))
+      tree.selectDocument(CurrentTree / "doc").map(_.path) should be (Some(Root / "doc"))
     }
   }
   
@@ -138,14 +137,14 @@ class DocumentTreeAPISpec extends AnyFlatSpec
     new TreeModel {
       val tree = treeWithSubtree(Root / "top", "sub", "doc", root())
       val treeRoot = DocumentTree(Root, List(tree))
-      treeRoot.selectSubtree(Current / "top" / "sub").map(_.path) should be (Some(Root / "top" / "sub"))
+      treeRoot.selectSubtree(CurrentTree / "top" / "sub").map(_.path) should be (Some(Root / "top" / "sub"))
     }
   }
   
   it should "allow to select a subtree in the current directory using a relative path" in {
     new TreeModel {
       val tree = treeWithSubtree(Root, "sub", "doc", root())
-      tree.selectSubtree(Current / "sub").map(_.path) should be (Some(Root / "sub"))
+      tree.selectSubtree(CurrentTree / "sub").map(_.path) should be (Some(Root / "sub"))
     }
   }
   

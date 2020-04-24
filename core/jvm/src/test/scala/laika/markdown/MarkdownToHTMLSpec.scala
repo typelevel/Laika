@@ -51,7 +51,7 @@ class MarkdownToHTMLSpec extends AnyFlatSpec
 
   def transformAndCompare (name: String): Unit = {
     def renderPath(relPath: RelativePath): Target = 
-      if (relPath == RelativePath.Current) ExternalTarget("") else ExternalTarget(relPath.toString)
+      if (relPath == RelativePath.CurrentDocument()) ExternalTarget("") else ExternalTarget(relPath.toString)
     val path = FileIO.classPathResourcePath("/markdownTestSuite") + "/" + name
     val input = FileIO.readFile(path + ".md")
     val actual = Transformer
