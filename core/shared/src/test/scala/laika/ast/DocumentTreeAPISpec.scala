@@ -44,6 +44,19 @@ class DocumentTreeAPISpec extends AnyFlatSpec
       DocumentTree(path, List(Document(path / name, root, config = createConfig(path / name, config))))
     def treeWithSubtree (path: Path, treeName: String, docName: String, root: RootElement, config: Option[String] = None): DocumentTree =
       DocumentTree(path, List(treeWithDoc(path / treeName, docName, root, config)))
+
+    val treeWithTwoSubtrees: DocumentTree = {
+      def docs (parent: Path, nums: Int*): Seq[Document] = nums map { n =>
+        Document(parent / ("doc"+n), root())
+      }
+      DocumentTree(Root, docs(Root, 1, 2) ++ List(
+        DocumentTree(Root / "sub1", docs(Root / "sub1", 3, 4), Some(Document(Root / "sub1" / "title", root()))),
+        DocumentTree(Root / "sub2", docs(Root / "sub2", 5, 6), Some(Document(Root / "sub2" / "title", root())))
+      ))
+    }
+    val leafDocCursor = RootCursor(DocumentTreeRoot(treeWithTwoSubtrees)).tree
+      .children.last.asInstanceOf[TreeCursor]
+      .children.last.asInstanceOf[DocumentCursor]
     
     def treeViewWithDoc (path: Path, name: String, root: RootElement): TreeView =
       TreeView(path, List(Docs(Markup, List(DocumentView(path / name, List(Content(root.content)))))))
@@ -188,6 +201,20 @@ class DocumentTreeAPISpec extends AnyFlatSpec
       target.get.content should be (root(p("x"), p("b"), p("c")))
     }
   }
- 
+
+  it should "give access to the previous sibling in a hierarchical view" in new TreeModel {
+    leafDocCursor.previousDocument.map(_.path) shouldBe Some(Root / "sub2" / "doc5")  
+  }
+
+  it should "return None for the next document in the final leaf node of the tree" in new TreeModel {
+    leafDocCursor.nextDocument shouldBe None
+  }
+
+  it should "give access to the previous sibling in a flattened view" in new TreeModel {
+    leafDocCursor.flattenedSiblings.previousDocument
+      .flatMap(_.flattenedSiblings.previousDocument)
+      .flatMap(_.flattenedSiblings.previousDocument)
+      .map(_.path) shouldBe Some(Root / "sub1" / "doc4")
+  }
 
 }

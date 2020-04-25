@@ -79,6 +79,10 @@ case class RootCursor(target: DocumentTreeRoot) {
     DocumentCursor(cover, tree, cover.config, TreePosition.root)
   }
 
+  /** All documents contained in this tree, fetched recursively, depth-first.
+    */
+  lazy val allDocuments: Seq[DocumentCursor] = coverDocument.toSeq ++ tree.allDocuments
+
   /** Returns a new tree root, with all the document models contained in it
     * rewritten based on the specified rewrite rule.
     */
@@ -126,6 +130,19 @@ case class TreeCursor(target: DocumentTree,
       case (doc: Document, index)      => DocumentCursor(doc, this, doc.config, position.forChild(index + 1))
       case (tree: DocumentTree, index) => TreeCursor(tree, Some(this), root, tree.config, position.forChild(index + 1))
     }
+  }
+
+  /** All documents contained in this tree, fetched recursively, depth-first.
+    * This method behaves differently than the `children` method which only returns the cursors on this level of the tree hierarchy.
+    */
+  lazy val allDocuments: Seq[DocumentCursor] = {
+
+    def collect (tree: TreeCursor): Seq[DocumentCursor] = tree.titleDocument.toSeq ++ tree.children.flatMap {
+      case doc: DocumentCursor => Seq(doc)
+      case sub: TreeCursor => collect(sub)
+    }
+
+    collect(this)
   }
 
   /** Returns a new tree, with all the document models contained in it
@@ -210,6 +227,40 @@ case class DocumentCursor (target: Document,
       position = position
     )
   }
+  
+  class Siblings (documents: Vector[DocumentCursor]) {
+    lazy val currentIndex: Int = documents.indexWhere(_.path == path)
+
+    /** The previous document in a flattened tree view or None if this is the cursor points to the first document.
+      */
+    def previousDocument: Option[DocumentCursor] = if (currentIndex == 0) None else Some(documents(currentIndex - 1))
+
+    /** The next document in a flattened tree view or None if this is the cursor points to the last document.
+      */
+    def nextDocument: Option[DocumentCursor] = if (currentIndex + 1 == documents.size) None else Some(documents(currentIndex + 1))
+  }
+
+  /** Provides navigation capabilities to the siblings of this document where the entire
+    * hierarchical tree view is flattened into a single book-like list of documents.
+    */
+  def flattenedSiblings: Siblings = new Siblings(root.allDocuments.toVector)
+  
+  private lazy val hierarchicalSiblings: Siblings = 
+    new Siblings(parent.children.toVector.collect { case dc: DocumentCursor => dc } )
+  
+  /** The previous document in a hierarchical tree view or None if this is the cursor points to the first document
+    * in the current sub-tree.
+    * Use `flattenedSiblings.previousDocument` for navigation beyond the current sub-tree in a book-like flattened
+    * view.
+    */
+  def previousDocument: Option[DocumentCursor] = hierarchicalSiblings.previousDocument
+
+  /** The next document in a hierarchical tree view or None if this is the cursor points to the last document
+    * in the current sub-tree.
+    * Use `flattenedSiblings.nextDocument` for navigation beyond the current sub-tree in a book-like flattened
+    * view.
+    */
+  def nextDocument: Option[DocumentCursor] = hierarchicalSiblings.nextDocument
   
   /** Resolves the context reference with the specified path relative to 
    *  this document. A reference `config.value` for example will first
