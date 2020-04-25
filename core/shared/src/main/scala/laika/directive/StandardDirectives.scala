@@ -133,6 +133,54 @@ object StandardDirectives extends DirectiveRegistry {
   }
   
   
+  case class BreadcrumbBuilder (options: Options = NoOpt) extends BlockResolver {
+
+    type Self = BreadcrumbBuilder
+
+    def resolve (cursor: DocumentCursor): Block = {
+      
+      val context = NavigationBuilderContext(
+        refPath = cursor.path,
+        itemStyles = Set(Style.breadcrumb.styles.head)
+      )
+      
+      def entriesFor (tree: TreeCursor): Vector[NavigationItem] = {
+        val title = tree.target.title.getOrElse(SpanSequence(tree.path.name))
+        val item = context.newNavigationItem(title, tree.target.titleDocument.map(_.path), Nil)
+        tree.parent.fold(Vector(item))(parent => entriesFor(parent) :+ item)
+      }
+      
+      val docEntry = {
+        val title = cursor.target.title.getOrElse(SpanSequence(cursor.path.name))
+        context.newNavigationItem(title, Some(cursor.path), Nil)
+      }
+        
+      NavigationList(entriesFor(cursor.parent) :+ docEntry, Style.breadcrumb)
+    }
+
+    def withOptions (options: Options): BreadcrumbBuilder = copy(options = options)
+    
+  }
+
+  /** Implementation of the `breadcrumb` directive for templates.
+    */
+  lazy val templateBreadcrumb: Templates.Directive  = Templates.create("breadcrumb") {
+
+    import Templates.dsl._
+
+    cursor.map(c => TemplateElement(BreadcrumbBuilder().resolve(c)))
+  }
+
+  /** Implementation of the `breadcrumb` directive for block elements in markup documents.
+    */
+  lazy val blockBreadcrumb: Blocks.Directive  = Blocks.create("breadcrumb") {
+
+    import Blocks.dsl._
+
+    cursor.map(BreadcrumbBuilder().resolve)
+  }
+  
+  
   case class NavigationBuilderConfig (entries: Seq[NavigationNodeConfig], 
                                       defaultDepth: Int = Int.MaxValue, 
                                       itemStyles: Set[String] = Set(),
@@ -461,6 +509,7 @@ object StandardDirectives extends DirectiveRegistry {
    *  elements in markup documents.
    */
   lazy val blockDirectives: Seq[Blocks.Directive] = List(
+    blockBreadcrumb,
     blockNav,
     blockToc,
     blockFragment,
@@ -511,6 +560,7 @@ object StandardDirectives extends DirectiveRegistry {
   /** The complete list of standard directives for templates.
    */
   lazy val templateDirectives: Seq[Templates.Directive] = List(
+    templateBreadcrumb,
     templateNav,
     templateToc,
     templateFor,

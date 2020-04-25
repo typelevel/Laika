@@ -1454,6 +1454,7 @@ object Style {
   val nav: Options = Styles("nav")
   val navHeader: Options = Styles("nav-header")
   val active: Options = Styles("active") // TODO - rename? self-link?
+  val breadcrumb: Options = Styles("breadcrumb")
   val bookmark: Options = Styles("bookmark")
   def level(lev: Int): Options = Styles("level" + lev)
   val legacyToc: Options = Styles("toc")

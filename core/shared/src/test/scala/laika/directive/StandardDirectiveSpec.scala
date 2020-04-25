@@ -567,9 +567,11 @@ class StandardDirectiveSpec extends AnyFlatSpec
     def maxLevels: Int = Int.MaxValue
     def excludeSections: Boolean = false
 
+    def itemStyles: Options = NoOpt
+
     val refPath: Path = Root / "sub2" / "doc6"
-    
-    def styles (level: Int): Options = Style.level(level)
+
+    def styles (level: Int): Options = Style.level(level) + itemStyles
 
     def sectionList (path: Path, section: Int, level: Int): NavigationLink = NavigationLink(
       SpanSequence(s"Section $section"),
@@ -600,6 +602,8 @@ class StandardDirectiveSpec extends AnyFlatSpec
       else NavigationHeader(SpanSequence(s"Tree $tree"), children, options = styles(level))
     }
 
+    val rootEntry: NavigationHeader = NavigationHeader(SpanSequence("/"), Nil, styles(1))
+
     def rootList: NavigationHeader =
       NavigationHeader(SpanSequence("/"), List(
         docList(Root / "doc1", 1, 2),
@@ -608,7 +612,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
         treeList(2, 5, 2)
       ), options = styles(1))
 
-    def templateResult (items: NavigationItem*): RootElement = buildResult(NavigationList(items))
+    def templateResult (items: NavigationItem*): RootElement = buildResult(NavigationList(items, itemStyles))
 
     def error (msg: String, src: String): RootElement = {
       buildResult(InvalidElement(msg, src).asSpan)
@@ -634,7 +638,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
 
     def blockResult (items: NavigationItem*): RootElement = root(
       p("aaa"),
-      NavigationList(items),
+      NavigationList(items, itemStyles),
       p("bbb")
     )
 
@@ -845,6 +849,59 @@ class StandardDirectiveSpec extends AnyFlatSpec
         |bbb""".stripMargin
 
     parseDocumentAndRewrite(input) should be (blockResult(extLink(1), extLink(2)))
+  }
+
+  "The template breadcrumb directive" should "produce three entries" in new TreeModel with NavModel {
+
+    override val maxLevels: Int = 1
+    override def itemStyles: Options = Style.breadcrumb
+
+    val input = "aaa @:breadcrumb bbb ${document.content}"
+
+    parseTemplateAndRewrite(input) should be (templateResult(
+      rootEntry,
+      treeList(2, 0, 1),
+      docList(Root / "sub2" / "doc6", 6, 1)
+    ))
+  }
+
+  "The block breadcrumb directive" should "produce three entries" in new TreeModel with NavModel {
+
+    override val maxLevels: Int = 1
+    override def itemStyles: Options = Style.breadcrumb
+
+    val input =
+      """aaa
+        |
+        |@:breadcrumb
+        |
+        |bbb""".stripMargin
+
+    parseDocumentAndRewrite(input) should be (blockResult(
+      rootEntry,
+      treeList(2, 0, 1),
+      docList(Root / "sub2" / "doc6", 6, 1)
+    ))
+  }
+
+  it should "produce three entries with title documents" in new TreeModel with NavModel {
+
+    override val maxLevels: Int = 1
+    override def itemStyles: Options = Style.breadcrumb
+    override def hasTitleDocs: Boolean = true
+
+    val input =
+      """aaa
+        |
+        |@:breadcrumb
+        |
+        |bbb""".stripMargin
+
+    parseDocumentAndRewrite(input) should be (blockResult(
+      rootEntry,
+      treeList(2, 0, 1),
+      docList(Root / "sub2" / "doc6", 6, 1)
+    ))
   }
 
   it should "produce an entry generated from a document referred to with a relative path" in new TreeModel with NavModel {
