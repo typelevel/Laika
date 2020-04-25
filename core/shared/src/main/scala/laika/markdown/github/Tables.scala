@@ -68,9 +68,9 @@ object Tables {
 
       opt("|") ~> delimitedSeparators ~ optFinalSep <~ wsEol ^^ {
         case seps ~ finalSep => (seps ++ finalSep.toSeq).map {
-          case Some(_) ~ Some(_) => Styles("align-center")
-          case Some(_) ~ None    => Styles("align-left")
-          case None ~ Some(_)    => Styles("align-right")
+          case Some(_) ~ Some(_) => Style.alignCenter
+          case Some(_) ~ None    => Style.alignLeft
+          case None ~ Some(_)    => Style.alignRight
           case _                 => NoOpt
         }
       }

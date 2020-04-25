@@ -25,7 +25,7 @@ import laika.ast.helper.ModelBuilder
 import laika.config.{ConfigValue, Field, Key, ObjectValue, StringValue}
 import laika.format.ReStructuredText
 import laika.rewrite.TemplateRewriter
-import laika.rst.ast.{Contents, Include}
+import laika.rst.ast.{Contents, Include, RstStyle}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
@@ -63,7 +63,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = root (BlockSequence(simplePars, Styles("compound")))
+    val result = root (BlockSequence(simplePars, RstStyle.compound))
     parse(input) should be (result)
   }
   
@@ -74,7 +74,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = root (BlockSequence(simplePars, Styles("compound") + Id("foo")))
+    val result = root (BlockSequence(simplePars, RstStyle.compound + Id("foo")))
     parse(input) should be (result)
   }
   
@@ -117,7 +117,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = root (TitledBlock(List(Text("TITLE")), simplePars, Styles("admonition")))
+    val result = root (TitledBlock(List(Text("TITLE")), simplePars, RstStyle.admonition))
     parse(input) should be (result)
   }
   
@@ -262,7 +262,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = root (TitledBlock(List(Text("TITLE")), simplePars, Styles("topic")))
+    val result = root (TitledBlock(List(Text("TITLE")), simplePars, RstStyle.topic))
     parse(input) should be (result)
   }
   
@@ -285,7 +285,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = root (TitledBlock(List(Text("TITLE")), simplePars, Styles("sidebar")))
+    val result = root (TitledBlock(List(Text("TITLE")), simplePars, RstStyle.sidebar))
     parse(input) should be (result)
   }
   
@@ -309,15 +309,15 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = root (TitledBlock(List(Text("TITLE")), Paragraph(List(Text("some "),Emphasized("text")), Styles("subtitle")) :: simplePars, 
-        Id("foo") + Styles("sidebar")))
+    val result = root (TitledBlock(List(Text("TITLE")), Paragraph(List(Text("some "),Emphasized("text")), RstStyle.subtitle) :: simplePars, 
+        Id("foo") + RstStyle.sidebar))
     parse(input) should be (result)
   }
   
   
   "The rubric directive" should "parse spans without other options" in {
     val input = """.. rubric:: some *text*"""
-    val result = root (Paragraph(List(Text("some "),Emphasized("text")), Styles("rubric")))
+    val result = root (Paragraph(List(Text("some "),Emphasized("text")), RstStyle.rubric))
     parse(input) should be (result)
   }
   
@@ -352,7 +352,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | some more
       | 
       | -- attr""".stripMargin
-    val result = root (QuotedBlock(List(p(Text("some "),Emphasized("text"),Text("\nsome more"))), List(Text("attr",Styles("attribution"))), Styles("epigraph")))
+    val result = root (QuotedBlock(List(p(Text("some "),Emphasized("text"),Text("\nsome more"))), List(Text("attr", Style.attribution)), Styles("epigraph")))
     parse(input) should be (result)
   }
   
@@ -639,12 +639,12 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       Header(level,List(Text("Title "+title)),Id("title-"+title) + Styles(style))
       
     def title (title: Int) =
-      Title(List(Text("Title "+title)),Id("title-"+title) + Styles("title"))
+      Title(List(Text("Title "+title)),Id("title-"+title) + Style.title)
       
     def link (level: Int, titleNum: Int, children: Seq[NavigationLink] = Nil): NavigationLink = {
       val target = InternalTarget.fromPath(Root / s"doc#title-$titleNum", Root / "doc")
       val title = SpanSequence("Title "+titleNum)
-      NavigationLink(title, target, children, options = Styles("level"+level))
+      NavigationLink(title, target, children, options = Style.level(level))
     }
 
     val sectionsWithTitle = RootElement(
@@ -664,7 +664,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
     
     val result = root(
       title(1),
-      TitledBlock(List(Text("This is the title")), List(navList), Styles("toc")),
+      TitledBlock(List(Text("This is the title")), List(navList), Style.nav),
       Section(header(2,2), List(Section(header(3,3), Nil))),
       Section(header(2,4), List(Section(header(3,5), Nil)))
     )

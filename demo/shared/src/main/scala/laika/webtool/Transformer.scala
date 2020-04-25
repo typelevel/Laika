@@ -17,7 +17,7 @@
 package laika.webtool
 
 import laika.api.{MarkupParser, Renderer}
-import laika.ast.{CodeBlock, Paragraph, Path, Styles}
+import laika.ast.{CodeBlock, Paragraph, Path, Style, Styles}
 import laika.bundle.SyntaxHighlighter
 import laika.factory.MarkupFormat
 import laika.format.{AST, HTML, Markdown, ReStructuredText}
@@ -46,7 +46,7 @@ object Transformer {
         fmt.indentedElement("p", opt, content)
         
       case (fmt, cb@CodeBlock(lang,content,opt)) => 
-        val codeStyles = if (cb.hasSyntaxHighlighting) Styles("nohighlight") else Styles(lang)
+        val codeStyles = if (cb.hasSyntaxHighlighting) Style.noHighlight else Styles(lang)
         "<pre>" + fmt.indentedElement("code", codeStyles, content) + "</pre>"
     }.build
 

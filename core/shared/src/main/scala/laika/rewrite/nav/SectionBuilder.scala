@@ -34,7 +34,7 @@ object SectionBuilder extends (DocumentCursor => RewriteRules) {
     
     class Builder (header:Header, id: String) {
     
-      val styledHeader: Header = header.copy(options = header.options + Styles("section"))
+      val styledHeader: Header = header.copy(options = header.options + Style.section)
       
       private val buffer = new ListBuffer[Block]
       
@@ -104,7 +104,7 @@ object SectionBuilder extends (DocumentCursor => RewriteRules) {
         def numberSection (s: Section, position: TreePosition): Section = s.copy(
           header = s.header.copy(
               content = addNumber(s.header.content, position), 
-              options = s.header.options + Styles("section")
+              options = s.header.options + Style.section
           ),
           content = numberSections(s.content, position)
         )  

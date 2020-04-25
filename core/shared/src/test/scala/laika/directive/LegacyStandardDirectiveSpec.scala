@@ -303,7 +303,7 @@ class LegacyStandardDirectiveSpec extends AnyFlatSpec
     def targetFor (path: Path): InternalTarget = InternalTarget.fromPath(path, pathUnderTest)
     
     def sectionCrossLink (path: Path, section: Int, level: Int) = 
-      Paragraph(Seq(SpanLink(List(Text("Section "+section)), targetFor(path.withFragment("section-"+section)))), Styles("toc","level"+level))
+      Paragraph(Seq(SpanLink(List(Text("Section "+section)), targetFor(path.withFragment("section-"+section)))), Style.legacyToc + Style.level(level))
       
     def leafLink (path: Path, section: Int, level: Int) = 
       BulletListItem(List(sectionCrossLink(path, section, level)), StringBullet("*"))
@@ -312,7 +312,7 @@ class LegacyStandardDirectiveSpec extends AnyFlatSpec
       BulletListItem(List(sectionCrossLink(path, section, level), BulletList(List(leafLink(path, section+1, level+1)), StringBullet("*"))), StringBullet("*"))
       
     def docCrossLink (path: Path, doc: Int, level: Int) =
-      Paragraph(Seq(SpanLink(List(Text("Doc "+doc)), targetFor(path))), Styles("toc","level"+level))
+      Paragraph(Seq(SpanLink(List(Text("Doc "+doc)), targetFor(path))), Style.legacyToc + Style.level(level))
       
     def docList (path: Path, doc: Int, level: Int) = 
       BulletListItem(List(docCrossLink(path, doc, level), BulletList(List(
@@ -328,21 +328,21 @@ class LegacyStandardDirectiveSpec extends AnyFlatSpec
       
     def internalLink (section: Int, level: Int) = 
       BulletListItem(List(
-        Paragraph(Seq(SpanLink(List(Text("Headline "+section)), InternalTarget(pathUnderTest.withFragment("headline-"+section), CurrentDocument("headline-"+section)))), Styles("toc","level"+level))
+        Paragraph(Seq(SpanLink(List(Text("Headline "+section)), InternalTarget(pathUnderTest.withFragment("headline-"+section), CurrentDocument("headline-"+section)))), Style.legacyToc + Style.level(level))
       ), StringBullet("*"))
       
     def extraDoc (treeNum: Int, level: Int): List[BulletListItem] = 
       if (treeNum == 1) Nil
       else List(BulletListItem(List(
-        Paragraph(List(Text("Doc 7")), Styles("toc","level"+level,"active")), 
+        Paragraph(List(Text("Doc 7")), Style.legacyToc + Style.level(level) + Style.active), 
         BulletList(List(
           internalLink(1, level+1),
           internalLink(2, level+1)
         ), StringBullet("*"))), StringBullet("*")))
 
     def treeTitle (treeNum: Int) =
-      if (!hasTitleDocLinks) Paragraph(List(Text("Tree "+treeNum)), Styles("toc","level1"))
-      else Paragraph(Seq(SpanLink(List(Text("TitleDoc")), targetFor(Root / ("sub"+treeNum) / "title"))), Styles("toc","level1"))
+      if (!hasTitleDocLinks) Paragraph(List(Text("Tree "+treeNum)), Style.legacyToc + Style.level(1))
+      else Paragraph(Seq(SpanLink(List(Text("TitleDoc")), targetFor(Root / ("sub"+treeNum) / "title"))), Style.legacyToc + Style.level(1))
       
     def treeList (treeNum: Int, docStart: Int) = 
       BulletListItem(List(
@@ -387,24 +387,24 @@ class LegacyStandardDirectiveSpec extends AnyFlatSpec
       
     def result (list: BulletList) = {
       val toc = title match {
-        case Some(text) => TitledBlock(List(Text(text)), List(list), options=Styles("toc"))
-        case None       => BlockSequence(List(list), Styles("toc"))
+        case Some(text) => TitledBlock(List(Text(text)), List(list), options=Style.legacyToc)
+        case None       => BlockSequence(List(list), Style.legacyToc)
       }
       root(TemplateRoot(
         t("aaa "),
         TemplateElement(toc),
         t(" bbb "),
         EmbeddedRoot(
-          Section(Header(1, List(Text("Headline 1")), Id("headline-1") + Styles("section")), Nil),
-          Section(Header(1, List(Text("Headline 2")), Id("headline-2") + Styles("section")), Nil)
+          Section(Header(1, List(Text("Headline 1")), Id("headline-1") + Style.section), Nil),
+          Section(Header(1, List(Text("Headline 2")), Id("headline-2") + Style.section), Nil)
         )
       ))
     }
     
     def markupTocResult = root(
-      BlockSequence(List(currentDoc), Styles("toc")),
-      Section(Header(1, List(Text("Headline 1")), Id("headline-1") + Styles("section")), Nil),
-      Section(Header(1, List(Text("Headline 2")), Id("headline-2") + Styles("section")), Nil)
+      BlockSequence(List(currentDoc), Style.legacyToc),
+      Section(Header(1, List(Text("Headline 1")), Id("headline-1") + Style.section), Nil),
+      Section(Header(1, List(Text("Headline 2")), Id("headline-2") + Style.section), Nil)
     )
   }
 

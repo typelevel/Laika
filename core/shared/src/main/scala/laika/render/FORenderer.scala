@@ -51,10 +51,10 @@ object FORenderer extends ((FOFormatter, Element) => String) {
 
       def quotedBlockContent (content: Seq[Block], attr: Seq[Span]): Seq[Block] =
         if (attr.isEmpty) content
-        else content :+ Paragraph(attr, Styles("attribution"))
+        else content :+ Paragraph(attr, Style.attribution)
 
       def figureContent (img: Span, caption: Seq[Span], legend: Seq[Block]): List[Block] =
-        List(Paragraph(img), Paragraph(caption, Styles("caption")), BlockSequence(legend, Styles("legend")))
+        List(Paragraph(img), Paragraph(caption, Style.caption), BlockSequence(legend, Style.legend))
 
       def enumLabel (format: EnumFormat, num: Int): String = {
         import EnumType._
@@ -82,7 +82,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
         case RootElement(content, _)            => fmt.childPerLine(content)
         case EmbeddedRoot(content,indent,_)     => fmt.withMinIndentation(indent)(_.childPerLine(content))
         case Section(header, content,_)         => fmt.childPerLine(header +: content)
-        case e @ TitledBlock(title, content, _) => fmt.blockContainer(e, Paragraph(title,Styles("title")) +: content)
+        case e @ TitledBlock(title, content, _) => fmt.blockContainer(e, Paragraph(title, Style.title) +: content)
         case e @ QuotedBlock(content,attr,_)    => fmt.blockContainer(e, quotedBlockContent(content,attr))
 
         case e @ BulletListItem(content,format,_)   => fmt.listItem(e, List(bulletLabel(format)), content)
@@ -113,7 +113,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
         case e @ Paragraph(content,_)         => fmt.block(e, content)
         case e @ ParsedLiteralBlock(content,_)=> fmt.blockWithWS(e, content)
         case e @ CodeBlock(lang,content,_)    => fmt.blockWithWS(e.copy(options=e.options + codeStyles(lang)),content)
-        case e @ Header(level, content,_)     => fmt.block(e.copy(options=e.options + Styles("level"+level.toString)),content,"keep-with-next"->"always")
+        case e @ Header(level, content,_)     => fmt.block(e.copy(options=e.options + Style.level(level)), content, "keep-with-next"->"always")
         case e @ Title(content,_)             => s"""<fo:marker marker-class-name="chapter"><fo:block>""" + fmt.text(e.extractText) + "</fo:block></fo:marker>" +
           fmt.newLine +
           fmt.block(e.copy(options=e.options),content,"keep-with-next"->"always")
@@ -188,7 +188,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
     def renderSimpleSpan (span: Span): String = span match {
       case e @ CitationLink(ref,label,_)  => fmt.withCitation(ref)(c => fmt.footnote(e,label,c.content,c.options))
       case e @ FootnoteLink(ref,label,_)  => fmt.withFootnote(ref)(f => fmt.footnote(e,label,f.content,f.options))
-      case SectionNumber(pos, opt)        => fmt.child(Text(pos.mkString(".") + " ", opt + Styles("sectionNumber")))
+      case SectionNumber(pos, opt)        => fmt.child(Text(pos.mkString(".") + " ", opt + Style.sectionNumber))
       case e @ Image(_,target,width,height,_,_) =>
         val uri = target match {
           case it: InternalTarget => it.relativePath.toString
@@ -221,12 +221,12 @@ object FORenderer extends ((FOFormatter, Element) => String) {
     def renderNavigationItem (elem: NavigationItem): String = elem match {
       case l: NavigationItem if l.options.styles.contains("bookmark") => fmt.bookmark(l)
       case NavigationHeader(title, content, opt) =>
-        fmt.childPerLine(Paragraph(title.content, Styles("toc") + opt) +: content)
+        fmt.childPerLine(Paragraph(title.content, Style.nav + opt) +: content)
       case NavigationLink(title, target: InternalTarget, content, _, opt) =>
         fmt.childPerLine(Paragraph(Seq(SpanLink(
           content = title.content :+ Leader() :+ PageNumberCitation(target),
           target = target
-        )), Styles("toc") + opt) +: content)
+        )), Style.nav + opt) +: content)
       case _ => ""
     }
 

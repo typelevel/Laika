@@ -61,7 +61,7 @@ class LanguageSpec extends AnyWordSpec with Matchers {
     def multiline(value: String): CodeSpan = string("\"\"\""+value+"\"\"\"")
     
     def result(lang: String, spans: CodeSpan*): RootElement = RootElement(
-      Title(Seq(Text("Doc")), Styles("title") + Id("doc")),
+      Title(Seq(Text("Doc")), Style.title + Id("doc")),
       CodeBlock(lang, spans.toSeq)
     )
     

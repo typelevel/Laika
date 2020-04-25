@@ -20,6 +20,7 @@ import laika.api.{MarkupParser, Parse}
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.ReStructuredText
+import laika.rst.ast.RstStyle
 import laika.rst.ext.ExtensionProvider
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -85,7 +86,7 @@ class StandardTextRolesSpec extends AnyFlatSpec
   
   "The subscript text role" should "produce a text node with subscript style" in {
     val input = "some :subscript:`text`"
-    val result = root(p(Text("some "), Text("text", Styles("subscript"))))
+    val result = root(p(Text("some "), Text("text", RstStyle.subscript)))
     parse(input) should be (result)
   }
   
@@ -94,20 +95,20 @@ class StandardTextRolesSpec extends AnyFlatSpec
       | :class: foo
       |
       |some :foo:`text`""".stripMargin
-    val result = root(p(Text("some "), Text("text",Styles("foo","subscript"))))
+    val result = root(p(Text("some "), Text("text", Styles("foo") + RstStyle.subscript)))
     parse(input) should be (result)
   }
   
   it should "support the sub alias" in {
     val input = "some :sub:`text`"
-    val result = root(p(Text("some "), Text("text", Styles("subscript"))))
+    val result = root(p(Text("some "), Text("text", RstStyle.subscript)))
     parse(input) should be (result)
   }
   
   
   "The superscript text role" should "produce a text node with superscript style" in {
     val input = "some :superscript:`text`"
-    val result = root(p(Text("some "), Text("text", Styles("superscript"))))
+    val result = root(p(Text("some "), Text("text", RstStyle.superscript)))
     parse(input) should be (result)
   }
   
@@ -116,20 +117,20 @@ class StandardTextRolesSpec extends AnyFlatSpec
       | :class: foo
       |
       |some :foo:`text`""".stripMargin
-    val result = root(p(Text("some "), Text("text",Styles("foo","superscript"))))
+    val result = root(p(Text("some "), Text("text", Styles("foo") + RstStyle.superscript)))
     parse(input) should be (result)
   }
   
   it should "support the sup alias" in {
     val input = "some :sup:`text`"
-    val result = root(p(Text("some "), Text("text", Styles("superscript"))))
+    val result = root(p(Text("some "), Text("text", RstStyle.superscript)))
     parse(input) should be (result)
   }
   
   
   "The title-reference text role" should "produce an Emphasized node with title-reference style" in {
     val input = "some :title-reference:`text`"
-    val result = root(p(Text("some "), Emphasized(List(Text("text")), Styles("title-reference"))))
+    val result = root(p(Text("some "), Emphasized(List(Text("text")), RstStyle.titleReference)))
     parse(input) should be (result)
   }
   
@@ -138,19 +139,19 @@ class StandardTextRolesSpec extends AnyFlatSpec
       | :class: foo
       |
       |some :foo:`text`""".stripMargin
-    val result = root(p(Text("some "), Emphasized(List(Text("text")),Styles("foo","title-reference"))))
+    val result = root(p(Text("some "), Emphasized(List(Text("text")), Styles("foo") + RstStyle.titleReference)))
     parse(input) should be (result)
   }
   
   it should "support the title alias" in {
     val input = "some :title:`text`"
-    val result = root(p(Text("some "), Emphasized(List(Text("text")), Styles("title-reference"))))
+    val result = root(p(Text("some "), Emphasized(List(Text("text")), RstStyle.titleReference)))
     parse(input) should be (result)
   }
   
   it should "be used as the default role if none is specified" in {
     val input = "some `text`"
-    val result = root(p(Text("some "), Emphasized(List(Text("text")), Styles("title-reference"))))
+    val result = root(p(Text("some "), Emphasized(List(Text("text")), RstStyle.titleReference)))
     parse(input) should be (result)
   }
   

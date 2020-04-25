@@ -27,10 +27,10 @@ import laika.render.HTMLFormatter
 object HtmlRenderExtensions {
 
   val all: PartialFunction[(HTMLFormatter, Element), String] = {
-    case (fmt, CitationLink(ref,label,opt)) => fmt.textElement("a", opt + Styles("citation"), "[" + label + "]", "href" -> ("#"+ref), "epub:type" -> "noteref")
-    case (fmt, FootnoteLink(ref,label,opt)) => fmt.textElement("a", opt + Styles("footnote"), "[" + label + "]", "href" -> ("#"+ref), "epub:type" -> "noteref")
-    case (fmt, Citation(_,content,opt)) => fmt.indentedElement("aside", opt + Styles("citation"), content, "epub:type" -> "footnote")
-    case (fmt, Footnote(_,content,opt)) => fmt.indentedElement("aside", opt + Styles("footnote"), content, "epub:type" -> "footnote")
+    case (fmt, CitationLink(ref,label,opt)) => fmt.textElement("a", opt + Style.citation, "[" + label + "]", "href" -> ("#"+ref), "epub:type" -> "noteref")
+    case (fmt, FootnoteLink(ref,label,opt)) => fmt.textElement("a", opt + Style.footnote, "[" + label + "]", "href" -> ("#"+ref), "epub:type" -> "noteref")
+    case (fmt, Citation(_,content,opt)) => fmt.indentedElement("aside", opt + Style.citation, content, "epub:type" -> "footnote")
+    case (fmt, Footnote(_,content,opt)) => fmt.indentedElement("aside", opt + Style.footnote, content, "epub:type" -> "footnote")
   }
 
 }

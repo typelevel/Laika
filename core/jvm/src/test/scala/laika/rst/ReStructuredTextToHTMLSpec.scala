@@ -68,7 +68,7 @@ class ReStructuredTextToHTMLSpec extends AnyFlatSpec
 
     def quotedBlockContent (content: Seq[Block], attr: Seq[Span]) =
       if (attr.isEmpty) content
-      else content :+ Paragraph(RawContent(List("html"), "§§§§") +: attr, Styles("attribution"))
+      else content :+ Paragraph(RawContent(List("html"), "§§§§") +: attr, Style.attribution)
 
     def renderBlocks (fmt: HTMLFormatter, tagName: String, options: Options, content: Seq[Block], attrs: (String, String)*): String = content match {
       case Seq(ss: SpanSequence)     => fmt.element(tagName, options, Seq(ss), attrs: _*)
@@ -99,7 +99,7 @@ class ReStructuredTextToHTMLSpec extends AnyFlatSpec
         case (fmt, Literal(content,opt))          => fmt.withoutIndentation(_.textElement("tt", opt + Styles("docutils","literal"), content))
         case (fmt, FootnoteLink(id,label,opt))    => fmt.textElement("a", opt + Styles("footnote-reference"), s"[$label]", "href"-> ("#"+dropLaikaPrefix(id))) 
         case (fmt, f: Footnote) if f.options.id.exists(_.startsWith("__")) => fmt.child(f.withId(dropLaikaPrefix(f.options.id.get)))
-        case (fmt, Section(header, content, opt)) => fmt.indentedElement("div", opt+Id(header.options.id.getOrElse(""))+(if(header.level == 1) Styles("document") else Styles("section")), header +: content)
+        case (fmt, Section(header, content, opt)) => fmt.indentedElement("div", opt+Id(header.options.id.getOrElse(""))+(if(header.level == 1) Styles("document") else Style.section), header +: content)
         case (fmt, Header(level, (it: InternalLinkTarget) :: rest, opt)) => fmt.childPerLine(Seq(it, Header(level, rest, opt))) // move target out of the header content
         case (fmt, Header(level, content, opt))   => fmt.element("h" + (level-1), NoOpt, content) // rst special treatment of first header
         case (fmt, Title(content, opt))           => fmt.element("h1", NoOpt, content, "class" -> "title")

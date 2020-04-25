@@ -224,13 +224,13 @@ class HTMLRendererSpec extends AnyFlatSpec
   it should "render a navigation list" in {
     val elem = NavigationList(Seq(
       NavigationLink(SpanSequence("Link-1"), InternalTarget.fromPath(Root / "doc-1", Root), Seq(
-        NavigationLink(SpanSequence("Link-2"), InternalTarget.fromPath(Root / "doc-2", Root), Nil, options = Styles("level2"))
-      ), options = Styles("level1")),
+        NavigationLink(SpanSequence("Link-2"), InternalTarget.fromPath(Root / "doc-2", Root), Nil, options = Style.level(2))
+      ), options = Style.level(1)),
       NavigationHeader(SpanSequence("Header-3"), Seq(
-        NavigationLink(SpanSequence("Link-4"), InternalTarget.fromPath(Root / "doc-4", Root), Nil, selfLink = true, options = Styles("level2"))
-      ), options = Styles("level1")),
+        NavigationLink(SpanSequence("Link-4"), InternalTarget.fromPath(Root / "doc-4", Root), Nil, selfLink = true, options = Style.level(2))
+      ), options = Style.level(1)),
       NavigationLink(SpanSequence("Link-5"), InternalTarget.fromPath(Root / "doc-5", Root), Nil,
-        options = Styles("level1"))
+        options = Style.level(1))
     ))
     val html = """<ul>
                  |  <li>
@@ -427,7 +427,7 @@ class HTMLRendererSpec extends AnyFlatSpec
   
   it should "render a title containing a section number" in {
     val elem = Title(SectionNumber(Seq(1,2,3)), Text(" Title"))
-    render (elem) should be ("""<h1><span class="sectionNumber">1.2.3 </span> Title</h1>""") 
+    render (elem) should be ("""<h1><span class="section-number">1.2.3 </span> Title</h1>""") 
   }
   
   it should "render a paragraph containing emphasized text" in {

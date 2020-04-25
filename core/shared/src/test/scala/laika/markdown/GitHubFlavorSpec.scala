@@ -373,7 +373,7 @@ class GitHubFlavorSpec extends AnyWordSpec
            || DDD | EEE | FFF |
            || GGG | HHH | III |
         """.stripMargin
-      val options = Seq(Styles("align-left"), Styles("align-right"), Styles("align-center"))
+      val options = Seq(Style.alignLeft, Style.alignRight, Style.alignCenter)
       def applyOptions (rows: Seq[Row]): Seq[Row] = rows map { row =>
         Row(row.content.zip(options).map {
           case (cell, opt) => cell.copy(options = opt)

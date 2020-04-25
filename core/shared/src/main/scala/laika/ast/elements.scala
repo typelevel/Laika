@@ -1444,3 +1444,35 @@ object Options {
     if (id.isEmpty && styles.isEmpty) NoOpt
     else SomeOpt(id,styles)
 }
+
+/** Constants for style names wrapped in Options instances which are commonly used by Laika's core parsers and rewrite rules. */
+object Style {
+  
+  val title: Options = Styles("title")
+  val section: Options = Styles("section")
+  val sectionNumber: Options = Styles("section-number") // TODO - is camel case right now
+  val nav: Options = Styles("nav")
+  val navHeader: Options = Styles("nav-header")
+  val active: Options = Styles("active") // TODO - rename? self-link?
+  val bookmark: Options = Styles("bookmark")
+  def level(lev: Int): Options = Styles("level" + lev)
+  val legacyToc: Options = Styles("toc")
+  
+  val alignCenter: Options = Styles("align-center")
+  val alignLeft: Options = Styles("align-left")
+  val alignRight: Options = Styles("align-right")
+  
+  val citation: Options = Styles("citation")
+  val footnote: Options = Styles("footnote")
+  val footnoteLabel: Options = Styles("footnote-label")
+  
+  val label: Options = Styles("label")
+  val attribution: Options = Styles("attribution")
+  val caption: Options = Styles("caption")
+  val legend: Options = Styles("legend")
+  val figure: Options = Styles("figure")
+  
+  val systemMessage: Options = Styles("system-message")
+  val noHighlight: Options = Styles("nohighlight")
+  
+}

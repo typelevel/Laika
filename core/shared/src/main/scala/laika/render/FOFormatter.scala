@@ -180,7 +180,7 @@ case class FOFormatter (renderChild: (FOFormatter, Element) => String,
   /** Renders an FO `footnote` element, with the body indented one level to the right.
    */
   def footnote (styleHint: Element, label: String, body: Seq[Block], options: Options): String = {
-    val labelElement = Text(s"[$label]", Styles("footnote-label"))
+    val labelElement = Text(s"[$label]", Style.footnoteLabel)
     val bodyElements = body match {
       case Paragraph(spans, opts) +: rest => Paragraph(labelElement +: Text(" ") +: spans, opts) +: rest
       case _ => Paragraph(labelElement) +: body

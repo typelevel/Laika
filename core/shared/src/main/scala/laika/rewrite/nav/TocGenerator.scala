@@ -26,7 +26,7 @@ object TocGenerator {
   
   private val bullet = StringBullet("*")
   
-  private def styles (level: Int) = Styles("toc","level"+level)
+  private def styles (level: Int) = Style.legacyToc + Style.level(level)
   
   
   def fromDocument (doc: Document, depth: Int, refPath: Path): List[Block] = fromDocument(doc, 1, depth, refPath)
@@ -71,14 +71,14 @@ object TocGenerator {
         Paragraph(titleOrName(tree), options = styles(level))
       )( doc =>
         if (tree.path / doc == refPath)
-          Paragraph(titleOrName(tree), options = styles(level) + Styles("active"))
+          Paragraph(titleOrName(tree), options = styles(level) + Style.active)
         else
           Paragraph(List(SpanLink(titleOrName(tree), InternalTarget.fromPath(tree.path / doc, refPath))), options = styles(level))
       )
     
     def docTitle (document: Document, level: Int): Paragraph =
       if (document.path == refPath)
-        Paragraph(titleOrName(document), options = styles(level) + Styles("active"))
+        Paragraph(titleOrName(document), options = styles(level) + Style.active)
       else
         Paragraph(List(SpanLink(titleOrName(document), InternalTarget.fromPath(document.path, refPath))), options = styles(level))
     

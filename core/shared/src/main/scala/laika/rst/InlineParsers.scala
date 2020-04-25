@@ -28,7 +28,7 @@ import laika.parse.implicits._
 import laika.parse.uri.AutoLinkParsers
 import laika.parse.{Failure, Message, Parser, Success}
 import laika.rst.BaseParsers._
-import laika.rst.ast.{InterpretedText, ReferenceName, SubstitutionReference}
+import laika.rst.ast.{InterpretedText, ReferenceName, RstStyle, SubstitutionReference}
 
 
 /** Provides all inline parsers for reStructuredText.
@@ -232,7 +232,7 @@ object InlineParsers {
     markupStart("_`", "`") ~>
     recParsers.escapedText(delimitedBy(markupEnd("`")).nonEmpty).map { name => 
       val id = ReferenceName(name)
-      Text(id.original, Id(id.normalized) + Styles("target")) 
+      Text(id.original, Id(id.normalized) + RstStyle.target) 
     }
   }
   

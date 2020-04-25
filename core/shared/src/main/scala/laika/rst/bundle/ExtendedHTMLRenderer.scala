@@ -52,7 +52,7 @@ class ExtendedHTMLRenderer {
     def body (value: Seq[Block]) = BodyCell(value)
     val rows = ol.content map (o => Row(List(options(o.programOptions),body(o.content))))
     Table(TableHead(Nil), TableBody(rows), Caption(),
-        Columns.options(Styles("option"),Styles("description")), Styles("option-list"))
+        Columns.options(RstStyle.option, RstStyle.description), RstStyle.optionList)
   }
   
   /** Converts a `FieldList` to an interim table model for rendering.
@@ -62,7 +62,7 @@ class ExtendedHTMLRenderer {
     def body (value: Seq[Block]) = BodyCell(value)
     val rows = fl.content map (f => Row(List(name(f.name),body(f.content))))
     Table(TableHead(Nil), TableBody(rows), Caption(),
-        Columns.options(Styles("field-name"),Styles("field-body")), Styles("field-list"))
+        Columns.options(RstStyle.fieldName, RstStyle.fieldBody), RstStyle.fieldList)
   }
   
   val custom: PartialFunction[(HTMLFormatter, Element), String] = {

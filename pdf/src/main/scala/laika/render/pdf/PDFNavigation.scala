@@ -84,7 +84,7 @@ object PDFNavigation {
       itemStyles = Set("bookmark")
     )
     val toc = result.tree.asNavigationItem(context).content
-    Map("bookmarks" -> NavigationList(toc, Styles("bookmark")))
+    Map("bookmarks" -> NavigationList(toc, Style.bookmark))
   }
   
   /** Inserts a table of content into the specified document tree.

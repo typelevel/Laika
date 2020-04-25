@@ -21,7 +21,7 @@ import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.parse.Parser
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
-import laika.rst.ast.{InterpretedText, SubstitutionReference}
+import laika.rst.ast.{InterpretedText, RstStyle, SubstitutionReference}
 import laika.rst.ext.{ExtensionProvider, RootParserProvider}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -158,7 +158,7 @@ class InlineParsersSpec extends AnyFlatSpec
   
   
   "The internal link target parser" should "parse content enclosed in _` and `" in {
-    Parsing ("some _`Text` here") should produce (spans(Text("some "), Text("Text", Id("text") + Styles("target")), Text(" here")))
+    Parsing ("some _`Text` here") should produce (spans(Text("some "), Text("Text", Id("text") + RstStyle.target), Text(" here")))
   }
   
   

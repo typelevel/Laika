@@ -142,7 +142,7 @@ class SectionNumberSpec extends AnyFlatSpec
 
     def resultView (docNum: List[Int]): List[DocumentContent] = List(
       Content(List(
-        laika.ast.Title(numberedHeader(1,1, docNum, "title").content,Id("title-1") + Styles("title")),
+        laika.ast.Title(numberedHeader(1,1, docNum, "title").content,Id("title-1") + Style.title),
         numberedSection(2,2, docNum:+1, numberedSection(3,3, docNum:+1:+1)),
         numberedSection(2,4, docNum:+2, numberedSection(3,5, docNum:+2:+1))
       )),

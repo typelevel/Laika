@@ -308,8 +308,8 @@ object StandardDirectives extends DirectiveRegistry {
       case tree: DocumentTree => TocGenerator.fromTree(tree, maxLevel, cursor.target.path)
     }
     title match {
-      case Some(text) => TitledBlock(List(Text(text)), list, Styles("toc"))
-      case None       => BlockSequence(list, Styles("toc"))
+      case Some(text) => TitledBlock(List(Text(text)), list, Style.legacyToc)
+      case None       => BlockSequence(list, Style.legacyToc)
     }
   }
 

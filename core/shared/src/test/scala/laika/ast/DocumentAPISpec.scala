@@ -101,8 +101,8 @@ class DocumentAPISpec extends AnyFlatSpec
     val rules = testRule ++ OperationConfig.default.rewriteRulesFor(cursor.target)
     val rewritten = raw rewrite rules
     rewritten.content should be (root(
-      Section(Header(1, List(Text("Section 1")), Id("section-1") + Styles("section")), List(p("Swapped"))),
-      Section(Header(1, List(Text("Section 2")), Id("section-2") + Styles("section")), List(p("Some more text")))
+      Section(Header(1, List(Text("Section 1")), Id("section-1") + Style.section), List(p("Swapped"))),
+      Section(Header(1, List(Text("Section 2")), Id("section-2") + Style.section), List(p("Some more text")))
     ))
   }
   

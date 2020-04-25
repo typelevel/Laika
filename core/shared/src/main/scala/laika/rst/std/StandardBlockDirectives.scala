@@ -20,7 +20,7 @@ import laika.ast._
 import laika.config.{Field, ObjectValue, Origin, StringValue}
 import laika.parse.markup.RecursiveParsers
 import laika.parse.text.TextParsers.anyChars
-import laika.rst.ast.{Contents, FieldList, Include}
+import laika.rst.ast.{Contents, FieldList, Include, RstStyle}
 import laika.rst.ext.Directives.Parts._
 import laika.rst.ext.Directives._
 import laika.rst.std.StandardDirectiveParts._
@@ -93,7 +93,7 @@ class StandardBlockDirectives {
    */
   lazy val compound: DirectivePartBuilder[Block] = {
     (blockContent ~ stdOpt).map { case content ~ opt =>
-      BlockSequence(content, opt + Styles("compound"))
+      BlockSequence(content, opt + RstStyle.compound)
     } 
   }
   
@@ -111,7 +111,7 @@ class StandardBlockDirectives {
    */
   lazy val genericAdmonition: DirectivePartBuilder[Block] = {
     (spanArgument ~ blockContent ~ stdOpt).map { case title ~ content ~ opt =>
-      TitledBlock(title, content, opt + Styles("admonition"))
+      TitledBlock(title, content, opt + RstStyle.admonition)
     } 
   }
 
@@ -130,7 +130,7 @@ class StandardBlockDirectives {
    */
   lazy val topic: DirectivePartBuilder[Block] = {
     (spanArgument ~ blockContent ~ stdOpt).map { case title ~ content ~ opt =>
-      TitledBlock(title, content, opt + Styles("topic"))
+      TitledBlock(title, content, opt + RstStyle.topic)
     } 
   }
 
@@ -139,7 +139,7 @@ class StandardBlockDirectives {
     */
   lazy val rubric: DirectivePartBuilder[Block] = {
     (spanArgument ~ stdOpt).map { case text ~ opt =>
-      Paragraph(text, opt + Styles("rubric"))
+      Paragraph(text, opt + RstStyle.rubric)
     }
   }
   
@@ -149,8 +149,8 @@ class StandardBlockDirectives {
   def sidebar (p: RecursiveParsers): DirectivePartBuilder[Block] = {
     (spanArgument ~ optField("subtitle", StandardDirectiveParsers.standardSpans(p)) ~
         blockContent ~ stdOpt).map { case title ~ subtitle ~ content ~ opt =>
-      val titleAndContent = subtitle.map(s => Paragraph(s, Styles("subtitle"))).toList ++ content
-      TitledBlock(title, titleAndContent, opt + Styles("sidebar"))
+      val titleAndContent = subtitle.map(s => Paragraph(s, RstStyle.subtitle)).toList ++ content
+      TitledBlock(title, titleAndContent, opt + RstStyle.sidebar)
     } 
   }
 
@@ -225,7 +225,7 @@ class StandardBlockDirectives {
   def quotedBlock (style: String): DirectivePartBuilder[Block] = blockContent map { blocks =>
     blocks.lastOption match {
       case Some(p @ Paragraph(Text(text, opt) :: _, _)) if text startsWith "-- " =>
-        val attr = Text(text.drop(3), opt + Styles("attribution")) +: p.content.tail
+        val attr = Text(text.drop(3), opt + Style.attribution) +: p.content.tail
         QuotedBlock(blocks.init, attr, Styles(style))
       case _ =>
         QuotedBlock(blocks, Nil, Styles(style))

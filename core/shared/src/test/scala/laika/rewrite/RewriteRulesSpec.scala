@@ -196,7 +196,7 @@ class RewriteRulesSpec extends AnyWordSpec
 
     "resolve references when some parent element also gets rewritten" in {
       val rootElem = root(DecoratedHeader(Underline('#'), List(Text("text "), simpleLinkRef())), LinkDefinition("name", ExternalTarget("http://foo/")))
-      rewritten(rootElem) should be(root(Title(List(Text("text "), extLink("http://foo/")), Id("text-text") + Styles("title"))))
+      rewritten(rootElem) should be(root(Title(List(Text("text "), extLink("http://foo/")), Id("text-text") + Style.title)))
     }
   }
 
@@ -243,7 +243,7 @@ class RewriteRulesSpec extends AnyWordSpec
 
     "resolve references when some parent element also gets rewritten" in {
       val rootElem = root(DecoratedHeader(Underline('#'), List(Text("text "), genRef())), LinkDefinition("name", ExternalTarget("http://foo/")))
-      rewritten(rootElem) should be(root(Title(List(Text("text "), extLink("http://foo/")), Id("text-text") + Styles("title"))))
+      rewritten(rootElem) should be(root(Title(List(Text("text "), extLink("http://foo/")), Id("text-text") + Style.title)))
     }
   }
 
@@ -421,7 +421,7 @@ class RewriteRulesSpec extends AnyWordSpec
 
     "create the id for the header based on the header text" in {
       val rootElem = root(Header(1, List(Text("Header"))))
-      rewritten(rootElem) should be(root(Title(List(Text("Header")), Id("header") + Styles("title"))))
+      rewritten(rootElem) should be(root(Title(List(Text("Header")), Id("header") + Style.title)))
     }
 
   }
@@ -433,8 +433,8 @@ class RewriteRulesSpec extends AnyWordSpec
       val rootElem = root(DecoratedHeader(Underline('#'), List(Text("Header 1"))),
         DecoratedHeader(Underline('#'), List(Text("Header 2"))))
       rewritten(rootElem) should be(root(
-        Section(Header(1, List(Text("Header 1")), Id("header-1") + Styles("section")), Nil),
-        Section(Header(1, List(Text("Header 2")), Id("header-2") + Styles("section")), Nil)))
+        Section(Header(1, List(Text("Header 1")), Id("header-1") + Style.section), Nil),
+        Section(Header(1, List(Text("Header 2")), Id("header-2") + Style.section), Nil)))
     }
 
     "set the level of the header in a nested list of headers" in {
@@ -442,9 +442,9 @@ class RewriteRulesSpec extends AnyWordSpec
         DecoratedHeader(Underline('-'), List(Text("Header 2"))),
         DecoratedHeader(Underline('#'), List(Text("Header 3"))))
       rewritten(rootElem) should be(root(
-        Section(Header(1, List(Text("Header 1")), Id("header-1") + Styles("section")), List(
-          Section(Header(2, List(Text("Header 2")), Id("header-2") + Styles("section")), Nil))),
-        Section(Header(1, List(Text("Header 3")), Id("header-3") + Styles("section")), Nil)))
+        Section(Header(1, List(Text("Header 1")), Id("header-1") + Style.section), List(
+          Section(Header(2, List(Text("Header 2")), Id("header-2") + Style.section), Nil))),
+        Section(Header(1, List(Text("Header 3")), Id("header-3") + Style.section), Nil)))
     }
 
   }

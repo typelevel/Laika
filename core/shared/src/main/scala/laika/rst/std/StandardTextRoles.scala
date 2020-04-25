@@ -17,6 +17,7 @@
 package laika.rst.std
 
 import laika.ast._
+import laika.rst.ast.RstStyle
 import laika.rst.ext.TextRoles.Parts._
 import laika.rst.ext.TextRoles.TextRole
 
@@ -85,33 +86,33 @@ class StandardTextRoles {
   /** The standard subscript text role.
    */
   lazy val subscript: TextRole =
-    TextRole("subscript", NoOpt:Options)(classOption)((opt, text) => Text(text, opt + Styles("subscript")))  
+    TextRole("subscript", NoOpt:Options)(classOption)((opt, text) => Text(text, opt + RstStyle.subscript))  
     
   /** The standard superscript text role.
    */
   lazy val superscript: TextRole =
-    TextRole("superscript", NoOpt:Options)(classOption)((opt, text) => Text(text, opt + Styles("superscript")))
+    TextRole("superscript", NoOpt:Options)(classOption)((opt, text) => Text(text, opt + RstStyle.superscript))
     
   /** The sub text role, an alias for the subscript role.
    */
   lazy val sub: TextRole =
-    TextRole("sub", NoOpt:Options)(classOption)((opt, text) => Text(text, opt + Styles("subscript"))) 
+    TextRole("sub", NoOpt:Options)(classOption)((opt, text) => Text(text, opt + RstStyle.subscript)) 
   
   /** The sup text role, an alias for the superscript role.
    */
   lazy val sup: TextRole =
-    TextRole("sup", NoOpt:Options)(classOption)((opt, text) => Text(text, opt + Styles("superscript")))
+    TextRole("sup", NoOpt:Options)(classOption)((opt, text) => Text(text, opt + RstStyle.superscript))
     
   /** The standard title-reference text role, the default text role in reStructuredText unless overridden
    *  with `RstExtensionRegistry.defaultTextRole`.
    */
   lazy val titleRef: TextRole =
-    TextRole("title-reference", NoOpt:Options)(classOption)((opt, text) => Emphasized(List(Text(text)), opt + Styles("title-reference")))
+    TextRole("title-reference", NoOpt:Options)(classOption)((opt, text) => Emphasized(List(Text(text)), opt + RstStyle.titleReference))
     
   /** The title text role, an alias for the title-reference role.
    */
   lazy val title: TextRole =
-    TextRole("title", NoOpt:Options)(classOption)((opt, text) => Emphasized(List(Text(text)), opt + Styles("title-reference")))
+    TextRole("title", NoOpt:Options)(classOption)((opt, text) => Emphasized(List(Text(text)), opt + RstStyle.titleReference))
     
   /** The standard code text role. The current implementation does not support syntax highlighting.
    */

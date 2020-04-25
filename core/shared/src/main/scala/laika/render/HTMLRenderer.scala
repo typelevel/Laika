@@ -17,6 +17,7 @@
 package laika.render
 
 import laika.ast._
+import laika.rst.ast.RstStyle
 
 /** Default renderer implementation for the HTML output format.
   *
@@ -47,9 +48,9 @@ class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => Str
       def transformItems (items: Seq[NavigationItem]): Seq[BulletListItem] = {
         items.map { item =>
           val target: Paragraph = item match {
-            case nh: NavigationHeader => Paragraph(nh.title.content, nh.options + Styles("nav-header"))
+            case nh: NavigationHeader => Paragraph(nh.title.content, nh.options + Style.navHeader)
             case nl: NavigationLink   => 
-              val styles = if (nl.selfLink) Styles("active") else NoOpt
+              val styles = if (nl.selfLink) Style.active else NoOpt
               Paragraph(Seq(SpanLink(nl.title.content, nl.target)), nl.options + styles)
           }
           val children = if (item.content.isEmpty) Nil
@@ -75,29 +76,29 @@ class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => Str
         val right = BodyCell(content)
         val row = Row(List(left,right))
         Table(TableHead(Nil), TableBody(List(row)), Caption(),
-          Columns.options(Styles("label"),NoOpt), options)
+          Columns.options(Style.label,NoOpt), options)
       }
 
       def quotedBlockContent (content: Seq[Block], attr: Seq[Span]): Seq[Block] =
         if (attr.isEmpty) content
-        else content :+ Paragraph(attr, Styles("attribution"))
+        else content :+ Paragraph(attr, Style.attribution)
 
       def figureContent (img: Span, caption: Seq[Span], legend: Seq[Block]): List[Block] =
-        List(SpanSequence(img), Paragraph(caption, Styles("caption")), BlockSequence(legend, Styles("legend")))
+        List(SpanSequence(img), Paragraph(caption, Style.caption), BlockSequence(legend, Style.legend))
 
       con match {
         case RootElement(content, _)          => fmt.childPerLine(content)
         case EmbeddedRoot(content,indent,_)   => fmt.withMinIndentation(indent)(_.childPerLine(content))
         case Section(header, content,_)       => fmt.childPerLine(header +: content)
-        case TitledBlock(title, content, opt) => fmt.indentedElement("div", opt, Paragraph(title,Styles("title")) +: content)
+        case TitledBlock(title, content, opt) => fmt.indentedElement("div", opt, Paragraph(title, Style.title) +: content)
         case QuotedBlock(content,attr,opt)    => renderBlocks("blockquote", opt, quotedBlockContent(content,attr))
         case BulletListItem(content,_,opt)    => renderBlocks("li", opt, content)
         case EnumListItem(content,_,_,opt)    => renderBlocks("li", opt, content)
         case DefinitionListItem(term,defn,_)  => fmt.element("dt", NoOpt, term) + fmt.newLine + renderBlocks("dd", NoOpt, defn)
-        case Figure(img,caption,legend,opt)   => fmt.indentedElement("div", opt + Styles("figure"), figureContent(img,caption,legend))
+        case Figure(img,caption,legend,opt)   => fmt.indentedElement("div", opt + Style.figure, figureContent(img,caption,legend))
 
-        case Footnote(label,content,opt)      => renderTable(toTable(label,content,opt + Styles("footnote")))
-        case Citation(label,content,opt)      => renderTable(toTable(label,content,opt + Styles("citation")))
+        case Footnote(label,content,opt)      => renderTable(toTable(label,content,opt + Style.footnote))
+        case Citation(label,content,opt)      => renderTable(toTable(label,content,opt + Style.citation))
 
         case WithFallback(fallback)           => fmt.child(fallback)
         case c: Customizable                  => c match {
@@ -111,7 +112,7 @@ class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => Str
     def renderSpanContainer (con: SpanContainer): String = {
       
       def codeStyles (language: String, hasHighlighting: Boolean) = 
-        if (hasHighlighting) Styles("nohighlight") else Styles(language)
+        if (hasHighlighting) Style.noHighlight else Styles(language)
       
       def internalLinkRef (path: RelativePath) = {
         val target = 
@@ -141,7 +142,7 @@ class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => Str
         case ParsedLiteralBlock(content,opt)=> fmt.rawElement("pre", opt, fmt.withoutIndentation(_.element("code", NoOpt, content)))
         case cb@CodeBlock(lang,content,opt) => fmt.rawElement("pre", opt, fmt.withoutIndentation(_.element("code", codeStyles(lang, cb.hasSyntaxHighlighting), content)))
         case InlineCode(lang,content,opt)   => fmt.withoutIndentation(_.element("code", opt + codeStyles(lang, false), content))
-        case Line(content,opt)              => fmt.element("div", opt + Styles("line"), content)
+        case Line(content,opt)              => fmt.element("div", opt + RstStyle.line, content)
         case Title(content, opt)            => fmt.element("h1", opt, content)
         case Header(level, content, opt)    => fmt.newLine + fmt.element("h"+level.toString, opt,content)
 
@@ -195,7 +196,7 @@ class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => Str
       case Literal(content,opt)        => fmt.withoutIndentation(_.textElement("code", opt, content))
       case LiteralBlock(content,opt)   => fmt.element("pre", opt, Seq(Literal(content)))
       case Comment(content,_)          => fmt.comment(content)
-      case sn@ SectionNumber(_, opt)   => fmt.child(Text(sn.content, opt + Styles("sectionNumber")))
+      case sn@ SectionNumber(_, opt)   => fmt.child(Text(sn.content, opt + Style.sectionNumber))
 
       case WithFallback(fallback)      => fmt.child(fallback)
       case c: Customizable             => fmt.textElement("span", c.options, c.content)
@@ -205,7 +206,7 @@ class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => Str
     def renderSimpleBlock (block: Block): String = block match {
       case Rule(opt)                   => fmt.emptyElement("hr", opt)
       case InternalLinkTarget(opt)     => fmt.textElement("a", opt, "")
-      case LineBlock(content,opt)      => fmt.indentedElement("div", opt + Styles("line-block"), content)
+      case LineBlock(content,opt)      => fmt.indentedElement("div", opt + RstStyle.lineBlock, content)
       case TargetFormat("html",e,_)    => fmt.child(e)
       case TargetFormat("xhtml",e,_)   => fmt.child(e)
 
@@ -214,8 +215,8 @@ class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => Str
     }
 
     def renderSimpleSpan (span: Span): String = span match {
-      case CitationLink(ref,label,opt) => fmt.textElement("a", opt + Styles("citation"), s"[$label]", "href"->("#"+ref))
-      case FootnoteLink(ref,label,opt) => fmt.textElement("a", opt + Styles("footnote"), s"[$label]", "href"->("#"+ref))
+      case CitationLink(ref,label,opt) => fmt.textElement("a", opt + Style.citation, s"[$label]", "href"->("#"+ref))
+      case FootnoteLink(ref,label,opt) => fmt.textElement("a", opt + Style.footnote, s"[$label]", "href"->("#"+ref))
 
       case Image(text,target,width,height,title,opt) =>
         def sizeAttr (size: Option[Size], styleName: String): (Option[String],Option[String]) = size map {
@@ -265,7 +266,7 @@ class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => Str
 
     def renderSystemMessage (message: SystemMessage): String = {
       fmt.forMessage(message) {
-        fmt.textElement("span", message.options + Styles("system-message", message.level.toString.toLowerCase), message.content)
+        fmt.textElement("span", message.options + Style.systemMessage + Styles(message.level.toString.toLowerCase), message.content)
       }
     }
 

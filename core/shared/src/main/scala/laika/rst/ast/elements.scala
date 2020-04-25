@@ -167,7 +167,7 @@ case class Contents (title: String, depth: Int = Int.MaxValue, local: Boolean = 
       maxLevels = depth,
       currentLevel = 0,
     )).content
-    TitledBlock(List(Text(title)), Seq(NavigationList(nav)), options + Styles("toc"))
+    TitledBlock(List(Text(title)), Seq(NavigationList(nav)), options + Style.nav)
   }
 }
 

@@ -36,7 +36,7 @@ trait ModelBuilder {
 
   def quote (text: String, attribution: String) = QuotedBlock(List(p(text)), List(Text(attribution)))
 
-  def titleWithId (text: String) = Title(Seq(Text(text)), Id(text.replaceAll("[^a-zA-Z0-9-]+","-").replaceFirst("^-","").replaceFirst("-$","").toLowerCase) + Styles("title"))
+  def titleWithId (text: String) = Title(Seq(Text(text)), Id(text.replaceAll("[^a-zA-Z0-9-]+","-").replaceFirst("^-","").replaceFirst("-$","").toLowerCase) + Style.title)
 
 
   def link (content: Span*): LinkBuilder = new LinkBuilder(content.toList)
