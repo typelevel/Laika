@@ -16,7 +16,7 @@
 
 package laika.ast
 
-import laika.config.{Config, ConfigParser, Origin}
+import laika.config.{Config, ConfigParser, Key, Origin}
 import laika.ast.DocumentType.Markup
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
@@ -45,16 +45,17 @@ class DocumentTreeAPISpec extends AnyFlatSpec
     def treeWithSubtree (path: Path, treeName: String, docName: String, root: RootElement, config: Option[String] = None): DocumentTree =
       DocumentTree(path, List(treeWithDoc(path / treeName, docName, root, config)))
 
-    val treeWithTwoSubtrees: DocumentTree = {
+    def treeWithTwoSubtrees (contextRef: String): DocumentTree = {
+      val targetRoot = if (contextRef.isEmpty) root() else root(p(MarkupContextReference(Key.parse(contextRef), required = false)))
       def docs (parent: Path, nums: Int*): Seq[Document] = nums map { n =>
-        Document(parent / ("doc"+n), root())
+        Document(parent / ("doc"+n), targetRoot)
       }
       DocumentTree(Root, docs(Root, 1, 2) ++ List(
-        DocumentTree(Root / "sub1", docs(Root / "sub1", 3, 4), Some(Document(Root / "sub1" / "title", root()))),
-        DocumentTree(Root / "sub2", docs(Root / "sub2", 5, 6), Some(Document(Root / "sub2" / "title", root())))
+        DocumentTree(Root / "sub1", docs(Root / "sub1", 3, 4), Some(Document(Root / "sub1" / "title", targetRoot))),
+        DocumentTree(Root / "sub2", docs(Root / "sub2", 5, 6), Some(Document(Root / "sub2" / "title", targetRoot)))
       ))
     }
-    val leafDocCursor = RootCursor(DocumentTreeRoot(treeWithTwoSubtrees)).tree
+    def leafDocCursor (contextRef: String = "") = RootCursor(DocumentTreeRoot(treeWithTwoSubtrees(contextRef))).tree
       .children.last.asInstanceOf[TreeCursor]
       .children.last.asInstanceOf[DocumentCursor]
     
@@ -203,18 +204,45 @@ class DocumentTreeAPISpec extends AnyFlatSpec
   }
 
   it should "give access to the previous sibling in a hierarchical view" in new TreeModel {
-    leafDocCursor.previousDocument.map(_.path) shouldBe Some(Root / "sub2" / "doc5")  
+    leafDocCursor().previousDocument.map(_.path) shouldBe Some(Root / "sub2" / "doc5")  
   }
 
   it should "return None for the next document in the final leaf node of the tree" in new TreeModel {
-    leafDocCursor.nextDocument shouldBe None
+    leafDocCursor().nextDocument shouldBe None
+  }
+
+  it should "give access to the previous title document in a hierarchical view for a title document" in new TreeModel {
+    leafDocCursor().parent.titleDocument.get.previousDocument.map(_.path) shouldBe Some(Root / "sub1" / "title")
   }
 
   it should "give access to the previous sibling in a flattened view" in new TreeModel {
-    leafDocCursor.flattenedSiblings.previousDocument
+    leafDocCursor().flattenedSiblings.previousDocument
       .flatMap(_.flattenedSiblings.previousDocument)
       .flatMap(_.flattenedSiblings.previousDocument)
       .map(_.path) shouldBe Some(Root / "sub1" / "doc4")
+  }
+  
+  it should "resolve a substitution reference to the previous document" in new TreeModel {
+    val cursor = leafDocCursor("previousDocument.relativePath")
+    cursor.target.rewrite(TemplateRewriter.rewriteRules(cursor)).content shouldBe root(p("doc5"))
+  }
+
+  it should "be empty for the next document in the final leaf node of the tree" in new TreeModel {
+    val cursor = leafDocCursor("nextDocument.relativePath")
+    cursor.target.rewrite(TemplateRewriter.rewriteRules(cursor)).content shouldBe root(p(""))
+  }
+
+  it should "resolve a substitution reference to the parent document" in new TreeModel {
+    val cursor = leafDocCursor("parentDocument.relativePath")
+    cursor.target.rewrite(TemplateRewriter.rewriteRules(cursor)).content shouldBe root(p("title"))
+  }
+
+  it should "resolve a substitution reference to the previous document in a flattened view" in new TreeModel {
+    val cursor = leafDocCursor("flattenedSiblings.previousDocument.relativePath")
+      .flattenedSiblings.previousDocument
+      .flatMap(_.flattenedSiblings.previousDocument)
+      .get
+    cursor.target.rewrite(TemplateRewriter.rewriteRules(cursor)).content shouldBe root(p("../sub1/doc4"))
   }
 
 }

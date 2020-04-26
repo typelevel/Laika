@@ -92,7 +92,7 @@ trait TemplateRewriter {
     template.config.resolve(Origin(TemplateScope, template.path), cursor.config, cursor.root.target.includes).map { mergedConfig =>
       val cursorWithMergedConfig = cursor.copy(
         config = mergedConfig,
-        resolver = ReferenceResolver.forDocument(cursor.target, cursor.parent, mergedConfig)
+        resolver = ReferenceResolver.forDocument(cursor.target, cursor.parent, mergedConfig, cursor.position)
       )
       val newContent = rewriteRules(cursorWithMergedConfig).rewriteBlock(template.content)
       val newRoot = newContent match {

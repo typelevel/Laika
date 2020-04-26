@@ -18,7 +18,7 @@ package laika.rewrite
 
 import laika.config.Config.ConfigResult
 import laika.config.{ASTValue, Config, ConfigBuilder, ConfigValue, Field, Key, ObjectValue, StringValue}
-import laika.ast.{Document, SpanSequence, TreeCursor}
+import laika.ast.{Document, DocumentTree, Path, SpanSequence, TreeCursor, TreePosition}
 
 /** A resolver for context references in templates or markup documents.
  *  
@@ -36,29 +36,61 @@ case class ReferenceResolver (config: Config) {
 object ReferenceResolver {
   
   private val emptyTitle: SpanSequence = SpanSequence.empty
+
+  // cannot use existing cursor-base sibling navigation here as the cursor hierarchy is under construction when this is called
+  private class Siblings (documents: Vector[Document], refPath: Path) {
+    val currentIndex: Int = documents.indexWhere(_.path == refPath)
+    def previousDocument: Option[Document] = if (currentIndex <= 0) None else Some(documents(currentIndex - 1))
+    def nextDocument: Option[Document] = 
+      if (documents.isEmpty || currentIndex + 1 == documents.size) None else Some(documents(currentIndex + 1))
+  }
   
-  /** Creates a new ReferenceResolver for the specified
-   *  document and its parent and configuration.
+  /** Creates a new ReferenceResolver for the specified document and its parent and configuration.
    */
-  def forDocument(document: Document, parent: TreeCursor, config: Config): ReferenceResolver =
-    apply(ConfigBuilder
+  def forDocument(document: Document, parent: TreeCursor, config: Config, position: TreePosition): ReferenceResolver = {
+
+    val baseBuilder = ConfigBuilder
       .withFallback(config)
       .withValue("document", ObjectValue(Seq(
         Field("path", StringValue(document.path.toString)),
         Field("content", ASTValue(document.content), config.origin),
         Field("title", ASTValue(document.title.getOrElse(emptyTitle)), config.origin),
-        Field("fragments", ObjectValue(document.fragments.toSeq.map { 
-          case (name, element) => Field(name, ASTValue(element), config.origin) 
+        Field("fragments", ObjectValue(document.fragments.toSeq.map {
+          case (name, element) => Field(name, ASTValue(element), config.origin)
         }), config.origin)
-      )))
-      .withValue("parent", ObjectValue(Seq(
-         Field("path", StringValue(parent.path.toString)), 
-         Field("title", ASTValue(parent.target.title.getOrElse(emptyTitle))) 
       )))
       .withValue("root", ObjectValue(Seq(
         Field("title", ASTValue(parent.root.target.title.getOrElse(emptyTitle)))
       )))
-      .build
-    )
+
+    def collectSiblings (tree: DocumentTree): Vector[Document] = tree.content.toVector.flatMap { 
+      case d: Document => Some(d)
+      case t: DocumentTree => t.titleDocument
+    }
+    
+    val flattenedSiblings = new Siblings(parent.root.target.allDocuments.toVector, document.path)
+    val hierarchicalSiblings =
+      if (parent.target.titleDocument.map(_.path).contains(document.path))
+        new Siblings(parent.parent.map(_.target).toVector.flatMap(collectSiblings), document.path)
+      else 
+        new Siblings(collectSiblings(parent.target), document.path)
+
+    def addDocConfig (key: String, doc: Option[Document])(builder: ConfigBuilder): ConfigBuilder =
+      doc.fold(builder) { doc =>
+        builder.withValue(key, ObjectValue(Seq(
+          Field("absolutePath", StringValue(doc.path.toString)),
+          Field("relativePath", StringValue(doc.path.relativeTo(document.path).toString)),
+          Field("title", ASTValue(doc.title.getOrElse(emptyTitle)))
+        )))
+      }
+    
+    val addSiblings = (addDocConfig("parentDocument", parent.target.titleDocument)(_))
+      .andThen(addDocConfig("previousDocument", hierarchicalSiblings.previousDocument))
+      .andThen(addDocConfig("nextDocument", hierarchicalSiblings.nextDocument))
+      .andThen(addDocConfig("flattenedSiblings.previousDocument", flattenedSiblings.previousDocument))
+      .andThen(addDocConfig("flattenedSiblings.nextDocument", flattenedSiblings.nextDocument))
+
+    apply(addSiblings(baseBuilder).build)
+  }
   
 }
