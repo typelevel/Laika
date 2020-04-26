@@ -648,7 +648,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
   "The template nav directive" should "produce two manual entries" in new TreeModel with NavModel {
 
     val template =
-      """aaa @:nav { 
+      """aaa @:navigationTree { 
         |  entries = [
         |    { title = Link 1, target = "http://domain-1.com/"}
         |    { title = Link 2, target = "http://domain-2.com/"} 
@@ -663,7 +663,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
   it should "produce a manual entry and a generated entry" in new TreeModel with NavModel {
 
     val template =
-      """aaa @:nav { 
+      """aaa @:navigationTree { 
         |  entries = [
         |    { title = Link 1, target = "http://domain-1.com/"}
         |    { target = "#" }
@@ -678,7 +678,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
   it should "produce an entry generated from the root of the tree" in new TreeModel with NavModel {
 
     val template =
-      """aaa @:nav { 
+      """aaa @:navigationTree { 
         |  entries = [
         |    { target = "/" }
         |  ] 
@@ -692,7 +692,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
     override val hasTitleDocs: Boolean = true
 
     val template =
-      """aaa @:nav { 
+      """aaa @:navigationTree { 
         |  entries = [
         |    { target = "/" }
         |  ] 
@@ -704,7 +704,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
   it should "produce an entry generated from the current tree" in new TreeModel with NavModel {
 
     val template =
-      """aaa @:nav { 
+      """aaa @:navigationTree { 
         |  entries = [
         |    { target = "." }
         |  ] 
@@ -718,7 +718,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
     override def maxLevels: Int = 2
 
     val template =
-      """aaa @:nav { 
+      """aaa @:navigationTree { 
         |  entries = [
         |    { target = ".", depth = 2 }
         |  ] 
@@ -730,7 +730,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
   it should "produce an entry generated from the current tree with the root excluded" in new TreeModel with NavModel {
 
     val template =
-      """aaa @:nav { 
+      """aaa @:navigationTree { 
         |  entries = [
         |    { target = ".", excludeRoot = true }
         |  ] 
@@ -744,7 +744,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
     override def excludeSections: Boolean = true
 
     val template =
-      """aaa @:nav { 
+      """aaa @:navigationTree { 
         |  entries = [
         |    { target = ".", excludeSections = true }
         |  ] 
@@ -756,7 +756,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
   it should "produce an entry generated from the current document" in new TreeModel with NavModel {
 
     val template =
-      """aaa @:nav { 
+      """aaa @:navigationTree { 
         |  entries = [
         |    { target = "#" }
         |  ] 
@@ -768,7 +768,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
   it should "produce an entry generated from the current document with a custom title" in new TreeModel with NavModel {
 
     val template =
-      """aaa @:nav { 
+      """aaa @:navigationTree { 
         |  entries = [
         |    { target = "#", title = Custom }
         |  ] 
@@ -780,7 +780,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
   it should "produce an entry generated from a document referred to with an absolute path" in new TreeModel with NavModel {
 
     val template =
-      """aaa @:nav { 
+      """aaa @:navigationTree { 
         |  entries = [
         |    { target = "/sub1/doc3" }
         |  ] 
@@ -791,7 +791,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
 
   it should "fail when referring to a path that does not exist" in new TreeModel with NavModel {
 
-    val directive = """@:nav {
+    val directive = """@:navigationTree {
                       |  entries = [
                       |   { target = "/sub2/doc99" }
                       |  ]
@@ -800,13 +800,13 @@ class StandardDirectiveSpec extends AnyFlatSpec
     val template =
       s"""aaa $directive bbb $${document.content}""".stripMargin
 
-    val msg = "One or more errors processing directive 'nav': One or more errors generating navigation: Unable to resolve document or tree with path: /sub2/doc99"
+    val msg = "One or more errors processing directive 'navigationTree': One or more errors generating navigation: Unable to resolve document or tree with path: /sub2/doc99"
     parseTemplateAndRewrite(template) should be (error(msg, directive))
   }
 
   it should "fail with an invalid depth attribute" in new TreeModel with NavModel {
 
-    val directive = """@:nav {
+    val directive = """@:navigationTree {
                       |  entries = [
                       |   { target = "/", depth = foo }
                       |  ]
@@ -815,13 +815,13 @@ class StandardDirectiveSpec extends AnyFlatSpec
     val template =
       s"""aaa $directive bbb $${document.content}""".stripMargin
 
-    val msg = "One or more errors processing directive 'nav': One or more errors decoding array elements: not an integer: foo"
+    val msg = "One or more errors processing directive 'navigationTree': One or more errors decoding array elements: not an integer: foo"
     parseTemplateAndRewrite(template) should be (error(msg, directive))
   }
 
   it should "fail with a manual node without title" in new TreeModel with NavModel {
 
-    val directive = """@:nav {
+    val directive = """@:navigationTree {
                       |  entries = [
                       |   { target = "http://foo.bar" }
                       |  ]
@@ -830,7 +830,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
     val template =
       s"""aaa $directive bbb $${document.content}""".stripMargin
 
-    val msg = "One or more errors processing directive 'nav': One or more errors decoding array elements: Not found: 'title'"
+    val msg = "One or more errors processing directive 'navigationTree': One or more errors decoding array elements: Not found: 'title'"
     parseTemplateAndRewrite(template) should be (error(msg, directive))
   }
 
@@ -839,7 +839,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
     val input =
       """aaa
         |
-        |@:nav { 
+        |@:navigationTree { 
         |  entries = [
         |    { title = Link 1, target = "http://domain-1.com/"}
         |    { title = Link 2, target = "http://domain-2.com/"} 
@@ -909,7 +909,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
     val input =
       """aaa
         |
-        |@:nav { 
+        |@:navigationTree { 
         |  entries = [
         |    { target = "../sub1/doc3" }
         |  ] 

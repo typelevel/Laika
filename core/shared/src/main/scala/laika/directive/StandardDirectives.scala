@@ -303,9 +303,9 @@ object StandardDirectives extends DirectiveRegistry {
                                    target: Option[ExternalTarget] = None, 
                                    children: Seq[NavigationNodeConfig] = Nil) extends NavigationNodeConfig
 
-  /** Implementation of the `nav` directive for templates.
+  /** Implementation of the `navigationTree` directive for templates.
     */
-  lazy val templateNav: Templates.Directive  = Templates.eval("nav") {
+  lazy val templateNav: Templates.Directive  = Templates.eval("navigationTree") {
 
     import Templates.dsl._
 
@@ -316,9 +316,9 @@ object StandardDirectives extends DirectiveRegistry {
     }
   }
 
-  /** Implementation of the `nav` directive for block elements in markup documents.
+  /** Implementation of the `navigationTree` directive for block elements in markup documents.
     */
-  lazy val blockNav: Blocks.Directive  = Blocks.eval("nav") {
+  lazy val blockNav: Blocks.Directive  = Blocks.eval("navigationTree") {
 
     import Blocks.dsl._
 
@@ -361,7 +361,7 @@ object StandardDirectives extends DirectiveRegistry {
     }
   }
 
-  @deprecated("use @:nav directive instead", "0.15.0")
+  @deprecated("use @:navigationTree directive instead", "0.15.0")
   lazy val templateToc: Templates.Directive  = Templates.create("toc") {
 
     import Templates.dsl._
@@ -375,7 +375,7 @@ object StandardDirectives extends DirectiveRegistry {
     }
   }
 
-  @deprecated("use @:nav directive instead", "0.15.0")
+  @deprecated("use @:navigationTree directive instead", "0.15.0")
   lazy val blockToc: Blocks.Directive  = Blocks.create("toc") {
 
     import Blocks.dsl._
