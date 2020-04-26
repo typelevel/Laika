@@ -27,6 +27,7 @@ import laika.io.binary
 import laika.io.text.ParallelRenderer
 import laika.io.text.SequentialRenderer
 import laika.io.model._
+import laika.rewrite.nav.TitleDocumentConfig
 
 /** Internal runtime for renderer operations, for text and binary output as well
   * as parallel and sequential execution. 
@@ -109,7 +110,7 @@ object RendererRuntime {
 
       Runtime[F].runParallel(ops.toVector).map { results =>
 
-        val titleName = finalRoot.config.getOpt[String]("titleDocuments.outputName").toOption.flatten.getOrElse("title")
+        val titleName = TitleDocumentConfig.outputName(finalRoot.config)
         val renderedDocs = results.collect { case Right(doc) => doc }
         val coverDoc = renderedDocs.collectFirst {
           case doc if doc.path.parent == Root && doc.path.basename == "cover" => doc

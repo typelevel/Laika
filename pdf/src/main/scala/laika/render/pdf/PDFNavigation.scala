@@ -20,6 +20,7 @@ import laika.ast._
 import laika.config.ConfigBuilder
 import laika.format.PDF
 import laika.io.model.RenderedTreeRoot
+import laika.rewrite.nav.TitleDocumentConfig
 
 /** Prepares a document tree for the PDF rendering step by inserting all enabled navigation elements, 
   * like PDF bookmarks or table of contents.
@@ -29,22 +30,21 @@ import laika.io.model.RenderedTreeRoot
 object PDFNavigation {
 
   object DocNames {
-    val treeTitle = "title"
     val toc = "_toc_"
   }
   
   /** Adds link targets for each tree and subtree in the specified root tree
     * that does not already contain a title document.
     */
-  def addTreeLinks (tree: DocumentTree): DocumentTree = {
+  def addTreeLinks (tree: DocumentTree, titleName: String): DocumentTree = {
     val newContent = tree.content map {
-      case t: DocumentTree => addTreeLinks(t)
+      case t: DocumentTree => addTreeLinks(t, titleName)
       case d: Document => d
     }
     val titleDoc = tree.titleDocument.orElse {
       if (tree.isEmpty) None
       else Some(Document(
-        path = tree.path / DocNames.treeTitle,
+        path = tree.path / titleName,
         content = RootElement(InternalLinkTarget(Id(""))),
         config = ConfigBuilder.empty.withValue("title", tree.title.fold(tree.name)(_.extractText)).build
       ))
@@ -109,7 +109,7 @@ object PDFNavigation {
   def prepareTree (root: DocumentTreeRoot, config: PDF.Config): DocumentTreeRoot = {
     val withLinks = 
       if (config.bookmarkDepth == 0 && config.tocDepth == 0) root.tree
-      else addTreeLinks(addDocLinks(root.tree))
+      else addTreeLinks(addDocLinks(root.tree), TitleDocumentConfig.inputName(root.config))
     val finalTree = if (config.tocDepth > 0) insertToc(withLinks, config.tocDepth, config.tocTitle) else withLinks
     root.copy(tree = finalTree)
   }

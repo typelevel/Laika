@@ -181,7 +181,7 @@ object TreeCursor {
     
 }
 
-/** Cursor for a single document, its parent and root directories,
+/** Cursor for a single document, its parent, siblings and root directories,
  *  its associated template and other context information that
  *  is required during a rewrite operation.
  *  
@@ -259,14 +259,14 @@ case class DocumentCursor (target: Document,
     new Siblings(siblingDocs)
   }
   
-  /** The previous document in a hierarchical tree view or None if this is the cursor points to the first document
+  /** The previous document in a hierarchical tree view or None if this cursor points to the first document
     * in the current sub-tree.
     * Use `flattenedSiblings.previousDocument` for navigation beyond the current sub-tree in a book-like flattened
     * view.
     */
   def previousDocument: Option[DocumentCursor] = hierarchicalSiblings.previousDocument
 
-  /** The next document in a hierarchical tree view or None if this is the cursor points to the last document
+  /** The next document in a hierarchical tree view or None if this cursor points to the last document
     * in the current sub-tree.
     * Use `flattenedSiblings.nextDocument` for navigation beyond the current sub-tree in a book-like flattened
     * view.

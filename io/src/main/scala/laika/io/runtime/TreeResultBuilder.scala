@@ -24,6 +24,7 @@ import laika.ast.{Document, DocumentTree, DocumentTreeRoot, Navigatable, Path, S
 import cats.implicits._
 import laika.config.Config.IncludeMap
 import laika.config.Origin.{DocumentScope, TreeScope}
+import laika.rewrite.nav.TitleDocumentConfig
 
 /**
   * @author Jens Halm
@@ -78,7 +79,7 @@ object TreeResultBuilder {
     }
     
     resolvedConfig.flatMap { treeConfig =>
-      val titleName = titleDocName.getOrElse(treeConfig.getOpt[String]("titleDocuments.inputName").toOption.flatten.getOrElse("title"))
+      val titleName = titleDocName.getOrElse(TitleDocumentConfig.inputName(treeConfig))
       def isTitleDoc (doc: TreeContent): Boolean = doc.path.basename == titleName
       val resolvedContent = result.content.toVector.traverse(
         _.fold(resolveConfig(_, treeConfig, includes), resolveConfig(_, treeConfig, includes, Some(titleName)))
