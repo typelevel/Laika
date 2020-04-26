@@ -233,7 +233,7 @@ case class DocumentCursor (target: Document,
 
     /** The previous document in a flattened tree view or None if this is the cursor points to the first document.
       */
-    def previousDocument: Option[DocumentCursor] = if (currentIndex == 0) None else Some(documents(currentIndex - 1))
+    def previousDocument: Option[DocumentCursor] = if (currentIndex <= 0) None else Some(documents(currentIndex - 1))
 
     /** The next document in a flattened tree view or None if this is the cursor points to the last document.
       */
@@ -245,8 +245,19 @@ case class DocumentCursor (target: Document,
     */
   def flattenedSiblings: Siblings = new Siblings(root.allDocuments.toVector)
   
-  private lazy val hierarchicalSiblings: Siblings = 
-    new Siblings(parent.children.toVector.collect { case dc: DocumentCursor => dc } )
+  private lazy val hierarchicalSiblings: Siblings = {
+    
+    def collectSiblings (tree: TreeCursor): Vector[DocumentCursor] = tree.children.toVector.flatMap { 
+      case d: DocumentCursor => Some(d)
+      case t: TreeCursor => t.titleDocument
+    }
+    
+    val siblingDocs =
+      if (parent.titleDocument.map(_.path).contains(path)) parent.parent.toVector.flatMap(collectSiblings)
+      else collectSiblings(parent)
+    
+    new Siblings(siblingDocs)
+  }
   
   /** The previous document in a hierarchical tree view or None if this is the cursor points to the first document
     * in the current sub-tree.
@@ -302,6 +313,6 @@ object DocumentCursor {
     * its parent, configuration and position within the document tree.
     */
   def apply (document: Document, parent: TreeCursor, config: Config, position: TreePosition): DocumentCursor =
-    apply(document, parent, ReferenceResolver.forDocument(document, parent, config), config, position)
+    apply(document, parent, ReferenceResolver.forDocument(document, parent, config, position), config, position)
     
 }
