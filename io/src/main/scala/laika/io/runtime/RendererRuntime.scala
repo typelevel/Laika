@@ -108,6 +108,8 @@ object RendererRuntime {
     def processBatch (finalRoot: DocumentTreeRoot, ops: Seq[F[RenderResult]], staticDocs: Seq[BinaryInput[F]]): F[RenderedTreeRoot[F]] =
 
       Runtime[F].runParallel(ops.toVector).map { results =>
+
+        val titleName = finalRoot.config.getOpt[String]("titleDocuments.outputName").toOption.flatten.getOrElse("title")
         val renderedDocs = results.collect { case Right(doc) => doc }
         val coverDoc = renderedDocs.collectFirst {
           case doc if doc.path.parent == Root && doc.path.basename == "cover" => doc
@@ -116,7 +118,7 @@ object RendererRuntime {
         def buildNode (path: Path, content: Seq[RenderContent]): RenderedTree = {
           val title = finalRoot.tree.selectSubtree(path.relative).flatMap(_.title)
           val titleDoc = content.collectFirst {
-            case doc: RenderedDocument if doc.path.basename == "title" => doc
+            case doc: RenderedDocument if doc.path.basename == titleName => doc
           }
           RenderedTree(path, title, content.filterNot(doc => titleDoc.exists(_.path == doc.path)), titleDoc)
         }
