@@ -20,7 +20,7 @@ import java.io.File
 
 import laika.config.{Config, ConfigError, ConfigParser, Origin}
 import laika.ast.Path.Root
-import laika.ast.{Document, DocumentTree, DocumentTreeRoot, Navigatable, Path, StyleDeclarationSet, TemplateDocument, TreeBuilder, UnresolvedDocument}
+import laika.ast.{Document, DocumentTree, DocumentTreeRoot, Navigatable, Path, StyleDeclarationSet, TemplateDocument, TreeBuilder, TreeContent, UnresolvedDocument}
 import cats.implicits._
 import laika.config.Config.IncludeMap
 import laika.config.Origin.{DocumentScope, TreeScope}
@@ -59,36 +59,35 @@ object TreeResultBuilder {
 
   def buildNode (path: Path, content: Seq[ParserResult]): TreeResult = {
     
-    def isTitleDoc (doc: Document): Boolean = doc.path.basename == "title"
-    
-    val titleDoc = content.collectFirst { case MarkupResult(doc,_) if isTitleDoc(doc.document) => doc }
     val subTrees = content.collect { case tree: TreeResult => Right(tree) }.sortBy(_.toOption.get.path.name)
-    val treeContent = content.collect { case MarkupResult(doc,_) if !isTitleDoc(doc.document) => Left(doc) } ++ subTrees
+    val treeContent = content.collect { case MarkupResult(doc,_) => Left(doc) } ++ subTrees
     val templates = content.collect { case TemplateResult(doc,_) => doc }
 
     val treeConfig = content.collect { case c: ConfigResult => c }
 
-    TreeResult(path, treeContent, titleDoc, templates, treeConfig)
+    TreeResult(path, treeContent, None, templates, treeConfig)
   }
 
   def resolveConfig (doc: UnresolvedDocument, baseConfig: Config, includes: IncludeMap): Either[ConfigError, Document] =
     doc.config.resolve(Origin(DocumentScope, doc.document.path), baseConfig, includes).map(config => doc.document.copy(config = config))
   
-  def resolveConfig (result: TreeResult, baseConfig: Config, includes: IncludeMap): Either[ConfigError, DocumentTree] = {
-    
+  def resolveConfig (result: TreeResult, baseConfig: Config, includes: IncludeMap, titleDocName: Option[String] = None): Either[ConfigError, DocumentTree] = {
+
     val resolvedConfig = result.configs.foldLeft[Either[ConfigError, Config]](Right(baseConfig)) {
       case (acc, unresolved) => acc.flatMap(base => unresolved.config.resolve(Origin(TreeScope, unresolved.path), base, includes))
     }
     
     resolvedConfig.flatMap { treeConfig =>
+      val titleName = titleDocName.getOrElse(treeConfig.getOpt[String]("titleDocuments.inputName").toOption.flatten.getOrElse("title"))
+      def isTitleDoc (doc: TreeContent): Boolean = doc.path.basename == titleName
       val resolvedContent = result.content.toVector.traverse(
-        _.fold(resolveConfig(_, treeConfig, includes), resolveConfig(_, treeConfig, includes))
+        _.fold(resolveConfig(_, treeConfig, includes), resolveConfig(_, treeConfig, includes, Some(titleName)))
       )
       
       for {
         content <- resolvedContent
-        title   <- result.titleDoc.map(resolveConfig(_, baseConfig, includes)).sequence
-      } yield DocumentTree(result.path, content, title, result.templates, treeConfig)
+        title   = content.collectFirst { case d: Document if isTitleDoc(d) => d }
+      } yield DocumentTree(result.path, content.filterNot(isTitleDoc), title, result.templates, treeConfig)
     }
   }
 
