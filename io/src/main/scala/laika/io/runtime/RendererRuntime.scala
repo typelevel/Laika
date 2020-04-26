@@ -72,7 +72,7 @@ object RendererRuntime {
     def file (rootDir: File, path: Path): File = new File(rootDir, path.toString.drop(1))
 
     def renderDocuments (finalRoot: DocumentTreeRoot, styles: StyleDeclarationSet)(output: Path => TextOutput[F]): Seq[F[RenderResult]] = finalRoot.allDocuments.map { document =>
-      val outputPath = document.path.withSuffix(fileSuffix)
+      val outputPath = TitleDocumentConfig.inputToOutput(document.path, fileSuffix, finalRoot.config)
       val textOp = SequentialRenderer.Op(op.renderer, document.content, outputPath, output(outputPath))
       run(textOp, Some(styles)).map { res =>
         Right(RenderedDocument(outputPath, document.title, document.sections, res)): RenderResult

@@ -16,6 +16,7 @@
 
 package laika.rewrite.nav
 
+import laika.ast.Path
 import laika.config.Config
 
 /** Configuration for the names of title documents in the input and output trees.
@@ -36,5 +37,18 @@ object TitleDocumentConfig {
     */
   def outputName (config: Config): String =
     config.get[String]("titleDocuments.outputName").toOption.getOrElse(defaultOutputName)
+
+  /** Translates the specified input path to an output path by applying the given suffix
+    * and adjusting the base name in case it is a title document and configured input and output names differ. 
+    * 
+    * @param input the path to translate
+    * @param suffix the suffix to apply to the result
+    * @param config the configuration to read configured title document names from
+    * @return the translated path that can be used by renderers
+    */
+  def inputToOutput (input: Path, suffix: String, config: Config): Path = {
+    if (input.basename == inputName(config)) (input.parent / outputName(config)).withSuffix(suffix)
+    else input.withSuffix(suffix)
+  }
   
 }
