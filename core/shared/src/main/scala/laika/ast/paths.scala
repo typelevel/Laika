@@ -117,6 +117,11 @@ sealed trait Path extends PathBase {
     */
   def depth: Int
 
+  /** Returns a new path that replaces the base name with the specified
+    * new name while keeping both, suffix and fragment, in case they are present.
+    */
+  def withBasename (name: String): Path = this
+  
   /** Returns a new path that either replaces the existing suffix
     * with the specified one or appends it if this path does not have a suffix yet.
     */
@@ -206,6 +211,7 @@ case class SegmentedPath (segments: NonEmptyChain[String], suffix: Option[String
     case SegmentedPath(otherSegments, _, _) => segments.toList.startsWith(otherSegments.toList)
   } 
   
+  override def withBasename (name: String): Path = copy(segments = NonEmptyChain.fromChainAppend(segments.init, name))
   override def withSuffix (newSuffix: String): Path = copy(suffix = Some(newSuffix))
   override def withFragment (newFragment: String): Path = copy(fragment = Some(newFragment))
   override def withoutSuffix: Path = copy(suffix = None)
@@ -288,6 +294,11 @@ sealed trait RelativePath extends PathBase {
     */
   def / (path: RelativePath): RelativePath
 
+  /** Returns a new path that replaces the base name with the specified
+    * new name while keeping both, suffix and fragment, in case they are present.
+    */
+  def withBasename (name: String): RelativePath = this
+  
   /** Returns a new path that either replaces the existing suffix
     * with the specified one or appends it if this path does not have a suffix yet.
     */
@@ -339,6 +350,7 @@ case class SegmentedRelativePath(segments: NonEmptyChain[String],
     }
   }
 
+  override def withBasename (name: String): RelativePath = copy(segments = NonEmptyChain.fromChainAppend(segments.init, name))
   override def withSuffix (newSuffix: String): RelativePath = copy(suffix = Some(newSuffix))
   override def withFragment (newFragment: String): RelativePath = copy(fragment = Some(newFragment))
   override def withoutSuffix: RelativePath = copy(suffix = None)

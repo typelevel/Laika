@@ -182,6 +182,92 @@ class PathAPISpec extends AnyWordSpec
     
   }
 
+  "The basename property" should {
+
+    "be / for Root" in {
+      Root.basename shouldBe "/"
+    }
+
+    "be . for CurrentTree" in {
+      CurrentTree.basename shouldBe "."
+    }
+
+    "be empty for CurrentDocument" in {
+      CurrentDocument("ref").basename shouldBe ""
+    }
+
+    "be ../ for Parent(1)" in {
+      Parent(1).basename shouldBe "../"
+    }
+
+    "be defined for an absolute path without suffix" in {
+      abs_a.basename shouldBe "a"
+    }
+
+    "be defined for a relative path without suffix" in {
+      rel_a.basename shouldBe "a"
+    }
+
+    "be defined for an absolute path with suffix" in {
+      (abs_c / "foo.jpg").basename shouldBe "foo"
+    }
+
+    "be defined for an absolute path with suffix and fragment" in {
+      (abs_c / "foo.jpg#baz").basename shouldBe "foo"
+    }
+
+    "be defined for a relative path with suffix" in {
+      (rel_c / "foo.jpg").basename shouldBe "foo"
+    }
+
+    "be defined for a relative path with suffix and fragment" in {
+      (rel_c / "foo.jpg#baz").basename shouldBe "foo"
+    }
+
+    "be updated after calling withBasename on an absolute path without suffix" in {
+      val result = abs_c.withBasename("d")
+      result.toString shouldBe "/a/b/d"
+      result.name shouldBe "d"
+      result.basename shouldBe "d"
+    }
+
+    "be updated after calling withBasename on a relative path without suffix" in {
+      val result = rel_c.withBasename("d")
+      result.toString shouldBe "a/b/d"
+      result.name shouldBe "d"
+      result.basename shouldBe "d"
+    }
+
+    "be updated after calling withBasename on an absolute path with suffix" in {
+      val result = (abs_c / "foo.jpg").withBasename("bar")
+      result.toString shouldBe "/a/b/c/bar.jpg"
+      result.name shouldBe "bar.jpg"
+      result.basename shouldBe "bar"
+    }
+
+    "be updated after calling withBasename on an absolute path with suffix and with fragment" in {
+      val result = (abs_c / "foo.jpg#baz").withBasename("bar")
+      result.toString shouldBe "/a/b/c/bar.jpg#baz"
+      result.name shouldBe "bar.jpg"
+      result.basename shouldBe "bar"
+    }
+
+    "be updated after calling withBasename on a relative path with suffix" in {
+      val result = (rel_c / "foo.jpg").withBasename("bar")
+      result.toString shouldBe "a/b/c/bar.jpg"
+      result.name shouldBe "bar.jpg"
+      result.basename shouldBe "bar"
+    }
+
+    "be updated after calling withBasename on a relative path with suffix with fragment" in {
+      val result = (rel_c / "foo.jpg#baz").withBasename("bar")
+      result.toString shouldBe "a/b/c/bar.jpg#baz"
+      result.name shouldBe "bar.jpg"
+      result.basename shouldBe "bar"
+    }
+    
+  }
+
   "The suffix property" should {
 
     "be empty for Root" in {
