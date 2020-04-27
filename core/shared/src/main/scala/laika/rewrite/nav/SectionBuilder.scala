@@ -30,11 +30,25 @@ import scala.collection.mutable.ListBuffer
 object SectionBuilder extends (DocumentCursor => RewriteRules) {
 
   
-  class DefaultRule (cursor: DocumentCursor) { 
+  class DefaultRule (cursor: DocumentCursor) {
+
+    val (errorBlock, autonumberConfig) = AutonumberConfig.fromConfig(cursor.config).fold(
+      error => (Some(InvalidElement(error.message, "").asBlock), AutonumberConfig.defaults),
+      (None, _)
+    )
     
-    class Builder (header:Header, id: String) {
+    def addNumber (spans: Seq[Span], position: TreePosition): Seq[Span] = position.toSpan +: spans
     
-      val styledHeader: Header = header.copy(options = header.options + Style.section)
+    class Builder (header: Header, id: String, val position: TreePosition) {
+    
+      val titleWithNumber: Seq[Span] = 
+        if (autonumberConfig.sections && position.depth <= autonumberConfig.maxDepth) addNumber(header.content, position)
+        else header.content
+      
+      val styledHeader: Header = header.copy(
+        content = titleWithNumber,
+        options = header.options + Style.section
+      )
       
       private val buffer = new ListBuffer[Block]
       
@@ -47,13 +61,6 @@ object SectionBuilder extends (DocumentCursor => RewriteRules) {
     }
     
     def buildSections (document: RootElement): RootElement = {
-
-      val (errorBlock, autonumberConfig) = AutonumberConfig.fromConfig(cursor.config).fold(
-        error => (Some(InvalidElement(error.message, "").asBlock), AutonumberConfig.defaults),
-        (None, _)
-      )
-
-      def addNumber (spans: Seq[Span], position: TreePosition): Seq[Span] = position.toSpan +: spans
 
       val docPosition = if (autonumberConfig.documents) cursor.position else TreePosition.root
       
@@ -74,18 +81,24 @@ object SectionBuilder extends (DocumentCursor => RewriteRules) {
       val sectionStructure: Seq[Block] = {
         
         val stack = new Stack[Builder]
-        stack.push(new Builder(Header(0,Nil), "")) 
+        stack.push(new Builder(Header(0,Nil), "", docPosition)) 
         
-        def closeSections (toLevel: Int): Unit = {
+        def closeSections (toLevel: Int): Int = {
+          var nextPos = 1
           while (stack.nonEmpty && stack.top >= toLevel) {
-            val section = stack.pop.toSection
-            stack.top += section
+            val section = stack.pop
+            nextPos = section.position.toSeq.last + 1
+            stack.top += section.toSection
           }
+          nextPos
         }
 
         rest.foreach { 
-          case h @ Header(level, _, Id(id)) => closeSections(level); stack.push(new Builder(h, id))
-          case block                        => stack.top += block
+          case h @ Header(level, _, Id(id)) => 
+            val nextPos = closeSections(level)
+            stack.push(new Builder(h, id, stack.top.position.forChild(nextPos)))
+          case block => 
+            stack.top += block
         }
     
         closeSections(1)
@@ -93,32 +106,7 @@ object SectionBuilder extends (DocumentCursor => RewriteRules) {
         stack.pop.toSection.content
       }
       
-      val numberedSections: Seq[Block] = {
-        
-        def numberSection (s: Section, position: TreePosition): Section = s.copy(
-          header = s.header.copy(
-              content = addNumber(s.header.content, position), 
-              options = s.header.options + Style.section
-          ),
-          content = numberSections(s.content, position)
-        )  
-        
-        def numberSections (blocks: Seq[Block], parentPosition: TreePosition): Seq[Block] = {
-          blocks.foldLeft((ListBuffer[Block](), 1)) {
-            case ((acc, num), s: Section) =>
-              val element =
-                if (parentPosition.depth < autonumberConfig.maxDepth) numberSection(s, parentPosition.forChild(num))
-                else s
-              (acc += element, num + 1)
-            case ((acc, num), block) => (acc += block, num)
-          }._1.toList
-        }
-        
-        if (autonumberConfig.sections) numberSections(sectionStructure, docPosition)
-        else sectionStructure
-      }
-      
-      RootElement(errorBlock.toSeq ++ titleSection ++ numberedSections)
+      RootElement(errorBlock.toSeq ++ titleSection ++ sectionStructure)
     }
 
     val rewrite: RewriteRules = RewriteRules.forBlocks { 
