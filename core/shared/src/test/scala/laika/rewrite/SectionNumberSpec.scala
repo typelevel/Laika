@@ -160,98 +160,49 @@ class SectionNumberSpec extends AnyFlatSpec
     }
   }
 
-  trait SectionsWithoutTitle extends TreeModel {
-    def sections = RootElement(
-      header(1,1) ::
-      header(2,2) ::
-      header(1,3) ::
-      header(2,4) ::
-      Nil
-    )
-
-    def resultView (docNum: List[Int]): List[DocumentContent] = List(
-      Content(List(
-        numberedSection(1,1, docNum:+1, numberedSection(2,2, docNum:+1:+1)),
-        numberedSection(1,3, docNum:+2, numberedSection(2,4, docNum:+2:+1))
-      )),
-      Sections(List(
-        numberedSectionInfo(1,1, docNum:+1, numberedSectionInfo(2,2, docNum:+1:+1)),
-        numberedSectionInfo(1,3, docNum:+2, numberedSectionInfo(2,4, docNum:+2:+1))
-      ))
-    )
-
-    lazy val expected: TreeView = treeView(resultView)
-    lazy val result: TreeView = {
-      val docTree = tree(sections)
-      viewOf(docTree.rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(docTree))))
-    }
-  }
-
-  trait SectionsWithConfigError extends SectionsWithoutTitle {
+  trait SectionsWithConfigError extends SectionsWithTitle {
     override def resultView (docNum: List[Int]): List[DocumentContent] = List(
       Content(List(
         InvalidElement("Invalid value for autonumbering.scope: xxx", "").asBlock,
-        numberedSection(1,1, docNum:+1, numberedSection(2,2, docNum:+1:+1)),
-        numberedSection(1,3, docNum:+2, numberedSection(2,4, docNum:+2:+1))
+        laika.ast.Title(numberedHeader(1,1, docNum, "title").content,Id("title-1") + Style.title),
+        numberedSection(2,2, docNum:+1, numberedSection(3,3, docNum:+1:+1)),
+        numberedSection(2,4, docNum:+2, numberedSection(3,5, docNum:+2:+1))
       )),
+      laika.ast.helper.DocumentViewBuilder.Title(numberedHeader(1,1, docNum, "title").content),
       Sections(List(
-        numberedSectionInfo(1,1, docNum:+1, numberedSectionInfo(2,2, docNum:+1:+1)),
-        numberedSectionInfo(1,3, docNum:+2, numberedSectionInfo(2,4, docNum:+2:+1))
+        numberedSectionInfo(2,2, docNum:+1, numberedSectionInfo(3,3, docNum:+1:+1)),
+        numberedSectionInfo(2,4, docNum:+2, numberedSectionInfo(3,5, docNum:+2:+1))
       ))
     )
   }
 
 
-  "The section numbering" should "number documents, sections and titles for a structure with title" in {
+  "The section numbering" should "number documents, sections and titles" in {
     new SectionsWithTitle with NumberAllConfig {
       result should be (expected)
     }
   }
 
-  it should "number documents and titles for a structure with title" in {
+  it should "number documents and titles" in {
     new SectionsWithTitle with NumberDocumentsConfig {
       result should be (expected)
     }
   }
 
-  it should "number sections only for a structure with title" in {
+  it should "number sections only" in {
     new SectionsWithTitle with NumberSectionsConfig {
       result should be (expected)
     }
   }
 
-  it should "number nothing for a structure with title" in {
+  it should "number nothing" in {
     new SectionsWithTitle with NumberNothingConfig {
       result should be (expected)
     }
   }
 
-  it should "number documents and sections for a structure without title" in {
-    new SectionsWithoutTitle with NumberAllConfig {
-      result should be (expected)
-    }
-  }
-
-  it should "number documents only for a structure without title" in {
-    new SectionsWithoutTitle with NumberDocumentsConfig {
-      result should be (expected)
-    }
-  }
-
-  it should "number sections only for a structure without title" in {
-    new SectionsWithoutTitle with NumberSectionsConfig {
-      result should be (expected)
-    }
-  }
-
-  it should "number nothing for a structure without title" in {
-    new SectionsWithoutTitle with NumberNothingConfig {
-      result should be (expected)
-    }
-  }
-
-  it should "number documents and sections two levels deep for a structure without title" in {
-    new SectionsWithoutTitle with NumberTwoLevels {
+  it should "number documents and sections two levels deep" in {
+    new SectionsWithTitle with NumberTwoLevels {
       override val depth = Some(2)
       result should be (expected)
     }

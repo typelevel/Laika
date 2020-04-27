@@ -383,7 +383,8 @@ class StandardDirectiveSpec extends AnyFlatSpec
       Header(level,List(Text("Section "+title)), Styles(style))
 
     val sectionsWithoutTitle = RootElement(
-      header(1,1) ::
+      Header(1, List(Text("Title")), Style.title) ::
+        header(1,1) ::
         header(2,2) ::
         header(1,3) ::
         header(2,4) ::
@@ -436,7 +437,9 @@ class StandardDirectiveSpec extends AnyFlatSpec
       TemplateRewriter.applyTemplates(DocumentTreeRoot(tree), "html").toOption.get.tree.selectDocument(CurrentTree / "sub2" / "doc6").get.content
     }
 
-    def markup = """# Headline 1
+    def markup = """# Title
+                   |
+                   |# Headline 1
                    |
                    |# Headline 2""".stripMargin
   }
@@ -547,6 +550,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
         TemplateElement(toc),
         t(" bbb "),
         EmbeddedRoot(
+          Title(List(Text("Title")), Id("title") + Style.title),
           Section(Header(1, List(Text("Headline 1")), Id("headline-1") + Style.section), Nil),
           Section(Header(1, List(Text("Headline 2")), Id("headline-2") + Style.section), Nil)
         )
@@ -555,6 +559,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
 
     def markupTocResult = root(
       BlockSequence(List(currentDoc), Style.legacyToc),
+      Title(List(Text("Title")), Id("title") + Style.title),
       Section(Header(1, List(Text("Headline 1")), Id("headline-1") + Style.section), Nil),
       Section(Header(1, List(Text("Headline 2")), Id("headline-2") + Style.section), Nil)
     )
@@ -619,6 +624,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
     }
 
     private val sections = Seq(
+      Title(List(Text("Title")), Id("title") + Style.title),
       Section(Header(1, List(Text("Section 1")), Id("section-1") + Style.section), Seq(
         Section(Header(2, List(Text("Section 2")), Id("section-2") + Style.section), Nil)
       )),
@@ -1002,6 +1008,8 @@ class StandardDirectiveSpec extends AnyFlatSpec
     new TreeModel with TocModel {
 
       override val markup = """@:toc
+                              |
+                              |# Title
                               |
                               |# Headline 1
                               |

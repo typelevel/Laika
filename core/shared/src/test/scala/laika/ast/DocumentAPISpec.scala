@@ -23,13 +23,13 @@ import laika.format.Markdown
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
-class DocumentAPISpec extends AnyFlatSpec 
-                      with Matchers
-                      with ModelBuilder {
+class DocumentAPISpec extends AnyFlatSpec
+  with Matchers
+  with ModelBuilder {
 
-  
+
   val parser = MarkupParser.of(Markdown).build
-  
+
   "The Document API" should "allow to specify a title in a config section" in {
     val markup = """{% title: Foo and Bar %}
       |
@@ -43,7 +43,7 @@ class DocumentAPISpec extends AnyFlatSpec
 
     parser.parse(markup).toOption.get.title should be (Some(SpanSequence("Foo and Bar")))
   }
-  
+
   it should "use the title from the first headline if it is not overridden in a config section" in {
     val markup = """# Title
       |
@@ -55,19 +55,15 @@ class DocumentAPISpec extends AnyFlatSpec
 
     parser.parse(markup).toOption.get.title should be (Some(SpanSequence("Title")))
   }
-  
+
   it should "return an empty list if there is neither a structure with a title nor a title in a config section" in {
-    val markup = """# Section 1
-      |
-      |Some text
-      |
-      |# Section 2
+    val markup = """Some text
       |
       |Some more text""".stripMargin
 
     parser.parse(markup).toOption.get.title should be (None)
   }
-  
+
   it should "produce the same result when rewriting a document once or twice" in {
     val markup = """# Section 1
       |
@@ -78,21 +74,23 @@ class DocumentAPISpec extends AnyFlatSpec
       |Some more text""".stripMargin
     
     val doc = parser.parseUnresolved(markup).toOption.get.document
-    
+
     val rewritten1 = doc.rewrite(OperationConfig.default.rewriteRulesFor(doc))
     val rewritten2 = rewritten1.rewrite(OperationConfig.default.rewriteRulesFor(rewritten1))
     rewritten1.content should be (rewritten2.content)
   }
-  
+
   it should "allow to rewrite the document using a custom rule" in {
-    val markup = """# Section 1
+    val markup = """# Title
+      |
+      |# Section 1
       |
       |Some text
       |
       |# Section 2
       |
       |Some more text""".stripMargin
-    
+
     val raw = parser.parseUnresolved(markup).toOption.get.document
     val cursor = DocumentCursor(raw)
     val testRule = RewriteRules.forSpans {
@@ -101,10 +99,11 @@ class DocumentAPISpec extends AnyFlatSpec
     val rules = testRule ++ OperationConfig.default.rewriteRulesFor(cursor.target)
     val rewritten = raw rewrite rules
     rewritten.content should be (root(
+      Title(List(Text("Title")), Id("title") + Style.title),
       Section(Header(1, List(Text("Section 1")), Id("section-1") + Style.section), List(p("Swapped"))),
       Section(Header(1, List(Text("Section 2")), Id("section-2") + Style.section), List(p("Some more text")))
     ))
   }
-  
-  
+
+
 }

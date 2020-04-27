@@ -30,7 +30,6 @@ class RewriteRulesSpec extends AnyWordSpec
   with Matchers
   with ModelBuilder {
 
-
   def rewritten (root: RootElement): RootElement = {
     val doc = Document(Path.Root / "doc", root, config = disableInternalLinkValidation)
     val rules = OperationConfig.default.rewriteRulesFor(doc)
@@ -430,18 +429,27 @@ class RewriteRulesSpec extends AnyWordSpec
   "The rewrite rules for decorated headers" should {
 
     "set the level of the header in a flat list of headers" in {
-      val rootElem = root(DecoratedHeader(Underline('#'), List(Text("Header 1"))),
-        DecoratedHeader(Underline('#'), List(Text("Header 2"))))
+      val rootElem = root(
+        DecoratedHeader(Underline('#'), List(Text("Title"))),
+        DecoratedHeader(Underline('#'), List(Text("Header 1"))),
+        DecoratedHeader(Underline('#'), List(Text("Header 2")))
+      )
       rewritten(rootElem) should be(root(
+        Title(List(Text("Title")), Id("title") + Style.title),
         Section(Header(1, List(Text("Header 1")), Id("header-1") + Style.section), Nil),
-        Section(Header(1, List(Text("Header 2")), Id("header-2") + Style.section), Nil)))
+        Section(Header(1, List(Text("Header 2")), Id("header-2") + Style.section), Nil)
+      ))
     }
 
     "set the level of the header in a nested list of headers" in {
-      val rootElem = root(DecoratedHeader(Underline('#'), List(Text("Header 1"))),
+      val rootElem = root(
+        DecoratedHeader(Underline('#'), List(Text("Title"))),
+        DecoratedHeader(Underline('#'), List(Text("Header 1"))),
         DecoratedHeader(Underline('-'), List(Text("Header 2"))),
-        DecoratedHeader(Underline('#'), List(Text("Header 3"))))
+        DecoratedHeader(Underline('#'), List(Text("Header 3")))
+      )
       rewritten(rootElem) should be(root(
+        Title(List(Text("Title")), Id("title") + Style.title),
         Section(Header(1, List(Text("Header 1")), Id("header-1") + Style.section), List(
           Section(Header(2, List(Text("Header 2")), Id("header-2") + Style.section), Nil))),
         Section(Header(1, List(Text("Header 3")), Id("header-3") + Style.section), Nil)))

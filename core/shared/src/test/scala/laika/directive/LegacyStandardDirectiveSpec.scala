@@ -249,6 +249,7 @@ class LegacyStandardDirectiveSpec extends AnyFlatSpec
       Header(level,List(Text("Section "+title)), Styles(style))
       
     val sectionsWithoutTitle = RootElement(
+      Header(1, List(Text("Title")), Style.title) ::
       header(1,1) ::
       header(2,2) ::
       header(1,3) ::
@@ -285,7 +286,9 @@ class LegacyStandardDirectiveSpec extends AnyFlatSpec
       TemplateRewriter.applyTemplates(DocumentTreeRoot(tree), "html").toOption.get.tree.selectDocument(CurrentTree / "sub2" / "doc7").get.content
     }
     
-    def markup = """# Headline 1
+    def markup = """# Title
+        |
+        |# Headline 1
         |
         |# Headline 2""".stripMargin
   }
@@ -395,6 +398,7 @@ class LegacyStandardDirectiveSpec extends AnyFlatSpec
         TemplateElement(toc),
         t(" bbb "),
         EmbeddedRoot(
+          Title(List(Text("Title")), Id("title") + Style.title),
           Section(Header(1, List(Text("Headline 1")), Id("headline-1") + Style.section), Nil),
           Section(Header(1, List(Text("Headline 2")), Id("headline-2") + Style.section), Nil)
         )
@@ -403,6 +407,7 @@ class LegacyStandardDirectiveSpec extends AnyFlatSpec
     
     def markupTocResult = root(
       BlockSequence(List(currentDoc), Style.legacyToc),
+      Title(List(Text("Title")), Id("title") + Style.title),
       Section(Header(1, List(Text("Headline 1")), Id("headline-1") + Style.section), Nil),
       Section(Header(1, List(Text("Headline 2")), Id("headline-2") + Style.section), Nil)
     )
@@ -489,6 +494,8 @@ class LegacyStandardDirectiveSpec extends AnyFlatSpec
     new TreeModel with TocModel {
       
       override val markup = """@:toc.
+        |
+        |# Title
         |
         |# Headline 1
         |

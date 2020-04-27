@@ -63,6 +63,7 @@ class MarkdownToHTMLSpec extends AnyFlatSpec
       .rendering {
         case (fmt, QuotedBlock(content, _, opt)) => fmt.indentedElement("blockquote", opt, content) // Markdown always writes p tags inside blockquotes
         case (fmt, h @ Header(_, _, Id(_))) => fmt.child(h.withOptions(NoOpt)) // Markdown classic does not generate header ids
+        case (fmt, t @ Title(_, Id("unordered"))) => fmt.child(Header(2, t.content))
         case (fmt, t @ Title(_, Id(_))) => fmt.child(t.withOptions(NoOpt))
       }
       .build
