@@ -22,6 +22,7 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.factory.{RenderContext, RenderFormat, TwoPhaseRenderFormat}
 import laika.rewrite.TemplateRewriter
+import laika.rewrite.nav.{BasicPathTranslator, PathTranslator}
 
 /** Performs a render operation from a document AST to a target format
   * as a string. The document AST may be obtained by a preceding parse 
@@ -62,7 +63,7 @@ abstract class Renderer (val config: OperationConfig) {
       case (f, e) => format.defaultRenderer(f, e)
     })
 
-  private val defaultPathTranslator: Path => Path = _.withSuffix(format.fileSuffix)
+  private val defaultPathTranslator: PathTranslator = BasicPathTranslator(format.fileSuffix)
 
   /** Renders the specified document as a String.
     */
@@ -73,7 +74,7 @@ abstract class Renderer (val config: OperationConfig) {
     * Currently only PDF/XSL-FO output processes styles, all other formats
     * will ignore them.
     */
-  def render (doc: Document, pathTranslator: Path => Path, styles: StyleDeclarationSet): String = 
+  def render (doc: Document, pathTranslator: PathTranslator, styles: StyleDeclarationSet): String = 
     render(doc.content, doc.path, pathTranslator, styles)
 
   /** Renders the specified element as a String.
@@ -95,9 +96,9 @@ abstract class Renderer (val config: OperationConfig) {
     * The provided (virtual) path may be used by renderers for cross-linking between
     * documents.
     */
-  def render (element: Element, path: Path, pathTranslator: Path => Path, styles: StyleDeclarationSet): String = {
+  def render (element: Element, path: Path, pathTranslator: PathTranslator, styles: StyleDeclarationSet): String = {
 
-    val renderContext = RenderContext(renderFunction, element, styles, path, config)
+    val renderContext = RenderContext(renderFunction, element, styles, path, pathTranslator, config)
 
     val formatter = format.formatterFactory(renderContext)
 

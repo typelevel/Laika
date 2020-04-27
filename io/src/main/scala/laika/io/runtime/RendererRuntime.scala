@@ -27,7 +27,7 @@ import laika.io.binary
 import laika.io.text.ParallelRenderer
 import laika.io.text.SequentialRenderer
 import laika.io.model._
-import laika.rewrite.nav.{PathTranslator, TitleDocumentConfig}
+import laika.rewrite.nav.{ConfigurablePathTranslator, PathTranslator, TitleDocumentConfig}
 
 /** Internal runtime for renderer operations, for text and binary output as well
   * as parallel and sequential execution. 
@@ -51,7 +51,7 @@ object RendererRuntime {
     * a character output format, using the specified path translator and styles.
     */
   def run[F[_]: Async: Runtime] (op: SequentialRenderer.Op[F],
-                                 pathTranslator: Path => Path,
+                                 pathTranslator: PathTranslator,
                                  styles: StyleDeclarationSet): F[String] = {
 
     val renderResult = op.renderer.render(op.input, op.path, pathTranslator, styles)
@@ -79,10 +79,10 @@ object RendererRuntime {
     def file (rootDir: File, path: Path): File = new File(rootDir, path.toString.drop(1))
 
     def renderDocuments (finalRoot: DocumentTreeRoot, styles: StyleDeclarationSet)(output: Path => TextOutput[F]): Seq[F[RenderResult]] = finalRoot.allDocuments.map { document =>
-      val pathTranslator = PathTranslator(finalRoot.config, fileSuffix)
+      val pathTranslator = ConfigurablePathTranslator(finalRoot.config, fileSuffix)
       val outputPath = pathTranslator.translate(document.path)
       val textOp = SequentialRenderer.Op(op.renderer, document.content, outputPath, output(outputPath))
-      run(textOp, pathTranslator.translate, styles).map { res =>
+      run(textOp, pathTranslator, styles).map { res =>
         Right(RenderedDocument(outputPath, document.title, document.sections, res)): RenderResult
       }
     }

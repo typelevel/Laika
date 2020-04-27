@@ -20,6 +20,7 @@ import laika.api.builder.RenderConfig
 import laika.ast.{Element, Path, StyleDeclarationSet, TemplateRoot}
 import laika.bundle.RenderTheme
 import laika.render.Indentation
+import laika.rewrite.nav.PathTranslator
 
 /** Provides the context for a single render operation.
   * 
@@ -27,12 +28,14 @@ import laika.render.Indentation
   * @param root the root element the new renderer will be used for
   * @param styles the styles the new renderer should apply to the rendered elements
   * @param path the (virtual) path the output will be rendered to              
+  * @param pathTranslator translates paths of input documents to the corresponding output path              
   * @param config additional configuration for the renderer
   */
 case class RenderContext[FMT] (renderChild: (FMT, Element) => String,
                                root: Element,
                                styles: StyleDeclarationSet,
                                path: Path,
+                               pathTranslator: PathTranslator,
                                config: RenderConfig) {
 
   /** The indentation mechanism to use for rendering.

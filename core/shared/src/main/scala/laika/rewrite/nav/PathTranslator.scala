@@ -16,25 +16,52 @@
 
 package laika.rewrite.nav
 
-import laika.ast.Path
+import laika.ast.{Path, RelativePath}
 import laika.config.Config
 
-/** Translates a path of a document from an input tree to the path to use
-  * when rendering to the output tree.
+/** Translates paths of input documents to the corresponding output path. 
+  * The minimum translation that usually has to happen is to replace the suffix from the input document the path
+  * has been obtained from to the suffix of the output format. 
+  * Further translations are allowed to happen based on user configuration.
+  *
+  * @author Jens Halm
+  */
+trait PathTranslator {
+
+  /** Translates the specified path of an input document to the corresponding output path. 
+    */
+  def translate (input: Path): Path
+
+  /** Translates the specified relative path of an input document to the corresponding output path. 
+    */
+  def translate (input: RelativePath): RelativePath
+  
+}
+
+/** Translates paths of input documents to the corresponding output path, based on a configuration instance.
   * 
   * @author Jens Halm
   */
-case class PathTranslator (config: Config, outputSuffix: String) {
+case class ConfigurablePathTranslator (config: Config, outputSuffix: String) extends PathTranslator {
 
   private val titleDocInputName = TitleDocumentConfig.inputName(config)
   private val titleDocOutputName = TitleDocumentConfig.outputName(config)
 
-  /** Translates the specified input path to an output path by applying the given suffix
-    * and adjusting the base name in case it is a title document and configured input and output names differ. 
-    */
   def translate (input: Path): Path = {
     if (input.basename == titleDocInputName) input.withBasename(titleDocOutputName).withSuffix(outputSuffix)
     else input.withSuffix(outputSuffix)
   }
+
+  def translate (input: RelativePath): RelativePath = {
+    if (input.basename == titleDocInputName) input.withBasename(titleDocOutputName).withSuffix(outputSuffix)
+    else input.withSuffix(outputSuffix)
+  }
   
+}
+
+/** Basic path translator implementation that only replaces the suffix of the path.
+  */
+case class BasicPathTranslator (outputSuffix: String) extends PathTranslator {
+  def translate (input: Path): Path = input.withSuffix(outputSuffix)
+  def translate (input: RelativePath): RelativePath = input.withSuffix(outputSuffix)
 }
