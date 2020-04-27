@@ -78,6 +78,7 @@ class ParallelParserSpec extends IOSpec
                        |</div>""".stripMargin
       val dynDoc = "${value}"
       val conf = "value: abc"
+      val titleDocNameConf = "titleDocuments.inputName = alternative-title"
       val order = """navigationOrder: [
         |  lemon.md
         |  shapes
@@ -197,6 +198,24 @@ class ParallelParserSpec extends IOSpec
         CoverDocument(docView("cover.md")),
         TreeView(Root, List(
           TitleDocument(docView("README.md")),
+          Documents(Markup, List(docView(1), docView(2)))
+        ))
+      ))
+      parsedTree.assertEquals(treeResult)
+    }
+
+    "parse a tree with a title document with a custom document name configuration" in new TreeParser {
+      val inputs = Seq(
+        Root / "directory.conf" -> Contents.titleDocNameConf,
+        Root / "doc1.md" -> Contents.name,
+        Root / "doc2.md" -> Contents.name,
+        Root / "alternative-title.md" -> Contents.name,
+        Root / "cover.md" -> Contents.name
+      )
+      val treeResult = RootView(Seq(
+        CoverDocument(docView("cover.md")),
+        TreeView(Root, List(
+          TitleDocument(docView("alternative-title.md")),
           Documents(Markup, List(docView(1), docView(2)))
         ))
       ))
