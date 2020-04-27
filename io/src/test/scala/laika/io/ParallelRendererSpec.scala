@@ -192,7 +192,7 @@ class ParallelRendererSpec extends IOSpec
                                                                         |      <p>bbb</p>""".stripMargin)
         renderedRoot.assertEquals(RenderedTreeViewRoot(
           RenderedTreeView(Root, List( 
-            TitleDocument(RenderedDocumentView(Root / "title.html", expected)),
+            TitleDocument(RenderedDocumentView(Root / "index.html", expected)),
             DocumentViews(List(RenderedDocumentView(Root / "doc.html", expected)))
           )),
           Some(RenderedDocumentView(Root / "cover.html", expected))

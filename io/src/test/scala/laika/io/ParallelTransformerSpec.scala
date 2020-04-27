@@ -150,7 +150,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
       )
       transformTree.assertEquals(RenderedTreeViewRoot(
         root(List(
-          TitleDocument(RenderedDocumentView(Root / "title.txt", simpleResult)),
+          TitleDocument(RenderedDocumentView(Root / "index.txt", simpleResult)),
           docs((Root / "name.txt", simpleResult))
         )),
         Some(RenderedDocumentView(Root / "cover.txt", simpleResult))
@@ -167,7 +167,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
       transformWithDocumentMapper(doc => doc.copy(content = doc.content.copy(content = Seq(Paragraph("foo-bar")))))
         .assertEquals(RenderedTreeViewRoot(
           root(List(
-            TitleDocument(RenderedDocumentView(Root / "title.txt", mappedResult)),
+            TitleDocument(RenderedDocumentView(Root / "index.txt", mappedResult)),
             docs((Root / "rootDoc.txt", mappedResult)),
             trees(
               (Root / "sub", List(docs(
