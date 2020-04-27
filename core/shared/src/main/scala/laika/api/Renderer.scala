@@ -62,30 +62,32 @@ abstract class Renderer (val config: OperationConfig) {
       case (f, e) => format.defaultRenderer(f, e)
     })
 
+  private val defaultPathTranslator: Path => Path = _.withSuffix(format.fileSuffix)
 
   /** Renders the specified document as a String.
     */
-  def render (doc: Document): String = render(doc.content, doc.path, theme.defaultStyles)
+  def render (doc: Document): String = render(doc.content, doc.path, defaultPathTranslator, theme.defaultStyles)
 
-  /** Renders the specified document as a String, using the given styles.
+  /** Renders the specified document as a String, using the given path translator and styles.
     * 
     * Currently only PDF/XSL-FO output processes styles, all other formats
     * will ignore them.
     */
-  def render (doc: Document, styles: StyleDeclarationSet): String = render(doc.content, doc.path, styles)
+  def render (doc: Document, pathTranslator: Path => Path, styles: StyleDeclarationSet): String = 
+    render(doc.content, doc.path, pathTranslator, styles)
 
   /** Renders the specified element as a String.
     */
-  def render (element: Element): String = render(element, Root, theme.defaultStyles)
+  def render (element: Element): String = render(element, Root, defaultPathTranslator, theme.defaultStyles)
 
   /** Renders the specified element as a String.
     * 
     * The provided (virtual) path may be used by renderers for cross-linking between
     * documents.
     */
-  def render (element: Element, path: Path): String = render(element, path, theme.defaultStyles)
+  def render (element: Element, path: Path): String = render(element, path, defaultPathTranslator, theme.defaultStyles)
 
-  /** Renders the specified element as a String, using the given styles.
+  /** Renders the specified element as a String, using the given path translator and styles.
     * 
     * Currently only PDF/XSL-FO output processes styles, all other formats
     * will ignore them.
@@ -93,7 +95,7 @@ abstract class Renderer (val config: OperationConfig) {
     * The provided (virtual) path may be used by renderers for cross-linking between
     * documents.
     */
-  def render (element: Element, path: Path, styles: StyleDeclarationSet): String = {
+  def render (element: Element, path: Path, pathTranslator: Path => Path, styles: StyleDeclarationSet): String = {
 
     val renderContext = RenderContext(renderFunction, element, styles, path, config)
 

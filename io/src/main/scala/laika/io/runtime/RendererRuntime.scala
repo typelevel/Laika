@@ -27,7 +27,7 @@ import laika.io.binary
 import laika.io.text.ParallelRenderer
 import laika.io.text.SequentialRenderer
 import laika.io.model._
-import laika.rewrite.nav.TitleDocumentConfig
+import laika.rewrite.nav.{PathTranslator, TitleDocumentConfig}
 
 /** Internal runtime for renderer operations, for text and binary output as well
   * as parallel and sequential execution. 
@@ -42,12 +42,19 @@ object RendererRuntime {
   /** Process the specified render operation for a single input document and 
     * a character output format.
     */
-  def run[F[_]: Async: Runtime] (op: SequentialRenderer.Op[F], styles: Option[StyleDeclarationSet] = None): F[String] = {
+  def run[F[_]: Async: Runtime] (op: SequentialRenderer.Op[F]): F[String] = {
+    val renderResult = op.renderer.render(op.input, op.path)
+    OutputRuntime.write(renderResult, op.output).as(renderResult)
+  }
 
-    val renderResult = styles.fold(op.renderer.render(op.input, op.path)){ st => 
-      op.renderer.render(op.input, op.path, st) 
-    }
-    
+  /** Process the specified render operation for a single input document and 
+    * a character output format, using the specified path translator and styles.
+    */
+  def run[F[_]: Async: Runtime] (op: SequentialRenderer.Op[F],
+                                 pathTranslator: Path => Path,
+                                 styles: StyleDeclarationSet): F[String] = {
+
+    val renderResult = op.renderer.render(op.input, op.path, pathTranslator, styles)
     OutputRuntime.write(renderResult, op.output).as(renderResult)
   }
 
@@ -72,9 +79,10 @@ object RendererRuntime {
     def file (rootDir: File, path: Path): File = new File(rootDir, path.toString.drop(1))
 
     def renderDocuments (finalRoot: DocumentTreeRoot, styles: StyleDeclarationSet)(output: Path => TextOutput[F]): Seq[F[RenderResult]] = finalRoot.allDocuments.map { document =>
-      val outputPath = TitleDocumentConfig.inputToOutput(document.path, fileSuffix, finalRoot.config)
+      val pathTranslator = PathTranslator(finalRoot.config, fileSuffix)
+      val outputPath = pathTranslator.translate(document.path)
       val textOp = SequentialRenderer.Op(op.renderer, document.content, outputPath, output(outputPath))
-      run(textOp, Some(styles)).map { res =>
+      run(textOp, pathTranslator.translate, styles).map { res =>
         Right(RenderedDocument(outputPath, document.title, document.sections, res)): RenderResult
       }
     }
