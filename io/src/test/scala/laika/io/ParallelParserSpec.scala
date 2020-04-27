@@ -190,13 +190,13 @@ class ParallelParserSpec extends IOSpec
       val inputs = Seq(
         Root / "doc1.md" -> Contents.name,
         Root / "doc2.md" -> Contents.name,
-        Root / "title.md" -> Contents.name,
+        Root / "README.md" -> Contents.name,
         Root / "cover.md" -> Contents.name
       )
       val treeResult = RootView(Seq(
         CoverDocument(docView("cover.md")),
         TreeView(Root, List(
-          TitleDocument(docView("title.md")),
+          TitleDocument(docView("README.md")),
           Documents(Markup, List(docView(1), docView(2)))
         ))
       ))
@@ -378,13 +378,13 @@ class ParallelParserSpec extends IOSpec
         Root / "orange.md" -> Contents.name,
         Root / "colors" / "green.md" -> Contents.name,
         Root / "lemon.md" -> Contents.name,
-        Root / "title.md" -> Contents.name,
+        Root / "README.md" -> Contents.name,
         Root / "shapes" / "circle.md" -> Contents.name,
         Root / "cherry.md" -> Contents.name,
         Root / "directory.conf" -> Contents.order,
       )
       defaultParser.fromInput(build(inputs)).parse.map(_.root.tree).asserting { tree =>
-        tree.titleDocument.map(_.path.basename) shouldBe Some("title")
+        tree.titleDocument.map(_.path.basename) shouldBe Some("README")
         tree.content map (_.path.name) should be(List("lemon.md", "shapes", "cherry.md", "colors", "apple.md", "orange.md"))
         tree.content map (_.position) should be(List(
           TreePosition(Seq(1)),

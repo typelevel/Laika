@@ -51,7 +51,7 @@ trait TreeModel {
   
   def subtreeTitle (subTreeNum: Int): Option[Document] = {
     val parent = Root / s"tree${subTreeNum - 1}"
-    if (useTitleDocuments) Some(Document(parent / "title.md", RootElement(
+    if (useTitleDocuments) Some(Document(parent / "README.md", RootElement(
       Title(Seq(Text(s"Title Doc $subTreeNum")), Id(s"title-$subTreeNum") + Style.title),
       Paragraph(s"Text $subTreeNum")
     ))) else None

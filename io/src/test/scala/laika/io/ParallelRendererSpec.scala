@@ -186,7 +186,7 @@ class ParallelRendererSpec extends IOSpec
   
     "render a tree with a cover and title document to HTML" in {
       new HTMLRenderer {
-        val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)), Some(Document(Root / "title", rootElem)))
+        val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)), Some(Document(Root / "README", rootElem)))
         override def treeRoot = DocumentTreeRoot(input, coverDocument = Some(Document(Root / "cover", rootElem)))
         val expected = RenderResult.html.withDefaultTemplate("Title", """<h1 id="title" class="title">Title</h1>
                                                                         |      <p>bbb</p>""".stripMargin)

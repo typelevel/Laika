@@ -145,7 +145,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
     "transform a tree with a cover, title document and one content document" in new TreeTransformer {
       val inputs = Seq(
         Root / "name.md" -> Contents.name,
-        Root / "title.md" -> Contents.name,
+        Root / "README.md" -> Contents.name,
         Root / "cover.md" -> Contents.name
       )
       transformTree.assertEquals(RenderedTreeViewRoot(
@@ -161,7 +161,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
       val inputs = Seq(
         Root / "rootDoc.md" -> Contents.name,
         Root / "sub" / "subDoc.md" -> Contents.name,
-        Root / "title.md" -> Contents.name,
+        Root / "README.md" -> Contents.name,
         Root / "cover.md" -> Contents.name
       )
       transformWithDocumentMapper(doc => doc.copy(content = doc.content.copy(content = Seq(Paragraph("foo-bar")))))

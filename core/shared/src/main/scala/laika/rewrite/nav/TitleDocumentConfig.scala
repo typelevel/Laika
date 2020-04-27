@@ -24,7 +24,7 @@ import laika.config.Config
   */
 object TitleDocumentConfig {
 
-  private val defaultInputName: String = "title"
+  private val defaultInputName: String = "README"
   private val defaultOutputName: String = "index"
 
   /** The name to denote a title document in an input tree as configured in the specified instance.
