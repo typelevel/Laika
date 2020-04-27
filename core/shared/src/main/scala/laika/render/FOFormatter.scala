@@ -19,6 +19,7 @@ package laika.render
 import laika.ast.Path.Root
 import laika.ast._
 import laika.factory.RenderContext
+import laika.rewrite.nav.PathTranslator
 
 /** API for renderers that produce XSL-FO output.
  * 
@@ -26,6 +27,7 @@ import laika.factory.RenderContext
  * @param currentElement the active element currently being rendered                             
  * @param parents the stack of parent elements of this formatter in recursive rendering, 
  *                with the root element being the last in the list
+ * @param pathTranslator translates paths of input documents to the corresponding output path
  * @param path        the virtual path of the document getting rendered, used for generating unique ids
  * @param styles      the styles to apply when writing the attributes of an element
  * @param indentation the indentation mechanism for this formatter
@@ -36,11 +38,12 @@ import laika.factory.RenderContext
 case class FOFormatter (renderChild: (FOFormatter, Element) => String,
                         currentElement: Element,
                         parents: List[Element],
+                        pathTranslator: PathTranslator,
                         path: Path,
                         styles: StyleDeclarationSet,
                         indentation: Indentation,
                         messageLevel: MessageLevel) extends 
-  TagFormatter[FOFormatter](renderChild, currentElement, parents, indentation, messageLevel) with FOProperties {
+  TagFormatter[FOFormatter](renderChild, currentElement, parents, pathTranslator, indentation, messageLevel) with FOProperties {
 
   type StyleHint = Element
 
@@ -87,7 +90,7 @@ case class FOFormatter (renderChild: (FOFormatter, Element) => String,
    */
   def buildId (path: Path): String = {
     if (path == Path.Root) "" 
-    else path.withoutSuffix.toString.replaceAllLiterally("/", "_").replaceAllLiterally("#", "_")
+    else pathTranslator.translate(path).withoutSuffix.toString.replaceAllLiterally("/", "_").replaceAllLiterally("#", "_")
   }
 
   /** Generates an id that is unique within the entire document tree for the 
@@ -307,7 +310,7 @@ object FOFormatter extends (RenderContext[FOFormatter] => FOFormatter) {
   /** Creates a new formatter instance based on the specified render context.
     */
   def apply(context: RenderContext[FOFormatter]): FOFormatter =
-    FOFormatter(context.renderChild, context.root, Nil, context.path, context.styles, context.indentation, context.config.minMessageLevel)
+    FOFormatter(context.renderChild, context.root, Nil, context.pathTranslator, context.path, context.styles, context.indentation, context.config.minMessageLevel)
   
 }
 

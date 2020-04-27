@@ -114,17 +114,13 @@ class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => Str
       def codeStyles (language: String, hasHighlighting: Boolean) = 
         if (hasHighlighting) Style.noHighlight else Styles(language)
       
-      def internalLinkRef (path: RelativePath) = {
-        val target = 
-          if (path.suffix.contains("md") || path.suffix.contains("rst")) path.withSuffix(fileSuffix) // TODO - 0.15 - generalize
-          else path
-        target.toString
-      }
-      
       def linkAttributes (target: Target, title: Option[String]): Seq[(String, String)] = {
         val href = target match {
-          case InternalTarget(_, relativePath) => internalLinkRef(relativePath)
-          case ExternalTarget(url)             => url
+          case InternalTarget(_, relPath) =>
+            // TODO - 0.15 - generalize suffix check
+            if (relPath.suffix.contains("md") || relPath.suffix.contains("rst")) fmt.internalLink(relPath)
+            else relPath.toString
+          case ExternalTarget(url) => url
         }
         fmt.optAttributes(
           "href" -> Some(href),

@@ -17,6 +17,7 @@
 package laika.render
 
 import laika.ast._
+import laika.rewrite.nav.PathTranslator
 
 import scala.collection.mutable
 
@@ -29,6 +30,7 @@ import scala.collection.mutable
  *  @param currentElement the active element currently being rendered                   
  *  @param parents the stack of parent elements of this formatter in recursive rendering, 
  *                 with the root element being the last in the list
+ *  @param pathTranslator translates paths of input documents to the corresponding output path
  *  @param indentation   the indentation mechanism for this formatter
  *  @param messageLevel  the minimum severity level for a system message to be rendered   
  *                       
@@ -37,6 +39,7 @@ import scala.collection.mutable
 abstract class TagFormatter[Rep <: BaseFormatter[Rep]] (renderChild: (Rep, Element) => String,
                                                         currentElement: Element,
                                                         parents: List[Element],
+                                                        pathTranslator: PathTranslator,
                                                         indentation: Indentation,
                                                         messageLevel: MessageLevel) extends 
   BaseFormatter[Rep](renderChild, currentElement, parents, indentation, messageLevel) { this: Rep =>
@@ -105,6 +108,12 @@ abstract class TagFormatter[Rep <: BaseFormatter[Rep]] (renderChild: (Rep, Eleme
   /** Renders the specified attribute including a preceding space character.
     */
   def attribute (name: String, value: String): String = s""" $name="$value""""
+  
+  /** Renders the internal link as a relative path. */
+  def internalLink (path: RelativePath): String = pathTranslator.translate(path).toString
+  
+  /** Renders the internal link as an absolute path. */
+  def internalLink (path: Path): String = pathTranslator.translate(path).toString
  
   /** Replaces all special XML/HTML characters
    *  with entities.
