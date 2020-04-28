@@ -29,28 +29,34 @@ import laika.rewrite.nav.TocGenerator
 import scala.annotation.tailrec
 
 /** Provides the implementation for the standard directives included in Laika.
- *  
- *  These include:
- *  
- *  - `toc`: Generates a table of content from a specified root node.
- *  - `fragment`: Marks a block in a markup document as being separate from the main content, 
- *    so that it can be placed separately in templates.
- *  - `for`: Accesses a value from the context and sets it as the reference context for its
- *    body elements, executing the body if the referenced value is non-empty and executing
- *    it multiple times when it is a collection.
- *  - `if`: Accesses a value from the context and processes the body element only when
- *    it is a value recognized as true.
- *  - `format`: Process the body element only when the output format matches the format
- *    specified in the directive (e.g. `pdf` or `html`).
- *  - `style`: Adds a style property to the body element.
- *  - `styleLink`: Adds link elements to HTML output for all CSS files found in the document tree
- *  - `fragment`: Adds the body as a fragment to the target document, separate from the main
- *    content, to be rendered in different locations of the output, like headers, footers or sidebars.
- *  - `pageBreak`: Inserts a page break element into the tree (will only be rendered by page-based
- *    output, like XSL-FO or PDF.
- *  
- *  @author Jens Halm
- */
+  *  
+  * These include:
+  * 
+  * - `navigationTree`: Generates a navigation tree either automatically from specified root nodes
+  *    of the input tree or by specifying entries manually (or a combination of both).
+  * - `breadcrumb`: Builds a navigation list from the root node of the input tree to the current document.
+  * - `ref`: Convenience directive that allows to reference a different section of the input tree
+  *   via its headline text. The headline does not have to be unique, as long as the directive can identify
+  *   a section that is closer than the others with the same headline.
+  * - `api`: Convenience directive that allows to reference an api documentation entry (e.g. scaladoc, javadoc)
+  * - `fragment`: Marks a block in a markup document as being separate from the main content, 
+  *   so that it can be placed separately in templates.
+  * - `for`: Accesses a value from the context and sets it as the reference context for its
+  *   body elements, executing the body if the referenced value is non-empty and executing
+  *   it multiple times when it is a collection.
+  * - `if`: Accesses a value from the context and processes the body element only when
+  *   it is a value recognized as true.
+  * - `format`: Process the body element only when the output format matches the format
+  *   specified in the directive (e.g. `pdf` or `html`).
+  * - `style`: Adds a style property to the body element.
+  * - `styleLink`: Adds link elements to HTML output for all CSS files found in the document tree
+  * - `fragment`: Adds the body as a fragment to the target document, separate from the main
+  *   content, to be rendered in different locations of the output, like headers, footers or sidebars.
+  * - `pageBreak`: Inserts a page break element into the tree (will only be rendered by page-based
+  *   output, like XSL-FO or PDF.
+  * 
+  *  @author Jens Halm
+  */
 object StandardDirectives extends DirectiveRegistry {
 
   override val description: String = "Laika's built-in directives"
@@ -131,8 +137,12 @@ object StandardDirectives extends DirectiveRegistry {
       process(alternatives)
     }
   }
-  
-  
+
+  /** A block resolver that replaces itself with a navigation list from the root node of the input tree to the current document
+    * during AST transformations.
+    * 
+    * Serves as the implementation for the breadcrumb directive, but can also be inserted into the AST manually.
+    */
   case class BreadcrumbBuilder (options: Options = NoOpt) extends BlockResolver {
 
     type Self = BreadcrumbBuilder
@@ -179,8 +189,20 @@ object StandardDirectives extends DirectiveRegistry {
 
     cursor.map(BreadcrumbBuilder().resolve)
   }
-  
-  
+
+  /** A block resolver that replaces itself with a navigation list according to this instances configuration.
+    * The resulting navigation tree can either be automatically generated from specified root nodes
+    * of the input tree or by specifying entries manually (or a combination of both).
+    *
+    * Serves as the implementation for the navigationTree directive, but can also be inserted into the AST manually.
+    * 
+    * @param entries the list of manual and automatic entries to insert into the navigation tree
+    * @param defaultDepth the depth for automatically generated entries (unless overridden in the entries' config)
+    * @param itemStyles the styles to apply to all navigation items in the list as a render hint
+    * @param excludeRoot indicates whether the root node should be excluded in automatic entries (may be overridden in the entries' config)
+    * @param excludeSections indicates whether sections within documents should be excluded in automatic entries (may be overridden in the entries' config)
+    * @param options optional styles and/or an id for the final navigation list
+    */
   case class NavigationBuilderConfig (entries: Seq[NavigationNodeConfig], 
                                       defaultDepth: Int = Int.MaxValue, 
                                       itemStyles: Set[String] = Set(),
@@ -190,6 +212,11 @@ object StandardDirectives extends DirectiveRegistry {
     
     type Self = NavigationBuilderConfig
 
+    /** Creates a navigation list for the specified document based on this instances configuration.
+      * 
+      * In case of configuration errors or references to non-existing documents an error message
+      * will be returned as a `Left`.
+      */
     def eval (cursor: DocumentCursor): Either[String, NavigationList] = {
 
       def generate (node: NavigationNodeConfig): ValidatedNec[String, List[NavigationItem]] = node match {
@@ -242,7 +269,9 @@ object StandardDirectives extends DirectiveRegistry {
 
     def withOptions (options: Options): NavigationBuilderConfig = copy(options = options)
   }
-  
+
+  /** Companion with a decoder for obtaining instances from HOCON.
+    */
   object NavigationBuilderConfig {
     
     implicit val decoder: ConfigDecoder[NavigationBuilderConfig] = ConfigDecoder.config.flatMap { config =>
@@ -256,9 +285,13 @@ object StandardDirectives extends DirectiveRegistry {
     }
     
   }
-  
+
+  /** Represents the configuration for a single node in a navigation tree.
+    */
   sealed trait NavigationNodeConfig
 
+  /** Companion with a decoder for obtaining instances from HOCON.
+    */
   object NavigationNodeConfig {
 
     implicit lazy val decoder: ConfigDecoder[NavigationNodeConfig] = ConfigDecoder.config.flatMap { config =>
@@ -292,13 +325,28 @@ object StandardDirectives extends DirectiveRegistry {
     }
     
   }
-  
+
+  /** The configuration for an automatically generated navigation tree.
+    * 
+    * @param target      the target to use as the root node for navigation tree based on a relative or absolute path in the virtual input tree
+    * @param title       the title for this entry when getting rendered as a link
+    * @param depth       the depth to recurse from the root node
+    * @param excludeRoot indicates whether the root node should be excluded in which case the first-level children will be inserted into the parent node
+    * @param excludeSections indicates whether sections within documents should be excluded in automatic entries
+    */
   case class GeneratedNavigationNode (target: PathBase,
                                       title: Option[SpanSequence] = None, 
                                       depth: Option[Int] = None,
                                       excludeRoot: Option[Boolean] = None,
                                       excludeSections: Option[Boolean] = None) extends NavigationNodeConfig
-  
+
+  /** The configuration for a manual entry in the navigation tree.
+    * The entry can have further children which may in turn be either manual or automatically generated nodes.
+    * 
+    * @param title    the title for this entry when getting rendered as a link
+    * @param target   the external link for this node (if missing this node just generates a navigation header as a separator within the tree)
+    * @param children the children of this node, either manual or automatically generated
+    */
   case class ManualNavigationNode (title: SpanSequence, 
                                    target: Option[ExternalTarget] = None, 
                                    children: Seq[NavigationNodeConfig] = Nil) extends NavigationNodeConfig
