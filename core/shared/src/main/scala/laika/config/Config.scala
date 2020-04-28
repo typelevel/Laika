@@ -20,6 +20,8 @@ import laika.config.Config.ConfigResult
 import laika.ast.Path
 import laika.parse.hocon.{IncludeResource, ObjectBuilderValue}
 
+import scala.util.Try
+
 /** API for retrieving configuration values based on a string key and a decoder.
   * 
   * Config instances are used in many places in this library, each `Document`,
@@ -159,9 +161,20 @@ class ObjectConfig (private[laika] val root: ObjectValue,
                     val origin: Origin,
                     private[laika] val fallback: Config = EmptyConfig) extends Config {
 
+  private def lookup(keySegments: Seq[String], target: ArrayValue, targetOrigin: Origin): Option[Field] = {
+    Try(keySegments.head.toInt).toOption.flatMap { posKey =>
+      ((target.values.drop(posKey).headOption, keySegments.tail) match {
+        case (res, Nil) => res.map(Field("", _, targetOrigin))
+        case (Some(ov: ObjectValue), rest) => lookup(rest, ov)
+        case _ => None
+      }): Option[Field]
+    }
+  }
+  
   private def lookup(keySegments: Seq[String], target: ObjectValue): Option[Field] = {
     (target.values.find(_.key == keySegments.head), keySegments.tail) match {
       case (res, Nil) => res
+      case (Some(Field(_, av: ArrayValue, fieldOrigin)), rest) => lookup(rest, av, fieldOrigin)
       case (Some(Field(_, ov: ObjectValue, _)), rest) => lookup(rest, ov)
       case _ => None
     }
@@ -169,7 +182,7 @@ class ObjectConfig (private[laika] val root: ObjectValue,
 
   private def lookup(key: Key): Option[Field] =
     if (key.segments.isEmpty) Some(Field("", root, origin)) else lookup(key.segments, root).orElse {
-      if (key.segments.head == "config") lookup(Key(key.segments.tail)) // legacy path prefix pre-0.12
+      if (key.segments.head == "config") lookup(Key(key.segments.tail)) // TODO - remove in 0.16 - legacy path prefix pre-0.12
       else None
     }
 

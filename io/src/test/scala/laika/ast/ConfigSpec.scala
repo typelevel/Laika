@@ -81,6 +81,11 @@ class ConfigSpec extends IOSpec
           |aaa
           |bbb""".stripMargin
 
+      val markupWithArrayConfig =
+        """{% foo: [a,b,c] %}
+          |aaa
+          |bbb""".stripMargin
+
       val markupWithRef =
         """aaa
           |${foo}
@@ -362,7 +367,7 @@ class ConfigSpec extends IOSpec
         Root / "dir" / "input.md" -> Contents.markupWithPathConfig
       )
 
-      rstParser
+      markdownParser
         .fromInput(IO.pure(builder(inputs, mdMatcher)))
         .parse
         .map(p => resultTree(p.root))
@@ -377,7 +382,7 @@ class ConfigSpec extends IOSpec
         Root / "dir" / "directory.conf" -> Contents.configDocWithPath
       )
 
-      rstParser
+      markdownParser
         .fromInput(IO.pure(builder(inputs, mdMatcher)))
         .parse
         .map(p => resultTree(p.root))
@@ -386,6 +391,21 @@ class ConfigSpec extends IOSpec
           subTree.get.config.get[Path]("foo") shouldBe Right(Root / "foo.txt")
         }
       
+    }
+
+    "decode an array element in a document config header" in new Inputs {
+      val inputs = Seq(
+        Root / "dir" / "input.md" -> Contents.markupWithArrayConfig
+      )
+
+      markdownParser
+        .fromInput(IO.pure(builder(inputs, mdMatcher)))
+        .parse
+        .map(p => resultTree(p.root))
+        .asserting { tree =>
+          val doc = tree.selectDocument(RelativePath.CurrentTree / "dir" / "input.md")
+          doc.get.config.get[String]("foo.2") shouldBe Right("c")
+        }
     }
   }
 }
