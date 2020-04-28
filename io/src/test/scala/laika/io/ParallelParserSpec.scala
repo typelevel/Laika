@@ -329,7 +329,7 @@ class ParallelParserSpec extends IOSpec
       import Templates.dsl._
 
       val directive = Templates.create("foo") {
-        defaultAttribute.as[String] map {
+        attribute(0).as[String] map {
           TemplateString(_)
         }
       }

@@ -46,13 +46,13 @@ class SpanDirectiveAPISpec extends AnyFlatSpec
       val directive = Spans.create("dir")(Spans.dsl.empty(Text("foo")))
     }
 
-    trait RequiredDefaultAttribute {
-      val directive = Spans.create("dir") { defaultAttribute.as[String] map (Text(_)) }
+    trait RequiredPositionalAttribute {
+      val directive = Spans.create("dir") { attribute(0).as[String] map (Text(_)) }
     }
     
-    trait OptionalDefaultAttribute {
-      val directive = Spans.create("dir") { 
-        defaultAttribute.as[Int].optional map (num => Text(num.map(_.toString).getOrElse("<>"))) 
+    trait OptionalPositionalAttribute {
+      val directive = Spans.create("dir") {
+        attribute(0).as[Int].optional map (num => Text(num.map(_.toString).getOrElse("<>"))) 
       }
     }
     
@@ -90,7 +90,7 @@ class SpanDirectiveAPISpec extends AnyFlatSpec
         parsedBody.map(Foo) 
       }
       val sep2 = Spans.separator("bar", max = 1) { 
-        (parsedBody, defaultAttribute.as[String]).mapN(Bar) 
+        (parsedBody, attribute(0).as[String]).mapN(Bar) 
       }
       val directive = Spans.create("dir") { separatedBody[Child](Seq(sep1, sep2)) map { multipart =>
         val seps = multipart.children.flatMap {
@@ -103,10 +103,10 @@ class SpanDirectiveAPISpec extends AnyFlatSpec
     
     trait FullDirectiveSpec {
       val directive = Spans.create("dir") {
-        (defaultAttribute.as[String], attribute("strAttr").as[String].optional, attribute("intAttr").as[Int].optional, parsedBody).mapN {
-          (defAttr, strAttr, intAttr, defBody) => 
-            val sum = intAttr.getOrElse(0)
-            val str = defAttr + ":" + strAttr.getOrElse("..") + ":" + sum
+        (attribute(0).as[String], attribute(1).as[Int], attribute("strAttr").as[String].optional, attribute("intAttr").as[Int].optional, parsedBody).mapN {
+          (posStr, posInt, strAttr, intAttr, defBody) => 
+            val sum = intAttr.getOrElse(0) + posInt
+            val str = posStr + ":" + strAttr.getOrElse("..") + ":" + sum
             SpanSequence(Text(str) +: defBody)
         }
       }
@@ -194,55 +194,33 @@ class SpanDirectiveAPISpec extends AnyFlatSpec
   }
 
   it should "parse a directive with one required default string attribute" in {
-    new SpanParser with RequiredDefaultAttribute {
+    new SpanParser with RequiredPositionalAttribute {
       Parsing ("aa @:dir(foo) bb") should produce (ss(Text("aa foo bb")))
     }
   }
 
-  it should "parse a directive with one required legacy default string attribute" in {
-    new SpanParser with RequiredDefaultAttribute {
-      Parsing ("aa @:dir { foo } bb") should produce (ss(Text("aa foo bb")))
-    }
-  }
-  
-  it should "detect a directive with a missing required default attribute" in {
-    new SpanParser with RequiredDefaultAttribute {
-      val msg = "One or more errors processing directive 'dir': required default attribute is missing"
+  it should "detect a directive with a missing required positional attribute" in {
+    new SpanParser with RequiredPositionalAttribute {
+      val msg = "One or more errors processing directive 'dir': required positional attribute at index 0 is missing"
       Parsing ("aa @:dir bb") should produce (ss(Text("aa "), invalid("@:dir",msg), Text(" bb")))
     }
   }
 
-  it should "detect a directive with an invalid legacy default attribute" in {
-    new SpanParser with RequiredDefaultAttribute {
-      val msg = """One or more errors processing directive 'dir': Multiple errors parsing HOCON: [1.16] failure: Expected separator after key ('=', '+=', ':' or '{')
-                  |
-                  |aa @:dir { foo ? bar } bb
-                  |               ^""".stripMargin
-      Parsing ("aa @:dir { foo ? bar } bb") should produce (ss(Text("aa "), invalid("@:dir { foo ? bar } bb",msg)))
-    }
-  }
-  
   it should "parse a directive with an optional default int attribute" in {
-    new SpanParser with OptionalDefaultAttribute {
+    new SpanParser with OptionalPositionalAttribute {
       Parsing ("aa @:dir(5) bb") should produce (ss(Text("aa 5 bb")))
     }
   }
   
   it should "detect a directive with an optional invalid default int attribute" in {
-    new SpanParser with OptionalDefaultAttribute {
-      val msg = "One or more errors processing directive 'dir': error converting default attribute: not an integer: foo"
+    new SpanParser with OptionalPositionalAttribute {
+      val msg = "One or more errors processing directive 'dir': error converting positional attribute at index 0: not an integer: foo"
       Parsing ("aa @:dir(foo) bb") should produce (ss(Text("aa "), invalid("@:dir(foo)",msg), Text(" bb")))
     }
   }
 
-  it should "parse a directive with an optional legacy default int attribute" in {
-    new SpanParser with OptionalDefaultAttribute {
-      Parsing ("aa @:dir { 5 } bb") should produce (ss(Text("aa 5 bb")))
-    }
-  }
-  
   it should "parse a directive with a missing optional default int attribute" in {
-    new SpanParser with OptionalDefaultAttribute {
+    new SpanParser with OptionalPositionalAttribute {
       Parsing ("aa @:dir bb") should produce (ss(Text("aa <> bb")))
     }
   }
@@ -301,7 +279,7 @@ class SpanDirectiveAPISpec extends AnyFlatSpec
   
   it should "parse a directive with a missing optional named int attribute" in {
     new SpanParser with OptionalNamedAttribute {
-      val msg = "One or more errors processing directive 'dir': required default attribute is missing"
+      val msg = "One or more errors processing directive 'dir': required positional attribute at index 0 is missing"
       Parsing ("aa @:dir bb") should produce (ss(Text("aa <> bb")))
     }
   }
@@ -335,7 +313,7 @@ class SpanDirectiveAPISpec extends AnyFlatSpec
 
   it should "parse a directive with a separated body" in {
     new SpanParser with SeparatedBody {
-      val input = """aa @:dir aaa @:foo bbb @:bar { baz } ccc @:@ bb"""
+      val input = """aa @:dir aaa @:foo bbb @:bar(baz) ccc @:@ bb"""
       val body = SpanSequence(Text(" aaa foo bbb baz ccc "))
       Parsing (input) should produce (ss(Text("aa "), body, Text(" bb")))
     }
@@ -344,7 +322,7 @@ class SpanDirectiveAPISpec extends AnyFlatSpec
   it should "detect a directive with an invalid separator" in {
     new SpanParser with SeparatedBody {
       val input = """aa @:dir aaa @:foo bbb @:bar ccc @:@ bb"""
-      val msg = "One or more errors processing directive 'dir': One or more errors processing separator directive 'bar': required default attribute is missing"
+      val msg = "One or more errors processing directive 'dir': One or more errors processing separator directive 'bar': required positional attribute at index 0 is missing"
       val src = input.slice(3, 36)
       Parsing (input) should produce (ss(Text("aa "), invalid(src,msg), Text(" bb")))
     }
@@ -352,16 +330,16 @@ class SpanDirectiveAPISpec extends AnyFlatSpec
 
   it should "detect a directive with a separator not meeting the min count requirements" in {
     new SpanParser with SeparatedBody {
-      val input = """aa @:dir aaa @:bar { baz } ccc @:@ bb"""
+      val input = """aa @:dir aaa @:bar(baz) ccc @:@ bb"""
       val msg = "One or more errors processing directive 'dir': too few occurrences of separator directive 'foo': expected min: 1, actual: 0"
-      val src = input.slice(3, 34)
+      val src = input.slice(3, 31)
       Parsing (input) should produce (ss(Text("aa "), invalid(src,msg), Text(" bb")))
     }
   }
 
   it should "detect a directive with a separator exceeding the max count constraint" in {
     new SpanParser with SeparatedBody {
-      val input = """aa @:dir aaa @:foo bbb @:bar { baz } ccc @:bar { baz } ddd @:@ bb"""
+      val input = """aa @:dir aaa @:foo bbb @:bar(baz) ccc @:bar(baz) ddd @:@ bb"""
       val msg = "One or more errors processing directive 'dir': too many occurrences of separator directive 'bar': expected max: 1, actual: 2"
       val src = input.drop(3).dropRight(3)
       Parsing (input) should produce (ss(Text("aa "), invalid(src,msg), Text(" bb")))
@@ -377,42 +355,33 @@ class SpanDirectiveAPISpec extends AnyFlatSpec
   it should "parse a full directive spec with all elements present" in {
     new FullDirectiveSpec with SpanParser {
       val body = ss(
-        Text("foo:str:7 1 value 2 ")
+        Text("foo:str:11 1 value 2 ")
       )
-      Parsing ("aa @:dir(foo) { strAttr=str, intAttr=7 } 1 ${ref} 2 @:@ bb") should produce (ss(Text("aa "), body, Text(" bb")))
+      Parsing ("aa @:dir(foo, 4) { strAttr=str, intAttr=7 } 1 ${ref} 2 @:@ bb") should produce (ss(Text("aa "), body, Text(" bb")))
     }
   }
 
   it should "parse a full directive spec with all elements present with attributes spanning two lines" in {
     new FullDirectiveSpec with SpanParser {
       val body = ss(
-        Text("foo:str:7 1 value 2 ")
+        Text("foo:str:11 1 value 2 ")
       )
-      Parsing ("aa @:dir(foo) {\n strAttr=str\nintAttr=7 \n} 1 ${ref} 2 @:@ bb") should produce (ss(Text("aa "), body, Text(" bb")))
+      Parsing ("aa @:dir(foo,4) {\n strAttr=str\nintAttr=7 \n} 1 ${ref} 2 @:@ bb") should produce (ss(Text("aa "), body, Text(" bb")))
     }
   }
 
-  it should "parse a full directive spec with all elements present, including a legacy default attribute" in {
-    new FullDirectiveSpec with SpanParser {
-      val body = ss(
-        Text("foo:str:7 1 value 2 ")
-      )
-      Parsing ("aa @:dir { foo, strAttr=str, intAttr=7 } 1 ${ref} 2 @:@ bb") should produce (ss(Text("aa "), body, Text(" bb")))
-    }
-  }
-  
   it should "parse a full directive spec with all optional elements missing" in {
     new FullDirectiveSpec with SpanParser {
       val body = ss(
-        Text("foo:..:0 1 value 2 ")
+        Text("foo:..:4 1 value 2 ")
       )
-      Parsing ("aa @:dir(foo) 1 ${ref} 2 @:@ bb") should produce (ss(Text("aa "), body, Text(" bb")))
+      Parsing ("aa @:dir(foo,4) 1 ${ref} 2 @:@ bb") should produce (ss(Text("aa "), body, Text(" bb")))
     }
   }
   
-  it should "detect a full directive spec with one required attribute and the body missing" in {
+  it should "detect a full directive spec with positional attributes and the body missing" in {
     new FullDirectiveSpec with SpanParser {
-      val msg = "One or more errors processing directive 'dir': required default attribute is missing, required body is missing"
+      val msg = "One or more errors processing directive 'dir': required positional attribute at index 0 is missing, required positional attribute at index 1 is missing, required body is missing"
       Parsing ("aa @:dir { strAttr=str } bb") should produce (ss(Text("aa "), invalid("@:dir { strAttr=str }",msg), Text(" bb")))
     }
   }

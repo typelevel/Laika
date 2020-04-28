@@ -36,37 +36,44 @@ sealed abstract class AttributeKey {
 
 object AttributeKey {
 
-  /** Represents the string identifier of an attribute or body part
-    *  of a directive.
+  /** Represents the string identifier of an attribute or body part of a directive.
     */
   case class Named (key: String) extends AttributeKey {
     def desc: String = s"attribute '$key'"
   }
 
-  /** Represents an unnamed attribute or body part
-    *  of a directive.
-    */
+  @deprecated("use PositionalAt(0) instead", "0.15.0")
   case object Default extends AttributeKey {
-    val key = "__$$:default:$$__"
-    def desc: String = s"default attribute"
+    val key = s"${Positional.key}.0"
+    def desc: String = "positional attribute at index 0"
   }
 
+  /** Represents an individual positional attribute at the specified index.
+    */
+  case class PositionalAt (pos: Int) extends AttributeKey {
+    val key = s"${Positional.key}.$pos"
+    def desc: String = s"positional attribute at index $pos"
+  }
+
+  /** Represents all positional attributes.
+    */
+  case object Positional extends AttributeKey {
+    val key = "__$$:positional:$$__"
+    def desc: String = "positional attributes"
+    def at (pos: Int): AttributeKey = PositionalAt(pos)
+  }
+  
 }
 
-/** Provides the basic building blocks for
-  * Laika's Directive API. This trait
-  * is not used directly, but instead its
-  * three sub-traits `Blocks`, `Spans` and `Templates`,
-  * which represent the concrete implementations
-  * for the three directive types.
+/** Provides the basic building blocks for Laika's Directive API. 
+  * This trait is not used directly, but instead its three sub-traits `Blocks`, `Spans` and `Templates`,
+  * which represent the concrete implementations for the three directive types.
   */
 trait BuilderContext[E <: Element] {
 
   private val directiveOrigin = "$$directive$$"
   
-  /** The parser API in case a directive function
-    * needs to manually parse one of the directive
-    * parts.
+  /** The parser API in case a directive function needs to manually parse one of the directive parts.
     */
   type Parser <: String => Seq[E]
   
@@ -88,8 +95,7 @@ trait BuilderContext[E <: Element] {
     case class Parsed(value: Seq[E]) extends BodyContent
   }
 
-  /** The content of a parsed directive with the HOCON attributes captured in a `Config`
-    * instance.
+  /** The content of a parsed directive with the HOCON attributes captured in a `Config` instance.
     */
   case class DirectiveContent (attributes: Config, body: Option[BodyContent])
 
@@ -259,6 +265,18 @@ trait BuilderContext[E <: Element] {
       def separators: Set[String] = Set.empty
     }
 
+    class PositionalAttributes [T] (decoder: ConfigDecoder[T]) extends DirectivePart[Seq[T]] {
+
+      def apply (context: DirectiveContext): Result[Seq[T]] =
+        context.attribute(AttributeKey.Positional, ConfigDecoder.seq(decoder), inherit = false).map(_.getOrElse(Nil))
+
+      def as[U](implicit decoder: ConfigDecoder[U]): PositionalAttributes[U] = new PositionalAttributes(decoder)
+
+      def hasBody: Boolean = false
+      def separators: Set[String] = Set.empty
+      def widen: DirectivePart[Seq[T]] = this
+    }
+
     class AttributePart [T] (key: AttributeKey, decoder: ConfigDecoder[T], isInherited: Boolean, requiredMsg: => String) extends DirectivePart[T] {
       
       def apply (context: DirectiveContext): Result[T] = 
@@ -326,22 +344,18 @@ trait BuilderContext[E <: Element] {
       def separators: Set[String] = Set.empty
     }
 
-    /** Specifies a default attribute, which is an attribute without a name.
-      * 
-      * Although valid, it is not recommended to combine default attributes with
-      * named attributes in a single directive, as the resulting syntax can
-      * appear ambiguous to the user.
-      * 
-      * This combinator is primarily intended to be used as the only attribute
-      * of the directive where the meaning is obvious, like in `@:style { big }`
-      * or `@:image { foo.jpg }`.
-      * 
+    @deprecated("use attribute(0) instead", "0.15.0")
+    def defaultAttribute: AttributePart[ConfigValue] = attribute(0)
+
+    /** Specifies a required attribute from the positional attribute section of the directive.
+      *
+      * @param position the position within the attribute list
       * @return a directive part that can be combined with further parts
       */
-    def defaultAttribute: AttributePart[ConfigValue]
-      = new AttributePart(AttributeKey.Default, ConfigDecoder.configValue, false, s"required default attribute is missing")
-
-    /** Specifies a required attribute.
+    def attribute (position: Int): AttributePart[ConfigValue]
+      = new AttributePart(AttributeKey.Positional.at(position), ConfigDecoder.configValue, false, s"required positional attribute at index $position is missing")
+    
+    /** Specifies a required attribute from the HOCON section of the directive.
       *
       * @param key the key that must be used in markup or templates
       * @return a directive part that can be combined with further parts
@@ -349,12 +363,19 @@ trait BuilderContext[E <: Element] {
     def attribute (key: String): AttributePart[ConfigValue]
       = new AttributePart(AttributeKey.Named(key), ConfigDecoder.configValue, false, s"required attribute '$key' is missing")
 
+    /** A combinator that captures all positional attributes in a directive declaration.
+      *
+      * This is useful when the positional attributes represent a flexible, comma-separated list of values.
+      * Using `as` on the directive decodes '''all''' attributes as the same type. To decode with different
+      * types, use the combinators for individual positional attributes, e.g. `attribute(0)`.
+      */
+    def positionalAttributes: PositionalAttributes[ConfigValue] = new PositionalAttributes[ConfigValue](ConfigDecoder.configValue)
+    
     /** A combinator that captures all attributes in a directive declaration.
       *
-      * This is useful when a directive implementation allows the use of
-      * any arbitrary attribute name, but leaves the burden of validation
-      * to the implementor of the directive. This part does not provide
-      * automatic error handling for missing required attributes for example.
+      * This is useful when a directive implementation allows the use of any arbitrary attribute name, 
+      * but leaves the burden of validation to the implementor of the directive.
+      * This part does not provide automatic error handling for missing required attributes for example.
       */
     def allAttributes: DirectivePart[Config] = part(c => Right(c.content.attributes))
     
@@ -702,7 +723,7 @@ object Links {
     def asSpanDirective: Spans.Directive = Spans.eval(name) {
       import Spans.dsl._
       import cats.implicits._
-      (defaultAttribute.as[String], cursor).mapN(apply)
+      (attribute(0).as[String], cursor).mapN(apply)
     }
   }
 

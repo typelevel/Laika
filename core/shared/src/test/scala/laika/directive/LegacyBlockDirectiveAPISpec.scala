@@ -138,7 +138,7 @@ class LegacyBlockDirectiveAPISpec extends AnyFlatSpec
         |@:dir.
         |
         |bb""".stripMargin
-      val msg = "One or more errors processing directive 'dir': required default attribute is missing"
+      val msg = "One or more errors processing directive 'dir': required positional attribute at index 0 is missing"
       Parsing (input) should produce (root(p("aa"), invalid("@:dir.",msg), p("bb")))
     }
   }
@@ -161,7 +161,7 @@ class LegacyBlockDirectiveAPISpec extends AnyFlatSpec
         |@:dir foo.
         |
         |bb""".stripMargin
-      val msg = "One or more errors processing directive 'dir': error converting default attribute: not an integer: foo"
+      val msg = "One or more errors processing directive 'dir': error converting positional attribute at index 0: not an integer: foo"
       Parsing (input) should produce (root(p("aa"), invalid("@:dir foo.",msg), p("bb")))
     }
   }
@@ -241,7 +241,7 @@ class LegacyBlockDirectiveAPISpec extends AnyFlatSpec
         |@:dir.
         |
         |bb""".stripMargin
-      val msg = "One or more errors processing directive 'dir': required default attribute is missing"
+      val msg = "One or more errors processing directive 'dir': required positional attribute at index 0 is missing"
       Parsing (input) should produce (root(p("aa"), p("<>"), p("bb")))
     }
   }
@@ -324,7 +324,7 @@ class LegacyBlockDirectiveAPISpec extends AnyFlatSpec
         |@:dir strAttr=str.
         |
         |bb""".stripMargin
-      val msg = "One or more errors processing directive 'dir': required default attribute is missing, required body is missing"
+      val msg = "One or more errors processing directive 'dir': required positional attribute at index 0 is missing, required body is missing"
       Parsing (input) should produce (root(p("aa"), invalid("@:dir strAttr=str.",msg), p("bb")))
     }
   }

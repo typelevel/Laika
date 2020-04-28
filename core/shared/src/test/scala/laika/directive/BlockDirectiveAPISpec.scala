@@ -45,13 +45,13 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
       val directive = Blocks.create("dir")(Blocks.dsl.empty(p("foo")))
     }
     
-    trait RequiredDefaultAttribute {
-      val directive = Blocks.create("dir") { defaultAttribute.as[String] map p }
+    trait RequiredPositionalAttribute {
+      val directive = Blocks.create("dir") { attribute(0).as[String] map p }
     }
     
-    trait OptionalDefaultAttribute {
+    trait OptionalPositionalAttribute {
       val directive = Blocks.create("dir") {
-        defaultAttribute.as[Int].optional map (num => p(num.map(_.toString).getOrElse("<>"))) 
+        attribute(0).as[Int].optional map (num => p(num.map(_.toString).getOrElse("<>"))) 
       }
     }
     
@@ -89,7 +89,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
         parsedBody.map(Foo)
       }
       val sep2 = Blocks.separator("bar", max = 1) {
-        (parsedBody, defaultAttribute.as[String]).mapN(Bar)
+        (parsedBody, attribute(0).as[String]).mapN(Bar)
       }
       
       val directive = Blocks.create("dir") { separatedBody[Child](Seq(sep1, sep2)) map { multipart =>
@@ -103,10 +103,10 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
     
     trait FullDirectiveSpec {
       val directive = Blocks.create("dir") {
-        (defaultAttribute.as[String], attribute("strAttr").as[String].optional, attribute("intAttr").as[Int].optional, parsedBody).mapN {
-          (defAttr, strAttr, intAttr, defBody) =>
-            val sum = intAttr.getOrElse(0)
-            val str = defAttr + ":" + strAttr.getOrElse("..") + ":" + sum
+        (attribute(0).as[String], attribute(1).as[Int], attribute("strAttr").as[String].optional, attribute("intAttr").as[Int].optional, parsedBody).mapN {
+          (posStr, posInt, strAttr, intAttr, defBody) =>
+            val sum = intAttr.getOrElse(0) + posInt
+            val str = posStr + ":" + strAttr.getOrElse("..") + ":" + sum
             BlockSequence(p(str) +: defBody)
         }
       }
@@ -169,7 +169,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
   }
   
   it should "parse a directive with one required default string attribute" in {
-    new BlockParser with RequiredDefaultAttribute {
+    new BlockParser with RequiredPositionalAttribute {
       val input = """aa
         |
         |@:dir(foo)
@@ -179,31 +179,20 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
     }
   }
 
-  it should "parse a directive with one required legacy default string attribute" in {
-    new BlockParser with RequiredDefaultAttribute {
-      val input = """aa
-                    |
-                    |@:dir { foo }
-                    |
-                    |bb""".stripMargin
-      Parsing (input) should produce (root(p("aa"), p("foo"), p("bb")))
-    }
-  }
-
-  it should "detect a directive with a missing required default attribute" in {
-    new BlockParser with RequiredDefaultAttribute {
+  it should "detect a directive with a missing positional default attribute" in {
+    new BlockParser with RequiredPositionalAttribute {
       val input = """aa
         |
         |@:dir
         |
         |bb""".stripMargin
-      val msg = "One or more errors processing directive 'dir': required default attribute is missing"
+      val msg = "One or more errors processing directive 'dir': required positional attribute at index 0 is missing"
       Parsing (input) should produce (root(p("aa"), invalid("@:dir",msg), p("bb")))
     }
   }
 
   it should "parse a directive with an optional default int attribute" in {
-    new BlockParser with OptionalDefaultAttribute {
+    new BlockParser with OptionalPositionalAttribute {
       val input = """aa
         |
         |@:dir(5)
@@ -213,31 +202,20 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
     }
   }
 
-  it should "parse a directive with an optional legacy default int attribute" in {
-    new BlockParser with OptionalDefaultAttribute {
-      val input = """aa
-                    |
-                    |@:dir { 5 }
-                    |
-                    |bb""".stripMargin
-      Parsing (input) should produce (root(p("aa"), p("5"), p("bb")))
-    }
-  }
-
   it should "detect a directive with an optional invalid default int attribute" in {
-    new BlockParser with OptionalDefaultAttribute {
+    new BlockParser with OptionalPositionalAttribute {
       val input = """aa
         |
         |@:dir(foo)
         |
         |bb""".stripMargin
-      val msg = "One or more errors processing directive 'dir': error converting default attribute: not an integer: foo"
+      val msg = "One or more errors processing directive 'dir': error converting positional attribute at index 0: not an integer: foo"
       Parsing (input) should produce (root(p("aa"), invalid("@:dir(foo)",msg), p("bb")))
     }
   }
 
   it should "parse a directive with a missing optional default int attribute" in {
-    new BlockParser with OptionalDefaultAttribute {
+    new BlockParser with OptionalPositionalAttribute {
       val input = """aa
         |
         |@:dir
@@ -311,7 +289,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
         |@:dir
         |
         |bb""".stripMargin
-      val msg = "One or more errors processing directive 'dir': required default attribute is missing"
+      val msg = "One or more errors processing directive 'dir': required positional attribute at index 0 is missing"
       Parsing (input) should produce (root(p("aa"), p("<>"), p("bb")))
     }
   }
@@ -416,7 +394,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
         |@:foo
         |bbb
         |
-        |@:bar { baz }
+        |@:bar(baz)
         |ccc
         |@:@
         |
@@ -440,7 +418,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
       |@:@
       |
       |bb""".stripMargin
-    val msg = "One or more errors processing directive 'dir': One or more errors processing separator directive 'bar': required default attribute is missing"
+    val msg = "One or more errors processing directive 'dir': One or more errors processing separator directive 'bar': required positional attribute at index 0 is missing"
     val src = input.split("\n").toSeq.slice(2, 11).mkString("\n")
     Parsing (input) should produce (root(p("aa"), invalid(src,msg), p("bb")))
   }
@@ -452,7 +430,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
         |@:dir
         |aaa
         |
-        |@:bar { baz }
+        |@:bar(baz)
         |ccc
         |@:@
         |
@@ -473,10 +451,10 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
         |@:foo
         |bbb
         |
-        |@:bar { baz }
+        |@:bar(baz)
         |ccc
         |
-        |@:bar { baz }
+        |@:bar(baz)
         |ddd
         |
         |@:@
@@ -502,7 +480,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
     new FullDirectiveSpec with BlockParser {
       val input = """aa
         |
-        |@:dir(foo) { strAttr=str, intAttr=7 }
+        |@:dir(foo, 4) { strAttr=str, intAttr=7 }
         |
         |1 ${ref} 2
         |
@@ -510,26 +488,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
         |
         |bb""".stripMargin
       val body = BlockSequence(
-        p("foo:str:7"),
-        p(Text("1 value 2"))
-      )
-      Parsing (input) should produce (root(p("aa"), body, p("bb")))
-    }
-  }
-
-  it should "parse a full directive spec with all elements present, including a legacy default argument" in {
-    new FullDirectiveSpec with BlockParser {
-      val input = """aa
-                    |
-                    |@:dir { foo, strAttr=str, intAttr=7 }
-                    |
-                    |1 ${ref} 2
-                    |
-                    |@:@
-                    |
-                    |bb""".stripMargin
-      val body = BlockSequence(
-        p("foo:str:7"),
+        p("foo:str:11"),
         p(Text("1 value 2"))
       )
       Parsing (input) should produce (root(p("aa"), body, p("bb")))
@@ -540,7 +499,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
     new FullDirectiveSpec with BlockParser {
       val input = """aa
         |
-        |@:dir { foo 
+        |@:dir(foo, 4) {
         |  strAttr=str 
         |  intAttr=7 
         |}
@@ -551,7 +510,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
         |
         |bb""".stripMargin
       val body = BlockSequence(
-        p("foo:str:7"),
+        p("foo:str:11"),
         p(Text("1 value 2"))
       )
       Parsing (input) should produce (root(p("aa"), body, p("bb")))
@@ -562,7 +521,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
     new FullDirectiveSpec with BlockParser {
       val input = """aa
         |
-        |@:dir(foo)
+        |@:dir(foo, 4)
         | 
         |1 ${ref} 2
         |
@@ -570,7 +529,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
         |
         |bb""".stripMargin
       val body = BlockSequence(
-        p("foo:..:0"),
+        p("foo:..:4"),
         p(Text("1 value 2"))
       )
       Parsing (input) should produce (root(p("aa"), body, p("bb")))
@@ -581,7 +540,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
     new FullDirectiveSpec with BlockParser {
       val input = """aa
         |
-        |@:dir(foo) +++
+        |@:dir(foo, 4) +++
         |
         |1 ${ref} 2
         |
@@ -589,21 +548,21 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
         |
         |bb""".stripMargin
       val body = BlockSequence(
-        p("foo:..:0"),
+        p("foo:..:4"),
         p(Text("1 value 2"))
       )
       Parsing (input) should produce (root(p("aa"), body, p("bb")))
     }
   }
 
-  it should "detect a full directive spec with one required attribute and the body missing" in {
+  it should "detect a full directive spec with positional attributes and the body missing" in {
     new FullDirectiveSpec with BlockParser {
       val input = """aa
         |
         |@:dir { strAttr=str }
         |
         |bb""".stripMargin
-      val msg = "One or more errors processing directive 'dir': required default attribute is missing, required body is missing"
+      val msg = "One or more errors processing directive 'dir': required positional attribute at index 0 is missing, required positional attribute at index 1 is missing, required body is missing"
       Parsing (input) should produce (root(p("aa"), invalid("@:dir { strAttr=str }",msg), p("bb")))
     }
   }

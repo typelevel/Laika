@@ -73,7 +73,7 @@ object StandardDirectives extends DirectiveRegistry {
     case class Empty (spans: Seq[TemplateSpan])
     val emptySeparator = Templates.separator("empty", max = 1)(parsedBody.map(Empty))
     
-    (defaultAttribute.as[String], separatedBody(Seq(emptySeparator)), cursor).mapN { (ref, multipart, cursor) =>
+    (attribute(0).as[String], separatedBody(Seq(emptySeparator)), cursor).mapN { (ref, multipart, cursor) =>
         
       def rewrite (spans: Seq[TemplateSpan], childCursor: DocumentCursor): TemplateSpanSequence =
         TemplateSpanSequence(spans) rewriteChildren TemplateRewriter.rewriteRules(childCursor)
@@ -107,14 +107,14 @@ object StandardDirectives extends DirectiveRegistry {
     case class Else (body: Seq[TemplateSpan]) extends IfSeparator
     
     val elseIfSep = Templates.separator("elseIf") {
-      (defaultAttribute.as[String], parsedBody).mapN(ElseIf) 
+      (attribute(0).as[String], parsedBody).mapN(ElseIf) 
     }
     val elseSep = Templates.separator("else", max = 1) {
       parsedBody.map(Else)
     }
     val multipartBody = separatedBody(Seq(elseIfSep, elseSep))
 
-    (defaultAttribute.as[String], multipartBody, cursor).mapN { (path, multipart, cursor) =>
+    (attribute(0).as[String], multipartBody, cursor).mapN { (path, multipart, cursor) =>
 
       def rewrite (spans: Seq[TemplateSpan]): TemplateSpanSequence =
         TemplateSpanSequence(spans) rewriteChildren TemplateRewriter.rewriteRules(cursor)
@@ -446,8 +446,8 @@ object StandardDirectives extends DirectiveRegistry {
     */
   lazy val ref: Spans.Directive = Spans.create("ref") {
     import Spans.dsl._
-    
-    defaultAttribute.as[String].map { ref =>
+
+    attribute(0).as[String].map { ref =>
       GenericReference(Seq(Text(ref)), ref, s"@:ref($ref)")
     }
   }
@@ -506,7 +506,7 @@ object StandardDirectives extends DirectiveRegistry {
   lazy val format: Blocks.Directive  = Blocks.create("format") {
     import Blocks.dsl._
     
-    (defaultAttribute.as[String], parsedBody.map(asBlock(_))).mapN(TargetFormat(_,_))
+    (attribute(0).as[String], parsedBody.map(asBlock(_))).mapN(TargetFormat(_,_))
   }
   
   /** Implementation of the `style` directive for block elements in markup documents.
@@ -514,7 +514,7 @@ object StandardDirectives extends DirectiveRegistry {
   lazy val blockStyle: Blocks.Directive  = Blocks.create("style") {
     import Blocks.dsl._
     
-    (parsedBody, defaultAttribute.as[String].map(Styles(_))).mapN(asBlock)
+    (parsedBody, attribute(0).as[String].map(Styles(_))).mapN(asBlock)
   }
   
   /** Implementation of the `style` directive for span elements in markup documents.
@@ -522,7 +522,7 @@ object StandardDirectives extends DirectiveRegistry {
   lazy val spanStyle: Spans.Directive  = Spans.create("style") {
     import Spans.dsl._
 
-    (parsedBody, defaultAttribute.as[String].map(Styles(_))).mapN(asSpan)
+    (parsedBody, attribute(0).as[String].map(Styles(_))).mapN(asSpan)
   }
   
   /** Implementation of the `fragment` directive for block elements in markup documents.
@@ -530,7 +530,7 @@ object StandardDirectives extends DirectiveRegistry {
   lazy val blockFragment: Blocks.Directive  = Blocks.create("fragment") {
     import Blocks.dsl._
     
-    (defaultAttribute.as[String], parsedBody).mapN { (name, content) =>
+    (attribute(0).as[String], parsedBody).mapN { (name, content) =>
       DocumentFragment(name, asBlock(content, Styles(name)))
     }
   }
@@ -540,7 +540,7 @@ object StandardDirectives extends DirectiveRegistry {
   lazy val templateFragment: Templates.Directive  = Templates.create("fragment") {
     import Templates.dsl._
     
-    (defaultAttribute.as[String], parsedBody).mapN { (name, content) =>
+    (attribute(0).as[String], parsedBody).mapN { (name, content) =>
       TemplateElement(DocumentFragment(name, TemplateSpanSequence(content)))
     }
   }

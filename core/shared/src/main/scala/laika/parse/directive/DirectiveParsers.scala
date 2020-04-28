@@ -18,12 +18,12 @@ package laika.parse.directive
 
 import cats.implicits._
 import cats.data.NonEmptySet
-import laika.config.{Key, StringValue}
+import laika.config.{ArrayValue, Key, StringValue}
 import laika.ast._
 import laika.bundle.{BlockParser, BlockParserBuilder, SpanParser, SpanParserBuilder}
 import laika.directive._
 import laika.parse.{Failure, Message, Parser, ParserContext, Success}
-import laika.parse.hocon.{BuilderField, ConfigResolver, HoconParsers, InvalidBuilderValue, ObjectBuilderValue, ResolvedBuilderValue, SelfReference, ValidStringValue}
+import laika.parse.hocon.{ArrayBuilderValue, BuilderField, ConfigResolver, HoconParsers, InvalidBuilderValue, ObjectBuilderValue, ResolvedBuilderValue, SelfReference, ValidStringValue}
 import laika.parse.markup.{EscapedTextParsers, RecursiveParsers, RecursiveSpanParsers}
 import laika.parse.text.{CharGroup, PrefixedParser}
 import laika.parse.builders._
@@ -79,7 +79,7 @@ object DirectiveParsers {
       "\"" ~> escapedText.escapedUntil('"') | (anyNot(' ','\t','\n','.',':') min 1)
 
     lazy val defaultAttribute: Parser[BuilderField] = not(attrName) ~> not('(') ~> attrValue.map { v => 
-      BuilderField(AttributeKey.Default.key, ResolvedBuilderValue(StringValue(v))) 
+      BuilderField(AttributeKey.Positional.key, ArrayBuilderValue(Seq(ValidStringValue(v.trim))))
     }
 
     lazy val attribute: Parser[BuilderField] = attrName ~ attrValue ^^ { case name ~ value =>
@@ -105,17 +105,20 @@ object DirectiveParsers {
     val legacyDefaultAttribute = { /* versions 0.12 and 0.13 allowed to have an unnamed attribute in the HOCON section */
       val delim = (ws ~ ("," | eol.as(""))) | lookAhead(hoconWS ~ "}")
       opt((hoconWS ~> stringBuilderValue(/*Set(',','}','\n')*/ NonEmptySet.one('\u0001')) <~ delim ~ hoconWS)
-        .map(sv => BuilderField(AttributeKey.Default.key, sv)))
+        .map(sv => BuilderField(AttributeKey.Positional.key, ArrayBuilderValue(Seq(sv)))))
     }
-    val defaultAttribute = opt(ws ~> "(" ~> text(delimitedBy(')')).embed("\\" ~> oneChar)
-      .map(sv => BuilderField(AttributeKey.Default.key, ValidStringValue(sv.trim))))
+    
+    val quotedAttribute = (ws ~ '"') ~> text(delimitedBy('"')).embed("\\" ~> oneChar) <~ ws
+    val unquotedAttribute = text(delimitedBy(',', ')').keepDelimiter).embed("\\" ~> oneChar) <~ ws
+    val positionalAttributes = opt(ws ~> "(" ~> (quotedAttribute | unquotedAttribute).rep(",")
+      .map(values => BuilderField(AttributeKey.Positional.key, ArrayBuilderValue(values.map(sv => ValidStringValue(sv.trim))))) <~ ")")
     
     val closingAttributes = literal("}").as(Option.empty[ParserContext]) | 
                             success(()).withContext.map { case (_, ctx) => Some(ctx) }
     
     val hoconAttributes = opt(ws ~> lazily("{" ~> legacyDefaultAttribute ~ objectMembers ~ closingAttributes))
     
-    val attributeSection = (defaultAttribute ~ hoconAttributes).map {
+    val attributeSection = (positionalAttributes ~ hoconAttributes).map {
       case defAttr ~ Some(legacyDefAttr ~ obj ~ optCtx) =>
         val default = defAttr.orElse(legacyDefAttr).toSeq
         val attrs = obj.copy(values = default ++ obj.values)

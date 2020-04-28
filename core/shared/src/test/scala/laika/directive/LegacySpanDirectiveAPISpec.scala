@@ -123,7 +123,7 @@ class LegacySpanDirectiveAPISpec extends AnyFlatSpec
   
   it should "detect a directive with a missing required default attribute" in {
     new SpanParser with RequiredDefaultAttribute {
-      val msg = "One or more errors processing directive 'dir': required default attribute is missing"
+      val msg = "One or more errors processing directive 'dir': required positional attribute at index 0 is missing"
       Parsing ("aa @:dir. bb") should produce (ss(Text("aa "), invalid("@:dir.",msg), Text(" bb")))
     }
   }
@@ -136,7 +136,7 @@ class LegacySpanDirectiveAPISpec extends AnyFlatSpec
   
   it should "detect a directive with an optional invalid default int attribute" in {
     new SpanParser with OptionalDefaultAttribute {
-      val msg = "One or more errors processing directive 'dir': error converting default attribute: not an integer: foo"
+      val msg = "One or more errors processing directive 'dir': error converting positional attribute at index 0: not an integer: foo"
       Parsing ("aa @:dir foo. bb") should produce (ss(Text("aa "), invalid("@:dir foo.",msg), Text(" bb")))
     }
   }
@@ -181,7 +181,7 @@ class LegacySpanDirectiveAPISpec extends AnyFlatSpec
   
   it should "parse a directive with a missing optional named int attribute" in {
     new SpanParser with OptionalNamedAttribute {
-      val msg = "One or more errors processing directive 'dir': required default attribute is missing"
+      val msg = "One or more errors processing directive 'dir': required positional attribute at index 0 is missing"
       Parsing ("aa @:dir. bb") should produce (ss(Text("aa <> bb")))
     }
   }
@@ -227,7 +227,7 @@ class LegacySpanDirectiveAPISpec extends AnyFlatSpec
   
   it should "detect a full directive spec with all one required attribute and one required body missing" in {
     new FullDirectiveSpec with SpanParser {
-      val msg = "One or more errors processing directive 'dir': required default attribute is missing, required body is missing"
+      val msg = "One or more errors processing directive 'dir': required positional attribute at index 0 is missing, required body is missing"
       Parsing ("aa @:dir strAttr=str. bb") should produce (ss(Text("aa "), invalid("@:dir strAttr=str.",msg), Text(" bb")))
     }
   }

@@ -37,9 +37,9 @@ class APISpec extends AnyFlatSpec
     object TestDirectives extends DirectiveRegistry {
 
       val blockDirectives: List[Blocks.Directive] = List(
-        Blocks.create("oneArg")(defaultAttribute.as[String] map p),
+        Blocks.create("oneArg")(attribute(0).as[String] map p),
         Blocks.create("twoArgs") {
-          (defaultAttribute.as[String], attribute("name").as[String].widen).mapN { 
+          (attribute(0).as[String], attribute("name").as[String].widen).mapN { 
             (arg1, arg2) => p(arg1 + arg2) 
           }
         },
@@ -62,9 +62,9 @@ class APISpec extends AnyFlatSpec
     object TestDirectives extends DirectiveRegistry {
 
       val spanDirectives: List[Spans.Directive] = List(
-        Spans.create("oneArg")(defaultAttribute.as[String].map(Text(_))),
+        Spans.create("oneArg")(attribute(0).as[String].map(Text(_))),
         Spans.create("twoArgs") {
-          (defaultAttribute.as[String], attribute("name").as[String].widen).mapN { 
+          (attribute(0).as[String], attribute("name").as[String].widen).mapN { 
             (arg1, arg2) => Text(arg1+arg2) 
           }
         }
@@ -78,19 +78,19 @@ class APISpec extends AnyFlatSpec
   
   "The API" should "support the registration of block directives" in {
     new BlockDirectives {
-      val input = """@:oneArg { arg }
+      val input = """@:oneArg(arg)
         |
-        |@:twoArgs arg1 name=arg2.""".stripMargin
+        |@:twoArgs(arg1) { name=arg2 }""".stripMargin
       MarkupParser.of(Markdown).using(TestDirectives).build.parse(input).toOption.get.content should be (root (p("arg"),p("arg1arg2")))
     }
   }
 
   it should "ignore the registration of block directives when run in strict mode" in {
     new BlockDirectives {
-      val input = """@:oneArg { arg }
+      val input = """@:oneArg(arg)
         |
-        |@:twoArgs { arg1 name=arg2 }""".stripMargin
-      MarkupParser.of(Markdown).using(TestDirectives).strict.build.parse(input).toOption.get.content should be (root (p("@:oneArg { arg }"),p("@:twoArgs { arg1 name=arg2 }")))
+        |@:twoArgs(arg1) { name=arg2 }""".stripMargin
+      MarkupParser.of(Markdown).using(TestDirectives).strict.build.parse(input).toOption.get.content should be (root (p("@:oneArg(arg)"),p("@:twoArgs(arg1) { name=arg2 }")))
     }
   }
   
@@ -98,7 +98,7 @@ class APISpec extends AnyFlatSpec
     new BlockDirectives {
       val input = """{% name = fromHeader %}
         |  
-        |@:oneArg { arg }
+        |@:oneArg(arg)
         |
         |@:inheritedArg""".stripMargin
       MarkupParser.of(Markdown).using(TestDirectives).build.parse(input).toOption.get.content should be (root (p("arg"),p("fromHeader")))
@@ -107,15 +107,15 @@ class APISpec extends AnyFlatSpec
   
   it should "support the registration of span directives" in {
     new SpanDirectives {
-      val input = """one @:oneArg { arg } two @:twoArgs { arg1, name=arg2 } three""".stripMargin
+      val input = """one @:oneArg(arg) two @:twoArgs(arg1) { name=arg2 } three""".stripMargin
       MarkupParser.of(Markdown).using(TestDirectives).build.parse(input).toOption.get.content should be (root (p("one arg two arg1arg2 three")))
     }
   }
 
   it should "ignore the registration of span directives when run in strict mode" in {
     new SpanDirectives {
-      val input = """one @:oneArg { arg } two @:twoArgs { arg1, name=arg2 } three"""
-      MarkupParser.of(Markdown).using(TestDirectives).strict.build.parse(input).toOption.get.content should be (root (p("one @:oneArg { arg } two @:twoArgs { arg1, name=arg2 } three")))
+      val input = """one @:oneArg(arg) two @:twoArgs(arg1) { name=arg2 } three"""
+      MarkupParser.of(Markdown).using(TestDirectives).strict.build.parse(input).toOption.get.content should be (root (p("one @:oneArg(arg) two @:twoArgs(arg1) { name=arg2 } three")))
     }
   }
   
