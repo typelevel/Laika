@@ -64,9 +64,7 @@ class PDF private(val interimFormat: RenderFormat[FOFormatter], config: Option[P
 
   override val description: String = "PDF"
 
-  /** Allows to specify configuration options like insertion
-   *  of bookmarks or table of content.
-   */
+  @deprecated("use withConfigValue on builder API for Transformer or Renderer", "0.15.0")
   def withConfig (config: PDF.Config): PDF = new PDF(interimFormat, Some(config), fopFactory)
 
   /** Allows to specify a custom FopFactory in case additional configuration
