@@ -67,8 +67,9 @@ object Tasks {
     def createParser (format: MarkupFormat): ParserBuilder = {
       val parser = MarkupParser.of(format)
       val mergedConfig = parser.config.copy(
-        bundleFilter = BundleFilter(strict = userConfig.strict, acceptRawContent = userConfig.rawContent),
-        minMessageLevel = userConfig.renderMessageLevel
+        bundleFilter = userConfig.bundleFilter,
+        minMessageLevel = userConfig.renderMessageLevel,
+        configBuilder = userConfig.configBuilder
       )
       parser.withConfig(mergedConfig).using(laikaExtensions.value: _*)
     }
@@ -79,7 +80,7 @@ object Tasks {
       .withAlternativeParser(createParser(ReStructuredText))
       .build
 
-    val inputs = DirectoryScanner.scanDirectories[IO](DirectoryInput((sourceDirectories in Laika).value, laikaConfig.value.encoding, parser.config.docTypeMatcher,
+    val inputs = DirectoryScanner.scanDirectories[IO](DirectoryInput((sourceDirectories in Laika).value, userConfig.encoding, parser.config.docTypeMatcher,
       (excludeFilter in Laika).value.accept))
 
     lazy val tree = {
@@ -87,7 +88,7 @@ object Tasks {
 
       val tree = parser.fromInput(inputs).parse.unsafeRunSync()
 
-      Logs.systemMessages(streams.value.log, tree.root, laikaConfig.value.logMessageLevel)
+      Logs.systemMessages(streams.value.log, tree.root, userConfig.logMessageLevel)
 
       tree
     }
@@ -108,7 +109,7 @@ object Tasks {
         .build
         .from(tree.root)
         .copying(tree.staticDocuments)
-        .toDirectory(targetDir)(laikaConfig.value.encoding)
+        .toDirectory(targetDir)(userConfig.encoding)
         .render
         .unsafeRunSync()      
 

@@ -8,4 +8,4 @@ scalaVersion := "2.12.6"
 
 enablePlugins(LaikaPlugin)
 
-laikaConfig := LaikaConfig(renderMessageLevel = Warning)
+laikaConfig := LaikaConfig.defaults.renderMessageLevel(Warning)

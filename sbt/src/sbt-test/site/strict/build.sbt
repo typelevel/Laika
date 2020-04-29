@@ -6,4 +6,4 @@ scalaVersion := "2.12.6"
 
 enablePlugins(LaikaPlugin)
 
-laikaConfig := LaikaConfig(strict = true)
+laikaConfig := LaikaConfig.defaults.strict

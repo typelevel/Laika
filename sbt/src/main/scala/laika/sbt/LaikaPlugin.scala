@@ -16,7 +16,6 @@
 
 package laika.sbt
 
-import laika.ast._
 import laika.bundle.ExtensionBundle
 import org.apache.fop.apps.FopFactory
 import sbt.Keys._
@@ -45,10 +44,10 @@ import sbt._
   * - `laikaConfig`: allows to specify additional flags and settings through instances of `LaikaConfig`:
   *     - `encoding`: specifies the character encoding (default `UTF-8`)
   *     - `strict`: switches off all extensions and only uses features defined in the spec of the markup languages (default `false`)
-  *     - `rawContent`: allows to include raw content like HTML embedded in text markup (default `false`)
+  *     - `withRawContent`: allows to include raw content like HTML embedded in text markup (default `false`)
   *     - `renderMessageLevel`: the minimum level required for an invalid node to be rendered to the output (default `Warning`)
   *     - `logMessageLevel`: the minimum level required for an invalid node to be logged to the console (default `Warning`)
-  *     - `parallel`: whether parsing and rendering should happen in parallel (default `true`)
+  *     - `withConfigValue`: applies a global configuration value (that can be overridden in folders and documents)
   *
   * - `includeAPI` and `includePDF`: specifies whether to include scaladoc and/or PDF output in the generated site.
   *
@@ -119,14 +118,8 @@ object LaikaPlugin extends AutoPlugin {
     val laikaCopyPDF      = taskKey[File]("Copies the PDF output to the site")
 
     val laikaPackageSite  = taskKey[File]("Create a zip file of the site")
-
-
-    case class LaikaConfig(encoding: String = "UTF-8",
-                           rawContent: Boolean = false,
-                           strict: Boolean = false,
-                           parallel: Boolean = true,
-                           renderMessageLevel: MessageLevel = MessageLevel.Warning,
-                           logMessageLevel: MessageLevel = MessageLevel.Warning)
+    
+    val LaikaConfig = laika.sbt.LaikaConfig
   }
 
 
