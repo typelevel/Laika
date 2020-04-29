@@ -31,7 +31,7 @@ class ConfigBuilder (fields: Seq[Field], origin: Origin, fallback: Config = Empt
 
   /** Returns a new builder instance adding the specified value to the existing set of values.
     */
-  def withValue[T](key: String, value: T)(implicit encoder: ConfigEncoder[T]) : ConfigBuilder =
+  def withValue[T](key: String, value: T)(implicit encoder: ConfigEncoder[T]): ConfigBuilder =
     new ConfigBuilder(fields :+ expandPath(Key.parse(key), encoder(value)), origin, fallback)
 
   /** Returns a new builder instance adding the specified value to the existing set of values.
@@ -41,8 +41,12 @@ class ConfigBuilder (fields: Seq[Field], origin: Origin, fallback: Config = Empt
 
   /** Resolves all specified values and returns a new Config instance.
     */
-  def build: Config = 
-    if (fields.isEmpty && origin == Origin.root) fallback 
+  def build: Config = build(fallback)
+
+  /** Resolves all specified values, using the specified fallback, and returns a new Config instance.
+    */
+  def build (fallback: Config): Config =
+    if (fields.isEmpty && origin == Origin.root) fallback
     else new ObjectConfig(mergeObjects(ObjectValue(fields)), origin, fallback)
 
   private def expandPath(key: Key, value: ConfigValue): Field = {

@@ -16,7 +16,7 @@
 
 package laika.api.builder
 
-import laika.config.Config
+import laika.config.{Config, ConfigBuilder, ConfigEncoder, DefaultKey}
 import laika.ast._
 import laika.bundle.{BundleOrigin, ConfigProvider, DocumentTypeMatcher, ExtensionBundle, MarkupExtensions}
 import laika.directive.{DirectiveSupport, StandardDirectives}
@@ -34,11 +34,13 @@ import scala.annotation.tailrec
   *
   * @param bundles all extension bundles defined by this operation
   * @param bundleFilter a filter that might deactivate some of the bundles based on user configuration
+  * @param configBuilder a builder for assembling values for the base configuration as 
   * @param minMessageLevel specifies the minimum required level for a system message to get included into the output by a renderer
   * @param renderFormatted indicates whether rendering should include any formatting (line breaks or indentation)
   */
 case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
                             bundleFilter: BundleFilter = BundleFilter(),
+                            configBuilder: ConfigBuilder = ConfigBuilder.empty,
                             minMessageLevel: MessageLevel = MessageLevel.Fatal,
                             renderFormatted: Boolean = true) extends RenderConfig {
 
@@ -48,7 +50,25 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
     * that serves as a fallback for configuration files in the source
     * directories and/or config headers in markup and template documents.
     */
-  lazy val baseConfig: Config = mergedBundle.baseConfig
+  lazy val baseConfig: Config = configBuilder.build(mergedBundle.baseConfig)
+
+  /** Returns a new instance with the specified configuration value added.
+    *
+    * The specified value with have higher precedence than any value with the same key registered by extension bundles, 
+    * but lower precedence than any value with the same key specified in a configuration file for a directory 
+    * or a configuration header in a markup document.
+    */
+  def withConfigValue[T: ConfigEncoder: DefaultKey](value: T): OperationConfig = 
+    copy(configBuilder = configBuilder.withValue(value))
+
+  /** Returns a new instance with the specified configuration value added.
+    *
+    * The specified value with have higher precedence than any value with the same key registered by extension bundles, 
+    * but lower precedence than any value with the same key specified in a configuration file for a directory 
+    * or a configuration header in a markup document.
+    */
+  def withConfigValue[T](key: String, value: T)(implicit encoder: ConfigEncoder[T]): OperationConfig =
+    copy(configBuilder = configBuilder.withValue(key, value))
 
   /** Provides all extensions for the text markup parser extracted from
     * all defined bundles.

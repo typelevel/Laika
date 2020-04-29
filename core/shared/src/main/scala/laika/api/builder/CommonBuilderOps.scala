@@ -17,6 +17,7 @@
 package laika.api.builder
 
 import laika.bundle.ExtensionBundle
+import laika.config.{ConfigEncoder, DefaultKey}
 
 /** Base API for specifying configuration options that apply to all
   * kinds of operations (Parser, Renderer and Transformer).
@@ -25,18 +26,33 @@ import laika.bundle.ExtensionBundle
   */
 trait CommonBuilderOps {
 
-  /** The type of the operation being configured by this instance
+  /** The type of the operation being configured by this instance.
     */
   type ThisType
 
   /** Returns a new instance with the specified configuration.
     *
-    * This method discards any previously specified
-    * options. It is usually meant to be used when copying over
-    * the configuration from a fully configured object to an
-    * unconfigured one.
+    * This method discards any previously specified options. 
+    * It is usually meant to be used when copying over the configuration 
+    * from a fully configured object to an unconfigured one.
     */
   def withConfig (newConfig: OperationConfig): ThisType
+
+  /** Returns a new instance with the specified configuration value added.
+    * 
+    * The specified value with have higher precedence than any value with the same key registered by extension bundles, 
+    * but lower precedence than any value with the same key specified in a configuration file for a directory 
+    * or a configuration header in a markup document.
+    */
+  def withConfigValue[T: ConfigEncoder: DefaultKey](value: T): ThisType = withConfig(config.withConfigValue(value))
+
+  /** Returns a new instance with the specified configuration value added.
+    * 
+    * The specified value with have higher precedence than any value with the same key registered by extension bundles, 
+    * but lower precedence than any value with the same key specified in a configuration file for a directory 
+    * or a configuration header in a markup document.
+    */
+  def withConfigValue[T: ConfigEncoder](key: String, value: T): ThisType = withConfig(config.withConfigValue(key, value))
 
   /** The current configuration for this instance.
     */

@@ -46,6 +46,13 @@ class ParseAPISpec extends AnyFlatSpec
     parser.parse(input).toOption.get.content should be (root(p(link(Text("link")).url("http://foo/"))))
   }
   
+  it should "allow to set a config value programmatically" in {
+    val input = "aa ${prop} bb"
+    MarkupParser.of(Markdown).withConfigValue("prop", "foo").build.parse(input).map(_.content) should be (Right(root(p(
+      Text("aa foo bb")
+    ))))
+  }
+  
   it should "allow parsing Markdown into a raw document, without applying the default rewrite rules" in {
     val input = """[link][id]
       |
