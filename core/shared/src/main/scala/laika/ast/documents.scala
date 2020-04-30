@@ -191,6 +191,15 @@ object DocumentMetadata {
       DocumentMetadata(identifier, authors ++ author.toSeq, lang, date)
     }
   }
+  implicit val encoder: ConfigEncoder[DocumentMetadata] = ConfigEncoder[DocumentMetadata] { metadata =>
+    ConfigEncoder.ObjectBuilder.empty
+      .withValue("identifier", metadata.identifier)
+      .withValue("authors", metadata.authors)
+      .withValue("language", metadata.language)
+      .withValue("date", metadata.date)
+      .build
+  }
+  
   implicit val defaultKey: DefaultKey[DocumentMetadata] = DefaultKey("metadata")
 
   /** Tries to obtain the document metadata
