@@ -68,7 +68,7 @@ object FOConcatenation {
         result.config.withValue("pdf.coverImage", resolvedUri).build
       }
 
-    val resultWithoutToc = result.copy[F](tree = result.tree.copy(content = result.tree.content.filterNot(_.path == Root / s"${DocNames.toc}.fo")))
+    val resultWithoutToc = result.copy[F](tree = result.tree.copy(content = result.tree.content.filterNot(_.path == Root / "_toc_.fo")))
 
     def applyTemplate(foString: String, template: TemplateDocument): Either[ConfigError, String] = {
       val foElement = RawContent(Seq("fo"), foString)

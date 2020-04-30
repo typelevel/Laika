@@ -29,7 +29,7 @@ import laika.rewrite.nav.TitleDocumentConfig
   */
 object PDFNavigation {
 
-  object DocNames {
+  private object DocNames {
     val toc = "_toc_"
   }
   
@@ -90,6 +90,7 @@ object PDFNavigation {
   /** Inserts a table of content into the specified document tree.
     * The recursion depth can be set with the configuration key `pdf.toc.depth`.
     */
+  // TODO - 0.16 - remove in favor of template/theme-based approach
   def insertToc (tree: DocumentTree, depth: Int, title: Option[String]): DocumentTree = {
     val context = NavigationBuilderContext(
       refPath = tree.path / DocNames.toc,
