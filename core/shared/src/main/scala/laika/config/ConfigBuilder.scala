@@ -52,8 +52,10 @@ class ConfigBuilder (fields: Seq[Field], origin: Origin, fallback: Config = Empt
     */
   def build (fallback: Config): Config =
     if (fields.isEmpty && origin == Origin.root) fallback
-    else new ObjectConfig(mergeObjects(ObjectValue(fields)), origin, fallback)
-
+    else new ObjectConfig(asObjectValue, origin, fallback)
+  
+  private[laika] def asObjectValue: ObjectValue = mergeObjects(ObjectValue(fields))
+ 
   private def expandPath(key: Key, value: ConfigValue): Field = {
     key.segments match {
       case name :: Nil => Field(name, value, origin)

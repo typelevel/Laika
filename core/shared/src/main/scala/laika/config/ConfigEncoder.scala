@@ -16,6 +16,11 @@
 
 package laika.config
 
+import java.util.Date
+
+import laika.ast.Path
+import laika.time.PlatformDateFormat
+
 /** A type class that can encode a value of type T as a ConfigValue.
   * 
   * @author Jens Halm
@@ -40,11 +45,53 @@ object ConfigEncoder {
     def apply (value: Double) = DoubleValue(value)
   }
 
+  implicit val path: ConfigEncoder[Path] = new ConfigEncoder[Path] {
+    def apply (value: Path) = StringValue(value.toString)
+  }
+
+  implicit val date: ConfigEncoder[Date] = new ConfigEncoder[Date] {
+    def apply (value: Date) = StringValue(PlatformDateFormat.format(value, "yyyy-MM-dd'T'HH:mm:ss").getOrElse(value.toString))
+  }
+  
   implicit val configValue: ConfigEncoder[ConfigValue] = new ConfigEncoder[ConfigValue] {
     def apply (value: ConfigValue) = value
   }
 
   implicit def seq[T] (implicit elementEncoder: ConfigEncoder[T]): ConfigEncoder[Seq[T]] = new ConfigEncoder[Seq[T]] {
     def apply (value: Seq[T]) = ArrayValue(value.map(elementEncoder.apply))
+  }
+  
+  def apply[T] (f: T => ConfigValue): ConfigEncoder[T] = new ConfigEncoder[T] {
+    def apply (value: T) = f(value)
+  }
+  
+  class ObjectBuilder (delegate: ConfigBuilder) {
+
+    /** Returns a new builder instance adding the specified value to the existing set of values.
+      */
+    def withValue[T](key: String, value: T)(implicit encoder: ConfigEncoder[T]): ObjectBuilder =
+      withValue(Key.parse(key), value)
+
+    /** Returns a new builder instance adding the specified value to the existing set of values.
+      */
+    def withValue[T](key: Key, value: T)(implicit encoder: ConfigEncoder[T]): ObjectBuilder =
+      new ObjectBuilder(delegate.withValue(key, value))
+
+    /** Returns a new builder instance adding the specified value to the existing set of values if it is non-empty.
+      */
+    def withValue[T](key: String, value: Option[T])(implicit encoder: ConfigEncoder[T]): ObjectBuilder =
+      value.fold(this)(withValue(Key.parse(key), _))
+
+    /** Returns a new builder instance adding the specified value to the existing set of values if it is non-empty.
+      */
+    def withValue[T](key: Key, value: Option[T])(implicit encoder: ConfigEncoder[T]): ObjectBuilder =
+      value.fold(this)(withValue(key, _))
+    
+    def build: ObjectValue = delegate.asObjectValue
+    
+  }
+  
+  object ObjectBuilder {
+    val empty: ObjectBuilder = new ObjectBuilder(ConfigBuilder.empty)
   }
 }
