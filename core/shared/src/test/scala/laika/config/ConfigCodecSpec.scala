@@ -17,7 +17,9 @@
 package laika.config
 
 import laika.ast.DocumentMetadata
+import laika.ast.Path.Root
 import laika.config.Config.ConfigResult
+import laika.rewrite.nav.BookConfig
 import laika.time.PlatformDateFormat
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -96,6 +98,64 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
       decode[DocumentMetadata](input) shouldBe Left(
         DecodingError("Invalid date format: Text '2000-XX-01T00:00:00Z' could not be parsed at index 5")
       )
+    }
+
+  }
+
+  "The codec for BookConfig" should {
+
+    "decode an instance with all fields populated" in {
+      val input =
+        """{
+          |  metadata {
+          |    identifier = XX-33-FF-01
+          |    authors = [ "Helen North", "Maria South" ]
+          |    language = en
+          |    date = "2002-10-10T12:00:00"
+          |  }
+          |  navigationDepth = 3
+          |  coverImage = cover.jpg
+          |}
+        """.stripMargin
+      decode[BookConfig](input) shouldBe Right(BookConfig(
+        DocumentMetadata(
+          Some("XX-33-FF-01"),
+          Seq("Helen North", "Maria South"),
+          Some("en"),
+          Some(PlatformDateFormat.parse("2002-10-10T12:00:00").toOption.get)
+        ),
+        Some(3),
+        Some(Root / "cover.jpg")
+      ))
+    }
+
+    "decode an instance with some fields populated" in {
+      val input =
+        """{
+          |  metadata {
+          |    identifier = XX-33-FF-01
+          |  }
+          |  navigationDepth = 3
+          |}
+        """.stripMargin
+      decode[BookConfig](input) shouldBe Right(BookConfig(
+        DocumentMetadata(
+          Some("XX-33-FF-01")
+        ),
+        Some(3)
+      ))
+    }
+
+    "round-trip encode and decode" in {
+      val input = BookConfig(DocumentMetadata(Some("XX-33-FF-01")), Some(3), Some(Root / "cover.jpg"))
+      val encoded = ConfigBuilder.empty.withValue("test", input).build
+      decode[BookConfig](encoded) shouldBe Right(BookConfig(
+        DocumentMetadata(
+          Some("XX-33-FF-01")
+        ),
+        Some(3),
+        Some(Root / "cover.jpg")
+      ))
     }
 
   }
