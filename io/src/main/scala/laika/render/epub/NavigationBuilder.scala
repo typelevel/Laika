@@ -34,7 +34,7 @@ object NavigationBuilder {
     s"content$parent/${finalPath.name}"
   }
 
-  def forTree (tree: RenderedTree, depth: Int): Seq[NavigationItem] = {
+  def forTree (tree: RenderedTree, depth: Option[Int]): Seq[NavigationItem] = {
     
     def adjustPath (item: NavigationItem): NavigationItem = item match {
       case h: NavigationHeader => h.copy(content = h.content.map(adjustPath))
@@ -49,7 +49,8 @@ object NavigationBuilder {
       }
     }
     
-    tree.asNavigationItem(NavigationBuilderContext(maxLevels = depth, currentLevel = 0)).content.map(adjustPath)
+    tree.asNavigationItem(NavigationBuilderContext(maxLevels = depth.getOrElse(Int.MaxValue), currentLevel = 0))
+      .content.map(adjustPath)
   }
 
 }

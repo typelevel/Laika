@@ -52,7 +52,7 @@ class ContainerWriter {
     *  @param result the result of the render operation as a tree
     *  @return a list of all documents that need to be written to the EPUB container.
     */
-  def collectInputs[F[_]: Async] (result: RenderedTreeRoot[F], config: EPUB.Config): Seq[BinaryInput[F]] = {
+  def collectInputs[F[_]: Async] (result: RenderedTreeRoot[F], config: EPUB.BookConfig): Seq[BinaryInput[F]] = {
 
     val contentRoot = Root / "EPUB" / "content"
 
@@ -80,8 +80,8 @@ class ContainerWriter {
     val container = toBinaryInput(StaticContent.container, Root / "META-INF" / "container.xml")
     val iBooksOpt = toBinaryInput(StaticContent.iBooksOptions, Root / "META-INF" / "com.apple.ibooks.display-options.xml")
     val opf       = toBinaryInput(opfRenderer.render(finalResult, config), Root / "EPUB" / "content.opf")
-    val nav       = toBinaryInput(navRenderer.render(finalResult, config.tocDepth), Root / "EPUB" / "nav.xhtml")
-    val ncx       = toBinaryInput(ncxRenderer.render(finalResult, config.identifier, config.tocDepth), Root / "EPUB" / "toc.ncx")
+    val nav       = toBinaryInput(navRenderer.render(finalResult, config.navigationDepth), Root / "EPUB" / "nav.xhtml")
+    val ncx       = toBinaryInput(ncxRenderer.render(finalResult, config.identifier, config.navigationDepth), Root / "EPUB" / "toc.ncx")
     
     val renderedDocs = finalResult.allDocuments.map(doc => toBinaryInput(doc.content, shiftContentPath(doc.path)))
 
@@ -103,7 +103,7 @@ class ContainerWriter {
   def write[F[_]: Async: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput[F]): F[Unit] = {
 
     for {
-      config <- Async[F].fromEither(ConfigFactory.forTreeConfig(result.config).left.map(ConfigException))
+      config <- Async[F].fromEither(EPUB.BookConfig.decodeWithDefaults(result.config).left.map(ConfigException))
       inputs =  collectInputs(result, config)
       _      <- ZipWriter.zipEPUB(inputs, output)
     } yield ()

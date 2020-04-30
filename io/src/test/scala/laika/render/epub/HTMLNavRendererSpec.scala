@@ -26,7 +26,7 @@ class HTMLNavRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
   val renderer = new HtmlNavRenderer
 
   "The Navigation Renderer" should "render an empty tree" in new InputTreeBuilder {
-    renderer.render(rootTree(Path.Root, 1), 1) shouldBe renderer.fileContent("Tree 1", "", "")
+    renderer.render(rootTree(Path.Root, 1), Some(1)) shouldBe renderer.fileContent("Tree 1", "", "")
   }
 
   it should "render a tree with a single document" in new SingleDocument {
@@ -37,7 +37,7 @@ class HTMLNavRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
       |
       |        </li>
       |      </ol>""".stripMargin
-    renderer.render(input, 1) shouldBe renderer.fileContent("Tree 1", "", result)
+    renderer.render(input, Some(1)) shouldBe renderer.fileContent("Tree 1", "", result)
   }
 
   it should "render a tree with two documents" in new TwoDocuments {
@@ -52,7 +52,7 @@ class HTMLNavRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
      |
      |        </li>
      |      </ol>""".stripMargin
-    renderer.render(input, 1) shouldBe renderer.fileContent("Tree 1", "", result)
+    renderer.render(input, Some(1)) shouldBe renderer.fileContent("Tree 1", "", result)
   }
 
   it should "render a tree with a single document and a CSS file" in new DocumentPlusStyle {
@@ -64,7 +64,7 @@ class HTMLNavRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
         |        </li>
         |      </ol>""".stripMargin
     val cssLink = """<link rel="stylesheet" type="text/css" href="content/test-style.css" />"""
-    renderer.render(input, 1) shouldBe renderer.fileContent("Tree 1", cssLink, result)
+    renderer.render(input, Some(1)) shouldBe renderer.fileContent("Tree 1", cssLink, result)
   }
 
   it should "render a tree with a title document" in new DocumentPlusTitle {
@@ -75,7 +75,7 @@ class HTMLNavRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
         |
         |        </li>
         |      </ol>""".stripMargin
-    renderer.render(input, 1) shouldBe renderer.fileContent("From TitleDoc", "", result, titleDoc = Some("content/title.epub.xhtml"))
+    renderer.render(input, Some(1)) shouldBe renderer.fileContent("From TitleDoc", "", result, titleDoc = Some("content/title.epub.xhtml"))
   }
 
   it should "render a tree with a cover image" in new DocumentPlusCover {
@@ -88,7 +88,7 @@ class HTMLNavRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
         |          <a href="content/bar.epub.xhtml">Title 3</a>
         |        </li>
         |      </ol>""".stripMargin
-    renderer.render(input, 1) shouldBe renderer.fileContent("Tree 1", "", result, coverDoc = Some("content/cover.epub.xhtml"))
+    renderer.render(input, Some(1)) shouldBe renderer.fileContent("Tree 1", "", result, coverDoc = Some("content/cover.epub.xhtml"))
   }
 
   it should "render a tree with a nested tree" in new NestedTree {
@@ -108,7 +108,7 @@ class HTMLNavRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
         |      </ol>
         |        </li>
         |      </ol>""".stripMargin
-    renderer.render(input, 2) shouldBe renderer.fileContent("Tree 1", "", result)
+    renderer.render(input, Some(2)) shouldBe renderer.fileContent("Tree 1", "", result)
   }
 
   it should "render a tree with a nested tree with a title document" in new NestedTreeWithTitleDoc {
@@ -128,7 +128,7 @@ class HTMLNavRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
         |      </ol>
         |        </li>
         |      </ol>""".stripMargin
-    renderer.render(input, 2) shouldBe renderer.fileContent("Tree 1", "", result)
+    renderer.render(input, Some(2)) shouldBe renderer.fileContent("Tree 1", "", result)
   }
 
   it should "not render a nested tree if the depth is 1" in new NestedTree {
@@ -139,7 +139,7 @@ class HTMLNavRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
      |
      |        </li>
      |      </ol>""".stripMargin
-    renderer.render(input, 1) shouldBe renderer.fileContent("Tree 1", "", result)
+    renderer.render(input, Some(1)) shouldBe renderer.fileContent("Tree 1", "", result)
   }
 
   it should "render a document with sections when the depth is 2" in new DocumentsWithSections {
@@ -172,7 +172,7 @@ class HTMLNavRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
         |      </ol>
         |        </li>
         |      </ol>""".stripMargin
-    renderer.render(input, 2) shouldBe renderer.fileContent("Tree 1", "", result)
+    renderer.render(input, Some(2)) shouldBe renderer.fileContent("Tree 1", "", result)
   }
 
   it should "not render a document with sections when the depth is 1" in new DocumentsWithSections {
@@ -186,7 +186,7 @@ class HTMLNavRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
      |
      |        </li>
      |      </ol>""".stripMargin
-    renderer.render(input, 1) shouldBe renderer.fileContent("Tree 1", "", result)
+    renderer.render(input, Some(1)) shouldBe renderer.fileContent("Tree 1", "", result)
   }
 
 }

@@ -34,7 +34,7 @@ class OPFRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
   val timestamp = "2018-01-01T12:00:00Z"
   val instant = Date.from(Instant.parse(timestamp))
   val identifier = s"urn:uuid:${new InputTreeBuilder{}.uuid}"
-  val config: EPUB.Config = EPUB.Config.default.copy(metadata = DocumentMetadata(
+  val config: EPUB.BookConfig = EPUB.BookConfig(metadata = DocumentMetadata(
     identifier = Some(identifier),
     date = Some(instant),
     language = Some(Locale.UK.toLanguageTag),

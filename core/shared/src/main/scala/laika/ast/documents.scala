@@ -176,7 +176,18 @@ case class SectionInfo (id: String, title: SpanSequence, content: Seq[SectionInf
 
 /** Metadata associated with a document.
   */
-case class DocumentMetadata (identifier: Option[String] = None, authors: Seq[String] = Nil, language: Option[String] = None, date: Option[Date] = None)
+case class DocumentMetadata (identifier: Option[String] = None, authors: Seq[String] = Nil, language: Option[String] = None, date: Option[Date] = None) {
+
+  /** Populates all empty Options in this instance with the provided defaults in case they are non-empty
+    */
+  def withDefaults (defaults: DocumentMetadata): DocumentMetadata = DocumentMetadata(
+    identifier.orElse(defaults.identifier),
+    authors ++ defaults.authors,
+    language.orElse(defaults.language),
+    date.orElse(defaults.date)
+  )
+  
+}
 
 object DocumentMetadata {
   

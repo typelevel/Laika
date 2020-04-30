@@ -23,11 +23,12 @@ import java.util.{Date, Locale, UUID}
 import cats.effect.Async
 import laika.ast.Path.Root
 import laika.ast._
-import laika.config.{ConfigBuilder, ConfigException}
+import laika.config.Config.ConfigResult
+import laika.config.{Config, ConfigBuilder, ConfigDecoder, ConfigEncoder, ConfigException, DefaultKey, Key}
 import laika.factory.{BinaryPostProcessor, RenderContext, RenderFormat, TwoPhaseRenderFormat}
 import laika.io.model.{BinaryOutput, RenderedTreeRoot}
 import laika.io.runtime.Runtime
-import laika.render.epub.{ConfigFactory, ContainerWriter, HtmlRenderExtensions, HtmlTemplate, StyleSupport}
+import laika.render.epub.{ContainerWriter, HtmlRenderExtensions, HtmlTemplate, StyleSupport}
 import laika.render.{HTMLFormatter, XHTMLFormatter, XHTMLRenderer}
 
 /** A post processor for EPUB output, based on an interim HTML renderer.
@@ -88,27 +89,45 @@ case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor
 
   /** Configuration options for the generated EPUB output.
     *
-    *  @param metadata the metadata associated with the document
-    *  @param tocDepth the number of levels to generate a table of contents for
-    *  @param tocTitle the title for the table of contents
-    *  @param coverImage the path to the cover image within the virtual document tree                
+    * The duplication of the existing `BookConfig` instance from laika-core happens to have a different
+    * implicit key association with the EPUB-specific instance.
+    *  
+    * @param metadata the metadata associated with the document
+    * @param navigationDepth the number of levels to generate a table of contents for
+    * @param coverImage the path to the cover image within the virtual document tree   
     */
-  case class Config(metadata: DocumentMetadata = DocumentMetadata(), tocDepth: Int = Int.MaxValue, tocTitle: Option[String] = None, coverImage: Option[Path] = None) {
+  case class BookConfig(metadata: DocumentMetadata = DocumentMetadata(),
+                        navigationDepth: Option[Int] = None,
+                        coverImage: Option[Path] = None) {
     lazy val identifier: String = metadata.identifier.getOrElse(s"urn:uuid:${UUID.randomUUID.toString}")
     lazy val date: Date = metadata.date.getOrElse(new Date)
     lazy val formattedDate: String = DateTimeFormatter.ISO_INSTANT.format(date.toInstant.truncatedTo(ChronoUnit.SECONDS))
     lazy val language: String = metadata.language.getOrElse(Locale.getDefault.getDisplayName)
   }
-
-  /** Companion for the creation of `Config` instances.
-    */
-  object Config {
-
-    /** The default configuration.
-      */
-    val default: Config = apply()
+  
+  object BookConfig {
+    
+    implicit val decoder: ConfigDecoder[BookConfig] = laika.rewrite.nav.BookConfig.decoder.map(c => BookConfig(
+      c.metadata, c.navigationDepth, c.coverImage
+    ))
+    implicit val encoder: ConfigEncoder[BookConfig] = laika.rewrite.nav.BookConfig.encoder.contramap(c => 
+      laika.rewrite.nav.BookConfig(c.metadata, c.navigationDepth, c.coverImage)
+    )
+    implicit val defaultKey: DefaultKey[BookConfig] = DefaultKey("epub")
+    
+    def decodeWithDefaults (config: Config): ConfigResult[BookConfig] = for {
+      epubConfig   <- config.get[BookConfig]
+      commonConfig <- config.get[laika.rewrite.nav.BookConfig]
+    } yield {
+      BookConfig(
+        epubConfig.metadata.withDefaults(commonConfig.metadata), 
+        epubConfig.navigationDepth.orElse(commonConfig.navigationDepth),
+        epubConfig.coverImage.orElse(commonConfig.coverImage)
+      )
+    }
+    
   }
-
+  
   private lazy val writer = new ContainerWriter
 
   /** Adds a cover image (if specified in the configuration)
@@ -116,7 +135,7 @@ case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor
     * before the tree gets passed to the XHTML renderer.
     */
   def prepareTree (tree: DocumentTreeRoot): Either[Throwable, DocumentTreeRoot] = {
-    ConfigFactory.forTreeConfig(tree.config).map { treeConfig =>
+    BookConfig.decodeWithDefaults(tree.config).map { treeConfig =>
       
       val treeWithStyles = StyleSupport.ensureContainsStyles(tree)
       treeConfig.coverImage.fold(tree) { image =>

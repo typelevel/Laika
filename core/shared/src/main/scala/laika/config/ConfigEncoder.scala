@@ -25,8 +25,11 @@ import laika.time.PlatformDateFormat
   * 
   * @author Jens Halm
   */
-trait ConfigEncoder[-T] {
+trait ConfigEncoder[-T] { self =>
   def apply(value: T): ConfigValue
+  def contramap[B](f: (B) ⇒ T): ConfigEncoder[B] = new ConfigEncoder[B] {
+    def apply (value: B) = self.apply(f(value))
+  }
 }
 
 /** Companion containing default encoder implementations for simple values and Seq's.

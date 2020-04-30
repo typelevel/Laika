@@ -42,7 +42,7 @@ class ContainerWriterSpec extends AnyFlatSpec with Matchers with ModelBuilder {
 
   def collectInputs (renderResult: RenderedTreeRoot[IO]): Seq[String] = 
     writer
-      .collectInputs(renderResult, EPUB.Config.default)
+      .collectInputs(renderResult, EPUB.BookConfig())
       .map(_.path.toString)
 
 

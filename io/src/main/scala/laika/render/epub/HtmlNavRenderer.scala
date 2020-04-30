@@ -87,7 +87,7 @@ class HtmlNavRenderer {
     * trees, documents and sections.
     * The configuration key for setting the recursion depth is `epub.toc.depth`.
     */
-  def render[F[_]] (result: RenderedTreeRoot[F], depth: Int): String = {
+  def render[F[_]] (result: RenderedTreeRoot[F], depth: Option[Int]): String = {
     val title = result.title.fold("UNTITLED")(_.extractText)
     val bookNav = NavigationBuilder.forTree(result.tree, depth)
     val styles = collectStylePaths(result).map { path =>
