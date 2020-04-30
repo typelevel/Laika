@@ -31,12 +31,16 @@ package laika.config
   * @author Jens Halm
   */
 trait DefaultKey[T] {
-  def value: String
+  def value: Key
 }
 
 object DefaultKey {
   
   /** Creates a new instance for the specified key.
     */
-  def apply[T](key: String): DefaultKey[T] = new DefaultKey[T] { val value: String = key }
+  def apply[T](key: Key): DefaultKey[T] = new DefaultKey[T] { val value: Key = key }
+
+  /** Creates a new instance for the specified key.
+    */
+  def apply[T](key: String): DefaultKey[T] = apply(Key.parse(key))
 }

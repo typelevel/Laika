@@ -16,7 +16,6 @@
 
 package laika.config
 
-import cats.implicits._
 import laika.ast.{Path, SegmentedPath}
 import laika.ast.Path.Root
 
@@ -42,7 +41,7 @@ object Key {
   
   def apply(segment: String, segments: String*): Key = Key(segment +: segments)
   
-  def parse(key: String): Key = if (key.isEmpty) Key(Nil) else {
+  def parse(key: String): Key = if (key.isEmpty) root else {
     val segments = key.split("\\.").toList
     Key(segments)
   }

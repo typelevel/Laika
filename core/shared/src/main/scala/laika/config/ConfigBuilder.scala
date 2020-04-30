@@ -32,7 +32,12 @@ class ConfigBuilder (fields: Seq[Field], origin: Origin, fallback: Config = Empt
   /** Returns a new builder instance adding the specified value to the existing set of values.
     */
   def withValue[T](key: String, value: T)(implicit encoder: ConfigEncoder[T]): ConfigBuilder =
-    new ConfigBuilder(fields :+ expandPath(Key.parse(key), encoder(value)), origin, fallback)
+    withValue(Key.parse(key), value)
+
+  /** Returns a new builder instance adding the specified value to the existing set of values.
+    */
+  def withValue[T](key: Key, value: T)(implicit encoder: ConfigEncoder[T]): ConfigBuilder =
+    new ConfigBuilder(fields :+ expandPath(key, encoder(value)), origin, fallback)
 
   /** Returns a new builder instance adding the specified value to the existing set of values.
     */
