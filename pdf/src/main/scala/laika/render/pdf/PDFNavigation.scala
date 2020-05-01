@@ -77,9 +77,9 @@ object PDFNavigation {
     *  @param depth the recursion depth through trees, documents and sections
     *  @return a fragment map containing the generated bookmarks
     */
-  def generateBookmarks[F[_]] (result: RenderedTreeRoot[F], depth: Int): Map[String, Element] = if (depth == 0) Map() else {
+  def generateBookmarks[F[_]] (result: RenderedTreeRoot[F], depth: Option[Int]): Map[String, Element] = if (depth.contains(0)) Map() else {
     val context = NavigationBuilderContext(
-      maxLevels = depth,
+      maxLevels = depth.getOrElse(Int.MaxValue),
       currentLevel = 0,
       itemStyles = Set("bookmark")
     )
@@ -91,13 +91,14 @@ object PDFNavigation {
     * The recursion depth can be set with the configuration key `pdf.toc.depth`.
     */
   // TODO - 0.16 - remove in favor of template/theme-based approach
-  def insertToc (tree: DocumentTree, depth: Int, title: Option[String]): DocumentTree = {
+  def insertToc (tree: DocumentTree, depth: Option[Int]): DocumentTree = {
     val context = NavigationBuilderContext(
       refPath = tree.path / DocNames.toc,
-      maxLevels = depth,
+      maxLevels = depth.getOrElse(Int.MaxValue),
       currentLevel = 0
     )
     val toc = tree.asNavigationItem(context).content
+    val title = tree.config.getOpt[String]("pdf.toc.title").toOption.flatten
     val root = title.fold(RootElement(toc)){ title => RootElement(Title(title) +: toc) }
     val doc = Document(tree.path / DocNames.toc, root)
     tree.copy(content = doc +: tree.content)
@@ -107,11 +108,11 @@ object PDFNavigation {
     *  output. Preparation may include insertion of tree or document titles, PDF bookmarks
     *  and a table of content, depending on configuration.
     */
-  def prepareTree (root: DocumentTreeRoot, config: PDF.Config): DocumentTreeRoot = {
+  def prepareTree (root: DocumentTreeRoot, config: PDF.BookConfig): DocumentTreeRoot = {
     val withLinks = 
-      if (config.bookmarkDepth == 0 && config.tocDepth == 0) root.tree
+      if (config.navigationDepth.contains(0)) root.tree
       else addTreeLinks(addDocLinks(root.tree), TitleDocumentConfig.inputName(root.config))
-    val finalTree = if (config.tocDepth > 0) insertToc(withLinks, config.tocDepth, config.tocTitle) else withLinks
+    val finalTree = if (config.navigationDepth.exists(_ > 0)) insertToc(withLinks, config.navigationDepth) else withLinks
     root.copy(tree = finalTree)
   }
   

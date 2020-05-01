@@ -39,7 +39,7 @@ import org.apache.xmlgraphics.util.MimeConstants
   * 
   * @author Jens Halm
   */
-class PDFRenderer (config: Option[PDF.Config], fopFactory: Option[FopFactory]) {
+class PDFRenderer (fopFactory: Option[FopFactory]) {
 
   /** Render the given XSL-FO input as a PDF to the specified
     *  binary output. The optional `sourcePaths` argument

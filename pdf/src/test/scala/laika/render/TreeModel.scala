@@ -22,15 +22,13 @@ import laika.ast.Path.Root
 
 trait TreeModel {
   
-  def usePDFFileConfig: Boolean = false
+  def navigationDepth: Int = 23
 
   def useTitleDocuments: Boolean = false
   
-  private def pdfFileConfig: Config = if (usePDFFileConfig) ConfigBuilder.empty
-      .withValue("pdf.bookmarks.depth", 0)
-      .withValue("pdf.toc.depth", 0)
-      .build
-    else Config.empty
+  private def pdfFileConfig: Config = ConfigBuilder.empty
+    .withValue("pdf.navigationDepth", navigationDepth)
+    .build
   
   def doc (num: Int): Document = {
     val parent = if (num > 4) Root / "tree2" else if (num > 2) Root / "tree1" else Root

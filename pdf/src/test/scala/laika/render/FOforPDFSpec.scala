@@ -19,6 +19,7 @@ package laika.render
 import cats.effect.{Async, IO}
 import cats.implicits._
 import laika.api.Renderer
+import laika.api.builder.TwoPhaseRendererBuilder
 import laika.ast.{DocumentTreeRoot, TemplateRoot}
 import laika.config.ConfigException
 import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
@@ -29,18 +30,18 @@ import laika.io.implicits._
 import laika.io.model.{BinaryOutput, RenderedTreeRoot}
 import laika.io.runtime.Runtime
 import laika.io.{FileIO, IOSpec}
-import laika.render.pdf.{FOConcatenation, PDFConfigBuilder, PDFNavigation}
+import laika.render.pdf.{FOConcatenation, PDFNavigation}
 
 
 class FOforPDFSpec extends IOSpec with FileIO {
 
   
-  case class FOTest (config: Option[PDF.Config]) extends TwoPhaseRenderFormat[FOFormatter, BinaryPostProcessor] {
+  object FOTest extends TwoPhaseRenderFormat[FOFormatter, BinaryPostProcessor] {
     
     val interimFormat: RenderFormat[FOFormatter] = XSLFO
     
     def prepareTree (root: DocumentTreeRoot): Either[Throwable, DocumentTreeRoot] = {
-      val pdfConfig = config.map(Right(_)).getOrElse(PDFConfigBuilder.fromTreeConfig(root.config))
+      val pdfConfig = PDF.BookConfig.decodeWithDefaults(root.config)
       val rootWithTemplate = root.copy(tree = root.tree.withDefaultTemplate(TemplateRoot.fallback, "fo"))
       pdfConfig.map(PDFNavigation.prepareTree(rootWithTemplate, _)).left.map(ConfigException)
     }
@@ -49,7 +50,7 @@ class FOforPDFSpec extends IOSpec with FileIO {
 
       override def process[F[_]: Async: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput[F]): F[Unit] = {
 
-        val pdfConfig = config.map(Right(_)).getOrElse(PDFConfigBuilder.fromTreeConfig(result.config))
+        val pdfConfig = PDF.BookConfig.decodeWithDefaults(result.config)
         
         output.resource.use { out =>
           for {
@@ -149,9 +150,9 @@ class FOforPDFSpec extends IOSpec with FileIO {
   
   trait Setup extends TreeModel with ResultModel {
     
-    def config: Option[PDF.Config]
+    lazy val renderer: ParallelRenderer[IO] = Renderer.of(FOTest).io(blocker).parallel[IO].build
     
-    lazy val renderer: ParallelRenderer[IO] = Renderer.of(FOTest(config)).io(blocker).parallel[IO].build
+    type Builder = TwoPhaseRendererBuilder[FOFormatter, BinaryPostProcessor]
     
     def result: IO[String] = withByteArrayTextOutput { out =>
       renderer.from(DocumentTreeRoot(tree)).toStream(IO.pure(out)).render.void
@@ -164,44 +165,12 @@ class FOforPDFSpec extends IOSpec with FileIO {
 
     "render a tree with all structure elements disabled" in new Setup {
 
-      val config = Some(PDF.Config(bookmarkDepth = 0, tocDepth = 0))
+      override val navigationDepth = 0
 
       result.assertEquals(withDefaultTemplate(results(6)))
     }
 
-    "render a tree with all structure elements disabled by a tree configuration file" in new Setup {
-
-      val config = None
-
-      override val usePDFFileConfig = true
-
-      result.assertEquals(withDefaultTemplate(results(6)))
-    }
-
-    "render a tree with a table of content" in new Setup {
-
-      val config = Some(PDF.Config(bookmarkDepth = 0, tocDepth = Int.MaxValue, tocTitle = Some("Contents")))
-
-      result.assertEquals(withDefaultTemplate(treeLinkResult(1) + tocTitle + tocDocResult(1) + tocDocResult(2)
-        + tocTreeResult(1) + tocDocResult(3) + tocDocResult(4)
-        + tocTreeResult(2) + tocDocResult(5) + tocDocResult(6).dropRight(1) + resultWithDocTitle(1) + resultWithDocTitle(2)
-        + treeLinkResult(2) + resultWithDocTitle(3) + resultWithDocTitle(4)
-        + treeLinkResult(3) + resultWithDocTitle(5) + resultWithDocTitle(6)))
-    }
-
-    "render a tree with bookmarks" in new Setup {
-
-      val config = Some(PDF.Config(bookmarkDepth = Int.MaxValue, tocDepth = 0))
-
-      result.assertEquals(withDefaultTemplate(treeLinkResult(1) + resultWithDocTitle(1) + resultWithDocTitle(2)
-        + treeLinkResult(2) + resultWithDocTitle(3) + resultWithDocTitle(4)
-        + treeLinkResult(3) + resultWithDocTitle(5) + resultWithDocTitle(6),
-        bookmarkRootResult + bookmarkTreeResult(1, 3) + bookmarkTreeResult(2, 5).dropRight(1) + closeBookmarks))
-    }
-
-    "render a tree with all structure elements enabled" in new Setup {
-
-      val config = Some(PDF.Config.default)
+    "render a tree with navigation elements enabled" in new Setup {
 
       result.assertEquals(withDefaultTemplate(
         treeLinkResult(1) + tocDocResult(1) + tocDocResult(2)
@@ -214,11 +183,9 @@ class FOforPDFSpec extends IOSpec with FileIO {
       ))
     }
 
-    "render a tree with all structure elements enabled, handling a title document in both subtrees" in new Setup {
+    "render a tree with navigation elements enabled, handling a title document in both subtrees" in new Setup {
 
       override val useTitleDocuments = true
-
-      val config = Some(PDF.Config.default)
 
       result.assertEquals(withDefaultTemplate(
         treeLinkResult(1) + tocDocResult(1) + tocDocResult(2)

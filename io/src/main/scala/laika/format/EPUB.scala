@@ -116,8 +116,8 @@ case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor
     implicit val defaultKey: DefaultKey[BookConfig] = DefaultKey("epub")
     
     def decodeWithDefaults (config: Config): ConfigResult[BookConfig] = for {
-      epubConfig   <- config.get[BookConfig]
-      commonConfig <- config.get[laika.rewrite.nav.BookConfig]
+      epubConfig   <- config.getOpt[BookConfig].map(_.getOrElse(BookConfig()))
+      commonConfig <- config.getOpt[laika.rewrite.nav.BookConfig].map(_.getOrElse(laika.rewrite.nav.BookConfig()))
     } yield {
       BookConfig(
         epubConfig.metadata.withDefaults(commonConfig.metadata), 

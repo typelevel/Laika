@@ -17,16 +17,20 @@
 package laika.format
 
 import java.io.File
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
+import java.util.{Date, Locale, UUID}
 
 import cats.effect.Async
 import cats.implicits._
-import laika.ast.{DocumentMetadata, DocumentTreeRoot, SpanSequence, TemplateRoot}
-import laika.config.ConfigException
+import laika.ast.{DocumentMetadata, DocumentTreeRoot, Path, TemplateRoot}
+import laika.config.Config.ConfigResult
+import laika.config.{Config, ConfigDecoder, ConfigEncoder, ConfigException, DefaultKey}
 import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
 import laika.io.model.{BinaryOutput, RenderedTreeRoot}
 import laika.io.runtime.Runtime
 import laika.render.FOFormatter
-import laika.render.pdf.{FOConcatenation, PDFConfigBuilder, PDFNavigation, PDFRenderer}
+import laika.render.pdf.{FOConcatenation, PDFNavigation, PDFRenderer}
 import org.apache.fop.apps.{FopFactory, FopFactoryBuilder}
 
 /** A post processor for PDF output, based on an interim XSL-FO renderer. 
@@ -59,13 +63,10 @@ import org.apache.fop.apps.{FopFactory, FopFactoryBuilder}
  * 
  *  @author Jens Halm
  */
-class PDF private(val interimFormat: RenderFormat[FOFormatter], config: Option[PDF.Config], fopFactory: Option[FopFactory]) 
+class PDF private(val interimFormat: RenderFormat[FOFormatter], fopFactory: Option[FopFactory]) 
   extends TwoPhaseRenderFormat[FOFormatter, BinaryPostProcessor] {
 
   override val description: String = "PDF"
-
-  @deprecated("use withConfigValue on builder API for Transformer or Renderer", "0.15.0")
-  def withConfig (config: PDF.Config): PDF = new PDF(interimFormat, Some(config), fopFactory)
 
   /** Allows to specify a custom FopFactory in case additional configuration
     * is required for custom fonts, stemmers or other FOP features.
@@ -75,16 +76,16 @@ class PDF private(val interimFormat: RenderFormat[FOFormatter], config: Option[P
     * In case you do not specify a custom factory, Laika ensures that the default
     * factory is reused between renderers.
     */
-  def withFopFactory (fopFactory: FopFactory): PDF = new PDF(interimFormat, config, Some(fopFactory))
+  def withFopFactory (fopFactory: FopFactory): PDF = new PDF(interimFormat, Some(fopFactory))
   
-  private lazy val renderer = new PDFRenderer(config, fopFactory)
+  private lazy val renderer = new PDFRenderer(fopFactory)
 
 
   /** Adds PDF bookmarks and/or a table of content to the specified document tree, depending on configuration.
     * The modified tree will be used for rendering the interim XSL-FO result.
     */
   def prepareTree (root: DocumentTreeRoot): Either[Throwable, DocumentTreeRoot] = {
-    val pdfConfig = config.map(Right(_)).getOrElse(PDFConfigBuilder.fromTreeConfig(root.config))
+    val pdfConfig = PDF.BookConfig.decodeWithDefaults(root.config)
     val rootWithTemplate = root.copy(tree = root.tree.withDefaultTemplate(TemplateRoot.fallback, "fo"))
     pdfConfig.map(PDFNavigation.prepareTree(rootWithTemplate, _)).left.map(ConfigException)
   }
@@ -96,7 +97,7 @@ class PDF private(val interimFormat: RenderFormat[FOFormatter], config: Option[P
     override def process[F[_]: Async: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput[F]): F[Unit] = {
       
       val title = result.title.map(_.extractText)
-      val pdfConfig = config.map(Right(_)).getOrElse(PDFConfigBuilder.fromTreeConfig(result.config))
+      val pdfConfig = PDF.BookConfig.decodeWithDefaults(result.config)
       
       for {
         config   <- Async[F].fromEither(pdfConfig.left.map(ConfigException))
@@ -111,7 +112,7 @@ class PDF private(val interimFormat: RenderFormat[FOFormatter], config: Option[P
 
 /** The default instance of the PDF renderer.
   */
-object PDF extends PDF(XSLFO, None, None) {
+object PDF extends PDF(XSLFO, None) {
 
   /** The reusable default instance of the FOP factory
     * that the PDF renderer will use if no custom
@@ -119,21 +120,45 @@ object PDF extends PDF(XSLFO, None, None) {
     */
   lazy val defaultFopFactory: FopFactory = new FopFactoryBuilder(new File(".").toURI).build
 
-  /** Configuration options for the generated PDF output.
+  /** Configuration options for the generated EPUB output.
     *
-    *  @param bookmarkDepth the number of levels bookmarks should be generated for, use 0 to switch off bookmark generation
-    *  @param tocDepth the number of levels to generate a table of contents for, use 0 to switch off toc generation
-    *  @param tocTitle the title for the table of contents
+    * The duplication of the existing `BookConfig` instance from laika-core happens to have a different
+    * implicit key association with the EPUB-specific instance.
+    *
+    * @param metadata the metadata associated with the document
+    * @param navigationDepth the number of levels to generate a table of contents for
+    * @param coverImage the path to the cover image within the virtual document tree   
     */
-  case class Config(bookmarkDepth: Int = Int.MaxValue, tocDepth: Int = Int.MaxValue, tocTitle: Option[String] = None)
+  case class BookConfig(metadata: DocumentMetadata = DocumentMetadata(),
+                        navigationDepth: Option[Int] = None,
+                        coverImage: Option[Path] = None) {
+    lazy val identifier: String = metadata.identifier.getOrElse(s"urn:uuid:${UUID.randomUUID.toString}")
+    lazy val date: Date = metadata.date.getOrElse(new Date)
+    lazy val formattedDate: String = DateTimeFormatter.ISO_INSTANT.format(date.toInstant.truncatedTo(ChronoUnit.SECONDS))
+    lazy val language: String = metadata.language.getOrElse(Locale.getDefault.getDisplayName)
+  }
 
-  /** Companion for the creation of `PDFConfig` instances.
-    */
-  object Config {
+  object BookConfig {
 
-    /** The default configuration, with all optional features enabled.
-      */
-    val default: Config = apply()
+    implicit val decoder: ConfigDecoder[BookConfig] = laika.rewrite.nav.BookConfig.decoder.map(c => BookConfig(
+      c.metadata, c.navigationDepth, c.coverImage
+    ))
+    implicit val encoder: ConfigEncoder[BookConfig] = laika.rewrite.nav.BookConfig.encoder.contramap(c =>
+      laika.rewrite.nav.BookConfig(c.metadata, c.navigationDepth, c.coverImage)
+    )
+    implicit val defaultKey: DefaultKey[BookConfig] = DefaultKey("pdf")
+
+    def decodeWithDefaults (config: Config): ConfigResult[BookConfig] = for {
+      epubConfig   <- config.getOpt[BookConfig].map(_.getOrElse(BookConfig()))
+      commonConfig <- config.getOpt[laika.rewrite.nav.BookConfig].map(_.getOrElse(laika.rewrite.nav.BookConfig()))
+    } yield {
+      BookConfig(
+        epubConfig.metadata.withDefaults(commonConfig.metadata),
+        epubConfig.navigationDepth.orElse(commonConfig.navigationDepth),
+        epubConfig.coverImage.orElse(commonConfig.coverImage)
+      )
+    }
+
   }
 
 }

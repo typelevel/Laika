@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package laika.render.epub
+package laika.render
 
 import laika.ast.DocumentMetadata
 import laika.ast.Path.Root
@@ -25,9 +25,7 @@ import laika.time.PlatformDateFormat
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
-/**
-  * @author Jens Halm
-  */
+
 class BookConfigSpec extends AnyWordSpec with Matchers {
 
   def decode[T: ConfigDecoder] (input: String): ConfigResult[T] =
@@ -35,7 +33,7 @@ class BookConfigSpec extends AnyWordSpec with Matchers {
 
   def decode[T: ConfigDecoder] (config: Config): ConfigResult[T] = config.get[T]("test")
   
-  "The codec for EPUB book configuration " should {
+  "The codec for PDF book configuration " should {
 
     "decode defaults with an empty config" in {
       BookConfig.decodeWithDefaults(Config.empty) shouldBe Right(BookConfig())

@@ -22,7 +22,6 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.format.{PDF, XSLFO}
 import laika.io.model.{RenderedDocument, RenderedTree, RenderedTreeRoot}
-import laika.render.pdf.PDFNavigation.DocNames
 
 /** Concatenates the XSL-FO that serves as a basis for producing the final PDF output
   * and applies the default XSL-FO template to the entire result.
@@ -38,7 +37,7 @@ object FOConcatenation {
     *  @param config the configuration to apply
     *  @return the rendered XSL-FO merged to a single String 
     */
-  def apply[F[_]] (result: RenderedTreeRoot[F], config: PDF.Config): Either[ConfigError, String] = {
+  def apply[F[_]] (result: RenderedTreeRoot[F], config: PDF.BookConfig): Either[ConfigError, String] = {
 
     def concatDocuments: String = {
 
@@ -76,7 +75,7 @@ object FOConcatenation {
       val finalDoc = Document(
         Path.Root / "merged.fo",
         RootElement(foElement),
-        fragments = PDFNavigation.generateBookmarks(resultWithoutToc, config.bookmarkDepth),
+        fragments = PDFNavigation.generateBookmarks(resultWithoutToc, config.navigationDepth),
         config = finalConfig
       )
       val renderer = Renderer.of(XSLFO).build
