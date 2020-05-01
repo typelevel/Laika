@@ -16,9 +16,11 @@
 
 package laika.config
 
-import laika.ast.DocumentMetadata
+import laika.ast.{DocumentMetadata, ExternalTarget, InternalTarget}
 import laika.ast.Path.Root
+import laika.ast.RelativePath.CurrentTree
 import laika.config.Config.ConfigResult
+import laika.rewrite.link.{ApiLinks, LinkConfig, TargetDefinition}
 import laika.rewrite.nav.BookConfig
 import laika.time.PlatformDateFormat
 import org.scalatest.matchers.should.Matchers
@@ -29,8 +31,8 @@ import org.scalatest.wordspec.AnyWordSpec
   */
 class ConfigCodecSpec extends AnyWordSpec with Matchers {
 
-  def decode[T: ConfigDecoder] (input: String): ConfigResult[T] =
-    ConfigParser.parse(input).resolve().flatMap(_.get[T](Key.root))
+  def decode[T: ConfigDecoder: DefaultKey] (input: String): ConfigResult[T] =
+    ConfigParser.parse(input).resolve().flatMap(_.get[T])
 
   def decode[T: ConfigDecoder] (config: Config): ConfigResult[T] = config.get[T]("test")
 
@@ -38,12 +40,12 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
 
     "decode an instance with all fields populated" in {
       val input =
-        """{
+        """{ metadata {
           |  identifier = XX-33-FF-01
           |  authors = [ "Helen North", "Maria South" ]
           |  language = en
           |  date = "2002-10-10T12:00:00"
-          |}
+          |}}
         """.stripMargin
       decode[DocumentMetadata](input) shouldBe Right(DocumentMetadata(
         Some("XX-33-FF-01"),
@@ -55,12 +57,12 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
 
     "decode an instance with a single author" in {
       val input =
-        """{
+        """{ metadata {
           |  identifier = XX-33-FF-01
           |  author = "Dorothea West"
           |  language = en
           |  date = "2002-10-10T12:00:00"
-          |}
+          |}}
         """.stripMargin
       decode[DocumentMetadata](input) shouldBe Right(DocumentMetadata(
         Some("XX-33-FF-01"),
@@ -88,12 +90,12 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
 
     "fail with an invalid date" in {
       val input =
-        """{
+        """{ metadata {
           |  identifier = XX-33-FF-01
           |  author = "Dorothea West"
           |  language = en
           |  date = "2000-XX-01T00:00:00Z"
-          |}
+          |}}
         """.stripMargin
       decode[DocumentMetadata](input) shouldBe Left(
         DecodingError("Invalid date format: Text '2000-XX-01T00:00:00Z' could not be parsed at index 5")
@@ -156,6 +158,75 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
         Some(3),
         Some(Root / "cover.jpg")
       ))
+    }
+
+  }
+
+  "The codec for LinkConfig" should {
+
+    def sort (config: ConfigResult[LinkConfig]): ConfigResult[LinkConfig] = config.map { c =>
+      c.copy(targets = c.targets.sortBy(_.id))
+    }
+
+    val fullyPopulatedInstance = LinkConfig(
+      Seq(
+        TargetDefinition("bar", InternalTarget(Root, CurrentTree / "bar")),
+        TargetDefinition("ext", ExternalTarget("http://ext.com")),
+        TargetDefinition("foo", InternalTarget(Root, CurrentTree / "foo"))
+      ),
+      Seq(Root / "foo", Root / "bar" / "baz"),
+      Seq(
+        ApiLinks("https://foo.api/", "foo", "package.html"),
+        ApiLinks("https://bar.api/", "foo.bar")
+      )
+    )
+
+    "decode an instance with all fields populated" in {
+      val input =
+        """{
+          |  links {
+          |    targets {
+          |      foo = foo
+          |      bar = bar
+          |      ext = "http://ext.com"
+          |    }
+          |    excludeFromValidation = [
+          |      /foo
+          |      /bar/baz
+          |    ]
+          |    api = [
+          |      { baseUri = "https://foo.api/", packagePrefix = foo, packageSummary = package.html },
+          |      { baseUri = "https://bar.api/", packagePrefix = foo.bar }
+          |    ]
+          |  }
+          |}
+        """.stripMargin
+      sort(decode[LinkConfig](input)) shouldBe Right(fullyPopulatedInstance)
+    }
+
+    "decode an instance with some fields populated" in {
+      val input =
+        """{
+          |  links {
+          |    targets {
+          |      foo = foo
+          |    }
+          |    api = [
+          |      { baseUri = "https://bar.api/" }
+          |    ]
+          |  }
+          |}
+        """.stripMargin
+      sort(decode[LinkConfig](input)) shouldBe Right(LinkConfig(
+        Seq(TargetDefinition("foo", InternalTarget(Root, CurrentTree / "foo"))),
+        Nil,
+        Seq(ApiLinks("https://bar.api/"))
+      ))
+    }
+
+    "round-trip encode and decode" in {
+      val encoded = ConfigBuilder.empty.withValue("test", fullyPopulatedInstance).build
+      sort(decode[LinkConfig](encoded)) shouldBe Right(fullyPopulatedInstance)
     }
 
   }

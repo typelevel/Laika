@@ -63,6 +63,10 @@ object ConfigEncoder {
   implicit def seq[T] (implicit elementEncoder: ConfigEncoder[T]): ConfigEncoder[Seq[T]] = new ConfigEncoder[Seq[T]] {
     def apply (value: Seq[T]) = ArrayValue(value.map(elementEncoder.apply))
   }
+
+  implicit def map[T] (implicit elementEncoder: ConfigEncoder[T]): ConfigEncoder[Map[String, T]] = new ConfigEncoder[Map[String, T]] {
+    def apply (value: Map[String, T]) = ObjectValue(value.toSeq.map(entry => Field(entry._1, elementEncoder(entry._2))))
+  }
   
   def apply[T] (f: T => ConfigValue): ConfigEncoder[T] = new ConfigEncoder[T] {
     def apply (value: T) = f(value)

@@ -43,6 +43,14 @@ object LinkConfig {
     }
   }
   
+  implicit val encoder: ConfigEncoder[LinkConfig] = ConfigEncoder[LinkConfig] { config =>
+    ConfigEncoder.ObjectBuilder.empty
+      .withValue("targets", config.targets.map(t => (t.id, t.target.render())).toMap)
+      .withValue("excludeFromValidation", config.excludeFromValidation)
+      .withValue("api", config.apiLinks)
+      .build
+  }
+  
 }
 
 case class TargetDefinition (id: String, target: Target)
@@ -59,5 +67,13 @@ object ApiLinks {
     } yield {
       ApiLinks(baseUri, prefix, summary)
     }
+  }
+
+  implicit val encoder: ConfigEncoder[ApiLinks] = ConfigEncoder[ApiLinks] { links =>
+    ConfigEncoder.ObjectBuilder.empty
+      .withValue("baseUri", links.baseUri)
+      .withValue("packagePrefix", links.packagePrefix)
+      .withValue("packageSummary", links.packageSummary)
+      .build
   }
 }
