@@ -102,8 +102,7 @@ class PDF private(val interimFormat: RenderFormat[FOFormatter], fopFactory: Opti
       for {
         config   <- Async[F].fromEither(pdfConfig.left.map(ConfigException))
         fo       <- Async[F].fromEither(FOConcatenation(result, config).left.map(ConfigException))
-        metadata <- Async[F].fromEither(DocumentMetadata.fromConfig(result.config).left.map(ConfigException))
-        _        <- renderer.render(fo, output, metadata, title, result.sourcePaths)
+        _        <- renderer.render(fo, output, config.metadata, title, result.sourcePaths)
       } yield ()
     }
   }

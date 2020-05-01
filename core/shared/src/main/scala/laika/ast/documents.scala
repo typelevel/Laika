@@ -213,10 +213,7 @@ object DocumentMetadata {
   
   implicit val defaultKey: DefaultKey[DocumentMetadata] = DefaultKey("metadata")
 
-  /** Tries to obtain the document metadata
-    * from the specified configuration instance or returns
-    * an empty instance.
-    */
+  @deprecated("use config.get[DocumentMetadata] instead", "0.15.0")
   def fromConfig (config: Config): ConfigResult[DocumentMetadata] = 
     config.getOpt[DocumentMetadata].map(_.getOrElse(DocumentMetadata())) 
 
