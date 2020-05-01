@@ -21,7 +21,7 @@ import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.config.Config.ConfigResult
 import laika.rewrite.link.{ApiLinks, LinkConfig, TargetDefinition}
-import laika.rewrite.nav.BookConfig
+import laika.rewrite.nav.{AutonumberConfig, BookConfig}
 import laika.time.PlatformDateFormat
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -227,6 +227,33 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
     "round-trip encode and decode" in {
       val encoded = ConfigBuilder.empty.withValue("test", fullyPopulatedInstance).build
       sort(decode[LinkConfig](encoded)) shouldBe Right(fullyPopulatedInstance)
+    }
+
+  }
+
+  "The codec for AutonumberConfig" should {
+
+    val fullyPopulatedInstance = AutonumberConfig(
+      documents = true,
+      sections = true,
+      maxDepth = 5
+    )
+
+    "decode an instance with all fields populated" in {
+      val input =
+        """{
+          |  autonumbering {
+          |    scope = all
+          |    depth = 5
+          |  }
+          |}
+        """.stripMargin
+      decode[AutonumberConfig](input) shouldBe Right(fullyPopulatedInstance)
+    }
+
+    "round-trip encode and decode" in {
+      val encoded = ConfigBuilder.empty.withValue("test", fullyPopulatedInstance).build
+      decode[AutonumberConfig](encoded) shouldBe Right(fullyPopulatedInstance)
     }
 
   }

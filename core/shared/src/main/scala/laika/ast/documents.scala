@@ -22,7 +22,7 @@ import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.config.Config.{ConfigResult, IncludeMap}
 import laika.config._
-import laika.rewrite.TemplateRewriter
+import laika.rewrite.{TemplateRewriter, nav}
 import laika.rewrite.nav.AutonumberConfig
 
 import scala.annotation.tailrec
@@ -61,7 +61,7 @@ sealed trait TreeContent extends Navigatable {
     config.get[Traced[String]]("title").toOption.flatMap { tracedTitle =>
       if (tracedTitle.origin.scope == configScope) {
         val title = Seq(Text(tracedTitle.value))
-        val autonumberConfig = AutonumberConfig.fromConfig(config).toOption.getOrElse(AutonumberConfig.defaults)
+        val autonumberConfig = config.getOpt[nav.AutonumberConfig].toOption.flatten.getOrElse(AutonumberConfig.defaults)
         val autonumberEnabled = autonumberConfig.documents && position.depth < autonumberConfig.maxDepth
         if (autonumberEnabled) Some(SpanSequence(position.toSpan +: title))
         else Some(SpanSequence(title))

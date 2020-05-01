@@ -17,7 +17,7 @@
 package laika.rewrite.nav
 
 import laika.config.Config.ConfigResult
-import laika.config.{Config, ConfigDecoder, ConfigValue, DefaultKey, InvalidType, ObjectValue, Traced, ValidationError}
+import laika.config.{Config, ConfigDecoder, ConfigEncoder, ConfigValue, DefaultKey, InvalidType, ObjectValue, Traced, ValidationError}
 
 /** Configuration for autonumbering of documents and sections.
  */
@@ -42,6 +42,8 @@ object Scope {
 }
 
 object AutonumberConfig {
+  
+  implicit val defaultKey: DefaultKey[AutonumberConfig] = DefaultKey("autonumbering")
 
   implicit val decoder: ConfigDecoder[AutonumberConfig] = ConfigDecoder.config.flatMap { config =>
     for {
@@ -57,7 +59,19 @@ object AutonumberConfig {
       AutonumberConfig(documents, sections, depth)
     }
   }
-  implicit val defaultKey: DefaultKey[AutonumberConfig] = DefaultKey("autonumbering")
+  
+  implicit val encoder: ConfigEncoder[AutonumberConfig] = ConfigEncoder[AutonumberConfig] { config =>
+    val scopeString = (config.documents, config.sections) match {
+      case (true, false) => "documents"
+      case (false, true) => "sections"
+      case (true, true) => "all"
+      case (false, false) => "none"
+    }
+    ConfigEncoder.ObjectBuilder.empty
+      .withValue("scope", scopeString)
+      .withValue("depth", config.maxDepth)
+      .build
+  }
 
   /** Disables section numbering for the specified config instance.
     * Retains the existing value for auto-numbering of documents.
@@ -72,10 +86,7 @@ object AutonumberConfig {
     }
   }
 
-  /** Tries to obtain the autonumbering configuration
-   *  from the specified configuration instance or returns
-   *  the default configuration if not found.
-   */
+  @deprecated("use config.get[AutonumberConfig] instead", "0.15.0")
   def fromConfig (config: Config): ConfigResult[AutonumberConfig] = 
     config.getOpt[AutonumberConfig].map(_.getOrElse(defaults))
   

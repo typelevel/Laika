@@ -18,6 +18,7 @@ package laika.rewrite.nav
 
 import laika.ast._
 import laika.collection.Stack
+import laika.rewrite.nav
 
 import scala.collection.mutable.ListBuffer
 
@@ -32,9 +33,9 @@ object SectionBuilder extends (DocumentCursor => RewriteRules) {
   
   class DefaultRule (cursor: DocumentCursor) {
 
-    val (errorBlock, autonumberConfig) = AutonumberConfig.fromConfig(cursor.config).fold(
+    val (errorBlock, autonumberConfig) = cursor.config.getOpt[nav.AutonumberConfig].fold(
       error => (Some(InvalidElement(error.message, "").asBlock), AutonumberConfig.defaults),
-      (None, _)
+      opt   => (None, opt.getOrElse(AutonumberConfig.defaults))
     )
     
     def addNumber (spans: Seq[Span], position: TreePosition): Seq[Span] = position.toSpan +: spans
