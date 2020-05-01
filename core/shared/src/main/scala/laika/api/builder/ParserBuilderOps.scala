@@ -16,6 +16,8 @@
 
 package laika.api.builder
 
+import laika.config.{ConfigEncoder, DefaultKey}
+
 /** API for specifying configuration options that apply to all
   * kinds of operations that contain a parsing step (Parser and Transformer).
   *
@@ -43,5 +45,21 @@ trait ParserBuilderOps extends CommonBuilderOps {
     *  the `acceptRawContent` flag set to true.
     */
   def withRawContent: ThisType = withConfig(config.forRawContent)
+
+  /** Returns a new instance with the specified configuration value added.
+    *
+    * The specified value with have higher precedence than any value with the same key registered by extension bundles, 
+    * but lower precedence than any value with the same key specified in a configuration file for a directory 
+    * or a configuration header in a markup document.
+    */
+  def withConfigValue[T: ConfigEncoder: DefaultKey](value: T): ThisType = withConfig(config.withConfigValue(value))
+
+  /** Returns a new instance with the specified configuration value added.
+    *
+    * The specified value with have higher precedence than any value with the same key registered by extension bundles, 
+    * but lower precedence than any value with the same key specified in a configuration file for a directory 
+    * or a configuration header in a markup document.
+    */
+  def withConfigValue[T: ConfigEncoder](key: String, value: T): ThisType = withConfig(config.withConfigValue(key, value))
 
 }
