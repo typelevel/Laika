@@ -18,6 +18,7 @@ package laika.io
 
 import java.io.File
 
+import cats.data.NonEmptyChain
 import cats.effect.IO
 import laika.api.Renderer
 import laika.ast.Path.Root
@@ -32,6 +33,7 @@ import laika.io.implicits._
 import laika.io.model.StringTreeOutput
 import laika.io.runtime.RendererRuntime.{DuplicatePath, RendererErrors}
 import laika.io.text.ParallelRenderer
+import laika.parse.markup.DocumentParser.{ParserError, RuntimeMessages}
 import laika.render._
 import laika.rewrite.ReferenceResolver.CursorKeys
 
@@ -159,6 +161,31 @@ class ParallelRendererSpec extends IOSpec
           .attempt
           .assertEquals(Left(
             RendererErrors(Seq(DuplicatePath(Root / "doc2"), DuplicatePath(Root / "sub" / "doc")))
+          ))
+      }
+    }
+
+    "collect errors from multiple documents" in {
+      def invalidLink (num: Int): RootElement = 
+        root(InvalidElement(s"unresolved link reference: link$num", s"[link$num]").asBlock)
+      new HTMLRenderer {
+        val input = DocumentTree(Root, List(
+          Document(Root / "doc1", invalidLink(1)),
+          Document(Root / "doc2", invalidLink(2)),
+          Document(Root / "sub" / "doc3", invalidLink(3)),
+          Document(Root / "sub" / "doc4", invalidLink(4))
+        ))
+        val messages = input.allDocuments.map { doc =>
+          ParserError(RuntimeMessages(NonEmptyChain.one(RuntimeMessage(MessageLevel.Error,
+            s"unresolved link reference: link${doc.path.name.charAt(3)}")), doc.path))
+        }
+        renderer
+          .from(treeRoot)
+          .toOutput(StringTreeOutput)
+          .render
+          .attempt
+          .assertEquals(Left(
+            RendererErrors(messages)
           ))
       }
     }

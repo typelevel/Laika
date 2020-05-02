@@ -16,6 +16,8 @@
 
 package laika.parse.markup
 
+import cats.implicits._
+import cats.data.NonEmptyChain
 import laika.ast._
 import laika.bundle.{ConfigProvider, MarkupExtensions}
 import laika.config.{ConfigError, ConfigParser}
@@ -38,8 +40,23 @@ object DocumentParser {
     RuntimeException(s"Error parsing document '$path': $message")
   
   object ParserError {
-    def apply(configError: ConfigError, path: Path): ParserError = 
+    
+    def apply(configError: ConfigError, path: Path): ParserError =
       ParserError(s"Configuration Error: ${configError.message}", path)
+    
+    def apply (messages: RuntimeMessages): ParserError =
+      ParserError(s"One or more error nodes in result:\n ${messages.concatenated}", messages.path)
+  }
+  
+  case class RuntimeMessages (messages: NonEmptyChain[RuntimeMessage], path: Path) {
+    def concatenated: String = messages.map(_.content).mkString_("\n ")
+  }
+  
+  object RuntimeMessages {
+    
+    def from (messages: Seq[RuntimeMessage], path: Path): Option[RuntimeMessages] =
+      NonEmptyChain.fromSeq(messages).map(RuntimeMessages(_, path))
+    
   }
 
   private def create [D, R <: ElementContainer[_]] (rootParser: Parser[R], configProvider: ConfigProvider)

@@ -16,17 +16,16 @@
 
 package laika.api
 
-import laika.api.builder.ParserBuilder
-import laika.ast.{Document, DocumentCursor, EmbeddedConfigValue, Path, UnresolvedDocument}
+import laika.api.builder.{OperationConfig, ParserBuilder}
 import laika.ast.Path.Root
-import laika.api.builder.OperationConfig
+import laika.ast.{Document, DocumentCursor, EmbeddedConfigValue, Path, UnresolvedDocument}
 import laika.config.Origin.DocumentScope
-import laika.config.{ConfigValue, Origin}
+import laika.config.{Config, Origin}
 import laika.factory.MarkupFormat
 import laika.parse.ParserContext
 import laika.parse.directive.ConfigHeaderParser
 import laika.parse.markup.DocumentParser
-import laika.parse.markup.DocumentParser.{ParserError, ParserInput}
+import laika.parse.markup.DocumentParser.{RuntimeMessages, ParserError, ParserInput}
 import laika.rewrite.TemplateRewriter
 
 /** Performs a parse operation from text markup to a
@@ -75,18 +74,22 @@ class MarkupParser (val format: MarkupFormat, val config: OperationConfig) {
     */
   def parse (input: ParserInput): Either[ParserError, Document] = {
     
-    def extractConfigValues (doc: Document): Seq[(String, ConfigValue)] = doc.content.collect { case c: EmbeddedConfigValue => (c.key, c.value) }
-      
+    def resolveDocument (unresolved: UnresolvedDocument, docConfig: Config): Either[ParserError, Document] = {
+      val embeddedConfig = unresolved.document.content.collect { case c: EmbeddedConfigValue => (c.key, c.value) }
+      val resolvedDoc = unresolved.document.copy(config = ConfigHeaderParser.merge(docConfig, embeddedConfig))
+      val phase1 = resolvedDoc.rewrite(config.rewriteRulesFor(resolvedDoc))
+      val result = phase1.rewrite(TemplateRewriter.rewriteRules(DocumentCursor(phase1)))
+      RuntimeMessages.from(result.runtimeMessages(config.failOnMessages), input.path)
+        .map(ParserError(_)).toLeft(result)
+    }
+    
     for {
       unresolved     <- docParser(input)
-      resolvedConfig <- unresolved.config.resolve(Origin(DocumentScope, input.path), 
-                          config.baseConfig).left.map(ParserError(_, input.path))
-    } yield {
-      val processedConfig = ConfigHeaderParser.merge(resolvedConfig, extractConfigValues(unresolved.document)) // TODO - move this somewhere else
-      val resolvedDoc = unresolved.document.copy(config = processedConfig)
-      val phase1 = resolvedDoc.rewrite(config.rewriteRulesFor(resolvedDoc))
-      phase1.rewrite(TemplateRewriter.rewriteRules(DocumentCursor(phase1)))
-    }
+      resolvedConfig <- unresolved.config
+                          .resolve(Origin(DocumentScope, input.path), config.baseConfig)
+                          .left.map(ParserError(_, input.path))
+      result         <- resolveDocument(unresolved, resolvedConfig)
+    } yield result
   }
 
   def parseUnresolved (input: String): Either[ParserError, UnresolvedDocument] = 

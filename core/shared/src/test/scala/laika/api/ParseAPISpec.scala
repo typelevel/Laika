@@ -16,9 +16,11 @@
 
 package laika.api
 
+import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.Markdown
+import laika.parse.markup.DocumentParser.ParserError
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
@@ -59,6 +61,18 @@ class ParseAPISpec extends AnyFlatSpec
       |[id]: http://foo/""".stripMargin
     MarkupParser.of(Markdown).build.parseUnresolved(input).toOption.get.document.content should be (root 
         (p (LinkDefinitionReference(List(Text("link")), "id", "[link][id]")), LinkDefinition("id",ExternalTarget("http://foo/"),None)))
+  }
+  
+  it should "collect errors from runtime messages" in {
+    val input = """[invalid1]
+                  |
+                  |Text
+                  |
+                  |[invalid2]""".stripMargin
+    val msg = """One or more error nodes in result:
+                | unresolved link reference: invalid1
+                | unresolved link reference: invalid2""".stripMargin
+    MarkupParser.of(Markdown).build.parse(input) shouldBe Left(ParserError(msg, Root))
   }
   
 }

@@ -40,6 +40,7 @@ trait IOSpec extends AnyWordSpec with Matchers {
 
     def asserting(f: A => Assertion): Assertion = self.map(f).unsafeRunSync()
 
+    def assertFailsWith (t: Throwable): Assertion = self.attempt.map(_ shouldBe Left(t)).unsafeRunSync()
   }
   
 }
