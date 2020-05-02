@@ -28,7 +28,7 @@ object LinkConfig {
   
   val empty: LinkConfig = LinkConfig(Nil, Nil, Nil)
   
-  implicit val key: DefaultKey[LinkConfig] = DefaultKey("links")
+  implicit val key: DefaultKey[LinkConfig] = DefaultKey(LaikaKeys.links)
   
   implicit val decoder: ConfigDecoder[LinkConfig] = ConfigDecoder.config.flatMap { config =>
     for {

@@ -81,7 +81,7 @@ class SectionNumberSpec extends AnyFlatSpec
   }
 
   trait NumberAllConfig {
-    val config = """autonumbering { 
+    val config = """laika.autonumbering { 
       |  scope: all
       |}""".stripMargin
     val numberSections = true
@@ -89,7 +89,7 @@ class SectionNumberSpec extends AnyFlatSpec
   }
 
   trait NumberTwoLevels {
-    val config = """autonumbering { 
+    val config = """laika.autonumbering { 
       |  scope: all
       |  depth: 2
       |}""".stripMargin
@@ -98,7 +98,7 @@ class SectionNumberSpec extends AnyFlatSpec
   }
 
   trait NumberDocumentsConfig {
-    val config = """autonumbering { 
+    val config = """laika.autonumbering { 
       |  scope: documents
       |}""".stripMargin
     val numberSections = false
@@ -106,7 +106,7 @@ class SectionNumberSpec extends AnyFlatSpec
   }
 
   trait NumberSectionsConfig {
-    val config = """autonumbering { 
+    val config = """laika.autonumbering { 
       |  scope: sections
       |}""".stripMargin
     val numberSections = true
@@ -114,7 +114,7 @@ class SectionNumberSpec extends AnyFlatSpec
   }
 
   trait NumberNothingConfig {
-    val config = """autonumbering { 
+    val config = """laika.autonumbering { 
       |  scope: none
       |}""".stripMargin
     val numberSections = false
@@ -122,7 +122,7 @@ class SectionNumberSpec extends AnyFlatSpec
   }
 
   trait InvalidConfig {
-    val config = """autonumbering { 
+    val config = """laika.autonumbering { 
                    |  scope: xxx
                    |}""".stripMargin
     val numberSections = false

@@ -17,7 +17,7 @@
 package laika.rst.std
 
 import laika.ast._
-import laika.config.{Field, ObjectValue, Origin, StringValue}
+import laika.config.{Field, LaikaKeys, ObjectValue, Origin, StringValue}
 import laika.parse.markup.RecursiveParsers
 import laika.parse.text.TextParsers.anyChars
 import laika.rst.ast.{Contents, FieldList, Include, RstStyle}
@@ -157,7 +157,7 @@ class StandardBlockDirectives {
   /** The title directive, 
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#metadata-document-title]] for details.
    */
-  lazy val titleDirective = argument() map (EmbeddedConfigValue("title", _))
+  lazy val titleDirective = argument() map (EmbeddedConfigValue(LaikaKeys.title.toString, _))
   
   /** The meta directive, 
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#meta]] for details.
@@ -195,7 +195,7 @@ class StandardBlockDirectives {
       val fields = (depth.toList ++ start.toList ++ prefix.toList ++ suffix.toList).map { case (name, value) => 
         Field(name, StringValue(value), Origin.root)
       }
-      EmbeddedConfigValue("autonumbering", ObjectValue(fields))
+      EmbeddedConfigValue(LaikaKeys.autonumbering.toString, ObjectValue(fields))
   }
   
   lazy val contents: DirectivePartBuilder[Block] = (optArgument(withWS = true) ~ optField("depth", positiveInt) ~ optField("local") ~ optField("class")).map {

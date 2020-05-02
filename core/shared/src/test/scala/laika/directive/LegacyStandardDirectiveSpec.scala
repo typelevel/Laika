@@ -280,7 +280,7 @@ class LegacyStandardDirectiveSpec extends AnyFlatSpec
     def parseAndRewrite (template: String, markup: String): RootElement = {
       val templateDoc = TemplateDocument(Root / "test.html", parseTemplate(template))
       val doc = Document(pathUnderTest, parse(markup, pathUnderTest).content, config =
-        config(pathUnderTest, "Doc 7", Origin.DocumentScope).withValue("template","/test.html").build)
+        config(pathUnderTest, "Doc 7", Origin.DocumentScope).withValue(LaikaKeys.template,"/test.html").build)
       val inputTree = buildTree(templateDoc, doc)
       val tree = inputTree.rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree)))
       TemplateRewriter.applyTemplates(DocumentTreeRoot(tree), "html").toOption.get.tree.selectDocument(CurrentTree / "sub2" / "doc7").get.content

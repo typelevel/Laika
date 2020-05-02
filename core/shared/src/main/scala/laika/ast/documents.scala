@@ -211,7 +211,7 @@ object DocumentMetadata {
       .build
   }
   
-  implicit val defaultKey: DefaultKey[DocumentMetadata] = DefaultKey("metadata")
+  implicit val defaultKey: DefaultKey[DocumentMetadata] = DefaultKey(LaikaKeys.metadata)
 
   @deprecated("use config.get[DocumentMetadata] instead", "0.15.0")
   def fromConfig (config: Config): ConfigResult[DocumentMetadata] = 

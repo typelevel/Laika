@@ -21,24 +21,26 @@ package laika.config
   * @author Jens Halm
   */
 object LaikaKeys {
+  
+  val root = Key("laika")
 
-  val title = Key("title")
+  val title: Key = root.child("title")
   
-  val template = Key("template")
+  val template: Key = root.child("template")
   
-  def template (format: String): Key = Key(format, "template")
+  def template (format: String): Key = root.child(Key(format, "template"))
   
-  val metadata = Key("metadata")
+  val metadata: Key = root.child("metadata")
   
-  val links = Key("links")
+  val links: Key = root.child("links")
   
-  val autonumbering = Key("autonumbering")
+  val autonumbering: Key = root.child("autonumbering")
   
-  val navigationOrder = Key("navigationOrder")
+  val navigationOrder: Key = root.child("navigationOrder")
   
   object titleDocuments {
-    val inputName = Key("titleDocuments","inputName")
-    val outputName = Key("titleDocuments","outputName")
+    val inputName: Key = root.child(Key("titleDocuments","inputName"))
+    val outputName: Key = root.child(Key("titleDocuments","outputName"))
   }
   
 }

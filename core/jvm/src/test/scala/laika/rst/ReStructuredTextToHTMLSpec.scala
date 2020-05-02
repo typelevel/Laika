@@ -59,7 +59,7 @@ class ReStructuredTextToHTMLSpec extends AnyFlatSpec
   def transformAndCompare (name: String): Unit = {
     val noValidation =
       """{%
-        |links.excludeFromValidation = ["/"] 
+        |laika.links.excludeFromValidation = ["/"] 
         |%}
         |""".stripMargin
     

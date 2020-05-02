@@ -252,7 +252,7 @@ class RewriteRulesSpec extends AnyWordSpec
 
     val linkDefinitions =
       """{ 
-        |  links.targets {
+        |  laika.links.targets {
         |    int = "../doc1.md#ref" 
         |    ext = "https://www.foo.com/"
         |    inv = "../doc99.md#ref"

@@ -113,7 +113,7 @@ case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor
     implicit val encoder: ConfigEncoder[BookConfig] = laika.rewrite.nav.BookConfig.encoder.contramap(c => 
       laika.rewrite.nav.BookConfig(c.metadata, c.navigationDepth, c.coverImage)
     )
-    implicit val defaultKey: DefaultKey[BookConfig] = DefaultKey("epub")
+    implicit val defaultKey: DefaultKey[BookConfig] = DefaultKey(Key("laika","epub"))
     
     def decodeWithDefaults (config: Config): ConfigResult[BookConfig] = for {
       epubConfig   <- config.getOpt[BookConfig].map(_.getOrElse(BookConfig()))

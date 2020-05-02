@@ -31,7 +31,7 @@ class DocumentAPISpec extends AnyFlatSpec
   val parser = MarkupParser.of(Markdown).build
 
   "The Document API" should "allow to specify a title in a config section" in {
-    val markup = """{% title: Foo and Bar %}
+    val markup = """{% laika.title: Foo and Bar %}
       |
       |# Ignored Title
       |

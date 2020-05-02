@@ -30,7 +30,7 @@ import org.scalatest.wordspec.AnyWordSpec
   * @author Jens Halm
   */
 class ConfigCodecSpec extends AnyWordSpec with Matchers {
-  
+
   private val testKey = Key("test")
 
   def decode[T: ConfigDecoder: DefaultKey] (input: String): ConfigResult[T] =
@@ -42,7 +42,8 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
 
     "decode an instance with all fields populated" in {
       val input =
-        """{ metadata {
+        """{ 
+          |laika.metadata {
           |  identifier = XX-33-FF-01
           |  authors = [ "Helen North", "Maria South" ]
           |  language = en
@@ -59,7 +60,8 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
 
     "decode an instance with a single author" in {
       val input =
-        """{ metadata {
+        """{ 
+          |laika.metadata {
           |  identifier = XX-33-FF-01
           |  author = "Dorothea West"
           |  language = en
@@ -92,7 +94,8 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
 
     "fail with an invalid date" in {
       val input =
-        """{ metadata {
+        """{ 
+          |laika.metadata {
           |  identifier = XX-33-FF-01
           |  author = "Dorothea West"
           |  language = en
@@ -111,6 +114,7 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
     "decode an instance with all fields populated" in {
       val input =
         """{
+          |laika {
           |  metadata {
           |    identifier = XX-33-FF-01
           |    authors = [ "Helen North", "Maria South" ]
@@ -119,7 +123,7 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
           |  }
           |  navigationDepth = 3
           |  coverImage = cover.jpg
-          |}
+          |}}
         """.stripMargin
       decode[BookConfig](input) shouldBe Right(BookConfig(
         DocumentMetadata(
@@ -136,11 +140,12 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
     "decode an instance with some fields populated" in {
       val input =
         """{
+          |laika {
           |  metadata {
           |    identifier = XX-33-FF-01
           |  }
           |  navigationDepth = 3
-          |}
+          |}}
         """.stripMargin
       decode[BookConfig](input) shouldBe Right(BookConfig(
         DocumentMetadata(
@@ -186,7 +191,7 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
     "decode an instance with all fields populated" in {
       val input =
         """{
-          |  links {
+          |  laika.links {
           |    targets {
           |      foo = foo
           |      bar = bar
@@ -209,7 +214,7 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
     "decode an instance with some fields populated" in {
       val input =
         """{
-          |  links {
+          |  laika.links {
           |    targets {
           |      foo = foo
           |    }
@@ -244,7 +249,7 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
     "decode an instance with all fields populated" in {
       val input =
         """{
-          |  autonumbering {
+          |  laika.autonumbering {
           |    scope = all
           |    depth = 5
           |  }

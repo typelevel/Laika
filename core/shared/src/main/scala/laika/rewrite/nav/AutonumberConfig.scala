@@ -46,7 +46,7 @@ object AutonumberConfig {
   private val scopeKey = Key("scope")
   private val depthKey = Key("depth")
   
-  implicit val defaultKey: DefaultKey[AutonumberConfig] = DefaultKey("autonumbering")
+  implicit val defaultKey: DefaultKey[AutonumberConfig] = DefaultKey(LaikaKeys.autonumbering)
 
   implicit val decoder: ConfigDecoder[AutonumberConfig] = ConfigDecoder.config.flatMap { config =>
     for {

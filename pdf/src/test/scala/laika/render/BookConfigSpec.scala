@@ -43,7 +43,8 @@ class BookConfigSpec extends AnyWordSpec with Matchers {
     
     "decode an instance with fallbacks" in {
       val input =
-        """{
+        """{ 
+          |laika {
           |  metadata {
           |    identifier = XX-33-FF-01
           |    author = "Helen North"
@@ -59,7 +60,7 @@ class BookConfigSpec extends AnyWordSpec with Matchers {
           |    }
           |    navigationDepth = 4
           |  }
-          |}
+          |}}
         """.stripMargin
       ConfigParser.parse(input).resolve().flatMap(BookConfig.decodeWithDefaults) shouldBe Right(BookConfig(
         DocumentMetadata(

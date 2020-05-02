@@ -25,7 +25,7 @@ import cats.effect.Async
 import cats.implicits._
 import laika.ast.{DocumentMetadata, DocumentTreeRoot, Path, TemplateRoot}
 import laika.config.Config.ConfigResult
-import laika.config.{Config, ConfigDecoder, ConfigEncoder, ConfigException, DefaultKey}
+import laika.config.{Config, ConfigDecoder, ConfigEncoder, ConfigException, DefaultKey, Key}
 import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
 import laika.io.model.{BinaryOutput, RenderedTreeRoot}
 import laika.io.runtime.Runtime
@@ -145,7 +145,7 @@ object PDF extends PDF(XSLFO, None) {
     implicit val encoder: ConfigEncoder[BookConfig] = laika.rewrite.nav.BookConfig.encoder.contramap(c =>
       laika.rewrite.nav.BookConfig(c.metadata, c.navigationDepth, c.coverImage)
     )
-    implicit val defaultKey: DefaultKey[BookConfig] = DefaultKey("pdf")
+    implicit val defaultKey: DefaultKey[BookConfig] = DefaultKey(Key("laika","pdf"))
 
     def decodeWithDefaults (config: Config): ConfigResult[BookConfig] = for {
       epubConfig   <- config.getOpt[BookConfig].map(_.getOrElse(BookConfig()))

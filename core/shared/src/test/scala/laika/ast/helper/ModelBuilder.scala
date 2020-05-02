@@ -119,7 +119,7 @@ trait ModelBuilder {
   }
   
   val disableInternalLinkValidation: Config = 
-    ConfigParser.parse("""{ links.excludeFromValidation = ["/"]}""").resolve().toOption.get
+    ConfigParser.parse("""{ laika.links.excludeFromValidation = ["/"]}""").resolve().toOption.get
   
   
   implicit def builderToEnumList (builder: EnumListBuilder): EnumList = builder.toList

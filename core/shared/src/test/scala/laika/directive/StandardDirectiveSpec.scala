@@ -309,7 +309,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
   trait ApiDirectiveSetup {
     def input (typeName: String) =
       s"""{%
-         |  links.api = [
+         |  laika.links.api = [
          |    { baseUri = "https://default.api/" },
          |    { baseUri = "https://foo.api/", packagePrefix = foo },
          |    { baseUri = "https://bar.api/", packagePrefix = foo.bar }
@@ -417,7 +417,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
     def parseAndRewrite (template: String, legacyAdditionalMarkup: String): RootElement = { // TODO - 0.16 - remove
       val templateDoc = TemplateDocument(Root / "test.html", parseTemplate(template))
       val doc = Document(pathUnderTest, parse(legacyAdditionalMarkup, pathUnderTest).content, config =
-        config(pathUnderTest, "Doc 7", Origin.DocumentScope).withValue("template","/test.html").build)
+        config(pathUnderTest, "Doc 7", Origin.DocumentScope).withValue(LaikaKeys.template,"/test.html").build)
       val inputTree = buildTree(List(templateDoc), legacyAdditionalMarkup = List(doc))
       val tree = inputTree.rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree)))
       TemplateRewriter.applyTemplates(DocumentTreeRoot(tree), "html").toOption.get.tree.selectDocument(CurrentTree / "sub2" / "doc7").get.content

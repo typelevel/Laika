@@ -17,7 +17,7 @@
 package laika.rewrite.nav
 
 import laika.ast.{DocumentMetadata, Path}
-import laika.config.{ConfigDecoder, ConfigEncoder, DefaultKey, Key, LaikaKeys}
+import laika.config.{ConfigDecoder, ConfigEncoder, DefaultKey, LaikaKeys}
 
 /**
   * @author Jens Halm
@@ -44,6 +44,6 @@ object BookConfig {
       .withValue("coverImage", bc.coverImage)
       .build
   }
-  implicit val defaultKey: DefaultKey[BookConfig] = DefaultKey(Key.root)
+  implicit val defaultKey: DefaultKey[BookConfig] = DefaultKey(LaikaKeys.root)
   
 }

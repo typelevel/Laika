@@ -116,7 +116,7 @@ class DocumentTreeAPISpec extends AnyFlatSpec
   it should "obtain the title from the document config if present" in {
     new TreeModel {
       val title = Seq(Text("from-content"))
-      val tree = treeWithDoc(Root, "doc", root(laika.ast.Title(title)), Some("title: from-config"))
+      val tree = treeWithDoc(Root, "doc", root(laika.ast.Title(title)), Some("laika.title: from-config"))
       tree.content.head.title should be (Some(SpanSequence("from-config")))
     }
   }
@@ -124,7 +124,7 @@ class DocumentTreeAPISpec extends AnyFlatSpec
   it should "not inherit the tree title as the document title" in {
     new TreeModel {
       val title = Seq(Text("from-content"))
-      val treeConfig = createConfig(Root, Some("title: from-config"), TreeScope)
+      val treeConfig = createConfig(Root, Some("laika.title: from-config"), TreeScope)
       val docConfig = createConfig(Root / "doc", Some("foo: bar")).withFallback(treeConfig)
       val tree = DocumentTree(Root, List(
         Document(Root / "doc", root(laika.ast.Title(title)), config = docConfig)
@@ -165,7 +165,7 @@ class DocumentTreeAPISpec extends AnyFlatSpec
   it should "allow to specify a template for a document using an absolute path" in {
     new TreeModel {
       val template = TemplateDocument(Root / "main.template.html", TemplateRoot.empty)
-      val tree = treeWithSubtree(Root, "sub", "doc", root(), Some("template: /main.template.html")).copy(templates = List(template))
+      val tree = treeWithSubtree(Root, "sub", "doc", root(), Some("laika.template: /main.template.html")).copy(templates = List(template))
       val targetDoc = tree.selectDocument("sub/doc").get
       val cursor = TreeCursor(tree).children.head.asInstanceOf[TreeCursor].children.head.asInstanceOf[DocumentCursor]
       TemplateRewriter.selectTemplate(cursor,  "html") should be (Some(template))
@@ -175,7 +175,7 @@ class DocumentTreeAPISpec extends AnyFlatSpec
   it should "allow to specify a template for a document for a specific output format" in {
     new TreeModel {
       val template = TemplateDocument(Root / "main.template.html", TemplateRoot.empty)
-      val tree = treeWithSubtree(Root, "sub", "doc", root(), Some("html.template: /main.template.html")).copy(templates = List(template))
+      val tree = treeWithSubtree(Root, "sub", "doc", root(), Some("laika.html.template: /main.template.html")).copy(templates = List(template))
       val targetDoc = tree.selectDocument("sub/doc").get
       val cursor = TreeCursor(tree).children.head.asInstanceOf[TreeCursor].children.head.asInstanceOf[DocumentCursor]
       TemplateRewriter.selectTemplate(cursor,  "html") should be (Some(template))
@@ -185,7 +185,7 @@ class DocumentTreeAPISpec extends AnyFlatSpec
   it should "allow to specify a template for a document using a relative path" in {
     new TreeModel {
       val template = TemplateDocument(Root / "main.template.html", TemplateRoot.empty)
-      val tree = treeWithSubtree(Root, "sub", "doc", root(), Some("template: ../main.template.html")).copy(templates = List(template))
+      val tree = treeWithSubtree(Root, "sub", "doc", root(), Some("laika.template: ../main.template.html")).copy(templates = List(template))
       val targetDoc = tree.selectDocument("sub/doc").get
       val cursor = TreeCursor(tree).children.head.asInstanceOf[TreeCursor].children.head.asInstanceOf[DocumentCursor]
       TemplateRewriter.selectTemplate(cursor,  "html") should be (Some(template))

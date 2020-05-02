@@ -85,7 +85,7 @@ object FOTemplate {
     def withOptions (options: Options): this.type = this
     val options = NoOpt
     
-    private val coverImagePath = "pdf.coverImage"
+    private val coverImagePath = "laika.pdf.coverImage"
 
     def resolve (cursor: DocumentCursor): Span = {
       cursor.config

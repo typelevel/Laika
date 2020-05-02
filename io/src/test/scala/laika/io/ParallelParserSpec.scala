@@ -78,8 +78,8 @@ class ParallelParserSpec extends IOSpec
                        |</div>""".stripMargin
       val dynDoc = "${value}"
       val conf = "value: abc"
-      val titleDocNameConf = "titleDocuments.inputName = alternative-title"
-      val order = """navigationOrder: [
+      val titleDocNameConf = "laika.titleDocuments.inputName = alternative-title"
+      val order = """laika.navigationOrder: [
         |  lemon.md
         |  shapes
         |  cherry.md

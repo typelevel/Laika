@@ -59,7 +59,7 @@ object FOConcatenation {
     }
 
     def ensureAbsoluteCoverImagePath: Config = config.coverImage.fold(result.config) { path =>
-      result.config.withValue("pdf.coverImage", path.toString).build
+      result.config.withValue("laika.pdf.coverImage", path.toString).build
     }
 
     val resultWithoutToc = result.copy[F](tree = result.tree.copy(content = result.tree.content.filterNot(_.path == Root / "_toc_.fo")))
