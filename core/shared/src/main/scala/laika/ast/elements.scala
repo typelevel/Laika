@@ -1316,31 +1316,58 @@ sealed abstract class MessageLevel (private val level: Int) extends Ordered[Mess
 }
 
 /** Enumeration of available message levels.
+  * 
+  * The library's internal parsers and AST transformation only use the `Error` level for recoverable issues
+  * encountered during transformations. All other levels are available for user code.
   */
 object MessageLevel {
 
-  /** Debugging information that does not have any effect on the parser result.
+  /** Debug level that is not used by the library itself, but may be used by application code for debugging purposes.
    */
   case object Debug extends MessageLevel(0)
 
-  /** A minor issue that has very little or no effect on the parser result.
+  /** Info level that is not used by the library itself, but may be used by application code for debugging purposes.
    */
   case object Info extends MessageLevel(1)
 
-  /** An issue that should be addressed, if ignored, there may be minor problems with the output.
-   */
+  /** An issue that hints at a potential problem, but in the library's default settings it won't
+    * cause the transformation to fail.
+    */
   case object Warning extends MessageLevel(2)
 
-  /** A major issue that should be addressed, if ignored, the output will contain unpredictable errors.
+  /** An error that is confined to a single AST node or range of nodes, but most likely with surrounding
+    * areas unaffected. An example is an internal link that remained unresolved.
    */
   case object Error extends MessageLevel(3)
 
-  /** A critical error that must be addressed, if ignored, the output will contain severe errors.
-   */
+  /** A critical issue that might affect the integrity of the entire output beyond just the node where it occurred.
+    * An example is a configuration header with parsing errors in a markup document that might affect other markup
+    * content that would then unexpectedly fall back to defaults.
+    */
   case object Fatal extends MessageLevel(4)
 }
 
-/** Groups a span that could not be successfully parsed with a system message.
+/** A filter for runtime messages that meet a specified minimum message level.
+  */
+sealed trait MessageFilter {
+  def apply (message: RuntimeMessage): Boolean
+}
+
+object MessageFilter {
+  case object None extends MessageFilter {
+    def apply (message: RuntimeMessage) = false
+  }
+  private def forLevel (level: MessageLevel) = new MessageFilter {
+    def apply (message: RuntimeMessage) = message.level >= level
+  }
+  val Debug: MessageFilter = forLevel(MessageLevel.Debug)
+  val Info: MessageFilter = forLevel(MessageLevel.Info)
+  val Warning: MessageFilter = forLevel(MessageLevel.Warning)
+  val Error: MessageFilter = forLevel(MessageLevel.Error)
+  val Fatal: MessageFilter = forLevel(MessageLevel.Fatal)
+}
+
+/** Groups a span that could not be successfully parsed with a runtime message.
  *  Renderers may then choose to just render the fallback, the message or both.
  */
 case class InvalidSpan (message: RuntimeMessage, fallback: Span, options: Options = NoOpt) extends Span with Invalid[Span] {

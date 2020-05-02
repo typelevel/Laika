@@ -255,7 +255,7 @@ class DocumentTreeAPISpec extends AnyFlatSpec
     val expected = Seq(1,2,0,3,4,0,5,6).map { num =>
       RuntimeMessage(MessageLevel.Error, s"Message $num")
     }
-    root.tree.runtimeMessages(MessageLevel.Warning) shouldBe expected
+    root.tree.runtimeMessages(MessageFilter.Warning) shouldBe expected
   }
 
 }
