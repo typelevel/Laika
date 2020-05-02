@@ -45,19 +45,24 @@ class DocumentTreeAPISpec extends AnyFlatSpec
     def treeWithSubtree (path: Path, treeName: String, docName: String, root: RootElement, config: Option[String] = None): DocumentTree =
       DocumentTree(path, List(treeWithDoc(path / treeName, docName, root, config)))
 
-    def treeWithTwoSubtrees (contextRef: String): DocumentTree = {
-      val targetRoot = if (contextRef.isEmpty) root() else root(p(MarkupContextReference(Key.parse(contextRef), required = false)))
+    def treeWithTwoSubtrees (contextRef: Option[String] = None, includeRuntimeMessage: Boolean = false): DocumentTree = {
+      val refNode = contextRef.fold(Seq.empty[Span])(ref => Seq(MarkupContextReference(Key.parse(ref), required = false)))
+      def targetRoot (docNum: Int) = {
+        val msgNode = if (includeRuntimeMessage) Seq(RuntimeMessage(MessageLevel.Error, s"Message $docNum")) else Nil
+        root(Paragraph(refNode ++ msgNode))
+      }
       def docs (parent: Path, nums: Int*): Seq[Document] = nums map { n =>
-        Document(parent / ("doc"+n), targetRoot)
+        Document(parent / ("doc"+n), targetRoot(n))
       }
       DocumentTree(Root, docs(Root, 1, 2) ++ List(
-        DocumentTree(Root / "sub1", docs(Root / "sub1", 3, 4), Some(Document(Root / "sub1" / "title", targetRoot))),
-        DocumentTree(Root / "sub2", docs(Root / "sub2", 5, 6), Some(Document(Root / "sub2" / "title", targetRoot)))
+        DocumentTree(Root / "sub1", docs(Root / "sub1", 3, 4), Some(Document(Root / "sub1" / "title", targetRoot(0)))),
+        DocumentTree(Root / "sub2", docs(Root / "sub2", 5, 6), Some(Document(Root / "sub2" / "title", targetRoot(0))))
       ))
     }
-    def leafDocCursor (contextRef: String = ""): DocumentCursor = RootCursor(DocumentTreeRoot(treeWithTwoSubtrees(contextRef))).tree
-      .children.last.asInstanceOf[TreeCursor]
-      .children.last.asInstanceOf[DocumentCursor]
+    def leafDocCursor (contextRef: Option[String] = None, includeRuntimeMessage: Boolean = false): DocumentCursor = 
+      RootCursor(DocumentTreeRoot(treeWithTwoSubtrees(contextRef, includeRuntimeMessage))).tree
+        .children.last.asInstanceOf[TreeCursor]
+        .children.last.asInstanceOf[DocumentCursor]
     
     def treeViewWithDoc (path: Path, name: String, root: RootElement): TreeView =
       TreeView(path, List(Docs(Markup, List(DocumentView(path / name, List(Content(root.content)))))))
@@ -223,26 +228,34 @@ class DocumentTreeAPISpec extends AnyFlatSpec
   }
   
   it should "resolve a substitution reference to the previous document" in new TreeModel {
-    val cursor = leafDocCursor("cursor.previousDocument.relativePath")
+    val cursor = leafDocCursor(Some("cursor.previousDocument.relativePath"))
     cursor.target.rewrite(TemplateRewriter.rewriteRules(cursor)).content shouldBe root(p("doc5"))
   }
 
   it should "be empty for the next document in the final leaf node of the tree" in new TreeModel {
-    val cursor = leafDocCursor("cursor.nextDocument.relativePath")
+    val cursor = leafDocCursor(Some("cursor.nextDocument.relativePath"))
     cursor.target.rewrite(TemplateRewriter.rewriteRules(cursor)).content shouldBe root(p(""))
   }
 
   it should "resolve a substitution reference to the parent document" in new TreeModel {
-    val cursor = leafDocCursor("cursor.parentDocument.relativePath")
+    val cursor = leafDocCursor(Some("cursor.parentDocument.relativePath"))
     cursor.target.rewrite(TemplateRewriter.rewriteRules(cursor)).content shouldBe root(p("title"))
   }
 
   it should "resolve a substitution reference to the previous document in a flattened view" in new TreeModel {
-    val cursor = leafDocCursor("cursor.flattenedSiblings.previousDocument.relativePath")
+    val cursor = leafDocCursor(Some("cursor.flattenedSiblings.previousDocument.relativePath"))
       .flattenedSiblings.previousDocument
       .flatMap(_.flattenedSiblings.previousDocument)
       .get
     cursor.target.rewrite(TemplateRewriter.rewriteRules(cursor)).content shouldBe root(p("../sub1/doc4"))
+  }
+  
+  it should "provide all runtime message in the tree" in new TreeModel {
+    val root = leafDocCursor(includeRuntimeMessage = true).root.target
+    val expected = Seq(1,2,0,3,4,0,5,6).map { num =>
+      RuntimeMessage(MessageLevel.Error, s"Message $num")
+    }
+    root.tree.runtimeMessages(MessageLevel.Warning) shouldBe expected
   }
 
 }

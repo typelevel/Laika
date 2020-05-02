@@ -78,6 +78,10 @@ sealed trait TreeContent extends Navigatable {
     * @return a navigation item that can be used as part of a bigger navigation structure comprising of trees, documents and their sections
     **/
   def asNavigationItem(context: NavigationBuilderContext = NavigationBuilderContext()): NavigationItem
+
+  /** Extracts all runtime messages with the specified minimum level from this tree content.
+    */
+  def runtimeMessages (minLevel: MessageLevel): Seq[RuntimeMessage]
 }
 
 /** Represents a document structure with sections that can be turned into a navigation structure.
@@ -306,6 +310,9 @@ trait DocumentStructure extends DocumentNavigation { this: TreeContent =>
     extractSections(findRoot)
   }
 
+  def runtimeMessages (minLevel: MessageLevel): Seq[RuntimeMessage] = content.collect {
+    case msg: RuntimeMessage if msg.level >= minLevel => msg
+  }
 }
 
 /** The structure of a document tree.
@@ -445,6 +452,8 @@ trait TreeStructure { this: TreeContent =>
     context.newNavigationItem(navTitle, titleDocument.map(_.path), children)
   }
 
+  def runtimeMessages (minLevel: MessageLevel): Seq[RuntimeMessage] = 
+    titleDocument.toSeq.flatMap(_.runtimeMessages(minLevel)) ++ content.flatMap(_.runtimeMessages(minLevel))
 }
 
 /** Generically builds a tree structure out of a flat sequence of elements with a `Path` property that 
