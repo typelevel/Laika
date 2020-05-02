@@ -17,7 +17,7 @@
 package laika.render.epub
 
 import cats.effect.IO
-import laika.config.{Config, ConfigBuilder}
+import laika.config.{Config, ConfigBuilder, LaikaKeys}
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
@@ -35,7 +35,7 @@ trait InputTreeBuilder extends ModelBuilder with InputBuilder {
 
   def sections: Seq[SectionInfo] = Seq(section('A'), section('B'))
 
-  def configWithTreeTitle (num: Int): Config = ConfigBuilder.empty.withValue("title", s"Tree $num").build
+  def configWithTreeTitle (num: Int): Config = ConfigBuilder.empty.withValue(LaikaKeys.title, s"Tree $num").build
   
   def rootTree (path: Path, titleNum: Int, docs: RenderContent*): RenderedTreeRoot[IO] = {
     RenderedTreeRoot(tree(path, titleNum, docs: _*), TemplateRoot.empty, Config.empty)

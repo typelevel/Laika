@@ -58,20 +58,15 @@ object FOConcatenation {
       sb.toString
     }
 
-    def resolveCoverImagePath: Config =
-      result.config.get[String]("pdf.coverImage").toOption.fold(result.config) { uri =>
-        val resolvedUri = Target.create(uri) match {
-          case et: ExternalTarget => et.url
-          case it: InternalTarget => it.absolutePath.toString
-        }
-        result.config.withValue("pdf.coverImage", resolvedUri).build
-      }
+    def ensureAbsoluteCoverImagePath: Config = config.coverImage.fold(result.config) { path =>
+      result.config.withValue("pdf.coverImage", path.toString).build
+    }
 
     val resultWithoutToc = result.copy[F](tree = result.tree.copy(content = result.tree.content.filterNot(_.path == Root / "_toc_.fo")))
 
     def applyTemplate(foString: String, template: TemplateDocument): Either[ConfigError, String] = {
       val foElement = RawContent(Seq("fo"), foString)
-      val finalConfig = resolveCoverImagePath
+      val finalConfig = ensureAbsoluteCoverImagePath
       val finalDoc = Document(
         Path.Root / "merged.fo",
         RootElement(foElement),

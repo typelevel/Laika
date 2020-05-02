@@ -30,11 +30,13 @@ import org.scalatest.wordspec.AnyWordSpec
   * @author Jens Halm
   */
 class ConfigCodecSpec extends AnyWordSpec with Matchers {
+  
+  private val testKey = Key("test")
 
   def decode[T: ConfigDecoder: DefaultKey] (input: String): ConfigResult[T] =
     ConfigParser.parse(input).resolve().flatMap(_.get[T])
 
-  def decode[T: ConfigDecoder] (config: Config): ConfigResult[T] = config.get[T]("test")
+  def decode[T: ConfigDecoder] (config: Config): ConfigResult[T] = config.get[T](testKey)
 
   "The codec for DocumentMetadata" should {
 
@@ -79,7 +81,7 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
         Some("en"),
         Some(PlatformDateFormat.parse("2002-10-10T12:00:00").toOption.get)
       )
-      val encoded = ConfigBuilder.empty.withValue("test", input).build
+      val encoded = ConfigBuilder.empty.withValue(testKey, input).build
       decode[DocumentMetadata](encoded) shouldBe Right(DocumentMetadata(
         Some("XX-33-FF-01"),
         Seq("Helen North", "Maria South"),
@@ -150,7 +152,7 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
 
     "round-trip encode and decode" in {
       val input = BookConfig(DocumentMetadata(Some("XX-33-FF-01")), Some(3), Some(Root / "cover.jpg"))
-      val encoded = ConfigBuilder.empty.withValue("test", input).build
+      val encoded = ConfigBuilder.empty.withValue(testKey, input).build
       decode[BookConfig](encoded) shouldBe Right(BookConfig(
         DocumentMetadata(
           Some("XX-33-FF-01")
@@ -225,7 +227,7 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
     }
 
     "round-trip encode and decode" in {
-      val encoded = ConfigBuilder.empty.withValue("test", fullyPopulatedInstance).build
+      val encoded = ConfigBuilder.empty.withValue(testKey, fullyPopulatedInstance).build
       sort(decode[LinkConfig](encoded)) shouldBe Right(fullyPopulatedInstance)
     }
 
@@ -252,7 +254,7 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
     }
 
     "round-trip encode and decode" in {
-      val encoded = ConfigBuilder.empty.withValue("test", fullyPopulatedInstance).build
+      val encoded = ConfigBuilder.empty.withValue(testKey, fullyPopulatedInstance).build
       decode[AutonumberConfig](encoded) shouldBe Right(fullyPopulatedInstance)
     }
 

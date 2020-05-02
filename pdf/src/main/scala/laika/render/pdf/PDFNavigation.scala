@@ -17,7 +17,7 @@
 package laika.render.pdf
 
 import laika.ast._
-import laika.config.ConfigBuilder
+import laika.config.{ConfigBuilder, LaikaKeys}
 import laika.format.PDF
 import laika.io.model.RenderedTreeRoot
 import laika.rewrite.nav.TitleDocumentConfig
@@ -46,7 +46,7 @@ object PDFNavigation {
       else Some(Document(
         path = tree.path / titleName,
         content = RootElement(InternalLinkTarget(Id(""))),
-        config = ConfigBuilder.empty.withValue("title", tree.title.fold(tree.name)(_.extractText)).build
+        config = ConfigBuilder.empty.withValue(LaikaKeys.title, tree.title.fold(tree.name)(_.extractText)).build
       ))
     }
     tree.copy(

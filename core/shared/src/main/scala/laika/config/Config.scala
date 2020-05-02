@@ -143,6 +143,13 @@ trait Config {
     * a fallback. The returned builder can be used to add further values before calling
     * `build` to retrieve a new instance.
     */
+  def withValue[T](key: Key, value: T)(implicit encoder: ConfigEncoder[T]) : ConfigBuilder =
+    ConfigBuilder.withFallback(this).withValue(key, value)
+
+  /** Creates a new configuration builder with the specified value and this instance as
+    * a fallback. The returned builder can be used to add further values before calling
+    * `build` to retrieve a new instance.
+    */
   def withValue[T](value: T)(implicit encoder: ConfigEncoder[T], defaultKey: DefaultKey[T]): ConfigBuilder =
     ConfigBuilder.withFallback(this).withValue(value)
 

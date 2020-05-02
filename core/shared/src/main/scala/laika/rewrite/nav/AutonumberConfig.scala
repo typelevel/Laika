@@ -17,7 +17,7 @@
 package laika.rewrite.nav
 
 import laika.config.Config.ConfigResult
-import laika.config.{Config, ConfigDecoder, ConfigEncoder, ConfigValue, DefaultKey, InvalidType, ObjectValue, Traced, ValidationError}
+import laika.config.{Config, ConfigDecoder, ConfigEncoder, ConfigValue, DefaultKey, InvalidType, Key, LaikaKeys, ObjectValue, Traced, ValidationError}
 
 /** Configuration for autonumbering of documents and sections.
  */
@@ -43,12 +43,15 @@ object Scope {
 
 object AutonumberConfig {
   
+  private val scopeKey = Key("scope")
+  private val depthKey = Key("depth")
+  
   implicit val defaultKey: DefaultKey[AutonumberConfig] = DefaultKey("autonumbering")
 
   implicit val decoder: ConfigDecoder[AutonumberConfig] = ConfigDecoder.config.flatMap { config =>
     for {
-      scope <- config.get[Scope]("scope", Scope.None)
-      depth <- config.get[Int]("depth", Int.MaxValue)
+      scope <- config.get[Scope](scopeKey, Scope.None)
+      depth <- config.get[Int](depthKey, Int.MaxValue)
     } yield {
       val (documents, sections) = scope match {
         case Scope.Documents => (true,  false)
@@ -68,8 +71,8 @@ object AutonumberConfig {
       case (false, false) => "none"
     }
     ConfigEncoder.ObjectBuilder.empty
-      .withValue("scope", scopeString)
-      .withValue("depth", config.maxDepth)
+      .withValue(scopeKey, scopeString)
+      .withValue(depthKey, config.maxDepth)
       .build
   }
 
@@ -77,7 +80,7 @@ object AutonumberConfig {
     * Retains the existing value for auto-numbering of documents.
     */
   def withoutSectionNumbering (config: Config): Config = {
-    val key = "autonumbering.scope"
+    val key = LaikaKeys.autonumbering.child(scopeKey)
     config.get[Scope](key).toOption.fold(config) {
       case Scope.Documents => config
       case Scope.Sections  => config.withValue(key, "none").build

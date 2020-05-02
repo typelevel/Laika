@@ -358,7 +358,7 @@ object StandardDirectives extends DirectiveRegistry {
     import Templates.dsl._
 
     (allAttributes, cursor).mapN { (config, cursor) =>
-      config.get[NavigationBuilderConfig]("")
+      config.get[NavigationBuilderConfig](Key.root)
         .leftMap(_.message)
         .flatMap(_.eval(cursor).map(TemplateElement(_)))
     }
@@ -371,7 +371,7 @@ object StandardDirectives extends DirectiveRegistry {
     import Blocks.dsl._
 
     (allAttributes, cursor).mapN { (config, cursor) =>
-      config.get[NavigationBuilderConfig]("")
+      config.get[NavigationBuilderConfig](Key.root)
         .leftMap(_.message)
         .flatMap(_.eval(cursor))
     }

@@ -20,7 +20,7 @@ import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast.RelativePath.{CurrentDocument, CurrentTree}
-import laika.config.{Config, ConfigBuilder, ConfigParser, Origin}
+import laika.config.{Config, ConfigBuilder, ConfigParser, LaikaKeys, Origin}
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.Markdown
@@ -259,7 +259,7 @@ class LegacyStandardDirectiveSpec extends AnyFlatSpec
 
     def config(path: Path, title: String, scope: Origin.Scope): Config = ConfigBuilder
       .withOrigin(Origin(scope, path))
-      .withValue("title", title)
+      .withValue(LaikaKeys.title, title)
       .build
 
     def titleDoc (path: Path): Option[Document] =

@@ -24,7 +24,7 @@ import cats.effect.Async
 import laika.ast.Path.Root
 import laika.ast._
 import laika.config.Config.ConfigResult
-import laika.config.{Config, ConfigBuilder, ConfigDecoder, ConfigEncoder, ConfigException, DefaultKey, Key}
+import laika.config.{Config, ConfigBuilder, ConfigDecoder, ConfigEncoder, ConfigException, DefaultKey, Key, LaikaKeys}
 import laika.factory.{BinaryPostProcessor, RenderContext, RenderFormat, TwoPhaseRenderFormat}
 import laika.io.model.{BinaryOutput, RenderedTreeRoot}
 import laika.io.runtime.Runtime
@@ -141,7 +141,7 @@ case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor
       treeConfig.coverImage.fold(tree) { image =>
         treeWithStyles.copy(tree = treeWithStyles.tree.copy(
           content = Document(Root / "cover", RootElement(SpanSequence(Image("cover", InternalTarget(image, image.relative)))), 
-          config = ConfigBuilder.empty.withValue("title", "Cover").build) +: tree.tree.content
+          config = ConfigBuilder.empty.withValue(LaikaKeys.title, "Cover").build) +: tree.tree.content
         ))
       }
     }.left.map(ConfigException)

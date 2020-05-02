@@ -17,7 +17,7 @@
 package laika.rewrite.nav
 
 import laika.ast.{DocumentMetadata, Path}
-import laika.config.{ConfigDecoder, ConfigEncoder, DefaultKey, Key}
+import laika.config.{ConfigDecoder, ConfigEncoder, DefaultKey, Key, LaikaKeys}
 
 /**
   * @author Jens Halm
@@ -30,7 +30,7 @@ object BookConfig {
 
   implicit val decoder: ConfigDecoder[BookConfig] = ConfigDecoder.config.flatMap { config =>
     for {
-      metadata   <- config.get[DocumentMetadata]("metadata", DocumentMetadata())
+      metadata   <- config.get[DocumentMetadata](LaikaKeys.metadata.local, DocumentMetadata())
       depth      <- config.getOpt[Int]("navigationDepth")
       coverImage <- config.getOpt[Path]("coverImage")
     } yield {
@@ -39,7 +39,7 @@ object BookConfig {
   }
   implicit val encoder: ConfigEncoder[BookConfig] = ConfigEncoder[BookConfig] { bc =>
     ConfigEncoder.ObjectBuilder.empty
-      .withValue("metadata", bc.metadata)
+      .withValue(LaikaKeys.metadata.local, bc.metadata)
       .withValue("navigationDepth", bc.navigationDepth)
       .withValue("coverImage", bc.coverImage)
       .build

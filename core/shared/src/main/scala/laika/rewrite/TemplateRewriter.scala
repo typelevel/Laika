@@ -17,8 +17,7 @@
 package laika.rewrite
 
 import cats.implicits._
-import laika.ast.Path.Root
-import laika.config.{ConfigError, Key, Origin}
+import laika.config.{ConfigError, Key, LaikaKeys, Origin}
 import laika.ast._
 import laika.config.Origin.TemplateScope
 
@@ -108,8 +107,8 @@ trait TemplateRewriter {
    */  
   def selectTemplate (cursor: DocumentCursor, format: String): Option[TemplateDocument] = {
     val config = cursor.config
-    val templatePath = config.get[Path]("template").toOption // TODO - error handling 
-      .orElse(config.get[Path](format + ".template").toOption)
+    val templatePath = config.get[Path](LaikaKeys.template).toOption // TODO - error handling 
+      .orElse(config.get[Path](LaikaKeys.template(format)).toOption)
 
     templatePath match {
       case Some(path) =>

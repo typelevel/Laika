@@ -55,7 +55,7 @@ class DocumentTreeAPISpec extends AnyFlatSpec
         DocumentTree(Root / "sub2", docs(Root / "sub2", 5, 6), Some(Document(Root / "sub2" / "title", targetRoot)))
       ))
     }
-    def leafDocCursor (contextRef: String = "") = RootCursor(DocumentTreeRoot(treeWithTwoSubtrees(contextRef))).tree
+    def leafDocCursor (contextRef: String = ""): DocumentCursor = RootCursor(DocumentTreeRoot(treeWithTwoSubtrees(contextRef))).tree
       .children.last.asInstanceOf[TreeCursor]
       .children.last.asInstanceOf[DocumentCursor]
     

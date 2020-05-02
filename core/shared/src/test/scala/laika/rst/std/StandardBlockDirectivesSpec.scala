@@ -22,7 +22,7 @@ import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast._
 import laika.ast.helper.ModelBuilder
-import laika.config.{ConfigValue, Field, Key, ObjectValue, StringValue}
+import laika.config.{ConfigValue, Field, Key, LaikaKeys, ObjectValue, StringValue}
 import laika.format.ReStructuredText
 import laika.rewrite.TemplateRewriter
 import laika.rst.ast.{Contents, Include, RstStyle}
@@ -623,7 +623,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       Field("prefix", StringValue("(")), 
       Field("suffix", StringValue(")"))
     ))
-    parseDoc(input).config.get[ConfigValue]("autonumbering") should be (Right(config))
+    parseDoc(input).config.get[ConfigValue](LaikaKeys.autonumbering) should be (Right(config))
   }
   
   "The contents directive" should "create a placeholder in the document" in {

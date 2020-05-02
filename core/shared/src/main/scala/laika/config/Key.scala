@@ -26,6 +26,8 @@ case class Key(segments: Seq[String]) {
 
   def child (segment: String): Key = Key(segments :+ segment)
   
+  def child (childKey: Key): Key = Key(segments ++ childKey.segments)
+  
   def isChild (other: Key): Boolean = this.segments.startsWith(other.segments)
   
   def parent: Key = if (segments.isEmpty) this else Key(segments.init)
@@ -39,7 +41,7 @@ case class Key(segments: Seq[String]) {
 
 object Key {
   
-  def apply(segment: String, segments: String*): Key = Key(segment +: segments)
+  def apply(segment: String, segments: String*): Key = Key(segment +: segments.toList)
   
   def parse(key: String): Key = if (key.isEmpty) root else {
     val segments = key.split("\\.").toList

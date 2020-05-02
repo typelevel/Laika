@@ -16,9 +16,10 @@
 
 package laika.render
 
-import laika.config.{Config, ConfigBuilder, Origin}
+import laika.config.{Config, ConfigBuilder, LaikaKeys, Origin}
 import laika.ast._
 import laika.ast.Path.Root
+import laika.format.PDF
 
 trait TreeModel {
   
@@ -27,7 +28,7 @@ trait TreeModel {
   def useTitleDocuments: Boolean = false
   
   private def pdfFileConfig: Config = ConfigBuilder.empty
-    .withValue("pdf.navigationDepth", navigationDepth)
+    .withValue(PDF.BookConfig.defaultKey.value.child("navigationDepth"), navigationDepth)
     .build
   
   def doc (num: Int): Document = {
@@ -40,7 +41,7 @@ trait TreeModel {
     
   def configWithTreeTitle (num: Int): Config = ConfigBuilder
     .withFallback(pdfFileConfig, Origin(Origin.TreeScope, Root))
-    .withValue("title", s"Tree $num & More")
+    .withValue(LaikaKeys.title, s"Tree $num & More")
     .build
 
   def configWithFallback: Config = ConfigBuilder.withFallback(pdfFileConfig).build

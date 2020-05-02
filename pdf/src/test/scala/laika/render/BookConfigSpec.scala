@@ -28,10 +28,12 @@ import org.scalatest.wordspec.AnyWordSpec
 
 class BookConfigSpec extends AnyWordSpec with Matchers {
 
+  private val testKey = Key("test")
+  
   def decode[T: ConfigDecoder] (input: String): ConfigResult[T] =
     ConfigParser.parse(input).resolve().flatMap(_.get[T](Key.root))
 
-  def decode[T: ConfigDecoder] (config: Config): ConfigResult[T] = config.get[T]("test")
+  def decode[T: ConfigDecoder] (config: Config): ConfigResult[T] = config.get[T](testKey)
   
   "The codec for PDF book configuration " should {
 
@@ -73,7 +75,7 @@ class BookConfigSpec extends AnyWordSpec with Matchers {
 
     "round-trip encode and decode" in {
       val input = BookConfig(DocumentMetadata(Some("XX-33-FF-01")), Some(3), Some(Root / "cover.jpg"))
-      val encoded = ConfigBuilder.empty.withValue("test", input).build
+      val encoded = ConfigBuilder.empty.withValue(testKey, input).build
       decode[BookConfig](encoded) shouldBe Right(BookConfig(
         DocumentMetadata(
           Some("XX-33-FF-01")

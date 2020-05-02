@@ -366,13 +366,15 @@ class ParserBundleSpec extends AnyWordSpec with Matchers {
           builderRoot.resolve(Origin.root, Config.empty, Map.empty)
         case f: Failure => Left(ConfigParserError(f))
       }
+    
+    val expectedConfig = ConfigBuilder.empty.withValue("foo",7).build
 
     "should let configuration providers from app bundles override providers from parsers" in new BundleSetup {
       val parserBundles = Seq(BundleProvider.forConfigProvider(BetweenBraces))
       val appBundles = Seq(BundleProvider.forConfigProvider(BetweenAngles))
 
       parseWith(config, "{{\nfoo: 7\n}}").toOption shouldBe None
-      parseWith(config, "<<\nfoo: 7\n>>").toOption shouldBe Some(ConfigBuilder.empty.withValue("foo",7).build)
+      parseWith(config, "<<\nfoo: 7\n>>").toOption shouldBe Some(expectedConfig)
     }
 
     "let an app config override a config provider in a previously installed app config" in new BundleSetup {
@@ -383,14 +385,14 @@ class ParserBundleSpec extends AnyWordSpec with Matchers {
       )
 
       parseWith(config, "{{\nfoo: 7\n}}").toOption shouldBe None
-      parseWith(config, "<<\nfoo: 7\n>>").toOption shouldBe Some(ConfigBuilder.empty.withValue("foo",7).build)
+      parseWith(config, "<<\nfoo: 7\n>>").toOption shouldBe Some(expectedConfig)
     }
 
     "use the default fallback parser in case no provider is installed" in new BundleSetup {
       val parserBundles = Nil
       val appBundles = Nil
 
-      parseWith(config, "{%\nfoo: 7\n%}").toOption shouldBe Some(ConfigBuilder.empty.withValue("foo",7).build)
+      parseWith(config, "{%\nfoo: 7\n%}").toOption shouldBe Some(expectedConfig)
     }
 
     "fail when it does not recognize the header separator" in new BundleSetup {

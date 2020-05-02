@@ -16,7 +16,7 @@
 
 package laika.rewrite.nav
 
-import laika.config.Config
+import laika.config.{Config, LaikaKeys}
 import laika.ast._
 
 /** Responsible for applying the navigation order to the 
@@ -48,7 +48,7 @@ object NavigationOrder {
         case (cursor, index) => reAssignPosition(cursor, parentPosition.forChild(index + 1))
       }
 
-    val sorted = config.get[Seq[String]]("navigationOrder").toOption.fold {
+    val sorted = config.get[Seq[String]](LaikaKeys.navigationOrder).toOption.fold {
       content.sortBy {
         case d: DocumentCursor => (0, d.path.name)
         case t: TreeCursor     => (1, t.path.name)
