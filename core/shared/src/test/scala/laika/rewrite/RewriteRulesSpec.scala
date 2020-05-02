@@ -39,10 +39,10 @@ class RewriteRulesSpec extends AnyWordSpec
   def invalidSpan (message: String, fallback: String): InvalidSpan = InvalidElement(message, fallback).asSpan
 
   def invalidBlock (message: String, fallback: Block): InvalidBlock =
-    InvalidBlock(SystemMessage(MessageLevel.Error, message), fallback)
+    InvalidBlock(RuntimeMessage(MessageLevel.Error, message), fallback)
 
   def invalidSpan (message: String, fallback: Span): InvalidSpan =
-    InvalidSpan(SystemMessage(MessageLevel.Error, message), fallback)
+    InvalidSpan(RuntimeMessage(MessageLevel.Error, message), fallback)
 
   def fnRefs (labels: FootnoteLabel*): Paragraph = p(labels.map { label => FootnoteReference(label,toSource(label))}:_*)
 

@@ -174,7 +174,7 @@ class StandardBlockDirectives {
         Origin.root
       )}
       EmbeddedConfigValue("meta", ObjectValue(values))
-    case other => InvalidBlock(SystemMessage(MessageLevel.Error,
+    case other => InvalidBlock(RuntimeMessage(MessageLevel.Error,
         "The meta directive expects a FieldList as its only block content"), BlockSequence(other))
   }
   

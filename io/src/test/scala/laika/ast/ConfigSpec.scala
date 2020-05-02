@@ -180,7 +180,7 @@ class ConfigSpec extends IOSpec
       val expected = root(
         TemplateRoot(
           TemplateString("<h1>"),
-          InvalidElement(SystemMessage(MessageLevel.Error, "Missing required reference: 'foox'"), "${foox}").asTemplateSpan,
+          InvalidElement(RuntimeMessage(MessageLevel.Error, "Missing required reference: 'foox'"), "${foox}").asTemplateSpan,
           TemplateString("</h1>\n<div>"),
           EmbeddedRoot("aaa\nbbb"),
           TemplateString("</div>\nCCC")

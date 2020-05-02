@@ -85,7 +85,7 @@ trait DefaultRecursiveParsers extends RecursiveParsers with DefaultRecursiveSpan
           recursiveBlockParser.parse(source, next.nestLevel) match {
             case Success(blocks, _) => blocks
             case f: Failure =>
-              val message = SystemMessage(MessageLevel.Error, f.message)
+              val message = RuntimeMessage(MessageLevel.Error, f.message)
               val fallback = Paragraph(source)
               List(InvalidBlock(message, fallback))
           }

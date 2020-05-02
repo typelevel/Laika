@@ -93,7 +93,7 @@ object TargetResolver {
   }
 
   def forInvalidTarget (selector: UniqueSelector, msg: String): TargetResolver = new TargetResolver(selector) {
-    val sysMsg: SystemMessage = SystemMessage(MessageLevel.Error, msg)
+    val sysMsg: RuntimeMessage = RuntimeMessage(MessageLevel.Error, msg)
     val resolver = ReferenceResolver.lift { case LinkSource(ref: Reference, _) => InvalidElement(msg, ref.source).asSpan }
 
     override def resolveReference (linkSource: LinkSource): Option[Span] = resolver(linkSource)

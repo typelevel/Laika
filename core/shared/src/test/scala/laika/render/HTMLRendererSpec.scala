@@ -576,7 +576,7 @@ class HTMLRendererSpec extends AnyFlatSpec
   
   it should "render a system message" in {
     val html = """<span class="system-message warning">some message</span>"""
-    render (SystemMessage(Warning, "some message"), Warning) should be (html)
+    render (RuntimeMessage(Warning, "some message"), Warning) should be (html)
   }
   
   it should "render a comment" in {
@@ -584,35 +584,35 @@ class HTMLRendererSpec extends AnyFlatSpec
   }
   
   it should "render an invalid block without the system message in default mode" in {
-    val elem = InvalidBlock(SystemMessage(Warning, "some message"), p("fallback"))
+    val elem = InvalidBlock(RuntimeMessage(Warning, "some message"), p("fallback"))
     val html = "<p>fallback</p>"
     render (elem) should be (html)
   }
   
   it should "render an invalid block without the system message if the configured message level is higher" in {
-    val elem = InvalidBlock(SystemMessage(Warning, "some message"), p("fallback"))
+    val elem = InvalidBlock(RuntimeMessage(Warning, "some message"), p("fallback"))
     val html = "<p>fallback</p>"
     render (elem, Error) should be (html)
   }
   
   it should "render an invalid block with the system message if the configured message level is lower or equal" in {
-    val elem = InvalidBlock(SystemMessage(Warning, "some message"), p("fallback"))
+    val elem = InvalidBlock(RuntimeMessage(Warning, "some message"), p("fallback"))
     val html = """<p><span class="system-message warning">some message</span></p><p>fallback</p>"""
     render (elem, Info) should be (html)
   }
   
   it should "render an invalid span without the system message in default mode" in {
-    val elem = InvalidSpan(SystemMessage(Warning, "some message"), Text("fallback"))
+    val elem = InvalidSpan(RuntimeMessage(Warning, "some message"), Text("fallback"))
     render (elem) should be ("fallback")
   }
   
   it should "render an invalid span without the system message if the configured message level is higher" in {
-    val elem = InvalidSpan(SystemMessage(Warning, "some message"), Text("fallback"))
+    val elem = InvalidSpan(RuntimeMessage(Warning, "some message"), Text("fallback"))
     render (elem, Error) should be ("fallback")
   }
   
   it should "render an invalid span with the system message if the configured message level is lower or equal" in {
-    val elem = InvalidSpan(SystemMessage(Warning, "some message"), Text("fallback"))
+    val elem = InvalidSpan(RuntimeMessage(Warning, "some message"), Text("fallback"))
     val html = """<span class="system-message warning">some message</span> fallback"""
     render (elem, Info) should be (html)
   }

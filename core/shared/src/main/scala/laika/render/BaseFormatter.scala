@@ -75,7 +75,7 @@ abstract class BaseFormatter[Rep <: BaseFormatter[Rep]] (renderChild: (Rep, Elem
   /** Renders the specified string only when the given message has at least the minimum
     * message level defined for this formatter instance.
     */
-  def forMessage (message: SystemMessage)(whenEnabled: String): String = 
+  def forMessage (message: RuntimeMessage)(whenEnabled: String): String = 
     if (messageLevel <= message.level) whenEnabled else ""
   
   
