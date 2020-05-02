@@ -17,7 +17,7 @@
 package laika.sbt
 
 import laika.api.builder.BundleFilter
-import laika.ast.MessageLevel
+import laika.ast.{MessageFilter, MessageLevel}
 import laika.config.{ConfigBuilder, ConfigEncoder, DefaultKey}
 
 import scala.io.Codec
@@ -32,8 +32,9 @@ import scala.io.Codec
 case class LaikaConfig(encoding: Codec = Codec.UTF8,
                        bundleFilter: BundleFilter = BundleFilter(),
                        configBuilder: ConfigBuilder = ConfigBuilder.empty,
-                       renderMessageLevel: MessageLevel = MessageLevel.Warning,
-                       logMessageLevel: MessageLevel = MessageLevel.Warning) {
+                       failOnMessages: MessageFilter = MessageFilter.Error,
+                       renderMessages: MessageFilter = MessageFilter.None,
+                       logMessages: MessageFilter = MessageFilter.Warning) {
 
   /** The file encoding to use for input and output files.
     */
@@ -55,13 +56,23 @@ case class LaikaConfig(encoding: Codec = Codec.UTF8,
     */
   def withRawContent: LaikaConfig = copy(bundleFilter = bundleFilter.copy(acceptRawContent = true))
 
-  /**  Specifies the minimum required level for a runtime message to get included into the output by this renderer.
+  /** Specifies the filter to apply to runtime messages that should cause a transformation to fail.
+    * 
+    * The default is to fail transformations on messages of level `Error` or higher.
     */
-  def renderMessageLevel (level: MessageLevel): LaikaConfig = copy(renderMessageLevel = level)
-
-  /**  Specifies the minimum required level for a runtime message to be logged to the console when running transformation tasks.
+  def failOnMessages (filter: MessageFilter): LaikaConfig = copy(renderMessages = filter)
+  
+  /** Specifies the filter to apply to runtime messages that should get rendered to the output.
+    * 
+    * The default is not to render any messages to the output.
     */
-  def logMessageLevel (level: MessageLevel): LaikaConfig = copy(logMessageLevel = level)
+  def renderMessages (filter: MessageFilter): LaikaConfig = copy(renderMessages = filter)
+  
+  /** Specifies the filter to apply to runtime messages that should be logged to the console when running transformation tasks.
+    * 
+    * The default is to log messages of level `Warning` or higher.
+    */
+  def logMessages (filter: MessageFilter): LaikaConfig = copy(logMessages = filter)
   
   /** Returns a new instance with the specified configuration value added.
     *

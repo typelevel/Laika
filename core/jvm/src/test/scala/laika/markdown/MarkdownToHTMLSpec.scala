@@ -17,7 +17,7 @@
 package laika.markdown
 
 import laika.api.Transformer
-import laika.ast.{ExternalTarget, Header, Id, InternalReference, NoOpt, QuotedBlock, RelativePath, Replace, SpanLink, Target, Title}
+import laika.ast.{ExternalTarget, Header, Id, InternalReference, MessageFilter, NoOpt, QuotedBlock, RelativePath, Replace, SpanLink, Target, Title}
 import laika.file.FileIO
 import laika.format.{HTML, Markdown}
 import laika.html.TidyHTML
@@ -66,12 +66,12 @@ class MarkdownToHTMLSpec extends AnyFlatSpec
         case (fmt, t @ Title(_, Id("unordered"))) => fmt.child(Header(2, t.content))
         case (fmt, t @ Title(_, Id(_))) => fmt.child(t.withOptions(NoOpt))
       }
+      .failOnMessages(MessageFilter.None)
       .build
       .transform(input)
-      .toOption
-      .get
+
     val expected = FileIO.readFile(path + ".html")
-    tidyAndAdjust(actual) should be (tidyAndAdjust(expected))
+    tidyAndAdjust(actual.toOption.get) should be (tidyAndAdjust(expected))
   }
   
   

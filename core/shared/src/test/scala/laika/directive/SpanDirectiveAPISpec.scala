@@ -147,6 +147,7 @@ class SpanDirectiveAPISpec extends AnyFlatSpec
       def parseAsMarkdown (input: String): Either[ParserError, Block] = MarkupParser
         .of(Markdown)
         .using(bundle)
+        .failOnMessages(MessageFilter.None)
         .build
         .parse(input)
         .map(_.content.content.head)

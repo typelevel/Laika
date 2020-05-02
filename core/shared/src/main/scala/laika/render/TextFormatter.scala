@@ -33,7 +33,7 @@ import laika.factory.RenderContext
 case class TextFormatter (renderChild: (TextFormatter, Element) => String,
                           currentElement: Element,
                           parents: List[Element],
-                          indentation: Indentation) extends BaseFormatter[TextFormatter](renderChild, currentElement, parents, indentation, MessageLevel.Debug) {
+                          indentation: Indentation) extends BaseFormatter[TextFormatter](renderChild, currentElement, parents, indentation, MessageFilter.Debug) {
 
   protected def withChild (element: Element): TextFormatter = copy(parents = currentElement :: parents, currentElement = element)
 

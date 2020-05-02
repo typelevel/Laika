@@ -36,7 +36,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
 
 
   lazy val templateParser = StandardDirectives.processExtension(DirectiveSupport).parsers.templateParser.get
-  lazy val markupParser = MarkupParser.of(Markdown).build
+  lazy val markupParser = MarkupParser.of(Markdown).failOnMessages(MessageFilter.None).build
 
   def parse (input: String, path: Path = Root / "doc"): Document = markupParser.parse(input, path).toOption.get
   def parseUnresolved (input: String, path: Path = Root / "doc"): Document = markupParser.parseUnresolved(input, path).toOption.get.document

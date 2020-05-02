@@ -60,7 +60,8 @@ object Settings {
     def mergedConfig (config: OperationConfig): OperationConfig = {
       config.copy(
         bundleFilter = userConfig.bundleFilter,
-        minMessageLevel = userConfig.renderMessageLevel
+        renderMessages = userConfig.renderMessages,
+        failOnMessages = userConfig.failOnMessages
       )
     }
 

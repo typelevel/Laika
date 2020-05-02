@@ -32,7 +32,7 @@ import scala.collection.mutable
  *                 with the root element being the last in the list
  *  @param pathTranslator translates paths of input documents to the corresponding output path
  *  @param indentation   the indentation mechanism for this formatter
- *  @param messageLevel  the minimum severity level for a system message to be rendered   
+ *  @param messageFilter the filter to apply before rendering runtime messages    
  *                       
  *  @author Jens Halm
  */
@@ -41,8 +41,8 @@ abstract class TagFormatter[Rep <: BaseFormatter[Rep]] (renderChild: (Rep, Eleme
                                                         parents: List[Element],
                                                         pathTranslator: PathTranslator,
                                                         indentation: Indentation,
-                                                        messageLevel: MessageLevel) extends 
-  BaseFormatter[Rep](renderChild, currentElement, parents, indentation, messageLevel) { this: Rep =>
+                                                        messageFilter: MessageFilter) extends 
+  BaseFormatter[Rep](renderChild, currentElement, parents, indentation, messageFilter) { this: Rep =>
   
   type StyleHint
   

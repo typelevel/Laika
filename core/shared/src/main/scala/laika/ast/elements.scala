@@ -1357,7 +1357,8 @@ object MessageFilter {
   case object None extends MessageFilter {
     def apply (message: RuntimeMessage) = false
   }
-  private def forLevel (level: MessageLevel) = new MessageFilter {
+  // TODO - 0.16 - can be fully private after deprecations get removed
+  private[laika] def forLevel (level: MessageLevel) = new MessageFilter {
     def apply (message: RuntimeMessage) = message.level >= level
   }
   val Debug: MessageFilter = forLevel(MessageLevel.Debug)

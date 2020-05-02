@@ -108,10 +108,11 @@ class ReStructuredTextToHTMLSpec extends AnyFlatSpec
         case (fmt, InternalLinkTarget(opt))       => fmt.textElement("span", opt, "")
         case (_, i: InvalidBlock)                 => ""
      }
-      .build.transform(input, Root / "doc").toOption.get
+      .failOnMessages(MessageFilter.None)
+      .build.transform(input, Root / "doc")
     
     val expected = FileIO.readFile(path + "-tidy.html")
-    tidyAndAdjust(actual) should be (expected)
+    tidyAndAdjust(actual.toOption.get) should be (expected)
   }
   
   

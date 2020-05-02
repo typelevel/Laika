@@ -19,7 +19,7 @@ package laika.sbt
 import java.util.concurrent.Executors
 
 import cats.effect.{Blocker, ContextShift, IO}
-import laika.api.builder.{BundleFilter, ParserBuilder}
+import laika.api.builder.ParserBuilder
 import laika.api.{MarkupParser, Renderer}
 import laika.factory.{BinaryPostProcessor, MarkupFormat, RenderFormat, TwoPhaseRenderFormat}
 import laika.format._
@@ -68,7 +68,8 @@ object Tasks {
       val parser = MarkupParser.of(format)
       val mergedConfig = parser.config.copy(
         bundleFilter = userConfig.bundleFilter,
-        minMessageLevel = userConfig.renderMessageLevel,
+        failOnMessages = userConfig.failOnMessages,
+        renderMessages = userConfig.renderMessages,
         configBuilder = userConfig.configBuilder
       )
       parser.withConfig(mergedConfig).using(laikaExtensions.value: _*)
@@ -88,7 +89,7 @@ object Tasks {
 
       val tree = parser.fromInput(inputs).parse.unsafeRunSync()
 
-      Logs.systemMessages(streams.value.log, tree.root, userConfig.logMessageLevel)
+      Logs.systemMessages(streams.value.log, tree.root, userConfig.logMessages)
 
       tree
     }

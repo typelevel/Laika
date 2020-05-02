@@ -16,7 +16,7 @@
 
 package laika.api.builder
 
-import laika.ast.{Element, MessageLevel}
+import laika.ast.{Element, MessageFilter, MessageLevel}
 import laika.bundle.ExtensionBundle
 import laika.factory.RenderFormat
 
@@ -50,10 +50,12 @@ trait RendererBuilderOps[FMT] extends CommonBuilderOps {
     override val themes = Seq(renderFormat.Theme(customRenderer = customRenderer))
   })
 
-  /**  Specifies the minimum required level for a system message
-    *  to get included into the output by this renderer.
+  /**  Specifies the minimum required level for a runtime message to get included into the output by this renderer.
     */
-  def withMessageLevel (level: MessageLevel): ThisType = withConfig(config.copy(minMessageLevel = level))
+  def renderMessages (filter: MessageFilter): ThisType = withConfig(config.copy(renderMessages = filter))
+
+  @deprecated("use renderMessages", "0.15.0")
+  def withMessageLevel (level: MessageLevel): ThisType = withConfig(config.copy(renderMessages = MessageFilter.forLevel(level)))
 
   /**  Renders without any formatting (line breaks or indentation).
     *  Useful when storing the output in a database for example.

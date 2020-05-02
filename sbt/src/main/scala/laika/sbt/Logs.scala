@@ -62,9 +62,9 @@ object Logs {
     *
     * @param logger the logger to write to
     * @param tree the document tree to extract system messages from
-    * @param level the minimum log level for a system message to be included in the log
+    * @param filter the filter to apply to runtime messages to be included in the log
     */
-  def systemMessages (logger: Logger, tree: DocumentTreeRoot, level: MessageLevel): Unit = {
+  def systemMessages (logger: Logger, tree: DocumentTreeRoot, filter: MessageFilter): Unit = {
 
     def logMessage (inv: Invalid[_], path: Path): Unit = {
       val source = inv.fallback match {
@@ -73,16 +73,16 @@ object Logs {
       }
       val text = s"$path: ${inv.message.content}\nsource: $source"
       inv.message.level match {
-        // we do not log above warn level as the build will still succeed with invalid nodes
         case MessageLevel.Debug => logger.debug(text)
         case MessageLevel.Info => logger.info(text)
-        case MessageLevel.Warning | MessageLevel.Error | MessageLevel.Fatal => logger.warn(text)
+        case MessageLevel.Warning => logger.warn(text)
+        case MessageLevel.Error | MessageLevel.Fatal => logger.error(text)
       }
     }
 
     def logRoot (e: ElementTraversal, path: Path): Unit = {
       val nodes = e collect {
-        case i: Invalid[_] if i.message.level >= level => i
+        case i: Invalid[_] if filter(i.message) => i
       }
       nodes foreach { logMessage(_, path) }
     }

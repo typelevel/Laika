@@ -31,7 +31,7 @@ import laika.rewrite.nav.PathTranslator
  * @param path        the virtual path of the document getting rendered, used for generating unique ids
  * @param styles      the styles to apply when writing the attributes of an element
  * @param indentation the indentation mechanism for this formatter
- * @param messageLevel the minimum severity level for a system message to be rendered                     
+ * @param messageFilter the filter to apply before rendering runtime messages                   
  * 
  * @author Jens Halm
  */
@@ -42,8 +42,8 @@ case class FOFormatter (renderChild: (FOFormatter, Element) => String,
                         path: Path,
                         styles: StyleDeclarationSet,
                         indentation: Indentation,
-                        messageLevel: MessageLevel) extends 
-  TagFormatter[FOFormatter](renderChild, currentElement, parents, pathTranslator, indentation, messageLevel) with FOProperties {
+                        messageFilter: MessageFilter) extends 
+  TagFormatter[FOFormatter](renderChild, currentElement, parents, pathTranslator, indentation, messageFilter) with FOProperties {
 
   type StyleHint = Element
 
@@ -53,8 +53,8 @@ case class FOFormatter (renderChild: (FOFormatter, Element) => String,
 
   private lazy val (footnotes, citations) = parents.lastOption.getOrElse(currentElement) match {
     case et: ElementTraversal => (
-      et collect { case f: Footnote if f.options.id.isDefined => (f.options.id.get, f) } toMap,
-      et collect { case c: Citation if c.options.id.isDefined => (c.options.id.get, c) } toMap
+      et.collect { case f: Footnote if f.options.id.isDefined => (f.options.id.get, f) }.toMap,
+      et.collect { case c: Citation if c.options.id.isDefined => (c.options.id.get, c) }.toMap
     )
     case _ => (Map.empty[String,Footnote], Map.empty[String,Citation])
   }
@@ -310,7 +310,7 @@ object FOFormatter extends (RenderContext[FOFormatter] => FOFormatter) {
   /** Creates a new formatter instance based on the specified render context.
     */
   def apply(context: RenderContext[FOFormatter]): FOFormatter =
-    FOFormatter(context.renderChild, context.root, Nil, context.pathTranslator, context.path, context.styles, context.indentation, context.config.minMessageLevel)
+    FOFormatter(context.renderChild, context.root, Nil, context.pathTranslator, context.path, context.styles, context.indentation, context.config.renderMessages)
   
 }
 

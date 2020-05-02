@@ -35,13 +35,15 @@ import scala.annotation.tailrec
   * @param bundles all extension bundles defined by this operation
   * @param bundleFilter a filter that might deactivate some of the bundles based on user configuration
   * @param configBuilder a builder for assembling values for the base configuration as 
-  * @param minMessageLevel specifies the minimum required level for a system message to get included into the output by a renderer
+  * @param failOnMessages the filter to apply to runtime messages that should cause the transformation to fail
+  * @param renderMessages the filter to apply to runtime messages that should be rendered in the output
   * @param renderFormatted indicates whether rendering should include any formatting (line breaks or indentation)
   */
 case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
                             bundleFilter: BundleFilter = BundleFilter(),
                             configBuilder: ConfigBuilder = ConfigBuilder.empty,
-                            minMessageLevel: MessageLevel = MessageLevel.Fatal,
+                            failOnMessages: MessageFilter = MessageFilter.Error,
+                            renderMessages: MessageFilter = MessageFilter.None,
                             renderFormatted: Boolean = true) extends RenderConfig {
 
   private lazy val mergedBundle: ExtensionBundle = OperationConfig.mergeBundles(bundles.filter(bundleFilter))
@@ -197,10 +199,10 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
   */
 trait RenderConfig {
 
-  /** Specifies the minimum required level for a system message to get included into the output by a renderer.
+  /** The filter to apply to runtime messages that should get rendered to the output.
     */
-  def minMessageLevel: MessageLevel
-
+  def renderMessages: MessageFilter
+  
   /** Indicates whether rendering should include any formatting (line breaks or indentation).
     */
   def renderFormatted: Boolean

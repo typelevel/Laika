@@ -32,8 +32,12 @@ class StandardTextRolesSpec extends AnyFlatSpec
                             with Matchers 
                             with ModelBuilder {
 
+  private val parser = MarkupParser
+    .of(ReStructuredText)
+    .failOnMessages(MessageFilter.None)
+    .build
   
-  def parse (input: String): RootElement = MarkupParser.of(ReStructuredText).build.parse(input).toOption.get.content
+  def parse (input: String): RootElement = parser.parse(input).toOption.get.content
   
   
   "The emphasis text role" should "produce an Emphasized node without styles" in {

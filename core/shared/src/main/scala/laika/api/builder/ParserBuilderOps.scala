@@ -16,6 +16,7 @@
 
 package laika.api.builder
 
+import laika.ast.MessageFilter
 import laika.config.{ConfigEncoder, DefaultKey}
 
 /** API for specifying configuration options that apply to all
@@ -45,6 +46,12 @@ trait ParserBuilderOps extends CommonBuilderOps {
     *  the `acceptRawContent` flag set to true.
     */
   def withRawContent: ThisType = withConfig(config.forRawContent)
+
+  /** Specifies the filter to apply to runtime messages that should cause a transformation to fail.
+    *
+    * The default is to fail transformations on messages of level `Error` or higher.
+    */
+  def failOnMessages (filter: MessageFilter): ThisType = withConfig(config.copy(failOnMessages = filter))
 
   /** Returns a new instance with the specified configuration value added.
     *

@@ -29,18 +29,18 @@ import laika.rewrite.nav.PathTranslator
  *                with the root element being the last in the list
  * @param pathTranslator translates paths of input documents to the corresponding output path               
  * @param indentation the indentation mechanism for this formatter
- * @param messageLevel the minimum severity level for a system message to be rendered  
+ * @param messageFilter the filter to apply before rendering runtime messages  
  *                   
- *  @author Jens Halm
+ * @author Jens Halm
  */
 case class HTMLFormatter (renderChild: (HTMLFormatter, Element) => String,
                           currentElement: Element,
                           parents: List[Element],
                           pathTranslator: PathTranslator,
                           indentation: Indentation,
-                          messageLevel: MessageLevel,
+                          messageFilter: MessageFilter,
                           closeEmptyTags: Boolean) extends 
-  TagFormatter[HTMLFormatter](renderChild, currentElement, parents, pathTranslator, indentation, messageLevel) {
+  TagFormatter[HTMLFormatter](renderChild, currentElement, parents, pathTranslator, indentation, messageFilter) {
 
   val emptyTagClosingChar: String = if (closeEmptyTags) "/" else ""
   
@@ -68,7 +68,7 @@ case class HTMLFormatter (renderChild: (HTMLFormatter, Element) => String,
 object HTMLFormatter extends (RenderContext[HTMLFormatter] => HTMLFormatter) {
   def apply (context: RenderContext[HTMLFormatter]): HTMLFormatter =
     HTMLFormatter(context.renderChild, context.root, Nil, context.pathTranslator, context.indentation, 
-      context.config.minMessageLevel, closeEmptyTags = false)
+      context.config.renderMessages, closeEmptyTags = false)
 }
 
 /** Default factory for XHTMLFormatters, based on a provided RenderContext.
@@ -79,5 +79,5 @@ object HTMLFormatter extends (RenderContext[HTMLFormatter] => HTMLFormatter) {
 object XHTMLFormatter extends (RenderContext[HTMLFormatter] => HTMLFormatter) {
   def apply (context: RenderContext[HTMLFormatter]): HTMLFormatter =
     HTMLFormatter(context.renderChild, context.root, Nil, context.pathTranslator, context.indentation,
-      context.config.minMessageLevel, closeEmptyTags = true)
+      context.config.renderMessages, closeEmptyTags = true)
 }
