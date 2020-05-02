@@ -20,6 +20,7 @@ import cats.implicits._
 import laika.config.{ConfigError, Key, LaikaKeys, Origin}
 import laika.ast._
 import laika.config.Origin.TemplateScope
+import laika.rewrite.ReferenceResolver.CursorKeys
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
@@ -31,7 +32,7 @@ trait TemplateRewriter {
     * The default simply inserts the rendered document into the rendered result without any surrounding template text.
     */
   val defaultTemplate: TemplateDocument = TemplateDocument(Path.Root / "default.template", 
-    TemplateRoot(TemplateContextReference(Key("document","content"), required = true)))
+    TemplateRoot(TemplateContextReference(CursorKeys.documentContent, required = true)))
   
   /** Selects and applies the templates for the specified output format to all documents within the specified tree cursor recursively.
    */

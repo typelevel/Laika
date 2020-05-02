@@ -772,7 +772,7 @@ class LanguageSpec extends AnyWordSpec with Matchers {
           |  <body>
           |    @:toc { depth: 2 }
           |    <div class="content">
-          |      ${document.content}
+          |      ${cursor.currentDocument.content}
           |    </div>
           |  </body>
           |</html>
@@ -789,7 +789,7 @@ class LanguageSpec extends AnyWordSpec with Matchers {
         open, tagName("body"), close, nl(4),
         keyword("@:"), id("toc"), other(" { "), attrName("depth"), colonSpace, number("2"), other(" }\n    "),
         open, tagName("div"), space, attrName("class"), eq, string("content"), close, nl(6),
-        subst("${document.content}"), nl(4),
+        subst("${cursor.currentDocument.content}"), nl(4),
         punct("</"), tagName("div"), close, nl(2),
         punct("</"), tagName("body"), close, nl(0),
         punct("</"), tagName("html"), close

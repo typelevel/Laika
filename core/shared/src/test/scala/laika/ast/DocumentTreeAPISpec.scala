@@ -223,22 +223,22 @@ class DocumentTreeAPISpec extends AnyFlatSpec
   }
   
   it should "resolve a substitution reference to the previous document" in new TreeModel {
-    val cursor = leafDocCursor("previousDocument.relativePath")
+    val cursor = leafDocCursor("cursor.previousDocument.relativePath")
     cursor.target.rewrite(TemplateRewriter.rewriteRules(cursor)).content shouldBe root(p("doc5"))
   }
 
   it should "be empty for the next document in the final leaf node of the tree" in new TreeModel {
-    val cursor = leafDocCursor("nextDocument.relativePath")
+    val cursor = leafDocCursor("cursor.nextDocument.relativePath")
     cursor.target.rewrite(TemplateRewriter.rewriteRules(cursor)).content shouldBe root(p(""))
   }
 
   it should "resolve a substitution reference to the parent document" in new TreeModel {
-    val cursor = leafDocCursor("parentDocument.relativePath")
+    val cursor = leafDocCursor("cursor.parentDocument.relativePath")
     cursor.target.rewrite(TemplateRewriter.rewriteRules(cursor)).content shouldBe root(p("title"))
   }
 
   it should "resolve a substitution reference to the previous document in a flattened view" in new TreeModel {
-    val cursor = leafDocCursor("flattenedSiblings.previousDocument.relativePath")
+    val cursor = leafDocCursor("cursor.flattenedSiblings.previousDocument.relativePath")
       .flattenedSiblings.previousDocument
       .flatMap(_.flattenedSiblings.previousDocument)
       .get

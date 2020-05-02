@@ -17,8 +17,8 @@
 package laika.render.epub
 
 import laika.ast._
-import laika.config.Key
 import laika.directive.StandardDirectives.StyleLinks
+import laika.rewrite.ReferenceResolver.CursorKeys
 
 /** The default template for EPUB XHTML renderers.
   *
@@ -53,11 +53,11 @@ object HtmlTemplate {
     val templateSpans = templateText.split("#").map(TemplateString(_))
     TemplateRoot(
       templateSpans(0),
-      TemplateContextReference(Key("document","title"), required = true),
+      TemplateContextReference(CursorKeys.documentTitle, required = true),
       templateSpans(1),
       StyleLinks,
       templateSpans(2),
-      TemplateContextReference(Key("document","content"), required = true),
+      TemplateContextReference(CursorKeys.documentContent, required = true),
       templateSpans(3)
     )
   }

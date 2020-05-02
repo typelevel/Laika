@@ -33,6 +33,7 @@ import laika.io.model.StringTreeOutput
 import laika.io.runtime.RendererRuntime.{DuplicatePath, RendererErrors}
 import laika.io.text.ParallelRenderer
 import laika.render._
+import laika.rewrite.ReferenceResolver.CursorKeys
 
 import scala.io.Codec
 
@@ -164,7 +165,7 @@ class ParallelRendererSpec extends IOSpec
   
     "render a tree with a single document to HTML using a custom template in the root directory" in {
       new HTMLRenderer {
-        val template = TemplateDocument(Root / "default.template.html", TemplateRoot(t("["), TemplateContextReference(Key("document","content"), required = true), t("]")))
+        val template = TemplateDocument(Root / "default.template.html", TemplateRoot(t("["), TemplateContextReference(CursorKeys.documentContent, required = true), t("]")))
         val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)), templates = Seq(template))
         val expected = """[<h1 id="title" class="title">Title</h1>
           |<p>bbb</p>]""".stripMargin
@@ -174,7 +175,7 @@ class ParallelRendererSpec extends IOSpec
   
     "render a tree with a single document to HTML using a custom template in an extension bundle" in {
       new HTMLRenderer {
-        val template = TemplateRoot(t("["), TemplateContextReference(Key("document","content"), required = true), t("]"))
+        val template = TemplateRoot(t("["), TemplateContextReference(CursorKeys.documentContent, required = true), t("]"))
         val bundle = BundleProvider.forTheme(HTML.Theme(defaultTemplate = Some(template)))
         override lazy val renderer = Renderer.of(HTML).using(bundle).io(blocker).parallel[IO].build
         val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
@@ -212,7 +213,7 @@ class ParallelRendererSpec extends IOSpec
   
     "render a tree with a single document to EPUB.XHTML using a custom template in the root directory" in {
       new EPUB_XHTMLRenderer {
-        val template = TemplateDocument(Root / "default.template.epub.xhtml", TemplateRoot(t("["), TemplateContextReference(Key("document","content"), required = true), t("]")))
+        val template = TemplateDocument(Root / "default.template.epub.xhtml", TemplateRoot(t("["), TemplateContextReference(CursorKeys.documentContent, required = true), t("]")))
         val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)), templates = Seq(template))
         val expected = """[<h1 id="title" class="title">Title</h1>
                          |<p>bbb</p>]""".stripMargin
@@ -223,7 +224,7 @@ class ParallelRendererSpec extends IOSpec
   
     "render a tree with a single document to EPUB.XHTML using a custom template in an extension bundle" in {
       new EPUB_XHTMLRenderer {
-        val template = TemplateRoot(t("["), TemplateContextReference(Key("document","content"), required = true), t("]"))
+        val template = TemplateRoot(t("["), TemplateContextReference(CursorKeys.documentContent, required = true), t("]"))
         override lazy val renderer = 
           Renderer
             .of(EPUB.XHTML)
@@ -251,7 +252,7 @@ class ParallelRendererSpec extends IOSpec
   
     "render a tree with a single document to XSL-FO using a custom template" in {
       new FORenderer {
-        val template = TemplateDocument(Root / "default.template.fo", TemplateRoot(t("["), TemplateContextReference(Key("document","content"), required = true), t("]")))
+        val template = TemplateDocument(Root / "default.template.fo", TemplateRoot(t("["), TemplateContextReference(CursorKeys.documentContent, required = true), t("]")))
         val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)), templates = Seq(template))
         val expected = s"""[${marker("Title")}
           |${title("_doc_title", "Title")}

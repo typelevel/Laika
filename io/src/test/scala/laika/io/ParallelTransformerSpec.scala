@@ -96,10 +96,10 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
       val aa = "aa"
       val style = "13"
       val link = "[link](/foo)"
-      val directive = "${document.content} @:foo bar. bb"
-      val templateConfigRef = "${document.content}${value}"
-      val template1 = "${document.content}"
-      val template2 = "(${document.content})"
+      val directive = "${cursor.currentDocument.content} @:foo bar. bb"
+      val templateConfigRef = "${cursor.currentDocument.content}${value}"
+      val template1 = "${cursor.currentDocument.content}"
+      val template2 = "(${cursor.currentDocument.content})"
       val conf = "value: abc"
     }
     

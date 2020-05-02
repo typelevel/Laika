@@ -416,7 +416,7 @@ class LegacyStandardDirectiveSpec extends AnyFlatSpec
   "The template toc directive" should "produce a table of content starting from the root tree" in {
     new TreeModel with TocModel {
       
-      val template = """aaa @:toc. bbb {{document.content}}"""
+      val template = """aaa @:toc. bbb {{cursor.currentDocument.content}}"""
       
       parseAndRewrite(template, markup) should be (result(rootList))  
     }
@@ -428,7 +428,7 @@ class LegacyStandardDirectiveSpec extends AnyFlatSpec
       override val hasTitleDocs = true
       override val hasTitleDocLinks = true
 
-      val template = """aaa @:toc. bbb {{document.content}}"""
+      val template = """aaa @:toc. bbb {{cursor.currentDocument.content}}"""
 
       parseAndRewrite(template, markup) should be (result(rootList))
     }
@@ -439,7 +439,7 @@ class LegacyStandardDirectiveSpec extends AnyFlatSpec
       
       override val title = Some("Some Title")
       
-      val template = """aaa @:toc title="Some Title". bbb {{document.content}}"""
+      val template = """aaa @:toc title="Some Title". bbb {{cursor.currentDocument.content}}"""
       
       parseAndRewrite(template, markup) should be (result(rootList))  
     }
@@ -448,7 +448,7 @@ class LegacyStandardDirectiveSpec extends AnyFlatSpec
   it should "produce a table of content starting from the current tree" in {
     new TreeModel with TocModel {
       
-      val template = """aaa @:toc root=#currentTree. bbb {{document.content}}"""
+      val template = """aaa @:toc root=#currentTree. bbb {{cursor.currentDocument.content}}"""
       
       parseAndRewrite(template, markup) should be (result(currentList))  
     }
@@ -457,7 +457,7 @@ class LegacyStandardDirectiveSpec extends AnyFlatSpec
   it should "produce a table of content starting from the root of the current document" in {
     new TreeModel with TocModel {
       
-      val template = """aaa @:toc root=#currentDocument. bbb {{document.content}}"""
+      val template = """aaa @:toc root=#currentDocument. bbb {{cursor.currentDocument.content}}"""
       
       parseAndRewrite(template, markup) should be (result(currentDoc))  
     }
@@ -466,7 +466,7 @@ class LegacyStandardDirectiveSpec extends AnyFlatSpec
   it should "produce a table of content starting from an explicit absolute path" in {
     new TreeModel with TocModel {
       
-      val template = """aaa @:toc root=/sub1. bbb {{document.content}}"""
+      val template = """aaa @:toc root=/sub1. bbb {{cursor.currentDocument.content}}"""
       
       parseAndRewrite(template, markup) should be (result(firstTree))  
     }
@@ -475,7 +475,7 @@ class LegacyStandardDirectiveSpec extends AnyFlatSpec
   it should "produce a table of content starting from an explicit relative path" in {
     new TreeModel with TocModel {
       
-      val template = """aaa @:toc root="../sub1". bbb {{document.content}}"""
+      val template = """aaa @:toc root="../sub1". bbb {{cursor.currentDocument.content}}"""
       
       parseAndRewrite(template, markup) should be (result(firstTree))  
     }
@@ -484,7 +484,7 @@ class LegacyStandardDirectiveSpec extends AnyFlatSpec
   it should "produce a table of content starting from an explicit relative path with depth 2" in {
     new TreeModel with TocModel {
       
-      val template = """aaa @:toc root="../sub1" depth=2. bbb {{document.content}}"""
+      val template = """aaa @:toc root="../sub1" depth=2. bbb {{cursor.currentDocument.content}}"""
       
       parseAndRewrite(template, markup) should be (result(firstTreeFirstLevel))  
     }
@@ -501,7 +501,7 @@ class LegacyStandardDirectiveSpec extends AnyFlatSpec
         |
         |# Headline 2""".stripMargin
       
-      val template = """{{document.content}}"""
+      val template = """{{cursor.currentDocument.content}}"""
       
       parseAndRewrite(template, markup) should be (markupTocResult)  
     }

@@ -71,10 +71,10 @@ class ParallelParserSpec extends IOSpec
                        |bbb""".stripMargin
       val directive = "aa @:foo bar. bb"
       val template = """<div>
-                      |  ${document.content}
+                      |  ${cursor.currentDocument.content}
                       |</div>""".stripMargin
       val template2 = """<div>
-                       |xx${document.content}
+                       |xx${cursor.currentDocument.content}
                        |</div>""".stripMargin
       val dynDoc = "${value}"
       val conf = "value: abc"

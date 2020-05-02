@@ -35,6 +35,15 @@ case class ReferenceResolver (config: Config) {
  */
 object ReferenceResolver {
   
+  object CursorKeys {
+    
+    val documentContent = Key("cursor", "currentDocument", "content")
+    val documentTitle = Key("cursor", "currentDocument", "title")
+    
+    def fragment (name: String): Key = Key("cursor", "currentDocument", "fragments", name)
+    
+  }
+  
   private val emptyTitle: SpanSequence = SpanSequence.empty
 
   // cannot use existing cursor-base sibling navigation here as the cursor hierarchy is under construction when this is called
@@ -49,9 +58,11 @@ object ReferenceResolver {
    */
   def forDocument(document: Document, parent: TreeCursor, config: Config, position: TreePosition): ReferenceResolver = {
 
+    val rootKey = Key("cursor")
+    
     val baseBuilder = ConfigBuilder
       .withFallback(config)
-      .withValue("document", ObjectValue(Seq(
+      .withValue(rootKey.child("currentDocument"), ObjectValue(Seq(
         Field("path", StringValue(document.path.toString)),
         Field("content", ASTValue(document.content), config.origin),
         Field("title", ASTValue(document.title.getOrElse(emptyTitle)), config.origin),
@@ -59,7 +70,7 @@ object ReferenceResolver {
           case (name, element) => Field(name, ASTValue(element), config.origin)
         }), config.origin)
       )))
-      .withValue("root", ObjectValue(Seq(
+      .withValue(rootKey.child("root"), ObjectValue(Seq(
         Field("title", ASTValue(parent.root.target.title.getOrElse(emptyTitle)))
       )))
 
@@ -75,7 +86,7 @@ object ReferenceResolver {
       else 
         new Siblings(collectSiblings(parent.target), document.path)
 
-    def addDocConfig (key: String, doc: Option[Document])(builder: ConfigBuilder): ConfigBuilder =
+    def addDocConfig (key: Key, doc: Option[Document])(builder: ConfigBuilder): ConfigBuilder =
       doc.fold(builder) { doc =>
         builder.withValue(key, ObjectValue(Seq(
           Field("absolutePath", StringValue(doc.path.toString)),
@@ -84,11 +95,11 @@ object ReferenceResolver {
         )))
       }
     
-    val addSiblings = (addDocConfig("parentDocument", parent.target.titleDocument)(_))
-      .andThen(addDocConfig("previousDocument", hierarchicalSiblings.previousDocument))
-      .andThen(addDocConfig("nextDocument", hierarchicalSiblings.nextDocument))
-      .andThen(addDocConfig("flattenedSiblings.previousDocument", flattenedSiblings.previousDocument))
-      .andThen(addDocConfig("flattenedSiblings.nextDocument", flattenedSiblings.nextDocument))
+    val addSiblings = (addDocConfig(rootKey.child("parentDocument"), parent.target.titleDocument)(_))
+      .andThen(addDocConfig(rootKey.child("previousDocument"), hierarchicalSiblings.previousDocument))
+      .andThen(addDocConfig(rootKey.child("nextDocument"), hierarchicalSiblings.nextDocument))
+      .andThen(addDocConfig(rootKey.child(Key("flattenedSiblings", "previousDocument")), flattenedSiblings.previousDocument))
+      .andThen(addDocConfig(rootKey.child(Key("flattenedSiblings", "nextDocument")), flattenedSiblings.nextDocument))
 
     apply(addSiblings(baseBuilder).build)
   }

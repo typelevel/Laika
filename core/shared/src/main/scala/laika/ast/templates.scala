@@ -18,6 +18,7 @@ package laika.ast
 
 import laika.config.Config.ConfigResult
 import laika.config.{ASTValue, ConfigError, ConfigValue, InvalidType, Key, SimpleConfigValue}
+import laika.rewrite.ReferenceResolver.CursorKeys
 import laika.rewrite.TemplateRewriter
 
 /** Represents a placeholder inline element that needs
@@ -206,11 +207,11 @@ object TemplateRoot extends TemplateSpanContainerCompanion {
   /** A fallback instance that can be used when no user-specified template
     * is available. It simply inserts the content of the parsed markup document
     * without any surrounding decoration. */
-  val fallback: TemplateRoot = TemplateRoot(TemplateContextReference(Key("document","content"), required = true))
+  val fallback: TemplateRoot = TemplateRoot(TemplateContextReference(CursorKeys.documentContent, required = true))
 }
 
 /** The root element of a document tree (originating from text markup) inside a template.
- *  Usually created by a template reference like `\${document.content}`.
+ *  Usually created by a template reference like `\${cursor.currentDocument.content}`.
  */
 case class EmbeddedRoot (content: Seq[Block], indent: Int = 0, options: Options = NoOpt) extends TemplateSpan with BlockContainer {
   type Self = EmbeddedRoot

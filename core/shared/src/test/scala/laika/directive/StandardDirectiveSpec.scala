@@ -659,7 +659,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
         |    { title = Link 1, target = "http://domain-1.com/"}
         |    { title = Link 2, target = "http://domain-2.com/"} 
         |  ] 
-        |} bbb ${document.content}""".stripMargin
+        |} bbb ${cursor.currentDocument.content}""".stripMargin
 
     val res = parseTemplateAndRewrite(template)
 
@@ -674,7 +674,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
         |    { title = Link 1, target = "http://domain-1.com/"}
         |    { target = "#" }
         |  ] 
-        |} bbb ${document.content}""".stripMargin
+        |} bbb ${cursor.currentDocument.content}""".stripMargin
 
     val res = parseTemplateAndRewrite(template)
 
@@ -688,7 +688,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
         |  entries = [
         |    { target = "/" }
         |  ] 
-        |} bbb ${document.content}""".stripMargin
+        |} bbb ${cursor.currentDocument.content}""".stripMargin
 
     parseTemplateAndRewrite(template) should be (templateResult(rootList))
   }
@@ -702,7 +702,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
         |  entries = [
         |    { target = "/" }
         |  ] 
-        |} bbb ${document.content}""".stripMargin
+        |} bbb ${cursor.currentDocument.content}""".stripMargin
 
     parseTemplateAndRewrite(template) should be (templateResult(rootList))
   }
@@ -714,7 +714,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
         |  entries = [
         |    { target = "." }
         |  ] 
-        |} bbb ${document.content}""".stripMargin
+        |} bbb ${cursor.currentDocument.content}""".stripMargin
 
     parseTemplateAndRewrite(template) should be (templateResult(treeList(2, 5, 1)))
   }
@@ -728,7 +728,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
         |  entries = [
         |    { target = ".", depth = 2 }
         |  ] 
-        |} bbb ${document.content}""".stripMargin
+        |} bbb ${cursor.currentDocument.content}""".stripMargin
 
     parseTemplateAndRewrite(template) should be (templateResult(treeList(2, 5, 1)))
   }
@@ -740,7 +740,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
         |  entries = [
         |    { target = ".", excludeRoot = true }
         |  ] 
-        |} bbb ${document.content}""".stripMargin
+        |} bbb ${cursor.currentDocument.content}""".stripMargin
 
     parseTemplateAndRewrite(template) should be (templateResult(treeList(2, 5, 0).content: _*))
   }
@@ -754,7 +754,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
         |  entries = [
         |    { target = ".", excludeSections = true }
         |  ] 
-        |} bbb ${document.content}""".stripMargin
+        |} bbb ${cursor.currentDocument.content}""".stripMargin
 
     parseTemplateAndRewrite(template) should be (templateResult(treeList(2, 5, 1)))
   }
@@ -766,7 +766,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
         |  entries = [
         |    { target = "#" }
         |  ] 
-        |} bbb ${document.content}""".stripMargin
+        |} bbb ${cursor.currentDocument.content}""".stripMargin
 
     parseTemplateAndRewrite(template) should be (templateResult(docList(Root / "sub2" / "doc6", 6, 1)))
   }
@@ -778,7 +778,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
         |  entries = [
         |    { target = "#", title = Custom }
         |  ] 
-        |} bbb ${document.content}""".stripMargin
+        |} bbb ${cursor.currentDocument.content}""".stripMargin
 
     parseTemplateAndRewrite(template) should be (templateResult(docList(Root / "sub2" / "doc6", 6, 1, title = Some("Custom"))))
   }
@@ -790,7 +790,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
         |  entries = [
         |    { target = "/sub1/doc3" }
         |  ] 
-        |} bbb ${document.content}""".stripMargin
+        |} bbb ${cursor.currentDocument.content}""".stripMargin
 
     parseTemplateAndRewrite(template) should be (templateResult(docList(Root / "sub1" / "doc3", 3, 1)))
   }
@@ -804,7 +804,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
                       |}""".stripMargin
 
     val template =
-      s"""aaa $directive bbb $${document.content}""".stripMargin
+      s"""aaa $directive bbb $${cursor.currentDocument.content}""".stripMargin
 
     val msg = "One or more errors processing directive 'navigationTree': One or more errors generating navigation: Unable to resolve document or tree with path: /sub2/doc99"
     parseTemplateAndRewrite(template) should be (error(msg, directive))
@@ -819,7 +819,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
                       |}""".stripMargin
 
     val template =
-      s"""aaa $directive bbb $${document.content}""".stripMargin
+      s"""aaa $directive bbb $${cursor.currentDocument.content}""".stripMargin
 
     val msg = "One or more errors processing directive 'navigationTree': One or more errors decoding array elements: not an integer: foo"
     parseTemplateAndRewrite(template) should be (error(msg, directive))
@@ -834,7 +834,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
                       |}""".stripMargin
 
     val template =
-      s"""aaa $directive bbb $${document.content}""".stripMargin
+      s"""aaa $directive bbb $${cursor.currentDocument.content}""".stripMargin
 
     val msg = "One or more errors processing directive 'navigationTree': One or more errors decoding array elements: Not found: 'title'"
     parseTemplateAndRewrite(template) should be (error(msg, directive))
@@ -862,7 +862,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
     override val maxLevels: Int = 1
     override def itemStyles: Options = Style.breadcrumb
 
-    val input = "aaa @:breadcrumb bbb ${document.content}"
+    val input = "aaa @:breadcrumb bbb ${cursor.currentDocument.content}"
 
     parseTemplateAndRewrite(input) should be (templateResult(
       rootEntry,
@@ -930,7 +930,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
   "The template toc directive" should "produce a table of content starting from the root tree" in {
     new TreeModel with TocModel {
 
-      val template = """aaa @:toc bbb ${document.content}"""
+      val template = """aaa @:toc bbb ${cursor.currentDocument.content}"""
 
       parseAndRewrite(template, markup) should be (result(rootList))
     }
@@ -942,7 +942,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
       override val hasTitleDocs = true
       override val hasTitleDocLinks = true
 
-      val template = """aaa @:toc bbb ${document.content}"""
+      val template = """aaa @:toc bbb ${cursor.currentDocument.content}"""
 
       parseAndRewrite(template, markup) should be (result(rootList))
     }
@@ -953,7 +953,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
 
       override val title = Some("Some Title")
 
-      val template = """aaa @:toc { title="Some Title" } bbb ${document.content}"""
+      val template = """aaa @:toc { title="Some Title" } bbb ${cursor.currentDocument.content}"""
 
       parseAndRewrite(template, markup) should be (result(rootList))
     }
@@ -962,7 +962,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
   it should "produce a table of content starting from the current tree" in {
     new TreeModel with TocModel {
 
-      val template = """aaa @:toc { root=<currentTree> } bbb ${document.content}"""
+      val template = """aaa @:toc { root=<currentTree> } bbb ${cursor.currentDocument.content}"""
 
       parseAndRewrite(template, markup) should be (result(currentList))
     }
@@ -971,7 +971,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
   it should "produce a table of content starting from the root of the current document" in {
     new TreeModel with TocModel {
 
-      val template = """aaa @:toc { root=<currentDocument> } bbb ${document.content}"""
+      val template = """aaa @:toc { root=<currentDocument> } bbb ${cursor.currentDocument.content}"""
 
       parseAndRewrite(template, markup) should be (result(currentDoc))
     }
@@ -980,7 +980,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
   it should "produce a table of content starting from an explicit absolute path" in {
     new TreeModel with TocModel {
 
-      val template = """aaa @:toc { root=/sub1 } bbb ${document.content}"""
+      val template = """aaa @:toc { root=/sub1 } bbb ${cursor.currentDocument.content}"""
 
       parseAndRewrite(template, markup) should be (result(firstTree))
     }
@@ -989,7 +989,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
   it should "produce a table of content starting from an explicit relative path" in {
     new TreeModel with TocModel {
 
-      val template = """aaa @:toc { root="../sub1" } bbb ${document.content}"""
+      val template = """aaa @:toc { root="../sub1" } bbb ${cursor.currentDocument.content}"""
 
       parseAndRewrite(template, markup) should be (result(firstTree))
     }
@@ -998,7 +998,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
   it should "produce a table of content starting from an explicit relative path with depth 2" in {
     new TreeModel with TocModel {
 
-      val template = """aaa @:toc { root="../sub1", depth=2 } bbb ${document.content}"""
+      val template = """aaa @:toc { root="../sub1", depth=2 } bbb ${cursor.currentDocument.content}"""
 
       parseAndRewrite(template, markup) should be (result(firstTreeFirstLevel))
     }
@@ -1015,7 +1015,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
                               |
                               |# Headline 2""".stripMargin
 
-      val template = """${document.content}"""
+      val template = """${cursor.currentDocument.content}"""
 
       parseAndRewrite(template, markup) should be (markupTocResult)
     }

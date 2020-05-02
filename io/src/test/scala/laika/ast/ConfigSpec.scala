@@ -49,26 +49,26 @@ class ConfigSpec extends IOSpec
 
       val templateWithRef =
         """<h1>${foo}</h1>
-          |<div>${document.content}</div>
+          |<div>${cursor.currentDocument.content}</div>
           |CCC""".stripMargin
 
       val templateWithMissingRef =
         """<h1>${foox}</h1>
-          |<div>${document.content}</div>
+          |<div>${cursor.currentDocument.content}</div>
           |CCC""".stripMargin
 
       val templateWithOptRef =
         """<h1>${?foox}</h1>
-          |<div>${document.content}</div>
+          |<div>${cursor.currentDocument.content}</div>
           |CCC""".stripMargin
 
       val templateWithConfig =
         """{% foo: bar %}
-          |<div>${document.content}</div>
+          |<div>${cursor.currentDocument.content}</div>
           |CCC""".stripMargin
 
       val templateWithoutConfig =
-        """<div>${document.content}</div>
+        """<div>${cursor.currentDocument.content}</div>
           |CCC""".stripMargin
 
       val markupWithConfig =

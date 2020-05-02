@@ -16,8 +16,8 @@
 
 package laika.render
 
-import laika.config.Key
 import laika.ast.{TemplateContextReference, TemplateRoot, TemplateString}
+import laika.rewrite.ReferenceResolver.CursorKeys
 
 /** The default template for HTML renderers.
   * 
@@ -48,9 +48,9 @@ object HTMLTemplate {
     val templateSpans = templateText.split("#").map(TemplateString(_))
     TemplateRoot(
       templateSpans(0),
-      TemplateContextReference(Key("document","title"), required = true),
+      TemplateContextReference(CursorKeys.documentTitle, required = true),
       templateSpans(1),
-      TemplateContextReference(Key("document","content"), required = true),
+      TemplateContextReference(CursorKeys.documentContent, required = true),
       templateSpans(2)
     )
   }
