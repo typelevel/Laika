@@ -130,12 +130,12 @@ trait TemplateRewriter {
     lazy val rules: RewriteRules = RewriteRules.forBlocks {
       case ph: BlockResolver                => Replace(rewriteBlock(ph resolve cursor))
       case TemplateRoot(spans, opt)         => Replace(TemplateRoot(format(spans), opt))
-      case sc: SpanContainer with Block     => Replace(sc.withContent(joinTextSpans(sc.content)).asInstanceOf[Block])
       case unresolved: Unresolved           => Replace(InvalidElement(unresolved.unresolvedMessage, "<unknown source>").asBlock)
+      case sc: SpanContainer with Block     => Replace(sc.withContent(joinTextSpans(sc.content)).asInstanceOf[Block])
     } ++ RewriteRules.forSpans {
       case ph: SpanResolver                 => Replace(rewriteSpan(ph resolve cursor))
-      case sc: SpanContainer with Span      => Replace(sc.withContent(joinTextSpans(sc.content)).asInstanceOf[Span])
       case unresolved: Unresolved           => Replace(InvalidElement(unresolved.unresolvedMessage, "<unknown source>").asSpan)
+      case sc: SpanContainer with Span      => Replace(sc.withContent(joinTextSpans(sc.content)).asInstanceOf[Span])
     } ++ RewriteRules.forTemplates {
       case ph: SpanResolver                 => Replace(rewriteTemplateSpan(asTemplateSpan(ph resolve cursor)))
       case TemplateSpanSequence(spans, opt) => Replace(TemplateSpanSequence(format(spans), opt))

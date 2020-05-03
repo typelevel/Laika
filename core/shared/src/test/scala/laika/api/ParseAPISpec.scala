@@ -21,6 +21,7 @@ import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.Markdown
 import laika.parse.markup.DocumentParser.ParserError
+import laika.rewrite.TemplateRewriter
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
@@ -73,6 +74,20 @@ class ParseAPISpec extends AnyFlatSpec
                 | unresolved link reference: invalid1
                 | unresolved link reference: invalid2""".stripMargin
     MarkupParser.of(Markdown).build.parse(input) shouldBe Left(ParserError(msg, Root))
+  }
+  
+  it should "replace unresolved nodes with invalid elements" in {
+    val input = """[invalid1]
+                  |
+                  |Text
+                  |
+                  |[invalid2]""".stripMargin
+    val doc = MarkupParser.of(Markdown).build.parseUnresolved(input).toOption.get.document
+    doc.rewrite(TemplateRewriter.rewriteRules(DocumentCursor(doc))).content should be (root(
+      p(InvalidElement("Unresolved reference to link definition with id 'invalid1'","<unknown source>").asSpan),
+      p("Text"),
+      p(InvalidElement("Unresolved reference to link definition with id 'invalid2'","<unknown source>").asSpan),
+    ))
   }
   
 }
