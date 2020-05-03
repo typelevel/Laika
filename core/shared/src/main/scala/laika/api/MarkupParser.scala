@@ -25,7 +25,7 @@ import laika.factory.MarkupFormat
 import laika.parse.ParserContext
 import laika.parse.directive.ConfigHeaderParser
 import laika.parse.markup.DocumentParser
-import laika.parse.markup.DocumentParser.{RuntimeMessages, ParserError, ParserInput}
+import laika.parse.markup.DocumentParser.{InvalidDocument, ParserError, ParserInput}
 import laika.rewrite.TemplateRewriter
 
 /** Performs a parse operation from text markup to a
@@ -79,7 +79,7 @@ class MarkupParser (val format: MarkupFormat, val config: OperationConfig) {
       val resolvedDoc = unresolved.document.copy(config = ConfigHeaderParser.merge(docConfig, embeddedConfig))
       val phase1 = resolvedDoc.rewrite(config.rewriteRulesFor(resolvedDoc))
       val result = phase1.rewrite(TemplateRewriter.rewriteRules(DocumentCursor(phase1)))
-      RuntimeMessages.from(result.runtimeMessages(config.failOnMessages), input.path)
+      InvalidDocument.from(result.runtimeMessages(config.failOnMessages), input.path)
         .map(ParserError(_)).toLeft(result)
     }
     

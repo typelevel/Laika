@@ -44,18 +44,33 @@ object DocumentParser {
     def apply(configError: ConfigError, path: Path): ParserError =
       ParserError(s"Configuration Error: ${configError.message}", path)
     
-    def apply (messages: RuntimeMessages): ParserError =
-      ParserError(s"One or more error nodes in result:\n ${messages.concatenated}", messages.path)
+    def apply (document: InvalidDocument): ParserError =
+      ParserError(s"One or more error nodes in result:\n ${document.messages.map(_.content).mkString_("\n ")}", document.path)
   }
   
-  case class RuntimeMessages (messages: NonEmptyChain[RuntimeMessage], path: Path) {
-    def concatenated: String = messages.map(_.content).mkString_("\n ")
-  }
-  
-  object RuntimeMessages {
+  case class InvalidDocuments (documents: NonEmptyChain[InvalidDocument]) extends 
+    RuntimeException(s"One or more invalid documents: ${documents.map(_.getMessage).mkString_("\n ")}")
+
+  object InvalidDocuments {
     
-    def from (messages: Seq[RuntimeMessage], path: Path): Option[RuntimeMessages] =
-      NonEmptyChain.fromSeq(messages).map(RuntimeMessages(_, path))
+    def from (documents: Seq[InvalidDocument]): Option[InvalidDocuments] = 
+      NonEmptyChain.fromSeq(documents).map(InvalidDocuments(_))
+   
+    def from (root: DocumentTreeRoot, failOn: MessageFilter): Option[InvalidDocuments] =
+      from(root.allDocuments.flatMap(InvalidDocument.from(_, failOn)))
+    
+  }
+  
+  case class InvalidDocument (messages: NonEmptyChain[RuntimeMessage], path: Path) extends 
+    RuntimeException(s"One or more errors processing document '$path': ${messages.map(_.content).mkString_("\n ")}")
+  
+  object InvalidDocument {
+    
+    def from (messages: Seq[RuntimeMessage], path: Path): Option[InvalidDocument] =
+      NonEmptyChain.fromSeq(messages).map(InvalidDocument(_, path))
+
+    def from (document: Document, failOn: MessageFilter): Option[InvalidDocument] =
+      from(document.runtimeMessages(failOn), document.path)
     
   }
 

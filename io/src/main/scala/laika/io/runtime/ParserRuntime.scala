@@ -31,7 +31,7 @@ import laika.io.config.IncludeHandler.RequestedInclude
 import laika.io.model.{ParsedTree, TextInput, TreeInput}
 import laika.io.text.{ParallelParser, SequentialParser}
 import laika.parse.hocon.{IncludeFile, IncludeResource, ValidStringValue}
-import laika.parse.markup.DocumentParser.{ParserError, ParserInput, RuntimeMessages}
+import laika.parse.markup.DocumentParser.{InvalidDocuments, ParserError, ParserInput}
 
 /** Internal runtime for parser operations, for parallel and sequential execution. 
   * 
@@ -88,13 +88,11 @@ object ParserRuntime {
         case ConfigType         => Vector(parseDocument(in, parseConfig, ConfigResult(in.path, _, _))).validNel
       }}.combineAll.toEither.leftMap(es => ParserErrors(es.toList.toSet))
       
-      def rewriteTree (root: DocumentTreeRoot): Either[ParserErrors, ParsedTree[F]] = { // TODO - move to TreeResultBuilder
+      def rewriteTree (root: DocumentTreeRoot): Either[InvalidDocuments, ParsedTree[F]] = { // TODO - move to TreeResultBuilder
         val finalTree = root.rewrite(op.config.rewriteRulesFor(root))
         val finalRoot = finalTree.copy(staticDocuments = inputs.binaryInputs.map(_.path), sourcePaths = inputs.sourcePaths)
-        val errors = finalRoot.allDocuments
-          .flatMap(doc => RuntimeMessages.from(doc.runtimeMessages(op.config.failOnMessages), doc.path).map(ParserError(_)))
-        if (errors.isEmpty) Right(ParsedTree(finalRoot, inputs.binaryInputs))
-        else Left(ParserErrors(errors.toSet))
+        InvalidDocuments.from(finalRoot, op.config.failOnMessages)
+          .toLeft(ParsedTree(finalRoot, inputs.binaryInputs))
       }
       
       def loadIncludes(results: Vector[ParserResult]): F[IncludeMap] = {

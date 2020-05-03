@@ -18,7 +18,7 @@ package laika.io
 
 import java.io.File
 
-import cats.data.NonEmptyChain
+import cats.data.{Chain, NonEmptyChain}
 import cats.effect.IO
 import laika.api.Renderer
 import laika.ast.Path.Root
@@ -33,7 +33,7 @@ import laika.io.implicits._
 import laika.io.model.StringTreeOutput
 import laika.io.runtime.RendererRuntime.{DuplicatePath, RendererErrors}
 import laika.io.text.ParallelRenderer
-import laika.parse.markup.DocumentParser.{ParserError, RuntimeMessages}
+import laika.parse.markup.DocumentParser.{InvalidDocument, InvalidDocuments, ParserError}
 import laika.render._
 import laika.rewrite.ReferenceResolver.CursorKeys
 
@@ -176,8 +176,8 @@ class ParallelRendererSpec extends IOSpec
           Document(Root / "sub" / "doc4", invalidLink(4))
         ))
         val messages = input.allDocuments.map { doc =>
-          ParserError(RuntimeMessages(NonEmptyChain.one(RuntimeMessage(MessageLevel.Error,
-            s"unresolved link reference: link${doc.path.name.charAt(3)}")), doc.path))
+          InvalidDocument(NonEmptyChain.one(RuntimeMessage(MessageLevel.Error,
+            s"unresolved link reference: link${doc.path.name.charAt(3)}")), doc.path)
         }
         renderer
           .from(treeRoot)
@@ -185,7 +185,7 @@ class ParallelRendererSpec extends IOSpec
           .render
           .attempt
           .assertEquals(Left(
-            RendererErrors(messages)
+            InvalidDocuments(NonEmptyChain.fromChainUnsafe(Chain.fromSeq(messages)))
           ))
       }
     }

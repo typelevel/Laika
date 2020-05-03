@@ -16,7 +16,7 @@
 
 package laika.io
 
-import cats.data.NonEmptyChain
+import cats.data.{Chain, NonEmptyChain}
 import cats.effect.IO
 import laika.api.MarkupParser
 import laika.ast.DocumentType._
@@ -32,7 +32,7 @@ import laika.io.model.{ParsedTree, TreeInput}
 import laika.io.runtime.ParserRuntime.{DuplicatePath, ParserErrors}
 import laika.io.text.ParallelParser
 import laika.parse.Parser
-import laika.parse.markup.DocumentParser.{ParserError, RuntimeMessages}
+import laika.parse.markup.DocumentParser.{InvalidDocument, InvalidDocuments, ParserError}
 import laika.parse.text.TextParsers
 import laika.rewrite.TemplateRewriter
 
@@ -199,10 +199,10 @@ class ParallelParserSpec extends IOSpec
         Root / "dir2" / "doc6.md" -> "[link6]"
       )
       val messages = inputs.map { case (path, markup) => 
-        ParserError(RuntimeMessages(NonEmptyChain.one(RuntimeMessage(MessageLevel.Error, 
-          s"unresolved link reference: link${markup.charAt(5)}")), path))
+        InvalidDocument(NonEmptyChain.one(RuntimeMessage(MessageLevel.Error, 
+          s"unresolved link reference: link${markup.charAt(5)}")), path)
       }
-      parsedTree.assertFailsWith(ParserErrors(messages.toSet))
+      parsedTree.assertFailsWith(InvalidDocuments(NonEmptyChain.fromChainUnsafe(Chain.fromSeq(messages))))
     }
 
     "parse a tree with a cover and a title document" in new TreeParser {

@@ -27,7 +27,7 @@ import laika.io.binary
 import laika.io.text.ParallelRenderer
 import laika.io.text.SequentialRenderer
 import laika.io.model._
-import laika.parse.markup.DocumentParser.{ParserError, RuntimeMessages}
+import laika.parse.markup.DocumentParser.InvalidDocuments
 import laika.rewrite.nav.{ConfigurablePathTranslator, PathTranslator, TitleDocumentConfig}
 
 /** Internal runtime for renderer operations, for text and binary output as well
@@ -139,17 +139,10 @@ object RendererRuntime {
         RenderedTreeRoot[F](resultRoot, template, finalRoot.config, coverDoc, staticDocs, finalRoot.sourcePaths)
       }
     
-    def collectErrors (finalRoot: DocumentTreeRoot): Either[RendererErrors, DocumentTreeRoot] = {
-      val errors = finalRoot.allDocuments
-        .flatMap(doc => RuntimeMessages.from(doc.runtimeMessages(op.config.failOnMessages), doc.path).map(ParserError(_)))
-      if (errors.isEmpty) Right(finalRoot)
-      else Left(RendererErrors(errors))
-    }
-
     for {
       finalRoot <- Async[F].fromEither(op.renderer.applyTheme(op.input)
                      .leftMap(e => RendererErrors(Seq(ConfigException(e))))
-                     .flatMap(collectErrors))
+                     .flatMap(root => InvalidDocuments.from(root, op.config.failOnMessages).toLeft(root)))
       styles    = finalRoot.styles(fileSuffix)
       static    = op.staticDocuments
       _         <- validatePaths(static)
