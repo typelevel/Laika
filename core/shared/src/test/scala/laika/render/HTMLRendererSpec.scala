@@ -18,8 +18,8 @@ package laika.render
 
 import laika.api.Renderer
 import laika.ast.Path.Root
-import laika.ast.RelativePath.{CurrentTree}
-import laika.ast.{Styles, _}
+import laika.ast.RelativePath.CurrentTree
+import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.HTML
 import laika.parse.code.CodeCategory
@@ -33,8 +33,8 @@ class HTMLRendererSpec extends AnyFlatSpec
   
   def render (elem: Element): String = Renderer.of(HTML).build.render(elem) 
   
-  def render (elem: Element, messageLevel: MessageLevel): String = 
-    Renderer.of(HTML).withMessageLevel(messageLevel).build.render(elem)
+  def render (elem: Element, messageFilter: MessageFilter): String = 
+    Renderer.of(HTML).renderMessages(messageFilter).build.render(elem)
     
   def renderUnformatted (elem: Element): String = Renderer.of(HTML).unformatted.build.render(elem)
   
@@ -103,7 +103,7 @@ class HTMLRendererSpec extends AnyFlatSpec
   }
   
   it should "render a bullet list with simple flow content" in {
-    val elem = bulletList() + "aaa" + "bbb" toList
+    val elem = (bulletList() + "aaa" + "bbb").toList
     val html = """<ul>
       |  <li>aaa</li>
       |  <li>bbb</li>
@@ -168,7 +168,7 @@ class HTMLRendererSpec extends AnyFlatSpec
   private def fp (content: String) = ForcedParagraph(List(Text(content)))
   
   it should "render a bullet list with forced paragraphs as list items" in {
-    val elem = bulletList() + fp("aaa") + fp("bbb") toList
+    val elem = (bulletList() + fp("aaa") + fp("bbb")).toList
     val html = """<ul>
       |  <li>
       |    <p>aaa</p>
@@ -572,49 +572,47 @@ class HTMLRendererSpec extends AnyFlatSpec
     render (elem) should be (html)
   }
 
-  import MessageLevel._
-  
   it should "render a system message" in {
     val html = """<span class="system-message warning">some message</span>"""
-    render (RuntimeMessage(Warning, "some message"), Warning) should be (html)
+    render(RuntimeMessage(MessageLevel.Warning, "some message"), MessageFilter.Warning) should be (html)
   }
   
   it should "render a comment" in {
-    render (Comment("foo")) should be ("<!-- foo -->")
+    render(Comment("foo")) should be ("<!-- foo -->")
   }
   
   it should "render an invalid block without the system message in default mode" in {
-    val elem = InvalidBlock(RuntimeMessage(Warning, "some message"), p("fallback"))
+    val elem = InvalidBlock(RuntimeMessage(MessageLevel.Warning, "some message"), p("fallback"))
     val html = "<p>fallback</p>"
-    render (elem) should be (html)
+    render(elem) should be (html)
   }
   
   it should "render an invalid block without the system message if the configured message level is higher" in {
-    val elem = InvalidBlock(RuntimeMessage(Warning, "some message"), p("fallback"))
+    val elem = InvalidBlock(RuntimeMessage(MessageLevel.Warning, "some message"), p("fallback"))
     val html = "<p>fallback</p>"
-    render (elem, Error) should be (html)
+    render(elem, MessageFilter.Error) should be (html)
   }
   
   it should "render an invalid block with the system message if the configured message level is lower or equal" in {
-    val elem = InvalidBlock(RuntimeMessage(Warning, "some message"), p("fallback"))
+    val elem = InvalidBlock(RuntimeMessage(MessageLevel.Warning, "some message"), p("fallback"))
     val html = """<p><span class="system-message warning">some message</span></p><p>fallback</p>"""
-    render (elem, Info) should be (html)
+    render(elem, MessageFilter.Info) should be (html)
   }
   
   it should "render an invalid span without the system message in default mode" in {
-    val elem = InvalidSpan(RuntimeMessage(Warning, "some message"), Text("fallback"))
-    render (elem) should be ("fallback")
+    val elem = InvalidSpan(RuntimeMessage(MessageLevel.Warning, "some message"), Text("fallback"))
+    render(elem) should be ("fallback")
   }
   
   it should "render an invalid span without the system message if the configured message level is higher" in {
-    val elem = InvalidSpan(RuntimeMessage(Warning, "some message"), Text("fallback"))
-    render (elem, Error) should be ("fallback")
+    val elem = InvalidSpan(RuntimeMessage(MessageLevel.Warning, "some message"), Text("fallback"))
+    render(elem, MessageFilter.Error) should be ("fallback")
   }
   
   it should "render an invalid span with the system message if the configured message level is lower or equal" in {
-    val elem = InvalidSpan(RuntimeMessage(Warning, "some message"), Text("fallback"))
+    val elem = InvalidSpan(RuntimeMessage(MessageLevel.Warning, "some message"), Text("fallback"))
     val html = """<span class="system-message warning">some message</span> fallback"""
-    render (elem, Info) should be (html)
+    render(elem, MessageFilter.Info) should be (html)
   }
   
   it should "render a literal block" in {
@@ -624,7 +622,7 @@ class HTMLRendererSpec extends AnyFlatSpec
       |
       |line 3""".stripMargin
     val elem = LiteralBlock(code)
-    render (elem) should be ("<pre><code>" + code.replaceAllLiterally("<", "&lt;") + "</code></pre>") 
+    render(elem) should be ("<pre><code>" + code.replaceAllLiterally("<", "&lt;") + "</code></pre>") 
   }
   
   it should "render a parsed literal block" in {
@@ -635,7 +633,7 @@ class HTMLRendererSpec extends AnyFlatSpec
       |line 3""".stripMargin.split("#")
     val elem = ParsedLiteralBlock(List(Text(code(0)), Emphasized("em"), Text(code(1))))
     val html = "<pre><code>" + code(0) + "<em>em</em>" + code(1).replaceAllLiterally("<", "&lt;") + "</code></pre>"
-    render (elem) should be (html) 
+    render(elem) should be (html) 
   }
   
   it should "render a code block" in {
@@ -645,7 +643,7 @@ class HTMLRendererSpec extends AnyFlatSpec
       |
       |line 3""".stripMargin
     val elem = CodeBlock("banana-script", List(Text(code)))
-    render (elem) should be ("<pre><code class=\"banana-script\">" + code.replaceAllLiterally("<", "&lt;") + "</code></pre>") 
+    render(elem) should be ("<pre><code class=\"banana-script\">" + code.replaceAllLiterally("<", "&lt;") + "</code></pre>") 
   }
 
   it should "render a code block with syntax highlighting" in {
@@ -656,7 +654,7 @@ class HTMLRendererSpec extends AnyFlatSpec
     )
     val elem = CodeBlock("banana-script", code)
     val renderedCode = """<span class="keyword">{{</span><span>foo</span><span class="tag-punctuation identifier">}}</span>"""
-    render (elem) should be (s"""<pre><code class="nohighlight">$renderedCode</code></pre>""")
+    render(elem) should be (s"""<pre><code class="nohighlight">$renderedCode</code></pre>""")
   }
   
   it should "render a literal block inside a blockquote without indentation" in {
@@ -669,7 +667,7 @@ class HTMLRendererSpec extends AnyFlatSpec
       |  <pre><code>%s</code></pre>
       |</blockquote>""".stripMargin.format(code)
     val elem = QuotedBlock(LiteralBlock(code))
-    render (elem) should be (html) 
+    render(elem) should be (html) 
   }
   
   it should "render a parsed literal block inside a blockquote without indentation" in {
@@ -682,7 +680,7 @@ class HTMLRendererSpec extends AnyFlatSpec
       |  <pre><code>:<em>%s</em>:</code></pre>
       |</blockquote>""".stripMargin.format(code)
     val elem = QuotedBlock(ParsedLiteralBlock(List(Text(":"),Emphasized(code),Text(":"))))
-    render (elem) should be (html) 
+    render(elem) should be (html) 
   }
   
   it should "render a code block inside a blockquote without indentation" in {
@@ -695,7 +693,7 @@ class HTMLRendererSpec extends AnyFlatSpec
       |  <pre><code class="nohighlight">:<em>%s</em>:</code></pre>
       |</blockquote>""".stripMargin.format(code)
     val elem = QuotedBlock(CodeBlock("banana-script", List(Text(":"),Emphasized(code),Text(":"))))
-    render (elem) should be (html) 
+    render(elem) should be (html) 
   }
   
   it should "render a table cell unformatted" in {
@@ -710,13 +708,13 @@ class HTMLRendererSpec extends AnyFlatSpec
   it should "render raw content unchanged if the html format is specified" in {
     val raw = "<span>foo</span>"
     val elem = RawContent(List("html", "spooky"), raw)
-    render (elem) should be (raw) 
+    render(elem) should be (raw) 
   }
   
   it should "ignore raw content if the html format is not specified" in {
     val raw = "<span>foo</span>"
     val elem = RawContent(List("dodgy", "spooky"), raw)
-    render (elem) should be ("") 
+    render(elem) should be ("") 
   }
   
   it should "render an embedded root with correct indentation" in {
@@ -729,7 +727,7 @@ class HTMLRendererSpec extends AnyFlatSpec
       |  <p>aaa</p>
       |  <p>bbb</p>
       |</div>""".stripMargin
-    render (elem) should be (html) 
+    render(elem) should be (html) 
   }
   
   it should "render an embedded root without indentation" in {
@@ -742,7 +740,7 @@ class HTMLRendererSpec extends AnyFlatSpec
       |<p>aaa</p>
       |<p>bbb</p>
       |</div>""".stripMargin
-    render (elem) should be (html) 
+    render(elem) should be (html) 
   }
   
   

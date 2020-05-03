@@ -34,8 +34,8 @@ class XSLFORendererSpec extends AnyFlatSpec
 
   def render (elem: Element): String = Renderer.of(XSLFO).build.render(elem)
 
-  def render (elem: Element, messageLevel: MessageLevel): String =
-    Renderer.of(XSLFO).withMessageLevel(messageLevel).build.render(elem)
+  def render (elem: Element, messageFilter: MessageFilter): String =
+    Renderer.of(XSLFO).renderMessages(messageFilter).build.render(elem)
 
   def render (elem: Element, style: StyleDeclaration): String =
     Renderer.of(XSLFO).using(BundleProvider
@@ -111,7 +111,7 @@ class XSLFORendererSpec extends AnyFlatSpec
   }
 
   it should "render a bullet list with simple flow content" in {
-    val elem = bulletList() + "aaa" + "bbb" toList
+    val elem = (bulletList() + "aaa" + "bbb").toList
     val fo = """<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
                |  <fo:list-item space-after="3mm">
                |    <fo:list-item-label end-indent="label-end()">
@@ -134,7 +134,7 @@ class XSLFORendererSpec extends AnyFlatSpec
   }
 
   it should "render a bullet list with a nested list" in {
-    val elem = bulletList() + (SpanSequence(Text("aaa")), bulletList() + "bbb") toList
+    val elem = (bulletList() + (SpanSequence(Text("aaa")), bulletList() + "bbb")).toList
     val fo = """<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
                |  <fo:list-item space-after="3mm">
                |    <fo:list-item-label end-indent="label-end()">
@@ -299,7 +299,7 @@ class XSLFORendererSpec extends AnyFlatSpec
   private def fp (content: String) = ForcedParagraph(List(Text(content)))
 
   it should "render a bullet list with forced paragraphs as list items the same way as normal paragraphs" in {
-    val elem = bulletList() + fp("aaa") + fp("bbb") toList
+    val elem = (bulletList() + fp("aaa") + fp("bbb")).toList
     val fo = """<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
                |  <fo:list-item space-after="3mm">
                |    <fo:list-item-label end-indent="label-end()">
@@ -736,11 +736,9 @@ class XSLFORendererSpec extends AnyFlatSpec
     render (elem) should be (fo)
   }
 
-  import MessageLevel._
-
   it should "render a system message" in {
     val fo = """<fo:inline background-color="#ffff33" color="white">some message</fo:inline>"""
-    render (RuntimeMessage(Warning, "some message"), Warning) should be (fo)
+    render (RuntimeMessage(MessageLevel.Warning, "some message"), MessageFilter.Warning) should be (fo)
   }
 
   it should "render a comment" in {
@@ -748,39 +746,39 @@ class XSLFORendererSpec extends AnyFlatSpec
   }
 
   it should "render an invalid block without the system message in default mode" in {
-    val elem = InvalidBlock(RuntimeMessage(Warning, "some message"), p("fallback"))
+    val elem = InvalidBlock(RuntimeMessage(MessageLevel.Warning, "some message"), p("fallback"))
     val fo = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">fallback</fo:block>"""
     render (elem) should be (fo)
   }
 
   it should "render an invalid block without the system message if the configured message level is higher" in {
-    val elem = InvalidBlock(RuntimeMessage(Warning, "some message"), p("fallback"))
+    val elem = InvalidBlock(RuntimeMessage(MessageLevel.Warning, "some message"), p("fallback"))
     val fo = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">fallback</fo:block>"""
-    render (elem, Error) should be (fo)
+    render (elem, MessageFilter.Error) should be (fo)
   }
 
   it should "render an invalid block with the system message if the configured message level is lower or equal" in {
-    val elem = InvalidBlock(RuntimeMessage(Warning, "some message"), p("fallback"))
+    val elem = InvalidBlock(RuntimeMessage(MessageLevel.Warning, "some message"), p("fallback"))
     val fo = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">""" +
       """<fo:inline background-color="#ffff33" color="white">some message</fo:inline>""" +
       """</fo:block><fo:block font-family="serif" font-size="10pt" space-after="3mm">fallback</fo:block>"""
-    render (elem, Info) should be (fo)
+    render (elem, MessageFilter.Info) should be (fo)
   }
 
   it should "render an invalid span without the system message in default mode" in {
-    val elem = InvalidSpan(RuntimeMessage(Warning, "some message"), Text("fallback"))
+    val elem = InvalidSpan(RuntimeMessage(MessageLevel.Warning, "some message"), Text("fallback"))
     render (elem) should be ("fallback")
   }
 
   it should "render an invalid span without the system message if the configured message level is higher" in {
-    val elem = InvalidSpan(RuntimeMessage(Warning, "some message"), Text("fallback"))
-    render (elem, Error) should be ("fallback")
+    val elem = InvalidSpan(RuntimeMessage(MessageLevel.Warning, "some message"), Text("fallback"))
+    render (elem, MessageFilter.Error) should be ("fallback")
   }
 
   it should "render an invalid span with the system message if the configured message level is lower or equal" in {
-    val elem = InvalidSpan(RuntimeMessage(Warning, "some message"), Text("fallback"))
+    val elem = InvalidSpan(RuntimeMessage(MessageLevel.Warning, "some message"), Text("fallback"))
     val fo = """<fo:inline background-color="#ffff33" color="white">some message</fo:inline> fallback"""
-    render (elem, Info) should be (fo)
+    render (elem, MessageFilter.Info) should be (fo)
   }
 
   val monoBlock = """<fo:block font-family="monospace" font-size="10pt" linefeed-treatment="preserve" margin-left="6mm" margin-right="6mm" space-after="6mm">"""

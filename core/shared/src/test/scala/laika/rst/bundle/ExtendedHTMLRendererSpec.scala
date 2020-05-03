@@ -31,8 +31,8 @@ class ExtendedHTMLRendererSpec extends AnyFlatSpec
   
   def render (elem: Element): String = Renderer.of(HTML).using(ReStructuredText.extensions:_*).build.render(elem)
   
-  def render (elem: Element, messageLevel: MessageLevel): String = 
-    Renderer.of(HTML).withMessageLevel(messageLevel).using(ReStructuredText.extensions:_*).build.render(elem)
+  def render (elem: Element, messageFilter: MessageFilter): String = 
+    Renderer.of(HTML).renderMessages(messageFilter).using(ReStructuredText.extensions:_*).build.render(elem)
   
   
   "The Extended HTML renderer" should "render a doctest block" in {
