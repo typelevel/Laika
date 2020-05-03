@@ -87,7 +87,7 @@ case class OptionArgument (value: String, delimiter: String) extends Element
 /** A substitution definition with its span content that will be inserted
   *  wherever this substitution is referenced in flow content.
   */
-case class SubstitutionDefinition (name: String, content: Span, options: Options = NoOpt) extends Definition {
+case class SubstitutionDefinition (name: String, content: Span, options: Options = NoOpt) extends Definition with Hidden {
   type Self = SubstitutionDefinition
   def withOptions (options: Options): SubstitutionDefinition = copy(options = options)
 }
@@ -133,7 +133,7 @@ case class InterpretedText (role: String, content: String, source: String, optio
   *  to spans of interpreted text referring to the name of this role and passing
   *  the text as the argument to the function.
   */
-case class CustomizedTextRole (name: String, apply: String => Span, options: Options = NoOpt) extends Definition {
+case class CustomizedTextRole (name: String, apply: String => Span, options: Options = NoOpt) extends Definition with Hidden {
   type Self = CustomizedTextRole
   def withOptions (options: Options): CustomizedTextRole = copy(options = options)
 }

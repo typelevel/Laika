@@ -27,7 +27,7 @@ import laika.rewrite.TemplateRewriter
  *  document, structure, title or configuration before
  *  being fully resolved.
  */
-trait SpanResolver extends Span {
+trait SpanResolver extends Span with Unresolved {
   def resolve (cursor: DocumentCursor): Span
 }
 
@@ -37,7 +37,7 @@ trait SpanResolver extends Span {
  *  document, structure, title or configuration before
  *  being fully resolved.
  */
-trait BlockResolver extends Block {
+trait BlockResolver extends Block with Unresolved {
   def resolve (cursor: DocumentCursor): Block
 }
 

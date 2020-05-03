@@ -121,6 +121,13 @@ trait ListItem extends Customizable { type Self <: ListItem }
  */
 trait Hidden extends Element
 
+/** Represents an element that needs to be resolved in an AST transformation step.
+  * 
+  * Passing documents that still contain elements of this kind to a renderer
+  * will usually be treated as errors.
+  */
+trait Unresolved extends Element
+
 /** Represents an invalid element. Renderers
  *  can choose to either render the fallback
  *  or the system message or both.
@@ -137,7 +144,7 @@ trait Invalid[+E <: Element] extends Element {
  *  Therefore none of the available renderers include logic for
  *  dealing with references.
  */
-trait Reference extends Span with Hidden {
+trait Reference extends Span with Unresolved {
   type Self <: Reference
   def source: String
 }
@@ -147,7 +154,7 @@ trait Reference extends Span with Hidden {
  *  Only part of the raw document tree and then removed or replaced
  *  by a rewrite rule before rendering.
  */
-trait Definition extends Block with Hidden { type Self <: Definition }
+trait Definition extends Block { type Self <: Definition }
 
 /** The base type for all link elements.
  *
@@ -386,8 +393,8 @@ object Title extends SpanContainerCompanion {
  *  so on.
  */
 case class DecoratedHeader (decoration: HeaderDecoration, content: Seq[Span], options: Options = NoOpt) extends Block
-                                                                                                        with Hidden
-                                                                                                        with SpanContainer {
+                                                                                                        with SpanContainer
+                                                                                                        with Unresolved {
   type Self = DecoratedHeader
   def withContent (newContent: Seq[Span]): DecoratedHeader = copy(content = newContent)
   def withOptions (options: Options): DecoratedHeader = copy(options = options)
@@ -928,7 +935,7 @@ case object BodyCell extends CellType with BlockContainerCompanion {
 /** An internal or external link target that can be referenced by id, usually only part of the raw document tree and then
   * removed by the rewrite rule that resolves link and image references.
   */
-case class LinkDefinition (id: String, target: Target, title: Option[String] = None, options: Options = NoOpt) extends Definition
+case class LinkDefinition (id: String, target: Target, title: Option[String] = None, options: Options = NoOpt) extends Definition with Hidden
   with Span {
   type Self = LinkDefinition
   def withOptions (options: Options): LinkDefinition = copy(options = options)
@@ -936,7 +943,7 @@ case class LinkDefinition (id: String, target: Target, title: Option[String] = N
 
 /** A link target pointing to another link target, acting like an alias.
  */
-case class LinkAlias (id: String, target: String, options: Options = NoOpt) extends Definition with Span {
+case class LinkAlias (id: String, target: String, options: Options = NoOpt) extends Definition with Span with Hidden {
   type Self = LinkAlias
   def withOptions (options: Options): LinkAlias = copy(options = options)
 }
@@ -945,7 +952,8 @@ case class LinkAlias (id: String, target: String, options: Options = NoOpt) exte
  *  by a rewrite rule based on the label type.
  */
 case class FootnoteDefinition (label: FootnoteLabel, content: Seq[Block], options: Options = NoOpt) extends Definition
-                                                                                                    with BlockContainer {
+                                                                                                    with BlockContainer
+                                                                                                    with Unresolved {
   type Self = FootnoteDefinition
   def withContent (newContent: Seq[Block]): FootnoteDefinition = copy(content = newContent)
   def withOptions (options: Options): FootnoteDefinition = copy(options = options)
