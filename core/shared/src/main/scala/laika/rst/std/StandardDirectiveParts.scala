@@ -92,6 +92,7 @@ object StandardDirectiveParts {
       case _ => image.withOptions(options)
     }
     override def withOptions (options: Options): ImageResolver = copy(options = options)
+    lazy val unresolvedMessage: String = s"Unresolved image resolver for target '${image.target}'"
   }
 
 }

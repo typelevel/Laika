@@ -100,6 +100,7 @@ case class SubstitutionReference (name: String, options: Options = NoOpt) extend
   type Self = SubstitutionReference
   def withOptions (options: Options): SubstitutionReference = copy(options = options)
   val source = s"|$name|"
+  lazy val unresolvedMessage: String = s"Unresolved substitution reference with name '$name'"
 }
 
 /** Represents an interactive Python session. Somewhat unlikely to be used in
@@ -126,6 +127,7 @@ case class Underline (char: Char) extends HeaderDecoration
 case class InterpretedText (role: String, content: String, source: String, options: Options = NoOpt) extends Reference with TextContainer {
   type Self = InterpretedText
   def withOptions (options: Options): InterpretedText = copy(options = options)
+  lazy val unresolvedMessage: String = s"Unresolved interpreted text with role '$role'"
 }
 
 /** Temporary element to represent a customized text role that can be applied
@@ -152,6 +154,8 @@ case class Include (path: String, options: Options = NoOpt) extends Block with B
       case Some(target) => BlockSequence(target.content.content)
       case None         => InvalidElement(s"Unresolvable path reference: $path", s".. include:: $path").asBlock
     }
+
+  lazy val unresolvedMessage: String = s"Unresolved file inclusion with path '$path'"
 }
 
 /** Generates a table of contents element inside a topic.
@@ -169,6 +173,7 @@ case class Contents (title: String, depth: Int = Int.MaxValue, local: Boolean = 
     )).content
     TitledBlock(List(Text(title)), Seq(NavigationList(nav)), options + Style.nav)
   }
+  lazy val unresolvedMessage: String = s"Unresolved table of contents generator with title '$title'"
 }
 
 

@@ -616,6 +616,7 @@ object Spans extends BuilderContext[Span] {
     }
     def withOptions (options: Options): DirectiveInstance = copy(options = options)
     def createInvalidElement (message: String): Span = InvalidElement(message, source).asSpan
+    lazy val unresolvedMessage: String = s"Unresolved span directive instance with name '${directive.fold("<unknown>")(_.name)}'"
   }
 
   case class SeparatorInstance (parsedResult: ParsedDirective,
@@ -625,6 +626,7 @@ object Spans extends BuilderContext[Span] {
     def withOptions (options: Options): SeparatorInstance = copy(options = options)
     def resolve (cursor: DocumentCursor): Span =
       InvalidElement(s"Orphaned separator directive with name '${parsedResult.name}'", source).asSpan
+    lazy val unresolvedMessage: String = s"Unresolved separator directive instance with name '${parsedResult.name}'"
   }
   
 }
@@ -653,6 +655,7 @@ object Blocks extends BuilderContext[Block] {
     }
     def withOptions (options: Options): DirectiveInstance = copy(options = options)
     def createInvalidElement (message: String): Block = InvalidElement(message, source).asBlock
+    lazy val unresolvedMessage: String = s"Unresolved block directive instance with name '${directive.fold("<unknown>")(_.name)}'"
   }
   
   case class SeparatorInstance (parsedResult: ParsedDirective,
@@ -662,6 +665,7 @@ object Blocks extends BuilderContext[Block] {
     def withOptions (options: Options): SeparatorInstance = copy(options = options)
     def resolve (cursor: DocumentCursor): Block =
       InvalidElement(s"Orphaned separator directive with name '${parsedResult.name}'", source).asBlock
+    lazy val unresolvedMessage: String = s"Unresolved separator directive instance with name '${parsedResult.name}'"
   }
 
 }
@@ -689,6 +693,7 @@ object Templates extends BuilderContext[TemplateSpan] {
     }
     def withOptions (options: Options): DirectiveInstance = copy(options = options)
     def createInvalidElement (message: String): TemplateSpan = InvalidElement(message, source).asTemplateSpan
+    lazy val unresolvedMessage: String = s"Unresolved template directive instance with name '${directive.fold("<unknown>")(_.name)}'"
   }
 
   case class SeparatorInstance (parsedResult: ParsedDirective,
@@ -698,6 +703,7 @@ object Templates extends BuilderContext[TemplateSpan] {
     def withOptions (options: Options): SeparatorInstance = copy(options = options)
     def resolve (cursor: DocumentCursor): TemplateSpan = 
       InvalidElement(s"Orphaned separator directive with name '${parsedResult.name}'", source).asTemplateSpan
+    lazy val unresolvedMessage: String = s"Unresolved separator directive instance with name '${parsedResult.name}'"
   }
 
 }

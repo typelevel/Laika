@@ -90,6 +90,8 @@ case class TemplateContextReference (ref: Key, required: Boolean, options: Optio
     case Left(configError)                             => invalid(configError).asTemplateSpan
   }
   def withOptions (options: Options): TemplateContextReference = copy(options = options)
+
+  lazy val unresolvedMessage: String = s"Unresolved template context reference with key '${ref.toString}'"
 }
 
 /** A context reference specifically for use in markup documents.
@@ -107,6 +109,7 @@ case class MarkupContextReference (ref: Key, required: Boolean, options: Options
     case Left(configError)                      => invalid(configError).asSpan
   }
   def withOptions (options: Options): MarkupContextReference = copy(options = options)
+  lazy val unresolvedMessage: String = s"Unresolved markup context reference with key '${ref.toString}'"
 }
 
 

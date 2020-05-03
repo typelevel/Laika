@@ -169,7 +169,8 @@ object StandardDirectives extends DirectiveRegistry {
     }
 
     def withOptions (options: Options): BreadcrumbBuilder = copy(options = options)
-    
+
+    lazy val unresolvedMessage: String = "Unresolved breadcrumb builder"
   }
 
   /** Implementation of the `breadcrumb` directive for templates.
@@ -268,6 +269,8 @@ object StandardDirectives extends DirectiveRegistry {
       eval(cursor).fold(error => InvalidElement(error, error).asBlock, identity)
 
     def withOptions (options: Options): NavigationBuilderConfig = copy(options = options)
+
+    lazy val unresolvedMessage: String = "Unresolved navigation builder"
   }
 
   /** Companion with a decoder for obtaining instances from HOCON.
@@ -594,6 +597,7 @@ object StandardDirectives extends DirectiveRegistry {
       }
       TemplateElement(RawContent(Seq("html","xhtml"), allLinks.mkString("\n    ")))
     }
+    lazy val unresolvedMessage: String = s"Unresolved style links generator"
   }
 
   /** Template directive that inserts links to all CSS inputs found in the document tree, using a path

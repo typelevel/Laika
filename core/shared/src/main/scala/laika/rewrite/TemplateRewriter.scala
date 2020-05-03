@@ -38,9 +38,7 @@ trait TemplateRewriter {
    */
   def applyTemplates (tree: DocumentTreeRoot, format: String): Either[ConfigError, DocumentTreeRoot] = applyTemplates(RootCursor(tree), format)
 
-  /** Selects and applies the templates for the specified output format to all documents within the specified tree cursor recursively.
-    */
-  def applyTemplates (cursor: RootCursor, format: String): Either[ConfigError, DocumentTreeRoot] = {
+  private def applyTemplates (cursor: RootCursor, format: String): Either[ConfigError, DocumentTreeRoot] = {
     
     for {
       newCover <- cursor.coverDocument.traverse(applyTemplate(_, format))
@@ -54,7 +52,7 @@ trait TemplateRewriter {
     
   }
   
-  private def applyTreeTemplate(cursors: Seq[Cursor], format: String): Either[ConfigError, Seq[TreeContent]] =
+  private def applyTreeTemplate (cursors: Seq[Cursor], format: String): Either[ConfigError, Seq[TreeContent]] =
     cursors.foldLeft[Either[ConfigError, Seq[TreeContent]]](Right(Nil)) {
       case (acc, next) => acc.flatMap { ls => (next match {
         case doc: DocumentCursor => applyTemplate(doc, format)
@@ -62,9 +60,7 @@ trait TemplateRewriter {
       }).map(ls :+ _) }
     }
   
-  /** Selects and applies the templates for the specified output format to all documents within the specified tree cursor recursively.
-   */
-  def applyTemplates (cursor: TreeCursor, format: String): Either[ConfigError, DocumentTree] = {
+  private def applyTemplates (cursor: TreeCursor, format: String): Either[ConfigError, DocumentTree] = {
 
     for {
       newTitle   <- cursor.titleDocument.traverse(applyTemplate(_, format))
@@ -79,9 +75,7 @@ trait TemplateRewriter {
     
   }
   
-  /** Selects and applies the template for the specified output format to the target of the specified document cursor.
-    */ 
-  def applyTemplate (cursor: DocumentCursor, format: String): Either[ConfigError, Document] = {
+  private def applyTemplate (cursor: DocumentCursor, format: String): Either[ConfigError, Document] = {
     val template = selectTemplate(cursor, format).getOrElse(defaultTemplate)
     applyTemplate(cursor, template)
   }
@@ -104,9 +98,7 @@ trait TemplateRewriter {
     }
   }
   
-  /** The (optional) template to use when rendering the target of the specified document cursor.
-   */  
-  def selectTemplate (cursor: DocumentCursor, format: String): Option[TemplateDocument] = {
+  private[laika] def selectTemplate (cursor: DocumentCursor, format: String): Option[TemplateDocument] = {
     val config = cursor.config
     val templatePath = config.get[Path](LaikaKeys.template).toOption // TODO - error handling 
       .orElse(config.get[Path](LaikaKeys.template(format)).toOption)
@@ -130,23 +122,24 @@ trait TemplateRewriter {
   }
   
   /** The default rewrite rules for template documents,
-   *  responsible for replacing all
-   *  span and block resolvers with the final resolved
-   *  element they produce based on the specified
-   *  document cursor and its configuration.
-   */
+    * responsible for replacing all span and block resolvers with the final resolved element they produce 
+    * based on the specified document cursor and its configuration.
+    */
   def rewriteRules (cursor: DocumentCursor): RewriteRules = {
     
     lazy val rules: RewriteRules = RewriteRules.forBlocks {
       case ph: BlockResolver                => Replace(rewriteBlock(ph resolve cursor))
       case TemplateRoot(spans, opt)         => Replace(TemplateRoot(format(spans), opt))
-      case sc: SpanContainer with Block     => Replace(sc.withContent(joinTextSpans(sc.content)).asInstanceOf[Block]) 
+      case sc: SpanContainer with Block     => Replace(sc.withContent(joinTextSpans(sc.content)).asInstanceOf[Block])
+      case unresolved: Unresolved           => Replace(InvalidElement(unresolved.unresolvedMessage, "<unknown source>").asBlock)
     } ++ RewriteRules.forSpans {
       case ph: SpanResolver                 => Replace(rewriteSpan(ph resolve cursor))
       case sc: SpanContainer with Span      => Replace(sc.withContent(joinTextSpans(sc.content)).asInstanceOf[Span])
+      case unresolved: Unresolved           => Replace(InvalidElement(unresolved.unresolvedMessage, "<unknown source>").asSpan)
     } ++ RewriteRules.forTemplates {
       case ph: SpanResolver                 => Replace(rewriteTemplateSpan(asTemplateSpan(ph resolve cursor)))
       case TemplateSpanSequence(spans, opt) => Replace(TemplateSpanSequence(format(spans), opt))
+      case unresolved: Unresolved           => Replace(InvalidElement(unresolved.unresolvedMessage, "<unknown source>").asTemplateSpan)
     }
     
     def asTemplateSpan (span: Span) = span match {

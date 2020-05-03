@@ -126,7 +126,13 @@ trait Hidden extends Element
   * Passing documents that still contain elements of this kind to a renderer
   * will usually be treated as errors.
   */
-trait Unresolved extends Element
+trait Unresolved extends Element {
+
+  /** An error message to display when this element remain unresolved until after the final
+    * AST transformation step.
+    */
+  def unresolvedMessage: String
+}
 
 /** Represents an invalid element. Renderers
  *  can choose to either render the fallback
@@ -398,6 +404,7 @@ case class DecoratedHeader (decoration: HeaderDecoration, content: Seq[Span], op
   type Self = DecoratedHeader
   def withContent (newContent: Seq[Span]): DecoratedHeader = copy(content = newContent)
   def withOptions (options: Options): DecoratedHeader = copy(options = options)
+  lazy val unresolvedMessage: String = s"Unresolved decorated header with decoration '${decoration.toString}'"
 }
 object DecoratedHeader {
   /** Create an instance only containing a single Text span */
@@ -957,6 +964,7 @@ case class FootnoteDefinition (label: FootnoteLabel, content: Seq[Block], option
   type Self = FootnoteDefinition
   def withContent (newContent: Seq[Block]): FootnoteDefinition = copy(content = newContent)
   def withOptions (options: Options): FootnoteDefinition = copy(options = options)
+  lazy val unresolvedMessage: String = s"Unresolved footnote definition with label '$label'"
 }
 
 
@@ -1225,6 +1233,7 @@ case class InternalReference (content: Seq[Span],
   type Self = InternalReference
   def withContent (newContent: Seq[Span]): InternalReference = copy(content = newContent)
   def withOptions (options: Options): InternalReference = copy(options = options)
+  lazy val unresolvedMessage: String = s"Unresolved internal reference to '${path.toString}'"
 }
 
 /** A link reference, the id pointing to the id of a `LinkTarget`. Only part of the
@@ -1235,6 +1244,7 @@ case class LinkDefinitionReference (content: Seq[Span], id: String, source: Stri
   type Self = LinkDefinitionReference
   def withContent (newContent: Seq[Span]): LinkDefinitionReference = copy(content = newContent)
   def withOptions (options: Options): LinkDefinitionReference = copy(options = options)
+  lazy val unresolvedMessage: String = s"Unresolved reference to link definition with id '$id'"
 }
 
 /** An image reference, the id pointing to the id of a `LinkTarget`. Only part of the
@@ -1243,6 +1253,7 @@ case class LinkDefinitionReference (content: Seq[Span], id: String, source: Stri
 case class ImageDefinitionReference (text: String, id: String, source: String, options: Options = NoOpt) extends Reference {
   type Self = ImageDefinitionReference
   def withOptions (options: Options): ImageDefinitionReference = copy(options = options)
+  lazy val unresolvedMessage: String = s"Unresolved reference to image definition with id '$id'"
 }
 
 /** A reference to a footnote with a matching label.  Only part of the
@@ -1251,6 +1262,7 @@ case class ImageDefinitionReference (text: String, id: String, source: String, o
 case class FootnoteReference (label: FootnoteLabel, source: String, options: Options = NoOpt) extends Reference {
   type Self = FootnoteReference
   def withOptions (options: Options): FootnoteReference = copy(options = options)
+  lazy val unresolvedMessage: String = s"Unresolved reference to footnote with label '$label'"
 }
 
 /** A reference to a citation with a matching label.  Only part of the
@@ -1259,6 +1271,7 @@ case class FootnoteReference (label: FootnoteLabel, source: String, options: Opt
 case class CitationReference (label: String, source: String, options: Options = NoOpt) extends Reference {
   type Self = CitationReference
   def withOptions (options: Options): CitationReference = copy(options = options)
+  lazy val unresolvedMessage: String = s"Unresolved reference to citation with label '$label'"
 }
 
 /** A reference to any kind of referencable object, e.g. a link definition or an internal target.
@@ -1276,6 +1289,7 @@ case class GenericReference (content: Seq[Span], ref: String, source: String, op
   def asLinkDefinitionReference: LinkDefinitionReference = LinkDefinitionReference(content, ref, source, options)
   def asInternalReference: InternalReference = 
     InternalReference(content, RelativePath.CurrentDocument(ref), source, options = options)
+  lazy val unresolvedMessage: String = s"Unresolved generic reference '$ref'"
 }
 
 

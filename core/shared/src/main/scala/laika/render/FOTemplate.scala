@@ -97,6 +97,7 @@ object FOTemplate {
           TemplateString(fo)
       }
     }
+    lazy val unresolvedMessage: String = s"Unresolved XSL-FO link generator for cover image"
   }
   
   /** The default template for PDF and XSL-FO renderers.
