@@ -129,7 +129,7 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
       case h: DecoratedHeader    => replaceBlock(h, TargetIdSelector(slugBuilder(h.extractText)))
       case h: Header             => replaceBlock(h, TargetIdSelector(slugBuilder(h.extractText)))
       
-      case _: Temporary => Remove
+      case _: Hidden => Remove
 
       case c: Customizable if c.options.id.isDefined => replaceBlock(c, TargetIdSelector(slugBuilder(c.options.id.get)))
       
@@ -159,7 +159,7 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
 
       case c: Customizable if c.options.id.isDefined => replaceSpan(c, TargetIdSelector(slugBuilder(c.options.id.get)))
         
-      case _: Temporary => Remove
+      case _: Hidden => Remove
 
     }
   }

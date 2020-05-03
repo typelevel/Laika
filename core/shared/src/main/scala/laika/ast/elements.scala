@@ -114,11 +114,12 @@ trait Span extends Customizable { type Self <: Span }
  */
 trait ListItem extends Customizable { type Self <: ListItem }
 
-/** Represents a temporary element only present in the
- *  raw document tree and then removed or replaced
- *  by a rewrite rule before rendering.
+/** Represents a hidden element that will be ignored by renderers.
+  * 
+  * These kind of nodes usually provide information that will be extracted
+  * from the tree before AST transformations and renderers get applied.
  */
-trait Temporary extends Element
+trait Hidden extends Element
 
 /** Represents an invalid element. Renderers
  *  can choose to either render the fallback
@@ -136,7 +137,7 @@ trait Invalid[+E <: Element] extends Element {
  *  Therefore none of the available renderers include logic for
  *  dealing with references.
  */
-trait Reference extends Span with Temporary {
+trait Reference extends Span with Hidden {
   type Self <: Reference
   def source: String
 }
@@ -146,7 +147,7 @@ trait Reference extends Span with Temporary {
  *  Only part of the raw document tree and then removed or replaced
  *  by a rewrite rule before rendering.
  */
-trait Definition extends Block with Temporary { type Self <: Definition }
+trait Definition extends Block with Hidden { type Self <: Definition }
 
 /** The base type for all link elements.
  *
@@ -310,7 +311,7 @@ object RootElement extends BlockContainerCompanion {
 
 /** A named document fragment that usually gets rendered separately from the main root element
  */
-case class DocumentFragment (name: String, root: Element, options: Options = NoOpt) extends Block with Temporary {
+case class DocumentFragment (name: String, root: Element, options: Options = NoOpt) extends Block with Hidden {
   type Self = DocumentFragment
   def withOptions (options: Options): DocumentFragment = copy(options = options)
 }
@@ -327,7 +328,7 @@ case class TargetFormat (format: String, element: Element, options: Options = No
  *  to the configuration of the document.
  *  During rendering these embedded configuration values will be discarded.
  */
-case class EmbeddedConfigValue (key: String, value: ConfigValue, options: Options = NoOpt) extends Block with Span with Temporary {
+case class EmbeddedConfigValue (key: String, value: ConfigValue, options: Options = NoOpt) extends Block with Span with Hidden {
   type Self = EmbeddedConfigValue
   def withOptions (options: Options): EmbeddedConfigValue = copy(options = options)
 }
@@ -385,7 +386,7 @@ object Title extends SpanContainerCompanion {
  *  so on.
  */
 case class DecoratedHeader (decoration: HeaderDecoration, content: Seq[Span], options: Options = NoOpt) extends Block
-                                                                                                        with Temporary
+                                                                                                        with Hidden
                                                                                                         with SpanContainer {
   type Self = DecoratedHeader
   def withContent (newContent: Seq[Span]): DecoratedHeader = copy(content = newContent)

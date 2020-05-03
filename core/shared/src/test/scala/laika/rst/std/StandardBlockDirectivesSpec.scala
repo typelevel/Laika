@@ -49,7 +49,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
      .get
      .document
      .content
-     .rewriteBlocks({ case _: Temporary with Block => Remove }) // removing the noise of rst TextRoles which are not the focus of this spec
+     .rewriteBlocks({ case _: Hidden with Block => Remove }) // removing the noise of rst TextRoles which are not the focus of this spec
 
    def parse (input: String): RootElement = parseDoc(input).content
    
