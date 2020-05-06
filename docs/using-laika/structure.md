@@ -349,13 +349,6 @@ by its name, in the following way:
 * `*.<markup-suffix>`: markup files with a suffix recognized
   by the parser in use, e.g. `.md` or `.markdown` for Markdown
   and `.rst` for reStructuredText
-* `*.dynamic.html`: a dynamic file, which has the same syntax
-  as a template, but does not get applied to a markup document.
-  This means it should not have a `${document.content}` reference
-  like normal templates, but may use any of the other template
-  features. The result of processing will be copied to the
-  output directory (with the `.dynamic` part stripped from 
-  its name) alongside the transformed markup documents.
 * `*.git`, `*.svn`: these directories will be ignored
 * all other files: treated as static files and copied to the 
   output directory unmodified.

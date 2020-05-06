@@ -2,42 +2,6 @@
 Using the sbt Plugin
 ====================
 
-The core of the Laika toolkit does not depend on sbt in any way, and therefore comes with a plugin
-that provides the glue necessary to expose Laika's feature set as sbt tasks and settings.
-
-This chapter only covers the topics which are specific to using Laika with sbt, while most other
-parts of the manual apply to both embedded use and sbt plugin.
-
-
-
-Adding the Plugin to the Build
-------------------------------
-
-Laika's sbt plugin requires sbt 1.x.
-
-If you still need to use sbt 0.13.x, you can use Laika 0.7.0 which was the last release
-supporting that sbt version.
-
-First add the plugin to `project/plugins.sbt`:
-
-```scala
-addSbtPlugin("org.planet42" % "laika-sbt" % "0.14.0")
-```
-
-If you want to install it globally, add the line above to
-`~/.sbt/1.0/plugins/build.sbt` instead.
-
-Then enable the plugin in your project's `build.sbt`:
-
-```scala
-enablePlugins(LaikaPlugin)
-```
-
-You can now add content to the directory `src/docs` inside your project 
-and run `laikaSite` from within sbt to generate the site in 
-`target/docs/site`. See the following sections for details.
-
-
 
 Editing Content
 ---------------
