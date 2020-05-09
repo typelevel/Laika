@@ -58,7 +58,8 @@ The plugin distinguishes between the following file types:
   overridden. You can also add additional templates with the name pattern `*.template.<suffix>`, which will only
   be applied when a markup document explicitly refers to them in its configuration header.
   (The upcoming 0.16 release will introduce Themes which will provide default templates out of the box. 
-  Until then you need to provide at least one default template in the root directory.)
+  Until then you need to provide at least one default template in the root directory unless you are fine with the
+  very basic fallback template.)
 * **Static Files**: All other files, like CSS, JavaScript, images, etc., will be copied over to the 
   target in the same directory structure and with identical file names.
 
@@ -148,12 +149,13 @@ Finally if you only work with a single format there are also shortcut tasks for 
 Plugin Settings
 ---------------
 
-The remaining configuration options are not specific to the plugin use case and merely mirror the features of the library API.
-For this reason this section only gives a very brief overview while linking to the relevant sections in the other chapers.
+The remaining configuration options are not specific to the plugin use case and merely mirror the features of the library API,
+apart from differences in the syntax/mechanics which with they are applied, which are reflected in the corresponding code examples.
+For this reason this section only gives a very brief overview while linking to the relevant sections in the other chapters.
 
 - **@:ref(Strict mode)**: Disables all non-standard extensions Laika adds to the supported markup formats, like directives.
 
-- **@:ref(Raw Content)**: Enables the inclusion of the target format in markup files, 
+- **@:ref(Raw Content)**: Enables the inclusion of raw sections of the target format in markup files, 
   e.g. snippets of verbatim HTML embedded in Markdown files. By default this is disabled.
 
 - **@:ref(Character Encoding)**: Sets the character encoding of input and output files, the default is UTF-8.
@@ -165,7 +167,7 @@ For this reason this section only gives a very brief overview while linking to t
   transform the document AST before rendering (@:ref(AST Rewriting)), install custom directives (@:ref(Implementing Directives))
   or use some of the lower level hooks in (@:ref(The ExtensionBundle API)).
 
-- **TODO other laikaConfig options**: 
+- **TODO laikaConfig Setting**: 
 
 - **@:ref(Inspecting Laika's Configuration)**: Run `show laikaDescribe` to get a formatted summary of the active configuration,
   installed extension bundles and lists of input and output files.

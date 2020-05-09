@@ -24,6 +24,47 @@ into the other before rendering, based on the types and location of tags you
 used in the template. 
 
 
+from embedded ====================================================================================
+
+### Templates
+
+The directories that contain the markup documents can optionally contain
+templates that get applied to the parsed documents. A very basic template
+for HTML output may look like this:
+
+```laika-html
+<html>
+  <head>
+    <title>${document.title}</title>
+  </head>
+  <body>
+    <div class="content">
+      ${document.content}
+    </div>
+  </body>
+</html>
+```
+    
+The two placeholders enclosed in double curly braces will be replaced with the
+title and content of the parsed markup document. Everything else will be copied
+to the final document unchanged.
+
+Every directory can contain a file with the name `default.template.<suffix>` that
+automatically gets applied to all documents in that directory and its subdirectories,
+unless overridden in a subdirectory. There are also ways to manually declare a
+template for a specific markup document only. 
+
+The suffix must match the output format of the transformation, e.g. `.html` for HTML,
+`.fo` for PDF (as it renders via XSL-FO) and `.epub.xhtml` for EPUB.
+
+For more details on the template engine, see the chapter [Templates].
+
+For features like titles, sections, cross-linking, auto-numbering 
+and tables of content, see the chapter [Document Structure].
+
+==================================================================================================
+
+
 Template Syntax
 ---------------
 
