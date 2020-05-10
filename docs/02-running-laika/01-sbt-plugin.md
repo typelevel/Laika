@@ -41,7 +41,7 @@ This default can be overridden with:
 sourceDirectories in Laika := Seq(target.value / "somewhere-else")
 ```
 
-You can provide multiple input directories which will be merged into Laika's logical, virtual tree (TODO link).
+You can provide multiple input directories which will be merged into Laika's @:ref(Virtual Tree Abstraction).
 
 Laika does not have any special directories and content can be nested in sub-directories down to arbitrary levels.
 For more details on how to organize content, see @:ref(Directory Structure).

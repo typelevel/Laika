@@ -101,7 +101,7 @@ object Settings {
     */
   def createArtifactPath (key: Scoped): Initialize[File] = setting {
     val art = (artifact in key).value
-    val classifier = art.classifier map ("-"+_) getOrElse ""
+    val classifier = art.classifier.map("-"+_).getOrElse("")
     (target in Laika).value / (art.name + "-" + projectID.value.revision + classifier + "." + art.extension)
   }
 

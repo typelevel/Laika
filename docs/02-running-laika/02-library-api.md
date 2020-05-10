@@ -361,7 +361,7 @@ val res: IO[Unit] = transformer
 ```
 
 
-### Virtual Tree Abstraction
+### Merging Multiple Directories
 
 All previous examples read content from the single input directory. But you can also merge the contents of multiple directories:
 
@@ -373,17 +373,7 @@ val res: IO[RenderedTreeRoot[IO]] = transformer
 ```
 
 This adds some additional flexibility, as it allows, for example, to keep reusable styles and templates separately.
-
-This is facilitated by the fact that Laika is not tied to the file system or any other rigid structure, but comes
-with its own virtual tree abstraction.
-The internal, virtual path is represented by the `laika.ast.Path` type and relative links between them by
-`laika.ast.RelativePath`.
- 
-This way you can freely combine content that originates in the file system with content that is loaded as a resource 
-from a jar or content that is generated in-memory.
-
-When the merged directories contain sub-folders with the same name, those will be merged recursively. 
-Only files with the same name in the same folder are treated as errors.
+This flexibility is possible as Laika is not tied to the file system, but instead provides a @:ref(Virtual Tree Abstraction).
 
 
 ### Preparing Content
