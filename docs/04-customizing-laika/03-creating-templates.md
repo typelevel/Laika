@@ -42,3 +42,35 @@ val doc: Document = ???
 doc.fragments // Map[String, Element]
 ```
 
+=============================================================================================
+
+from old output page:
+
+### Templating
+
+Laika supports Templating for most output formats. The following example
+uses variable references to include the title and content of the input
+document, as well as a directive called `@toc` to inset a table of contents:
+
+```laika-html
+<html>
+  <head>
+    <title>${document.title}</title>
+  </head>
+  <body>
+    @:toc
+    <div class="content">
+      ${document.content}
+    </div>
+  </body>
+</html>
+```
+    
+If you save such a template in a file called `default.template.html` in the
+root directory of your input sources it will get applied to all markup documents
+in those directories. You can optionally override the template for an individual
+sub-directory simply by including a different template named `default.template.html`
+in that sub-directory.
+
+See [Templates][../using-laika/templates.md:Templates] for more details.
+

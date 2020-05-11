@@ -140,6 +140,28 @@ For EPUB the `laikaEpubRenderer` can be used to add a custom XHMTL renderer of t
 `PartialFunction[(HTMLFormatter, Element), String]`. 
 
 
+### Customizing the HTML Renderer (library use case)
+
+Finally you can adjust the rendered output for one or more node types
+of the document tree programmatically with a simple partial function:
+
+```scala
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .rendering {
+    case (fmt, Emphasized(content, opt)) => 
+      fmt.element("em", opt, content, "class" -> "big")  
+  }
+  .build
+```
+
+Note that in some cases the simpler way to achieve the same result may be
+styling with CSS.
+
+See [Customizing Renderers][../customizing-laika/customize-rendering.md:Customizing Renderers] for more details.
+
+
 ### Custom Rewrite Rules
 
 When customizing renderers you have to repeat the step for each output format like HTML, EPUB or PDF. 
@@ -216,3 +238,83 @@ For more details on this directive type see [Directives][../extending-laika/dire
 
 The examples in the two chapters linked above show how to implement a directive
 and register it either for use in sbt or in embedded mode.
+
+
+
+==================================================================================================================
+
+from old output page:
+
+
+Formatted AST
+-------------
+
+A renderer that visualizes the document tree structure, essentially a formatted
+`toString` for a tree of case classes, mainly useful for testing and debugging
+purposes.
+
+You can use this renderer with the Transformer API:
+
+```scala
+val input = "some *text* example"
+
+Transformer
+  .from(Markdown)
+  .to(AST)
+  .build
+  .transform(input)
+```
+
+The output for the small example above will have the following format:
+
+```laika-ast
+RootElement - Blocks: 1
+. Paragraph - Spans: 3
+. . Text - 'some '
+. . Emphasized - Spans: 1
+. . . Text - 'text'
+. . Text - ' example'
+```
+
+Alternatively you can use the Render API to render an existing document:
+
+```scala
+val input = "some *text* example"
+
+val doc = Parser.of(Markdown).build.parse(input)
+
+Renderer.of(AST).build.render(doc)
+```
+
+The above will yield the same result as the previous example.
+
+Finally, if you are using the sbt plugin you can use the `laikaAST` task.
+
+
+### HTML Renderer Properties
+
+The `unformatted` property tells the renderer to omit any formatting (line breaks or indentation) 
+around tags. Useful when storing the output in a database for example:
+
+```scala
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .unformatted 
+  .build
+```
+
+The `withMessageLevel` property instructs the renderer to include system messages in the
+generated HTML. Messages may get inserted into the document tree for problems during
+parsing or reference resolution, e.g. an internal link to a destination that does not
+exist. By default these messages are not included in the output. They are mostly useful
+for testing and debugging, or for providing feedback to application users producing 
+markup input:
+
+```scala
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .withMessageLevel(Warning)
+  .build
+```
