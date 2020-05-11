@@ -4,12 +4,16 @@ AST Rewriting
 
 The document tree in a Laika transformation is a generic representation of the document 
 that does not contain any specific semantic or technical coupling to a concrete input or output format. 
-This allows to add custom processing logic only operating on the tree itself, 
+This allows to add custom processing logic only operating on the document structure itself, 
 so it can be used with all supported input and output formats unchanged.
 
 Rewriting a tree means traversing it and replacing or removing some of its nodes.
 A tree model is immutable, so rewriting always creates a new tree, 
 while reusing unmodified branches for efficiency.
+
+Several of Laika's built-in features are implemented as rewrite rules internally,
+like the mechanism for resolving internal references or footnote auto-numbering.
+But it also designed to be a hook for processing on the application level.
 
 
 How Rewrite Rules Work
