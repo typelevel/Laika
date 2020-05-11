@@ -153,7 +153,8 @@ in each directory.
 In the navigation tree on the right these titles now only serve as separators and are not linked to any document.
 
 
-### Virtual Tree Abstraction
+Virtual Tree Abstraction
+------------------------
 
 While in most scenarios a single directory to provide all input files is probably sufficient, 
 Laika's functionality is not tied to the file system in any way, but instead builds on top of a
@@ -173,3 +174,5 @@ The configuration mechanism for specifying multiple input directories is differe
 Internally, the virtual path is represented by the `laika.ast.Path` type and relative links between them by
 `laika.ast.RelativePath`. These types are used frequently throughout the classes forming the document AST.
 All internal links are expressed with with these virtual paths and not with file system paths.
+
+[TODO - examples for abs/rel links in HOCON and programmatically]

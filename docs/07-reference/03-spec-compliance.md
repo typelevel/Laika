@@ -300,3 +300,7 @@ sets the text role `my-role-name` as the default role for the transformer.
 
 Laika comes with a concise and typesafe DSL to declare custom directives and text roles.
 It is fully documented in [Extending reStructuredText].
+
+
+CSS for PDF
+-----------
