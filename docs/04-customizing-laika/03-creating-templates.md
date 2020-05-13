@@ -24,7 +24,7 @@ Document Names and Locations
 
 There are two kinds of template documents you can add to your input directories:
 
-* Default templates that gets applied to all markup documents that do not explicitly specify a template
+* Default templates that get applied to all markup documents that do not explicitly specify a template
 
 * Additional templates that only get applied when a markup document explicitly refers to them
 
