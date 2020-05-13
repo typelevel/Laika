@@ -21,7 +21,7 @@ In cases where you just want to tweak some minor details about how your site or 
 you can use one of Laika's hooks into the various phases of a transformation.
 
 For a better understanding of the customization options it is good to a have a rough idea about how
-a transformation in Laika is performed. Roughly it can be divided into 4 phases:
+a transformation in Laika is performed. It can be divided into 4 phases:
 
 1) The parsing step. Text markup and template documents get parsed and translated into an internal AST.
    The AST is a generic abstraction of the document's structure and is not tied to any specific semantics
