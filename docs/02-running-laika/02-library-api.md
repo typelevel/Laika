@@ -486,7 +486,7 @@ For this reason this section only gives a very brief overview while linking to t
 - **@:ref(Error Handling & Debugging)**: Specify log levels or switch to "visual debugging", where recoverable errors are
   rendered in the page context where they occur instead of causing the transformation to fail.
 
-- **Laika Extensions**: Use the library's customization options to override renderers for specific AST nodes (@:ref(Customizing Renderers)),
+- **Laika Extensions**: Use the library's customization options to override renderers for specific AST nodes (@:ref(Overriding Renderers)),
   transform the document AST before rendering (@:ref(AST Rewriting)), install custom directives (@:ref(Implementing Directives))
   or use some of the lower level hooks in (@:ref(The ExtensionBundle API)).
 

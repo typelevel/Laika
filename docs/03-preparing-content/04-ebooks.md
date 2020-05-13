@@ -252,7 +252,7 @@ Apart from adjusting the surrounding template the AST nodes will be rendered int
 you can also customize how each individual AST node itself is rendered. 
  
 This is a general customization hook in the library and not different from overriding renderers for site output.
-See @:ref(Customizing Renderers) for more details.
+See @:ref(Overriding Renderers) for more details.
 
 
 Configuring Apache FOP
