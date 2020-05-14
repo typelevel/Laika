@@ -72,7 +72,7 @@ Let's go through this step by step with an example.
 We are going to build a simple span parser for a ticket reference in the form of `#123`.
 
 
-### The Parser Implementation
+### Span Parser Implementation
 
 We require a mandatory `#` symbol followed by one or more digits.
 
@@ -99,7 +99,7 @@ This first example hard-codes the base URL. If your parser extension is for inte
 But if you require a configurable base URL, we later show an enhanced example that has access to the configuration.
 
 
-### Registering the Parser
+### Registering a Span Parser
 
 For bundling all your Laika extensions, you need to extend `ExtensionBundle`.
 In our case we only need to override the `parsers` property 
@@ -238,12 +238,155 @@ Only this entry point gives you access to a parser that is fully configured with
 This parser needs to be injected as you would otherwise hard-code a concrete, fixed set of inline parsers.
 
 
-### Precedence
+Block Parsers
+-------------
 
-Finally the `SpanParser` registration builder allows to specify the precedence:
+Block parsers participate in parsing block level elements. 
+Examples for built-in block parsers are those for lists, headers, tables or code blocks.
+
+Adding a block parser to an existing text markup language requires two steps:
+
+* Write the actual implementation of the parser as a type of `PrefixedParser[Block]`.
+* Add this declaration to an `ExtensionBundle`.
+
+Let's again go through this step by step with an example.
+We are going to build a block parser for a quoted block.
+In practice you would not need such an extension, as both supported markup languages in Laika already contain
+a quoted block element. 
+But it's a good example as the syntax is so simple.
+In our case we require that each line of such a block starts with the `>` character:
+
+```
+> This line is part of the quotation
+> This line, too.
+But this line isn't
+```
+
+
+### Block Parser Implementation
+
+Let's look at the implementation and examine it line by line:
 
 ```scala
-SpanParser.recursive { implicit recParsers =>
+import laika.ast._
+import laika.parse.implicits._
+
+val quotedBlockParser = BlockParser.recursive { recParsers =>
+
+  val decoratedLine = ">" ~ ws  // '>' followed by whitespace
+  val textBlock = BlockParsers.block(decoratedLine, decoratedLine)
+    
+  recParsers.recursiveBlocks(textBlock).map(QuotedBlock(_, Nil))
+}
+```
+
+* Our quoted block is a recursive structure, therefore we need to use the corresponding entry point
+  `BlockParser.recursive`.
+  Like the recursive entry point for span parsers, it provides access to the parser of the host language 
+  that is fully configured with all extensions the user has specified.
+  
+* Next we create the parser for the condition that each line needs to meet to be part of the quoted block.
+  In our case that is the `">"` character, optionally followed by whitespace (the `ws` parser consumes
+  zero or more whitespace characters).
+  
+* We then create the parser for the text block based on these predicates. 
+  `BlockParsers.block` is a shortcut that will parse lines until a line does not meet the predicate.
+  The result is `List[String]`. See @:ref(Base Parsers for Block Elements) below for details about this method. 
+  
+* Finally we use the recursive parsers we got injected.
+  The call to `recursiveBlocks` "lifts" the specified `Parser[List[String]]` to a `Parser[List[Block]]`
+
+* We map the result and create a `QuotedBlock` node (which implements `Block`).
+  The nested blocks we parsed simply become the children of the quoted block.
+
+Like with span parsers, for blocks which are not recursive you can use the `BlockParser.standalone` entry point.
+
+
+### Registering a Block Parser
+
+For bundling all your Laika extensions, you need to extend `ExtensionBundle`.
+In our case we only need to override the `parsers` property 
+and leave everything else at the empty default implementations.
+
+```scala
+object QuotedBlocks extends ExtensionBundle {
+
+  override val parsers: ParserBundle = 
+    ParserBundle(blockParsers = Seq(quotedBlockParser))
+
+}
+```
+
+Finally you can register your extension together with any built-in extensions you may use:
+
+```scala
+TODO - plugin + library
+```
+
+
+### Base Parsers for Block Elements
+
+Laika offers a `BlockParsers` object with convenience methods for creating a typical block parser.
+
+One of the most common patterns is parsing a range of lines while removing any decoration that just serves
+as markup identifying the block type, e.g. the `*` starting a Markdown list or the `>` starting a quotation.
+And then using the parser result to continue parsing recursively, either nested blocks
+or the inline elements of the block.
+
+For these kind of block elements Laika offers the following method for convenience,
+which is the utility we used in our example for parsing a quoted block:
+
+```scala
+def block (firstLinePrefix: Parser[Any], 
+           linePrefix: Parser[Any]): Parser[List[String]]
+```
+
+It expects two parsers, one for parsing the prefix of the first line, one for parsing it for all subsequent lines.
+These parsers may be identical, like in our example for the quoted block.
+They are both of type `Parser[Any]` as the result will be discarded anyway.
+
+The result of this parser is of type `List[String]` and contains all lines where the specified conditions were met,
+**minus** the input consumed by the prefix parser.
+The prefix parsers are not required to consume any input though, 
+if the logic for a particular block does not require stripping off decoration, 
+you can alternatively pass parsers that only check some pre-conditions, but leave all input for the result.
+
+The method above always stops parsing when encountering a blank line on the input,
+which is common for many types of block elements.
+For cases where parsing may need to continue beyond blank lines,
+there is a second overload of this method that allows this: 
+
+```scala
+def block (firstLinePrefix: Parser[Any], 
+           linePrefix: Parser[Any], 
+           nextBlockPrefix: Parser[Any]): Parser[List[String]]
+```
+
+It simply adds a third prefix parser that gets invoked on the beginning of a line following a blank line
+and is expected to succeed when the line should be treated as a continuation of the block element.
+
+Finally there is a second utility that can be used for indented blocks:
+
+```scala
+def indentedBlock (minIndent: Int = 1,
+    linePredicate: => Parser[Any] = success(()),
+    endsOnBlankLine: Boolean = false,
+    firstLineIndented: Boolean = false,
+    maxIndent: Int = Int.MaxValue): Parser[String]
+```
+
+Like the other utility it allows to specify a few predicates. 
+This method is not used for parsing Markdown's indented blocks, though, 
+as Markdown has a special way of treating whitespace.
+
+
+Precedence
+----------
+
+Both, block and span parsers can specify a precedence:
+
+```scala
+BlockParser.recursive { implicit recParsers =>
   ??? // parser impl here
 }.withLowPrecedence
 ```
@@ -254,7 +397,7 @@ which means that they will be tried first and only when they fail the host langu
 When setting low precedence like in the example above, this is reversed.
 
 Note that precedence only refers to the ordering between the parsers of your extension and those of the host language.
-For the precedence between your extensions, in case you install multiple, is determined by the order you specify them in.
+The precedence between your extensions, in case you install multiple, is determined by the order you specify them in.
 
 ```scala
 override val parsers: ParserBundle = ParserBundle(
@@ -270,10 +413,11 @@ the former must be specified first, as otherwise the single asterisk parser woul
 and consume all matching input itself.
 
 
-### Performance Optimizations
+Performance Optimization
+------------------------
 
-The parser you are passing to the `standalone` or `recursive` methods must be of type `PrefixedParser[Span]`,
-which is a subtype of the base trait `Parser[T]`. 
+For span parsers the parser you are passing to the `standalone` or `recursive` methods must be 
+of type `PrefixedParser[Span]`, which is a subtype of the base trait `Parser[T]`. 
 
 This is a trait implemented by all parsers with a stable prefix that can be optimized, like literal string parsers
 or many other base parsers like the `someOf` or `delimiter` parsers. 
@@ -284,87 +428,13 @@ of the `PrefixedParser` trait.
 
 This restriction is necessary as inline parsers cause checks to be performed on each character.
 This is therefore the key hot spot for performance optimizations. 
-For details on this optimization see [TODO - link]. 
+For details on this optimization see [TODO - link].
 
+For block parsers this restriction is lifted, you can pass a regular `Parser[Block]` to the registration entry points.
+One reason is that optimizing block parsers is much less critical, 
+as they are only invoked (more or less) after a blank line has been read, not on each input character.
+Another reason is that the nature of some block elements makes this type of optimization impractical.
+An underlines header for example does not have any concrete set of start characters.
 
-Block Parsers
--------------
-
-The API for creating block parsers is very similar to that for span parsers.
-There is a variant for a parser that does not recursively parse nested blocks:
-
-```scala
-BlockParser.standalone {
-  // your parser impl
-}    
-```
-
-Or the parser is allowed to contain nested blocks from the host language
-or any installed extensions, your can ask for the recursive parser to be provided:
-
-```scala
-BlockParser.recursive { recParsers =>
-  // your parser impl
-} 
-```
-
-One difference is that the block parser API does not require instances of `PrefixedParser[Block]`,
-a plain `Parser[Block]` suffices. If your parser does implement the `PrefixedParser` trait,
-it will still get optimized like span parsers, but for some typical markup blocks like underlined
-headlines, providing a finite, reasonably small set of possible start characters is not feasible.
-
-The performance hit for non-optimized block parsers is much smaller though than for span parsers,
-as it is only invoked (more or less) after blank line has been read, not on each input character. 
-
-Laika also offers a `BlockParsers` object with convenience methods for creating
-a typical block parser. This is the signature of the first one:
-
-```scala
-def block (firstLinePrefix: Parser[Any], 
-           linePrefix: Parser[Any], 
-           nextBlockPrefix: Parser[Any]): Parser[List[String]]
-```
-
-It allows to parse a block based on three simple conditions, provided in form of
-the three parser parameters: detecting the first line of a block, any subsequent
-line and finally whether the block continues after a blank line has been seen.
-Often a blank line marks the end of a block, but there are exceptions, like code
-blocks or list items that span multiple paragraphs.
-
-The following code is an example for a parser for quoted blocks, decorated
-by a `>` character at the start of each line:
-
-```scala
-BlockParser.recursive { recParsers =>
-  
-  val textAfterDeco = TextParsers.ws       // any whitespace
-  val decoratedLine = ">" ~ textAfterDeco  // '>' followed by whitespace
-  val afterBlankLine = Parsers.failure("blank line ends block")
-  
-  val textBlock = BlockParsers.block(decoratedLine, decoratedLine, afterBlankLine)
-  
-  recParsers.recursiveBlocks(textBlock).map(QuotedBlock(_, Nil))
-}
-```
- 
-This implementation uses the `BlockParsers` helper. It passes just the same `decoratedLine`
-parser for the first and subsequent lines.
-
-Finally we pass the `textBlock` parser to the recursive parsers which lift our
-`Parser[String]` to a `Parser[Seq[Block]]` and the result of that parser is 
-passed to the `QuotedBlock` AST node.
-
-Finally there is a second utility that can be used for indented blocks:
-
-```scala
-def indentedBlock (minIndent: Int = 1,
-          linePredicate: => Parser[Any] = success(()),
-          endsOnBlankLine: Boolean = false,
-          firstLineIndented: Boolean = false,
-          maxIndent: Int = Int.MaxValue): Parser[String]
-```
-
-Like the other utility it allows to specify a few predicates. This method
-is not used for parsing Markdown's indented blocks, though, as Markdown has
-a very special way of treating whitespace.
-
+But even though it is not required, if you do actually pass `PrefixedParser[Block]` it will nevertheless
+get optimized under the hood, just that the impact of this optimization will be smaller than for span parsers.
