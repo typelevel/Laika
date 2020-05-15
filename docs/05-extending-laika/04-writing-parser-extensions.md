@@ -149,7 +149,7 @@ case class TicketResolver (num: String, options: Options = NoOpt) extends SpanRe
 
 The `DocumentCursor` passed to the `resolve` method provides access to the project configuration which we use
 in this example, but also to all ASTs of the input tree, including other documents. 
-It can therefore be used for advanced functionality like producing table of contents.
+It can therefore be used for advanced functionality like producing a table of contents.
 
 The API of the `cursor.config` property is documented in @:api(laika.config.Config).
 
