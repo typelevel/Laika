@@ -461,6 +461,42 @@ in @:(Access to Configuration)
 Link Directives
 ---------------
 
+A link directive is a shortcut for creating span directives that always produce links.
+It skips some of the boilerplate of regular directives.
+
+An example for a built-in link directive is the `@:api` directive.
+A link directive always receives exactly one attribute in the form of a string,
+e.g. `@:api(laika.api.Transformer)`
+
+The directive implementation you need to provide is then merely a simple function
+`(String, DocumentCursor) => SpanLink`, where the String argument is the value of the single attribute. 
+
+Example:
+
+```scala
+val directive = Links.create("github") { (path, _) =>
+  val url = s"https://github.com/our-project/$path"
+  SpanLink(Seq(Text(s"GitHub ($path)")), ExternalTarget(url))
+}
+```
+
+We use the string attribute for creating both, the link text and the URL.
+
+This shortcut can then be used in markup: `@:github(com/example/Hello.py)`.
+It mostly achieves a reduction in verbosity you'd otherwise need to repeat the same base URL everywhere.
+
+We ignore the second argument, the `DocumentCursor` instance in this case. 
+Like with other directives it gives you access to the configuration and the document AST.
+You can examine the @:ref(Sample Directive) for an implementation that avoids the hard-coding of the base URL
+with the help of the cursor.
+
+Finally, a special feature of link directives is that they can also be used within native link syntax in such a way
+that the user can override the default link text while the directive is merely used to construct the URL:
+
+```laika-md
+Just check our [Hello Example](@:github(com/example/Hello.py))
+```
+
 
 Separator Directives
 --------------------

@@ -140,7 +140,7 @@ trait DirectiveRegistry extends ExtensionBundle {
     *  {{{
     *  object MyDirectives extends DirectiveRegistry {
     *    val linkDirectives = Seq(
-    *      Links.create("rfc") { linkId => 
+    *      Links.eval("rfc") { linkId => 
     *        Try(Integer.parseInt(linkId))
     *         .toEither
     *         .fold(
