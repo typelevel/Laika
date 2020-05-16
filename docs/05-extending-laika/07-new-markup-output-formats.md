@@ -125,3 +125,159 @@ But in some cases extra care is needed.
 If, for example, you provide parsers for spans between double asterisk `**` and between single asterisk `*`,
 the former must be specified first, as otherwise the single asterisk parser would 100% shadow the double one
 and consume all matching input itself, unless it contains a guard against it.
+
+
+Implementing a Render Format
+----------------------------
+
+Laika currently supports several output formats out of the box: HTML, EPUB, PDF, XSL-FO and AST.
+XSL-FO mostly serves as an interim format for PDF output, but can also be used as the final target format.
+AST is a renderer that provides a formatted output of the document AST for debugging purposes.
+
+Making it as straightforward as possible to add support for additional output formats, 
+potentially as a 3rd-party library, was one of Laika's initial design goals.
+
+
+### Prerequisites
+
+The content of this chapter builds on top of concepts introduced in other chapters,
+therefore it's recommended to read those first.
+
+First, since renderers have to pattern match on AST nodes the engine passes over, 
+it might help to get familiar with @:ref(The Document AST) first.
+
+Second, @:ref(Overriding Renderers) shows examples for how to override the renderer of a particular output format
+for one or more specific AST node types only.
+
+The main difference is that a renderer serving as an override for existing output formats 
+will be registered with an `ExtensionBundle`, 
+while the renderers for a new format need to be registered in a `RenderFormat`.
+
+The second difference is that a `RenderFormat` naturally has to deal with all potential AST nodes,
+not just a subset like an override.
+
+
+### The RenderFormat Trait
+
+A renderer has to implement the following trait:
+
+```scala
+trait RenderFormat[FMT] {
+  
+  def fileSuffix: String
+  
+  def defaultTheme: Theme
+  
+  def defaultRenderer: (FMT, Element) => String
+  
+  def formatterFactory: RenderContext[FMT] => FMT
+
+}
+```
+
+* The `fileSuffix` method provides the suffix to append when writing files in this format
+  (without the ".").
+
+* The `defaultTheme` is a legacy property that will get removed in the next release (0.16) 
+  which will introduce a proper Theme API. 
+  It is safe to ignore it until then (you can provide an empty theme object in your implementation).
+
+* The `defaultRenderer` represents the actual renderer. 
+  It takes both, a formatter instance and the element to render and returns a String in the target format.    
+    
+* `formatterFactory` is the formatter instance for the target format. 
+  A new instance of this formatter gets created for each render operation. 
+  
+* The `RenderContext` passed to the factory function contains the root element of the AST
+  and the delegate render function which your formatter is supposed to use for rendering children.
+  You need to use this indirection as the provided delegate contains the render overrides the user might
+  have installed which your default render implementation cannot be aware of.
+  
+* `FMT` is a type parameter representing the Formatter API specific to the output format.
+  For the built-in renderers, this is `FOFormatter` for `PDF`,
+  `HTMLFormatter` for `HTML` and `EPUB` and finally `TextFormatter` for the `AST` renderer.
+
+
+### The Render Function
+
+This `defaultRenderer` function should usually adhere to these rules:
+
+* When given an element that is a container type that contains child elements (like `Paragraph` or `BulletList`), 
+  it should never render the children itself, but instead delegate to the Formatter API, 
+  so that user-defined render overrides can kick in for individual element types.
+  
+* It should expect unknown element types. 
+  Since parsers can also be extended, the document tree can contain nodes which are not part of the default 
+  node types provided by Laika. 
+  The root trait `Element` is *not* sealed on purpose.
+  
+  Dealing with unknown types is best achieved by not only matching on concrete types,
+  but also on some of the base traits.
+  
+  If, for example, you already handled all the known `SpanContainers`, like `Paragraph`, `Header` or `CodeBlock`,
+  you would ideally add a fallback pattern that matches on any `SpanContainer` and provides a default fallback.
+  This way, even though you don't know how to best render this particular container, 
+  at least all its children will most likely get rendered correctly. 
+  
+  As an absolute worst-case fallback it should add a catch-all pattern that returns an empty string.
+  
+Let's look at a minimal excerpt of a hypothetical HTML render function:
+
+```scala
+def renderElement (fmt: HTMLFormatter, elem: Element): String = {
+
+  elem match {
+    case Paragraph(content,opt) => fmt.element("p", opt, content)
+    
+    case Emphasized(content,opt) => fmt.element("em", opt, content)
+    
+    /* [other cases ...] */
+    
+    /* [fallbacks for unknown elements] */
+  }   
+}
+```
+
+As you see, the function never deals with children (the `content` attribute of many node types) directly.
+Instead it passes them to the Formatter API which delegates to the composed render function.
+This way user-specified render overrides can kick in on every step of the recursion.
+
+In the context of HTML it means that in most cases your implementation renders one tag only before delegating, 
+in the example above those are `<p>` and `<em>` tags respectively.
+
+
+### Choosing a Formatter API
+
+Depending on the target format your renderer may use the `TextFormatter` or `HTMLFormatter` APIs, 
+which are explained in @:ref(The Formatter APIs). 
+
+Alternatively it may create its own API, but you should keep in mind then, 
+that this API will also get used by users overriding renderers for specific nodes.
+Therefore it should be convenient and straightforward to use and well documented (e.g. full scaladoc).
+
+Even when creating your own formatter it's probably most convenient to at least extend `TextFormatter`,
+which contains base logic for indentation and delegating to child renderers.
+
+
+### Costs of Avoiding Side Effects
+
+As you have seen the render function returns a `String` value, which the engine will then build up
+recursively to represent the final output.
+It can therefore get implemented as a pure function, fully referentially transparent.
+
+Earlier Laika releases had a different API which was side-effecting and returning Unit.
+Renderers directly wrote to the output stream, only hidden behind a generic, side-effecting delegate API.
+
+Version 0.12 in 2019 then introduced full referential transparency and one of the necessary changes was the change of
+the render function signature.
+These changes (taken together, not specifically that for the Render API) caused a performance drop of roughly 10%.
+It felt reasonable to accept this cost given how much it cleaned up the API and how it lifted the library
+to meet expectations of developers who prefer a purely functional programming style.
+
+The decent performance of Laika stems mostly from a few radical optimization on the parser side,
+which led to much better performance compared to some older combinator-based Markdown parsers.
+
+The alternative would have been to build on top of a functional streaming API like fs2,
+as this might have preserved both, the old performance characteristics as well as full referential transparency.
+But it still would have complicated the API and introduced a dependency that is not needed anywhere
+else in the `laika-core` module, which does not even require `cats-effect`.

@@ -369,7 +369,7 @@ The decoders will cause a directive to fail in case a type conversion does not s
 You can define your own by implementing `ConfigDecoder[T]`.
 
 
-### Inherited Attributes
+### Inheritance
 
 By default directives only accept attributes defined right in the attribute section of the directive 
 to avoid name clashes with attributes in other scopes. 
