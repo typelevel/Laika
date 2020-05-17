@@ -115,12 +115,12 @@ def createBlockListParser (parser: Parser[Block]): Parser[Seq[Block]] =
 
 The parser precedence is determined by the order you specify them in.
 This means they will be "tried" on input in that exact order.
-The second parser in the list will only be invoked when the first fails, and so on.
+The second parser in the list will only be invoked on a particular input when the first fails, and so on.
 
 This is the logical execution model only, the exact runtime behaviour may differ due to performance optimizations,
 but without breaking the guarantees of respecting the order you specify.
 
-Normally the syntax between markup constructs is different enough that the precedence does not matter.
+Normally the difference in the syntax between markup constructs is high enough that the precedence does not matter.
 But in some cases extra care is needed.
 If, for example, you provide parsers for spans between double asterisk `**` and between single asterisk `*`,
 the former must be specified first, as otherwise the single asterisk parser would 100% shadow the double one
