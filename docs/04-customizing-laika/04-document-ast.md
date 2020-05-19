@@ -26,7 +26,7 @@ The traits are not sealed as the model is designed to be extensible.
 
 ### Base Traits
 
-At the top of the hierarchy the AST contains of the following node types:
+At the top of the hierarchy the AST contains the following node types:
 
 [TODO - diagram]
 
@@ -35,14 +35,18 @@ At the top of the hierarchy the AST contains of the following node types:
 
 * `Customizable` is a mixin almost every node type supports that allows to optionally associate an id and/or 
   a set of style names to a node.
-  The latter can be interpreted differently as render hints by various renderers, 
+  The latter can be interpreted differently as hints by various renderers, 
   in HTML they simply get rendered as class attributes for example.
-  It also includes API to add or remove ids and style names polymorphically.
+  It also includes API to add or remove ids and style names polymorphically to any AST node.
 
 * `Block` is one of the two major element types in the AST.
-  Block level elements always represents a contiguous 
+  Block level elements always start on a new line and in markup they often (but not always)
+  require a preceding blank line.
+  It is similar to a `display: block` element in HTML.
 
 * `Span` is the other of the two major element types in the AST.
+  Span level can start anywhere in the middle of a line or span multiple lines.
+  It is similar to a `display: inline` element in HTML.
 
 * A `ListItem` can only occur as a child of a `ListContainer`.
   See @:ref(Lists) below for a list of available list types.
@@ -355,7 +359,7 @@ case class Document (
   fragments: Map[String, Element] = Map.empty,
   config: Config = Config.empty,
   position: TreePosition = TreePosition(Seq())
-)
+) extends DocumentStructure
 ```
 
 * The `path` property holds the absolute, virtual path of the document inside the tree.
@@ -378,6 +382,14 @@ case class Document (
   It can be used for functionality like auto-numbering.
   It is not populated if the transformation deals with a single document only.
 
+The `DocumentStructure` mixin provides additional methods as shortcuts for selecting content from the document:
+
+* `title: Option[SpanSequence]` provides the title of the document, either from the configuration header or
+  the first header in the markup. It is empty when none of the two are defined.
+  
+* `sections: Seq[SectionInfo]` provides the hierarchical structure of sections, obtained from the headers
+  inside the document and their assigned levels.
+  
 
 ### The DocumentTree Type
 
@@ -392,7 +404,7 @@ case class DocumentTree (
   templates: Seq[TemplateDocument] = Nil,
   config: Config = Config.empty,
   position: TreePosition = TreePosition.root
-)
+) extends TreeStructure
 ```
 
 * Like with documents, the `path` property holds the absolute, virtual path of the document inside the tree.
@@ -420,6 +432,17 @@ case class DocumentTree (
 * The `position` property represents the position of the document in a tree.
   It can be used for functionality like auto-numbering.
   It is not populated if the transformation deals with a single document only.
+  
+The `TreeStructure` mixin provides additional methods as shortcuts for selecting content from the tree:
+
+* `selectSubtree`, `selectTemplate` and `selectDocument` all accept a `RelativePath` argument to select
+  content from the tree structure, including content from sub-trees.
+  
+* `allDocuments: Seq[Document]` selects all documents contained in this tree, fetched recursively, depth-first.
+  This is in contrast to the `content` property which selects documents and sub-trees on the current level.
+ 
+* The `runtimeMessage` method selects any `RuntimeMessage` matching the specified filter.
+  Useful for reporting errors and warnings in the parsed result, see [TODO - link]
   
 
 Cursors
