@@ -29,7 +29,21 @@ import laika.parse.implicits._
  *  @author Jens Halm
  */
 trait BlockParsers {
+  
+  
+  private val blankLineEndsBlock: Parser[Any] = failure("Blank line ends this block element")
 
+  /** Parses a full block based on the specified helper parsers.
+    *
+    * The string result of this parser will not contain the characters consumed by any of the specified prefix
+    * parsers.
+    *
+    *  @param firstLinePrefix parser that recognizes the start of the first line of this block
+    *  @param linePrefix parser that recognizes the start of subsequent lines that still belong to the same block
+    */
+  def block (firstLinePrefix: Parser[Any], linePrefix: => Parser[Any]): Parser[String] =
+    block(firstLinePrefix, linePrefix, blankLineEndsBlock)
+  
   
   /** Parses a full block based on the specified helper parsers.
     *
