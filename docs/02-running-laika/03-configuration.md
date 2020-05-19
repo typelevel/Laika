@@ -2,258 +2,174 @@
 Configuration
 =============
 
+Laika has a rich set of features and keeps almost every module customizable or even replaceable, 
+and as a consequence there is a lot to configure.
 
-from old embedded page:
+This chapter puts the focus on the basic configuration options that you are most likely to use
+on a day-to-day basis.
+
+If you want to dig deeper and tweak or extend the way Laika parses or renders,
+see the intro sections to [Customizing Laika](../04-customizing-laika/01-overview.md)
+and [Extending Laika](../05-extending-laika/01-overview.md) for an overview.
 
 
-### Parallel Execution
+Basic Settings
+--------------
 
-The actual transformation is a three phase process, the first (parsing) and
-third (rendering) can run in parallel. For the second phase this is not possible,
-as this is the rewrite step for the document tree model where things like cross references or
-table of contents get processed that need access to more than just the current
-document. But the rewrite phase is also the least expensive phase so that you
-should still benefit from parallel execution.
+These settings are available in the library API and the sbt plugin.
+
+
+### Strict Mode
+
+Strict mode switches off all extensions and only uses features defined in the spec of the markup languages.
+
+This might be useful if you develop applications with user input for example, and want to ensure that
+only standard markup features are exposed to users.
+
+Markup extensions enabled by default are:
+
+* Custom Directives - either the built-in @:ref(Standard Directives) 
+  or user-defined as shown in @:ref(Implementing Directives).
+
+* Support for HOCON configuration headers in markup files.
+
+* Support for @:ref(Substitution Variables) in markup in the form of `${some.key}`.
+
+To disable all these extensions you can use the `strict` flag:
+
+```scala
+TODO
+```
+
+
+### Raw Content
+
+Raw content is the term Laika uses for any markup syntax that allows the inclusion of content in the output format,
+e.g. HTML.
+
+This is disabled by default, even if it is part of the original text markup specification as in the 
+case of Markdown.
+
+This is to generally discourage to tie markup input to a concrete output format, 
+as Laika supports multiple formats like HTML, EPUB and PDF and an API where users can easily add their own format.
+Markup files containing raw HTML could not be used for those.
+
+Secondly, when the markup originates from user input in a web application, 
+it would not be safe to use without additional filtering. 
+By default Laika does not filter any tags, not even `<script>` tags, 
+but whitelist filtering can be added fairly easily through Laika's customization hooks like [AST Rewriting] 
+or [Customizing Renderers].
+ 
+You can enable verbatim HTML and other raw formats explicitly in the configuration:
+
+```scala
+TODO
+```
 
 
 ### Character Encoding
 
-Laika uses the same platform-dependent defaults for file encodings as the
-IO classes in the Scala SDK. The most convenient way to specify an encoding
-is via an implicit:
+The default encoding in Laika is UTF-8. 
+
+When you need to work with different encodings you can override the default: 
 
 ```scala
 implicit val codec:Codec = Codec.UTF8
-```
 
-This codec will then be used by the `fromDirectory` and `toDirectory` methods shown
-in the examples above.
-
-
-### Error Reporting
-
-Text markup parsers are usually very resilient. For any input they cannot
-make sense of they fall back to rendering it back as raw text. Therefore
-transformations rarely fail, but the output may not exactly be what you 
-expected.
-
-For some errors like unresolved link references or illegal directive
-attributes, Laika inserts system message nodes into the tree. By default
-these are ignored by all renderers, but you can explicitly enable
-the rendering of message nodes for a specific message level.
-
-In the HTML renderer messages are rendered as a span with the class
-`system-message` and a second class for the level (`warning`, `error`, etc.),
-so you can add CSS to easily identify these nodes in the page. This can be
-useful for your own debugging purposes, but also for applications that allow
-users to edit text with markup, giving them visual feedback for their mistakes.
-
-The following example renders all message with the level `Warning` or higher:
-
-```scala
-val transformer = Transform
-  .from(Markdown)
-  .to(HTML)
-  .withMessageLevel(Warning)
-  .build
-```
-
-### Debugging with AST Output
-
-If you are investigating an unexpected result, it might help to get
-an insight into how Laika has interpreted the input and display the entire
-AST structure. It truncates longer strings, so it should normally be convenient
-to browse the entire tree structure:
-
-```scala
-val input = "some *text* example"
-
-Transformer
-  .from(Markdown)
-  .to(AST)
-  .build
-  .transform(input)
-```
-
-The output for the small example above will have the following format:
-
-```laika-ast
-RootElement - Blocks: 1
-. Paragraph - Spans: 3
-. . Text - 'some '
-. . Emphasized - Spans: 1
-. . . Text - 'text'
-. . Text - ' example'
+TODO
 ```
 
 
-===============================================================================================================
+Navigation
+----------
 
-from old plugin page:
+These features have their dedicated @:ref(Navigation) chapter, including configuration examples,
+therefore we'll just give a brief overview of available configuration options here and link to the relevant sections.
 
+* @:ref(Global Link Definitions) help to avoid repetition by mapping URLs to an id in configuration and making
+  them available for use with "native" markup link syntax (e.g. `link to [my-globally-defined-id]` in Markdown).
 
-Settings for Customization Hooks
---------------------------------
-
-Laika allows to easily add custom logic to the processing of documents. When all you need to
-adjust is the processing of one or more particular nodes types, a simple partial function allows
-to do that while still benefiting from the defaults for all other node types.
-
-When working with the document tree (the internal AST representing the document structure),
-it is most comfortable to add the following import to the build:
-
-```scala
-import laika.ast._
-```
-
-### Custom Renderers
-
-A custom renderer allows to override the generated output for one or more specific node
-types, while falling back to the default renderers for all other node types.
-
-The `laikaHtmlRenderer` shortcut allows to add a custom HTML renderer to the `laikaExtensions` setting
-and expects a function of type `PartialFunction[(HTMLFormatter, Element), String]`. 
-
-`HTMLFormatter` provides the API for rendering tags, adds the current indentation level after
-line breaks and knows how to render child elements. 
-
-`Element` is the base trait for all nodes in a document tree. 
-For all elements where this partial function is not defined, Laika will use the default renderers for all node types. 
-
-The following simple example shows how you can add a style to the renderer for
-the `<em>` tag:
-
-```scala
-laikaExtensions += laikaHtmlRenderer {
-  case (fmt, Emphasized(content, opt)) => 
-    fmt.element("em", opt, content, "class" -> "big") 
-}
-```
-
-For more details see the chapter [Customizing Renderers][../customizing-laika/customize-rendering.md:Customizing Renderers].
+* @:ref(Linking to API Documentation) describes the `@:api` shortcut for defining links to API documentation,
+  which requires setting the relevant base URLs in the configuration.
   
-Similarly the `laikaFoRenderer` shortcut can be used to add a custom `XSL-FO` renderer 
-of type `PartialFunction[(FOFormatter, Element), String]`. `XSL-FO` is an interim format for PDF output,
-so this option would also allow to change the appearance of PDF documents.
+* @:ref(Disabling Validation) is a configuration option for excluding some directories/paths from
+  validation, e.g. in cases where you know that a directory will be populated by some external tool.
+  In its default setup, a Laika transformation fails when an internal link points to a document that does
+  not exist in the input directory.
 
-For EPUB the `laikaEpubRenderer` can be used to add a custom XHMTL renderer of type
-`PartialFunction[(HTMLFormatter, Element), String]`. 
+* E-books (EPUB or PDF) have additional configuration options for navigation:
 
-
-### Customizing the HTML Renderer (library use case)
-
-Finally you can adjust the rendered output for one or more node types
-of the document tree programmatically with a simple partial function:
-
-```scala
-val transformer = Transformer
-  .from(Markdown)
-  .to(HTML)
-  .rendering {
-    case (fmt, Emphasized(content, opt)) => 
-      fmt.element("em", opt, content, "class" -> "big")  
-  }
-  .build
-```
-
-Note that in some cases the simpler way to achieve the same result may be
-styling with CSS.
-
-See [Customizing Renderers][../customizing-laika/customize-rendering.md:Customizing Renderers] for more details.
+    * @:ref(Book Navigation) allows to specify the depth of the auto-generated navigation.
+    
+    * The location of @:ref(Cover Images) can be configured, too.
+    
+    * And @:ref(Document Metadata) can be specified so that it will be converted to a format
+      compatible with the corresponding readers.
 
 
-### Custom Rewrite Rules
+Error Handling
+--------------
 
-When customizing renderers you have to repeat the step for each output format like HTML, EPUB or PDF. 
-A rewrite rule lets you express a transformation
-of a node inside the document tree before rendering, so it would have an effect on all output formats.
+Text markup parsers are usually very resilient. 
+For any input they cannot make sense of they fall back to rendering it back as raw text.
+If, for example you start an emphasized span with an `'*'`, but then never close the span,
+it will simply be treated as a literal and will not trigger an error. 
 
-A rewrite rule is a function of type `PartialFunction[T, RewriteAction[T]]`.
-If the function is not defined for a particular element or the result is `Retain` the old element is kept in the tree.
-If it returns `Replace(Element)` this element replaces the old one.
-If the function returns `Remove` the old element is removed from the tree.
-The type parameter `T` is either `Block`, `Span` or `TemplateSpan`, depending on the kind of AST element you
-want to rewrite.
-
-The following (somewhat contrived, but simple) example shows how to turn each `Emphasized` node
-into a `Strong` node:
-
-```scala
-laikaExtensions += laikaSpanRewriteRule { 
-  case Emphasized(content, opts) => Replace(Strong(content, opts))
-}
-```
-
-For more details see the chapter [Document Tree Rewriting].
+But there are two groups of errors that do cause a transformation to fail.
 
 
-### Custom Document Type Matcher
+### Error Types
 
-A document type matcher categorizes an input document based on its path. 
-It is a function that takes a `Path` instance (from the Laika API, not `sbt.Path`)
-and returns the matching `DocumentType` with valid values being one of the following
-objects:
+* **Unrecoverable errors**: for example I/O errors where files cannot be read or directories cannot
+  be written to, or invalid configuration, e.g. in HOCON configuration headers, which is also treated as fatal,
+  since such a configuration section usually drives the behaviour or rendering of other nodes.
 
-```scala
-Markup, Template, Dynamic, Static, Config, Ignored
-```
+* **Invalid nodes**: these are "local" errors, which are confined to a single AST node.
+  This may be a reference to a section, document or footnote that does not exist or a directive with
+  invalid or missing attributes.
 
-These values correspond to the descriptions provided in [Document Types].
+The handling of the second kind of error can be controlled via configuration.
 
-The function is of type `Path => DocumentType` and can be added to the `laikaExtensions` setting:
+
+### Default Behaviour
+
+AST nodes that capture errors carry an error message, a severity
+and a fallback node to use if configuration would allow to proceed with rendering.
+
+Laika comes with two configuration options that control how these nodes are dealt with:
+
+* `failOnMessages` controls the minimum severity that causes a transformation to fail, the default is `Error`.
+* `renderMessages` controls the minimum severity that causes a message to be included in the rendered output,
+  the default is `None`.
+
+This means, by default the presence of one or more invalid nodes in the AST of a document 
+causes the transformation to fail, with all their message collected in the returned error type.
+
+
+### Visual Debugging
+
+In some cases you may prefer to examine the errors in the rendered content, 
+or you are processing user input where it is more helpful to display them in context than just as a list of
+error messages.
+
+You can achieve this by basically flipping the two default values in the configuration:
 
 ```scala
-laikaExtensions += laikaDocTypeMatcher {
-  case path: Path => path.name match {
-    case "hello.md" => Markup
-    case "hello.js" => Static
-  }
-}
+TODO
 ```
 
-
-Settings for Directives
------------------------
-
-Directives are Laika's extension hook for both, templates and text markup.
-They allow to add new tag-like constructs without touching the existing parsers.
-
-Laika supports two flavors of directives, one compatible with the reStructuredText
-specification and the other with a Laika-specific syntax. 
-
-The reStructuredText
-variant is supported for full compatibility with the reStructuredText specification
-and reuse of existing reStructuredText files making use of some of the standard
-directives. Laika supports almost all of the directives defined in the
-specification. Add an instance of type `RstExtensionRegistry` to the `laikaExtensions` 
-setting for adding custom implementations to the built-in ones.
-For more details on this directive type see [Extending reStructuredText].
-
-The Laika variant is more flexible, as it can be used in template files as well
-as Markdown and reStructuredText markup. It is also somewhat simpler in syntax
-and configuration while offering the same functionality. It comes with a small
-set of predefined directives in this syntax. Add an instance of type `DirectiveRegistry` 
-to the `laikaExtensions` setting for adding custom implementations to the built-in ones.
-For more details on this directive type see [Directives][../extending-laika/directive.md:Directives].
-
-The examples in the two chapters linked above show how to implement a directive
-and register it either for use in sbt or in embedded mode.
+Now rendering proceeds even with invalid nodes and they will be rendered in the location of the document
+they occurred in.
+In HTML output these node are rendered as a span with the class `runtime-message` and a second class for the level 
+(`warning`, `error`, etc.), so that their display can be controlled via CSS.
 
 
+### The AST Renderer
 
-==================================================================================================================
+If you need even more low-level insight, you can use the included AST renderer
+to get a formatted output of the entire AST structure.
 
-from old output page:
-
-
-Formatted AST
--------------
-
-A renderer that visualizes the document tree structure, essentially a formatted
-`toString` for a tree of case classes, mainly useful for testing and debugging
-purposes.
-
-You can use this renderer with the Transformer API:
+Longer plain text spans are truncated in this output format to put the emphasis on the structure of the document. 
 
 ```scala
 val input = "some *text* example"
@@ -264,6 +180,7 @@ Transformer
   .build
   .transform(input)
 ```
+`laikaAST` - TODO
 
 The output for the small example above will have the following format:
 
@@ -276,45 +193,33 @@ RootElement - Blocks: 1
 . . Text - ' example'
 ```
 
-Alternatively you can use the Render API to render an existing document:
+
+User-Defined Configuration
+--------------------------
+
+Finally, the entire machinery for passing configuration around can be used by users, too.
+
+You can define variables in any of the following scopes:
+
+* Programmatically in global configuration
+
+* Per directory with HOCON in a file named `directory.conf`
+
+* Per markup document in a HOCON configuration header
+
+This is an example for defining two variables globally: 
 
 ```scala
-val input = "some *text* example"
-
-val doc = Parser.of(Markdown).build.parse(input)
-
-Renderer.of(AST).build.render(doc)
+TODO
 ```
 
-The above will yield the same result as the previous example.
+These values can then be accessed via @:ref(Substitution Variables) in templates or in markup files:
 
-Finally, if you are using the sbt plugin you can use the `laikaAST` task.
-
-
-### HTML Renderer Properties
-
-The `unformatted` property tells the renderer to omit any formatting (line breaks or indentation) 
-around tags. Useful when storing the output in a database for example:
-
-```scala
-val transformer = Transformer
-  .from(Markdown)
-  .to(HTML)
-  .unformatted 
-  .build
+```laika-md
+TODO
 ```
 
-The `withMessageLevel` property instructs the renderer to include system messages in the
-generated HTML. Messages may get inserted into the document tree for problems during
-parsing or reference resolution, e.g. an internal link to a destination that does not
-exist. By default these messages are not included in the output. They are mostly useful
-for testing and debugging, or for providing feedback to application users producing 
-markup input:
+If you define them in a narrower scope and not globally, they won't be available outside of that scope.
 
-```scala
-val transformer = Transformer
-  .from(Markdown)
-  .to(HTML)
-  .withMessageLevel(Warning)
-  .build
-```
+There are two namespaces for variable keys which are used by the library, `laika.*` and `cursor.*`.
+As long as you avoid these two namespaces, you can freely use any configuration keys.

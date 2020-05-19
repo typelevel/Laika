@@ -113,7 +113,7 @@ Example for an indirect link via separate definition:
 TODO
 ```
 
-Like with internal links, `Global Link Definitions` can be used to avoid the repetition of
+Like with internal links, [Global Link Definitions] can be used to avoid the repetition of
 declaring the same link target in multiple files.
 
 

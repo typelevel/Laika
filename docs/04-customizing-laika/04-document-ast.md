@@ -42,10 +42,12 @@ At the top of the hierarchy the AST contains the following node types:
 * `Block` is one of the two major element types in the AST.
   Block level elements always start on a new line and in markup they often (but not always)
   require a preceding blank line.
+  They can contain other block or span elements.
   It is similar to a `display: block` element in HTML.
 
 * `Span` is the other of the two major element types in the AST.
-  Span level can start anywhere in the middle of a line or span multiple lines.
+  Span elements can start anywhere in the middle of a line or span multiple lines.
+  They can contain other span elements, but no block elements.
   It is similar to a `display: inline` element in HTML.
 
 * A `ListItem` can only occur as a child of a `ListContainer`.
