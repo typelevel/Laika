@@ -63,7 +63,7 @@ trait ModelBuilder {
      
   }
   
-  def imgRef (text: String, id: String, source: String = "") = ImageDefinitionReference(text, id, source)
+  def imgRef (text: String, id: String, source: String = "") = ImageIdReference(text, id, source)
   
   def citRef (label: String) = CitationReference(label, s"[$label]_")
   

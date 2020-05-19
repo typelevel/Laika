@@ -155,7 +155,7 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
       case gen: GenericReference => if (gen.ref.isEmpty) resolveLocal(gen.asLinkDefinitionReference, AnonymousSelector, "too many anonymous references")
                                     else resolveGeneric(gen, s"unresolved reference: ${gen.ref}")
 
-      case ref: ImageDefinitionReference => resolveRecursive(ref, LinkDefinitionSelector(ref.id), s"unresolved image reference: ${ref.id}")
+      case ref: ImageIdReference => resolveRecursive(ref, LinkDefinitionSelector(ref.id), s"unresolved image reference: ${ref.id}")
 
       case c: Customizable if c.options.id.isDefined => replaceSpan(c, TargetIdSelector(slugBuilder(c.options.id.get)))
         

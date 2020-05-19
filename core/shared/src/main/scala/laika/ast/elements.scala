@@ -1250,9 +1250,9 @@ case class LinkDefinitionReference (content: Seq[Span], id: String, source: Stri
 /** An image reference, the id pointing to the id of a `LinkTarget`. Only part of the
  *  raw document tree and then removed by the rewrite rule that resolves link and image references.
  */
-case class ImageDefinitionReference (text: String, id: String, source: String, options: Options = NoOpt) extends Reference {
-  type Self = ImageDefinitionReference
-  def withOptions (options: Options): ImageDefinitionReference = copy(options = options)
+case class ImageIdReference (text: String, id: String, source: String, options: Options = NoOpt) extends Reference {
+  type Self = ImageIdReference
+  def withOptions (options: Options): ImageIdReference = copy(options = options)
   lazy val unresolvedMessage: String = s"Unresolved reference to image definition with id '$id'"
 }
 

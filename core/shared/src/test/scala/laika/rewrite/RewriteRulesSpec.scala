@@ -70,7 +70,7 @@ class RewriteRulesSpec extends AnyWordSpec
 
   def rootLinkTarget (fragment: String): InternalTarget = InternalTarget.fromPath(RelativePath.parse(s"#$fragment"), Path.Root)
 
-  def simpleImgRef (id: String = "name") = ImageDefinitionReference("text", id, "text")
+  def simpleImgRef (id: String = "name") = ImageIdReference("text", id, "text")
 
 
   "The rewrite rules for citations" should {
