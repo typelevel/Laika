@@ -54,7 +54,7 @@ abstract sealed class TargetResolver (val selector: Selector, val precedence: In
 object ReferenceResolver {
   def lift(f: PartialFunction[LinkSource, Span]): LinkSource => Option[Span] = f.lift
   def internalLink (target: Path): LinkSource => Option[Span] = lift {
-    case LinkSource(InternalReference(content, _, _, title, opt), sourcePath) =>
+    case LinkSource(PathReference(content, _, _, title, opt), sourcePath) =>
       SpanLink(content, InternalTarget(target, target.relativeTo(sourcePath)), title, opt)
   }
 }

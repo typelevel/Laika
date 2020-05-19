@@ -1208,7 +1208,7 @@ object Link {
   def create (linkText: Seq[Span], url: String, source: String, title: Option[String] = None): Span =
     Target.create(url) match {
       case et: ExternalTarget => SpanLink(linkText, ExternalTarget(et.url), title)
-      case it: InternalTarget => InternalReference(linkText, it.relativePath, source, title)
+      case it: InternalTarget => PathReference(linkText, it.relativePath, source, title)
     }
 }
 
@@ -1225,14 +1225,14 @@ object LinkDefinition {
   * replace the source path with the final target path of the output document, which might
   * differ in more than just the file suffix, depending on configuration.
   */
-case class InternalReference (content: Seq[Span],
-                              path: RelativePath,
-                              source: String,
-                              title: Option[String] = None,
-                              options: Options = NoOpt) extends Reference with SpanContainer {
-  type Self = InternalReference
-  def withContent (newContent: Seq[Span]): InternalReference = copy(content = newContent)
-  def withOptions (options: Options): InternalReference = copy(options = options)
+case class PathReference (content: Seq[Span],
+                          path: RelativePath,
+                          source: String,
+                          title: Option[String] = None,
+                          options: Options = NoOpt) extends Reference with SpanContainer {
+  type Self = PathReference
+  def withContent (newContent: Seq[Span]): PathReference = copy(content = newContent)
+  def withOptions (options: Options): PathReference = copy(options = options)
   lazy val unresolvedMessage: String = s"Unresolved internal reference to '${path.toString}'"
 }
 
@@ -1287,8 +1287,8 @@ case class GenericReference (content: Seq[Span], ref: String, source: String, op
   def withContent (newContent: Seq[Span]): GenericReference = copy(content = newContent)
   def withOptions (options: Options): GenericReference = copy(options = options)
   def asLinkDefinitionReference: LinkDefinitionReference = LinkDefinitionReference(content, ref, source, options)
-  def asInternalReference: InternalReference = 
-    InternalReference(content, RelativePath.CurrentDocument(ref), source, options = options)
+  def asInternalReference: PathReference = 
+    PathReference(content, RelativePath.CurrentDocument(ref), source, options = options)
   lazy val unresolvedMessage: String = s"Unresolved generic reference '$ref'"
 }
 

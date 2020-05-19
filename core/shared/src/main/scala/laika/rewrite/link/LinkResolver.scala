@@ -144,10 +144,10 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
         case Autosymbol          => resolveLocal(ref, AutosymbolSelector, "too many autosymbol references")
       }
 
-      case ref: InternalReference if ref.path.parentLevels >= cursor.path.depth => 
+      case ref: PathReference if ref.path.parentLevels >= cursor.path.depth => 
         Replace(SpanLink(ref.content, ExternalTarget(ref.path.toString), ref.title, ref.options))  
       
-      case ref: InternalReference => resolveGlobal(ref, ref.path, s"unresolved internal reference: ${ref.path.toString}")  
+      case ref: PathReference => resolveGlobal(ref, ref.path, s"unresolved internal reference: ${ref.path.toString}")  
         
       case ref: LinkDefinitionReference => if (ref.id.isEmpty) resolveLocal(ref, AnonymousSelector, "too many anonymous link references")
                                            else resolveRecursive(ref, LinkDefinitionSelector(ref.id), s"unresolved link reference: ${ref.id}")
