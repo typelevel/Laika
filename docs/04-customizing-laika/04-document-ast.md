@@ -436,7 +436,7 @@ parents, siblings or the root tree.
 An instance of `DocumentCursor` is passed to rewrite rules for AST transformations (see @:ref(AST Rewriting), 
 and to directive implementations that request access to it (see @:ref(Implementing Directives)).
 
-Let's look at some of its properties and methods:
+Let's look at some of its properties:
 
 * `target: Document` represents the document this cursor points to.
 
