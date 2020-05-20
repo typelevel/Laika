@@ -299,13 +299,6 @@ class StandardDirectiveSpec extends AnyFlatSpec
     )))
   }
 
-
-  "The ref directive" should "create a generic link" in {
-    val input = """aa @:ref(Some Id) bb"""
-    parse(input).content should be (root(p(Text("aa "), GenericReference(Seq(Text("Some Id")), "Some Id", "@:ref(Some Id)"), Text(" bb"))))
-  }
-
-
   trait ApiDirectiveSetup {
     def input (typeName: String) =
       s"""{%
