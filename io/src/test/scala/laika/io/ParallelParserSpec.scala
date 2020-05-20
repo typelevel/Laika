@@ -200,7 +200,7 @@ class ParallelParserSpec extends IOSpec
       )
       val messages = inputs.map { case (path, markup) => 
         InvalidDocument(NonEmptyChain.one(RuntimeMessage(MessageLevel.Error, 
-          s"unresolved link reference: link${markup.charAt(5)}")), path)
+          s"unresolved link id reference: link${markup.charAt(5)}")), path)
       }
       parsedTree.assertFailsWith(InvalidDocuments(NonEmptyChain.fromChainUnsafe(Chain.fromSeq(messages))))
     }

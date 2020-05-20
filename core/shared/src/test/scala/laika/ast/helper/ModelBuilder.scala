@@ -59,7 +59,7 @@ trait ModelBuilder {
     
     def source (value: String): LinkRefBuilder = new LinkRefBuilder(content, id, value)
     
-    def toLink = LinkDefinitionReference(content, id, source)
+    def toLink = LinkIdReference(content, id, source)
      
   }
   
@@ -130,7 +130,7 @@ trait ModelBuilder {
 
   implicit def builderToLink (builder: LinkBuilder): Link = builder.toLink
 
-  implicit def builderToLinkRef (builder: LinkRefBuilder): LinkDefinitionReference = builder.toLink
+  implicit def builderToLinkRef (builder: LinkRefBuilder): LinkIdReference = builder.toLink
   
   
 }

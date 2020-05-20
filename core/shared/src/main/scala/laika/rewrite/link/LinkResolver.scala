@@ -88,7 +88,7 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
     def resolveLocal (ref: Reference, selector: Selector, msg: => String): RewriteAction[Span] =
       resolveWith(ref, targets.select(cursor.path, selector), msg)
     
-    def resolveGlobal (ref: Reference, path: RelativePath, msg: => String): RewriteAction[Span] = {
+    def resolvePath (ref: Reference, path: RelativePath, msg: => String): RewriteAction[Span] = {
       val selector = pathSelectorFor(path)
       resolveWith(ref, targets.select(Root, selector), msg)
     }
@@ -105,17 +105,14 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
       targets.select(cursor.path, selector).orElse(selectFromParent(cursor.parent, selector))
     }
     
-    def resolveRecursive (ref: Reference, selector: UniqueSelector, msg: => String): RewriteAction[Span] =
+    def resolveId (ref: Reference, selector: UniqueSelector, msg: => String): RewriteAction[Span] =
       resolveWith(ref, selectRecursive(selector), msg)
         
-    def resolveGeneric (gen: LinkIdReference, msg: => String): RewriteAction[Span] =
-      selectRecursive(LinkDefinitionSelector(gen.ref)) match {
-        case None => 
-          val slugRef = slugBuilder(gen.ref)
-          resolveRecursive(gen.copy(ref = slugRef), TargetIdSelector(slugRef), msg)
-        case some => 
-          resolveWith(gen.asLinkDefinitionReference, some, msg)
-      }
+    def resolveIdOrSlug (ref: LinkIdReference, msg: => String): RewriteAction[Span] = {
+      val target = selectRecursive(LinkDefinitionSelector(ref.ref))
+        .orElse(selectRecursive(TargetIdSelector(slugBuilder(ref.ref))))
+      resolveWith(ref, target, msg)
+    }
       
     RewriteRules.forBlocks {
       
@@ -147,15 +144,12 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
       case ref: PathReference if ref.path.parentLevels >= cursor.path.depth => 
         Replace(SpanLink(ref.content, ExternalTarget(ref.path.toString), ref.title, ref.options))  
       
-      case ref: PathReference => resolveGlobal(ref, ref.path, s"unresolved internal reference: ${ref.path.toString}")  
+      case ref: PathReference => resolvePath(ref, ref.path, s"unresolved internal reference: ${ref.path.toString}")  
         
-      case ref: LinkDefinitionReference => if (ref.id.isEmpty) resolveLocal(ref, AnonymousSelector, "too many anonymous link references")
-                                           else resolveRecursive(ref, LinkDefinitionSelector(ref.id), s"unresolved link reference: ${ref.id}")
+      case ref: LinkIdReference => if (ref.ref.isEmpty) resolveLocal(ref, AnonymousSelector, "too many anonymous references")
+                                    else resolveIdOrSlug(ref, s"unresolved link id reference: ${ref.ref}")
 
-      case gen: LinkIdReference => if (gen.ref.isEmpty) resolveLocal(gen.asLinkDefinitionReference, AnonymousSelector, "too many anonymous references")
-                                    else resolveGeneric(gen, s"unresolved reference: ${gen.ref}")
-
-      case ref: ImageIdReference => resolveRecursive(ref, LinkDefinitionSelector(ref.id), s"unresolved image reference: ${ref.id}")
+      case ref: ImageIdReference => resolveId(ref, LinkDefinitionSelector(ref.id), s"unresolved image reference: ${ref.id}")
 
       case c: Customizable if c.options.id.isDefined => replaceSpan(c, TargetIdSelector(slugBuilder(c.options.id.get)))
         

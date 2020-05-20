@@ -61,7 +61,7 @@ class ParseAPISpec extends AnyFlatSpec
       |
       |[id]: http://foo/""".stripMargin
     MarkupParser.of(Markdown).build.parseUnresolved(input).toOption.get.document.content should be (root 
-        (p (LinkDefinitionReference(List(Text("link")), "id", "[link][id]")), LinkDefinition("id",ExternalTarget("http://foo/"),None)))
+        (p (LinkIdReference(List(Text("link")), "id", "[link][id]")), LinkDefinition("id",ExternalTarget("http://foo/"),None)))
   }
   
   it should "collect errors from runtime messages" in {
@@ -71,8 +71,8 @@ class ParseAPISpec extends AnyFlatSpec
                   |
                   |[invalid2]""".stripMargin
     val msg = """One or more error nodes in result:
-                | unresolved link reference: invalid1
-                | unresolved link reference: invalid2""".stripMargin
+                | unresolved link id reference: invalid1
+                | unresolved link id reference: invalid2""".stripMargin
     MarkupParser.of(Markdown).build.parse(input) shouldBe Left(ParserError(msg, Root))
   }
   
@@ -84,9 +84,9 @@ class ParseAPISpec extends AnyFlatSpec
                   |[invalid2]""".stripMargin
     val doc = MarkupParser.of(Markdown).build.parseUnresolved(input).toOption.get.document
     doc.rewrite(TemplateRewriter.rewriteRules(DocumentCursor(doc))).content should be (root(
-      p(InvalidElement("Unresolved reference to link definition with id 'invalid1'","<unknown source>").asSpan),
+      p(InvalidElement("Unresolved link id reference 'invalid1'","<unknown source>").asSpan),
       p("Text"),
-      p(InvalidElement("Unresolved reference to link definition with id 'invalid2'","<unknown source>").asSpan),
+      p(InvalidElement("Unresolved link id reference 'invalid2'","<unknown source>").asSpan),
     ))
   }
   

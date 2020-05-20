@@ -16,7 +16,7 @@
 
 package laika.directive
 
-import laika.ast.{DocumentCursor, InvalidElement, LinkDefinitionReference, Replace, RewriteAction, RewriteRules, Span}
+import laika.ast.{DocumentCursor, InvalidElement, LinkIdReference, Replace, RewriteAction, RewriteRules, Span}
 import laika.bundle.{BundleOrigin, ConfigProvider, ExtensionBundle, ParserBundle}
 import laika.config.ConfigParser
 import laika.parse.Parser
@@ -62,7 +62,7 @@ class DirectiveSupport (blockDirectives: Seq[Blocks.Directive],
   
   override lazy val rewriteRules: Seq[DocumentCursor => RewriteRules] = Seq(
     cursor => RewriteRules.forSpans {
-      case LinkDefinitionReference(content, id, src, opt) if id.startsWith("@:") => 
+      case LinkIdReference(content, id, src, opt) if id.startsWith("@:") => 
         linkParser.parse(id.drop(2)).toEither.fold(
           err => Replace(InvalidElement(s"Invalid link directive: $err", src).asSpan),
           res => linkDirectiveMap.get(res._1)

@@ -56,9 +56,9 @@ case class DocumentTargets (document: Document, slugBuilder: String => String) {
       case external => external
     }
     val resolver = ReferenceResolver.lift {
-      case LinkSource(LinkDefinitionReference (content, _, _, opt), sourcePath) =>
+      case LinkSource(LinkIdReference(content, _, _, opt), sourcePath) =>
         SpanLink(content, resolveTarget(sourcePath), title, opt)
-      case LinkSource(ImageIdReference (text, _, _, opt), sourcePath) =>
+      case LinkSource(ImageIdReference(text, _, _, opt), sourcePath) =>
         Image(text, resolveTarget(sourcePath), title = title, options = opt)
     }
     TargetResolver.create(selector, resolver, TargetReplacer.removeTarget)

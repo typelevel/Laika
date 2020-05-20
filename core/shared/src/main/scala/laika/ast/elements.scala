@@ -1236,17 +1236,6 @@ case class PathReference (content: Seq[Span],
   lazy val unresolvedMessage: String = s"Unresolved internal reference to '${path.toString}'"
 }
 
-/** A link reference, the id pointing to the id of a `LinkTarget`. Only part of the
- *  raw document tree and then removed by the rewrite rule that resolves link and image references.
- */
-case class LinkDefinitionReference (content: Seq[Span], id: String, source: String, options: Options = NoOpt) extends Reference
-                                                                                                    with SpanContainer {
-  type Self = LinkDefinitionReference
-  def withContent (newContent: Seq[Span]): LinkDefinitionReference = copy(content = newContent)
-  def withOptions (options: Options): LinkDefinitionReference = copy(options = options)
-  lazy val unresolvedMessage: String = s"Unresolved reference to link definition with id '$id'"
-}
-
 /** An image reference, the id pointing to the id of a `LinkTarget`. Only part of the
  *  raw document tree and then removed by the rewrite rule that resolves link and image references.
  */
@@ -1286,7 +1275,6 @@ case class LinkIdReference (content: Seq[Span], ref: String, source: String, opt
   type Self = LinkIdReference
   def withContent (newContent: Seq[Span]): LinkIdReference = copy(content = newContent)
   def withOptions (options: Options): LinkIdReference = copy(options = options)
-  def asLinkDefinitionReference: LinkDefinitionReference = LinkDefinitionReference(content, ref, source, options)
   lazy val unresolvedMessage: String = s"Unresolved link id reference '$ref'"
 }
 
