@@ -558,7 +558,6 @@ object StandardDirectives extends DirectiveRegistry {
    *  elements in markup documents.
    */
   lazy val spanDirectives: Seq[Spans.Directive] = List(
-    ref,
     spanStyle
   )
 
