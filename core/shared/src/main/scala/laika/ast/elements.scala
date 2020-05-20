@@ -1276,20 +1276,18 @@ case class CitationReference (label: String, source: String, options: Options = 
 
 /** A reference to any kind of referencable object, e.g. a link definition or an internal target.
   * 
-  * Not all markup languages support such a construct. For those supported by Laika out of the box,
-  * only reStructuredText produces such a node type. When parsing Markdown no instances of this kind
-  * will be in the document AST as Markdown makes a clear distinction whether a reference points
-  * to a link definition or an internal target.
+  * The reference can be local, in the same document, or anywhere else in the input tree, as long
+  * as the id is not ambiguous. 
+  * Search for a matching target happens recursively, from the current document, 
+  * to the current tree (directory) upwards to the root tree.
   */
-case class GenericReference (content: Seq[Span], ref: String, source: String, options: Options = NoOpt) extends Reference
+case class LinkIdReference (content: Seq[Span], ref: String, source: String, options: Options = NoOpt) extends Reference
   with SpanContainer {
-  type Self = GenericReference
-  def withContent (newContent: Seq[Span]): GenericReference = copy(content = newContent)
-  def withOptions (options: Options): GenericReference = copy(options = options)
+  type Self = LinkIdReference
+  def withContent (newContent: Seq[Span]): LinkIdReference = copy(content = newContent)
+  def withOptions (options: Options): LinkIdReference = copy(options = options)
   def asLinkDefinitionReference: LinkDefinitionReference = LinkDefinitionReference(content, ref, source, options)
-  def asInternalReference: PathReference = 
-    PathReference(content, RelativePath.CurrentDocument(ref), source, options = options)
-  lazy val unresolvedMessage: String = s"Unresolved generic reference '$ref'"
+  lazy val unresolvedMessage: String = s"Unresolved link id reference '$ref'"
 }
 
 

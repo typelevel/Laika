@@ -90,12 +90,12 @@ object StandardDirectiveParsers {
     val phraseLinkRef = {
       val refName = p.escapedText(delimitedBy('`','<').keepDelimiter).map(ReferenceName)
       "`" ~> refName <~ "`_" ~ ws ~ eof ^^ {
-        refName => GenericReference(Nil, refName.normalized, s"`${refName.original}`_") 
+        refName => LinkIdReference(Nil, refName.normalized, s"`${refName.original}`_") 
       }
     }
     val simpleLinkRef = {
       simpleRefName <~ "_" ~ ws ~ eof ^^ {
-        refName => GenericReference(Nil, refName, s"${refName}_")
+        refName => LinkIdReference(Nil, refName, s"${refName}_")
       }
     }
     val uri = anyChars.map(uri => Link.create(Nil, uri, uri))

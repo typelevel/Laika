@@ -108,11 +108,11 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
     def resolveRecursive (ref: Reference, selector: UniqueSelector, msg: => String): RewriteAction[Span] =
       resolveWith(ref, selectRecursive(selector), msg)
         
-    def resolveGeneric (gen: GenericReference, msg: => String): RewriteAction[Span] =
+    def resolveGeneric (gen: LinkIdReference, msg: => String): RewriteAction[Span] =
       selectRecursive(LinkDefinitionSelector(gen.ref)) match {
         case None => 
           val slugRef = slugBuilder(gen.ref)
-          resolveRecursive(gen.copy(ref = slugRef).asInternalReference, TargetIdSelector(slugRef), msg)
+          resolveRecursive(gen.copy(ref = slugRef), TargetIdSelector(slugRef), msg)
         case some => 
           resolveWith(gen.asLinkDefinitionReference, some, msg)
       }
@@ -152,7 +152,7 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
       case ref: LinkDefinitionReference => if (ref.id.isEmpty) resolveLocal(ref, AnonymousSelector, "too many anonymous link references")
                                            else resolveRecursive(ref, LinkDefinitionSelector(ref.id), s"unresolved link reference: ${ref.id}")
 
-      case gen: GenericReference => if (gen.ref.isEmpty) resolveLocal(gen.asLinkDefinitionReference, AnonymousSelector, "too many anonymous references")
+      case gen: LinkIdReference => if (gen.ref.isEmpty) resolveLocal(gen.asLinkDefinitionReference, AnonymousSelector, "too many anonymous references")
                                     else resolveGeneric(gen, s"unresolved reference: ${gen.ref}")
 
       case ref: ImageIdReference => resolveRecursive(ref, LinkDefinitionSelector(ref.id), s"unresolved image reference: ${ref.id}")

@@ -80,7 +80,7 @@ object StandardDirectiveParts {
 
       (target map {
         case ref: SpanLink  => ref.copy(content = List(image.copy(options = opt)), options = alignOpt)
-        case ref: GenericReference => ref.copy(content = List(image.copy(options = opt)), options = alignOpt)
+        case ref: LinkIdReference => ref.copy(content = List(image.copy(options = opt)), options = alignOpt)
       }).getOrElse(image.copy(options = alignOpt + opt))
     }
   }

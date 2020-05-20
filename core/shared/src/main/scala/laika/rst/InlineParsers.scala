@@ -218,8 +218,8 @@ object InlineParsers {
    */
   lazy val substitutionRef: SpanParserBuilder = SpanParser.standalone {
     markupStart("|", "|") ~> simpleRefName >> { ref =>
-      markupEnd("|__").as(GenericReference(List(SubstitutionReference(ref)), "", s"|$ref|__")) |
-      markupEnd("|_").as(GenericReference(List(SubstitutionReference(ref)), ref, s"|$ref|_")) |
+      markupEnd("|__").as(LinkIdReference(List(SubstitutionReference(ref)), "", s"|$ref|__")) |
+      markupEnd("|_").as(LinkIdReference(List(SubstitutionReference(ref)), ref, s"|$ref|_")) |
       markupEnd("|").as(SubstitutionReference(ref))
     }
   }
@@ -273,8 +273,8 @@ object InlineParsers {
         LinkDefinition.create(ref(name.normalized, url), url)
       )
       case (name ~ Some(url) ~ false, src)  => Link.create(List(Text(ref(name.original, url))), url, src)
-      case (name ~ None ~ true, src)        => GenericReference(List(Text(name.original)), name.normalized, src) 
-      case (name ~ None ~ false, src)       => GenericReference(List(Text(name.original)), "", src) 
+      case (name ~ None ~ true, src)        => LinkIdReference(List(Text(name.original)), name.normalized, src) 
+      case (name ~ None ~ false, src)       => LinkIdReference(List(Text(name.original)), "", src) 
     }
   }
   
@@ -286,8 +286,8 @@ object InlineParsers {
     markupEnd("__" | "_").flatMap { markup => 
       reverse(markup.length, simpleRefName <~ nextNot(invalidBeforeStartMarkup)).map { refName =>
         markup match {
-          case "_"  => Reverse(refName.length, GenericReference(List(Text(refName)), ReferenceName(refName).normalized, s"${refName}_"), Text("_")) 
-          case "__" => Reverse(refName.length, GenericReference(List(Text(refName)), "", s"${refName}__"), Text("__")) 
+          case "_"  => Reverse(refName.length, LinkIdReference(List(Text(refName)), ReferenceName(refName).normalized, s"${refName}_"), Text("_")) 
+          case "__" => Reverse(refName.length, LinkIdReference(List(Text(refName)), "", s"${refName}__"), Text("__")) 
         }
       }
     } 

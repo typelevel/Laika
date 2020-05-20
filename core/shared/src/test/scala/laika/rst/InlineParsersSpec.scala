@@ -42,15 +42,15 @@ class InlineParsersSpec extends AnyFlatSpec
 
   def subst (name: String) = SubstitutionReference(name)
 
-  def pLinkRef (id: String, text: String): GenericReference = GenericReference(Seq(Text(text)), id, s"`$text`_")
+  def pLinkRef (id: String, text: String): LinkIdReference = LinkIdReference(Seq(Text(text)), id, s"`$text`_")
 
-  def pLinkRef (id: String): GenericReference = pLinkRef(id,id)
+  def pLinkRef (id: String): LinkIdReference = pLinkRef(id,id)
   
-  def anonPLinkRef (text: String): GenericReference = GenericReference(Seq(Text(text)), "", s"`$text`__")
+  def anonPLinkRef (text: String): LinkIdReference = LinkIdReference(Seq(Text(text)), "", s"`$text`__")
   
-  def linkRef (id: String): GenericReference = GenericReference(Seq(Text(id)), id, id+"_")
+  def linkRef (id: String): LinkIdReference = LinkIdReference(Seq(Text(id)), id, id+"_")
   
-  def anonLinkRef (text: String): GenericReference = GenericReference(Seq(Text(text)), "", text+"__")
+  def anonLinkRef (text: String): LinkIdReference = LinkIdReference(Seq(Text(text)), "", text+"__")
   
   
   

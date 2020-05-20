@@ -56,7 +56,7 @@ class RewriteRulesSpec extends AnyWordSpec
 
   def simpleLinkRef (id: String = "name") = LinkDefinitionReference(List(Text("text")), id, "text")
 
-  def genRef (id: String = "name"): GenericReference = GenericReference(List(Text("text")), id, "text")
+  def linkIdRef (id: String = "name"): LinkIdReference = LinkIdReference(List(Text("text")), id, "text")
 
   def pathRef (id: String = "name") = PathReference(List(Text("text")), RelativePath.parse(s"#$id"), "text")
 
@@ -199,31 +199,31 @@ class RewriteRulesSpec extends AnyWordSpec
     }
   }
 
-  "The rewrite rules for generic references" should {
+  "The rewrite rules for link id references" should {
 
     "resolve external link definitions" in {
-      val rootElem = root(p(genRef()), LinkDefinition("name", ExternalTarget("http://foo/")))
+      val rootElem = root(p(linkIdRef()), LinkDefinition("name", ExternalTarget("http://foo/")))
       rewritten(rootElem) should be(root(p(extLink("http://foo/"))))
     }
 
     "resolve internal link definitions" in {
-      val rootElem = root(p(genRef()), LinkDefinition("name", InternalTarget(Root, RelativePath.parse("foo.md#ref"))))
+      val rootElem = root(p(linkIdRef()), LinkDefinition("name", InternalTarget(Root, RelativePath.parse("foo.md#ref"))))
       rewritten(rootElem) should be(root(p(intLink(RelativePath.parse("foo.md#ref")))))
     }
 
     "resolve internal link targets" in {
-      val rootElem = root(p(genRef("id 5")), InternalLinkTarget(Id("id-5")))
+      val rootElem = root(p(linkIdRef("id 5")), InternalLinkTarget(Id("id-5")))
       rewritten(rootElem) should be(root(p(docLink("id-5")), InternalLinkTarget(Id("id-5"))))
     }
 
     "resolve anonymous link references" in {
-      val rootElem = root(p(genRef(""), genRef("")), LinkDefinition("", ExternalTarget("http://foo/")), LinkDefinition("", ExternalTarget("http://bar/")))
+      val rootElem = root(p(linkIdRef(""), linkIdRef("")), LinkDefinition("", ExternalTarget("http://foo/")), LinkDefinition("", ExternalTarget("http://bar/")))
       rewritten(rootElem) should be(root(p(extLink("http://foo/"), extLink("http://bar/"))))
     }
 
     "resolve anonymous internal link definitions" in {
       val rootElem = root(
-        p(genRef(""), genRef("")),
+        p(linkIdRef(""), linkIdRef("")),
         LinkDefinition("", InternalTarget(Root, RelativePath.parse("foo.md#ref"))),
         LinkDefinition("", InternalTarget(Root, RelativePath.parse("bar.md#ref")))
       )
@@ -231,17 +231,17 @@ class RewriteRulesSpec extends AnyWordSpec
     }
 
     "replace an unresolvable reference with an invalid span" in {
-      val rootElem = root(p(genRef()))
+      val rootElem = root(p(linkIdRef()))
       rewritten(rootElem) should be(root(p(invalidSpan("unresolved reference: name", "text"))))
     }
 
     "replace a surplus anonymous reference with an invalid span" in {
-      val rootElem = root(p(genRef("")))
+      val rootElem = root(p(linkIdRef("")))
       rewritten(rootElem) should be(root(p(invalidSpan("too many anonymous references", "text"))))
     }
 
     "resolve references when some parent element also gets rewritten" in {
-      val rootElem = root(DecoratedHeader(Underline('#'), List(Text("text "), genRef())), LinkDefinition("name", ExternalTarget("http://foo/")))
+      val rootElem = root(DecoratedHeader(Underline('#'), List(Text("text "), linkIdRef())), LinkDefinition("name", ExternalTarget("http://foo/")))
       rewritten(rootElem) should be(root(Title(List(Text("text "), extLink("http://foo/")), Id("text-text") + Style.title)))
     }
   }
@@ -366,12 +366,12 @@ class RewriteRulesSpec extends AnyWordSpec
     }
 
     "resolve a generic link to a target in the same tree" in {
-      val rootElem = root(p(genRef("target-4")), InternalLinkTarget(Id("ref")))
+      val rootElem = root(p(linkIdRef("target-4")), InternalLinkTarget(Id("ref")))
       rewrittenTreeDoc(rootElem) should be(root(p(internalLink(RelativePath.parse("doc4.md#target-4"))), InternalLinkTarget(Id("ref"))))
     }
 
     "resolve a generic link to a header with a duplicate id by precedence" in {
-      val rootElem = root(p(genRef("header")), InternalLinkTarget(Id("ref")))
+      val rootElem = root(p(linkIdRef("header")), InternalLinkTarget(Id("ref")))
       rewrittenTreeDoc(rootElem) should be(root(p(internalLink(RelativePath.parse("../doc1.md#header"))), InternalLinkTarget(Id("ref"))))
     }
 
