@@ -54,9 +54,15 @@ Transformations that contain internal links that cannot be resolved will fail in
 If you work with input files that will be generated or copied by other tools and are not known to Laika, 
 you can explicitly disable validation for certain paths within the virtual tree:
 
-@:choices
+@:choices(config)
 
 @:choice(sbt)
+```scala
+laikaConfig := LaikaConfig.defaults
+  .withConfigValue(LinkConfig(excludeFromValidation = Seq(Root / "generated")))
+```
+
+@choice(library)
 ```scala
 val transformer = Transformer
   .from(Markdown)
@@ -65,13 +71,6 @@ val transformer = Transformer
   .withConfigValue(LinkConfig(excludeFromValidation = Seq(Root / "generated")))
   .build
 ```
-
-@choice(library)
-```scala
-laikaConfig := LaikaConfig.defaults
-  .withConfigValue(LinkConfig(excludeFromValidation = Seq(Root / "generated")))
-```
-
 @:@
 
 
@@ -105,9 +104,18 @@ You could use the `@:import` directive and define them in a separate markup file
 but Laika has an even more convenient way to centrally define links. 
 Simply add them to the project's configuration:
 
-@:choices
+@:choices(config)
 
 @:choice(sbt)
+```scala
+laikaConfig := LaikaConfig.defaults
+  .withConfigValue(LinkConfig(targets = Seq(
+    TargetDefinition("Example 1", ExternalTarget("https://example1.com/")),
+    TargetDefinition("Example 2", ExternalTarget("https://example2.com/"))
+  )))
+```
+
+@choice(library)
 ```scala
 val transformer = Transformer
   .from(Markdown)
@@ -119,16 +127,6 @@ val transformer = Transformer
   )))
   .build
 ```
-
-@choice(library)
-```scala
-laikaConfig := LaikaConfig.defaults
-  .withConfigValue(LinkConfig(targets = Seq(
-    TargetDefinition("Example 1", ExternalTarget("https://example1.com/")),
-    TargetDefinition("Example 2", ExternalTarget("https://example2.com/"))
-  )))
-```
-
 @:@
 
 They can then be used within text markup the same way as if they would be defined within the file:
@@ -218,9 +216,17 @@ See @:api(scala.collection.immutable.List) for details.
 
 This directive requires the base URI to be defined in the project's configuration:
 
-@:choices
+@:choices(config)
 
 @:choice(sbt)
+```scala
+laikaConfig := LaikaConfig.defaults
+  .withConfigValue(LinkConfig(apiLinks = Seq(
+    ApiLinks(baseUri = "https://example.com/api")
+  )))
+```
+
+@choice(library)
 ```scala
 val transformer = Transformer
   .from(Markdown)
@@ -231,23 +237,23 @@ val transformer = Transformer
   )))
   .build
 ```
-
-@choice(library)
-```scala
-laikaConfig := LaikaConfig.defaults
-  .withConfigValue(LinkConfig(apiLinks = Seq(
-    ApiLinks(baseUri = "https://example.com/api")
-  )))
-```
-
 @:@
 
 If you use different APIs hosted on different servers, you can associate base URIs with package prefixes,
 while keeping one base URI as a default for all packages that do not match any prefix:
 
-@:choices
+@:choices(config)
 
 @:choice(sbt)
+```scala
+laikaConfig := LaikaConfig.defaults
+  .withConfigValue(LinkConfig(apiLinks = Seq(
+    ApiLinks(baseUri = "https://example.com/api"),
+    ApiLinks(baseUri = "https://somewhere-else/", packagePrefix = "com.lib42")
+  )))
+```
+
+@choice(library)
 ```scala
 val transformer = Transformer
   .from(Markdown)
@@ -258,15 +264,6 @@ val transformer = Transformer
     ApiLinks(baseUri = "https://somewhere-else/", packagePrefix = "com.lib42")
   )))
   .build
-```
-
-@choice(library)
-```scala
-laikaConfig := LaikaConfig.defaults
-  .withConfigValue(LinkConfig(apiLinks = Seq(
-    ApiLinks(baseUri = "https://example.com/api"),
-    ApiLinks(baseUri = "https://somewhere-else/", packagePrefix = "com.lib42")
-  )))
 ```
 
 @:@
@@ -433,9 +430,15 @@ E.g. in the document with the number `2.1` the number for the first section will
 
 Auto-numbering can be switched on per configuration:
 
-@:choices
+@:choices(config)
 
 @:choice(sbt)
+```scala
+laikaConfig := LaikaConfig.defaults
+  .withConfigValue(AutonumberConfig(maxDepth = 3))
+```
+
+@choice(library)
 ```scala
 val transformer = Transformer
   .from(Markdown)
@@ -444,13 +447,6 @@ val transformer = Transformer
   .withConfigValue(AutonumberConfig(maxDepth = 3))
   .build
 ```
-
-@choice(library)
-```scala
-laikaConfig := LaikaConfig.defaults
-  .withConfigValue(AutonumberConfig(maxDepth = 3))
-```
-
 @:@
 
 The configuration above will number both documents and sections within documents, but stop after the third level. 

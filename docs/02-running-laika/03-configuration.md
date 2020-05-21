@@ -37,9 +37,14 @@ Markup extensions enabled by default are:
 
 To disable all these extensions you can use the `strict` flag:
 
-@:choices
+@:choices(config)
 
 @:choice(sbt)
+```scala
+laikaConfig := LaikaConfig.defaults.strict
+```
+
+@choice(library)
 ```scala
 val transformer = Transformer
   .from(Markdown)
@@ -47,11 +52,6 @@ val transformer = Transformer
   .using(GitHubFlavor)
   .strict
   .build
-```
-
-@choice(library)
-```scala
-laikaConfig := LaikaConfig.defaults.strict
 ```
 
 @:@
@@ -76,9 +76,14 @@ or [Customizing Renderers].
  
 You can enable verbatim HTML and other raw formats explicitly in the configuration:
 
-@:choices
+@:choices(config)
 
 @:choice(sbt)
+```scala
+laikaConfig := LaikaConfig.defaults.withRawContent
+```
+
+@choice(library)
 ```scala
 val transformer = Transformer
   .from(Markdown)
@@ -86,11 +91,6 @@ val transformer = Transformer
   .using(GitHubFlavor)
   .withRawContent
   .build
-```
-
-@choice(library)
-```scala
-laikaConfig := LaikaConfig.defaults.withRawContent
 ```
 
 @:@
@@ -102,19 +102,19 @@ The default encoding in Laika is UTF-8.
 
 When you need to work with different encodings you can override the default: 
 
-@:choices
+@:choices(config)
 
 @:choice(sbt)
+```scala
+laikaConfig := LaikaConfig.defaults.encoding(Codec.ISO8859)
+```
+
+@choice(library)
 ```scala
 implicit val codec:Codec = Codec.UTF8
 ```
 
 This has to be in scope where you specify the input and ouput files for your transformer
-
-@choice(library)
-```scala
-laikaConfig := LaikaConfig.defaults.encoding(Codec.ISO8859)
-```
 
 @:@
 
@@ -193,9 +193,16 @@ error messages.
 
 You can achieve this by basically flipping the two default values in the configuration:
 
-@:choices
+@:choices(config)
 
 @:choice(sbt)
+```scala
+laikaConfig := LaikaConfig.defaults
+  .failOnMessages(MessageFilter.None)
+  .renderMessages(MessageFilter.Error)
+```
+
+@choice(library)
 ```scala
 val transformer = Transformer
   .from(Markdown)
@@ -204,13 +211,6 @@ val transformer = Transformer
   .failOnMessages(MessageFilter.None)
   .renderMessages(MessageFilter.Error)
   .build
-```
-
-@choice(library)
-```scala
-laikaConfig := LaikaConfig.defaults
-  .failOnMessages(MessageFilter.None)
-  .renderMessages(MessageFilter.Error)
 ```
 
 @:@
@@ -279,9 +279,16 @@ You can define variables in any of the following scopes:
 
 This is an example for defining two variables globally: 
 
-@:choices
+@:choices(config)
 
 @:choice(sbt)
+```scala
+laikaConfig := LaikaConfig.defaults
+  .withConfigValue("version.latest", "2.4.6")
+  .withConfigValue("license", "Apache 2.0")
+```
+
+@choice(library)
 ```scala
 val transformer = Transformer
   .from(Markdown)
@@ -291,14 +298,6 @@ val transformer = Transformer
   .withConfigValue("license", "Apache 2.0")
   .build
 ```
-
-@choice(library)
-```scala
-laikaConfig := LaikaConfig.defaults
-  .withConfigValue("version.latest", "2.4.6")
-  .withConfigValue("license", "Apache 2.0")
-```
-
 @:@
 
 These values can then be accessed via [Substitution Variables] in templates or in markup files:

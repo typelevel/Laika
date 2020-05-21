@@ -120,9 +120,17 @@ of the host language for recursive parsing.
 
 Finally you can register your extension together with any built-in extensions you may use:
 
-@:choices
+@:choices(config)
 
 @:choice(sbt)
+```scala
+laikaExtensions := Seq(
+  GitHubFlavor,
+  TicketSyntax
+)
+```
+
+@choice(library)
 ```scala
 val transformer = Transformer
   .from(Markdown)
@@ -131,15 +139,6 @@ val transformer = Transformer
   .using(TicketSyntax)
   .build
 ```
-
-@choice(library)
-```scala
-laikaExtensions := Seq(
-  GitHubFlavor,
-  TicketSyntax
-)
-```
-
 @:@
 
 
@@ -186,9 +185,15 @@ It's always best to have an empty default argument like in our example.
 
 With this change in place, the user can now provide the base URL in the builder of the `Transformer`:
 
-@:choices
+@:choices(config)
 
 @:choice(sbt)
+```scala
+laikaConfig := LaikaConfig.defaults
+  .withConfigValue("ticket.baseURL", "https://example.com/issues")
+```
+
+@choice(library)
 ```scala
 val transformer = Transformer
   .from(Markdown)
@@ -197,13 +202,6 @@ val transformer = Transformer
   .withConfigValue("ticket.baseURL", "https://example.com/issues")
   .build
 ```
-
-@choice(library)
-```scala
-laikaConfig := LaikaConfig.defaults
-  .withConfigValue("ticket.baseURL", "https://example.com/issues")
-```
-
 @:@
 
 The original ticket parser then only needs to be adjusted to return our resolver instead:
@@ -355,9 +353,17 @@ object QuotedBlocks extends ExtensionBundle {
 
 Finally you can register your extension together with any built-in extensions you may use:
 
-@:choices
+@:choices(config)
 
 @:choice(sbt)
+```scala
+laikaExtensions := Seq(
+  GitHubFlavor,
+  QuotedBlocks
+)
+```
+
+@choice(library)
 ```scala
 val transformer = Transformer
   .from(Markdown)
@@ -366,15 +372,6 @@ val transformer = Transformer
   .using(QuotedBlocks)
   .build
 ```
-
-@choice(library)
-```scala
-laikaExtensions := Seq(
-  GitHubFlavor,
-  QuotedBlocks
-)
-```
-
 @:@
 
 

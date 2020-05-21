@@ -85,9 +85,15 @@ as shown in the images below:
 The navigation depth is unlimited by default and will also include links to each section inside your documents.
 The depth to traverse can be changed via Laika's global configuration:
 
-@:choices
+@:choices(config)
 
 @:choice(sbt)
+```scala
+laikaConfig := LaikaConfig.defaults
+  .withConfigValue(BookConfig(navigationDepth = Some(3)))
+```
+
+@choice(library)
 ```scala
 val transformer = Transformer
   .from(Markdown)
@@ -96,21 +102,21 @@ val transformer = Transformer
   .withConfigValue(BookConfig(navigationDepth = Some(3)))
   .build
 ```
-
-@choice(library)
-```scala
-laikaConfig := LaikaConfig.defaults
-  .withConfigValue(BookConfig(navigationDepth = Some(3)))
-```
-
 @:@
 
 In the example above, the specified `BookConfig` will apply to both formats, EPUB and PDF.
 They can alternatively be set separately:
 
-@:choices
+@:choices(config)
 
 @:choice(sbt)
+```scala
+laikaConfig := LaikaConfig.defaults
+  .withConfigValue(EPUB.BookConfig(navigationDepth = Some(3)))
+  .withConfigValue(PDF.BookConfig(navigationDepth = Some(4)))
+```
+
+@choice(library)
 ```scala
 val transformer = Transformer
   .from(Markdown)
@@ -120,14 +126,6 @@ val transformer = Transformer
   .withConfigValue(PDF.BookConfig(navigationDepth = Some(4)))
   .build
 ```
-
-@choice(library)
-```scala
-laikaConfig := LaikaConfig.defaults
-  .withConfigValue(EPUB.BookConfig(navigationDepth = Some(3)))
-  .withConfigValue(PDF.BookConfig(navigationDepth = Some(4)))
-```
-
 @:@
 
 
@@ -161,9 +159,20 @@ laikaConfig := LaikaConfig.defaults
 
 Or two different cover images can be configured for EPUB and PDF separately:
 
-@:choices
+@:choices(config)
 
 @:choice(sbt)
+```scala
+laikaConfig := LaikaConfig.defaults
+  .withConfigValue(EPUB.BookConfig(
+    coverImage = Some(Root / "images" / "epub-cover.jpg")
+  ))
+  .withConfigValue(PDF.BookConfig(
+    coverImage = Some(Root / "images" / "pdf-cover.jpg")
+  ))
+```
+
+@choice(library)
 ```scala
 val transformer = Transformer
   .from(Markdown)
@@ -177,18 +186,6 @@ val transformer = Transformer
   ))
   .build
 ```
-
-@choice(library)
-```scala
-laikaConfig := LaikaConfig.defaults
-  .withConfigValue(EPUB.BookConfig(
-    coverImage = Some(Root / "images" / "epub-cover.jpg")
-  ))
-  .withConfigValue(PDF.BookConfig(
-    coverImage = Some(Root / "images" / "pdf-cover.jpg")
-  ))
-```
-
 @:@
 
 See [Supported Document Types] for a list of supported image formats.
@@ -199,9 +196,20 @@ Document Metadata
 
 You can add document metadata to the configuration that Laika will apply to the generated output formats where supported:
 
-@:choices
+@:choices(config)
 
 @:choice(sbt)
+```scala
+laikaConfig := LaikaConfig.defaults
+  .withConfigValue(BookConfig(metadata = DocumentMetadata(
+     identifier = Some("urn:isbn:978-3-16-148410-0"),
+     authors = Seq("Deborah Green", "Maria Brown"),
+     language = Some("en:GB"),
+     date = Some(Date.from(Instant.now))
+  )))
+```
+
+@choice(library)
 ```scala
 val transformer = Transformer
   .from(Markdown)
@@ -215,18 +223,6 @@ val transformer = Transformer
   )))
   .build
 ```
-
-@choice(library)
-```scala
-laikaConfig := LaikaConfig.defaults
-  .withConfigValue(BookConfig(metadata = DocumentMetadata(
-     identifier = Some("urn:isbn:978-3-16-148410-0"),
-     authors = Seq("Deborah Green", "Maria Brown"),
-     language = Some("en:GB"),
-     date = Some(Date.from(Instant.now))
-  )))
-```
-
 @:@
 
 Note that the `DocumentMetadata` type uses the venerable `java.util.Date` API.

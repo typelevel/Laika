@@ -62,9 +62,17 @@ object MyExtensions extends ExtensionBundle {
 
 Such a bundle can then be passed to the transformer:
 
-@:choices
+@:choices(config)
 
 @:choice(sbt)
+```scala
+laikaExtensions := Seq(
+  GitHubFlavor,
+  MyExtensions
+)
+```
+
+@choice(library)
 ```scala
 val transformer = Transformer
   .from(Markdown)
@@ -73,15 +81,6 @@ val transformer = Transformer
   .using(MyExtensions)
   .build
 ```
-
-@choice(library)
-```scala
-laikaExtensions := Seq(
-  GitHubFlavor,
-  MyExtensions
-)
-```
-
 @:@
 
 You've probably already seen examples for specifying `GitHubFlavor` or `SyntaxHighlighting` extensions in this way.

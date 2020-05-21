@@ -362,9 +362,17 @@ You can bundle multiple highlighters in a single instance.
 
 Finally you can register your extension together with any built-in extensions you may use:
 
-@:choices
+@:choices(config)
 
 @:choice(sbt)
+```scala
+laikaExtensions := Seq(
+  GitHubFlavor,
+  MyExtensions
+)
+```
+
+@choice(library)
 ```scala
 val transformer = Transformer
   .from(Markdown)
@@ -373,13 +381,4 @@ val transformer = Transformer
   .using(MyExtensions)
   .build
 ```
-
-@choice(library)
-```scala
-laikaExtensions := Seq(
-  GitHubFlavor,
-  MyExtensions
-)
-```
-
 @:@
