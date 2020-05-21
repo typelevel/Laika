@@ -87,7 +87,7 @@ The types `DocumentTree` and `Document` come with a `rewrite` method as well as 
 that can occur within a document (all nodes that mix in `RewritableContainer`).
 
 Obtaining `Document` instances is usually achieved by splitting the parsing and rendering operations
-instead of using a full transformer. This is described in detail in @:ref(Separate Parsing and Rendering).
+instead of using a full transformer. This is described in detail in [Separate Parsing and Rendering].
 
 Once again we are turning all `Emphasized` nodes in the text to `Strong` nodes for our example:
 

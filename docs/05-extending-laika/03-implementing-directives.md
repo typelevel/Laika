@@ -37,7 +37,7 @@ Let's discuss the directive parts one by one:
   do not accept any attributes or body elements. The convention is that directive names are camel case.
   Their main task is to link the markup to the corresponding directive implementation.
   
-* @:ref(Positional Attributes) can follow the name declaration. 
+* [Positional Attributes] can follow the name declaration. 
   They are enclosed in parentheses and contain a comma-separated list of values,
   mimicking the syntax of function invocations.
   
@@ -45,14 +45,14 @@ Let's discuss the directive parts one by one:
   An example would be a list of style names to apply to the body.
   For multiple attributes with different types and meanings, it is recommended to use named attributes instead.
   
-* @:ref(Named Attributes (HOCON)) can follow the name declaration and the optional positional attributes.
+* [Named Attributes (HOCON)] can follow the name declaration and the optional positional attributes.
   They are enclosed in braces `{` and `}` as HOCON is a superset of JSON.
   
   They offer the full flexibility of the HOCON standard, like nested keys, array elements and substitution references
   (`${...}`) which allow markup authors to refer to any variable in page/directory/global configuration when
   defining an attribute.
   
-* The @:ref(Directive Body) can follow the name declaration and any optional attribute blocks. 
+* The [Directive Body] can follow the name declaration and any optional attribute blocks. 
   It is a region of regular markup content demarcated by a closing fence `@:@`.
   With block directives the closing fence has to be placed on an otherwise empty line,
   with all other directive kinds it can appear anywhere.
@@ -77,8 +77,8 @@ We'll go through this line by line:
   The string passed to this method is the name of the directive without the leading `@:`.
   
 * Next you need to declare the directive parts that you expect, whether they are required or optional,
-  and which type they should be converted to. There are combinators for @:ref(Directive Attributes),
-  @:ref(Directive Body), @:ref(Access to the Parser) and @:ref(Access to the Document Cursor).
+  and which type they should be converted to. There are combinators for [Directive Attributes],
+  [Directive Body], [Access to the Parser] and [Access to the Document Cursor].
   
 * Finally you pass the function the engine should invoke after validating and converting all expected directive parts.
 
@@ -92,7 +92,7 @@ We'll go through this line by line:
   The value the directive function produces must be an AST node matching the type of the directive, 
   `Span`, `Block` or `TemplateSpan`.
 
-Further below we'll show a @:ref(Sample Implementation) based on a real world scenario.
+Further below we'll show a [Sample Implementation] based on a real world scenario.
 
 
 Directive Types
@@ -104,9 +104,9 @@ there is a distinction between seven directive types:
 * **Template Directives** that can be used anywhere in templates, which produce `TemplateSpan` elements.
 * **Block Directives** for block elements in markup, which produce `Block` elements.
 * **Span Directives** for inline elements in markup, which produce `Span` elements.
-* 3 types of @:ref(Separator Directives) which can be used to separate the body elements 
+* 3 types of [Separator Directives] which can be used to separate the body elements 
   of any of the other three directive types and can produce any kind of result type.
-* @:ref(Link Directives), a special type of span directives providing shortcuts for directives that
+* [Link Directives], a special type of span directives providing shortcuts for directives that
   produce link nodes.
 
 If you want to create a directive that can be used in all three locations 
@@ -116,10 +116,10 @@ you can wrap that same node in a `Paragraph` block node for a block-level direct
 
 The three main directive types for blocks, spans and templates are similar enough that we avoid
 the repetition of documenting them separately. 
-Instead the following sections @:ref(Sample Implementation), @:ref(Directive Attributes), @:ref(Directive Body),
-@:ref(Access to the Parser) and @:ref(Access to the Document Cursor) apply to all of these 3 main types.
+Instead the following sections [Sample Implementation], [Directive Attributes], [Directive Body],
+[Access to the Parser] and [Access to the Document Cursor] apply to all of these 3 main types.
 
-@:ref(Separator Directives) and @:ref(Link Directives) on the other hand are quite different,
+[Separator Directives] and [Link Directives] on the other hand are quite different,
 which is why they come with their own documentation section.
 
 
@@ -132,7 +132,7 @@ it's worthwhile to briefly mention that Laika comes with a handful of directives
 First you might want to avoid to reinvent the wheel and ensure the directive idea you had is not already covered.
 Secondly you could look at the existing directive implementations as examples and guidelines for creating your own.
 
-All available directives are documented in the chapter @:ref(Standard Directives), 
+All available directives are documented in the chapter [Standard Directives], 
 their source code can be found [here][directive-api]
 
 [directive-api]: https://github.com/planet42/Laika/blob/master/core/src/main/scala/laika/directive/StandardDirectives.scala
@@ -141,7 +141,7 @@ their source code can be found [here][directive-api]
 Sample Directive
 ----------------
 
-Like in the @:ref(Writing Parser Extensions) chapter our example implementation is going to provide a shortcut 
+Like in the [Writing Parser Extensions] chapter our example implementation is going to provide a shortcut 
 for a reference to a ticket system via its number. 
 While the custom parser did this with the concise syntax `#123`,
 a directive has to stick to the standard directive syntax, for which we'll pick `@:ticket(123)`.
@@ -164,7 +164,7 @@ val ticketDirective = Spans.create("ticket") {
 * With `Spans.create("ticket")` we specify the name of the directive without the leading `@:` prefix.
 
 * `attribute(0)` specifies a single, positional attribute (which has to appear between parenthesis).
-  See @:ref(Directive Attributes) for an overview of all the other options.
+  See [Directive Attributes] for an overview of all the other options.
 
 * `as[Int]` converts the attribute to an Int before passing it to the directive. 
   When the attribute is missing or not a valid integer, the directive fails and the function passed to `map`
@@ -256,7 +256,7 @@ Directive Attributes
 You can use two types of attributes: 
 positional attributes between parenthesis, and named attributes in the HOCON format between curly braces.
 
-See @:ref(Anatomy of a Directive) for an overview and a full syntax example.
+See [Anatomy of a Directive] for an overview and a full syntax example.
 
 
 ### Positional Attributes
@@ -278,7 +278,7 @@ Markup example:
 Combinators:
 
 * `attribute(Int)` for accessing a single attribute, e.g. `attribute(0)` for the first.
-  Like with named attributes, you can turn them into @:ref(Optional Attributes) or apply @:ref(Type Conversions).
+  Like with named attributes, you can turn them into [Optional Attributes] or apply [Type Conversions].
   
 * `positionalAttributes` for accessing all positional attributes as a list of values.
   Applying a type conversion like `.as[Int]` in this case changes the result to be `Seq[Int]`.
@@ -313,7 +313,7 @@ Combinators:
 
 * `attribute(String)` for accessing a single attribute by name, e.g. `attribute("width")` for the `width` attribute 
   in our example.
-  Like with positional attributes, you can turn them into @:ref(Optional Attributes) or apply @:ref(Type Conversions).
+  Like with positional attributes, you can turn them into [Optional Attributes] or apply [Type Conversions].
   
 * `allAttributes` for accessing all attributes as a HOCON `Config` instance, Laika's configuration API.
   This way you can manually inspect the values it contains. 
@@ -487,7 +487,7 @@ It mostly achieves a reduction in verbosity you'd otherwise need to repeat the s
 
 We ignore the second argument, the `DocumentCursor` instance in this case. 
 Like with other directives it gives you access to the configuration and the document AST.
-You can examine the @:ref(Sample Directive) for an implementation that avoids the hard-coding of the base URL
+You can examine the [Sample Directive] for an implementation that avoids the hard-coding of the base URL
 with the help of the cursor.
 
 Finally, a special feature of link directives is that they can also be used within native link syntax in such a way

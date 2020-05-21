@@ -26,7 +26,7 @@ If you are using the sbt plugin you can use several of its task for generating e
 * `laikaSite` for generating a site that also contains PDF and/or EPUB files for download
   when setting the `laikaIncludeEPUB` and/or `laikaIncludePDF` settings to true.
 
-See @:ref(sbt Plugin) for more details.
+See [sbt Plugin] for more details.
 
 When using the library API, the `EPUB` and `PDF` renderers can be passed to the `Transformer` or `Renderer` APIs:
 
@@ -45,8 +45,8 @@ transformer
   .transform
 ```
 
-See @:ref(Library API) for more details on these APIs and ensure you have the necessary dependencies in place -
-the `laika-pdf` module for PDF or the `laika-io` module for EPUB - see @:ref(Dependencies).
+See [Library API] for more details on these APIs and ensure you have the necessary dependencies in place -
+the `laika-pdf` module for PDF or the `laika-io` module for EPUB - see [Dependencies].
 
 
 Directory Structure
@@ -66,8 +66,8 @@ apart from the additional metadata files it needs to generate.
 Therefore it is best to avoid very large markup files as they might slow down the experience in the e-book reader,
 and instead distribute content over a higher number of smaller input files.
 
-See @:ref(Document Types) for general info about the various types of input files Laika supports,
-and @:ref(Supported Document Types) in this chapter for additional info specific to EPUB and PDF.
+See [Document Types] for general info about the various types of input files Laika supports,
+and [Supported Document Types] in this chapter for additional info specific to EPUB and PDF.
 
 
 Book Navigation
@@ -75,7 +75,7 @@ Book Navigation
 
 Laika supports a directory structure with sub-directories of any depth. 
 Markup files from the input directory will form the content of the e-book, 
-linearized in depth-first traversal and using your configured @:ref(Navigation Order).
+linearized in depth-first traversal and using your configured [Navigation Order].
 
 Laika will generate navigation elements compatible with e-book readers,
 as shown in the images below:
@@ -112,7 +112,7 @@ Or two different cover images can be configured for EPUB and PDF separately:
 TODO - library + plugin
 ```
 
-See @:ref(Supported Document Types) for a list of supported image formats.
+See [Supported Document Types] for a list of supported image formats.
 
 
 Document Metadata
@@ -193,7 +193,7 @@ there are a few subtle differences:
 * While id selectors and class selectors function like in web CSS, the type selectors are quite different.
   Since there is no interim HTML result, the types you can refer to are not HTML tag names like `div`,
   but the class names of the Laika AST nodes, e.g. `Header` or `Paragraph`.
-  See @:ref(The Document AST) for details.
+  See [The Document AST] for details.
   
 * Some selector types of the CSS specification are not supported as most of them do not add much value
   in the context of a Laika document tree:
@@ -241,9 +241,9 @@ for PDF the generated XSL-FO will first be concatenated and then the template wi
 to the single final FO document.
 
 Customizing the PDF template would require knowledge of `XSL-FO`, but is hopefully rarely ever
-necessary as PDFs can be styled by Laika's @:ref(CSS for PDF) feature.
+necessary as PDFs can be styled by Laika's [CSS for PDF] feature.
 
-See @:ref(Creating Templates) for general info about Laika's template engine.
+See [Creating Templates] for general info about Laika's template engine.
 
 
 ### Overriding Renderers
@@ -252,7 +252,7 @@ Apart from adjusting the surrounding template the AST nodes will be rendered int
 you can also customize how each individual AST node itself is rendered. 
  
 This is a general customization hook in the library and not different from overriding renderers for site output.
-See @:ref(Overriding Renderers) for more details.
+See [Overriding Renderers] for more details.
 
 
 Configuring Apache FOP

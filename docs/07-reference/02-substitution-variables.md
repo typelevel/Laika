@@ -39,7 +39,7 @@ The other is the `laika` namespace that holds all values coming from Laika's int
 
 Values from the cursor namespace expose information about the current document and its siblings and parents.
 They can be used in templates or markup documents to create links or insert content.
-If you need to create complex navigation structures though, it is usually best to prefer @:ref(Implementing Directives)
+If you need to create complex navigation structures though, it is usually best to prefer [Implementing Directives]
 over complex template logic.
 
 Internal processing in Laika is not stringly, but based on traversing and modifying ASTs. 
@@ -54,11 +54,11 @@ This is a complete list of values exposed in the `cursor` namespace:
   it refers to the markup document, not the template document itself.
   Sub-keys are:
   
-    * `content`: The entire AST of the markup document, see @:ref(Inserting Content from Markup Documents) for details.
+    * `content`: The entire AST of the markup document, see [Inserting Content from Markup Documents] for details.
     
     * `fragements`: The AST of all named fragments declared in the markup document, under their respective keys,
       e.g. `cursor.currentDocument.fragments.sidebar` for a fragment declared with `@:fragment(sidebar)` inside
-      the markup document. See @:ref(Document Fragments) for details.
+      the markup document. See [Document Fragments] for details.
 
     * `title`: the AST of the title of this document - including formatting.
 
@@ -103,12 +103,12 @@ but are nevertheless exposed like any other value in the configuration.
 * `laika.links`: holds navigation configuration. [TODO - link]
 
 * `laika.autonumbering`: the configuration for auto-numbering documents and sections. 
-  See @:ref(Auto-Numbering) for details.
+  See [Auto-Numbering] for details.
 
-* `laika.pdf` and `laika.epub`: e-book configuration, see @:ref(E-books (EPUB & PDF)) for details
+* `laika.pdf` and `laika.epub`: e-book configuration, see [E-Books (EPUB & PDF)] for details
 
 * `laika.titleDocuments`: configures the names of documents that should be treated as title documents.
-  See @:ref(Title Documents) for details.  
+  See [Title Documents] for details.  
 
 
 User-Defined Values

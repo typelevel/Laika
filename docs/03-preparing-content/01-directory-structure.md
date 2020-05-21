@@ -6,8 +6,8 @@ Laika does not have any special directories and content can be nested in sub-dir
 
 When you are using the sbt plugin or the parallel transformer from the library API that accepts directories as input,
 Laika supports additional file types and navigation features on top of just parsing text markup.
-This section describes the supported @:ref(Document Types), how @:ref(Auto-Generated Navigation) works with
-directory input and how the @:ref(Virtual Tree Abstraction) that 
+This section describes the supported [Document Types], how [Auto-Generated Navigation] works with
+directory input and how the [Virtual Tree Abstraction] that 
  
 This set of functionality is not available when you are using a transformer or parser from the library API
 that expects a single input (file, stream or string) for processing.
@@ -35,8 +35,8 @@ Apart from standard markup syntax, markup files in Laika can also contain the fo
 * Sections, determined by the hierarchy of headers coming after the title, 
   with auto-assigned ids based on a pluggable slug builder. [TODO link]
   Sections can be part of auto-generated navigation structures and can conveniently be linked to by header text
-  with Laika's `@:ref` directive [TODO link] or by "native" markup link syntax [TODO link]. 
-* Directives, which extend the text markup's functionality, either one of the built-in @:ref(Standard Directives)
+  with "native" markup link syntax [TODO link]. 
+* Directives, which extend the text markup's functionality, either one of the built-in [Standard Directives]
   or your own, custom implementations.
 
 
@@ -53,7 +53,7 @@ The names can be overridden in Laika's global configuration:
 [TODO]: sbt and library sample
 
 Title Documents will also render on a level above the other chapter documents in the navigation,
-(see @:ref(Auto-Generated Navigation) for details) and will be linked in @:ref(@:breadcrumb) components.
+(see [Auto-Generated Navigation] for details) and will be linked in [@:breadcrumb] components.
   
 
 ### Configuration Files
@@ -96,7 +96,7 @@ be applied when a markup document explicitly refers to them in its configuration
 Until then you need to provide at least one default template in the root directory unless you are fine with the
 very basic fallback template.)
 
-For more details on the template engine, see the chapter @:ref(Creating Templates).
+For more details on the template engine, see the chapter [Creating Templates].
 
 
 ### Static Files
@@ -127,7 +127,7 @@ the structure will also be used by various features of the library that auto-gen
   with title documents becoming the first section in each chapter.
   See @:(E-Books (EPUB & PDF)) on how to configure navigation depth and other options.
 
-* **Web Sites**: For HTML output you can use directives like @:ref(@:navigationTree) in templates to auto-generate
+* **Web Sites**: For HTML output you can use directives like [@:navigationTree] in templates to auto-generate
   a navigation structure from the root of your input tree or any other specific sub-node.
   With the next release (0.16) the library will also contain default themes that provide basic navigation
   out of the box.
@@ -169,7 +169,7 @@ Only files with the same name in the same folder are treated as errors.
 [TODO Diagram]
 
 The configuration mechanism for specifying multiple input directories is different for the 
-[sbt plugin][@:ref(Preparing Content)] and the [Library API][@:ref(Merging Multiple Directories)]
+[sbt plugin][Preparing Content] and the [Library API][Merging Multiple Directories]
 
 Internally, the virtual path is represented by the `laika.ast.Path` type and relative links between them by
 `laika.ast.RelativePath`. These types are used frequently throughout the classes forming the document AST.

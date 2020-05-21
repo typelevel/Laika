@@ -4,7 +4,7 @@ New Markup or Output Formats
 
 All the other chapters in the "Extending Laika" section of the manual deal with a customization option 
 that at some point becomes part of an `ExtensionBundle`. 
-As @:ref(Anatomy of the API) showed, it is one of the major API hooks for building a transformer:
+As [Anatomy of the API] showed, it is one of the major API hooks for building a transformer:
 
 [TODO - copy diagram from Anatomy of the API]
 
@@ -29,14 +29,14 @@ was one of Laika's initial design goals.
 The content of this chapter builds on top of concepts introduced in other chapters,
 therefore it's recommended to read those first.
 
-First, all parsers build on top of @:ref(Laika's Parser Combinators).
+First, all parsers build on top of [Laika's Parser Combinators].
 Having its own implementation helps with keeping all functionality tightly integrated and adding
 some optimizations useful for the specific use case of markup parsing right into the base parsers.
 
 Second, since block and span parsers that together provide the markup implementation all produce AST nodes, 
-it might help to get familiar with @:ref(The Document AST) first.
+it might help to get familiar with [The Document AST] first.
 
-Finally, @:ref(Writing a Parser Extension) covers a lot of ground relevant for adding a new format, too.
+Finally, [Writing a Parser Extension] covers a lot of ground relevant for adding a new format, too.
 It walks through the sample implementation of a span parser.
 
 The main difference is merely that a block or span parser serving as an extension for existing markup languages 
@@ -79,7 +79,7 @@ These are the four abstract method each parser has to implement.
   The parsers for individual elements like lists or links can almost always be implemented in isolation
   with little or no interdependencies.
   
-  @:ref(Writing a Parser Extension) contains a walk-through of a span parser implementation.
+  [Writing a Parser Extension] contains a walk-through of a span parser implementation.
   You can also browse the code for Laika's Markdown and reStructuredText support for more examples. 
   
 * The `extensions` collection allows to add functionality beyond just markup parsing.
@@ -144,9 +144,9 @@ The content of this chapter builds on top of concepts introduced in other chapte
 therefore it's recommended to read those first.
 
 First, since renderers have to pattern match on AST nodes the engine passes over, 
-it might help to get familiar with @:ref(The Document AST) first.
+it might help to get familiar with [The Document AST] first.
 
-Second, @:ref(Overriding Renderers) shows examples for how to override the renderer of a particular output format
+Second, [Overriding Renderers] shows examples for how to override the renderer of a particular output format
 for one or more specific AST node types only.
 
 The main difference is that a renderer serving as an override for existing output formats 
@@ -249,7 +249,7 @@ in the example above those are `<p>` and `<em>` tags respectively.
 ### Choosing a Formatter API
 
 Depending on the target format your renderer may use the `TextFormatter` or `HTMLFormatter` APIs, 
-which are explained in @:ref(The Formatter APIs). 
+which are explained in [The Formatter APIs]. 
 
 Alternatively it may create its own API, but you should keep in mind then, 
 that this API will also get used by users overriding renderers for specific nodes.

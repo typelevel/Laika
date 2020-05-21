@@ -64,11 +64,11 @@ The content of this chapter builds on top of concepts introduced in other chapte
 First, even though Laika's highlighting support defines a lot of higher level building blocks that
 allow for a mere declarative assembling of the supported constructs for a language,
 some additions of custom parsers might be necessary, depending on the complexity of the target language.
-In that case it's recommended to use @:ref(Laika's Parser Combinators).
+In that case it's recommended to use [Laika's Parser Combinators].
 
 Second, highlighters produce a list of `CodeSpan` nodes which is one node type of Laika's document AST. 
 Even though this is usually the only node type you deal with, 
-it might help to get familiar with @:ref(The Document AST) first.
+it might help to get familiar with [The Document AST] first.
 
 
 The SyntaxHighlighter Trait
@@ -106,7 +106,7 @@ Using Existing Building Blocks
 
 The building blocks shown in this section are meant to be used as shortcuts.
 Whenever they do not provide the exact syntax option that you need, 
-you can always fall back to @:ref(Defining Custom Parsers).
+you can always fall back to [Defining Custom Parsers].
 
 Our code examples in this section define highlighters for a Scala-ish language, 
 but omit many details for the sake of brevity.
@@ -255,7 +255,7 @@ val backtickId: CodeSpanParser = CodeSpanParser(CodeCategory.Identifier) {
 
 In the first line of the definition we specify the category that should be assigned to the result of the parser.
 
-The next line is a standard parser definition using some of the building blocks of @:ref(Laika's Parser Combinators).
+The next line is a standard parser definition using some of the building blocks of [Laika's Parser Combinators].
 We simply expect a backtick as the start and end delimiter and allow anything in-between apart from newline or
 backtick characters.
 

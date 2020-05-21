@@ -7,7 +7,7 @@ Laika comes with a small number of built-in directives intended to cover the mos
 Some of them can only be used in templates, whereas others can also be used in text markup, 
 as stated for each individual directive below.
 
-For details on creating your own directives, see @:ref(Implementing Directives).
+For details on creating your own directives, see [Implementing Directives].
 
 
 Navigation
@@ -15,7 +15,7 @@ Navigation
 
 This set of directives helps with building complex navigation structures or serve as shortcuts for creating links.
 
-The directives in this section are all documented in detail in the @:ref(Navigation) chapter and only listed
+The directives in this section are all documented in detail in the [Navigation] chapter and only listed
 here for the sake of completeness.
 
 
@@ -26,7 +26,7 @@ Can be used in templates and as block elements in text markup.
 This flexible directive allows to freely combine auto-generated navigation trees based on your input tree's
 structure with manual entries.
 
-It is documented in detail in @:ref(The @:navigationTree Directive) in the Navigation chapter.
+It is documented in detail in [The @:navigationTree Directive] in the Navigation chapter.
 
 
 ### `@:breadcrumb`
@@ -35,17 +35,7 @@ Can be used in templates and as block elements in text markup.
 
 This standard breadcrumb component generates a simple, flat list of links reflecting the directory structure
 from the root to the current document. 
-See @:ref(The @:breadcrumb Directive) in the Navigation chapter for details.
-
-
-### `@:ref`
-
-Can be used as inline element in text markup.
-
-Allows to link to other documents or sections by headline, 
-e.g. `@:ref(Standard Directives)` would link to this document.
-
-See @:ref(Linking by Section Headline) for details. 
+See [The @:breadcrumb Directive] in the Navigation chapter for details.
 
 
 ### `@:api`
@@ -54,7 +44,7 @@ Can be used as inline element and within links in text markup.
 
 Serves as a shortcut for creating links to API documentation, e.g. `@:api(laika.api.Transformer)`.
 
-See @:ref(Linking to API Documentation) for details.
+See [Linking to API Documentation] for details.
 
 
 Applying Styles
@@ -73,7 +63,7 @@ Adds a style to the root element of the body of the directive,
 that can be used by renderers to change the appearance of the rendered element.
 
 For HTML and EPUB output it will get rendered as a `class` attribute that can be used in CSS declarations.
-For PDF it can also be used in Laika's @:ref(CSS for PDF) support, even though there is no interim HTML output.
+For PDF it can also be used in Laika's [CSS for PDF] support, even though there is no interim HTML output.
 
 Block directive: 
 
@@ -112,7 +102,7 @@ Instead it can be referred to by `${cursor.currentDocument.fragments.<fragmentNa
 This allows to keep some sections of your document separate, to be rendered
 in different locations of the output, like headers, footers or sidebars.
 
-This directive is explained in detail in the @:ref(Document Fragments) chapter.
+This directive is explained in detail in the [Document Fragments] chapter.
 
 
 ### `@:format`

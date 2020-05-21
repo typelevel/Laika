@@ -382,7 +382,7 @@ The example above is applicable for a scenario where the author of the code has 
 kind of nested spans which are allowed. 
 In Laika's text markup support this is not the case, as the user can install markup extensions.
 For this scenario the nested parsers need to be injected from the environment,
-which is demonstrated in @:ref(Recursive Parsing) in the chapter on writing parser extensions for markup.
+which is demonstrated in [Recursive Parsing] in the chapter on writing parser extensions for markup.
 
 
 Performance Optimizations

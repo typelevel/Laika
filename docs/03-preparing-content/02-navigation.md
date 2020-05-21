@@ -5,15 +5,15 @@ Navigation
 Laika's functionality for navigation can roughly be divided into four categories:
 
 * Features added on top of the native link syntax of supported markup formats, 
-  like validated @:ref(Validated Internal Links) or @:ref(Global Link Definitions).
+  like validated [Validated Internal Links] or [Global Link Definitions].
   
 * Link directives for individual links that provide non-standard shortcuts for convenience, 
-  like @:ref(Linking by Section Headline) or @:ref(Linking to API Documentation).
+  like [Linking by Section Headline] or [Linking to API Documentation].
 
 * Directives that produce larger navigation structures, 
-  like @:ref(Breadcrumbs) or @:ref(Generating Navigation Trees).
+  like [Breadcrumbs] or [Generating Navigation Trees].
 
-* If you want to create your own link shortcuts, you can create @:ref(Custom Link Directives).
+* If you want to create your own link shortcuts, you can create [Custom Link Directives].
 
 
 Validated Internal Links
@@ -38,7 +38,7 @@ TODO
 ```
 
 The paths do not have to be valid relative or absolute paths in the file system.
-You can always work within the @:ref(Virtual Path Abstraction). 
+You can always work within the [Virtual Path Abstraction]. 
 
 It means that a relative path like `../images/foo.jpg` can point to an `images` directory that
 has been merged into the input tree in the project's configuration, 
@@ -120,9 +120,8 @@ declaring the same link target in multiple files.
 Linking by Section Headline
 ---------------------------
 
-Laika includes a `@:ref` directive that serves as an alternative to the native linking syntax provided by the supported 
-text markup formats. 
-Instead of using relative or absolute paths, you can directly refer to another page or section by its headline.
+The native linking syntax provided by the supported text markup formats can be used to directly refer
+to a section by its headline.
 
 If you have the following headline in one of your documents:
 
@@ -131,41 +130,29 @@ Monkey Gone To Heaven
 ---------------------
 ```
 
-Then you can use this title as an attribute with the `@:ref` directive:
+Then you can use this title with standard link syntax:
 
 ```laika-md
-Here are the lyrics for @:ref(Monkey Gone To Heaven).
+Here are the lyrics for [Monkey Gone To Heaven].
 ```
 
-In the example above, the attribute of the `@:ref` directive will also become the link title.
+In the example above, the section headline will also become the link title.
 In cases where you want to use a link text that differs from the headline text,
-you can also use the `@:ref` directive within the text markup's native link syntax:
+you can also use the alternative syntax:
 
 ```laika-md
-You have to listen to this [song][@:ref(Monkey Gone To Heaven)].
+You have to listen to this [song][Monkey Gone To Heaven].
 ```
-
-
-### Using Directives vs. Native Links
-
-When choosing between the text markup's own syntax and Laika's directive options,
-it depends on which level of convenience you find more relevant.
-Native link syntax will get highlighting in your IDE and internal links will work when browsing files on GitHub.
-On the other hand, the native syntax will often be more verbose and browsing on GitHub might not be a major
-criterion either, if you expect users who consume the documentation to use the rendered site and users who
-work on the files to use their IDE. Therefore you might prefer the convenient shortcuts.
-
-Laika's own documentation uses the `@:ref` directive extensively.
 
 
 ### Resolving Ambiguity
 
-One convenient aspect of the `@:ref` directive is that the headline you refer to does not even have to be
+One convenient aspect of linking by section headline is that the headline you refer to does not even have to be
 globally unique within your input tree. 
 It will find the closest headline in the current scope.
 
 For example, if you have a structure where every chapter has a page titled "Introduction", 
-any other page within that chapter (directory) can refer to this page simply by using `@:ref(Introduction)`.
+any other page within that chapter (directory) can refer to this page simply by using `[Introduction]`.
 
 Even if the headline is not unique within the current scope, it will further disambiguate based on the level
 of the headline.
@@ -197,7 +184,7 @@ while keeping one base URI as a default for all packages that do not match any p
 TODO - for library + plugin
 ```
 
-In cases where this simple mechanism is not sufficient, you can always define @:ref(Custom Link Directives).
+In cases where this simple mechanism is not sufficient, you can always define [Custom Link Directives].
 
 
 Generating Navigation Trees
@@ -214,14 +201,14 @@ The next release (version 0.16) will introduce themes and come with a default th
 Until then you have to include your own templates that include navigation bars.
 The easiest way is to use the `@:navigationTree` directive described below. 
 
-For more details on templating, see @:ref(Creating Templates).
+For more details on templating, see [Creating Templates].
 
 
 ### EPUB & PDF
 
 Laika's E-book support automatically generates navigation elements for EPUB and PDF readers.
 These are not part of the templates for these output formats, therefore have to be configured separately
-as shown in @:ref(E-books (EPUB & PDF)).
+as shown in [E-Books (EPUB & PDF)].
 
 You can also additionally include a table of content in the rendered pages, by using the `@:navigationTree` 
 directive described below in the templates for EPUB and PDF.
@@ -344,7 +331,7 @@ from the root to the current document:
 
 [TODO image]
 
-This component works best in a directory structure that contains @:ref(Title Documents), as otherwise the
+This component works best in a directory structure that contains [Title Documents], as otherwise the
 segments which represent a directory level would have nowhere to link to and would render as plain text.
 
 
@@ -380,4 +367,4 @@ already cover most common scenarios.
 If you have very specific requirements you can always fall back to implementing your own directives.
 You can examine the implementation of Laika's default link directives as an example.
 
-For details see @:ref(Implementing Directives).
+For details see [Implementing Directives].

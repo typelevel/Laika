@@ -74,13 +74,13 @@ These are implementations of `ExtensionBundle`, too, and come bundled with the `
 
 Laika offers two major options for extending the native syntax of a text markup language:
 
-* @:ref(Implementing Directives) is an option that allows to quickly add custom functionality without 
+* [Implementing Directives] is an option that allows to quickly add custom functionality without 
   implementing a custom parser.
-  Laika comes bundled with a handful of directives which are documented in @:ref(Standard Directives).
+  Laika comes bundled with a handful of directives which are documented in [Standard Directives].
   
-* @:ref(Writing Parser Extensions) is the alternative for cases where you have special requirements for the syntax
+* [Writing Parser Extensions] is the alternative for cases where you have special requirements for the syntax
   so that the convenient path of writing a directive is not feasible.
-  In this case you also need to become familiar with @:ref(Laika's Parser Combinators).
+  In this case you also need to become familiar with [Laika's Parser Combinators].
 
 Technically directives hook into phase 2 of a transformation while parser extensions live in phase 1. 
 Parsing of directives is performed by Laika's built-in parsers as they all have a common syntax.
@@ -91,7 +91,7 @@ receiving all the attributes and body elements the user specified to produce a n
 ### Additional Syntax Highlighters
 
 Laika has its own built-in syntax highlighters (based on its parser combinators).
-See @:ref(Syntax Highlighting) for a list of languages supported out of the box.
+See [Syntax Highlighting] for a list of languages supported out of the box.
 
 If you want to use a language that is not supported yet, you can either decide to use an external tool like
 `highlight.js` for this task (Laika renders code elements with attributes compatible with that tool)
@@ -100,8 +100,8 @@ or write your own implementation for Laika's highlighters.
 If you look at the existing implementations, you'll notice that some of them are almost purely declarative,
 as the library provides a set of building blocks for parsing the most common literal formats or comments.
 
-But in most cases you'd also need to get familiar with @:ref(Laika's Parser Combinators).
-See @:ref(Adding Syntax Highlighters) for more details.
+But in most cases you'd also need to get familiar with [Laika's Parser Combinators].
+See [Adding Syntax Highlighters] for more details.
 
 
 ### Additional Markup or Output Formats
@@ -109,7 +109,7 @@ See @:ref(Adding Syntax Highlighters) for more details.
 Apart from extending or customizing existing markup or output formats, you can also add support for additional formats.
 If you want to support a different text markup language like ASCIIDoc or Textile, 
 or if you want to produce Word output or slide formats, 
-you can implement a `MarkupFormat` or `RenderFormat` as shown in @:ref(New Markup or Output Formats).
+you can implement a `MarkupFormat` or `RenderFormat` as shown in [New Markup or Output Formats].
 
 
 ### Customization Hooks
@@ -117,10 +117,10 @@ you can implement a `MarkupFormat` or `RenderFormat` as shown in @:ref(New Marku
 Two of the most commonly used hooks in the `ExtensionBundle` API are described in the 
 "Customizing Laika" section of the manual:
 
-* @:ref(AST Rewriting), a hook into phase 2 that allows to replace or remove nodes from the AST model 
+* [AST Rewriting], a hook into phase 2 that allows to replace or remove nodes from the AST model 
   between parsing and rendering.
  
-* @:ref(Overriding Renderers), a hook into phase 4 that allows to override the rendered output for specific
+* [Overriding Renderers], a hook into phase 4 that allows to override the rendered output for specific
   AST nodes.
 
 There are two further hooks that drive more low-level functionality:

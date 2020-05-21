@@ -41,10 +41,10 @@ This default can be overridden with:
 sourceDirectories in Laika := Seq(target.value / "somewhere-else")
 ```
 
-You can provide multiple input directories which will be merged into Laika's @:ref(Virtual Tree Abstraction).
+You can provide multiple input directories which will be merged into Laika's [Virtual Tree Abstraction].
 
 Laika does not have any special directories and content can be nested in sub-directories down to arbitrary levels.
-For more details on how to organize content, see @:ref(Directory Structure).
+For more details on how to organize content, see [Directory Structure].
 
 The plugin distinguishes between the following file types:
 
@@ -52,7 +52,7 @@ The plugin distinguishes between the following file types:
   to the target in the same directory structure and with the same file names apart from the suffix,
   which will be replaced depending on the output format (e.g. `.html`).
 * **Configuration Files**: Each directory can contain an optional `directory.conf` file for specifying
-  things like navigation order or chapter title. See @:ref(TODO) for details.
+  things like navigation order or chapter title. See [TODO] for details.
 * **Template Files**: You can provide a default template per directory with the name `default.template.<suffix>`
   with the suffix matching the output format (e.g. `.html`). They will also be applied to sub-directories, unless
   overridden. You can also add additional templates with the name pattern `*.template.<suffix>`, which will only
@@ -108,7 +108,7 @@ artifactPath in laikaEPUB := target.value / "my-docs.epub"
 artifactPath in laikaPDF  := target.value / "my-docs.pdf"
 ```
 
-For other e-book configuration options like navigation structures and cover images see @:ref(E-Books (EPUB & PDF)).
+For other e-book configuration options like navigation structures and cover images see [E-Books (EPUB & PDF)].
 
 
 ### Including Scaladoc
@@ -153,21 +153,21 @@ The remaining configuration options are not specific to the plugin use case and 
 apart from differences in the syntax/mechanics which with they are applied, which are reflected in the corresponding code examples.
 For this reason this section only gives a very brief overview while linking to the relevant sections in the other chapters.
 
-- **@:ref(Strict mode)**: Disables all non-standard extensions Laika adds to the supported markup formats, like directives.
+- [Strict mode]: Disables all non-standard extensions Laika adds to the supported markup formats, like directives.
 
-- **@:ref(Raw Content)**: Enables the inclusion of raw sections of the target format in markup files, 
+- [Raw Content]: Enables the inclusion of raw sections of the target format in markup files, 
   e.g. snippets of verbatim HTML embedded in Markdown files. By default this is disabled.
 
-- **@:ref(Character Encoding)**: Sets the character encoding of input and output files, the default is UTF-8.
+- [Character Encoding]: Sets the character encoding of input and output files, the default is UTF-8.
 
-- **@:ref(Error Handling & Debugging)**: Specify log levels or switch to "visual debugging", where recoverable errors are
+- [Error Handling & Debugging]: Specify log levels or switch to "visual debugging", where recoverable errors are
   rendered in the page context where they occur instead of causing the transformation to fail.
 
-- **laikaExtensions Setting**: Use Laika's customization options to override renderers for specific AST nodes (@:ref(Overriding Renderers)),
-  transform the document AST before rendering (@:ref(AST Rewriting)), install custom directives (@:ref(Implementing Directives))
-  or use some of the lower level hooks in (@:ref(The ExtensionBundle API)).
+- **laikaExtensions Setting**: Use Laika's customization options to override renderers for specific AST nodes ([Overriding Renderers]),
+  transform the document AST before rendering ([AST Rewriting]), install custom directives ([Implementing Directives])
+  or use some of the lower level hooks in ([The ExtensionBundle API]).
 
 - **TODO laikaConfig Setting**: 
 
-- **@:ref(Inspecting Laika's Configuration)**: Run `show laikaDescribe` to get a formatted summary of the active configuration,
+- [Inspecting Laika's Configuration]: Run `show laikaDescribe` to get a formatted summary of the active configuration,
   installed extension bundles and lists of input and output files.

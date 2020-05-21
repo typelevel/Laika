@@ -51,7 +51,7 @@ At the top of the hierarchy the AST contains the following node types:
   It is similar to a `display: inline` element in HTML.
 
 * A `ListItem` can only occur as a child of a `ListContainer`.
-  See @:ref(Lists) below for a list of available list types.
+  See [Lists] below for a list of available list types.
 
 * While most other node types represent content parsed from text markup,
   a `TemplateSpan` represents a portion of a parsed template.
@@ -65,7 +65,7 @@ Most element types in the AST are containers.
   It has a single property `content: T`.
 
 * `TextContainer` is a simple `Container[String]`, a leaf node of the AST.
-  See @:ref(Text Containers) below for a list of concrete types.
+  See [Text Containers] below for a list of concrete types.
 
 * `ElementContainer[+E <: Element]` is a `Container[Seq[E]]`. 
   It is the base trait for all containers which hold other AST nodes.
@@ -78,13 +78,13 @@ Most element types in the AST are containers.
   It has a single abstract method `rewriteChildren (rules: RewriteRules): Self`.
 
 * `BlockContainer` is an `ElementContainer[Block]` and a `RewritableContainer`.
-  See @:ref(Block Containers) below for a list of concrete types.
+  See [Block Containers] below for a list of concrete types.
 
 * `SpanContainer` is an `ElementContainer[Span]` and a `RewritableContainer`.
-  See @:ref(Span Containers) below for a list of concrete types.
+  See [Span Containers] below for a list of concrete types.
 
 * `ListContainer` is an `ElementContainer[ListItem]` and a `RewritableContainer`.
-  See @:ref(Lists) below for a list of concrete types.
+  See [Lists] below for a list of concrete types.
 
 
 ### Special Types
@@ -114,13 +114,13 @@ The first group of types are traits that can be mixed in to a concrete type:
   node.
   It's useful for scenarios where producing the final node requires access to the configuration or other documents,
   which is not possible during the parsing phase.
-  See @:ref(Cursors) below and the chapter on @:ref(AST Rewriting) for more details.
+  See [Cursors] below and the chapter on [AST Rewriting] for more details.
 
 Finally there is a group of concrete types with special behaviour:
 
 * `DocumentFragment` holds a named body element that is not supposed to be rendered with the main content.
   It may be used for populating template elements like sidebars and footers.
-  See @:ref(Document Fragments) for details.
+  See [Document Fragments] for details.
 
 * `TargetFormat` holds content that should only be included for the specified target formats.
   All other renderers are supposed to ignore this node.
@@ -139,7 +139,7 @@ Container Elements
 
 Since the document AST is a recursive structure most elements are either a container of other elements
 or a `TextContainer`. 
-The few that are neither are listed in @:ref(Other Elements).
+The few that are neither are listed in [Other Elements].
 
 The following lists describe the majority of the available types, only leaving out some of the more exotic options.
 
@@ -194,7 +194,8 @@ whereas the latter still need to be resolved based on the surrounding content or
 `Reference` nodes only appear in the AST before the AST transformation step, 
 where they will be either translated to a corresponding `Link` node or an `Invalid` node in case of errors.
 
-For details on this functionality from a markup author's perspective, see @:ref(Navigation). 
+For details on this functionality from a markup author's perspective, see [Navigation]. 
+
 
 Fully resolved `Link` nodes:
 
@@ -203,19 +204,15 @@ Fully resolved `Link` nodes:
 * `FootnoteLink` is a link to a footnote in the same document.
   The link text here is usually just a label or number, e.g. `[4]`.
 
-`Reference` nodes that become a `SpanLink` after being successfully resolved:
 
-* `InternalReference` refers to a different document or section by a relative path.
+`Reference` nodes that need to be resolved during AST rewriting:
 
-* `LinkDefinitionReference` refers to a URL defined elsewhere by id.
+* `PathReference` refers to a different document or section by a relative path, resolves to `SpanLink`.
 
-* `GenericReference` a combination of the previous two, if it cannot resolve as a link definition id,
-  it tries to interpret the id as a section id. 
-  This node type is used for the "link-by-headline-text" feature.
+* `LinkIdReference` refers either to the id of a URL defined elsewhere or directly to a section-id,
+  resolves to `SpanLink`.
 
-Other `Reference` nodes:
-
-* `ImageDefinitionReference` refers to an image URL defined elsewhere by id, resolves to `Image`.
+* `ImageIdReference` refers to the id of an image URL defined elsewhere, resolves to `Image`.
 
 * `FootnoteReference` refers to a footnote in the same document, resolves to `FootnoteLink`.
   Supports special label functionality like auto-numbering.
@@ -267,7 +264,7 @@ This section lists the block and span elements that are not containers and the s
 
 ### Block Elements
 
-Most block elements are either @:ref(SpanContainers) or @:ref(BlockContainers), but a few are neither:
+Most block elements are either [SpanContainers] or [BlockContainers], but a few are neither:
 
 * The `Table` element represents a table structure with the help of its related types 
   `Row`, `Cell`, `TableHead`, `TableBody`, `Caption` and `Columns`.
@@ -291,7 +288,7 @@ Most block elements are either @:ref(SpanContainers) or @:ref(BlockContainers), 
 
 ### Span Elements
 
-Most span elements are either @:ref(SpanContainers) or @:ref(TextContainers), but a few are neither:
+Most span elements are either [SpanContainers] or [TextContainers], but a few are neither:
 
 * The `Image` element is a `Span` element that points to an image resource which may be internal or external.
   It supports optional size and title attributes.
@@ -366,19 +363,19 @@ case class Document (
 
 * The `path` property holds the absolute, virtual path of the document inside the tree.
   It is virtual as no content in Laika has to originate from the file system.
-  See @:ref(Virtual Path Abstraction) for details.
+  See [Virtual Path Abstraction] for details.
   
 * The `content` property holds the parsed content of the markup document.
-  Its type `RootElement` is one of the types listed under @:ref(Block Containers) above.
+  Its type `RootElement` is one of the types listed under [Block Containers] above.
   
 * The `fragment` property holds a map of fragments, which are named body elements that are not supposed
   to be rendered with the main content.
   It may be used for populating template elements like sidebars and footers.
-  See @:ref(Document Fragments) for details.
+  See [Document Fragments] for details.
   
 * The `config` property holds the configuration parsed from an optional HOCON header in the markup document.
   It is an empty instance if there is no such header.
-  See @:ref(Laika's HOCON API) for details.
+  See [Laika's HOCON API] for details.
 
 * The `position` property represents the position of the document in a tree.
   It can be used for functionality like auto-numbering.
@@ -419,17 +416,17 @@ case class DocumentTree (
   A tree often represents a logical structure like a chapter.
   It is used as a section headline in auto-generated site navigation 
   as well as the first content of this tree in linearized e-book output (EPUB or PDF).
-  See @:ref(Title Documents) for details.
+  See [Title Documents] for details.
   
 * The `templates` property holds the AST of all templates parsed inside this tree
   (excluding templates from child trees).
-  The AST nodes it can hold are described in @:ref(Template Spans) above.
-  See @:ref(Creating Templates) for more details on the template engine.
+  The AST nodes it can hold are described in [Template Spans] above.
+  See [Creating Templates] for more details on the template engine.
   
 * The `config` property holds the configuration parsed from an optional HOCON document named `directory.conf`.
   It is an empty instance if there is no file.
   It can also be populated programmatically in cases where the content is generated and not loaded from the file system.
-  See @:ref(Laika's HOCON API) for details.
+  See [Laika's HOCON API] for details.
 
 * The `position` property represents the position of the document in a tree.
   It can be used for functionality like auto-numbering.
@@ -458,8 +455,8 @@ The `Cursor` type provides this access, but in contrast to the recursive `Docume
 structure, it represents the tree from the perspective of the current document, with methods to navigate to
 parents, siblings or the root tree.
 
-An instance of `DocumentCursor` is passed to rewrite rules for AST transformations (see @:ref(AST Rewriting), 
-and to directive implementations that request access to it (see @:ref(Implementing Directives)).
+An instance of `DocumentCursor` is passed to rewrite rules for AST transformations (see [AST Rewriting], 
+and to directive implementations that request access to it (see [Implementing Directives]).
 
 Let's look at some of its properties:
 
@@ -493,7 +490,7 @@ In most transformations the AST moves through three different phases between par
    These transformations are defined in rewrite rules.
    The library contains a basic set of rules internally for linking and navigation,
    but users can provide additional, custom rules.
-   See @:ref(AST Rewriting) for details.
+   See [AST Rewriting] for details.
    
 3) Finally the resolved AST representing the markup document is applied to the AST of the template.
    It is merely the insertion of one AST at a particular node in another AST.

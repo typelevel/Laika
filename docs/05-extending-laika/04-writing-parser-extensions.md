@@ -49,12 +49,12 @@ Prerequisites
 The content of this chapter builds on top of concepts introduced in other chapters,
 therefore reading those first might help with following through the examples.
 
-First, all parsers build on top of @:ref(Laika's Parser Combinators).
+First, all parsers build on top of [Laika's Parser Combinators].
 Having its own implementation helps with keeping all functionality tightly integrated and adding
 some optimizations useful for the specific use case of markup parsing right into the base parsers.
 
 Second, since the parsers we discuss in this chapter all produce AST nodes, 
-it might help to get familiar with @:ref(The Document AST) first.
+it might help to get familiar with [The Document AST] first.
 
 
 Span Parsers
@@ -91,7 +91,7 @@ val ticketParser: PrefixedParser[Span] =
   The `someOf` parser covers this as it means "one or more of the specified characters".
 * We combine the two parsers with `~>` which means: 
   "concatenate the two parsers, but only keep the result of the right one".
-  See @:ref(Laika's Parser Combinators) for details.
+  See [Laika's Parser Combinators] for details.
 * We map the result and create a `SpanLink` node (which implements `Span`).
   We use the literal input as the link text and then build the URL as an external target.
   
@@ -291,7 +291,7 @@ val quotedBlockParser = BlockParser.recursive { recParsers =>
   
 * We then create the parser for the text block based on these predicates. 
   `BlockParsers.block` is a shortcut that will parse lines until a line does not meet the predicate.
-  The result is `List[String]`. See @:ref(Base Parsers for Block Elements) below for details about this method. 
+  The result is `List[String]`. See [Base Parsers for Block Elements] below for details about this method. 
   
 * Finally we use the recursive parsers we got injected.
   The call to `recursiveBlocks` "lifts" the specified `Parser[List[String]]` to a `Parser[List[Block]]`

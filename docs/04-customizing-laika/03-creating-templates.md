@@ -16,7 +16,7 @@ adding custom templates will give you additional flexibility in controlling the 
 A template lets you specify where the content from text markup documents gets inserted
 and allows to add additional dynamic elements like navigation bars. 
 It does not give control over how individual AST nodes from the markup document get rendered.
-For customizing this aspect, see @:ref(Overriding Renderers). 
+For customizing this aspect, see [Overriding Renderers]. 
 
 
 Document Names and Locations
@@ -93,13 +93,13 @@ The following, minimal example shows a template for HTML output:
 Apart from raw content in the target format HTML, it contains:
 
 * A substitution variable that inserts the title (`${cursor.currentDocument.title}`).
-  See @:ref(Substitution Variables) for details.
+  See [Substitution Variables] for details.
   
 * Another substitution variable that inserts the content of the markup document (`${cursor.currentDocument.content}`).
-  See @:ref(Inserting Content) for details.
+  See [Inserting Content] for details.
 
 * A directive `@:navigationTree` for rendering a navigation tree from the root (`"/"`) of the input tree.
-  See @:ref(Directives) for details.
+  See [Directives] for details.
 
 
 Inserting Content from Markup Documents
@@ -117,7 +117,7 @@ the main body of the associated text markup document to be rendered in that posi
 The main body is the entire content of the markup document except for regions marked as fragments.
 
 The internal mechanics of this insertion, which is technically just a merging of two ASTs,
-is described in more detail in @:ref(Internal Representation).
+is described in more detail in [Internal Representation].
 
 
 ### Document Fragments
@@ -177,7 +177,7 @@ If an optional reference points to an undefined value, the reference in the temp
 
 [TODO - example for user-defined variables coming from programmatic config]
 
-For a full list of predefined values see @:ref(Substitution Variables) in the Reference section.
+For a full list of predefined values see [Substitution Variables] in the Reference section.
 
 
 Directives
@@ -192,7 +192,7 @@ A directive always starts with an `@:`, the name of the directive and optionally
 * Named attributes in HOCON format can follow between `{` and `}` and can be any valid HOCON structure,
   e.g. `@:navigationTree { entries = [{ target = "/" }] }`.
 * Body elements is regular markup or template content immediately after the directive declaration until
-  a `@:@` fence, as shown in the example in @:ref(Document Fragments). 
+  a `@:@` fence, as shown in the example in [Document Fragments]. 
   The AST for these parsed body elements will be passed to the directive implementation for processing. 
 * Positional and named attribute can theoretically both appear in the same directive, 
   but is usually avoided for sakes of clarity and simplicity.
@@ -203,9 +203,9 @@ should they be missing.
 The most relevant directives for templates are those for generating navigation elements, 
 like `@:navigationTree` or `@:breadcrumb`. [TODO - links]
  
-For a full reference of the directives provided by Laika out of the box, see @:ref(Standard Directives).
+For a full reference of the directives provided by Laika out of the box, see [Standard Directives].
 
-For instructions on how to write your own, see @:ref(Implementing Directives).
+For instructions on how to write your own, see [Implementing Directives].
 
 
 Internal Representation

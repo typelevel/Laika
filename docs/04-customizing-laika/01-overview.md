@@ -50,19 +50,19 @@ Customization Options
 The hooks that are the most likely candidates of helping you with smaller tweaks to a transformation are the
 following:
 
-* @:ref(Creating Templates): Hooks into phase 3 described above. 
+* [Creating Templates]: Hooks into phase 3 described above. 
   A template lets you specify where the content from text markup documents gets inserted
   and allows to add additional dynamic elements like navigation bars. 
 
-* @:ref(AST Rewriting): Hooks into phase 2 described above.
+* [AST Rewriting]: Hooks into phase 2 described above.
   The advantage of using this hook over tweaking renderers is that changes made to the AST are always
   reflected in all rendered output formats. 
   So if your custom logic is not specific to the output format, you should prefer this option.
   Writing a custom rewrite rule requires pattern matching on the AST node you are interested in,
-  therefore, you may also want to read about @:ref(The Document AST).
+  therefore, you may also want to read about [The Document AST].
   
-* @:ref(Overriding Renderers): Hooks into phase 4 described above.
+* [Overriding Renderers]: Hooks into phase 4 described above.
   It allows you to override the default renderer for one or more specific AST node types, 
   while falling back to the built-in renderers for all others.
   Overriding renderers also requires pattern matching on the AST node you are interested in,
-  therefore, you may also want to read about @:ref(The Document AST).
+  therefore, you may also want to read about [The Document AST].

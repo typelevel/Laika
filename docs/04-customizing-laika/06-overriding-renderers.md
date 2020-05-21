@@ -9,7 +9,7 @@ without modifying or extending the existing renderer.
 
 In general this processing hook is intended for cases where the customization you intend to do is coupled
 to a specific output format. 
-For any more generic processing logic, it is recommended to consider @:ref(AST Rewriting) instead,
+For any more generic processing logic, it is recommended to consider [AST Rewriting] instead,
 as that hook allows to replace or remove individual nodes in the AST before rendering.
 This way the same logic can be used for all supported output formats.
 

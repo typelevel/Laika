@@ -115,7 +115,7 @@ For `highlight.js` Laika already provides this kind of blocker, in that it adds 
 to all code blocks it has already analyzed itself.
 
 If you are using different tools you might need to customize the rendering of the `CodeBlock` AST element.
-For details see @:ref(Overriding Renderers).
+For details see [Overriding Renderers].
 
 
 Adding Your Own Highlighters

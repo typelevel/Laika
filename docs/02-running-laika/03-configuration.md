@@ -28,12 +28,12 @@ only standard markup features are exposed to users.
 
 Markup extensions enabled by default are:
 
-* Custom Directives - either the built-in @:ref(Standard Directives) 
-  or user-defined as shown in @:ref(Implementing Directives).
+* Custom Directives - either the built-in [Standard Directives] 
+  or user-defined as shown in [Implementing Directives].
 
 * Support for HOCON configuration headers in markup files.
 
-* Support for @:ref(Substitution Variables) in markup in the form of `${some.key}`.
+* Support for [Substitution Variables] in markup in the form of `${some.key}`.
 
 To disable all these extensions you can use the `strict` flag:
 
@@ -83,27 +83,27 @@ TODO
 Navigation
 ----------
 
-These features have their dedicated @:ref(Navigation) chapter, including configuration examples,
+These features have their dedicated [Navigation] chapter, including configuration examples,
 therefore we'll just give a brief overview of available configuration options here and link to the relevant sections.
 
-* @:ref(Global Link Definitions) help to avoid repetition by mapping URLs to an id in configuration and making
+* [Global Link Definitions] help to avoid repetition by mapping URLs to an id in configuration and making
   them available for use with "native" markup link syntax (e.g. `link to [my-globally-defined-id]` in Markdown).
 
-* @:ref(Linking to API Documentation) describes the `@:api` shortcut for defining links to API documentation,
+* [Linking to API Documentation] describes the `@:api` shortcut for defining links to API documentation,
   which requires setting the relevant base URLs in the configuration.
   
-* @:ref(Disabling Validation) is a configuration option for excluding some directories/paths from
+* [Disabling Validation] is a configuration option for excluding some directories/paths from
   validation, e.g. in cases where you know that a directory will be populated by some external tool.
   In its default setup, a Laika transformation fails when an internal link points to a document that does
   not exist in the input directory.
 
 * E-books (EPUB or PDF) have additional configuration options for navigation:
 
-    * @:ref(Book Navigation) allows to specify the depth of the auto-generated navigation.
+    * [Book Navigation] allows to specify the depth of the auto-generated navigation.
     
-    * The location of @:ref(Cover Images) can be configured, too.
+    * The location of [Cover Images] can be configured, too.
     
-    * And @:ref(Document Metadata) can be specified so that it will be converted to a format
+    * And [Document Metadata] can be specified so that it will be converted to a format
       compatible with the corresponding readers.
 
 
@@ -213,7 +213,7 @@ This is an example for defining two variables globally:
 TODO
 ```
 
-These values can then be accessed via @:ref(Substitution Variables) in templates or in markup files:
+These values can then be accessed via [Substitution Variables] in templates or in markup files:
 
 ```laika-md
 TODO

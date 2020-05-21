@@ -135,7 +135,7 @@ val transformer = Transformer
 ```
 
 In addition to specifying markup and output formats and extensions, there are many other customization options in the builder
-step immediately before calling `build`. They are identical for the pure and IO parser and are summarized in the @:ref(Configuration) section.
+step immediately before calling `build`. They are identical for the pure and IO parser and are summarized in the [Configuration] section.
 
 Finally you can use the transformer with text markup as input:
 
@@ -150,7 +150,7 @@ Setup for Effectful Transformations
 -----------------------------------
 
 In case you want to go beyond pure string transformations, 
-you need to switch your dependency to the `laika-io` module as shown in the @:ref(Dependencies) section.
+you need to switch your dependency to the `laika-io` module as shown in the [Dependencies] section.
 
 This module depends on cats-effect, and models all side effects in an abstract effect,
 so that you can use it with cats IO, Monix or Zio.
@@ -164,8 +164,8 @@ import laika.io.implicits._
 
 ```
 
-The remainder of the setup depends on whether you are @:ref(Using cats.IO, Monix or Zio)
-or whether you build @:ref(Applications without Effect Library).
+The remainder of the setup depends on whether you are [Using cats.IO, Monix or Zio]
+or whether you build [Applications without Effect Library].
 
 
 ### Using cats.IO, Monix or Zio
@@ -373,13 +373,13 @@ val res: IO[RenderedTreeRoot[IO]] = transformer
 ```
 
 This adds some additional flexibility, as it allows, for example, to keep reusable styles and templates separately.
-This flexibility is possible as Laika is not tied to the file system, but instead provides a @:ref(Virtual Tree Abstraction).
+This flexibility is possible as Laika is not tied to the file system, but instead provides a [Virtual Tree Abstraction].
 
 
 ### Preparing Content
 
 Laika does not have any special directories and content can be nested in sub-directories down to arbitrary levels.
-For more details on how to organize content, see @:ref(Directory Structure).
+For more details on how to organize content, see [Directory Structure].
 
 Transformers and Parsers distinguish between the following file types:
 
@@ -387,7 +387,7 @@ Transformers and Parsers distinguish between the following file types:
   will be parsed and rendered to the target in the same directory structure and with the same file names apart from the suffix,
   which will be replaced depending on the output format (e.g. `.html`).
 * **Configuration Files**: Each directory can contain an optional `directory.conf` file for specifying
-  things like navigation order or chapter title. See @:ref([TODO]) for details.
+  things like navigation order or chapter title. See [[TODO]] for details.
 * **Template Files**: You can provide a default template per directory with the name `default.template.<suffix>`
   with the suffix matching the output format (e.g. `.html`). 
   They will also be applied to sub-directories, unless overridden. 
@@ -458,7 +458,7 @@ We are using cats' `parMapN` here to run the three renderers in parallel.
 
 The `tree` instance passed to all renderers is of type `DocumentTreeRoot`. 
 If necessary you can use its API to inspect or transform the tree before rendering.
-See @:ref(The Document AST) for details.
+See [The Document AST] for details.
 
 The sample code in this scenario showed the parallel-effectful variant of the `Parser` and `Renderer` types,
 but just as the `Transformer` they exist in the other two flavors as well: sequential-effectful and pure.
@@ -476,21 +476,21 @@ Most oof these configuration options are not specific to the library API use cas
 apart from differences in the syntax/mechanics which with they are applied, which are reflected in the corresponding code examples.
 For this reason this section only gives a very brief overview while linking to the relevant sections in the other chapters.
 
-- **@:ref(Strict mode)**: Disables all non-standard extensions Laika adds to the supported markup formats, like directives.
+- [Strict mode]: Disables all non-standard extensions Laika adds to the supported markup formats, like directives.
 
-- **@:ref(Raw Content)**: Enables the inclusion of raw sections of the target format in markup files, 
+- [Raw Content]: Enables the inclusion of raw sections of the target format in markup files, 
   e.g. snippets of verbatim HTML embedded in Markdown files. By default this is disabled.
 
-- **@:ref(Character Encoding)**: Sets the character encoding of input and output files, the default is UTF-8.
+- [Character Encoding]: Sets the character encoding of input and output files, the default is UTF-8.
 
-- **@:ref(Error Handling & Debugging)**: Specify log levels or switch to "visual debugging", where recoverable errors are
+- [Error Handling & Debugging]: Specify log levels or switch to "visual debugging", where recoverable errors are
   rendered in the page context where they occur instead of causing the transformation to fail.
 
-- **Laika Extensions**: Use the library's customization options to override renderers for specific AST nodes (@:ref(Overriding Renderers)),
-  transform the document AST before rendering (@:ref(AST Rewriting)), install custom directives (@:ref(Implementing Directives))
-  or use some of the lower level hooks in (@:ref(The ExtensionBundle API)).
+- **Laika Extensions**: Use the library's customization options to override renderers for specific AST nodes ([Overriding Renderers]),
+  transform the document AST before rendering ([AST Rewriting]), install custom directives ([Implementing Directives])
+  or use some of the lower level hooks in ([The ExtensionBundle API]).
 
-- **[TODO] Other Configuration Options**: 
+- [TODO] Other Configuration Options**: 
 
-- **@:ref(Inspecting Laika's Configuration)**: Run the `describe` method on the IO-based transformers, parsers and renderers 
+- [Inspecting Laika's Configuration]: Run the `describe` method on the IO-based transformers, parsers and renderers 
   to get a formatted summary of the active configuration, installed extension bundles and lists of input and output files.
