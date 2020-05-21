@@ -260,14 +260,14 @@ class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => Str
         fmt.forMessage(e.message)(fmt.child(e.message) + " ") + fmt.child(e.fallback)
     }
 
-    def renderSystemMessage (message: RuntimeMessage): String = {
+    def renderRuntimeMessage (message: RuntimeMessage): String = {
       fmt.forMessage(message) {
-        fmt.textElement("span", message.options + Style.systemMessage + Styles(message.level.toString.toLowerCase), message.content)
+        fmt.textElement("span", message.options + Style.runtimeMessage + Styles(message.level.toString.toLowerCase), message.content)
       }
     }
 
     element match {
-      case e: RuntimeMessage         => renderSystemMessage(e)
+      case e: RuntimeMessage        => renderRuntimeMessage(e)
       case e: Table                 => renderTable(e)
       case e: TableElement          => renderTableElement(e)
       case e: Reference             => renderUnresolvedReference(e)

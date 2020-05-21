@@ -736,7 +736,7 @@ class XSLFORendererSpec extends AnyFlatSpec
     render (elem) should be (fo)
   }
 
-  it should "render a system message" in {
+  it should "render a runtime message" in {
     val fo = """<fo:inline background-color="#ffff33" color="white">some message</fo:inline>"""
     render (RuntimeMessage(MessageLevel.Warning, "some message"), MessageFilter.Warning) should be (fo)
   }
@@ -745,19 +745,19 @@ class XSLFORendererSpec extends AnyFlatSpec
     render (Comment("foo")) should be ("<!-- foo -->")
   }
 
-  it should "render an invalid block without the system message in default mode" in {
+  it should "render an invalid block without the runtime message in default mode" in {
     val elem = InvalidBlock(RuntimeMessage(MessageLevel.Warning, "some message"), p("fallback"))
     val fo = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">fallback</fo:block>"""
     render (elem) should be (fo)
   }
 
-  it should "render an invalid block without the system message if the configured message level is higher" in {
+  it should "render an invalid block without the runtime message if the configured message level is higher" in {
     val elem = InvalidBlock(RuntimeMessage(MessageLevel.Warning, "some message"), p("fallback"))
     val fo = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">fallback</fo:block>"""
     render (elem, MessageFilter.Error) should be (fo)
   }
 
-  it should "render an invalid block with the system message if the configured message level is lower or equal" in {
+  it should "render an invalid block with the runtime message if the configured message level is lower or equal" in {
     val elem = InvalidBlock(RuntimeMessage(MessageLevel.Warning, "some message"), p("fallback"))
     val fo = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">""" +
       """<fo:inline background-color="#ffff33" color="white">some message</fo:inline>""" +
@@ -765,17 +765,17 @@ class XSLFORendererSpec extends AnyFlatSpec
     render (elem, MessageFilter.Info) should be (fo)
   }
 
-  it should "render an invalid span without the system message in default mode" in {
+  it should "render an invalid span without the runtime message in default mode" in {
     val elem = InvalidSpan(RuntimeMessage(MessageLevel.Warning, "some message"), Text("fallback"))
     render (elem) should be ("fallback")
   }
 
-  it should "render an invalid span without the system message if the configured message level is higher" in {
+  it should "render an invalid span without the runtime message if the configured message level is higher" in {
     val elem = InvalidSpan(RuntimeMessage(MessageLevel.Warning, "some message"), Text("fallback"))
     render (elem, MessageFilter.Error) should be ("fallback")
   }
 
-  it should "render an invalid span with the system message if the configured message level is lower or equal" in {
+  it should "render an invalid span with the runtime message if the configured message level is lower or equal" in {
     val elem = InvalidSpan(RuntimeMessage(MessageLevel.Warning, "some message"), Text("fallback"))
     val fo = """<fo:inline background-color="#ffff33" color="white">some message</fo:inline> fallback"""
     render (elem, MessageFilter.Info) should be (fo)

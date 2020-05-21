@@ -134,10 +134,9 @@ trait Unresolved extends Element {
   def unresolvedMessage: String
 }
 
-/** Represents an invalid element. Renderers
- *  can choose to either render the fallback
- *  or the system message or both.
- */
+/** Represents an invalid element. 
+  * Renderers can choose to either render the fallback or the runtime message or both.
+  */
 trait Invalid[+E <: Element] extends Element {
   def message: RuntimeMessage
   def fallback: E
@@ -147,8 +146,7 @@ trait Invalid[+E <: Element] extends Element {
  *
  *  A reference points to some other node in the document tree and needs
  *  to be resolved and replaced by a rewrite rule before rendering.
- *  Therefore none of the available renderers include logic for
- *  dealing with references.
+ *  Therefore none of the available renderers include logic for dealing with references.
  */
 trait Reference extends Span with Unresolved {
   type Self <: Reference
@@ -1318,7 +1316,7 @@ case class RuntimeMessage (level: MessageLevel, content: String, options: Option
   def withOptions (options: Options): RuntimeMessage = copy(options = options)
 }
 
-/** Signals the severity of a system message.
+/** Signals the severity of a runtime message.
  */
 sealed abstract class MessageLevel (private val level: Int) extends Ordered[MessageLevel] {
   def compare(that: MessageLevel): Int = level compare that.level
@@ -1385,7 +1383,7 @@ case class InvalidSpan (message: RuntimeMessage, fallback: Span, options: Option
   def withOptions (options: Options): InvalidSpan = copy(options = options)
 }
 
-/** Groups a block that could not be successfully parsed with a system message.
+/** Groups a block that could not be successfully parsed with a runtime message.
  *  Renderers may then choose to just render the fallback, the message or both.
  */
 case class InvalidBlock (message: RuntimeMessage, fallback: Block, options: Options = NoOpt) extends Block with Invalid[Block] {
@@ -1515,7 +1513,7 @@ object Style {
   val legend: Options = Styles("legend")
   val figure: Options = Styles("figure")
   
-  val systemMessage: Options = Styles("system-message")
+  val runtimeMessage: Options = Styles("runtime-message")
   val noHighlight: Options = Styles("nohighlight")
   
 }

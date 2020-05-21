@@ -57,14 +57,14 @@ object Logs {
     s"Rendering $render $format document${s(render)}, copying $copy static file${s(copy)} ..."
   }
 
-  /** Logs all system messages found in the specified document tree that
+  /** Logs all runtime messages found in the specified document tree that
     * have the given minimum log level.
     *
     * @param logger the logger to write to
-    * @param tree the document tree to extract system messages from
+    * @param tree the document tree to extract runtime messages from
     * @param filter the filter to apply to runtime messages to be included in the log
     */
-  def systemMessages (logger: Logger, tree: DocumentTreeRoot, filter: MessageFilter): Unit = {
+  def runtimeMessages (logger: Logger, tree: DocumentTreeRoot, filter: MessageFilter): Unit = {
 
     def logMessage (inv: Invalid[_], path: Path): Unit = {
       val source = inv.fallback match {

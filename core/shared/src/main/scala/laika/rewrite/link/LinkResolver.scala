@@ -32,7 +32,7 @@ import scala.annotation.tailrec
  *  with the corresponding resolved link elements, as well as the targets 
  *  themselves with nodes that contain their final ids. 
  * 
- *  In case of duplicate target ids or unresolvable references system messages
+ *  In case of duplicate target ids or unresolvable references runtime messages
  *  get inserted into the final document tree.
  * 
  *  @author Jens Halm

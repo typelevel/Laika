@@ -89,7 +89,7 @@ object Tasks {
 
       val tree = parser.fromInput(inputs).parse.unsafeRunSync()
 
-      Logs.systemMessages(streams.value.log, tree.root, userConfig.logMessages)
+      Logs.runtimeMessages(streams.value.log, tree.root, userConfig.logMessages)
 
       tree
     }
