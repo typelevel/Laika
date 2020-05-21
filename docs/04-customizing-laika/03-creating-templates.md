@@ -165,7 +165,7 @@ A mandatory reference can be inserted with the key of the variable enclosed betw
 ${cursor.currentDocument.title}
 ```
 
-If such a value is undefined, the transformation will fail (unless you tweaked the configuration for error handling). [TODO link]
+If such a value is undefined, the transformation will fail (unless you tweaked the configuration for [Error Handling]).
 
 An optional reference can be expressed by adding an additional `?` right before the variable key:
 
@@ -201,7 +201,7 @@ Some directive implementations require a set of mandatory attributes and may cau
 should they be missing.
 
 The most relevant directives for templates are those for generating navigation elements, 
-like `@:navigationTree` or `@:breadcrumb`. [TODO - links]
+like [The @:navigationTree Directive] or [The @:breadcrumb Directive].
  
 For a full reference of the directives provided by Laika out of the box, see [Standard Directives].
 

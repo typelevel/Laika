@@ -387,7 +387,7 @@ Transformers and Parsers distinguish between the following file types:
   will be parsed and rendered to the target in the same directory structure and with the same file names apart from the suffix,
   which will be replaced depending on the output format (e.g. `.html`).
 * **Configuration Files**: Each directory can contain an optional `directory.conf` file for specifying
-  things like navigation order or chapter title. See [[TODO]] for details.
+  things like navigation order or chapter title. See [Configuration Files] for details.
 * **Template Files**: You can provide a default template per directory with the name `default.template.<suffix>`
   with the suffix matching the output format (e.g. `.html`). 
   They will also be applied to sub-directories, unless overridden. 
@@ -490,7 +490,8 @@ For this reason this section only gives a very brief overview while linking to t
   transform the document AST before rendering ([AST Rewriting]), install custom directives ([Implementing Directives])
   or use some of the lower level hooks in ([The ExtensionBundle API]).
 
-- [TODO] Other Configuration Options**: 
+- **Basic Configuration Options**: Setting [Strict Mode], including [Raw Content], setting the [Character Encoding], 
+  controlling [Error Handling] and specifying [User-Defined Variables]. 
 
 - [Inspecting Laika's Configuration]: Run the `describe` method on the IO-based transformers, parsers and renderers 
   to get a formatted summary of the active configuration, installed extension bundles and lists of input and output files.

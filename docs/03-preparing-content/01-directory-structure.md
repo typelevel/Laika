@@ -33,9 +33,9 @@ Apart from standard markup syntax, markup files in Laika can also contain the fo
   The title is obtained from the first header element in the page unless overridden with the `laika.title` key
   in the configuration header.
 * Sections, determined by the hierarchy of headers coming after the title, 
-  with auto-assigned ids based on a pluggable slug builder. [TODO link]
+  with auto-assigned ids based on a pluggable slug builder. See [Customization Hooks] for details.
   Sections can be part of auto-generated navigation structures and can conveniently be linked to by header text
-  with "native" markup link syntax [TODO link]. 
+  with "native" markup link syntax [Linking by Section Headline]. 
 * Directives, which extend the text markup's functionality, either one of the built-in [Standard Directives]
   or your own, custom implementations.
 

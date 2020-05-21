@@ -84,7 +84,7 @@ We'll go through this line by line:
 
   The function will not be invoked at all in case of missing required parts or type conversion errors,
   instead an invalid node will inserted into the AST which will be handled 
-  depending on your error handling configuration [TODO - link]
+  depending on your [Error Handling] configuration.
   This makes it quite convenient for directive authors as it removes a lot of boilerplate.
   
   When the directive is valid, the parameters of the function will be of the type matching your spec,
@@ -239,7 +239,7 @@ error handling.
 The presence of such an element will by default cause the transformation to fail with the provided error message
 shown alongside any other errors encountered.
 But users can also switch to a "visual debugging" mode by rendering all errors in place. 
-See [TODO - link] for details. 
+See [Error Handling] for details. 
 
 With this change in place, the user can now provide the base URL in the builder of the `Transformer`:
 

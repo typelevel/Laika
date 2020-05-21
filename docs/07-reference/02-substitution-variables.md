@@ -16,7 +16,7 @@ A mandatory reference can be inserted with the key of the variable enclosed betw
 ${cursor.currentDocument.title}
 ```
 
-If such a value is undefined, the transformation will fail (unless you tweaked the configuration for error handling). [TODO link]
+If such a value is undefined, the transformation will fail (unless you tweaked the configuration for [Error Handling]).
 
 An optional reference can be expressed by adding an additional `?` right before the variable key:
 
@@ -98,9 +98,10 @@ This is a complete list of values exposed in the `cursor` namespace:
 These are usually not accessed in user templates and mostly intended for Laika's own internal processing, 
 but are nevertheless exposed like any other value in the configuration.
 
-* `laika.metadata`: holds the configured document metadata. [TODO - link]
+* `laika.metadata`: holds the [Document Metadata] specified in configuration.
 
-* `laika.links`: holds navigation configuration. [TODO - link]
+* `laika.links`: holds navigation configuration for [Global Link Definitions], [Links to API Documentation]
+  and [Disabling Validation].
 
 * `laika.autonumbering`: the configuration for auto-numbering documents and sections. 
   See [Auto-Numbering] for details.

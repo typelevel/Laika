@@ -160,7 +160,7 @@ error handling.
 The presence of such an element will by default cause the transformation to fail with the provided error message
 shown alongside any other errors encountered.
 But users can also switch to a "visual debugging" mode by rendering all errors in place. 
-See [TODO - link] for details. 
+See [Error Handling] for details. 
 
 The `options` property of our implementation is a mandatory property of each `Span` or `Block` element.
 Options are a generic hook that allows users to add an id or multiple styles to a node.
@@ -428,7 +428,7 @@ of the `PrefixedParser` trait.
 
 This restriction is necessary as inline parsers cause checks to be performed on each character.
 This is therefore the key hot spot for performance optimizations. 
-For details on this optimization see [TODO - link].
+For details see [Performance Optimizations] in the chapter about Laika's parser combinators.
 
 For block parsers this restriction is lifted, you can pass a regular `Parser[Block]` to the registration entry points.
 One reason is that optimizing block parsers is much less critical, 

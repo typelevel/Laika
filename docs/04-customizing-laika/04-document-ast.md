@@ -100,7 +100,8 @@ The first group of types are traits that can be mixed in to a concrete type:
 
 * `Invalid` is a node that has been inserted by a parser or an AST transformation rule to indicate a problem.
   Depending on the configuration the presence of such a node may either cause the transformation to fail,
-  or get rendered as part of the page content for visual debugging. [TODO - link]
+  or get rendered as part of the page content for visual debugging. 
+  See [Error Handling] for details on how these nodes drive rendering and error reporting.
   
 * `Fallback` is a node that holds an "alternative" node type representing the same content.
   When a parser or rewrite rule inserts a custom element type potentially not known by some renderers,
@@ -129,7 +130,8 @@ Finally there is a group of concrete types with special behaviour:
 
 * `RuntimeMessage` is a node type that contains a message associated with a level.
   The presence of any message with a level of `Error` or higher usually causes the transformation to fail,
-  unless you switched to visual debugging. [TODO - link]
+  unless you switched to visual debugging. 
+  See [Error Handling] for the relevant configuration options.
   Parser extensions, directives or rewrite rules that encounter errors can use this node type to report
   back on the issue in the exact location of the AST it occurred.
 
@@ -441,7 +443,7 @@ The `TreeStructure` mixin provides additional methods as shortcuts for selecting
   This is in contrast to the `content` property which selects documents and sub-trees on the current level.
  
 * The `runtimeMessage` method selects any `RuntimeMessage` matching the specified filter.
-  Useful for reporting errors and warnings in the parsed result, see [TODO - link]
+  Useful for reporting errors and warnings in the parsed result.
   
 
 Cursors

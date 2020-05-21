@@ -80,7 +80,7 @@ linearized in depth-first traversal and using your configured [Navigation Order]
 Laika will generate navigation elements compatible with e-book readers,
 as shown in the images below:
 
-[TODO - nav imp EPUB + PDF] 
+[TODO - image - nav EPUB + PDF] 
 
 The navigation depth is unlimited by default and will also include links to each section inside your documents.
 The depth to traverse can be changed via Laika's global configuration:
@@ -186,7 +186,6 @@ there are a few subtle differences:
 * All CSS attributes must also be valid XSL-FO attributes. 
   There is quite a big overlap, so you can use the familiar `font-family`, `font-weight`, `font-size`
   attributes as well as most of the border, padding and margin attributes.
-  [TODO - link to spec compliance]
   For an overview over the available attributes you can refer to the [Formatting Properties][fo-props] chapter
   in the XSL-FO specification.
   

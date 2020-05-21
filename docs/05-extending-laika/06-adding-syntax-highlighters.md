@@ -294,7 +294,7 @@ val styleTagParser: PrefixedParser[Seq[CodeSpan]] = {
 
 The key here is the third line.
 We define a region to parse with `delimitedBy("</style>")` which consumes text until it sees the specified
-end delimiter. [TODO - link to combinator page]
+end delimiter. See [Delimiters] for details.
 And we specify the syntax to switch to until we reach that delimiter, in this case the existing `CSSSyntax`
 
 The result (the `css` param) is of type `Seq[CodeSpan]`, containing the spans detected by the CSS highlighter.

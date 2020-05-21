@@ -137,4 +137,4 @@ laikaExtensions ++= Seq(
 )  
 ```
 
-[TODO - link to new chapter]
+See [Adding Syntax Highlighters] for details.

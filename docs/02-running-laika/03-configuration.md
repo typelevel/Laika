@@ -194,8 +194,8 @@ RootElement - Blocks: 1
 ```
 
 
-User-Defined Configuration
---------------------------
+User-Defined Variables
+----------------------
 
 Finally, the entire machinery for passing configuration around can be used by users, too.
 

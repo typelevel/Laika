@@ -35,7 +35,7 @@ Reading from Config Instances
 -----------------------------
 
 Once you obtained access to a `Config` instance, either through one of the objects listed above 
-or by [Creating a Config Instance] yourself, reading from it is quite straightforward. [TODO - ] 
+or by [Creating a Config Instance] yourself, reading from it is quite straightforward.
 You have to provide the key you want to read and the type you expect:
 
 ```scala
