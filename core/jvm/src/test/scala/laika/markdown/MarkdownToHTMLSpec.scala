@@ -58,7 +58,7 @@ class MarkdownToHTMLSpec extends AnyFlatSpec
       .from(Markdown).to(HTML)
       .strict.withRawContent
       .usingSpanRule {
-        case PathReference(content, relPath, _, title, opt) => Replace(SpanLink(content, renderPath(relPath), title, opt)) // We do not validate cross-links in these tests - TODO - 0.15 - might be obsolete with LinkConfig
+        case PathReference(content, relPath, _, title, opt) => Replace(SpanLink(content, renderPath(relPath), title, opt)) // We do not validate cross-links in these tests
       }
       .rendering {
         case (fmt, QuotedBlock(content, _, opt)) => fmt.indentedElement("blockquote", opt, content) // Markdown always writes p tags inside blockquotes

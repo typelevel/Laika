@@ -117,7 +117,7 @@ class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => Str
       def linkAttributes (target: Target, title: Option[String]): Seq[(String, String)] = {
         val href = target match {
           case InternalTarget(_, relPath) =>
-            // TODO - 0.15 - generalize suffix check
+            // TODO - 0.16 - generalize suffix check
             if (relPath.suffix.contains("md") || relPath.suffix.contains("rst")) fmt.internalLink(relPath)
             else relPath.toString
           case ExternalTarget(url) => url

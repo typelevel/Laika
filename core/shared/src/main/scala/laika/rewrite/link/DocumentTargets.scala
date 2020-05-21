@@ -152,7 +152,7 @@ case class DocumentTargets (document: Document, slugBuilder: String => String) {
       }
     }
     
-    val linkConfig = document.config.getOpt[LinkConfig].toOption.flatten.getOrElse(LinkConfig.empty) // TODO - 0.15 - error handling
+    val linkConfig = document.config.getOpt[LinkConfig].toOption.flatten.getOrElse(LinkConfig.empty) // TODO - 0.16 - error handling
     val targetsFromConfig = linkConfig.targets.map { defn =>
       linkDefinitionResolver(LinkDefinitionSelector(defn.id), defn.target)
     }
