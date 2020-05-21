@@ -62,9 +62,27 @@ object MyExtensions extends ExtensionBundle {
 
 Such a bundle can then be passed to the transformer:
 
+@:choices
+
+@:choice(sbt)
 ```scala
-TODO - plugin + library API
-``` 
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .using(GitHubFlavor)
+  .using(MyExtensions)
+  .build
+```
+
+@choice(library)
+```scala
+laikaExtensions := Seq(
+  GitHubFlavor,
+  MyExtensions
+)
+```
+
+@:@
 
 You've probably already seen examples for specifying `GitHubFlavor` or `SyntaxHighlighting` extensions in this way.
 These are implementations of `ExtensionBundle`, too, and come bundled with the `laika-core` module.

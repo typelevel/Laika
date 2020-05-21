@@ -120,9 +120,27 @@ of the host language for recursive parsing.
 
 Finally you can register your extension together with any built-in extensions you may use:
 
+@:choices
+
+@:choice(sbt)
 ```scala
-TODO - plugin + library
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .using(GitHubFlavor)
+  .using(TicketSyntax)
+  .build
 ```
+
+@choice(library)
+```scala
+laikaExtensions := Seq(
+  GitHubFlavor,
+  TicketSyntax
+)
+```
+
+@:@
 
 
 ### Access to Configuration
@@ -168,9 +186,25 @@ It's always best to have an empty default argument like in our example.
 
 With this change in place, the user can now provide the base URL in the builder of the `Transformer`:
 
+@:choices
+
+@:choice(sbt)
 ```scala
-TODO - plugin + library
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .using(GitHubFlavor)
+  .withConfigValue("ticket.baseURL", "https://example.com/issues")
+  .build
 ```
+
+@choice(library)
+```scala
+laikaConfig := LaikaConfig.defaults
+  .withConfigValue("ticket.baseURL", "https://example.com/issues")
+```
+
+@:@
 
 The original ticket parser then only needs to be adjusted to return our resolver instead:
 
@@ -189,7 +223,7 @@ The logic we implemented would also match on a link embedded in markup for examp
 In such a case we would not want the `#123` substring to be recognized as a ticket link.
 
 For this reason text markup languages usually define a set of rules which define how to detect markup boundaries.
-In reStructuredText these are defined in a very clear and strict way ([TODO - link]), 
+In reStructuredText these are defined in a very clear and strict way ([rst-markup-recognition-rules]), 
 while in Markdown the definition is somewhat more fuzzy.
 
 Laika's parser combinators come with convenient helpers to check conditions on preceding and following characters
@@ -215,6 +249,8 @@ The end of our span has no explicit delimiter, so we use a standalone `nextNot` 
 
 Checking that neither the preceding nor the following character is a letter or digit increases the likeliness
 we only match on constructs the user actually meant to be ticket references.
+
+[rst-markup-recognition-rules]: https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html#inline-markup-recognition-rules
 
 
 ### Recursive Parsing
@@ -319,9 +355,27 @@ object QuotedBlocks extends ExtensionBundle {
 
 Finally you can register your extension together with any built-in extensions you may use:
 
+@:choices
+
+@:choice(sbt)
 ```scala
-TODO - plugin + library
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .using(GitHubFlavor)
+  .using(QuotedBlocks)
+  .build
 ```
+
+@choice(library)
+```scala
+laikaExtensions := Seq(
+  GitHubFlavor,
+  QuotedBlocks
+)
+```
+
+@:@
 
 
 ### Base Parsers for Block Elements

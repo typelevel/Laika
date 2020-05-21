@@ -126,9 +126,25 @@ You can freely choose any key outside of these two namespaces.
 
 You can add arbitrary configuration values when building a `Parser`, `Renderer` or `Transformer`:
 
+@:choices
+
+@:choice(sbt)
 ```scala
-TODO - library + plugin
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .using(GitHubFlavor)
+  .withConfigValue("project.version", "2.4.6")
+  .build
 ```
+
+@choice(library)
+```scala
+laikaConfig := LaikaConfig.defaults
+  .withConfigValue("project.version", "2.4.6")
+```
+
+@:@
 
 You can refer to these values in templates and text markup:
 

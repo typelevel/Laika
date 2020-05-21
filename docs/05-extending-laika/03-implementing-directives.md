@@ -199,9 +199,27 @@ object MyDirectives extends DirectiveRegistry {
 
 Finally we need to register our registry together with any built-in extensions you may use:
 
+@:choices
+
+@:choice(sbt)
 ```scala
-TODO - plugin + library
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .using(GitHubFlavor)
+  .using(MyDirectives)
+  .build
 ```
+
+@choice(library)
+```scala
+laikaExtensions := Seq(
+  GitHubFlavor,
+  MyDirectives
+)
+```
+
+@:@
 
 We can now use our `ticket` directive in Markdown or reStructuredText files!
 
@@ -243,9 +261,26 @@ See [Error Handling] for details.
 
 With this change in place, the user can now provide the base URL in the builder of the `Transformer`:
 
+@:choices
+
+@:choice(sbt)
 ```scala
-TODO - plugin + library
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .using(GitHubFlavor)
+  .withConfigValue("ticket.baseURL", "https://example.com/issues")
+  .build
 ```
+
+@choice(library)
+```scala
+laikaConfig := LaikaConfig.defaults
+  .withConfigValue("ticket.baseURL", "https://example.com/issues")
+```
+
+@:@
+
 
 The registration steps are identical to the previous example.
 

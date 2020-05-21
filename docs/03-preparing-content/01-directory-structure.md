@@ -48,9 +48,29 @@ When rendering the name will change to `index.<suffix>`, e.g. `index.html`.
 
 These defaults have been chosen so that markup files appear below directory navigation on GitHub
 and rendered HTML files can serve as index pages. 
-The names can be overridden in Laika's global configuration:
+The names can be overridden in Laika's global configuration (you need to omit the suffix, as it'll work with all formats):
 
-[TODO]: sbt and library sample
+@:choices
+
+@:choice(sbt)
+```scala
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .using(GitHubFlavor)
+  .withConfigValue(LaikaKeys.titleDocuments.inputName, "title")
+  .withConfigValue(LaikaKeys.titleDocuments.outputName, "title")
+  .build
+```
+
+@choice(library)
+```scala
+laikaConfig := LaikaConfig.defaults
+  .withConfigValue(LaikaKeys.titleDocuments.inputName, "title")
+  .withConfigValue(LaikaKeys.titleDocuments.outputName, "title")
+```
+
+@:@
 
 Title Documents will also render on a level above the other chapter documents in the navigation,
 (see [Auto-Generated Navigation] for details) and will be linked in [@:breadcrumb] components.

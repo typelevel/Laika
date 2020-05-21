@@ -37,10 +37,24 @@ Markup extensions enabled by default are:
 
 To disable all these extensions you can use the `strict` flag:
 
+@:choices
+
+@:choice(sbt)
 ```scala
-TODO
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .using(GitHubFlavor)
+  .strict
+  .build
 ```
 
+@choice(library)
+```scala
+laikaConfig := LaikaConfig.defaults.strict
+```
+
+@:@
 
 ### Raw Content
 
@@ -62,9 +76,24 @@ or [Customizing Renderers].
  
 You can enable verbatim HTML and other raw formats explicitly in the configuration:
 
+@:choices
+
+@:choice(sbt)
 ```scala
-TODO
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .using(GitHubFlavor)
+  .withRawContent
+  .build
 ```
+
+@choice(library)
+```scala
+laikaConfig := LaikaConfig.defaults.withRawContent
+```
+
+@:@
 
 
 ### Character Encoding
@@ -73,11 +102,21 @@ The default encoding in Laika is UTF-8.
 
 When you need to work with different encodings you can override the default: 
 
+@:choices
+
+@:choice(sbt)
 ```scala
 implicit val codec:Codec = Codec.UTF8
-
-TODO
 ```
+
+This has to be in scope where you specify the input and ouput files for your transformer
+
+@choice(library)
+```scala
+laikaConfig := LaikaConfig.defaults.encoding(Codec.ISO8859)
+```
+
+@:@
 
 
 Navigation
@@ -154,9 +193,27 @@ error messages.
 
 You can achieve this by basically flipping the two default values in the configuration:
 
+@:choices
+
+@:choice(sbt)
 ```scala
-TODO
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .using(GitHubFlavor)
+  .failOnMessages(MessageFilter.None)
+  .renderMessages(MessageFilter.Error)
+  .build
 ```
+
+@choice(library)
+```scala
+laikaConfig := LaikaConfig.defaults
+  .failOnMessages(MessageFilter.None)
+  .renderMessages(MessageFilter.Error)
+```
+
+@:@
 
 Now rendering proceeds even with invalid nodes and they will be rendered in the location of the document
 they occurred in.
@@ -209,14 +266,33 @@ You can define variables in any of the following scopes:
 
 This is an example for defining two variables globally: 
 
+@:choices
+
+@:choice(sbt)
 ```scala
-TODO
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .using(GitHubFlavor)
+  .withConfigValue("version.latest", "2.4.6")
+  .withConfigValue("license", "Apache 2.0")
+  .build
 ```
+
+@choice(library)
+```scala
+laikaConfig := LaikaConfig.defaults
+  .withConfigValue("version.latest", "2.4.6")
+  .withConfigValue("license", "Apache 2.0")
+```
+
+@:@
 
 These values can then be accessed via [Substitution Variables] in templates or in markup files:
 
 ```laika-md
-TODO
+The latest release is ${version.latest}.
+It's released under the ${license} license.
 ```
 
 If you define them in a narrower scope and not globally, they won't be available outside of that scope.

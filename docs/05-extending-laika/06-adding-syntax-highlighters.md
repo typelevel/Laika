@@ -362,6 +362,24 @@ You can bundle multiple highlighters in a single instance.
 
 Finally you can register your extension together with any built-in extensions you may use:
 
+@:choices
+
+@:choice(sbt)
 ```scala
-TODO - plugin + library
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .using(GitHubFlavor)
+  .using(MyExtensions)
+  .build
 ```
+
+@choice(library)
+```scala
+laikaExtensions := Seq(
+  GitHubFlavor,
+  MyExtensions
+)
+```
+
+@:@

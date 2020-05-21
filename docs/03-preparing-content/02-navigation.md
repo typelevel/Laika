@@ -28,13 +28,13 @@ For regular, internal links you can use the text markup's native link syntax.
 You can express an internal link either with a relative path:
 
 ```markdown
-TODO
+Please read the [Introduction](../basics/introduction.md).
 ```   
 
 Or an absolute path from the root of the virtual input tree:
 
 ```markdown
-TODO
+Please read the [Introduction](/basics/introduction.md).
 ```
 
 The paths do not have to be valid relative or absolute paths in the file system.
@@ -54,9 +54,25 @@ Transformations that contain internal links that cannot be resolved will fail in
 If you work with input files that will be generated or copied by other tools and are not known to Laika, 
 you can explicitly disable validation for certain paths within the virtual tree:
 
+@:choices
+
+@:choice(sbt)
 ```scala
-TODO
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .using(GitHubFlavor)
+  .withConfigValue(LinkConfig(excludeFromValidation = Seq(Root / "generated")))
+  .build
 ```
+
+@choice(library)
+```scala
+laikaConfig := LaikaConfig.defaults
+  .withConfigValue(LinkConfig(excludeFromValidation = Seq(Root / "generated")))
+```
+
+@:@
 
 
 Global Link Definitions
@@ -68,13 +84,18 @@ link references.
 Example for Markdown:
 
 ```markdown
-TODO
+Please read the [Introduction][intro]. 
+(Or in the short form, just [intro]).
+
+[intro]: ../basics/introduction.md
 ```
 
 Example for reStructuredText:
 
 ```rst
-TODO
+Please read the intro_.
+
+.. _intro: ../basics/introduction.md
 ```
 
 This is a convenient mechanism within a single input file. 
@@ -84,14 +105,36 @@ You could use the `@:import` directive and define them in a separate markup file
 but Laika has an even more convenient way to centrally define links. 
 Simply add them to the project's configuration:
 
+@:choices
+
+@:choice(sbt)
 ```scala
-TODO - for library + plugin
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .using(GitHubFlavor)
+  .withConfigValue(LinkConfig(targets = Seq(
+    TargetDefinition("Example 1", ExternalTarget("https://example1.com/")),
+    TargetDefinition("Example 2", ExternalTarget("https://example2.com/"))
+  )))
+  .build
 ```
+
+@choice(library)
+```scala
+laikaConfig := LaikaConfig.defaults
+  .withConfigValue(LinkConfig(targets = Seq(
+    TargetDefinition("Example 1", ExternalTarget("https://example1.com/")),
+    TargetDefinition("Example 2", ExternalTarget("https://example2.com/"))
+  )))
+```
+
+@:@
 
 They can then be used within text markup the same way as if they would be defined within the file:
 
 ```markdown
-TODO
+Please have a look at [Example 1] or [Example 2]. 
 ```
 
 
@@ -104,13 +147,15 @@ they are not validated during a transformation.
 Example for an inline link in Markdown:
 
 ```markdown
-TODO
+Please read the [Specification](https://markup/specification.html). 
 ```
 
 Example for an indirect link via separate definition:
 
 ```markdown
-TODO
+Please read the [Specification][markup-spec].
+
+[markup-spec]: https://markup/specification.html
 ```
 
 Like with internal links, [Global Link Definitions] can be used to avoid the repetition of
@@ -173,16 +218,59 @@ See @:api(scala.collection.immutable.List) for details.
 
 This directive requires the base URI to be defined in the project's configuration:
 
+@:choices
+
+@:choice(sbt)
 ```scala
-TODO - for library + plugin
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .using(GitHubFlavor)
+  .withConfigValue(LinkConfig(apiLinks = Seq(
+    ApiLinks(baseUri = "https://example.com/api")
+  )))
+  .build
 ```
 
-If you use different APIs hosted on different servers, you can associate base URIs with package prefix,
+@choice(library)
+```scala
+laikaConfig := LaikaConfig.defaults
+  .withConfigValue(LinkConfig(apiLinks = Seq(
+    ApiLinks(baseUri = "https://example.com/api")
+  )))
+```
+
+@:@
+
+If you use different APIs hosted on different servers, you can associate base URIs with package prefixes,
 while keeping one base URI as a default for all packages that do not match any prefix:
 
+@:choices
+
+@:choice(sbt)
 ```scala
-TODO - for library + plugin
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .using(GitHubFlavor)
+  .withConfigValue(LinkConfig(apiLinks = Seq(
+    ApiLinks(baseUri = "https://example.com/api"),
+    ApiLinks(baseUri = "https://somewhere-else/", packagePrefix = "com.lib42")
+  )))
+  .build
 ```
+
+@choice(library)
+```scala
+laikaConfig := LaikaConfig.defaults
+  .withConfigValue(LinkConfig(apiLinks = Seq(
+    ApiLinks(baseUri = "https://example.com/api"),
+    ApiLinks(baseUri = "https://somewhere-else/", packagePrefix = "com.lib42")
+  )))
+```
+
+@:@
+
 
 In cases where this simple mechanism is not sufficient, you can always define [Custom Link Directives].
 
@@ -289,7 +377,6 @@ with all children nested one level below.
 Alternatively, when `excludeRoot` is set, 
 the root can be skipped and its children inserted into the final structure directly.
 
-TODO - examples
 
 #### Specifying Additional Styles
 
@@ -346,9 +433,25 @@ E.g. in the document with the number `2.1` the number for the first section will
 
 Auto-numbering can be switched on per configuration:
 
+@:choices
+
+@:choice(sbt)
 ```scala
-TODO - plugin & library
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .using(GitHubFlavor)
+  .withConfigValue(AutonumberConfig(maxDepth = 3))
+  .build
 ```
+
+@choice(library)
+```scala
+laikaConfig := LaikaConfig.defaults
+  .withConfigValue(AutonumberConfig(maxDepth = 3))
+```
+
+@:@
 
 The configuration above will number both documents and sections within documents, but stop after the third level. 
 The numbers will be added to the headers of the sections and also appear in tables of contents.
