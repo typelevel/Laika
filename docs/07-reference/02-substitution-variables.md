@@ -192,7 +192,8 @@ Programmatic Access
 
 The same variables that you can access with HOCON-style substitution references in templates and markup files,
 are also available programmatically if you are working with a document tree. 
-The `DocumentTree`, `Document` and `TemplateDocument` types all have a `config` property that exposes those values:
+The `DocumentCursor`, `DocumentTree`, `Document` and `TemplateDocument` types 
+all have a `config` property that exposes those values:
 
 ```scala
 val doc: Document = ???
@@ -201,5 +202,3 @@ val version: Either[ConfigError, String] =
 ```
 
 See @:api(laika.config.Config) for details about the Config API.
-
-[TODO - 2nd example via cursor access in directive impl]

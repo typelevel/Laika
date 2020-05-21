@@ -175,9 +175,8 @@ ${?cursor.currentDocument.title}
 
 If an optional reference points to an undefined value, the reference in the template is substituted with an empty string.
 
-[TODO - example for user-defined variables coming from programmatic config]
-
 For a full list of predefined values see [Substitution Variables] in the Reference section.
+For instructions on defining your own see [User-Defined Variables].
 
 
 Directives
@@ -238,10 +237,20 @@ This is the template shown earlier in this chapter, further simplified to keep t
 The AST for this template looks like this:
 
 ```laika-ast
-TODO
+TemplateRoot - TemplateSpans: 5
+. TemplateString - '<html>|  <head>|    <title>'
+. TemplateContextReference(cursor.currentDocument.title,true)
+. TemplateString - '</title>|  </head>|  <body>|    '
+. TemplateContextReference(cursor.currentDocument.content,true)
+. TemplateString - '|  </body>|</html>'
 ```
 
-[TODO - explain node types]
+The raw content gets represented by `TemplateString` nodes.
+The AST renderer truncates beyond a certain length and replaces newlines with `|` for putting more emphasis 
+on the structure.
+The variable reference gets represented by a `TemplateContextReference` which will be resolved later.
+
+More complex real-world scenarios will have additional node types, like those for representing a directive.
 
 Next we create an equally minimal text markup document:
 
@@ -255,8 +264,14 @@ Some Text.
 This produces just the Title node and a Paragraph in the resulting AST:
 
 ```laika-ast
-TODO
+RootElement - Blocks: 2
+. Title(Id(headline) + Styles(title)) - Spans: 1
+. . Text - 'Headline'
+. Paragraph - Spans: 1
+. . Text - 'Some Text.'
 ```
+
+This is just the tip of iceberg of available node types, for a general overview see [The Document AST].
 
 We then finally apply the template to the document. 
 In a normal Laika transformation this happens automatically as the final step before rendering,
@@ -266,7 +281,25 @@ you can alternatively call `applyTo` on a `TemplateDocument` instance.
 The result will look like this:
 
 ```laika-ast
-TODO
+RootElement - Blocks: 1
+. TemplateRoot - TemplateSpans: 5
+. . TemplateString - '<html>|  <head>|    <title>'
+. . TemplateElement(0)
+. . . SpanSequence - Spans: 1
+. . . . Text - 'Headline'
+. . TemplateString - '</title>|  </head>|  <body>|    '
+. . EmbeddedRoot(4) - Blocks: 2
+. . . Title(Id(headline) + Styles(title)) - Spans: 1
+. . . . Text - 'Headline'
+. . . Paragraph - Spans: 1
+. . . . Text - 'Some Text.'
+. . TemplateString - '|  </body>|</html>'
+
 ```
 
-[TODO - explain node types]
+The two nodes which previously represented the two context references have been replaced
+by the corresponding AST from the parsed markup.
+
+In case of the main content, the node `EmbeddedRoot` represents the insertion point of one AST into another.
+
+This final AST is the model that will be passed on to renderers.

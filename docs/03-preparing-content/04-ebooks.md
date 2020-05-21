@@ -256,7 +256,7 @@ The supported file types / suffixes are:
 * Images: `jpg`, `jpeg`, `gif`, `png`, `svg`, `bmp`, `tiff`
 * Fonts: `pfb` (Type 1), `ttf`, `otf` 
 
-[TODO - example for registering Fonts with FOP]
+@todo(example for registering Fonts with FOP)
 
 
 CSS for EPUB

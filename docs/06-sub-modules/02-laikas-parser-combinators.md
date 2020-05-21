@@ -177,9 +177,10 @@ Two parsers can be defined to be tried as alternatives,
 where the second will only be invoked if the first parser fails:
 
 ```scala
-val someOf(range('a', 'z')) | someOf(range('0', '9')) TODO
+("\"" ~> anyBut('"') <~ "\"") | someBut(' ')
 ```
 
+The example above parses either text enclosed in double quotes or a string without spaces. 
 The type of the result will be the lowest upper bound of the individual results (like with `Option.orElse`).
 
 The resulting parser will succeed if either the first or the second parser succeeds.
@@ -248,22 +249,40 @@ def collect [U] (f: PartialFunction[T, U]): Parser[U]
 While `evalMap` maps to an `Either` where a `Left` result will cause the parser to fail,
 `collect` applies a partial function and causes the parser to fail if the function is not defined for the result.
 
-[TODO - example]
+```scala
+someOf(CharGroup.digit).evalMap { res =>
+  val num = res.toInt
+  Either.cond(num % 3 == 0, num, "Number must be divisible by three")
+}
+```
 
-You can also chain parsers with `flatMap`
+The example above creates a parser that reads any number divisible by 3 or fails otherwise.
 
-[TODO - example simplified tag parser]
+You can also chain parsers with `flatMap`.
+The example parses a start delimiter out of 3 options and then looks for a matching delimiter to close the span:
+
+```scala
+oneOf('*', '-', '+').flatMap { res =>
+  someBut(res.charAt(0)) <~ literal(res)
+}
+```
 
 The second parser will receive the result of the first parser and will continue parsing on the input left over
 by the first.
 
 You can also ignore the original result of a parser and hard-code a result that should be used if the parser succeeds:
 
-[TODO - example]
+```scala
+case object Fence
+
+literal("```").as(Fence)
+```
 
 Another option is to ignore the results of a concatenation and instead use the entire consumed input as a result:
 
-[TODO - example]
+```scala
+("\"" ~> anyBut('"') <~ "\"").source
+```
 
 This is usually more convenient in all cases where the result you would produce would have been the string concatenation
 of the individual results anyway. 

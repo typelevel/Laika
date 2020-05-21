@@ -228,6 +228,18 @@ to get a formatted output of the entire AST structure.
 
 Longer plain text spans are truncated in this output format to put the emphasis on the structure of the document. 
 
+@choices
+
+@choice(sbt)
+Create a file with the content `some *text* example` in the input directory and run:
+
+```scala
+laikaAST
+```
+
+This task is a shortcut for `laikaGenerate ast`
+
+@choice(library)
 ```scala
 val input = "some *text* example"
 
@@ -237,7 +249,8 @@ Transformer
   .build
   .transform(input)
 ```
-`laikaAST` - TODO
+
+@:@
 
 The output for the small example above will have the following format:
 

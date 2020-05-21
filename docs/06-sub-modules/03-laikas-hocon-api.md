@@ -39,7 +39,9 @@ or by [Creating a Config Instance] yourself, reading from it is quite straightfo
 You have to provide the key you want to read and the type you expect:
 
 ```scala
-TODO
+val config: Config = ???
+
+val version = config.get[String]("project.version")
 ```
 
 The type conversion is based on a matching `ConfigDecoder[T]` which must be in implicit scope.
