@@ -17,11 +17,11 @@
 package laika.rewrite.nav
 
 import laika.config.Config.ConfigResult
-import laika.config.{Config, ConfigDecoder, ConfigEncoder, ConfigValue, DefaultKey, InvalidType, Key, LaikaKeys, ObjectValue, Traced, ValidationError}
+import laika.config.{Config, ConfigDecoder, ConfigEncoder, DefaultKey, Key, LaikaKeys, ValidationError}
 
 /** Configuration for autonumbering of documents and sections.
  */
-case class AutonumberConfig (documents: Boolean, sections: Boolean, maxDepth: Int)
+case class AutonumberConfig (documents: Boolean = true, sections: Boolean = true, maxDepth: Int = Int.MaxValue)
 
 case class ConfigurationException (msg: String) extends RuntimeException(msg)
 

@@ -22,7 +22,7 @@ import laika.config._
 /**
   * @author Jens Halm
   */
-case class LinkConfig (targets: Seq[TargetDefinition], excludeFromValidation: Seq[Path], apiLinks: Seq[ApiLinks])
+case class LinkConfig (targets: Seq[TargetDefinition] = Nil, excludeFromValidation: Seq[Path] = Nil, apiLinks: Seq[ApiLinks] = Nil)
 
 object LinkConfig {
   
