@@ -16,7 +16,7 @@
 
 package laika.api.builder
 
-import laika.config.{Config, ConfigBuilder, ConfigEncoder, DefaultKey}
+import laika.config.{Config, ConfigBuilder, ConfigEncoder, DefaultKey, Key}
 import laika.ast._
 import laika.bundle.{BundleOrigin, ConfigProvider, DocumentTypeMatcher, ExtensionBundle, MarkupExtensions}
 import laika.directive.{DirectiveSupport, StandardDirectives}
@@ -70,6 +70,15 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
     * or a configuration header in a markup document.
     */
   def withConfigValue[T](key: String, value: T)(implicit encoder: ConfigEncoder[T]): OperationConfig =
+    copy(configBuilder = configBuilder.withValue(key, value))
+
+  /** Returns a new instance with the specified configuration value added.
+    *
+    * The specified value with have higher precedence than any value with the same key registered by extension bundles, 
+    * but lower precedence than any value with the same key specified in a configuration file for a directory 
+    * or a configuration header in a markup document.
+    */
+  def withConfigValue[T](key: Key, value: T)(implicit encoder: ConfigEncoder[T]): OperationConfig =
     copy(configBuilder = configBuilder.withValue(key, value))
 
   /** Provides all extensions for the text markup parser extracted from

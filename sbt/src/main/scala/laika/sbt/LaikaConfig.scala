@@ -18,7 +18,7 @@ package laika.sbt
 
 import laika.api.builder.BundleFilter
 import laika.ast.{MessageFilter, MessageLevel}
-import laika.config.{ConfigBuilder, ConfigEncoder, DefaultKey}
+import laika.config.{ConfigBuilder, ConfigEncoder, DefaultKey, Key}
 
 import scala.io.Codec
 
@@ -89,6 +89,14 @@ case class LaikaConfig(encoding: Codec = Codec.UTF8,
     * or a configuration header in a markup document.
     */
   def withConfigValue[T: ConfigEncoder](key: String, value: T): LaikaConfig = copy(configBuilder = configBuilder.withValue(key, value))
+
+  /** Returns a new instance with the specified configuration value added.
+    *
+    * The specified value with have higher precedence than any value with the same key registered by extension bundles, 
+    * but lower precedence than any value with the same key specified in a configuration file for a directory 
+    * or a configuration header in a markup document.
+    */
+  def withConfigValue[T: ConfigEncoder](key: Key, value: T): LaikaConfig = copy(configBuilder = configBuilder.withValue(key, value))
   
 }
 
