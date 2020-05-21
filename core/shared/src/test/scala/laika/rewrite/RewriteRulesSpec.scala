@@ -146,7 +146,7 @@ class RewriteRulesSpec extends AnyWordSpec
   }
 
 
-  "The rewrite rules for link references" should {
+  "The rewrite rules for link id references" should {
 
     "resolve external link definitions" in {
       val rootElem = root(p(linkIdRef()), LinkDefinition("name", ExternalTarget("http://foo/")))
@@ -161,52 +161,6 @@ class RewriteRulesSpec extends AnyWordSpec
     "interpret internal link definitions as external when they point upwards beyond the virtual root" in {
       val rootElem = root(p(linkIdRef()), LinkDefinition("name", InternalTarget(Root, RelativePath.parse("../../foo.md#ref"))))
       rewritten(rootElem) should be(root(p(extLink("../../foo.md#ref"))))
-    }
-
-    "resolve anonymous link references" in {
-      val rootElem = root(
-        p(linkIdRef(""), linkIdRef("")),
-        LinkDefinition("", ExternalTarget("http://foo/")),
-        LinkDefinition("", ExternalTarget("http://bar/"))
-      )
-      rewritten(rootElem) should be(root(p(extLink("http://foo/"), extLink("http://bar/"))))
-    }
-
-    "resolve anonymous internal link definitions" in {
-      val rootElem = root(
-        p(linkIdRef(""), linkIdRef("")),
-        LinkDefinition("", InternalTarget(Root, RelativePath.parse("foo.md#ref"))),
-        LinkDefinition("", InternalTarget(Root, RelativePath.parse("bar.md#ref")))
-      )
-      rewritten(rootElem) should be(root(p(intLink(RelativePath.parse("foo.md#ref")), intLink(RelativePath.parse("bar.md#ref")))))
-    }
-
-    "replace an unresolvable reference with an invalid span" in {
-      val rootElem = root(p(linkIdRef()))
-      rewritten(rootElem) should be(root(p(invalidSpan("unresolved link id reference: name", "text"))))
-    }
-
-    "replace a surplus anonymous reference with an invalid span" in {
-      val rootElem = root(p(linkIdRef("")))
-      rewritten(rootElem) should be(root(p(invalidSpan("too many anonymous references", "text"))))
-    }
-
-    "resolve references when some parent element also gets rewritten" in {
-      val rootElem = root(DecoratedHeader(Underline('#'), List(Text("text "), linkIdRef())), LinkDefinition("name", ExternalTarget("http://foo/")))
-      rewritten(rootElem) should be(root(Title(List(Text("text "), extLink("http://foo/")), Id("text-text") + Style.title)))
-    }
-  }
-
-  "The rewrite rules for link id references" should {
-
-    "resolve external link definitions" in {
-      val rootElem = root(p(linkIdRef()), LinkDefinition("name", ExternalTarget("http://foo/")))
-      rewritten(rootElem) should be(root(p(extLink("http://foo/"))))
-    }
-
-    "resolve internal link definitions" in {
-      val rootElem = root(p(linkIdRef()), LinkDefinition("name", InternalTarget(Root, RelativePath.parse("foo.md#ref"))))
-      rewritten(rootElem) should be(root(p(intLink(RelativePath.parse("foo.md#ref")))))
     }
 
     "resolve internal link targets" in {
@@ -226,6 +180,15 @@ class RewriteRulesSpec extends AnyWordSpec
         LinkDefinition("", InternalTarget(Root, RelativePath.parse("bar.md#ref")))
       )
       rewritten(rootElem) should be(root(p(intLink(RelativePath.parse("foo.md#ref")), intLink(RelativePath.parse("bar.md#ref")))))
+    }
+
+    "resolve anonymous external link definitions" in {
+      val rootElem = root(
+        p(linkIdRef(""), linkIdRef("")),
+        LinkDefinition("", ExternalTarget("http://foo/")),
+        LinkDefinition("", ExternalTarget("http://bar/"))
+      )
+      rewritten(rootElem) should be(root(p(extLink("http://foo/"), extLink("http://bar/"))))
     }
 
     "replace an unresolvable reference with an invalid span" in {
