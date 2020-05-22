@@ -310,7 +310,7 @@ val quotedBlockParser = BlockParser.recursive { recParsers =>
   val decoratedLine = ">" ~ ws  // '>' followed by whitespace
   val textBlock = BlockParsers.block(decoratedLine, decoratedLine)
     
-  recParsers.recursiveBlocks(textBlock).map(QuotedBlock(_, Nil))
+  recParsers.recursiveBlocks(textBlock).map(QuotedBlock(_))
 }
 ```
 

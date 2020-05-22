@@ -161,7 +161,6 @@ With the dependency in place you also need to add a third import to those you us
 import laika.api._
 import laika.format._
 import laika.io.implicits._
-
 ```
 
 The remainder of the setup depends on whether you are [Using cats.IO, Monix or Zio]
@@ -180,7 +179,7 @@ The following example assumes the use case of an application written around abst
 from cats.IO for initialization:
 
 ```scala
-def createTransformer[F: Async: ContextShift](blocker: Blocker): SequentialTransformer[F] =
+def createTransformer[F[_]: Async: ContextShift](blocker: Blocker): SequentialTransformer[F] =
   Transformer
     .from(Markdown)
     .to(HTML)
@@ -197,7 +196,7 @@ object MyApp extends IOApp {
 
   def run(args: List[String]) = {
     Blocker[IO].use { blocker =>
-      val transformer = createTransformer(blocker)
+      val transformer = createTransformer[IO](blocker)
       // other setup code
     }.as(ExitCode.Success)
   }
