@@ -2,85 +2,54 @@
 Spec Compliance
 ===============
 
-
-HOCON
------
-
+This chapter gives a brief overview on how closely Laika adheres to the various formats it parses.
+ 
 
 Markdown
 --------
 
-Markdown is very easy to learn, very lightweight, and produces
-documents which are fairly easy to read, even when you don't know anything about Markdown.
+Laika sticks to the original [syntax description][markdown docs] and incorporates the [test suite]
+from the PHP Markdown project which is a slightly expanded version of the original suite from John Gruber.
 
-However, Markdown also has a few issues. First, there is no real specification,
-only a page with a syntax description that leaves many questions unanswered. Secondly, its feature
-set is fairly limited, lacking functionality for more advanced usage like technical 
-documentation or entire books. As a consequence extensions have been added to almost 
-every Markdown implementation without much agreement between  them.
-
-Laika currently largely sticks to the original syntax description, except for the
-features listed in the previous sections which are added to all parser implementations
-supported in Laika. Other popular Markdown extensions like kramdown or MultiMarkdown
-may be supported in future releases.  
-
-Laika also fully passes the official Markdown Test Suite. 
-These tests are integrated into the Laika test suite.
+In cases where both the spec and the test suite are silent on how to handle certain edge cases, 
+the [Babelmark] tool has been consulted and usually the approach the majority of available parsers have chosen 
+has been picked for Laika, too.
 
 
-### Getting Started
+### Test Suite
 
-Even if you do not know much about Markdown formally, it is very likely that you have already used it.
-This document is not going to provide a syntax overview and refers to the official documentation instead.
-It will primarily focus on anything specific to the way Laika handles Markdown.
+The testing approach in Laika is adapted to cater for the library's design goals, 
+one of which is decoupling input and output formats.
+Most existing, official test suites are providing inputs in text markup and output in HTML.
+In cases where the output differs from Laika's built-in HTML renderer, the renderer is adjusted with
+overrides just for the test.
+This is acceptable because these subtle differences do not represent a semantic difference.
+The only way to avoid these kind of "little cheats" would be to have a separate HTML renderer
+for each supported text markup format. 
+But this would be undesirable, in particular in cases where users mix documents with different markup formats
+in the same input directory.
 
-To get an overview over Markdown syntax, these documents may be used:
-
-* For a description of the syntax see the [official syntax documentation][markdown docs].
-
-* For trying out small snippets of Markdown and checking how the various existing Markdown implementations
-  handle them, the [Babelmark] tool can be used.  
-
-* For using Markdown in Laika, the [Using the Library API] page should answer most of your questions.
-
-* For the special treatment of verbatim HTML in Laika, see the following section.
-
-Laika tries to follow the official syntax documentation. In cases where it is silent on how
-to handle certain edge cases, the [Babelmark] tool has been consulted and usually the approach
-the majority of available parsers have chosen has been picked for Laika, too. There is currently only
-one (known) minor exception: 
-
-* Laika does not detect a header if it is not preceded by a blank line. Supporting this would be
-  disadvantageous for three reasons: it goes against Markdown's design goal of promoting
-  readability, it would slow down the parser and it would open the doors for accidental headers.
-  According to Babelmark, there are at least two parsers (Pandoc, Python-Markdown) that agree.
-   
+[test suite]: https://github.com/michelf/mdtest   
 
 [markdown docs]: http://daringfireball.net/projects/markdown/syntax
 
 [Babelmark]: http://johnmacfarlane.net/babelmark2/
 
 
+### Verbatim HTML
+
+One major difference to standard Markdown is that the parsing of verbatim HTML elements is not enabled by default, 
+as Laika discourages the coupling of input and output formats, but it can be switched on if required. 
+
+See [Raw Content] for examples on how to enable verbatim HTML in the sbt plugin or the library API.
+
+When this support is switched on, it follows the original spec, including the support for text markup and HTML
+syntax being interspersed in the input. 
+
+
 ### GitHub Flavored Markdown
 
-Laika supports the syntax of GitHubFlavored Markdown through an `ExtensionBundle` that must
-be enabled explicitly:
-
-```scala
-Transformer
-  .from(Markdown)
-  .to(HTML)
-  .using(GitHubFlavor)
-  .build
-  .transform("hello *there*")
-```
-
-When using the sbt plugin it can be added to the `laikaExtensions` settings:
-
-```scala
-laikaExtensions += GitHubFlavor  
-```
-
+Laika supports the syntax of GitHubFlavored Markdown through an `ExtensionBundle` that must be enabled explicitly.
 These are the parsers this extension adds to standard Markdown:
 
 * strikethrough ([spec][gfm strike])
@@ -94,120 +63,66 @@ These are the parsers this extension adds to standard Markdown:
 [gfm tables]:    https://github.github.com/gfm/#tables-extension-
 
 
-#### Subtle Differences to the GitHub Specification
+**Subtle Differences to the GitHub Specification**
 
 * **Spec Alignment**: The Laika implementation is an extension of classic, standard Markdown, in a similar fashion as 
-  GitHub Flavored Markdown had initially been defined. However, GitHub's spec has since moved on and is now based on 
-  the CommonMark spec. This should not make a huge difference for the most common use cases as CommonMark stays pretty 
+  GitHub Flavored Markdown had initially been defined. 
+  However, GitHub's spec has since moved on and is now based on the [CommonMark] spec.
+  This should not make a huge difference for the most common use cases as CommonMark stays pretty 
   close to classic Markdown and the syntax that has since moved to CommonMark (e.g. fenced code blocks) is included
-  in Laika's extension. You'll probably only notice differences around any of the subtle lower-level ambiguities
-  in Markdown's syntax.
+  in Laika's extension.
+  You'll probably only notice differences around any of the subtle lower-level ambiguities in Markdown's syntax.
 
 * **Auto-Links**: The parsing of URIs in auto-links is based on the relevant RFCs and not on the rather informal 
-  description in the GitHub spec. This should not make any difference for the most common use cases. The RFC based 
-  URI parser has been part of Laika for years (as reStructuredText natively supports auto-links) and its higher level 
-  of correctness justifies the bypassing of the informal description of GitHubs spec.
+  description in the GitHub spec. 
+  This should not make any difference for the most common use cases. 
+  The RFC based URI parser has been part of Laika for years (as reStructuredText natively supports auto-links)
+  and its higher level of correctness justifies the bypassing of the informal description of GitHubs spec.
   
-* **Fenced Code Blocks** need a preceding blank line to be recognized by Laika's parser. This is due to technical
-  limitations (the built-in paragraph parser does not know about all the rules of parser extensions).
-  Future versions might lift this restriction, but it would require additional features for how extension parsers
-  register with the host language to allow to specify a line test that causes interruption of a paragraph.
+* **Fenced Code Blocks** need a preceding blank line to be recognized by Laika's parser for now. 
+  This is due to temporary technical limitations which will be lifted before the 1.0 release. 
+  It will require additional hooks for how extension parsers register with the host language 
+  to allow to specify a line test that causes interruption of a paragraph.
   
 * **Tables**: Since Laika is a tool that uses an internal AST that abstracts away the features of a specific output 
-  format, it does not follow the exact syntax for HTML output as shown in the GitHub spec. Specifically it does not 
-  render table cells using the deprecated `align` attributes. Instead it renders the cells with classes (`alignLeft`, 
-  `alignCenter`, `alignRight` or none) so that the cells can get styled in CSS.
+  format, it does not follow the exact syntax for HTML output as shown in the GitHub spec. 
+  Specifically it does not render table cells using the deprecated `align` attributes. 
+  Instead it renders the cells with classes (`alignLeft`, `alignCenter`, `alignRight` or none)
+  so that the cells can get styled in CSS.
 
 
-### Verbatim HTML
+### CommonMark
 
-Finally there is one major difference to standard Markdown: the parsing of verbatim HTML elements
-is not enabled by default, but it can be switched on if required. 
+Laika does not yet integrate the official CommonMark test suite.
+This step is planned for a release shortly after the final 1.0 version is reached.
 
-When using this feature
-you need to be aware of the fact that it ties your markup files to HTML output. Laika
-supports multiple output formats like HTML, EPUB, PDF and XSL-FO, and markup
-files containing raw HTML could not be used for those.
-
-When the markup originates from user input in a web application, it would not be safe 
-to use without additional filtering. By default Laika does not filter any tags, not
-even `<script>` tags, but whitelist filtering can be added fairly easily through Laika's 
-customization hooks like [Document Tree Rewriting] or 
-[Customizing Renderers][../customizing-laika/customize-rendering.md:Customizing Renderers].
- 
-To enable verbatim HTML elements you have to change this standard expression:
-
-```scala
-Transformer.from(Markdown).to(HTML)
-```
-
-to
-
-```scala
-Transformer.from(Markdown).to(HTML).withRawContent
-```
-
-This installs both, the required parser and renderer extensions. 
-
+In practice the differences should be minor as CommonMark is a specification that builds on top of the original
+Markdown spec plus some aspects of GitHub Flavor which Laika both supports. 
+It mostly removes some ambiguity and adds detail to some of the under-specified features of classic Markdown.
 
 
 reStructuredText
 ----------------
 
-The reStructuredText project is part of Python's Docutils project. It is considerably more feature-rich
-than Markdown, with support for tables, citations and footnotes. It is also more strictly defined than 
-Markdown, with a detailed specification and clearly defined markup recognition rules.
-
-On the other hand, adoption is not nearly as high as for Markdown, and some of the syntax is more
-verbose and less intuitive or legible than Markdown.
+The reStructuredText project is part of Python's Docutils project. 
+It is also more strictly defined than Markdown, with a detailed [specification][rst spec] 
+and clearly defined markup recognition rules.
 
 Apparently there is no official test suite for reStructuredText, therefore to add a realistic
 test to the Laika test suite a full transformation of the reStructuredText specification itself
 is integrated into Laika's test suite. 
 
-  
-  
-### Getting Started
-
-This document is not going to provide a syntax overview and refers to the official documentation instead.
-
-To get started with reStructuredText, these resources may be used:
-
-* The [official markup specification][rst spec].
-
-* An [online tool][rst tool] for trying out small snippets of reStructuredText.  
-
-* [Using the Library API] for using reStructuredText in Laika.
-
-* The following sections below for an overview on how to implement extensions for reStructuredText
-
-
-[rst home]: http://docutils.sourceforge.net/rst.html
 [rst spec]: http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html
-[rst tool]: http://www.tele3.cz/jbar/rest/rest.html  
 
 
+### Supported Standard Directives
 
-### Support for Standard Directives and TextRoles
-
-The Python reference parser supports a number of directives and text roles out of the box, and Laika
-offers implementations for most of them. They are all registered by the default `ReStructuredText`
-parser instance so that you only have to explicitly register any further custom extensions.
-
-For a detailed specification of these standard extensions, see:
-
-* Specification of the [standard directives][std directives] - including both block level directives
-  and span directives to be used in substitution references.
-  
-* Specification of the [standard text roles][std roles].
+Directives are an extension mechanism of reStructuredText and the reference implementation supports a set
+of standard [standard directives][std directives] out of the box.
 
 [std directives]: http://docutils.sourceforge.net/docs/ref/rst/directives.html
-[std roles]:      http://docutils.sourceforge.net/docs/ref/rst/roles.html 
 
-
-### Supported Directives
-
-Laika supports the following directives:
+Out of this set Laika supports the following:
 
  * Admonitions: `attention`, `caution`, `danger`, `error`, `hint`, `important`,
    `note`, `tip`, `warning` and the generic `admonition`
@@ -238,8 +153,13 @@ The following limitations apply to these directives:
  
  
 ### Supported Standard Text Roles
+
+Text roles are a second extension mechanism for applying functionality to spans of text 
+and the reference implementation supports a set of standard [standard text roles][std roles] out of the box.
+
+[std roles]:      http://docutils.sourceforge.net/docs/ref/rst/roles.html 
  
-The following standard text roles are fully supported:
+Out of this set Laika supports the following:
  
  * `emphasis`
  * `strong`
@@ -258,49 +178,22 @@ The following extensions are not supported:
  * `math`, `pep-reference` and `rfc-reference` text roles
  
 There are various reasons for excluding these extensions, some of them being rather technical.
-For example, the `target-notes` and `class` directives would require processing beyond the 
-directive itself, therefore would require new API. Others, like the `pep-reference` text role,
-seemed too exotic to warrant inclusion in Laika.
+For example, the `target-notes` and `class` directives would require processing beyond the directive itself, 
+therefore would require new API.
+Others, like the `pep-reference` text role, seemed too exotic to warrant inclusion in Laika.
 
 
-### Extension Options
+### Raw Content Extensions
 
-Finally some of the defaults for these extensions can be changed through the API:
+Two of the supported standard extensions, the `raw` directive and the `raw` text role, 
+embed content in the target format in text markup.
+Like with verbatim HTML for Markdown, these extensions are disabled by default, 
+as Laika discourages the coupling of input and output formats, but it can be switched on if required. 
 
-```scala
-val transformer = Transformer
-  .from(ReStructuredText)
-  .to(HTML)
-  .withRawContent
-  .build
-```
-
-enables both the `raw` directive and the `raw` text role. They are disabled by default as
-they present a potential security risk.
-
-```scala
-object RstExtensions extends RstExtensionRegistry {
-  val blockDirectives = Nil
-  val spanDirectives = Nil
-  val textRoles = Nil
-  override val defaultTextRole = "my-role-name"
-}
-
-val transformer = Transformer
-  .from(ReStructuredText)
-  .to(HTML)
-  .using(RstExtensions)
-  .build
-```
-
-sets the text role `my-role-name` as the default role for the transformer.
+See [Raw Content] for examples on how to enable these extensions in the sbt plugin or the library API.
 
 
 ### Implementing a Custom Directive
 
 Laika comes with a concise and typesafe DSL to declare custom directives and text roles.
-It is fully documented in [Extending reStructuredText].
-
-
-CSS for PDF
------------
+It is fully documented in the scaladoc for @:api(laika.rst.ext.Directives) and @:api(laika.rst.ext.TextRoles).
