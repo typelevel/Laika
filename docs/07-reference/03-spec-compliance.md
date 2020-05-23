@@ -197,3 +197,31 @@ See [Raw Content] for examples on how to enable these extensions in the sbt plug
 
 Laika comes with a concise and typesafe DSL to declare custom directives and text roles.
 It is fully documented in the scaladoc for @:api(laika.rst.ext.Directives) and @:api(laika.rst.ext.TextRoles).
+
+
+HOCON
+-----
+
+Laika fully supports the official [HOCON specification], based on its own parsers 
+(it does not wrap the Typesafe Config library).
+
+HOCON in Laika is supported in various places:
+
+- Directory configuration files
+- Configuration headers in text markup documents and templates
+- Attribute sections in directive declarations
+- Substitution references compliant with the HOCON spec are supported anywhere in text markup and templates,
+  including the syntax for optional references, e.g. `${?path}`.
+  
+For more information on how HOCON is used in the library see [Laika's HOCON API].
+
+The only fairly minor exception in spec compliance is the deliberate decision not to support circular references.
+Direct self references are supported (e.g. `path = ${path} [img, css]`) as they cover a very common use case,
+but `a` referring to `b` referring to an earlier definition of `a` is not.
+The cost of additional complexity in the implementation this would require seems disproportional to the little use 
+supporting this edge case would provide. 
+Convoluted circular references are also harder to read and error-prone when definitions move.
+
+If you think this should be supported, please open a ticket and explain your reasoning and your use case.
+
+[HOCON specification]: https://github.com/lightbend/config/blob/master/HOCON.md
