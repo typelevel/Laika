@@ -24,110 +24,117 @@ import laika.rst.ext.Directives._
 import laika.rst.ext.ExtensionParsers.Result
 
 /** API for creating interpreted text roles, the extension mechanism for inline elements of reStructuredText.
- *  The API did not aim to mimic the API of the original Python reference implementation.
- *  Instead the goal was to create an API that is idiomatic Scala, fully typesafe and as concise as possible.
- *  Yet it should be flexible enough to semantically support the options of the Python text roles, so that
- *  ideally most existing Python text roles could theoretically get ported to Laika.
- * 
- *  Entry point for creating a new role is the `TextRole` object. It allows to specify the following
- *  aspects that define a text role:
- * 
- *  - The name with which it can be referred to by both, a span of interpreted text and a role
- *    directive to further customize it.
- * 
- *  - The default value, that should get passed to the role function in case it is used
- *    directly in interpreted text without customization through a role directive.
- * 
- *  - The role directive that specifies how the role can be customized. The options
- *    for role directives are almost identical to regular directives, the only difference
- *    being that role directives do not support arguments, only fields and body elements.
- * 
- *  - The actual role function. It gets invoked for each occurrence of interpreted text
- *    that refers to this role, either directly by name or to the name of a role directive
- *    that customized this role. The first argument is either the default value
- *    or the result of the role directive, the second is the actual text of the interpreted 
- *    text span. The return value of the role function is the actual `Span` instance
- *    that the original interpreted text should be replaced with.
- * 
- *  A role directive may consist of any combination of fields and body elements:
- * 
- *  {{{
- *  .. role:: ticket(link)
- *   :base-url: http://www.company.com/tickets/
- *  }}}
- * 
- *  In the example above `ticket` is the name of the customized role, `link` the name
- *  of the base role and `base-url` the value that overrides the default defined in the
- *  base role. For the specification details on role directives see 
- *  [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#custom-interpreted-text-roles]].
- * 
- *  Before such a role directive can be used, an implementation has to be provided
- *  for the base role with the name `link`. For more details on implementing directives
- *  see [[laika.rst.ext.Directives]].
- * 
- *  The implementation of the `link` text role could look like this:
- * 
- *  {{{
- *  val textRole = TextRole("link", "http://www.company.com/main/")(field("base-url")) {
- *    (base, text) => Link(List(Text(text)), base + text)
- *  }
- *
- *  object MyDirectives extends RstExtensionRegistry {
- *    val textRoles = Seq(textRole)
- *    val spanDirectives = Seq()
- *    val blockDirectives = Seq()
- *  }
- *
- *  val transformer = Transformer
- *    .from(ReStructuredText)
- *    .to(HTML)
- *    .using(MyDirectives)
- *    .build
- *  }}}
- * 
- *  We specify the name of the role to be `link`, and the default value the URL provided as the
- *  second argument. The second parameter list specifies the role directive implementation,
- *  in this case only consisting of a call to `field("base-url")` which specifies a required 
- *  field of type `String` (since no conversion function was supplied). The type of the result
- *  of the directive has to match the type of the default value.
- *  Finally the role function is defined that accepts two arguments. The first is the base
- *  url, either the default in case the base role is used directly, or the value specified
- *  with the `base-url` field in a customized role. The second is the actual text from the
- *  interpreted text span. Finally the directive gets registered with the `ReStructuredText` 
- *  parser.
- *  
- *  If you need to define more fields or body content they can be added with the `~` combinator
- *  just like with normal directives. Likewise you can specify validators and converters for 
- *  fields and body values like documented in [[laika.rst.ext.Directives]].
- * 
- *  Our example role can then be used in the following ways:
- * 
- *  Using the base role directly:
- *   
- *  {{{
- *  For details read our :link:`documentation`.
- *  }}}
- * 
- *  This would result in the following HTML:
- * 
- *  {{{
- *  For details read our <a href="http://www.company.com/main/documentation">documentation</a>.
- *  }}}
- * 
- *  Using the customized role called `ticket`: 
- * 
- *  {{{
- *  For details see ticket :ticket:`344`.
- *  }}}
- * 
- *  This would result in the following HTML:
- * 
- *  {{{
- *  For details see ticket <a href="http://www.company.com/ticket/344">344</a>.
- *  }}}
- *   
- *  @author Jens Halm
- */
+  *
+  * The API did not aim to mimic the API of the original Python reference implementation.
+  * Instead the goal was to create an API that is idiomatic Scala, fully typesafe and as concise as possible.
+  * Yet it should be flexible enough to semantically support the options of the Python text roles, so that
+  * ideally most existing Python text roles could theoretically get ported to Laika.
+  *
+  * =Implementing a Directive=
+  *
+  * Entry point for creating a new role is the `TextRole` object. It allows to specify the following
+  * aspects that define a text role:
+  *
+  *  - The name with which it can be referred to by both, a span of interpreted text and a role
+  * directive to further customize it.
+  *
+  *  - The default value, that should get passed to the role function in case it is used
+  * directly in interpreted text without customization through a role directive.
+  *
+  *  - The role directive that specifies how the role can be customized. The options
+  * for role directives are almost identical to regular directives, the only difference
+  * being that role directives do not support arguments, only fields and body elements.
+  *
+  *  - The actual role function. It gets invoked for each occurrence of interpreted text
+  * that refers to this role, either directly by name or to the name of a role directive
+  * that customized this role. The first argument is either the default value
+  * or the result of the role directive, the second is the actual text of the interpreted 
+  * text span. The return value of the role function is the actual `Span` instance
+  * that the original interpreted text should be replaced with.
+  *
+  * =Basic Example=
+  * 
+  * A role directive may consist of any combination of fields and body elements:
+  *
+  * {{{
+  *  .. role:: ticket(link)
+  *   :base-url: http://www.company.com/tickets/
+  * }}}
+  *
+  * In the example above `ticket` is the name of the customized role, `link` the name
+  * of the base role and `base-url` the value that overrides the default defined in the
+  * base role. For the specification details on role directives see 
+  * [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#custom-interpreted-text-roles]].
+  *
+  * Before such a role directive can be used, an implementation has to be provided
+  * for the base role with the name `link`. For more details on implementing directives
+  * see [[laika.rst.ext.Directives]].
+  *
+  * The implementation of the `link` text role could look like this:
+  *
+  * {{{
+  *  val textRole = TextRole("link", "http://www.company.com/main/")(field("base-url")) {
+  *    (base, text) => Link(List(Text(text)), base + text)
+  *  }
+  *
+  *  object MyDirectives extends RstExtensionRegistry {
+  *    val textRoles = Seq(textRole)
+  *    val spanDirectives = Seq()
+  *    val blockDirectives = Seq()
+  *  }
+  *
+  *  val transformer = Transformer
+  *    .from(ReStructuredText)
+  *    .to(HTML)
+  *    .using(MyDirectives)
+  *    .build
+  * }}}
+  *
+  * We specify the name of the role to be `link`, and the default value the URL provided as the
+  * second argument. The second parameter list specifies the role directive implementation,
+  * in this case only consisting of a call to `field("base-url")` which specifies a required 
+  * field of type `String` (since no conversion function was supplied). The type of the result
+  * of the directive has to match the type of the default value.
+  * Finally the role function is defined that accepts two arguments. The first is the base
+  * url, either the default in case the base role is used directly, or the value specified
+  * with the `base-url` field in a customized role. The second is the actual text from the
+  * interpreted text span. Finally the directive gets registered with the `ReStructuredText`
+  * parser.
+  *
+  * If you need to define more fields or body content they can be added with the `~` combinator
+  * just like with normal directives. Likewise you can specify validators and converters for 
+  * fields and body values like documented in [[laika.rst.ext.Directives]].
+  *
+  * =Using the Text Role in Markup=
+  * 
+  * Our example role can then be used in the following ways:
+  *
+  * Using the base role directly:
+  *
+  * {{{
+  *  For details read our :link:`documentation`.
+  * }}}
+  *
+  * This would result in the following HTML:
+  *
+  * {{{
+  *  For details read our <a href="http://www.company.com/main/documentation">documentation</a>.
+  * }}}
+  *
+  * Using the customized role called `ticket`: 
+  *
+  * {{{
+  *  For details see ticket :ticket:`344`.
+  * }}}
+  *
+  * This would result in the following HTML:
+  *
+  * {{{
+  *  For details see ticket <a href="http://www.company.com/ticket/344">344</a>.
+  * }}}
+  *
+  * @author Jens Halm
+  */
 object TextRoles {
 
   /** API to implement by the actual directive parser.

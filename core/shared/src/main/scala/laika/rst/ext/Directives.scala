@@ -23,151 +23,175 @@ import laika.rst.bundle.RstExtension
 import laika.rst.ext.ExtensionParsers.Result
 
 /** API for creating directives, the extension mechanism of reStructuredText.
- *  The API did not aim to mimic the API of the original Python reference implementation.
- *  Instead the goal was to create an API that is idiomatic Scala, fully typesafe and as concise as possible.
- *  Yet it should be flexible enough to semantically support the options of the Python directives, so that
- *  ideally most existing Python directives could theoretically get ported to Laika.
- * 
- *  Entry points are the `BlockDirective` and `SpanDirective` objects. The Python reference parser does
- *  not make this distinction on the API level, but does this internally based on the context a 
- *  directive is parsed in. Since Laika APIs are typesafe, the distinction is necessary since
- *  block level and span level directives create different types of document tree nodes.
- *  A `SpanDirective` can only be used in a substitution definition which can then be used
- *  within flow elements. A `BlockDirective` can be used directly in any location other block
- *  level content like paragraphs or lists can be used.
- * 
- *  A directive may consist of any combination of arguments, fields and body elements:
- * 
- *  {{{
- *  .. myDirective:: arg1 arg2
- *   :field1: value1
- *   :field2: value2
- * 
- *   This is the body of the directive. It may consist of any standard or custom
- *   block-level and inline markup.
- *  }}}
- * 
- *  In the example above `arg1` and `arg2` are arguments, `field1` and `field2` are fields,
- *  and followed by body elements after a blank line. If there are no arguments or fields
- *  the blank line may be omitted. For the full specification, see 
- *  [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#directives]].
- * 
- *  For each of these directive elements, the API offers a method to specify whether the
- *  element is required or optional, and an optional function to convert or validate the
- *  parsed value.
- * 
- *  Consider the following simple example of a directive with just one argument and
- *  a body:
- * 
- *  {{{
- *  .. note:: This is the title
- *  
- *   This is the body of the note.
- *  }}}
- * 
- *  The implementation of this directive could look like this:
- * 
- *  {{{
- *  case class Note (title: String, 
- *                   content: Seq[Block], 
- *                   options: Options = NoOpt) extends Block 
- *                                             with BlockContainer[Note]
- *
- *  object MyDirectives extends RstExtensionRegistry {
- *    val blockDirectives = Seq(
- *      BlockDirective("note") {
- *        (argument(withWS = true) ~ blockContent).map { case title ~ content => Note(title, content) }
- *      }
- *    )
- *    val spanDirectives = Nil
- *    val textRoles = Nil
- *  )
- *
- *  val transformer = Transformer
-  *   .from(ReStructuredText)
-  *   .to(HTML)
- *    .using(MyDirectives)
- *    .build
- *  }}}
- * 
- *  The `argument()` method specifies a required argument of type `String` (since no conversion
- *  function was supplied). We need to set the `withWS` flag to true as an argument cannot have
- *  whitespace per default. The `blockContent` method specifies standard block content (any block-level
- *  elements that are supported in normal blocks, too) which results in a parsed value of type
- *  `Seq[Block]`. Finally you need to provide a function that accepts the results of the specified
- *  directive elements as parameters (of the corresponding type). Here we created a case class
- *  with a matching signature so can pass it directly as the target function. For a block directive
- *  the final result has to be of type `Block` which the `Note` class satisfies. Finally the directive 
- *  gets registered with the `ReStructuredText` parser.
- * 
- *  If any conversion or validation is required on the individual parts of the directive they can
- *  be passed to the corresponding function:
- * 
- *  {{{
- *  def nonNegativeInt (value: String) =
- *    try {
- *      val num = value.toInt
- *      Either.cond(num >= 0, num, s"not a positive int: \$num")
- *    }
- *    catch {
- *      case e: NumberFormatException => Left(s"not a number: \$value")
- *    }
- * 
- *  case class Message (severity: Int, 
- *                      content: Seq[Block], 
- *                      options: Options = NoOpt) extends Block 
- *                                                with BlockContainer[Message]
- * 
- *  object MyDirectives extends RstExtensionRegistry {
- *    val blockDirectives = Seq(
- *      BlockDirective("message") {
- *        (argument(nonNegativeInt) ~ blockContent).map { 
- *          case severity ~ content => Message(severity, content) 
- *        }
- *      }
- *    )
- *    val spanDirectives = Nil
- *    val textRoles = Nil
- *  )    
- *  }}}
- * 
- *  The function has to provide an `Either[String, T]` as a result. A `Left` result will be interpreted
- *  as an error by the parser with the string being used as the message and an instance of `InvalidBlock`
- *  containing the validator message and the raw source of the directive will be inserted into the document
- *  tree. In this case the final function (`Message`) will never be invoked. A `Right` result will be
- *  used as an argument to the final function. Note how the case class now expects an `Int` as the first
- *  parameter.
- * 
- *  Finally arguments and fields can also be optional. In case they are missing, the directive is still
- *  considered valid and `None` will be passed to your function:
- * 
- *  {{{
- *  case class Message (severity: Option[Int], 
- *                      content: Seq[Block], 
- *                      options: Options = NoOpt) extends Block 
- *                                                with BlockContainer[Message]
- * 
- *  object MyDirectives extends RstExtensionRegistry {
- *    val blockDirectives = Seq(
- *      BlockDirective("message") {
- *        (optArgument(nonNegativeInt) ~ blockContent).map {
- *          case severity ~ content => Message(severity.getOrElse(0), content) 
- *        }  
- *      }
- *    )
- *    val spanDirectives = Nil
- *    val textRoles = Nil
- *  }
- *  }}}
- * 
- *  The argument may be missing, but if it is present it has to pass the specified validator.
- * 
- *  In case of multiple arguments, the order you specify them is also the order in which they
- *  are parsed from the directive markup, with the only exception being that required arguments
- *  will always be parsed before optional ones, and arguments with whitespace need to come last.
- *   
- *  @author Jens Halm
- */
+  * 
+  * The API did not aim to mimic the API of the original Python reference implementation.
+  * Instead the goal was to create an API that is idiomatic Scala, fully typesafe and as concise as possible.
+  * Yet it should be flexible enough to semantically support the options of the Python directives, so that
+  * ideally most existing Python directives could theoretically get ported to Laika.
+  * 
+  * =Comparison with Laika Directives=
+  * 
+  * Extensions defined in the way described in this chapter could still be used when parsing the markup documents 
+  * with a different reStructuredText implementation, as they are fully compatible with the original specification.
+  *
+  * If this is not a requirement you may alternatively use the Laika variant of directives. 
+  * This would give you the following advantages:
+  *
+  * - The syntax definition is simpler, while offering the same flexibility.
+  * - The directive may be used in other parsers, too, like in the Markdown parser.
+  * - The directive may also be used in templates.
+  * For details on these alternative directive types see
+  * [[http://planet42.github.io/Laika/05-extending-laika/03-implementing-directives.html]].
+  *
+  * =Implementing a Directive=
+  * 
+  * Entry points are the `BlockDirective` and `SpanDirective` objects. 
+  * The Python reference parser does not make this distinction on the API level,
+  * but does this internally based on the context a directive is parsed in.
+  * Since Laika APIs are typesafe, the distinction is necessary
+  * since block level and span level directives create different types of document tree nodes.
+  * A `SpanDirective` can only be used in a substitution definition which can then be used within flow elements. 
+  * A `BlockDirective` can be used directly in any location other block level content like paragraphs
+  * or lists can be used.
+  *
+  * A directive may consist of any combination of arguments, fields and body elements:
+  *
+  * {{{
+  *  .. myDirective:: arg1 arg2
+  *   :field1: value1
+  *   :field2: value2
+  *
+  *   This is the body of the directive. It may consist of any standard or custom
+  *   block-level and inline markup.
+  * }}}
+  *
+  * In the example above `arg1` and `arg2` are arguments, `field1` and `field2` are fields,
+  * and followed by body elements after a blank line. If there are no arguments or fields
+  * the blank line may be omitted.
+  * For the full specification, see 
+  * [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#directives]].
+  *
+  * For each of these directive elements, the API offers a method to specify whether the element is required or optional,
+  * and an optional function to convert or validate the parsed value.
+  *
+  * =Basic Example=
+  * 
+  * Consider the following simple example of a directive with just one argument and a body:
+  *
+  * {{{
+  *  .. note:: This is the title
+  *
+  *   This is the body of the note.
+  * }}}
+  *
+  * The implementation of this directive could look like this:
+  *
+  * {{{
+  *  case class Note (title: String, 
+  *                   content: Seq[Block], 
+  *                   options: Options = NoOpt) extends Block 
+  *                                             with BlockContainer[Note]
+  *
+  *  object MyDirectives extends RstExtensionRegistry {
+  *    val blockDirectives = Seq(
+  *      BlockDirective("note") {
+  *        (argument(withWS = true) ~ blockContent).map { case title ~ content => Note(title, content) }
+  *      }
+  *    )
+  *    val spanDirectives = Nil
+  *    val textRoles = Nil
+  *  )
+  *
+  *  val transformer = Transformer
+  *    .from(ReStructuredText)
+  *    .to(HTML)
+  *    .using(MyDirectives)
+  *    .build
+  * }}}
+  *
+  * The `argument()` method specifies a required argument of type `String` (since no conversion function was supplied). 
+  * We need to set the `withWS` flag to true as an argument cannot have whitespace per default. 
+  * The `blockContent` method specifies standard block content (any block-level elements 
+  * that are supported in normal blocks, too) which results in a parsed value of type `Seq[Block]`.
+  * Finally you need to provide a function that accepts the results of the specified directive elements as parameters 
+  * (of the corresponding type).
+  * Here we created a case class with a matching signature so can pass it directly as the target function.
+  * For a block directive the final result has to be of type `Block` which the `Note` class satisfies.
+  * Finally the directive gets registered with the `ReStructuredText` parser.
+  *
+  * =Adding Converters and Validators=
+  * 
+  * If any conversion or validation is required on the individual parts of the directive they can
+  * be passed to the corresponding function:
+  *
+  * {{{
+  *  def nonNegativeInt (value: String) =
+  *    try {
+  *      val num = value.toInt
+  *      Either.cond(num >= 0, num, s"not a positive int: \$num")
+  *    }
+  *    catch {
+  *      case e: NumberFormatException => Left(s"not a number: \$value")
+  *    }
+  *
+  *  case class Message (severity: Int, 
+  *                      content: Seq[Block], 
+  *                      options: Options = NoOpt) extends Block 
+  *                                                with BlockContainer[Message]
+  *
+  *  object MyDirectives extends RstExtensionRegistry {
+  *    val blockDirectives = Seq(
+  *      BlockDirective("message") {
+  *        (argument(nonNegativeInt) ~ blockContent).map { 
+  *          case severity ~ content => Message(severity, content) 
+  *        }
+  *      }
+  *    )
+  *    val spanDirectives = Nil
+  *    val textRoles = Nil
+  *  )    
+  * }}}
+  *
+  * The function has to provide an `Either[String, T]` as a result.
+  * A `Left` result will be interpreted as an error by the parser with the string being used as the message
+  * and an instance of `InvalidBlock` containing the validator message
+  * and the raw source of the directive will be inserted into the document tree.
+  * In this case the final function (`Message`) will never be invoked.
+  * A `Right` result will be used as an argument to the final function.
+  * Note how the case class now expects an `Int` as the first parameter.
+  *
+  * =Optional Elements=
+  * 
+  * Finally arguments and fields can also be optional. In case they are missing, the directive is still
+  * considered valid and `None` will be passed to your function:
+  *
+  * {{{
+  *  case class Message (severity: Option[Int], 
+  *                      content: Seq[Block], 
+  *                      options: Options = NoOpt) extends Block 
+  *                                                with BlockContainer[Message]
+  *
+  *  object MyDirectives extends RstExtensionRegistry {
+  *    val blockDirectives = Seq(
+  *      BlockDirective("message") {
+  *        (optArgument(nonNegativeInt) ~ blockContent).map {
+  *          case severity ~ content => Message(severity.getOrElse(0), content) 
+  *        }  
+  *      }
+  *    )
+  *    val spanDirectives = Nil
+  *    val textRoles = Nil
+  *  }
+  * }}}
+  *
+  * The argument may be missing, but if it is present it has to pass the specified validator.
+  *
+  * In case of multiple arguments, the order you specify them is also the order in which they
+  * are parsed from the directive markup, with the only exception being that required arguments
+  * will always be parsed before optional ones, and arguments with whitespace need to come last.
+  *
+  * @author Jens Halm
+  */
 object Directives {
 
   /** API to implement by the actual directive parser.
