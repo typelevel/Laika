@@ -153,6 +153,17 @@ The remaining configuration options are not specific to the plugin use case and 
 apart from differences in the syntax/mechanics which with they are applied, which are reflected in the corresponding code examples.
 For this reason this section only gives a very brief overview while linking to the relevant sections in the other chapters.
 
+
+### laikaConfig Setting
+
+A builder-style API for basic configuration options grouped in a single sbt setting.
+
+Example:
+  
+```scala
+laikaConfig := LaikaConfig.defaults.strict.withRawContent
+```
+
 - [Strict mode]: Disables all non-standard extensions Laika adds to the supported markup formats, like directives.
 
 - [Raw Content]: Enables the inclusion of raw sections of the target format in markup files, 
@@ -160,15 +171,114 @@ For this reason this section only gives a very brief overview while linking to t
 
 - [Character Encoding]: Sets the character encoding of input and output files, the default is UTF-8.
 
-- [Error Handling & Debugging]: Specify log levels or switch to "visual debugging", where recoverable errors are
+- [Error Handling]: Specify log levels or switch to "visual debugging", where recoverable errors are
   rendered in the page context where they occur instead of causing the transformation to fail.
+  
+- [User-Defined Variables]: Define variables globally that you can refer to in templates and markup files
+  with substitution references.
+      
+      
+### laikaExtensions Setting
 
-- **laikaExtensions Setting**: Use Laika's customization options to override renderers for specific AST nodes ([Overriding Renderers]),
-  transform the document AST before rendering ([AST Rewriting]), install custom directives ([Implementing Directives])
-  or use some of the lower level hooks in ([The ExtensionBundle API]).
+Register implementations of the `ExtensionBundle` API, either provided by the library or extensions you created yourself.
+  
+Example:
 
-- **laikaConfig Setting**: Offers basic configuration options like setting [Strict Mode], including [Raw Content],
-  setting the [Character Encoding], controlling [Error Handling] and specifying [User-Defined Variables].
+```scala
+laikaExtensions := Seq(GitHubFlavor, SyntaxHighlighting)
+``` 
 
-- [Inspecting Laika's Configuration]: Run `show laikaDescribe` to get a formatted summary of the active configuration,
-  installed extension bundles and lists of input and output files.
+- [Overriding Renderers]: adjust the rendered output for specific AST node types.
+  
+- [AST Rewriting]: transform the document AST between parsing and rendering.
+   
+- [Implementing Directives]: install custom directives.
+  
+- Or use any other hook in [The ExtensionBundle API]).
+ 
+
+### Configuring Input and Output
+
+Most of these setting are introduced in the sections above.
+
+- `sourceDirectories in Laika` default `Seq(sourceDirectory.value / "docs")`, usually `Seq("src/docs")`.
+  Specifies one or more source directories to process to be merged into a tree with a single root.
+  See [Preparing Content] for details.
+  
+- `target in Laika` - default `target.value / "docs",`, usually `Seq("target/docs")`.
+  Specifies the directory where the plugin should generate the site. 
+  See [Generating a Site] for details.
+  
+- `excludeFilter in Laika` - default `HiddenFileFilter`  
+  Specifies files to exclude from processing.
+  Note that Laika ignores any `includeFilter` you set, as the tool needs more than a simple yes/no
+  decision for deciding how to process files. 
+  
+- `laikaDocTypeMatcher` extension:
+  Where a simple `excludeFilter` is not sufficient you can customize the way Laika determines the document type.
+  
+  ```scala
+  laikaExtensions += laikaDocTypeMatcher {
+    case Root / "templates" / _ => DocumentType.Template
+    case Root / "images" / _ => DocumentType.Static
+  }
+  ```
+  
+  The list of pattern matches can be incomplete, they will be added to the built-in default matches.
+
+
+### Settings for the laikaSite task
+
+Finally there are three boolean flags that only affect the laikaSite task.
+
+- `laikaIncludeAPI` - default `false` - see [Including Scaladoc].
+
+- `laikaIncludeEPUB` - default `false` - see [Including EPUB and PDF].
+
+- `laikaIncludePDF` - default `false` - see [Including EPUB and PDF].
+
+
+### Inspecting Laika's Configuration
+
+Run `show laikaDescribe` to get a formatted summary of the active configuration,
+installed extension bundles and lists of input and output files.
+
+Example:
+
+```
+Parser(s):
+  Markdown
+  reStructuredText
+Renderer:
+  AST
+Extension Bundles:
+  Laika's Default Extensions (supplied by library)
+  Laika's directive support (supplied by library)
+  Laika's built-in directives (supplied by library)
+  Default Syntax Highlighters for Code (supplied by library)
+  Document Type Matcher for Markdown (supplied by parser)
+  Default extensions for reStructuredText (supplied by parser)
+  Support for user-defined reStructuredText directives (supplied by parser)
+  Standard directives for reStructuredText (supplied by parser)
+  Document Type Matcher for reStructuredText (supplied by parser)
+Settings:
+  Strict Mode: false
+  Accept Raw Content: false
+  Render Formatted: true
+Sources:
+  Markup File(s)
+    File '/dev/project/src/intro.md'
+    File '/dev/project/src/details.md'
+  Template(s)
+    In-memory string or stream
+  Configuration Files(s)
+    -
+  CSS for PDF
+    -
+  Copied File(s)
+    File '/dev/project/src/main.css'
+  Root Directories
+    -
+Target:
+  Directory '/dev/project/target/docs'""""
+```

@@ -1,3 +1,0 @@
-
-sbt Tasks and Settings
-======================
