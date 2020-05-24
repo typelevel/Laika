@@ -3,12 +3,72 @@ Laika's HOCON API
 =================
 
 Laika comes with its own HOCON parser and the corresponding API is used throughout the document model.
+It fully supports the [HOCON specification], albeit based on its own parser implementation.
+
+[HOCON specification]: https://github.com/lightbend/config/blob/master/HOCON.md
 
 
 Why Laika Uses HOCON
 --------------------
 
-TODO
+There is a little irony in that Laika went the extra mile to introduce its own HOCON parser even though
+this project actually does not recommend the use of external files for application configuration!
+
+
+### Problems with Configuration Files
+
+File-based application configuration was usually introduced with the promise of being able to relaunch the
+application with different configurations without rebuilding. 
+However, most real-world deployment processes involve a git commit of any configuration changes and a subsequent
+rebuild on a CI server.
+This way this mechanism never delivers on its initial promise, but instead introduces several problems:
+the indirection of defining values in one place and accessing them in code and the stringly nature
+of the configuration which tends to be error-prone compared to a more type-safe approach.
+
+For this reason newer configuration libraries like Ciris by-pass the file approach entirely.
+The motivation and some use cases are introduced in this [presentation][ciris-scalaxchange].
+
+Likewise Laika encourages programmatic configuration approaches for all its global configuration options,
+and in fact none of the code examples in the manual for this type of configuration show any HOCON-based approaches.
+
+[ciris-scalaxchange]: https://skillsmatter.com/skillscasts/12650-ciris-functional-configurations
+
+
+### Laika's Use Case for HOCON
+
+So why is there are a custom HOCON parser in Laika then?
+The reason is that its primary use case in the library is not around global configuration.
+An input tree (usually obtained from one or more input directories in the file system) is a hierarchical
+structure, and every sub-directory or individual document can override some configuration aspect,
+as shown in [Where Laika Uses HOCON].
+On top of that, Laika has an extension mechanism called directives (see [Implementing Directives] for details)
+and for its syntax which often allows to add attributes to a directive declaration HOCON is a natural fit.
+
+On such a fine-grained level, programmatic configuration is not practical, and HOCON's format is an attractive solution
+thanks to its concise and flexible syntax and its support for substitution definitions where a declaration in a document
+or directive attribute section can directly refer to something defined globally or in a parent scope.
+
+
+### Why a New Parser?
+
+After the question why HOCON has been chosen is answered, there is still a follow-up question about the need
+to re-implement an entirely new parser.
+One reason is that the original implementation (the [Typesafe Config] library) and the projects that wrap around it
+or derive from it do not meet Laika's requirement for full referential transparency.
+They might throw exceptions or perform side effects without exposing it in the method signature.
+Another reason is that Laika extends the capability of what kind of data can be held in a configuration node.
+It allows an AST node to be assigned to a key in a `Config` instance so that it can be referred to in markup or
+templates.
+One of the key features, the way how a template merges the content of its associated markup document,
+is based on this extension, which allows the use of a substitution reference (`${cursor.currentDocument}`) for this task.
+
+Finally, parsing is a central aspect of a lot of Laika's functionality anyway and it even comes with its own parser
+combinators. 
+If you examine the HOCON parser implementation you will notice that it's a very lightweight and small module
+compared to the entire Laika code base.
+
+
+[Typesafe Config]: https://github.com/lightbend/config
 
 
 Where Laika Uses HOCON
