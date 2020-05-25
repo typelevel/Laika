@@ -1,7 +1,14 @@
 
-![Laika](http://planet42.github.io/Laika/img/laika-top.png)
+Laika
+=====
 
-Toolkit for transforming lightweight text markup and template based site and e-book generation.
+Laika is a customizable and extensible toolkit for transforming lightweight text markup 
+and template based site and e-book generation.
+
+If you wonder about the name of the project and have never heard about Laika, 
+you can read about her [here][laika-wikipedia].
+
+[laika-wikipedia]: http://en.wikipedia.org/wiki/Laika
 
 
 Features
@@ -49,10 +56,10 @@ Features
     * Adjust the rendered output for individual AST node types or control the final output of documents with custom templates. 
     
     * Extend the syntax of text markup languages, either with custom directives or by writing a parser extension.
-    
+
 
 Latest Release
---------------
+---------------
 
 The latest release is version **0.14.0**.  
 
@@ -66,14 +73,18 @@ the last release for Scala 2.10 and sbt 0.13 was 0.7.0.
 Open Source under the Apache 2.0 License.
 
 
-Further Information
--------------------
+Getting Started
+---------------
 
-* Read the [Manual].
+* Check the detailed list of [Features].
+
+* Read the introduction for the [sbt Plugin] or the [Library API].
 
 * Try out Laika with the [Demo App].
 
-* Browse the [API].
+* Browse the source on [GitHub].
+
+* Browse the [API Documentation].
 
 * Follow on [Twitter] for release announcements.
 
@@ -81,10 +92,13 @@ Further Information
 
 * Ask questions on [Stackoverflow], tagging with Laika and Scala.
  
+This manual is written in Markdown and transformed by Laika. 
+Its source is included in the repository inside the `docs` folder.
 
-[Manual]: http://planet42.github.com/Laika/index.html
+
 [Demo App]: http://planet42.org/
-[API]: http://planet42.github.com/Laika/api/laika/api/
+[GitHub]: https://github.com/planet42/Laika
+[API Documentation]: ../api/laika/api/
 [Twitter]: https://twitter.com/_planet42
 [Issues]: https://github.com/planet42/Laika/issues
 [Stackoverflow]: http://stackoverflow.com/questions/ask?tags=scala%2claika

@@ -16,7 +16,10 @@ It can be used in a range of usage scenarios:
   
 * In browser-based applications via its library API which is published for Scala.js
 
-
+* Scaling up to producing complex e-books and sites from dozens of inputs, to scaling down to transform
+  a snippet of Markdown with three lines of code.
+  
+  
 Supported Platforms
 -------------------
 
