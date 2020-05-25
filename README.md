@@ -4,6 +4,21 @@
 Toolkit for transforming lightweight text markup and template based site and e-book generation.
 
 
+Latest Release
+--------------
+
+The latest release is version **0.14.0**.  
+
+It is published to Maven Central for Scala 2.13, 2.12 and Scala.js 1.0.
+
+The sbt plugin is published to the sbt plugin repository for sbt 1.x.
+
+The last release supporting Scala 2.11 had been 0.10.0, 
+the last release for Scala 2.10 and sbt 0.13 was 0.7.0.
+
+Open Source under the Apache 2.0 License.
+
+
 Features
 --------
 
@@ -50,21 +65,6 @@ Features
     
     * Extend the syntax of text markup languages, either with custom directives or by writing a parser extension.
     
-
-Latest Release
---------------
-
-The latest release is version **0.14.0**.  
-
-It is published to Maven Central for Scala 2.13, 2.12 and Scala.js 1.0.
-
-The sbt plugin is published to the sbt plugin repository for sbt 1.x.
-
-The last release supporting Scala 2.11 had been 0.10.0, 
-the last release for Scala 2.10 and sbt 0.13 was 0.7.0.
-
-Open Source under the Apache 2.0 License.
-
 
 Further Information
 -------------------
