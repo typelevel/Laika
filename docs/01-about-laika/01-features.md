@@ -2,38 +2,95 @@
 Features
 ========
 
-from old output page:
+Laika is a customizable and extensible toolkit for transforming lightweight text markup 
+and template based site and e-book generation.
 
-The current release supports HTML, EPUB, PDF, XSL-FO and AST.
-Rendering happens from a generic document tree model shared between all parsers,
-so that no renderer implementation has to understand specifics about a concrete
-markup syntax like Markdown or reStructuredText.
+It can be used in a range of usage scenarios:
 
-Customization of the output is possible on two levels, first most formats (except
-for AST) can be styled with CSS. Secondly the rendering of specific nodes
-can be overridden with a simple partial function as described in 
-[Customizing Renderers][../customizing-laika/customize-rendering.md:Customizing Renderers].
+* As an sbt plugin as part of your build and CI pipeline, e.g. for generating Scala project documentation
 
-Finally you can develop an entirely new renderer for a format not supported by Laika
-out of the box. See chapter [Implementing a Renderer] for details.
+* As part of your build with other build tools such as Mill through its library API.
 
-================================================================================================
+* In server-side Scala applications, e.g. for transforming user input in markup syntax or as part of document 
+  processing pipelines
+  
+* In browser-based applications via its library API which is published for Scala.js
 
-from old markup page:
 
-The current release supports Markdown and reStructuredText. Both implementations stay as close
-as possible to the original descriptions and specifications of these formats. 
+Supported Platforms
+-------------------
 
-The markup gets parsed into a generic document tree model shared between all parsers. This means
-that there are some adjustments in terminology (e.g. a bullet list in reStructuredText
-is called an "unordered list" in the Markdown syntax description). 
+Laika can be used as:
 
-It also means that
-there are some tree element types which are not produced by the Markdown parser, like
-table, footnotes or citations, as reStructuredText is much more feature-rich than
-the original Markdown syntax. 
+* A plugin for sbt version 1.x.
 
-The unified model allows to create renderers that
-do not have to deal with any of the specifics of an individual markup syntax.
+* A library on the JVM with Scala 2.12 or 2.13.
 
-================================================================================================
+* A library in Scala.js 1.0 applications with all its features except File/Stream IO, EPUB and PDF output
+
+For getting started see the documentation of the [sbt Plugin] or [Library API].
+
+
+Supported Formats
+-----------------
+
+* Markdown including GitHub Flavor
+
+* reStructuredText including its standard directives
+
+* HOCON for configuration and directive attributes, based on Laika's own parser
+
+* HTML site generation based on templates
+
+* [E-Books (EPUB & PDF)] with auto-generated navigation
+
+
+Content Organization
+--------------------
+
+* [Validated Internal Links] in "native" text markup syntax, based on relative paths or [Linking by Headline Text]. 
+
+* Avoid repetition and centralize all external URLs used in links with [Global Link Definitions].
+
+* Use Laika's [Standard Directives] to automatically [Generate Navigation Trees] or [Breadcrumbs],
+  optionally with [Auto-Numbering].
+
+* Use integrated parsers for [Syntax Highlighting] that work for all output formats. 
+  Supported out of the box are Scala, Dotty, Java, Python, JavaScript (JSX), TypeScript (TSX), 
+  HTML, CSS, XML, JSON, HOCON, SQL, EBNF
+  
+* Freely organize and merge content from multiple input directories or generated in-memory 
+  with the library's [Virtual Path Abstraction].
+
+
+Library API
+-----------
+  
+* Use a purely functional API, with full referential transparency, no exceptions and no runtime reflection.
+
+* Abstracts all effectful computations behind a polymorphic effect type based on `cats-effect` typeclasses, 
+  so that any compatible library can be used with Laika (`cats.IO`, `Monix`, `Zio`).
+ 
+* Full control over ExecutionContexts for blocking IO and CPU-bound processing.
+
+
+Customizations
+--------------
+
+* Process and transform [The Document AST] between parsing and rendering by [AST Rewriting].
+  
+* Adjust the rendered output for individual AST node types by [Overriding Renderers].
+
+* Control the final output of documents by [Creating Templates] for each supported output format. 
+
+
+Extensibility
+-------------
+
+* Extend the syntax of text markup languages, either by [Implementing a Directive] or by [Writing a Parser Extension].
+
+* Support additional languages for Laika's built-in highlighter by [Adding Syntax Highlighters].
+
+* Use simple contracts and APIs for adding [New Markup or Output Formats].
+
+* Write all parsers based on [Laika's Parser Combinators] which are optimized for multi-pass markup parsing.
