@@ -28,7 +28,7 @@ The traits are not sealed as the model is designed to be extensible.
 
 At the top of the hierarchy the AST contains the following node types:
 
-[TODO - diagram]
+![Base Traits of the Document AST](../img/document-ast.png)
 
 * `Element` is the base trait of the hierarchy. 
   It extends `Product` and `Serializable` and is otherwise empty.
@@ -55,6 +55,11 @@ At the top of the hierarchy the AST contains the following node types:
 
 * While most other node types represent content parsed from text markup,
   a `TemplateSpan` represents a portion of a parsed template.
+  
+* The `Container` sub-hierarchy (explained in the next section) is not mutually exclusive to the base traits like
+  `Block` or `Span`. 
+  Each container is always also one of the base types, but the mapping is not fixed and therefore not expressed
+  in the hierarchy (e.g. a `SpanContainer` can be a `Span` or `Block` element itself). 
 
 
 ### Containers
