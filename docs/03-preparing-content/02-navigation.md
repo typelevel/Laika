@@ -452,7 +452,7 @@ val transformer = Transformer
 The configuration above will number both documents and sections within documents, but stop after the third level. 
 The numbers will be added to the headers of the sections and also appear in tables of contents.
 
-[TODO image]
+![Auto-Numbering](../img/auto-numbering.png)
 
 The default setting for Laika has auto-numbering switched off completely.
 
