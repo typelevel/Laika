@@ -141,8 +141,8 @@ The directory structure in a Laika project is not only a way to organize files i
 the structure will also be used by various features of the library that auto-generate navigation structures. 
 
 * **EPUB & PDF**: The supported E-book formats will include auto-generated navigation. 
-  The hierarchy of the navigation will match the directory structure of your inputs and the configured
-  navigation order. The actual content will get flattened into a linear book flow, 
+  The hierarchy of the navigation will match the directory structure of your inputs and the configured navigation order. 
+  The actual content will get flattened into a linear book flow, 
   with title documents becoming the first section in each chapter.
   See @:(E-Books (EPUB & PDF)) on how to configure navigation depth and other options.
 
@@ -155,7 +155,7 @@ The presence of title documents would determine how exactly chapter title are re
 
 **Example for a structure with title documents** 
 
-[TODO Diagram]
+![Input Directory with Title Documents](../img/dir-with-title-docs.png)
 
 In this example each directory has a title document. 
 The title of that document is taken from the first header.
@@ -165,7 +165,7 @@ and the title is linked to the document.
 
 **Example for a structure without title documents** 
 
-[TODO Diagram]
+![Input Directory without Title Documents](../img/dir-without-title-docs.png)
   
 In this example there are no title documents and chapter titles are taken from the file `directory.conf`
 in each directory.
