@@ -413,7 +413,7 @@ Breadcrumbs
 The classic `@:breadcrumb` component generates a simple, flat list of links reflecting the directory structure
 from the root to the current document:
 
-[TODO image]
+![Breadcrumb](../img/breadcrumb.png)
 
 This component works best in a directory structure that contains [Title Documents], as otherwise the
 segments which represent a directory level would have nowhere to link to and would render as plain text.
