@@ -1205,7 +1205,7 @@ object Link {
     */
   def create (linkText: Seq[Span], url: String, source: String, title: Option[String] = None): Span =
     Target.create(url) match {
-      case et: ExternalTarget => SpanLink(linkText, ExternalTarget(et.url), title)
+      case et: ExternalTarget => SpanLink(linkText, et, title)
       case it: InternalTarget => PathReference(linkText, it.relativePath, source, title)
     }
 }
