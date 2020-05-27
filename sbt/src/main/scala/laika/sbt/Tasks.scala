@@ -177,8 +177,9 @@ object Tasks {
     * and `laikaIncludePDF` settings respectively.
     */
   val site: Initialize[Task[Set[File]]] = taskDyn {
-    if (laikaIncludePDF.value) generate.toTask(" html pdf")
-    else generate.toTask(" html")
+    val epub = if (laikaIncludeEPUB.value) " epub" else ""
+    val pdf  = if (laikaIncludePDF.value) " pdf" else ""
+    generate.toTask(" html" + epub + pdf)
   }
 
   /** Copies the API documentation and the rendered PDF file
