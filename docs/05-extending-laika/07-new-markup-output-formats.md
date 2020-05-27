@@ -6,7 +6,7 @@ All the other chapters in the "Extending Laika" section of the manual deal with 
 that at some point becomes part of an `ExtensionBundle`. 
 As [Anatomy of the API] showed, it is one of the major API hooks for building a transformer:
 
-[TODO - copy diagram from Anatomy of the API]
+![Anatomy of the API](../img/anatomy-api.png)
 
 While an `ExtensionBundle` is about enhancing functionality for existing input and output formats,
 this chapter finally is about actually adding new formats. 
