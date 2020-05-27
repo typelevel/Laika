@@ -8,7 +8,7 @@ lazy val basicSettings = Seq(
   description           := "Text Markup Transformer for sbt and Scala applications",
   startYear             := Some(2012),
   licenses              := Seq("Apache 2.0" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt")),
-  scalaVersion          := "2.12.10",
+  scalaVersion          := "2.12.11",
   scalacOptions         := (Opts.compile.encoding("UTF-8") :+ 
                            Opts.compile.deprecation :+ 
                            Opts.compile.unchecked :+ 
@@ -27,7 +27,7 @@ def priorTo2_13(version: String): Boolean =
   }
 
 lazy val moduleSettings = basicSettings ++ Seq(
-  crossScalaVersions := Seq("2.12.10", "2.13.1")
+  crossScalaVersions := Seq("2.12.11", "2.13.2")
 )
 
 lazy val publishSettings = Seq(
@@ -58,15 +58,15 @@ lazy val noPublishSettings = Seq(
   publishTo := None
 )
 
-val scalatest  = "org.scalatest"          %% "scalatest"   % "3.1.1" % "test"
+val scalatest  = "org.scalatest"          %% "scalatest"   % "3.1.2" % "test"
 val jTidy      = "net.sf.jtidy"           %  "jtidy"       % "r938"  % "test"
 
-val catsEffect = "org.typelevel"          %% "cats-effect" % "2.1.1"
+val catsEffect = "org.typelevel"          %% "cats-effect" % "2.1.3"
 
 val fop        = "org.apache.xmlgraphics" %  "fop"         % "2.3"
 val http4s     = Seq(
-                   "org.http4s"           %% "http4s-dsl"          % "0.21.0",
-                   "org.http4s"           %% "http4s-blaze-server" % "0.21.0"
+                   "org.http4s"           %% "http4s-dsl"          % "0.21.4",
+                   "org.http4s"           %% "http4s-blaze-server" % "0.21.4"
                  )
 
 lazy val root = project.in(file("."))
