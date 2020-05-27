@@ -185,7 +185,10 @@ or generate additional files programmatically and "mount" them at a specific poi
 When merged directories contain sub-folders with the same name, those will be merged recursively. 
 Only files with the same name in the same folder are treated as errors.
 
-[TODO Diagram]
+![Merging Directories](../img/merged-directories.png)
+
+In the example above two directories get merged into a single virtual root (`/`).
+The `images` directory exists in both sources, so it will be merged recursively.
 
 The configuration mechanism for specifying multiple input directories is different for the 
 [sbt plugin][Preparing Content] and the [Library API][Merging Multiple Directories]
