@@ -57,7 +57,7 @@ also exposes one of the main design goals of Laika: that everything is meant to 
 
 The following example for creating a pure transformer shows the main building blocks:
 
-[TODO diagram]
+![Anatomy of the API](../img/anatomy-api.png)
 
 * All inputs need to support the `MarkupFormat` contract.
   Supported by the core library are `Markdown` and `ReStructuredText`.
@@ -76,9 +76,11 @@ The following example for creating a pure transformer shows the main building bl
 If you require support for file/stream IO, templating or binary output formats, 
 the `laika-io` module expands on the core API to add this functionality:
 
-[TODO diagram]
+![Anatomy of the IO API](../img/io-api.png)
 
-The elements of the API which are identical to the pure transformer are darkened.
+The blue elements of the API are identical to the pure transformer.
+The new `io` method used above becomes available with `import laika.io.implicits._`.
+
 This API introduces a dependency on `cats-effect` which is used to model the effectful computations.
 You can use it with any effect that supports the `cats-effect` type classes, like cats-IO, Monix or Zio.
 
