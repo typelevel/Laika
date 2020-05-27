@@ -26,7 +26,7 @@ Anatomy of a Directive
 
 The following diagram shows a markup directive with all its optional elements present:
 
-[TODO - diagram]
+![Directive Syntax](../img/directive-syntax.png)
 
 It is quite abstract and contrived, because any real-world directive would not use all optional elements at once.
 
@@ -64,7 +64,7 @@ Let's discuss the directive parts one by one:
   
 Finally, let's also examine the anatomy of a directive implementation:
 
-[TODO - diagram - attribute("height").as\[Int\].optional, attribute("width").as\[Int\].optional, attribute("src").as\[String\] ]
+![Directive DSL](../img/directive-dsl.png)
 
 We'll go through this line by line:
 
@@ -88,7 +88,7 @@ We'll go through this line by line:
   This makes it quite convenient for directive authors as it removes a lot of boilerplate.
   
   When the directive is valid, the parameters of the function will be of the type matching your spec,
-  in our example `String`, `Option[Int]` and `Option[Int]`. 
+  in our example `String` and `Seq[Block]`. 
   The value the directive function produces must be an AST node matching the type of the directive, 
   `Span`, `Block` or `TemplateSpan`.
 
