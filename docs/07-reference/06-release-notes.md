@@ -3,6 +3,52 @@ Release Notes
 =============
 
 
+0.15.0 (May xx, 2020)
+---------------------
+
+* Enhanced Navigation Features
+    * Internal references are now fully validated and dead links cause the transformation to fail by default.
+    * Introduce global link definitions that allow to avoid repetition with centralized declarations of internal
+      or external link targets.
+    * Introduce new `@:navigationTree` directive that allows to combine auto-generated navigation trees
+      with explicit manual entries. Deprecates the old `@:toc` directive.
+    * Add new `@:breadcrumb` directive that produces a list of links from the root to the current document.
+    * Introduce pluggable slug builder in `ExtensionBundle` to allow customizations of how a section headline
+      is translated to an id.
+    * Introduce "Link Directives", a new directive type that allows to define shortcuts for commonly used
+      URL patterns, (e.g. @:rfc(2022)).
+    * Add a new `@:api` link directive as a shortcut for linking to API documentation.
+    * Change default names for title documents to `README.<suffix>` for the input for better GitHub integration 
+      and `index.<suffix>` for the output for better site navigation.
+      Defaults can now be overridden in configuration.
+    * Add methods for navigating siblings in Cursor API for document trees.
+    * Laika now always picks the first header as a title, even when subsequent headers are on the same level.
+    * Improved precision in detecting ambiguous references.
+    * Internal overhaul/rewrite of the link resolver algorithm which was still the original design from 2013
+      and degraded in clarity over several feature additions.
+* Configuration
+    * Introduce programmatic ways to declare all global configuration for both, sbt plugin and library API,
+      which now allows to completely avoid configuration files unless per-directory configuration is required.
+    * Change HOCON configuration keys to always be in a namespace (e.g. `laika.title` or `cursor.currentDocument`),
+      to reduce the likeliness of name clashes with user-defined variables.
+* Error Handling
+    * The presence of invalid nodes in the document AST before rendering now always triggers an abortion
+      of the transformation with all messages from invalid nodes listed in the error result.
+    * The new default behaviour can be overridden in configuration to switch to "visual debugging" where
+      invalid nodes are rendered in their original position in the result.
+* Changes in the Document AST related to navigation enhancements
+    * Merge the functionality of `CrossLink` into `InternalLink`
+    * Merge `ExternalLink` and `InternalLink` to `SpanLink`
+    * Split `Temporary` marker trait into `Unresolved` and `Hidden`
+* Manual
+    * Complete rewrite of the manual which still had its initial structure from 2012.
+    * Better separation of tutorial-style from reference-style sections.
+    * New chapters about Laika's parser combinators, HOCON API, design goals, configuration options,
+      navigation features, writing parser extensions and adding new syntax highlighters.
+* Bugfix
+    * The combination of the `laikaSite` task with the `laikaIncludeEPUB` setting led to a zero-byte result.
+    
+
 0.14.0 (Feb 28, 2020)
 ---------------------
 
