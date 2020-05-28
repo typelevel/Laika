@@ -92,7 +92,7 @@ We'll go through this line by line:
   The value the directive function produces must be an AST node matching the type of the directive, 
   `Span`, `Block` or `TemplateSpan`.
 
-Further below we'll show a [Sample Implementation] based on a real world scenario.
+Further below we'll show a [Sample Directive] based on a real world scenario.
 
 
 Directive Types
@@ -116,7 +116,7 @@ you can wrap that same node in a `Paragraph` block node for a block-level direct
 
 The three main directive types for blocks, spans and templates are similar enough that we avoid
 the repetition of documenting them separately. 
-Instead the following sections [Sample Implementation], [Directive Attributes], [Directive Body],
+Instead the following sections [Sample Directive], [Directive Attributes], [Directive Body],
 [Access to the Parser] and [Access to the Document Cursor] apply to all of these 3 main types.
 
 [Separator Directives] and [Link Directives] on the other hand are quite different,

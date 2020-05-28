@@ -26,6 +26,8 @@ ${?cursor.currentDocument.title}
 
 If an optional reference points to an undefined value, the reference in the template is substituted with an empty string.
 
+[HOCON spec]: https://github.com/lightbend/config/blob/master/HOCON.md
+
 
 Pre-Defined Values
 ------------------
@@ -100,7 +102,7 @@ but are nevertheless exposed like any other value in the configuration.
 
 * `laika.metadata`: holds the [Document Metadata] specified in configuration.
 
-* `laika.links`: holds navigation configuration for [Global Link Definitions], [Links to API Documentation]
+* `laika.links`: holds navigation configuration for [Global Link Definitions], [Linking to API Documentation]
   and [Disabling Validation].
 
 * `laika.autonumbering`: the configuration for auto-numbering documents and sections. 

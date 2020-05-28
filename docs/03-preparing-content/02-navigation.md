@@ -38,7 +38,7 @@ Please read the [Introduction](/basics/introduction.md).
 ```
 
 The paths do not have to be valid relative or absolute paths in the file system.
-You can always work within the [Virtual Path Abstraction]. 
+You can always work within the [Virtual Tree Abstraction]. 
 
 It means that a relative path like `../images/foo.jpg` can point to an `images` directory that
 has been merged into the input tree in the project's configuration, 

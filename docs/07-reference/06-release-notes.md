@@ -322,7 +322,7 @@ Release Notes
   course, is written in reStructuredText) and many fixes to make it pass
 * Adds the renderer option `HTML.unformatted` for terse output without indentation or whitespace
   (often desirable when writing the rendered document to a database for example)
-* Adds a new [Web Tool] to try out Laika online
+* Adds a new Demo App to try out Laika online
 * General cleanup of parser implementations and alignments between Markdown and reStructuredText
   parsers, making both of them much more robust
 

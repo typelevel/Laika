@@ -96,7 +96,7 @@ Apart from raw content in the target format HTML, it contains:
   See [Substitution Variables] for details.
   
 * Another substitution variable that inserts the content of the markup document (`${cursor.currentDocument.content}`).
-  See [Inserting Content] for details.
+  See [Inserting Content from Markup Documents] for details.
 
 * A directive `@:navigationTree` for rendering a navigation tree from the root (`"/"`) of the input tree.
   See [Directives] for details.
@@ -200,7 +200,7 @@ Some directive implementations require a set of mandatory attributes and may cau
 should they be missing.
 
 The most relevant directives for templates are those for generating navigation elements, 
-like [The @:navigationTree Directive] or [The @:breadcrumb Directive].
+like [Generating Navigation Trees] or [Breadcrumbs].
  
 For a full reference of the directives provided by Laika out of the box, see [Standard Directives].
 

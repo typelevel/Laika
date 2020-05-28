@@ -75,7 +75,7 @@ Book Navigation
 
 Laika supports a directory structure with sub-directories of any depth. 
 Markup files from the input directory will form the content of the e-book, 
-linearized in depth-first traversal and using your configured [Navigation Order].
+linearized in depth-first traversal and using your configured [Navigation Order][Configuration Files].
 
 Laika will generate navigation elements compatible with e-book readers,
 as shown in the images below:

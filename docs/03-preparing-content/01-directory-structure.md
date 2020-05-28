@@ -7,7 +7,7 @@ Laika does not have any special directories and content can be nested in sub-dir
 When you are using the sbt plugin or the parallel transformer from the library API that accepts directories as input,
 Laika supports additional file types and navigation features on top of just parsing text markup.
 This section describes the supported [Document Types], how [Auto-Generated Navigation] works with
-directory input and how the [Virtual Tree Abstraction] that 
+directory input and how the [Virtual Tree Abstraction] decouples the logic from the file system. 
  
 This set of functionality is not available when you are using a transformer or parser from the library API
 that expects a single input (file, stream or string) for processing.
@@ -72,7 +72,7 @@ val transformer = Transformer
 @:@
 
 Title Documents will also render on a level above the other chapter documents in the navigation,
-(see [Auto-Generated Navigation] for details) and will be linked in [@:breadcrumb] components.
+(see [Auto-Generated Navigation] for details) and will be linked in [Breadcrumbs] components.
   
 
 ### Configuration Files
@@ -127,11 +127,11 @@ All other files, like CSS, JavaScript, images, etc., will be handled depending o
   
 * **EPUB**: Static files will be integrated into the EPUB container,
   in the same directory structure and with identical file names.
-  See @:(E-Books (EPUB & PDF)) for supported file types and other options.
+  See [E-Books (EPUB & PDF)] for supported file types and other options.
   
 * **PDF**: When generating PDF only assets actually used and referred to by markup pages
   or templates will be embedded in the final binary file.
-  See @:(E-Books (EPUB & PDF)) for supported file types and other options.
+  See [E-Books (EPUB & PDF)] for supported file types and other options.
 
 
 Auto-Generated Navigation
@@ -144,9 +144,9 @@ the structure will also be used by various features of the library that auto-gen
   The hierarchy of the navigation will match the directory structure of your inputs and the configured navigation order. 
   The actual content will get flattened into a linear book flow, 
   with title documents becoming the first section in each chapter.
-  See @:(E-Books (EPUB & PDF)) on how to configure navigation depth and other options.
+  See [E-Books (EPUB & PDF)] on how to configure navigation depth and other options.
 
-* **Web Sites**: For HTML output you can use directives like [@:navigationTree] in templates to auto-generate
+* **Web Sites**: For HTML output you can use directives like [\@:navigationTree] in templates to auto-generate
   a navigation structure from the root of your input tree or any other specific sub-node.
   With the next release (0.16) the library will also contain default themes that provide basic navigation
   out of the box.

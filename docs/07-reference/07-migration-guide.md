@@ -327,8 +327,7 @@ The building blocks for creating your own directives have also changed significa
 * `body` is now either `parsedBody` or `rawBody`
 * Type conversions happen with the new `as` method: `attribute("title").as[String]`,
   based on the `ConfigDecoder` type class that is also used for the new Config API
-* Named body parts have been replaced by the more flexible Separator Directives, 
-  see [Separated Body] for details
+* Named body parts have been replaced by the more flexible [Separator Directives]. 
 * The built-in helper for mapping directive parts with different arity has
   been replaced by cats `mapN`
   

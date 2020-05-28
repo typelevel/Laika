@@ -106,7 +106,7 @@ While the most common forms of specifying the input and output are file-based wi
 settings of the sbt plugin specifying a single directory as input, this is by no means the only option to compose 
 the sources.
  
-Laika internally uses a [Virtual Path Abstraction] to organize markup documents, templates and configuration files.
+Laika internally uses a [Virtual Tree Abstraction] to organize markup documents, templates and configuration files.
 The decoupling from the file system gives additional flexibility. 
 
 For example, when two directories are specified as input the resulting, logical tree will be a recursive merge

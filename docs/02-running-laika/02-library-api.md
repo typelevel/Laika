@@ -484,7 +484,7 @@ For this reason this section only gives a very brief overview while linking to t
 
 - [Character Encoding]: Sets the character encoding of input and output files, the default is UTF-8.
 
-- [Error Handling & Debugging]: Specify log levels or switch to "visual debugging", where recoverable errors are
+- [Error Handling]: Specify log levels or switch to "visual debugging", where recoverable errors are
   rendered in the page context where they occur instead of causing the transformation to fail.
 
 - **Laika Extensions**: Use the library's customization options to override renderers for specific AST nodes ([Overriding Renderers]),

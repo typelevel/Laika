@@ -26,7 +26,7 @@ Can be used in templates and as block elements in text markup.
 This flexible directive allows to freely combine auto-generated navigation trees based on your input tree's
 structure with manual entries.
 
-It is documented in detail in [The @:navigationTree Directive] in the Navigation chapter.
+It is documented in detail in [Generating Navigation Trees] in the Navigation chapter.
 
 
 ### `@:breadcrumb`
@@ -35,7 +35,7 @@ Can be used in templates and as block elements in text markup.
 
 This standard breadcrumb component generates a simple, flat list of links reflecting the directory structure
 from the root to the current document. 
-See [The @:breadcrumb Directive] in the Navigation chapter for details.
+See [Breadcrumbs] in the Navigation chapter for details.
 
 
 ### `@:api`

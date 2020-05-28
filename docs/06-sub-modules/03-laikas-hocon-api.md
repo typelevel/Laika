@@ -116,7 +116,7 @@ They are in the companion, therefore do not require any imports.
 
 The `Path` decoder deals with the type representing Laika's virtual path.
 It is convenient in that it resolves relative paths to absolute paths based on the origin of the definition.
-See [Virtual Path Abstraction] for details.
+See [Virtual Tree Abstraction] for details.
 
 There are variants of the `get` method shown above: there is an overload that allows to pass a default value
 as the second argument that will be used when there is no value for the specified key.
@@ -130,7 +130,7 @@ Creating Decoders and Encoders
 ------------------------------
 
 Decoders are required for reading from a `Config` instance as shown in the previous section, the most common scenario.
-Encoders are needed when you populate a `Config` instance programmatically as shown in [Using ConfigBuilder].
+Encoders are needed when you populate a `Config` instance programmatically as shown in [Programmatic Building].
 
 
 ### ConfigDecoder

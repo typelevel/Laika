@@ -51,11 +51,11 @@ Supported Formats
 Content Organization
 --------------------
 
-* [Validated Internal Links] in "native" text markup syntax, based on relative paths or [Linking by Headline Text]. 
+* [Validated Internal Links] in "native" text markup syntax, based on relative paths or [Linking by Section Headline]. 
 
 * Avoid repetition and centralize all external URLs used in links with [Global Link Definitions].
 
-* Use Laika's [Standard Directives] to automatically [Generate Navigation Trees] or [Breadcrumbs],
+* Use Laika's [Standard Directives] for automatically [Generating Navigation Trees] or [Breadcrumbs],
   optionally with [Auto-Numbering].
 
 * Use integrated parsers for [Syntax Highlighting] that work for all output formats. 
@@ -63,7 +63,7 @@ Content Organization
   HTML, CSS, XML, JSON, HOCON, SQL, EBNF
   
 * Freely organize and merge content from multiple input directories or generated in-memory 
-  with the library's [Virtual Path Abstraction].
+  with the library's [Virtual Tree Abstraction].
 
 
 Library API
@@ -90,7 +90,7 @@ Customizations
 Extensibility
 -------------
 
-* Extend the syntax of text markup languages, either by [Implementing a Directive] or by [Writing a Parser Extension].
+* Extend the syntax of text markup languages, either by [Implementing Directives] or by [Writing Parser Extensions].
 
 * Support additional languages for Laika's built-in highlighter by [Adding Syntax Highlighters].
 

@@ -24,7 +24,7 @@ Making it as straightforward as possible to add support for more formats like AS
 was one of Laika's initial design goals.
 
 
-### Prerequisites
+### Parser Prerequisites
 
 The content of this chapter builds on top of concepts introduced in other chapters,
 therefore it's recommended to read those first.
@@ -36,7 +36,7 @@ some optimizations useful for the specific use case of markup parsing right into
 Second, since block and span parsers that together provide the markup implementation all produce AST nodes, 
 it might help to get familiar with [The Document AST] first.
 
-Finally, [Writing a Parser Extension] covers a lot of ground relevant for adding a new format, too.
+Finally, [Writing Parser Extensions] covers a lot of ground relevant for adding a new format, too.
 It walks through the sample implementation of a span parser.
 
 The main difference is merely that a block or span parser serving as an extension for existing markup languages 
@@ -79,7 +79,7 @@ These are the four abstract method each parser has to implement.
   The parsers for individual elements like lists or links can almost always be implemented in isolation
   with little or no interdependencies.
   
-  [Writing a Parser Extension] contains a walk-through of a span parser implementation.
+  [Writing Parser Extensions] contains a walk-through of a span parser implementation.
   You can also browse the code for Laika's Markdown and reStructuredText support for more examples. 
   
 * The `extensions` collection allows to add functionality beyond just markup parsing.
@@ -138,7 +138,7 @@ Making it as straightforward as possible to add support for additional output fo
 potentially as a 3rd-party library, was one of Laika's initial design goals.
 
 
-### Prerequisites
+### Renderer Prerequisites
 
 The content of this chapter builds on top of concepts introduced in other chapters,
 therefore it's recommended to read those first.

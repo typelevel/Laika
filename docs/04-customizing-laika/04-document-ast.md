@@ -271,7 +271,7 @@ This section lists the block and span elements that are not containers and the s
 
 ### Block Elements
 
-Most block elements are either [SpanContainers] or [BlockContainers], but a few are neither:
+Most block elements are either [Span Containers] or [Block Containers], but a few are neither:
 
 * The `Table` element represents a table structure with the help of its related types 
   `Row`, `Cell`, `TableHead`, `TableBody`, `Caption` and `Columns`.
@@ -295,7 +295,7 @@ Most block elements are either [SpanContainers] or [BlockContainers], but a few 
 
 ### Span Elements
 
-Most span elements are either [SpanContainers] or [TextContainers], but a few are neither:
+Most span elements are either [Span Containers] or [Text Containers], but a few are neither:
 
 * The `Image` element is a `Span` element that points to an image resource which may be internal or external.
   It supports optional size and title attributes.
@@ -370,7 +370,7 @@ case class Document (
 
 * The `path` property holds the absolute, virtual path of the document inside the tree.
   It is virtual as no content in Laika has to originate from the file system.
-  See [Virtual Path Abstraction] for details.
+  See [Virtual Tree Abstraction] for details.
   
 * The `content` property holds the parsed content of the markup document.
   Its type `RootElement` is one of the types listed under [Block Containers] above.
