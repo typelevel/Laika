@@ -59,7 +59,7 @@ laikaConfig := LaikaConfig.defaults
   .withConfigValue(LaikaKeys.titleDocuments.outputName, "title")
 ```
 
-@choice(library)
+@:choice(library)
 ```scala
 val transformer = Transformer
   .from(Markdown)

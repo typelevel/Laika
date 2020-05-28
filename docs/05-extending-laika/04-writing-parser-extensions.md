@@ -130,7 +130,7 @@ laikaExtensions := Seq(
 )
 ```
 
-@choice(library)
+@:choice(library)
 ```scala
 val transformer = Transformer
   .from(Markdown)
@@ -193,7 +193,7 @@ laikaConfig := LaikaConfig.defaults
   .withConfigValue("ticket.baseURL", "https://example.com/issues")
 ```
 
-@choice(library)
+@:choice(library)
 ```scala
 val transformer = Transformer
   .from(Markdown)
@@ -363,7 +363,7 @@ laikaExtensions := Seq(
 )
 ```
 
-@choice(library)
+@:choice(library)
 ```scala
 val transformer = Transformer
   .from(Markdown)

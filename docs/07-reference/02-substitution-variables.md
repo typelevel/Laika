@@ -136,7 +136,7 @@ laikaConfig := LaikaConfig.defaults
   .withConfigValue("project.version", "2.4.6")
 ```
 
-@choice(library)
+@:choice(library)
 ```scala
 val transformer = Transformer
   .from(Markdown)

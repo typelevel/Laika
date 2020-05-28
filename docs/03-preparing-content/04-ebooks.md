@@ -99,7 +99,7 @@ laikaConfig := LaikaConfig.defaults
   .withConfigValue(BookConfig(navigationDepth = Some(3)))
 ```
 
-@choice(library)
+@:choice(library)
 ```scala
 val transformer = Transformer
   .from(Markdown)
@@ -122,7 +122,7 @@ laikaConfig := LaikaConfig.defaults
   .withConfigValue(PDF.BookConfig(navigationDepth = Some(4)))
 ```
 
-@choice(library)
+@:choice(library)
 ```scala
 val transformer = Transformer
   .from(Markdown)
@@ -152,7 +152,7 @@ val transformer = Transformer
   .build
 ```
 
-@choice(library)
+@:choice(library)
 ```scala
 laikaConfig := LaikaConfig.defaults
   .withConfigValue(BookConfig(
@@ -178,7 +178,7 @@ laikaConfig := LaikaConfig.defaults
   ))
 ```
 
-@choice(library)
+@:choice(library)
 ```scala
 val transformer = Transformer
   .from(Markdown)
@@ -215,7 +215,7 @@ laikaConfig := LaikaConfig.defaults
   )))
 ```
 
-@choice(library)
+@:choice(library)
 ```scala
 val transformer = Transformer
   .from(Markdown)

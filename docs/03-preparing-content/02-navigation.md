@@ -62,7 +62,7 @@ laikaConfig := LaikaConfig.defaults
   .withConfigValue(LinkConfig(excludeFromValidation = Seq(Root / "generated")))
 ```
 
-@choice(library)
+@:choice(library)
 ```scala
 val transformer = Transformer
   .from(Markdown)
@@ -115,7 +115,7 @@ laikaConfig := LaikaConfig.defaults
   )))
 ```
 
-@choice(library)
+@:choice(library)
 ```scala
 val transformer = Transformer
   .from(Markdown)
@@ -226,7 +226,7 @@ laikaConfig := LaikaConfig.defaults
   )))
 ```
 
-@choice(library)
+@:choice(library)
 ```scala
 val transformer = Transformer
   .from(Markdown)
@@ -253,7 +253,7 @@ laikaConfig := LaikaConfig.defaults
   )))
 ```
 
-@choice(library)
+@:choice(library)
 ```scala
 val transformer = Transformer
   .from(Markdown)
@@ -438,7 +438,7 @@ laikaConfig := LaikaConfig.defaults
   .withConfigValue(AutonumberConfig(maxDepth = 3))
 ```
 
-@choice(library)
+@:choice(library)
 ```scala
 val transformer = Transformer
   .from(Markdown)

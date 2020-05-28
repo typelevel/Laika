@@ -372,7 +372,7 @@ laikaExtensions := Seq(
 )
 ```
 
-@choice(library)
+@:choice(library)
 ```scala
 val transformer = Transformer
   .from(Markdown)

@@ -44,7 +44,7 @@ To disable all these extensions you can use the `strict` flag:
 laikaConfig := LaikaConfig.defaults.strict
 ```
 
-@choice(library)
+@:choice(library)
 ```scala
 val transformer = Transformer
   .from(Markdown)
@@ -83,7 +83,7 @@ You can enable verbatim HTML and other raw formats explicitly in the configurati
 laikaConfig := LaikaConfig.defaults.withRawContent
 ```
 
-@choice(library)
+@:choice(library)
 ```scala
 val transformer = Transformer
   .from(Markdown)
@@ -109,7 +109,7 @@ When you need to work with different encodings you can override the default:
 laikaConfig := LaikaConfig.defaults.encoding(Codec.ISO8859)
 ```
 
-@choice(library)
+@:choice(library)
 ```scala
 implicit val codec:Codec = Codec.UTF8
 ```
@@ -202,7 +202,7 @@ laikaConfig := LaikaConfig.defaults
   .renderMessages(MessageFilter.Error)
 ```
 
-@choice(library)
+@:choice(library)
 ```scala
 val transformer = Transformer
   .from(Markdown)
@@ -239,7 +239,7 @@ laikaAST
 
 This task is a shortcut for `laikaGenerate ast`
 
-@choice(library)
+@:choice(library)
 ```scala
 val input = "some *text* example"
 
@@ -288,7 +288,7 @@ laikaConfig := LaikaConfig.defaults
   .withConfigValue("license", "Apache 2.0")
 ```
 
-@choice(library)
+@:choice(library)
 ```scala
 val transformer = Transformer
   .from(Markdown)
