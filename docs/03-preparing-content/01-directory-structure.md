@@ -146,7 +146,7 @@ the structure will also be used by various features of the library that auto-gen
   with title documents becoming the first section in each chapter.
   See [E-Books (EPUB & PDF)] on how to configure navigation depth and other options.
 
-* **Web Sites**: For HTML output you can use directives like [\@:navigationTree] in templates to auto-generate
+* **Web Sites**: For HTML output you can use directives like [The navigationTree Directive] in templates to auto-generate
   a navigation structure from the root of your input tree or any other specific sub-node.
   With the next release (0.16) the library will also contain default themes that provide basic navigation
   out of the box.

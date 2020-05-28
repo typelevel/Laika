@@ -228,9 +228,9 @@ to get a formatted output of the entire AST structure.
 
 Longer plain text spans are truncated in this output format to put the emphasis on the structure of the document. 
 
-@choices
+@:choices(config)
 
-@choice(sbt)
+@:choice(sbt)
 Create a file with the content `some *text* example` in the input directory and run:
 
 ```scala

@@ -140,6 +140,8 @@ Cover Images
 
 A cover image can be specified for EPUB and PDF:
 
+@:choices(config)
+
 @:choice(sbt)
 ```scala
 val transformer = Transformer

@@ -299,7 +299,7 @@ You can also additionally include a table of content in the rendered pages, by u
 directive described below in the templates for EPUB and PDF.
 
 
-### The @:navigationTree Directive
+### The navigationTree Directive
 
 This flexible directive allows to freely combine auto-generated navigation trees based on your input tree's
 structure with manual entries.

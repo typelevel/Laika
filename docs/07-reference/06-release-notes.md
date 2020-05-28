@@ -16,7 +16,7 @@ Release Notes
     * Introduce pluggable slug builder in `ExtensionBundle` to allow customizations of how a section headline
       is translated to an id.
     * Introduce "Link Directives", a new directive type that allows to define shortcuts for commonly used
-      URL patterns, (e.g. @:rfc(2022)).
+      URL patterns, (e.g. `@:rfc(2022)`).
     * Add a new `@:api` link directive as a shortcut for linking to API documentation.
     * Change default names for title documents to `README.<suffix>` for the input for better GitHub integration 
       and `index.<suffix>` for the output for better site navigation.
