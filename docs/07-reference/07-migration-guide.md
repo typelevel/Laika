@@ -1,6 +1,40 @@
 
-Migration Guide for Version 0.12
-================================
+Migration Guide
+===============
+
+Laika has not reached the 1.0 status yet and as a consequence, minor API changes can still be expected on the road
+towards 1.0.
+
+Most of the content in this guide is not relevant if you either use the integrated sbt plugin or the library API
+without any lower-level customizations.
+
+The only change of the top-level library API in 8 years had been the 0.12.0 release, which has very detailed
+migration instructions below.
+
+
+Versions older than 0.15.0
+--------------------------
+
+If you plan to migrate to 0.15 it is recommended to address all deprecation warnings the compiler admits
+as this is the last release where they'll be supported.
+
+If you upgrade from a version older than 0.12.0 it is also recommended to switch to the new [Directive Syntax]
+described below as this is a functional area that unfortunately does not emit any compiler warnings.
+
+
+Versions older than 0.14.0
+--------------------------
+
+* If you use the document AST: the `Path` API had been split into `Path` for absolute paths only and `RelativePath`
+  for pointing from one document to another.
+  
+* If you developed parser extensions there are new entry points for defining a span or block parser.
+  You can address all deprecation warnings you might get for your parser definitions by following the new
+  guide for [Writing Parser Extensions].
+
+
+Versions older than 0.12.0
+--------------------------
 
 The 0.12 release contains the most significant number of breaking changes
 of any release since the 0.1 version in 2012.
@@ -17,15 +51,13 @@ of any release since the 0.1 version in 2012.
   high level APIs had changed.
 * You can of course simply skip features you do not use.
 
-This guide is written for users of the 0.9, 0.10 and 0.11 releases which had been compatible
-with each other. 
+This section is written for users of the 0.9, 0.10 and 0.11 releases which had been compatible with each other. 
 
-If you migrate from an even earlier version, please start with the release
-notes for 0.9 first https://github.com/planet42/Laika/releases/tag/0.9.0 
+If you migrate from an even earlier version, please start with the 
+[release notes for 0.9](https://github.com/planet42/Laika/releases/tag/0.9.0) first.
 
 
-Motivation
-----------
+### Motivation
 
 The following design goals led to the partial rewrite:
 
@@ -40,8 +72,7 @@ The following design goals led to the partial rewrite:
   a final 1.0 release will be less bumpy from now on
 
 
-New Separate laika-io Module
-----------------------------
+### New Separate laika-io Module
 
 A subset of the existing `laika-core` module has been extracted into its own module,
 `laika-io`. You need to add this new dependency if you use:
@@ -64,8 +95,7 @@ The reasons for the split were:
   be fully supported for Scala.js in a later release (most likely 0.13)
 
 
-Referential Transparency
-------------------------
+### Referential Transparency
 
 Laika is now supposed to be a good citizen in a pure FP setup when using its
 library API. The following changes had been implemented for this purpose:
@@ -80,8 +110,7 @@ library API. The following changes had been implemented for this purpose:
   by Laika, supporting the full spec.
 
 
-Parser, Renderer and Transformer APIs
--------------------------------------
+### Parser, Renderer and Transformer APIs
 
 The changes were necessary for the following reasons:
 
@@ -169,8 +198,7 @@ Note that while the new code sample looks more verbose, it now gives you full
 control over where your effects are run.
 
 
-Customizing Renderers
----------------------
+### Customizing Renderers
 
 The renderer API had changed from a side-effecting API to a pure API.
 Renderers now take AST elements and produce a string and will be invoked
@@ -208,8 +236,7 @@ The engine passes the following instances to the partial function:
 * The current element of the rendered document AST which you can pattern match on  
 
 
-Rewrite Rules
--------------
+### Rewrite Rules
 
 Here most of the changes are in the implementation which had been rewritten to avoid
 any kind of runtime reflection. 
@@ -243,8 +270,7 @@ val transformer = Transformer
   .build
 ```
 
-Templating
-----------
+### Templating
 
 Variable substitutions now use HOCON syntax in line with the general deeper integration
 with HOCON throughout Laika's feature set. 
@@ -256,8 +282,7 @@ The old reference style `{{some.ref}}` now becomes either `${some.ref}` for a re
 reference or `${?some.ref}` for an optional one.
 
 
-Directives
-----------
+### Directives
 
 Directives in 0.12 come with changes in both, the DSL for creating custom directives
 and the supported syntax in markup and template files.
@@ -265,7 +290,7 @@ and the supported syntax in markup and template files.
 If you are not implementing your own directives, but only use the built-in ones
 provided by Laika, you can skip the section on the DSL.
 
-### Directive Syntax
+#### Directive Syntax
 
 * The separators for the attribute and body sections have changed
 * HOCON syntax is now used for named attributes between curly braces or a plain string for an 
@@ -294,11 +319,11 @@ After
 @:@
 ```
 
-### Directive DSL
+#### Directive DSL
 
 The building blocks for creating your own directives have also changed significantly:
 
-* `attribute(Default)` is now `defaultAttribute`
+* `attribute(Default)` is now `attribute(0)`
 * `body` is now either `parsedBody` or `rawBody`
 * Type conversions happen with the new `as` method: `attribute("title").as[String]`,
   based on the `ConfigDecoder` type class that is also used for the new Config API
@@ -336,14 +361,13 @@ case class Note (title: String,
                                            with SpanContainer[Note]
  
 val spanDirective = Spans.create("note") {
-  (defaultAttribute.as[String], parsedBody).mapN(Note(_,_))
+  (attribute(0).as[String], parsedBody).mapN(Note(_,_))
 }  
 ```
 
 Note the additional import of cats implicits in the new version.
 
-Config API
-----------
+### Config API
 
 Laika's support for HOCON configuration, originating either from configuration headers
 in markup or template documents or separate configuration files had previously been
@@ -356,8 +380,7 @@ See the API docs for [laika.config.Config] for details.
 [laika.config.Config]: http://planet42.github.com/Laika/api/laika/config/Config.html
 
 
-Document Tree Model
--------------------
+### Document Tree Model
 
 The model had been enhanced to better cater for Laika's support for e-book generation.
 
