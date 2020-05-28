@@ -80,7 +80,13 @@ linearized in depth-first traversal and using your configured [Navigation Order]
 Laika will generate navigation elements compatible with e-book readers,
 as shown in the images below:
 
-[TODO - image - nav EPUB + PDF] 
+PDF Navigation in Preview for Mac:
+
+![PDF Navigation](../img/nav-pdf.png) 
+
+EPUB Navigation in iBooks:
+
+![EPUB Navigation](../img/nav-epub.png)
 
 The navigation depth is unlimited by default and will also include links to each section inside your documents.
 The depth to traverse can be changed via Laika's global configuration:
