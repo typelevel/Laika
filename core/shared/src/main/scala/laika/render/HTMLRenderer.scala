@@ -59,7 +59,7 @@ class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => Str
         }
       }
       
-      BulletList(transformItems(navList.content), bullet)
+      BulletList(transformItems(navList.content), bullet, navList.options)
     }
 
     object WithFallback {
