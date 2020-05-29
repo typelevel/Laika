@@ -30,16 +30,17 @@
         <ul class="nav nav-list affix">
           <div class="nav-top"><img src="../img/laika-top.png"/></div>
           
-          @:laika-nav.
+          @:laika-nav
           
           <li class="nav-header">Project Links</li>
           <li><a href="http://github.com/planet42/Laika">Source Code</a></li>
           <li><a href="../api/laika/api/">API Documentation</a></li>
-          <li><a href="http://github.com/planet42/Laika/issues">Issue Tracker</a></li>
-          <li><a href="http://planet42.org/">Transformer Web Tool</a></li>
+          <!--<li><a href="http://github.com/planet42/Laika/issues">Issue Tracker</a></li>-->
+          <!--<li><a href="http://planet42.org/">Demo App</a></li>-->
+          <!--  
           <li class="follow"><a href="https://twitter.com/_planet42" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false" data-dnt="true">Follow @_planet42</a>
           <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script></li>
-          
+          -->
           <div class="nav-bottom"><img src="../img/laika-bottom.png" border="1"/></div>
         </ul>
         
@@ -47,7 +48,7 @@
       
       <div class="span8" id="top">
 
-        {{document.content}}      
+        ${cursor.currentDocument.content}
 
       </div>
     </div>
