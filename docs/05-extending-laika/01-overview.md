@@ -20,22 +20,22 @@ Transformation Phases
 For a better understanding of the extension points listed below it is good to a have a rough idea about how
 a transformation in Laika is performed. It can be divided into 4 phases:
 
-1) The parsing step. Text markup and template documents get parsed and translated into an internal AST.
+1) **The parsing step**. Text markup and template documents get parsed and translated into an internal AST.
    The AST is a generic abstraction of the document's structure and is not tied to any specific semantics
    of a particular input or output format.
    
-2) The AST transformation. The original AST is only what each parser for the corresponding block or inline
+2) **The AST transformation**. The original AST is only what each parser for the corresponding block or inline
    element can process locally, without access to other nodes or even other documents. 
    One of the advantages of this design, apart from separation of concerns, is that parsers can run in parallel.
    As a consequence nodes like internal references or auto-numbered footnotes require further processing with access to
    a `DocumentCursor` that allows to access content from anywhere in the input tree.
 
-3) Applying templates to markup documents. 
+3) **Applying templates to markup documents**. 
    Since both are just AST structures, this step is merely a second AST transformation.
    The AST representing the markup document will be inserted into the node of the template AST that holds
    a reference to the content.
    
-4) Rendering. As the last step the final AST obtained from the two previous transformation steps will get rendered
+4) **Rendering**. As the last step the final AST obtained from the two previous transformation steps will get rendered
    to one or more output format. 
    This is the only step specific to a particular output format, meaning the same AST structure obtained in 3) will
    get used as the input for the renderers of all formats.

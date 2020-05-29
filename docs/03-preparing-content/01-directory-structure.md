@@ -93,7 +93,7 @@ laika {
     strawberries.md
     some-subdirectory
     other-subdirectory
-]
+  ]
 }
 ```
 
@@ -197,4 +197,4 @@ Internally, the virtual path is represented by the `laika.ast.Path` type and rel
 `laika.ast.RelativePath`. These types are used frequently throughout the classes forming the document AST.
 All internal links are expressed with with these virtual paths and not with file system paths.
 
-@todo(examples for abs/rel links in HOCON and programmatically)
+@:todo(examples for abs/rel links in HOCON and programmatically)
