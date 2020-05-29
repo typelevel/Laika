@@ -102,9 +102,9 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
           |  date = "2000-XX-01T00:00:00Z"
           |}}
         """.stripMargin
-      decode[DocumentMetadata](input) shouldBe Left(
-        DecodingError("Invalid date format: Text '2000-XX-01T00:00:00Z' could not be parsed at index 5")
-      )
+      val res = decode[DocumentMetadata](input)
+      res.isLeft shouldBe true
+      res.left.get.asInstanceOf[DecodingError].message should startWith("Invalid date format")
     }
 
   }
