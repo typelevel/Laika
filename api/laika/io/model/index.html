@@ -512,7 +512,7 @@ like EPUB.
       
       <p class="shortcomment cmt">A titled, positional element in the tree of rendered documents.</p>
     </li><li name="laika.io.model.RenderedDocument" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="RenderedDocumentextendsRenderContentwithProductwithSerializable"></a><a id="RenderedDocument:RenderedDocument"></a>
+      <a id="RenderedDocumentextendsRenderContentwithDocumentNavigationwithProductwithSerializable"></a><a id="RenderedDocument:RenderedDocument"></a>
       <span class="permalink">
       <a href="../../../laika/io/model/RenderedDocument.html" title="Permalink">
         <i class="material-icons"></i>
@@ -523,7 +523,7 @@ like EPUB.
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="A single rendered document with the content as a plain string in the target format." href="RenderedDocument.html"><span class="name">RenderedDocument</span></a><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="title">title: <span class="extype" name="scala.Option">Option</span>[<a href="../../ast/SpanSequence.html" class="extype" name="laika.ast.SpanSequence">SpanSequence</a>]</span>, <span name="sections">sections: <span class="extype" name="scala.Seq">Seq</span>[<a href="../../ast/SectionInfo.html" class="extype" name="laika.ast.SectionInfo">SectionInfo</a>]</span>, <span name="content">content: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="RenderContent.html" class="extype" name="laika.io.model.RenderContent">RenderContent</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="A single rendered document with the content as a plain string in the target format." href="RenderedDocument.html"><span class="name">RenderedDocument</span></a><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="title">title: <span class="extype" name="scala.Option">Option</span>[<a href="../../ast/SpanSequence.html" class="extype" name="laika.ast.SpanSequence">SpanSequence</a>]</span>, <span name="sections">sections: <span class="extype" name="scala.Seq">Seq</span>[<a href="../../ast/SectionInfo.html" class="extype" name="laika.ast.SectionInfo">SectionInfo</a>]</span>, <span name="content">content: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="RenderContent.html" class="extype" name="laika.io.model.RenderContent">RenderContent</a> with <a href="../../ast/DocumentNavigation.html" class="extype" name="laika.ast.DocumentNavigation">DocumentNavigation</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">A single rendered document with the content as a plain string in the target format.</p><div class="fullcomment"><div class="comment cmt"><p>A single rendered document with the content as a plain string in the target format.</p><p>The title and section info are still represented as an AST, so they be used in any subsequent

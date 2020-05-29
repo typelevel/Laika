@@ -219,10 +219,6 @@
                         <a href="ContextReference.html" title="Represents a reference to a value from the context of the current document.">ContextReference</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="class" href="CrossLink.html" title="A link element pointing to a location in a different document, with the span content representing the text (description) of the link."></a>
-                        <a href="CrossLink.html" title="A link element pointing to a location in a different document, with the span content representing the text (description) of the link.">CrossLink</a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
                         <a class="trait" href="Cursor.html" title="A cursor provides the necessary context during a rewrite operation."></a>
                         <a href="Cursor.html" title="A cursor provides the necessary context during a rewrite operation.">Cursor</a>
                       </li><li class="current-entities indented2">
@@ -255,8 +251,8 @@
                         <a href="Document.html" title="Represents a single document and provides access to the document content and structure as well as hooks for triggering rewrite operations.">Document</a>
                       </li><li class="current-entities indented2">
                         <a class="object" href="DocumentCursor$.html" title=""></a>
-                        <a class="class" href="DocumentCursor.html" title="Cursor for a single document, its parent and root directories, its associated template and other context information that is required during a rewrite operation."></a>
-                        <a href="DocumentCursor.html" title="Cursor for a single document, its parent and root directories, its associated template and other context information that is required during a rewrite operation.">DocumentCursor</a>
+                        <a class="class" href="DocumentCursor.html" title="Cursor for a single document, its parent, siblings and root directories, its associated template and other context information that is required during a rewrite operation."></a>
+                        <a href="DocumentCursor.html" title="Cursor for a single document, its parent, siblings and root directories, its associated template and other context information that is required during a rewrite operation.">DocumentCursor</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="DocumentFragment.html" title="A named document fragment that usually gets rendered separately from the main root element"></a>
@@ -265,6 +261,10 @@
                         <a class="object" href="DocumentMetadata$.html" title=""></a>
                         <a class="class" href="DocumentMetadata.html" title="Metadata associated with a document."></a>
                         <a href="DocumentMetadata.html" title="Metadata associated with a document.">DocumentMetadata</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="trait" href="DocumentNavigation.html" title="Represents a document structure with sections that can be turned into a navigation structure."></a>
+                        <a href="DocumentNavigation.html" title="Represents a document structure with sections that can be turned into a navigation structure.">DocumentNavigation</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="trait" href="DocumentStructure.html" title="The structure of a markup document."></a>
@@ -323,12 +323,8 @@
                         <a href="EnumType.html" title="Represents the type of an ordered list.">EnumType</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="class" href="ExternalLink.html" title="An external link element, with the span content representing the text (description) of the link."></a>
-                        <a href="ExternalLink.html" title="An external link element, with the span content representing the text (description) of the link.">ExternalLink</a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="class" href="ExternalLinkDefinition.html" title="An external link target, usually only part of the raw document tree and then removed by the rewrite rule that resolves link and image references."></a>
-                        <a href="ExternalLinkDefinition.html" title="An external link target, usually only part of the raw document tree and then removed by the rewrite rule that resolves link and image references.">ExternalLinkDefinition</a>
+                        <a class="class" href="ExternalTarget.html" title="An external link, outside of the virtual tree of the current transformation."></a>
+                        <a href="ExternalTarget.html" title="An external link, outside of the virtual tree of the current transformation.">ExternalTarget</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="trait" href="Fallback.html" title="Provides a fallback for elements the renderer does not know how to deal with."></a>
@@ -375,6 +371,10 @@
                         <a href="HeaderDecoration.html" title="Represents the decoration of a header.">HeaderDecoration</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="trait" href="Hidden.html" title="Represents a hidden element that will be ignored by renderers."></a>
+                        <a href="Hidden.html" title="Represents a hidden element that will be ignored by renderers.">Hidden</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="object" href="Id$.html" title="Factory and extractor for an Options instance with an id."></a>
                         <a href="Id$.html" title="Factory and extractor for an Options instance with an id.">Id</a>
                       </li><li class="current-entities indented2">
@@ -383,8 +383,8 @@
                         <a href="Image.html" title="An inline image with a text description and optional title.">Image</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="class" href="ImageReference.html" title="An image reference, the id pointing to the id of a LinkTarget."></a>
-                        <a href="ImageReference.html" title="An image reference, the id pointing to the id of a LinkTarget.">ImageReference</a>
+                        <a class="class" href="ImageIdReference.html" title="An image reference, the id pointing to the id of a LinkTarget."></a>
+                        <a href="ImageIdReference.html" title="An image reference, the id pointing to the id of a LinkTarget.">ImageIdReference</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="InlineCode.html" title="A span of program code."></a>
@@ -395,28 +395,28 @@
                         <a href="Inserted.html" title="A span representing inserted inline elements that may contain nested spans.">Inserted</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="class" href="InternalLink.html" title="An internal link element, with the span content representing the text (description) of the link."></a>
-                        <a href="InternalLink.html" title="An internal link element, with the span content representing the text (description) of the link.">InternalLink</a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
                         <a class="class" href="InternalLinkTarget.html" title="Points to the following block or span element, making it a target for links."></a>
                         <a href="InternalLinkTarget.html" title="Points to the following block or span element, making it a target for links.">InternalLinkTarget</a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="InternalTarget$.html" title=""></a>
+                        <a class="class" href="InternalTarget.html" title="Represents an internal target with an absolute and relative path, the latter relative to the document that referred to the target."></a>
+                        <a href="InternalTarget.html" title="Represents an internal target with an absolute and relative path, the latter relative to the document that referred to the target.">InternalTarget</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="trait" href="Invalid.html" title="Represents an invalid element."></a>
                         <a href="Invalid.html" title="Represents an invalid element.">Invalid</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="class" href="InvalidBlock.html" title="Groups a block that could not be successfully parsed with a system message."></a>
-                        <a href="InvalidBlock.html" title="Groups a block that could not be successfully parsed with a system message.">InvalidBlock</a>
+                        <a class="class" href="InvalidBlock.html" title="Groups a block that could not be successfully parsed with a runtime message."></a>
+                        <a href="InvalidBlock.html" title="Groups a block that could not be successfully parsed with a runtime message.">InvalidBlock</a>
                       </li><li class="current-entities indented2">
                         <a class="object" href="InvalidElement$.html" title="Companion for InvalidElement."></a>
                         <a class="class" href="InvalidElement.html" title="Represents an invalid element in any position, block, span or template."></a>
                         <a href="InvalidElement.html" title="Represents an invalid element in any position, block, span or template.">InvalidElement</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="class" href="InvalidSpan.html" title="Groups a span that could not be successfully parsed with a system message."></a>
-                        <a href="InvalidSpan.html" title="Groups a span that could not be successfully parsed with a system message.">InvalidSpan</a>
+                        <a class="class" href="InvalidSpan.html" title="Groups a span that could not be successfully parsed with a runtime message."></a>
+                        <a href="InvalidSpan.html" title="Groups a span that could not be successfully parsed with a runtime message.">InvalidSpan</a>
                       </li><li class="current-entities indented2">
                         <a class="object" href="Line$.html" title=""></a>
                         <a class="class" href="Line.html" title="A single line inside a line block."></a>
@@ -434,7 +434,7 @@
                         <a class="class" href="LineBreak.html" title="An explicit hard line break."></a>
                         <a href="LineBreak.html" title="An explicit hard line break.">LineBreak</a>
                       </li><li class="current-entities indented2">
-                        <span class="separator"></span>
+                        <a class="object" href="Link$.html" title=""></a>
                         <a class="trait" href="Link.html" title="The base type for all link elements."></a>
                         <a href="Link.html" title="The base type for all link elements.">Link</a>
                       </li><li class="current-entities indented2">
@@ -442,9 +442,13 @@
                         <a class="class" href="LinkAlias.html" title="A link target pointing to another link target, acting like an alias."></a>
                         <a href="LinkAlias.html" title="A link target pointing to another link target, acting like an alias.">LinkAlias</a>
                       </li><li class="current-entities indented2">
+                        <a class="object" href="LinkDefinition$.html" title=""></a>
+                        <a class="class" href="LinkDefinition.html" title="An internal or external link target that can be referenced by id, usually only part of the raw document tree and then removed by the rewrite rule that resolves link and image references."></a>
+                        <a href="LinkDefinition.html" title="An internal or external link target that can be referenced by id, usually only part of the raw document tree and then removed by the rewrite rule that resolves link and image references.">LinkDefinition</a>
+                      </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="class" href="LinkReference.html" title="A link reference, the id pointing to the id of a LinkTarget."></a>
-                        <a href="LinkReference.html" title="A link reference, the id pointing to the id of a LinkTarget.">LinkReference</a>
+                        <a class="class" href="LinkIdReference.html" title="A reference to any kind of referencable object, e.g."></a>
+                        <a href="LinkIdReference.html" title="A reference to any kind of referencable object, e.g.">LinkIdReference</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="trait" href="LinkTarget.html" title="The base type for all link targets."></a>
@@ -470,13 +474,37 @@
                         <a class="class" href="MarkupContextReference.html" title="A context reference specifically for use in markup documents."></a>
                         <a href="MarkupContextReference.html" title="A context reference specifically for use in markup documents.">MarkupContextReference</a>
                       </li><li class="current-entities indented2">
+                        <a class="object" href="MessageFilter$.html" title=""></a>
+                        <a class="trait" href="MessageFilter.html" title="A filter for runtime messages that meet a specified minimum message level."></a>
+                        <a href="MessageFilter.html" title="A filter for runtime messages that meet a specified minimum message level.">MessageFilter</a>
+                      </li><li class="current-entities indented2">
                         <a class="object" href="MessageLevel$.html" title="Enumeration of available message levels."></a>
-                        <a class="class" href="MessageLevel.html" title="Signals the severity of a system message."></a>
-                        <a href="MessageLevel.html" title="Signals the severity of a system message.">MessageLevel</a>
+                        <a class="class" href="MessageLevel.html" title="Signals the severity of a runtime message."></a>
+                        <a href="MessageLevel.html" title="Signals the severity of a runtime message.">MessageLevel</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="trait" href="Navigatable.html" title="A navigatable object is anything that has an associated path."></a>
                         <a href="Navigatable.html" title="A navigatable object is anything that has an associated path.">Navigatable</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="NavigationBuilderContext.html" title="The context of a navigation builder that can get passed down in recursive calls to the various types that have an asNavigationItem method."></a>
+                        <a href="NavigationBuilderContext.html" title="The context of a navigation builder that can get passed down in recursive calls to the various types that have an asNavigationItem method.">NavigationBuilderContext</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="NavigationHeader.html" title="Represents a book navigation entry that only serves as a section header without linking to content."></a>
+                        <a href="NavigationHeader.html" title="Represents a book navigation entry that only serves as a section header without linking to content.">NavigationHeader</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="trait" href="NavigationItem.html" title="Represents a recursive book navigation structure."></a>
+                        <a href="NavigationItem.html" title="Represents a recursive book navigation structure.">NavigationItem</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="NavigationLink.html" title="Represents a book navigation entry that links to content in the document tree."></a>
+                        <a href="NavigationLink.html" title="Represents a book navigation entry that links to content in the document tree.">NavigationLink</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="NavigationList.html" title="The root node of a navigation structure"></a>
+                        <a href="NavigationList.html" title="The root node of a navigation structure">NavigationList</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="object" href="NoOpt$.html" title="Empty Options implementation."></a>
@@ -514,9 +542,9 @@
                         <a class="trait" href="PathBase.html" title="The abstract base for absolute and relative paths."></a>
                         <a href="PathBase.html" title="The abstract base for absolute and relative paths.">PathBase</a>
                       </li><li class="current-entities indented2">
-                        <a class="object" href="PathInfo$.html" title=""></a>
-                        <a class="class" href="PathInfo.html" title="Represents a single path in absolute and relative form."></a>
-                        <a href="PathInfo.html" title="Represents a single path in absolute and relative form.">PathInfo</a>
+                        <span class="separator"></span>
+                        <a class="class" href="PathReference.html" title="A reference to content within the virtual input tree, the path pointing to the source path."></a>
+                        <a href="PathReference.html" title="A reference to content within the virtual input tree, the path pointing to the source path.">PathReference</a>
                       </li><li class="current-entities indented2">
                         <a class="object" href="QuotedBlock$.html" title=""></a>
                         <a class="class" href="QuotedBlock.html" title="A quoted block consisting of a list of blocks that may contain other nested quoted blocks and an attribution which may be empty."></a>
@@ -583,6 +611,10 @@
                         <a href="Rule.html" title="A horizontal rule.">Rule</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="class" href="RuntimeMessage.html" title="Message generated by the parser, a directive or a rewrite rule."></a>
+                        <a href="RuntimeMessage.html" title="Message generated by the parser, a directive or a rewrite rule.">RuntimeMessage</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="class" href="Section.html" title="A section of the document, consisting of a header and content in the form of a list of Block elements."></a>
                         <a href="Section.html" title="A section of the document, consisting of a header and content in the form of a list of Block elements.">Section</a>
                       </li><li class="current-entities indented2">
@@ -598,7 +630,7 @@
                         <a class="class" href="SegmentedPath.html" title=""></a>
                         <a href="SegmentedPath.html" title="">SegmentedPath</a>
                       </li><li class="current-entities indented2">
-                        <span class="separator"></span>
+                        <a class="object" href="SegmentedPathBase$.html" title=""></a>
                         <a class="trait" href="SegmentedPathBase.html" title="The common base for absolute and relative paths that contain one or more path segments."></a>
                         <a href="SegmentedPathBase.html" title="The common base for absolute and relative paths that contain one or more path segments.">SegmentedPathBase</a>
                       </li><li class="current-entities indented2">
@@ -627,6 +659,10 @@
                         <a href="SpanContainerCompanion.html" title="Common methods for simple span containers (without additional parameters).">SpanContainerCompanion</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="class" href="SpanLink.html" title="An link element, with the span content representing the text (description) of the link."></a>
+                        <a href="SpanLink.html" title="An link element, with the span content representing the text (description) of the link.">SpanLink</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="trait" href="SpanResolver.html" title="Represents a placeholder inline element that needs to be resolved in a rewrite step."></a>
                         <a href="SpanResolver.html" title="Represents a placeholder inline element that needs to be resolved in a rewrite step.">SpanResolver</a>
                       </li><li class="current-entities indented2">
@@ -645,6 +681,10 @@
                         <a class="object" href="Strong$.html" title=""></a>
                         <a class="class" href="Strong.html" title="A span of strong inline elements that may contain nested spans."></a>
                         <a href="Strong.html" title="A span of strong inline elements that may contain nested spans.">Strong</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="object" href="Style$.html" title="Constants for style names wrapped in Options instances which are commonly used by Laika's core parsers and rewrite rules."></a>
+                        <a href="Style$.html" title="Constants for style names wrapped in Options instances which are commonly used by Laika's core parsers and rewrite rules.">Style</a>
                       </li><li class="current-entities indented2">
                         <a class="object" href="StyleDeclaration$.html" title="Companion providing factory methods for the StyleDeclaration class."></a>
                         <a class="class" href="StyleDeclaration.html" title="Represents a single style declaration."></a>
@@ -666,10 +706,6 @@
                         <a class="object" href="Styles$.html" title="Factory and extractor for an Options instance with style names."></a>
                         <a href="Styles$.html" title="Factory and extractor for an Options instance with style names.">Styles</a>
                       </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="class" href="SystemMessage.html" title="Message generated by the parser, usually to signal potential parsing problems."></a>
-                        <a href="SystemMessage.html" title="Message generated by the parser, usually to signal potential parsing problems.">SystemMessage</a>
-                      </li><li class="current-entities indented2">
                         <a class="object" href="Table$.html" title=""></a>
                         <a class="class" href="Table.html" title="A table consisting of a head and a body part and optional caption and column specification."></a>
                         <a href="Table.html" title="A table consisting of a head and a body part and optional caption and column specification.">Table</a>
@@ -689,6 +725,10 @@
                         <span class="separator"></span>
                         <a class="class" href="TableHead.html" title="Contains the header rows of a table."></a>
                         <a href="TableHead.html" title="Contains the header rows of a table.">TableHead</a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="Target$.html" title=""></a>
+                        <a class="trait" href="Target.html" title="Represents a target that can be referred to by links, either within the virtual tree or external."></a>
+                        <a href="Target.html" title="Represents a target that can be referred to by links, either within the virtual tree or external.">Target</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="TargetFormat.html" title="An element that only gets rendered for a specific output format."></a>
@@ -731,10 +771,6 @@
                         <a href="TemplateString.html" title="A simple string element, representing the parts of a template that are not detected as special markup constructs and treated as raw text.">TemplateString</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="trait" href="Temporary.html" title="Represents a temporary element only present in the raw document tree and then removed or replaced by a rewrite rule before rendering."></a>
-                        <a href="Temporary.html" title="Represents a temporary element only present in the raw document tree and then removed or replaced by a rewrite rule before rendering.">Temporary</a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
                         <a class="class" href="Text.html" title="A simple text element."></a>
                         <a href="Text.html" title="A simple text element.">Text</a>
                       </li><li class="current-entities indented2">
@@ -749,10 +785,6 @@
                         <a class="object" href="Title$.html" title=""></a>
                         <a class="class" href="Title.html" title="The (optional) title of the document."></a>
                         <a href="Title.html" title="The (optional) title of the document.">Title</a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="class" href="TitleInfo.html" title="Represents a section title."></a>
-                        <a href="TitleInfo.html" title="Represents a section title.">TitleInfo</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="TitledBlock.html" title="Generic block element with a title."></a>
@@ -779,8 +811,8 @@
                         <a href="TreeStructure.html" title="The structure of a document tree.">TreeStructure</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="class" href="URI.html" title="Represents a URI which might also optionally be expressed as a local reference within the processed tree."></a>
-                        <a href="URI.html" title="Represents a URI which might also optionally be expressed as a local reference within the processed tree.">URI</a>
+                        <a class="trait" href="Unresolved.html" title="Represents an element that needs to be resolved in an AST transformation step."></a>
+                        <a href="Unresolved.html" title="Represents an element that needs to be resolved in an AST transformation step.">Unresolved</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="UnresolvedDocument.html" title="A temporary structure usually not exposed to user code."></a>
@@ -829,7 +861,7 @@
             <span class="toggle">
               Known Subclasses
             </span>
-            <div class="subClasses hiddenContent"><a href="BlockContainer.html" class="extype" name="laika.ast.BlockContainer">BlockContainer</a>, <a href="BlockSequence.html" class="extype" name="laika.ast.BlockSequence">BlockSequence</a>, <a href="BulletList.html" class="extype" name="laika.ast.BulletList">BulletList</a>, <a href="BulletListItem.html" class="extype" name="laika.ast.BulletListItem">BulletListItem</a>, <a href="Caption.html" class="extype" name="laika.ast.Caption">Caption</a>, <a href="Cell.html" class="extype" name="laika.ast.Cell">Cell</a>, <a href="Citation.html" class="extype" name="laika.ast.Citation">Citation</a>, <a href="CodeBlock.html" class="extype" name="laika.ast.CodeBlock">CodeBlock</a>, <a href="CodeSpan.html" class="extype" name="laika.ast.CodeSpan">CodeSpan</a>, <a href="CodeSpanSequence.html" class="extype" name="laika.ast.CodeSpanSequence">CodeSpanSequence</a>, <a href="Columns.html" class="extype" name="laika.ast.Columns">Columns</a>, <a href="Comment.html" class="extype" name="laika.ast.Comment">Comment</a>, <a href="CrossLink.html" class="extype" name="laika.ast.CrossLink">CrossLink</a>, <a href="DecoratedHeader.html" class="extype" name="laika.ast.DecoratedHeader">DecoratedHeader</a>, <a href="DefinitionList.html" class="extype" name="laika.ast.DefinitionList">DefinitionList</a>, <a href="DefinitionListItem.html" class="extype" name="laika.ast.DefinitionListItem">DefinitionListItem</a>, <a href="Deleted.html" class="extype" name="laika.ast.Deleted">Deleted</a>, <a href="ElementContainer.html" class="extype" name="laika.ast.ElementContainer">ElementContainer</a>, <a href="EmbeddedRoot.html" class="extype" name="laika.ast.EmbeddedRoot">EmbeddedRoot</a>, <a href="Emphasized.html" class="extype" name="laika.ast.Emphasized">Emphasized</a>, <a href="EnumList.html" class="extype" name="laika.ast.EnumList">EnumList</a>, <a href="EnumListItem.html" class="extype" name="laika.ast.EnumListItem">EnumListItem</a>, <a href="ExternalLink.html" class="extype" name="laika.ast.ExternalLink">ExternalLink</a>, <a href="Figure.html" class="extype" name="laika.ast.Figure">Figure</a>, <a href="Footnote.html" class="extype" name="laika.ast.Footnote">Footnote</a>, <a href="FootnoteDefinition.html" class="extype" name="laika.ast.FootnoteDefinition">FootnoteDefinition</a>, <a href="ForcedParagraph.html" class="extype" name="laika.ast.ForcedParagraph">ForcedParagraph</a>, <a href="Header.html" class="extype" name="laika.ast.Header">Header</a>, <a href="InlineCode.html" class="extype" name="laika.ast.InlineCode">InlineCode</a>, <a href="Inserted.html" class="extype" name="laika.ast.Inserted">Inserted</a>, <a href="InternalLink.html" class="extype" name="laika.ast.InternalLink">InternalLink</a>, <a href="Line.html" class="extype" name="laika.ast.Line">Line</a>, <a href="LinkReference.html" class="extype" name="laika.ast.LinkReference">LinkReference</a>, <a href="ListContainer.html" class="extype" name="laika.ast.ListContainer">ListContainer</a>, <a href="Literal.html" class="extype" name="laika.ast.Literal">Literal</a>, <a href="LiteralBlock.html" class="extype" name="laika.ast.LiteralBlock">LiteralBlock</a>, <a href="Paragraph.html" class="extype" name="laika.ast.Paragraph">Paragraph</a>, <a href="ParsedLiteralBlock.html" class="extype" name="laika.ast.ParsedLiteralBlock">ParsedLiteralBlock</a>, <a href="QuotedBlock.html" class="extype" name="laika.ast.QuotedBlock">QuotedBlock</a>, <a href="RawContent.html" class="extype" name="laika.ast.RawContent">RawContent</a>, <a href="RootElement.html" class="extype" name="laika.ast.RootElement">RootElement</a>, <a href="Row.html" class="extype" name="laika.ast.Row">Row</a>, <a href="Section.html" class="extype" name="laika.ast.Section">Section</a>, <a href="SectionInfo.html" class="extype" name="laika.ast.SectionInfo">SectionInfo</a>, <a href="SectionNumber.html" class="extype" name="laika.ast.SectionNumber">SectionNumber</a>, <a href="SpanContainer.html" class="extype" name="laika.ast.SpanContainer">SpanContainer</a>, <a href="SpanSequence.html" class="extype" name="laika.ast.SpanSequence">SpanSequence</a>, <a href="Strong.html" class="extype" name="laika.ast.Strong">Strong</a>, <a href="SystemMessage.html" class="extype" name="laika.ast.SystemMessage">SystemMessage</a>, <a href="TableBody.html" class="extype" name="laika.ast.TableBody">TableBody</a>, <a href="TableContainer.html" class="extype" name="laika.ast.TableContainer">TableContainer</a>, <a href="TableHead.html" class="extype" name="laika.ast.TableHead">TableHead</a>, <a href="TemplateRoot.html" class="extype" name="laika.ast.TemplateRoot">TemplateRoot</a>, <a href="TemplateSpanContainer.html" class="extype" name="laika.ast.TemplateSpanContainer">TemplateSpanContainer</a>, <a href="TemplateSpanSequence.html" class="extype" name="laika.ast.TemplateSpanSequence">TemplateSpanSequence</a>, <a href="TemplateString.html" class="extype" name="laika.ast.TemplateString">TemplateString</a>, <a href="Text.html" class="extype" name="laika.ast.Text">Text</a>, <a href="TextContainer.html" class="extype" name="laika.ast.TextContainer">TextContainer</a>, <a href="Title.html" class="extype" name="laika.ast.Title">Title</a>, <a href="TitleInfo.html" class="extype" name="laika.ast.TitleInfo">TitleInfo</a>, <a href="TitledBlock.html" class="extype" name="laika.ast.TitledBlock">TitledBlock</a>, <a href="../markdown/ast/HTMLCharacterReference.html" class="extype" name="laika.markdown.ast.HTMLCharacterReference">HTMLCharacterReference</a>, <a href="../markdown/ast/HTMLComment.html" class="extype" name="laika.markdown.ast.HTMLComment">HTMLComment</a>, <a href="../markdown/ast/HTMLElement.html" class="extype" name="laika.markdown.ast.HTMLElement">HTMLElement</a>, <a href="../markdown/ast/HTMLScriptElement.html" class="extype" name="laika.markdown.ast.HTMLScriptElement">HTMLScriptElement</a>, <a href="../render/FOFormatter$$BookmarkTitle.html" class="extype" name="laika.render.FOFormatter.BookmarkTitle">BookmarkTitle</a>, <a href="../render/FOFormatter$$FootnoteBody.html" class="extype" name="laika.render.FOFormatter.FootnoteBody">FootnoteBody</a>, <a href="../render/FOFormatter$$ListItemBody.html" class="extype" name="laika.render.FOFormatter.ListItemBody">ListItemBody</a>, <a href="../rst/ast/Classifier.html" class="extype" name="laika.rst.ast.Classifier">Classifier</a>, <a href="../rst/ast/DoctestBlock.html" class="extype" name="laika.rst.ast.DoctestBlock">DoctestBlock</a>, <a href="../rst/ast/Field.html" class="extype" name="laika.rst.ast.Field">Field</a>, <a href="../rst/ast/FieldList.html" class="extype" name="laika.rst.ast.FieldList">FieldList</a>, <a href="../rst/ast/InterpretedText.html" class="extype" name="laika.rst.ast.InterpretedText">InterpretedText</a>, <a href="../rst/ast/OptionList.html" class="extype" name="laika.rst.ast.OptionList">OptionList</a>, <a href="../rst/ast/OptionListItem.html" class="extype" name="laika.rst.ast.OptionListItem">OptionListItem</a></div>
+            <div class="subClasses hiddenContent"><a href="BlockContainer.html" class="extype" name="laika.ast.BlockContainer">BlockContainer</a>, <a href="BlockSequence.html" class="extype" name="laika.ast.BlockSequence">BlockSequence</a>, <a href="BulletList.html" class="extype" name="laika.ast.BulletList">BulletList</a>, <a href="BulletListItem.html" class="extype" name="laika.ast.BulletListItem">BulletListItem</a>, <a href="Caption.html" class="extype" name="laika.ast.Caption">Caption</a>, <a href="Cell.html" class="extype" name="laika.ast.Cell">Cell</a>, <a href="Citation.html" class="extype" name="laika.ast.Citation">Citation</a>, <a href="CodeBlock.html" class="extype" name="laika.ast.CodeBlock">CodeBlock</a>, <a href="CodeSpan.html" class="extype" name="laika.ast.CodeSpan">CodeSpan</a>, <a href="CodeSpanSequence.html" class="extype" name="laika.ast.CodeSpanSequence">CodeSpanSequence</a>, <a href="Columns.html" class="extype" name="laika.ast.Columns">Columns</a>, <a href="Comment.html" class="extype" name="laika.ast.Comment">Comment</a>, <a href="DecoratedHeader.html" class="extype" name="laika.ast.DecoratedHeader">DecoratedHeader</a>, <a href="DefinitionList.html" class="extype" name="laika.ast.DefinitionList">DefinitionList</a>, <a href="DefinitionListItem.html" class="extype" name="laika.ast.DefinitionListItem">DefinitionListItem</a>, <a href="Deleted.html" class="extype" name="laika.ast.Deleted">Deleted</a>, <a href="ElementContainer.html" class="extype" name="laika.ast.ElementContainer">ElementContainer</a>, <a href="EmbeddedRoot.html" class="extype" name="laika.ast.EmbeddedRoot">EmbeddedRoot</a>, <a href="Emphasized.html" class="extype" name="laika.ast.Emphasized">Emphasized</a>, <a href="EnumList.html" class="extype" name="laika.ast.EnumList">EnumList</a>, <a href="EnumListItem.html" class="extype" name="laika.ast.EnumListItem">EnumListItem</a>, <a href="Figure.html" class="extype" name="laika.ast.Figure">Figure</a>, <a href="Footnote.html" class="extype" name="laika.ast.Footnote">Footnote</a>, <a href="FootnoteDefinition.html" class="extype" name="laika.ast.FootnoteDefinition">FootnoteDefinition</a>, <a href="ForcedParagraph.html" class="extype" name="laika.ast.ForcedParagraph">ForcedParagraph</a>, <a href="Header.html" class="extype" name="laika.ast.Header">Header</a>, <a href="InlineCode.html" class="extype" name="laika.ast.InlineCode">InlineCode</a>, <a href="Inserted.html" class="extype" name="laika.ast.Inserted">Inserted</a>, <a href="Line.html" class="extype" name="laika.ast.Line">Line</a>, <a href="LinkIdReference.html" class="extype" name="laika.ast.LinkIdReference">LinkIdReference</a>, <a href="ListContainer.html" class="extype" name="laika.ast.ListContainer">ListContainer</a>, <a href="Literal.html" class="extype" name="laika.ast.Literal">Literal</a>, <a href="LiteralBlock.html" class="extype" name="laika.ast.LiteralBlock">LiteralBlock</a>, <a href="NavigationHeader.html" class="extype" name="laika.ast.NavigationHeader">NavigationHeader</a>, <a href="NavigationItem.html" class="extype" name="laika.ast.NavigationItem">NavigationItem</a>, <a href="NavigationLink.html" class="extype" name="laika.ast.NavigationLink">NavigationLink</a>, <a href="NavigationList.html" class="extype" name="laika.ast.NavigationList">NavigationList</a>, <a href="Paragraph.html" class="extype" name="laika.ast.Paragraph">Paragraph</a>, <a href="ParsedLiteralBlock.html" class="extype" name="laika.ast.ParsedLiteralBlock">ParsedLiteralBlock</a>, <a href="PathReference.html" class="extype" name="laika.ast.PathReference">PathReference</a>, <a href="QuotedBlock.html" class="extype" name="laika.ast.QuotedBlock">QuotedBlock</a>, <a href="RawContent.html" class="extype" name="laika.ast.RawContent">RawContent</a>, <a href="RootElement.html" class="extype" name="laika.ast.RootElement">RootElement</a>, <a href="Row.html" class="extype" name="laika.ast.Row">Row</a>, <a href="RuntimeMessage.html" class="extype" name="laika.ast.RuntimeMessage">RuntimeMessage</a>, <a href="Section.html" class="extype" name="laika.ast.Section">Section</a>, <a href="SectionInfo.html" class="extype" name="laika.ast.SectionInfo">SectionInfo</a>, <a href="SectionNumber.html" class="extype" name="laika.ast.SectionNumber">SectionNumber</a>, <a href="SpanContainer.html" class="extype" name="laika.ast.SpanContainer">SpanContainer</a>, <a href="SpanLink.html" class="extype" name="laika.ast.SpanLink">SpanLink</a>, <a href="SpanSequence.html" class="extype" name="laika.ast.SpanSequence">SpanSequence</a>, <a href="Strong.html" class="extype" name="laika.ast.Strong">Strong</a>, <a href="TableBody.html" class="extype" name="laika.ast.TableBody">TableBody</a>, <a href="TableContainer.html" class="extype" name="laika.ast.TableContainer">TableContainer</a>, <a href="TableHead.html" class="extype" name="laika.ast.TableHead">TableHead</a>, <a href="TemplateRoot.html" class="extype" name="laika.ast.TemplateRoot">TemplateRoot</a>, <a href="TemplateSpanContainer.html" class="extype" name="laika.ast.TemplateSpanContainer">TemplateSpanContainer</a>, <a href="TemplateSpanSequence.html" class="extype" name="laika.ast.TemplateSpanSequence">TemplateSpanSequence</a>, <a href="TemplateString.html" class="extype" name="laika.ast.TemplateString">TemplateString</a>, <a href="Text.html" class="extype" name="laika.ast.Text">Text</a>, <a href="TextContainer.html" class="extype" name="laika.ast.TextContainer">TextContainer</a>, <a href="Title.html" class="extype" name="laika.ast.Title">Title</a>, <a href="TitledBlock.html" class="extype" name="laika.ast.TitledBlock">TitledBlock</a>, <a href="../markdown/ast/HTMLCharacterReference.html" class="extype" name="laika.markdown.ast.HTMLCharacterReference">HTMLCharacterReference</a>, <a href="../markdown/ast/HTMLComment.html" class="extype" name="laika.markdown.ast.HTMLComment">HTMLComment</a>, <a href="../markdown/ast/HTMLElement.html" class="extype" name="laika.markdown.ast.HTMLElement">HTMLElement</a>, <a href="../markdown/ast/HTMLScriptElement.html" class="extype" name="laika.markdown.ast.HTMLScriptElement">HTMLScriptElement</a>, <a href="../render/FOFormatter$$BookmarkTitle.html" class="extype" name="laika.render.FOFormatter.BookmarkTitle">BookmarkTitle</a>, <a href="../render/FOFormatter$$FootnoteBody.html" class="extype" name="laika.render.FOFormatter.FootnoteBody">FootnoteBody</a>, <a href="../render/FOFormatter$$ListItemBody.html" class="extype" name="laika.render.FOFormatter.ListItemBody">ListItemBody</a>, <a href="../rst/ast/Classifier.html" class="extype" name="laika.rst.ast.Classifier">Classifier</a>, <a href="../rst/ast/DoctestBlock.html" class="extype" name="laika.rst.ast.DoctestBlock">DoctestBlock</a>, <a href="../rst/ast/Field.html" class="extype" name="laika.rst.ast.Field">Field</a>, <a href="../rst/ast/FieldList.html" class="extype" name="laika.rst.ast.FieldList">FieldList</a>, <a href="../rst/ast/InterpretedText.html" class="extype" name="laika.rst.ast.InterpretedText">InterpretedText</a>, <a href="../rst/ast/OptionList.html" class="extype" name="laika.rst.ast.OptionList">OptionList</a>, <a href="../rst/ast/OptionListItem.html" class="extype" name="laika.rst.ast.OptionListItem">OptionListItem</a></div>
           </div></div>
         
 

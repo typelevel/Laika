@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+
+    <title>Laika</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Customizable and extensible toolkit for transforming lightweight markup languages to various types of output formats, written in Scala" />
+    <meta name="keywords" content="scala, text, markup, markdown, restructuredtext, parser, transformer, html, template engine, site generation, open-source" />
+
+    <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+    <link href="../css/bootstrap.css" rel="stylesheet">
+    <link href="../css/docs.css" rel="stylesheet">
+
+  </head>
+
+  <body data-spy="scroll" data-target=".toc" data-offset="200">
+
+
+  <div class="container">
+
+    <!-- Docs nav
+    ================================================== -->
+    <div class="row">
+      <div class="span4 toc" >
+        
+        <ul class="nav nav-list affix">
+          <div class="nav-top"><img src="../img/laika-top.png"/></div>
+          
+          
+          <li><a href="../table-of-contents.html">Table of Contents</a></li>
+          <li class="nav-header">About Laika</li>
+          <li><a href="../01-about-laika/01-features.html">Features</a></li>
+          <li><a href="../01-about-laika/02-design-goals.html">Design Goals</a></li>
+          <li class="nav-header">Running Laika</li>
+          <li><a href="../02-running-laika/01-sbt-plugin.html">sbt Plugin</a></li>
+          <li><a href="../02-running-laika/02-library-api.html">Library API</a></li>
+          <li><a href="../02-running-laika/03-configuration.html">Configuration</a></li>
+          <li class="nav-header">Preparing Content</li>
+          <li><a href="../03-preparing-content/01-directory-structure.html">Directory Structure</a></li>
+          <li><a href="../03-preparing-content/02-navigation.html">Navigation</a></li>
+          <li><a href="../03-preparing-content/04-ebooks.html">E-Books (EPUB &amp; PDF)</a></li>
+          <li><a href="../03-preparing-content/05-syntax-highlighting.html">Syntax Highlighting</a></li>
+          <li class="nav-header">Customizing Laika</li>
+          <li><a href="../04-customizing-laika/01-overview.html">Overview</a></li>
+          <li><a href="../04-customizing-laika/03-creating-templates.html">Creating Templates</a></li>
+          <li><a href="../04-customizing-laika/04-document-ast.html">The Document AST</a></li>
+          <li><a href="../04-customizing-laika/05-ast-rewriting.html">AST Rewriting</a></li>
+          <li><a href="../04-customizing-laika/06-overriding-renderers.html">Overriding Renderers</a></li>
+          <li class="nav-header">Extending Laika</li>
+          <li><a href="../05-extending-laika/01-overview.html">Overview</a></li>
+          <li><a href="../05-extending-laika/03-implementing-directives.html">Implementing Directives</a></li>
+          <li><a href="../05-extending-laika/04-writing-parser-extensions.html">Writing Parser Extensions</a></li>
+          <li><a href="../05-extending-laika/06-adding-syntax-highlighters.html">Adding Syntax Highlighters</a></li>
+          <li><a href="../05-extending-laika/07-new-markup-output-formats.html">New Markup or Output Formats</a></li>
+          <li class="nav-header">Sub-Modules</li>
+          <li><a href="../06-sub-modules/02-laikas-parser-combinators.html">Laika&#39;s Parser Combinators</a></li>
+          <li><a href="../06-sub-modules/03-laikas-hocon-api.html">Laika&#39;s HOCON API</a></li>
+          <li class="nav-header">Reference</li>
+          <li><a href="01-standard-directives.html">Standard Directives</a></li>
+          <li class="active"><a href="#">Substitution Variables</a></li>
+          <li><a href="03-spec-compliance.html">Spec Compliance</a></li>
+          <li><a href="06-release-notes.html">Release Notes</a></li>
+          <li><a href="07-migration-guide.html">Migration Guide</a></li>
+          
+          <li class="nav-header">Project Links</li>
+          <li><a href="http://github.com/planet42/Laika">Source Code</a></li>
+          <li><a href="../api/laika/api/">API Documentation</a></li>
+          <!--<li><a href="http://github.com/planet42/Laika/issues">Issue Tracker</a></li>-->
+          <!--<li><a href="http://planet42.org/">Demo App</a></li>-->
+          <!--  
+          <li class="follow"><a href="https://twitter.com/_planet42" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false" data-dnt="true">Follow @_planet42</a>
+          <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script></li>
+          -->
+          <div class="nav-bottom"><img src="../img/laika-bottom.png" border="1"/></div>
+        </ul>
+        
+      </div>
+      
+      <div class="span8" id="top">
+
+        <div class="page-header">
+        <h1 id="substitution-variables" class="title">Substitution Variables</h1>
+        </div>
+        <p>Substitution Variables can used in text markup documents and in templates for any output format.</p>
+        
+        <h2 id="syntax" class="section">Syntax</h2>
+        <p>The syntax is part of Laika&#39;s HOCON support and matches the <a href="https://github.com/lightbend/config/blob/master/HOCON.md">HOCON spec</a>.</p>
+        <p>A mandatory reference can be inserted with the key of the variable enclosed between <code>${</code> and <code>}</code>:</p>
+        <pre><code class="nohighlight"><span class="substitution">${cursor.currentDocument.title}</span></code></pre>
+        <p>If such a value is undefined, the transformation will fail (unless you tweaked the configuration for <a href="../02-running-laika/03-configuration.html#error-handling">Error Handling</a>).</p>
+        <p>An optional reference can be expressed by adding an additional <code>?</code> right before the variable key:</p>
+        <pre><code class="nohighlight"><span class="substitution">${?cursor.currentDocument.title}</span></code></pre>
+        <p>If an optional reference points to an undefined value, the reference in the template is substituted with an empty string.</p>
+        
+        <h2 id="pre-defined-values" class="section">Pre-Defined Values</h2>
+        <p>Laika provides a set of pre-defined variables in two namespaces.
+        One is the <code>cursor</code> namespace that holds information about the current document and its siblings and parents.
+        The other is the <code>laika</code> namespace that holds all values coming from Laika&#39;s internal configuration.</p>
+        
+        <h3 id="cursor-values" class="section">Cursor Values</h3>
+        <p>Values from the cursor namespace expose information about the current document and its siblings and parents.
+        They can be used in templates or markup documents to create links or insert content.
+        If you need to create complex navigation structures though, it is usually best to prefer <a href="../05-extending-laika/03-implementing-directives.html#implementing-directives">Implementing Directives</a>
+        over complex template logic.</p>
+        <p>Internal processing in Laika is not stringly, but based on traversing and modifying ASTs. 
+        Therefore, if a substitution variable listed below is described as holding an AST, 
+        the node in the AST representing the variable will be replaced by this referenced AST.
+        Rendering of the AST happens later as a final step in the processing pipeline.</p>
+        <p>This is a complete list of values exposed in the <code>cursor</code> namespace:</p>
+        <ul>
+          <li>
+            <p><code>cursor.currentDocument</code>: A pointer to the currently processed document.
+            In templates this is populated for each document the template is applied to - 
+            it refers to the markup document, not the template document itself.
+            Sub-keys are:</p>
+            <ul>
+              <li>
+                <p><code>content</code>: The entire AST of the markup document, see <a href="../04-customizing-laika/03-creating-templates.html#inserting-content-from-markup-documents">Inserting Content from Markup Documents</a> for details.</p>
+              </li>
+              <li>
+                <p><code>fragements</code>: The AST of all named fragments declared in the markup document, under their respective keys,
+                e.g. <code>cursor.currentDocument.fragments.sidebar</code> for a fragment declared with <code>@:fragment(sidebar)</code> inside
+                the markup document. See <a href="../04-customizing-laika/03-creating-templates.html#document-fragments">Document Fragments</a> for details.</p>
+              </li>
+              <li>
+                <p><code>title</code>: the AST of the title of this document - including formatting.</p>
+              </li>
+              <li>
+                <p><code>path</code>: the absolute (virtual) path of the document inside the input tree.</p>
+              </li>
+            </ul>
+          </li>
+          <li>
+            <p>Access to surrounding documents via <code>cursor.parentDocument</code>, <code>cursor.previousDocument</code>, <code>cursor.nextDocument</code>,
+            <code>cursor.flattenedSiblings.previousDocument</code> and <code>cursor.flattenedSiblings.nextDocument</code>.
+            Any of these references may be empty, depending on the position of the current document.</p>
+            <p>The <code>flattenedSiblings</code> differ from the other pointers in that they go beyond the current chapter.
+            If the current document is the last in the current chapter (directory), then <code>cursor.nextDocument</code> will be empty,
+            but <code>cursor.flattenedSiblings.nextDocument</code> will point to the first document in the next chapter.
+            The <code>flattenedSiblings</code> are useful if you want to create a linearized, book-like navigation.</p>
+            <p>Sub-keys of these document pointers are:</p>
+            <ul>
+              <li>
+                <p><code>title</code>: the AST of the title of the document - including formatting.</p>
+              </li>
+              <li>
+                <p><code>absolutePath</code>: the absolute path in the virtual input tree as a string, e.g. <code>/herbs/parsley.md</code>.</p>
+              </li>
+              <li>
+                <p><code>relativePath</code>: the path relative to this document as a string, e.g. <code>../parsley.md</code>.</p>
+              </li>
+            </ul>
+          </li>
+          <li>
+            <p><code>root.title</code>: The title of the root node, usually the title of the website or e-book.</p>
+            <pre><code>def addDocConfig (key: Key, doc: Option[Document])(builder: ConfigBuilder): ConfigBuilder =
+  doc.fold(builder) { doc =&gt;
+    builder.withValue(key, ObjectValue(Seq(
+      Field(&quot;absolutePath&quot;, StringValue(doc.path.toString)),
+      Field(&quot;relativePath&quot;, StringValue(doc.path.relativeTo(document.path).toString)),
+      Field(&quot;title&quot;, ASTValue(doc.title.getOrElse(emptyTitle)))
+    )))
+  }</code></pre>
+          </li>
+        </ul>
+        
+        <h3 id="laika-configuration-values" class="section">Laika Configuration Values</h3>
+        <p>These are usually not accessed in user templates and mostly intended for Laika&#39;s own internal processing, 
+        but are nevertheless exposed like any other value in the configuration.</p>
+        <ul>
+          <li>
+            <p><code>laika.metadata</code>: holds the <a href="../03-preparing-content/04-ebooks.html#document-metadata">Document Metadata</a> specified in configuration.</p>
+          </li>
+          <li>
+            <p><code>laika.links</code>: holds navigation configuration for <a href="../03-preparing-content/02-navigation.html#global-link-definitions">Global Link Definitions</a>, <a href="../03-preparing-content/02-navigation.html#linking-to-api-documentation">Linking to API Documentation</a>
+            and <a href="../03-preparing-content/02-navigation.html#disabling-validation">Disabling Validation</a>.</p>
+          </li>
+          <li>
+            <p><code>laika.autonumbering</code>: the configuration for auto-numbering documents and sections. 
+            See <a href="../03-preparing-content/02-navigation.html#auto-numbering">Auto-Numbering</a> for details.</p>
+          </li>
+          <li>
+            <p><code>laika.pdf</code> and <code>laika.epub</code>: e-book configuration, see <a href="../03-preparing-content/04-ebooks.html#e-books-epub-pdf">E-Books (EPUB &amp; PDF)</a> for details</p>
+          </li>
+          <li>
+            <p><code>laika.titleDocuments</code>: configures the names of documents that should be treated as title documents.
+            See <a href="../03-preparing-content/01-directory-structure.html#title-documents">Title Documents</a> for details.<br></p>
+          </li>
+        </ul>
+        
+        <h2 id="user-defined-values" class="section">User-Defined Values</h2>
+        <p>In addition to the library&#39;s pre-defined values users can define their own values in any scope.</p>
+        <p>The only reserved namespaces for variable keys are <code>cursor</code> (e.g. <code>cursor.currentDocument.title</code>)
+        and <code>laika</code> (e.g. <code>laika.pdf.coverImage</code>). 
+        You can freely choose any key outside of these two namespaces.</p>
+        
+        <h3 id="programmatic-definition" class="section">Programmatic Definition</h3>
+        <p>You can add arbitrary configuration values when building a <code>Parser</code>, <code>Renderer</code> or <code>Transformer</code>:</p>
+        <p><strong>sbt plugin</strong></p>
+        <pre><code class="nohighlight"><span class="identifier">laikaConfig</span><span> := </span><span class="type-name">LaikaConfig</span><span>.</span><span class="identifier">defaults</span><span>
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="string-literal">&quot;project.version&quot;</span><span>, </span><span class="string-literal">&quot;2.4.6&quot;</span><span>)</span></code></pre>
+        <p><strong>Library API</strong></p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">GitHubFlavor</span><span>)
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="string-literal">&quot;project.version&quot;</span><span>, </span><span class="string-literal">&quot;2.4.6&quot;</span><span>)
+  .</span><span class="identifier">build</span></code></pre>
+        <p>You can refer to these values in templates and text markup:</p>
+        <pre><code class="nohighlight"><span>The latest stable release is </span><span class="substitution">${project.version}</span><span>.</span></code></pre>
+        <p>Values declared in a builder instance are available globally, 
+        but can be overridden by HOCON definitions in narrower scopes, as shown in the next section.</p>
+        
+        <h3 id="hocon-definition" class="section">HOCON Definition</h3>
+        <p>Programmatic configuration is recommended over file-based HOCON configuration wherever possible, 
+        but if you need to associate values with a particular directory, text markup document or template, 
+        instead of declaring them globally, you can define them in the corresponding locations:</p>
+        <ul>
+          <li>a configuration file with the name <code>directory.conf</code> in any input directory</li>
+          <li>a configuration header in a template</li>
+          <li>a configuration header in a text markup document </li>
+        </ul>
+        <p>Just be aware that these values are then not available globally, 
+        but only in the corresponding scope they were defined in.</p>
+        <p>Example for defining a variable in a configuration header in a text markup document:</p>
+        <pre><code class="nohighlight"><span class="keyword">{%</span><span>
+  </span><span class="attribute-name">project.version</span><span> = </span><span class="number-literal">2.0.2</span><span>
+</span><span class="keyword">%}</span><span>
+
+Document markup here...</span></code></pre>
+        <p>This value can then be accessed within that document or inside a template applied to that document
+        with the usual syntax:</p>
+        <pre><code class="nohighlight"><span>The latest stable release is </span><span class="substitution">${project.version}</span><span>.</span></code></pre>
+        
+        <h2 id="programmatic-access" class="section">Programmatic Access</h2>
+        <p>The same variables that you can access with HOCON-style substitution references in templates and markup files,
+        are also available programmatically if you are working with a document tree. 
+        The <code>DocumentCursor</code>, <code>DocumentTree</code>, <code>Document</code> and <code>TemplateDocument</code> types 
+        all have a <code>config</code> property that exposes those values:</p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">doc</span><span>: </span><span class="type-name">Document</span><span> = ???
+</span><span class="keyword">val</span><span> </span><span class="identifier">version</span><span>: </span><span class="type-name">Either</span><span>[</span><span class="type-name">ConfigError</span><span>, </span><span class="type-name">String</span><span>] = 
+  </span><span class="identifier">doc</span><span>.</span><span class="identifier">config</span><span>.</span><span class="identifier">get</span><span>[</span><span class="type-name">String</span><span>](</span><span class="string-literal">&quot;project.version&quot;</span><span>)</span></code></pre>
+        <p>See <a href="../api/laika/config/Config.html">Config</a> for details about the Config API.</p>
+
+      </div>
+    </div>
+
+  </div>
+
+</body></html>

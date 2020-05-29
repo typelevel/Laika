@@ -220,7 +220,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">RenderedDocument</span><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="title">title: <span class="extype" name="scala.Option">Option</span>[<a href="../../ast/SpanSequence.html" class="extype" name="laika.ast.SpanSequence">SpanSequence</a>]</span>, <span name="sections">sections: <span class="extype" name="scala.Seq">Seq</span>[<a href="../../ast/SectionInfo.html" class="extype" name="laika.ast.SectionInfo">SectionInfo</a>]</span>, <span name="content">content: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="RenderContent.html" class="extype" name="laika.io.model.RenderContent">RenderContent</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">RenderedDocument</span><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="title">title: <span class="extype" name="scala.Option">Option</span>[<a href="../../ast/SpanSequence.html" class="extype" name="laika.ast.SpanSequence">SpanSequence</a>]</span>, <span name="sections">sections: <span class="extype" name="scala.Seq">Seq</span>[<a href="../../ast/SectionInfo.html" class="extype" name="laika.ast.SectionInfo">SectionInfo</a>]</span>, <span name="content">content: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="RenderContent.html" class="extype" name="laika.io.model.RenderContent">RenderContent</a> with <a href="../../ast/DocumentNavigation.html" class="extype" name="laika.ast.DocumentNavigation">DocumentNavigation</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
@@ -231,7 +231,7 @@ step that needs to produce navigation structures.
           <span class="toggle">
             Linear Supertypes
           </span>
-          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <a href="RenderContent.html" class="extype" name="laika.io.model.RenderContent">RenderContent</a>, <a href="../../ast/Navigatable.html" class="extype" name="laika.ast.Navigatable">Navigatable</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <a href="../../ast/DocumentNavigation.html" class="extype" name="laika.ast.DocumentNavigation">DocumentNavigation</a>, <a href="RenderContent.html" class="extype" name="laika.io.model.RenderContent">RenderContent</a>, <a href="../../ast/Navigatable.html" class="extype" name="laika.ast.Navigatable">Navigatable</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -257,7 +257,7 @@ step that needs to produce navigation structures.
                   <span class="filtertype">Inherited<br />
                   </span>
                   <ol id="linearization">
-                    <li class="in" name="laika.io.model.RenderedDocument"><span>RenderedDocument</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="laika.io.model.RenderContent"><span>RenderContent</span></li><li class="in" name="laika.ast.Navigatable"><span>Navigatable</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                    <li class="in" name="laika.io.model.RenderedDocument"><span>RenderedDocument</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="laika.ast.DocumentNavigation"><span>DocumentNavigation</span></li><li class="in" name="laika.io.model.RenderContent"><span>RenderContent</span></li><li class="in" name="laika.ast.Navigatable"><span>Navigatable</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                   </ol>
                 </div><div class="ancestors">
               <span class="filtertype"></span>
@@ -367,6 +367,24 @@ step that needs to produce navigation structures.
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="laika.ast.DocumentNavigation#asNavigationItem" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="asNavigationItem(context:laika.ast.NavigationBuilderContext):laika.ast.NavigationItem"></a><a id="asNavigationItem(NavigationBuilderContext):NavigationItem"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/model/RenderedDocument.html#asNavigationItem(context:laika.ast.NavigationBuilderContext):laika.ast.NavigationItem" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">asNavigationItem</span><span class="params">(<span name="context">context: <a href="../../ast/NavigationBuilderContext.html" class="extype" name="laika.ast.NavigationBuilderContext">NavigationBuilderContext</a> = <span class="symbol">NavigationBuilderContext()</span></span>)</span><span class="result">: <a href="../../ast/NavigationItem.html" class="extype" name="laika.ast.NavigationItem">NavigationItem</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Creates the navigation structure for this document up to the specified depth.</p><div class="fullcomment"><div class="comment cmt"><p>Creates the navigation structure for this document up to the specified depth.
+The returned instance can be used as part of a bigger navigation structure comprising of trees, documents and their sections.
+</p></div><dl class="paramcmts block"><dt class="param">context</dt><dd class="cmt"><p>captures the navigation depth, reference path and styles for the navigation tree being built</p></dd><dt>returns</dt><dd class="cmt"><p>a navigation item that can be used as part of a bigger navigation structure comprising of trees, documents and their sections</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../ast/DocumentNavigation.html" class="extype" name="laika.ast.DocumentNavigation">DocumentNavigation</a></dd></dl></div>
     </li><li name="scala.AnyRef#clone" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a><a id="clone():AnyRef"></a>
       <span class="permalink">
@@ -566,8 +584,8 @@ step that needs to produce navigation structures.
         <span class="name">path</span><span class="result">: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.io.model.RenderedDocument">RenderedDocument</a> → <a href="RenderContent.html" class="extype" name="laika.io.model.RenderContent">RenderContent</a> → <a href="../../ast/Navigatable.html" class="extype" name="laika.ast.Navigatable">Navigatable</a></dd></dl></div>
-    </li><li name="laika.io.model.RenderedDocument#sections" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.io.model.RenderedDocument">RenderedDocument</a> → <a href="../../ast/Navigatable.html" class="extype" name="laika.ast.Navigatable">Navigatable</a></dd></dl></div>
+    </li><li name="laika.io.model.RenderedDocument#sections" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="sections:Seq[laika.ast.SectionInfo]"></a><a id="sections:Seq[SectionInfo]"></a>
       <span class="permalink">
       <a href="../../../laika/io/model/RenderedDocument.html#sections:Seq[laika.ast.SectionInfo]" title="Permalink">
@@ -582,7 +600,10 @@ step that needs to produce navigation structures.
         <span class="name">sections</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="../../ast/SectionInfo.html" class="extype" name="laika.ast.SectionInfo">SectionInfo</a>]</span>
       </span>
       
-      
+      <p class="shortcomment cmt">The section structure of this document based on the hierarchy
+of headers found in the original text markup.</p><div class="fullcomment"><div class="comment cmt"><p>The section structure of this document based on the hierarchy
+of headers found in the original text markup.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.io.model.RenderedDocument">RenderedDocument</a> → <a href="../../ast/DocumentNavigation.html" class="extype" name="laika.ast.DocumentNavigation">DocumentNavigation</a></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">
@@ -614,7 +635,12 @@ step that needs to produce navigation structures.
         <span class="name">title</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="../../ast/SpanSequence.html" class="extype" name="laika.ast.SpanSequence">SpanSequence</a>]</span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.io.model.RenderedDocument">RenderedDocument</a> → <a href="RenderContent.html" class="extype" name="laika.io.model.RenderContent">RenderContent</a></dd></dl></div>
+      <p class="shortcomment cmt">The title of this document, obtained from the document
+structure or from the configuration.</p><div class="fullcomment"><div class="comment cmt"><p>The title of this document, obtained from the document
+structure or from the configuration. In case no title
+is defined in either of the two places the result will
+be <code>None</code>.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.io.model.RenderedDocument">RenderedDocument</a> → <a href="../../ast/DocumentNavigation.html" class="extype" name="laika.ast.DocumentNavigation">DocumentNavigation</a> → <a href="RenderContent.html" class="extype" name="laika.io.model.RenderContent">RenderContent</a></dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <span class="permalink">
@@ -701,6 +727,8 @@ step that needs to produce navigation structures.
               <h3>Inherited from <span class="extype" name="scala.Product">Product</span></h3>
             </div><div class="parent" name="scala.Equals">
               <h3>Inherited from <span class="extype" name="scala.Equals">Equals</span></h3>
+            </div><div class="parent" name="laika.ast.DocumentNavigation">
+              <h3>Inherited from <a href="../../ast/DocumentNavigation.html" class="extype" name="laika.ast.DocumentNavigation">DocumentNavigation</a></h3>
             </div><div class="parent" name="laika.io.model.RenderContent">
               <h3>Inherited from <a href="RenderContent.html" class="extype" name="laika.io.model.RenderContent">RenderContent</a></h3>
             </div><div class="parent" name="laika.ast.Navigatable">

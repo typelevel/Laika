@@ -123,6 +123,10 @@
                         <a href="DirectiveSupport.html" title="Internal API that processes all directives defined by one or more DirectiveRegistries.">DirectiveSupport</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="object" href="Links$.html" title="The API for declaring directives that can be used in links."></a>
+                        <a href="Links$.html" title="The API for declaring directives that can be used in links.">Links</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="object" href="Spans$.html" title="The API for declaring directives that can be used as inline elements in markup documents."></a>
                         <a href="Spans$.html" title="The API for declaring directives that can be used as inline elements in markup documents.">Spans</a>
                       </li><li class="current-entities indented2">
@@ -161,12 +165,9 @@
       </h4>
 
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Provides the basic building blocks for
-Laika's Directive API. This trait
-is not used directly, but instead its
-three sub-traits <code>Blocks</code>, <code>Spans</code> and <code>Templates</code>,
-which represent the concrete implementations
-for the three directive types.
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Provides the basic building blocks for Laika's Directive API.
+This trait is not used directly, but instead its three sub-traits <code>Blocks</code>, <code>Spans</code> and <code>Templates</code>,
+which represent the concrete implementations for the three directive types.
 </p></div><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
@@ -287,8 +288,7 @@ for the three directive types.
         <a title="The content of a parsed directive with the HOCON attributes captured in a Config instance." href="BuilderContext$DirectiveContent.html"><span class="name">DirectiveContent</span></a><span class="params">(<span name="attributes">attributes: <a href="../config/Config.html" class="extype" name="laika.config.Config">Config</a></span>, <span name="body">body: <span class="extype" name="scala.Option">Option</span>[<a href="BuilderContext$BodyContent.html" class="extype" name="laika.directive.BuilderContext.BodyContent">BodyContent</a>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
-      <p class="shortcomment cmt">The content of a parsed directive with the HOCON attributes captured in a <code>Config</code>
-instance.</p>
+      <p class="shortcomment cmt">The content of a parsed directive with the HOCON attributes captured in a <code>Config</code> instance.</p>
     </li><li name="laika.directive.BuilderContext.DirectiveContext" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="DirectiveContextextendsProductwithSerializable"></a><a id="DirectiveContext:DirectiveContext"></a>
       <span class="permalink">
@@ -353,9 +353,7 @@ or a combination of multiple parts.</p>
         <span class="name">Parser</span><span class="result"> &lt;: (<span class="extype" name="scala.Predef.String">String</span>) ⇒ <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="laika.directive.BuilderContext.E">E</span>]</span>
       </span>
       
-      <p class="shortcomment cmt">The parser API in case a directive function
-needs to manually parse one of the directive
-parts.</p>
+      <p class="shortcomment cmt">The parser API in case a directive function needs to manually parse one of the directive parts.</p>
     </li><li name="laika.directive.BuilderContext.Result" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Result[+A]=Either[Seq[String],A]"></a><a id="Result[+A]:Result[A]"></a>
       <span class="permalink">
@@ -535,6 +533,24 @@ The default is unbounded, with 0 or more instances allowed.
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="laika.directive.BuilderContext#eval" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="eval(name:String)(part:BuilderContext.this.DirectivePart[Either[String,E]]):BuilderContext.this.Directive"></a><a id="eval(String)(DirectivePart[Either[String,E]]):Directive"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/BuilderContext.html#eval(name:String)(part:BuilderContext.this.DirectivePart[Either[String,E]]):BuilderContext.this.Directive" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">eval</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span name="part">part: <a href="BuilderContext$DirectivePart.html" class="extype" name="laika.directive.BuilderContext.DirectivePart">DirectivePart</a>[<span class="extype" name="scala.Either">Either</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="laika.directive.BuilderContext.E">E</span>]]</span>)</span><span class="result">: <a href="BuilderContext$Directive.html" class="extype" name="laika.directive.BuilderContext.Directive">Directive</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Creates a new directive with the specified name and part specification.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new directive with the specified name and part specification.</p><p>When the result of the directive is a <code>Left</code>, the directive will produce
+an invalid AST element with the string as the error message.
+</p></div></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <span class="permalink">
@@ -713,7 +729,7 @@ The default is unbounded, with 0 or more instances allowed.
       </span>
       
       <p class="shortcomment cmt">Turns a collection of directives into a map,
- using the name of the directive as the key.</p>
+using the name of the directive as the key.</p>
     </li><li name="scala.AnyRef#toString" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <span class="permalink">

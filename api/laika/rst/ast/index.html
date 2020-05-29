@@ -175,6 +175,10 @@
                         <a href="ReferenceName.html" title="Represent a reference name.">ReferenceName</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
+                        <a class="object" href="RstStyle$.html" title="Constants for style names wrapped in Options instances which are commonly used by Laika's reStructuredText parsers and rewrite rules."></a>
+                        <a href="RstStyle$.html" title="Constants for style names wrapped in Options instances which are commonly used by Laika's reStructuredText parsers and rewrite rules.">RstStyle</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
                         <a class="class" href="SubstitutionDefinition.html" title="A substitution definition with its span content that will be inserted wherever this substitution is referenced in flow content."></a>
                         <a href="SubstitutionDefinition.html" title="A substitution definition with its span content that will be inserted wherever this substitution is referenced in flow content.">SubstitutionDefinition</a>
                       </li><li class="current-entities indented3">
@@ -264,7 +268,31 @@
           <div id="comment" class="fullcommenttop"></div>
         
 
-      
+      <div id="mbrsel">
+        <div class="toggle"></div>
+        <div id="memberfilter">
+          <i class="material-icons arrow"></i>
+          <span class="input">
+            <input id="mbrsel-input" placeholder="Filter all members" type="text" accesskey="/" />
+          </span>
+          <i class="clear material-icons"></i>
+        </div>
+        <div id="filterby">
+          <div id="order">
+            <span class="filtertype">Ordering</span>
+            <ol>
+              
+              <li class="alpha in"><span>Alphabetic</span></li>
+              
+            </ol>
+          </div>
+          
+          <div id="visbl">
+              <span class="filtertype">Visibility</span>
+              <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+            </div>
+        </div>
+      </div>
 
       <div id="template">
         <div id="allMembers">
@@ -305,7 +333,7 @@
       
       <p class="shortcomment cmt">Generates a table of contents element inside a topic.</p>
     </li><li name="laika.rst.ast.CustomizedTextRole" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="CustomizedTextRoleextendsElementwithDefinitionwithProductwithSerializable"></a><a id="CustomizedTextRole:CustomizedTextRole"></a>
+      <a id="CustomizedTextRoleextendsElementwithDefinitionwithHiddenwithProductwithSerializable"></a><a id="CustomizedTextRole:CustomizedTextRole"></a>
       <span class="permalink">
       <a href="../../../laika/rst/ast/CustomizedTextRole.html" title="Permalink">
         <i class="material-icons"></i>
@@ -316,7 +344,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="Temporary element to represent a customized text role that can be applied to spans of interpreted text." href="CustomizedTextRole.html"><span class="name">CustomizedTextRole</span></a><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="apply">apply: (<span class="extype" name="scala.Predef.String">String</span>) ⇒ <a href="../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a></span>, <span name="options">options: <a href="../../ast/Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="../../index.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="../../ast/Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="../../ast/Definition.html" class="extype" name="laika.ast.Definition">Definition</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="Temporary element to represent a customized text role that can be applied to spans of interpreted text." href="CustomizedTextRole.html"><span class="name">CustomizedTextRole</span></a><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="apply">apply: (<span class="extype" name="scala.Predef.String">String</span>) ⇒ <a href="../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a></span>, <span name="options">options: <a href="../../ast/Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="../../index.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="../../ast/Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="../../ast/Definition.html" class="extype" name="laika.ast.Definition">Definition</a> with <a href="../../ast/Hidden.html" class="extype" name="laika.ast.Hidden">Hidden</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">Temporary element to represent a customized text role that can be applied
@@ -514,7 +542,7 @@
  and the name converted to lower case.
 </p></div></div>
     </li><li name="laika.rst.ast.SubstitutionDefinition" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="SubstitutionDefinitionextendsElementwithDefinitionwithProductwithSerializable"></a><a id="SubstitutionDefinition:SubstitutionDefinition"></a>
+      <a id="SubstitutionDefinitionextendsElementwithDefinitionwithHiddenwithProductwithSerializable"></a><a id="SubstitutionDefinition:SubstitutionDefinition"></a>
       <span class="permalink">
       <a href="../../../laika/rst/ast/SubstitutionDefinition.html" title="Permalink">
         <i class="material-icons"></i>
@@ -525,7 +553,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="A substitution definition with its span content that will be inserted wherever this substitution is referenced in flow content." href="SubstitutionDefinition.html"><span class="name">SubstitutionDefinition</span></a><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="content">content: <a href="../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a></span>, <span name="options">options: <a href="../../ast/Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="../../index.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="../../ast/Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="../../ast/Definition.html" class="extype" name="laika.ast.Definition">Definition</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="A substitution definition with its span content that will be inserted wherever this substitution is referenced in flow content." href="SubstitutionDefinition.html"><span class="name">SubstitutionDefinition</span></a><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="content">content: <a href="../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a></span>, <span name="options">options: <a href="../../ast/Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="../../index.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="../../ast/Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="../../ast/Definition.html" class="extype" name="laika.ast.Definition">Definition</a> with <a href="../../ast/Hidden.html" class="extype" name="laika.ast.Hidden">Hidden</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">A substitution definition with its span content that will be inserted
@@ -570,7 +598,28 @@
 
         
 
-        
+        <div class="values members">
+              <h3>Value Members</h3>
+              <ol>
+                <li name="laika.rst.ast.RstStyle" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RstStyle"></a><a id="RstStyle:RstStyle"></a>
+      <span class="permalink">
+      <a href="../../../laika/rst/ast/RstStyle$.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="Constants for style names wrapped in Options instances which are commonly used by Laika's reStructuredText parsers and rewrite rules." href="RstStyle$.html"><span class="name">RstStyle</span></a>
+      </span>
+      
+      <p class="shortcomment cmt">Constants for style names wrapped in Options instances which are commonly used by Laika's reStructuredText parsers and rewrite rules.</p>
+    </li>
+              </ol>
+            </div>
 
         
 

@@ -804,6 +804,29 @@ information from the entire document tree before returning the actual rule,
 which is a partial function from <code>Element</code> to <code>Option[Element]</code> that allows
 to remove or replace elements from the tree.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a></dd></dl></div>
+    </li><li name="laika.bundle.ExtensionBundle#slugBuilder" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="slugBuilder:Option[String=&gt;String]"></a><a id="slugBuilder:Option[(String)⇒String]"></a>
+      <span class="permalink">
+      <a href="../../../laika/rst/bundle/RstExtensionRegistry.html#slugBuilder:Option[String=&gt;String]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">slugBuilder</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[(<span class="extype" name="scala.Predef.String">String</span>) ⇒ <span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Function that receives the text of a headline, the name of a document
+or directory or a manually assigned identifier, and builds a slug from it
+that becomes part of the final URL or identifier (depending on output format).</p><div class="fullcomment"><div class="comment cmt"><p>Function that receives the text of a headline, the name of a document
+or directory or a manually assigned identifier, and builds a slug from it
+that becomes part of the final URL or identifier (depending on output format).</p><p>The result of the function must be:</p><p>- a valid identifier in HTML and XML
+- a valid path segment in a URL
+- a valid file name
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">

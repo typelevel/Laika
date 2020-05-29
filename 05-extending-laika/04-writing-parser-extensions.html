@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+
+    <title>Laika</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Customizable and extensible toolkit for transforming lightweight markup languages to various types of output formats, written in Scala" />
+    <meta name="keywords" content="scala, text, markup, markdown, restructuredtext, parser, transformer, html, template engine, site generation, open-source" />
+
+    <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+    <link href="../css/bootstrap.css" rel="stylesheet">
+    <link href="../css/docs.css" rel="stylesheet">
+
+  </head>
+
+  <body data-spy="scroll" data-target=".toc" data-offset="200">
+
+
+  <div class="container">
+
+    <!-- Docs nav
+    ================================================== -->
+    <div class="row">
+      <div class="span4 toc" >
+        
+        <ul class="nav nav-list affix">
+          <div class="nav-top"><img src="../img/laika-top.png"/></div>
+          
+          
+          <li><a href="../table-of-contents.html">Table of Contents</a></li>
+          <li class="nav-header">About Laika</li>
+          <li><a href="../01-about-laika/01-features.html">Features</a></li>
+          <li><a href="../01-about-laika/02-design-goals.html">Design Goals</a></li>
+          <li class="nav-header">Running Laika</li>
+          <li><a href="../02-running-laika/01-sbt-plugin.html">sbt Plugin</a></li>
+          <li><a href="../02-running-laika/02-library-api.html">Library API</a></li>
+          <li><a href="../02-running-laika/03-configuration.html">Configuration</a></li>
+          <li class="nav-header">Preparing Content</li>
+          <li><a href="../03-preparing-content/01-directory-structure.html">Directory Structure</a></li>
+          <li><a href="../03-preparing-content/02-navigation.html">Navigation</a></li>
+          <li><a href="../03-preparing-content/04-ebooks.html">E-Books (EPUB &amp; PDF)</a></li>
+          <li><a href="../03-preparing-content/05-syntax-highlighting.html">Syntax Highlighting</a></li>
+          <li class="nav-header">Customizing Laika</li>
+          <li><a href="../04-customizing-laika/01-overview.html">Overview</a></li>
+          <li><a href="../04-customizing-laika/03-creating-templates.html">Creating Templates</a></li>
+          <li><a href="../04-customizing-laika/04-document-ast.html">The Document AST</a></li>
+          <li><a href="../04-customizing-laika/05-ast-rewriting.html">AST Rewriting</a></li>
+          <li><a href="../04-customizing-laika/06-overriding-renderers.html">Overriding Renderers</a></li>
+          <li class="nav-header">Extending Laika</li>
+          <li><a href="01-overview.html">Overview</a></li>
+          <li><a href="03-implementing-directives.html">Implementing Directives</a></li>
+          <li class="active"><a href="#">Writing Parser Extensions</a></li>
+          <li><a href="06-adding-syntax-highlighters.html">Adding Syntax Highlighters</a></li>
+          <li><a href="07-new-markup-output-formats.html">New Markup or Output Formats</a></li>
+          <li class="nav-header">Sub-Modules</li>
+          <li><a href="../06-sub-modules/02-laikas-parser-combinators.html">Laika&#39;s Parser Combinators</a></li>
+          <li><a href="../06-sub-modules/03-laikas-hocon-api.html">Laika&#39;s HOCON API</a></li>
+          <li class="nav-header">Reference</li>
+          <li><a href="../07-reference/01-standard-directives.html">Standard Directives</a></li>
+          <li><a href="../07-reference/02-substitution-variables.html">Substitution Variables</a></li>
+          <li><a href="../07-reference/03-spec-compliance.html">Spec Compliance</a></li>
+          <li><a href="../07-reference/06-release-notes.html">Release Notes</a></li>
+          <li><a href="../07-reference/07-migration-guide.html">Migration Guide</a></li>
+          
+          <li class="nav-header">Project Links</li>
+          <li><a href="http://github.com/planet42/Laika">Source Code</a></li>
+          <li><a href="../api/laika/api/">API Documentation</a></li>
+          <!--<li><a href="http://github.com/planet42/Laika/issues">Issue Tracker</a></li>-->
+          <!--<li><a href="http://planet42.org/">Demo App</a></li>-->
+          <!--  
+          <li class="follow"><a href="https://twitter.com/_planet42" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false" data-dnt="true">Follow @_planet42</a>
+          <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script></li>
+          -->
+          <div class="nav-bottom"><img src="../img/laika-bottom.png" border="1"/></div>
+        </ul>
+        
+      </div>
+      
+      <div class="span8" id="top">
+
+        <div class="page-header">
+        <h1 id="writing-parser-extensions" class="title">Writing Parser Extensions</h1>
+        </div>
+        <p>Implementing a custom parser is one of two possible ways to extend the syntax of a text markup language.</p>
+        <p>The second option is @ref:(Implementing Directives) and in many cases that approach offers more convenience.
+        It is based on a common syntax for declaring a directive and its attributes and body elements.
+        Therefore directives can be implemented without writing a custom parser and without getting familiar
+        with Laika&#39;s parser combinators.</p>
+        <p>There are usually only two scenarios where you may prefer to write a parser extension instead:</p>
+        <ul>
+          <li>
+            <p>You have very special requirements for the syntax. 
+            If, for example, you want to design a new table markup format, 
+            this is quite impossible to express with the fixed syntax of a directive.</p>
+          </li>
+          <li>
+            <p>You want the most concise syntax for elements that are used frequently. 
+            One example is to support short references to issues in a ticket system in the format <code>#123</code>.
+            The shortest syntax that is possible with directives would be something like <code>@:ticket(123)</code> 
+            which you may still find too verbose.</p>
+          </li>
+        </ul>
+        
+        <h2 id="multi-pass-markup-parsing" class="section">Multi-Pass Markup Parsing</h2>
+        <p>Before delving deeper into the practicalities of writing a parser extension, it is helpful to understand how
+        markup parsing works under the hood in Laika.</p>
+        <p>In contrast to Laika&#39;s HOCON and CSS parsers which are single-pass, markup parsing is always a multi-pass operation.</p>
+        <p>At the minimum it is parsing in two passes: the first looks for markup which is significant for demarcating
+        a block type (like a blockquote, an ordered list, a code block or a regular paragraph for example). 
+        It then further parses the text of each block to look for inline markup.</p>
+        <p>But it may require any number of additional passes, as blocks or spans themselves can be nested inside each other.
+        An example for a recursive block structure is a list, where each list item may contain nested lists.
+        A span may be recursive where an element like a link allows further inline markup for the link text.</p>
+        <p>The distinction between block and span parsers is also reflected in the APIs.
+        The document AST comes with base traits <code>Block</code> and <code>Span</code> (both extending the root <code>Element</code> trait)
+        and registration of span and block parsers (which produce <code>Block</code> or <code>Span</code> AST nodes respectively) 
+        is separate and comes with slightly different configuration options as shown in the following sections. </p>
+        
+        <h2 id="prerequisites" class="section">Prerequisites</h2>
+        <p>The content of this chapter builds on top of concepts introduced in other chapters,
+        therefore reading those first might help with following through the examples.</p>
+        <p>First, all parsers build on top of <a href="../06-sub-modules/02-laikas-parser-combinators.html#laika-s-parser-combinators">Laika&#39;s Parser Combinators</a>.
+        Having its own implementation helps with keeping all functionality tightly integrated and adding
+        some optimizations useful for the specific use case of markup parsing right into the base parsers.</p>
+        <p>Second, since the parsers we discuss in this chapter all produce AST nodes, 
+        it might help to get familiar with <a href="../04-customizing-laika/04-document-ast.html#the-document-ast">The Document AST</a> first.</p>
+        
+        <h2 id="span-parsers" class="section">Span Parsers</h2>
+        <p>Span parsers participate in inline parsing. 
+        Examples for built-in span parsers are those for emphasized text, literal spans or links.</p>
+        <p>Adding a span parser to an existing text markup language requires two steps:</p>
+        <ul>
+          <li>Write the actual implementation of the parser as a type of <code>PrefixedParser[Span]</code>.</li>
+          <li>Add this declaration to an <code>ExtensionBundle</code>.</li>
+        </ul>
+        <p>Let&#39;s go through this step by step with an example. 
+        We are going to build a simple span parser for a ticket reference in the form of <code>#123</code>.</p>
+        
+        <h3 id="span-parser-implementation" class="section">Span Parser Implementation</h3>
+        <p>We require a mandatory <code>#</code> symbol followed by one or more digits.</p>
+        <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">ast</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">parse</span><span>.</span><span class="identifier">implicits</span><span>.</span><span class="identifier">_</span><span>
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">ticketParser</span><span>: </span><span class="type-name">PrefixedParser</span><span>[</span><span class="type-name">Span</span><span>] = 
+  (</span><span class="string-literal">&quot;#&quot;</span><span> ~&gt; </span><span class="identifier">someOf</span><span>(</span><span class="type-name">CharGroup</span><span>.</span><span class="identifier">digits</span><span>)).</span><span class="identifier">map</span><span> { </span><span class="identifier">num</span><span> =&gt;
+    </span><span class="type-name">SpanLink</span><span>(</span><span class="type-name">Seq</span><span>(</span><span class="type-name">Text</span><span>(</span><span class="string-literal">&quot;#&quot;</span><span> + </span><span class="identifier">num</span><span>)), </span><span class="type-name">ExternalTarget</span><span>(</span><span class="string-literal">s&quot;http://our-tracker.com/</span><span class="substitution">$num</span><span class="string-literal">&quot;</span><span>))
+  }</span></code></pre>
+        <ul>
+          <li>We first look for a literal <code>&quot;#&quot;</code>.</li>
+          <li>We then require at least one digit. 
+          The <code>someOf</code> parser covers this as it means &quot;one or more of the specified characters&quot;.</li>
+          <li>We combine the two parsers with <code>~&gt;</code> which means: 
+          &quot;concatenate the two parsers, but only keep the result of the right one&quot;.
+          See <a href="../06-sub-modules/02-laikas-parser-combinators.html#laika-s-parser-combinators">Laika&#39;s Parser Combinators</a> for details.</li>
+          <li>We map the result and create a <code>SpanLink</code> node (which implements <code>Span</code>).
+          We use the literal input as the link text and then build the URL as an external target.</li>
+        </ul>
+        <p>This first example hard-codes the base URL. If your parser extension is for internal use, this may not be a problem.
+        But if you require a configurable base URL, we later show an enhanced example that has access to the configuration.</p>
+        
+        <h3 id="registering-a-span-parser" class="section">Registering a Span Parser</h3>
+        <p>For bundling all your Laika extensions, you need to extend <code>ExtensionBundle</code>.
+        In our case we only need to override the <code>parsers</code> property 
+        and leave everything else at the empty default implementations.</p>
+        <pre><code class="nohighlight"><span class="keyword">object</span><span> </span><span class="type-name">TicketSyntax</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">ExtensionBundle</span><span> {
+
+  </span><span class="keyword">override</span><span> </span><span class="keyword">val</span><span> </span><span class="identifier">parsers</span><span>: </span><span class="type-name">ParserBundle</span><span> = </span><span class="type-name">ParserBundle</span><span>(
+    </span><span class="identifier">spanParsers</span><span> = </span><span class="type-name">Seq</span><span>(</span><span class="type-name">SpanParser</span><span>.</span><span class="identifier">standalone</span><span>(</span><span class="identifier">tickerParser</span><span>))
+  )
+
+}</span></code></pre>
+        <p>The <code>SpanParser.standalone</code> method can be used in cases where your parser does not need access to the parser
+        of the host language for recursive parsing.</p>
+        <p>Finally you can register your extension together with any built-in extensions you may use:</p>
+        <p><strong>sbt plugin</strong></p>
+        <pre><code class="nohighlight"><span class="identifier">laikaExtensions</span><span> := </span><span class="type-name">Seq</span><span>(
+  </span><span class="type-name">GitHubFlavor</span><span>,
+  </span><span class="type-name">TicketSyntax</span><span>
+)</span></code></pre>
+        <p><strong>Library API</strong></p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">GitHubFlavor</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">TicketSyntax</span><span>)
+  .</span><span class="identifier">build</span></code></pre>
+        
+        <h3 id="access-to-configuration" class="section">Access to Configuration</h3>
+        <p>This will enhance the previous example by making the base URL configurable.</p>
+        <p>Access to configuration or other AST nodes is not possible in the parsing phase itself, 
+        as each parser executes in isolation and multiple input documents are processed in parallel.</p>
+        <p>But your parser can return an instance that implements <code>SpanResolver</code> instead of directly producing a link.
+        Such a resolver will then participate in the AST transformation phase where its <code>resolve</code> method will be invoked:</p>
+        <pre><code class="nohighlight"><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">TicketResolver</span><span> (</span><span class="identifier">num</span><span>: </span><span class="type-name">String</span><span>, </span><span class="identifier">options</span><span>: </span><span class="type-name">Options</span><span> = </span><span class="type-name">NoOpt</span><span>) </span><span class="keyword">extends</span><span> </span><span class="type-name">SpanResolver</span><span> {
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">resolve</span><span> (</span><span class="identifier">cursor</span><span>: </span><span class="type-name">DocumentCursor</span><span>): </span><span class="type-name">Span</span><span> = {
+    </span><span class="identifier">cursor</span><span>.</span><span class="identifier">config</span><span>.</span><span class="identifier">get</span><span>[</span><span class="type-name">String</span><span>](</span><span class="string-literal">&quot;ticket.baseURL&quot;</span><span>).</span><span class="identifier">fold</span><span>(
+      </span><span class="identifier">error</span><span> =&gt; </span><span class="type-name">InvalidElement</span><span>(</span><span class="string-literal">s&quot;Unable to read base URL for tickets: </span><span class="substitution">$error</span><span class="string-literal">&quot;</span><span>, </span><span class="string-literal">&quot;#&quot;</span><span> + </span><span class="identifier">num</span><span>).</span><span class="identifier">asSpan</span><span>,
+      </span><span class="identifier">baseURL</span><span> =&gt; </span><span class="type-name">SpanLink</span><span>(</span><span class="type-name">Seq</span><span>(</span><span class="type-name">Text</span><span>(</span><span class="string-literal">&quot;#&quot;</span><span> + </span><span class="identifier">num</span><span>)), </span><span class="type-name">ExternalTarget</span><span>(</span><span class="string-literal">s&quot;</span><span class="substitution">$baseURL$num</span><span class="string-literal">&quot;</span><span>))
+    )
+  }
+}</span></code></pre>
+        <p>The <code>DocumentCursor</code> passed to the <code>resolve</code> method provides access to the project configuration which we use
+        in this example, but also to all ASTs of the input tree, including other documents. 
+        It can therefore be used for advanced functionality like producing a table of contents.</p>
+        <p>The API of the <code>cursor.config</code> property is documented in <a href="../api/laika/config/Config.html">Config</a>.</p>
+        <p>In our case we expect a string, but we also need to handle errors now, as the access might fail
+        when the value is missing or it&#39;s not a string. 
+        We return an <code>InvalidElement</code> for errors, which is a useful kind of AST node as it allows the user to control the
+        error handling. 
+        The presence of such an element will by default cause the transformation to fail with the provided error message
+        shown alongside any other errors encountered.
+        But users can also switch to a &quot;visual debugging&quot; mode by rendering all errors in place. 
+        See <a href="../02-running-laika/03-configuration.html#error-handling">Error Handling</a> for details. </p>
+        <p>The <code>options</code> property of our implementation is a mandatory property of each <code>Span</code> or <code>Block</code> element.
+        Options are a generic hook that allows users to add an id or multiple styles to a node.
+        It&#39;s always best to have an empty default argument like in our example.</p>
+        <p>With this change in place, the user can now provide the base URL in the builder of the <code>Transformer</code>:</p>
+        <p><strong>sbt plugin</strong></p>
+        <pre><code class="nohighlight"><span class="identifier">laikaConfig</span><span> := </span><span class="type-name">LaikaConfig</span><span>.</span><span class="identifier">defaults</span><span>
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="string-literal">&quot;ticket.baseURL&quot;</span><span>, </span><span class="string-literal">&quot;https://example.com/issues&quot;</span><span>)</span></code></pre>
+        <p><strong>Library API</strong></p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">GitHubFlavor</span><span>)
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="string-literal">&quot;ticket.baseURL&quot;</span><span>, </span><span class="string-literal">&quot;https://example.com/issues&quot;</span><span>)
+  .</span><span class="identifier">build</span></code></pre>
+        <p>The original ticket parser then only needs to be adjusted to return our resolver instead:</p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">ticketParser</span><span>: </span><span class="type-name">PrefixedParser</span><span>[</span><span class="type-name">Span</span><span>] = 
+  (</span><span class="string-literal">&quot;#&quot;</span><span> ~&gt; </span><span class="identifier">someOf</span><span>(</span><span class="type-name">CharGroup</span><span>.</span><span class="identifier">digits</span><span>)).</span><span class="identifier">map</span><span>(</span><span class="type-name">TicketResolver</span><span>(</span><span class="identifier">_</span><span>))</span></code></pre>
+        <p>The registration steps are identical to the previous example.</p>
+        
+        <h3 id="detecting-markup-boundaries" class="section">Detecting Markup Boundaries</h3>
+        <p>The examples so far came with a major simplification to keep the code concise.
+        The logic we implemented would also match on a link embedded in markup for example: <code>http://somwhere.com/page#123</code>.
+        In such a case we would not want the <code>#123</code> substring to be recognized as a ticket link.</p>
+        <p>For this reason text markup languages usually define a set of rules which define how to detect markup boundaries.
+        In reStructuredText these are defined in a very clear and strict way (<a href="https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html#inline-markup-recognition-rules">rst-markup-recognition-rules</a>), 
+        while in Markdown the definition is somewhat more fuzzy.</p>
+        <p>Laika&#39;s parser combinators come with convenient helpers to check conditions on preceding and following characters
+        without consuming them. Let&#39;s fix our parser implementation:</p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">ticketParser</span><span>: </span><span class="type-name">PrefixedParser</span><span>[</span><span class="type-name">Span</span><span>] = {
+  </span><span class="keyword">val</span><span> </span><span class="identifier">letterOrDigit</span><span>: </span><span class="type-name">Char</span><span> =&gt; </span><span class="type-name">Boolean</span><span> = { </span><span class="identifier">c</span><span> =&gt; 
+    </span><span class="type-name">Character</span><span>.</span><span class="identifier">isDigit</span><span>(</span><span class="identifier">c</span><span>) || </span><span class="type-name">Character</span><span>.</span><span class="identifier">isLetter</span><span>(</span><span class="identifier">c</span><span>)
+  }
+  </span><span class="keyword">val</span><span> </span><span class="identifier">delim</span><span> = </span><span class="identifier">delimiter</span><span>(</span><span class="string-literal">&quot;#&quot;</span><span>).</span><span class="identifier">prevNot</span><span>(</span><span class="identifier">letterOrDigit</span><span>)
+  </span><span class="keyword">val</span><span> </span><span class="identifier">ticketNum</span><span> = </span><span class="identifier">someOf</span><span>(</span><span class="type-name">CharGroup</span><span>.</span><span class="identifier">digits</span><span>)
+  </span><span class="keyword">val</span><span> </span><span class="identifier">postCond</span><span> = </span><span class="identifier">nextNot</span><span>(</span><span class="identifier">letterOrDigit</span><span>)
+  
+  (</span><span class="identifier">delim</span><span> ~&gt; </span><span class="identifier">ticketNum</span><span> &lt;~ </span><span class="identifier">postCond</span><span>).</span><span class="identifier">map</span><span>(</span><span class="type-name">TicketResolver</span><span>(</span><span class="identifier">_</span><span>))
+}</span></code></pre>
+        <p>Instead of just using a literal parser for the <code>&quot;#&quot;</code> we use the <code>delimiter</code> parser which comes with convenient
+        shortcuts to check conditions before and after the delimiter.</p>
+        <p>The end of our span has no explicit delimiter, so we use a standalone <code>nextNot</code> condition.</p>
+        <p>Checking that neither the preceding nor the following character is a letter or digit increases the likeliness
+        we only match on constructs the user actually meant to be ticket references.</p>
+        
+        <h3 id="recursive-parsing" class="section">Recursive Parsing</h3>
+        <p>In our example we used the <code>SpanParser.standalone</code> method for registration.
+        In cases where your parser needs access to the parser of the host language for recursive parsing
+        we need to use the <code>SpanParser.recursive</code> entry point instead:</p>
+        <pre><code class="nohighlight"><span class="type-name">SpanParser</span><span>.</span><span class="identifier">recursive</span><span> { </span><span class="identifier">recParsers</span><span> =&gt;
+  (</span><span class="char-literal">&#39;*&#39;</span><span> ~&gt; </span><span class="identifier">recParsers</span><span>.</span><span class="identifier">recursiveSpans</span><span>(</span><span class="identifier">delimitedBy</span><span>(</span><span class="string-literal">&quot;*&quot;</span><span>))).</span><span class="identifier">map</span><span>(</span><span class="type-name">Emphasized</span><span>(</span><span class="identifier">_</span><span>))
+} </span></code></pre>
+        <p>This parser parses markup between two asterisk.
+        It also detects and parses any span kinds provided by either the host markup language or other installed extensions
+        between these two delimiters.
+        The result from the parser obtained with the call to <code>recursiveSpans</code> is always of type <code>Seq[Span]</code>.</p>
+        <p>Only this entry point gives you access to a parser that is fully configured with all extensions the user has specified.
+        This parser needs to be injected as you would otherwise hard-code a concrete, fixed set of inline parsers.</p>
+        
+        <h2 id="block-parsers" class="section">Block Parsers</h2>
+        <p>Block parsers participate in parsing block level elements. 
+        Examples for built-in block parsers are those for lists, headers, tables or code blocks.</p>
+        <p>Adding a block parser to an existing text markup language requires two steps:</p>
+        <ul>
+          <li>Write the actual implementation of the parser as a type of <code>PrefixedParser[Block]</code>.</li>
+          <li>Add this declaration to an <code>ExtensionBundle</code>.</li>
+        </ul>
+        <p>Let&#39;s again go through this step by step with an example.
+        We are going to build a block parser for a quoted block.
+        In practice you would not need such an extension, as both supported markup languages in Laika already contain
+        a quoted block element. 
+        But it&#39;s a good example as the syntax is so simple.
+        In our case we require that each line of such a block starts with the <code>&gt;</code> character:</p>
+        <pre><code>&gt; This line is part of the quotation
+&gt; This line, too.
+But this line isn&#39;t</code></pre>
+        
+        <h3 id="block-parser-implementation" class="section">Block Parser Implementation</h3>
+        <p>Let&#39;s look at the implementation and examine it line by line:</p>
+        <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">ast</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">parse</span><span>.</span><span class="identifier">implicits</span><span>.</span><span class="identifier">_</span><span>
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">quotedBlockParser</span><span> = </span><span class="type-name">BlockParser</span><span>.</span><span class="identifier">recursive</span><span> { </span><span class="identifier">recParsers</span><span> =&gt;
+
+  </span><span class="keyword">val</span><span> </span><span class="identifier">decoratedLine</span><span> = </span><span class="string-literal">&quot;&gt;&quot;</span><span> ~ </span><span class="identifier">ws</span><span>  </span><span class="comment">// &#39;&gt;&#39; followed by whitespace
+</span><span>  </span><span class="keyword">val</span><span> </span><span class="identifier">textBlock</span><span> = </span><span class="type-name">BlockParsers</span><span>.</span><span class="identifier">block</span><span>(</span><span class="identifier">decoratedLine</span><span>, </span><span class="identifier">decoratedLine</span><span>)
+    
+  </span><span class="identifier">recParsers</span><span>.</span><span class="identifier">recursiveBlocks</span><span>(</span><span class="identifier">textBlock</span><span>).</span><span class="identifier">map</span><span>(</span><span class="type-name">QuotedBlock</span><span>(</span><span class="identifier">_</span><span>))
+}</span></code></pre>
+        <ul>
+          <li>
+            <p>Our quoted block is a recursive structure, therefore we need to use the corresponding entry point
+            <code>BlockParser.recursive</code>.
+            Like the recursive entry point for span parsers, it provides access to the parser of the host language 
+            that is fully configured with all extensions the user has specified.</p>
+          </li>
+          <li>
+            <p>Next we create the parser for the condition that each line needs to meet to be part of the quoted block.
+            In our case that is the <code>&quot;&gt;&quot;</code> character, optionally followed by whitespace (the <code>ws</code> parser consumes
+            zero or more whitespace characters).</p>
+          </li>
+          <li>
+            <p>We then create the parser for the text block based on these predicates. 
+            <code>BlockParsers.block</code> is a shortcut that will parse lines until a line does not meet the predicate.
+            The result is <code>List[String]</code>. See <a href="#base-parsers-for-block-elements">Base Parsers for Block Elements</a> below for details about this method. </p>
+          </li>
+          <li>
+            <p>Finally we use the recursive parsers we got injected.
+            The call to <code>recursiveBlocks</code> &quot;lifts&quot; the specified <code>Parser[List[String]]</code> to a <code>Parser[List[Block]]</code></p>
+          </li>
+          <li>
+            <p>We map the result and create a <code>QuotedBlock</code> node (which implements <code>Block</code>).
+            The nested blocks we parsed simply become the children of the quoted block.</p>
+          </li>
+        </ul>
+        <p>Like with span parsers, for blocks which are not recursive you can use the <code>BlockParser.standalone</code> entry point.</p>
+        
+        <h3 id="registering-a-block-parser" class="section">Registering a Block Parser</h3>
+        <p>For bundling all your Laika extensions, you need to extend <code>ExtensionBundle</code>.
+        In our case we only need to override the <code>parsers</code> property 
+        and leave everything else at the empty default implementations.</p>
+        <pre><code class="nohighlight"><span class="keyword">object</span><span> </span><span class="type-name">QuotedBlocks</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">ExtensionBundle</span><span> {
+
+  </span><span class="keyword">override</span><span> </span><span class="keyword">val</span><span> </span><span class="identifier">parsers</span><span>: </span><span class="type-name">ParserBundle</span><span> = 
+    </span><span class="type-name">ParserBundle</span><span>(</span><span class="identifier">blockParsers</span><span> = </span><span class="type-name">Seq</span><span>(</span><span class="identifier">quotedBlockParser</span><span>))
+
+}</span></code></pre>
+        <p>Finally you can register your extension together with any built-in extensions you may use:</p>
+        <p><strong>sbt plugin</strong></p>
+        <pre><code class="nohighlight"><span class="identifier">laikaExtensions</span><span> := </span><span class="type-name">Seq</span><span>(
+  </span><span class="type-name">GitHubFlavor</span><span>,
+  </span><span class="type-name">QuotedBlocks</span><span>
+)</span></code></pre>
+        <p><strong>Library API</strong></p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">GitHubFlavor</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">QuotedBlocks</span><span>)
+  .</span><span class="identifier">build</span></code></pre>
+        
+        <h3 id="base-parsers-for-block-elements" class="section">Base Parsers for Block Elements</h3>
+        <p>Laika offers a <code>BlockParsers</code> object with convenience methods for creating a typical block parser.</p>
+        <p>One of the most common patterns is parsing a range of lines while removing any decoration that just serves
+        as markup identifying the block type, e.g. the <code>*</code> starting a Markdown list or the <code>&gt;</code> starting a quotation.
+        And then using the parser result to continue parsing recursively, either nested blocks
+        or the inline elements of the block.</p>
+        <p>For these kind of block elements Laika offers the following method for convenience,
+        which is the utility we used in our example for parsing a quoted block:</p>
+        <pre><code class="nohighlight"><span class="keyword">def</span><span> </span><span class="declaration-name">block</span><span> (</span><span class="identifier">firstLinePrefix</span><span>: </span><span class="type-name">Parser</span><span>[</span><span class="type-name">Any</span><span>], 
+           </span><span class="identifier">linePrefix</span><span>: </span><span class="type-name">Parser</span><span>[</span><span class="type-name">Any</span><span>]): </span><span class="type-name">Parser</span><span>[</span><span class="type-name">List</span><span>[</span><span class="type-name">String</span><span>]]</span></code></pre>
+        <p>It expects two parsers, one for parsing the prefix of the first line, one for parsing it for all subsequent lines.
+        These parsers may be identical, like in our example for the quoted block.
+        They are both of type <code>Parser[Any]</code> as the result will be discarded anyway.</p>
+        <p>The result of this parser is of type <code>List[String]</code> and contains all lines where the specified conditions were met,
+        <strong>minus</strong> the input consumed by the prefix parser.
+        The prefix parsers are not required to consume any input though, 
+        if the logic for a particular block does not require stripping off decoration, 
+        you can alternatively pass parsers that only check some pre-conditions, but leave all input for the result.</p>
+        <p>The method above always stops parsing when encountering a blank line on the input,
+        which is common for many types of block elements.
+        For cases where parsing may need to continue beyond blank lines,
+        there is a second overload of this method that allows this: </p>
+        <pre><code class="nohighlight"><span class="keyword">def</span><span> </span><span class="declaration-name">block</span><span> (</span><span class="identifier">firstLinePrefix</span><span>: </span><span class="type-name">Parser</span><span>[</span><span class="type-name">Any</span><span>], 
+           </span><span class="identifier">linePrefix</span><span>: </span><span class="type-name">Parser</span><span>[</span><span class="type-name">Any</span><span>], 
+           </span><span class="identifier">nextBlockPrefix</span><span>: </span><span class="type-name">Parser</span><span>[</span><span class="type-name">Any</span><span>]): </span><span class="type-name">Parser</span><span>[</span><span class="type-name">List</span><span>[</span><span class="type-name">String</span><span>]]</span></code></pre>
+        <p>It simply adds a third prefix parser that gets invoked on the beginning of a line following a blank line
+        and is expected to succeed when the line should be treated as a continuation of the block element.</p>
+        <p>Finally there is a second utility that can be used for indented blocks:</p>
+        <pre><code class="nohighlight"><span class="keyword">def</span><span> </span><span class="declaration-name">indentedBlock</span><span> (</span><span class="identifier">minIndent</span><span>: </span><span class="type-name">Int</span><span> = </span><span class="number-literal">1</span><span>,
+    </span><span class="identifier">linePredicate</span><span>: =&gt; </span><span class="type-name">Parser</span><span>[</span><span class="type-name">Any</span><span>] = </span><span class="identifier">success</span><span>(()),
+    </span><span class="identifier">endsOnBlankLine</span><span>: </span><span class="type-name">Boolean</span><span> = </span><span class="boolean-literal">false</span><span>,
+    </span><span class="identifier">firstLineIndented</span><span>: </span><span class="type-name">Boolean</span><span> = </span><span class="boolean-literal">false</span><span>,
+    </span><span class="identifier">maxIndent</span><span>: </span><span class="type-name">Int</span><span> = </span><span class="type-name">Int</span><span>.</span><span class="type-name">MaxValue</span><span>): </span><span class="type-name">Parser</span><span>[</span><span class="type-name">String</span><span>]</span></code></pre>
+        <p>Like the other utility it allows to specify a few predicates. 
+        This method is not used for parsing Markdown&#39;s indented blocks, though, 
+        as Markdown has a special way of treating whitespace.</p>
+        
+        <h2 id="precedence" class="section">Precedence</h2>
+        <p>Both, block and span parsers can specify a precedence:</p>
+        <pre><code class="nohighlight"><span class="type-name">BlockParser</span><span>.</span><span class="identifier">recursive</span><span> { </span><span class="keyword">implicit</span><span> </span><span class="identifier">recParsers</span><span> =&gt;
+  ??? </span><span class="comment">// parser impl here
+</span><span>}.</span><span class="identifier">withLowPrecedence</span></code></pre>
+        <p>The default is that extension parsers have higher precedence than host language parsers, 
+        which means that they will be tried first and only when they fail the host language parsers will be invoked.</p>
+        <p>When setting low precedence like in the example above, this is reversed.</p>
+        <p>Note that precedence only refers to the ordering between the parsers of your extension and those of the host language.
+        The precedence between your extensions, in case you install multiple, is determined by the order you specify them in.</p>
+        <pre><code class="nohighlight"><span class="keyword">override</span><span> </span><span class="keyword">val</span><span> </span><span class="identifier">parsers</span><span>: </span><span class="type-name">ParserBundle</span><span> = </span><span class="type-name">ParserBundle</span><span>(
+  </span><span class="identifier">spanParsers</span><span> = </span><span class="type-name">Seq</span><span>(</span><span class="identifier">parserA</span><span>, </span><span class="identifier">parserB</span><span>)
+)</span></code></pre>
+        <p>In this case <code>parserB</code> will only be invoked when <code>parserA</code> fails.
+        Normally the syntax between inline constructs is different enough that the precedence does not matter.
+        But in some cases extra care is needed.
+        If, for example, you provide parsers for spans between double asterisk <code>**</code> and between single asterisk <code>*</code>,
+        the former must be specified first, as otherwise the single asterisk parser would 100% shadow the double one
+        and consume all matching input itself.</p>
+        
+        <h2 id="performance-optimization" class="section">Performance Optimization</h2>
+        <p>For span parsers the parser you are passing to the <code>standalone</code> or <code>recursive</code> methods must be 
+        of type <code>PrefixedParser[Span]</code>, which is a subtype of the base trait <code>Parser[T]</code>. </p>
+        <p>This is a trait implemented by all parsers with a stable prefix that can be optimized, like literal string parsers
+        or many other base parsers like the <code>someOf</code> or <code>delimiter</code> parsers. 
+        In most cases this is nothing you need to worry about, as most of the building blocks you use already implement
+        this trait. 
+        In the rare occasions where this is not the case, you might need to wrap your inline parser in a custom implementation
+        of the <code>PrefixedParser</code> trait.</p>
+        <p>This restriction is necessary as inline parsers cause checks to be performed on each character.
+        This is therefore the key hot spot for performance optimizations. 
+        For details see <a href="../06-sub-modules/02-laikas-parser-combinators.html#performance-optimizations">Performance Optimizations</a> in the chapter about Laika&#39;s parser combinators.</p>
+        <p>For block parsers this restriction is lifted, you can pass a regular <code>Parser[Block]</code> to the registration entry points.
+        One reason is that optimizing block parsers is much less critical, 
+        as they are only invoked (more or less) after a blank line has been read, not on each input character.
+        Another reason is that the nature of some block elements makes this type of optimization impractical.
+        An underlines header for example does not have any concrete set of start characters.</p>
+        <p>But even though it is not required, if you do actually pass <code>PrefixedParser[Block]</code> it will nevertheless
+        get optimized under the hood, just that the impact of this optimization will be smaller than for span parsers.</p>
+
+      </div>
+    </div>
+
+  </div>
+
+</body></html>

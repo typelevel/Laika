@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+
+    <title>Laika</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Customizable and extensible toolkit for transforming lightweight markup languages to various types of output formats, written in Scala" />
+    <meta name="keywords" content="scala, text, markup, markdown, restructuredtext, parser, transformer, html, template engine, site generation, open-source" />
+
+    <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+    <link href="../css/bootstrap.css" rel="stylesheet">
+    <link href="../css/docs.css" rel="stylesheet">
+
+  </head>
+
+  <body data-spy="scroll" data-target=".toc" data-offset="200">
+
+
+  <div class="container">
+
+    <!-- Docs nav
+    ================================================== -->
+    <div class="row">
+      <div class="span4 toc" >
+        
+        <ul class="nav nav-list affix">
+          <div class="nav-top"><img src="../img/laika-top.png"/></div>
+          
+          
+          <li><a href="../table-of-contents.html">Table of Contents</a></li>
+          <li class="nav-header">About Laika</li>
+          <li><a href="../01-about-laika/01-features.html">Features</a></li>
+          <li><a href="../01-about-laika/02-design-goals.html">Design Goals</a></li>
+          <li class="nav-header">Running Laika</li>
+          <li><a href="../02-running-laika/01-sbt-plugin.html">sbt Plugin</a></li>
+          <li><a href="../02-running-laika/02-library-api.html">Library API</a></li>
+          <li><a href="../02-running-laika/03-configuration.html">Configuration</a></li>
+          <li class="nav-header">Preparing Content</li>
+          <li><a href="../03-preparing-content/01-directory-structure.html">Directory Structure</a></li>
+          <li><a href="../03-preparing-content/02-navigation.html">Navigation</a></li>
+          <li><a href="../03-preparing-content/04-ebooks.html">E-Books (EPUB &amp; PDF)</a></li>
+          <li><a href="../03-preparing-content/05-syntax-highlighting.html">Syntax Highlighting</a></li>
+          <li class="nav-header">Customizing Laika</li>
+          <li><a href="01-overview.html">Overview</a></li>
+          <li><a href="03-creating-templates.html">Creating Templates</a></li>
+          <li><a href="04-document-ast.html">The Document AST</a></li>
+          <li><a href="05-ast-rewriting.html">AST Rewriting</a></li>
+          <li class="active"><a href="#">Overriding Renderers</a></li>
+          <li class="nav-header">Extending Laika</li>
+          <li><a href="../05-extending-laika/01-overview.html">Overview</a></li>
+          <li><a href="../05-extending-laika/03-implementing-directives.html">Implementing Directives</a></li>
+          <li><a href="../05-extending-laika/04-writing-parser-extensions.html">Writing Parser Extensions</a></li>
+          <li><a href="../05-extending-laika/06-adding-syntax-highlighters.html">Adding Syntax Highlighters</a></li>
+          <li><a href="../05-extending-laika/07-new-markup-output-formats.html">New Markup or Output Formats</a></li>
+          <li class="nav-header">Sub-Modules</li>
+          <li><a href="../06-sub-modules/02-laikas-parser-combinators.html">Laika&#39;s Parser Combinators</a></li>
+          <li><a href="../06-sub-modules/03-laikas-hocon-api.html">Laika&#39;s HOCON API</a></li>
+          <li class="nav-header">Reference</li>
+          <li><a href="../07-reference/01-standard-directives.html">Standard Directives</a></li>
+          <li><a href="../07-reference/02-substitution-variables.html">Substitution Variables</a></li>
+          <li><a href="../07-reference/03-spec-compliance.html">Spec Compliance</a></li>
+          <li><a href="../07-reference/06-release-notes.html">Release Notes</a></li>
+          <li><a href="../07-reference/07-migration-guide.html">Migration Guide</a></li>
+          
+          <li class="nav-header">Project Links</li>
+          <li><a href="http://github.com/planet42/Laika">Source Code</a></li>
+          <li><a href="../api/laika/api/">API Documentation</a></li>
+          <!--<li><a href="http://github.com/planet42/Laika/issues">Issue Tracker</a></li>-->
+          <!--<li><a href="http://planet42.org/">Demo App</a></li>-->
+          <!--  
+          <li class="follow"><a href="https://twitter.com/_planet42" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false" data-dnt="true">Follow @_planet42</a>
+          <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script></li>
+          -->
+          <div class="nav-bottom"><img src="../img/laika-bottom.png" border="1"/></div>
+        </ul>
+        
+      </div>
+      
+      <div class="span8" id="top">
+
+        <div class="page-header">
+        <h1 id="overriding-renderers" class="title">Overriding Renderers</h1>
+        </div>
+        <p>In some cases you might want to override the output of a renderer for a few types of AST nodes only,
+        while keeping the default for the rest. 
+        Both the sbt plugin and the library API offer a hook to easily do that 
+        without modifying or extending the existing renderer. </p>
+        <p>In general this processing hook is intended for cases where the customization you intend to do is coupled
+        to a specific output format. 
+        For any more generic processing logic, it is recommended to consider <a href="05-ast-rewriting.html#ast-rewriting">AST Rewriting</a> instead,
+        as that hook allows to replace or remove individual nodes in the AST before rendering.
+        This way the same logic can be used for all supported output formats.</p>
+        
+        <h2 id="function-signature" class="section">Function Signature</h2>
+        <p>This is the signature of a custom renderer hook:</p>
+        <pre><code class="nohighlight"><span class="type-name">PartialFunction</span><span>[(</span><span class="type-name">Formatter</span><span>, </span><span class="type-name">Element</span><span>), </span><span class="type-name">String</span><span>]</span></code></pre>
+        <p><code>Formatter</code> is a generic type representing the formatting API which is different for each output format. 
+        For HTML it is <code>HTMLFormatterr</code>, for XSL-FO it is <code>FOFormatter</code>. 
+        It provides a helper APIs for rendering tags, adds the current indentation level after line breaks 
+        and knows how to render child elements. </p>
+        <p><code>Element</code> is the base type of the document AST and represents the AST node to render, 
+        <code>String</code> is the render result in the expected target format.</p>
+        <p>See @:(The Document AST) for more details about the various node types</p>
+        
+        <h2 id="defining-a-render-function" class="section">Defining a Render Function</h2>
+        <p>This section explains how a render function is implemented and the subsequent sections
+        show the three different ways to register such a function.</p>
+        <p>In the following example only the HTML output for emphasized text will be modified,
+        adding a specific style class:</p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">renderer</span><span>: </span><span class="type-name">PartialFunction</span><span>[(</span><span class="type-name">HTMLFormatter</span><span>, </span><span class="type-name">Element</span><span>), </span><span class="type-name">String</span><span>] = {
+  </span><span class="keyword">case</span><span> (</span><span class="identifier">fmt</span><span>, </span><span class="type-name">Emphasized</span><span>(</span><span class="identifier">content</span><span>, </span><span class="identifier">opt</span><span>)) =&gt; 
+    </span><span class="identifier">fmt</span><span>.</span><span class="identifier">element</span><span>(</span><span class="string-literal">&quot;em&quot;</span><span>, </span><span class="identifier">opt</span><span>, </span><span class="identifier">content</span><span>, </span><span class="string-literal">&quot;class&quot;</span><span> -&gt; </span><span class="string-literal">&quot;big&quot;</span><span>) 
+}</span></code></pre>
+        <p>For all node types where the partial function is not defined, the default renderer will be used.</p>
+        <p>Multiple custom renderers can be specified for the same transformation, 
+        they will be tried in the order you added them, 
+        falling back to the default in case none is defined for a specific node.</p>
+        <p>The <code>content</code> value above is of type <code>Seq[Span]</code>. 
+        A renderer should only ever render a single node and delegate to the formatter for rendering children. 
+        Only the formatter has a list of all installed render extensions as well as the base renderer
+        and will delegate to those functions where the partial function is defined for the child element.</p>
+        
+        <h2 id="registering-a-render-function" class="section">Registering a Render Function</h2>
+        <p>The mechanism is slightly different, depending on whether you are using the sbt plugin or the library API. 
+        In the latter case you have two choices, one for performing a full transformation,
+        the other for a separate render operation.
+        All three options are described below.</p>
+        
+        <h3 id="using-the-sbt-plugin" class="section">Using the sbt Plugin</h3>
+        <p>In <code>build.sbt</code>:</p>
+        <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">ast</span><span>.</span><span class="identifier">_</span><span>
+
+</span><span class="identifier">laikaSiteRenderers</span><span> += </span><span class="identifier">laikaSiteRenderer</span><span> {
+  </span><span class="keyword">case</span><span> (</span><span class="identifier">fmt</span><span>, </span><span class="type-name">Emphasized</span><span>(</span><span class="identifier">content</span><span>, </span><span class="identifier">opt</span><span>)) =&gt; 
+    </span><span class="identifier">fmt</span><span>.</span><span class="identifier">element</span><span>(</span><span class="string-literal">&quot;em&quot;</span><span>, </span><span class="identifier">opt</span><span>, </span><span class="identifier">content</span><span>, </span><span class="string-literal">&quot;class&quot;</span><span> -&gt; </span><span class="string-literal">&quot;big&quot;</span><span>)
+}</span></code></pre>
+        
+        <h3 id="using-the-transformer-api" class="section">Using the Transformer API</h3>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">rendering</span><span> {
+    </span><span class="keyword">case</span><span> (</span><span class="identifier">fmt</span><span>, </span><span class="type-name">Emphasized</span><span>(</span><span class="identifier">content</span><span>, </span><span class="identifier">opt</span><span>)) =&gt; 
+      </span><span class="identifier">fmt</span><span>.</span><span class="identifier">element</span><span>(</span><span class="string-literal">&quot;em&quot;</span><span>, </span><span class="identifier">opt</span><span>, </span><span class="identifier">content</span><span>, </span><span class="string-literal">&quot;class&quot;</span><span> -&gt; </span><span class="string-literal">&quot;big&quot;</span><span>)
+  }.</span><span class="identifier">build</span></code></pre>
+        
+        <h3 id="using-the-renderer-api" class="section">Using the Renderer API</h3>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">doc</span><span>: </span><span class="type-name">Document</span><span> = ...
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">renderer</span><span> = </span><span class="type-name">Renderer</span><span>
+  .</span><span class="identifier">of</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">rendering</span><span> { 
+    </span><span class="keyword">case</span><span> (</span><span class="identifier">fmt</span><span>, </span><span class="type-name">Emphasized</span><span>(</span><span class="identifier">content</span><span>, </span><span class="identifier">opt</span><span>)) =&gt; 
+      </span><span class="identifier">fmt</span><span>.</span><span class="identifier">element</span><span>(</span><span class="string-literal">&quot;em&quot;</span><span>, </span><span class="identifier">opt</span><span>, </span><span class="identifier">content</span><span>, </span><span class="string-literal">&quot;class&quot;</span><span> -&gt; </span><span class="string-literal">&quot;big&quot;</span><span>)
+  }.</span><span class="identifier">build</span></code></pre>
+        
+        <h2 id="the-formatter-apis" class="section">The Formatter APIs</h2>
+        <p>Each formatter provides functionality that is specific to the target format.
+        On top of that all formatters manage the indentation level after line breaks and 
+        know how to delegate to the relevant renderers for child elements.</p>
+        
+        <h3 id="textformatter" class="section">TextFormatter</h3>
+        <p>This is the base API supported by both the <code>XSL-FO</code> and <code>HTML</code> renderer,
+        both of them adding several methods with rendering logic specific to that format.</p>
+        <ul>
+          <li>
+            <p><code>newLine</code> renders a newline character followed by whitespace for the current level of indentation.</p>
+          </li>
+          <li>
+            <p><code>child</code> render a single child element.</p>
+          </li>
+          <li>
+            <p><code>childPerLine</code> renders a list of child elements, each on a separate line, with the current level of indentation.</p>
+          </li>
+          <li>
+            <p><code>indentedChildren</code> renders a list of child elements, each on a separate line, 
+            indented one level to the right from the current indentation level.</p>
+          </li>
+        </ul>
+        
+        <h3 id="htmlformatter" class="section">HTMLFormatter</h3>
+        <p>This formatter supports all methods of the <code>TextFormatter</code> API shown above, and adds the following methods:</p>
+        <ul>
+          <li>
+            <p><code>element</code> renders a tag where the specified list of child elements will be used to render the content of the tag</p>
+          </li>
+          <li>
+            <p><code>indentedElement</code> is similar to <code>element</code>, but renders the child elements one per line and indented to the right</p>
+          </li>
+          <li>
+            <p><code>textElement</code> renders an element with text content with special characters replaced by entities</p>
+          </li>
+          <li>
+            <p><code>emptyElement</code> renders an empty tag</p>
+          </li>
+        </ul>
+
+      </div>
+    </div>
+
+  </div>
+
+</body></html>

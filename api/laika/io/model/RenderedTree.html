@@ -350,6 +350,22 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="laika.io.model.RenderedTree#allDocuments" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="allDocuments:Seq[laika.io.model.RenderedDocument]"></a><a id="allDocuments:Seq[RenderedDocument]"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/model/RenderedTree.html#allDocuments:Seq[laika.io.model.RenderedDocument]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">lazy val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">allDocuments</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="RenderedDocument.html" class="extype" name="laika.io.model.RenderedDocument">RenderedDocument</a>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">All documents contained in this tree, fetched recursively, depth-first.</p>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <span class="permalink">
@@ -366,6 +382,24 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="laika.io.model.RenderedTree#asNavigationItem" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="asNavigationItem(context:laika.ast.NavigationBuilderContext):laika.ast.NavigationItem"></a><a id="asNavigationItem(NavigationBuilderContext):NavigationItem"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/model/RenderedTree.html#asNavigationItem(context:laika.ast.NavigationBuilderContext):laika.ast.NavigationItem" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">asNavigationItem</span><span class="params">(<span name="context">context: <a href="../../ast/NavigationBuilderContext.html" class="extype" name="laika.ast.NavigationBuilderContext">NavigationBuilderContext</a> = <span class="symbol"><span class="name"><a href="../../index.html">NavigationBuilderContext()</a></span></span></span>)</span><span class="result">: <a href="../../ast/NavigationItem.html" class="extype" name="laika.ast.NavigationItem">NavigationItem</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Creates the navigation structure for this instance up to the specified depth.</p><div class="fullcomment"><div class="comment cmt"><p>Creates the navigation structure for this instance up to the specified depth.
+The returned instance can be used as part of a bigger navigation structure comprising of trees, documents and their sections.
+</p></div><dl class="paramcmts block"><dt class="param">context</dt><dd class="cmt"><p>captures the navigation depth, reference path and styles for the navigation tree being built</p></dd><dt>returns</dt><dd class="cmt"><p>a navigation item that can be used as part of a bigger navigation structure comprising of trees, documents and their sections</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.io.model.RenderedTree">RenderedTree</a> → <a href="RenderContent.html" class="extype" name="laika.io.model.RenderContent">RenderContent</a></dd></dl></div>
     </li><li name="scala.AnyRef#clone" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a><a id="clone():AnyRef"></a>
       <span class="permalink">
@@ -463,6 +497,25 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li name="laika.io.model.RenderedTree#isEmpty" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isEmpty:Boolean"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/model/RenderedTree.html#isEmpty:Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">lazy val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isEmpty</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Indicates whether this tree does not contain any markup document.</p><div class="fullcomment"><div class="comment cmt"><p>Indicates whether this tree does not contain any markup document.
+Template documents do not count, as they would be ignored in rendering
+when there is no markup document.
+</p></div></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <span class="permalink">
@@ -565,7 +618,7 @@
         <span class="name">path</span><span class="result">: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.io.model.RenderedTree">RenderedTree</a> → <a href="RenderContent.html" class="extype" name="laika.io.model.RenderContent">RenderContent</a> → <a href="../../ast/Navigatable.html" class="extype" name="laika.ast.Navigatable">Navigatable</a></dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.io.model.RenderedTree">RenderedTree</a> → <a href="../../ast/Navigatable.html" class="extype" name="laika.ast.Navigatable">Navigatable</a></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">

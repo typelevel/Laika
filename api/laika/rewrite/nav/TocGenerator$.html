@@ -123,12 +123,28 @@
                         <a href="AutonumberConfig.html" title="Configuration for autonumbering of documents and sections.">AutonumberConfig</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
+                        <a class="class" href="BasicPathTranslator.html" title="Basic path translator implementation that only replaces the suffix of the path."></a>
+                        <a href="BasicPathTranslator.html" title="Basic path translator implementation that only replaces the suffix of the path.">BasicPathTranslator</a>
+                      </li><li class="current-entities indented3">
+                        <a class="object" href="BookConfig$.html" title=""></a>
+                        <a class="class" href="BookConfig.html" title=""></a>
+                        <a href="BookConfig.html" title="">BookConfig</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="ConfigurablePathTranslator.html" title="Translates paths of input documents to the corresponding output path, based on a configuration instance."></a>
+                        <a href="ConfigurablePathTranslator.html" title="Translates paths of input documents to the corresponding output path, based on a configuration instance.">ConfigurablePathTranslator</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
                         <a class="class" href="ConfigurationException.html" title=""></a>
                         <a href="ConfigurationException.html" title="">ConfigurationException</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="object" href="NavigationOrder$.html" title="Responsible for applying the navigation order to the contents of a document tree, either based on user-specified configuration or by the alphabetical order of the names of the documents and subtrees."></a>
                         <a href="NavigationOrder$.html" title="Responsible for applying the navigation order to the contents of a document tree, either based on user-specified configuration or by the alphabetical order of the names of the documents and subtrees.">NavigationOrder</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="trait" href="PathTranslator.html" title="Translates paths of input documents to the corresponding output path."></a>
+                        <a href="PathTranslator.html" title="Translates paths of input documents to the corresponding output path.">PathTranslator</a>
                       </li><li class="current-entities indented3">
                         <a class="object" href="Scope$.html" title=""></a>
                         <a class="trait" href="Scope.html" title=""></a>
@@ -139,8 +155,12 @@
                         <a href="SectionBuilder$.html" title="Rewrite rules responsible for building the section structure of a document based on the header elements it contains and their level.">SectionBuilder</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="object" href="" title="Generates the tree model (consisting of BulletList elements) for the table of contents for a document or an entire document tree."></a>
-                        <a href="" title="Generates the tree model (consisting of BulletList elements) for the table of contents for a document or an entire document tree.">TocGenerator</a>
+                        <a class="object" href="TitleDocumentConfig$.html" title="Configuration for the names of title documents in the input and output trees."></a>
+                        <a href="TitleDocumentConfig$.html" title="Configuration for the names of title documents in the input and output trees.">TitleDocumentConfig</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="" title=""></a>
+                        <a href="" title="">TocGenerator</a>
                       </li>
               </ul>
             </div>
@@ -164,14 +184,15 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">TocGenerator</span>
+        <span class="name deprecated" title="Deprecated: (Since version 0.15.0) use NavigationBuilderConfig instead">TocGenerator</span>
       </span>
       </h4>
 
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Generates the tree model (consisting of BulletList elements) for
- the table of contents for a document or an entire document tree.
-</p></div><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.15.0)</i> use NavigationBuilderConfig instead</p></dd></dl><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
           </span>
@@ -370,7 +391,7 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="laika.rewrite.nav.TocGenerator#fromDocument" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="laika.rewrite.nav.TocGenerator#fromDocument" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="fromDocument(doc:laika.ast.Document,depth:Int,refPath:laika.ast.Path):List[laika.ast.Block]"></a><a id="fromDocument(Document,Int,Path):List[Block]"></a>
       <span class="permalink">
       <a href="../../../laika/rewrite/nav/TocGenerator$.html#fromDocument(doc:laika.ast.Document,depth:Int,refPath:laika.ast.Path):List[laika.ast.Block]" title="Permalink">
@@ -385,14 +406,11 @@
         <span class="name">fromDocument</span><span class="params">(<span name="doc">doc: <a href="../../ast/Document.html" class="extype" name="laika.ast.Document">Document</a></span>, <span name="depth">depth: <span class="extype" name="scala.Int">Int</span></span>, <span name="refPath">refPath: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>)</span><span class="result">: <span class="extype" name="scala.List">List</span>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
       </span>
       
-      <p class="shortcomment cmt">Generates the tree model (consisting of BulletList elements) for
- the table of contents for the specified document.</p><div class="fullcomment"><div class="comment cmt"><p>Generates the tree model (consisting of BulletList elements) for
- the table of contents for the specified document.
-</p></div><dl class="paramcmts block"><dt class="param">doc</dt><dd class="cmt"><p>the document to create a table of contents for</p></dd><dt class="param">depth</dt><dd class="cmt"><p>the maximum depth to traverse when building the table, the depth is unlimited if the value is empty</p></dd><dt class="param">refPath</dt><dd class="cmt"><p>the path from which the targets in the table will be linked</p></dd><dt>returns</dt><dd class="cmt"><p>a block element containing the table of contents as a BulltetList and its title</p></dd></dl></div>
-    </li><li name="laika.rewrite.nav.TocGenerator#fromTree" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="fromTree(tree:laika.ast.DocumentTree,depth:Int,refPath:laika.ast.Path,treeTitleDoc:Option[String]):List[laika.ast.Block]"></a><a id="fromTree(DocumentTree,Int,Path,Option[String]):List[Block]"></a>
+      
+    </li><li name="laika.rewrite.nav.TocGenerator#fromTree" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="fromTree(tree:laika.ast.DocumentTree,depth:Int,refPath:laika.ast.Path):List[laika.ast.Block]"></a><a id="fromTree(DocumentTree,Int,Path):List[Block]"></a>
       <span class="permalink">
-      <a href="../../../laika/rewrite/nav/TocGenerator$.html#fromTree(tree:laika.ast.DocumentTree,depth:Int,refPath:laika.ast.Path,treeTitleDoc:Option[String]):List[laika.ast.Block]" title="Permalink">
+      <a href="../../../laika/rewrite/nav/TocGenerator$.html#fromTree(tree:laika.ast.DocumentTree,depth:Int,refPath:laika.ast.Path):List[laika.ast.Block]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -401,13 +419,10 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">fromTree</span><span class="params">(<span name="tree">tree: <a href="../../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>, <span name="depth">depth: <span class="extype" name="scala.Int">Int</span></span>, <span name="refPath">refPath: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="treeTitleDoc">treeTitleDoc: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>)</span><span class="result">: <span class="extype" name="scala.List">List</span>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
+        <span class="name">fromTree</span><span class="params">(<span name="tree">tree: <a href="../../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>, <span name="depth">depth: <span class="extype" name="scala.Int">Int</span></span>, <span name="refPath">refPath: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>)</span><span class="result">: <span class="extype" name="scala.List">List</span>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
       </span>
       
-      <p class="shortcomment cmt">Generates the tree model (consisting of BulletList elements) for
- the table of contents for the specified document tree.</p><div class="fullcomment"><div class="comment cmt"><p>Generates the tree model (consisting of BulletList elements) for
- the table of contents for the specified document tree.
-</p></div><dl class="paramcmts block"><dt class="param">tree</dt><dd class="cmt"><p>the document tree to create a table of contents for</p></dd><dt class="param">depth</dt><dd class="cmt"><p>the maximum depth to traverse when building the table, the depth is unlimited if the value is empty</p></dd><dt class="param">refPath</dt><dd class="cmt"><p>the path from which the targets in the table will be linked</p></dd><dt class="param">treeTitleDoc</dt><dd class="cmt"><p>the name for documents inserted for tree titles</p></dd><dt>returns</dt><dd class="cmt"><p>a block element containing the table of contents as a BulltetList and its title</p></dd></dl></div>
+      
     </li><li name="scala.AnyRef#getClass" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <span class="permalink">

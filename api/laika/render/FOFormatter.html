@@ -222,14 +222,14 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">FOFormatter</span><span class="params">(<span name="renderChild">renderChild: (<a href="" class="extype" name="laika.render.FOFormatter">FOFormatter</a>, <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a>) ⇒ <span class="extype" name="scala.Predef.String">String</span></span>, <span name="currentElement">currentElement: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>, <span name="parents">parents: <span class="extype" name="scala.List">List</span>[<a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a>]</span>, <span name="path">path: <a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="styles">styles: <a href="../ast/StyleDeclarationSet.html" class="extype" name="laika.ast.StyleDeclarationSet">StyleDeclarationSet</a></span>, <span name="indentation">indentation: <a href="Indentation.html" class="extype" name="laika.render.Indentation">Indentation</a></span>, <span name="messageLevel">messageLevel: <a href="../ast/MessageLevel.html" class="extype" name="laika.ast.MessageLevel">MessageLevel</a></span>)</span><span class="result"> extends <a href="TagFormatter.html" class="extype" name="laika.render.TagFormatter">TagFormatter</a>[<a href="" class="extype" name="laika.render.FOFormatter">FOFormatter</a>] with <a href="FOProperties.html" class="extype" name="laika.render.FOProperties">FOProperties</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">FOFormatter</span><span class="params">(<span name="renderChild">renderChild: (<a href="" class="extype" name="laika.render.FOFormatter">FOFormatter</a>, <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a>) ⇒ <span class="extype" name="scala.Predef.String">String</span></span>, <span name="currentElement">currentElement: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>, <span name="parents">parents: <span class="extype" name="scala.List">List</span>[<a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a>]</span>, <span name="pathTranslator">pathTranslator: <a href="../rewrite/nav/PathTranslator.html" class="extype" name="laika.rewrite.nav.PathTranslator">PathTranslator</a></span>, <span name="path">path: <a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="styles">styles: <a href="../ast/StyleDeclarationSet.html" class="extype" name="laika.ast.StyleDeclarationSet">StyleDeclarationSet</a></span>, <span name="indentation">indentation: <a href="Indentation.html" class="extype" name="laika.render.Indentation">Indentation</a></span>, <span name="messageFilter">messageFilter: <a href="../ast/MessageFilter.html" class="extype" name="laika.ast.MessageFilter">MessageFilter</a></span>)</span><span class="result"> extends <a href="TagFormatter.html" class="extype" name="laika.render.TagFormatter">TagFormatter</a>[<a href="" class="extype" name="laika.render.FOFormatter">FOFormatter</a>] with <a href="FOProperties.html" class="extype" name="laika.render.FOProperties">FOProperties</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>API for renderers that produce XSL-FO output.
 </p></div><dl class="paramcmts block"><dt class="param">renderChild</dt><dd class="cmt"><p>the function to use for rendering child elements</p></dd><dt class="param">currentElement</dt><dd class="cmt"><p>the active element currently being rendered</p></dd><dt class="param">parents</dt><dd class="cmt"><p>the stack of parent elements of this formatter in recursive rendering,
-               with the root element being the last in the list</p></dd><dt class="param">path</dt><dd class="cmt"><p>the virtual path of the document getting rendered, used for generating unique ids</p></dd><dt class="param">styles</dt><dd class="cmt"><p>the styles to apply when writing the attributes of an element</p></dd><dt class="param">indentation</dt><dd class="cmt"><p>the indentation mechanism for this formatter</p></dd><dt class="param">messageLevel</dt><dd class="cmt"><p>the minimum severity level for a system message to be rendered</p></dd></dl><div class="toggleContainer block">
+               with the root element being the last in the list</p></dd><dt class="param">pathTranslator</dt><dd class="cmt"><p>translates paths of input documents to the corresponding output path</p></dd><dt class="param">path</dt><dd class="cmt"><p>the virtual path of the document getting rendered, used for generating unique ids</p></dd><dt class="param">styles</dt><dd class="cmt"><p>the styles to apply when writing the attributes of an element</p></dd><dt class="param">indentation</dt><dd class="cmt"><p>the indentation mechanism for this formatter</p></dd><dt class="param">messageFilter</dt><dd class="cmt"><p>the filter to apply before rendering runtime messages</p></dd></dl><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
           </span>
@@ -280,9 +280,9 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.render.FOFormatter#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;init&gt;(renderChild:(laika.render.FOFormatter,laika.ast.Element)=&gt;String,currentElement:laika.ast.Element,parents:List[laika.ast.Element],path:laika.ast.Path,styles:laika.ast.StyleDeclarationSet,indentation:laika.render.Indentation,messageLevel:laika.ast.MessageLevel):laika.render.FOFormatter"></a><a id="&lt;init&gt;:FOFormatter"></a>
+      <a id="&lt;init&gt;(renderChild:(laika.render.FOFormatter,laika.ast.Element)=&gt;String,currentElement:laika.ast.Element,parents:List[laika.ast.Element],pathTranslator:laika.rewrite.nav.PathTranslator,path:laika.ast.Path,styles:laika.ast.StyleDeclarationSet,indentation:laika.render.Indentation,messageFilter:laika.ast.MessageFilter):laika.render.FOFormatter"></a><a id="&lt;init&gt;:FOFormatter"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOFormatter.html#&lt;init&gt;(renderChild:(laika.render.FOFormatter,laika.ast.Element)=&gt;String,currentElement:laika.ast.Element,parents:List[laika.ast.Element],path:laika.ast.Path,styles:laika.ast.StyleDeclarationSet,indentation:laika.render.Indentation,messageLevel:laika.ast.MessageLevel):laika.render.FOFormatter" title="Permalink">
+      <a href="../../laika/render/FOFormatter.html#&lt;init&gt;(renderChild:(laika.render.FOFormatter,laika.ast.Element)=&gt;String,currentElement:laika.ast.Element,parents:List[laika.ast.Element],pathTranslator:laika.rewrite.nav.PathTranslator,path:laika.ast.Path,styles:laika.ast.StyleDeclarationSet,indentation:laika.render.Indentation,messageFilter:laika.ast.MessageFilter):laika.render.FOFormatter" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -291,11 +291,11 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">FOFormatter</span><span class="params">(<span name="renderChild">renderChild: (<a href="" class="extype" name="laika.render.FOFormatter">FOFormatter</a>, <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a>) ⇒ <span class="extype" name="scala.Predef.String">String</span></span>, <span name="currentElement">currentElement: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>, <span name="parents">parents: <span class="extype" name="scala.List">List</span>[<a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a>]</span>, <span name="path">path: <a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="styles">styles: <a href="../ast/StyleDeclarationSet.html" class="extype" name="laika.ast.StyleDeclarationSet">StyleDeclarationSet</a></span>, <span name="indentation">indentation: <a href="Indentation.html" class="extype" name="laika.render.Indentation">Indentation</a></span>, <span name="messageLevel">messageLevel: <a href="../ast/MessageLevel.html" class="extype" name="laika.ast.MessageLevel">MessageLevel</a></span>)</span>
+        <span class="name">FOFormatter</span><span class="params">(<span name="renderChild">renderChild: (<a href="" class="extype" name="laika.render.FOFormatter">FOFormatter</a>, <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a>) ⇒ <span class="extype" name="scala.Predef.String">String</span></span>, <span name="currentElement">currentElement: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>, <span name="parents">parents: <span class="extype" name="scala.List">List</span>[<a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a>]</span>, <span name="pathTranslator">pathTranslator: <a href="../rewrite/nav/PathTranslator.html" class="extype" name="laika.rewrite.nav.PathTranslator">PathTranslator</a></span>, <span name="path">path: <a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="styles">styles: <a href="../ast/StyleDeclarationSet.html" class="extype" name="laika.ast.StyleDeclarationSet">StyleDeclarationSet</a></span>, <span name="indentation">indentation: <a href="Indentation.html" class="extype" name="laika.render.Indentation">Indentation</a></span>, <span name="messageFilter">messageFilter: <a href="../ast/MessageFilter.html" class="extype" name="laika.ast.MessageFilter">MessageFilter</a></span>)</span>
       </span>
       
       <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">renderChild</dt><dd class="cmt"><p>the function to use for rendering child elements</p></dd><dt class="param">currentElement</dt><dd class="cmt"><p>the active element currently being rendered</p></dd><dt class="param">parents</dt><dd class="cmt"><p>the stack of parent elements of this formatter in recursive rendering,
-               with the root element being the last in the list</p></dd><dt class="param">path</dt><dd class="cmt"><p>the virtual path of the document getting rendered, used for generating unique ids</p></dd><dt class="param">styles</dt><dd class="cmt"><p>the styles to apply when writing the attributes of an element</p></dd><dt class="param">indentation</dt><dd class="cmt"><p>the indentation mechanism for this formatter</p></dd><dt class="param">messageLevel</dt><dd class="cmt"><p>the minimum severity level for a system message to be rendered</p></dd></dl></div>
+               with the root element being the last in the list</p></dd><dt class="param">pathTranslator</dt><dd class="cmt"><p>translates paths of input documents to the corresponding output path</p></dd><dt class="param">path</dt><dd class="cmt"><p>the virtual path of the document getting rendered, used for generating unique ids</p></dd><dt class="param">styles</dt><dd class="cmt"><p>the styles to apply when writing the attributes of an element</p></dd><dt class="param">indentation</dt><dd class="cmt"><p>the indentation mechanism for this formatter</p></dd><dt class="param">messageFilter</dt><dd class="cmt"><p>the filter to apply before rendering runtime messages</p></dd></dl></div>
     </li></ol>
             </div>
 
@@ -510,9 +510,9 @@ including a preceding space character.
       <p class="shortcomment cmt">Renders an FO <code>block</code> element and the specified nested spans, preserving
  all whitespace within the text elements of those spans.</p>
     </li><li name="laika.render.FOFormatter#bookmark" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="bookmark(bookmark:laika.render.FOFormatter.Bookmark):String"></a><a id="bookmark(Bookmark):String"></a>
+      <a id="bookmark(bookmark:laika.ast.NavigationItem):String"></a><a id="bookmark(NavigationItem):String"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOFormatter.html#bookmark(bookmark:laika.render.FOFormatter.Bookmark):String" title="Permalink">
+      <a href="../../laika/render/FOFormatter.html#bookmark(bookmark:laika.ast.NavigationItem):String" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -521,7 +521,7 @@ including a preceding space character.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">bookmark</span><span class="params">(<span name="bookmark">bookmark: <a href="FOFormatter$$Bookmark.html" class="extype" name="laika.render.FOFormatter.Bookmark">Bookmark</a></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+        <span class="name">bookmark</span><span class="params">(<span name="bookmark">bookmark: <a href="../ast/NavigationItem.html" class="extype" name="laika.ast.NavigationItem">NavigationItem</a></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
       </span>
       
       <p class="shortcomment cmt">Renders an FO <code>bookmark</code> element and all of its nested bookmarks.</p>
@@ -542,9 +542,9 @@ including a preceding space character.
       
       <p class="shortcomment cmt">Renders an FO <code>bookmark-title</code> element.</p>
     </li><li name="laika.render.FOFormatter#bookmarkTree" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="bookmarkTree(tree:laika.render.FOFormatter.BookmarkTree):String"></a><a id="bookmarkTree(BookmarkTree):String"></a>
+      <a id="bookmarkTree(tree:laika.ast.NavigationList):String"></a><a id="bookmarkTree(NavigationList):String"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOFormatter.html#bookmarkTree(tree:laika.render.FOFormatter.BookmarkTree):String" title="Permalink">
+      <a href="../../laika/render/FOFormatter.html#bookmarkTree(tree:laika.ast.NavigationList):String" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -553,14 +553,14 @@ including a preceding space character.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">bookmarkTree</span><span class="params">(<span name="tree">tree: <a href="FOFormatter$$BookmarkTree.html" class="extype" name="laika.render.FOFormatter.BookmarkTree">BookmarkTree</a></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+        <span class="name">bookmarkTree</span><span class="params">(<span name="tree">tree: <a href="../ast/NavigationList.html" class="extype" name="laika.ast.NavigationList">NavigationList</a></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
       </span>
       
       <p class="shortcomment cmt">Renders an FO <code>bookmark-tree</code> element and all of its nested bookmarks.</p>
     </li><li name="laika.render.FOFormatter#buildId" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="buildId(path:laika.ast.Path,ref:String):String"></a><a id="buildId(Path,String):String"></a>
+      <a id="buildId(path:laika.ast.Path):String"></a><a id="buildId(Path):String"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOFormatter.html#buildId(path:laika.ast.Path,ref:String):String" title="Permalink">
+      <a href="../../laika/render/FOFormatter.html#buildId(path:laika.ast.Path):String" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -569,7 +569,7 @@ including a preceding space character.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">buildId</span><span class="params">(<span name="path">path: <a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="ref">ref: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+        <span class="name">buildId</span><span class="params">(<span name="path">path: <a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
       </span>
       
       <p class="shortcomment cmt">Generates an id that is unique within the entire document tree for the
@@ -860,9 +860,9 @@ and content consisting of the provided child elements, all rendered on the same 
       
       <p class="shortcomment cmt">Renders an FO <code>footnote</code> element, with the body indented one level to the right.</p>
     </li><li name="laika.render.BaseFormatter#forMessage" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="forMessage(message:laika.ast.SystemMessage)(whenEnabled:String):String"></a><a id="forMessage(SystemMessage)(String):String"></a>
+      <a id="forMessage(message:laika.ast.RuntimeMessage)(whenEnabled:String):String"></a><a id="forMessage(RuntimeMessage)(String):String"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOFormatter.html#forMessage(message:laika.ast.SystemMessage)(whenEnabled:String):String" title="Permalink">
+      <a href="../../laika/render/FOFormatter.html#forMessage(message:laika.ast.RuntimeMessage)(whenEnabled:String):String" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -871,7 +871,7 @@ and content consisting of the provided child elements, all rendered on the same 
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">forMessage</span><span class="params">(<span name="message">message: <a href="../ast/SystemMessage.html" class="extype" name="laika.ast.SystemMessage">SystemMessage</a></span>)</span><span class="params">(<span name="whenEnabled">whenEnabled: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+        <span class="name">forMessage</span><span class="params">(<span name="message">message: <a href="../ast/RuntimeMessage.html" class="extype" name="laika.ast.RuntimeMessage">RuntimeMessage</a></span>)</span><span class="params">(<span name="whenEnabled">whenEnabled: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
       </span>
       
       <p class="shortcomment cmt">Renders the specified string only when the given message has at least the minimum
@@ -1002,6 +1002,38 @@ and content consisting of the provided child elements, all rendered on the same 
       </span>
       
       <p class="shortcomment cmt">Renders an FO <code>basic-link</code> element for an internal target.</p>
+    </li><li name="laika.render.TagFormatter#internalLink" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="internalLink(path:laika.ast.Path):String"></a><a id="internalLink(Path):String"></a>
+      <span class="permalink">
+      <a href="../../laika/render/FOFormatter.html#internalLink(path:laika.ast.Path):String" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">internalLink</span><span class="params">(<span name="path">path: <a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Renders the internal link as an absolute path.</p><div class="fullcomment"><div class="comment cmt"><p>Renders the internal link as an absolute path.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TagFormatter.html" class="extype" name="laika.render.TagFormatter">TagFormatter</a></dd></dl></div>
+    </li><li name="laika.render.TagFormatter#internalLink" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="internalLink(path:laika.ast.RelativePath):String"></a><a id="internalLink(RelativePath):String"></a>
+      <span class="permalink">
+      <a href="../../laika/render/FOFormatter.html#internalLink(path:laika.ast.RelativePath):String" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">internalLink</span><span class="params">(<span name="path">path: <a href="../ast/RelativePath.html" class="extype" name="laika.ast.RelativePath">RelativePath</a></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Renders the internal link as a relative path.</p><div class="fullcomment"><div class="comment cmt"><p>Renders the internal link as a relative path.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TagFormatter.html" class="extype" name="laika.render.TagFormatter">TagFormatter</a></dd></dl></div>
     </li><li name="laika.render.FOFormatter#internalLinkTarget" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="internalLinkTarget(element:laika.ast.Element):String"></a><a id="internalLinkTarget(Element):String"></a>
       <span class="permalink">
@@ -1104,10 +1136,10 @@ and content consisting of the provided child elements, all rendered on the same 
       </span>
       
       <p class="shortcomment cmt">Renders an FO <code>list-item-label</code> element, with the content indented one level to the right.</p>
-    </li><li name="laika.render.FOFormatter#messageLevel" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="messageLevel:laika.ast.MessageLevel"></a><a id="messageLevel:MessageLevel"></a>
+    </li><li name="laika.render.FOFormatter#messageFilter" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="messageFilter:laika.ast.MessageFilter"></a><a id="messageFilter:MessageFilter"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOFormatter.html#messageLevel:laika.ast.MessageLevel" title="Permalink">
+      <a href="../../laika/render/FOFormatter.html#messageFilter:laika.ast.MessageFilter" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -1116,7 +1148,7 @@ and content consisting of the provided child elements, all rendered on the same 
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">messageLevel</span><span class="result">: <a href="../ast/MessageLevel.html" class="extype" name="laika.ast.MessageLevel">MessageLevel</a></span>
+        <span class="name">messageFilter</span><span class="result">: <a href="../ast/MessageFilter.html" class="extype" name="laika.ast.MessageFilter">MessageFilter</a></span>
       </span>
       
       
@@ -1237,6 +1269,22 @@ and content consisting of the provided child elements, all rendered on the same 
       </span>
       <span class="symbol">
         <span class="name">path</span><span class="result">: <a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>
+      </span>
+      
+      
+    </li><li name="laika.render.FOFormatter#pathTranslator" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="pathTranslator:laika.rewrite.nav.PathTranslator"></a><a id="pathTranslator:PathTranslator"></a>
+      <span class="permalink">
+      <a href="../../laika/render/FOFormatter.html#pathTranslator:laika.rewrite.nav.PathTranslator" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">pathTranslator</span><span class="result">: <a href="../rewrite/nav/PathTranslator.html" class="extype" name="laika.rewrite.nav.PathTranslator">PathTranslator</a></span>
       </span>
       
       

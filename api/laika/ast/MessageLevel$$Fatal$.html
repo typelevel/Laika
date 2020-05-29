@@ -116,28 +116,29 @@
         <a title="Enumeration of available message levels." href="MessageLevel$.html"><span class="name">MessageLevel</span></a>
       </span>
       
-      <p class="shortcomment cmt">Enumeration of available message levels.</p><div class="fullcomment"><div class="comment cmt"><p>Enumeration of available message levels.
+      <p class="shortcomment cmt">Enumeration of available message levels.</p><div class="fullcomment"><div class="comment cmt"><p>Enumeration of available message levels.</p><p>The library's internal parsers and AST transformation only use the <code>Error</code> level for recoverable issues
+encountered during transformations. All other levels are available for user code.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="laika.ast">ast</a></dd></dl></div>
     </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="object" href="MessageLevel$$Debug$.html" title="Debugging information that does not have any effect on the parser result."></a>
-                        <a href="MessageLevel$$Debug$.html" title="Debugging information that does not have any effect on the parser result.">Debug</a>
+                        <a class="object" href="MessageLevel$$Debug$.html" title="Debug level that is not used by the library itself, but may be used by application code for debugging purposes."></a>
+                        <a href="MessageLevel$$Debug$.html" title="Debug level that is not used by the library itself, but may be used by application code for debugging purposes.">Debug</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="object" href="MessageLevel$$Error$.html" title="A major issue that should be addressed, if ignored, the output will contain unpredictable errors."></a>
-                        <a href="MessageLevel$$Error$.html" title="A major issue that should be addressed, if ignored, the output will contain unpredictable errors.">Error</a>
+                        <a class="object" href="MessageLevel$$Error$.html" title="An error that is confined to a single AST node or range of nodes, but most likely with surrounding areas unaffected."></a>
+                        <a href="MessageLevel$$Error$.html" title="An error that is confined to a single AST node or range of nodes, but most likely with surrounding areas unaffected.">Error</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="object" href="" title="A critical error that must be addressed, if ignored, the output will contain severe errors."></a>
-                        <a href="" title="A critical error that must be addressed, if ignored, the output will contain severe errors.">Fatal</a>
+                        <a class="object" href="" title="A critical issue that might affect the integrity of the entire output beyond just the node where it occurred."></a>
+                        <a href="" title="A critical issue that might affect the integrity of the entire output beyond just the node where it occurred.">Fatal</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="object" href="MessageLevel$$Info$.html" title="A minor issue that has very little or no effect on the parser result."></a>
-                        <a href="MessageLevel$$Info$.html" title="A minor issue that has very little or no effect on the parser result.">Info</a>
+                        <a class="object" href="MessageLevel$$Info$.html" title="Info level that is not used by the library itself, but may be used by application code for debugging purposes."></a>
+                        <a href="MessageLevel$$Info$.html" title="Info level that is not used by the library itself, but may be used by application code for debugging purposes.">Info</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="object" href="MessageLevel$$Warning$.html" title="An issue that should be addressed, if ignored, there may be minor problems with the output."></a>
-                        <a href="MessageLevel$$Warning$.html" title="An issue that should be addressed, if ignored, there may be minor problems with the output.">Warning</a>
+                        <a class="object" href="MessageLevel$$Warning$.html" title="An issue that hints at a potential problem, but in the library's default settings it won't cause the transformation to fail."></a>
+                        <a href="MessageLevel$$Warning$.html" title="An issue that hints at a potential problem, but in the library's default settings it won't cause the transformation to fail.">Warning</a>
                       </li>
               </ul>
             </div>
@@ -166,7 +167,9 @@
       </h4>
 
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>A critical error that must be addressed, if ignored, the output will contain severe errors.
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>A critical issue that might affect the integrity of the entire output beyond just the node where it occurred.
+An example is a configuration header with parsing errors in a markup document that might affect other markup
+content that would then unexpectedly fall back to defaults.
 </p></div><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes

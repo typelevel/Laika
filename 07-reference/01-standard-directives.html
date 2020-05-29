@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+
+    <title>Laika</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Customizable and extensible toolkit for transforming lightweight markup languages to various types of output formats, written in Scala" />
+    <meta name="keywords" content="scala, text, markup, markdown, restructuredtext, parser, transformer, html, template engine, site generation, open-source" />
+
+    <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+    <link href="../css/bootstrap.css" rel="stylesheet">
+    <link href="../css/docs.css" rel="stylesheet">
+
+  </head>
+
+  <body data-spy="scroll" data-target=".toc" data-offset="200">
+
+
+  <div class="container">
+
+    <!-- Docs nav
+    ================================================== -->
+    <div class="row">
+      <div class="span4 toc" >
+        
+        <ul class="nav nav-list affix">
+          <div class="nav-top"><img src="../img/laika-top.png"/></div>
+          
+          
+          <li><a href="../table-of-contents.html">Table of Contents</a></li>
+          <li class="nav-header">About Laika</li>
+          <li><a href="../01-about-laika/01-features.html">Features</a></li>
+          <li><a href="../01-about-laika/02-design-goals.html">Design Goals</a></li>
+          <li class="nav-header">Running Laika</li>
+          <li><a href="../02-running-laika/01-sbt-plugin.html">sbt Plugin</a></li>
+          <li><a href="../02-running-laika/02-library-api.html">Library API</a></li>
+          <li><a href="../02-running-laika/03-configuration.html">Configuration</a></li>
+          <li class="nav-header">Preparing Content</li>
+          <li><a href="../03-preparing-content/01-directory-structure.html">Directory Structure</a></li>
+          <li><a href="../03-preparing-content/02-navigation.html">Navigation</a></li>
+          <li><a href="../03-preparing-content/04-ebooks.html">E-Books (EPUB &amp; PDF)</a></li>
+          <li><a href="../03-preparing-content/05-syntax-highlighting.html">Syntax Highlighting</a></li>
+          <li class="nav-header">Customizing Laika</li>
+          <li><a href="../04-customizing-laika/01-overview.html">Overview</a></li>
+          <li><a href="../04-customizing-laika/03-creating-templates.html">Creating Templates</a></li>
+          <li><a href="../04-customizing-laika/04-document-ast.html">The Document AST</a></li>
+          <li><a href="../04-customizing-laika/05-ast-rewriting.html">AST Rewriting</a></li>
+          <li><a href="../04-customizing-laika/06-overriding-renderers.html">Overriding Renderers</a></li>
+          <li class="nav-header">Extending Laika</li>
+          <li><a href="../05-extending-laika/01-overview.html">Overview</a></li>
+          <li><a href="../05-extending-laika/03-implementing-directives.html">Implementing Directives</a></li>
+          <li><a href="../05-extending-laika/04-writing-parser-extensions.html">Writing Parser Extensions</a></li>
+          <li><a href="../05-extending-laika/06-adding-syntax-highlighters.html">Adding Syntax Highlighters</a></li>
+          <li><a href="../05-extending-laika/07-new-markup-output-formats.html">New Markup or Output Formats</a></li>
+          <li class="nav-header">Sub-Modules</li>
+          <li><a href="../06-sub-modules/02-laikas-parser-combinators.html">Laika&#39;s Parser Combinators</a></li>
+          <li><a href="../06-sub-modules/03-laikas-hocon-api.html">Laika&#39;s HOCON API</a></li>
+          <li class="nav-header">Reference</li>
+          <li class="active"><a href="#">Standard Directives</a></li>
+          <li><a href="02-substitution-variables.html">Substitution Variables</a></li>
+          <li><a href="03-spec-compliance.html">Spec Compliance</a></li>
+          <li><a href="06-release-notes.html">Release Notes</a></li>
+          <li><a href="07-migration-guide.html">Migration Guide</a></li>
+          
+          <li class="nav-header">Project Links</li>
+          <li><a href="http://github.com/planet42/Laika">Source Code</a></li>
+          <li><a href="../api/laika/api/">API Documentation</a></li>
+          <!--<li><a href="http://github.com/planet42/Laika/issues">Issue Tracker</a></li>-->
+          <!--<li><a href="http://planet42.org/">Demo App</a></li>-->
+          <!--  
+          <li class="follow"><a href="https://twitter.com/_planet42" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false" data-dnt="true">Follow @_planet42</a>
+          <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script></li>
+          -->
+          <div class="nav-bottom"><img src="../img/laika-bottom.png" border="1"/></div>
+        </ul>
+        
+      </div>
+      
+      <div class="span8" id="top">
+
+        <div class="page-header">
+        <h1 id="standard-directives" class="title">Standard Directives</h1>
+        </div>
+        <p>Laika comes with a small number of built-in directives intended to cover the most common scenarios.</p>
+        <p>Some of them can only be used in templates, whereas others can also be used in text markup, 
+        as stated for each individual directive below.</p>
+        <p>For details on creating your own directives, see <a href="../05-extending-laika/03-implementing-directives.html#implementing-directives">Implementing Directives</a>.</p>
+        
+        <h2 id="navigation" class="section">Navigation</h2>
+        <p>This set of directives helps with building complex navigation structures or serve as shortcuts for creating links.</p>
+        <p>The directives in this section are all documented in detail in the <a href="#navigation">Navigation</a> chapter and only listed
+        here for the sake of completeness.</p>
+        
+        <h3 id="navigationtree" class="section"><code>@:navigationTree</code></h3>
+        <p>Can be used in templates and as block elements in text markup.</p>
+        <p>This flexible directive allows to freely combine auto-generated navigation trees based on your input tree&#39;s
+        structure with manual entries.</p>
+        <p>It is documented in detail in <a href="../03-preparing-content/02-navigation.html#generating-navigation-trees">Generating Navigation Trees</a> in the Navigation chapter.</p>
+        
+        <h3 id="breadcrumb" class="section"><code>@:breadcrumb</code></h3>
+        <p>Can be used in templates and as block elements in text markup.</p>
+        <p>This standard breadcrumb component generates a simple, flat list of links reflecting the directory structure
+        from the root to the current document. 
+        See <a href="../03-preparing-content/02-navigation.html#breadcrumbs">Breadcrumbs</a> in the Navigation chapter for details.</p>
+        
+        <h3 id="api" class="section"><code>@:api</code></h3>
+        <p>Can be used as inline element and within links in text markup.</p>
+        <p>Serves as a shortcut for creating links to API documentation, e.g. <code>@:api(laika.api.Transformer)</code>.</p>
+        <p>See <a href="../03-preparing-content/02-navigation.html#linking-to-api-documentation">Linking to API Documentation</a> for details.</p>
+        
+        <h2 id="applying-styles" class="section">Applying Styles</h2>
+        <p>Laika already produces a small set of class attributes in the rendered output, 
+        e.g. <code>nav</code> and <code>level1</code> for a navigation element on the first level.
+        But you can alternatively assign style hints to markup explicitly.</p>
+        
+        <h3 id="style" class="section"><code>@:style</code></h3>
+        <p>Can be used in block and span elements in text markup.</p>
+        <p>Adds a style to the root element of the body of the directive, 
+        that can be used by renderers to change the appearance of the rendered element.</p>
+        <p>For HTML and EPUB output it will get rendered as a <code>class</code> attribute that can be used in CSS declarations.
+        For PDF it can also be used in Laika&#39;s <a href="../03-preparing-content/04-ebooks.html#css-for-pdf">CSS for PDF</a> support, even though there is no interim HTML output.</p>
+        <p>Block directive: </p>
+        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">style</span><span>(</span><span class="string-literal">subtitle</span><span>) 
+
+This paragraph gets the 
+subtitle style applied.
+
+</span><span class="keyword">@:@</span><span>
+  
+While this paragraph does not.</span></code></pre>
+        <p>Span directive:</p>
+        <pre><code class="nohighlight"><span>Burrito - </span><span class="keyword">@:</span><span class="identifier">style</span><span>(</span><span class="string-literal">price</span><span>) £3.50 </span><span class="keyword">@:@</span><span>.</span></code></pre>
+        
+        <h2 id="special-markup-blocks" class="section">Special Markup Blocks</h2>
+        <p>These directives mark blocks in a way that they may not be part of the main content block that is accessed
+        via <code>@{cursor.currentDocument.content}</code> in templates.</p>
+        
+        <h3 id="fragment" class="section"><code>@:fragment</code></h3>
+        <p>Can only be used in block elements in text markup.</p>
+        <p>Produces a block element which is not part of the main body of the markup document.
+        Instead it can be referred to by <code>${cursor.currentDocument.fragments.&lt;fragmentName&gt;}</code>.</p>
+        <p>This allows to keep some sections of your document separate, to be rendered
+        in different locations of the output, like headers, footers or sidebars.</p>
+        <p>This directive is explained in detail in the <a href="../04-customizing-laika/03-creating-templates.html#document-fragments">Document Fragments</a> chapter.</p>
+        
+        <h3 id="format" class="section"><code>@:format</code></h3>
+        <p>Can only be used in block elements in text markup.</p>
+        <p>The body of such a directive will only be included into the output by renderers for the specified type:</p>
+        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">format</span><span>(</span><span class="string-literal">html</span><span>)
+
+This text only appears in the HTML output,
+not in PDF, EPUB or any other format.
+
+</span><span class="keyword">@:@</span></code></pre>
+        
+        <h2 id="conditionals-and-loops" class="section">Conditionals and Loops</h2>
+        <p>These directives are kept very simple on purpose. 
+        For example they do not include any expression language right now that would allow you to express conditions
+        like <code>@:if(catalogue.items &gt; 5)</code>, but instead only check for booleans or non-empty values.
+        For more complex use cases it&#39;s often easier to implement your own directive 
+        instead of adding a lot of logic to your templates.<br></p>
+        
+        <h3 id="for" class="section"><code>@:for</code></h3>
+        <p>Can only be used inside templates.</p>
+        <p>Executes the body of the directive multiple times for each element of a non-empty array-type entry 
+        in the configuration.
+        It does not include the body at all for the values <code>null</code>, <code>false</code>, <code>None</code>, empty strings and empty collections,
+        and exactly once for all other values.</p>
+        <p>In case of non-empty values their properties will be made available for use inside the body part without any prefix:</p>
+        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">for</span><span>(</span><span class="string-literal">catalog.products</span><span>)
+
+</span><span class="tag-punctuation">&lt;</span><span class="tag-name">li</span><span class="tag-punctuation">&gt;&lt;</span><span class="tag-name">a</span><span class="tag-punctuation"> </span><span class="attribute-name">href</span><span class="tag-punctuation">=</span><span class="string-literal">&quot;#</span><span class="substitution">${_.id}</span><span class="string-literal">&quot;</span><span class="tag-punctuation">&gt;</span><span class="substitution">${_.description}</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">a</span><span class="tag-punctuation">&gt;&lt;/</span><span class="tag-name">li</span><span class="tag-punctuation">&gt;</span><span>
+
+</span><span class="keyword">@:@</span><span> </span></code></pre>
+        <p>In this example <code>id</code> and <code>title</code> are properties of the <code>catalog.products</code> property that the user defined 
+        in the configuration. See @:(User-Defined Variables) for details on defining them.</p>
+        <p>You can also specify a fallback, a body part that gets executed for empty values:</p>
+        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">for</span><span>(</span><span class="string-literal">catalog.products</span><span>)
+</span><span class="tag-punctuation">&lt;</span><span class="tag-name">li</span><span class="tag-punctuation">&gt;&lt;</span><span class="tag-name">a</span><span class="tag-punctuation"> </span><span class="attribute-name">href</span><span class="tag-punctuation">=</span><span class="string-literal">&quot;#</span><span class="substitution">${_.id}</span><span class="string-literal">&quot;</span><span class="tag-punctuation">&gt;</span><span class="substitution">${_.description}</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">a</span><span class="tag-punctuation">&gt;&lt;/</span><span class="tag-name">li</span><span class="tag-punctuation">&gt;</span><span>
+ 
+</span><span class="keyword">@:</span><span class="identifier">empty</span><span>
+</span><span class="tag-punctuation">&lt;</span><span class="tag-name">p</span><span class="tag-punctuation">&gt;</span><span>No products available.</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">p</span><span class="tag-punctuation">&gt;</span><span>
+
+</span><span class="keyword">@:@</span></code></pre>
+        
+        <h3 id="if" class="section"><code>@:if</code></h3>
+        <p>Can only be used inside templates.</p>
+        <p>Executes the body of the directive exactly once for a Boolean <code>true</code> or the strings <code>true</code>, <code>on</code>, <code>yes</code> and <code>enabled</code>.</p>
+        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">if</span><span>(</span><span class="string-literal">showSidebar</span><span>)
+</span><span class="tag-punctuation">&lt;</span><span class="tag-name">div</span><span class="tag-punctuation"> </span><span class="attribute-name">class</span><span class="tag-punctuation">=</span><span class="string-literal">&quot;sidebar&quot;</span><span class="tag-punctuation">&gt;</span><span>...</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">div</span><span class="tag-punctuation">&gt;</span><span>
+</span><span class="keyword">@:@</span></code></pre>
+        <p>In this example <code>showSidebar</code> is a custom configuration entry that the user defined 
+        in the configuration. See @:(User-Defined Variables) for details on defining them.</p>
+        <p>You can also specify a fallback with <code>@:else</code>, or even secondary conditions with <code>@:elseIf</code>:</p>
+        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">if</span><span>(</span><span class="string-literal">showSidebar</span><span>)
+</span><span class="tag-punctuation">&lt;</span><span class="tag-name">div</span><span class="tag-punctuation"> </span><span class="attribute-name">class</span><span class="tag-punctuation">=</span><span class="string-literal">&quot;sidebar&quot;</span><span class="tag-punctuation">&gt;</span><span>...</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">div</span><span class="tag-punctuation">&gt;</span><span>
+
+</span><span class="keyword">@:</span><span class="identifier">elseIf</span><span>(</span><span class="string-literal">showInfobox</span><span>)
+</span><span class="tag-punctuation">&lt;</span><span class="tag-name">div</span><span class="tag-punctuation"> </span><span class="attribute-name">class</span><span class="tag-punctuation">=</span><span class="string-literal">&quot;infobox&quot;</span><span class="tag-punctuation">&gt;</span><span>...</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">div</span><span class="tag-punctuation">&gt;</span><span>
+
+</span><span class="keyword">@:</span><span class="identifier">else</span><span>
+</span><span class="tag-punctuation">&lt;</span><span class="tag-name">p</span><span class="tag-punctuation">&gt;</span><span>Something else</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">p</span><span class="tag-punctuation">&gt;</span><span>
+
+</span><span class="keyword">@:@</span></code></pre>
+        
+        <h2 id="pdf-output" class="section">PDF Output</h2>
+        <p>The following directive is only processed with PDF output and ignored with other formats.</p>
+        
+        <h3 id="pagebreak" class="section"><code>@:pageBreak</code></h3>
+        <p>Can only be used in block elements in text markup.</p>
+        <p>The directive does not have any attributes or body elements and simply inserts a page break
+        into the final PDF document.</p>
+        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">pageBreak</span></code></pre>
+
+      </div>
+    </div>
+
+  </div>
+
+</body></html>

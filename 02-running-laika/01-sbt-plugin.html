@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+
+    <title>Laika</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Customizable and extensible toolkit for transforming lightweight markup languages to various types of output formats, written in Scala" />
+    <meta name="keywords" content="scala, text, markup, markdown, restructuredtext, parser, transformer, html, template engine, site generation, open-source" />
+
+    <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+    <link href="../css/bootstrap.css" rel="stylesheet">
+    <link href="../css/docs.css" rel="stylesheet">
+
+  </head>
+
+  <body data-spy="scroll" data-target=".toc" data-offset="200">
+
+
+  <div class="container">
+
+    <!-- Docs nav
+    ================================================== -->
+    <div class="row">
+      <div class="span4 toc" >
+        
+        <ul class="nav nav-list affix">
+          <div class="nav-top"><img src="../img/laika-top.png"/></div>
+          
+          
+          <li><a href="../table-of-contents.html">Table of Contents</a></li>
+          <li class="nav-header">About Laika</li>
+          <li><a href="../01-about-laika/01-features.html">Features</a></li>
+          <li><a href="../01-about-laika/02-design-goals.html">Design Goals</a></li>
+          <li class="nav-header">Running Laika</li>
+          <li class="active"><a href="#">sbt Plugin</a></li>
+          <li><a href="02-library-api.html">Library API</a></li>
+          <li><a href="03-configuration.html">Configuration</a></li>
+          <li class="nav-header">Preparing Content</li>
+          <li><a href="../03-preparing-content/01-directory-structure.html">Directory Structure</a></li>
+          <li><a href="../03-preparing-content/02-navigation.html">Navigation</a></li>
+          <li><a href="../03-preparing-content/04-ebooks.html">E-Books (EPUB &amp; PDF)</a></li>
+          <li><a href="../03-preparing-content/05-syntax-highlighting.html">Syntax Highlighting</a></li>
+          <li class="nav-header">Customizing Laika</li>
+          <li><a href="../04-customizing-laika/01-overview.html">Overview</a></li>
+          <li><a href="../04-customizing-laika/03-creating-templates.html">Creating Templates</a></li>
+          <li><a href="../04-customizing-laika/04-document-ast.html">The Document AST</a></li>
+          <li><a href="../04-customizing-laika/05-ast-rewriting.html">AST Rewriting</a></li>
+          <li><a href="../04-customizing-laika/06-overriding-renderers.html">Overriding Renderers</a></li>
+          <li class="nav-header">Extending Laika</li>
+          <li><a href="../05-extending-laika/01-overview.html">Overview</a></li>
+          <li><a href="../05-extending-laika/03-implementing-directives.html">Implementing Directives</a></li>
+          <li><a href="../05-extending-laika/04-writing-parser-extensions.html">Writing Parser Extensions</a></li>
+          <li><a href="../05-extending-laika/06-adding-syntax-highlighters.html">Adding Syntax Highlighters</a></li>
+          <li><a href="../05-extending-laika/07-new-markup-output-formats.html">New Markup or Output Formats</a></li>
+          <li class="nav-header">Sub-Modules</li>
+          <li><a href="../06-sub-modules/02-laikas-parser-combinators.html">Laika&#39;s Parser Combinators</a></li>
+          <li><a href="../06-sub-modules/03-laikas-hocon-api.html">Laika&#39;s HOCON API</a></li>
+          <li class="nav-header">Reference</li>
+          <li><a href="../07-reference/01-standard-directives.html">Standard Directives</a></li>
+          <li><a href="../07-reference/02-substitution-variables.html">Substitution Variables</a></li>
+          <li><a href="../07-reference/03-spec-compliance.html">Spec Compliance</a></li>
+          <li><a href="../07-reference/06-release-notes.html">Release Notes</a></li>
+          <li><a href="../07-reference/07-migration-guide.html">Migration Guide</a></li>
+          
+          <li class="nav-header">Project Links</li>
+          <li><a href="http://github.com/planet42/Laika">Source Code</a></li>
+          <li><a href="../api/laika/api/">API Documentation</a></li>
+          <!--<li><a href="http://github.com/planet42/Laika/issues">Issue Tracker</a></li>-->
+          <!--<li><a href="http://planet42.org/">Demo App</a></li>-->
+          <!--  
+          <li class="follow"><a href="https://twitter.com/_planet42" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false" data-dnt="true">Follow @_planet42</a>
+          <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script></li>
+          -->
+          <div class="nav-bottom"><img src="../img/laika-bottom.png" border="1"/></div>
+        </ul>
+        
+      </div>
+      
+      <div class="span8" id="top">
+
+        <div class="page-header">
+        <h1 id="sbt-plugin" class="title">sbt Plugin</h1>
+        </div>
+        <p>The core of the Laika toolkit does not depend on sbt in any way. 
+        The sbt plugin merely provides a thin layer on top of the library API, 
+        exposing Laika&#39;s feature set as sbt tasks and settings.</p>
+        <p>This chapter only covers the topics which are specific to using Laika with sbt, 
+        while most other parts of the manual apply to both use cases, library and plugin.</p>
+        
+        <h2 id="adding-the-plugin-to-the-build" class="section">Adding the Plugin to the Build</h2>
+        <p>Laika&#39;s sbt plugin requires sbt 1.x.</p>
+        <p>If you still need to use sbt 0.13.x, you can use Laika 0.7.0 which was the last release
+        supporting that sbt version.</p>
+        <p>First add the plugin to <code>project/plugins.sbt</code>:</p>
+        <pre><code class="nohighlight"><span class="identifier">addSbtPlugin</span><span>(</span><span class="string-literal">&quot;org.planet42&quot;</span><span> % </span><span class="string-literal">&quot;laika-sbt&quot;</span><span> % </span><span class="string-literal">&quot;0.15.0&quot;</span><span>)</span></code></pre>
+        <p>Then enable the plugin in your project&#39;s <code>build.sbt</code>:</p>
+        <pre><code class="nohighlight"><span class="identifier">enablePlugins</span><span>(</span><span class="type-name">LaikaPlugin</span><span>)</span></code></pre>
+        
+        <h2 id="preparing-content" class="section">Preparing Content</h2>
+        <p>The plugin expects the source files in the <code>src/docs</code> directory inside your project.
+        This default can be overridden with:</p>
+        <pre><code class="nohighlight"><span class="identifier">sourceDirectories</span><span> </span><span class="identifier">in</span><span> </span><span class="type-name">Laika</span><span> := </span><span class="type-name">Seq</span><span>(</span><span class="identifier">target</span><span>.</span><span class="identifier">value</span><span> / </span><span class="string-literal">&quot;somewhere-else&quot;</span><span>)</span></code></pre>
+        <p>You can provide multiple input directories which will be merged into Laika&#39;s <a href="../03-preparing-content/01-directory-structure.html#virtual-tree-abstraction">Virtual Tree Abstraction</a>.</p>
+        <p>Laika does not have any special directories and content can be nested in sub-directories down to arbitrary levels.
+        For more details on how to organize content, see <a href="../03-preparing-content/01-directory-structure.html#directory-structure">Directory Structure</a>.</p>
+        <p>The plugin distinguishes between the following file types:</p>
+        <ul>
+          <li><strong>Markup Files</strong>: Files with the extensions <code>.md</code>, <code>.markdown</code> or <code>.rst</code> will be parsed and rendered
+          to the target in the same directory structure and with the same file names apart from the suffix,
+          which will be replaced depending on the output format (e.g. <code>.html</code>).</li>
+          <li><strong>Configuration Files</strong>: Each directory can contain an optional <code>directory.conf</code> file for specifying
+          things like navigation order or chapter title. See <a href="../03-preparing-content/01-directory-structure.html#configuration-files">Configuration Files</a> for details.</li>
+          <li><strong>Template Files</strong>: You can provide a default template per directory with the name <code>default.template.&lt;suffix&gt;</code>
+          with the suffix matching the output format (e.g. <code>.html</code>). They will also be applied to sub-directories, unless
+          overridden. You can also add additional templates with the name pattern <code>*.template.&lt;suffix&gt;</code>, which will only
+          be applied when a markup document explicitly refers to them in its configuration header.
+          (The upcoming 0.16 release will introduce Themes which will provide default templates out of the box. 
+          Until then you need to provide at least one default template in the root directory unless you are fine with the
+          very basic fallback template.)</li>
+          <li><strong>Static Files</strong>: All other files, like CSS, JavaScript, images, etc., will be copied over to the 
+          target in the same directory structure and with identical file names.</li>
+        </ul>
+        
+        <h2 id="generating-a-site" class="section">Generating a Site</h2>
+        <p>For parsing your markup files and generating a site simply run:</p>
+        <pre><code class="nohighlight"><span class="identifier">laikaSite</span></code></pre>
+        <p>This will parse all files with the extensions <code>.md</code>, <code>.markdown</code> or <code>.rst</code> and render
+        them as <code>.html</code> files in the same directory structure as the input.</p>
+        <p>It will also copy all other file types over to the target folder 
+        (apart from templates and laika configuration files).</p>
+        <p>The site will be generated in the directory <code>target/docs/site</code> within your project.
+        The default can be changed with:</p>
+        <pre><code class="nohighlight"><span class="identifier">target</span><span> </span><span class="identifier">in</span><span> </span><span class="identifier">laikaSite</span><span> := </span><span class="identifier">target</span><span>.</span><span class="identifier">value</span><span> / </span><span class="string-literal">&quot;somewhere-else&quot;</span></code></pre>
+        <p>Laika builds on sbt&#39;s caching features, therefore if neither any input files have been modified
+        nor any output files removed, it is a no-op.</p>
+        
+        <h3 id="including-epub-and-pdf" class="section">Including EPUB and PDF</h3>
+        <p>EPUB and/or PDF files can be included with these settings:</p>
+        <pre><code class="nohighlight"><span class="identifier">laikaIncludeEPUB</span><span> := </span><span class="boolean-literal">true</span><span>
+</span><span class="identifier">laikaIncludePDF</span><span>  := </span><span class="boolean-literal">true</span></code></pre>
+        <p>In this case the <code>laikaSite</code> task will generate EPUB and/or PDF files in the root directory of your output,
+        in addition to the generated HTML site.
+        The name of the files will be <code>&lt;project-name&gt;-&lt;version&gt;.&lt;epub|pdf&gt;</code> by default. You can change it with:</p>
+        <pre><code class="nohighlight"><span class="identifier">artifactPath</span><span> </span><span class="identifier">in</span><span> </span><span class="identifier">laikaEPUB</span><span> := </span><span class="identifier">target</span><span>.</span><span class="identifier">value</span><span> / </span><span class="string-literal">&quot;my-docs.epub&quot;</span><span>
+</span><span class="identifier">artifactPath</span><span> </span><span class="identifier">in</span><span> </span><span class="identifier">laikaPDF</span><span>  := </span><span class="identifier">target</span><span>.</span><span class="identifier">value</span><span> / </span><span class="string-literal">&quot;my-docs.pdf&quot;</span></code></pre>
+        <p>For other e-book configuration options like navigation structures and cover images see <a href="../03-preparing-content/04-ebooks.html#e-books-epub-pdf">E-Books (EPUB &amp; PDF)</a>.</p>
+        
+        <h3 id="including-scaladoc" class="section">Including Scaladoc</h3>
+        <p>The following setting causes the scaladoc output of your project to be included in the generated site:</p>
+        <pre><code class="nohighlight"><span class="identifier">laikaIncludeAPI</span><span> := </span><span class="boolean-literal">true</span></code></pre>
+        <p>It will be copied into the <code>api</code> directory of your site&#39;s target, unless you change its setting:</p>
+        <pre><code class="nohighlight"><span class="identifier">target</span><span> </span><span class="identifier">in</span><span> </span><span class="identifier">laikaCopyAPI</span><span>  := (</span><span class="identifier">target</span><span> </span><span class="identifier">in</span><span> </span><span class="identifier">laikaSite</span><span>).</span><span class="identifier">value</span><span> / </span><span class="string-literal">&quot;somewhere-else&quot;</span></code></pre>
+        
+        <h2 id="generating-individual-formats" class="section">Generating Individual Formats</h2>
+        <p>Instead of using the <code>laikaSite</code> task, you can also selectively pick the output formats to generate on each run
+        with the <code>laikaGenerate</code> task:</p>
+        <pre><code class="nohighlight"><span class="identifier">laikaGenerate</span><span> </span><span class="identifier">html</span><span> </span><span class="identifier">epub</span><span> </span><span class="identifier">pdf</span></code></pre>
+        <p>This will parse all files with the extensions <code>.md</code>, <code>.markdown</code> or <code>.rst</code> and render them in the specified list of formats. 
+        It is efficient in that the parsing of markup files only happens once to obtain a document AST and use this structure to render all formats.</p>
+        <p>Valid format arguments are <code>html</code>, <code>epub</code>, <code>pdf</code>, <code>xslfo</code>, <code>ast</code>. 
+        The latter is a debug output that renders the document AST in a formatted structure.</p>
+        <p>Finally if you only work with a single format there are also shortcut tasks for those: 
+        <code>laikaHTML</code>, <code>laikaEPUB</code>, <code>laikaPDF</code> and <code>laikaAST</code>.</p>
+        
+        <h2 id="plugin-settings" class="section">Plugin Settings</h2>
+        <p>The remaining configuration options are not specific to the plugin use case and merely mirror the features of the library API,
+        apart from differences in the syntax/mechanics which with they are applied, which are reflected in the corresponding code examples.
+        For this reason this section only gives a very brief overview while linking to the relevant sections in the other chapters.</p>
+        
+        <h3 id="laikaconfig-setting" class="section">laikaConfig Setting</h3>
+        <p>A builder-style API for basic configuration options grouped in a single sbt setting.</p>
+        <p>Example:</p>
+        <pre><code class="nohighlight"><span class="identifier">laikaConfig</span><span> := </span><span class="type-name">LaikaConfig</span><span>.</span><span class="identifier">defaults</span><span>.</span><span class="identifier">strict</span><span>.</span><span class="identifier">withRawContent</span></code></pre>
+        <ul>
+          <li>
+            <p><a href="03-configuration.html#strict-mode">Strict mode</a>: Disables all non-standard extensions Laika adds to the supported markup formats, like directives.</p>
+          </li>
+          <li>
+            <p><a href="03-configuration.html#raw-content">Raw Content</a>: Enables the inclusion of raw sections of the target format in markup files, 
+            e.g. snippets of verbatim HTML embedded in Markdown files. By default this is disabled.</p>
+          </li>
+          <li>
+            <p><a href="03-configuration.html#character-encoding">Character Encoding</a>: Sets the character encoding of input and output files, the default is UTF-8.</p>
+          </li>
+          <li>
+            <p><a href="03-configuration.html#error-handling">Error Handling</a>: Specify log levels or switch to &quot;visual debugging&quot;, where recoverable errors are
+            rendered in the page context where they occur instead of causing the transformation to fail.</p>
+          </li>
+          <li>
+            <p><a href="03-configuration.html#user-defined-variables">User-Defined Variables</a>: Define variables globally that you can refer to in templates and markup files
+            with substitution references.</p>
+          </li>
+        </ul>
+        
+        <h3 id="laikaextensions-setting" class="section">laikaExtensions Setting</h3>
+        <p>Register implementations of the <code>ExtensionBundle</code> API, either provided by the library or extensions you created yourself.</p>
+        <p>Example:</p>
+        <pre><code class="nohighlight"><span class="identifier">laikaExtensions</span><span> := </span><span class="type-name">Seq</span><span>(</span><span class="type-name">GitHubFlavor</span><span>, </span><span class="type-name">SyntaxHighlighting</span><span>)</span></code></pre>
+        <ul>
+          <li>
+            <p><a href="../04-customizing-laika/06-overriding-renderers.html#overriding-renderers">Overriding Renderers</a>: adjust the rendered output for specific AST node types.</p>
+          </li>
+          <li>
+            <p><a href="../04-customizing-laika/05-ast-rewriting.html#ast-rewriting">AST Rewriting</a>: transform the document AST between parsing and rendering.</p>
+          </li>
+          <li>
+            <p><a href="../05-extending-laika/03-implementing-directives.html#implementing-directives">Implementing Directives</a>: install custom directives.</p>
+          </li>
+          <li>
+            <p>Or use any other hook in <a href="../05-extending-laika/01-overview.html#the-extensionbundle-api">The ExtensionBundle API</a>).</p>
+          </li>
+        </ul>
+        
+        <h3 id="configuring-input-and-output" class="section">Configuring Input and Output</h3>
+        <p>Most of these setting are introduced in the sections above.</p>
+        <ul>
+          <li>
+            <p><code>sourceDirectories in Laika</code> default <code>Seq(sourceDirectory.value / &quot;docs&quot;)</code>, usually <code>Seq(&quot;src/docs&quot;)</code>.
+            Specifies one or more source directories to process to be merged into a tree with a single root.
+            See <a href="#preparing-content">Preparing Content</a> for details.</p>
+          </li>
+          <li>
+            <p><code>target in Laika</code> - default <code>target.value / &quot;docs&quot;,</code>, usually <code>Seq(&quot;target/docs&quot;)</code>.
+            Specifies the directory where the plugin should generate the site. 
+            See <a href="#generating-a-site">Generating a Site</a> for details.</p>
+          </li>
+          <li>
+            <p><code>excludeFilter in Laika</code> - default <code>HiddenFileFilter</code><br>
+            Specifies files to exclude from processing.
+            Note that Laika ignores any <code>includeFilter</code> you set, as the tool needs more than a simple yes/no
+            decision for deciding how to process files. </p>
+          </li>
+          <li>
+            <p><code>laikaDocTypeMatcher</code> extension:
+            Where a simple <code>excludeFilter</code> is not sufficient you can customize the way Laika determines the document type.</p>
+            <pre><code class="nohighlight"><span class="identifier">laikaExtensions</span><span> += </span><span class="identifier">laikaDocTypeMatcher</span><span> {
+  </span><span class="keyword">case</span><span> </span><span class="type-name">Root</span><span> / </span><span class="string-literal">&quot;templates&quot;</span><span> / </span><span class="identifier">_</span><span> =&gt; </span><span class="type-name">DocumentType</span><span>.</span><span class="type-name">Template</span><span>
+  </span><span class="keyword">case</span><span> </span><span class="type-name">Root</span><span> / </span><span class="string-literal">&quot;images&quot;</span><span> / </span><span class="identifier">_</span><span> =&gt; </span><span class="type-name">DocumentType</span><span>.</span><span class="type-name">Static</span><span>
+}</span></code></pre>
+            <p>The list of pattern matches can be incomplete, they will be added to the built-in default matches.</p>
+          </li>
+        </ul>
+        
+        <h3 id="settings-for-the-laikasite-task" class="section">Settings for the laikaSite task</h3>
+        <p>Finally there are three boolean flags that only affect the laikaSite task.</p>
+        <ul>
+          <li>
+            <p><code>laikaIncludeAPI</code> - default <code>false</code> - see <a href="#including-scaladoc">Including Scaladoc</a>.</p>
+          </li>
+          <li>
+            <p><code>laikaIncludeEPUB</code> - default <code>false</code> - see <a href="#including-epub-and-pdf">Including EPUB and PDF</a>.</p>
+          </li>
+          <li>
+            <p><code>laikaIncludePDF</code> - default <code>false</code> - see <a href="#including-epub-and-pdf">Including EPUB and PDF</a>.</p>
+          </li>
+        </ul>
+        
+        <h3 id="inspecting-laika-s-configuration" class="section">Inspecting Laika&#39;s Configuration</h3>
+        <p>Run <code>show laikaDescribe</code> to get a formatted summary of the active configuration,
+        installed extension bundles and lists of input and output files.</p>
+        <p>Example:</p>
+        <pre><code>Parser(s):
+  Markdown
+  reStructuredText
+Renderer:
+  AST
+Extension Bundles:
+  Laika&#39;s Default Extensions (supplied by library)
+  Laika&#39;s directive support (supplied by library)
+  Laika&#39;s built-in directives (supplied by library)
+  Default Syntax Highlighters for Code (supplied by library)
+  Document Type Matcher for Markdown (supplied by parser)
+  Default extensions for reStructuredText (supplied by parser)
+  Support for user-defined reStructuredText directives (supplied by parser)
+  Standard directives for reStructuredText (supplied by parser)
+  Document Type Matcher for reStructuredText (supplied by parser)
+Settings:
+  Strict Mode: false
+  Accept Raw Content: false
+  Render Formatted: true
+Sources:
+  Markup File(s)
+    File &#39;/dev/project/src/intro.md&#39;
+    File &#39;/dev/project/src/details.md&#39;
+  Template(s)
+    In-memory string or stream
+  Configuration Files(s)
+    -
+  CSS for PDF
+    -
+  Copied File(s)
+    File &#39;/dev/project/src/main.css&#39;
+  Root Directories
+    -
+Target:
+  Directory &#39;/dev/project/target/docs&#39;&quot;&quot;&quot;&quot;</code></pre>
+
+      </div>
+    </div>
+
+  </div>
+
+</body></html>

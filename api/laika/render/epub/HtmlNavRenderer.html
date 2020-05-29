@@ -118,22 +118,6 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika.render">render</a></dd></dl></div>
     </li><li class="current-entities indented3">
-                        <a class="object" href="BookNavigation$.html" title=""></a>
-                        <a class="trait" href="BookNavigation.html" title="Represents a recursive book navigation structure."></a>
-                        <a href="BookNavigation.html" title="Represents a recursive book navigation structure.">BookNavigation</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="class" href="BookNavigationLink.html" title="Represents a book navigation entry that links to content in the document tree."></a>
-                        <a href="BookNavigationLink.html" title="Represents a book navigation entry that links to content in the document tree.">BookNavigationLink</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="class" href="BookSectionHeader.html" title="Represents a book navigation entry that only serves as a section header without linking to content."></a>
-                        <a href="BookSectionHeader.html" title="Represents a book navigation entry that only serves as a section header without linking to content.">BookSectionHeader</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="object" href="ConfigFactory$.html" title="Creates the EPUB configuration for a document tree."></a>
-                        <a href="ConfigFactory$.html" title="Creates the EPUB configuration for a document tree.">ConfigFactory</a>
-                      </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="class" href="ContainerWriter.html" title="Creates the EPUB container based on a document tree and the HTML result of a preceding render operation."></a>
                         <a href="ContainerWriter.html" title="Creates the EPUB container based on a document tree and the HTML result of a preceding render operation.">ContainerWriter</a>
@@ -157,6 +141,10 @@
                         <span class="separator"></span>
                         <a class="class" href="NCXRenderer.html" title="Renders the entire content of an NCX navigation file."></a>
                         <a href="NCXRenderer.html" title="Renders the entire content of an NCX navigation file.">NCXRenderer</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="NavigationBuilder$.html" title=""></a>
+                        <a href="NavigationBuilder$.html" title="">NavigationBuilder</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="class" href="OPFRenderer.html" title="Renders the content of an EPUB Package document (OPF)."></a>
@@ -491,58 +479,6 @@ and returns the content of the entire NCX file.</p>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="laika.render.epub.HtmlNavRenderer#navHeader" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="navHeader(title:String,pos:Int,children:String):String"></a><a id="navHeader(String,Int,String):String"></a>
-      <span class="permalink">
-      <a href="../../../laika/render/epub/HtmlNavRenderer.html#navHeader(title:String,pos:Int,children:String):String" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">navHeader</span><span class="params">(<span name="title">title: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="pos">pos: <span class="extype" name="scala.Int">Int</span></span>, <span name="children">children: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
-      </span>
-      
-      <p class="shortcomment cmt">Renders a single navigation header.</p>
-    </li><li name="laika.render.epub.HtmlNavRenderer#navItems" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="navItems(bookNav:Seq[laika.render.epub.BookNavigation]):String"></a><a id="navItems(Seq[BookNavigation]):String"></a>
-      <span class="permalink">
-      <a href="../../../laika/render/epub/HtmlNavRenderer.html#navItems(bookNav:Seq[laika.render.epub.BookNavigation]):String" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">navItems</span><span class="params">(<span name="bookNav">bookNav: <span class="extype" name="scala.Seq">Seq</span>[<a href="BookNavigation.html" class="extype" name="laika.render.epub.BookNavigation">BookNavigation</a>]</span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
-      </span>
-      
-      <p class="shortcomment cmt">Generates navigation entries for the structure of the DocumentTree.</p><div class="fullcomment"><div class="comment cmt"><p>Generates navigation entries for the structure of the DocumentTree. Individual
-entries can stem from tree or subtree titles, document titles or
-document sections, depending on which recursion depth is configured.
-The configuration key for setting the recursion depth is <code>epub.toc.depth</code>.
-</p></div><dl class="paramcmts block"><dt class="param">bookNav</dt><dd class="cmt"><p>the navigation items to generate navPoints for</p></dd><dt>returns</dt><dd class="cmt"><p>the navPoint XML nodes for the specified document tree as a String</p></dd></dl></div>
-    </li><li name="laika.render.epub.HtmlNavRenderer#navLink" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="navLink(title:String,link:String,pos:Int,children:String,epubType:String):String"></a><a id="navLink(String,String,Int,String,String):String"></a>
-      <span class="permalink">
-      <a href="../../../laika/render/epub/HtmlNavRenderer.html#navLink(title:String,link:String,pos:Int,children:String,epubType:String):String" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">navLink</span><span class="params">(<span name="title">title: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="link">link: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="pos">pos: <span class="extype" name="scala.Int">Int</span></span>, <span name="children">children: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="epubType">epubType: <span class="extype" name="scala.Predef.String">String</span> = <span class="symbol">&quot;&quot;</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
-      </span>
-      
-      <p class="shortcomment cmt">Renders a single navigation link.</p>
     </li><li name="scala.AnyRef#ne" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a><a id="ne(AnyRef):Boolean"></a>
       <span class="permalink">
@@ -598,9 +534,9 @@ The configuration key for setting the recursion depth is <code>epub.toc.depth</c
               
         </dd></dl></div>
     </li><li name="laika.render.epub.HtmlNavRenderer#render" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="render[F[_]](result:laika.io.model.RenderedTreeRoot[F],depth:Int):String"></a><a id="render[F[_]](RenderedTreeRoot[F],Int):String"></a>
+      <a id="render[F[_]](result:laika.io.model.RenderedTreeRoot[F],depth:Option[Int]):String"></a><a id="render[F[_]](RenderedTreeRoot[F],Option[Int]):String"></a>
       <span class="permalink">
-      <a href="../../../laika/render/epub/HtmlNavRenderer.html#render[F[_]](result:laika.io.model.RenderedTreeRoot[F],depth:Int):String" title="Permalink">
+      <a href="../../../laika/render/epub/HtmlNavRenderer.html#render[F[_]](result:laika.io.model.RenderedTreeRoot[F],depth:Option[Int]):String" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -609,7 +545,7 @@ The configuration key for setting the recursion depth is <code>epub.toc.depth</c
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">render</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="result">result: <a href="../../io/model/RenderedTreeRoot.html" class="extype" name="laika.io.model.RenderedTreeRoot">RenderedTreeRoot</a>[<span class="extype" name="laika.render.epub.HtmlNavRenderer.render.F">F</span>]</span>, <span name="depth">depth: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+        <span class="name">render</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="result">result: <a href="../../io/model/RenderedTreeRoot.html" class="extype" name="laika.io.model.RenderedTreeRoot">RenderedTreeRoot</a>[<span class="extype" name="laika.render.epub.HtmlNavRenderer.render.F">F</span>]</span>, <span name="depth">depth: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
       </span>
       
       <p class="shortcomment cmt">Renders the entire content of an EPUB HTML navigation file for

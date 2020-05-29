@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+
+    <title>Laika</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Customizable and extensible toolkit for transforming lightweight markup languages to various types of output formats, written in Scala" />
+    <meta name="keywords" content="scala, text, markup, markdown, restructuredtext, parser, transformer, html, template engine, site generation, open-source" />
+
+    <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+    <link href="../css/bootstrap.css" rel="stylesheet">
+    <link href="../css/docs.css" rel="stylesheet">
+
+  </head>
+
+  <body data-spy="scroll" data-target=".toc" data-offset="200">
+
+
+  <div class="container">
+
+    <!-- Docs nav
+    ================================================== -->
+    <div class="row">
+      <div class="span4 toc" >
+        
+        <ul class="nav nav-list affix">
+          <div class="nav-top"><img src="../img/laika-top.png"/></div>
+          
+          
+          <li><a href="../table-of-contents.html">Table of Contents</a></li>
+          <li class="nav-header">About Laika</li>
+          <li><a href="../01-about-laika/01-features.html">Features</a></li>
+          <li><a href="../01-about-laika/02-design-goals.html">Design Goals</a></li>
+          <li class="nav-header">Running Laika</li>
+          <li><a href="../02-running-laika/01-sbt-plugin.html">sbt Plugin</a></li>
+          <li><a href="../02-running-laika/02-library-api.html">Library API</a></li>
+          <li><a href="../02-running-laika/03-configuration.html">Configuration</a></li>
+          <li class="nav-header">Preparing Content</li>
+          <li><a href="../03-preparing-content/01-directory-structure.html">Directory Structure</a></li>
+          <li><a href="../03-preparing-content/02-navigation.html">Navigation</a></li>
+          <li><a href="../03-preparing-content/04-ebooks.html">E-Books (EPUB &amp; PDF)</a></li>
+          <li><a href="../03-preparing-content/05-syntax-highlighting.html">Syntax Highlighting</a></li>
+          <li class="nav-header">Customizing Laika</li>
+          <li><a href="../04-customizing-laika/01-overview.html">Overview</a></li>
+          <li><a href="../04-customizing-laika/03-creating-templates.html">Creating Templates</a></li>
+          <li><a href="../04-customizing-laika/04-document-ast.html">The Document AST</a></li>
+          <li><a href="../04-customizing-laika/05-ast-rewriting.html">AST Rewriting</a></li>
+          <li><a href="../04-customizing-laika/06-overriding-renderers.html">Overriding Renderers</a></li>
+          <li class="nav-header">Extending Laika</li>
+          <li><a href="../05-extending-laika/01-overview.html">Overview</a></li>
+          <li><a href="../05-extending-laika/03-implementing-directives.html">Implementing Directives</a></li>
+          <li><a href="../05-extending-laika/04-writing-parser-extensions.html">Writing Parser Extensions</a></li>
+          <li><a href="../05-extending-laika/06-adding-syntax-highlighters.html">Adding Syntax Highlighters</a></li>
+          <li><a href="../05-extending-laika/07-new-markup-output-formats.html">New Markup or Output Formats</a></li>
+          <li class="nav-header">Sub-Modules</li>
+          <li><a href="02-laikas-parser-combinators.html">Laika&#39;s Parser Combinators</a></li>
+          <li class="active"><a href="#">Laika&#39;s HOCON API</a></li>
+          <li class="nav-header">Reference</li>
+          <li><a href="../07-reference/01-standard-directives.html">Standard Directives</a></li>
+          <li><a href="../07-reference/02-substitution-variables.html">Substitution Variables</a></li>
+          <li><a href="../07-reference/03-spec-compliance.html">Spec Compliance</a></li>
+          <li><a href="../07-reference/06-release-notes.html">Release Notes</a></li>
+          <li><a href="../07-reference/07-migration-guide.html">Migration Guide</a></li>
+          
+          <li class="nav-header">Project Links</li>
+          <li><a href="http://github.com/planet42/Laika">Source Code</a></li>
+          <li><a href="../api/laika/api/">API Documentation</a></li>
+          <!--<li><a href="http://github.com/planet42/Laika/issues">Issue Tracker</a></li>-->
+          <!--<li><a href="http://planet42.org/">Demo App</a></li>-->
+          <!--  
+          <li class="follow"><a href="https://twitter.com/_planet42" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false" data-dnt="true">Follow @_planet42</a>
+          <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script></li>
+          -->
+          <div class="nav-bottom"><img src="../img/laika-bottom.png" border="1"/></div>
+        </ul>
+        
+      </div>
+      
+      <div class="span8" id="top">
+
+        <div class="page-header">
+        <h1 id="laika-s-hocon-api" class="title">Laika&#39;s HOCON API</h1>
+        </div>
+        <p>Laika comes with its own HOCON parser and the corresponding API is used throughout the document model.
+        It fully supports the <a href="https://github.com/lightbend/config/blob/master/HOCON.md">HOCON specification</a>, albeit based on its own parser implementation.</p>
+        
+        <h2 id="why-laika-uses-hocon" class="section">Why Laika Uses HOCON</h2>
+        <p>There is a little irony in that Laika went the extra mile to introduce its own HOCON parser even though
+        this project actually does not recommend the use of external files for application configuration!</p>
+        
+        <h3 id="problems-with-configuration-files" class="section">Problems with Configuration Files</h3>
+        <p>File-based application configuration was usually introduced with the promise of being able to relaunch the
+        application with different configurations without rebuilding. 
+        However, most real-world deployment processes involve a git commit of any configuration changes and a subsequent
+        rebuild on a CI server.
+        This way this mechanism never delivers on its initial promise, but instead introduces several problems:
+        the indirection of defining values in one place and accessing them in code and the stringly nature
+        of the configuration which tends to be error-prone compared to a more type-safe approach.</p>
+        <p>For this reason newer configuration libraries like Ciris by-pass the file approach entirely.
+        The motivation and some use cases are introduced in this <a href="https://skillsmatter.com/skillscasts/12650-ciris-functional-configurations">presentation</a>.</p>
+        <p>Likewise Laika encourages programmatic configuration approaches for all its global configuration options,
+        and in fact none of the code examples in the manual for this type of configuration show any HOCON-based approaches.</p>
+        
+        <h3 id="laika-s-use-case-for-hocon" class="section">Laika&#39;s Use Case for HOCON</h3>
+        <p>So why is there are a custom HOCON parser in Laika then?
+        The reason is that its primary use case in the library is not around global configuration.
+        An input tree (usually obtained from one or more input directories in the file system) is a hierarchical
+        structure, and every sub-directory or individual document can override some configuration aspect,
+        as shown in <a href="#where-laika-uses-hocon">Where Laika Uses HOCON</a>.
+        On top of that, Laika has an extension mechanism called directives (see <a href="../05-extending-laika/03-implementing-directives.html#implementing-directives">Implementing Directives</a> for details)
+        and for its syntax which often allows to add attributes to a directive declaration HOCON is a natural fit.</p>
+        <p>On such a fine-grained level, programmatic configuration is not practical, and HOCON&#39;s format is an attractive solution
+        thanks to its concise and flexible syntax and its support for substitution definitions where a declaration in a document
+        or directive attribute section can directly refer to something defined globally or in a parent scope.</p>
+        
+        <h3 id="why-a-new-parser" class="section">Why a New Parser?</h3>
+        <p>After the question why HOCON has been chosen is answered, there is still a follow-up question about the need
+        to re-implement an entirely new parser.
+        One reason is that the original implementation (the <a href="https://github.com/lightbend/config">Typesafe Config</a> library) and the projects that wrap around it
+        or derive from it do not meet Laika&#39;s requirement for full referential transparency.
+        They might throw exceptions or perform side effects without exposing it in the method signature.
+        Another reason is that Laika extends the capability of what kind of data can be held in a configuration node.
+        It allows an AST node to be assigned to a key in a <code>Config</code> instance so that it can be referred to in markup or
+        templates.
+        One of the key features, the way how a template merges the content of its associated markup document,
+        is based on this extension, which allows the use of a substitution reference (<code>${cursor.currentDocument}</code>) for this task.</p>
+        <p>Finally, parsing is a central aspect of a lot of Laika&#39;s functionality anyway and it even comes with its own parser
+        combinators. 
+        If you examine the HOCON parser implementation you will notice that it&#39;s a very lightweight and small module
+        compared to the entire Laika code base.</p>
+        
+        <h2 id="where-laika-uses-hocon" class="section">Where Laika Uses HOCON</h2>
+        <p>Multiple types in the document tree model have a <code>config</code> property holding the configuration for that scope:</p>
+        <ul>
+          <li>A <code>DocumentCursor</code> instance passed to directive implementations and custom rewrite rules.
+          Probably the most likely instance you access a <code>config</code> property through.</li>
+          <li>A <code>Document</code> instance, populated from the configuration header of the markup document</li>
+          <li>A <code>TemplateDocument</code> instance, populated from the configuration header of the template document</li>
+          <li>A <code>DocumentTree</code> instance, populated from the <code>directory.conf</code> file in the corresponding directory</li>
+          <li>Each directive can optionally have a HOCON attribute block</li>
+        </ul>
+        <p>Whenever the corresponding configuration header or file is missing, an empty <code>Config</code> instance will be used.</p>
+        <p>The <code>Config</code> instances will be populated with values supplied by the library in the <code>laika.*</code> and <code>cursor.*</code> namespaces.
+        The former holds configuration values and the latter navigation info for the current document.</p>
+        <p>Any user-supplied values will be available, too, and should live in any namespace other than the two reserved ones.</p>
+        
+        <h2 id="reading-from-config-instances" class="section">Reading from Config Instances</h2>
+        <p>Once you obtained access to a <code>Config</code> instance, either through one of the objects listed above 
+        or by <a href="#creating-a-config-instance">Creating a Config Instance</a> yourself, reading from it is quite straightforward.
+        You have to provide the key you want to read and the type you expect:</p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">config</span><span>: </span><span class="type-name">Config</span><span> = ???
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">version</span><span> = </span><span class="identifier">config</span><span>.</span><span class="identifier">get</span><span>[</span><span class="type-name">String</span><span>](</span><span class="string-literal">&quot;project.version&quot;</span><span>)</span></code></pre>
+        <p>The type conversion is based on a matching <code>ConfigDecoder[T]</code> which must be in implicit scope.
+        It&#39;s a mechanism you might be familiar with from JSON libraries.</p>
+        <p>The returned value is of type <code>Either[ConfigError, T]</code>.
+        It will be a <code>Left</code> when either the type conversion fails or the key is not defined.</p>
+        <p>Laika comes with decoders for basic types like <code>Boolean</code>, <code>String</code>, <code>Int</code>, <code>Path</code> or <code>Date</code> 
+        and sequences and maps of them.
+        They are in the companion, therefore do not require any imports.</p>
+        <p>The <code>Path</code> decoder deals with the type representing Laika&#39;s virtual path.
+        It is convenient in that it resolves relative paths to absolute paths based on the origin of the definition.
+        See <a href="../03-preparing-content/01-directory-structure.html#virtual-tree-abstraction">Virtual Tree Abstraction</a> for details.</p>
+        <p>There are variants of the <code>get</code> method shown above: there is an overload that allows to pass a default value
+        as the second argument that will be used when there is no value for the specified key.
+        There is a <code>getOpt</code> variant that turns the result into <code>Either[ConfigError, Option[T]]</code> 
+        and there is a <code>hasKey</code> method to check for the existence of a key.</p>
+        <p>See <a href="../api/laika/config/Config.html">Config</a> for the full API documentation.</p>
+        
+        <h2 id="creating-decoders-and-encoders" class="section">Creating Decoders and Encoders</h2>
+        <p>Decoders are required for reading from a <code>Config</code> instance as shown in the previous section, the most common scenario.
+        Encoders are needed when you populate a <code>Config</code> instance programmatically as shown in <a href="#programmatic-building">Programmatic Building</a>.</p>
+        
+        <h3 id="configdecoder" class="section">ConfigDecoder</h3>
+        <p>A decoder for a simple type is quite straightforward, it usually piggy-backs on an existing decoder.
+        Let&#39;s assume you have a <code>Color</code> enum, with a constructor to create instances from a string:</p>
+        <pre><code class="nohighlight"><span class="keyword">object</span><span> </span><span class="type-name">Color</span><span> {
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">fromString</span><span> (</span><span class="identifier">value</span><span>: </span><span class="type-name">String</span><span>): </span><span class="type-name">Option</span><span>[</span><span class="type-name">Color</span><span>] = ???
+}</span></code></pre>
+        <p>You can then flatMap on the string decoder to obtain a Color decoder:</p>
+        <pre><code class="nohighlight"><span class="keyword">implicit</span><span> </span><span class="keyword">val</span><span> </span><span class="identifier">colorDecoder</span><span>: </span><span class="type-name">ConfigDecoder</span><span>[</span><span class="type-name">Color</span><span>] = 
+  </span><span class="type-name">ConfigDecoder</span><span>.</span><span class="identifier">string</span><span>.</span><span class="identifier">flatMap</span><span> { </span><span class="identifier">str</span><span> =&gt;
+    </span><span class="type-name">Color</span><span>.</span><span class="identifier">fromString</span><span>(</span><span class="identifier">str</span><span>).</span><span class="identifier">toRight</span><span>(</span><span class="type-name">DecodingError</span><span>(</span><span class="string-literal">s&quot;Unsupported color name: </span><span class="substitution">$str</span><span class="string-literal">&quot;</span><span>))
+  }</span></code></pre>
+        <p>Now let&#39;s assume you need a decoder for a case class with the following shape:</p>
+        <pre><code class="nohighlight"><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">Person</span><span> (</span><span class="identifier">name</span><span>: </span><span class="type-name">String</span><span>, </span><span class="identifier">age</span><span>: </span><span class="type-name">Int</span><span>, </span><span class="identifier">city</span><span>: </span><span class="type-name">Option</span><span>[</span><span class="type-name">String</span><span>])</span></code></pre>
+        <p>For mapping a HOCON object to a Scala case class you would usually build on top of the <code>config</code> decoder,
+        which decodes a nested object into an instance that has the same API for querying values as the root.</p>
+        <pre><code class="nohighlight"><span class="keyword">implicit</span><span> </span><span class="keyword">val</span><span> </span><span class="identifier">decoder</span><span>: </span><span class="type-name">ConfigDecoder</span><span>[</span><span class="type-name">Person</span><span>] = </span><span class="type-name">ConfigDecoder</span><span>.</span><span class="identifier">config</span><span>.</span><span class="identifier">flatMap</span><span> { </span><span class="identifier">config</span><span> =&gt;
+  </span><span class="keyword">for</span><span> {
+    </span><span class="identifier">name</span><span> &lt;- </span><span class="identifier">config</span><span>.</span><span class="identifier">get</span><span>[</span><span class="type-name">String</span><span>](</span><span class="string-literal">&quot;name&quot;</span><span>)
+    </span><span class="identifier">age</span><span>  &lt;- </span><span class="identifier">config</span><span>.</span><span class="identifier">get</span><span>[</span><span class="type-name">Int</span><span>](</span><span class="string-literal">&quot;age&quot;</span><span>)
+    </span><span class="identifier">city</span><span> &lt;- </span><span class="identifier">config</span><span>.</span><span class="identifier">getOpt</span><span>[</span><span class="type-name">String</span><span>](</span><span class="string-literal">&quot;city&quot;</span><span>)
+  } </span><span class="keyword">yield</span><span> {
+    </span><span class="type-name">Person</span><span>(</span><span class="identifier">name</span><span>, </span><span class="identifier">age</span><span>, </span><span class="identifier">city</span><span>)
+  }
+}</span></code></pre>
+        
+        <h3 id="configencoder" class="section">ConfigEncoder</h3>
+        <p>We are going to demonstrate how to write encoders for the same objects we used for our decoder examples.</p>
+        <p>We can encode our <code>Color</code> enumeration, assuming it has a <code>name</code> property, like this:</p>
+        <pre><code class="nohighlight"><span class="keyword">implicit</span><span> </span><span class="keyword">val</span><span> </span><span class="identifier">colorEncoder</span><span>: </span><span class="type-name">ConfigEncoder</span><span>[</span><span class="type-name">Color</span><span>] = </span><span class="type-name">ConfigEncoder</span><span>.</span><span class="identifier">string</span><span>.</span><span class="identifier">contramap</span><span>(</span><span class="identifier">_</span><span>.</span><span class="identifier">name</span><span>)</span></code></pre>
+        <p>For our Person case class we can use the convenient shortcuts in <code>ObjectBuilder</code>:</p>
+        <pre><code class="nohighlight"><span class="keyword">implicit</span><span> </span><span class="keyword">val</span><span> </span><span class="identifier">encoder</span><span>: </span><span class="type-name">ConfigEncoder</span><span>[</span><span class="type-name">Person</span><span>] = </span><span class="type-name">ConfigEncoder</span><span>[</span><span class="type-name">Person</span><span>] { </span><span class="identifier">person</span><span> =&gt;
+  </span><span class="type-name">ConfigEncoder</span><span>.</span><span class="type-name">ObjectBuilder</span><span>.</span><span class="identifier">empty</span><span>
+    .</span><span class="identifier">withValue</span><span>(</span><span class="string-literal">&quot;name&quot;</span><span>, </span><span class="identifier">person</span><span>.</span><span class="identifier">name</span><span>)
+    .</span><span class="identifier">withValue</span><span>(</span><span class="string-literal">&quot;age&quot;</span><span>, </span><span class="identifier">person</span><span>.</span><span class="identifier">age</span><span>)
+    .</span><span class="identifier">withValue</span><span>(</span><span class="string-literal">&quot;city&quot;</span><span>, </span><span class="identifier">person</span><span>.</span><span class="identifier">city</span><span>)
+    .</span><span class="identifier">build</span><span>
+}</span></code></pre>
+        <p>The builder deals with optional values by omitting the property altogether when it&#39;s empty.</p>
+        
+        <h3 id="automatic-derivation" class="section">Automatic Derivation</h3>
+        <p>Laika currently does not contain functionality for automatically deriving encoders or decoders for case classes.
+        One reason is that in contrast to JSON libraries the likeliness you need to map larger structures is much smaller.
+        Therefore the amount of boilerplate is usually tolerable.</p>
+        <p>Secondly we are so close to a Scala 3 release that will make automatic derivation much easier,
+        that the step of building something on top of shapeless for Scala 2 (and paying the compile time tax)
+        or writing a low-level Scala-2-style macro does seem very unattractive.</p>
+        <p>Automatic derivation will be supported once the Laika code base moves to Scala 3.</p>
+        
+        <h2 id="creating-a-config-instance" class="section">Creating a Config Instance</h2>
+        <p>The most common use cases for <code>Config</code> instance in Laika are read access.
+        But there may be scenarios where you want to create new instances yourself.
+        One would be when you create an entire <code>DocumentTree</code> programmatically instead of parsing from sources.
+        It is entirely possible in Laika to feed renderers for EPUB, PDF and HTML solely with content generated in-memory.
+        The other use case would be if you want to use Laika&#39;s HOCON parser completely independently from its other features.</p>
+        <p>There are two ways to create a <code>Config</code> instance. 
+        One is based on parsing HOCON string input with a <code>ConfigParser</code>, the other is to assemble configuration values
+        programmatically with a <code>ConfigBuilder</code>.
+        The former mostly exists for scenarios where you need to work with files, 
+        whereas the latter should be preferred for creating configuration data in-memory.</p>
+        
+        <h3 id="programmatic-building" class="section">Programmatic Building</h3>
+        <p>A <code>ConfigBuilder</code> allows to assemble arbitrary values as long as they have a <code>ConfigEncoder</code> in scope.</p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">config</span><span> = </span><span class="type-name">ConfigBuilder</span><span>.</span><span class="identifier">empty</span><span>
+  .</span><span class="identifier">withValue</span><span>(</span><span class="string-literal">&quot;laika.epub.coverImage&quot;</span><span>, </span><span class="string-literal">&quot;/images/epub-cover.jpg&quot;</span><span>)
+  .</span><span class="identifier">withValue</span><span>(</span><span class="string-literal">&quot;laika.pdf.coverImage&quot;</span><span>, </span><span class="string-literal">&quot;/images/pdf-cover.jpg&quot;</span><span>)
+  .</span><span class="identifier">build</span></code></pre>
+        <p>The first parameter is the key to assign to the value, 
+        the second is the actual value which will be converted based on an implicit <code>ConfigEncoder</code> in scope.</p>
+        <p>Laika comes with encoders for basic types like <code>Boolean</code>, <code>String</code>, <code>Int</code>, <code>Path</code> or <code>Date</code> 
+        and sequences and maps of them. 
+        They are in the companion, therefore do not require any imports.</p>
+        <p>You can alternatively create your own encoder as shown above.</p>
+        <p>If you have a fallback instance, you can pass it to the constructor:</p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">parentConfig</span><span>: </span><span class="type-name">Config</span><span> = ???
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">config</span><span> = </span><span class="type-name">ConfigBuilder</span><span>.</span><span class="identifier">withFallback</span><span>(</span><span class="identifier">parentConfig</span><span>)
+  .</span><span class="identifier">withValue</span><span>(</span><span class="string-literal">&quot;laika.epub.coverImage&quot;</span><span>, </span><span class="string-literal">&quot;/images/epub-cover.jpg&quot;</span><span>)
+  .</span><span class="identifier">withValue</span><span>(</span><span class="string-literal">&quot;laika.pdf.coverImage&quot;</span><span>, </span><span class="string-literal">&quot;/images/pdf-cover.jpg&quot;</span><span>)
+  .</span><span class="identifier">build</span></code></pre>
+        <p>The fallback will be used for resolving any values not present in the current instance.</p>
+        <p>Finally, if you are building a <code>Config</code> instance that you want to assign to a <code>Document</code> instance in cases
+        where you build an entire tree programmatically, you also have to provide a correct <code>Origin</code> instance:</p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">doc</span><span>: </span><span class="type-name">Document</span><span> = ???
+</span><span class="keyword">val</span><span> </span><span class="identifier">docOrigin</span><span>: </span><span class="type-name">Origin</span><span> = </span><span class="type-name">Origin</span><span>(</span><span class="type-name">Origin</span><span>.</span><span class="type-name">DocumentScope</span><span>, </span><span class="identifier">doc</span><span>.</span><span class="identifier">path</span><span>) 
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">config</span><span> = </span><span class="type-name">ConfigBuilder</span><span>.</span><span class="identifier">withOrigin</span><span>(</span><span class="identifier">docOrigin</span><span>)
+  .</span><span class="identifier">withValue</span><span>(</span><span class="string-literal">&quot;laika.epub.coverImage&quot;</span><span>, </span><span class="string-literal">&quot;/images/epub-cover.jpg&quot;</span><span>)
+  .</span><span class="identifier">withValue</span><span>(</span><span class="string-literal">&quot;laika.pdf.coverImage&quot;</span><span>, </span><span class="string-literal">&quot;/images/pdf-cover.jpg&quot;</span><span>)
+  .</span><span class="identifier">build</span><span>
+  
+</span><span class="keyword">val</span><span> </span><span class="identifier">finalDoc</span><span> = </span><span class="identifier">doc</span><span>.</span><span class="identifier">copy</span><span>(</span><span class="identifier">config</span><span> = </span><span class="identifier">config</span><span>)</span></code></pre>
+        <p>This is essential for resolving relative paths defined in that configuration correctly.</p>
+        
+        <h3 id="parsing-hocon" class="section">Parsing HOCON</h3>
+        <p>The <code>ConfigParser</code> has a very simple API:</p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">hoconInput</span><span>: </span><span class="type-name">String</span><span> = ???
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">config</span><span>: </span><span class="type-name">Config</span><span> = </span><span class="type-name">ConfigParser</span><span>
+  .</span><span class="identifier">parse</span><span>(</span><span class="identifier">hoconInput</span><span>)
+  .</span><span class="identifier">resolve</span><span>()</span></code></pre>
+        <p>The <code>parse</code> step creates an interim model of unresolved configuration values.
+        This is necessary because the HOCON format supports substitution references and the corresponding values do not need
+        to originate from the same instance.
+        The <code>resolve</code> step then finally creates a <code>Config</code> instance, resolving and validating all references.</p>
+        <p>If you have a fallback instance, you can pass it via <code>resolve</code>:</p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">hoconInput</span><span>: </span><span class="type-name">String</span><span> = ???
+</span><span class="keyword">val</span><span> </span><span class="identifier">parentConfig</span><span>: </span><span class="type-name">Config</span><span> = ???
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">config</span><span>: </span><span class="type-name">Config</span><span> = </span><span class="type-name">ConfigParser</span><span>
+  .</span><span class="identifier">parse</span><span>(</span><span class="identifier">hoconInput</span><span>)
+  .</span><span class="identifier">resolve</span><span>(</span><span class="identifier">fallback</span><span> = </span><span class="identifier">parentConfig</span><span>)</span></code></pre>
+        <p>The fallback will be used for resolving any values not present in the current instance.</p>
+        <p>Finally, if you are building a <code>Config</code> instance that you want to assign to a <code>Document</code> instance in cases
+        where you build an entire tree programmatically, you also have to provide a correct <code>Origin</code> instance:</p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">hoconInput</span><span>: </span><span class="type-name">String</span><span> = ???
+</span><span class="keyword">val</span><span> </span><span class="identifier">doc</span><span>: </span><span class="type-name">Document</span><span> = ???
+</span><span class="keyword">val</span><span> </span><span class="identifier">docOrigin</span><span>: </span><span class="type-name">Origin</span><span> = </span><span class="type-name">Origin</span><span>(</span><span class="type-name">Origin</span><span>.</span><span class="type-name">DocumentScope</span><span>, </span><span class="identifier">doc</span><span>.</span><span class="identifier">path</span><span>) 
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">config</span><span>: </span><span class="type-name">Config</span><span> = </span><span class="type-name">ConfigParser</span><span>
+  .</span><span class="identifier">parse</span><span>(</span><span class="identifier">hoconInput</span><span>)
+  .</span><span class="identifier">resolve</span><span>(</span><span class="identifier">origin</span><span> = </span><span class="identifier">docOrigin</span><span>)
+  
+</span><span class="keyword">val</span><span> </span><span class="identifier">finalDoc</span><span> = </span><span class="identifier">doc</span><span>.</span><span class="identifier">copy</span><span>(</span><span class="identifier">config</span><span> = </span><span class="identifier">config</span><span>)</span></code></pre>
+        <p>This is essential for resolving relative paths defined in that configuration correctly.</p>
+        <p>There is currently no API for conveniently reading HOCON from files.
+        You would need to do the file IO yourself before feeding the parser.
+        Should the HOCON parser become a standalone micro-lib, it would definitely get a <code>ConfigLoader</code>.
+        But within Laika&#39;s own usage all IO is performed by the logic in the <code>laika-io</code> module that also deals
+        with loading of markup files and templates.</p>
+
+      </div>
+    </div>
+
+  </div>
+
+</body></html>

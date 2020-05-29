@@ -123,6 +123,10 @@
                         <a href="DirectiveSupport.html" title="Internal API that processes all directives defined by one or more DirectiveRegistries.">DirectiveSupport</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="object" href="Links$.html" title="The API for declaring directives that can be used in links."></a>
+                        <a href="Links$.html" title="The API for declaring directives that can be used in links.">Links</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="object" href="Spans$.html" title="The API for declaring directives that can be used as inline elements in markup documents."></a>
                         <a href="Spans$.html" title="The API for declaring directives that can be used as inline elements in markup documents.">Spans</a>
                       </li><li class="current-entities indented2">
@@ -230,8 +234,23 @@
         <a title="Represents the string identifier of an attribute or body part of a directive." href="AttributeKey$$Named.html"><span class="name">Named</span></a><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="AttributeKey.html" class="extype" name="laika.directive.AttributeKey">AttributeKey</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
-      <p class="shortcomment cmt">Represents the string identifier of an attribute or body part
- of a directive.</p>
+      <p class="shortcomment cmt">Represents the string identifier of an attribute or body part of a directive.</p>
+    </li><li name="laika.directive.AttributeKey.PositionalAt" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="PositionalAtextendsAttributeKeywithProductwithSerializable"></a><a id="PositionalAt:PositionalAt"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/AttributeKey$$PositionalAt.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="Represents an individual positional attribute at the specified index." href="AttributeKey$$PositionalAt.html"><span class="name">PositionalAt</span></a><span class="params">(<span name="pos">pos: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result"> extends <a href="AttributeKey.html" class="extype" name="laika.directive.AttributeKey">AttributeKey</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Represents an individual positional attribute at the specified index.</p>
     </li></ol>
             </div>
 
@@ -590,7 +609,31 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="laika.directive.AttributeKey.Default" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="laika.directive.AttributeKey.Positional" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Positional"></a><a id="Positional:Positional"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/AttributeKey$$Positional$.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="Represents all positional attributes." href="AttributeKey$$Positional$.html"><span class="name">Positional</span></a><span class="result"> extends <a href="AttributeKey.html" class="extype" name="laika.directive.AttributeKey">AttributeKey</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Represents all positional attributes.</p>
+    </li>
+              </ol>
+            </div>
+
+        
+
+        <div class="values members">
+              <h3>Deprecated Value Members</h3>
+              <ol><li name="laika.directive.AttributeKey.Default" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="Default"></a><a id="Default:Default"></a>
       <span class="permalink">
       <a href="../../laika/directive/AttributeKey$$Default$.html" title="Permalink">
@@ -602,18 +645,15 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a title="Represents an unnamed attribute or body part of a directive." href="AttributeKey$$Default$.html"><span class="name">Default</span></a><span class="result"> extends <a href="AttributeKey.html" class="extype" name="laika.directive.AttributeKey">AttributeKey</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="" href="AttributeKey$$Default$.html"><span class="name deprecated" title="Deprecated: (Since version 0.15.0) use PositionalAt(0) instead">Default</span></a><span class="result"> extends <a href="AttributeKey.html" class="extype" name="laika.directive.AttributeKey">AttributeKey</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
-      <p class="shortcomment cmt">Represents an unnamed attribute or body part
- of a directive.</p>
-    </li>
-              </ol>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.15.0)</i> use PositionalAt(0) instead</p></dd></dl></div>
+    </li></ol>
             </div>
-
-        
-
-        
         </div>
 
         <div id="inheritedMembers">

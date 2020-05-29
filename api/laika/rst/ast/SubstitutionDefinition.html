@@ -175,6 +175,10 @@
                         <a href="ReferenceName.html" title="Represent a reference name.">ReferenceName</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
+                        <a class="object" href="RstStyle$.html" title="Constants for style names wrapped in Options instances which are commonly used by Laika's reStructuredText parsers and rewrite rules."></a>
+                        <a href="RstStyle$.html" title="Constants for style names wrapped in Options instances which are commonly used by Laika's reStructuredText parsers and rewrite rules.">RstStyle</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
                         <a class="class" href="" title="A substitution definition with its span content that will be inserted wherever this substitution is referenced in flow content."></a>
                         <a href="" title="A substitution definition with its span content that will be inserted wherever this substitution is referenced in flow content.">SubstitutionDefinition</a>
                       </li><li class="current-entities indented3">
@@ -208,7 +212,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">SubstitutionDefinition</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="content">content: <a href="../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a></span>, <span name="options">options: <a href="../../ast/Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="../../index.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="../../ast/Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="../../ast/Definition.html" class="extype" name="laika.ast.Definition">Definition</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">SubstitutionDefinition</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="content">content: <a href="../../ast/Span.html" class="extype" name="laika.ast.Span">Span</a></span>, <span name="options">options: <a href="../../ast/Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="../../index.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="../../ast/Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="../../ast/Definition.html" class="extype" name="laika.ast.Definition">Definition</a> with <a href="../../ast/Hidden.html" class="extype" name="laika.ast.Hidden">Hidden</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
@@ -219,7 +223,7 @@
           <span class="toggle">
             Linear Supertypes
           </span>
-          <div class="superTypes hiddenContent"><a href="../../ast/Definition.html" class="extype" name="laika.ast.Definition">Definition</a>, <a href="../../ast/Temporary.html" class="extype" name="laika.ast.Temporary">Temporary</a>, <a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>, <a href="../../ast/Customizable.html" class="extype" name="laika.ast.Customizable">Customizable</a>, <a href="../../ast/Element.html" class="extype" name="laika.ast.Element">Element</a>, <span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><a href="../../ast/Hidden.html" class="extype" name="laika.ast.Hidden">Hidden</a>, <a href="../../ast/Definition.html" class="extype" name="laika.ast.Definition">Definition</a>, <a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>, <a href="../../ast/Customizable.html" class="extype" name="laika.ast.Customizable">Customizable</a>, <a href="../../ast/Element.html" class="extype" name="laika.ast.Element">Element</a>, <span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -245,7 +249,7 @@
                   <span class="filtertype">Inherited<br />
                   </span>
                   <ol id="linearization">
-                    <li class="in" name="laika.rst.ast.SubstitutionDefinition"><span>SubstitutionDefinition</span></li><li class="in" name="laika.ast.Definition"><span>Definition</span></li><li class="in" name="laika.ast.Temporary"><span>Temporary</span></li><li class="in" name="laika.ast.Block"><span>Block</span></li><li class="in" name="laika.ast.Customizable"><span>Customizable</span></li><li class="in" name="laika.ast.Element"><span>Element</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                    <li class="in" name="laika.rst.ast.SubstitutionDefinition"><span>SubstitutionDefinition</span></li><li class="in" name="laika.ast.Hidden"><span>Hidden</span></li><li class="in" name="laika.ast.Definition"><span>Definition</span></li><li class="in" name="laika.ast.Block"><span>Block</span></li><li class="in" name="laika.ast.Customizable"><span>Customizable</span></li><li class="in" name="laika.ast.Element"><span>Element</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                   </ol>
                 </div><div class="ancestors">
               <span class="filtertype"></span>
@@ -764,10 +768,10 @@ without its id.
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="laika.ast.Definition">
+        <div class="parent" name="laika.ast.Hidden">
+              <h3>Inherited from <a href="../../ast/Hidden.html" class="extype" name="laika.ast.Hidden">Hidden</a></h3>
+            </div><div class="parent" name="laika.ast.Definition">
               <h3>Inherited from <a href="../../ast/Definition.html" class="extype" name="laika.ast.Definition">Definition</a></h3>
-            </div><div class="parent" name="laika.ast.Temporary">
-              <h3>Inherited from <a href="../../ast/Temporary.html" class="extype" name="laika.ast.Temporary">Temporary</a></h3>
             </div><div class="parent" name="laika.ast.Block">
               <h3>Inherited from <a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a></h3>
             </div><div class="parent" name="laika.ast.Customizable">

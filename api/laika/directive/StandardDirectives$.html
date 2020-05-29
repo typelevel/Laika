@@ -123,6 +123,10 @@
                         <a href="DirectiveSupport.html" title="Internal API that processes all directives defined by one or more DirectiveRegistries.">DirectiveSupport</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="object" href="Links$.html" title="The API for declaring directives that can be used in links."></a>
+                        <a href="Links$.html" title="The API for declaring directives that can be used in links.">Links</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="object" href="Spans$.html" title="The API for declaring directives that can be used as inline elements in markup documents."></a>
                         <a href="Spans$.html" title="The API for declaring directives that can be used as inline elements in markup documents.">Spans</a>
                       </li><li class="current-entities indented2">
@@ -161,15 +165,29 @@
       </h4>
 
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Provides the implementation for the standard directives included in Laika.</p><p> These include:</p><ul><li><code>toc</code>: Generates a table of content from a specified root node.</li><li><code>fragment</code>: Marks a block in a markup document as being separate from the main content,
-   so that it can be placed separately in templates.</li><li><code>for</code>: Accesses a value from the context and sets it as the reference context for its
-   body elements, executing the body if the referenced value is non-empty and executing
-   it multiple times when it is a collection.</li><li><code>if</code>: Accesses a value from the context and processes the body element only when
-   it is a value recognized as true.</li><li><code>format</code>: Process the body element only when the output format matches the format
-   specified in the directive (e.g. <code>pdf</code> or <code>html</code>).</li><li><code>style</code>: Adds a style property to the body element.</li><li><code>styleLink</code>: Adds link elements to HTML output for all CSS files found in the document tree</li><li><code>fragment</code>: Adds the body as a fragment to the target document, separate from the main
-   content, to be rendered in different locations of the output, like headers, footers or sidebars.</li><li><code>pageBreak</code>: Inserts a page break element into the tree (will only be rendered by page-based
-   output, like XSL-FO or PDF.
-</li></ul></div><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Provides the implementation for the standard directives included in Laika.</p><p>These include:</p><p>- <code>navigationTree</code>: Generates a navigation tree either automatically from specified root nodes
+   of the input tree or by specifying entries manually (or a combination of both).
+- <code>breadcrumb</code>: Builds a navigation list from the root node of the input tree to the current document.
+- <code>ref</code>: Convenience directive that allows to reference a different section of the input tree
+  via its headline text. The headline does not have to be unique, as long as the directive can identify
+  a section that is closer than the others with the same headline.
+- <code>api</code>: Convenience directive that allows to reference an api documentation entry (e.g. scaladoc, javadoc)
+- <code>fragment</code>: Marks a block in a markup document as being separate from the main content,
+  so that it can be placed separately in templates.
+- <code>for</code>: Accesses a value from the context and sets it as the reference context for its
+  body elements, executing the body if the referenced value is non-empty and executing
+  it multiple times when it is a collection.
+- <code>if</code>: Accesses a value from the context and processes the body element only when
+  it is a value recognized as true.
+- <code>format</code>: Process the body element only when the output format matches the format
+  specified in the directive (e.g. <code>pdf</code> or <code>html</code>).
+- <code>style</code>: Adds a style property to the body element.
+- <code>styleLink</code>: Adds link elements to HTML output for all CSS files found in the document tree
+- <code>fragment</code>: Adds the body as a fragment to the target document, separate from the main
+  content, to be rendered in different locations of the output, like headers, footers or sidebars.
+- <code>pageBreak</code>: Inserts a page break element into the tree (will only be rendered by page-based
+  output, like XSL-FO or PDF.
+</p></div><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
           </span>
@@ -219,7 +237,99 @@
         <div id="allMembers">
         
 
-        
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="laika.directive.StandardDirectives.BreadcrumbBuilder" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="BreadcrumbBuilderextendsElementwithBlockResolverwithProductwithSerializable"></a><a id="BreadcrumbBuilder:BreadcrumbBuilder"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/StandardDirectives$$BreadcrumbBuilder.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="A block resolver that replaces itself with a navigation list from the root node of the input tree to the current document during AST transformations." href="StandardDirectives$$BreadcrumbBuilder.html"><span class="name">BreadcrumbBuilder</span></a><span class="params">(<span name="options">options: <a href="../ast/Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="../index.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="../ast/BlockResolver.html" class="extype" name="laika.ast.BlockResolver">BlockResolver</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">A block resolver that replaces itself with a navigation list from the root node of the input tree to the current document
+during AST transformations.</p><div class="fullcomment"><div class="comment cmt"><p>A block resolver that replaces itself with a navigation list from the root node of the input tree to the current document
+during AST transformations.</p><p>Serves as the implementation for the breadcrumb directive, but can also be inserted into the AST manually.
+</p></div></div>
+    </li><li name="laika.directive.StandardDirectives.GeneratedNavigationNode" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="GeneratedNavigationNodeextendsStandardDirectives.NavigationNodeConfigwithProductwithSerializable"></a><a id="GeneratedNavigationNode:GeneratedNavigationNode"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/StandardDirectives$$GeneratedNavigationNode.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="The configuration for an automatically generated navigation tree." href="StandardDirectives$$GeneratedNavigationNode.html"><span class="name">GeneratedNavigationNode</span></a><span class="params">(<span name="target">target: <a href="../ast/PathBase.html" class="extype" name="laika.ast.PathBase">PathBase</a></span>, <span name="title">title: <span class="extype" name="scala.Option">Option</span>[<a href="../ast/SpanSequence.html" class="extype" name="laika.ast.SpanSequence">SpanSequence</a>] = <span class="symbol">None</span></span>, <span name="depth">depth: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>] = <span class="symbol">None</span></span>, <span name="excludeRoot">excludeRoot: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Boolean">Boolean</span>] = <span class="symbol">None</span></span>, <span name="excludeSections">excludeSections: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Boolean">Boolean</span>] = <span class="symbol">None</span></span>)</span><span class="result"> extends <a href="StandardDirectives$$NavigationNodeConfig.html" class="extype" name="laika.directive.StandardDirectives.NavigationNodeConfig">NavigationNodeConfig</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">The configuration for an automatically generated navigation tree.</p><div class="fullcomment"><div class="comment cmt"><p>The configuration for an automatically generated navigation tree.
+</p></div><dl class="paramcmts block"><dt class="param">target</dt><dd class="cmt"><p>the target to use as the root node for navigation tree based on a relative or absolute path in the virtual input tree</p></dd><dt class="param">title</dt><dd class="cmt"><p>the title for this entry when getting rendered as a link</p></dd><dt class="param">depth</dt><dd class="cmt"><p>the depth to recurse from the root node</p></dd><dt class="param">excludeRoot</dt><dd class="cmt"><p>indicates whether the root node should be excluded in which case the first-level children will be inserted into the parent node</p></dd><dt class="param">excludeSections</dt><dd class="cmt"><p>indicates whether sections within documents should be excluded in automatic entries</p></dd></dl></div>
+    </li><li name="laika.directive.StandardDirectives.ManualNavigationNode" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ManualNavigationNodeextendsStandardDirectives.NavigationNodeConfigwithProductwithSerializable"></a><a id="ManualNavigationNode:ManualNavigationNode"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/StandardDirectives$$ManualNavigationNode.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="The configuration for a manual entry in the navigation tree." href="StandardDirectives$$ManualNavigationNode.html"><span class="name">ManualNavigationNode</span></a><span class="params">(<span name="title">title: <a href="../ast/SpanSequence.html" class="extype" name="laika.ast.SpanSequence">SpanSequence</a></span>, <span name="target">target: <span class="extype" name="scala.Option">Option</span>[<a href="../ast/ExternalTarget.html" class="extype" name="laika.ast.ExternalTarget">ExternalTarget</a>] = <span class="symbol">None</span></span>, <span name="children">children: <span class="extype" name="scala.Seq">Seq</span>[<a href="StandardDirectives$$NavigationNodeConfig.html" class="extype" name="laika.directive.StandardDirectives.NavigationNodeConfig">NavigationNodeConfig</a>] = <span class="symbol">Nil</span></span>)</span><span class="result"> extends <a href="StandardDirectives$$NavigationNodeConfig.html" class="extype" name="laika.directive.StandardDirectives.NavigationNodeConfig">NavigationNodeConfig</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">The configuration for a manual entry in the navigation tree.</p><div class="fullcomment"><div class="comment cmt"><p>The configuration for a manual entry in the navigation tree.
+The entry can have further children which may in turn be either manual or automatically generated nodes.
+</p></div><dl class="paramcmts block"><dt class="param">title</dt><dd class="cmt"><p>the title for this entry when getting rendered as a link</p></dd><dt class="param">target</dt><dd class="cmt"><p>the external link for this node (if missing this node just generates a navigation header as a separator within the tree)</p></dd><dt class="param">children</dt><dd class="cmt"><p>the children of this node, either manual or automatically generated</p></dd></dl></div>
+    </li><li name="laika.directive.StandardDirectives.NavigationBuilderConfig" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="NavigationBuilderConfigextendsElementwithBlockResolverwithProductwithSerializable"></a><a id="NavigationBuilderConfig:NavigationBuilderConfig"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/StandardDirectives$$NavigationBuilderConfig.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="A block resolver that replaces itself with a navigation list according to this instances configuration." href="StandardDirectives$$NavigationBuilderConfig.html"><span class="name">NavigationBuilderConfig</span></a><span class="params">(<span name="entries">entries: <span class="extype" name="scala.Seq">Seq</span>[<a href="StandardDirectives$$NavigationNodeConfig.html" class="extype" name="laika.directive.StandardDirectives.NavigationNodeConfig">NavigationNodeConfig</a>]</span>, <span name="defaultDepth">defaultDepth: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">Int.MaxValue</span></span>, <span name="itemStyles">itemStyles: <span class="extype" name="scala.Predef.Set">Set</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">Set()</span></span>, <span name="excludeRoot">excludeRoot: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>, <span name="excludeSections">excludeSections: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>, <span name="options">options: <a href="../ast/Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="../index.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="../ast/BlockResolver.html" class="extype" name="laika.ast.BlockResolver">BlockResolver</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">A block resolver that replaces itself with a navigation list according to this instances configuration.</p><div class="fullcomment"><div class="comment cmt"><p>A block resolver that replaces itself with a navigation list according to this instances configuration.
+The resulting navigation tree can either be automatically generated from specified root nodes
+of the input tree or by specifying entries manually (or a combination of both).</p><p>Serves as the implementation for the navigationTree directive, but can also be inserted into the AST manually.
+</p></div><dl class="paramcmts block"><dt class="param">entries</dt><dd class="cmt"><p>the list of manual and automatic entries to insert into the navigation tree</p></dd><dt class="param">defaultDepth</dt><dd class="cmt"><p>the depth for automatically generated entries (unless overridden in the entries' config)</p></dd><dt class="param">itemStyles</dt><dd class="cmt"><p>the styles to apply to all navigation items in the list as a render hint</p></dd><dt class="param">excludeRoot</dt><dd class="cmt"><p>indicates whether the root node should be excluded in automatic entries (may be overridden in the entries' config)</p></dd><dt class="param">excludeSections</dt><dd class="cmt"><p>indicates whether sections within documents should be excluded in automatic entries (may be overridden in the entries' config)</p></dd><dt class="param">options</dt><dd class="cmt"><p>optional styles and/or an id for the final navigation list</p></dd></dl></div>
+    </li><li name="laika.directive.StandardDirectives.NavigationNodeConfig" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="NavigationNodeConfigextendsAnyRef"></a><a id="NavigationNodeConfig:NavigationNodeConfig"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/StandardDirectives$$NavigationNodeConfig.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">sealed </span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a title="Represents the configuration for a single node in a navigation tree." href="StandardDirectives$$NavigationNodeConfig.html"><span class="name">NavigationNodeConfig</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Represents the configuration for a single node in a navigation tree.</p>
+    </li></ol>
+            </div>
 
         
 
@@ -293,6 +403,27 @@
 output formats from a single input document. With raw content embedded the markup document
 is tied to a specific output format.</p><p>Bundles which have this flag set to true need to be enabled explicitly by the user by calling
 <code>withRawContent</code> on the <code>Parse</code> or <code>Transform</code> API:</p><pre><span class="kw">val</span> transformer = Transformer.from(Markdown).to(HTML).withRawContent.build</pre></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a></dd></dl></div>
+    </li><li name="laika.directive.StandardDirectives#api" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="api:laika.directive.Links.Directive"></a><a id="api:Directive"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/StandardDirectives$.html#api:laika.directive.Links.Directive" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">lazy val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">api</span><span class="result">: <a href="Links$$Directive.html" class="extype" name="laika.directive.Links.Directive">Directive</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Implementation of the <code>api</code> directive that creates links to API documentation based
+on a specified fully-qualified type name.</p><div class="fullcomment"><div class="comment cmt"><p>Implementation of the <code>api</code> directive that creates links to API documentation based
+on a specified fully-qualified type name. The type name is the only (required) attribute
+of the directive.</p><p>The directive relies on base URIs defined in the transformation's configuration and will
+otherwise fail. See <a href="../rewrite/link/LinkConfig.html" class="extype" name="laika.rewrite.link.LinkConfig">laika.rewrite.link.LinkConfig</a> for details.
+</p></div></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <span class="permalink">
@@ -330,6 +461,22 @@ and/or config headers in markup and template documents.</p><div class="fullcomme
 configuration files in the source directories
 and/or config headers in markup and template documents.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a></dd></dl></div>
+    </li><li name="laika.directive.StandardDirectives#blockBreadcrumb" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="blockBreadcrumb:laika.directive.Blocks.Directive"></a><a id="blockBreadcrumb:Blocks.Directive"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/StandardDirectives$.html#blockBreadcrumb:laika.directive.Blocks.Directive" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">lazy val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">blockBreadcrumb</span><span class="result">: <a href="Blocks$.html#DirectiveextendsAnyRef" class="extmbr" name="laika.directive.BuilderContext.Directive">Blocks.Directive</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Implementation of the <code>breadcrumb</code> directive for block elements in markup documents.</p>
     </li><li name="laika.directive.StandardDirectives#blockDirectives" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="blockDirectives:Seq[laika.directive.Blocks.Directive]"></a><a id="blockDirectives:Seq[Blocks.Directive]"></a>
       <span class="permalink">
@@ -365,6 +512,22 @@ and/or config headers in markup and template documents.
       </span>
       
       <p class="shortcomment cmt">Implementation of the <code>fragment</code> directive for block elements in markup documents.</p>
+    </li><li name="laika.directive.StandardDirectives#blockNav" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="blockNav:laika.directive.Blocks.Directive"></a><a id="blockNav:Blocks.Directive"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/StandardDirectives$.html#blockNav:laika.directive.Blocks.Directive" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">lazy val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">blockNav</span><span class="result">: <a href="Blocks$.html#DirectiveextendsAnyRef" class="extmbr" name="laika.directive.BuilderContext.Directive">Blocks.Directive</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Implementation of the <code>navigationTree</code> directive for block elements in markup documents.</p>
     </li><li name="laika.directive.StandardDirectives#blockStyle" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="blockStyle:laika.directive.Blocks.Directive"></a><a id="blockStyle:Blocks.Directive"></a>
       <span class="permalink">
@@ -381,22 +544,6 @@ and/or config headers in markup and template documents.
       </span>
       
       <p class="shortcomment cmt">Implementation of the <code>style</code> directive for block elements in markup documents.</p>
-    </li><li name="laika.directive.StandardDirectives#blockToc" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="blockToc:laika.directive.Blocks.Directive"></a><a id="blockToc:Blocks.Directive"></a>
-      <span class="permalink">
-      <a href="../../laika/directive/StandardDirectives$.html#blockToc:laika.directive.Blocks.Directive" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">lazy val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">blockToc</span><span class="result">: <a href="Blocks$.html#DirectiveextendsAnyRef" class="extmbr" name="laika.directive.BuilderContext.Directive">Blocks.Directive</a></span>
-      </span>
-      
-      <p class="shortcomment cmt">Implementation of the <code>toc</code> directive for block elements in markup documents.</p>
     </li><li name="scala.AnyRef#clone" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a><a id="clone():AnyRef"></a>
       <span class="permalink">
@@ -588,6 +735,23 @@ directory in transformations by default.
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="laika.directive.StandardDirectives#linkDirectives" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="linkDirectives:Seq[laika.directive.Links.Directive]"></a><a id="linkDirectives:Seq[Directive]"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/StandardDirectives$.html#linkDirectives:Seq[laika.directive.Links.Directive]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">lazy val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">linkDirectives</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="Links$$Directive.html" class="extype" name="laika.directive.Links.Directive">Directive</a>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">The complete list of standard directives for links.</p><div class="fullcomment"><div class="comment cmt"><p>The complete list of standard directives for links.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.directive.StandardDirectives">StandardDirectives</a> → <a href="DirectiveRegistry.html" class="extype" name="laika.directive.DirectiveRegistry">DirectiveRegistry</a></dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a><a id="ne(AnyRef):Boolean"></a>
       <span class="permalink">
@@ -740,6 +904,29 @@ information from the entire document tree before returning the actual rule,
 which is a partial function from <code>Element</code> to <code>Option[Element]</code> that allows
 to remove or replace elements from the tree.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a></dd></dl></div>
+    </li><li name="laika.bundle.ExtensionBundle#slugBuilder" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="slugBuilder:Option[String=&gt;String]"></a><a id="slugBuilder:Option[(String)⇒String]"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/StandardDirectives$.html#slugBuilder:Option[String=&gt;String]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">slugBuilder</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[(<span class="extype" name="scala.Predef.String">String</span>) ⇒ <span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Function that receives the text of a headline, the name of a document
+or directory or a manually assigned identifier, and builds a slug from it
+that becomes part of the final URL or identifier (depending on output format).</p><div class="fullcomment"><div class="comment cmt"><p>Function that receives the text of a headline, the name of a document
+or directory or a manually assigned identifier, and builds a slug from it
+that becomes part of the final URL or identifier (depending on output format).</p><p>The result of the function must be:</p><p>- a valid identifier in HTML and XML
+- a valid path segment in a URL
+- a valid file name
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a></dd></dl></div>
     </li><li name="laika.directive.StandardDirectives#spanDirectives" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="spanDirectives:Seq[laika.directive.Spans.Directive]"></a><a id="spanDirectives:Seq[Spans.Directive]"></a>
       <span class="permalink">
@@ -810,6 +997,22 @@ relative to the currently processed document.</p><p>Only has an effect for HTML 
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="laika.directive.StandardDirectives#templateBreadcrumb" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="templateBreadcrumb:laika.directive.Templates.Directive"></a><a id="templateBreadcrumb:Templates.Directive"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/StandardDirectives$.html#templateBreadcrumb:laika.directive.Templates.Directive" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">lazy val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">templateBreadcrumb</span><span class="result">: <a href="Templates$.html#DirectiveextendsAnyRef" class="extmbr" name="laika.directive.BuilderContext.Directive">Templates.Directive</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Implementation of the <code>breadcrumb</code> directive for templates.</p>
     </li><li name="laika.directive.StandardDirectives#templateDirectives" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="templateDirectives:Seq[laika.directive.Templates.Directive]"></a><a id="templateDirectives:Seq[Templates.Directive]"></a>
       <span class="permalink">
@@ -875,10 +1078,10 @@ relative to the currently processed document.</p><p>Only has an effect for HTML 
       </span>
       
       <p class="shortcomment cmt">Implementation of the <code>if</code> directive for templates.</p>
-    </li><li name="laika.directive.StandardDirectives#templateToc" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="templateToc:laika.directive.Templates.Directive"></a><a id="templateToc:Templates.Directive"></a>
+    </li><li name="laika.directive.StandardDirectives#templateNav" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="templateNav:laika.directive.Templates.Directive"></a><a id="templateNav:Templates.Directive"></a>
       <span class="permalink">
-      <a href="../../laika/directive/StandardDirectives$.html#templateToc:laika.directive.Templates.Directive" title="Permalink">
+      <a href="../../laika/directive/StandardDirectives$.html#templateNav:laika.directive.Templates.Directive" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -887,10 +1090,10 @@ relative to the currently processed document.</p><p>Only has an effect for HTML 
         <span class="kind">lazy val</span>
       </span>
       <span class="symbol">
-        <span class="name">templateToc</span><span class="result">: <a href="Templates$.html#DirectiveextendsAnyRef" class="extmbr" name="laika.directive.BuilderContext.Directive">Templates.Directive</a></span>
+        <span class="name">templateNav</span><span class="result">: <a href="Templates$.html#DirectiveextendsAnyRef" class="extmbr" name="laika.directive.BuilderContext.Directive">Templates.Directive</a></span>
       </span>
       
-      <p class="shortcomment cmt">Implementation of the <code>toc</code> directive for templates.</p>
+      <p class="shortcomment cmt">Implementation of the <code>navigationTree</code> directive for templates.</p>
     </li><li name="laika.bundle.ExtensionBundle#themes" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="themes:Seq[laika.bundle.RenderTheme]"></a><a id="themes:Seq[RenderTheme]"></a>
       <span class="permalink">
@@ -928,23 +1131,6 @@ merged before use.
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="laika.directive.StandardDirectives#toc" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toc(depth:Option[Int],rootConfig:String,title:Option[String],cursor:laika.ast.DocumentCursor):laika.ast.Block"></a><a id="toc(Option[Int],String,Option[String],DocumentCursor):Block"></a>
-      <span class="permalink">
-      <a href="../../laika/directive/StandardDirectives$.html#toc(depth:Option[Int],rootConfig:String,title:Option[String],cursor:laika.ast.DocumentCursor):laika.ast.Block" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">toc</span><span class="params">(<span name="depth">depth: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>]</span>, <span name="rootConfig">rootConfig: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="title">title: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="cursor">cursor: <a href="../ast/DocumentCursor.html" class="extype" name="laika.ast.DocumentCursor">DocumentCursor</a></span>)</span><span class="result">: <a href="../ast/Block.html" class="extype" name="laika.ast.Block">Block</a></span>
-      </span>
-      
-      <p class="shortcomment cmt">Creates the nodes for a table of content.</p><div class="fullcomment"><div class="comment cmt"><p>Creates the nodes for a table of content.
-</p></div><dl class="paramcmts block"><dt class="param">depth</dt><dd class="cmt"><p>the maximum depth to traverse when building the table, the depth is unlimited if the value is empty</p></dd><dt class="param">rootConfig</dt><dd class="cmt"><p>the string identifier that specifies the tree that should serve as the root for the table</p></dd><dt class="param">title</dt><dd class="cmt"><p>the title for the table</p></dd><dt class="param">cursor</dt><dd class="cmt"><p>the cursor of the document the table of content will be placed in</p></dd><dt>returns</dt><dd class="cmt"><p>a block element containing the table and its title</p></dd></dl></div>
     </li><li name="laika.bundle.ExtensionBundle#useInStrictMode" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="useInStrictMode:Boolean"></a>
       <span class="permalink">
@@ -1051,6 +1237,38 @@ content of the base bundle.</p><div class="fullcomment"><div class="comment cmt"
 content of the base bundle.</p><p>The other bundle is treated as the base of this bundle, which means that:</p><p>- in case of optional features a feature defined in this bundle will overwrite a feature defined in the base</p><p>- in case of features applied in sequence, the features in this bundle will be applied before the features
   in the base bundle</p><p>- in case of feature collections, the features of this bundle will be merged with those of the base bundle
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a></dd></dl></div>
+    </li><li name="laika.directive.StandardDirectives.NavigationBuilderConfig" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="NavigationBuilderConfig"></a><a id="NavigationBuilderConfig:NavigationBuilderConfig"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/StandardDirectives$$NavigationBuilderConfig$.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="Companion with a decoder for obtaining instances from HOCON." href="StandardDirectives$$NavigationBuilderConfig$.html"><span class="name">NavigationBuilderConfig</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Companion with a decoder for obtaining instances from HOCON.</p>
+    </li><li name="laika.directive.StandardDirectives.NavigationNodeConfig" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="NavigationNodeConfig"></a><a id="NavigationNodeConfig:NavigationNodeConfig"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/StandardDirectives$$NavigationNodeConfig$.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="Companion with a decoder for obtaining instances from HOCON." href="StandardDirectives$$NavigationNodeConfig$.html"><span class="name">NavigationNodeConfig</span></a>
+      </span>
+      
+      <p class="shortcomment cmt">Companion with a decoder for obtaining instances from HOCON.</p>
     </li><li name="laika.directive.StandardDirectives.StyleLinks" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="StyleLinks"></a><a id="StyleLinks:StyleLinks"></a>
       <span class="permalink">
@@ -1077,7 +1295,67 @@ template ASTs are created programmatically for extensions.
 
         
 
-        
+        <div class="values members">
+              <h3>Deprecated Value Members</h3>
+              <ol><li name="laika.directive.StandardDirectives#blockToc" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="blockToc:laika.directive.Blocks.Directive"></a><a id="blockToc:Blocks.Directive"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/StandardDirectives$.html#blockToc:laika.directive.Blocks.Directive" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">lazy val</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.15.0) use @:navigationTree directive instead">blockToc</span><span class="result">: <a href="Blocks$.html#DirectiveextendsAnyRef" class="extmbr" name="laika.directive.BuilderContext.Directive">Blocks.Directive</a></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.15.0)</i> use @:navigationTree directive instead</p></dd></dl></div>
+    </li><li name="laika.directive.StandardDirectives#templateToc" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="templateToc:laika.directive.Templates.Directive"></a><a id="templateToc:Templates.Directive"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/StandardDirectives$.html#templateToc:laika.directive.Templates.Directive" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">lazy val</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.15.0) use @:navigationTree directive instead">templateToc</span><span class="result">: <a href="Templates$.html#DirectiveextendsAnyRef" class="extmbr" name="laika.directive.BuilderContext.Directive">Templates.Directive</a></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.15.0)</i> use @:navigationTree directive instead</p></dd></dl></div>
+    </li><li name="laika.directive.StandardDirectives#toc" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toc(depth:Option[Int],rootConfig:String,title:Option[String],cursor:laika.ast.DocumentCursor):laika.ast.Block"></a><a id="toc(Option[Int],String,Option[String],DocumentCursor):Block"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/StandardDirectives$.html#toc(depth:Option[Int],rootConfig:String,title:Option[String],cursor:laika.ast.DocumentCursor):laika.ast.Block" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.15.0) use NavigationBuilderConfig instead">toc</span><span class="params">(<span name="depth">depth: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>]</span>, <span name="rootConfig">rootConfig: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="title">title: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="cursor">cursor: <a href="../ast/DocumentCursor.html" class="extype" name="laika.ast.DocumentCursor">DocumentCursor</a></span>)</span><span class="result">: <a href="../ast/Block.html" class="extype" name="laika.ast.Block">Block</a></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.15.0)</i> use NavigationBuilderConfig instead</p></dd></dl></div>
+    </li></ol>
+            </div>
         </div>
 
         <div id="inheritedMembers">

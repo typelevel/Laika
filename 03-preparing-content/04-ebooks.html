@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+
+    <title>Laika</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Customizable and extensible toolkit for transforming lightweight markup languages to various types of output formats, written in Scala" />
+    <meta name="keywords" content="scala, text, markup, markdown, restructuredtext, parser, transformer, html, template engine, site generation, open-source" />
+
+    <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+    <link href="../css/bootstrap.css" rel="stylesheet">
+    <link href="../css/docs.css" rel="stylesheet">
+
+  </head>
+
+  <body data-spy="scroll" data-target=".toc" data-offset="200">
+
+
+  <div class="container">
+
+    <!-- Docs nav
+    ================================================== -->
+    <div class="row">
+      <div class="span4 toc" >
+        
+        <ul class="nav nav-list affix">
+          <div class="nav-top"><img src="../img/laika-top.png"/></div>
+          
+          
+          <li><a href="../table-of-contents.html">Table of Contents</a></li>
+          <li class="nav-header">About Laika</li>
+          <li><a href="../01-about-laika/01-features.html">Features</a></li>
+          <li><a href="../01-about-laika/02-design-goals.html">Design Goals</a></li>
+          <li class="nav-header">Running Laika</li>
+          <li><a href="../02-running-laika/01-sbt-plugin.html">sbt Plugin</a></li>
+          <li><a href="../02-running-laika/02-library-api.html">Library API</a></li>
+          <li><a href="../02-running-laika/03-configuration.html">Configuration</a></li>
+          <li class="nav-header">Preparing Content</li>
+          <li><a href="01-directory-structure.html">Directory Structure</a></li>
+          <li><a href="02-navigation.html">Navigation</a></li>
+          <li class="active"><a href="#">E-Books (EPUB &amp; PDF)</a></li>
+          <li><a href="05-syntax-highlighting.html">Syntax Highlighting</a></li>
+          <li class="nav-header">Customizing Laika</li>
+          <li><a href="../04-customizing-laika/01-overview.html">Overview</a></li>
+          <li><a href="../04-customizing-laika/03-creating-templates.html">Creating Templates</a></li>
+          <li><a href="../04-customizing-laika/04-document-ast.html">The Document AST</a></li>
+          <li><a href="../04-customizing-laika/05-ast-rewriting.html">AST Rewriting</a></li>
+          <li><a href="../04-customizing-laika/06-overriding-renderers.html">Overriding Renderers</a></li>
+          <li class="nav-header">Extending Laika</li>
+          <li><a href="../05-extending-laika/01-overview.html">Overview</a></li>
+          <li><a href="../05-extending-laika/03-implementing-directives.html">Implementing Directives</a></li>
+          <li><a href="../05-extending-laika/04-writing-parser-extensions.html">Writing Parser Extensions</a></li>
+          <li><a href="../05-extending-laika/06-adding-syntax-highlighters.html">Adding Syntax Highlighters</a></li>
+          <li><a href="../05-extending-laika/07-new-markup-output-formats.html">New Markup or Output Formats</a></li>
+          <li class="nav-header">Sub-Modules</li>
+          <li><a href="../06-sub-modules/02-laikas-parser-combinators.html">Laika&#39;s Parser Combinators</a></li>
+          <li><a href="../06-sub-modules/03-laikas-hocon-api.html">Laika&#39;s HOCON API</a></li>
+          <li class="nav-header">Reference</li>
+          <li><a href="../07-reference/01-standard-directives.html">Standard Directives</a></li>
+          <li><a href="../07-reference/02-substitution-variables.html">Substitution Variables</a></li>
+          <li><a href="../07-reference/03-spec-compliance.html">Spec Compliance</a></li>
+          <li><a href="../07-reference/06-release-notes.html">Release Notes</a></li>
+          <li><a href="../07-reference/07-migration-guide.html">Migration Guide</a></li>
+          
+          <li class="nav-header">Project Links</li>
+          <li><a href="http://github.com/planet42/Laika">Source Code</a></li>
+          <li><a href="../api/laika/api/">API Documentation</a></li>
+          <!--<li><a href="http://github.com/planet42/Laika/issues">Issue Tracker</a></li>-->
+          <!--<li><a href="http://planet42.org/">Demo App</a></li>-->
+          <!--  
+          <li class="follow"><a href="https://twitter.com/_planet42" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false" data-dnt="true">Follow @_planet42</a>
+          <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script></li>
+          -->
+          <div class="nav-bottom"><img src="../img/laika-bottom.png" border="1"/></div>
+        </ul>
+        
+      </div>
+      
+      <div class="span8" id="top">
+
+        <div class="page-header">
+        <h1 id="e-books-epub-pdf" class="title">E-Books (EPUB &amp; PDF)</h1>
+        </div>
+        <p>Laika puts equal emphasis on the generation of e-books as on website generation.</p>
+        <p>Like all functionality, e-book generation does not require installation of external tools.
+        The EPUB format is supported by Laika&#39;s own Scala implementation, 
+        whereas PDF support is partially based on <a href="https://xmlgraphics.apache.org/fop/">Apache FOP</a>.</p>
+        <p>The latter is not based on LaTeX like many other PDF renderers, but uses XSL-FO as an interim format.
+        The generation of this interim format happens in Laika&#39;s own renderers, 
+        only the final transformation step to the binary PDF format is delegated to Apache FOP.</p>
+        
+        <h2 id="generating-e-books" class="section">Generating E-Books</h2>
+        <p>If you are using the sbt plugin you can use several of its task for generating e-books:</p>
+        <ul>
+          <li><code>laikaEPUB</code> or <code>laikaPDF</code> for transforming a directory of input files to a single output format</li>
+          <li><code>laikaGenerate epub pdf &lt;other formats&gt;</code> for transforming a directory of input files to EPUB and PDF
+          and other output formats with a single parse operation</li>
+          <li><code>laikaSite</code> for generating a site that also contains PDF and/or EPUB files for download
+          when setting the <code>laikaIncludeEPUB</code> and/or <code>laikaIncludePDF</code> settings to true.</li>
+        </ul>
+        <p>See <a href="../02-running-laika/01-sbt-plugin.html#sbt-plugin">sbt Plugin</a> for more details.</p>
+        <p>When using the library API, the <code>EPUB</code> and <code>PDF</code> renderers can be passed to the <code>Transformer</code> or <code>Renderer</code> APIs:</p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">EPUB</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">GitHubFlavor</span><span>)
+  .</span><span class="identifier">io</span><span>(</span><span class="identifier">blocker</span><span>)
+  .</span><span class="identifier">parallel</span><span>[</span><span class="type-name">IO</span><span>]
+  .</span><span class="identifier">build</span><span>
+
+</span><span class="identifier">transformer</span><span>
+  .</span><span class="identifier">fromDirectory</span><span>(</span><span class="string-literal">&quot;src&quot;</span><span>)
+  .</span><span class="identifier">toFile</span><span>(</span><span class="string-literal">&quot;hello.epub&quot;</span><span>)
+  .</span><span class="identifier">transform</span></code></pre>
+        <p>See <a href="../02-running-laika/02-library-api.html#library-api">Library API</a> for more details on these APIs and ensure you have the necessary dependencies in place -
+        the <code>laika-pdf</code> module for PDF or the <code>laika-io</code> module for EPUB - see <a href="../02-running-laika/02-library-api.html#dependencies">Dependencies</a>.</p>
+        
+        <h2 id="directory-structure" class="section">Directory Structure</h2>
+        <p>An e-book generated by Laika is always a single, binary file, even when the input is an entire directory of markup files.
+        But the directory structure will be reflected in the navigation elements inside the e-book.</p>
+        <p>Markup files from the input directory will form the content of the e-book 
+        while static files like images and fonts will be embedded into the output 
+        when they are referenced from within one or more markup files. </p>
+        <p>For EPUB specifically it is important to consider what file size to choose for your content.
+        The directory structure inside the generated EPUB container (which is essentially a glorified ZIP) 
+        will mirror exactly the structure of the input directory,
+        apart from the additional metadata files it needs to generate.
+        Therefore it is best to avoid very large markup files as they might slow down the experience in the e-book reader,
+        and instead distribute content over a higher number of smaller input files.</p>
+        <p>See <a href="01-directory-structure.html#document-types">Document Types</a> for general info about the various types of input files Laika supports,
+        and <a href="#supported-document-types">Supported Document Types</a> in this chapter for additional info specific to EPUB and PDF.</p>
+        
+        <h2 id="book-navigation" class="section">Book Navigation</h2>
+        <p>Laika supports a directory structure with sub-directories of any depth. 
+        Markup files from the input directory will form the content of the e-book, 
+        linearized in depth-first traversal and using your configured <a href="01-directory-structure.html#configuration-files">Navigation Order</a>.</p>
+        <p>Laika will generate navigation elements compatible with e-book readers,
+        as shown in the images below:</p>
+        <p>PDF Navigation in Preview for Mac:</p>
+        <p><img src="../img/nav-pdf.png" width="473px" alt="PDF Navigation"> </p>
+        <p>EPUB Navigation in iBooks:</p>
+        <p><img src="../img/nav-epub.png" width="473px" alt="EPUB Navigation"></p>
+        <p>The navigation depth is unlimited by default and will also include links to each section inside your documents.
+        The depth to traverse can be changed via Laika&#39;s global configuration:</p>
+        <p><strong>sbt plugin</strong></p>
+        <pre><code class="nohighlight"><span class="identifier">laikaConfig</span><span> := </span><span class="type-name">LaikaConfig</span><span>.</span><span class="identifier">defaults</span><span>
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">BookConfig</span><span>(</span><span class="identifier">navigationDepth</span><span> = </span><span class="type-name">Some</span><span>(</span><span class="number-literal">3</span><span>)))</span></code></pre>
+        <p><strong>Library API</strong></p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">GitHubFlavor</span><span>)
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">BookConfig</span><span>(</span><span class="identifier">navigationDepth</span><span> = </span><span class="type-name">Some</span><span>(</span><span class="number-literal">3</span><span>)))
+  .</span><span class="identifier">build</span></code></pre>
+        <p>In the example above, the specified <code>BookConfig</code> will apply to both formats, EPUB and PDF.
+        They can alternatively be set separately:</p>
+        <p><strong>sbt plugin</strong></p>
+        <pre><code class="nohighlight"><span class="identifier">laikaConfig</span><span> := </span><span class="type-name">LaikaConfig</span><span>.</span><span class="identifier">defaults</span><span>
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">EPUB</span><span>.</span><span class="type-name">BookConfig</span><span>(</span><span class="identifier">navigationDepth</span><span> = </span><span class="type-name">Some</span><span>(</span><span class="number-literal">3</span><span>)))
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">PDF</span><span>.</span><span class="type-name">BookConfig</span><span>(</span><span class="identifier">navigationDepth</span><span> = </span><span class="type-name">Some</span><span>(</span><span class="number-literal">4</span><span>)))</span></code></pre>
+        <p><strong>Library API</strong></p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">GitHubFlavor</span><span>)
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">EPUB</span><span>.</span><span class="type-name">BookConfig</span><span>(</span><span class="identifier">navigationDepth</span><span> = </span><span class="type-name">Some</span><span>(</span><span class="number-literal">3</span><span>)))
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">PDF</span><span>.</span><span class="type-name">BookConfig</span><span>(</span><span class="identifier">navigationDepth</span><span> = </span><span class="type-name">Some</span><span>(</span><span class="number-literal">4</span><span>)))
+  .</span><span class="identifier">build</span></code></pre>
+        
+        <h2 id="cover-images" class="section">Cover Images</h2>
+        <p>A cover image can be specified for EPUB and PDF:</p>
+        <p><strong>sbt plugin</strong></p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">GitHubFlavor</span><span>)
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">BookConfig</span><span>(
+    </span><span class="identifier">coverImage</span><span> = </span><span class="type-name">Some</span><span>(</span><span class="type-name">Root</span><span> / </span><span class="string-literal">&quot;images&quot;</span><span> / </span><span class="string-literal">&quot;book-cover.jpg&quot;</span><span>)
+  ))
+  .</span><span class="identifier">build</span></code></pre>
+        <p><strong>Library API</strong></p>
+        <pre><code class="nohighlight"><span class="identifier">laikaConfig</span><span> := </span><span class="type-name">LaikaConfig</span><span>.</span><span class="identifier">defaults</span><span>
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">BookConfig</span><span>(
+    </span><span class="identifier">coverImage</span><span> = </span><span class="type-name">Some</span><span>(</span><span class="type-name">Root</span><span> / </span><span class="string-literal">&quot;images&quot;</span><span> / </span><span class="string-literal">&quot;book-cover.jpg&quot;</span><span>)
+  ))</span></code></pre>
+        <p>Or two different cover images can be configured for EPUB and PDF separately:</p>
+        <p><strong>sbt plugin</strong></p>
+        <pre><code class="nohighlight"><span class="identifier">laikaConfig</span><span> := </span><span class="type-name">LaikaConfig</span><span>.</span><span class="identifier">defaults</span><span>
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">EPUB</span><span>.</span><span class="type-name">BookConfig</span><span>(
+    </span><span class="identifier">coverImage</span><span> = </span><span class="type-name">Some</span><span>(</span><span class="type-name">Root</span><span> / </span><span class="string-literal">&quot;images&quot;</span><span> / </span><span class="string-literal">&quot;epub-cover.jpg&quot;</span><span>)
+  ))
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">PDF</span><span>.</span><span class="type-name">BookConfig</span><span>(
+    </span><span class="identifier">coverImage</span><span> = </span><span class="type-name">Some</span><span>(</span><span class="type-name">Root</span><span> / </span><span class="string-literal">&quot;images&quot;</span><span> / </span><span class="string-literal">&quot;pdf-cover.jpg&quot;</span><span>)
+  ))</span></code></pre>
+        <p><strong>Library API</strong></p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">GitHubFlavor</span><span>)
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">EPUB</span><span>.</span><span class="type-name">BookConfig</span><span>(
+    </span><span class="identifier">coverImage</span><span> = </span><span class="type-name">Some</span><span>(</span><span class="type-name">Root</span><span> / </span><span class="string-literal">&quot;images&quot;</span><span> / </span><span class="string-literal">&quot;epub-cover.jpg&quot;</span><span>)
+  ))
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">PDF</span><span>.</span><span class="type-name">BookConfig</span><span>(
+    </span><span class="identifier">coverImage</span><span> = </span><span class="type-name">Some</span><span>(</span><span class="type-name">Root</span><span> / </span><span class="string-literal">&quot;images&quot;</span><span> / </span><span class="string-literal">&quot;pdf-cover.jpg&quot;</span><span>)
+  ))
+  .</span><span class="identifier">build</span></code></pre>
+        <p>See <a href="#supported-document-types">Supported Document Types</a> for a list of supported image formats.</p>
+        
+        <h2 id="document-metadata" class="section">Document Metadata</h2>
+        <p>You can add document metadata to the configuration that Laika will apply to the generated output formats where supported:</p>
+        <p><strong>sbt plugin</strong></p>
+        <pre><code class="nohighlight"><span class="identifier">laikaConfig</span><span> := </span><span class="type-name">LaikaConfig</span><span>.</span><span class="identifier">defaults</span><span>
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">BookConfig</span><span>(</span><span class="identifier">metadata</span><span> = </span><span class="type-name">DocumentMetadata</span><span>(
+     </span><span class="identifier">identifier</span><span> = </span><span class="type-name">Some</span><span>(</span><span class="string-literal">&quot;urn:isbn:978-3-16-148410-0&quot;</span><span>),
+     </span><span class="identifier">authors</span><span> = </span><span class="type-name">Seq</span><span>(</span><span class="string-literal">&quot;Deborah Green&quot;</span><span>, </span><span class="string-literal">&quot;Maria Brown&quot;</span><span>),
+     </span><span class="identifier">language</span><span> = </span><span class="type-name">Some</span><span>(</span><span class="string-literal">&quot;en:GB&quot;</span><span>),
+     </span><span class="identifier">date</span><span> = </span><span class="type-name">Some</span><span>(</span><span class="type-name">Date</span><span>.</span><span class="identifier">from</span><span>(</span><span class="type-name">Instant</span><span>.</span><span class="identifier">now</span><span>))
+  )))</span></code></pre>
+        <p><strong>Library API</strong></p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">GitHubFlavor</span><span>)
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">BookConfig</span><span>(</span><span class="identifier">metadata</span><span> = </span><span class="type-name">DocumentMetadata</span><span>(
+     </span><span class="identifier">identifier</span><span> = </span><span class="type-name">Some</span><span>(</span><span class="string-literal">&quot;urn:isbn:978-3-16-148410-0&quot;</span><span>),
+     </span><span class="identifier">authors</span><span> = </span><span class="type-name">Seq</span><span>(</span><span class="string-literal">&quot;Deborah Green&quot;</span><span>, </span><span class="string-literal">&quot;Maria Brown&quot;</span><span>),
+     </span><span class="identifier">language</span><span> = </span><span class="type-name">Some</span><span>(</span><span class="string-literal">&quot;en:GB&quot;</span><span>),
+     </span><span class="identifier">date</span><span> = </span><span class="type-name">Some</span><span>(</span><span class="type-name">Date</span><span>.</span><span class="identifier">from</span><span>(</span><span class="type-name">Instant</span><span>.</span><span class="identifier">now</span><span>))
+  )))
+  .</span><span class="identifier">build</span></code></pre>
+        <p>Note that the <code>DocumentMetadata</code> type uses the venerable <code>java.util.Date</code> API.
+        This is for staying platform-neutral between JVM and Scala.js 
+        which does not have the <code>java.time</code> APIs in its core library.</p>
+        
+        <h2 id="supported-document-types" class="section">Supported Document Types</h2>
+        <p>You can also place images, fonts and other supported file types into the input directory.
+        Laika will embed these files in the generated EPUB container and/or PDF file.</p>
+        <p>The supported file types / suffixes are:</p>
+        <p><strong>For EPUB</strong></p>
+        <ul>
+          <li>Images: <code>jpg</code>, <code>jpeg</code>, <code>gif</code>, <code>png</code>, <code>svg</code></li>
+          <li>Audio: <code>mp3</code>, <code>mp4</code></li>
+          <li>HTML: <code>html</code>, <code>xhtml</code></li>
+          <li>JavaScript: <code>js</code></li>
+          <li>CSS: <code>css</code> <br></li>
+          <li>Fonts: <code>woff2</code>, <code>woff</code>, <code>ttf</code>, <code>otf</code> </li>
+        </ul>
+        <p><strong>For PDF</strong></p>
+        <ul>
+          <li>Images: <code>jpg</code>, <code>jpeg</code>, <code>gif</code>, <code>png</code>, <code>svg</code>, <code>bmp</code>, <code>tiff</code></li>
+          <li>Fonts: <code>pfb</code> (Type 1), <code>ttf</code>, <code>otf</code> </li>
+        </ul>
+        
+        
+        <h2 id="css-for-epub" class="section">CSS for EPUB</h2>
+        <p>Since content files for EPUB are standard XHTML files (apart from optional EPUB-specific attributes), 
+        you can style your e-books with standard CSS. </p>
+        <p>It is sufficient to simply place all CSS into the input directory,
+        alongside the text markup and other file types. 
+        References to these CSS files will be automatically added to the header section of all generated HTML files. </p>
+        <p>When referencing images or fonts from your CSS files,
+        you can use relative paths, as the directory layout will be retained inside the EPUB container.</p>
+        
+        <h2 id="css-for-pdf" class="section">CSS for PDF</h2>
+        <p>Laika offers the unusual, but convenient feature of CSS styling for PDF.
+        It allows for customization in a syntax familiar to most users. </p>
+        <p>The CSS files need to be placed into the root directory of your input tree with a name
+        in the format <code>&lt;name&gt;.fo.css</code>.</p>
+        <p>However, as PDF is a page-based format and in Laika&#39;s case expects <code>XSL-FO</code> as an interim format,
+        there are a few subtle differences:</p>
+        <ul>
+          <li>
+            <p>All CSS attributes must also be valid XSL-FO attributes. 
+            There is quite a big overlap, so you can use the familiar <code>font-family</code>, <code>font-weight</code>, <code>font-size</code>
+            attributes as well as most of the border, padding and margin attributes.
+            For an overview over the available attributes you can refer to the <a href="http://www.w3.org/TR/xsl11/#pr-section">Formatting Properties</a> chapter
+            in the XSL-FO specification.</p>
+          </li>
+          <li>
+            <p>While id selectors and class selectors function like in web CSS, the type selectors are quite different.
+            Since there is no interim HTML result, the types you can refer to are not HTML tag names like <code>div</code>,
+            but the class names of the Laika AST nodes, e.g. <code>Header</code> or <code>Paragraph</code>.
+            See <a href="../04-customizing-laika/04-document-ast.html#the-document-ast">The Document AST</a> for details.</p>
+          </li>
+          <li>
+            <p>Some selector types of the CSS specification are not supported as most of them do not add much value
+            in the context of a Laika document tree:</p>
+            <ul>
+              <li>Pseudo-classes like <code>:hover</code></li>
+              <li>Attribute selectors like <code>[attribute~=value]</code> (since Laika nodes do not have many properties)</li>
+              <li><code>Element1+Element2</code> or <code>Element1~Element2</code> for selecting based on sibling elements</li>
+            </ul>
+          </li>
+        </ul>
+        <p>An example for styling a level-2 header:</p>
+        <pre><code class="nohighlight"><span class="identifier">Header</span><span>.</span><span class="identifier">level2</span><span> {
+  </span><span class="attribute-name">font-family</span><span>: </span><span class="identifier">sans-serif</span><span>;
+  </span><span class="attribute-name">font-weight</span><span>: </span><span class="identifier">bold</span><span>;
+  </span><span class="attribute-name">font-size</span><span>: </span><span class="number-literal">14</span><span class="identifier">pt</span><span>;
+}</span></code></pre>
+        <p>The <code>Header</code> type selector refers to the name of the AST node Laika produces for headers.
+        The <code>level2</code> class is a style that gets rendered for each header node to be able to style levels differently</p>
+        <p>Only a few of Laika&#39;s nodes get rendered with class attributes. 
+        You can examine HTML output to get an overview over rendered attributes as they are largely identical to those
+        rendered for EPUB and PDF. </p>
+        <p>Likewise, out of the box only a subset of nodes get rendered with an auto-generated id: 
+        headers, footnotes or citations.</p>
+        
+        <h2 id="customized-output" class="section">Customized Output</h2>
+        <p>In cases where styling with CSS alone is not sufficient, there are additional,
+        lower-level hooks to customize the rendered output.</p>
+        
+        <h3 id="templates" class="section">Templates</h3>
+        <p>You can place custom default templates into the root directory of the input tree,
+        named <code>default.template.epub.xhtml</code> for EPUB and <code>default.template.fo</code> for PDF.</p>
+        <p>For EPUB the template will be applied to each rendered file individually,
+        for PDF the generated XSL-FO will first be concatenated and then the template will be applied 
+        to the single final FO document.</p>
+        <p>Customizing the PDF template would require knowledge of <code>XSL-FO</code>, but is hopefully rarely ever
+        necessary as PDFs can be styled by Laika&#39;s <a href="#css-for-pdf">CSS for PDF</a> feature.</p>
+        <p>See <a href="../04-customizing-laika/03-creating-templates.html#creating-templates">Creating Templates</a> for general info about Laika&#39;s template engine.</p>
+        
+        <h3 id="overriding-renderers" class="section">Overriding Renderers</h3>
+        <p>Apart from adjusting the surrounding template the AST nodes will be rendered into, 
+        you can also customize how each individual AST node itself is rendered. </p>
+        <p>This is a general customization hook in the library and not different from overriding renderers for site output.
+        See <a href="#overriding-renderers">Overriding Renderers</a> for more details.</p>
+        
+        <h2 id="configuring-apache-fop" class="section">Configuring Apache FOP</h2>
+        <p>Rendering a PDF file is (roughly) a 3-step process:</p>
+        <ol class="arabic">
+          <li>Parsing all markup files and producing an in-memory document tree representation</li>
+          <li>Applying templates and CSS to the document tree and render it as XSL-FO</li>
+          <li>Produce the final PDF file from the resulting XSL-FO</li>
+        </ol>
+        <p>While step 1 and 2 are entirely managed by Laika, without any dependencies to external
+        libraries or tools, step 3 is almost solely taken care of by Apache FOP. </p>
+        <p>Therefore, any customization for this step is best left for the configuration hooks of FOP itself.
+        They allow configuration of aspects like the target resolution, custom fonts, custom stemmers and a lot more.
+        The available options are described in the <a href="https://xmlgraphics.apache.org/fop/2.1/configuration.html">Apache FOP documentation</a>.</p>
+        <p>When you are using the sbt plugin, you can specify an Apache FOP configuration file with
+        the <code>fopConfig</code> setting:</p>
+        <pre><code class="nohighlight"><span class="identifier">fopConfig</span><span> := </span><span class="type-name">Some</span><span>(</span><span class="identifier">baseDirectory</span><span>.</span><span class="identifier">value</span><span> / </span><span class="string-literal">&quot;customFop.xconf&quot;</span><span>)</span></code></pre>
+        <p>Note that the default is <code>None</code> as FOPs default configuration is often sufficient.</p>
+        <p>When you are using the library API, the PDF renderer has a hook to specify a custom
+        <code>FopFactory</code>:</p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">configFile</span><span> = </span><span class="string-literal">&quot;/path/to/customFop.xconf&quot;</span><span>
+</span><span class="keyword">val</span><span> </span><span class="identifier">factory</span><span> = </span><span class="type-name">FopFactory</span><span>.</span><span class="identifier">newInstance</span><span>(</span><span class="keyword">new</span><span> </span><span class="type-name">File</span><span>(</span><span class="identifier">configFile</span><span>))
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">PDF</span><span>.</span><span class="identifier">withFopFactory</span><span>(</span><span class="identifier">factory</span><span>))
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">GitHubFlavor</span><span>)
+  .</span><span class="identifier">io</span><span>(</span><span class="identifier">blocker</span><span>)
+  .</span><span class="identifier">parallel</span><span>[</span><span class="type-name">IO</span><span>]
+  .</span><span class="identifier">build</span></code></pre>
+        <p>Note that a <code>FopFactory</code> is a fairly heavy-weight object, so make sure that you reuse
+        either the <code>FopFactory</code> instance itself or Laika&#39;s <code>PDF</code> transformer.
+        In case you do not specify a custom factory, Laika ensures that the default
+        factory is reused between renderers.</p>
+
+      </div>
+    </div>
+
+  </div>
+
+</body></html>

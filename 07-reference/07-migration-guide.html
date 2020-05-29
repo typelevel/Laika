@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+
+    <title>Laika</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Customizable and extensible toolkit for transforming lightweight markup languages to various types of output formats, written in Scala" />
+    <meta name="keywords" content="scala, text, markup, markdown, restructuredtext, parser, transformer, html, template engine, site generation, open-source" />
+
+    <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+    <link href="../css/bootstrap.css" rel="stylesheet">
+    <link href="../css/docs.css" rel="stylesheet">
+
+  </head>
+
+  <body data-spy="scroll" data-target=".toc" data-offset="200">
+
+
+  <div class="container">
+
+    <!-- Docs nav
+    ================================================== -->
+    <div class="row">
+      <div class="span4 toc" >
+        
+        <ul class="nav nav-list affix">
+          <div class="nav-top"><img src="../img/laika-top.png"/></div>
+          
+          
+          <li><a href="../table-of-contents.html">Table of Contents</a></li>
+          <li class="nav-header">About Laika</li>
+          <li><a href="../01-about-laika/01-features.html">Features</a></li>
+          <li><a href="../01-about-laika/02-design-goals.html">Design Goals</a></li>
+          <li class="nav-header">Running Laika</li>
+          <li><a href="../02-running-laika/01-sbt-plugin.html">sbt Plugin</a></li>
+          <li><a href="../02-running-laika/02-library-api.html">Library API</a></li>
+          <li><a href="../02-running-laika/03-configuration.html">Configuration</a></li>
+          <li class="nav-header">Preparing Content</li>
+          <li><a href="../03-preparing-content/01-directory-structure.html">Directory Structure</a></li>
+          <li><a href="../03-preparing-content/02-navigation.html">Navigation</a></li>
+          <li><a href="../03-preparing-content/04-ebooks.html">E-Books (EPUB &amp; PDF)</a></li>
+          <li><a href="../03-preparing-content/05-syntax-highlighting.html">Syntax Highlighting</a></li>
+          <li class="nav-header">Customizing Laika</li>
+          <li><a href="../04-customizing-laika/01-overview.html">Overview</a></li>
+          <li><a href="../04-customizing-laika/03-creating-templates.html">Creating Templates</a></li>
+          <li><a href="../04-customizing-laika/04-document-ast.html">The Document AST</a></li>
+          <li><a href="../04-customizing-laika/05-ast-rewriting.html">AST Rewriting</a></li>
+          <li><a href="../04-customizing-laika/06-overriding-renderers.html">Overriding Renderers</a></li>
+          <li class="nav-header">Extending Laika</li>
+          <li><a href="../05-extending-laika/01-overview.html">Overview</a></li>
+          <li><a href="../05-extending-laika/03-implementing-directives.html">Implementing Directives</a></li>
+          <li><a href="../05-extending-laika/04-writing-parser-extensions.html">Writing Parser Extensions</a></li>
+          <li><a href="../05-extending-laika/06-adding-syntax-highlighters.html">Adding Syntax Highlighters</a></li>
+          <li><a href="../05-extending-laika/07-new-markup-output-formats.html">New Markup or Output Formats</a></li>
+          <li class="nav-header">Sub-Modules</li>
+          <li><a href="../06-sub-modules/02-laikas-parser-combinators.html">Laika&#39;s Parser Combinators</a></li>
+          <li><a href="../06-sub-modules/03-laikas-hocon-api.html">Laika&#39;s HOCON API</a></li>
+          <li class="nav-header">Reference</li>
+          <li><a href="01-standard-directives.html">Standard Directives</a></li>
+          <li><a href="02-substitution-variables.html">Substitution Variables</a></li>
+          <li><a href="03-spec-compliance.html">Spec Compliance</a></li>
+          <li><a href="06-release-notes.html">Release Notes</a></li>
+          <li class="active"><a href="#">Migration Guide</a></li>
+          
+          <li class="nav-header">Project Links</li>
+          <li><a href="http://github.com/planet42/Laika">Source Code</a></li>
+          <li><a href="../api/laika/api/">API Documentation</a></li>
+          <!--<li><a href="http://github.com/planet42/Laika/issues">Issue Tracker</a></li>-->
+          <!--<li><a href="http://planet42.org/">Demo App</a></li>-->
+          <!--  
+          <li class="follow"><a href="https://twitter.com/_planet42" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false" data-dnt="true">Follow @_planet42</a>
+          <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script></li>
+          -->
+          <div class="nav-bottom"><img src="../img/laika-bottom.png" border="1"/></div>
+        </ul>
+        
+      </div>
+      
+      <div class="span8" id="top">
+
+        <div class="page-header">
+        <h1 id="migration-guide" class="title">Migration Guide</h1>
+        </div>
+        <p>Laika has not reached the 1.0 status yet and as a consequence, minor API changes can still be expected on the road
+        towards 1.0.</p>
+        <p>Most of the content in this guide is not relevant if you either use the integrated sbt plugin or the library API
+        without any lower-level customizations.</p>
+        <p>The only change of the top-level library API in 8 years had been the 0.12.0 release, which has very detailed
+        migration instructions below.</p>
+        
+        <h2 id="versions-older-than-0-15-0" class="section">Versions older than 0.15.0</h2>
+        <p>If you plan to migrate to 0.15 it is recommended to address all deprecation warnings the compiler admits
+        as this is the last release where they&#39;ll be supported.</p>
+        <p>This version introduces namespaces for the built-in substitution variables to avoid name clashes with
+        user-defined variables.
+        If you use them in your markup files or templates you need to adjust them for this release:</p>
+        <ul>
+          <li>
+            <p><code>document.*</code> becomes <code>cursor.currentDocument.*</code></p>
+          </li>
+          <li>
+            <p>All configuration variables are now prefixed with <code>laika</code>, e.g. <code>laika.title</code>, <code>laika.navigationOrder</code>.</p>
+          </li>
+          <li>
+            <p><code>cursor.*</code> and <code>laika.*</code> are the only reserved namespaces, any other prefix can be freely chosen.</p>
+          </li>
+        </ul>
+        <p>If you upgrade from a version older than 0.12.0 it is also recommended to switch to the new <a href="#directive-syntax">Directive Syntax</a>
+        described below as this is a functional area that unfortunately does not emit any compiler warnings.</p>
+        
+        <h2 id="versions-older-than-0-14-0" class="section">Versions older than 0.14.0</h2>
+        <ul>
+          <li>
+            <p>If you use the document AST: the <code>Path</code> API had been split into <code>Path</code> for absolute paths only and <code>RelativePath</code>
+            for pointing from one document to another.</p>
+          </li>
+          <li>
+            <p>If you developed parser extensions there are new entry points for defining a span or block parser.
+            You can address all deprecation warnings you might get for your parser definitions by following the new
+            guide for <a href="../05-extending-laika/04-writing-parser-extensions.html#writing-parser-extensions">Writing Parser Extensions</a>.</p>
+          </li>
+        </ul>
+        
+        <h2 id="versions-older-than-0-12-0" class="section">Versions older than 0.12.0</h2>
+        <p>The 0.12 release contains the most significant number of breaking changes
+        of any release since the 0.1 version in 2012.</p>
+        <p><strong>Using Laika&#39;s sbt plugin</strong></p>
+        <ul>
+          <li>If you do not use any of the customization hooks you can safely skip this guide.</li>
+          <li>If you define custom rewrite rules, render functions or directives, 
+          please see the corresponding sections below.</li>
+        </ul>
+        <p><strong>Using Laika&#39;s Library API</strong></p>
+        <ul>
+          <li>It&#39;s probably safest you read all the sections of this guide as even the 
+          high level APIs had changed.</li>
+          <li>You can of course simply skip features you do not use.</li>
+        </ul>
+        <p>This section is written for users of the 0.9, 0.10 and 0.11 releases which had been compatible with each other. </p>
+        <p>If you migrate from an even earlier version, please start with the 
+        <a href="https://github.com/planet42/Laika/releases/tag/0.9.0">release notes for 0.9</a> first.</p>
+        
+        <h3 id="motivation" class="section">Motivation</h3>
+        <p>The following design goals led to the partial rewrite:</p>
+        <ul>
+          <li>Make the library a good citizen in a pure FP setup</li>
+          <li>Stop throwing any exceptions in public APIs</li>
+          <li>Stop hiding the side-effecting nature of some operations in blocking, synchronous APIs</li>
+          <li>Build on top of cats-effect so that users get the familiar Bring-Your-Own Effect setup</li>
+          <li>Avoid any kind of runtime reflection</li>
+          <li>Make the feature set which had grown organically over the years more consistent and convenient
+          to use</li>
+          <li>Do many changes in one big, breaking release so that the road towards
+          a final 1.0 release will be less bumpy from now on</li>
+        </ul>
+        
+        <h3 id="new-separate-laika-io-module" class="section">New Separate laika-io Module</h3>
+        <p>A subset of the existing <code>laika-core</code> module has been extracted into its own module,
+        <code>laika-io</code>. You need to add this new dependency if you use:</p>
+        <ul>
+          <li>File/Stream IO</li>
+          <li>EPUB output</li>
+          <li>Parallel transformations</li>
+        </ul>
+        <p>The existing PDF support already had its own, separate artifact <code>laika-pdf</code> which
+        is also still available.</p>
+        <p>If you mostly do in-memory transformations from Markdown or reStructuredText to HTML
+        you can continue using the <code>laika-core</code> module.</p>
+        <p>The reasons for the split were:</p>
+        <ul>
+          <li>Keep features that depend on cats-effect separate so that the core module
+          does not need this dependency</li>
+          <li>Narrow the feature set of the core module to a point where it can realistically
+          be fully supported for Scala.js in a later release (most likely 0.13)</li>
+        </ul>
+        
+        <h3 id="referential-transparency" class="section">Referential Transparency</h3>
+        <p>Laika is now supposed to be a good citizen in a pure FP setup when using its
+        library API. The following changes had been implemented for this purpose:</p>
+        <ul>
+          <li>No method in the public API throws any Exceptions anymore.</li>
+          <li>The result of pure operations is provided by instances of <code>Either</code>.</li>
+          <li>The result of side-effecting operations is provided by a return type of <code>F[A]</code>
+          where <code>F[_]</code> is the standard Bring-Your-Own-Effect pattern, so that
+          Laika can be used with cats-IO, Monix or Zio.</li>
+          <li>The dependency on the Typesafe Config library and its impure Java API has
+          been removed in favor of a new lightweight and pure HOCON parser provided
+          by Laika, supporting the full spec.</li>
+        </ul>
+        
+        <h3 id="parser-renderer-and-transformer-apis" class="section">Parser, Renderer and Transformer APIs</h3>
+        <p>The changes were necessary for the following reasons:</p>
+        <ul>
+          <li>The reduced core module does no longer offer any IO-related functionality. </li>
+          <li>The return types of many methods had to change as Laika does no longer throw any Exceptions.</li>
+          <li>The new IO module has its own builder APIs for constructing instances that work with
+          the cats-effect type classes.</li>
+        </ul>
+        <p>It&#39;s probably easiest to just show a few before/after examples below:</p>
+        <p><strong>Transforming from Markdown to HTML in-memory</strong></p>
+        <p>Before</p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">input</span><span> = </span><span class="string-literal">&quot;some *text* example&quot;</span><span>
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transform</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">GitHubFlavor</span><span>)
+  
+</span><span class="keyword">val</span><span> </span><span class="identifier">res</span><span>: </span><span class="type-name">String</span><span> = </span><span class="identifier">transformer</span><span>
+  .</span><span class="identifier">fromString</span><span>(</span><span class="identifier">input</span><span>)
+  .</span><span class="identifier">toString</span><span>  </span></code></pre>
+        <p>After</p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">input</span><span> = </span><span class="string-literal">&quot;some *text* example&quot;</span><span>
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">GitHubFlavor</span><span>)
+  .</span><span class="identifier">build</span><span>
+  
+</span><span class="keyword">val</span><span> </span><span class="identifier">res</span><span>: </span><span class="type-name">Either</span><span>[</span><span class="type-name">ParserError</span><span>, </span><span class="type-name">String</span><span>] = </span><span class="identifier">transformer</span><span>
+  .</span><span class="identifier">transform</span><span>(</span><span class="identifier">input</span><span>)</span></code></pre>
+        <p><strong>Transforming a directory of files from Markdown to HTML</strong></p>
+        <p>Before</p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transform</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">GitHubFlavor</span><span>)
+  
+</span><span class="keyword">val</span><span> </span><span class="identifier">res</span><span>: </span><span class="type-name">Unit</span><span> = </span><span class="identifier">transformer</span><span>
+  .</span><span class="identifier">fromDirectory</span><span>(</span><span class="string-literal">&quot;src&quot;</span><span>)
+  .</span><span class="identifier">toDirectory</span><span>(</span><span class="string-literal">&quot;target&quot;</span><span>)  </span></code></pre>
+        <p>After (ensure you added the new <code>laika-io</code> dependency):</p>
+        <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">implicits</span><span>.</span><span class="identifier">_</span><span>
+
+</span><span class="keyword">implicit</span><span> </span><span class="keyword">val</span><span> </span><span class="identifier">cs</span><span>: </span><span class="type-name">ContextShift</span><span>[</span><span class="type-name">IO</span><span>] = 
+  </span><span class="type-name">IO</span><span>.</span><span class="identifier">contextShift</span><span>(</span><span class="type-name">ExecutionContext</span><span>.</span><span class="identifier">global</span><span>)
+      
+</span><span class="keyword">val</span><span> </span><span class="identifier">blocker</span><span> = </span><span class="type-name">Blocker</span><span>.</span><span class="identifier">liftExecutionContext</span><span>(
+  </span><span class="type-name">ExecutionContext</span><span>.</span><span class="identifier">fromExecutor</span><span>(</span><span class="type-name">Executors</span><span>.</span><span class="identifier">newCachedThreadPool</span><span>())
+)
+    
+</span><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">GitHubFlavor</span><span>)
+  .</span><span class="identifier">io</span><span>(</span><span class="identifier">blocker</span><span>)
+  .</span><span class="identifier">parallel</span><span>[</span><span class="type-name">IO</span><span>]
+  .</span><span class="identifier">build</span><span>
+  
+</span><span class="keyword">val</span><span> </span><span class="identifier">res</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] = </span><span class="identifier">transformer</span><span>
+  .</span><span class="identifier">fromDirectory</span><span>(</span><span class="string-literal">&quot;src&quot;</span><span>)
+  .</span><span class="identifier">toDirectory</span><span>(</span><span class="string-literal">&quot;target&quot;</span><span>)
+  .</span><span class="identifier">transform</span></code></pre>
+        <p>Note that while the new code sample looks more verbose, it now gives you full
+        control over where your effects are run.</p>
+        
+        <h3 id="customizing-renderers" class="section">Customizing Renderers</h3>
+        <p>The renderer API had changed from a side-effecting API to a pure API.
+        Renderers now take AST elements and produce a string and will be invoked
+        recursively as before. This model allows for easier testing and pure code
+        at a minimal performance hit over the old design (&lt; 10%).</p>
+        <p>Before</p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transform</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">rendering</span><span> { </span><span class="identifier">out</span><span> =&gt; 
+    { </span><span class="keyword">case</span><span> </span><span class="type-name">Emphasized</span><span>(</span><span class="identifier">content</span><span>, </span><span class="identifier">_</span><span>) =&gt; 
+      </span><span class="identifier">out</span><span> &lt;&lt; </span><span class="string-literal">&quot;&quot;&quot;&lt;em class=&quot;big&quot;&gt;&quot;&quot;&quot;</span><span> &lt;&lt; </span><span class="identifier">content</span><span> &lt;&lt; </span><span class="string-literal">&quot;&lt;/em&gt;&quot;</span><span> } 
+  }</span></code></pre>
+        <p>After</p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">rendering</span><span> {
+    </span><span class="keyword">case</span><span> (</span><span class="identifier">fmt</span><span>, </span><span class="type-name">Emphasized</span><span>(</span><span class="identifier">content</span><span>, </span><span class="identifier">opt</span><span>)) =&gt; 
+      </span><span class="identifier">fmt</span><span>.</span><span class="identifier">element</span><span>(</span><span class="string-literal">&quot;em&quot;</span><span>, </span><span class="identifier">opt</span><span>, </span><span class="identifier">content</span><span>, </span><span class="string-literal">&quot;class&quot;</span><span> -&gt; </span><span class="string-literal">&quot;big&quot;</span><span>)
+    }.</span><span class="identifier">build</span></code></pre>
+        <p>The engine passes the following instances to the partial function:</p>
+        <ul>
+          <li>The formatter (<code>fmt</code>) which has a different API for each supported output format,
+          in this case it will be an <code>HTMLFormatter</code></li>
+          <li>The current element of the rendered document AST which you can pattern match on<br></li>
+        </ul>
+        
+        <h3 id="rewrite-rules" class="section">Rewrite Rules</h3>
+        <p>Here most of the changes are in the implementation which had been rewritten to avoid
+        any kind of runtime reflection. </p>
+        <p>On the API surface, there are only two changes:</p>
+        <ul>
+          <li>The return type is more explicit (e.g. <code>Replace(newElement)</code> instead of <code>Some(newElement)</code>)</li>
+          <li>Rules for rewriting spans and blocks get registered separately for increased
+          type-safety, as it is invalid to replace a span with a block element.</li>
+        </ul>
+        <p>Before</p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transform</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">usingRule</span><span> {
+    </span><span class="keyword">case</span><span> </span><span class="type-name">Emphasized</span><span>(</span><span class="identifier">content</span><span>, </span><span class="identifier">opts</span><span>) =&gt; </span><span class="type-name">Some</span><span>(</span><span class="type-name">Strong</span><span>(</span><span class="identifier">content</span><span>, </span><span class="identifier">opts</span><span>))
+  }</span></code></pre>
+        <p>After</p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">usingSpanRule</span><span> {
+    </span><span class="keyword">case</span><span> </span><span class="type-name">Emphasized</span><span>(</span><span class="identifier">content</span><span>, </span><span class="identifier">opts</span><span>) =&gt; </span><span class="type-name">Replace</span><span>(</span><span class="type-name">Strong</span><span>(</span><span class="identifier">content</span><span>, </span><span class="identifier">opts</span><span>))
+  }
+  .</span><span class="identifier">build</span></code></pre>
+        
+        <h3 id="templating" class="section">Templating</h3>
+        <p>Variable substitutions now use HOCON syntax in line with the general deeper integration
+        with HOCON throughout Laika&#39;s feature set. </p>
+        <p>The old syntax is still supported, 
+        but will be removed at some point before the 1.0 release.</p>
+        <p>The old reference style <code>{{some.ref}}</code> now becomes either <code>${some.ref}</code> for a required
+        reference or <code>${?some.ref}</code> for an optional one.</p>
+        
+        <h3 id="directives" class="section">Directives</h3>
+        <p>Directives in 0.12 come with changes in both, the DSL for creating custom directives
+        and the supported syntax in markup and template files.</p>
+        <p>If you are not implementing your own directives, but only use the built-in ones
+        provided by Laika, you can skip the section on the DSL.</p>
+        
+        <h4 id="directive-syntax" class="section">Directive Syntax</h4>
+        <ul>
+          <li>The separators for the attribute and body sections have changed</li>
+          <li>HOCON syntax is now used for named attributes between curly braces or a plain string for an 
+          unnamed attribute in parenthesis</li>
+          <li>The old syntax is still supported, but will be removed at some point before the 1.0 release</li>
+        </ul>
+        <p>Before</p>
+        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">if</span><span> &quot;layout.showSidebar&quot;:
+  </span><span class="tag-punctuation">&lt;</span><span class="tag-name">div</span><span class="tag-punctuation"> </span><span class="attribute-name">class</span><span class="tag-punctuation">=</span><span class="string-literal">&quot;sidebar&quot;</span><span class="tag-punctuation">&gt;</span><span>...</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">div</span><span class="tag-punctuation">&gt;</span><span>
+
+~else:
+  </span><span class="tag-punctuation">&lt;</span><span class="tag-name">p</span><span class="tag-punctuation">&gt;</span><span>Something else</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">p</span><span class="tag-punctuation">&gt;</span></code></pre>
+        <p>After</p>
+        <pre><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">if</span><span>(</span><span class="string-literal">layout.showSidebar</span><span>)
+</span><span class="tag-punctuation">&lt;</span><span class="tag-name">div</span><span class="tag-punctuation"> </span><span class="attribute-name">class</span><span class="tag-punctuation">=</span><span class="string-literal">&quot;sidebar&quot;</span><span class="tag-punctuation">&gt;</span><span>...</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">div</span><span class="tag-punctuation">&gt;</span><span>
+
+</span><span class="keyword">@:</span><span class="identifier">else</span><span>
+</span><span class="tag-punctuation">&lt;</span><span class="tag-name">p</span><span class="tag-punctuation">&gt;</span><span>Something else</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">p</span><span class="tag-punctuation">&gt;</span><span>
+
+</span><span class="keyword">@:@</span></code></pre>
+        
+        <h4 id="directive-dsl" class="section">Directive DSL</h4>
+        <p>The building blocks for creating your own directives have also changed significantly:</p>
+        <ul>
+          <li><code>attribute(Default)</code> is now <code>attribute(0)</code></li>
+          <li><code>body</code> is now either <code>parsedBody</code> or <code>rawBody</code></li>
+          <li>Type conversions happen with the new <code>as</code> method: <code>attribute(&quot;title&quot;).as[String]</code>,
+          based on the <code>ConfigDecoder</code> type class that is also used for the new Config API</li>
+          <li>Named body parts have been replaced by the more flexible <a href="../05-extending-laika/03-implementing-directives.html#separator-directives">Separator Directives</a>. </li>
+          <li>The built-in helper for mapping directive parts with different arity has
+          been replaced by cats <code>mapN</code></li>
+        </ul>
+        <p>Before</p>
+        <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">ast</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="type-name">Spans</span><span>.</span><span class="identifier">dsl</span><span>.</span><span class="identifier">_</span><span>
+
+</span><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">Note</span><span> (</span><span class="identifier">title</span><span>: </span><span class="type-name">String</span><span>, 
+                 </span><span class="identifier">content</span><span>: </span><span class="type-name">Seq</span><span>[</span><span class="type-name">Span</span><span>], 
+                 </span><span class="identifier">options</span><span>: </span><span class="type-name">Options</span><span> = </span><span class="type-name">NoOpt</span><span>) </span><span class="keyword">extends</span><span> </span><span class="type-name">Span</span><span> 
+                                           </span><span class="keyword">with</span><span> </span><span class="type-name">SpanContainer</span><span>[</span><span class="type-name">Note</span><span>]
+ 
+</span><span class="keyword">val</span><span> </span><span class="identifier">spanDirective</span><span> = </span><span class="type-name">Spans</span><span>.</span><span class="identifier">create</span><span>(</span><span class="string-literal">&quot;note&quot;</span><span>) {
+  (</span><span class="identifier">attribute</span><span>(</span><span class="type-name">Default</span><span>) ~ </span><span class="identifier">body</span><span>(</span><span class="type-name">Default</span><span>)) (</span><span class="type-name">Note</span><span>(</span><span class="identifier">_</span><span>,</span><span class="identifier">_</span><span>))
+}  </span></code></pre>
+        <p>After</p>
+        <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">implicits</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">ast</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="type-name">Spans</span><span>.</span><span class="identifier">dsl</span><span>.</span><span class="identifier">_</span><span>
+
+</span><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">Note</span><span> (</span><span class="identifier">title</span><span>: </span><span class="type-name">String</span><span>, 
+                 </span><span class="identifier">content</span><span>: </span><span class="type-name">Seq</span><span>[</span><span class="type-name">Span</span><span>], 
+                 </span><span class="identifier">options</span><span>: </span><span class="type-name">Options</span><span> = </span><span class="type-name">NoOpt</span><span>) </span><span class="keyword">extends</span><span> </span><span class="type-name">Span</span><span> 
+                                           </span><span class="keyword">with</span><span> </span><span class="type-name">SpanContainer</span><span>[</span><span class="type-name">Note</span><span>]
+ 
+</span><span class="keyword">val</span><span> </span><span class="identifier">spanDirective</span><span> = </span><span class="type-name">Spans</span><span>.</span><span class="identifier">create</span><span>(</span><span class="string-literal">&quot;note&quot;</span><span>) {
+  (</span><span class="identifier">attribute</span><span>(</span><span class="number-literal">0</span><span>).</span><span class="identifier">as</span><span>[</span><span class="type-name">String</span><span>], </span><span class="identifier">parsedBody</span><span>).</span><span class="identifier">mapN</span><span>(</span><span class="type-name">Note</span><span>(</span><span class="identifier">_</span><span>,</span><span class="identifier">_</span><span>))
+}  </span></code></pre>
+        <p>Note the additional import of cats implicits in the new version.</p>
+        
+        <h3 id="config-api" class="section">Config API</h3>
+        <p>Laika&#39;s support for HOCON configuration, originating either from configuration headers
+        in markup or template documents or separate configuration files had previously been
+        based on the Typesafe Config library and its Java API. Instances of <code>Config</code> were
+        available in the <code>Document</code> and <code>DocumentTree</code> types. </p>
+        <p>This type is now Laika&#39;s own Config API, based on its own lightweight HOCON parser.
+        See the API docs for <a href="http://planet42.github.com/Laika/api/laika/config/Config.html">laika.config.Config</a> for details.</p>
+        
+        <h3 id="document-tree-model" class="section">Document Tree Model</h3>
+        <p>The model had been enhanced to better cater for Laika&#39;s support for e-book generation.</p>
+        <ul>
+          <li>The result of a tree parsing operation is now a new type called <code>DocumentTreeRoot</code></li>
+          <li>It has a <code>coverDocument</code> property and contains the recursive tree structure of the parsed content.</li>
+          <li>Each <code>DocumentTree</code> in the structure now has an explicit <code>titleDocument: Option[Document]</code> property
+          for more explicit content organization in e-books.</li>
+          <li>Properties that previously held references to streams and other impure data had been
+          removed from the pure content model (e.g. <code>DocumentTree.staticDocuments</code>).<br></li>
+        </ul>
+
+      </div>
+    </div>
+
+  </div>
+
+</body></html>

@@ -116,13 +116,9 @@
         <a title="Provides the basic building blocks for Laika's Directive API." href="BuilderContext.html"><span class="name">BuilderContext</span></a><span class="tparams">[<span name="E">E &lt;: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       
-      <p class="shortcomment cmt">Provides the basic building blocks for
-Laika's Directive API.</p><div class="fullcomment"><div class="comment cmt"><p>Provides the basic building blocks for
-Laika's Directive API. This trait
-is not used directly, but instead its
-three sub-traits <code>Blocks</code>, <code>Spans</code> and <code>Templates</code>,
-which represent the concrete implementations
-for the three directive types.
+      <p class="shortcomment cmt">Provides the basic building blocks for Laika's Directive API.</p><div class="fullcomment"><div class="comment cmt"><p>Provides the basic building blocks for Laika's Directive API.
+This trait is not used directly, but instead its three sub-traits <code>Blocks</code>, <code>Spans</code> and <code>Templates</code>,
+which represent the concrete implementations for the three directive types.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="laika.directive">directive</a></dd></dl></div>
     </li><li name="laika.directive.BuilderContext.Combinators" visbl="pub" class="indented4 " data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="CombinatorsextendsAnyRef"></a><a id="Combinators:Combinators"></a>
@@ -145,6 +141,10 @@ for the three directive types.
                         <span class="separator"></span>
                         <a class="class" href="BuilderContext$Combinators$AttributePart.html" title=""></a>
                         <a href="BuilderContext$Combinators$AttributePart.html" title="">AttributePart</a>
+                      </li><li class="current-entities indented4">
+                        <span class="separator"></span>
+                        <a class="class" href="BuilderContext$Combinators$PositionalAttributes.html" title=""></a>
+                        <a href="BuilderContext$Combinators$PositionalAttributes.html" title="">PositionalAttributes</a>
                       </li><li class="current-entities indented4">
                         <span class="separator"></span>
                         <a class="class" href="" title=""></a>
@@ -427,6 +427,22 @@ for the three directive types.
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="laika.directive.BuilderContext.DirectivePart#evalMap" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="evalMap[B](f:A=&gt;Either[String,B]):BuilderContext.this.DirectivePart[B]"></a><a id="evalMap[B]((Multipart[T])⇒Either[String,B]):DirectivePart[B]"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/BuilderContext$Combinators$SeparatedBodyPart.html#evalMap[B](f:A=&gt;Either[String,B]):BuilderContext.this.DirectivePart[B]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">evalMap</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="f">f: (<a href="BuilderContext$Multipart.html" class="extype" name="laika.directive.BuilderContext.Multipart">Multipart</a>[<span class="extype" name="laika.directive.BuilderContext.Combinators.SeparatedBodyPart.T">T</span>]) ⇒ <span class="extype" name="scala.Either">Either</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="laika.directive.BuilderContext.DirectivePart.evalMap.B">B</span>]</span>)</span><span class="result">: <a href="BuilderContext$DirectivePart.html" class="extype" name="laika.directive.BuilderContext.DirectivePart">DirectivePart</a>[<span class="extype" name="laika.directive.BuilderContext.DirectivePart.evalMap.B">B</span>]</span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="BuilderContext$DirectivePart.html" class="extype" name="laika.directive.BuilderContext.DirectivePart">DirectivePart</a></dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <span class="permalink">

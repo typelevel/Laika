@@ -200,7 +200,7 @@
           <span class="toggle">
             Linear Supertypes
           </span>
-          <div class="superTypes hiddenContent"><span class="extype" name="laika.directive.BuilderContext.DirectiveInstanceBase">Spans.DirectiveInstanceBase</span>, <span class="extype" name="laika.directive.BuilderContext.DirectiveProcessor">Spans.DirectiveProcessor</span>, <a href="../ast/SpanResolver.html" class="extype" name="laika.ast.SpanResolver">SpanResolver</a>, <a href="../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>, <a href="../ast/Customizable.html" class="extype" name="laika.ast.Customizable">Customizable</a>, <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a>, <span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="laika.directive.BuilderContext.DirectiveInstanceBase">Spans.DirectiveInstanceBase</span>, <span class="extype" name="laika.directive.BuilderContext.DirectiveProcessor">Spans.DirectiveProcessor</span>, <a href="../ast/SpanResolver.html" class="extype" name="laika.ast.SpanResolver">SpanResolver</a>, <a href="../ast/Unresolved.html" class="extype" name="laika.ast.Unresolved">Unresolved</a>, <a href="../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>, <a href="../ast/Customizable.html" class="extype" name="laika.ast.Customizable">Customizable</a>, <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a>, <span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -226,7 +226,7 @@
                   <span class="filtertype">Inherited<br />
                   </span>
                   <ol id="linearization">
-                    <li class="in" name="laika.directive.Spans.DirectiveInstance"><span>DirectiveInstance</span></li><li class="in" name="laika.directive.BuilderContext.DirectiveInstanceBase"><span>DirectiveInstanceBase</span></li><li class="in" name="laika.directive.BuilderContext.DirectiveProcessor"><span>DirectiveProcessor</span></li><li class="in" name="laika.ast.SpanResolver"><span>SpanResolver</span></li><li class="in" name="laika.ast.Span"><span>Span</span></li><li class="in" name="laika.ast.Customizable"><span>Customizable</span></li><li class="in" name="laika.ast.Element"><span>Element</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                    <li class="in" name="laika.directive.Spans.DirectiveInstance"><span>DirectiveInstance</span></li><li class="in" name="laika.directive.BuilderContext.DirectiveInstanceBase"><span>DirectiveInstanceBase</span></li><li class="in" name="laika.directive.BuilderContext.DirectiveProcessor"><span>DirectiveProcessor</span></li><li class="in" name="laika.ast.SpanResolver"><span>SpanResolver</span></li><li class="in" name="laika.ast.Unresolved"><span>Unresolved</span></li><li class="in" name="laika.ast.Span"><span>Span</span></li><li class="in" name="laika.ast.Customizable"><span>Customizable</span></li><li class="in" name="laika.ast.Element"><span>Element</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                   </ol>
                 </div><div class="ancestors">
               <span class="filtertype"></span>
@@ -738,6 +738,25 @@ to the existing value.
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.directive.Spans.DirectiveInstance">DirectiveInstance</a> → DirectiveProcessor</dd></dl></div>
+    </li><li name="laika.directive.Spans.DirectiveInstance#unresolvedMessage" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="unresolvedMessage:String"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/Spans$$DirectiveInstance.html#unresolvedMessage:String" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">lazy val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">unresolvedMessage</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">An error message to display when this element remain unresolved until after the final
+AST transformation step.</p><div class="fullcomment"><div class="comment cmt"><p>An error message to display when this element remain unresolved until after the final
+AST transformation step.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.directive.Spans.DirectiveInstance">DirectiveInstance</a> → <a href="../ast/Unresolved.html" class="extype" name="laika.ast.Unresolved">Unresolved</a></dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <span class="permalink">
@@ -879,6 +898,8 @@ without its id.
               <h3>Inherited from <span class="extype" name="laika.directive.BuilderContext.DirectiveProcessor">Spans.DirectiveProcessor</span></h3>
             </div><div class="parent" name="laika.ast.SpanResolver">
               <h3>Inherited from <a href="../ast/SpanResolver.html" class="extype" name="laika.ast.SpanResolver">SpanResolver</a></h3>
+            </div><div class="parent" name="laika.ast.Unresolved">
+              <h3>Inherited from <a href="../ast/Unresolved.html" class="extype" name="laika.ast.Unresolved">Unresolved</a></h3>
             </div><div class="parent" name="laika.ast.Span">
               <h3>Inherited from <a href="../ast/Span.html" class="extype" name="laika.ast.Span">Span</a></h3>
             </div><div class="parent" name="laika.ast.Customizable">

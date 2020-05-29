@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+
+    <title>Laika</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Customizable and extensible toolkit for transforming lightweight markup languages to various types of output formats, written in Scala" />
+    <meta name="keywords" content="scala, text, markup, markdown, restructuredtext, parser, transformer, html, template engine, site generation, open-source" />
+
+    <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+    <link href="../css/bootstrap.css" rel="stylesheet">
+    <link href="../css/docs.css" rel="stylesheet">
+
+  </head>
+
+  <body data-spy="scroll" data-target=".toc" data-offset="200">
+
+
+  <div class="container">
+
+    <!-- Docs nav
+    ================================================== -->
+    <div class="row">
+      <div class="span4 toc" >
+        
+        <ul class="nav nav-list affix">
+          <div class="nav-top"><img src="../img/laika-top.png"/></div>
+          
+          
+          <li><a href="../table-of-contents.html">Table of Contents</a></li>
+          <li class="nav-header">About Laika</li>
+          <li><a href="../01-about-laika/01-features.html">Features</a></li>
+          <li><a href="../01-about-laika/02-design-goals.html">Design Goals</a></li>
+          <li class="nav-header">Running Laika</li>
+          <li><a href="01-sbt-plugin.html">sbt Plugin</a></li>
+          <li><a href="02-library-api.html">Library API</a></li>
+          <li class="active"><a href="#">Configuration</a></li>
+          <li class="nav-header">Preparing Content</li>
+          <li><a href="../03-preparing-content/01-directory-structure.html">Directory Structure</a></li>
+          <li><a href="../03-preparing-content/02-navigation.html">Navigation</a></li>
+          <li><a href="../03-preparing-content/04-ebooks.html">E-Books (EPUB &amp; PDF)</a></li>
+          <li><a href="../03-preparing-content/05-syntax-highlighting.html">Syntax Highlighting</a></li>
+          <li class="nav-header">Customizing Laika</li>
+          <li><a href="../04-customizing-laika/01-overview.html">Overview</a></li>
+          <li><a href="../04-customizing-laika/03-creating-templates.html">Creating Templates</a></li>
+          <li><a href="../04-customizing-laika/04-document-ast.html">The Document AST</a></li>
+          <li><a href="../04-customizing-laika/05-ast-rewriting.html">AST Rewriting</a></li>
+          <li><a href="../04-customizing-laika/06-overriding-renderers.html">Overriding Renderers</a></li>
+          <li class="nav-header">Extending Laika</li>
+          <li><a href="../05-extending-laika/01-overview.html">Overview</a></li>
+          <li><a href="../05-extending-laika/03-implementing-directives.html">Implementing Directives</a></li>
+          <li><a href="../05-extending-laika/04-writing-parser-extensions.html">Writing Parser Extensions</a></li>
+          <li><a href="../05-extending-laika/06-adding-syntax-highlighters.html">Adding Syntax Highlighters</a></li>
+          <li><a href="../05-extending-laika/07-new-markup-output-formats.html">New Markup or Output Formats</a></li>
+          <li class="nav-header">Sub-Modules</li>
+          <li><a href="../06-sub-modules/02-laikas-parser-combinators.html">Laika&#39;s Parser Combinators</a></li>
+          <li><a href="../06-sub-modules/03-laikas-hocon-api.html">Laika&#39;s HOCON API</a></li>
+          <li class="nav-header">Reference</li>
+          <li><a href="../07-reference/01-standard-directives.html">Standard Directives</a></li>
+          <li><a href="../07-reference/02-substitution-variables.html">Substitution Variables</a></li>
+          <li><a href="../07-reference/03-spec-compliance.html">Spec Compliance</a></li>
+          <li><a href="../07-reference/06-release-notes.html">Release Notes</a></li>
+          <li><a href="../07-reference/07-migration-guide.html">Migration Guide</a></li>
+          
+          <li class="nav-header">Project Links</li>
+          <li><a href="http://github.com/planet42/Laika">Source Code</a></li>
+          <li><a href="../api/laika/api/">API Documentation</a></li>
+          <!--<li><a href="http://github.com/planet42/Laika/issues">Issue Tracker</a></li>-->
+          <!--<li><a href="http://planet42.org/">Demo App</a></li>-->
+          <!--  
+          <li class="follow"><a href="https://twitter.com/_planet42" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false" data-dnt="true">Follow @_planet42</a>
+          <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script></li>
+          -->
+          <div class="nav-bottom"><img src="../img/laika-bottom.png" border="1"/></div>
+        </ul>
+        
+      </div>
+      
+      <div class="span8" id="top">
+
+        <div class="page-header">
+        <h1 id="configuration" class="title">Configuration</h1>
+        </div>
+        <p>Laika has a rich set of features and keeps almost every module customizable or even replaceable, 
+        and as a consequence there is a lot to configure.</p>
+        <p>This chapter puts the focus on the basic configuration options that you are most likely to use
+        on a day-to-day basis.</p>
+        <p>If you want to dig deeper and tweak or extend the way Laika parses or renders,
+        see the intro sections to <a href="../04-customizing-laika/01-overview.html">Customizing Laika</a>
+        and <a href="../05-extending-laika/01-overview.html">Extending Laika</a> for an overview.</p>
+        
+        <h2 id="basic-settings" class="section">Basic Settings</h2>
+        <p>These settings are available in the library API and the sbt plugin.</p>
+        
+        <h3 id="strict-mode" class="section">Strict Mode</h3>
+        <p>Strict mode switches off all extensions and only uses features defined in the spec of the markup languages.</p>
+        <p>This might be useful if you develop applications with user input for example, and want to ensure that
+        only standard markup features are exposed to users.</p>
+        <p>Markup extensions enabled by default are:</p>
+        <ul>
+          <li>
+            <p>Custom Directives - either the built-in <a href="../07-reference/01-standard-directives.html#standard-directives">Standard Directives</a> 
+            or user-defined as shown in <a href="../05-extending-laika/03-implementing-directives.html#implementing-directives">Implementing Directives</a>.</p>
+          </li>
+          <li>
+            <p>Support for HOCON configuration headers in markup files.</p>
+          </li>
+          <li>
+            <p>Support for <a href="../07-reference/02-substitution-variables.html#substitution-variables">Substitution Variables</a> in markup in the form of <code>${some.key}</code>.</p>
+          </li>
+        </ul>
+        <p>To disable all these extensions you can use the <code>strict</code> flag:</p>
+        <p><strong>sbt plugin</strong></p>
+        <pre><code class="nohighlight"><span class="identifier">laikaConfig</span><span> := </span><span class="type-name">LaikaConfig</span><span>.</span><span class="identifier">defaults</span><span>.</span><span class="identifier">strict</span></code></pre>
+        <p><strong>Library API</strong></p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">GitHubFlavor</span><span>)
+  .</span><span class="identifier">strict</span><span>
+  .</span><span class="identifier">build</span></code></pre>
+        
+        <h3 id="raw-content" class="section">Raw Content</h3>
+        <p>Raw content is the term Laika uses for any markup syntax that allows the inclusion of content in the output format,
+        e.g. HTML.</p>
+        <p>This is disabled by default, even if it is part of the original text markup specification as in the 
+        case of Markdown.</p>
+        <p>This is to generally discourage to tie markup input to a concrete output format, 
+        as Laika supports multiple formats like HTML, EPUB and PDF and an API where users can easily add their own format.
+        Markup files containing raw HTML could not be used for those.</p>
+        <p>Secondly, when the markup originates from user input in a web application, 
+        it would not be safe to use without additional filtering. 
+        By default Laika does not filter any tags, not even <code>&lt;script&gt;</code> tags, 
+        but whitelist filtering can be added fairly easily through Laika&#39;s customization hooks like <a href="../04-customizing-laika/05-ast-rewriting.html#ast-rewriting">AST Rewriting</a> 
+        or <a href="../07-reference/07-migration-guide.html#customizing-renderers">Customizing Renderers</a>.</p>
+        <p>You can enable verbatim HTML and other raw formats explicitly in the configuration:</p>
+        <p><strong>sbt plugin</strong></p>
+        <pre><code class="nohighlight"><span class="identifier">laikaConfig</span><span> := </span><span class="type-name">LaikaConfig</span><span>.</span><span class="identifier">defaults</span><span>.</span><span class="identifier">withRawContent</span></code></pre>
+        <p><strong>Library API</strong></p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">GitHubFlavor</span><span>)
+  .</span><span class="identifier">withRawContent</span><span>
+  .</span><span class="identifier">build</span></code></pre>
+        
+        <h3 id="character-encoding" class="section">Character Encoding</h3>
+        <p>The default encoding in Laika is UTF-8. </p>
+        <p>When you need to work with different encodings you can override the default: </p>
+        <p><strong>sbt plugin</strong></p>
+        <pre><code class="nohighlight"><span class="identifier">laikaConfig</span><span> := </span><span class="type-name">LaikaConfig</span><span>.</span><span class="identifier">defaults</span><span>.</span><span class="identifier">encoding</span><span>(</span><span class="type-name">Codec</span><span>.</span><span class="type-name">ISO8859</span><span>)</span></code></pre>
+        <p><strong>Library API</strong></p>
+        <pre><code class="nohighlight"><span class="keyword">implicit</span><span> </span><span class="keyword">val</span><span> </span><span class="identifier">codec</span><span>:</span><span class="type-name">Codec</span><span> = </span><span class="type-name">Codec</span><span>.</span><span class="type-name">UTF8</span></code></pre>
+        <p>This has to be in scope where you specify the input and ouput files for your transformer</p>
+        
+        <h2 id="navigation" class="section">Navigation</h2>
+        <p>These features have their dedicated <a href="#navigation">Navigation</a> chapter, including configuration examples,
+        therefore we&#39;ll just give a brief overview of available configuration options here and link to the relevant sections.</p>
+        <ul>
+          <li>
+            <p><a href="../03-preparing-content/02-navigation.html#global-link-definitions">Global Link Definitions</a> help to avoid repetition by mapping URLs to an id in configuration and making
+            them available for use with &quot;native&quot; markup link syntax (e.g. <code>link to [my-globally-defined-id]</code> in Markdown).</p>
+          </li>
+          <li>
+            <p><a href="../03-preparing-content/02-navigation.html#linking-to-api-documentation">Linking to API Documentation</a> describes the <code>@:api</code> shortcut for defining links to API documentation,
+            which requires setting the relevant base URLs in the configuration.</p>
+          </li>
+          <li>
+            <p><a href="../03-preparing-content/02-navigation.html#disabling-validation">Disabling Validation</a> is a configuration option for excluding some directories/paths from
+            validation, e.g. in cases where you know that a directory will be populated by some external tool.
+            In its default setup, a Laika transformation fails when an internal link points to a document that does
+            not exist in the input directory.</p>
+          </li>
+          <li>
+            <p>E-books (EPUB or PDF) have additional configuration options for navigation:</p>
+            <ul>
+              <li>
+                <p><a href="../03-preparing-content/04-ebooks.html#book-navigation">Book Navigation</a> allows to specify the depth of the auto-generated navigation.</p>
+              </li>
+              <li>
+                <p>The location of <a href="../03-preparing-content/04-ebooks.html#cover-images">Cover Images</a> can be configured, too.</p>
+              </li>
+              <li>
+                <p>And <a href="../03-preparing-content/04-ebooks.html#document-metadata">Document Metadata</a> can be specified so that it will be converted to a format
+                compatible with the corresponding readers.</p>
+              </li>
+            </ul>
+          </li>
+        </ul>
+        
+        <h2 id="error-handling" class="section">Error Handling</h2>
+        <p>Text markup parsers are usually very resilient. 
+        For any input they cannot make sense of they fall back to rendering it back as raw text.
+        If, for example you start an emphasized span with an <code>&#39;*&#39;</code>, but then never close the span,
+        it will simply be treated as a literal and will not trigger an error. </p>
+        <p>But there are two groups of errors that do cause a transformation to fail.</p>
+        
+        <h3 id="error-types" class="section">Error Types</h3>
+        <ul>
+          <li>
+            <p><strong>Unrecoverable errors</strong>: for example I/O errors where files cannot be read or directories cannot
+            be written to, or invalid configuration, e.g. in HOCON configuration headers, which is also treated as fatal,
+            since such a configuration section usually drives the behaviour or rendering of other nodes.</p>
+          </li>
+          <li>
+            <p><strong>Invalid nodes</strong>: these are &quot;local&quot; errors, which are confined to a single AST node.
+            This may be a reference to a section, document or footnote that does not exist or a directive with
+            invalid or missing attributes.</p>
+          </li>
+        </ul>
+        <p>The handling of the second kind of error can be controlled via configuration.</p>
+        
+        <h3 id="default-behaviour" class="section">Default Behaviour</h3>
+        <p>AST nodes that capture errors carry an error message, a severity
+        and a fallback node to use if configuration would allow to proceed with rendering.</p>
+        <p>Laika comes with two configuration options that control how these nodes are dealt with:</p>
+        <ul>
+          <li><code>failOnMessages</code> controls the minimum severity that causes a transformation to fail, the default is <code>Error</code>.</li>
+          <li><code>renderMessages</code> controls the minimum severity that causes a message to be included in the rendered output,
+          the default is <code>None</code>.</li>
+        </ul>
+        <p>This means, by default the presence of one or more invalid nodes in the AST of a document 
+        causes the transformation to fail, with all their message collected in the returned error type.</p>
+        
+        <h3 id="visual-debugging" class="section">Visual Debugging</h3>
+        <p>In some cases you may prefer to examine the errors in the rendered content, 
+        or you are processing user input where it is more helpful to display them in context than just as a list of
+        error messages.</p>
+        <p>You can achieve this by basically flipping the two default values in the configuration:</p>
+        <p><strong>sbt plugin</strong></p>
+        <pre><code class="nohighlight"><span class="identifier">laikaConfig</span><span> := </span><span class="type-name">LaikaConfig</span><span>.</span><span class="identifier">defaults</span><span>
+  .</span><span class="identifier">failOnMessages</span><span>(</span><span class="type-name">MessageFilter</span><span>.</span><span class="type-name">None</span><span>)
+  .</span><span class="identifier">renderMessages</span><span>(</span><span class="type-name">MessageFilter</span><span>.</span><span class="type-name">Error</span><span>)</span></code></pre>
+        <p><strong>Library API</strong></p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">GitHubFlavor</span><span>)
+  .</span><span class="identifier">failOnMessages</span><span>(</span><span class="type-name">MessageFilter</span><span>.</span><span class="type-name">None</span><span>)
+  .</span><span class="identifier">renderMessages</span><span>(</span><span class="type-name">MessageFilter</span><span>.</span><span class="type-name">Error</span><span>)
+  .</span><span class="identifier">build</span></code></pre>
+        <p>Now rendering proceeds even with invalid nodes and they will be rendered in the location of the document
+        they occurred in.
+        In HTML output these node are rendered as a span with the class <code>runtime-message</code> and a second class for the level 
+        (<code>warning</code>, <code>error</code>, etc.), so that their display can be controlled via CSS.</p>
+        
+        <h3 id="the-ast-renderer" class="section">The AST Renderer</h3>
+        <p>If you need even more low-level insight, you can use the included AST renderer
+        to get a formatted output of the entire AST structure.</p>
+        <p>Longer plain text spans are truncated in this output format to put the emphasis on the structure of the document. </p>
+        <p><strong>sbt plugin</strong></p>
+        <p>Create a file with the content <code>some *text* example</code> in the input directory and run:</p>
+        <pre><code class="nohighlight"><span class="identifier">laikaAST</span></code></pre>
+        <p>This task is a shortcut for <code>laikaGenerate ast</code></p>
+        <p><strong>Library API</strong></p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">input</span><span> = </span><span class="string-literal">&quot;some *text* example&quot;</span><span>
+
+</span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">AST</span><span>)
+  .</span><span class="identifier">build</span><span>
+  .</span><span class="identifier">transform</span><span>(</span><span class="identifier">input</span><span>)</span></code></pre>
+        <p>The output for the small example above will have the following format:</p>
+        <pre><code class="nohighlight"><span class="type-name">RootElement</span><span> - </span><span class="keyword">Blocks</span><span>: </span><span class="number-literal">1</span><span>
+</span><span class="tag-punctuation">. </span><span class="type-name">Paragraph</span><span> - </span><span class="keyword">Spans</span><span>: </span><span class="number-literal">3</span><span>
+</span><span class="tag-punctuation">. . </span><span class="type-name">Text</span><span> - </span><span class="string-literal">&#39;some &#39;</span><span>
+</span><span class="tag-punctuation">. . </span><span class="type-name">Emphasized</span><span> - </span><span class="keyword">Spans</span><span>: </span><span class="number-literal">1</span><span>
+</span><span class="tag-punctuation">. . . </span><span class="type-name">Text</span><span> - </span><span class="string-literal">&#39;text&#39;</span><span>
+</span><span class="tag-punctuation">. . </span><span class="type-name">Text</span><span> - </span><span class="string-literal">&#39; example&#39;</span></code></pre>
+        
+        <h2 id="user-defined-variables" class="section">User-Defined Variables</h2>
+        <p>Finally, the entire machinery for passing configuration around can be used by users, too.</p>
+        <p>You can define variables in any of the following scopes:</p>
+        <ul>
+          <li>
+            <p>Programmatically in global configuration</p>
+          </li>
+          <li>
+            <p>Per directory with HOCON in a file named <code>directory.conf</code></p>
+          </li>
+          <li>
+            <p>Per markup document in a HOCON configuration header</p>
+          </li>
+        </ul>
+        <p>This is an example for defining two variables globally: </p>
+        <p><strong>sbt plugin</strong></p>
+        <pre><code class="nohighlight"><span class="identifier">laikaConfig</span><span> := </span><span class="type-name">LaikaConfig</span><span>.</span><span class="identifier">defaults</span><span>
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="string-literal">&quot;version.latest&quot;</span><span>, </span><span class="string-literal">&quot;2.4.6&quot;</span><span>)
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="string-literal">&quot;license&quot;</span><span>, </span><span class="string-literal">&quot;Apache 2.0&quot;</span><span>)</span></code></pre>
+        <p><strong>Library API</strong></p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">GitHubFlavor</span><span>)
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="string-literal">&quot;version.latest&quot;</span><span>, </span><span class="string-literal">&quot;2.4.6&quot;</span><span>)
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="string-literal">&quot;license&quot;</span><span>, </span><span class="string-literal">&quot;Apache 2.0&quot;</span><span>)
+  .</span><span class="identifier">build</span></code></pre>
+        <p>These values can then be accessed via <a href="../07-reference/02-substitution-variables.html#substitution-variables">Substitution Variables</a> in templates or in markup files:</p>
+        <pre><code class="nohighlight"><span>The latest release is </span><span class="substitution">${version.latest}</span><span>.
+It&#39;s released under the </span><span class="substitution">${license}</span><span> license.</span></code></pre>
+        <p>If you define them in a narrower scope and not globally, they won&#39;t be available outside of that scope.</p>
+        <p>There are two namespaces for variable keys which are used by the library, <code>laika.*</code> and <code>cursor.*</code>.
+        As long as you avoid these two namespaces, you can freely use any configuration keys.</p>
+
+      </div>
+    </div>
+
+  </div>
+
+</body></html>

@@ -123,10 +123,6 @@
                         <a href="FOConcatenation$.html" title="Concatenates the XSL-FO that serves as a basis for producing the final PDF output and applies the default XSL-FO template to the entire result.">FOConcatenation</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="object" href="PDFConfigBuilder$.html" title="Builds PDF configuration instances from configuration embedded in document trees."></a>
-                        <a href="PDFConfigBuilder$.html" title="Builds PDF configuration instances from configuration embedded in document trees.">PDFConfigBuilder</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
                         <a class="object" href="" title="Prepares a document tree for the PDF rendering step by inserting all enabled navigation elements, like PDF bookmarks or table of contents."></a>
                         <a href="" title="Prepares a document tree for the PDF rendering step by inserting all enabled navigation elements, like PDF bookmarks or table of contents.">PDFNavigation</a>
                       </li><li class="current-entities indented3">
@@ -161,8 +157,8 @@
       </h4>
 
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Prepares a document tree for the PDF rendering step by inserting all
-enabled navigation elements, like PDF bookmarks or table of contents.
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Prepares a document tree for the PDF rendering step by inserting all enabled navigation elements,
+like PDF bookmarks or table of contents.
 </p></div><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
@@ -268,7 +264,7 @@ enabled navigation elements, like PDF bookmarks or table of contents.
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="laika.render.pdf.PDFNavigation#addDocLinks" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="laika.render.pdf.PDFNavigation#addDocLinks" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="addDocLinks(tree:laika.ast.DocumentTree):laika.ast.DocumentTree"></a><a id="addDocLinks(DocumentTree):DocumentTree"></a>
       <span class="permalink">
       <a href="../../../laika/render/pdf/PDFNavigation$.html#addDocLinks(tree:laika.ast.DocumentTree):laika.ast.DocumentTree" title="Permalink">
@@ -283,15 +279,11 @@ enabled navigation elements, like PDF bookmarks or table of contents.
         <span class="name">addDocLinks</span><span class="params">(<span name="tree">tree: <a href="../../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>)</span><span class="result">: <a href="../../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>
       </span>
       
-      <p class="shortcomment cmt">Adds title elements for each document in the specified
- tree, including documents in subtrees.</p><div class="fullcomment"><div class="comment cmt"><p>Adds title elements for each document in the specified
- tree, including documents in subtrees. Document titles will be obtained either
- from a <code>Title</code> element in the document's content or from its configuration header.
-</p></div></div>
-    </li><li name="laika.render.pdf.PDFNavigation#addTreeLinks" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="addTreeLinks(tree:laika.ast.DocumentTree):laika.ast.DocumentTree"></a><a id="addTreeLinks(DocumentTree):DocumentTree"></a>
+      <p class="shortcomment cmt">Adds link targets for each document in the specified tree, including documents in subtrees.</p>
+    </li><li name="laika.render.pdf.PDFNavigation#addTreeLinks" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="addTreeLinks(tree:laika.ast.DocumentTree,titleName:String):laika.ast.DocumentTree"></a><a id="addTreeLinks(DocumentTree,String):DocumentTree"></a>
       <span class="permalink">
-      <a href="../../../laika/render/pdf/PDFNavigation$.html#addTreeLinks(tree:laika.ast.DocumentTree):laika.ast.DocumentTree" title="Permalink">
+      <a href="../../../laika/render/pdf/PDFNavigation$.html#addTreeLinks(tree:laika.ast.DocumentTree,titleName:String):laika.ast.DocumentTree" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -300,14 +292,11 @@ enabled navigation elements, like PDF bookmarks or table of contents.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">addTreeLinks</span><span class="params">(<span name="tree">tree: <a href="../../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>)</span><span class="result">: <a href="../../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>
+        <span class="name">addTreeLinks</span><span class="params">(<span name="tree">tree: <a href="../../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>, <span name="titleName">titleName: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="../../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>
       </span>
       
-      <p class="shortcomment cmt">Adds title elements for each tree and subtree in the specified
- root tree.</p><div class="fullcomment"><div class="comment cmt"><p>Adds title elements for each tree and subtree in the specified
- root tree. Tree titles can be specified in the configuration file
- for each tree.
-</p></div></div>
+      <p class="shortcomment cmt">Adds link targets for each tree and subtree in the specified root tree
+that does not already contain a title document.</p>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <span class="permalink">
@@ -403,9 +392,9 @@ enabled navigation elements, like PDF bookmarks or table of contents.
               
         </dd></dl></div>
     </li><li name="laika.render.pdf.PDFNavigation#generateBookmarks" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="generateBookmarks[F[_]](result:laika.io.model.RenderedTreeRoot[F],depth:Int):Map[String,laika.ast.Element]"></a><a id="generateBookmarks[F[_]](RenderedTreeRoot[F],Int):Map[String,Element]"></a>
+      <a id="generateBookmarks[F[_]](result:laika.io.model.RenderedTreeRoot[F],depth:Option[Int]):Map[String,laika.ast.Element]"></a><a id="generateBookmarks[F[_]](RenderedTreeRoot[F],Option[Int]):Map[String,Element]"></a>
       <span class="permalink">
-      <a href="../../../laika/render/pdf/PDFNavigation$.html#generateBookmarks[F[_]](result:laika.io.model.RenderedTreeRoot[F],depth:Int):Map[String,laika.ast.Element]" title="Permalink">
+      <a href="../../../laika/render/pdf/PDFNavigation$.html#generateBookmarks[F[_]](result:laika.io.model.RenderedTreeRoot[F],depth:Option[Int]):Map[String,laika.ast.Element]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -414,13 +403,12 @@ enabled navigation elements, like PDF bookmarks or table of contents.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">generateBookmarks</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="result">result: <a href="../../io/model/RenderedTreeRoot.html" class="extype" name="laika.io.model.RenderedTreeRoot">RenderedTreeRoot</a>[<span class="extype" name="laika.render.pdf.PDFNavigation.generateBookmarks.F">F</span>]</span>, <span name="depth">depth: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <a href="../../ast/Element.html" class="extype" name="laika.ast.Element">Element</a>]</span>
+        <span class="name">generateBookmarks</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="result">result: <a href="../../io/model/RenderedTreeRoot.html" class="extype" name="laika.io.model.RenderedTreeRoot">RenderedTreeRoot</a>[<span class="extype" name="laika.render.pdf.PDFNavigation.generateBookmarks.F">F</span>]</span>, <span name="depth">depth: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <a href="../../ast/Element.html" class="extype" name="laika.ast.Element">Element</a>]</span>
       </span>
       
-      <p class="shortcomment cmt">Generates bookmarks for the structure of the DocumentTree.</p><div class="fullcomment"><div class="comment cmt"><p>Generates bookmarks for the structure of the DocumentTree. Individual
- bookmarks can stem from tree or subtree titles, document titles or
- document sections, depending on which recursion depth is configured.
- The configuration key for setting the recursion depth is <code>pdf.bookmarks.depth</code>.
+      <p class="shortcomment cmt">Generates bookmarks for the structure of the DocumentTree.</p><div class="fullcomment"><div class="comment cmt"><p>Generates bookmarks for the structure of the DocumentTree.</p><p>Individual bookmarks can stem from tree or subtree titles, document titles or document sections,
+depending on which recursion depth is configured.
+The configuration key for setting the recursion depth is <code>pdf.bookmarks.depth</code>.
 </p></div><dl class="paramcmts block"><dt class="param">result</dt><dd class="cmt"><p>the rendered result tree to generate bookmarks for</p></dd><dt class="param">depth</dt><dd class="cmt"><p>the recursion depth through trees, documents and sections</p></dd><dt>returns</dt><dd class="cmt"><p>a fragment map containing the generated bookmarks</p></dd></dl></div>
     </li><li name="scala.AnyRef#getClass" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
@@ -441,40 +429,6 @@ enabled navigation elements, like PDF bookmarks or table of contents.
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="laika.render.pdf.PDFNavigation#hasContent" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="hasContent(nav:laika.ast.Navigatable):Boolean"></a><a id="hasContent(Navigatable):Boolean"></a>
-      <span class="permalink">
-      <a href="../../../laika/render/pdf/PDFNavigation$.html#hasContent(nav:laika.ast.Navigatable):Boolean" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">hasContent</span><span class="params">(<span name="nav">nav: <a href="../../ast/Navigatable.html" class="extype" name="laika.ast.Navigatable">Navigatable</a></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
-      </span>
-      
-      <p class="shortcomment cmt">Indicates whether the specified navigatable contains at least one document.</p><div class="fullcomment"><div class="comment cmt"><p>Indicates whether the specified navigatable contains at least one document.
-</p></div><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
-    </li><li name="laika.render.pdf.PDFNavigation#hasDocuments" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="hasDocuments(tree:laika.ast.DocumentTree):Boolean"></a><a id="hasDocuments(DocumentTree):Boolean"></a>
-      <span class="permalink">
-      <a href="../../../laika/render/pdf/PDFNavigation$.html#hasDocuments(tree:laika.ast.DocumentTree):Boolean" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">hasDocuments</span><span class="params">(<span name="tree">tree: <a href="../../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
-      </span>
-      
-      <p class="shortcomment cmt">Indicates whether the specified tree contains at least one document.</p><div class="fullcomment"><div class="comment cmt"><p>Indicates whether the specified tree contains at least one document.
-</p></div><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
     </li><li name="scala.AnyRef#hashCode" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="hashCode():Int"></a>
       <span class="permalink">
@@ -495,9 +449,9 @@ enabled navigation elements, like PDF bookmarks or table of contents.
               
         </dd></dl></div>
     </li><li name="laika.render.pdf.PDFNavigation#insertToc" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="insertToc(tree:laika.ast.DocumentTree,depth:Int,title:Option[String]):laika.ast.DocumentTree"></a><a id="insertToc(DocumentTree,Int,Option[String]):DocumentTree"></a>
+      <a id="insertToc(tree:laika.ast.DocumentTree,depth:Option[Int]):laika.ast.DocumentTree"></a><a id="insertToc(DocumentTree,Option[Int]):DocumentTree"></a>
       <span class="permalink">
-      <a href="../../../laika/render/pdf/PDFNavigation$.html#insertToc(tree:laika.ast.DocumentTree,depth:Int,title:Option[String]):laika.ast.DocumentTree" title="Permalink">
+      <a href="../../../laika/render/pdf/PDFNavigation$.html#insertToc(tree:laika.ast.DocumentTree,depth:Option[Int]):laika.ast.DocumentTree" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -506,12 +460,11 @@ enabled navigation elements, like PDF bookmarks or table of contents.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">insertToc</span><span class="params">(<span name="tree">tree: <a href="../../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>, <span name="depth">depth: <span class="extype" name="scala.Int">Int</span></span>, <span name="title">title: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result">: <a href="../../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>
+        <span class="name">insertToc</span><span class="params">(<span name="tree">tree: <a href="../../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>, <span name="depth">depth: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>]</span>)</span><span class="result">: <a href="../../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>
       </span>
       
       <p class="shortcomment cmt">Inserts a table of content into the specified document tree.</p><div class="fullcomment"><div class="comment cmt"><p>Inserts a table of content into the specified document tree.
- The recursion depth can be set with the configuration key
- <code>pdf.toc.depth</code>.
+The recursion depth can be set with the configuration key <code>pdf.toc.depth</code>.
 </p></div></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
@@ -584,9 +537,9 @@ enabled navigation elements, like PDF bookmarks or table of contents.
               
         </dd></dl></div>
     </li><li name="laika.render.pdf.PDFNavigation#prepareTree" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="prepareTree(root:laika.ast.DocumentTreeRoot,config:laika.format.PDF.Config):laika.ast.DocumentTreeRoot"></a><a id="prepareTree(DocumentTreeRoot,Config):DocumentTreeRoot"></a>
+      <a id="prepareTree(root:laika.ast.DocumentTreeRoot,config:laika.format.PDF.BookConfig):laika.ast.DocumentTreeRoot"></a><a id="prepareTree(DocumentTreeRoot,BookConfig):DocumentTreeRoot"></a>
       <span class="permalink">
-      <a href="../../../laika/render/pdf/PDFNavigation$.html#prepareTree(root:laika.ast.DocumentTreeRoot,config:laika.format.PDF.Config):laika.ast.DocumentTreeRoot" title="Permalink">
+      <a href="../../../laika/render/pdf/PDFNavigation$.html#prepareTree(root:laika.ast.DocumentTreeRoot,config:laika.format.PDF.BookConfig):laika.ast.DocumentTreeRoot" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -595,7 +548,7 @@ enabled navigation elements, like PDF bookmarks or table of contents.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">prepareTree</span><span class="params">(<span name="root">root: <a href="../../ast/DocumentTreeRoot.html" class="extype" name="laika.ast.DocumentTreeRoot">DocumentTreeRoot</a></span>, <span name="config">config: <a href="../../format/PDF$$Config.html" class="extype" name="laika.format.PDF.Config">Config</a></span>)</span><span class="result">: <a href="../../ast/DocumentTreeRoot.html" class="extype" name="laika.ast.DocumentTreeRoot">DocumentTreeRoot</a></span>
+        <span class="name">prepareTree</span><span class="params">(<span name="root">root: <a href="../../ast/DocumentTreeRoot.html" class="extype" name="laika.ast.DocumentTreeRoot">DocumentTreeRoot</a></span>, <span name="config">config: <a href="../../format/PDF$$BookConfig.html" class="extype" name="laika.format.PDF.BookConfig">BookConfig</a></span>)</span><span class="result">: <a href="../../ast/DocumentTreeRoot.html" class="extype" name="laika.ast.DocumentTreeRoot">DocumentTreeRoot</a></span>
       </span>
       
       <p class="shortcomment cmt">Prepares the document tree before rendering the interim XSL-FO
@@ -703,22 +656,6 @@ enabled navigation elements, like PDF bookmarks or table of contents.
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="laika.render.pdf.PDFNavigation.DocNames" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DocNames"></a><a id="DocNames:DocNames"></a>
-      <span class="permalink">
-      <a href="../../../laika/render/pdf/PDFNavigation$$DocNames$.html" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a title="" href="PDFNavigation$$DocNames$.html"><span class="name">DocNames</span></a>
-      </span>
-      
-      
     </li>
               </ol>
             </div>

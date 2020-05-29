@@ -123,6 +123,10 @@
                         <a href="DirectiveSupport.html" title="Internal API that processes all directives defined by one or more DirectiveRegistries.">DirectiveSupport</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="object" href="Links$.html" title="The API for declaring directives that can be used in links."></a>
+                        <a href="Links$.html" title="The API for declaring directives that can be used in links.">Links</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="object" href="Spans$.html" title="The API for declaring directives that can be used as inline elements in markup documents."></a>
                         <a href="Spans$.html" title="The API for declaring directives that can be used as inline elements in markup documents.">Spans</a>
                       </li><li class="current-entities indented2">
@@ -611,7 +615,7 @@ is a registry for directives which needs to pass all its registered directives t
 bundle which deals with finally creating all the directive parsers.</p><p>The partial function should match only on the types of bundles it intends to process
 and is then allowed to return a new, modified instance of that bundle.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a></dd></dl></div>
-    </li><li name="laika.bundle.ExtensionBundle#rewriteRules" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="laika.directive.DirectiveSupport#rewriteRules" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="rewriteRules:Seq[laika.ast.DocumentCursor=&gt;laika.ast.RewriteRules]"></a><a id="rewriteRules:Seq[(DocumentCursor)⇒RewriteRules]"></a>
       <span class="permalink">
       <a href="../../laika/directive/DirectiveSupport$.html#rewriteRules:Seq[laika.ast.DocumentCursor=&gt;laika.ast.RewriteRules]" title="Permalink">
@@ -620,7 +624,7 @@ and is then allowed to return a new, modified instance of that bundle.
     </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">def</span>
+        <span class="kind">lazy val</span>
       </span>
       <span class="symbol">
         <span class="name">rewriteRules</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[(<a href="../ast/DocumentCursor.html" class="extype" name="laika.ast.DocumentCursor">DocumentCursor</a>) ⇒ <a href="../ast/RewriteRules.html" class="extype" name="laika.ast.RewriteRules">RewriteRules</a>]</span>
@@ -632,6 +636,29 @@ parse and render operations.</p><p>The specified functions will be invoked for e
 information from the entire document tree before returning the actual rule,
 which is a partial function from <code>Element</code> to <code>Option[Element]</code> that allows
 to remove or replace elements from the tree.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="DirectiveSupport.html" class="extype" name="laika.directive.DirectiveSupport">DirectiveSupport</a> → <a href="../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a></dd></dl></div>
+    </li><li name="laika.bundle.ExtensionBundle#slugBuilder" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="slugBuilder:Option[String=&gt;String]"></a><a id="slugBuilder:Option[(String)⇒String]"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/DirectiveSupport$.html#slugBuilder:Option[String=&gt;String]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">slugBuilder</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[(<span class="extype" name="scala.Predef.String">String</span>) ⇒ <span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Function that receives the text of a headline, the name of a document
+or directory or a manually assigned identifier, and builds a slug from it
+that becomes part of the final URL or identifier (depending on output format).</p><div class="fullcomment"><div class="comment cmt"><p>Function that receives the text of a headline, the name of a document
+or directory or a manually assigned identifier, and builds a slug from it
+that becomes part of the final URL or identifier (depending on output format).</p><p>The result of the function must be:</p><p>- a valid identifier in HTML and XML
+- a valid path segment in a URL
+- a valid file name
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
@@ -793,9 +820,9 @@ content of the base bundle.</p><p>The other bundle is treated as the base of thi
   in the base bundle</p><p>- in case of feature collections, the features of this bundle will be merged with those of the base bundle
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a></dd></dl></div>
     </li><li name="laika.directive.DirectiveSupport#withDirectives" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="withDirectives(newBlockDirectives:Seq[laika.directive.Blocks.Directive],newSpanDirectives:Seq[laika.directive.Spans.Directive],newTemplateDirectives:Seq[laika.directive.Templates.Directive]):laika.directive.DirectiveSupport"></a><a id="withDirectives(Seq[Blocks.Directive],Seq[Spans.Directive],Seq[Templates.Directive]):DirectiveSupport"></a>
+      <a id="withDirectives(newBlockDirectives:Seq[laika.directive.Blocks.Directive],newSpanDirectives:Seq[laika.directive.Spans.Directive],newTemplateDirectives:Seq[laika.directive.Templates.Directive],newLinkDirectives:Seq[laika.directive.Links.Directive]):laika.directive.DirectiveSupport"></a><a id="withDirectives(Seq[Blocks.Directive],Seq[Spans.Directive],Seq[Templates.Directive],Seq[Directive]):DirectiveSupport"></a>
       <span class="permalink">
-      <a href="../../laika/directive/DirectiveSupport$.html#withDirectives(newBlockDirectives:Seq[laika.directive.Blocks.Directive],newSpanDirectives:Seq[laika.directive.Spans.Directive],newTemplateDirectives:Seq[laika.directive.Templates.Directive]):laika.directive.DirectiveSupport" title="Permalink">
+      <a href="../../laika/directive/DirectiveSupport$.html#withDirectives(newBlockDirectives:Seq[laika.directive.Blocks.Directive],newSpanDirectives:Seq[laika.directive.Spans.Directive],newTemplateDirectives:Seq[laika.directive.Templates.Directive],newLinkDirectives:Seq[laika.directive.Links.Directive]):laika.directive.DirectiveSupport" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -804,7 +831,7 @@ content of the base bundle.</p><p>The other bundle is treated as the base of thi
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">withDirectives</span><span class="params">(<span name="newBlockDirectives">newBlockDirectives: <span class="extype" name="scala.Seq">Seq</span>[<a href="Blocks$.html#DirectiveextendsAnyRef" class="extmbr" name="laika.directive.BuilderContext.Directive">Blocks.Directive</a>]</span>, <span name="newSpanDirectives">newSpanDirectives: <span class="extype" name="scala.Seq">Seq</span>[<a href="Spans$.html#DirectiveextendsAnyRef" class="extmbr" name="laika.directive.BuilderContext.Directive">Spans.Directive</a>]</span>, <span name="newTemplateDirectives">newTemplateDirectives: <span class="extype" name="scala.Seq">Seq</span>[<a href="Templates$.html#DirectiveextendsAnyRef" class="extmbr" name="laika.directive.BuilderContext.Directive">Templates.Directive</a>]</span>)</span><span class="result">: <a href="DirectiveSupport.html" class="extype" name="laika.directive.DirectiveSupport">DirectiveSupport</a></span>
+        <span class="name">withDirectives</span><span class="params">(<span name="newBlockDirectives">newBlockDirectives: <span class="extype" name="scala.Seq">Seq</span>[<a href="Blocks$.html#DirectiveextendsAnyRef" class="extmbr" name="laika.directive.BuilderContext.Directive">Blocks.Directive</a>]</span>, <span name="newSpanDirectives">newSpanDirectives: <span class="extype" name="scala.Seq">Seq</span>[<a href="Spans$.html#DirectiveextendsAnyRef" class="extmbr" name="laika.directive.BuilderContext.Directive">Spans.Directive</a>]</span>, <span name="newTemplateDirectives">newTemplateDirectives: <span class="extype" name="scala.Seq">Seq</span>[<a href="Templates$.html#DirectiveextendsAnyRef" class="extmbr" name="laika.directive.BuilderContext.Directive">Templates.Directive</a>]</span>, <span name="newLinkDirectives">newLinkDirectives: <span class="extype" name="scala.Seq">Seq</span>[<a href="Links$$Directive.html" class="extype" name="laika.directive.Links.Directive">Directive</a>]</span>)</span><span class="result">: <a href="DirectiveSupport.html" class="extype" name="laika.directive.DirectiveSupport">DirectiveSupport</a></span>
       </span>
       
       <p class="shortcomment cmt">Hook for extension registries for adding block, span and template directives.</p><div class="fullcomment"><div class="comment cmt"><p>Hook for extension registries for adding block, span and template directives.

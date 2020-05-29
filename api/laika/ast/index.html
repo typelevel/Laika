@@ -235,10 +235,6 @@
                         <a href="ContextReference.html" title="Represents a reference to a value from the context of the current document.">ContextReference</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="class" href="CrossLink.html" title="A link element pointing to a location in a different document, with the span content representing the text (description) of the link."></a>
-                        <a href="CrossLink.html" title="A link element pointing to a location in a different document, with the span content representing the text (description) of the link.">CrossLink</a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
                         <a class="trait" href="Cursor.html" title="A cursor provides the necessary context during a rewrite operation."></a>
                         <a href="Cursor.html" title="A cursor provides the necessary context during a rewrite operation.">Cursor</a>
                       </li><li class="current-entities indented2">
@@ -271,8 +267,8 @@
                         <a href="Document.html" title="Represents a single document and provides access to the document content and structure as well as hooks for triggering rewrite operations.">Document</a>
                       </li><li class="current-entities indented2">
                         <a class="object" href="DocumentCursor$.html" title=""></a>
-                        <a class="class" href="DocumentCursor.html" title="Cursor for a single document, its parent and root directories, its associated template and other context information that is required during a rewrite operation."></a>
-                        <a href="DocumentCursor.html" title="Cursor for a single document, its parent and root directories, its associated template and other context information that is required during a rewrite operation.">DocumentCursor</a>
+                        <a class="class" href="DocumentCursor.html" title="Cursor for a single document, its parent, siblings and root directories, its associated template and other context information that is required during a rewrite operation."></a>
+                        <a href="DocumentCursor.html" title="Cursor for a single document, its parent, siblings and root directories, its associated template and other context information that is required during a rewrite operation.">DocumentCursor</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="DocumentFragment.html" title="A named document fragment that usually gets rendered separately from the main root element"></a>
@@ -281,6 +277,10 @@
                         <a class="object" href="DocumentMetadata$.html" title=""></a>
                         <a class="class" href="DocumentMetadata.html" title="Metadata associated with a document."></a>
                         <a href="DocumentMetadata.html" title="Metadata associated with a document.">DocumentMetadata</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="trait" href="DocumentNavigation.html" title="Represents a document structure with sections that can be turned into a navigation structure."></a>
+                        <a href="DocumentNavigation.html" title="Represents a document structure with sections that can be turned into a navigation structure.">DocumentNavigation</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="trait" href="DocumentStructure.html" title="The structure of a markup document."></a>
@@ -339,12 +339,8 @@
                         <a href="EnumType.html" title="Represents the type of an ordered list.">EnumType</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="class" href="ExternalLink.html" title="An external link element, with the span content representing the text (description) of the link."></a>
-                        <a href="ExternalLink.html" title="An external link element, with the span content representing the text (description) of the link.">ExternalLink</a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="class" href="ExternalLinkDefinition.html" title="An external link target, usually only part of the raw document tree and then removed by the rewrite rule that resolves link and image references."></a>
-                        <a href="ExternalLinkDefinition.html" title="An external link target, usually only part of the raw document tree and then removed by the rewrite rule that resolves link and image references.">ExternalLinkDefinition</a>
+                        <a class="class" href="ExternalTarget.html" title="An external link, outside of the virtual tree of the current transformation."></a>
+                        <a href="ExternalTarget.html" title="An external link, outside of the virtual tree of the current transformation.">ExternalTarget</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="trait" href="Fallback.html" title="Provides a fallback for elements the renderer does not know how to deal with."></a>
@@ -391,6 +387,10 @@
                         <a href="HeaderDecoration.html" title="Represents the decoration of a header.">HeaderDecoration</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="trait" href="Hidden.html" title="Represents a hidden element that will be ignored by renderers."></a>
+                        <a href="Hidden.html" title="Represents a hidden element that will be ignored by renderers.">Hidden</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="object" href="Id$.html" title="Factory and extractor for an Options instance with an id."></a>
                         <a href="Id$.html" title="Factory and extractor for an Options instance with an id.">Id</a>
                       </li><li class="current-entities indented2">
@@ -399,8 +399,8 @@
                         <a href="Image.html" title="An inline image with a text description and optional title.">Image</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="class" href="ImageReference.html" title="An image reference, the id pointing to the id of a LinkTarget."></a>
-                        <a href="ImageReference.html" title="An image reference, the id pointing to the id of a LinkTarget.">ImageReference</a>
+                        <a class="class" href="ImageIdReference.html" title="An image reference, the id pointing to the id of a LinkTarget."></a>
+                        <a href="ImageIdReference.html" title="An image reference, the id pointing to the id of a LinkTarget.">ImageIdReference</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="InlineCode.html" title="A span of program code."></a>
@@ -411,28 +411,28 @@
                         <a href="Inserted.html" title="A span representing inserted inline elements that may contain nested spans.">Inserted</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="class" href="InternalLink.html" title="An internal link element, with the span content representing the text (description) of the link."></a>
-                        <a href="InternalLink.html" title="An internal link element, with the span content representing the text (description) of the link.">InternalLink</a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
                         <a class="class" href="InternalLinkTarget.html" title="Points to the following block or span element, making it a target for links."></a>
                         <a href="InternalLinkTarget.html" title="Points to the following block or span element, making it a target for links.">InternalLinkTarget</a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="InternalTarget$.html" title=""></a>
+                        <a class="class" href="InternalTarget.html" title="Represents an internal target with an absolute and relative path, the latter relative to the document that referred to the target."></a>
+                        <a href="InternalTarget.html" title="Represents an internal target with an absolute and relative path, the latter relative to the document that referred to the target.">InternalTarget</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="trait" href="Invalid.html" title="Represents an invalid element."></a>
                         <a href="Invalid.html" title="Represents an invalid element.">Invalid</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="class" href="InvalidBlock.html" title="Groups a block that could not be successfully parsed with a system message."></a>
-                        <a href="InvalidBlock.html" title="Groups a block that could not be successfully parsed with a system message.">InvalidBlock</a>
+                        <a class="class" href="InvalidBlock.html" title="Groups a block that could not be successfully parsed with a runtime message."></a>
+                        <a href="InvalidBlock.html" title="Groups a block that could not be successfully parsed with a runtime message.">InvalidBlock</a>
                       </li><li class="current-entities indented2">
                         <a class="object" href="InvalidElement$.html" title="Companion for InvalidElement."></a>
                         <a class="class" href="InvalidElement.html" title="Represents an invalid element in any position, block, span or template."></a>
                         <a href="InvalidElement.html" title="Represents an invalid element in any position, block, span or template.">InvalidElement</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="class" href="InvalidSpan.html" title="Groups a span that could not be successfully parsed with a system message."></a>
-                        <a href="InvalidSpan.html" title="Groups a span that could not be successfully parsed with a system message.">InvalidSpan</a>
+                        <a class="class" href="InvalidSpan.html" title="Groups a span that could not be successfully parsed with a runtime message."></a>
+                        <a href="InvalidSpan.html" title="Groups a span that could not be successfully parsed with a runtime message.">InvalidSpan</a>
                       </li><li class="current-entities indented2">
                         <a class="object" href="Line$.html" title=""></a>
                         <a class="class" href="Line.html" title="A single line inside a line block."></a>
@@ -450,7 +450,7 @@
                         <a class="class" href="LineBreak.html" title="An explicit hard line break."></a>
                         <a href="LineBreak.html" title="An explicit hard line break.">LineBreak</a>
                       </li><li class="current-entities indented2">
-                        <span class="separator"></span>
+                        <a class="object" href="Link$.html" title=""></a>
                         <a class="trait" href="Link.html" title="The base type for all link elements."></a>
                         <a href="Link.html" title="The base type for all link elements.">Link</a>
                       </li><li class="current-entities indented2">
@@ -458,9 +458,13 @@
                         <a class="class" href="LinkAlias.html" title="A link target pointing to another link target, acting like an alias."></a>
                         <a href="LinkAlias.html" title="A link target pointing to another link target, acting like an alias.">LinkAlias</a>
                       </li><li class="current-entities indented2">
+                        <a class="object" href="LinkDefinition$.html" title=""></a>
+                        <a class="class" href="LinkDefinition.html" title="An internal or external link target that can be referenced by id, usually only part of the raw document tree and then removed by the rewrite rule that resolves link and image references."></a>
+                        <a href="LinkDefinition.html" title="An internal or external link target that can be referenced by id, usually only part of the raw document tree and then removed by the rewrite rule that resolves link and image references.">LinkDefinition</a>
+                      </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="class" href="LinkReference.html" title="A link reference, the id pointing to the id of a LinkTarget."></a>
-                        <a href="LinkReference.html" title="A link reference, the id pointing to the id of a LinkTarget.">LinkReference</a>
+                        <a class="class" href="LinkIdReference.html" title="A reference to any kind of referencable object, e.g."></a>
+                        <a href="LinkIdReference.html" title="A reference to any kind of referencable object, e.g.">LinkIdReference</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="trait" href="LinkTarget.html" title="The base type for all link targets."></a>
@@ -486,13 +490,37 @@
                         <a class="class" href="MarkupContextReference.html" title="A context reference specifically for use in markup documents."></a>
                         <a href="MarkupContextReference.html" title="A context reference specifically for use in markup documents.">MarkupContextReference</a>
                       </li><li class="current-entities indented2">
+                        <a class="object" href="MessageFilter$.html" title=""></a>
+                        <a class="trait" href="MessageFilter.html" title="A filter for runtime messages that meet a specified minimum message level."></a>
+                        <a href="MessageFilter.html" title="A filter for runtime messages that meet a specified minimum message level.">MessageFilter</a>
+                      </li><li class="current-entities indented2">
                         <a class="object" href="MessageLevel$.html" title="Enumeration of available message levels."></a>
-                        <a class="class" href="MessageLevel.html" title="Signals the severity of a system message."></a>
-                        <a href="MessageLevel.html" title="Signals the severity of a system message.">MessageLevel</a>
+                        <a class="class" href="MessageLevel.html" title="Signals the severity of a runtime message."></a>
+                        <a href="MessageLevel.html" title="Signals the severity of a runtime message.">MessageLevel</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="trait" href="Navigatable.html" title="A navigatable object is anything that has an associated path."></a>
                         <a href="Navigatable.html" title="A navigatable object is anything that has an associated path.">Navigatable</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="NavigationBuilderContext.html" title="The context of a navigation builder that can get passed down in recursive calls to the various types that have an asNavigationItem method."></a>
+                        <a href="NavigationBuilderContext.html" title="The context of a navigation builder that can get passed down in recursive calls to the various types that have an asNavigationItem method.">NavigationBuilderContext</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="NavigationHeader.html" title="Represents a book navigation entry that only serves as a section header without linking to content."></a>
+                        <a href="NavigationHeader.html" title="Represents a book navigation entry that only serves as a section header without linking to content.">NavigationHeader</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="trait" href="NavigationItem.html" title="Represents a recursive book navigation structure."></a>
+                        <a href="NavigationItem.html" title="Represents a recursive book navigation structure.">NavigationItem</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="NavigationLink.html" title="Represents a book navigation entry that links to content in the document tree."></a>
+                        <a href="NavigationLink.html" title="Represents a book navigation entry that links to content in the document tree.">NavigationLink</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="NavigationList.html" title="The root node of a navigation structure"></a>
+                        <a href="NavigationList.html" title="The root node of a navigation structure">NavigationList</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="object" href="NoOpt$.html" title="Empty Options implementation."></a>
@@ -530,9 +558,9 @@
                         <a class="trait" href="PathBase.html" title="The abstract base for absolute and relative paths."></a>
                         <a href="PathBase.html" title="The abstract base for absolute and relative paths.">PathBase</a>
                       </li><li class="current-entities indented2">
-                        <a class="object" href="PathInfo$.html" title=""></a>
-                        <a class="class" href="PathInfo.html" title="Represents a single path in absolute and relative form."></a>
-                        <a href="PathInfo.html" title="Represents a single path in absolute and relative form.">PathInfo</a>
+                        <span class="separator"></span>
+                        <a class="class" href="PathReference.html" title="A reference to content within the virtual input tree, the path pointing to the source path."></a>
+                        <a href="PathReference.html" title="A reference to content within the virtual input tree, the path pointing to the source path.">PathReference</a>
                       </li><li class="current-entities indented2">
                         <a class="object" href="QuotedBlock$.html" title=""></a>
                         <a class="class" href="QuotedBlock.html" title="A quoted block consisting of a list of blocks that may contain other nested quoted blocks and an attribution which may be empty."></a>
@@ -599,6 +627,10 @@
                         <a href="Rule.html" title="A horizontal rule.">Rule</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="class" href="RuntimeMessage.html" title="Message generated by the parser, a directive or a rewrite rule."></a>
+                        <a href="RuntimeMessage.html" title="Message generated by the parser, a directive or a rewrite rule.">RuntimeMessage</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="class" href="Section.html" title="A section of the document, consisting of a header and content in the form of a list of Block elements."></a>
                         <a href="Section.html" title="A section of the document, consisting of a header and content in the form of a list of Block elements.">Section</a>
                       </li><li class="current-entities indented2">
@@ -614,7 +646,7 @@
                         <a class="class" href="SegmentedPath.html" title=""></a>
                         <a href="SegmentedPath.html" title="">SegmentedPath</a>
                       </li><li class="current-entities indented2">
-                        <span class="separator"></span>
+                        <a class="object" href="SegmentedPathBase$.html" title=""></a>
                         <a class="trait" href="SegmentedPathBase.html" title="The common base for absolute and relative paths that contain one or more path segments."></a>
                         <a href="SegmentedPathBase.html" title="The common base for absolute and relative paths that contain one or more path segments.">SegmentedPathBase</a>
                       </li><li class="current-entities indented2">
@@ -643,6 +675,10 @@
                         <a href="SpanContainerCompanion.html" title="Common methods for simple span containers (without additional parameters).">SpanContainerCompanion</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="class" href="SpanLink.html" title="An link element, with the span content representing the text (description) of the link."></a>
+                        <a href="SpanLink.html" title="An link element, with the span content representing the text (description) of the link.">SpanLink</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="trait" href="SpanResolver.html" title="Represents a placeholder inline element that needs to be resolved in a rewrite step."></a>
                         <a href="SpanResolver.html" title="Represents a placeholder inline element that needs to be resolved in a rewrite step.">SpanResolver</a>
                       </li><li class="current-entities indented2">
@@ -661,6 +697,10 @@
                         <a class="object" href="Strong$.html" title=""></a>
                         <a class="class" href="Strong.html" title="A span of strong inline elements that may contain nested spans."></a>
                         <a href="Strong.html" title="A span of strong inline elements that may contain nested spans.">Strong</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="object" href="Style$.html" title="Constants for style names wrapped in Options instances which are commonly used by Laika's core parsers and rewrite rules."></a>
+                        <a href="Style$.html" title="Constants for style names wrapped in Options instances which are commonly used by Laika's core parsers and rewrite rules.">Style</a>
                       </li><li class="current-entities indented2">
                         <a class="object" href="StyleDeclaration$.html" title="Companion providing factory methods for the StyleDeclaration class."></a>
                         <a class="class" href="StyleDeclaration.html" title="Represents a single style declaration."></a>
@@ -682,10 +722,6 @@
                         <a class="object" href="Styles$.html" title="Factory and extractor for an Options instance with style names."></a>
                         <a href="Styles$.html" title="Factory and extractor for an Options instance with style names.">Styles</a>
                       </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="class" href="SystemMessage.html" title="Message generated by the parser, usually to signal potential parsing problems."></a>
-                        <a href="SystemMessage.html" title="Message generated by the parser, usually to signal potential parsing problems.">SystemMessage</a>
-                      </li><li class="current-entities indented2">
                         <a class="object" href="Table$.html" title=""></a>
                         <a class="class" href="Table.html" title="A table consisting of a head and a body part and optional caption and column specification."></a>
                         <a href="Table.html" title="A table consisting of a head and a body part and optional caption and column specification.">Table</a>
@@ -705,6 +741,10 @@
                         <span class="separator"></span>
                         <a class="class" href="TableHead.html" title="Contains the header rows of a table."></a>
                         <a href="TableHead.html" title="Contains the header rows of a table.">TableHead</a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="Target$.html" title=""></a>
+                        <a class="trait" href="Target.html" title="Represents a target that can be referred to by links, either within the virtual tree or external."></a>
+                        <a href="Target.html" title="Represents a target that can be referred to by links, either within the virtual tree or external.">Target</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="TargetFormat.html" title="An element that only gets rendered for a specific output format."></a>
@@ -747,10 +787,6 @@
                         <a href="TemplateString.html" title="A simple string element, representing the parts of a template that are not detected as special markup constructs and treated as raw text.">TemplateString</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="trait" href="Temporary.html" title="Represents a temporary element only present in the raw document tree and then removed or replaced by a rewrite rule before rendering."></a>
-                        <a href="Temporary.html" title="Represents a temporary element only present in the raw document tree and then removed or replaced by a rewrite rule before rendering.">Temporary</a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
                         <a class="class" href="Text.html" title="A simple text element."></a>
                         <a href="Text.html" title="A simple text element.">Text</a>
                       </li><li class="current-entities indented2">
@@ -765,10 +801,6 @@
                         <a class="object" href="Title$.html" title=""></a>
                         <a class="class" href="Title.html" title="The (optional) title of the document."></a>
                         <a href="Title.html" title="The (optional) title of the document.">Title</a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="class" href="TitleInfo.html" title="Represents a section title."></a>
-                        <a href="TitleInfo.html" title="Represents a section title.">TitleInfo</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="TitledBlock.html" title="Generic block element with a title."></a>
@@ -795,8 +827,8 @@
                         <a href="TreeStructure.html" title="The structure of a document tree.">TreeStructure</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="class" href="URI.html" title="Represents a URI which might also optionally be expressed as a local reference within the processed tree."></a>
-                        <a href="URI.html" title="Represents a URI which might also optionally be expressed as a local reference within the processed tree.">URI</a>
+                        <a class="trait" href="Unresolved.html" title="Represents an element that needs to be resolved in an AST transformation step."></a>
+                        <a href="Unresolved.html" title="Represents an element that needs to be resolved in an AST transformation step.">Unresolved</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="UnresolvedDocument.html" title="A temporary structure usually not exposed to user code."></a>
@@ -1160,7 +1192,7 @@
       
       <p class="shortcomment cmt">Common methods for simple block containers (without additional parameters).</p>
     </li><li name="laika.ast.BlockResolver" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="BlockResolverextendsElementwithBlock"></a><a id="BlockResolver:BlockResolver"></a>
+      <a id="BlockResolverextendsElementwithBlockwithUnresolved"></a><a id="BlockResolver:BlockResolver"></a>
       <span class="permalink">
       <a href="../../laika/ast/BlockResolver.html" title="Permalink">
         <i class="material-icons"></i>
@@ -1171,7 +1203,7 @@
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a title="Represents a placeholder block element that needs to be resolved in a rewrite step." href="BlockResolver.html"><span class="name">BlockResolver</span></a><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Block.html" class="extype" name="laika.ast.Block">Block</a></span>
+        <a title="Represents a placeholder block element that needs to be resolved in a rewrite step." href="BlockResolver.html"><span class="name">BlockResolver</span></a><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Block.html" class="extype" name="laika.ast.Block">Block</a> with <a href="Unresolved.html" class="extype" name="laika.ast.Unresolved">Unresolved</a></span>
       </span>
       
       <p class="shortcomment cmt">Represents a placeholder block element that needs
@@ -1506,22 +1538,6 @@ categorized by a syntax highlighter.</p>
  of a Map).</p><p> The root elements accessible to such a reference are:</p><ul><li><code>document</code>: the current document with all of its public properties</li><li><code>parent</code>: the parent tree of the current document</li><li><code>root</code>: the root tree</li><li><code>config</code>: all configuration values for the current document,
    including those inherited from parent trees
 </li></ul></div></div>
-    </li><li name="laika.ast.CrossLink" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="CrossLinkextendsElementwithLinkwithSpanContainerwithProductwithSerializable"></a><a id="CrossLink:CrossLink"></a>
-      <span class="permalink">
-      <a href="../../laika/ast/CrossLink.html" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a title="A link element pointing to a location in a different document, with the span content representing the text (description) of the link." href="CrossLink.html"><span class="name">CrossLink</span></a><span class="params">(<span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="Span.html" class="extype" name="laika.ast.Span">Span</a>]</span>, <span name="ref">ref: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="path">path: <a href="PathInfo.html" class="extype" name="laika.ast.PathInfo">PathInfo</a></span>, <span name="title">title: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Link.html" class="extype" name="laika.ast.Link">Link</a> with <a href="SpanContainer.html" class="extype" name="laika.ast.SpanContainer">SpanContainer</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      
-      <p class="shortcomment cmt">A link element pointing to a location in a different document, with the span content representing the text (description) of the link.</p>
     </li><li name="laika.ast.Cursor" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="CursorextendsAnyRef"></a><a id="Cursor:Cursor"></a>
       <span class="permalink">
@@ -1563,7 +1579,7 @@ during a rewrite operation for this purpose.
  for renderers.
 </p></div></div>
     </li><li name="laika.ast.DecoratedHeader" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="DecoratedHeaderextendsElementwithBlockwithTemporarywithSpanContainerwithProductwithSerializable"></a><a id="DecoratedHeader:DecoratedHeader"></a>
+      <a id="DecoratedHeaderextendsElementwithBlockwithSpanContainerwithUnresolvedwithProductwithSerializable"></a><a id="DecoratedHeader:DecoratedHeader"></a>
       <span class="permalink">
       <a href="../../laika/ast/DecoratedHeader.html" title="Permalink">
         <i class="material-icons"></i>
@@ -1574,7 +1590,7 @@ during a rewrite operation for this purpose.
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="A decorated header where the level gets determined in the rewrite phase based on the decoration used and the order they appear in the document." href="DecoratedHeader.html"><span class="name">DecoratedHeader</span></a><span class="params">(<span name="decoration">decoration: <a href="HeaderDecoration.html" class="extype" name="laika.ast.HeaderDecoration">HeaderDecoration</a></span>, <span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="Span.html" class="extype" name="laika.ast.Span">Span</a>]</span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Block.html" class="extype" name="laika.ast.Block">Block</a> with <a href="Temporary.html" class="extype" name="laika.ast.Temporary">Temporary</a> with <a href="SpanContainer.html" class="extype" name="laika.ast.SpanContainer">SpanContainer</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="A decorated header where the level gets determined in the rewrite phase based on the decoration used and the order they appear in the document." href="DecoratedHeader.html"><span class="name">DecoratedHeader</span></a><span class="params">(<span name="decoration">decoration: <a href="HeaderDecoration.html" class="extype" name="laika.ast.HeaderDecoration">HeaderDecoration</a></span>, <span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="Span.html" class="extype" name="laika.ast.Span">Span</a>]</span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Block.html" class="extype" name="laika.ast.Block">Block</a> with <a href="SpanContainer.html" class="extype" name="laika.ast.SpanContainer">SpanContainer</a> with <a href="Unresolved.html" class="extype" name="laika.ast.Unresolved">Unresolved</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">A decorated header where the level gets determined in the rewrite phase based
@@ -1584,7 +1600,7 @@ during a rewrite operation for this purpose.
  so on.
 </p></div></div>
     </li><li name="laika.ast.Definition" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="DefinitionextendsElementwithBlockwithTemporary"></a><a id="Definition:Definition"></a>
+      <a id="DefinitionextendsElementwithBlock"></a><a id="Definition:Definition"></a>
       <span class="permalink">
       <a href="../../laika/ast/Definition.html" title="Permalink">
         <i class="material-icons"></i>
@@ -1595,7 +1611,7 @@ during a rewrite operation for this purpose.
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a title="Represents a definition that can be used to resolve references." href="Definition.html"><span class="name">Definition</span></a><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Block.html" class="extype" name="laika.ast.Block">Block</a> with <a href="Temporary.html" class="extype" name="laika.ast.Temporary">Temporary</a></span>
+        <a title="Represents a definition that can be used to resolve references." href="Definition.html"><span class="name">Definition</span></a><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Block.html" class="extype" name="laika.ast.Block">Block</a></span>
       </span>
       
       <p class="shortcomment cmt">Represents a definition that can be used to resolve references.</p><div class="fullcomment"><div class="comment cmt"><p>Represents a definition that can be used to resolve references.</p><p> Only part of the raw document tree and then removed or replaced
@@ -1684,17 +1700,17 @@ during a rewrite operation for this purpose.
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="Cursor for a single document, its parent and root directories, its associated template and other context information that is required during a rewrite operation." href="DocumentCursor.html"><span class="name">DocumentCursor</span></a><span class="params">(<span name="target">target: <a href="Document.html" class="extype" name="laika.ast.Document">Document</a></span>, <span name="parent">parent: <a href="TreeCursor.html" class="extype" name="laika.ast.TreeCursor">TreeCursor</a></span>, <span name="resolver">resolver: <a href="../rewrite/ReferenceResolver.html" class="extype" name="laika.rewrite.ReferenceResolver">ReferenceResolver</a></span>, <span name="config">config: <a href="../config/Config.html" class="extype" name="laika.config.Config">Config</a></span>, <span name="position">position: <a href="TreePosition.html" class="extype" name="laika.ast.TreePosition">TreePosition</a></span>)</span><span class="result"> extends <a href="Cursor.html" class="extype" name="laika.ast.Cursor">Cursor</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="Cursor for a single document, its parent, siblings and root directories, its associated template and other context information that is required during a rewrite operation." href="DocumentCursor.html"><span class="name">DocumentCursor</span></a><span class="params">(<span name="target">target: <a href="Document.html" class="extype" name="laika.ast.Document">Document</a></span>, <span name="parent">parent: <a href="TreeCursor.html" class="extype" name="laika.ast.TreeCursor">TreeCursor</a></span>, <span name="resolver">resolver: <a href="../rewrite/ReferenceResolver.html" class="extype" name="laika.rewrite.ReferenceResolver">ReferenceResolver</a></span>, <span name="config">config: <a href="../config/Config.html" class="extype" name="laika.config.Config">Config</a></span>, <span name="position">position: <a href="TreePosition.html" class="extype" name="laika.ast.TreePosition">TreePosition</a></span>)</span><span class="result"> extends <a href="Cursor.html" class="extype" name="laika.ast.Cursor">Cursor</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
-      <p class="shortcomment cmt">Cursor for a single document, its parent and root directories,
+      <p class="shortcomment cmt">Cursor for a single document, its parent, siblings and root directories,
  its associated template and other context information that
- is required during a rewrite operation.</p><div class="fullcomment"><div class="comment cmt"><p>Cursor for a single document, its parent and root directories,
+ is required during a rewrite operation.</p><div class="fullcomment"><div class="comment cmt"><p>Cursor for a single document, its parent, siblings and root directories,
  its associated template and other context information that
  is required during a rewrite operation.
 </p></div><dl class="paramcmts block"><dt class="param">target</dt><dd class="cmt"><p>the document this cursor points to</p></dd><dt class="param">parent</dt><dd class="cmt"><p>the parent document tree of the referred document</p></dd><dt class="param">resolver</dt><dd class="cmt"><p>the resolver for references in templates</p></dd><dt class="param">config</dt><dd class="cmt"><p>the configuration associated with the target document</p></dd><dt class="param">position</dt><dd class="cmt"><p>the position of the target document inside a tree hierarchy</p></dd></dl></div>
     </li><li name="laika.ast.DocumentFragment" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DocumentFragmentextendsElementwithBlockwithTemporarywithProductwithSerializable"></a><a id="DocumentFragment:DocumentFragment"></a>
+      <a id="DocumentFragmentextendsElementwithBlockwithHiddenwithProductwithSerializable"></a><a id="DocumentFragment:DocumentFragment"></a>
       <span class="permalink">
       <a href="../../laika/ast/DocumentFragment.html" title="Permalink">
         <i class="material-icons"></i>
@@ -1705,7 +1721,7 @@ during a rewrite operation for this purpose.
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="A named document fragment that usually gets rendered separately from the main root element" href="DocumentFragment.html"><span class="name">DocumentFragment</span></a><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="root">root: <a href="Element.html" class="extype" name="laika.ast.Element">Element</a></span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Block.html" class="extype" name="laika.ast.Block">Block</a> with <a href="Temporary.html" class="extype" name="laika.ast.Temporary">Temporary</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="A named document fragment that usually gets rendered separately from the main root element" href="DocumentFragment.html"><span class="name">DocumentFragment</span></a><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="root">root: <a href="Element.html" class="extype" name="laika.ast.Element">Element</a></span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Block.html" class="extype" name="laika.ast.Block">Block</a> with <a href="Hidden.html" class="extype" name="laika.ast.Hidden">Hidden</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">A named document fragment that usually gets rendered separately from the main root element
@@ -1726,8 +1742,24 @@ during a rewrite operation for this purpose.
       </span>
       
       <p class="shortcomment cmt">Metadata associated with a document.</p>
+    </li><li name="laika.ast.DocumentNavigation" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="DocumentNavigationextendsNavigatable"></a><a id="DocumentNavigation:DocumentNavigation"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/DocumentNavigation.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a title="Represents a document structure with sections that can be turned into a navigation structure." href="DocumentNavigation.html"><span class="name">DocumentNavigation</span></a><span class="result"> extends <a href="Navigatable.html" class="extype" name="laika.ast.Navigatable">Navigatable</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Represents a document structure with sections that can be turned into a navigation structure.</p>
     </li><li name="laika.ast.DocumentStructure" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="DocumentStructureextendsAnyRef"></a><a id="DocumentStructure:DocumentStructure"></a>
+      <a id="DocumentStructureextendsDocumentNavigation"></a><a id="DocumentStructure:DocumentStructure"></a>
       <span class="permalink">
       <a href="../../laika/ast/DocumentStructure.html" title="Permalink">
         <i class="material-icons"></i>
@@ -1738,7 +1770,7 @@ during a rewrite operation for this purpose.
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a title="The structure of a markup document." href="DocumentStructure.html"><span class="name">DocumentStructure</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a title="The structure of a markup document." href="DocumentStructure.html"><span class="name">DocumentStructure</span></a><span class="result"> extends <a href="DocumentNavigation.html" class="extype" name="laika.ast.DocumentNavigation">DocumentNavigation</a></span>
       </span>
       
       <p class="shortcomment cmt">The structure of a markup document.</p>
@@ -1856,7 +1888,7 @@ into the final output, but not interpreted.
  therefore providing traversal for any kind of sub-tree, too.
 </p></div></div>
     </li><li name="laika.ast.EmbeddedConfigValue" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="EmbeddedConfigValueextendsElementwithBlockwithSpanwithTemporarywithProductwithSerializable"></a><a id="EmbeddedConfigValue:EmbeddedConfigValue"></a>
+      <a id="EmbeddedConfigValueextendsElementwithBlockwithSpanwithHiddenwithProductwithSerializable"></a><a id="EmbeddedConfigValue:EmbeddedConfigValue"></a>
       <span class="permalink">
       <a href="../../laika/ast/EmbeddedConfigValue.html" title="Permalink">
         <i class="material-icons"></i>
@@ -1867,7 +1899,7 @@ into the final output, but not interpreted.
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="A single configuration value to be merged with the top document config." href="EmbeddedConfigValue.html"><span class="name">EmbeddedConfigValue</span></a><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="value">value: <a href="../config/ConfigValue.html" class="extype" name="laika.config.ConfigValue">ConfigValue</a></span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Block.html" class="extype" name="laika.ast.Block">Block</a> with <a href="Span.html" class="extype" name="laika.ast.Span">Span</a> with <a href="Temporary.html" class="extype" name="laika.ast.Temporary">Temporary</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="A single configuration value to be merged with the top document config." href="EmbeddedConfigValue.html"><span class="name">EmbeddedConfigValue</span></a><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="value">value: <a href="../config/ConfigValue.html" class="extype" name="laika.config.ConfigValue">ConfigValue</a></span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Block.html" class="extype" name="laika.ast.Block">Block</a> with <a href="Span.html" class="extype" name="laika.ast.Span">Span</a> with <a href="Hidden.html" class="extype" name="laika.ast.Hidden">Hidden</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">A single configuration value to be merged with the top document config.</p><div class="fullcomment"><div class="comment cmt"><p>A single configuration value to be merged with the top document config.
@@ -1891,7 +1923,7 @@ into the final output, but not interpreted.
       </span>
       
       <p class="shortcomment cmt">The root element of a document tree (originating from text markup) inside a template.</p><div class="fullcomment"><div class="comment cmt"><p>The root element of a document tree (originating from text markup) inside a template.
- Usually created by a template reference like <code>${document.content}</code>.
+ Usually created by a template reference like <code>${cursor.currentDocument.content}</code>.
 </p></div></div>
     </li><li name="laika.ast.Emphasized" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="EmphasizedextendsElementwithSpanwithSpanContainerwithProductwithSerializable"></a><a id="Emphasized:Emphasized"></a>
@@ -1973,10 +2005,10 @@ into the final output, but not interpreted.
       </span>
       
       <p class="shortcomment cmt">Represents the type of an ordered list.</p>
-    </li><li name="laika.ast.ExternalLink" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="ExternalLinkextendsElementwithLinkwithSpanContainerwithProductwithSerializable"></a><a id="ExternalLink:ExternalLink"></a>
+    </li><li name="laika.ast.ExternalTarget" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ExternalTargetextendsTargetwithProductwithSerializable"></a><a id="ExternalTarget:ExternalTarget"></a>
       <span class="permalink">
-      <a href="../../laika/ast/ExternalLink.html" title="Permalink">
+      <a href="../../laika/ast/ExternalTarget.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -1985,27 +2017,10 @@ into the final output, but not interpreted.
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="An external link element, with the span content representing the text (description) of the link." href="ExternalLink.html"><span class="name">ExternalLink</span></a><span class="params">(<span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="Span.html" class="extype" name="laika.ast.Span">Span</a>]</span>, <span name="url">url: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="title">title: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Link.html" class="extype" name="laika.ast.Link">Link</a> with <a href="SpanContainer.html" class="extype" name="laika.ast.SpanContainer">SpanContainer</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="An external link, outside of the virtual tree of the current transformation." href="ExternalTarget.html"><span class="name">ExternalTarget</span></a><span class="params">(<span name="url">url: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="Target.html" class="extype" name="laika.ast.Target">Target</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
-      <p class="shortcomment cmt">An external link element, with the span content representing the text (description) of the link.</p>
-    </li><li name="laika.ast.ExternalLinkDefinition" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="ExternalLinkDefinitionextendsElementwithDefinitionwithSpanwithProductwithSerializable"></a><a id="ExternalLinkDefinition:ExternalLinkDefinition"></a>
-      <span class="permalink">
-      <a href="../../laika/ast/ExternalLinkDefinition.html" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a title="An external link target, usually only part of the raw document tree and then removed by the rewrite rule that resolves link and image references." href="ExternalLinkDefinition.html"><span class="name">ExternalLinkDefinition</span></a><span class="params">(<span name="id">id: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="url">url: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="title">title: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Definition.html" class="extype" name="laika.ast.Definition">Definition</a> with <a href="Span.html" class="extype" name="laika.ast.Span">Span</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      
-      <p class="shortcomment cmt">An external link target, usually only part of the raw document tree and then
- removed by the rewrite rule that resolves link and image references.</p>
+      <p class="shortcomment cmt">An external link, outside of the virtual tree of the current transformation.</p>
     </li><li name="laika.ast.Fallback" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="FallbackextendsAnyRef"></a><a id="Fallback:Fallback"></a>
       <span class="permalink">
@@ -2059,7 +2074,7 @@ into the final output, but not interpreted.
       
       <p class="shortcomment cmt">A footnote with resolved id and label that can be referred to by a <code>FootnoteLink</code> by id.</p>
     </li><li name="laika.ast.FootnoteDefinition" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="FootnoteDefinitionextendsElementwithDefinitionwithBlockContainerwithProductwithSerializable"></a><a id="FootnoteDefinition:FootnoteDefinition"></a>
+      <a id="FootnoteDefinitionextendsElementwithDefinitionwithBlockContainerwithUnresolvedwithProductwithSerializable"></a><a id="FootnoteDefinition:FootnoteDefinition"></a>
       <span class="permalink">
       <a href="../../laika/ast/FootnoteDefinition.html" title="Permalink">
         <i class="material-icons"></i>
@@ -2070,7 +2085,7 @@ into the final output, but not interpreted.
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="A footnote definition that needs to be resolved to a final footnote by a rewrite rule based on the label type." href="FootnoteDefinition.html"><span class="name">FootnoteDefinition</span></a><span class="params">(<span name="label">label: <a href="FootnoteLabel.html" class="extype" name="laika.ast.FootnoteLabel">FootnoteLabel</a></span>, <span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Definition.html" class="extype" name="laika.ast.Definition">Definition</a> with <a href="BlockContainer.html" class="extype" name="laika.ast.BlockContainer">BlockContainer</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="A footnote definition that needs to be resolved to a final footnote by a rewrite rule based on the label type." href="FootnoteDefinition.html"><span class="name">FootnoteDefinition</span></a><span class="params">(<span name="label">label: <a href="FootnoteLabel.html" class="extype" name="laika.ast.FootnoteLabel">FootnoteLabel</a></span>, <span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Definition.html" class="extype" name="laika.ast.Definition">Definition</a> with <a href="BlockContainer.html" class="extype" name="laika.ast.BlockContainer">BlockContainer</a> with <a href="Unresolved.html" class="extype" name="laika.ast.Unresolved">Unresolved</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">A footnote definition that needs to be resolved to a final footnote
@@ -2181,6 +2196,24 @@ into the final output, but not interpreted.
       <p class="shortcomment cmt">Represents the decoration of a header.</p><div class="fullcomment"><div class="comment cmt"><p>Represents the decoration of a header.
  Concrete implementations need to be provided by the parser.
 </p></div></div>
+    </li><li name="laika.ast.Hidden" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="HiddenextendsElement"></a><a id="Hidden:Hidden"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/Hidden.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a title="Represents a hidden element that will be ignored by renderers." href="Hidden.html"><span class="name">Hidden</span></a><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Represents a hidden element that will be ignored by renderers.</p><div class="fullcomment"><div class="comment cmt"><p>Represents a hidden element that will be ignored by renderers.</p><p>These kind of nodes usually provide information that will be extracted
+from the tree before AST transformations and renderers get applied.
+</p></div></div>
     </li><li name="laika.ast.Image" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="ImageextendsElementwithLinkwithProductwithSerializable"></a><a id="Image:Image"></a>
       <span class="permalink">
@@ -2193,14 +2226,14 @@ into the final output, but not interpreted.
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="An inline image with a text description and optional title." href="Image.html"><span class="name">Image</span></a><span class="params">(<span name="text">text: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="uri">uri: <a href="URI.html" class="extype" name="laika.ast.URI">URI</a></span>, <span name="width">width: <span class="extype" name="scala.Option">Option</span>[<a href="Size.html" class="extype" name="laika.ast.Size">Size</a>] = <span class="symbol">None</span></span>, <span name="height">height: <span class="extype" name="scala.Option">Option</span>[<a href="Size.html" class="extype" name="laika.ast.Size">Size</a>] = <span class="symbol">None</span></span>, <span name="title">title: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Link.html" class="extype" name="laika.ast.Link">Link</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="An inline image with a text description and optional title." href="Image.html"><span class="name">Image</span></a><span class="params">(<span name="text">text: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="target">target: <a href="Target.html" class="extype" name="laika.ast.Target">Target</a></span>, <span name="width">width: <span class="extype" name="scala.Option">Option</span>[<a href="Size.html" class="extype" name="laika.ast.Size">Size</a>] = <span class="symbol">None</span></span>, <span name="height">height: <span class="extype" name="scala.Option">Option</span>[<a href="Size.html" class="extype" name="laika.ast.Size">Size</a>] = <span class="symbol">None</span></span>, <span name="title">title: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Link.html" class="extype" name="laika.ast.Link">Link</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">An inline image with a text description and optional title.</p>
-    </li><li name="laika.ast.ImageReference" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="ImageReferenceextendsElementwithReferencewithProductwithSerializable"></a><a id="ImageReference:ImageReference"></a>
+    </li><li name="laika.ast.ImageIdReference" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ImageIdReferenceextendsElementwithReferencewithProductwithSerializable"></a><a id="ImageIdReference:ImageIdReference"></a>
       <span class="permalink">
-      <a href="../../laika/ast/ImageReference.html" title="Permalink">
+      <a href="../../laika/ast/ImageIdReference.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -2209,7 +2242,7 @@ into the final output, but not interpreted.
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="An image reference, the id pointing to the id of a LinkTarget." href="ImageReference.html"><span class="name">ImageReference</span></a><span class="params">(<span name="text">text: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="id">id: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="source">source: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Reference.html" class="extype" name="laika.ast.Reference">Reference</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="An image reference, the id pointing to the id of a LinkTarget." href="ImageIdReference.html"><span class="name">ImageIdReference</span></a><span class="params">(<span name="text">text: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="id">id: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="source">source: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Reference.html" class="extype" name="laika.ast.Reference">Reference</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">An image reference, the id pointing to the id of a <code>LinkTarget</code>.</p><div class="fullcomment"><div class="comment cmt"><p>An image reference, the id pointing to the id of a <code>LinkTarget</code>. Only part of the
@@ -2250,22 +2283,6 @@ into the final output, but not interpreted.
       </span>
       
       <p class="shortcomment cmt">A span representing inserted inline elements that may contain nested spans.</p>
-    </li><li name="laika.ast.InternalLink" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="InternalLinkextendsElementwithLinkwithSpanContainerwithProductwithSerializable"></a><a id="InternalLink:InternalLink"></a>
-      <span class="permalink">
-      <a href="../../laika/ast/InternalLink.html" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a title="An internal link element, with the span content representing the text (description) of the link." href="InternalLink.html"><span class="name">InternalLink</span></a><span class="params">(<span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="Span.html" class="extype" name="laika.ast.Span">Span</a>]</span>, <span name="ref">ref: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="title">title: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Link.html" class="extype" name="laika.ast.Link">Link</a> with <a href="SpanContainer.html" class="extype" name="laika.ast.SpanContainer">SpanContainer</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      
-      <p class="shortcomment cmt">An internal link element, with the span content representing the text (description) of the link.</p>
     </li><li name="laika.ast.InternalLinkTarget" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="InternalLinkTargetextendsElementwithBlockwithSpanwithLinkTargetwithProductwithSerializable"></a><a id="InternalLinkTarget:InternalLinkTarget"></a>
       <span class="permalink">
@@ -2282,6 +2299,23 @@ into the final output, but not interpreted.
       </span>
       
       <p class="shortcomment cmt">Points to the following block or span element, making it a target for links.</p>
+    </li><li name="laika.ast.InternalTarget" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="InternalTargetextendsTargetwithProductwithSerializable"></a><a id="InternalTarget:InternalTarget"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/InternalTarget.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="Represents an internal target with an absolute and relative path, the latter relative to the document that referred to the target." href="InternalTarget.html"><span class="name">InternalTarget</span></a><span class="params">(<span name="absolutePath">absolutePath: <a href="Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="relativePath">relativePath: <a href="RelativePath.html" class="extype" name="laika.ast.RelativePath">RelativePath</a></span>)</span><span class="result"> extends <a href="Target.html" class="extype" name="laika.ast.Target">Target</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Represents an internal target with an absolute and relative path, the latter
+relative to the document that referred to the target.</p>
     </li><li name="laika.ast.Invalid" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="Invalid[+E&lt;:laika.ast.Element]extendsElement"></a><a id="Invalid[+E&lt;:Element]:Invalid[E]"></a>
       <span class="permalink">
@@ -2297,9 +2331,8 @@ into the final output, but not interpreted.
         <a title="Represents an invalid element." href="Invalid.html"><span class="name">Invalid</span></a><span class="tparams">[<span name="E">+E &lt;: <a href="Element.html" class="extype" name="laika.ast.Element">Element</a></span>]</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a></span>
       </span>
       
-      <p class="shortcomment cmt">Represents an invalid element.</p><div class="fullcomment"><div class="comment cmt"><p>Represents an invalid element. Renderers
- can choose to either render the fallback
- or the system message or both.
+      <p class="shortcomment cmt">Represents an invalid element.</p><div class="fullcomment"><div class="comment cmt"><p>Represents an invalid element.
+Renderers can choose to either render the fallback or the runtime message or both.
 </p></div></div>
     </li><li name="laika.ast.InvalidBlock" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="InvalidBlockextendsElementwithBlockwithInvalid[laika.ast.Block]withProductwithSerializable"></a><a id="InvalidBlock:InvalidBlock"></a>
@@ -2313,10 +2346,10 @@ into the final output, but not interpreted.
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="Groups a block that could not be successfully parsed with a system message." href="InvalidBlock.html"><span class="name">InvalidBlock</span></a><span class="params">(<span name="message">message: <a href="SystemMessage.html" class="extype" name="laika.ast.SystemMessage">SystemMessage</a></span>, <span name="fallback">fallback: <a href="Block.html" class="extype" name="laika.ast.Block">Block</a></span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Block.html" class="extype" name="laika.ast.Block">Block</a> with <a href="Invalid.html" class="extype" name="laika.ast.Invalid">Invalid</a>[<a href="Block.html" class="extype" name="laika.ast.Block">Block</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="Groups a block that could not be successfully parsed with a runtime message." href="InvalidBlock.html"><span class="name">InvalidBlock</span></a><span class="params">(<span name="message">message: <a href="RuntimeMessage.html" class="extype" name="laika.ast.RuntimeMessage">RuntimeMessage</a></span>, <span name="fallback">fallback: <a href="Block.html" class="extype" name="laika.ast.Block">Block</a></span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Block.html" class="extype" name="laika.ast.Block">Block</a> with <a href="Invalid.html" class="extype" name="laika.ast.Invalid">Invalid</a>[<a href="Block.html" class="extype" name="laika.ast.Block">Block</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
-      <p class="shortcomment cmt">Groups a block that could not be successfully parsed with a system message.</p><div class="fullcomment"><div class="comment cmt"><p>Groups a block that could not be successfully parsed with a system message.
+      <p class="shortcomment cmt">Groups a block that could not be successfully parsed with a runtime message.</p><div class="fullcomment"><div class="comment cmt"><p>Groups a block that could not be successfully parsed with a runtime message.
  Renderers may then choose to just render the fallback, the message or both.
 </p></div></div>
     </li><li name="laika.ast.InvalidElement" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
@@ -2331,7 +2364,7 @@ into the final output, but not interpreted.
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="Represents an invalid element in any position, block, span or template." href="InvalidElement.html"><span class="name">InvalidElement</span></a><span class="params">(<span name="message">message: <a href="SystemMessage.html" class="extype" name="laika.ast.SystemMessage">SystemMessage</a></span>, <span name="source">source: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="Represents an invalid element in any position, block, span or template." href="InvalidElement.html"><span class="name">InvalidElement</span></a><span class="params">(<span name="message">message: <a href="RuntimeMessage.html" class="extype" name="laika.ast.RuntimeMessage">RuntimeMessage</a></span>, <span name="source">source: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">Represents an invalid element in any position, block, span or template.</p><div class="fullcomment"><div class="comment cmt"><p>Represents an invalid element in any position, block, span or template.
@@ -2349,10 +2382,10 @@ Provides convenience converters to produce instances for any of these three posi
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="Groups a span that could not be successfully parsed with a system message." href="InvalidSpan.html"><span class="name">InvalidSpan</span></a><span class="params">(<span name="message">message: <a href="SystemMessage.html" class="extype" name="laika.ast.SystemMessage">SystemMessage</a></span>, <span name="fallback">fallback: <a href="Span.html" class="extype" name="laika.ast.Span">Span</a></span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Span.html" class="extype" name="laika.ast.Span">Span</a> with <a href="Invalid.html" class="extype" name="laika.ast.Invalid">Invalid</a>[<a href="Span.html" class="extype" name="laika.ast.Span">Span</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="Groups a span that could not be successfully parsed with a runtime message." href="InvalidSpan.html"><span class="name">InvalidSpan</span></a><span class="params">(<span name="message">message: <a href="RuntimeMessage.html" class="extype" name="laika.ast.RuntimeMessage">RuntimeMessage</a></span>, <span name="fallback">fallback: <a href="Span.html" class="extype" name="laika.ast.Span">Span</a></span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Span.html" class="extype" name="laika.ast.Span">Span</a> with <a href="Invalid.html" class="extype" name="laika.ast.Invalid">Invalid</a>[<a href="Span.html" class="extype" name="laika.ast.Span">Span</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
-      <p class="shortcomment cmt">Groups a span that could not be successfully parsed with a system message.</p><div class="fullcomment"><div class="comment cmt"><p>Groups a span that could not be successfully parsed with a system message.
+      <p class="shortcomment cmt">Groups a span that could not be successfully parsed with a runtime message.</p><div class="fullcomment"><div class="comment cmt"><p>Groups a span that could not be successfully parsed with a runtime message.
  Renderers may then choose to just render the fallback, the message or both.
 </p></div></div>
     </li><li name="laika.ast.Line" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
@@ -2439,7 +2472,7 @@ Provides convenience converters to produce instances for any of these three posi
  with by renderers.
 </p></div></div>
     </li><li name="laika.ast.LinkAlias" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="LinkAliasextendsElementwithDefinitionwithSpanwithProductwithSerializable"></a><a id="LinkAlias:LinkAlias"></a>
+      <a id="LinkAliasextendsElementwithDefinitionwithSpanwithHiddenwithProductwithSerializable"></a><a id="LinkAlias:LinkAlias"></a>
       <span class="permalink">
       <a href="../../laika/ast/LinkAlias.html" title="Permalink">
         <i class="material-icons"></i>
@@ -2450,14 +2483,14 @@ Provides convenience converters to produce instances for any of these three posi
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="A link target pointing to another link target, acting like an alias." href="LinkAlias.html"><span class="name">LinkAlias</span></a><span class="params">(<span name="id">id: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="target">target: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Definition.html" class="extype" name="laika.ast.Definition">Definition</a> with <a href="Span.html" class="extype" name="laika.ast.Span">Span</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="A link target pointing to another link target, acting like an alias." href="LinkAlias.html"><span class="name">LinkAlias</span></a><span class="params">(<span name="id">id: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="target">target: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Definition.html" class="extype" name="laika.ast.Definition">Definition</a> with <a href="Span.html" class="extype" name="laika.ast.Span">Span</a> with <a href="Hidden.html" class="extype" name="laika.ast.Hidden">Hidden</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">A link target pointing to another link target, acting like an alias.</p>
-    </li><li name="laika.ast.LinkReference" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="LinkReferenceextendsElementwithReferencewithSpanContainerwithProductwithSerializable"></a><a id="LinkReference:LinkReference"></a>
+    </li><li name="laika.ast.LinkDefinition" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="LinkDefinitionextendsElementwithDefinitionwithHiddenwithSpanwithProductwithSerializable"></a><a id="LinkDefinition:LinkDefinition"></a>
       <span class="permalink">
-      <a href="../../laika/ast/LinkReference.html" title="Permalink">
+      <a href="../../laika/ast/LinkDefinition.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -2466,11 +2499,30 @@ Provides convenience converters to produce instances for any of these three posi
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="A link reference, the id pointing to the id of a LinkTarget." href="LinkReference.html"><span class="name">LinkReference</span></a><span class="params">(<span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="Span.html" class="extype" name="laika.ast.Span">Span</a>]</span>, <span name="id">id: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="source">source: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Reference.html" class="extype" name="laika.ast.Reference">Reference</a> with <a href="SpanContainer.html" class="extype" name="laika.ast.SpanContainer">SpanContainer</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="An internal or external link target that can be referenced by id, usually only part of the raw document tree and then removed by the rewrite rule that resolves link and image references." href="LinkDefinition.html"><span class="name">LinkDefinition</span></a><span class="params">(<span name="id">id: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="target">target: <a href="Target.html" class="extype" name="laika.ast.Target">Target</a></span>, <span name="title">title: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Definition.html" class="extype" name="laika.ast.Definition">Definition</a> with <a href="Hidden.html" class="extype" name="laika.ast.Hidden">Hidden</a> with <a href="Span.html" class="extype" name="laika.ast.Span">Span</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
-      <p class="shortcomment cmt">A link reference, the id pointing to the id of a <code>LinkTarget</code>.</p><div class="fullcomment"><div class="comment cmt"><p>A link reference, the id pointing to the id of a <code>LinkTarget</code>. Only part of the
- raw document tree and then removed by the rewrite rule that resolves link and image references.
+      <p class="shortcomment cmt">An internal or external link target that can be referenced by id, usually only part of the raw document tree and then
+removed by the rewrite rule that resolves link and image references.</p>
+    </li><li name="laika.ast.LinkIdReference" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="LinkIdReferenceextendsElementwithReferencewithSpanContainerwithProductwithSerializable"></a><a id="LinkIdReference:LinkIdReference"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/LinkIdReference.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="A reference to any kind of referencable object, e.g." href="LinkIdReference.html"><span class="name">LinkIdReference</span></a><span class="params">(<span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="Span.html" class="extype" name="laika.ast.Span">Span</a>]</span>, <span name="ref">ref: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="source">source: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Reference.html" class="extype" name="laika.ast.Reference">Reference</a> with <a href="SpanContainer.html" class="extype" name="laika.ast.SpanContainer">SpanContainer</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">A reference to any kind of referencable object, e.g.</p><div class="fullcomment"><div class="comment cmt"><p>A reference to any kind of referencable object, e.g. a link definition or an internal target.</p><p>The reference can be local, in the same document, or anywhere else in the input tree, as long
+as the id is not ambiguous.
+Search for a matching target happens recursively, from the current document,
+to the current tree (directory) upwards to the root tree.
 </p></div></div>
     </li><li name="laika.ast.LinkTarget" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="LinkTargetextendsElementwithBlock"></a><a id="LinkTarget:LinkTarget"></a>
@@ -2572,6 +2624,22 @@ Provides convenience converters to produce instances for any of these three posi
       </span>
       
       <p class="shortcomment cmt">A context reference specifically for use in markup documents.</p>
+    </li><li name="laika.ast.MessageFilter" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="MessageFilterextendsAnyRef"></a><a id="MessageFilter:MessageFilter"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/MessageFilter.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">sealed </span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a title="A filter for runtime messages that meet a specified minimum message level." href="MessageFilter.html"><span class="name">MessageFilter</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">A filter for runtime messages that meet a specified minimum message level.</p>
     </li><li name="laika.ast.MessageLevel" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="MessageLevelextendsOrdered[laika.ast.MessageLevel]"></a><a id="MessageLevel:MessageLevel"></a>
       <span class="permalink">
@@ -2584,10 +2652,10 @@ Provides convenience converters to produce instances for any of these three posi
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a title="Signals the severity of a system message." href="MessageLevel.html"><span class="name">MessageLevel</span></a><span class="result"> extends <span class="extype" name="scala.math.Ordered">Ordered</span>[<a href="MessageLevel.html" class="extype" name="laika.ast.MessageLevel">MessageLevel</a>]</span>
+        <a title="Signals the severity of a runtime message." href="MessageLevel.html"><span class="name">MessageLevel</span></a><span class="result"> extends <span class="extype" name="scala.math.Ordered">Ordered</span>[<a href="MessageLevel.html" class="extype" name="laika.ast.MessageLevel">MessageLevel</a>]</span>
       </span>
       
-      <p class="shortcomment cmt">Signals the severity of a system message.</p>
+      <p class="shortcomment cmt">Signals the severity of a runtime message.</p>
     </li><li name="laika.ast.Navigatable" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="NavigatableextendsAnyRef"></a><a id="Navigatable:Navigatable"></a>
       <span class="permalink">
@@ -2604,6 +2672,90 @@ Provides convenience converters to produce instances for any of these three posi
       </span>
       
       <p class="shortcomment cmt">A navigatable object is anything that has an associated path.</p>
+    </li><li name="laika.ast.NavigationBuilderContext" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="NavigationBuilderContextextendsProductwithSerializable"></a><a id="NavigationBuilderContext:NavigationBuilderContext"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/NavigationBuilderContext.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="The context of a navigation builder that can get passed down in recursive calls to the various types that have an asNavigationItem method." href="NavigationBuilderContext.html"><span class="name">NavigationBuilderContext</span></a><span class="params">(<span name="refPath">refPath: <a href="Path.html" class="extype" name="laika.ast.Path">Path</a> = <span class="symbol"><span class="name"><a href="../index.html">Root</a></span></span></span>, <span name="itemStyles">itemStyles: <span class="extype" name="scala.Predef.Set">Set</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">Set()</span></span>, <span name="maxLevels">maxLevels: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">Int.MaxValue</span></span>, <span name="currentLevel">currentLevel: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">1</span></span>, <span name="excludeSections">excludeSections: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">The context of a navigation builder that can get passed down in recursive calls to the
+various types that have an asNavigationItem method.</p><div class="fullcomment"><div class="comment cmt"><p>The context of a navigation builder that can get passed down in recursive calls to the
+various types that have an asNavigationItem method.
+</p></div><dl class="paramcmts block"><dt class="param">refPath</dt><dd class="cmt"><p>the path of document from which this document will be linked (for creating a corresponding relative path)</p></dd><dt class="param">itemStyles</dt><dd class="cmt"><p>the styles to assign to each navigation item as a render hint</p></dd><dt class="param">maxLevels</dt><dd class="cmt"><p>the number of levels of sub-trees, documents or sections to create navigation info for</p></dd><dt class="param">currentLevel</dt><dd class="cmt"><p>the current level of the navigation tree being built</p></dd><dt class="param">excludeSections</dt><dd class="cmt"><p>indicates whether the recursion should exclude sections of documents even when maxLevels
+                       has not been reached yet</p></dd></dl></div>
+    </li><li name="laika.ast.NavigationHeader" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="NavigationHeaderextendsElementwithNavigationItemwithListContainerwithProductwithSerializable"></a><a id="NavigationHeader:NavigationHeader"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/NavigationHeader.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="Represents a book navigation entry that only serves as a section header without linking to content." href="NavigationHeader.html"><span class="name">NavigationHeader</span></a><span class="params">(<span name="title">title: <a href="SpanSequence.html" class="extype" name="laika.ast.SpanSequence">SpanSequence</a></span>, <span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="NavigationItem.html" class="extype" name="laika.ast.NavigationItem">NavigationItem</a>]</span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="NavigationItem.html" class="extype" name="laika.ast.NavigationItem">NavigationItem</a> with <a href="ListContainer.html" class="extype" name="laika.ast.ListContainer">ListContainer</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Represents a book navigation entry that only serves as a section header without linking to content.</p>
+    </li><li name="laika.ast.NavigationItem" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="NavigationItemextendsElementwithBlockwithListItemwithElementContainer[laika.ast.NavigationItem]withRewritableContainer"></a><a id="NavigationItem:NavigationItem"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/NavigationItem.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a title="Represents a recursive book navigation structure." href="NavigationItem.html"><span class="name">NavigationItem</span></a><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Block.html" class="extype" name="laika.ast.Block">Block</a> with <a href="ListItem.html" class="extype" name="laika.ast.ListItem">ListItem</a> with <a href="ElementContainer.html" class="extype" name="laika.ast.ElementContainer">ElementContainer</a>[<a href="NavigationItem.html" class="extype" name="laika.ast.NavigationItem">NavigationItem</a>] with <a href="RewritableContainer.html" class="extype" name="laika.ast.RewritableContainer">RewritableContainer</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Represents a recursive book navigation structure.</p>
+    </li><li name="laika.ast.NavigationLink" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="NavigationLinkextendsElementwithNavigationItemwithListContainerwithProductwithSerializable"></a><a id="NavigationLink:NavigationLink"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/NavigationLink.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="Represents a book navigation entry that links to content in the document tree." href="NavigationLink.html"><span class="name">NavigationLink</span></a><span class="params">(<span name="title">title: <a href="SpanSequence.html" class="extype" name="laika.ast.SpanSequence">SpanSequence</a></span>, <span name="target">target: <a href="Target.html" class="extype" name="laika.ast.Target">Target</a></span>, <span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="NavigationItem.html" class="extype" name="laika.ast.NavigationItem">NavigationItem</a>]</span>, <span name="selfLink">selfLink: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="NavigationItem.html" class="extype" name="laika.ast.NavigationItem">NavigationItem</a> with <a href="ListContainer.html" class="extype" name="laika.ast.ListContainer">ListContainer</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Represents a book navigation entry that links to content in the document tree.</p>
+    </li><li name="laika.ast.NavigationList" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="NavigationListextendsElementwithBlockwithListContainerwithRewritableContainerwithProductwithSerializable"></a><a id="NavigationList:NavigationList"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/NavigationList.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="The root node of a navigation structure" href="NavigationList.html"><span class="name">NavigationList</span></a><span class="params">(<span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="NavigationItem.html" class="extype" name="laika.ast.NavigationItem">NavigationItem</a>]</span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Block.html" class="extype" name="laika.ast.Block">Block</a> with <a href="ListContainer.html" class="extype" name="laika.ast.ListContainer">ListContainer</a> with <a href="RewritableContainer.html" class="extype" name="laika.ast.RewritableContainer">RewritableContainer</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">The root node of a navigation structure</p>
     </li><li name="laika.ast.NumericLabel" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="NumericLabelextendsFootnoteLabelwithProductwithSerializable"></a><a id="NumericLabel:NumericLabel"></a>
       <span class="permalink">
@@ -2740,10 +2892,10 @@ directories merged into a single virtual tree in memory with
 some additional documents added programmatically without any
 file system reference.
 </p></div></div>
-    </li><li name="laika.ast.PathInfo" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="PathInfoextendsProductwithSerializable"></a><a id="PathInfo:PathInfo"></a>
+    </li><li name="laika.ast.PathReference" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="PathReferenceextendsElementwithReferencewithSpanContainerwithProductwithSerializable"></a><a id="PathReference:PathReference"></a>
       <span class="permalink">
-      <a href="../../laika/ast/PathInfo.html" title="Permalink">
+      <a href="../../laika/ast/PathReference.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -2752,10 +2904,14 @@ file system reference.
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="Represents a single path in absolute and relative form." href="PathInfo.html"><span class="name">PathInfo</span></a><span class="params">(<span name="absolute">absolute: <a href="Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="relative">relative: <a href="RelativePath.html" class="extype" name="laika.ast.RelativePath">RelativePath</a></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="A reference to content within the virtual input tree, the path pointing to the source path." href="PathReference.html"><span class="name">PathReference</span></a><span class="params">(<span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="Span.html" class="extype" name="laika.ast.Span">Span</a>]</span>, <span name="path">path: <a href="RelativePath.html" class="extype" name="laika.ast.RelativePath">RelativePath</a></span>, <span name="source">source: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="title">title: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Reference.html" class="extype" name="laika.ast.Reference">Reference</a> with <a href="SpanContainer.html" class="extype" name="laika.ast.SpanContainer">SpanContainer</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
-      <p class="shortcomment cmt">Represents a single path in absolute and relative form.</p>
+      <p class="shortcomment cmt">A reference to content within the virtual input tree, the path pointing to the source path.</p><div class="fullcomment"><div class="comment cmt"><p>A reference to content within the virtual input tree, the path pointing to the source path.
+Only part of the unresolved document tree and then removed by the rewrite rule that
+replace the source path with the final target path of the output document, which might
+differ in more than just the file suffix, depending on configuration.
+</p></div></div>
     </li><li name="laika.ast.QuotedBlock" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="QuotedBlockextendsElementwithBlockwithBlockContainerwithProductwithSerializable"></a><a id="QuotedBlock:QuotedBlock"></a>
       <span class="permalink">
@@ -2793,7 +2949,7 @@ file system reference.
  parser it usually has to be explicitly enabled due to security concerns.
 </p></div></div>
     </li><li name="laika.ast.Reference" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="ReferenceextendsElementwithSpanwithTemporary"></a><a id="Reference:Reference"></a>
+      <a id="ReferenceextendsElementwithSpanwithUnresolved"></a><a id="Reference:Reference"></a>
       <span class="permalink">
       <a href="../../laika/ast/Reference.html" title="Permalink">
         <i class="material-icons"></i>
@@ -2804,13 +2960,12 @@ file system reference.
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a title="The base type for all reference elements." href="Reference.html"><span class="name">Reference</span></a><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Span.html" class="extype" name="laika.ast.Span">Span</a> with <a href="Temporary.html" class="extype" name="laika.ast.Temporary">Temporary</a></span>
+        <a title="The base type for all reference elements." href="Reference.html"><span class="name">Reference</span></a><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Span.html" class="extype" name="laika.ast.Span">Span</a> with <a href="Unresolved.html" class="extype" name="laika.ast.Unresolved">Unresolved</a></span>
       </span>
       
       <p class="shortcomment cmt">The base type for all reference elements.</p><div class="fullcomment"><div class="comment cmt"><p>The base type for all reference elements.</p><p> A reference points to some other node in the document tree and needs
  to be resolved and replaced by a rewrite rule before rendering.
- Therefore none of the available renderers include logic for
- dealing with references.
+ Therefore none of the available renderers include logic for dealing with references.
 </p></div></div>
     </li><li name="laika.ast.RelativePath" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="RelativePathextendsPathBase"></a><a id="RelativePath:RelativePath"></a>
@@ -3026,6 +3181,28 @@ operations.
       </span>
       
       <p class="shortcomment cmt">A horizontal rule.</p>
+    </li><li name="laika.ast.RuntimeMessage" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="RuntimeMessageextendsElementwithSpanwithBlockwithTextContainerwithProductwithSerializable"></a><a id="RuntimeMessage:RuntimeMessage"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/RuntimeMessage.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="Message generated by the parser, a directive or a rewrite rule." href="RuntimeMessage.html"><span class="name">RuntimeMessage</span></a><span class="params">(<span name="level">level: <a href="MessageLevel.html" class="extype" name="laika.ast.MessageLevel">MessageLevel</a></span>, <span name="content">content: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Span.html" class="extype" name="laika.ast.Span">Span</a> with <a href="Block.html" class="extype" name="laika.ast.Block">Block</a> with <a href="TextContainer.html" class="extype" name="laika.ast.TextContainer">TextContainer</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Message generated by the parser, a directive or a rewrite rule.</p><div class="fullcomment"><div class="comment cmt"><p>Message generated by the parser, a directive or a rewrite rule.</p><p>They usually get inserted immediately after the block or span that caused the problem.
+It mixes in both the Span and Block trait so that it can appear in sequences of both types.
+By default messages are ignored by most renderers (apart from AST), but
+they can be explicitly activated for a particular level.</p><p>A message of level <code>MessageLevel.Error</code> will cause a transformation to fail, unless
+the user has configured with the <code>renderErrors</code> method to debug in a visual mode
+in which case the errors will get rendered in-place in the output.
+</p></div></div>
     </li><li name="laika.ast.Section" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="SectionextendsElementwithBlockwithBlockContainerwithProductwithSerializable"></a><a id="Section:Section"></a>
       <span class="permalink">
@@ -3058,7 +3235,7 @@ operations.
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="Captures information about a document section, without its content." href="SectionInfo.html"><span class="name">SectionInfo</span></a><span class="params">(<span name="id">id: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="title">title: <a href="TitleInfo.html" class="extype" name="laika.ast.TitleInfo">TitleInfo</a></span>, <span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="SectionInfo.html" class="extype" name="laika.ast.SectionInfo">SectionInfo</a>]</span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="ElementContainer.html" class="extype" name="laika.ast.ElementContainer">ElementContainer</a>[<a href="SectionInfo.html" class="extype" name="laika.ast.SectionInfo">SectionInfo</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="Captures information about a document section, without its content." href="SectionInfo.html"><span class="name">SectionInfo</span></a><span class="params">(<span name="id">id: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="title">title: <a href="SpanSequence.html" class="extype" name="laika.ast.SpanSequence">SpanSequence</a></span>, <span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="SectionInfo.html" class="extype" name="laika.ast.SectionInfo">SectionInfo</a>]</span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="ElementContainer.html" class="extype" name="laika.ast.ElementContainer">ElementContainer</a>[<a href="SectionInfo.html" class="extype" name="laika.ast.SectionInfo">SectionInfo</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">Captures information about a document section, without its content.</p>
@@ -3091,7 +3268,7 @@ operations.
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="" href="SegmentedPath.html"><span class="name">SegmentedPath</span></a><span class="params">(<span name="segments">segments: <span class="extype" name="cats.data.NonEmptyChain">NonEmptyChain</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result"> extends <a href="Path.html" class="extype" name="laika.ast.Path">Path</a> with <a href="SegmentedPathBase.html" class="extype" name="laika.ast.SegmentedPathBase">SegmentedPathBase</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="" href="SegmentedPath.html"><span class="name">SegmentedPath</span></a><span class="params">(<span name="segments">segments: <span class="extype" name="cats.data.NonEmptyChain">NonEmptyChain</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="suffix">suffix: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="fragment">fragment: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>)</span><span class="result"> extends <a href="Path.html" class="extype" name="laika.ast.Path">Path</a> with <a href="SegmentedPathBase.html" class="extype" name="laika.ast.SegmentedPathBase">SegmentedPathBase</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       
@@ -3123,7 +3300,7 @@ operations.
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="" href="SegmentedRelativePath.html"><span class="name">SegmentedRelativePath</span></a><span class="params">(<span name="segments">segments: <span class="extype" name="cats.data.NonEmptyChain">NonEmptyChain</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="parentLevels">parentLevels: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">0</span></span>)</span><span class="result"> extends <a href="RelativePath.html" class="extype" name="laika.ast.RelativePath">RelativePath</a> with <a href="SegmentedPathBase.html" class="extype" name="laika.ast.SegmentedPathBase">SegmentedPathBase</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="" href="SegmentedRelativePath.html"><span class="name">SegmentedRelativePath</span></a><span class="params">(<span name="segments">segments: <span class="extype" name="cats.data.NonEmptyChain">NonEmptyChain</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="suffix">suffix: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="fragment">fragment: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="parentLevels">parentLevels: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">0</span></span>)</span><span class="result"> extends <a href="RelativePath.html" class="extype" name="laika.ast.RelativePath">RelativePath</a> with <a href="SegmentedPathBase.html" class="extype" name="laika.ast.SegmentedPathBase">SegmentedPathBase</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       
@@ -3211,8 +3388,24 @@ operations.
       </span>
       
       <p class="shortcomment cmt">Common methods for simple span containers (without additional parameters).</p>
+    </li><li name="laika.ast.SpanLink" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SpanLinkextendsElementwithLinkwithSpanContainerwithProductwithSerializable"></a><a id="SpanLink:SpanLink"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/SpanLink.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="An link element, with the span content representing the text (description) of the link." href="SpanLink.html"><span class="name">SpanLink</span></a><span class="params">(<span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="Span.html" class="extype" name="laika.ast.Span">Span</a>]</span>, <span name="target">target: <a href="Target.html" class="extype" name="laika.ast.Target">Target</a></span>, <span name="title">title: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Link.html" class="extype" name="laika.ast.Link">Link</a> with <a href="SpanContainer.html" class="extype" name="laika.ast.SpanContainer">SpanContainer</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">An link element, with the span content representing the text (description) of the link.</p>
     </li><li name="laika.ast.SpanResolver" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="SpanResolverextendsElementwithSpan"></a><a id="SpanResolver:SpanResolver"></a>
+      <a id="SpanResolverextendsElementwithSpanwithUnresolved"></a><a id="SpanResolver:SpanResolver"></a>
       <span class="permalink">
       <a href="../../laika/ast/SpanResolver.html" title="Permalink">
         <i class="material-icons"></i>
@@ -3223,7 +3416,7 @@ operations.
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a title="Represents a placeholder inline element that needs to be resolved in a rewrite step." href="SpanResolver.html"><span class="name">SpanResolver</span></a><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Span.html" class="extype" name="laika.ast.Span">Span</a></span>
+        <a title="Represents a placeholder inline element that needs to be resolved in a rewrite step." href="SpanResolver.html"><span class="name">SpanResolver</span></a><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Span.html" class="extype" name="laika.ast.Span">Span</a> with <a href="Unresolved.html" class="extype" name="laika.ast.Unresolved">Unresolved</a></span>
       </span>
       
       <p class="shortcomment cmt">Represents a placeholder inline element that needs
@@ -3378,27 +3571,6 @@ part of the selector for a style declaration.</p>
 </p></div><dl class="paramcmts block"><dt class="param">predicates</dt><dd class="cmt"><p>the set of predicates that need to hold
  for this selector to be applicable to a target element</p></dd><dt class="param">parent</dt><dd class="cmt"><p>the optional parent selector</p></dd><dt class="param">order</dt><dd class="cmt"><p>the index of the style declaration this selector
  belongs to</p></dd></dl></div>
-    </li><li name="laika.ast.SystemMessage" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="SystemMessageextendsElementwithSpanwithBlockwithTextContainerwithProductwithSerializable"></a><a id="SystemMessage:SystemMessage"></a>
-      <span class="permalink">
-      <a href="../../laika/ast/SystemMessage.html" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a title="Message generated by the parser, usually to signal potential parsing problems." href="SystemMessage.html"><span class="name">SystemMessage</span></a><span class="params">(<span name="level">level: <a href="MessageLevel.html" class="extype" name="laika.ast.MessageLevel">MessageLevel</a></span>, <span name="content">content: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Span.html" class="extype" name="laika.ast.Span">Span</a> with <a href="Block.html" class="extype" name="laika.ast.Block">Block</a> with <a href="TextContainer.html" class="extype" name="laika.ast.TextContainer">TextContainer</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      
-      <p class="shortcomment cmt">Message generated by the parser, usually to signal potential parsing problems.</p><div class="fullcomment"><div class="comment cmt"><p>Message generated by the parser, usually to signal potential parsing problems.
- They usually get inserted immediately after the block or span that caused the problem.
- It mixes in both the Span and Block trait so that it can appear in sequences of both types.
- By default messages are ignored by most renderers (apart from AST), but
- they can be explicitly activated for a particular level.
-</p></div></div>
     </li><li name="laika.ast.Table" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="TableextendsElementwithBlockwithElementTraversalwithRewritableContainerwithProductwithSerializable"></a><a id="Table:Table"></a>
       <span class="permalink">
@@ -3479,6 +3651,23 @@ part of the selector for a style declaration.</p>
       </span>
       
       <p class="shortcomment cmt">Contains the header rows of a table.</p>
+    </li><li name="laika.ast.Target" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="TargetextendsAnyRef"></a><a id="Target:Target"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/Target.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">sealed </span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a title="Represents a target that can be referred to by links, either within the virtual tree or external." href="Target.html"><span class="name">Target</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Represents a target that can be referred to by links,
+either within the virtual tree or external.</p>
     </li><li name="laika.ast.TargetFormat" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="TargetFormatextendsElementwithBlockwithProductwithSerializable"></a><a id="TargetFormat:TargetFormat"></a>
       <span class="permalink">
@@ -3650,24 +3839,6 @@ part of the selector for a style declaration.</p>
       
       <p class="shortcomment cmt">A simple string element, representing the parts of a template
  that are not detected as special markup constructs and treated as raw text.</p>
-    </li><li name="laika.ast.Temporary" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="TemporaryextendsElement"></a><a id="Temporary:Temporary"></a>
-      <span class="permalink">
-      <a href="../../laika/ast/Temporary.html" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">trait</span>
-      </span>
-      <span class="symbol">
-        <a title="Represents a temporary element only present in the raw document tree and then removed or replaced by a rewrite rule before rendering." href="Temporary.html"><span class="name">Temporary</span></a><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a></span>
-      </span>
-      
-      <p class="shortcomment cmt">Represents a temporary element only present in the
- raw document tree and then removed or replaced
- by a rewrite rule before rendering.</p>
     </li><li name="laika.ast.Text" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="TextextendsElementwithSpanwithTextContainerwithProductwithSerializable"></a><a id="Text:Text"></a>
       <span class="permalink">
@@ -3732,22 +3903,6 @@ part of the selector for a style declaration.</p>
       </span>
       
       <p class="shortcomment cmt">The (optional) title of the document.</p>
-    </li><li name="laika.ast.TitleInfo" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="TitleInfoextendsElementwithSpanContainerwithProductwithSerializable"></a><a id="TitleInfo:TitleInfo"></a>
-      <span class="permalink">
-      <a href="../../laika/ast/TitleInfo.html" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a title="Represents a section title." href="TitleInfo.html"><span class="name">TitleInfo</span></a><span class="params">(<span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="Span.html" class="extype" name="laika.ast.Span">Span</a>]</span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="SpanContainer.html" class="extype" name="laika.ast.SpanContainer">SpanContainer</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      
-      <p class="shortcomment cmt">Represents a section title.</p>
     </li><li name="laika.ast.TitledBlock" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="TitledBlockextendsElementwithBlockwithBlockContainerwithProductwithSerializable"></a><a id="TitledBlock:TitledBlock"></a>
       <span class="permalink">
@@ -3838,22 +3993,24 @@ operations.
       </span>
       
       <p class="shortcomment cmt">The structure of a document tree.</p>
-    </li><li name="laika.ast.URI" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="URIextendsProductwithSerializable"></a><a id="URI:URI"></a>
+    </li><li name="laika.ast.Unresolved" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="UnresolvedextendsElement"></a><a id="Unresolved:Unresolved"></a>
       <span class="permalink">
-      <a href="../../laika/ast/URI.html" title="Permalink">
+      <a href="../../laika/ast/Unresolved.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">case class</span>
+        <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a title="Represents a URI which might also optionally be expressed as a local reference within the processed tree." href="URI.html"><span class="name">URI</span></a><span class="params">(<span name="uri">uri: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="localRef">localRef: <span class="extype" name="scala.Option">Option</span>[<a href="PathInfo.html" class="extype" name="laika.ast.PathInfo">PathInfo</a>] = <span class="symbol">None</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="Represents an element that needs to be resolved in an AST transformation step." href="Unresolved.html"><span class="name">Unresolved</span></a><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a></span>
       </span>
       
-      <p class="shortcomment cmt">Represents a URI which might also optionally be expressed as a local reference within the processed tree.</p>
+      <p class="shortcomment cmt">Represents an element that needs to be resolved in an AST transformation step.</p><div class="fullcomment"><div class="comment cmt"><p>Represents an element that needs to be resolved in an AST transformation step.</p><p>Passing documents that still contain elements of this kind to a renderer
+will usually be treated as errors.
+</p></div></div>
     </li><li name="laika.ast.UnresolvedDocument" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="UnresolvedDocumentextendsProductwithSerializable"></a><a id="UnresolvedDocument:UnresolvedDocument"></a>
       <span class="permalink">
@@ -4268,6 +4425,22 @@ needs to be resolved based on a fallback configuration later.
       </span>
       
       
+    </li><li name="laika.ast.InternalTarget" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="InternalTarget"></a><a id="InternalTarget:InternalTarget"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/InternalTarget$.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="InternalTarget$.html"><span class="name">InternalTarget</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
     </li><li name="laika.ast.InvalidElement" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="InvalidElement"></a><a id="InvalidElement:InvalidElement"></a>
       <span class="permalink">
@@ -4316,7 +4489,55 @@ needs to be resolved based on a fallback configuration later.
       </span>
       
       
-    </li><li name="laika.ast.MessageLevel" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="laika.ast.Link" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Link"></a><a id="Link:Link"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/Link$.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="Link$.html"><span class="name">Link</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
+    </li><li name="laika.ast.LinkDefinition" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="LinkDefinition"></a><a id="LinkDefinition:LinkDefinition"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/LinkDefinition$.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="LinkDefinition$.html"><span class="name">LinkDefinition</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
+    </li><li name="laika.ast.MessageFilter" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="MessageFilter"></a><a id="MessageFilter:MessageFilter"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/MessageFilter$.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="MessageFilter$.html"><span class="name">MessageFilter</span></a>
+      </span>
+      
+      
+    </li><li name="laika.ast.MessageLevel" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="MessageLevel"></a><a id="MessageLevel:MessageLevel"></a>
       <span class="permalink">
       <a href="../../laika/ast/MessageLevel$.html" title="Permalink">
@@ -4331,7 +4552,9 @@ needs to be resolved based on a fallback configuration later.
         <a title="Enumeration of available message levels." href="MessageLevel$.html"><span class="name">MessageLevel</span></a>
       </span>
       
-      <p class="shortcomment cmt">Enumeration of available message levels.</p>
+      <p class="shortcomment cmt">Enumeration of available message levels.</p><div class="fullcomment"><div class="comment cmt"><p>Enumeration of available message levels.</p><p>The library's internal parsers and AST transformation only use the <code>Error</code> level for recoverable issues
+encountered during transformations. All other levels are available for user code.
+</p></div></div>
     </li><li name="laika.ast.NoOpt" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="NoOpt"></a><a id="NoOpt:NoOpt"></a>
       <span class="permalink">
@@ -4425,22 +4648,6 @@ needs to be resolved based on a fallback configuration later.
       </span>
       <span class="symbol">
         <a title="" href="PathBase$.html"><span class="name">PathBase</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      
-      
-    </li><li name="laika.ast.PathInfo" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="PathInfo"></a><a id="PathInfo:PathInfo"></a>
-      <span class="permalink">
-      <a href="../../laika/ast/PathInfo$.html" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a title="" href="PathInfo$.html"><span class="name">PathInfo</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       
@@ -4577,6 +4784,22 @@ needs to be resolved based on a fallback configuration later.
       </span>
       
       
+    </li><li name="laika.ast.SegmentedPathBase" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SegmentedPathBase"></a><a id="SegmentedPathBase:SegmentedPathBase"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/SegmentedPathBase$.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="SegmentedPathBase$.html"><span class="name">SegmentedPathBase</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
     </li><li name="laika.ast.SpanSequence" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="SpanSequence"></a><a id="SpanSequence:SpanSequence"></a>
       <span class="permalink">
@@ -4609,6 +4832,22 @@ needs to be resolved based on a fallback configuration later.
       </span>
       
       
+    </li><li name="laika.ast.Style" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Style"></a><a id="Style:Style"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/Style$.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="Constants for style names wrapped in Options instances which are commonly used by Laika's core parsers and rewrite rules." href="Style$.html"><span class="name">Style</span></a>
+      </span>
+      
+      <p class="shortcomment cmt">Constants for style names wrapped in Options instances which are commonly used by Laika's core parsers and rewrite rules.</p>
     </li><li name="laika.ast.StyleDeclaration" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="StyleDeclaration"></a><a id="StyleDeclaration:StyleDeclaration"></a>
       <span class="permalink">
@@ -4695,6 +4934,22 @@ children (e.g. <code>Paragraph &gt; .intro</code>).
       </span>
       <span class="symbol">
         <a title="" href="Table$.html"><span class="name">Table</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
+    </li><li name="laika.ast.Target" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Target"></a><a id="Target:Target"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/Target$.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="Target$.html"><span class="name">Target</span></a>
       </span>
       
       

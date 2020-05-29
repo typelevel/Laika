@@ -203,6 +203,10 @@
                         <a href="DirectiveSupport.html" title="Internal API that processes all directives defined by one or more DirectiveRegistries.">DirectiveSupport</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="object" href="Links$.html" title="The API for declaring directives that can be used in links."></a>
+                        <a href="Links$.html" title="The API for declaring directives that can be used in links.">Links</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="object" href="Spans$.html" title="The API for declaring directives that can be used as inline elements in markup documents."></a>
                         <a href="Spans$.html" title="The API for declaring directives that can be used as inline elements in markup documents.">Spans</a>
                       </li><li class="current-entities indented2">
@@ -451,13 +455,9 @@
         <a title="Provides the basic building blocks for Laika's Directive API." href="BuilderContext.html"><span class="name">BuilderContext</span></a><span class="tparams">[<span name="E">E &lt;: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       
-      <p class="shortcomment cmt">Provides the basic building blocks for
-Laika's Directive API.</p><div class="fullcomment"><div class="comment cmt"><p>Provides the basic building blocks for
-Laika's Directive API. This trait
-is not used directly, but instead its
-three sub-traits <code>Blocks</code>, <code>Spans</code> and <code>Templates</code>,
-which represent the concrete implementations
-for the three directive types.
+      <p class="shortcomment cmt">Provides the basic building blocks for Laika's Directive API.</p><div class="fullcomment"><div class="comment cmt"><p>Provides the basic building blocks for Laika's Directive API.
+This trait is not used directly, but instead its three sub-traits <code>Blocks</code>, <code>Spans</code> and <code>Templates</code>,
+which represent the concrete implementations for the three directive types.
 </p></div></div>
     </li><li name="laika.directive.DirectiveRegistry" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="DirectiveRegistryextendsExtensionBundle"></a><a id="DirectiveRegistry:DirectiveRegistry"></a>
@@ -480,6 +480,7 @@ them to Parse, Render or Transform operations:</p><pre><span class="kw">object</
   <span class="kw">val</span> spanDirectives = <span class="std">Seq</span>(...)
   <span class="kw">val</span> blockDirectives = <span class="std">Seq</span>(...)
   <span class="kw">val</span> templateDirectives = <span class="std">Seq</span>(...)
+  <span class="kw">val</span> linkDirectives = <span class="std">Seq</span>(...)
 }
 <span class="kw">object</span> OtherDirectives <span class="kw">extends</span> DirectiveRegistry {
   [...]
@@ -568,6 +569,22 @@ is run in strict mode.
       </span>
       
       <p class="shortcomment cmt">Empty default instance without any directives installed.</p>
+    </li><li name="laika.directive.Links" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Links"></a><a id="Links:Links"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/Links$.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="The API for declaring directives that can be used in links." href="Links$.html"><span class="name">Links</span></a>
+      </span>
+      
+      <p class="shortcomment cmt">The API for declaring directives that can be used in links.</p>
     </li><li name="laika.directive.Spans" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Spans"></a><a id="Spans:Spans"></a>
       <span class="permalink">
@@ -600,15 +617,29 @@ is run in strict mode.
         <a title="Provides the implementation for the standard directives included in Laika." href="StandardDirectives$.html"><span class="name">StandardDirectives</span></a><span class="result"> extends <a href="DirectiveRegistry.html" class="extype" name="laika.directive.DirectiveRegistry">DirectiveRegistry</a></span>
       </span>
       
-      <p class="shortcomment cmt">Provides the implementation for the standard directives included in Laika.</p><div class="fullcomment"><div class="comment cmt"><p>Provides the implementation for the standard directives included in Laika.</p><p> These include:</p><ul><li><code>toc</code>: Generates a table of content from a specified root node.</li><li><code>fragment</code>: Marks a block in a markup document as being separate from the main content,
-   so that it can be placed separately in templates.</li><li><code>for</code>: Accesses a value from the context and sets it as the reference context for its
-   body elements, executing the body if the referenced value is non-empty and executing
-   it multiple times when it is a collection.</li><li><code>if</code>: Accesses a value from the context and processes the body element only when
-   it is a value recognized as true.</li><li><code>format</code>: Process the body element only when the output format matches the format
-   specified in the directive (e.g. <code>pdf</code> or <code>html</code>).</li><li><code>style</code>: Adds a style property to the body element.</li><li><code>styleLink</code>: Adds link elements to HTML output for all CSS files found in the document tree</li><li><code>fragment</code>: Adds the body as a fragment to the target document, separate from the main
-   content, to be rendered in different locations of the output, like headers, footers or sidebars.</li><li><code>pageBreak</code>: Inserts a page break element into the tree (will only be rendered by page-based
-   output, like XSL-FO or PDF.
-</li></ul></div></div>
+      <p class="shortcomment cmt">Provides the implementation for the standard directives included in Laika.</p><div class="fullcomment"><div class="comment cmt"><p>Provides the implementation for the standard directives included in Laika.</p><p>These include:</p><p>- <code>navigationTree</code>: Generates a navigation tree either automatically from specified root nodes
+   of the input tree or by specifying entries manually (or a combination of both).
+- <code>breadcrumb</code>: Builds a navigation list from the root node of the input tree to the current document.
+- <code>ref</code>: Convenience directive that allows to reference a different section of the input tree
+  via its headline text. The headline does not have to be unique, as long as the directive can identify
+  a section that is closer than the others with the same headline.
+- <code>api</code>: Convenience directive that allows to reference an api documentation entry (e.g. scaladoc, javadoc)
+- <code>fragment</code>: Marks a block in a markup document as being separate from the main content,
+  so that it can be placed separately in templates.
+- <code>for</code>: Accesses a value from the context and sets it as the reference context for its
+  body elements, executing the body if the referenced value is non-empty and executing
+  it multiple times when it is a collection.
+- <code>if</code>: Accesses a value from the context and processes the body element only when
+  it is a value recognized as true.
+- <code>format</code>: Process the body element only when the output format matches the format
+  specified in the directive (e.g. <code>pdf</code> or <code>html</code>).
+- <code>style</code>: Adds a style property to the body element.
+- <code>styleLink</code>: Adds link elements to HTML output for all CSS files found in the document tree
+- <code>fragment</code>: Adds the body as a fragment to the target document, separate from the main
+  content, to be rendered in different locations of the output, like headers, footers or sidebars.
+- <code>pageBreak</code>: Inserts a page break element into the tree (will only be rendered by page-based
+  output, like XSL-FO or PDF.
+</p></div></div>
     </li><li name="laika.directive.Templates" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Templates"></a><a id="Templates:Templates"></a>
       <span class="permalink">
@@ -624,8 +655,7 @@ is run in strict mode.
         <a title="The API for declaring directives that can be used in templates." href="Templates$.html"><span class="name">Templates</span></a><span class="result"> extends <a href="BuilderContext.html" class="extype" name="laika.directive.BuilderContext">BuilderContext</a>[<a href="../ast/TemplateSpan.html" class="extype" name="laika.ast.TemplateSpan">TemplateSpan</a>]</span>
       </span>
       
-      <p class="shortcomment cmt">The API for declaring directives that can be used
- in templates.</p>
+      <p class="shortcomment cmt">The API for declaring directives that can be used in templates.</p>
     </li>
               </ol>
             </div>

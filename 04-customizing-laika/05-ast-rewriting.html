@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+
+    <title>Laika</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Customizable and extensible toolkit for transforming lightweight markup languages to various types of output formats, written in Scala" />
+    <meta name="keywords" content="scala, text, markup, markdown, restructuredtext, parser, transformer, html, template engine, site generation, open-source" />
+
+    <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+    <link href="../css/bootstrap.css" rel="stylesheet">
+    <link href="../css/docs.css" rel="stylesheet">
+
+  </head>
+
+  <body data-spy="scroll" data-target=".toc" data-offset="200">
+
+
+  <div class="container">
+
+    <!-- Docs nav
+    ================================================== -->
+    <div class="row">
+      <div class="span4 toc" >
+        
+        <ul class="nav nav-list affix">
+          <div class="nav-top"><img src="../img/laika-top.png"/></div>
+          
+          
+          <li><a href="../table-of-contents.html">Table of Contents</a></li>
+          <li class="nav-header">About Laika</li>
+          <li><a href="../01-about-laika/01-features.html">Features</a></li>
+          <li><a href="../01-about-laika/02-design-goals.html">Design Goals</a></li>
+          <li class="nav-header">Running Laika</li>
+          <li><a href="../02-running-laika/01-sbt-plugin.html">sbt Plugin</a></li>
+          <li><a href="../02-running-laika/02-library-api.html">Library API</a></li>
+          <li><a href="../02-running-laika/03-configuration.html">Configuration</a></li>
+          <li class="nav-header">Preparing Content</li>
+          <li><a href="../03-preparing-content/01-directory-structure.html">Directory Structure</a></li>
+          <li><a href="../03-preparing-content/02-navigation.html">Navigation</a></li>
+          <li><a href="../03-preparing-content/04-ebooks.html">E-Books (EPUB &amp; PDF)</a></li>
+          <li><a href="../03-preparing-content/05-syntax-highlighting.html">Syntax Highlighting</a></li>
+          <li class="nav-header">Customizing Laika</li>
+          <li><a href="01-overview.html">Overview</a></li>
+          <li><a href="03-creating-templates.html">Creating Templates</a></li>
+          <li><a href="04-document-ast.html">The Document AST</a></li>
+          <li class="active"><a href="#">AST Rewriting</a></li>
+          <li><a href="06-overriding-renderers.html">Overriding Renderers</a></li>
+          <li class="nav-header">Extending Laika</li>
+          <li><a href="../05-extending-laika/01-overview.html">Overview</a></li>
+          <li><a href="../05-extending-laika/03-implementing-directives.html">Implementing Directives</a></li>
+          <li><a href="../05-extending-laika/04-writing-parser-extensions.html">Writing Parser Extensions</a></li>
+          <li><a href="../05-extending-laika/06-adding-syntax-highlighters.html">Adding Syntax Highlighters</a></li>
+          <li><a href="../05-extending-laika/07-new-markup-output-formats.html">New Markup or Output Formats</a></li>
+          <li class="nav-header">Sub-Modules</li>
+          <li><a href="../06-sub-modules/02-laikas-parser-combinators.html">Laika&#39;s Parser Combinators</a></li>
+          <li><a href="../06-sub-modules/03-laikas-hocon-api.html">Laika&#39;s HOCON API</a></li>
+          <li class="nav-header">Reference</li>
+          <li><a href="../07-reference/01-standard-directives.html">Standard Directives</a></li>
+          <li><a href="../07-reference/02-substitution-variables.html">Substitution Variables</a></li>
+          <li><a href="../07-reference/03-spec-compliance.html">Spec Compliance</a></li>
+          <li><a href="../07-reference/06-release-notes.html">Release Notes</a></li>
+          <li><a href="../07-reference/07-migration-guide.html">Migration Guide</a></li>
+          
+          <li class="nav-header">Project Links</li>
+          <li><a href="http://github.com/planet42/Laika">Source Code</a></li>
+          <li><a href="../api/laika/api/">API Documentation</a></li>
+          <!--<li><a href="http://github.com/planet42/Laika/issues">Issue Tracker</a></li>-->
+          <!--<li><a href="http://planet42.org/">Demo App</a></li>-->
+          <!--  
+          <li class="follow"><a href="https://twitter.com/_planet42" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false" data-dnt="true">Follow @_planet42</a>
+          <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script></li>
+          -->
+          <div class="nav-bottom"><img src="../img/laika-bottom.png" border="1"/></div>
+        </ul>
+        
+      </div>
+      
+      <div class="span8" id="top">
+
+        <div class="page-header">
+        <h1 id="ast-rewriting" class="title">AST Rewriting</h1>
+        </div>
+        <p>The document tree in a Laika transformation is a generic representation of the document 
+        that does not contain any specific semantic or technical coupling to a concrete input or output format. 
+        This allows to add custom processing logic only operating on the document structure itself, 
+        so it can be used with all supported input and output formats unchanged.</p>
+        <p>Rewriting a tree means traversing it and replacing or removing some of its nodes.
+        A tree model is immutable, so rewriting always creates a new tree, 
+        while reusing unmodified branches for efficiency.</p>
+        <p>Several of Laika&#39;s built-in features are implemented as rewrite rules internally,
+        like the mechanism for resolving internal references or footnote auto-numbering.
+        But it also designed to be a hook for processing on the application level.</p>
+        
+        <h2 id="how-rewrite-rules-work" class="section">How Rewrite Rules Work</h2>
+        <p>A rewrite rule has the type <code>PartialFunction[T, RewriteAction[T]]</code>. 
+        Laika offers a type alias <code>RewriteRule[T]</code> for convenience.</p>
+        <p>The rules are as follows:</p>
+        <ul>
+          <li>
+            <p>If the function is not defined for a particular element or it returns <code>Retain</code> the old element is kept in the tree.</p>
+          </li>
+          <li>
+            <p>If the function returns <code>Replace(newElement)</code> this element is used in place of the old one.</p>
+          </li>
+          <li>
+            <p>If the function returns <code>Remove</code> the old element is removed from the tree.</p>
+          </li>
+          <li>
+            <p>Processing happens depth-first (bottom-up), 
+            so all nodes getting passed to this function already had their children getting processed.</p>
+          </li>
+          <li>
+            <p>The tree is immutable, therefore new instances are returned when rewriting.</p>
+          </li>
+        </ul>
+        <p>The following sections show the three ways to apply such a rule.</p>
+        
+        <h2 id="applying-a-rewrite-rule" class="section">Applying a Rewrite Rule</h2>
+        <p>The mechanism is slightly different, depending on whether you are using the sbt
+        plugin or Laika embedded in an application. In the latter case you have two
+        choices, one for hooking into a full transformation, the other for operating
+        on nodes obtained by a separate parse operation. All three options are described below.</p>
+        
+        <h3 id="using-the-sbt-plugin" class="section">Using the sbt Plugin</h3>
+        <p>The following example of an sbt build file shows how to turn each <code>Emphasized</code> node
+        into a <code>Strong</code> node while processing everything else with default rules:</p>
+        <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">ast</span><span>.</span><span class="identifier">_</span><span>
+
+</span><span class="identifier">laikaExtensions</span><span> += </span><span class="identifier">laikaSpanRewriteRule</span><span> { 
+  </span><span class="keyword">case</span><span> </span><span class="type-name">Emphasized</span><span>(</span><span class="identifier">content</span><span>, </span><span class="identifier">opts</span><span>) =&gt; </span><span class="type-name">Replace</span><span>(</span><span class="type-name">Strong</span><span>(</span><span class="identifier">content</span><span>, </span><span class="identifier">opts</span><span>))
+}</span></code></pre>
+        
+        <h3 id="using-the-transformer-api" class="section">Using the Transformer API</h3>
+        <p>When using the library API and all you want to do is to perform a full transformation 
+        from some input text to some output format, 
+        the Transformer API offers a hook to do this in one go, as a step in the transformation process.</p>
+        <p>Again we replace all <code>Emphasized</code> nodes with <code>Strong</code> nodes:</p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">ReStructuredText</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">usingSpanRule</span><span> {
+    </span><span class="keyword">case</span><span> </span><span class="type-name">Emphasized</span><span>(</span><span class="identifier">content</span><span>, </span><span class="identifier">opts</span><span>) =&gt; </span><span class="type-name">Replace</span><span>(</span><span class="type-name">Strong</span><span>(</span><span class="identifier">content</span><span>, </span><span class="identifier">opts</span><span>))
+  }.</span><span class="identifier">build</span></code></pre>
+        
+        <h3 id="working-with-the-tree-model" class="section">Working with the Tree Model</h3>
+        <p>The final option is to use the <code>rewrite</code> method on individual documents or AST nodes.</p>
+        <p>The types <code>DocumentTree</code> and <code>Document</code> come with a <code>rewrite</code> method as well as most of the node types 
+        that can occur within a document (all nodes that mix in <code>RewritableContainer</code>).</p>
+        <p>Obtaining <code>Document</code> instances is usually achieved by splitting the parsing and rendering operations
+        instead of using a full transformer. This is described in detail in <a href="../02-running-laika/02-library-api.html#separate-parsing-and-rendering">Separate Parsing and Rendering</a>.</p>
+        <p>Once again we are turning all <code>Emphasized</code> nodes in the text to <code>Strong</code> nodes for our example:</p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">doc</span><span>: </span><span class="type-name">Document</span><span> = ??? </span><span class="comment">// obtained through the Parser API
+</span><span>
+</span><span class="keyword">val</span><span> </span><span class="identifier">newDoc</span><span> = </span><span class="identifier">doc</span><span>.</span><span class="identifier">rewrite</span><span> {
+  </span><span class="keyword">case</span><span> </span><span class="type-name">Emphasized</span><span>(</span><span class="identifier">content</span><span>, </span><span class="identifier">opts</span><span>) =&gt; </span><span class="type-name">Replace</span><span>(</span><span class="type-name">Strong</span><span>(</span><span class="identifier">content</span><span>, </span><span class="identifier">opts</span><span>))
+}</span></code></pre>
+        <p>For a slightly more advanced example, let&#39;s assume you only want to replace <code>Emphasized</code> nodes inside headers. 
+        To accomplish this you need to nest a rewrite operation inside another one:</p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">newDoc</span><span> = </span><span class="identifier">doc</span><span>.</span><span class="identifier">rewrite</span><span> {
+  </span><span class="keyword">case</span><span> </span><span class="identifier">h</span><span>: </span><span class="type-name">Header</span><span> =&gt; </span><span class="type-name">Some</span><span>(</span><span class="identifier">h</span><span>.</span><span class="identifier">rewriteChildren</span><span> {
+    </span><span class="keyword">case</span><span> </span><span class="type-name">Emphasized</span><span>(</span><span class="identifier">content</span><span>, </span><span class="identifier">opts</span><span>) =&gt; </span><span class="type-name">Replace</span><span>(</span><span class="type-name">Strong</span><span>(</span><span class="identifier">content</span><span>, </span><span class="identifier">opts</span><span>))
+  })
+}</span></code></pre>
+
+      </div>
+    </div>
+
+  </div>
+
+</body></html>

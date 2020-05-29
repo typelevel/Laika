@@ -144,13 +144,13 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">RenderContext</span><span class="tparams">[<span name="FMT">FMT</span>]</span><span class="params">(<span name="renderChild">renderChild: (<span class="extype" name="laika.factory.RenderContext.FMT">FMT</span>, <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a>) ⇒ <span class="extype" name="scala.Predef.String">String</span></span>, <span name="root">root: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>, <span name="styles">styles: <a href="../ast/StyleDeclarationSet.html" class="extype" name="laika.ast.StyleDeclarationSet">StyleDeclarationSet</a></span>, <span name="path">path: <a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="config">config: <a href="../api/builder/RenderConfig.html" class="extype" name="laika.api.builder.RenderConfig">RenderConfig</a></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">RenderContext</span><span class="tparams">[<span name="FMT">FMT</span>]</span><span class="params">(<span name="renderChild">renderChild: (<span class="extype" name="laika.factory.RenderContext.FMT">FMT</span>, <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a>) ⇒ <span class="extype" name="scala.Predef.String">String</span></span>, <span name="root">root: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>, <span name="styles">styles: <a href="../ast/StyleDeclarationSet.html" class="extype" name="laika.ast.StyleDeclarationSet">StyleDeclarationSet</a></span>, <span name="path">path: <a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="pathTranslator">pathTranslator: <a href="../rewrite/nav/PathTranslator.html" class="extype" name="laika.rewrite.nav.PathTranslator">PathTranslator</a></span>, <span name="config">config: <a href="../api/builder/RenderConfig.html" class="extype" name="laika.api.builder.RenderConfig">RenderConfig</a></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Provides the context for a single render operation.
-</p></div><dl class="paramcmts block"><dt class="param">renderChild</dt><dd class="cmt"><p>a render function to use for rendering the children of an element</p></dd><dt class="param">root</dt><dd class="cmt"><p>the root element the new renderer will be used for</p></dd><dt class="param">styles</dt><dd class="cmt"><p>the styles the new renderer should apply to the rendered elements</p></dd><dt class="param">path</dt><dd class="cmt"><p>the (virtual) path the output will be rendered to</p></dd><dt class="param">config</dt><dd class="cmt"><p>additional configuration for the renderer</p></dd></dl><div class="toggleContainer block">
+</p></div><dl class="paramcmts block"><dt class="param">renderChild</dt><dd class="cmt"><p>a render function to use for rendering the children of an element</p></dd><dt class="param">root</dt><dd class="cmt"><p>the root element the new renderer will be used for</p></dd><dt class="param">styles</dt><dd class="cmt"><p>the styles the new renderer should apply to the rendered elements</p></dd><dt class="param">path</dt><dd class="cmt"><p>the (virtual) path the output will be rendered to</p></dd><dt class="param">pathTranslator</dt><dd class="cmt"><p>translates paths of input documents to the corresponding output path</p></dd><dt class="param">config</dt><dd class="cmt"><p>additional configuration for the renderer</p></dd></dl><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
           </span>
@@ -201,9 +201,9 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.factory.RenderContext#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;init&gt;(renderChild:(FMT,laika.ast.Element)=&gt;String,root:laika.ast.Element,styles:laika.ast.StyleDeclarationSet,path:laika.ast.Path,config:laika.api.builder.RenderConfig):laika.factory.RenderContext[FMT]"></a><a id="&lt;init&gt;:RenderContext[FMT]"></a>
+      <a id="&lt;init&gt;(renderChild:(FMT,laika.ast.Element)=&gt;String,root:laika.ast.Element,styles:laika.ast.StyleDeclarationSet,path:laika.ast.Path,pathTranslator:laika.rewrite.nav.PathTranslator,config:laika.api.builder.RenderConfig):laika.factory.RenderContext[FMT]"></a><a id="&lt;init&gt;:RenderContext[FMT]"></a>
       <span class="permalink">
-      <a href="../../laika/factory/RenderContext.html#&lt;init&gt;(renderChild:(FMT,laika.ast.Element)=&gt;String,root:laika.ast.Element,styles:laika.ast.StyleDeclarationSet,path:laika.ast.Path,config:laika.api.builder.RenderConfig):laika.factory.RenderContext[FMT]" title="Permalink">
+      <a href="../../laika/factory/RenderContext.html#&lt;init&gt;(renderChild:(FMT,laika.ast.Element)=&gt;String,root:laika.ast.Element,styles:laika.ast.StyleDeclarationSet,path:laika.ast.Path,pathTranslator:laika.rewrite.nav.PathTranslator,config:laika.api.builder.RenderConfig):laika.factory.RenderContext[FMT]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -212,10 +212,10 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">RenderContext</span><span class="params">(<span name="renderChild">renderChild: (<span class="extype" name="laika.factory.RenderContext.FMT">FMT</span>, <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a>) ⇒ <span class="extype" name="scala.Predef.String">String</span></span>, <span name="root">root: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>, <span name="styles">styles: <a href="../ast/StyleDeclarationSet.html" class="extype" name="laika.ast.StyleDeclarationSet">StyleDeclarationSet</a></span>, <span name="path">path: <a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="config">config: <a href="../api/builder/RenderConfig.html" class="extype" name="laika.api.builder.RenderConfig">RenderConfig</a></span>)</span>
+        <span class="name">RenderContext</span><span class="params">(<span name="renderChild">renderChild: (<span class="extype" name="laika.factory.RenderContext.FMT">FMT</span>, <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a>) ⇒ <span class="extype" name="scala.Predef.String">String</span></span>, <span name="root">root: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>, <span name="styles">styles: <a href="../ast/StyleDeclarationSet.html" class="extype" name="laika.ast.StyleDeclarationSet">StyleDeclarationSet</a></span>, <span name="path">path: <a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="pathTranslator">pathTranslator: <a href="../rewrite/nav/PathTranslator.html" class="extype" name="laika.rewrite.nav.PathTranslator">PathTranslator</a></span>, <span name="config">config: <a href="../api/builder/RenderConfig.html" class="extype" name="laika.api.builder.RenderConfig">RenderConfig</a></span>)</span>
       </span>
       
-      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">renderChild</dt><dd class="cmt"><p>a render function to use for rendering the children of an element</p></dd><dt class="param">root</dt><dd class="cmt"><p>the root element the new renderer will be used for</p></dd><dt class="param">styles</dt><dd class="cmt"><p>the styles the new renderer should apply to the rendered elements</p></dd><dt class="param">path</dt><dd class="cmt"><p>the (virtual) path the output will be rendered to</p></dd><dt class="param">config</dt><dd class="cmt"><p>additional configuration for the renderer</p></dd></dl></div>
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">renderChild</dt><dd class="cmt"><p>a render function to use for rendering the children of an element</p></dd><dt class="param">root</dt><dd class="cmt"><p>the root element the new renderer will be used for</p></dd><dt class="param">styles</dt><dd class="cmt"><p>the styles the new renderer should apply to the rendered elements</p></dd><dt class="param">path</dt><dd class="cmt"><p>the (virtual) path the output will be rendered to</p></dd><dt class="param">pathTranslator</dt><dd class="cmt"><p>translates paths of input documents to the corresponding output path</p></dd><dt class="param">config</dt><dd class="cmt"><p>additional configuration for the renderer</p></dd></dl></div>
     </li></ol>
             </div>
 
@@ -486,6 +486,22 @@
       </span>
       <span class="symbol">
         <span class="name">path</span><span class="result">: <a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>
+      </span>
+      
+      
+    </li><li name="laika.factory.RenderContext#pathTranslator" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="pathTranslator:laika.rewrite.nav.PathTranslator"></a><a id="pathTranslator:PathTranslator"></a>
+      <span class="permalink">
+      <a href="../../laika/factory/RenderContext.html#pathTranslator:laika.rewrite.nav.PathTranslator" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">pathTranslator</span><span class="result">: <a href="../rewrite/nav/PathTranslator.html" class="extype" name="laika.rewrite.nav.PathTranslator">PathTranslator</a></span>
       </span>
       
       

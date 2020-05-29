@@ -297,54 +297,6 @@
       </span>
       
       <p class="shortcomment cmt">Applies the specified template to the target of the specified document cursor.</p>
-    </li><li name="laika.rewrite.TemplateRewriter#applyTemplate" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="applyTemplate(cursor:laika.ast.DocumentCursor,format:String):Either[laika.config.ConfigError,laika.ast.Document]"></a><a id="applyTemplate(DocumentCursor,String):Either[ConfigError,Document]"></a>
-      <span class="permalink">
-      <a href="../../laika/rewrite/TemplateRewriter.html#applyTemplate(cursor:laika.ast.DocumentCursor,format:String):Either[laika.config.ConfigError,laika.ast.Document]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">applyTemplate</span><span class="params">(<span name="cursor">cursor: <a href="../ast/DocumentCursor.html" class="extype" name="laika.ast.DocumentCursor">DocumentCursor</a></span>, <span name="format">format: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Either">Either</span>[<a href="../config/ConfigError.html" class="extype" name="laika.config.ConfigError">ConfigError</a>, <a href="../ast/Document.html" class="extype" name="laika.ast.Document">Document</a>]</span>
-      </span>
-      
-      <p class="shortcomment cmt">Selects and applies the template for the specified output format to the target of the specified document cursor.</p>
-    </li><li name="laika.rewrite.TemplateRewriter#applyTemplates" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="applyTemplates(cursor:laika.ast.TreeCursor,format:String):Either[laika.config.ConfigError,laika.ast.DocumentTree]"></a><a id="applyTemplates(TreeCursor,String):Either[ConfigError,DocumentTree]"></a>
-      <span class="permalink">
-      <a href="../../laika/rewrite/TemplateRewriter.html#applyTemplates(cursor:laika.ast.TreeCursor,format:String):Either[laika.config.ConfigError,laika.ast.DocumentTree]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">applyTemplates</span><span class="params">(<span name="cursor">cursor: <a href="../ast/TreeCursor.html" class="extype" name="laika.ast.TreeCursor">TreeCursor</a></span>, <span name="format">format: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Either">Either</span>[<a href="../config/ConfigError.html" class="extype" name="laika.config.ConfigError">ConfigError</a>, <a href="../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a>]</span>
-      </span>
-      
-      <p class="shortcomment cmt">Selects and applies the templates for the specified output format to all documents within the specified tree cursor recursively.</p>
-    </li><li name="laika.rewrite.TemplateRewriter#applyTemplates" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="applyTemplates(cursor:laika.ast.RootCursor,format:String):Either[laika.config.ConfigError,laika.ast.DocumentTreeRoot]"></a><a id="applyTemplates(RootCursor,String):Either[ConfigError,DocumentTreeRoot]"></a>
-      <span class="permalink">
-      <a href="../../laika/rewrite/TemplateRewriter.html#applyTemplates(cursor:laika.ast.RootCursor,format:String):Either[laika.config.ConfigError,laika.ast.DocumentTreeRoot]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">applyTemplates</span><span class="params">(<span name="cursor">cursor: <a href="../ast/RootCursor.html" class="extype" name="laika.ast.RootCursor">RootCursor</a></span>, <span name="format">format: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Either">Either</span>[<a href="../config/ConfigError.html" class="extype" name="laika.config.ConfigError">ConfigError</a>, <a href="../ast/DocumentTreeRoot.html" class="extype" name="laika.ast.DocumentTreeRoot">DocumentTreeRoot</a>]</span>
-      </span>
-      
-      <p class="shortcomment cmt">Selects and applies the templates for the specified output format to all documents within the specified tree cursor recursively.</p>
     </li><li name="laika.rewrite.TemplateRewriter#applyTemplates" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="applyTemplates(tree:laika.ast.DocumentTreeRoot,format:String):Either[laika.config.ConfigError,laika.ast.DocumentTreeRoot]"></a><a id="applyTemplates(DocumentTreeRoot,String):Either[ConfigError,DocumentTreeRoot]"></a>
       <span class="permalink">
@@ -596,26 +548,8 @@
       </span>
       
       <p class="shortcomment cmt">The default rewrite rules for template documents,
- responsible for replacing all
- span and block resolvers with the final resolved
- element they produce based on the specified
- document cursor and its configuration.</p>
-    </li><li name="laika.rewrite.TemplateRewriter#selectTemplate" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="selectTemplate(cursor:laika.ast.DocumentCursor,format:String):Option[laika.ast.TemplateDocument]"></a><a id="selectTemplate(DocumentCursor,String):Option[TemplateDocument]"></a>
-      <span class="permalink">
-      <a href="../../laika/rewrite/TemplateRewriter.html#selectTemplate(cursor:laika.ast.DocumentCursor,format:String):Option[laika.ast.TemplateDocument]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">selectTemplate</span><span class="params">(<span name="cursor">cursor: <a href="../ast/DocumentCursor.html" class="extype" name="laika.ast.DocumentCursor">DocumentCursor</a></span>, <span name="format">format: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="../ast/TemplateDocument.html" class="extype" name="laika.ast.TemplateDocument">TemplateDocument</a>]</span>
-      </span>
-      
-      <p class="shortcomment cmt">The (optional) template to use when rendering the target of the specified document cursor.</p>
+responsible for replacing all span and block resolvers with the final resolved element they produce
+based on the specified document cursor and its configuration.</p>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">

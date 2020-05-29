@@ -191,6 +191,10 @@
                         <a href="Key.html" title="">Key</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="object" href="LaikaKeys$.html" title="Constants for configuration keys for the library's core configuration entries."></a>
+                        <a href="LaikaKeys$.html" title="Constants for configuration keys for the library's core configuration entries.">LaikaKeys</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="class" href="LongValue.html" title=""></a>
                         <a href="LongValue.html" title="">LongValue</a>
                       </li><li class="current-entities indented2">
@@ -310,7 +314,26 @@
         <div id="allMembers">
         
 
-        
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="laika.config.ConfigEncoder.ObjectBuilder" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ObjectBuilderextendsAnyRef"></a><a id="ObjectBuilder:ObjectBuilder"></a>
+      <span class="permalink">
+      <a href="../../laika/config/ConfigEncoder$$ObjectBuilder.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="ConfigEncoder$$ObjectBuilder.html"><span class="name">ObjectBuilder</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      
+      
+    </li></ol>
+            </div>
 
         
 
@@ -365,6 +388,22 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="laika.config.ConfigEncoder#apply" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="apply[T](f:T=&gt;laika.config.ConfigValue):laika.config.ConfigEncoder[T]"></a><a id="apply[T]((T)⇒ConfigValue):ConfigEncoder[T]"></a>
+      <span class="permalink">
+      <a href="../../laika/config/ConfigEncoder$.html#apply[T](f:T=&gt;laika.config.ConfigValue):laika.config.ConfigEncoder[T]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">apply</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="laika.config.ConfigEncoder.apply.T">T</span>) ⇒ <a href="ConfigValue.html" class="extype" name="laika.config.ConfigValue">ConfigValue</a></span>)</span><span class="result">: <a href="ConfigEncoder.html" class="extype" name="laika.config.ConfigEncoder">ConfigEncoder</a>[<span class="extype" name="laika.config.ConfigEncoder.apply.T">T</span>]</span>
+      </span>
+      
+      
     </li><li name="scala.Any#asInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <span class="permalink">
@@ -418,6 +457,22 @@
       </span>
       <span class="symbol">
         <span class="name">configValue</span><span class="result">: <a href="ConfigEncoder.html" class="extype" name="laika.config.ConfigEncoder">ConfigEncoder</a>[<a href="ConfigValue.html" class="extype" name="laika.config.ConfigValue">ConfigValue</a>]</span>
+      </span>
+      
+      
+    </li><li name="laika.config.ConfigEncoder#date" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="date:laika.config.ConfigEncoder[java.util.Date]"></a><a id="date:ConfigEncoder[Date]"></a>
+      <span class="permalink">
+      <a href="../../laika/config/ConfigEncoder$.html#date:laika.config.ConfigEncoder[java.util.Date]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">date</span><span class="result">: <a href="ConfigEncoder.html" class="extype" name="laika.config.ConfigEncoder">ConfigEncoder</a>[<span class="extype" name="java.util.Date">Date</span>]</span>
       </span>
       
       
@@ -561,6 +616,22 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="laika.config.ConfigEncoder#map" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="map[T](implicitelementEncoder:laika.config.ConfigEncoder[T]):laika.config.ConfigEncoder[Map[String,T]]"></a><a id="map[T](ConfigEncoder[T]):ConfigEncoder[Map[String,T]]"></a>
+      <span class="permalink">
+      <a href="../../laika/config/ConfigEncoder$.html#map[T](implicitelementEncoder:laika.config.ConfigEncoder[T]):laika.config.ConfigEncoder[Map[String,T]]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">map</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="elementEncoder">elementEncoder: <a href="ConfigEncoder.html" class="extype" name="laika.config.ConfigEncoder">ConfigEncoder</a>[<span class="extype" name="laika.config.ConfigEncoder.map.T">T</span>]</span>)</span><span class="result">: <a href="ConfigEncoder.html" class="extype" name="laika.config.ConfigEncoder">ConfigEncoder</a>[<span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="laika.config.ConfigEncoder.map.T">T</span>]]</span>
+      </span>
+      
+      
     </li><li name="scala.AnyRef#ne" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a><a id="ne(AnyRef):Boolean"></a>
       <span class="permalink">
@@ -615,6 +686,22 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li name="laika.config.ConfigEncoder#path" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="path:laika.config.ConfigEncoder[laika.ast.Path]"></a><a id="path:ConfigEncoder[Path]"></a>
+      <span class="permalink">
+      <a href="../../laika/config/ConfigEncoder$.html#path:laika.config.ConfigEncoder[laika.ast.Path]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">path</span><span class="result">: <a href="ConfigEncoder.html" class="extype" name="laika.config.ConfigEncoder">ConfigEncoder</a>[<a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a>]</span>
+      </span>
+      
+      
     </li><li name="laika.config.ConfigEncoder#seq" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="seq[T](implicitelementEncoder:laika.config.ConfigEncoder[T]):laika.config.ConfigEncoder[Seq[T]]"></a><a id="seq[T](ConfigEncoder[T]):ConfigEncoder[Seq[T]]"></a>
       <span class="permalink">
@@ -747,6 +834,22 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li name="laika.config.ConfigEncoder.ObjectBuilder" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ObjectBuilder"></a><a id="ObjectBuilder:ObjectBuilder"></a>
+      <span class="permalink">
+      <a href="../../laika/config/ConfigEncoder$$ObjectBuilder$.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="ConfigEncoder$$ObjectBuilder$.html"><span class="name">ObjectBuilder</span></a>
+      </span>
+      
+      
     </li>
               </ol>
             </div>

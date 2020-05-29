@@ -123,10 +123,6 @@
                         <a href="" title="Concatenates the XSL-FO that serves as a basis for producing the final PDF output and applies the default XSL-FO template to the entire result.">FOConcatenation</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="object" href="PDFConfigBuilder$.html" title="Builds PDF configuration instances from configuration embedded in document trees."></a>
-                        <a href="PDFConfigBuilder$.html" title="Builds PDF configuration instances from configuration embedded in document trees.">PDFConfigBuilder</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
                         <a class="object" href="PDFNavigation$.html" title="Prepares a document tree for the PDF rendering step by inserting all enabled navigation elements, like PDF bookmarks or table of contents."></a>
                         <a href="PDFNavigation$.html" title="Prepares a document tree for the PDF rendering step by inserting all enabled navigation elements, like PDF bookmarks or table of contents.">PDFNavigation</a>
                       </li><li class="current-entities indented3">
@@ -269,9 +265,9 @@ and applies the default XSL-FO template to the entire result.
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="laika.render.pdf.FOConcatenation#apply" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="apply[F[_]](result:laika.io.model.RenderedTreeRoot[F],config:laika.format.PDF.Config):Either[laika.config.ConfigError,String]"></a><a id="apply[F[_]](RenderedTreeRoot[F],Config):Either[ConfigError,String]"></a>
+      <a id="apply[F[_]](result:laika.io.model.RenderedTreeRoot[F],config:laika.format.PDF.BookConfig):Either[laika.config.ConfigError,String]"></a><a id="apply[F[_]](RenderedTreeRoot[F],BookConfig):Either[ConfigError,String]"></a>
       <span class="permalink">
-      <a href="../../../laika/render/pdf/FOConcatenation$.html#apply[F[_]](result:laika.io.model.RenderedTreeRoot[F],config:laika.format.PDF.Config):Either[laika.config.ConfigError,String]" title="Permalink">
+      <a href="../../../laika/render/pdf/FOConcatenation$.html#apply[F[_]](result:laika.io.model.RenderedTreeRoot[F],config:laika.format.PDF.BookConfig):Either[laika.config.ConfigError,String]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -280,7 +276,7 @@ and applies the default XSL-FO template to the entire result.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="result">result: <a href="../../io/model/RenderedTreeRoot.html" class="extype" name="laika.io.model.RenderedTreeRoot">RenderedTreeRoot</a>[<span class="extype" name="laika.render.pdf.FOConcatenation.apply.F">F</span>]</span>, <span name="config">config: <a href="../../format/PDF$$Config.html" class="extype" name="laika.format.PDF.Config">Config</a></span>)</span><span class="result">: <span class="extype" name="scala.Either">Either</span>[<a href="../../config/ConfigError.html" class="extype" name="laika.config.ConfigError">ConfigError</a>, <span class="extype" name="scala.Predef.String">String</span>]</span>
+        <span class="name">apply</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="result">result: <a href="../../io/model/RenderedTreeRoot.html" class="extype" name="laika.io.model.RenderedTreeRoot">RenderedTreeRoot</a>[<span class="extype" name="laika.render.pdf.FOConcatenation.apply.F">F</span>]</span>, <span name="config">config: <a href="../../format/PDF$$BookConfig.html" class="extype" name="laika.format.PDF.BookConfig">BookConfig</a></span>)</span><span class="result">: <span class="extype" name="scala.Either">Either</span>[<a href="../../config/ConfigError.html" class="extype" name="laika.config.ConfigError">ConfigError</a>, <span class="extype" name="scala.Predef.String">String</span>]</span>
       </span>
       
       <p class="shortcomment cmt">Concatenates the XSL-FO that serves as a basis for producing the final PDF output

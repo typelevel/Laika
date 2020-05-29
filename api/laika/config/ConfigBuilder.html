@@ -191,6 +191,10 @@
                         <a href="Key.html" title="">Key</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="object" href="LaikaKeys$.html" title="Constants for configuration keys for the library's core configuration entries."></a>
+                        <a href="LaikaKeys$.html" title="Constants for configuration keys for the library's core configuration entries.">LaikaKeys</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="class" href="LongValue.html" title=""></a>
                         <a href="LongValue.html" title="">LongValue</a>
                       </li><li class="current-entities indented2">
@@ -403,6 +407,22 @@ fallback is used with builder.
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="laika.config.ConfigBuilder#build" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="build(fallback:laika.config.Config):laika.config.Config"></a><a id="build(Config):Config"></a>
+      <span class="permalink">
+      <a href="../../laika/config/ConfigBuilder.html#build(fallback:laika.config.Config):laika.config.Config" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">build</span><span class="params">(<span name="fallback">fallback: <a href="Config.html" class="extype" name="laika.config.Config">Config</a></span>)</span><span class="result">: <a href="Config.html" class="extype" name="laika.config.Config">Config</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Resolves all specified values, using the specified fallback, and returns a new Config instance.</p>
     </li><li name="laika.config.ConfigBuilder#build" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="build:laika.config.Config"></a><a id="build:Config"></a>
       <span class="permalink">
@@ -718,6 +738,22 @@ fallback is used with builder.
       </span>
       <span class="symbol">
         <span class="name">withValue</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="value">value: <span class="extype" name="laika.config.ConfigBuilder.withValue.T">T</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="encoder">encoder: <a href="ConfigEncoder.html" class="extype" name="laika.config.ConfigEncoder">ConfigEncoder</a>[<span class="extype" name="laika.config.ConfigBuilder.withValue.T">T</span>]</span>, <span name="defaultKey">defaultKey: <a href="DefaultKey.html" class="extype" name="laika.config.DefaultKey">DefaultKey</a>[<span class="extype" name="laika.config.ConfigBuilder.withValue.T">T</span>]</span>)</span><span class="result">: <a href="" class="extype" name="laika.config.ConfigBuilder">ConfigBuilder</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Returns a new builder instance adding the specified value to the existing set of values.</p>
+    </li><li name="laika.config.ConfigBuilder#withValue" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="withValue[T](key:laika.config.Key,value:T)(implicitencoder:laika.config.ConfigEncoder[T]):laika.config.ConfigBuilder"></a><a id="withValue[T](Key,T)(ConfigEncoder[T]):ConfigBuilder"></a>
+      <span class="permalink">
+      <a href="../../laika/config/ConfigBuilder.html#withValue[T](key:laika.config.Key,value:T)(implicitencoder:laika.config.ConfigEncoder[T]):laika.config.ConfigBuilder" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withValue</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="key">key: <a href="Key.html" class="extype" name="laika.config.Key">Key</a></span>, <span name="value">value: <span class="extype" name="laika.config.ConfigBuilder.withValue.T">T</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="encoder">encoder: <a href="ConfigEncoder.html" class="extype" name="laika.config.ConfigEncoder">ConfigEncoder</a>[<span class="extype" name="laika.config.ConfigBuilder.withValue.T">T</span>]</span>)</span><span class="result">: <a href="" class="extype" name="laika.config.ConfigBuilder">ConfigBuilder</a></span>
       </span>
       
       <p class="shortcomment cmt">Returns a new builder instance adding the specified value to the existing set of values.</p>

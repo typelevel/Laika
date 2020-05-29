@@ -289,8 +289,7 @@ and other options.
         <span class="name">ThisType</span><span class="result alias"> = <a href="" class="extype" name="laika.api.builder.TwoPhaseRendererBuilder">TwoPhaseRendererBuilder</a>[<span class="extype" name="laika.api.builder.TwoPhaseRendererBuilder.FMT">FMT</span>, <span class="extype" name="laika.api.builder.TwoPhaseRendererBuilder.PP">PP</span>]</span>
       </span>
       
-      <p class="shortcomment cmt">The type of the operation being configured by this instance
-</p><div class="fullcomment"><div class="comment cmt"><p>The type of the operation being configured by this instance
+      <p class="shortcomment cmt">The type of the operation being configured by this instance.</p><div class="fullcomment"><div class="comment cmt"><p>The type of the operation being configured by this instance.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.api.builder.TwoPhaseRendererBuilder">TwoPhaseRendererBuilder</a> → <a href="CommonBuilderOps.html" class="extype" name="laika.api.builder.CommonBuilderOps">CommonBuilderOps</a></dd></dl></div>
     </li></ol>
             </div>
@@ -600,6 +599,23 @@ and returns a new Renderer instance.</p>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[this] </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.api.builder.TwoPhaseRendererBuilder">TwoPhaseRendererBuilder</a> → <a href="RendererBuilderOps.html" class="extype" name="laika.api.builder.RendererBuilderOps">RendererBuilderOps</a></dd></dl></div>
+    </li><li name="laika.api.builder.RendererBuilderOps#renderMessages" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="renderMessages(filter:laika.ast.MessageFilter):RendererBuilderOps.this.ThisType"></a><a id="renderMessages(MessageFilter):ThisType"></a>
+      <span class="permalink">
+      <a href="../../../laika/api/builder/TwoPhaseRendererBuilder.html#renderMessages(filter:laika.ast.MessageFilter):RendererBuilderOps.this.ThisType" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">renderMessages</span><span class="params">(<span name="filter">filter: <a href="../../ast/MessageFilter.html" class="extype" name="laika.ast.MessageFilter">MessageFilter</a></span>)</span><span class="result">: <a href="#ThisType=laika.api.builder.TwoPhaseRendererBuilder[FMT,PP]" class="extmbr" name="laika.api.builder.TwoPhaseRendererBuilder.ThisType">ThisType</a></span>
+      </span>
+      
+      <p class="shortcomment cmt"> Specifies the minimum required level for a runtime message to get included into the output by this renderer.</p><div class="fullcomment"><div class="comment cmt"><p> Specifies the minimum required level for a runtime message to get included into the output by this renderer.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RendererBuilderOps.html" class="extype" name="laika.api.builder.RendererBuilderOps">RendererBuilderOps</a></dd></dl></div>
     </li><li name="laika.api.builder.RendererBuilderOps#rendering" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="rendering(customRenderer:PartialFunction[(FMT,laika.ast.Element),String]):RendererBuilderOps.this.ThisType"></a><a id="rendering(PartialFunction[(FMT,Element),String]):ThisType"></a>
       <span class="permalink">
@@ -790,12 +806,19 @@ or as re-usable building blocks by application code.
         <span class="name">withConfig</span><span class="params">(<span name="newConfig">newConfig: <a href="OperationConfig.html" class="extype" name="laika.api.builder.OperationConfig">OperationConfig</a></span>)</span><span class="result">: <a href="#ThisType=laika.api.builder.TwoPhaseRendererBuilder[FMT,PP]" class="extmbr" name="laika.api.builder.TwoPhaseRendererBuilder.ThisType">ThisType</a></span>
       </span>
       
-      <p class="shortcomment cmt">Returns a new instance with the specified configuration.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a new instance with the specified configuration.</p><p>This method discards any previously specified
-options. It is usually meant to be used when copying over
-the configuration from a fully configured object to an
-unconfigured one.
+      <p class="shortcomment cmt">Returns a new instance with the specified configuration.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a new instance with the specified configuration.</p><p>This method discards any previously specified options.
+It is usually meant to be used when copying over the configuration
+from a fully configured object to an unconfigured one.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.api.builder.TwoPhaseRendererBuilder">TwoPhaseRendererBuilder</a> → <a href="CommonBuilderOps.html" class="extype" name="laika.api.builder.CommonBuilderOps">CommonBuilderOps</a></dd></dl></div>
-    </li><li name="laika.api.builder.RendererBuilderOps#withMessageLevel" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li>
+              </ol>
+            </div>
+
+        
+
+        <div class="values members">
+              <h3>Deprecated Value Members</h3>
+              <ol><li name="laika.api.builder.RendererBuilderOps#withMessageLevel" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="withMessageLevel(level:laika.ast.MessageLevel):RendererBuilderOps.this.ThisType"></a><a id="withMessageLevel(MessageLevel):ThisType"></a>
       <span class="permalink">
       <a href="../../../laika/api/builder/TwoPhaseRendererBuilder.html#withMessageLevel(level:laika.ast.MessageLevel):RendererBuilderOps.this.ThisType" title="Permalink">
@@ -807,20 +830,15 @@ unconfigured one.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">withMessageLevel</span><span class="params">(<span name="level">level: <a href="../../ast/MessageLevel.html" class="extype" name="laika.ast.MessageLevel">MessageLevel</a></span>)</span><span class="result">: <a href="#ThisType=laika.api.builder.TwoPhaseRendererBuilder[FMT,PP]" class="extmbr" name="laika.api.builder.TwoPhaseRendererBuilder.ThisType">ThisType</a></span>
+        <span class="name deprecated" title="Deprecated: (Since version 0.15.0) use renderMessages">withMessageLevel</span><span class="params">(<span name="level">level: <a href="../../ast/MessageLevel.html" class="extype" name="laika.ast.MessageLevel">MessageLevel</a></span>)</span><span class="result">: <a href="#ThisType=laika.api.builder.TwoPhaseRendererBuilder[FMT,PP]" class="extmbr" name="laika.api.builder.TwoPhaseRendererBuilder.ThisType">ThisType</a></span>
       </span>
       
-      <p class="shortcomment cmt"> Specifies the minimum required level for a system message
- to get included into the output by this renderer.</p><div class="fullcomment"><div class="comment cmt"><p> Specifies the minimum required level for a system message
- to get included into the output by this renderer.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RendererBuilderOps.html" class="extype" name="laika.api.builder.RendererBuilderOps">RendererBuilderOps</a></dd></dl></div>
-    </li>
-              </ol>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RendererBuilderOps.html" class="extype" name="laika.api.builder.RendererBuilderOps">RendererBuilderOps</a></dd><dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.15.0)</i> use renderMessages</p></dd></dl></div>
+    </li></ol>
             </div>
-
-        
-
-        
         </div>
 
         <div id="inheritedMembers">

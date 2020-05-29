@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+
+    <title>Laika</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Customizable and extensible toolkit for transforming lightweight markup languages to various types of output formats, written in Scala" />
+    <meta name="keywords" content="scala, text, markup, markdown, restructuredtext, parser, transformer, html, template engine, site generation, open-source" />
+
+    <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+    <link href="../css/bootstrap.css" rel="stylesheet">
+    <link href="../css/docs.css" rel="stylesheet">
+
+  </head>
+
+  <body data-spy="scroll" data-target=".toc" data-offset="200">
+
+
+  <div class="container">
+
+    <!-- Docs nav
+    ================================================== -->
+    <div class="row">
+      <div class="span4 toc" >
+        
+        <ul class="nav nav-list affix">
+          <div class="nav-top"><img src="../img/laika-top.png"/></div>
+          
+          
+          <li><a href="../table-of-contents.html">Table of Contents</a></li>
+          <li class="nav-header">About Laika</li>
+          <li><a href="../01-about-laika/01-features.html">Features</a></li>
+          <li><a href="../01-about-laika/02-design-goals.html">Design Goals</a></li>
+          <li class="nav-header">Running Laika</li>
+          <li><a href="../02-running-laika/01-sbt-plugin.html">sbt Plugin</a></li>
+          <li><a href="../02-running-laika/02-library-api.html">Library API</a></li>
+          <li><a href="../02-running-laika/03-configuration.html">Configuration</a></li>
+          <li class="nav-header">Preparing Content</li>
+          <li><a href="01-directory-structure.html">Directory Structure</a></li>
+          <li><a href="02-navigation.html">Navigation</a></li>
+          <li><a href="04-ebooks.html">E-Books (EPUB &amp; PDF)</a></li>
+          <li class="active"><a href="#">Syntax Highlighting</a></li>
+          <li class="nav-header">Customizing Laika</li>
+          <li><a href="../04-customizing-laika/01-overview.html">Overview</a></li>
+          <li><a href="../04-customizing-laika/03-creating-templates.html">Creating Templates</a></li>
+          <li><a href="../04-customizing-laika/04-document-ast.html">The Document AST</a></li>
+          <li><a href="../04-customizing-laika/05-ast-rewriting.html">AST Rewriting</a></li>
+          <li><a href="../04-customizing-laika/06-overriding-renderers.html">Overriding Renderers</a></li>
+          <li class="nav-header">Extending Laika</li>
+          <li><a href="../05-extending-laika/01-overview.html">Overview</a></li>
+          <li><a href="../05-extending-laika/03-implementing-directives.html">Implementing Directives</a></li>
+          <li><a href="../05-extending-laika/04-writing-parser-extensions.html">Writing Parser Extensions</a></li>
+          <li><a href="../05-extending-laika/06-adding-syntax-highlighters.html">Adding Syntax Highlighters</a></li>
+          <li><a href="../05-extending-laika/07-new-markup-output-formats.html">New Markup or Output Formats</a></li>
+          <li class="nav-header">Sub-Modules</li>
+          <li><a href="../06-sub-modules/02-laikas-parser-combinators.html">Laika&#39;s Parser Combinators</a></li>
+          <li><a href="../06-sub-modules/03-laikas-hocon-api.html">Laika&#39;s HOCON API</a></li>
+          <li class="nav-header">Reference</li>
+          <li><a href="../07-reference/01-standard-directives.html">Standard Directives</a></li>
+          <li><a href="../07-reference/02-substitution-variables.html">Substitution Variables</a></li>
+          <li><a href="../07-reference/03-spec-compliance.html">Spec Compliance</a></li>
+          <li><a href="../07-reference/06-release-notes.html">Release Notes</a></li>
+          <li><a href="../07-reference/07-migration-guide.html">Migration Guide</a></li>
+          
+          <li class="nav-header">Project Links</li>
+          <li><a href="http://github.com/planet42/Laika">Source Code</a></li>
+          <li><a href="../api/laika/api/">API Documentation</a></li>
+          <!--<li><a href="http://github.com/planet42/Laika/issues">Issue Tracker</a></li>-->
+          <!--<li><a href="http://planet42.org/">Demo App</a></li>-->
+          <!--  
+          <li class="follow"><a href="https://twitter.com/_planet42" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false" data-dnt="true">Follow @_planet42</a>
+          <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script></li>
+          -->
+          <div class="nav-bottom"><img src="../img/laika-bottom.png" border="1"/></div>
+        </ul>
+        
+      </div>
+      
+      <div class="span8" id="top">
+
+        <div class="page-header">
+        <h1 id="syntax-highlighting" class="title">Syntax Highlighting</h1>
+        </div>
+        <p>Laika has its own built-in syntax highlighters (based on its parser combinators). 
+        Not relying on external tools for this task has several advantages:</p>
+        <ul>
+          <li>
+            <p>The highlighting is not tied to HTML output and works in the same way for EPUB or PDF output.</p>
+          </li>
+          <li>
+            <p>The analyzed code is part of the document AST and can be processed and transformed like other
+            AST nodes before rendering.</p>
+          </li>
+        </ul>
+        <p>This manual itself is a showcase for this functionality. 
+        All code samples shown are highlighted by Laika&#39;s own syntax support. </p>
+        
+        <h2 id="configuration" class="section">Configuration</h2>
+        <p>Laika&#39;s syntax highlighting is not enabled by default, 
+        so that you can still choose other existing solutions if you prefer.</p>
+        <p>When using the sbt plugin it can be added to the <code>laikaExtensions</code> setting:</p>
+        <pre><code class="nohighlight"><span class="identifier">laikaExtensions</span><span> ++= </span><span class="type-name">Seq</span><span>(</span><span class="type-name">GitHubFlavor</span><span>, </span><span class="type-name">SyntaxHighlighting</span><span>)  </span></code></pre>
+        <p>Note that you also have to add the <code>GitHubFlavor</code> extension so that you get the support for fenced code blocks.
+        When using reStructuredText input only the <code>SyntaxHighlighting</code> extension is needed.</p>
+        <p>When using the Library API highlighting can be activated like all other extension bundles:</p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">GitHubFlavor</span><span>, </span><span class="type-name">SyntaxHighlighting</span><span>)
+  .</span><span class="identifier">build</span></code></pre>
+        
+        <h2 id="supported-languages" class="section">Supported Languages</h2>
+        <p>Laika currently supports the following languages and formats:</p>
+        <ul>
+          <li>Scala</li>
+          <li>Dotty</li>
+          <li>Java</li>
+          <li>Python</li>
+          <li>JavaScript / JSX</li>
+          <li>TypeScript / TSX</li>
+          <li>HTML</li>
+          <li>CSS</li>
+          <li>XML</li>
+          <li>JSON</li>
+          <li>HOCON</li>
+          <li>SQL</li>
+          <li>EBNF</li>
+          <li>Laika Extensions</li>
+        </ul>
+        <p>The last highlighter can be used when writing documentation about Laika itself: 
+        it includes highlighters for Laika&#39;s directives, substitution references and configuration headers.</p>
+        <p>More languages will be added over time (contributions are also welcome of course).</p>
+        
+        <h2 id="styling" class="section">Styling</h2>
+        <p>Laika currently does not come with built-in themes as a quick start for creating entire sites
+        or e-books (this functionality is currently scheduled for the 0.15 release). 
+        You&#39;d therefore need to create your own CSS for this purpose. </p>
+        <p>The classes generated for code spans are:</p>
+        <ul>
+          <li><code>comment</code></li>
+          <li><code>keyword</code></li>
+          <li><code>boolean-literal</code></li>
+          <li><code>number-literal</code></li>
+          <li><code>string-literal</code></li>
+          <li><code>char-literal</code></li>
+          <li><code>symbol-literal</code></li>
+          <li><code>regex-literal</code></li>
+          <li><code>literal-value</code></li>
+          <li><code>escape-sequence</code></li>
+          <li><code>substitution</code></li>
+          <li><code>type-name</code></li>
+          <li><code>attribute-name</code></li>
+          <li><code>identifier</code></li>
+          <li><code>tag-name</code></li>
+          <li><code>tag-punctuation</code></li>
+          <li><code>xml-dtd-tag-name</code></li>
+          <li><code>xml-processing-instruction</code></li>
+          <li><code>xml-cdata</code></li>
+          <li><code>markup-fence</code></li>
+          <li><code>markup-headline</code></li>
+          <li><code>markup-emphasized</code></li>
+          <li><code>markup-quote</code></li>
+          <li><code>markup-link-text</code></li>
+          <li><code>markup-link-target</code></li>
+        </ul>
+        
+        <h2 id="integrating-external-tools" class="section">Integrating External Tools</h2>
+        <p>If you want to use the available highlighters, but also need to use languages not currently supported out of the box,
+        you can integrate external highlighters just for those languages.</p>
+        <p>The only thing you need to ensure is that those 3rd-party tools do not try to mess with the code blocks
+        that have already been processed by Laika.</p>
+        <p>For <code>highlight.js</code> Laika already provides this kind of blocker, in that it adds the <code>nohighligting</code> class
+        to all code blocks it has already analyzed itself.</p>
+        <p>If you are using different tools you might need to customize the rendering of the <code>CodeBlock</code> AST element.
+        For details see <a href="04-ebooks.html#overriding-renderers">Overriding Renderers</a>.</p>
+        
+        <h2 id="adding-your-own-highlighters" class="section">Adding Your Own Highlighters</h2>
+        <p>Creating your own highlighter can potentially be quite easy, in cases where the syntax can be defined mostly
+        by combining Laika&#39;s building blocks for parsing string and number literals, identifiers and keywords.
+        For a fairly simple highlighter implementation as an example you can examine the <a href="https://github.com/planet42/Laika/blob/master/core/src/main/scala/laika/parse/code/languages/ScalaSyntax.scala">ScalaSyntax</a> source
+        as a starting point.</p>
+        <p>Once you have implemented and tested your highlighter you can add it to the built-in ones like this:</p>
+        <pre><code class="nohighlight"><span class="identifier">laikaExtensions</span><span> ++= </span><span class="type-name">Seq</span><span>(
+  </span><span class="type-name">GitHubFlavor</span><span>, 
+  </span><span class="type-name">SyntaxHighlighting</span><span>.</span><span class="identifier">withSyntax</span><span>(</span><span class="type-name">MyHighlighter</span><span>)
+)  </span></code></pre>
+        <p>See <a href="../05-extending-laika/06-adding-syntax-highlighters.html#adding-syntax-highlighters">Adding Syntax Highlighters</a> for details.</p>
+
+      </div>
+    </div>
+
+  </div>
+
+</body></html>

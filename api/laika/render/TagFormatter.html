@@ -285,9 +285,9 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.render.TagFormatter#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;init&gt;(renderChild:(Rep,laika.ast.Element)=&gt;String,currentElement:laika.ast.Element,parents:List[laika.ast.Element],indentation:laika.render.Indentation,messageLevel:laika.ast.MessageLevel):laika.render.TagFormatter[Rep]"></a><a id="&lt;init&gt;:TagFormatter[Rep]"></a>
+      <a id="&lt;init&gt;(renderChild:(Rep,laika.ast.Element)=&gt;String,currentElement:laika.ast.Element,parents:List[laika.ast.Element],pathTranslator:laika.rewrite.nav.PathTranslator,indentation:laika.render.Indentation,messageFilter:laika.ast.MessageFilter):laika.render.TagFormatter[Rep]"></a><a id="&lt;init&gt;:TagFormatter[Rep]"></a>
       <span class="permalink">
-      <a href="../../laika/render/TagFormatter.html#&lt;init&gt;(renderChild:(Rep,laika.ast.Element)=&gt;String,currentElement:laika.ast.Element,parents:List[laika.ast.Element],indentation:laika.render.Indentation,messageLevel:laika.ast.MessageLevel):laika.render.TagFormatter[Rep]" title="Permalink">
+      <a href="../../laika/render/TagFormatter.html#&lt;init&gt;(renderChild:(Rep,laika.ast.Element)=&gt;String,currentElement:laika.ast.Element,parents:List[laika.ast.Element],pathTranslator:laika.rewrite.nav.PathTranslator,indentation:laika.render.Indentation,messageFilter:laika.ast.MessageFilter):laika.render.TagFormatter[Rep]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -296,11 +296,11 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">TagFormatter</span><span class="params">(<span name="renderChild">renderChild: (<span class="extype" name="laika.render.TagFormatter.Rep">Rep</span>, <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a>) ⇒ <span class="extype" name="scala.Predef.String">String</span></span>, <span name="currentElement">currentElement: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>, <span name="parents">parents: <span class="extype" name="scala.List">List</span>[<a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a>]</span>, <span name="indentation">indentation: <a href="Indentation.html" class="extype" name="laika.render.Indentation">Indentation</a></span>, <span name="messageLevel">messageLevel: <a href="../ast/MessageLevel.html" class="extype" name="laika.ast.MessageLevel">MessageLevel</a></span>)</span>
+        <span class="name">TagFormatter</span><span class="params">(<span name="renderChild">renderChild: (<span class="extype" name="laika.render.TagFormatter.Rep">Rep</span>, <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a>) ⇒ <span class="extype" name="scala.Predef.String">String</span></span>, <span name="currentElement">currentElement: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>, <span name="parents">parents: <span class="extype" name="scala.List">List</span>[<a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a>]</span>, <span name="pathTranslator">pathTranslator: <a href="../rewrite/nav/PathTranslator.html" class="extype" name="laika.rewrite.nav.PathTranslator">PathTranslator</a></span>, <span name="indentation">indentation: <a href="Indentation.html" class="extype" name="laika.render.Indentation">Indentation</a></span>, <span name="messageFilter">messageFilter: <a href="../ast/MessageFilter.html" class="extype" name="laika.ast.MessageFilter">MessageFilter</a></span>)</span>
       </span>
       
       <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">renderChild</dt><dd class="cmt"><p>the function to use for rendering child elements</p></dd><dt class="param">currentElement</dt><dd class="cmt"><p>the active element currently being rendered</p></dd><dt class="param">parents</dt><dd class="cmt"><p>the stack of parent elements of this formatter in recursive rendering,
-                with the root element being the last in the list</p></dd><dt class="param">indentation</dt><dd class="cmt"><p>the indentation mechanism for this formatter</p></dd><dt class="param">messageLevel</dt><dd class="cmt"><p>the minimum severity level for a system message to be rendered</p></dd></dl></div>
+                with the root element being the last in the list</p></dd><dt class="param">pathTranslator</dt><dd class="cmt"><p>translates paths of input documents to the corresponding output path</p></dd><dt class="param">indentation</dt><dd class="cmt"><p>the indentation mechanism for this formatter</p></dd><dt class="param">messageFilter</dt><dd class="cmt"><p>the filter to apply before rendering runtime messages</p></dd></dl></div>
     </li></ol>
             </div>
 
@@ -675,9 +675,9 @@ and content consisting of the provided child elements, all rendered on the same 
               
         </dd></dl></div>
     </li><li name="laika.render.BaseFormatter#forMessage" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="forMessage(message:laika.ast.SystemMessage)(whenEnabled:String):String"></a><a id="forMessage(SystemMessage)(String):String"></a>
+      <a id="forMessage(message:laika.ast.RuntimeMessage)(whenEnabled:String):String"></a><a id="forMessage(RuntimeMessage)(String):String"></a>
       <span class="permalink">
-      <a href="../../laika/render/TagFormatter.html#forMessage(message:laika.ast.SystemMessage)(whenEnabled:String):String" title="Permalink">
+      <a href="../../laika/render/TagFormatter.html#forMessage(message:laika.ast.RuntimeMessage)(whenEnabled:String):String" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -686,7 +686,7 @@ and content consisting of the provided child elements, all rendered on the same 
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">forMessage</span><span class="params">(<span name="message">message: <a href="../ast/SystemMessage.html" class="extype" name="laika.ast.SystemMessage">SystemMessage</a></span>)</span><span class="params">(<span name="whenEnabled">whenEnabled: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+        <span class="name">forMessage</span><span class="params">(<span name="message">message: <a href="../ast/RuntimeMessage.html" class="extype" name="laika.ast.RuntimeMessage">RuntimeMessage</a></span>)</span><span class="params">(<span name="whenEnabled">whenEnabled: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
       </span>
       
       <p class="shortcomment cmt">Renders the specified string only when the given message has at least the minimum
@@ -786,6 +786,38 @@ one level to the right of this formatter.
       
       <p class="shortcomment cmt">Renders an element with the specified tag name, attributes derived from the style hint
 and content consisting of the provided child elements, all rendered on the same line.</p>
+    </li><li name="laika.render.TagFormatter#internalLink" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="internalLink(path:laika.ast.Path):String"></a><a id="internalLink(Path):String"></a>
+      <span class="permalink">
+      <a href="../../laika/render/TagFormatter.html#internalLink(path:laika.ast.Path):String" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">internalLink</span><span class="params">(<span name="path">path: <a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Renders the internal link as an absolute path.</p>
+    </li><li name="laika.render.TagFormatter#internalLink" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="internalLink(path:laika.ast.RelativePath):String"></a><a id="internalLink(RelativePath):String"></a>
+      <span class="permalink">
+      <a href="../../laika/render/TagFormatter.html#internalLink(path:laika.ast.RelativePath):String" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">internalLink</span><span class="params">(<span name="path">path: <a href="../ast/RelativePath.html" class="extype" name="laika.ast.RelativePath">RelativePath</a></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Renders the internal link as a relative path.</p>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <span class="permalink">

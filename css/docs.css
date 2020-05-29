@@ -16,7 +16,7 @@ body {
 
 body {
   position: relative;
-  padding-top: 40px;
+  padding-top: 10px;
   padding-bottom: 40px;
 }
 
@@ -43,8 +43,8 @@ ul li {
 }
 
 li ul {
-  margin-bottom: 22px;
-  margin-top: 3px;
+  margin-bottom: 10px;
+  margin-top: 0px;
 }
 
 h1 {
@@ -63,18 +63,46 @@ h3 {
 }
 
 .affix {
-  top: 60px;
+  top: 20px;
 }
 
 .nav-header {
-  font-size: 15px;
+  font-size: 14px;
   color: #931813;
 }
-
+.toc.nav-header {
+  font-size: 36px;
+  margin-bottom: 20px;
+  margin-top: 36px;
+  background: linear-gradient(180deg, #ffffff 65%, #c3d6d8 65%);
+}
+.toc.active {
+  display: none;
+}
+.toc.level2 {
+  font-size: 28px;
+  color: #007c99;
+}
+.toc.level3 {
+  font-size: 18px;
+}
+.toc.level4 a {
+  color: #007c99;
+}
+.toc.level3 a {
+  color: #007c99;
+}
+p.toc {
+  margin-bottom: 5px;
+}
+ul.toc, .toc ul {
+  list-style: none;
+}
 .nav-list li {
   margin-left: 10px;
   margin-bottom: 2px;
-  line-height: 1.2;
+  line-height: 1.0;
+  font-size: 13px;
 }
 
 .nav-list li a:hover {
@@ -206,7 +234,16 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-@media (max-width: 942px), (max-height: 856px) {
+@media (max-height: 1040px) {
+  .nav-top, .nav-bottom {
+    display: none;
+  }
+  .affix {
+    padding-top: 10px;
+  }
+}
+
+@media (max-width: 942px), (max-height: 862px) {
   [class*="span"] {
     float: none;
     margin-left: 0px;

@@ -191,6 +191,10 @@
                         <a href="Key.html" title="">Key</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="object" href="LaikaKeys$.html" title="Constants for configuration keys for the library's core configuration entries."></a>
+                        <a href="LaikaKeys$.html" title="Constants for configuration keys for the library's core configuration entries.">LaikaKeys</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="class" href="LongValue.html" title=""></a>
                         <a href="LongValue.html" title="">LongValue</a>
                       </li><li class="current-entities indented2">
@@ -623,6 +627,40 @@ case the decoding fails.
 The result is still an Either as this method might still fail even if the value is present in
 case the decoding fails.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Config.html" class="extype" name="laika.config.Config">Config</a></dd></dl></div>
+    </li><li name="laika.config.EmptyConfig#hasKey" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hasKey(key:laika.config.Key):Boolean"></a><a id="hasKey(Key):Boolean"></a>
+      <span class="permalink">
+      <a href="../../laika/config/EmptyConfig$.html#hasKey(key:laika.config.Key):Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hasKey</span><span class="params">(<span name="key">key: <a href="Key.html" class="extype" name="laika.config.Key">Key</a></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Verifies whether this config instance contains a value mapped to the specified key.</p><div class="fullcomment"><div class="comment cmt"><p>Verifies whether this config instance contains a value mapped to the specified key.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.config.EmptyConfig">EmptyConfig</a> → <a href="Config.html" class="extype" name="laika.config.Config">Config</a></dd></dl></div>
+    </li><li name="laika.config.Config#hasKey" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hasKey(key:String):Boolean"></a><a id="hasKey(String):Boolean"></a>
+      <span class="permalink">
+      <a href="../../laika/config/EmptyConfig$.html#hasKey(key:String):Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hasKey</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Verifies whether this config instance contains a value mapped to the specified key.</p><div class="fullcomment"><div class="comment cmt"><p>Verifies whether this config instance contains a value mapped to the specified key.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Config.html" class="extype" name="laika.config.Config">Config</a></dd></dl></div>
     </li><li name="scala.AnyRef#hashCode" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="hashCode():Int"></a>
       <span class="permalink">
@@ -865,6 +903,26 @@ for keys not found in this instance.</p><p>If this instance already has a fallba
       </span>
       <span class="symbol">
         <span class="name">withValue</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="value">value: <span class="extype" name="laika.config.Config.withValue.T">T</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="encoder">encoder: <a href="ConfigEncoder.html" class="extype" name="laika.config.ConfigEncoder">ConfigEncoder</a>[<span class="extype" name="laika.config.Config.withValue.T">T</span>]</span>, <span name="defaultKey">defaultKey: <a href="DefaultKey.html" class="extype" name="laika.config.DefaultKey">DefaultKey</a>[<span class="extype" name="laika.config.Config.withValue.T">T</span>]</span>)</span><span class="result">: <a href="ConfigBuilder.html" class="extype" name="laika.config.ConfigBuilder">ConfigBuilder</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Creates a new configuration builder with the specified value and this instance as
+a fallback.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new configuration builder with the specified value and this instance as
+a fallback. The returned builder can be used to add further values before calling
+<code>build</code> to retrieve a new instance.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Config.html" class="extype" name="laika.config.Config">Config</a></dd></dl></div>
+    </li><li name="laika.config.Config#withValue" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withValue[T](key:laika.config.Key,value:T)(implicitencoder:laika.config.ConfigEncoder[T]):laika.config.ConfigBuilder"></a><a id="withValue[T](Key,T)(ConfigEncoder[T]):ConfigBuilder"></a>
+      <span class="permalink">
+      <a href="../../laika/config/EmptyConfig$.html#withValue[T](key:laika.config.Key,value:T)(implicitencoder:laika.config.ConfigEncoder[T]):laika.config.ConfigBuilder" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withValue</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="key">key: <a href="Key.html" class="extype" name="laika.config.Key">Key</a></span>, <span name="value">value: <span class="extype" name="laika.config.Config.withValue.T">T</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="encoder">encoder: <a href="ConfigEncoder.html" class="extype" name="laika.config.ConfigEncoder">ConfigEncoder</a>[<span class="extype" name="laika.config.Config.withValue.T">T</span>]</span>)</span><span class="result">: <a href="ConfigBuilder.html" class="extype" name="laika.config.ConfigBuilder">ConfigBuilder</a></span>
       </span>
       
       <p class="shortcomment cmt">Creates a new configuration builder with the specified value and this instance as

@@ -139,12 +139,28 @@
                         <a href="AutonumberConfig.html" title="Configuration for autonumbering of documents and sections.">AutonumberConfig</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
+                        <a class="class" href="BasicPathTranslator.html" title="Basic path translator implementation that only replaces the suffix of the path."></a>
+                        <a href="BasicPathTranslator.html" title="Basic path translator implementation that only replaces the suffix of the path.">BasicPathTranslator</a>
+                      </li><li class="current-entities indented3">
+                        <a class="object" href="BookConfig$.html" title=""></a>
+                        <a class="class" href="BookConfig.html" title=""></a>
+                        <a href="BookConfig.html" title="">BookConfig</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="ConfigurablePathTranslator.html" title="Translates paths of input documents to the corresponding output path, based on a configuration instance."></a>
+                        <a href="ConfigurablePathTranslator.html" title="Translates paths of input documents to the corresponding output path, based on a configuration instance.">ConfigurablePathTranslator</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
                         <a class="class" href="ConfigurationException.html" title=""></a>
                         <a href="ConfigurationException.html" title="">ConfigurationException</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="object" href="NavigationOrder$.html" title="Responsible for applying the navigation order to the contents of a document tree, either based on user-specified configuration or by the alphabetical order of the names of the documents and subtrees."></a>
                         <a href="NavigationOrder$.html" title="Responsible for applying the navigation order to the contents of a document tree, either based on user-specified configuration or by the alphabetical order of the names of the documents and subtrees.">NavigationOrder</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="trait" href="PathTranslator.html" title="Translates paths of input documents to the corresponding output path."></a>
+                        <a href="PathTranslator.html" title="Translates paths of input documents to the corresponding output path.">PathTranslator</a>
                       </li><li class="current-entities indented3">
                         <a class="object" href="Scope$.html" title=""></a>
                         <a class="trait" href="Scope.html" title=""></a>
@@ -155,8 +171,12 @@
                         <a href="SectionBuilder$.html" title="Rewrite rules responsible for building the section structure of a document based on the header elements it contains and their level.">SectionBuilder</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="object" href="TocGenerator$.html" title="Generates the tree model (consisting of BulletList elements) for the table of contents for a document or an entire document tree."></a>
-                        <a href="TocGenerator$.html" title="Generates the tree model (consisting of BulletList elements) for the table of contents for a document or an entire document tree.">TocGenerator</a>
+                        <a class="object" href="TitleDocumentConfig$.html" title="Configuration for the names of title documents in the input and output trees."></a>
+                        <a href="TitleDocumentConfig$.html" title="Configuration for the names of title documents in the input and output trees.">TitleDocumentConfig</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="TocGenerator$.html" title=""></a>
+                        <a href="TocGenerator$.html" title="">TocGenerator</a>
                       </li>
               </ul>
             </div>
@@ -232,10 +252,58 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="Configuration for autonumbering of documents and sections." href="AutonumberConfig.html"><span class="name">AutonumberConfig</span></a><span class="params">(<span name="documents">documents: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="sections">sections: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="maxDepth">maxDepth: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="Configuration for autonumbering of documents and sections." href="AutonumberConfig.html"><span class="name">AutonumberConfig</span></a><span class="params">(<span name="documents">documents: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">true</span></span>, <span name="sections">sections: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">true</span></span>, <span name="maxDepth">maxDepth: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">Int.MaxValue</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">Configuration for autonumbering of documents and sections.</p>
+    </li><li name="laika.rewrite.nav.BasicPathTranslator" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="BasicPathTranslatorextendsPathTranslatorwithProductwithSerializable"></a><a id="BasicPathTranslator:BasicPathTranslator"></a>
+      <span class="permalink">
+      <a href="../../../laika/rewrite/nav/BasicPathTranslator.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="Basic path translator implementation that only replaces the suffix of the path." href="BasicPathTranslator.html"><span class="name">BasicPathTranslator</span></a><span class="params">(<span name="outputSuffix">outputSuffix: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="PathTranslator.html" class="extype" name="laika.rewrite.nav.PathTranslator">PathTranslator</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Basic path translator implementation that only replaces the suffix of the path.</p>
+    </li><li name="laika.rewrite.nav.BookConfig" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="BookConfigextendsProductwithSerializable"></a><a id="BookConfig:BookConfig"></a>
+      <span class="permalink">
+      <a href="../../../laika/rewrite/nav/BookConfig.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="BookConfig.html"><span class="name">BookConfig</span></a><span class="params">(<span name="metadata">metadata: <a href="../../ast/DocumentMetadata.html" class="extype" name="laika.ast.DocumentMetadata">DocumentMetadata</a> = <span class="symbol"><span class="name"><a href="../../index.html">DocumentMetadata()</a></span></span></span>, <span name="navigationDepth">navigationDepth: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>] = <span class="symbol">None</span></span>, <span name="coverImage">coverImage: <span class="extype" name="scala.Option">Option</span>[<a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a>] = <span class="symbol">None</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt"></p>
+    </li><li name="laika.rewrite.nav.ConfigurablePathTranslator" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ConfigurablePathTranslatorextendsPathTranslatorwithProductwithSerializable"></a><a id="ConfigurablePathTranslator:ConfigurablePathTranslator"></a>
+      <span class="permalink">
+      <a href="../../../laika/rewrite/nav/ConfigurablePathTranslator.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="Translates paths of input documents to the corresponding output path, based on a configuration instance." href="ConfigurablePathTranslator.html"><span class="name">ConfigurablePathTranslator</span></a><span class="params">(<span name="config">config: <a href="../../config/Config.html" class="extype" name="laika.config.Config">Config</a></span>, <span name="outputSuffix">outputSuffix: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="PathTranslator.html" class="extype" name="laika.rewrite.nav.PathTranslator">PathTranslator</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Translates paths of input documents to the corresponding output path, based on a configuration instance.</p>
     </li><li name="laika.rewrite.nav.ConfigurationException" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="ConfigurationExceptionextendsRuntimeExceptionwithProductwithSerializable"></a><a id="ConfigurationException:ConfigurationException"></a>
       <span class="permalink">
@@ -252,6 +320,26 @@
       </span>
       
       
+    </li><li name="laika.rewrite.nav.PathTranslator" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="PathTranslatorextendsAnyRef"></a><a id="PathTranslator:PathTranslator"></a>
+      <span class="permalink">
+      <a href="../../../laika/rewrite/nav/PathTranslator.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a title="Translates paths of input documents to the corresponding output path." href="PathTranslator.html"><span class="name">PathTranslator</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Translates paths of input documents to the corresponding output path.</p><div class="fullcomment"><div class="comment cmt"><p>Translates paths of input documents to the corresponding output path.
+The minimum translation that usually has to happen is to replace the suffix from the input document the path
+has been obtained from to the suffix of the output format.
+Further translations are allowed to happen based on user configuration.
+</p></div></div>
     </li><li name="laika.rewrite.nav.Scope" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="ScopeextendsAnyRef"></a><a id="Scope:Scope"></a>
       <span class="permalink">
@@ -289,6 +377,22 @@
       </span>
       <span class="symbol">
         <a title="" href="AutonumberConfig$.html"><span class="name">AutonumberConfig</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
+    </li><li name="laika.rewrite.nav.BookConfig" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="BookConfig"></a><a id="BookConfig:BookConfig"></a>
+      <span class="permalink">
+      <a href="../../../laika/rewrite/nav/BookConfig$.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="BookConfig$.html"><span class="name">BookConfig</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       
@@ -345,7 +449,31 @@
       <p class="shortcomment cmt">Rewrite rules responsible for building the section structure
  of a document based on the header elements it contains and
  their level.</p>
-    </li><li name="laika.rewrite.nav.TocGenerator" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="laika.rewrite.nav.TitleDocumentConfig" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TitleDocumentConfig"></a><a id="TitleDocumentConfig:TitleDocumentConfig"></a>
+      <span class="permalink">
+      <a href="../../../laika/rewrite/nav/TitleDocumentConfig$.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="Configuration for the names of title documents in the input and output trees." href="TitleDocumentConfig$.html"><span class="name">TitleDocumentConfig</span></a>
+      </span>
+      
+      <p class="shortcomment cmt">Configuration for the names of title documents in the input and output trees.</p>
+    </li>
+              </ol>
+            </div>
+
+        
+
+        <div class="values members">
+              <h3>Deprecated Value Members</h3>
+              <ol><li name="laika.rewrite.nav.TocGenerator" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="TocGenerator"></a><a id="TocGenerator:TocGenerator"></a>
       <span class="permalink">
       <a href="../../../laika/rewrite/nav/TocGenerator$.html" title="Permalink">
@@ -357,18 +485,15 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a title="Generates the tree model (consisting of BulletList elements) for the table of contents for a document or an entire document tree." href="TocGenerator$.html"><span class="name">TocGenerator</span></a>
+        <a title="" href="TocGenerator$.html"><span class="name deprecated" title="Deprecated: (Since version 0.15.0) use NavigationBuilderConfig instead">TocGenerator</span></a>
       </span>
       
-      <p class="shortcomment cmt">Generates the tree model (consisting of BulletList elements) for
- the table of contents for a document or an entire document tree.</p>
-    </li>
-              </ol>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.15.0)</i> use NavigationBuilderConfig instead</p></dd></dl></div>
+    </li></ol>
             </div>
-
-        
-
-        
         </div>
 
         <div id="inheritedMembers">

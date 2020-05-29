@@ -117,22 +117,13 @@
       </span>
       
       <p class="shortcomment cmt">Companion providing tree elements specific to the XSL-FO renderer.</p><div class="fullcomment"><div class="comment cmt"><p>Companion providing tree elements specific to the XSL-FO renderer.
- These are usually not part of the document AST produced by a parser,
- but only inserted dynamically during the render process to drive
- features specific to FO output.
+These are usually not part of the document AST produced by a parser,
+but only inserted dynamically during the render process to drive features specific to FO output.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="laika.render">render</a></dd></dl></div>
     </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="class" href="FOFormatter$$Bookmark.html" title="A single bookmark and its nested children."></a>
-                        <a href="FOFormatter$$Bookmark.html" title="A single bookmark and its nested children.">Bookmark</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
                         <a class="class" href="FOFormatter$$BookmarkTitle.html" title="A bookmark title."></a>
                         <a href="FOFormatter$$BookmarkTitle.html" title="A bookmark title.">BookmarkTitle</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="class" href="FOFormatter$$BookmarkTree.html" title="An entire bookmark tree and its nested bookmarks, the top level element for FO bookmarks."></a>
-                        <a href="FOFormatter$$BookmarkTree.html" title="An entire bookmark tree and its nested bookmarks, the top level element for FO bookmarks.">BookmarkTree</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="class" href="FOFormatter$$FootnoteBody.html" title="The body of a footnote containing a sequence of block elements."></a>
@@ -176,13 +167,13 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">PageNumberCitation</span><span class="params">(<span name="ref">ref: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="path">path: <a href="../ast/PathInfo.html" class="extype" name="laika.ast.PathInfo">PathInfo</a></span>, <span name="options">options: <a href="../ast/Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="../index.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="../ast/Span.html" class="extype" name="laika.ast.Span">Span</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">PageNumberCitation</span><span class="params">(<span name="target">target: <a href="../ast/InternalTarget.html" class="extype" name="laika.ast.InternalTarget">InternalTarget</a></span>, <span name="options">options: <a href="../ast/Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="../index.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="../ast/Span.html" class="extype" name="laika.ast.Span">Span</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>An internal link to be rendered as a page number.
-</p></div><dl class="paramcmts block"><dt class="param">ref</dt><dd class="cmt"><p>the local reference to the target element</p></dd><dt class="param">path</dt><dd class="cmt"><p>the path of the target document containing the local reference</p></dd><dt class="param">options</dt><dd class="cmt"><p>optional render hints</p></dd></dl><div class="toggleContainer block">
+</p></div><dl class="paramcmts block"><dt class="param">target</dt><dd class="cmt"><p>the path of the target document containing the local reference</p></dd><dt class="param">options</dt><dd class="cmt"><p>optional render hints</p></dd></dl><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
           </span>
@@ -233,9 +224,9 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.render.FOFormatter.PageNumberCitation#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;init&gt;(ref:String,path:laika.ast.PathInfo,options:laika.ast.Options):laika.render.FOFormatter.PageNumberCitation"></a><a id="&lt;init&gt;:PageNumberCitation"></a>
+      <a id="&lt;init&gt;(target:laika.ast.InternalTarget,options:laika.ast.Options):laika.render.FOFormatter.PageNumberCitation"></a><a id="&lt;init&gt;:PageNumberCitation"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOFormatter$$PageNumberCitation.html#&lt;init&gt;(ref:String,path:laika.ast.PathInfo,options:laika.ast.Options):laika.render.FOFormatter.PageNumberCitation" title="Permalink">
+      <a href="../../laika/render/FOFormatter$$PageNumberCitation.html#&lt;init&gt;(target:laika.ast.InternalTarget,options:laika.ast.Options):laika.render.FOFormatter.PageNumberCitation" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -244,10 +235,10 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">PageNumberCitation</span><span class="params">(<span name="ref">ref: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="path">path: <a href="../ast/PathInfo.html" class="extype" name="laika.ast.PathInfo">PathInfo</a></span>, <span name="options">options: <a href="../ast/Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="../index.html">NoOpt</a></span></span></span>)</span>
+        <span class="name">PageNumberCitation</span><span class="params">(<span name="target">target: <a href="../ast/InternalTarget.html" class="extype" name="laika.ast.InternalTarget">InternalTarget</a></span>, <span name="options">options: <a href="../ast/Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="../index.html">NoOpt</a></span></span></span>)</span>
       </span>
       
-      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">ref</dt><dd class="cmt"><p>the local reference to the target element</p></dd><dt class="param">path</dt><dd class="cmt"><p>the path of the target document containing the local reference</p></dd><dt class="param">options</dt><dd class="cmt"><p>optional render hints</p></dd></dl></div>
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">target</dt><dd class="cmt"><p>the path of the target document containing the local reference</p></dd><dt class="param">options</dt><dd class="cmt"><p>optional render hints</p></dd></dl></div>
     </li></ol>
             </div>
 
@@ -548,38 +539,6 @@ to the existing value.
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.render.FOFormatter.PageNumberCitation">PageNumberCitation</a> → <a href="../ast/Customizable.html" class="extype" name="laika.ast.Customizable">Customizable</a></dd></dl></div>
-    </li><li name="laika.render.FOFormatter.PageNumberCitation#path" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="path:laika.ast.PathInfo"></a><a id="path:PathInfo"></a>
-      <span class="permalink">
-      <a href="../../laika/render/FOFormatter$$PageNumberCitation.html#path:laika.ast.PathInfo" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">path</span><span class="result">: <a href="../ast/PathInfo.html" class="extype" name="laika.ast.PathInfo">PathInfo</a></span>
-      </span>
-      
-      
-    </li><li name="laika.render.FOFormatter.PageNumberCitation#ref" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="ref:String"></a>
-      <span class="permalink">
-      <a href="../../laika/render/FOFormatter$$PageNumberCitation.html#ref:String" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">ref</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
-      </span>
-      
-      
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">
@@ -596,6 +555,22 @@ to the existing value.
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="laika.render.FOFormatter.PageNumberCitation#target" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="target:laika.ast.InternalTarget"></a><a id="target:InternalTarget"></a>
+      <span class="permalink">
+      <a href="../../laika/render/FOFormatter$$PageNumberCitation.html#target:laika.ast.InternalTarget" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">target</span><span class="result">: <a href="../ast/InternalTarget.html" class="extype" name="laika.ast.InternalTarget">InternalTarget</a></span>
+      </span>
+      
+      
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <span class="permalink">

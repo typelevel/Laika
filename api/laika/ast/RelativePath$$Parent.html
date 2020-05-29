@@ -118,9 +118,13 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="laika.ast">ast</a></dd></dl></div>
     </li><li class="current-entities indented3">
+                        <a class="object" href="RelativePath$$CurrentDocument$.html" title=""></a>
+                        <a class="class" href="RelativePath$$CurrentDocument.html" title="Represent the current document."></a>
+                        <a href="RelativePath$$CurrentDocument.html" title="Represent the current document.">CurrentDocument</a>
+                      </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="object" href="RelativePath$$Current$.html" title="Represent the current path."></a>
-                        <a href="RelativePath$$Current$.html" title="Represent the current path.">Current</a>
+                        <a class="object" href="RelativePath$$CurrentTree$.html" title="Represent the current tree node."></a>
+                        <a href="RelativePath$$CurrentTree$.html" title="Represent the current tree node.">CurrentTree</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="class" href="" title="Represent a parent path that is the specified number of levels above the current path."></a>
@@ -279,7 +283,7 @@
       
       <p class="shortcomment cmt">Combines this path with the specified relative path.</p><div class="fullcomment"><div class="comment cmt"><p>Combines this path with the specified relative path.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.ast.RelativePath.Parent">Parent</a> → <a href="RelativePath.html" class="extype" name="laika.ast.RelativePath">RelativePath</a></dd></dl></div>
-    </li><li name="laika.ast.RelativePath.Parent#/" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="laika.ast.RelativePath#/" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="/(name:String):laika.ast.RelativePath"></a><a id="/(String):RelativePath"></a>
       <span class="permalink">
       <a href="../../laika/ast/RelativePath$$Parent.html#/(name:String):laika.ast.RelativePath" title="Permalink">
@@ -297,7 +301,7 @@
       <p class="shortcomment cmt">Creates a new path with the specified name
  as an immediate child of this path.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new path with the specified name
  as an immediate child of this path.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.ast.RelativePath.Parent">Parent</a> → <a href="RelativePath.html" class="extype" name="laika.ast.RelativePath">RelativePath</a></dd></dl></div>
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RelativePath.html" class="extype" name="laika.ast.RelativePath">RelativePath</a></dd></dl></div>
     </li><li name="scala.AnyRef#==" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="==(x$1:Any):Boolean"></a><a id="==(Any):Boolean"></a>
       <span class="permalink">
@@ -409,6 +413,25 @@
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="laika.ast.RelativePath.Parent#fragment" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="fragment:Option[String]"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/RelativePath$$Parent.html#fragment:Option[String]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">fragment</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">The fragment part of the path (after a <code>#</code> in the last segment),
+or <code>None</code> if this path does not have a fragment component.</p><div class="fullcomment"><div class="comment cmt"><p>The fragment part of the path (after a <code>#</code> in the last segment),
+or <code>None</code> if this path does not have a fragment component.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.ast.RelativePath.Parent">Parent</a> → <a href="PathBase.html" class="extype" name="laika.ast.PathBase">PathBase</a></dd></dl></div>
     </li><li name="scala.AnyRef#getClass" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <span class="permalink">
@@ -550,7 +573,7 @@ Will return this if this path represents the current node.
       
       <p class="shortcomment cmt">The number of levels this relative path points above the current level.</p><div class="fullcomment"><div class="comment cmt"><p>The number of levels this relative path points above the current level.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.ast.RelativePath.Parent">Parent</a> → <a href="RelativePath.html" class="extype" name="laika.ast.RelativePath">RelativePath</a></dd></dl></div>
-    </li><li name="laika.ast.PathBase#suffix" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="laika.ast.RelativePath.Parent#suffix" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="suffix:Option[String]"></a>
       <span class="permalink">
       <a href="../../laika/ast/RelativePath$$Parent.html#suffix:Option[String]" title="Permalink">
@@ -559,7 +582,7 @@ Will return this if this path represents the current node.
     </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">def</span>
+        <span class="kind">val</span>
       </span>
       <span class="symbol">
         <span class="name">suffix</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>
@@ -568,7 +591,7 @@ Will return this if this path represents the current node.
       <p class="shortcomment cmt">The suffix of <code>None</code> if this path name does not have a file suffix
 separated by a <code>.</code>.</p><div class="fullcomment"><div class="comment cmt"><p>The suffix of <code>None</code> if this path name does not have a file suffix
 separated by a <code>.</code>.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="PathBase.html" class="extype" name="laika.ast.PathBase">PathBase</a></dd></dl></div>
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.ast.RelativePath.Parent">Parent</a> → <a href="PathBase.html" class="extype" name="laika.ast.PathBase">PathBase</a></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">
@@ -669,6 +692,44 @@ separated by a <code>.</code>.
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li name="laika.ast.RelativePath#withBasename" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withBasename(name:String):laika.ast.RelativePath"></a><a id="withBasename(String):RelativePath"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/RelativePath$$Parent.html#withBasename(name:String):laika.ast.RelativePath" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withBasename</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="RelativePath.html" class="extype" name="laika.ast.RelativePath">RelativePath</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Returns a new path that replaces the base name with the specified
+new name while keeping both, suffix and fragment, in case they are present.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a new path that replaces the base name with the specified
+new name while keeping both, suffix and fragment, in case they are present.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RelativePath.html" class="extype" name="laika.ast.RelativePath">RelativePath</a></dd></dl></div>
+    </li><li name="laika.ast.RelativePath#withFragment" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withFragment(fragment:String):laika.ast.RelativePath"></a><a id="withFragment(String):RelativePath"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/RelativePath$$Parent.html#withFragment(fragment:String):laika.ast.RelativePath" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withFragment</span><span class="params">(<span name="fragment">fragment: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="RelativePath.html" class="extype" name="laika.ast.RelativePath">RelativePath</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Returns a new path that either replaces the existing fragment component
+with the specified one or appends it if this path does not have a component yet.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a new path that either replaces the existing fragment component
+with the specified one or appends it if this path does not have a component yet.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RelativePath.html" class="extype" name="laika.ast.RelativePath">RelativePath</a></dd></dl></div>
     </li><li name="laika.ast.RelativePath#withSuffix" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="withSuffix(newSuffix:String):laika.ast.RelativePath"></a><a id="withSuffix(String):RelativePath"></a>
       <span class="permalink">
@@ -684,7 +745,44 @@ separated by a <code>.</code>.
         <span class="name">withSuffix</span><span class="params">(<span name="newSuffix">newSuffix: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="RelativePath.html" class="extype" name="laika.ast.RelativePath">RelativePath</a></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RelativePath.html" class="extype" name="laika.ast.RelativePath">RelativePath</a></dd></dl></div>
+      <p class="shortcomment cmt">Returns a new path that either replaces the existing suffix
+with the specified one or appends it if this path does not have a suffix yet.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a new path that either replaces the existing suffix
+with the specified one or appends it if this path does not have a suffix yet.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RelativePath.html" class="extype" name="laika.ast.RelativePath">RelativePath</a></dd></dl></div>
+    </li><li name="laika.ast.RelativePath#withoutFragment" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withoutFragment:laika.ast.RelativePath"></a><a id="withoutFragment:RelativePath"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/RelativePath$$Parent.html#withoutFragment:laika.ast.RelativePath" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withoutFragment</span><span class="result">: <a href="RelativePath.html" class="extype" name="laika.ast.RelativePath">RelativePath</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Returns a new path that discards this path's fragment, if present.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a new path that discards this path's fragment, if present.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RelativePath.html" class="extype" name="laika.ast.RelativePath">RelativePath</a></dd></dl></div>
+    </li><li name="laika.ast.RelativePath#withoutSuffix" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withoutSuffix:laika.ast.RelativePath"></a><a id="withoutSuffix:RelativePath"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/RelativePath$$Parent.html#withoutSuffix:laika.ast.RelativePath" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withoutSuffix</span><span class="result">: <a href="RelativePath.html" class="extype" name="laika.ast.RelativePath">RelativePath</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Returns a new path that discards this path's suffix, if present.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a new path that discards this path's suffix, if present.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RelativePath.html" class="extype" name="laika.ast.RelativePath">RelativePath</a></dd></dl></div>
     </li>
               </ol>
             </div>

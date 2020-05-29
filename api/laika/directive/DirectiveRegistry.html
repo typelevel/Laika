@@ -123,6 +123,10 @@
                         <a href="DirectiveSupport.html" title="Internal API that processes all directives defined by one or more DirectiveRegistries.">DirectiveSupport</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="object" href="Links$.html" title="The API for declaring directives that can be used in links."></a>
+                        <a href="Links$.html" title="The API for declaring directives that can be used in links.">Links</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="object" href="Spans$.html" title="The API for declaring directives that can be used as inline elements in markup documents."></a>
                         <a href="Spans$.html" title="The API for declaring directives that can be used as inline elements in markup documents.">Spans</a>
                       </li><li class="current-entities indented2">
@@ -167,6 +171,7 @@ them to Parse, Render or Transform operations:</p><pre><span class="kw">object</
   <span class="kw">val</span> spanDirectives = <span class="std">Seq</span>(...)
   <span class="kw">val</span> blockDirectives = <span class="std">Seq</span>(...)
   <span class="kw">val</span> templateDirectives = <span class="std">Seq</span>(...)
+  <span class="kw">val</span> linkDirectives = <span class="std">Seq</span>(...)
 }
 <span class="kw">object</span> OtherDirectives <span class="kw">extends</span> DirectiveRegistry {
   [...]
@@ -260,9 +265,44 @@ them to Parse, Render or Transform operations:</p><pre><span class="kw">object</
   )
   <span class="kw">val</span> spanDirectives = <span class="std">Seq</span>()
   <span class="kw">val</span> templateDirectives = <span class="std">Seq</span>()
+  <span class="kw">val</span> linkDirectives = <span class="std">Seq</span>()
 }
 
 <span class="kw">val</span> transformer = Transformer.from(Markdown).to(HTML).using(MyDirectives).build</pre><p> For more details on implementing Laika directives see <a href="BuilderContext$dsl$.html" class="extype" name="laika.directive.BuilderContext.dsl">laika.directive.BuilderContext.dsl</a>.
+</p></div></div>
+    </li><li name="laika.directive.DirectiveRegistry#linkDirectives" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="linkDirectives:Seq[laika.directive.Links.Directive]"></a><a id="linkDirectives:Seq[Directive]"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/DirectiveRegistry.html#linkDirectives:Seq[laika.directive.Links.Directive]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">linkDirectives</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="Links$$Directive.html" class="extype" name="laika.directive.Links.Directive">Directive</a>]</span>
+      </span>
+      
+      <p class="shortcomment cmt"> Registers the specified link directives.</p><div class="fullcomment"><div class="comment cmt"><p> Registers the specified link directives.</p><p> Example:</p><pre><span class="kw">object</span> MyDirectives <span class="kw">extends</span> DirectiveRegistry {
+  <span class="kw">val</span> linkDirectives = <span class="std">Seq</span>(
+    Links.eval(<span class="lit">"rfc"</span>) { linkId <span class="kw">=&gt;</span>
+      Try(Integer.parseInt(linkId))
+       .toEither
+       .fold(
+         _ <span class="kw">=&gt;</span> Left(s<span class="lit">"Not a valid RFC id: $linkId"</span>),
+         id <span class="kw">=&gt;</span> Right(SpanLink(<span class="std">Seq</span>(Text(s<span class="lit">"RFC $id"</span>)), ExternalTarget(s<span class="lit">"http://tools.ietf.org/html/rfc$linkId"</span>)))
+       )
+    }
+  )
+  <span class="kw">val</span> blockDirectives = <span class="std">Seq</span>()
+  <span class="kw">val</span> spanDirectives = <span class="std">Seq</span>()
+}
+
+<span class="kw">val</span> transformer = Transformer.from(Markdown).to(HTML).using(MyDirectives).build</pre><p> The code above registers a link directive that detects markup like
+ <code>@:rfc(2356)</code> and turns it into an external link node for the
+ URL <code>http://tools.ietf.org/html/rfc2356</code>.</p><p> For more details on implementing Laika directives see <a href="BuilderContext$dsl$.html" class="extype" name="laika.directive.BuilderContext.dsl">laika.directive.BuilderContext.dsl</a>.
 </p></div></div>
     </li><li name="laika.directive.DirectiveRegistry#spanDirectives" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="spanDirectives:Seq[laika.directive.Spans.Directive]"></a><a id="spanDirectives:Seq[Spans.Directive]"></a>
@@ -285,16 +325,17 @@ them to Parse, Render or Transform operations:</p><pre><span class="kw">object</
       (defaultAttribute.as[<span class="std">String</span>] ~ attribute(<span class="lit">"param"</span>).optional).map { <span class="kw">case</span> ticketNo ~ param <span class="kw">=&gt;</span>
         <span class="kw">val</span> base = <span class="lit">"http://tickets.service.com/"</span>+ticketNo
         <span class="kw">val</span> url = base + (param map (p <span class="kw">=&gt;</span> <span class="lit">"?param="</span>+p) getOrElse <span class="lit">""</span>)
-        ExternalLink(<span class="std">Seq</span>(Text(<span class="lit">"Ticket "</span>+ticketNo)), url, options = Styles(<span class="lit">"ticket"</span>))
+        SpanLink(<span class="std">Seq</span>(Text(<span class="lit">"Ticket "</span>+ticketNo)), ExternalTarget(url), options = Styles(<span class="lit">"ticket"</span>))
       }
     }
   )
   <span class="kw">val</span> blockDirectives = <span class="std">Seq</span>()
   <span class="kw">val</span> templateDirectives = <span class="std">Seq</span>()
+  <span class="kw">val</span> linkDirectives = <span class="std">Seq</span>()
 }
 
 <span class="kw">val</span> transformer = Transformer.from(Markdown).to(HTML).using(MyDirectives).build</pre><p> The code above registers a span directive that detects markup like
- <code>@:ticket 2356.</code> and turns it into an external link node for the
+ <code>@:ticket(2356)</code> and turns it into an external link node for the
  URL <code>http://tickets.service.com/2356</code>.</p><p> For more details on implementing Laika directives see <a href="BuilderContext$dsl$.html" class="extype" name="laika.directive.BuilderContext.dsl">laika.directive.BuilderContext.dsl</a>.
 </p></div></div>
     </li><li name="laika.directive.DirectiveRegistry#templateDirectives" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
@@ -318,16 +359,17 @@ them to Parse, Render or Transform operations:</p><pre><span class="kw">object</
       (defaultAttribute.as[<span class="std">String</span>] ~ attribute(<span class="lit">"param"</span>).optional).map { <span class="kw">case</span> ticketNo ~ param <span class="kw">=&gt;</span>
         <span class="kw">val</span> base = <span class="lit">"http://tickets.service.com/"</span>+ticketNo
         <span class="kw">val</span> url = base + (param map (p <span class="kw">=&gt;</span> <span class="lit">"&param="</span>+p) getOrElse <span class="lit">""</span>)
-        TemplateElement(ExternalLink(<span class="std">Seq</span>(Text(<span class="lit">"Ticket "</span>+ticketNo)), url, options = Styles(<span class="lit">"ticket"</span>)))
+        TemplateElement(SpanLink(<span class="std">Seq</span>(Text(<span class="lit">"Ticket "</span>+ticketNo)), ExternalTarget(url), options = Styles(<span class="lit">"ticket"</span>)))
       }
     }
   )
   <span class="kw">val</span> blockDirectives = <span class="std">Seq</span>()
   <span class="kw">val</span> spanDirectives = <span class="std">Seq</span>()
+  <span class="kw">val</span> linkDirectives = <span class="std">Seq</span>()
 }
 
 <span class="kw">val</span> transformer = Transformer.from(Markdown).to(HTML).using(MyDirectives).build</pre><p> The code above registers a template directive that detects markup like
- <code>@:ticket 2356.</code> and turns it into an external link node for the
+ <code>@:ticket(2356)</code> and turns it into an external link node for the
  URL <code>http://tickets.service.com/2356</code>.</p><p> For more details on implementing Laika directives see <a href="BuilderContext$dsl$.html" class="extype" name="laika.directive.BuilderContext.dsl">laika.directive.BuilderContext.dsl</a>.
 </p></div></div>
     </li></ol>
@@ -747,6 +789,29 @@ parse and render operations.</p><p>The specified functions will be invoked for e
 information from the entire document tree before returning the actual rule,
 which is a partial function from <code>Element</code> to <code>Option[Element]</code> that allows
 to remove or replace elements from the tree.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a></dd></dl></div>
+    </li><li name="laika.bundle.ExtensionBundle#slugBuilder" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="slugBuilder:Option[String=&gt;String]"></a><a id="slugBuilder:Option[(String)⇒String]"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/DirectiveRegistry.html#slugBuilder:Option[String=&gt;String]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">slugBuilder</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[(<span class="extype" name="scala.Predef.String">String</span>) ⇒ <span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Function that receives the text of a headline, the name of a document
+or directory or a manually assigned identifier, and builds a slug from it
+that becomes part of the final URL or identifier (depending on output format).</p><div class="fullcomment"><div class="comment cmt"><p>Function that receives the text of a headline, the name of a document
+or directory or a manually assigned identifier, and builds a slug from it
+that becomes part of the final URL or identifier (depending on output format).</p><p>The result of the function must be:</p><p>- a valid identifier in HTML and XML
+- a valid path segment in a URL
+- a valid file name
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>

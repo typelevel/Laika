@@ -123,12 +123,28 @@
                         <a href="AutonumberConfig.html" title="Configuration for autonumbering of documents and sections.">AutonumberConfig</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
+                        <a class="class" href="BasicPathTranslator.html" title="Basic path translator implementation that only replaces the suffix of the path."></a>
+                        <a href="BasicPathTranslator.html" title="Basic path translator implementation that only replaces the suffix of the path.">BasicPathTranslator</a>
+                      </li><li class="current-entities indented3">
+                        <a class="object" href="BookConfig$.html" title=""></a>
+                        <a class="class" href="BookConfig.html" title=""></a>
+                        <a href="BookConfig.html" title="">BookConfig</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="ConfigurablePathTranslator.html" title="Translates paths of input documents to the corresponding output path, based on a configuration instance."></a>
+                        <a href="ConfigurablePathTranslator.html" title="Translates paths of input documents to the corresponding output path, based on a configuration instance.">ConfigurablePathTranslator</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
                         <a class="class" href="ConfigurationException.html" title=""></a>
                         <a href="ConfigurationException.html" title="">ConfigurationException</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="object" href="NavigationOrder$.html" title="Responsible for applying the navigation order to the contents of a document tree, either based on user-specified configuration or by the alphabetical order of the names of the documents and subtrees."></a>
                         <a href="NavigationOrder$.html" title="Responsible for applying the navigation order to the contents of a document tree, either based on user-specified configuration or by the alphabetical order of the names of the documents and subtrees.">NavigationOrder</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="trait" href="PathTranslator.html" title="Translates paths of input documents to the corresponding output path."></a>
+                        <a href="PathTranslator.html" title="Translates paths of input documents to the corresponding output path.">PathTranslator</a>
                       </li><li class="current-entities indented3">
                         <a class="object" href="Scope$.html" title=""></a>
                         <a class="trait" href="Scope.html" title=""></a>
@@ -139,8 +155,12 @@
                         <a href="SectionBuilder$.html" title="Rewrite rules responsible for building the section structure of a document based on the header elements it contains and their level.">SectionBuilder</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="object" href="TocGenerator$.html" title="Generates the tree model (consisting of BulletList elements) for the table of contents for a document or an entire document tree."></a>
-                        <a href="TocGenerator$.html" title="Generates the tree model (consisting of BulletList elements) for the table of contents for a document or an entire document tree.">TocGenerator</a>
+                        <a class="object" href="TitleDocumentConfig$.html" title="Configuration for the names of title documents in the input and output trees."></a>
+                        <a href="TitleDocumentConfig$.html" title="Configuration for the names of title documents in the input and output trees.">TitleDocumentConfig</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="TocGenerator$.html" title=""></a>
+                        <a href="TocGenerator$.html" title="">TocGenerator</a>
                       </li>
               </ul>
             </div>
@@ -365,6 +385,22 @@
       
       <p class="shortcomment cmt">The defaults for autonumbering with section
  and document numbering both switched off.</p>
+    </li><li name="laika.rewrite.nav.AutonumberConfig#encoder" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="encoder:laika.config.ConfigEncoder[laika.rewrite.nav.AutonumberConfig]"></a><a id="encoder:ConfigEncoder[AutonumberConfig]"></a>
+      <span class="permalink">
+      <a href="../../../laika/rewrite/nav/AutonumberConfig$.html#encoder:laika.config.ConfigEncoder[laika.rewrite.nav.AutonumberConfig]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">encoder</span><span class="result">: <a href="../../config/ConfigEncoder.html" class="extype" name="laika.config.ConfigEncoder">ConfigEncoder</a>[<a href="AutonumberConfig.html" class="extype" name="laika.rewrite.nav.AutonumberConfig">AutonumberConfig</a>]</span>
+      </span>
+      
+      
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
       <span class="permalink">
@@ -419,24 +455,6 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="laika.rewrite.nav.AutonumberConfig#fromConfig" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="fromConfig(config:laika.config.Config):laika.config.Config.ConfigResult[laika.rewrite.nav.AutonumberConfig]"></a><a id="fromConfig(Config):ConfigResult[AutonumberConfig]"></a>
-      <span class="permalink">
-      <a href="../../../laika/rewrite/nav/AutonumberConfig$.html#fromConfig(config:laika.config.Config):laika.config.Config.ConfigResult[laika.rewrite.nav.AutonumberConfig]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">fromConfig</span><span class="params">(<span name="config">config: <a href="../../config/Config.html" class="extype" name="laika.config.Config">Config</a></span>)</span><span class="result">: <a href="../../config/Config$.html#ConfigResult[T]=Either[laika.config.ConfigError,T]" class="extmbr" name="laika.config.Config.ConfigResult">ConfigResult</a>[<a href="AutonumberConfig.html" class="extype" name="laika.rewrite.nav.AutonumberConfig">AutonumberConfig</a>]</span>
-      </span>
-      
-      <p class="shortcomment cmt">Tries to obtain the autonumbering configuration
- from the specified configuration instance or returns
- the default configuration if not found.</p>
     </li><li name="scala.AnyRef#getClass" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <span class="permalink">
@@ -669,7 +687,29 @@ Retains the existing value for auto-numbering of documents.
 
         
 
-        
+        <div class="values members">
+              <h3>Deprecated Value Members</h3>
+              <ol><li name="laika.rewrite.nav.AutonumberConfig#fromConfig" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="fromConfig(config:laika.config.Config):laika.config.Config.ConfigResult[laika.rewrite.nav.AutonumberConfig]"></a><a id="fromConfig(Config):ConfigResult[AutonumberConfig]"></a>
+      <span class="permalink">
+      <a href="../../../laika/rewrite/nav/AutonumberConfig$.html#fromConfig(config:laika.config.Config):laika.config.Config.ConfigResult[laika.rewrite.nav.AutonumberConfig]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.15.0) use config.get[AutonumberConfig] instead">fromConfig</span><span class="params">(<span name="config">config: <a href="../../config/Config.html" class="extype" name="laika.config.Config">Config</a></span>)</span><span class="result">: <a href="../../config/Config$.html#ConfigResult[T]=Either[laika.config.ConfigError,T]" class="extmbr" name="laika.config.Config.ConfigResult">ConfigResult</a>[<a href="AutonumberConfig.html" class="extype" name="laika.rewrite.nav.AutonumberConfig">AutonumberConfig</a>]</span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.15.0)</i> use config.get[AutonumberConfig] instead</p></dd></dl></div>
+    </li></ol>
+            </div>
         </div>
 
         <div id="inheritedMembers">

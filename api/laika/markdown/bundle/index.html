@@ -139,10 +139,6 @@
                         <a href="HTMLRenderer$.html" title="Renderer for verbatim HTML elements.">HTMLRenderer</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="object" href="HeaderIdInsertion$.html" title="Block list post-processor that auto-generates ids for headers so that they can serve as link target within the same document or as cross-link targets from other documents."></a>
-                        <a href="HeaderIdInsertion$.html" title="Block list post-processor that auto-generates ids for headers so that they can serve as link target within the same document or as cross-link targets from other documents.">HeaderIdInsertion</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
                         <a class="object" href="VerbatimHTML$.html" title="Markdown extension that also parses verbatim HTML elements alongside the standard Markdown markup."></a>
                         <a href="VerbatimHTML$.html" title="Markdown extension that also parses verbatim HTML elements alongside the standard Markdown markup.">VerbatimHTML</a>
                       </li><li name="laika.markdown.github" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
@@ -250,29 +246,6 @@
  renderers. This partial renderer complements the regular HTML renderer and simply writes
  the HTML elements out as they were read. Of course, in contrast to regular text, without
  escaping any of the special HTML characters.</p><p> It must be applied explicitly as part of the <code>VerbatimHTML</code> bundle when enabling verbatim HTML:</p><pre><span class="kw">val</span> transformer = Transformer.from(Markdown).to(HTML).withRawContent</pre></div></div>
-    </li><li name="laika.markdown.bundle.HeaderIdInsertion" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="HeaderIdInsertion"></a><a id="HeaderIdInsertion:HeaderIdInsertion"></a>
-      <span class="permalink">
-      <a href="../../../laika/markdown/bundle/HeaderIdInsertion$.html" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a title="Block list post-processor that auto-generates ids for headers so that they can serve as link target within the same document or as cross-link targets from other documents." href="HeaderIdInsertion$.html"><span class="name">HeaderIdInsertion</span></a><span class="result"> extends (<span class="extype" name="scala.Seq">Seq</span>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]) ⇒ <span class="extype" name="scala.Seq">Seq</span>[<a href="../../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>
-      </span>
-      
-      <p class="shortcomment cmt">Block list post-processor that auto-generates ids for
-headers so that they can serve as link target within
-the same document or as cross-link targets from other
-documents.</p><div class="fullcomment"><div class="comment cmt"><p>Block list post-processor that auto-generates ids for
-headers so that they can serve as link target within
-the same document or as cross-link targets from other
-documents.</p><p>This extension is disabled when Markdown is parsed in strict mode.
-</p></div></div>
     </li><li name="laika.markdown.bundle.VerbatimHTML" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="VerbatimHTML"></a><a id="VerbatimHTML:VerbatimHTML"></a>
       <span class="permalink">

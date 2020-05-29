@@ -118,22 +118,6 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika.render">render</a></dd></dl></div>
     </li><li class="current-entities indented3">
-                        <a class="object" href="BookNavigation$.html" title=""></a>
-                        <a class="trait" href="BookNavigation.html" title="Represents a recursive book navigation structure."></a>
-                        <a href="BookNavigation.html" title="Represents a recursive book navigation structure.">BookNavigation</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="class" href="BookNavigationLink.html" title="Represents a book navigation entry that links to content in the document tree."></a>
-                        <a href="BookNavigationLink.html" title="Represents a book navigation entry that links to content in the document tree.">BookNavigationLink</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="class" href="BookSectionHeader.html" title="Represents a book navigation entry that only serves as a section header without linking to content."></a>
-                        <a href="BookSectionHeader.html" title="Represents a book navigation entry that only serves as a section header without linking to content.">BookSectionHeader</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="object" href="ConfigFactory$.html" title="Creates the EPUB configuration for a document tree."></a>
-                        <a href="ConfigFactory$.html" title="Creates the EPUB configuration for a document tree.">ConfigFactory</a>
-                      </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="class" href="ContainerWriter.html" title="Creates the EPUB container based on a document tree and the HTML result of a preceding render operation."></a>
                         <a href="ContainerWriter.html" title="Creates the EPUB container based on a document tree and the HTML result of a preceding render operation.">ContainerWriter</a>
@@ -157,6 +141,10 @@
                         <span class="separator"></span>
                         <a class="class" href="NCXRenderer.html" title="Renders the entire content of an NCX navigation file."></a>
                         <a href="NCXRenderer.html" title="Renders the entire content of an NCX navigation file.">NCXRenderer</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="NavigationBuilder$.html" title=""></a>
+                        <a href="NavigationBuilder$.html" title="">NavigationBuilder</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="class" href="OPFRenderer.html" title="Renders the content of an EPUB Package document (OPF)."></a>
@@ -252,55 +240,7 @@
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="laika.render.epub.BookNavigation" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="BookNavigationextendsAnyRef"></a><a id="BookNavigation:BookNavigation"></a>
-      <span class="permalink">
-      <a href="../../../laika/render/epub/BookNavigation.html" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">trait</span>
-      </span>
-      <span class="symbol">
-        <a title="Represents a recursive book navigation structure." href="BookNavigation.html"><span class="name">BookNavigation</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
-      </span>
-      
-      <p class="shortcomment cmt">Represents a recursive book navigation structure.</p>
-    </li><li name="laika.render.epub.BookNavigationLink" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="BookNavigationLinkextendsBookNavigationwithProductwithSerializable"></a><a id="BookNavigationLink:BookNavigationLink"></a>
-      <span class="permalink">
-      <a href="../../../laika/render/epub/BookNavigationLink.html" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a title="Represents a book navigation entry that links to content in the document tree." href="BookNavigationLink.html"><span class="name">BookNavigationLink</span></a><span class="params">(<span name="title">title: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="link">link: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="pos">pos: <span class="extype" name="scala.Int">Int</span></span>, <span name="children">children: <span class="extype" name="scala.Seq">Seq</span>[<a href="BookNavigation.html" class="extype" name="laika.render.epub.BookNavigation">BookNavigation</a>]</span>)</span><span class="result"> extends <a href="BookNavigation.html" class="extype" name="laika.render.epub.BookNavigation">BookNavigation</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      
-      <p class="shortcomment cmt">Represents a book navigation entry that links to content in the document tree.</p>
-    </li><li name="laika.render.epub.BookSectionHeader" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="BookSectionHeaderextendsBookNavigationwithProductwithSerializable"></a><a id="BookSectionHeader:BookSectionHeader"></a>
-      <span class="permalink">
-      <a href="../../../laika/render/epub/BookSectionHeader.html" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a title="Represents a book navigation entry that only serves as a section header without linking to content." href="BookSectionHeader.html"><span class="name">BookSectionHeader</span></a><span class="params">(<span name="title">title: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="pos">pos: <span class="extype" name="scala.Int">Int</span></span>, <span name="children">children: <span class="extype" name="scala.Seq">Seq</span>[<a href="BookNavigation.html" class="extype" name="laika.render.epub.BookNavigation">BookNavigation</a>]</span>)</span><span class="result"> extends <a href="BookNavigation.html" class="extype" name="laika.render.epub.BookNavigation">BookNavigation</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      
-      <p class="shortcomment cmt">Represents a book navigation entry that only serves as a section header without linking to content.</p>
-    </li><li name="laika.render.epub.ContainerWriter" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+              <ol><li name="laika.render.epub.ContainerWriter" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="ContainerWriterextendsAnyRef"></a><a id="ContainerWriter:ContainerWriter"></a>
       <span class="permalink">
       <a href="../../../laika/render/epub/ContainerWriter.html" title="Permalink">
@@ -376,39 +316,7 @@ added for backwards-compatibility with older readers.
         <div class="values members">
               <h3>Value Members</h3>
               <ol>
-                <li name="laika.render.epub.BookNavigation" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="BookNavigation"></a><a id="BookNavigation:BookNavigation"></a>
-      <span class="permalink">
-      <a href="../../../laika/render/epub/BookNavigation$.html" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a title="" href="BookNavigation$.html"><span class="name">BookNavigation</span></a>
-      </span>
-      
-      
-    </li><li name="laika.render.epub.ConfigFactory" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="ConfigFactory"></a><a id="ConfigFactory:ConfigFactory"></a>
-      <span class="permalink">
-      <a href="../../../laika/render/epub/ConfigFactory$.html" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a title="Creates the EPUB configuration for a document tree." href="ConfigFactory$.html"><span class="name">ConfigFactory</span></a>
-      </span>
-      
-      <p class="shortcomment cmt">Creates the EPUB configuration for a document tree.</p>
-    </li><li name="laika.render.epub.HtmlRenderExtensions" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+                <li name="laika.render.epub.HtmlRenderExtensions" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="HtmlRenderExtensions"></a><a id="HtmlRenderExtensions:HtmlRenderExtensions"></a>
       <span class="permalink">
       <a href="../../../laika/render/epub/HtmlRenderExtensions$.html" title="Permalink">
@@ -458,6 +366,22 @@ specific to EPUB need to be rendered.</p>
       
       <p class="shortcomment cmt">Lists the supported file types that get inserted into the EPUB container
 in addition to the dynamically rendered HTML content.</p>
+    </li><li name="laika.render.epub.NavigationBuilder" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="NavigationBuilder"></a><a id="NavigationBuilder:NavigationBuilder"></a>
+      <span class="permalink">
+      <a href="../../../laika/render/epub/NavigationBuilder$.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="NavigationBuilder$.html"><span class="name">NavigationBuilder</span></a>
+      </span>
+      
+      
     </li><li name="laika.render.epub.StaticContent" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="StaticContent"></a><a id="StaticContent:StaticContent"></a>
       <span class="permalink">

@@ -586,9 +586,9 @@ application code directly.
               
         </dd></dl></div>
     </li><li name="laika.api.Renderer#render" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="render(element:laika.ast.Element,path:laika.ast.Path,styles:laika.ast.StyleDeclarationSet):String"></a><a id="render(Element,Path,StyleDeclarationSet):String"></a>
+      <a id="render(element:laika.ast.Element,path:laika.ast.Path,pathTranslator:laika.rewrite.nav.PathTranslator,styles:laika.ast.StyleDeclarationSet):String"></a><a id="render(Element,Path,PathTranslator,StyleDeclarationSet):String"></a>
       <span class="permalink">
-      <a href="../../laika/api/Renderer.html#render(element:laika.ast.Element,path:laika.ast.Path,styles:laika.ast.StyleDeclarationSet):String" title="Permalink">
+      <a href="../../laika/api/Renderer.html#render(element:laika.ast.Element,path:laika.ast.Path,pathTranslator:laika.rewrite.nav.PathTranslator,styles:laika.ast.StyleDeclarationSet):String" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -597,10 +597,10 @@ application code directly.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">render</span><span class="params">(<span name="element">element: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>, <span name="path">path: <a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="styles">styles: <a href="../ast/StyleDeclarationSet.html" class="extype" name="laika.ast.StyleDeclarationSet">StyleDeclarationSet</a></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+        <span class="name">render</span><span class="params">(<span name="element">element: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>, <span name="path">path: <a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="pathTranslator">pathTranslator: <a href="../rewrite/nav/PathTranslator.html" class="extype" name="laika.rewrite.nav.PathTranslator">PathTranslator</a></span>, <span name="styles">styles: <a href="../ast/StyleDeclarationSet.html" class="extype" name="laika.ast.StyleDeclarationSet">StyleDeclarationSet</a></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
       </span>
       
-      <p class="shortcomment cmt">Renders the specified element as a String, using the given styles.</p><div class="fullcomment"><div class="comment cmt"><p>Renders the specified element as a String, using the given styles.</p><p>Currently only PDF/XSL-FO output processes styles, all other formats
+      <p class="shortcomment cmt">Renders the specified element as a String, using the given path translator and styles.</p><div class="fullcomment"><div class="comment cmt"><p>Renders the specified element as a String, using the given path translator and styles.</p><p>Currently only PDF/XSL-FO output processes styles, all other formats
 will ignore them.</p><p>The provided (virtual) path may be used by renderers for cross-linking between
 documents.
 </p></div></div>
@@ -639,9 +639,9 @@ documents.
       
       <p class="shortcomment cmt">Renders the specified element as a String.</p>
     </li><li name="laika.api.Renderer#render" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="render(doc:laika.ast.Document,styles:laika.ast.StyleDeclarationSet):String"></a><a id="render(Document,StyleDeclarationSet):String"></a>
+      <a id="render(doc:laika.ast.Document,pathTranslator:laika.rewrite.nav.PathTranslator,styles:laika.ast.StyleDeclarationSet):String"></a><a id="render(Document,PathTranslator,StyleDeclarationSet):String"></a>
       <span class="permalink">
-      <a href="../../laika/api/Renderer.html#render(doc:laika.ast.Document,styles:laika.ast.StyleDeclarationSet):String" title="Permalink">
+      <a href="../../laika/api/Renderer.html#render(doc:laika.ast.Document,pathTranslator:laika.rewrite.nav.PathTranslator,styles:laika.ast.StyleDeclarationSet):String" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -650,10 +650,10 @@ documents.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">render</span><span class="params">(<span name="doc">doc: <a href="../ast/Document.html" class="extype" name="laika.ast.Document">Document</a></span>, <span name="styles">styles: <a href="../ast/StyleDeclarationSet.html" class="extype" name="laika.ast.StyleDeclarationSet">StyleDeclarationSet</a></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+        <span class="name">render</span><span class="params">(<span name="doc">doc: <a href="../ast/Document.html" class="extype" name="laika.ast.Document">Document</a></span>, <span name="pathTranslator">pathTranslator: <a href="../rewrite/nav/PathTranslator.html" class="extype" name="laika.rewrite.nav.PathTranslator">PathTranslator</a></span>, <span name="styles">styles: <a href="../ast/StyleDeclarationSet.html" class="extype" name="laika.ast.StyleDeclarationSet">StyleDeclarationSet</a></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
       </span>
       
-      <p class="shortcomment cmt">Renders the specified document as a String, using the given styles.</p><div class="fullcomment"><div class="comment cmt"><p>Renders the specified document as a String, using the given styles.</p><p>Currently only PDF/XSL-FO output processes styles, all other formats
+      <p class="shortcomment cmt">Renders the specified document as a String, using the given path translator and styles.</p><div class="fullcomment"><div class="comment cmt"><p>Renders the specified document as a String, using the given path translator and styles.</p><p>Currently only PDF/XSL-FO output processes styles, all other formats
 will ignore them.
 </p></div></div>
     </li><li name="laika.api.Renderer#render" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">

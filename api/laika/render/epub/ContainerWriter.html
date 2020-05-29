@@ -118,22 +118,6 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika.render">render</a></dd></dl></div>
     </li><li class="current-entities indented3">
-                        <a class="object" href="BookNavigation$.html" title=""></a>
-                        <a class="trait" href="BookNavigation.html" title="Represents a recursive book navigation structure."></a>
-                        <a href="BookNavigation.html" title="Represents a recursive book navigation structure.">BookNavigation</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="class" href="BookNavigationLink.html" title="Represents a book navigation entry that links to content in the document tree."></a>
-                        <a href="BookNavigationLink.html" title="Represents a book navigation entry that links to content in the document tree.">BookNavigationLink</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="class" href="BookSectionHeader.html" title="Represents a book navigation entry that only serves as a section header without linking to content."></a>
-                        <a href="BookSectionHeader.html" title="Represents a book navigation entry that only serves as a section header without linking to content.">BookSectionHeader</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="object" href="ConfigFactory$.html" title="Creates the EPUB configuration for a document tree."></a>
-                        <a href="ConfigFactory$.html" title="Creates the EPUB configuration for a document tree.">ConfigFactory</a>
-                      </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="class" href="" title="Creates the EPUB container based on a document tree and the HTML result of a preceding render operation."></a>
                         <a href="" title="Creates the EPUB container based on a document tree and the HTML result of a preceding render operation.">ContainerWriter</a>
@@ -157,6 +141,10 @@
                         <span class="separator"></span>
                         <a class="class" href="NCXRenderer.html" title="Renders the entire content of an NCX navigation file."></a>
                         <a href="NCXRenderer.html" title="Renders the entire content of an NCX navigation file.">NCXRenderer</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="NavigationBuilder$.html" title=""></a>
+                        <a href="NavigationBuilder$.html" title="">NavigationBuilder</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="class" href="OPFRenderer.html" title="Renders the content of an EPUB Package document (OPF)."></a>
@@ -368,9 +356,9 @@ of a preceding render operation.
               
         </dd></dl></div>
     </li><li name="laika.render.epub.ContainerWriter#collectInputs" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="collectInputs[F[_]](result:laika.io.model.RenderedTreeRoot[F],config:laika.format.EPUB.Config)(implicitevidence$1:cats.effect.Async[F]):Seq[laika.io.model.BinaryInput[F]]"></a><a id="collectInputs[F[_]](RenderedTreeRoot[F],Config)(Async[F]):Seq[BinaryInput[F]]"></a>
+      <a id="collectInputs[F[_]](result:laika.io.model.RenderedTreeRoot[F],config:laika.format.EPUB.BookConfig)(implicitevidence$1:cats.effect.Async[F]):Seq[laika.io.model.BinaryInput[F]]"></a><a id="collectInputs[F[_]](RenderedTreeRoot[F],BookConfig)(Async[F]):Seq[BinaryInput[F]]"></a>
       <span class="permalink">
-      <a href="../../../laika/render/epub/ContainerWriter.html#collectInputs[F[_]](result:laika.io.model.RenderedTreeRoot[F],config:laika.format.EPUB.Config)(implicitevidence$1:cats.effect.Async[F]):Seq[laika.io.model.BinaryInput[F]]" title="Permalink">
+      <a href="../../../laika/render/epub/ContainerWriter.html#collectInputs[F[_]](result:laika.io.model.RenderedTreeRoot[F],config:laika.format.EPUB.BookConfig)(implicitevidence$1:cats.effect.Async[F]):Seq[laika.io.model.BinaryInput[F]]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -379,7 +367,7 @@ of a preceding render operation.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">collectInputs</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="result">result: <a href="../../io/model/RenderedTreeRoot.html" class="extype" name="laika.io.model.RenderedTreeRoot">RenderedTreeRoot</a>[<span class="extype" name="laika.render.epub.ContainerWriter.collectInputs.F">F</span>]</span>, <span name="config">config: <a href="../../format/EPUB$$Config.html" class="extype" name="laika.format.EPUB.Config">Config</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Async">Async</span>[<span class="extype" name="laika.render.epub.ContainerWriter.collectInputs.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="../../io/model/BinaryInput.html" class="extype" name="laika.io.model.BinaryInput">BinaryInput</a>[<span class="extype" name="laika.render.epub.ContainerWriter.collectInputs.F">F</span>]]</span>
+        <span class="name">collectInputs</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="result">result: <a href="../../io/model/RenderedTreeRoot.html" class="extype" name="laika.io.model.RenderedTreeRoot">RenderedTreeRoot</a>[<span class="extype" name="laika.render.epub.ContainerWriter.collectInputs.F">F</span>]</span>, <span name="config">config: <a href="../../format/EPUB$$BookConfig.html" class="extype" name="laika.format.EPUB.BookConfig">BookConfig</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Async">Async</span>[<span class="extype" name="laika.render.epub.ContainerWriter.collectInputs.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="../../io/model/BinaryInput.html" class="extype" name="laika.io.model.BinaryInput">BinaryInput</a>[<span class="extype" name="laika.render.epub.ContainerWriter.collectInputs.F">F</span>]]</span>
       </span>
       
       <p class="shortcomment cmt">Collects all documents that need to be written to the EPUB container.</p><div class="fullcomment"><div class="comment cmt"><p>Collects all documents that need to be written to the EPUB container.</p><p>This includes:</p><p>- All rendered HTML in the provided result tree.

@@ -212,10 +212,10 @@
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="laika.format.PDF.Config" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="ConfigextendsProductwithSerializable"></a><a id="Config:Config"></a>
+              <ol><li name="laika.format.PDF.BookConfig" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="BookConfigextendsProductwithSerializable"></a><a id="BookConfig:BookConfig"></a>
       <span class="permalink">
-      <a href="../../laika/format/PDF$$Config.html" title="Permalink">
+      <a href="../../laika/format/PDF$$BookConfig.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -224,11 +224,12 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="Configuration options for the generated PDF output." href="PDF$$Config.html"><span class="name">Config</span></a><span class="params">(<span name="bookmarkDepth">bookmarkDepth: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">Int.MaxValue</span></span>, <span name="tocDepth">tocDepth: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">Int.MaxValue</span></span>, <span name="tocTitle">tocTitle: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="Configuration options for the generated EPUB output." href="PDF$$BookConfig.html"><span class="name">BookConfig</span></a><span class="params">(<span name="metadata">metadata: <a href="../ast/DocumentMetadata.html" class="extype" name="laika.ast.DocumentMetadata">DocumentMetadata</a> = <span class="symbol"><span class="name"><a href="../index.html">DocumentMetadata()</a></span></span></span>, <span name="navigationDepth">navigationDepth: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>] = <span class="symbol">None</span></span>, <span name="coverImage">coverImage: <span class="extype" name="scala.Option">Option</span>[<a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a>] = <span class="symbol">None</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
-      <p class="shortcomment cmt">Configuration options for the generated PDF output.</p><div class="fullcomment"><div class="comment cmt"><p>Configuration options for the generated PDF output.
-</p></div><dl class="paramcmts block"><dt class="param">bookmarkDepth</dt><dd class="cmt"><p>the number of levels bookmarks should be generated for, use 0 to switch off bookmark generation</p></dd><dt class="param">tocDepth</dt><dd class="cmt"><p>the number of levels to generate a table of contents for, use 0 to switch off toc generation</p></dd><dt class="param">tocTitle</dt><dd class="cmt"><p>the title for the table of contents</p></dd></dl></div>
+      <p class="shortcomment cmt">Configuration options for the generated EPUB output.</p><div class="fullcomment"><div class="comment cmt"><p>Configuration options for the generated EPUB output.</p><p>The duplication of the existing <code>BookConfig</code> instance from laika-core happens to have a different
+implicit key association with the EPUB-specific instance.
+</p></div><dl class="paramcmts block"><dt class="param">metadata</dt><dd class="cmt"><p>the metadata associated with the document</p></dd><dt class="param">navigationDepth</dt><dd class="cmt"><p>the number of levels to generate a table of contents for</p></dd><dt class="param">coverImage</dt><dd class="cmt"><p>the path to the cover image within the virtual document tree</p></dd></dl></div>
     </li></ol>
             </div>
 
@@ -676,25 +677,6 @@ The modified tree will be used for rendering the interim XSL-FO result.
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="laika.format.PDF#withConfig" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="withConfig(config:laika.format.PDF.Config):laika.format.PDF"></a><a id="withConfig(Config):PDF"></a>
-      <span class="permalink">
-      <a href="../../laika/format/PDF$.html#withConfig(config:laika.format.PDF.Config):laika.format.PDF" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">withConfig</span><span class="params">(<span name="config">config: <a href="PDF$$Config.html" class="extype" name="laika.format.PDF.Config">Config</a></span>)</span><span class="result">: <a href="PDF.html" class="extype" name="laika.format.PDF">PDF</a></span>
-      </span>
-      
-      <p class="shortcomment cmt">Allows to specify configuration options like insertion
- of bookmarks or table of content.</p><div class="fullcomment"><div class="comment cmt"><p>Allows to specify configuration options like insertion
- of bookmarks or table of content.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="PDF.html" class="extype" name="laika.format.PDF">PDF</a></dd></dl></div>
     </li><li name="laika.format.PDF#withFopFactory" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="withFopFactory(fopFactory:org.apache.fop.apps.FopFactory):laika.format.PDF"></a><a id="withFopFactory(FopFactory):PDF"></a>
       <span class="permalink">
@@ -717,10 +699,10 @@ either the <code>FopFactory</code> instance itself or the resulting <code>PDF</c
 In case you do not specify a custom factory, Laika ensures that the default
 factory is reused between renderers.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="PDF.html" class="extype" name="laika.format.PDF">PDF</a></dd></dl></div>
-    </li><li name="laika.format.PDF.Config" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Config"></a><a id="Config:Config"></a>
+    </li><li name="laika.format.PDF.BookConfig" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="BookConfig"></a><a id="BookConfig:BookConfig"></a>
       <span class="permalink">
-      <a href="../../laika/format/PDF$$Config$.html" title="Permalink">
+      <a href="../../laika/format/PDF$$BookConfig$.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -729,10 +711,10 @@ factory is reused between renderers.
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a title="Companion for the creation of PDFConfig instances." href="PDF$$Config$.html"><span class="name">Config</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="" href="PDF$$BookConfig$.html"><span class="name">BookConfig</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
-      <p class="shortcomment cmt">Companion for the creation of <code>PDFConfig</code> instances.</p>
+      
     </li>
               </ol>
             </div>
