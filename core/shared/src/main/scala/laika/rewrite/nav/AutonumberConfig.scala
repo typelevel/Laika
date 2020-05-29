@@ -89,10 +89,6 @@ object AutonumberConfig {
     }
   }
 
-  @deprecated("use config.get[AutonumberConfig] instead", "0.15.0")
-  def fromConfig (config: Config): ConfigResult[AutonumberConfig] = 
-    config.getOpt[AutonumberConfig].map(_.getOrElse(defaults))
-  
   /** The defaults for autonumbering with section
    *  and document numbering both switched off. 
    */

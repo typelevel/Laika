@@ -90,16 +90,6 @@ object SpanParser {
   def recursive (factory: RecursiveSpanParsers => PrefixedParser[Span]): SpanParserBuilderOps =
     SpanParserBuilderOps(factory, recursive = true, Precedence.High)
 
-  
-  @deprecated("use standalone or recursive methods directly", "0.14.0")
-  def forStartChar (char: Char): LegacySyntax = new LegacySyntax(char)
-
-  class LegacySyntax (startChar: Char) {
-    def standalone (parser: Parser[Span]): SpanParserBuilderOps =
-      SpanParserBuilderOps(_ => literal(startChar.toString) ~> parser, recursive = false, Precedence.High)
-    def recursive (factory: RecursiveSpanParsers => Parser[Span]): SpanParserBuilderOps =
-      SpanParserBuilderOps(rec => literal(startChar.toString) ~> factory(rec), recursive = true, Precedence.High)
-  }
 }
 
 /** Builder API for block parsers that allows to set the parser precedence.
@@ -169,22 +159,4 @@ object BlockParser {
   def withEscapedText (factory: EscapedTextParsers => Parser[Block]): BlockParserBuilderOps =
     BlockParserBuilderOps(factory)
 
-  @deprecated("use standalone, recursive, withSpans, withEscapedText methods directly", "0.14.0")
-  def forStartChar (char: Char): LegacySyntax = new LegacySyntax(Some(char))
-
-  @deprecated("use standalone, recursive, withSpans, withEscapedText methods directly", "0.14.0")
-  def withoutStartChar: LegacySyntax = new LegacySyntax()
-
-  class LegacySyntax (startChar: Option[Char] = None) {
-    private def createParser(p: Parser[Block]): Parser[Block] =
-      startChar.fold(p){ c => c.toString ~> p }
-    def standalone (parser: Parser[Block]): BlockParserBuilderOps =
-      BlockParserBuilderOps(_ => createParser(parser))
-    def recursive (factory: RecursiveParsers => Parser[Block]): BlockParserBuilderOps =
-      BlockParserBuilderOps(rec => createParser(factory(rec)), recursive = true)
-    def withSpans (factory: RecursiveSpanParsers => Parser[Block]): BlockParserBuilderOps =
-      BlockParserBuilderOps(rec => createParser(factory(rec)))
-    def withEscapedText (factory: EscapedTextParsers => Parser[Block]): BlockParserBuilderOps =
-      BlockParserBuilderOps(rec => createParser(factory(rec)))
-  }
 }

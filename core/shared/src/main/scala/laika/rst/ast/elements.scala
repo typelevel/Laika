@@ -17,7 +17,6 @@
 package laika.rst.ast
 
 import laika.ast._
-import laika.rewrite.nav.TocGenerator
 
 
 /** A two-column table-like structure used for bibliographic fields or directive options.

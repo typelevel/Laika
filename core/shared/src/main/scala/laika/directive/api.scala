@@ -42,12 +42,6 @@ object AttributeKey {
     def desc: String = s"attribute '$key'"
   }
 
-  @deprecated("use PositionalAt(0) instead", "0.15.0")
-  case object Default extends AttributeKey {
-    val key = s"${Positional.key}.0"
-    def desc: String = "positional attribute at index 0"
-  }
-
   /** Represents an individual positional attribute at the specified index.
     */
   case class PositionalAt (pos: Int) extends AttributeKey {
@@ -131,18 +125,6 @@ trait BuilderContext[E <: Element] {
       def apply (p: DirectiveContext) = self(p).flatMap(f(_).left.map(Seq(_)))
       def hasBody: Boolean = self.hasBody
       def separators: Set[String] = self.separators
-    }
-
-    @deprecated("use cats mapN with directive parts as tuples", "0.12.0")
-    def ~ [B] (other: DirectivePart[B]): DirectivePart[A ~ B] = new DirectivePart[A ~ B] {
-      def apply (p: DirectiveContext) = (self(p), other(p)) match {
-        case (Right(a), Right(b)) => Right(new ~(a, b))
-        case (Left(a), Left(b)) => Left(a ++ b)
-        case (Left(msg), _) => Left(msg)
-        case (_, Left(msg)) => Left(msg)
-      }
-      def hasBody: Boolean = other.hasBody || self.hasBody
-      def separators: Set[String] = other.separators ++ self.separators
     }
 
     /** Indicates whether the directive supports a body section
@@ -343,9 +325,6 @@ trait BuilderContext[E <: Element] {
       def hasBody: Boolean = false
       def separators: Set[String] = Set.empty
     }
-
-    @deprecated("use attribute(0) instead", "0.15.0")
-    def defaultAttribute: AttributePart[ConfigValue] = attribute(0)
 
     /** Specifies a required attribute from the positional attribute section of the directive.
       *

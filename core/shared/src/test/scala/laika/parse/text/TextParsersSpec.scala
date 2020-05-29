@@ -25,18 +25,6 @@ import org.scalatest.wordspec.AnyWordSpec
 class TextParsersSpec extends AnyWordSpec with Matchers with ParseResultHelpers {
 
 
-  "The char parser" should {
-
-    "succeed with a matching character" in {
-      char('a').parse("aaa") should produce ('a')
-    }
-
-    "fail when the character does not match" in {
-      char('b').parse("aaa").toEither.isLeft shouldBe true
-    }
-
-  }
-  
   "The prevNot validators" should {
     
     "succeed if the previous character is not one of those specified" in {
@@ -563,6 +551,8 @@ class TextParsersSpec extends AnyWordSpec with Matchers with ParseResultHelpers 
   }
 
   "The DelimitedBy parser for string literal delimiters" should {
+    
+    import laika.parse.implicits._
 
     val lit = delimitedBy(">>>")
 
@@ -587,11 +577,11 @@ class TextParsersSpec extends AnyWordSpec with Matchers with ParseResultHelpers 
     }
 
     "succeed when the specified post condition is met" in {
-      delimitedBy(">>>", ws.min(1)).parse("123>>> ")  should produce ("123")
+      delimitedBy(">>>" <~ ws.min(1)).parse("123>>> ") should produce ("123")
     }
 
     "fail when the specified post condition is not met" in {
-      delimitedBy(">>>", ws.min(1)).parse("123>>>A").toEither.isLeft shouldBe true
+      delimitedBy(">>>" <~ ws.min(1)).parse("123>>>A").toEither.isLeft shouldBe true
     }
 
   }

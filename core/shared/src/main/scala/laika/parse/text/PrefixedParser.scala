@@ -64,16 +64,11 @@ trait PrefixedParser[+T] extends Parser[T] { self =>
   override def map[U] (f: T => U): PrefixedParser[U]             = PrefixedParser(startChars)(super.map(f))
   override def ^^[U] (f: T => U): PrefixedParser[U]              = PrefixedParser(startChars)(super.map(f))
   override def as[U] (v: => U): PrefixedParser[U]               = PrefixedParser(startChars)(super.as(v))
-  override def ^^^[U] (v: => U): PrefixedParser[U]               = PrefixedParser(startChars)(super.as(v))
   
   override def evalMap[U] (f: T => Either[String, U]): PrefixedParser[U] = PrefixedParser(startChars)(super.evalMap(f))
-  override def ^^?[U] (f: T => Either[String, U]): PrefixedParser[U]     = PrefixedParser(startChars)(super.evalMap(f))
 
   override def collect[U] (f: PartialFunction[T, U],
                       error: T => String = r => s"Constructor function not defined at $r"): PrefixedParser[U] =
-    PrefixedParser(startChars)(super.collect(f, error))
-  override def ^?[U] (f: PartialFunction[T, U], 
-                      error: T => String = r => s"Constructor function not defined at $r"): PrefixedParser[U] = 
     PrefixedParser(startChars)(super.collect(f, error))
 
   /**  Applies the specified parser when this parser fails.

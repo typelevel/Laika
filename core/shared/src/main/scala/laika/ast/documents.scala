@@ -217,10 +217,6 @@ object DocumentMetadata {
   
   implicit val defaultKey: DefaultKey[DocumentMetadata] = DefaultKey(LaikaKeys.metadata)
 
-  @deprecated("use config.get[DocumentMetadata] instead", "0.15.0")
-  def fromConfig (config: Config): ConfigResult[DocumentMetadata] = 
-    config.getOpt[DocumentMetadata].map(_.getOrElse(DocumentMetadata())) 
-
 }
 
 /** The position of an element within a document tree.

@@ -24,7 +24,6 @@ import laika.ast.{SpanResolver, TemplateSpan, _}
 import laika.bundle.BundleOrigin
 import laika.rewrite.TemplateRewriter
 import laika.rewrite.link.LinkConfig
-import laika.rewrite.nav.TocGenerator
 
 import scala.annotation.tailrec
 
@@ -380,66 +379,6 @@ object StandardDirectives extends DirectiveRegistry {
     }
   }
 
-  @deprecated("use NavigationBuilderConfig instead", "0.15.0")
-  def toc (depth: Option[Int], rootConfig: String, title: Option[String], cursor: DocumentCursor): Block = {
-    
-    val maxLevel = depth getOrElse Int.MaxValue
-    
-    val root: TreeContent = rootConfig match {
-      case "<rootTree>" | "#rootTree" => cursor.root.target.tree // # syntax is legacy, clashes with HOCON spec
-      case "<currentTree>" | "#currentTree"     => cursor.parent.target
-      case "<currentDocument>" | "#currentDocument" => cursor.target
-      case pathString =>
-        val root = cursor.root.target.tree
-        val configPath = PathBase.parse(pathString) match {
-          case p: RelativePath => cursor.parent.target.path / p
-          case p: Path => p
-        }
-        val lookupPath = configPath.relativeTo(root.path)
-        root
-          .selectDocument(lookupPath)
-          .orElse(root.selectSubtree(lookupPath))
-          .getOrElse(cursor.root.target.tree)
-    }
-    
-    val list = root match {
-      case doc: Document      => TocGenerator.fromDocument(doc, maxLevel, cursor.target.path)
-      case tree: DocumentTree => TocGenerator.fromTree(tree, maxLevel, cursor.target.path)
-    }
-    title match {
-      case Some(text) => TitledBlock(List(Text(text)), list, Style.legacyToc)
-      case None       => BlockSequence(list, Style.legacyToc)
-    }
-  }
-
-  @deprecated("use @:navigationTree directive instead", "0.15.0")
-  lazy val templateToc: Templates.Directive  = Templates.create("toc") {
-
-    import Templates.dsl._
-
-    (attribute("depth").as[Int].optional, 
-        attribute("root").as[String].optional, 
-        attribute("title").as[String].optional, 
-        cursor).mapN {
-      (depth, rootConfig, title, cursor) =>
-        TemplateElement(toc(depth, rootConfig.getOrElse("<rootTree>"), title, cursor))
-    }
-  }
-
-  @deprecated("use @:navigationTree directive instead", "0.15.0")
-  lazy val blockToc: Blocks.Directive  = Blocks.create("toc") {
-
-    import Blocks.dsl._
-    
-    (attribute("depth").as[Int].optional, 
-        attribute("root").as[String].optional, 
-        attribute("title").as[String].optional, 
-        cursor).mapN {
-      (depth, rootConfig, title, cursor) =>
-        toc(depth, rootConfig.getOrElse("#currentDocument"), title, cursor)
-    }
-  }
-  
   /** Implementation of the `api` directive that creates links to API documentation based
     * on a specified fully-qualified type name. The type name is the only (required) attribute
     * of the directive.
@@ -547,7 +486,6 @@ object StandardDirectives extends DirectiveRegistry {
   lazy val blockDirectives: Seq[Blocks.Directive] = List(
     blockBreadcrumb,
     blockNav,
-    blockToc,
     blockFragment,
     blockStyle,
     format,
@@ -598,7 +536,6 @@ object StandardDirectives extends DirectiveRegistry {
   lazy val templateDirectives: Seq[Templates.Directive] = List(
     templateBreadcrumb,
     templateNav,
-    templateToc,
     templateFor,
     templateIf,
     styleLinksDirective

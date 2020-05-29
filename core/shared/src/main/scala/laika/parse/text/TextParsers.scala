@@ -44,17 +44,6 @@ trait TextParsers extends Parsers {
     NonEmptySet.of(range.head, range.tail:_*)
   }
 
-  @deprecated("use oneOf(char) or literal(char.toString) to parse a single character", "0.14.0")
-  implicit def char (expected: Char): PrefixedParser[Char] = {
-    val errMsg: Char => Message = Message.forRuntimeValue[Char] { found => s"'$expected' expected but $found found" }
-    val p = Parser { in =>
-      if (in.atEnd) Failure(Message.UnexpectedEOF, in)
-      else if (in.char == expected) Success(in.char, in.consume(1))
-      else Failure(errMsg(in.char), in)
-    }
-    PrefixedParser(expected)(p)
-  }
-  
   /**  A parser that matches only the specified literal string.
     *
     *  The method is implicit so that strings can automatically be lifted to their parsers.
@@ -241,9 +230,6 @@ trait TextParsers extends Parsers {
    */
   val anyChars: Characters[String] = Characters.anyWhile(_ => true)
   
-  @deprecated("renamed to anyChars", "0.14.0")
-  val any: Characters[String] = Characters.anyWhile(_ => true)
-  
   /** Consumes any number of consecutive occurrences of the specified characters.
    *  Always succeeds unless a minimum number of required matches is specified.
    */
@@ -263,12 +249,6 @@ trait TextParsers extends Parsers {
     * Always succeeds unless a minimum number of required matches is specified.
     */
   def anyNot (chars: NonEmptySet[Char]): Characters[String] = Characters.exclude(chars.toSortedSet.toSeq)
-
-  @deprecated("renamed to anyNot", "0.14.0")
-  def anyBut (char: Char, chars: Char*): Characters[String] = Characters.exclude(char +: chars)
-  
-  @deprecated("use anyOf, someOf, oneOf with the range method, e.g. oneOf(range('a','z'))", "0.14.0")
-  def anyIn (ranges: Iterable[Char]*): Characters[String] = Characters.include(ranges.flatten)
 
   /** Consumes any number of consecutive characters which satisfy the specified predicate.
     * Always succeeds unless a minimum number of required matches is specified.
@@ -347,11 +327,6 @@ trait TextParsers extends Parsers {
   def delimitedBy (str: String): DelimitedText =
     if (str.isEmpty) DelimitedText.Undelimited
     else delimitedBy(literal(str))
-
-  @deprecated("compose the post condition manually, e.g. delimitedBy(':' <~ eol)", "0.14.0")
-  def delimitedBy (str: String, postCondition: Parser[Any]): DelimitedText =
-    if (str.isEmpty) DelimitedText.Undelimited
-    else delimitedBy(literal(str) <~ lookAhead(postCondition))
 
   /** Consumes any number of consecutive characters until the specified delimiter parser
     * succeeds on the input. 

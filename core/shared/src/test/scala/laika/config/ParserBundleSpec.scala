@@ -102,13 +102,6 @@ class ParserBundleSpec extends AnyWordSpec with Matchers {
         builders.oneOf(deco) ~> spanParsers.recursiveSpans(textBlockParser).map(DecoratedBlock(overrideDeco, _))
       }
 
-    def legacyBlockFor (deco: Char): BlockParserBuilder = blockFor(deco, deco)
-
-    def legacyBlockFor (deco: Char, overrideDeco: Char): BlockParserBuilder =
-      BlockParser.forStartChar(deco).withSpans { spanParsers =>
-        builders.oneOf(deco) ~> spanParsers.recursiveSpans(textBlockParser).map(DecoratedBlock(overrideDeco, _))
-      }
-
     def doc (blocks: (Char, String)*): Document =
       Document(Root, RootElement(blocks.map { case (deco, text) => DecoratedBlock(deco, Seq(Text(text))) }),
         config = docConfig)
@@ -152,14 +145,6 @@ class ParserBundleSpec extends AnyWordSpec with Matchers {
       MarkupParser.of(Parser).using(bundle).build.parse(input).toOption.get shouldBe doc('>' -> "aaa\naaa", '+' -> "bbb\nbbb")
     }
 
-    "still support the legacy registration format" in new BlockParserSetup {
-      override def blockParsers: Seq[BlockParserBuilder] = Seq(legacyBlockFor('>'))
-
-      val bundle = BundleProvider.forMarkupParser(blockParsers = Seq(legacyBlockFor('+')))
-
-      MarkupParser.of(Parser).using(bundle).build.parse(input).toOption.get shouldBe doc('>' -> "aaa\naaa", '+' -> "bbb\nbbb")
-    }
-
   }
 
   trait SpanParserSetup extends ParserSetup {
@@ -186,11 +171,6 @@ class ParserBundleSpec extends AnyWordSpec with Matchers {
       }
 
     def legacySpanFor (deco: Char): SpanParserBuilder = spanFor(deco, deco)
-
-    def legacySpanFor (deco: Char, overrideDeco: Char): SpanParserBuilder =
-      SpanParser.forStartChar(deco).standalone {
-        (deco.toString ~> anyNot(' ') <~ opt(" ")).map(DecoratedSpan(overrideDeco, _))
-      }
 
     def doc (spans: (Char, String)*): Document =
       Document(Root, RootElement(Paragraph(
@@ -235,13 +215,6 @@ class ParserBundleSpec extends AnyWordSpec with Matchers {
       MarkupParser.of(Parser).using(bundle).build.parse(input).toOption.get shouldBe doc('>' -> "aaa", '+' -> "bbb")
     }
 
-    "still support the legacy registration format" in new SpanParserSetup {
-      override def spanParsers: Seq[SpanParserBuilder] = Seq(legacySpanFor('>'))
-
-      val bundle = BundleProvider.forMarkupParser(spanParsers = Seq(legacySpanFor('+')))
-
-      MarkupParser.of(Parser).using(bundle).build.parse(input).toOption.get shouldBe doc('>' -> "aaa", '+' -> "bbb")
-    }
   }
 
   trait ParserHookSetup extends SetupBase {

@@ -50,12 +50,6 @@ class Characters[T] (predicate:     Char => Boolean,
     */
   override def count: Characters[Int] = new Characters(predicate, Characters.CountResultBuilder, minChar, maxChar)
 
-  @deprecated("renamed to void to align with cats", "0.14.0")
-  def ^ : Characters[Unit] = void
-  
-  @deprecated("renamed to void to align with cats", "0.14.0")
-  def noCapture: Characters[Unit] = void
-
   /** Creates and returns a new parser that does not produce a result, but instead
     * only consumes the number of characters successfully parsed.
     */

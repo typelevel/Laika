@@ -162,15 +162,6 @@ trait InlineParsers {
   def text (parser: => DelimitedText): InlineParser[String, String] = 
     new DefaultInlineParser(parser.delimiter, Nil, new TextBuilder)
 
-  @deprecated("use .spans(...).embed(...) instead", "0.14.0")
-  def spans (parser: => DelimitedText, spanParsers: => Map[Char, Parser[Span]]): Parser[List[Span]]
-      = new DefaultInlineParser(parser.delimiter, PrefixedParser.fromLegacyMap(spanParsers), new SpanBuilder)
-
-  @deprecated("use .text(...).embed(...) instead", "0.14.0")
-  def text (parser: => DelimitedText, nested: => Map[Char, Parser[String]]): Parser[String]
-      = new DefaultInlineParser(parser.delimiter, PrefixedParser.fromLegacyMap(nested), new TextBuilder)
-
-
 }
 
 /** Instance that allows to import all inline parsers in isolation.

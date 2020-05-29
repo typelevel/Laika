@@ -16,7 +16,7 @@
 
 package laika.rst.std
 
-import laika.api.{MarkupParser, Parse}
+import laika.api.MarkupParser
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.ReStructuredText

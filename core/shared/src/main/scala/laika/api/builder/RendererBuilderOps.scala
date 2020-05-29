@@ -54,9 +54,6 @@ trait RendererBuilderOps[FMT] extends CommonBuilderOps {
     */
   def renderMessages (filter: MessageFilter): ThisType = withConfig(config.copy(renderMessages = filter))
 
-  @deprecated("use renderMessages", "0.15.0")
-  def withMessageLevel (level: MessageLevel): ThisType = withConfig(config.copy(renderMessages = MessageFilter.forLevel(level)))
-
   /**  Renders without any formatting (line breaks or indentation).
     *  Useful when storing the output in a database for example.
     */

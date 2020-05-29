@@ -78,7 +78,7 @@ object DirectiveParsers {
     lazy val attrValue: Parser[String] =
       "\"" ~> escapedText.escapedUntil('"') | (anyNot(' ','\t','\n','.',':') min 1)
 
-    lazy val defaultAttribute: Parser[BuilderField] = not(attrName) ~> not('(') ~> attrValue.map { v => 
+    lazy val defaultAttribute: Parser[BuilderField] = not(attrName) ~> not("(") ~> attrValue.map { v => 
       BuilderField(AttributeKey.Positional.key, ArrayBuilderValue(Seq(ValidStringValue(v.trim))))
     }
 
@@ -108,7 +108,7 @@ object DirectiveParsers {
         .map(sv => BuilderField(AttributeKey.Positional.key, ArrayBuilderValue(Seq(sv)))))
     }
     
-    val quotedAttribute = (ws ~ '"') ~> text(delimitedBy('"')).embed("\\" ~> oneChar) <~ ws
+    val quotedAttribute = (ws ~ "\"") ~> text(delimitedBy('"')).embed("\\" ~> oneChar) <~ ws
     val unquotedAttribute = text(delimitedBy(',', ')').keepDelimiter).embed("\\" ~> oneChar) <~ ws
     val positionalAttributes = opt(ws ~> "(" ~> (quotedAttribute | unquotedAttribute).rep(",")
       .map(values => BuilderField(AttributeKey.Positional.key, ArrayBuilderValue(values.map(sv => ValidStringValue(sv.trim))))) <~ ")")

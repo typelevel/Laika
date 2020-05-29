@@ -48,12 +48,5 @@ object Key {
     Key(segments)
   }
   
-  @deprecated("use any other Key constructor", "0.15.0")
-  def fromPath(path: Path): Key = path match {
-    case Root => root
-    case SegmentedPath(segments, suffix, fragment) => 
-      Key(segments.init.toList :+ (segments.last + suffix.fold("")("." + _) + fragment.fold("")("#" + _)))
-  }
-  
   val root: Key = Key(Nil)
 }

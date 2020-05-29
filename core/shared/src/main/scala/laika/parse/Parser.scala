@@ -182,9 +182,6 @@ abstract class Parser[+T] {
     */
   def ^^ [U](f: T => U): Parser[U] = map(f)
 
-  @deprecated("use as() instead", "0.14.0")
-  def ^^^ [U] (v: => U): Parser[U] = as(v)
-  
   /**  Returns a parser that ignores the result of this parser (if it succeeds)
     *  and returns the specified result instead.
     *
@@ -200,10 +197,6 @@ abstract class Parser[+T] {
     */
   def void: Parser[Unit] = map(_ => ())
 
-  @deprecated("use collect instead", "0.14.0")
-  def ^? [U](f: PartialFunction[T, U],
-             error: T => String = r => s"Constructor function not defined at $r"): Parser[U] = collect(f, error)
-  
   /** Returns a parser that applies a partial function to the result of this parser.
     *
     * `p.collect(f)` succeeds if `p` succeeds and `f` is defined at the result of `p`,
@@ -224,9 +217,6 @@ abstract class Parser[+T] {
       }
     }
   }
-
-  @deprecated("use evalMap instead", "0.14.0")
-  def ^^? [U] (f: T => Either[String, U]): Parser[U] = evalMap(f)
 
   /**  Returns a parser that applies a function to the result of this parser producing an `Either`
     *  where `Left` is interpreted as failure. It is an alternative to `^?` for scenarios

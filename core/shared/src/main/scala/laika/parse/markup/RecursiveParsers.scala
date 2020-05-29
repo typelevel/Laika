@@ -96,18 +96,6 @@ trait RecursiveSpanParsers extends EscapedTextParsers {
   /** Provides the syntax highlighter for the specified language if present.
     */
   def getSyntaxHighlighter (language: String): Option[Parser[Seq[Span]]]
-
-  
-  @deprecated("use recursiveSpans(parser).embedAll() method", "0.14.0")
-  def recursiveSpans (parser: Parser[String],
-                      additionalParsers: => Map[Char, Parser[Span]] = Map.empty): Parser[List[Span]]
-  
-  @deprecated("use the recursiveSpans method", "0.14.0")
-  def delimitedRecursiveSpans (textParser: DelimitedText): Parser[List[Span]]
-
-  @deprecated("use the recursiveSpans method", "0.14.0")
-  def delimitedRecursiveSpans (textParser: DelimitedText,
-                               additionalSpanParsers: => Map[Char, Parser[Span]]): Parser[List[Span]]
   
 }
 
@@ -116,11 +104,6 @@ trait RecursiveSpanParsers extends EscapedTextParsers {
   * escaping text.
   */
 trait EscapedTextParsers {
-
-  /** Parses the character after the one that started the escape sequence (usually a backslash).
-    */
-  @deprecated("use the escapeSequence parser that also parses the backslash itself", "0.14.0")
-  def escapedChar: Parser[String]
 
   /** Parses an escape sequence (usually a backslash followed by a single char).
     * The characters allowed in an escape sequence might differ between

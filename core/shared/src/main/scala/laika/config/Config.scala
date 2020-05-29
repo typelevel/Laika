@@ -75,8 +75,6 @@ trait Config {
     */
   def get[T](key: Key)(implicit decoder: ConfigDecoder[T]): ConfigResult[T]
   
-  @deprecated("use get(Key)", "0.13.0")
-  def get[T](key: Path)(implicit decoder: ConfigDecoder[T]): ConfigResult[T] = get(Key.fromPath(key))
 
   /** Retrieve a required value for the specified key and decoder.
     */
@@ -87,9 +85,6 @@ trait Config {
     */
   def get[T](key: Key, default: => T)(implicit decoder: ConfigDecoder[T]): ConfigResult[T] =
     getOpt(key).map(_.getOrElse(default))
-
-  @deprecated("use get(Key)", "0.13.0")
-  def get[T](key: Path, default: => T)(implicit decoder: ConfigDecoder[T]): ConfigResult[T] = get(Key.fromPath(key), default)
 
   /** Retrieve an optional value for the specified key and decoder, falling back to the
     * given default if the value is missing.
@@ -115,9 +110,6 @@ trait Config {
     */
   def getOpt[T](implicit decoder: ConfigDecoder[T], defaultKey: DefaultKey[T]): ConfigResult[Option[T]] = 
     getOpt(defaultKey.value)
-
-  @deprecated("use getOpt(Key)", "0.13.0")
-  def getOpt[T](key: Path)(implicit decoder: ConfigDecoder[T]): ConfigResult[Option[T]] = getOpt[T](Key.fromPath(key))
 
   /** Retrieve an optional value for the specified key and decoder.
     * The result is still an Either as this method might still fail even if the value is present in
