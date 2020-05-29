@@ -14,7 +14,7 @@ you can read about her [here][laika-wikipedia].
 Latest Release
 ---------------
 
-The latest release is version **0.14.0**.  
+The latest release is version **0.15.0**.  
 
 It is published to Maven Central for Scala 2.13, 2.12 and Scala.js 1.0.
 

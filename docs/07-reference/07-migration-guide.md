@@ -18,6 +18,16 @@ Versions older than 0.15.0
 If you plan to migrate to 0.15 it is recommended to address all deprecation warnings the compiler admits
 as this is the last release where they'll be supported.
 
+This version introduces namespaces for the built-in substitution variables to avoid name clashes with
+user-defined variables.
+If you use them in your markup files or templates you need to adjust them for this release:
+
+* `document.*` becomes `cursor.currentDocument.*`
+
+* All configuration variables are now prefixed with `laika`, e.g. `laika.title`, `laika.navigationOrder`.
+
+* `cursor.*` and `laika.*` are the only reserved namespaces, any other prefix can be freely chosen.
+
 If you upgrade from a version older than 0.12.0 it is also recommended to switch to the new [Directive Syntax]
 described below as this is a functional area that unfortunately does not emit any compiler warnings.
 
