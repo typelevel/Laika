@@ -60,7 +60,7 @@ case class LaikaConfig(encoding: Codec = Codec.UTF8,
     * 
     * The default is to fail transformations on messages of level `Error` or higher.
     */
-  def failOnMessages (filter: MessageFilter): LaikaConfig = copy(renderMessages = filter)
+  def failOnMessages (filter: MessageFilter): LaikaConfig = copy(failOnMessages = filter)
   
   /** Specifies the filter to apply to runtime messages that should get rendered to the output.
     * 
