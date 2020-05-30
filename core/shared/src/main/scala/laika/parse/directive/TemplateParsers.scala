@@ -16,7 +16,6 @@
 
 package laika.parse.directive
 
-import laika.config.Key
 import laika.ast._
 import laika.directive.Templates
 import laika.parse.Parser
@@ -34,7 +33,6 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
   import DirectiveParsers._
 
   lazy val spanParsers: Seq[PrefixedParser[Span]] = Seq(
-    legacyReference(key => TemplateContextReference(Key.parse(key), required = true)),
     hoconReference(TemplateContextReference(_,_), _.asTemplateSpan),
     templateDirective,
     "\\" ~> oneChar.map(Text(_))
@@ -42,14 +40,7 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
 
   lazy val templateDirective: PrefixedParser[TemplateSpan] = {
 
-    val legacyBody = {
-      val contextRef = legacyReference(key => TemplateContextReference(Key.parse(key), required = true))
-      val spanParser = recursiveSpans(delimitedBy('}')).embed(contextRef).embed(nestedBraces)
-      
-      wsOrNl ~ "{" ~> spanParser.source.map(_.dropRight(1))
-    }
-    
-    val newBody: BodyParserBuilder = spec =>
+    val body: BodyParserBuilder = spec =>
       if (directives.get(spec.name).exists(_.hasBody)) recursiveSpans(delimitedBy(spec.fence)).source.map { src =>
         Some(src.dropRight(spec.fence.length))
       } | success(None)
@@ -58,7 +49,7 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
     val separators = directives.values.flatMap(_.separators).toSet
     
     PrefixedParser('@') {
-      directiveParser(newBody, legacyBody, this).withSource.map { case (result, source) =>
+      directiveParser(body, this).withSource.map { case (result, source) =>
         if (separators.contains(result.name)) Templates.SeparatorInstance(result, source)
         else Templates.DirectiveInstance(directives.get(result.name), result, templateSpans, source)
       }

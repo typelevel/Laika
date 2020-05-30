@@ -1,3 +1,3 @@
-@:block foo.
+@:block(foo)
 
-Hello @:span bar. *World*.
+Hello @:span(bar) *World*.

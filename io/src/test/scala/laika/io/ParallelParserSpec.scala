@@ -71,7 +71,7 @@ class ParallelParserSpec extends IOSpec
       val multiline = """aaa
                        |
                        |bbb""".stripMargin
-      val directive = "aa @:foo bar. bb"
+      val directive = "aa @:foo(bar) bb"
       val template = """<div>
                       |  ${cursor.currentDocument.content}
                       |</div>""".stripMargin

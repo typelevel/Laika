@@ -41,10 +41,6 @@ object DirectiveParsers {
   type BodyParserBuilder = DirectiveSpec => Parser[Option[String]]
   
 
-  /** Parses a legacy reference (version 0.1 to 0.11) enclosed between `{{` and `}}`.
-    */
-  def legacyReference[T] (f: String => T): PrefixedParser[T] = "{{" ~ ws ~> anyNot('}') <~ ws ~ "}}" ^^ f
-
   /** Parses a HOCON-style reference enclosed between `\${` and `}` that may be marked as optional (`\${?some.param}`).
     */
   def hoconReference[T] (f: (Key, Boolean) => T, e: InvalidElement => T): PrefixedParser[T] = 
@@ -72,27 +68,6 @@ object DirectiveParsers {
   lazy val nameDecl: Parser[String] = (oneOf(CharGroup.alpha) ~ anyOf(CharGroup.alphaNum.add('-').add('_'))).source
   
   
-  def legacyAttributeParser (escapedText: EscapedTextParsers): Parser[ObjectBuilderValue] = {
-    lazy val attrName: Parser[String] = nameDecl <~ wsOrNl ~ "=" ~ wsOrNl
-
-    lazy val attrValue: Parser[String] =
-      "\"" ~> escapedText.escapedUntil('"') | (anyNot(' ','\t','\n','.',':') min 1)
-
-    lazy val defaultAttribute: Parser[BuilderField] = not(attrName) ~> not("(") ~> attrValue.map { v => 
-      BuilderField(AttributeKey.Positional.key, ArrayBuilderValue(Seq(ValidStringValue(v.trim))))
-    }
-
-    lazy val attribute: Parser[BuilderField] = attrName ~ attrValue ^^ { case name ~ value =>
-      BuilderField(name, ResolvedBuilderValue(StringValue(value)))
-    }
-
-    (wsOrNl ~> opt(defaultAttribute <~ wsOrNl) ~ (wsOrNl ~> attribute).rep) <~ ws ^^
-      { case defAttr ~ attrs => ObjectBuilderValue(defAttr.toList ++ attrs) }
-
-    ((wsOrNl ~> opt(defaultAttribute <~ wsOrNl).map(_.toList) ~ (wsOrNl ~> attribute).rep).concat <~ ws)
-      .map(ObjectBuilderValue)
-  }
-  
   /** Parses a full directive declaration, containing all its attributes,
     * but not the body elements.
     */
@@ -102,12 +77,6 @@ object DirectiveParsers {
     val defaultFence = success("@:@")
     val fence = if (supportsCustomFence) (ws ~> anyNot(' ', '\n', '\t').take(3)) | defaultFence else defaultFence
     
-    val legacyDefaultAttribute = { /* versions 0.12 and 0.13 allowed to have an unnamed attribute in the HOCON section */
-      val delim = (ws ~ ("," | eol.as(""))) | lookAhead(hoconWS ~ "}")
-      opt((hoconWS ~> stringBuilderValue(/*Set(',','}','\n')*/ NonEmptySet.one('\u0001')) <~ delim ~ hoconWS)
-        .map(sv => BuilderField(AttributeKey.Positional.key, ArrayBuilderValue(Seq(sv)))))
-    }
-    
     val quotedAttribute = (ws ~ "\"") ~> text(delimitedBy('"')).embed("\\" ~> oneChar) <~ ws
     val unquotedAttribute = text(delimitedBy(',', ')').keepDelimiter).embed("\\" ~> oneChar) <~ ws
     val positionalAttributes = opt(ws ~> "(" ~> (quotedAttribute | unquotedAttribute).rep(",")
@@ -116,12 +85,12 @@ object DirectiveParsers {
     val closingAttributes = literal("}").as(Option.empty[ParserContext]) | 
                             success(()).withContext.map { case (_, ctx) => Some(ctx) }
     
-    val hoconAttributes = opt(ws ~> lazily("{" ~> legacyDefaultAttribute ~ objectMembers ~ closingAttributes))
+    val hoconAttributes = opt(ws ~> lazily("{" ~> objectMembers ~ closingAttributes))
     
     val attributeSection = (positionalAttributes ~ hoconAttributes).map {
-      case defAttr ~ Some(legacyDefAttr ~ obj ~ optCtx) =>
-        val default = defAttr.orElse(legacyDefAttr).toSeq
-        val attrs = obj.copy(values = default ++ obj.values)
+      case posAttrs ~ Some(obj ~ optCtx) =>
+        val positional = posAttrs.toSeq
+        val attrs = obj.copy(values = positional ++ obj.values)
         optCtx match {
           case Some(ctx) if ConfigResolver.extractErrors(obj).isEmpty =>
             val fail = Failure(Message.fixed("Missing closing brace for attribute section"), ctx)
@@ -129,7 +98,7 @@ object DirectiveParsers {
           case _ => 
             attrs
         }
-      case defAttr ~ None => ObjectBuilderValue(defAttr.toSeq)
+      case posAttrs ~ None => ObjectBuilderValue(posAttrs.toSeq)
     }
     
     ("@:" ~> nameDecl ~ attributeSection ~ fence).map { 
@@ -137,40 +106,19 @@ object DirectiveParsers {
     }
   }
     
-  /** Parses a full directive declaration, containing all its attributes,
-   *  but not the body elements. This method parses the deprecated syntax where attributes
-   *  are not enclosed in braces.
-   */
-  def legacyDeclarationParser (escapedText: EscapedTextParsers): Parser[(String, ObjectBuilderValue)] =
-    ("@:" ~> nameDecl ~ legacyAttributeParser(escapedText)).map { case name ~ attrs => (name, attrs) }
-
   /** Parses one directive instance containing its name declaration,
    *  all attributes and all body elements.
    *  
    *  @param bodyContent the parser for the body content which is different for a block directive than for a span or template directive
-   *  @param legacyBody the parser for the deprecated directive syntax that is still supported                   
    *  @param escapedText the parser for escape sequences according to the rules of the host markup language
    *  @param supportsCustomFence indicates whether the directive declaration allows the addition of a custom closing fence                   
    */
-  def directiveParser (bodyContent: BodyParserBuilder, legacyBody: Parser[String], escapedText: EscapedTextParsers, 
-                       supportsCustomFence: Boolean = false): Parser[ParsedDirective] = {
-
-    val legacyDirective: Parser[(String, ObjectBuilderValue) ~ Option[String]] = {
-      val noBody: Parser[Option[String]] = literal(".").as(None)
-      val body: Parser[Option[String]] = ":" ~> legacyBody.map(Some(_))
-      legacyDeclarationParser(escapedText) ~ (noBody | body)
-    }
+  def directiveParser (bodyContent: BodyParserBuilder, escapedText: EscapedTextParsers, 
+                       supportsCustomFence: Boolean = false): Parser[ParsedDirective] = 
+    declarationParser(escapedText, supportsCustomFence) >> { case (name, attrs, fence) =>
+      bodyContent(DirectiveSpec(name, fence)).map(content => ParsedDirective(name, attrs, content))
+    } 
     
-    val newDirective: Parser[(String, ObjectBuilderValue) ~ Option[String]] = {
-      declarationParser(escapedText, supportsCustomFence) >> { case (name, attrs, fence) =>
-        val body: Parser[Option[String]] = bodyContent(DirectiveSpec(name, fence))
-        
-        body.map(content => new ~((name, attrs), content))
-      } 
-    }
-    
-    (legacyDirective | newDirective).map { case (name, attrs) ~ body => ParsedDirective(name, attrs, body) }
-  }
   
   val nestedBraces: PrefixedParser[Text] = ("{" ~> delimitedBy('}')).source.map(Text(_))
 
@@ -186,9 +134,6 @@ object SpanDirectiveParsers {
   val contextRef: SpanParserBuilder =
     SpanParser.standalone(hoconReference(MarkupContextReference(_,_), _.asSpan))
 
-  val legacyContextRef: SpanParserBuilder =
-    SpanParser.standalone(legacyReference(key => MarkupContextReference(Key.parse(key), required = true)))
-
   def spanDirective (directives: Map[String, Spans.Directive]): SpanParserBuilder =
     SpanParser.recursive(rec => spanDirectiveParser(directives)(rec))
 
@@ -196,22 +141,15 @@ object SpanDirectiveParsers {
 
     import recParsers._
     
-    val legacyBody = {
-      val contextRef = legacyReference(key => MarkupContextReference(Key.parse(key), required = true))
-      val spanParser = recursiveSpans(delimitedBy('}')).embed(contextRef).embed(nestedBraces)
-      
-      wsOrNl ~ "{" ~> spanParser.source.map(_.dropRight(1))
-    }
-    
     val separators = directives.values.flatMap(_.separators).toSet
-    val newBody: BodyParserBuilder = spec => 
+    val body: BodyParserBuilder = spec => 
       if (directives.get(spec.name).exists(_.hasBody)) recursiveSpans(delimitedBy(spec.fence)).source.map { src => 
         Some(src.dropRight(spec.fence.length)) 
       } | success(None)
       else success(None)
     
     PrefixedParser('@') {
-      withRecursiveSpanParser(directiveParser(newBody, legacyBody, recParsers).withSource).map {
+      withRecursiveSpanParser(directiveParser(body, recParsers).withSource).map {
         case (recParser, (result, source)) =>
           if (separators.contains(result.name)) Spans.SeparatorInstance(result, source)
           else Spans.DirectiveInstance(directives.get(result.name), result, recParser, source)
@@ -237,12 +175,8 @@ object BlockDirectiveParsers {
     import recParsers._
 
     val separators = directives.values.flatMap(_.separators).toSet
-    val legacyBody = indentedBlock().evalMap { block =>
-      val trimmed = block.trim
-      Either.cond(trimmed.nonEmpty, trimmed, "empty body")
-    }
     val noBody = wsEol.as(None)
-    val newBody: BodyParserBuilder = spec =>
+    val body: BodyParserBuilder = spec =>
       if (directives.get(spec.name).exists(_.hasBody)) {
         val closingFenceP = spec.fence <~ wsEol
         wsEol ~> (not(closingFenceP | eof) ~> restOfLine).rep <~ closingFenceP ^^ { lines =>
@@ -254,7 +188,7 @@ object BlockDirectiveParsers {
 
     PrefixedParser('@') {
       withRecursiveSpanParser(withRecursiveBlockParser(
-        directiveParser(newBody, legacyBody, recParsers, supportsCustomFence = true).withSource
+        directiveParser(body, recParsers, supportsCustomFence = true).withSource
       )).map {
         case (recSpanParser, (recBlockParser, (result, source))) =>
           val trimmedSource = if (source.lastOption.contains('\n')) source.dropRight(1) else source

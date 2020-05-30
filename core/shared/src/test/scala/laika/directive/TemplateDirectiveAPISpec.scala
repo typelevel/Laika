@@ -345,7 +345,7 @@ class TemplateDirectiveAPISpec extends AnyFlatSpec
   it should "detect a directive with an unknown name" in {
     new OptionalNamedAttribute with TemplateParser {
       val msg = "One or more errors processing directive 'foo': No template directive registered with name: foo"
-      Parsing ("aa @:foo name=foo. bb") should produce (TemplateRoot(t("aa "), TemplateElement(invalid("@:foo name=foo.",msg)), t(" bb")))
+      Parsing ("aa @:foo {name=foo} bb") should produce (TemplateRoot(t("aa "), TemplateElement(invalid("@:foo {name=foo}",msg)), t(" bb")))
     }
   }
   

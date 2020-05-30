@@ -89,29 +89,4 @@ class TemplateParsersSpec extends AnyFlatSpec
 
   }
 
-  it should "parse a legacy reference as the only template content" in {
-
-    Parsing ("{{document.content}}") should produce (spans(TemplateContextReference(Key("document","content"), required = true)))
-
-  }
-
-  it should "parse a legacy reference at the beginning of a template" in {
-
-    Parsing ("{{document.content}} some text") should produce (spans(TemplateContextReference(Key("document","content"), required = true), t(" some text")))
-
-  }
-
-  it should "parse a legacy reference at the end of a template" in {
-
-    Parsing ("some text {{document.content}}") should produce (spans(t("some text "), TemplateContextReference(Key("document","content"), required = true)))
-
-  }
-
-  it should "parse a legacy reference in the middle of a template" in {
-
-    Parsing ("some text {{document.content}} some more") should produce (spans(t("some text "), TemplateContextReference(Key("document","content"), required = true), t(" some more")))
-
-  }
-  
-  
 }

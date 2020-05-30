@@ -21,7 +21,7 @@ import cats.data.NonEmptySet
 import laika.ast.~
 import laika.config._
 import laika.parse.code.common.NumberLiteral.DigitParsers
-import laika.parse.text.{CharGroup, Characters, TextParsers}
+import laika.parse.text.{CharGroup, Characters}
 import laika.parse.builders._
 import laika.parse.implicits._
 import laika.parse.{Failure, Message, Parser, ParserContext, Success}
@@ -178,9 +178,7 @@ object HoconParsers {
   def unquotedString(delimiters: NonEmptySet[Char]): Parser[StringBuilderValue] = {
     val unquotedChar = anyNot('$', '"', '{', '}', '[', ']', ':', '=', ',', '+', '#', '`', '^', '?', '!', '@', '*', '&', '\\', ' ','\t','\n')
     val mainParser = unquotedChar.min(1).map(ValidStringValue)
-    val closingParser = 
-      if (delimiters.contains('\u0001')) success(()) 
-      else lookAhead(ws ~ (oneOf(delimiters.add('"').add('$')) | unquotedChar.take(1) | eof)) // TODO - '0001' delimiters are a temp workaround until deprecated directive syntax gets removed
+    val closingParser = lookAhead(ws ~ (oneOf(delimiters.add('"').add('$')) | unquotedChar.take(1) | eof))
     val delimMsg = if (delimiters.size == 1) " is" else "s are one of"
     val renderedDelimiters = delimiters.toSortedSet.map {
       case '\n' => "'\\n'"

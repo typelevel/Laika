@@ -50,8 +50,7 @@ class DirectiveSupport (blockDirectives: Seq[Blocks.Directive],
     blockParsers = Seq(BlockDirectiveParsers.blockDirective(Blocks.toMap(blockDirectives))),
     spanParsers = Seq(
       SpanDirectiveParsers.spanDirective(Spans.toMap(spanDirectives ++ linkDirectives.map(_.asSpanDirective))), 
-      SpanDirectiveParsers.contextRef, 
-      SpanDirectiveParsers.legacyContextRef
+      SpanDirectiveParsers.contextRef
     ),
     configProvider = Some(configProvider),
     templateParser = Some(new TemplateParsers(Templates.toMap(templateDirectives)).templateRoot)

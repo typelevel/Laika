@@ -170,8 +170,6 @@ class ParserBundleSpec extends AnyWordSpec with Matchers {
         (deco.toString ~> anyNot(' ') <~ opt(" ")).map(DecoratedSpan(overrideDeco, _))
       }
 
-    def legacySpanFor (deco: Char): SpanParserBuilder = spanFor(deco, deco)
-
     def doc (spans: (Char, String)*): Document =
       Document(Root, RootElement(Paragraph(
         spans.map { case (deco, text) => DecoratedSpan(deco, text) }
