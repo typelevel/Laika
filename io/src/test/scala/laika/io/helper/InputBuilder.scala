@@ -44,7 +44,7 @@ trait InputBuilder {
       case (path, content, Static) => ByteInput(content, path)
     }
 
-    TreeInput(textInputs, binaryInputs)
+    TreeInput(textInputs, binaryInputs, Nil)
   }
   
 }

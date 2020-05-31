@@ -62,8 +62,8 @@ object DirectoryScanner {
       if (input.fileFilter(filePath.toFile)) TreeInput.empty[F].pure[F]
       else if (Files.isDirectory(filePath)) scanDirectory(childPath, filePath, input)
       else input.docTypeMatcher(childPath) match {
-        case docType: TextDocumentType => TreeInput[F](Seq(TextInput.fromFile(childPath, docType, filePath.toFile, input.codec)), Nil).pure[F]
-        case Static                    => TreeInput[F](Nil, Seq(BinaryInput(childPath, binaryInput, Some(filePath.toFile)))).pure[F]
+        case docType: TextDocumentType => TreeInput[F](Seq(TextInput.fromFile(childPath, docType, filePath.toFile, input.codec)), Nil, Nil).pure[F]
+        case Static                    => TreeInput[F](Nil, Seq(BinaryInput(childPath, binaryInput, Some(filePath.toFile))), Nil).pure[F]
         case _                         => TreeInput.empty[F].pure[F]
       }
     }

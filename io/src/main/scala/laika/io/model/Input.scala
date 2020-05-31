@@ -19,10 +19,14 @@ package laika.io.model
 import java.io._
 
 import cats.Applicative
+import cats.data.Kleisli
 import cats.effect.{Async, Resource}
-import laika.ast.{DocumentTreeRoot, DocumentType, Navigatable, Path, TextDocumentType}
+import laika.ast.Path.Root
+import laika.ast.{Document, DocumentTreeRoot, DocumentType, Navigatable, Path, StyleDeclaration, StyleDeclarationSet, TemplateDocument, TextDocumentType}
 import laika.bundle.DocumentTypeMatcher
-import laika.io.runtime.InputRuntime
+import laika.config.Config
+import laika.io.runtime.TreeResultBuilder.{ConfigResult, DocumentResult, ParserResult, StyleResult, TemplateResult}
+import laika.io.runtime.{DirectoryScanner, InputRuntime}
 
 import scala.io.Codec
 
@@ -57,25 +61,105 @@ object TextInput {
   * Even though the documents are specified as a flat sequence, they logically form a tree based
   * on their virtual path.
   */
-case class TreeInput[F[_]] (textInputs: Seq[TextInput[F]], binaryInputs: Seq[BinaryInput[F]], sourcePaths: Seq[String] = Nil) {
+case class TreeInput[F[_]] (textInputs: Seq[TextInput[F]], 
+                            binaryInputs: Seq[BinaryInput[F]], 
+                            parsedResults: Seq[ParserResult], 
+                            sourcePaths: Seq[String] = Nil) {
 
   /** Merges the inputs of two collections.
     */
   def ++ (other: TreeInput[F]): TreeInput[F] = TreeInput(
     textInputs ++ other.textInputs, 
-    binaryInputs ++ other.binaryInputs, 
+    binaryInputs ++ other.binaryInputs,
+    parsedResults ++ other.parsedResults,
     sourcePaths ++ other.sourcePaths
   )
+  
+  def + (textInput: TextInput[F]): TreeInput[F] = copy(textInputs = textInputs :+ textInput)
+  def + (binaryInput: BinaryInput[F]): TreeInput[F] = copy(binaryInputs = binaryInputs :+ binaryInput)
+  def + (parsedResult: ParserResult): TreeInput[F] = copy(parsedResults = parsedResults :+ parsedResult)
 }
 
-/** Factory methods for creating `InputCollections`.
+/** Factory methods for creating `TreeInput` instances.
   */
 object TreeInput {
 
+  def apply[F[_]] (exclude: File => Boolean): InputTreeBuilder[F] = ???
+  
+  def apply[F[_]]: InputTreeBuilder[F] = ???
+  
+  
   /** An empty input collection.
     */
   def empty[F[_]]: TreeInput[F] = TreeInput(Nil, Nil, Nil)
 }
+
+
+class InputTreeBuilder[F[_]] (exclude: File => Boolean, steps: Vector[(Path => DocumentType) => Kleisli[F, TreeInput[F], TreeInput[F]]])(implicit F: Async[F]) {
+  
+  import cats.implicits._
+  
+  private def addStep (step: (Path => DocumentType) => Kleisli[F, TreeInput[F], TreeInput[F]]): InputTreeBuilder[F] =
+    new InputTreeBuilder(exclude, steps = steps :+ step)
+  
+  private def addStep (path: Path)(f: PartialFunction[DocumentType, TreeInput[F] => TreeInput[F]]): InputTreeBuilder[F] = 
+    addStep { docTypeFunction => 
+      Kleisli { tree => 
+        f.applyOrElse[DocumentType, TreeInput[F] => TreeInput[F]](docTypeFunction(path), _ => identity)(tree).pure[F]
+      }
+    }
+  
+  private def addParserResult (result: ParserResult): InputTreeBuilder[F] = addStep { _ =>
+    Kleisli(tree => (tree + result).pure[F])
+  }
+  
+  def addDirectory (name: String)(implicit codec: Codec): InputTreeBuilder[F] = addDirectory(new File(name), Root)
+  def addDirectory (name: String, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] = 
+    addDirectory(new File(name), mountPoint)
+  def addDirectory (dir: File)(implicit codec: Codec): InputTreeBuilder[F] = addDirectory(dir, Root)
+  def addDirectory (dir: File, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] = addStep { docTypeFunction =>
+    Kleisli { input => 
+      DirectoryScanner.scanDirectories[F](new DirectoryInput(Seq(dir), codec, docTypeFunction, exclude)).map(input ++ _)
+    }
+  }
+
+  def addFile (name: String, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] = 
+    addFile(new File(name), mountPoint)
+  def addFile (file: File, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] =
+    addStep(mountPoint) {
+      case DocumentType.Static => _ + BinaryInput(mountPoint, InputRuntime.binaryFileResource(file), Some(file))
+      case docType: TextDocumentType => _ + TextInput.fromFile[F](Root / file.getName, docType, file, codec)
+    }
+  
+  def addStream (stream: F[InputStream], mountPoint: Path, autoClose: Boolean = true)(implicit codec: Codec): InputTreeBuilder[F] =
+    addStep(mountPoint) {
+      case DocumentType.Static => 
+        _ + BinaryInput(mountPoint, if (autoClose) Resource.fromAutoCloseable(stream) else Resource.liftF(stream))
+      case docType: TextDocumentType => 
+        _ + TextInput.fromStream(mountPoint, docType, stream, codec, autoClose)
+    }
+  
+  def addString (str: String, mountPoint: Path): InputTreeBuilder[F] =
+    addStep(mountPoint) {
+      case DocumentType.Static => _ + BinaryInput(mountPoint, Resource.liftF(F.delay(new ByteArrayInputStream(str.getBytes))))
+      case docType: TextDocumentType => _ + TextInput.fromString[F](mountPoint, docType, str)
+    }
+  
+  def addDocument (doc: Document): InputTreeBuilder[F] = addParserResult(DocumentResult(doc))
+  def addTemplate (doc: TemplateDocument): InputTreeBuilder[F] = addParserResult(TemplateResult(doc))
+  def addConfig (config: Config, treePath: Path): InputTreeBuilder[F] = ??? //addParserResult(ConfigResult(treePath, config))
+  def addStyles (styles: Set[StyleDeclaration], path: Path): InputTreeBuilder[F] = 
+    addParserResult(StyleResult(StyleDeclarationSet(Set(path), styles), "fo"))
+  
+  def build (docTypeMatcher: Path => DocumentType): F[TreeInput[F]] = 
+    steps
+      .map(_(docTypeMatcher))
+      .reduceLeftOption(_ andThen _)
+      .fold(TreeInput.empty[F].pure[F])(_.run(TreeInput.empty[F]))
+
+}
+
+
 
 /** A directory in the file system containing input documents for a tree transformation.
   *
