@@ -51,30 +51,35 @@ object TreeResultBuilder {
   case class StyleResult (doc: StyleDeclarationSet, format: String, sourceFile: Option[File] = None) extends ParserResult {
     val path: Path = doc.paths.head
   }
-  case class ConfigResult (path: Path, config: ConfigParser, sourceFile: Option[File] = None) extends ParserResult
+  case class HoconResult (path: Path, config: ConfigParser, sourceFile: Option[File] = None) extends ParserResult
+  case class ConfigResult (path: Path, config: Config) extends ParserResult {
+    val sourceFile: Option[File] = None
+  }
 
   type UnresolvedContent = Either[UnresolvedDocument, TreeResult]
   
-  case class TreeResult (path: Path, 
-                         content: Seq[TreeContentResult], 
+  case class TreeResult (path: Path,
+                         content: Seq[TreeContentResult],
                          titleDoc: Option[UnresolvedDocument],
                          templates: Seq[TemplateDocument],
-                         configs: Seq[ConfigResult]) extends TreeContentResult {
+                         hocon: Seq[HoconResult],
+                         config: Seq[ConfigResult]) extends TreeContentResult {
     val sourceFile: Option[File] = None
   }
 
   def buildNode (path: Path, content: Seq[ParserResult]): TreeResult = {
     
-    val subTrees = content.collect { case tree: TreeResult => tree }.sortBy(_.path.name)
-    val treeContent = content.collect { 
+    val treeContent = content.collect {
+      case tree: TreeResult => tree
       case markup: MarkupResult => markup
       case doc: DocumentResult => doc
-    } ++ subTrees
+    }
     val templates = content.collect { case TemplateResult(doc,_) => doc }
 
+    val hoconConfig = content.collect { case c: HoconResult => c }
     val treeConfig = content.collect { case c: ConfigResult => c }
 
-    TreeResult(path, treeContent, None, templates, treeConfig)
+    TreeResult(path, treeContent, None, templates, hoconConfig, treeConfig)
   }
 
   def resolveConfig (doc: UnresolvedDocument, baseConfig: Config, includes: IncludeMap): Either[ConfigError, Document] =
@@ -85,8 +90,12 @@ object TreeResultBuilder {
   
   def resolveConfig (result: TreeResult, baseConfig: Config, includes: IncludeMap, titleDocName: Option[String] = None): Either[ConfigError, DocumentTree] = {
 
-    val resolvedConfig = result.configs.foldLeft[Either[ConfigError, Config]](Right(baseConfig)) {
+    val resolvedConfig = result.hocon.foldLeft[Either[ConfigError, Config]](Right(baseConfig)) {
       case (acc, unresolved) => acc.flatMap(base => unresolved.config.resolve(Origin(TreeScope, unresolved.path), base, includes))
+    }.map { hoconConfig =>
+      result.config.foldLeft(hoconConfig) {
+        case (acc, conf) => acc.withFallback(conf.config).withOrigin(Origin(TreeScope, conf.path))
+      }
     }
     
     resolvedConfig.flatMap { treeConfig =>

@@ -84,9 +84,9 @@ case class TreeInput[F[_]] (textInputs: Seq[TextInput[F]],
   */
 object TreeInput {
 
-  def apply[F[_]] (exclude: File => Boolean): InputTreeBuilder[F] = ???
+  def apply[F[_]: Async] (exclude: File => Boolean): InputTreeBuilder[F] = new InputTreeBuilder(exclude, Vector.empty)
   
-  def apply[F[_]]: InputTreeBuilder[F] = ???
+  def apply[F[_]: Async]: InputTreeBuilder[F] = new InputTreeBuilder(DirectoryInput.hiddenFileFilter, Vector.empty)
   
   
   /** An empty input collection.
@@ -147,7 +147,7 @@ class InputTreeBuilder[F[_]] (exclude: File => Boolean, steps: Vector[(Path => D
   
   def addDocument (doc: Document): InputTreeBuilder[F] = addParserResult(DocumentResult(doc))
   def addTemplate (doc: TemplateDocument): InputTreeBuilder[F] = addParserResult(TemplateResult(doc))
-  def addConfig (config: Config, treePath: Path): InputTreeBuilder[F] = ??? //addParserResult(ConfigResult(treePath, config))
+  def addConfig (config: Config, treePath: Path): InputTreeBuilder[F] = addParserResult(ConfigResult(treePath, config))
   def addStyles (styles: Set[StyleDeclaration], path: Path): InputTreeBuilder[F] = 
     addParserResult(StyleResult(StyleDeclarationSet(Set(path), styles), "fo"))
   

@@ -85,7 +85,7 @@ object ParserRuntime {
         case Markup             => selectParser(in.path).map(parser => Vector(parseDocument(in, parser.parseUnresolved, MarkupResult)))
         case Template           => op.templateParser.map(parseDocument(in, _, TemplateResult)).toVector.validNel
         case StyleSheet(format) => Vector(parseDocument(in, op.styleSheetParser, StyleResult(_, format, _))).validNel
-        case ConfigType         => Vector(parseDocument(in, parseConfig, ConfigResult(in.path, _, _))).validNel
+        case ConfigType         => Vector(parseDocument(in, parseConfig, HoconResult(in.path, _, _))).validNel
       }}.combineAll.toEither.leftMap(es => ParserErrors(es.toList.toSet))
       
       def rewriteTree (root: DocumentTreeRoot): Either[InvalidDocuments, ParsedTree[F]] = { // TODO - move to TreeResultBuilder
@@ -101,7 +101,7 @@ object ParserRuntime {
           includes.map { include => RequestedInclude(include, sourceFile.map(f => IncludeFile(ValidStringValue(f.getPath)))) }
         
         val includes = results.flatMap {
-          case ConfigResult(_, config, sourceFile) => toRequestedInclude(config.includes, sourceFile)
+          case HoconResult(_, config, sourceFile) => toRequestedInclude(config.includes, sourceFile)
           case MarkupResult(doc, sourceFile) => toRequestedInclude(doc.config.includes, sourceFile)
           case TemplateResult(doc, sourceFile) => toRequestedInclude(doc.config.includes, sourceFile)
           case _ => Vector()
