@@ -151,6 +151,10 @@ trait Config {
     * If this instance already has a fallback, the new fallback will be passed further down the chain.
     */
   def withFallback(other: Config): Config
+
+  /** Returns a new configuration instance using the specified origin.
+    */
+  def withOrigin(origin: Origin): Config
   
 }
 
@@ -204,6 +208,8 @@ class ObjectConfig (private[laika] val root: ObjectValue,
     case EmptyConfig => this
     case _           => new ObjectConfig(root, origin, fallback.withFallback(other))
   }
+
+  def withOrigin(newOrigin: Origin): Config = new ObjectConfig(root, newOrigin, fallback)
   
   override def hashCode: Int = (root, origin, fallback).hashCode
 
@@ -225,7 +231,8 @@ object EmptyConfig extends Config {
   def get[T](key: Key)(implicit decoder: ConfigDecoder[T]): ConfigResult[T] = Left(NotFound(key))
 
   def withFallback(other: Config): Config = other
-  
+
+  def withOrigin(newOrigin: Origin): Config = this
 }
 
 object Config {
