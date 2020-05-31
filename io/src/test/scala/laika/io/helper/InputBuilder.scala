@@ -32,19 +32,9 @@ trait InputBuilder {
       BinaryInput(path, Resource.fromAutoCloseable(IO(new ByteArrayInputStream(input.getBytes(codec.charSet)))))
   }
   
-  def build (inputs: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): TreeInput[IO] = {
-    
-    val classified = inputs.map { case (path, content) => (path, content, docTypeMatcher(path)) }
-    
-    val textInputs: Seq[TextInput[IO]] = classified.collect {
-      case (path, content, docType: TextDocumentType) => TextInput.fromString[IO](path, docType, content)
-    }
-
-    val binaryInputs = classified.collect {
-      case (path, content, Static) => ByteInput(content, path)
-    }
-
-    TreeInput(textInputs, binaryInputs, Nil)
-  }
+  def build (inputs: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): IO[TreeInput[IO]] =
+    inputs.foldLeft(TreeInput[IO]) {
+      case (builder, (path, input)) => builder.addString(input, path)
+    }.build(docTypeMatcher)
   
 }

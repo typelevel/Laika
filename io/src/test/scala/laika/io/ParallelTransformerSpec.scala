@@ -52,7 +52,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
 
     def inputs: Seq[(Path, String)]
 
-    def input (in: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): TreeInput[IO] = build(in, docTypeMatcher)
+    def input (in: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): IO[TreeInput[IO]] = build(in, docTypeMatcher)
 
     def transformTree: IO[RenderedTreeViewRoot] = transformWith()
     
@@ -72,13 +72,13 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
       .parallel[IO]
       .withAlternativeParser(MarkupParser.of(ReStructuredText))
       .build
-      .fromInput(IO.pure(input(inputs, transformer.config.docTypeMatcher)))
+      .fromInput(input(inputs, transformer.config.docTypeMatcher))
       .toOutput(StringTreeOutput)
       .describe
     
     private def transformWith (transformer: ParallelTransformer[IO] = transformer): IO[RenderedTreeViewRoot] =
       transformer
-        .fromInput(IO.pure(input(inputs, transformer.config.docTypeMatcher)))
+        .fromInput(input(inputs, transformer.config.docTypeMatcher))
         .toOutput(StringTreeOutput)
         .transform
         .map(RenderedTreeViewRoot.apply[IO])
@@ -245,7 +245,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
       val result = RenderResult.fo.withDefaultTemplate("""<fo:block font-family="serif" font-size="13pt" space-after="3mm">foo</fo:block>""")
       val transformer = Transformer.from(Markdown).to(XSLFO).using(BundleProvider.forStyleSheetParser(parser)).io(blocker).parallel[IO].build
       val renderResult = transformer
-        .fromInput(IO.pure(input(inputs, transformer.config.docTypeMatcher)))
+        .fromInput(input(inputs, transformer.config.docTypeMatcher))
         .toOutput(StringTreeOutput)
         .transform
         .map(RenderedTreeViewRoot.apply[IO])
@@ -495,7 +495,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
           |. . Text - 'ccc'
           |""".stripMargin
 
-      def input (in: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): TreeInput[IO] = build(in, docTypeMatcher)
+      def input (in: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): IO[TreeInput[IO]] = build(in, docTypeMatcher)
     }
 
     "render a tree with a RenderResultProcessor writing to an output stream" in new TwoPhaseTransformer {
@@ -504,7 +504,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
         .io(blocker)
         .parallel[IO]
         .build
-        .fromInput(IO.pure(input(inputs, transformer.build.markupParser.config.docTypeMatcher)))
+        .fromInput(input(inputs, transformer.build.markupParser.config.docTypeMatcher))
         .toStream(out)
         .transform
 
@@ -519,7 +519,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
         .io(blocker)
         .parallel[IO]
         .build
-        .fromInput(IO.pure(input(inputs, transformer.build.markupParser.config.docTypeMatcher)))
+        .fromInput(input(inputs, transformer.build.markupParser.config.docTypeMatcher))
         .toFile(f)
         .transform
 

@@ -93,7 +93,7 @@ class ParallelParserSpec extends IOSpec
     
     val docTypeMatcher: Path => DocumentType = defaultParser.config.docTypeMatcher
     
-    def build (in: Seq[(Path, String)]): IO[TreeInput[IO]] = IO.pure(build(in, docTypeMatcher))
+    def build (in: Seq[(Path, String)]): IO[TreeInput[IO]] = build(in, docTypeMatcher)
     
     def docView (num: Int, path: Path = Root) = DocumentView(path / s"doc$num.md", Content(List(p("foo"))) :: Nil)
     def docView (name: String) = DocumentView(Root / name, Content(List(p("foo"))) :: Nil)
@@ -114,7 +114,7 @@ class ParallelParserSpec extends IOSpec
         .parallel[IO]
         .withAlternativeParser(MarkupParser.of(ReStructuredText))
         .build
-      parser.fromInput(IO.pure(build(inputs, parser.config.docTypeMatcher))).parse.map(toView)
+      parser.fromInput(build(inputs, parser.config.docTypeMatcher)).parse.map(toView)
     }
     
     def parsedWith (bundle: ExtensionBundle): IO[RootView] =
@@ -141,7 +141,7 @@ class ParallelParserSpec extends IOSpec
     }
       
     def parsedWith (bundle: ExtensionBundle = ExtensionBundle.Empty, customMatcher: PartialFunction[Path, DocumentType] = PartialFunction.empty): IO[RootView] = {
-      val input = IO.pure(build(inputs, customMatcher.orElse({case path => docTypeMatcher(path)})))
+      val input = build(inputs, customMatcher.orElse({case path => docTypeMatcher(path)}))
       MarkupParser
         .of(Markdown)
         .using(bundle)
