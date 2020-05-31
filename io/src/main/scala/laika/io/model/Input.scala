@@ -104,7 +104,7 @@ class InputTreeBuilder[F[_]] (exclude: File => Boolean, steps: Vector[(Path => D
   
   private def addStep (path: Path)(f: PartialFunction[DocumentType, TreeInput[F] => TreeInput[F]]): InputTreeBuilder[F] = 
     addStep { docTypeFunction => 
-      Kleisli { tree => 
+      Kleisli { tree =>
         f.applyOrElse[DocumentType, TreeInput[F] => TreeInput[F]](docTypeFunction(path), _ => identity)(tree).pure[F]
       }
     }
@@ -128,7 +128,7 @@ class InputTreeBuilder[F[_]] (exclude: File => Boolean, steps: Vector[(Path => D
   def addFile (file: File, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] =
     addStep(mountPoint) {
       case DocumentType.Static => _ + BinaryInput(mountPoint, InputRuntime.binaryFileResource(file), Some(file))
-      case docType: TextDocumentType => _ + TextInput.fromFile[F](Root / file.getName, docType, file, codec)
+      case docType: TextDocumentType => _ + TextInput.fromFile[F](mountPoint, docType, file, codec)
     }
   
   def addStream (stream: F[InputStream], mountPoint: Path, autoClose: Boolean = true)(implicit codec: Codec): InputTreeBuilder[F] =

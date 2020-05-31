@@ -115,7 +115,7 @@ object ParserRuntime {
         ops      <- Async[F].fromEither(createOps)
         results  <- Runtime[F].runParallel(ops)
         includes <- loadIncludes(results)
-        tree     <- Async[F].fromEither(buildTree(results, op.config.baseConfig, includes).leftMap(ParserError(_, Root)))
+        tree     <- Async[F].fromEither(buildTree(results ++ inputs.parsedResults, op.config.baseConfig, includes).leftMap(ParserError(_, Root)))
         result   <- Async[F].fromEither(rewriteTree(tree))
       } yield result
     }

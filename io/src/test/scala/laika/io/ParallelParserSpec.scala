@@ -16,25 +16,30 @@
 
 package laika.io
 
+import java.io.ByteArrayInputStream
+
 import cats.data.{Chain, NonEmptyChain}
 import cats.effect.IO
 import laika.api.MarkupParser
 import laika.ast.DocumentType._
 import laika.ast.Path.Root
-import laika.ast._
+import laika.ast.{StylePredicate, _}
 import laika.ast.helper.DocumentViewBuilder.{viewOf, _}
 import laika.ast.helper.ModelBuilder
 import laika.bundle.{BundleProvider, ExtensionBundle}
+import laika.config.Origin.TreeScope
+import laika.config.{ConfigBuilder, Origin}
 import laika.format.{Markdown, ReStructuredText}
 import laika.io.helper.InputBuilder
 import laika.io.implicits._
-import laika.io.model.{ParsedTree, TreeInput}
+import laika.io.model.{InputTreeBuilder, ParsedTree, TreeInput}
 import laika.io.runtime.ParserRuntime.{DuplicatePath, ParserErrors}
 import laika.io.text.ParallelParser
 import laika.parse.Parser
-import laika.parse.markup.DocumentParser.{InvalidDocument, InvalidDocuments, ParserError}
+import laika.parse.markup.DocumentParser.{InvalidDocument, InvalidDocuments}
 import laika.parse.text.TextParsers
 import laika.rewrite.TemplateRewriter
+import org.scalatest.Assertion
 
 
 class ParallelParserSpec extends IOSpec 
@@ -235,7 +240,11 @@ class ParallelParserSpec extends IOSpec
         TreeView(Root, List(
           TitleDocument(docView("alternative-title.md")),
           Documents(Markup, List(docView(1), docView(2)))
-        ))
+        ), ConfigBuilder
+            .withOrigin(Origin(TreeScope, Root / "directory.conf"))
+            .withValue("laika.titleDocuments.inputName", "alternative-title")
+            .build
+        )
       ))
       parsedTree.assertEquals(treeResult)
     }
@@ -447,6 +456,93 @@ class ParallelParserSpec extends IOSpec
       ))
       defaultParser.fromDirectory(dirname).parse.map(toTreeView).assertEquals(treeResult)
     }
+    
+    trait CustomInputSetup extends ParserSetup {
+      val dirname: String = getClass.getResource("/trees/a/").getFile
+      def docView (num: Int, path: Path = Root) = DocumentView(path / s"doc$num.md", Content(List(p("Doc" + num))) :: Nil)
+      val subtree1 = TreeView(Root / "dir1", List(Documents(Markup, List(docView(3, Root / "dir1"), docView(4, Root / "dir1")))))
+      
+      def subtree2: TreeView
+
+      lazy val treeResult = TreeView(Root, List(
+        Documents(Markup, List(docView(1), docView(2))),
+        Subtrees(List(subtree1, subtree2))
+      ))
+      def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO]
+      lazy val input: IO[TreeInput[IO]] = addDoc(TreeInput[IO].addDirectory(dirname)).build(defaultParser.config.docTypeMatcher)
+
+      def run (): Assertion = defaultParser.fromInput(input).parse.map(toTreeView).assertEquals(treeResult)
+    }
+    
+    trait ExtraDocSetup extends CustomInputSetup {
+      lazy val subtree2 = TreeView(Root / "dir2", List(Documents(Markup, List(docView(5, Root / "dir2"), docView(6, Root / "dir2"), docView(7, Root / "dir2")))))
+    }
+
+    trait ExtraTemplateSetup extends CustomInputSetup {
+      val templatePath: Path = Root / "dir2" / "tmpl.template.html"
+      lazy val subtree2 = TreeView(Root / "dir2", List(
+        Documents(Markup, List(docView(5, Root / "dir2"), docView(6, Root / "dir2"))), 
+        TemplateDocuments(List(TemplateView(templatePath, TemplateRoot(TemplateString("Template")))))
+      ))
+    }
+
+    trait ExtraConfigSetup extends CustomInputSetup {
+      val configPath: Path = Root / "dir2" / "directory.conf"
+      lazy val subtree2 = TreeView(Root / "dir2", List(
+        Documents(Markup, List(docView(5, Root / "dir2"), docView(6, Root / "dir2")))
+      ), ConfigBuilder.withOrigin(Origin(TreeScope, configPath)).withValue("foo", 7).build)
+    }
+
+    trait ExtraStylesSetup extends CustomInputSetup {
+      val configPath: Path = Root / "dir2" / "directory.conf"
+      lazy val subtree2 = TreeView(Root / "dir2", List(
+        Documents(Markup, List(docView(5, Root / "dir2"), docView(6, Root / "dir2")))
+      ))
+    }
+
+    "read a directory from the file system plus one AST input" in new ExtraDocSetup {
+      def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO] = 
+        input.addDocument(Document(Root / "dir2" / "doc7.md", RootElement(Paragraph("Doc7"))))
+      run()
+    }
+
+    "read a directory from the file system plus one string input" in new ExtraDocSetup {
+      def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO] = input.addString("Doc7", Root / "dir2" / "doc7.md")
+      run()
+    }
+
+    "read a directory from the file system plus one document from an input stream" in new ExtraDocSetup {
+      def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO] = input.addStream(IO(new ByteArrayInputStream("Doc7".getBytes)), Root / "dir2" / "doc7.md")
+      run()
+    }
+
+    "read a directory from the file system plus one extra file" in new ExtraDocSetup {
+      lazy val filename: String = getClass.getResource("/trees/d/doc7.md").getFile
+      def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO] = input.addFile(filename, Root / "dir2" / "doc7.md")
+      run()
+    }
+
+    "read a directory from the file system plus one extra template from a string" in new ExtraTemplateSetup {
+      def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO] = input.addString("Template", templatePath)
+      run()
+    }
+
+    "read a directory from the file system plus one extra template from an AST" in new ExtraTemplateSetup {
+      def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO] = 
+        input.addTemplate(TemplateDocument(templatePath, TemplateRoot(TemplateString("Template"))))
+      run()
+    }
+
+    "read a directory from the file system plus one extra config document from a string" in new ExtraConfigSetup {
+      def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO] = input.addString("foo = 7", configPath)
+      run()
+    }
+
+    "read a directory from the file system plus one extra config document built programmatically" in new ExtraConfigSetup {
+      def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO] = 
+        input.addConfig(ConfigBuilder.withOrigin(Origin(TreeScope, configPath)).withValue("foo", 7).build, configPath)
+      run()
+    }
 
     "read a directory from the file system using a custom document type matcher" in new ParserSetup {
       val dirname: String = getClass.getResource("/trees/a/").getFile
@@ -479,8 +575,8 @@ class ParallelParserSpec extends IOSpec
         .map(toTreeView)
         .assertEquals(treeResult)
     }
-
-    "read a directory from the file system using the fromDirectories method" in new ParserSetup {
+    
+    trait MergedDirectorySetup extends ParserSetup {
       val dir1 = new java.io.File(getClass.getResource("/trees/a/").getFile)
       val dir2 = new java.io.File(getClass.getResource("/trees/b/").getFile)
 
@@ -493,7 +589,16 @@ class ParallelParserSpec extends IOSpec
         Documents(Markup, List(docView(1), docView(2), docView(9))),
         Subtrees(List(subtree1, subtree2, subtree3))
       ))
+    }
+
+    "merge two directories from the file system using the fromDirectories method" in new MergedDirectorySetup {
       defaultParser.fromDirectories(Seq(dir1, dir2)).parse.map(toTreeView).assertEquals(treeResult)
+    }
+
+    "merge two directories from the file system using an InputTreeBuilder" in new MergedDirectorySetup {
+      val treeInput = TreeInput[IO].addDirectory(dir1).addDirectory(dir2).build(defaultParser.config.docTypeMatcher)
+
+      defaultParser.fromInput(treeInput).parse.map(toTreeView).assertEquals(treeResult)
     }
 
     "read a directory from the file system containing a file with non-ASCII characters" in new ParserSetup {

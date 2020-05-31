@@ -18,6 +18,7 @@ package laika.ast.helper
 
 import laika.ast._
 import laika.ast.DocumentType._
+import laika.config.Config
 import laika.rst.ast.CustomizedTextRole
 
 /* Provides a view of DocumentTree structures that allows for 
@@ -36,7 +37,7 @@ object DocumentViewBuilder {
   
   trait RootContent extends View
   
-  case class TreeView (path: Path, content: Seq[TreeContent]) extends ViewContainer with RootContent {
+  case class TreeView (path: Path, content: Seq[TreeContent], config: Config = Config.empty) extends ViewContainer with RootContent {
     def asRoot: RootView = RootView(Seq(this))
   }
 
@@ -97,7 +98,7 @@ object DocumentViewBuilder {
       TemplateDocuments(tree.templates map viewOf) ::
       Subtrees(tree.content.collect{case tree: DocumentTree => tree} map (t => viewOf(t))) :: 
       List[TreeContent]()) filterNot { case c: ViewContainer => c.content.isEmpty }
-    TreeView(tree.path, titleDocument ++ content)
+    TreeView(tree.path, titleDocument ++ content, tree.config)
   }
   
   def viewOf (doc: Document): DocumentView = {
