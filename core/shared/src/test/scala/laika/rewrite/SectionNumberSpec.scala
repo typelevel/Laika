@@ -156,7 +156,8 @@ class SectionNumberSpec extends AnyFlatSpec
     lazy val expected: TreeView = treeView(resultView)
     lazy val result: TreeView = {
       val docTree = tree(sections)
-      viewOf(docTree.rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(docTree))))
+      viewOf(docTree.rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(docTree))), 
+        includeConfig = false)
     }
   }
 

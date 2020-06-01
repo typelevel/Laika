@@ -91,14 +91,14 @@ object DocumentViewBuilder {
     RootView(coverDocument ++ styles ++ static ++ tree)
   }
   
-  def viewOf (tree: DocumentTree): TreeView = {
+  def viewOf (tree: DocumentTree, includeConfig: Boolean = true): TreeView = {
     val titleDocument = tree.titleDocument.map(doc => TitleDocument(viewOf(doc))).toSeq
     val content = (
       Documents(Markup, tree.content.collect{ case doc: Document => doc } map viewOf) ::
       TemplateDocuments(tree.templates map viewOf) ::
-      Subtrees(tree.content.collect{case tree: DocumentTree => tree} map (t => viewOf(t))) :: 
+      Subtrees(tree.content.collect{case tree: DocumentTree => tree} map (t => viewOf(t, includeConfig))) :: 
       List[TreeContent]()) filterNot { case c: ViewContainer => c.content.isEmpty }
-    TreeView(tree.path, titleDocument ++ content, tree.config)
+    TreeView(tree.path, titleDocument ++ content, if (includeConfig) tree.config else Config.empty)
   }
   
   def viewOf (doc: Document): DocumentView = {
