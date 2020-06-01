@@ -47,6 +47,14 @@ object BundleOrigin {
     * parsers produce AST nodes which are not known by the built-in renderers.
     */
   case object Parser extends BundleOrigin
+
+  /** Indicates that the extension bundle is provided by a theme.
+    *
+    * A theme usually focuses on pre-populating the input tree with templates,
+    * styles and configuration, but may in addition also decide to offer lower-level extensions
+    * such as custom directives or extensions to markup syntax.
+    */
+  case object Theme extends BundleOrigin
   
   /** Indicates that the extension bundle has been provided by the user.
     */

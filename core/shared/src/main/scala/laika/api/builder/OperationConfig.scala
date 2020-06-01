@@ -194,7 +194,7 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
   )
   
   private val originOrder: List[BundleOrigin] = List(
-    BundleOrigin.Library, BundleOrigin.Parser, BundleOrigin.Mixed, BundleOrigin.User
+    BundleOrigin.Library, BundleOrigin.Parser, BundleOrigin.Theme, BundleOrigin.Mixed, BundleOrigin.User
   )
   private def combineBundles(b1: Seq[ExtensionBundle], b2: Seq[ExtensionBundle]): Seq[ExtensionBundle] = {
     (b1 ++ b2).distinct.zipWithIndex.sortBy { case (bundle, index) =>
