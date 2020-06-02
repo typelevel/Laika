@@ -78,6 +78,13 @@ case class SpanParserDefinition (startChars: NonEmptySet[Char],
   */
 sealed trait Precedence
 object Precedence {
+  implicit val ordering: Ordering[Precedence] = new Ordering[Precedence] {
+    def compare (x: Precedence, y: Precedence): Int = (x, y) match {
+      case (Precedence.High, Precedence.Low) => 1
+      case (Precedence.Low, Precedence.High) => -1
+      case _ => 0
+    }
+  }
   object High extends Precedence
   object Low extends Precedence
 }

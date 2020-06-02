@@ -16,6 +16,8 @@
 
 package laika.ast
 
+import laika.bundle.Precedence
+
 
 /** Represents a single predicate which is
   * part of the selector for a style declaration.
@@ -100,9 +102,8 @@ case class Specificity (ids: Int, classes: Int, types: Int, order: Int) extends 
     Specificity(ids + other.ids, classes + other.classes, types + other.types, order)
 
   /** Compares this instance with the given specificity.
-    *  Applies the CSS standard weighting of first comparing the
-    *  number of specified ids, followed by classes, then types
-    *  and finally the order.
+    * Applies the CSS standard weighting of first comparing the number of specified ids, followed by classes,
+    * then types and finally the order.
     */
   def compare (other: Specificity): Int =
     if (ids != other.ids) ids compare other.ids
@@ -112,9 +113,8 @@ case class Specificity (ids: Int, classes: Int, types: Int, order: Int) extends 
 }
 
 
-/** Responsible for determining whether a style declaration
-  *  should be applied to a target element, basing its decision
-  *  on a set of predicates.
+/** Responsible for determining whether a style declaration should be applied to a target element, 
+  * basing its decision on a set of predicates.
   *
   *  @param predicates the set of predicates that need to hold
   *  for this selector to be applicable to a target element
@@ -126,19 +126,16 @@ case class StyleSelector(predicates: Set[StylePredicate] = Set(),
                          parent: Option[ParentSelector] = None,
                          order: Int = 0) {
 
-  /** The specificity of this selector, calculated
-    *  from the specificity of its predicates and the order.
+  /** The specificity of this selector, calculated from the specificity of its predicates and the order.
     *
-    *  Used to calculate the precedence if multiple selectors
-    *  apply to the same target element.
+    * Used to calculate the precedence if multiple selectors apply to the same target element.
     */
   def specificity: Specificity = {
     val thisSpec = predicates.map(_.specificity).reduceLeftOption(_+_).getOrElse(Specificity(0,0,0,0)).copy(order = order)
     parent.fold(thisSpec)(thisSpec + _.selector.specificity)
   }
 
-  /** Indicates whether this selector applies to the specified target
-    *  element.
+  /** Indicates whether this selector applies to the specified target element.
     *
     *  @param target the target element to apply this selector to
     *  @param parents the parents of the specified target element, which
@@ -200,8 +197,9 @@ object StyleDeclaration extends ((StyleSelector, Map[String, String]) => StyleDe
   *
   *  @param paths the paths the style declarations have been obtained from
   *  @param styles the style declarations that belong to this set
+  *  @param precedence the precedence of this set compared to other provided sets
   */
-case class StyleDeclarationSet (paths: Set[Path], styles: Set[StyleDeclaration]) {
+case class StyleDeclarationSet (paths: Set[Path], styles: Set[StyleDeclaration], precedence: Precedence = Precedence.High) {
 
   /** Collects all the styles that apply to the specified target element.
     *
@@ -214,8 +212,7 @@ case class StyleDeclarationSet (paths: Set[Path], styles: Set[StyleDeclaration])
     decls.foldLeft(Map[String,String]()) { case (acc, decl) => acc ++ decl.styles }
   }
 
-  /** Merges the style declaration of this instance with the specified set
-    *  and returns the merged set in a new instance.
+  /** Merges the style declaration of this instance with the specified set and returns the merged set in a new instance.
     */
   def ++ (set: StyleDeclarationSet): StyleDeclarationSet = {
     val maxOrder = if (styles.isEmpty) 0 else styles.maxBy(_.selector.order).selector.order + 1
@@ -226,7 +223,7 @@ case class StyleDeclarationSet (paths: Set[Path], styles: Set[StyleDeclaration])
 
 /** Companion providing factory methods for the StyleDeclaration class.
   */
-object StyleDeclarationSet extends ((Set[Path], Set[StyleDeclaration]) => StyleDeclarationSet) {
+object StyleDeclarationSet extends ((Set[Path], Set[StyleDeclaration], Precedence) => StyleDeclarationSet) {
 
   /** Creates an empty StyleDeclarationSet with `Root` as its only path element.
     */

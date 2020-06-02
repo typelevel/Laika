@@ -18,6 +18,7 @@ package laika.render
 
 import laika.ast.{ParentSelector, Path, StyleDeclaration, StyleDeclarationSet, StyleSelector}
 import laika.ast.StylePredicate.{ElementType, StyleName}
+import laika.bundle.Precedence
 
 /** The default styles for PDF and XSL-FO output.
   * 
@@ -141,7 +142,7 @@ object FOStyles {
     val orderApplied = styles.zipWithIndex.map { case (style, index) =>
       style.copy(selector = style.selector.copy(order = index))
     }
-    StyleDeclarationSet(Set.empty[Path], orderApplied.toSet)
+    StyleDeclarationSet(Set.empty[Path], orderApplied.toSet, Precedence.Low)
   }
   
 }

@@ -124,7 +124,11 @@ object TreeResultBuilder {
     val styles = results
       .collect { case StyleResult(styleSet, format, _) => (format, styleSet) }
       .groupBy(_._1)
-      .mapValuesStrict(_.map(_._2).reduce(_ ++ _))
+      .mapValuesStrict(_
+        .map(_._2)
+        .sortBy(set => (set.precedence, set.paths.headOption.fold("")(_.toString)))
+        .reduce(_ ++ _)
+      )
       .withDefaultValue(StyleDeclarationSet.empty)
     
     for {
