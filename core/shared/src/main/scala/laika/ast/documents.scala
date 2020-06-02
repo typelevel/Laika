@@ -414,8 +414,9 @@ trait TreeStructure { this: TreeContent =>
   /** Create a new document tree that contains the specified template as the default.
     */
   def withDefaultTemplate (template: TemplateRoot, formatSuffix: String): DocumentTree = {
-    targetTree.copy(templates = targetTree.templates :+ 
-      TemplateDocument(path / defaultTemplatePathBase.withSuffix(formatSuffix), template))
+    val defPath = path / defaultTemplatePathBase.withSuffix(formatSuffix)
+    targetTree.copy(templates = targetTree.templates.filterNot(_.path == defPath) :+ 
+      TemplateDocument(defPath, template))
   }
 
   /** Selects a subtree of this tree by the specified path.
