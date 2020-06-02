@@ -105,32 +105,6 @@ abstract class Renderer (val config: OperationConfig) {
     renderFunction(formatter, element)
   }
 
-  /** Applies the theme that has been configured for this renderer
-    * to the specified document tree. 
-    * 
-    * This is a hook used by renderers and transformers that process
-    * entire trees of documents. It is usually not invoked by 
-    * application code directly.
-    */
-  def applyTheme (root: DocumentTreeRoot): Either[ConfigError, DocumentTreeRoot] = {
-    val styles = root.styles(format.fileSuffix)
-    
-    val treeWithTpl: DocumentTree = root.tree.getDefaultTemplate(format.fileSuffix).fold(
-      root.tree.withDefaultTemplate(theme.defaultTemplateOrFallback, format.fileSuffix)
-    )(_ => root.tree)
-    
-    val preparedRoot = root.copy(tree = treeWithTpl, styles = root.styles + (format.fileSuffix -> styles))
-    
-    TemplateRewriter.applyTemplates(preparedRoot, format.fileSuffix)
-  }
-
-  /** Returns the template to use for the specified document,
-    * either defined in the tree itself, or if missing obtained
-    * from the configured theme of this renderer.
-    */
-  def templateFor (root: DocumentTreeRoot): TemplateRoot = 
-    root.tree.getDefaultTemplate(format.fileSuffix).fold(theme.defaultTemplateOrFallback)(_.content)
-
 }
 
 /** Entry point for building a Renderer instance.

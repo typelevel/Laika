@@ -22,12 +22,13 @@ import cats.effect.Async
 import cats.implicits._
 import laika.ast.Path.Root
 import laika.ast._
-import laika.config.ConfigException
+import laika.config.{ConfigError, ConfigException}
 import laika.io.binary
 import laika.io.text.ParallelRenderer
 import laika.io.text.SequentialRenderer
 import laika.io.model._
 import laika.parse.markup.DocumentParser.InvalidDocuments
+import laika.rewrite.TemplateRewriter
 import laika.rewrite.nav.{ConfigurablePathTranslator, PathTranslator, TitleDocumentConfig}
 
 /** Internal runtime for renderer operations, for text and binary output as well
@@ -138,9 +139,21 @@ object RendererRuntime {
   
         RenderedTreeRoot[F](resultRoot, template, finalRoot.config, coverDoc, staticDocs, finalRoot.sourcePaths)
       }
+
+    def applyTheme (root: DocumentTreeRoot): Either[ConfigError, DocumentTreeRoot] = {
+      val suffix = op.renderer.format.fileSuffix
+
+      val treeWithTpl: DocumentTree = root.tree.getDefaultTemplate(suffix).fold(
+        root.tree.withDefaultTemplate(TemplateRoot.fallback, suffix)
+      )(_ => root.tree)
+      
+      val preparedRoot = root.copy(tree = treeWithTpl, styles = root.styles + (suffix -> root.styles(suffix)))
+
+      TemplateRewriter.applyTemplates(preparedRoot, suffix)
+    }
     
     for {
-      finalRoot <- Async[F].fromEither(op.renderer.applyTheme(op.input)
+      finalRoot <- Async[F].fromEither(applyTheme(op.input)
                      .leftMap(e => RendererErrors(Seq(ConfigException(e))))
                      .flatMap(root => InvalidDocuments.from(root, op.config.failOnMessages).toLeft(root)))
       styles    = finalRoot.styles(fileSuffix)
@@ -152,8 +165,7 @@ object RendererRuntime {
     } yield res
   }
 
-  /** Process the specified render operation for a single input document and 
-    * a binary output format.
+  /** Process the specified render operation for a single input document and a binary output format.
     */
   def run[F[_]: Async: Runtime] (op: binary.SequentialRenderer.Op[F]): F[Unit] = {
     val root = DocumentTreeRoot(DocumentTree(Root, Seq(Document(Root / "input", RootElement(SpanSequence(TemplateElement(op.input)))))))
@@ -161,11 +173,12 @@ object RendererRuntime {
     run(parOp)
   }
 
-  /** Process the specified render operation for an entire input tree and 
-    * a binary output format.
+  /** Process the specified render operation for an entire input tree and a binary output format.
     */
   def run[F[_]: Async: Runtime] (op: binary.ParallelRenderer.Op[F]): F[Unit] = {
-    val template = op.renderer.interimRenderer.templateFor(op.input)
+    val template = op.input.tree
+      .getDefaultTemplate(op.renderer.interimRenderer.format.fileSuffix)
+      .fold(TemplateRoot.fallback)(_.content)
     for {
       preparedTree <- Async[F].fromEither(op.renderer.prepareTree(op.input))
       renderedTree <- run(ParallelRenderer.Op[F](op.renderer.interimRenderer, preparedTree, StringTreeOutput))

@@ -54,7 +54,6 @@ class FOforPDFSpec extends IOSpec with FileIO {
       override def process[F[_]: Async: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput[F]): F[Unit] = {
 
         val pdfConfig = PDF.BookConfig.decodeWithDefaults(result.config)
-        
         output.resource.use { out =>
           for {
             config <- Async[F].fromEither(pdfConfig.left.map(ConfigException))
@@ -158,7 +157,10 @@ class FOforPDFSpec extends IOSpec with FileIO {
     type Builder = TwoPhaseRendererBuilder[FOFormatter, BinaryPostProcessor]
     
     def result: IO[String] = withByteArrayTextOutput { out =>
-      renderer.from(DocumentTreeRoot(tree)).toStream(IO.pure(out)).render.void
+      renderer.from(DocumentTreeRoot(
+        tree.withDefaultTemplate(FOTemplate.default, "fo"), 
+        styles = Map("fo" -> FOStyles.default))
+      ).toStream(IO.pure(out)).render.void
     }
     
   }

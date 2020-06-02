@@ -78,10 +78,7 @@ case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor
 
     val formatterFactory: RenderContext[HTMLFormatter] => HTMLFormatter = XHTMLFormatter
 
-    override lazy val defaultTheme: Theme = Theme(
-      customRenderer = HtmlRenderExtensions.all,
-      defaultTemplate = Some(HtmlTemplate.default)
-    )
+    override lazy val defaultTheme: Theme = Theme(customRenderer = HtmlRenderExtensions.all)
 
   }
 

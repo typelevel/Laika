@@ -41,14 +41,4 @@ trait RenderTheme {
     */
   def customRenderer: PartialFunction[(Formatter, Element), String]
 
-  /** The default template to embed the nodes of the parsed markup documents in,
-    * in case no user-defined template overwrites the default.
-    */
-  def defaultTemplate: Option[TemplateRoot]
-
-  /** Returns the default template specified by this theme or the
-    * system-wide default in case the default is empty.
-    */
-  def defaultTemplateOrFallback: TemplateRoot = defaultTemplate.getOrElse(TemplateRoot.fallback)
-
 }

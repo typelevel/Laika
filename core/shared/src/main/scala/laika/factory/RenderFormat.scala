@@ -92,14 +92,12 @@ trait RenderFormat[FMT] {
   type CustomRenderFunction[FMT] = PartialFunction[(FMT, Element), String] // TODO - move/promote
 
 
-  case class Theme (customRenderer: CustomRenderFunction[FMT] = PartialFunction.empty,
-                    defaultTemplate: Option[TemplateRoot] = None) extends RenderTheme {
+  case class Theme (customRenderer: CustomRenderFunction[FMT] = PartialFunction.empty) extends RenderTheme {
 
     type Formatter = FMT
 
     def withBase (base: Theme): Theme = Theme(
-      customRenderer.orElse(base.customRenderer),
-      defaultTemplate.orElse(base.defaultTemplate)
+      customRenderer.orElse(base.customRenderer)
     )
 
   }

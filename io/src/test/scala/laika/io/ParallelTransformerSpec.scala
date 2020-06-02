@@ -36,7 +36,7 @@ import laika.io.text.ParallelTransformer
 import laika.parse.Parser
 import laika.parse.code.SyntaxHighlighting
 import laika.parse.text.TextParsers
-import laika.render.FOStyles
+import laika.render.{FOStyles, FOTemplate}
 import laika.rewrite.link.SlugBuilder
 import org.scalatest.Assertion
 
@@ -247,6 +247,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
         .addString(Contents.name, Root / "doc1.md")
         .addString(Contents.style, Root / "styles.fo.css")
         .addStyles(FOStyles.default.styles, Root / "default.fo.css")
+        .addTemplate(TemplateDocument(Root / "default.template.fo", FOTemplate.default))
         .build(transformer.config.docTypeMatcher)
       
       val renderResult = transformer

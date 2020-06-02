@@ -87,9 +87,10 @@ class XHTMLRendererSpec extends IOSpec with ModelBuilder with FileIO {
             content = List(
               markupDoc(1),
               DocumentTree(Root / "sub", content = List(markupDoc(2, Root / "sub")))
-            )
+            ),
+            templates = Seq(TemplateDocument(Root / "default.template.epub.xhtml", HtmlTemplate.default))
           ),
-          staticDocuments = Seq(Root / "sub" / "styles2.css", Root / "styles1.css")
+          staticDocuments = Seq(Root / "sub" / "styles2.css", Root / "styles1.css"),
         )
 
         val expected = Seq(
