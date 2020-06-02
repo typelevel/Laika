@@ -42,7 +42,10 @@ class FOforPDFSpec extends IOSpec with FileIO {
     
     def prepareTree (root: DocumentTreeRoot): Either[Throwable, DocumentTreeRoot] = {
       val pdfConfig = PDF.BookConfig.decodeWithDefaults(root.config)
-      val rootWithTemplate = root.copy(tree = root.tree.withDefaultTemplate(TemplateRoot.fallback, "fo"))
+      val rootWithTemplate = root.copy(
+        tree = root.tree.withDefaultTemplate(TemplateRoot.fallback, "fo"), 
+        styles = Map("fo" -> FOStyles.default)
+      )
       pdfConfig.map(PDFNavigation.prepareTree(rootWithTemplate, _)).left.map(ConfigException)
     }
 

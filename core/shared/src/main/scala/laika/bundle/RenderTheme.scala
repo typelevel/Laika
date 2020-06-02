@@ -46,18 +46,6 @@ trait RenderTheme {
     */
   def defaultTemplate: Option[TemplateRoot]
 
-  /** The default styles to apply in addition to any user-defined styles.
-    *
-    * These styles are only processed for output formats where the transformer
-    * processes the CSS to adjust the rendered output. This is only the case
-    * for PDF and XSL-FO.
-    *
-    * Styling for other formats like HTML has to happen via static files
-    * in the input directory that are merely copied over to the target directory
-    * by the transformer.
-    */
-  def defaultStyles: StyleDeclarationSet
-
   /** Returns the default template specified by this theme or the
     * system-wide default in case the default is empty.
     */

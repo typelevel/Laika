@@ -67,7 +67,7 @@ abstract class Renderer (val config: OperationConfig) {
 
   /** Renders the specified document as a String.
     */
-  def render (doc: Document): String = render(doc.content, doc.path, defaultPathTranslator, theme.defaultStyles)
+  def render (doc: Document): String = render(doc.content, doc.path, defaultPathTranslator, StyleDeclarationSet.empty)
 
   /** Renders the specified document as a String, using the given path translator and styles.
     * 
@@ -79,14 +79,14 @@ abstract class Renderer (val config: OperationConfig) {
 
   /** Renders the specified element as a String.
     */
-  def render (element: Element): String = render(element, Root, defaultPathTranslator, theme.defaultStyles)
+  def render (element: Element): String = render(element, Root, defaultPathTranslator, StyleDeclarationSet.empty)
 
   /** Renders the specified element as a String.
     * 
     * The provided (virtual) path may be used by renderers for cross-linking between
     * documents.
     */
-  def render (element: Element, path: Path): String = render(element, path, defaultPathTranslator, theme.defaultStyles)
+  def render (element: Element, path: Path): String = render(element, path, defaultPathTranslator, StyleDeclarationSet.empty)
 
   /** Renders the specified element as a String, using the given path translator and styles.
     * 
@@ -113,7 +113,7 @@ abstract class Renderer (val config: OperationConfig) {
     * application code directly.
     */
   def applyTheme (root: DocumentTreeRoot): Either[ConfigError, DocumentTreeRoot] = {
-    val styles = theme.defaultStyles ++ root.styles(format.fileSuffix)
+    val styles = root.styles(format.fileSuffix)
     
     val treeWithTpl: DocumentTree = root.tree.getDefaultTemplate(format.fileSuffix).fold(
       root.tree.withDefaultTemplate(theme.defaultTemplateOrFallback, format.fileSuffix)

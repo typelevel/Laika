@@ -36,6 +36,7 @@ import laika.io.text.ParallelTransformer
 import laika.parse.Parser
 import laika.parse.code.SyntaxHighlighting
 import laika.parse.text.TextParsers
+import laika.render.FOStyles
 import laika.rewrite.link.SlugBuilder
 import org.scalatest.Assertion
 
@@ -237,15 +238,19 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
 
       val parser: Parser[Set[StyleDeclaration]] = TextParsers.anyChars.map { n => Set(styleDecl(n)) }
 
-      val inputs = Seq(
-        Root / "doc1.md" -> Contents.name,
-        Root / "styles.fo.css" -> Contents.style
-      )
+      val inputs = Nil
 
       val result = RenderResult.fo.withDefaultTemplate("""<fo:block font-family="serif" font-size="13pt" space-after="3mm">foo</fo:block>""")
       val transformer = Transformer.from(Markdown).to(XSLFO).using(BundleProvider.forStyleSheetParser(parser)).io(blocker).parallel[IO].build
+
+      val input = TreeInput[IO]
+        .addString(Contents.name, Root / "doc1.md")
+        .addString(Contents.style, Root / "styles.fo.css")
+        .addStyles(FOStyles.default.styles, Root / "default.fo.css")
+        .build(transformer.config.docTypeMatcher)
+      
       val renderResult = transformer
-        .fromInput(input(inputs, transformer.config.docTypeMatcher))
+        .fromInput(input)
         .toOutput(StringTreeOutput)
         .transform
         .map(RenderedTreeViewRoot.apply[IO])

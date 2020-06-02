@@ -215,8 +215,10 @@ case class StyleDeclarationSet (paths: Set[Path], styles: Set[StyleDeclaration],
   /** Merges the style declaration of this instance with the specified set and returns the merged set in a new instance.
     */
   def ++ (set: StyleDeclarationSet): StyleDeclarationSet = {
-    val maxOrder = if (styles.isEmpty) 0 else styles.maxBy(_.selector.order).selector.order + 1
-    new StyleDeclarationSet(paths ++ set.paths, styles ++ (set.styles map (_.increaseOrderBy(maxOrder))))
+    val (lo, hi) = if (Ordering[Precedence].gt(this.precedence, set.precedence)) 
+      (set.styles, this.styles) else (this.styles, set.styles)
+    val maxOrder = if (lo.isEmpty) 0 else lo.maxBy(_.selector.order).selector.order + 1
+    new StyleDeclarationSet(paths ++ set.paths, lo ++ hi.map(_.increaseOrderBy(maxOrder)))
   }
 
 }

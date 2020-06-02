@@ -93,15 +93,13 @@ trait RenderFormat[FMT] {
 
 
   case class Theme (customRenderer: CustomRenderFunction[FMT] = PartialFunction.empty,
-                    defaultTemplate: Option[TemplateRoot] = None,
-                    defaultStyles: StyleDeclarationSet = StyleDeclarationSet.empty) extends RenderTheme {
+                    defaultTemplate: Option[TemplateRoot] = None) extends RenderTheme {
 
     type Formatter = FMT
 
     def withBase (base: Theme): Theme = Theme(
       customRenderer.orElse(base.customRenderer),
-      defaultTemplate.orElse(base.defaultTemplate),
-      base.defaultStyles ++ defaultStyles
+      defaultTemplate.orElse(base.defaultTemplate)
     )
 
   }

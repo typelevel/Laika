@@ -21,9 +21,9 @@ import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast._
 import laika.ast.helper.ModelBuilder
-import laika.bundle.BundleProvider
 import laika.format.XSLFO
 import laika.parse.code.CodeCategory
+import laika.rewrite.nav.BasicPathTranslator
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
@@ -31,17 +31,23 @@ class XSLFORendererSpec extends AnyFlatSpec
   with Matchers
   with ModelBuilder {
 
+  private val pathTranslator = BasicPathTranslator(XSLFO.fileSuffix)
+  
+  private val defaultRenderer = Renderer.of(XSLFO).build
 
-  def render (elem: Element): String = Renderer.of(XSLFO).build.render(elem)
+  def render (elem: Element): String = render(elem, FOStyles.default)
 
+  def render (elem: Element, style: StyleDeclaration): String = 
+    render(elem, FOStyles.default ++ StyleDeclarationSet(Path.Root, style))
+
+  def render (elem: Element, style: StyleDeclarationSet): String = 
+    defaultRenderer.render(elem, Root, pathTranslator, style)
+  
   def render (elem: Element, messageFilter: MessageFilter): String =
-    Renderer.of(XSLFO).renderMessages(messageFilter).build.render(elem)
+    Renderer.of(XSLFO).renderMessages(messageFilter).build.render(elem, Root, pathTranslator, FOStyles.default)
 
-  def render (elem: Element, style: StyleDeclaration): String =
-    Renderer.of(XSLFO).using(BundleProvider
-      .forTheme(XSLFO.Theme(defaultStyles = StyleDeclarationSet(Path.Root, style)))).build.render(elem)
-
-  def renderUnformatted (elem: Element): String = Renderer.of(XSLFO).unformatted.build.render(elem)
+  def renderUnformatted (elem: Element): String = 
+    Renderer.of(XSLFO).unformatted.build.render(elem, Root, pathTranslator, FOStyles.default)
 
   val imageTarget = InternalTarget(Root / "foo.jpg", CurrentTree / "foo.jpg")
   
