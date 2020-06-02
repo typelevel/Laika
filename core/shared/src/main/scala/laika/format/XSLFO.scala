@@ -46,6 +46,4 @@ object XSLFO extends RenderFormat[FOFormatter] {
 
   val formatterFactory: RenderContext[FOFormatter] => FOFormatter = FOFormatter
 
-  override lazy val defaultTheme: Theme = Theme()
-
 }

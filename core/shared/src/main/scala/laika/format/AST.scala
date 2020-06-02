@@ -39,6 +39,4 @@ case object AST extends RenderFormat[TextFormatter] {
 
   val formatterFactory: RenderContext[TextFormatter] => TextFormatter = ASTFormatter
   
-  val defaultTheme = Theme()
-
 }

@@ -38,6 +38,4 @@ case object HTML extends RenderFormat[HTMLFormatter] {
 
   val formatterFactory: RenderContext[HTMLFormatter] => HTMLFormatter = HTMLFormatter
  
-  val defaultTheme: Theme = Theme()
-
 }

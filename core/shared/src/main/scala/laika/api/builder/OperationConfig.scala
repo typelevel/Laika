@@ -145,7 +145,7 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
     */
   def themeFor[FMT] (format: RenderFormat[FMT]): format.Theme = (mergedBundle.themes.collect {
     case t: format.Theme => t
-  } :+ format.defaultTheme :+ format.Theme()).reduceLeft(_ withBase _)
+  } :+ format.Theme()).reduceLeft(_ withBase _)
 
   /** Returns a new instance with the specified extension bundles added to the
     * bundles defined in this instance. The new bundles are treated with higher

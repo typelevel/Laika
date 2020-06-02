@@ -47,13 +47,7 @@ class ThemeConfigSpec extends AnyWordSpec with Matchers {
 
       val formatterFactory: RenderContext[TextFormatter] => TextFormatter = TextFormatter
       
-      override val defaultTheme = Theme(
-        customRenderer = customRenderer
-      )
-
     }
-
-    def customRenderer: PartialFunction[(TextFormatter, Element), String] =  { case (_, _) => "" }
 
   }
 
@@ -66,24 +60,6 @@ class ThemeConfigSpec extends AnyWordSpec with Matchers {
       val formatter = TextFormatter((_,_) => "", RootElement.empty, Nil, Indentation.default)
 
       def result: String = sb.toString
-    }
-
-    "merge renderers from a default theme with the renderers from an app extension" in new RenderSetup {
-      override val customRenderer: PartialFunction[(TextFormatter, Element), String] = { case (_, Strong(_, _)) => "strong" }
-      val appBundles = Seq(BundleProvider.forTheme(TestFormat.Theme(
-        customRenderer = { case (_, Emphasized(_, _)) => "em" }
-      )))
-
-      testRenderer((formatter, Strong(Nil))) + testRenderer((formatter, Emphasized(Nil))) shouldBe "strongem"
-    }
-
-    "let an app config override the renderer for an identical element in the default theme" in new RenderSetup {
-      override val customRenderer: PartialFunction[(TextFormatter, Element), String] = { case (_, Strong(_, _)) => "strong" }
-      val appBundles = Seq(BundleProvider.forTheme(TestFormat.Theme(
-        customRenderer = { case (_, Strong(_, _)) => "override" }
-      )))
-
-      testRenderer((formatter, Strong(Nil))) shouldBe "override"
     }
 
     "let an app config override the renderer for an identical element in a previously installed app config" in new RenderSetup {

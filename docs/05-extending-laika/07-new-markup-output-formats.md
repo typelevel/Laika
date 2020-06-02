@@ -166,8 +166,6 @@ trait RenderFormat[FMT] {
   
   def fileSuffix: String
   
-  def defaultTheme: Theme
-  
   def defaultRenderer: (FMT, Element) => String
   
   def formatterFactory: RenderContext[FMT] => FMT
@@ -177,10 +175,6 @@ trait RenderFormat[FMT] {
 
 * The `fileSuffix` method provides the suffix to append when writing files in this format
   (without the ".").
-
-* The `defaultTheme` is a legacy property that will get removed in the next release (0.16) 
-  which will introduce a proper Theme API. 
-  It is safe to ignore it until then (you can provide an empty theme object in your implementation).
 
 * The `defaultRenderer` represents the actual renderer. 
   It takes both, a formatter instance and the element to render and returns a String in the target format.    

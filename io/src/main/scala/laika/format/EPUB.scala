@@ -28,8 +28,8 @@ import laika.config.{Config, ConfigBuilder, ConfigDecoder, ConfigEncoder, Config
 import laika.factory.{BinaryPostProcessor, RenderContext, RenderFormat, TwoPhaseRenderFormat}
 import laika.io.model.{BinaryOutput, RenderedTreeRoot}
 import laika.io.runtime.Runtime
-import laika.render.epub.{ContainerWriter, HtmlRenderExtensions, HtmlTemplate, StyleSupport}
-import laika.render.{HTMLFormatter, XHTMLFormatter, XHTMLRenderer}
+import laika.render.epub.{ContainerWriter, StyleSupport, XHTMLRenderer}
+import laika.render.{HTMLFormatter, XHTMLFormatter}
 
 /** A post processor for EPUB output, based on an interim HTML renderer.
  *  May be directly passed to the `Renderer` or `Transformer` APIs:
@@ -77,8 +77,6 @@ case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor
     val defaultRenderer: (HTMLFormatter, Element) => String = XHTMLRenderer
 
     val formatterFactory: RenderContext[HTMLFormatter] => HTMLFormatter = XHTMLFormatter
-
-    override lazy val defaultTheme: Theme = Theme(customRenderer = HtmlRenderExtensions.all)
 
   }
 

@@ -17,7 +17,7 @@
 package laika.factory
 
 import laika.api.builder.RenderConfig
-import laika.ast.{Element, Path, StyleDeclarationSet, TemplateRoot}
+import laika.ast.{Element, Path, StyleDeclarationSet}
 import laika.bundle.RenderTheme
 import laika.render.Indentation
 import laika.rewrite.nav.PathTranslator
@@ -64,12 +64,6 @@ trait RenderFormat[FMT] {
    *  replaced by the suffix for the output format.
    */
   def fileSuffix: String
-
-  /** The default theme to use if no theme is explicitly specified.
-    * It allows to specify a default template and/or static files to include in the output,
-    * as well as custom overrides per element type for the renderer.
-    */
-  def defaultTheme: Theme
 
   /** The default renderer function for this output format.
     * It may be overridden by extensions for individual nodes of the AST.
