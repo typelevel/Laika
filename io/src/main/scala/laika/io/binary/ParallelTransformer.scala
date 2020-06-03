@@ -23,17 +23,19 @@ import laika.api.builder.{OperationConfig, ParserBuilder}
 import laika.ast.{DocumentType, TextDocumentType}
 import laika.io.binary.ParallelRenderer.BinaryRenderer
 import laika.io.binary.ParallelTransformer.TreeMapper
-import laika.io.descriptor.{ParserDescriptor, TransformerDescriptor}
+import laika.io.descriptor.TransformerDescriptor
 import laika.io.model._
 import laika.io.ops.{BinaryOutputOps, ParallelInputOps, TreeMapperOps}
 import laika.io.runtime.{Runtime, TransformerRuntime}
+import laika.io.theme.Theme
 
 /** Transformer that merges a tree of input documents to a single binary output document.
   *
   * @author Jens Halm
   */
 class ParallelTransformer[F[_]: Async: Runtime] (parsers: NonEmptyList[MarkupParser], 
-                                                 renderer: BinaryRenderer, 
+                                                 renderer: BinaryRenderer,
+                                                 theme: Theme[F],
                                                  mapper: TreeMapper[F]) extends ParallelInputOps[F] {
 
   type Result = ParallelTransformer.OutputOps[F]
@@ -45,7 +47,7 @@ class ParallelTransformer[F[_]: Async: Runtime] (parsers: NonEmptyList[MarkupPar
   val config: OperationConfig = parsers.map(_.config).reduceLeft(_ merge _)
 
   def fromInput (input: F[TreeInput[F]]): ParallelTransformer.OutputOps[F] = 
-    ParallelTransformer.OutputOps(parsers, renderer, input, mapper)
+    ParallelTransformer.OutputOps(parsers, renderer, theme, input, mapper)
 
 }
 
@@ -59,13 +61,14 @@ object ParallelTransformer {
     * for blocking IO and CPU-bound tasks.
     */
   case class Builder[F[_]: Async: Runtime] (parsers: NonEmptyList[MarkupParser],
-                                            renderer: BinaryRenderer, 
+                                            renderer: BinaryRenderer,
+                                            theme: Theme[F],
                                             mapper: TreeMapper[F]) extends TreeMapperOps[F] {
 
     type MapRes = Builder[F]
 
     def evalMapTree (f: ParsedTree[F] => F[ParsedTree[F]]): MapRes =
-      new Builder[F](parsers, renderer, mapper.andThen(f))
+      new Builder[F](parsers, renderer, theme, mapper.andThen(f))
 
     /** Specifies an additional parser for text markup.
       *
@@ -77,22 +80,27 @@ object ParallelTransformer {
 
     /** Specifies an additional parser for text markup.
       *
-      * When multiple parsers exist for an operation, the target parser
-      * will be determined by the suffix of the input document, e.g.
-      * `.md` for Markdown and `.rst` for reStructuredText.
+      * When multiple parsers exist for an operation, 
+      * the target parser will be determined by the suffix of the input document,
+      * e.g. `.md` for Markdown and `.rst` for reStructuredText.
       */
     def withAlternativeParser (parser: ParserBuilder): Builder[F] = copy(parsers = parsers.append(parser.build))
+
+    /** Applies the specified theme to this transformer, overriding any previously specified themes.
+      */
+    def withTheme (theme: Theme[F]): Builder[F] = copy(theme = theme)
     
     /** Final builder step that creates a parallel transformer for binary output.
       */
-    def build: ParallelTransformer[F] = new ParallelTransformer[F](parsers, renderer, Kleisli(Async[F].pure))
+    def build: ParallelTransformer[F] = new ParallelTransformer[F](parsers, renderer, theme, Kleisli(Async[F].pure))
 
   }
 
   /** Builder step that allows to specify the output to render to.
     */
   case class OutputOps[F[_]: Async: Runtime] (parsers: NonEmptyList[MarkupParser],
-                                              renderer: BinaryRenderer, 
+                                              renderer: BinaryRenderer,
+                                              theme: Theme[F],
                                               input: F[TreeInput[F]], 
                                               mapper: TreeMapper[F]) extends BinaryOutputOps[F] {
 
@@ -100,7 +108,7 @@ object ParallelTransformer {
 
     type Result = Op[F]
 
-    def toOutput (output: BinaryOutput[F]): Op[F] = Op[F](parsers, renderer, input, mapper, output)
+    def toOutput (output: BinaryOutput[F]): Op[F] = Op[F](parsers, renderer, theme, input, mapper, output)
 
   }
 
@@ -112,6 +120,7 @@ object ParallelTransformer {
     */
   case class Op[F[_]: Async: Runtime] (parsers: NonEmptyList[MarkupParser],
                                        renderer: BinaryRenderer,
+                                       theme: Theme[F],
                                        input: F[TreeInput[F]],
                                        mapper: TreeMapper[F],
                                        output: BinaryOutput[F]) {

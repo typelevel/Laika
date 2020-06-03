@@ -27,6 +27,7 @@ import laika.io.binary
 import laika.io.text.ParallelRenderer
 import laika.io.text.SequentialRenderer
 import laika.io.model._
+import laika.io.theme.Theme
 import laika.parse.markup.DocumentParser.InvalidDocuments
 import laika.rewrite.TemplateRewriter
 import laika.rewrite.nav.{ConfigurablePathTranslator, PathTranslator, TitleDocumentConfig}
@@ -169,7 +170,7 @@ object RendererRuntime {
     */
   def run[F[_]: Async: Runtime] (op: binary.SequentialRenderer.Op[F]): F[Unit] = {
     val root = DocumentTreeRoot(DocumentTree(Root, Seq(Document(Root / "input", RootElement(SpanSequence(TemplateElement(op.input)))))))
-    val parOp = binary.ParallelRenderer.Op(op.renderer, root, op.output)
+    val parOp = binary.ParallelRenderer.Op(op.renderer, Theme.default, root, op.output)
     run(parOp)
   }
 
@@ -181,7 +182,7 @@ object RendererRuntime {
       .fold(TemplateRoot.fallback)(_.content)
     for {
       preparedTree <- Async[F].fromEither(op.renderer.prepareTree(op.input))
-      renderedTree <- run(ParallelRenderer.Op[F](op.renderer.interimRenderer, preparedTree, StringTreeOutput))
+      renderedTree <- run(ParallelRenderer.Op[F](op.renderer.interimRenderer, op.theme, preparedTree, StringTreeOutput))
       _            <- op.renderer.postProcessor.process(renderedTree.copy[F](defaultTemplate = template, staticDocuments = op.staticDocuments), op.output)
     } yield ()
       

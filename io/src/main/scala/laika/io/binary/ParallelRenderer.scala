@@ -21,21 +21,22 @@ import laika.api.builder.{OperationConfig, TwoPhaseRenderer}
 import laika.ast.DocumentTreeRoot
 import laika.factory.BinaryPostProcessor
 import laika.io.binary.ParallelRenderer.BinaryRenderer
-import laika.io.descriptor.{ParserDescriptor, RendererDescriptor}
+import laika.io.descriptor.RendererDescriptor
 import laika.io.model.{BinaryInput, BinaryOutput}
 import laika.io.ops.BinaryOutputOps
 import laika.io.runtime.{RendererRuntime, Runtime}
+import laika.io.theme.Theme
 
 /** Renderer that merges a tree of input documents to a single binary output document.
   *
   * @author Jens Halm
   */
-class ParallelRenderer[F[_]: Async: Runtime] (renderer: BinaryRenderer) {
+class ParallelRenderer[F[_]: Async: Runtime] (renderer: BinaryRenderer, theme: Theme[F]) {
 
   /** Builder step that specifies the root of the document tree to render.
     */
   def from (input: DocumentTreeRoot): ParallelRenderer.OutputOps[F] =
-    ParallelRenderer.OutputOps(renderer, input, Nil)
+    ParallelRenderer.OutputOps(renderer, theme, input, Nil)
 
 }
 
@@ -48,17 +49,24 @@ object ParallelRenderer {
   /** Builder step that allows to specify the execution context
     * for blocking IO and CPU-bound tasks.
     */
-  case class Builder[F[_]: Async: Runtime] (renderer: BinaryRenderer) {
+  case class Builder[F[_]: Async: Runtime] (renderer: BinaryRenderer, theme: Theme[F]) {
 
+    /** Applies the specified theme to this renderer, overriding any previously specified themes.
+      */
+    def withTheme (theme: Theme[F]): Builder[F] = copy(theme = theme)
+    
     /** Final builder step that creates a parallel renderer for binary output.
       */
-    def build: ParallelRenderer[F] = new ParallelRenderer[F](renderer)
+    def build: ParallelRenderer[F] = new ParallelRenderer[F](renderer, theme)
     
   }
 
   /** Builder step that allows to specify the output to render to.
     */
-  case class OutputOps[F[_]: Async: Runtime] (renderer: BinaryRenderer, input: DocumentTreeRoot, staticDocuments: Seq[BinaryInput[F]]) extends BinaryOutputOps[F] {
+  case class OutputOps[F[_]: Async: Runtime] (renderer: BinaryRenderer,
+                                              theme: Theme[F],
+                                              input: DocumentTreeRoot,
+                                              staticDocuments: Seq[BinaryInput[F]]) extends BinaryOutputOps[F] {
 
     val F: Async[F] = Async[F]
 
@@ -69,7 +77,7 @@ object ParallelRenderer {
       */
     def copying (toCopy: Seq[BinaryInput[F]]): OutputOps[F] = copy(staticDocuments = staticDocuments ++ toCopy)
 
-    def toOutput (output: BinaryOutput[F]): Op[F] = Op[F](renderer, input, output, staticDocuments)
+    def toOutput (output: BinaryOutput[F]): Op[F] = Op[F](renderer, theme, input, output, staticDocuments)
 
   }
 
@@ -79,7 +87,11 @@ object ParallelRenderer {
     * default runtime implementation or by developing a custom runner that performs
     * the rendering based on this operation's properties.
     */
-  case class Op[F[_]: Async: Runtime] (renderer: BinaryRenderer, input: DocumentTreeRoot, output: BinaryOutput[F], staticDocuments: Seq[BinaryInput[F]] = Nil) {
+  case class Op[F[_]: Async: Runtime] (renderer: BinaryRenderer,
+                                       theme: Theme[F],
+                                       input: DocumentTreeRoot, 
+                                       output: BinaryOutput[F], 
+                                       staticDocuments: Seq[BinaryInput[F]] = Nil) {
 
     /** The configuration of the renderer for the interim format.
       */
