@@ -119,10 +119,11 @@ object ParserRuntime {
     }
     
     for {
-      userInputs  <- op.input
-      themeInputs <- op.theme.inputs
-      result      <- parseAll(userInputs ++ themeInputs)
-    } yield result
+      userInputs   <- op.input
+      themeInputs  <- op.theme.inputs
+      result       <- parseAll(userInputs ++ themeInputs)
+      mappedResult <- op.theme.treeTransformer.run(result)
+    } yield mappedResult
     
   }
 

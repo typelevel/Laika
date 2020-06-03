@@ -154,11 +154,12 @@ object RendererRuntime {
     }
     
     for {
-      finalRoot <- Async[F].fromEither(applyTemplate(op.input)
+      mappedTree <- op.theme.treeTransformer.run(ParsedTree(op.input, op.staticDocuments))
+      finalRoot <- Async[F].fromEither(applyTemplate(mappedTree.root)
                      .leftMap(e => RendererErrors(Seq(ConfigException(e))))
                      .flatMap(root => InvalidDocuments.from(root, op.config.failOnMessages).toLeft(root)))
       styles    = finalRoot.styles(fileSuffix)
-      static    = op.staticDocuments
+      static    = mappedTree.staticDocuments
       _         <- validatePaths(static)
       ops       =  renderOps(finalRoot, styles, static)
       _         <- ops.mkDirOps.toVector.sequence

@@ -16,11 +16,15 @@
 
 package laika.io.runtime
 
+import cats.Monad
+import cats.data.Kleisli
 import cats.effect.Async
 import cats.implicits._
+import laika.bundle.ExtensionBundle
 import laika.io.binary
-import laika.io.model.RenderedTreeRoot
+import laika.io.model.{ParsedTree, RenderedTreeRoot, TreeInput}
 import laika.io.text._
+import laika.io.theme.Theme
 
 /** Internal runtime for transform operations, for text and binary output as well
   * as parallel and sequential execution. 
@@ -28,6 +32,12 @@ import laika.io.text._
   *  @author Jens Halm
   */
 object TransformerRuntime {
+  
+  private def themeWithBundlesOnly[F[_]: Monad] (theme: Theme[F]): Theme[F] = new Theme[F] {
+    def inputs: F[TreeInput[F]] = Monad[F].pure(TreeInput.empty)
+    def extensions: Seq[ExtensionBundle] = theme.extensions
+    def treeTransformer: Kleisli[F, ParsedTree[F], ParsedTree[F]] = Kleisli(Monad[F].pure)
+  }
 
   /** Process the specified transform operation for a single input document and 
     * a character output format.
@@ -43,24 +53,22 @@ object TransformerRuntime {
   def run[F[_]: Async: Runtime] (op: ParallelTransformer.Op[F]): F[RenderedTreeRoot[F]] = for {
     tree       <- ParallelParser.Op(op.parsers, op.theme, op.input).parse
     mappedTree <- op.mapper.run(tree)
-    res        <- ParallelRenderer.Op(op.renderer, op.theme, mappedTree.root, op.output, mappedTree.staticDocuments).render
+    res        <- ParallelRenderer.Op(op.renderer, themeWithBundlesOnly(op.theme), mappedTree.root, op.output, mappedTree.staticDocuments).render
   } yield res
 
-  /** Process the specified transform operation for a single input document and 
-    * a binary output format.
+  /** Process the specified transform operation for a single input document and a binary output format.
     */
   def run[F[_]: Async: Runtime] (op: binary.SequentialTransformer.Op[F]): F[Unit] = for {
     doc <- SequentialParser.Op(op.transformer.markupParser, op.input).parse
     res <- binary.SequentialRenderer.Op(op.transformer.renderer, doc.content, doc.path, op.output).render
   } yield res
 
-  /** Process the specified transform operation for an entire input tree and 
-    * a binary output format.
+  /** Process the specified transform operation for an entire input tree and a binary output format.
     */
   def run[F[_]: Async: Runtime] (op: binary.ParallelTransformer.Op[F]): F[Unit] = for {
     tree       <- ParallelParser.Op(op.parsers, op.theme, op.input).parse
     mappedTree <- op.mapper.run(tree)
-    res        <- binary.ParallelRenderer.Op[F](op.renderer, op.theme, mappedTree.root, op.output, mappedTree.staticDocuments).render
+    res        <- binary.ParallelRenderer.Op[F](op.renderer, themeWithBundlesOnly(op.theme), mappedTree.root, op.output, mappedTree.staticDocuments).render
   } yield res
 
 }
