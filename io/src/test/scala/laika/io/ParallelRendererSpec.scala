@@ -24,16 +24,15 @@ import laika.api.Renderer
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
-import laika.bundle.BundleProvider
-import laika.config.Key
+import laika.bundle.DocumentTypeMatcher
 import laika.format._
 import laika.io.helper.OutputBuilder._
-import laika.io.helper.{InputBuilder, RenderResult}
+import laika.io.helper.{InputBuilder, RenderResult, ThemeBuilder}
 import laika.io.implicits._
-import laika.io.model.StringTreeOutput
+import laika.io.model.{StringTreeOutput, TreeInput}
 import laika.io.runtime.RendererRuntime.{DuplicatePath, RendererErrors}
 import laika.io.text.ParallelRenderer
-import laika.parse.markup.DocumentParser.{InvalidDocument, InvalidDocuments, ParserError}
+import laika.parse.markup.DocumentParser.{InvalidDocument, InvalidDocuments}
 import laika.render._
 import laika.rewrite.ReferenceResolver.CursorKeys
 
@@ -116,6 +115,7 @@ class ParallelRendererSpec extends IOSpec
     def foStyles (path: Path = Root): Map[String, StyleDeclarationSet] = 
       Map("fo" -> (StyleDeclarationSet(path / "styles.fo.css", 
         StyleDeclaration(StylePredicate.ElementType("Paragraph"), "font-size" -> "11pt")) ++ FOStyles.default))
+    val foStyles = FOStyles.default.styles + StyleDeclaration(StylePredicate.ElementType("Paragraph"), "font-size" -> "11pt").increaseOrderBy(1) // TODO - 0.16 - remove defaults here once defaults are populated in theme
     val rootElem: RootElement = root(self.titleWithId("Title"), p("bbb"))
     val subElem: RootElement = root(self.titleWithId("Sub Title"), p("ccc"))
 
@@ -207,11 +207,14 @@ class ParallelRendererSpec extends IOSpec
       }
     }
   
-    "render a tree with a single document to HTML using a custom template in an extension bundle" ignore { // TODO - 0.16 - re-activate based on new Theme API
+    "render a tree with a single document to HTML using a custom template in an extension bundle" in {
       new HTMLRenderer {
         val template = TemplateRoot(t("["), TemplateContextReference(CursorKeys.documentContent, required = true), t("]"))
-        //val bundle = BundleProvider.forTheme(HTML.Theme(defaultTemplate = Some(template)))
-        override lazy val renderer = Renderer.of(HTML).io(blocker).parallel[IO].build
+        override lazy val renderer = Renderer.of(HTML).io(blocker).parallel[IO]
+          .withTheme(ThemeBuilder.forInputs(TreeInput[IO]
+            .addTemplate(TemplateDocument(Root / "default.template.html", template))
+            .build(DocumentTypeMatcher.base))
+          ).build
         val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
         val expected = """[<h1 id="title" class="title">Title</h1>
                          |<p>bbb</p>]""".stripMargin
@@ -256,15 +259,17 @@ class ParallelRendererSpec extends IOSpec
       }
     }
   
-    "render a tree with a single document to EPUB.XHTML using a custom template in an extension bundle" ignore { // TODO - 0.16 - re-activate based on new Theme API
+    "render a tree with a single document to EPUB.XHTML using a custom template in a theme" in {
       new EPUB_XHTMLRenderer {
         val template = TemplateRoot(t("["), TemplateContextReference(CursorKeys.documentContent, required = true), t("]"))
         override lazy val renderer = 
           Renderer
             .of(EPUB.XHTML)
-            //.using(BundleProvider.forTheme(EPUB.XHTML.Theme(defaultTemplate = Some(template))))
             .io(blocker)
             .parallel[IO]
+            .withTheme(ThemeBuilder.forInputs(TreeInput[IO]
+              .addTemplate(TemplateDocument(Root / "default.template.epub.xhtml", template))
+              .build(DocumentTypeMatcher.base)))
             .build
         val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
         val expected = """[<h1 id="title" class="title">Title</h1>
@@ -295,15 +300,17 @@ class ParallelRendererSpec extends IOSpec
       }
     }
   
-    "render a tree with two documents to XSL-FO using a custom style sheet in an extension bundle" ignore {
-      // TODO - 0.16 - re-activate based on Theme API
+    "render a tree with two documents to XSL-FO using a custom style sheet in a theme" in {
       new FORenderer {
         override val renderer =
           Renderer
             .of(XSLFO)
-            //.using(BundleProvider.forTheme(XSLFO.Theme(defaultStyles = foStyles()("fo"))))
             .io(blocker)
             .parallel[IO]
+            .withTheme(ThemeBuilder.forInputs(TreeInput[IO]
+              .addStyles(foStyles, Root / "styles.fo.css")
+              .addTemplate(TemplateDocument(Root / "default.template.fo", FOTemplate.default)) // TODO - 0.16 - remove once defaults are populated
+              .build(DocumentTypeMatcher.base)))
             .build
         val input = DocumentTree(Root, List(
           Document(Root / "doc", rootElem),
@@ -352,6 +359,23 @@ class ParallelRendererSpec extends IOSpec
       renderer
         .from(treeRoot)
         .copying(Seq(ByteInput("...", Root / "static1.txt")))
+        .toOutput(StringTreeOutput)
+        .render
+        .map(RenderedTreeViewRoot.apply[IO])
+        .assertEquals(RenderedTreeViewRoot(RenderedTreeView(Root, Nil), staticDocuments = Seq(Root / "static1.txt")))
+    }
+
+    "render a tree with a single static document from a theme" in new ASTRenderer with DocBuilder {
+      val input = DocumentTree(Root, Nil)
+      override def treeRoot = DocumentTreeRoot(input, staticDocuments = Seq(staticDoc(1).path))
+      val theme = ThemeBuilder.forInputs(TreeInput[IO].addString("...", Root / "static1.txt").build(DocumentTypeMatcher.base))
+      Renderer
+        .of(AST)
+        .io(blocker)
+        .parallel[IO]
+        .withTheme(theme)
+        .build
+        .from(treeRoot)
         .toOutput(StringTreeOutput)
         .render
         .map(RenderedTreeViewRoot.apply[IO])

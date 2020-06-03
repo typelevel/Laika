@@ -27,6 +27,7 @@ import laika.io.binary
 import laika.io.text.ParallelRenderer
 import laika.io.text.SequentialRenderer
 import laika.io.model._
+import laika.io.runtime.TreeResultBuilder.{ParserResult, StyleResult, TemplateResult}
 import laika.io.theme.Theme
 import laika.parse.markup.DocumentParser.InvalidDocuments
 import laika.rewrite.TemplateRewriter
@@ -141,24 +142,29 @@ object RendererRuntime {
         RenderedTreeRoot[F](resultRoot, template, finalRoot.config, coverDoc, staticDocs, finalRoot.sourcePaths)
       }
 
-    def applyTemplate (root: DocumentTreeRoot): Either[ConfigError, DocumentTreeRoot] = {
+    def applyTemplate (root: DocumentTreeRoot, themeInputs: Seq[ParserResult]): Either[ConfigError, DocumentTreeRoot] = {
       val suffix = op.renderer.format.fileSuffix
 
       val treeWithTpl: DocumentTree = root.tree.getDefaultTemplate(suffix).fold(
-        root.tree.withDefaultTemplate(TemplateRoot.fallback, suffix)
+        root.tree.withDefaultTemplate(themeInputs.collectFirst { 
+          case TemplateResult(doc, _) if doc.path == Root / s"default.template.$suffix" => doc.content 
+        }.getOrElse(TemplateRoot.fallback), suffix)
       )(_ => root.tree)
       
-      val preparedRoot = root.copy(tree = treeWithTpl, styles = root.styles + (suffix -> root.styles(suffix)))
-
-      TemplateRewriter.applyTemplates(preparedRoot, suffix)
+      TemplateRewriter.applyTemplates(root.copy(tree = treeWithTpl), suffix)
     }
     
+    def getThemeStyles(themeInputs: Seq[ParserResult]): StyleDeclarationSet = themeInputs.collect {
+      case StyleResult (doc, format, _) if format == op.renderer.format.fileSuffix => doc
+    }.reduceLeftOption(_ ++ _).getOrElse(StyleDeclarationSet.empty)
+     
     for {
-      mappedTree <- op.theme.treeTransformer.run(ParsedTree(op.input, op.staticDocuments))
-      finalRoot <- Async[F].fromEither(applyTemplate(mappedTree.root)
-                     .leftMap(e => RendererErrors(Seq(ConfigException(e))))
-                     .flatMap(root => InvalidDocuments.from(root, op.config.failOnMessages).toLeft(root)))
-      styles    = finalRoot.styles(fileSuffix)
+      themeInputs <- op.theme.inputs
+      mappedTree  <- op.theme.treeTransformer.run(ParsedTree(op.input, op.staticDocuments ++ themeInputs.binaryInputs))
+      finalRoot   <- Async[F].fromEither(applyTemplate(mappedTree.root, themeInputs.parsedResults)
+                       .leftMap(e => RendererErrors(Seq(ConfigException(e))))
+                      .flatMap(root => InvalidDocuments.from(root, op.config.failOnMessages).toLeft(root)))
+      styles    = finalRoot.styles(fileSuffix) ++ getThemeStyles(themeInputs.parsedResults)
       static    = mappedTree.staticDocuments
       _         <- validatePaths(static)
       ops       =  renderOps(finalRoot, styles, static)
