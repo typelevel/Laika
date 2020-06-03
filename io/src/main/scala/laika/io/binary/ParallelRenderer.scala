@@ -95,7 +95,7 @@ object ParallelRenderer {
 
     /** The configuration of the renderer for the interim format.
       */
-    val config: OperationConfig = renderer.interimRenderer.config
+    val config: OperationConfig = renderer.interimRenderer.config.withBundles(theme.extensions)
 
     /** Performs the rendering operation based on the library's
       * default runtime implementation, suspended in the effect F.

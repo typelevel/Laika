@@ -90,9 +90,12 @@ object ParallelParser {
       */
     val parserMap: Map[String, MarkupParser] = parsers.toList.flatMap(p => p.fileSuffixes.map((_, p))).toMap
 
-    /** The merged configuration of all markup parsers of this operation.
+    /** The merged configuration of all markup parsers of this operation, including the theme extensions.
       */
-    lazy val config: OperationConfig = parsers.map(_.config).reduceLeft[OperationConfig](_ merge _)
+    lazy val config: OperationConfig = parsers
+      .map(_.config)
+      .reduceLeft[OperationConfig](_ merge _)
+      .withBundles(theme.extensions)
 
     /** The template parser for this operation. If this property is empty
       * templating is not supported for this operation.

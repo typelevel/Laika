@@ -89,7 +89,7 @@ object ParallelRenderer {
 
     /** The configuration of the renderer.
       */
-    val config: OperationConfig = renderer.config
+    val config: OperationConfig = renderer.config.withBundles(theme.extensions)
 
     /** Performs the rendering operation based on the library's default runtime implementation,
       * suspended in the effect F.
