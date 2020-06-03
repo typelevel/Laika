@@ -56,10 +56,8 @@ abstract class Renderer (val config: OperationConfig) {
 
   def format: RenderFormat[Formatter]
 
-  private lazy val theme = config.themeFor(format)
-
   private lazy val renderFunction: (Formatter, Element) => String = (fmt, element) =>
-    theme.customRenderer.applyOrElse[(Formatter, Element), String]((fmt, element), {
+    config.renderOverridesFor(format).value.applyOrElse[(Formatter, Element), String]((fmt, element), {
       case (f, e) => format.defaultRenderer(f, e)
     })
 

@@ -47,7 +47,7 @@ trait RendererBuilderOps[FMT] extends CommonBuilderOps {
   def rendering (customRenderer: PartialFunction[(FMT, Element), String]): ThisType = using(new ExtensionBundle {
     val description: String = "Custom render function"
     override val useInStrictMode: Boolean = true
-    override val themes = Seq(renderFormat.Theme(customRenderer = customRenderer))
+    override val renderOverrides = Seq(renderFormat.Overrides(value = customRenderer))
   })
 
   /**  Specifies the minimum required level for a runtime message to get included into the output by this renderer.

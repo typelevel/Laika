@@ -140,7 +140,7 @@ object RendererRuntime {
         RenderedTreeRoot[F](resultRoot, template, finalRoot.config, coverDoc, staticDocs, finalRoot.sourcePaths)
       }
 
-    def applyTheme (root: DocumentTreeRoot): Either[ConfigError, DocumentTreeRoot] = {
+    def applyTemplate (root: DocumentTreeRoot): Either[ConfigError, DocumentTreeRoot] = {
       val suffix = op.renderer.format.fileSuffix
 
       val treeWithTpl: DocumentTree = root.tree.getDefaultTemplate(suffix).fold(
@@ -153,7 +153,7 @@ object RendererRuntime {
     }
     
     for {
-      finalRoot <- Async[F].fromEither(applyTheme(op.input)
+      finalRoot <- Async[F].fromEither(applyTemplate(op.input)
                      .leftMap(e => RendererErrors(Seq(ConfigException(e))))
                      .flatMap(root => InvalidDocuments.from(root, op.config.failOnMessages).toLeft(root)))
       styles    = finalRoot.styles(fileSuffix)

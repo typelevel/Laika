@@ -101,8 +101,7 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
   /** Provides the parser for template documents, obtained by merging the parsers defined in all extension bundles
     * (or none if no bundle defines a parser). This method does not provide a fallback parser as the lack of any
     * defined parser indicates that templates are not supported for this operation. The parse operation should
-    * therefore ignore all template documents in the input tree and use the default template from the merged theme
-    * for the renderer for its output.
+    * therefore ignore all template documents in the input tree and use a fallback template.
     */
   lazy val templateParser: Option[Parser[TemplateRoot]] = mergedBundle.parsers.templateParser
 
@@ -140,12 +139,11 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
     rewriteRulesFor(cursor.root.target)(cursor)
   }
 
-  /** Provides the theme for the specified render format, obtained by merging all themes defined
-    * for this format and adding the default theme for the format and a fallback theme.
+  /** Provides the overrides for the specified render format.
     */
-  def themeFor[FMT] (format: RenderFormat[FMT]): format.Theme = (mergedBundle.themes.collect {
-    case t: format.Theme => t
-  } :+ format.Theme()).reduceLeft(_ withBase _)
+  def renderOverridesFor[FMT] (format: RenderFormat[FMT]): format.Overrides = (mergedBundle.renderOverrides.collect {
+    case t: format.Overrides => t
+  } :+ format.Overrides()).reduceLeft(_ withBase _)
 
   /** Returns a new instance with the specified extension bundles added to the
     * bundles defined in this instance. The new bundles are treated with higher

@@ -106,7 +106,7 @@ case object ReStructuredText extends MarkupFormat { self =>
       ))
     )
 
-    override val themes = Seq(HTML.Theme(customRenderer = ExtendedHTMLRenderer.custom))
+    override val renderOverrides = Seq(HTML.Overrides(value = ExtendedHTMLRenderer.custom))
   }
 
   val extensions = Seq(

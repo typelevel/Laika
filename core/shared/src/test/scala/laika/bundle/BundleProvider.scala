@@ -112,9 +112,9 @@ object BundleProvider {
 
   }
 
-  def forTheme (theme: RenderTheme): ExtensionBundle = new TestExtensionBundle {
+  def forOverrides (overrides: RenderOverrides): ExtensionBundle = new TestExtensionBundle {
 
-    override def themes: Seq[RenderTheme] = Seq(theme)
+    override def renderOverrides: Seq[RenderOverrides] = Seq(overrides)
 
   }
 

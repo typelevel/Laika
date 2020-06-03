@@ -17,17 +17,14 @@
 package laika.bundle
 
 import laika.ast._
-import laika.collection.TransitionalCollectionOps._
 
-/** Collects templates, styles and custom render functions to form
-  * a theme for a specific output format.
+/** Collects custom render functions that adjust the rendered output of one or more AST nodes.
   *
   * @author Jens Halm
   */
-trait RenderTheme {
+trait RenderOverrides {
 
-  /** The type of the Formatter API a custom render function
-    * for this theme uses.
+  /** The type of the Formatter API a custom render function for these overrides uses.
     */
   type Formatter
 
@@ -35,10 +32,9 @@ trait RenderTheme {
     * renderers for the output format this instance uses.
     *
     * This method expects a function that returns a partial function as the result.
-    * The outer function allows to capture the writer instance to write to and will
-    * only be invoked once. The partial function will then be invoked for each
-    * element it is defined at.
+    * The outer function allows to capture the writer instance to write to and will only be invoked once. 
+    * The partial function will then be invoked for each element it is defined at.
     */
-  def customRenderer: PartialFunction[(Formatter, Element), String]
+  def value: PartialFunction[(Formatter, Element), String]
 
 }

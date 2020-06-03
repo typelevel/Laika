@@ -18,7 +18,7 @@ package laika.factory
 
 import laika.api.builder.RenderConfig
 import laika.ast.{Element, Path, StyleDeclarationSet}
-import laika.bundle.RenderTheme
+import laika.bundle.RenderOverrides
 import laika.render.Indentation
 import laika.rewrite.nav.PathTranslator
 
@@ -86,12 +86,12 @@ trait RenderFormat[FMT] {
   type CustomRenderFunction[FMT] = PartialFunction[(FMT, Element), String] // TODO - move/promote
 
 
-  case class Theme (customRenderer: CustomRenderFunction[FMT] = PartialFunction.empty) extends RenderTheme {
+  case class Overrides (value: CustomRenderFunction[FMT] = PartialFunction.empty) extends RenderOverrides {
 
     type Formatter = FMT
 
-    def withBase (base: Theme): Theme = Theme(
-      customRenderer.orElse(base.customRenderer)
+    def withBase (base: Overrides): Overrides = Overrides(
+      value.orElse(base.value)
     )
 
   }

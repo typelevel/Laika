@@ -17,7 +17,7 @@
 package laika.sbt
 
 import laika.ast._
-import laika.bundle.{ExtensionBundle, RenderTheme}
+import laika.bundle.{ExtensionBundle, RenderOverrides}
 import laika.format._
 import laika.render.{FOFormatter, HTMLFormatter}
 
@@ -41,14 +41,14 @@ trait ExtensionBundles {
     */
   def laikaHtmlRenderer (f: PartialFunction[(HTMLFormatter, Element), String]): ExtensionBundle = new ExtensionBundle {
     val description: String = "Custom HTML render function"
-    override def themes: Seq[RenderTheme] = Seq(HTML.Theme(customRenderer = f))
+    override def renderOverrides: Seq[RenderOverrides] = Seq(HTML.Overrides(value = f))
   }
 
   /** Create an extension bundle based on the specified custom HTML render function.
     */
   def laikaEpubRenderer (f: PartialFunction[(HTMLFormatter, Element), String]): ExtensionBundle = new ExtensionBundle {
     val description: String = "Custom XHTML render function for EPUB"
-    override def themes: Seq[RenderTheme] = Seq(EPUB.XHTML.Theme(customRenderer = f))
+    override def renderOverrides: Seq[RenderOverrides] = Seq(EPUB.XHTML.Overrides(value = f))
   }
 
   /** Create an extension bundle based on the specified custom XSL-FO render function.
@@ -58,7 +58,7 @@ trait ExtensionBundles {
     */
   def laikaFoRenderer (f: PartialFunction[(FOFormatter, Element), String]): ExtensionBundle = new ExtensionBundle {
     val description: String = "Custom XSL-FO render function for PDF"
-    override def themes: Seq[RenderTheme] = Seq(XSLFO.Theme(customRenderer = f))
+    override def renderOverrides: Seq[RenderOverrides] = Seq(XSLFO.Overrides(value = f))
   }
 
   /** Create an extension bundle based on the specified rewrite rule for spans.

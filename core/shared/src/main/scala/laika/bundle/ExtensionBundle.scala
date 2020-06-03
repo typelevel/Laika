@@ -21,7 +21,7 @@ import laika.config.Config
 import laika.parse.css.CSSParsers
 import laika.rewrite.link.SlugBuilder
 
-/** An extension bundle is a collection of parser extensions, rewrite rules, render themes
+/** An extension bundle is a collection of parser extensions, rewrite rules, render overrides
   * and other features to be applied to parse, render and transform operations. It serves
   * as a central registry for all of Laika's extension and customization hooks.
   *
@@ -108,14 +108,12 @@ trait ExtensionBundle { self =>
     */
   def rewriteRules: Seq[DocumentCursor => RewriteRules] = Seq.empty
 
-  /** The themes defined by this bundle, which are a collection of templates, styles
-    * and custom render functions.
+  /** The overrides for renderers defined by this bundle.
     *
-    * A theme is always specific to a particular output format like HTML or PDF.
-    * A bundle can contain multiple themes for the same output format which will be
-    * merged before use.
+    * An override is always specific to a particular output format like HTML or PDF.
+    * A bundle can contain multiple overrides for the same output format which will be merged before use.
     */
-  def themes: Seq[RenderTheme] = Seq.empty
+  def renderOverrides: Seq[RenderOverrides] = Seq.empty
 
   /** Internal API usually only called by other extension bundles.
     *
@@ -161,7 +159,7 @@ trait ExtensionBundle { self =>
        unknown node types */
     override lazy val rewriteRules = base.rewriteRules ++ self.rewriteRules
 
-    override lazy val themes = self.themes ++ base.themes
+    override lazy val renderOverrides = self.renderOverrides ++ base.renderOverrides
 
     override def processExtension: PartialFunction[ExtensionBundle, ExtensionBundle] =
       self.processExtension.orElse(base.processExtension)

@@ -56,7 +56,7 @@ class ThemeConfigSpec extends AnyWordSpec with Matchers {
 
     trait RenderSetup extends BundleSetup {
       val sb = new StringBuilder
-      lazy val testRenderer = config.themeFor(TestFormat).customRenderer
+      lazy val testRenderer = config.renderOverridesFor(TestFormat).value
       val formatter = TextFormatter((_,_) => "", RootElement.empty, Nil, Indentation.default)
 
       def result: String = sb.toString
@@ -64,11 +64,11 @@ class ThemeConfigSpec extends AnyWordSpec with Matchers {
 
     "let an app config override the renderer for an identical element in a previously installed app config" in new RenderSetup {
       val appBundles = Seq(
-        BundleProvider.forTheme(TestFormat.Theme(
-          customRenderer = { case (_, Strong(_, _)) => "strong" }
+        BundleProvider.forOverrides(TestFormat.Overrides(
+          value = { case (_, Strong(_, _)) => "strong" }
         )),
-        BundleProvider.forTheme(TestFormat.Theme(
-          customRenderer = { case (_, Strong(_, _)) => "override" }
+        BundleProvider.forOverrides(TestFormat.Overrides(
+          value = { case (_, Strong(_, _)) => "override" }
         ))
       )
 
