@@ -39,8 +39,7 @@ import laika.parse.markup.DocumentParser.{InvalidDocuments, ParserError, ParserI
   */
 object ParserRuntime {
   
-  /** Run the specified parser operation for a single input,
-    * producing a single document.
+  /** Run the specified parser operation for a single input, producing a single document.
     */
   def run[F[_]: Async: Runtime] (op: SequentialParser.Op[F]): F[Document] = {
     for {
@@ -50,8 +49,7 @@ object ParserRuntime {
           
   }
   
-  /** Run the specified parser operation for an entire input tree,
-    * producing an AST tree.
+  /** Run the specified parser operation for an entire input tree, producing an AST tree.
     */
   def run[F[_]: Async: Runtime] (op: ParallelParser.Op[F]): F[ParsedTree[F]] = {
     
@@ -64,7 +62,7 @@ object ParserRuntime {
         .flatMap(op.parserMap.get)
         .toValidNel(NoMatchingParser(path, multiple.toList.flatMap(_.fileSuffixes).toSet))
     }
-      
+    
     def parseAll(inputs: TreeInput[F]): F[ParsedTree[F]] = {
       
       def validateInputPaths: F[Unit] = {
@@ -120,7 +118,11 @@ object ParserRuntime {
       } yield result
     }
     
-    op.input.flatMap(parseAll)
+    for {
+      userInputs  <- op.input
+      themeInputs <- op.theme.inputs
+      result      <- parseAll(userInputs ++ themeInputs)
+    } yield result
     
   }
 
