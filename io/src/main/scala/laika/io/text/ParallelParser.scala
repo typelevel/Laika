@@ -72,6 +72,10 @@ object ParallelParser {
       */
     def withAlternativeParser (parser: ParserBuilder): Builder[F] = copy(parsers = parsers.append(parser.build))
 
+    /** Applies the specified theme to this parser, overriding any previously specified themes.
+      */
+    def withTheme (theme: Theme[F]): Builder[F] = copy(theme = theme)
+
     /** Final builder step that creates a parallel parser.
       */
     def build: ParallelParser[F] = new ParallelParser[F](parsers, theme)

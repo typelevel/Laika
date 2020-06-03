@@ -30,7 +30,7 @@ import laika.bundle.{BundleProvider, ExtensionBundle}
 import laika.config.Origin.TreeScope
 import laika.config.{ConfigBuilder, Origin}
 import laika.format.{Markdown, ReStructuredText}
-import laika.io.helper.InputBuilder
+import laika.io.helper.{InputBuilder, ThemeBuilder}
 import laika.io.implicits._
 import laika.io.model.{InputTreeBuilder, ParsedTree, TreeInput}
 import laika.io.runtime.ParserRuntime.{DuplicatePath, ParserErrors}
@@ -48,11 +48,12 @@ class ParallelParserSpec extends IOSpec
 
   trait ParserSetup {
 
-    val defaultParser: ParallelParser[IO] = MarkupParser
+    val defaultBuilder: ParallelParser.Builder[IO] = MarkupParser
       .of(Markdown)
       .io(blocker)
       .parallel[IO]
-      .build
+    
+    val defaultParser: ParallelParser[IO] = defaultBuilder.build
     
     def parserWithBundle (bundle: ExtensionBundle): ParallelParser[IO] = 
       MarkupParser
@@ -468,10 +469,16 @@ class ParallelParserSpec extends IOSpec
         Documents(Markup, List(docView(1), docView(2))),
         Subtrees(List(subtree1, subtree2))
       ))
+      def useTheme: Boolean = false
       def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO]
-      lazy val input: IO[TreeInput[IO]] = addDoc(TreeInput[IO].addDirectory(dirname)).build(defaultParser.config.docTypeMatcher)
-
-      def run (): Assertion = defaultParser.fromInput(input).parse.map(toTreeView).assertEquals(treeResult)
+      def build (builder: InputTreeBuilder[IO]): IO[TreeInput[IO]] = builder.build(defaultParser.config.docTypeMatcher)
+      lazy val input: IO[TreeInput[IO]] = 
+        if (useTheme) build(TreeInput[IO].addDirectory(dirname))
+        else build(addDoc(TreeInput[IO].addDirectory(dirname)))
+      lazy val parser: ParallelParser[IO] = if (useTheme) defaultBuilder.withTheme(ThemeBuilder.forInputs(build(addDoc(TreeInput[IO])))).build
+        else defaultBuilder.build
+      
+      def run (): Assertion = parser.fromInput(input).parse.map(toTreeView).assertEquals(treeResult)
     }
     
     trait ExtraDocSetup extends CustomInputSetup {
@@ -506,6 +513,13 @@ class ParallelParserSpec extends IOSpec
       run()
     }
 
+    "read a directory from the file system plus one AST input from a theme" in new ExtraDocSetup {
+      override val useTheme: Boolean = true
+      def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO] =
+        input.addDocument(Document(Root / "dir2" / "doc7.md", RootElement(Paragraph("Doc7"))))
+      run()
+    }
+
     "read a directory from the file system plus one string input" in new ExtraDocSetup {
       def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO] = input.addString("Doc7", Root / "dir2" / "doc7.md")
       run()
@@ -527,6 +541,12 @@ class ParallelParserSpec extends IOSpec
       run()
     }
 
+    "read a directory from the file system plus one extra template from a string in a theme" in new ExtraTemplateSetup {
+      override val useTheme: Boolean = true
+      def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO] = input.addString("Template", templatePath)
+      run()
+    }
+
     "read a directory from the file system plus one extra template from an AST" in new ExtraTemplateSetup {
       def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO] = 
         input.addTemplate(TemplateDocument(templatePath, TemplateRoot(TemplateString("Template"))))
@@ -534,6 +554,12 @@ class ParallelParserSpec extends IOSpec
     }
 
     "read a directory from the file system plus one extra config document from a string" in new ExtraConfigSetup {
+      def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO] = input.addString("foo = 7", configPath)
+      run()
+    }
+
+    "read a directory from the file system plus one extra config document from a string in a theme" in new ExtraConfigSetup {
+      override val useTheme: Boolean = true
       def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO] = input.addString("foo = 7", configPath)
       run()
     }
@@ -599,6 +625,13 @@ class ParallelParserSpec extends IOSpec
       val treeInput = TreeInput[IO].addDirectory(dir1).addDirectory(dir2).build(defaultParser.config.docTypeMatcher)
 
       defaultParser.fromInput(treeInput).parse.map(toTreeView).assertEquals(treeResult)
+    }
+
+    "merge a directory with a directory from a theme" in new MergedDirectorySetup {
+      val treeInput = TreeInput[IO].addDirectory(dir1).build(defaultParser.config.docTypeMatcher)
+      val themeInput = TreeInput[IO].addDirectory(dir2).build(defaultParser.config.docTypeMatcher)
+
+      defaultBuilder.withTheme(ThemeBuilder.forInputs(themeInput)).build.fromInput(treeInput).parse.map(toTreeView).assertEquals(treeResult)
     }
 
     "read a directory from the file system containing a file with non-ASCII characters" in new ParserSetup {
