@@ -41,7 +41,7 @@ object TransformerRuntime {
     * a character output format.
     */
   def run[F[_]: Async: Runtime] (op: ParallelTransformer.Op[F]): F[RenderedTreeRoot[F]] = for {
-    tree       <- ParallelParser.Op(op.parsers, op.input).parse
+    tree       <- ParallelParser.Op(op.parsers, op.theme, op.input).parse
     mappedTree <- op.mapper.run(tree)
     res        <- ParallelRenderer.Op(op.renderer, op.theme, mappedTree.root, op.output, mappedTree.staticDocuments).render
   } yield res
@@ -58,7 +58,7 @@ object TransformerRuntime {
     * a binary output format.
     */
   def run[F[_]: Async: Runtime] (op: binary.ParallelTransformer.Op[F]): F[Unit] = for {
-    tree       <- ParallelParser.Op(op.parsers, op.input).parse
+    tree       <- ParallelParser.Op(op.parsers, op.theme, op.input).parse
     mappedTree <- op.mapper.run(tree)
     res        <- binary.ParallelRenderer.Op[F](op.renderer, op.theme, mappedTree.root, op.output, mappedTree.staticDocuments).render
   } yield res

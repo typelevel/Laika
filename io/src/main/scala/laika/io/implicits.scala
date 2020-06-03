@@ -115,7 +115,7 @@ object implicits {
 
         def parallel[F[_] : Async : ContextShift : Parallel] (parallelism: Int): ParallelParser.Builder[F] = {
           implicit val runtime: Runtime[F] = Runtime.parallel(blocker, parallelism)
-          new ParallelParser.Builder[F](NonEmptyList.of(builder.build))
+          new ParallelParser.Builder[F](NonEmptyList.of(builder.build), Theme.default)
         }
       }
   }

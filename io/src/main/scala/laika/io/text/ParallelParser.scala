@@ -17,22 +17,23 @@
 package laika.io.text
 
 import cats.data.NonEmptyList
-import cats.effect.{Async, Blocker, ContextShift}
+import cats.effect.Async
 import laika.api.MarkupParser
 import laika.api.builder.{OperationConfig, ParserBuilder}
 import laika.ast.{DocumentType, StyleDeclarationSet, TemplateDocument, TextDocumentType}
 import laika.io.descriptor.ParserDescriptor
 import laika.io.model.{ParsedTree, TreeInput}
 import laika.io.ops.ParallelInputOps
+import laika.io.runtime.{ParserRuntime, Runtime}
+import laika.io.theme.Theme
 import laika.parse.markup.DocumentParser
 import laika.parse.markup.DocumentParser.{ParserError, ParserInput}
-import laika.io.runtime.{ParserRuntime, Runtime}
 
 /** Parser for a tree of input documents.
   *
   * @author Jens Halm
   */
-class ParallelParser[F[_]: Async: Runtime] (parsers: NonEmptyList[MarkupParser]) extends ParallelInputOps[F] {
+class ParallelParser[F[_]: Async: Runtime] (parsers: NonEmptyList[MarkupParser], theme: Theme[F]) extends ParallelInputOps[F] {
 
   type Result = ParallelParser.Op[F]
 
@@ -42,7 +43,7 @@ class ParallelParser[F[_]: Async: Runtime] (parsers: NonEmptyList[MarkupParser])
 
   lazy val config: OperationConfig = parsers.map(_.config).reduceLeft[OperationConfig](_ merge _)
 
-  def fromInput (input: F[TreeInput[F]]): ParallelParser.Op[F] = ParallelParser.Op(parsers, input)
+  def fromInput (input: F[TreeInput[F]]): ParallelParser.Op[F] = ParallelParser.Op(parsers, theme, input)
 
 }
 
@@ -53,7 +54,7 @@ object ParallelParser {
   /** Builder step that allows to specify the execution context
     * for blocking IO and CPU-bound tasks.
     */
-  case class Builder[F[_]: Async: Runtime] (parsers: NonEmptyList[MarkupParser]) {
+  case class Builder[F[_]: Async: Runtime] (parsers: NonEmptyList[MarkupParser], theme: Theme[F]) {
 
     /** Specifies an additional parser for text markup.
       * 
@@ -73,7 +74,7 @@ object ParallelParser {
 
     /** Final builder step that creates a parallel parser.
       */
-    def build: ParallelParser[F] = new ParallelParser[F](parsers)
+    def build: ParallelParser[F] = new ParallelParser[F](parsers, theme)
 
   }
 
@@ -83,7 +84,7 @@ object ParallelParser {
     * default runtime implementation or by developing a custom runner that performs
     * the parsing based on this operation's properties.
     */
-  case class Op[F[_]: Async: Runtime] (parsers: NonEmptyList[MarkupParser], input: F[TreeInput[F]]) {
+  case class Op[F[_]: Async: Runtime] (parsers: NonEmptyList[MarkupParser], theme: Theme[F], input: F[TreeInput[F]]) {
 
     /** Maps the suffixes of the supported markup formats to the corresponding parser.
       */

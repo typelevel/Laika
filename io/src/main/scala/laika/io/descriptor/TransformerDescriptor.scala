@@ -24,8 +24,8 @@ import laika.ast.{DocumentTree, DocumentTreeRoot, RootElement}
 import laika.io.{binary, text}
 import laika.io.runtime.Runtime
 
-/** Provides a description of a transform operation, including the parsers, renderers
-  * and extension bundles used, as well as the sources and output target.
+/** Provides a description of a transform operation, including the parsers, renderers and extension bundles used,
+  * as well as the sources and output target.
   * This functionality is mostly intended for tooling support.
   * 
   * @author Jens Halm
@@ -78,7 +78,7 @@ object TransformerDescriptor {
   } yield apply(parserDesc, renderDesc)
 
   def create[F[_]: Async: Runtime] (op: text.ParallelTransformer.Op[F]): F[TransformerDescriptor] = for {
-    parserDesc <- ParserDescriptor.create(text.ParallelParser.Op(op.parsers, op.input))
+    parserDesc <- ParserDescriptor.create(text.ParallelParser.Op(op.parsers, op.theme, op.input))
     renderDesc <- RendererDescriptor.create(text.ParallelRenderer.Op(op.renderer, op.theme, DocumentTreeRoot(DocumentTree(Root, Nil)), op.output, Nil))
   } yield apply(parserDesc, renderDesc)
 
@@ -88,7 +88,7 @@ object TransformerDescriptor {
   } yield apply(parserDesc, renderDesc)
 
   def create[F[_]: Async: Runtime] (op: binary.ParallelTransformer.Op[F]): F[TransformerDescriptor] = for {
-    parserDesc <- ParserDescriptor.create(text.ParallelParser.Op(op.parsers, op.input))
+    parserDesc <- ParserDescriptor.create(text.ParallelParser.Op(op.parsers, op.theme, op.input))
     renderDesc <- RendererDescriptor.create(binary.ParallelRenderer.Op(op.renderer, op.theme, DocumentTreeRoot(DocumentTree(Root, Nil)), op.output, Nil))
   } yield apply(parserDesc, renderDesc)
 
