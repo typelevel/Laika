@@ -22,7 +22,7 @@ import laika.ast.DocumentType.{Markup, Static, Template}
 import laika.ast.Path.Root
 import laika.bundle.BundleProvider.TestExtensionBundle
 import laika.bundle.ExtensionBundle.LaikaDefaults
-import laika.bundle.{BundleProvider, ExtensionBundle}
+import laika.bundle.{BundleOrigin, BundleProvider, ExtensionBundle}
 import laika.factory.MarkupFormat
 import laika.markdown.bundle.VerbatimHTML
 import laika.markdown.github.GitHubFlavor
@@ -59,9 +59,12 @@ class OperationConfigSpec extends AnyWordSpec with Matchers {
     
     object UserBundle1 extends TestExtensionBundle 
     object UserBundle2 extends TestExtensionBundle 
+    object ThemeBundle extends TestExtensionBundle {
+      override val origin: BundleOrigin = BundleOrigin.Theme
+    } 
     
     "merge bundles based on their origin and configuration order" in {
-      val bundles1 = Seq(UserBundle1, LaikaDefaults, GitHubFlavor, UserBundle2)
+      val bundles1 = Seq(UserBundle1, LaikaDefaults, ThemeBundle, GitHubFlavor, UserBundle2)
       val bundles2 = Seq(VerbatimHTML, UserBundle1, ExtensionBundle.Empty)
       val config1 = OperationConfig(bundles1)
       val config2 = OperationConfig(bundles2)
@@ -70,6 +73,7 @@ class OperationConfigSpec extends AnyWordSpec with Matchers {
         ExtensionBundle.Empty,
         GitHubFlavor,
         VerbatimHTML,
+        ThemeBundle,
         UserBundle1,
         UserBundle2
       )

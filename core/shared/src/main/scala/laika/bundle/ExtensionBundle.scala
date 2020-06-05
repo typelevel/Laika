@@ -143,7 +143,7 @@ trait ExtensionBundle { self =>
 
     val description: String = "Merged Bundle"
 
-    override lazy val origin: BundleOrigin = if (this.origin == base.origin) origin else BundleOrigin.Mixed
+    override lazy val origin: BundleOrigin = if (self.origin == base.origin) self.origin else BundleOrigin.Mixed
     
     override val useInStrictMode = self.useInStrictMode && base.useInStrictMode
 

@@ -44,7 +44,10 @@ class ParallelTransformer[F[_]: Async: Runtime] (parsers: NonEmptyList[MarkupPar
 
   val docType: TextDocumentType = DocumentType.Markup
 
-  val config: OperationConfig = parsers.map(_.config).reduceLeft(_ merge _)
+  lazy val config: OperationConfig = parsers
+    .map(_.config)
+    .reduceLeft[OperationConfig](_ merge _)
+    .withBundles(theme.extensions)
 
   def fromInput (input: F[TreeInput[F]]): ParallelTransformer.OutputOps[F] = 
     ParallelTransformer.OutputOps(parsers, renderer, theme, input, mapper)

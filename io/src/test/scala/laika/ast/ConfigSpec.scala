@@ -29,7 +29,7 @@ import laika.format.{Markdown, ReStructuredText}
 import laika.io.{FileIO, IOSpec}
 import laika.io.implicits._
 import laika.io.model.{ParsedTree, TreeInput}
-import laika.io.helper.InputBuilder
+import laika.io.helper.{InputBuilder, ThemeBuilder}
 import laika.rewrite.TemplateRewriter
 
 
@@ -316,7 +316,7 @@ class ConfigSpec extends IOSpec
       rstParser.fromInput(builder(inputs, rstMatcher)).parse.map(toResult).assertEquals(expected)
     }
 
-    "merge configuration found in documents, templates, directories and programmatic setup" in new Inputs {
+    "merge configuration found in documents, templates, directories, programmatic setup, bundles and themes" in new Inputs {
 
       val template =
         """{% key2: val2 %}
@@ -324,7 +324,8 @@ class ConfigSpec extends IOSpec
           |${key2}
           |${key3}
           |${key4}
-          |${key5}""".stripMargin
+          |${key5}
+          |${key6}""".stripMargin
 
       val md =
         """{% key1: val1 %}
@@ -333,6 +334,7 @@ class ConfigSpec extends IOSpec
       val config3 = "key3: val3"
       val config4 = "key4: val4"
       val config5 = "key5: val5"
+      val config6 = "key6: val6"
 
       val inputs = Seq(
         Root / "directory.conf" -> config4,
@@ -343,7 +345,7 @@ class ConfigSpec extends IOSpec
 
       val expected = root(
         TemplateRoot(
-          (1 to 5) map (n => List(TemplateString("val" + n))) reduce (_ ++ List(TemplateString("\n")) ++ _)
+          (1 to 6) map (n => List(TemplateString("val" + n))) reduce (_ ++ List(TemplateString("\n")) ++ _)
         )
       )
 
@@ -352,6 +354,7 @@ class ConfigSpec extends IOSpec
         .using(BundleProvider.forConfigString(config5))
         .io(blocker)
         .parallel[IO]
+        .withTheme(ThemeBuilder.forBundle(BundleProvider.forConfigString(config6)))
         .build
         .fromInput(builder(inputs, mdMatcher))
         .parse

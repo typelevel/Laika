@@ -187,19 +187,10 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
     *  Alternative settings defined in this instance will have precedence.
     */
   def merge (other: OperationConfig): OperationConfig = copy(
-    bundles = combineBundles(this.bundles, other.bundles),
+    bundles = OperationConfig.sortBundles(this.bundles ++ other.bundles),
     bundleFilter = this.bundleFilter.merge(other.bundleFilter)
   )
   
-  private val originOrder: List[BundleOrigin] = List(
-    BundleOrigin.Library, BundleOrigin.Parser, BundleOrigin.Theme, BundleOrigin.Mixed, BundleOrigin.User
-  )
-  private def combineBundles(b1: Seq[ExtensionBundle], b2: Seq[ExtensionBundle]): Seq[ExtensionBundle] = {
-    (b1 ++ b2).distinct.zipWithIndex.sortBy { case (bundle, index) =>
-      (originOrder.indexOf(bundle.origin), index)
-    }.map(_._1)
-  }
-
 }
 
 /** Represents the subset of OperationConfig relevant for renderers.
@@ -231,6 +222,14 @@ case class BundleFilter (strict: Boolean = false, acceptRawContent: Boolean = fa
   */
 object OperationConfig {
 
+  private val originOrder: List[BundleOrigin] = List(
+    BundleOrigin.Library, BundleOrigin.Parser, BundleOrigin.Theme, BundleOrigin.Mixed, BundleOrigin.User
+  )
+  
+  def sortBundles (bundles: Seq[ExtensionBundle]): Seq[ExtensionBundle] = bundles.distinct.zipWithIndex.sortBy { case (bundle, index) =>
+    (originOrder.indexOf(bundle.origin), index)
+  }.map(_._1)
+  
   /** Merges a sequence of bundles, including the invocation of their `processExtension` methods that allows
     * bundles to modify other bundles. The sequence is treated with decreasing precedence for features where
     * a bundle may overwrite other bundles.
@@ -246,8 +245,7 @@ object OperationConfig {
         processBundles(newPast, newPending)
     }
 
-    processBundles(Nil, bundles).reverse.reduceLeftOption(_ withBase _).getOrElse(ExtensionBundle.Empty)
-
+    processBundles(Nil, sortBundles(bundles)).reverse.reduceLeftOption(_ withBase _).getOrElse(ExtensionBundle.Empty)
   }
 
   /** A configuration instance with all the libraries default extension bundles.

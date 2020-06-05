@@ -41,7 +41,10 @@ class ParallelParser[F[_]: Async: Runtime] (parsers: NonEmptyList[MarkupParser],
 
   val docType: TextDocumentType = DocumentType.Markup
 
-  lazy val config: OperationConfig = parsers.map(_.config).reduceLeft[OperationConfig](_ merge _)
+  lazy val config: OperationConfig = parsers
+    .map(_.config)
+    .reduceLeft[OperationConfig](_ merge _)
+    .withBundles(theme.extensions)
 
   def fromInput (input: F[TreeInput[F]]): ParallelParser.Op[F] = ParallelParser.Op(parsers, theme, input)
 

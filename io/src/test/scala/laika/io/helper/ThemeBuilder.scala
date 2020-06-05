@@ -18,6 +18,7 @@ package laika.io.helper
 
 import cats.data.Kleisli
 import cats.effect.IO
+import laika.bundle.ExtensionBundle
 import laika.io.model.TreeInput
 import laika.io.theme.Theme
 
@@ -27,6 +28,14 @@ object ThemeBuilder {
   def forInputs (themeInputs: IO[TreeInput[IO]]): Theme[IO] = new Theme[IO] {
     def inputs = themeInputs
     def extensions = Nil
+    def treeTransformer = Kleisli(IO.pure)
+  }
+
+  def forBundle (bundle: ExtensionBundle): Theme[IO] = forBundles(Seq(bundle))
+
+  def forBundles (bundles: Seq[ExtensionBundle]): Theme[IO] = new Theme[IO] {
+    def inputs = IO.pure(TreeInput.empty)
+    def extensions = bundles
     def treeTransformer = Kleisli(IO.pure)
   }
   
