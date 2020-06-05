@@ -226,9 +226,8 @@ object OperationConfig {
     BundleOrigin.Library, BundleOrigin.Parser, BundleOrigin.Theme, BundleOrigin.Mixed, BundleOrigin.User
   )
   
-  def sortBundles (bundles: Seq[ExtensionBundle]): Seq[ExtensionBundle] = bundles.distinct.zipWithIndex.sortBy { case (bundle, index) =>
-    (originOrder.indexOf(bundle.origin), index)
-  }.map(_._1)
+  def sortBundles (bundles: Seq[ExtensionBundle]): Seq[ExtensionBundle] = 
+    bundles.distinct.sortBy(b => originOrder.indexOf(b.origin))
   
   /** Merges a sequence of bundles, including the invocation of their `processExtension` methods that allows
     * bundles to modify other bundles. The sequence is treated with decreasing precedence for features where
