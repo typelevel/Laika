@@ -18,9 +18,10 @@ package laika.io.helper
 
 import cats.data.Kleisli
 import cats.effect.IO
+import laika.ast.Document
 import laika.bundle.ExtensionBundle
-import laika.io.model.TreeInput
-import laika.io.theme.Theme
+import laika.io.model.{ParsedTree, TreeInput}
+import laika.io.theme.{Theme, TreeTransformer}
 
 
 object ThemeBuilder {
@@ -37,6 +38,12 @@ object ThemeBuilder {
     def inputs = IO.pure(TreeInput.empty)
     def extensions = bundles
     def treeTransformer = Kleisli(IO.pure)
+  }
+  
+  def forDocumentMapper (f: Document => Document): Theme[IO] = new Theme[IO] {
+    def inputs = IO.pure(TreeInput.empty)
+    def extensions = Nil
+    def treeTransformer = TreeTransformer[IO].mapDocuments(f)
   }
   
 }

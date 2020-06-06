@@ -29,7 +29,7 @@ import laika.directive.Templates
 import laika.format._
 import laika.io.descriptor.TransformerDescriptor
 import laika.io.helper.OutputBuilder._
-import laika.io.helper.{InputBuilder, RenderResult}
+import laika.io.helper.{InputBuilder, RenderResult, ThemeBuilder}
 import laika.io.implicits._
 import laika.io.model.{StringTreeOutput, TreeInput}
 import laika.io.text.ParallelTransformer
@@ -64,6 +64,8 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
     def transformWithDirective (directive: Templates.Directive): IO[RenderedTreeViewRoot] = transformWithBundle(BundleProvider.forTemplateDirective(directive))
     def transformWithDocumentMapper (f: Document => Document): IO[RenderedTreeViewRoot] = 
       transformWith(Transformer.from(Markdown).to(AST).io(blocker).parallel[IO].mapDocuments(f).build)
+    def transformWithDocumentMapperInTheme (f: Document => Document): IO[RenderedTreeViewRoot] =
+      transformWith(Transformer.from(Markdown).to(AST).io(blocker).parallel[IO].withTheme(ThemeBuilder.forDocumentMapper(f)).build)
     
     def describe: IO[TransformerDescriptor] = Transformer
       .from(Markdown)
@@ -166,6 +168,28 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
         Root / "cover.md" -> Contents.name
       )
       transformWithDocumentMapper(doc => doc.copy(content = doc.content.copy(content = Seq(Paragraph("foo-bar")))))
+        .assertEquals(RenderedTreeViewRoot(
+          root(List(
+            TitleDocument(RenderedDocumentView(Root / "index.txt", mappedResult)),
+            docs((Root / "rootDoc.txt", mappedResult)),
+            trees(
+              (Root / "sub", List(docs(
+                (Root / "sub" / "subDoc.txt", mappedResult)
+              )))
+            )
+          )),
+          Some(RenderedDocumentView(Root / "cover.txt", mappedResult))
+        ))
+    }
+
+    "transform a tree with a cover, title document and two content documents with a document mapper from a theme" in new TreeTransformer {
+      val inputs = Seq(
+        Root / "rootDoc.md" -> Contents.name,
+        Root / "sub" / "subDoc.md" -> Contents.name,
+        Root / "README.md" -> Contents.name,
+        Root / "cover.md" -> Contents.name
+      )
+      transformWithDocumentMapperInTheme(doc => doc.copy(content = doc.content.copy(content = Seq(Paragraph("foo-bar")))))
         .assertEquals(RenderedTreeViewRoot(
           root(List(
             TitleDocument(RenderedDocumentView(Root / "index.txt", mappedResult)),
