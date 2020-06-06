@@ -24,7 +24,7 @@ import laika.api.Renderer
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
-import laika.bundle.DocumentTypeMatcher
+import laika.bundle.{BundleOrigin, BundleProvider, DocumentTypeMatcher}
 import laika.format._
 import laika.io.helper.OutputBuilder._
 import laika.io.helper.{InputBuilder, RenderResult, ThemeBuilder}
@@ -203,6 +203,41 @@ class ParallelRendererSpec extends IOSpec
         val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)), templates = Seq(template))
         val expected = """[<h1 id="title" class="title">Title</h1>
           |<p>bbb</p>]""".stripMargin
+        renderedTree.assertEquals(RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(Root / "doc.html", expected))))))
+      }
+    }
+
+    "render a tree with a single document to HTML using a render override in a theme" in {
+      new HTMLRenderer {
+        val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
+        override lazy val renderer = Renderer.of(HTML).io(blocker).parallel[IO]
+          .withTheme(ThemeBuilder.forBundle(BundleProvider.forOverrides(HTML.Overrides {
+            case (fmt, Text(txt, _)) => fmt.text(txt + "!")
+          }, origin = BundleOrigin.Theme))
+          ).build
+        val expected = """<h1 id="title" class="title">Title!</h1>
+                         |<p>bbb!</p>""".stripMargin
+        renderedTree.assertEquals(RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(Root / "doc.html", expected))))))
+      }
+    }
+
+    "render a tree with a single document to HTML with a render override that shadows an override in a theme" in {
+      new HTMLRenderer {
+        val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
+        override lazy val renderer = Renderer
+          .of(HTML)
+          .using(BundleProvider.forOverrides(HTML.Overrides {
+            case (fmt, Text(txt, _)) => fmt.text(txt + "?")
+          }))
+          .io(blocker)
+          .parallel[IO]
+          .withTheme(ThemeBuilder.forBundle(BundleProvider.forOverrides(HTML.Overrides {
+            case (fmt, Text(txt, _)) => fmt.text(txt + "!")
+          }, origin = BundleOrigin.Theme))
+          )
+          .build
+        val expected = """<h1 id="title" class="title">Title?</h1>
+                         |<p>bbb?</p>""".stripMargin
         renderedTree.assertEquals(RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(Root / "doc.html", expected))))))
       }
     }

@@ -20,6 +20,7 @@ import java.io.File
 
 import cats.effect.Async
 import cats.implicits._
+import laika.api.Renderer
 import laika.ast.Path.Root
 import laika.ast._
 import laika.config.{ConfigError, ConfigException}
@@ -84,8 +85,9 @@ object RendererRuntime {
 
     def renderDocuments (finalRoot: DocumentTreeRoot, styles: StyleDeclarationSet)(output: Path => TextOutput[F]): Seq[F[RenderResult]] = finalRoot.allDocuments.map { document =>
       val pathTranslator = ConfigurablePathTranslator(finalRoot.config, fileSuffix)
+      val renderer = Renderer.of(op.renderer.format).withConfig(op.config).build
       val outputPath = pathTranslator.translate(document.path)
-      val textOp = SequentialRenderer.Op(op.renderer, document.content, outputPath, output(outputPath))
+      val textOp = SequentialRenderer.Op(renderer, document.content, outputPath, output(outputPath))
       run(textOp, pathTranslator, styles).map { res =>
         Right(RenderedDocument(outputPath, document.title, document.sections, res)): RenderResult
       }
