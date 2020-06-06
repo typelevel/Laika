@@ -93,10 +93,6 @@ object ParallelParser {
     */
   case class Op[F[_]: Async: Runtime] (parsers: NonEmptyList[MarkupParser], theme: Theme[F], input: F[TreeInput[F]]) {
 
-    /** Maps the suffixes of the supported markup formats to the corresponding parser.
-      */
-    val parserMap: Map[String, MarkupParser] = parsers.toList.flatMap(p => p.fileSuffixes.map((_, p))).toMap
-
     /** The merged configuration of all markup parsers of this operation, including the theme extensions.
       */
     lazy val config: OperationConfig = parsers

@@ -56,10 +56,17 @@ object ParserRuntime {
     import DocumentType.{Config => ConfigType, _}
     import TreeResultBuilder._
 
-    def selectParser (path: Path): ValidatedNel[Throwable, MarkupParser] = op.parsers match {
+    val parsers = op.parsers.map(p => MarkupParser
+      .of(p.format)
+      .withConfig(p.config.withBundles(op.theme.extensions))
+      .build
+    )
+    val parserMap: Map[String, MarkupParser] = parsers.toList.flatMap(p => p.fileSuffixes.map((_, p))).toMap
+    
+    def selectParser (path: Path): ValidatedNel[Throwable, MarkupParser] = parsers match {
       case NonEmptyList(parser, Nil) => parser.validNel
       case multiple => path.suffix
-        .flatMap(op.parserMap.get)
+        .flatMap(parserMap.get)
         .toValidNel(NoMatchingParser(path, multiple.toList.flatMap(_.fileSuffixes).toSet))
     }
     

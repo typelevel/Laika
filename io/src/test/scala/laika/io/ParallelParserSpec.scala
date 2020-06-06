@@ -23,10 +23,10 @@ import cats.effect.IO
 import laika.api.MarkupParser
 import laika.ast.DocumentType._
 import laika.ast.Path.Root
-import laika.ast.{StylePredicate, _}
 import laika.ast.helper.DocumentViewBuilder.{viewOf, _}
 import laika.ast.helper.ModelBuilder
-import laika.bundle.{BundleProvider, ExtensionBundle}
+import laika.ast.{StylePredicate, _}
+import laika.bundle.{BundleOrigin, BundleProvider, ExtensionBundle, SpanParser, SpanParserBuilder}
 import laika.config.Origin.TreeScope
 import laika.config.{ConfigBuilder, Origin}
 import laika.format.{Markdown, ReStructuredText}
@@ -61,6 +61,23 @@ class ParallelParserSpec extends IOSpec
         .using(bundle)
         .io(blocker)
         .parallel[IO]
+        .build
+
+    def parserWithTheme (bundle: ExtensionBundle): ParallelParser[IO] =
+      MarkupParser
+        .of(Markdown)
+        .io(blocker)
+        .parallel[IO]
+        .withTheme(ThemeBuilder.forBundle(bundle))
+        .build
+
+    def parserWithThemeAndBundle (themeBundle: ExtensionBundle, appBundle: ExtensionBundle): ParallelParser[IO] =
+      MarkupParser
+        .of(Markdown)
+        .using(appBundle)
+        .io(blocker)
+        .parallel[IO]
+        .withTheme(ThemeBuilder.forBundle(themeBundle))
         .build
 
     def toTreeView (parsed: ParsedTree[IO]): TreeView = viewOf(parsed.root.tree)
@@ -457,7 +474,61 @@ class ParallelParserSpec extends IOSpec
       ))
       defaultParser.fromDirectory(dirname).parse.map(toTreeView).assertEquals(treeResult)
     }
-    
+
+    trait SpanParserSetup extends ParserSetup {
+
+      import TextParsers._
+      import laika.parse.implicits._
+      
+      def themeParsers: Seq[SpanParserBuilder] = Nil
+      def appParsers: Seq[SpanParserBuilder] = Nil
+
+      case class DecoratedSpan (deco: Char, text: String) extends Span {
+        val options: Options = NoOpt
+        type Self = DecoratedSpan
+        def withOptions (options: Options): DecoratedSpan = this
+      }
+
+      def spanFor (deco: Char): SpanParserBuilder = spanFor(deco, deco)
+
+      def spanFor (deco: Char, overrideDeco: Char): SpanParserBuilder =
+        SpanParser.standalone {
+          (deco.toString ~> anyNot(' ')).map(DecoratedSpan(overrideDeco, _))
+        }
+      
+      val input: IO[TreeInput[IO]] = TreeInput[IO]
+        .addString("aaa +bbb ccc", Root / "doc.md")
+        .build(defaultParser.config.docTypeMatcher)
+      
+      def parse: IO[RootElement] = parserWithThemeAndBundle(
+        BundleProvider.forMarkupParser(spanParsers = themeParsers, origin = BundleOrigin.Theme),
+        BundleProvider.forMarkupParser(spanParsers = appParsers)
+      ).fromInput(input).parse.map(_.root.allDocuments.head.content)
+    }
+
+    "use a span parser from a theme" in new SpanParserSetup {
+      override def themeParsers: Seq[SpanParserBuilder] = Seq(spanFor('+'))
+
+      val bundle = BundleProvider.forMarkupParser(spanParsers = Seq(spanFor('+')))
+
+      parse.assertEquals(RootElement(Paragraph(
+        Text("aaa "),
+        DecoratedSpan('+', "bbb"),
+        Text(" ccc")
+      )))
+    }
+
+    "let a span parser from an app extension override a span parser from a theme" in new SpanParserSetup {
+      override def themeParsers: Seq[SpanParserBuilder] = Seq(spanFor('+'))
+      override def appParsers: Seq[SpanParserBuilder] = Seq(spanFor('+', '!'))
+
+      parse.assertEquals(RootElement(Paragraph(
+        Text("aaa "),
+        DecoratedSpan('!', "bbb"),
+        Text(" ccc")
+      )))
+    }
+
     trait CustomInputSetup extends ParserSetup {
       val dirname: String = getClass.getResource("/trees/a/").getFile
       def docView (num: Int, path: Path = Root) = DocumentView(path / s"doc$num.md", Content(List(p("Doc" + num))) :: Nil)
