@@ -146,24 +146,16 @@ class ParallelParserSpec extends IOSpec
     }
     
     def parsedWith (bundle: ExtensionBundle): IO[RootView] =
-      MarkupParser
-        .of(Markdown)
-        .using(bundle)
-        .io(blocker)
-        .parallel[IO]
-        .withTheme(Theme.empty)
-        .build
-        .fromInput(build(inputs)).parse.map(toViewWithTemplating)
+      parserWithBundle(bundle)
+        .fromInput(build(inputs))
+        .parse
+        .map(toViewWithTemplating)
 
     def parsedTemplates (bundle: ExtensionBundle): IO[Seq[TemplateRoot]] = {
-      MarkupParser
-        .of(Markdown)
-        .using(bundle)
-        .io(blocker)
-        .parallel[IO]
-        .withTheme(Theme.empty)
-        .build
-        .fromInput(build(inputs)).parse.map { parsed =>
+      parserWithBundle(bundle)
+        .fromInput(build(inputs))
+        .parse
+        .map { parsed =>
           parsed.root.tree.templates.map { tpl =>
             tpl.content.rewriteChildren(TemplateRewriter.rewriteRules(DocumentCursor(Document(Root, RootElement.empty))))
           }
@@ -172,14 +164,10 @@ class ParallelParserSpec extends IOSpec
       
     def parsedWith (bundle: ExtensionBundle = ExtensionBundle.Empty, customMatcher: PartialFunction[Path, DocumentType] = PartialFunction.empty): IO[RootView] = {
       val input = build(inputs, customMatcher.orElse({case path => docTypeMatcher(path)}))
-      MarkupParser
-        .of(Markdown)
-        .using(bundle)
-        .io(blocker)
-        .parallel[IO]
-        .withTheme(Theme.empty)
-        .build
-        .fromInput(input).parse.map(toView)
+      parserWithBundle(bundle)
+        .fromInput(input)
+        .parse
+        .map(toView)
     }
   }
   
