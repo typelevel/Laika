@@ -35,6 +35,7 @@ import laika.io.implicits._
 import laika.io.model.{InputTreeBuilder, ParsedTree, TreeInput}
 import laika.io.runtime.ParserRuntime.{DuplicatePath, ParserErrors}
 import laika.io.text.ParallelParser
+import laika.io.theme.Theme
 import laika.parse.Parser
 import laika.parse.markup.DocumentParser.{InvalidDocument, InvalidDocuments}
 import laika.parse.text.TextParsers
@@ -52,6 +53,7 @@ class ParallelParserSpec extends IOSpec
       .of(Markdown)
       .io(blocker)
       .parallel[IO]
+      .withTheme(Theme.empty)
     
     val defaultParser: ParallelParser[IO] = defaultBuilder.build
     
@@ -61,6 +63,7 @@ class ParallelParserSpec extends IOSpec
         .using(bundle)
         .io(blocker)
         .parallel[IO]
+        .withTheme(Theme.empty)
         .build
 
     def parserWithTheme (bundle: ExtensionBundle): ParallelParser[IO] =
@@ -68,6 +71,7 @@ class ParallelParserSpec extends IOSpec
         .of(Markdown)
         .io(blocker)
         .parallel[IO]
+        .withTheme(Theme.empty)
         .withTheme(ThemeBuilder.forBundle(bundle))
         .build
 
@@ -135,6 +139,7 @@ class ParallelParserSpec extends IOSpec
         .of(Markdown)
         .io(blocker)
         .parallel[IO]
+        .withTheme(Theme.empty)
         .withAlternativeParser(MarkupParser.of(ReStructuredText))
         .build
       parser.fromInput(build(inputs, parser.config.docTypeMatcher)).parse.map(toView)
@@ -146,6 +151,7 @@ class ParallelParserSpec extends IOSpec
         .using(bundle)
         .io(blocker)
         .parallel[IO]
+        .withTheme(Theme.empty)
         .build
         .fromInput(build(inputs)).parse.map(toViewWithTemplating)
 
@@ -155,6 +161,7 @@ class ParallelParserSpec extends IOSpec
         .using(bundle)
         .io(blocker)
         .parallel[IO]
+        .withTheme(Theme.empty)
         .build
         .fromInput(build(inputs)).parse.map { parsed =>
           parsed.root.tree.templates.map { tpl =>
@@ -170,6 +177,7 @@ class ParallelParserSpec extends IOSpec
         .using(bundle)
         .io(blocker)
         .parallel[IO]
+        .withTheme(Theme.empty)
         .build
         .fromInput(input).parse.map(toView)
     }

@@ -67,9 +67,7 @@ class ParallelRendererSpec extends IOSpec
   
   trait TreeRenderer[FMT] {
     
-    def treeRoot: DocumentTreeRoot = DocumentTreeRoot(input, 
-      styles = Map("fo" -> FOStyles.default).withDefaultValue(StyleDeclarationSet.empty)
-    )
+    def treeRoot: DocumentTreeRoot = DocumentTreeRoot(input)
     
     def input: DocumentTree
     
@@ -100,22 +98,19 @@ class ParallelRendererSpec extends IOSpec
 
   trait HTMLRenderer extends TreeRenderer[HTMLFormatter] {
     val rootElem: RootElement = root(titleWithId("Title"), p("bbb"))
-    val templates: Seq[TemplateDocument] = Seq(TemplateDocument(Root / "default.template.html", HTMLTemplate.default))
     lazy val renderer: ParallelRenderer[IO] = Renderer.of(HTML).io(blocker).parallel[IO].build
   }
 
   trait EPUB_XHTMLRenderer extends TreeRenderer[HTMLFormatter] {
     val rootElem: RootElement = root(titleWithId("Title"), p("bbb"))
-    val templates: Seq[TemplateDocument] = Seq(TemplateDocument(Root / "default.template.epub.xhtml", laika.render.epub.HtmlTemplate.default))
     lazy val renderer: ParallelRenderer[IO] = Renderer.of(EPUB.XHTML).io(blocker).parallel[IO].build
   }
 
   trait FORenderer extends TreeRenderer[FOFormatter] {
-    val templates: Seq[TemplateDocument] = Seq(TemplateDocument(Root / "default.template.fo", FOTemplate.default))
+    val customStyle: StyleDeclaration = StyleDeclaration(StylePredicate.ElementType("Paragraph"), "font-size" -> "11pt")
     def foStyles (path: Path = Root): Map[String, StyleDeclarationSet] = 
-      Map("fo" -> (StyleDeclarationSet(path / "styles.fo.css", 
-        StyleDeclaration(StylePredicate.ElementType("Paragraph"), "font-size" -> "11pt")) ++ FOStyles.default))
-    val foStyles = FOStyles.default.styles + StyleDeclaration(StylePredicate.ElementType("Paragraph"), "font-size" -> "11pt").increaseOrderBy(1) // TODO - 0.16 - remove defaults here once defaults are populated in theme
+      Map("fo" -> StyleDeclarationSet(path / "styles.fo.css", customStyle))
+    val themeStyles: Set[StyleDeclaration] = FOStyles.default.styles + customStyle.increaseOrderBy(1)
     val rootElem: RootElement = root(self.titleWithId("Title"), p("bbb"))
     val subElem: RootElement = root(self.titleWithId("Sub Title"), p("ccc"))
 
@@ -145,7 +140,7 @@ class ParallelRendererSpec extends IOSpec
   
     "render a tree with a single document to HTML using the default template" in {
       new HTMLRenderer {
-        val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)), templates = templates)
+        val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
         val expected = RenderResult.html.withDefaultTemplate("Title", """<h1 id="title" class="title">Title</h1>
           |      <p>bbb</p>""".stripMargin)
         renderedTree.assertEquals(RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(Root / "doc.html", expected))))))
@@ -259,7 +254,7 @@ class ParallelRendererSpec extends IOSpec
   
     "render a tree with a cover and title document to HTML" in {
       new HTMLRenderer {
-        val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)), Some(Document(Root / "README", rootElem)), templates = templates)
+        val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)), Some(Document(Root / "README", rootElem)))
         override def treeRoot = DocumentTreeRoot(input, coverDocument = Some(Document(Root / "cover", rootElem)))
         val expected = RenderResult.html.withDefaultTemplate("Title", """<h1 id="title" class="title">Title</h1>
                                                                         |      <p>bbb</p>""".stripMargin)
@@ -275,7 +270,7 @@ class ParallelRendererSpec extends IOSpec
   
     "render a tree with a single document to EPUB.XHTML using the default template" in {
       new EPUB_XHTMLRenderer {
-        val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)), templates = templates)
+        val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
         val expected = RenderResult.epub.withDefaultTemplate("Title", """<h1 id="title" class="title">Title</h1>
                                                                         |      <p>bbb</p>""".stripMargin)
         val path = (Root / "doc").withSuffix("epub.xhtml")
@@ -316,7 +311,7 @@ class ParallelRendererSpec extends IOSpec
   
     "render a tree with a single document to XSL-FO using the default template and default CSS" in {
       new FORenderer {
-        val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)), templates = templates)
+        val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
         val expected = RenderResult.fo.withDefaultTemplate(s"""${marker("Title")}
           |      ${title("_doc_title", "Title")}
           |      <fo:block font-family="serif" font-size="10pt" space-after="3mm">bbb</fo:block>""".stripMargin)
@@ -343,8 +338,8 @@ class ParallelRendererSpec extends IOSpec
             .io(blocker)
             .parallel[IO]
             .withTheme(ThemeBuilder.forInputs(TreeInput[IO]
-              .addStyles(foStyles, Root / "styles.fo.css")
-              .addTemplate(TemplateDocument(Root / "default.template.fo", FOTemplate.default)) // TODO - 0.16 - remove once defaults are populated
+              .addStyles(themeStyles, Root / "styles.fo.css")
+              .addTemplate(TemplateDocument(Root / "default.template.fo", FOTemplate.default))
               .build(DocumentTypeMatcher.base)))
             .build
         val input = DocumentTree(Root, List(
@@ -371,7 +366,7 @@ class ParallelRendererSpec extends IOSpec
         val input = DocumentTree(Root, List(
           Document(Root / "doc", rootElem),
           DocumentTree(Root / "tree", List(Document(Root / "tree" / "subdoc", subElem)))
-        ), templates = templates)
+        ))
         override def treeRoot = DocumentTreeRoot(input, styles = foStyles(Root / "sub"))
         val expectedRoot = RenderResult.fo.withDefaultTemplate(s"""${marker("Title")}
           |      ${title("_doc_title", "Title")}

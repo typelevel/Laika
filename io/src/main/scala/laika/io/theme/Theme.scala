@@ -17,9 +17,13 @@
 package laika.io.theme
 
 import cats.data.Kleisli
-import cats.effect.Sync
+import cats.effect.Async
+import laika.ast.Path.Root
+import laika.ast.TemplateDocument
 import laika.bundle.ExtensionBundle
 import laika.io.model.{ParsedTree, TreeInput}
+import laika.io.runtime.TreeResultBuilder.{StyleResult, TemplateResult}
+import laika.render.{FOStyles, FOTemplate, HTMLTemplate}
 
 /**
   * @author Jens Halm
@@ -36,15 +40,26 @@ trait Theme[F[_]] {
 
 object Theme {
 
-  def default[F[_]: Sync]: Theme[F] = new Theme[F] {
+  def empty[F[_]: Async]: Theme[F] = new Theme[F] {
+    def inputs: F[TreeInput[F]] = Async[F].pure(TreeInput.empty)
+    def extensions: Seq[ExtensionBundle] = Nil
+    def treeTransformer: Kleisli[F, ParsedTree[F], ParsedTree[F]] = Kleisli(Async[F].pure)
+  }
 
-    // TODO - 0.16 - populate with defaults
-    
-    def inputs: F[TreeInput[F]] = Sync[F].pure(TreeInput.empty)
+  def default[F[_]: Async]: Theme[F] = new Theme[F] {
+
+    def inputs: F[TreeInput[F]] = Async[F].pure(TreeInput[F](
+      parsedResults = Seq(
+        TemplateResult(TemplateDocument(Root / "default.template.html", HTMLTemplate.default)),
+        TemplateResult(TemplateDocument(Root / "default.template.epub.xhtml", laika.render.epub.HtmlTemplate.default)),
+        TemplateResult(TemplateDocument(Root / "default.template.fo", FOTemplate.default)),
+        StyleResult(FOStyles.default.copy(paths = Set(Root / "default.fo.css")), "fo")
+      )
+    ))
 
     def extensions: Seq[ExtensionBundle] = Nil
 
-    def treeTransformer: Kleisli[F, ParsedTree[F], ParsedTree[F]] = Kleisli(Sync[F].pure)
+    def treeTransformer: Kleisli[F, ParsedTree[F], ParsedTree[F]] = Kleisli(Async[F].pure)
   }
 
 }

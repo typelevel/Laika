@@ -19,8 +19,8 @@ package laika.io
 import java.io._
 
 import cats.effect.IO
-import laika.api.{MarkupParser, Transformer}
 import laika.api.builder.OperationConfig
+import laika.api.{MarkupParser, Transformer}
 import laika.ast.DocumentType.Ignored
 import laika.ast.Path.Root
 import laika.ast._
@@ -36,7 +36,6 @@ import laika.io.text.ParallelTransformer
 import laika.parse.Parser
 import laika.parse.code.SyntaxHighlighting
 import laika.parse.text.TextParsers
-import laika.render.{FOStyles, FOTemplate}
 import laika.rewrite.link.SlugBuilder
 import org.scalatest.Assertion
 
@@ -270,8 +269,6 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
       val input = TreeInput[IO]
         .addString(Contents.name, Root / "doc1.md")
         .addString(Contents.style, Root / "styles.fo.css")
-        .addStyles(FOStyles.default.styles, Root / "default.fo.css")
-        .addTemplate(TemplateDocument(Root / "default.template.fo", FOTemplate.default))
         .build(transformer.config.docTypeMatcher)
       
       val renderResult = transformer
