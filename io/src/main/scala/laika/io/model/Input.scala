@@ -61,11 +61,15 @@ object TextInput {
   * Even though the documents are specified as a flat sequence, they logically form a tree based
   * on their virtual path.
   */
-case class TreeInput[F[_]] (textInputs: Seq[TextInput[F]], 
-                            binaryInputs: Seq[BinaryInput[F]], 
-                            parsedResults: Seq[ParserResult], 
+case class TreeInput[F[_]] (textInputs: Seq[TextInput[F]] = Nil, 
+                            binaryInputs: Seq[BinaryInput[F]] = Nil, 
+                            parsedResults: Seq[ParserResult] = Nil, 
                             sourcePaths: Seq[String] = Nil) {
 
+  /** A collection of all paths in this input tree, which may contain duplicates.
+    */
+  lazy val allPaths: Seq[Path] = textInputs.map(_.path) ++ binaryInputs.map(_.path) ++ parsedResults.map(_.path) 
+  
   /** Merges the inputs of two collections.
     */
   def ++ (other: TreeInput[F]): TreeInput[F] = TreeInput(

@@ -56,30 +56,50 @@ object ParserRuntime {
     import DocumentType.{Config => ConfigType, _}
     import TreeResultBuilder._
 
-    val parsers = op.parsers.map(p => MarkupParser
-      .of(p.format)
-      .withConfig(p.config.withBundles(op.theme.extensions))
-      .build
-    )
-    val parserMap: Map[String, MarkupParser] = parsers.toList.flatMap(p => p.fileSuffixes.map((_, p))).toMap
-    
-    def selectParser (path: Path): ValidatedNel[Throwable, MarkupParser] = parsers match {
-      case NonEmptyList(parser, Nil) => parser.validNel
-      case multiple => path.suffix
-        .flatMap(parserMap.get)
-        .toValidNel(NoMatchingParser(path, multiple.toList.flatMap(_.fileSuffixes).toSet))
-    }
-    
-    def parseAll(inputs: TreeInput[F]): F[ParsedTree[F]] = {
-      
-      def validateInputPaths: F[Unit] = {
-        val duplicates = (inputs.binaryInputs.map(_.path) ++ inputs.textInputs.map(_.path))
+    def mergeInputs (userInputs: TreeInput[F], themeInputs: TreeInput[F]): F[TreeInput[F]] = {
+
+      def validateInputPaths(inputs: TreeInput[F]): F[Unit] = {
+        val duplicates = inputs.allPaths
           .groupBy(identity)
           .collect { case (path, in) if in.size > 1 => DuplicatePath(path) }
         if (duplicates.isEmpty) Async[F].unit
         else Async[F].raiseError(ParserErrors(duplicates.toSet))
       }
 
+      def mergedInputs: TreeInput[F] = {
+        // user inputs override theme inputs
+        val userPaths = userInputs.allPaths.toSet
+        val filteredThemeInputs = TreeInput(
+          textInputs = themeInputs.textInputs.filterNot(in => userPaths.contains(in.path)),
+          binaryInputs = themeInputs.binaryInputs.filterNot(in => userPaths.contains(in.path)),
+          parsedResults = themeInputs.parsedResults.filterNot(in => userPaths.contains(in.path)),
+          sourcePaths = themeInputs.sourcePaths
+        )
+        userInputs ++ filteredThemeInputs
+      }
+
+      for {
+        _ <- validateInputPaths(userInputs)
+        _ <- validateInputPaths(themeInputs)
+      } yield mergedInputs
+    }
+    
+    def parseAll(inputs: TreeInput[F]): F[ParsedTree[F]] = {
+
+      val parsers = op.parsers.map(p => MarkupParser
+        .of(p.format)
+        .withConfig(p.config.withBundles(op.theme.extensions))
+        .build
+      )
+      val parserMap: Map[String, MarkupParser] = parsers.toList.flatMap(p => p.fileSuffixes.map((_, p))).toMap
+
+      def selectParser (path: Path): ValidatedNel[Throwable, MarkupParser] = parsers match {
+        case NonEmptyList(parser, Nil) => parser.validNel
+        case multiple => path.suffix
+          .flatMap(parserMap.get)
+          .toValidNel(NoMatchingParser(path, multiple.toList.flatMap(_.fileSuffixes).toSet))
+      }
+      
       def parseDocument[D] (doc: TextInput[F], parse: ParserInput => Either[ParserError, D], result: (D, Option[File]) => ParserResult): F[ParserResult] =
         InputRuntime.readParserInput(doc).flatMap(in => Async[F].fromEither(parse(in).map(result(_, doc.sourceFile))))
       
@@ -116,7 +136,6 @@ object ParserRuntime {
       } 
       
       for {
-        _        <- validateInputPaths
         ops      <- Async[F].fromEither(createOps)
         results  <- Runtime[F].runParallel(ops)
         includes <- loadIncludes(results)
@@ -128,7 +147,8 @@ object ParserRuntime {
     for {
       userInputs   <- op.input
       themeInputs  <- op.theme.inputs
-      result       <- parseAll(userInputs ++ themeInputs)
+      allInputs    <- mergeInputs(userInputs, themeInputs)
+      result       <- parseAll(allInputs)
       mappedResult <- op.theme.treeTransformer.run(result)
     } yield mappedResult
     
