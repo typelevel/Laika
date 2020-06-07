@@ -63,10 +63,11 @@ object RendererRuntime {
     OutputRuntime.write(renderResult, op.output).as(renderResult)
   }
 
-  /** Process the specified render operation for an entire input tree and 
-    * a character output format.
+  /** Process the specified render operation for an entire input tree and a character output format.
     */
-  def run[F[_]: Async: Runtime] (op: ParallelRenderer.Op[F]): F[RenderedTreeRoot[F]] = {
+  def run[F[_]: Async: Runtime] (op: ParallelRenderer.Op[F]): F[RenderedTreeRoot[F]] = op.theme.inputs.flatMap(run(op, _))
+
+  private def run[F[_]: Async: Runtime] (op: ParallelRenderer.Op[F], themeInputs: TreeInput[F]): F[RenderedTreeRoot[F]] = {  
     
     def validatePaths (staticDocs: Seq[BinaryInput[F]]): F[Unit] = {
       val paths = op.input.allDocuments.map(_.path) ++ staticDocs.map(_.path)
@@ -144,13 +145,11 @@ object RendererRuntime {
         RenderedTreeRoot[F](resultRoot, template, finalRoot.config, coverDoc, staticDocs, finalRoot.sourcePaths)
       }
 
-    def applyTemplate (root: DocumentTreeRoot, themeInputs: Seq[ParserResult]): Either[ConfigError, DocumentTreeRoot] = {
+    def applyTemplate (root: DocumentTreeRoot): Either[ConfigError, DocumentTreeRoot] = {
       val suffix = op.renderer.format.fileSuffix
 
       val treeWithTpl: DocumentTree = root.tree.getDefaultTemplate(suffix).fold(
-        root.tree.withDefaultTemplate(themeInputs.collectFirst { 
-          case TemplateResult(doc, _) if doc.path == Root / s"default.template.$suffix" => doc.content 
-        }.getOrElse(TemplateRoot.fallback), suffix)
+        root.tree.withDefaultTemplate(getDefaultTemplate(themeInputs, suffix), suffix)
       )(_ => root.tree)
       
       TemplateRewriter.applyTemplates(root.copy(tree = treeWithTpl), suffix)
@@ -161,9 +160,8 @@ object RendererRuntime {
     }.reduceLeftOption(_ ++ _).getOrElse(StyleDeclarationSet.empty)
      
     for {
-      themeInputs <- op.theme.inputs
       mappedTree  <- op.theme.treeTransformer.run(ParsedTree(op.input, op.staticDocuments ++ themeInputs.binaryInputs))
-      finalRoot   <- Async[F].fromEither(applyTemplate(mappedTree.root, themeInputs.parsedResults)
+      finalRoot   <- Async[F].fromEither(applyTemplate(mappedTree.root)
                        .leftMap(e => RendererErrors(Seq(ConfigException(e))))
                       .flatMap(root => InvalidDocuments.from(root, op.config.failOnMessages).toLeft(root)))
       styles    = finalRoot.styles(fileSuffix) ++ getThemeStyles(themeInputs.parsedResults)
@@ -182,19 +180,25 @@ object RendererRuntime {
     val parOp = binary.ParallelRenderer.Op(op.renderer, Theme.default, root, op.output)
     run(parOp)
   }
+  
+  private def getDefaultTemplate[F[_]: Async] (themeInputs: TreeInput[F], suffix: String): TemplateRoot = 
+    themeInputs.parsedResults.collectFirst {
+      case TemplateResult(doc, _) if doc.path == Root / s"default.template.$suffix" => 
+        println("yeah")
+        doc.content
+    }.getOrElse(TemplateRoot.fallback)
 
   /** Process the specified render operation for an entire input tree and a binary output format.
     */
   def run[F[_]: Async: Runtime] (op: binary.ParallelRenderer.Op[F]): F[Unit] = {
-    val template = op.input.tree
-      .getDefaultTemplate(op.renderer.interimRenderer.format.fileSuffix)
-      .fold(TemplateRoot.fallback)(_.content)
+    val suffix = op.renderer.interimRenderer.format.fileSuffix
     for {
+      themeInputs  <- op.theme.inputs
       preparedTree <- Async[F].fromEither(op.renderer.prepareTree(op.input))
-      renderedTree <- run(ParallelRenderer.Op[F](op.renderer.interimRenderer, op.theme, preparedTree, StringTreeOutput))
-      _            <- op.renderer.postProcessor.process(renderedTree.copy[F](defaultTemplate = template, staticDocuments = op.staticDocuments), op.output)
+      renderedTree <- run(ParallelRenderer.Op[F](op.renderer.interimRenderer, op.theme, preparedTree, StringTreeOutput), themeInputs)
+      finalTree    =  renderedTree.copy[F](defaultTemplate = op.input.tree.getDefaultTemplate(suffix).fold(getDefaultTemplate(themeInputs, suffix))(_.content))
+      _            <- op.renderer.postProcessor.process(finalTree, op.output)
     } yield ()
-      
   }
 
   // TODO - unify with ParserErrors (as TransformationErrors)

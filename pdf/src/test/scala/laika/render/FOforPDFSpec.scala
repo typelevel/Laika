@@ -43,8 +43,7 @@ class FOforPDFSpec extends IOSpec with FileIO {
     def prepareTree (root: DocumentTreeRoot): Either[Throwable, DocumentTreeRoot] = {
       val pdfConfig = PDF.BookConfig.decodeWithDefaults(root.config)
       val rootWithTemplate = root.copy(
-        tree = root.tree.withDefaultTemplate(TemplateRoot.fallback, "fo"), 
-        styles = Map("fo" -> FOStyles.default)
+        tree = root.tree.withDefaultTemplate(TemplateRoot.fallback, "fo")
       )
       pdfConfig.map(PDFNavigation.prepareTree(rootWithTemplate, _)).left.map(ConfigException)
     }
@@ -157,10 +156,11 @@ class FOforPDFSpec extends IOSpec with FileIO {
     type Builder = TwoPhaseRendererBuilder[FOFormatter, BinaryPostProcessor]
     
     def result: IO[String] = withByteArrayTextOutput { out =>
-      renderer.from(DocumentTreeRoot(
-        tree.withDefaultTemplate(FOTemplate.default, "fo"), 
-        styles = Map("fo" -> FOStyles.default))
-      ).toStream(IO.pure(out)).render.void
+      renderer
+        .from(DocumentTreeRoot(tree))
+        .toStream(IO.pure(out))
+        .render
+        .void
     }
     
   }

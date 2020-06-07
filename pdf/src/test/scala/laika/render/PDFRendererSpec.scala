@@ -94,7 +94,7 @@ class PDFRendererSpec extends IOSpec with FileIO {
         .parallel[IO]
         .build
 
-      firstCharAvailable(renderer.from(DocumentTreeRoot(tree.withDefaultTemplate(FOTemplate.default, "fo"))).toFile(file).render)
+      firstCharAvailable(renderer.from(DocumentTreeRoot(tree)).toFile(file).render)
     }
 
     "render a tree to an OutputStream" in new TreeModel {
@@ -105,7 +105,7 @@ class PDFRendererSpec extends IOSpec with FileIO {
         .build
 
       withByteArrayOutput { out =>
-        renderer.from(DocumentTreeRoot(tree.withDefaultTemplate(FOTemplate.default, "fo"))).toStream(IO.pure(out)).render.void
+        renderer.from(DocumentTreeRoot(tree)).toStream(IO.pure(out)).render.void
       }.asserting(_ should not be empty)
     }
 
