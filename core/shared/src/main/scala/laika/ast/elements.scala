@@ -1017,10 +1017,10 @@ case class AutonumberLabel (label: String) extends FootnoteLabel
 
 
 /** Raw content that is usually specific to the specified output formats.
- *  Can be used as both block and inline element. If supported by a
- *  parser it usually has to be explicitly enabled due to security concerns.
- */
-case class RawContent (formats: Seq[String], content: String, options: Options = NoOpt) extends Block with Span with TextContainer {
+  * Can be used as both block and inline element. 
+  * If supported by a parser it usually has to be explicitly enabled due to security concerns.
+  */
+case class RawContent (formats: NonEmptySet[String], content: String, options: Options = NoOpt) extends Block with Span with TextContainer {
   type Self = RawContent
   def withOptions (options: Options): RawContent = copy(options = options)
 }

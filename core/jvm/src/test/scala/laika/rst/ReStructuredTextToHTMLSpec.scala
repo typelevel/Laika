@@ -16,6 +16,8 @@
 
 package laika.rst
 
+import cats.implicits._
+import cats.data.NonEmptySet
 import laika.api.Transformer
 import laika.ast.Path.Root
 import laika.ast._
@@ -68,7 +70,7 @@ class ReStructuredTextToHTMLSpec extends AnyFlatSpec
 
     def quotedBlockContent (content: Seq[Block], attr: Seq[Span]) =
       if (attr.isEmpty) content
-      else content :+ Paragraph(RawContent(List("html"), "§§§§") +: attr, Style.attribution)
+      else content :+ Paragraph(RawContent(NonEmptySet.one("html"), "§§§§") +: attr, Style.attribution)
 
     def renderBlocks (fmt: HTMLFormatter, tagName: String, options: Options, content: Seq[Block], attrs: (String, String)*): String = content match {
       case Seq(ss: SpanSequence)     => fmt.element(tagName, options, Seq(ss), attrs: _*)

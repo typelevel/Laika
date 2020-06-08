@@ -16,10 +16,13 @@
 
 package laika.rst.std
 
+import cats.data.NonEmptySet
 import laika.ast._
 import laika.rst.ast.RstStyle
 import laika.rst.ext.TextRoles.Parts._
 import laika.rst.ext.TextRoles.TextRole
+
+import scala.collection.immutable.TreeSet
 
 /** Defines all supported standard text roles of the reStructuredText reference parser.
  * 
@@ -131,7 +134,10 @@ class StandardTextRoles {
     TextRole("raw", (Nil:List[String],NoOpt:Options)) {
       (field("format") ~ classOption).map { case format ~ opt => (format.split(" ").toList, opt) }
     }{
-      case ((formats, opt), content) => RawContent(formats, content, opt)
+      case ((formats, opt), content) => NonEmptySet.fromSet(TreeSet(formats:_*)) match {
+        case Some(set) => RawContent(set, content, opt)
+        case None      => InvalidElement("no format specified", "").asSpan // TODO - pass source string
+      }
     }  
     
   /** All standard text roles currently supported by Laika, except for

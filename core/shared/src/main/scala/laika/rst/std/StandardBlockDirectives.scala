@@ -16,6 +16,8 @@
 
 package laika.rst.std
 
+import cats.implicits._
+import cats.data.NonEmptySet
 import laika.ast._
 import laika.config.{Field, LaikaKeys, ObjectValue, Origin, StringValue}
 import laika.parse.markup.RecursiveParsers
@@ -24,6 +26,8 @@ import laika.rst.ast.{Contents, FieldList, Include, RstStyle}
 import laika.rst.ext.Directives.Parts._
 import laika.rst.ext.Directives._
 import laika.rst.std.StandardDirectiveParts._
+
+import scala.collection.immutable.TreeSet
 
 /** Defines all supported standard block directives of the reStructuredText reference parser.
  * 
@@ -299,7 +303,10 @@ class StandardBlockDirectives {
    */
   lazy val rawDirective: Directive[Block] = BlockDirective("raw") {
     (argument(withWS = true) ~ content(Right(_))).map { case formats ~ content =>
-      RawContent(formats.split(" ").toSeq, content)
+      NonEmptySet.fromSet(TreeSet(formats.split(" "):_*)) match {
+        case Some(set) => RawContent(set, content)
+        case None      => InvalidElement("no format specified", "").asBlock // TODO - pass source string
+      }
     } 
   }
     

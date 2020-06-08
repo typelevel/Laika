@@ -16,6 +16,8 @@
 
 package laika.rst.std
 
+import cats.implicits._
+import cats.data.NonEmptySet
 import laika.api.MarkupParser
 import laika.ast._
 import laika.ast.helper.ModelBuilder
@@ -183,7 +185,7 @@ class StandardTextRolesSpec extends AnyFlatSpec
       | :format: AML BML CML
       |
       |some :foo:`text`""".stripMargin
-    val result = root(p(Text("some "), RawContent(List("AML","BML","CML"), "text", Styles("foo"))))
+    val result = root(p(Text("some "), RawContent(NonEmptySet.of("AML","BML","CML"), "text", Styles("foo"))))
     MarkupParser.of(ReStructuredText).withRawContent.build.parse(input).toOption.get.content should be (result)
   }
 

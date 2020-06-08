@@ -73,7 +73,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
       }
 
       def bulletLabel (format: BulletFormat): Span = format match {
-        case StringBullet(_) => RawContent(Seq("fo"), "&#x2022;")
+        case StringBullet(_) => RawContent(NonEmptySet.one("fo"), "&#x2022;")
         case other           => Text(other.toString)
       }
 
@@ -165,7 +165,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
     def renderTextContainer (con: TextContainer): String = con match {
       case e @ Text(content,_)           => fmt.text(e, content)
       case e @ TemplateString(content,_) => fmt.rawText(e, content)
-      case e @ RawContent(f, content, _) => if (f.intersect(formats.toList).nonEmpty) fmt.rawText(e, content) else ""
+      case e @ RawContent(f, content, _) => if (f.intersect(formats).nonEmpty) fmt.rawText(e, content) else ""
       case e @ CodeSpan(content, categories, _) => fmt.textWithWS(e.mergeOptions(Styles(categories.map(_.name).toSeq:_*)), content)
       case e @ Literal(content,_)        => fmt.textWithWS(e, content)
       case e @ LiteralBlock(content,_)   => fmt.textBlockWithWS(e, content)

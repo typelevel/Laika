@@ -186,7 +186,7 @@ class HTMLRenderer (fileSuffix: String, formats: NonEmptySet[String]) extends ((
         case NoOpt                     => content
         case _                         => fmt.rawElement("span", opt, content)
       }
-      case RawContent(formats, content, opt) => if (formats.contains("html") || formats.contains("html")) { opt match {
+      case RawContent(f, content, opt) => if (f.intersect(formats).nonEmpty) { opt match {
         case NoOpt                     => content
         case _                         => fmt.rawElement("span", opt, content)
       }} else ""

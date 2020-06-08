@@ -16,6 +16,8 @@
 
 package laika.rst.std
 
+import cats.implicits._
+import cats.data.NonEmptySet
 import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
@@ -685,7 +687,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | some input
       |
       | some more""".stripMargin
-    val result = root (RawContent(List("format"), "some input\n\nsome more"))
+    val result = root (RawContent(NonEmptySet.one("format"), "some input\n\nsome more"))
     MarkupParser.of(ReStructuredText).withRawContent.build.parse(input).toOption.get.content should be (result)
   }
   

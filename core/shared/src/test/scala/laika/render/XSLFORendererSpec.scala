@@ -16,6 +16,8 @@
 
 package laika.render
 
+import cats.implicits._
+import cats.data.NonEmptySet
 import laika.api.Renderer
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
@@ -870,13 +872,13 @@ class XSLFORendererSpec extends AnyFlatSpec
 
   it should "render raw content unchanged if the xsl-fo format is specified" in {
     val raw = "<fo:block>some text</fo:block>"
-    val elem = RawContent(List("fo", "spooky"), raw)
+    val elem = RawContent(NonEmptySet.of("fo", "spooky"), raw)
     render (elem) should be (raw)
   }
 
   it should "ignore raw content if the xsl-fo format is not specified" in {
     val raw = "<fo:block>some text</fo:block>"
-    val elem = RawContent(List("dodgy", "spooky"), raw)
+    val elem = RawContent(NonEmptySet.of("dodgy", "spooky"), raw)
     render (elem) should be ("")
   }
 

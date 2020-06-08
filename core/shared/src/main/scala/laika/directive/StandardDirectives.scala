@@ -522,7 +522,7 @@ object StandardDirectives extends DirectiveRegistry {
         val path = staticPath.relativeTo(cursor.path).toString
         s"""<link rel="stylesheet" type="text/css" href="$path" />"""
       }
-      TemplateElement(RawContent(Seq("html","xhtml"), allLinks.mkString("\n    ")))
+      TemplateElement(RawContent(NonEmptySet.of("html","xhtml"), allLinks.mkString("\n    ")))
     }
     lazy val unresolvedMessage: String = s"Unresolved style links generator"
   }
