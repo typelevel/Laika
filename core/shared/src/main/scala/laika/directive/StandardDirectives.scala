@@ -16,7 +16,7 @@
 
 package laika.directive
 
-import cats.data.ValidatedNec
+import cats.data.{NonEmptySet, ValidatedNec}
 import cats.implicits._
 import laika.ast.Path.Root
 import laika.config.{ArrayValue, BooleanValue, ConfigDecoder, ConfigError, ConfigValue, Key, NullValue, ObjectValue, StringValue}
@@ -26,6 +26,7 @@ import laika.rewrite.TemplateRewriter
 import laika.rewrite.link.LinkConfig
 
 import scala.annotation.tailrec
+import scala.collection.immutable.TreeSet
 
 /** Provides the implementation for the standard directives included in Laika.
   *  
@@ -430,10 +431,14 @@ object StandardDirectives extends DirectiveRegistry {
    *  The content of such a block will only be rendered for the corresponding
    *  output format (e.g. `pdf` or `html`).
    */
-  lazy val format: Blocks.Directive  = Blocks.create("format") {
+  lazy val format: Blocks.Directive  = Blocks.eval("format") {
     import Blocks.dsl._
     
-    (attribute(0).as[String], parsedBody.map(asBlock(_))).mapN(TargetFormat(_,_))
+    (positionalAttributes.as[String].widen, parsedBody.map(asBlock(_))).mapN { (formats, body) =>
+      NonEmptySet
+        .fromSet(TreeSet(formats:_*))
+        .fold[Either[String, Block]](Left("no formats provided"))(set => Right(TargetFormat(set, body)))
+    }
   }
   
   /** Implementation of the `style` directive for block elements in markup documents.

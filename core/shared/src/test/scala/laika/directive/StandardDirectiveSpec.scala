@@ -16,6 +16,8 @@
 
 package laika.directive
 
+import cats.implicits._
+import cats.data.NonEmptySet
 import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
@@ -147,7 +149,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |@:@
                   |
                   |bb""".stripMargin
-    parse(input).content should be (root(p("aa"), TargetFormat("foo", p("11\n22")), p("bb")))
+    parse(input).content should be (root(p("aa"), TargetFormat(NonEmptySet.one("foo"), p("11\n22")), p("bb")))
   }
 
   it should "parse a body with two paragraphs" in {
@@ -163,7 +165,21 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |@:@
                   |
                   |bb""".stripMargin
-    parse(input).content should be (root(p("aa"), TargetFormat("foo", BlockSequence(p("11\n22"),p("33"))), p("bb")))
+    parse(input).content should be (root(p("aa"), TargetFormat(NonEmptySet.one("foo"), BlockSequence(p("11\n22"),p("33"))), p("bb")))
+  }
+
+  it should "parse a directive with multiple formats" in {
+    val input = """aa
+                  |
+                  |@:format(foo, bar, baz)
+                  |
+                  |11
+                  |22
+                  |
+                  |@:@
+                  |
+                  |bb""".stripMargin
+    parse(input).content should be (root(p("aa"), TargetFormat(NonEmptySet.of("foo", "bar", "baz"), p("11\n22")), p("bb")))
   }
 
 

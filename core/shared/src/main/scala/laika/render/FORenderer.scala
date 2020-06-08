@@ -16,6 +16,8 @@
 
 package laika.render
 
+import cats.implicits._
+import cats.data.NonEmptySet
 import laika.ast.{Styles, _}
 import laika.render.FOFormatter._
 
@@ -25,6 +27,8 @@ import laika.render.FOFormatter._
   */
 object FORenderer extends ((FOFormatter, Element) => String) {
 
+  private val formats: NonEmptySet[String] = NonEmptySet.of("pdf", "fo", "xslfo", "xsl-fo")
+  
   def apply (fmt: FOFormatter, element: Element): String = {
 
     def noneIfDefault [T](actual: T, default: T): Option[String] = if (actual == default) None else Some(actual.toString)
@@ -161,7 +165,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
     def renderTextContainer (con: TextContainer): String = con match {
       case e @ Text(content,_)           => fmt.text(e, content)
       case e @ TemplateString(content,_) => fmt.rawText(e, content)
-      case e @ RawContent(formats, content, _)  => if (formats.contains("fo")) fmt.rawText(e, content) else ""
+      case e @ RawContent(f, content, _) => if (f.intersect(formats.toList).nonEmpty) fmt.rawText(e, content) else ""
       case e @ CodeSpan(content, categories, _) => fmt.textWithWS(e.mergeOptions(Styles(categories.map(_.name).toSeq:_*)), content)
       case e @ Literal(content,_)        => fmt.textWithWS(e, content)
       case e @ LiteralBlock(content,_)   => fmt.textBlockWithWS(e, content)
@@ -179,7 +183,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
       case e: InternalLinkTarget        => fmt.internalLinkTarget(e)
       case e: PageBreak                 => fmt.block(e)
       case e @ LineBlock(content,_)     => fmt.blockContainer(e, content)
-      case TargetFormat("xslfo",e,_)    => fmt.child(e)
+      case TargetFormat(f,e,_) if f.intersect(formats).nonEmpty => fmt.child(e)
 
       case WithFallback(fallback)       => fmt.child(fallback)
       case _                            => ""

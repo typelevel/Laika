@@ -16,6 +16,8 @@
 
 package laika.render.epub
 
+import cats.implicits._
+import cats.data.NonEmptySet
 import laika.ast._
 import laika.render.{HTMLFormatter, HTMLRenderer}
 
@@ -23,7 +25,7 @@ import laika.render.{HTMLFormatter, HTMLRenderer}
   *
   *  @author Jens Halm
   */
-object XHTMLRenderer extends HTMLRenderer(fileSuffix = "epub.xhtml") {
+object XHTMLRenderer extends HTMLRenderer(fileSuffix = "epub.xhtml", formats = NonEmptySet.of("xhtml", "epub")) {
 
   override def apply (fmt: HTMLFormatter, element: Element): String = element match {
     case CitationLink(ref,label,opt) => fmt.textElement("a", opt + Style.citation, "[" + label + "]", "href" -> ("#"+ref), "epub:type" -> "noteref")

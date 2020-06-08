@@ -16,6 +16,8 @@
 
 package laika.render
 
+import cats.implicits._
+import cats.data.NonEmptySet
 import laika.ast._
 import laika.rst.ast.RstStyle
 
@@ -23,7 +25,7 @@ import laika.rst.ast.RstStyle
   *
   * @author Jens Halm
   */
-class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => String) {
+class HTMLRenderer (fileSuffix: String, formats: NonEmptySet[String]) extends ((HTMLFormatter, Element) => String) {
 
 
   def apply (fmt: HTMLFormatter, element: Element): String = {
@@ -203,8 +205,7 @@ class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => Str
       case Rule(opt)                   => fmt.emptyElement("hr", opt)
       case InternalLinkTarget(opt)     => fmt.textElement("a", opt, "")
       case LineBlock(content,opt)      => fmt.indentedElement("div", opt + RstStyle.lineBlock, content)
-      case TargetFormat("html",e,_)    => fmt.child(e)
-      case TargetFormat("xhtml",e,_)   => fmt.child(e)
+      case TargetFormat(f,e,_) if f.intersect(formats).nonEmpty => fmt.child(e)
 
       case WithFallback(fallback)      => fmt.child(fallback)
       case _                           => ""
@@ -286,4 +287,4 @@ class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => Str
 
 }
 
-object HTMLRenderer extends HTMLRenderer(fileSuffix = "html")
+object HTMLRenderer extends HTMLRenderer(fileSuffix = "html", formats = NonEmptySet.one("html"))

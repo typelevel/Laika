@@ -16,6 +16,7 @@
 
 package laika.ast
 
+import cats.data.NonEmptySet
 import laika.api.Renderer
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentDocument
@@ -329,7 +330,7 @@ case class DocumentFragment (name: String, root: Element, options: Options = NoO
 
 /** An element that only gets rendered for a specific output format.
  */
-case class TargetFormat (format: String, element: Element, options: Options = NoOpt) extends Block {
+case class TargetFormat (formats: NonEmptySet[String], element: Element, options: Options = NoOpt) extends Block {
   type Self = TargetFormat
   def withOptions (options: Options): TargetFormat = copy(options = options)
 }
