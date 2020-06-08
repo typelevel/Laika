@@ -186,7 +186,7 @@ class ParallelParserSpec extends IOSpec
         Root / "name.md" -> Contents.name
       )
       val docResult = DocumentView(Root / "name.md", Content(List(p("foo"))) :: Nil)
-      val treeResult = TreeView(Root, List(Documents(Markup, List(docResult)))).asRoot
+      val treeResult = TreeView(Root, List(Documents(List(docResult)))).asRoot
       parsedTree.assertEquals(treeResult)
     }
 
@@ -199,10 +199,10 @@ class ParallelParserSpec extends IOSpec
         Root / "dir2" / "doc5.md" -> Contents.name,
         Root / "dir2" / "doc6.md" -> Contents.name
       )
-      val subtree1 = TreeView(Root / "dir1", List(Documents(Markup, List(docView(3, Root / "dir1"), docView(4, Root / "dir1")))))
-      val subtree2 = TreeView(Root / "dir2", List(Documents(Markup, List(docView(5, Root / "dir2"), docView(6, Root / "dir2")))))
+      val subtree1 = TreeView(Root / "dir1", List(Documents(List(docView(3, Root / "dir1"), docView(4, Root / "dir1")))))
+      val subtree2 = TreeView(Root / "dir2", List(Documents(List(docView(5, Root / "dir2"), docView(6, Root / "dir2")))))
       val treeResult = TreeView(Root, List(
-        Documents(Markup, List(docView(1), docView(2))),
+        Documents(List(docView(1), docView(2))),
         Subtrees(List(subtree1, subtree2))
       )).asRoot
       parsedTree.assertEquals(treeResult)
@@ -235,7 +235,7 @@ class ParallelParserSpec extends IOSpec
         CoverDocument(docView("cover.md")),
         TreeView(Root, List(
           TitleDocument(docView("README.md")),
-          Documents(Markup, List(docView(1), docView(2)))
+          Documents(List(docView(1), docView(2)))
         ))
       ))
       parsedTree.assertEquals(treeResult)
@@ -253,7 +253,7 @@ class ParallelParserSpec extends IOSpec
         CoverDocument(docView("cover.md")),
         TreeView(Root, List(
           TitleDocument(docView("alternative-title.md")),
-          Documents(Markup, List(docView(1), docView(2)))
+          Documents(List(docView(1), docView(2)))
         ), ConfigBuilder
             .withOrigin(Origin(TreeScope, Root / "directory.conf"))
             .withValue("laika.titleDocuments.inputName", "alternative-title")
@@ -310,14 +310,14 @@ class ParallelParserSpec extends IOSpec
 
       val dyn = TemplateView(Root / "dir2" / "main.dynamic.html", TemplateRoot("foo"))
       val subtree1 = TreeView(Root / "dir1", List(
-        Documents(Markup, List(docView(3, Root / "dir1"), docView(4, Root / "dir1"))),
+        Documents(List(docView(3, Root / "dir1"), docView(4, Root / "dir1"))),
         TemplateDocuments(List(template('B', Root / "dir1")))
       ))
       val subtree2 = TreeView(Root / "dir2", List(
-        Documents(Markup, List(docView(5, Root / "dir2"), docView(6, Root / "dir2")))
+        Documents(List(docView(5, Root / "dir2"), docView(6, Root / "dir2")))
       ))
       val tree = TreeView(Root, List(
-        Documents(Markup, List(customDocView("doc1.md", Seq(p(SpanLink(Seq(Text("link")), ExternalTarget("/foo"))))), customDocView("doc2.rst", Seq(p("[link](/foo)"))))),
+        Documents(List(customDocView("doc1.md", Seq(p(SpanLink(Seq(Text("link")), ExternalTarget("/foo"))))), customDocView("doc2.rst", Seq(p("[link](/foo)"))))),
         TemplateDocuments(List(template('A', Root))),
         Subtrees(List(subtree1, subtree2))
       ))
@@ -396,7 +396,7 @@ class ParallelParserSpec extends IOSpec
         EmbeddedRoot(List(p("aaa"), p("bbb")), 2),
         t("\n</div>")
       ))) :: Nil)
-      val treeResult = TreeView(Root, List(Documents(Markup, List(docResult)))).asRoot
+      val treeResult = TreeView(Root, List(Documents(List(docResult)))).asRoot
       parsedTree.assertEquals(treeResult)
     }
 
@@ -413,7 +413,7 @@ class ParallelParserSpec extends IOSpec
         EmbeddedRoot(p("aaa"), p("bbb")),
         t("\n</div>")
       ))) :: Nil)
-      val treeResult = TreeView(Root, List(Documents(Markup, List(docResult)))).asRoot
+      val treeResult = TreeView(Root, List(Documents(List(docResult)))).asRoot
       parsedTree.assertEquals(treeResult)
     }
 
@@ -462,10 +462,10 @@ class ParallelParserSpec extends IOSpec
 
       def docView (num: Int, path: Path = Root) = DocumentView(path / s"doc$num.md", Content(List(p("Doc" + num))) :: Nil)
 
-      val subtree1 = TreeView(Root / "dir1", List(Documents(Markup, List(docView(3, Root / "dir1"), docView(4, Root / "dir1")))))
-      val subtree2 = TreeView(Root / "dir2", List(Documents(Markup, List(docView(5, Root / "dir2"), docView(6, Root / "dir2")))))
+      val subtree1 = TreeView(Root / "dir1", List(Documents(List(docView(3, Root / "dir1"), docView(4, Root / "dir1")))))
+      val subtree2 = TreeView(Root / "dir2", List(Documents(List(docView(5, Root / "dir2"), docView(6, Root / "dir2")))))
       val treeResult = TreeView(Root, List(
-        Documents(Markup, List(docView(1), docView(2))),
+        Documents(List(docView(1), docView(2))),
         Subtrees(List(subtree1, subtree2))
       ))
       defaultParser.fromDirectory(dirname).parse.map(toTreeView).assertEquals(treeResult)
@@ -528,12 +528,12 @@ class ParallelParserSpec extends IOSpec
     trait CustomInputSetup extends ParserSetup {
       val dirname: String = getClass.getResource("/trees/a/").getFile
       def docView (num: Int, path: Path = Root) = DocumentView(path / s"doc$num.md", Content(List(p("Doc" + num))) :: Nil)
-      val subtree1 = TreeView(Root / "dir1", List(Documents(Markup, List(docView(3, Root / "dir1"), docView(4, Root / "dir1")))))
+      val subtree1 = TreeView(Root / "dir1", List(Documents(List(docView(3, Root / "dir1"), docView(4, Root / "dir1")))))
       
       def subtree2: TreeView
 
       lazy val treeResult = TreeView(Root, List(
-        Documents(Markup, List(docView(1), docView(2))),
+        Documents(List(docView(1), docView(2))),
         Subtrees(List(subtree1, subtree2))
       ))
       def useTheme: Boolean = false
@@ -549,13 +549,13 @@ class ParallelParserSpec extends IOSpec
     }
     
     trait ExtraDocSetup extends CustomInputSetup {
-      lazy val subtree2 = TreeView(Root / "dir2", List(Documents(Markup, List(docView(5, Root / "dir2"), docView(6, Root / "dir2"), docView(7, Root / "dir2")))))
+      lazy val subtree2 = TreeView(Root / "dir2", List(Documents(List(docView(5, Root / "dir2"), docView(6, Root / "dir2"), docView(7, Root / "dir2")))))
     }
 
     trait ExtraTemplateSetup extends CustomInputSetup {
       val templatePath: Path = Root / "dir2" / "tmpl.template.html"
       lazy val subtree2 = TreeView(Root / "dir2", List(
-        Documents(Markup, List(docView(5, Root / "dir2"), docView(6, Root / "dir2"))), 
+        Documents(List(docView(5, Root / "dir2"), docView(6, Root / "dir2"))), 
         TemplateDocuments(List(TemplateView(templatePath, TemplateRoot(TemplateString("Template")))))
       ))
     }
@@ -563,14 +563,14 @@ class ParallelParserSpec extends IOSpec
     trait ExtraConfigSetup extends CustomInputSetup {
       val configPath: Path = Root / "dir2" / "directory.conf"
       lazy val subtree2 = TreeView(Root / "dir2", List(
-        Documents(Markup, List(docView(5, Root / "dir2"), docView(6, Root / "dir2")))
+        Documents(List(docView(5, Root / "dir2"), docView(6, Root / "dir2")))
       ), ConfigBuilder.withOrigin(Origin(TreeScope, configPath)).withValue("foo", 7).build)
     }
 
     trait ExtraStylesSetup extends CustomInputSetup {
       val configPath: Path = Root / "dir2" / "directory.conf"
       lazy val subtree2 = TreeView(Root / "dir2", List(
-        Documents(Markup, List(docView(5, Root / "dir2"), docView(6, Root / "dir2")))
+        Documents(List(docView(5, Root / "dir2"), docView(6, Root / "dir2")))
       ))
     }
 
@@ -642,10 +642,10 @@ class ParallelParserSpec extends IOSpec
 
       def docView (num: Int, path: Path = Root) = DocumentView(path / s"doc$num.md", Content(List(p("Doc" + num))) :: Nil)
 
-      val subtree1 = TreeView(Root / "dir1", List(Documents(Markup, List(docView(3, Root / "dir1"), docView(4, Root / "dir1")))))
-      val subtree2 = TreeView(Root / "dir2", List(Documents(Markup, List(docView(5, Root / "dir2"), docView(6, Root / "dir2")))))
+      val subtree1 = TreeView(Root / "dir1", List(Documents(List(docView(3, Root / "dir1"), docView(4, Root / "dir1")))))
+      val subtree2 = TreeView(Root / "dir2", List(Documents(List(docView(5, Root / "dir2"), docView(6, Root / "dir2")))))
       val treeResult = TreeView(Root, List(
-        Documents(Markup, List(docView(2))),
+        Documents(List(docView(2))),
         Subtrees(List(subtree1, subtree2))
       ))
       val parser = parserWithBundle(BundleProvider.forDocTypeMatcher { case Root / "doc1.md" => Ignored })
@@ -657,9 +657,9 @@ class ParallelParserSpec extends IOSpec
 
       def docView (num: Int, path: Path = Root) = DocumentView(path / s"doc$num.md", Content(List(p("Doc" + num))) :: Nil)
 
-      val subtree2 = TreeView(Root / "dir2", List(Documents(Markup, List(docView(5, Root / "dir2"), docView(6, Root / "dir2")))))
+      val subtree2 = TreeView(Root / "dir2", List(Documents(List(docView(5, Root / "dir2"), docView(6, Root / "dir2")))))
       val treeResult = TreeView(Root, List(
-        Documents(Markup, List(docView(2))),
+        Documents(List(docView(2))),
         Subtrees(List(subtree2))
       ))
       defaultParser
@@ -675,11 +675,11 @@ class ParallelParserSpec extends IOSpec
 
       def docView (num: Int, path: Path = Root) = DocumentView(path / s"doc$num.md", Content(List(p("Doc" + num))) :: Nil)
 
-      val subtree1 = TreeView(Root / "dir1", List(Documents(Markup, List(docView(3, Root / "dir1"), docView(4, Root / "dir1"), docView(7, Root / "dir1")))))
-      val subtree2 = TreeView(Root / "dir2", List(Documents(Markup, List(docView(5, Root / "dir2"), docView(6, Root / "dir2")))))
-      val subtree3 = TreeView(Root / "dir3", List(Documents(Markup, List(docView(8, Root / "dir3")))))
+      val subtree1 = TreeView(Root / "dir1", List(Documents(List(docView(3, Root / "dir1"), docView(4, Root / "dir1"), docView(7, Root / "dir1")))))
+      val subtree2 = TreeView(Root / "dir2", List(Documents(List(docView(5, Root / "dir2"), docView(6, Root / "dir2")))))
+      val subtree3 = TreeView(Root / "dir3", List(Documents(List(docView(8, Root / "dir3")))))
       val treeResult = TreeView(Root, List(
-        Documents(Markup, List(docView(1), docView(2), docView(9))),
+        Documents(List(docView(1), docView(2), docView(9))),
         Subtrees(List(subtree1, subtree2, subtree3))
       ))
     }
@@ -707,7 +707,7 @@ class ParallelParserSpec extends IOSpec
       def docView (num: Int, path: Path = Root) = DocumentView(path / s"doc$num.md", Content(List(p(s"Doc$num äöü"))) :: Nil)
 
       val treeResult = TreeView(Root, List(
-        Documents(Markup, List(docView(1)))
+        Documents(List(docView(1)))
       ))
       defaultParser.fromDirectory(dirname).parse.map(toTreeView).assertEquals(treeResult)
     }

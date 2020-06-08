@@ -17,7 +17,6 @@
 package laika.ast
 
 import laika.config.{Config, ConfigParser, Key, Origin}
-import laika.ast.DocumentType.Markup
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast.helper.DocumentViewBuilder.{Documents => Docs, _}
@@ -65,7 +64,7 @@ class DocumentTreeAPISpec extends AnyFlatSpec
         .children.last.asInstanceOf[DocumentCursor]
     
     def treeViewWithDoc (path: Path, name: String, root: RootElement): TreeView =
-      TreeView(path, List(Docs(Markup, List(DocumentView(path / name, List(Content(root.content)))))))
+      TreeView(path, List(Docs(List(DocumentView(path / name, List(Content(root.content)))))))
     def treeViewWithSubtree (path: Path, treeName: String, docName: String, root: RootElement): TreeView =
       TreeView(path, List(Subtrees(List(treeViewWithDoc(path / treeName, docName, root)))))
   }

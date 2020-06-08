@@ -17,12 +17,10 @@
 package laika.ast.helper
 
 import laika.ast._
-import laika.ast.DocumentType._
 import laika.config.Config
 import laika.rst.ast.CustomizedTextRole
 
-/* Provides a view of DocumentTree structures that allows for 
- * formatted AST rendering (for debugging purposes).
+/* Provides a view of DocumentTree structures that allows for formatted AST rendering (for debugging purposes).
  */
 object DocumentViewBuilder {
 
@@ -52,7 +50,7 @@ object DocumentViewBuilder {
   
   case class TitleDocument (doc: DocumentView) extends TreeContent
   
-  case class Documents (docType: DocumentType, content: Seq[DocumentView]) extends TreeContent with ViewContainer
+  case class Documents (content: Seq[DocumentView]) extends TreeContent with ViewContainer
   
   case class TemplateDocuments (content: Seq[TemplateView]) extends TreeContent with ViewContainer
   
@@ -94,7 +92,7 @@ object DocumentViewBuilder {
   def viewOf (tree: DocumentTree, includeConfig: Boolean = true): TreeView = {
     val titleDocument = tree.titleDocument.map(doc => TitleDocument(viewOf(doc))).toSeq
     val content = (
-      Documents(Markup, tree.content.collect{ case doc: Document => doc } map viewOf) ::
+      Documents(tree.content.collect{ case doc: Document => doc } map viewOf) ::
       TemplateDocuments(tree.templates map viewOf) ::
       Subtrees(tree.content.collect{case tree: DocumentTree => tree} map (t => viewOf(t, includeConfig))) :: 
       List[TreeContent]()) filterNot { case c: ViewContainer => c.content.isEmpty }

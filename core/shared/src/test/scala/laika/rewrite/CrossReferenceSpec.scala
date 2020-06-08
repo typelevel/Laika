@@ -17,7 +17,6 @@
 package laika.rewrite
 
 import laika.api.builder.OperationConfig
-import laika.ast.DocumentType.Markup
 import laika.ast.Path._
 import laika.ast.RelativePath.{CurrentTree, Parent}
 import laika.ast._
@@ -45,13 +44,13 @@ class CrossReferenceSpec extends AnyFlatSpec
       DocumentTree(path, trees)
     
     def treeViewWithDocs (path: Path, name: String, root1: RootElement, root2: RootElement): TreeView =
-      TreeView(path, List(Docs(Markup, List(
+      TreeView(path, List(Docs(List(
         DocumentView(path / (name+"1"), List(Content(root1.content))), 
         DocumentView(path / (name+"2"), List(Content(root2.content)))
       ))))
     
     def treeViewWithDoc (path: Path, name: String, root: RootElement, subtree: Option[TreeView] = None): TreeView =
-      TreeView(path, List(Docs(Markup, List(DocumentView(path / name, List(Content(root.content)))))) ::: (subtree map (t => Subtrees(List(t)))).toList)
+      TreeView(path, List(Docs(List(DocumentView(path / name, List(Content(root.content)))))) ::: (subtree map (t => Subtrees(List(t)))).toList)
     
     def treeViewWithSubtrees (path: Path, trees: TreeView*): TreeView =
       TreeView(path, List(Subtrees(trees)))

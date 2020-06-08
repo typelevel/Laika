@@ -63,9 +63,9 @@ class SectionNumberSpec extends AnyFlatSpec
       def docs (path: Path, nums: (Int, List[Int])*) = nums map {
         case (fileNum, titleNums) => DocumentView(path / ("doc"+fileNum), content(numbers(titleNums)))
       }
-      TreeView(Root, Docs(DocumentType.Markup, docs(Root, (1,List(1)),(2,List(2)))) :: Subtrees(List(
-        TreeView(Root / "sub1", Docs(DocumentType.Markup, docs(Root / "sub1",(3,List(3,1)),(4, List(3,2)))) :: Nil),
-        TreeView(Root / "sub2", Docs(DocumentType.Markup, docs(Root / "sub2",(5,List(4,1)),(6, List(4,2)))) :: Nil)
+      TreeView(Root, Docs(docs(Root, (1,List(1)),(2,List(2)))) :: Subtrees(List(
+        TreeView(Root / "sub1", Docs(docs(Root / "sub1",(3,List(3,1)),(4, List(3,2)))) :: Nil),
+        TreeView(Root / "sub2", Docs(docs(Root / "sub2",(5,List(4,1)),(6, List(4,2)))) :: Nil)
       )) :: Nil)
     }
 
