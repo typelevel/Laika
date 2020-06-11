@@ -1,0 +1,59 @@
+*, :after, :before {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Lato", sans-serif;
+  color: #5f5f5f;
+  font-size: 15px;
+  line-height: 1.5;
+  position: relative;
+  padding-bottom: 40px;
+  margin-top: 0;
+}
+
+main {
+  display: block;
+}
+
+.content {
+  width: 100%;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+@media (min-width: 768px) {
+  #container {
+    margin-left: 275px !important;
+    transition: margin .25s ease-out;
+  }
+}
+
+@media (min-width: 768px) {
+  main.content {
+    padding: 15px 45px;
+  }
+}
+
+@media (min-width: 576px) {
+  main.content {
+    padding: 15px 30px;
+  }
+}
+
+main.content {
+  min-height: 100vh;
+  padding: 15px 15px 45px;
+}
+
+@media (min-width: 992px) {
+  .content {
+    max-width: 960px;
+  }
+}
+
+@media (min-width: 768px) {
+  .content {
+    max-width: 780px;
+  }
+}

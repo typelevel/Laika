@@ -1,0 +1,19 @@
+.sidebar {
+  position: fixed;
+  left: 0;
+  z-index: 1000;
+  width: 275px;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background-color: #ebf6f7;
+  margin-left: -275px;
+  transition: margin .25s ease-out;
+}
+
+@media (min-width: 768px) {
+  .sidebar {
+    margin-left: 0;
+    box-shadow: -2px 0 8px #c3d6d8;
+  }
+}
