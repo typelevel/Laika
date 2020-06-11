@@ -12,27 +12,13 @@ body {
   margin-top: 0;
 }
 
-main {
+main.content {
   display: block;
-}
-
-.content {
   width: 100%;
   margin-right: auto;
   margin-left: auto;
-}
-
-@media (min-width: 768px) {
-  #container {
-    margin-left: 275px !important;
-    transition: margin .25s ease-out;
-  }
-}
-
-@media (min-width: 768px) {
-  main.content {
-    padding: 15px 45px;
-  }
+  min-height: 100vh;
+  padding: 15px 15px 45px;
 }
 
 @media (min-width: 576px) {
@@ -41,19 +27,13 @@ main {
   }
 }
 
-main.content {
-  min-height: 100vh;
-  padding: 15px 15px 45px;
-}
-
-@media (min-width: 992px) {
-  .content {
-    max-width: 960px;
+@media (min-width: 920px) {
+  #container {
+    margin-left: 275px !important;
+    transition: margin .25s ease-out;
   }
-}
-
-@media (min-width: 768px) {
-  .content {
-    max-width: 780px;
+  main.content {
+    max-width: 920px;
+    padding: 15px 45px;
   }
 }

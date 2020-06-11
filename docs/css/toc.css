@@ -1,0 +1,29 @@
+
+ul.toc, .toc ul {
+  list-style: none;
+}
+.toc.nav-header {
+  font-size: 36px;
+  margin-bottom: 20px;
+  margin-top: 36px;
+  background: linear-gradient(180deg, #ffffff 65%, #c3d6d8 65%);
+}
+.toc.active {
+  display: none;
+}
+.toc.level2 {
+  font-size: 28px;
+  color: #007c99;
+}
+.toc.level3 {
+  font-size: 18px;
+}
+.toc.level4 a {
+  color: #007c99;
+}
+.toc.level3 a {
+  color: #007c99;
+}
+p.toc {
+  margin-bottom: 5px;
+}

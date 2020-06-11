@@ -1,3 +1,4 @@
+
 .sidebar {
   position: fixed;
   left: 0;
@@ -11,9 +12,52 @@
   transition: margin .25s ease-out;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 920px) {
   .sidebar {
     margin-left: 0;
     box-shadow: -2px 0 8px #c3d6d8;
   }
+}
+
+.nav-list li.nav-header {
+  font-size: 15px;
+  color: #931813;
+  display: block;
+  padding: 3px 15px;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-left: -5px;
+}
+
+ul.nav, .nav ul {
+  list-style: none;
+}
+ul.nav {
+  padding-top: 10px;
+  padding-bottom: 15px;
+  margin: 0 0 0 15px;
+}
+.nav-list li {
+  margin-left: 10px;
+  margin-bottom: 2px;
+  line-height: 1.1;
+  font-size: 14px;
+}
+
+.nav-list li a:hover {
+  background-color: #e4f0f2;
+}
+.nav-list li a {
+  display: block;
+  padding: 3px 15px 4px 15px;
+  color: #007c99;
+  font-weight: normal;
+}
+
+.nav-list .active a, .nav-list .active a:hover {
+  color: #ffffff;
+  background-color: #006180;
+}
+.nav li + .nav-header {
+  margin-top: 9px;
 }
