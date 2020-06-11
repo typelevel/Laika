@@ -12,47 +12,41 @@
 
     <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>  
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
-    <link href="../css/bootstrap.css" rel="stylesheet">
-    <link href="../css/docs.css" rel="stylesheet">
+    <link href="../css/container.css" rel="stylesheet">
+    <link href="../css/content.css" rel="stylesheet">
+    <link href="../css/nav.css" rel="stylesheet">
+    <link href="../css/code.css" rel="stylesheet">
+
+    <script> /* for avoiding page load transitions */ </script>
 
   </head>
 
-  <body data-spy="scroll" data-target=".toc" data-offset="200">
+  <body>
 
+    <nav class="sidebar">
 
-  <div class="container">
+      <ul class="nav nav-list">
 
-    <!-- Docs nav
-    ================================================== -->
-    <div class="row">
-      <div class="span4 toc" >
+        @:laika-nav
         
-        <ul class="nav nav-list affix">
-          <div class="nav-top"><img src="../img/laika-top.png"/></div>
-          
-          @:laika-nav
-          
-          <li class="nav-header">Project Links</li>
-          <li><a href="http://github.com/planet42/Laika">Source Code</a></li>
-          <li><a href="../api/laika/api/">API Documentation</a></li>
-          <!--<li><a href="http://github.com/planet42/Laika/issues">Issue Tracker</a></li>-->
-          <!--<li><a href="http://planet42.org/">Demo App</a></li>-->
-          <!--  
-          <li class="follow"><a href="https://twitter.com/_planet42" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false" data-dnt="true">Follow @_planet42</a>
-          <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script></li>
-          -->
-          <div class="nav-bottom"><img src="../img/laika-bottom.png" border="1"/></div>
-        </ul>
+        <li class="nav-header">Project Links</li>
+        <li><a href="http://github.com/planet42/Laika">Source Code</a></li>
+        <li><a href="../api/laika/api/">API Documentation</a></li>
+        <li><a href="http://planet42.org/">Demo App</a></li>
         
-      </div>
-      
-      <div class="span8" id="top">
+      </ul>
+
+    </nav>
+
+    <div id="container">
+
+      <main class="content">
 
         ${cursor.currentDocument.content}
-
-      </div>
+        
+      </main>
+      
     </div>
 
-  </div>
-
-</body></html>
+  </body>
+</html>
