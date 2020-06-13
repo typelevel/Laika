@@ -40,11 +40,6 @@ class ConfigSpec extends IOSpec
 
   trait Inputs extends InputBuilder  {
       
-    val mdMatcher = MarkupParser.of(Markdown).config.docTypeMatcher
-    val rstMatcher = MarkupParser.of(ReStructuredText).config.docTypeMatcher
-      
-    def builder (in: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): IO[InputTree[IO]] = build(in, docTypeMatcher)
-    
     object Contents {
 
       val templateWithRef =
@@ -152,7 +147,7 @@ class ConfigSpec extends IOSpec
           TemplateString("</div>\nCCC")
         )
       )
-      markdownParser.fromInput(builder(inputs, mdMatcher)).parse.map(toResult).assertEquals(expected)
+      markdownParser.fromInput(build(inputs)).parse.map(toResult).assertEquals(expected)
     }
 
     "parse configuration sections embedded in reStructuredText documents" in new Inputs {
@@ -169,7 +164,7 @@ class ConfigSpec extends IOSpec
           TemplateString("</div>\nCCC")
         )
       )
-      rstParser.fromInput(builder(inputs, rstMatcher)).parse.map(toResult).assertEquals(expected)
+      rstParser.fromInput(build(inputs)).parse.map(toResult).assertEquals(expected)
     }
 
     "insert an invalid element when a required context reference is missing" in new Inputs {
@@ -186,7 +181,7 @@ class ConfigSpec extends IOSpec
           TemplateString("</div>\nCCC")
         )
       )
-      rstParser.fromInput(builder(inputs, rstMatcher)).parse.map(toResult).assertEquals(expected)
+      rstParser.fromInput(build(inputs)).parse.map(toResult).assertEquals(expected)
     }
 
     "insert an empty string when an optional context reference is missing" in new Inputs {
@@ -203,7 +198,7 @@ class ConfigSpec extends IOSpec
           TemplateString("</div>\nCCC")
         )
       )
-      rstParser.fromInput(builder(inputs, rstMatcher)).parse.map(toResult).assertEquals(expected)
+      rstParser.fromInput(build(inputs)).parse.map(toResult).assertEquals(expected)
     }
 
     "make directory configuration available for references in markup" in new Inputs {
@@ -219,7 +214,7 @@ class ConfigSpec extends IOSpec
           TemplateString("</div>\nCCC")
         )
       )
-      markdownParser.fromInput(builder(inputs, mdMatcher)).parse.map(toResult).assertEquals(expected)
+      markdownParser.fromInput(build(inputs)).parse.map(toResult).assertEquals(expected)
     }
 
     "include classpath resources in directory configuration" in new Inputs {
@@ -235,7 +230,7 @@ class ConfigSpec extends IOSpec
           TemplateString("</div>\nCCC")
         )
       )
-      markdownParser.fromInput(builder(inputs, mdMatcher)).parse.map(toResult).assertEquals(expected)
+      markdownParser.fromInput(build(inputs)).parse.map(toResult).assertEquals(expected)
     }
 
     "include file resources in directory configuration" in new Inputs {
@@ -262,7 +257,7 @@ class ConfigSpec extends IOSpec
         conf    =  new File(tempDir, "b.conf")
         _       <- writeFile(conf, bConf)
         _       <- writeFile(new File(tempDir, "c.conf"), "c = 3")
-        res     <- markdownParser.fromInput(builder(inputs(conf), mdMatcher)).parse.map(toResult)
+        res     <- markdownParser.fromInput(build(inputs(conf))).parse.map(toResult)
       } yield res
       
       res.assertEquals(expected)
@@ -274,7 +269,7 @@ class ConfigSpec extends IOSpec
         Root / "default.template.html" -> Contents.templateWithoutConfig,
         Root / "input.md" -> Contents.markupWithMergeableConfig
       )
-      markdownParser.fromInput(builder(inputs, mdMatcher)).parse.asserting { tree => 
+      markdownParser.fromInput(build(inputs)).parse.asserting { tree => 
         val doc = tree.root.tree.content.head.asInstanceOf[Document]
         doc.config.get[ConfigValue]("foo").toOption.get.asInstanceOf[ObjectValue].values.sortBy(_.key) should be(Seq(
           Field("bar", LongValue(7), Origin(DocumentScope, Root / "input.md")),
@@ -289,7 +284,7 @@ class ConfigSpec extends IOSpec
         Root / "default.template.html" -> Contents.templateWithoutConfig,
         Root / "input.md" -> Contents.markupWithMergeableConfig
       )
-      markdownParser.fromInput(builder(inputs, mdMatcher)).parse.asserting { tree =>
+      markdownParser.fromInput(build(inputs)).parse.asserting { tree =>
         val doc = tree.root.tree.content.head.asInstanceOf[Document]
         doc.config.get[Map[String, Int]]("foo").toOption.get.toSeq.sortBy(_._1) should be(Seq(
           ("bar", 7),
@@ -313,7 +308,7 @@ class ConfigSpec extends IOSpec
           TemplateString("</div>\nCCC")
         )
       )
-      rstParser.fromInput(builder(inputs, rstMatcher)).parse.map(toResult).assertEquals(expected)
+      rstParser.fromInput(build(inputs)).parse.map(toResult).assertEquals(expected)
     }
 
     "merge configuration found in documents, templates, directories, programmatic setup, bundles and themes" in new Inputs {
@@ -356,7 +351,7 @@ class ConfigSpec extends IOSpec
         .parallel[IO]
         .withTheme(ThemeBuilder.forBundle(BundleProvider.forConfigString(config6)))
         .build
-        .fromInput(builder(inputs, mdMatcher))
+        .fromInput(build(inputs))
         .parse
         .map(p => resultTree(p.root))
         .asserting { tree =>
@@ -371,7 +366,7 @@ class ConfigSpec extends IOSpec
       )
 
       markdownParser
-        .fromInput(builder(inputs, mdMatcher))
+        .fromInput(build(inputs))
         .parse
         .map(p => resultTree(p.root))
         .asserting { tree =>
@@ -386,7 +381,7 @@ class ConfigSpec extends IOSpec
       )
 
       markdownParser
-        .fromInput(builder(inputs, mdMatcher))
+        .fromInput(build(inputs))
         .parse
         .map(p => resultTree(p.root))
         .asserting { tree =>
@@ -402,7 +397,7 @@ class ConfigSpec extends IOSpec
       )
 
       markdownParser
-        .fromInput(builder(inputs, mdMatcher))
+        .fromInput(build(inputs))
         .parse
         .map(p => resultTree(p.root))
         .asserting { tree =>

@@ -120,8 +120,6 @@ class ParallelParserSpec extends IOSpec
     
     val docTypeMatcher: Path => DocumentType = defaultParser.config.docTypeMatcher
     
-    def build (in: Seq[(Path, String)]): IO[InputTree[IO]] = build(in, docTypeMatcher)
-    
     def docView (num: Int, path: Path = Root) = DocumentView(path / s"doc$num.md", Content(List(p("foo"))) :: Nil)
     def docView (name: String) = DocumentView(Root / name, Content(List(p("foo"))) :: Nil)
     
@@ -142,7 +140,7 @@ class ParallelParserSpec extends IOSpec
         .withTheme(Theme.empty)
         .withAlternativeParser(MarkupParser.of(ReStructuredText))
         .build
-      parser.fromInput(build(inputs, parser.config.docTypeMatcher)).parse.map(toView)
+      parser.fromInput(build(inputs)).parse.map(toView)
     }
     
     def parsedWith (bundle: ExtensionBundle): IO[RootView] =
@@ -492,9 +490,7 @@ class ParallelParserSpec extends IOSpec
           (deco.toString ~> anyNot(' ')).map(DecoratedSpan(overrideDeco, _))
         }
       
-      val input: IO[InputTree[IO]] = InputTree[IO]
-        .addString("aaa +bbb ccc", Root / "doc.md")
-        .build(defaultParser.config.docTypeMatcher)
+      val input: InputTreeBuilder[IO] = InputTree[IO].addString("aaa +bbb ccc", Root / "doc.md")
       
       def parse: IO[RootElement] = parserWithThemeAndBundle(
         BundleProvider.forMarkupParser(spanParsers = themeParsers, origin = BundleOrigin.Theme),
@@ -689,20 +685,20 @@ class ParallelParserSpec extends IOSpec
     }
 
     "merge two directories from the file system using an InputTreeBuilder" in new MergedDirectorySetup {
-      val treeInput = InputTree[IO].addDirectory(dir1).addDirectory(dir2).build(defaultParser.config.docTypeMatcher)
+      val treeInput = InputTree[IO].addDirectory(dir1).addDirectory(dir2)
 
       defaultParser.fromInput(treeInput).parse.map(toTreeView).assertEquals(treeResult)
     }
 
     "merge a directory with a directory from a theme" in new MergedDirectorySetup {
-      val treeInput = InputTree[IO].addDirectory(dir1).build(defaultParser.config.docTypeMatcher)
+      val treeInput = InputTree[IO].addDirectory(dir1)
       val themeInput = InputTree[IO].addDirectory(dir2).build(defaultParser.config.docTypeMatcher)
 
       defaultBuilder.withTheme(ThemeBuilder.forInputs(themeInput)).build.fromInput(treeInput).parse.map(toTreeView).assertEquals(treeResult)
     }
 
     "merge a directory at a specific mount-point using an InputTreeBuilder" in new MergedDirectorySetup {
-      val treeInput = InputTree[IO].addDirectory(dir1).addDirectory(dir2, Root / "dir2").build(defaultParser.config.docTypeMatcher)
+      val treeInput = InputTree[IO].addDirectory(dir1).addDirectory(dir2, Root / "dir2")
 
       val mergedResult = {
         val subtree1 = TreeView(Root / "dir1", List(Documents(List(docView(3, Root / "dir1"), docView(4, Root / "dir1")))))

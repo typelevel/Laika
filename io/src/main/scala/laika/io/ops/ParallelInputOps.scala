@@ -20,7 +20,7 @@ import java.io.File
 
 import cats.effect.Async
 import laika.api.builder.OperationConfig
-import laika.io.model.{DirectoryInput, InputTree}
+import laika.io.model.{DirectoryInput, InputTree, InputTreeBuilder}
 import laika.io.runtime.DirectoryScanner
 
 import scala.io.Codec
@@ -116,11 +116,15 @@ trait ParallelInputOps[F[_]] {
   def fromWorkingDirectory (exclude: FileFilter = DirectoryInput.hiddenFileFilter)(implicit codec: Codec): Result =
     fromDirectories(Seq(new File(System.getProperty("user.dir"))), exclude)
 
-  /** Builder step that instructs the runtime to use the specified input for all
-    * parsing operations.
+  /** Builder step that instructs the runtime to use the specified input builder for all parsing operations.
+    *
+    *  @param input the input tree to process
+    */
+  def fromInput(input: InputTreeBuilder[F]): Result = fromInput(input.build(config.docTypeMatcher))
+  
+  /** Builder step that instructs the runtime to use the specified input for all parsing operations.
     * 
-    * This is a generic method based on Laika's IO model that concrete
-    * methods delegate to.
+    * This is a generic method based on Laika's IO model that concrete methods delegate to.
     *
     *  @param input the input tree to process
     */

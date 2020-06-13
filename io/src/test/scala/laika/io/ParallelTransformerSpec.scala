@@ -74,13 +74,13 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
       .parallel[IO]
       .withAlternativeParser(MarkupParser.of(ReStructuredText))
       .build
-      .fromInput(input(inputs, transformer.config.docTypeMatcher))
+      .fromInput(build(inputs))
       .toOutput(StringTreeOutput)
       .describe
     
     private def transformWith (transformer: ParallelTransformer[IO] = transformer): IO[RenderedTreeViewRoot] =
       transformer
-        .fromInput(input(inputs, transformer.config.docTypeMatcher))
+        .fromInput(build(inputs))
         .toOutput(StringTreeOutput)
         .transform
         .map(RenderedTreeViewRoot.apply[IO])
@@ -269,7 +269,6 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
       val input = InputTree[IO]
         .addString(Contents.name, Root / "doc1.md")
         .addString(Contents.style, Root / "styles.fo.css")
-        .build(transformer.config.docTypeMatcher)
       
       val renderResult = transformer
         .fromInput(input)
@@ -531,7 +530,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
         .io(blocker)
         .parallel[IO]
         .build
-        .fromInput(input(inputs, transformer.build.markupParser.config.docTypeMatcher))
+        .fromInput(build(inputs))
         .toStream(out)
         .transform
 
@@ -546,7 +545,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
         .io(blocker)
         .parallel[IO]
         .build
-        .fromInput(input(inputs, transformer.build.markupParser.config.docTypeMatcher))
+        .fromInput(build(inputs))
         .toFile(f)
         .transform
 
