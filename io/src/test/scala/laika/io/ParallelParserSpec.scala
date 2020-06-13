@@ -701,6 +701,26 @@ class ParallelParserSpec extends IOSpec
       defaultBuilder.withTheme(ThemeBuilder.forInputs(themeInput)).build.fromInput(treeInput).parse.map(toTreeView).assertEquals(treeResult)
     }
 
+    "merge a directory at a specific mount-point using an InputTreeBuilder" in new MergedDirectorySetup {
+      val treeInput = TreeInput[IO].addDirectory(dir1).addDirectory(dir2, Root / "dir2").build(defaultParser.config.docTypeMatcher)
+
+      val mergedResult = {
+        val subtree1 = TreeView(Root / "dir1", List(Documents(List(docView(3, Root / "dir1"), docView(4, Root / "dir1")))))
+        val subtree1Nested = TreeView(Root / "dir2" / "dir1", List(Documents(List(docView(7, Root / "dir2" / "dir1")))))
+        val subtree3 = TreeView(Root / "dir2" / "dir3", List(Documents(List(docView(8, Root / "dir2" / "dir3")))))
+        val subtree2 = TreeView(Root / "dir2", List(
+          Documents(List(docView(5, Root / "dir2"), docView(6, Root / "dir2"), docView(9, Root / "dir2"))),
+          Subtrees(List(subtree1Nested, subtree3))
+        ))
+        TreeView(Root, List(
+          Documents(List(docView(1), docView(2))),
+          Subtrees(List(subtree1, subtree2))
+        ))
+      }
+      
+      defaultParser.fromInput(treeInput).parse.map(toTreeView).assertEquals(mergedResult)
+    }
+
     "read a directory from the file system containing a file with non-ASCII characters" in new ParserSetup {
       val dirname: String = getClass.getResource("/trees/c/").getFile
 

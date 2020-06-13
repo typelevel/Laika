@@ -123,7 +123,7 @@ class InputTreeBuilder[F[_]] (exclude: File => Boolean, steps: Vector[(Path => D
   def addDirectory (dir: File)(implicit codec: Codec): InputTreeBuilder[F] = addDirectory(dir, Root)
   def addDirectory (dir: File, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] = addStep { docTypeFunction =>
     Kleisli { input => 
-      DirectoryScanner.scanDirectories[F](new DirectoryInput(Seq(dir), codec, docTypeFunction, exclude)).map(input ++ _)
+      DirectoryScanner.scanDirectories[F](new DirectoryInput(Seq(dir), codec, docTypeFunction, exclude, mountPoint)).map(input ++ _)
     }
   }
 
@@ -173,7 +173,8 @@ class InputTreeBuilder[F[_]] (exclude: File => Boolean, steps: Vector[(Path => D
 case class DirectoryInput (directories: Seq[File],
                            codec: Codec,
                            docTypeMatcher: Path => DocumentType = DocumentTypeMatcher.base,
-                           fileFilter: File => Boolean = DirectoryInput.hiddenFileFilter) {
+                           fileFilter: File => Boolean = DirectoryInput.hiddenFileFilter,
+                           mountPoint: Path = Root) {
   lazy val sourcePaths: Seq[String] = directories map (_.getAbsolutePath)
 }
 

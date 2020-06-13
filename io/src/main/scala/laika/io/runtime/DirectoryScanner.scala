@@ -38,7 +38,7 @@ object DirectoryScanner {
     */
   def scanDirectories[F[_]: Async] (input: DirectoryInput): F[TreeInput[F]] = {
     val sourcePaths: Seq[String] = input.directories map (_.getAbsolutePath)
-    join(input.directories.map(d => scanDirectory(Root, d.toPath, input))).map(_.copy(sourcePaths = sourcePaths))
+    join(input.directories.map(d => scanDirectory(input.mountPoint, d.toPath, input))).map(_.copy(sourcePaths = sourcePaths))
   }
   
   private def scanDirectory[F[_]: Async] (vPath: Path, filePath: JPath, input: DirectoryInput): F[TreeInput[F]] =
