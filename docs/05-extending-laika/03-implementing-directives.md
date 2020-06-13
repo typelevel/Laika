@@ -4,7 +4,7 @@ Implementing Directives
 
 Implementing a directive is one of two possible ways to extend the syntax of a text markup language.
 
-The second option is @ref:(Writing Parser Extensions), but in many cases the directive approach offers more convenience.
+The second option is [Writing Parser Extensions], but in many cases the directive approach offers more convenience.
 It is based on a common syntax for declaring a directive and its attributes and body elements.
 Therefore directives can be implemented without writing a custom parser and without getting familiar
 with Laika's parser combinators.
@@ -236,7 +236,7 @@ import Spans.dsl._
 val ticketDirective = Spans.create("ticket") {
   (attribute(0).as[Int], cursor).mapN { (ticketNo, cursor) => 
     cursor.config.get[String]("ticket.baseURL").fold(
-      error => InvalidElement(s"Unable to read base URL for tickets: $error", "#" + num).asSpan,
+      error => InvalidElement(s"Unable to read base URL: $error", "#" + num).asSpan,
       baseURL => SpanLink(Seq(Text("#" + num)), ExternalTarget(s"$baseURL$num"))
     )
   }

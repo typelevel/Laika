@@ -4,7 +4,7 @@ Writing Parser Extensions
 
 Implementing a custom parser is one of two possible ways to extend the syntax of a text markup language.
 
-The second option is @ref:(Implementing Directives) and in many cases that approach offers more convenience.
+The second option is [Implementing Directives] and in many cases that approach offers more convenience.
 It is based on a common syntax for declaring a directive and its attributes and body elements.
 Therefore directives can be implemented without writing a custom parser and without getting familiar
 with Laika's parser combinators.
