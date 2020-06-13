@@ -29,7 +29,7 @@ import laika.format._
 import laika.io.helper.OutputBuilder._
 import laika.io.helper.{InputBuilder, RenderResult, ThemeBuilder}
 import laika.io.implicits._
-import laika.io.model.{StringTreeOutput, TreeInput}
+import laika.io.model.{StringTreeOutput, InputTree}
 import laika.io.runtime.RendererRuntime.{DuplicatePath, RendererErrors}
 import laika.io.text.ParallelRenderer
 import laika.parse.markup.DocumentParser.{InvalidDocument, InvalidDocuments}
@@ -241,7 +241,7 @@ class ParallelRendererSpec extends IOSpec
       new HTMLRenderer {
         val template = TemplateRoot(t("["), TemplateContextReference(CursorKeys.documentContent, required = true), t("]"))
         override lazy val renderer = Renderer.of(HTML).io(blocker).parallel[IO]
-          .withTheme(ThemeBuilder.forInputs(TreeInput[IO]
+          .withTheme(ThemeBuilder.forInputs(InputTree[IO]
             .addTemplate(TemplateDocument(Root / "default.template.html", template))
             .build(DocumentTypeMatcher.base))
           ).build
@@ -297,7 +297,7 @@ class ParallelRendererSpec extends IOSpec
             .of(EPUB.XHTML)
             .io(blocker)
             .parallel[IO]
-            .withTheme(ThemeBuilder.forInputs(TreeInput[IO]
+            .withTheme(ThemeBuilder.forInputs(InputTree[IO]
               .addTemplate(TemplateDocument(Root / "default.template.epub.xhtml", template))
               .build(DocumentTypeMatcher.base)))
             .build
@@ -337,7 +337,7 @@ class ParallelRendererSpec extends IOSpec
             .of(XSLFO)
             .io(blocker)
             .parallel[IO]
-            .withTheme(ThemeBuilder.forInputs(TreeInput[IO]
+            .withTheme(ThemeBuilder.forInputs(InputTree[IO]
               .addStyles(themeStyles, Root / "styles.fo.css")
               .addTemplate(TemplateDocument(Root / "default.template.fo", FOTemplate.default))
               .build(DocumentTypeMatcher.base)))
@@ -398,7 +398,7 @@ class ParallelRendererSpec extends IOSpec
     "render a tree with a single static document from a theme" in new ASTRenderer with DocBuilder {
       val input = DocumentTree(Root, Nil)
       override def treeRoot = DocumentTreeRoot(input, staticDocuments = Seq(staticDoc(1).path))
-      val theme = ThemeBuilder.forInputs(TreeInput[IO].addString("...", Root / "static1.txt").build(DocumentTypeMatcher.base))
+      val theme = ThemeBuilder.forInputs(InputTree[IO].addString("...", Root / "static1.txt").build(DocumentTypeMatcher.base))
       Renderer
         .of(AST)
         .io(blocker)

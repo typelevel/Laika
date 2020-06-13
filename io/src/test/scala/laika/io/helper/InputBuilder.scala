@@ -32,8 +32,8 @@ trait InputBuilder {
       BinaryInput(path, Resource.fromAutoCloseable(IO(new ByteArrayInputStream(input.getBytes(codec.charSet)))))
   }
   
-  def build (inputs: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): IO[TreeInput[IO]] =
-    inputs.foldLeft(TreeInput[IO]) {
+  def build (inputs: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): IO[InputTree[IO]] =
+    inputs.foldLeft(InputTree[IO]) {
       case (builder, (path, input)) => builder.addString(input, path)
     }.build(docTypeMatcher)
   

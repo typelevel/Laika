@@ -20,7 +20,7 @@ import java.io.File
 
 import cats.effect.Async
 import laika.api.builder.OperationConfig
-import laika.io.model.{DirectoryInput, TreeInput}
+import laika.io.model.{DirectoryInput, InputTree}
 import laika.io.runtime.DirectoryScanner
 
 import scala.io.Codec
@@ -124,6 +124,6 @@ trait ParallelInputOps[F[_]] {
     *
     *  @param input the input tree to process
     */
-  def fromInput(input: F[TreeInput[F]]): Result
+  def fromInput(input: F[InputTree[F]]): Result
 
 }

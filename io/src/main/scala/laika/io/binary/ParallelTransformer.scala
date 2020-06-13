@@ -49,7 +49,7 @@ class ParallelTransformer[F[_]: Async: Runtime] (parsers: NonEmptyList[MarkupPar
     .reduceLeft[OperationConfig](_ merge _)
     .withBundles(theme.extensions)
 
-  def fromInput (input: F[TreeInput[F]]): ParallelTransformer.OutputOps[F] = 
+  def fromInput (input: F[InputTree[F]]): ParallelTransformer.OutputOps[F] = 
     ParallelTransformer.OutputOps(parsers, renderer, theme, input, mapper)
 
 }
@@ -104,7 +104,7 @@ object ParallelTransformer {
   case class OutputOps[F[_]: Async: Runtime] (parsers: NonEmptyList[MarkupParser],
                                               renderer: BinaryRenderer,
                                               theme: Theme[F],
-                                              input: F[TreeInput[F]], 
+                                              input: F[InputTree[F]],
                                               mapper: TreeMapper[F]) extends BinaryOutputOps[F] {
 
     val F: Async[F] = Async[F]
@@ -124,7 +124,7 @@ object ParallelTransformer {
   case class Op[F[_]: Async: Runtime] (parsers: NonEmptyList[MarkupParser],
                                        renderer: BinaryRenderer,
                                        theme: Theme[F],
-                                       input: F[TreeInput[F]],
+                                       input: F[InputTree[F]],
                                        mapper: TreeMapper[F],
                                        output: BinaryOutput[F]) {
 

@@ -61,10 +61,10 @@ object TextInput {
   * Even though the documents are specified as a flat sequence, they logically form a tree based
   * on their virtual path.
   */
-case class TreeInput[F[_]] (textInputs: Seq[TextInput[F]] = Nil, 
-                            binaryInputs: Seq[BinaryInput[F]] = Nil, 
-                            parsedResults: Seq[ParserResult] = Nil, 
-                            sourcePaths: Seq[String] = Nil) {
+case class InputTree[F[_]](textInputs: Seq[TextInput[F]] = Nil,
+                           binaryInputs: Seq[BinaryInput[F]] = Nil,
+                           parsedResults: Seq[ParserResult] = Nil,
+                           sourcePaths: Seq[String] = Nil) {
 
   /** A collection of all paths in this input tree, which may contain duplicates.
     */
@@ -72,21 +72,21 @@ case class TreeInput[F[_]] (textInputs: Seq[TextInput[F]] = Nil,
   
   /** Merges the inputs of two collections.
     */
-  def ++ (other: TreeInput[F]): TreeInput[F] = TreeInput(
+  def ++ (other: InputTree[F]): InputTree[F] = InputTree(
     textInputs ++ other.textInputs, 
     binaryInputs ++ other.binaryInputs,
     parsedResults ++ other.parsedResults,
     sourcePaths ++ other.sourcePaths
   )
   
-  def + (textInput: TextInput[F]): TreeInput[F] = copy(textInputs = textInputs :+ textInput)
-  def + (binaryInput: BinaryInput[F]): TreeInput[F] = copy(binaryInputs = binaryInputs :+ binaryInput)
-  def + (parsedResult: ParserResult): TreeInput[F] = copy(parsedResults = parsedResults :+ parsedResult)
+  def + (textInput: TextInput[F]): InputTree[F] = copy(textInputs = textInputs :+ textInput)
+  def + (binaryInput: BinaryInput[F]): InputTree[F] = copy(binaryInputs = binaryInputs :+ binaryInput)
+  def + (parsedResult: ParserResult): InputTree[F] = copy(parsedResults = parsedResults :+ parsedResult)
 }
 
 /** Factory methods for creating `TreeInput` instances.
   */
-object TreeInput {
+object InputTree {
 
   def apply[F[_]: Async] (exclude: File => Boolean): InputTreeBuilder[F] = new InputTreeBuilder(exclude, Vector.empty)
   
@@ -95,21 +95,21 @@ object TreeInput {
   
   /** An empty input collection.
     */
-  def empty[F[_]]: TreeInput[F] = TreeInput(Nil, Nil, Nil)
+  def empty[F[_]]: InputTree[F] = InputTree(Nil, Nil, Nil)
 }
 
 
-class InputTreeBuilder[F[_]] (exclude: File => Boolean, steps: Vector[(Path => DocumentType) => Kleisli[F, TreeInput[F], TreeInput[F]]])(implicit F: Async[F]) {
+class InputTreeBuilder[F[_]](exclude: File => Boolean, steps: Vector[(Path => DocumentType) => Kleisli[F, InputTree[F], InputTree[F]]])(implicit F: Async[F]) {
   
   import cats.implicits._
   
-  private def addStep (step: (Path => DocumentType) => Kleisli[F, TreeInput[F], TreeInput[F]]): InputTreeBuilder[F] =
+  private def addStep (step: (Path => DocumentType) => Kleisli[F, InputTree[F], InputTree[F]]): InputTreeBuilder[F] =
     new InputTreeBuilder(exclude, steps = steps :+ step)
   
-  private def addStep (path: Path)(f: PartialFunction[DocumentType, TreeInput[F] => TreeInput[F]]): InputTreeBuilder[F] = 
+  private def addStep (path: Path)(f: PartialFunction[DocumentType, InputTree[F] => InputTree[F]]): InputTreeBuilder[F] = 
     addStep { docTypeFunction => 
       Kleisli { tree =>
-        f.applyOrElse[DocumentType, TreeInput[F] => TreeInput[F]](docTypeFunction(path), _ => identity)(tree).pure[F]
+        f.applyOrElse[DocumentType, InputTree[F] => InputTree[F]](docTypeFunction(path), _ => identity)(tree).pure[F]
       }
     }
   
@@ -155,11 +155,11 @@ class InputTreeBuilder[F[_]] (exclude: File => Boolean, steps: Vector[(Path => D
   def addStyles (styles: Set[StyleDeclaration], path: Path): InputTreeBuilder[F] = 
     addParserResult(StyleResult(StyleDeclarationSet(Set(path), styles), "fo"))
   
-  def build (docTypeMatcher: Path => DocumentType): F[TreeInput[F]] = 
+  def build (docTypeMatcher: Path => DocumentType): F[InputTree[F]] = 
     steps
       .map(_(docTypeMatcher))
       .reduceLeftOption(_ andThen _)
-      .fold(TreeInput.empty[F].pure[F])(_.run(TreeInput.empty[F]))
+      .fold(InputTree.empty[F].pure[F])(_.run(InputTree.empty[F]))
 
 }
 

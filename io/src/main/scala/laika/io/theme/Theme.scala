@@ -21,7 +21,7 @@ import cats.effect.Async
 import laika.ast.Path.Root
 import laika.ast.TemplateDocument
 import laika.bundle.ExtensionBundle
-import laika.io.model.{ParsedTree, TreeInput}
+import laika.io.model.{ParsedTree, InputTree}
 import laika.io.runtime.TreeResultBuilder.{StyleResult, TemplateResult}
 import laika.render.{FOStyles, FOTemplate, HTMLTemplate}
 
@@ -30,7 +30,7 @@ import laika.render.{FOStyles, FOTemplate, HTMLTemplate}
   */
 trait Theme[F[_]] {
 
-  def inputs: F[TreeInput[F]]
+  def inputs: F[InputTree[F]]
   
   def extensions: Seq[ExtensionBundle]
   
@@ -41,14 +41,14 @@ trait Theme[F[_]] {
 object Theme {
 
   def empty[F[_]: Async]: Theme[F] = new Theme[F] {
-    def inputs: F[TreeInput[F]] = Async[F].pure(TreeInput.empty)
+    def inputs: F[InputTree[F]] = Async[F].pure(InputTree.empty)
     def extensions: Seq[ExtensionBundle] = Nil
     def treeTransformer: Kleisli[F, ParsedTree[F], ParsedTree[F]] = Kleisli(Async[F].pure)
   }
 
   def default[F[_]: Async]: Theme[F] = new Theme[F] {
 
-    def inputs: F[TreeInput[F]] = Async[F].pure(TreeInput[F](
+    def inputs: F[InputTree[F]] = Async[F].pure(InputTree[F](
       parsedResults = Seq(
         TemplateResult(TemplateDocument(Root / "default.template.html", HTMLTemplate.default)),
         TemplateResult(TemplateDocument(Root / "default.template.epub.xhtml", laika.render.epub.HtmlTemplate.default)),

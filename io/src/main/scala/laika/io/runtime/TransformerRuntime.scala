@@ -22,7 +22,7 @@ import cats.effect.Async
 import cats.implicits._
 import laika.bundle.ExtensionBundle
 import laika.io.binary
-import laika.io.model.{ParsedTree, RenderedTreeRoot, TreeInput}
+import laika.io.model.{ParsedTree, RenderedTreeRoot, InputTree}
 import laika.io.text._
 import laika.io.theme.Theme
 
@@ -34,7 +34,7 @@ import laika.io.theme.Theme
 object TransformerRuntime {
   
   private def themeWithBundlesOnly[F[_]: Monad] (theme: Theme[F]): Theme[F] = new Theme[F] {
-    def inputs: F[TreeInput[F]] = Monad[F].pure(TreeInput.empty)
+    def inputs: F[InputTree[F]] = Monad[F].pure(InputTree.empty)
     def extensions: Seq[ExtensionBundle] = theme.extensions
     def treeTransformer: Kleisli[F, ParsedTree[F], ParsedTree[F]] = Kleisli(Monad[F].pure)
   }

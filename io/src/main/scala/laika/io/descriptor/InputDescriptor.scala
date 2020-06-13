@@ -20,7 +20,7 @@ import cats.effect.Async
 import cats.implicits._
 import laika.ast.DocumentType
 import laika.collection.TransitionalCollectionOps._
-import laika.io.model.{BinaryInput, TextInput, TreeInput}
+import laika.io.model.{BinaryInput, TextInput, InputTree}
 
 /** Describes a single, textual or binary input for a parsing or rendering operation.
   * This functionality is mostly intended for tooling support.
@@ -74,7 +74,7 @@ object TreeInputDescriptor {
     "Root Directories" -> "Root Directories"
   )
 
-  def create[F[_]: Async] (input: F[TreeInput[F]]): F[TreeInputDescriptor] = input.map { treeInput =>
+  def create[F[_]: Async] (input: F[InputTree[F]]): F[TreeInputDescriptor] = input.map { treeInput =>
     TreeInputDescriptor(
       treeInput.textInputs.map(InputDescriptor.create[F]) ++ treeInput.binaryInputs.map(InputDescriptor.create[F]), 
       treeInput.sourcePaths

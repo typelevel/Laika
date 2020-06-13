@@ -279,7 +279,7 @@ object Tasks {
   /** Collects all input files from the specified
     * input tree. Ignores any virtual inputs in the input trees.
     */
-  def collectInputFiles (inputs: TreeInput[IO]): Set[File] = 
+  def collectInputFiles (inputs: InputTree[IO]): Set[File] = 
     inputs.textInputs.flatMap(_.sourceFile).toSet ++ 
       inputs.binaryInputs.flatMap(_.sourceFile)
 

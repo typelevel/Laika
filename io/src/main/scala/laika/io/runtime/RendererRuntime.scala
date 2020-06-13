@@ -67,7 +67,7 @@ object RendererRuntime {
     */
   def run[F[_]: Async: Runtime] (op: ParallelRenderer.Op[F]): F[RenderedTreeRoot[F]] = op.theme.inputs.flatMap(run(op, _))
 
-  private def run[F[_]: Async: Runtime] (op: ParallelRenderer.Op[F], themeInputs: TreeInput[F]): F[RenderedTreeRoot[F]] = {  
+  private def run[F[_]: Async: Runtime] (op: ParallelRenderer.Op[F], themeInputs: InputTree[F]): F[RenderedTreeRoot[F]] = {  
     
     def validatePaths (staticDocs: Seq[BinaryInput[F]]): F[Unit] = {
       val paths = op.input.allDocuments.map(_.path) ++ staticDocs.map(_.path)
@@ -181,7 +181,7 @@ object RendererRuntime {
     run(parOp)
   }
   
-  private def getDefaultTemplate[F[_]: Async] (themeInputs: TreeInput[F], suffix: String): TemplateRoot = 
+  private def getDefaultTemplate[F[_]: Async] (themeInputs: InputTree[F], suffix: String): TemplateRoot = 
     themeInputs.parsedResults.collectFirst {
       case TemplateResult(doc, _) if doc.path == Root / s"default.template.$suffix" => 
         println("yeah")

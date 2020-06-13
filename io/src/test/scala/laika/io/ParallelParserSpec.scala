@@ -32,7 +32,7 @@ import laika.config.{ConfigBuilder, Origin}
 import laika.format.{Markdown, ReStructuredText}
 import laika.io.helper.{InputBuilder, ThemeBuilder}
 import laika.io.implicits._
-import laika.io.model.{InputTreeBuilder, ParsedTree, TreeInput}
+import laika.io.model.{InputTreeBuilder, ParsedTree, InputTree}
 import laika.io.runtime.ParserRuntime.{DuplicatePath, ParserErrors}
 import laika.io.text.ParallelParser
 import laika.io.theme.Theme
@@ -120,7 +120,7 @@ class ParallelParserSpec extends IOSpec
     
     val docTypeMatcher: Path => DocumentType = defaultParser.config.docTypeMatcher
     
-    def build (in: Seq[(Path, String)]): IO[TreeInput[IO]] = build(in, docTypeMatcher)
+    def build (in: Seq[(Path, String)]): IO[InputTree[IO]] = build(in, docTypeMatcher)
     
     def docView (num: Int, path: Path = Root) = DocumentView(path / s"doc$num.md", Content(List(p("foo"))) :: Nil)
     def docView (name: String) = DocumentView(Root / name, Content(List(p("foo"))) :: Nil)
@@ -492,7 +492,7 @@ class ParallelParserSpec extends IOSpec
           (deco.toString ~> anyNot(' ')).map(DecoratedSpan(overrideDeco, _))
         }
       
-      val input: IO[TreeInput[IO]] = TreeInput[IO]
+      val input: IO[InputTree[IO]] = InputTree[IO]
         .addString("aaa +bbb ccc", Root / "doc.md")
         .build(defaultParser.config.docTypeMatcher)
       
@@ -538,11 +538,11 @@ class ParallelParserSpec extends IOSpec
       ))
       def useTheme: Boolean = false
       def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO]
-      def build (builder: InputTreeBuilder[IO]): IO[TreeInput[IO]] = builder.build(defaultParser.config.docTypeMatcher)
-      lazy val input: IO[TreeInput[IO]] = 
-        if (useTheme) build(TreeInput[IO].addDirectory(dirname))
-        else build(addDoc(TreeInput[IO].addDirectory(dirname)))
-      lazy val parser: ParallelParser[IO] = if (useTheme) defaultBuilder.withTheme(ThemeBuilder.forInputs(build(addDoc(TreeInput[IO])))).build
+      def build (builder: InputTreeBuilder[IO]): IO[InputTree[IO]] = builder.build(defaultParser.config.docTypeMatcher)
+      lazy val input: IO[InputTree[IO]] = 
+        if (useTheme) build(InputTree[IO].addDirectory(dirname))
+        else build(addDoc(InputTree[IO].addDirectory(dirname)))
+      lazy val parser: ParallelParser[IO] = if (useTheme) defaultBuilder.withTheme(ThemeBuilder.forInputs(build(addDoc(InputTree[IO])))).build
         else defaultBuilder.build
       
       def run (): Assertion = parser.fromInput(input).parse.map(toTreeView).assertEquals(treeResult)
@@ -689,20 +689,20 @@ class ParallelParserSpec extends IOSpec
     }
 
     "merge two directories from the file system using an InputTreeBuilder" in new MergedDirectorySetup {
-      val treeInput = TreeInput[IO].addDirectory(dir1).addDirectory(dir2).build(defaultParser.config.docTypeMatcher)
+      val treeInput = InputTree[IO].addDirectory(dir1).addDirectory(dir2).build(defaultParser.config.docTypeMatcher)
 
       defaultParser.fromInput(treeInput).parse.map(toTreeView).assertEquals(treeResult)
     }
 
     "merge a directory with a directory from a theme" in new MergedDirectorySetup {
-      val treeInput = TreeInput[IO].addDirectory(dir1).build(defaultParser.config.docTypeMatcher)
-      val themeInput = TreeInput[IO].addDirectory(dir2).build(defaultParser.config.docTypeMatcher)
+      val treeInput = InputTree[IO].addDirectory(dir1).build(defaultParser.config.docTypeMatcher)
+      val themeInput = InputTree[IO].addDirectory(dir2).build(defaultParser.config.docTypeMatcher)
 
       defaultBuilder.withTheme(ThemeBuilder.forInputs(themeInput)).build.fromInput(treeInput).parse.map(toTreeView).assertEquals(treeResult)
     }
 
     "merge a directory at a specific mount-point using an InputTreeBuilder" in new MergedDirectorySetup {
-      val treeInput = TreeInput[IO].addDirectory(dir1).addDirectory(dir2, Root / "dir2").build(defaultParser.config.docTypeMatcher)
+      val treeInput = InputTree[IO].addDirectory(dir1).addDirectory(dir2, Root / "dir2").build(defaultParser.config.docTypeMatcher)
 
       val mergedResult = {
         val subtree1 = TreeView(Root / "dir1", List(Documents(List(docView(3, Root / "dir1"), docView(4, Root / "dir1")))))

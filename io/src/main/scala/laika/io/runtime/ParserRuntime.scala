@@ -28,7 +28,7 @@ import laika.config.Config.IncludeMap
 import laika.config.ConfigParser
 import laika.io.config.IncludeHandler
 import laika.io.config.IncludeHandler.RequestedInclude
-import laika.io.model.{ParsedTree, TextInput, TreeInput}
+import laika.io.model.{ParsedTree, TextInput, InputTree}
 import laika.io.text.{ParallelParser, SequentialParser}
 import laika.parse.hocon.{IncludeFile, IncludeResource, ValidStringValue}
 import laika.parse.markup.DocumentParser.{InvalidDocuments, ParserError, ParserInput}
@@ -56,9 +56,9 @@ object ParserRuntime {
     import DocumentType.{Config => ConfigType, _}
     import TreeResultBuilder._
 
-    def mergeInputs (userInputs: TreeInput[F], themeInputs: TreeInput[F]): F[TreeInput[F]] = {
+    def mergeInputs (userInputs: InputTree[F], themeInputs: InputTree[F]): F[InputTree[F]] = {
 
-      def validateInputPaths(inputs: TreeInput[F]): F[Unit] = {
+      def validateInputPaths(inputs: InputTree[F]): F[Unit] = {
         val duplicates = inputs.allPaths
           .groupBy(identity)
           .collect { case (path, in) if in.size > 1 => DuplicatePath(path) }
@@ -66,10 +66,10 @@ object ParserRuntime {
         else Async[F].raiseError(ParserErrors(duplicates.toSet))
       }
 
-      def mergedInputs: TreeInput[F] = {
+      def mergedInputs: InputTree[F] = {
         // user inputs override theme inputs
         val userPaths = userInputs.allPaths.toSet
-        val filteredThemeInputs = TreeInput(
+        val filteredThemeInputs = InputTree(
           textInputs = themeInputs.textInputs.filterNot(in => userPaths.contains(in.path)),
           binaryInputs = themeInputs.binaryInputs.filterNot(in => userPaths.contains(in.path)),
           parsedResults = themeInputs.parsedResults.filterNot(in => userPaths.contains(in.path)),
@@ -84,7 +84,7 @@ object ParserRuntime {
       } yield mergedInputs
     }
     
-    def parseAll(inputs: TreeInput[F]): F[ParsedTree[F]] = {
+    def parseAll(inputs: InputTree[F]): F[ParsedTree[F]] = {
 
       val parsers = op.parsers.map(p => MarkupParser
         .of(p.format)

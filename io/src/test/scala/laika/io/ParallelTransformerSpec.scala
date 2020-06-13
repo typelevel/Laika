@@ -31,7 +31,7 @@ import laika.io.descriptor.TransformerDescriptor
 import laika.io.helper.OutputBuilder._
 import laika.io.helper.{InputBuilder, RenderResult, ThemeBuilder}
 import laika.io.implicits._
-import laika.io.model.{StringTreeOutput, TreeInput}
+import laika.io.model.{StringTreeOutput, InputTree}
 import laika.io.text.ParallelTransformer
 import laika.parse.Parser
 import laika.parse.code.SyntaxHighlighting
@@ -52,7 +52,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
 
     def inputs: Seq[(Path, String)]
 
-    def input (in: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): IO[TreeInput[IO]] = build(in, docTypeMatcher)
+    def input (in: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): IO[InputTree[IO]] = build(in, docTypeMatcher)
 
     def transformTree: IO[RenderedTreeViewRoot] = transformWith()
     
@@ -266,7 +266,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
       val result = RenderResult.fo.withDefaultTemplate("""<fo:block font-family="serif" font-size="13pt" space-after="3mm">foo</fo:block>""")
       val transformer = Transformer.from(Markdown).to(XSLFO).using(BundleProvider.forStyleSheetParser(parser)).io(blocker).parallel[IO].build
 
-      val input = TreeInput[IO]
+      val input = InputTree[IO]
         .addString(Contents.name, Root / "doc1.md")
         .addString(Contents.style, Root / "styles.fo.css")
         .build(transformer.config.docTypeMatcher)
@@ -522,7 +522,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
           |. . Text - 'ccc'
           |""".stripMargin
 
-      def input (in: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): IO[TreeInput[IO]] = build(in, docTypeMatcher)
+      def input (in: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): IO[InputTree[IO]] = build(in, docTypeMatcher)
     }
 
     "render a tree with a RenderResultProcessor writing to an output stream" in new TwoPhaseTransformer {
