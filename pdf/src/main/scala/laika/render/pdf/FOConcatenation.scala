@@ -16,6 +16,8 @@
 
 package laika.render.pdf
 
+import cats.implicits._
+import cats.data.NonEmptySet
 import laika.config.{Config, ConfigError}
 import laika.api.Renderer
 import laika.ast.Path.Root
@@ -65,7 +67,7 @@ object FOConcatenation {
     val resultWithoutToc = result.copy[F](tree = result.tree.copy(content = result.tree.content.filterNot(_.path == Root / "_toc_.fo")))
 
     def applyTemplate(foString: String, template: TemplateDocument): Either[ConfigError, String] = {
-      val foElement = RawContent(Seq("fo"), foString)
+      val foElement = RawContent(NonEmptySet.one("fo"), foString)
       val finalConfig = ensureAbsoluteCoverImagePath
       val finalDoc = Document(
         Path.Root / "merged.fo",
