@@ -47,19 +47,11 @@ case class DocumentTargets (document: Document, slugBuilder: String => String) {
   }
   
   private def linkDefinitionResolver (selector: Selector, target: Target, title: Option[String] = None): TargetResolver = {
-    
-    def resolveTarget (refPath: Path): Target = target match {
-      /* If an internal target point upwards beyond the virtual root of the processed tree, 
-         it is treated as an external target and does not get validated. */
-      case it: InternalTarget if it.relativePath.parentLevels >= document.path.depth => ExternalTarget(it.relativePath.toString)
-      case it: InternalTarget => it.relativeTo(refPath)
-      case external => external
-    }
     val resolver = ReferenceResolver.lift {
       case LinkSource(LinkIdReference(content, _, _, opt), sourcePath) =>
-        SpanLink(content, resolveTarget(sourcePath), title, opt)
+        SpanLink(content, ReferenceResolver.resolveTarget(target, sourcePath), title, opt)
       case LinkSource(ImageIdReference(text, _, _, opt), sourcePath) =>
-        Image(text, resolveTarget(sourcePath), title = title, options = opt)
+        Image(text, ReferenceResolver.resolveTarget(target, sourcePath), title = title, options = opt)
     }
     TargetResolver.create(selector, resolver, TargetReplacer.removeTarget)
   }

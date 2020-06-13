@@ -80,7 +80,12 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
       val resolvedTarget = target.flatMap(_.resolveReference(LinkSource(ref, cursor.path))) match {
         case Some(link: SpanLink) => validateLink(link, ref)
         case Some(other)          => other
-        case None                 => InvalidElement(msg, ref.source).asSpan
+        case None                 => ref match {
+          case PathReference(content, path, _, title, opt) => 
+            val target = ReferenceResolver.resolveTarget(InternalTarget.fromPath(path, cursor.path), cursor.path)
+            validateLink(SpanLink(content, target, title, opt), ref)
+          case _ => InvalidElement(msg, ref.source).asSpan
+        }
       }
       Replace(resolvedTarget)
     }
