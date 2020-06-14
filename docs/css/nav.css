@@ -1,5 +1,5 @@
 
-.sidebar {
+#sidebar {
   position: fixed;
   left: 0;
   z-index: 1000;
@@ -12,11 +12,15 @@
   transition: margin .25s ease-out;
 }
 
-@media (min-width: 920px) {
-  .sidebar {
+@media (min-width: 1020px) {
+  #sidebar {
     margin-left: 0;
     box-shadow: -2px 0 8px #c3d6d8;
   }
+}
+
+#sidebar.nav-open {
+  margin-left: 0 !important;
 }
 
 .nav-list li.nav-header {
@@ -61,3 +65,33 @@ ul.nav {
 .nav li + .nav-header {
   margin-top: 9px;
 }
+
+#open-nav-icon {
+  color: #007c99;
+  background-color: #ebf6f7;
+  display: inline-block;
+  padding: 6px 6px 4px 6px;
+  position: fixed;
+  top: 10px;
+  left: 10px;
+}
+
+#close-nav-icon {
+  color: #007c99;
+  display: inline-block;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+@media (min-width: 1020px) {
+  #close-nav-icon {
+    display: none;
+  }
+}
+
+.icofont-xlg
+{
+  font-size: 1.75em;
+}
+

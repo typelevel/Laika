@@ -27,13 +27,13 @@ main.content {
   }
 }
 
-@media (min-width: 920px) {
+@media (min-width: 1020px) {
   #container {
     margin-left: 275px !important;
     transition: margin .25s ease-out;
   }
   main.content {
-    max-width: 920px;
+    max-width: 860px;
     padding: 15px 45px;
   }
 }
