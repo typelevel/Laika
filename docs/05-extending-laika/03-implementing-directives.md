@@ -26,7 +26,10 @@ Anatomy of a Directive
 
 The following diagram shows a markup directive with all its optional elements present:
 
-![Directive Syntax](../img/directive-syntax.png)
+@:image(../img/directive-syntax.png) {
+  title = Directive Syntax
+  width = 602px
+}
 
 It is quite abstract and contrived, because any real-world directive would not use all optional elements at once.
 
@@ -64,7 +67,10 @@ Let's discuss the directive parts one by one:
   
 Finally, let's also examine the anatomy of a directive implementation:
 
-![Directive DSL](../img/directive-dsl.png)
+@:image(../img/directive-dsl.png) {
+  title = Directive DSL
+  width = 641px
+}
 
 We'll go through this line by line:
 

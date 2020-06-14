@@ -57,7 +57,10 @@ also exposes one of the main design goals of Laika: that everything is meant to 
 
 The following example for creating a pure transformer shows the main building blocks:
 
-![Anatomy of the API](../img/anatomy-api.png)
+@:image(../img/anatomy-api.png) {
+  title = Anatomy of the API
+  width = 602px
+}
 
 * All inputs need to support the `MarkupFormat` contract.
   Supported by the core library are `Markdown` and `ReStructuredText`.
@@ -76,7 +79,10 @@ The following example for creating a pure transformer shows the main building bl
 If you require support for file/stream IO, templating or binary output formats, 
 the `laika-io` module expands on the core API to add this functionality:
 
-![Anatomy of the IO API](../img/io-api.png)
+@:image(../img/io-api.png) {
+  title = Anatomy of the IO API
+  width = 602px
+}
 
 The blue elements of the API are identical to the pure transformer.
 The new `io` method used above becomes available with `import laika.io.implicits._`.

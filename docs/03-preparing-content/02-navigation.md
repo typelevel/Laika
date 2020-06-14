@@ -413,7 +413,10 @@ Breadcrumbs
 The classic `@:breadcrumb` component generates a simple, flat list of links reflecting the directory structure
 from the root to the current document:
 
-![Breadcrumb](../img/breadcrumb.png)
+@:image(../img/breadcrumb.png) {
+  title = Breadcrumb
+  width = 321px
+}
 
 This component works best in a directory structure that contains [Title Documents], as otherwise the
 segments which represent a directory level would have nowhere to link to and would render as plain text.
@@ -452,7 +455,10 @@ val transformer = Transformer
 The configuration above will number both documents and sections within documents, but stop after the third level. 
 The numbers will be added to the headers of the sections and also appear in tables of contents.
 
-![Auto-Numbering](../img/auto-numbering.png)
+@:image(../img/auto-numbering.png) {
+  title = Auto-Numbering
+  width = 680px
+}
 
 The default setting for Laika has auto-numbering switched off completely.
 

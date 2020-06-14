@@ -82,11 +82,17 @@ as shown in the images below:
 
 PDF Navigation in Preview for Mac:
 
-![PDF Navigation](../img/nav-pdf.png) 
+@:image(../img/nav-pdf.png) {
+  title = PDF Navigation
+  width = 473px
+}
 
 EPUB Navigation in iBooks:
 
-![EPUB Navigation](../img/nav-epub.png)
+@:image(../img/nav-epub.png) {
+  title = EPUB Navigation
+  width = 473px
+}
 
 The navigation depth is unlimited by default and will also include links to each section inside your documents.
 The depth to traverse can be changed via Laika's global configuration:

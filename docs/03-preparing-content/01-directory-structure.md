@@ -155,7 +155,10 @@ The presence of title documents would determine how exactly chapter title are re
 
 **Example for a structure with title documents** 
 
-![Input Directory with Title Documents](../img/dir-with-title-docs.png)
+@:image(../img/dir-with-title-docs.png) {
+  title = Input Directory with Title Documents
+  width = 680px
+}
 
 In this example each directory has a title document. 
 The title of that document is taken from the first header.
@@ -165,7 +168,10 @@ and the title is linked to the document.
 
 **Example for a structure without title documents** 
 
-![Input Directory without Title Documents](../img/dir-without-title-docs.png)
+@:image(../img/dir-without-title-docs.png) {
+  title = Input Directory without Title Documents
+  width = 680px
+}
   
 In this example there are no title documents and chapter titles are taken from the file `directory.conf`
 in each directory.
@@ -185,7 +191,10 @@ or generate additional files programmatically and "mount" them at a specific poi
 When merged directories contain sub-folders with the same name, those will be merged recursively. 
 Only files with the same name in the same folder are treated as errors.
 
-![Merging Directories](../img/merged-directories.png)
+@:image(../img/merged-directories.png) {
+  title = Merging Directories
+  width = 564px
+}
 
 In the example above two directories get merged into a single virtual root (`/`).
 The `images` directory exists in both sources, so it will be merged recursively.
