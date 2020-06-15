@@ -13,6 +13,7 @@ ul.toc, .toc ul {
   font-weight: bold;
   text-transform: uppercase;
   margin-left: -5px;
+  line-height: 20px;
 }
 .toc.active {
   display: none;
