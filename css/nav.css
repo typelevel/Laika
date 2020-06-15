@@ -73,8 +73,11 @@ ul.nav {
   display: inline-block;
   padding: 6px 6px 4px 6px;
   position: fixed;
-  top: 10px;
-  left: 10px;
+  top: 0;
+  left: 0;
+  border: 15px solid rgba(255,255,255,0.8);
+  background-clip: padding-box;
+  border-bottom-right-radius: 7px;
 }
 
 #close-nav-icon {
