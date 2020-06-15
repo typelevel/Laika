@@ -50,6 +50,7 @@ ul.nav {
 
 .nav-list li a:hover {
   background-color: #e4f0f2;
+  text-decoration: none;
 }
 .nav-list li a {
   display: block;
