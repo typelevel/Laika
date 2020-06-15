@@ -12,75 +12,79 @@
 
     <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>  
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
-    <link href="../css/bootstrap.css" rel="stylesheet">
-    <link href="../css/docs.css" rel="stylesheet">
+    <link rel="stylesheet" href="../icons/icofont.min.css">
+    <link href="../css/container.css" rel="stylesheet">
+    <link href="../css/content.css" rel="stylesheet">
+    <link href="../css/nav.css" rel="stylesheet">
+    <link href="../css/code.css" rel="stylesheet">
+
+    <script src="../js/theme.js"></script>
+    <script> /* for avoiding page load transitions */ </script>
 
   </head>
 
-  <body data-spy="scroll" data-target=".toc" data-offset="200">
+  <body>
 
+    <nav id="sidebar">
 
-  <div class="container">
+      <a id="close-nav-icon">
+        <i class="icofont-close-circled icofont-xlg"></i>
+      </a>
 
-    <!-- Docs nav
-    ================================================== -->
-    <div class="row">
-      <div class="span4 toc" >
+      <ul class="nav nav-list">
+
         
-        <ul class="nav nav-list affix">
-          <div class="nav-top"><img src="../img/laika-top.png"/></div>
-          
-          
-          <li><a href="../table-of-contents.html">Table of Contents</a></li>
-          <li class="nav-header">About Laika</li>
-          <li><a href="../01-about-laika/01-features.html">Features</a></li>
-          <li><a href="../01-about-laika/02-design-goals.html">Design Goals</a></li>
-          <li class="nav-header">Running Laika</li>
-          <li><a href="../02-running-laika/01-sbt-plugin.html">sbt Plugin</a></li>
-          <li><a href="../02-running-laika/02-library-api.html">Library API</a></li>
-          <li><a href="../02-running-laika/03-configuration.html">Configuration</a></li>
-          <li class="nav-header">Preparing Content</li>
-          <li class="active"><a href="#">Directory Structure</a></li>
-          <li><a href="02-navigation.html">Navigation</a></li>
-          <li><a href="04-ebooks.html">E-Books (EPUB &amp; PDF)</a></li>
-          <li><a href="05-syntax-highlighting.html">Syntax Highlighting</a></li>
-          <li class="nav-header">Customizing Laika</li>
-          <li><a href="../04-customizing-laika/01-overview.html">Overview</a></li>
-          <li><a href="../04-customizing-laika/03-creating-templates.html">Creating Templates</a></li>
-          <li><a href="../04-customizing-laika/04-document-ast.html">The Document AST</a></li>
-          <li><a href="../04-customizing-laika/05-ast-rewriting.html">AST Rewriting</a></li>
-          <li><a href="../04-customizing-laika/06-overriding-renderers.html">Overriding Renderers</a></li>
-          <li class="nav-header">Extending Laika</li>
-          <li><a href="../05-extending-laika/01-overview.html">Overview</a></li>
-          <li><a href="../05-extending-laika/03-implementing-directives.html">Implementing Directives</a></li>
-          <li><a href="../05-extending-laika/04-writing-parser-extensions.html">Writing Parser Extensions</a></li>
-          <li><a href="../05-extending-laika/06-adding-syntax-highlighters.html">Adding Syntax Highlighters</a></li>
-          <li><a href="../05-extending-laika/07-new-markup-output-formats.html">New Markup or Output Formats</a></li>
-          <li class="nav-header">Sub-Modules</li>
-          <li><a href="../06-sub-modules/02-laikas-parser-combinators.html">Laika&#39;s Parser Combinators</a></li>
-          <li><a href="../06-sub-modules/03-laikas-hocon-api.html">Laika&#39;s HOCON API</a></li>
-          <li class="nav-header">Reference</li>
-          <li><a href="../07-reference/01-standard-directives.html">Standard Directives</a></li>
-          <li><a href="../07-reference/02-substitution-variables.html">Substitution Variables</a></li>
-          <li><a href="../07-reference/03-spec-compliance.html">Spec Compliance</a></li>
-          <li><a href="../07-reference/06-release-notes.html">Release Notes</a></li>
-          <li><a href="../07-reference/07-migration-guide.html">Migration Guide</a></li>
-          
-          <li class="nav-header">Project Links</li>
-          <li><a href="http://github.com/planet42/Laika">Source Code</a></li>
-          <li><a href="../api/laika/api/">API Documentation</a></li>
-          <!--<li><a href="http://github.com/planet42/Laika/issues">Issue Tracker</a></li>-->
-          <!--<li><a href="http://planet42.org/">Demo App</a></li>-->
-          <!--  
-          <li class="follow"><a href="https://twitter.com/_planet42" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false" data-dnt="true">Follow @_planet42</a>
-          <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script></li>
-          -->
-          <div class="nav-bottom"><img src="../img/laika-bottom.png" border="1"/></div>
-        </ul>
+        <li><a href="../table-of-contents.html">Table of Contents</a></li>
+        <li class="nav-header">About Laika</li>
+        <li><a href="../01-about-laika/01-features.html">Features</a></li>
+        <li><a href="../01-about-laika/02-design-goals.html">Design Goals</a></li>
+        <li class="nav-header">Running Laika</li>
+        <li><a href="../02-running-laika/01-sbt-plugin.html">sbt Plugin</a></li>
+        <li><a href="../02-running-laika/02-library-api.html">Library API</a></li>
+        <li><a href="../02-running-laika/03-configuration.html">Configuration</a></li>
+        <li class="nav-header">Preparing Content</li>
+        <li class="active"><a href="#">Directory Structure</a></li>
+        <li><a href="02-navigation.html">Navigation</a></li>
+        <li><a href="04-ebooks.html">E-Books (EPUB &amp; PDF)</a></li>
+        <li><a href="05-syntax-highlighting.html">Syntax Highlighting</a></li>
+        <li class="nav-header">Customizing Laika</li>
+        <li><a href="../04-customizing-laika/01-overview.html">Overview</a></li>
+        <li><a href="../04-customizing-laika/03-creating-templates.html">Creating Templates</a></li>
+        <li><a href="../04-customizing-laika/04-document-ast.html">The Document AST</a></li>
+        <li><a href="../04-customizing-laika/05-ast-rewriting.html">AST Rewriting</a></li>
+        <li><a href="../04-customizing-laika/06-overriding-renderers.html">Overriding Renderers</a></li>
+        <li class="nav-header">Extending Laika</li>
+        <li><a href="../05-extending-laika/01-overview.html">Overview</a></li>
+        <li><a href="../05-extending-laika/03-implementing-directives.html">Implementing Directives</a></li>
+        <li><a href="../05-extending-laika/04-writing-parser-extensions.html">Writing Parser Extensions</a></li>
+        <li><a href="../05-extending-laika/06-adding-syntax-highlighters.html">Adding Syntax Highlighters</a></li>
+        <li><a href="../05-extending-laika/07-new-markup-output-formats.html">New Markup or Output Formats</a></li>
+        <li class="nav-header">Sub-Modules</li>
+        <li><a href="../06-sub-modules/02-laikas-parser-combinators.html">Laika&#39;s Parser Combinators</a></li>
+        <li><a href="../06-sub-modules/03-laikas-hocon-api.html">Laika&#39;s HOCON API</a></li>
+        <li class="nav-header">Reference</li>
+        <li><a href="../07-reference/01-standard-directives.html">Standard Directives</a></li>
+        <li><a href="../07-reference/02-substitution-variables.html">Substitution Variables</a></li>
+        <li><a href="../07-reference/03-spec-compliance.html">Spec Compliance</a></li>
+        <li><a href="../07-reference/06-release-notes.html">Release Notes</a></li>
+        <li><a href="../07-reference/07-migration-guide.html">Migration Guide</a></li>
         
-      </div>
-      
-      <div class="span8" id="top">
+        <li class="nav-header">Project Links</li>
+        <li><a href="http://github.com/planet42/Laika">Source Code</a></li>
+        <li><a href="../api/laika/api/">API Documentation</a></li>
+        <li><a href="http://planet42.org/">Demo App</a></li>
+        
+      </ul>
+
+    </nav>
+
+    <div id="container">
+
+      <a id="open-nav-icon">
+        <i class="icofont-navigation-menu icofont-xlg"></i>
+      </a>
+
+      <main class="content">
 
         <div class="page-header">
         <h1 id="directory-structure" class="title">Directory Structure</h1>
@@ -207,13 +211,13 @@
         </ul>
         <p>The presence of title documents would determine how exactly chapter title are rendered in the navigation structure.</p>
         <p><strong>Example for a structure with title documents</strong> </p>
-        <p><img src="../img/dir-with-title-docs.png" width="680px" alt="Input Directory with Title Documents"></p>
+        <p><img src="../img/dir-with-title-docs.png" alt="Input Directory with Title Documents" width="680"></p>
         <p>In this example each directory has a title document. 
         The title of that document is taken from the first header.
         In the navigation tree on the right it is rendered one layer above the other documents in the same directory,
         and the title is linked to the document.</p>
         <p><strong>Example for a structure without title documents</strong> </p>
-        <p><img src="../img/dir-without-title-docs.png" width="680px" alt="Input Directory without Title Documents"></p>
+        <p><img src="../img/dir-without-title-docs.png" alt="Input Directory without Title Documents" width="680"></p>
         <p>In this example there are no title documents and chapter titles are taken from the file <code>directory.conf</code>
         in each directory.
         In the navigation tree on the right these titles now only serve as separators and are not linked to any document.</p>
@@ -226,7 +230,7 @@
         or generate additional files programmatically and &quot;mount&quot; them at a specific point in the virtual tree.</p>
         <p>When merged directories contain sub-folders with the same name, those will be merged recursively. 
         Only files with the same name in the same folder are treated as errors.</p>
-        <p><img src="../img/merged-directories.png" width="564px" alt="Merging Directories"></p>
+        <p><img src="../img/merged-directories.png" alt="Merging Directories" width="564"></p>
         <p>In the example above two directories get merged into a single virtual root (<code>/</code>).
         The <code>images</code> directory exists in both sources, so it will be merged recursively.</p>
         <p>The configuration mechanism for specifying multiple input directories is different for the 
@@ -235,10 +239,10 @@
         <code>laika.ast.RelativePath</code>. These types are used frequently throughout the classes forming the document AST.
         All internal links are expressed with with these virtual paths and not with file system paths.</p>
         
-
-      </div>
+        
+      </main>
+      
     </div>
 
-  </div>
-
-</body></html>
+  </body>
+</html>

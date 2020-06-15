@@ -1,0 +1,76 @@
+pre {
+  display: block;
+  background-color: #2a3236;
+  border-radius: 5px;
+  padding: 12px 9px 9px 15px;
+  margin: 0 0 10px;
+  font-size: 13px;
+  line-height: 21px;
+  word-break: break-all;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+code {
+  color: #006180;
+  border: 1px solid #c3d6d8;
+  background-color: #ebf6f7;
+  border-radius: 5px;
+  font-family: 'Fira Code', monospace;
+  font-size: 13px;
+  white-space: nowrap;
+  padding: 1px 4px;
+}
+pre code {
+  padding: 0;
+  border: 0;
+  background-color: transparent;
+  white-space: pre-wrap;
+  color: #e8e8e8;
+  font-size: 14px;
+}
+code .keyword-intellij {
+  color: #cc7832;
+}
+code .keyword, .escape-sequence {
+  color: #ef9725;
+}
+code .type-name, code .tag-name {
+  color: #4dbed4;
+}
+code .attribute-name {
+  color: #ffc66d;
+}
+code .identifier-1 {
+  color: #f3d6b5;
+}
+code .identifier-2 {
+  color: #c2e1f3;
+}
+code .identifier {
+  color: #bddcee;
+}
+code .number-literal-ij, .string-literal-ij, .literal-value-ij, .boolean-literal-ij, code .markup-link-text {
+  color: #65A861;
+}
+code .number-literal, .string-literal, .literal-value, .boolean-literal, .char-literal {
+  /*color: #7abd76;*/
+  color: #7fb971;
+}
+code .markup-emphasized {
+  color: #d27b84;
+}
+code .markup-link-target {
+  color: #c1d225;
+}
+code .substitution {
+  color: #e28e93;
+}
+code .xml-tag-name-1 {
+  color: #98a3ee;
+}
+code .tag-punctuation {
+  color: #b2adb4;
+}
+code .comment {
+  color: #8c878e;
+}
