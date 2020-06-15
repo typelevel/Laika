@@ -7,6 +7,12 @@ ul.toc, .toc ul {
   margin-bottom: 20px;
   margin-top: 36px;
   background: linear-gradient(180deg, #ffffff 65%, #c3d6d8 65%);
+  color: #931813;
+  display: block;
+  padding: 3px 15px;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-left: -5px;
 }
 .toc.active {
   display: none;
