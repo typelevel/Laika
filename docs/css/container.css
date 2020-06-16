@@ -37,3 +37,11 @@ main.content {
     padding: 15px 45px;
   }
 }
+
+@media (min-width: 1450px) {
+  main.content {
+    max-width: 1125px;
+    padding: 15px 310px 15px 45px;
+  }
+}
+

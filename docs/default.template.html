@@ -50,6 +50,12 @@
         <i class="icofont-navigation-menu icofont-xlg"></i>
       </a>
 
+      <div id="page-nav">
+        <p class="header"><a href="#">${cursor.currentDocument.title}</a></p>
+        @:page-nav
+        <p class="footer"><a href="#todo">Source for this Page</a></p>
+      </div>
+
       <main class="content">
 
         ${cursor.currentDocument.content}
