@@ -97,3 +97,37 @@ h6:hover > a.anchor-link {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+.callout {
+  margin: 20px 20px;
+  padding: 4px 10px;
+  border-radius: 5px;
+}
+.callout .icon {
+  display: block;
+  padding: 5px 0;
+}
+
+.callout.warning {
+  background-color: #fcfacd;
+  border-left: 7px solid #b1a400;
+}
+.callout.warning .icon {
+  color: #b1a400;
+}
+
+.callout.info {
+  background-color: #ebf6f7;
+  border-left: 7px solid #007c99;
+}
+.callout.info .icon {
+  color: #007c99;
+}
+
+.callout.error {
+  background-color: #ffe9e3;
+  border-left: 7px solid #d83030;
+}
+.callout.error .icon {
+  color: #d83030;
+}
