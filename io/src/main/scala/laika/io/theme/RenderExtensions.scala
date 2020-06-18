@@ -18,7 +18,7 @@ package laika.io.theme
 
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentDocument
-import laika.ast.{Element, Header, InternalTarget, SpanLink, SpanSequence, Styles}
+import laika.ast.{BlockSequence, Element, Header, InternalTarget, SpanLink, SpanSequence, Styles}
 import laika.render.HTMLFormatter
 
 /**
@@ -30,6 +30,15 @@ object RenderExtensions {
     case (fmt, Header(level, content, opt)) =>
       val link = opt.id.map(id => SpanLink(Seq(SpanSequence(Nil, Styles("anchor"))), InternalTarget(Root, CurrentDocument(id)), options = Styles("anchor-link")))
       fmt.newLine + fmt.element("h"+level.toString, opt, link.toSeq ++ content)
+    case (fmt, BlockSequence(content, opt)) if opt.styles.contains("callout") =>
+      val iconStyle = (opt.styles - "callout").headOption match {
+        case Some("warning") => Some("icofont-close-circled") // TODO - include additional icons
+        case Some("error") => Some("icofont-close-circled")
+        case Some("info") => Some("icofont-close-circled")
+        case _ => None
+      }
+      val icon = iconStyle.map(st => SpanSequence(Nil, Styles("icon", "icofont-xlg", st)))
+      fmt.indentedElement("div", opt, icon.toSeq ++ content)
   }
   
 }
