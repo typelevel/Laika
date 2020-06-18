@@ -69,3 +69,31 @@ a:hover {
   color: #931813;
   text-decoration: underline;
 }
+
+a.anchor-link {
+  visibility: hidden;
+  position: absolute;
+  display: inline-block;
+  width: 30px;
+  margin-left: -30px;
+  margin-top: -3px;
+  padding-right: 12px;
+  text-align: right;
+  text-decoration: none;
+}
+
+h1:hover > a.anchor-link, 
+h2:hover > a.anchor-link, 
+h3:hover > a.anchor-link, 
+h4:hover > a.anchor-link, 
+h5:hover > a.anchor-link, 
+h6:hover > a.anchor-link {
+  visibility: visible;
+  text-decoration: none;
+}
+
+.anchor {
+  color: #007c99;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
