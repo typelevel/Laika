@@ -425,13 +425,25 @@ object StandardDirectives extends DirectiveRegistry {
     case span :: Nil => span.mergeOptions(options)
     case multiple    => SpanSequence(multiple, options)
   }
+
+  /** Implementation of the `callout` directive for block elements in markup documents.
+    * The body of such a directive will get two styles assigned: `callout` and the argument
+    * passed to the directive (e.g. `@:callout(info)`).
+    */
+  lazy val callout: Blocks.Directive = Blocks.create("callout") {
+    import Blocks.dsl._
+
+    (attribute(0).as[String].widen, parsedBody).mapN { (style, body) =>
+      BlockSequence(body, Styles("callout", style))
+    }
+  }
   
   
   /** Implementation of the `for` directive for block elements in markup documents.
    *  The content of such a block will only be rendered for the corresponding
    *  output format (e.g. `pdf` or `html`).
    */
-  lazy val format: Blocks.Directive  = Blocks.eval("format") {
+  lazy val format: Blocks.Directive = Blocks.eval("format") {
     import Blocks.dsl._
     
     (positionalAttributes.as[String].widen, parsedBody.map(asBlock(_))).mapN { (formats, body) =>
@@ -493,6 +505,7 @@ object StandardDirectives extends DirectiveRegistry {
     blockNav,
     blockFragment,
     blockStyle,
+    callout,
     format,
     pageBreak
   )

@@ -127,6 +127,36 @@ class StandardDirectiveSpec extends AnyFlatSpec
     parse(input).content should be (root(p("aa"), BlockSequence(List(p("11\n22"),p("33")),Styles("foo")), p("bb")))
   }
 
+  "The callout directive" should "parse a body with a single block" in {
+    val input = """aa
+                  |
+                  |@:callout(info)
+                  |
+                  |11
+                  |22
+                  |
+                  |@:@
+                  |
+                  |bb""".stripMargin
+    parse(input).content should be (root(p("aa"), BlockSequence("11\n22").withOptions(Styles("callout", "info")), p("bb")))
+  }
+
+  it should "parse a body with two blocks" in {
+    val input = """aa
+                  |
+                  |@:callout(info)
+                  |
+                  |11
+                  |22
+                  |
+                  |33
+                  |
+                  |@:@
+                  |
+                  |bb""".stripMargin
+    parse(input).content should be (root(p("aa"), BlockSequence(List(p("11\n22"),p("33")),Styles("callout", "info")), p("bb")))
+  }
+
   it should "parse a single nested span" in {
     val input = """aa @:style(foo) 11 @:@ bb"""
     parse(input).content should be (root(p(Text("aa "), Text(" 11 ", Styles("foo")), Text(" bb"))))
