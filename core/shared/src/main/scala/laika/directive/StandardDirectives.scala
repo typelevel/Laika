@@ -19,11 +19,12 @@ package laika.directive
 import cats.data.{NonEmptySet, ValidatedNec}
 import cats.implicits._
 import laika.ast.Path.Root
-import laika.config.{ArrayValue, BooleanValue, ConfigDecoder, ConfigError, ConfigValue, Key, NullValue, ObjectValue, StringValue}
 import laika.ast.{SpanResolver, TemplateSpan, _}
 import laika.bundle.BundleOrigin
+import laika.config._
 import laika.rewrite.TemplateRewriter
 import laika.rewrite.link.LinkConfig
+import laika.rewrite.nav.ChoiceGroupsConfig
 
 import scala.annotation.tailrec
 import scala.collection.immutable.TreeSet
@@ -446,7 +447,7 @@ object StandardDirectives extends DirectiveRegistry {
     * 
     * A valid `@:choices` directive has at least two separator directives (`@:choice`) in the body.
     */
-  val choicesDirective: Blocks.Directive = Blocks.create("choices") {
+  val choicesDirective: Blocks.Directive = Blocks.eval("choices") {
     import Blocks.dsl._
 
     val separator: Blocks.SeparatorDirective[Choice] = Blocks.separator("choice", min = 2) {
@@ -455,11 +456,25 @@ object StandardDirectives extends DirectiveRegistry {
       }
     }
     
-    (attribute(0).as[String], separatedBody(Seq(separator))).mapN { (name, multiPart) =>
-      val choices = multiPart.children.map { choice =>
-        choice.withContent(multiPart.mainBody ++ choice.content)
-      }
-      ChoiceGroup(name, choices)
+    (attribute(0).as[String], separatedBody(Seq(separator)), cursor).mapN { (name, multiPart, cursor) =>
+      cursor.config.get[ChoiceGroupsConfig]
+        .leftMap(e => s"Error reading config for choices: ${e.message}")
+        .flatMap { config =>
+          config.getGroupConfig(name).toRight(s"Not found: choice group '$name'").flatMap { groupConfig =>
+            multiPart
+              .children.toList
+              .map { choice =>
+                groupConfig
+                  .getLabel(choice.name)
+                  .map(label => choice.copy(content = multiPart.mainBody ++ choice.content, label = label))
+                  .toValidNec(s"No label defined for choice '${choice.name}' in group '$name'")
+                }
+              .sequence
+              .map(ChoiceGroup(name, _))
+                .toEither
+                .leftMap(_.mkString_(", "))
+          }
+        }
     }
   }
   

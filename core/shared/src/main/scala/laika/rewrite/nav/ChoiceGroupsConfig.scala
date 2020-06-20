@@ -22,7 +22,7 @@ import laika.config.{ConfigDecoder, ConfigEncoder, DefaultKey, LaikaKeys}
   * @author Jens Halm
   */
 case class ChoiceGroupsConfig (choices: Seq[ChoiceGroupConfig]) {
-  def getGroupConfig (name: String): Option[ChoiceGroupConfig] = ???
+  def getGroupConfig (name: String): Option[ChoiceGroupConfig] = choices.find(_.name == name)
 }
 
 object ChoiceGroupsConfig {
@@ -36,7 +36,7 @@ object ChoiceGroupsConfig {
 }
 
 case class ChoiceGroupConfig (name: String, choices: Seq[ChoiceConfig]) {
-  def getLabel (name: String): Option[String] = ???
+  def getLabel (name: String): Option[String] = choices.find(_.name == name).map(_.label)
 }
 
 object ChoiceGroupConfig {

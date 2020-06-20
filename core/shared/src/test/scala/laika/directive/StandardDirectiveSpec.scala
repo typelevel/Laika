@@ -24,10 +24,11 @@ import laika.ast.Path.Root
 import laika.ast.RelativePath.{CurrentDocument, CurrentTree}
 import laika.ast._
 import laika.ast.helper.ModelBuilder
-import laika.config.{Config, ConfigBuilder, ConfigParser, Key, LaikaKeys, Origin}
+import laika.config.{Config, ConfigBuilder, ConfigParser, LaikaKeys, Origin}
 import laika.format.Markdown
 import laika.parse.ParserContext
 import laika.rewrite.TemplateRewriter
+import laika.rewrite.nav.{ChoiceConfig, ChoiceGroupConfig, ChoiceGroupsConfig}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
@@ -167,8 +168,20 @@ class StandardDirectiveSpec extends AnyFlatSpec
     parse(input).content should be (root(p(Text("aa "), SpanSequence(List(Text(" 11 "),Emphasized("22"),Text(" 33 ")),Styles("foo")), Text(" bb"))))
   }
 
+  trait ChoiceSetup {
+    val parser = MarkupParser
+      .of(Markdown)
+      .failOnMessages(MessageFilter.None)
+      .withConfigValue(ChoiceGroupsConfig(Seq(ChoiceGroupConfig("config", Seq(
+        ChoiceConfig("a", "label-a"),
+        ChoiceConfig("b", "label-b")
+      )))))
+      .build
+    
+    def parse (input: String): RootElement = parser.parse(input).toOption.get.content
+  }
 
-  "The choices directive" should "parse a body with a two alternatives" in {
+  "The choices directive" should "parse a body with a two alternatives" in new ChoiceSetup {
     val input = """aa
                   |
                   |@:choices(config)
@@ -185,13 +198,13 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |
                   |bb""".stripMargin
     val group = ChoiceGroup("config", Seq(
-      Choice("a","a", List(p("11\n22"))),
-      Choice("b","b", List(p("33\n44")))
+      Choice("a","label-a", List(p("11\n22"))),
+      Choice("b","label-b", List(p("33\n44")))
     ))
-    parse(input).content should be (root(p("aa"), group, p("bb")))
+    parse(input) should be (root(p("aa"), group, p("bb")))
   }
 
-  it should "parse a body with a two alternatives and a common body" in {
+  it should "parse a body with a two alternatives and a common body" in new ChoiceSetup {
     val input = """aa
                   |
                   |@:choices(config)
@@ -210,13 +223,13 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |
                   |bb""".stripMargin
     val group = ChoiceGroup("config", Seq(
-      Choice("a","a", List(p("common"), p("11\n22"))),
-      Choice("b","b", List(p("common"), p("33\n44")))
+      Choice("a","label-a", List(p("common"), p("11\n22"))),
+      Choice("b","label-b", List(p("common"), p("33\n44")))
     ))
-    parse(input).content should be (root(p("aa"), group, p("bb")))
+    parse(input) should be (root(p("aa"), group, p("bb")))
   }
 
-  it should "fail with less than two alternatives in the body" in {
+  it should "fail with less than two alternatives in the body" in new ChoiceSetup {
     val directive =
       """@:choices(config)
         |
@@ -232,7 +245,32 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |bb""".stripMargin
     val message = "One or more errors processing directive 'choices': too few occurrences of separator directive 'choice': expected min: 2, actual: 1"
     val invalid = InvalidElement(message, directive).asBlock
-    parse(input).content should be (root(p("aa"), invalid, p("bb")))
+    parse(input) should be (root(p("aa"), invalid, p("bb")))
+  }
+
+  it should "fail when a label is missing in the configuration" in new ChoiceSetup {
+    val directive =
+      """@:choices(config)
+        |
+        |@:choice(a)
+        |11
+        |22
+        |
+        |@:choice(c)
+        |33
+        |44
+        |
+        |@:@""".stripMargin
+    val input =
+      s"""aa
+         |
+         |$directive
+         |
+         |bb""".stripMargin
+    val message = "One or more errors processing directive 'choices': No label defined for choice 'c' in group 'config'"
+    val invalid = InvalidElement(message, directive).asBlock
+    parse(input) should be (root(p("aa"),
+      invalid, p("bb")))
   }
 
 
