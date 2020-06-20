@@ -62,7 +62,7 @@ abstract class TagFormatter[Rep <: BaseFormatter[Rep]] (renderChild: (Rep, Eleme
     s"<$tagName${attributes(tagName,styleHint,attrs)}>${children(content)}</$tagName>"
 
   /** Renders an element with the specified tag name, attributes derived from the style hint
-    * and content consisting of the provided child elements, all rendered on the same line. 
+    * and indented content consisting of the provided child elements. 
     */
   def indentedElement (tagName: String, styleHint: StyleHint, content: Seq[Element], attrs: (String, String)*): String =
     s"<$tagName${attributes(tagName,styleHint,attrs)}>${indentedChildren(content)}$newLine</$tagName>"
