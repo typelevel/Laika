@@ -422,6 +422,33 @@ class HTMLRendererSpec extends AnyFlatSpec
     render (rootElem) should be (html) 
   }
   
+  it should "render a choice group" in {
+    val group = ChoiceGroup("config", Seq(
+      Choice("name-a","label-a", List(p("common"), p("11\n22"))),
+      Choice("name-b","label-b", List(p("common"), p("33\n44")))
+    ))
+    val elem = root( p("aaa"), group, p("bbb"))
+    val html = """<p>aaa</p>
+                 |<div class="tab-container" data-tab-group="config">
+                 |  <ul class="tab-group">
+                 |    <li class="tab" data-choice-name="name-a">label-a</li>
+                 |    <li class="tab" data-choice-name="name-b">label-b</li>
+                 |  </ul>
+                 |  <div class="tab-content" data-choice-name="name-a">
+                 |    <p>common</p>
+                 |    <p>11
+                 |    22</p>
+                 |  </div>
+                 |  <div class="tab-content" data-choice-name="name-b">
+                 |    <p>common</p>
+                 |    <p>33
+                 |    44</p>
+                 |  </div>
+                 |</div>
+                 |<p>bbb</p>""".stripMargin
+    render (elem) should be (html)
+  }
+  
   it should "render a title containing emphasized text" in {
     val elem = Title(Text("some "), Emphasized("em"), Text(" text"))
     render (elem) should be ("<h1>some <em>em</em> text</h1>") 
