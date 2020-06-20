@@ -335,6 +335,25 @@ case class TargetFormat (formats: NonEmptySet[String], element: Element, options
   def withOptions (options: Options): TargetFormat = copy(options = options)
 }
 
+/** Represents a single choice in a `ChoiceGroup`.
+  */
+case class Choice(name: String, label: String, content: Seq[Block], options: Options = NoOpt) extends BlockContainer {
+  type Self = Choice
+  def withContent(newContent: Seq[Block]): Choice = copy(content = newContent)
+  def withOptions(options: Options): Choice = copy(options = options)
+}
+
+/** Represents a selection of choices (alternatives) that represent the same content in different ways,
+  * e.g. a code sample in Scala or Java or a build setup in sbt vs. Maven.
+  * In the final output these will usually be rendered in a way to allow for a convenient selection.
+  */
+case class ChoiceGroup(name: String, choices: Seq[Choice], options: Options = NoOpt) extends Block with RewritableContainer {
+  type Self = ChoiceGroup
+  def withOptions(options: Options): ChoiceGroup = copy(options = options)
+  def rewriteChildren(rules: RewriteRules): ChoiceGroup = 
+    copy(choices = choices.map(c => c.withContent(rules.rewriteBlocks(c.content))))
+}
+
 /** A single configuration value to be merged with the top document config.
  *  This is particularly useful for directive implementations that need to contribute
  *  to the configuration of the document.

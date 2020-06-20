@@ -437,7 +437,31 @@ object StandardDirectives extends DirectiveRegistry {
       BlockSequence(body, Styles("callout", style))
     }
   }
-  
+
+  /** Implementation of the `choices` directive for block elements in markup documents.
+    * 
+    * Choices (alternatives) represent the same content in different ways,
+    * e.g. a code sample in Scala or Java or a build setup in sbt vs. Maven.
+    * In the final output these will usually be rendered in a way to allow for a convenient selection by the user.
+    * 
+    * A valid `@:choices` directive has at least two separator directives (`@:choice`) in the body.
+    */
+  val choicesDirective: Blocks.Directive = Blocks.create("choices") {
+    import Blocks.dsl._
+
+    val separator: Blocks.SeparatorDirective[Choice] = Blocks.separator("choice", min = 2) {
+      (attribute(0).as[String], parsedBody).mapN { (name, body) =>
+        Choice(name, name, body)
+      }
+    }
+    
+    (attribute(0).as[String], separatedBody(Seq(separator))).mapN { (name, multiPart) =>
+      val choices = multiPart.children.map { choice =>
+        choice.withContent(multiPart.mainBody ++ choice.content)
+      }
+      ChoiceGroup(name, choices)
+    }
+  }
   
   /** Implementation of the `for` directive for block elements in markup documents.
    *  The content of such a block will only be rendered for the corresponding
@@ -505,6 +529,7 @@ object StandardDirectives extends DirectiveRegistry {
     blockNav,
     blockFragment,
     blockStyle,
+    choicesDirective,
     callout,
     format,
     pageBreak

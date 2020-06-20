@@ -168,6 +168,74 @@ class StandardDirectiveSpec extends AnyFlatSpec
   }
 
 
+  "The choices directive" should "parse a body with a two alternatives" in {
+    val input = """aa
+                  |
+                  |@:choices(config)
+                  |
+                  |@:choice(a)
+                  |11
+                  |22
+                  |
+                  |@:choice(b)
+                  |33
+                  |44
+                  |
+                  |@:@
+                  |
+                  |bb""".stripMargin
+    val group = ChoiceGroup("config", Seq(
+      Choice("a","a", List(p("11\n22"))),
+      Choice("b","b", List(p("33\n44")))
+    ))
+    parse(input).content should be (root(p("aa"), group, p("bb")))
+  }
+
+  it should "parse a body with a two alternatives and a common body" in {
+    val input = """aa
+                  |
+                  |@:choices(config)
+                  |
+                  |common
+                  |
+                  |@:choice(a)
+                  |11
+                  |22
+                  |
+                  |@:choice(b)
+                  |33
+                  |44
+                  |
+                  |@:@
+                  |
+                  |bb""".stripMargin
+    val group = ChoiceGroup("config", Seq(
+      Choice("a","a", List(p("common"), p("11\n22"))),
+      Choice("b","b", List(p("common"), p("33\n44")))
+    ))
+    parse(input).content should be (root(p("aa"), group, p("bb")))
+  }
+
+  it should "fail with less than two alternatives in the body" in {
+    val directive =
+      """@:choices(config)
+        |
+        |@:choice(a)
+        |11
+        |22
+        |
+        |@:@""".stripMargin
+    val input = s"""aa
+                  |
+                  |$directive
+                  |
+                  |bb""".stripMargin
+    val message = "One or more errors processing directive 'choices': too few occurrences of separator directive 'choice': expected min: 2, actual: 1"
+    val invalid = InvalidElement(message, directive).asBlock
+    parse(input).content should be (root(p("aa"), invalid, p("bb")))
+  }
+
+
   "The format directive" should "parse a body with a single paragraph" in {
     val input = """aa
                   |
