@@ -131,3 +131,43 @@ h6:hover > a.anchor-link {
 .callout.error .icon {
   color: #d83030;
 }
+
+.tab-container {
+  margin-top: 18px;
+}
+ul.tab-group {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+li.tab {
+  display: inline-block;
+  border: 1px solid #c3d6d8;
+  border-radius: 5px 5px 0 0;
+  background-color: #ebf6f7;
+  padding: 2px 5px;
+  margin-bottom: -1px !important;
+  color: #007c99;
+}
+li.tab a, li.tab a:hover {
+  color: #007c99;
+  text-decoration: none;
+}
+li.tab.active a {
+  cursor: default;
+}
+li.tab.active {
+  background-color: white;
+  border-bottom-color: transparent;
+}
+.tab-content {
+  display: none;
+  padding: 2px 5px;
+  border: 1px solid #c3d6d8;
+  border-radius: 0 5px 5px 5px;
+  margin-top: 0 !important;
+}
+.tab-content.active {
+  display: block;
+}
+
