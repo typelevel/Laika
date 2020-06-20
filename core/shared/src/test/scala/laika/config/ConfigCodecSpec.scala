@@ -21,7 +21,7 @@ import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.config.Config.ConfigResult
 import laika.rewrite.link.{ApiLinks, LinkConfig, TargetDefinition}
-import laika.rewrite.nav.{AutonumberConfig, BookConfig}
+import laika.rewrite.nav.{AutonumberConfig, BookConfig, ChoiceConfig, ChoiceGroupConfig, ChoiceGroupsConfig}
 import laika.time.PlatformDateFormat
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -236,6 +236,50 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
       sort(decode[LinkConfig](encoded)) shouldBe Right(fullyPopulatedInstance)
     }
 
+  }
+  
+  "The codec for ChoiceGroupsConfig" should {
+
+    val sample = ChoiceGroupsConfig(Seq(
+      ChoiceGroupConfig("foo", Seq(
+        ChoiceConfig("foo-a", "foo-label-a"),
+        ChoiceConfig("foo-b", "foo-label-b")
+      )),
+      ChoiceGroupConfig("bar", Seq(
+        ChoiceConfig("bar-a", "bar-label-a"),
+        ChoiceConfig("bar-b", "bar-label-b")
+      ))
+    ))
+    
+    "decode an instance with all fields populated" in {
+      val input =
+        """{
+          |  laika.choices = [
+          |    { 
+          |      name = "foo"
+          |      choices = [
+          |        { name = "foo-a", label = "foo-label-a" }
+          |        { name = "foo-b", label = "foo-label-b" }
+          |      ]
+          |    }
+          |    { 
+          |      name = "bar"
+          |      choices = [
+          |        { name = "bar-a", label = "bar-label-a" }
+          |        { name = "bar-b", label = "bar-label-b" }
+          |      ]
+          |    }
+          |  ]
+          |}
+        """.stripMargin
+      decode[ChoiceGroupsConfig](input) shouldBe Right(sample)
+    }
+
+    "round-trip encode and decode" in {
+      val encoded = ConfigBuilder.empty.withValue(sample).build
+      encoded.get[ChoiceGroupsConfig] shouldBe Right(sample)
+    }
+    
   }
 
   "The codec for AutonumberConfig" should {
