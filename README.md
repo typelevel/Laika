@@ -1,5 +1,5 @@
 
-![Laika](http://planet42.github.io/Laika/img/laika-top.png)
+![Laika](docs/img/laika-dog@2x.png)
 
 Toolkit for transforming lightweight text markup and template based site and e-book generation.
 
