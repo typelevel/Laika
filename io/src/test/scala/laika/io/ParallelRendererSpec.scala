@@ -84,9 +84,9 @@ class ParallelRendererSpec extends IOSpec
     def addPosition (tree: DocumentTree, pos: Seq[Int] = Nil): DocumentTree = {
       val nextNum = Iterator.from(1)
       tree.copy(content = tree.content.map {
-        case d: Document => d.copy(position = TreePosition(pos :+ nextNum.next))
+        case d: Document => d.copy(position = TreePosition(pos :+ nextNum.next()))
         case t: DocumentTree =>
-          val num = pos :+ nextNum.next
+          val num = pos :+ nextNum.next()
           addPosition(t.copy(position = TreePosition(num)), num)
       })
     }

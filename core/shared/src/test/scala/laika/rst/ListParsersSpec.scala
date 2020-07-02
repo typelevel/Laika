@@ -16,7 +16,7 @@
 
 package laika.rst
 
-import laika.ast._
+import laika.ast.{EnumFormat, _}
 import laika.ast.helper.ModelBuilder
 import laika.parse.Parser
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
@@ -67,7 +67,7 @@ class ListParsersSpec extends AnyFlatSpec
     val input = """* aaa
       |* bbb
       |* ccc""".stripMargin
-    Parsing (input) should produce (root( bulletList() + "aaa" + "bbb" + "ccc"))
+    Parsing (input) should produce (root(bulletList("aaa", "bbb", "ccc")))
   }
   
   it should "parse items that are separated by blank lines" in {
@@ -76,21 +76,21 @@ class ListParsersSpec extends AnyFlatSpec
       |* bbb
       |
       |* ccc""".stripMargin
-    Parsing (input) should produce (root( bulletList() + "aaa" + "bbb" + "ccc"))
+    Parsing (input) should produce (root(bulletList("aaa", "bbb", "ccc")))
   }
   
   it should "parse items starting with a '+' the same way as those starting with a '*'" in {
     val input = """+ aaa
       |+ bbb
       |+ ccc""".stripMargin
-    Parsing (input) should produce (root( bulletList("+") + "aaa" + "bbb" + "ccc"))
+    Parsing (input) should produce (root(bulletList(StringBullet("+"))("aaa", "bbb", "ccc")))
   }
   
   it should "parse items starting with a '-' the same way as those starting with a '*'" in {
     val input = """- aaa
       |- bbb
       |- ccc""".stripMargin
-    Parsing (input) should produce (root( bulletList("-") + "aaa" + "bbb" + "ccc"))
+    Parsing (input) should produce (root(bulletList(StringBullet("-"))("aaa", "bbb", "ccc")))
   }
   
   it should "parse items containing multiple paragraphs in a single item" in {
@@ -102,7 +102,15 @@ class ListParsersSpec extends AnyFlatSpec
       |* ccc
       |
       |* ddd""".stripMargin
-    Parsing (input) should produce (root( bulletList() + (p("aaa"), p("bbb\nbbb")) + fp("ccc") + fp("ddd")))
+    val expected = BulletList(
+      Seq(
+        BulletListItem(Seq(p("aaa"), p("bbb\nbbb")), StringBullet("*")),
+        BulletListItem(Seq(fp("ccc")), StringBullet("*")),
+        BulletListItem(Seq(fp("ddd")), StringBullet("*"))
+      ),
+      StringBullet("*")
+    )
+    Parsing (input) should produce (root(expected))
   }
   
   it should "parse nested items indented by spaces" in {
@@ -111,9 +119,9 @@ class ListParsersSpec extends AnyFlatSpec
                   |  * bbb
                   |
                   |    * ccc""".stripMargin
-    val list3 = bulletList() + "ccc"
-    val list2 = bulletList() + (SpanSequence("bbb"), list3)
-    val list1 = bulletList() + (SpanSequence("aaa"), list2)
+    val list3 = bulletList("ccc")
+    val list2 = BulletList(Seq(BulletListItem(List(SpanSequence("bbb"), list3), StringBullet("*"))), StringBullet("*"))
+    val list1 = BulletList(Seq(BulletListItem(List(SpanSequence("aaa"), list2), StringBullet("*"))), StringBullet("*"))
     Parsing (input) should produce (root(list1))
   }
   
@@ -132,7 +140,15 @@ class ListParsersSpec extends AnyFlatSpec
       |* ccc
       |
       |* ddd""".stripMargin
-    Parsing (input) should produce (root( bulletList() + (p("aaa:"), LiteralBlock("bbb\nbbb")) + fp("ccc") + fp("ddd")))
+    val expected = BulletList(
+      Seq(
+        BulletListItem(Seq(p("aaa:"), LiteralBlock("bbb\nbbb")), StringBullet("*")),
+        BulletListItem(Seq(fp("ccc")), StringBullet("*")),
+        BulletListItem(Seq(fp("ddd")), StringBullet("*"))
+      ),
+      StringBullet("*")
+    )
+    Parsing (input) should produce (root(expected))
   }
   
   
@@ -140,65 +156,65 @@ class ListParsersSpec extends AnyFlatSpec
     val input = """1. aaa
       |2. bbb
       |3. ccc""".stripMargin
-    Parsing (input) should produce (root(enumList(EnumFormat(Arabic, "", ".")) + "aaa" + "bbb" + "ccc"))
+    Parsing (input) should produce (root(enumList(EnumFormat(Arabic, "", "."))("aaa", "bbb", "ccc")))
   }
   
   it should "parse items with lowercase alphabetic enumeration style" in {
     val input = """a. aaa
       |b. bbb
       |c. ccc""".stripMargin
-    Parsing (input) should produce (root(enumList(EnumFormat(LowerAlpha, "", ".")) + "aaa" + "bbb" + "ccc"))
+    Parsing (input) should produce (root(enumList(EnumFormat(LowerAlpha, "", "."))("aaa", "bbb", "ccc")))
   }
   
   it should "parse items with uppercase alphabetic enumeration style" in {
     val input = """A. aaa
       |B. bbb
       |C. ccc""".stripMargin
-    Parsing (input) should produce (root(enumList(EnumFormat(UpperAlpha, "", ".")) + "aaa" + "bbb" + "ccc"))
+    Parsing (input) should produce (root(enumList(EnumFormat(UpperAlpha, "", "."))("aaa", "bbb", "ccc")))
   }
   
   it should "parse items with lowercase Roman enumeration style" in {
     val input = """i. aaa
       |ii. bbb
       |iii. ccc""".stripMargin
-    Parsing (input) should produce (root(enumList(EnumFormat(LowerRoman, "", ".")) + "aaa" + "bbb" + "ccc"))
+    Parsing (input) should produce (root(enumList(EnumFormat(LowerRoman, "", "."))("aaa", "bbb", "ccc")))
   }
   
   it should "parse items with uppercase Roman enumeration style" in {
     val input = """I. aaa
       |II. bbb
       |III. ccc""".stripMargin
-    Parsing (input) should produce (root(enumList(EnumFormat(UpperRoman, "", ".")) + "aaa" + "bbb" + "ccc"))
+    Parsing (input) should produce (root(enumList(EnumFormat(UpperRoman, "", "."))("aaa", "bbb", "ccc")))
   }
   
   it should "keep the right start value for arabic enumeration style" in {
     val input = """4. aaa
       |5. bbb""".stripMargin
-    Parsing (input) should produce (root(enumList(EnumFormat(Arabic, "", "."), 4) + "aaa" + "bbb"))
+    Parsing (input) should produce (root(enumList(EnumFormat(Arabic, "", "."), 4)("aaa", "bbb")))
   }
   
   it should "keep the right start value for lowercase alphabetic enumeration style" in {
     val input = """d. aaa
       |e. bbb""".stripMargin
-    Parsing (input) should produce (root(enumList(EnumFormat(LowerAlpha, "", "."), 4) + "aaa" + "bbb"))
+    Parsing (input) should produce (root(enumList(EnumFormat(LowerAlpha, "", "."), 4)("aaa", "bbb")))
   }
   
   it should "keep the right start value for uppercase alphabetic enumeration style" in {
     val input = """D. aaa
       |E. bbb""".stripMargin
-    Parsing (input) should produce (root(enumList(EnumFormat(UpperAlpha, "", "."), 4) + "aaa" + "bbb"))
+    Parsing (input) should produce (root(enumList(EnumFormat(UpperAlpha, "", "."), 4)("aaa", "bbb")))
   }
   
   it should "keep the right start value for lowercase Roman enumeration style" in {
     val input = """iv. aaa
       |v. bbb""".stripMargin
-    Parsing (input) should produce (root(enumList(EnumFormat(LowerRoman, "", "."), 4) + "aaa" + "bbb"))
+    Parsing (input) should produce (root(enumList(EnumFormat(LowerRoman, "", "."), 4)("aaa", "bbb")))
   }
   
   it should "keep the right start value for uppercase Roman enumeration style" in {
     val input = """IV. aaa
       |V. bbb""".stripMargin
-    Parsing (input) should produce (root(enumList(EnumFormat(UpperRoman, "", "."), 4) + "aaa" + "bbb"))
+    Parsing (input) should produce (root(enumList(EnumFormat(UpperRoman, "", "."), 4)("aaa", "bbb")))
   }
   
   it should "not try to parse a Roman Numeral in a normal paragraph (issue #19)" in {
@@ -210,14 +226,14 @@ class ListParsersSpec extends AnyFlatSpec
     val input = """1) aaa
       |2) bbb
       |3) ccc""".stripMargin
-    Parsing (input) should produce (root(enumList(EnumFormat(Arabic, "", ")")) + "aaa" + "bbb" + "ccc"))
+    Parsing (input) should produce (root(enumList(EnumFormat(Arabic, "", ")"))("aaa", "bbb", "ccc")))
   }
   
   it should "parse items surrounded by parenthesis" in {
     val input = """(1) aaa
       |(2) bbb
       |(3) ccc""".stripMargin
-    Parsing (input) should produce(root(enumList(EnumFormat(Arabic, "(", ")")) + "aaa" + "bbb" + "ccc"))
+    Parsing (input) should produce(root(enumList(EnumFormat(Arabic, "(", ")"))("aaa", "bbb", "ccc")))
   }
   
   it should "parse items that are separated by blank lines" in {
@@ -226,7 +242,7 @@ class ListParsersSpec extends AnyFlatSpec
       |2. bbb
       |
       |3. ccc""".stripMargin
-    Parsing (input) should produce (root(enumList(EnumFormat(Arabic)) + "aaa" + "bbb" + "ccc"))
+    Parsing (input) should produce (root(enumList(EnumFormat(Arabic))("aaa", "bbb", "ccc")))
   }
   
   it should "parse items containing multiple paragraphs in a single item" in {
@@ -238,7 +254,12 @@ class ListParsersSpec extends AnyFlatSpec
       |2. ccc
       |
       |3. ddd""".stripMargin
-    Parsing (input) should produce (root( enumList() + (p("aaa"), p("bbb\nbbb")) + fp("ccc") + fp("ddd")))
+    val expected = EnumList(Seq(
+      EnumListItem(Seq(p("aaa"), p("bbb\nbbb")), EnumFormat(), 1),
+      EnumListItem(Seq(fp("ccc")), EnumFormat(), 2),
+      EnumListItem(Seq(fp("ddd")), EnumFormat(), 3)
+    ), EnumFormat(), 1)
+    Parsing (input) should produce (root(expected))
   }
   
   it should "parse nested items indented by spaces" in {
@@ -247,9 +268,9 @@ class ListParsersSpec extends AnyFlatSpec
                   |   1. bbb
                   |
                   |      1. ccc""".stripMargin
-    val list3 = enumList() + "ccc"
-    val list2 = enumList() + (SpanSequence("bbb"), list3)
-    val list1 = enumList() + (SpanSequence("aaa"), list2)
+    val list3 = enumList("ccc")
+    val list2 = EnumList(Seq(EnumListItem(List(SpanSequence("bbb"), list3), EnumFormat(), 1)), EnumFormat(), 1)
+    val list1 = EnumList(Seq(EnumListItem(List(SpanSequence("aaa"), list2), EnumFormat(), 1)), EnumFormat(), 1)
     Parsing (input) should produce (root(list1))
   }
   
@@ -262,7 +283,7 @@ class ListParsersSpec extends AnyFlatSpec
       |
       |2) ddd""".stripMargin
     val f = EnumFormat(Arabic,"",")")
-    Parsing (input) should produce (root(enumList() + "aaa" + "bbb", enumList(f) + "ccc" + "ddd"))
+    Parsing (input) should produce (root(enumList("aaa","bbb"), enumList(f)("ccc","ddd")))
   }
   
   
@@ -272,7 +293,11 @@ class ListParsersSpec extends AnyFlatSpec
       | aaa
       |term 2
       | bbb""".stripMargin
-    Parsing (input) should produce (root( defList + ("term 1", p("aaa")) + ("term 2", p("bbb"))))
+    val list = DefinitionList(Seq(
+      defListItem("term 1", p("aaa")),
+      defListItem("term 2", p("bbb"))
+    ))
+    Parsing (input) should produce (root(list))
   }
   
   it should "parse items that are separated by blank lines" in {
@@ -281,7 +306,11 @@ class ListParsersSpec extends AnyFlatSpec
       |
       |term 2
       | bbb""".stripMargin
-    Parsing (input) should produce (root( defList + ("term 1", p("aaa")) + ("term 2", p("bbb"))))
+    val list = DefinitionList(Seq(
+      defListItem("term 1", p("aaa")),
+      defListItem("term 2", p("bbb"))
+    ))
+    Parsing (input) should produce (root(list))
   }
   
   it should "parse a term with a classifier" in {
@@ -290,7 +319,11 @@ class ListParsersSpec extends AnyFlatSpec
       |
       |term 2 : classifier
       | bbb""".stripMargin
-    Parsing (input) should produce (root( defList + ("term 1", p("aaa")) + (List(Text("term 2"), Classifier(List(Text("classifier")))), p("bbb"))))
+    val list = DefinitionList(Seq(
+      defListItem("term 1", p("aaa")),
+      DefinitionListItem(List(Text("term 2"), Classifier(List(Text("classifier")))), List(p("bbb")))
+    ))
+    Parsing (input) should produce (root(list))
   }
   
   it should "parse items containing multiple paragraphs in a single item" in {
@@ -302,7 +335,11 @@ class ListParsersSpec extends AnyFlatSpec
       |
       |term 2
       |  ccc""".stripMargin
-    Parsing (input) should produce (root( defList + ("term 1", p("aaa\naaa"), p("bbb")) + ("term 2", p("ccc"))))
+    val list = DefinitionList(Seq(
+      defListItem("term 1", p("aaa\naaa"), p("bbb")),
+      defListItem("term 2", p("ccc"))
+    ))
+    Parsing (input) should produce (root(list))
   }
   
   it should "parse items containing multiple paragraphs with different identation in a single item" in {
@@ -314,7 +351,11 @@ class ListParsersSpec extends AnyFlatSpec
       |
       |term 2
       |  ccc""".stripMargin
-    Parsing (input) should produce (root( defList + ("term 1", QuotedBlock("aaa\naaa"), p("bbb")) + ("term 2", p("ccc"))))
+    val list = DefinitionList(Seq(
+      defListItem("term 1", QuotedBlock("aaa\naaa"), p("bbb")),
+      defListItem("term 2", p("ccc"))
+    ))
+    Parsing (input) should produce (root(list))
   }
   
   it should "support inline markup in the term" in {
@@ -323,7 +364,11 @@ class ListParsersSpec extends AnyFlatSpec
       |
       |term 2
       | bbb""".stripMargin
-    Parsing (input) should produce (root( defList + (List(Text("term "), Emphasized("em")), p("aaa")) + ("term 2", p("bbb"))))
+    val list = DefinitionList(Seq(
+      DefinitionListItem(List(Text("term "), Emphasized("em")), List(p("aaa"))),
+      defListItem("term 2", p("bbb"))
+    ))
+    Parsing (input) should produce (root(list))
   }
   
   it should "ignore subsequent tables" in {
@@ -336,8 +381,11 @@ class ListParsersSpec extends AnyFlatSpec
       |=== ===
       | a   b 
       |=== ===""".stripMargin
-    Parsing (input) should produce (root( defList + ("term 1", p("aaa")) + ("term 2", p("bbb")),
-      Table(Row(BodyCell("a"),BodyCell("b")))))
+    val list = DefinitionList(Seq(
+      defListItem("term 1", p("aaa")),
+      defListItem("term 2", p("bbb"))
+    ))
+    Parsing (input) should produce (root(list, Table(Row(BodyCell("a"),BodyCell("b")))))
   }
   
   it should "ignore subsequent directives" in {
@@ -349,8 +397,11 @@ class ListParsersSpec extends AnyFlatSpec
       |
       |.. foo::
       | :name: value""".stripMargin
-    Parsing (input) should produce (root( defList + ("term 1", p("aaa")) + ("term 2", p("bbb")),
-      InvalidElement("unknown directive: foo", ".. foo:: \n:name: value").asBlock))
+    val list = DefinitionList(Seq(
+      defListItem("term 1", p("aaa")),
+      defListItem("term 2", p("bbb"))
+    ))
+    Parsing (input) should produce (root(list, InvalidElement("unknown directive: foo", ".. foo:: \n:name: value").asBlock))
   }
   
   it should "ignore subsequent bullet lists" in {
@@ -362,8 +413,11 @@ class ListParsersSpec extends AnyFlatSpec
       |
       |* list
       |  list""".stripMargin
-    Parsing (input) should produce (root( defList + ("term 1", p("aaa")) + ("term 2", p("bbb")), 
-        bulletList() + (p("list\nlist"))))
+    val list = DefinitionList(Seq(
+      defListItem("term 1", p("aaa")),
+      defListItem("term 2", p("bbb"))
+    ))
+    Parsing (input) should produce (root(list, bulletList(p("list\nlist"))))
   }
   
   it should "ignore subsequent enum lists" in {
@@ -375,8 +429,11 @@ class ListParsersSpec extends AnyFlatSpec
       |
       |1. list
       |   list""".stripMargin
-    Parsing (input) should produce (root( defList + ("term 1", p("aaa")) + ("term 2", p("bbb")), 
-        enumList(EnumFormat(Arabic)) + (p("list\nlist"))))
+    val list = DefinitionList(Seq(
+      defListItem("term 1", p("aaa")),
+      defListItem("term 2", p("bbb"))
+    ))
+    Parsing (input) should produce (root(list, enumList(EnumFormat(Arabic))("list\nlist")))
   }
   
   it should "ignore subsequent headers with overline" in {
@@ -389,8 +446,11 @@ class ListParsersSpec extends AnyFlatSpec
       |########
       | Header
       |########""".stripMargin
-    Parsing (input) should produce (root( defList + ("term 1", p("aaa")) + ("term 2", p("bbb")), 
-        DecoratedHeader(OverlineAndUnderline('#'), List(Text("Header")))))
+    val list = DefinitionList(Seq(
+      defListItem("term 1", p("aaa")),
+      defListItem("term 2", p("bbb"))
+    ))
+    Parsing (input) should produce (root(list, DecoratedHeader(OverlineAndUnderline('#'), List(Text("Header")))))
   }
   
   

@@ -147,7 +147,7 @@ object HoconParsers {
       case "t" => "\t"
     }
     val literalChar = oneOf('"','\\','/')
-    val unicode = DigitParsers.hex.take(4).map(Integer.parseInt(_, 16).toChar.toString)
+    val unicode = "u" ~> DigitParsers.hex.take(4).map(Integer.parseInt(_, 16).toChar.toString)
     val escape = "\\" ~> ((literalChar | specialChar | unicode).map(Right(_)) | oneChar.withContext.map(Left(_)) )
     
     import cats.implicits._

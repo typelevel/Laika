@@ -26,7 +26,7 @@ object RenderResult {
     val it = insertions.iterator
     template.content.map {
       case TemplateString(content, _) => content
-      case _ => it.next
+      case _ => it.next()
     }.mkString
   }
     

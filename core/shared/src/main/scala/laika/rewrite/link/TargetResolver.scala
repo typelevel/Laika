@@ -137,7 +137,7 @@ case class TargetSequenceResolver (targets: Seq[TargetResolver], sel: Selector) 
   private val refIt = targets.iterator
   private val targetIt = targets.iterator
 
-  private def nextOption (it: Iterator[TargetResolver]) = if (it.hasNext) Some(it.next) else None
+  private def nextOption (it: Iterator[TargetResolver]) = if (it.hasNext) Some(it.next()) else None
 
   def resolveReference (linkSource: LinkSource): Option[Span] =
     nextOption(refIt).flatMap(_.resolveReference(linkSource))

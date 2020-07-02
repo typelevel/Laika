@@ -24,19 +24,19 @@ trait ModelBuilder {
   
   def spans (elements: Span*): List[Span] = elements.toList
 
-  def root (blocks: Block*) = RootElement(blocks.toList)
+  def root (blocks: Block*): RootElement = RootElement(blocks.toList)
 
-  def t (text: String) = TemplateString(text)
+  def t (text: String): TemplateString = TemplateString(text)
 
-  def p (spans: Span*) = Paragraph(spans.toList)
+  def p (spans: Span*): Paragraph = Paragraph(spans.toList)
 
-  def p (text: String) = Paragraph(text)
+  def p (text: String): Paragraph = Paragraph(text)
 
   def cell (content: String, colspan: Int, rowspan: Int) = Cell(BodyCell, List(p(Text(content))), colspan, rowspan)
 
-  def quote (text: String, attribution: String) = QuotedBlock(List(p(text)), List(Text(attribution)))
+  def quote (text: String, attribution: String): QuotedBlock = QuotedBlock(List(p(text)), List(Text(attribution)))
 
-  def titleWithId (text: String) = Title(Seq(Text(text)), Id(text.replaceAll("[^a-zA-Z0-9-]+","-").replaceFirst("^-","").replaceFirst("-$","").toLowerCase) + Style.title)
+  def titleWithId (text: String): Title = Title(Seq(Text(text)), Id(text.replaceAll("[^a-zA-Z0-9-]+","-").replaceFirst("^-","").replaceFirst("-$","").toLowerCase) + Style.title)
 
 
   def link (content: Span*): LinkBuilder = new LinkBuilder(content.toList)
@@ -76,58 +76,35 @@ trait ModelBuilder {
     case NumericLabel(label) => s"[$label]_"
   }
   
-  def bulletList (bullet: String = "*") = new BulletListBuilder(bullet)
+  private val defaultBullet = StringBullet("*")
   
-  class BulletListBuilder (bullet: String, items: Seq[BulletListItem] = Nil) {
-    
-    def + (text: String) = new BulletListBuilder(bullet, items :+ newItem(p(text)))
-    
-    def + (blocks: Block*) = new BulletListBuilder(bullet, items :+ newItem(blocks:_*))
-    
-    private def newItem (blocks: Block*) = BulletListItem(blocks.toList, StringBullet(bullet))
-    
-    def toList = BulletList(items, StringBullet(bullet))
-    
-  }
+  def bulletList(format: BulletFormat)(textItems: String*): BulletList =
+    BulletList(textItems.map(txt => BulletListItem(Seq(p(txt)), format)), format)
+
+  def bulletList(textItem: String, textItems: String*): BulletList = bulletList(defaultBullet)(textItem +: textItems:_*)
+
+  def bulletList(blocks: Block*): BulletList =
+    BulletList(blocks.map(b => BulletListItem(Seq(b), defaultBullet)), defaultBullet)
+
+  def enumList (textItem: String, textItems: String*): EnumList = enumList(EnumFormat())(textItem +: textItems:_*)
+
+  def enumList (format: EnumFormat, start: Int = 1)(textItems: String*): EnumList =
+    EnumList(textItems.zipWithIndex.map { case (txt, index) => 
+      EnumListItem(Seq(p(txt)), format, start + index) 
+    }, format, start)
+
+  def enumList (blocks: Block*): EnumList =
+    EnumList(blocks.zipWithIndex.map { case (block, index) =>
+      EnumListItem(Seq(block), EnumFormat(), 1 + index)
+    }, EnumFormat(), 1)
   
-  def enumList (format: EnumFormat = EnumFormat(), start: Int = 1) = new EnumListBuilder(format,  start)
-  
-  class EnumListBuilder (format: EnumFormat, start: Int, items: Seq[EnumListItem] = Nil) {
-    
-    def + (text: String) = new EnumListBuilder(format, start + 1, items :+ newItem(p(text)))
-    
-    def + (blocks: Block*) = new EnumListBuilder(format, start + 1, items :+ newItem(blocks:_*))
-    
-    private def newItem (blocks: Block*) = EnumListItem(blocks.toList, format, start)
-    
-    def toList = EnumList(items, format, items.headOption.map(_.position).getOrElse(1))
-    
-  }
-  
-  def defList = new DefinitionListBuilder
-  
-  class DefinitionListBuilder (items: Seq[DefinitionListItem] = Nil) {
-    
-    def + (term: String, blocks: Block*) = new DefinitionListBuilder(items :+ newItem(List(Text(term)), blocks:_*))
-    
-    def + (term: List[Span], blocks: Block*) = new DefinitionListBuilder(items :+ newItem(term, blocks:_*))
-    
-    private def newItem (term: List[Span], blocks: Block*) = DefinitionListItem(term, blocks.toList)
-    
-    def toList = DefinitionList(items.toList)
-    
-  }
+  def defListItem(term: String, blocks: Block*): DefinitionListItem = 
+    DefinitionListItem(List(Text(term)), blocks.toList)
   
   val disableInternalLinkValidation: Config = 
     ConfigParser.parse("""{ laika.links.excludeFromValidation = ["/"]}""").resolve().toOption.get
   
   
-  implicit def builderToEnumList (builder: EnumListBuilder): EnumList = builder.toList
-
-  implicit def builderToBulletList (builder: BulletListBuilder): BulletList = builder.toList
-
-  implicit def builderToDefList (builder: DefinitionListBuilder): DefinitionList = builder.toList
-
   implicit def builderToLink (builder: LinkBuilder): Link = builder.toLink
 
   implicit def builderToLinkRef (builder: LinkRefBuilder): LinkIdReference = builder.toLink

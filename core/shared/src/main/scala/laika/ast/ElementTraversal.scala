@@ -68,7 +68,7 @@ trait ElementTraversal { this: Element =>
     foreach { e =>
       if (pf.isDefinedAt(e)) buffer += pf(e)
     } 
-    buffer.result
+    buffer.toList
   }
   
 }

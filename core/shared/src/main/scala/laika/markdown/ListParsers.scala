@@ -77,7 +77,7 @@ object ListParsers {
         newItem(pos,rewritten)
       }
       val pos = Iterator.from(1)
-      blockItems map { item => rewriteItemContent(item, pos.next) }
+      blockItems map { item => rewriteItemContent(item, pos.next()) }
     }
 
     val rule = BlockParsers.rules.createParser(recParsers).parser

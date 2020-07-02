@@ -155,7 +155,10 @@ class APISpec extends AnyFlatSpec
   
   it should "pre-process tabs" in {
     val input = " Line1\n\tLine2\n\tLine3"
-    MarkupParser.of(ReStructuredText).build.parse(input).toOption.get.content should be (root( QuotedBlock(defList + ("Line1", p("Line2\nLine3")))))
+    val list = DefinitionList(Seq(
+      defListItem("Line1", p("Line2\nLine3"))
+    ))
+    MarkupParser.of(ReStructuredText).build.parse(input).toOption.get.content should be (root( QuotedBlock(list)))
   }
   
 

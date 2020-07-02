@@ -35,15 +35,15 @@ case class DocumentTargets (document: Document, slugBuilder: String => String) {
   private class SymbolGenerator {
     private val symbols = List('*','\u2020','\u2021','\u00a7','\u00b6','#','\u2660','\u2665','\u2666','\u2663')
     private val stream = Iterator.iterate((symbols,1)){ case (sym,num) => if (sym.isEmpty) (symbols,num+1) else (sym.tail,num) }
-    final def next: String = {
-      val (sym,num) = stream.next
+    final def next(): String = {
+      val (sym,num) = stream.next()
       sym.head.toString * num
     }
   }
   private class DecoratedHeaderLevels {
     private val levelMap = scala.collection.mutable.Map.empty[HeaderDecoration,Int]
     private val levelIt = Iterator.from(1)
-    def levelFor (deco: HeaderDecoration): Int = levelMap.getOrElseUpdate(deco, levelIt.next)
+    def levelFor (deco: HeaderDecoration): Int = levelMap.getOrElseUpdate(deco, levelIt.next())
   }
   
   private def linkDefinitionResolver (selector: Selector, target: Target, title: Option[String] = None): TargetResolver = {
@@ -79,9 +79,9 @@ case class DocumentTargets (document: Document, slugBuilder: String => String) {
       
       case f: FootnoteDefinition => 
         val (docId, displayId, selector) = f.label match {
-          case Autosymbol            => (s"__fns-${symbolNumbers.next}", symbols.next, AutosymbolSelector) // TODO - move these prefix definitions somewhere else
-          case Autonumber            => val num = numbers.next; (s"__fn-$num", num.toString, AutonumberSelector)
-          case AutonumberLabel(id)   => (slugBuilder(id), numbers.next.toString, TargetIdSelector(slugBuilder(id)))
+          case Autosymbol            => (s"__fns-${symbolNumbers.next()}", symbols.next(), AutosymbolSelector) // TODO - move these prefix definitions somewhere else
+          case Autonumber            => val num = numbers.next(); (s"__fn-$num", num.toString, AutonumberSelector)
+          case AutonumberLabel(id)   => (slugBuilder(id), numbers.next().toString, TargetIdSelector(slugBuilder(id)))
           case NumericLabel(num)     => (s"__fnl-$num", num.toString, TargetIdSelector(num.toString))
         }
         val resolver = ReferenceResolver.lift {

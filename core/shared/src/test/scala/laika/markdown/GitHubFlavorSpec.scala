@@ -362,7 +362,7 @@ class GitHubFlavorSpec extends AnyWordSpec
         """.stripMargin
       Parsing (input) should produce (root(
         Table(headerRow("AAA","BBB"), TableBody(Seq(paddedBodyRow(2, "CCC")))),
-        bulletList() + "DDD" + "EEE"
+        bulletList("DDD", "EEE")
       ))
     }
 

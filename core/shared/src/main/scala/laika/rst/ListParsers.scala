@@ -153,7 +153,7 @@ object ListParsers {
       
     lookAhead(enumListStart <~ ws.min(1)) >> { case (format, start) =>
       val pos = Iterator.from(start)
-      listItem(itemStart(format), EnumListItem(_, format, pos.next)).rep.min(1).map { items => 
+      listItem(itemStart(format), EnumListItem(_, format, pos.next())).rep.min(1).map { items => 
         EnumList(rewriteListItems(items, (item:EnumListItem, content) => item.copy(content = content)), format, start) 
       }
     }

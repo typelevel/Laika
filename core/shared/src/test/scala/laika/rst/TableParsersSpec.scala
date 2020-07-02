@@ -158,7 +158,7 @@ class TableParsersSpec extends AnyFlatSpec
       |+---+---------+
       || c | d       |
       |+---+---------+""".stripMargin
-    Parsing (input) should produce (root( Table(Row(BodyCell("a"), BodyCell(p("Text"), bulletList() + "Line1\nLine2" + "Line3")), textRow("c","d"))))
+    Parsing (input) should produce (root( Table(Row(BodyCell("a"), BodyCell(p("Text"), bulletList("Line1\nLine2", "Line3"))), textRow("c","d"))))
   }
   
   it should "parse tables with header cells" in {
@@ -217,7 +217,7 @@ class TableParsersSpec extends AnyFlatSpec
       |
       | c    d
       |===  ===""".stripMargin
-    Parsing (input) should produce (root( Table(Row(BodyCell("a"), BodyCell(p("Text"), bulletList() + "Line1\nLine2" + "Line3")), textRow("c","d"))))
+    Parsing (input) should produce (root( Table(Row(BodyCell("a"), BodyCell(p("Text"), bulletList("Line1\nLine2", "Line3"))), textRow("c","d"))))
   }
   
   it should "parse tables with header cells" in {

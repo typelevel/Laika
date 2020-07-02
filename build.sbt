@@ -27,7 +27,7 @@ def priorTo2_13(version: String): Boolean =
   }
 
 lazy val moduleSettings = basicSettings ++ Seq(
-  crossScalaVersions := Seq("2.12.11", "2.13.2")
+  crossScalaVersions := Seq("2.12.11", "2.13.3")
 )
 
 lazy val publishSettings = Seq(
