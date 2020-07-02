@@ -88,7 +88,7 @@ class HoconJsonSpec extends AnyWordSpec with Matchers with ParseResultHelpers wi
     }
 
     "parse a unicode character reference" in {
-      Parsing (""""foo \u007B bar"""") using quotedString should produce (ValidStringValue("foo { bar"): StringBuilderValue)
+      Parsing ("\"foo \\u007B bar\"") using quotedString should produce (ValidStringValue("foo { bar"): StringBuilderValue)
     }
     
   }

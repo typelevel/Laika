@@ -74,7 +74,7 @@ object ASTRenderer extends ((TextFormatter, Element) => String) {
           con.productPrefix + attributes(con.productIterator, con.content) + " - '"
       }
 
-      val text = con.content.replaceAllLiterally("\n", "|")
+      val text = con.content.replace("\n", "|")
       val len = text.length
 
       if (len <= maxTextWidth) start + text + "'"

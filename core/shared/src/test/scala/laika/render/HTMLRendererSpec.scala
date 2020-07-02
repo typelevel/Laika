@@ -651,7 +651,7 @@ class HTMLRendererSpec extends AnyFlatSpec
       |
       |line 3""".stripMargin
     val elem = LiteralBlock(code)
-    render(elem) should be ("<pre><code>" + code.replaceAllLiterally("<", "&lt;") + "</code></pre>") 
+    render(elem) should be ("<pre><code>" + code.replace("<", "&lt;") + "</code></pre>") 
   }
   
   it should "render a parsed literal block" in {
@@ -661,7 +661,7 @@ class HTMLRendererSpec extends AnyFlatSpec
       |
       |line 3""".stripMargin.split("#")
     val elem = ParsedLiteralBlock(List(Text(code(0)), Emphasized("em"), Text(code(1))))
-    val html = "<pre><code>" + code(0) + "<em>em</em>" + code(1).replaceAllLiterally("<", "&lt;") + "</code></pre>"
+    val html = "<pre><code>" + code(0) + "<em>em</em>" + code(1).replace("<", "&lt;") + "</code></pre>"
     render(elem) should be (html) 
   }
   
@@ -672,7 +672,7 @@ class HTMLRendererSpec extends AnyFlatSpec
       |
       |line 3""".stripMargin
     val elem = CodeBlock("banana-script", List(Text(code)))
-    render(elem) should be ("<pre><code class=\"banana-script\">" + code.replaceAllLiterally("<", "&lt;") + "</code></pre>") 
+    render(elem) should be ("<pre><code class=\"banana-script\">" + code.replace("<", "&lt;") + "</code></pre>") 
   }
 
   it should "render a code block with syntax highlighting" in {

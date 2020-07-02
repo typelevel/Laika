@@ -90,7 +90,7 @@ case class FOFormatter (renderChild: (FOFormatter, Element) => String,
    */
   def buildId (path: Path): String = {
     if (path == Path.Root) "" 
-    else pathTranslator.translate(path).withoutSuffix.toString.replaceAllLiterally("/", "_").replaceAllLiterally("#", "_")
+    else pathTranslator.translate(path).withoutSuffix.toString.replace("/", "_").replace("#", "_")
   }
 
   /** Generates an id that is unique within the entire document tree for the 

@@ -103,7 +103,7 @@ class LanguageSpec extends AnyWordSpec with Matchers {
           |  
           |}
           |```
-        """.stripMargin.replaceAllLiterally("+++", "\"\"\"")
+        """.stripMargin.replace("+++", "\"\"\"")
       
       parse(input) shouldBe result("scala",
         annotation("Thing"), space, keyword("case"), space, keyword("class"), space, typeName("Foo"), 
@@ -143,7 +143,7 @@ class LanguageSpec extends AnyWordSpec with Matchers {
           |  
           |}
           |```
-        """.stripMargin.replaceAllLiterally("+++", "\"\"\"")
+        """.stripMargin.replace("+++", "\"\"\"")
 
       parse(input) shouldBe result("dotty",
         annotation("Thing"), space, keyword("case"), space, keyword("class"), space, typeName("Foo"),
@@ -179,7 +179,7 @@ class LanguageSpec extends AnyWordSpec with Matchers {
           |  
           |}
           |```
-        """.stripMargin.replaceAllLiterally("+++", "\"\"\"")
+        """.stripMargin.replace("+++", "\"\"\"")
 
       parse(input) shouldBe result("java",
         annotation("Thing"), space, keyword("class"), space, typeName("Foo"), other(" {\n\n  "),
@@ -208,7 +208,7 @@ class LanguageSpec extends AnyWordSpec with Matchers {
           |    else:
           |        print (test_string, 'rejected')
           |```
-        """.stripMargin.replaceAllLiterally("+++", "\"\"\"")
+        """.stripMargin.replace("+++", "\"\"\"")
 
       parse(input) shouldBe result("python",
         keyword("import"), space, id("re"), other("\n"), 
@@ -545,7 +545,7 @@ class LanguageSpec extends AnyWordSpec with Matchers {
           |          string+++
           |}
           |``` 
-        """.stripMargin.replaceAllLiterally("+++","\"\"\"")
+        """.stripMargin.replace("+++","\"\"\"")
 
       def nl(end: String): CodeSpan = CodeSpan(end + "\n  \n  ")
       

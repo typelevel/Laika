@@ -489,7 +489,7 @@ class HoconErrorSpec extends AnyWordSpec with Matchers {
           |a = +++foo bar
           |       baz baz
           |       
-          |b = 9""".stripMargin.replaceAllLiterally("+", "\"")
+          |b = 9""".stripMargin.replace("+", "\"")
       val expectedMessage =
         """[5.6] failure: Expected closing triple quote
           |
@@ -506,7 +506,7 @@ class HoconErrorSpec extends AnyWordSpec with Matchers {
           |          baz baz
           |}
           |       
-          |b = 9""".stripMargin.replaceAllLiterally("+", "\"")
+          |b = 9""".stripMargin.replace("+", "\"")
       val expectedMessage =
         """[7.6] failure: Expected closing triple quote
           |

@@ -46,26 +46,26 @@ class TransformAPISpec extends AnyFlatSpec
   }
   
   it should "allow to override the default renderer for specific element types" in {
-    val modifiedOutput = output.replaceAllLiterally(". Text", ". String")
+    val modifiedOutput = output.replace(". Text", ". String")
     val transformCustom = builder rendering { case (_, Text(content,_)) => s"String - '$content'" }
     transformCustom.build.transform(input).toOption.get should be (modifiedOutput)
   }
   
   it should "allow to specify a custom rewrite rule" in {
-    val modifiedOutput = output.replaceAllLiterally("zzz", "yyy")
+    val modifiedOutput = output.replace("zzz", "yyy")
     val transformCustom = builder usingSpanRule { case Text("text zzz ",_) => Replace(Text("text yyy ")) }
     transformCustom.build.transform(input).toOption.get should be (modifiedOutput)
   }
   
   it should "allow to specify multiple rewrite rules" in {
-    val modifiedOutput = output.replaceAllLiterally("zzz", "new").replaceAllLiterally("foo", "bar")
+    val modifiedOutput = output.replace("zzz", "new").replace("foo", "bar")
     val transformCustom = builder usingSpanRule { case Text("foo" ,_) => Replace(Text("bar")) } usingSpanRule
                                                 { case Text("text zzz ",_)    => Replace(Text("text new ")) }
     transformCustom.build.transform(input).toOption.get should be (modifiedOutput)
   }
   
   it should "allow to specify a custom rewrite rule that depends on the document" in {
-    val modifiedOutput = output.replaceAllLiterally("zzz", "2")
+    val modifiedOutput = output.replace("zzz", "2")
     val transformCustom = builder creatingRule { cursor => RewriteRules.forSpans { 
       case Text("text zzz ",_) => Replace(Text("text " + cursor.target.content.content.length + " ")) 
     }}

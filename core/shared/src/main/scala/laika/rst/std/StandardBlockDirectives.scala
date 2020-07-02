@@ -303,7 +303,7 @@ class StandardBlockDirectives {
    */
   lazy val rawDirective: Directive[Block] = BlockDirective("raw") {
     (argument(withWS = true) ~ content(Right(_))).map { case formats ~ content =>
-      NonEmptySet.fromSet(TreeSet(formats.split(" "):_*)) match {
+      NonEmptySet.fromSet(TreeSet(formats.split(" ").toIndexedSeq:_*)) match {
         case Some(set) => RawContent(set, content)
         case None      => InvalidElement("no format specified", "").asBlock // TODO - pass source string
       }

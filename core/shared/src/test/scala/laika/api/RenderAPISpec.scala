@@ -41,7 +41,7 @@ class RenderAPISpec extends AnyFlatSpec
 
   it should "allow to override the default renderer for specific element types" in {
     val renderer = Renderer.of(AST).rendering { case (_, Text(content,_)) => s"String - '$content'" }.build
-    val modifiedResult = expected.replaceAllLiterally("Text", "String")
+    val modifiedResult = expected.replace("Text", "String")
     (renderer render rootElem) should be (modifiedResult)
   }
 

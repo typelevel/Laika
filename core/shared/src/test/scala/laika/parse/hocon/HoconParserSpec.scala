@@ -137,7 +137,7 @@ class HoconParserSpec extends AnyWordSpec with Matchers with ParseResultHelpers 
         """"a": "foo", 
           |"s": +++Line 1
           | Line 2
-          | Line 3+++""".stripMargin.replaceAllLiterally("+++", "\"\"\"")
+          | Line 3+++""".stripMargin.replace("+++", "\"\"\"")
       Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(f("a","foo"), f("s", "Line 1\n Line 2\n Line 3"))))
     }
 
@@ -146,14 +146,14 @@ class HoconParserSpec extends AnyWordSpec with Matchers with ParseResultHelpers 
         """"a": "foo", 
           |"s": +++Line 1
           | Line 2
-          | Line 3+++++""".stripMargin.replaceAllLiterally("+", "\"")
+          | Line 3+++++""".stripMargin.replace("+", "\"")
       Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(f("a","foo"), f("s", "Line 1\n Line 2\n Line 3\"\""))))
     }
 
     "ignore escapes in a multiline string property" in {
       val input =
         """"a": "foo", 
-          |"s": +++Word 1 \n Word 2+++""".stripMargin.replaceAllLiterally("+++", "\"\"\"")
+          |"s": +++Word 1 \n Word 2+++""".stripMargin.replace("+++", "\"\"\"")
       Parsing (input) using rootObject should produce (ObjectBuilderValue(Seq(f("a","foo"), f("s", "Word 1 \\n Word 2"))))
     }
 

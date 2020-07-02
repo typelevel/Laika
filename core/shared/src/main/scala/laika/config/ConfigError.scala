@@ -31,7 +31,7 @@ sealed trait ConfigError {
 /** Indicates that a value found in the configuration does not have the expected
   * type so that type conversion is not even attempted. */
 case class InvalidType(expected: String, actual: ConfigValue) extends ConfigError {
-  val message: String = s"Invalid type - expected: $expected, actual: ${actual.productPrefix.replaceAllLiterally("Value","")}"
+  val message: String = s"Invalid type - expected: $expected, actual: ${actual.productPrefix.replace("Value","")}"
 }
 
 /** An error that occurred when decoding a configuration value to a target type. */

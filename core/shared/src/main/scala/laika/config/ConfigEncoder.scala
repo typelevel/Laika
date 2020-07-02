@@ -27,7 +27,7 @@ import laika.time.PlatformDateFormat
   */
 trait ConfigEncoder[-T] { self =>
   def apply(value: T): ConfigValue
-  def contramap[B](f: (B) ⇒ T): ConfigEncoder[B] = new ConfigEncoder[B] {
+  def contramap[B](f: B => T): ConfigEncoder[B] = new ConfigEncoder[B] {
     def apply (value: B) = self.apply(f(value))
   }
 }

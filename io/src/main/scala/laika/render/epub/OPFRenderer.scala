@@ -68,7 +68,7 @@ class OPFRenderer {
 
     val link = NavigationBuilder.fullPath(path, forceXhtml)
 
-    val id = link.drop(8).replaceAllLiterally("/", "_").replaceAllLiterally(".", "_")
+    val id = link.drop(8).replace("/", "_").replace(".", "_")
 
   }
 

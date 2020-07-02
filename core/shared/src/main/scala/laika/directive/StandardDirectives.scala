@@ -408,8 +408,8 @@ object StandardDirectives extends DirectiveRegistry {
           val typeText = if (isPackage) packageName else className.getOrElse(fqName)
           val text = typeText + method.fold("")(m => "." + m.split('(').head)
           val typePath = 
-            if (isPackage) packageName.replaceAllLiterally(".", "/") + "/" + link.packageSummary 
-            else fqName.replaceAllLiterally(".", "/") + ".html"
+            if (isPackage) packageName.replace(".", "/") + "/" + link.packageSummary 
+            else fqName.replace(".", "/") + ".html"
           val uri = link.baseUri + typePath + method.fold("")("#" + _)
           Right(SpanLink(Seq(Text(text)), Target.create(uri)))
         }

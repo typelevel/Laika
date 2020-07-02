@@ -798,7 +798,7 @@ class XSLFORendererSpec extends AnyFlatSpec
                  |
                  |line 3""".stripMargin
     val elem = LiteralBlock(code)
-    render (elem) should be (monoBlock + code.replaceAllLiterally("<", "&lt;") + "</fo:block>")
+    render (elem) should be (monoBlock + code.replace("<", "&lt;") + "</fo:block>")
   }
 
   it should "render a parsed literal block" in {
@@ -808,7 +808,7 @@ class XSLFORendererSpec extends AnyFlatSpec
                  |
                  |line 3""".stripMargin.split("#")
     val elem = ParsedLiteralBlock(List(Text(code(0)), Emphasized("em"), Text(code(1))))
-    val fo = monoBlock + code(0) + """<fo:inline font-style="italic">em</fo:inline>""" + code(1).replaceAllLiterally("<", "&lt;") + "</fo:block>"
+    val fo = monoBlock + code(0) + """<fo:inline font-style="italic">em</fo:inline>""" + code(1).replace("<", "&lt;") + "</fo:block>"
     render (elem) should be (fo)
   }
 
@@ -819,7 +819,7 @@ class XSLFORendererSpec extends AnyFlatSpec
                  |
                  |line 3""".stripMargin
     val elem = CodeBlock("banana-script", List(Text(code)))
-    render (elem) should be (monoBlock + code.replaceAllLiterally("<", "&lt;") + "</fo:block>")
+    render (elem) should be (monoBlock + code.replace("<", "&lt;") + "</fo:block>")
   }
 
   it should "render a literal block inside a blockquote without indentation" in {
