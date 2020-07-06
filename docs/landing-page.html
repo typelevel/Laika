@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+
+    <title>Laika</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Customizable and extensible toolkit for transforming lightweight markup languages to various types of output formats, written in Scala" />
+    <meta name="keywords" content="scala, text, markup, markdown, restructuredtext, parser, transformer, html, template engine, site generation, open-source" />
+
+    <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+    <link rel="stylesheet" href="icons/icofont.min.css">
+    <link href="css/container.css" rel="stylesheet">
+    <link href="css/content.css" rel="stylesheet">
+    <link href="css/nav.css" rel="stylesheet">
+    <link href="css/code.css" rel="stylesheet">
+
+    <script src="js/theme.js"></script>
+    <script> /* for avoiding page load transitions */ </script>
+
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      #header {
+        width: 100%;
+        min-height: 250px;
+        background-image: linear-gradient(#095269, #007c99);
+        padding: 40px 30px 30px;
+        margin: 0 auto;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .teasers {
+        width: 100%;
+        padding: 0;
+        margin: 35px auto 0 auto;
+        text-align: center;
+        max-width: 700px;
+        /*border: 2px solid #931813;*/
+      }
+      .teasers ~ .teasers {
+        margin: 0 auto;
+      }
+      .teaser {
+        /*border: 2px solid turquoise;*/
+        flex: 0 0 28%;
+        margin: 0 0 25px 0;
+        padding: 0 35px;
+      }
+      #header-left {
+        /*border: 2px solid greenyellow;*/
+        max-width: 450px;
+        color: #a7d4de;
+      }
+      #header-right {
+        /*border: 2px solid greenyellow;*/
+        max-width: 450px;
+        color: #a7d4de;
+        padding-left: 120px;
+        text-align: left;
+      }
+      p {
+        /*border: 1px solid lightgoldenrodyellow;*/
+        margin: 0;
+        padding: 0;
+      }
+      ul {
+        list-style: none;
+        display: block;
+        margin: 0;
+      }
+      #docs {
+        font-size: 17px;
+        border: 1px solid #a7d4de;
+        border-radius: 5px;
+        margin-bottom: 15px;
+        margin-top: 18px;
+        padding: 0;
+      }
+      #docs p {
+        padding: 6px 10px 6px 10px;
+        border-bottom: 1px solid #a7d4de;
+        background-color: rgba(255, 255, 255, 0.15);
+        margin-bottom: 5px;
+      }
+      li {
+        padding: 0 10px 0 10px;
+        display: block;
+        font-size: 17px;
+      }
+      .large {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 15px;
+      }
+      #header-left h1 {
+        color: #a7d4de;
+        font-size: 24px;
+      }
+      h2 {
+        font-size: 20px;
+        margin-top: 0;
+        line-height: 28px;
+      }
+      /*.teaser p {*/
+      /*  border: 2px solid lightsalmon;*/
+      /*}*/
+      h2 {
+        margin-bottom: 5px;
+        /*border: 2px solid lightsalmon;*/
+      }
+      @media (max-width: 850px) {
+        #header-right {
+          padding-left: 20px;
+        }
+      }
+      @media (min-width: 1000px) {
+        .teasers {
+          max-width: 1500px;
+          padding: 15px;
+          display: flex;
+          justify-content: center;
+          align-items: flex-start;
+        }
+        .teaser {
+          margin: 0 0 15px 0;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+
+    <div id="header">
+      <div id="header-left">
+        <img src="img/laika-dog-big@1.5x.png" width="327" height="393" alt="Laika Logo"/>
+        <h1>Site and E-book Generator and Customizable Text Markup Transformer
+        for sbt, Scala and Scala.js</h1>
+      </div>
+      <div id="header-right">
+        <p>Latest Release</p>
+        <p class="large">0.16.0</p>
+        <p>License</p>
+        <p class="large">Apache 2.0</p>
+        <div id="docs">
+          <p>Documentation</p>
+          <ul>
+            <li>Features</li>
+            <li>sbt Plugin</li>
+            <li>Library API</li>
+            <li>Table of Contents</li>
+            <li>Download (PDF / EPUB)</li>
+            <li>API (Scaladoc)</li>
+          </ul>
+        </div>
+        <p class="large">Source</p>
+        <p class="large">Chat</p>
+        <p class="large">Twitter</p>
+      </div>
+    </div>
+    <div class="teasers">
+      <div class="teaser">
+        <h2>No External Tools</h2>
+        <p>Easy setup without any external tools or languages
+          and only minimal library dependencies.</p>
+      </div>
+      <div class="teaser">
+        <h2>Flexible Runtime</h2>
+        <p>Laika can be used as an sbt plugin, as a Scala library for the JVM
+          or in the browser via Scala.js.</p>
+      </div>
+      <div class="teaser">
+        <h2>Purely Functional</h2>
+        <p>Fully referentially transparent, no exceptions or runtime reflection
+          and integration with cats-effect for polymorphic effect handling.</p>
+      </div>
+    </div>
+    <div class="teasers">
+      <div class="teaser">
+        <h2>Rich Feature Set</h2>
+        <p>Markdown and reStructuredText as input, HTML, EPUB and PDF as output,
+        integrated syntax highlighting and much more.</p>
+      </div>
+      <div class="teaser">
+        <h2>Lightweight Theme</h2>
+        <p>The default Helium theme only includes a minimal amount of handcrafted CSS and JS,
+          no Bootstrap, no frameworks.</p>
+      </div>
+      <div class="teaser">
+        <h2>Highly Extensible</h2>
+        <p>Process the document AST, 
+          adjust rendering for individual AST nodes
+          or extend text markup languages with custom directives.</p>
+      </div>
+    </div>
+
+  </body>
+</html>
