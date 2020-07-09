@@ -95,7 +95,7 @@ object ParallelTransformer {
     
     /** Final builder step that creates a parallel transformer for binary output.
       */
-    def build: ParallelTransformer[F] = new ParallelTransformer[F](parsers, renderer, theme, Kleisli(Async[F].pure))
+    def build: ParallelTransformer[F] = new ParallelTransformer[F](parsers, renderer, theme, mapper)
 
   }
 
