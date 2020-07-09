@@ -195,7 +195,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
       case SectionNumber(pos, opt)        => fmt.child(Text(pos.mkString(".") + " ", opt + Style.sectionNumber))
       case e @ Image(_,target,width,height,_,_) =>
         val uri = target match {
-          case it: InternalTarget => it.relativePath.toString
+          case it: InternalTarget => it.absolutePath.toString
           case et: ExternalTarget => et.url
         }
         fmt.externalGraphic(e, uri, width, height) // TODO - ignoring title for now

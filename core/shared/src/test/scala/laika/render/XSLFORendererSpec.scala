@@ -545,7 +545,7 @@ class XSLFORendererSpec extends AnyFlatSpec
   it should "render a figure" in {
     val elem = Figure(Image("alt", InternalTarget(Root / "image.jpg", CurrentTree / "image.jpg")), List(Text("some "), Emphasized("caption"), Text(" text")), List(p("aaa"), Rule(), p("bbb")))
     val fo = """<fo:block space-after="6mm">
-               |  <fo:block font-family="serif" font-size="10pt" space-after="3mm"><fo:external-graphic content-width="scale-down-to-fit" height="100%" scaling="uniform" src="image.jpg" width="100%"/></fo:block>
+               |  <fo:block font-family="serif" font-size="10pt" space-after="3mm"><fo:external-graphic content-width="scale-down-to-fit" height="100%" scaling="uniform" src="/image.jpg" width="100%"/></fo:block>
                |  <fo:block font-family="serif" font-size="9pt" font-style="italic" space-after="3mm">some <fo:inline font-style="italic">caption</fo:inline> text</fo:block>
                |  <fo:block font-size="9pt" font-style="italic">
                |    <fo:block font-family="serif" font-size="10pt" space-after="3mm">aaa</fo:block>
@@ -688,25 +688,25 @@ class XSLFORendererSpec extends AnyFlatSpec
 
   it should "render a paragraph containing an image without title" in {
     val elem = p(Text("some "), Image("img", imageTarget), Text(" span"))
-    val fo = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">some <fo:external-graphic content-width="scale-down-to-fit" height="100%" scaling="uniform" src="foo.jpg" width="100%"/> span</fo:block>"""
+    val fo = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">some <fo:external-graphic content-width="scale-down-to-fit" height="100%" scaling="uniform" src="/foo.jpg" width="100%"/> span</fo:block>"""
     render (elem) should be (fo)
   }
 
   it should "render a paragraph containing an image with title" in {
     val elem = p(Text("some "), Image("img", imageTarget, title = Some("title")), Text(" span"))
-    val fo = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">some <fo:external-graphic content-width="scale-down-to-fit" height="100%" scaling="uniform" src="foo.jpg" width="100%"/> span</fo:block>"""
+    val fo = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">some <fo:external-graphic content-width="scale-down-to-fit" height="100%" scaling="uniform" src="/foo.jpg" width="100%"/> span</fo:block>"""
     render (elem) should be (fo)
   }
 
   it should "render a paragraph containing an image with width and height attributes" in {
     val elem = p(Text("some "), Image("img", imageTarget, width = Some(Size(120,"px")), height = Some(Size(80,"px"))), Text(" span"))
-    val fo = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">some <fo:external-graphic content-width="scale-down-to-fit" height="80px" scaling="uniform" src="foo.jpg" width="120px"/> span</fo:block>"""
+    val fo = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">some <fo:external-graphic content-width="scale-down-to-fit" height="80px" scaling="uniform" src="/foo.jpg" width="120px"/> span</fo:block>"""
     render (elem) should be (fo)
   }
 
   it should "render a paragraph containing an image with vertical align style" in {
     val elem = p(Text("some "), Image("img", imageTarget).copy(options = Styles("align-top")), Text(" span"))
-    val fo = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">some <fo:external-graphic content-width="scale-down-to-fit" height="100%" scaling="uniform" src="foo.jpg" vertical-align="top" width="100%"/> span</fo:block>"""
+    val fo = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">some <fo:external-graphic content-width="scale-down-to-fit" height="100%" scaling="uniform" src="/foo.jpg" vertical-align="top" width="100%"/> span</fo:block>"""
     render (elem) should be (fo)
   }
 
