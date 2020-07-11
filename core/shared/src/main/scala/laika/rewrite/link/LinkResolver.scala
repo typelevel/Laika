@@ -86,7 +86,7 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
         case Some(img: Image)     => replaceInvalidTarget(img.target).getOrElse(img)
         case Some(other)          => other
         case None                 => ref match {
-          case p: PathReference =>
+          case p: LinkPathReference =>
             val target = resolveTarget(p.path)
             replaceInvalidTarget(target).getOrElse(SpanLink(p.content, target, p.title, p.options))
           case i: ImagePathReference =>
@@ -155,7 +155,7 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
         case Autosymbol          => resolveLocal(ref, AutosymbolSelector, "too many autosymbol references")
       }
 
-      case ref: PathReference      => resolvePath(ref, ref.path, s"unresolved internal reference: ${ref.path.toString}")
+      case ref: LinkPathReference      => resolvePath(ref, ref.path, s"unresolved internal reference: ${ref.path.toString}")
       case ref: ImagePathReference => resolvePath(ref, ref.path, s"unresolved internal image reference: ${ref.path.toString}")
 
       case ref: LinkIdReference => if (ref.ref.isEmpty) resolveLocal(ref, AnonymousSelector, "too many anonymous references")

@@ -1235,7 +1235,7 @@ object Link {
   def create (linkText: Seq[Span], url: String, source: String, title: Option[String] = None): Span =
     Target.create(url) match {
       case et: ExternalTarget => SpanLink(linkText, et, title)
-      case it: InternalTarget => PathReference(linkText, it.relativePath, source, title)
+      case it: InternalTarget => LinkPathReference(linkText, it.relativePath, source, title)
     }
 }
 
@@ -1252,14 +1252,14 @@ object LinkDefinition {
   * replace the source path with the final target path of the output document, which might
   * differ in more than just the file suffix, depending on configuration.
   */
-case class PathReference (content: Seq[Span],
-                          path: RelativePath,
-                          source: String,
-                          title: Option[String] = None,
-                          options: Options = NoOpt) extends Reference with SpanContainer {
-  type Self = PathReference
-  def withContent (newContent: Seq[Span]): PathReference = copy(content = newContent)
-  def withOptions (options: Options): PathReference = copy(options = options)
+case class LinkPathReference(content: Seq[Span],
+                             path: RelativePath,
+                             source: String,
+                             title: Option[String] = None,
+                             options: Options = NoOpt) extends Reference with SpanContainer {
+  type Self = LinkPathReference
+  def withContent (newContent: Seq[Span]): LinkPathReference = copy(content = newContent)
+  def withOptions (options: Options): LinkPathReference = copy(options = options)
   lazy val unresolvedMessage: String = s"Unresolved internal reference to '${path.toString}'"
 }
 

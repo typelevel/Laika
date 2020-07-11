@@ -56,7 +56,7 @@ class RewriteRulesSpec extends AnyWordSpec
 
   def linkIdRef (id: String = "name") = LinkIdReference(List(Text("text")), id, "text")
 
-  def pathRef (id: String = "name") = PathReference(List(Text("text")), RelativePath.parse(s"#$id"), "text")
+  def pathRef (id: String = "name") = LinkPathReference(List(Text("text")), RelativePath.parse(s"#$id"), "text")
 
   def extLink (url: String) = SpanLink(List(Text("text")), ExternalTarget(url))
 
@@ -284,7 +284,7 @@ class RewriteRulesSpec extends AnyWordSpec
       rewrittenTree.tree.selectDocument("tree1/doc3.md").get.content
     }
 
-    def pathRef (ref: String) = PathReference(List(Text("text")), RelativePath.parse(ref), "text")
+    def pathRef (ref: String) = LinkPathReference(List(Text("text")), RelativePath.parse(ref), "text")
     def internalLink (path: RelativePath) = SpanLink(List(Text("text")), InternalTarget.fromPath(path, Root / "tree1" / "doc3.md"))
     def docLink (ref: String) =
       SpanLink(List(Text("text")), InternalTarget((Root / "tree1" / "doc3.md").withFragment(ref), CurrentDocument(ref)))
