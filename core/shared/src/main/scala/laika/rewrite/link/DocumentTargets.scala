@@ -128,8 +128,8 @@ case class DocumentTargets (document: Document, slugBuilder: String => String) {
     val groupedTargets: Map[Selector, TargetResolver] = directTargets.groupBy(_.selector).map {
       case (sel: UniqueSelector, target :: Nil) =>
         (sel, target)
-      case (sel: UniqueSelector, targets) =>
-        (sel, TargetResolver.forDuplicateSelector(sel, document.path, targets))
+      case (sel: UniqueSelector, duplicates) =>
+        (sel, TargetResolver.forDuplicateSelector(sel, document.path, duplicates))
       case (selector, list) =>
         (selector, TargetSequenceResolver(list, selector))
     }
@@ -144,7 +144,7 @@ case class DocumentTargets (document: Document, slugBuilder: String => String) {
       }
     }
     
-    val linkConfig = document.config.getOpt[LinkConfig].toOption.flatten.getOrElse(LinkConfig.empty) // TODO - 0.16 - error handling
+    val linkConfig = document.config.get[LinkConfig].getOrElse(LinkConfig.empty) // TODO - 0.16 - error handling
     val targetsFromConfig = linkConfig.targets.map { defn =>
       linkDefinitionResolver(LinkDefinitionSelector(defn.id), defn.target)
     }

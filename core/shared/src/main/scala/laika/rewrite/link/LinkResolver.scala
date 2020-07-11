@@ -46,7 +46,7 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
    */
   def apply (cursor: DocumentCursor): RewriteRules = {
     
-    val excludeFromValidation = cursor.config.getOpt[LinkConfig].toOption.flatten.getOrElse(LinkConfig.empty).excludeFromValidation.toSet
+    val excludeFromValidation = cursor.config.get[LinkConfig].getOrElse(LinkConfig.empty).excludeFromValidation.toSet
     
     def replace (element: Customizable, selector: Selector): Option[Customizable] = 
       targets.select(cursor.path, selector)

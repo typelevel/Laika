@@ -98,7 +98,7 @@ object PDFNavigation {
       currentLevel = 0
     )
     val toc = tree.asNavigationItem(context).content
-    val title = tree.config.getOpt[String]("pdf.toc.title").toOption.flatten
+    val title = tree.config.get[String]("pdf.toc.title").toOption
     val root = title.fold(RootElement(toc)){ title => RootElement(Title(title) +: toc) }
     val doc = Document(tree.path / DocNames.toc, root)
     tree.copy(content = doc +: tree.content)
