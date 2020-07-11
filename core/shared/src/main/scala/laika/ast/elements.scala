@@ -1212,6 +1212,15 @@ case class Image (text: String,
   def withOptions (options: Options): Image = copy(options = options)
 }
 
+object Image {
+  def create (text: String, url: String, source: String, width: Option[Size] = None,
+              height: Option[Size] = None, title: Option[String] = None): Span =
+    Target.create(url) match {
+      case et: ExternalTarget => Image(text, et, width, height, title)
+      case it: InternalTarget => ImagePathReference(text, it.relativePath, source, width, height, title)
+    }
+}
+
 /** Encapsulates size information with a unit.
   */
 case class Size (amount: Double, unit: String) {
@@ -1252,6 +1261,23 @@ case class PathReference (content: Seq[Span],
   def withContent (newContent: Seq[Span]): PathReference = copy(content = newContent)
   def withOptions (options: Options): PathReference = copy(options = options)
   lazy val unresolvedMessage: String = s"Unresolved internal reference to '${path.toString}'"
+}
+
+/** An image reference to content within the virtual input tree, the path pointing to the source path.
+  * Only part of the unresolved document tree and then removed by the rewrite rule that 
+  * replace the source path with the final target path of the output document, resolving any
+  * relative path references in the process.
+  */
+case class ImagePathReference (text: String,
+                               path: RelativePath,
+                               source: String,
+                               width: Option[Size] = None,
+                               height: Option[Size] = None,
+                               title: Option[String] = None,
+                               options: Options = NoOpt) extends Reference {
+  type Self = ImagePathReference
+  def withOptions (options: Options): ImagePathReference = copy(options = options)
+  lazy val unresolvedMessage: String = s"Unresolved internal reference to image with path '$path'"
 }
 
 /** An image reference, the id pointing to the id of a `LinkTarget`. Only part of the

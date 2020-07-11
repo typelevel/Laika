@@ -28,6 +28,7 @@ import laika.config.{ConfigValue, Field, LaikaKeys, ObjectValue, StringValue}
 import laika.format.ReStructuredText
 import laika.rewrite.ReferenceResolver.CursorKeys
 import laika.rewrite.TemplateRewriter
+import laika.rewrite.link.LinkConfig
 import laika.rst.ast.{Contents, Include, RstStyle}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -39,23 +40,28 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
                                   with Matchers 
                                   with ModelBuilder {
 
-   val simplePars: List[Paragraph] = List(p("1st Para"), p("2nd Para"))
-   
-   def parseDoc (input: String): Document = MarkupParser.of(ReStructuredText).build.parse(input).toOption.get
+  val simplePars: List[Paragraph] = List(p("1st Para"), p("2nd Para"))
 
-   def parseRaw (input: String): RootElement = MarkupParser
-     .of(ReStructuredText)
-     .build
-     .parseUnresolved(input)
-     .toOption
-     .get
-     .document
-     .content
-     .rewriteBlocks({ case _: Hidden with Block => Remove }) // removing the noise of rst TextRoles which are not the focus of this spec
+  private val parser = MarkupParser
+    .of(ReStructuredText)
+    .withConfigValue(LinkConfig(excludeFromValidation = Seq(Root)))
+    .build
+  
+  def parseDoc (input: String): Document = parser.parse(input).toOption.get
 
-   def parse (input: String): RootElement = parseDoc(input).content
+  def parseRaw (input: String): RootElement = MarkupParser
+    .of(ReStructuredText)
+    .build
+    .parseUnresolved(input)
+    .toOption
+    .get
+    .document
+    .content
+    .rewriteBlocks({ case _: Hidden with Block => Remove }) // removing the noise of rst TextRoles which are not the focus of this spec
+
+  def parse (input: String): RootElement = parseDoc(input).content
    
-   def parseWithFragments (input: String): (Map[String, Element], RootElement) = {
+  def parseWithFragments (input: String): (Map[String, Element], RootElement) = {
     val doc = parseDoc(input)
     (doc.fragments, doc.content)
   }

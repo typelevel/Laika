@@ -20,6 +20,7 @@ import laika.ast._
 import laika.parse.implicits._
 import laika.parse.markup.RecursiveParsers
 import laika.parse.text.{CharGroup, TextParsers}
+import laika.rewrite.link.LinkConfig
 import laika.rst.BaseParsers.sizeAndUnit
 import laika.rst.ext.Directives.DirectivePartBuilder
 import laika.rst.ext.Directives.Parts._
@@ -79,19 +80,26 @@ object StandardDirectiveParts {
       val image = ImageResolver(Image(alt.getOrElse(""), Target.create(uri), width = actualWidth, height = actualHeight))
 
       (target map {
-        case ref: SpanLink  => ref.copy(content = List(image.copy(options = opt)), options = alignOpt)
-        case ref: LinkIdReference => ref.copy(content = List(image.copy(options = opt)), options = alignOpt)
-      }).getOrElse(image.copy(options = alignOpt + opt))
+        case ref: SpanLink  => ref.copy(content = List(image.withOptions(opt)), options = alignOpt)
+        case ref: LinkIdReference => ref.copy(content = List(image.withOptions(opt)), options = alignOpt)
+      }).getOrElse(image.withOptions(alignOpt + opt))
     }
   }
 
-  case class ImageResolver (image: Image, options: Options = NoOpt) extends SpanResolver {
+  case class ImageResolver (image: Image) extends SpanResolver {
     type Self = ImageResolver
+    val options: Options = image.options
     override def resolve (cursor: DocumentCursor): Span = image.target match {
-      case it: InternalTarget => image.copy(target = it.relativeTo(cursor.path.parent), options = options)
-      case _ => image.withOptions(options)
+      case it: InternalTarget =>
+        val resolvedTarget = it.relativeTo(cursor.path.parent)
+        if (cursor.root.target.staticDocuments.contains(resolvedTarget.absolutePath) || 
+          cursor.config.get[Seq[Path]](LinkConfig.key.value.child("excludeFromValidation"))
+            .getOrElse(Nil)
+            .exists(p => resolvedTarget.absolutePath.isSubPath(p))) image.copy(target = resolvedTarget)
+        else InvalidElement(unresolvedMessage, "").asSpan // TODO - source string
+      case _ => image
     }
-    override def withOptions (options: Options): ImageResolver = copy(options = options)
+    override def withOptions (options: Options): ImageResolver = copy(image = image.withOptions(options))
     lazy val unresolvedMessage: String = s"Unresolved image resolver for target '${image.target}'"
   }
 

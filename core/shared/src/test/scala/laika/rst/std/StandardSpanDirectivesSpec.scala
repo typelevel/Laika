@@ -24,6 +24,7 @@ import laika.ast.RelativePath.CurrentTree
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.ReStructuredText
+import laika.rewrite.link.LinkConfig
 import laika.time.PlatformDateFormat
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -35,8 +36,12 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec
                                   with Matchers 
                                   with ModelBuilder {
 
+  private val parser = MarkupParser
+    .of(ReStructuredText)
+    .withConfigValue(LinkConfig(excludeFromValidation = Seq(Root)))
+    .build
 
-  def parse (input: String): RootElement = MarkupParser.of(ReStructuredText).build.parse(input).toOption.get.content
+  def parse (input: String): RootElement = parser.parse(input, Root / "test.rst").toOption.get.content
   
   val imgTarget = InternalTarget(Root / "picture.jpg", CurrentTree / "picture.jpg")
   
