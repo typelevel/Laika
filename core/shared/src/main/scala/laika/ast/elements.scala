@@ -1252,14 +1252,27 @@ object LinkDefinition {
   * replace the source path with the final target path of the output document, which might
   * differ in more than just the file suffix, depending on configuration.
   */
+trait PathReference extends Reference {
+  /** The content (section or document or image) this reference points to. */
+  def path: RelativePath
+  /** Creates the final AST element based on the resolved target. */
+  def resolve(target: Target): Span
+}
+
+/** A reference to content within the virtual input tree, the path pointing to the source path.
+  * Only part of the unresolved document tree and then removed by the rewrite rule that 
+  * replace the source path with the final target path of the output document, which might
+  * differ in more than just the file suffix, depending on configuration.
+  */
 case class LinkPathReference(content: Seq[Span],
                              path: RelativePath,
                              source: String,
                              title: Option[String] = None,
-                             options: Options = NoOpt) extends Reference with SpanContainer {
+                             options: Options = NoOpt) extends PathReference with SpanContainer {
   type Self = LinkPathReference
   def withContent (newContent: Seq[Span]): LinkPathReference = copy(content = newContent)
   def withOptions (options: Options): LinkPathReference = copy(options = options)
+  def resolve(target: Target): Span = SpanLink(content, target, title, options)
   lazy val unresolvedMessage: String = s"Unresolved internal reference to '${path.toString}'"
 }
 
@@ -1274,9 +1287,10 @@ case class ImagePathReference (text: String,
                                width: Option[Size] = None,
                                height: Option[Size] = None,
                                title: Option[String] = None,
-                               options: Options = NoOpt) extends Reference {
+                               options: Options = NoOpt) extends PathReference {
   type Self = ImagePathReference
   def withOptions (options: Options): ImagePathReference = copy(options = options)
+  def resolve(target: Target): Span = Image(text, target, width, height, title, options)
   lazy val unresolvedMessage: String = s"Unresolved internal reference to image with path '$path'"
 }
 

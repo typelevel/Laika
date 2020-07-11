@@ -78,20 +78,14 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
         case _ => None
       }
 
-      def resolveTarget(rel: RelativePath): Target =
-        ReferenceResolver.resolveTarget(InternalTarget.fromPath(rel, cursor.path), cursor.path)
-
       val resolvedTarget = target.flatMap(_.resolveReference(LinkSource(ref, cursor.path))) match {
         case Some(link: SpanLink) => replaceInvalidTarget(link.target).getOrElse(link)
         case Some(img: Image)     => replaceInvalidTarget(img.target).getOrElse(img)
         case Some(other)          => other
         case None                 => ref match {
-          case p: LinkPathReference =>
-            val target = resolveTarget(p.path)
-            replaceInvalidTarget(target).getOrElse(SpanLink(p.content, target, p.title, p.options))
-          case i: ImagePathReference =>
-            val target = resolveTarget(i.path)
-            replaceInvalidTarget(target).getOrElse(Image(i.text, target, i.width, i.height, i.title, i.options))
+          case p: PathReference =>
+            val target = ReferenceResolver.resolveTarget(InternalTarget.fromPath(p.path, cursor.path), cursor.path)
+            replaceInvalidTarget(target).getOrElse(p.resolve(target))
           case _ =>
             InvalidElement(msg, ref.source).asSpan
         }
@@ -155,11 +149,10 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
         case Autosymbol          => resolveLocal(ref, AutosymbolSelector, "too many autosymbol references")
       }
 
-      case ref: LinkPathReference      => resolvePath(ref, ref.path, s"unresolved internal reference: ${ref.path.toString}")
-      case ref: ImagePathReference => resolvePath(ref, ref.path, s"unresolved internal image reference: ${ref.path.toString}")
+      case ref: PathReference    => resolvePath(ref, ref.path, s"unresolved internal reference: ${ref.path.toString}")
 
-      case ref: LinkIdReference => if (ref.ref.isEmpty) resolveLocal(ref, AnonymousSelector, "too many anonymous references")
-                                   else resolveIdOrSlug(ref, s"unresolved link id reference: ${ref.ref}")
+      case ref: LinkIdReference  => if (ref.ref.isEmpty) resolveLocal(ref, AnonymousSelector, "too many anonymous references")
+                                    else resolveIdOrSlug(ref, s"unresolved link id reference: ${ref.ref}")
 
       case ref: ImageIdReference => resolveId(ref, LinkDefinitionSelector(ref.id), s"unresolved image reference: ${ref.id}")
 
