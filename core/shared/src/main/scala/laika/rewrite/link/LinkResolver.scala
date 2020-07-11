@@ -155,11 +155,6 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
         case Autosymbol          => resolveLocal(ref, AutosymbolSelector, "too many autosymbol references")
       }
 
-      case ref: PathReference if ref.path.parentLevels >= cursor.path.depth => // TODO - 0.16 - these checks could move up to resolveWith (or are already covered by ReferenceResolver.resolveTarget)
-        Replace(SpanLink(ref.content, ExternalTarget(ref.path.toString), ref.title, ref.options))
-      case ref: ImagePathReference if ref.path.parentLevels >= cursor.path.depth =>
-        Replace(Image(ref.text, ExternalTarget(ref.path.toString), ref.width, ref.height, ref.title, ref.options))
-
       case ref: PathReference      => resolvePath(ref, ref.path, s"unresolved internal reference: ${ref.path.toString}")
       case ref: ImagePathReference => resolvePath(ref, ref.path, s"unresolved internal image reference: ${ref.path.toString}")
 
