@@ -18,7 +18,7 @@ package laika.rewrite
 
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
-import laika.ast.RelativePath.{CurrentDocument, CurrentTree}
+import laika.ast.RelativePath.{CurrentDocument, CurrentTree, Parent}
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.config.ConfigParser
@@ -285,6 +285,7 @@ class RewriteRulesSpec extends AnyWordSpec
     }
 
     def pathRef (ref: String) = LinkPathReference(List(Text("text")), RelativePath.parse(ref), "text")
+    def imgPathRef (ref: String) = ImagePathReference("text", RelativePath.parse(ref), "text")
     def internalLink (path: RelativePath) = SpanLink(List(Text("text")), InternalTarget.fromPath(path, Root / "tree1" / "doc3.md"))
     def docLink (ref: String) =
       SpanLink(List(Text("text")), InternalTarget((Root / "tree1" / "doc3.md").withFragment(ref), CurrentDocument(ref)))
@@ -312,6 +313,12 @@ class RewriteRulesSpec extends AnyWordSpec
     "resolve internal link references to a static document" in {
       val rootElem = root(p(pathRef("../images/frog.jpg")), InternalLinkTarget(Id("ref")))
       rewrittenTreeDoc(rootElem) should be(root(p(internalLink(RelativePath.parse("../images/frog.jpg"))), InternalLinkTarget(Id("ref"))))
+    }
+
+    "resolve internal link references to an image" in {
+      val rootElem = root(p(imgPathRef("../images/frog.jpg")))
+      val target = InternalTarget(Root / "images" / "frog.jpg", Parent(1) / "images" / "frog.jpg")
+      rewrittenTreeDoc(rootElem) should be(root(p(Image("text", target))))
     }
 
     "produce an invalid span for an unresolved reference" in {
@@ -359,7 +366,7 @@ class RewriteRulesSpec extends AnyWordSpec
   }
 
 
-  "The rewrite rules for image references" should {
+  "The rewrite rules for image id references" should {
 
     "resolve external link references" in {
       val rootElem = root(p(simpleImgRef()), LinkDefinition("name", ExternalTarget("http://foo.com/bar.jpg")))
