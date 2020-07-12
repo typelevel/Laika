@@ -63,6 +63,14 @@ class TransformAPISpec extends AnyFlatSpec
                                                 { case Text("text zzz ",_)    => Replace(Text("text new ")) }
     transformCustom.build.transform(input).toOption.get should be (modifiedOutput)
   }
+
+  it should "correctly process a Replace followed by a Retain" in {
+    val modifiedOutput = output.replace("foo", "bar")
+    val transformCustom = builder
+      .usingSpanRule { case Text("foo" ,_) => Replace(Text("bar")) }
+      .usingSpanRule { case Text(_,_) => Retain }
+    transformCustom.build.transform(input).toOption.get should be (modifiedOutput)
+  }
   
   it should "allow to specify a custom rewrite rule that depends on the document" in {
     val modifiedOutput = output.replace("zzz", "2")

@@ -222,8 +222,11 @@ object RewriteRules {
             case Replace(elem) => elem
             case _ => element
           }
-          val action = remainingRules.head.applyOrElse[T, RewriteAction[T]](input, _ => currentAction)
-          applyNextRule(action, remainingRules.tail)
+          val nextAction = remainingRules.head.applyOrElse[T, RewriteAction[T]](input, _ => currentAction) match {
+            case Retain => currentAction
+            case other => other
+          }
+          applyNextRule(nextAction, remainingRules.tail)
         }
 
       applyNextRule(Retain, rules)
