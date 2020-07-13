@@ -494,7 +494,7 @@ including those from other documents.
 It can therefore be used for advanced functionality like producing a table of contents.
 
 Our sample directive implementation showed a complete example of using this combinator
-in @:(Access to Configuration)
+in [Access to Configuration]
 
 
 Link Directives

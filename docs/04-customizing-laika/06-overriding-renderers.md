@@ -31,7 +31,7 @@ and knows how to render child elements.
 `Element` is the base type of the document AST and represents the AST node to render, 
 `String` is the render result in the expected target format.
 
-See @:(The Document AST) for more details about the various node types
+See [The Document AST] for more details about the various node types
 
 
 Defining a Render Function

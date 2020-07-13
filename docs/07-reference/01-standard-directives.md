@@ -150,7 +150,7 @@ In case of non-empty values their properties will be made available for use insi
 ```
 
 In this example `id` and `title` are properties of the `catalog.products` property that the user defined 
-in the configuration. See @:(User-Defined Variables) for details on defining them.
+in the configuration. See [User-Defined Variables] for details on defining them.
 
 You can also specify a fallback, a body part that gets executed for empty values:
 
@@ -178,7 +178,7 @@ Executes the body of the directive exactly once for a Boolean `true` or the stri
 ```
 
 In this example `showSidebar` is a custom configuration entry that the user defined 
-in the configuration. See @:(User-Defined Variables) for details on defining them.
+in the configuration. See [User-Defined Variables] for details on defining them.
 
 You can also specify a fallback with `@:else`, or even secondary conditions with `@:elseIf`:
 
