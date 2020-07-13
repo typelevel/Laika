@@ -45,6 +45,10 @@ object FOStyles {
   private def forElementAndStyles (element: String, styleName1: String, styleName2: String, attributes: (String, String)*): StyleDeclaration =
     StyleDeclaration(StyleSelector(Set(ElementType(element), StyleName(styleName1), StyleName(styleName2)), None), attributes.toMap)
   
+  private val bodyFont = fontFamily("Lato")
+  private val headerFont = fontFamily("Lato")
+  private val codeFont = fontFamily("Fira Code")
+  
   private def fontFamily (name: String) = "font-family" -> name
   private def fontSize (value: Int) = "font-size" -> s"${value}pt"
   private def spaceBefore (value: Int) = "space-before" -> s"${value}mm"
@@ -62,12 +66,12 @@ object FOStyles {
   private val rightAlign = "text-align" -> "right"
   private val preserveLineFeed = "linefeed-treatment" -> "preserve"
 
-  private val codeStyles = Seq(fontFamily("monospace"), fontSize(10), marginLeft(6), marginRight(6), spaceAfter(6), preserveLineFeed)
+  private val codeStyles = Seq(codeFont, fontSize(10), marginLeft(6), marginRight(6), spaceAfter(6), preserveLineFeed)
 
   private val styles = Seq(
-    forElement("Paragraph", fontFamily("serif"), fontSize(10), spaceAfter(3)),
+    forElement("Paragraph", bodyFont, fontSize(10), spaceAfter(3)),
     forElement("TitledBlock", bgColor("cccccc"), paddingLeft(20), paddingRight(20), spaceAfter(6)),
-    forChildElement("TitledBlock", "title", fontFamily("sans-serif"), bold, fontSize(12)),
+    forChildElement("TitledBlock", "title", headerFont, bold, fontSize(12)),
     forElement("QuotedBlock", italic, marginLeft(8), marginRight(8), spaceAfter(3)),
     forChildElement("QuotedBlock", "attribution", rightAlign),
     forElement("LiteralBlock", codeStyles: _*),
@@ -78,9 +82,9 @@ object FOStyles {
     forElement("Figure", spaceAfter(6)),
     forChildElement("Figure", "caption", fontSize(9), italic),
     forChildElement("Figure", "legend", fontSize(9), italic),
-    forElement("Header", fontFamily("sans-serif"), fontSize(11), bold, spaceAfter(5), spaceBefore(9)),
-    forElement("Title", fontFamily("sans-serif"), fontSize(16), spaceAfter(7), spaceBefore(12)),
-    forElementAndStyle("Header", "level1", fontFamily("sans-serif"), fontSize(16), spaceAfter(7), spaceBefore(12)),
+    forElement("Header", headerFont, fontSize(11), bold, spaceAfter(5), spaceBefore(9)),
+    forElement("Title", headerFont, fontSize(16), spaceAfter(7), spaceBefore(12)),
+    forElementAndStyle("Header", "level1", fontSize(16), spaceAfter(7), spaceBefore(12)),
     forElementAndStyle("Header", "level2", fontSize(14)),
     forElementAndStyle("Header", "level3", fontSize(12)),
     forElement("BulletList", spaceAfter(6), startDistance(5)),
@@ -104,8 +108,8 @@ object FOStyles {
     forStyleName("title", bold),
     forElement("Deleted", "text-decoration" -> "line-through"),
     forElement("Inserted", "text-decoration" -> "underline"),
-    forElement("Literal", fontFamily("monospace")),
-    forElement("InlineCode", fontFamily("monospace")),
+    forElement("Literal", codeFont),
+    forElement("InlineCode", codeFont),
     forStyleName("subscript", fontSize(8), "vertical-align" -> "sub"),
     forStyleName("superscript", fontSize(8), "vertical-align" -> "super"),
     forStyleName("footnote-label", fontSize(8), "vertical-align" -> "super"),
