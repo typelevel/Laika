@@ -147,6 +147,7 @@ object FOStyles {
     forElementAndStyle("RuntimeMessage", "error", bgColor("ff0000")),
     forElementAndStyle("RuntimeMessage", "fatal", bgColor("ff0000")),
     forElement("LineBlock", marginLeft(20)),
+    forElement("Rule", spaceAfter(3), "leader-length" -> "100%", "rule-style" -> "solid", "rule-thickness" -> "2pt"),
     forElementAndStyle("Paragraph", "toc", fontSize(11), spaceAfter(0), spaceBefore(2), "text-align-last" -> "justify"),
     forElementAndStyle("Paragraph", "nav", fontSize(11), spaceAfter(0), spaceBefore(2), "text-align-last" -> "justify"),
     forElementAndStyles("Paragraph", "toc", "level1", fontSize(12), spaceBefore(5)),

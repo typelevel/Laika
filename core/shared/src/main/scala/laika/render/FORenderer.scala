@@ -179,7 +179,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
 
     def renderSimpleBlock (block: Block): String = block match {
       case e @ ListItemLabel(content,_) => fmt.listItemLabel(e, content)
-      case e: Rule                      => fmt.textElement("fo:leader", e, "", "leader-pattern"->"rule")
+      case e: Rule                      => fmt.rawElement("fo:block", e, fmt.textElement("fo:leader", e, "", "leader-pattern"->"rule"))
       case e: InternalLinkTarget        => fmt.internalLinkTarget(e)
       case e: PageBreak                 => fmt.block(e)
       case e @ LineBlock(content,_)     => fmt.blockContainer(e, content)
