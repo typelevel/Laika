@@ -68,7 +68,9 @@ object CodeCategory {
       override def name: String = "xml-dtd-tag-name"
     }
     case object ProcessingInstruction extends XMLCategory
-    case object CData extends XMLCategory
+    case object CData extends XMLCategory {
+      override def name: String = "xml-cdata"
+    }
   }
 
   /** Categories for text markup formats. */

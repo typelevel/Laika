@@ -28,49 +28,29 @@ pre code {
   color: #e8e8e8;
   font-size: 14px;
 }
-code .keyword-intellij {
-  color: #cc7832;
-}
-code .keyword, .escape-sequence {
-  color: #ef9725;
-}
-code .type-name, code .tag-name {
-  color: #4dbed4;
-}
-code .attribute-name {
-  color: #ffc66d;
-}
-code .identifier-1 {
-  color: #f3d6b5;
-}
-code .identifier-2 {
-  color: #c2e1f3;
-}
+
 code .identifier {
   color: #bddcee;
-}
-code .number-literal-ij, .string-literal-ij, .literal-value-ij, .boolean-literal-ij, code .markup-link-text {
-  color: #65A861;
-}
-code .number-literal, .string-literal, .literal-value, .boolean-literal, .char-literal {
-  /*color: #7abd76;*/
-  color: #7fb971;
-}
-code .markup-emphasized {
-  color: #d27b84;
-}
-code .markup-link-target {
-  color: #c1d225;
-}
-code .substitution {
-  color: #e28e93;
-}
-code .xml-tag-name-1 {
-  color: #98a3ee;
 }
 code .tag-punctuation {
   color: #b2adb4;
 }
-code .comment {
+code .comment, code .xml-cdata, code .markup-quote {
   color: #8c878e;
+}
+
+code .substitution, code .xml-processing-instruction, code .markup-emphasized, code .annotation {
+  color: #e28e93;
+}
+code .keyword, code .escape-sequence, code .markup-headline {
+  color: #ef9725;
+}
+code .attribute-name, .markup-link-target, code .declaration-name {
+  color: #ffc66d;
+}
+code .number-literal, .string-literal, .literal-value, .boolean-literal, .char-literal, .symbol-literal, .regex-literal, .markup-link-text {
+  color: #7fb971;
+}
+code .type-name, code .tag-name, code .xml-dtd-tag-name, code .markup-fence {
+  color: #4dbed4;
 }
