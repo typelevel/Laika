@@ -57,7 +57,8 @@ trait FOProperties {
       "border-left-width",
       "border-right-color",
       "border-right-style",
-      "border-right-width")
+      "border-right-width",
+      "fox:border-radius")
   private val padding = Set(
       "padding",
       "padding-before",
@@ -342,6 +343,7 @@ trait FOProperties {
         padding ++ 
         background ++ 
         keepPlus ++ 
+        font ++
         areaAlign ++ Set(
         "id",
         "color",
