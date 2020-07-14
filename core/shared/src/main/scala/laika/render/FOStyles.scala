@@ -19,6 +19,7 @@ package laika.render
 import laika.ast.{ParentSelector, Path, StyleDeclaration, StyleDeclarationSet, StyleSelector}
 import laika.ast.StylePredicate.{ElementType, StyleName}
 import laika.bundle.Precedence
+import laika.parse.code.CodeCategory
 
 /** The default styles for PDF and XSL-FO output.
   * 
@@ -56,20 +57,45 @@ object FOStyles {
   private def spaceAfter (value: Int) = "space-after" -> s"${value}mm"
   private def bgColor (value: String) = "background-color" -> s"#$value"
   private def color (value: String) = "color" -> s"#$value"
+  private def padding (value: Int) = "padding" -> s"${value}mm"
   private def paddingTop (value: Int) = "padding-top" -> s"${value}mm"
   private def paddingLeft (value: Int) = "padding-left" -> s"${value}mm"
   private def paddingRight (value: Int) = "padding-right" -> s"${value}mm"
   private def marginLeft (value: Int) = "margin-left" -> s"${value}mm"
   private def marginRight (value: Int) = "margin-right" -> s"${value}mm"
+  private def borderRadius (value: Int) = "fox:border-radius" -> s"${value}mm"
   private def startDistance (value: Int) = "provisional-distance-between-starts" -> s"${value}mm"
   private val bold = "font-weight" -> "bold"
   private val italic = "font-style" -> "italic"
   private val rightAlign = "text-align" -> "right"
-  private val preserveLineFeed = "linefeed-treatment" -> "preserve"
-  private val preserveWhitespace = "white-space-treatment" -> "preserve"
+  private val preserveWhitespace = Seq(
+    "linefeed-treatment" -> "preserve", 
+    "white-space-treatment" -> "preserve", 
+    "white-space-collapse" -> "false"
+  )
 
-  private val codeStyles = Seq(codeFont, fontSize(9), marginLeft(6), marginRight(6), spaceAfter(6), preserveLineFeed, preserveWhitespace)
+  private val secondaryColor = "931813"
+  
+  private def codeColor (value: String, categories: CodeCategory*): Seq[StyleDeclaration] = 
+    categories.map(c => forChildElement("CodeBlock", c.name, color(value)))
 
+  private val syntaxBaseColors: Vector[String] = Vector("fae3be", "d8ac66", "9f7e4a", "57462c", "362e21")
+  private val syntaxWheelColors: Vector[String] = Vector("b38dad", "9f4c46", "996c4c", "a5b575", "87aec0")
+  private val codeStyles = Seq(codeFont, fontSize(9), lineHeight(1.4), 
+    bgColor(syntaxBaseColors(0)), color(syntaxBaseColors(4)), 
+    borderRadius(2), padding(2), marginLeft(6), marginRight(6), spaceAfter(6)) ++ preserveWhitespace
+
+  private val syntaxHighlighting = 
+    codeColor(syntaxBaseColors(1), CodeCategory.Comment, CodeCategory.XML.CData, CodeCategory.Markup.Quote) ++
+    codeColor(syntaxBaseColors(2), CodeCategory.Tag.Punctuation) ++
+    codeColor(syntaxBaseColors(3), CodeCategory.Identifier) ++
+    codeColor(syntaxWheelColors(0), CodeCategory.Substitution, CodeCategory.Annotation, CodeCategory.Markup.Emphasized, CodeCategory.XML.ProcessingInstruction) ++
+    codeColor(syntaxWheelColors(1), CodeCategory.Keyword, CodeCategory.EscapeSequence, CodeCategory.Markup.Headline) ++
+    codeColor(syntaxWheelColors(2), CodeCategory.AttributeName, CodeCategory.DeclarationName, CodeCategory.Markup.LinkTarget) ++
+    codeColor(syntaxWheelColors(3), CodeCategory.NumberLiteral, CodeCategory.StringLiteral, CodeCategory.LiteralValue, CodeCategory.BooleanLiteral, CodeCategory.CharLiteral, CodeCategory.SymbolLiteral, CodeCategory.RegexLiteral, CodeCategory.Markup.LinkText) ++
+    codeColor(syntaxWheelColors(4), CodeCategory.TypeName, CodeCategory.Tag.Name, CodeCategory.XML.DTDTagName, CodeCategory.Markup.Fence)
+  
+  
   private val styles = Seq(
     forElement("Paragraph", bodyFont, lineHeight(1.5), fontSize(10), spaceAfter(3)),
     forElement("TitledBlock", bgColor("cccccc"), paddingLeft(20), paddingRight(20), spaceAfter(6)),
@@ -103,8 +129,7 @@ object FOStyles {
     forElement("Citation", fontSize(8)),
     forElement("FootnoteLink", color("3399FF")),
     forElement("CitationLink", color("3399FF")),
-    forElement("SpanLink", color("3956ac"), bold),
-    forElement("CrossLink", color("3956ac"), bold),
+    forElement("SpanLink", color(secondaryColor), bold),
     forElement("Emphasized", italic),
     forElement("Strong", bold),
     forStyleName("title", bold),
@@ -136,8 +161,8 @@ object FOStyles {
     forStyleName("align-left", "text-align" -> "left"),
     forStyleName("align-right", "text-align" -> "right"),
     forStyleName("align-center", "text-align" -> "center"),
-  )
-
+  ) ++ syntaxHighlighting
+  
   /** The default styles for PDF and XSL-FO renderers.
     *
     * They can be overridden by placing a custom CSS document
