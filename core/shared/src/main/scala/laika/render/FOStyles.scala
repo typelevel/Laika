@@ -79,11 +79,11 @@ object FOStyles {
   private def codeColor (value: String, categories: CodeCategory*): Seq[StyleDeclaration] = 
     categories.map(c => forChildElement("CodeBlock", c.name, color(value)))
 
-  private val syntaxBaseColors: Vector[String] = Vector("fae3be", "d8ac66", "9f7e4a", "57462c", "362e21")
-  private val syntaxWheelColors: Vector[String] = Vector("b38dad", "9f4c46", "996c4c", "a5b575", "87aec0")
+  private val syntaxBaseColors: Vector[String] = Vector("F6F1EF", "AF9E84", "937F61", "645133", "362E21")
+  private val syntaxWheelColors: Vector[String] = Vector("9A6799", "9F4C46", "A0742D", "7D8D4C", "6498AE")
   private val codeStyles = Seq(codeFont, fontSize(9), lineHeight(1.4), 
     bgColor(syntaxBaseColors(0)), color(syntaxBaseColors(4)), 
-    borderRadius(2), padding(2), marginLeft(6), marginRight(6), spaceAfter(6)) ++ preserveWhitespace
+    borderRadius(2), padding(2), marginLeft(2), marginRight(2), spaceAfter(6)) ++ preserveWhitespace
 
   private val syntaxHighlighting = 
     codeColor(syntaxBaseColors(1), CodeCategory.Comment, CodeCategory.XML.CData, CodeCategory.Markup.Quote) ++
