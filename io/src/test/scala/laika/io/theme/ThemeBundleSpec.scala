@@ -70,7 +70,6 @@ class ThemeBundleSpec extends IOSpec with Matchers {
     "let an app config override an identical key in the theme config" in new BundleSetup {
       val themeBundles = Seq(BundleProvider.forConfigString("foo: 1", BundleOrigin.Theme))
       val appBundles = Seq(BundleProvider.forConfigString("foo: 2"))
-      println(config.bundles.map(_.origin))
       val baseConfig = config.baseConfig
       baseConfig.get[Int]("foo") shouldBe Right(2)
     }

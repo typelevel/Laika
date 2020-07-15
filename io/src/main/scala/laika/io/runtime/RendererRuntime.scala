@@ -183,9 +183,7 @@ object RendererRuntime {
   
   private def getDefaultTemplate[F[_]: Async] (themeInputs: InputTree[F], suffix: String): TemplateRoot = 
     themeInputs.parsedResults.collectFirst {
-      case TemplateResult(doc, _) if doc.path == Root / s"default.template.$suffix" => 
-        println("yeah")
-        doc.content
+      case TemplateResult(doc, _) if doc.path == Root / s"default.template.$suffix" => doc.content
     }.getOrElse(TemplateRoot.fallback)
 
   /** Process the specified render operation for an entire input tree and a binary output format.

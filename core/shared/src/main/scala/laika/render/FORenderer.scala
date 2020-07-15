@@ -55,10 +55,10 @@ object FORenderer extends ((FOFormatter, Element) => String) {
 
       def quotedBlockContent (content: Seq[Block], attr: Seq[Span]): Seq[Block] =
         if (attr.isEmpty) content
-        else content :+ Paragraph(attr, Style.attribution)
+        else content :+ SpanSequence(attr, Style.attribution)
 
       def figureContent (img: Span, caption: Seq[Span], legend: Seq[Block]): List[Block] =
-        List(Paragraph(img), Paragraph(caption, Style.caption), BlockSequence(legend, Style.legend))
+        List(Paragraph(img), SpanSequence(caption, Style.caption), BlockSequence(legend, Style.legend))
 
       def enumLabel (format: EnumFormat, num: Int): String = {
         import EnumType._
@@ -86,7 +86,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
         case RootElement(content, _)            => fmt.childPerLine(content)
         case EmbeddedRoot(content,indent,_)     => fmt.withMinIndentation(indent)(_.childPerLine(content))
         case Section(header, content,_)         => fmt.childPerLine(header +: content)
-        case e @ TitledBlock(title, content, _) => fmt.blockContainer(e, Paragraph(title, Style.title) +: content)
+        case e @ TitledBlock(title, content, _) => fmt.blockContainer(e, SpanSequence(title, Style.title) +: content)
         case e @ QuotedBlock(content,attr,_)    => fmt.blockContainer(e, quotedBlockContent(content,attr))
 
         case e @ BulletListItem(content,format,_)   => fmt.listItem(e, List(bulletLabel(format)), content)

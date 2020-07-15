@@ -113,11 +113,13 @@ class ParallelRendererSpec extends IOSpec
     val themeStyles: Set[StyleDeclaration] = FOStyles.default.styles + customStyle.increaseOrderBy(1)
     val rootElem: RootElement = root(self.titleWithId("Title"), p("bbb"))
     val subElem: RootElement = root(self.titleWithId("Sub Title"), p("ccc"))
+    val defaultParagraphStyles = """font-family="serif" font-size="10pt" line-height="1.5" space-after="3mm" text-align="justify""""
+    val overriddenParagraphStyles = """font-family="serif" font-size="11pt" line-height="1.5" space-after="3mm" text-align="justify""""
 
     def marker(text: String) = s"""<fo:marker marker-class-name="chapter"><fo:block>$text</fo:block></fo:marker>"""
 
     def title(id: String, text: String) =
-      s"""<fo:block id="$id" font-family="sans-serif" font-size="16pt" font-weight="bold" keep-with-next="always" space-after="7mm" space-before="12mm">$text</fo:block>"""
+      s"""<fo:block id="$id" font-family="sans-serif" font-size="18pt" font-weight="bold" keep-with-next="always" space-after="6mm" space-before="12mm">$text</fo:block>"""
 
     def renderer: ParallelRenderer[IO] = Renderer.of(XSLFO).io(blocker).parallel[IO].build
   }
@@ -314,7 +316,7 @@ class ParallelRendererSpec extends IOSpec
         val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
         val expected = RenderResult.fo.withDefaultTemplate(s"""${marker("Title")}
           |      ${title("_doc_title", "Title")}
-          |      <fo:block font-family="serif" font-size="10pt" space-after="3mm">bbb</fo:block>""".stripMargin)
+          |      <fo:block $defaultParagraphStyles>bbb</fo:block>""".stripMargin)
         renderedTree.assertEquals(RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(Root / "doc.fo", expected))))))
       }
     }
@@ -325,7 +327,7 @@ class ParallelRendererSpec extends IOSpec
         val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)), templates = Seq(template))
         val expected = s"""[${marker("Title")}
           |${title("_doc_title", "Title")}
-          |<fo:block font-family="serif" font-size="10pt" space-after="3mm">bbb</fo:block>]""".stripMargin
+          |<fo:block $defaultParagraphStyles>bbb</fo:block>]""".stripMargin
         renderedTree.assertEquals(RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(Root / "doc.fo", expected))))))
       }
     }
@@ -348,10 +350,10 @@ class ParallelRendererSpec extends IOSpec
         ))
         val expectedRoot = RenderResult.fo.withDefaultTemplate(s"""${marker("Title")}
           |      ${title("_doc_title", "Title")}
-          |      <fo:block font-family="serif" font-size="11pt" space-after="3mm">bbb</fo:block>""".stripMargin)
+          |      <fo:block $overriddenParagraphStyles>bbb</fo:block>""".stripMargin)
         val expectedSub = RenderResult.fo.withDefaultTemplate(s"""${marker("Sub Title")}
           |      ${title("_tree_subdoc_sub-title", "Sub Title")}
-          |      <fo:block font-family="serif" font-size="11pt" space-after="3mm">ccc</fo:block>""".stripMargin)
+          |      <fo:block $overriddenParagraphStyles>ccc</fo:block>""".stripMargin)
         renderedTree.assertEquals(RenderedTreeView(Root, List(
           DocumentViews(List(RenderedDocumentView(Root / "doc.fo", expectedRoot))),
           SubtreeViews(List(RenderedTreeView(Root / "tree", List(
@@ -370,10 +372,10 @@ class ParallelRendererSpec extends IOSpec
         override def treeRoot = DocumentTreeRoot(input, styles = foStyles(Root / "sub"))
         val expectedRoot = RenderResult.fo.withDefaultTemplate(s"""${marker("Title")}
           |      ${title("_doc_title", "Title")}
-          |      <fo:block font-family="serif" font-size="11pt" space-after="3mm">bbb</fo:block>""".stripMargin)
+          |      <fo:block $overriddenParagraphStyles>bbb</fo:block>""".stripMargin)
         val expectedSub = RenderResult.fo.withDefaultTemplate(s"""${marker("Sub Title")}
           |      ${title("_tree_subdoc_sub-title", "Sub Title")}
-          |      <fo:block font-family="serif" font-size="11pt" space-after="3mm">ccc</fo:block>""".stripMargin)
+          |      <fo:block $overriddenParagraphStyles>ccc</fo:block>""".stripMargin)
         renderedTree.assertEquals(RenderedTreeView(Root, List(
           DocumentViews(List(RenderedDocumentView(Root / "doc.fo", expectedRoot))),
           SubtreeViews(List(RenderedTreeView(Root / "tree", List(
