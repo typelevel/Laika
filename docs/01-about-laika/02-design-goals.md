@@ -141,7 +141,7 @@ case it is not your design approach than the other way round: trying to wrap pur
 A Toolkit for Creating Toolkits
 -------------------------------
 
-This design goal is mostly achieved "for free" by following the previously mentioned goals of decoupling an many levels,
+This design goal is mostly achieved "for free" by following the previously mentioned goals of decoupling on many levels,
 but still deserves an explicit entry.
 
 While Laika does also aim to be a useful tool right out of the box, the fact that almost every parsing,

@@ -85,15 +85,6 @@ This is a complete list of values exposed in the `cursor` namespace:
     
 * `root.title`: The title of the root node, usually the title of the website or e-book.
     
-        def addDocConfig (key: Key, doc: Option[Document])(builder: ConfigBuilder): ConfigBuilder =
-          doc.fold(builder) { doc =>
-            builder.withValue(key, ObjectValue(Seq(
-              Field("absolutePath", StringValue(doc.path.toString)),
-              Field("relativePath", StringValue(doc.path.relativeTo(document.path).toString)),
-              Field("title", ASTValue(doc.title.getOrElse(emptyTitle)))
-            )))
-          }
-
 
 ### Laika Configuration Values
 
