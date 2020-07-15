@@ -16,15 +16,15 @@
 
 package laika.directive
 
-import cats.implicits._
 import cats.data.NonEmptySet
+import cats.implicits._
 import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
-import laika.ast.RelativePath.{CurrentDocument, CurrentTree}
+import laika.ast.RelativePath.CurrentTree
 import laika.ast._
 import laika.ast.helper.ModelBuilder
-import laika.config.{Config, ConfigBuilder, ConfigParser, LaikaKeys, Origin}
+import laika.config._
 import laika.format.Markdown
 import laika.parse.ParserContext
 import laika.rewrite.TemplateRewriter
@@ -520,8 +520,6 @@ class StandardDirectiveSpec extends AnyFlatSpec
 
     import Path.Root
 
-    val pathUnderTest = Root / "sub2" / "doc7" // TODO - 0.16 - remove
-
     def hasTitleDocs: Boolean = false
 
     def header (level: Int, title: Int, style: String = "section") =
@@ -559,15 +557,6 @@ class StandardDirectiveSpec extends AnyFlatSpec
       ), templates = templates)
     }
 
-    def parseAndRewrite (template: String, legacyAdditionalMarkup: String): RootElement = { // TODO - 0.16 - remove
-      val templateDoc = TemplateDocument(Root / "test.html", parseTemplate(template))
-      val doc = Document(pathUnderTest, parse(legacyAdditionalMarkup, pathUnderTest).content, config =
-        config(pathUnderTest, "Doc 7", Origin.DocumentScope).withValue(LaikaKeys.template,"/test.html").build)
-      val inputTree = buildTree(List(templateDoc), legacyAdditionalMarkup = List(doc))
-      val tree = inputTree.rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree)))
-      TemplateRewriter.applyTemplates(DocumentTreeRoot(tree), "html").toOption.get.tree.selectDocument(CurrentTree / "sub2" / "doc7").get.content
-    }
-
     def parseTemplateAndRewrite (template: String): RootElement = {
       val templateDoc = TemplateDocument(Root / "default.template.html", parseTemplate(template))
       val inputTree = buildTree(List(templateDoc))
@@ -587,127 +576,6 @@ class StandardDirectiveSpec extends AnyFlatSpec
                    |# Headline 1
                    |
                    |# Headline 2""".stripMargin
-  }
-
-  // TODO - 0.16 - remove
-  trait TocModel extends TreeModel {
-    import Path._
-    import laika.ast.TitledBlock
-
-    val treeUnderTest = Root / "sub2"
-
-    def title: Option[String] = None
-
-    def hasTitleDocLinks: Boolean = false
-
-    def targetFor (path: Path): InternalTarget = InternalTarget.fromPath(path, pathUnderTest)
-
-    def sectionCrossLink (path: Path, section: Int, level: Int) =
-      Paragraph(Seq(SpanLink(List(Text("Section "+section)), targetFor(path.withFragment("section-"+section)))), Style.legacyToc + Style.level(level))
-
-    def leafLink (path: Path, section: Int, level: Int) =
-      BulletListItem(List(sectionCrossLink(path, section, level)), StringBullet("*"))
-
-    def sectionNode (path: Path, section: Int, level: Int) =
-      BulletListItem(List(sectionCrossLink(path, section, level), BulletList(List(leafLink(path, section+1, level+1)), StringBullet("*"))), StringBullet("*"))
-
-    def docCrossLink (path: Path, doc: Int, level: Int) =
-      Paragraph(Seq(SpanLink(List(Text("Doc "+doc)), targetFor(path))), Style.legacyToc + Style.level(level))
-
-    def docList (path: Path, doc: Int, level: Int) =
-      BulletListItem(List(docCrossLink(path, doc, level), BulletList(List(
-        sectionNode(path, 1, level+1),
-        sectionNode(path, 3, level+1)
-      ), StringBullet("*"))), StringBullet("*"))
-
-    def docListFirstLevel (path: Path, doc: Int, level: Int) =
-      BulletListItem(List(docCrossLink(path, doc, level), BulletList(List(
-        leafLink(path, 1, level+1),
-        leafLink(path, 3, level+1)
-      ), StringBullet("*"))), StringBullet("*"))
-
-    def internalLink (section: Int, level: Int) =
-      BulletListItem(List(
-        Paragraph(Seq(SpanLink(List(Text("Headline "+section)), InternalTarget(pathUnderTest.withFragment("headline-"+section), CurrentDocument("headline-"+section)))), Style.legacyToc + Style.level(level))
-      ), StringBullet("*"))
-
-    def extraDoc (treeNum: Int, level: Int): List[BulletListItem] =
-      if (treeNum == 1) Nil
-      else List(BulletListItem(List(
-        Paragraph(List(Text("Doc 7")), Style.legacyToc + Style.level(level) + Style.active),
-        BulletList(List(
-          internalLink(1, level+1),
-          internalLink(2, level+1)
-        ), StringBullet("*"))), StringBullet("*")))
-
-    def treeTitle (treeNum: Int): Paragraph =
-      if (!hasTitleDocLinks) Paragraph(List(Text("Tree "+treeNum)), Style.legacyToc + Style.level(1))
-      else Paragraph(Seq(SpanLink(List(Text("TitleDoc")), targetFor(Root / ("sub"+treeNum) / "title"))), Style.legacyToc + Style.level(1))
-
-    def treeList (treeNum: Int, docStart: Int): BulletListItem =
-      BulletListItem(List(
-        treeTitle(treeNum),
-        BulletList(List(
-          docList(Root / ("sub"+treeNum) / ("doc"+docStart),     docStart,   2),
-          docList(Root / ("sub"+treeNum) / ("doc"+(docStart+1)), docStart+1, 2)
-        ) ++ extraDoc(treeNum,2), StringBullet("*"))
-      ), StringBullet("*"))
-
-    def rootList =
-      BulletList(List(
-        docList(Root / "doc1", 1, 1),
-        docList(Root / "doc2", 2, 1),
-        treeList(1, 3),
-        treeList(2, 5)
-      ), StringBullet("*"))
-
-    def currentList =
-      BulletList(List(
-        docList(Root / "sub2" / "doc5", 5, 1),
-        docList(Root / "sub2" / "doc6", 6, 1)
-      ) ++ extraDoc(2,1), StringBullet("*"))
-
-    def firstTree =
-      BulletList(List(
-        docList(Root / "sub1" / "doc3", 3, 1),
-        docList(Root / "sub1" / "doc4", 4, 1)
-      ), StringBullet("*"))
-
-    def firstTreeFirstLevel =
-      BulletList(List(
-        docListFirstLevel(Root / "sub1" / "doc3", 3, 1),
-        docListFirstLevel(Root / "sub1" / "doc4", 4, 1)
-      ), StringBullet("*"))
-
-    def currentDoc =
-      BulletList(List(
-        internalLink(1, 1),
-        internalLink(2, 1)
-      ), StringBullet("*"))
-
-    def result (list: BulletList) = {
-      val toc = title match {
-        case Some(text) => TitledBlock(List(Text(text)), List(list), options=Style.legacyToc)
-        case None       => BlockSequence(List(list), Style.legacyToc)
-      }
-      root(TemplateRoot(
-        t("aaa "),
-        TemplateElement(toc),
-        t(" bbb "),
-        EmbeddedRoot(
-          Title(List(Text("Title")), Id("title") + Style.title),
-          Section(Header(1, List(Text("Headline 1")), Id("headline-1") + Style.section), Nil),
-          Section(Header(1, List(Text("Headline 2")), Id("headline-2") + Style.section), Nil)
-        )
-      ))
-    }
-
-    def markupTocResult = root(
-      BlockSequence(List(currentDoc), Style.legacyToc),
-      Title(List(Text("Title")), Id("title") + Style.title),
-      Section(Header(1, List(Text("Headline 1")), Id("headline-1") + Style.section), Nil),
-      Section(Header(1, List(Text("Headline 2")), Id("headline-2") + Style.section), Nil)
-    )
   }
 
   trait NavModel {

@@ -1557,7 +1557,6 @@ object Style {
   val breadcrumb: Options = Styles("breadcrumb")
   val bookmark: Options = Styles("bookmark")
   def level(lev: Int): Options = Styles("level" + lev)
-  val legacyToc: Options = Styles("toc")
   
   val alignCenter: Options = Styles("align-center")
   val alignLeft: Options = Styles("align-left")
