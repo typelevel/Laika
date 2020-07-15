@@ -46,9 +46,13 @@ object FOStyles {
   private def forElementAndStyles (element: String, styleName1: String, styleName2: String, attributes: (String, String)*): StyleDeclaration =
     StyleDeclaration(StyleSelector(Set(ElementType(element), StyleName(styleName1), StyleName(styleName2)), None), attributes.toMap)
   
-  private val bodyFont = fontFamily("Lato")
-  private val headerFont = fontFamily("Lato")
-  private val codeFont = fontFamily("FiraCode")
+  private val bodyFont = fontFamily("serif")
+  private val headerFont = fontFamily("sans-serif")
+  private val codeFont = fontFamily("monospaced")
+
+//  private val bodyFont = fontFamily("Lato")
+//  private val headerFont = fontFamily("Lato")
+//  private val codeFont = fontFamily("FiraCode")
   
   private def fontFamily (name: String) = "font-family" -> name
   private def fontSize (value: Int) = "font-size" -> s"${value}pt"
@@ -67,6 +71,7 @@ object FOStyles {
   private def startDistance (value: Int) = "provisional-distance-between-starts" -> s"${value}mm"
   private val bold = "font-weight" -> "bold"
   private val italic = "font-style" -> "italic"
+  private val justifiedText = "text-align" -> "justify"
   private val rightAlign = "text-align" -> "right"
   private val preserveWhitespace = Seq(
     "linefeed-treatment" -> "preserve", 
@@ -97,7 +102,7 @@ object FOStyles {
   
   
   private val styles = Seq(
-    forElement("Paragraph", bodyFont, lineHeight(1.5), fontSize(10), spaceAfter(3)),
+    forElement("Paragraph", bodyFont, justifiedText, lineHeight(1.5), fontSize(10), spaceAfter(3)),
     forElement("TitledBlock", bgColor("cccccc"), paddingLeft(20), paddingRight(20), spaceAfter(6)),
     forChildElement("TitledBlock", "title", headerFont, bold, fontSize(12)),
     forElement("QuotedBlock", italic, marginLeft(8), marginRight(8), spaceAfter(3)),
