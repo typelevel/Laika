@@ -30,7 +30,8 @@ import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
 import laika.io.model.{BinaryOutput, RenderedTreeRoot}
 import laika.io.runtime.Runtime
 import laika.render.FOFormatter
-import laika.render.pdf.{FOConcatenation, PDFNavigation, PDFRenderer}
+import laika.render.FOFormatter.Preamble
+import laika.render.pdf.{FOConcatenation, PDFRenderer}
 import org.apache.fop.apps.{FopFactory, FopFactoryBuilder}
 
 /** A post processor for PDF output, based on an interim XSL-FO renderer. 
@@ -81,14 +82,18 @@ class PDF private(val interimFormat: RenderFormat[FOFormatter], fopFactory: Opti
   private lazy val renderer = new PDFRenderer(fopFactory)
 
 
-  /** Adds PDF bookmarks and/or a table of content to the specified document tree, depending on configuration.
+  /** Adds a preamble to each document for navigation and replaces the template with a fallback.
     * The modified tree will be used for rendering the interim XSL-FO result.
+    * The original template will only be applied to the concatenated result of the XSL-FO renderer
+    * in a later step.
     */
-  def prepareTree (root: DocumentTreeRoot): Either[Throwable, DocumentTreeRoot] = {
-    val pdfConfig = PDF.BookConfig.decodeWithDefaults(root.config)
-    val rootWithTemplate = root.copy(tree = root.tree.withDefaultTemplate(TemplateRoot.fallback, "fo"))
-    pdfConfig.map(PDFNavigation.prepareTree(rootWithTemplate, _)).left.map(ConfigException)
-  }
+  def prepareTree (root: DocumentTreeRoot): Either[Throwable, DocumentTreeRoot] =
+    Right(root
+      .copy(tree = root.tree.withDefaultTemplate(TemplateRoot.fallback, "fo"))
+      .mapDocuments { doc =>
+        val preamble = Preamble(doc.title.fold(doc.name)(_.extractText))
+        doc.copy(content = doc.content.copy(content = preamble +: doc.content.content))
+      })
 
   /** Processes the interim XSL-FO result, transforms it to PDF and writes
     * it to the specified final output.

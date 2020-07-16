@@ -30,7 +30,8 @@ import laika.io.implicits._
 import laika.io.model.{BinaryOutput, RenderedTreeRoot}
 import laika.io.runtime.Runtime
 import laika.io.{FileIO, IOSpec}
-import laika.render.pdf.{FOConcatenation, PDFNavigation}
+import laika.render.FOFormatter.Preamble
+import laika.render.pdf.FOConcatenation
 
 
 class FOforPDFSpec extends IOSpec with FileIO {
@@ -40,13 +41,12 @@ class FOforPDFSpec extends IOSpec with FileIO {
     
     val interimFormat: RenderFormat[FOFormatter] = XSLFO
     
-    def prepareTree (root: DocumentTreeRoot): Either[Throwable, DocumentTreeRoot] = {
-      val pdfConfig = PDF.BookConfig.decodeWithDefaults(root.config)
-      val rootWithTemplate = root.copy(
-        tree = root.tree.withDefaultTemplate(TemplateRoot.fallback, "fo")
-      )
-      pdfConfig.map(PDFNavigation.prepareTree(rootWithTemplate, _)).left.map(ConfigException)
-    }
+    def prepareTree (root: DocumentTreeRoot): Either[Throwable, DocumentTreeRoot] = Right(root
+      .copy(tree = root.tree.withDefaultTemplate(TemplateRoot.fallback, "fo"))
+      .mapDocuments { doc =>
+        val preamble = Preamble(doc.title.fold(doc.name)(_.extractText))
+        doc.copy(content = doc.content.copy(content = preamble +: doc.content.content))
+      })
 
     object postProcessor extends BinaryPostProcessor {
 
@@ -72,31 +72,29 @@ class FOforPDFSpec extends IOSpec with FileIO {
     private val defaultParagraphProperties = """font-family="serif" font-size="10pt" line-height="1.5" space-after="3mm" text-align="justify""""
     private val defaultTitleProperties = """font-family="sans-serif" font-size="18pt" font-weight="bold" keep-with-next="always" space-after="6mm" space-before="12mm""""
     
-    def results (num: Int): String = (1 to num).map(result).reduce(_ + _)
-    
     def idPrefix (num: Int): String = if (num > 4) "_tree2" else if (num > 2) "_tree1" else ""
     
+    def results (range: Range): String = range.map(result).reduceLeft(_ + _)
+    
     def result (num: Int): String = {
-      s"""<fo:marker marker-class-name="chapter"><fo:block>Title $num &amp; More</fo:block></fo:marker>
+      s"""
+        |
+        |<fo:block id="${idPrefix(num)}_doc$num" page-break-before="always">
+        |  <fo:marker marker-class-name="chapter"><fo:block>Title $num &amp; More</fo:block></fo:marker>
+        |</fo:block>
         |<fo:block id="${idPrefix(num)}_doc${num}_title-$num" $defaultTitleProperties>Title $num &amp; More</fo:block>
         |<fo:block $defaultParagraphProperties>Text $num</fo:block>""".stripMargin
     }
 
-    def resultWithDocTitle (num: Int): String = {
-      s"""<fo:block id="${idPrefix(num)}_doc$num">
-        |  <fo:marker marker-class-name="chapter"><fo:block>Title $num &amp; More</fo:block></fo:marker>
-        |  <fo:block id="${idPrefix(num)}_doc${num}_title-$num" $defaultTitleProperties>Title $num &amp; More</fo:block>
-        |</fo:block>
-        |<fo:block $defaultParagraphProperties>Text $num</fo:block>""".stripMargin
-    }
-    
     def treeTitleResult (num: Int): String = {
       val idPrefix = if (num == 3) "_tree2" else if (num == 2) "_tree1" else ""
 
-      s"""<fo:block id="${idPrefix}_index">
+      s"""
+         |
+         |<fo:block id="${idPrefix}_index" page-break-before="always">
          |  <fo:marker marker-class-name="chapter"><fo:block>Title Doc $num</fo:block></fo:marker>
-         |  <fo:block id="${idPrefix}_index_title-$num" $defaultTitleProperties>Title Doc $num</fo:block>
          |</fo:block>
+         |<fo:block id="${idPrefix}_index_title-$num" $defaultTitleProperties>Title Doc $num</fo:block>
          |<fo:block $defaultParagraphProperties>Text $num</fo:block>""".stripMargin
     }
 
@@ -126,7 +124,7 @@ class FOforPDFSpec extends IOSpec with FileIO {
       |    </fo:bookmark>
       |""".stripMargin  
       
-    val closeBookmarks = "\n  </fo:bookmark-tree>"
+    val closeBookmarks = "  </fo:bookmark-tree>"
   }
   
   
@@ -153,16 +151,16 @@ class FOforPDFSpec extends IOSpec with FileIO {
 
       override val navigationDepth = 0
 
-      result.assertEquals(withDefaultTemplate(results(6)))
+      result.assertEquals(withDefaultTemplate(results(1 to 6)))
     }
 
     "render a tree with navigation elements enabled" in new Setup {
 
       result.assertEquals(withDefaultTemplate(
-        resultWithDocTitle(1) + resultWithDocTitle(2) +
-        resultWithDocTitle(3) + resultWithDocTitle(4) +
-        resultWithDocTitle(5) + resultWithDocTitle(6),
-        bookmarkRootResult + bookmarkTreeResult(1, 3) + bookmarkTreeResult(2, 5).dropRight(1) + closeBookmarks
+        results(1 to 6),
+        bookmarkRootResult + 
+        bookmarkTreeResult(1, 3) + bookmarkTreeResult(2, 5) + 
+        closeBookmarks
       ))
     }
 
@@ -171,10 +169,12 @@ class FOforPDFSpec extends IOSpec with FileIO {
       override val useTitleDocuments = true
 
       result.assertEquals(withDefaultTemplate(
-        resultWithDocTitle(1) + resultWithDocTitle(2) +
-        treeTitleResult(2) + resultWithDocTitle(3) + resultWithDocTitle(4) +
-        treeTitleResult(3) + resultWithDocTitle(5) + resultWithDocTitle(6),
-        bookmarkRootResult + bookmarkTreeResult(1, 3, titleDoc = true) + bookmarkTreeResult(2, 5, titleDoc = true).dropRight(1) + closeBookmarks
+        results(1 to 2) +
+        treeTitleResult(2) + results(3 to 4) +
+        treeTitleResult(3) + results(5 to 6),
+        bookmarkRootResult + 
+        bookmarkTreeResult(1, 3, titleDoc = true) + bookmarkTreeResult(2, 5, titleDoc = true) + 
+        closeBookmarks
       ))
     }
   }

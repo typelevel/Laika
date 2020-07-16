@@ -17,27 +17,13 @@
 package laika.render.pdf
 
 import laika.ast._
-import laika.format.PDF
 import laika.io.model.RenderedTreeRoot
 
-/** Prepares a document tree for the PDF rendering step by inserting all enabled navigation elements, 
-  * like PDF bookmarks.
+/** Prepares a document tree for the PDF rendering step by inserting PDF bookmark elements.
   * 
   * @author Jens Halm
   */
 object PDFNavigation {
-
-  /** Adds link targets for each document in the specified tree, including documents in subtrees. 
-    */
-  def addDocLinks (tree: DocumentTree): DocumentTree =
-    tree rewrite { _ => RewriteRules.forBlocks {
-      case title: Title =>
-        // nav directives will link to an empty id, not the id of the title element
-        Replace(BlockSequence(Seq(title), Id("")))
-      case root: RootElement if root.collect { case t: Title => t }.isEmpty =>
-        val insert = InternalLinkTarget(Id(""))
-        Replace(RootElement(insert +: root.content))
-    }}
 
   /** Generates bookmarks for the structure of the DocumentTree. 
     *
@@ -57,16 +43,6 @@ object PDFNavigation {
     )
     val toc = result.tree.asNavigationItem(context).content
     Map("bookmarks" -> NavigationList(toc, Style.bookmark))
-  }
-  
-  /** Prepares the document tree before rendering the interim XSL-FO output,
-    * adding link targets for each document in the specified tree, including documents in subtrees.  
-    */
-  def prepareTree (root: DocumentTreeRoot, config: PDF.BookConfig): DocumentTreeRoot = {
-    val finalTree = 
-      if (config.navigationDepth.contains(0)) root.tree
-      else addDocLinks(root.tree)
-    root.copy(tree = finalTree)
   }
   
 }

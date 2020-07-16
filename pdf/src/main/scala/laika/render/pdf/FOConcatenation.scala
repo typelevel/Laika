@@ -42,21 +42,8 @@ object FOConcatenation {
   def apply[F[_]] (result: RenderedTreeRoot[F], config: PDF.BookConfig): Either[ConfigError, String] = {
 
     def concatDocuments: String = {
-
-      def append (sb: StringBuilder, tree: RenderedTree): Unit = {
-
-        tree.titleDocument.foreach(doc => sb.append(doc.content))
-
-        tree.content foreach {
-          case d: RenderedDocument => sb.append(d.content)
-          case t: RenderedTree => append(sb, t)
-          case _ => ()
-        }
-      }
-
       val sb = new StringBuilder
-      result.coverDocument.foreach(doc => sb.append(doc.content))
-      append(sb, result.tree) // TODO - improve formatting
+      result.allDocuments.foreach(doc => sb.append(doc.content))
       sb.toString
     }
 
@@ -64,15 +51,13 @@ object FOConcatenation {
       result.config.withValue("laika.pdf.coverImage", path.toString).build
     }
 
-    val resultWithoutToc = result.copy[F](tree = result.tree.copy(content = result.tree.content.filterNot(_.path == Root / "_toc_.fo")))
-
     def applyTemplate(foString: String, template: TemplateDocument): Either[ConfigError, String] = {
       val foElement = RawContent(NonEmptySet.one("fo"), foString)
       val finalConfig = ensureAbsoluteCoverImagePath
       val finalDoc = Document(
         Path.Root / "merged.fo",
         RootElement(foElement),
-        fragments = PDFNavigation.generateBookmarks(resultWithoutToc, config.navigationDepth),
+        fragments = PDFNavigation.generateBookmarks(result, config.navigationDepth),
         config = finalConfig
       )
       val renderer = Renderer.of(XSLFO).build
