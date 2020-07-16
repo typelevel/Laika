@@ -116,8 +116,6 @@ class ParallelRendererSpec extends IOSpec
     val defaultParagraphStyles = """font-family="serif" font-size="10pt" line-height="1.5" space-after="3mm" text-align="justify""""
     val overriddenParagraphStyles = """font-family="serif" font-size="11pt" line-height="1.5" space-after="3mm" text-align="justify""""
 
-    def marker(text: String) = s"""<fo:marker marker-class-name="chapter"><fo:block>$text</fo:block></fo:marker>"""
-
     def title(id: String, text: String) =
       s"""<fo:block id="$id" font-family="sans-serif" font-size="18pt" font-weight="bold" keep-with-next="always" space-after="6mm" space-before="12mm">$text</fo:block>"""
 
@@ -314,8 +312,7 @@ class ParallelRendererSpec extends IOSpec
     "render a tree with a single document to XSL-FO using the default template and default CSS" in {
       new FORenderer {
         val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
-        val expected = RenderResult.fo.withDefaultTemplate(s"""${marker("Title")}
-          |      ${title("_doc_title", "Title")}
+        val expected = RenderResult.fo.withDefaultTemplate(s"""${title("_doc_title", "Title")}
           |      <fo:block $defaultParagraphStyles>bbb</fo:block>""".stripMargin)
         renderedTree.assertEquals(RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(Root / "doc.fo", expected))))))
       }
@@ -325,8 +322,7 @@ class ParallelRendererSpec extends IOSpec
       new FORenderer {
         val template = TemplateDocument(Root / "default.template.fo", TemplateRoot(t("["), TemplateContextReference(CursorKeys.documentContent, required = true), t("]")))
         val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)), templates = Seq(template))
-        val expected = s"""[${marker("Title")}
-          |${title("_doc_title", "Title")}
+        val expected = s"""[${title("_doc_title", "Title")}
           |<fo:block $defaultParagraphStyles>bbb</fo:block>]""".stripMargin
         renderedTree.assertEquals(RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(Root / "doc.fo", expected))))))
       }
@@ -348,11 +344,9 @@ class ParallelRendererSpec extends IOSpec
           Document(Root / "doc", rootElem),
           DocumentTree(Root / "tree", List(Document(Root / "tree" / "subdoc", subElem)))
         ))
-        val expectedRoot = RenderResult.fo.withDefaultTemplate(s"""${marker("Title")}
-          |      ${title("_doc_title", "Title")}
+        val expectedRoot = RenderResult.fo.withDefaultTemplate(s"""${title("_doc_title", "Title")}
           |      <fo:block $overriddenParagraphStyles>bbb</fo:block>""".stripMargin)
-        val expectedSub = RenderResult.fo.withDefaultTemplate(s"""${marker("Sub Title")}
-          |      ${title("_tree_subdoc_sub-title", "Sub Title")}
+        val expectedSub = RenderResult.fo.withDefaultTemplate(s"""${title("_tree_subdoc_sub-title", "Sub Title")}
           |      <fo:block $overriddenParagraphStyles>ccc</fo:block>""".stripMargin)
         renderedTree.assertEquals(RenderedTreeView(Root, List(
           DocumentViews(List(RenderedDocumentView(Root / "doc.fo", expectedRoot))),
@@ -370,11 +364,9 @@ class ParallelRendererSpec extends IOSpec
           DocumentTree(Root / "tree", List(Document(Root / "tree" / "subdoc", subElem)))
         ))
         override def treeRoot = DocumentTreeRoot(input, styles = foStyles(Root / "sub"))
-        val expectedRoot = RenderResult.fo.withDefaultTemplate(s"""${marker("Title")}
-          |      ${title("_doc_title", "Title")}
+        val expectedRoot = RenderResult.fo.withDefaultTemplate(s"""${title("_doc_title", "Title")}
           |      <fo:block $overriddenParagraphStyles>bbb</fo:block>""".stripMargin)
-        val expectedSub = RenderResult.fo.withDefaultTemplate(s"""${marker("Sub Title")}
-          |      ${title("_tree_subdoc_sub-title", "Sub Title")}
+        val expectedSub = RenderResult.fo.withDefaultTemplate(s"""${title("_tree_subdoc_sub-title", "Sub Title")}
           |      <fo:block $overriddenParagraphStyles>ccc</fo:block>""".stripMargin)
         renderedTree.assertEquals(RenderedTreeView(Root, List(
           DocumentViews(List(RenderedDocumentView(Root / "doc.fo", expectedRoot))),

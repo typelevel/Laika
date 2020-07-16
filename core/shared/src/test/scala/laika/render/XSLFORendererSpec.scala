@@ -594,14 +594,12 @@ class XSLFORendererSpec extends AnyFlatSpec
 
   it should "render a title containing emphasized text" in {
     val elem = Title(Text("some "), Emphasized("em"), Text(" text"))
-    render (elem) should be ("""<fo:marker marker-class-name="chapter"><fo:block>some em text</fo:block></fo:marker>
-                               |<fo:block font-family="sans-serif" font-size="18pt" font-weight="bold" keep-with-next="always" space-after="6mm" space-before="12mm">some <fo:inline font-style="italic">em</fo:inline> text</fo:block>""".stripMargin)
+    render (elem) should be ("""<fo:block font-family="sans-serif" font-size="18pt" font-weight="bold" keep-with-next="always" space-after="6mm" space-before="12mm">some <fo:inline font-style="italic">em</fo:inline> text</fo:block>""")
   }
 
   it should "render a title containing a section number" in {
     val elem = Title(SectionNumber(Seq(1,2,3)), Text("Title"))
-    render (elem) should be ("""<fo:marker marker-class-name="chapter"><fo:block>1.2.3 Title</fo:block></fo:marker>
-                               |<fo:block font-family="sans-serif" font-size="18pt" font-weight="bold" keep-with-next="always" space-after="6mm" space-before="12mm">1.2.3 Title</fo:block>""".stripMargin)
+    render (elem) should be ("""<fo:block font-family="sans-serif" font-size="18pt" font-weight="bold" keep-with-next="always" space-after="6mm" space-before="12mm">1.2.3 Title</fo:block>""")
   }
 
   it should "render a paragraph containing emphasized text" in {
