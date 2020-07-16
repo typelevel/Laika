@@ -98,6 +98,14 @@ object FOStyles {
   
   private val syntaxBaseColors: Vector[String] = Vector("F6F1EF", "AF9E84", "937F61", "645133", "362E21")
   private val syntaxWheelColors: Vector[String] = Vector("9A6799", "9F4C46", "A0742D", "7D8D4C", "6498AE")
+  object messageColors {
+    val info = "007c99"
+    val infoBG = "ebf6f7"
+    val warning = "b1a400"
+    val warningBG = "fcfacd"
+    val error = "d83030"
+    val errorBG = "ffe9e3"
+  }
 
   private val blockStyles = Seq(
     forElement("Paragraph", bodyFont, justifiedText, defaultLineHeight, defaultFontSize, defaultSpaceAfter),
@@ -206,15 +214,18 @@ object FOStyles {
     forStyleName("keepWithNext", "keep-with-next" -> "always")
   )
   
+  private def decoratedSpan (textColor: String, bgColorValue: String): Seq[(String, String)] = Seq(
+    color(textColor), bgColor(bgColorValue), "padding" -> "1pt 2pt", "border" -> s"1pt solid #$textColor"
+  )
+  
   private val specialStyles = Seq(
     forElement("PageBreak", "page-break-before" -> "always"),
     forElement("Rule", defaultSpaceAfter, "leader-length" -> "100%", "rule-style" -> "solid", "rule-thickness" -> "2pt"),
-    forElement("RuntimeMessage", "color" -> "white"),
-    forElementAndStyle("RuntimeMessage", "debug", bgColor("888888")),
-    forElementAndStyle("RuntimeMessage", "info", bgColor("888888")),
-    forElementAndStyle("RuntimeMessage", "warning", bgColor("ffff33")),
-    forElementAndStyle("RuntimeMessage", "error", bgColor("ff0000")),
-    forElementAndStyle("RuntimeMessage", "fatal", bgColor("ff0000"))
+    forElementAndStyle("RuntimeMessage", "debug", decoratedSpan(messageColors.info, messageColors.infoBG):_*),
+    forElementAndStyle("RuntimeMessage", "info", decoratedSpan(messageColors.info, messageColors.infoBG):_*),
+    forElementAndStyle("RuntimeMessage", "warning", decoratedSpan(messageColors.warning, messageColors.warningBG):_*),
+    forElementAndStyle("RuntimeMessage", "error", decoratedSpan(messageColors.error, messageColors.errorBG):_*),
+    forElementAndStyle("RuntimeMessage", "fatal", decoratedSpan(messageColors.error, messageColors.errorBG):_*)
   )
   
   private val allStyles =

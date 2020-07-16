@@ -752,8 +752,10 @@ class XSLFORendererSpec extends AnyFlatSpec
     render (elem) should be (fo)
   }
 
+  private val warningProps = """background-color="#fcfacd" border="1pt solid #b1a400" color="#b1a400" padding="1pt 2pt""""
+  
   it should "render a runtime message" in {
-    val fo = s"""<fo:inline background-color="#ffff33" color="white">some message</fo:inline>"""
+    val fo = s"""<fo:inline $warningProps>some message</fo:inline>"""
     render (RuntimeMessage(MessageLevel.Warning, "some message"), MessageFilter.Warning) should be (fo)
   }
 
@@ -776,7 +778,7 @@ class XSLFORendererSpec extends AnyFlatSpec
   it should "render an invalid block with the runtime message if the configured message level is lower or equal" in {
     val elem = InvalidBlock(RuntimeMessage(MessageLevel.Warning, "some message"), p("fallback"))
     val fo = s"""<fo:block $defaultParagraphStyles>""" +
-      """<fo:inline background-color="#ffff33" color="white">some message</fo:inline>""" +
+      s"""<fo:inline $warningProps>some message</fo:inline>""" +
       s"""</fo:block><fo:block $defaultParagraphStyles>fallback</fo:block>"""
     render (elem, MessageFilter.Info) should be (fo)
   }
@@ -793,7 +795,7 @@ class XSLFORendererSpec extends AnyFlatSpec
 
   it should "render an invalid span with the runtime message if the configured message level is lower or equal" in {
     val elem = InvalidSpan(RuntimeMessage(MessageLevel.Warning, "some message"), Text("fallback"))
-    val fo = s"""<fo:inline background-color="#ffff33" color="white">some message</fo:inline> fallback"""
+    val fo = s"""<fo:inline $warningProps>some message</fo:inline> fallback"""
     render (elem, MessageFilter.Info) should be (fo)
   }
 
