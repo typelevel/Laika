@@ -593,6 +593,17 @@ case class DocumentTree (path: Path,
 
   val targetTree: DocumentTree = this
 
+  /** Creates a new tree by applying the specified function to all documents in this tree recursively.
+    */
+  def mapDocuments (f: Document => Document): DocumentTree = {
+    val newTitle = titleDocument.map(f)
+    val newContent = content.map {
+      case d: Document => f(d)
+      case t: DocumentTree => t.mapDocuments(f)
+    }
+    copy(titleDocument = newTitle, content = newContent)
+  }
+  
   /** Returns a new tree, with all the document models contained in it
    *  rewritten based on the specified rewrite rules.
    *
@@ -665,22 +676,28 @@ case class DocumentTreeRoot (tree: DocumentTree,
     * when there is no markup document.
     */
   lazy val isEmpty: Boolean = coverDocument.isEmpty && tree.isEmpty
+
+  /** Creates a new tree by applying the specified function to all documents in this tree recursively.
+    */
+  def mapDocuments (f: Document => Document): DocumentTreeRoot = {
+    val newCover = coverDocument.map(f)
+    val newTree = tree.mapDocuments(f)
+    copy(coverDocument = newCover, tree = newTree)
+  }
   
-  /** Returns a new tree, with all the document models contained in it
-    *  rewritten based on the specified rewrite rules.
+  /** Returns a new tree, with all the document models contained in it rewritten based on the specified rewrite rules.
     *
-    *  If the rule is not defined for a specific element or the rule returns
-    *  a `Retain` action as a result the old element remains in the tree unchanged. 
+    * If the rule is not defined for a specific element or the rule returns a `Retain` action as a result 
+    * the old element remains in the tree unchanged. 
     *
-    *  If it returns `Remove` then the node gets removed from the ast,
-    *  if it returns `Replace` with a new element it will replace the old one. 
+    * If it returns `Remove` then the node gets removed from the ast,
+    * if it returns `Replace` with a new element it will replace the old one. 
     *
-    *  The rewriting is performed bottom-up (depth-first), therefore
-    *  any element container passed to the rule only contains children which have already
-    *  been processed.
+    * The rewriting is performed bottom-up (depth-first), 
+    * therefore any element container passed to the rule only contains children which have already been processed.
     *
-    *  The specified factory function will be invoked for each document contained in this
-    *  tree and must return the rewrite rules for that particular document.
+    * The specified factory function will be invoked for each document contained in this tree
+    * and must return the rewrite rules for that particular document.
     */
   def rewrite (rules: DocumentCursor => RewriteRules): DocumentTreeRoot = RootCursor(this).rewriteTarget(rules)
 
