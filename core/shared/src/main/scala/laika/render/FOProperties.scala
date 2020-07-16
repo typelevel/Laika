@@ -270,6 +270,7 @@ trait FOProperties {
         "text-align",
         "text-align-last",
         "text-indent",
+        "text-transform", // not applicable to fo:block according to the spec, but supported by Apache FOP
         "white-space",
         "white-space-treatment",
         "white-space-collapse",

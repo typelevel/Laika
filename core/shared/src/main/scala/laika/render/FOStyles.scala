@@ -16,7 +16,7 @@
 
 package laika.render
 
-import laika.ast.{ParentSelector, Path, StyleDeclaration, StyleDeclarationSet, StyleSelector}
+import laika.ast.{ParentSelector, Path, StyleDeclaration, StyleDeclarationSet, StylePredicate, StyleSelector}
 import laika.ast.StylePredicate.{ElementType, StyleName}
 import laika.bundle.Precedence
 import laika.parse.code.CodeCategory
@@ -34,9 +34,12 @@ object FOStyles {
     StyleDeclaration(StyleName(name), attributes: _*)
 
   private def forChildElement (parentElement: String, styleName: String, attributes: (String, String)*): StyleDeclaration =
+    forChildElement(ElementType(parentElement), StyleName(styleName), attributes:_*)
+  
+  private def forChildElement (parentPredicate: StylePredicate, childPredicate: StylePredicate, attributes: (String, String)*): StyleDeclaration =
     StyleDeclaration(StyleSelector(
-      Set(StyleName(styleName)), 
-      Some(ParentSelector(StyleSelector(Set(ElementType(parentElement))), immediate = false))
+      Set(childPredicate), 
+      Some(ParentSelector(StyleSelector(Set(parentPredicate)), immediate = false))
     ), 
     attributes.toMap)
 
@@ -83,6 +86,7 @@ object FOStyles {
     "white-space-collapse" -> "false"
   )
 
+  private val primaryColor = "007c99"
   private val secondaryColor = "931813"
   private val defaultSpaceAfter = spaceAfter(3)
   private val largeSpaceAfter = spaceAfter(6)
@@ -155,6 +159,7 @@ object FOStyles {
     forElement("FootnoteLink", color(secondaryColor)),
     forElement("CitationLink", color(secondaryColor)),
     forElement("SpanLink", color(secondaryColor), bold),
+    forChildElement(ElementType("NavigationLink"), ElementType("SpanLink"), color(primaryColor), bold),
   )
 
   private def codeColor (value: String, categories: CodeCategory*): Seq[StyleDeclaration] =
@@ -171,14 +176,11 @@ object FOStyles {
     codeColor(syntaxWheelColors(4), CodeCategory.TypeName, CodeCategory.Tag.Name, CodeCategory.XML.DTDTagName, CodeCategory.Markup.Fence)
   
   private val navStyles = Seq(
-    forElementAndStyle("Paragraph", "toc", fontSize(11), spaceAfter(0), spaceBefore(2), "text-align-last" -> "justify"),
-    forElementAndStyle("Paragraph", "nav", fontSize(11), spaceAfter(0), spaceBefore(2), "text-align-last" -> "justify"),
-    forElementAndStyles("Paragraph", "toc", "level1", fontSize(12), spaceBefore(5)),
-    forElementAndStyles("Paragraph", "toc", "level2", marginLeft(4)),
-    forElementAndStyles("Paragraph", "toc", "level3", fontSize(10), marginLeft(6)),
-    forElementAndStyles("Paragraph", "nav", "level1", fontSize(12), spaceBefore(5)),
-    forElementAndStyles("Paragraph", "nav", "level2", marginLeft(4)),
-    forElementAndStyles("Paragraph", "nav", "level3", fontSize(10), marginLeft(6))
+    forElementAndStyle("Paragraph", "nav", marginLeft(8), fontSize(10), spaceAfter(0), spaceBefore(2), "text-align-last" -> "justify"),
+    forElementAndStyles("Paragraph", "nav", "level1", fontSize(16), marginLeft(0), spaceBefore(9), "text-transform" -> "uppercase"),
+    forElementAndStyles("Paragraph", "nav", "level2", fontSize(14), marginLeft(4), spaceBefore(7)),
+    forElementAndStyles("Paragraph", "nav", "level3", fontSize(12), marginLeft(6), spaceBefore(4)),
+    forElementAndStyles("Paragraph", "nav", "level4", marginLeft(8))
   )
   
   private val alignStyles = Seq(
@@ -188,6 +190,11 @@ object FOStyles {
     forStyleName("align-left", "text-align" -> "left"),
     forStyleName("align-right", "text-align" -> "right"),
     forStyleName("align-center", "text-align" -> "center")
+  )
+
+  private val keepStyles = Seq(
+    forStyleName("keepWithPrevious", "keep-with-previous" -> "always"),
+    forStyleName("keepWithNext", "keep-with-next" -> "always")
   )
   
   private val specialStyles = Seq(
@@ -212,6 +219,7 @@ object FOStyles {
     syntaxHighlighting ++
     navStyles ++
     alignStyles ++
+    keepStyles ++
     specialStyles
   
   /** The default styles for PDF and XSL-FO renderers.

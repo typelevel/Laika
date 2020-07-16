@@ -260,6 +260,14 @@ case class FOFormatter (renderChild: (FOFormatter, Element) => String,
   */
 object FOFormatter extends (RenderContext[FOFormatter] => FOFormatter) {
 
+  /** A preamble for a document, only used in PDF output where multiple XSL-FO documents get concatenated
+    * before being passed to the PDF renderer.
+    */
+  case class Preamble (title: String, options: Options = NoOpt) extends Block {
+    type Self = Preamble
+    def withOptions (options: Options): Preamble = copy(options = options)
+  }
+  
   /** A leader element.
     */
   case class Leader (options: Options = NoOpt) extends Span {

@@ -84,7 +84,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
 
       con match {
         case RootElement(content, _)            => fmt.childPerLine(content)
-        case EmbeddedRoot(content,indent,_)     => fmt.withMinIndentation(indent)(_.childPerLine(content))
+        case EmbeddedRoot(content, indent, _)   => fmt.withMinIndentation(indent)(_.childPerLine(content))
         case Section(header, content,_)         => fmt.childPerLine(header +: content)
         case e @ TitledBlock(title, content, _) => fmt.blockContainer(e, SpanSequence(title, Style.title) +: content)
         case e @ QuotedBlock(content,attr,_)    => fmt.blockContainer(e, quotedBlockContent(content,attr))
@@ -118,9 +118,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
         case e @ ParsedLiteralBlock(content,_)=> fmt.blockWithWS(e, content)
         case e @ CodeBlock(lang,content,_)    => fmt.blockWithWS(e.copy(options=e.options + codeStyles(lang)),content)
         case e @ Header(level, content,_)     => fmt.block(e.copy(options=e.options + Style.level(level)), content, "keep-with-next"->"always")
-        case e @ Title(content,_)             => s"""<fo:marker marker-class-name="chapter"><fo:block>""" + fmt.text(e.extractText) + "</fo:block></fo:marker>" +
-          fmt.newLine +
-          fmt.block(e.copy(options=e.options),content,"keep-with-next"->"always")
+        case e @ Title(content,_)             => fmt.block(e.copy(options=e.options), content, "keep-with-next"->"always")  
 
         case e @ Emphasized(content,_)        => fmt.inline(e, content)
         case e @ Strong(content,_)            => fmt.inline(e, content)
@@ -178,6 +176,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
     }
 
     def renderSimpleBlock (block: Block): String = block match {
+      case e: Preamble                  => renderPreamble(e)  
       case e @ ListItemLabel(content,_) => fmt.listItemLabel(e, content)
       case e: Rule                      => fmt.rawElement("fo:block", e, fmt.textElement("fo:leader", e, "", "leader-pattern"->"rule"))
       case e: InternalLinkTarget        => fmt.internalLinkTarget(e)
@@ -199,7 +198,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
           case et: ExternalTarget => et.url
         }
         fmt.externalGraphic(e, uri, width, height) // TODO - ignoring title for now
-      case e: Leader                      => fmt.textElement("fo:leader", e, "", "leader-pattern"->"dots")
+      case e: Leader                      => fmt.textElement("fo:leader", e, "", "leader-pattern"->"dots", "padding-left" -> "2mm", "padding-right" -> "2mm")
       case PageNumberCitation(target,_)     => s"""<fo:page-number-citation ref-id="${fmt.buildId(target.absolutePath)}" />"""
       case LineBreak(_)                   => "&#x2028;"
       case TemplateElement(elem,indent,_) => fmt.withMinIndentation(indent)(_.child(elem))
@@ -222,16 +221,29 @@ object FORenderer extends ((FOFormatter, Element) => String) {
         )
     }
 
-    def renderNavigationItem (elem: NavigationItem): String = elem match {
-      case l: NavigationItem if l.options.styles.contains("bookmark") => fmt.bookmark(l)
-      case NavigationHeader(title, content, opt) =>
-        fmt.childPerLine(Paragraph(title.content, Style.nav + opt) +: content)
-      case NavigationLink(title, target: InternalTarget, content, _, opt) =>
-        fmt.childPerLine(Paragraph(Seq(SpanLink(
-          content = title.content :+ Leader() :+ PageNumberCitation(target),
-          target = target
-        )), Style.nav + opt) +: content)
-      case _ => ""
+    def renderNavigationItem (elem: NavigationItem): String = {
+      
+      val keepWithNext = Styles("keepWithNext")
+      val keepWithPrev = Styles("keepWithPrevious")
+      
+      def avoidOrphan (content: Seq[NavigationItem]): Seq[NavigationItem] = content match {
+        case init :+ last if last.content.isEmpty => init :+ last.mergeOptions(keepWithPrev)
+        case empty => empty
+      }
+      
+      elem match {
+        case l: NavigationItem if l.options.styles.contains("bookmark") => fmt.bookmark(l)
+        case NavigationHeader(title, content, opt) =>
+          fmt.childPerLine(Paragraph(title.content, Style.nav + keepWithNext + opt) +: avoidOrphan(content))
+        case NavigationLink(title, target: InternalTarget, content, _, opt) =>
+          val link = SpanLink(
+            content = title.content :+ Leader() :+ PageNumberCitation(target),
+            target = target
+          )
+          val keep = if (content.isEmpty) NoOpt else keepWithNext
+          fmt.childPerLine(Paragraph(Seq(link), Style.nav + keep + opt) +: avoidOrphan(content))
+        case _ => ""
+      }
     }
 
     def renderUnresolvedReference (ref: Reference): String = {
@@ -249,6 +261,14 @@ object FORenderer extends ((FOFormatter, Element) => String) {
       fmt.forMessage(message) {
         fmt.text(message.copy(options = message.options + Styles(message.level.toString.toLowerCase)), message.content)
       }
+    }
+    
+    def renderPreamble (p: Preamble): String = {
+      s"""
+        |
+        |<fo:block id="${fmt.buildId(fmt.path)}" page-break-before="always">
+        |  <fo:marker marker-class-name="chapter"><fo:block>${fmt.text(p.title)}</fo:block></fo:marker>
+        |</fo:block>""".stripMargin
     }
 
     element match {
