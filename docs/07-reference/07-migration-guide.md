@@ -28,7 +28,7 @@ If you use them in your markup files or templates you need to adjust them for th
 
 * `cursor.*` and `laika.*` are the only reserved namespaces, any other prefix can be freely chosen.
 
-If you upgrade from a version older than 0.12.0 it is also recommended to switch to the new [Directive Syntax]
+If you upgrade from a version older than 0.12.0 it is also recommended to switch to the new directive syntax
 described below as this is a functional area that unfortunately does not emit any compiler warnings.
 
 

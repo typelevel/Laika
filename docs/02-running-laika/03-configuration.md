@@ -72,7 +72,7 @@ Secondly, when the markup originates from user input in a web application,
 it would not be safe to use without additional filtering. 
 By default Laika does not filter any tags, not even `<script>` tags, 
 but whitelist filtering can be added fairly easily through Laika's customization hooks like [AST Rewriting] 
-or [Customizing Renderers].
+or [Overriding Renderers].
  
 You can enable verbatim HTML and other raw formats explicitly in the configuration:
 
