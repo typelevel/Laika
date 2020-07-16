@@ -37,11 +37,14 @@ object FOStyles {
     forChildElement(ElementType(parentElement), StyleName(styleName), attributes:_*)
   
   private def forChildElement (parentPredicate: StylePredicate, childPredicate: StylePredicate, attributes: (String, String)*): StyleDeclaration =
+    forChildElement(Set(parentPredicate), Set(childPredicate), attributes:_*)
+
+  private def forChildElement (parentPredicates: Set[StylePredicate], childPredicates: Set[StylePredicate], attributes: (String, String)*): StyleDeclaration =
     StyleDeclaration(StyleSelector(
-      Set(childPredicate), 
-      Some(ParentSelector(StyleSelector(Set(parentPredicate)), immediate = false))
-    ), 
-    attributes.toMap)
+      childPredicates,
+      Some(ParentSelector(StyleSelector(parentPredicates), immediate = false))
+    ),
+      attributes.toMap)
 
   private def forElementAndStyle (element: String, styleName: String, attributes: (String, String)*): StyleDeclaration =
     StyleDeclaration(StyleSelector(Set(ElementType(element), StyleName(styleName)), None), attributes.toMap)
@@ -112,7 +115,7 @@ object FOStyles {
   
   private val headerStyles = Seq(
     forElement("Header", headerFont, fontSize(11), bold, defaultSpaceAfter, spaceBefore(7)),
-    forElement("Title", headerFont, fontSize(18), bold, largeSpaceAfter, spaceBefore(12)),
+    forElement("Title", headerFont, fontSize(24), bold, color(primaryColor), largeSpaceAfter, spaceBefore(0)),
     forElementAndStyle("Header", "level1", fontSize(16), largeSpaceAfter, spaceBefore(12)),
     forElementAndStyle("Header", "level2", fontSize(14)),
     forElementAndStyle("Header", "level3", fontSize(12))
@@ -160,6 +163,10 @@ object FOStyles {
     forElement("CitationLink", color(secondaryColor)),
     forElement("SpanLink", color(secondaryColor), bold),
     forChildElement(ElementType("NavigationLink"), ElementType("SpanLink"), color(primaryColor), bold),
+    forChildElement(
+      Set[StylePredicate](ElementType("Paragraph"), StyleName("level2"), StyleName("nav")), 
+      Set[StylePredicate](ElementType("SpanLink")), 
+      color(secondaryColor), bold),
   )
 
   private def codeColor (value: String, categories: CodeCategory*): Seq[StyleDeclaration] =
@@ -176,10 +183,12 @@ object FOStyles {
     codeColor(syntaxWheelColors(4), CodeCategory.TypeName, CodeCategory.Tag.Name, CodeCategory.XML.DTDTagName, CodeCategory.Markup.Fence)
   
   private val navStyles = Seq(
-    forElementAndStyle("Paragraph", "nav", marginLeft(8), fontSize(10), spaceAfter(0), spaceBefore(2), "text-align-last" -> "justify"),
-    forElementAndStyles("Paragraph", "nav", "level1", fontSize(16), marginLeft(0), spaceBefore(9), "text-transform" -> "uppercase"),
-    forElementAndStyles("Paragraph", "nav", "level2", fontSize(14), marginLeft(4), spaceBefore(7)),
-    forElementAndStyles("Paragraph", "nav", "level3", fontSize(12), marginLeft(6), spaceBefore(4)),
+    forElementAndStyle("Paragraph", "nav", marginLeft(8), fontSize(10), spaceAfter(0), spaceBefore(2), 
+      "text-align-last" -> "justify"),
+    forElementAndStyles("Paragraph", "nav", "level1", fontSize(22), marginLeft(0), spaceBefore(15), color(secondaryColor), 
+      bold, "text-transform" -> "uppercase", "text-align-last" -> "center"),
+    forElementAndStyles("Paragraph", "nav", "level2", fontSize(17), marginLeft(4), spaceBefore(7), color(secondaryColor)),
+    forElementAndStyles("Paragraph", "nav", "level3", fontSize(12), marginLeft(6), spaceBefore(3)),
     forElementAndStyles("Paragraph", "nav", "level4", marginLeft(8))
   )
   

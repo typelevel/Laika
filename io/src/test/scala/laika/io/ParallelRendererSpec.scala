@@ -117,7 +117,7 @@ class ParallelRendererSpec extends IOSpec
     val overriddenParagraphStyles = """font-family="serif" font-size="11pt" line-height="1.5" space-after="3mm" text-align="justify""""
 
     def title(id: String, text: String) =
-      s"""<fo:block id="$id" font-family="sans-serif" font-size="18pt" font-weight="bold" keep-with-next="always" space-after="6mm" space-before="12mm">$text</fo:block>"""
+      s"""<fo:block id="$id" color="#007c99" font-family="sans-serif" font-size="24pt" font-weight="bold" keep-with-next="always" space-after="6mm" space-before="0mm">$text</fo:block>"""
 
     def renderer: ParallelRenderer[IO] = Renderer.of(XSLFO).io(blocker).parallel[IO].build
   }

@@ -25,6 +25,7 @@ import laika.rewrite.ReferenceResolver.CursorKeys
   */
 object FOTemplate {
 
+  // TODO - 0.16 - populate styles from theme settings
   private val templateText = """<?xml version="1.0" encoding="utf-8"?>
                                |
                                |<fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:fox="http://xmlgraphics.apache.org/fop/extensions">
@@ -54,7 +55,7 @@ object FOTemplate {
                                |
                                |    <fo:static-content flow-name="xsl-region-before">
                                |      <fo:block border-bottom-width="1pt" border-bottom-style="solid" 
-                               |          font-weight="bold" font-size="9pt" text-align="center">
+                               |          font-family="Lato" font-weight="bold" font-size="9pt" text-align="center">
                                |        <fo:retrieve-marker 
                                |            retrieve-class-name="chapter"
                                |            retrieve-position="first-including-carryover"
@@ -63,7 +64,7 @@ object FOTemplate {
                                |    </fo:static-content>
                                |    
                                |    <fo:static-content flow-name="xsl-region-after">
-                               |      <fo:block height="100%" font-weight="bold" font-size="10pt" text-align="center">
+                               |      <fo:block height="100%" font-family="Lato" font-weight="bold" font-size="10pt" text-align="center">
                                |        <fo:page-number/>
                                |      </fo:block>
                                |    </fo:static-content>

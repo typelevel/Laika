@@ -70,7 +70,7 @@ class FOforPDFSpec extends IOSpec with FileIO {
   trait ResultModel {
     
     private val defaultParagraphProperties = """font-family="serif" font-size="10pt" line-height="1.5" space-after="3mm" text-align="justify""""
-    private val defaultTitleProperties = """font-family="sans-serif" font-size="18pt" font-weight="bold" keep-with-next="always" space-after="6mm" space-before="12mm""""
+    private val defaultTitleProperties = """color="#007c99" font-family="sans-serif" font-size="24pt" font-weight="bold" keep-with-next="always" space-after="6mm" space-before="0mm""""
     
     def idPrefix (num: Int): String = if (num > 4) "_tree2" else if (num > 2) "_tree1" else ""
     
