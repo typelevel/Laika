@@ -67,7 +67,7 @@ If you migrate from an even earlier version, please start with the
 [release notes for 0.9](https://github.com/planet42/Laika/releases/tag/0.9.0) first.
 
 
-### Motivation
+**Motivation**
 
 The following design goals led to the partial rewrite:
 
@@ -82,7 +82,7 @@ The following design goals led to the partial rewrite:
   a final 1.0 release will be less bumpy from now on
 
 
-### New Separate laika-io Module
+**New Separate laika-io Module**
 
 A subset of the existing `laika-core` module has been extracted into its own module,
 `laika-io`. You need to add this new dependency if you use:
@@ -105,7 +105,7 @@ The reasons for the split were:
   be fully supported for Scala.js in a later release (most likely 0.13)
 
 
-### Referential Transparency
+**Referential Transparency**
 
 Laika is now supposed to be a good citizen in a pure FP setup when using its
 library API. The following changes had been implemented for this purpose:
@@ -120,7 +120,7 @@ library API. The following changes had been implemented for this purpose:
   by Laika, supporting the full spec.
 
 
-### Parser, Renderer and Transformer APIs
+**Parser, Renderer and Transformer APIs**
 
 The changes were necessary for the following reasons:
 
@@ -208,7 +208,7 @@ Note that while the new code sample looks more verbose, it now gives you full
 control over where your effects are run.
 
 
-### Customizing Renderers
+**Customizing Renderers**
 
 The renderer API had changed from a side-effecting API to a pure API.
 Renderers now take AST elements and produce a string and will be invoked
@@ -246,7 +246,7 @@ The engine passes the following instances to the partial function:
 * The current element of the rendered document AST which you can pattern match on  
 
 
-### Rewrite Rules
+**Rewrite Rules**
 
 Here most of the changes are in the implementation which had been rewritten to avoid
 any kind of runtime reflection. 
@@ -280,7 +280,7 @@ val transformer = Transformer
   .build
 ```
 
-### Templating
+**Templating**
 
 Variable substitutions now use HOCON syntax in line with the general deeper integration
 with HOCON throughout Laika's feature set. 
@@ -292,7 +292,7 @@ The old reference style `{{some.ref}}` now becomes either `${some.ref}` for a re
 reference or `${?some.ref}` for an optional one.
 
 
-### Directives
+**Directives**
 
 Directives in 0.12 come with changes in both, the DSL for creating custom directives
 and the supported syntax in markup and template files.
@@ -300,7 +300,7 @@ and the supported syntax in markup and template files.
 If you are not implementing your own directives, but only use the built-in ones
 provided by Laika, you can skip the section on the DSL.
 
-#### Directive Syntax
+**Directive Syntax**
 
 * The separators for the attribute and body sections have changed
 * HOCON syntax is now used for named attributes between curly braces or a plain string for an 
@@ -329,7 +329,7 @@ After
 @:@
 ```
 
-#### Directive DSL
+**Directive DSL**
 
 The building blocks for creating your own directives have also changed significantly:
 
@@ -376,7 +376,7 @@ val spanDirective = Spans.create("note") {
 
 Note the additional import of cats implicits in the new version.
 
-### Config API
+**Config API**
 
 Laika's support for HOCON configuration, originating either from configuration headers
 in markup or template documents or separate configuration files had previously been
@@ -389,7 +389,7 @@ See the API docs for [laika.config.Config] for details.
 [laika.config.Config]: http://planet42.github.com/Laika/api/laika/config/Config.html
 
 
-### Document Tree Model
+**Document Tree Model**
 
 The model had been enhanced to better cater for Laika's support for e-book generation.
 
