@@ -17,43 +17,15 @@
 package laika.render.pdf
 
 import laika.ast._
-import laika.config.{ConfigBuilder, LaikaKeys}
 import laika.format.PDF
 import laika.io.model.RenderedTreeRoot
-import laika.rewrite.nav.TitleDocumentConfig
 
 /** Prepares a document tree for the PDF rendering step by inserting all enabled navigation elements, 
-  * like PDF bookmarks or table of contents.
+  * like PDF bookmarks.
   * 
   * @author Jens Halm
   */
 object PDFNavigation {
-
-  private object DocNames {
-    val toc = "_toc_"
-  }
-  
-  /** Adds link targets for each tree and subtree in the specified root tree
-    * that does not already contain a title document.
-    */
-  def addTreeLinks (tree: DocumentTree, titleName: String): DocumentTree = {
-    val newContent = tree.content map {
-      case t: DocumentTree => addTreeLinks(t, titleName)
-      case d: Document => d
-    }
-    val titleDoc = tree.titleDocument.orElse {
-      if (tree.isEmpty) None
-      else Some(Document(
-        path = tree.path / titleName,
-        content = RootElement(InternalLinkTarget(Id(""))),
-        config = ConfigBuilder.empty.withValue(LaikaKeys.title, tree.title.fold(tree.name)(_.extractText)).build
-      ))
-    }
-    tree.copy(
-      titleDocument = titleDoc,
-      content = newContent
-    )
-  }
 
   /** Adds link targets for each document in the specified tree, including documents in subtrees. 
     */
@@ -87,13 +59,13 @@ object PDFNavigation {
     Map("bookmarks" -> NavigationList(toc, Style.bookmark))
   }
   
-  /** Prepares the document tree before rendering the interim XSL-FO output. 
-    * Preparation may include insertion of tree or document titles, depending on configuration.
+  /** Prepares the document tree before rendering the interim XSL-FO output,
+    * adding link targets for each document in the specified tree, including documents in subtrees.  
     */
   def prepareTree (root: DocumentTreeRoot, config: PDF.BookConfig): DocumentTreeRoot = {
     val finalTree = 
       if (config.navigationDepth.contains(0)) root.tree
-      else addTreeLinks(addDocLinks(root.tree), TitleDocumentConfig.inputName(root.config))
+      else addDocLinks(root.tree)
     root.copy(tree = finalTree)
   }
   

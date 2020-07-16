@@ -100,16 +100,12 @@ class FOforPDFSpec extends IOSpec with FileIO {
          |<fo:block $defaultParagraphProperties>Text $num</fo:block>""".stripMargin
     }
 
-    def treeLinkResult (num: Int): String = {
-      val idPrefix = if (num == 3) "_tree2" else if (num == 2) "_tree1" else ""
-      s"""<fo:block id="${idPrefix}_index"/>"""
-    }
-    
     def withDefaultTemplate(result: String, bookmarks: String = ""): String = RenderResult.fo.withDefaultTemplate(result, bookmarks)
     
     def bookmarkTreeResult(treeNum: Int, docNum: Int, titleDoc: Boolean = false): String = {
       val title = if (!titleDoc) s"Tree ${treeNum+1} &amp; More" else s"Title Doc ${treeNum+1}"
-      s"""    <fo:bookmark internal-destination="_tree${treeNum}_index">
+      val treeLink = if (!titleDoc) s"doc$docNum" else "index" 
+      s"""    <fo:bookmark internal-destination="_tree${treeNum}_$treeLink">
          |      <fo:bookmark-title>$title</fo:bookmark-title>
          |      <fo:bookmark internal-destination="_tree${treeNum}_doc$docNum">
          |        <fo:bookmark-title>Title $docNum &amp; More</fo:bookmark-title>
@@ -163,9 +159,9 @@ class FOforPDFSpec extends IOSpec with FileIO {
     "render a tree with navigation elements enabled" in new Setup {
 
       result.assertEquals(withDefaultTemplate(
-        treeLinkResult(1) + resultWithDocTitle(1) + resultWithDocTitle(2) +
-        treeLinkResult(2) + resultWithDocTitle(3) + resultWithDocTitle(4) +
-        treeLinkResult(3) + resultWithDocTitle(5) + resultWithDocTitle(6),
+        resultWithDocTitle(1) + resultWithDocTitle(2) +
+        resultWithDocTitle(3) + resultWithDocTitle(4) +
+        resultWithDocTitle(5) + resultWithDocTitle(6),
         bookmarkRootResult + bookmarkTreeResult(1, 3) + bookmarkTreeResult(2, 5).dropRight(1) + closeBookmarks
       ))
     }
@@ -175,7 +171,7 @@ class FOforPDFSpec extends IOSpec with FileIO {
       override val useTitleDocuments = true
 
       result.assertEquals(withDefaultTemplate(
-        treeLinkResult(1) + resultWithDocTitle(1) + resultWithDocTitle(2) +
+        resultWithDocTitle(1) + resultWithDocTitle(2) +
         treeTitleResult(2) + resultWithDocTitle(3) + resultWithDocTitle(4) +
         treeTitleResult(3) + resultWithDocTitle(5) + resultWithDocTitle(6),
         bookmarkRootResult + bookmarkTreeResult(1, 3, titleDoc = true) + bookmarkTreeResult(2, 5, titleDoc = true).dropRight(1) + closeBookmarks
