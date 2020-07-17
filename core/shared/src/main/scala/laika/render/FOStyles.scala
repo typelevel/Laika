@@ -33,6 +33,9 @@ object FOStyles {
   private def forStyleName (name: String, attributes: (String, String)*): StyleDeclaration =
     StyleDeclaration(StyleName(name), attributes: _*)
 
+  private def forStyleNames (name1: String, name2: String, attributes: (String, String)*): StyleDeclaration =
+    StyleDeclaration(StyleSelector(Set[StylePredicate](StyleName(name1), StyleName(name2))), attributes.toMap)
+
   private def forChildElement (parentElement: String, styleName: String, attributes: (String, String)*): StyleDeclaration =
     forChildElement(ElementType(parentElement), StyleName(styleName), attributes:_*)
   
@@ -72,6 +75,7 @@ object FOStyles {
   private def bgColor (value: String) = "background-color" -> s"#$value"
   private def color (value: String) = "color" -> s"#$value"
   private def padding (value: Int) = "padding" -> s"${value}mm"
+  private def paddingHack (value: Int) = "padding" -> s"${value}mm ${value}mm 0.1mm ${value}mm" // preventing space-after collapsing, giving us the bottom padding
   private def paddingTop (value: Int) = "padding-top" -> s"${value}mm"
   private def paddingLeft (value: Int) = "padding-left" -> s"${value}mm"
   private def paddingRight (value: Int) = "padding-right" -> s"${value}mm"
@@ -150,6 +154,19 @@ object FOStyles {
     forElement("InlineCode", codeFont, codeFontSize)
   )
   
+  private def calloutProps (borderColor: String, bgColorValue: String) = Seq(
+    bodyFont, defaultFontSize, defaultLineHeight, bgColor(bgColorValue), 
+    "border-left" -> s"3pt solid #$borderColor",
+    "fox:border-before-end-radius" -> "2mm", "fox:border-after-end-radius" -> "2mm", 
+    paddingHack(3), marginLeft(2), marginRight(2), largeSpaceAfter
+  )
+  
+  private val calloutStyles = Seq(
+    forStyleNames("callout", "info", calloutProps(messageColors.info, messageColors.infoBG):_*),
+    forStyleNames("callout", "warning", calloutProps(messageColors.warning, messageColors.warningBG):_*),
+    forStyleNames("callout", "error", calloutProps(messageColors.error, messageColors.errorBG):_*)
+  )
+
   private val tableStyles = Seq(
     forElement("Table", largeSpaceAfter),
     forElement("TableHead", bold, "border-bottom-width" -> "1pt", "border-bottom-style" -> "solid"),
@@ -233,6 +250,7 @@ object FOStyles {
     headerStyles ++
     listStyles ++
     codeStyles ++
+    calloutStyles ++
     tableStyles ++
     linkStyles ++
     inlineStyles ++

@@ -58,7 +58,11 @@ trait FOProperties {
       "border-right-color",
       "border-right-style",
       "border-right-width",
-      "fox:border-radius")
+      "fox:border-radius",
+      "fox:border-before-start-radius",
+      "fox:border-before-end-radius",
+      "fox:border-after-start-radius",
+      "fox:border-after-end-radius")
   private val padding = Set(
       "padding",
       "padding-before",

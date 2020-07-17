@@ -18,7 +18,6 @@ package laika.render.pdf
 
 import java.io.{File, FileOutputStream, OutputStream, StringReader}
 import java.net.URI
-import java.util.Date
 
 import cats.effect.Async
 import cats.implicits._
