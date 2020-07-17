@@ -478,7 +478,7 @@ object StandardDirectives extends DirectiveRegistry {
     }
   }
   
-  /** Implementation of the `for` directive for block elements in markup documents.
+  /** Implementation of the `format` directive for block elements in markup documents.
    *  The content of such a block will only be rendered for the corresponding
    *  output format (e.g. `pdf` or `html`).
    */
