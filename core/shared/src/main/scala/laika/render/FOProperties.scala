@@ -394,7 +394,8 @@ trait FOProperties {
         dimension ++ 
         break ++ 
         keepPlus),
-    "table-cell" -> (tablePart ++ 
+    "table-cell" -> (tablePart ++
+        font ++ // not in spec, but supported by FOP
         dimension ++ 
         break ++ 
         keepPlus ++ Set(

@@ -81,6 +81,7 @@ object FOStyles {
   private def paddingRight (value: Int) = "padding-right" -> s"${value}mm"
   private def marginLeft (value: Int) = "margin-left" -> s"${value}mm"
   private def marginRight (value: Int) = "margin-right" -> s"${value}mm"
+  private def border (points: Int, color: String) = "border" -> s"${points}pt solid #$color"
   private def borderRadius (value: Int) = "fox:border-radius" -> s"${value}mm"
   private def startDistance (value: Int) = "provisional-distance-between-starts" -> s"${value}mm"
   private val bold = "font-weight" -> "bold"
@@ -112,10 +113,10 @@ object FOStyles {
   }
 
   private val blockStyles = Seq(
-    forElement("Paragraph", bodyFont, justifiedText, defaultLineHeight, defaultFontSize, defaultSpaceAfter),
+    forElement("Paragraph", bodyFont, justifiedText, defaultLineHeight, defaultFontSize, defaultSpaceAfter/*, border(1, "999999")*/),
     forElement("TitledBlock", paddingLeft(20), paddingRight(20), largeSpaceAfter),
     forChildElement("TitledBlock", "title", headerFont, bold, fontSize(12), defaultSpaceAfter),
-    forElement("QuotedBlock", italic, marginLeft(8), marginRight(8), defaultSpaceAfter),
+    forElement("QuotedBlock", italic, marginLeft(8), marginRight(8), defaultSpaceAfter/*, bgColor("cccccc"), paddingHack(3)*/),
     forChildElement("QuotedBlock", "attribution", bodyFont, rightAlign, defaultLineHeight, defaultFontSize),
     forElement("Image", largeSpaceAfter, "width" -> "100%", "height" -> "100%", "content-width" -> "scale-down-to-fit", "scaling" -> "uniform"),
     forElement("Figure", largeSpaceAfter),
@@ -168,9 +169,10 @@ object FOStyles {
   )
 
   private val tableStyles = Seq(
-    forElement("Table", largeSpaceAfter),
-    forElement("TableHead", bold, "border-bottom-width" -> "1pt", "border-bottom-style" -> "solid"),
-    forElement("Cell", paddingTop(2))
+    forElement("Table", largeSpaceAfter, border(1, "cccccc"), "border-collapse" -> "separate"),
+    forChildElement(ElementType("TableHead"), ElementType("Cell"), "border-bottom" -> "1pt solid #cccccc", bold),
+    forChildElement(ElementType("TableBody"), StyleName("cell-odd"), bgColor("f2f2f2")),
+    forElement("Cell", padding(2))
   )
   
   private val inlineStyles = Seq(
@@ -232,7 +234,7 @@ object FOStyles {
   )
   
   private def decoratedSpan (textColor: String, bgColorValue: String): Seq[(String, String)] = Seq(
-    color(textColor), bgColor(bgColorValue), "padding" -> "1pt 2pt", "border" -> s"1pt solid #$textColor"
+    color(textColor), bgColor(bgColorValue), "padding" -> "1pt 2pt", border(1, textColor)
   )
   
   private val specialStyles = Seq(

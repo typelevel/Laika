@@ -213,10 +213,14 @@ object FORenderer extends ((FOFormatter, Element) => String) {
       case WithFallback(fallback)         => fmt.child(fallback)
       case _                              => ""
     }
+    
+    def addRowStyles (rows: Seq[Row]): Seq[Row] = rows.zipWithIndex.map {
+      case (row, index) => row.mergeOptions(Styles(if (index % 2 == 0) "cell-odd" else "cell-even")) // switch to 1-base
+    }
 
     def renderTableElement (elem: TableElement): String = elem match {
       case e @ TableHead(rows,_)   => fmt.indentedElement("fo:table-header", e, rows)
-      case e @ TableBody(rows,_)   => fmt.indentedElement("fo:table-body", e, rows)
+      case e @ TableBody(rows,_)   => fmt.indentedElement("fo:table-body", e, addRowStyles(rows))
       case Caption(_,_)            => "" // replaced by Table renderer
       case Columns(_,_)            => "" // replaced by Table renderer
       case e: Column               => fmt.emptyElement("fo:table-column", e)
