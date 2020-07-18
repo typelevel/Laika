@@ -18,6 +18,8 @@ package laika.helium
 
 import java.io.File
 
+import laika.ast.Size
+
 /**
   * @author Jens Halm
   */
@@ -51,8 +53,8 @@ sealed abstract class FontWeight (val value: String)
 
 object FontWeight {
   
-  object bold extends FontWeight("bold")
-  object normal extends FontWeight("normal")
+  object Bold extends FontWeight("bold")
+  object Normal extends FontWeight("normal")
   object `100` extends FontWeight("100")
   object `200` extends FontWeight("200")
   object `300` extends FontWeight("300")
@@ -69,9 +71,13 @@ sealed abstract class FontStyle (val value: String)
 
 object FontStyle {
   
-  object normal extends FontStyle("normal")
-  object italic extends FontStyle("italic")
+  object Normal extends FontStyle("normal")
+  object Italic extends FontStyle("italic")
   
 }
 
 case class FontDefinition (resource: Font, family: String, weight: FontWeight, style: FontStyle)
+
+case class ThemeFonts private (body: String, headlines: String, code: String)
+
+case class FontSizes (body: Size, code: Size, title: Size, header2: Size, header3: Size, header4: Size, small: Size)
