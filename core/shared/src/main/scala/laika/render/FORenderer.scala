@@ -83,7 +83,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
         case other => other
       }
 
-      val tempIcon = RawContent(NonEmptySet.one("fo"), """<fo:block font-family="IcoFont" font-size="16pt" color="#007c99" border="1pt solid #555555" padding-top="-2mm">
+      val tempIcon = RawContent(NonEmptySet.one("fo"), """<fo:block font-family="IcoFont" font-size="16pt" color="#007c99" padding-top="-2mm">
         &#xEEDD;
       </fo:block>""")
 
@@ -120,6 +120,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
 
       con match {
 
+        case Paragraph(Seq(img: Image), _)    => fmt.child(SpanSequence(Seq(img), Styles("align-center", "default-space")))
         case e @ Paragraph(content,_)         => fmt.block(e, content)
         case e @ ParsedLiteralBlock(content,_)=> fmt.blockWithWS(e, content)
         case e @ CodeBlock(lang,content,_)    => fmt.blockWithWS(e.copy(options=e.options + codeStyles(lang)),content)
@@ -141,7 +142,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
         case c: Customizable                => c match {
           case SpanSequence(content, NoOpt) => fmt.children(content) // this case could be standalone above, but triggers a compiler bug then
           case CodeSpanSequence(content, NoOpt) => fmt.children(content)
-          case unknown: Block               => fmt.block(unknown, unknown.content)
+          case unknown: Block               => fmt.block(unknown, unknown.content) // TODO - needs to be inline if parent is not a block container
           case unknown                      => fmt.inline(unknown, unknown.content)
         }
         case unknown                        => fmt.inline(unknown, unknown.content)
