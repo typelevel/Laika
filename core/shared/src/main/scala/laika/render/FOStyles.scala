@@ -118,7 +118,7 @@ object FOStyles {
     forChildElement("TitledBlock", "title", headerFont, bold, fontSize(12), defaultSpaceAfter),
     forElement("QuotedBlock", italic, marginLeft(8), marginRight(8), defaultSpaceAfter/*, bgColor("cccccc"), paddingHack(3)*/),
     forChildElement("QuotedBlock", "attribution", bodyFont, rightAlign, defaultLineHeight, defaultFontSize),
-    forElement("Image", largeSpaceAfter, "width" -> "85%", "content-width" -> "scale-down-to-fit", "scaling" -> "uniform", "text-align" -> "center"),
+    forElement("Image", largeSpaceAfter, "width" -> "85%", "content-width" -> "scale-down-to-fit", "scaling" -> "uniform"),
     forElement("Figure", largeSpaceAfter),
     forChildElement("Figure", "caption", bodyFont, fontSize(9), italic, defaultSpaceAfter),
     forChildElement("Figure", "legend", fontSize(9), italic),

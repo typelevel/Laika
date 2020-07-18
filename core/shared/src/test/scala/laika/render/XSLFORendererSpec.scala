@@ -434,24 +434,27 @@ class XSLFORendererSpec extends AnyFlatSpec
                |""".stripMargin
     render (elem) should be (fo)
   }
+  
+  private val defaultTableProps = """border="1pt solid #cccccc" border-collapse="separate" space-after="6mm""""
+  private val oddRowBg = """background-color="#f2f2f2""""
 
   it should "render a table without header cells" in {
     val elem = Table(Row(BodyCell("a"),BodyCell("b")),Row(BodyCell("c"),BodyCell("d")))
-    val fo = s"""<fo:table space-after="6mm">
+    val fo = s"""<fo:table $defaultTableProps>
                |  <fo:table-body>
-               |    <fo:table-row>
-               |      <fo:table-cell padding-top="2mm">
+               |    <fo:table-row $oddRowBg>
+               |      <fo:table-cell padding="2mm">
                |        <fo:block $defaultParagraphStyles>a</fo:block>
                |      </fo:table-cell>
-               |      <fo:table-cell padding-top="2mm">
+               |      <fo:table-cell padding="2mm">
                |        <fo:block $defaultParagraphStyles>b</fo:block>
                |      </fo:table-cell>
                |    </fo:table-row>
                |    <fo:table-row>
-               |      <fo:table-cell padding-top="2mm">
+               |      <fo:table-cell padding="2mm">
                |        <fo:block $defaultParagraphStyles>c</fo:block>
                |      </fo:table-cell>
-               |      <fo:table-cell padding-top="2mm">
+               |      <fo:table-cell padding="2mm">
                |        <fo:block $defaultParagraphStyles>d</fo:block>
                |      </fo:table-cell>
                |    </fo:table-row>
@@ -463,23 +466,23 @@ class XSLFORendererSpec extends AnyFlatSpec
   it should "render a table with header cells" in {
     val elem = Table(TableHead(List(Row(BodyCell("a"), BodyCell("b")))),
       TableBody(List(Row(BodyCell("c"), BodyCell("d")))))
-    val fo = s"""<fo:table space-after="6mm">
-               |  <fo:table-header border-bottom-style="solid" border-bottom-width="1pt">
+    val fo = s"""<fo:table $defaultTableProps>
+               |  <fo:table-header>
                |    <fo:table-row>
-               |      <fo:table-cell padding-top="2mm">
+               |      <fo:table-cell border-bottom="1pt solid #cccccc" font-weight="bold" padding="2mm">
                |        <fo:block $defaultParagraphStyles>a</fo:block>
                |      </fo:table-cell>
-               |      <fo:table-cell padding-top="2mm">
+               |      <fo:table-cell border-bottom="1pt solid #cccccc" font-weight="bold" padding="2mm">
                |        <fo:block $defaultParagraphStyles>b</fo:block>
                |      </fo:table-cell>
                |    </fo:table-row>
                |  </fo:table-header>
                |  <fo:table-body>
-               |    <fo:table-row>
-               |      <fo:table-cell padding-top="2mm">
+               |    <fo:table-row $oddRowBg>
+               |      <fo:table-cell padding="2mm">
                |        <fo:block $defaultParagraphStyles>c</fo:block>
                |      </fo:table-cell>
-               |      <fo:table-cell padding-top="2mm">
+               |      <fo:table-cell padding="2mm">
                |        <fo:block $defaultParagraphStyles>d</fo:block>
                |      </fo:table-cell>
                |    </fo:table-row>
@@ -493,21 +496,21 @@ class XSLFORendererSpec extends AnyFlatSpec
     val elem = Table(Row(BodyCell("a"),BodyCell("b")),Row(BodyCell("c"),BodyCell("d"))).copy(caption = caption)
     val fo = s"""<fo:block padding-left="20mm" padding-right="20mm" space-after="6mm">
                |  <fo:block font-family="sans-serif" font-size="12pt" font-weight="bold" space-after="3mm">caption</fo:block>
-               |  <fo:table space-after="6mm">
+               |  <fo:table $defaultTableProps>
                |    <fo:table-body>
-               |      <fo:table-row>
-               |        <fo:table-cell padding-top="2mm">
+               |      <fo:table-row $oddRowBg>
+               |        <fo:table-cell padding="2mm">
                |          <fo:block $defaultParagraphStyles>a</fo:block>
                |        </fo:table-cell>
-               |        <fo:table-cell padding-top="2mm">
+               |        <fo:table-cell padding="2mm">
                |          <fo:block $defaultParagraphStyles>b</fo:block>
                |        </fo:table-cell>
                |      </fo:table-row>
                |      <fo:table-row>
-               |        <fo:table-cell padding-top="2mm">
+               |        <fo:table-cell padding="2mm">
                |          <fo:block $defaultParagraphStyles>c</fo:block>
                |        </fo:table-cell>
-               |        <fo:table-cell padding-top="2mm">
+               |        <fo:table-cell padding="2mm">
                |          <fo:block $defaultParagraphStyles>d</fo:block>
                |        </fo:table-cell>
                |      </fo:table-row>
@@ -519,7 +522,7 @@ class XSLFORendererSpec extends AnyFlatSpec
 
   it should "render a cell using colspan and rowspan attributes" in {
     val elem = cell("a",3,2)
-    val fo = s"""<fo:table-cell number-columns-spanned="3" number-rows-spanned="2" padding-top="2mm">
+    val fo = s"""<fo:table-cell number-columns-spanned="3" number-rows-spanned="2" padding="2mm">
                |  <fo:block $defaultParagraphStyles>a</fo:block>
                |</fo:table-cell>""".stripMargin
     render(elem) should be (fo)
@@ -527,7 +530,7 @@ class XSLFORendererSpec extends AnyFlatSpec
 
   it should "render a cell with two paragraphs" in {
     val elem = BodyCell(p("a"),p("b"))
-    val fo = s"""<fo:table-cell padding-top="2mm">
+    val fo = s"""<fo:table-cell padding="2mm">
                |  <fo:block $defaultParagraphStyles>a</fo:block>
                |  <fo:block $defaultParagraphStyles>b</fo:block>
                |</fo:table-cell>""".stripMargin
@@ -548,7 +551,7 @@ class XSLFORendererSpec extends AnyFlatSpec
   it should "render a figure" in {
     val elem = Figure(Image("alt", InternalTarget(Root / "image.jpg", CurrentTree / "image.jpg")), List(Text("some "), Emphasized("caption"), Text(" text")), List(p("aaa"), Rule(), p("bbb")))
     val fo = s"""<fo:block space-after="6mm">
-               |  <fo:block $defaultParagraphStyles><fo:external-graphic content-width="scale-down-to-fit" height="100%" scaling="uniform" src="/image.jpg" width="100%"/></fo:block>
+               |  <fo:block space-after="3mm" text-align="center"><fo:external-graphic content-width="scale-down-to-fit" scaling="uniform" src="/image.jpg" width="85%"/></fo:block>
                |  <fo:block font-family="serif" font-size="9pt" font-style="italic" space-after="3mm">some <fo:inline font-style="italic">caption</fo:inline> text</fo:block>
                |  <fo:block font-size="9pt" font-style="italic">
                |    <fo:block $defaultParagraphStyles>aaa</fo:block>
@@ -688,15 +691,21 @@ class XSLFORendererSpec extends AnyFlatSpec
     render (elem) should be (fo)
   }
 
+  it should "render a paragraph containing only an image centered" in {
+    val elem = p(Image("img", imageTarget))
+    val fo = s"""<fo:block space-after="3mm" text-align="center"><fo:external-graphic content-width="scale-down-to-fit" scaling="uniform" src="/foo.jpg" width="85%"/></fo:block>"""
+    render (elem) should be (fo)
+  }
+  
   it should "render a paragraph containing an image without title" in {
     val elem = p(Text("some "), Image("img", imageTarget), Text(" span"))
-    val fo = s"""<fo:block $defaultParagraphStyles>some <fo:external-graphic content-width="scale-down-to-fit" height="100%" scaling="uniform" src="/foo.jpg" width="100%"/> span</fo:block>"""
+    val fo = s"""<fo:block $defaultParagraphStyles>some <fo:external-graphic content-width="scale-down-to-fit" scaling="uniform" src="/foo.jpg" width="85%"/> span</fo:block>"""
     render (elem) should be (fo)
   }
 
   it should "render a paragraph containing an image with title" in {
     val elem = p(Text("some "), Image("img", imageTarget, title = Some("title")), Text(" span"))
-    val fo = s"""<fo:block $defaultParagraphStyles>some <fo:external-graphic content-width="scale-down-to-fit" height="100%" scaling="uniform" src="/foo.jpg" width="100%"/> span</fo:block>"""
+    val fo = s"""<fo:block $defaultParagraphStyles>some <fo:external-graphic content-width="scale-down-to-fit" scaling="uniform" src="/foo.jpg" width="85%"/> span</fo:block>"""
     render (elem) should be (fo)
   }
 
@@ -708,7 +717,7 @@ class XSLFORendererSpec extends AnyFlatSpec
 
   it should "render a paragraph containing an image with vertical align style" in {
     val elem = p(Text("some "), Image("img", imageTarget).copy(options = Styles("align-top")), Text(" span"))
-    val fo = s"""<fo:block $defaultParagraphStyles>some <fo:external-graphic content-width="scale-down-to-fit" height="100%" scaling="uniform" src="/foo.jpg" vertical-align="top" width="100%"/> span</fo:block>"""
+    val fo = s"""<fo:block $defaultParagraphStyles>some <fo:external-graphic content-width="scale-down-to-fit" scaling="uniform" src="/foo.jpg" vertical-align="top" width="85%"/> span</fo:block>"""
     render (elem) should be (fo)
   }
 
@@ -874,7 +883,7 @@ class XSLFORendererSpec extends AnyFlatSpec
 
   it should "render a table cell unformatted" in {
     val elem = BodyCell(p("a"),p("b"))
-    val fo = s"""<fo:table-cell padding-top="2mm">
+    val fo = s"""<fo:table-cell padding="2mm">
                |<fo:block $defaultParagraphStyles>a</fo:block>
                |<fo:block $defaultParagraphStyles>b</fo:block>
                |</fo:table-cell>""".stripMargin
