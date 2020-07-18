@@ -62,7 +62,7 @@ object StandardDirectiveParts {
     val align = ("top" | "middle" | "bottom" | "left" | "center" | "right" |
       anyChars.flatMap(s => failure(s"illegal value for align: '$s'"))).map { a => Styles(s"align-$a") }
 
-    val scale = sizeAndUnit | (anyOf(CharGroup.digit) ^^ { amt => Size(amt.toInt, "%") })
+    val scale = sizeAndUnit | (anyOf(CharGroup.digit) ^^ { amt => LengthUnit.percent(amt.toInt) })
 
     (argument(multilineURI, withWS = true) ~
         optField("alt") ~

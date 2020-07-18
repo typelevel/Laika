@@ -249,8 +249,8 @@ class HTMLRenderer (fileSuffix: String, formats: NonEmptySet[String]) extends ((
         
       case Image(text,target,width,height,title,opt) =>
         def sizeAttr (size: Option[Size], styleName: String): (Option[String],Option[String]) = size map {
-          case Size(amount, "px") => (Some(amount.toInt.toString), None)
-          case Size(amount, unit) => (None, Some(s"$styleName:$amount$unit"))
+          case Size(amount, LengthUnit.px) => (Some(amount.toInt.toString), None)
+          case s:Size => (None, Some(s"$styleName:${s.displayValue}"))
         } getOrElse (None, None)
         val (widthAttr, wStyle) = sizeAttr(width, "width")
         val (heightAttr, hStyle) = sizeAttr(height, "height")

@@ -551,19 +551,19 @@ class HTMLRendererSpec extends AnyFlatSpec
   }
 
   it should "render a paragraph containing an image with width and height in pixels" in {
-    val image = Image("img", imageTarget, width = Some(Size(200,"px")), height = Some(Size(120,"px")))
+    val image = Image("img", imageTarget, width = Some(LengthUnit.px(200)), height = Some(LengthUnit.px(120)))
     val elem = p(Text("some "), image, Text(" span"))
     render (elem) should be ("""<p>some <img src="foo.jpg" alt="img" width="200" height="120"> span</p>""")
   }
 
   it should "render a paragraph containing an image with width and height in a unit other than pixels" in {
-    val image = Image("img", imageTarget, width = Some(Size(12.4,"in")), height = Some(Size(6.8,"in")))
+    val image = Image("img", imageTarget, width = Some(LengthUnit.in(12.4)), height = Some(LengthUnit.in(6.8)))
     val elem = p(Text("some "), image, Text(" span"))
     render (elem) should be ("""<p>some <img src="foo.jpg" alt="img" style="width:12.4in;height:6.8in"> span</p>""")
   }
 
   it should "render a paragraph containing an image with just width in a unit other than pixels" in {
-    val image = Image("img", imageTarget, width = Some(Size(12.4,"in")))
+    val image = Image("img", imageTarget, width = Some(LengthUnit.in(12.4)))
     val elem = p(Text("some "), image, Text(" span"))
     render (elem) should be ("""<p>some <img src="foo.jpg" alt="img" style="width:12.4in"> span</p>""")
   }

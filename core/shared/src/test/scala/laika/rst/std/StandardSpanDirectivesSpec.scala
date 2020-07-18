@@ -117,8 +117,8 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec
                   | :height: 120px
                   |
                   |Some |subst|""".stripMargin
-    val expectedWidth = Some(Size(200, "px"))
-    val expectedHeight = Some(Size(120, "px"))
+    val expectedWidth = Some(LengthUnit.px(200))
+    val expectedHeight = Some(LengthUnit.px(120))
     val result = root (p(Text("Some "),Image("", imgTarget, width = expectedWidth,height = expectedHeight)))
     parse(input) should be (result)
   }
@@ -130,8 +130,8 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec
                   | :scale: 50%
                   |
                   |Some |subst|""".stripMargin
-    val expectedWidth = Some(Size(100, "px"))
-    val expectedHeight = Some(Size(60, "px"))
+    val expectedWidth = Some(LengthUnit.px(100))
+    val expectedHeight = Some(LengthUnit.px(60))
     val result = root (p(Text("Some "),Image("", imgTarget, width = expectedWidth,height = expectedHeight)))
     parse(input) should be (result)
   }

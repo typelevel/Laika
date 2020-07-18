@@ -701,7 +701,7 @@ class XSLFORendererSpec extends AnyFlatSpec
   }
 
   it should "render a paragraph containing an image with width and height attributes" in {
-    val elem = p(Text("some "), Image("img", imageTarget, width = Some(Size(120,"px")), height = Some(Size(80,"px"))), Text(" span"))
+    val elem = p(Text("some "), Image("img", imageTarget, width = Some(LengthUnit.px(120)), height = Some(LengthUnit.px(80))), Text(" span"))
     val fo = s"""<fo:block $defaultParagraphStyles>some <fo:external-graphic content-width="scale-down-to-fit" height="80px" scaling="uniform" src="/foo.jpg" width="120px"/> span</fo:block>"""
     render (elem) should be (fo)
   }

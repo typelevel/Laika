@@ -52,13 +52,16 @@ object BaseParsers {
     alphaNum.rep(symbol).min(1).source
   }
 
-  /** Parses a size and its amount, e.g. 12px.
-    * The unit is mandatory and not validated.
+  /** Parses a size and its unit, e.g. 12px.
+    * The unit is mandatory and must be CSS-compatible.
     */
   val sizeAndUnit: Parser[Size] = {
+    def evalLength (value: String): Either[String, LengthUnit] = 
+      LengthUnit.fromString(value).toRight(s"Invalid length unit: $value")
     val digit = someOf(CharGroup.digit)
     val amount = (digit ~ opt("." ~ digit)).source.map(_.toDouble)
-    (amount ~ (ws ~> (simpleRefName | "%"))).mapN(Size)
+    val unit = (simpleRefName | "%").evalMap(evalLength)
+    (amount ~ (ws ~> unit)).mapN(Size)
   }
 
   /** Parses any of the four supported types of footnote labels.

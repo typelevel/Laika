@@ -1221,11 +1221,38 @@ object Image {
     }
 }
 
-/** Encapsulates size information with a unit.
+/** Encapsulates size information with a CSS-compatible length unit.
   */
-case class Size (amount: Double, unit: String) {
-  def scale (percent: Double): Size = copy(amount = amount * percent / 100)
-  def displayValue: String = amount.toString.stripSuffix(".0") + unit
+case class Size (amount: Double, unit: LengthUnit) {
+  def scale (percent: Double): Size = copy(amount * percent / 100)
+  def displayValue: String = amount.toString.stripSuffix(".0") + unit.displayValue
+}
+
+/** A base for builder of CSS-compatible length units.
+  */
+sealed abstract class LengthUnit (val displayValue: String) {
+  def apply(amount: Double): Size = Size(amount, this)
+}
+object LengthUnit {
+  object px extends LengthUnit("px")
+  object mm extends LengthUnit("mm")
+  object cm extends LengthUnit("mm")
+  object in extends LengthUnit("in")
+  object pc extends LengthUnit("in")
+  object pt extends LengthUnit("in")
+  object ch extends LengthUnit("in")
+  object em extends LengthUnit("in")
+  object ex extends LengthUnit("in")
+  object rem extends LengthUnit("in")
+  object vh extends LengthUnit("in")
+  object vw extends LengthUnit("in")
+  object vmin extends LengthUnit("in")
+  object vmax extends LengthUnit("in")
+  object percent extends LengthUnit("%")
+  
+  private val all: Map[String, LengthUnit] = 
+    Seq(px,mm,cm,in,pc,pt,ch,em,ex,rem,vh,vw,vmin,vmax,percent).map(u => (u.displayValue, u)).toMap
+  def fromString (value: String): Option[LengthUnit] = all.get(value)
 }
 
 object Link {
