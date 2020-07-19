@@ -22,8 +22,8 @@ import laika.ast.LengthUnit.pt
 import laika.ast.LengthUnit.cm
 import laika.ast.LengthUnit.mm
 import laika.ast.Path.Root
-import laika.ast.TemplateDocument
-import laika.bundle.{DocumentTypeMatcher, Precedence}
+import laika.ast.{Block, BlockContainer, BlockSequence, CodeBlock, DocumentCursor, Replace, Retain, RewriteRule, RewriteRules, SpanContainer, Styles, TemplateDocument}
+import laika.bundle.{BundleOrigin, DocumentTypeMatcher, ExtensionBundle, Precedence}
 import laika.io.model.InputTree
 import laika.io.theme.Theme
 
@@ -44,9 +44,27 @@ case class Helium (fontResources: Seq[FontDefinition],
       .addStyles(new FOStyles(this).styles.styles , Root / "styles.fo.css", Precedence.Low)
       .build(DocumentTypeMatcher.base)
     
+    def estimateLines (blocks: Seq[Block]): Int = blocks.collect {
+      case sp: SpanContainer => sp.extractText.length
+      case bc: BlockContainer => estimateLines(bc.content) // TODO - handle lists and tables
+    }.sum
+    
+    val rewriteRule: RewriteRules = RewriteRules.forBlocks {
+      case cb: CodeBlock if cb.extractText.count(_ == '\n') <= PDFLayout.bgColorNonBreakingLines =>
+        Replace(cb.mergeOptions(Styles("keep-together")))
+      case bs: BlockSequence if bs.options.styles.contains("callout") && estimateLines(bs.content) <= PDFLayout.bgColorNonBreakingLines =>
+        Replace(bs.mergeOptions(Styles("keep-together")))
+    }
+    
+    val bundle = new ExtensionBundle {
+      override def origin: BundleOrigin = BundleOrigin.Theme
+      def description = "Helium Theme Rewrite Rules"
+      override def rewriteRules: Seq[DocumentCursor => RewriteRules] = Seq(_ => rewriteRule)
+    }
+    
     new Theme[F] {
       def inputs = themeInputs
-      def extensions = Nil
+      def extensions = Seq(bundle)
       def treeTransformer = Kleisli(Async[F].pure)
     }
   } 
