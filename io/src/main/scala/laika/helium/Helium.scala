@@ -23,7 +23,8 @@ import laika.ast.LengthUnit.cm
 import laika.ast.LengthUnit.mm
 import laika.ast.Path.Root
 import laika.ast.{Block, BlockContainer, BlockSequence, CodeBlock, DocumentCursor, Replace, RewriteRules, SpanContainer, Styles, TemplateDocument}
-import laika.bundle.{BundleOrigin, DocumentTypeMatcher, ExtensionBundle, Precedence}
+import laika.bundle.{BundleOrigin, ExtensionBundle, Precedence}
+import laika.format.HTML
 import laika.io.model.InputTree
 import laika.io.theme.Theme
 
@@ -56,10 +57,11 @@ case class Helium (fontResources: Seq[FontDefinition],
         Replace(bs.mergeOptions(Styles("keep-together")))
     }
     
-    val bundle = new ExtensionBundle {
+    val bundle: ExtensionBundle = new ExtensionBundle {
       override def origin: BundleOrigin = BundleOrigin.Theme
       def description = "Helium Theme Rewrite Rules"
       override def rewriteRules: Seq[DocumentCursor => RewriteRules] = Seq(_ => rewriteRule)
+      override def renderOverrides = Seq(HTML.Overrides(HeliumRenderOverrides.create(webLayout.anchorPlacement)))
     }
     
     new Theme[F] {
@@ -107,7 +109,7 @@ object Helium {
         )
       )
     ),
-    null, // TODO - define
+    WebLayout(null, null, null, 0.0, AnchorPlacement.Left), // TODO - define
     PDFLayout(
       pageWidth = cm(21), 
       pageHeight = cm(29.7), 

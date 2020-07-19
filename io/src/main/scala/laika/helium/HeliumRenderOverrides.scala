@@ -14,25 +14,30 @@
  * limitations under the License.
  */
 
-package laika.io.theme
+package laika.helium
 
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentDocument
-import laika.ast.{BlockSequence, Element, Header, InternalTarget, SpanLink, SpanSequence, Styles}
+import laika.ast._
 import laika.render.HTMLFormatter
 
 /**
   * @author Jens Halm
   */
-object RenderExtensions {
+object HeliumRenderOverrides {
 
-  val value: PartialFunction[(HTMLFormatter, Element), String] = {
+  def create (anchorPlacement: AnchorPlacement): PartialFunction[(HTMLFormatter, Element), String] = {
     case (fmt, Header(level, content, opt)) =>
-      val link = opt.id.map(id => SpanLink(Seq(SpanSequence(Nil, Styles("anchor"))), InternalTarget(Root, CurrentDocument(id)), options = Styles("anchor-link")))
-      fmt.newLine + fmt.element("h"+level.toString, opt, link.toSeq ++ content)
+      def link = opt.id.map(id => SpanLink(Seq(SpanSequence(Nil, Styles("anchor"))), InternalTarget(Root, CurrentDocument(id)), options = Styles("anchor-link")))
+      val linkedContent = anchorPlacement match {
+        case AnchorPlacement.None => content
+        case AnchorPlacement.Left => link.toSeq ++ content
+        case AnchorPlacement.Right => content ++ link.toSeq
+      }
+      fmt.newLine + fmt.element("h"+level.toString, opt, link.toSeq ++ linkedContent)
     case (fmt, BlockSequence(content, opt)) if opt.styles.contains("callout") =>
       val iconStyle = (opt.styles - "callout").headOption match {
-        case Some("warning") => Some("icofont-close-circled") // TODO - include additional icons
+        case Some("warning") => Some("icofont-close-circled")
         case Some("error") => Some("icofont-close-circled")
         case Some("info") => Some("icofont-close-circled")
         case _ => None

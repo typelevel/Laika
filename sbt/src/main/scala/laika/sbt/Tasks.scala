@@ -141,7 +141,7 @@ object Tasks {
     }
 
     val cacheDir = streams.value.cacheDirectory / "laika"
-    val inputCollection = inputs.unsafeRunSync()
+    val inputCollection = inputs.build(parser.config.docTypeMatcher).unsafeRunSync()
     streams.value.log.info(Logs.inputs(inputCollection))
     val inputFiles = collectInputFiles(inputCollection)
 

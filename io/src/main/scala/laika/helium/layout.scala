@@ -18,9 +18,21 @@ package laika.helium
 
 import laika.ast.Size
 
-case class WebLayout (contentWidth: Size, navigationWidth: Size, defaultBlockSpacing: Size, defaultLineHeight: Double)
+case class WebLayout (contentWidth: Size, 
+                      navigationWidth: Size, 
+                      defaultBlockSpacing: Size, 
+                      defaultLineHeight: Double,
+                      anchorPlacement: AnchorPlacement)
 
 case class PDFLayout (pageWidth: Size, pageHeight: Size, 
                       marginTop: Size, marginRight: Size, marginBottom: Size, marginLeft: Size,
                       defaultBlockSpacing: Size, defaultLineHeight: Double,
                       bgColorNonBreakingLines: Int)
+
+sealed trait AnchorPlacement
+
+object AnchorPlacement {
+  object None extends AnchorPlacement
+  object Left extends AnchorPlacement
+  object Right extends AnchorPlacement
+}
