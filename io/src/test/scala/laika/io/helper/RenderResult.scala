@@ -17,8 +17,9 @@
 package laika.io.helper
 
 import laika.ast.{TemplateRoot, TemplateString}
-import laika.render.{FOTemplate, HTMLTemplate}
+import laika.render.HTMLTemplate
 import laika.render.epub.{HtmlTemplate => EPUBTemplate}
+import laika.render.fo.TestTheme
 
 object RenderResult {
   
@@ -40,8 +41,8 @@ object RenderResult {
   }
   
   object fo {
-    def withDefaultTemplate(content: String): String = buildResult(FOTemplate.default, Seq("", "", content))
-    def withDefaultTemplate(result: String, bookmarks: String = ""): String = buildResult(FOTemplate.default, Seq(bookmarks, "", result))
+    def withDefaultTemplate(content: String): String = buildResult(TestTheme.foTemplate, Seq("", "", content))
+    def withDefaultTemplate(result: String, bookmarks: String = ""): String = buildResult(TestTheme.foTemplate, Seq(bookmarks, "", result))
   }
   
 }

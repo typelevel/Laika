@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package laika.render.fo
+package laika.helium
 
-import laika.helium.{FOStyles, Helium, ThemeFonts}
+import laika.ast.Size
 
-object FOTestStyles {
-  
-  lazy val defaults = new FOStyles(Helium.defaults.copy(themeFonts = ThemeFonts("serif", "sans-serif", "monospaced"))).styles 
-  
-}
+case class WebLayout (contentWidth: Size, navigationWidth: Size, defaultBlockSpacing: Size, defaultLineHeight: Double)
+
+case class PDFLayout (pageWidth: Size, pageHeight: Size, 
+                      marginTop: Size, marginRight: Size, marginBottom: Size, marginLeft: Size,
+                      defaultBlockSpacing: Size, defaultLineHeight: Double)

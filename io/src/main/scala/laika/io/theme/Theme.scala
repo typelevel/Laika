@@ -21,10 +21,10 @@ import cats.effect.Async
 import laika.ast.Path.Root
 import laika.ast.TemplateDocument
 import laika.bundle.ExtensionBundle
-import laika.helium.{FOStyles, Helium}
+import laika.helium.{FOStyles, FOTemplate, Helium}
 import laika.io.model.{InputTree, ParsedTree}
 import laika.io.runtime.TreeResultBuilder.{StyleResult, TemplateResult}
-import laika.render.{FOTemplate, HTMLTemplate}
+import laika.render.HTMLTemplate
 
 /**
   * @author Jens Halm
@@ -53,7 +53,7 @@ object Theme {
       parsedResults = Seq(
         TemplateResult(TemplateDocument(Root / "default.template.html", HTMLTemplate.default)),
         TemplateResult(TemplateDocument(Root / "default.template.epub.xhtml", laika.render.epub.HtmlTemplate.default)),
-        TemplateResult(TemplateDocument(Root / "default.template.fo", FOTemplate.default)),
+        TemplateResult(TemplateDocument(Root / "default.template.fo", new FOTemplate(Helium.defaults).root)),
         StyleResult(new FOStyles(Helium.defaults).styles.copy(paths = Set(Root / "default.fo.css")), "fo")
       )
     ))

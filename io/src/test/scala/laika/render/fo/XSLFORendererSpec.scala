@@ -40,19 +40,19 @@ class XSLFORendererSpec extends AnyFlatSpec
   private val defaultParagraphStyles = """font-family="serif" font-size="10pt" line-height="1.5" space-after="3mm" text-align="justify""""
   private val ruleBlock = """<fo:block space-after="3mm"><fo:leader leader-length="100%" leader-pattern="rule" rule-style="solid" rule-thickness="2pt"></fo:leader></fo:block>""" 
   
-  def render (elem: Element): String = render(elem, FOTestStyles.defaults)
+  def render (elem: Element): String = render(elem, TestTheme.foStyles)
 
   def render (elem: Element, style: StyleDeclaration): String = 
-    render(elem, FOTestStyles.defaults ++ StyleDeclarationSet(Path.Root, style))
+    render(elem, TestTheme.foStyles ++ StyleDeclarationSet(Path.Root, style))
 
   def render (elem: Element, style: StyleDeclarationSet): String = 
     defaultRenderer.render(elem, Root, pathTranslator, style)
   
   def render (elem: Element, messageFilter: MessageFilter): String =
-    Renderer.of(XSLFO).renderMessages(messageFilter).build.render(elem, Root, pathTranslator, FOTestStyles.defaults)
+    Renderer.of(XSLFO).renderMessages(messageFilter).build.render(elem, Root, pathTranslator, TestTheme.foStyles)
 
   def renderUnformatted (elem: Element): String = 
-    Renderer.of(XSLFO).unformatted.build.render(elem, Root, pathTranslator, FOTestStyles.defaults)
+    Renderer.of(XSLFO).unformatted.build.render(elem, Root, pathTranslator, TestTheme.foStyles)
 
   val imageTarget = InternalTarget(Root / "foo.jpg", CurrentTree / "foo.jpg")
   

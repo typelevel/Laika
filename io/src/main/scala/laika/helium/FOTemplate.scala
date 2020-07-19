@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package laika.render
+package laika.helium
 
 import laika.ast._
 import laika.rewrite.ReferenceResolver.CursorKeys
@@ -23,10 +23,10 @@ import laika.rewrite.ReferenceResolver.CursorKeys
   *
   * @author Jens Halm
   */
-object FOTemplate {
+class FOTemplate (helium: Helium) {
 
-  // TODO - 0.16 - populate styles from theme settings
-  private val templateText = """<?xml version="1.0" encoding="utf-8"?>
+  private val layout = helium.PDFLayout
+  private val templateText = s"""<?xml version="1.0" encoding="utf-8"?>
                                |
                                |<fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:fox="http://xmlgraphics.apache.org/fop/extensions">
                                |
@@ -34,12 +34,12 @@ object FOTemplate {
                                |  
                                |    <fo:simple-page-master 
                                |        master-name="default"
-                               |        page-height="29.7cm"
-                               |        page-width="21cm"
-                               |        margin-top="1cm"
-                               |        margin-bottom="1cm"
-                               |        margin-left="2.5cm"
-                               |        margin-right="2.5cm">
+                               |        page-height="${layout.pageHeight.displayValue}"
+                               |        page-width="${layout.pageWidth.displayValue}"
+                               |        margin-top="${layout.marginTop.displayValue}"
+                               |        margin-bottom="${layout.marginBottom.displayValue}"
+                               |        margin-left="${layout.marginLeft.displayValue}"
+                               |        margin-right="${layout.marginRight.displayValue}">
                                |      <fo:region-body margin-top="2cm" margin-bottom="2cm"/>
                                |      <fo:region-before extent="3cm"/>
                                |      <fo:region-after extent="1cm"/>
@@ -55,7 +55,7 @@ object FOTemplate {
                                |
                                |    <fo:static-content flow-name="xsl-region-before">
                                |      <fo:block border-bottom-width="1pt" border-bottom-style="solid" 
-                               |          font-family="Lato" font-weight="bold" font-size="9pt" text-align="center">
+                               |          font-family="${helium.themeFonts.headlines}" font-weight="bold" font-size="9pt" text-align="center">
                                |        <fo:retrieve-marker 
                                |            retrieve-class-name="chapter"
                                |            retrieve-position="first-including-carryover"
@@ -64,7 +64,7 @@ object FOTemplate {
                                |    </fo:static-content>
                                |    
                                |    <fo:static-content flow-name="xsl-region-after">
-                               |      <fo:block height="100%" font-family="Lato" font-weight="bold" font-size="10pt" text-align="center">
+                               |      <fo:block height="100%" font-family="${helium.themeFonts.headlines}" font-weight="bold" font-size="10pt" text-align="center">
                                |        <fo:page-number/>
                                |      </fo:block>
                                |    </fo:static-content>
@@ -108,7 +108,7 @@ object FOTemplate {
     * of the input files. Alternatively the default can also be overridden
     * for individual sub-directories with a corresponding file with the same name.
     */
-  val default: TemplateRoot = {
+  val root: TemplateRoot = {
     val templateSpans = templateText.split("#").map(TemplateString(_))
     TemplateRoot(
       templateSpans(0),

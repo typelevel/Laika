@@ -27,6 +27,7 @@ import laika.ast._
 import laika.bundle.{BundleProvider, DocumentTypeMatcher, ExtensionBundle, Precedence}
 import laika.directive.Templates
 import laika.format._
+import laika.helium.FOTemplate
 import laika.io.descriptor.TransformerDescriptor
 import laika.io.helper.OutputBuilder._
 import laika.io.helper.{InputBuilder, RenderResult, ThemeBuilder}
@@ -36,8 +37,7 @@ import laika.io.text.ParallelTransformer
 import laika.parse.Parser
 import laika.parse.code.SyntaxHighlighting
 import laika.parse.text.TextParsers
-import laika.render.FOTemplate
-import laika.render.fo.FOTestStyles
+import laika.render.fo.TestTheme
 import laika.rewrite.link.SlugBuilder
 import org.scalatest.Assertion
 
@@ -273,8 +273,8 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
         .io(blocker)
         .parallel[IO]
         .withTheme(ThemeBuilder.forInputs(InputTree[IO]
-          .addStyles(FOTestStyles.defaults.styles, Root / "styles.fo.css", Precedence.Low)
-          .addTemplate(TemplateDocument(Root / "default.template.fo", FOTemplate.default))
+          .addStyles(TestTheme.foStyles.styles, Root / "styles.fo.css", Precedence.Low)
+          .addTemplate(TemplateDocument(Root / "default.template.fo", TestTheme.foTemplate))
           .build(DocumentTypeMatcher.base)))
         .build
 

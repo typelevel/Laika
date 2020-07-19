@@ -33,7 +33,7 @@ import laika.io.model.{BinaryOutput, InputTree, RenderedTreeRoot}
 import laika.io.runtime.Runtime
 import laika.io.{FileIO, IOSpec}
 import laika.render.FOFormatter.Preamble
-import laika.render.fo.FOTestStyles
+import laika.render.fo.TestTheme
 import laika.render.pdf.FOConcatenation
 
 
@@ -138,8 +138,8 @@ class FOforPDFSpec extends IOSpec with FileIO {
       .io(blocker)
       .parallel[IO]
       .withTheme(ThemeBuilder.forInputs(InputTree[IO]
-        .addTemplate(TemplateDocument(Root / "default.template.fo", FOTemplate.default))
-        .addStyles(FOTestStyles.defaults.styles, Root / "styles.fo.css", Precedence.Low)
+        .addTemplate(TemplateDocument(Root / "default.template.fo", TestTheme.foTemplate))
+        .addStyles(TestTheme.foStyles.styles, Root / "styles.fo.css", Precedence.Low)
         .build(DocumentTypeMatcher.base)))
       .build
     

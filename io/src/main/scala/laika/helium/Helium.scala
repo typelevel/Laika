@@ -17,6 +17,8 @@
 package laika.helium
 
 import laika.ast.LengthUnit.pt
+import laika.ast.LengthUnit.cm
+import laika.ast.LengthUnit.mm
 
 /**
   * @author Jens Halm
@@ -24,7 +26,9 @@ import laika.ast.LengthUnit.pt
 case class Helium (fontResources: Seq[FontDefinition],
                    themeFonts: ThemeFonts,
                    fontSizes: FontSizes,
-                   colors: ColorSet)
+                   colors: ColorSet,
+                   webLayout: WebLayout,
+                   PDFLayout: PDFLayout)
 
 object Helium {
   
@@ -61,6 +65,17 @@ object Helium {
           Color.hex("9A6799"), Color.hex("9F4C46"), Color.hex("A0742D"), Color.hex("7D8D4C"), Color.hex("6498AE")
         )
       )
+    ),
+    null, // TODO - define
+    PDFLayout(
+      pageWidth = cm(21), 
+      pageHeight = cm(29.7), 
+      marginTop = cm(1),
+      marginRight = cm(2.5),
+      marginBottom = cm(1),
+      marginLeft = cm(2.5),
+      defaultBlockSpacing = mm(3),
+      defaultLineHeight = 1.5
     )
   )
   

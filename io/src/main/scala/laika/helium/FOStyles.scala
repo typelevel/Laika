@@ -75,6 +75,7 @@ class FOStyles (helium: Helium) {
   private def color (value: Color) = "color" -> value.displayValue
   
   private def spaceBefore (value: Int) = "space-before" -> s"${value}mm"
+  private def spaceAfter (value: Size) = "space-after" -> value.displayValue
   private def spaceAfter (value: Int) = "space-after" -> s"${value}mm"
   private def padding (value: Int) = "padding" -> s"${value}mm"
   private def paddingHack (value: Int) = "padding" -> s"${value}mm ${value}mm 0.1mm ${value}mm" // preventing space-after collapsing, giving us the bottom padding
@@ -92,9 +93,9 @@ class FOStyles (helium: Helium) {
     "white-space-collapse" -> "false"
   )
 
-  private val defaultSpaceAfter = spaceAfter(3)
-  private val largeSpaceAfter = spaceAfter(6)
-  private val defaultLineHeight = lineHeight(1.5)
+  private val defaultSpaceAfter = spaceAfter(helium.PDFLayout.defaultBlockSpacing)
+  private val largeSpaceAfter = spaceAfter(helium.PDFLayout.defaultBlockSpacing.scale(200)) // TODO - 0.16 - review need for this
+  private val defaultLineHeight = lineHeight(helium.PDFLayout.defaultLineHeight)
   private val codeLineHeight = lineHeight(1.4)
   
   private val blockStyles = Seq(

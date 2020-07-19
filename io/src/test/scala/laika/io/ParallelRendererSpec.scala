@@ -34,7 +34,7 @@ import laika.io.runtime.RendererRuntime.{DuplicatePath, RendererErrors}
 import laika.io.text.ParallelRenderer
 import laika.parse.markup.DocumentParser.{InvalidDocument, InvalidDocuments}
 import laika.render._
-import laika.render.fo.FOTestStyles
+import laika.render.fo.TestTheme
 import laika.rewrite.ReferenceResolver.CursorKeys
 
 import scala.io.Codec
@@ -111,7 +111,7 @@ class ParallelRendererSpec extends IOSpec
     val customStyle: StyleDeclaration = StyleDeclaration(StylePredicate.ElementType("Paragraph"), "font-size" -> "11pt")
     def foStyles (path: Path): Map[String, StyleDeclarationSet] = 
       Map("fo" -> StyleDeclarationSet(path / "styles.fo.css", customStyle))
-    val customThemeStyles: Set[StyleDeclaration] = FOTestStyles.defaults.styles + customStyle.increaseOrderBy(1)
+    val customThemeStyles: Set[StyleDeclaration] = TestTheme.foStyles.styles + customStyle.increaseOrderBy(1)
     val rootElem: RootElement = root(self.titleWithId("Title"), p("bbb"))
     val subElem: RootElement = root(self.titleWithId("Sub Title"), p("ccc"))
     val defaultParagraphStyles = """font-family="serif" font-size="10pt" line-height="1.5" space-after="3mm" text-align="justify""""
@@ -125,8 +125,8 @@ class ParallelRendererSpec extends IOSpec
       .io(blocker)
       .parallel[IO]
       .withTheme(ThemeBuilder.forInputs(InputTree[IO]
-        .addTemplate(TemplateDocument(Root / "default.template.fo", FOTemplate.default))
-        .addStyles(FOTestStyles.defaults.styles, Root / "styles.fo.css", Precedence.Low)
+        .addTemplate(TemplateDocument(Root / "default.template.fo", TestTheme.foTemplate))
+        .addStyles(TestTheme.foStyles.styles, Root / "styles.fo.css", Precedence.Low)
         .build(DocumentTypeMatcher.base)))
       .build
   }
@@ -346,7 +346,7 @@ class ParallelRendererSpec extends IOSpec
             .parallel[IO]
             .withTheme(ThemeBuilder.forInputs(InputTree[IO]
               .addStyles(customThemeStyles, Root / "styles.fo.css")
-              .addTemplate(TemplateDocument(Root / "default.template.fo", FOTemplate.default))
+              .addTemplate(TemplateDocument(Root / "default.template.fo", TestTheme.foTemplate))
               .build(DocumentTypeMatcher.base)))
             .build
         val input = DocumentTree(Root, List(
