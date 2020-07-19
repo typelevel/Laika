@@ -16,9 +16,16 @@
 
 package laika.helium
 
+import cats.data.Kleisli
+import cats.effect.{Async, IO}
 import laika.ast.LengthUnit.pt
 import laika.ast.LengthUnit.cm
 import laika.ast.LengthUnit.mm
+import laika.ast.Path.Root
+import laika.ast.TemplateDocument
+import laika.bundle.{DocumentTypeMatcher, Precedence}
+import laika.io.model.InputTree
+import laika.io.theme.Theme
 
 /**
   * @author Jens Halm
@@ -28,7 +35,23 @@ case class Helium (fontResources: Seq[FontDefinition],
                    fontSizes: FontSizes,
                    colors: ColorSet,
                    webLayout: WebLayout,
-                   PDFLayout: PDFLayout)
+                   PDFLayout: PDFLayout) {
+  
+  def build[F[_]: Async]: Theme[F] = {
+    
+    val themeInputs = InputTree[F]
+      .addTemplate(TemplateDocument(Root / "default.template.fo", new FOTemplate(this).root))
+      .addStyles(new FOStyles(this).styles.styles , Root / "styles.fo.css", Precedence.Low)
+      .build(DocumentTypeMatcher.base)
+    
+    new Theme[F] {
+      def inputs = themeInputs
+      def extensions = Nil
+      def treeTransformer = Kleisli(Async[F].pure)
+    }
+  } 
+  
+}
 
 object Helium {
   

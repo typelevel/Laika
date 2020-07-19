@@ -137,10 +137,7 @@ class FOforPDFSpec extends IOSpec with FileIO {
       .of(FOTest)
       .io(blocker)
       .parallel[IO]
-      .withTheme(ThemeBuilder.forInputs(InputTree[IO]
-        .addTemplate(TemplateDocument(Root / "default.template.fo", TestTheme.foTemplate))
-        .addStyles(TestTheme.foStyles.styles, Root / "styles.fo.css", Precedence.Low)
-        .build(DocumentTypeMatcher.base)))
+      .withTheme(TestTheme.heliumTestProps.build)
       .build
     
     type Builder = TwoPhaseRendererBuilder[FOFormatter, BinaryPostProcessor]

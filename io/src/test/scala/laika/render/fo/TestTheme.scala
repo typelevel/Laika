@@ -20,7 +20,7 @@ import laika.helium.{FOStyles, FOTemplate, Helium, ThemeFonts}
 
 object TestTheme {
   
-  private lazy val heliumTestProps = Helium.defaults.copy(themeFonts = ThemeFonts("serif", "sans-serif", "monospaced"))
+  lazy val heliumTestProps = Helium.defaults.copy(themeFonts = ThemeFonts("serif", "sans-serif", "monospaced"))
   lazy val foStyles = new FOStyles(heliumTestProps).styles 
   lazy val foTemplate = new FOTemplate(heliumTestProps).root
   

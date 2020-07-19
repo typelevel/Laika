@@ -272,10 +272,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
         .using(BundleProvider.forStyleSheetParser(parser))
         .io(blocker)
         .parallel[IO]
-        .withTheme(ThemeBuilder.forInputs(InputTree[IO]
-          .addStyles(TestTheme.foStyles.styles, Root / "styles.fo.css", Precedence.Low)
-          .addTemplate(TemplateDocument(Root / "default.template.fo", TestTheme.foTemplate))
-          .build(DocumentTypeMatcher.base)))
+        .withTheme(TestTheme.heliumTestProps.build)
         .build
 
       val input = InputTree[IO]

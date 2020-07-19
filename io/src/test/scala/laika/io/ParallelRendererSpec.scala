@@ -24,7 +24,7 @@ import laika.api.Renderer
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
-import laika.bundle.{BundleOrigin, BundleProvider, DocumentTypeMatcher, Precedence}
+import laika.bundle.{BundleOrigin, BundleProvider, DocumentTypeMatcher}
 import laika.format._
 import laika.io.helper.OutputBuilder._
 import laika.io.helper.{InputBuilder, RenderResult, ThemeBuilder}
@@ -124,10 +124,7 @@ class ParallelRendererSpec extends IOSpec
       .of(XSLFO)
       .io(blocker)
       .parallel[IO]
-      .withTheme(ThemeBuilder.forInputs(InputTree[IO]
-        .addTemplate(TemplateDocument(Root / "default.template.fo", TestTheme.foTemplate))
-        .addStyles(TestTheme.foStyles.styles, Root / "styles.fo.css", Precedence.Low)
-        .build(DocumentTypeMatcher.base)))
+      .withTheme(TestTheme.heliumTestProps.build)
       .build
   }
 
