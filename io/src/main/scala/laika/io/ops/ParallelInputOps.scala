@@ -103,9 +103,7 @@ trait ParallelInputOps[F[_]] {
     *  @param codec the character encoding of the files, if not specified the platform default will be used.
     */
   def fromDirectories (roots: Seq[File], exclude: FileFilter)(implicit codec: Codec): Result =
-    fromInput {
-      DirectoryScanner.scanDirectories[F](DirectoryInput(roots, codec, config.docTypeMatcher, exclude))(F)
-    }
+    fromInput(InputTree[F](exclude)(F).addDirectories(roots))
 
   /**  Builder step that instructs the runtime to parse files from the
     *  current working directory.
@@ -128,6 +126,6 @@ trait ParallelInputOps[F[_]] {
     *
     *  @param input the input tree to process
     */
-  def fromInput(input: F[InputTree[F]]): Result
+  protected def fromInput(input: F[InputTree[F]]): Result
 
 }

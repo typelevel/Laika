@@ -19,16 +19,15 @@ package laika.sbt
 import java.util.concurrent.Executors
 
 import cats.effect.{Blocker, ContextShift, IO}
+import laika.api.builder.{OperationConfig, ParserBuilder}
 import laika.api.{MarkupParser, Transformer}
-import laika.api.builder.{BundleFilter, OperationConfig, ParserBuilder}
 import laika.factory.MarkupFormat
 import laika.format.{HTML, Markdown, PDF, ReStructuredText}
 import laika.io.implicits._
-import laika.io.model.DirectoryInput
-import laika.io.runtime.DirectoryScanner
+import laika.io.model.InputTree
 import laika.sbt.LaikaPlugin.autoImport._
 import org.apache.fop.apps.FopFactory
-import sbt.Keys.{artifact, artifactPath, excludeFilter, projectID, sourceDirectories, target}
+import sbt.Keys._
 import sbt._
 
 import scala.concurrent.ExecutionContext
@@ -80,12 +79,9 @@ object Settings {
       .withAlternativeParser(createParser(ReStructuredText))
       .build
 
-    val inputs = DirectoryScanner.scanDirectories[IO](DirectoryInput(
-      (sourceDirectories in Laika).value,
-      laikaConfig.value.encoding,
-      transformer.config.docTypeMatcher,
-      (excludeFilter in Laika).value.accept
-    ))
+    val inputs = InputTree
+      .apply[IO]((excludeFilter in Laika).value.accept _)
+      .addDirectories((sourceDirectories in Laika).value)(laikaConfig.value.encoding)
 
     transformer
       .fromInput(inputs)

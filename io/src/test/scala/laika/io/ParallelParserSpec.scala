@@ -160,13 +160,6 @@ class ParallelParserSpec extends IOSpec
         }
     }
       
-    def parsedWith (bundle: ExtensionBundle = ExtensionBundle.Empty, customMatcher: PartialFunction[Path, DocumentType] = PartialFunction.empty): IO[RootView] = {
-      val input = build(inputs, customMatcher.orElse({case path => docTypeMatcher(path)}))
-      parserWithBundle(bundle)
-        .fromInput(input)
-        .parse
-        .map(toView)
-    }
   }
   
 
@@ -535,9 +528,9 @@ class ParallelParserSpec extends IOSpec
       def useTheme: Boolean = false
       def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO]
       def build (builder: InputTreeBuilder[IO]): IO[InputTree[IO]] = builder.build(defaultParser.config.docTypeMatcher)
-      lazy val input: IO[InputTree[IO]] = 
-        if (useTheme) build(InputTree[IO].addDirectory(dirname))
-        else build(addDoc(InputTree[IO].addDirectory(dirname)))
+      lazy val input: InputTreeBuilder[IO] =
+        if (useTheme) InputTree[IO].addDirectory(dirname)
+        else addDoc(InputTree[IO].addDirectory(dirname))
       lazy val parser: ParallelParser[IO] = if (useTheme) defaultBuilder.withTheme(ThemeBuilder.forInputs(build(addDoc(InputTree[IO])))).build
         else defaultBuilder.build
       

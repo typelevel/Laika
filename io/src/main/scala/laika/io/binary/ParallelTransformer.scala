@@ -49,7 +49,7 @@ class ParallelTransformer[F[_]: Async: Runtime] (parsers: NonEmptyList[MarkupPar
     .reduceLeft[OperationConfig](_ merge _)
     .withBundles(theme.extensions)
 
-  def fromInput (input: F[InputTree[F]]): ParallelTransformer.OutputOps[F] = 
+  protected def fromInput (input: F[InputTree[F]]): ParallelTransformer.OutputOps[F] = 
     ParallelTransformer.OutputOps(parsers, renderer, theme, input, mapper)
 
 }

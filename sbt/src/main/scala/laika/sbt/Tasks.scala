@@ -25,7 +25,6 @@ import laika.factory.{BinaryPostProcessor, MarkupFormat, RenderFormat, TwoPhaseR
 import laika.format._
 import laika.io.implicits._
 import laika.io.model._
-import laika.io.runtime.DirectoryScanner
 import laika.sbt.LaikaPlugin.autoImport._
 import sbt.Keys._
 import sbt._
@@ -81,8 +80,9 @@ object Tasks {
       .withAlternativeParser(createParser(ReStructuredText))
       .build
 
-    val inputs = DirectoryScanner.scanDirectories[IO](DirectoryInput((sourceDirectories in Laika).value, userConfig.encoding, parser.config.docTypeMatcher,
-      (excludeFilter in Laika).value.accept))
+    val inputs = InputTree
+      .apply[IO]((excludeFilter in Laika).value.accept _)
+      .addDirectories((sourceDirectories in Laika).value)(laikaConfig.value.encoding)
 
     lazy val tree = {
       streams.value.log.info("Reading files from " + (sourceDirectories in Laika).value.mkString(", "))

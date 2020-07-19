@@ -46,7 +46,7 @@ class ParallelParser[F[_]: Async: Runtime] (parsers: NonEmptyList[MarkupParser],
     .reduceLeft[OperationConfig](_ merge _)
     .withBundles(theme.extensions)
 
-  def fromInput (input: F[InputTree[F]]): ParallelParser.Op[F] = ParallelParser.Op(parsers, theme, input)
+  protected def fromInput (input: F[InputTree[F]]): ParallelParser.Op[F] = ParallelParser.Op(parsers, theme, input)
 
 }
 

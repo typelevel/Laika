@@ -116,6 +116,10 @@ class InputTreeBuilder[F[_]](exclude: File => Boolean, steps: Vector[(Path => Do
   private def addParserResult (result: ParserResult): InputTreeBuilder[F] = addStep { _ =>
     Kleisli(tree => (tree + result).pure[F])
   }
+
+  def addDirectories (dirs: Seq[File])(implicit codec: Codec): InputTreeBuilder[F] = dirs.foldLeft(this) {
+    case (builder, dir) => builder.addDirectory(dir)
+  }
   
   def addDirectory (name: String)(implicit codec: Codec): InputTreeBuilder[F] = addDirectory(new File(name), Root)
   def addDirectory (name: String, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] = 
