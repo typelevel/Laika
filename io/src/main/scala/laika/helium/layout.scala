@@ -22,4 +22,5 @@ case class WebLayout (contentWidth: Size, navigationWidth: Size, defaultBlockSpa
 
 case class PDFLayout (pageWidth: Size, pageHeight: Size, 
                       marginTop: Size, marginRight: Size, marginBottom: Size, marginLeft: Size,
-                      defaultBlockSpacing: Size, defaultLineHeight: Double)
+                      defaultBlockSpacing: Size, defaultLineHeight: Double,
+                      bgColorNonBreakingLines: Int)

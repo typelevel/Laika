@@ -170,4 +170,6 @@ li.tab.active {
 .tab-content.active {
   display: block;
 }
-
+.keep-together {
+  page-break-inside: avoid;
+}

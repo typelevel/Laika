@@ -75,7 +75,8 @@ object Helium {
       marginBottom = cm(1),
       marginLeft = cm(2.5),
       defaultBlockSpacing = mm(3),
-      defaultLineHeight = 1.5
+      defaultLineHeight = 1.5,
+      bgColorNonBreakingLines = 12
     )
   )
   

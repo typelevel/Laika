@@ -219,8 +219,9 @@ class FOStyles (helium: Helium) {
   )
 
   private val keepStyles = Seq(
-    forStyleName("keepWithPrevious", "keep-with-previous" -> "always"),
-    forStyleName("keepWithNext", "keep-with-next" -> "always")
+    forStyleName("keepWithPrevious", "keep-with-previous" -> "always"), // TODO - avoid camel case
+    forStyleName("keepWithNext", "keep-with-next" -> "always"),
+    forStyleName("keep-together", "page-break-inside" -> "avoid")
   )
   
   private def decoratedSpan (textColor: Color, bgColorValue: Color): Seq[(String, String)] = Seq(
