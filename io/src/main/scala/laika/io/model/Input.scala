@@ -23,7 +23,7 @@ import cats.data.Kleisli
 import cats.effect.{Async, Resource}
 import laika.ast.Path.Root
 import laika.ast.{Document, DocumentTreeRoot, DocumentType, Navigatable, Path, StyleDeclaration, StyleDeclarationSet, TemplateDocument, TextDocumentType}
-import laika.bundle.DocumentTypeMatcher
+import laika.bundle.{DocumentTypeMatcher, Precedence}
 import laika.config.Config
 import laika.io.runtime.TreeResultBuilder.{ConfigResult, DocumentResult, ParserResult, StyleResult, TemplateResult}
 import laika.io.runtime.{DirectoryScanner, InputRuntime}
@@ -152,8 +152,8 @@ class InputTreeBuilder[F[_]](exclude: File => Boolean, steps: Vector[(Path => Do
   def addDocument (doc: Document): InputTreeBuilder[F] = addParserResult(DocumentResult(doc))
   def addTemplate (doc: TemplateDocument): InputTreeBuilder[F] = addParserResult(TemplateResult(doc))
   def addConfig (config: Config, treePath: Path): InputTreeBuilder[F] = addParserResult(ConfigResult(treePath, config))
-  def addStyles (styles: Set[StyleDeclaration], path: Path): InputTreeBuilder[F] = 
-    addParserResult(StyleResult(StyleDeclarationSet(Set(path), styles), "fo"))
+  def addStyles (styles: Set[StyleDeclaration], path: Path, precedence: Precedence = Precedence.High): InputTreeBuilder[F] = 
+    addParserResult(StyleResult(StyleDeclarationSet(Set(path), styles, precedence), "fo"))
   
   def build (docTypeMatcher: Path => DocumentType): F[InputTree[F]] = 
     steps

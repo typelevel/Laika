@@ -218,7 +218,9 @@ case class StyleDeclarationSet (paths: Set[Path], styles: Set[StyleDeclaration],
     val (lo, hi) = if (Ordering[Precedence].gt(this.precedence, set.precedence)) 
       (set.styles, this.styles) else (this.styles, set.styles)
     val maxOrder = if (lo.isEmpty) 0 else lo.maxBy(_.selector.order).selector.order + 1
-    new StyleDeclarationSet(paths ++ set.paths, lo ++ hi.map(_.increaseOrderBy(maxOrder)))
+    val mergedPrecedence = if (this.precedence == Precedence.Low && set.precedence == Precedence.Low) Precedence.Low
+                           else Precedence.High
+    new StyleDeclarationSet(paths ++ set.paths, lo ++ hi.map(_.increaseOrderBy(maxOrder)), mergedPrecedence)
   }
 
 }

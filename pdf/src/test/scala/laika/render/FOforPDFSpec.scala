@@ -20,17 +20,20 @@ import cats.effect.{Async, IO}
 import cats.implicits._
 import laika.api.Renderer
 import laika.api.builder.TwoPhaseRendererBuilder
-import laika.ast.{DocumentTreeRoot, TemplateRoot}
+import laika.ast.Path.Root
+import laika.ast.{DocumentTreeRoot, TemplateDocument, TemplateRoot}
+import laika.bundle.{DocumentTypeMatcher, Precedence}
 import laika.config.ConfigException
 import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
 import laika.format.{PDF, XSLFO}
 import laika.io.binary.ParallelRenderer
-import laika.io.helper.RenderResult
+import laika.io.helper.{RenderResult, ThemeBuilder}
 import laika.io.implicits._
-import laika.io.model.{BinaryOutput, RenderedTreeRoot}
+import laika.io.model.{BinaryOutput, InputTree, RenderedTreeRoot}
 import laika.io.runtime.Runtime
 import laika.io.{FileIO, IOSpec}
 import laika.render.FOFormatter.Preamble
+import laika.render.fo.FOTestStyles
 import laika.render.pdf.FOConcatenation
 
 
@@ -130,7 +133,15 @@ class FOforPDFSpec extends IOSpec with FileIO {
   
   trait Setup extends TreeModel with ResultModel {
     
-    lazy val renderer: ParallelRenderer[IO] = Renderer.of(FOTest).io(blocker).parallel[IO].build
+    lazy val renderer: ParallelRenderer[IO] = Renderer
+      .of(FOTest)
+      .io(blocker)
+      .parallel[IO]
+      .withTheme(ThemeBuilder.forInputs(InputTree[IO]
+        .addTemplate(TemplateDocument(Root / "default.template.fo", FOTemplate.default))
+        .addStyles(FOTestStyles.defaults.styles, Root / "styles.fo.css", Precedence.Low)
+        .build(DocumentTypeMatcher.base)))
+      .build
     
     type Builder = TwoPhaseRendererBuilder[FOFormatter, BinaryPostProcessor]
     
