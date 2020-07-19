@@ -25,7 +25,7 @@ import laika.rewrite.ReferenceResolver.CursorKeys
   */
 class FOTemplate (helium: Helium) {
 
-  private val layout = helium.PDFLayout
+  private val layout = helium.pdfLayout
   private val templateText = s"""<?xml version="1.0" encoding="utf-8"?>
                                |
                                |<fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:fox="http://xmlgraphics.apache.org/fop/extensions">

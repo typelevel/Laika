@@ -93,9 +93,9 @@ class FOStyles (helium: Helium) {
     "white-space-collapse" -> "false"
   )
 
-  private val defaultSpaceAfter = spaceAfter(helium.PDFLayout.defaultBlockSpacing)
-  private val largeSpaceAfter = spaceAfter(helium.PDFLayout.defaultBlockSpacing.scale(200)) // TODO - 0.16 - review need for this
-  private val defaultLineHeight = lineHeight(helium.PDFLayout.defaultLineHeight)
+  private val defaultSpaceAfter = spaceAfter(helium.pdfLayout.defaultBlockSpacing)
+  private val largeSpaceAfter = spaceAfter(helium.pdfLayout.defaultBlockSpacing.scale(200)) // TODO - 0.16 - review need for this
+  private val defaultLineHeight = lineHeight(helium.pdfLayout.defaultLineHeight)
   private val codeLineHeight = lineHeight(1.4)
   
   private val blockStyles = Seq(

@@ -22,7 +22,7 @@ import laika.ast.LengthUnit.pt
 import laika.ast.LengthUnit.cm
 import laika.ast.LengthUnit.mm
 import laika.ast.Path.Root
-import laika.ast.{Block, BlockContainer, BlockSequence, CodeBlock, DocumentCursor, Replace, Retain, RewriteRule, RewriteRules, SpanContainer, Styles, TemplateDocument}
+import laika.ast.{Block, BlockContainer, BlockSequence, CodeBlock, DocumentCursor, Replace, RewriteRules, SpanContainer, Styles, TemplateDocument}
 import laika.bundle.{BundleOrigin, DocumentTypeMatcher, ExtensionBundle, Precedence}
 import laika.io.model.InputTree
 import laika.io.theme.Theme
@@ -35,7 +35,7 @@ case class Helium (fontResources: Seq[FontDefinition],
                    fontSizes: FontSizes,
                    colors: ColorSet,
                    webLayout: WebLayout,
-                   PDFLayout: PDFLayout) {
+                   pdfLayout: PDFLayout) {
   
   def build[F[_]: Async]: Theme[F] = {
     
@@ -50,9 +50,9 @@ case class Helium (fontResources: Seq[FontDefinition],
     }.sum
     
     val rewriteRule: RewriteRules = RewriteRules.forBlocks {
-      case cb: CodeBlock if cb.extractText.count(_ == '\n') <= PDFLayout.bgColorNonBreakingLines =>
+      case cb: CodeBlock if cb.extractText.count(_ == '\n') <= pdfLayout.bgColorNonBreakingLines =>
         Replace(cb.mergeOptions(Styles("keep-together")))
-      case bs: BlockSequence if bs.options.styles.contains("callout") && estimateLines(bs.content) <= PDFLayout.bgColorNonBreakingLines =>
+      case bs: BlockSequence if bs.options.styles.contains("callout") && estimateLines(bs.content) <= pdfLayout.bgColorNonBreakingLines =>
         Replace(bs.mergeOptions(Styles("keep-together")))
     }
     
