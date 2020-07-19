@@ -24,18 +24,20 @@ import laika.api.{MarkupParser, Transformer}
 import laika.ast.DocumentType.Ignored
 import laika.ast.Path.Root
 import laika.ast._
-import laika.bundle.{BundleProvider, ExtensionBundle}
+import laika.bundle.{BundleProvider, DocumentTypeMatcher, ExtensionBundle, Precedence}
 import laika.directive.Templates
 import laika.format._
 import laika.io.descriptor.TransformerDescriptor
 import laika.io.helper.OutputBuilder._
 import laika.io.helper.{InputBuilder, RenderResult, ThemeBuilder}
 import laika.io.implicits._
-import laika.io.model.{StringTreeOutput, InputTree}
+import laika.io.model.{InputTree, StringTreeOutput}
 import laika.io.text.ParallelTransformer
 import laika.parse.Parser
 import laika.parse.code.SyntaxHighlighting
 import laika.parse.text.TextParsers
+import laika.render.FOTemplate
+import laika.render.fo.FOTestStyles
 import laika.rewrite.link.SlugBuilder
 import org.scalatest.Assertion
 
@@ -264,11 +266,21 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
       val inputs = Nil
 
       val result = RenderResult.fo.withDefaultTemplate("""<fo:block font-family="serif" font-size="13pt" line-height="1.5" space-after="3mm" text-align="justify">foo</fo:block>""")
-      val transformer = Transformer.from(Markdown).to(XSLFO).using(BundleProvider.forStyleSheetParser(parser)).io(blocker).parallel[IO].build
+      val transformer = Transformer
+        .from(Markdown)
+        .to(XSLFO)
+        .using(BundleProvider.forStyleSheetParser(parser))
+        .io(blocker)
+        .parallel[IO]
+        .withTheme(ThemeBuilder.forInputs(InputTree[IO]
+          .addStyles(FOTestStyles.defaults.styles, Root / "styles.fo.css", Precedence.Low)
+          .addTemplate(TemplateDocument(Root / "default.template.fo", FOTemplate.default))
+          .build(DocumentTypeMatcher.base)))
+        .build
 
       val input = InputTree[IO]
         .addString(Contents.name, Root / "doc1.md")
-        .addString(Contents.style, Root / "styles.fo.css")
+        .addString(Contents.style, Root / "custom-styles.fo.css")
       
       val renderResult = transformer
         .fromInput(input)

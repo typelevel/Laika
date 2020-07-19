@@ -21,7 +21,7 @@ import laika.parse.text.CharGroup
 /**
   * @author Jens Halm
   */
-sealed abstract class Color (displayValue: String) {
+sealed abstract class Color (val displayValue: String) {
   def validate: Option[String]
 }
 
@@ -49,10 +49,18 @@ object Color {
 }
 
 case class ColorSet (primary: Color, 
-                     primaryDarkShade: Color, 
-                     primaryLightShade: Color,  
-                     secondary: Color, 
+                     primaryDark: Color, 
+                     primaryLight: Color,  
+                     secondary: Color,
+                     messages: MessageColors,
                      syntaxHighlighting: SyntaxColors)
+
+case class MessageColors (info: Color, 
+                          infoLight: Color, 
+                          warning: Color, 
+                          warningLight: Color, 
+                          error: Color, 
+                          errorLight: Color)
 
 case class SyntaxColors (base: ColorQuintet, wheel: ColorQuintet)
 

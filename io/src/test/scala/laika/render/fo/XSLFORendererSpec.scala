@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package laika.render
+package laika.render.fo
 
-import cats.implicits._
 import cats.data.NonEmptySet
+import cats.implicits._
 import laika.api.Renderer
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
@@ -40,19 +40,19 @@ class XSLFORendererSpec extends AnyFlatSpec
   private val defaultParagraphStyles = """font-family="serif" font-size="10pt" line-height="1.5" space-after="3mm" text-align="justify""""
   private val ruleBlock = """<fo:block space-after="3mm"><fo:leader leader-length="100%" leader-pattern="rule" rule-style="solid" rule-thickness="2pt"></fo:leader></fo:block>""" 
   
-  def render (elem: Element): String = render(elem, FOStyles.default)
+  def render (elem: Element): String = render(elem, FOTestStyles.defaults)
 
   def render (elem: Element, style: StyleDeclaration): String = 
-    render(elem, FOStyles.default ++ StyleDeclarationSet(Path.Root, style))
+    render(elem, FOTestStyles.defaults ++ StyleDeclarationSet(Path.Root, style))
 
   def render (elem: Element, style: StyleDeclarationSet): String = 
     defaultRenderer.render(elem, Root, pathTranslator, style)
   
   def render (elem: Element, messageFilter: MessageFilter): String =
-    Renderer.of(XSLFO).renderMessages(messageFilter).build.render(elem, Root, pathTranslator, FOStyles.default)
+    Renderer.of(XSLFO).renderMessages(messageFilter).build.render(elem, Root, pathTranslator, FOTestStyles.defaults)
 
   def renderUnformatted (elem: Element): String = 
-    Renderer.of(XSLFO).unformatted.build.render(elem, Root, pathTranslator, FOStyles.default)
+    Renderer.of(XSLFO).unformatted.build.render(elem, Root, pathTranslator, FOTestStyles.defaults)
 
   val imageTarget = InternalTarget(Root / "foo.jpg", CurrentTree / "foo.jpg")
   
@@ -495,7 +495,7 @@ class XSLFORendererSpec extends AnyFlatSpec
     val caption = Caption(List(Text("caption")))
     val elem = Table(Row(BodyCell("a"),BodyCell("b")),Row(BodyCell("c"),BodyCell("d"))).copy(caption = caption)
     val fo = s"""<fo:block padding-left="20mm" padding-right="20mm" space-after="6mm">
-               |  <fo:block font-family="sans-serif" font-size="12pt" font-weight="bold" space-after="3mm">caption</fo:block>
+               |  <fo:block font-family="sans-serif" font-size="11pt" font-weight="bold" space-after="3mm">caption</fo:block>
                |  <fo:table $defaultTableProps>
                |    <fo:table-body>
                |      <fo:table-row $oddRowBg>
@@ -540,7 +540,7 @@ class XSLFORendererSpec extends AnyFlatSpec
   it should "render a titled block" in {
     val elem = TitledBlock(List(Text("some "), Emphasized("em"), Text(" text")), List(p("aaa"), Rule(), p("bbb")))
     val fo = s"""<fo:block padding-left="20mm" padding-right="20mm" space-after="6mm">
-               |  <fo:block font-family="sans-serif" font-size="12pt" font-weight="bold" space-after="3mm">some <fo:inline font-style="italic">em</fo:inline> text</fo:block>
+               |  <fo:block font-family="sans-serif" font-size="11pt" font-weight="bold" space-after="3mm">some <fo:inline font-style="italic">em</fo:inline> text</fo:block>
                |  <fo:block $defaultParagraphStyles>aaa</fo:block>
                |  $ruleBlock
                |  <fo:block $defaultParagraphStyles>bbb</fo:block>
@@ -586,7 +586,7 @@ class XSLFORendererSpec extends AnyFlatSpec
   it should "render a document with two nested sections" in {
     val nested = Section(Header(2, Text("Title 2")), List(p("Line 1"), p("Line 2")))
     val rootElem = root(Section(Header(1, Text("Title 1")), List(p("Line 1"), p("Line 2"))), nested)
-    val fo = s"""<fo:block font-family="sans-serif" font-size="16pt" font-weight="bold" keep-with-next="always" space-after="6mm" space-before="12mm">Title 1</fo:block>
+    val fo = s"""<fo:block font-family="sans-serif" font-size="14pt" font-weight="bold" keep-with-next="always" space-after="6mm" space-before="12mm">Title 1</fo:block>
                |<fo:block $defaultParagraphStyles>Line 1</fo:block>
                |<fo:block $defaultParagraphStyles>Line 2</fo:block>
                |<fo:block font-family="sans-serif" font-size="14pt" font-weight="bold" keep-with-next="always" space-after="3mm" space-before="7mm">Title 2</fo:block>

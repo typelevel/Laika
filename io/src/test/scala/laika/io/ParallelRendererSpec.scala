@@ -24,16 +24,17 @@ import laika.api.Renderer
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
-import laika.bundle.{BundleOrigin, BundleProvider, DocumentTypeMatcher}
+import laika.bundle.{BundleOrigin, BundleProvider, DocumentTypeMatcher, Precedence}
 import laika.format._
 import laika.io.helper.OutputBuilder._
 import laika.io.helper.{InputBuilder, RenderResult, ThemeBuilder}
 import laika.io.implicits._
-import laika.io.model.{StringTreeOutput, InputTree}
+import laika.io.model.{InputTree, StringTreeOutput}
 import laika.io.runtime.RendererRuntime.{DuplicatePath, RendererErrors}
 import laika.io.text.ParallelRenderer
 import laika.parse.markup.DocumentParser.{InvalidDocument, InvalidDocuments}
 import laika.render._
+import laika.render.fo.FOTestStyles
 import laika.rewrite.ReferenceResolver.CursorKeys
 
 import scala.io.Codec
@@ -108,9 +109,9 @@ class ParallelRendererSpec extends IOSpec
 
   trait FORenderer extends TreeRenderer[FOFormatter] {
     val customStyle: StyleDeclaration = StyleDeclaration(StylePredicate.ElementType("Paragraph"), "font-size" -> "11pt")
-    def foStyles (path: Path = Root): Map[String, StyleDeclarationSet] = 
+    def foStyles (path: Path): Map[String, StyleDeclarationSet] = 
       Map("fo" -> StyleDeclarationSet(path / "styles.fo.css", customStyle))
-    val themeStyles: Set[StyleDeclaration] = FOStyles.default.styles + customStyle.increaseOrderBy(1)
+    val customThemeStyles: Set[StyleDeclaration] = FOTestStyles.defaults.styles + customStyle.increaseOrderBy(1)
     val rootElem: RootElement = root(self.titleWithId("Title"), p("bbb"))
     val subElem: RootElement = root(self.titleWithId("Sub Title"), p("ccc"))
     val defaultParagraphStyles = """font-family="serif" font-size="10pt" line-height="1.5" space-after="3mm" text-align="justify""""
@@ -119,7 +120,15 @@ class ParallelRendererSpec extends IOSpec
     def title(id: String, text: String) =
       s"""<fo:block id="$id" color="#007c99" font-family="sans-serif" font-size="24pt" font-weight="bold" keep-with-next="always" space-after="6mm" space-before="0mm">$text</fo:block>"""
 
-    def renderer: ParallelRenderer[IO] = Renderer.of(XSLFO).io(blocker).parallel[IO].build
+    def renderer: ParallelRenderer[IO] = Renderer
+      .of(XSLFO)
+      .io(blocker)
+      .parallel[IO]
+      .withTheme(ThemeBuilder.forInputs(InputTree[IO]
+        .addTemplate(TemplateDocument(Root / "default.template.fo", FOTemplate.default))
+        .addStyles(FOTestStyles.defaults.styles, Root / "styles.fo.css", Precedence.Low)
+        .build(DocumentTypeMatcher.base)))
+      .build
   }
 
   "The parallel renderer" should {
@@ -336,7 +345,7 @@ class ParallelRendererSpec extends IOSpec
             .io(blocker)
             .parallel[IO]
             .withTheme(ThemeBuilder.forInputs(InputTree[IO]
-              .addStyles(themeStyles, Root / "styles.fo.css")
+              .addStyles(customThemeStyles, Root / "styles.fo.css")
               .addTemplate(TemplateDocument(Root / "default.template.fo", FOTemplate.default))
               .build(DocumentTypeMatcher.base)))
             .build
