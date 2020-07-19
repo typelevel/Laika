@@ -42,7 +42,7 @@ case class Helium (fontResources: Seq[FontDefinition],
     val themeInputs = InputTree[F]
       .addTemplate(TemplateDocument(Root / "default.template.fo", new FOTemplate(this).root))
       .addStyles(new FOStyles(this).styles.styles , Root / "styles.fo.css", Precedence.Low)
-      .build(DocumentTypeMatcher.base)
+      .build
     
     def estimateLines (blocks: Seq[Block]): Int = blocks.collect {
       case sp: SpanContainer => sp.extractText.length

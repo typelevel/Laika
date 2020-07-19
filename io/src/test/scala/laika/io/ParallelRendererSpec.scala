@@ -249,7 +249,7 @@ class ParallelRendererSpec extends IOSpec
         override lazy val renderer = Renderer.of(HTML).io(blocker).parallel[IO]
           .withTheme(ThemeBuilder.forInputs(InputTree[IO]
             .addTemplate(TemplateDocument(Root / "default.template.html", template))
-            .build(DocumentTypeMatcher.base))
+            .build)
           ).build
         val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
         val expected = """[<h1 id="title" class="title">Title</h1>
@@ -305,7 +305,7 @@ class ParallelRendererSpec extends IOSpec
             .parallel[IO]
             .withTheme(ThemeBuilder.forInputs(InputTree[IO]
               .addTemplate(TemplateDocument(Root / "default.template.epub.xhtml", template))
-              .build(DocumentTypeMatcher.base)))
+              .build))
             .build
         val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
         val expected = """[<h1 id="title" class="title">Title</h1>
@@ -344,7 +344,7 @@ class ParallelRendererSpec extends IOSpec
             .withTheme(ThemeBuilder.forInputs(InputTree[IO]
               .addStyles(customThemeStyles, Root / "styles.fo.css")
               .addTemplate(TemplateDocument(Root / "default.template.fo", TestTheme.foTemplate))
-              .build(DocumentTypeMatcher.base)))
+              .build))
             .build
         val input = DocumentTree(Root, List(
           Document(Root / "doc", rootElem),
@@ -398,7 +398,7 @@ class ParallelRendererSpec extends IOSpec
     "render a tree with a single static document from a theme" in new ASTRenderer with DocBuilder {
       val input = DocumentTree(Root, Nil)
       override def treeRoot = DocumentTreeRoot(input, staticDocuments = Seq(staticDoc(1).path))
-      val theme = ThemeBuilder.forInputs(InputTree[IO].addString("...", Root / "static1.txt").build(DocumentTypeMatcher.base))
+      val theme = ThemeBuilder.forInputs(InputTree[IO].addString("...", Root / "static1.txt").build)
       Renderer
         .of(AST)
         .io(blocker)

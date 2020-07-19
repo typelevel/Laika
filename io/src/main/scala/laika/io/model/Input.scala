@@ -155,6 +155,8 @@ class InputTreeBuilder[F[_]](exclude: File => Boolean, steps: Vector[(Path => Do
   def addStyles (styles: Set[StyleDeclaration], path: Path, precedence: Precedence = Precedence.High): InputTreeBuilder[F] = 
     addParserResult(StyleResult(StyleDeclarationSet(Set(path), styles, precedence), "fo"))
   
+  
+  def build: F[InputTree[F]] = build(DocumentTypeMatcher.base)
   def build (docTypeMatcher: Path => DocumentType): F[InputTree[F]] = 
     steps
       .map(_(docTypeMatcher))
