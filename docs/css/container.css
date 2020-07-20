@@ -3,10 +3,10 @@
 }
 
 body {
-  font-family: "Lato", sans-serif;
-  color: #5f5f5f;
-  font-size: 15px;
-  line-height: 1.5;
+  font-family: var(--body-font);
+  color: #5f5f5f; /* TODO */
+  font-size: var(--body-font-size);
+  line-height: var(--line-height);
   position: relative;
   padding-bottom: 40px;
   margin-top: 0;
@@ -29,11 +29,11 @@ main.content {
 
 @media (min-width: 1020px) {
   #container {
-    margin-left: 275px !important;
+    margin-left: var(--nav-width) !important;
     transition: margin .25s ease-out;
   }
   main.content {
-    max-width: 860px;
+    max-width: var(--content-width);
     padding: 15px 45px;
   }
 }
@@ -44,4 +44,3 @@ main.content {
     padding: 15px 310px 15px 45px;
   }
 }
-

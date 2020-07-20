@@ -1,6 +1,6 @@
 pre {
   display: block;
-  background-color: #2a3236;
+  background-color: var(--syntax-base1);
   border-radius: 5px;
   padding: 12px 9px 9px 15px;
   margin: 0 0 10px;
@@ -11,46 +11,46 @@ pre {
   white-space: pre-wrap;
 }
 code {
-  color: #006180;
+  font-family: var(--code-font);
+  color: var(--primary-color);
+  background-color: var(--primary-light);
   border: 1px solid #c3d6d8;
-  background-color: #ebf6f7;
   border-radius: 5px;
-  font-family: 'Fira Code', monospace;
   font-size: 13px;
   white-space: nowrap;
   padding: 1px 4px;
 }
 pre code {
+  font-size: var(--code-font-size);
+  color: var(--syntax-base5);
+  background-color: transparent;
   padding: 0;
   border: 0;
-  background-color: transparent;
   white-space: pre-wrap;
-  color: #e8e8e8;
-  font-size: 14px;
 }
 
 code .identifier {
-  color: #bddcee;
+  color: var(--syntax-base4);
 }
 code .tag-punctuation {
-  color: #b2adb4;
+  color: var(--syntax-base3);
 }
 code .comment, code .xml-cdata, code .markup-quote {
-  color: #8c878e;
+  color: var(--syntax-base2);
 }
 
 code .substitution, code .xml-processing-instruction, code .markup-emphasized, code .annotation {
-  color: #e28e93;
+  color: var(--syntax-wheel1);
 }
 code .keyword, code .escape-sequence, code .markup-headline {
-  color: #ef9725;
+  color: var(--syntax-wheel2);
 }
 code .attribute-name, .markup-link-target, code .declaration-name {
-  color: #ffc66d;
+  color: var(--syntax-wheel3);
 }
 code .number-literal, .string-literal, .literal-value, .boolean-literal, .char-literal, .symbol-literal, .regex-literal, .markup-link-text {
-  color: #7fb971;
+  color: var(--syntax-wheel4);
 }
 code .type-name, code .tag-name, code .xml-dtd-tag-name, code .markup-fence {
-  color: #4dbed4;
+  color: var(--syntax-wheel5);
 }

@@ -1,0 +1,62 @@
+:root {
+  --primary-color: #007c99;
+  --primary-light: #ebf6f7;
+  --secondary-color: #931813;
+  
+  --messages-info: #007c99;
+  --messages-info-light: #ebf6f7;
+  --messages-warning: #b1a400;
+  --messages-warning-light: #fcfacd;
+  --messages-error: #d83030;
+  --messages-error-light: #ffe9e3;
+  
+  --syntax-base1-fo: #F6F1EF;
+  --syntax-base2-fo: #AF9E84;
+  --syntax-base3-fo: #937F61;
+  --syntax-base4-fo: #645133;
+  --syntax-base5-fo: #362E21;
+
+  --syntax-wheel1-fo: #9A6799;
+  --syntax-wheel2-fo: #9F4C46;
+  --syntax-wheel3-fo: #A0742D;
+  --syntax-wheel4-fo: #7D8D4C;
+  --syntax-wheel5-fo: #6498AE;
+
+  --syntax-base1: #2a3236;
+  --syntax-base2: #8c878e;
+  --syntax-base3: #b2adb4;
+  --syntax-base4: #bddcee;
+  --syntax-base5: #e8e8e8;
+
+  --syntax-wheel1: #e28e93;
+  --syntax-wheel2: #ef9725;
+  --syntax-wheel3: #ffc66d;
+  --syntax-wheel4: #7fb971;
+  --syntax-wheel5: #4dbed4;
+  
+  --body-font: "Lato";
+  --header-font: "Lato";
+  --code-font-fo: "FiraCode";
+  --code-font: "Fira Code";
+  
+  --body-font-size-fo: 10pt;
+  --code-font-size-fo: 9pt;
+  --small-font-size-fo: 8pt;
+  --title-font-size-fo: 24pt;
+  --header2-font-size-fo: 14pt;
+  --header3-font-size-fo: 12pt;
+  --header4-font-size-fo: 11pt;
+
+  --body-font-size: 15px;
+  --code-font-size: 14px;
+  --small-font-size: 12px;
+  --title-font-size: 34px;
+  --header2-font-size: 28px;
+  --header3-font-size: 20px;
+  --header4-font-size: 15px;
+  
+  --content-width: 860px;
+  --nav-width: 275px;
+  --block-spacing: 10px;
+  --line-height: 1.5;
+}
