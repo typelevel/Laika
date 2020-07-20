@@ -17,8 +17,7 @@
 package laika.io.helper
 
 import laika.ast.{TemplateRoot, TemplateString}
-import laika.render.HTMLTemplate
-import laika.render.epub.{HtmlTemplate => EPUBTemplate}
+import laika.helium.generate.{EPUBTemplate}
 import laika.render.fo.TestTheme
 
 object RenderResult {
@@ -33,7 +32,7 @@ object RenderResult {
     
 
   object html {
-    def withDefaultTemplate(title: String, content: String): String = buildResult(HTMLTemplate.default, Seq(title, content))
+    def withDefaultTemplate(title: String, content: String): String = buildResult(TestTheme.htmlTemplate, Seq(title, content))
   }
 
   object epub {

@@ -24,7 +24,7 @@ import laika.api.Renderer
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
-import laika.bundle.{BundleOrigin, BundleProvider, DocumentTypeMatcher}
+import laika.bundle.{BundleOrigin, BundleProvider}
 import laika.format._
 import laika.io.helper.OutputBuilder._
 import laika.io.helper.{InputBuilder, RenderResult, ThemeBuilder}
@@ -148,7 +148,7 @@ class ParallelRendererSpec extends IOSpec
       new HTMLRenderer {
         val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
         val expected = RenderResult.html.withDefaultTemplate("Title", """<h1 id="title" class="title">Title</h1>
-          |      <p>bbb</p>""".stripMargin)
+          |        <p>bbb</p>""".stripMargin)
         renderedTree.assertEquals(RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(Root / "doc.html", expected))))))
       }
     }
@@ -263,7 +263,7 @@ class ParallelRendererSpec extends IOSpec
         val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)), Some(Document(Root / "README", rootElem)))
         override def treeRoot = DocumentTreeRoot(input, coverDocument = Some(Document(Root / "cover", rootElem)))
         val expected = RenderResult.html.withDefaultTemplate("Title", """<h1 id="title" class="title">Title</h1>
-                                                                        |      <p>bbb</p>""".stripMargin)
+                                                                        |        <p>bbb</p>""".stripMargin)
         renderedRoot.assertEquals(RenderedTreeViewRoot(
           RenderedTreeView(Root, List( 
             TitleDocument(RenderedDocumentView(Root / "index.html", expected)),

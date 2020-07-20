@@ -22,7 +22,7 @@ import laika.ast.LengthUnit.pt
 import laika.ast.LengthUnit.cm
 import laika.ast.LengthUnit.mm
 import laika.ast.Path.Root
-import laika.ast.{Block, BlockContainer, BlockSequence, CodeBlock, DocumentCursor, Replace, RewriteRules, SpanContainer, Style, Styles, TemplateDocument}
+import laika.ast.{Block, BlockContainer, BlockSequence, CodeBlock, DocumentCursor, Replace, RewriteRules, SpanContainer, Style, TemplateDocument}
 import laika.bundle.{BundleOrigin, ExtensionBundle, Precedence}
 import laika.format.HTML
 import laika.helium.generate.{FOStyles, FOTemplate}
@@ -82,7 +82,9 @@ case class Helium (fontResources: Seq[FontDefinition],
 object Helium {
   
   val defaults: Helium = Helium(
-    Nil, // TODO - define
+    Seq(
+      
+    ), // TODO - define
     ThemeFonts("Lato", "Lato", "FiraCode"),
     FontSizes(
       body = pt(10),

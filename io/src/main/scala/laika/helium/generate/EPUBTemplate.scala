@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package laika.render.epub
+package laika.helium.generate
 
 import laika.ast._
 import laika.directive.StandardDirectives.StyleLinks
@@ -24,7 +24,7 @@ import laika.rewrite.ReferenceResolver.CursorKeys
   *
   * @author Jens Halm
   */
-object HtmlTemplate {
+object EPUBTemplate {
   
   private val templateText = """<?xml version="1.0" encoding="UTF-8"?>
                                |<!DOCTYPE html>
