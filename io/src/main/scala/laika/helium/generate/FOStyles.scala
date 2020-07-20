@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package laika.helium
+package laika.helium.generate
 
 import laika.ast.StylePredicate.{ElementType, StyleName}
 import laika.ast._
-import LengthUnit._
 import laika.bundle.Precedence
+import laika.helium.{Color, Helium}
 import laika.parse.code.CodeCategory
 
 /** The default styles for PDF and XSL-FO output.

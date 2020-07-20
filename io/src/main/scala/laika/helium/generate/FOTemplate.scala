@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package laika.helium
+package laika.helium.generate
 
 import laika.ast._
+import laika.helium.Helium
 import laika.rewrite.ReferenceResolver.CursorKeys
 
 /** The default template for HTML renderers.

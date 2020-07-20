@@ -25,6 +25,7 @@ import laika.ast.Path.Root
 import laika.ast.{Block, BlockContainer, BlockSequence, CodeBlock, DocumentCursor, Replace, RewriteRules, SpanContainer, Styles, TemplateDocument}
 import laika.bundle.{BundleOrigin, ExtensionBundle, Precedence}
 import laika.format.HTML
+import laika.helium.generate.{FOStyles, FOTemplate}
 import laika.io.model.InputTree
 import laika.io.theme.Theme
 

@@ -24,10 +24,9 @@ import laika.api.{MarkupParser, Transformer}
 import laika.ast.DocumentType.Ignored
 import laika.ast.Path.Root
 import laika.ast._
-import laika.bundle.{BundleProvider, DocumentTypeMatcher, ExtensionBundle, Precedence}
+import laika.bundle.{BundleProvider, ExtensionBundle}
 import laika.directive.Templates
 import laika.format._
-import laika.helium.FOTemplate
 import laika.io.descriptor.TransformerDescriptor
 import laika.io.helper.OutputBuilder._
 import laika.io.helper.{InputBuilder, RenderResult, ThemeBuilder}

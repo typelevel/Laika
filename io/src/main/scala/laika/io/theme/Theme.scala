@@ -21,7 +21,8 @@ import cats.effect.Async
 import laika.ast.Path.Root
 import laika.ast.TemplateDocument
 import laika.bundle.ExtensionBundle
-import laika.helium.{FOStyles, FOTemplate, Helium}
+import laika.helium.generate.{FOStyles, FOTemplate}
+import laika.helium.Helium
 import laika.io.model.{InputTree, ParsedTree}
 import laika.io.runtime.TreeResultBuilder.{StyleResult, TemplateResult}
 import laika.render.HTMLTemplate
