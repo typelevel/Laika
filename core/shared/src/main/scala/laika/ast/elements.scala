@@ -1588,6 +1588,7 @@ object Style {
   val alignCenter: Options = Styles("align-center")
   val alignLeft: Options = Styles("align-left")
   val alignRight: Options = Styles("align-right")
+  val keepTogether: Options = Styles("keep-together")
   
   val citation: Options = Styles("citation")
   val footnote: Options = Styles("footnote")

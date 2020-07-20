@@ -22,7 +22,7 @@ import laika.ast.LengthUnit.pt
 import laika.ast.LengthUnit.cm
 import laika.ast.LengthUnit.mm
 import laika.ast.Path.Root
-import laika.ast.{Block, BlockContainer, BlockSequence, CodeBlock, DocumentCursor, Replace, RewriteRules, SpanContainer, Styles, TemplateDocument}
+import laika.ast.{Block, BlockContainer, BlockSequence, CodeBlock, DocumentCursor, Replace, RewriteRules, SpanContainer, Style, Styles, TemplateDocument}
 import laika.bundle.{BundleOrigin, ExtensionBundle, Precedence}
 import laika.format.HTML
 import laika.helium.generate.{FOStyles, FOTemplate}
@@ -39,6 +39,11 @@ case class Helium (fontResources: Seq[FontDefinition],
                    webLayout: WebLayout,
                    pdfLayout: PDFLayout) {
   
+  /*
+  def withFontFamilies (body: String, header: String, code: String) = withFontFamilies(EPUB, PDF, HTML)(...)
+  def withFontFamilies (format: RenderFormat[_], formats: RenderFormat[_]*)(body: String, header: String, code: String)
+   */
+  
   def build[F[_]: Async]: Theme[F] = {
     
     val themeInputs = InputTree[F]
@@ -53,9 +58,9 @@ case class Helium (fontResources: Seq[FontDefinition],
     
     val rewriteRule: RewriteRules = RewriteRules.forBlocks {
       case cb: CodeBlock if cb.extractText.count(_ == '\n') <= pdfLayout.bgColorNonBreakingLines =>
-        Replace(cb.mergeOptions(Styles("keep-together")))
+        Replace(cb.mergeOptions(Style.keepTogether))
       case bs: BlockSequence if bs.options.styles.contains("callout") && estimateLines(bs.content) <= pdfLayout.bgColorNonBreakingLines =>
-        Replace(bs.mergeOptions(Styles("keep-together")))
+        Replace(bs.mergeOptions(Style.keepTogether))
     }
     
     val bundle: ExtensionBundle = new ExtensionBundle {
