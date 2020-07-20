@@ -25,7 +25,7 @@ import laika.ast.Path.Root
 import laika.ast.{Block, BlockContainer, BlockSequence, CodeBlock, DocumentCursor, Replace, RewriteRules, SpanContainer, Style, TemplateDocument}
 import laika.bundle.{BundleOrigin, ExtensionBundle, Precedence}
 import laika.format.HTML
-import laika.helium.generate.{FOStyles, FOTemplate}
+import laika.helium.generate.{CSSVarGenerator, EPUBTemplate, FOStyles, FOTemplate, HTMLTemplate}
 import laika.io.model.InputTree
 import laika.io.theme.Theme
 
@@ -49,6 +49,7 @@ case class Helium (fontResources: Seq[FontDefinition],
     val themeInputs = InputTree[F]
       .addTemplate(TemplateDocument(Root / "default.template.fo", new FOTemplate(this).root))
       .addStyles(new FOStyles(this).styles.styles , Root / "styles.fo.css", Precedence.Low)
+      .addString(CSSVarGenerator.generate(this), Root / "css" / "vars.css")
       .build
     
     def estimateLines (blocks: Seq[Block]): Int = blocks.collect {
