@@ -18,13 +18,8 @@ package laika.io.theme
 
 import cats.data.Kleisli
 import cats.effect.Async
-import laika.ast.Path.Root
-import laika.ast.TemplateDocument
 import laika.bundle.ExtensionBundle
-import laika.helium.generate.{EPUBTemplate, FOStyles, FOTemplate, HTMLTemplate}
-import laika.helium.Helium
 import laika.io.model.{InputTree, ParsedTree}
-import laika.io.runtime.TreeResultBuilder.{StyleResult, TemplateResult}
 
 /**
   * @author Jens Halm
@@ -44,22 +39,6 @@ object Theme {
   def empty[F[_]: Async]: Theme[F] = new Theme[F] {
     def inputs: F[InputTree[F]] = Async[F].pure(InputTree.empty)
     def extensions: Seq[ExtensionBundle] = Nil
-    def treeTransformer: Kleisli[F, ParsedTree[F], ParsedTree[F]] = Kleisli(Async[F].pure)
-  }
-
-  def default[F[_]: Async]: Theme[F] = new Theme[F] {
-
-    def inputs: F[InputTree[F]] = Async[F].pure(InputTree[F](
-      parsedResults = Seq(
-        TemplateResult(TemplateDocument(Root / "default.template.html", new HTMLTemplate(Helium.defaults).root)),
-        TemplateResult(TemplateDocument(Root / "default.template.epub.xhtml", EPUBTemplate.default)),
-        TemplateResult(TemplateDocument(Root / "default.template.fo", new FOTemplate(Helium.defaults).root)),
-        StyleResult(new FOStyles(Helium.defaults).styles.copy(paths = Set(Root / "default.fo.css")), "fo")
-      )
-    ))
-
-    def extensions: Seq[ExtensionBundle] = Nil
-
     def treeTransformer: Kleisli[F, ParsedTree[F], ParsedTree[F]] = Kleisli(Async[F].pure)
   }
 

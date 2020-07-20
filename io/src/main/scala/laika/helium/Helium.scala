@@ -18,9 +18,7 @@ package laika.helium
 
 import cats.data.Kleisli
 import cats.effect.{Async, IO}
-import laika.ast.LengthUnit.pt
-import laika.ast.LengthUnit.cm
-import laika.ast.LengthUnit.mm
+import laika.ast.LengthUnit.{cm, mm, pt, px}
 import laika.ast.Path.Root
 import laika.ast.{Block, BlockContainer, BlockSequence, CodeBlock, DocumentCursor, Replace, RewriteRules, SpanContainer, Style, TemplateDocument}
 import laika.bundle.{BundleOrigin, ExtensionBundle, Precedence}
@@ -47,6 +45,8 @@ case class Helium (fontResources: Seq[FontDefinition],
   def build[F[_]: Async]: Theme[F] = {
     
     val themeInputs = InputTree[F]
+      .addTemplate(TemplateDocument(Root / "default.template.html", new HTMLTemplate(this).root))
+      .addTemplate(TemplateDocument(Root / "default.template.epub.xhtml", EPUBTemplate.default))
       .addTemplate(TemplateDocument(Root / "default.template.fo", new FOTemplate(this).root))
       .addStyles(new FOStyles(this).styles.styles , Root / "styles.fo.css", Precedence.Low)
       .addString(CSSVarGenerator.generate(this), Root / "css" / "vars.css")
@@ -58,9 +58,9 @@ case class Helium (fontResources: Seq[FontDefinition],
     }.sum
     
     val rewriteRule: RewriteRules = RewriteRules.forBlocks {
-      case cb: CodeBlock if cb.extractText.count(_ == '\n') <= pdfLayout.bgColorNonBreakingLines =>
+      case cb: CodeBlock if cb.extractText.count(_ == '\n') <= pdfLayout.keepTogetherDecoratedLines =>
         Replace(cb.mergeOptions(Style.keepTogether))
-      case bs: BlockSequence if bs.options.styles.contains("callout") && estimateLines(bs.content) <= pdfLayout.bgColorNonBreakingLines =>
+      case bs: BlockSequence if bs.options.styles.contains("callout") && estimateLines(bs.content) <= pdfLayout.keepTogetherDecoratedLines =>
         Replace(bs.mergeOptions(Style.keepTogether))
     }
     
@@ -82,6 +82,7 @@ case class Helium (fontResources: Seq[FontDefinition],
 
 object Helium {
   
+  // TODO - separate values per format where necessary
   val defaults: Helium = Helium(
     Seq(
       
@@ -118,7 +119,12 @@ object Helium {
         )
       )
     ),
-    WebLayout(null, null, null, 0.0, AnchorPlacement.Left), // TODO - define
+    WebLayout(
+      contentWidth = px(860), 
+      navigationWidth = px(275),
+      defaultBlockSpacing = px(10),
+      defaultLineHeight = 1.5, 
+      anchorPlacement = AnchorPlacement.Left),
     PDFLayout(
       pageWidth = cm(21), 
       pageHeight = cm(29.7), 
@@ -128,7 +134,7 @@ object Helium {
       marginLeft = cm(2.5),
       defaultBlockSpacing = mm(3),
       defaultLineHeight = 1.5,
-      bgColorNonBreakingLines = 12
+      keepTogetherDecoratedLines = 12
     )
   )
   

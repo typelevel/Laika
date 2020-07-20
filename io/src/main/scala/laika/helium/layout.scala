@@ -24,10 +24,10 @@ case class WebLayout (contentWidth: Size,
                       defaultLineHeight: Double,
                       anchorPlacement: AnchorPlacement)
 
-case class PDFLayout (pageWidth: Size, pageHeight: Size, 
+case class PDFLayout (pageWidth: Size, pageHeight: Size,
                       marginTop: Size, marginRight: Size, marginBottom: Size, marginLeft: Size,
                       defaultBlockSpacing: Size, defaultLineHeight: Double,
-                      bgColorNonBreakingLines: Int)
+                      keepTogetherDecoratedLines: Int)
 
 sealed trait AnchorPlacement
 

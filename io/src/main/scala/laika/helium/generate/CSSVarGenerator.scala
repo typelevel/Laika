@@ -44,9 +44,9 @@ object CSSVarGenerator {
       "syntax-wheel3" -> helium.colors.syntaxHighlighting.wheel.c3.displayValue,
       "syntax-wheel4" -> helium.colors.syntaxHighlighting.wheel.c4.displayValue,
       "syntax-wheel5" -> helium.colors.syntaxHighlighting.wheel.c5.displayValue,
-      "body-font" -> "\"" + helium.themeFonts.body + "\"",
-      "header-font" -> "\"" + helium.themeFonts.headlines + "\"",
-      "code-font" -> "\"" + helium.themeFonts.code + "\"",
+      "body-font" -> ("\"" + helium.themeFonts.body + "\""),
+      "header-font" -> ("\"" + helium.themeFonts.headlines + "\""),
+      "code-font" -> ("\"" + helium.themeFonts.code + "\""),
       "body-font-size" -> helium.fontSizes.body.displayValue,
       "code-font-size" -> helium.fontSizes.code.displayValue,
       "small-font-size" -> helium.fontSizes.small.displayValue,
@@ -57,7 +57,7 @@ object CSSVarGenerator {
       "content-width" -> helium.webLayout.contentWidth.displayValue,
       "nav-width" -> helium.webLayout.navigationWidth.displayValue,
       "block-spacing" -> helium.webLayout.defaultBlockSpacing.displayValue,
-      "line-height" -> helium.webLayout.defaultLineHeight
+      "line-height" -> helium.webLayout.defaultLineHeight.toString
     )
       .map { case (name, value) => 
         s"  --$name: $value;"

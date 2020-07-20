@@ -269,7 +269,8 @@ class ParallelRendererSpec extends IOSpec
             TitleDocument(RenderedDocumentView(Root / "index.html", expected)),
             DocumentViews(List(RenderedDocumentView(Root / "doc.html", expected)))
           )),
-          Some(RenderedDocumentView(Root / "cover.html", expected))
+          Some(RenderedDocumentView(Root / "cover.html", expected)),
+          Seq(Root / "css" / "vars.css")
         ))
       }
     }
@@ -392,7 +393,7 @@ class ParallelRendererSpec extends IOSpec
         .toOutput(StringTreeOutput)
         .render
         .map(RenderedTreeViewRoot.apply[IO])
-        .assertEquals(RenderedTreeViewRoot(RenderedTreeView(Root, Nil), staticDocuments = Seq(Root / "static1.txt")))
+        .assertEquals(RenderedTreeViewRoot(RenderedTreeView(Root, Nil), staticDocuments = Seq(Root / "static1.txt", Root / "css" / "vars.css")))
     }
 
     "render a tree with a single static document from a theme" in new ASTRenderer with DocBuilder {
@@ -462,7 +463,7 @@ class ParallelRendererSpec extends IOSpec
         .toOutput(StringTreeOutput)
         .render
         .map(RenderedTreeViewRoot.apply[IO])
-        .assertEquals(RenderedTreeViewRoot(expectedRendered, staticDocuments = expectedStatic))
+        .assertEquals(RenderedTreeViewRoot(expectedRendered, staticDocuments = expectedStatic :+ (Root / "css" / "vars.css")))
     }
     
     trait TwoPhaseRenderer {

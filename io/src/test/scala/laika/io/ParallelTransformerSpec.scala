@@ -106,6 +106,8 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
       val conf = "value: abc"
     }
     
+    val varsCss = Seq(Root / "css" / "vars.css")
+    
     val simpleResult: String = """RootElement - Blocks: 1
       |. Paragraph - Spans: 1
       |. . Text - 'foo'""".stripMargin
@@ -156,7 +158,8 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
           TitleDocument(RenderedDocumentView(Root / "index.txt", simpleResult)),
           docs((Root / "name.txt", simpleResult))
         )),
-        Some(RenderedDocumentView(Root / "cover.txt", simpleResult))
+        Some(RenderedDocumentView(Root / "cover.txt", simpleResult)),
+        varsCss
       ))
     }
 
@@ -178,7 +181,8 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
               )))
             )
           )),
-          Some(RenderedDocumentView(Root / "cover.txt", mappedResult))
+          Some(RenderedDocumentView(Root / "cover.txt", mappedResult)),
+          varsCss
         ))
     }
 
@@ -320,7 +324,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
       val inputs = Seq(
         Root / "omg.js" -> Contents.name
       )
-      transformTree.assertEquals(RenderedTreeViewRoot(RenderedTreeView(Root, Nil), staticDocuments = Seq(Root / "omg.js")))
+      transformTree.assertEquals(RenderedTreeViewRoot(RenderedTreeView(Root, Nil), staticDocuments = Seq(Root / "omg.js", Root / "css" / "vars.css")))
     }
     
     trait DocWithSection extends TreeTransformer {
@@ -371,7 +375,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
             (Root / "foo" / "bar.txt", refRes)
           )))
         )
-      ))))
+      )), staticDocuments = varsCss))
     }
     
     "transform a tree with an internal reference using the default slug builder" in new DocWithSection {
@@ -435,7 +439,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
             (Root / "dir2" / "doc6.txt", withTemplate1),
           )))
         )
-      )), staticDocuments = Seq(Root / "dir2" / "omg.js")))
+      )), staticDocuments = Seq(Root / "dir2" / "omg.js", Root / "css" / "vars.css")))
     }
 
     "describe a tree with all available file types and multiple markup formats" in new TreeTransformer {
@@ -465,6 +469,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
                        |  Support for user-defined reStructuredText directives (supplied by parser)
                        |  Standard directives for reStructuredText (supplied by parser)
                        |  Document Type Matcher for reStructuredText (supplied by parser)
+                       |  Helium Theme Rewrite Rules (supplied by theme)
                        |Settings:
                        |  Strict Mode: false
                        |  Accept Raw Content: false

@@ -21,10 +21,10 @@ import cats.data.{Kleisli, NonEmptyList}
 import cats.effect.{Async, Blocker, ContextShift}
 import laika.api.builder.{ParserBuilder, RendererBuilder, TransformerBuilder, TwoPhaseRendererBuilder, TwoPhaseTransformerBuilder}
 import laika.factory.BinaryPostProcessor
+import laika.helium.Helium
 import laika.io.ops.IOBuilderOps
 import laika.io.text.{ParallelParser, SequentialParser}
 import laika.io.runtime.Runtime
-import laika.io.theme.Theme
 
 /** Implicits that add an `io` method to all builder instances for parsers, renderers and transformers
   * from the laika-core module, adding support for file/stream IO, suspended in the effect of your choice.
@@ -115,7 +115,7 @@ object implicits {
 
         def parallel[F[_] : Async : ContextShift : Parallel] (parallelism: Int): ParallelParser.Builder[F] = {
           implicit val runtime: Runtime[F] = Runtime.parallel(blocker, parallelism)
-          new ParallelParser.Builder[F](NonEmptyList.of(builder.build), Theme.default)
+          new ParallelParser.Builder[F](NonEmptyList.of(builder.build), Helium.defaults.build)
         }
       }
   }
@@ -134,7 +134,7 @@ object implicits {
 
         def parallel[F[_] : Async : ContextShift : Parallel] (parallelism: Int): text.ParallelRenderer.Builder[F] = {
           implicit val runtime: Runtime[F] = Runtime.parallel(blocker, parallelism)
-          new text.ParallelRenderer.Builder[F](builder.build, Theme.default)
+          new text.ParallelRenderer.Builder[F](builder.build, Helium.defaults.build)
         }
       }
   }
@@ -153,7 +153,7 @@ object implicits {
 
         def parallel[F[_] : Async : ContextShift : Parallel] (parallelism: Int): binary.ParallelRenderer.Builder[F] = {
           implicit val runtime: Runtime[F] = Runtime.parallel(blocker, parallelism)
-          new binary.ParallelRenderer.Builder[F](builder.build, Theme.default)
+          new binary.ParallelRenderer.Builder[F](builder.build, Helium.defaults.build)
         }
       }
   }
@@ -174,7 +174,7 @@ object implicits {
           implicit val runtime: Runtime[F] = Runtime.parallel(blocker, parallelism)
           val transformer = builder.build
           new text.ParallelTransformer.Builder[F](
-            NonEmptyList.of(transformer.parser), transformer.renderer, Theme.default, Kleisli(Async[F].pure))
+            NonEmptyList.of(transformer.parser), transformer.renderer, Helium.defaults.build, Kleisli(Async[F].pure))
         }
       }
   }
@@ -195,7 +195,7 @@ object implicits {
           implicit val runtime: Runtime[F] = Runtime.parallel(blocker, parallelism)
           val transformer = builder.build
           new binary.ParallelTransformer.Builder[F](
-            NonEmptyList.of(transformer.markupParser), transformer.renderer, Theme.default, Kleisli(Async[F].pure))
+            NonEmptyList.of(transformer.markupParser), transformer.renderer, Helium.defaults.build, Kleisli(Async[F].pure))
         }
       }
   }

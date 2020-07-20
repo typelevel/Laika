@@ -24,6 +24,7 @@ import laika.api.Renderer
 import laika.ast.Path.Root
 import laika.ast._
 import laika.config.{ConfigError, ConfigException}
+import laika.helium.Helium
 import laika.io.binary
 import laika.io.text.ParallelRenderer
 import laika.io.text.SequentialRenderer
@@ -177,7 +178,7 @@ object RendererRuntime {
     */
   def run[F[_]: Async: Runtime] (op: binary.SequentialRenderer.Op[F]): F[Unit] = {
     val root = DocumentTreeRoot(DocumentTree(Root, Seq(Document(Root / "input", RootElement(SpanSequence(TemplateElement(op.input)))))))
-    val parOp = binary.ParallelRenderer.Op(op.renderer, Theme.default, root, op.output)
+    val parOp = binary.ParallelRenderer.Op(op.renderer, Helium.defaults.build, root, op.output)
     run(parOp)
   }
   
