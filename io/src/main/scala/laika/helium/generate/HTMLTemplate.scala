@@ -37,7 +37,7 @@ class HTMLTemplate (helium: Helium) {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
     <link rel="stylesheet" href="../icons/icofont.min.css">
     
-    TODO : title, description, keywords from metadata, move additional nav items to top bar
+    TODO : title, description, keywords from metadata, favicon from Helium config move additional nav items to top bar
    */
 
   private val templateText = s"""<!DOCTYPE html>

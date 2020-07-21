@@ -16,13 +16,14 @@
 
 package laika.helium
 
-import laika.ast.Size
+import laika.ast.{Path, Size}
 
 case class WebLayout (contentWidth: Size, 
                       navigationWidth: Size, 
                       defaultBlockSpacing: Size, 
                       defaultLineHeight: Double,
-                      anchorPlacement: AnchorPlacement)
+                      anchorPlacement: AnchorPlacement,
+                      favIcon32x32: Path)
 
 case class PDFLayout (pageWidth: Size, pageHeight: Size,
                       marginTop: Size, marginRight: Size, marginBottom: Size, marginLeft: Size,
