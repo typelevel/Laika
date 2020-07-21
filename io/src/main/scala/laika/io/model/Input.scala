@@ -139,6 +139,14 @@ class InputTreeBuilder[F[_]](exclude: File => Boolean, steps: Vector[(Path => Do
       case docType: TextDocumentType => _ + TextInput.fromFile[F](mountPoint, docType, file, codec)
     }
   
+  def addClasspathResource (name: String, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] = {
+    val stream = Async[F].delay(getClass.getClassLoader.getResourceAsStream(name)).flatMap { res =>
+      if (res != null) Async[F].pure(res)
+      else Async[F].raiseError[InputStream](new IOException(s"Classpath resource '$name' does not exist"))
+    }
+    addStream(stream, mountPoint)
+  }
+
   def addStream (stream: F[InputStream], mountPoint: Path, autoClose: Boolean = true)(implicit codec: Codec): InputTreeBuilder[F] =
     addStep(mountPoint) {
       case DocumentType.Static => 
