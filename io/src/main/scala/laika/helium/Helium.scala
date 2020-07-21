@@ -40,7 +40,7 @@ case class Helium (fontResources: Seq[FontDefinition],
   /*
   def withFontFamilies (body: String, header: String, code: String) = withFontFamilies(EPUB, PDF, HTML)(...)
   def withFontFamilies (format: RenderFormat[_], formats: RenderFormat[_]*)(body: String, header: String, code: String)
-   */
+  */
   
   def build[F[_]: Async]: Theme[F] = {
     
@@ -49,6 +49,11 @@ case class Helium (fontResources: Seq[FontDefinition],
       .addTemplate(TemplateDocument(Root / "default.template.epub.xhtml", EPUBTemplate.default))
       .addTemplate(TemplateDocument(Root / "default.template.fo", new FOTemplate(this).root))
       .addStyles(new FOStyles(this).styles.styles , Root / "styles.fo.css", Precedence.Low)
+      .addClasspathResource("laika/helium/css/container.css", Root / "css" / "container.css")
+      .addClasspathResource("laika/helium/css/content.css", Root / "css" / "content.css")
+      .addClasspathResource("laika/helium/css/nav.css", Root / "css" / "nav.css")
+      .addClasspathResource("laika/helium/css/code.css", Root / "css" / "code.css")
+      .addClasspathResource("laika/helium/css/toc.css", Root / "css" / "toc.css")
       .addString(CSSVarGenerator.generate(this), Root / "css" / "vars.css")
       .build
     

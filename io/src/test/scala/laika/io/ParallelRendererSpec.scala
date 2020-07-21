@@ -67,7 +67,7 @@ class ParallelRendererSpec extends IOSpec
   }
   
   trait TreeRenderer[FMT] {
-    
+
     def treeRoot: DocumentTreeRoot = DocumentTreeRoot(input)
     
     def input: DocumentTree
@@ -270,7 +270,7 @@ class ParallelRendererSpec extends IOSpec
             DocumentViews(List(RenderedDocumentView(Root / "doc.html", expected)))
           )),
           Some(RenderedDocumentView(Root / "cover.html", expected)),
-          Seq(Root / "css" / "vars.css")
+          TestTheme.staticPaths
         ))
       }
     }
@@ -393,7 +393,7 @@ class ParallelRendererSpec extends IOSpec
         .toOutput(StringTreeOutput)
         .render
         .map(RenderedTreeViewRoot.apply[IO])
-        .assertEquals(RenderedTreeViewRoot(RenderedTreeView(Root, Nil), staticDocuments = Seq(Root / "static1.txt", Root / "css" / "vars.css")))
+        .assertEquals(RenderedTreeViewRoot(RenderedTreeView(Root, Nil), staticDocuments = Seq(Root / "static1.txt") ++ TestTheme.staticPaths))
     }
 
     "render a tree with a single static document from a theme" in new ASTRenderer with DocBuilder {
@@ -463,7 +463,7 @@ class ParallelRendererSpec extends IOSpec
         .toOutput(StringTreeOutput)
         .render
         .map(RenderedTreeViewRoot.apply[IO])
-        .assertEquals(RenderedTreeViewRoot(expectedRendered, staticDocuments = expectedStatic :+ (Root / "css" / "vars.css")))
+        .assertEquals(RenderedTreeViewRoot(expectedRendered, staticDocuments = expectedStatic ++ TestTheme.staticPaths))
     }
     
     trait TwoPhaseRenderer {

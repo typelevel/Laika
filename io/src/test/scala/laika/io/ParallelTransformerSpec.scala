@@ -106,8 +106,6 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
       val conf = "value: abc"
     }
     
-    val varsCss = Seq(Root / "css" / "vars.css")
-    
     val simpleResult: String = """RootElement - Blocks: 1
       |. Paragraph - Spans: 1
       |. . Text - 'foo'""".stripMargin
@@ -159,7 +157,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
           docs((Root / "name.txt", simpleResult))
         )),
         Some(RenderedDocumentView(Root / "cover.txt", simpleResult)),
-        varsCss
+        TestTheme.staticPaths
       ))
     }
 
@@ -182,7 +180,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
             )
           )),
           Some(RenderedDocumentView(Root / "cover.txt", mappedResult)),
-          varsCss
+          TestTheme.staticPaths
         ))
     }
 
@@ -324,7 +322,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
       val inputs = Seq(
         Root / "omg.js" -> Contents.name
       )
-      transformTree.assertEquals(RenderedTreeViewRoot(RenderedTreeView(Root, Nil), staticDocuments = Seq(Root / "omg.js", Root / "css" / "vars.css")))
+      transformTree.assertEquals(RenderedTreeViewRoot(RenderedTreeView(Root, Nil), staticDocuments = Seq(Root / "omg.js") ++ TestTheme.staticPaths))
     }
     
     trait DocWithSection extends TreeTransformer {
@@ -375,7 +373,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
             (Root / "foo" / "bar.txt", refRes)
           )))
         )
-      )), staticDocuments = varsCss))
+      )), staticDocuments = TestTheme.staticPaths))
     }
     
     "transform a tree with an internal reference using the default slug builder" in new DocWithSection {
@@ -439,7 +437,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
             (Root / "dir2" / "doc6.txt", withTemplate1),
           )))
         )
-      )), staticDocuments = Seq(Root / "dir2" / "omg.js", Root / "css" / "vars.css")))
+      )), staticDocuments = Seq(Root / "dir2" / "omg.js") ++ TestTheme.staticPaths))
     }
 
     "describe a tree with all available file types and multiple markup formats" in new TreeTransformer {

@@ -16,6 +16,7 @@
 
 package laika.render.fo
 
+import laika.ast.Path.Root
 import laika.helium.generate.{FOStyles, FOTemplate, HTMLTemplate}
 import laika.helium.{Helium, ThemeFonts}
 
@@ -25,5 +26,13 @@ object TestTheme {
   lazy val foStyles = new FOStyles(heliumTestProps).styles 
   lazy val foTemplate = new FOTemplate(heliumTestProps).root
   lazy val htmlTemplate = new HTMLTemplate(heliumTestProps).root
+  val staticPaths = Seq(
+    Root / "css" / "container.css", 
+    Root / "css" / "content.css", 
+    Root / "css" / "nav.css", 
+    Root / "css" / "code.css", 
+    Root / "css" / "toc.css", 
+    Root / "css" / "vars.css"
+  )
   
 }

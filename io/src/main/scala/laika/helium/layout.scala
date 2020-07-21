@@ -23,7 +23,7 @@ case class WebLayout (contentWidth: Size,
                       defaultBlockSpacing: Size, 
                       defaultLineHeight: Double,
                       anchorPlacement: AnchorPlacement,
-                      favIcon32x32: Path)
+                      favIcon32x32: Option[Path] = None)
 
 case class PDFLayout (pageWidth: Size, pageHeight: Size,
                       marginTop: Size, marginRight: Size, marginBottom: Size, marginLeft: Size,
