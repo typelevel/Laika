@@ -80,14 +80,10 @@ object Tasks {
       .withAlternativeParser(createParser(ReStructuredText))
       .build
 
-    val inputs = InputTree
-      .apply[IO]((excludeFilter in Laika).value.accept _)
-      .addDirectories((sourceDirectories in Laika).value)(laikaConfig.value.encoding)
-
     lazy val tree = {
       streams.value.log.info("Reading files from " + (sourceDirectories in Laika).value.mkString(", "))
 
-      val tree = parser.fromInput(inputs).parse.unsafeRunSync()
+      val tree = parser.fromInput(laikaInputs.value.delegate).parse.unsafeRunSync()
 
       Logs.runtimeMessages(streams.value.log, tree.root, userConfig.logMessages)
 
@@ -141,7 +137,7 @@ object Tasks {
     }
 
     val cacheDir = streams.value.cacheDirectory / "laika"
-    val inputCollection = inputs.build(parser.config.docTypeMatcher).unsafeRunSync()
+    val inputCollection = laikaInputs.value.delegate.build(parser.config.docTypeMatcher).unsafeRunSync()
     streams.value.log.info(Logs.inputs(inputCollection))
     val inputFiles = collectInputFiles(inputCollection)
 
@@ -159,7 +155,7 @@ object Tasks {
           case OutputFormat.AST   => renderWithFormat(AST, (target in laikaAST).value, "Formatted AST")
           case OutputFormat.XSLFO => renderWithFormat(XSLFO, (target in laikaXSLFO).value, "XSL-FO")
           case OutputFormat.EPUB  => renderWithProcessor(EPUB, (artifactPath in laikaEPUB).value, "EPUB")
-          case OutputFormat.PDF   => renderWithProcessor(PDF.withFopFactory(fopFactory.value), (artifactPath in laikaPDF).value, "PDF")
+          case OutputFormat.PDF   => renderWithProcessor(fopFactory.value.fold[PDF](PDF)(PDF.withFopFactory), (artifactPath in laikaPDF).value, "PDF")
         }
       }
       fun(inputFiles)

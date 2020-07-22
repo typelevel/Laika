@@ -22,11 +22,10 @@ import cats.effect.{Blocker, ContextShift, IO}
 import laika.api.builder.{OperationConfig, ParserBuilder}
 import laika.api.{MarkupParser, Transformer}
 import laika.factory.MarkupFormat
-import laika.format.{HTML, Markdown, PDF, ReStructuredText}
+import laika.format.{HTML, Markdown, ReStructuredText}
 import laika.io.implicits._
-import laika.io.model.InputTree
+import laika.io.model.{InputTree, InputTreeBuilder}
 import laika.sbt.LaikaPlugin.autoImport._
-import org.apache.fop.apps.FopFactory
 import sbt.Keys._
 import sbt._
 
@@ -45,6 +44,12 @@ object Settings {
   lazy val blocker: Blocker = Blocker.liftExecutionContext(ExecutionContext.fromExecutor(Executors.newCachedThreadPool()))
 
 
+  val defaultInputs: Initialize[InputTreeBuilder[IO]] = setting {
+    InputTree
+      .apply[IO]((excludeFilter in Laika).value.accept _)
+      .addDirectories((sourceDirectories in Laika).value)(laikaConfig.value.encoding)
+  }
+  
   val describe: Initialize[String] = setting {
 
     val userConfig = laikaConfig.value

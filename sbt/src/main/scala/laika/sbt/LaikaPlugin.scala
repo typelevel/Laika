@@ -16,6 +16,7 @@
 
 package laika.sbt
 
+import cats.effect.IO
 import laika.bundle.ExtensionBundle
 import org.apache.fop.apps.FopFactory
 import sbt.Keys._
@@ -76,6 +77,8 @@ object LaikaPlugin extends AutoPlugin {
 
   object autoImport extends ExtensionBundles {
 
+    implicit class InputTreeBuilder (val delegate: laika.io.model.InputTreeBuilder[IO]) // settingKey macro does not accept HK types
+    
     val Laika             = sbt.config("laika")
 
 
@@ -99,6 +102,8 @@ object LaikaPlugin extends AutoPlugin {
     val laikaExtensions   = settingKey[Seq[ExtensionBundle]]("Custom extension bundles to use in each transformation")
 
     val laikaConfig       = settingKey[LaikaConfig]("Configuration options for all transformations")
+    
+    val laikaInputs       = settingKey[InputTreeBuilder]("Freely composed input tree, overriding sourceDirectories")
 
     @deprecated("custom fop factories are deprecated as this would bypass laika's font registration", "0.16.0")
     val fopFactory        = settingKey[Option[FopFactory]]("The FopFactory for the PDF renderer")
@@ -137,6 +142,7 @@ object LaikaPlugin extends AutoPlugin {
 
     laikaExtensions         := Nil,
     laikaConfig             := LaikaConfig(),
+    laikaInputs             := Settings.defaultInputs.value,
 
     laikaIncludeAPI         := false,
     laikaIncludeEPUB        := false,
