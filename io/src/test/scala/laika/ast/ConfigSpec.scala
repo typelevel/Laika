@@ -28,7 +28,7 @@ import laika.config.{ConfigValue, Field, LongValue, ObjectValue, Origin}
 import laika.format.{Markdown, ReStructuredText}
 import laika.io.{FileIO, IOSpec}
 import laika.io.implicits._
-import laika.io.model.{ParsedTree, InputTree}
+import laika.io.model.ParsedTree
 import laika.io.helper.{InputBuilder, ThemeBuilder}
 import laika.rewrite.TemplateRewriter
 

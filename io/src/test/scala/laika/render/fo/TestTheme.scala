@@ -18,7 +18,7 @@ package laika.render.fo
 
 import laika.ast.Path.Root
 import laika.helium.generate.{FOStyles, FOTemplate, HTMLTemplate}
-import laika.helium.{Helium, ThemeFonts}
+import laika.helium.{Font, FontDefinition, FontStyle, FontWeight, Helium, ThemeFonts}
 
 object TestTheme {
   
@@ -33,6 +33,11 @@ object TestTheme {
     Root / "css" / "code.css", 
     Root / "css" / "toc.css", 
     Root / "css" / "vars.css"
+  )
+  val fonts = Seq(
+    FontDefinition(Font.embedFile("/path/to/font-a.tff"), "Font-A", FontWeight.Normal, FontStyle.Normal),
+    FontDefinition(Font.embedResource("/path/to/font-b.tff"), "Font-B", FontWeight.Bold, FontStyle.Normal),
+    FontDefinition(Font.webCSS("http://fonts.com/font-c.css"), "Font-C", FontWeight.Normal, FontStyle.Italic)
   )
   
 }

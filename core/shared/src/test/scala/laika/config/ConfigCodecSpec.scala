@@ -21,7 +21,7 @@ import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.config.Config.ConfigResult
 import laika.rewrite.link.{ApiLinks, LinkConfig, TargetDefinition}
-import laika.rewrite.nav.{AutonumberConfig, BookConfig, ChoiceConfig, ChoiceGroupConfig, ChoiceGroupsConfig}
+import laika.rewrite.nav.{AutonumberConfig, ChoiceConfig, ChoiceGroupConfig, ChoiceGroupsConfig}
 import laika.time.PlatformDateFormat
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -105,66 +105,6 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
       val res = decode[DocumentMetadata](input)
       res.isLeft shouldBe true
       res.left.toOption.get.asInstanceOf[DecodingError].message should startWith("Invalid date format")
-    }
-
-  }
-
-  "The codec for BookConfig" should {
-
-    "decode an instance with all fields populated" in {
-      val input =
-        """{
-          |laika {
-          |  metadata {
-          |    identifier = XX-33-FF-01
-          |    authors = [ "Helen North", "Maria South" ]
-          |    language = en
-          |    date = "2002-10-10T12:00:00"
-          |  }
-          |  navigationDepth = 3
-          |  coverImage = cover.jpg
-          |}}
-        """.stripMargin
-      decode[BookConfig](input) shouldBe Right(BookConfig(
-        DocumentMetadata(
-          Some("XX-33-FF-01"),
-          Seq("Helen North", "Maria South"),
-          Some("en"),
-          Some(PlatformDateFormat.parse("2002-10-10T12:00:00").toOption.get)
-        ),
-        Some(3),
-        Some(Root / "cover.jpg")
-      ))
-    }
-
-    "decode an instance with some fields populated" in {
-      val input =
-        """{
-          |laika {
-          |  metadata {
-          |    identifier = XX-33-FF-01
-          |  }
-          |  navigationDepth = 3
-          |}}
-        """.stripMargin
-      decode[BookConfig](input) shouldBe Right(BookConfig(
-        DocumentMetadata(
-          Some("XX-33-FF-01")
-        ),
-        Some(3)
-      ))
-    }
-
-    "round-trip encode and decode" in {
-      val input = BookConfig(DocumentMetadata(Some("XX-33-FF-01")), Some(3), Some(Root / "cover.jpg"))
-      val encoded = ConfigBuilder.empty.withValue(testKey, input).build
-      decode[BookConfig](encoded) shouldBe Right(BookConfig(
-        DocumentMetadata(
-          Some("XX-33-FF-01")
-        ),
-        Some(3),
-        Some(Root / "cover.jpg")
-      ))
     }
 
   }

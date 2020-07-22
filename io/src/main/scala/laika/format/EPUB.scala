@@ -26,8 +26,10 @@ import laika.ast._
 import laika.config.Config.ConfigResult
 import laika.config.{Config, ConfigBuilder, ConfigDecoder, ConfigEncoder, ConfigException, DefaultKey, Key, LaikaKeys}
 import laika.factory.{BinaryPostProcessor, RenderContext, RenderFormat, TwoPhaseRenderFormat}
+import laika.helium.FontDefinition
 import laika.io.model.{BinaryOutput, RenderedTreeRoot}
 import laika.io.runtime.Runtime
+import laika.io.theme
 import laika.render.epub.{ContainerWriter, StyleSupport, XHTMLRenderer}
 import laika.render.{HTMLFormatter, XHTMLFormatter}
 
@@ -89,10 +91,12 @@ case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor
     *  
     * @param metadata the metadata associated with the document
     * @param navigationDepth the number of levels to generate a table of contents for
+    * @param fonts the fonts that should be embedded in the EPUB container
     * @param coverImage the path to the cover image within the virtual document tree   
     */
   case class BookConfig(metadata: DocumentMetadata = DocumentMetadata(),
                         navigationDepth: Option[Int] = None,
+                        fonts: Seq[FontDefinition] = Nil,
                         coverImage: Option[Path] = None) {
     lazy val identifier: String = metadata.identifier.getOrElse(s"urn:uuid:${UUID.randomUUID.toString}")
     lazy val date: Date = metadata.date.getOrElse(new Date)
@@ -102,21 +106,22 @@ case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor
   
   object BookConfig {
     
-    implicit val decoder: ConfigDecoder[BookConfig] = laika.rewrite.nav.BookConfig.decoder.map(c => BookConfig(
-      c.metadata, c.navigationDepth, c.coverImage
+    implicit val decoder: ConfigDecoder[BookConfig] = laika.io.theme.BookConfig.decoder.map(c => BookConfig(
+      c.metadata, c.navigationDepth, c.fonts, c.coverImage
     ))
-    implicit val encoder: ConfigEncoder[BookConfig] = laika.rewrite.nav.BookConfig.encoder.contramap(c => 
-      laika.rewrite.nav.BookConfig(c.metadata, c.navigationDepth, c.coverImage)
+    implicit val encoder: ConfigEncoder[BookConfig] = laika.io.theme.BookConfig.encoder.contramap(c => 
+      theme.BookConfig(c.metadata, c.navigationDepth, c.fonts, c.coverImage)
     )
     implicit val defaultKey: DefaultKey[BookConfig] = DefaultKey(Key("laika","epub"))
     
     def decodeWithDefaults (config: Config): ConfigResult[BookConfig] = for {
       epubConfig   <- config.getOpt[BookConfig].map(_.getOrElse(BookConfig()))
-      commonConfig <- config.getOpt[laika.rewrite.nav.BookConfig].map(_.getOrElse(laika.rewrite.nav.BookConfig()))
+      commonConfig <- config.getOpt[theme.BookConfig].map(_.getOrElse(theme.BookConfig()))
     } yield {
       BookConfig(
         epubConfig.metadata.withDefaults(commonConfig.metadata), 
         epubConfig.navigationDepth.orElse(commonConfig.navigationDepth),
+        epubConfig.fonts ++ commonConfig.fonts,
         epubConfig.coverImage.orElse(commonConfig.coverImage)
       )
     }

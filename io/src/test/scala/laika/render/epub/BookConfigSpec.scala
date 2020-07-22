@@ -21,6 +21,7 @@ import laika.ast.Path.Root
 import laika.config.Config.ConfigResult
 import laika.config.{Config, ConfigBuilder, ConfigDecoder, ConfigParser, Key}
 import laika.format.EPUB.BookConfig
+import laika.render.fo.TestTheme
 import laika.time.PlatformDateFormat
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -53,6 +54,9 @@ class BookConfigSpec extends AnyWordSpec with Matchers {
           |    language = en
           |    date = "2002-10-10T12:00:00"
           |  }
+          |  fonts = [
+          |    { family = Font-C, weight = normal, style = italic, webCSS = "http://fonts.com/font-c.css" }
+          |  ]
           |  navigationDepth = 3
           |  coverImage = cover.jpg
           |  epub {
@@ -60,6 +64,10 @@ class BookConfigSpec extends AnyWordSpec with Matchers {
           |      identifier = XX-33-FF-02
           |      author = "Maria South"
           |    }
+          |    fonts = [
+          |      { family = Font-A, weight = normal, style = normal, embedFile = /path/to/font-a.tff }
+          |      { family = Font-B, weight = bold, style = normal, embedResource = /path/to/font-b.tff }
+          |    ]
           |    navigationDepth = 4
           |  }
           |}}
@@ -72,18 +80,20 @@ class BookConfigSpec extends AnyWordSpec with Matchers {
           Some(PlatformDateFormat.parse("2002-10-10T12:00:00").toOption.get)
         ),
         Some(4),
+        TestTheme.fonts,
         Some(Root / "cover.jpg")
       ))
     }
 
     "round-trip encode and decode" in {
-      val input = BookConfig(DocumentMetadata(Some("XX-33-FF-01")), Some(3), Some(Root / "cover.jpg"))
+      val input = BookConfig(DocumentMetadata(Some("XX-33-FF-01")), Some(3), TestTheme.fonts, Some(Root / "cover.jpg"))
       val encoded = ConfigBuilder.empty.withValue(testKey, input).build
       decode[BookConfig](encoded) shouldBe Right(BookConfig(
         DocumentMetadata(
           Some("XX-33-FF-01")
         ),
         Some(3),
+        TestTheme.fonts,
         Some(Root / "cover.jpg")
       ))
     }

@@ -24,7 +24,7 @@ import laika.config._
 /**
   * @author Jens Halm
   */
-class Font private (val embedResource: Option[EmbeddedFont], val webCSS: Option[String]) {
+case class Font private (embedResource: Option[EmbeddedFont], webCSS: Option[String]) {
 
   def embedFile (name: String): Font = embedFile(new File(name))
   def embedFile (file: File): Font = new Font(Some(EmbeddedFontFile(file)), webCSS)
@@ -118,7 +118,7 @@ object FontDefinition {
       .withValue("weight", fd.weight.value)
       .withValue("style", fd.style.value)
       .withValue("embedResource", fd.resource.embedResource.collect { case EmbeddedFontResource(r) => r })
-      .withValue("embedFile", fd.resource.embedResource.collect { case EmbeddedFontFile(f) => f.getName })
+      .withValue("embedFile", fd.resource.embedResource.collect { case EmbeddedFontFile(f) => f.getPath })
       .withValue("webCSS", fd.resource.webCSS)
       .build
   }

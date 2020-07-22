@@ -14,72 +14,78 @@
  * limitations under the License.
  */
 
-package laika.render
+package laika.io.theme
 
 import laika.ast.DocumentMetadata
 import laika.ast.Path.Root
 import laika.config.Config.ConfigResult
-import laika.config.{Config, ConfigBuilder, ConfigDecoder, ConfigParser, Key}
-import laika.format.EPUB.BookConfig
+import laika.config._
 import laika.render.fo.TestTheme
 import laika.time.PlatformDateFormat
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
-
-class BookConfigSpec extends AnyWordSpec with Matchers {
+/**
+  * @author Jens Halm
+  */
+class ThemeConfigCodecSpec extends AnyWordSpec with Matchers {
 
   private val testKey = Key("test")
-  
-  def decode[T: ConfigDecoder] (input: String): ConfigResult[T] =
-    ConfigParser.parse(input).resolve().flatMap(_.get[T](Key.root))
+
+  def decode[T: ConfigDecoder: DefaultKey] (input: String): ConfigResult[T] =
+    ConfigParser.parse(input).resolve().flatMap(_.get[T])
 
   def decode[T: ConfigDecoder] (config: Config): ConfigResult[T] = config.get[T](testKey)
   
-  "The codec for PDF book configuration " should {
+  "The codec for BookConfig" should {
 
-    "decode defaults with an empty config" in {
-      BookConfig.decodeWithDefaults(Config.empty) shouldBe Right(BookConfig())
-    }
-    
-    "decode an instance with fallbacks" in {
+    "decode an instance with all fields populated" in {
       val input =
-        """{ 
+        """{
           |laika {
           |  metadata {
           |    identifier = XX-33-FF-01
-          |    author = "Helen North"
+          |    authors = [ "Helen North", "Maria South" ]
           |    language = en
           |    date = "2002-10-10T12:00:00"
           |  }
           |  fonts = [
+          |    { family = Font-A, weight = normal, style = normal, embedFile = /path/to/font-a.tff }
+          |    { family = Font-B, weight = bold, style = normal, embedResource = /path/to/font-b.tff }
           |    { family = Font-C, weight = normal, style = italic, webCSS = "http://fonts.com/font-c.css" }
           |  ]
           |  navigationDepth = 3
           |  coverImage = cover.jpg
-          |  epub {
-          |    metadata {
-          |      identifier = XX-33-FF-02
-          |      author = "Maria South"
-          |    }
-          |    fonts = [
-          |      { family = Font-A, weight = normal, style = normal, embedFile = /path/to/font-a.tff }
-          |      { family = Font-B, weight = bold, style = normal, embedResource = /path/to/font-b.tff }
-          |    ]
-          |    navigationDepth = 4
-          |  }
           |}}
         """.stripMargin
-      ConfigParser.parse(input).resolve().flatMap(BookConfig.decodeWithDefaults) shouldBe Right(BookConfig(
+      decode[BookConfig](input) shouldBe Right(BookConfig(
         DocumentMetadata(
-          Some("XX-33-FF-02"),
-          Seq("Maria South", "Helen North"),
+          Some("XX-33-FF-01"),
+          Seq("Helen North", "Maria South"),
           Some("en"),
           Some(PlatformDateFormat.parse("2002-10-10T12:00:00").toOption.get)
         ),
-        Some(4),
+        Some(3),
         TestTheme.fonts,
         Some(Root / "cover.jpg")
+      ))
+    }
+
+    "decode an instance with some fields populated" in {
+      val input =
+        """{
+          |laika {
+          |  metadata {
+          |    identifier = XX-33-FF-01
+          |  }
+          |  navigationDepth = 3
+          |}}
+        """.stripMargin
+      decode[BookConfig](input) shouldBe Right(BookConfig(
+        DocumentMetadata(
+          Some("XX-33-FF-01")
+        ),
+        Some(3)
       ))
     }
 
@@ -95,7 +101,7 @@ class BookConfigSpec extends AnyWordSpec with Matchers {
         Some(Root / "cover.jpg")
       ))
     }
-    
+
   }
-  
+
 }

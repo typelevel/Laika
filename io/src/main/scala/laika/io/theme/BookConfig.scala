@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-package laika.rewrite.nav
+package laika.io.theme
 
 import laika.ast.{DocumentMetadata, Path}
 import laika.config.{ConfigDecoder, ConfigEncoder, DefaultKey, LaikaKeys}
+import laika.helium.FontDefinition
 
 /**
   * @author Jens Halm
   */
 case class BookConfig (metadata: DocumentMetadata = DocumentMetadata(), 
                        navigationDepth: Option[Int] = None,
+                       fonts: Seq[FontDefinition] = Nil,
                        coverImage: Option[Path] = None) 
 
 object BookConfig {
@@ -31,16 +33,18 @@ object BookConfig {
   implicit val decoder: ConfigDecoder[BookConfig] = ConfigDecoder.config.flatMap { config =>
     for {
       metadata   <- config.get[DocumentMetadata](LaikaKeys.metadata.local, DocumentMetadata())
+      fonts      <- config.get[Seq[FontDefinition]]("fonts", Nil)
       depth      <- config.getOpt[Int]("navigationDepth")
       coverImage <- config.getOpt[Path]("coverImage")
     } yield {
-      BookConfig(metadata, depth, coverImage)
+      BookConfig(metadata, depth, fonts, coverImage)
     }
   }
   implicit val encoder: ConfigEncoder[BookConfig] = ConfigEncoder[BookConfig] { bc =>
     ConfigEncoder.ObjectBuilder.empty
       .withValue(LaikaKeys.metadata.local, bc.metadata)
       .withValue("navigationDepth", bc.navigationDepth)
+      .withValue("fonts", bc.fonts)
       .withValue("coverImage", bc.coverImage)
       .build
   }
