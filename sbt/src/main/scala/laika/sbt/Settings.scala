@@ -44,13 +44,6 @@ object Settings {
 
   lazy val blocker: Blocker = Blocker.liftExecutionContext(ExecutionContext.fromExecutor(Executors.newCachedThreadPool()))
 
-  /** The FOP factory to use when producing PDF documents.
-    */
-  val fopFactory: Initialize[FopFactory] = setting {
-    fopConfig.value map {
-      FopFactory.newInstance
-    } getOrElse PDF.defaultFopFactory
-  }
 
   val describe: Initialize[String] = setting {
 

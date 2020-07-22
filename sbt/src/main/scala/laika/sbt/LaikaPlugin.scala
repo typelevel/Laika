@@ -100,9 +100,8 @@ object LaikaPlugin extends AutoPlugin {
 
     val laikaConfig       = settingKey[LaikaConfig]("Configuration options for all transformations")
 
-    val fopFactory        = settingKey[FopFactory]("The FopFactory for the PDF renderer")
-
-    val fopConfig         = settingKey[Option[File]]("The Apache FOP configuration file for the PDF renderer")
+    @deprecated("custom fop factories are deprecated as this would bypass laika's font registration", "0.16.0")
+    val fopFactory        = settingKey[Option[FopFactory]]("The FopFactory for the PDF renderer")
 
 
     val laikaIncludeAPI   = settingKey[Boolean]("Indicates whether API documentation should be copied to the site")
@@ -143,8 +142,7 @@ object LaikaPlugin extends AutoPlugin {
     laikaIncludeEPUB        := false,
     laikaIncludePDF         := false,
 
-    fopConfig               := None,
-    fopFactory              := Settings.fopFactory.value,
+    fopFactory              := None,
 
     laikaSite               := Def.sequential(Tasks.site, Tasks.copy).value,
     laikaGenerate           := Tasks.generate.evaluated,
