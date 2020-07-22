@@ -156,7 +156,7 @@ case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor
    *  - Metadata and navigation files as required by the EPUB specification, auto-generated from the document tree
    *    and the configuration of this instance.
    */
-  val postProcessor: BinaryPostProcessor = new BinaryPostProcessor {
+  def postProcessor (config: Config): BinaryPostProcessor = new BinaryPostProcessor {
     def process[F[_] : Async: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput[F]): F[Unit] = writer.write(result, output)
   }
   

@@ -18,6 +18,7 @@ package laika.format
 
 import cats.effect.Async
 import laika.ast.DocumentTreeRoot
+import laika.config.Config
 import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
 import laika.io.model.{BinaryOutput, RenderedDocument, RenderedTree, RenderedTreeRoot}
 import laika.io.runtime.Runtime
@@ -29,7 +30,7 @@ object TestRenderResultProcessor extends TwoPhaseRenderFormat[TextFormatter, Bin
 
   def prepareTree (tree: DocumentTreeRoot): Either[Throwable, DocumentTreeRoot] = Right(tree)
 
-  object postProcessor extends BinaryPostProcessor {
+  def postProcessor (config: Config): BinaryPostProcessor = new BinaryPostProcessor {
     
     override def process[F[_] : Async: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput[F]): F[Unit] = {
       

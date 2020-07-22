@@ -20,16 +20,14 @@ import cats.effect.{Async, IO}
 import cats.implicits._
 import laika.api.Renderer
 import laika.api.builder.TwoPhaseRendererBuilder
-import laika.ast.Path.Root
-import laika.ast.{DocumentTreeRoot, TemplateDocument, TemplateRoot}
-import laika.bundle.{DocumentTypeMatcher, Precedence}
-import laika.config.ConfigException
+import laika.ast.{DocumentTreeRoot, TemplateRoot}
+import laika.config.{Config, ConfigException}
 import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
 import laika.format.{PDF, XSLFO}
 import laika.io.binary.ParallelRenderer
-import laika.io.helper.{RenderResult, ThemeBuilder}
+import laika.io.helper.RenderResult
 import laika.io.implicits._
-import laika.io.model.{BinaryOutput, InputTree, RenderedTreeRoot}
+import laika.io.model.{BinaryOutput, RenderedTreeRoot}
 import laika.io.runtime.Runtime
 import laika.io.{FileIO, IOSpec}
 import laika.render.FOFormatter.Preamble
@@ -51,7 +49,7 @@ class FOforPDFSpec extends IOSpec with FileIO {
         doc.copy(content = doc.content.copy(content = preamble +: doc.content.content))
       })
 
-    object postProcessor extends BinaryPostProcessor {
+    def postProcessor (config: Config): BinaryPostProcessor = new BinaryPostProcessor {
 
       override def process[F[_]: Async: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput[F]): F[Unit] = {
 

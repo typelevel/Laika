@@ -100,7 +100,7 @@ class PDF private(val interimFormat: RenderFormat[FOFormatter], fopFactory: Opti
   /** Processes the interim XSL-FO result, transforms it to PDF and writes
     * it to the specified final output.
     */
-  val postProcessor: BinaryPostProcessor = new BinaryPostProcessor {
+  def postProcessor (config: Config): BinaryPostProcessor = new BinaryPostProcessor {
     override def process[F[_]: Async: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput[F]): F[Unit] = {
       
       val title = result.title.map(_.extractText)

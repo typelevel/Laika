@@ -69,7 +69,7 @@ class TwoPhaseRendererBuilder[FMT, PP] (val twoPhaseFormat: TwoPhaseRenderFormat
   def build: TwoPhaseRenderer[PP] = TwoPhaseRenderer(
     new RendererBuilder(renderFormat, config).build,
     twoPhaseFormat.prepareTree,
-    twoPhaseFormat.postProcessor,
+    twoPhaseFormat.postProcessor(config.baseConfig),
     twoPhaseFormat.description
   )
 

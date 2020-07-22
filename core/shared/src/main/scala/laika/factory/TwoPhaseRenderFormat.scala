@@ -17,6 +17,7 @@
 package laika.factory
 
 import laika.ast.DocumentTreeRoot
+import laika.config.Config
 
 /** Render format based on a render phase for an interim result and a post processor.
   * 
@@ -46,6 +47,6 @@ trait TwoPhaseRenderFormat[FMT, PP] {
 
   /** Post processor that produces the final result based on the interim format.
    */
-  def postProcessor: PP
+  def postProcessor (config: Config): PP
   
 }
