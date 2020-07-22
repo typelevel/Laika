@@ -19,6 +19,7 @@ package laika.helium
 import java.io.File
 
 import laika.ast.Size
+import laika.config._
 
 /**
   * @author Jens Halm
@@ -42,10 +43,16 @@ object Font {
   def embedResource (name: String): Font = new Font(Some(EmbeddedFontResource(name)), None)
   def webCSS (url: String): Font = new Font(None, Some(url))
   
+  private[laika] def create (embedResource: Option[String], embedFile: Option[String], webCSS: Option[String]): Option[Font] =
+    (embedResource, embedFile, webCSS) match {
+      case (None, None, None) => None
+      case (_, Some(file), _) => Some(new Font(Some(EmbeddedFontFile(new File(file))), webCSS))
+      case (Some(res), _, _) => Some(new Font(Some(EmbeddedFontResource(res)), webCSS))
+      case _ => Some(new Font(None, webCSS))
+    }
 }
 
 sealed trait EmbeddedFont
-
 case class EmbeddedFontFile (file: File) extends EmbeddedFont
 case class EmbeddedFontResource (name: String) extends EmbeddedFont
 
@@ -64,6 +71,10 @@ object FontWeight {
   object `700` extends FontWeight("700")
   object `800` extends FontWeight("800")
   object `900` extends FontWeight("900")
+
+  private val all: Map[String, FontWeight] =
+    Seq(Bold, Normal, `100`, `200`, `300`, `400`, `500`, `600`, `700`, `800`, `900`).map(u => (u.value, u)).toMap
+  def fromString (value: String): Option[FontWeight] = all.get(value)
   
 }
 
@@ -74,9 +85,46 @@ object FontStyle {
   object Normal extends FontStyle("normal")
   object Italic extends FontStyle("italic")
   
+  def fromString (value: String): Option[FontStyle] = value match {
+    case "normal" => Some(Normal)
+    case "italic" => Some(Italic)
+    case _ => None
+  } 
+  
 }
 
 case class FontDefinition (resource: Font, family: String, weight: FontWeight, style: FontStyle)
+
+object FontDefinition {
+
+  implicit val decoder: ConfigDecoder[FontDefinition] = ConfigDecoder.config.flatMap { config =>
+    for {
+      family    <- config.get[String]("family")
+      weightStr <- config.get[String]("weight")
+      weight    <- FontWeight.fromString(weightStr).toRight(DecodingError(s"Invalid value for fontWeight: '$weightStr'"))
+      styleStr  <- config.get[String]("style")
+      style     <- FontStyle.fromString(styleStr).toRight(DecodingError(s"Invalid value for fontStyle: '$styleStr'"))
+      embedRes  <- config.getOpt[String]("embedResource")
+      embedFile <- config.getOpt[String]("embedFile")
+      webCSS    <- config.getOpt[String]("webCSS")
+      font      <- Font.create(embedRes, embedFile, webCSS).toRight(DecodingError("At least one of embedFile, embedResource or webCSS must be defined for Font"))
+    } yield {
+      FontDefinition(font, family, weight, style)
+    }
+  }
+  implicit val encoder: ConfigEncoder[FontDefinition] = ConfigEncoder[FontDefinition] { fd =>
+    ConfigEncoder.ObjectBuilder.empty
+      .withValue("family", fd.family)
+      .withValue("weight", fd.weight.value)
+      .withValue("style", fd.style.value)
+      .withValue("embedResource", fd.resource.embedResource.collect { case EmbeddedFontResource(r) => r })
+      .withValue("embedFile", fd.resource.embedResource.collect { case EmbeddedFontFile(f) => f.getName })
+      .withValue("webCSS", fd.resource.webCSS)
+      .build
+  }
+  implicit val defaultKey: DefaultKey[FontDefinition] = DefaultKey(LaikaKeys.root.child("fonts"))
+  
+}
 
 case class ThemeFonts private (body: String, headlines: String, code: String)
 
