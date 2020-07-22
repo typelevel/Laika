@@ -49,6 +49,7 @@ class BookConfigSpec extends AnyWordSpec with Matchers {
         """{
           |laika {
           |  metadata {
+          |    description = "Undescribable"
           |    identifier = XX-33-FF-01
           |    author = "Helen North"
           |    language = en
@@ -61,6 +62,7 @@ class BookConfigSpec extends AnyWordSpec with Matchers {
           |  coverImage = cover.jpg
           |  epub {
           |    metadata {
+          |      title = "Hell is around the corner"
           |      identifier = XX-33-FF-02
           |      author = "Maria South"
           |    }
@@ -74,6 +76,8 @@ class BookConfigSpec extends AnyWordSpec with Matchers {
         """.stripMargin
       ConfigParser.parse(input).resolve().flatMap(BookConfig.decodeWithDefaults) shouldBe Right(BookConfig(
         DocumentMetadata(
+          Some("Hell is around the corner"),
+          Some("Undescribable"),
           Some("XX-33-FF-02"),
           Seq("Maria South", "Helen North"),
           Some("en"),

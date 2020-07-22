@@ -33,6 +33,12 @@ class HTMLTemplate (helium: Helium) {
   } // TODO - combine this with the @:styleLinks directive
   
   /*
+  
+  <meta name="author" content="......"/>
+  
+  <link rel="icon" type="image/png" href="/img/favicon.png"/>
+  <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon32x32.png"/>
+  
     <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>  
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
     <link rel="stylesheet" href="../icons/icofont.min.css">
@@ -45,12 +51,12 @@ class HTMLTemplate (helium: Helium) {
    |  <head>
    |    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
    |    <meta charset="utf-8">
+   |    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
    |
-   |    <title>Laika</title>
+   |    <title>$${cursor.currentDocument.title}</title>
    |
    |    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    |    <meta name="description" content="Customizable and extensible toolkit for transforming lightweight markup languages to various types of output formats, written in Scala" />
-   |    <meta name="keywords" content="scala, text, markup, markdown, restructuredtext, parser, transformer, html, pdf, epub, template engine, site generation, e-book generation, open-source" />
    |
    |    $fontCSS
    |    <link href="../css/vars.css" rel="stylesheet">

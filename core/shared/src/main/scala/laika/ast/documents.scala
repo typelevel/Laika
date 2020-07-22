@@ -180,11 +180,18 @@ case class SectionInfo (id: String, title: SpanSequence, content: Seq[SectionInf
 
 /** Metadata associated with a document.
   */
-case class DocumentMetadata (identifier: Option[String] = None, authors: Seq[String] = Nil, language: Option[String] = None, date: Option[Date] = None) {
+case class DocumentMetadata (title: Option[String] = None,
+                             description: Option[String] = None,
+                             identifier: Option[String] = None, 
+                             authors: Seq[String] = Nil, 
+                             language: Option[String] = None, 
+                             date: Option[Date] = None) {
 
   /** Populates all empty Options in this instance with the provided defaults in case they are non-empty
     */
   def withDefaults (defaults: DocumentMetadata): DocumentMetadata = DocumentMetadata(
+    title.orElse(defaults.title),
+    description.orElse(defaults.description),
     identifier.orElse(defaults.identifier),
     authors ++ defaults.authors,
     language.orElse(defaults.language),
@@ -197,17 +204,21 @@ object DocumentMetadata {
   
   implicit val decoder: ConfigDecoder[DocumentMetadata] = ConfigDecoder.config.flatMap { config =>
     for {
+      title       <- config.getOpt[String]("title")
+      description <- config.getOpt[String]("description")
       identifier <- config.getOpt[String]("identifier")
       author     <- config.getOpt[String]("author")
       authors    <- config.get[Seq[String]]("authors", Nil)
       lang       <- config.getOpt[String]("language")
       date       <- config.getOpt[Date]("date")
     } yield {
-      DocumentMetadata(identifier, authors ++ author.toSeq, lang, date)
+      DocumentMetadata(title, description, identifier, authors ++ author.toSeq, lang, date)
     }
   }
   implicit val encoder: ConfigEncoder[DocumentMetadata] = ConfigEncoder[DocumentMetadata] { metadata =>
     ConfigEncoder.ObjectBuilder.empty
+      .withValue("title", metadata.title)
+      .withValue("description", metadata.description)
       .withValue("identifier", metadata.identifier)
       .withValue("authors", metadata.authors)
       .withValue("language", metadata.language)

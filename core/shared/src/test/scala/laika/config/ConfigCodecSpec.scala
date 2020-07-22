@@ -44,6 +44,8 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
       val input =
         """{ 
           |laika.metadata {
+          |  title = "Monkey Gone To Heaven"
+          |  description = "It's undescribable"
           |  identifier = XX-33-FF-01
           |  authors = [ "Helen North", "Maria South" ]
           |  language = en
@@ -51,6 +53,8 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
           |}}
         """.stripMargin
       decode[DocumentMetadata](input) shouldBe Right(DocumentMetadata(
+        Some("Monkey Gone To Heaven"),
+        Some("It's undescribable"),
         Some("XX-33-FF-01"),
         Seq("Helen North", "Maria South"),
         Some("en"),
@@ -69,6 +73,7 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
           |}}
         """.stripMargin
       decode[DocumentMetadata](input) shouldBe Right(DocumentMetadata(
+        None, None,
         Some("XX-33-FF-01"),
         Seq("Dorothea West"),
         Some("en"),
@@ -78,18 +83,15 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
 
     "round-trip encode and decode" in {
       val input = DocumentMetadata(
+        Some("Monkey Gone To Heaven"),
+        Some("Rhubarb, Rhubarb, Rhubarb"),
         Some("XX-33-FF-01"),
         Seq("Helen North", "Maria South"),
         Some("en"),
         Some(PlatformDateFormat.parse("2002-10-10T12:00:00").toOption.get)
       )
       val encoded = ConfigBuilder.empty.withValue(testKey, input).build
-      decode[DocumentMetadata](encoded) shouldBe Right(DocumentMetadata(
-        Some("XX-33-FF-01"),
-        Seq("Helen North", "Maria South"),
-        Some("en"),
-        Some(PlatformDateFormat.parse("2002-10-10T12:00:00").toOption.get)
-      ))
+      decode[DocumentMetadata](encoded) shouldBe Right(input)
     }
 
     "fail with an invalid date" in {

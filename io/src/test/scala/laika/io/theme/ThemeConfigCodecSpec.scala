@@ -44,6 +44,8 @@ class ThemeConfigCodecSpec extends AnyWordSpec with Matchers {
         """{
           |laika {
           |  metadata {
+          |    title = "Hell is around the corner"
+          |    description = "Undescribable"
           |    identifier = XX-33-FF-01
           |    authors = [ "Helen North", "Maria South" ]
           |    language = en
@@ -60,6 +62,8 @@ class ThemeConfigCodecSpec extends AnyWordSpec with Matchers {
         """.stripMargin
       decode[BookConfig](input) shouldBe Right(BookConfig(
         DocumentMetadata(
+          Some("Hell is around the corner"),
+          Some("Undescribable"),
           Some("XX-33-FF-01"),
           Seq("Helen North", "Maria South"),
           Some("en"),
@@ -83,7 +87,7 @@ class ThemeConfigCodecSpec extends AnyWordSpec with Matchers {
         """.stripMargin
       decode[BookConfig](input) shouldBe Right(BookConfig(
         DocumentMetadata(
-          Some("XX-33-FF-01")
+          identifier = Some("XX-33-FF-01")
         ),
         Some(3)
       ))
