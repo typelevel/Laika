@@ -159,9 +159,12 @@ object RendererRuntime {
     def getThemeStyles(themeInputs: Seq[ParserResult]): StyleDeclarationSet = themeInputs.collect {
       case StyleResult (doc, format, _) if format == op.renderer.format.fileSuffix => doc
     }.reduceLeftOption(_ ++ _).getOrElse(StyleDeclarationSet.empty)
+    
+    val staticPaths = op.staticDocuments.map(_.path).toSet
+    val staticDocs = op.staticDocuments ++ themeInputs.binaryInputs.filterNot(i => staticPaths.contains(i.path))
      
     for {
-      mappedTree  <- op.theme.treeTransformer.run(ParsedTree(op.input, op.staticDocuments ++ themeInputs.binaryInputs))
+      mappedTree  <- op.theme.treeTransformer.run(ParsedTree(op.input, staticDocs))
       finalRoot   <- Async[F].fromEither(applyTemplate(mappedTree.root)
                        .leftMap(e => RendererErrors(Seq(ConfigException(e))))
                       .flatMap(root => InvalidDocuments.from(root, op.config.failOnMessages).toLeft(root)))
