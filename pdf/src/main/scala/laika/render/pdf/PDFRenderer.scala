@@ -38,7 +38,7 @@ import org.apache.xmlgraphics.util.MimeConstants
   * 
   * @author Jens Halm
   */
-class PDFRenderer (fopFactory: Option[FopFactory]) {
+class PDFRenderer (fopFactory: FopFactory) {
 
   /** Render the given XSL-FO input as a PDF to the specified
     *  binary output. The optional `sourcePaths` argument
@@ -75,11 +75,10 @@ class PDFRenderer (fopFactory: Option[FopFactory]) {
         }.getOrElse(if (uri.isAbsolute) uri else new File(uri.getPath).toURI)
       }
 
-      val factory = fopFactory.getOrElse(PDF.defaultFopFactory)
       for {
-        foUserAgent <- Async[F].delay(FOUserAgentFactory.createFOUserAgent(factory, resolver))
+        foUserAgent <- Async[F].delay(FOUserAgentFactory.createFOUserAgent(fopFactory, resolver))
         _           <- applyMetadata(foUserAgent)
-        fop         <- Async[F].delay(factory.newFop(MimeConstants.MIME_PDF, foUserAgent, out))
+        fop         <- Async[F].delay(fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, out))
       } yield new SAXResult(fop.getDefaultHandler)
 
     }

@@ -65,16 +65,6 @@ class PDFRendererSpec extends IOSpec with FileIO {
       firstCharAvailable(renderer.from(doc(1)).toFile(file).render)
     }
 
-    "render a document to a file using a custom FopFactory" ignore new TreeModel with FileSetup {
-      val renderer = Renderer
-        .of(PDF.withFopFactory(PDF.defaultFopFactory))
-        .io(blocker)
-        .sequential[IO]
-        .build
-
-      firstCharAvailable(renderer.from(doc(1)).toFile(file).render)  
-    }
-
     "render a document to an OutputStream" ignore new TreeModel {
       val renderer = Renderer
         .of(PDF)

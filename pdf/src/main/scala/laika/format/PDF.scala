@@ -16,7 +16,6 @@
 
 package laika.format
 
-import java.io.File
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.{Date, Locale, UUID}
@@ -33,8 +32,8 @@ import laika.io.runtime.Runtime
 import laika.io.theme
 import laika.render.FOFormatter
 import laika.render.FOFormatter.Preamble
-import laika.render.pdf.{FOConcatenation, PDFRenderer}
-import org.apache.fop.apps.{FopFactory, FopFactoryBuilder}
+import laika.render.pdf.{FOConcatenation, FopFactoryBuilder, PDFRenderer}
+import org.apache.fop.apps.FopFactory
 
 /** A post processor for PDF output, based on an interim XSL-FO renderer. 
  *  May be directly passed to the `Render` or `Transform` APIs:
@@ -71,19 +70,9 @@ class PDF private(val interimFormat: RenderFormat[FOFormatter], fopFactory: Opti
 
   override val description: String = "PDF"
 
-  /** Allows to specify a custom FopFactory in case additional configuration
-    * is required for custom fonts, stemmers or other FOP features.
-    *
-    * A `FopFactory` is a fairly heavy-weight object, so make sure that you reuse
-    * either the `FopFactory` instance itself or the resulting `PDF` renderer.
-    * In case you do not specify a custom factory, Laika ensures that the default
-    * factory is reused between renderers.
-    */
+  @deprecated("custom fop factories are deprecated as this would bypass laika's font registration", "0.16.0")
   def withFopFactory (fopFactory: FopFactory): PDF = new PDF(interimFormat, Some(fopFactory))
   
-  private lazy val renderer = new PDFRenderer(fopFactory)
-
-
   /** Adds a preamble to each document for navigation and replaces the template with a fallback.
     * The modified tree will be used for rendering the interim XSL-FO result.
     * The original template will only be applied to the concatenated result of the XSL-FO renderer
@@ -97,19 +86,34 @@ class PDF private(val interimFormat: RenderFormat[FOFormatter], fopFactory: Opti
         doc.copy(content = doc.content.copy(content = preamble +: doc.content.content))
       })
 
-  /** Processes the interim XSL-FO result, transforms it to PDF and writes
-    * it to the specified final output.
+  /** Processes the interim XSL-FO result, transforms it to PDF and writes it to the specified final output.
     */
   def postProcessor (config: Config): BinaryPostProcessor = new BinaryPostProcessor {
+    
+    /*
+     TODO - return type must be a factory that has a build method returning a Resource[F, BinaryPostProcessor]
+     (as we cannot expose F[_] directly in this class):
+     trait BinaryPostProcessorBuilder {
+       def build[F[_]: Async]: Resource[F, BinaryPostProcessor]
+     }
+     The reason for using a Resource is that the creation of a FopFactory is not RT and we have no way
+     to handle config errors here.
+     The change is deferred to 0.17 or 0.18 as it will ripple up the API stack,
+     a theme should also be a Resource and at that point the entire Parser/Renderer/Transformer
+     creation will end up creating a Resource which will also enable proper caching of theme resources
+     and early validation of configuration.
+    */
+    
+    private val pdfConfig = PDF.BookConfig.decodeWithDefaults(config).getOrElse(PDF.BookConfig())
+    private val renderer = new PDFRenderer(fopFactory.getOrElse(FopFactoryBuilder.build(pdfConfig)))
+    
     override def process[F[_]: Async: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput[F]): F[Unit] = {
       
       val title = result.title.map(_.extractText)
-      val pdfConfig = PDF.BookConfig.decodeWithDefaults(result.config)
       
       for {
-        config   <- Async[F].fromEither(pdfConfig.left.map(ConfigException))
-        fo       <- Async[F].fromEither(FOConcatenation(result, config).left.map(ConfigException))
-        _        <- renderer.render(fo, output, config.metadata, title, result.sourcePaths)
+        fo       <- Async[F].fromEither(FOConcatenation(result, pdfConfig).left.map(ConfigException))
+        _        <- renderer.render(fo, output, pdfConfig.metadata, title, result.sourcePaths)
       } yield ()
     }
   }
@@ -119,12 +123,6 @@ class PDF private(val interimFormat: RenderFormat[FOFormatter], fopFactory: Opti
 /** The default instance of the PDF renderer.
   */
 object PDF extends PDF(XSLFO, None) {
-
-  /** The reusable default instance of the FOP factory
-    * that the PDF renderer will use if no custom
-    * factory is specified.
-    */
-  lazy val defaultFopFactory: FopFactory = new FopFactoryBuilder(new File(".").toURI).build
 
   /** Configuration options for the generated EPUB output.
     *
