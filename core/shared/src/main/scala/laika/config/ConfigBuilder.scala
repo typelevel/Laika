@@ -44,6 +44,18 @@ class ConfigBuilder (fields: Seq[Field], origin: Origin, fallback: Config = Empt
   def withValue[T](value: T)(implicit encoder: ConfigEncoder[T], defaultKey: DefaultKey[T]): ConfigBuilder =
     withValue[T](defaultKey.value, value)
 
+  /** Creates a builder with the specified fallback which will be used
+    * for resolving keys which are not present in the configuration created
+    * by this builder.
+    *
+    * If an entire object is requested in the resulting Config instance,
+    * the keys will be merged from this builder with those present in the fallback.
+    * Simple values on the other hand will always override values with the same
+    * key in the fallback.
+    */
+  def withFallback(newFallback: Config): ConfigBuilder = 
+    new ConfigBuilder(fields, origin, fallback.withFallback(newFallback))
+
   /** Resolves all specified values and returns a new Config instance.
     */
   def build: Config = build(fallback)

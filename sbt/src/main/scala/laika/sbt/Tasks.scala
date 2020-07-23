@@ -21,6 +21,7 @@ import java.util.concurrent.Executors
 import cats.effect.{Blocker, ContextShift, IO}
 import laika.api.builder.ParserBuilder
 import laika.api.{MarkupParser, Renderer}
+import laika.config.{ConfigBuilder, LaikaKeys}
 import laika.factory.{BinaryPostProcessor, MarkupFormat, RenderFormat, TwoPhaseRenderFormat}
 import laika.format._
 import laika.io.implicits._
@@ -61,6 +62,10 @@ object Tasks {
     val formats = spaceDelimited("<format>").parsed.map(OutputFormat.fromString)
     if (formats.isEmpty) throw new IllegalArgumentException("At least one format must be specified")
 
+    val fallback = ConfigBuilder.empty
+      .withValue(LaikaKeys.metadata.child("title"), name.value)
+      .withValue(LaikaKeys.metadata.child("description"), description.value)
+      .build
     val userConfig = laikaConfig.value
 
     def createParser (format: MarkupFormat): ParserBuilder = {
@@ -69,7 +74,7 @@ object Tasks {
         bundleFilter = userConfig.bundleFilter,
         failOnMessages = userConfig.failOnMessages,
         renderMessages = userConfig.renderMessages,
-        configBuilder = userConfig.configBuilder
+        configBuilder = userConfig.configBuilder.withFallback(fallback)
       )
       parser.withConfig(mergedConfig).using(laikaExtensions.value: _*)
     }
