@@ -36,6 +36,10 @@ trait ConfigEncoder[-T] { self =>
   */
 object ConfigEncoder {
 
+  implicit val boolean: ConfigEncoder[Boolean] = new ConfigEncoder[Boolean] {
+    def apply (value: Boolean) = BooleanValue(value)
+  }
+  
   implicit val string: ConfigEncoder[String] = new ConfigEncoder[String] {
     def apply (value: String) = StringValue(value)
   }
