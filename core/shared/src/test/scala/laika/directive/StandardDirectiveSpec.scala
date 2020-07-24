@@ -16,7 +16,7 @@
 
 package laika.directive
 
-import cats.data.NonEmptySet
+import cats.data.{NonEmptyChain, NonEmptySet}
 import cats.implicits._
 import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
@@ -172,7 +172,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
     val parser = MarkupParser
       .of(Markdown)
       .failOnMessages(MessageFilter.None)
-      .withConfigValue(ChoiceGroupsConfig(Seq(ChoiceGroupConfig("config", Seq(
+      .withConfigValue(ChoiceGroupsConfig(Seq(ChoiceGroupConfig("config", NonEmptyChain(
         ChoiceConfig("a", "label-a"),
         ChoiceConfig("b", "label-b")
       )))))

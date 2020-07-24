@@ -16,6 +16,7 @@
 
 package laika.rewrite.nav
 
+import cats.data.NonEmptyChain
 import laika.config.{Config, ConfigDecoder, ConfigEncoder, DefaultKey, LaikaKeys}
 
 /**
@@ -33,28 +34,26 @@ object ChoiceGroupsConfig {
 
   implicit val encoder: ConfigEncoder[ChoiceGroupsConfig] = ConfigEncoder.seq[ChoiceGroupConfig].contramap(_.choices)
   
-  def createChoiceCombinations (config: Config): Seq[Config] = {
+  def createChoiceCombinations (config: Config): NonEmptyChain[Config] = {
     
-    def createCombinations(value: ChoiceGroupsConfig): Seq[ChoiceGroupsConfig] = {
+    def createCombinations(value: ChoiceGroupsConfig): NonEmptyChain[ChoiceGroupsConfig] = {
       val (separated, nonSeparated) = value.choices.partition(_.separateEbooks)
       
-      val variations: Seq[Seq[ChoiceGroupConfig]] = separated.map { group =>
-        group.choices.indices.map { index =>
-          group.copy(choices = group.choices.updated(index, group.choices(index).copy(selected = true)))
+      val combinations = separated
+        .map { group =>
+          group.choices.map(choice => NonEmptyChain.one(group.select(choice)))
         }
-      }
-
-      val combinations = variations
-        .map(_.map(Seq(_)))
         .reduceLeftOption { (as, bs) =>
           for {a <- as; b <- bs} yield a ++ b
         }
-      
-      combinations.fold(Seq(value))(_.map(combined => ChoiceGroupsConfig(combined ++ nonSeparated)))
+
+      combinations.fold(NonEmptyChain.one(value))(_.map {
+        combined => ChoiceGroupsConfig(combined.toChain.toList ++ nonSeparated)
+      })
     }
     
     config.get[ChoiceGroupsConfig].fold(
-      _ => Seq(config),
+      _ => NonEmptyChain.one(config),
       choiceGroups => createCombinations(choiceGroups).map { newConfig =>
         config.withValue(newConfig).build
       }
@@ -63,15 +62,17 @@ object ChoiceGroupsConfig {
   
 }
 
-case class ChoiceGroupConfig (name: String, choices: Seq[ChoiceConfig], separateEbooks: Boolean = false) {
+case class ChoiceGroupConfig (name: String, choices: NonEmptyChain[ChoiceConfig], separateEbooks: Boolean = false) {
   def getLabel (name: String): Option[String] = choices.find(_.name == name).map(_.label)
+  def select (choice: ChoiceConfig): ChoiceGroupConfig = 
+    copy(choices = choices.map(c => if (c == choice) c.copy(selected = true) else c))
 }
 
 object ChoiceGroupConfig {
   implicit val decoder: ConfigDecoder[ChoiceGroupConfig] = ConfigDecoder.config.flatMap { config =>
     for {
       name     <- config.get[String]("name")
-      choices  <- config.get[Seq[ChoiceConfig]]("choices")
+      choices  <- config.get[NonEmptyChain[ChoiceConfig]]("choices")
       separate <- config.get[Boolean]("separateEbooks", false)
     } yield {
       ChoiceGroupConfig(name, choices, separate)

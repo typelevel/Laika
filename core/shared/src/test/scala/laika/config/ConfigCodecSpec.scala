@@ -16,6 +16,7 @@
 
 package laika.config
 
+import cats.data.NonEmptyChain
 import laika.ast.{DocumentMetadata, ExternalTarget, InternalTarget}
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
@@ -183,11 +184,11 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
   "The codec for ChoiceGroupsConfig" should {
 
     val sample = ChoiceGroupsConfig(Seq(
-      ChoiceGroupConfig("foo", Seq(
+      ChoiceGroupConfig("foo", NonEmptyChain(
         ChoiceConfig("foo-a", "foo-label-a"),
         ChoiceConfig("foo-b", "foo-label-b")
       )),
-      ChoiceGroupConfig("bar", Seq(
+      ChoiceGroupConfig("bar", NonEmptyChain(
         ChoiceConfig("bar-a", "bar-label-a"),
         ChoiceConfig("bar-b", "bar-label-b")
       ))
