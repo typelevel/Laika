@@ -22,6 +22,7 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.EPUB
+import laika.io.helper.RenderResult.fo
 import laika.io.{FileIO, IOSpec}
 import laika.io.implicits._
 import laika.io.model.{RenderedDocument, RenderedTree, StringTreeOutput}
@@ -130,6 +131,23 @@ class XHTMLRendererSpec extends IOSpec with ModelBuilder with FileIO {
           |</aside>""".stripMargin
       Renderer.of(EPUB.XHTML).build.render(elem) should be(html)
     }
+
+    "render a choice group without selections" in {
+      val elem = ChoiceGroup("config", Seq(
+        Choice("name-a","label-a", List(p("common"), p("11\n22"))),
+        Choice("name-b","label-b", List(p("common"), p("33\n44")))
+      ))
+      val html = s"""<p><strong>label-a</strong></p>
+        |<p>common</p>
+        |<p>11
+        |22</p>
+        |<p><strong>label-b</strong></p>
+        |<p>common</p>
+        |<p>33
+        |44</p>""".stripMargin
+      Renderer.of(EPUB.XHTML).build.render(elem) should be (html)
+    }
+    
   }
 
 }

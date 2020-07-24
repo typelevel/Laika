@@ -27,11 +27,17 @@ import laika.render.{HTMLFormatter, HTMLRenderer}
   */
 object XHTMLRenderer extends HTMLRenderer(fileSuffix = "epub.xhtml", formats = NonEmptySet.of("xhtml", "epub")) {
 
+  def renderChoices (fmt: HTMLFormatter, name: String, choices: Seq[Choice], options: Options): String = {
+    val content = choices.flatMap { choice => Paragraph(Strong(Text(choice.label))) +: choice.content }
+    fmt.child(BlockSequence(content, options))
+  }
+  
   override def apply (fmt: HTMLFormatter, element: Element): String = element match {
     case CitationLink(ref,label,opt) => fmt.textElement("a", opt + Style.citation, "[" + label + "]", "href" -> ("#"+ref), "epub:type" -> "noteref")
     case FootnoteLink(ref,label,opt) => fmt.textElement("a", opt + Style.footnote, "[" + label + "]", "href" -> ("#"+ref), "epub:type" -> "noteref")
     case Citation(_,content,opt) => fmt.indentedElement("aside", opt + Style.citation, content, "epub:type" -> "footnote")
     case Footnote(_,content,opt) => fmt.indentedElement("aside", opt + Style.footnote, content, "epub:type" -> "footnote")
+    case ChoiceGroup(name, choices, opt) => renderChoices(fmt, name, choices, opt)
     case _ => super.apply(fmt, element)
   }
 
