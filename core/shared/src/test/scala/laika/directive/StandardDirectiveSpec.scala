@@ -272,6 +272,21 @@ class StandardDirectiveSpec extends AnyFlatSpec
     parse(input) should be (root(p("aa"),
       invalid, p("bb")))
   }
+  
+  it should "unwrap a selected choice in the template rewrite rules" in {
+    val group = ChoiceGroup("config", Seq(
+      Choice("a","label-a", List(p("common"), p("11\n22"))),
+      Choice("b","label-b", List(p("common"), p("33\n44")))
+    ))
+    val config = ChoiceGroupsConfig(Seq(
+      ChoiceGroupConfig("config", NonEmptyChain(ChoiceConfig("a", "label-a"), ChoiceConfig("b", "label-b", selected = true)))
+    ))
+    val doc = Document(Root / "doc", root(group))
+    val tree = DocumentTreeRoot(DocumentTree(Root, Seq(doc), config = ConfigBuilder.empty.withValue(config).build))
+    val cursor = DocumentCursor(doc, TreeCursor(tree), tree.config, TreePosition(Nil))
+    val rewritten = TemplateRewriter.applyTemplate(cursor, TemplateDocument(Root, TemplateRoot.fallback))
+    rewritten.map(_.content) shouldBe Right(root(BlockSequence(List(p("common"), p("33\n44")))))
+  }
 
 
   "The format directive" should "parse a body with a single paragraph" in {
