@@ -18,6 +18,7 @@ package laika.config
 
 import java.util.Date
 
+import cats.data.NonEmptyChain
 import cats.implicits._
 import laika.ast.{Path, PathBase, RelativePath, Target}
 import laika.time.PlatformDateFormat
@@ -115,6 +116,10 @@ object ConfigDecoder {
         else Right(results)
       case invalid => Left(InvalidType("Array", invalid))
     }
+  }
+
+  implicit def nec[T] (implicit elementDecoder: ConfigDecoder[T]): ConfigDecoder[NonEmptyChain[T]] = seq[T].flatMap { seq =>
+    NonEmptyChain.fromSeq(seq).toRight(DecodingError("Sequence must not be empty"))
   }
 
   implicit def map[T] (implicit valueDecoder: ConfigDecoder[T]): ConfigDecoder[Map[String, T]] = {

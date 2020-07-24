@@ -18,6 +18,7 @@ package laika.config
 
 import java.util.Date
 
+import cats.data.NonEmptyChain
 import laika.ast.Path
 import laika.time.PlatformDateFormat
 
@@ -66,6 +67,10 @@ object ConfigEncoder {
 
   implicit def seq[T] (implicit elementEncoder: ConfigEncoder[T]): ConfigEncoder[Seq[T]] = new ConfigEncoder[Seq[T]] {
     def apply (value: Seq[T]) = ArrayValue(value.map(elementEncoder.apply))
+  }
+
+  implicit def nec[T] (implicit elementEncoder: ConfigEncoder[T]): ConfigEncoder[NonEmptyChain[T]] = new ConfigEncoder[NonEmptyChain[T]] {
+    def apply (value: NonEmptyChain[T]) = ArrayValue(value.map(elementEncoder.apply).toChain.toList)
   }
 
   implicit def map[T] (implicit elementEncoder: ConfigEncoder[T]): ConfigEncoder[Map[String, T]] = new ConfigEncoder[Map[String, T]] {
