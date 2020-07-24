@@ -695,6 +695,12 @@ case class DocumentTreeRoot (tree: DocumentTree,
     val newTree = tree.mapDocuments(f)
     copy(coverDocument = newCover, tree = newTree)
   }
+
+  /** Creates a new tree by replacing its root configuration with the specified config instance.
+    */
+  def withConfig (config: Config): DocumentTreeRoot = {
+    copy(tree = tree.copy(config = config))
+  }
   
   /** Returns a new tree, with all the document models contained in it rewritten based on the specified rewrite rules.
     *

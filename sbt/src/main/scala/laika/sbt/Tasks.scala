@@ -18,6 +18,7 @@ package laika.sbt
 
 import java.util.concurrent.Executors
 
+import cats.implicits._
 import cats.effect.{Blocker, ContextShift, IO}
 import laika.api.builder.ParserBuilder
 import laika.api.{MarkupParser, Renderer}
@@ -26,6 +27,7 @@ import laika.factory.{BinaryPostProcessor, MarkupFormat, RenderFormat, TwoPhaseR
 import laika.format._
 import laika.io.implicits._
 import laika.io.model._
+import laika.rewrite.nav.ChoiceGroupsConfig
 import laika.sbt.LaikaPlugin.autoImport._
 import sbt.Keys._
 import sbt._
@@ -122,19 +124,24 @@ object Tasks {
     }
 
     def renderWithProcessor[FMT] (format: TwoPhaseRenderFormat[FMT,BinaryPostProcessor], targetFile: File, formatDesc: String): Set[File] = {
+      
       targetFile.getParentFile.mkdirs()
-
-      Renderer
-        .of(format)
-        .withConfig(parser.config)
-        .io(blocker)
-        .parallel[IO]
-        .build
-        .from(tree.root)
-        .copying(tree.staticDocuments)
-        .toFile(targetFile)
-        .render
-        .unsafeRunSync()
+      
+      val roots = ChoiceGroupsConfig.createChoiceCombinations(tree.root)
+      val ops = roots.map { case (root, classifiers) =>
+        val classifier = if (classifiers.value.isEmpty) "" else "-" + classifiers.value.mkString("-")
+        Renderer
+          .of(format)
+          .withConfig(parser.config)
+          .io(blocker)
+          .parallel[IO]
+          .build
+          .from(root)
+          .copying(tree.staticDocuments)
+          .toFile(targetFile.getAbsolutePath.replaceAll(".epub$", classifier + ".epub"))
+          .render
+      }
+      ops.sequence.unsafeRunSync()
 
       streams.value.log.info(s"Generated $formatDesc in $targetFile")
 

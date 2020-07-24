@@ -17,6 +17,7 @@
 package laika.rewrite.nav
 
 import cats.data.NonEmptyChain
+import laika.ast.DocumentTreeRoot
 import laika.config.{Config, ConfigDecoder, ConfigEncoder, DefaultKey, LaikaKeys}
 
 /**
@@ -24,7 +25,11 @@ import laika.config.{Config, ConfigDecoder, ConfigEncoder, DefaultKey, LaikaKeys
   */
 case class ChoiceGroupsConfig (choices: Seq[ChoiceGroupConfig]) {
   def getGroupConfig (name: String): Option[ChoiceGroupConfig] = choices.find(_.name == name)
+  def getClassifiers: Classifiers = Classifiers(choices.flatMap { group =>
+    group.choices.find(_.selected).map(_.name)
+  })
 }
+case class Classifiers (value: Seq[String])
 
 object ChoiceGroupsConfig {
 
@@ -34,7 +39,7 @@ object ChoiceGroupsConfig {
 
   implicit val encoder: ConfigEncoder[ChoiceGroupsConfig] = ConfigEncoder.seq[ChoiceGroupConfig].contramap(_.choices)
   
-  def createChoiceCombinations (config: Config): NonEmptyChain[Config] = {
+  def createChoiceCombinations (config: Config): NonEmptyChain[(Config, Classifiers)] = {
     
     def createCombinations(value: ChoiceGroupsConfig): NonEmptyChain[ChoiceGroupsConfig] = {
       val (separated, nonSeparated) = value.choices.partition(_.separateEbooks)
@@ -53,11 +58,15 @@ object ChoiceGroupsConfig {
     }
     
     config.get[ChoiceGroupsConfig].fold(
-      _ => NonEmptyChain.one(config),
+      _ => NonEmptyChain.one((config, Classifiers(Nil))),
       choiceGroups => createCombinations(choiceGroups).map { newConfig =>
-        config.withValue(newConfig).build
+        (config.withValue(newConfig).build, newConfig.getClassifiers)
       }
     )
+  }
+
+  def createChoiceCombinations (root: DocumentTreeRoot): NonEmptyChain[(DocumentTreeRoot, Classifiers)] = {
+    createChoiceCombinations(root.config).map { case (config, classifiers) => (root.withConfig(config), classifiers) }
   }
   
 }
