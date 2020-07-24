@@ -561,17 +561,20 @@ class XSLFORendererSpec extends AnyFlatSpec
                |</fo:block>""".stripMargin
     render(elem) should be (fo)
   }
-
-  it should "render nested line blocks" ignore {
-    // TODO - move LineBlocks to rst model
-    val elem = LineBlock(LineBlock(Line("1"),Line("2")), Line("3"))
-    val fo = s"""<fo:block margin-left="20mm">
-               |  <fo:block margin-left="20mm">
-               |    <fo:block>1</fo:block>
-               |    <fo:block>2</fo:block>
-               |  </fo:block>
-               |  <fo:block>3</fo:block>
-               |</fo:block>""".stripMargin
+  
+  it should "render a choice group without selections" in {
+    val elem = ChoiceGroup("config", Seq(
+      Choice("name-a","label-a", List(p("common"), p("11\n22"))),
+      Choice("name-b","label-b", List(p("common"), p("33\n44")))
+    ))
+    val fo = s"""<fo:block $defaultParagraphStyles><fo:inline font-weight="bold">label-a</fo:inline></fo:block>
+     |<fo:block $defaultParagraphStyles>common</fo:block>
+     |<fo:block $defaultParagraphStyles>11
+     |22</fo:block>
+     |<fo:block $defaultParagraphStyles><fo:inline font-weight="bold">label-b</fo:inline></fo:block>
+     |<fo:block $defaultParagraphStyles>common</fo:block>
+     |<fo:block $defaultParagraphStyles>33
+     |44</fo:block>""".stripMargin
     render(elem) should be (fo)
   }
 
