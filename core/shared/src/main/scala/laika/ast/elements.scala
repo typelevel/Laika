@@ -1140,8 +1140,11 @@ case class ExternalTarget (url: String) extends Target {
 
 /** Represents an internal target with an absolute and relative path, the latter
   * relative to the document that referred to the target. 
+  * 
+  * The optional `externalUrl` property can be set for links which are internal
+  * on a rendered site, but external for e-books like EPUB and PDF.
   */
-case class InternalTarget (absolutePath: Path, relativePath: RelativePath) extends Target {
+case class InternalTarget (absolutePath: Path, relativePath: RelativePath, externalUrl: Option[String] = None) extends Target {
   def relativeTo (refPath: Path): InternalTarget = InternalTarget.fromPath(relativePath, refPath)
   def render (internalTargetsAbsolute: Boolean = false): String = 
     if (internalTargetsAbsolute) absolutePath.toString

@@ -135,8 +135,8 @@ object FORenderer extends ((FOFormatter, Element) => String) {
         case e @ Line(content,_)              => fmt.block(e, content)
 
         case e @ SpanLink(content, ExternalTarget(url), _, _)         => fmt.externalLink(e, url, content)
-        case e @ SpanLink(content, InternalTarget(absolute, rel), _, _) if absolute == Root => println(rel); fmt.externalLink(e, "http://foo.com/", content) // TODO - 0.16 - temp
-        case e @ SpanLink(content, InternalTarget(absolute, _), _, _) => fmt.internalLink(e, fmt.buildId(absolute), content)
+        case e @ SpanLink(content, InternalTarget(absolute, rel, _), _, _) if absolute == Root => println(rel); fmt.externalLink(e, "http://foo.com/", content) // TODO - 0.16 - temp
+        case e @ SpanLink(content, InternalTarget(absolute, _, _), _, _) => fmt.internalLink(e, fmt.buildId(absolute), content)
 
         case WithFallback(fallback)         => fmt.child(fallback)
         case c: Customizable                => c match {

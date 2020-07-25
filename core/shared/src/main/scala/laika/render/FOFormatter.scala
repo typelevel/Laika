@@ -234,7 +234,7 @@ case class FOFormatter (renderChild: (FOFormatter, Element) => String,
    */
   def bookmark (bookmark: NavigationItem): String = {
     def internalTarget (link: NavigationLink): Option[Path] = link.target match {
-      case InternalTarget(absPath, _) => Some(absPath)
+      case InternalTarget(absPath, _, _) => Some(absPath)
       case _ => None
     }
     val target = bookmark match {

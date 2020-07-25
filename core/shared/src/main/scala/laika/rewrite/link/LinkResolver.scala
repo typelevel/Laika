@@ -71,7 +71,7 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
     def resolveWith (ref: Reference, target: Option[TargetResolver], msg: => String): RewriteAction[Span] = {
 
       def replaceInvalidTarget (target: Target): Option[Span] = target match {
-        case InternalTarget(_, relativePath) =>
+        case InternalTarget(_, relativePath, _) =>
           val selector = pathSelectorFor(relativePath)
           if (excludeFromValidation.exists(p => selector.path.isSubPath(p)) || targets.select(Root, selector).isDefined) None
           else Some(InvalidElement(s"unresolved internal reference: ${relativePath.toString}", ref.source).asSpan)
