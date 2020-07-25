@@ -20,7 +20,7 @@ import cats.data.{NonEmptyChain, NonEmptyVector}
 import laika.ast.helper.ModelBuilder
 import laika.config.Config.ConfigResult
 import laika.config.{Config, ConfigBuilder}
-import laika.rewrite.nav.{ChoiceConfig, ChoiceGroupConfig, ChoiceGroupsConfig}
+import laika.rewrite.nav.{ChoiceConfig, ChoiceGroupConfig, ChoiceGroupsConfig, Classifiers}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
@@ -47,26 +47,26 @@ class ChoiceGroupsConfigSpec extends AnyWordSpec
   val groupBarSeparate = groupBar.copy(separateEbooks = true)
 
   def run (config: Config): NonEmptyVector[ConfigResult[ChoiceGroupsConfig]] =
-    ChoiceGroupsConfig.createChoiceCombinations(config).toNonEmptyVector.map(_.get[ChoiceGroupsConfig])
+    ChoiceGroupsConfig.createChoiceCombinations(config).toNonEmptyVector.map(_._1.get[ChoiceGroupsConfig])
 
   "ChoiceGroupsConfig.createChoiceCombinations" should {
 
     "succeed with an empty config" in {
-      ChoiceGroupsConfig.createChoiceCombinations(Config.empty) shouldBe NonEmptyChain.one(Config.empty)
+      ChoiceGroupsConfig.createChoiceCombinations(Config.empty) shouldBe NonEmptyChain.one((Config.empty, Classifiers(Nil)))
     }
 
     "succeed with no choice groups in the config" in {
       val config = ConfigBuilder.empty.withValue(ChoiceGroupsConfig(Nil)).build
       val result = ChoiceGroupsConfig.createChoiceCombinations(config)
       result.length shouldBe 1
-      result.head.get[ChoiceGroupsConfig] shouldBe Right(ChoiceGroupsConfig(Nil))
+      result.head._1.get[ChoiceGroupsConfig] shouldBe Right(ChoiceGroupsConfig(Nil))
     }
 
     "succeed with a single choice group without separation" in {
       val config = ConfigBuilder.empty.withValue(ChoiceGroupsConfig(Seq(groupFoo))).build
       val result = ChoiceGroupsConfig.createChoiceCombinations(config)
       result.length shouldBe 1
-      result.head.get[ChoiceGroupsConfig] shouldBe Right(ChoiceGroupsConfig(Seq(groupFoo)))
+      result.head._1.get[ChoiceGroupsConfig] shouldBe Right(ChoiceGroupsConfig(Seq(groupFoo)))
     }
 
     "succeed with a single choice group with separation" in {

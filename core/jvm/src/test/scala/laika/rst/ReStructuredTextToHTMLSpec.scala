@@ -92,7 +92,7 @@ class ReStructuredTextToHTMLSpec extends AnyFlatSpec
         case (fmt, sl@ SpanLink(content, target, title, opt)) => target match {
           case ExternalTarget(url) =>
             fmt.element("a", opt + Styles("reference","external"), content, fmt.optAttributes("href" -> Some(url), "title" -> title):_*)
-          case InternalTarget(_, relativePath) =>
+          case InternalTarget(_, relativePath, _) =>
             // rst makes a different kind of distinction between external and internal links, so we adjust Laika's renderers just for this test
             if (relativePath.suffix.contains("html") || relativePath.fragment.isEmpty) fmt.child(sl.copy(target = ExternalTarget(relativePath.toString)))
             else fmt.element("a", opt + Styles("reference","internal"), content, fmt.optAttributes("href" -> Some("#"+relativePath.fragment.get), "title"->title):_*)
