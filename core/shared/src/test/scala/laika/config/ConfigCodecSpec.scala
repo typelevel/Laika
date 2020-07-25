@@ -21,7 +21,7 @@ import laika.ast.{DocumentMetadata, ExternalTarget, InternalTarget}
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.config.Config.ConfigResult
-import laika.rewrite.link.{ApiLinks, LinkConfig, TargetDefinition}
+import laika.rewrite.link.{ApiLinks, InternalLinkMapping, LinkConfig, SourceLinks, TargetDefinition}
 import laika.rewrite.nav.{AutonumberConfig, ChoiceConfig, ChoiceGroupConfig, ChoiceGroupsConfig}
 import laika.time.PlatformDateFormat
 import org.scalatest.matchers.should.Matchers
@@ -126,8 +126,16 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
       ),
       Seq(Root / "foo", Root / "bar" / "baz"),
       Seq(
+        InternalLinkMapping(Root / "api", "http://our-project/api"),
+        InternalLinkMapping(Root / "blog", "http://our-project/blog")
+      ),
+      Seq(
         ApiLinks("https://foo.api/", "foo", "package.html"),
         ApiLinks("https://bar.api/", "foo.bar")
+      ),
+      Seq(
+        SourceLinks("https://foo.source/", "foo"),
+        SourceLinks("https://bar.source/", "foo.bar")
       )
     )
 
@@ -144,9 +152,17 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
           |      /foo
           |      /bar/baz
           |    ]
+          |    internalLinkMappings = [
+          |      { internalPath = "/api", externalBaseUrl = "http://our-project/api" },
+          |      { internalPath = "/blog", externalBaseUrl = "http://our-project/blog" }
+          |    ]
           |    api = [
           |      { baseUri = "https://foo.api/", packagePrefix = foo, packageSummary = package.html },
           |      { baseUri = "https://bar.api/", packagePrefix = foo.bar }
+          |    ]
+          |    source = [
+          |      { baseUri = "https://foo.source/", packagePrefix = foo },
+          |      { baseUri = "https://bar.source/", packagePrefix = foo.bar }
           |    ]
           |  }
           |}
@@ -168,9 +184,8 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
           |}
         """.stripMargin
       sort(decode[LinkConfig](input)) shouldBe Right(LinkConfig(
-        Seq(TargetDefinition("foo", InternalTarget(Root, CurrentTree / "foo"))),
-        Nil,
-        Seq(ApiLinks("https://bar.api/"))
+        targets = Seq(TargetDefinition("foo", InternalTarget(Root, CurrentTree / "foo"))),
+        apiLinks = Seq(ApiLinks("https://bar.api/"))
       ))
     }
 

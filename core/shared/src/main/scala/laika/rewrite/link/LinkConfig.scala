@@ -22,7 +22,11 @@ import laika.config._
 /**
   * @author Jens Halm
   */
-case class LinkConfig (targets: Seq[TargetDefinition] = Nil, excludeFromValidation: Seq[Path] = Nil, apiLinks: Seq[ApiLinks] = Nil)
+case class LinkConfig (targets: Seq[TargetDefinition] = Nil, 
+                       excludeFromValidation: Seq[Path] = Nil,
+                       internalLinkMappings: Seq[InternalLinkMapping] = Nil,
+                       apiLinks: Seq[ApiLinks] = Nil,
+                       sourceLinks: Seq[SourceLinks] = Nil)
 
 object LinkConfig {
   
@@ -34,12 +38,14 @@ object LinkConfig {
     for {
       targets  <- config.get[Map[String, String]]("targets", Map.empty[String,String])
       exclude  <- config.get[Seq[Path]]("excludeFromValidation", Nil)
+      linkMaps <- config.get[Seq[InternalLinkMapping]]("internalLinkMappings", Nil)
       apiLinks <- config.get[Seq[ApiLinks]]("api", Nil)
+      sourceLinks <- config.get[Seq[SourceLinks]]("source", Nil)
     } yield {
       val mappedTargets = targets.map {
         case (id, targetURL) => TargetDefinition(id, Target.create(targetURL))
       }
-      LinkConfig(mappedTargets.toSeq, exclude, apiLinks)
+      LinkConfig(mappedTargets.toSeq, exclude, linkMaps, apiLinks, sourceLinks)
     }
   }
   
@@ -47,13 +53,57 @@ object LinkConfig {
     ConfigEncoder.ObjectBuilder.empty
       .withValue("targets", config.targets.map(t => (t.id, t.target.render())).toMap)
       .withValue("excludeFromValidation", config.excludeFromValidation)
+      .withValue("internalLinkMappings", config.internalLinkMappings)
       .withValue("api", config.apiLinks)
+      .withValue("source", config.sourceLinks)
       .build
   }
   
 }
 
 case class TargetDefinition (id: String, target: Target)
+
+case class InternalLinkMapping (internalPath: Path, externalBaseUrl: String)
+
+object InternalLinkMapping {
+
+  implicit val decoder: ConfigDecoder[InternalLinkMapping] = ConfigDecoder.config.flatMap { config =>
+    for {
+      internalPath    <- config.get[Path]("internalPath")
+      externalBaseUrl <- config.get[String]("externalBaseUrl")
+    } yield {
+      InternalLinkMapping(internalPath, externalBaseUrl)
+    }
+  }
+
+  implicit val encoder: ConfigEncoder[InternalLinkMapping] = ConfigEncoder[InternalLinkMapping] { links =>
+    ConfigEncoder.ObjectBuilder.empty
+      .withValue("internalPath", links.internalPath)
+      .withValue("externalBaseUrl", links.externalBaseUrl)
+      .build
+  }
+}
+
+case class SourceLinks (baseUri: String, packagePrefix: String = "*")
+
+object SourceLinks {
+
+  implicit val decoder: ConfigDecoder[SourceLinks] = ConfigDecoder.config.flatMap { config =>
+    for {
+      baseUri <- config.get[String]("baseUri")
+      prefix  <- config.get[String]("packagePrefix", "*")
+    } yield {
+      SourceLinks(baseUri, prefix)
+    }
+  }
+
+  implicit val encoder: ConfigEncoder[SourceLinks] = ConfigEncoder[SourceLinks] { links =>
+    ConfigEncoder.ObjectBuilder.empty
+      .withValue("baseUri", links.baseUri)
+      .withValue("packagePrefix", links.packagePrefix)
+      .build
+  }
+}
 
 case class ApiLinks (baseUri: String, packagePrefix: String = "*", packageSummary: String = "index.html")
 
