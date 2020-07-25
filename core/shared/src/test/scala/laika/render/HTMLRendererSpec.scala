@@ -529,6 +529,12 @@ class HTMLRendererSpec extends AnyFlatSpec
     val elem = p(Text("some "), SpanLink(List(Text("link"),Emphasized("text")), InternalTarget(Path.parse("/bar"),RelativePath.parse("../bar"))), Text(" span"))
     render (elem) should be ("""<p>some <a href="../bar">link<em>text</em></a> span</p>""") 
   }
+
+  it should "render a paragraph containing an internal link while ignoring the external URL" in {
+    val target = InternalTarget(Path.parse("/#foo"), RelativePath.parse("#foo"), Some("http://external/"))
+    val elem = p(Text("some "), SpanLink(List(Text("link")), target), Text(" span"))
+    render (elem) should be ("""<p>some <a href="#foo">link</a> span</p>""")
+  }
   
   it should "render a paragraph containing a citation link" in {
     val elem = p(Text("some "), CitationLink("ref","label"), Text(" span"))

@@ -22,7 +22,6 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.EPUB
-import laika.io.helper.RenderResult.fo
 import laika.io.{FileIO, IOSpec}
 import laika.io.implicits._
 import laika.io.model.{RenderedDocument, RenderedTree, StringTreeOutput}
@@ -35,6 +34,8 @@ import scala.concurrent.ExecutionContext
 class XHTMLRendererSpec extends IOSpec with ModelBuilder with FileIO {
 
   implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
+  
+  private val defaultRenderer = Renderer.of(EPUB.XHTML).build
   
   trait DocBuilder {
 
@@ -104,12 +105,12 @@ class XHTMLRendererSpec extends IOSpec with ModelBuilder with FileIO {
 
     "render a paragraph containing a citation link with an epub:type attribute" in {
       val elem = p(Text("some "), CitationLink("ref", "label"), Text(" span"))
-      Renderer.of(EPUB.XHTML).build.render(elem) should be("""<p>some <a class="citation" href="#ref" epub:type="noteref">[label]</a> span</p>""")
+      defaultRenderer.render(elem) should be("""<p>some <a class="citation" href="#ref" epub:type="noteref">[label]</a> span</p>""")
     }
 
     "render a paragraph containing a footnote link with an epub:type attribute" in {
       val elem = p(Text("some "), FootnoteLink("id", "label"), Text(" span"))
-      Renderer.of(EPUB.XHTML).build.render(elem) should be("""<p>some <a class="footnote" href="#id" epub:type="noteref">[label]</a> span</p>""")
+      defaultRenderer.render(elem) should be("""<p>some <a class="footnote" href="#id" epub:type="noteref">[label]</a> span</p>""")
     }
 
     "render a footnote with an epub:type attribute" in {
@@ -119,7 +120,7 @@ class XHTMLRendererSpec extends IOSpec with ModelBuilder with FileIO {
           |  <p>a</p>
           |  <p>b</p>
           |</aside>""".stripMargin
-      Renderer.of(EPUB.XHTML).build.render(elem) should be(html)
+      defaultRenderer.render(elem) should be(html)
     }
 
     "render a citation with an epub:type attribute" in {
@@ -129,7 +130,7 @@ class XHTMLRendererSpec extends IOSpec with ModelBuilder with FileIO {
           |  <p>a</p>
           |  <p>b</p>
           |</aside>""".stripMargin
-      Renderer.of(EPUB.XHTML).build.render(elem) should be(html)
+      defaultRenderer.render(elem) should be(html)
     }
 
     "render a choice group without selections" in {
@@ -145,7 +146,13 @@ class XHTMLRendererSpec extends IOSpec with ModelBuilder with FileIO {
         |<p>common</p>
         |<p>33
         |44</p>""".stripMargin
-      Renderer.of(EPUB.XHTML).build.render(elem) should be (html)
+      defaultRenderer.render(elem) should be (html)
+    }
+
+    "prefer the external URL when an internal link has one defined" in {
+      val target = InternalTarget(Path.parse("/#foo"), RelativePath.parse("#foo"), Some("http://external/"))
+      val elem = p(Text("some "), SpanLink(List(Text("link")), target), Text(" span"))
+      defaultRenderer.render(elem) should be ("""<p>some <a href="http://external/">link</a> span</p>""")
     }
     
   }

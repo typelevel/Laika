@@ -694,6 +694,13 @@ class XSLFORendererSpec extends AnyFlatSpec
     render (elem) should be (fo)
   }
 
+  it should "prefer the external URL when an internal link has one defined" in {
+    val elem = p(Text("some "), SpanLink(List(Text("link")), InternalTarget(Path.parse("/#foo"),RelativePath.parse("#foo"),Some("http://external/"))), Text(" span"))
+    val fo = s"""<fo:block $defaultParagraphStyles>some """ +
+      """<fo:basic-link color="#931813" external-destination="http://external/" font-weight="bold">link</fo:basic-link> span</fo:block>"""
+    render (elem) should be (fo)
+  }
+
   it should "render a paragraph containing only an image centered" in {
     val elem = p(Image("img", imageTarget))
     val fo = s"""<fo:block space-after="3mm" text-align="center"><fo:external-graphic content-width="scale-down-to-fit" scaling="uniform" src="/foo.jpg" width="85%"/></fo:block>"""

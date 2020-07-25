@@ -40,7 +40,7 @@ object NavigationBuilder {
       case h: NavigationHeader => h.copy(content = h.content.map(adjustPath))
       case l: NavigationLink => l.target match {
         case _: ExternalTarget => l
-        case InternalTarget(_, rel) => 
+        case InternalTarget(_, rel, _) => 
           val adjustedPath = (Root / "content" / rel).withSuffix("epub.xhtml")
           l.copy(
             content = l.content.map(adjustPath),

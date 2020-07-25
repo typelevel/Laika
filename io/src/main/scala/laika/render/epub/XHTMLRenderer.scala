@@ -33,12 +33,27 @@ object XHTMLRenderer extends HTMLRenderer(fileSuffix = "epub.xhtml", formats = N
   }
   
   override def apply (fmt: HTMLFormatter, element: Element): String = element match {
-    case CitationLink(ref,label,opt) => fmt.textElement("a", opt + Style.citation, "[" + label + "]", "href" -> ("#"+ref), "epub:type" -> "noteref")
-    case FootnoteLink(ref,label,opt) => fmt.textElement("a", opt + Style.footnote, "[" + label + "]", "href" -> ("#"+ref), "epub:type" -> "noteref")
-    case Citation(_,content,opt) => fmt.indentedElement("aside", opt + Style.citation, content, "epub:type" -> "footnote")
-    case Footnote(_,content,opt) => fmt.indentedElement("aside", opt + Style.footnote, content, "epub:type" -> "footnote")
-    case ChoiceGroup(name, choices, opt) => renderChoices(fmt, name, choices, opt)
-    case _ => super.apply(fmt, element)
+      
+    case SpanLink(content, InternalTarget(_,_,Some(extUrl)), title, opt) => 
+      fmt.element("a", opt, content, fmt.optAttributes("href" -> Some(extUrl), "title" -> title.map(fmt.text)):_*)
+   
+    case CitationLink(ref,label,opt) => 
+      fmt.textElement("a", opt + Style.citation, "[" + label + "]", "href" -> ("#"+ref), "epub:type" -> "noteref")
+    
+    case FootnoteLink(ref,label,opt) => 
+      fmt.textElement("a", opt + Style.footnote, "[" + label + "]", "href" -> ("#"+ref), "epub:type" -> "noteref")
+    
+    case Citation(_,content,opt) => 
+      fmt.indentedElement("aside", opt + Style.citation, content, "epub:type" -> "footnote")
+    
+    case Footnote(_,content,opt) => 
+      fmt.indentedElement("aside", opt + Style.footnote, content, "epub:type" -> "footnote")
+    
+    case ChoiceGroup(name, choices, opt) => 
+      renderChoices(fmt, name, choices, opt)
+    
+    case _ => 
+      super.apply(fmt, element)
   }
 
 }
