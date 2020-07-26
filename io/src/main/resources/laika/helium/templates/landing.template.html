@@ -151,11 +151,7 @@
         @:for(helium.landingPage.subtitle) <h2>${_}</h2> @:@
       </div>
       <div id="header-right">
-        @:for(helium.landingPage.latestStableRelease)
-          <p>${_.title}</p>
-          <p class="large">${_.version}</p>
-        @:@
-        @:for(helium.landingPage.latestMilestoneRelease)
+        @:for(helium.landingPage.latestReleases)
           <p>${_.title}</p>
           <p class="large">${_.version}</p>
         @:@
@@ -173,7 +169,7 @@
             </ul>
           </div>
         @:@
-        @:for(helium.landingPage.otherLinks)
+        @:for(helium.landingPage.projectLinks)
           <p class="large"><a href="${_.target}">${_.text}</a></p>
         @:@
       </div>

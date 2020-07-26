@@ -17,13 +17,14 @@
 package laika.helium
 
 import cats.data.Kleisli
-import cats.effect.{Async, IO}
+import cats.effect.Async
 import laika.ast.LengthUnit.{cm, mm, pt, px}
 import laika.ast.Path.Root
-import laika.ast.{Block, BlockContainer, BlockSequence, CodeBlock, DocumentCursor, Replace, RewriteRules, SpanContainer, Style, TemplateDocument}
+import laika.ast._
 import laika.bundle.{BundleOrigin, ExtensionBundle, Precedence}
+import laika.config.{Config, ConfigBuilder, ConfigEncoder}
 import laika.format.HTML
-import laika.helium.generate.{CSSVarGenerator, EPUBTemplate, FOStyles, FOTemplate, HTMLTemplate}
+import laika.helium.generate._
 import laika.io.model.InputTree
 import laika.io.theme.Theme
 
@@ -70,11 +71,50 @@ case class Helium (fontResources: Seq[FontDefinition],
         Replace(bs.mergeOptions(Style.keepTogether))
     }
     
+    implicit val releaseEncoder: ConfigEncoder[ReleaseInfo] = ConfigEncoder[ReleaseInfo] { releaseInfo =>
+      ConfigEncoder.ObjectBuilder.empty
+        .withValue("title", releaseInfo.title)
+        .withValue("version", releaseInfo.version)
+        .build
+    }
+
+    implicit val linkEncoder: ConfigEncoder[LandingPageLink] = ConfigEncoder[LandingPageLink] { link =>
+      ConfigEncoder.ObjectBuilder.empty
+        .withValue("text", link.text)
+        .withValue("version", link match { case e: ExternalLink => e.target; case i: InternalLink => i.target.toString })
+        .build
+    }
+    
+    implicit val teaserEncoder: ConfigEncoder[Teaser] = ConfigEncoder[Teaser] { teaser =>
+      ConfigEncoder.ObjectBuilder.empty
+        .withValue("title", teaser.title)
+        .withValue("description", teaser.description)
+        .build
+    }
+    
+    implicit val landingPageEncoder: ConfigEncoder[LandingPage] = ConfigEncoder[LandingPage] { landingPage =>
+      ConfigEncoder.ObjectBuilder.empty
+        .withValue("logo", landingPage.logo)
+        .withValue("title", landingPage.title)
+        .withValue("subtitle", landingPage.subtitle)
+        .withValue("latestReleases", landingPage.latestReleases)
+        .withValue("license", landingPage.license)
+        .withValue("documentationLinks", landingPage.documentationLinks)
+        .withValue("projectLinks", landingPage.projectLinks)
+        .withValue("teasers", landingPage.teasers)
+        .build
+    }
+    
+    val landingPageConfig: Config = ConfigBuilder.empty
+      .withValue("helium.landingPage", landingPage)
+      .build
+    
     val bundle: ExtensionBundle = new ExtensionBundle {
-      override def origin: BundleOrigin = BundleOrigin.Theme
-      def description = "Helium Theme Rewrite Rules"
-      override def rewriteRules: Seq[DocumentCursor => RewriteRules] = Seq(_ => rewriteRule)
-      override def renderOverrides = Seq(HTML.Overrides(HeliumRenderOverrides.create(webLayout.anchorPlacement)))
+      override val origin: BundleOrigin = BundleOrigin.Theme
+      val description = "Helium Theme Rewrite Rules"
+      override val rewriteRules: Seq[DocumentCursor => RewriteRules] = Seq(_ => rewriteRule)
+      override val renderOverrides = Seq(HTML.Overrides(HeliumRenderOverrides.create(webLayout.anchorPlacement)))
+      override val baseConfig: Config = landingPageConfig
     }
     
     new Theme[F] {
