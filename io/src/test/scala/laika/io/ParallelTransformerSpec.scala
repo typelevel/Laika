@@ -356,7 +356,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
         s"""RootElement - Blocks: 1
           |. Paragraph - Spans: 2
           |. . Text - 'This is a '
-          |. . SpanLink(InternalTarget(/baz.md#$sectionSlug,../baz.md#$sectionSlug),None) - Spans: 1
+          |. . SpanLink(InternalTarget(/baz.md#$sectionSlug,../baz.md#$sectionSlug,None),None) - Spans: 1
           |. . . Text - 'cross ref'""".stripMargin
 
       def inputs: Seq[(Path, String)] = Seq(

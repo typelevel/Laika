@@ -46,7 +46,9 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
    */
   def apply (cursor: DocumentCursor): RewriteRules = {
     
-    val excludeFromValidation = cursor.config.get[LinkConfig].getOrElse(LinkConfig.empty).excludeFromValidation.toSet
+    val linkConfig = cursor.config.get[LinkConfig].getOrElse(LinkConfig.empty)
+    val excludeFromValidation = linkConfig.excludeFromValidation.toSet
+    val internalLinkMappings = linkConfig.internalLinkMappings
     
     def replace (element: Customizable, selector: Selector): Option[Customizable] = 
       targets.select(cursor.path, selector)
@@ -70,22 +72,31 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
     
     def resolveWith (ref: Reference, target: Option[TargetResolver], msg: => String): RewriteAction[Span] = {
 
-      def replaceInvalidTarget (target: Target): Option[Span] = target match {
-        case InternalTarget(_, relativePath, _) =>
+      def validateLink (link: Span, target: Target): Span = target match {
+        case InternalTarget(absPath, relativePath, _) =>
           val selector = pathSelectorFor(relativePath)
-          if (excludeFromValidation.exists(p => selector.path.isSubPath(p)) || targets.select(Root, selector).isDefined) None
-          else Some(InvalidElement(s"unresolved internal reference: ${relativePath.toString}", ref.source).asSpan)
-        case _ => None
+          if (excludeFromValidation.exists(p => selector.path.isSubPath(p)) || targets.select(Root, selector).isDefined) {
+            internalLinkMappings.find(m => selector.path.isSubPath(m.internalPath)).fold(link) { mapping =>
+              link match {
+                case sl: SpanLink => 
+                  sl.copy(target = InternalTarget(absPath, relativePath, Some(mapping.externalBaseUrl + absPath.relativeTo(mapping.internalPath / "ref").toString)))
+                case _: Image =>
+                  InvalidElement(s"image with internal path: ${absPath.toString} cannot be mapped to external base URL ${mapping.externalBaseUrl}", ref.source).asSpan
+              }
+            }
+          }
+          else InvalidElement(s"unresolved internal reference: ${relativePath.toString}", ref.source).asSpan
+        case _ => link
       }
 
       val resolvedTarget = target.flatMap(_.resolveReference(LinkSource(ref, cursor.path))) match {
-        case Some(link: SpanLink) => replaceInvalidTarget(link.target).getOrElse(link)
-        case Some(img: Image)     => replaceInvalidTarget(img.target).getOrElse(img)
+        case Some(link: SpanLink) => validateLink(link, link.target)
+        case Some(img: Image)     => validateLink(img, img.target)
         case Some(other)          => other
         case None                 => ref match {
           case p: PathReference =>
             val target = ReferenceResolver.resolveTarget(InternalTarget.fromPath(p.path, cursor.path), cursor.path)
-            replaceInvalidTarget(target).getOrElse(p.resolve(target))
+            validateLink(p.resolve(target), target)
           case _ =>
             InvalidElement(msg, ref.source).asSpan
         }
