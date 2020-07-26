@@ -16,7 +16,7 @@
 
 package laika.helium
 
-import laika.ast.{Path, Size}
+import laika.ast.{Image, Path, Size}
 
 case class WebLayout (contentWidth: Size, 
                       navigationWidth: Size, 
@@ -30,10 +30,35 @@ case class PDFLayout (pageWidth: Size, pageHeight: Size,
                       defaultBlockSpacing: Size, defaultLineHeight: Double,
                       keepTogetherDecoratedLines: Int)
 
+case class LandingPage (logo: Option[Image] = None,
+                        title: Option[String] = None,
+                        subtitle: Option[String] = None,
+                        latestStableRelease: Option[ReleaseInfo] = None,
+                        latestMilestoneRelease: Option[ReleaseInfo] = None,
+                        license: Option[String] = None,
+                        documentationLinks: Seq[LandingPageLink] = Nil,
+                        otherLinks: Seq[LandingPageLink] = Nil,
+                        teasers: Seq[Teaser] = Nil)
+
+case class ReleaseInfo (title: String, version: String)
+sealed trait LandingPageLink
+case class ExternalLink (text: String, target: String) extends LandingPageLink
+case class InternalLink (text: String, target: Path) extends LandingPageLink
+
+case class Teaser (title: String, description: String)
+
 sealed trait AnchorPlacement
 
 object AnchorPlacement {
   object None extends AnchorPlacement
   object Left extends AnchorPlacement
   object Right extends AnchorPlacement
+}
+
+object FOo {
+  
+  val x: Option[String] = None
+  
+  if (x.nonEmpty)
+  
 }

@@ -34,6 +34,7 @@ case class Helium (fontResources: Seq[FontDefinition],
                    themeFonts: ThemeFonts,
                    fontSizes: FontSizes,
                    colors: ColorSet,
+                   landingPage: LandingPage,
                    webLayout: WebLayout,
                    pdfLayout: PDFLayout) {
   
@@ -124,6 +125,7 @@ object Helium {
         )
       )
     ),
+    LandingPage(),
     WebLayout(
       contentWidth = px(860), 
       navigationWidth = px(275),

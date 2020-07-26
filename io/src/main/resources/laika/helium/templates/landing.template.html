@@ -146,66 +146,48 @@
 
     <div id="header">
       <div id="header-left">
-        <img src="img/laika-dog-big@1.5x.png" width="327" height="393" alt="Laika Logo"/>
-        <h2>Site and E-book Generator and Customizable Text Markup Transformer
-        for sbt, Scala and Scala.js</h2>
+        ${helium.landingPage.logo}
+        @:for(helium.landingPage.title) <h1>${_}</h1> @:@
+        @:for(helium.landingPage.subtitle) <h2>${_}</h2> @:@
       </div>
       <div id="header-right">
-        <p>Latest Release</p>
-        <p class="large">0.16.0</p>
-        <p>License</p>
-        <p class="large">Apache 2.0</p>
-        <div id="docs">
-          <p>Documentation</p>
-          <ul>
-            <li>Features</li>
-            <li>sbt Plugin</li>
-            <li>Library API</li>
-            <li>Table of Contents</li>
-            <li>Download (PDF / EPUB)</li>
-            <li>API (Scaladoc)</li>
-          </ul>
-        </div>
-        <p class="large">Source</p>
-        <p class="large">Chat</p>
-        <p class="large">Twitter</p>
+        @:for(helium.landingPage.latestStableRelease)
+          <p>${_.title}</p>
+          <p class="large">${_.version}</p>
+        @:@
+        @:for(helium.landingPage.latestMilestoneRelease)
+          <p>${_.title}</p>
+          <p class="large">${_.version}</p>
+        @:@
+        @:for(helium.landingPage.license)
+          <p>License</p>
+          <p class="large">${_}</p>
+        @:@
+        @:if(helium.landingPage.documentationLinks)
+          <div id="docs">
+            <p>Documentation</p>
+            <ul>
+              @:for(helium.landingPage.documentationLinks)
+                <li><a href="${_.target}">${_.text}</a></li>
+              @:@
+            </ul>
+          </div>
+        @:@
+        @:for(helium.landingPage.otherLinks)
+          <p class="large"><a href="${_.target}">${_.text}</a></p>
+        @:@
       </div>
     </div>
-    <div class="teasers">
-      <div class="teaser">
-        <h2>No External Tools</h2>
-        <p>Easy setup without any external tools or languages
-          and only minimal library dependencies.</p>
+    @:for(helium.landingPage.teaserRows)
+      <div class="teasers">
+        @:for(_.teasers)
+          <div class="teaser">
+            <h2>${_.title}</h2>
+            <p>${_.description}</p>
+          </div>
+        @:@
       </div>
-      <div class="teaser">
-        <h2>Flexible Runtime</h2>
-        <p>Laika can be used as an sbt plugin, as a Scala library for the JVM
-          or in the browser via Scala.js.</p>
-      </div>
-      <div class="teaser">
-        <h2>Purely Functional</h2>
-        <p>Fully referentially transparent, no exceptions or runtime reflection
-          and integration with cats-effect for polymorphic effect handling.</p>
-      </div>
-    </div>
-    <div class="teasers">
-      <div class="teaser">
-        <h2>Rich Feature Set</h2>
-        <p>Markdown and reStructuredText as input, HTML, EPUB and PDF as output,
-        integrated syntax highlighting and much more.</p>
-      </div>
-      <div class="teaser">
-        <h2>Lightweight Theme</h2>
-        <p>The default Helium theme only includes a minimal amount of handcrafted CSS and JS,
-          no Bootstrap, no frameworks.</p>
-      </div>
-      <div class="teaser">
-        <h2>Highly Extensible</h2>
-        <p>Process the document AST, 
-          adjust rendering for individual AST nodes
-          or extend text markup languages with custom directives.</p>
-      </div>
-    </div>
+    @:@
 
   </body>
 </html>
