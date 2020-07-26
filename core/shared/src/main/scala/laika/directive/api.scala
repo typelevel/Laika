@@ -65,8 +65,6 @@ object AttributeKey {
   */
 trait BuilderContext[E <: Element] {
 
-  private val directiveOrigin = "$$directive$$"
-  
   /** The parser API in case a directive function needs to manually parse one of the directive parts.
     */
   type Parser <: String => Seq[E]
@@ -167,7 +165,8 @@ trait BuilderContext[E <: Element] {
 
     def process[T] (cursor: DocumentCursor, factory: Option[DirectiveContent => Result[T]]): Result[T] = {
 
-      val origin = Origin(DirectiveScope, cursor.path / directiveOrigin)
+      val originPath = cursor.templatePath.getOrElse(cursor.path)
+      val origin = Origin(DirectiveScope, originPath)
       
       def directiveOrMsg: Result[DirectiveContent => Result[T]] =
         factory.toRight(Seq(s"No $typeName directive registered with name: $name"))
