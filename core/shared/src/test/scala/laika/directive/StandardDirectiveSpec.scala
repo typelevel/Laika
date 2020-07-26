@@ -495,7 +495,6 @@ class StandardDirectiveSpec extends AnyFlatSpec
       """.stripMargin
   }
 
-
   "The api directive" should "create a span link based on the default base URI" in new ApiDirectiveSetup {
     parse(input("def.bar.Baz")).content should be (root(p(
       Text("aa "),
@@ -537,6 +536,53 @@ class StandardDirectiveSpec extends AnyFlatSpec
   }
 
   it should "fail when there is no matching base URI defined" in new ApiDirectiveSetup {
+    val res = parse("aa @:api(foo.bar.Baz) bb")
+    parse("aa @:api(foo.bar.Baz) bb").content should be (root(p(
+      Text("aa "),
+      InvalidElement("One or more errors processing directive 'api': No base URI defined for 'foo.bar.Baz' and no default URI available.", "@:api(foo.bar.Baz)").asSpan,
+      Text(" bb")
+    )))
+  }
+
+  trait SourceDirectiveSetup {
+    def input (typeName: String) =
+      s"""{%
+         |  laika.links.source = [
+         |    { baseUri = "https://default.source/", suffix = scala },
+         |    { baseUri = "https://foo.source/", suffix = scala, packagePrefix = foo },
+         |    { baseUri = "https://bar.source/", suffix = java, packagePrefix = foo.bar }
+         |  ]
+         |%}
+         |
+        |aa @:source($typeName) bb
+      """.stripMargin
+  }
+
+  "The source directive" should "create a span link based on the default base URI" in new SourceDirectiveSetup {
+    parse(input("def.bar.Baz")).content should be (root(p(
+      Text("aa "),
+      SpanLink(Seq(Text("Baz")), ExternalTarget(s"https://default.source/def/bar/Baz.scala")),
+      Text(" bb")
+    )))
+  }
+
+  it should "create a span link based on the longest prefix match" in new SourceDirectiveSetup {
+    parse(input("foo.bar.Baz")).content should be (root(p(
+      Text("aa "),
+      SpanLink(Seq(Text("Baz")), ExternalTarget(s"https://bar.source/foo/bar/Baz.java")),
+      Text(" bb")
+    )))
+  }
+
+  it should "create a span link based on the shorter prefix match" in new SourceDirectiveSetup {
+    parse(input("foo.baz.Baz")).content should be (root(p(
+      Text("aa "),
+      SpanLink(Seq(Text("Baz")), ExternalTarget(s"https://foo.source/foo/baz/Baz.scala")),
+      Text(" bb")
+    )))
+  }
+
+  it should "fail when there is no matching base URI defined" in new SourceDirectiveSetup {
     val res = parse("aa @:api(foo.bar.Baz) bb")
     parse("aa @:api(foo.bar.Baz) bb").content should be (root(p(
       Text("aa "),

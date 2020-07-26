@@ -134,8 +134,8 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
         ApiLinks("https://bar.api/", "foo.bar")
       ),
       Seq(
-        SourceLinks("https://foo.source/", "foo"),
-        SourceLinks("https://bar.source/", "foo.bar")
+        SourceLinks("https://foo.source/", "scala", "foo"),
+        SourceLinks("https://bar.source/", "java", "foo.bar")
       )
     )
 
@@ -161,8 +161,8 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
           |      { baseUri = "https://bar.api/", packagePrefix = foo.bar }
           |    ]
           |    source = [
-          |      { baseUri = "https://foo.source/", packagePrefix = foo },
-          |      { baseUri = "https://bar.source/", packagePrefix = foo.bar }
+          |      { baseUri = "https://foo.source/", suffix = scala, packagePrefix = foo },
+          |      { baseUri = "https://bar.source/", suffix = java, packagePrefix = foo.bar }
           |    ]
           |  }
           |}

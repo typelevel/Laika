@@ -40,6 +40,7 @@ import scala.collection.immutable.TreeSet
   *   via its headline text. The headline does not have to be unique, as long as the directive can identify
   *   a section that is closer than the others with the same headline.
   * - `api`: Convenience directive that allows to reference an api documentation entry (e.g. scaladoc, javadoc)
+  * - `source`: Convenience directive that allows to reference a hosted source (e.g. on GitHub)
   * - `fragment`: Marks a block in a markup document as being separate from the main content, 
   *   so that it can be placed separately in templates.
   * - `for`: Accesses a value from the context and sets it as the reference context for its
@@ -382,6 +383,12 @@ object StandardDirectives extends DirectiveRegistry {
         .flatMap(_.eval(cursor))
     }
   }
+  
+  private def linkConfig[T] (cursor: DocumentCursor, extract: LinkConfig => Seq[T]): Either[String, Seq[T]] = 
+    cursor.config
+      .getOpt[LinkConfig]
+      .map(_.map(extract).getOrElse(Nil))
+      .leftMap(_.message)
 
   /** Implementation of the `api` directive that creates links to API documentation based
     * on a specified fully-qualified type name. The type name is the only (required) attribute
@@ -391,10 +398,7 @@ object StandardDirectives extends DirectiveRegistry {
     * otherwise fail. See [[laika.rewrite.link.LinkConfig]] for details.
     */
   lazy val api: Links.Directive = Links.eval("api") { (linkId, cursor) =>
-    cursor.config
-      .getOpt[LinkConfig]
-      .map(_.map(_.apiLinks).getOrElse(Nil))
-      .leftMap(_.message)
+    linkConfig(cursor, _.apiLinks)
       .flatMap { apiLinks =>
         val matching = apiLinks.toList.filter(l => linkId.startsWith(l.packagePrefix)).maximumByOption(_.packagePrefix.length)
         matching.orElse(apiLinks.find(_.packagePrefix == "*")).fold[Either[String, SpanLink]] (
@@ -416,9 +420,31 @@ object StandardDirectives extends DirectiveRegistry {
           Right(SpanLink(Seq(Text(text)), Target.create(uri)))
         }
       }
-  } 
-  
-  
+  }
+
+  /** Implementation of the `source` directive that creates links to hosted sources based
+    * on a specified fully-qualified type name or a path to markup source file. 
+    * The type name or path is the only (required) attribute of the directive.
+    *
+    * The directive relies on base URIs defined in the transformation's configuration and will
+    * otherwise fail. See [[laika.rewrite.link.LinkConfig]] for details.
+    */
+  lazy val source: Links.Directive = Links.eval("source") { (linkId, cursor) =>
+    linkConfig(cursor, _.sourceLinks)
+      .flatMap { sourceLinks =>
+        val matching = sourceLinks.toList.filter(l => linkId.startsWith(l.packagePrefix)).maximumByOption(_.packagePrefix.length)
+        matching.orElse(sourceLinks.find(_.packagePrefix == "*")).fold[Either[String, SpanLink]] (
+          Left(s"No base URI defined for '$linkId' and no default URI available.")
+        ) { link =>
+          val typePath = linkId.replace(".", "/") + "." + link.suffix
+          val uri = link.baseUri + typePath
+          val text = linkId.split('.').last
+          Right(SpanLink(Seq(Text(text)), Target.create(uri)))
+        }
+      }
+  }
+
+
   private def asBlock (blocks: Seq[Block], options: Options = NoOpt): Block = blocks match {
     case block :: Nil => block.mergeOptions(options)
     case multiple     => BlockSequence(multiple, options)
@@ -619,6 +645,6 @@ object StandardDirectives extends DirectiveRegistry {
 
   /** The complete list of standard directives for links.
     */
-  lazy val linkDirectives: Seq[Links.Directive] = Seq(api)
+  lazy val linkDirectives: Seq[Links.Directive] = Seq(api, source)
   
 }

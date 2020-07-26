@@ -84,7 +84,7 @@ object InternalLinkMapping {
   }
 }
 
-case class SourceLinks (baseUri: String, packagePrefix: String = "*")
+case class SourceLinks (baseUri: String, suffix: String, packagePrefix: String = "*")
 
 object SourceLinks {
 
@@ -92,8 +92,9 @@ object SourceLinks {
     for {
       baseUri <- config.get[String]("baseUri")
       prefix  <- config.get[String]("packagePrefix", "*")
+      suffix  <- config.get[String]("suffix")
     } yield {
-      SourceLinks(baseUri, prefix)
+      SourceLinks(baseUri, suffix, prefix)
     }
   }
 
@@ -101,6 +102,7 @@ object SourceLinks {
     ConfigEncoder.ObjectBuilder.empty
       .withValue("baseUri", links.baseUri)
       .withValue("packagePrefix", links.packagePrefix)
+      .withValue("suffix", links.suffix)
       .build
   }
 }
