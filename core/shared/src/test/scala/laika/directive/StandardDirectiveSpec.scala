@@ -97,6 +97,21 @@ class StandardDirectiveSpec extends AnyFlatSpec
     parse(input).content should be (root(p("aa"),PageBreak(),p("bb")))
   }
 
+  
+  "The todo directive" should "parse a block directive" in {
+    val input = """aa
+                  |
+                  |@:todo(FIXME LATER)
+                  |
+                  |bb""".stripMargin
+    parse(input).content should be (root(p("aa"),BlockSequence(Nil),p("bb")))
+  }
+
+  it should "parse a span directive" in {
+    val input = """aa @:todo(FIXME LATER) bb"""
+    parse(input).content should be (root(p(Text("aa "),SpanSequence(Nil),Text(" bb"))))
+  }
+
 
   "The style directive" should "parse a body with a single block" in {
     val input = """aa

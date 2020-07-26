@@ -55,6 +55,8 @@ import scala.collection.immutable.TreeSet
   *   content, to be rendered in different locations of the output, like headers, footers or sidebars.
   * - `pageBreak`: Inserts a page break element into the tree (will only be rendered by page-based
   *   output, like XSL-FO or PDF.
+  * - `todo`: simple directive that accepts a string argument that will be ignored by renderers,
+  *   overcoming the limitation that Markdown does not have a native comment syntax.
   * 
   *  @author Jens Halm
   */
@@ -535,6 +537,20 @@ object StandardDirectives extends DirectiveRegistry {
     
     empty(PageBreak())
   }
+
+  /** Implementation of the `todo` directive for inline elements.
+    */
+  val todo: Spans.Directive = Spans.create("todo") {
+    import Spans.dsl._
+    attribute(0).map { _ => SpanSequence(Nil) }
+  }
+
+  /** Implementation of the `todo` directive for block elements.
+    */
+  val todoBlock: Blocks.Directive = Blocks.create("todo") {
+    import Blocks.dsl._
+    attribute(0).map { _ => BlockSequence(Nil) }
+  }
   
   /** The complete list of standard directives for block
    *  elements in markup documents.
@@ -547,14 +563,16 @@ object StandardDirectives extends DirectiveRegistry {
     choicesDirective,
     callout,
     format,
-    pageBreak
+    pageBreak,
+    todoBlock
   )
   
   /** The complete list of standard directives for span
    *  elements in markup documents.
    */
   lazy val spanDirectives: Seq[Spans.Directive] = List(
-    spanStyle
+    spanStyle,
+    todo
   )
 
   /** Template resolver that inserts links to all CSS inputs found in the document tree, using a path
