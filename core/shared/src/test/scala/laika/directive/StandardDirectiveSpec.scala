@@ -53,8 +53,8 @@ class StandardDirectiveSpec extends AnyFlatSpec
 
   def parseTemplateWithConfig (input: String, config: String): RootElement = {
     val tRoot = parseTemplate(input)
-    val template = TemplateDocument(Path.Root, tRoot)
-    val cursor = DocumentCursor(Document(Path.Root, root(), config = ConfigParser.parse(config).resolve().toOption.get))
+    val template = TemplateDocument(Path.Root / "theme" / "test.template.html", tRoot)
+    val cursor = DocumentCursor(Document(Path.Root / "docs" / "doc1.md", root(), config = ConfigParser.parse(config).resolve().toOption.get))
     TemplateRewriter.applyTemplate(cursor, template).toOption.get.content
   }
 
@@ -110,6 +110,25 @@ class StandardDirectiveSpec extends AnyFlatSpec
   it should "parse a span directive" in {
     val input = """aa @:todo(FIXME LATER) bb"""
     parse(input).content should be (root(p(Text("aa "),SpanSequence(Nil),Text(" bb"))))
+  }
+  
+  
+  "The relativePath directive" should "translate a relative path" in {
+    val input = """aa @:relativePath(theme.css) bb"""
+    parseTemplateWithConfig(input, "") should be (root(TemplateRoot(
+      t("aa "),
+      TemplateString("../theme/theme.css"),
+      t(" bb")
+    )))
+  }
+  
+  it should "translate an absolute path" in {
+    val input = """aa @:relativePath(/theme/theme.css) bb"""
+    parseTemplateWithConfig(input, "") should be (root(TemplateRoot(
+      t("aa "),
+      TemplateString("../theme/theme.css"),
+      t(" bb")
+    )))
   }
 
 

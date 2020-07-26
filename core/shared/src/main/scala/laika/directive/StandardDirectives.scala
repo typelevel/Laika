@@ -54,6 +54,8 @@ import scala.collection.immutable.TreeSet
   * - `styleLink`: Adds link elements to HTML output for all CSS files found in the document tree
   * - `fragment`: Adds the body as a fragment to the target document, separate from the main
   *   content, to be rendered in different locations of the output, like headers, footers or sidebars.
+  * - `relativePath`: Translates an absolute or relative path from the perspective of a template
+  *   to a path relative to the document the template had been applied to
   * - `pageBreak`: Inserts a page break element into the tree (will only be rendered by page-based
   *   output, like XSL-FO or PDF.
   * - `todo`: simple directive that accepts a string argument that will be ignored by renderers,
@@ -506,6 +508,17 @@ object StandardDirectives extends DirectiveRegistry {
     }
   }
   
+  lazy val relativePath: Templates.Directive = Templates.create("relativePath") {
+    import Templates.dsl._
+    
+    (attribute(0).as[Path], cursor).mapN { (path, cursor) =>
+      println("path input:  " + path)
+      println("doc path:    " + cursor.path)
+      println("path result: " + path.relativeTo(cursor.path).toString)
+      TemplateString(path.relativeTo(cursor.path).toString)
+    }
+  }
+  
   /** Implementation of the `format` directive for block elements in markup documents.
    *  The content of such a block will only be rendered for the corresponding
    *  output format (e.g. `pdf` or `html`).
@@ -640,7 +653,8 @@ object StandardDirectives extends DirectiveRegistry {
     templateNav,
     templateFor,
     templateIf,
-    styleLinksDirective
+    styleLinksDirective,
+    relativePath
   )
 
   /** The complete list of standard directives for links.
