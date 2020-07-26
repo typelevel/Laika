@@ -189,12 +189,14 @@ object TreeCursor {
  *  @param parent the parent document tree of the referred document
  *  @param resolver the resolver for references in templates
  *  @param config the configuration associated with the target document
+ *  @param templatePath the path of the template that has been applied to this document
  *  @param position the position of the target document inside a tree hierarchy
  */
 case class DocumentCursor (target: Document, 
                            parent: TreeCursor,
                            resolver: ReferenceResolver,
                            config: Config,
+                           templatePath: Option[Path],
                            position: TreePosition) extends Cursor { self =>
                                  
   type Target = Document
@@ -313,6 +315,6 @@ object DocumentCursor {
     * its parent, configuration and position within the document tree.
     */
   def apply (document: Document, parent: TreeCursor, config: Config, position: TreePosition): DocumentCursor =
-    apply(document, parent, ReferenceResolver.forDocument(document, parent, config, position), config, position)
+    apply(document, parent, ReferenceResolver.forDocument(document, parent, config, position), config, None, position)
     
 }

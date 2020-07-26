@@ -87,7 +87,8 @@ trait TemplateRewriter {
     template.config.resolve(Origin(TemplateScope, template.path), cursor.config, cursor.root.target.includes).map { mergedConfig =>
       val cursorWithMergedConfig = cursor.copy(
         config = mergedConfig,
-        resolver = ReferenceResolver.forDocument(cursor.target, cursor.parent, mergedConfig, cursor.position)
+        resolver = ReferenceResolver.forDocument(cursor.target, cursor.parent, mergedConfig, cursor.position),
+        templatePath = Some(template.path)
       )
       val newContent = rewriteRules(cursorWithMergedConfig).rewriteBlock(template.content)
       val newRoot = newContent match {
@@ -141,17 +142,17 @@ trait TemplateRewriter {
       .fold[Block](group)(choice => BlockSequence(choice.content))
     
     lazy val rules: RewriteRules = RewriteRules.forBlocks {
-      case ph: BlockResolver                => Replace(rewriteBlock(ph resolve cursor))
+      case ph: BlockResolver                => Replace(rewriteBlock(ph.resolve(cursor)))
       case ch: ChoiceGroup if choices.contains(ch.name) => Replace(select(ch, choices(ch.name)))
       case TemplateRoot(spans, opt)         => Replace(TemplateRoot(format(spans), opt))
       case unresolved: Unresolved           => Replace(InvalidElement(unresolved.unresolvedMessage, "<unknown source>").asBlock)
       case sc: SpanContainer with Block     => Replace(sc.withContent(joinTextSpans(sc.content)).asInstanceOf[Block])
     } ++ RewriteRules.forSpans {
-      case ph: SpanResolver                 => Replace(rewriteSpan(ph resolve cursor))
+      case ph: SpanResolver                 => Replace(rewriteSpan(ph.resolve(cursor)))
       case unresolved: Unresolved           => Replace(InvalidElement(unresolved.unresolvedMessage, "<unknown source>").asSpan)
       case sc: SpanContainer with Span      => Replace(sc.withContent(joinTextSpans(sc.content)).asInstanceOf[Span])
     } ++ RewriteRules.forTemplates {
-      case ph: SpanResolver                 => Replace(rewriteTemplateSpan(asTemplateSpan(ph resolve cursor)))
+      case ph: SpanResolver                 => Replace(rewriteTemplateSpan(asTemplateSpan(ph.resolve(cursor))))
       case TemplateSpanSequence(spans, opt) => Replace(TemplateSpanSequence(format(spans), opt))
       case unresolved: Unresolved           => Replace(InvalidElement(unresolved.unresolvedMessage, "<unknown source>").asTemplateSpan)
     }
