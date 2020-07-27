@@ -20,7 +20,7 @@ import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.{Date, Locale, UUID}
 
-import cats.effect.Async
+import cats.effect.Sync
 import cats.implicits._
 import laika.ast.{DocumentMetadata, DocumentTreeRoot, Path, TemplateRoot}
 import laika.config.Config.ConfigResult
@@ -94,7 +94,7 @@ class PDF private(val interimFormat: RenderFormat[FOFormatter], fopFactory: Opti
      TODO - return type must be a factory that has a build method returning a Resource[F, BinaryPostProcessor]
      (as we cannot expose F[_] directly in this class):
      trait BinaryPostProcessorBuilder {
-       def build[F[_]: Async]: Resource[F, BinaryPostProcessor]
+       def build[F[_]: Sync]: Resource[F, BinaryPostProcessor]
      }
      The reason for using a Resource is that the creation of a FopFactory is not RT and we have no way
      to handle config errors here.
@@ -107,12 +107,12 @@ class PDF private(val interimFormat: RenderFormat[FOFormatter], fopFactory: Opti
     private val pdfConfig = PDF.BookConfig.decodeWithDefaults(config).getOrElse(PDF.BookConfig())
     private val renderer = new PDFRenderer(fopFactory.getOrElse(FopFactoryBuilder.build(pdfConfig)))
     
-    override def process[F[_]: Async: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput[F]): F[Unit] = {
+    override def process[F[_]: Sync: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput[F]): F[Unit] = {
       
       val title = result.title.map(_.extractText)
       
       for {
-        fo       <- Async[F].fromEither(FOConcatenation(result, pdfConfig).left.map(ConfigException))
+        fo       <- Sync[F].fromEither(FOConcatenation(result, pdfConfig).left.map(ConfigException))
         _        <- renderer.render(fo, output, pdfConfig.metadata, title, result.sourcePaths)
       } yield ()
     }

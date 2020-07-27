@@ -17,7 +17,7 @@
 package laika.io.runtime
 
 import cats.{Monad, Parallel, Traverse}
-import cats.effect.{Async, Blocker, ContextShift}
+import cats.effect.{Sync, Blocker, ContextShift}
 import cats.implicits._
 
 /** Type class for the effect F that encapsulates the mechanism 
@@ -27,9 +27,9 @@ import cats.implicits._
   */
 trait Runtime[F[_]] {
 
-  /** The `Async` instance for the type F.
+  /** The `Sync` instance for the type F.
     */
-  implicit def F: Async[F]
+  implicit def F: Sync[F]
 
   /** The optional `Parallel` instance for the type F.
     * 
@@ -80,8 +80,8 @@ object Runtime {
   /** Creates a Runtime instance for sequential execution based on the specified
     * contexts for CPU-bound and blocking operations.
     */
-  def sequential[F[_]: Async: ContextShift] (blockerParam: Blocker): Runtime[F] = new Runtime[F] {
-    val F = implicitly[Async[F]]
+  def sequential[F[_]: Sync: ContextShift] (blockerParam: Blocker): Runtime[F] = new Runtime[F] {
+    val F = implicitly[Sync[F]]
     val parallelInstance = None
     val parallelism = 1
     val contextShift = implicitly[ContextShift[F]]
@@ -91,8 +91,8 @@ object Runtime {
   /** Creates a Runtime instance for parallel execution based on the specified
     * contexts for CPU-bound and blocking operations.
     */
-  def parallel[F[_]: Async: Parallel: ContextShift] (blockerParam: Blocker, parallelismParam: Int): Runtime[F] = new Runtime[F] {
-    val F = implicitly[Async[F]]
+  def parallel[F[_]: Sync: Parallel: ContextShift] (blockerParam: Blocker, parallelismParam: Int): Runtime[F] = new Runtime[F] {
+    val F = implicitly[Sync[F]]
     val parallelInstance = Some(implicitly[Parallel[F]])
     val parallelism = parallelismParam
     val contextShift = implicitly[ContextShift[F]]

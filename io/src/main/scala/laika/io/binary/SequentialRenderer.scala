@@ -16,7 +16,7 @@
 
 package laika.io.binary
 
-import cats.effect.Async
+import cats.effect.Sync
 import laika.api.builder.TwoPhaseRenderer
 import laika.ast.{Document, Element, Path}
 import laika.factory.BinaryPostProcessor
@@ -30,7 +30,7 @@ import laika.io.runtime.{RendererRuntime, Runtime}
   *
   * @author Jens Halm
   */
-class SequentialRenderer[F[_]: Async: Runtime] (renderer: BinaryRenderer) {
+class SequentialRenderer[F[_]: Sync: Runtime] (renderer: BinaryRenderer) {
 
   /** Builder step that specifies the document to render.
     */
@@ -58,7 +58,7 @@ object SequentialRenderer {
   /** Builder step that allows to specify the execution context
     * for blocking IO and CPU-bound tasks.
     */
-  case class Builder[F[_]: Async: Runtime] (renderer: BinaryRenderer) {
+  case class Builder[F[_]: Sync: Runtime] (renderer: BinaryRenderer) {
 
     /** Final builder step that creates a sequential renderer for binary output.
       */
@@ -68,9 +68,9 @@ object SequentialRenderer {
 
   /** Builder step that allows to specify the output to render to.
     */
-  case class OutputOps[F[_]: Async: Runtime] (renderer: BinaryRenderer, input: Element, path: Path) extends BinaryOutputOps[F] {
+  case class OutputOps[F[_]: Sync: Runtime] (renderer: BinaryRenderer, input: Element, path: Path) extends BinaryOutputOps[F] {
 
-    val F: Async[F] = Async[F]
+    val F: Sync[F] = Sync[F]
 
     type Result = Op[F]
 
@@ -84,7 +84,7 @@ object SequentialRenderer {
     * default runtime implementation or by developing a custom runner that performs
     * the rendering based on this operation's properties.
     */
-  case class Op[F[_]: Async: Runtime] (renderer: BinaryRenderer, input: Element, path: Path, output: BinaryOutput[F]) {
+  case class Op[F[_]: Sync: Runtime] (renderer: BinaryRenderer, input: Element, path: Path, output: BinaryOutput[F]) {
 
     /** Performs the rendering operation based on the library's
       * default runtime implementation, suspended in the effect F.

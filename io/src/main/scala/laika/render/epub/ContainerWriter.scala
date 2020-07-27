@@ -19,7 +19,7 @@ package laika.render.epub
 import java.io.{BufferedInputStream, ByteArrayInputStream, FileInputStream}
 import java.nio.charset.Charset
 
-import cats.effect.{Async, Resource}
+import cats.effect.{Sync, Resource}
 import cats.implicits._
 import laika.ast.{/, Path}
 import laika.ast.Path.Root
@@ -52,7 +52,7 @@ class ContainerWriter {
     *  @param result the result of the render operation as a tree
     *  @return a list of all documents that need to be written to the EPUB container.
     */
-  def collectInputs[F[_]: Async] (result: RenderedTreeRoot[F], config: EPUB.BookConfig): Seq[BinaryInput[F]] = {
+  def collectInputs[F[_]: Sync] (result: RenderedTreeRoot[F], config: EPUB.BookConfig): Seq[BinaryInput[F]] = {
 
     val contentRoot = Root / "EPUB" / "content"
 
@@ -61,7 +61,7 @@ class ContainerWriter {
       else contentRoot / path.relative
 
     def toBinaryInput (content: String, path: Path): BinaryInput[F] =
-      BinaryInput(path, Resource.fromAutoCloseable(Async[F].delay {
+      BinaryInput(path, Resource.fromAutoCloseable(Sync[F].delay {
         new ByteArrayInputStream(content.getBytes(Charset.forName("UTF-8")))
       }))
 
@@ -100,10 +100,10 @@ class ContainerWriter {
     * @param result the result of the render operation as a tree
     * @param output the output to write the final result to
     */
-  def write[F[_]: Async: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput[F]): F[Unit] = {
+  def write[F[_]: Sync: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput[F]): F[Unit] = {
 
     for {
-      config <- Async[F].fromEither(EPUB.BookConfig.decodeWithDefaults(result.config).left.map(ConfigException))
+      config <- Sync[F].fromEither(EPUB.BookConfig.decodeWithDefaults(result.config).left.map(ConfigException))
       inputs =  collectInputs(result, config)
       _      <- ZipWriter.zipEPUB(inputs, output)
     } yield ()

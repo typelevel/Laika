@@ -19,7 +19,7 @@ package laika.io.config
 import java.io.File
 import java.net.URL
 
-import cats.effect.Async
+import cats.effect.Sync
 import cats.implicits._
 import laika.config.Config.IncludeMap
 import laika.config.{ConfigParser, ConfigResourceError}
@@ -45,11 +45,11 @@ object IncludeHandler {
     * be mapped to the requested resource as a `Left`. Successfully loaded and parsed
     * resources appear in the result map as a `Right`.
     */
-  def load[F[_]: Async : Runtime] (includes: Seq[RequestedInclude]): F[IncludeMap] = 
+  def load[F[_]: Sync : Runtime] (includes: Seq[RequestedInclude]): F[IncludeMap] = 
     
-    if (includes.isEmpty) Async[F].pure(Map.empty) else {
+    if (includes.isEmpty) Sync[F].pure(Map.empty) else {
       
-      def prepareFile(include: IncludeFile, requested: IncludeResource, parent: Option[IncludeResource]): F[(IncludeResource, IncludeResource)] = Async[F].pure {
+      def prepareFile(include: IncludeFile, requested: IncludeResource, parent: Option[IncludeResource]): F[(IncludeResource, IncludeResource)] = Sync[F].pure {
         if (new File(include.resourceId.value).isAbsolute) (include, requested)
         else parent.flatMap {
           case IncludeFile(id, _) => Option(new File(id.value).getParentFile)
@@ -60,7 +60,7 @@ object IncludeHandler {
         }
       }
       
-      def prepareClasspath(include: IncludeClassPath, requested: IncludeResource, parent: Option[IncludeResource]): F[(IncludeResource, IncludeResource)] = Async[F].pure {
+      def prepareClasspath(include: IncludeClassPath, requested: IncludeResource, parent: Option[IncludeResource]): F[(IncludeResource, IncludeResource)] = Sync[F].pure {
         if (include.resourceId.value.startsWith("/")) (include.copy(resourceId = ValidStringValue(include.resourceId.value.drop(1))), include)
         else parent match {
           case Some(p: IncludeClassPath) if p.resourceId.value.contains("/") => 
@@ -71,7 +71,7 @@ object IncludeHandler {
         }
       }
       
-      def prepareUrl(include: IncludeUrl, requested: IncludeResource, parent: Option[IncludeResource]): F[(IncludeResource, IncludeResource)] = Async[F].delay {
+      def prepareUrl(include: IncludeUrl, requested: IncludeResource, parent: Option[IncludeResource]): F[(IncludeResource, IncludeResource)] = Sync[F].delay {
         parent match {
           case Some(p: IncludeUrl) => 
             val parentUrl = new URL(p.resourceId.value)
@@ -82,7 +82,7 @@ object IncludeHandler {
       }
 
       def prepareAny(include: IncludeAny, parent: Option[IncludeResource]): F[(IncludeResource, IncludeResource)] = 
-        Async[F].delay(new URL(include.resourceId.value))
+        Sync[F].delay(new URL(include.resourceId.value))
           .flatMap(_ => prepareUrl(IncludeUrl(include.resourceId, include.isRequired), include, parent))
           .handleErrorWith { _ =>
             parent match {
@@ -107,9 +107,9 @@ object IncludeHandler {
           includes.map {
             case (i@IncludeFile(resourceId, _), orig)      => result(orig, i, ResourceLoader.loadFile(resourceId.value))
             case (i@IncludeClassPath(resourceId, _), orig) => result(orig, i, ResourceLoader.loadClasspathResource(resourceId.value))
-            case (i@IncludeUrl(resourceId, _), orig)       => Async[F].delay(new URL(resourceId.value))
+            case (i@IncludeUrl(resourceId, _), orig)       => Sync[F].delay(new URL(resourceId.value))
                                                               .flatMap(url => result(orig, i, ResourceLoader.loadUrl(url)))
-            case _                                       => Async[F].pure(Option.empty[LoadedInclude])
+            case _                                       => Sync[F].pure(Option.empty[LoadedInclude])
           }
         )
       }.flatMap { loadedResources =>

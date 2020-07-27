@@ -18,7 +18,7 @@ package laika.io.ops
 
 import java.io.{File, OutputStream}
 
-import cats.effect.Async
+import cats.effect.Sync
 import laika.ast.Path
 import laika.ast.Path.Root
 import laika.io.model.TextOutput
@@ -36,7 +36,7 @@ trait SequentialTextOutputOps[F[_]] {
 
   type Result
 
-  def F: Async[F]
+  def F: Sync[F]
 
   /** Builder step that instructs the runtime to render the document to
     * the specified file.

@@ -19,7 +19,7 @@ package laika.render.pdf
 import java.io.{File, FileOutputStream, OutputStream, StringReader}
 import java.net.URI
 
-import cats.effect.Async
+import cats.effect.Sync
 import cats.implicits._
 import javax.xml.transform.sax.SAXResult
 import javax.xml.transform.stream.StreamSource
@@ -52,9 +52,14 @@ class PDFRenderer (fopFactory: FopFactory) {
     *  @param sourcePaths the paths that may contain files like images
     *  which will be used to resolve relative paths
     */
-  def render[F[_] : Async: Runtime] (foInput: String, output: BinaryOutput[F], metadata: DocumentMetadata, title: Option[String] = None, sourcePaths: Seq[String] = Nil): F[Unit] = {
+  def render[F[_] : Sync: Runtime] (foInput: String, output: BinaryOutput[F], metadata: DocumentMetadata, title: Option[String] = None, sourcePaths: Seq[String] = Nil): F[Unit] = {
 
-    def applyMetadata (agent: FOUserAgent): F[Unit] = Async[F].delay {
+    def writeFo: F[Unit] = {
+      val tempOut = TextOutput.forFile[F](Root, new File("/Users/planet42/work/planet42/Laika/pdf/target/manual/test-Lato.fo"), Codec.UTF8)
+      OutputRuntime.write[F](foInput, tempOut)
+    }
+    
+    def applyMetadata (agent: FOUserAgent): F[Unit] = Sync[F].delay {
       metadata.date.foreach(d => agent.setCreationDate(d))
       metadata.authors.headOption.foreach(a => agent.setAuthor(a))
       title.foreach(t => agent.setTitle(t))
@@ -76,14 +81,14 @@ class PDFRenderer (fopFactory: FopFactory) {
       }
 
       for {
-        foUserAgent <- Async[F].delay(FOUserAgentFactory.createFOUserAgent(fopFactory, resolver))
+        foUserAgent <- Sync[F].delay(FOUserAgentFactory.createFOUserAgent(fopFactory, resolver))
         _           <- applyMetadata(foUserAgent)
-        fop         <- Async[F].delay(fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, out))
+        fop         <- Sync[F].delay(fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, out))
       } yield new SAXResult(fop.getDefaultHandler)
 
     }
 
-    def createTransformer: F[Transformer] = Async[F].delay {
+    def createTransformer: F[Transformer] = Sync[F].delay {
       val factory = TransformerFactory.newInstance
       factory.newTransformer // identity transformer
     }
@@ -91,10 +96,11 @@ class PDFRenderer (fopFactory: FopFactory) {
     Runtime[F].runBlocking {
       output.resource.use { out =>
         for {
-          source      <- Async[F].delay(new StreamSource(new StringReader(foInput)))
+          _           <- writeFo
+          source      <- Sync[F].delay(new StreamSource(new StringReader(foInput)))
           result      <- createSAXResult(out)
           transformer <- createTransformer
-          _           <- Async[F].delay(transformer.transform(source, result))
+          _           <- Sync[F].delay(transformer.transform(source, result))
         } yield ()
       }
     }

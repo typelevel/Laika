@@ -18,7 +18,7 @@ package laika.io.ops
 
 import java.io.File
 
-import cats.effect.Async
+import cats.effect.Sync
 import laika.io.model.{DirectoryOutput, TreeOutput}
 
 import scala.io.Codec
@@ -32,7 +32,7 @@ import scala.io.Codec
   */
 trait ParallelTextOutputOps[F[_]] {
 
-  def F: Async[F]
+  def F: Sync[F]
 
   type Result
 

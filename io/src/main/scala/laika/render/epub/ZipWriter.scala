@@ -19,7 +19,7 @@ package laika.render.epub
 import java.io.InputStream
 import java.util.zip.{CRC32, ZipEntry, ZipOutputStream}
 
-import cats.effect.Async
+import cats.effect.Sync
 import cats.implicits._
 import laika.ast.Path
 import laika.io.model.{BinaryInput, BinaryOutput}
@@ -37,20 +37,20 @@ object ZipWriter {
     * file (called `mimeType`) is written uncompressed. Hence this is not
     * a generic zip utility as the method name suggests.
     */
-  def zipEPUB[F[_]: Async: Runtime] (inputFs: Seq[BinaryInput[F]], output: BinaryOutput[F]): F[Unit] = {
+  def zipEPUB[F[_]: Sync: Runtime] (inputFs: Seq[BinaryInput[F]], output: BinaryOutput[F]): F[Unit] = {
 
     def copy (inputs: Vector[(InputStream, Path)], zipOut: ZipOutputStream): F[Unit] = {
     
-      def writeEntry (input: (InputStream, Path), prepareEntry: ZipEntry => F[Unit] = _ => Async[F].unit): F[Unit] = for {
-        entry <- Async[F].delay(new ZipEntry(input._2.relative.toString))
+      def writeEntry (input: (InputStream, Path), prepareEntry: ZipEntry => F[Unit] = _ => Sync[F].unit): F[Unit] = for {
+        entry <- Sync[F].delay(new ZipEntry(input._2.relative.toString))
         _     <- prepareEntry(entry)
-        _     <- Async[F].delay(zipOut.putNextEntry(entry))
+        _     <- Sync[F].delay(zipOut.putNextEntry(entry))
         _     <- CopyRuntime.copy(input._1, zipOut)
-        _     <- Async[F].delay(zipOut.closeEntry())
+        _     <- Sync[F].delay(zipOut.closeEntry())
       } yield ()
       
       
-      def prepareUncompressedEntry (entry: ZipEntry): F[Unit] = Async[F].delay {
+      def prepareUncompressedEntry (entry: ZipEntry): F[Unit] = Sync[F].delay {
         val content = StaticContent.mimeType
         val crc32 = new CRC32
         entry.setMethod(ZipOutputStream.STORED)
@@ -61,7 +61,7 @@ object ZipWriter {
 
       writeEntry(inputs.head, prepareUncompressedEntry) >> 
         inputs.tail.map(writeEntry(_)).sequence >> 
-          Async[F].delay(zipOut.close())
+          Sync[F].delay(zipOut.close())
     }
     
     val in = inputFs.toVector.map { doc =>

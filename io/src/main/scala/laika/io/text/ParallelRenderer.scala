@@ -16,7 +16,7 @@
 
 package laika.io.text
 
-import cats.effect.Async
+import cats.effect.Sync
 import laika.api.Renderer
 import laika.api.builder.OperationConfig
 import laika.ast.DocumentTreeRoot
@@ -30,7 +30,7 @@ import laika.io.theme.Theme
   *
   * @author Jens Halm
   */
-class ParallelRenderer[F[_]: Async: Runtime] (renderer: Renderer, theme: Theme[F]) {
+class ParallelRenderer[F[_]: Sync: Runtime] (renderer: Renderer, theme: Theme[F]) {
 
   /** Builder step that specifies the root of the document tree to render.
     */
@@ -45,7 +45,7 @@ object ParallelRenderer {
 
   /** Builder step that allows to specify the execution context for blocking IO and CPU-bound tasks.
     */
-  case class Builder[F[_]: Async: Runtime] (renderer: Renderer, theme: Theme[F]) {
+  case class Builder[F[_]: Sync: Runtime] (renderer: Renderer, theme: Theme[F]) {
 
     /** Applies the specified theme to this renderer, overriding any previously specified themes.
       */
@@ -59,12 +59,12 @@ object ParallelRenderer {
 
   /** Builder step that allows to specify the output to render to.
     */
-  case class OutputOps[F[_]: Async: Runtime] (renderer: Renderer,
+  case class OutputOps[F[_]: Sync: Runtime] (renderer: Renderer,
                                               theme: Theme[F],
                                               input: DocumentTreeRoot, 
                                               staticDocuments: Seq[BinaryInput[F]]) extends ParallelTextOutputOps[F] {
 
-    val F: Async[F] = Async[F]
+    val F: Sync[F] = Sync[F]
 
     type Result = Op[F]
 
@@ -81,7 +81,7 @@ object ParallelRenderer {
     * It can be run by invoking the `render` method which delegates to the library's default runtime implementation
     * or by developing a custom runner that performs the rendering based on this operation's properties.
     */
-  case class Op[F[_]: Async: Runtime] (renderer: Renderer,
+  case class Op[F[_]: Sync: Runtime] (renderer: Renderer,
                                        theme: Theme[F],
                                        input: DocumentTreeRoot, 
                                        output: TreeOutput, 

@@ -17,7 +17,7 @@
 package laika.io.ops
 
 import cats.Parallel
-import cats.effect.{Async, ContextShift}
+import cats.effect.{Sync, ContextShift}
 
 /** Builder step that allows to choose between sequential and parallel execution and specify the effect type. 
   * 
@@ -33,7 +33,7 @@ trait IOBuilderOps[SEQ[_[_]], PAR[_[_]]] {
     * Despite the name, the calling code can of course create multiple effects of this kind and run
     * them in parallel.
     */
-  def sequential[F[_]: Async: ContextShift]: SEQ[F]
+  def sequential[F[_]: Sync: ContextShift]: SEQ[F]
 
   /** Creates a builder for parallel execution.
     *
@@ -43,7 +43,7 @@ trait IOBuilderOps[SEQ[_[_]], PAR[_[_]]] {
     * This builder creates instances with a level of parallelism matching the available cores.
     * For explicit control of parallelism use the other `parallel` method.
     */
-  def parallel[F[_]: Async: ContextShift: Parallel]: PAR[F] = parallel(java.lang.Runtime.getRuntime.availableProcessors)
+  def parallel[F[_]: Sync: ContextShift: Parallel]: PAR[F] = parallel(java.lang.Runtime.getRuntime.availableProcessors)
 
   /** Creates a builder for parallel execution.
     *
@@ -52,6 +52,6 @@ trait IOBuilderOps[SEQ[_[_]], PAR[_[_]]] {
     *
     * This builder creates instances with the specified level of parallelism.
     */
-  def parallel[F[_]: Async: ContextShift: Parallel](parallelism: Int): PAR[F]
+  def parallel[F[_]: Sync: ContextShift: Parallel](parallelism: Int): PAR[F]
 
 }

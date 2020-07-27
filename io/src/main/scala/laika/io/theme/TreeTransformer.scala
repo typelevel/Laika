@@ -17,14 +17,14 @@
 package laika.io.theme
 
 import cats.data.Kleisli
-import cats.effect.Async
+import cats.effect.Sync
 import laika.io.model.ParsedTree
 import laika.io.ops.TreeMapperOps
 
 /**
   * @author Jens Halm
   */
-abstract class TreeTransformer[F[_]: Async] extends TreeMapperOps[F] {
+abstract class TreeTransformer[F[_]: Sync] extends TreeMapperOps[F] {
 
   type MapRes = Kleisli[F, ParsedTree[F], ParsedTree[F]]
 
@@ -33,6 +33,6 @@ abstract class TreeTransformer[F[_]: Async] extends TreeMapperOps[F] {
 
 object TreeTransformer {
   
-  def apply[F[_]: Async]: TreeTransformer[F] = new TreeTransformer[F] { }
+  def apply[F[_]: Sync]: TreeTransformer[F] = new TreeTransformer[F] { }
   
 }

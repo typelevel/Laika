@@ -16,7 +16,7 @@
 
 package laika.factory
 
-import cats.effect.Async
+import cats.effect.Sync
 import laika.io.model.{BinaryOutput, RenderedTreeRoot}
 import laika.io.runtime.Runtime
 
@@ -30,6 +30,6 @@ trait BinaryPostProcessor {
 
   /** Processes the interim render result and writes it to the specified final output.
    */
-  def process[F[_]: Async: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput[F]): F[Unit]
+  def process[F[_]: Sync: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput[F]): F[Unit]
   
 }

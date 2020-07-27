@@ -19,7 +19,7 @@ package laika.io.runtime
 import java.io.File
 
 import cats.data.{NonEmptyList, ValidatedNel}
-import cats.effect.Async
+import cats.effect.Sync
 import cats.implicits._
 import laika.api.MarkupParser
 import laika.ast.Path.Root
@@ -41,17 +41,17 @@ object ParserRuntime {
   
   /** Run the specified parser operation for a single input, producing a single document.
     */
-  def run[F[_]: Async: Runtime] (op: SequentialParser.Op[F]): F[Document] = {
+  def run[F[_]: Sync: Runtime] (op: SequentialParser.Op[F]): F[Document] = {
     for {
       parserInput <- InputRuntime.readParserInput(op.input)
-      res         <- Async[F].fromEither(op.parser.parse(parserInput))
+      res         <- Sync[F].fromEither(op.parser.parse(parserInput))
     } yield res
           
   }
   
   /** Run the specified parser operation for an entire input tree, producing an AST tree.
     */
-  def run[F[_]: Async: Runtime] (op: ParallelParser.Op[F]): F[ParsedTree[F]] = {
+  def run[F[_]: Sync: Runtime] (op: ParallelParser.Op[F]): F[ParsedTree[F]] = {
     
     import DocumentType.{Config => ConfigType, _}
     import TreeResultBuilder._
@@ -62,8 +62,8 @@ object ParserRuntime {
         val duplicates = inputs.allPaths
           .groupBy(identity)
           .collect { case (path, in) if in.size > 1 => DuplicatePath(path) }
-        if (duplicates.isEmpty) Async[F].unit
-        else Async[F].raiseError(ParserErrors(duplicates.toSet))
+        if (duplicates.isEmpty) Sync[F].unit
+        else Sync[F].raiseError(ParserErrors(duplicates.toSet))
       }
 
       def mergedInputs: InputTree[F] = {
@@ -101,7 +101,7 @@ object ParserRuntime {
       }
       
       def parseDocument[D] (doc: TextInput[F], parse: ParserInput => Either[ParserError, D], result: (D, Option[File]) => ParserResult): F[ParserResult] =
-        InputRuntime.readParserInput(doc).flatMap(in => Async[F].fromEither(parse(in).map(result(_, doc.sourceFile))))
+        InputRuntime.readParserInput(doc).flatMap(in => Sync[F].fromEither(parse(in).map(result(_, doc.sourceFile))))
       
       def parseConfig(input: ParserInput): Either[ParserError, ConfigParser] =
         Right(op.config.configProvider.configDocument(input.context.input))
@@ -136,11 +136,11 @@ object ParserRuntime {
       } 
       
       for {
-        ops      <- Async[F].fromEither(createOps)
+        ops      <- Sync[F].fromEither(createOps)
         results  <- Runtime[F].runParallel(ops)
         includes <- loadIncludes(results)
-        tree     <- Async[F].fromEither(buildTree(results ++ inputs.parsedResults, op.config.baseConfig, includes).leftMap(ParserError(_, Root)))
-        result   <- Async[F].fromEither(rewriteTree(tree))
+        tree     <- Sync[F].fromEither(buildTree(results ++ inputs.parsedResults, op.config.baseConfig, includes).leftMap(ParserError(_, Root)))
+        result   <- Sync[F].fromEither(rewriteTree(tree))
       } yield result
     }
     

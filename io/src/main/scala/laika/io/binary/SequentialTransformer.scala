@@ -16,7 +16,7 @@
 
 package laika.io.binary
 
-import cats.effect.Async
+import cats.effect.Sync
 import laika.api.builder.TwoPhaseTransformer
 import laika.ast.{DocumentType, TextDocumentType}
 import laika.factory.BinaryPostProcessor
@@ -30,11 +30,11 @@ import laika.io.runtime.{Runtime, TransformerRuntime}
   *
   * @author Jens Halm
   */
-class SequentialTransformer[F[_]: Async: Runtime] (transformer: BinaryTransformer) extends SequentialInputOps[F] {
+class SequentialTransformer[F[_]: Sync: Runtime] (transformer: BinaryTransformer) extends SequentialInputOps[F] {
 
   type InputResult = SequentialTransformer.OutputOps[F]
 
-  val F: Async[F] = Async[F]
+  val F: Sync[F] = Sync[F]
 
   val docType: TextDocumentType = DocumentType.Markup
 
@@ -51,7 +51,7 @@ object SequentialTransformer {
   /** Builder step that allows to specify the execution context
     * for blocking IO and CPU-bound tasks.
     */
-  case class Builder[F[_]: Async: Runtime] (transformer: BinaryTransformer) {
+  case class Builder[F[_]: Sync: Runtime] (transformer: BinaryTransformer) {
 
     /** Final builder step that creates a sequential transformer for binary output.
       */
@@ -61,9 +61,9 @@ object SequentialTransformer {
 
   /** Builder step that allows to specify the output to render to.
     */
-  case class OutputOps[F[_]: Async: Runtime] (transformer: BinaryTransformer, input: TextInput[F]) extends BinaryOutputOps[F] {
+  case class OutputOps[F[_]: Sync: Runtime] (transformer: BinaryTransformer, input: TextInput[F]) extends BinaryOutputOps[F] {
 
-    val F: Async[F] = Async[F]
+    val F: Sync[F] = Sync[F]
 
     type Result = Op[F]
 
@@ -77,7 +77,7 @@ object SequentialTransformer {
     * default runtime implementation or by developing a custom runner that performs
     * the transformation based on this operation's properties.
     */
-  case class Op[F[_]: Async: Runtime] (transformer: BinaryTransformer, input: TextInput[F], output: BinaryOutput[F]) {
+  case class Op[F[_]: Sync: Runtime] (transformer: BinaryTransformer, input: TextInput[F], output: BinaryOutput[F]) {
 
     /** Performs the transformation based on the library's
       * default runtime implementation, suspended in the effect F.

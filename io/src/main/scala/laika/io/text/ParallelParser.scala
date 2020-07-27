@@ -17,7 +17,7 @@
 package laika.io.text
 
 import cats.data.NonEmptyList
-import cats.effect.Async
+import cats.effect.Sync
 import laika.api.MarkupParser
 import laika.api.builder.{OperationConfig, ParserBuilder}
 import laika.ast.{DocumentType, StyleDeclarationSet, TemplateDocument, TextDocumentType}
@@ -33,11 +33,11 @@ import laika.parse.markup.DocumentParser.{ParserError, ParserInput}
   *
   * @author Jens Halm
   */
-class ParallelParser[F[_]: Async: Runtime] (parsers: NonEmptyList[MarkupParser], theme: Theme[F]) extends ParallelInputOps[F] {
+class ParallelParser[F[_]: Sync: Runtime] (parsers: NonEmptyList[MarkupParser], theme: Theme[F]) extends ParallelInputOps[F] {
 
   type Result = ParallelParser.Op[F]
 
-  val F: Async[F] = Async[F]
+  val F: Sync[F] = Sync[F]
 
   val docType: TextDocumentType = DocumentType.Markup
 
@@ -57,7 +57,7 @@ object ParallelParser {
   /** Builder step that allows to specify the execution context
     * for blocking IO and CPU-bound tasks.
     */
-  case class Builder[F[_]: Async: Runtime] (parsers: NonEmptyList[MarkupParser], theme: Theme[F]) {
+  case class Builder[F[_]: Sync: Runtime] (parsers: NonEmptyList[MarkupParser], theme: Theme[F]) {
 
     /** Specifies an additional parser for text markup.
       * 
@@ -91,7 +91,7 @@ object ParallelParser {
     * default runtime implementation or by developing a custom runner that performs
     * the parsing based on this operation's properties.
     */
-  case class Op[F[_]: Async: Runtime] (parsers: NonEmptyList[MarkupParser], theme: Theme[F], input: F[InputTree[F]]) {
+  case class Op[F[_]: Sync: Runtime] (parsers: NonEmptyList[MarkupParser], theme: Theme[F], input: F[InputTree[F]]) {
 
     /** The merged configuration of all markup parsers of this operation, including the theme extensions.
       */

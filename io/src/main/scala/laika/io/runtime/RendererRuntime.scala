@@ -18,7 +18,7 @@ package laika.io.runtime
 
 import java.io.File
 
-import cats.effect.Async
+import cats.effect.Sync
 import cats.implicits._
 import laika.api.Renderer
 import laika.ast.Path.Root
@@ -48,7 +48,7 @@ object RendererRuntime {
   /** Process the specified render operation for a single input document and 
     * a character output format.
     */
-  def run[F[_]: Async: Runtime] (op: SequentialRenderer.Op[F]): F[String] = {
+  def run[F[_]: Sync: Runtime] (op: SequentialRenderer.Op[F]): F[String] = {
     val renderResult = op.renderer.render(op.input, op.path)
     OutputRuntime.write(renderResult, op.output).as(renderResult)
   }
@@ -56,7 +56,7 @@ object RendererRuntime {
   /** Process the specified render operation for a single input document and 
     * a character output format, using the specified path translator and styles.
     */
-  def run[F[_]: Async: Runtime] (op: SequentialRenderer.Op[F],
+  def run[F[_]: Sync: Runtime] (op: SequentialRenderer.Op[F],
                                  pathTranslator: PathTranslator,
                                  styles: StyleDeclarationSet): F[String] = {
 
@@ -66,17 +66,17 @@ object RendererRuntime {
 
   /** Process the specified render operation for an entire input tree and a character output format.
     */
-  def run[F[_]: Async: Runtime] (op: ParallelRenderer.Op[F]): F[RenderedTreeRoot[F]] = op.theme.inputs.flatMap(run(op, _))
+  def run[F[_]: Sync: Runtime] (op: ParallelRenderer.Op[F]): F[RenderedTreeRoot[F]] = op.theme.inputs.flatMap(run(op, _))
 
-  private def run[F[_]: Async: Runtime] (op: ParallelRenderer.Op[F], themeInputs: InputTree[F]): F[RenderedTreeRoot[F]] = {  
+  private def run[F[_]: Sync: Runtime] (op: ParallelRenderer.Op[F], themeInputs: InputTree[F]): F[RenderedTreeRoot[F]] = {  
     
     def validatePaths (staticDocs: Seq[BinaryInput[F]]): F[Unit] = {
       val paths = op.input.allDocuments.map(_.path) ++ staticDocs.map(_.path)
       val duplicates = paths.groupBy(identity).values.collect {
         case p if p.size > 1 => DuplicatePath(p.head)
       }
-      if (duplicates.isEmpty) Async[F].unit
-      else Async[F].raiseError(RendererErrors(duplicates.toSeq.sortBy(_.path.toString)))
+      if (duplicates.isEmpty) Sync[F].unit
+      else Sync[F].raiseError(RendererErrors(duplicates.toSeq.sortBy(_.path.toString)))
     }
 
     val fileSuffix = op.renderer.format.fileSuffix
@@ -165,7 +165,7 @@ object RendererRuntime {
      
     for {
       mappedTree  <- op.theme.treeTransformer.run(ParsedTree(op.input, staticDocs))
-      finalRoot   <- Async[F].fromEither(applyTemplate(mappedTree.root)
+      finalRoot   <- Sync[F].fromEither(applyTemplate(mappedTree.root)
                        .leftMap(e => RendererErrors(Seq(ConfigException(e))))
                       .flatMap(root => InvalidDocuments.from(root, op.config.failOnMessages).toLeft(root)))
       styles    = finalRoot.styles(fileSuffix) ++ getThemeStyles(themeInputs.parsedResults)
@@ -179,24 +179,24 @@ object RendererRuntime {
 
   /** Process the specified render operation for a single input document and a binary output format.
     */
-  def run[F[_]: Async: Runtime] (op: binary.SequentialRenderer.Op[F]): F[Unit] = {
+  def run[F[_]: Sync: Runtime] (op: binary.SequentialRenderer.Op[F]): F[Unit] = {
     val root = DocumentTreeRoot(DocumentTree(Root, Seq(Document(Root / "input", RootElement(SpanSequence(TemplateElement(op.input)))))))
     val parOp = binary.ParallelRenderer.Op(op.renderer, Helium.defaults.build, root, op.output)
     run(parOp)
   }
   
-  private def getDefaultTemplate[F[_]: Async] (themeInputs: InputTree[F], suffix: String): TemplateRoot = 
+  private def getDefaultTemplate[F[_]: Sync] (themeInputs: InputTree[F], suffix: String): TemplateRoot = 
     themeInputs.parsedResults.collectFirst {
       case TemplateResult(doc, _) if doc.path == Root / s"default.template.$suffix" => doc.content
     }.getOrElse(TemplateRoot.fallback)
 
   /** Process the specified render operation for an entire input tree and a binary output format.
     */
-  def run[F[_]: Async: Runtime] (op: binary.ParallelRenderer.Op[F]): F[Unit] = {
+  def run[F[_]: Sync: Runtime] (op: binary.ParallelRenderer.Op[F]): F[Unit] = {
     val suffix = op.renderer.interimRenderer.format.fileSuffix
     for {
       themeInputs  <- op.theme.inputs
-      preparedTree <- Async[F].fromEither(op.renderer.prepareTree(op.input))
+      preparedTree <- Sync[F].fromEither(op.renderer.prepareTree(op.input))
       renderedTree <- run(ParallelRenderer.Op[F](op.renderer.interimRenderer, op.theme, preparedTree, StringTreeOutput), themeInputs)
       finalTree    =  renderedTree.copy[F](defaultTemplate = op.input.tree.getDefaultTemplate(suffix).fold(getDefaultTemplate(themeInputs, suffix))(_.content))
       _            <- op.renderer.postProcessor.process(finalTree, op.output)

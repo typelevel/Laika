@@ -17,7 +17,7 @@
 package laika.io.text
 
 import cats.data.NonEmptyList
-import cats.effect.Async
+import cats.effect.Sync
 import laika.api.{MarkupParser, Renderer}
 import laika.api.builder.{OperationConfig, ParserBuilder}
 import laika.ast.{DocumentType, TextDocumentType}
@@ -32,14 +32,14 @@ import laika.io.theme.Theme
   *
   * @author Jens Halm
   */
-class ParallelTransformer[F[_]: Async: Runtime] (parsers: NonEmptyList[MarkupParser], 
+class ParallelTransformer[F[_]: Sync: Runtime] (parsers: NonEmptyList[MarkupParser], 
                                                  renderer: Renderer,
                                                  theme: Theme[F],
                                                  mapper: TreeMapper[F]) extends ParallelInputOps[F] {
 
   type Result = ParallelTransformer.OutputOps[F]
 
-  val F: Async[F] = Async[F]
+  val F: Sync[F] = Sync[F]
 
   val docType: TextDocumentType = DocumentType.Markup
 
@@ -60,7 +60,7 @@ object ParallelTransformer {
   /** Builder step that allows to specify the execution context
     * for blocking IO and CPU-bound tasks.
     */
-  case class Builder[F[_]: Async: Runtime] (parsers: NonEmptyList[MarkupParser], 
+  case class Builder[F[_]: Sync: Runtime] (parsers: NonEmptyList[MarkupParser], 
                                             renderer: Renderer, 
                                             theme: Theme[F], 
                                             mapper: TreeMapper[F]) extends TreeMapperOps[F] {
@@ -97,13 +97,13 @@ object ParallelTransformer {
 
   /** Builder step that allows to specify the output to render to.
     */
-  case class OutputOps[F[_]: Async: Runtime] (parsers: NonEmptyList[MarkupParser],
+  case class OutputOps[F[_]: Sync: Runtime] (parsers: NonEmptyList[MarkupParser],
                                               renderer: Renderer,
                                               theme: Theme[F],
                                               input: F[InputTree[F]],
                                               mapper: TreeMapper[F]) extends ParallelTextOutputOps[F] {
 
-    val F: Async[F] = Async[F]
+    val F: Sync[F] = Sync[F]
 
     type Result = Op[F]
 
@@ -117,7 +117,7 @@ object ParallelTransformer {
     * default runtime implementation or by developing a custom runner that performs
     * the transformation based on this operation's properties.
     */
-  case class Op[F[_]: Async: Runtime] (parsers: NonEmptyList[MarkupParser],
+  case class Op[F[_]: Sync: Runtime] (parsers: NonEmptyList[MarkupParser],
                                        renderer: Renderer,
                                        theme: Theme[F],
                                        input: F[InputTree[F]],

@@ -16,7 +16,7 @@
 
 package laika.io.text
 
-import cats.effect.Async
+import cats.effect.Sync
 import laika.api.Renderer
 import laika.ast.{Document, Element, Path}
 import laika.io.descriptor.{ParserDescriptor, RendererDescriptor}
@@ -28,7 +28,7 @@ import laika.io.runtime.{RendererRuntime, Runtime}
   *
   * @author Jens Halm
   */
-class SequentialRenderer[F[_]: Async: Runtime] (renderer: Renderer) {
+class SequentialRenderer[F[_]: Sync: Runtime] (renderer: Renderer) {
 
   /** Builder step that specifies the document to render.
     */
@@ -54,7 +54,7 @@ object SequentialRenderer {
   /** Builder step that allows to specify the execution context
     * for blocking IO and CPU-bound tasks.
     */
-  case class Builder[F[_]: Async: Runtime] (renderer: Renderer) {
+  case class Builder[F[_]: Sync: Runtime] (renderer: Renderer) {
 
     /** Final builder step that creates a sequential renderer.
       */
@@ -64,9 +64,9 @@ object SequentialRenderer {
 
   /** Builder step that allows to specify the output to render to.
     */
-  case class OutputOps[F[_]: Async: Runtime] (renderer: Renderer, input: Element, path: Path) extends SequentialTextOutputOps[F] {
+  case class OutputOps[F[_]: Sync: Runtime] (renderer: Renderer, input: Element, path: Path) extends SequentialTextOutputOps[F] {
 
-    val F: Async[F] = Async[F]
+    val F: Sync[F] = Sync[F]
 
     type Result = Op[F]
 
@@ -80,7 +80,7 @@ object SequentialRenderer {
     * default runtime implementation or by developing a custom runner that performs
     * the rendering based on this operation's properties.
     */
-  case class Op[F[_]: Async: Runtime] (renderer: Renderer, input: Element, path: Path, output: TextOutput[F]) {
+  case class Op[F[_]: Sync: Runtime] (renderer: Renderer, input: Element, path: Path, output: TextOutput[F]) {
 
     /** Performs the rendering operation based on the library's
       * default runtime implementation, suspended in the effect F.

@@ -18,7 +18,7 @@ package laika.io.runtime
 
 import java.io._
 
-import cats.effect.{Async, Resource}
+import cats.effect.{Sync, Resource}
 import cats.implicits._
 import laika.io.model.{PureWriter, _}
 
@@ -32,10 +32,10 @@ object OutputRuntime {
 
   /** Creates a Writer for the specified output model and writes the given string to it.
     */
-  def write[F[_]: Async: Runtime] (result: String, output: TextOutput[F]): F[Unit] = {
+  def write[F[_]: Sync: Runtime] (result: String, output: TextOutput[F]): F[Unit] = {
     output.resource.use {
-      case PureWriter => Async[F].unit
-      case StreamWriter(writer) => Async[F].delay {
+      case PureWriter => Sync[F].unit
+      case StreamWriter(writer) => Sync[F].delay {
         writer.write(result)
         writer.flush()
       }
@@ -45,23 +45,23 @@ object OutputRuntime {
   /** Creates a directory for the specified file, including parent directories
     * of that file if they do not exist yet.
     */
-  def createDirectory[F[_]: Async] (file: File): F[Unit] = 
-    Async[F].delay(file.exists || file.mkdirs()).flatMap(if (_) Async[F].unit 
-    else Async[F].raiseError(new IOException(s"Unable to create directory ${file.getAbsolutePath}")))
+  def createDirectory[F[_]: Sync] (file: File): F[Unit] = 
+    Sync[F].delay(file.exists || file.mkdirs()).flatMap(if (_) Sync[F].unit 
+    else Sync[F].raiseError(new IOException(s"Unable to create directory ${file.getAbsolutePath}")))
 
-  def textFileResource[F[_]: Async] (file: File, codec: Codec): Resource[F, Writer] = Resource.fromAutoCloseable(Async[F].delay {
+  def textFileResource[F[_]: Sync] (file: File, codec: Codec): Resource[F, Writer] = Resource.fromAutoCloseable(Sync[F].delay {
     new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), codec.charSet))
   })
 
-  def textStreamResource[F[_]: Async] (stream: F[OutputStream], codec: Codec, autoClose: Boolean): Resource[F, Writer] = {
+  def textStreamResource[F[_]: Sync] (stream: F[OutputStream], codec: Codec, autoClose: Boolean): Resource[F, Writer] = {
     val resource = if (autoClose) Resource.fromAutoCloseable(stream) else Resource.liftF(stream)
     resource.map(out => new BufferedWriter(new OutputStreamWriter(out, codec.charSet)))
   }
   
-  def binaryFileResource[F[_]: Async] (file: File): Resource[F, OutputStream] = 
-    Resource.fromAutoCloseable(Async[F].delay(new BufferedOutputStream(new FileOutputStream(file))))
+  def binaryFileResource[F[_]: Sync] (file: File): Resource[F, OutputStream] = 
+    Resource.fromAutoCloseable(Sync[F].delay(new BufferedOutputStream(new FileOutputStream(file))))
 
-  def binaryStreamResource[F[_]: Async] (stream: F[OutputStream], autoClose: Boolean): Resource[F, OutputStream] =
+  def binaryStreamResource[F[_]: Sync] (stream: F[OutputStream], autoClose: Boolean): Resource[F, OutputStream] =
     if (autoClose) Resource.fromAutoCloseable(stream) else Resource.liftF(stream)
 
 }

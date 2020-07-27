@@ -16,7 +16,7 @@
 
 package laika.io.descriptor
 
-import cats.effect.Async
+import cats.effect.Sync
 import cats.implicits._
 import laika.ast.DocumentType
 import laika.collection.TransitionalCollectionOps._
@@ -74,7 +74,7 @@ object TreeInputDescriptor {
     "Root Directories" -> "Root Directories"
   )
 
-  def create[F[_]: Async] (input: F[InputTree[F]]): F[TreeInputDescriptor] = input.map { treeInput =>
+  def create[F[_]: Sync] (input: F[InputTree[F]]): F[TreeInputDescriptor] = input.map { treeInput =>
     TreeInputDescriptor(
       treeInput.textInputs.map(InputDescriptor.create[F]) ++ treeInput.binaryInputs.map(InputDescriptor.create[F]), 
       treeInput.sourcePaths

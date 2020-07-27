@@ -19,7 +19,7 @@ package laika.io.model
 import java.io._
 
 import cats.Applicative
-import cats.effect.{Async, Resource}
+import cats.effect.{Sync, Resource}
 import laika.ast._
 import laika.config.Config
 import laika.io.runtime.OutputRuntime
@@ -42,9 +42,9 @@ case class TextOutput[F[_]] (path: Path, resource: Resource[F, OutputWriter], ta
 object TextOutput {
   def forString[F[_]: Applicative] (path: Path): TextOutput[F] =
     TextOutput[F](path, Resource.pure[F, OutputWriter](PureWriter))
-  def forFile[F[_]: Async] (path: Path, file: File, codec: Codec): TextOutput[F] =
+  def forFile[F[_]: Sync] (path: Path, file: File, codec: Codec): TextOutput[F] =
     TextOutput[F](path, OutputRuntime.textFileResource(file, codec).map(StreamWriter), Some(file))
-  def forStream[F[_]: Async] (path: Path, stream: F[OutputStream], codec: Codec, autoClose: Boolean): TextOutput[F] =
+  def forStream[F[_]: Sync] (path: Path, stream: F[OutputStream], codec: Codec, autoClose: Boolean): TextOutput[F] =
     TextOutput[F](path, OutputRuntime.textStreamResource(stream, codec, autoClose).map(StreamWriter))
 }
 

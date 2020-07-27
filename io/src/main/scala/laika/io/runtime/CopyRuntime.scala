@@ -19,7 +19,7 @@ package laika.io.runtime
 import java.io._
 
 import cats.implicits._
-import cats.effect.{Async, Resource, Sync}
+import cats.effect.{Sync, Resource}
 
 /** Internal runtime for copying bytes from an InputStream to an OutputStream.
   * 
@@ -51,7 +51,7 @@ object CopyRuntime {
   /** Copies all bytes from the specified binary Input to the binary Output,
     * executing in the blocking ExecutionContext of the implicit Runtime.
     */
-  def copy[F[_]: Async: Runtime] (input: Resource[F, InputStream], output: Resource[F, OutputStream]): F[Unit] =
+  def copy[F[_]: Sync: Runtime] (input: Resource[F, InputStream], output: Resource[F, OutputStream]): F[Unit] =
     (input, output).tupled.use { case (in, out) => copy(in, out) }
 
 }

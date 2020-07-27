@@ -17,7 +17,7 @@
 package laika.helium
 
 import cats.data.Kleisli
-import cats.effect.Async
+import cats.effect.Sync
 import laika.ast.LengthUnit.{cm, mm, pt, px}
 import laika.ast.Path.Root
 import laika.ast._
@@ -44,7 +44,7 @@ case class Helium (fontResources: Seq[FontDefinition],
   def withFontFamilies (format: RenderFormat[_], formats: RenderFormat[_]*)(body: String, header: String, code: String)
   */
   
-  def build[F[_]: Async]: Theme[F] = {
+  def build[F[_]: Sync]: Theme[F] = {
     
     val themeInputs = InputTree[F]
       .addTemplate(TemplateDocument(Root / "default.template.html", new HTMLTemplate(this).root))
@@ -120,7 +120,7 @@ case class Helium (fontResources: Seq[FontDefinition],
     new Theme[F] {
       def inputs = themeInputs
       def extensions = Seq(bundle)
-      def treeTransformer = Kleisli(Async[F].pure)
+      def treeTransformer = Kleisli(Sync[F].pure)
     }
   } 
   

@@ -18,7 +18,7 @@ package laika.io.descriptor
 
 import cats.implicits._
 import cats.data.NonEmptyList
-import cats.effect.Async
+import cats.effect.Sync
 import laika.io.text.{ParallelParser, SequentialParser}
 import laika.io.runtime.Runtime
 
@@ -51,7 +51,7 @@ case class ParserDescriptor (parsers: NonEmptyList[String],
 
 object ParserDescriptor {
   
-  def create[F[_]: Async] (op: SequentialParser.Op[F]): F[ParserDescriptor] = Async[F].pure(apply(
+  def create[F[_]: Sync] (op: SequentialParser.Op[F]): F[ParserDescriptor] = Sync[F].pure(apply(
     NonEmptyList.of(op.parser.format.description),
     op.parser.config.bundles.filter(op.parser.config.bundleFilter).map(ExtensionBundleDescriptor),
     TreeInputDescriptor(Seq(InputDescriptor.create(op.input))),
@@ -59,7 +59,7 @@ object ParserDescriptor {
     op.parser.config.bundleFilter.acceptRawContent
   )) 
   
-  def create[F[_]: Async: Runtime] (op: ParallelParser.Op[F]): F[ParserDescriptor] = 
+  def create[F[_]: Sync: Runtime] (op: ParallelParser.Op[F]): F[ParserDescriptor] = 
     TreeInputDescriptor.create(op.input).map { inputDesc =>
     apply(
       op.parsers.map(_.format.description),

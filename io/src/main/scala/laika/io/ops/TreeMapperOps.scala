@@ -17,7 +17,7 @@
 package laika.io.ops
 
 import cats.implicits._
-import cats.effect.Async
+import cats.effect.Sync
 import laika.ast.{Document, DocumentTree, TreeContent}
 import laika.io.model.ParsedTree
 
@@ -31,9 +31,9 @@ import laika.io.model.ParsedTree
   * 
   * @author Jens Halm
   */
-abstract class TreeMapperOps[F[_]: Async] {
+abstract class TreeMapperOps[F[_]: Sync] {
 
-  val F: Async[F] = Async[F]
+  val F: Sync[F] = Sync[F]
   
   type MapRes
 

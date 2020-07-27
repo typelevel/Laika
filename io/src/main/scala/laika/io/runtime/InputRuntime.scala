@@ -18,7 +18,7 @@ package laika.io.runtime
 
 import java.io._
 
-import cats.effect.{Async, Resource}
+import cats.effect.{Sync, Resource}
 import laika.io.model._
 import laika.parse.ParserContext
 import laika.parse.markup.DocumentParser.ParserInput
@@ -32,40 +32,40 @@ import scala.io.Codec
   */
 object InputRuntime {
 
-  def readParserInput[F[_]: Async: Runtime] (doc: TextInput[F]): F[ParserInput] = doc.input.use {
+  def readParserInput[F[_]: Sync: Runtime] (doc: TextInput[F]): F[ParserInput] = doc.input.use {
     case PureReader(input) => 
-      Async[F].pure(ParserInput(doc.path, ParserContext(input)))
+      Sync[F].pure(ParserInput(doc.path, ParserContext(input)))
     case StreamReader(reader, sizeHint) => 
       readAll(reader, sizeHint).map(source => ParserInput(doc.path, ParserContext(source)))
   }
 
-  private def readAll[F[_]: Async: Runtime] (reader: Reader, sizeHint: Int): F[String] = Runtime[F].runBlocking {
+  private def readAll[F[_]: Sync: Runtime] (reader: Reader, sizeHint: Int): F[String] = Runtime[F].runBlocking {
     
     def read(inBuffer: Array[Char], outBuffer: StringBuilder): F[Unit] = {
       for {
-        amount <- Async[F].delay(reader.read(inBuffer, 0, inBuffer.length))
-        _      <- if (amount == -1) Async[F].unit
-                  else Async[F].delay(outBuffer.appendAll(inBuffer, 0, amount)) >> read(inBuffer, outBuffer)
+        amount <- Sync[F].delay(reader.read(inBuffer, 0, inBuffer.length))
+        _      <- if (amount == -1) Sync[F].unit
+                  else Sync[F].delay(outBuffer.appendAll(inBuffer, 0, amount)) >> read(inBuffer, outBuffer)
       } yield ()
     }
     
     for {
-      inBuffer  <- Async[F].delay(new Array[Char](Math.max(sizeHint, 8)))
+      inBuffer  <- Sync[F].delay(new Array[Char](Math.max(sizeHint, 8)))
       outBuffer = new StringBuilder
       _         <- read(inBuffer, outBuffer)
     } yield outBuffer.toString
   }
 
-  def binaryFileResource[F[_]: Async] (file: File): Resource[F, InputStream] =
-    Resource.fromAutoCloseable(Async[F].delay(new BufferedInputStream(new FileInputStream(file))))
+  def binaryFileResource[F[_]: Sync] (file: File): Resource[F, InputStream] =
+    Resource.fromAutoCloseable(Sync[F].delay(new BufferedInputStream(new FileInputStream(file))))
 
-  def textFileResource[F[_]: Async] (file: File, codec: Codec): Resource[F, Reader] =
-    readerResource(Resource.fromAutoCloseable(Async[F].delay(new FileInputStream(file))), codec)
+  def textFileResource[F[_]: Sync] (file: File, codec: Codec): Resource[F, Reader] =
+    readerResource(Resource.fromAutoCloseable(Sync[F].delay(new FileInputStream(file))), codec)
   
-  def textStreamResource[F[_]: Async] (inputStream: F[InputStream], codec: Codec, autoClose: Boolean): Resource[F, Reader] =
+  def textStreamResource[F[_]: Sync] (inputStream: F[InputStream], codec: Codec, autoClose: Boolean): Resource[F, Reader] =
     readerResource(if (autoClose) Resource.fromAutoCloseable(inputStream) else Resource.liftF(inputStream), codec)
 
-  private def readerResource[F[_]: Async](resource: Resource[F, InputStream], codec: Codec): Resource[F, Reader] =
+  private def readerResource[F[_]: Sync](resource: Resource[F, InputStream], codec: Codec): Resource[F, Reader] =
     resource.map(in => new BufferedReader(new InputStreamReader(in, codec.charSet)))
   
 }

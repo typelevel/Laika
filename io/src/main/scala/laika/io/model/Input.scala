@@ -20,7 +20,7 @@ import java.io._
 
 import cats.Applicative
 import cats.data.Kleisli
-import cats.effect.{Async, Resource}
+import cats.effect.{Sync, Resource}
 import laika.ast.Path.Root
 import laika.ast.{Document, DocumentTreeRoot, DocumentType, Navigatable, Path, StyleDeclaration, StyleDeclarationSet, TemplateDocument, TextDocumentType}
 import laika.bundle.{DocumentTypeMatcher, Precedence}
@@ -49,9 +49,9 @@ case class TextInput[F[_]] (path: Path, docType: TextDocumentType, input: Resour
 object TextInput {
   def fromString[F[_]: Applicative] (path: Path, docType: TextDocumentType, input: String): TextInput[F] = 
     TextInput[F](path, docType, Resource.pure[F, InputReader](PureReader(input)))
-  def fromFile[F[_]: Async] (path: Path, docType: TextDocumentType, file: File, codec: Codec): TextInput[F] =
+  def fromFile[F[_]: Sync] (path: Path, docType: TextDocumentType, file: File, codec: Codec): TextInput[F] =
     TextInput[F](path, docType, InputRuntime.textFileResource[F](file, codec).map(StreamReader(_, file.length.toInt)), Some(file))
-  def fromStream[F[_]: Async] (path: Path, docType: TextDocumentType, stream: F[InputStream], codec: Codec, autoClose: Boolean): TextInput[F] =
+  def fromStream[F[_]: Sync] (path: Path, docType: TextDocumentType, stream: F[InputStream], codec: Codec, autoClose: Boolean): TextInput[F] =
     TextInput[F](path, docType, InputRuntime.textStreamResource(stream, codec, autoClose).map(StreamReader(_, 8096)))
 }
 
@@ -88,9 +88,9 @@ case class InputTree[F[_]](textInputs: Seq[TextInput[F]] = Nil,
   */
 object InputTree {
 
-  def apply[F[_]: Async] (exclude: File => Boolean): InputTreeBuilder[F] = new InputTreeBuilder(exclude, Vector.empty)
+  def apply[F[_]: Sync] (exclude: File => Boolean): InputTreeBuilder[F] = new InputTreeBuilder(exclude, Vector.empty)
   
-  def apply[F[_]: Async]: InputTreeBuilder[F] = new InputTreeBuilder(DirectoryInput.hiddenFileFilter, Vector.empty)
+  def apply[F[_]: Sync]: InputTreeBuilder[F] = new InputTreeBuilder(DirectoryInput.hiddenFileFilter, Vector.empty)
   
   
   /** An empty input collection.
@@ -99,7 +99,7 @@ object InputTree {
 }
 
 
-class InputTreeBuilder[F[_]](exclude: File => Boolean, steps: Vector[(Path => DocumentType) => Kleisli[F, InputTree[F], InputTree[F]]])(implicit F: Async[F]) {
+class InputTreeBuilder[F[_]](exclude: File => Boolean, steps: Vector[(Path => DocumentType) => Kleisli[F, InputTree[F], InputTree[F]]])(implicit F: Sync[F]) {
   
   import cats.implicits._
   
@@ -140,9 +140,9 @@ class InputTreeBuilder[F[_]](exclude: File => Boolean, steps: Vector[(Path => Do
     }
   
   def addClasspathResource (name: String, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] = {
-    val stream = Async[F].delay(getClass.getClassLoader.getResourceAsStream(name)).flatMap { res =>
-      if (res != null) Async[F].pure(res)
-      else Async[F].raiseError[InputStream](new IOException(s"Classpath resource '$name' does not exist"))
+    val stream = Sync[F].delay(getClass.getClassLoader.getResourceAsStream(name)).flatMap { res =>
+      if (res != null) Sync[F].pure(res)
+      else Sync[F].raiseError[InputStream](new IOException(s"Classpath resource '$name' does not exist"))
     }
     addStream(stream, mountPoint)
   }

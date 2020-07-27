@@ -18,7 +18,7 @@ package laika.io.ops
 
 import java.io.{File, OutputStream}
 
-import cats.effect.Async
+import cats.effect.Sync
 import laika.ast.Path
 import laika.ast.Path.Root
 import laika.io.model.BinaryOutput
@@ -35,7 +35,7 @@ trait BinaryOutputOps[F[_]] {
 
   type Result
 
-  def F: Async[F]
+  def F: Sync[F]
 
   /** Builder step that instructs the runtime to render
     * to the file with the specified name.

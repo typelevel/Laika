@@ -16,7 +16,7 @@
 
 package laika.render
 
-import cats.effect.{Async, IO}
+import cats.effect.{Sync, IO}
 import cats.implicits._
 import laika.api.Renderer
 import laika.api.builder.TwoPhaseRendererBuilder
@@ -51,14 +51,14 @@ class FOforPDFSpec extends IOSpec with FileIO {
 
     def postProcessor (config: Config): BinaryPostProcessor = new BinaryPostProcessor {
 
-      override def process[F[_]: Async: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput[F]): F[Unit] = {
+      override def process[F[_]: Sync: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput[F]): F[Unit] = {
 
         val pdfConfig = PDF.BookConfig.decodeWithDefaults(result.config)
         output.resource.use { out =>
           for {
-            config <- Async[F].fromEither(pdfConfig.left.map(ConfigException))
-            fo <- Async[F].fromEither(FOConcatenation(result, config).left.map(ConfigException)): F[String]
-            _  <- Async[F].delay(out.write(fo.getBytes("UTF-8"))): F[Unit]
+            config <- Sync[F].fromEither(pdfConfig.left.map(ConfigException))
+            fo <- Sync[F].fromEither(FOConcatenation(result, config).left.map(ConfigException)): F[String]
+            _  <- Sync[F].delay(out.write(fo.getBytes("UTF-8"))): F[Unit]
           } yield ()
         }
 

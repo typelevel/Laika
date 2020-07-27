@@ -18,7 +18,7 @@ package laika.io.ops
 
 import java.io.File
 
-import cats.effect.Async
+import cats.effect.Sync
 import laika.api.builder.OperationConfig
 import laika.io.model.{DirectoryInput, InputTree, InputTreeBuilder}
 import laika.io.runtime.DirectoryScanner
@@ -34,7 +34,7 @@ import scala.io.Codec
   */
 trait ParallelInputOps[F[_]] {
 
-  def F: Async[F]
+  def F: Sync[F]
 
   type FileFilter = File => Boolean
 

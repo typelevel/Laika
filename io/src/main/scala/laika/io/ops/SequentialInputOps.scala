@@ -18,7 +18,7 @@ package laika.io.ops
 
 import java.io.{File, InputStream}
 
-import cats.effect.Async
+import cats.effect.Sync
 import laika.ast.Path.Root
 import laika.ast.{Path, TextDocumentType}
 import laika.io.model.TextInput
@@ -40,7 +40,7 @@ trait SequentialInputOps[F[_]] {
   type InputResult
 
 
-  def F: Async[F]
+  def F: Sync[F]
 
   /** The type of text document created by this instance.
     */
