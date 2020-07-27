@@ -27,7 +27,7 @@ import scala.annotation.tailrec
 class Characters[T] (predicate:     Char => Boolean,
                      resultBuilder: Characters.ResultBuilder[T],
                      minChar:       Int = 0,
-                     maxChar:       Int = 0) extends Parser[T] {
+                     maxChar:       Int = -1) extends Parser[T] {
 
   /** Creates and returns a new parser that fails if it does not consume the specified minimum number
     *  of characters. It may still consume more characters in case of further matches.
@@ -62,7 +62,7 @@ class Characters[T] (predicate:     Char => Boolean,
   def parse (ctx: ParserContext): Parsed[T] = {
 
     val source = ctx.input
-    val maxOffset = if (maxChar <= 0 || ctx.offset + maxChar < 0) source.length
+    val maxOffset = if (maxChar < 0 || ctx.offset + maxChar < 0) source.length
                     else Math.min(ctx.offset + maxChar, source.length)
 
     def result (offset: Int) = {
