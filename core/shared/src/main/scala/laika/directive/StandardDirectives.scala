@@ -518,9 +518,6 @@ object StandardDirectives extends DirectiveRegistry {
     import Templates.dsl._
     
     (attribute(0).as[Path], cursor).mapN { (path, cursor) =>
-      println("path input:  " + path)
-      println("doc path:    " + cursor.path)
-      println("path result: " + path.relativeTo(cursor.path).toString)
       TemplateString(path.relativeTo(cursor.path).toString)
     }
   }

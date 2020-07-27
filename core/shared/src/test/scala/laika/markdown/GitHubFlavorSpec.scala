@@ -215,6 +215,36 @@ class GitHubFlavorSpec extends AnyWordSpec
       Parsing (input) should produce (root(CodeBlock("foo", Seq(Text("code")))))
     }
 
+    "parse a code block that is indented" in {
+      val input =
+        """  ~~~ foo
+          |  code
+          |    indent
+          |  code
+          |  ~~~
+        """.stripMargin
+      Parsing (input) should produce (root(CodeBlock("foo", Seq(Text("code\n  indent\ncode")))))
+    }
+
+    "parse a code block inside a list item" in {
+      val input =
+        """- list item:
+          |  
+          |    ~~~ foo
+          |    code
+          |      indent
+          |    code
+          |    ~~~
+        """.stripMargin
+      val result = BulletList(Seq(
+        BulletListItem(Seq(
+          Paragraph("list item:"),
+          CodeBlock("foo", Seq(Text("code\n  indent\ncode")))
+        ), StringBullet("-"))
+      ), StringBullet("-"))
+      Parsing (input) should produce (root(result))
+    }
+
     "parse a code block without a closing fence" in {
       val input =
         """~~~

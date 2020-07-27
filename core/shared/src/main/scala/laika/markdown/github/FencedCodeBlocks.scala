@@ -18,7 +18,9 @@ package laika.markdown.github
 
 import laika.ast.{Block, CodeBlock, LiteralBlock, Text, ~}
 import laika.bundle.{BlockParser, BlockParserBuilder}
+import laika.parse.{Failure, Parser, Success}
 import laika.parse.builders._
+import laika.parse.implicits._
 
 /** Parser for fenced code blocks as defined by GitHub Flavored Markdown and CommonMark.
   *
@@ -34,6 +36,13 @@ import laika.parse.builders._
   */
 object FencedCodeBlocks {
 
+  private def reverse (offset: Int, p: => Parser[String]): Parser[String] = Parser { in =>
+    p.parse(in.reverse.consume(offset)) match {
+      case Success(result, _) => Success(result.reverse, in)
+      case Failure(msg, _, _) => Failure(msg, in)
+    }
+  }
+  
   /** Creates a parser for a fenced code block with the specified fence character.
     */
   def codeBlock (fenceChar: Char): BlockParserBuilder = BlockParser.recursive { recParsers =>
@@ -42,12 +51,15 @@ object FencedCodeBlocks {
       .filter(_.nonEmpty)
       .flatMap(_.trim.split(" ").headOption)
     )
-    val openingFence = someOf(fenceChar).min(3).count ~ infoString
+    def indent(offset: Int): Parser[Int] = reverse(offset, anyOf(' ')).map(_.length)
+    val openingFence = someOf(fenceChar).min(3).count >> { fence => 
+      (indent(fence) ~ infoString).mapN((fence, _, _)) 
+    }
 
-    openingFence >> { case charCount ~ info =>
+    openingFence >> { case (fenceLength, indent, info) =>
 
-      val closingFence = anyOf(fenceChar).min(charCount) ~ wsEol
-      val lines = (not(closingFence | eof) ~> restOfLine).rep
+      val closingFence = anyOf(' ').max(3) ~ anyOf(fenceChar).min(fenceLength) ~ wsEol
+      val lines = (not(closingFence | eof) ~ anyOf(' ').max(indent) ~> restOfLine).rep
 
       (lines <~ opt(closingFence)).evalMap { lines =>
         val trimmedLines = if (lines.lastOption.exists(_.trim.isEmpty)) lines.dropRight(1) else lines
