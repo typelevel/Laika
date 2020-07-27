@@ -208,6 +208,7 @@ object StandardDirectives extends DirectiveRegistry {
     * @param itemStyles the styles to apply to all navigation items in the list as a render hint
     * @param excludeRoot indicates whether the root node should be excluded in automatic entries (may be overridden in the entries' config)
     * @param excludeSections indicates whether sections within documents should be excluded in automatic entries (may be overridden in the entries' config)
+    * @param excludeSelf indicates whether the current document should be included
     * @param options optional styles and/or an id for the final navigation list
     */
   case class NavigationBuilderConfig (entries: Seq[NavigationNodeConfig], 
@@ -215,6 +216,7 @@ object StandardDirectives extends DirectiveRegistry {
                                       itemStyles: Set[String] = Set(),
                                       excludeRoot: Boolean = false,
                                       excludeSections: Boolean = false,
+                                      excludeSelf: Boolean = false,
                                       options: Options = NoOpt) extends BlockResolver {
     
     type Self = NavigationBuilderConfig
@@ -251,7 +253,8 @@ object StandardDirectives extends DirectiveRegistry {
               itemStyles = itemStyles,
               maxLevels = depth.getOrElse(defaultDepth),
               currentLevel = if (noRoot) 0 else 1,
-              excludeSections = optExcludeSections.getOrElse(excludeSections)
+              excludeSections = optExcludeSections.getOrElse(excludeSections),
+              excludeSelf = excludeSelf
             )
             val navItem = treeContent.asNavigationItem(context)
             def replaceTitle (titleSpan: SpanSequence): NavigationItem = navItem match {
@@ -290,7 +293,10 @@ object StandardDirectives extends DirectiveRegistry {
         itemStyles      <- config.get[Seq[String]]("itemStyles", Nil)
         excludeRoot     <- config.get[Boolean]("excludeRoot", false)
         excludeSections <- config.get[Boolean]("excludeSections", false)
-      } yield NavigationBuilderConfig(entries, defaultDepth, itemStyles.toSet, excludeRoot, excludeSections)
+        excludeSelf     <- config.get[Boolean]("excludeSelf", false)
+      } yield {
+        NavigationBuilderConfig(entries, defaultDepth, itemStyles.toSet, excludeRoot, excludeSections, excludeSelf)
+      }
     }
     
   }

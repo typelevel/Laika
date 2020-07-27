@@ -706,13 +706,13 @@ class StandardDirectiveSpec extends AnyFlatSpec
       styles(level)
     )
 
-    def treeList (tree: Int, docStartNum: Int, level: Int): NavigationItem = {
+    def treeList (tree: Int, docStartNum: Int, level: Int, excludeSelf: Boolean = false): NavigationItem = {
       val children = if (level == maxLevels) Nil else List(
         docList(Root / s"sub$tree" / s"doc$docStartNum", docStartNum, level + 1),
         docList(Root / s"sub$tree" / s"doc${docStartNum + 1}", docStartNum + 1, level + 1),
       )
       if (hasTitleDocs) NavigationLink(SpanSequence("TitleDoc"), InternalTarget.fromPath(Root / s"sub$tree" / "title", refPath), children, options = styles(level))
-      else NavigationHeader(SpanSequence(s"Tree $tree"), children, options = styles(level))
+      else NavigationHeader(SpanSequence(s"Tree $tree"), if (excludeSelf) children.take(1) else children, options = styles(level))
     }
 
     val rootEntry: NavigationHeader = NavigationHeader(SpanSequence("/"), Nil, styles(1))
@@ -851,6 +851,19 @@ class StandardDirectiveSpec extends AnyFlatSpec
         |} bbb ${cursor.currentDocument.content}""".stripMargin
 
     parseTemplateAndRewrite(template) should be (templateResult(treeList(2, 5, 0).content: _*))
+  }
+
+  it should "produce an entry generated from the current tree with the self link excluded" in new TreeModel with NavModel {
+
+    val template =
+      """aaa @:navigationTree { 
+        |  excludeSelf = true
+        |  entries = [
+        |    { target = "." }
+        |  ] 
+        |} bbb ${cursor.currentDocument.content}""".stripMargin
+
+    parseTemplateAndRewrite(template) should be (templateResult(treeList(2, 5, 1, excludeSelf = true)))
   }
 
   it should "produce an entry generated from the current tree with sections excluded" in new TreeModel with NavModel {

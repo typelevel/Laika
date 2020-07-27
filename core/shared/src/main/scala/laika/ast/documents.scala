@@ -147,7 +147,8 @@ case class NavigationBuilderContext (refPath: Path = Root,
                                      itemStyles: Set[String] = Set(), 
                                      maxLevels: Int = Int.MaxValue, 
                                      currentLevel: Int = 1,
-                                     excludeSections: Boolean = false) {
+                                     excludeSections: Boolean = false,
+                                     excludeSelf: Boolean = false) {
   
   lazy val nextLevel: NavigationBuilderContext = copy(currentLevel = currentLevel + 1)
   
@@ -458,7 +459,8 @@ trait TreeStructure { this: TreeContent =>
       case _: NavigationLink => true
       case h: NavigationHeader => h.content.exists(hasLinks)
     }
-    val children = if (context.isComplete) Nil else content.map(_.asNavigationItem(context.nextLevel)).filter(hasLinks)
+    val navContent = if (context.excludeSelf) content.filterNot(_.path == context.refPath) else content
+    val children = if (context.isComplete) Nil else navContent.map(_.asNavigationItem(context.nextLevel)).filter(hasLinks)
     val navTitle = title.getOrElse(SpanSequence(path.name))
     context.newNavigationItem(navTitle, titleDocument.map(_.path), children)
   }
