@@ -217,12 +217,12 @@ Most of these setting are introduced in the sections above.
 - `laikaDocTypeMatcher` extension:
   Where a simple `excludeFilter` is not sufficient you can customize the way Laika determines the document type.
   
-  ```scala
-  laikaExtensions += laikaDocTypeMatcher {
-    case Root / "templates" / _ => DocumentType.Template
-    case Root / "images" / _ => DocumentType.Static
-  }
-  ```
+    ```scala
+    laikaExtensions += laikaDocTypeMatcher {
+      case Root / "templates" / _ => DocumentType.Template
+      case Root / "images" / _ => DocumentType.Static
+    }
+    ```
   
   The list of pattern matches can be incomplete, they will be added to the built-in default matches.
 
