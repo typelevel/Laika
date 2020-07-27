@@ -17,6 +17,7 @@
 package laika.format
 
 import cats.effect.Sync
+import laika.api.builder.OperationConfig
 import laika.ast.DocumentTreeRoot
 import laika.config.Config
 import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
@@ -32,7 +33,7 @@ object TestRenderResultProcessor extends TwoPhaseRenderFormat[TextFormatter, Bin
 
   def postProcessor (config: Config): BinaryPostProcessor = new BinaryPostProcessor {
     
-    override def process[F[_] : Sync: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput[F]): F[Unit] = {
+    override def process[F[_] : Sync: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput[F], config: OperationConfig): F[Unit] = {
       
       def append (sb: StringBuilder, result: RenderedTree): Unit = {
         result.content.foreach {

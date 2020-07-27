@@ -21,6 +21,7 @@ import java.time.temporal.ChronoUnit
 import java.util.{Date, Locale, UUID}
 
 import cats.effect.Sync
+import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast._
 import laika.config.Config.ConfigResult
@@ -157,7 +158,8 @@ case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor
    *    and the configuration of this instance.
    */
   def postProcessor (config: Config): BinaryPostProcessor = new BinaryPostProcessor {
-    def process[F[_] : Sync: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput[F]): F[Unit] = writer.write(result, output)
+    def process[F[_] : Sync: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput[F], config: OperationConfig): F[Unit] = 
+      writer.write(result, output)
   }
   
 }

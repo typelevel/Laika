@@ -16,11 +16,11 @@
 
 package laika.render
 
-import cats.effect.{Sync, IO}
+import cats.effect.{IO, Sync}
 import cats.implicits._
 import laika.api.Renderer
-import laika.api.builder.TwoPhaseRendererBuilder
-import laika.ast.{DocumentTreeRoot, TemplateRoot}
+import laika.api.builder.{OperationConfig, TwoPhaseRendererBuilder}
+import laika.ast.{DocumentTreeRoot, MessageFilter, TemplateRoot}
 import laika.config.{Config, ConfigException}
 import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
 import laika.format.{PDF, XSLFO}
@@ -35,7 +35,7 @@ import laika.render.fo.TestTheme
 import laika.render.pdf.FOConcatenation
 
 
-class FOforPDFSpec extends IOSpec with FileIO {
+class PDFNavigationSpec extends IOSpec with FileIO {
 
   
   object FOTest extends TwoPhaseRenderFormat[FOFormatter, BinaryPostProcessor] {
@@ -51,13 +51,13 @@ class FOforPDFSpec extends IOSpec with FileIO {
 
     def postProcessor (config: Config): BinaryPostProcessor = new BinaryPostProcessor {
 
-      override def process[F[_]: Sync: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput[F]): F[Unit] = {
+      override def process[F[_]: Sync: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput[F], opConfig: OperationConfig): F[Unit] = {
 
         val pdfConfig = PDF.BookConfig.decodeWithDefaults(result.config)
         output.resource.use { out =>
           for {
             config <- Sync[F].fromEither(pdfConfig.left.map(ConfigException))
-            fo <- Sync[F].fromEither(FOConcatenation(result, config).left.map(ConfigException)): F[String]
+            fo <- Sync[F].fromEither(FOConcatenation(result, config, opConfig)): F[String]
             _  <- Sync[F].delay(out.write(fo.getBytes("UTF-8"))): F[Unit]
           } yield ()
         }
@@ -151,7 +151,7 @@ class FOforPDFSpec extends IOSpec with FileIO {
   }
   
   
-  "The FOforPDF utility" should {
+  "The PDF navigation utility" should {
 
     "render a tree with all structure elements disabled" in new Setup {
 

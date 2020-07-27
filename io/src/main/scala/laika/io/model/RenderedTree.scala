@@ -104,6 +104,7 @@ case class RenderedDocument (path: Path, title: Option[SpanSequence], sections: 
 case class RenderedTreeRoot[F[_]] (tree: RenderedTree,
                                    defaultTemplate: TemplateRoot,
                                    config: Config,
+                                   styles: StyleDeclarationSet = StyleDeclarationSet.empty,
                                    coverDocument: Option[RenderedDocument] = None,
                                    staticDocuments: Seq[BinaryInput[F]] = Nil,
                                    sourcePaths: Seq[String] = Nil) {

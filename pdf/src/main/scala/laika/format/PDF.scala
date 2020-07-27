@@ -22,9 +22,10 @@ import java.util.{Date, Locale, UUID}
 
 import cats.effect.Sync
 import cats.implicits._
+import laika.api.builder.OperationConfig
 import laika.ast.{DocumentMetadata, DocumentTreeRoot, Path, TemplateRoot}
 import laika.config.Config.ConfigResult
-import laika.config.{Config, ConfigDecoder, ConfigEncoder, ConfigException, DefaultKey, Key}
+import laika.config.{Config, ConfigDecoder, ConfigEncoder, DefaultKey, Key}
 import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
 import laika.helium.FontDefinition
 import laika.io.model.{BinaryOutput, RenderedTreeRoot}
@@ -107,12 +108,12 @@ class PDF private(val interimFormat: RenderFormat[FOFormatter], fopFactory: Opti
     private val pdfConfig = PDF.BookConfig.decodeWithDefaults(config).getOrElse(PDF.BookConfig())
     private val renderer = new PDFRenderer(fopFactory.getOrElse(FopFactoryBuilder.build(pdfConfig)))
     
-    override def process[F[_]: Sync: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput[F]): F[Unit] = {
+    override def process[F[_]: Sync: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput[F], opConfig: OperationConfig): F[Unit] = {
       
       val title = result.title.map(_.extractText)
       
       for {
-        fo       <- Sync[F].fromEither(FOConcatenation(result, pdfConfig).left.map(ConfigException))
+        fo       <- Sync[F].fromEither(FOConcatenation(result, pdfConfig, opConfig))
         _        <- renderer.render(fo, output, pdfConfig.metadata, title, result.sourcePaths)
       } yield ()
     }

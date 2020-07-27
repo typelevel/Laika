@@ -143,7 +143,7 @@ object RendererRuntime {
         val resultRoot = TreeBuilder.build(renderedDocs.filterNot(res => coverDoc.exists(_.path == res.path)), buildNode)
         val template = finalRoot.tree.getDefaultTemplate(fileSuffix).fold(TemplateRoot.fallback)(_.content)
   
-        RenderedTreeRoot[F](resultRoot, template, finalRoot.config, coverDoc, staticDocs, finalRoot.sourcePaths)
+        RenderedTreeRoot[F](resultRoot, template, finalRoot.config, finalRoot.styles(fileSuffix), coverDoc, staticDocs, finalRoot.sourcePaths)
       }
 
     def applyTemplate (root: DocumentTreeRoot): Either[ConfigError, DocumentTreeRoot] = {
@@ -199,7 +199,7 @@ object RendererRuntime {
       preparedTree <- Sync[F].fromEither(op.renderer.prepareTree(op.input))
       renderedTree <- run(ParallelRenderer.Op[F](op.renderer.interimRenderer, op.theme, preparedTree, StringTreeOutput), themeInputs)
       finalTree    =  renderedTree.copy[F](defaultTemplate = op.input.tree.getDefaultTemplate(suffix).fold(getDefaultTemplate(themeInputs, suffix))(_.content))
-      _            <- op.renderer.postProcessor.process(finalTree, op.output)
+      _            <- op.renderer.postProcessor.process(finalTree, op.output, op.config)
     } yield ()
   }
 

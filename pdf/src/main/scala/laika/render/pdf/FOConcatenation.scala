@@ -16,14 +16,16 @@
 
 package laika.render.pdf
 
-import cats.implicits._
 import cats.data.NonEmptySet
-import laika.config.{Config, ConfigError}
+import cats.implicits._
 import laika.api.Renderer
-import laika.ast.Path.Root
+import laika.api.builder.OperationConfig
 import laika.ast._
+import laika.config.{Config, ConfigException}
 import laika.format.{PDF, XSLFO}
-import laika.io.model.{RenderedDocument, RenderedTree, RenderedTreeRoot}
+import laika.io.model.RenderedTreeRoot
+import laika.parse.markup.DocumentParser.InvalidDocument
+import laika.rewrite.nav.ConfigurablePathTranslator
 
 /** Concatenates the XSL-FO that serves as a basis for producing the final PDF output
   * and applies the default XSL-FO template to the entire result.
@@ -31,15 +33,16 @@ import laika.io.model.{RenderedDocument, RenderedTree, RenderedTreeRoot}
   * @author Jens Halm
   */
 object FOConcatenation {
-
+  
   /** Concatenates the XSL-FO that serves as a basis for producing the final PDF output
     * and applies the default XSL-FO template to the entire result.
     *
     *  @param result the tree of rendered XSL-FO documents
     *  @param config the configuration to apply
+    *  @param opConfig the operation config that had been used to produce the interim XSL-FO result 
     *  @return the rendered XSL-FO merged to a single String 
     */
-  def apply[F[_]] (result: RenderedTreeRoot[F], config: PDF.BookConfig): Either[ConfigError, String] = {
+  def apply[F[_]] (result: RenderedTreeRoot[F], config: PDF.BookConfig, opConfig: OperationConfig): Either[Throwable, String] = {
 
     def concatDocuments: String = {
       val sb = new StringBuilder
@@ -51,7 +54,7 @@ object FOConcatenation {
       result.config.withValue("laika.pdf.coverImage", path.toString).build
     }
 
-    def applyTemplate(foString: String, template: TemplateDocument): Either[ConfigError, String] = {
+    def applyTemplate(foString: String, template: TemplateDocument): Either[Throwable, String] = {
       val foElement = RawContent(NonEmptySet.one("fo"), foString)
       val finalConfig = ensureAbsoluteCoverImagePath
       val finalDoc = Document(
@@ -60,8 +63,12 @@ object FOConcatenation {
         fragments = PDFNavigation.generateBookmarks(result, config.navigationDepth),
         config = finalConfig
       )
-      val renderer = Renderer.of(XSLFO).build
-      template.applyTo(finalDoc).map(renderer.render)
+      val renderer = Renderer.of(XSLFO).withConfig(opConfig).build
+      template
+        .applyTo(finalDoc)
+        .leftMap(err => ConfigException(err))
+        .flatMap(templatedDoc => InvalidDocument.from(templatedDoc, opConfig.failOnMessages).toLeft(templatedDoc))
+        .map(renderer.render(_, ConfigurablePathTranslator(result.config, "fo"), result.styles))
     }
 
     val defaultTemplate = TemplateDocument(Path.Root / "default.template.fo", result.defaultTemplate)
