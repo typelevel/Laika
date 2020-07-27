@@ -135,7 +135,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
 
     def directive: Blocks.Directive
 
-    lazy val directiveSupport: ParserBundle = DirectiveSupport.withDirectives(Seq(directive), Nil, Nil, Nil).parsers
+    lazy val directiveSupport: ParserBundle = DirectiveSupport.withDirectives(Seq(directive, StandardDirectives.blockStyle), Nil, Nil, Nil).parsers
 
     lazy val paragraphParser: BlockParserBuilder = BlockParser.recursive { recParser =>
       recParser.recursiveSpans((Parsers.not(blankLine) ~> restOfLine).rep.min(1).mkLines) ^^ { Paragraph(_) }
@@ -605,6 +605,20 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
       Parsing (input) should produce (root(p("aa"), invalid("@:foo { name=foo }",msg), p("bb")))
     }
   }
-  
+
+  it should "merge options from two nested directives" in {
+    new BlockParser with RequiredPositionalAttribute {
+      val input = """aa
+                    |
+                    |@:style(bar)
+                    |
+                    |@:dir(foo)
+                    |
+                    |@:@
+                    |
+                    |bb""".stripMargin
+      Parsing (input) should produce (root(p("aa"), p("foo").mergeOptions(Styles("bar")), p("bb")))
+    }
+  }
   
 }

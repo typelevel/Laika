@@ -190,6 +190,8 @@ trait BuilderContext[E <: Element] {
 
   private[laika] trait DirectiveInstanceBase extends DirectiveProcessor {
     
+    def options: Options
+    
     def directive: Option[Directive]
     
     def parser: Parser
@@ -203,7 +205,10 @@ trait BuilderContext[E <: Element] {
       }
 
       process(cursor, factory).fold(messages => createInvalidElement(s"One or more errors processing directive '$name': "
-        + messages.mkString(", ")), identity)
+        + messages.mkString(", ")), identity) match {
+        case c: Customizable => c.mergeOptions(options).asInstanceOf[E]
+        case other => other
+      }
     }
 
   }
