@@ -20,7 +20,7 @@ import java.util.Date
 
 import cats.data.NonEmptyChain
 import cats.implicits._
-import laika.ast.{Path, PathBase, RelativePath, Target}
+import laika.ast.{Path, PathBase, RelativePath}
 import laika.time.PlatformDateFormat
 
 import scala.util.Try
@@ -99,7 +99,9 @@ object ConfigDecoder {
 
   implicit lazy val path: ConfigDecoder[Path] = tracedValue[String].map { tracedValue =>
     PathBase.parse(tracedValue.value) match {
-      case p: RelativePath => tracedValue.origin.path.parent / p
+      case p: RelativePath => 
+        if (p.name.isEmpty && p.fragment.nonEmpty) tracedValue.origin.path.withFragment(p.fragment.get)
+        else tracedValue.origin.path.parent / p
       case p: Path => p
     }
   }

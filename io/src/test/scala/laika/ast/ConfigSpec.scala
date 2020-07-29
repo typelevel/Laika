@@ -375,6 +375,25 @@ class ConfigSpec extends IOSpec
         }
     }
 
+    "decode a local path in a document config header" in new Inputs {
+      val markupWithPathConfig =
+        """{% foo: "#ref" %}
+          |aaa
+          |bbb""".stripMargin
+      val inputs = Seq(
+        Root / "dir" / "input.md" -> markupWithPathConfig
+      )
+
+      markdownParser
+        .fromInput(build(inputs))
+        .parse
+        .map(p => resultTree(p.root))
+        .asserting { tree =>
+          val doc = tree.selectDocument(RelativePath.CurrentTree / "dir" / "input.md")
+          doc.get.config.get[Path]("foo") shouldBe Right(Root / "dir" / "input.md#ref")
+        }
+    }
+
     "decode a path in a directory config file in a nested directory" in new Inputs {
       val inputs = Seq(
         Root / "dir" / "directory.conf" -> Contents.configDocWithPath
