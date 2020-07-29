@@ -99,15 +99,13 @@ case class RenderedDocument (path: Path, title: Option[SpanSequence], sections: 
   * @param coverDocument the cover document (usually used with e-book formats like EPUB and PDF)            
   * @param staticDocuments the paths of documents that were neither identified as text markup, config or templates, 
   *                        and will potentially be embedded or copied as is to the final output, depending on the output format
-  * @param sourcePaths the paths this document tree has been built from or an empty list if this ast does not originate from the file system
   */
 case class RenderedTreeRoot[F[_]] (tree: RenderedTree,
                                    defaultTemplate: TemplateRoot,
                                    config: Config,
                                    styles: StyleDeclarationSet = StyleDeclarationSet.empty,
                                    coverDocument: Option[RenderedDocument] = None,
-                                   staticDocuments: Seq[BinaryInput[F]] = Nil,
-                                   sourcePaths: Seq[String] = Nil) {
+                                   staticDocuments: Seq[BinaryInput[F]] = Nil) {
 
   /** The title of the tree, either obtained from the title document or configuration 
     */

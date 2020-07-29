@@ -652,14 +652,12 @@ case class DocumentTree (path: Path,
   * @param styles the styles to apply when rendering this tree, only populated for PDF or XSL-FO output
   * @param staticDocuments the paths of documents that were neither identified as text markup, config or templates, and will be copied as is to the final output
   * @param includes the map of configuration includes that may be needed when resolving template configuration
-  * @param sourcePaths the paths this document tree has been built from or an empty list if this ast does not originate from the file system
   */
 case class DocumentTreeRoot (tree: DocumentTree,
                              coverDocument: Option[Document] = None,
                              styles: Map[String, StyleDeclarationSet] = Map.empty.withDefaultValue(StyleDeclarationSet.empty), 
                              staticDocuments: Seq[Path] = Nil,
-                             includes: IncludeMap = Map.empty,
-                             sourcePaths: Seq[String] = Nil) {
+                             includes: IncludeMap = Map.empty) {
 
   /** The configuration associated with the root of the tree.
     * 

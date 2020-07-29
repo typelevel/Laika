@@ -115,7 +115,7 @@ object ParserRuntime {
       
       def rewriteTree (root: DocumentTreeRoot): Either[InvalidDocuments, ParsedTree[F]] = { // TODO - move to TreeResultBuilder
         val finalTree = root.rewrite(op.config.rewriteRulesFor(root))
-        val finalRoot = finalTree.copy(staticDocuments = inputs.binaryInputs.map(_.path), sourcePaths = inputs.sourcePaths)
+        val finalRoot = finalTree.copy(staticDocuments = inputs.binaryInputs.map(_.path))
         InvalidDocuments.from(finalRoot, op.config.failOnMessages)
           .toLeft(ParsedTree(finalRoot, inputs.binaryInputs))
       }
