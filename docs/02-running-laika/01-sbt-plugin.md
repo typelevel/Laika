@@ -38,7 +38,7 @@ The plugin expects the source files in the `src/docs` directory inside your proj
 This default can be overridden with:
 
 ```scala
-sourceDirectories in Laika := Seq(target.value / "somewhere-else")
+Laika / sourceDirectories := Seq(target.value / "somewhere-else")
 ```
 
 You can provide multiple input directories which will be merged into Laika's [Virtual Tree Abstraction].
@@ -83,7 +83,7 @@ The site will be generated in the directory `target/docs/site` within your proje
 The default can be changed with:
 
 ```scala
-target in laikaSite := target.value / "somewhere-else"
+laikaSite / target := target.value / "somewhere-else"
 ``` 
 
 Laika builds on sbt's caching features, therefore if neither any input files have been modified
@@ -104,8 +104,8 @@ in addition to the generated HTML site.
 The name of the files will be `<project-name>-<version>.<epub|pdf>` by default. You can change it with:
 
 ```scala
-artifactPath in laikaEPUB := target.value / "my-docs.epub"
-artifactPath in laikaPDF  := target.value / "my-docs.pdf"
+laikaEPUB / artifactPath  := target.value / "my-docs.epub"
+laikaPDF / artifactPath   := target.value / "my-docs.pdf"
 ```
 
 For other e-book configuration options like navigation structures and cover images see [E-Books (EPUB & PDF)].
@@ -122,7 +122,7 @@ laikaIncludeAPI := true
 It will be copied into the `api` directory of your site's target, unless you change its setting:
 
 ```scala
-target in laikaCopyAPI  := (target in laikaSite).value / "somewhere-else"
+laikaCopyAPI / target := (laikaSite / target).value / "somewhere-else"
 ```
 
 
