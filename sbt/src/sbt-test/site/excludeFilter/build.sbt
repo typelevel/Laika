@@ -6,4 +6,4 @@ scalaVersion := "2.12.6"
 
 enablePlugins(LaikaPlugin)
 
-excludeFilter in Laika := "hello.md"
+Laika / excludeFilter := "hello.md"

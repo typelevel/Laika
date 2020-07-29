@@ -6,4 +6,4 @@ scalaVersion := "2.12.6"
 
 enablePlugins(LaikaPlugin)
 
-target in Laika := baseDirectory.value / "docs"
+Laika / target := baseDirectory.value / "docs"

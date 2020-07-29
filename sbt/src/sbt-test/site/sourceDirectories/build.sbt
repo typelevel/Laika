@@ -6,4 +6,4 @@ scalaVersion := "2.12.6"
 
 enablePlugins(LaikaPlugin)
 
-sourceDirectories in Laika += baseDirectory.value / "shared"
+Laika / sourceDirectories += baseDirectory.value / "shared"
