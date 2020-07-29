@@ -60,7 +60,7 @@ object ParserDescriptor {
   )) 
   
   def create[F[_]: Sync: Runtime] (op: ParallelParser.Op[F]): F[ParserDescriptor] = 
-    TreeInputDescriptor.create(op.input).map { inputDesc =>
+    TreeInputDescriptor.create(op.input.build(op.config.docTypeMatcher)).map { inputDesc =>
     apply(
       op.parsers.map(_.format.description),
       op.config.bundles.filter(op.config.bundleFilter).map(ExtensionBundleDescriptor),

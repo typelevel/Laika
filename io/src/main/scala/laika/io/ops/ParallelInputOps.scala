@@ -115,17 +115,13 @@ trait ParallelInputOps[F[_]] {
     fromDirectories(Seq(new File(System.getProperty("user.dir"))), exclude)
 
   /** Builder step that instructs the runtime to use the specified input builder for all parsing operations.
-    *
-    *  @param input the input tree to process
-    */
-  def fromInput(input: InputTreeBuilder[F]): Result = fromInput(input.build(config.docTypeMatcher, _ => false))
-  
-  /** Builder step that instructs the runtime to use the specified input for all parsing operations.
     * 
-    * This is a generic method based on Laika's IO model that concrete methods delegate to.
+    * This is the most generic way to specify the input as it allows to freely compose inputs from multiple
+    * directories, files, streams, the classpath or in-memory inputs.
+    * All other methods in this trait are mere shortcuts that delegate to this method.
     *
     *  @param input the input tree to process
     */
-  protected def fromInput(input: F[InputTree[F]]): Result
-
+  def fromInput(input: InputTreeBuilder[F]): Result
+  
 }

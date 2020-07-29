@@ -22,7 +22,7 @@ import laika.api.MarkupParser
 import laika.api.builder.{OperationConfig, ParserBuilder}
 import laika.ast.{DocumentType, StyleDeclarationSet, TemplateDocument, TextDocumentType}
 import laika.io.descriptor.ParserDescriptor
-import laika.io.model.{ParsedTree, InputTree}
+import laika.io.model.{InputTreeBuilder, ParsedTree}
 import laika.io.ops.ParallelInputOps
 import laika.io.runtime.{ParserRuntime, Runtime}
 import laika.io.theme.Theme
@@ -46,7 +46,7 @@ class ParallelParser[F[_]: Sync: Runtime] (parsers: NonEmptyList[MarkupParser], 
     .reduceLeft[OperationConfig](_ merge _)
     .withBundles(theme.extensions)
 
-  protected def fromInput (input: F[InputTree[F]]): ParallelParser.Op[F] = ParallelParser.Op(parsers, theme, input)
+  def fromInput (input: InputTreeBuilder[F]): ParallelParser.Op[F] = ParallelParser.Op(parsers, theme, input)
 
 }
 
@@ -91,7 +91,7 @@ object ParallelParser {
     * default runtime implementation or by developing a custom runner that performs
     * the parsing based on this operation's properties.
     */
-  case class Op[F[_]: Sync: Runtime] (parsers: NonEmptyList[MarkupParser], theme: Theme[F], input: F[InputTree[F]]) {
+  case class Op[F[_]: Sync: Runtime] (parsers: NonEmptyList[MarkupParser], theme: Theme[F], input: InputTreeBuilder[F]) {
 
     /** The merged configuration of all markup parsers of this operation, including the theme extensions.
       */

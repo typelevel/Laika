@@ -23,7 +23,7 @@ import laika.api.builder.{OperationConfig, ParserBuilder}
 import laika.ast.{DocumentType, TextDocumentType}
 import laika.io.binary.ParallelTransformer.TreeMapper
 import laika.io.descriptor.TransformerDescriptor
-import laika.io.model.{ParsedTree, RenderedTreeRoot, InputTree, TreeOutput}
+import laika.io.model.{InputTreeBuilder, ParsedTree, RenderedTreeRoot, TreeOutput}
 import laika.io.ops.{ParallelInputOps, ParallelTextOutputOps, TreeMapperOps}
 import laika.io.runtime.{Runtime, TransformerRuntime}
 import laika.io.theme.Theme
@@ -33,9 +33,9 @@ import laika.io.theme.Theme
   * @author Jens Halm
   */
 class ParallelTransformer[F[_]: Sync: Runtime] (parsers: NonEmptyList[MarkupParser], 
-                                                 renderer: Renderer,
-                                                 theme: Theme[F],
-                                                 mapper: TreeMapper[F]) extends ParallelInputOps[F] {
+                                                renderer: Renderer,
+                                                theme: Theme[F],
+                                                mapper: TreeMapper[F]) extends ParallelInputOps[F] {
 
   type Result = ParallelTransformer.OutputOps[F]
 
@@ -48,7 +48,7 @@ class ParallelTransformer[F[_]: Sync: Runtime] (parsers: NonEmptyList[MarkupPars
     .reduceLeft[OperationConfig](_ merge _)
     .withBundles(theme.extensions)
 
-  protected def fromInput (input: F[InputTree[F]]): ParallelTransformer.OutputOps[F] =
+  def fromInput (input: InputTreeBuilder[F]): ParallelTransformer.OutputOps[F] =
     ParallelTransformer.OutputOps(parsers, renderer, theme, input, mapper)
 
 }
@@ -61,9 +61,9 @@ object ParallelTransformer {
     * for blocking IO and CPU-bound tasks.
     */
   case class Builder[F[_]: Sync: Runtime] (parsers: NonEmptyList[MarkupParser], 
-                                            renderer: Renderer, 
-                                            theme: Theme[F], 
-                                            mapper: TreeMapper[F]) extends TreeMapperOps[F] {
+                                           renderer: Renderer, 
+                                           theme: Theme[F], 
+                                           mapper: TreeMapper[F]) extends TreeMapperOps[F] {
 
     type MapRes = Builder[F]
     
@@ -98,10 +98,10 @@ object ParallelTransformer {
   /** Builder step that allows to specify the output to render to.
     */
   case class OutputOps[F[_]: Sync: Runtime] (parsers: NonEmptyList[MarkupParser],
-                                              renderer: Renderer,
-                                              theme: Theme[F],
-                                              input: F[InputTree[F]],
-                                              mapper: TreeMapper[F]) extends ParallelTextOutputOps[F] {
+                                             renderer: Renderer,
+                                             theme: Theme[F],
+                                             input: InputTreeBuilder[F],
+                                             mapper: TreeMapper[F]) extends ParallelTextOutputOps[F] {
 
     val F: Sync[F] = Sync[F]
 
@@ -118,11 +118,11 @@ object ParallelTransformer {
     * the transformation based on this operation's properties.
     */
   case class Op[F[_]: Sync: Runtime] (parsers: NonEmptyList[MarkupParser],
-                                       renderer: Renderer,
-                                       theme: Theme[F],
-                                       input: F[InputTree[F]],
-                                       mapper: TreeMapper[F],
-                                       output: TreeOutput) {
+                                      renderer: Renderer,
+                                      theme: Theme[F],
+                                      input: InputTreeBuilder[F],
+                                      mapper: TreeMapper[F],
+                                      output: TreeOutput) {
 
     /** Performs the transformation based on the library's default runtime implementation, suspended in the effect F.
       */
