@@ -670,28 +670,6 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
       res.assertEquals(expectedFileContents)
     }
 
-    "allow to use the same directory as input and output" ignore new FileSystemTest { // TODO - 0.16 - probably no longer supported
-
-      val result =
-        """RootElement - Blocks: 1
-          |. Paragraph - Spans: 1
-          |. . Text - 'Hello'""".stripMargin
-      
-      val res = for {
-        targetDir  <- newTempDirectory
-        staticFile = new File(targetDir, "static.txt")
-        inputFile  = new File(targetDir, "hello.md")
-        _          <- writeFile(inputFile, "Hello")
-        _          <- writeFile(staticFile, "Text")
-        _          <- transformer.fromDirectory(targetDir).toDirectory(targetDir).transform
-        hello      <- readFile(inputFile)
-        static     <- readFile(staticFile)
-        result     <- readFile(new File(targetDir, "hello.txt"))
-      } yield (hello, static, result)
-
-      res.assertEquals(("Hello", "Text", result))
-    }
-    
     "not copy files from the output directory if it's nested inside the input directory" in {
       new FileSystemTest {
 
