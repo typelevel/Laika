@@ -40,20 +40,22 @@ import org.apache.xmlgraphics.util.MimeConstants
   */
 class PDFRenderer (fopFactory: FopFactory) {
 
-  /** Render the given XSL-FO input as a PDF to the specified
-    *  binary output. The optional `sourcePaths` argument
-    *  may be used to allow resolving relative paths for
-    *  loading external files like images.
+  private val fallbackResolver = ResourceResolverFactory.createDefaultResourceResolver()
+  
+  /** Render the given XSL-FO input as a PDF to the specified binary output. 
     *
     *  @param foInput the input in XSL-FO format
     *  @param output the output to write the final result to
     *  @param metadata the metadata associated with the PDF
     *  @param title the title of the document
-    *  @param sourcePaths the paths that may contain files like images
+    *  @param staticDocuments additional files like fonts or images that the renderer should resolve for FOP
     *  which will be used to resolve relative paths
     */
-  def render[F[_] : Sync: Runtime] (foInput: String, output: BinaryOutput[F], metadata: DocumentMetadata, title: Option[String] = None, sourcePaths: Seq[String] = Nil): F[Unit] = {
+  def render[F[_] : Sync: Runtime] (foInput: String, output: BinaryOutput[F], metadata: DocumentMetadata, title: Option[String] = None, staticDocuments: Seq[BinaryInput[F]] = Nil): F[Unit] = {
 
+    // TODO - filter for supported image and font file types to avoid reaching the max open file limit
+    val staticResources: cats.effect.Resource[F, List[(Path, InputStream)]] = staticDocuments.map(s => s.input.map(i => (s.path, i))).toList.sequence
+    
     def writeFo: F[Unit] = {
       val tempOut = TextOutput.forFile[F](Root, new File("/Users/planet42/work/planet42/Laika/pdf/target/manual/test-Lato.fo"), Codec.UTF8)
       OutputRuntime.write[F](foInput, tempOut)
@@ -65,19 +67,18 @@ class PDFRenderer (fopFactory: FopFactory) {
       title.foreach(t => agent.setTitle(t))
     }
 
-    def createSAXResult (out: OutputStream): F[SAXResult] = {
+    def createSAXResult (out: OutputStream, resources: List[(Path, InputStream)]): F[SAXResult] = {
 
+      val resourceMap = resources.toMap
+      
       val resolver = new ResourceResolver {
 
-        def getResource (uri: URI): Resource =
-          new Resource(resolve(uri).toURL.openStream())
+        def getResource (uri: URI): Resource = 
+          if (uri.isAbsolute) fallbackResolver.getResource(uri)
+          else resourceMap.get(Path.parse(uri.getPath)).fold(fallbackResolver.getResource(uri))(new Resource(_))
 
-        def getOutputStream (uri: URI): OutputStream =
-          new FileOutputStream(new File(resolve(uri)))
+        def getOutputStream (uri: URI): OutputStream = fallbackResolver.getOutputStream(uri)
 
-        def resolve (uri: URI): URI = sourcePaths.collectFirst {
-          case source if new File(source + uri.getPath).isFile => new File(source + uri).toURI
-        }.getOrElse(if (uri.isAbsolute) uri else new File(uri.getPath).toURI)
       }
 
       for {
@@ -92,13 +93,18 @@ class PDFRenderer (fopFactory: FopFactory) {
       val factory = TransformerFactory.newInstance
       factory.newTransformer // identity transformer
     }
+    
+    val resources = for {
+      out <- output.resource
+      static <- staticResources
+    } yield (out, static)
 
     Runtime[F].runBlocking {
-      output.resource.use { out =>
+      resources.use { case (out, static) =>
         for {
           _           <- writeFo
           source      <- Sync[F].delay(new StreamSource(new StringReader(foInput)))
-          result      <- createSAXResult(out)
+          result      <- createSAXResult(out, static)
           transformer <- createTransformer
           _           <- Sync[F].delay(transformer.transform(source, result))
         } yield ()

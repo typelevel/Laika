@@ -114,7 +114,7 @@ class PDF private(val interimFormat: RenderFormat[FOFormatter], fopFactory: Opti
       
       for {
         fo       <- Sync[F].fromEither(FOConcatenation(result, pdfConfig, opConfig))
-        _        <- renderer.render(fo, output, pdfConfig.metadata, title, result.sourcePaths)
+        _        <- renderer.render(fo, output, pdfConfig.metadata, title, result.staticDocuments)
       } yield ()
     }
   }
