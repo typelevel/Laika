@@ -501,16 +501,18 @@ class StandardDirectiveSpec extends AnyFlatSpec
   }
 
   trait ApiDirectiveSetup {
-    def input (typeName: String) =
+    def input (typeName: String): String = blockInput(s"aa @:api($typeName) bb")
+    
+    def blockInput (block: String): String = 
       s"""{%
-         |  laika.links.api = [
-         |    { baseUri = "https://default.api/" },
-         |    { baseUri = "https://foo.api/", packagePrefix = foo },
-         |    { baseUri = "https://bar.api/", packagePrefix = foo.bar }
-         |  ]
-         |%}
-         |
-        |aa @:api($typeName) bb
+        |  laika.links.api = [
+        |    { baseUri = "https://default.api/" },
+        |    { baseUri = "https://foo.api/", packagePrefix = foo },
+        |    { baseUri = "https://bar.api/", packagePrefix = foo.bar }
+        |  ]
+        |%}
+        |
+        |$block
       """.stripMargin
   }
 
@@ -561,6 +563,48 @@ class StandardDirectiveSpec extends AnyFlatSpec
       InvalidElement("One or more errors processing directive 'api': No base URI defined for 'foo.bar.Baz' and no default URI available.", "@:api(foo.bar.Baz)").asSpan,
       Text(" bb")
     )))
+
+  }
+  
+  it should "parse an api directive as the only element of a block" ignore new ApiDirectiveSetup {
+    // TODO - this fails right now, might need auto-promotion of span directives without body to block directives
+    val input = """aa
+                  |
+                  |@:api(foo.bar.Baz)
+                  |
+                  |bb""".stripMargin
+    parse(blockInput(input)).content should be (root(
+      p("aa"),
+      p(SpanLink(Seq(Text("Baz")), ExternalTarget(s"https://bar.api/foo/bar/Baz.html"))),
+      p("bb")
+    ))
+  }
+
+  it should "parse an api directive as the first element of a block" in new ApiDirectiveSetup {
+    val input = """aa
+                  |
+                  |@:api(foo.bar.Baz) bb
+                  |
+                  |cc""".stripMargin
+    parse(blockInput(input)).content should be (root(
+      p("aa"),
+      p(SpanLink(Seq(Text("Baz")), ExternalTarget(s"https://bar.api/foo/bar/Baz.html")), Text(" bb")),
+      p("cc")
+    ))
+  }
+
+  it should "parse an api directive as the first line of a block" ignore new ApiDirectiveSetup {
+    val input = """aa
+                  |
+                  |@:api(foo.bar.Baz)
+                  |bb
+                  |
+                  |cc""".stripMargin
+    parse(blockInput(input)).content should be (root(
+      p("aa"),
+      p(SpanLink(Seq(Text("Baz")), ExternalTarget(s"https://bar.api/foo/bar/Baz.html")), Text(" bb")),
+      p("cc")
+    ))
   }
 
   trait SourceDirectiveSetup {
