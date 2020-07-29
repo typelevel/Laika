@@ -527,7 +527,7 @@ class ParallelParserSpec extends IOSpec
       ))
       def useTheme: Boolean = false
       def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO]
-      def build (builder: InputTreeBuilder[IO]): IO[InputTree[IO]] = builder.build(defaultParser.config.docTypeMatcher)
+      def build (builder: InputTreeBuilder[IO]): IO[InputTree[IO]] = builder.build(defaultParser.config.docTypeMatcher, _ => false)
       lazy val input: InputTreeBuilder[IO] =
         if (useTheme) InputTree[IO].addDirectory(dirname)
         else addDoc(InputTree[IO].addDirectory(dirname))
@@ -685,7 +685,7 @@ class ParallelParserSpec extends IOSpec
 
     "merge a directory with a directory from a theme" in new MergedDirectorySetup {
       val treeInput = InputTree[IO].addDirectory(dir1)
-      val themeInput = InputTree[IO].addDirectory(dir2).build(defaultParser.config.docTypeMatcher)
+      val themeInput = InputTree[IO].addDirectory(dir2).build(defaultParser.config.docTypeMatcher, _ => false)
 
       defaultBuilder.withTheme(ThemeBuilder.forInputs(themeInput)).build.fromInput(treeInput).parse.map(toTreeView).assertEquals(treeResult)
     }

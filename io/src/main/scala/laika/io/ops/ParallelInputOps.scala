@@ -118,7 +118,7 @@ trait ParallelInputOps[F[_]] {
     *
     *  @param input the input tree to process
     */
-  def fromInput(input: InputTreeBuilder[F]): Result = fromInput(input.build(config.docTypeMatcher))
+  def fromInput(input: InputTreeBuilder[F]): Result = fromInput(input.build(config.docTypeMatcher, _ => false))
   
   /** Builder step that instructs the runtime to use the specified input for all parsing operations.
     * 

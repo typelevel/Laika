@@ -99,21 +99,21 @@ object InputTree {
 }
 
 
-class InputTreeBuilder[F[_]](exclude: File => Boolean, steps: Vector[(Path => DocumentType) => Kleisli[F, InputTree[F], InputTree[F]]])(implicit F: Sync[F]) {
+class InputTreeBuilder[F[_]](exclude: File => Boolean, steps: Vector[(Path => DocumentType, File => Boolean) => Kleisli[F, InputTree[F], InputTree[F]]])(implicit F: Sync[F]) {
   
   import cats.implicits._
   
-  private def addStep (step: (Path => DocumentType) => Kleisli[F, InputTree[F], InputTree[F]]): InputTreeBuilder[F] =
+  private def addStep (step: (Path => DocumentType, File => Boolean) => Kleisli[F, InputTree[F], InputTree[F]]): InputTreeBuilder[F] =
     new InputTreeBuilder(exclude, steps = steps :+ step)
   
   private def addStep (path: Path)(f: PartialFunction[DocumentType, InputTree[F] => InputTree[F]]): InputTreeBuilder[F] = 
-    addStep { docTypeFunction => 
+    addStep { (docTypeFunction, _) => 
       Kleisli { tree =>
         f.applyOrElse[DocumentType, InputTree[F] => InputTree[F]](docTypeFunction(path), _ => identity)(tree).pure[F]
       }
     }
   
-  private def addParserResult (result: ParserResult): InputTreeBuilder[F] = addStep { _ =>
+  private def addParserResult (result: ParserResult): InputTreeBuilder[F] = addStep { (_,_) =>
     Kleisli(tree => (tree + result).pure[F])
   }
 
@@ -125,9 +125,10 @@ class InputTreeBuilder[F[_]](exclude: File => Boolean, steps: Vector[(Path => Do
   def addDirectory (name: String, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] = 
     addDirectory(new File(name), mountPoint)
   def addDirectory (dir: File)(implicit codec: Codec): InputTreeBuilder[F] = addDirectory(dir, Root)
-  def addDirectory (dir: File, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] = addStep { docTypeFunction =>
+  def addDirectory (dir: File, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] = addStep { (docTypeFunction, fileFilter) =>
     Kleisli { input => 
-      DirectoryScanner.scanDirectories[F](new DirectoryInput(Seq(dir), codec, docTypeFunction, exclude, mountPoint)).map(input ++ _)
+      val filter: File => Boolean = f => fileFilter(f) || exclude(f)
+      DirectoryScanner.scanDirectories[F](new DirectoryInput(Seq(dir), codec, docTypeFunction, filter, mountPoint)).map(input ++ _)
     }
   }
 
@@ -168,10 +169,11 @@ class InputTreeBuilder[F[_]](exclude: File => Boolean, steps: Vector[(Path => Do
     addParserResult(StyleResult(StyleDeclarationSet(Set(path), styles, precedence), "fo"))
   
   
-  def build: F[InputTree[F]] = build(DocumentTypeMatcher.base)
-  def build (docTypeMatcher: Path => DocumentType): F[InputTree[F]] = 
+  def build: F[InputTree[F]] = build(DocumentTypeMatcher.base, _ => false)
+  
+  def build (docTypeMatcher: Path => DocumentType, exclude: File => Boolean): F[InputTree[F]] = 
     steps
-      .map(_(docTypeMatcher))
+      .map(_(docTypeMatcher, exclude))
       .reduceLeftOption(_ andThen _)
       .fold(InputTree.empty[F].pure[F])(_.run(InputTree.empty[F]))
 
