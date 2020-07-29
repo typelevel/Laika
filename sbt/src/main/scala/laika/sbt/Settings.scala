@@ -46,8 +46,8 @@ object Settings {
 
   val defaultInputs: Initialize[InputTreeBuilder[IO]] = setting {
     InputTree
-      .apply[IO]((excludeFilter in Laika).value.accept _)
-      .addDirectories((sourceDirectories in Laika).value)(laikaConfig.value.encoding)
+      .apply[IO]((Laika / excludeFilter).value.accept _)
+      .addDirectories((Laika / sourceDirectories).value)(laikaConfig.value.encoding)
   }
   
   val describe: Initialize[String] = setting {
@@ -78,12 +78,12 @@ object Settings {
       .build
 
     val inputs = InputTree
-      .apply[IO]((excludeFilter in Laika).value.accept _)
-      .addDirectories((sourceDirectories in Laika).value)(laikaConfig.value.encoding)
+      .apply[IO]((Laika / excludeFilter).value.accept _)
+      .addDirectories((Laika / sourceDirectories).value)(laikaConfig.value.encoding)
 
     transformer
       .fromInput(inputs)
-      .toDirectory((target in laikaSite).value)
+      .toDirectory((laikaSite / target).value)
       .describe
       .unsafeRunSync()
       .copy(renderer = "Depending on task")
@@ -96,18 +96,18 @@ object Settings {
   def createArtifactPath (key: Scoped): Initialize[File] = setting {
     val art = (artifact in key).value
     val classifier = art.classifier.map("-"+_).getOrElse("")
-    (target in Laika).value / (art.name + "-" + projectID.value.revision + classifier + "." + art.extension)
+    (Laika / target).value / (art.name + "-" + projectID.value.revision + classifier + "." + art.extension)
   }
 
   /** The set of targets for the transformation tasks of all supported output formats.
     */
   val allTargets = setting {
     Set(
-      (target in laikaSite).value, 
-      (artifactPath in laikaPDF).value, 
-      (artifactPath in laikaEPUB).value, 
-      (target in laikaXSLFO).value, 
-      (target in laikaAST).value
+      (laikaSite / target).value, 
+      (laikaPDF / artifactPath).value, 
+      (laikaEPUB / artifactPath).value, 
+      (laikaXSLFO / target).value, 
+      (laikaAST / target).value
     )
   }
 

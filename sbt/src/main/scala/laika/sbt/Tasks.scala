@@ -88,7 +88,7 @@ object Tasks {
       .build
 
     lazy val tree = {
-      streams.value.log.info("Reading files from " + (sourceDirectories in Laika).value.mkString(", "))
+      streams.value.log.info("Reading files from " + (Laika / sourceDirectories).value.mkString(", "))
 
       val tree = parser.fromInput(laikaInputs.value.delegate).parse.unsafeRunSync()
 
@@ -98,9 +98,10 @@ object Tasks {
     }
 
     def renderWithFormat[FMT] (format: RenderFormat[FMT], targetDir: File, formatDesc: String): Set[File] = {
-      val apiInSite = (target in laikaCopyAPI).value
-      val pdfInSite = (artifactPath in laikaPDF).value
-      val filesToDelete = (targetDir.allPaths --- targetDir --- pdfInSite --- apiInSite.allPaths --- collectParents(apiInSite)).get
+      val apiInSite = (laikaCopyAPI / target).value
+      val pdfInSite = (laikaPDF / artifactPath).value
+      val epubInSite = (laikaEPUB / artifactPath).value
+      val filesToDelete = (targetDir.allPaths --- targetDir --- pdfInSite --- epubInSite --- apiInSite.allPaths --- collectParents(apiInSite)).get
       sbt.IO.delete(filesToDelete)
 
       if (!targetDir.exists) targetDir.mkdirs()
@@ -156,18 +157,18 @@ object Tasks {
     val results = formats map { format =>
       
       val cacheFormatDir = format match {
-        case OutputFormat.PDF => (artifactPath in laikaPDF).value.name
-        case OutputFormat.EPUB => (artifactPath in laikaEPUB).value.name
+        case OutputFormat.PDF => (laikaPDF / artifactPath).value.name
+        case OutputFormat.EPUB => (laikaEPUB / artifactPath).value.name
         case other => other.toString.toLowerCase
       }
 
       val fun = FileFunction.cached(cacheDir / cacheFormatDir, FilesInfo.lastModified, FilesInfo.exists) { _ =>
         format match {
-          case OutputFormat.HTML  => renderWithFormat(HTML, (target in laikaSite).value, "HTML")
-          case OutputFormat.AST   => renderWithFormat(AST, (target in laikaAST).value, "Formatted AST")
-          case OutputFormat.XSLFO => renderWithFormat(XSLFO, (target in laikaXSLFO).value, "XSL-FO")
-          case OutputFormat.EPUB  => renderWithProcessor(EPUB, (artifactPath in laikaEPUB).value, "EPUB")
-          case OutputFormat.PDF   => renderWithProcessor(fopFactory.value.fold[PDF](PDF)(PDF.withFopFactory), (artifactPath in laikaPDF).value, "PDF")
+          case OutputFormat.HTML  => renderWithFormat(HTML, (laikaSite / target).value, "HTML")
+          case OutputFormat.AST   => renderWithFormat(AST, (laikaAST / target).value, "Formatted AST")
+          case OutputFormat.XSLFO => renderWithFormat(XSLFO, (laikaXSLFO / target).value, "XSL-FO")
+          case OutputFormat.EPUB  => renderWithProcessor(EPUB, (laikaEPUB / artifactPath).value, "EPUB")
+          case OutputFormat.PDF   => renderWithProcessor(fopFactory.value.fold[PDF](PDF)(PDF.withFopFactory), (laikaPDF / artifactPath).value, "PDF")
         }
       }
       fun(inputFiles)
@@ -198,18 +199,18 @@ object Tasks {
     val epub = laikaCopyEPUB.value
     val pdf  = laikaCopyPDF.value
 
-    (target in laikaSite).value
+    (laikaSite / target).value
   }
 
   /** Copies the API documentation to the target directory of the site task.
     * Does nothing if the `laikaIncludeAPI` setting is set to false (the default).
     */
   val copyAPI: Initialize[Task[File]] = taskDyn {
-    val targetDir = (target in laikaCopyAPI).value
+    val targetDir = (laikaCopyAPI / target).value
     if (laikaIncludeAPI.value) task {
 
       val cacheDir = streams.value.cacheDirectory / "laika" / "api"
-      val apiMappings = (mappings in packageDoc in Compile).value
+      val apiMappings = (Compile / packageDoc / mappings).value
       val targetMappings = apiMappings map { case (file, target) => (file, targetDir / target) }
 
       Sync.sync(CacheStore(cacheDir))(targetMappings)
@@ -227,8 +228,8 @@ object Tasks {
     * Does nothing if the `laikaIncludeEPUB` setting is set to false (the default).
     */
   val copyEPUB: Initialize[Task[File]] = taskDyn {
-    val targetDir = (target in laikaSite).value
-    val epubSource = (artifactPath in laikaEPUB).value
+    val targetDir = (laikaSite / target).value
+    val epubSource = (laikaEPUB / artifactPath).value
     val epubTarget = targetDir / epubSource.getName
 
     if (laikaIncludeEPUB.value) task {
@@ -248,8 +249,8 @@ object Tasks {
     * Does nothing if the `laikaIncludePDF` setting is set to false (the default).
     */
   val copyPDF: Initialize[Task[File]] = taskDyn {
-    val targetDir = (target in laikaSite).value
-    val pdfSource = (artifactPath in laikaPDF).value
+    val targetDir = (laikaSite / target).value
+    val pdfSource = (laikaPDF / artifactPath).value
     val pdfTarget = targetDir / pdfSource.getName
 
     if (laikaIncludePDF.value) task {
@@ -269,10 +270,10 @@ object Tasks {
     * API documentation and PDF file into a zip archive.
     */
   val packageSite: Initialize[Task[File]] = task {
-    val zipFile = (artifactPath in laikaPackageSite).value
+    val zipFile = (laikaPackageSite / artifactPath).value
     streams.value.log.info(s"Packaging $zipFile ...")
 
-    sbt.IO.zip((mappings in laikaSite).value, zipFile)
+    sbt.IO.zip((laikaSite / mappings).value, zipFile)
 
     streams.value.log.info("Done packaging.")
     zipFile
@@ -281,7 +282,7 @@ object Tasks {
   /** Cleans the target directory of the site task.
     */
   val clean: Initialize[Task[Unit]] = task {
-    sbt.IO.delete((target in laikaSite).value)
+    sbt.IO.delete((laikaSite / target).value)
   }
 
   /** Collects all input files from the specified

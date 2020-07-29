@@ -130,15 +130,15 @@ object LaikaPlugin extends AutoPlugin {
   import autoImport._
 
   override def projectSettings: Seq[Setting[_]] = Seq(
-    sourceDirectories in Laika  := Seq(sourceDirectory.value / "docs"),
+    Laika / sourceDirectories := Seq(sourceDirectory.value / "docs"),
 
-    target in Laika         := target.value / "docs",
-    target in laikaSite     := (target in Laika).value / "site",
-    target in laikaXSLFO    := (target in Laika).value / "fo",
-    target in laikaAST      := (target in Laika).value / "ast",
-    target in laikaCopyAPI  := (target in laikaSite).value / "api",
+    Laika / target          := target.value / "docs",
+    laikaSite / target      := (Laika / target).value / "site",
+    laikaXSLFO / target     := (Laika / target).value / "fo",
+    laikaAST / target       := (Laika / target).value / "ast",
+    laikaCopyAPI / target   := (Laika / target).value / "api",
 
-    excludeFilter in Laika  := HiddenFileFilter,
+    Laika / excludeFilter   := HiddenFileFilter,
 
     laikaExtensions         := Nil,
     laikaConfig             := LaikaConfig(),
@@ -154,25 +154,25 @@ object LaikaPlugin extends AutoPlugin {
     laikaGenerate           := Tasks.generate.evaluated,
     laikaHTML               := Tasks.generate.toTask(" html").value,
     laikaXSLFO              := Tasks.generate.toTask(" xslfo").value,
-    laikaEPUB               := Tasks.generate.toTask(" epub").value.headOption.getOrElse((artifactPath in laikaEPUB).value),
-    laikaPDF                := Tasks.generate.toTask(" pdf").value.headOption.getOrElse((artifactPath in laikaPDF).value),
+    laikaEPUB               := Tasks.generate.toTask(" epub").value.headOption.getOrElse((laikaEPUB / artifactPath).value),
+    laikaPDF                := Tasks.generate.toTask(" pdf").value.headOption.getOrElse((laikaPDF / artifactPath).value),
     laikaAST                := Tasks.generate.toTask(" ast").value,
     laikaDescribe           := Settings.describe.value,
     laikaCopyAPI            := Tasks.copyAPI.value,
     laikaCopyEPUB           := Tasks.copyEPUB.value,
     laikaCopyPDF            := Tasks.copyPDF.value,
     laikaPackageSite        := Tasks.packageSite.value,
-    clean in Laika          := Tasks.clean.value,
+    Laika / clean           := Tasks.clean.value,
 
-    mappings in laikaSite   := sbt.Path.allSubpaths(laikaSite.value).toSeq,
+    laikaSite/ mappings     := sbt.Path.allSubpaths(laikaSite.value).toSeq,
 
-    artifact in laikaPackageSite     := Artifact(moduleName.value, Artifact.DocType, "zip", "site"),
-    artifact in laikaEPUB            := Artifact(moduleName.value, Artifact.DocType, "epub"),
-    artifact in laikaPDF             := Artifact(moduleName.value, Artifact.DocType, "pdf"),
-    artifactPath in laikaPackageSite := Settings.createArtifactPath(laikaPackageSite).value,
-    artifactPath in laikaEPUB        := Settings.createArtifactPath(laikaEPUB).value,
-    artifactPath in laikaPDF         := Settings.createArtifactPath(laikaPDF).value,
+    laikaPackageSite / artifact      := Artifact(moduleName.value, Artifact.DocType, "zip", "site"),
+    laikaEPUB / artifact             := Artifact(moduleName.value, Artifact.DocType, "epub"),
+    laikaPDF / artifact              := Artifact(moduleName.value, Artifact.DocType, "pdf"),
+    laikaPackageSite / artifactPath  := Settings.createArtifactPath(laikaPackageSite).value,
+    laikaEPUB / artifactPath         := Settings.createArtifactPath(laikaEPUB).value,
+    laikaPDF / artifactPath          := Settings.createArtifactPath(laikaPDF).value,
 
-  ) :+ (cleanFiles += (target in Laika).value)
+  ) :+ (cleanFiles += (Laika / target).value)
 
 }
