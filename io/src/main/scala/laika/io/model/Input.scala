@@ -208,6 +208,14 @@ object DirectoryInput {
     * `fileFilter` properties.
     */
   def apply (directory: File)(implicit codec: Codec): DirectoryInput = DirectoryInput(Seq(directory), codec)
+
+  /** Creates a file filter that filters all files in the specified directory.
+    */
+  def filter (dir: File): File => Boolean = file => {
+    val filePath = file.getCanonicalPath
+    val dirPath = dir.getCanonicalPath
+    filePath.startsWith(dirPath)
+  }
 }
 
 /** The result of a parsing operation for an entire document tree.

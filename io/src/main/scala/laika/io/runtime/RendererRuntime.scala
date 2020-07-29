@@ -108,18 +108,10 @@ object RendererRuntime {
       case StringTreeOutput => RenderOps(Nil, renderDocuments(finalRoot, styles)(p => TextOutput.forString(p)))
       case DirectoryOutput(dir, codec) => 
         val renderOps = renderDocuments(finalRoot, styles)(p => TextOutput.forFile(p, file(dir, p), codec))
-        val toCopy = filterOutput(staticDocs, dir.getAbsolutePath)
-        val copyOps = copyDocuments(toCopy, dir)
-        val directories = (finalRoot.allDocuments.map(_.path.parent) ++ toCopy.map(_.path.parent)).distinct
+        val copyOps = copyDocuments(staticDocs, dir)
+        val directories = (finalRoot.allDocuments.map(_.path.parent) ++ staticDocs.map(_.path.parent)).distinct
           .map(p => OutputRuntime.createDirectory(file(dir, p)))
         RenderOps(directories, renderOps ++ copyOps)
-    }
-    
-    def filterOutput (staticDocs: Seq[BinaryInput[F]], outPath: String): Seq[BinaryInput[F]] = {
-      op.input.sourcePaths.collectFirst { 
-        case inPath if outPath.startsWith(inPath) =>
-          Root / RelativePath.parse(outPath.drop(inPath.length).stripPrefix("/")) 
-      }.fold(staticDocs) { nestedOut => staticDocs.filterNot(_.path.isSubPath(nestedOut)) }
     }
     
     def processBatch (finalRoot: DocumentTreeRoot, ops: Seq[F[RenderResult]], staticDocs: Seq[BinaryInput[F]]): F[RenderedTreeRoot[F]] =

@@ -33,7 +33,7 @@ trait InputBuilder {
   }
   
   def build (inputs: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): IO[InputTree[IO]] =
-    build(inputs).build(docTypeMatcher, _ => false)
+    build(inputs).build(docTypeMatcher)
 
   def build (inputs: Seq[(Path, String)]): InputTreeBuilder[IO] =
     inputs.foldLeft(InputTree[IO]) {

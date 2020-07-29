@@ -16,13 +16,15 @@
 
 package laika.io.runtime
 
+import java.io.File
+
 import cats.Monad
 import cats.data.Kleisli
 import cats.effect.Sync
 import cats.implicits._
 import laika.bundle.ExtensionBundle
 import laika.io.binary
-import laika.io.model.{ParsedTree, RenderedTreeRoot, InputTree}
+import laika.io.model.{DirectoryInput, DirectoryOutput, InputTree, ParsedTree, RenderedTreeRoot, TreeOutput}
 import laika.io.text._
 import laika.io.theme.Theme
 
@@ -38,6 +40,11 @@ object TransformerRuntime {
     def extensions: Seq[ExtensionBundle] = theme.extensions
     def treeTransformer: Kleisli[F, ParsedTree[F], ParsedTree[F]] = Kleisli(Monad[F].pure)
   }
+  
+  private def fileFilterFor (output: TreeOutput): File => Boolean = output match {
+    case DirectoryOutput(directory, _) => DirectoryInput.filter(directory)
+    case _ => _ => false
+  } 
 
   /** Process the specified transform operation for a single input document and 
     * a character output format.
@@ -51,7 +58,7 @@ object TransformerRuntime {
     * a character output format.
     */
   def run[F[_]: Sync: Runtime] (op: ParallelTransformer.Op[F]): F[RenderedTreeRoot[F]] = for {
-    tree       <- ParallelParser.Op(op.parsers, op.theme, op.input).parse
+    tree       <- ParallelParser.Op(op.parsers, op.theme, op.input.withFileFilter(fileFilterFor(op.output))).parse
     mappedTree <- op.mapper.run(tree)
     res        <- ParallelRenderer.Op(op.renderer, themeWithBundlesOnly(op.theme), mappedTree.root, op.output, mappedTree.staticDocuments).render
   } yield res

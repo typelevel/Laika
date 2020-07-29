@@ -670,7 +670,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
       res.assertEquals(expectedFileContents)
     }
 
-    "allow to use the same directory as input and output" in new FileSystemTest {
+    "allow to use the same directory as input and output" ignore new FileSystemTest { // TODO - 0.16 - probably no longer supported
 
       val result =
         """RootElement - Blocks: 1
