@@ -67,28 +67,8 @@ object Tasks {
     val formats = spaceDelimited("<format>").parsed.map(OutputFormat.fromString)
     if (formats.isEmpty) throw new IllegalArgumentException("At least one format must be specified")
 
-    val fallback = ConfigBuilder.empty
-      .withValue(LaikaKeys.metadata.child("title"), name.value)
-      .withValue(LaikaKeys.metadata.child("description"), description.value)
-      .build
     val userConfig = laikaConfig.value
-
-    def createParser (format: MarkupFormat): ParserBuilder = {
-      val parser = MarkupParser.of(format)
-      val mergedConfig = parser.config.copy(
-        bundleFilter = userConfig.bundleFilter,
-        failOnMessages = userConfig.failOnMessages,
-        renderMessages = userConfig.renderMessages,
-        configBuilder = userConfig.configBuilder.withFallback(fallback)
-      )
-      parser.withConfig(mergedConfig).using(laikaExtensions.value: _*)
-    }
-
-    val parser = createParser(Markdown)
-      .io(blocker)
-      .parallel[IO]
-      .withAlternativeParser(createParser(ReStructuredText))
-      .build
+    val parser = Settings.parser.value
 
     lazy val tree = {
       streams.value.log.info("Reading files from " + (Laika / sourceDirectories).value.mkString(", "))

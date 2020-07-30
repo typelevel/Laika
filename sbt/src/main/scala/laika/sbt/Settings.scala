@@ -21,12 +21,15 @@ import java.util.concurrent.Executors
 import cats.effect.{Blocker, ContextShift, IO}
 import laika.api.builder.{OperationConfig, ParserBuilder}
 import laika.api.{MarkupParser, Transformer}
+import laika.config.{ConfigBuilder, LaikaKeys}
 import laika.factory.MarkupFormat
 import laika.format.{HTML, Markdown, ReStructuredText}
 import laika.io.implicits._
 import laika.io.model.{InputTree, InputTreeBuilder}
+import laika.io.text.ParallelParser
 import laika.sbt.LaikaPlugin.ArtifactDescriptor
 import laika.sbt.LaikaPlugin.autoImport._
+import laika.sbt.Tasks.blocker
 import sbt.Keys._
 import sbt._
 
@@ -89,6 +92,31 @@ object Settings {
       .unsafeRunSync()
       .copy(renderer = "Depending on task")
       .formatted
+  }
+  
+  val parser: Initialize[ParallelParser[IO]] = setting {
+    val fallback = ConfigBuilder.empty
+      .withValue(LaikaKeys.metadata.child("title"), name.value)
+      .withValue(LaikaKeys.metadata.child("description"), description.value)
+      .build
+    val userConfig = laikaConfig.value
+
+    def createParser (format: MarkupFormat): ParserBuilder = {
+      val parser = MarkupParser.of(format)
+      val mergedConfig = parser.config.copy(
+        bundleFilter = userConfig.bundleFilter,
+        failOnMessages = userConfig.failOnMessages,
+        renderMessages = userConfig.renderMessages,
+        configBuilder = userConfig.configBuilder.withFallback(fallback)
+      )
+      parser.withConfig(mergedConfig).using(laikaExtensions.value: _*)
+    }
+
+    createParser(Markdown)
+      .io(blocker)
+      .parallel[IO]
+      .withAlternativeParser(createParser(ReStructuredText))
+      .build
   }
 
 
