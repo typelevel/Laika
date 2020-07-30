@@ -44,5 +44,9 @@ object LaikaKeys {
     val inputName: Key = root.child(Key("titleDocuments","inputName"))
     val outputName: Key = root.child(Key("titleDocuments","outputName"))
   }
+  object site {
+    val apiPath: Key = root.child(Key("site","downloadPath"))
+    val downloadPath: Key = root.child(Key("site","apiPath"))
+  }
   
 }

@@ -25,6 +25,7 @@ import laika.factory.MarkupFormat
 import laika.format.{HTML, Markdown, ReStructuredText}
 import laika.io.implicits._
 import laika.io.model.{InputTree, InputTreeBuilder}
+import laika.sbt.LaikaPlugin.ArtifactDescriptor
 import laika.sbt.LaikaPlugin.autoImport._
 import sbt.Keys._
 import sbt._
@@ -91,12 +92,14 @@ object Settings {
   }
 
 
-  /** The artifact path for the specified task.
+  /** Builds the artifact name based on its descriptor.
+    * 
+    * The default implementation provides a name in the form of `<project-name>-<version>-<classifier>.<suffix>`.
+    * Classifier may be empty in which case the preceding dash will also be omitted.
     */
-  def createArtifactPath (key: Scoped): Initialize[File] = setting {
-    val art = (artifact in key).value
-    val classifier = art.classifier.map("-"+_).getOrElse("")
-    (Laika / target).value / (art.name + "-" + projectID.value.revision + classifier + "." + art.extension)
+  def createArtifactName(desc: ArtifactDescriptor): String = {
+    val classifier = desc.classifier.fold("")("-"+_)
+    desc.name + "-" + desc.version + classifier + "." + desc.suffix
   }
 
   /** The set of targets for the transformation tasks of all supported output formats.
@@ -104,8 +107,6 @@ object Settings {
   val allTargets = setting {
     Set(
       (laikaSite / target).value, 
-      (laikaPDF / artifactPath).value, 
-      (laikaEPUB / artifactPath).value, 
       (laikaXSLFO / target).value, 
       (laikaAST / target).value
     )

@@ -33,11 +33,17 @@ import sbt._
   *
   * The following settings are available:
   *
-  * - `sourceDirectories in Laika`: one or more directories containing text markup and other markup files (default `src/docs`)
+  * - `Laika / sourceDirectories`: one or more directories containing text markup and other markup files (default `src/docs`)
+  * 
+  * - `laikaInputs`: freely compose the input tree from files, directories, streams, in-memory data. If this setting
+  *   is defined `Laika / sourceDirectories` is discarded.
   *
-  * - `target in Laika`: the output directory root (default `target/docs`)
+  * - `Laika / target`: the output directory root (default `target/docs`)
   *
-  * - `excludeFilter in Laika`: files in the source directories to be excluded (default `HiddenFileFilter`)
+  * - `Laika / excludeFilter`: files in the source directories to be excluded (default `HiddenFileFilter`)
+  * 
+  * - `laikaArtifactNameBuilder`: function that builds the name for artifacts (EPUB, PDF, ZIP) based on the provided
+  *   context info
   *
   * - `laikaExtensions`: the main extension hook that allows to add one or more `ExtensionBundle` instances for adding
   *   directives, parser extensions, rewrite rules or custom renderers. See the API of [[laika.bundle.ExtensionBundle]].
@@ -50,9 +56,10 @@ import sbt._
   *     - `logMessageLevel`: the minimum level required for an invalid node to be logged to the console (default `Warning`)
   *     - `withConfigValue`: applies a global configuration value (that can be overridden in folders and documents)
   *
-  * - `includeAPI` and `includePDF`: specifies whether to include scaladoc and/or PDF output in the generated site.
-  *
-  * - `fopConfig` and `fopFactory`: specify custom Apache FOP factories to be used for rendering PDF.
+  * - `laikaIncludeAPI`, `laikaIncludeEPUB` and `laikaIncludePDF`: 
+  *   specifies whether to include scaladoc and/or PDF output in the generated site.
+  *   
+  * - `laikaDescribe`: inspects your setup and prints information about your inputs, outputs and installed extensions.
   *
   *
   * The actual tasks for running a transformation are:
@@ -74,6 +81,8 @@ object LaikaPlugin extends AutoPlugin {
   val requirements = plugins.JvmPlugin
   override val trigger = noTrigger
 
+  case class ArtifactDescriptor (name: String, version: String, suffix: String, classifier: Option[String] = None)
+  type ArtifactNameBuilder = ArtifactDescriptor => String
 
   object autoImport extends ExtensionBundles {
 
@@ -82,7 +91,7 @@ object LaikaPlugin extends AutoPlugin {
     val Laika             = sbt.config("laika")
 
 
-    val laikaSite         = taskKey[File]("Generates a static website")
+    val laikaSite         = taskKey[Set[File]]("Generates a static website")
 
     val laikaGenerate     = inputKey[Set[File]]("Generates the specified output formats")
 
@@ -104,9 +113,8 @@ object LaikaPlugin extends AutoPlugin {
     val laikaConfig       = settingKey[LaikaConfig]("Configuration options for all transformations")
     
     val laikaInputs       = settingKey[InputTreeBuilder]("Freely composed input tree, overriding sourceDirectories")
-
-    @deprecated("custom fop factories are deprecated as this would bypass laika's font registration", "0.16.0")
-    val fopFactory        = settingKey[Option[FopFactory]]("The FopFactory for the PDF renderer")
+    
+    val laikaArtifactNameBuilder = settingKey[ArtifactNameBuilder]("Function for building the names of artifacts (PDF, EPUB, ZIP)")
 
 
     val laikaIncludeAPI   = settingKey[Boolean]("Indicates whether API documentation should be copied to the site")
@@ -114,65 +122,57 @@ object LaikaPlugin extends AutoPlugin {
     val laikaIncludeEPUB  = settingKey[Boolean]("Indicates whether EPUB output should be copied to the site")
 
     val laikaIncludePDF   = settingKey[Boolean]("Indicates whether PDF output should be copied to the site")
-
-    val laikaCopyAPI      = taskKey[File]("Copies the API documentation to the site")
-
-    val laikaCopyEPUB     = taskKey[File]("Copies the EPUB output to the site")
-
-    val laikaCopyPDF      = taskKey[File]("Copies the PDF output to the site")
+    
 
     val laikaPackageSite  = taskKey[File]("Create a zip file of the site")
     
     val LaikaConfig = laika.sbt.LaikaConfig
+
+    
+    @deprecated("custom fop factories are deprecated as this would bypass laika's font registration", "0.16.0")
+    val fopFactory        = settingKey[Option[FopFactory]]("The FopFactory for the PDF renderer")
   }
 
 
   import autoImport._
 
   override def projectSettings: Seq[Setting[_]] = Seq(
+    
     Laika / sourceDirectories := Seq(sourceDirectory.value / "docs"),
+    Laika / excludeFilter     := HiddenFileFilter,
+    laikaInputs               := Settings.defaultInputs.value,
 
-    Laika / target          := target.value / "docs",
-    laikaSite / target      := (Laika / target).value / "site",
-    laikaXSLFO / target     := (Laika / target).value / "fo",
-    laikaAST / target       := (Laika / target).value / "ast",
-    laikaCopyAPI / target   := (Laika / target).value / "api",
-
-    Laika / excludeFilter   := HiddenFileFilter,
+    Laika / target            := target.value / "docs",
+    laikaSite / target        := (Laika / target).value / "site",
+    laikaXSLFO / target       := (Laika / target).value / "fo",
+    laikaAST / target         := (Laika / target).value / "ast",
+    laikaArtifactNameBuilder  := Settings.createArtifactName,
 
     laikaExtensions         := Nil,
     laikaConfig             := LaikaConfig(),
-    laikaInputs             := Settings.defaultInputs.value,
+    laikaDescribe           := Settings.describe.value,
 
     laikaIncludeAPI         := false,
     laikaIncludeEPUB        := false,
     laikaIncludePDF         := false,
 
-    fopFactory              := None,
-
-    laikaSite               := Def.sequential(Tasks.site, Tasks.copy).value,
+    laikaSite               := Tasks.site.value,
     laikaGenerate           := Tasks.generate.evaluated,
+    
     laikaHTML               := Tasks.generate.toTask(" html").value,
     laikaXSLFO              := Tasks.generate.toTask(" xslfo").value,
     laikaEPUB               := Tasks.generate.toTask(" epub").value.headOption.getOrElse((laikaEPUB / artifactPath).value),
     laikaPDF                := Tasks.generate.toTask(" pdf").value.headOption.getOrElse((laikaPDF / artifactPath).value),
     laikaAST                := Tasks.generate.toTask(" ast").value,
-    laikaDescribe           := Settings.describe.value,
-    laikaCopyAPI            := Tasks.copyAPI.value,
-    laikaCopyEPUB           := Tasks.copyEPUB.value,
-    laikaCopyPDF            := Tasks.copyPDF.value,
+    
     laikaPackageSite        := Tasks.packageSite.value,
     Laika / clean           := Tasks.clean.value,
 
-    laikaSite/ mappings     := sbt.Path.allSubpaths(laikaSite.value).toSeq,
+    laikaSite / mappings    := Def.sequential(Tasks.site, Tasks.mappings).value,
 
-    laikaPackageSite / artifact      := Artifact(moduleName.value, Artifact.DocType, "zip", "site"),
-    laikaEPUB / artifact             := Artifact(moduleName.value, Artifact.DocType, "epub"),
-    laikaPDF / artifact              := Artifact(moduleName.value, Artifact.DocType, "pdf"),
-    laikaPackageSite / artifactPath  := Settings.createArtifactPath(laikaPackageSite).value,
-    laikaEPUB / artifactPath         := Settings.createArtifactPath(laikaEPUB).value,
-    laikaPDF / artifactPath          := Settings.createArtifactPath(laikaPDF).value,
-
+    
+    fopFactory              := None,
+    
   ) :+ (cleanFiles += (Laika / target).value)
 
 }

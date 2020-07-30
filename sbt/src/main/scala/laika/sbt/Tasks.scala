@@ -22,9 +22,11 @@ import cats.implicits._
 import cats.effect.{Blocker, ContextShift, IO}
 import laika.api.builder.ParserBuilder
 import laika.api.{MarkupParser, Renderer}
+import laika.ast.Path.Root
 import laika.config.{ConfigBuilder, LaikaKeys}
 import laika.factory.{BinaryPostProcessor, MarkupFormat, RenderFormat, TwoPhaseRenderFormat}
 import laika.format._
+import laika.io.config.SiteConfig
 import laika.io.implicits._
 import laika.io.model._
 import laika.rewrite.nav.ChoiceGroupsConfig
@@ -98,10 +100,11 @@ object Tasks {
     }
 
     def renderWithFormat[FMT] (format: RenderFormat[FMT], targetDir: File, formatDesc: String): Set[File] = {
-      val apiInSite = (laikaCopyAPI / target).value
-      val pdfInSite = (laikaPDF / artifactPath).value
-      val epubInSite = (laikaEPUB / artifactPath).value
-      val filesToDelete = (targetDir.allPaths --- targetDir --- pdfInSite --- epubInSite --- apiInSite.allPaths --- collectParents(apiInSite)).get
+      
+      val apiPath = targetDir / SiteConfig.apiPath(parser.config.baseConfig).relativeTo(Root).toString
+      val downloadPath = targetDir / SiteConfig.downloadPath(parser.config.baseConfig).relativeTo(Root).toString
+      val filesToDelete = (targetDir.allPaths --- targetDir --- 
+        downloadPath.allPaths --- collectParents(downloadPath) --- apiPath.allPaths --- collectParents(apiPath)).get
       sbt.IO.delete(filesToDelete)
 
       if (!targetDir.exists) targetDir.mkdirs()
@@ -174,8 +177,8 @@ object Tasks {
       fun(inputFiles)
     }
 
-    val outputFiles = results reduce (_ ++ _)
-    outputFiles intersect Settings.allTargets.value
+    val outputFiles = results.reduce(_ ++ _)
+    outputFiles.intersect(Settings.allTargets.value)
   }
 
   /** The site task combines the html generator with optionally also
@@ -190,28 +193,21 @@ object Tasks {
     val pdf  = if (laikaIncludePDF.value) " pdf" else ""
     generate.toTask(" html" + epub + pdf)
   }
-
-  /** Copies the API documentation and the rendered PDF file
-    * to the target directory of the site task.
-    */
-  val copy: Initialize[Task[File]] = task {
-    val api  = laikaCopyAPI.value
-    val epub = laikaCopyEPUB.value
-    val pdf  = laikaCopyPDF.value
-
-    (laikaSite / target).value
+  
+  val mappings: Initialize[Task[Seq[(File, String)]]] = task {
+    sbt.Path.allSubpaths((laikaSite / target).value).toSeq
   }
 
   /** Copies the API documentation to the target directory of the site task.
     * Does nothing if the `laikaIncludeAPI` setting is set to false (the default).
     */
   val copyAPI: Initialize[Task[File]] = taskDyn {
-    val targetDir = (laikaCopyAPI / target).value
+    val targetDir: File = ??? // TODO - get from new apiPath in parser config
     if (laikaIncludeAPI.value) task {
 
       val cacheDir = streams.value.cacheDirectory / "laika" / "api"
-      val apiMappings = (Compile / packageDoc / mappings).value
-      val targetMappings = apiMappings map { case (file, target) => (file, targetDir / target) }
+      val apiMappings = (Compile / packageDoc / sbt.Keys.mappings).value
+      val targetMappings = apiMappings map { case (file, name) => (file, targetDir / name) }
 
       Sync.sync(CacheStore(cacheDir))(targetMappings)
 
@@ -224,48 +220,6 @@ object Tasks {
     }
   }
 
-  /** Copies the rendered EPUB document to the target directory of the site task.
-    * Does nothing if the `laikaIncludeEPUB` setting is set to false (the default).
-    */
-  val copyEPUB: Initialize[Task[File]] = taskDyn {
-    val targetDir = (laikaSite / target).value
-    val epubSource = (laikaEPUB / artifactPath).value
-    val epubTarget = targetDir / epubSource.getName
-
-    if (laikaIncludeEPUB.value) task {
-      val cacheDir = streams.value.cacheDirectory / "laika" / "site-epub"
-      Sync.sync(CacheStore(cacheDir))(Seq((epubSource, epubTarget)))
-
-      streams.value.log.info("Copied EPUB output to " + targetDir)
-      targetDir
-    }
-    else task {
-      sbt.IO.delete(epubTarget)
-      targetDir
-    }
-  }
-
-  /** Copies the rendered PDF document to the target directory of the site task.
-    * Does nothing if the `laikaIncludePDF` setting is set to false (the default).
-    */
-  val copyPDF: Initialize[Task[File]] = taskDyn {
-    val targetDir = (laikaSite / target).value
-    val pdfSource = (laikaPDF / artifactPath).value
-    val pdfTarget = targetDir / pdfSource.getName
-
-    if (laikaIncludePDF.value) task {
-      val cacheDir = streams.value.cacheDirectory / "laika" / "site-pdf"
-      Sync.sync(CacheStore(cacheDir))(Seq((pdfSource, pdfTarget)))
-
-      streams.value.log.info("Copied PDF output to " + targetDir)
-      targetDir
-    }
-    else task {
-      sbt.IO.delete(pdfTarget)
-      targetDir
-    }
-  }
-
   /** Packages the generated html site and (optionally) the included
     * API documentation and PDF file into a zip archive.
     */
@@ -273,7 +227,7 @@ object Tasks {
     val zipFile = (laikaPackageSite / artifactPath).value
     streams.value.log.info(s"Packaging $zipFile ...")
 
-    sbt.IO.zip((laikaSite / mappings).value, zipFile)
+    sbt.IO.zip((laikaSite / sbt.Keys.mappings).value, zipFile)
 
     streams.value.log.info("Done packaging.")
     zipFile
