@@ -187,11 +187,12 @@ object Tasks {
     sbt.Path.allSubpaths((laikaSite / target).value).toSeq
   }
 
-  /** Copies the API documentation to the target directory of the site task.
+  /** Generates and copies the API documentation to the target directory of the site task.
     * Does nothing if the `laikaIncludeAPI` setting is set to false (the default).
     */
-  val copyAPI: Initialize[Task[File]] = taskDyn {
-    val targetDir: File = ??? // TODO - get from new apiPath in parser config
+  val generateAPI: Initialize[Task[Seq[String]]] = taskDyn {
+    val config = Settings.parser.value.config.baseConfig
+    val targetDir = (laikaSite / target).value / SiteConfig.apiPath(config).relativeTo(Root).toString
     if (laikaIncludeAPI.value) task {
 
       val cacheDir = streams.value.cacheDirectory / "laika" / "api"
@@ -201,11 +202,11 @@ object Tasks {
       Sync.sync(CacheStore(cacheDir))(targetMappings)
 
       streams.value.log.info("Copied API documentation to " + targetDir)
-      targetDir
+      apiMappings.map(_._2)
     }
     else task {
       sbt.IO.delete(targetDir)
-      targetDir
+      Nil
     }
   }
 
