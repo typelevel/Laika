@@ -96,10 +96,13 @@ object Settings {
     * 
     * The default implementation provides a name in the form of `<project-name>-<version>-<classifier>.<suffix>`.
     * Classifier may be empty in which case the preceding dash will also be omitted.
+    * The version will by default only contain major and minor digits,
+    * assuming that it is rare to publish separate documentation for bugfix releases.
     */
   def createArtifactName(desc: ArtifactDescriptor): String = {
     val classifier = desc.classifier.fold("")("-"+_)
-    desc.name + "-" + desc.version + classifier + "." + desc.suffix
+    val version = desc.version.split('.').take(2).mkString(".")
+    desc.name + "-" + version + classifier + "." + desc.suffix
   }
 
   /** The set of targets for the transformation tasks of all supported output formats.

@@ -97,9 +97,9 @@ object LaikaPlugin extends AutoPlugin {
 
     val laikaHTML         = taskKey[Set[File]]("Generates HTML output")
 
-    val laikaEPUB         = taskKey[File]("Generates EPUB output")
+    val laikaEPUB         = taskKey[Set[File]]("Generates EPUB output")
 
-    val laikaPDF          = taskKey[File]("Generates PDF output")
+    val laikaPDF          = taskKey[Set[File]]("Generates PDF output")
 
     val laikaXSLFO        = taskKey[Set[File]]("Generates XSL-FO output")
 
@@ -161,8 +161,8 @@ object LaikaPlugin extends AutoPlugin {
     
     laikaHTML               := Tasks.generate.toTask(" html").value,
     laikaXSLFO              := Tasks.generate.toTask(" xslfo").value,
-    laikaEPUB               := Tasks.generate.toTask(" epub").value.headOption.getOrElse((laikaEPUB / artifactPath).value),
-    laikaPDF                := Tasks.generate.toTask(" pdf").value.headOption.getOrElse((laikaPDF / artifactPath).value),
+    laikaEPUB               := Tasks.generate.toTask(" epub").value,
+    laikaPDF                := Tasks.generate.toTask(" pdf").value,
     laikaAST                := Tasks.generate.toTask(" ast").value,
     
     laikaPackageSite        := Tasks.packageSite.value,

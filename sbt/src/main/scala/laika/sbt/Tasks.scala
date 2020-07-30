@@ -30,6 +30,7 @@ import laika.io.config.SiteConfig
 import laika.io.implicits._
 import laika.io.model._
 import laika.rewrite.nav.ChoiceGroupsConfig
+import laika.sbt.LaikaPlugin.ArtifactDescriptor
 import laika.sbt.LaikaPlugin.autoImport._
 import sbt.Keys._
 import sbt._
@@ -99,10 +100,11 @@ object Tasks {
       tree
     }
 
+    val downloadPath = (laikaSite / target).value / SiteConfig.downloadPath(parser.config.baseConfig).relativeTo(Root).toString
+    
     def renderWithFormat[FMT] (format: RenderFormat[FMT], targetDir: File, formatDesc: String): Set[File] = {
       
       val apiPath = targetDir / SiteConfig.apiPath(parser.config.baseConfig).relativeTo(Root).toString
-      val downloadPath = targetDir / SiteConfig.downloadPath(parser.config.baseConfig).relativeTo(Root).toString
       val filesToDelete = (targetDir.allPaths --- targetDir --- 
         downloadPath.allPaths --- collectParents(downloadPath) --- apiPath.allPaths --- collectParents(apiPath)).get
       sbt.IO.delete(filesToDelete)
@@ -127,13 +129,17 @@ object Tasks {
       targetDir.allPaths.get.toSet.filter(_.isFile)
     }
 
-    def renderWithProcessor[FMT] (format: TwoPhaseRenderFormat[FMT,BinaryPostProcessor], targetFile: File, formatDesc: String): Set[File] = {
+    def renderWithProcessor[FMT] (format: TwoPhaseRenderFormat[FMT,BinaryPostProcessor], formatDesc: String): Set[File] = {
       
-      targetFile.getParentFile.mkdirs()
+      downloadPath.mkdirs()
+      
+      val artifactDesc = ArtifactDescriptor(name.value, version.value, format.interimFormat.fileSuffix)
+      val nameBuilder = laikaArtifactNameBuilder.value
       
       val roots = ChoiceGroupsConfig.createChoiceCombinations(tree.root)
       val ops = roots.map { case (root, classifiers) =>
-        val classifier = if (classifiers.value.isEmpty) "" else "-" + classifiers.value.mkString("-")
+        val classifier = if (classifiers.value.isEmpty) None else Some(classifiers.value.mkString("-"))
+        val file = downloadPath / nameBuilder(artifactDesc.copy(classifier = classifier))
         Renderer
           .of(format)
           .withConfig(parser.config)
@@ -142,14 +148,17 @@ object Tasks {
           .build
           .from(root)
           .copying(tree.staticDocuments)
-          .toFile(targetFile.getAbsolutePath.replaceAll(".epub$", classifier + ".epub"))
+          .toFile(file)
           .render
+          .as(file)
       }
-      ops.sequence.unsafeRunSync()
+      val res = ops.sequence.unsafeRunSync()
 
-      streams.value.log.info(s"Generated $formatDesc in $targetFile")
+      res.toList.foreach { f =>
+        streams.value.log.info(s"Generated $formatDesc in $f")
+      }
 
-      Set(targetFile)
+      res.toList.toSet
     }
 
     val cacheDir = streams.value.cacheDirectory / "laika"
@@ -170,8 +179,8 @@ object Tasks {
           case OutputFormat.HTML  => renderWithFormat(HTML, (laikaSite / target).value, "HTML")
           case OutputFormat.AST   => renderWithFormat(AST, (laikaAST / target).value, "Formatted AST")
           case OutputFormat.XSLFO => renderWithFormat(XSLFO, (laikaXSLFO / target).value, "XSL-FO")
-          case OutputFormat.EPUB  => renderWithProcessor(EPUB, (laikaEPUB / artifactPath).value, "EPUB")
-          case OutputFormat.PDF   => renderWithProcessor(fopFactory.value.fold[PDF](PDF)(PDF.withFopFactory), (laikaPDF / artifactPath).value, "PDF")
+          case OutputFormat.EPUB  => renderWithProcessor(EPUB, "EPUB")
+          case OutputFormat.PDF   => renderWithProcessor(fopFactory.value.fold[PDF](PDF)(PDF.withFopFactory), "PDF")
         }
       }
       fun(inputFiles)
