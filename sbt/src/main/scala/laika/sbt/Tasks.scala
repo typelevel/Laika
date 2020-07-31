@@ -170,11 +170,7 @@ object Tasks {
 
     val results = formats map { format =>
       
-      val cacheFormatDir = format match {
-        case OutputFormat.PDF => (laikaPDF / artifactPath).value.name
-        case OutputFormat.EPUB => (laikaEPUB / artifactPath).value.name
-        case other => other.toString.toLowerCase
-      }
+      val cacheFormatDir = format.toString.toLowerCase
 
       val fun = FileFunction.cached(cacheDir / cacheFormatDir, FilesInfo.lastModified, FilesInfo.exists) { _ =>
         format match {
@@ -210,10 +206,12 @@ object Tasks {
   }
 
   /** Packages the generated html site and (optionally) the included
-    * API documentation and PDF file into a zip archive.
+    * API documentation and PDF/EPUB files into a zip archive.
     */
   val packageSite: Initialize[Task[File]] = task {
-    val zipFile = (laikaPackageSite / artifactPath).value
+    val artifactDesc = ArtifactDescriptor(name.value, version.value, "zip")
+    val artifactName = laikaArtifactNameBuilder.value(artifactDesc)
+    val zipFile = (Laika / target).value / artifactName
     streams.value.log.info(s"Packaging $zipFile ...")
 
     sbt.IO.zip((laikaSite / sbt.Keys.mappings).value, zipFile)
