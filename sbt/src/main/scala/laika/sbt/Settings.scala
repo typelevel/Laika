@@ -29,7 +29,6 @@ import laika.io.model.{InputTree, InputTreeBuilder}
 import laika.io.text.ParallelParser
 import laika.sbt.LaikaPlugin.ArtifactDescriptor
 import laika.sbt.LaikaPlugin.autoImport._
-import laika.sbt.Tasks.blocker
 import sbt.Keys._
 import sbt._
 

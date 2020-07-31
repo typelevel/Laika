@@ -18,13 +18,12 @@ package laika.sbt
 
 import java.util.concurrent.Executors
 
-import cats.implicits._
 import cats.effect.{Blocker, ContextShift, IO}
-import laika.api.builder.ParserBuilder
-import laika.api.{MarkupParser, Renderer}
+import cats.implicits._
+import laika.api.Renderer
+import laika.ast.Path
 import laika.ast.Path.Root
-import laika.config.{ConfigBuilder, LaikaKeys}
-import laika.factory.{BinaryPostProcessor, MarkupFormat, RenderFormat, TwoPhaseRenderFormat}
+import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
 import laika.format._
 import laika.io.config.SiteConfig
 import laika.io.implicits._
@@ -49,6 +48,29 @@ object Tasks {
   implicit lazy val processingContext: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
 
   lazy val blocker: Blocker = Blocker.liftExecutionContext(ExecutionContext.fromExecutor(Executors.newCachedThreadPool()))
+
+  /** Generates and copies the API documentation to the target directory of the site task.
+    * Does nothing if the `laikaIncludeAPI` setting is set to false (the default).
+    */
+  val generateAPI: Initialize[Task[Seq[String]]] = taskDyn {
+    val config = Settings.parser.value.config.baseConfig
+    val targetDir = (laikaSite / target).value / SiteConfig.apiPath(config).relativeTo(Root).toString
+    if (laikaIncludeAPI.value) task {
+
+      val cacheDir = streams.value.cacheDirectory / "laika" / "api"
+      val apiMappings = (Compile / packageDoc / sbt.Keys.mappings).value
+      val targetMappings = apiMappings map { case (file, name) => (file, targetDir / name) }
+
+      Sync.sync(CacheStore(cacheDir))(targetMappings)
+
+      streams.value.log.info("Copied API documentation to " + targetDir)
+      apiMappings.map(_._2)
+    }
+    else task {
+      sbt.IO.delete(targetDir)
+      Nil
+    }
+  }
   
   /** The main transformation task of the sbt plugin.
     *
@@ -69,18 +91,19 @@ object Tasks {
 
     val userConfig = laikaConfig.value
     val parser = Settings.parser.value
+    val downloadPath = (laikaSite / target).value / SiteConfig.downloadPath(parser.config.baseConfig).relativeTo(Root).toString
+    val apiPath = SiteConfig.apiPath(parser.config.baseConfig)
 
     lazy val tree = {
-      streams.value.log.info("Reading files from " + (Laika / sourceDirectories).value.mkString(", "))
-
-      val tree = parser.fromInput(laikaInputs.value.delegate).parse.unsafeRunSync()
+      val inputs = generateAPI.value.foldLeft(laikaInputs.value.delegate) {
+        (inputs, path) => inputs.addString("", apiPath / path) // TODO - temporary hack until the builder API is enhanced
+      }
+      val tree = parser.fromInput(inputs).parse.unsafeRunSync()
 
       Logs.runtimeMessages(streams.value.log, tree.root, userConfig.logMessages)
 
-      tree
+      tree.copy(staticDocuments = tree.staticDocuments.filterNot(_.path.isSubPath(apiPath))) // TODO - remove filter when the above gets fixed
     }
-
-    val downloadPath = (laikaSite / target).value / SiteConfig.downloadPath(parser.config.baseConfig).relativeTo(Root).toString
     
     def renderWithFormat[FMT] (format: RenderFormat[FMT], targetDir: File, formatDesc: String): Set[File] = {
       
@@ -185,29 +208,6 @@ object Tasks {
   
   val mappings: Initialize[Task[Seq[(File, String)]]] = task {
     sbt.Path.allSubpaths((laikaSite / target).value).toSeq
-  }
-
-  /** Generates and copies the API documentation to the target directory of the site task.
-    * Does nothing if the `laikaIncludeAPI` setting is set to false (the default).
-    */
-  val generateAPI: Initialize[Task[Seq[String]]] = taskDyn {
-    val config = Settings.parser.value.config.baseConfig
-    val targetDir = (laikaSite / target).value / SiteConfig.apiPath(config).relativeTo(Root).toString
-    if (laikaIncludeAPI.value) task {
-
-      val cacheDir = streams.value.cacheDirectory / "laika" / "api"
-      val apiMappings = (Compile / packageDoc / sbt.Keys.mappings).value
-      val targetMappings = apiMappings map { case (file, name) => (file, targetDir / name) }
-
-      Sync.sync(CacheStore(cacheDir))(targetMappings)
-
-      streams.value.log.info("Copied API documentation to " + targetDir)
-      apiMappings.map(_._2)
-    }
-    else task {
-      sbt.IO.delete(targetDir)
-      Nil
-    }
   }
 
   /** Packages the generated html site and (optionally) the included
