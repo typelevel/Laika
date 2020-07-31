@@ -1,3 +1,0 @@
-# test PDF output generation with the pdf task and a custom FOP config
-> laikaPDF
-$ exists target/docs/site-fopconfig-0.1.pdf
