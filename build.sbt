@@ -70,7 +70,7 @@ val http4s     = Seq(
                  )
 
 lazy val root = project.in(file("."))
-  .aggregate(core.js, core.jvm, pdf, plugin)
+  .aggregate(core.js, core.jvm, pdf, io, plugin)
   .settings(basicSettings)
   .settings(noPublishSettings)
   .enablePlugins(ScalaUnidocPlugin)
