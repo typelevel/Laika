@@ -1,0 +1,4 @@
+# test site creation with default settings
+> laikaSite
+$ must-mirror target/docs/site/doc-1.html expected.html
+$ must-mirror target/docs/site/doc-2.html expected.html
