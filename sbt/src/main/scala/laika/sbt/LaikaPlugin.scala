@@ -117,6 +117,8 @@ object LaikaPlugin extends AutoPlugin {
     val laikaArtifactNameBuilder = settingKey[ArtifactNameBuilder]("Function for building the names of artifacts (PDF, EPUB, ZIP)")
 
 
+    val laikaGenerateAPI  = taskKey[Seq[String]]("Generates API documentation and moves it to the site's API target")
+    
     val laikaIncludeAPI   = settingKey[Boolean]("Indicates whether API documentation should be copied to the site")
 
     val laikaIncludeEPUB  = settingKey[Boolean]("Indicates whether EPUB output should be copied to the site")
@@ -158,6 +160,8 @@ object LaikaPlugin extends AutoPlugin {
 
     laikaSite               := Tasks.site.value,
     laikaGenerate           := Tasks.generate.evaluated,
+    laikaGenerateAPI        := Tasks.generateAPI.value,
+    laikaGenerateAPI / mappings := (Compile / packageDoc / mappings).value,
     
     laikaHTML               := Tasks.generate.toTask(" html").value,
     laikaXSLFO              := Tasks.generate.toTask(" xslfo").value,

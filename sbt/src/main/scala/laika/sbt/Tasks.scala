@@ -21,7 +21,6 @@ import java.util.concurrent.Executors
 import cats.effect.{Blocker, ContextShift, IO}
 import cats.implicits._
 import laika.api.Renderer
-import laika.ast.Path
 import laika.ast.Path.Root
 import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
 import laika.format._
@@ -58,7 +57,7 @@ object Tasks {
     if (laikaIncludeAPI.value) task {
 
       val cacheDir = streams.value.cacheDirectory / "laika" / "api"
-      val apiMappings = (Compile / packageDoc / sbt.Keys.mappings).value
+      val apiMappings = (laikaGenerateAPI / sbt.Keys.mappings).value
       val targetMappings = apiMappings map { case (file, name) => (file, targetDir / name) }
 
       Sync.sync(CacheStore(cacheDir))(targetMappings)
