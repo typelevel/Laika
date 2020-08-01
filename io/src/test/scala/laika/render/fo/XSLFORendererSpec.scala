@@ -597,6 +597,27 @@ class XSLFORendererSpec extends AnyFlatSpec
                |<fo:block $defaultParagraphStyles>Line 2</fo:block>""".stripMargin
     render (rootElem) should be (fo)
   }
+  
+  it should "render a navigation list with two levels" in {
+    def link (level: Int, titleNum: Int, children: Seq[NavigationLink] = Nil): NavigationLink = {
+      val target = InternalTarget.fromPath(Root / s"doc#title-$titleNum", Root / "doc")
+      val title = SpanSequence("Title "+titleNum)
+      NavigationLink(title, target, children, options = Style.level(level))
+    }
+    val navList = NavigationList(Seq(
+      link(1, 2, Seq(link(2, 3))),
+      link(1, 4, Seq(link(2, 5)))
+    ))
+    val level1Props = """color="#931813" font-family="serif" font-size="22pt" font-weight="bold" keep-with-next="always" line-height="1.5" margin-left="0mm" space-after="0mm" space-before="15mm" text-align="justify" text-align-last="center" text-transform="uppercase""""
+    val level2Props = """color="#931813" font-family="serif" font-size="17pt" keep-with-previous="always" line-height="1.5" margin-left="4mm" space-after="0mm" space-before="7mm" text-align="justify" text-align-last="justify""""
+    val leader = """<fo:leader leader-pattern="dots" padding-left="2mm" padding-right="2mm"></fo:leader>"""
+    
+    val fo = s"""<fo:block $level1Props><fo:basic-link color="#007c99" font-weight="bold" internal-destination="_doc_title-2">Title 2$leader<fo:page-number-citation ref-id="_doc_title-2" /></fo:basic-link></fo:block>
+                |<fo:block $level2Props><fo:basic-link color="#931813" font-weight="bold" internal-destination="_doc_title-3">Title 3$leader<fo:page-number-citation ref-id="_doc_title-3" /></fo:basic-link></fo:block>
+                |<fo:block $level1Props><fo:basic-link color="#007c99" font-weight="bold" internal-destination="_doc_title-4">Title 4$leader<fo:page-number-citation ref-id="_doc_title-4" /></fo:basic-link></fo:block>
+                |<fo:block $level2Props><fo:basic-link color="#931813" font-weight="bold" internal-destination="_doc_title-5">Title 5$leader<fo:page-number-citation ref-id="_doc_title-5" /></fo:basic-link></fo:block>""".stripMargin
+    render (root(navList)) should be (fo)
+  }
 
   it should "render a title containing emphasized text" in {
     val elem = Title(Text("some "), Emphasized("em"), Text(" text"))
