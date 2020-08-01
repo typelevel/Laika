@@ -49,9 +49,13 @@ object DocumentParser {
   }
   
   case class InvalidDocuments (documents: NonEmptyChain[InvalidDocument]) extends 
-    RuntimeException(s"One or more invalid documents: ${documents.map(_.getMessage).mkString_("\n ")}")
+    RuntimeException(s"One or more invalid documents:\n${InvalidDocuments.format(documents)}")
 
   object InvalidDocuments {
+    
+    def format (documents: NonEmptyChain[InvalidDocument]): String = documents
+      .map(invDoc => invDoc.messages.map(_.content).mkString_(invDoc.path + "\n  ", "\n  ", ""))
+      .mkString_("\n")
     
     def from (documents: Seq[InvalidDocument]): Option[InvalidDocuments] = 
       NonEmptyChain.fromSeq(documents).map(InvalidDocuments(_))
