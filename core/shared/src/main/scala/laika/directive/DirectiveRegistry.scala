@@ -144,8 +144,8 @@ trait DirectiveRegistry extends ExtensionBundle {
     *        Try(Integer.parseInt(linkId))
     *         .toEither
     *         .fold(
-    *           _ => Left(s"Not a valid RFC id: $linkId"), 
-    *           id => Right(SpanLink(Seq(Text(s"RFC $id")), ExternalTarget(s"http://tools.ietf.org/html/rfc$linkId")))
+    *           _ => Left(s"Not a valid RFC id: \$linkId"), 
+    *           id => Right(SpanLink(Seq(Text(s"RFC \$id")), ExternalTarget(s"http://tools.ietf.org/html/rfc\$linkId")))
     *         )
     *      }
     *    )
