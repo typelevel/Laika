@@ -61,9 +61,9 @@ class NCXRenderer {
        |$children
        |    </navPoint>""".stripMargin
 
-  /** Generates navPoints for the structure of the DocumentTree. Individual
-    * navPoints can stem from tree or subtree titles, document titles or
-    * document sections, depending on which recursion depth is configured.
+  /** Generates navPoints for the structure of the DocumentTree. 
+    * Individual navPoints can stem from tree or subtree titles, document titles or document sections, 
+    * depending on which recursion depth is configured.
     * The configuration key for setting the recursion depth is `epub.toc.depth`.
     *
     * @param bookNav the structure to generate navPoints for

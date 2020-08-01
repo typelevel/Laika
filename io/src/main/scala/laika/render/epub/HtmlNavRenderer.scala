@@ -58,13 +58,18 @@ class HtmlNavRenderer {
        |$children
        |        </li>""".stripMargin
 
-  /** Renders a single navigation header.
+  /** Always use the link to the first child of a navigation header.
+    * Despite the fact that the EPUB spec supports "unlinked headers", 
+    * which are just a `<span>` element instead of an `<a>` element,
+    * many e-book readers such as iBooks choke on them to the point of rendering navigation menus useless.
+    * 
+    * Unlinked navigation headers are described in the EPUB spec here:
+    * https://www.w3.org/publishing/epub32/epub-packages.html#sec-package-nav-def-model
     */
-  private def navHeader (title: String, pos: Int, children: String): String =
-    s"""        <li id="toc-li-$pos">
-       |          <span>$title</span>
-       |$children
-       |        </li>""".stripMargin
+  private def linkOfFirstChild (children: Seq[NavigationItem]): String = children.head match {
+    case link: NavigationLink => link.target.render()
+    case header: NavigationHeader => linkOfFirstChild(header.content)
+  }
 
   /** Generates navigation entries for the structure of the DocumentTree. Individual
     * entries can stem from tree or subtree titles, document titles or
@@ -77,8 +82,13 @@ class HtmlNavRenderer {
   private def navItems (bookNav: Seq[NavigationItem], pos: Iterator[Int] = Iterator.from(0)): String =
     if (bookNav.isEmpty) ""
     else bookNav.map {
-      case NavigationHeader(title, children, _)          => navHeader(title.extractText, pos.next(), navItems(children, pos))
-      case NavigationLink(title, target, children, _, _) => navLink(title.extractText, target.render(), pos.next(), navItems(children, pos))
+      
+      case NavigationHeader(title, children, _) => 
+        navLink(title.extractText, linkOfFirstChild(children), pos.next(), navItems(children, pos))
+        
+      case NavigationLink(title, target, children, _, _) => 
+        navLink(title.extractText, target.render(), pos.next(), navItems(children, pos))
+        
     }.mkString("      <ol class=\"toc\">\n", "\n", "\n      </ol>")
 
   /** Renders the entire content of an EPUB HTML navigation file for

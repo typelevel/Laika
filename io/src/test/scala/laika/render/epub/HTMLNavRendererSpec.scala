@@ -99,7 +99,7 @@ class HTMLNavRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
         |
         |        </li>
         |        <li id="toc-li-1">
-        |          <span>Tree 4</span>
+        |          <a href="content/sub/bar.epub.xhtml">Tree 4</a>
         |      <ol class="toc">
         |        <li id="toc-li-2">
         |          <a href="content/sub/bar.epub.xhtml">Title 3</a>
