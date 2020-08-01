@@ -32,14 +32,14 @@ import laika.config.{ConfigBuilder, Origin}
 import laika.format.{Markdown, ReStructuredText}
 import laika.io.helper.{InputBuilder, ThemeBuilder}
 import laika.io.implicits._
-import laika.io.model.{InputTreeBuilder, ParsedTree, InputTree}
+import laika.io.model.{InputTree, InputTreeBuilder, ParsedTree}
 import laika.io.runtime.ParserRuntime.{DuplicatePath, ParserErrors}
 import laika.io.text.ParallelParser
 import laika.io.theme.Theme
 import laika.parse.Parser
 import laika.parse.markup.DocumentParser.{InvalidDocument, InvalidDocuments}
 import laika.parse.text.TextParsers
-import laika.rewrite.TemplateRewriter
+import laika.rewrite.{DefaultTemplatePath, TemplateRewriter}
 import org.scalatest.Assertion
 
 
@@ -379,7 +379,7 @@ class ParallelParserSpec extends IOSpec
       import laika.ast.EmbeddedRoot
 
       val inputs = Seq(
-        Root / "default.template.html" -> Contents.template,
+        DefaultTemplatePath.forHTML -> Contents.template,
         Root / "doc.md" -> Contents.multiline
       )
       val docResult = DocumentView(Root / "doc.md", Content(List(TemplateRoot(
@@ -396,7 +396,7 @@ class ParallelParserSpec extends IOSpec
       import laika.ast.EmbeddedRoot
 
       val inputs = Seq(
-        Root / "default.template.html" -> Contents.template2,
+        DefaultTemplatePath.forHTML -> Contents.template2,
         Root / "doc.md" -> Contents.multiline
       )
       val docResult = DocumentView(Root / "doc.md", Content(List(TemplateRoot(

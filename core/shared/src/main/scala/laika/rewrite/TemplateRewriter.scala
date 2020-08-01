@@ -28,12 +28,11 @@ import scala.collection.mutable.ListBuffer
 
 trait TemplateRewriter {
 
-  /** The default template to use if no user-defined template exists.
-    * 
-    * The default simply inserts the rendered document into the rendered result without any surrounding template text.
-    */
-  val defaultTemplate: TemplateDocument = TemplateDocument(Path.Root / "default.template", 
-    TemplateRoot(TemplateContextReference(CursorKeys.documentContent, required = true)))
+  private val defaultTemplateRoot: TemplateRoot = 
+    TemplateRoot(TemplateContextReference(CursorKeys.documentContent, required = true))
+  
+  private def defaultTemplate (format: String): TemplateDocument = 
+    TemplateDocument(DefaultTemplatePath.forSuffix(format), defaultTemplateRoot)
   
   /** Selects and applies the templates for the specified output format to all documents within the specified tree cursor recursively.
    */
@@ -77,7 +76,7 @@ trait TemplateRewriter {
   }
   
   private def applyTemplate (cursor: DocumentCursor, format: String): Either[ConfigError, Document] = {
-    val template = selectTemplate(cursor, format).getOrElse(defaultTemplate)
+    val template = selectTemplate(cursor, format).getOrElse(defaultTemplate(format))
     applyTemplate(cursor, template)
   }
 
@@ -110,10 +109,9 @@ trait TemplateRewriter {
         cursor.root.target.tree.selectTemplate(path.relative) // TODO - error handling 
 
       case None =>
-        val filename = "default.template." + format
-
+        val templatePath = DefaultTemplatePath.forSuffix(format).relative
         @tailrec def templateForTree(tree: TreeCursor): Option[TemplateDocument] =
-          (tree.target.selectTemplate(filename), tree.parent) match {
+          (tree.target.selectTemplate(templatePath), tree.parent) match {
             case (None, Some(parent)) => templateForTree(parent)
             case (Some(template), _) => Some(template)
             case (None, None) => None

@@ -27,7 +27,7 @@ import laika.ast.helper.ModelBuilder
 import laika.config.{ConfigValue, Field, LaikaKeys, ObjectValue, StringValue}
 import laika.format.ReStructuredText
 import laika.rewrite.ReferenceResolver.CursorKeys
-import laika.rewrite.TemplateRewriter
+import laika.rewrite.{DefaultTemplatePath, TemplateRewriter}
 import laika.rewrite.link.LinkConfig
 import laika.rst.ast.{Contents, Include, RstStyle}
 import org.scalatest.flatspec.AnyFlatSpec
@@ -600,7 +600,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
   "The include rewriter" should "replace the node with the corresponding document" in {
     val doc1 = Document(Root / "doc1", root(Include("doc2")))
     val doc2 = Document(Root / "doc2", root(p("text")))
-    val template = TemplateDocument(Root / "default.template.html", TemplateRoot(TemplateContextReference(CursorKeys.documentContent, required = true)))
+    val template = TemplateDocument(DefaultTemplatePath.forHTML, TemplateRoot(TemplateContextReference(CursorKeys.documentContent, required = true)))
     val tree = DocumentTree(Root, List(doc1, doc2), templates = List(template))
     val rewrittenTree = tree.rewrite(OperationConfig.default.withBundlesFor(ReStructuredText).rewriteRulesFor(DocumentTreeRoot(tree)))
     val templatesApplied = TemplateRewriter.applyTemplates(DocumentTreeRoot(rewrittenTree), "html").toOption.get.tree
@@ -679,7 +679,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
     )
     
     val document = Document(Root / "doc", sectionsWithTitle)
-    val template = TemplateDocument(Root / "default.template.html", TemplateRoot(TemplateContextReference(CursorKeys.documentContent, required = true)))
+    val template = TemplateDocument(DefaultTemplatePath.forHTML, TemplateRoot(TemplateContextReference(CursorKeys.documentContent, required = true)))
     val tree = DocumentTree(Root, content = List(document), templates = List(template))
     val rewrittenTree = tree.rewrite(OperationConfig.default.withBundlesFor(ReStructuredText).rewriteRulesFor(DocumentTreeRoot(tree)))
     val templatesApplied = TemplateRewriter.applyTemplates(DocumentTreeRoot(rewrittenTree), "html").toOption.get.tree

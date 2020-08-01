@@ -35,6 +35,7 @@ import laika.io.text.ParallelRenderer
 import laika.parse.markup.DocumentParser.{InvalidDocument, InvalidDocuments}
 import laika.render._
 import laika.render.fo.TestTheme
+import laika.rewrite.DefaultTemplatePath
 import laika.rewrite.ReferenceResolver.CursorKeys
 
 import scala.io.Codec
@@ -200,7 +201,7 @@ class ParallelRendererSpec extends IOSpec
   
     "render a tree with a single document to HTML using a custom template in the root directory" in {
       new HTMLRenderer {
-        val template = TemplateDocument(Root / "default.template.html", TemplateRoot(t("["), TemplateContextReference(CursorKeys.documentContent, required = true), t("]")))
+        val template = TemplateDocument(DefaultTemplatePath.forHTML, TemplateRoot(t("["), TemplateContextReference(CursorKeys.documentContent, required = true), t("]")))
         val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)), templates = Seq(template))
         val expected = """[<h1 id="title" class="title">Title</h1>
           |<p>bbb</p>]""".stripMargin
@@ -248,7 +249,7 @@ class ParallelRendererSpec extends IOSpec
         val template = TemplateRoot(t("["), TemplateContextReference(CursorKeys.documentContent, required = true), t("]"))
         override lazy val renderer = Renderer.of(HTML).io(blocker).parallel[IO]
           .withTheme(ThemeBuilder.forInputs(InputTree[IO]
-            .addTemplate(TemplateDocument(Root / "default.template.html", template))
+            .addTemplate(TemplateDocument(DefaultTemplatePath.forHTML, template))
             .build)
           ).build
         val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
@@ -287,7 +288,7 @@ class ParallelRendererSpec extends IOSpec
   
     "render a tree with a single document to EPUB.XHTML using a custom template in the root directory" in {
       new EPUB_XHTMLRenderer {
-        val template = TemplateDocument(Root / "default.template.epub.xhtml", TemplateRoot(t("["), TemplateContextReference(CursorKeys.documentContent, required = true), t("]")))
+        val template = TemplateDocument(DefaultTemplatePath.forEPUB, TemplateRoot(t("["), TemplateContextReference(CursorKeys.documentContent, required = true), t("]")))
         val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)), templates = Seq(template))
         val expected = """[<h1 id="title" class="title">Title</h1>
                          |<p>bbb</p>]""".stripMargin
@@ -305,7 +306,7 @@ class ParallelRendererSpec extends IOSpec
             .io(blocker)
             .parallel[IO]
             .withTheme(ThemeBuilder.forInputs(InputTree[IO]
-              .addTemplate(TemplateDocument(Root / "default.template.epub.xhtml", template))
+              .addTemplate(TemplateDocument(DefaultTemplatePath.forEPUB, template))
               .build))
             .build
         val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
@@ -327,7 +328,7 @@ class ParallelRendererSpec extends IOSpec
   
     "render a tree with a single document to XSL-FO using a custom template" in {
       new FORenderer {
-        val template = TemplateDocument(Root / "default.template.fo", TemplateRoot(t("["), TemplateContextReference(CursorKeys.documentContent, required = true), t("]")))
+        val template = TemplateDocument(DefaultTemplatePath.forFO, TemplateRoot(t("["), TemplateContextReference(CursorKeys.documentContent, required = true), t("]")))
         val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)), templates = Seq(template))
         val expected = s"""[${title("_doc_title", "Title")}
           |<fo:block $defaultParagraphStyles>bbb</fo:block>]""".stripMargin
@@ -344,7 +345,7 @@ class ParallelRendererSpec extends IOSpec
             .parallel[IO]
             .withTheme(ThemeBuilder.forInputs(InputTree[IO]
               .addStyles(customThemeStyles, Root / "styles.fo.css")
-              .addTemplate(TemplateDocument(Root / "default.template.fo", TestTheme.foTemplate))
+              .addTemplate(TemplateDocument(DefaultTemplatePath.forFO, TestTheme.foTemplate))
               .build))
             .build
         val input = DocumentTree(Root, List(

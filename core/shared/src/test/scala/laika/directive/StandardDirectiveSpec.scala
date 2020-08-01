@@ -27,7 +27,7 @@ import laika.ast.helper.ModelBuilder
 import laika.config._
 import laika.format.Markdown
 import laika.parse.ParserContext
-import laika.rewrite.TemplateRewriter
+import laika.rewrite.{DefaultTemplatePath, TemplateRewriter}
 import laika.rewrite.nav.{ChoiceConfig, ChoiceGroupConfig, ChoiceGroupsConfig}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -697,7 +697,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
     }
 
     def parseTemplateAndRewrite (template: String): RootElement = {
-      val templateDoc = TemplateDocument(Root / "default.template.html", parseTemplate(template))
+      val templateDoc = TemplateDocument(DefaultTemplatePath.forHTML, parseTemplate(template))
       val inputTree = buildTree(List(templateDoc))
       val tree = inputTree.rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree)))
       TemplateRewriter.applyTemplates(DocumentTreeRoot(tree), "html").toOption.get.tree.selectDocument(CurrentTree / "sub2" / "doc6").get.content

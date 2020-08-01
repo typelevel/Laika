@@ -37,6 +37,7 @@ import laika.parse.Parser
 import laika.parse.code.SyntaxHighlighting
 import laika.parse.text.TextParsers
 import laika.render.fo.TestTheme
+import laika.rewrite.DefaultTemplatePath
 import laika.rewrite.link.SlugBuilder
 import org.scalatest.Assertion
 
@@ -50,6 +51,8 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
   
   trait TreeTransformer extends InputBuilder {
     import laika.ast.{DocumentType, Path}
+    
+    val astDefaultTemplatePath: Path = DefaultTemplatePath.forSuffix("txt")
 
     def inputs: Seq[(Path, String)]
 
@@ -208,7 +211,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
 
     "transform a tree with a template document populated by a config file in the directory" in new TreeTransformer {
       val inputs = Seq(
-        Root / "default.template.txt" -> Contents.templateConfigRef,
+        astDefaultTemplatePath -> Contents.templateConfigRef,
         Root / "directory.conf" -> Contents.conf,
         Root / "main.md" -> Contents.aa
       )
@@ -224,7 +227,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
 
     "transform a tree with a template document populated by a root config string" in new TreeTransformer {
       val inputs = Seq(
-        Root / "default.template.txt" -> Contents.templateConfigRef,
+        astDefaultTemplatePath -> Contents.templateConfigRef,
         Root / "main.md" -> Contents.aa
       )
       val result =
@@ -239,7 +242,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
 
     "transform a tree with a custom template engine" in new TreeTransformer {
       val inputs = Seq(
-        Root / "default.template.txt" -> Contents.template1,
+        astDefaultTemplatePath -> Contents.template1,
         Root / "main1.md" -> Contents.aa,
         Root / "main2.md" -> Contents.aa
       )
@@ -301,7 +304,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
       }
 
       val inputs = Seq(
-        Root / "default.template.txt" -> Contents.directive,
+        astDefaultTemplatePath -> Contents.directive,
         Root / "aa.md" -> Contents.aa
       )
       val result =
@@ -392,8 +395,8 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
       val inputs = Seq(
         Root / "doc1.md" -> Contents.link,
         Root / "doc2.rst" -> Contents.link,
-        Root / "default.template.txt" -> Contents.template1,
-        Root / "dir1" / "default.template.txt" -> Contents.template2,
+        astDefaultTemplatePath -> Contents.template1,
+        Root / "dir1" / astDefaultTemplatePath.relative -> Contents.template2,
         Root / "dir1" / "doc3.md" -> Contents.name,
         Root / "dir1" / "doc4.md" -> Contents.name,
         Root / "dir2" / "omg.js" -> Contents.name,
@@ -444,8 +447,8 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
       val inputs = Seq(
         Root / "doc1.md" -> Contents.link,
         Root / "doc2.rst" -> Contents.link,
-        Root / "default.template.txt" -> Contents.template1,
-        Root / "dir1" / "default.template.txt" -> Contents.template2,
+        astDefaultTemplatePath -> Contents.template1,
+        Root / "dir1" / astDefaultTemplatePath.relative -> Contents.template2,
         Root / "dir1" / "doc3.md" -> Contents.name,
         Root / "dir1" / "doc4.md" -> Contents.name,
         Root / "dir2" / "omg.js" -> Contents.name,

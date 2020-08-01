@@ -30,7 +30,7 @@ import laika.io.{FileIO, IOSpec}
 import laika.io.implicits._
 import laika.io.model.ParsedTree
 import laika.io.helper.{InputBuilder, ThemeBuilder}
-import laika.rewrite.TemplateRewriter
+import laika.rewrite.{DefaultTemplatePath, TemplateRewriter}
 
 
 class ConfigSpec extends IOSpec 
@@ -152,7 +152,7 @@ class ConfigSpec extends IOSpec
 
     "parse configuration sections embedded in reStructuredText documents" in new Inputs {
       val inputs = Seq(
-        Root / "default.template.html" -> Contents.templateWithRef,
+        DefaultTemplatePath.forHTML -> Contents.templateWithRef,
         Root / "input.rst" -> Contents.markupWithConfig
       )
       val expected = root(
@@ -169,7 +169,7 @@ class ConfigSpec extends IOSpec
 
     "insert an invalid element when a required context reference is missing" in new Inputs {
       val inputs = Seq(
-        Root / "default.template.html" -> Contents.templateWithMissingRef,
+        DefaultTemplatePath.forHTML -> Contents.templateWithMissingRef,
         Root / "input.rst" -> Contents.markupWithConfig
       )
       val expected = root(
@@ -186,7 +186,7 @@ class ConfigSpec extends IOSpec
 
     "insert an empty string when an optional context reference is missing" in new Inputs {
       val inputs = Seq(
-        Root / "default.template.html" -> Contents.templateWithOptRef,
+        DefaultTemplatePath.forHTML -> Contents.templateWithOptRef,
         Root / "input.rst" -> Contents.markupWithConfig
       )
       val expected = root(
@@ -204,7 +204,7 @@ class ConfigSpec extends IOSpec
     "make directory configuration available for references in markup" in new Inputs {
       val inputs = Seq(
         Root / "directory.conf" -> Contents.configDoc,
-        Root / "default.template.html" -> Contents.templateWithoutConfig,
+        DefaultTemplatePath.forHTML -> Contents.templateWithoutConfig,
         Root / "input.md" -> Contents.markupWithRef
       )
       val expected = root(
@@ -220,7 +220,7 @@ class ConfigSpec extends IOSpec
     "include classpath resources in directory configuration" in new Inputs {
       val inputs = Seq(
         Root / "directory.conf" -> Contents.configWithCpInclude,
-        Root / "default.template.html" -> Contents.templateWithoutConfig,
+        DefaultTemplatePath.forHTML -> Contents.templateWithoutConfig,
         Root / "input.md" -> Contents.markupWithRefs
       )
       val expected = root(
@@ -236,7 +236,7 @@ class ConfigSpec extends IOSpec
     "include file resources in directory configuration" in new Inputs {
       def inputs(file: File) = Seq(
         Root / "directory.conf" -> Contents.configWithFileInclude(file.getPath),
-        Root / "default.template.html" -> Contents.templateWithoutConfig,
+        DefaultTemplatePath.forHTML -> Contents.templateWithoutConfig,
         Root / "input.md" -> Contents.markupWithRefs
       )
       val expected = root(
@@ -266,7 +266,7 @@ class ConfigSpec extends IOSpec
     "merge objects from config headers in markup with objects in directory configuration" in new Inputs {
       val inputs = Seq(
         Root / "directory.conf" -> Contents.mergeableConfig,
-        Root / "default.template.html" -> Contents.templateWithoutConfig,
+        DefaultTemplatePath.forHTML -> Contents.templateWithoutConfig,
         Root / "input.md" -> Contents.markupWithMergeableConfig
       )
       markdownParser.fromInput(build(inputs)).parse.asserting { tree => 
@@ -281,7 +281,7 @@ class ConfigSpec extends IOSpec
     "decode merged objects as a Map" in new Inputs {
       val inputs = Seq(
         Root / "directory.conf" -> Contents.mergeableConfig,
-        Root / "default.template.html" -> Contents.templateWithoutConfig,
+        DefaultTemplatePath.forHTML -> Contents.templateWithoutConfig,
         Root / "input.md" -> Contents.markupWithMergeableConfig
       )
       markdownParser.fromInput(build(inputs)).parse.asserting { tree =>
@@ -296,7 +296,7 @@ class ConfigSpec extends IOSpec
     "make directory configuration available for references in templates" in new Inputs {
       val inputs = Seq(
         Root / "directory.conf" -> Contents.configDoc,
-        Root / "default.template.html" -> Contents.templateWithRef,
+        DefaultTemplatePath.forHTML -> Contents.templateWithRef,
         Root / "input.rst" -> "txt"
       )
       val expected = root(
@@ -333,7 +333,7 @@ class ConfigSpec extends IOSpec
 
       val inputs = Seq(
         Root / "directory.conf" -> config4,
-        Root / "dir" / "default.template.html" -> template,
+        Root / "dir" / DefaultTemplatePath.forHTML.relative -> template,
         Root / "dir" / "directory.conf" -> config3,
         Root / "dir" / "input.md" -> md,
       )

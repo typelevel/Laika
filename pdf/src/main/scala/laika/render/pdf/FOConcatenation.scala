@@ -25,6 +25,7 @@ import laika.config.{Config, ConfigException}
 import laika.format.{PDF, XSLFO}
 import laika.io.model.RenderedTreeRoot
 import laika.parse.markup.DocumentParser.InvalidDocument
+import laika.rewrite.DefaultTemplatePath
 import laika.rewrite.nav.ConfigurablePathTranslator
 
 /** Concatenates the XSL-FO that serves as a basis for producing the final PDF output
@@ -71,7 +72,7 @@ object FOConcatenation {
         .map(renderer.render(_, ConfigurablePathTranslator(result.config, "fo"), result.styles))
     }
 
-    val defaultTemplate = TemplateDocument(Path.Root / "default.template.fo", result.defaultTemplate)
+    val defaultTemplate = TemplateDocument(DefaultTemplatePath.forFO, result.defaultTemplate)
     applyTemplate(concatDocuments, defaultTemplate)
   }
   

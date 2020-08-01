@@ -32,7 +32,7 @@ import laika.io.model._
 import laika.io.runtime.TreeResultBuilder.{ParserResult, StyleResult, TemplateResult}
 import laika.io.theme.Theme
 import laika.parse.markup.DocumentParser.InvalidDocuments
-import laika.rewrite.TemplateRewriter
+import laika.rewrite.{DefaultTemplatePath, TemplateRewriter}
 import laika.rewrite.nav.{ConfigurablePathTranslator, PathTranslator, TitleDocumentConfig}
 
 /** Internal runtime for renderer operations, for text and binary output as well
@@ -179,7 +179,7 @@ object RendererRuntime {
   
   private def getDefaultTemplate[F[_]: Sync] (themeInputs: InputTree[F], suffix: String): TemplateRoot = 
     themeInputs.parsedResults.collectFirst {
-      case TemplateResult(doc, _) if doc.path == Root / s"default.template.$suffix" => doc.content
+      case TemplateResult(doc, _) if doc.path == DefaultTemplatePath.forSuffix(suffix) => doc.content
     }.getOrElse(TemplateRoot.fallback)
 
   /** Process the specified render operation for an entire input tree and a binary output format.

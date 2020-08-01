@@ -27,6 +27,7 @@ import laika.format.HTML
 import laika.helium.generate._
 import laika.io.model.InputTree
 import laika.io.theme.Theme
+import laika.rewrite.DefaultTemplatePath
 
 /**
   * @author Jens Halm
@@ -47,9 +48,9 @@ case class Helium (fontResources: Seq[FontDefinition],
   def build[F[_]: Sync]: Theme[F] = {
     
     val themeInputs = InputTree[F]
-      .addTemplate(TemplateDocument(Root / "default.template.html", new HTMLTemplate(this).root))
-      .addTemplate(TemplateDocument(Root / "default.template.epub.xhtml", EPUBTemplate.default))
-      .addTemplate(TemplateDocument(Root / "default.template.fo", new FOTemplate(this).root))
+      .addTemplate(TemplateDocument(DefaultTemplatePath.forHTML, new HTMLTemplate(this).root))
+      .addTemplate(TemplateDocument(DefaultTemplatePath.forEPUB, EPUBTemplate.default))
+      .addTemplate(TemplateDocument(DefaultTemplatePath.forFO, new FOTemplate(this).root))
       .addStyles(new FOStyles(this).styles.styles , Root / "styles.fo.css", Precedence.Low)
       .addClasspathResource("laika/helium/css/container.css", Root / "css" / "container.css")
       .addClasspathResource("laika/helium/css/content.css", Root / "css" / "content.css")

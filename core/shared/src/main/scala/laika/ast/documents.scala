@@ -22,7 +22,7 @@ import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.config.Config.IncludeMap
 import laika.config._
-import laika.rewrite.TemplateRewriter
+import laika.rewrite.{DefaultTemplatePath, TemplateRewriter}
 import laika.rewrite.nav.AutonumberConfig
 
 import scala.annotation.tailrec
@@ -414,19 +414,17 @@ trait TreeStructure { this: TreeContent =>
     case _ => None
   }
   
-  private val defaultTemplatePathBase: RelativePath = CurrentTree / "default.template.<format>"
-  
   /** Selects the template with the name `default.template.&lt;suffix&gt;` for the 
     * specified format suffix from this level of the document tree.
     */
   def getDefaultTemplate (formatSuffix: String): Option[TemplateDocument] = {
-    selectTemplate(defaultTemplatePathBase.withSuffix(formatSuffix))
+    selectTemplate(DefaultTemplatePath.forSuffix(formatSuffix).relative)
   }
 
   /** Create a new document tree that contains the specified template as the default.
     */
   def withDefaultTemplate (template: TemplateRoot, formatSuffix: String): DocumentTree = {
-    val defPath = path / defaultTemplatePathBase.withSuffix(formatSuffix)
+    val defPath = path / DefaultTemplatePath.forSuffix(formatSuffix).relative
     targetTree.copy(templates = targetTree.templates.filterNot(_.path == defPath) :+ 
       TemplateDocument(defPath, template))
   }
