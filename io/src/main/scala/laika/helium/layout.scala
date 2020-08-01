@@ -23,7 +23,7 @@ case class WebLayout (contentWidth: Size,
                       defaultBlockSpacing: Size, 
                       defaultLineHeight: Double,
                       anchorPlacement: AnchorPlacement,
-                      favIcon32x32: Option[Path] = None)
+                      favIcons: Seq[Favicon] = Nil)
 
 case class PDFLayout (pageWidth: Size, pageHeight: Size,
                       marginTop: Size, marginRight: Size, marginBottom: Size, marginLeft: Size,
@@ -38,6 +38,8 @@ case class LandingPage (logo: Option[Image] = None,
                         documentationLinks: Seq[LandingPageLink] = Nil,
                         projectLinks: Seq[LandingPageLink] = Nil,
                         teasers: Seq[Teaser] = Nil)
+
+case class Favicon (path: Path, size: String)
 
 case class ReleaseInfo (title: String, version: String)
 sealed trait LandingPageLink {
