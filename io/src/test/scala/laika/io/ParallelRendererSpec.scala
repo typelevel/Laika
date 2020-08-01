@@ -26,6 +26,7 @@ import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.bundle.{BundleOrigin, BundleProvider}
 import laika.format._
+import laika.helium.generate.FOStyles
 import laika.io.helper.OutputBuilder._
 import laika.io.helper.{InputBuilder, RenderResult, ThemeBuilder}
 import laika.io.implicits._
@@ -111,7 +112,7 @@ class ParallelRendererSpec extends IOSpec
   trait FORenderer extends TreeRenderer[FOFormatter] {
     val customStyle: StyleDeclaration = StyleDeclaration(StylePredicate.ElementType("Paragraph"), "font-size" -> "11pt")
     def foStyles (path: Path): Map[String, StyleDeclarationSet] = 
-      Map("fo" -> StyleDeclarationSet(path / "styles.fo.css", customStyle))
+      Map("fo" -> StyleDeclarationSet(FOStyles.defaultPath, customStyle))
     val customThemeStyles: Set[StyleDeclaration] = TestTheme.foStyles.styles + customStyle.increaseOrderBy(1)
     val rootElem: RootElement = root(self.titleWithId("Title"), p("bbb"))
     val subElem: RootElement = root(self.titleWithId("Sub Title"), p("ccc"))
@@ -344,7 +345,7 @@ class ParallelRendererSpec extends IOSpec
             .io(blocker)
             .parallel[IO]
             .withTheme(ThemeBuilder.forInputs(InputTree[IO]
-              .addStyles(customThemeStyles, Root / "styles.fo.css")
+              .addStyles(customThemeStyles, FOStyles.defaultPath)
               .addTemplate(TemplateDocument(DefaultTemplatePath.forFO, TestTheme.foTemplate))
               .build))
             .build

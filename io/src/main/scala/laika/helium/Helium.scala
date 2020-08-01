@@ -51,7 +51,7 @@ case class Helium (fontResources: Seq[FontDefinition],
       .addTemplate(TemplateDocument(DefaultTemplatePath.forHTML, new HTMLTemplate(this).root))
       .addTemplate(TemplateDocument(DefaultTemplatePath.forEPUB, EPUBTemplate.default))
       .addTemplate(TemplateDocument(DefaultTemplatePath.forFO, new FOTemplate(this).root))
-      .addStyles(new FOStyles(this).styles.styles , Root / "styles.fo.css", Precedence.Low)
+      .addStyles(new FOStyles(this).styles.styles , FOStyles.defaultPath, Precedence.Low)
       .addClasspathResource("laika/helium/css/container.css", Root / "css" / "container.css")
       .addClasspathResource("laika/helium/css/content.css", Root / "css" / "content.css")
       .addClasspathResource("laika/helium/css/nav.css", Root / "css" / "nav.css")

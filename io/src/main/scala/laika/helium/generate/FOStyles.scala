@@ -16,6 +16,7 @@
 
 package laika.helium.generate
 
+import laika.ast.Path.Root
 import laika.ast.StylePredicate.{ElementType, StyleName}
 import laika.ast._
 import laika.bundle.Precedence
@@ -265,5 +266,11 @@ class FOStyles (helium: Helium) {
     }
     StyleDeclarationSet(Set.empty[Path], orderApplied.toSet, Precedence.Low)
   }
+  
+}
+
+object FOStyles {
+  
+  val defaultPath: Path = Root / "styles.fo.css"
   
 }
