@@ -240,7 +240,7 @@ object StandardDirectives extends DirectiveRegistry {
           }
 
         case GeneratedNavigationNode(targetPath, title, depth, optExcludeRoot, optExcludeSections) =>
-          val resolvedTarget = InternalTarget.fromPath(targetPath, cursor.path).absolutePath.relativeTo(Root)
+          val resolvedTarget = InternalTarget.fromPath(targetPath, cursor.path).absolutePath.relative
           val target = cursor.root.target.tree.selectDocument(resolvedTarget).orElse(
             cursor.root.target.tree.selectSubtree(resolvedTarget)
           )
