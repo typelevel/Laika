@@ -28,8 +28,8 @@ import laika.config.Config.IncludeMap
 import laika.config.ConfigParser
 import laika.io.config.IncludeHandler
 import laika.io.config.IncludeHandler.RequestedInclude
-import laika.io.model.{ParsedTree, TextInput, InputTree}
-import laika.io.text.{ParallelParser, SequentialParser}
+import laika.io.model.{InputTree, ParsedTree, TextInput}
+import laika.io.text.ParallelParser
 import laika.parse.hocon.{IncludeFile, IncludeResource, ValidStringValue}
 import laika.parse.markup.DocumentParser.{InvalidDocuments, ParserError, ParserInput}
 
@@ -38,16 +38,6 @@ import laika.parse.markup.DocumentParser.{InvalidDocuments, ParserError, ParserI
   *  @author Jens Halm
   */
 object ParserRuntime {
-  
-  /** Run the specified parser operation for a single input, producing a single document.
-    */
-  def run[F[_]: Sync: Runtime] (op: SequentialParser.Op[F]): F[Document] = {
-    for {
-      parserInput <- InputRuntime.readParserInput(op.input)
-      res         <- Sync[F].fromEither(op.parser.parse(parserInput))
-    } yield res
-          
-  }
   
   /** Run the specified parser operation for an entire input tree, producing an AST tree.
     */

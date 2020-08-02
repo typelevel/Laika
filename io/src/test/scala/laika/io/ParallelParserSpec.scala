@@ -657,6 +657,30 @@ class ParallelParserSpec extends IOSpec
         .map(toTreeView)
         .assertEquals(treeResult)
     }
+
+      // TODO - reactivate these tests for the removed sequential parser
+      //
+      //   "parse Markdown from an empty file" in {
+      //      val filename = getClass.getResource("/emptyInput.md").getFile
+      //      parser.fromFile(filename).parse.map(_.content).assertEquals(root())
+      //    }
+      //
+      //    "parse Markdown from a java.io.InputStream instance, specifying the encoding explicitly" in {
+      //      val input = """äää
+      //        |ööö
+      //        |üüü""".stripMargin
+      //      val stream = IO(new ByteArrayInputStream(input.getBytes("ISO-8859-1")))
+      //      parser.fromStream(stream)(Codec.ISO8859).parse.map(_.content).assertEquals(root(p(input)))
+      //    }
+      //    
+      //    "parse Markdown from a java.io.InputStream instance, specifying the encoding implicitly" in {
+      //      val input = """äää
+      //        |ööö
+      //        |üüü""".stripMargin
+      //      val stream = IO(new ByteArrayInputStream(input.getBytes("ISO-8859-1")))
+      //      implicit val codec:Codec = Codec.ISO8859
+      //      parser.fromStream(stream).parse.map(_.content).assertEquals(root(p(input)))
+      //    }
     
     trait MergedDirectorySetup extends ParserSetup {
       val dir1 = new java.io.File(getClass.getResource("/trees/a/").getFile)

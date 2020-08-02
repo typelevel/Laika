@@ -25,7 +25,7 @@ import laika.io.binary.ParallelRenderer.BinaryRenderer
 import laika.io.binary.ParallelTransformer.TreeMapper
 import laika.io.descriptor.TransformerDescriptor
 import laika.io.model._
-import laika.io.ops.{BinaryOutputOps, ParallelInputOps, TreeMapperOps}
+import laika.io.ops.{BinaryOutputOps, InputOps, TreeMapperOps}
 import laika.io.runtime.{Runtime, TransformerRuntime}
 import laika.io.theme.Theme
 
@@ -36,7 +36,7 @@ import laika.io.theme.Theme
 class ParallelTransformer[F[_]: Sync: Runtime] (parsers: NonEmptyList[MarkupParser], 
                                                 renderer: BinaryRenderer,
                                                 theme: Theme[F],
-                                                mapper: TreeMapper[F]) extends ParallelInputOps[F] {
+                                                mapper: TreeMapper[F]) extends InputOps[F] {
 
   type Result = ParallelTransformer.OutputOps[F]
 

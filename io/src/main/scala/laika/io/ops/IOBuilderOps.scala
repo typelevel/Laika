@@ -23,7 +23,7 @@ import cats.effect.{Sync, ContextShift}
   * 
   * @author Jens Halm
   */
-trait IOBuilderOps[SEQ[_[_]], PAR[_[_]]] {
+trait IOBuilderOps[T[_[_]]] {
 
   /** Creates a builder for sequential execution.
     * 
@@ -33,7 +33,7 @@ trait IOBuilderOps[SEQ[_[_]], PAR[_[_]]] {
     * Despite the name, the calling code can of course create multiple effects of this kind and run
     * them in parallel.
     */
-  def sequential[F[_]: Sync: ContextShift]: SEQ[F]
+  def sequential[F[_]: Sync: ContextShift]: T[F]
 
   /** Creates a builder for parallel execution.
     *
@@ -43,7 +43,7 @@ trait IOBuilderOps[SEQ[_[_]], PAR[_[_]]] {
     * This builder creates instances with a level of parallelism matching the available cores.
     * For explicit control of parallelism use the other `parallel` method.
     */
-  def parallel[F[_]: Sync: ContextShift: Parallel]: PAR[F] = parallel(java.lang.Runtime.getRuntime.availableProcessors)
+  def parallel[F[_]: Sync: ContextShift: Parallel]: T[F] = parallel(java.lang.Runtime.getRuntime.availableProcessors)
 
   /** Creates a builder for parallel execution.
     *
@@ -52,6 +52,6 @@ trait IOBuilderOps[SEQ[_[_]], PAR[_[_]]] {
     *
     * This builder creates instances with the specified level of parallelism.
     */
-  def parallel[F[_]: Sync: ContextShift: Parallel](parallelism: Int): PAR[F]
+  def parallel[F[_]: Sync: ContextShift: Parallel](parallelism: Int): T[F]
 
 }

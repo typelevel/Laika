@@ -60,25 +60,11 @@ object RendererDescriptor {
     case _ => "In-memory strings or streams"
   }
   
-  def create[F[_]: Applicative] (op: text.SequentialRenderer.Op[F]): F[RendererDescriptor] = Applicative[F].pure(apply(
-    op.renderer.format.description,
-    op.renderer.config.bundles.filter(op.renderer.config.bundleFilter).map(ExtensionBundleDescriptor),
-    describeOutput(op.output),
-    op.renderer.config.renderFormatted
-  ))
-
   def create[F[_]: Applicative] (op: text.ParallelRenderer.Op[F]): F[RendererDescriptor] = Applicative[F].pure(apply(
     op.renderer.format.description,
     op.renderer.config.bundles.filter(op.renderer.config.bundleFilter).map(ExtensionBundleDescriptor),
     describeOutput(op.output),
     op.renderer.config.renderFormatted
-  ))
-
-  def create[F[_]: Applicative] (op: binary.SequentialRenderer.Op[F]): F[RendererDescriptor] = Applicative[F].pure(apply(
-    op.renderer.description,
-    op.renderer.interimRenderer.config.bundles.filter(op.renderer.interimRenderer.config.bundleFilter).map(ExtensionBundleDescriptor),
-    describeOutput(op.output),
-    op.renderer.interimRenderer.config.renderFormatted
   ))
 
   def create[F[_]: Applicative] (op: binary.ParallelRenderer.Op[F]): F[RendererDescriptor] = Applicative[F].pure(apply(

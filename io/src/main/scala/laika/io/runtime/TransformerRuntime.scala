@@ -46,28 +46,12 @@ object TransformerRuntime {
     case _ => _ => false
   } 
 
-  /** Process the specified transform operation for a single input document and 
-    * a character output format.
-    */
-  def run[F[_]: Sync: Runtime] (op: SequentialTransformer.Op[F]): F[String] = for {
-    doc <- SequentialParser.Op(op.transformer.parser, op.input).parse
-    res <- SequentialRenderer.Op(op.transformer.renderer, doc.content, doc.path, op.output).render
-  } yield res
-
-  /** Process the specified transform operation for an entire input tree and 
-    * a character output format.
+  /** Process the specified transform operation for an entire input tree and a character output format.
     */
   def run[F[_]: Sync: Runtime] (op: ParallelTransformer.Op[F]): F[RenderedTreeRoot[F]] = for {
     tree       <- ParallelParser.Op(op.parsers, op.theme, op.input.withFileFilter(fileFilterFor(op.output))).parse
     mappedTree <- op.mapper.run(tree)
     res        <- ParallelRenderer.Op(op.renderer, themeWithBundlesOnly(op.theme), mappedTree.root, op.output, mappedTree.staticDocuments).render
-  } yield res
-
-  /** Process the specified transform operation for a single input document and a binary output format.
-    */
-  def run[F[_]: Sync: Runtime] (op: binary.SequentialTransformer.Op[F]): F[Unit] = for {
-    doc <- SequentialParser.Op(op.transformer.markupParser, op.input).parse
-    res <- binary.SequentialRenderer.Op(op.transformer.renderer, doc.content, doc.path, op.output).render
   } yield res
 
   /** Process the specified transform operation for an entire input tree and a binary output format.

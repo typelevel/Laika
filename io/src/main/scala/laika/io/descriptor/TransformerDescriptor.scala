@@ -20,7 +20,7 @@ import cats.implicits._
 import cats.data.NonEmptyList
 import cats.effect.Sync
 import laika.ast.Path.Root
-import laika.ast.{DocumentTree, DocumentTreeRoot, RootElement}
+import laika.ast.{DocumentTree, DocumentTreeRoot}
 import laika.io.{binary, text}
 import laika.io.runtime.Runtime
 
@@ -72,19 +72,9 @@ object TransformerDescriptor {
       renderer.renderFormatted
     )
   
-  def create[F[_]: Sync: Runtime] (op: text.SequentialTransformer.Op[F]): F[TransformerDescriptor] = for {
-    parserDesc <- ParserDescriptor.create(text.SequentialParser.Op(op.transformer.parser, op.input))
-    renderDesc <- RendererDescriptor.create(text.SequentialRenderer.Op(op.transformer.renderer, RootElement.empty, Root, op.output))
-  } yield apply(parserDesc, renderDesc)
-
   def create[F[_]: Sync: Runtime] (op: text.ParallelTransformer.Op[F]): F[TransformerDescriptor] = for {
     parserDesc <- ParserDescriptor.create(text.ParallelParser.Op(op.parsers, op.theme, op.input))
     renderDesc <- RendererDescriptor.create(text.ParallelRenderer.Op(op.renderer, op.theme, DocumentTreeRoot(DocumentTree(Root, Nil)), op.output, Nil))
-  } yield apply(parserDesc, renderDesc)
-
-  def create[F[_]: Sync: Runtime] (op: binary.SequentialTransformer.Op[F]): F[TransformerDescriptor] = for {
-    parserDesc <- ParserDescriptor.create(text.SequentialParser.Op(op.transformer.markupParser, op.input))
-    renderDesc <- RendererDescriptor.create(binary.SequentialRenderer.Op(op.transformer.renderer, RootElement.empty, Root, op.output))
   } yield apply(parserDesc, renderDesc)
 
   def create[F[_]: Sync: Runtime] (op: binary.ParallelTransformer.Op[F]): F[TransformerDescriptor] = for {

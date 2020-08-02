@@ -24,16 +24,13 @@ import laika.api.Renderer
 import laika.ast.Path.Root
 import laika.ast._
 import laika.config.{ConfigError, ConfigException}
-import laika.helium.Helium
 import laika.io.binary
-import laika.io.text.ParallelRenderer
-import laika.io.text.SequentialRenderer
 import laika.io.model._
 import laika.io.runtime.TreeResultBuilder.{ParserResult, StyleResult, TemplateResult}
-import laika.io.theme.Theme
+import laika.io.text.ParallelRenderer
 import laika.parse.markup.DocumentParser.InvalidDocuments
+import laika.rewrite.nav.{ConfigurablePathTranslator, TitleDocumentConfig}
 import laika.rewrite.{DefaultTemplatePath, TemplateRewriter}
-import laika.rewrite.nav.{ConfigurablePathTranslator, PathTranslator, TitleDocumentConfig}
 
 /** Internal runtime for renderer operations, for text and binary output as well
   * as parallel and sequential execution. 
@@ -44,25 +41,6 @@ object RendererRuntime {
 
   private case class CopiedDocument (path: Path)
   private type RenderResult = Either[CopiedDocument, RenderedDocument]
-
-  /** Process the specified render operation for a single input document and 
-    * a character output format.
-    */
-  def run[F[_]: Sync: Runtime] (op: SequentialRenderer.Op[F]): F[String] = {
-    val renderResult = op.renderer.render(op.input, op.path)
-    OutputRuntime.write(renderResult, op.output).as(renderResult)
-  }
-
-  /** Process the specified render operation for a single input document and 
-    * a character output format, using the specified path translator and styles.
-    */
-  def run[F[_]: Sync: Runtime] (op: SequentialRenderer.Op[F],
-                                 pathTranslator: PathTranslator,
-                                 styles: StyleDeclarationSet): F[String] = {
-
-    val renderResult = op.renderer.render(op.input, op.path, pathTranslator, styles)
-    OutputRuntime.write(renderResult, op.output).as(renderResult)
-  }
 
   /** Process the specified render operation for an entire input tree and a character output format.
     */
@@ -89,9 +67,9 @@ object RendererRuntime {
       val pathTranslator = ConfigurablePathTranslator(finalRoot.config, fileSuffix)
       val renderer = Renderer.of(op.renderer.format).withConfig(op.config).build
       val outputPath = pathTranslator.translate(document.path)
-      val textOp = SequentialRenderer.Op(renderer, document.content, outputPath, output(outputPath))
-      run(textOp, pathTranslator, styles).map { res =>
-        Right(RenderedDocument(outputPath, document.title, document.sections, res)): RenderResult
+      val renderResult = renderer.render(document.content, outputPath, pathTranslator, styles)
+      OutputRuntime.write(renderResult, output(outputPath)).as {
+        Right(RenderedDocument(outputPath, document.title, document.sections, renderResult)): RenderResult
       }
     }
     
@@ -169,14 +147,6 @@ object RendererRuntime {
     } yield res
   }
 
-  /** Process the specified render operation for a single input document and a binary output format.
-    */
-  def run[F[_]: Sync: Runtime] (op: binary.SequentialRenderer.Op[F]): F[Unit] = {
-    val root = DocumentTreeRoot(DocumentTree(Root, Seq(Document(Root / "input", RootElement(SpanSequence(TemplateElement(op.input)))))))
-    val parOp = binary.ParallelRenderer.Op(op.renderer, Helium.defaults.build, root, op.output)
-    run(parOp)
-  }
-  
   private def getDefaultTemplate[F[_]: Sync] (themeInputs: InputTree[F], suffix: String): TemplateRoot = 
     themeInputs.parsedResults.collectFirst {
       case TemplateResult(doc, _) if doc.path == DefaultTemplatePath.forSuffix(suffix) => doc.content

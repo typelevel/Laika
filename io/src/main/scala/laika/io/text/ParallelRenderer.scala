@@ -22,7 +22,7 @@ import laika.api.builder.OperationConfig
 import laika.ast.DocumentTreeRoot
 import laika.io.descriptor.RendererDescriptor
 import laika.io.model.{BinaryInput, RenderedTreeRoot, TreeOutput}
-import laika.io.ops.ParallelTextOutputOps
+import laika.io.ops.TextOutputOps
 import laika.io.runtime.{RendererRuntime, Runtime}
 import laika.io.theme.Theme
 
@@ -62,7 +62,7 @@ object ParallelRenderer {
   case class OutputOps[F[_]: Sync: Runtime] (renderer: Renderer,
                                               theme: Theme[F],
                                               input: DocumentTreeRoot, 
-                                              staticDocuments: Seq[BinaryInput[F]]) extends ParallelTextOutputOps[F] {
+                                              staticDocuments: Seq[BinaryInput[F]]) extends TextOutputOps[F] {
 
     val F: Sync[F] = Sync[F]
 

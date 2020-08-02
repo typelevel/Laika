@@ -32,7 +32,7 @@ import scala.io.Codec
   *
   * @author Jens Halm
   */
-trait ParallelInputOps[F[_]] {
+trait InputOps[F[_]] {
 
   def F: Sync[F]
 

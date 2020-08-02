@@ -24,7 +24,7 @@ import laika.ast.{DocumentType, TextDocumentType}
 import laika.io.binary.ParallelTransformer.TreeMapper
 import laika.io.descriptor.TransformerDescriptor
 import laika.io.model.{InputTreeBuilder, ParsedTree, RenderedTreeRoot, TreeOutput}
-import laika.io.ops.{ParallelInputOps, ParallelTextOutputOps, TreeMapperOps}
+import laika.io.ops.{InputOps, TextOutputOps, TreeMapperOps}
 import laika.io.runtime.{Runtime, TransformerRuntime}
 import laika.io.theme.Theme
 
@@ -35,7 +35,7 @@ import laika.io.theme.Theme
 class ParallelTransformer[F[_]: Sync: Runtime] (parsers: NonEmptyList[MarkupParser], 
                                                 renderer: Renderer,
                                                 theme: Theme[F],
-                                                mapper: TreeMapper[F]) extends ParallelInputOps[F] {
+                                                mapper: TreeMapper[F]) extends InputOps[F] {
 
   type Result = ParallelTransformer.OutputOps[F]
 
@@ -101,7 +101,7 @@ object ParallelTransformer {
                                              renderer: Renderer,
                                              theme: Theme[F],
                                              input: InputTreeBuilder[F],
-                                             mapper: TreeMapper[F]) extends ParallelTextOutputOps[F] {
+                                             mapper: TreeMapper[F]) extends TextOutputOps[F] {
 
     val F: Sync[F] = Sync[F]
 

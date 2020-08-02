@@ -23,7 +23,7 @@ import laika.api.builder.{OperationConfig, ParserBuilder}
 import laika.ast.{DocumentType, StyleDeclarationSet, TemplateDocument, TextDocumentType}
 import laika.io.descriptor.ParserDescriptor
 import laika.io.model.{InputTreeBuilder, ParsedTree}
-import laika.io.ops.ParallelInputOps
+import laika.io.ops.InputOps
 import laika.io.runtime.{ParserRuntime, Runtime}
 import laika.io.theme.Theme
 import laika.parse.markup.DocumentParser
@@ -33,7 +33,7 @@ import laika.parse.markup.DocumentParser.{ParserError, ParserInput}
   *
   * @author Jens Halm
   */
-class ParallelParser[F[_]: Sync: Runtime] (parsers: NonEmptyList[MarkupParser], theme: Theme[F]) extends ParallelInputOps[F] {
+class ParallelParser[F[_]: Sync: Runtime] (parsers: NonEmptyList[MarkupParser], theme: Theme[F]) extends InputOps[F] {
 
   type Result = ParallelParser.Op[F]
 

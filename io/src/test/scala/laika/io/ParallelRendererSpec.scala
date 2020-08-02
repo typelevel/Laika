@@ -504,6 +504,21 @@ class ParallelRendererSpec extends IOSpec
       }.assertEquals(expectedResult)
       
     }
+    
+    // TODO - reactivate codec tests
+    //
+    //    "render a document to a java.io.OutputStream, specifying the encoding explicitly" in {
+    //      withByteArrayTextOutput("ISO-8859-1") { out =>
+    //        renderer.from(rootElem).toStream(IO.pure(out))(Codec.ISO8859).render.void
+    //      }.assertEquals(expected)
+    //    }
+    //
+    //    "render a document to a java.io.OutputStream, specifying the encoding implicitly" in {
+    //      implicit val codec: Codec = Codec.ISO8859
+    //      withByteArrayTextOutput("ISO-8859-1") { out =>
+    //        renderer.from(rootElem).toStream(IO.pure(out)).render.void
+    //      }.assertEquals(expected)
+    //    }
   
     "render a tree with two documents using a RenderResultProcessor writing to a file" in new TwoPhaseRenderer {
       val res = for {

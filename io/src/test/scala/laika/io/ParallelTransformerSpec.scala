@@ -553,6 +553,24 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
       }.assertEquals(expectedResult)
     }
 
+    // TODO - reactivate encoding tests
+    //
+    //    "transform from a java.io.InputStream to a java.io.OutputStream, specifying the encoding explicitly" in {
+    //      val inStream = IO(new ByteArrayInputStream(input.getBytes("ISO-8859-1")))
+    //      val codec = Codec.ISO8859
+    //      withByteArrayTextOutput("ISO-8859-1") { out =>
+    //        transformer.fromStream(inStream)(codec).toStream(IO.pure(out))(codec).transform.void
+    //      }.assertEquals(output)
+    //    }
+    //
+    //    "transform from a java.io.InputStream to a java.io.OutputStream, specifying the encoding implicitly" in {
+    //      val inStream = IO(new ByteArrayInputStream(input.getBytes("ISO-8859-1")))
+    //      implicit val codec: Codec = Codec.ISO8859
+    //      withByteArrayTextOutput("ISO-8859-1") { out =>
+    //        transformer.fromStream(inStream).toStream(IO.pure(out)).transform.void
+    //      }.assertEquals(output)
+    //    }
+
     "render a tree with a RenderResultProcessor writing to a file" in new TwoPhaseTransformer {
       val transformer = Transformer.from(ReStructuredText).to(TestRenderResultProcessor)
       def transformTo(f: File) = transformer

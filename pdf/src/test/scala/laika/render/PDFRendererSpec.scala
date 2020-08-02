@@ -23,8 +23,8 @@ import cats.implicits._
 import laika.api.Renderer
 import laika.ast.DocumentTreeRoot
 import laika.format.PDF
-import laika.io.{FileIO, IOSpec}
 import laika.io.implicits._
+import laika.io.{FileIO, IOSpec}
 import org.scalatest.Assertion
 
 /** Since there is no straightforward way to validate a rendered PDF document
@@ -53,30 +53,6 @@ class PDFRendererSpec extends IOSpec with FileIO {
   
   
   "The PDF Renderer" should {
-
-    // TODO - 0.16 - there might be the need for enhancing SequentialRenderer/Transformer with passing a template, plus using the default if none is specified
-    "render a document to a file" ignore new TreeModel with FileSetup {
-      val renderer = Renderer
-        .of(PDF)
-        .io(blocker)
-        .sequential[IO]
-        .build
-      
-      firstCharAvailable(renderer.from(doc(1)).toFile(file).render)
-    }
-
-    "render a document to an OutputStream" ignore new TreeModel {
-      val renderer = Renderer
-        .of(PDF)
-        .io(blocker)
-        .sequential[IO]
-        .build
-      
-      withByteArrayOutput { out =>
-        renderer.from(doc(1)).toStream(IO.pure(out)).render.void
-      }.asserting(_ should not be empty)
-      
-    }
 
     "render a tree to a file" in new TreeModel with FileSetup {
       val renderer = Renderer.of(PDF)
