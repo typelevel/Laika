@@ -37,7 +37,7 @@ object TransformerRuntime {
   private def themeWithBundlesOnly[F[_]: Monad] (theme: Theme[F]): Theme[F] = new Theme[F] {
     def inputs: F[InputTree[F]] = Monad[F].pure(InputTree.empty)
     def extensions: Seq[ExtensionBundle] = theme.extensions
-    def treeTransformer: Kleisli[F, ParsedTree[F], ParsedTree[F]] = Kleisli(Monad[F].pure)
+    def treeProcessor: Kleisli[F, ParsedTree[F], ParsedTree[F]] = Kleisli(Monad[F].pure)
   }
   
   private def fileFilterFor (output: TreeOutput): File => Boolean = output match {

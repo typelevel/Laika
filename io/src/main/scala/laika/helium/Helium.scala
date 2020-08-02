@@ -121,7 +121,7 @@ case class Helium (fontResources: Seq[FontDefinition],
     new Theme[F] {
       def inputs = themeInputs
       def extensions = Seq(bundle)
-      def treeTransformer = Kleisli(Sync[F].pure)
+      def treeProcessor = Kleisli(Sync[F].pure)
     }
   } 
   

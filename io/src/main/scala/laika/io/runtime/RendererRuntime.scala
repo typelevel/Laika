@@ -133,7 +133,7 @@ object RendererRuntime {
     val staticDocs = op.staticDocuments ++ themeInputs.binaryInputs.filterNot(i => staticPaths.contains(i.path))
      
     for {
-      mappedTree  <- op.theme.treeTransformer.run(ParsedTree(op.input, staticDocs))
+      mappedTree  <- op.theme.treeProcessor.run(ParsedTree(op.input, staticDocs))
       finalRoot   <- Sync[F].fromEither(applyTemplate(mappedTree.root)
                        .leftMap(e => RendererErrors(Seq(ConfigException(e))))
                       .flatMap(root => InvalidDocuments.from(root, op.config.failOnMessages).toLeft(root)))

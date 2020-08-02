@@ -30,7 +30,7 @@ trait Theme[F[_]] {
   
   def extensions: Seq[ExtensionBundle]
   
-  def treeTransformer: Kleisli[F, ParsedTree[F], ParsedTree[F]]
+  def treeProcessor: Kleisli[F, ParsedTree[F], ParsedTree[F]]
   
 }
 
@@ -39,7 +39,7 @@ object Theme {
   def empty[F[_]: Applicative]: Theme[F] = new Theme[F] {
     def inputs: F[InputTree[F]] = Applicative[F].pure(InputTree.empty)
     def extensions: Seq[ExtensionBundle] = Nil
-    def treeTransformer: Kleisli[F, ParsedTree[F], ParsedTree[F]] = Kleisli(Applicative[F].pure)
+    def treeProcessor: Kleisli[F, ParsedTree[F], ParsedTree[F]] = Kleisli(Applicative[F].pure)
   }
 
 }

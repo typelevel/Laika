@@ -24,15 +24,15 @@ import laika.io.ops.TreeMapperOps
 /**
   * @author Jens Halm
   */
-abstract class TreeTransformer[F[_]: Sync] extends TreeMapperOps[F] {
+abstract class TreeProcessor[F[_]: Sync] extends TreeMapperOps[F] {
 
   type MapRes = Kleisli[F, ParsedTree[F], ParsedTree[F]]
 
   def evalMapTree (f: ParsedTree[F] => F[ParsedTree[F]]): Kleisli[F, ParsedTree[F], ParsedTree[F]] = Kleisli(f)
 }
 
-object TreeTransformer {
+object TreeProcessor {
   
-  def apply[F[_]: Sync]: TreeTransformer[F] = new TreeTransformer[F] { }
+  def apply[F[_]: Sync]: TreeProcessor[F] = new TreeProcessor[F] { }
   
 }
