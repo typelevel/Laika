@@ -27,12 +27,12 @@ import laika.ast.helper.ModelBuilder
 import laika.bundle.{BundleOrigin, BundleProvider}
 import laika.format._
 import laika.helium.generate.FOStyles
+import laika.io.api.{BinaryTreeRenderer, TreeRenderer}
 import laika.io.helper.OutputBuilder._
 import laika.io.helper.{InputBuilder, RenderResult, ThemeBuilder}
 import laika.io.implicits._
 import laika.io.model.{InputTree, StringTreeOutput}
 import laika.io.runtime.RendererRuntime.{DuplicatePath, RendererErrors}
-import laika.io.text.ParallelRenderer
 import laika.parse.markup.DocumentParser.{InvalidDocument, InvalidDocuments}
 import laika.render._
 import laika.render.fo.TestTheme
@@ -41,7 +41,7 @@ import laika.rewrite.ReferenceResolver.CursorKeys
 
 import scala.io.Codec
 
-class ParallelRendererSpec extends IOSpec 
+class TreeRendererSpec extends IOSpec 
                            with ModelBuilder
                            with FileIO { self =>
 
@@ -68,13 +68,13 @@ class ParallelRendererSpec extends IOSpec
         |. . Text - 'Doc""".stripMargin + num + "'"
   }
   
-  trait TreeRenderer[FMT] {
+  trait TreeRendererSetup[FMT] {
 
     def treeRoot: DocumentTreeRoot = DocumentTreeRoot(input)
     
     def input: DocumentTree
     
-    def renderer: ParallelRenderer[IO]
+    def renderer: TreeRenderer[IO]
     
     def renderedTree: IO[RenderedTreeView] = renderedRoot.map(_.tree)
 
@@ -95,21 +95,21 @@ class ParallelRendererSpec extends IOSpec
     }
   }
   
-  trait ASTRenderer extends TreeRenderer[TextFormatter] {
-    lazy val renderer: ParallelRenderer[IO] = Renderer.of(AST).io(blocker).parallel[IO].build
+  trait ASTRenderer extends TreeRendererSetup[TextFormatter] {
+    lazy val renderer: TreeRenderer[IO] = Renderer.of(AST).io(blocker).parallel[IO].build
   }
 
-  trait HTMLRenderer extends TreeRenderer[HTMLFormatter] {
+  trait HTMLRenderer extends TreeRendererSetup[HTMLFormatter] {
     val rootElem: RootElement = root(titleWithId("Title"), p("bbb"))
-    lazy val renderer: ParallelRenderer[IO] = Renderer.of(HTML).io(blocker).parallel[IO].build
+    lazy val renderer: TreeRenderer[IO] = Renderer.of(HTML).io(blocker).parallel[IO].build
   }
 
-  trait EPUB_XHTMLRenderer extends TreeRenderer[HTMLFormatter] {
+  trait EPUB_XHTMLRenderer extends TreeRendererSetup[HTMLFormatter] {
     val rootElem: RootElement = root(titleWithId("Title"), p("bbb"))
-    lazy val renderer: ParallelRenderer[IO] = Renderer.of(EPUB.XHTML).io(blocker).parallel[IO].build
+    lazy val renderer: TreeRenderer[IO] = Renderer.of(EPUB.XHTML).io(blocker).parallel[IO].build
   }
 
-  trait FORenderer extends TreeRenderer[FOFormatter] {
+  trait FORenderer extends TreeRendererSetup[FOFormatter] {
     val customStyle: StyleDeclaration = StyleDeclaration(StylePredicate.ElementType("Paragraph"), "font-size" -> "11pt")
     def foStyles (path: Path): Map[String, StyleDeclarationSet] = 
       Map("fo" -> StyleDeclarationSet(FOStyles.defaultPath, customStyle))
@@ -122,7 +122,7 @@ class ParallelRendererSpec extends IOSpec
     def title(id: String, text: String) =
       s"""<fo:block id="$id" color="#007c99" font-family="sans-serif" font-size="24pt" font-weight="bold" keep-with-next="always" space-after="6mm" space-before="0mm">$text</fo:block>"""
 
-    def renderer: ParallelRenderer[IO] = Renderer
+    def renderer: TreeRenderer[IO] = Renderer
       .of(XSLFO)
       .io(blocker)
       .parallel[IO]
@@ -491,7 +491,7 @@ class ParallelRendererSpec extends IOSpec
         |. . Text - 'ccc'
         |""".stripMargin
       
-      val renderer: binary.ParallelRenderer[IO] = Renderer
+      val renderer: BinaryTreeRenderer[IO] = Renderer
         .of(TestRenderResultProcessor)
         .io(blocker)
         .parallel[IO]

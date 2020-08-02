@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package laika.io.text
+package laika.io.api
 
 import cats.data.NonEmptyList
 import cats.effect.Sync
-import laika.api.{MarkupParser, Renderer}
 import laika.api.builder.{OperationConfig, ParserBuilder}
+import laika.api.{MarkupParser, Renderer}
 import laika.ast.{DocumentType, TextDocumentType}
-import laika.io.binary.ParallelTransformer.TreeMapper
+import laika.io.api.BinaryTreeTransformer.TreeMapper
 import laika.io.descriptor.TransformerDescriptor
 import laika.io.model.{InputTreeBuilder, ParsedTree, RenderedTreeRoot, TreeOutput}
 import laika.io.ops.{InputOps, TextOutputOps, TreeMapperOps}
@@ -32,12 +32,12 @@ import laika.io.theme.Theme
   *
   * @author Jens Halm
   */
-class ParallelTransformer[F[_]: Sync: Runtime] (parsers: NonEmptyList[MarkupParser], 
-                                                renderer: Renderer,
-                                                theme: Theme[F],
-                                                mapper: TreeMapper[F]) extends InputOps[F] {
+class TreeTransformer[F[_]: Sync: Runtime](parsers: NonEmptyList[MarkupParser],
+                                           renderer: Renderer,
+                                           theme: Theme[F],
+                                           mapper: TreeMapper[F]) extends InputOps[F] {
 
-  type Result = ParallelTransformer.OutputOps[F]
+  type Result = TreeTransformer.OutputOps[F]
 
   val F: Sync[F] = Sync[F]
 
@@ -48,14 +48,14 @@ class ParallelTransformer[F[_]: Sync: Runtime] (parsers: NonEmptyList[MarkupPars
     .reduceLeft[OperationConfig](_ merge _)
     .withBundles(theme.extensions)
 
-  def fromInput (input: InputTreeBuilder[F]): ParallelTransformer.OutputOps[F] =
-    ParallelTransformer.OutputOps(parsers, renderer, theme, input, mapper)
+  def fromInput (input: InputTreeBuilder[F]): TreeTransformer.OutputOps[F] =
+    TreeTransformer.OutputOps(parsers, renderer, theme, input, mapper)
 
 }
 
 /** Builder API for constructing a transformation for a tree of input and output documents.
   */
-object ParallelTransformer {
+object TreeTransformer {
 
   /** Builder step that allows to specify the execution context
     * for blocking IO and CPU-bound tasks.
@@ -91,7 +91,7 @@ object ParallelTransformer {
     
     /** Final builder step that creates a parallel transformer.
       */
-    def build: ParallelTransformer[F] = new ParallelTransformer[F](parsers, renderer, theme, mapper)
+    def build: TreeTransformer[F] = new TreeTransformer[F](parsers, renderer, theme, mapper)
 
   }
 

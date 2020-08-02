@@ -24,9 +24,9 @@ import laika.api.{MarkupParser, Transformer}
 import laika.config.{ConfigBuilder, LaikaKeys}
 import laika.factory.MarkupFormat
 import laika.format.{HTML, Markdown, ReStructuredText}
+import laika.io.api.TreeParser
 import laika.io.implicits._
 import laika.io.model.{InputTree, InputTreeBuilder}
-import laika.io.text.ParallelParser
 import laika.sbt.LaikaPlugin.ArtifactDescriptor
 import laika.sbt.LaikaPlugin.autoImport._
 import sbt.Keys._
@@ -93,7 +93,7 @@ object Settings {
       .formatted
   }
   
-  val parser: Initialize[ParallelParser[IO]] = setting {
+  val parser: Initialize[TreeParser[IO]] = setting {
     val fallback = ConfigBuilder.empty
       .withValue(LaikaKeys.metadata.child("title"), name.value)
       .withValue(LaikaKeys.metadata.child("description"), description.value)

@@ -19,8 +19,8 @@ package laika.io.descriptor
 import cats.data.NonEmptyList
 import cats.effect.Sync
 import cats.implicits._
+import laika.io.api.TreeParser
 import laika.io.runtime.Runtime
-import laika.io.text.ParallelParser
 
 /** Provides a description of a parsing operation, including the parsers
   * and extension bundles used, as well as the input sources.
@@ -51,7 +51,7 @@ case class ParserDescriptor (parsers: NonEmptyList[String],
 
 object ParserDescriptor {
   
-  def create[F[_]: Sync: Runtime] (op: ParallelParser.Op[F]): F[ParserDescriptor] = 
+  def create[F[_]: Sync: Runtime] (op: TreeParser.Op[F]): F[ParserDescriptor] = 
     TreeInputDescriptor.create(op.input.build(op.config.docTypeMatcher)).map { inputDesc =>
     apply(
       op.parsers.map(_.format.description),

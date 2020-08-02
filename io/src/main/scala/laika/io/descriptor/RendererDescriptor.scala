@@ -17,8 +17,8 @@
 package laika.io.descriptor
 
 import cats.Applicative
-import laika.io.model.{BinaryOutput, DirectoryOutput, TextOutput, TreeOutput}
-import laika.io.{binary, text}
+import laika.io.api.{BinaryTreeRenderer, TreeRenderer}
+import laika.io.model.{BinaryOutput, DirectoryOutput, TreeOutput}
 
 /** Provides a description of a render operation, including the renderers
   * and extension bundles used, as well as the output target.
@@ -47,10 +47,6 @@ case class RendererDescriptor (renderer: String,
 
 object RendererDescriptor {
 
-  private def describeOutput[F[_]] (out: TextOutput[F]): String = out.targetFile.fold(
-    "In-memory string or stream"
-  )(f => s"File '${f.getPath}'")
-  
   private def describeOutput[F[_]] (out: BinaryOutput[F]): String = out.targetFile.fold(
     "In-memory bytes or stream"
   )(f => s"File '${f.getPath}'")
@@ -60,14 +56,14 @@ object RendererDescriptor {
     case _ => "In-memory strings or streams"
   }
   
-  def create[F[_]: Applicative] (op: text.ParallelRenderer.Op[F]): F[RendererDescriptor] = Applicative[F].pure(apply(
+  def create[F[_]: Applicative] (op: TreeRenderer.Op[F]): F[RendererDescriptor] = Applicative[F].pure(apply(
     op.renderer.format.description,
     op.renderer.config.bundles.filter(op.renderer.config.bundleFilter).map(ExtensionBundleDescriptor),
     describeOutput(op.output),
     op.renderer.config.renderFormatted
   ))
 
-  def create[F[_]: Applicative] (op: binary.ParallelRenderer.Op[F]): F[RendererDescriptor] = Applicative[F].pure(apply(
+  def create[F[_]: Applicative] (op: BinaryTreeRenderer.Op[F]): F[RendererDescriptor] = Applicative[F].pure(apply(
     op.renderer.description,
     op.renderer.interimRenderer.config.bundles.filter(op.renderer.interimRenderer.config.bundleFilter).map(ExtensionBundleDescriptor),
     describeOutput(op.output),

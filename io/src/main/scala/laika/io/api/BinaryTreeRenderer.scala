@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package laika.io.binary
+package laika.io.api
 
 import cats.effect.Sync
 import laika.api.builder.{OperationConfig, TwoPhaseRenderer}
 import laika.ast.DocumentTreeRoot
 import laika.factory.BinaryPostProcessor
-import laika.io.binary.ParallelRenderer.BinaryRenderer
+import laika.io.api.BinaryTreeRenderer.BinaryRenderer
 import laika.io.descriptor.RendererDescriptor
 import laika.io.model.{BinaryInput, BinaryOutput}
 import laika.io.ops.BinaryOutputOps
@@ -31,18 +31,18 @@ import laika.io.theme.Theme
   *
   * @author Jens Halm
   */
-class ParallelRenderer[F[_]: Sync: Runtime] (renderer: BinaryRenderer, theme: Theme[F]) {
+class BinaryTreeRenderer[F[_]: Sync: Runtime](renderer: BinaryRenderer, theme: Theme[F]) {
 
   /** Builder step that specifies the root of the document tree to render.
     */
-  def from (input: DocumentTreeRoot): ParallelRenderer.OutputOps[F] =
-    ParallelRenderer.OutputOps(renderer, theme, input, Nil)
+  def from (input: DocumentTreeRoot): BinaryTreeRenderer.OutputOps[F] =
+    BinaryTreeRenderer.OutputOps(renderer, theme, input, Nil)
 
 }
 
 /** Builder API for constructing a rendering operation for a tree of binary output documents.
   */
-object ParallelRenderer {
+object BinaryTreeRenderer {
 
   type BinaryRenderer = TwoPhaseRenderer[BinaryPostProcessor]
 
@@ -57,7 +57,7 @@ object ParallelRenderer {
     
     /** Final builder step that creates a parallel renderer for binary output.
       */
-    def build: ParallelRenderer[F] = new ParallelRenderer[F](renderer, theme)
+    def build: BinaryTreeRenderer[F] = new BinaryTreeRenderer[F](renderer, theme)
     
   }
 

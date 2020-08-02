@@ -24,7 +24,7 @@ import laika.ast.{DocumentTreeRoot, MessageFilter, TemplateRoot}
 import laika.config.{Config, ConfigException}
 import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
 import laika.format.{PDF, XSLFO}
-import laika.io.binary.ParallelRenderer
+import laika.io.api.BinaryTreeRenderer
 import laika.io.helper.RenderResult
 import laika.io.implicits._
 import laika.io.model.{BinaryOutput, RenderedTreeRoot}
@@ -131,7 +131,7 @@ class PDFNavigationSpec extends IOSpec with FileIO {
   
   trait Setup extends TreeModel with ResultModel {
     
-    lazy val renderer: ParallelRenderer[IO] = Renderer
+    lazy val renderer: BinaryTreeRenderer[IO] = Renderer
       .of(FOTest)
       .io(blocker)
       .parallel[IO]

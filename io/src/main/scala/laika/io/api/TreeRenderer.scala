@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package laika.io.text
+package laika.io.api
 
 import cats.effect.Sync
 import laika.api.Renderer
@@ -30,18 +30,18 @@ import laika.io.theme.Theme
   *
   * @author Jens Halm
   */
-class ParallelRenderer[F[_]: Sync: Runtime] (renderer: Renderer, theme: Theme[F]) {
+class TreeRenderer[F[_]: Sync: Runtime](renderer: Renderer, theme: Theme[F]) {
 
   /** Builder step that specifies the root of the document tree to render.
     */
-  def from (input: DocumentTreeRoot): ParallelRenderer.OutputOps[F] =
-    ParallelRenderer.OutputOps(renderer, theme, input, Nil)
+  def from (input: DocumentTreeRoot): TreeRenderer.OutputOps[F] =
+    TreeRenderer.OutputOps(renderer, theme, input, Nil)
 
 }
 
 /** Builder API for constructing a rendering operation for a tree of output documents.
   */
-object ParallelRenderer {
+object TreeRenderer {
 
   /** Builder step that allows to specify the execution context for blocking IO and CPU-bound tasks.
     */
@@ -53,7 +53,7 @@ object ParallelRenderer {
 
     /** Final builder step that creates a parallel renderer.
       */
-    def build: ParallelRenderer[F] = new ParallelRenderer[F](renderer, theme)
+    def build: TreeRenderer[F] = new TreeRenderer[F](renderer, theme)
 
   }
 

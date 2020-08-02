@@ -30,11 +30,11 @@ import laika.bundle.{BundleOrigin, BundleProvider, ExtensionBundle, SpanParser, 
 import laika.config.Origin.TreeScope
 import laika.config.{ConfigBuilder, Origin}
 import laika.format.{Markdown, ReStructuredText}
+import laika.io.api.TreeParser
 import laika.io.helper.{InputBuilder, ThemeBuilder}
 import laika.io.implicits._
 import laika.io.model.{InputTree, InputTreeBuilder, ParsedTree}
 import laika.io.runtime.ParserRuntime.{DuplicatePath, ParserErrors}
-import laika.io.text.ParallelParser
 import laika.io.theme.Theme
 import laika.parse.Parser
 import laika.parse.markup.DocumentParser.{InvalidDocument, InvalidDocuments}
@@ -43,21 +43,21 @@ import laika.rewrite.{DefaultTemplatePath, TemplateRewriter}
 import org.scalatest.Assertion
 
 
-class ParallelParserSpec extends IOSpec 
+class TreeParserSpec extends IOSpec 
                          with ModelBuilder
                          with FileIO {
 
   trait ParserSetup {
 
-    val defaultBuilder: ParallelParser.Builder[IO] = MarkupParser
+    val defaultBuilder: TreeParser.Builder[IO] = MarkupParser
       .of(Markdown)
       .io(blocker)
       .parallel[IO]
       .withTheme(Theme.empty)
     
-    val defaultParser: ParallelParser[IO] = defaultBuilder.build
+    val defaultParser: TreeParser[IO] = defaultBuilder.build
     
-    def parserWithBundle (bundle: ExtensionBundle): ParallelParser[IO] = 
+    def parserWithBundle (bundle: ExtensionBundle): TreeParser[IO] = 
       MarkupParser
         .of(Markdown)
         .using(bundle)
@@ -66,7 +66,7 @@ class ParallelParserSpec extends IOSpec
         .withTheme(Theme.empty)
         .build
 
-    def parserWithTheme (bundle: ExtensionBundle): ParallelParser[IO] =
+    def parserWithTheme (bundle: ExtensionBundle): TreeParser[IO] =
       MarkupParser
         .of(Markdown)
         .io(blocker)
@@ -75,7 +75,7 @@ class ParallelParserSpec extends IOSpec
         .withTheme(ThemeBuilder.forBundle(bundle))
         .build
 
-    def parserWithThemeAndBundle (themeBundle: ExtensionBundle, appBundle: ExtensionBundle): ParallelParser[IO] =
+    def parserWithThemeAndBundle (themeBundle: ExtensionBundle, appBundle: ExtensionBundle): TreeParser[IO] =
       MarkupParser
         .of(Markdown)
         .using(appBundle)
@@ -87,7 +87,7 @@ class ParallelParserSpec extends IOSpec
     def toTreeView (parsed: ParsedTree[IO]): TreeView = viewOf(parsed.root.tree)
   }
   
-  trait TreeParser extends InputBuilder with ParserSetup {
+  trait TreeParserSetup extends InputBuilder with ParserSetup {
     
     def inputs: Seq[(Path, String)] 
     
@@ -166,13 +166,13 @@ class ParallelParserSpec extends IOSpec
   
   "The parallel parser" should {
 
-    "parse an empty tree" in new TreeParser {
+    "parse an empty tree" in new TreeParserSetup {
       val inputs = Nil
       val treeResult = RootView(Nil)
       parsedTree.assertEquals(treeResult)
     }
 
-    "parse a tree with a single document" in new TreeParser {
+    "parse a tree with a single document" in new TreeParserSetup {
       val inputs = Seq(
         Root / "name.md" -> Contents.name
       )
@@ -181,7 +181,7 @@ class ParallelParserSpec extends IOSpec
       parsedTree.assertEquals(treeResult)
     }
 
-    "parse a tree with multiple subtrees" in new TreeParser {
+    "parse a tree with multiple subtrees" in new TreeParserSetup {
       val inputs = Seq(
         Root / "doc1.md" -> Contents.name,
         Root / "doc2.md" -> Contents.name,
@@ -199,7 +199,7 @@ class ParallelParserSpec extends IOSpec
       parsedTree.assertEquals(treeResult)
     }
     
-    "collect errors from multiple documents" in new TreeParser {
+    "collect errors from multiple documents" in new TreeParserSetup {
       val inputs = Seq(
         Root / "doc1.md" -> "[link1]",
         Root / "doc2.md" -> "[link2]",
@@ -215,7 +215,7 @@ class ParallelParserSpec extends IOSpec
       parsedTree.assertFailsWith(InvalidDocuments(NonEmptyChain.fromChainUnsafe(Chain.fromSeq(messages))))
     }
 
-    "parse a tree with a cover and a title document" in new TreeParser {
+    "parse a tree with a cover and a title document" in new TreeParserSetup {
       val inputs = Seq(
         Root / "doc1.md" -> Contents.name,
         Root / "doc2.md" -> Contents.name,
@@ -232,7 +232,7 @@ class ParallelParserSpec extends IOSpec
       parsedTree.assertEquals(treeResult)
     }
 
-    "parse a tree with a title document with a custom document name configuration" in new TreeParser {
+    "parse a tree with a title document with a custom document name configuration" in new TreeParserSetup {
       val inputs = Seq(
         Root / "directory.conf" -> Contents.titleDocNameConf,
         Root / "doc1.md" -> Contents.name,
@@ -254,7 +254,7 @@ class ParallelParserSpec extends IOSpec
       parsedTree.assertEquals(treeResult)
     }
 
-    "parse a tree with a single template" ignore new TreeParser {
+    "parse a tree with a single template" ignore new TreeParserSetup {
       val inputs = Seq(
         Root / "main.template.html" -> Contents.name
       )
@@ -263,7 +263,7 @@ class ParallelParserSpec extends IOSpec
       parsedTree.assertEquals(treeResult)
     }
 
-    "fail with duplicate paths" in new TreeParser {
+    "fail with duplicate paths" in new TreeParserSetup {
       val inputs = Seq(
         Root / "doc1.md" -> Contents.name,
         Root / "doc2.md" -> Contents.name,
@@ -276,7 +276,7 @@ class ParallelParserSpec extends IOSpec
       ))
     }
 
-    "parse a tree with a static document" in new TreeParser {
+    "parse a tree with a static document" in new TreeParserSetup {
       val inputs = Seq(
         Root / "omg.js" -> Contents.name
       )
@@ -284,7 +284,7 @@ class ParallelParserSpec extends IOSpec
       parsedTree.assertEquals(treeResult)
     }
 
-    "parse a tree with all available file types and multiple markup formats" in new TreeParser {
+    "parse a tree with all available file types and multiple markup formats" in new TreeParserSetup {
       val inputs = Seq(
         Root / "doc1.md" -> Contents.link,
         Root / "doc2.rst" -> Contents.link,
@@ -316,7 +316,7 @@ class ParallelParserSpec extends IOSpec
       mixedParsedTree.assertEquals(expectedRoot)
     }
 
-    "allow to specify a custom template engine" ignore new TreeParser {
+    "allow to specify a custom template engine" ignore new TreeParserSetup {
       val parser: Parser[TemplateRoot] = TextParsers.anyChars.map { str => TemplateRoot("$$" + str) }
       val inputs = Seq(
         Root / "main1.template.html" -> Contents.name,
@@ -329,7 +329,7 @@ class ParallelParserSpec extends IOSpec
       parsedWith(BundleProvider.forTemplateParser(parser)).assertEquals(treeResult)
     }
 
-    "allow to specify a custom style sheet engine" in new TreeParser {
+    "allow to specify a custom style sheet engine" in new TreeParserSetup {
       override val docTypeMatcher: PartialFunction[Path, DocumentType] = {
         case path =>
           val Stylesheet = """.+\.([a,b]+).css$""".r
@@ -355,7 +355,7 @@ class ParallelParserSpec extends IOSpec
         .withBase(BundleProvider.forStyleSheetParser(parser))).assertEquals(treeResult)
     }
 
-    "allow to specify a template directive" in new TreeParser {
+    "allow to specify a template directive" in new TreeParserSetup {
 
       import laika.directive.Templates
       import Templates.dsl._
@@ -374,7 +374,7 @@ class ParallelParserSpec extends IOSpec
       parsedTemplates(BundleProvider.forTemplateDirective(directive)).assertEquals(result)
     }
 
-    "add indentation information if an embedded root is preceded by whitespace characters" in new TreeParser {
+    "add indentation information if an embedded root is preceded by whitespace characters" in new TreeParserSetup {
 
       import laika.ast.EmbeddedRoot
 
@@ -391,7 +391,7 @@ class ParallelParserSpec extends IOSpec
       parsedTree.assertEquals(treeResult)
     }
 
-    "not add indentation information if an embedded root is preceded by non-whitespace characters" in new TreeParser {
+    "not add indentation information if an embedded root is preceded by non-whitespace characters" in new TreeParserSetup {
 
       import laika.ast.EmbeddedRoot
 
@@ -408,7 +408,7 @@ class ParallelParserSpec extends IOSpec
       parsedTree.assertEquals(treeResult)
     }
 
-    "allow to specify a custom navigation order" in new TreeParser {
+    "allow to specify a custom navigation order" in new TreeParserSetup {
       val inputs = Seq(
         Root / "apple.md" -> Contents.name,
         Root / "orange.md" -> Contents.name,
@@ -423,7 +423,7 @@ class ParallelParserSpec extends IOSpec
       }.assertEquals(List("lemon.md", "shapes", "cherry.md", "colors", "apple.md", "orange.md"))
     }
 
-    "always move title documents to the front, even with a custom navigation order" in new TreeParser {
+    "always move title documents to the front, even with a custom navigation order" in new TreeParserSetup {
       val inputs = Seq(
         Root / "apple.md" -> Contents.name,
         Root / "orange.md" -> Contents.name,
@@ -531,7 +531,7 @@ class ParallelParserSpec extends IOSpec
       lazy val input: InputTreeBuilder[IO] =
         if (useTheme) InputTree[IO].addDirectory(dirname)
         else addDoc(InputTree[IO].addDirectory(dirname))
-      lazy val parser: ParallelParser[IO] = if (useTheme) defaultBuilder.withTheme(ThemeBuilder.forInputs(build(addDoc(InputTree[IO])))).build
+      lazy val parser: TreeParser[IO] = if (useTheme) defaultBuilder.withTheme(ThemeBuilder.forInputs(build(addDoc(InputTree[IO])))).build
         else defaultBuilder.build
       
       def run (): Assertion = parser.fromInput(input).parse.map(toTreeView).assertEquals(treeResult)

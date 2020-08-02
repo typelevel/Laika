@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package laika.io.text
+package laika.io.api
 
 import cats.data.NonEmptyList
 import cats.effect.Sync
@@ -33,9 +33,9 @@ import laika.parse.markup.DocumentParser.{ParserError, ParserInput}
   *
   * @author Jens Halm
   */
-class ParallelParser[F[_]: Sync: Runtime] (parsers: NonEmptyList[MarkupParser], theme: Theme[F]) extends InputOps[F] {
+class TreeParser[F[_]: Sync: Runtime](parsers: NonEmptyList[MarkupParser], theme: Theme[F]) extends InputOps[F] {
 
-  type Result = ParallelParser.Op[F]
+  type Result = TreeParser.Op[F]
 
   val F: Sync[F] = Sync[F]
 
@@ -46,13 +46,13 @@ class ParallelParser[F[_]: Sync: Runtime] (parsers: NonEmptyList[MarkupParser], 
     .reduceLeft[OperationConfig](_ merge _)
     .withBundles(theme.extensions)
 
-  def fromInput (input: InputTreeBuilder[F]): ParallelParser.Op[F] = ParallelParser.Op(parsers, theme, input)
+  def fromInput (input: InputTreeBuilder[F]): TreeParser.Op[F] = TreeParser.Op(parsers, theme, input)
 
 }
 
 /** Builder API for constructing a parsing operation for a tree of input documents.
   */
-object ParallelParser {
+object TreeParser {
 
   /** Builder step that allows to specify the execution context
     * for blocking IO and CPU-bound tasks.
@@ -81,7 +81,7 @@ object ParallelParser {
 
     /** Final builder step that creates a parallel parser.
       */
-    def build: ParallelParser[F] = new ParallelParser[F](parsers, theme)
+    def build: TreeParser[F] = new TreeParser[F](parsers, theme)
 
   }
 

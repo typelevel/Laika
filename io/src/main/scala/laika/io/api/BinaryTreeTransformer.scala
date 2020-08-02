@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package laika.io.binary
+package laika.io.api
 
 import cats.data.{Kleisli, NonEmptyList}
 import cats.effect.Sync
 import laika.api.MarkupParser
 import laika.api.builder.{OperationConfig, ParserBuilder}
 import laika.ast.{DocumentType, TextDocumentType}
-import laika.io.binary.ParallelRenderer.BinaryRenderer
-import laika.io.binary.ParallelTransformer.TreeMapper
+import laika.io.api.BinaryTreeRenderer.BinaryRenderer
+import laika.io.api.BinaryTreeTransformer.TreeMapper
 import laika.io.descriptor.TransformerDescriptor
 import laika.io.model._
 import laika.io.ops.{BinaryOutputOps, InputOps, TreeMapperOps}
@@ -33,12 +33,12 @@ import laika.io.theme.Theme
   *
   * @author Jens Halm
   */
-class ParallelTransformer[F[_]: Sync: Runtime] (parsers: NonEmptyList[MarkupParser], 
-                                                renderer: BinaryRenderer,
-                                                theme: Theme[F],
-                                                mapper: TreeMapper[F]) extends InputOps[F] {
+class BinaryTreeTransformer[F[_]: Sync: Runtime](parsers: NonEmptyList[MarkupParser],
+                                                 renderer: BinaryRenderer,
+                                                 theme: Theme[F],
+                                                 mapper: TreeMapper[F]) extends InputOps[F] {
 
-  type Result = ParallelTransformer.OutputOps[F]
+  type Result = BinaryTreeTransformer.OutputOps[F]
 
   val F: Sync[F] = Sync[F]
 
@@ -49,14 +49,14 @@ class ParallelTransformer[F[_]: Sync: Runtime] (parsers: NonEmptyList[MarkupPars
     .reduceLeft[OperationConfig](_ merge _)
     .withBundles(theme.extensions)
 
-  def fromInput (input: InputTreeBuilder[F]): ParallelTransformer.OutputOps[F] = 
-    ParallelTransformer.OutputOps(parsers, renderer, theme, input, mapper)
+  def fromInput (input: InputTreeBuilder[F]): BinaryTreeTransformer.OutputOps[F] = 
+    BinaryTreeTransformer.OutputOps(parsers, renderer, theme, input, mapper)
 
 }
 
 /** Builder API for constructing a transformation for a tree of input and binary output documents.
   */
-object ParallelTransformer {
+object BinaryTreeTransformer {
 
   type TreeMapper[F[_]] = Kleisli[F, ParsedTree[F], ParsedTree[F]]
 
@@ -95,7 +95,7 @@ object ParallelTransformer {
     
     /** Final builder step that creates a parallel transformer for binary output.
       */
-    def build: ParallelTransformer[F] = new ParallelTransformer[F](parsers, renderer, theme, mapper)
+    def build: BinaryTreeTransformer[F] = new BinaryTreeTransformer[F](parsers, renderer, theme, mapper)
 
   }
 

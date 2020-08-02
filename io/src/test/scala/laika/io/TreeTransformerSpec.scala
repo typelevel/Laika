@@ -27,12 +27,12 @@ import laika.ast._
 import laika.bundle.{BundleProvider, ExtensionBundle}
 import laika.directive.Templates
 import laika.format._
+import laika.io.api.TreeTransformer
 import laika.io.descriptor.TransformerDescriptor
 import laika.io.helper.OutputBuilder._
 import laika.io.helper.{InputBuilder, RenderResult, ThemeBuilder}
 import laika.io.implicits._
 import laika.io.model.{InputTree, StringTreeOutput}
-import laika.io.text.ParallelTransformer
 import laika.parse.Parser
 import laika.parse.code.SyntaxHighlighting
 import laika.parse.text.TextParsers
@@ -41,15 +41,15 @@ import laika.rewrite.DefaultTemplatePath
 import laika.rewrite.link.SlugBuilder
 import org.scalatest.Assertion
 
-class ParallelTransformerSpec extends IOSpec with FileIO {
+class TreeTransformerSpec extends IOSpec with FileIO {
 
   
-  private val transformer: ParallelTransformer[IO] = Transformer.from(Markdown).to(AST).io(blocker).parallel[IO].build
-  private def transformerWithBundle (bundle: ExtensionBundle): ParallelTransformer[IO] = 
+  private val transformer: TreeTransformer[IO] = Transformer.from(Markdown).to(AST).io(blocker).parallel[IO].build
+  private def transformerWithBundle (bundle: ExtensionBundle): TreeTransformer[IO] = 
     Transformer.from(Markdown).to(AST).using(bundle).io(blocker).parallel[IO].build
   
   
-  trait TreeTransformer extends InputBuilder {
+  trait TreeTransformerSetup extends InputBuilder {
     import laika.ast.{DocumentType, Path}
     
     val astDefaultTemplatePath: Path = DefaultTemplatePath.forSuffix("txt")
@@ -82,7 +82,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
       .toOutput(StringTreeOutput)
       .describe
     
-    private def transformWith (transformer: ParallelTransformer[IO] = transformer): IO[RenderedTreeViewRoot] =
+    private def transformWith (transformer: TreeTransformer[IO] = transformer): IO[RenderedTreeViewRoot] =
       transformer
         .fromInput(build(inputs))
         .toOutput(StringTreeOutput)
@@ -136,19 +136,19 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
 
   "The parallel transformer" should {
 
-    "transform an empty tree" in new TreeTransformer {
+    "transform an empty tree" in new TreeTransformerSetup {
       val inputs = Nil
       transformTree.assertTree(root(Nil))
     }
 
-    "transform a tree with a single document" in new TreeTransformer {
+    "transform a tree with a single document" in new TreeTransformerSetup {
       val inputs = Seq(
         Root / "name.md" -> Contents.name
       )
       transformTree.assertTree(root(List(docs((Root / "name.txt", simpleResult)))))
     }
 
-    "transform a tree with a cover, title document and one content document" in new TreeTransformer {
+    "transform a tree with a cover, title document and one content document" in new TreeTransformerSetup {
       val inputs = Seq(
         Root / "name.md" -> Contents.name,
         Root / "README.md" -> Contents.name,
@@ -164,7 +164,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
       ))
     }
 
-    "transform a tree with a cover, title document and two content documents with a document mapper" in new TreeTransformer {
+    "transform a tree with a cover, title document and two content documents with a document mapper" in new TreeTransformerSetup {
       val inputs = Seq(
         Root / "rootDoc.md" -> Contents.name,
         Root / "sub" / "subDoc.md" -> Contents.name,
@@ -187,7 +187,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
         ))
     }
 
-    "transform a tree with a cover, title document and two content documents with a document mapper from a theme" in new TreeTransformer {
+    "transform a tree with a cover, title document and two content documents with a document mapper from a theme" in new TreeTransformerSetup {
       val inputs = Seq(
         Root / "rootDoc.md" -> Contents.name,
         Root / "sub" / "subDoc.md" -> Contents.name,
@@ -209,7 +209,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
         ))
     }
 
-    "transform a tree with a template document populated by a config file in the directory" in new TreeTransformer {
+    "transform a tree with a template document populated by a config file in the directory" in new TreeTransformerSetup {
       val inputs = Seq(
         astDefaultTemplatePath -> Contents.templateConfigRef,
         Root / "directory.conf" -> Contents.conf,
@@ -225,7 +225,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
       transformTree.assertTree(root(List(docs((Root / "main.txt", result)))))
     }
 
-    "transform a tree with a template document populated by a root config string" in new TreeTransformer {
+    "transform a tree with a template document populated by a root config string" in new TreeTransformerSetup {
       val inputs = Seq(
         astDefaultTemplatePath -> Contents.templateConfigRef,
         Root / "main.md" -> Contents.aa
@@ -240,7 +240,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
       transformWithConfig("value: def").assertTree(root(List(docs((Root / "main.txt", result)))))
     }
 
-    "transform a tree with a custom template engine" in new TreeTransformer {
+    "transform a tree with a custom template engine" in new TreeTransformerSetup {
       val inputs = Seq(
         astDefaultTemplatePath -> Contents.template1,
         Root / "main1.md" -> Contents.aa,
@@ -260,7 +260,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
       ))))
     }
 
-    "transform a tree with a custom style sheet engine" in new TreeTransformer {
+    "transform a tree with a custom style sheet engine" in new TreeTransformerSetup {
       // the AST renderer does not use stylesheets, so we must use XSL-FO here
       def styleDecl (fontSize: String) =
         StyleDeclaration(StylePredicate.ElementType("Paragraph"), "font-size" -> s"${fontSize}pt")
@@ -293,7 +293,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
       ))))
     }
 
-    "transform a tree with a template directive" in new TreeTransformer {
+    "transform a tree with a template directive" in new TreeTransformerSetup {
 
       import Templates.dsl._
 
@@ -321,14 +321,14 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
       ))))
     }
 
-    "transform a tree with a static document" in new TreeTransformer {
+    "transform a tree with a static document" in new TreeTransformerSetup {
       val inputs = Seq(
         Root / "omg.js" -> Contents.name
       )
       transformTree.assertEquals(RenderedTreeViewRoot(RenderedTreeView(Root, Nil), staticDocuments = Seq(Root / "omg.js") ++ TestTheme.staticPaths))
     }
     
-    trait DocWithSection extends TreeTransformer {
+    trait DocWithSection extends TreeTransformerSetup {
       val targetSrc: String =
         """
           |Doc Title
@@ -391,7 +391,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
       assertTree(transformWithSlugBuilder(s => SlugBuilder.default(s) + "-slug"))
     }
 
-    "transform a tree with all available file types and multiple markup formats" in new TreeTransformer {
+    "transform a tree with all available file types and multiple markup formats" in new TreeTransformerSetup {
       val inputs = Seq(
         Root / "doc1.md" -> Contents.link,
         Root / "doc2.rst" -> Contents.link,
@@ -443,7 +443,7 @@ class ParallelTransformerSpec extends IOSpec with FileIO {
       )), staticDocuments = Seq(Root / "dir2" / "omg.js") ++ TestTheme.staticPaths))
     }
 
-    "describe a tree with all available file types and multiple markup formats" in new TreeTransformer {
+    "describe a tree with all available file types and multiple markup formats" in new TreeTransformerSetup {
       val inputs = Seq(
         Root / "doc1.md" -> Contents.link,
         Root / "doc2.rst" -> Contents.link,

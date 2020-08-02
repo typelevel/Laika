@@ -24,10 +24,9 @@ import laika.api.Renderer
 import laika.ast.Path.Root
 import laika.ast._
 import laika.config.{ConfigError, ConfigException}
-import laika.io.binary
+import laika.io.api.{BinaryTreeRenderer, TreeRenderer}
 import laika.io.model._
 import laika.io.runtime.TreeResultBuilder.{ParserResult, StyleResult, TemplateResult}
-import laika.io.text.ParallelRenderer
 import laika.parse.markup.DocumentParser.InvalidDocuments
 import laika.rewrite.nav.{ConfigurablePathTranslator, TitleDocumentConfig}
 import laika.rewrite.{DefaultTemplatePath, TemplateRewriter}
@@ -44,9 +43,9 @@ object RendererRuntime {
 
   /** Process the specified render operation for an entire input tree and a character output format.
     */
-  def run[F[_]: Sync: Runtime] (op: ParallelRenderer.Op[F]): F[RenderedTreeRoot[F]] = op.theme.inputs.flatMap(run(op, _))
+  def run[F[_]: Sync: Runtime] (op: TreeRenderer.Op[F]): F[RenderedTreeRoot[F]] = op.theme.inputs.flatMap(run(op, _))
 
-  private def run[F[_]: Sync: Runtime] (op: ParallelRenderer.Op[F], themeInputs: InputTree[F]): F[RenderedTreeRoot[F]] = {  
+  private def run[F[_]: Sync: Runtime] (op: TreeRenderer.Op[F], themeInputs: InputTree[F]): F[RenderedTreeRoot[F]] = {  
     
     def validatePaths (staticDocs: Seq[BinaryInput[F]]): F[Unit] = {
       val paths = op.input.allDocuments.map(_.path) ++ staticDocs.map(_.path)
@@ -154,12 +153,12 @@ object RendererRuntime {
 
   /** Process the specified render operation for an entire input tree and a binary output format.
     */
-  def run[F[_]: Sync: Runtime] (op: binary.ParallelRenderer.Op[F]): F[Unit] = {
+  def run[F[_]: Sync: Runtime] (op: BinaryTreeRenderer.Op[F]): F[Unit] = {
     val suffix = op.renderer.interimRenderer.format.fileSuffix
     for {
       themeInputs  <- op.theme.inputs
       preparedTree <- Sync[F].fromEither(op.renderer.prepareTree(op.input))
-      renderedTree <- run(ParallelRenderer.Op[F](op.renderer.interimRenderer, op.theme, preparedTree, StringTreeOutput), themeInputs)
+      renderedTree <- run(TreeRenderer.Op[F](op.renderer.interimRenderer, op.theme, preparedTree, StringTreeOutput), themeInputs)
       finalTree    =  renderedTree.copy[F](defaultTemplate = op.input.tree.getDefaultTemplate(suffix).fold(getDefaultTemplate(themeInputs, suffix))(_.content))
       _            <- op.renderer.postProcessor.process(finalTree, op.output, op.config)
     } yield ()

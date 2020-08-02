@@ -26,10 +26,10 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.config.Config.IncludeMap
 import laika.config.ConfigParser
+import laika.io.api.TreeParser
 import laika.io.config.IncludeHandler
 import laika.io.config.IncludeHandler.RequestedInclude
 import laika.io.model.{InputTree, ParsedTree, TextInput}
-import laika.io.text.ParallelParser
 import laika.parse.hocon.{IncludeFile, IncludeResource, ValidStringValue}
 import laika.parse.markup.DocumentParser.{InvalidDocuments, ParserError, ParserInput}
 
@@ -41,7 +41,7 @@ object ParserRuntime {
   
   /** Run the specified parser operation for an entire input tree, producing an AST tree.
     */
-  def run[F[_]: Sync: Runtime] (op: ParallelParser.Op[F]): F[ParsedTree[F]] = {
+  def run[F[_]: Sync: Runtime] (op: TreeParser.Op[F]): F[ParsedTree[F]] = {
     
     import DocumentType.{Config => ConfigType, _}
     import TreeResultBuilder._
