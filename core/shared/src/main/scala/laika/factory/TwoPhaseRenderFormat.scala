@@ -26,12 +26,8 @@ import laika.config.Config
  *  
  *  @author Jens Halm
  */
-trait TwoPhaseRenderFormat[FMT, PP] {
+trait TwoPhaseRenderFormat[FMT, PP] extends Format {
 
-  /** Short string describing the output format for tooling and logging.
-    */
-  def description: String = toString
-  
   /** The render format for the interim result, the first phase of this renderer.
    */
   def interimFormat: RenderFormat[FMT]

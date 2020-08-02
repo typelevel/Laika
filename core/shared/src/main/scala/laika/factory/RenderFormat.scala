@@ -52,12 +52,8 @@ case class RenderContext[FMT] (renderChild: (FMT, Element) => String,
  *  
  *  @author Jens Halm
  */
-trait RenderFormat[FMT] {
+trait RenderFormat[FMT] extends Format {
 
-  /** Short string describing the output format for tooling and logging.
-    */
-  def description: String = toString
-  
   /** The file suffix to use when rendering the output
    *  to a file. When transforming entire directories
    *  the suffix of the markup file will be automatically
