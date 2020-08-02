@@ -17,13 +17,14 @@
 package laika.io.ops
 
 import cats.Parallel
-import cats.effect.{Sync, ContextShift}
+import cats.effect.{Blocker, ContextShift, Sync}
+import laika.io.runtime.Runtime
 
 /** Builder step that allows to choose between sequential and parallel execution and specify the effect type. 
   * 
   * @author Jens Halm
   */
-trait IOBuilderOps[T[_[_]]] {
+abstract class IOBuilderOps[T[_[_]]] (blocker: Blocker) {
 
   /** Creates a builder for sequential execution.
     * 
@@ -33,7 +34,10 @@ trait IOBuilderOps[T[_[_]]] {
     * Despite the name, the calling code can of course create multiple effects of this kind and run
     * them in parallel.
     */
-  def sequential[F[_]: Sync: ContextShift]: T[F]
+  def sequential[F[_]: Sync: ContextShift]: T[F] = {
+    implicit val runtime: Runtime[F] = Runtime.sequential(blocker)
+    build
+  }
 
   /** Creates a builder for parallel execution.
     *
@@ -52,6 +56,11 @@ trait IOBuilderOps[T[_[_]]] {
     *
     * This builder creates instances with the specified level of parallelism.
     */
-  def parallel[F[_]: Sync: ContextShift: Parallel](parallelism: Int): T[F]
+  def parallel[F[_]: Sync: ContextShift: Parallel](parallelism: Int): T[F] = {
+    implicit val runtime: Runtime[F] = Runtime.parallel(blocker, parallelism)
+    build
+  }
+  
+  protected def build[F[_]: Sync: Runtime]: T[F]
 
 }

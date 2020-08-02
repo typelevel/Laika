@@ -16,13 +16,12 @@
 
 package laika.io
 
-import cats.Parallel
 import cats.data.{Kleisli, NonEmptyList}
-import cats.effect.{Blocker, ContextShift, Sync}
-import laika.api.builder.{ParserBuilder, RendererBuilder, TransformerBuilder, TwoPhaseRendererBuilder, TwoPhaseTransformerBuilder}
+import cats.effect.{Blocker, Sync}
+import laika.api.builder._
 import laika.factory.BinaryPostProcessor
 import laika.helium.Helium
-import laika.io.api.{BinaryTreeRenderer, BinaryTreeTransformer, TreeParser, TreeRenderer, TreeTransformer}
+import laika.io.api._
 import laika.io.ops.IOBuilderOps
 import laika.io.runtime.Runtime
 
@@ -106,17 +105,9 @@ object implicits {
     /** Builder step for specifying the blocker to use for all blocking IO operations.
       */
     def io (blocker: Blocker): IOBuilderOps[TreeParser.Builder] =
-      new IOBuilderOps[TreeParser.Builder] {
-
-        def sequential[F[_] : Sync : ContextShift]: TreeParser.Builder[F] = {
-          implicit val runtime: Runtime[F] = Runtime.sequential(blocker)
+      new IOBuilderOps[TreeParser.Builder](blocker) {
+        protected def build[F[_]: Sync: Runtime]: TreeParser.Builder[F] =
           new TreeParser.Builder[F](NonEmptyList.of(builder.build), Helium.defaults.build)
-        }
-
-        def parallel[F[_] : Sync : ContextShift : Parallel] (parallelism: Int): TreeParser.Builder[F] = {
-          implicit val runtime: Runtime[F] = Runtime.parallel(blocker, parallelism)
-          new TreeParser.Builder[F](NonEmptyList.of(builder.build), Helium.defaults.build)
-        }
       }
   }
 
@@ -125,17 +116,9 @@ object implicits {
     /** Builder step for specifying the blocker to use for all blocking IO operations.
       */
     def io (blocker: Blocker): IOBuilderOps[TreeRenderer.Builder] =
-      new IOBuilderOps[TreeRenderer.Builder] {
-
-        def sequential[F[_] : Sync : ContextShift]: TreeRenderer.Builder[F] = {
-          implicit val runtime: Runtime[F] = Runtime.sequential(blocker)
+      new IOBuilderOps[TreeRenderer.Builder](blocker) {
+        protected def build[F[_]: Sync: Runtime]: TreeRenderer.Builder[F] =
           new TreeRenderer.Builder[F](builder.build, Helium.defaults.build)
-        }
-
-        def parallel[F[_] : Sync : ContextShift : Parallel] (parallelism: Int): TreeRenderer.Builder[F] = {
-          implicit val runtime: Runtime[F] = Runtime.parallel(blocker, parallelism)
-          new TreeRenderer.Builder[F](builder.build, Helium.defaults.build)
-        }
       }
   }
 
@@ -144,17 +127,9 @@ object implicits {
     /** Builder step for specifying the blocker to use for all blocking IO operations.
       */
     def io (blocker: Blocker): IOBuilderOps[BinaryTreeRenderer.Builder] =
-      new IOBuilderOps[BinaryTreeRenderer.Builder] {
-
-        def sequential[F[_] : Sync : ContextShift]: BinaryTreeRenderer.Builder[F] = {
-          implicit val runtime: Runtime[F] = Runtime.sequential(blocker)
+      new IOBuilderOps[BinaryTreeRenderer.Builder](blocker) {
+        protected def build[F[_]: Sync: Runtime]: BinaryTreeRenderer.Builder[F] =
           new BinaryTreeRenderer.Builder[F](builder.build, Helium.defaults.build)
-        }
-
-        def parallel[F[_] : Sync : ContextShift : Parallel] (parallelism: Int): BinaryTreeRenderer.Builder[F] = {
-          implicit val runtime: Runtime[F] = Runtime.parallel(blocker, parallelism)
-          new BinaryTreeRenderer.Builder[F](builder.build, Helium.defaults.build)
-        }
       }
   }
 
@@ -163,18 +138,9 @@ object implicits {
     /** Builder step for specifying the blocker to use for all blocking IO operations.
       */
     def io (blocker: Blocker): IOBuilderOps[TreeTransformer.Builder] =
-      new IOBuilderOps[TreeTransformer.Builder] {
-
-        def sequential[F[_] : Sync : ContextShift]: TreeTransformer.Builder[F] = {
-          implicit val runtime: Runtime[F] = Runtime.sequential(blocker)
-          val transformer = builder.build
-          new TreeTransformer.Builder[F](
-            NonEmptyList.of(transformer.parser), transformer.renderer, Helium.defaults.build, Kleisli(Sync[F].pure))
-        }
-
-        def parallel[F[_] : Sync : ContextShift : Parallel] (parallelism: Int): TreeTransformer.Builder[F] = {
-          implicit val runtime: Runtime[F] = Runtime.parallel(blocker, parallelism)
-          val transformer = builder.build
+      new IOBuilderOps[TreeTransformer.Builder](blocker) {
+        protected def build[F[_]: Sync: Runtime]: TreeTransformer.Builder[F] = {
+          val transformer = builder.build 
           new TreeTransformer.Builder[F](
             NonEmptyList.of(transformer.parser), transformer.renderer, Helium.defaults.build, Kleisli(Sync[F].pure))
         }
@@ -186,18 +152,9 @@ object implicits {
     /** Builder step for specifying the blocker to use for all blocking IO operations.
       */
     def io (blocker: Blocker): IOBuilderOps[BinaryTreeTransformer.Builder] =
-      new IOBuilderOps[BinaryTreeTransformer.Builder] {
-
-        def sequential[F[_] : Sync : ContextShift]: BinaryTreeTransformer.Builder[F] = {
-          implicit val runtime: Runtime[F] = Runtime.sequential(blocker)
-          val transformer = builder.build
-          new BinaryTreeTransformer.Builder[F](
-            NonEmptyList.of(transformer.markupParser), transformer.renderer, Helium.defaults.build, Kleisli(Sync[F].pure))
-        }
-
-        def parallel[F[_] : Sync : ContextShift : Parallel] (parallelism: Int): BinaryTreeTransformer.Builder[F] = {
-          implicit val runtime: Runtime[F] = Runtime.parallel(blocker, parallelism)
-          val transformer = builder.build
+      new IOBuilderOps[BinaryTreeTransformer.Builder](blocker) {
+        protected def build[F[_]: Sync: Runtime]: BinaryTreeTransformer.Builder[F] = {
+          val transformer = builder.build 
           new BinaryTreeTransformer.Builder[F](
             NonEmptyList.of(transformer.markupParser), transformer.renderer, Helium.defaults.build, Kleisli(Sync[F].pure))
         }
