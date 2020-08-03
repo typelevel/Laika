@@ -23,12 +23,19 @@ case class WebLayout (contentWidth: Size,
                       defaultBlockSpacing: Size, 
                       defaultLineHeight: Double,
                       anchorPlacement: AnchorPlacement,
-                      favIcons: Seq[Favicon] = Nil)
+                      favIcons: Seq[Favicon] = Nil,
+                      tableOfContent: Option[TableOfContent] = None,
+                      downloadPage: Option[DownloadPage] = None)
 
 case class PDFLayout (pageWidth: Size, pageHeight: Size,
                       marginTop: Size, marginRight: Size, marginBottom: Size, marginLeft: Size,
                       defaultBlockSpacing: Size, defaultLineHeight: Double,
-                      keepTogetherDecoratedLines: Int)
+                      keepTogetherDecoratedLines: Int,
+                      tableOfContent: Option[TableOfContent] = None)
+
+case class TableOfContent (title: String, depth: Int)
+
+case class DownloadPage (title: String, includeEPUB: Boolean, includePDF: Boolean)
 
 case class LandingPage (logo: Option[Image] = None,
                         title: Option[String] = None,

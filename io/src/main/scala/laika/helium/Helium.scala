@@ -23,9 +23,10 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.bundle.{BundleOrigin, ExtensionBundle, Precedence}
 import laika.config.{Config, ConfigBuilder, ConfigEncoder}
-import laika.format.HTML
+import laika.factory.Format
+import laika.format.{EPUB, HTML, XSLFO}
 import laika.helium.generate._
-import laika.io.model.InputTree
+import laika.io.model.{InputTree, ParsedTree}
 import laika.io.theme.Theme
 import laika.rewrite.DefaultTemplatePath
 
@@ -118,10 +119,38 @@ case class Helium (fontResources: Seq[FontDefinition],
       override val baseConfig: Config = landingPageConfig
     }
     
+    def addToc (format: Format): Kleisli[F, ParsedTree[F], ParsedTree[F]] = Kleisli { tree =>
+      val toc = format match {
+        case HTML => webLayout.tableOfContent
+        case EPUB.XHTML => webLayout.tableOfContent // TODO - create EPUBLayout
+        case XSLFO => pdfLayout.tableOfContent
+        case _ => None
+      }
+      val result = toc.fold(tree) { tocConf =>
+        if (tocConf.depth < 1) tree
+        else {
+          val navContext = NavigationBuilderContext(
+            refPath = Root, 
+            itemStyles = Set("toc"), 
+            maxLevels = tocConf.depth,
+            currentLevel = 0)
+          val navItem = tree.root.tree.asNavigationItem(navContext)
+          val navList = NavigationList(navItem.content, Styles("toc"))
+          val title = Title(tocConf.title)
+          val root = RootElement(title, navList)
+          val doc = Document(Root / "table-of-contents", root)
+          val oldTree = tree.root.tree
+          val newTree = tree.copy(root = tree.root.copy(tree = oldTree.copy(content = doc +: oldTree.content)))
+          newTree
+        } 
+      }
+      Sync[F].pure(result)
+    }
+    
     new Theme[F] {
       def inputs = themeInputs
       def extensions = Seq(bundle)
-      def treeProcessor = PartialFunction.empty
+      def treeProcessor = { case format => addToc(format) }
     }
   } 
   
