@@ -33,6 +33,7 @@ import laika.io.helper.OutputBuilder._
 import laika.io.helper.{InputBuilder, RenderResult, ThemeBuilder}
 import laika.io.implicits._
 import laika.io.model.{InputTree, StringTreeOutput}
+import laika.io.theme.Theme
 import laika.parse.Parser
 import laika.parse.code.SyntaxHighlighting
 import laika.parse.text.TextParsers
@@ -67,8 +68,6 @@ class TreeTransformerSpec extends IOSpec with FileIO {
     def transformWithDirective (directive: Templates.Directive): IO[RenderedTreeViewRoot] = transformWithBundle(BundleProvider.forTemplateDirective(directive))
     def transformWithDocumentMapper (f: Document => Document): IO[RenderedTreeViewRoot] = 
       transformWith(Transformer.from(Markdown).to(AST).io(blocker).parallel[IO].mapDocuments(f).build)
-    def transformWithDocumentMapperInTheme (f: Document => Document): IO[RenderedTreeViewRoot] =
-      transformWith(Transformer.from(Markdown).to(AST).io(blocker).parallel[IO].withTheme(ThemeBuilder.forDocumentMapper(f)).build)
     
     def describe: IO[TransformerDescriptor] = Transformer
       .from(Markdown)
@@ -82,7 +81,7 @@ class TreeTransformerSpec extends IOSpec with FileIO {
       .toOutput(StringTreeOutput)
       .describe
     
-    private def transformWith (transformer: TreeTransformer[IO] = transformer): IO[RenderedTreeViewRoot] =
+    protected def transformWith (transformer: TreeTransformer[IO] = transformer): IO[RenderedTreeViewRoot] =
       transformer
         .fromInput(build(inputs))
         .toOutput(StringTreeOutput)
@@ -186,27 +185,49 @@ class TreeTransformerSpec extends IOSpec with FileIO {
           TestTheme.staticPaths
         ))
     }
-
-    "transform a tree with a cover, title document and two content documents with a document mapper from a theme" in new TreeTransformerSetup {
+    
+    trait TreeProcessorSetup extends TreeTransformerSetup {
       val inputs = Seq(
         Root / "rootDoc.md" -> Contents.name,
         Root / "sub" / "subDoc.md" -> Contents.name,
         Root / "README.md" -> Contents.name,
         Root / "cover.md" -> Contents.name
       )
-      transformWithDocumentMapperInTheme(doc => doc.copy(content = doc.content.copy(content = Seq(Paragraph("foo-bar")))))
+      def theme: Theme[IO]
+      def expectedDocResult: String
+      
+      val mapperFunction: Document => Document = doc => doc.copy(content = doc.content.copy(content = Seq(Paragraph("foo-bar"))))
+      def transformWithProcessor: IO[RenderedTreeViewRoot] =
+        transformWith(Transformer.from(Markdown).to(AST).io(blocker).parallel[IO].withTheme(theme).build)
+
+      transformWithProcessor
         .assertEquals(RenderedTreeViewRoot(
           root(List(
-            TitleDocument(RenderedDocumentView(Root / "index.txt", mappedResult)),
-            docs((Root / "rootDoc.txt", mappedResult)),
+            TitleDocument(RenderedDocumentView(Root / "index.txt", expectedDocResult)),
+            docs((Root / "rootDoc.txt", expectedDocResult)),
             trees(
               (Root / "sub", List(docs(
-                (Root / "sub" / "subDoc.txt", mappedResult)
+                (Root / "sub" / "subDoc.txt", expectedDocResult)
               )))
             )
           )),
-          Some(RenderedDocumentView(Root / "cover.txt", mappedResult))
+          Some(RenderedDocumentView(Root / "cover.txt", expectedDocResult))
         ))
+    }
+
+    "transform a tree with a document mapper from a theme" in new TreeProcessorSetup {
+      def expectedDocResult = mappedResult
+      def theme: Theme[IO] = ThemeBuilder.forDocumentMapper(mapperFunction)
+    }
+
+    "transform a tree with a document mapper from a theme specific to the output format" in new TreeProcessorSetup {
+      def expectedDocResult = mappedResult
+      def theme: Theme[IO] = ThemeBuilder.forDocumentMapper(AST)(mapperFunction)
+    }
+
+    "transform a tree ignoring the document mapper from a theme if the format does not match" in new TreeProcessorSetup {
+      def expectedDocResult = simpleResult
+      def theme: Theme[IO] = ThemeBuilder.forDocumentMapper(HTML)(mapperFunction)
     }
 
     "transform a tree with a template document populated by a config file in the directory" in new TreeTransformerSetup {

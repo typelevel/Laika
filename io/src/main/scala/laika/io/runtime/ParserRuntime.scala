@@ -139,8 +139,7 @@ object ParserRuntime {
       themeInputs  <- op.theme.inputs
       allInputs    <- mergeInputs(userInputs, themeInputs)
       result       <- parseAll(allInputs)
-      mappedResult <- op.theme.treeProcessor.run(result)
-    } yield mappedResult
+    } yield result
     
   }
 

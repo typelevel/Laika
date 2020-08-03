@@ -16,12 +16,12 @@
 
 package laika.io.helper
 
-import cats.data.Kleisli
 import cats.effect.IO
 import laika.ast.Document
 import laika.bundle.ExtensionBundle
-import laika.io.model.{ParsedTree, InputTree}
-import laika.io.theme.{Theme, TreeTransformer}
+import laika.factory.Format
+import laika.io.model.InputTree
+import laika.io.theme.{Theme, TreeProcessor}
 
 
 object ThemeBuilder {
@@ -29,7 +29,7 @@ object ThemeBuilder {
   def forInputs (themeInputs: IO[InputTree[IO]]): Theme[IO] = new Theme[IO] {
     def inputs = themeInputs
     def extensions = Nil
-    def treeTransformer = Kleisli(IO.pure)
+    def treeProcessor = PartialFunction.empty
   }
 
   def forBundle (bundle: ExtensionBundle): Theme[IO] = forBundles(Seq(bundle))
@@ -37,13 +37,20 @@ object ThemeBuilder {
   def forBundles (bundles: Seq[ExtensionBundle]): Theme[IO] = new Theme[IO] {
     def inputs = IO.pure(InputTree.empty)
     def extensions = bundles
-    def treeTransformer = Kleisli(IO.pure)
+    def treeProcessor = PartialFunction.empty
   }
   
   def forDocumentMapper (f: Document => Document): Theme[IO] = new Theme[IO] {
     def inputs = IO.pure(InputTree.empty)
     def extensions = Nil
-    def treeTransformer = TreeTransformer[IO].mapDocuments(f)
+    def treeProcessor = { case _ => TreeProcessor[IO].mapDocuments(f) }
+  }
+
+  def forDocumentMapper (format: Format)(f: Document => Document): Theme[IO] = new Theme[IO] {
+    def inputs = IO.pure(InputTree.empty)
+    def extensions = Nil
+    val MatchedFormat = format
+    def treeProcessor = { case MatchedFormat => TreeProcessor[IO].mapDocuments(f) }
   }
   
 }

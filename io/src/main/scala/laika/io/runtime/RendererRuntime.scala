@@ -131,12 +131,13 @@ object RendererRuntime {
     
     val staticPaths = op.staticDocuments.map(_.path).toSet
     val staticDocs = op.staticDocuments ++ themeInputs.binaryInputs.filterNot(i => staticPaths.contains(i.path))
-     
+    val tree = ParsedTree(op.input, staticDocs)
+    
     for {
-      mappedTree  <- op.theme.treeProcessor.run(ParsedTree(op.input, staticDocs))
+      mappedTree  <- op.theme.treeProcessor.lift(op.renderer.format).fold(Sync[F].pure(tree))(_.run(tree))
       finalRoot   <- Sync[F].fromEither(applyTemplate(mappedTree.root)
                        .leftMap(e => RendererErrors(Seq(ConfigException(e))))
-                      .flatMap(root => InvalidDocuments.from(root, op.config.failOnMessages).toLeft(root)))
+                       .flatMap(root => InvalidDocuments.from(root, op.config.failOnMessages).toLeft(root)))
       styles    = finalRoot.styles(fileSuffix) ++ getThemeStyles(themeInputs.parsedResults)
       static    = mappedTree.staticDocuments
       _         <- validatePaths(static)

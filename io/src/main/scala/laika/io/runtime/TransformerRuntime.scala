@@ -23,6 +23,7 @@ import cats.data.Kleisli
 import cats.effect.Sync
 import cats.implicits._
 import laika.bundle.ExtensionBundle
+import laika.factory.Format
 import laika.io.api.{BinaryTreeRenderer, BinaryTreeTransformer, TreeParser, TreeRenderer, TreeTransformer}
 import laika.io.model.{DirectoryInput, DirectoryOutput, InputTree, ParsedTree, RenderedTreeRoot, TreeOutput}
 import laika.io.theme.Theme
@@ -34,10 +35,10 @@ import laika.io.theme.Theme
   */
 object TransformerRuntime {
   
-  private def themeWithBundlesOnly[F[_]: Monad] (theme: Theme[F]): Theme[F] = new Theme[F] {
+  private def themeWithoutInputs[F[_]: Monad] (theme: Theme[F]): Theme[F] = new Theme[F] {
     def inputs: F[InputTree[F]] = Monad[F].pure(InputTree.empty)
     def extensions: Seq[ExtensionBundle] = theme.extensions
-    def treeProcessor: Kleisli[F, ParsedTree[F], ParsedTree[F]] = Kleisli(Monad[F].pure)
+    def treeProcessor: PartialFunction[Format, Kleisli[F, ParsedTree[F], ParsedTree[F]]] = theme.treeProcessor
   }
   
   private def fileFilterFor (output: TreeOutput): File => Boolean = output match {
@@ -50,7 +51,7 @@ object TransformerRuntime {
   def run[F[_]: Sync: Runtime] (op: TreeTransformer.Op[F]): F[RenderedTreeRoot[F]] = for {
     tree       <- TreeParser.Op(op.parsers, op.theme, op.input.withFileFilter(fileFilterFor(op.output))).parse
     mappedTree <- op.mapper.run(tree)
-    res        <- TreeRenderer.Op(op.renderer, themeWithBundlesOnly(op.theme), mappedTree.root, op.output, mappedTree.staticDocuments).render
+    res        <- TreeRenderer.Op(op.renderer, themeWithoutInputs(op.theme), mappedTree.root, op.output, mappedTree.staticDocuments).render
   } yield res
 
   /** Process the specified transform operation for an entire input tree and a binary output format.
@@ -58,7 +59,7 @@ object TransformerRuntime {
   def run[F[_]: Sync: Runtime] (op: BinaryTreeTransformer.Op[F]): F[Unit] = for {
     tree       <- TreeParser.Op(op.parsers, op.theme, op.input).parse
     mappedTree <- op.mapper.run(tree)
-    res        <- BinaryTreeRenderer.Op[F](op.renderer, themeWithBundlesOnly(op.theme), mappedTree.root, op.output, mappedTree.staticDocuments).render
+    res        <- BinaryTreeRenderer.Op[F](op.renderer, themeWithoutInputs(op.theme), mappedTree.root, op.output, mappedTree.staticDocuments).render
   } yield res
 
 }
