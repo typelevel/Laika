@@ -29,6 +29,7 @@ import laika.helium.generate._
 import laika.io.model.{InputTree, ParsedTree}
 import laika.io.theme.Theme
 import laika.rewrite.DefaultTemplatePath
+import laika.rewrite.nav.TitleDocumentConfig
 
 /**
   * @author Jens Halm
@@ -37,7 +38,7 @@ case class Helium (fontResources: Seq[FontDefinition],
                    themeFonts: ThemeFonts,
                    fontSizes: FontSizes,
                    colors: ColorSet,
-                   landingPage: LandingPage,
+                   landingPage: Option[LandingPage],
                    webLayout: WebLayout,
                    pdfLayout: PDFLayout) {
   
@@ -147,10 +148,25 @@ case class Helium (fontResources: Seq[FontDefinition],
       Sync[F].pure(result)
     }
     
+    def addLandingPage: Kleisli[F, ParsedTree[F], ParsedTree[F]] = Kleisli { tree =>
+      val landingPageContent = tree.root.tree.content.collectFirst { 
+        case d: Document if d.path.withoutSuffix.name == "landing-page" => d.content 
+      }.getOrElse(RootElement.empty)
+      val titleDocument = tree.root.titleDocument.fold(
+        Document(Root / TitleDocumentConfig.inputName(tree.root.config), landingPageContent)
+      ) { titleDoc =>
+        titleDoc.copy(content = RootElement(titleDoc.content.content ++ landingPageContent.content))
+      }
+      Sync[F].pure(tree.copy(root = tree.root.copy(tree = tree.root.tree.copy(titleDocument = Some(titleDocument)))))
+    }
+    
     new Theme[F] {
       def inputs = themeInputs
       def extensions = Seq(bundle)
-      def treeProcessor = { case format => addToc(format) }
+      def treeProcessor = { 
+        case HTML => addToc(HTML).andThen(addLandingPage)
+        case format => addToc(format)
+      }
     }
   } 
   
@@ -195,7 +211,7 @@ object Helium {
         )
       )
     ),
-    LandingPage(),
+    None,
     WebLayout(
       contentWidth = px(860), 
       navigationWidth = px(275),
