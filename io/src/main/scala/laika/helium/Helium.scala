@@ -22,7 +22,7 @@ import laika.ast.LengthUnit.{cm, mm, pt, px}
 import laika.ast.Path.Root
 import laika.ast._
 import laika.bundle.{BundleOrigin, ExtensionBundle, Precedence}
-import laika.config.{Config, ConfigBuilder, ConfigEncoder}
+import laika.config.{Config, ConfigBuilder, ConfigEncoder, LaikaKeys}
 import laika.factory.Format
 import laika.format.{EPUB, HTML, XSLFO}
 import laika.helium.generate._
@@ -157,7 +157,10 @@ case class Helium (fontResources: Seq[FontDefinition],
       ) { titleDoc =>
         titleDoc.copy(content = RootElement(titleDoc.content.content ++ landingPageContent.content))
       }
-      Sync[F].pure(tree.copy(root = tree.root.copy(tree = tree.root.tree.copy(titleDocument = Some(titleDocument)))))
+      val titleDocWithTemplate = 
+        if (titleDocument.config.hasKey(LaikaKeys.template)) titleDocument
+        else titleDocument.copy(config = titleDocument.config.withValue(LaikaKeys.template, "landing-template.html").build)
+      Sync[F].pure(tree.copy(root = tree.root.copy(tree = tree.root.tree.copy(titleDocument = Some(titleDocWithTemplate)))))
     }
     
     new Theme[F] {
