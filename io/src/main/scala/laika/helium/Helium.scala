@@ -177,31 +177,32 @@ case class Helium (fontResources: Seq[FontDefinition],
           name + "-" + versionPart + classifier + "." + suffix
         }
       
-        def downloadConfig (link: Path, title: String): ObjectValue = ConfigEncoder.ObjectBuilder.empty
-          .withValue("title", title)
-          .withValue("coverImage", Option.empty[Path]) // TODO - rework cover image config
-          .withValue("link", link) // TODO - must be linked to plugin config (artifactNameBuilder and downloadPath)
-          .build
+        def downloadAST (link: Path, title: String): TitledBlock = TitledBlock(Seq(
+          Text(title)
+        ), Seq(
+          // TODO - rework cover image config and insert link (optional)
+          Paragraph(SpanLink(Seq(Text("Download")), InternalTarget.fromPath(link, Root / "downloads"))) // TODO - must be linked to plugin config (artifactNameBuilder and downloadPath)
+        ))
         
         Kleisli { tree =>
           val combinations: Seq[Seq[ChoiceConfig]] = ChoiceGroupsConfig
             .createChoiceCombinationsConfig(tree.root.config)
-          val downloads: Seq[ArrayValue] = combinations.map { combination =>
+          val downloads: Seq[Block] = combinations.map { combination =>
             val baseTitle = combination.map(_.label).mkString(" - ")
             // TODO - needs project name and version here
             val epubLink = Root / "downloads" / createArtifactName("TODO", "TODO", "EPUB", Some(combination.map(_.name).mkString("-")))
             val pdfLink = Root / "downloads" / createArtifactName("TODO", "TODO", "PDF", Some(combination.map(_.name).mkString("-")))
-            ArrayValue(Seq(
-              downloadConfig(epubLink, baseTitle + " (EPUB)"),
-              downloadConfig(pdfLink, baseTitle + " (PDF)")
-            ))
+            BlockSequence(
+              downloadAST(epubLink, baseTitle + " (EPUB)"),
+              downloadAST(pdfLink, baseTitle + " (PDF)")
+            ).withOptions(Styles("downloads"))
           }
-          val doc = Document(Root / "downloads", RootElement(Title(pageConfig.title) +: pageConfig.description.map(Paragraph(_)).toSeq))
+          val blocks = Title(pageConfig.title) +: pageConfig.description.map(Paragraph(_)).toSeq ++: downloads
+          val doc = Document(Root / "downloads", RootElement(blocks))
           Sync[F].pure(tree.copy(
             root = tree.root.copy(
               tree = tree.root.tree.copy(
                 content = doc +: tree.root.tree.content,
-                config = tree.root.config.withValue("helium.downloads", ArrayValue(downloads)).build
               )
             )
           ))
