@@ -108,9 +108,11 @@ case class Helium (fontResources: Seq[FontDefinition],
         .build
     }
     
-    val landingPageConfig: Config = ConfigBuilder.empty
-      .withValue("helium.landingPage", landingPage)
-      .build
+    val landingPageConfig: Config = landingPage.fold(ConfigBuilder.empty.build) { pageConfig =>
+      ConfigBuilder.empty
+        .withValue("helium.landingPage", pageConfig)
+        .build
+    }
     
     val bundle: ExtensionBundle = new ExtensionBundle {
       override val origin: BundleOrigin = BundleOrigin.Theme
@@ -148,26 +150,32 @@ case class Helium (fontResources: Seq[FontDefinition],
       Sync[F].pure(result)
     }
     
-    def addLandingPage: Kleisli[F, ParsedTree[F], ParsedTree[F]] = Kleisli { tree =>
-      val landingPageContent = tree.root.tree.content.collectFirst { 
-        case d: Document if d.path.withoutSuffix.name == "landing-page" => d.content 
-      }.getOrElse(RootElement.empty)
-      val titleDocument = tree.root.titleDocument.fold(
-        Document(Root / TitleDocumentConfig.inputName(tree.root.config), landingPageContent)
-      ) { titleDoc =>
-        titleDoc.copy(content = RootElement(titleDoc.content.content ++ landingPageContent.content))
+    def addLandingPage: Kleisli[F, ParsedTree[F], ParsedTree[F]] = landingPage.fold(Kleisli.ask[F, ParsedTree[F]]) { _ => 
+      Kleisli { tree =>
+        val landingPageContent = tree.root.tree.content.collectFirst { 
+          case d: Document if d.path.withoutSuffix.name == "landing-page" => d.content 
+        }.getOrElse(RootElement.empty)
+        val titleDocument = tree.root.titleDocument.fold(
+          Document(Root / TitleDocumentConfig.inputName(tree.root.config), landingPageContent)
+        ) { titleDoc =>
+          titleDoc.copy(content = RootElement(titleDoc.content.content ++ landingPageContent.content))
+        }
+        val titleDocWithTemplate = 
+          if (titleDocument.config.hasKey(LaikaKeys.template)) titleDocument
+          else titleDocument.copy(config = titleDocument.config.withValue(LaikaKeys.template, "landing-template.html").build)
+        Sync[F].pure(tree.copy(root = tree.root.copy(tree = tree.root.tree.copy(titleDocument = Some(titleDocWithTemplate)))))
       }
-      val titleDocWithTemplate = 
-        if (titleDocument.config.hasKey(LaikaKeys.template)) titleDocument
-        else titleDocument.copy(config = titleDocument.config.withValue(LaikaKeys.template, "landing-template.html").build)
-      Sync[F].pure(tree.copy(root = tree.root.copy(tree = tree.root.tree.copy(titleDocument = Some(titleDocWithTemplate)))))
+    }
+
+    def addDownloadPage: Kleisli[F, ParsedTree[F], ParsedTree[F]] = Kleisli { tree =>
+      Sync[F].pure(tree)
     }
     
     new Theme[F] {
       def inputs = themeInputs
       def extensions = Seq(bundle)
       def treeProcessor = { 
-        case HTML => addToc(HTML).andThen(addLandingPage)
+        case HTML => addToc(HTML).andThen(addLandingPage).andThen(addDownloadPage)
         case format => addToc(format)
       }
     }
