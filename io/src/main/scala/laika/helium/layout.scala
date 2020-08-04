@@ -35,7 +35,7 @@ case class PDFLayout (pageWidth: Size, pageHeight: Size,
 
 case class TableOfContent (title: String, depth: Int)
 
-case class DownloadPage (title: String, includeEPUB: Boolean, includePDF: Boolean)
+case class DownloadPage (title: String, description: Option[String], includeEPUB: Boolean = true, includePDF: Boolean = true)
 
 case class LandingPage (logo: Option[Image] = None,
                         title: Option[String] = None,

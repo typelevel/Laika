@@ -38,6 +38,23 @@ object ChoiceGroupsConfig {
   implicit val decoder: ConfigDecoder[ChoiceGroupsConfig] = ConfigDecoder.seq[ChoiceGroupConfig].map(ChoiceGroupsConfig.apply)
 
   implicit val encoder: ConfigEncoder[ChoiceGroupsConfig] = ConfigEncoder.seq[ChoiceGroupConfig].contramap(_.choices)
+
+  def createChoiceCombinationsConfig (config: Config): Seq[Seq[ChoiceConfig]] = {
+
+    def createCombinations (value: ChoiceGroupsConfig): Seq[Seq[ChoiceConfig]] =
+      value.choices
+        .filter(_.separateEbooks)
+        .map(_.choices.toChain.toList.map(List(_)))
+        .reduceLeftOption { (as, bs) =>
+          for {a <- as; b <- bs} yield a ++ b
+        }
+        .getOrElse(Nil)
+
+    config.get[ChoiceGroupsConfig].fold(
+      _ => Nil,
+      choiceGroups => createCombinations(choiceGroups)
+    )
+  }
   
   def createChoiceCombinations (config: Config): NonEmptyChain[(Config, Classifiers)] = {
     
