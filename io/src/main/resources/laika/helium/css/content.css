@@ -149,6 +149,21 @@ blockquote {
   font-style: italic;
 }
 
+table {
+  margin: 20px 0;
+  border: 1px solid #dddddd;
+  border-collapse: collapse;
+}
+thead > tr {
+  border-bottom: 1px solid #dddddd;
+}
+td {
+  padding: 5px 8px;
+}
+tbody > tr:nth-child(odd) {
+  background: #f2f2f2
+}
+
 .tab-container {
   margin-top: 18px;
 }
