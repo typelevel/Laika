@@ -21,14 +21,12 @@ import java.util.concurrent.Executors
 import cats.effect.{Blocker, ContextShift, IO}
 import cats.implicits._
 import laika.api.Renderer
-import laika.ast.Path.Root
 import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
 import laika.format._
 import laika.io.config.SiteConfig
 import laika.io.implicits._
 import laika.io.model._
 import laika.rewrite.nav.ChoiceGroupsConfig
-import laika.sbt.LaikaPlugin.ArtifactDescriptor
 import laika.sbt.LaikaPlugin.autoImport._
 import sbt.Keys._
 import sbt._
@@ -92,6 +90,7 @@ object Tasks {
     val parser = Settings.parser.value
     val downloadPath = (laikaSite / target).value / SiteConfig.downloadPath(parser.config.baseConfig).relative.toString
     val apiPath = SiteConfig.apiPath(parser.config.baseConfig)
+    val artifactBaseName = Settings.artifactBaseName.value
 
     lazy val tree = {
       val inputs = generateAPI.value.foldLeft(laikaInputs.value.delegate) {
@@ -135,13 +134,11 @@ object Tasks {
       
       downloadPath.mkdirs()
       
-      val artifactDesc = ArtifactDescriptor(name.value, version.value, format.interimFormat.fileSuffix)
-      val nameBuilder = laikaArtifactNameBuilder.value
-      
       val roots = ChoiceGroupsConfig.createChoiceCombinations(tree.root)
       val ops = roots.map { case (root, classifiers) =>
-        val classifier = if (classifiers.value.isEmpty) None else Some(classifiers.value.mkString("-"))
-        val file = downloadPath / nameBuilder(artifactDesc.copy(classifier = classifier))
+        val classifier = if (classifiers.value.isEmpty) "" else "-" + classifiers.value.mkString("-")
+        val docName = artifactBaseName + classifier + "." + format.interimFormat.fileSuffix
+        val file = downloadPath / docName
         Renderer
           .of(format)
           .withConfig(parser.config)
@@ -209,8 +206,7 @@ object Tasks {
     * API documentation and PDF/EPUB files into a zip archive.
     */
   val packageSite: Initialize[Task[File]] = task {
-    val artifactDesc = ArtifactDescriptor(name.value, version.value, "zip")
-    val artifactName = laikaArtifactNameBuilder.value(artifactDesc)
+    val artifactName = Settings.artifactBaseName.value + ".zip"
     val zipFile = (Laika / target).value / artifactName
     streams.value.log.info(s"Packaging $zipFile ...")
 

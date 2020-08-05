@@ -40,6 +40,8 @@ object LaikaKeys {
   
   val navigationOrder: Key = root.child("navigationOrder")
   
+  val artifactBaseName: Key = root.child("artifactBaseName")
+  
   object titleDocuments {
     val inputName: Key = root.child(Key("titleDocuments","inputName"))
     val outputName: Key = root.child(Key("titleDocuments","outputName"))

@@ -81,9 +81,6 @@ object LaikaPlugin extends AutoPlugin {
   val requirements = plugins.JvmPlugin
   override val trigger = noTrigger
 
-  case class ArtifactDescriptor (name: String, version: String, suffix: String, classifier: Option[String] = None)
-  type ArtifactNameBuilder = ArtifactDescriptor => String
-
   object autoImport extends ExtensionBundles {
 
     implicit class InputTreeBuilder (val delegate: laika.io.model.InputTreeBuilder[IO]) // settingKey macro does not accept HK types
@@ -114,8 +111,6 @@ object LaikaPlugin extends AutoPlugin {
     
     val laikaInputs       = settingKey[InputTreeBuilder]("Freely composed input tree, overriding sourceDirectories")
     
-    val laikaArtifactNameBuilder = settingKey[ArtifactNameBuilder]("Function for building the names of artifacts (PDF, EPUB, ZIP)")
-
 
     val laikaGenerateAPI  = taskKey[Seq[String]]("Generates API documentation and moves it to the site's API target")
     
@@ -148,7 +143,6 @@ object LaikaPlugin extends AutoPlugin {
     laikaSite / target        := (Laika / target).value / "site",
     laikaXSLFO / target       := (Laika / target).value / "fo",
     laikaAST / target         := (Laika / target).value / "ast",
-    laikaArtifactNameBuilder  := Settings.createArtifactName,
 
     laikaExtensions         := Nil,
     laikaConfig             := LaikaConfig(),

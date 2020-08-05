@@ -214,7 +214,7 @@ object DocumentMetadata {
       authors    <- config.get[Seq[String]]("authors", Nil)
       lang       <- config.getOpt[String]("language")
       date       <- config.getOpt[Date]("date")
-      version    <- config.getOpt[Date]("version")
+      version    <- config.getOpt[String]("version")
     } yield {
       DocumentMetadata(title, description, identifier, authors ++ author.toSeq, lang, date, version)
     }

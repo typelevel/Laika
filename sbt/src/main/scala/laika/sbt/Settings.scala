@@ -27,7 +27,6 @@ import laika.format.{HTML, Markdown, ReStructuredText}
 import laika.io.api.TreeParser
 import laika.io.implicits._
 import laika.io.model.{InputTree, InputTreeBuilder}
-import laika.sbt.LaikaPlugin.ArtifactDescriptor
 import laika.sbt.LaikaPlugin.autoImport._
 import sbt.Keys._
 import sbt._
@@ -98,6 +97,7 @@ object Settings {
       .withValue(LaikaKeys.metadata.child("title"), name.value)
       .withValue(LaikaKeys.metadata.child("description"), description.value)
       .withValue(LaikaKeys.metadata.child("version"), version.value)
+      .withValue(LaikaKeys.artifactBaseName, name.value + "-" + version.value.split('.').take(2).mkString("."))
       .build
     val userConfig = laikaConfig.value
 
@@ -118,19 +118,9 @@ object Settings {
       .withAlternativeParser(createParser(ReStructuredText))
       .build
   }
-
-
-  /** Builds the artifact name based on its descriptor.
-    * 
-    * The default implementation provides a name in the form of `<project-name>-<version>-<classifier>.<suffix>`.
-    * Classifier may be empty in which case the preceding dash will also be omitted.
-    * The version will by default only contain major and minor digits,
-    * assuming that it is rare to publish separate documentation for bugfix releases.
-    */
-  def createArtifactName(desc: ArtifactDescriptor): String = {
-    val classifier = desc.classifier.fold("")("-"+_)
-    val version = desc.version.split('.').take(2).mkString(".")
-    desc.name + "-" + version + classifier + "." + desc.suffix
+  
+  val artifactBaseName: Initialize[String] = setting {
+    parser.value.config.baseConfig.get[String](LaikaKeys.artifactBaseName).getOrElse(name.value)
   }
 
   /** The set of targets for the transformation tasks of all supported output formats.
