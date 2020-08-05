@@ -22,15 +22,12 @@ import laika.ast.LengthUnit.{cm, mm, pt, px}
 import laika.ast.Path.Root
 import laika.ast._
 import laika.bundle.{BundleOrigin, ExtensionBundle, Precedence}
-import laika.config.{Config, ConfigBuilder, ConfigEncoder, LaikaKeys}
-import laika.factory.Format
-import laika.format.{EPUB, HTML, XSLFO}
+import laika.config.{Config, ConfigBuilder}
+import laika.format.HTML
 import laika.helium.generate._
-import laika.io.config.SiteConfig
 import laika.io.model.{InputTree, ParsedTree}
 import laika.io.theme.Theme
 import laika.rewrite.DefaultTemplatePath
-import laika.rewrite.nav.{ChoiceConfig, ChoiceGroupsConfig, CoverImage, CoverImages, TitleDocumentConfig}
 
 /**
   * @author Jens Halm
@@ -41,7 +38,7 @@ case class Helium (fontResources: Seq[FontDefinition],
                    colors: ColorSet,
                    landingPage: Option[LandingPage],
                    webLayout: WebLayout,
-                   pdfLayout: PDFLayout) {
+                   pdfLayout: PDFLayout) { self =>
   
   /*
   def withFontFamilies (body: String, header: String, code: String) = withFontFamilies(EPUB, PDF, HTML)(...)
@@ -49,7 +46,9 @@ case class Helium (fontResources: Seq[FontDefinition],
   */
   
   def build[F[_]: Sync]: Theme[F] = {
-    
+
+    val noOp: Kleisli[F, ParsedTree[F], ParsedTree[F]] = Kleisli.ask[F, ParsedTree[F]]
+
     val themeInputs = InputTree[F]
       .addTemplate(TemplateDocument(DefaultTemplatePath.forHTML, new HTMLTemplate(this).root))
       .addTemplate(TemplateDocument(DefaultTemplatePath.forEPUB, EPUBTemplate.default))
@@ -75,160 +74,26 @@ case class Helium (fontResources: Seq[FontDefinition],
         Replace(bs.mergeOptions(Style.keepTogether))
     }
     
-    implicit val releaseEncoder: ConfigEncoder[ReleaseInfo] = ConfigEncoder[ReleaseInfo] { releaseInfo =>
-      ConfigEncoder.ObjectBuilder.empty
-        .withValue("title", releaseInfo.title)
-        .withValue("version", releaseInfo.version)
-        .build
-    }
-
-    implicit val linkEncoder: ConfigEncoder[LandingPageLink] = ConfigEncoder[LandingPageLink] { link =>
-      ConfigEncoder.ObjectBuilder.empty
-        .withValue("text", link.text)
-        .withValue("version", link match { case e: ExternalLink => e.target; case i: InternalLink => i.target.toString })
-        .build
-    }
-    
-    implicit val teaserEncoder: ConfigEncoder[Teaser] = ConfigEncoder[Teaser] { teaser =>
-      ConfigEncoder.ObjectBuilder.empty
-        .withValue("title", teaser.title)
-        .withValue("description", teaser.description)
-        .build
-    }
-    
-    implicit val landingPageEncoder: ConfigEncoder[LandingPage] = ConfigEncoder[LandingPage] { landingPage =>
-      ConfigEncoder.ObjectBuilder.empty
-        .withValue("logo", landingPage.logo)
-        .withValue("title", landingPage.title)
-        .withValue("subtitle", landingPage.subtitle)
-        .withValue("latestReleases", landingPage.latestReleases)
-        .withValue("license", landingPage.license)
-        .withValue("documentationLinks", landingPage.documentationLinks)
-        .withValue("projectLinks", landingPage.projectLinks)
-        .withValue("teasers", landingPage.teasers) // TODO - change to teaserRows
-        .build
-    }
-    
-    val landingPageConfig: Config = landingPage.fold(ConfigBuilder.empty.build) { pageConfig =>
-      ConfigBuilder.empty
-        .withValue("helium.landingPage", pageConfig)
-        .build
-    }
-    
     val bundle: ExtensionBundle = new ExtensionBundle {
       override val origin: BundleOrigin = BundleOrigin.Theme
-      val description = "Helium Theme Rewrite Rules"
+      val description = "Helium Theme Rewrite Rules and Render Overrides"
       override val rewriteRules: Seq[DocumentCursor => RewriteRules] = Seq(_ => rewriteRule)
       override val renderOverrides = Seq(HTML.Overrides(HeliumRenderOverrides.create(webLayout.anchorPlacement)))
-      override val baseConfig: Config = landingPageConfig
-    }
-    
-    def addToc (format: Format): Kleisli[F, ParsedTree[F], ParsedTree[F]] = Kleisli { tree =>
-      val toc = format match {
-        case HTML => webLayout.tableOfContent
-        case EPUB.XHTML => webLayout.tableOfContent // TODO - create EPUBLayout
-        case XSLFO => pdfLayout.tableOfContent
-        case _ => None
-      }
-      val result = toc.fold(tree) { tocConf =>
-        if (tocConf.depth < 1) tree
-        else {
-          val navContext = NavigationBuilderContext(
-            refPath = Root, 
-            itemStyles = Set("toc"), 
-            maxLevels = tocConf.depth,
-            currentLevel = 0)
-          val navItem = tree.root.tree.asNavigationItem(navContext)
-          val navList = NavigationList(navItem.content, Styles("toc"))
-          val title = Title(tocConf.title)
-          val root = RootElement(title, navList)
-          val doc = Document(Root / "table-of-contents", root)
-          val oldTree = tree.root.tree
-          val newTree = tree.copy(root = tree.root.copy(tree = oldTree.copy(content = doc +: oldTree.content)))
-          newTree
-        } 
-      }
-      Sync[F].pure(result)
-    }
-    
-    def addLandingPage: Kleisli[F, ParsedTree[F], ParsedTree[F]] = landingPage.fold(Kleisli.ask[F, ParsedTree[F]]) { _ => 
-      Kleisli { tree =>
-        val landingPageContent = tree.root.tree.content.collectFirst { 
-          case d: Document if d.path.withoutSuffix.name == "landing-page" => d.content 
-        }.getOrElse(RootElement.empty)
-        val titleDocument = tree.root.titleDocument.fold(
-          Document(Root / TitleDocumentConfig.inputName(tree.root.config), landingPageContent)
-        ) { titleDoc =>
-          titleDoc.copy(content = RootElement(titleDoc.content.content ++ landingPageContent.content))
-        }
-        val titleDocWithTemplate = 
-          if (titleDocument.config.hasKey(LaikaKeys.template)) titleDocument
-          else titleDocument.copy(config = titleDocument.config.withValue(LaikaKeys.template, "landing-template.html").build)
-        Sync[F].pure(tree.copy(root = tree.root.copy(tree = tree.root.tree.copy(titleDocument = Some(titleDocWithTemplate)))))
-      }
+      override val baseConfig: Config = landingPage.fold(ConfigBuilder.empty.build)(LandingPageGenerator.populateConfig)
     }
 
     def addDownloadPage: Kleisli[F, ParsedTree[F], ParsedTree[F]] = webLayout.downloadPage
       .filter(p => p.includeEPUB || p.includePDF)
-      .fold(Kleisli.ask[F, ParsedTree[F]]) { pageConfig =>
+      .fold(noOp)(DownloadPageGenerator.generate)
 
-        val refPath: Path = Root / "downloads"
-        
-        def downloadAST (link: Path, title: String, coverImage: Option[Path]): TitledBlock = TitledBlock(Seq(
-          Text(title)
-        ), coverImage.map(img => Paragraph(Image(title, InternalTarget.fromPath(img, refPath)))).toSeq ++ Seq(
-          Paragraph(SpanLink(Seq(Text("Download")), InternalTarget.fromPath(link, refPath)))
-        ))
-        
-        Kleisli { tree =>
-
-          val epubCoverImages = CoverImages.forEPUB(tree.root.config)
-          val pdfCoverImages = CoverImages.forPDF(tree.root.config)
-          
-          val artifactBaseName = tree.root.config.get[String](LaikaKeys.artifactBaseName).getOrElse("download")
-          val downloadPath = SiteConfig.downloadPath(tree.root.config)
-          
-          val combinations: Seq[Seq[ChoiceConfig]] = ChoiceGroupsConfig
-            .createChoiceCombinationsConfig(tree.root.config)
-          val downloads: Seq[Block] =
-            if (combinations.isEmpty) {
-              val epubLink = downloadPath / s"$artifactBaseName.epub"
-              val pdfLink = downloadPath / s"$artifactBaseName.pdf"
-              Seq(
-                BlockSequence(
-                  downloadAST(epubLink, "EPUB", epubCoverImages.default),
-                  downloadAST(pdfLink, "PDF", pdfCoverImages.default)
-                ).withOptions(Styles("downloads"))
-              )
-            }
-            else combinations.map { combination =>
-              val baseTitle = combination.map(_.label).mkString(" - ")
-              val classifier = combination.map(_.name).mkString("-")
-              val epubLink = downloadPath / s"$artifactBaseName-$classifier.epub"
-              val pdfLink = downloadPath / s"$artifactBaseName-$classifier.pdf"
-              BlockSequence(
-                downloadAST(epubLink, baseTitle + " (EPUB)", epubCoverImages.getImageFor(classifier)),
-                downloadAST(pdfLink, baseTitle + " (PDF)", pdfCoverImages.getImageFor(classifier))
-              ).withOptions(Styles("downloads"))
-            }
-          val blocks = Title(pageConfig.title) +: pageConfig.description.map(Paragraph(_)).toSeq ++: downloads
-          val doc = Document(Root / "downloads", RootElement(blocks))
-          Sync[F].pure(tree.copy(
-            root = tree.root.copy(
-              tree = tree.root.tree.copy(
-                content = doc +: tree.root.tree.content,
-              )
-            )
-          ))
-        }
-      }
-    
     new Theme[F] {
       def inputs = themeInputs
       def extensions = Seq(bundle)
       def treeProcessor = { 
-        case HTML => addDownloadPage.andThen(addToc(HTML)).andThen(addLandingPage)
-        case format => addToc(format)
+        case HTML => addDownloadPage
+          .andThen(TocPageGenerator.generate(self, HTML))
+          .andThen(landingPage.fold(noOp)(LandingPageGenerator.generate))
+        case format => TocPageGenerator.generate(self, format)
       }
     }
   } 
