@@ -194,17 +194,28 @@ case class Helium (fontResources: Seq[FontDefinition],
           
           val combinations: Seq[Seq[ChoiceConfig]] = ChoiceGroupsConfig
             .createChoiceCombinationsConfig(tree.root.config)
-          val downloads: Seq[Block] = combinations.map { combination =>
-            val baseTitle = combination.map(_.label).mkString(" - ")
-            val classifier = combination.map(_.name).mkString("-")
-            val coverImage = classifiedCoverMap.get(classifier).orElse(defaultCoverImage)
-            val epubLink = downloadPath / s"$artifactBaseName-$classifier.epub"
-            val pdfLink = downloadPath / s"$artifactBaseName-$classifier.pdf"
-            BlockSequence(
-              downloadAST(epubLink, baseTitle + " (EPUB)", coverImage),
-              downloadAST(pdfLink, baseTitle + " (PDF)", coverImage)
-            ).withOptions(Styles("downloads"))
-          }
+          val downloads: Seq[Block] =
+            if (combinations.isEmpty) {
+              val epubLink = downloadPath / s"$artifactBaseName.epub"
+              val pdfLink = downloadPath / s"$artifactBaseName.pdf"
+              Seq(
+                BlockSequence(
+                  downloadAST(epubLink, "EPUB", defaultCoverImage),
+                  downloadAST(pdfLink, "PDF", defaultCoverImage)
+                ).withOptions(Styles("downloads"))
+              )
+            }
+            else combinations.map { combination =>
+              val baseTitle = combination.map(_.label).mkString(" - ")
+              val classifier = combination.map(_.name).mkString("-")
+              val coverImage = classifiedCoverMap.get(classifier).orElse(defaultCoverImage)
+              val epubLink = downloadPath / s"$artifactBaseName-$classifier.epub"
+              val pdfLink = downloadPath / s"$artifactBaseName-$classifier.pdf"
+              BlockSequence(
+                downloadAST(epubLink, baseTitle + " (EPUB)", coverImage),
+                downloadAST(pdfLink, baseTitle + " (PDF)", coverImage)
+              ).withOptions(Styles("downloads"))
+            }
           val blocks = Title(pageConfig.title) +: pageConfig.description.map(Paragraph(_)).toSeq ++: downloads
           val doc = Document(Root / "downloads", RootElement(blocks))
           Sync[F].pure(tree.copy(
