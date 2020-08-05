@@ -32,6 +32,8 @@ case class CoverImage (path: Path, classifier: Option[String])
 
 object CoverImage {
 
+  def apply (path: Path, classifier: String): CoverImage = CoverImage(path, Some(classifier))
+  
   implicit val decoder: ConfigDecoder[CoverImage] = ConfigDecoder.config.flatMap { config =>
     for {
       path       <- config.get[Path]("path")

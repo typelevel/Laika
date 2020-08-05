@@ -17,10 +17,12 @@
 package laika.rewrite
 
 import cats.data.{NonEmptyChain, NonEmptyVector}
+import laika.ast.Path
+import laika.ast.Path.Root
 import laika.ast.helper.ModelBuilder
 import laika.config.Config.ConfigResult
-import laika.config.{Config, ConfigBuilder}
-import laika.rewrite.nav.{ChoiceConfig, ChoiceGroupConfig, ChoiceGroupsConfig, Classifiers}
+import laika.config.{Config, ConfigBuilder, LaikaKeys}
+import laika.rewrite.nav.{ChoiceConfig, ChoiceGroupConfig, ChoiceGroupsConfig, Classifiers, CoverImage}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
@@ -48,6 +50,9 @@ class ChoiceGroupsConfigSpec extends AnyWordSpec
 
   def run (config: Config): NonEmptyVector[ConfigResult[ChoiceGroupsConfig]] =
     ChoiceGroupsConfig.createChoiceCombinations(config).toNonEmptyVector.map(_._1.get[ChoiceGroupsConfig])
+
+  def runAndGetCoverImage (config: Config): NonEmptyVector[ConfigResult[Path]] =
+    ChoiceGroupsConfig.createChoiceCombinations(config).toNonEmptyVector.map(_._1.get[Path](LaikaKeys.coverImage))
 
   "ChoiceGroupsConfig.createChoiceCombinations" should {
 
@@ -108,6 +113,30 @@ class ChoiceGroupsConfigSpec extends AnyWordSpec
       result.get(1) shouldBe Some(Right(groups(0,1)))
       result.get(2) shouldBe Some(Right(groups(1,0)))
       result.get(3) shouldBe Some(Right(groups(1,1)))
+    }
+
+    "should use per-classifier cover image configuration" in {
+      val config = ConfigBuilder.empty
+        .withValue(ChoiceGroupsConfig(Seq(groupFooSeparate)))
+        .withValue(LaikaKeys.coverImage, Root / "default.png")
+        .withValue(LaikaKeys.coverImages, Seq(CoverImage(Root / "foo-a.png", "foo-a"), CoverImage(Root / "foo-b.png", "foo-b")))
+        .build
+      val result = runAndGetCoverImage(config)
+      result.length shouldBe 2
+      result.get(0) shouldBe Some(Right(Root / "foo-a.png"))
+      result.get(1) shouldBe Some(Right(Root / "foo-b.png"))
+    }
+
+    "should use the default cover image if none has been specified for a classifier" in {
+      val defaultPath = Root / "default.png"
+      val config = ConfigBuilder.empty
+        .withValue(ChoiceGroupsConfig(Seq(groupFooSeparate)))
+        .withValue(LaikaKeys.coverImage, defaultPath)
+        .build
+      val result = runAndGetCoverImage(config)
+      result.length shouldBe 2
+      result.get(0) shouldBe Some(Right(defaultPath))
+      result.get(1) shouldBe Some(Right(defaultPath))
     }
   }
 
