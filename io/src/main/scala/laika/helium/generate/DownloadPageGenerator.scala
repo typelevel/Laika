@@ -31,7 +31,7 @@ import laika.rewrite.nav.{ChoiceConfig, ChoiceGroupsConfig, CoverImages}
   */
 private[laika] object DownloadPageGenerator {
 
-  def generate[F: Sync](pageConfig: DownloadPage): Kleisli[F, ParsedTree[F], ParsedTree[F]] = {
+  def generate[F[_]: Sync](pageConfig: DownloadPage): Kleisli[F, ParsedTree[F], ParsedTree[F]] = {
 
     val refPath: Path = Root / "downloads"
 

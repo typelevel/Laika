@@ -37,7 +37,7 @@ private[laika] object TocPageGenerator {
       case XSLFO => helium.pdfLayout.tableOfContent
       case _ => None
     }).filter(_.depth > 0)
-    tocConfig.fold[Kleisli[F, ParsedTree[F], ParsedTree[F]]](Kleisli(Sync[F].pure))(TocPageGenerator.generate)
+    tocConfig.fold[Kleisli[F, ParsedTree[F], ParsedTree[F]]](Kleisli(Sync[F].pure))(generate(_))
   }
   
   def generate[F[_]: Sync](tocConfig: TableOfContent): Kleisli[F, ParsedTree[F], ParsedTree[F]] = Kleisli { tree =>

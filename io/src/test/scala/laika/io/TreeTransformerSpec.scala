@@ -491,7 +491,7 @@ class TreeTransformerSpec extends IOSpec with FileIO {
                        |  Support for user-defined reStructuredText directives (supplied by parser)
                        |  Standard directives for reStructuredText (supplied by parser)
                        |  Document Type Matcher for reStructuredText (supplied by parser)
-                       |  Helium Theme Rewrite Rules (supplied by theme)
+                       |  Helium Theme Rewrite Rules and Render Overrides (supplied by theme)
                        |Settings:
                        |  Strict Mode: false
                        |  Accept Raw Content: false

@@ -16,8 +16,11 @@
 
 package laika.helium
 
+import java.io.{InputStream, SequenceInputStream}
+
+import cats.implicits._
 import cats.data.Kleisli
-import cats.effect.Sync
+import cats.effect.{Resource, Sync}
 import laika.ast.LengthUnit.{cm, mm, pt, px}
 import laika.ast.Path.Root
 import laika.ast._
@@ -25,7 +28,7 @@ import laika.bundle.{BundleOrigin, ExtensionBundle, Precedence}
 import laika.config.{Config, ConfigBuilder}
 import laika.format.HTML
 import laika.helium.generate._
-import laika.io.model.{InputTree, ParsedTree}
+import laika.io.model.{BinaryInput, InputTree, ParsedTree}
 import laika.io.theme.Theme
 import laika.rewrite.DefaultTemplatePath
 
@@ -47,7 +50,9 @@ case class Helium (fontResources: Seq[FontDefinition],
   
   def build[F[_]: Sync]: Theme[F] = {
 
-    val noOp: Kleisli[F, ParsedTree[F], ParsedTree[F]] = Kleisli.ask[F, ParsedTree[F]]
+    type TreeProcessor = Kleisli[F, ParsedTree[F], ParsedTree[F]]
+    
+    val noOp: TreeProcessor = Kleisli.ask[F, ParsedTree[F]]
 
     val themeInputs = InputTree[F]
       .addTemplate(TemplateDocument(DefaultTemplatePath.forHTML, new HTMLTemplate(this).root))
@@ -82,9 +87,25 @@ case class Helium (fontResources: Seq[FontDefinition],
       override val baseConfig: Config = landingPage.fold(ConfigBuilder.empty.build)(LandingPageGenerator.populateConfig)
     }
 
-    def addDownloadPage: Kleisli[F, ParsedTree[F], ParsedTree[F]] = webLayout.downloadPage
+    def addDownloadPage = webLayout.downloadPage
       .filter(p => p.includeEPUB || p.includePDF)
       .fold(noOp)(DownloadPageGenerator.generate)
+    
+    def mergeCSS: TreeProcessor = Kleisli { tree =>
+      val css = Root / "css"
+      val webCSS = IndexedSeq(css / "vars.css", css / "container.css", css / "content.css", css / "nav.css", css / "code.css", css / "toc.css")
+      val (cssDocs, otherDocs) = tree.staticDocuments.partition(doc => webCSS.contains(doc.path))
+      val mergedInput = cssDocs.toList.map(_.input).sequence.flatMap { inputs =>
+        val iter = inputs.sortBy(webCSS.indexOf(_)).iterator
+        val enum = new java.util.Enumeration[InputStream] {
+          def hasMoreElements = iter.hasNext
+          def nextElement() = iter.next()
+        }
+        Resource.fromAutoCloseable(Sync[F].delay(new SequenceInputStream(enum)))
+      }
+      val newTree = tree.copy(staticDocuments = otherDocs :+ BinaryInput(css / "laika-helium.css", mergedInput))
+      Sync[F].pure(newTree)
+    }
 
     new Theme[F] {
       def inputs = themeInputs
@@ -93,6 +114,7 @@ case class Helium (fontResources: Seq[FontDefinition],
         case HTML => addDownloadPage
           .andThen(TocPageGenerator.generate(self, HTML))
           .andThen(landingPage.fold(noOp)(LandingPageGenerator.generate))
+          .andThen(mergeCSS)
         case format => TocPageGenerator.generate(self, format)
       }
     }

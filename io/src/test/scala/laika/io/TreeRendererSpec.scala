@@ -272,7 +272,7 @@ class TreeRendererSpec extends IOSpec
             DocumentViews(List(RenderedDocumentView(Root / "doc.html", expected)))
           )),
           Some(RenderedDocumentView(Root / "cover.html", expected)),
-          TestTheme.staticPaths
+          Seq(Root / "css" / "laika-helium.css")
         ))
       }
     }
