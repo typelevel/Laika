@@ -50,6 +50,12 @@ h1, h2, h3 {
 h1 {
   font-size: var(--title-font-size);
 }
+h1.title {
+  padding-top: 45px;
+  padding-bottom: 10px;
+  margin-bottom: 30px;
+  border-bottom: 1px solid #dddddd;
+}
 h2 {
   font-size: var(--header2-font-size);
   margin-top: 35px;
