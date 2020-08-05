@@ -186,7 +186,8 @@ case class DocumentMetadata (title: Option[String] = None,
                              identifier: Option[String] = None, 
                              authors: Seq[String] = Nil, 
                              language: Option[String] = None, 
-                             date: Option[Date] = None) {
+                             date: Option[Date] = None,
+                             version: Option[String] = None) {
 
   /** Populates all empty Options in this instance with the provided defaults in case they are non-empty
     */
@@ -196,7 +197,8 @@ case class DocumentMetadata (title: Option[String] = None,
     identifier.orElse(defaults.identifier),
     authors ++ defaults.authors,
     language.orElse(defaults.language),
-    date.orElse(defaults.date)
+    date.orElse(defaults.date),
+    version.orElse(defaults.version)
   )
   
 }
@@ -212,8 +214,9 @@ object DocumentMetadata {
       authors    <- config.get[Seq[String]]("authors", Nil)
       lang       <- config.getOpt[String]("language")
       date       <- config.getOpt[Date]("date")
+      version    <- config.getOpt[Date]("version")
     } yield {
-      DocumentMetadata(title, description, identifier, authors ++ author.toSeq, lang, date)
+      DocumentMetadata(title, description, identifier, authors ++ author.toSeq, lang, date, version)
     }
   }
   implicit val encoder: ConfigEncoder[DocumentMetadata] = ConfigEncoder[DocumentMetadata] { metadata =>
@@ -224,6 +227,7 @@ object DocumentMetadata {
       .withValue("authors", metadata.authors)
       .withValue("language", metadata.language)
       .withValue("date", metadata.date)
+      .withValue("version", metadata.version)
       .build
   }
   

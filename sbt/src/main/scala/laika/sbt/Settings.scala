@@ -97,6 +97,7 @@ object Settings {
     val fallback = ConfigBuilder.empty
       .withValue(LaikaKeys.metadata.child("title"), name.value)
       .withValue(LaikaKeys.metadata.child("description"), description.value)
+      .withValue(LaikaKeys.metadata.child("version"), version.value)
       .build
     val userConfig = laikaConfig.value
 

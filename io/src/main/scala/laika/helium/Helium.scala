@@ -170,13 +170,7 @@ case class Helium (fontResources: Seq[FontDefinition],
     def addDownloadPage: Kleisli[F, ParsedTree[F], ParsedTree[F]] = webLayout.downloadPage
       .filter(p => p.includeEPUB || p.includePDF)
       .fold(Kleisli.ask[F, ParsedTree[F]]) { pageConfig =>
-
-        def createArtifactName(name: String, version: String, suffix: String, optClassifier: Option[String] = None): String = {
-          val classifier = optClassifier.fold("")("-"+_)
-          val versionPart = version.split('.').take(2).mkString(".")
-          name + "-" + versionPart + classifier + "." + suffix
-        }
-      
+        
         def downloadAST (link: Path, title: String): TitledBlock = TitledBlock(Seq(
           Text(title)
         ), Seq(
@@ -185,13 +179,24 @@ case class Helium (fontResources: Seq[FontDefinition],
         ))
         
         Kleisli { tree =>
+          
+          val metadata = tree.root.config.get[DocumentMetadata](LaikaKeys.metadata).getOrElse(DocumentMetadata())
+
+          def createArtifactName(suffix: String, optClassifier: Option[String] = None): String = {
+            val nameParts = metadata.title.toSeq ++ 
+              metadata.version.map(_.split('.').take(2).mkString(".")).toSeq ++ 
+              optClassifier.toSeq
+            val baseName = if (nameParts.isEmpty) "download" else nameParts.mkString("-")
+             s"$baseName.$suffix"
+          }    
+          
           val combinations: Seq[Seq[ChoiceConfig]] = ChoiceGroupsConfig
             .createChoiceCombinationsConfig(tree.root.config)
           val downloads: Seq[Block] = combinations.map { combination =>
             val baseTitle = combination.map(_.label).mkString(" - ")
-            // TODO - needs project name and version here
-            val epubLink = Root / "downloads" / createArtifactName("TODO", "TODO", "EPUB", Some(combination.map(_.name).mkString("-")))
-            val pdfLink = Root / "downloads" / createArtifactName("TODO", "TODO", "PDF", Some(combination.map(_.name).mkString("-")))
+            val classifier = Some(combination.map(_.name).mkString("-"))
+            val epubLink = Root / "downloads" / createArtifactName("epub", classifier)
+            val pdfLink = Root / "downloads" / createArtifactName("pdf", classifier)
             BlockSequence(
               downloadAST(epubLink, baseTitle + " (EPUB)"),
               downloadAST(pdfLink, baseTitle + " (PDF)")
