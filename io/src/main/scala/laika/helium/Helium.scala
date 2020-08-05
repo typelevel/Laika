@@ -30,7 +30,7 @@ import laika.io.config.SiteConfig
 import laika.io.model.{InputTree, ParsedTree}
 import laika.io.theme.Theme
 import laika.rewrite.DefaultTemplatePath
-import laika.rewrite.nav.{ChoiceConfig, ChoiceGroupsConfig, TitleDocumentConfig}
+import laika.rewrite.nav.{ChoiceConfig, ChoiceGroupsConfig, CoverImage, TitleDocumentConfig}
 
 /**
   * @author Jens Halm
@@ -171,15 +171,23 @@ case class Helium (fontResources: Seq[FontDefinition],
     def addDownloadPage: Kleisli[F, ParsedTree[F], ParsedTree[F]] = webLayout.downloadPage
       .filter(p => p.includeEPUB || p.includePDF)
       .fold(Kleisli.ask[F, ParsedTree[F]]) { pageConfig =>
+
+        val refPath: Path = Root / "downloads"
         
-        def downloadAST (link: Path, title: String): TitledBlock = TitledBlock(Seq(
+        def downloadAST (link: Path, title: String, coverImage: Option[Path]): TitledBlock = TitledBlock(Seq(
           Text(title)
-        ), Seq(
-          // TODO - rework cover image config and insert link (optional)
-          Paragraph(SpanLink(Seq(Text("Download")), InternalTarget.fromPath(link, Root / "downloads")))
+        ), coverImage.map(img => Paragraph(Image(title, InternalTarget.fromPath(img, refPath)))).toSeq ++ Seq(
+          Paragraph(SpanLink(Seq(Text("Download")), InternalTarget.fromPath(link, refPath)))
         ))
         
         Kleisli { tree =>
+
+          val classifiedCoverImages = tree.root.config.get[Seq[CoverImage]](LaikaKeys.coverImages).getOrElse(Nil)
+          val defaultCoverImage = tree.root.config.getOpt[Path](LaikaKeys.coverImage).toOption.flatten
+            .orElse(classifiedCoverImages.find(_.classifier.isEmpty).map(_.path))
+          val classifiedCoverMap = classifiedCoverImages
+            .collect { case CoverImage(path, Some(classifier)) => (classifier, path) }
+            .toMap
           
           val artifactBaseName = tree.root.config.get[String](LaikaKeys.artifactBaseName).getOrElse("download")
           val downloadPath = SiteConfig.downloadPath(tree.root.config)
@@ -189,11 +197,12 @@ case class Helium (fontResources: Seq[FontDefinition],
           val downloads: Seq[Block] = combinations.map { combination =>
             val baseTitle = combination.map(_.label).mkString(" - ")
             val classifier = combination.map(_.name).mkString("-")
+            val coverImage = classifiedCoverMap.get(classifier).orElse(defaultCoverImage)
             val epubLink = downloadPath / s"$artifactBaseName-$classifier.epub"
             val pdfLink = downloadPath / s"$artifactBaseName-$classifier.pdf"
             BlockSequence(
-              downloadAST(epubLink, baseTitle + " (EPUB)"),
-              downloadAST(pdfLink, baseTitle + " (PDF)")
+              downloadAST(epubLink, baseTitle + " (EPUB)", coverImage),
+              downloadAST(pdfLink, baseTitle + " (PDF)", coverImage)
             ).withOptions(Styles("downloads"))
           }
           val blocks = Title(pageConfig.title) +: pageConfig.description.map(Paragraph(_)).toSeq ++: downloads

@@ -61,7 +61,9 @@ object ChoiceGroupsConfig {
     val classifiedCoverImages = config.get[Seq[CoverImage]](LaikaKeys.coverImages).getOrElse(Nil)
     val defaultCoverImage = config.getOpt[Path](LaikaKeys.coverImage).toOption.flatten
       .orElse(classifiedCoverImages.find(_.classifier.isEmpty).map(_.path))
-    val classifiedCoverMap = classifiedCoverImages.collect { case CoverImage(path, Some(classifier)) => (classifier, path) }.toMap
+    val classifiedCoverMap = classifiedCoverImages
+      .collect { case CoverImage(path, Some(classifier)) => (classifier, path) }
+      .toMap
     
     def createCombinations(value: ChoiceGroupsConfig): NonEmptyChain[ChoiceGroupsConfig] = {
       val (separated, nonSeparated) = value.choices.partition(_.separateEbooks)
@@ -81,7 +83,7 @@ object ChoiceGroupsConfig {
     
     def coverImageFor (value: ChoiceGroupsConfig): Option[Path] = {
       if (value.getClassifiers.value.isEmpty) defaultCoverImage
-      else classifiedCoverMap.get(value.getClassifiers.value.mkString("-"))
+      else classifiedCoverMap.get(value.getClassifiers.value.mkString("-")).orElse(defaultCoverImage)
     }
     
     config.get[ChoiceGroupsConfig].fold(
