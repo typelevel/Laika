@@ -30,7 +30,7 @@ import laika.io.config.SiteConfig
 import laika.io.model.{InputTree, ParsedTree}
 import laika.io.theme.Theme
 import laika.rewrite.DefaultTemplatePath
-import laika.rewrite.nav.{ChoiceConfig, ChoiceGroupsConfig, CoverImage, TitleDocumentConfig}
+import laika.rewrite.nav.{ChoiceConfig, ChoiceGroupsConfig, CoverImage, CoverImages, TitleDocumentConfig}
 
 /**
   * @author Jens Halm
@@ -182,12 +182,8 @@ case class Helium (fontResources: Seq[FontDefinition],
         
         Kleisli { tree =>
 
-          val classifiedCoverImages = tree.root.config.get[Seq[CoverImage]](LaikaKeys.coverImages).getOrElse(Nil)
-          val defaultCoverImage = tree.root.config.getOpt[Path](LaikaKeys.coverImage).toOption.flatten
-            .orElse(classifiedCoverImages.find(_.classifier.isEmpty).map(_.path))
-          val classifiedCoverMap = classifiedCoverImages
-            .collect { case CoverImage(path, Some(classifier)) => (classifier, path) }
-            .toMap
+          val epubCoverImages = CoverImages.forEPUB(tree.root.config)
+          val pdfCoverImages = CoverImages.forPDF(tree.root.config)
           
           val artifactBaseName = tree.root.config.get[String](LaikaKeys.artifactBaseName).getOrElse("download")
           val downloadPath = SiteConfig.downloadPath(tree.root.config)
@@ -200,20 +196,19 @@ case class Helium (fontResources: Seq[FontDefinition],
               val pdfLink = downloadPath / s"$artifactBaseName.pdf"
               Seq(
                 BlockSequence(
-                  downloadAST(epubLink, "EPUB", defaultCoverImage),
-                  downloadAST(pdfLink, "PDF", defaultCoverImage)
+                  downloadAST(epubLink, "EPUB", epubCoverImages.default),
+                  downloadAST(pdfLink, "PDF", pdfCoverImages.default)
                 ).withOptions(Styles("downloads"))
               )
             }
             else combinations.map { combination =>
               val baseTitle = combination.map(_.label).mkString(" - ")
               val classifier = combination.map(_.name).mkString("-")
-              val coverImage = classifiedCoverMap.get(classifier).orElse(defaultCoverImage)
               val epubLink = downloadPath / s"$artifactBaseName-$classifier.epub"
               val pdfLink = downloadPath / s"$artifactBaseName-$classifier.pdf"
               BlockSequence(
-                downloadAST(epubLink, baseTitle + " (EPUB)", coverImage),
-                downloadAST(pdfLink, baseTitle + " (PDF)", coverImage)
+                downloadAST(epubLink, baseTitle + " (EPUB)", epubCoverImages.getImageFor(classifier)),
+                downloadAST(pdfLink, baseTitle + " (PDF)", pdfCoverImages.getImageFor(classifier))
               ).withOptions(Styles("downloads"))
             }
           val blocks = Title(pageConfig.title) +: pageConfig.description.map(Paragraph(_)).toSeq ++: downloads

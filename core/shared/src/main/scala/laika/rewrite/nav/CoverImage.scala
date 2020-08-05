@@ -17,7 +17,7 @@
 package laika.rewrite.nav
 
 import laika.ast.Path
-import laika.config.{ConfigDecoder, ConfigEncoder}
+import laika.config.{Config, ConfigDecoder, ConfigEncoder, Key, LaikaKeys}
 
 /** Configuration for a cover image for e-books (EPUB or PDF).
   * 
@@ -48,6 +48,44 @@ object CoverImage {
       .withValue("path", coverImage.path)
       .withValue("classifier", coverImage.classifier)
       .build
+  }
+  
+}
+
+case class CoverImages (default: Option[Path], classified: Map[String, Path]) {
+  
+  def getImageFor (classifier: String): Option[Path] = classified.get(classifier).orElse(default)
+  
+  def withFallback (fallback: CoverImages): CoverImages = {
+    CoverImages(default.orElse(fallback.default), fallback.classified ++ classified)
+  }
+  
+}
+
+object CoverImages {
+  
+  def forPDF (config: Config): CoverImages = extract(config, LaikaKeys.root.child("pdf"), LaikaKeys.root)
+  
+  def forEPUB (config: Config): CoverImages = extract(config, LaikaKeys.root.child("epub"), LaikaKeys.root)
+  
+  private def extract (config: Config, mainKey: Key, fallbackKey: Key): CoverImages = {
+    
+    def extract (key: Key): CoverImages = {
+      val classified = config
+        .get[Seq[CoverImage]](key.child(LaikaKeys.coverImages.local))
+        .getOrElse(Nil)
+      val default = config
+        .getOpt[Path](key.child(LaikaKeys.coverImage.local))
+        .toOption.flatten
+        .orElse(classified.find(_.classifier.isEmpty).map(_.path))
+      val classifiedMap = classified
+        .collect { case CoverImage(path, Some(classifier)) => (classifier, path) }
+        .toMap
+      
+      CoverImages(default, classifiedMap)
+    }
+    
+    extract(mainKey).withFallback(extract(fallbackKey))
   }
   
 }

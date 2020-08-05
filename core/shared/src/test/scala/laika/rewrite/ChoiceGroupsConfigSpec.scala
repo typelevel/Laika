@@ -52,7 +52,7 @@ class ChoiceGroupsConfigSpec extends AnyWordSpec
     ChoiceGroupsConfig.createChoiceCombinations(config).toNonEmptyVector.map(_._1.get[ChoiceGroupsConfig])
 
   def runAndGetCoverImage (config: Config): NonEmptyVector[ConfigResult[Path]] =
-    ChoiceGroupsConfig.createChoiceCombinations(config).toNonEmptyVector.map(_._1.get[Path](LaikaKeys.coverImage))
+    ChoiceGroupsConfig.createChoiceCombinations(config).toNonEmptyVector.map(_._1.get[Path](LaikaKeys.root.child("epub").child(LaikaKeys.coverImage.local)))
 
   "ChoiceGroupsConfig.createChoiceCombinations" should {
 
