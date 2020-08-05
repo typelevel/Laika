@@ -144,6 +144,11 @@ h6:hover > a.anchor-link {
   color: var(--messages-error);
 }
 
+blockquote {
+  margin: 20px;
+  font-style: italic;
+}
+
 .tab-container {
   margin-top: 18px;
 }
