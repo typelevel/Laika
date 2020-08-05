@@ -113,7 +113,7 @@ object ChoiceGroupConfig {
   }
 }
 
-case class ChoiceConfig (name: String, label: String, selected: Boolean = false, coverImage: Option[Path] = None)
+case class ChoiceConfig (name: String, label: String, selected: Boolean = false)
 
 object ChoiceConfig {
   implicit val decoder: ConfigDecoder[ChoiceConfig] = ConfigDecoder.config.flatMap { config =>
@@ -121,9 +121,8 @@ object ChoiceConfig {
       name  <- config.get[String]("name")
       label <- config.get[String]("label")
       selected <- config.get[Boolean]("selected", false)
-      coverImage <- config.getOpt[Path]("coverImage")
     } yield {
-      ChoiceConfig(name, label, selected, coverImage)
+      ChoiceConfig(name, label, selected)
     }
   }
   implicit val encoder: ConfigEncoder[ChoiceConfig] = ConfigEncoder[ChoiceConfig] { config =>
@@ -131,7 +130,6 @@ object ChoiceConfig {
       .withValue("name", config.name)
       .withValue("label", config.label)
       .withValue("selected", config.selected)
-      .withValue("coverImage", config.coverImage)
       .build
   }
 }

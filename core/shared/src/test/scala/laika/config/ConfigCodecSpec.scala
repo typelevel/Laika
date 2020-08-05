@@ -200,8 +200,8 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
 
     val sample = ChoiceGroupsConfig(Seq(
       ChoiceGroupConfig("foo", NonEmptyChain(
-        ChoiceConfig("foo-a", "foo-label-a", selected = true, coverImage = Some(Root / "cover-a.png")),
-        ChoiceConfig("foo-b", "foo-label-b", coverImage = Some(Root / "cover-b.png"))
+        ChoiceConfig("foo-a", "foo-label-a", selected = true),
+        ChoiceConfig("foo-b", "foo-label-b")
       ), separateEbooks = true),
       ChoiceGroupConfig("bar", NonEmptyChain(
         ChoiceConfig("bar-a", "bar-label-a"),
@@ -216,8 +216,8 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
           |    { 
           |      name = "foo"
           |      choices = [
-          |        { name = "foo-a", label = "foo-label-a", selected = true, coverImage = /cover-a.png }
-          |        { name = "foo-b", label = "foo-label-b", coverImage = /cover-b.png }
+          |        { name = "foo-a", label = "foo-label-a", selected = true }
+          |        { name = "foo-b", label = "foo-label-b" }
           |      ]
           |      separateEbooks = true
           |    }
