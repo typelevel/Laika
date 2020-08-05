@@ -22,10 +22,11 @@ import laika.ast.LengthUnit.{cm, mm, pt, px}
 import laika.ast.Path.Root
 import laika.ast._
 import laika.bundle.{BundleOrigin, ExtensionBundle, Precedence}
-import laika.config.{ArrayValue, Config, ConfigBuilder, ConfigEncoder, LaikaKeys, ObjectConfig, ObjectValue}
+import laika.config.{Config, ConfigBuilder, ConfigEncoder, LaikaKeys}
 import laika.factory.Format
 import laika.format.{EPUB, HTML, XSLFO}
 import laika.helium.generate._
+import laika.io.config.SiteConfig
 import laika.io.model.{InputTree, ParsedTree}
 import laika.io.theme.Theme
 import laika.rewrite.DefaultTemplatePath
@@ -175,28 +176,21 @@ case class Helium (fontResources: Seq[FontDefinition],
           Text(title)
         ), Seq(
           // TODO - rework cover image config and insert link (optional)
-          Paragraph(SpanLink(Seq(Text("Download")), InternalTarget.fromPath(link, Root / "downloads"))) // TODO - must be linked to plugin config (artifactNameBuilder and downloadPath)
+          Paragraph(SpanLink(Seq(Text("Download")), InternalTarget.fromPath(link, Root / "downloads")))
         ))
         
         Kleisli { tree =>
           
-          val metadata = tree.root.config.get[DocumentMetadata](LaikaKeys.metadata).getOrElse(DocumentMetadata())
-
-          def createArtifactName(suffix: String, optClassifier: Option[String] = None): String = {
-            val nameParts = metadata.title.toSeq ++ 
-              metadata.version.map(_.split('.').take(2).mkString(".")).toSeq ++ 
-              optClassifier.toSeq
-            val baseName = if (nameParts.isEmpty) "download" else nameParts.mkString("-")
-             s"$baseName.$suffix"
-          }    
+          val artifactBaseName = tree.root.config.get[String](LaikaKeys.artifactBaseName).getOrElse("download")
+          val downloadPath = SiteConfig.downloadPath(tree.root.config)
           
           val combinations: Seq[Seq[ChoiceConfig]] = ChoiceGroupsConfig
             .createChoiceCombinationsConfig(tree.root.config)
           val downloads: Seq[Block] = combinations.map { combination =>
             val baseTitle = combination.map(_.label).mkString(" - ")
-            val classifier = Some(combination.map(_.name).mkString("-"))
-            val epubLink = Root / "downloads" / createArtifactName("epub", classifier)
-            val pdfLink = Root / "downloads" / createArtifactName("pdf", classifier)
+            val classifier = combination.map(_.name).mkString("-")
+            val epubLink = downloadPath / s"$artifactBaseName-$classifier.epub"
+            val pdfLink = downloadPath / s"$artifactBaseName-$classifier.pdf"
             BlockSequence(
               downloadAST(epubLink, baseTitle + " (EPUB)"),
               downloadAST(pdfLink, baseTitle + " (PDF)")
