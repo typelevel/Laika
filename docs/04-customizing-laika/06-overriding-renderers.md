@@ -65,15 +65,16 @@ and will delegate to those functions where the partial function is defined for t
 Registering a Render Function
 -----------------------------
 
-The mechanism is slightly different, depending on whether you are using the sbt plugin or the library API. 
-In the latter case you have two choices, one for performing a full transformation,
-the other for a separate render operation.
-All three options are described below.
+Since it is one of the most likely extension points used in user-code, there is a direct shortcut for passing
+it to the Laika configuration as shown below.
+
+In case you want to combine it with other extensions, a render override can also be defined as part of an
+`ExtensionBundle` (see [The ExtensionBundle API] for details).
 
 
-### Using the sbt Plugin
+@:select(config)
 
-In `build.sbt`:
+@:choice(sbt)
 
 ```scala
 import laika.ast._
@@ -84,8 +85,9 @@ laikaSiteRenderers += laikaSiteRenderer {
 }
 ```
 
+@:choice(library)
 
-### Using the Transformer API
+**Using the Transformer API**
 
 ```scala
 val transformer = Transformer
@@ -97,8 +99,7 @@ val transformer = Transformer
   }.build
 ```
 
-
-### Using the Renderer API
+**Using the Renderer API**
 
 ```scala
 val doc: Document = ...
@@ -110,6 +111,8 @@ val renderer = Renderer
       fmt.element("em", opt, content, "class" -> "big")
   }.build
 ```
+
+@:@
 
 
 The Formatter APIs
