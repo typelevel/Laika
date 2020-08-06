@@ -47,7 +47,9 @@
 
       <div id="page-nav">
         <p class="header"><a href="#">${cursor.currentDocument.title}</a></p>
-        <p>TODO</p>
+        @:navigationTree {
+          entries = [ { target = "#", excludeRoot = true, depth = 2 } ]
+        }
         <p class="footer"><a href="#todo">Source for this Page</a></p>
       </div>
 
