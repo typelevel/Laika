@@ -62,7 +62,7 @@ object MyExtensions extends ExtensionBundle {
 
 Such a bundle can then be passed to the transformer:
 
-@:choices(config)
+@:select(config)
 
 @:choice(sbt)
 ```scala

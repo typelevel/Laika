@@ -50,7 +50,7 @@ These defaults have been chosen so that markup files appear below directory navi
 and rendered HTML files can serve as index pages. 
 The names can be overridden in Laika's global configuration (you need to omit the suffix, as it'll work with all formats):
 
-@:choices(config)
+@:select(config)
 
 @:choice(sbt)
 ```scala

@@ -34,7 +34,7 @@ object LaikaKeys {
   
   val links: Key = root.child("links")
   
-  val choices: Key = root.child("choices")
+  val selections: Key = root.child("selections")
   
   val autonumbering: Key = root.child("autonumbering")
   

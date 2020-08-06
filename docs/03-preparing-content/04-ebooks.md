@@ -97,7 +97,7 @@ EPUB Navigation in iBooks:
 The navigation depth is unlimited by default and will also include links to each section inside your documents.
 The depth to traverse can be changed via Laika's global configuration:
 
-@:choices(config)
+@:select(config)
 
 @:choice(sbt)
 ```scala
@@ -119,7 +119,7 @@ val transformer = Transformer
 In the example above, the specified `BookConfig` will apply to both formats, EPUB and PDF.
 They can alternatively be set separately:
 
-@:choices(config)
+@:select(config)
 
 @:choice(sbt)
 ```scala
@@ -146,7 +146,7 @@ Cover Images
 
 A cover image can be specified for EPUB and PDF:
 
-@:choices(config)
+@:select(config)
 
 @:choice(sbt)
 ```scala
@@ -173,7 +173,7 @@ laikaConfig := LaikaConfig.defaults
 
 Or two different cover images can be configured for EPUB and PDF separately:
 
-@:choices(config)
+@:select(config)
 
 @:choice(sbt)
 ```scala
@@ -210,7 +210,7 @@ Document Metadata
 
 You can add document metadata to the configuration that Laika will apply to the generated output formats where supported:
 
-@:choices(config)
+@:select(config)
 
 @:choice(sbt)
 ```scala

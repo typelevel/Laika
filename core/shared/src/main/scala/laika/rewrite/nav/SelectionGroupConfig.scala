@@ -33,7 +33,7 @@ case class Classifiers (value: Seq[String])
 
 object SelectionGroupConfig {
 
-  implicit val key: DefaultKey[SelectionGroupConfig] = DefaultKey(LaikaKeys.choices)
+  implicit val key: DefaultKey[SelectionGroupConfig] = DefaultKey(LaikaKeys.selections)
 
   implicit val decoder: ConfigDecoder[SelectionGroupConfig] = ConfigDecoder.seq[SelectionConfig].map(SelectionGroupConfig.apply)
 

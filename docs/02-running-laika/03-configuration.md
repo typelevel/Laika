@@ -37,7 +37,7 @@ Markup extensions enabled by default are:
 
 To disable all these extensions you can use the `strict` flag:
 
-@:choices(config)
+@:select(config)
 
 @:choice(sbt)
 ```scala
@@ -76,7 +76,7 @@ or [Overriding Renderers].
  
 You can enable verbatim HTML and other raw formats explicitly in the configuration:
 
-@:choices(config)
+@:select(config)
 
 @:choice(sbt)
 ```scala
@@ -102,7 +102,7 @@ The default encoding in Laika is UTF-8.
 
 When you need to work with different encodings you can override the default: 
 
-@:choices(config)
+@:select(config)
 
 @:choice(sbt)
 ```scala
@@ -193,7 +193,7 @@ error messages.
 
 You can achieve this by basically flipping the two default values in the configuration:
 
-@:choices(config)
+@:select(config)
 
 @:choice(sbt)
 ```scala
@@ -228,7 +228,7 @@ to get a formatted output of the entire AST structure.
 
 Longer plain text spans are truncated in this output format to put the emphasis on the structure of the document. 
 
-@:choices(config)
+@:select(config)
 
 @:choice(sbt)
 Create a file with the content `some *text* example` in the input directory and run:
@@ -279,7 +279,7 @@ You can define variables in any of the following scopes:
 
 This is an example for defining two variables globally: 
 
-@:choices(config)
+@:select(config)
 
 @:choice(sbt)
 ```scala

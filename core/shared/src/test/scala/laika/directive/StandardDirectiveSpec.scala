@@ -215,10 +215,10 @@ class StandardDirectiveSpec extends AnyFlatSpec
     def parse (input: String): RootElement = parser.parse(input).toOption.get.content
   }
 
-  "The choices directive" should "parse a body with a two alternatives" in new ChoiceSetup {
+  "The select directive" should "parse a body with a two alternatives" in new ChoiceSetup {
     val input = """aa
                   |
-                  |@:choices(config)
+                  |@:select(config)
                   |
                   |@:choice(a)
                   |11
@@ -241,7 +241,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
   it should "parse a body with a two alternatives and a common body" in new ChoiceSetup {
     val input = """aa
                   |
-                  |@:choices(config)
+                  |@:select(config)
                   |
                   |common
                   |
@@ -265,7 +265,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
 
   it should "fail with less than two alternatives in the body" in new ChoiceSetup {
     val directive =
-      """@:choices(config)
+      """@:select(config)
         |
         |@:choice(a)
         |11
@@ -277,14 +277,14 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |$directive
                   |
                   |bb""".stripMargin
-    val message = "One or more errors processing directive 'choices': too few occurrences of separator directive 'choice': expected min: 2, actual: 1"
+    val message = "One or more errors processing directive 'select': too few occurrences of separator directive 'choice': expected min: 2, actual: 1"
     val invalid = InvalidElement(message, directive).asBlock
     parse(input) should be (root(p("aa"), invalid, p("bb")))
   }
 
   it should "fail when a label is missing in the configuration" in new ChoiceSetup {
     val directive =
-      """@:choices(config)
+      """@:select(config)
         |
         |@:choice(a)
         |11
@@ -301,7 +301,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
          |$directive
          |
          |bb""".stripMargin
-    val message = "One or more errors processing directive 'choices': No label defined for choice 'c' in group 'config'"
+    val message = "One or more errors processing directive 'select': No label defined for choice 'c' in group 'config'"
     val invalid = InvalidElement(message, directive).asBlock
     parse(input) should be (root(p("aa"),
       invalid, p("bb")))

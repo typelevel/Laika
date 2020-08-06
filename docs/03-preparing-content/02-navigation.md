@@ -54,7 +54,7 @@ Transformations that contain internal links that cannot be resolved will fail in
 If you work with input files that will be generated or copied by other tools and are not known to Laika, 
 you can explicitly disable validation for certain paths within the virtual tree:
 
-@:choices(config)
+@:select(config)
 
 @:choice(sbt)
 ```scala
@@ -104,7 +104,7 @@ You could use the `@:import` directive and define them in a separate markup file
 but Laika has an even more convenient way to centrally define links. 
 Simply add them to the project's configuration:
 
-@:choices(config)
+@:select(config)
 
 @:choice(sbt)
 ```scala
@@ -216,7 +216,7 @@ See @:api(scala.collection.immutable.List) for details.
 
 This directive requires the base URI to be defined in the project's configuration:
 
-@:choices(config)
+@:select(config)
 
 @:choice(sbt)
 ```scala
@@ -242,7 +242,7 @@ val transformer = Transformer
 If you use different APIs hosted on different servers, you can associate base URIs with package prefixes,
 while keeping one base URI as a default for all packages that do not match any prefix:
 
-@:choices(config)
+@:select(config)
 
 @:choice(sbt)
 ```scala
@@ -433,7 +433,7 @@ E.g. in the document with the number `2.1` the number for the first section will
 
 Auto-numbering can be switched on per configuration:
 
-@:choices(config)
+@:select(config)
 
 @:choice(sbt)
 ```scala

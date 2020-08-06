@@ -119,7 +119,7 @@ You can freely choose any key outside of these two namespaces.
 
 You can add arbitrary configuration values when building a `Parser`, `Renderer` or `Transformer`:
 
-@:choices(config)
+@:select(config)
 
 @:choice(sbt)
 ```scala

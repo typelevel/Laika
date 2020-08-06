@@ -101,8 +101,8 @@ class SelectionConfigSpec extends AnyWordSpec
         selectionBaz))).build
       val result = run(config)
 
-      def select (group: SelectionConfig, pos: Int): SelectionConfig =
-        group.select(group.choices.toNonEmptyVector.getUnsafe(pos))
+      def select (selection: SelectionConfig, pos: Int): SelectionConfig =
+        selection.select(selection.choices.toNonEmptyVector.getUnsafe(pos))
 
       def groups (selectIn1: Int, selectIn2: Int): SelectionGroupConfig = SelectionGroupConfig(Seq(
         select(selectionFooSeparate, selectIn1), select(selectionBarSeparate, selectIn2), selectionBaz

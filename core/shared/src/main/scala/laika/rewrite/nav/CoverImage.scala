@@ -21,7 +21,7 @@ import laika.config.{Config, ConfigDecoder, ConfigEncoder, Key, LaikaKeys}
 
 /** Configuration for a cover image for e-books (EPUB or PDF).
   * 
-  * The optional classifier can be used if the `@:choices` directive
+  * The optional classifier can be used if the `@:select` directive
   * is used to produce multiple e-books with slightly different content.
   * The classifier would refer to the name of the configured choice,
   * or in case of multiple choices, to the combination of their names concatenated with `-`.

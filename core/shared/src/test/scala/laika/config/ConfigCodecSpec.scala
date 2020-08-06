@@ -212,7 +212,7 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
     "decode an instance with all fields populated" in {
       val input =
         """{
-          |  laika.choices = [
+          |  laika.selections = [
           |    { 
           |      name = "foo"
           |      choices = [

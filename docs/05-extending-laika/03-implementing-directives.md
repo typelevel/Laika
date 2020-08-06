@@ -205,7 +205,7 @@ object MyDirectives extends DirectiveRegistry {
 
 Finally we need to register our registry together with any built-in extensions you may use:
 
-@:choices(config)
+@:select(config)
 
 @:choice(sbt)
 ```scala
@@ -266,7 +266,7 @@ See [Error Handling] for details.
 
 With this change in place, the user can now provide the base URL in the builder of the `Transformer`:
 
-@:choices(config)
+@:select(config)
 
 @:choice(sbt)
 ```scala

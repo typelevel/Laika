@@ -362,7 +362,7 @@ You can bundle multiple highlighters in a single instance.
 
 Finally you can register your extension together with any built-in extensions you may use:
 
-@:choices(config)
+@:select(config)
 
 @:choice(sbt)
 ```scala

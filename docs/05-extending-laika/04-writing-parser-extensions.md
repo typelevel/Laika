@@ -120,7 +120,7 @@ of the host language for recursive parsing.
 
 Finally you can register your extension together with any built-in extensions you may use:
 
-@:choices(config)
+@:select(config)
 
 @:choice(sbt)
 ```scala
@@ -185,7 +185,7 @@ It's always best to have an empty default argument like in our example.
 
 With this change in place, the user can now provide the base URL in the builder of the `Transformer`:
 
-@:choices(config)
+@:select(config)
 
 @:choice(sbt)
 ```scala
@@ -353,7 +353,7 @@ object QuotedBlocks extends ExtensionBundle {
 
 Finally you can register your extension together with any built-in extensions you may use:
 
-@:choices(config)
+@:select(config)
 
 @:choice(sbt)
 ```scala

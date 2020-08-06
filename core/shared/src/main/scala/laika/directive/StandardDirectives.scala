@@ -475,15 +475,15 @@ object StandardDirectives extends DirectiveRegistry {
     }
   }
 
-  /** Implementation of the `choices` directive for block elements in markup documents.
+  /** Implementation of the `select` directive for block elements in markup documents.
     * 
-    * Choices (alternatives) represent the same content in different ways,
+    * Selections represent the same content in different ways,
     * e.g. a code sample in Scala or Java or a build setup in sbt vs. Maven.
     * In the final output these will usually be rendered in a way to allow for a convenient selection by the user.
     * 
-    * A valid `@:choices` directive has at least two separator directives (`@:choice`) in the body.
+    * A valid `@:select` directive has at least two separator directives (`@:choice`) in the body.
     */
-  val choicesDirective: Blocks.Directive = Blocks.eval("choices") {
+  val selectDirective: Blocks.Directive = Blocks.eval("select") {
     import Blocks.dsl._
 
     val separator: Blocks.SeparatorDirective[Choice] = Blocks.separator("choice", min = 2) {
@@ -602,7 +602,7 @@ object StandardDirectives extends DirectiveRegistry {
     blockNav,
     blockFragment,
     blockStyle,
-    choicesDirective,
+    selectDirective,
     callout,
     format,
     pageBreak,
