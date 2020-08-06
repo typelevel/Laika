@@ -8,7 +8,6 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Customizable and extensible toolkit for transforming lightweight markup languages to various types of output formats, written in Scala" />
-    <meta name="keywords" content="scala, text, markup, markdown, restructuredtext, parser, transformer, html, template engine, site generation, open-source" />
 
     <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>  
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
@@ -27,17 +26,17 @@
         <i class="icofont-close-circled icofont-xlg"></i>
       </a>
 
-      <ul class="nav nav-list">
-
-        @:laika-nav
-        
-        <li class="nav-header">Project Links</li>
-        <li><a href="http://github.com/planet42/Laika">Source Code</a></li>
-        <li><a href="../api/laika/api/">API Documentation</a></li>
-        <li><a href="http://planet42.org/">Demo App</a></li>
-        
-      </ul>
-
+      @:navigationTree {
+        entries = [ 
+          { target = "/", excludeRoot = true, depth = 2 } 
+          { title = Project Links, children = [
+            { title = Source Code, target = "http://github.com/planet42/Laika" }
+            # { title = API Documentation, target = "../api/laika/api/" }
+            { title = Demo App, target = "http://planet42.org/" }
+          ] }
+        ]
+      }
+      
     </nav>
 
     <div id="container">
