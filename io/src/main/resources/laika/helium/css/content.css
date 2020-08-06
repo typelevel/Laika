@@ -164,6 +164,15 @@ tbody > tr:nth-child(odd) {
   background: #f2f2f2
 }
 
+p.title {
+  font-weight: bold;
+}
+.downloads {
+  display: flex;
+  justify-content: space-evenly;
+  margin: 15px 30px var(--block-spacing) 0;
+}
+
 .tab-container {
   margin-top: 18px;
 }
