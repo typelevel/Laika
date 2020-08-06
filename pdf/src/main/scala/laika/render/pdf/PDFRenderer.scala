@@ -16,7 +16,7 @@
 
 package laika.render.pdf
 
-import java.io.{File, FileOutputStream, OutputStream, StringReader}
+import java.io.{InputStream, OutputStream, StringReader}
 import java.net.URI
 
 import cats.effect.Sync
@@ -24,17 +24,16 @@ import cats.implicits._
 import javax.xml.transform.sax.SAXResult
 import javax.xml.transform.stream.StreamSource
 import javax.xml.transform.{Transformer, TransformerFactory}
-import laika.ast.DocumentMetadata
-import laika.format.PDF
-import laika.io.model.BinaryOutput
+import laika.ast.{DocumentMetadata, Path}
+import laika.io.model.{BinaryInput, BinaryOutput}
 import laika.io.runtime.Runtime
+import org.apache.fop.apps.io.ResourceResolverFactory
 import org.apache.fop.apps.{FOUserAgent, FOUserAgentFactory, FopFactory}
 import org.apache.xmlgraphics.io.{Resource, ResourceResolver}
 import org.apache.xmlgraphics.util.MimeConstants
 
-/** Responsible for the final step in producing the binary PDF format from
-  * a single XSL-FO input stream that represents the entire document and
-  * its navigation elements.
+/** Responsible for the final step in producing the binary PDF format from a single XSL-FO input stream 
+  * that represents the entire document and its navigation elements.
   * 
   * @author Jens Halm
   */
@@ -55,11 +54,6 @@ class PDFRenderer (fopFactory: FopFactory) {
 
     // TODO - filter for supported image and font file types to avoid reaching the max open file limit
     val staticResources: cats.effect.Resource[F, List[(Path, InputStream)]] = staticDocuments.map(s => s.input.map(i => (s.path, i))).toList.sequence
-    
-    def writeFo: F[Unit] = {
-      val tempOut = TextOutput.forFile[F](Root, new File("/Users/planet42/work/planet42/Laika/pdf/target/manual/test-Lato.fo"), Codec.UTF8)
-      OutputRuntime.write[F](foInput, tempOut)
-    }
     
     def applyMetadata (agent: FOUserAgent): F[Unit] = Sync[F].delay {
       metadata.date.foreach(d => agent.setCreationDate(d))
@@ -102,7 +96,6 @@ class PDFRenderer (fopFactory: FopFactory) {
     Runtime[F].runBlocking {
       resources.use { case (out, static) =>
         for {
-          _           <- writeFo
           source      <- Sync[F].delay(new StreamSource(new StringReader(foInput)))
           result      <- createSAXResult(out, static)
           transformer <- createTransformer
