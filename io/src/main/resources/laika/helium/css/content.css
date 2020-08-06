@@ -161,7 +161,7 @@ td {
   padding: 5px 8px;
 }
 tbody > tr:nth-child(odd) {
-  background: #f2f2f2
+  background: #f2f2f2;
 }
 
 p.title {
