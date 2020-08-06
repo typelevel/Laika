@@ -498,6 +498,10 @@ class PathAPISpec extends AnyWordSpec
       Root / "foo" / "bar" / (Parent(2) / "baz") should be(Root / "baz")
     }
 
+    "not lose the suffix when invoked with CurrentTree" in {
+      (abs_b / "c.foo") / CurrentDocument(None) shouldBe abs_b / "c.foo"
+    }
+
   }
 
   "The path concatenation for relative paths" should {

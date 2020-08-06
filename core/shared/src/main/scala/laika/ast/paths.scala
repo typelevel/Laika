@@ -176,7 +176,7 @@ case class SegmentedPath (segments: NonEmptyChain[String], suffix: Option[String
   def / (path: RelativePath): Path = {
     val (otherSegments, otherSuffix, otherFragment) = path match {
       case SegmentedRelativePath(s, suf, frag, _) => (s.toList, suf, frag)
-      case CurrentDocument(frag) => (Nil, None, frag)
+      case CurrentDocument(frag) => (Nil, suffix, frag)
       case _ => (Nil, None, None)
     }
     val combinedSegments = segments.toList.dropRight(path.parentLevels) ++ otherSegments
