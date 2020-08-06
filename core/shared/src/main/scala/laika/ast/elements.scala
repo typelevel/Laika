@@ -347,10 +347,10 @@ case class Choice(name: String, label: String, content: Seq[Block], options: Opt
   * e.g. a code sample in Scala or Java or a build setup in sbt vs. Maven.
   * In the final output these will usually be rendered in a way to allow for a convenient selection.
   */
-case class ChoiceGroup(name: String, choices: Seq[Choice], options: Options = NoOpt) extends Block with RewritableContainer {
-  type Self = ChoiceGroup
-  def withOptions(options: Options): ChoiceGroup = copy(options = options)
-  def rewriteChildren(rules: RewriteRules): ChoiceGroup = 
+case class Selection(name: String, choices: Seq[Choice], options: Options = NoOpt) extends Block with RewritableContainer {
+  type Self = Selection
+  def withOptions(options: Options): Selection = copy(options = options)
+  def rewriteChildren(rules: RewriteRules): Selection = 
     copy(choices = choices.map(c => c.withContent(rules.rewriteBlocks(c.content))))
 }
 

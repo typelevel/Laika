@@ -231,7 +231,7 @@ class HTMLRenderer (fileSuffix: String, formats: NonEmptySet[String]) extends ((
     def renderSimpleBlock (block: Block): String = block match {
       case Rule(opt)                   => fmt.emptyElement("hr", opt)
       case InternalLinkTarget(opt)     => fmt.textElement("a", opt, "")
-      case ChoiceGroup(name, choices, opt) => renderChoices(name, choices, opt)
+      case Selection(name, choices, opt) => renderChoices(name, choices, opt)
       case tabs: Tabs                  => renderTabs(tabs)
       case tabs: TabContent            => renderTabContent(tabs)
       case LineBlock(content,opt)      => fmt.indentedElement("div", opt + RstStyle.lineBlock, content)

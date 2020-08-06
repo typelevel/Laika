@@ -422,7 +422,7 @@ class HTMLRendererSpec extends AnyFlatSpec
   }
   
   it should "render a choice group" in {
-    val group = ChoiceGroup("config", Seq(
+    val group = Selection("config", Seq(
       Choice("name-a","label-a", List(p("common"), p("11\n22"))),
       Choice("name-b","label-b", List(p("common"), p("33\n44")))
     ))

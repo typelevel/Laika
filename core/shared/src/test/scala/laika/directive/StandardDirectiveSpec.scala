@@ -28,7 +28,7 @@ import laika.config._
 import laika.format.Markdown
 import laika.parse.ParserContext
 import laika.rewrite.{DefaultTemplatePath, TemplateRewriter}
-import laika.rewrite.nav.{ChoiceConfig, ChoiceGroupConfig, ChoiceGroupsConfig}
+import laika.rewrite.nav.{ChoiceConfig, SelectionConfig, SelectionGroupConfig}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
@@ -206,7 +206,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
     val parser = MarkupParser
       .of(Markdown)
       .failOnMessages(MessageFilter.None)
-      .withConfigValue(ChoiceGroupsConfig(Seq(ChoiceGroupConfig("config", NonEmptyChain(
+      .withConfigValue(SelectionGroupConfig(Seq(SelectionConfig("config", NonEmptyChain(
         ChoiceConfig("a", "label-a"),
         ChoiceConfig("b", "label-b")
       )))))
@@ -231,7 +231,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |@:@
                   |
                   |bb""".stripMargin
-    val group = ChoiceGroup("config", Seq(
+    val group = Selection("config", Seq(
       Choice("a","label-a", List(p("11\n22"))),
       Choice("b","label-b", List(p("33\n44")))
     ))
@@ -256,7 +256,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |@:@
                   |
                   |bb""".stripMargin
-    val group = ChoiceGroup("config", Seq(
+    val group = Selection("config", Seq(
       Choice("a","label-a", List(p("common"), p("11\n22"))),
       Choice("b","label-b", List(p("common"), p("33\n44")))
     ))
@@ -308,12 +308,12 @@ class StandardDirectiveSpec extends AnyFlatSpec
   }
   
   it should "unwrap a selected choice in the template rewrite rules" in {
-    val group = ChoiceGroup("config", Seq(
+    val group = Selection("config", Seq(
       Choice("a","label-a", List(p("common"), p("11\n22"))),
       Choice("b","label-b", List(p("common"), p("33\n44")))
     ))
-    val config = ChoiceGroupsConfig(Seq(
-      ChoiceGroupConfig("config", NonEmptyChain(ChoiceConfig("a", "label-a"), ChoiceConfig("b", "label-b", selected = true)))
+    val config = SelectionGroupConfig(Seq(
+      SelectionConfig("config", NonEmptyChain(ChoiceConfig("a", "label-a"), ChoiceConfig("b", "label-b", selected = true)))
     ))
     val doc = Document(Root / "doc", root(group))
     val tree = DocumentTreeRoot(DocumentTree(Root, Seq(doc), config = ConfigBuilder.empty.withValue(config).build))

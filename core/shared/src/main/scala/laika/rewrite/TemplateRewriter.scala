@@ -21,7 +21,7 @@ import laika.ast._
 import laika.config.Origin.TemplateScope
 import laika.config.{ConfigError, LaikaKeys, Origin}
 import laika.rewrite.ReferenceResolver.CursorKeys
-import laika.rewrite.nav.ChoiceGroupsConfig
+import laika.rewrite.nav.SelectionGroupConfig
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
@@ -129,19 +129,19 @@ trait TemplateRewriter {
     
     // maps group name to selected choice name
     val choices: Map[String, String] = cursor.root.config
-      .get[ChoiceGroupsConfig]
-      .getOrElse(ChoiceGroupsConfig(Nil))
-      .choices
+      .get[SelectionGroupConfig]
+      .getOrElse(SelectionGroupConfig(Nil))
+      .selections
       .flatMap(group => group.choices.find(_.selected).map(c => (group.name, c.name)))
       .toMap
     
-    def select (group: ChoiceGroup, selectedChoice: String): Block = group.choices
+    def select (group: Selection, selectedChoice: String): Block = group.choices
       .find(_.name == selectedChoice)
       .fold[Block](group)(choice => BlockSequence(choice.content))
     
     lazy val rules: RewriteRules = RewriteRules.forBlocks {
       case ph: BlockResolver                => Replace(rewriteBlock(ph.resolve(cursor)))
-      case ch: ChoiceGroup if choices.contains(ch.name) => Replace(select(ch, choices(ch.name)))
+      case ch: Selection if choices.contains(ch.name) => Replace(select(ch, choices(ch.name)))
       case TemplateRoot(spans, opt)         => Replace(TemplateRoot(format(spans), opt))
       case unresolved: Unresolved           => Replace(InvalidElement(unresolved.unresolvedMessage, "<unknown source>").asBlock)
       case sc: SpanContainer with Block     => Replace(sc.withContent(joinTextSpans(sc.content)).asInstanceOf[Block])

@@ -49,7 +49,7 @@ object XHTMLRenderer extends HTMLRenderer(fileSuffix = "epub.xhtml", formats = N
     case Footnote(_,content,opt) => 
       fmt.indentedElement("aside", opt + Style.footnote, content, "epub:type" -> "footnote")
     
-    case ChoiceGroup(name, choices, opt) => 
+    case Selection(name, choices, opt) => 
       renderChoices(fmt, name, choices, opt)
     
     case _ => 

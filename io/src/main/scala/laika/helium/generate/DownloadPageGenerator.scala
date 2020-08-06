@@ -24,7 +24,7 @@ import laika.config.LaikaKeys
 import laika.helium.DownloadPage
 import laika.io.config.SiteConfig
 import laika.io.model.ParsedTree
-import laika.rewrite.nav.{ChoiceConfig, ChoiceGroupsConfig, CoverImages}
+import laika.rewrite.nav.{ChoiceConfig, SelectionGroupConfig, CoverImages}
 
 /**
   * @author Jens Halm
@@ -49,8 +49,8 @@ private[laika] object DownloadPageGenerator {
       val artifactBaseName = tree.root.config.get[String](LaikaKeys.artifactBaseName).getOrElse("download")
       val downloadPath = SiteConfig.downloadPath(tree.root.config)
 
-      val combinations: Seq[Seq[ChoiceConfig]] = ChoiceGroupsConfig
-        .createChoiceCombinationsConfig(tree.root.config)
+      val combinations: Seq[Seq[ChoiceConfig]] = SelectionGroupConfig
+        .createCombinationsConfig(tree.root.config)
       val downloads: Seq[Block] =
         if (combinations.isEmpty) {
           val epubLink = downloadPath / s"$artifactBaseName.epub"

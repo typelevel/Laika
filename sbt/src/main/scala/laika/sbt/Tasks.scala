@@ -26,7 +26,7 @@ import laika.format._
 import laika.io.config.SiteConfig
 import laika.io.implicits._
 import laika.io.model._
-import laika.rewrite.nav.ChoiceGroupsConfig
+import laika.rewrite.nav.SelectionGroupConfig
 import laika.sbt.LaikaPlugin.autoImport._
 import sbt.Keys._
 import sbt._
@@ -134,7 +134,7 @@ object Tasks {
       
       downloadPath.mkdirs()
       
-      val roots = ChoiceGroupsConfig.createChoiceCombinations(tree.root)
+      val roots = SelectionGroupConfig.createCombinations(tree.root)
       val ops = roots.map { case (root, classifiers) =>
         val classifier = if (classifiers.value.isEmpty) "" else "-" + classifiers.value.mkString("-")
         val docName = artifactBaseName + classifier + "." + format.interimFormat.fileSuffix

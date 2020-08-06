@@ -17,32 +17,32 @@
 package laika.rewrite.nav
 
 import cats.data.NonEmptyChain
-import laika.ast.{DocumentTreeRoot, Path}
-import laika.config.{Config, ConfigBuilder, ConfigDecoder, ConfigEncoder, DefaultKey, LaikaKeys}
+import laika.ast.DocumentTreeRoot
+import laika.config._
 
 /**
   * @author Jens Halm
   */
-case class ChoiceGroupsConfig (choices: Seq[ChoiceGroupConfig]) {
-  def getGroupConfig (name: String): Option[ChoiceGroupConfig] = choices.find(_.name == name)
-  def getClassifiers: Classifiers = Classifiers(choices.flatMap { group =>
+case class SelectionGroupConfig (selections: Seq[SelectionConfig]) {
+  def getSelection (name: String): Option[SelectionConfig] = selections.find(_.name == name)
+  def getClassifiers: Classifiers = Classifiers(selections.flatMap { group =>
     group.choices.find(_.selected).map(_.name)
   })
 }
 case class Classifiers (value: Seq[String])
 
-object ChoiceGroupsConfig {
+object SelectionGroupConfig {
 
-  implicit val key: DefaultKey[ChoiceGroupsConfig] = DefaultKey(LaikaKeys.choices)
+  implicit val key: DefaultKey[SelectionGroupConfig] = DefaultKey(LaikaKeys.choices)
 
-  implicit val decoder: ConfigDecoder[ChoiceGroupsConfig] = ConfigDecoder.seq[ChoiceGroupConfig].map(ChoiceGroupsConfig.apply)
+  implicit val decoder: ConfigDecoder[SelectionGroupConfig] = ConfigDecoder.seq[SelectionConfig].map(SelectionGroupConfig.apply)
 
-  implicit val encoder: ConfigEncoder[ChoiceGroupsConfig] = ConfigEncoder.seq[ChoiceGroupConfig].contramap(_.choices)
+  implicit val encoder: ConfigEncoder[SelectionGroupConfig] = ConfigEncoder.seq[SelectionConfig].contramap(_.selections)
 
-  def createChoiceCombinationsConfig (config: Config): Seq[Seq[ChoiceConfig]] = {
+  def createCombinationsConfig (config: Config): Seq[Seq[ChoiceConfig]] = {
 
-    def createCombinations (value: ChoiceGroupsConfig): Seq[Seq[ChoiceConfig]] =
-      value.choices
+    def createCombinations (value: SelectionGroupConfig): Seq[Seq[ChoiceConfig]] =
+      value.selections
         .filter(_.separateEbooks)
         .map(_.choices.toChain.toList.map(List(_)))
         .reduceLeftOption { (as, bs) =>
@@ -50,19 +50,19 @@ object ChoiceGroupsConfig {
         }
         .getOrElse(Nil)
 
-    config.get[ChoiceGroupsConfig].fold(
+    config.get[SelectionGroupConfig].fold(
       _ => Nil,
       choiceGroups => createCombinations(choiceGroups)
     )
   }
   
-  def createChoiceCombinations (config: Config): NonEmptyChain[(Config, Classifiers)] = {
+  def createCombinations (config: Config): NonEmptyChain[(Config, Classifiers)] = {
     
     val epubCoverImages = CoverImages.forEPUB(config)
     val pdfCoverImages = CoverImages.forPDF(config)
     
-    def createCombinations(value: ChoiceGroupsConfig): NonEmptyChain[ChoiceGroupsConfig] = {
-      val (separated, nonSeparated) = value.choices.partition(_.separateEbooks)
+    def createCombinations(value: SelectionGroupConfig): NonEmptyChain[SelectionGroupConfig] = {
+      val (separated, nonSeparated) = value.selections.partition(_.separateEbooks)
       
       val combinations = separated
         .map { group =>
@@ -73,11 +73,11 @@ object ChoiceGroupsConfig {
         }
 
       combinations.fold(NonEmptyChain.one(value))(_.map {
-        combined => ChoiceGroupsConfig(combined.toChain.toList ++ nonSeparated)
+        combined => SelectionGroupConfig(combined.toChain.toList ++ nonSeparated)
       })
     }
     
-    def addCoverImages (value: ChoiceGroupsConfig, config: ConfigBuilder): ConfigBuilder = {
+    def addCoverImages (value: SelectionGroupConfig, config: ConfigBuilder): ConfigBuilder = {
       val classifier = value.getClassifiers.value.mkString("-")
       val withEPUB = epubCoverImages.getImageFor(classifier).fold(config) { img =>
         config.withValue(LaikaKeys.root.child("epub").child(LaikaKeys.coverImage.local), img)
@@ -87,7 +87,7 @@ object ChoiceGroupsConfig {
       }
     }
     
-    config.get[ChoiceGroupsConfig].fold(
+    config.get[SelectionGroupConfig].fold(
       _ => NonEmptyChain.one((config, Classifiers(Nil))),
       choiceGroups => createCombinations(choiceGroups).map { newConfig =>
         val populatedConfig = addCoverImages(newConfig, config.withValue(newConfig)).build
@@ -96,29 +96,29 @@ object ChoiceGroupsConfig {
     )
   }
 
-  def createChoiceCombinations (root: DocumentTreeRoot): NonEmptyChain[(DocumentTreeRoot, Classifiers)] = {
-    createChoiceCombinations(root.config).map { case (config, classifiers) => (root.withConfig(config), classifiers) }
+  def createCombinations (root: DocumentTreeRoot): NonEmptyChain[(DocumentTreeRoot, Classifiers)] = {
+    createCombinations(root.config).map { case (config, classifiers) => (root.withConfig(config), classifiers) }
   }
   
 }
 
-case class ChoiceGroupConfig (name: String, choices: NonEmptyChain[ChoiceConfig], separateEbooks: Boolean = false) {
+case class SelectionConfig (name: String, choices: NonEmptyChain[ChoiceConfig], separateEbooks: Boolean = false) {
   def getLabel (name: String): Option[String] = choices.find(_.name == name).map(_.label)
-  def select (choice: ChoiceConfig): ChoiceGroupConfig = 
+  def select (choice: ChoiceConfig): SelectionConfig = 
     copy(choices = choices.map(c => if (c == choice) c.copy(selected = true) else c))
 }
 
-object ChoiceGroupConfig {
-  implicit val decoder: ConfigDecoder[ChoiceGroupConfig] = ConfigDecoder.config.flatMap { config =>
+object SelectionConfig {
+  implicit val decoder: ConfigDecoder[SelectionConfig] = ConfigDecoder.config.flatMap { config =>
     for {
       name     <- config.get[String]("name")
       choices  <- config.get[NonEmptyChain[ChoiceConfig]]("choices")
       separate <- config.get[Boolean]("separateEbooks", false)
     } yield {
-      ChoiceGroupConfig(name, choices, separate)
+      SelectionConfig(name, choices, separate)
     }
   }
-  implicit val encoder: ConfigEncoder[ChoiceGroupConfig] = ConfigEncoder[ChoiceGroupConfig] { config =>
+  implicit val encoder: ConfigEncoder[SelectionConfig] = ConfigEncoder[SelectionConfig] { config =>
     ConfigEncoder.ObjectBuilder.empty
       .withValue("name", config.name)
       .withValue("choices", config.choices)

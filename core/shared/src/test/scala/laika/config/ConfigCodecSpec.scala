@@ -22,7 +22,7 @@ import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.config.Config.ConfigResult
 import laika.rewrite.link.{ApiLinks, InternalLinkMapping, LinkConfig, SourceLinks, TargetDefinition}
-import laika.rewrite.nav.{AutonumberConfig, ChoiceConfig, ChoiceGroupConfig, ChoiceGroupsConfig}
+import laika.rewrite.nav.{AutonumberConfig, ChoiceConfig, SelectionConfig, SelectionGroupConfig}
 import laika.time.PlatformDateFormat
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -198,12 +198,12 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
   
   "The codec for ChoiceGroupsConfig" should {
 
-    val sample = ChoiceGroupsConfig(Seq(
-      ChoiceGroupConfig("foo", NonEmptyChain(
+    val sample = SelectionGroupConfig(Seq(
+      SelectionConfig("foo", NonEmptyChain(
         ChoiceConfig("foo-a", "foo-label-a", selected = true),
         ChoiceConfig("foo-b", "foo-label-b")
       ), separateEbooks = true),
-      ChoiceGroupConfig("bar", NonEmptyChain(
+      SelectionConfig("bar", NonEmptyChain(
         ChoiceConfig("bar-a", "bar-label-a"),
         ChoiceConfig("bar-b", "bar-label-b")
       ))
@@ -231,12 +231,12 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
           |  ]
           |}
         """.stripMargin
-      decode[ChoiceGroupsConfig](input) shouldBe Right(sample)
+      decode[SelectionGroupConfig](input) shouldBe Right(sample)
     }
 
     "round-trip encode and decode" in {
       val encoded = ConfigBuilder.empty.withValue(sample).build
-      encoded.get[ChoiceGroupsConfig] shouldBe Right(sample)
+      encoded.get[SelectionGroupConfig] shouldBe Right(sample)
     }
     
   }

@@ -24,7 +24,7 @@ import laika.bundle.BundleOrigin
 import laika.config._
 import laika.rewrite.TemplateRewriter
 import laika.rewrite.link.LinkConfig
-import laika.rewrite.nav.ChoiceGroupsConfig
+import laika.rewrite.nav.SelectionGroupConfig
 
 import scala.annotation.tailrec
 import scala.collection.immutable.TreeSet
@@ -493,20 +493,20 @@ object StandardDirectives extends DirectiveRegistry {
     }
     
     (attribute(0).as[String], separatedBody(Seq(separator)), cursor).mapN { (name, multiPart, cursor) =>
-      cursor.config.get[ChoiceGroupsConfig]
-        .leftMap(e => s"Error reading config for choices: ${e.message}")
+      cursor.config.get[SelectionGroupConfig]
+        .leftMap(e => s"Error reading config for selections: ${e.message}")
         .flatMap { config =>
-          config.getGroupConfig(name).toRight(s"Not found: choice group '$name'").flatMap { groupConfig =>
+          config.getSelection(name).toRight(s"Not found: selection '$name'").flatMap { selection =>
             multiPart
               .children.toList
               .map { choice =>
-                groupConfig
+                selection
                   .getLabel(choice.name)
                   .map(label => choice.copy(content = multiPart.mainBody ++ choice.content, label = label))
                   .toValidNec(s"No label defined for choice '${choice.name}' in group '$name'")
                 }
               .sequence
-              .map(ChoiceGroup(name, _))
+              .map(Selection(name, _))
                 .toEither
                 .leftMap(_.mkString_(", "))
           }
