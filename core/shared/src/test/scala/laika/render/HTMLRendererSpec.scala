@@ -240,21 +240,14 @@ class HTMLRendererSpec extends AnyFlatSpec
       NavigationLink(SpanSequence("Link-5"), InternalTarget.fromPath(Root / "doc-5", Root), Nil,
         options = Style.level(1))
     ))
-    val html = """<ul>
-                 |  <li>
-                 |    <p class="level1"><a href="doc-1">Link-1</a></p>
-                 |    <ul>
-                 |      <li><span class="level2"><a href="doc-2">Link-2</a></span></li>
-                 |    </ul>
-                 |  </li>
-                 |  <li>
-                 |    <p class="level1 nav-header">Header-3</p>
-                 |    <ul>
-                 |      <li><span class="level2 active"><a href="doc-4">Link-4</a></span></li>
-                 |    </ul>
-                 |  </li>
-                 |  <li><span class="level1"><a href="doc-5">Link-5</a></span></li>
-                 |</ul>""".stripMargin
+    val html =
+      """<ul class="nav-list">
+        |  <li class="level1"><a href="doc-1">Link-1</a></li>
+        |  <li class="level2"><a href="doc-2">Link-2</a></li>
+        |  <li class="level1 nav-header">Header-3</li>
+        |  <li class="level2 active"><a href="doc-4">Link-4</a></li>
+        |  <li class="level1"><a href="doc-5">Link-5</a></li>
+        |</ul>""".stripMargin
     render (elem) should be (html)
   }
   

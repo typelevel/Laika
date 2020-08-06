@@ -44,24 +44,23 @@ class HTMLRenderer (fileSuffix: String, formats: NonEmptySet[String]) extends ((
     }
     
     def navigationToBulletList (navList: NavigationList): BulletList = {
-      
+
       val bullet = StringBullet("*")
-      
+
       def transformItems (items: Seq[NavigationItem]): Seq[BulletListItem] = {
-        items.map { item =>
-          val target: Paragraph = item match {
-            case nh: NavigationHeader => Paragraph(nh.title.content, nh.options + Style.navHeader)
-            case nl: NavigationLink   => 
+        items.flatMap { item =>
+          val target: BulletListItem = item match {
+            case nh: NavigationHeader => BulletListItem(Seq(SpanSequence(nh.title.content)), bullet, nh.options + Style.navHeader)
+            case nl: NavigationLink   =>
               val styles = if (nl.selfLink) Style.active else NoOpt
-              Paragraph(Seq(SpanLink(nl.title.content, nl.target)), nl.options + styles)
+              BulletListItem(Seq(SpanSequence(SpanLink(nl.title.content, nl.target))), bullet, nl.options + styles)
           }
-          val children = if (item.content.isEmpty) Nil
-          else Seq(BulletList(transformItems(item.content), bullet))
-          BulletListItem(target +: children, bullet)
+          val children = if (item.content.isEmpty) Nil else transformItems(item.content)
+          target +: children
         }
       }
-      
-      BulletList(transformItems(navList.content), bullet, navList.options)
+
+      BulletList(transformItems(navList.content), bullet, navList.options + Style.navList)
     }
 
     object WithFallback {

@@ -1583,6 +1583,7 @@ object Style {
   val sectionNumber: Options = Styles("section-number") // TODO - is camel case right now
   val nav: Options = Styles("nav")
   val navHeader: Options = Styles("nav-header")
+  val navList: Options = Styles("nav-list")
   val active: Options = Styles("active") // TODO - rename? self-link?
   val breadcrumb: Options = Styles("breadcrumb")
   val bookmark: Options = Styles("bookmark")
