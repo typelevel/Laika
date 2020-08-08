@@ -27,10 +27,10 @@ import laika.ast._
 import laika.config.Config.ConfigResult
 import laika.config.{Config, ConfigBuilder, ConfigDecoder, ConfigEncoder, ConfigException, DefaultKey, Key, LaikaKeys}
 import laika.factory.{BinaryPostProcessor, RenderContext, RenderFormat, TwoPhaseRenderFormat}
-import laika.helium.FontDefinition
 import laika.io.model.{BinaryOutput, RenderedTreeRoot}
 import laika.io.runtime.Runtime
 import laika.io.theme
+import laika.io.theme.FontDefinition
 import laika.render.epub.{ContainerWriter, StyleSupport, XHTMLRenderer}
 import laika.render.{HTMLFormatter, XHTMLFormatter}
 

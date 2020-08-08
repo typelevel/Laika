@@ -29,7 +29,7 @@ import laika.config.{Config, ConfigBuilder}
 import laika.format.HTML
 import laika.helium.generate._
 import laika.io.model.{BinaryInput, InputTree, ParsedTree}
-import laika.io.theme.Theme
+import laika.io.theme.{Color, FontDefinition, FontSizes, Theme, ThemeFonts}
 import laika.rewrite.DefaultTemplatePath
 
 /**

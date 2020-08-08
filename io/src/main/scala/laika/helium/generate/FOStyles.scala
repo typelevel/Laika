@@ -20,7 +20,8 @@ import laika.ast.Path.Root
 import laika.ast.StylePredicate.{ElementType, StyleName}
 import laika.ast._
 import laika.bundle.Precedence
-import laika.helium.{Color, Helium}
+import laika.helium.Helium
+import laika.io.theme.Color
 import laika.parse.code.CodeCategory
 
 /** The default styles for PDF and XSL-FO output.

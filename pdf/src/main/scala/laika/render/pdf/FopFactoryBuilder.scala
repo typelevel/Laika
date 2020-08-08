@@ -19,7 +19,7 @@ package laika.render.pdf
 import java.io.{ByteArrayInputStream, File}
 
 import laika.format.PDF
-import laika.helium.{EmbeddedFontFile, EmbeddedFontResource}
+import laika.io.theme.{EmbeddedFontFile, EmbeddedFontResource}
 import org.apache.fop.apps.FopFactory
 
 /** Creates a FopFactory instance based on user configuration, registering all fonts to be embedded into

@@ -17,8 +17,9 @@
 package laika.render.fo
 
 import laika.ast.Path.Root
+import laika.helium.Helium
 import laika.helium.generate.{FOStyles, FOTemplate, HTMLTemplate}
-import laika.helium.{Font, FontDefinition, FontStyle, FontWeight, Helium, ThemeFonts}
+import laika.io.theme.{Font, FontDefinition, FontStyle, FontWeight, ThemeFonts}
 
 object TestTheme {
   

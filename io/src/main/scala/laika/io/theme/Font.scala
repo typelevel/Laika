@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package laika.helium
+package laika.io.theme
 
 import java.io.File
 

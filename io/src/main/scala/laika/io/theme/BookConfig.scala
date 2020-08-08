@@ -18,7 +18,6 @@ package laika.io.theme
 
 import laika.ast.{DocumentMetadata, Path}
 import laika.config.{ConfigDecoder, ConfigEncoder, DefaultKey, LaikaKeys}
-import laika.helium.FontDefinition
 
 /**
   * @author Jens Halm
