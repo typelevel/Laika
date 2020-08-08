@@ -1,4 +1,35 @@
 
+:root {
+  --top-bar-height: 35px; /* TODO - should be configurable via Helium API */
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  background-color: #bfdde1; /* TODO */
+  margin: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: var(--top-bar-height);
+  z-index: 2000;
+  width: 100%;
+  align-items: center;
+  padding: 0 20px 0 20px;
+}
+.header-link, #open-nav-icon-2 {
+  color: var(--primary-color);
+}
+a#open-nav-icon-2:hover {
+  text-decoration: none;
+  cursor: pointer;
+  color: var(--secondary-color)
+}
+header img {
+  height: 80%;
+  width: auto;
+}
+
 #sidebar {
   position: fixed;
   background-color: var(--primary-light);
@@ -6,7 +37,8 @@
   margin-left: calc(var(--nav-width) * -1);
   left: 0;
   z-index: 1000;
-  height: 100%;
+  height: calc(100% - var(--top-bar-height));
+  top: var(--top-bar-height);
   overflow-x: hidden;
   overflow-y: auto;
   transition: margin .25s ease-out;
@@ -132,7 +164,7 @@ ul.nav, ul.nav-list {
 #page-nav {
   display: none;
   position: fixed;
-  top: 45px;
+  top: calc(45px + var(--top-bar-height));
   right: 45px;
   width: 250px;
   border: 1px solid #c3d6d8; /* TODO */

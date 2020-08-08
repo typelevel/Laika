@@ -51,7 +51,7 @@ h1 {
   font-size: var(--title-font-size);
 }
 h1.title {
-  padding-top: 45px;
+  padding-top: calc(70px + var(--top-bar-height));
   padding-bottom: 10px;
   margin-bottom: 30px;
   border-bottom: 1px solid #dddddd;
