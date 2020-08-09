@@ -164,13 +164,13 @@
             <p>Documentation</p>
             <ul>
               @:for(helium.landingPage.documentationLinks)
-                <li><a href="${_.target}">${_.text}</a></li>
+                <li>${_}</li>
               @:@
             </ul>
           </div>
         @:@
         @:for(helium.landingPage.projectLinks)
-          <p class="large"><a href="${_.target}">${_.text}</a></p>
+          <p class="large">${_}</p>
         @:@
       </div>
     </div>

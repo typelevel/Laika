@@ -24,6 +24,7 @@ case class WebLayout (contentWidth: Size,
                       defaultLineHeight: Double,
                       anchorPlacement: AnchorPlacement,
                       favIcons: Seq[Favicon] = Nil,
+                      topNavigationBar: TopNavigationBar = TopNavigationBar.default,
                       tableOfContent: Option[TableOfContent] = None,
                       downloadPage: Option[DownloadPage] = None)
 
@@ -34,6 +35,12 @@ case class PDFLayout (pageWidth: Size, pageHeight: Size,
                       tableOfContent: Option[TableOfContent] = None)
 
 case class TableOfContent (title: String, depth: Int)
+
+case class TopNavigationBar (logo: Option[Image], links: Seq[ThemeLink])
+
+object TopNavigationBar {
+  val default: TopNavigationBar = TopNavigationBar(None, Nil) // TODO - use home icon instead of image if empty
+}
 
 case class DownloadPage (title: String, description: Option[String], includeEPUB: Boolean = true, includePDF: Boolean = true)
 
