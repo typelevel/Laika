@@ -44,6 +44,16 @@ class ConfigBuilder (fields: Seq[Field], origin: Origin, fallback: Config = Empt
   def withValue[T](value: T)(implicit encoder: ConfigEncoder[T], defaultKey: DefaultKey[T]): ConfigBuilder =
     withValue[T](defaultKey.value, value)
 
+  /** Returns a new builder instance adding the specified value to the existing set of values if it is non-empty.
+    */
+  def withValue[T](key: String, value: Option[T])(implicit encoder: ConfigEncoder[T]): ConfigBuilder =
+    value.fold(this)(withValue(Key.parse(key), _))
+
+  /** Returns a new builder instance adding the specified value to the existing set of values if it is non-empty.
+    */
+  def withValue[T](key: Key, value: Option[T])(implicit encoder: ConfigEncoder[T]): ConfigBuilder =
+    value.fold(this)(withValue(key, _))
+
   /** Creates a builder with the specified fallback which will be used
     * for resolving keys which are not present in the configuration created
     * by this builder.
