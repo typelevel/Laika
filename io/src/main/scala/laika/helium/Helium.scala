@@ -182,3 +182,7 @@ object Helium {
   )
   
 }
+
+object HeliumStyles {
+  val button: Options = Styles("button")
+}

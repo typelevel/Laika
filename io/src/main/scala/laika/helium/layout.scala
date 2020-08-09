@@ -42,18 +42,13 @@ case class LandingPage (logo: Option[Image] = None,
                         subtitle: Option[String] = None,
                         latestReleases: Seq[ReleaseInfo] = Nil,
                         license: Option[String] = None,
-                        documentationLinks: Seq[LandingPageLink] = Nil,
-                        projectLinks: Seq[LandingPageLink] = Nil,
+                        documentationLinks: Seq[TextLink] = Nil,
+                        projectLinks: Seq[ThemeLink] = Nil,
                         teasers: Seq[Teaser] = Nil)
 
 case class Favicon (path: Path, size: String)
 
 case class ReleaseInfo (title: String, version: String)
-sealed trait LandingPageLink {
-  def text: String
-}
-case class ExternalLink (text: String, target: String) extends LandingPageLink
-case class InternalLink (text: String, target: Path) extends LandingPageLink
 
 case class Teaser (title: String, description: String)
 
