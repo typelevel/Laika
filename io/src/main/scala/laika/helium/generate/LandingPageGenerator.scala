@@ -20,8 +20,8 @@ import cats.data.Kleisli
 import cats.effect.Sync
 import laika.ast.Path.Root
 import laika.ast.{Document, RootElement}
-import laika.config.{ASTValue, Config, ConfigBuilder, ConfigEncoder, LaikaKeys}
-import laika.helium.{LandingPage, ReleaseInfo, Teaser, ThemeLink}
+import laika.config.{Config, ConfigBuilder, ConfigEncoder, LaikaKeys}
+import laika.helium.{LandingPage, ReleaseInfo, Teaser}
 import laika.io.model.ParsedTree
 import laika.rewrite.nav.TitleDocumentConfig
 
@@ -35,10 +35,6 @@ private[laika] object LandingPageGenerator {
       .withValue("title", releaseInfo.title)
       .withValue("version", releaseInfo.version)
       .build
-  }
-
-  implicit val linkEncoder: ConfigEncoder[ThemeLink] = ConfigEncoder[ThemeLink] { link =>
-    ASTValue(link.asSpan)
   }
 
   implicit val teaserEncoder: ConfigEncoder[Teaser] = ConfigEncoder[Teaser] { teaser =>
