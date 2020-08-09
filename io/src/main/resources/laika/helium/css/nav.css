@@ -65,7 +65,7 @@ header img {
   margin-left: -5px;
 }
 
-ul.nav, ul.nav-list, .nav ul, #page-nav ul {
+ul.nav-list, #page-nav ul {
   list-style: none;
 }
 #page-nav ul {
@@ -85,7 +85,7 @@ ul.nav, ul.nav-list, .nav ul, #page-nav ul {
   background-color: #006180; /* TODO */
   margin: 0;
 }
-ul.nav, ul.nav-list {
+ul.nav-list {
   padding-top: 10px;
   padding-bottom: 15px;
   margin: 0 0 0 15px;
@@ -136,7 +136,7 @@ ul.nav, ul.nav-list {
   background-color: #006180; /* TODO */
   text-decoration: none;
 }
-.nav li + .nav-header, .nav-list li + .nav-header {
+.nav-list li + .nav-header {
   margin-top: 9px;
 }
 
