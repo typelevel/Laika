@@ -84,7 +84,7 @@ case class Helium (fontResources: Seq[FontDefinition],
       val description = "Helium Theme Rewrite Rules and Render Overrides"
       override val rewriteRules: Seq[DocumentCursor => RewriteRules] = Seq(_ => rewriteRule)
       override val renderOverrides = Seq(HTML.Overrides(HeliumRenderOverrides.create(webLayout.anchorPlacement)))
-      override val baseConfig: Config = landingPage.fold(ConfigBuilder.empty.build)(LandingPageGenerator.populateConfig)
+      override val baseConfig: Config = ConfigGenerator.populateConfig(self)
     }
 
     def addDownloadPage = webLayout.downloadPage

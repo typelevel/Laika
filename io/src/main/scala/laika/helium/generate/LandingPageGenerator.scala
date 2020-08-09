@@ -20,8 +20,8 @@ import cats.data.Kleisli
 import cats.effect.Sync
 import laika.ast.Path.Root
 import laika.ast.{Document, RootElement}
-import laika.config.{Config, ConfigBuilder, ConfigEncoder, LaikaKeys}
-import laika.helium.{LandingPage, ReleaseInfo, Teaser}
+import laika.config.LaikaKeys
+import laika.helium.LandingPage
 import laika.io.model.ParsedTree
 import laika.rewrite.nav.TitleDocumentConfig
 
@@ -29,38 +29,6 @@ import laika.rewrite.nav.TitleDocumentConfig
   * @author Jens Halm
   */
 private[laika] object LandingPageGenerator {
-
-  implicit val releaseEncoder: ConfigEncoder[ReleaseInfo] = ConfigEncoder[ReleaseInfo] { releaseInfo =>
-    ConfigEncoder.ObjectBuilder.empty
-      .withValue("title", releaseInfo.title)
-      .withValue("version", releaseInfo.version)
-      .build
-  }
-
-  implicit val teaserEncoder: ConfigEncoder[Teaser] = ConfigEncoder[Teaser] { teaser =>
-    ConfigEncoder.ObjectBuilder.empty
-      .withValue("title", teaser.title)
-      .withValue("description", teaser.description)
-      .build
-  }
-
-  implicit val landingPageEncoder: ConfigEncoder[LandingPage] = ConfigEncoder[LandingPage] { landingPage =>
-    ConfigEncoder.ObjectBuilder.empty
-      .withValue("logo", landingPage.logo)
-      .withValue("title", landingPage.title)
-      .withValue("subtitle", landingPage.subtitle)
-      .withValue("latestReleases", landingPage.latestReleases)
-      .withValue("license", landingPage.license)
-      .withValue("documentationLinks", landingPage.documentationLinks)
-      .withValue("projectLinks", landingPage.projectLinks)
-      .withValue("teasers", landingPage.teasers) // TODO - change to teaserRows
-      .build
-  }
-
-  def populateConfig (landingPage: LandingPage): Config = 
-    ConfigBuilder.empty
-      .withValue("helium.landingPage", landingPage)
-      .build
 
   def generate[F[_]: Sync] (landingPage: LandingPage): Kleisli[F, ParsedTree[F], ParsedTree[F]] = Kleisli { tree =>
     val landingPageContent = tree.root.tree.content.collectFirst {
