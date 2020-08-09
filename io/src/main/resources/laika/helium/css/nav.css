@@ -17,10 +17,10 @@ header {
   align-items: center;
   padding: 0 20px 0 20px;
 }
-.header-link, #open-nav-icon-2 {
+.header-link {
   color: var(--primary-color);
 }
-a#open-nav-icon-2:hover {
+a#nav-icon:hover {
   text-decoration: none;
   cursor: pointer;
   color: var(--secondary-color)
@@ -140,25 +140,9 @@ ul.nav, ul.nav-list {
   margin-top: 9px;
 }
 
-#open-nav-icon {
+#nav-icon {
   color: var(--primary-color);
-  background-color: var(--primary-light);
-  display: inline-block;
   padding: 6px 6px 4px 6px;
-  position: fixed;
-  top: 0;
-  left: 0;
-  border: 15px solid rgba(255,255,255,0.8);
-  background-clip: padding-box;
-  border-bottom-right-radius: 7px;
-}
-
-#close-nav-icon {
-  color: var(--primary-color);
-  display: inline-block;
-  position: absolute;
-  top: 10px;
-  right: 10px;
 }
 
 #page-nav {
@@ -173,8 +157,8 @@ ul.nav, ul.nav-list {
 }
 
 @media (min-width: 1020px) {
-  #close-nav-icon {
-    display: none;
+  #nav-icon {
+    visibility: hidden;
   }
 }
 
@@ -184,7 +168,6 @@ ul.nav, ul.nav-list {
   }
 }
 
-.icofont-xlg
-{
+.icofont-xlg {
   font-size: 1.75em;
 }
