@@ -212,6 +212,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
           case et: ExternalTarget => et.url
         }
         fmt.externalGraphic(e, uri, width, height) // TODO - ignoring title for now
+      case icon: Icon                     => fmt.rawElement("fo:inline", icon, icon.codePointAsEntity)
       case e: Leader                      => fmt.textElement("fo:leader", e, "", "leader-pattern"->"dots", "padding-left" -> "2mm", "padding-right" -> "2mm")
       case PageNumberCitation(target,_)     => s"""<fo:page-number-citation ref-id="${fmt.buildId(target.absolutePath)}" />"""
       case LineBreak(_)                   => "&#x2028;"

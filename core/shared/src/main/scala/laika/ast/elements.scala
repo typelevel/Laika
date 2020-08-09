@@ -1258,6 +1258,21 @@ object LengthUnit {
   def fromString (value: String): Option[LengthUnit] = all.get(value)
 }
 
+/** Represents a font-based icon, identified by its code point.
+  * Ideally theme authors provide constants for icons provided out of the box,
+  * so that the user does not have to look up or memorize the hex code point.
+  * 
+  * This avoids the indirection of common approaches where the rendered HTML contains
+  * an empty tag with a class which specifies the code point with a `:before` pseudo-class.
+  * This approach would currently not work well with Laika's PDF support which is
+  * not based on an interim HTML renderer.
+  */
+case class Icon (codePoint: Char, options: Options = NoOpt) extends Span {
+  def codePointAsEntity: String = s"&#x${Integer.toHexString(codePoint)};"
+  type Self = Icon
+  def withOptions(newOptions: Options): Icon = copy(options = newOptions)
+}
+
 object Link {
   /** Creates a new span that acts as a link reference based on the specified
     * URL which will be parsed and interpreted as an internal or external target.

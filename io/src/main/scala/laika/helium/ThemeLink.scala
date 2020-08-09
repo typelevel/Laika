@@ -38,11 +38,6 @@ sealed trait ThemeLink extends SpanResolver {
   
 }
 
-case class Icon (codePoint: Char, options: Options = NoOpt) extends Span {
-  type Self = Icon
-  def withOptions(newOptions: Options): Icon = copy(options = newOptions)
-}
-
 case class IconLink (target: ThemeTarget, icon: Icon, text: Option[String] = None, options: Options = NoOpt) extends ThemeLink {
   type Self = IconLink
   protected def createLink (target: Target): Span = SpanLink(icon +: text.map(Text(_)).toSeq, target)

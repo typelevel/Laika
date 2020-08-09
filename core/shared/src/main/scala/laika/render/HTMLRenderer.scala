@@ -262,6 +262,8 @@ class HTMLRenderer (fileSuffix: String, formats: NonEmptySet[String]) extends ((
           "width" -> widthAttr, "height" -> heightAttr, "style" -> styleAttr)
         fmt.emptyElement("img", opt, allAttr:_*)
 
+      case icon: Icon                     => fmt.rawElement("i", icon.options, icon.codePointAsEntity)
+
       case LineBreak(_)                   => fmt.emptyElement("br")
       case TemplateElement(elem,indent,_) => fmt.withMinIndentation(indent)(_.child(elem))
 
