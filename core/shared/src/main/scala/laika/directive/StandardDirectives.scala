@@ -503,7 +503,7 @@ object StandardDirectives extends DirectiveRegistry {
                 selection
                   .getLabel(choice.name)
                   .map(label => choice.copy(content = multiPart.mainBody ++ choice.content, label = label))
-                  .toValidNec(s"No label defined for choice '${choice.name}' in group '$name'")
+                  .toValidNec(s"No label defined for choice '${choice.name}' in selection '$name'")
                 }
               .sequence
               .map(Selection(name, _))

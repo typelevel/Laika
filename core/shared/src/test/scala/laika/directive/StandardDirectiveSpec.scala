@@ -301,7 +301,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
          |$directive
          |
          |bb""".stripMargin
-    val message = "One or more errors processing directive 'select': No label defined for choice 'c' in group 'config'"
+    val message = "One or more errors processing directive 'select': No label defined for choice 'c' in selection 'config'"
     val invalid = InvalidElement(message, directive).asBlock
     parse(input) should be (root(p("aa"),
       invalid, p("bb")))
