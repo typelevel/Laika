@@ -186,3 +186,10 @@ object Helium {
 object HeliumStyles {
   val button: Options = Styles("button")
 }
+
+object HeliumIcon {
+  private val options = Styles("icofont-laika")
+  val navigationMenu: Icon = Icon('\uefa2', options)
+  val link: Icon = Icon('\uef71', options)
+  val close: Icon = Icon('\ueedd', options)
+}
