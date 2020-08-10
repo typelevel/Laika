@@ -87,6 +87,7 @@ object ConfigGenerator {
       .withValue("helium.landingPage", helium.landingPage)
       .withValue("helium.topBar", helium.webLayout.topNavigationBar)
       .withValue("helium.favIcons", helium.webLayout.favIcons)
+      .withValue(helium.fontResources)
       .build
   
 }

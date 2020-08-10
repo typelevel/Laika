@@ -122,7 +122,7 @@ object FontDefinition {
       .withValue("webCSS", fd.resource.webCSS)
       .build
   }
-  implicit val defaultKey: DefaultKey[FontDefinition] = DefaultKey(LaikaKeys.root.child("fonts"))
+  implicit val defaultKey: DefaultKey[Seq[FontDefinition]] = DefaultKey(LaikaKeys.root.child("fonts"))
   
 }
 

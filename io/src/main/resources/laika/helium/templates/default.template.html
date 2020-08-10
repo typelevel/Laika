@@ -11,14 +11,16 @@
     @:for(laika.metadata.authors) 
       <meta name="author" content="${_}"/>
     @:@
+
     @:for(laika.metadata.description)
       <meta name="description" content="${_}"/>
     @:@
+    
     ${helium.favIcons}
     
-    <link rel='stylesheet' href='http://fonts.googleapis.com/css?family=Lato:400,700' type='text/css'>  
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
-    <link rel="stylesheet" href="../icons/icofont.min.css">
+    @:for(laika.fonts)
+      @:for(_.webCSS) <link rel="stylesheet" href="${_}"> @:@
+    @:@
     
     <link rel="stylesheet" href="../helium/theme.css">
     
