@@ -16,9 +16,9 @@
 
 package laika.helium.generate
 
-import laika.ast.{DocumentCursor, NoOpt, Options, Path, Span, SpanResolver, SpanSequence, TemplateElement, TemplateSpan, TemplateSpanSequence, TemplateString, Text}
+import laika.ast.{DocumentCursor, ExternalTarget, InternalTarget, InvalidElement, NoOpt, Options, Path, Span, SpanResolver, SpanSequence, TemplateElement, TemplateSpan, TemplateSpanSequence, TemplateString, Text}
 import laika.config.{ASTValue, Config, ConfigBuilder, ConfigEncoder}
-import laika.helium.{Favicon, Helium, LandingPage, ReleaseInfo, Teaser, TopNavigationBar}
+import laika.helium.{Favicon, Helium, LandingPage, ReleaseInfo, Teaser, ThemeTarget, TopNavigationBar}
 
 /**
   * @author Jens Halm
@@ -59,10 +59,14 @@ object ConfigGenerator {
       .build
   }
   
-  case class RelativePath (absolutePath: Path) extends SpanResolver {
+  case class RelativePath (target: ThemeTarget) extends SpanResolver {
     type Self = RelativePath
-    def resolve(cursor: DocumentCursor): Span = Text(absolutePath.relativeTo(cursor.path).toString)
-    def unresolvedMessage: String = s"Unresolved relative path to '${absolutePath.toString}'"
+    def resolve(cursor: DocumentCursor): Span = target.resolve(cursor) match {
+      case Left(msg) => InvalidElement(s"unresolved target ${target.description}: $msg", "<unresolved target>").asSpan
+      case Right(InternalTarget(_, relativePath, _)) => Text(relativePath.toString)
+      case Right(ExternalTarget(url)) => Text(url)
+    } 
+    def unresolvedMessage: String = s"Unresolved target '${target.description}'"
     def options: Options = NoOpt
     def withOptions(options: Options): RelativePath = this
   }
@@ -72,7 +76,7 @@ object ConfigGenerator {
     val mediaType = icon.mediaType.fold("")(t => s"""type="$t"""")
     val elements: Seq[TemplateSpan] = Seq(
       TemplateString(s"""<link rel="icon" $sizes $mediaType href=""""),
-      TemplateElement(RelativePath(icon.path)),
+      TemplateElement(RelativePath(icon.target)),
       TemplateString("""" />""")
     )
     ASTValue(TemplateSpanSequence(elements))
@@ -82,6 +86,7 @@ object ConfigGenerator {
     ConfigBuilder.empty
       .withValue("helium.landingPage", helium.landingPage)
       .withValue("helium.topBar", helium.webLayout.topNavigationBar)
+      .withValue("helium.favIcons", helium.webLayout.favIcons)
       .build
   
 }

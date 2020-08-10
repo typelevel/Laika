@@ -57,10 +57,12 @@ case class TextLink (target: ThemeTarget, text: String, options: Options = NoOpt
 }
 
 sealed trait ThemeTarget {
+  def description: String
   def resolve (cursor: DocumentCursor): Either[String, Target]
 }
 object ThemeTarget {
   def internal (target: Path): ThemeTarget = new ThemeTarget {
+    val description = s"internal target: '${target.toString}'"
     def resolve  (cursor: DocumentCursor): Either[String, Target] = {
       val valid = cursor.root.target.tree.selectDocument(target.withoutFragment.relative).nonEmpty || 
         cursor.root.target.staticDocuments.contains(target.withoutFragment)
@@ -69,6 +71,7 @@ object ThemeTarget {
     }
   }
   def external (url: String): ThemeTarget = new ThemeTarget {
+    val description = s"external target: '$url'"
     def resolve  (cursor: DocumentCursor): Either[String, Target] = Right(ExternalTarget(url))
   }
 }

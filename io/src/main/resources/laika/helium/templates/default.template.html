@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="${?laika.metadata.language}">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Laika 0.16.0 + Helium Theme" />
 
     <title>${cursor.currentDocument.title}</title>
 
@@ -13,9 +14,7 @@
     @:for(laika.metadata.description)
       <meta name="description" content="${_}"/>
     @:@
-    @:for() 
-      <link rel="icon" sizes="${_.sizes}" href="${_.path}" />
-    @:@
+    ${helium.favIcons}
     
     <link rel='stylesheet' href='http://fonts.googleapis.com/css?family=Lato:400,700' type='text/css'>  
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
