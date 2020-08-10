@@ -53,7 +53,20 @@ case class LandingPage (logo: Option[Image] = None,
                         projectLinks: Seq[ThemeLink] = Nil,
                         teasers: Seq[Teaser] = Nil)
 
-case class Favicon (path: Path, sizes: String)
+case class Favicon (path: Path, sizes: Option[String], mediaType: Option[String])
+
+object Favicon {
+  def apply (path: Path, sizes: String): Favicon = {
+    val mediaType = path.suffix.collect {
+      case "ico" => "image/x-icon"
+      case "png" => "image/png"
+      case "gif" => "image/gif"
+      case "jpg" | "jpeg" => "image/jpeg"
+      case "svg" => "image/svg+xml"
+    }
+    Favicon(path, Some(sizes), mediaType)
+  }
+}
 
 case class ReleaseInfo (title: String, version: String)
 

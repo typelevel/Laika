@@ -16,9 +16,9 @@
 
 package laika.helium.generate
 
-import laika.ast.SpanSequence
-import laika.config.{Config, ConfigBuilder, ConfigEncoder}
-import laika.helium.{Helium, LandingPage, ReleaseInfo, Teaser, TopNavigationBar}
+import laika.ast.{DocumentCursor, NoOpt, Options, Path, Span, SpanResolver, SpanSequence, TemplateElement, TemplateSpan, TemplateSpanSequence, TemplateString, Text}
+import laika.config.{ASTValue, Config, ConfigBuilder, ConfigEncoder}
+import laika.helium.{Favicon, Helium, LandingPage, ReleaseInfo, Teaser, TopNavigationBar}
 
 /**
   * @author Jens Halm
@@ -57,6 +57,25 @@ object ConfigGenerator {
       .withValue("home", navBar.logo)
       .withValue("links", SpanSequence(navBar.links))
       .build
+  }
+  
+  case class RelativePath (absolutePath: Path) extends SpanResolver {
+    type Self = RelativePath
+    def resolve(cursor: DocumentCursor): Span = Text(absolutePath.relativeTo(cursor.path).toString)
+    def unresolvedMessage: String = s"Unresolved relative path to '${absolutePath.toString}'"
+    def options: Options = NoOpt
+    def withOptions(options: Options): RelativePath = this
+  }
+  
+  implicit val navIconEncoder: ConfigEncoder[Favicon] = ConfigEncoder[Favicon] { icon =>
+    val sizes = icon.sizes.fold("")(s => s"""sizes="$s"""")
+    val mediaType = icon.mediaType.fold("")(t => s"""type="$t"""")
+    val elements: Seq[TemplateSpan] = Seq(
+      TemplateString(s"""<link rel="icon" $sizes $mediaType href=""""),
+      TemplateElement(RelativePath(icon.path)),
+      TemplateString("""" />""")
+    )
+    ASTValue(TemplateSpanSequence(elements))
   }
 
   def populateConfig (helium: Helium): Config =
