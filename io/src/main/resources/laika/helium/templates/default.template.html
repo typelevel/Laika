@@ -3,17 +3,27 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
-
-    <title>Laika</title>
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Customizable and extensible toolkit for transforming lightweight markup languages to various types of output formats, written in Scala" />
 
-    <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>  
+    <title>${cursor.currentDocument.title}</title>
+
+    @:for(laika.metadata.authors) 
+      <meta name="author" content="${_}"/>
+    @:@
+    @:for(laika.metadata.description)
+      <meta name="description" content="${_}"/>
+    @:@
+    @:for() 
+      <link rel="icon" sizes="${_.sizes}" href="${_.path}" />
+    @:@
+    
+    <link rel='stylesheet' href='http://fonts.googleapis.com/css?family=Lato:400,700' type='text/css'>  
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
     <link rel="stylesheet" href="../icons/icofont.min.css">
-    <link href="../css/laika-helium.css" rel="stylesheet">
-    <script src="../js/theme.js"></script>
+    
+    <link rel="stylesheet" href="../helium/theme.css">
+    
+    <script src="../helium/theme.js"></script>
     <script> /* for avoiding page load transitions */ </script>
 
   </head>
@@ -42,11 +52,6 @@
       @:navigationTree {
         entries = [ 
           { target = "/", excludeRoot = true, depth = 2 } 
-          { title = Project Links, children = [
-            { title = Source Code, target = "http://github.com/planet42/Laika" }
-            # { title = API Documentation, target = "../api/laika/api/" }
-            { title = Demo App, target = "http://planet42.org/" }
-          ] }
         ]
       }
       
@@ -54,25 +59,26 @@
 
     <div id="container">
 
-      <a id="open-nav-icon">
-        <i class="icofont-navigation-menu icofont-xlg"></i>
-      </a>
-
-      <div id="page-nav">
+      <nav id="page-nav">
         <p class="header"><a href="#">${cursor.currentDocument.title}</a></p>
+        
         @:navigationTree {
-          entries = [ { target = "#", excludeRoot = true, depth = 2 } ]
+          entries = [
+           { target = "#", excludeRoot = true, depth = 2 }
+          ]
         }
+        
         <p class="footer"><a href="#todo">Source for this Page</a></p>
-      </div>
+      </nav>
 
       <main class="content">
 
         ${cursor.currentDocument.content}
-        
+
       </main>
-      
+
     </div>
 
   </body>
 </html>
+

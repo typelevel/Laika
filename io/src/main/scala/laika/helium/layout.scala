@@ -53,7 +53,7 @@ case class LandingPage (logo: Option[Image] = None,
                         projectLinks: Seq[ThemeLink] = Nil,
                         teasers: Seq[Teaser] = Nil)
 
-case class Favicon (path: Path, size: String)
+case class Favicon (path: Path, sizes: String)
 
 case class ReleaseInfo (title: String, version: String)
 
