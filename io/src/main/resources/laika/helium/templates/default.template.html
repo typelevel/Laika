@@ -8,20 +8,20 @@
 
     <title>${cursor.currentDocument.title}</title>
 
-    @:for(laika.metadata.authors) 
+    @:for(laika.metadata.authors)
       <meta name="author" content="${_}"/>
     @:@
 
     @:for(laika.metadata.description)
       <meta name="description" content="${_}"/>
     @:@
-    
+
     ${helium.favIcons}
-    
+
     @:for(laika.fonts)
       @:for(_.webCSS) <link rel="stylesheet" href="${_}"> @:@
     @:@
-    
+
     <link rel="stylesheet" href="../helium/theme.css">
     
     <script src="../helium/theme.js"></script>
