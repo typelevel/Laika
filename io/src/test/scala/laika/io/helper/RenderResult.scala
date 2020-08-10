@@ -32,7 +32,7 @@ object RenderResult {
     
 
   object html {
-    def withDefaultTemplate(title: String, content: String): String = buildResult(TestTheme.htmlTemplate, Seq(title, content))
+    def withDefaultTemplate(title: String, content: String): String = buildResult(TestTheme.htmlTemplate, Seq(content))
   }
 
   object epub {

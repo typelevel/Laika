@@ -18,18 +18,18 @@ package laika.helium
 
 import java.io.{InputStream, SequenceInputStream}
 
-import cats.implicits._
 import cats.data.Kleisli
 import cats.effect.{Resource, Sync}
+import cats.implicits._
 import laika.ast.LengthUnit.{cm, mm, pt, px}
 import laika.ast.Path.Root
 import laika.ast._
 import laika.bundle.{BundleOrigin, ExtensionBundle, Precedence}
-import laika.config.{Config, ConfigBuilder}
+import laika.config.Config
 import laika.format.HTML
 import laika.helium.generate._
 import laika.io.model.{BinaryInput, InputTree, ParsedTree}
-import laika.io.theme.{Color, FontDefinition, FontSizes, Theme, ThemeFonts}
+import laika.io.theme._
 import laika.rewrite.DefaultTemplatePath
 
 /**
@@ -55,10 +55,10 @@ case class Helium (fontResources: Seq[FontDefinition],
     val noOp: TreeProcessor = Kleisli.ask[F, ParsedTree[F]]
 
     val themeInputs = InputTree[F]
-      .addTemplate(TemplateDocument(DefaultTemplatePath.forHTML, new HTMLTemplate(this).root))
       .addTemplate(TemplateDocument(DefaultTemplatePath.forEPUB, EPUBTemplate.default))
       .addTemplate(TemplateDocument(DefaultTemplatePath.forFO, new FOTemplate(this).root))
       .addStyles(new FOStyles(this).styles.styles , FOStyles.defaultPath, Precedence.Low)
+      .addClasspathResource("laika/helium/templates/default.template.html", DefaultTemplatePath.forHTML)
       .addClasspathResource("laika/helium/css/container.css", Root / "css" / "container.css")
       .addClasspathResource("laika/helium/css/content.css", Root / "css" / "content.css")
       .addClasspathResource("laika/helium/css/nav.css", Root / "css" / "nav.css")

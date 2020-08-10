@@ -17,8 +17,9 @@
 package laika.render.fo
 
 import laika.ast.Path.Root
+import laika.ast.TemplateRoot
 import laika.helium.Helium
-import laika.helium.generate.{FOStyles, FOTemplate, HTMLTemplate}
+import laika.helium.generate.{FOStyles, FOTemplate}
 import laika.io.theme.{Font, FontDefinition, FontStyle, FontWeight, ThemeFonts}
 
 object TestTheme {
@@ -26,7 +27,7 @@ object TestTheme {
   lazy val heliumTestProps = Helium.defaults.copy(themeFonts = ThemeFonts("serif", "sans-serif", "monospaced"))
   lazy val foStyles = new FOStyles(heliumTestProps).styles 
   lazy val foTemplate = new FOTemplate(heliumTestProps).root
-  lazy val htmlTemplate = new HTMLTemplate(heliumTestProps).root
+  lazy val htmlTemplate = TemplateRoot.fallback
   val staticPaths = Seq(
     Root / "css" / "container.css", 
     Root / "css" / "content.css", 
