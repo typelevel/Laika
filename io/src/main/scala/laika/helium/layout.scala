@@ -26,7 +26,8 @@ case class WebLayout (contentWidth: Size,
                       favIcons: Seq[Favicon] = Nil,
                       topNavigationBar: TopNavigationBar = TopNavigationBar.default,
                       tableOfContent: Option[TableOfContent] = None,
-                      downloadPage: Option[DownloadPage] = None)
+                      downloadPage: Option[DownloadPage] = None,
+                      markupEditLinks: Option[MarkupEditLinks] = None)
 
 case class PDFLayout (pageWidth: Size, pageHeight: Size,
                       marginTop: Size, marginRight: Size, marginBottom: Size, marginLeft: Size,
@@ -54,6 +55,8 @@ case class LandingPage (logo: Option[Image] = None,
                         teasers: Seq[Teaser] = Nil)
 
 case class Favicon (target: ThemeTarget, sizes: Option[String], mediaType: Option[String])
+
+case class MarkupEditLinks (text: String, baseURL: String)
 
 object Favicon {
   private def mediaType (suffix: Option[String]): Option[String] = suffix.collect {

@@ -18,7 +18,7 @@ package laika.helium.generate
 
 import laika.ast.{DocumentCursor, ExternalTarget, InternalTarget, InvalidElement, NoOpt, Options, Path, Span, SpanResolver, SpanSequence, TemplateElement, TemplateSpan, TemplateSpanSequence, TemplateString, Text}
 import laika.config.{ASTValue, Config, ConfigBuilder, ConfigEncoder}
-import laika.helium.{Favicon, Helium, LandingPage, PDFLayout, ReleaseInfo, Teaser, ThemeTarget, TopNavigationBar}
+import laika.helium.{Favicon, Helium, LandingPage, MarkupEditLinks, PDFLayout, ReleaseInfo, Teaser, ThemeTarget, TopNavigationBar}
 import laika.io.theme.ThemeFonts
 
 /**
@@ -57,6 +57,13 @@ object ConfigGenerator {
     ConfigEncoder.ObjectBuilder.empty
       .withValue("home", navBar.logo)
       .withValue("links", SpanSequence(navBar.links))
+      .build
+  }
+
+  implicit val markupEditsEncoder: ConfigEncoder[MarkupEditLinks] = ConfigEncoder[MarkupEditLinks] { links =>
+    ConfigEncoder.ObjectBuilder.empty
+      .withValue("text", links.text)
+      .withValue("baseURL", links.baseURL.stripSuffix("/"))
       .build
   }
 
@@ -107,6 +114,7 @@ object ConfigGenerator {
       .withValue("helium.landingPage", helium.landingPage)
       .withValue("helium.topBar", helium.webLayout.topNavigationBar)
       .withValue("helium.favIcons", helium.webLayout.favIcons)
+      .withValue("helium.markupEditLinks", helium.webLayout.markupEditLinks)
       .withValue("helium.pdf", helium.pdfLayout)
       .withValue("helium.themeFonts", helium.themeFonts)
       .withValue(helium.fontResources)
