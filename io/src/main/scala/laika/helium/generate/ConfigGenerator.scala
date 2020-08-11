@@ -18,7 +18,8 @@ package laika.helium.generate
 
 import laika.ast.{DocumentCursor, ExternalTarget, InternalTarget, InvalidElement, NoOpt, Options, Path, Span, SpanResolver, SpanSequence, TemplateElement, TemplateSpan, TemplateSpanSequence, TemplateString, Text}
 import laika.config.{ASTValue, Config, ConfigBuilder, ConfigEncoder}
-import laika.helium.{Favicon, Helium, LandingPage, ReleaseInfo, Teaser, ThemeTarget, TopNavigationBar}
+import laika.helium.{Favicon, Helium, LandingPage, PDFLayout, ReleaseInfo, Teaser, ThemeTarget, TopNavigationBar}
+import laika.io.theme.ThemeFonts
 
 /**
   * @author Jens Halm
@@ -58,6 +59,25 @@ object ConfigGenerator {
       .withValue("links", SpanSequence(navBar.links))
       .build
   }
+
+  implicit val pdfLayoutEncoder: ConfigEncoder[PDFLayout] = ConfigEncoder[PDFLayout] { layout =>
+    ConfigEncoder.ObjectBuilder.empty
+      .withValue("pageHeight", layout.pageHeight.displayValue)
+      .withValue("pageWidth", layout.pageWidth.displayValue)
+      .withValue("marginTop", layout.marginTop.displayValue)
+      .withValue("marginBottom", layout.marginBottom.displayValue)
+      .withValue("marginLeft", layout.marginLeft.displayValue)
+      .withValue("marginRight", layout.marginRight.displayValue)
+      .build
+  }
+
+  implicit val themeFontsEncoder: ConfigEncoder[ThemeFonts] = ConfigEncoder[ThemeFonts] { fonts =>
+    ConfigEncoder.ObjectBuilder.empty
+      .withValue("headlines", fonts.headlines)
+      .withValue("body", fonts.body)
+      .withValue("code", fonts.code)
+      .build
+  }
   
   case class RelativePath (target: ThemeTarget) extends SpanResolver {
     type Self = RelativePath
@@ -87,6 +107,8 @@ object ConfigGenerator {
       .withValue("helium.landingPage", helium.landingPage)
       .withValue("helium.topBar", helium.webLayout.topNavigationBar)
       .withValue("helium.favIcons", helium.webLayout.favIcons)
+      .withValue("helium.pdf", helium.pdfLayout)
+      .withValue("helium.themeFonts", helium.themeFonts)
       .withValue(helium.fontResources)
       .build
   

@@ -40,8 +40,68 @@ object RenderResult {
   }
   
   object fo {
-    def withDefaultTemplate(content: String): String = buildResult(TestTheme.foTemplate, Seq("", "", content))
-    def withDefaultTemplate(result: String, bookmarks: String = ""): String = buildResult(TestTheme.foTemplate, Seq(bookmarks, "", result))
+    def withHeliumTemplate(content: String): String = HeliumFoResult.withContent(content)
+    def withFallbackTemplate(content: String): String = buildResult(TestTheme.foTemplate, Seq("", content))
+    def withFallbackTemplate(result: String, bookmarks: String = ""): String = buildResult(TestTheme.foTemplate, Seq(bookmarks, result))
   }
+  
+}
+
+object HeliumFoResult {
+  
+  def withContent (content: String): String = 
+    s"""<?xml version="1.0" encoding="utf-8"?>
+       |
+       |<fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:fox="http://xmlgraphics.apache.org/fop/extensions">
+       |
+       |  <fo:layout-master-set>
+       |
+       |    <fo:simple-page-master
+       |        master-name="default"
+       |        page-height="29.7cm"
+       |        page-width="21cm"
+       |        margin-top="1cm"
+       |        margin-bottom="1cm"
+       |        margin-left="2.5cm"
+       |        margin-right="2.5cm">
+       |      <fo:region-body margin-top="2cm" margin-bottom="2cm"/>
+       |      <fo:region-before extent="3cm"/>
+       |      <fo:region-after extent="1cm"/>
+       |    </fo:simple-page-master>
+       |
+       |  </fo:layout-master-set>
+       |
+       |  
+       |
+       |  
+       |
+       |  <fo:page-sequence master-reference="default">
+       |
+       |    <fo:static-content flow-name="xsl-region-before">
+       |      <fo:block border-bottom-width="1pt" border-bottom-style="solid"
+       |          font-family="sans-serif" font-weight="bold" font-size="9pt" text-align="center">
+       |        <fo:retrieve-marker
+       |            retrieve-class-name="chapter"
+       |            retrieve-position="first-including-carryover"
+       |        />
+       |      </fo:block>
+       |    </fo:static-content>
+       |
+       |    <fo:static-content flow-name="xsl-region-after">
+       |      <fo:block height="100%" font-family="sans-serif" font-weight="bold" font-size="10pt" text-align="center">
+       |        <fo:page-number/>
+       |      </fo:block>
+       |    </fo:static-content>
+       |
+       |    <fo:flow flow-name="xsl-region-body">
+       |
+       |      $content
+       |
+       |    </fo:flow>
+       |
+       |  </fo:page-sequence>
+       |
+       |</fo:root>
+       |""".stripMargin
   
 }

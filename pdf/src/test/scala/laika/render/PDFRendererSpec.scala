@@ -20,11 +20,13 @@ import java.io.{BufferedInputStream, File, FileInputStream}
 
 import cats.effect.IO
 import cats.implicits._
-import laika.api.Renderer
-import laika.ast.DocumentTreeRoot
-import laika.format.PDF
+import laika.api.{MarkupParser, Renderer}
+import laika.ast.{DocumentTree, DocumentTreeRoot}
+import laika.format.{Markdown, PDF}
 import laika.io.implicits._
+import laika.io.model.{InputTree, ParsedTree}
 import laika.io.{FileIO, IOSpec}
+import laika.rewrite.DefaultTemplatePath
 import org.scalatest.Assertion
 
 /** Since there is no straightforward way to validate a rendered PDF document
@@ -53,6 +55,22 @@ class PDFRendererSpec extends IOSpec with FileIO {
   
   
   "The PDF Renderer" should {
+    
+    val templateParser = MarkupParser.of(Markdown)
+      .io(blocker)
+      .parallel[IO]
+      .build
+    
+    // run a parser with an empty input tree to obtain a parsed default template
+    val emptyTreeWithTemplate = templateParser.fromInput(InputTree[IO]).parse
+    
+    def buildInputTree (templateTree: ParsedTree[IO], inputTree: DocumentTree): DocumentTreeRoot = {
+      val treeWithTemplate = inputTree.copy(
+        templates = Seq(templateTree.root.tree.selectTemplate(DefaultTemplatePath.forFO.relative).get),
+        config = templateTree.root.config
+      )
+      DocumentTreeRoot(treeWithTemplate)
+    }
 
     "render a tree to a file" in new TreeModel with FileSetup {
       val renderer = Renderer.of(PDF)
@@ -60,7 +78,11 @@ class PDFRendererSpec extends IOSpec with FileIO {
         .parallel[IO]
         .build
 
-      firstCharAvailable(renderer.from(DocumentTreeRoot(tree)).toFile(file).render)
+      val res = emptyTreeWithTemplate.flatMap { templateTree =>
+        renderer.from(buildInputTree(templateTree, tree)).toFile(file).render
+      }
+      
+      firstCharAvailable(res)
     }
 
     "render a tree to an OutputStream" in new TreeModel {
@@ -71,7 +93,9 @@ class PDFRendererSpec extends IOSpec with FileIO {
         .build
 
       withByteArrayOutput { out =>
-        renderer.from(DocumentTreeRoot(tree)).toStream(IO.pure(out)).render.void
+        emptyTreeWithTemplate.flatMap { templateTree => 
+          renderer.from(buildInputTree(templateTree, tree)).toStream(IO.pure(out)).render.void
+        }
       }.asserting(_ should not be empty)
     }
 

@@ -130,7 +130,7 @@ class TreeRendererSpec extends IOSpec
       .build
   }
 
-  "The parallel renderer" should {
+  "The tree renderer" should {
     
     "render an empty tree" in {
       new ASTRenderer {
@@ -321,8 +321,8 @@ class TreeRendererSpec extends IOSpec
     "render a tree with a single document to XSL-FO using the default template and default CSS" in {
       new FORenderer {
         val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
-        val expected = RenderResult.fo.withDefaultTemplate(s"""${title("_doc_title", "Title")}
-          |      <fo:block $defaultParagraphStyles>bbb</fo:block>""".stripMargin)
+        val expected = RenderResult.fo.withFallbackTemplate(s"""${title("_doc_title", "Title")}
+          |<fo:block $defaultParagraphStyles>bbb</fo:block>""".stripMargin)
         renderedTree.assertEquals(RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(Root / "doc.fo", expected))))))
       }
     }
@@ -353,10 +353,10 @@ class TreeRendererSpec extends IOSpec
           Document(Root / "doc", rootElem),
           DocumentTree(Root / "tree", List(Document(Root / "tree" / "subdoc", subElem)))
         ))
-        val expectedRoot = RenderResult.fo.withDefaultTemplate(s"""${title("_doc_title", "Title")}
-          |      <fo:block $overriddenParagraphStyles>bbb</fo:block>""".stripMargin)
-        val expectedSub = RenderResult.fo.withDefaultTemplate(s"""${title("_tree_subdoc_sub-title", "Sub Title")}
-          |      <fo:block $overriddenParagraphStyles>ccc</fo:block>""".stripMargin)
+        val expectedRoot = RenderResult.fo.withFallbackTemplate(s"""${title("_doc_title", "Title")}
+          |<fo:block $overriddenParagraphStyles>bbb</fo:block>""".stripMargin)
+        val expectedSub = RenderResult.fo.withFallbackTemplate(s"""${title("_tree_subdoc_sub-title", "Sub Title")}
+          |<fo:block $overriddenParagraphStyles>ccc</fo:block>""".stripMargin)
         renderedTree.assertEquals(RenderedTreeView(Root, List(
           DocumentViews(List(RenderedDocumentView(Root / "doc.fo", expectedRoot))),
           SubtreeViews(List(RenderedTreeView(Root / "tree", List(
@@ -373,10 +373,10 @@ class TreeRendererSpec extends IOSpec
           DocumentTree(Root / "tree", List(Document(Root / "tree" / "subdoc", subElem)))
         ))
         override def treeRoot = DocumentTreeRoot(input, styles = foStyles(Root / "sub"))
-        val expectedRoot = RenderResult.fo.withDefaultTemplate(s"""${title("_doc_title", "Title")}
-          |      <fo:block $overriddenParagraphStyles>bbb</fo:block>""".stripMargin)
-        val expectedSub = RenderResult.fo.withDefaultTemplate(s"""${title("_tree_subdoc_sub-title", "Sub Title")}
-          |      <fo:block $overriddenParagraphStyles>ccc</fo:block>""".stripMargin)
+        val expectedRoot = RenderResult.fo.withFallbackTemplate(s"""${title("_doc_title", "Title")}
+          |<fo:block $overriddenParagraphStyles>bbb</fo:block>""".stripMargin)
+        val expectedSub = RenderResult.fo.withFallbackTemplate(s"""${title("_tree_subdoc_sub-title", "Sub Title")}
+          |<fo:block $overriddenParagraphStyles>ccc</fo:block>""".stripMargin)
         renderedTree.assertEquals(RenderedTreeView(Root, List(
           DocumentViews(List(RenderedDocumentView(Root / "doc.fo", expectedRoot))),
           SubtreeViews(List(RenderedTreeView(Root / "tree", List(

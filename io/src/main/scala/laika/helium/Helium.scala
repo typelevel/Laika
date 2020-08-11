@@ -56,9 +56,10 @@ case class Helium (fontResources: Seq[FontDefinition],
 
     val themeInputs = InputTree[F]
       .addTemplate(TemplateDocument(DefaultTemplatePath.forEPUB, EPUBTemplate.default))
-      .addTemplate(TemplateDocument(DefaultTemplatePath.forFO, new FOTemplate(this).root))
       .addStyles(new FOStyles(this).styles.styles , FOStyles.defaultPath, Precedence.Low)
       .addClasspathResource("laika/helium/templates/default.template.html", DefaultTemplatePath.forHTML)
+      .addClasspathResource("laika/helium/templates/landing.template.html", Root / "landing.template.html")
+      .addClasspathResource("laika/helium/templates/default.template.fo", DefaultTemplatePath.forFO)
       .addClasspathResource("laika/helium/css/container.css", Root / "css" / "container.css")
       .addClasspathResource("laika/helium/css/content.css", Root / "css" / "content.css")
       .addClasspathResource("laika/helium/css/nav.css", Root / "css" / "nav.css")
@@ -68,7 +69,7 @@ case class Helium (fontResources: Seq[FontDefinition],
       .build
     
     def estimateLines (blocks: Seq[Block]): Int = blocks.collect {
-      case sp: SpanContainer => sp.extractText.length
+      case sp: SpanContainer => sp.extractText.count(_ == '\n')
       case bc: BlockContainer => estimateLines(bc.content) // TODO - handle lists and tables
     }.sum
     

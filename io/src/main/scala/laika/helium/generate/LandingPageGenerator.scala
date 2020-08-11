@@ -41,7 +41,7 @@ private[laika] object LandingPageGenerator {
     }
     val titleDocWithTemplate =
       if (titleDocument.config.hasKey(LaikaKeys.template)) titleDocument
-      else titleDocument.copy(config = titleDocument.config.withValue(LaikaKeys.template, "landing-template.html").build)
+      else titleDocument.copy(config = titleDocument.config.withValue(LaikaKeys.template, "landing.template.html").build)
     Sync[F].pure(tree.copy(root = tree.root.copy(tree = tree.root.tree.copy(titleDocument = Some(titleDocWithTemplate)))))
   }
 

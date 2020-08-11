@@ -99,33 +99,33 @@ class PDFNavigationSpec extends IOSpec with FileIO {
          |<fo:block $defaultParagraphProperties>Text $num</fo:block>""".stripMargin
     }
 
-    def withDefaultTemplate(result: String, bookmarks: String = ""): String = RenderResult.fo.withDefaultTemplate(result, bookmarks)
+    def withDefaultTemplate(result: String, bookmarks: String = ""): String = RenderResult.fo.withFallbackTemplate(result, bookmarks)
     
     def bookmarkTreeResult(treeNum: Int, docNum: Int, titleDoc: Boolean = false): String = {
       val title = if (!titleDoc) s"Tree ${treeNum+1} &amp; More" else s"Title Doc ${treeNum+1}"
       val treeLink = if (!titleDoc) s"doc$docNum" else "index" 
-      s"""    <fo:bookmark internal-destination="_tree${treeNum}_$treeLink">
-         |      <fo:bookmark-title>$title</fo:bookmark-title>
-         |      <fo:bookmark internal-destination="_tree${treeNum}_doc$docNum">
-         |        <fo:bookmark-title>Title $docNum &amp; More</fo:bookmark-title>
-         |      </fo:bookmark>
-         |      <fo:bookmark internal-destination="_tree${treeNum}_doc${docNum + 1}">
-         |        <fo:bookmark-title>Title ${docNum + 1} &amp; More</fo:bookmark-title>
-         |      </fo:bookmark>
+      s"""  <fo:bookmark internal-destination="_tree${treeNum}_$treeLink">
+         |    <fo:bookmark-title>$title</fo:bookmark-title>
+         |    <fo:bookmark internal-destination="_tree${treeNum}_doc$docNum">
+         |      <fo:bookmark-title>Title $docNum &amp; More</fo:bookmark-title>
          |    </fo:bookmark>
+         |    <fo:bookmark internal-destination="_tree${treeNum}_doc${docNum + 1}">
+         |      <fo:bookmark-title>Title ${docNum + 1} &amp; More</fo:bookmark-title>
+         |    </fo:bookmark>
+         |  </fo:bookmark>
          |""".stripMargin
     }
       
     val bookmarkRootResult: String = """<fo:bookmark-tree>
-      |    <fo:bookmark internal-destination="_doc1">
-      |      <fo:bookmark-title>Title 1 &amp; More</fo:bookmark-title>
-      |    </fo:bookmark>
-      |    <fo:bookmark internal-destination="_doc2">
-      |      <fo:bookmark-title>Title 2 &amp; More</fo:bookmark-title>
-      |    </fo:bookmark>
+      |  <fo:bookmark internal-destination="_doc1">
+      |    <fo:bookmark-title>Title 1 &amp; More</fo:bookmark-title>
+      |  </fo:bookmark>
+      |  <fo:bookmark internal-destination="_doc2">
+      |    <fo:bookmark-title>Title 2 &amp; More</fo:bookmark-title>
+      |  </fo:bookmark>
       |""".stripMargin  
       
-    val closeBookmarks = "  </fo:bookmark-tree>"
+    val closeBookmarks = "</fo:bookmark-tree>"
   }
   
   
@@ -142,7 +142,7 @@ class PDFNavigationSpec extends IOSpec with FileIO {
     
     def result: IO[String] = withByteArrayTextOutput { out =>
       renderer
-        .from(DocumentTreeRoot(tree))
+        .from(DocumentTreeRoot(tree.withDefaultTemplate(TestTheme.foTemplate, "fo")))
         .toStream(IO.pure(out))
         .render
         .void
