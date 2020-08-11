@@ -26,7 +26,7 @@ import laika.io.descriptor.TransformerDescriptor
 import laika.io.model.{InputTreeBuilder, ParsedTree, RenderedTreeRoot, TreeOutput}
 import laika.io.ops.{InputOps, TextOutputOps, TreeMapperOps}
 import laika.io.runtime.{Runtime, TransformerRuntime}
-import laika.io.theme.Theme
+import laika.theme.Theme
 
 /** Transformer for a tree of input and output documents.
   *

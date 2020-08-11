@@ -14,33 +14,25 @@
  * limitations under the License.
  */
 
-package laika.io.theme
+package laika.theme
 
-import cats.Applicative
 import cats.data.Kleisli
-import laika.bundle.ExtensionBundle
-import laika.factory.Format
-import laika.io.model.{InputTree, ParsedTree}
+import cats.effect.Sync
+import laika.io.model.ParsedTree
+import laika.io.ops.TreeMapperOps
 
 /**
   * @author Jens Halm
   */
-trait Theme[F[_]] {
+abstract class TreeProcessor[F[_]: Sync] extends TreeMapperOps[F] {
 
-  def inputs: F[InputTree[F]]
-  
-  def extensions: Seq[ExtensionBundle]
-  
-  def treeProcessor: PartialFunction[Format, Kleisli[F, ParsedTree[F], ParsedTree[F]]]
-  
+  type MapRes = Kleisli[F, ParsedTree[F], ParsedTree[F]]
+
+  def evalMapTree (f: ParsedTree[F] => F[ParsedTree[F]]): Kleisli[F, ParsedTree[F], ParsedTree[F]] = Kleisli(f)
 }
 
-object Theme {
-
-  def empty[F[_]: Applicative]: Theme[F] = new Theme[F] {
-    def inputs: F[InputTree[F]] = Applicative[F].pure(InputTree.empty)
-    def extensions: Seq[ExtensionBundle] = Nil
-    def treeProcessor: PartialFunction[Format, Kleisli[F, ParsedTree[F], ParsedTree[F]]] = PartialFunction.empty
-  }
-
+object TreeProcessor {
+  
+  def apply[F[_]: Sync]: TreeProcessor[F] = new TreeProcessor[F] { }
+  
 }

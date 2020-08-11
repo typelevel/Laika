@@ -21,7 +21,7 @@ import laika.ast.Document
 import laika.bundle.ExtensionBundle
 import laika.factory.Format
 import laika.io.model.InputTree
-import laika.io.theme.{Theme, TreeProcessor}
+import laika.theme.{Theme, TreeProcessor}
 
 
 object ThemeBuilder {

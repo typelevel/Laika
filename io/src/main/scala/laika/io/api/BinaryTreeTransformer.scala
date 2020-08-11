@@ -27,7 +27,7 @@ import laika.io.descriptor.TransformerDescriptor
 import laika.io.model._
 import laika.io.ops.{BinaryOutputOps, InputOps, TreeMapperOps}
 import laika.io.runtime.{Runtime, TransformerRuntime}
-import laika.io.theme.Theme
+import laika.theme.Theme
 
 /** Transformer that merges a tree of input documents to a single binary output document.
   *

@@ -20,7 +20,7 @@ import laika.ast.Path.Root
 import laika.ast.{StyleDeclarationSet, TemplateContextReference, TemplateRoot}
 import laika.helium.Helium
 import laika.helium.generate.FOStyles
-import laika.io.theme._
+import laika.theme._
 import laika.parse.css.CSSParsers
 import laika.rewrite.ReferenceResolver.CursorKeys
 

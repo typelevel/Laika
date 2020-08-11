@@ -25,7 +25,7 @@ import laika.io.descriptor.ParserDescriptor
 import laika.io.model.{InputTreeBuilder, ParsedTree}
 import laika.io.ops.InputOps
 import laika.io.runtime.{ParserRuntime, Runtime}
-import laika.io.theme.Theme
+import laika.theme.Theme
 import laika.parse.markup.DocumentParser
 import laika.parse.markup.DocumentParser.{ParserError, ParserInput}
 

@@ -24,7 +24,7 @@ import laika.io.descriptor.RendererDescriptor
 import laika.io.model.{BinaryInput, RenderedTreeRoot, TreeOutput}
 import laika.io.ops.TextOutputOps
 import laika.io.runtime.{RendererRuntime, Runtime}
-import laika.io.theme.Theme
+import laika.theme.Theme
 
 /** Renderer for a tree of output documents.
   *

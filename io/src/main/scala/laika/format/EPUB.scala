@@ -29,8 +29,8 @@ import laika.config.{Config, ConfigBuilder, ConfigDecoder, ConfigEncoder, Config
 import laika.factory.{BinaryPostProcessor, RenderContext, RenderFormat, TwoPhaseRenderFormat}
 import laika.io.model.{BinaryOutput, RenderedTreeRoot}
 import laika.io.runtime.Runtime
-import laika.io.theme
-import laika.io.theme.FontDefinition
+import laika.theme
+import laika.theme.FontDefinition
 import laika.render.epub.{ContainerWriter, StyleSupport, XHTMLRenderer}
 import laika.render.{HTMLFormatter, XHTMLFormatter}
 
@@ -107,17 +107,17 @@ case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor
   
   object BookConfig {
     
-    implicit val decoder: ConfigDecoder[BookConfig] = laika.io.theme.BookConfig.decoder.map(c => BookConfig(
+    implicit val decoder: ConfigDecoder[BookConfig] = laika.theme.BookConfig.decoder.map(c => BookConfig(
       c.metadata, c.navigationDepth, c.fonts, c.coverImage
     ))
-    implicit val encoder: ConfigEncoder[BookConfig] = laika.io.theme.BookConfig.encoder.contramap(c => 
+    implicit val encoder: ConfigEncoder[BookConfig] = laika.theme.BookConfig.encoder.contramap(c => 
       theme.BookConfig(c.metadata, c.navigationDepth, c.fonts, c.coverImage)
     )
     implicit val defaultKey: DefaultKey[BookConfig] = DefaultKey(Key("laika","epub"))
     
     def decodeWithDefaults (config: Config): ConfigResult[BookConfig] = for {
       epubConfig   <- config.getOpt[BookConfig].map(_.getOrElse(BookConfig()))
-      commonConfig <- config.getOpt[theme.BookConfig].map(_.getOrElse(theme.BookConfig()))
+      commonConfig <- config.getOpt[laika.theme.BookConfig].map(_.getOrElse(theme.BookConfig()))
     } yield {
       BookConfig(
         epubConfig.metadata.withDefaults(commonConfig.metadata), 

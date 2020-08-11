@@ -25,7 +25,7 @@ import laika.io.descriptor.RendererDescriptor
 import laika.io.model.{BinaryInput, BinaryOutput}
 import laika.io.ops.BinaryOutputOps
 import laika.io.runtime.{RendererRuntime, Runtime}
-import laika.io.theme.Theme
+import laika.theme.Theme
 
 /** Renderer that merges a tree of input documents to a single binary output document.
   *

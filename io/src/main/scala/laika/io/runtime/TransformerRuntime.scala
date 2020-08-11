@@ -26,7 +26,7 @@ import laika.bundle.ExtensionBundle
 import laika.factory.Format
 import laika.io.api.{BinaryTreeRenderer, BinaryTreeTransformer, TreeParser, TreeRenderer, TreeTransformer}
 import laika.io.model.{DirectoryInput, DirectoryOutput, InputTree, ParsedTree, RenderedTreeRoot, TreeOutput}
-import laika.io.theme.Theme
+import laika.theme.Theme
 
 /** Internal runtime for transform operations, for text and binary output as well
   * as parallel and sequential execution. 
