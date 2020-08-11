@@ -290,7 +290,7 @@ class TreeTransformerSpec extends IOSpec with FileIO {
 
       val inputs = Nil
 
-      val result = RenderResult.fo.withHeliumTemplate("""<fo:block font-family="serif" font-size="13pt" line-height="1.5" space-after="3mm" text-align="justify">foo</fo:block>""")
+      val result = RenderResult.fo.withHeliumTemplate("""<fo:block font-size="13pt">foo</fo:block>""")
       val transformer = Transformer
         .from(Markdown)
         .to(XSLFO)
@@ -302,7 +302,7 @@ class TreeTransformerSpec extends IOSpec with FileIO {
 
       val input = InputTree[IO]
         .addString(Contents.name, Root / "doc1.md")
-        .addString(Contents.style, Root / "custom-styles.fo.css")
+        .addString(Contents.style, Root / "styles.fo.css")
       
       val renderResult = transformer
         .fromInput(input)

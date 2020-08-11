@@ -142,7 +142,7 @@ class PDFNavigationSpec extends IOSpec with FileIO {
     
     def result: IO[String] = withByteArrayTextOutput { out =>
       renderer
-        .from(DocumentTreeRoot(tree.withDefaultTemplate(TestTheme.foTemplate, "fo")))
+        .from(DocumentTreeRoot(tree.withDefaultTemplate(TestTheme.foTemplate, "fo"), styles = Map("fo" -> TestTheme.foStyles)))
         .toStream(IO.pure(out))
         .render
         .void

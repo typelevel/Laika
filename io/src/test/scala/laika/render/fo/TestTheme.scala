@@ -17,16 +17,20 @@
 package laika.render.fo
 
 import laika.ast.Path.Root
-import laika.ast.{TemplateContextReference, TemplateRoot}
+import laika.ast.{StyleDeclarationSet, TemplateContextReference, TemplateRoot}
 import laika.helium.Helium
 import laika.helium.generate.FOStyles
 import laika.io.theme._
+import laika.parse.css.CSSParsers
 import laika.rewrite.ReferenceResolver.CursorKeys
 
 object TestTheme {
   
   lazy val heliumTestProps = Helium.defaults.copy(themeFonts = ThemeFonts("serif", "sans-serif", "monospaced"))
-  lazy val foStyles = new FOStyles(heliumTestProps).styles 
+  lazy val foStyles: StyleDeclarationSet = CSSParsers.styleDeclarationSet
+    .parse(new FOStyles(heliumTestProps).input)
+    .map(StyleDeclarationSet(Set(FOStyles.defaultPath), _))
+    .getOrElse(StyleDeclarationSet.empty) 
   lazy val foTemplate = TemplateRoot(
     TemplateContextReference(CursorKeys.fragment("bookmarks"), required = false),
     TemplateContextReference(CursorKeys.documentContent, required = true)

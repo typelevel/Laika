@@ -56,7 +56,6 @@ case class Helium (fontResources: Seq[FontDefinition],
 
     val themeInputs = InputTree[F]
       .addTemplate(TemplateDocument(DefaultTemplatePath.forEPUB, EPUBTemplate.default))
-      .addStyles(new FOStyles(this).styles.styles , FOStyles.defaultPath, Precedence.Low)
       .addClasspathResource("laika/helium/templates/default.template.html", DefaultTemplatePath.forHTML)
       .addClasspathResource("laika/helium/templates/landing.template.html", Root / "landing.template.html")
       .addClasspathResource("laika/helium/templates/default.template.fo", DefaultTemplatePath.forFO)
@@ -65,6 +64,7 @@ case class Helium (fontResources: Seq[FontDefinition],
       .addClasspathResource("laika/helium/css/nav.css", Root / "css" / "nav.css")
       .addClasspathResource("laika/helium/css/code.css", Root / "css" / "code.css")
       .addClasspathResource("laika/helium/css/toc.css", Root / "css" / "toc.css")
+      .addString(new FOStyles(this).input , FOStyles.defaultPath)
       .addString(CSSVarGenerator.generate(this), Root / "css" / "vars.css")
       .build
     

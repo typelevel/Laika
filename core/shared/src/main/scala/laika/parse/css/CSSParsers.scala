@@ -64,7 +64,8 @@ object CSSParsers {
     val alphaNum = someWhile(c => Character.isDigit(c) || Character.isLetter(c))
     val symbol = anyOf('-', '_').max(1)
     
-    (alpha ~ (symbol ~ alphaNum).rep).source
+    val name = alpha ~ (symbol ~ alphaNum).rep
+    (("fox:" ~ name) | name).source
   }
   
   /** Parses a combinator between two predicates.

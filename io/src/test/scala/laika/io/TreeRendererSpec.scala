@@ -70,7 +70,9 @@ class TreeRendererSpec extends IOSpec
   
   trait TreeRendererSetup[FMT] {
 
-    def treeRoot: DocumentTreeRoot = DocumentTreeRoot(input)
+    def styles: StyleDeclarationSet = StyleDeclarationSet.empty
+    
+    def treeRoot: DocumentTreeRoot = DocumentTreeRoot(input, styles = Map("fo" -> styles).withDefaultValue(StyleDeclarationSet.empty))
     
     def input: DocumentTree
     
@@ -110,9 +112,8 @@ class TreeRendererSpec extends IOSpec
   }
 
   trait FORenderer extends TreeRendererSetup[FOFormatter] {
+    override def styles: StyleDeclarationSet = TestTheme.foStyles
     val customStyle: StyleDeclaration = StyleDeclaration(StylePredicate.ElementType("Paragraph"), "font-size" -> "11pt")
-    def foStyles (path: Path): Map[String, StyleDeclarationSet] = 
-      Map("fo" -> StyleDeclarationSet(FOStyles.defaultPath, customStyle))
     val customThemeStyles: Set[StyleDeclaration] = TestTheme.foStyles.styles + customStyle.increaseOrderBy(1)
     val rootElem: RootElement = root(self.titleWithId("Title"), p("bbb"))
     val subElem: RootElement = root(self.titleWithId("Sub Title"), p("ccc"))
@@ -372,6 +373,8 @@ class TreeRendererSpec extends IOSpec
           Document(Root / "doc", rootElem),
           DocumentTree(Root / "tree", List(Document(Root / "tree" / "subdoc", subElem)))
         ))
+        def foStyles (path: Path): Map[String, StyleDeclarationSet] =
+          Map("fo" -> (styles ++ StyleDeclarationSet(FOStyles.defaultPath, customStyle)))
         override def treeRoot = DocumentTreeRoot(input, styles = foStyles(Root / "sub"))
         val expectedRoot = RenderResult.fo.withFallbackTemplate(s"""${title("_doc_title", "Title")}
           |<fo:block $overriddenParagraphStyles>bbb</fo:block>""".stripMargin)
