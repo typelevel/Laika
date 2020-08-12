@@ -18,6 +18,7 @@ package laika.render
 
 import cats.implicits._
 import cats.data.NonEmptySet
+import javafx.scene.control.Tab
 import laika.ast._
 import laika.rst.ast.RstStyle
 
@@ -200,40 +201,15 @@ class HTMLRenderer (fileSuffix: String, formats: NonEmptySet[String]) extends ((
       case unknown                     => fmt.text(unknown.content)
     }
     
-    case class Tabs (tabs: Seq[Tab], options: Options = NoOpt) extends Block {
-      type Self = Tabs
-      def withOptions(options: Options): Tabs = copy(options = options)
-    }
-    case class Tab (name: String, label: String, options: Options = NoOpt) extends Span {
-      type Self = Tab
-      def withOptions(options: Options): Tab = copy(options = options)
-    }
-    case class TabContent (name: String, content: Seq[Block], options: Options = NoOpt) extends Block {
-      type Self = TabContent
-      def withOptions(options: Options): TabContent = copy(options = options)
-    }
-    
     def renderChoices (name: String, choices: Seq[Choice], options: Options): String = {
-      val tabs = Tabs(choices.map(c => Tab(c.name, c.label)))
-      val content = choices.map(c => TabContent(c.name, c.content))
-      fmt.indentedElement("div", options + Styles("tab-container"), tabs +: content, "data-tab-group" -> name)
-    }
-    def renderTabs (tabs: Tabs): String = {
-      fmt.indentedElement("ul", Styles("tab-group"), tabs.tabs)
-    }
-    def renderTab (tab: Tab): String = {
-      fmt.element("li", Styles("tab"), Seq(Text(tab.label)), "data-choice-name" -> tab.name)
-    }
-    def renderTabContent (tab: TabContent): String = {
-      fmt.indentedElement("div", Styles("tab-content"), tab.content, "data-choice-name" -> tab.name)
+      val content = choices.flatMap { choice => Paragraph(Strong(Text(choice.label))) +: choice.content }
+      fmt.child(BlockSequence(content, options))
     }
 
     def renderSimpleBlock (block: Block): String = block match {
       case Rule(opt)                   => fmt.emptyElement("hr", opt)
       case InternalLinkTarget(opt)     => fmt.textElement("a", opt, "")
       case Selection(name, choices, opt) => renderChoices(name, choices, opt)
-      case tabs: Tabs                  => renderTabs(tabs)
-      case tabs: TabContent            => renderTabContent(tabs)
       case LineBlock(content,opt)      => fmt.indentedElement("div", opt + RstStyle.lineBlock, content)
       case TargetFormat(f,e,_) if f.intersect(formats).nonEmpty => fmt.child(e)
 
@@ -244,7 +220,6 @@ class HTMLRenderer (fileSuffix: String, formats: NonEmptySet[String]) extends ((
     def renderSimpleSpan (span: Span): String = span match {
       case CitationLink(ref,label,opt) => fmt.textElement("a", opt + Style.citation, s"[$label]", "href"->("#"+ref))
       case FootnoteLink(ref,label,opt) => fmt.textElement("a", opt + Style.footnote, s"[$label]", "href"->("#"+ref))
-      case tab: Tab                    => renderTab(tab) 
         
       case Image(text,target,width,height,title,opt) =>
         def sizeAttr (size: Option[Size], styleName: String): (Option[String],Option[String]) = size map {

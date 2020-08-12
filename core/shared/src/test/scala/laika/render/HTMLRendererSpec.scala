@@ -421,7 +421,26 @@ class HTMLRendererSpec extends AnyFlatSpec
     render (rootElem) should be (html) 
   }
   
-  it should "render a choice group" in {
+  it should "render a selection" in {
+    val group = Selection("config", Seq(
+      Choice("name-a","label-a", List(p("common"), p("11\n22"))),
+      Choice("name-b","label-b", List(p("common"), p("33\n44")))
+    ))
+    val elem = root( p("aaa"), group, p("bbb"))
+    val html = """<p>aaa</p>
+                 |<p><strong>label-a</strong></p>
+                 |<p>common</p>
+                 |<p>11
+                 |22</p>
+                 |<p><strong>label-b</strong></p>
+                 |<p>common</p>
+                 |<p>33
+                 |44</p>
+                 |<p>bbb</p>""".stripMargin
+    render (elem) should be (html)
+  }
+  
+  it should "render a choice group" ignore {
     val group = Selection("config", Seq(
       Choice("name-a","label-a", List(p("common"), p("11\n22"))),
       Choice("name-b","label-b", List(p("common"), p("33\n44")))
