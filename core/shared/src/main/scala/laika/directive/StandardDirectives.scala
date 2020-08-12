@@ -16,7 +16,7 @@
 
 package laika.directive
 
-import cats.data.{NonEmptySet, ValidatedNec}
+import cats.data.{NonEmptyChain, NonEmptySet, ValidatedNec}
 import cats.implicits._
 import laika.ast.Path.Root
 import laika.ast.{SpanResolver, TemplateSpan, _}
@@ -625,7 +625,7 @@ object StandardDirectives extends DirectiveRegistry {
     * This is an alternative to the `@styleLinks` directive that can be used where
     * template ASTs are created programmatically for extensions.
     */
-  case object StyleLinks extends SpanResolver with TemplateSpan {
+  case object StyleLinks extends SpanResolver with TemplateSpan { // TODO - 0.16 - remove
     type Self = this.type
     def withOptions (options: Options): this.type = this
     val options: Options = NoOpt
@@ -639,14 +639,72 @@ object StandardDirectives extends DirectiveRegistry {
     }
     lazy val unresolvedMessage: String = s"Unresolved style links generator"
   }
+  
+  private def renderLinks (cursor: DocumentCursor,
+                           suffixFilter: String => Boolean, 
+                           includes: NonEmptyChain[Path], 
+                           render: RelativePath => String): TemplateElement = {
+    
+    val filteredBySuffix = cursor.root.target.staticDocuments.filter(_.suffix.exists(suffixFilter))
+
+    val included = includes.foldLeft((filteredBySuffix, Seq.empty[Path])) { case ((candidates, acc), include) =>
+      val (newIncludes, remaining) = candidates.partition(_.isSubPath(include))
+      (remaining, acc ++ newIncludes)
+    }._2
+
+    val allLinks = included.map { staticPath =>
+      val path = staticPath.relativeTo(cursor.path)
+      render(path)
+    }
+    TemplateElement(RawContent(NonEmptySet.of("html","xhtml"), allLinks.mkString("\n    ")))
+  }
 
   /** Template directive that inserts links to all CSS inputs found in the document tree, using a path
     * relative to the currently processed document. 
-    * 
+    *
     * Only has an effect for HTML and EPUB output, will be ignored for PDF output.
     */
   lazy val styleLinksDirective: Templates.Directive = Templates.create("styleLinks") {
     Templates.dsl.cursor.map(StyleLinks.resolve)
+  }
+
+  /** Template directive that inserts links to all CSS inputs found in the document tree, using a path
+    * relative to the currently processed document. 
+    * 
+    * The optional include array attribute can be used to specify a sequence of directories or documents
+    * based on Laika's virtual path to be included.
+    * If omitted the entire input tree will be searched for CSS documents.
+    * 
+    * Only has an effect for HTML and EPUB output, will be ignored for PDF output.
+    */
+  lazy val linkCSSDirective: Templates.Directive = Templates.create("linkCSS") {
+    import Templates.dsl._
+    (attribute("include").as[Seq[Path]].optional.widen, cursor).mapN { (includes, cursor) =>
+      val suffixFilter: String => Boolean = cursor.root.targetFormat match {
+        case Some("epub.xhtml") => suffix: String => suffix == "epub.css" || suffix == "shared.css"
+        case Some("html") => suffix: String => suffix.endsWith("css") && suffix != "epub.css"
+        case _ => _ => false
+      }
+      val includePaths: NonEmptyChain[Path] = NonEmptyChain.fromSeq(includes.getOrElse(Nil)).getOrElse(NonEmptyChain.one(Root))
+      renderLinks(cursor, suffixFilter, includePaths, path => s"""<link rel="stylesheet" type="text/css" href="$path" />""")
+    }
+  }
+
+  /** Template directive that inserts links to all JavaScript inputs found in the document tree, using a path
+    * relative to the currently processed document. 
+    *
+    * The optional include array attribute can be used to specify a sequence of directories or documents
+    * based on Laika's virtual path to be included.
+    * If omitted the entire input tree will be searched for CSS documents.
+    * 
+    * Only has an effect for HTML and EPUB output, will be ignored for PDF output.
+    */
+  lazy val linkJSDirective: Templates.Directive = Templates.create("linkJS") {
+    import Templates.dsl._
+    (attribute("include").as[Seq[Path]].optional.widen, cursor).mapN { (includes, cursor) =>
+      val includePaths: NonEmptyChain[Path] = NonEmptyChain.fromSeq(includes.getOrElse(Nil)).getOrElse(NonEmptyChain.one(Root))
+      renderLinks(cursor, _ == "js", includePaths, path => s"""<script src="$path"></script>""")
+    }
   }
 
   /** The complete list of standard directives for templates.
@@ -657,6 +715,8 @@ object StandardDirectives extends DirectiveRegistry {
     templateFor,
     templateIf,
     styleLinksDirective,
+    linkCSSDirective,
+    linkJSDirective,
     relativePath
   )
 

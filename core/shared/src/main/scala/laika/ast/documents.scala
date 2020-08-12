@@ -122,7 +122,7 @@ case class TemplateDocument (path: Path, content: TemplateRoot, config: ConfigPa
    *  span and block resolvers in the template with the final resolved element.
    */
   def applyTo (document: Document): Either[ConfigError, Document] =
-    TemplateRewriter.applyTemplate(DocumentCursor(document, path.suffix), this)
+    TemplateRewriter.applyTemplate(DocumentCursor(document, path.suffix.map(_.stripPrefix("template."))), this)
 
 }
 

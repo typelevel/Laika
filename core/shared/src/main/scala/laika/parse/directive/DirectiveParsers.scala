@@ -72,7 +72,7 @@ object DirectiveParsers {
     * but not the body elements.
     */
   def declarationParser (escapedText: EscapedTextParsers, supportsCustomFence: Boolean = false): Parser[(String, ObjectBuilderValue, String)] = {
-    import HoconParsers.{wsOrNl => hoconWS, _}
+    import HoconParsers._
     
     val defaultFence = success("@:@")
     val fence = if (supportsCustomFence) (ws ~> anyNot(' ', '\n', '\t').take(3)) | defaultFence else defaultFence

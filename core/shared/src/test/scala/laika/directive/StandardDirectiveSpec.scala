@@ -27,13 +27,13 @@ import laika.ast.helper.ModelBuilder
 import laika.config._
 import laika.format.Markdown
 import laika.parse.ParserContext
-import laika.rewrite.{DefaultTemplatePath, TemplateRewriter}
 import laika.rewrite.nav.{ChoiceConfig, SelectionConfig, SelectionGroupConfig}
+import laika.rewrite.{DefaultTemplatePath, TemplateRewriter}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
 
-class StandardDirectiveSpec extends AnyFlatSpec
+class TempStandardDirectiveSpec extends AnyFlatSpec
   with Matchers
   with ModelBuilder {
 
@@ -97,7 +97,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
     parse(input).content should be (root(p("aa"),PageBreak(),p("bb")))
   }
 
-  
+
   "The todo directive" should "parse a block directive" in {
     val input = """aa
                   |
@@ -111,8 +111,8 @@ class StandardDirectiveSpec extends AnyFlatSpec
     val input = """aa @:todo(FIXME LATER) bb"""
     parse(input).content should be (root(p(Text("aa "),SpanSequence(Nil),Text(" bb"))))
   }
-  
-  
+
+
   "The relativePath directive" should "translate a relative path" in {
     val input = """aa @:relativePath(theme.css) bb"""
     parseTemplateWithConfig(input, "") should be (root(TemplateRoot(
@@ -121,7 +121,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
       t(" bb")
     )))
   }
-  
+
   it should "translate an absolute path" in {
     val input = """aa @:relativePath(/theme/theme.css) bb"""
     parseTemplateWithConfig(input, "") should be (root(TemplateRoot(
@@ -211,7 +211,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
         ChoiceConfig("b", "label-b")
       )))))
       .build
-    
+
     def parse (input: String): RootElement = parser.parse(input).toOption.get.content
   }
 
@@ -273,9 +273,9 @@ class StandardDirectiveSpec extends AnyFlatSpec
         |
         |@:@""".stripMargin
     val input = s"""aa
-                  |
+                   |
                   |$directive
-                  |
+                   |
                   |bb""".stripMargin
     val message = "One or more errors processing directive 'select': too few occurrences of separator directive 'choice': expected min: 2, actual: 1"
     val invalid = InvalidElement(message, directive).asBlock
@@ -306,7 +306,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
     parse(input) should be (root(p("aa"),
       invalid, p("bb")))
   }
-  
+
   it should "unwrap a selected choice in the template rewrite rules" in {
     val group = Selection("config", Seq(
       Choice("a","label-a", List(p("common"), p("11\n22"))),
@@ -502,16 +502,16 @@ class StandardDirectiveSpec extends AnyFlatSpec
 
   trait ApiDirectiveSetup {
     def input (typeName: String): String = blockInput(s"aa @:api($typeName) bb")
-    
-    def blockInput (block: String): String = 
+
+    def blockInput (block: String): String =
       s"""{%
-        |  laika.links.api = [
-        |    { baseUri = "https://default.api/" },
-        |    { baseUri = "https://foo.api/", packagePrefix = foo },
-        |    { baseUri = "https://bar.api/", packagePrefix = foo.bar }
-        |  ]
-        |%}
-        |
+         |  laika.links.api = [
+         |    { baseUri = "https://default.api/" },
+         |    { baseUri = "https://foo.api/", packagePrefix = foo },
+         |    { baseUri = "https://bar.api/", packagePrefix = foo.bar }
+         |  ]
+         |%}
+         |
         |$block
       """.stripMargin
   }
@@ -565,7 +565,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
     )))
 
   }
-  
+
   it should "parse an api directive as the only element of a block" ignore new ApiDirectiveSetup {
     // TODO - this fails right now, might need auto-promotion of span directives without body to block directives
     val input = """aa
@@ -682,7 +682,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
       if (!hasTitleDocs || path == Root) None
       else Some(Document(path / "title", sectionsWithoutTitle, config = config(path / "title", "TitleDoc", Origin.DocumentScope)))
 
-    def buildTree (templates: List[TemplateDocument] = Nil, docUnderTest: Option[Document] = None, legacyAdditionalMarkup: List[Document] = Nil): DocumentTree = {
+    def buildTree (templates: List[TemplateDocument] = Nil, docUnderTest: Option[Document] = None): DocumentTree = {
       def docs (parent: Path, nums: Int*): Seq[Document] = nums map { n =>
         val docConfig = config(parent / ("doc"+n), "Doc "+n, Origin.DocumentScope)
         (n, docUnderTest) match {
@@ -692,7 +692,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
       }
       DocumentTree(Root, docs(Root, 1,2) ++ List(
         DocumentTree(Root / "sub1", docs(Root / "sub1",3,4), titleDoc(Root / "sub1"), config = config(Root / "sub1", "Tree 1", Origin.TreeScope)),
-        DocumentTree(Root / "sub2", docs(Root / "sub2",5,6) ++ legacyAdditionalMarkup, titleDoc(Root / "sub2"), config = config(Root / "sub2", "Tree 2", Origin.TreeScope))
+        DocumentTree(Root / "sub2", docs(Root / "sub2",5,6), titleDoc(Root / "sub2"), config = config(Root / "sub2", "Tree 2", Origin.TreeScope))
       ), templates = templates)
     }
 
@@ -813,8 +813,6 @@ class StandardDirectiveSpec extends AnyFlatSpec
         |  ] 
         |} bbb ${cursor.currentDocument.content}""".stripMargin
 
-    val res = parseTemplateAndRewrite(template)
-
     parseTemplateAndRewrite(template) should be (templateResult(extLink(1), extLink(2)))
   }
 
@@ -827,8 +825,6 @@ class StandardDirectiveSpec extends AnyFlatSpec
         |    { target = "#" }
         |  ] 
         |} bbb ${cursor.currentDocument.content}""".stripMargin
-
-    val res = parseTemplateAndRewrite(template)
 
     parseTemplateAndRewrite(template) should be (templateResult(extLink(1), docList(Root / "sub2" / "doc6", 6, 1)))
   }
@@ -1090,5 +1086,118 @@ class StandardDirectiveSpec extends AnyFlatSpec
 
     parseDocumentAndRewrite(input) should be (blockResult(docList(Root / "sub1" / "doc3", 3, 1)))
   }
+
+  trait LinkModel extends TreeModel {
+
+    def staticDocs = Seq(
+      Root / "doc-1.css",
+      Root / "doc-2.epub.css",
+      Root / "doc-3.shared.css",
+      Root / "sub2" / "doc-4.css",
+    )
+
+    def templatePath: Path
+
+    override def parseTemplateAndRewrite (template: String): RootElement = {
+      val templateDoc = TemplateDocument(templatePath, parseTemplate(template))
+      val inputTree = buildTree(List(templateDoc))
+      val tree = inputTree.rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree)))
+      val root = DocumentTreeRoot(tree, staticDocuments = staticDocs)
+      val format = templatePath.suffix.get.stripPrefix("template.")
+      val res = TemplateRewriter.applyTemplates(root, format).toOption.get
+      res.tree.selectDocument(CurrentTree / "sub2" / "doc6").get.content
+    }
+
+    def buildResult (content: String): RootElement = {
+      root(TemplateRoot(
+        t("aaa\n\n"),
+        TemplateElement(RawContent(NonEmptySet.of("html","xhtml"), content)),
+        t("\n\nbbb")
+      ))
+    }
+  }
+
+  "The linkCSS directive" should "pick all CSS documents apart from those for EPUB when used without attributes" in new LinkModel {
+    def templatePath = DefaultTemplatePath.forHTML
+    val input =
+      """aaa
+        |
+        |@:linkCSS
+        |
+        |bbb""".stripMargin
+
+    val res = parseTemplateAndRewrite(input)
+    val generatedHTML = """<link rel="stylesheet" type="text/css" href="../doc-1.css" />
+                          |    <link rel="stylesheet" type="text/css" href="../doc-3.shared.css" />
+                          |    <link rel="stylesheet" type="text/css" href="doc-4.css" />""".stripMargin
+    parseTemplateAndRewrite(input) should be (buildResult(generatedHTML))
+  }
+
+  it should "pick matching CSS documents apart from those for EPUB when used with an include filter" in new LinkModel {
+    def templatePath = DefaultTemplatePath.forHTML
+    val input =
+      """aaa
+        |
+        |@:linkCSS { include=[ /sub2 ] }
+        |
+        |bbb""".stripMargin
+
+    val res = parseTemplateAndRewrite(input)
+    val generatedHTML = """<link rel="stylesheet" type="text/css" href="doc-4.css" />""".stripMargin
+    parseTemplateAndRewrite(input) should be (buildResult(generatedHTML))
+  }
+
+  it should "pick matching CSS documents apart from those for EPUB and respect the order of the specified filters" in new LinkModel {
+    def templatePath = DefaultTemplatePath.forHTML
+    val input =
+      """aaa
+        |
+        |@:linkCSS { include=[ /sub2, / ] }
+        |
+        |bbb""".stripMargin
+
+    val res = parseTemplateAndRewrite(input)
+    val generatedHTML = """<link rel="stylesheet" type="text/css" href="doc-4.css" />
+                          |    <link rel="stylesheet" type="text/css" href="../doc-1.css" />
+                          |    <link rel="stylesheet" type="text/css" href="../doc-3.shared.css" />""".stripMargin
+    parseTemplateAndRewrite(input) should be (buildResult(generatedHTML))
+  }
+
+  it should "pick all CSS documents for EPUB when used without attributes" in new LinkModel {
+    def templatePath = DefaultTemplatePath.forEPUB
+    val input =
+      """aaa
+        |
+        |@:linkCSS
+        |
+        |bbb""".stripMargin
+
+    val res = parseTemplateAndRewrite(input)
+    val generatedHTML = """<link rel="stylesheet" type="text/css" href="../doc-2.epub.css" />
+                          |    <link rel="stylesheet" type="text/css" href="../doc-3.shared.css" />""".stripMargin
+    parseTemplateAndRewrite(input) should be (buildResult(generatedHTML))
+  }
+
+  "The linkJS directive" should "pick all JavaScript documents when used without attributes" in new LinkModel {
+    override def staticDocs = Seq(
+      Root / "doc-1.js",
+      Root / "doc-2.foo",
+      Root / "doc-3.bar",
+      Root / "sub2" / "doc-4.js",
+    )
+    def templatePath = DefaultTemplatePath.forHTML
+    val input =
+      """aaa
+        |
+        |@:linkJS
+        |
+        |bbb""".stripMargin
+
+    val res = parseTemplateAndRewrite(input)
+    val generatedHTML = """<script src="../doc-1.js"></script>
+                          |    <script src="doc-4.js"></script>""".stripMargin
+    parseTemplateAndRewrite(input) should be (buildResult(generatedHTML))
+  }
+
 
 }
