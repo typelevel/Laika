@@ -16,6 +16,7 @@
 
 package laika.helium.generate
 
+import laika.ast.Path.Root
 import laika.ast.{DocumentCursor, ExternalTarget, InternalTarget, InvalidElement, NoOpt, Options, Path, Span, SpanResolver, SpanSequence, TemplateElement, TemplateSpan, TemplateSpanSequence, TemplateString, Text}
 import laika.config.{ASTValue, Config, ConfigBuilder, ConfigEncoder}
 import laika.helium.{Favicon, Helium, LandingPage, MarkupEditLinks, PDFLayout, ReleaseInfo, Teaser, ThemeTarget, TopNavigationBar}
@@ -117,6 +118,8 @@ object ConfigGenerator {
       .withValue("helium.markupEditLinks", helium.webLayout.markupEditLinks)
       .withValue("helium.pdf", helium.pdfLayout)
       .withValue("helium.themeFonts", helium.themeFonts)
+      .withValue("helium.htmlIncludes.css", (Root / "helium") +: helium.htmlIncludes.includeCSS)
+      .withValue("helium.htmlIncludes.js", (Root / "helium") +: helium.htmlIncludes.includeJS)
       .withValue(helium.fontResources)
       .build
   

@@ -39,6 +39,7 @@ case class Helium (fontResources: Seq[FontDefinition],
                    themeFonts: ThemeFonts,
                    fontSizes: FontSizes,
                    colors: ColorSet,
+                   htmlIncludes: HTMLIncludes,
                    landingPage: Option[LandingPage],
                    webLayout: WebLayout,
                    pdfLayout: PDFLayout) { self =>
@@ -162,6 +163,7 @@ object Helium {
         )
       )
     ),
+    HTMLIncludes(),
     None,
     WebLayout(
       contentWidth = px(860), 

@@ -16,6 +16,7 @@
 
 package laika.helium
 
+import laika.ast.Path.Root
 import laika.ast.{Image, Path, Size}
 
 case class WebLayout (contentWidth: Size, 
@@ -54,9 +55,9 @@ case class LandingPage (logo: Option[Image] = None,
                         projectLinks: Seq[ThemeLink] = Nil,
                         teasers: Seq[Teaser] = Nil)
 
-case class Favicon (target: ThemeTarget, sizes: Option[String], mediaType: Option[String])
-
 case class MarkupEditLinks (text: String, baseURL: String)
+
+case class Favicon (target: ThemeTarget, sizes: Option[String], mediaType: Option[String])
 
 object Favicon {
   private def mediaType (suffix: Option[String]): Option[String] = suffix.collect {
@@ -83,3 +84,5 @@ object AnchorPlacement {
   object Left extends AnchorPlacement
   object Right extends AnchorPlacement
 }
+
+case class HTMLIncludes (includeCSS: Seq[Path] = Seq(Root), includeJS: Seq[Path] = Seq(Root))
