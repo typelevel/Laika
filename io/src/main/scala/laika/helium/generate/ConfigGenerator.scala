@@ -118,8 +118,8 @@ object ConfigGenerator {
       .withValue("helium.markupEditLinks", helium.webLayout.markupEditLinks)
       .withValue("helium.pdf", helium.pdfLayout)
       .withValue("helium.themeFonts", helium.themeFonts)
-      .withValue("helium.htmlIncludes.css", (Root / "helium") +: helium.htmlIncludes.includeCSS)
-      .withValue("helium.htmlIncludes.js", (Root / "helium") +: helium.htmlIncludes.includeJS)
+      .withValue("helium.includeCSS", (Root / "helium") +: helium.htmlIncludes.includeCSS)
+      .withValue("helium.includeJS", (Root / "helium") +: helium.htmlIncludes.includeJS)
       .withValue(helium.fontResources)
       .build
   

@@ -22,9 +22,9 @@
       @:for(_.webCSS) <link rel="stylesheet" href="${_}"> @:@
     @:@
 
-    <link rel="stylesheet" href="../helium/theme.css">
+    @:includeCSS { include = ${helium.includeCSS} }
+    @:includeJS { include = ${helium.includeJS} }
     
-    <script src="../helium/theme.js"></script>
     <script> /* for avoiding page load transitions */ </script>
 
   </head>
