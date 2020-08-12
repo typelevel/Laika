@@ -82,9 +82,15 @@ object SegmentedPathBase {
           case Seq(single)  => (single, None)
           case init :+ last => (init.mkString(char.toString), Some(last))
         }
+
+      def splitAtFirst(in: String, char: Char): (String, Option[String]) =
+        in.split(char).toSeq match {
+          case Seq(single)  => (single, None)
+          case first +: rest => (first, Some(rest.mkString(char.toString)))
+        }
   
       val (name, fragment)   = splitAtLast(lastSegment, '#')
-      val (basename, suffix) = splitAtLast(name, '.')
+      val (basename, suffix) = splitAtFirst(name, '.')
   
       (Some(NonEmptyChain.fromChainAppend(Chain.fromSeq(segments.init), basename)), suffix, fragment)
     }

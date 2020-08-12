@@ -298,6 +298,10 @@ class PathAPISpec extends AnyWordSpec
       (abs_c / "foo.jpg").suffix shouldBe Some("jpg")
     }
 
+    "use the longest suffix in case of multiple dots" in {
+      (abs_c / "foo.tar.gz").suffix shouldBe Some("tar.gz")
+    }
+
     "be defined for an absolute path with suffix and fragment" in {
       (abs_c / "foo.jpg#baz").suffix shouldBe Some("jpg")
     }
