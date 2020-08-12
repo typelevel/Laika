@@ -51,7 +51,8 @@ import scala.collection.immutable.TreeSet
   * - `format`: Process the body element only when the output format matches the format
   *   specified in the directive (e.g. `pdf` or `html`).
   * - `style`: Adds a style property to the body element.
-  * - `styleLink`: Adds link elements to HTML output for all CSS files found in the document tree
+  * - `linkCSS`: Adds link elements to HTML/EPUB output for all or selected CSS files found in the document tree
+  * - `linkJS`: Adds link elements to HTML/EPUB output for all or selected JavaScript files found in the document tree
   * - `fragment`: Adds the body as a fragment to the target document, separate from the main
   *   content, to be rendered in different locations of the output, like headers, footers or sidebars.
   * - `relativePath`: Translates an absolute or relative path from the perspective of a template
@@ -617,14 +618,7 @@ object StandardDirectives extends DirectiveRegistry {
     todo
   )
 
-  /** Template resolver that inserts links to all CSS inputs found in the document tree, using a path
-    * relative to the currently processed document. 
-    *
-    * Only has an effect for HTML and EPUB output, will be ignored for PDF output.
-    * 
-    * This is an alternative to the `@styleLinks` directive that can be used where
-    * template ASTs are created programmatically for extensions.
-    */
+  @deprecated("use the more flexible new @:linkCSS directive", "0.16.0")
   case object StyleLinks extends SpanResolver with TemplateSpan { // TODO - 0.16 - remove
     type Self = this.type
     def withOptions (options: Options): this.type = this
@@ -659,11 +653,7 @@ object StandardDirectives extends DirectiveRegistry {
     TemplateElement(RawContent(NonEmptySet.of("html","xhtml"), allLinks.mkString("\n    ")))
   }
 
-  /** Template directive that inserts links to all CSS inputs found in the document tree, using a path
-    * relative to the currently processed document. 
-    *
-    * Only has an effect for HTML and EPUB output, will be ignored for PDF output.
-    */
+  @deprecated("use the more flexible new @:linkCSS directive", "0.16.0")
   lazy val styleLinksDirective: Templates.Directive = Templates.create("styleLinks") {
     Templates.dsl.cursor.map(StyleLinks.resolve)
   }
