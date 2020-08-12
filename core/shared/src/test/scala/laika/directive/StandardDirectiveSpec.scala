@@ -33,7 +33,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
 
-class TempStandardDirectiveSpec extends AnyFlatSpec
+class StandardDirectiveSpec extends AnyFlatSpec
   with Matchers
   with ModelBuilder {
 
