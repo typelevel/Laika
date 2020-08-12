@@ -317,7 +317,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
     ))
     val doc = Document(Root / "doc", root(group))
     val tree = DocumentTreeRoot(DocumentTree(Root, Seq(doc), config = ConfigBuilder.empty.withValue(config).build))
-    val cursor = DocumentCursor(doc, TreeCursor(tree), tree.config, TreePosition(Nil))
+    val cursor = DocumentCursor(doc, TreeCursor(RootCursor(tree)), tree.config, TreePosition(Nil))
     val rewritten = TemplateRewriter.applyTemplate(cursor, TemplateDocument(Root, TemplateRoot.fallback))
     rewritten.map(_.content) shouldBe Right(root(BlockSequence(List(p("common"), p("33\n44")))))
   }

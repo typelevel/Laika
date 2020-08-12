@@ -36,7 +36,8 @@ trait TemplateRewriter {
   
   /** Selects and applies the templates for the specified output format to all documents within the specified tree cursor recursively.
    */
-  def applyTemplates (tree: DocumentTreeRoot, format: String): Either[ConfigError, DocumentTreeRoot] = applyTemplates(RootCursor(tree), format)
+  def applyTemplates (tree: DocumentTreeRoot, format: String): Either[ConfigError, DocumentTreeRoot] = 
+    applyTemplates(RootCursor(tree, Some(format)), format)
 
   private def applyTemplates (cursor: RootCursor, format: String): Either[ConfigError, DocumentTreeRoot] = {
     

@@ -62,8 +62,10 @@ sealed trait Cursor {
   * operations.
   *
   * @param target the root of the document tree this cursor points to
+  * @param targetFormat the format the cursor is applied for, empty in case of the 1st rewrite step which 
+  *                     is applied to all formats.
   */
-case class RootCursor(target: DocumentTreeRoot) {
+case class RootCursor(target: DocumentTreeRoot, targetFormat: Option[String] = None) {
   
   type Target = DocumentTreeRoot
   
@@ -173,12 +175,13 @@ object TreeCursor {
   def apply (root: RootCursor): TreeCursor =
     apply(root.target.tree, None, root, root.config, TreePosition.root)
 
+  @deprecated("use one of the other two apply methods that also allow to specify a target format", "0.16.0")
   def apply (root: DocumentTreeRoot): TreeCursor =
     apply(RootCursor(root))
 
-  def apply (root: DocumentTree): TreeCursor =
-    apply(DocumentTreeRoot(root))
-    
+  def apply (root: DocumentTree, format: Option[String] = None): TreeCursor =
+    apply(RootCursor(DocumentTreeRoot(root), format))
+
 }
 
 /** Cursor for a single document, its parent, siblings and root directories,
@@ -296,16 +299,11 @@ case class DocumentCursor (target: Document,
 
 object DocumentCursor {
 
-  /** Creates a cursor by placing the specified document
-    * as a sole node into an otherwise empty document tree.
-    */
-  def apply (document: Document): DocumentCursor = 
-    apply(document, TreeCursor(DocumentTree(Root, Seq(document))), document.config, TreePosition.root)
+  /** Creates a cursor by placing the specified document as a sole node into an otherwise empty document tree. */
+  def apply (document: Document, targetFormat: Option[String] = None): DocumentCursor =
+    apply(document, TreeCursor(DocumentTree(Root, Seq(document)), targetFormat), document.config, TreePosition.root)
 
-  /** Creates a cursor for an empty document. The only use case within Laika is
-    * for processing a so-called 'dynamic document' that consists of
-    * a template that is not associated with any markup document.
-    */
+  @deprecated("no longer useful for current feature set", "0.16.0")
   def forEmptyDocument (name: String, parent: TreeCursor): DocumentCursor = {
     val emptyDoc = Document(parent.target.path / name, RootElement.empty)
     apply(emptyDoc, parent, parent.config, TreePosition.root)
