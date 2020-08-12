@@ -147,10 +147,10 @@ object PDF extends PDF(XSLFO, None) {
 
   object BookConfig {
 
-    implicit val decoder: ConfigDecoder[BookConfig] = laika.io.theme.BookConfig.decoder.map(c => BookConfig(
+    implicit val decoder: ConfigDecoder[BookConfig] = laika.theme.BookConfig.decoder.map(c => BookConfig(
       c.metadata, c.navigationDepth, c.fonts, c.coverImage
     ))
-    implicit val encoder: ConfigEncoder[BookConfig] = laika.io.theme.BookConfig.encoder.contramap(c =>
+    implicit val encoder: ConfigEncoder[BookConfig] = laika.theme.BookConfig.encoder.contramap(c =>
       theme.BookConfig(c.metadata, c.navigationDepth, c.fonts, c.coverImage)
     )
     implicit val defaultKey: DefaultKey[BookConfig] = DefaultKey(Key("laika","pdf"))
