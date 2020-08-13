@@ -595,29 +595,6 @@ object StandardDirectives extends DirectiveRegistry {
     attribute(0).map { _ => BlockSequence(Nil) }
   }
   
-  /** The complete list of standard directives for block
-   *  elements in markup documents.
-   */
-  lazy val blockDirectives: Seq[Blocks.Directive] = List(
-    blockBreadcrumb,
-    blockNav,
-    blockFragment,
-    blockStyle,
-    selectDirective,
-    callout,
-    format,
-    pageBreak,
-    todoBlock
-  )
-  
-  /** The complete list of standard directives for span
-   *  elements in markup documents.
-   */
-  lazy val spanDirectives: Seq[Spans.Directive] = List(
-    spanStyle,
-    todo
-  )
-
   @deprecated("use the more flexible new @:linkCSS directive", "0.16.0")
   case object StyleLinks extends SpanResolver with TemplateSpan { // TODO - 0.16 - remove
     type Self = this.type
@@ -697,6 +674,99 @@ object StandardDirectives extends DirectiveRegistry {
     }
   }
 
+  /** Markup directive for inserting an image as a block level element.
+    *
+    * The image source must be set with a positional attribute (in parenthesis). 
+    * It is the only required attribute and can be a local path (absolute or relative) in the virtual tree
+    * of your input sources, or an external URL (`http:` or `https:`).
+    *
+    * The optional `intrinsicWidth` and `intrinsicHeight` attributes can be used to describe the dimensions
+    * of the image to avoid layout shifts when loading the page.
+    *
+    * For controlling the actual display size you can use the `style` attribute together with a matching declaration
+    * in one of your site's CSS documents. 
+    * If omitted the theme in use will usually have a sensible default size.
+    *
+    */
+  val imageBlockDirective: Blocks.Directive = Blocks.create("image") {
+    import Blocks.dsl._
+    (attribute(0).as[String].widen,
+      attribute("intrinsicWidth").as[Int].optional,
+      attribute("intrinsicHeight").as[Int].optional,
+      attribute("style").as[String].optional,
+      attribute("alt").as[String].optional,
+      attribute("title").as[String].optional,
+      cursor).mapN { (src, width, height, style, alt, title, cursor) =>
+        val img = Image(
+          InternalTarget.fromPath(PathBase.parse(src), cursor.path),
+          width.map(LengthUnit.px(_)),
+          height.map(LengthUnit.px(_)),
+          alt,
+          title
+        )
+        val options = Styles(style.getOrElse("default-image-block"))
+        BlockSequence(Seq(SpanSequence(img)), options = options)
+      }
+  }
+
+  /** Markup directive for inserting an image as an inline element.
+    *
+    * The image source must be set with a positional attribute (in parenthesis). 
+    * It is the only required attribute and can be a local path (absolute or relative) in the virtual tree
+    * of your input sources, or an external URL (`http:` or `https:`).
+    *
+    * The optional `intrinsicWidth` and `intrinsicHeight` attributes can be used to describe the dimensions
+    * of the image to avoid layout shifts when loading the page.
+    *
+    * For controlling the actual display size you can use the `style` attribute together with a matching declaration
+    * in one of your site's CSS documents. 
+    * If omitted the theme in use will usually have a sensible default size.
+    *
+    */
+  val imageSpanDirective: Spans.Directive = Spans.create("image") {
+    import Spans.dsl._
+    (attribute(0).as[String].widen,
+      attribute("intrinsicWidth").as[Int].optional,
+      attribute("intrinsicHeight").as[Int].optional,
+      attribute("style").as[String].optional,
+      attribute("alt").as[String].optional,
+      attribute("title").as[String].optional,
+      cursor).mapN { (src, width, height, style, alt, title, cursor) =>
+        val options = Styles(style.getOrElse("default-image-span"))
+        Image(
+          InternalTarget.fromPath(PathBase.parse(src), cursor.path),
+          width.map(LengthUnit.px(_)),
+          height.map(LengthUnit.px(_)),
+          alt,
+          title,
+          options
+        )
+      }
+  }
+
+  /** The complete list of standard directives for block elements in markup documents.
+    */
+  lazy val blockDirectives: Seq[Blocks.Directive] = List(
+    blockBreadcrumb,
+    blockNav,
+    blockFragment,
+    blockStyle,
+    imageBlockDirective,
+    selectDirective,
+    callout,
+    format,
+    pageBreak,
+    todoBlock
+  )
+
+  /** The complete list of standard directives for span elements in markup documents.
+    */
+  lazy val spanDirectives: Seq[Spans.Directive] = List(
+    imageSpanDirective,
+    spanStyle,
+    todo
+  )
+  
   /** The complete list of standard directives for templates.
    */
   lazy val templateDirectives: Seq[Templates.Directive] = List(

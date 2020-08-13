@@ -1199,5 +1199,81 @@ class StandardDirectiveSpec extends AnyFlatSpec
     parseTemplateAndRewrite(input) should be (buildResult(generatedHTML))
   }
 
+  trait ImageSetup {
+
+    val imgTarget = InternalTarget(Root / "picture.jpg", CurrentTree / "picture.jpg")
+
+    val defaultBlockStyle = Styles("default-image-block")
+    val defaultSpanStyle = Styles("default-image-span")
+
+    def blocks(directive: String): String =
+      s"""aaa
+         |
+      |$directive
+         |
+      |bbb""".stripMargin
+  }
+
+  "The image block directive" should "succeed without any HOCON attributes" in new ImageSetup {
+    val result = root(p("aaa"), BlockSequence(Seq(SpanSequence(Image(imgTarget))), defaultBlockStyle), p("bbb"))
+    parse(blocks("@:image(picture.jpg)")).content should be (result)
+  }
+
+  it should "support the alt and title attributes" in new ImageSetup {
+    val input = """@:image(picture.jpg) {
+                  |  alt = alt
+                  |  title = desc
+                  |}""".stripMargin
+    val result = root(p("aaa"), BlockSequence(Seq(SpanSequence(Image(imgTarget, alt = Some("alt"), title = Some("desc")))), defaultBlockStyle), p("bbb"))
+    parse(blocks(input)).content should be (result)
+  }
+
+  it should "support the intrinsicWidth and intrinsicHeight attributes" in new ImageSetup {
+    val input = """@:image(picture.jpg) {
+                  |  intrinsicWidth = 320
+                  |  intrinsicHeight = 240
+                  |}""".stripMargin
+    val result = root(p("aaa"), BlockSequence(Seq(SpanSequence(Image(imgTarget, width = Some(LengthUnit.px(320)), height = Some(LengthUnit.px(240))))), defaultBlockStyle), p("bbb"))
+    parse(blocks(input)).content should be (result)
+  }
+
+  it should "support the style attribute" in new ImageSetup {
+    val input = """@:image(picture.jpg) {
+                  |  style = small-image
+                  |}""".stripMargin
+    val result = root(p("aaa"), BlockSequence(Seq(SpanSequence(Image(imgTarget))), Styles("small-image")), p("bbb"))
+    parse(blocks(input)).content should be (result)
+  }
+
+  "The image span directive" should "succeed without any HOCON attributes" in new ImageSetup {
+    val result = root(p(Text("aaa "), Image(imgTarget, options = defaultSpanStyle), Text(" bbb")))
+    parse("aaa @:image(picture.jpg) bbb").content should be (result)
+  }
+
+  it should "support the alt and title attributes" in new ImageSetup {
+    val input = """aaa @:image(picture.jpg) {
+                  |  alt = alt
+                  |  title = desc
+                  |} bbb""".stripMargin
+    val result = root(p(Text("aaa "), Image(imgTarget, alt = Some("alt"), title = Some("desc"), options = defaultSpanStyle), Text(" bbb")))
+    parse(input).content should be (result)
+  }
+
+  it should "support the intrinsicWidth and intrinsicHeight attributes" in new ImageSetup {
+    val input = """aaa @:image(picture.jpg) {
+                  |  intrinsicWidth = 320
+                  |  intrinsicHeight = 240
+                  |} bbb""".stripMargin
+    val result = root(p(Text("aaa "), Image(imgTarget, width = Some(LengthUnit.px(320)), height = Some(LengthUnit.px(240)), options = defaultSpanStyle), Text(" bbb")))
+    parse(input).content should be (result)
+  }
+
+  it should "support the style attribute" in new ImageSetup {
+    val input = """aaa @:image(picture.jpg) {
+                  |  style = small-image
+                  |} bbb""".stripMargin
+    val result = root(p(Text("aaa "), Image(imgTarget, options = Styles("small-image")), Text(" bbb")))
+    parse(input).content should be (result)
+  }
 
 }

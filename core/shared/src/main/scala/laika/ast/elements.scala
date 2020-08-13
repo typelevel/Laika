@@ -1233,7 +1233,7 @@ case class Size (amount: Double, unit: LengthUnit) {
 
 /** A base for builder of CSS-compatible length units.
   */
-sealed abstract class LengthUnit (val displayValue: String) {
+sealed abstract class LengthUnit (val displayValue: String) extends (Double => Size) {
   def apply(amount: Double): Size = Size(amount, this)
 }
 object LengthUnit {
