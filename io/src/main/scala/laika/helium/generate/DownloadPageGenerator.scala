@@ -37,7 +37,7 @@ private[laika] object DownloadPageGenerator {
 
     def downloadAST (link: Path, title: String, coverImage: Option[Path]): TitledBlock = TitledBlock(Seq(
       Text(title)
-    ), coverImage.map(img => Paragraph(Image(title, InternalTarget.fromPath(img, refPath)))).toSeq ++ Seq(
+    ), coverImage.map(img => Paragraph(Image(InternalTarget.fromPath(img, refPath), alt = Some(title)))).toSeq ++ Seq(
       Paragraph(SpanLink(Seq(Text("Download")), InternalTarget.fromPath(link, refPath)))
     ))
 

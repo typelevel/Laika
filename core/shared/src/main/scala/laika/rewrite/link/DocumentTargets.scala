@@ -51,7 +51,7 @@ case class DocumentTargets (document: Document, slugBuilder: String => String) {
       case LinkSource(LinkIdReference(content, _, _, opt), sourcePath) =>
         SpanLink(content, ReferenceResolver.resolveTarget(target, sourcePath), title, opt)
       case LinkSource(ImageIdReference(text, _, _, opt), sourcePath) =>
-        Image(text, ReferenceResolver.resolveTarget(target, sourcePath), title = title, options = opt)
+        Image(ReferenceResolver.resolveTarget(target, sourcePath), alt = Some(text), title = title, options = opt)
     }
     TargetResolver.create(selector, resolver, TargetReplacer.removeTarget)
   }

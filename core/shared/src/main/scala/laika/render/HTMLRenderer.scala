@@ -221,7 +221,7 @@ class HTMLRenderer (fileSuffix: String, formats: NonEmptySet[String]) extends ((
       case CitationLink(ref,label,opt) => fmt.textElement("a", opt + Style.citation, s"[$label]", "href"->("#"+ref))
       case FootnoteLink(ref,label,opt) => fmt.textElement("a", opt + Style.footnote, s"[$label]", "href"->("#"+ref))
         
-      case Image(text,target,width,height,title,opt) =>
+      case Image(target,width,height,alt,title,opt) =>
         def sizeAttr (size: Option[Size], styleName: String): (Option[String],Option[String]) = size map {
           case Size(amount, LengthUnit.px) => (Some(amount.toInt.toString), None)
           case s:Size => (None, Some(s"$styleName:${s.displayValue}"))
@@ -233,7 +233,7 @@ class HTMLRenderer (fileSuffix: String, formats: NonEmptySet[String]) extends ((
           case it: InternalTarget => it.relativePath.toString
           case et: ExternalTarget => et.url
         }
-        val allAttr = fmt.optAttributes("src" -> Some(uri), "alt" -> Some(text), "title" -> title,
+        val allAttr = fmt.optAttributes("src" -> Some(uri), "alt" -> alt, "title" -> title,
           "width" -> widthAttr, "height" -> heightAttr, "style" -> styleAttr)
         fmt.emptyElement("img", opt, allAttr:_*)
 

@@ -201,19 +201,19 @@ class InlineParsersSpec extends AnyFlatSpec
   
   "The image parser" should "parse an inline image without title" in {
     Parsing ("some ![link](http://foo.jpg) here") should produce {
-      spans(Text("some "), Image("link", ExternalTarget("http://foo.jpg")), Text(" here"))
+      spans(Text("some "), Image(ExternalTarget("http://foo.jpg"), alt = Some("link")), Text(" here"))
     }
   }
   
   it should "parse an inline image with an optional title enclosed in double quotes" in {
     Parsing ("""some ![link](http://foo.jpg "a title") here""") should produce {
-      spans(Text("some "), Image("link", ExternalTarget("http://foo.jpg"), title = Some("a title")), Text(" here"))
+      spans(Text("some "), Image(ExternalTarget("http://foo.jpg"), alt = Some("link"), title = Some("a title")), Text(" here"))
     }
   }
   
   it should "parse an inline image with an optional title enclosed in single quotes" in {
     Parsing ("""some ![link](http://foo.jpg 'a title') here""") should produce {
-      spans(Text("some "), Image("link", ExternalTarget("http://foo.jpg"), title = Some("a title")), Text(" here"))
+      spans(Text("some "), Image(ExternalTarget("http://foo.jpg"), alt = Some("link"), title = Some("a title")), Text(" here"))
     }
   }
   
@@ -225,7 +225,7 @@ class InlineParsersSpec extends AnyFlatSpec
   
   it should "not parse markup inside the text of an inline link" in {
     Parsing ("some ![link *text*](http://foo.jpg) here") should produce {
-      spans(Text("some "), Image("link *text*", ExternalTarget("http://foo.jpg")), Text(" here"))
+      spans(Text("some "), Image(ExternalTarget("http://foo.jpg"), alt = Some("link *text*")), Text(" here"))
     }
   }
   

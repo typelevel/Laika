@@ -49,7 +49,7 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec
     val input = """.. |subst| image:: picture.jpg
       |
       |Some |subst|""".stripMargin
-    val result = root (p(Text("Some "),Image("", imgTarget)))
+    val result = root (p(Text("Some "),Image(imgTarget)))
     parse(input) should be (result)
   }
   
@@ -58,7 +58,7 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec
       | :alt: alt
       |
       |Some |subst|""".stripMargin
-    val result = root (p(Text("Some "),Image("alt", imgTarget)))
+    val result = root (p(Text("Some "),Image(imgTarget, alt = Some("alt"))))
     parse(input) should be (result)
   }
   
@@ -69,7 +69,7 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec
       |.. _ref: http://foo.com/
       |
       |Some |subst|""".stripMargin
-    val result = root (p(Text("Some "),SpanLink(List(Image("", imgTarget)), ExternalTarget("http://foo.com/"))))
+    val result = root (p(Text("Some "),SpanLink(List(Image(imgTarget)), ExternalTarget("http://foo.com/"))))
     parse(input) should be (result)
   }
   
@@ -80,7 +80,7 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec
       |.. _`some ref`: http://foo.com/
       |
       |Some |subst|""".stripMargin
-    val result = root (p(Text("Some "),SpanLink(List(Image("", imgTarget)), ExternalTarget("http://foo.com/"))))
+    val result = root (p(Text("Some "),SpanLink(List(Image(imgTarget)), ExternalTarget("http://foo.com/"))))
     parse(input) should be (result)
   }
   
@@ -89,7 +89,7 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec
       | :target: http://foo.com/
       |
       |Some |subst|""".stripMargin
-    val result = root (p(Text("Some "),SpanLink(List(Image("", imgTarget)), ExternalTarget("http://foo.com/"))))
+    val result = root (p(Text("Some "),SpanLink(List(Image(imgTarget)), ExternalTarget("http://foo.com/"))))
     parse(input) should be (result)
   }
   
@@ -98,7 +98,7 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec
       | :class: foo
       |
       |Some |subst|""".stripMargin
-    val result = root (p(Text("Some "),Image("", imgTarget, options = Styles("foo"))))
+    val result = root (p(Text("Some "),Image(imgTarget, options = Styles("foo"))))
     parse(input) should be (result)
   }
 
@@ -107,7 +107,7 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec
                   | :align: top
                   |
                   |Some |subst|""".stripMargin
-    val result = root (p(Text("Some "),Image("", imgTarget, options=Styles("align-top"))))
+    val result = root (p(Text("Some "),Image(imgTarget, options=Styles("align-top"))))
     parse(input) should be (result)
   }
 
@@ -119,7 +119,7 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec
                   |Some |subst|""".stripMargin
     val expectedWidth = Some(LengthUnit.px(200))
     val expectedHeight = Some(LengthUnit.px(120))
-    val result = root (p(Text("Some "),Image("", imgTarget, width = expectedWidth,height = expectedHeight)))
+    val result = root (p(Text("Some "),Image(imgTarget, width = expectedWidth,height = expectedHeight)))
     parse(input) should be (result)
   }
 
@@ -132,7 +132,7 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec
                   |Some |subst|""".stripMargin
     val expectedWidth = Some(LengthUnit.px(100))
     val expectedHeight = Some(LengthUnit.px(60))
-    val result = root (p(Text("Some "),Image("", imgTarget, width = expectedWidth,height = expectedHeight)))
+    val result = root (p(Text("Some "),Image(imgTarget, width = expectedWidth,height = expectedHeight)))
     parse(input) should be (result)
   }
   

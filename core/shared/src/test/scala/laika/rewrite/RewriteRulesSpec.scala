@@ -291,7 +291,7 @@ class RewriteRulesSpec extends AnyWordSpec
     }
 
     def pathRef (ref: String) = LinkPathReference(List(Text("text")), RelativePath.parse(ref), "text")
-    def imgPathRef (ref: String) = ImagePathReference("text", RelativePath.parse(ref), "text")
+    def imgPathRef (ref: String) = ImagePathReference(RelativePath.parse(ref), "text", alt = Some("text"))
     def internalLink (path: RelativePath, externalUrl: Option[String] = None) =
       SpanLink(List(Text("text")), InternalTarget.fromPath(path, Root / "tree1" / "doc3.md").copy(externalUrl = externalUrl))
     def docLink (ref: String) =
@@ -325,7 +325,7 @@ class RewriteRulesSpec extends AnyWordSpec
     "resolve internal link references to an image" in {
       val rootElem = root(p(imgPathRef("../images/frog.jpg")))
       val target = InternalTarget(Root / "images" / "frog.jpg", Parent(1) / "images" / "frog.jpg")
-      rewrittenTreeDoc(rootElem) should be(root(p(Image("text", target))))
+      rewrittenTreeDoc(rootElem) should be(root(p(Image(target, alt = Some("text")))))
     }
 
     "produce an invalid span for an unresolved reference" in {
@@ -377,12 +377,12 @@ class RewriteRulesSpec extends AnyWordSpec
 
     "resolve external link references" in {
       val rootElem = root(p(simpleImgRef()), LinkDefinition("name", ExternalTarget("http://foo.com/bar.jpg")))
-      rewritten(rootElem) should be(root(p(Image("text", ExternalTarget("http://foo.com/bar.jpg")))))
+      rewritten(rootElem) should be(root(p(Image(ExternalTarget("http://foo.com/bar.jpg"), alt = Some("text")))))
     }
 
     "resolve internal link references" in {
       val rootElem = root(p(simpleImgRef()), LinkDefinition("name", InternalTarget(Root, RelativePath.parse("foo.jpg"))))
-      rewritten(rootElem) should be(root(p(Image("text", InternalTarget(Root / "foo.jpg", CurrentTree / "foo.jpg")))))
+      rewritten(rootElem) should be(root(p(Image(InternalTarget(Root / "foo.jpg", CurrentTree / "foo.jpg"), alt = Some("text")))))
     }
 
     "replace an unresolvable reference with an invalid span" in {

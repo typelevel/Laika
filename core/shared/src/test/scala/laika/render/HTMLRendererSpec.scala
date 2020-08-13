@@ -374,7 +374,7 @@ class HTMLRendererSpec extends AnyFlatSpec
   }
   
   it should "render a figure" in {
-    val elem = Figure(Image("alt", InternalTarget(Root / "image.jpg", CurrentTree / "image.jpg")), List(Text("some "), Emphasized("caption"), Text(" text")), List(p("aaa"), Rule(), p("bbb")))
+    val elem = Figure(Image(InternalTarget(Root / "image.jpg", CurrentTree / "image.jpg"), alt = Some("alt")), List(Text("some "), Emphasized("caption"), Text(" text")), List(p("aaa"), Rule(), p("bbb")))
     val html = """<div class="figure">
       |  <img src="image.jpg" alt="alt">
       |  <p class="caption">some <em>caption</em> text</p>
@@ -559,29 +559,29 @@ class HTMLRendererSpec extends AnyFlatSpec
   }
   
   it should "render a paragraph containing an image without title" in {
-    val elem = p(Text("some "), Image("img", imageTarget), Text(" span"))
+    val elem = p(Text("some "), Image(imageTarget, alt = Some("img")), Text(" span"))
     render (elem) should be ("""<p>some <img src="foo.jpg" alt="img"> span</p>""") 
   }
   
   it should "render a paragraph containing an image with title" in {
-    val elem = p(Text("some "), Image("img", imageTarget, title = Some("title")), Text(" span"))
+    val elem = p(Text("some "), Image(imageTarget, alt = Some("img"), title = Some("title")), Text(" span"))
     render (elem) should be ("""<p>some <img src="foo.jpg" alt="img" title="title"> span</p>""") 
   }
 
   it should "render a paragraph containing an image with width and height in pixels" in {
-    val image = Image("img", imageTarget, width = Some(LengthUnit.px(200)), height = Some(LengthUnit.px(120)))
+    val image = Image(imageTarget, alt = Some("img"), width = Some(LengthUnit.px(200)), height = Some(LengthUnit.px(120)))
     val elem = p(Text("some "), image, Text(" span"))
     render (elem) should be ("""<p>some <img src="foo.jpg" alt="img" width="200" height="120"> span</p>""")
   }
 
   it should "render a paragraph containing an image with width and height in a unit other than pixels" in {
-    val image = Image("img", imageTarget, width = Some(LengthUnit.in(12.4)), height = Some(LengthUnit.in(6.8)))
+    val image = Image(imageTarget, alt = Some("img"), width = Some(LengthUnit.in(12.4)), height = Some(LengthUnit.in(6.8)))
     val elem = p(Text("some "), image, Text(" span"))
     render (elem) should be ("""<p>some <img src="foo.jpg" alt="img" style="width:12.4in;height:6.8in"> span</p>""")
   }
 
   it should "render a paragraph containing an image with just width in a unit other than pixels" in {
-    val image = Image("img", imageTarget, width = Some(LengthUnit.in(12.4)))
+    val image = Image(imageTarget, alt = Some("img"), width = Some(LengthUnit.in(12.4)))
     val elem = p(Text("some "), image, Text(" span"))
     render (elem) should be ("""<p>some <img src="foo.jpg" alt="img" style="width:12.4in"> span</p>""")
   }

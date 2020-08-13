@@ -1203,12 +1203,12 @@ case class CitationLink (ref: String, label: String, options: Options = NoOpt) e
   def withOptions (options: Options): CitationLink = copy(options = options)
 }
 
-/** An inline image with a text description and optional title.
+/** An inline image optional title, alt and size properties.
  */
-case class Image (text: String,
-                  target: Target,
+case class Image (target: Target,
                   width: Option[Size] = None,
                   height: Option[Size] = None,
+                  alt: Option[String] = None,
                   title: Option[String] = None,
                   options: Options = NoOpt) extends Link {
   type Self = Image
@@ -1216,11 +1216,11 @@ case class Image (text: String,
 }
 
 object Image {
-  def create (text: String, url: String, source: String, width: Option[Size] = None,
-              height: Option[Size] = None, title: Option[String] = None): Span =
+  def create (url: String, source: String, width: Option[Size] = None,
+              height: Option[Size] = None, alt: Option[String] = None, title: Option[String] = None): Span =
     Target.create(url) match {
-      case et: ExternalTarget => Image(text, et, width, height, title)
-      case it: InternalTarget => ImagePathReference(text, it.relativePath, source, width, height, title)
+      case et: ExternalTarget => Image(et, width, height, alt, title)
+      case it: InternalTarget => ImagePathReference(it.relativePath, source, width, height, alt, title)
     }
 }
 
@@ -1326,16 +1326,16 @@ case class LinkPathReference(content: Seq[Span],
   * replace the source path with the final target path of the output document, resolving any
   * relative path references in the process.
   */
-case class ImagePathReference (text: String,
-                               path: RelativePath,
+case class ImagePathReference (path: RelativePath,
                                source: String,
                                width: Option[Size] = None,
                                height: Option[Size] = None,
+                               alt: Option[String] = None,
                                title: Option[String] = None,
                                options: Options = NoOpt) extends PathReference {
   type Self = ImagePathReference
   def withOptions (options: Options): ImagePathReference = copy(options = options)
-  def resolve(target: Target): Span = Image(text, target, width, height, title, options)
+  def resolve(target: Target): Span = Image(target, width, height, alt, title, options)
   lazy val unresolvedMessage: String = s"Unresolved internal reference to image with path '$path'"
 }
 

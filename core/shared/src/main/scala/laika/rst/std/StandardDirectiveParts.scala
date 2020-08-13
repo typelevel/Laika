@@ -77,7 +77,7 @@ object StandardDirectiveParts {
       val actualHeight = scale.fold(height)(s => height.map(_.scale(s.amount)))
       val alignOpt = align.getOrElse(NoOpt)
 
-      val image = ImageResolver(Image(alt.getOrElse(""), Target.create(uri), width = actualWidth, height = actualHeight))
+      val image = ImageResolver(Image(Target.create(uri), width = actualWidth, height = actualHeight, alt = alt))
 
       (target map {
         case ref: SpanLink  => ref.copy(content = List(image.withOptions(opt)), options = alignOpt)

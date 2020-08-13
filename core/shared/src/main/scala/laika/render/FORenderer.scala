@@ -18,7 +18,6 @@ package laika.render
 
 import cats.implicits._
 import cats.data.NonEmptySet
-import laika.ast.Path.Root
 import laika.ast.{Styles, _}
 import laika.render.FOFormatter._
 
@@ -206,12 +205,12 @@ object FORenderer extends ((FOFormatter, Element) => String) {
       case e @ CitationLink(ref,label,_)  => fmt.withCitation(ref)(c => fmt.footnote(e,label,c.content,c.options))
       case e @ FootnoteLink(ref,label,_)  => fmt.withFootnote(ref)(f => fmt.footnote(e,label,f.content,f.options))
       case SectionNumber(pos, opt)        => fmt.child(Text(pos.mkString(".") + " ", opt + Style.sectionNumber))
-      case e @ Image(_,target,width,height,_,_) =>
+      case e @ Image(target,width,height,_,_,_) =>
         val uri = target match {
           case it: InternalTarget => it.absolutePath.toString
           case et: ExternalTarget => et.url
         }
-        fmt.externalGraphic(e, uri, width, height) // TODO - ignoring title for now
+        fmt.externalGraphic(e, uri, width, height)
       case icon: Icon                     => fmt.rawElement("fo:inline", icon, icon.codePointAsEntity)
       case e: Leader                      => fmt.textElement("fo:leader", e, "", "leader-pattern"->"dots", "padding-left" -> "2mm", "padding-right" -> "2mm")
       case PageNumberCitation(target,_)     => s"""<fo:page-number-citation ref-id="${fmt.buildId(target.absolutePath)}" />"""
