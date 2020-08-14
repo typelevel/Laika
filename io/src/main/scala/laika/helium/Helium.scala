@@ -126,11 +126,36 @@ case class Helium (fontResources: Seq[FontDefinition],
 
 object Helium {
   
+  private val fontPath = "laika/helium/fonts"
+  
   // TODO - separate values per format where necessary
   val defaults: Helium = Helium(
     Seq(
-      
-    ), // TODO - define
+      FontDefinition(
+        Font.embedResource(fontPath + "Lato-Regular.ttf").webCSS("http://fonts.googleapis.com/css?family=Lato:400,700"), 
+        "Lato", FontWeight.Normal, FontStyle.Normal
+      ),
+      FontDefinition(
+        Font.embedResource(fontPath + "Lato-Italic.ttf"), 
+        "Lato", FontWeight.Normal, FontStyle.Italic
+      ),
+      FontDefinition(
+        Font.embedResource(fontPath + "Lato-Bold.ttf"), 
+        "Lato", FontWeight.Bold, FontStyle.Normal
+      ),
+      FontDefinition(
+        Font.embedResource(fontPath + "Lato-BoldItalic.ttf"), 
+        "Lato", FontWeight.Bold, FontStyle.Italic
+      ),
+      FontDefinition(
+        Font.embedResource(fontPath + "FiraCode-Medium.otf").webCSS("https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css"), 
+        "FiraCode", FontWeight.Normal, FontStyle.Normal
+      ),
+      FontDefinition(
+        Font.embedResource(fontPath + "icofont.ttf").webCSS("../icons/icofont.min.css"), 
+        "IcoFont", FontWeight.Normal, FontStyle.Normal
+      ),
+    ),
     ThemeFonts("Lato", "Lato", "FiraCode"),
     FontSizes(
       body = pt(10),
