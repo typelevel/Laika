@@ -24,7 +24,7 @@ import cats.implicits._
 import laika.ast.LengthUnit.{cm, mm, pt, px}
 import laika.ast.Path.Root
 import laika.ast._
-import laika.bundle.{BundleOrigin, ExtensionBundle, Precedence}
+import laika.bundle.{BundleOrigin, ExtensionBundle}
 import laika.config.Config
 import laika.format.HTML
 import laika.helium.generate._
@@ -193,6 +193,17 @@ object HeliumStyles {
 object HeliumIcon {
   private val options = Styles("icofont-laika")
   val navigationMenu: Icon = Icon('\uefa2', options)
+  val home: Icon = Icon('\uef47', options)
   val link: Icon = Icon('\uef71', options)
   val close: Icon = Icon('\ueedd', options)
+  val check: Icon = Icon('\ueed7', options)
+  val chat: Icon = Icon('\ueed5', options)
+  val settings: Icon = Icon('\ueed5', options)
+  val edit: Icon = Icon('\uef10', options)
+  val demo: Icon = Icon('\ueeea', options)
+  val download: Icon = Icon('\uef08', options)
+  val info: Icon = Icon('\uef4e', options)
+  val warning: Icon = Icon('\uefb0', options)
+  val error: Icon = Icon('\ueedd', options)
+  val twitter: Icon = Icon('\ued7a', options)
 }
