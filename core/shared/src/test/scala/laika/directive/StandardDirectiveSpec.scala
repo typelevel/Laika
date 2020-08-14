@@ -1133,12 +1133,12 @@ class StandardDirectiveSpec extends AnyFlatSpec
     parseTemplateAndRewrite(input) should be (buildResult(generatedHTML))
   }
 
-  it should "pick matching CSS documents apart from those for EPUB when used with an include filter" in new LinkModel {
+  it should "pick matching CSS documents apart from those for EPUB when used with an paths filter" in new LinkModel {
     def templatePath = DefaultTemplatePath.forHTML
     val input =
       """aaa
         |
-        |@:linkCSS { include=[ /sub2 ] }
+        |@:linkCSS { paths = [ /sub2 ] }
         |
         |bbb""".stripMargin
 
@@ -1152,7 +1152,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
     val input =
       """aaa
         |
-        |@:linkCSS { include=[ /sub2, / ] }
+        |@:linkCSS { paths = [ /sub2, / ] }
         |
         |bbb""".stripMargin
 

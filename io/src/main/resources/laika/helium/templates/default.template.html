@@ -16,14 +16,16 @@
       <meta name="description" content="${_}"/>
     @:@
 
-    ${helium.favIcons}
+    @:for(helium.favIcons)
+      ${_}
+    @:@
 
     @:for(laika.fonts)
       @:for(_.webCSS) <link rel="stylesheet" href="${_}"> @:@
     @:@
 
-    @:includeCSS { include = ${helium.includeCSS} }
-    @:includeJS { include = ${helium.includeJS} }
+    @:linkCSS { paths = ${helium.includeCSS} }
+    @:linkJS { paths = ${helium.includeJS} }
     
     <script> /* for avoiding page load transitions */ </script>
 

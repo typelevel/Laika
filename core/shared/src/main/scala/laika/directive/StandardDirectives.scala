@@ -646,7 +646,7 @@ object StandardDirectives extends DirectiveRegistry {
     */
   lazy val linkCSSDirective: Templates.Directive = Templates.create("linkCSS") {
     import Templates.dsl._
-    (attribute("include").as[Seq[Path]].optional.widen, cursor).mapN { (includes, cursor) =>
+    (attribute("paths").as[Seq[Path]].optional.widen, cursor).mapN { (includes, cursor) =>
       val suffixFilter: String => Boolean = cursor.root.targetFormat match {
         case Some("epub.xhtml") => suffix: String => suffix == "epub.css" || suffix == "shared.css"
         case Some("html") => suffix: String => suffix.endsWith("css") && suffix != "epub.css"
@@ -668,7 +668,7 @@ object StandardDirectives extends DirectiveRegistry {
     */
   lazy val linkJSDirective: Templates.Directive = Templates.create("linkJS") {
     import Templates.dsl._
-    (attribute("include").as[Seq[Path]].optional.widen, cursor).mapN { (includes, cursor) =>
+    (attribute("paths").as[Seq[Path]].optional.widen, cursor).mapN { (includes, cursor) =>
       val includePaths: NonEmptyChain[Path] = NonEmptyChain.fromSeq(includes.getOrElse(Nil)).getOrElse(NonEmptyChain.one(Root))
       renderLinks(cursor, _ == "js", includePaths, path => s"""<script src="$path"></script>""")
     }
