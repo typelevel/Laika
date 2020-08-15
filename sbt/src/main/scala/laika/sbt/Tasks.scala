@@ -137,7 +137,7 @@ object Tasks {
       val roots = SelectionGroupConfig.createCombinations(tree.root)
       val ops = roots.map { case (root, classifiers) =>
         val classifier = if (classifiers.value.isEmpty) "" else "-" + classifiers.value.mkString("-")
-        val docName = artifactBaseName + classifier + "." + format.interimFormat.fileSuffix
+        val docName = artifactBaseName + classifier + "." + formatDesc.toLowerCase
         val file = downloadPath / docName
         Renderer
           .of(format)
