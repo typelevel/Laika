@@ -40,8 +40,8 @@ object FopFactoryBuilder {
         s"""<font kerning="yes" embed-url="$url" embedding-mode="subset">
             |  <font-triplet name="${font.family}" style="${font.style.value}" weight="${font.weight.value}"/>
             |</font>""".stripMargin
-      }.mkString("\n        ")
-    }
+      }
+    }.mkString("\n        ")
     val xmlConf =
       s"""<fop version="1.0">
         |  <renderers>
