@@ -55,7 +55,15 @@ case class Helium (fontResources: Seq[FontDefinition],
     
     val noOp: TreeProcessor = Kleisli.ask[F, ParsedTree[F]]
 
-    val themeInputs = InputTree[F]
+    val fontInputs = fontResources.foldLeft(InputTree[F]) { case (tree, fontDef) =>
+      fontDef.resource.embedResource match {
+        case Some(res: EmbeddedFontFile) => tree.addFile(res.file, res.path)
+        case Some(res: EmbeddedFontResource) => tree.addClasspathResource(res.name, res.path)
+        case _ => tree
+      }
+    }
+    
+    val themeInputs = fontInputs
       .addTemplate(TemplateDocument(DefaultTemplatePath.forEPUB, EPUBTemplate.default))
       .addClasspathResource("laika/helium/templates/default.template.html", DefaultTemplatePath.forHTML)
       .addClasspathResource("laika/helium/templates/landing.template.html", Root / "landing.template.html")

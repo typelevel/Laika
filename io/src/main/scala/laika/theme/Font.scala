@@ -18,7 +18,8 @@ package laika.theme
 
 import java.io.File
 
-import laika.ast.Size
+import laika.ast.Path.Root
+import laika.ast.{Path, PathBase, Size}
 import laika.config._
 
 /**
@@ -52,9 +53,16 @@ object Font {
     }
 }
 
-sealed trait EmbeddedFont
-case class EmbeddedFontFile (file: File) extends EmbeddedFont
-case class EmbeddedFontResource (name: String) extends EmbeddedFont
+sealed trait EmbeddedFont {
+  def path: Path
+}
+case class EmbeddedFontFile (file: File) extends EmbeddedFont {
+  val path: Path = Root / "laika" / "fonts" / file.getName
+}
+case class EmbeddedFontResource (name: String) extends EmbeddedFont {
+  val path: Path = Root / "laika" / "fonts" / PathBase.parse(name).name
+}
+
 
 sealed abstract class FontWeight (val value: String) 
 
