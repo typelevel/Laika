@@ -1,4 +1,4 @@
 # test EPUB output generation with the laikaEPUB task
 > laikaEPUB
-$ exists target/docs/site-epub-0.1-sbt.epub
-$ exists target/docs/site-epub-0.1-library.epub
+$ exists target/docs/site/downloads/site-epub-0.1-sbt.epub
+$ exists target/docs/site/downloads/site-epub-0.1-library.epub
