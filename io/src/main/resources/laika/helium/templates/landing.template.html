@@ -5,28 +5,21 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="Laika 0.16.0 + Helium Theme" />
-
     <title>${laika.metadata.title}</title>
-
     @:for(laika.metadata.authors)
       <meta name="author" content="${_}"/>
     @:@
-
     @:for(laika.metadata.description)
       <meta name="description" content="${_}"/>
     @:@
-
     @:for(helium.favIcons)
       ${_}
     @:@
-
-    @:for(laika.fonts)
-      @:for(_.webCSS) <link rel="stylesheet" href="${_}"> @:@
+    @:for(helium.webFonts)
+      <link rel="stylesheet" href="${_}">
     @:@
-
     @:linkCSS { paths = ${helium.includeCSS} }
     @:linkJS { paths = ${helium.includeJS} }
-    
     <script> /* for avoiding page load transitions */ </script>
   </head>
 

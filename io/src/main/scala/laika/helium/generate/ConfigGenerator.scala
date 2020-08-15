@@ -120,6 +120,7 @@ object ConfigGenerator {
       .withValue("helium.themeFonts", helium.themeFonts)
       .withValue("helium.includeCSS", (Root / "helium") +: helium.htmlIncludes.includeCSS)
       .withValue("helium.includeJS", (Root / "helium") +: helium.htmlIncludes.includeJS)
+      .withValue("helium.webFonts", helium.fontResources.flatMap { _.resource.webCSS })
       .withValue(helium.fontResources)
       .build
   
