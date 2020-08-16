@@ -3,8 +3,8 @@
 <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:fox="http://xmlgraphics.apache.org/fop/extensions">
 
   <fo:layout-master-set>
-  
-    <fo:simple-page-master 
+
+    <fo:simple-page-master
         master-name="default"
         page-height="29.7cm"
         page-width="21cm"
@@ -16,7 +16,7 @@
       <fo:region-before extent="3cm"/>
       <fo:region-after extent="1cm"/>
     </fo:simple-page-master>
-    
+
   </fo:layout-master-set>
 
   
@@ -26,29 +26,28 @@
   <fo:page-sequence master-reference="default">
 
     <fo:static-content flow-name="xsl-region-before">
-      <fo:block border-bottom-width="1pt" border-bottom-style="solid" 
-          font-weight="bold" font-size="9pt" text-align="center">
-        <fo:retrieve-marker 
+      <fo:block border-bottom-width="1pt" border-bottom-style="solid"
+          font-family="Lato" font-weight="bold" font-size="9pt" text-align="center">
+        <fo:retrieve-marker
             retrieve-class-name="chapter"
             retrieve-position="first-including-carryover"
         />
       </fo:block>
     </fo:static-content>
-    
+
     <fo:static-content flow-name="xsl-region-after">
-      <fo:block height="100%" font-weight="bold" font-size="10pt" text-align="center">
+      <fo:block height="100%" font-family="Lato" font-weight="bold" font-size="10pt" text-align="center">
         <fo:page-number/>
       </fo:block>
     </fo:static-content>
-      
+
     <fo:flow flow-name="xsl-region-body">
 
-      <fo:marker marker-class-name="chapter"><fo:block>Title</fo:block></fo:marker>
-      <fo:block id="_hello_title" font-family="sans-serif" font-size="16pt" font-weight="bold" keep-with-next="always" space-after="7mm" space-before="12mm">Title</fo:block>
-      <fo:block font-family="serif" font-size="10pt" space-after="3mm">Hello <fo:inline font-style="italic">World</fo:inline>.</fo:block>
+      <fo:block id="_hello_title" color="#007c99" font-family="Lato" font-size="24pt" font-weight="bold" keep-with-next="always" space-after="6mm" space-before="0mm">Title</fo:block>
+      <fo:block font-family="Lato" font-size="10pt" line-height="1.5" space-after="3mm" text-align="justify">Hello <fo:inline font-style="italic">World</fo:inline>.</fo:block>
 
     </fo:flow>
-    
+
   </fo:page-sequence>
-  
+
 </fo:root>
