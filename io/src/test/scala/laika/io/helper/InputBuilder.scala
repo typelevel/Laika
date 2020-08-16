@@ -29,7 +29,7 @@ trait InputBuilder {
 
   object ByteInput {
     def apply (input: String, path: Path)(implicit codec: Codec): BinaryInput[IO] =
-      BinaryInput(path, Resource.fromAutoCloseable(IO(new ByteArrayInputStream(input.getBytes(codec.charSet)))))
+      BinaryInput(path, () => new ByteArrayInputStream(input.getBytes(codec.charSet)))
   }
   
   def build (inputs: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): IO[InputTree[IO]] =

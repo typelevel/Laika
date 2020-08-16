@@ -34,7 +34,17 @@ sealed trait InputReader extends Product with Serializable
 case class PureReader(input: String) extends InputReader
 case class StreamReader(input: Reader, sizeHint: Int) extends InputReader
 
-case class BinaryInput[F[_]] (path: Path, input: Resource[F, InputStream], sourceFile: Option[File] = None) extends Navigatable
+case class BinaryInput[F[_]: Sync] (path: Path, stream: () => InputStream, autoClose: Boolean = true, sourceFile: Option[File] = None) extends Navigatable {
+  def asResource: Resource[F, InputStream] = {
+    val fStream = Sync[F].delay(stream())
+    if (autoClose) Resource.fromAutoCloseable(fStream) else Resource.liftF(fStream)
+  } 
+}
+
+object BinaryInput {
+  def apply[F[_]: Sync] (file: File, path: Path): BinaryInput[F] = 
+    BinaryInput(path, () => new BufferedInputStream(new FileInputStream(file)), autoClose = true, Some(file))
+}
 
 /** Character input for the various parsers of this library.
   * 
@@ -135,29 +145,31 @@ class InputTreeBuilder[F[_]](exclude: File => Boolean, steps: Vector[(Path => Do
     addFile(new File(name), mountPoint)
   def addFile (file: File, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] =
     addStep(mountPoint) {
-      case DocumentType.Static => _ + BinaryInput(mountPoint, InputRuntime.binaryFileResource(file), Some(file))
+      case DocumentType.Static => _ + BinaryInput(file, mountPoint)
       case docType: TextDocumentType => _ + TextInput.fromFile[F](mountPoint, docType, file, codec)
     }
   
   def addClasspathResource (name: String, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] = {
-    val stream = Sync[F].delay(getClass.getClassLoader.getResourceAsStream(name)).flatMap { res =>
-      if (res != null) Sync[F].pure(res)
-      else Sync[F].raiseError[InputStream](new IOException(s"Classpath resource '$name' does not exist"))
+    def stream = {
+      val res = getClass.getClassLoader.getResourceAsStream(name)
+      if (res == null) throw new IOException(s"Classpath resource '$name' does not exist")
+      else res
     }
     addStream(stream, mountPoint)
   }
 
-  def addStream (stream: F[InputStream], mountPoint: Path, autoClose: Boolean = true)(implicit codec: Codec): InputTreeBuilder[F] =
+  def addStream (stream: => InputStream, mountPoint: Path, autoClose: Boolean = true)(implicit codec: Codec): InputTreeBuilder[F] =
     addStep(mountPoint) {
-      case DocumentType.Static => 
-        _ + BinaryInput(mountPoint, if (autoClose) Resource.fromAutoCloseable(stream) else Resource.liftF(stream))
+      case DocumentType.Static =>
+        // for binary inputs the wrap-into-effect step has to be deferred due to integration issues with impure libs (e.g. Apache FOP)
+        _ + BinaryInput(mountPoint, () => stream, autoClose)
       case docType: TextDocumentType => 
-        _ + TextInput.fromStream(mountPoint, docType, stream, codec, autoClose)
+        _ + TextInput.fromStream(mountPoint, docType, F.delay(stream), codec, autoClose)
     }
   
   def addString (str: String, mountPoint: Path): InputTreeBuilder[F] =
     addStep(mountPoint) {
-      case DocumentType.Static => _ + BinaryInput(mountPoint, Resource.liftF(F.delay(new ByteArrayInputStream(str.getBytes))))
+      case DocumentType.Static => _ + BinaryInput(mountPoint, () => new ByteArrayInputStream(str.getBytes))
       case docType: TextDocumentType => _ + TextInput.fromString[F](mountPoint, docType, str)
     }
   

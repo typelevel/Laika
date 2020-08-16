@@ -77,7 +77,7 @@ object RendererRuntime {
       if (doc.sourceFile.contains(outFile)) None
       else {
         val out = OutputRuntime.binaryFileResource(outFile)
-        Some(CopyRuntime.copy(doc.input, out).as(Left(CopiedDocument(doc.path)): RenderResult))
+        Some(CopyRuntime.copy(doc.asResource, out).as(Left(CopiedDocument(doc.path)): RenderResult))
       }
     }
     

@@ -52,24 +52,21 @@ class PDFRenderer (fopFactory: FopFactory) {
     */
   def render[F[_] : Sync: Runtime] (foInput: String, output: BinaryOutput[F], metadata: DocumentMetadata, title: Option[String] = None, staticDocuments: Seq[BinaryInput[F]] = Nil): F[Unit] = {
 
-    // TODO - filter for supported image and font file types to avoid reaching the max open file limit
-    val staticResources: cats.effect.Resource[F, List[(Path, InputStream)]] = staticDocuments.map(s => s.input.map(i => (s.path, i))).toList.sequence
-    
     def applyMetadata (agent: FOUserAgent): F[Unit] = Sync[F].delay {
       metadata.date.foreach(d => agent.setCreationDate(d))
       metadata.authors.headOption.foreach(a => agent.setAuthor(a))
       title.foreach(t => agent.setTitle(t))
     }
 
-    def createSAXResult (out: OutputStream, resources: List[(Path, InputStream)]): F[SAXResult] = {
+    def createSAXResult (out: OutputStream): F[SAXResult] = {
 
-      val resourceMap = resources.toMap
+      val resourceMap = staticDocuments.map(s => (s.path, s.stream)).toMap
       
       val resolver = new ResourceResolver {
 
         def getResource (uri: URI): Resource = 
           if (uri.isAbsolute) fallbackResolver.getResource(uri)
-          else resourceMap.get(Path.parse(uri.getPath)).fold(fallbackResolver.getResource(uri))(new Resource(_))
+          else resourceMap.get(Path.parse(uri.getPath)).fold(fallbackResolver.getResource(uri))(in => new Resource(in()))
 
         def getOutputStream (uri: URI): OutputStream = fallbackResolver.getOutputStream(uri)
 
@@ -88,16 +85,11 @@ class PDFRenderer (fopFactory: FopFactory) {
       factory.newTransformer // identity transformer
     }
     
-    val resources = for {
-      out <- output.resource
-      static <- staticResources
-    } yield (out, static)
-
     Runtime[F].runBlocking {
-      resources.use { case (out, static) =>
+      output.resource.use { out =>
         for {
           source      <- Sync[F].delay(new StreamSource(new StringReader(foInput)))
-          result      <- createSAXResult(out, static)
+          result      <- createSAXResult(out)
           transformer <- createTransformer
           _           <- Sync[F].delay(transformer.transform(source, result))
         } yield ()

@@ -16,12 +16,12 @@
 
 package laika.render.epub
 
-import java.io.{BufferedInputStream, ByteArrayInputStream, FileInputStream}
+import java.io.ByteArrayInputStream
 import java.nio.charset.Charset
 
-import cats.effect.{Sync, Resource}
+import cats.effect.Sync
 import cats.implicits._
-import laika.ast.{/, Path}
+import laika.ast.Path
 import laika.ast.Path.Root
 import laika.config.ConfigException
 import laika.format.EPUB
@@ -61,9 +61,7 @@ class ContainerWriter {
       else contentRoot / path.relative
 
     def toBinaryInput (content: String, path: Path): BinaryInput[F] =
-      BinaryInput(path, Resource.fromAutoCloseable(Sync[F].delay {
-        new ByteArrayInputStream(content.getBytes(Charset.forName("UTF-8")))
-      }))
+      BinaryInput(path, () => new ByteArrayInputStream(content.getBytes(Charset.forName("UTF-8"))))
 
     val fallbackStyles = if (result.staticDocuments.exists(_.path.suffix.contains("css"))) Vector() 
                          else Vector(toBinaryInput(StaticContent.fallbackStyles, StyleSupport.fallbackStylePath))

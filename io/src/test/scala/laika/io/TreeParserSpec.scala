@@ -164,7 +164,7 @@ class TreeParserSpec extends IOSpec
   
 
   
-  "The parallel parser" should {
+  "The tree parser" should {
 
     "parse an empty tree" in new TreeParserSetup {
       val inputs = Nil
@@ -582,7 +582,7 @@ class TreeParserSpec extends IOSpec
     }
 
     "read a directory from the file system plus one document from an input stream" in new ExtraDocSetup {
-      def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO] = input.addStream(IO(new ByteArrayInputStream("Doc7".getBytes)), Root / "dir2" / "doc7.md")
+      def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO] = input.addStream(new ByteArrayInputStream("Doc7".getBytes), Root / "dir2" / "doc7.md")
       run()
     }
 
