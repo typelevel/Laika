@@ -73,7 +73,7 @@ class ConfigBuilder (fields: Seq[Field], origin: Origin, fallback: Config = Empt
   /** Resolves all specified values, using the specified fallback, and returns a new Config instance.
     */
   def build (newFallback: Config): Config =
-    if (fields.isEmpty && origin == Origin.root && fallback == EmptyConfig) fallback
+    if (fields.isEmpty && origin == Origin.root && fallback == EmptyConfig) newFallback
     else new ObjectConfig(asObjectValue, origin, fallback.withFallback(newFallback))
   
   private[laika] def asObjectValue: ObjectValue = mergeObjects(ObjectValue(fields))
