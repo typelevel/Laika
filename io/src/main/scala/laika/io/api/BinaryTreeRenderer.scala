@@ -59,16 +59,11 @@ object BinaryTreeRenderer {
     * @param postProcessor the processor taking the interim result and producing the final 
     *                      result, the implementing type may vary from format to format
     * @param description short string describing the output format for tooling and logging 
-    * @tparam PP the type of the post processor 
-    *
-    * @author Jens Halm
     */
-  case class TwoPhaseRenderer[PP] (interimRenderer: Renderer,
-                                   prepareTree: DocumentTreeRoot => Either[Throwable, DocumentTreeRoot],
-                                   postProcessor: PP,
-                                   description: String)
-
-  type BinaryRenderer = TwoPhaseRenderer[BinaryPostProcessor]
+  case class BinaryRenderer (interimRenderer: Renderer,
+                             prepareTree: DocumentTreeRoot => Either[Throwable, DocumentTreeRoot],
+                             postProcessor: BinaryPostProcessor,
+                             description: String)
 
   /** Builder step that allows to specify the execution context
     * for blocking IO and CPU-bound tasks.
@@ -88,9 +83,9 @@ object BinaryTreeRenderer {
   /** Builder step that allows to specify the output to render to.
     */
   case class OutputOps[F[_]: Sync: Runtime] (renderer: BinaryRenderer,
-                                              theme: Theme[F],
-                                              input: DocumentTreeRoot,
-                                              staticDocuments: Seq[BinaryInput[F]]) extends BinaryOutputOps[F] {
+                                             theme: Theme[F],
+                                             input: DocumentTreeRoot,
+                                             staticDocuments: Seq[BinaryInput[F]]) extends BinaryOutputOps[F] {
 
     val F: Sync[F] = Sync[F]
 
@@ -112,10 +107,10 @@ object BinaryTreeRenderer {
     * the rendering based on this operation's properties.
     */
   case class Op[F[_]: Sync: Runtime] (renderer: BinaryRenderer,
-                                       theme: Theme[F],
-                                       input: DocumentTreeRoot, 
-                                       output: BinaryOutput[F], 
-                                       staticDocuments: Seq[BinaryInput[F]] = Nil) {
+                                      theme: Theme[F],
+                                      input: DocumentTreeRoot, 
+                                      output: BinaryOutput[F], 
+                                      staticDocuments: Seq[BinaryInput[F]] = Nil) {
 
     /** The configuration of the renderer for the interim format.
       */

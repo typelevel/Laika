@@ -21,7 +21,7 @@ import cats.effect.Sync
 import laika.api.MarkupParser
 import laika.api.builder.{OperationConfig, ParserBuilder}
 import laika.ast.{DocumentType, TextDocumentType}
-import laika.io.api.BinaryTreeRenderer.{BinaryRenderer, TwoPhaseRenderer}
+import laika.io.api.BinaryTreeRenderer.BinaryRenderer
 import laika.io.api.BinaryTreeTransformer.TreeMapper
 import laika.io.descriptor.TransformerDescriptor
 import laika.io.model._
@@ -57,23 +57,6 @@ class BinaryTreeTransformer[F[_]: Sync: Runtime](parsers: NonEmptyList[MarkupPar
 /** Builder API for constructing a transformation for a tree of input and binary output documents.
   */
 object BinaryTreeTransformer {
-
-  /** A transformer that operates with two phases, producing an interim result.
-    *
-    * Examples for such transformers are EPUB (with XHTML as the interim format)
-    * and PDF (with XSL-FO as the interim format).
-    *
-    * This instance does not come with its own runtime. Instead its need to be passed
-    * to a builder API in laika-io that knows how to execute such an operation.
-    *
-    * @param markupParser the parser for the markup format, producing the document tree
-    * @param renderer the two phase renderer that first turn the document tree obtained from
-    *                 the parser into an interim format and then passes it to the post processor
-    * @tparam PP the type of the post processor 
-    * @author Jens Halm
-    */
-  case class TwoPhaseTransformer[PP] (markupParser: MarkupParser,
-                                      renderer: TwoPhaseRenderer[PP])
 
   type TreeMapper[F[_]] = Kleisli[F, ParsedTree[F], ParsedTree[F]]
 

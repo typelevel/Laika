@@ -21,8 +21,7 @@ import cats.effect.{Blocker, Sync}
 import laika.api.builder._
 import laika.factory.BinaryPostProcessor
 import laika.helium.Helium
-import laika.io.api.BinaryTreeRenderer.TwoPhaseRenderer
-import laika.io.api.BinaryTreeTransformer.TwoPhaseTransformer
+import laika.io.api.BinaryTreeRenderer.BinaryRenderer
 import laika.io.api._
 import laika.io.ops.IOBuilderOps
 import laika.io.runtime.Runtime
@@ -151,8 +150,8 @@ object implicits {
       }
   }
 
-  private def buildRenderer (builder: TwoPhaseRendererBuilder[_, BinaryPostProcessor]): TwoPhaseRenderer[BinaryPostProcessor] =
-    TwoPhaseRenderer(
+  private def buildRenderer (builder: TwoPhaseRendererBuilder[_, BinaryPostProcessor]): BinaryRenderer =
+    BinaryRenderer(
       new RendererBuilder(builder.twoPhaseFormat.interimFormat, builder.config).build,
       builder.twoPhaseFormat.prepareTree,
       builder.twoPhaseFormat.postProcessor(builder.config.baseConfig),
@@ -166,15 +165,10 @@ object implicits {
     def io (blocker: Blocker): IOBuilderOps[BinaryTreeTransformer.Builder] =
       new IOBuilderOps[BinaryTreeTransformer.Builder](blocker) {
         protected def build[F[_]: Sync: Runtime]: BinaryTreeTransformer.Builder[F] = {
-          /** Applies all configuration specified with this builder
-            * and returns a new Transformer instance.
-            */
-          val transformer: TwoPhaseTransformer[BinaryPostProcessor] = TwoPhaseTransformer(
-            new ParserBuilder(builder.markupFormat, builder.config).build,
-            buildRenderer(new TwoPhaseRendererBuilder(builder.twoPhaseRenderFormat, builder.config))
-          )
+          val parser = new ParserBuilder(builder.markupFormat, builder.config).build
+          val renderer = buildRenderer(new TwoPhaseRendererBuilder(builder.twoPhaseRenderFormat, builder.config))
           new BinaryTreeTransformer.Builder[F](
-            NonEmptyList.of(transformer.markupParser), transformer.renderer, Helium.defaults.build, Kleisli(Sync[F].pure))
+            NonEmptyList.of(parser), renderer, Helium.defaults.build, Kleisli(Sync[F].pure))
         }
       }
   }
