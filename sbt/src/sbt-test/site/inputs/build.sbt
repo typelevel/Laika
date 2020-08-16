@@ -3,7 +3,7 @@ import cats.effect.IO
 import laika.ast.Path.Root
 import laika.io.model.InputTree
 
-name := "site-defaults"
+name := "site-inputs"
 
 version := "0.1"
 
