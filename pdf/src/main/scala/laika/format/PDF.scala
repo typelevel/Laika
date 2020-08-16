@@ -91,23 +91,23 @@ class PDF private(val interimFormat: RenderFormat[FOFormatter], fopFactory: Opti
     */
   def postProcessor: BinaryPostProcessorBuilder = new BinaryPostProcessorBuilder {
     
-    def build[F[_] : Sync](config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor] = Resource.pure[F, BinaryPostProcessor](new BinaryPostProcessor {
-
-      private val pdfConfig = PDF.BookConfig.decodeWithDefaults(config).getOrElse(PDF.BookConfig())
-      private val renderer = new PDFRenderer(fopFactory.getOrElse(FopFactoryBuilder.build(pdfConfig)))
-
-      override def process[G[_] : Sync : Runtime](result: RenderedTreeRoot[G], output: BinaryOutput[G], opConfig: OperationConfig): G[Unit] = {
-
-        val title = result.title.map(_.extractText)
-
-        for {
-          fo <- Sync[G].fromEither(FOConcatenation(result, pdfConfig, opConfig))
-          _ <- renderer.render(fo, output, pdfConfig.metadata, title, result.staticDocuments)
-        } yield ()
+    def build[F[_] : Sync](config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor] = Resource.liftF {
+      val pdfConfig = PDF.BookConfig.decodeWithDefaults(config).getOrElse(PDF.BookConfig())
+      theme.inputs.flatMap { inputs =>
+        fopFactory.fold(FopFactoryBuilder.build(pdfConfig, inputs.binaryInputs))(Sync[F].pure).map { fopFactory =>
+          new BinaryPostProcessor {
+            private val renderer = new PDFRenderer(fopFactory)
+            override def process[G[_] : Sync : Runtime](result: RenderedTreeRoot[G], output: BinaryOutput[G], opConfig: OperationConfig): G[Unit] =
+              for {
+                fo <- Sync[G].fromEither(FOConcatenation(result, pdfConfig, opConfig))
+                _  <- renderer.render(fo, output, pdfConfig.metadata, result.staticDocuments)
+              } yield ()
+          }
+        }
       }
-    })
+    }
   }
-
+  
 }
 
 /** The default instance of the PDF renderer.

@@ -39,46 +39,28 @@ import org.apache.xmlgraphics.util.MimeConstants
   */
 class PDFRenderer (fopFactory: FopFactory) {
 
-  private val fallbackResolver = ResourceResolverFactory.createDefaultResourceResolver()
-  
   /** Render the given XSL-FO input as a PDF to the specified binary output. 
     *
     *  @param foInput the input in XSL-FO format
     *  @param output the output to write the final result to
     *  @param metadata the metadata associated with the PDF
-    *  @param title the title of the document
     *  @param staticDocuments additional files like fonts or images that the renderer should resolve for FOP
     *  which will be used to resolve relative paths
     */
-  def render[F[_] : Sync: Runtime] (foInput: String, output: BinaryOutput[F], metadata: DocumentMetadata, title: Option[String] = None, staticDocuments: Seq[BinaryInput[F]] = Nil): F[Unit] = {
+  def render[F[_] : Sync: Runtime] (foInput: String, output: BinaryOutput[F], metadata: DocumentMetadata, staticDocuments: Seq[BinaryInput[F]] = Nil): F[Unit] = {
 
     def applyMetadata (agent: FOUserAgent): F[Unit] = Sync[F].delay {
       metadata.date.foreach(d => agent.setCreationDate(d))
       metadata.authors.headOption.foreach(a => agent.setAuthor(a))
-      title.foreach(t => agent.setTitle(t))
+      metadata.title.foreach(t => agent.setTitle(t))
     }
 
-    def createSAXResult (out: OutputStream): F[SAXResult] = {
-
-      val resourceMap = staticDocuments.map(s => (s.path, s.stream)).toMap
-      
-      val resolver = new ResourceResolver {
-
-        def getResource (uri: URI): Resource = 
-          if (uri.isAbsolute) fallbackResolver.getResource(uri)
-          else resourceMap.get(Path.parse(uri.getPath)).fold(fallbackResolver.getResource(uri))(in => new Resource(in()))
-
-        def getOutputStream (uri: URI): OutputStream = fallbackResolver.getOutputStream(uri)
-
-      }
-
+    def createSAXResult (out: OutputStream): F[SAXResult] = 
       for {
-        foUserAgent <- Sync[F].delay(FOUserAgentFactory.createFOUserAgent(fopFactory, resolver))
+        foUserAgent <- Sync[F].delay(FOUserAgentFactory.createFOUserAgent(fopFactory, new FopResourceResolver(staticDocuments)))
         _           <- applyMetadata(foUserAgent)
         fop         <- Sync[F].delay(fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, out))
       } yield new SAXResult(fop.getDefaultHandler)
-
-    }
 
     def createTransformer: F[Transformer] = Sync[F].delay {
       val factory = TransformerFactory.newInstance

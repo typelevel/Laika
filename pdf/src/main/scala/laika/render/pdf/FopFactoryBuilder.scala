@@ -18,9 +18,10 @@ package laika.render.pdf
 
 import java.io.{ByteArrayInputStream, File}
 
+import cats.effect.Sync
 import laika.format.PDF
-import laika.theme.{EmbeddedFontFile, EmbeddedFontResource}
-import org.apache.fop.apps.FopFactory
+import laika.io.model.BinaryInput
+import org.apache.fop.apps.{FopConfParser, FopFactory}
 
 /** Creates a FopFactory instance based on user configuration, registering all fonts to be embedded into
   * the PDF.
@@ -29,7 +30,8 @@ import org.apache.fop.apps.FopFactory
   */
 object FopFactoryBuilder {
 
-  def build (config: PDF.BookConfig): FopFactory = {
+  def build[F[_]: Sync] (config: PDF.BookConfig, staticDocs: Seq[BinaryInput[F]]): F[FopFactory] = {
+    
     // since there is no API to define fonts for Apache FOP we have to generate configuration XML here
     val fontDefs = config.fonts.flatMap { font =>
       font.resource.embedResource.map { res =>
@@ -49,7 +51,12 @@ object FopFactoryBuilder {
         |  </renderers>
         |</fop>
       """.stripMargin
-    FopFactory.newInstance(new File(".").toURI, new ByteArrayInputStream(xmlConf.getBytes))
+    
+    val confInput = new ByteArrayInputStream(xmlConf.getBytes)
+    val resolver = new FopResourceResolver(staticDocs)
+    
+    val parser = new FopConfParser(confInput, new File(".").toURI, resolver)
+    Sync[F].delay(parser.getFopFactoryBuilder.build())
   }
   
 }
