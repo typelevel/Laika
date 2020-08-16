@@ -21,7 +21,7 @@ import java.util.concurrent.Executors
 import cats.effect.{Blocker, ContextShift, IO}
 import cats.implicits._
 import laika.api.Renderer
-import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
+import laika.factory.{BinaryPostProcessorBuilder, RenderFormat, TwoPhaseRenderFormat}
 import laika.format._
 import laika.io.config.SiteConfig
 import laika.io.implicits._
@@ -130,28 +130,32 @@ object Tasks {
       targetDir.allPaths.get.toSet.filter(_.isFile)
     }
 
-    def renderWithProcessor[FMT] (format: TwoPhaseRenderFormat[FMT,BinaryPostProcessor], formatDesc: String): Set[File] = {
+    def renderWithProcessor[FMT] (format: TwoPhaseRenderFormat[FMT, BinaryPostProcessorBuilder], formatDesc: String): Set[File] = {
       
       downloadPath.mkdirs()
+
+      val ops = Renderer
+        .of(format)
+        .withConfig(parser.config)
+        .io(blocker)
+        .parallel[IO]
+        .build 
+        .use { renderer =>
+          val roots = SelectionGroupConfig.createCombinations(tree.root)
+          roots.map { case (root, classifiers) =>
+            val classifier = if (classifiers.value.isEmpty) "" else "-" + classifiers.value.mkString("-")
+            val docName = artifactBaseName + classifier + "." + formatDesc.toLowerCase
+            val file = downloadPath / docName
+            renderer
+              .from(root)
+              .copying(tree.staticDocuments)
+              .toFile(file)
+              .render
+              .as(file)
+          }.sequence
+        }
       
-      val roots = SelectionGroupConfig.createCombinations(tree.root)
-      val ops = roots.map { case (root, classifiers) =>
-        val classifier = if (classifiers.value.isEmpty) "" else "-" + classifiers.value.mkString("-")
-        val docName = artifactBaseName + classifier + "." + formatDesc.toLowerCase
-        val file = downloadPath / docName
-        Renderer
-          .of(format)
-          .withConfig(parser.config)
-          .io(blocker)
-          .parallel[IO]
-          .build
-          .from(root)
-          .copying(tree.staticDocuments)
-          .toFile(file)
-          .render
-          .as(file)
-      }
-      val res = ops.sequence.unsafeRunSync()
+      val res = ops.unsafeRunSync()
 
       res.toList.foreach { f =>
         streams.value.log.info(s"Generated $formatDesc in $f")
