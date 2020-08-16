@@ -146,33 +146,33 @@ case class Helium (fontResources: Seq[FontDefinition],
 
 object Helium {
   
-  private val fontPath = "laika/helium/fonts"
+  private val fontPath = "laika/helium/fonts/"
   
   // TODO - separate values per format where necessary
   val defaults: Helium = Helium(
     Seq(
       FontDefinition(
-        Font.embedResource(fontPath + "Lato-Regular.ttf").webCSS("http://fonts.googleapis.com/css?family=Lato:400,700"), 
+        Font.embedResource(fontPath + "Lato/Lato-Regular.ttf").webCSS("http://fonts.googleapis.com/css?family=Lato:400,700"), 
         "Lato", FontWeight.Normal, FontStyle.Normal
       ),
       FontDefinition(
-        Font.embedResource(fontPath + "Lato-Italic.ttf"), 
+        Font.embedResource(fontPath + "Lato/Lato-Italic.ttf"), 
         "Lato", FontWeight.Normal, FontStyle.Italic
       ),
       FontDefinition(
-        Font.embedResource(fontPath + "Lato-Bold.ttf"), 
+        Font.embedResource(fontPath + "Lato/Lato-Bold.ttf"), 
         "Lato", FontWeight.Bold, FontStyle.Normal
       ),
       FontDefinition(
-        Font.embedResource(fontPath + "Lato-BoldItalic.ttf"), 
+        Font.embedResource(fontPath + "Lato/Lato-BoldItalic.ttf"), 
         "Lato", FontWeight.Bold, FontStyle.Italic
       ),
       FontDefinition(
-        Font.embedResource(fontPath + "FiraCode-Medium.otf").webCSS("https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css"), 
+        Font.embedResource(fontPath + "FiraCode/FiraCode-Medium.otf").webCSS("https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css"), 
         "FiraCode", FontWeight.Normal, FontStyle.Normal
       ),
       FontDefinition(
-        Font.embedResource(fontPath + "icofont.ttf").webCSS("../icons/icofont.min.css"), 
+        Font.embedResource(fontPath + "icofont/icofont.ttf").webCSS("../icons/icofont.min.css"), 
         "IcoFont", FontWeight.Normal, FontStyle.Normal
       ),
     ),
