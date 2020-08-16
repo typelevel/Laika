@@ -21,7 +21,7 @@ import cats.effect.Sync
 import laika.api.MarkupParser
 import laika.api.builder.{OperationConfig, ParserBuilder}
 import laika.ast.{DocumentType, TextDocumentType}
-import laika.io.api.BinaryTreeRenderer.BinaryRenderer
+import laika.io.api.BinaryTreeRenderer.{BinaryRenderFormat, BinaryRenderer}
 import laika.io.api.BinaryTreeTransformer.TreeMapper
 import laika.io.descriptor.TransformerDescriptor
 import laika.io.model._
@@ -64,20 +64,21 @@ object BinaryTreeTransformer {
     * for blocking IO and CPU-bound tasks.
     */
   case class Builder[F[_]: Sync: Runtime] (parsers: NonEmptyList[MarkupParser],
-                                           renderer: BinaryRenderer,
+                                           renderFormat: BinaryRenderFormat,
+                                           config: OperationConfig,
                                            theme: Theme[F],
                                            mapper: TreeMapper[F]) extends TreeMapperOps[F] {
 
     type MapRes = Builder[F]
 
     def evalMapTree (f: ParsedTree[F] => F[ParsedTree[F]]): MapRes =
-      new Builder[F](parsers, renderer, theme, mapper.andThen(f))
+      new Builder[F](parsers, renderFormat, config, theme, mapper.andThen(f))
 
     /** Specifies an additional parser for text markup.
       *
-      * When multiple parsers exist for an operation, the target parser
-      * will be determined by the suffix of the input document, e.g.
-      * `.md` for Markdown and `.rst` for reStructuredText.
+      * When multiple parsers exist for an operation, 
+      * the target parser will be determined by the suffix of the input document, 
+      * e.g. `.md` for Markdown and `.rst` for reStructuredText.
       */
     def withAlternativeParser (parser: MarkupParser): Builder[F] = copy(parsers = parsers.append(parser))
 
@@ -95,7 +96,8 @@ object BinaryTreeTransformer {
     
     /** Final builder step that creates a parallel transformer for binary output.
       */
-    def build: BinaryTreeTransformer[F] = new BinaryTreeTransformer[F](parsers, renderer, theme, mapper)
+    def build: BinaryTreeTransformer[F] = 
+      new BinaryTreeTransformer[F](parsers, BinaryTreeRenderer.buildRenderer(renderFormat, config), theme, mapper)
 
   }
 

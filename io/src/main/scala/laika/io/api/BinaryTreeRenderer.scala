@@ -18,9 +18,9 @@ package laika.io.api
 
 import cats.effect.Sync
 import laika.api.Renderer
-import laika.api.builder.OperationConfig
+import laika.api.builder.{OperationConfig, RendererBuilder}
 import laika.ast.DocumentTreeRoot
-import laika.factory.BinaryPostProcessor
+import laika.factory.{BinaryPostProcessor, TwoPhaseRenderFormat}
 import laika.io.api.BinaryTreeRenderer.BinaryRenderer
 import laika.io.descriptor.RendererDescriptor
 import laika.io.model.{BinaryInput, BinaryOutput}
@@ -64,11 +64,20 @@ object BinaryTreeRenderer {
                              prepareTree: DocumentTreeRoot => Either[Throwable, DocumentTreeRoot],
                              postProcessor: BinaryPostProcessor,
                              description: String)
+  
+  type BinaryRenderFormat = TwoPhaseRenderFormat[_, BinaryPostProcessor]
 
-  /** Builder step that allows to specify the execution context
-    * for blocking IO and CPU-bound tasks.
+  private[laika] def buildRenderer (format: BinaryRenderFormat, config: OperationConfig): BinaryRenderer =
+    BinaryRenderer(
+      new RendererBuilder(format.interimFormat, config).build,
+      format.prepareTree,
+      format.postProcessor(config.baseConfig),
+      format.description
+    )
+  
+  /** Builder step that allows to specify the execution context for blocking IO and CPU-bound tasks.
     */
-  case class Builder[F[_]: Sync: Runtime] (renderer: BinaryRenderer, theme: Theme[F]) {
+  case class Builder[F[_]: Sync: Runtime] (format: BinaryRenderFormat, config: OperationConfig, theme: Theme[F]) {
 
     /** Applies the specified theme to this renderer, overriding any previously specified themes.
       */
@@ -76,7 +85,7 @@ object BinaryTreeRenderer {
     
     /** Final builder step that creates a parallel renderer for binary output.
       */
-    def build: BinaryTreeRenderer[F] = new BinaryTreeRenderer[F](renderer, theme)
+    def build: BinaryTreeRenderer[F] = new BinaryTreeRenderer[F](buildRenderer(format, config), theme)
     
   }
 

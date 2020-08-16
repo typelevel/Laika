@@ -145,19 +145,11 @@ object implicits {
       new IOBuilderOps[BinaryTreeRenderer.Builder](blocker) {
 
         protected def build[F[_]: Sync: Runtime]: BinaryTreeRenderer.Builder[F] = {
-          new BinaryTreeRenderer.Builder[F](buildRenderer(builder), Helium.defaults.build)
+          new BinaryTreeRenderer.Builder[F](builder.twoPhaseFormat, builder.config, Helium.defaults.build)
         }
       }
   }
 
-  private def buildRenderer (builder: TwoPhaseRendererBuilder[_, BinaryPostProcessor]): BinaryRenderer =
-    BinaryRenderer(
-      new RendererBuilder(builder.twoPhaseFormat.interimFormat, builder.config).build,
-      builder.twoPhaseFormat.prepareTree,
-      builder.twoPhaseFormat.postProcessor(builder.config.baseConfig),
-      builder.twoPhaseFormat.description
-    )
-  
   implicit class ImplicitBinaryTransformerOps (val builder: TwoPhaseTransformerBuilder[_, BinaryPostProcessor]) extends AnyVal {
 
     /** Builder step for specifying the blocker to use for all blocking IO operations.
@@ -166,9 +158,8 @@ object implicits {
       new IOBuilderOps[BinaryTreeTransformer.Builder](blocker) {
         protected def build[F[_]: Sync: Runtime]: BinaryTreeTransformer.Builder[F] = {
           val parser = new ParserBuilder(builder.markupFormat, builder.config).build
-          val renderer = buildRenderer(new TwoPhaseRendererBuilder(builder.twoPhaseRenderFormat, builder.config))
           new BinaryTreeTransformer.Builder[F](
-            NonEmptyList.of(parser), renderer, Helium.defaults.build, Kleisli(Sync[F].pure))
+            NonEmptyList.of(parser), builder.twoPhaseRenderFormat, builder.config, Helium.defaults.build, Kleisli(Sync[F].pure))
         }
       }
   }
