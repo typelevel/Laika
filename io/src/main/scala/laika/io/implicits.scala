@@ -19,9 +19,8 @@ package laika.io
 import cats.data.{Kleisli, NonEmptyList}
 import cats.effect.{Blocker, Sync}
 import laika.api.builder._
-import laika.factory.BinaryPostProcessor
+import laika.factory.BinaryPostProcessorBuilder
 import laika.helium.Helium
-import laika.io.api.BinaryTreeRenderer.BinaryRenderer
 import laika.io.api._
 import laika.io.ops.IOBuilderOps
 import laika.io.runtime.Runtime
@@ -137,7 +136,7 @@ object implicits {
       }
   }
 
-  implicit class ImplicitBinaryRendererOps (val builder: TwoPhaseRendererBuilder[_, BinaryPostProcessor]) extends AnyVal {
+  implicit class ImplicitBinaryRendererOps (val builder: TwoPhaseRendererBuilder[_, BinaryPostProcessorBuilder]) extends AnyVal {
 
     /** Builder step for specifying the blocker to use for all blocking IO operations.
       */
@@ -150,7 +149,7 @@ object implicits {
       }
   }
 
-  implicit class ImplicitBinaryTransformerOps (val builder: TwoPhaseTransformerBuilder[_, BinaryPostProcessor]) extends AnyVal {
+  implicit class ImplicitBinaryTransformerOps (val builder: TwoPhaseTransformerBuilder[_, BinaryPostProcessorBuilder]) extends AnyVal {
 
     /** Builder step for specifying the blocker to use for all blocking IO operations.
       */

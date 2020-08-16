@@ -97,7 +97,7 @@ object BinaryTreeTransformer {
     /** Final builder step that creates a parallel transformer for binary output.
       */
     def build: BinaryTreeTransformer[F] = 
-      new BinaryTreeTransformer[F](parsers, BinaryTreeRenderer.buildRenderer(renderFormat, config), theme, mapper)
+      new BinaryTreeTransformer[F](parsers, BinaryTreeRenderer.buildRenderer(renderFormat, config, theme), theme, mapper)
 
   }
 

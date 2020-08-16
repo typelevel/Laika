@@ -20,35 +20,39 @@ import cats.effect.Sync
 import laika.api.builder.OperationConfig
 import laika.ast.DocumentTreeRoot
 import laika.config.Config
-import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
+import laika.factory.{BinaryPostProcessor, BinaryPostProcessorBuilder, RenderFormat, TwoPhaseRenderFormat}
 import laika.io.model.{BinaryOutput, RenderedDocument, RenderedTree, RenderedTreeRoot}
 import laika.io.runtime.Runtime
 import laika.render.TextFormatter
+import laika.theme.Theme
 
-object TestRenderResultProcessor extends TwoPhaseRenderFormat[TextFormatter, BinaryPostProcessor] {
+object TestRenderResultProcessor extends TwoPhaseRenderFormat[TextFormatter, BinaryPostProcessorBuilder] {
 
   val interimFormat: RenderFormat[TextFormatter] = AST
 
   def prepareTree (tree: DocumentTreeRoot): Either[Throwable, DocumentTreeRoot] = Right(tree)
 
-  def postProcessor (config: Config): BinaryPostProcessor = new BinaryPostProcessor {
-    
-    override def process[F[_] : Sync: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput[F], config: OperationConfig): F[Unit] = {
-      
-      def append (sb: StringBuilder, result: RenderedTree): Unit = {
-        result.content.foreach {
-          case d: RenderedDocument => sb.append(d.content + "\n")
-          case t: RenderedTree => append(sb, t)
-          case _ => ()
+  def postProcessor: BinaryPostProcessorBuilder = new BinaryPostProcessorBuilder {
+
+    def build[F[_] : Sync](config: Config, theme: Theme[F]): BinaryPostProcessor = new BinaryPostProcessor {
+
+      override def process[G[_] : Sync : Runtime](result: RenderedTreeRoot[G], output: BinaryOutput[G], config: OperationConfig): G[Unit] = {
+
+        def append(sb: StringBuilder, result: RenderedTree): Unit = {
+          result.content.foreach {
+            case d: RenderedDocument => sb.append(d.content + "\n")
+            case t: RenderedTree => append(sb, t)
+            case _ => ()
+          }
         }
-      }
 
-      val sb = new StringBuilder
-      append(sb, result.tree)
-      val resultString = sb.toString
+        val sb = new StringBuilder
+        append(sb, result.tree)
+        val resultString = sb.toString
 
-      output.resource.use { out =>
-        Sync[F].delay(out.write(resultString.getBytes("UTF-8")))
+        output.resource.use { out =>
+          Sync[G].delay(out.write(resultString.getBytes("UTF-8")))
+        }
       }
     }
   }

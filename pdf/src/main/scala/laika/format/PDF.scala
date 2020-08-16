@@ -26,11 +26,11 @@ import laika.api.builder.OperationConfig
 import laika.ast.{DocumentMetadata, DocumentTreeRoot, Path, TemplateRoot}
 import laika.config.Config.ConfigResult
 import laika.config.{Config, ConfigDecoder, ConfigEncoder, DefaultKey, Key}
-import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
+import laika.factory.{BinaryPostProcessor, BinaryPostProcessorBuilder, RenderFormat, TwoPhaseRenderFormat}
 import laika.io.model.{BinaryOutput, RenderedTreeRoot}
 import laika.io.runtime.Runtime
 import laika.theme
-import laika.theme.FontDefinition
+import laika.theme.{FontDefinition, Theme}
 import laika.render.FOFormatter
 import laika.render.FOFormatter.Preamble
 import laika.render.pdf.{FOConcatenation, FopFactoryBuilder, PDFRenderer}
@@ -67,7 +67,7 @@ import org.apache.fop.apps.FopFactory
  *  @author Jens Halm
  */
 class PDF private(val interimFormat: RenderFormat[FOFormatter], fopFactory: Option[FopFactory]) 
-  extends TwoPhaseRenderFormat[FOFormatter, BinaryPostProcessor] {
+  extends TwoPhaseRenderFormat[FOFormatter, BinaryPostProcessorBuilder] {
 
   override val description: String = "PDF"
 
@@ -89,33 +89,22 @@ class PDF private(val interimFormat: RenderFormat[FOFormatter], fopFactory: Opti
 
   /** Processes the interim XSL-FO result, transforms it to PDF and writes it to the specified final output.
     */
-  def postProcessor (config: Config): BinaryPostProcessor = new BinaryPostProcessor {
+  def postProcessor: BinaryPostProcessorBuilder = new BinaryPostProcessorBuilder {
     
-    /*
-     TODO - return type must be a factory that has a build method returning a Resource[F, BinaryPostProcessor]
-     (as we cannot expose F[_] directly in this class):
-     trait BinaryPostProcessorBuilder {
-       def build[F[_]: Sync]: Resource[F, BinaryPostProcessor]
-     }
-     The reason for using a Resource is that the creation of a FopFactory is not RT and we have no way
-     to handle config errors here.
-     The change is deferred to 0.17 or 0.18 as it will ripple up the API stack,
-     a theme should also be a Resource and at that point the entire Parser/Renderer/Transformer
-     creation will end up creating a Resource which will also enable proper caching of theme resources
-     and early validation of configuration.
-    */
-    
-    private val pdfConfig = PDF.BookConfig.decodeWithDefaults(config).getOrElse(PDF.BookConfig())
-    private val renderer = new PDFRenderer(fopFactory.getOrElse(FopFactoryBuilder.build(pdfConfig)))
-    
-    override def process[F[_]: Sync: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput[F], opConfig: OperationConfig): F[Unit] = {
-      
-      val title = result.title.map(_.extractText)
-      
-      for {
-        fo       <- Sync[F].fromEither(FOConcatenation(result, pdfConfig, opConfig))
-        _        <- renderer.render(fo, output, pdfConfig.metadata, title, result.staticDocuments)
-      } yield ()
+    def build[F[_] : Sync](config: Config, theme: Theme[F]): BinaryPostProcessor = new BinaryPostProcessor {
+
+      private val pdfConfig = PDF.BookConfig.decodeWithDefaults(config).getOrElse(PDF.BookConfig())
+      private val renderer = new PDFRenderer(fopFactory.getOrElse(FopFactoryBuilder.build(pdfConfig)))
+
+      override def process[G[_] : Sync : Runtime](result: RenderedTreeRoot[G], output: BinaryOutput[G], opConfig: OperationConfig): G[Unit] = {
+
+        val title = result.title.map(_.extractText)
+
+        for {
+          fo <- Sync[G].fromEither(FOConcatenation(result, pdfConfig, opConfig))
+          _ <- renderer.render(fo, output, pdfConfig.metadata, title, result.staticDocuments)
+        } yield ()
+      }
     }
   }
 

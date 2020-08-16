@@ -26,11 +26,11 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.config.Config.ConfigResult
 import laika.config.{Config, ConfigBuilder, ConfigDecoder, ConfigEncoder, ConfigException, DefaultKey, Key, LaikaKeys}
-import laika.factory.{BinaryPostProcessor, RenderContext, RenderFormat, TwoPhaseRenderFormat}
+import laika.factory.{BinaryPostProcessor, BinaryPostProcessorBuilder, RenderContext, RenderFormat, TwoPhaseRenderFormat}
 import laika.io.model.{BinaryOutput, RenderedTreeRoot}
 import laika.io.runtime.Runtime
 import laika.theme
-import laika.theme.FontDefinition
+import laika.theme.{FontDefinition, Theme}
 import laika.render.epub.{ContainerWriter, StyleSupport, XHTMLRenderer}
 import laika.render.{HTMLFormatter, XHTMLFormatter}
 
@@ -64,7 +64,7 @@ import laika.render.{HTMLFormatter, XHTMLFormatter}
  * 
  *  @author Jens Halm
  */
-case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor] {
+case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessorBuilder] {
 
   /** A render format for XHTML output as used by EPUB output.
     *
@@ -157,9 +157,11 @@ case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor
    *  - Metadata and navigation files as required by the EPUB specification, auto-generated from the document tree
    *    and the configuration of this instance.
    */
-  def postProcessor (config: Config): BinaryPostProcessor = new BinaryPostProcessor {
-    def process[F[_] : Sync: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput[F], config: OperationConfig): F[Unit] = 
-      writer.write(result, output)
+  def postProcessor: BinaryPostProcessorBuilder = new BinaryPostProcessorBuilder {
+    def build[F[_] : Sync](config: Config, theme: Theme[F]): BinaryPostProcessor = new BinaryPostProcessor {
+      def process[G[_] : Sync : Runtime](result: RenderedTreeRoot[G], output: BinaryOutput[G], config: OperationConfig): G[Unit] =
+        writer.write(result, output)
+    }
   }
   
 }

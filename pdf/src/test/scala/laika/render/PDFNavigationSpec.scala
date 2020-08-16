@@ -20,9 +20,9 @@ import cats.effect.{IO, Sync}
 import cats.implicits._
 import laika.api.Renderer
 import laika.api.builder.{OperationConfig, TwoPhaseRendererBuilder}
-import laika.ast.{DocumentTreeRoot, MessageFilter, TemplateRoot}
+import laika.ast.{DocumentTreeRoot, TemplateRoot}
 import laika.config.{Config, ConfigException}
-import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
+import laika.factory.{BinaryPostProcessor, BinaryPostProcessorBuilder, RenderFormat, TwoPhaseRenderFormat}
 import laika.format.{PDF, XSLFO}
 import laika.io.api.BinaryTreeRenderer
 import laika.io.helper.RenderResult
@@ -33,12 +33,13 @@ import laika.io.{FileIO, IOSpec}
 import laika.render.FOFormatter.Preamble
 import laika.render.fo.TestTheme
 import laika.render.pdf.FOConcatenation
+import laika.theme.Theme
 
 
 class PDFNavigationSpec extends IOSpec with FileIO {
 
   
-  object FOTest extends TwoPhaseRenderFormat[FOFormatter, BinaryPostProcessor] {
+  object FOTest extends TwoPhaseRenderFormat[FOFormatter, BinaryPostProcessorBuilder] {
     
     val interimFormat: RenderFormat[FOFormatter] = XSLFO
     
@@ -49,19 +50,22 @@ class PDFNavigationSpec extends IOSpec with FileIO {
         doc.copy(content = doc.content.copy(content = preamble +: doc.content.content))
       })
 
-    def postProcessor (config: Config): BinaryPostProcessor = new BinaryPostProcessor {
+    def postProcessor: BinaryPostProcessorBuilder = new BinaryPostProcessorBuilder {
 
-      override def process[F[_]: Sync: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput[F], opConfig: OperationConfig): F[Unit] = {
+      def build[F[_] : Sync](config: Config, theme: Theme[F]) = new BinaryPostProcessor {
 
-        val pdfConfig = PDF.BookConfig.decodeWithDefaults(result.config)
-        output.resource.use { out =>
-          for {
-            config <- Sync[F].fromEither(pdfConfig.left.map(ConfigException))
-            fo <- Sync[F].fromEither(FOConcatenation(result, config, opConfig)): F[String]
-            _  <- Sync[F].delay(out.write(fo.getBytes("UTF-8"))): F[Unit]
-          } yield ()
+        override def process[G[_] : Sync : Runtime](result: RenderedTreeRoot[G], output: BinaryOutput[G], opConfig: OperationConfig): G[Unit] = {
+
+          val pdfConfig = PDF.BookConfig.decodeWithDefaults(result.config)
+          output.resource.use { out =>
+            for {
+              config <- Sync[G].fromEither(pdfConfig.left.map(ConfigException))
+              fo <- Sync[G].fromEither(FOConcatenation(result, config, opConfig)): G[String]
+              _ <- Sync[G].delay(out.write(fo.getBytes("UTF-8"))): G[Unit]
+            } yield ()
+          }
+
         }
-
       }
     }
     

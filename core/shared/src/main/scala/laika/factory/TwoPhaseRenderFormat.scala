@@ -43,6 +43,6 @@ trait TwoPhaseRenderFormat[FMT, PP] extends Format {
 
   /** Post processor that produces the final result based on the interim format.
    */
-  def postProcessor (config: Config): PP
+  def postProcessor: PP
   
 }
