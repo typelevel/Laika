@@ -17,7 +17,8 @@
 package laika.io.api
 
 import cats.effect.Sync
-import laika.api.builder.{OperationConfig, TwoPhaseRenderer}
+import laika.api.Renderer
+import laika.api.builder.OperationConfig
 import laika.ast.DocumentTreeRoot
 import laika.factory.BinaryPostProcessor
 import laika.io.api.BinaryTreeRenderer.BinaryRenderer
@@ -43,6 +44,29 @@ class BinaryTreeRenderer[F[_]: Sync: Runtime](renderer: BinaryRenderer, theme: T
 /** Builder API for constructing a rendering operation for a tree of binary output documents.
   */
 object BinaryTreeRenderer {
+
+  /** A renderer that operates with two phases, producing an interim result.
+    *
+    * Examples for such renderers are EPUB (with XHTML as the interim format)
+    * and PDF (with XSL-FO as the interim format).
+    *
+    * This instance does not come with its own runtime. Instead its need to be passed
+    * to a builder API in laika-io that knows how to execute such an operation.
+    *
+    * @param interimRenderer the renderer for the 1st phase, producing the interim result
+    * @param prepareTree a hook with which the interim result can be modified before it gets
+    *                    passed to the post processor
+    * @param postProcessor the processor taking the interim result and producing the final 
+    *                      result, the implementing type may vary from format to format
+    * @param description short string describing the output format for tooling and logging 
+    * @tparam PP the type of the post processor 
+    *
+    * @author Jens Halm
+    */
+  case class TwoPhaseRenderer[PP] (interimRenderer: Renderer,
+                                   prepareTree: DocumentTreeRoot => Either[Throwable, DocumentTreeRoot],
+                                   postProcessor: PP,
+                                   description: String)
 
   type BinaryRenderer = TwoPhaseRenderer[BinaryPostProcessor]
 
