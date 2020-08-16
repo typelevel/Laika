@@ -26,7 +26,8 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.bundle.{BundleOrigin, ExtensionBundle}
 import laika.config.Config
-import laika.format.HTML
+import laika.factory.{Format, TwoPhaseRenderFormat}
+import laika.format.{EPUB, HTML}
 import laika.helium.generate._
 import laika.io.model.{BinaryInput, InputTree, ParsedTree}
 import laika.theme._
@@ -116,6 +117,14 @@ case class Helium (fontResources: Seq[FontDefinition],
       val newTree = tree.copy(staticDocuments = otherDocs :+ BinaryInput(css / "laika-helium.css", mergedInput))
       Sync[F].pure(newTree)
     }
+    
+    def filterFonts (format: Format): TreeProcessor = format match {
+      case _: TwoPhaseRenderFormat[_,_] => noOp
+      case _ => Kleisli { tree: ParsedTree[F] =>
+        val filteredOther = tree.staticDocuments.filterNot(_.path.isSubPath(Root / "laika" / "fonts"))
+        Sync[F].pure(tree.copy(staticDocuments = filteredOther))
+      }
+    }
 
     new Theme[F] {
       def inputs = themeInputs
@@ -125,7 +134,8 @@ case class Helium (fontResources: Seq[FontDefinition],
           .andThen(TocPageGenerator.generate(self, HTML))
           .andThen(landingPage.fold(noOp)(LandingPageGenerator.generate))
           .andThen(mergeCSS)
-        case format => TocPageGenerator.generate(self, format)
+          .andThen(filterFonts(HTML))
+        case format => TocPageGenerator.generate(self, format).andThen(filterFonts(format))
       }
     }
   } 
