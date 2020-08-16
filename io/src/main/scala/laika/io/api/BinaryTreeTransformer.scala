@@ -17,7 +17,7 @@
 package laika.io.api
 
 import cats.data.{Kleisli, NonEmptyList}
-import cats.effect.Sync
+import cats.effect.{Resource, Sync}
 import laika.api.MarkupParser
 import laika.api.builder.{OperationConfig, ParserBuilder}
 import laika.ast.{DocumentType, TextDocumentType}
@@ -96,8 +96,9 @@ object BinaryTreeTransformer {
     
     /** Final builder step that creates a parallel transformer for binary output.
       */
-    def build: BinaryTreeTransformer[F] = 
-      new BinaryTreeTransformer[F](parsers, BinaryTreeRenderer.buildRenderer(renderFormat, config, theme), theme, mapper)
+    def build: Resource[F, BinaryTreeTransformer[F]] =
+      BinaryTreeRenderer.buildRenderer(renderFormat, config, theme)
+        .map(new BinaryTreeTransformer[F](parsers, _, theme, mapper))
 
   }
 

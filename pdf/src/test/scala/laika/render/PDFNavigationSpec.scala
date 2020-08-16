@@ -16,7 +16,7 @@
 
 package laika.render
 
-import cats.effect.{IO, Sync}
+import cats.effect.{IO, Resource, Sync}
 import cats.implicits._
 import laika.api.Renderer
 import laika.api.builder.{OperationConfig, TwoPhaseRendererBuilder}
@@ -52,7 +52,7 @@ class PDFNavigationSpec extends IOSpec with FileIO {
 
     def postProcessor: BinaryPostProcessorBuilder = new BinaryPostProcessorBuilder {
 
-      def build[F[_] : Sync](config: Config, theme: Theme[F]) = new BinaryPostProcessor {
+      def build[F[_] : Sync](config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor] = Resource.pure[F, BinaryPostProcessor](new BinaryPostProcessor {
 
         override def process[G[_] : Sync : Runtime](result: RenderedTreeRoot[G], output: BinaryOutput[G], opConfig: OperationConfig): G[Unit] = {
 
@@ -66,7 +66,7 @@ class PDFNavigationSpec extends IOSpec with FileIO {
           }
 
         }
-      }
+      })
     }
     
   }
@@ -135,7 +135,7 @@ class PDFNavigationSpec extends IOSpec with FileIO {
   
   trait Setup extends TreeModel with ResultModel {
     
-    lazy val renderer: BinaryTreeRenderer[IO] = Renderer
+    lazy val renderer: Resource[IO, BinaryTreeRenderer[IO]] = Renderer
       .of(FOTest)
       .io(blocker)
       .parallel[IO]
@@ -144,12 +144,14 @@ class PDFNavigationSpec extends IOSpec with FileIO {
     
     type Builder = TwoPhaseRendererBuilder[FOFormatter, BinaryPostProcessor]
     
-    def result: IO[String] = withByteArrayTextOutput { out =>
-      renderer
+    def result: IO[String] = renderer.use { r =>
+      withByteArrayTextOutput { out =>
+      r
         .from(DocumentTreeRoot(tree.withDefaultTemplate(TestTheme.foTemplate, "fo"), styles = Map("fo" -> TestTheme.foStyles)))
         .toStream(IO.pure(out))
         .render
         .void
+      } 
     }
     
   }

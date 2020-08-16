@@ -16,7 +16,7 @@
 
 package laika.io.api
 
-import cats.effect.Sync
+import cats.effect.{Resource, Sync}
 import laika.api.Renderer
 import laika.api.builder.{OperationConfig, RendererBuilder}
 import laika.ast.DocumentTreeRoot
@@ -67,13 +67,10 @@ object BinaryTreeRenderer {
   
   type BinaryRenderFormat = TwoPhaseRenderFormat[_, BinaryPostProcessorBuilder]
 
-  private[laika] def buildRenderer[F[_]: Sync] (format: BinaryRenderFormat, config: OperationConfig, theme: Theme[F]): BinaryRenderer =
-    BinaryRenderer(
-      new RendererBuilder(format.interimFormat, config).build,
-      format.prepareTree,
-      format.postProcessor.build(config.baseConfig, theme),
-      format.description
-    )
+  private[laika] def buildRenderer[F[_]: Sync] (format: BinaryRenderFormat, config: OperationConfig, theme: Theme[F]): Resource[F, BinaryRenderer] =
+    format.postProcessor.build(config.baseConfig, theme).map { pp =>
+      BinaryRenderer(new RendererBuilder(format.interimFormat, config).build, format.prepareTree, pp, format.description)
+    }
   
   /** Builder step that allows to specify the execution context for blocking IO and CPU-bound tasks.
     */
@@ -85,7 +82,8 @@ object BinaryTreeRenderer {
     
     /** Final builder step that creates a parallel renderer for binary output.
       */
-    def build: BinaryTreeRenderer[F] = new BinaryTreeRenderer[F](buildRenderer(format, config, theme), theme)
+    def build: Resource[F, BinaryTreeRenderer[F]] = 
+      buildRenderer(format, config, theme).map(new BinaryTreeRenderer[F](_, theme))
     
   }
 

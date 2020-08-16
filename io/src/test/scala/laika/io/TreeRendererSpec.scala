@@ -19,7 +19,7 @@ package laika.io
 import java.io.File
 
 import cats.data.{Chain, NonEmptyChain}
-import cats.effect.IO
+import cats.effect.{IO, Resource}
 import laika.api.Renderer
 import laika.ast.Path.Root
 import laika.ast._
@@ -57,7 +57,6 @@ class TreeRendererSpec extends IOSpec
     def markupDoc (num: Int, path: Path = Root)  = Document(path / ("doc"+num), root(p("Doc"+num)))
     
     def staticDoc (num: Int, path: Path = Root) = ByteInput("Static"+num, path / s"static$num.txt")
-    
     
     def renderedDynDoc (num: Int): String = """RootElement - Blocks: 1
       |. TemplateRoot - TemplateSpans: 1
@@ -494,7 +493,7 @@ class TreeRendererSpec extends IOSpec
         |. . Text - 'ccc'
         |""".stripMargin
       
-      val renderer: BinaryTreeRenderer[IO] = Renderer
+      val renderer: Resource[IO, BinaryTreeRenderer[IO]] = Renderer
         .of(TestRenderResultProcessor)
         .io(blocker)
         .parallel[IO]
@@ -502,8 +501,10 @@ class TreeRendererSpec extends IOSpec
     }
   
     "render a tree with two documents using a RenderResultProcessor writing to an output stream" in new TwoPhaseRenderer {
-      withByteArrayTextOutput { out =>
-        renderer.from(DocumentTreeRoot(input)).toStream(IO.pure(out)).render
+      renderer.use { r =>
+        withByteArrayTextOutput { out =>
+          r.from(DocumentTreeRoot(input)).toStream(IO.pure(out)).render
+        }
       }.assertEquals(expectedResult)
       
     }
@@ -524,12 +525,13 @@ class TreeRendererSpec extends IOSpec
     //    }
   
     "render a tree with two documents using a RenderResultProcessor writing to a file" in new TwoPhaseRenderer {
-      val res = for {
-        f   <- newTempFile
-        _   <- renderer.from(DocumentTreeRoot(input)).toFile(f).render
-        res <- readFile(f)
-      } yield res
-      
+      val res = renderer.use { r =>
+        for {
+          f   <- newTempFile
+          _   <- r.from(DocumentTreeRoot(input)).toFile(f).render
+          res <- readFile(f)
+        } yield res
+      }
       res.assertEquals(expectedResult)
     }
   

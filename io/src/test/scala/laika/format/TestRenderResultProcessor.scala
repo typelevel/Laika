@@ -16,7 +16,7 @@
 
 package laika.format
 
-import cats.effect.Sync
+import cats.effect.{Resource, Sync}
 import laika.api.builder.OperationConfig
 import laika.ast.DocumentTreeRoot
 import laika.config.Config
@@ -34,7 +34,7 @@ object TestRenderResultProcessor extends TwoPhaseRenderFormat[TextFormatter, Bin
 
   def postProcessor: BinaryPostProcessorBuilder = new BinaryPostProcessorBuilder {
 
-    def build[F[_] : Sync](config: Config, theme: Theme[F]): BinaryPostProcessor = new BinaryPostProcessor {
+    def build[F[_] : Sync](config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor] = Resource.pure(new BinaryPostProcessor {
 
       override def process[G[_] : Sync : Runtime](result: RenderedTreeRoot[G], output: BinaryOutput[G], config: OperationConfig): G[Unit] = {
 
@@ -54,7 +54,7 @@ object TestRenderResultProcessor extends TwoPhaseRenderFormat[TextFormatter, Bin
           Sync[G].delay(out.write(resultString.getBytes("UTF-8")))
         }
       }
-    }
+    })
   }
   
 }

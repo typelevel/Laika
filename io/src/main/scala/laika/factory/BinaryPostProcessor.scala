@@ -16,7 +16,7 @@
 
 package laika.factory
 
-import cats.effect.Sync
+import cats.effect.{Resource, Sync}
 import laika.api.builder.OperationConfig
 import laika.config.Config
 import laika.io.model.{BinaryOutput, RenderedTreeRoot}
@@ -43,6 +43,6 @@ trait BinaryPostProcessor {
 
 trait BinaryPostProcessorBuilder {
   
-  def build[F[_]: Sync] (config: Config, theme: Theme[F]): BinaryPostProcessor
+  def build[F[_]: Sync] (config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor]
   
 }

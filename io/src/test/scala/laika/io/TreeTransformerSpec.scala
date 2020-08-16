@@ -18,7 +18,7 @@ package laika.io
 
 import java.io._
 
-import cats.effect.IO
+import cats.effect.{IO, Resource}
 import laika.api.builder.OperationConfig
 import laika.api.{MarkupParser, Transformer}
 import laika.ast.DocumentType.Ignored
@@ -27,7 +27,7 @@ import laika.ast._
 import laika.bundle.{BundleProvider, ExtensionBundle}
 import laika.directive.Templates
 import laika.format._
-import laika.io.api.TreeTransformer
+import laika.io.api.{BinaryTreeTransformer, TreeTransformer}
 import laika.io.descriptor.TransformerDescriptor
 import laika.io.helper.OutputBuilder._
 import laika.io.helper.{InputBuilder, RenderResult, ThemeBuilder}
@@ -516,6 +516,13 @@ class TreeTransformerSpec extends IOSpec with FileIO {
 
     trait TwoPhaseTransformer extends InputBuilder {
 
+      val transformer: Resource[IO, BinaryTreeTransformer[IO]] = Transformer
+        .from(ReStructuredText)
+        .to(TestRenderResultProcessor)
+        .io(blocker)
+        .parallel[IO]
+        .build
+      
       val srcRoot: String =
         """Title
           |=====
@@ -560,14 +567,10 @@ class TreeTransformerSpec extends IOSpec with FileIO {
     }
 
     "render a tree with a RenderResultProcessor writing to an output stream" in new TwoPhaseTransformer {
-      val transformer = Transformer.from(ReStructuredText).to(TestRenderResultProcessor)
-      def transformTo(out: IO[OutputStream]) = transformer
-        .io(blocker)
-        .parallel[IO]
-        .build
-        .fromInput(build(inputs))
-        .toStream(out)
-        .transform
+      
+      def transformTo(out: IO[OutputStream]): IO[Unit] = transformer.use { t =>
+        t.fromInput(build(inputs)).toStream(out).transform
+      }
 
       withByteArrayTextOutput { out =>
         transformTo(IO.pure(out))
@@ -593,14 +596,9 @@ class TreeTransformerSpec extends IOSpec with FileIO {
     //    }
 
     "render a tree with a RenderResultProcessor writing to a file" in new TwoPhaseTransformer {
-      val transformer = Transformer.from(ReStructuredText).to(TestRenderResultProcessor)
-      def transformTo(f: File) = transformer
-        .io(blocker)
-        .parallel[IO]
-        .build
-        .fromInput(build(inputs))
-        .toFile(f)
-        .transform
+      def transformTo(f: File): IO[Unit] = transformer.use { t =>
+        t.fromInput(build(inputs)).toFile(f).transform
+      }
 
       val res = for {
         f   <- IO(File.createTempFile("output", null))

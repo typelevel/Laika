@@ -78,9 +78,9 @@ class PDFRendererSpec extends IOSpec with FileIO {
         .parallel[IO]
         .build
 
-      val res = emptyTreeWithTemplate.flatMap { templateTree =>
-        renderer.from(buildInputTree(templateTree, tree)).toFile(file).render
-      }
+      val res = renderer.use { r => emptyTreeWithTemplate.flatMap { templateTree =>
+        r.from(buildInputTree(templateTree, tree)).toFile(file).render
+      }}
       
       firstCharAvailable(res)
     }
@@ -93,9 +93,9 @@ class PDFRendererSpec extends IOSpec with FileIO {
         .build
 
       withByteArrayOutput { out =>
-        emptyTreeWithTemplate.flatMap { templateTree => 
-          renderer.from(buildInputTree(templateTree, tree)).toStream(IO.pure(out)).render.void
-        }
+        renderer.use { r => emptyTreeWithTemplate.flatMap { templateTree => 
+          r.from(buildInputTree(templateTree, tree)).toStream(IO.pure(out)).render.void
+        }}
       }.asserting(_ should not be empty)
     }
 

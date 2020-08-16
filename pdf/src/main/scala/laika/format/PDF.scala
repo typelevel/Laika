@@ -20,7 +20,7 @@ import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.{Date, Locale, UUID}
 
-import cats.effect.Sync
+import cats.effect.{Resource, Sync}
 import cats.implicits._
 import laika.api.builder.OperationConfig
 import laika.ast.{DocumentMetadata, DocumentTreeRoot, Path, TemplateRoot}
@@ -91,7 +91,7 @@ class PDF private(val interimFormat: RenderFormat[FOFormatter], fopFactory: Opti
     */
   def postProcessor: BinaryPostProcessorBuilder = new BinaryPostProcessorBuilder {
     
-    def build[F[_] : Sync](config: Config, theme: Theme[F]): BinaryPostProcessor = new BinaryPostProcessor {
+    def build[F[_] : Sync](config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor] = Resource.pure[F, BinaryPostProcessor](new BinaryPostProcessor {
 
       private val pdfConfig = PDF.BookConfig.decodeWithDefaults(config).getOrElse(PDF.BookConfig())
       private val renderer = new PDFRenderer(fopFactory.getOrElse(FopFactoryBuilder.build(pdfConfig)))
@@ -105,7 +105,7 @@ class PDF private(val interimFormat: RenderFormat[FOFormatter], fopFactory: Opti
           _ <- renderer.render(fo, output, pdfConfig.metadata, title, result.staticDocuments)
         } yield ()
       }
-    }
+    })
   }
 
 }
