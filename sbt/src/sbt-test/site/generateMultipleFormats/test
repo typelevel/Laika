@@ -1,5 +1,5 @@
 # test HTML, EPUB and PDF output in one operation with the generate task
 > laikaGenerate html pdf epub
 $ must-mirror target/docs/site/hello.html expected.html
-$ exists target/docs/site-generatemultipleformats-0.1.pdf
-$ exists target/docs/site-generatemultipleformats-0.1.epub
+$ exists target/docs/site/downloads/site-generatemultipleformats-0.1.pdf
+$ exists target/docs/site/downloads/site-generatemultipleformats-0.1.epub
