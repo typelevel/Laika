@@ -75,14 +75,16 @@ class TreeRendererSpec extends IOSpec
     
     def input: DocumentTree
     
-    def renderer: TreeRenderer[IO]
+    def renderer: Resource[IO, TreeRenderer[IO]]
     
     def renderedTree: IO[RenderedTreeView] = renderedRoot.map(_.tree)
 
     def renderedRoot: IO[RenderedTreeViewRoot] = renderer
-      .from(treeRoot)
-      .toOutput(StringTreeOutput)
-      .render
+      .use (_
+        .from(treeRoot)
+        .toOutput(StringTreeOutput)
+        .render
+      )
       .map(RenderedTreeViewRoot.apply[IO])
 
     def addPosition (tree: DocumentTree, pos: Seq[Int] = Nil): DocumentTree = {
@@ -97,17 +99,17 @@ class TreeRendererSpec extends IOSpec
   }
   
   trait ASTRenderer extends TreeRendererSetup[TextFormatter] {
-    lazy val renderer: TreeRenderer[IO] = Renderer.of(AST).io(blocker).parallel[IO].build
+    lazy val renderer: Resource[IO, TreeRenderer[IO]] = Renderer.of(AST).io(blocker).parallel[IO].build
   }
 
   trait HTMLRenderer extends TreeRendererSetup[HTMLFormatter] {
     val rootElem: RootElement = root(titleWithId("Title"), p("bbb"))
-    lazy val renderer: TreeRenderer[IO] = Renderer.of(HTML).io(blocker).parallel[IO].build
+    lazy val renderer: Resource[IO, TreeRenderer[IO]] = Renderer.of(HTML).io(blocker).parallel[IO].build
   }
 
   trait EPUB_XHTMLRenderer extends TreeRendererSetup[HTMLFormatter] {
     val rootElem: RootElement = root(titleWithId("Title"), p("bbb"))
-    lazy val renderer: TreeRenderer[IO] = Renderer.of(EPUB.XHTML).io(blocker).parallel[IO].build
+    lazy val renderer: Resource[IO, TreeRenderer[IO]] = Renderer.of(EPUB.XHTML).io(blocker).parallel[IO].build
   }
 
   trait FORenderer extends TreeRendererSetup[FOFormatter] {
@@ -122,7 +124,7 @@ class TreeRendererSpec extends IOSpec
     def title(id: String, text: String) =
       s"""<fo:block id="$id" color="#007c99" font-family="sans-serif" font-size="24pt" font-weight="bold" keep-with-next="always" space-after="6mm" space-before="0mm">$text</fo:block>"""
 
-    def renderer: TreeRenderer[IO] = Renderer
+    def renderer: Resource[IO, TreeRenderer[IO]] = Renderer
       .of(XSLFO)
       .io(blocker)
       .parallel[IO]
@@ -165,9 +167,11 @@ class TreeRendererSpec extends IOSpec
           Document(Root / "sub" / "doc", rootElem)
         ))
         renderer
-          .from(treeRoot)
-          .toOutput(StringTreeOutput)
-          .render
+          .use (_
+            .from(treeRoot)
+            .toOutput(StringTreeOutput)
+            .render
+          )
           .attempt
           .assertEquals(Left(
             RendererErrors(Seq(DuplicatePath(Root / "doc2"), DuplicatePath(Root / "sub" / "doc")))
@@ -190,9 +194,11 @@ class TreeRendererSpec extends IOSpec
             s"unresolved link reference: link${doc.path.name.charAt(3)}")), doc.path)
         }
         renderer
-          .from(treeRoot)
-          .toOutput(StringTreeOutput)
-          .render
+          .use (_
+            .from(treeRoot)
+            .toOutput(StringTreeOutput)
+            .render
+          )
           .attempt
           .assertEquals(Left(
             InvalidDocuments(NonEmptyChain.fromChainUnsafe(Chain.fromSeq(messages)))
@@ -392,10 +398,12 @@ class TreeRendererSpec extends IOSpec
       val input = DocumentTree(Root, Nil)
       override def treeRoot = DocumentTreeRoot(input, staticDocuments = Seq(staticDoc(1).path))
       renderer
-        .from(treeRoot)
-        .copying(Seq(ByteInput("...", Root / "static1.txt")))
-        .toOutput(StringTreeOutput)
-        .render
+        .use (_
+          .from(treeRoot)
+          .copying(Seq(ByteInput("...", Root / "static1.txt")))
+          .toOutput(StringTreeOutput)
+          .render
+        )
         .map(RenderedTreeViewRoot.apply[IO])
         .assertEquals(RenderedTreeViewRoot(RenderedTreeView(Root, Nil), staticDocuments = Seq(Root / "static1.txt") ++ TestTheme.staticPaths))
     }
@@ -410,9 +418,11 @@ class TreeRendererSpec extends IOSpec
         .parallel[IO]
         .withTheme(theme)
         .build
-        .from(treeRoot)
-        .toOutput(StringTreeOutput)
-        .render
+        .use (_
+          .from(treeRoot)
+          .toOutput(StringTreeOutput)
+          .render
+        )
         .map(RenderedTreeViewRoot.apply[IO])
         .assertEquals(RenderedTreeViewRoot(RenderedTreeView(Root, Nil), staticDocuments = Seq(Root / "static1.txt")))
     }
@@ -462,10 +472,12 @@ class TreeRendererSpec extends IOSpec
       ))
 
       renderer
-        .from(treeRoot)
-        .copying(staticDocs)
-        .toOutput(StringTreeOutput)
-        .render
+        .use (_
+          .from(treeRoot)
+          .copying(staticDocs)
+          .toOutput(StringTreeOutput)
+          .render
+        )
         .map(RenderedTreeViewRoot.apply[IO])
         .assertEquals(RenderedTreeViewRoot(expectedRendered, staticDocuments = expectedStatic ++ TestTheme.staticPaths))
     }
@@ -574,7 +586,7 @@ class TreeRendererSpec extends IOSpec
         
         val res = for {
           f   <- newTempDirectory
-          _   <- renderer.from(input).toDirectory(f).render
+          _   <- renderer.use(_.from(input).toDirectory(f).render)
           res <- readFiles(f.getPath)
         } yield res
         
@@ -596,7 +608,7 @@ class TreeRendererSpec extends IOSpec
       
       val res = for {
         f   <- newTempDirectory
-        _   <- renderer.from(input).toDirectory(f)(Codec.ISO8859).render
+        _   <- renderer.use(_.from(input).toDirectory(f)(Codec.ISO8859).render)
         res <- readFile(new File(f, "doc.txt"), Codec.ISO8859)
       } yield res
       

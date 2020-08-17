@@ -55,11 +55,12 @@ class XHTMLRendererSpec extends IOSpec with ModelBuilder with FileIO {
         .io(blocker)
         .parallel[IO]
         .build
-        .from(root)
-        .toOutput(StringTreeOutput)
-        .render
+        .use(_
+          .from(root)
+          .toOutput(StringTreeOutput)
+          .render
+        )
         .map(root => collectDocuments(root.tree))
-
     
     def renderedXhtml (num: Int, style1: String, style2: String): String = s"""<?xml version="1.0" encoding="UTF-8"?>
      |<!DOCTYPE html>

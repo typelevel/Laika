@@ -45,8 +45,8 @@ import org.scalatest.Assertion
 class TreeTransformerSpec extends IOSpec with FileIO {
 
   
-  private val transformer: TreeTransformer[IO] = Transformer.from(Markdown).to(AST).io(blocker).parallel[IO].build
-  private def transformerWithBundle (bundle: ExtensionBundle): TreeTransformer[IO] = 
+  private val transformer: Resource[IO, TreeTransformer[IO]] = Transformer.from(Markdown).to(AST).io(blocker).parallel[IO].build
+  private def transformerWithBundle (bundle: ExtensionBundle): Resource[IO, TreeTransformer[IO]] = 
     Transformer.from(Markdown).to(AST).using(bundle).io(blocker).parallel[IO].build
   
   
@@ -77,16 +77,19 @@ class TreeTransformerSpec extends IOSpec with FileIO {
       .parallel[IO]
       .withAlternativeParser(MarkupParser.of(ReStructuredText))
       .build
-      .fromInput(build(inputs))
-      .toOutput(StringTreeOutput)
-      .describe
+      .use (_
+        .fromInput(build(inputs))
+        .toOutput(StringTreeOutput)
+        .describe
+      )
     
-    protected def transformWith (transformer: TreeTransformer[IO] = transformer): IO[RenderedTreeViewRoot] =
-      transformer
+    protected def transformWith (transformer: Resource[IO, TreeTransformer[IO]] = transformer): IO[RenderedTreeViewRoot] =
+      transformer.use (_
         .fromInput(build(inputs))
         .toOutput(StringTreeOutput)
         .transform
-        .map(RenderedTreeViewRoot.apply[IO])
+      )
+      .map(RenderedTreeViewRoot.apply[IO])
 
     private def transformWithBundle (bundle: ExtensionBundle): IO[RenderedTreeViewRoot] =
       transformWith(Transformer.from(Markdown).to(AST).using(bundle).io(blocker).parallel[IO].build)
@@ -305,9 +308,11 @@ class TreeTransformerSpec extends IOSpec with FileIO {
         .addString(Contents.style, Root / "styles.fo.css")
       
       val renderResult = transformer
-        .fromInput(input)
-        .toOutput(StringTreeOutput)
-        .transform
+        .use (_
+          .fromInput(input)
+          .toOutput(StringTreeOutput)
+          .transform
+        )
         .map(RenderedTreeViewRoot.apply[IO])
       renderResult.map(_.tree).assertEquals(root(List(docs(
         (Root / "doc1.fo", result)
@@ -658,7 +663,7 @@ class TreeTransformerSpec extends IOSpec with FileIO {
       val expectedFileContents = (1 to 6).map(renderedDoc).toList
       val res = for {
         targetDir <- newTempDirectory
-        _         <- transformer.fromDirectory(sourceName).toDirectory(targetDir).transform
+        _         <- transformer.use(_.fromDirectory(sourceName).toDirectory(targetDir).transform)
         results   <- readFiles(targetDir.getPath)
       } yield results
       res.assertEquals(expectedFileContents)
@@ -673,7 +678,7 @@ class TreeTransformerSpec extends IOSpec with FileIO {
 
       val res = for {
         targetDir  <- newTempDirectory
-        _          <- transformer.fromDirectory(sourceName).toDirectory(targetDir).transform
+        _          <- transformer.use(_.fromDirectory(sourceName).toDirectory(targetDir).transform)
         contents   <- readFilesFiltered(targetDir.getPath)
         fileExists <- exists(new File(targetDir, "/doc1.txt"))
         dirExists  <- exists(new File(targetDir, "/dir1"))
@@ -689,7 +694,7 @@ class TreeTransformerSpec extends IOSpec with FileIO {
       
       val res = for {
         targetDir  <- newTempDirectory
-        _          <- transformer.fromDirectory(sourceName, fileFilter).toDirectory(targetDir).transform
+        _          <- transformer.use(_.fromDirectory(sourceName, fileFilter).toDirectory(targetDir).transform)
         contents   <- readFilesFiltered(targetDir.getPath)
         fileExists <- exists(new File(targetDir, "/doc1.txt"))
         dirExists  <- exists(new File(targetDir, "/dir1"))
@@ -704,7 +709,7 @@ class TreeTransformerSpec extends IOSpec with FileIO {
       val expectedFileContents = (1 to 9).map(renderedDoc).toList
       val res = for {
         targetDir <- newTempDirectory
-        _         <- transformer.fromDirectories(Seq(source1, source2)).toDirectory(targetDir).transform
+        _         <- transformer.use(_.fromDirectories(Seq(source1, source2)).toDirectory(targetDir).transform)
         results   <- readFilesMerged(targetDir.getPath)
       } yield results 
       res.assertEquals(expectedFileContents)
@@ -728,7 +733,7 @@ class TreeTransformerSpec extends IOSpec with FileIO {
           _          <- mkDir(subdir)
           outputFile = new File(subdir, "hello.js")
           _          <- writeFile(outputFile, "Output")
-          _          <- transformer.fromDirectory(targetDir).toDirectory(subdir).transform
+          _          <- transformer.use(_.fromDirectory(targetDir).toDirectory(subdir).transform)
           hello      <- readFile(inputFile)
           static     <- readFile(new File(subdir, "static.txt"))
           result     <- readFile(new File(subdir, "hello.txt"))

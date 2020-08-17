@@ -17,7 +17,7 @@
 package laika.io.api
 
 import cats.data.NonEmptyList
-import cats.effect.Sync
+import cats.effect.{Resource, Sync}
 import laika.api.builder.{OperationConfig, ParserBuilder}
 import laika.api.{MarkupParser, Renderer}
 import laika.ast.{DocumentType, TextDocumentType}
@@ -91,7 +91,7 @@ object TreeTransformer {
     
     /** Final builder step that creates a parallel transformer.
       */
-    def build: TreeTransformer[F] = new TreeTransformer[F](parsers, renderer, theme, mapper)
+    def build: Resource[F, TreeTransformer[F]] = Resource.pure(new TreeTransformer[F](parsers, renderer, theme, mapper))
 
   }
 

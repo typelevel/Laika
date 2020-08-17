@@ -16,7 +16,7 @@
 
 package laika.io.api
 
-import cats.effect.Sync
+import cats.effect.{Resource, Sync}
 import laika.api.Renderer
 import laika.api.builder.OperationConfig
 import laika.ast.DocumentTreeRoot
@@ -53,7 +53,7 @@ object TreeRenderer {
 
     /** Final builder step that creates a parallel renderer.
       */
-    def build: TreeRenderer[F] = new TreeRenderer[F](renderer, theme)
+    def build: Resource[F, TreeRenderer[F]] = Resource.pure(new TreeRenderer[F](renderer, theme))
 
   }
 

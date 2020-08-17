@@ -50,7 +50,7 @@ object Tasks {
     * Does nothing if the `laikaIncludeAPI` setting is set to false (the default).
     */
   val generateAPI: Initialize[Task[Seq[String]]] = taskDyn {
-    val config = Settings.parser.value.config.baseConfig
+    val config = Settings.parserConfig.value.baseConfig
     val targetDir = (laikaSite / target).value / SiteConfig.apiPath(config).relative.toString
     if (laikaIncludeAPI.value) task {
 
@@ -88,15 +88,16 @@ object Tasks {
 
     val userConfig = laikaConfig.value
     val parser = Settings.parser.value
-    val downloadPath = (laikaSite / target).value / SiteConfig.downloadPath(parser.config.baseConfig).relative.toString
-    val apiPath = SiteConfig.apiPath(parser.config.baseConfig)
+    val baseConfig = Settings.parserConfig.value.baseConfig
+    val downloadPath = (laikaSite / target).value / SiteConfig.downloadPath(baseConfig).relative.toString
+    val apiPath = SiteConfig.apiPath(baseConfig)
     val artifactBaseName = Settings.artifactBaseName.value
 
     lazy val tree = {
       val inputs = generateAPI.value.foldLeft(laikaInputs.value.delegate) {
         (inputs, path) => inputs.addString("", apiPath / path) // TODO - temporary hack until the builder API is enhanced
       }
-      val tree = parser.fromInput(inputs).parse.unsafeRunSync()
+      val tree = parser.use(_.fromInput(inputs).parse).unsafeRunSync()
 
       Logs.runtimeMessages(streams.value.log, tree.root, userConfig.logMessages)
 
@@ -105,7 +106,7 @@ object Tasks {
     
     def renderWithFormat[FMT] (format: RenderFormat[FMT], targetDir: File, formatDesc: String): Set[File] = {
       
-      val apiPath = targetDir / SiteConfig.apiPath(parser.config.baseConfig).relative.toString
+      val apiPath = targetDir / SiteConfig.apiPath(baseConfig).relative.toString
       val filesToDelete = (targetDir.allPaths --- targetDir --- 
         downloadPath.allPaths --- collectParents(downloadPath) --- apiPath.allPaths --- collectParents(apiPath)).get
       sbt.IO.delete(filesToDelete)
@@ -114,15 +115,17 @@ object Tasks {
  
       Renderer
         .of(format)
-        .withConfig(parser.config)
+        .withConfig(Settings.parserConfig.value)
         .io(blocker)
         .parallel[IO]
         .withTheme(laikaTheme.value.delegate)
         .build
-        .from(tree.root)
-        .copying(tree.staticDocuments)
-        .toDirectory(targetDir)(userConfig.encoding)
-        .render
+        .use(_
+          .from(tree.root)
+          .copying(tree.staticDocuments)
+          .toDirectory(targetDir)(userConfig.encoding)
+          .render
+        )
         .unsafeRunSync()      
 
       streams.value.log.info(Logs.outputs(tree.root, formatDesc))
@@ -137,7 +140,7 @@ object Tasks {
 
       val ops = Renderer
         .of(format)
-        .withConfig(parser.config)
+        .withConfig(Settings.parserConfig.value)
         .io(blocker)
         .parallel[IO]
         .withTheme(laikaTheme.value.delegate)
@@ -167,7 +170,7 @@ object Tasks {
     }
 
     val cacheDir = streams.value.cacheDirectory / "laika"
-    val inputCollection = laikaInputs.value.delegate.build(parser.config.docTypeMatcher).unsafeRunSync()
+    val inputCollection = laikaInputs.value.delegate.build(Settings.parserConfig.value.docTypeMatcher).unsafeRunSync()
     streams.value.log.info(Logs.inputs(inputCollection))
     val inputFiles = collectInputFiles(inputCollection)
 

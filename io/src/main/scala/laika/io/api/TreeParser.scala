@@ -17,7 +17,7 @@
 package laika.io.api
 
 import cats.data.NonEmptyList
-import cats.effect.Sync
+import cats.effect.{Resource, Sync}
 import laika.api.MarkupParser
 import laika.api.builder.{OperationConfig, ParserBuilder}
 import laika.ast.{DocumentType, StyleDeclarationSet, TemplateDocument, TextDocumentType}
@@ -81,7 +81,7 @@ object TreeParser {
 
     /** Final builder step that creates a parallel parser.
       */
-    def build: TreeParser[F] = new TreeParser[F](parsers, theme)
+    def build: Resource[F, TreeParser[F]] = Resource.pure(new TreeParser[F](parsers, theme))
 
   }
 

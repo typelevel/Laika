@@ -62,7 +62,7 @@ class PDFRendererSpec extends IOSpec with FileIO {
       .build
     
     // run a parser with an empty input tree to obtain a parsed default template
-    val emptyTreeWithTemplate = templateParser.fromInput(InputTree[IO]).parse
+    val emptyTreeWithTemplate = templateParser.use(_.fromInput(InputTree[IO]).parse)
     
     def buildInputTree (templateTree: ParsedTree[IO], inputTree: DocumentTree): DocumentTreeRoot = {
       val treeWithTemplate = inputTree.copy(

@@ -18,7 +18,7 @@ package laika.sbt
 
 import java.util.concurrent.Executors
 
-import cats.effect.{Blocker, ContextShift, IO}
+import cats.effect.{Blocker, ContextShift, IO, Resource}
 import laika.api.builder.{OperationConfig, ParserBuilder}
 import laika.api.{MarkupParser, Transformer}
 import laika.config.{ConfigBuilder, LaikaKeys}
@@ -85,15 +85,17 @@ object Settings {
       .addDirectories((Laika / sourceDirectories).value)(laikaConfig.value.encoding)
 
     transformer
-      .fromInput(inputs)
-      .toDirectory((laikaSite / target).value)
-      .describe
+      .use(_
+        .fromInput(inputs)
+        .toDirectory((laikaSite / target).value)
+        .describe
+      )
       .unsafeRunSync()
       .copy(renderer = "Depending on task")
       .formatted
   }
   
-  val parser: Initialize[TreeParser[IO]] = setting {
+  val parser: Initialize[Resource[IO, TreeParser[IO]]] = setting {
     val fallback = ConfigBuilder.empty
       .withValue(LaikaKeys.metadata.child("title"), name.value)
       .withValue(LaikaKeys.metadata.child("description"), description.value)
@@ -121,8 +123,12 @@ object Settings {
       .build
   }
   
+  val parserConfig: Initialize[OperationConfig] = setting {
+    parser.value.use(p => IO.pure(p.config)).unsafeRunSync()
+  }
+  
   val artifactBaseName: Initialize[String] = setting {
-    parser.value.config.baseConfig.get[String](LaikaKeys.artifactBaseName).getOrElse(name.value)
+    parserConfig.value.baseConfig.get[String](LaikaKeys.artifactBaseName).getOrElse(name.value)
   }
 
   /** The set of targets for the transformation tasks of all supported output formats.

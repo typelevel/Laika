@@ -19,7 +19,7 @@ package laika.io
 import java.io.ByteArrayInputStream
 
 import cats.data.{Chain, NonEmptyChain}
-import cats.effect.IO
+import cats.effect.{IO, Resource}
 import laika.api.MarkupParser
 import laika.ast.DocumentType._
 import laika.ast.Path.Root
@@ -55,9 +55,9 @@ class TreeParserSpec extends IOSpec
       .parallel[IO]
       .withTheme(Theme.empty)
     
-    val defaultParser: TreeParser[IO] = defaultBuilder.build
+    val defaultParser: Resource[IO, TreeParser[IO]] = defaultBuilder.build
     
-    def parserWithBundle (bundle: ExtensionBundle): TreeParser[IO] = 
+    def parserWithBundle (bundle: ExtensionBundle): Resource[IO, TreeParser[IO]] = 
       MarkupParser
         .of(Markdown)
         .using(bundle)
@@ -66,7 +66,7 @@ class TreeParserSpec extends IOSpec
         .withTheme(Theme.empty)
         .build
 
-    def parserWithTheme (bundle: ExtensionBundle): TreeParser[IO] =
+    def parserWithTheme (bundle: ExtensionBundle): Resource[IO, TreeParser[IO]] =
       MarkupParser
         .of(Markdown)
         .io(blocker)
@@ -75,7 +75,7 @@ class TreeParserSpec extends IOSpec
         .withTheme(ThemeBuilder.forBundle(bundle))
         .build
 
-    def parserWithThemeAndBundle (themeBundle: ExtensionBundle, appBundle: ExtensionBundle): TreeParser[IO] =
+    def parserWithThemeAndBundle (themeBundle: ExtensionBundle, appBundle: ExtensionBundle): Resource[IO, TreeParser[IO]] =
       MarkupParser
         .of(Markdown)
         .using(appBundle)
@@ -118,7 +118,7 @@ class TreeParserSpec extends IOSpec
         |]""".stripMargin
     }
     
-    val docTypeMatcher: Path => DocumentType = defaultParser.config.docTypeMatcher
+    val docTypeMatcher: Path => DocumentType = MarkupParser.of(Markdown).build.config.docTypeMatcher
     
     def docView (num: Int, path: Path = Root) = DocumentView(path / s"doc$num.md", Content(List(p("foo"))) :: Nil)
     def docView (name: String) = DocumentView(Root / name, Content(List(p("foo"))) :: Nil)
@@ -130,7 +130,7 @@ class TreeParserSpec extends IOSpec
     def toViewWithTemplating (parsed: ParsedTree[IO]): RootView = viewOf(TemplateRewriter.applyTemplates(parsed.root, "html").toOption.get)
     
     
-    def parsedTree: IO[RootView] = defaultParser.fromInput(build(inputs)).parse.map(toViewWithTemplating)
+    def parsedTree: IO[RootView] = defaultParser.use(_.fromInput(build(inputs)).parse).map(toViewWithTemplating)
     
     def mixedParsedTree: IO[RootView] = {
       val parser = MarkupParser
@@ -140,19 +140,17 @@ class TreeParserSpec extends IOSpec
         .withTheme(Theme.empty)
         .withAlternativeParser(MarkupParser.of(ReStructuredText))
         .build
-      parser.fromInput(build(inputs)).parse.map(toView)
+      parser.use(_.fromInput(build(inputs)).parse).map(toView)
     }
     
     def parsedWith (bundle: ExtensionBundle): IO[RootView] =
       parserWithBundle(bundle)
-        .fromInput(build(inputs))
-        .parse
+        .use(_.fromInput(build(inputs)).parse)
         .map(toViewWithTemplating)
 
     def parsedTemplates (bundle: ExtensionBundle): IO[Seq[TemplateRoot]] = {
       parserWithBundle(bundle)
-        .fromInput(build(inputs))
-        .parse
+        .use(_.fromInput(build(inputs)).parse)
         .map { parsed =>
           parsed.root.tree.templates.map { tpl =>
             tpl.content.rewriteChildren(TemplateRewriter.rewriteRules(DocumentCursor(Document(Root, RootElement.empty))))
@@ -271,7 +269,7 @@ class TreeParserSpec extends IOSpec
         Root / "sub" / "doc.md" -> Contents.name,
         Root / "sub" / "doc.md" -> Contents.name
       )
-      defaultParser.fromInput(build(inputs)).parse.attempt.assertEquals(Left(
+      defaultParser.use(_.fromInput(build(inputs)).parse).attempt.assertEquals(Left(
         ParserErrors(Set(DuplicatePath(Root / "doc2.md"), DuplicatePath(Root / "sub" / "doc.md")))
       ))
     }
@@ -418,7 +416,7 @@ class TreeParserSpec extends IOSpec
         Root / "cherry.md" -> Contents.name,
         Root / "directory.conf" -> Contents.order,
       )
-      defaultParser.fromInput(build(inputs)).parse.map {
+      defaultParser.use(_.fromInput(build(inputs)).parse).map {
         _.root.tree.content map (_.path.name)
       }.assertEquals(List("lemon.md", "shapes", "cherry.md", "colors", "apple.md", "orange.md"))
     }
@@ -434,7 +432,7 @@ class TreeParserSpec extends IOSpec
         Root / "cherry.md" -> Contents.name,
         Root / "directory.conf" -> Contents.order,
       )
-      defaultParser.fromInput(build(inputs)).parse.map(_.root.tree).asserting { tree =>
+      defaultParser.use(_.fromInput(build(inputs)).parse).map(_.root.tree).asserting { tree =>
         tree.titleDocument.map(_.path.basename) shouldBe Some("README")
         tree.content map (_.path.name) should be(List("lemon.md", "shapes", "cherry.md", "colors", "apple.md", "orange.md"))
         tree.content map (_.position) should be(List(
@@ -459,7 +457,7 @@ class TreeParserSpec extends IOSpec
         Documents(List(docView(1), docView(2))),
         Subtrees(List(subtree1, subtree2))
       ))
-      defaultParser.fromDirectory(dirname).parse.map(toTreeView).assertEquals(treeResult)
+      defaultParser.use(_.fromDirectory(dirname).parse).map(toTreeView).assertEquals(treeResult)
     }
 
     trait SpanParserSetup extends ParserSetup {
@@ -488,7 +486,7 @@ class TreeParserSpec extends IOSpec
       def parse: IO[RootElement] = parserWithThemeAndBundle(
         BundleProvider.forMarkupParser(spanParsers = themeParsers, origin = BundleOrigin.Theme),
         BundleProvider.forMarkupParser(spanParsers = appParsers)
-      ).fromInput(input).parse.map(_.root.allDocuments.head.content)
+      ).use(_.fromInput(input).parse).map(_.root.allDocuments.head.content)
     }
 
     "use a span parser from a theme" in new SpanParserSetup {
@@ -527,14 +525,14 @@ class TreeParserSpec extends IOSpec
       ))
       def useTheme: Boolean = false
       def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO]
-      def build (builder: InputTreeBuilder[IO]): IO[InputTree[IO]] = builder.build(defaultParser.config.docTypeMatcher)
+      def build (builder: InputTreeBuilder[IO]): IO[InputTree[IO]] = builder.build
       lazy val input: InputTreeBuilder[IO] =
         if (useTheme) InputTree[IO].addDirectory(dirname)
         else addDoc(InputTree[IO].addDirectory(dirname))
-      lazy val parser: TreeParser[IO] = if (useTheme) defaultBuilder.withTheme(ThemeBuilder.forInputs(build(addDoc(InputTree[IO])))).build
+      lazy val parser: Resource[IO, TreeParser[IO]] = if (useTheme) defaultBuilder.withTheme(ThemeBuilder.forInputs(build(addDoc(InputTree[IO])))).build
         else defaultBuilder.build
       
-      def run (): Assertion = parser.fromInput(input).parse.map(toTreeView).assertEquals(treeResult)
+      def run (): Assertion = parser.use(_.fromInput(input).parse).map(toTreeView).assertEquals(treeResult)
     }
     
     trait ExtraDocSetup extends CustomInputSetup {
@@ -638,7 +636,7 @@ class TreeParserSpec extends IOSpec
         Subtrees(List(subtree1, subtree2))
       ))
       val parser = parserWithBundle(BundleProvider.forDocTypeMatcher { case Root / "doc1.md" => Ignored })
-      parser.fromDirectory(dirname).parse.map(toTreeView).assertEquals(treeResult)
+      parser.use(_.fromDirectory(dirname).parse).map(toTreeView).assertEquals(treeResult)
     }
 
     "allow to specify a custom exclude filter" in new ParserSetup {
@@ -652,8 +650,7 @@ class TreeParserSpec extends IOSpec
         Subtrees(List(subtree2))
       ))
       defaultParser
-        .fromDirectory(dirname, { f: java.io.File => f.getName == "doc1.md" || f.getName == "dir1" })
-        .parse
+        .use(_.fromDirectory(dirname, { f: java.io.File => f.getName == "doc1.md" || f.getName == "dir1" }).parse)
         .map(toTreeView)
         .assertEquals(treeResult)
     }
@@ -698,20 +695,20 @@ class TreeParserSpec extends IOSpec
     }
 
     "merge two directories from the file system using the fromDirectories method" in new MergedDirectorySetup {
-      defaultParser.fromDirectories(Seq(dir1, dir2)).parse.map(toTreeView).assertEquals(treeResult)
+      defaultParser.use(_.fromDirectories(Seq(dir1, dir2)).parse).map(toTreeView).assertEquals(treeResult)
     }
 
     "merge two directories from the file system using an InputTreeBuilder" in new MergedDirectorySetup {
       val treeInput = InputTree[IO].addDirectory(dir1).addDirectory(dir2)
 
-      defaultParser.fromInput(treeInput).parse.map(toTreeView).assertEquals(treeResult)
+      defaultParser.use(_.fromInput(treeInput).parse).map(toTreeView).assertEquals(treeResult)
     }
 
     "merge a directory with a directory from a theme" in new MergedDirectorySetup {
       val treeInput = InputTree[IO].addDirectory(dir1)
-      val themeInput = InputTree[IO].addDirectory(dir2).build(defaultParser.config.docTypeMatcher)
+      val themeInput = InputTree[IO].addDirectory(dir2).build(MarkupParser.of(Markdown).build.config.docTypeMatcher)
 
-      defaultBuilder.withTheme(ThemeBuilder.forInputs(themeInput)).build.fromInput(treeInput).parse.map(toTreeView).assertEquals(treeResult)
+      defaultBuilder.withTheme(ThemeBuilder.forInputs(themeInput)).build.use(_.fromInput(treeInput).parse).map(toTreeView).assertEquals(treeResult)
     }
 
     "merge a directory at a specific mount-point using an InputTreeBuilder" in new MergedDirectorySetup {
@@ -731,7 +728,7 @@ class TreeParserSpec extends IOSpec
         ))
       }
       
-      defaultParser.fromInput(treeInput).parse.map(toTreeView).assertEquals(mergedResult)
+      defaultParser.use(_.fromInput(treeInput).parse).map(toTreeView).assertEquals(mergedResult)
     }
 
     "read a directory from the file system containing a file with non-ASCII characters" in new ParserSetup {
@@ -742,7 +739,7 @@ class TreeParserSpec extends IOSpec
       val treeResult = TreeView(Root, List(
         Documents(List(docView(1)))
       ))
-      defaultParser.fromDirectory(dirname).parse.map(toTreeView).assertEquals(treeResult)
+      defaultParser.use(_.fromDirectory(dirname).parse).map(toTreeView).assertEquals(treeResult)
     }
   }
 }

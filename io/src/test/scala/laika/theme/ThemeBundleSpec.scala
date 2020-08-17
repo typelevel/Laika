@@ -51,7 +51,8 @@ class ThemeBundleSpec extends IOSpec with Matchers {
         .parallel[IO]
         .withTheme(ThemeBuilder.forBundles(themeBundles))
         .build
-        .config
+        .use(t => IO.pure(t.config))
+        .unsafeRunSync()
     }
 
   }
