@@ -45,7 +45,7 @@ class FopResourceResolver[F[_]] (input: Seq[BinaryInput[F]]) extends ResourceRes
   private val resourceMap = input.map(s => (s.path, s.stream)).toMap
 
   def getResource (uri: URI): Resource =
-    if (uri.isAbsolute) fallbackResolver.getResource(uri)
+    if (uri.getScheme != "file") fallbackResolver.getResource(uri)
     else resourceMap.get(Path.parse(uri.getPath)).fold(fallbackResolver.getResource(uri))(in => new Resource(in()))
 
   def getOutputStream (uri: URI): OutputStream = fallbackResolver.getOutputStream(uri)
