@@ -28,7 +28,7 @@ import laika.io.model.{InputTree, ParsedTree}
   */
 trait Theme[F[_]] {
 
-  def inputs: F[InputTree[F]]
+  def inputs: InputTree[F]
   
   def extensions: Seq[ExtensionBundle]
   
@@ -39,7 +39,7 @@ trait Theme[F[_]] {
 object Theme {
 
   def empty[F[_]: Applicative]: Resource[F, Theme[F]] = Resource.pure(new Theme[F] {
-    def inputs: F[InputTree[F]] = Applicative[F].pure(InputTree.empty)
+    def inputs: InputTree[F] = InputTree.empty
     def extensions: Seq[ExtensionBundle] = Nil
     def treeProcessor: PartialFunction[Format, Kleisli[F, ParsedTree[F], ParsedTree[F]]] = PartialFunction.empty
   })

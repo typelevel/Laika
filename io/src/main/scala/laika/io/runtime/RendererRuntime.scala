@@ -43,7 +43,7 @@ object RendererRuntime {
 
   /** Process the specified render operation for an entire input tree and a character output format.
     */
-  def run[F[_]: Sync: Runtime] (op: TreeRenderer.Op[F]): F[RenderedTreeRoot[F]] = op.theme.inputs.flatMap(run(op, _))
+  def run[F[_]: Sync: Runtime] (op: TreeRenderer.Op[F]): F[RenderedTreeRoot[F]] = run(op, op.theme.inputs)
 
   private def run[F[_]: Sync: Runtime] (op: TreeRenderer.Op[F], themeInputs: InputTree[F]): F[RenderedTreeRoot[F]] = {  
     
@@ -157,10 +157,9 @@ object RendererRuntime {
   def run[F[_]: Sync: Runtime] (op: BinaryTreeRenderer.Op[F]): F[Unit] = {
     val suffix = op.renderer.interimRenderer.format.fileSuffix
     for {
-      themeInputs  <- op.theme.inputs
       preparedTree <- Sync[F].fromEither(op.renderer.prepareTree(op.input))
-      renderedTree <- run(TreeRenderer.Op[F](op.renderer.interimRenderer, op.theme, preparedTree, StringTreeOutput), themeInputs)
-      finalTree    =  renderedTree.copy[F](defaultTemplate = op.input.tree.getDefaultTemplate(suffix).fold(getDefaultTemplate(themeInputs, suffix))(_.content))
+      renderedTree <- run(TreeRenderer.Op[F](op.renderer.interimRenderer, op.theme, preparedTree, StringTreeOutput), op.theme.inputs)
+      finalTree    =  renderedTree.copy[F](defaultTemplate = op.input.tree.getDefaultTemplate(suffix).fold(getDefaultTemplate(op.theme.inputs, suffix))(_.content))
       _            <- op.renderer.postProcessor.process(finalTree, op.output, op.config)
     } yield ()
   }

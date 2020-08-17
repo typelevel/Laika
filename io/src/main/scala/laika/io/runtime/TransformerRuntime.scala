@@ -36,7 +36,7 @@ import laika.theme.Theme
 object TransformerRuntime {
   
   private def themeWithoutInputs[F[_]: Monad] (theme: Theme[F]): Theme[F] = new Theme[F] {
-    def inputs: F[InputTree[F]] = Monad[F].pure(InputTree.empty)
+    def inputs: InputTree[F] = InputTree.empty
     def extensions: Seq[ExtensionBundle] = theme.extensions
     def treeProcessor: PartialFunction[Format, Kleisli[F, ParsedTree[F], ParsedTree[F]]] = theme.treeProcessor
   }

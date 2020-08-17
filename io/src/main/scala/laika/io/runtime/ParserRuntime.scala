@@ -136,8 +136,7 @@ object ParserRuntime {
     
     for {
       userInputs   <- op.input.build(op.config.docTypeMatcher)
-      themeInputs  <- op.theme.inputs
-      allInputs    <- mergeInputs(userInputs, themeInputs)
+      allInputs    <- mergeInputs(userInputs, op.theme.inputs)
       result       <- parseAll(allInputs)
     } yield result
     

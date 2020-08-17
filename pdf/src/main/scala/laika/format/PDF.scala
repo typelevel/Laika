@@ -93,8 +93,7 @@ class PDF private(val interimFormat: RenderFormat[FOFormatter], fopFactory: Opti
     
     def build[F[_] : Sync](config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor] = Resource.liftF {
       val pdfConfig = PDF.BookConfig.decodeWithDefaults(config).getOrElse(PDF.BookConfig())
-      theme.inputs.flatMap { inputs =>
-        fopFactory.fold(FopFactoryBuilder.build(pdfConfig, inputs.binaryInputs))(Sync[F].pure).map { fopFactory =>
+        fopFactory.fold(FopFactoryBuilder.build(pdfConfig, theme.inputs.binaryInputs))(Sync[F].pure).map { fopFactory =>
           new BinaryPostProcessor {
             private val renderer = new PDFRenderer(fopFactory)
             override def process[G[_] : Sync : Runtime](result: RenderedTreeRoot[G], output: BinaryOutput[G], opConfig: OperationConfig): G[Unit] =
@@ -105,7 +104,6 @@ class PDF private(val interimFormat: RenderFormat[FOFormatter], fopFactory: Opti
           }
         }
       }
-    }
   }
   
 }

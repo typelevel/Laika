@@ -128,10 +128,9 @@ case class Helium (fontResources: Seq[FontDefinition],
       }
     }
 
-    // TODO - pre-initialize some inputs
-    Resource.pure[F, Theme[F]](
+    Resource.liftF[F, Theme[F]](themeInputs.map(initializedInputs =>
       new Theme[F] {
-        def inputs = themeInputs
+        def inputs = initializedInputs
         def extensions = Seq(bundle)
         def treeProcessor = { 
           case HTML => addDownloadPage
@@ -142,7 +141,7 @@ case class Helium (fontResources: Seq[FontDefinition],
           case format => TocPageGenerator.generate(self, format).andThen(filterFonts(format))
         }
       }
-    )
+    ))
   } 
   
 }
