@@ -19,7 +19,7 @@ package laika.helium
 import java.io.{InputStream, SequenceInputStream}
 
 import cats.data.Kleisli
-import cats.effect.Sync
+import cats.effect.{Resource, Sync}
 import cats.implicits._
 import laika.ast.LengthUnit.{cm, mm, pt, px}
 import laika.ast.Path.Root
@@ -50,7 +50,7 @@ case class Helium (fontResources: Seq[FontDefinition],
   def withFontFamilies (format: RenderFormat[_], formats: RenderFormat[_]*)(body: String, header: String, code: String)
   */
   
-  def build[F[_]: Sync]: Theme[F] = {
+  def build[F[_]: Sync]: Resource[F, Theme[F]] = {
 
     type TreeProcessor = Kleisli[F, ParsedTree[F], ParsedTree[F]]
     
@@ -128,18 +128,21 @@ case class Helium (fontResources: Seq[FontDefinition],
       }
     }
 
-    new Theme[F] {
-      def inputs = themeInputs
-      def extensions = Seq(bundle)
-      def treeProcessor = { 
-        case HTML => addDownloadPage
-          .andThen(TocPageGenerator.generate(self, HTML))
-          .andThen(landingPage.fold(noOp)(LandingPageGenerator.generate))
-          .andThen(mergeCSS)
-          .andThen(filterFonts(HTML))
-        case format => TocPageGenerator.generate(self, format).andThen(filterFonts(format))
+    // TODO - pre-initialize some inputs
+    Resource.pure[F, Theme[F]](
+      new Theme[F] {
+        def inputs = themeInputs
+        def extensions = Seq(bundle)
+        def treeProcessor = { 
+          case HTML => addDownloadPage
+            .andThen(TocPageGenerator.generate(self, HTML))
+            .andThen(landingPage.fold(noOp)(LandingPageGenerator.generate))
+            .andThen(mergeCSS)
+            .andThen(filterFonts(HTML))
+          case format => TocPageGenerator.generate(self, format).andThen(filterFonts(format))
+        }
       }
-    }
+    )
   } 
   
 }

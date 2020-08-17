@@ -66,7 +66,7 @@ object BinaryTreeTransformer {
   case class Builder[F[_]: Sync: Runtime] (parsers: NonEmptyList[MarkupParser],
                                            renderFormat: BinaryRenderFormat,
                                            config: OperationConfig,
-                                           theme: Theme[F],
+                                           theme: Resource[F, Theme[F]],
                                            mapper: TreeMapper[F]) extends TreeMapperOps[F] {
 
     type MapRes = Builder[F]
@@ -92,13 +92,14 @@ object BinaryTreeTransformer {
 
     /** Applies the specified theme to this transformer, overriding any previously specified themes.
       */
-    def withTheme (theme: Theme[F]): Builder[F] = copy(theme = theme)
+    def withTheme (theme: Resource[F, Theme[F]]): Builder[F] = copy(theme = theme)
     
     /** Final builder step that creates a parallel transformer for binary output.
       */
-    def build: Resource[F, BinaryTreeTransformer[F]] =
-      BinaryTreeRenderer.buildRenderer(renderFormat, config, theme)
-        .map(new BinaryTreeTransformer[F](parsers, _, theme, mapper))
+    def build: Resource[F, BinaryTreeTransformer[F]] = for {
+      initializedTheme    <- theme
+      initializedRenderer <- BinaryTreeRenderer.buildRenderer(renderFormat, config, initializedTheme)
+    } yield new BinaryTreeTransformer[F](parsers, initializedRenderer, initializedTheme, mapper)
 
   }
 

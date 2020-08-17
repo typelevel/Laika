@@ -67,24 +67,28 @@ object BinaryTreeRenderer {
   
   type BinaryRenderFormat = TwoPhaseRenderFormat[_, BinaryPostProcessorBuilder]
 
-  private[laika] def buildRenderer[F[_]: Sync] (format: BinaryRenderFormat, config: OperationConfig, theme: Theme[F]): Resource[F, BinaryRenderer] =
+  private[laika] def buildRenderer[F[_]: Sync] (format: BinaryRenderFormat, 
+                                                config: OperationConfig, 
+                                                theme: Theme[F]): Resource[F, BinaryRenderer] =
     format.postProcessor.build(config.baseConfig, theme).map { pp =>
-      BinaryRenderer(new RendererBuilder(format.interimFormat, config).build, format.prepareTree, pp, format.description)
+      val targetRenderer = new RendererBuilder(format.interimFormat, config).build
+      BinaryRenderer(targetRenderer, format.prepareTree, pp, format.description)
     }
   
   /** Builder step that allows to specify the execution context for blocking IO and CPU-bound tasks.
     */
-  case class Builder[F[_]: Sync: Runtime] (format: BinaryRenderFormat, config: OperationConfig, theme: Theme[F]) {
+  case class Builder[F[_]: Sync: Runtime] (format: BinaryRenderFormat, config: OperationConfig, theme: Resource[F, Theme[F]]) {
 
     /** Applies the specified theme to this renderer, overriding any previously specified themes.
       */
-    def withTheme (theme: Theme[F]): Builder[F] = copy(theme = theme)
+    def withTheme (theme: Resource[F, Theme[F]]): Builder[F] = copy(theme = theme)
     
     /** Final builder step that creates a parallel renderer for binary output.
       */
-    def build: Resource[F, BinaryTreeRenderer[F]] = 
-      buildRenderer(format, config, theme).map(new BinaryTreeRenderer[F](_, theme))
-    
+    def build: Resource[F, BinaryTreeRenderer[F]] = for {
+      initializedTheme    <- theme
+      initializedRenderer <- buildRenderer(format, config, initializedTheme)
+    } yield new BinaryTreeRenderer[F](initializedRenderer, initializedTheme)
   }
 
   /** Builder step that allows to specify the output to render to.

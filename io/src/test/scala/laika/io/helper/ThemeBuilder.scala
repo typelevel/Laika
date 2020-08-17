@@ -16,7 +16,7 @@
 
 package laika.io.helper
 
-import cats.effect.IO
+import cats.effect.{IO, Resource}
 import laika.ast.Document
 import laika.bundle.ExtensionBundle
 import laika.factory.Format
@@ -26,31 +26,31 @@ import laika.theme.{Theme, TreeProcessor}
 
 object ThemeBuilder {
 
-  def forInputs (themeInputs: IO[InputTree[IO]]): Theme[IO] = new Theme[IO] {
+  def forInputs (themeInputs: IO[InputTree[IO]]): Resource[IO, Theme[IO]] = Resource.pure[IO, Theme[IO]](new Theme[IO] {
     def inputs = themeInputs
     def extensions = Nil
     def treeProcessor = PartialFunction.empty
-  }
+  })
 
-  def forBundle (bundle: ExtensionBundle): Theme[IO] = forBundles(Seq(bundle))
+  def forBundle (bundle: ExtensionBundle): Resource[IO, Theme[IO]] = forBundles(Seq(bundle))
 
-  def forBundles (bundles: Seq[ExtensionBundle]): Theme[IO] = new Theme[IO] {
+  def forBundles (bundles: Seq[ExtensionBundle]): Resource[IO, Theme[IO]] = Resource.pure[IO, Theme[IO]](new Theme[IO] {
     def inputs = IO.pure(InputTree.empty)
     def extensions = bundles
     def treeProcessor = PartialFunction.empty
-  }
+  })
   
-  def forDocumentMapper (f: Document => Document): Theme[IO] = new Theme[IO] {
+  def forDocumentMapper (f: Document => Document): Resource[IO, Theme[IO]] = Resource.pure[IO, Theme[IO]](new Theme[IO] {
     def inputs = IO.pure(InputTree.empty)
     def extensions = Nil
     def treeProcessor = { case _ => TreeProcessor[IO].mapDocuments(f) }
-  }
+  })
 
-  def forDocumentMapper (format: Format)(f: Document => Document): Theme[IO] = new Theme[IO] {
+  def forDocumentMapper (format: Format)(f: Document => Document): Resource[IO, Theme[IO]] = Resource.pure[IO, Theme[IO]](new Theme[IO] {
     def inputs = IO.pure(InputTree.empty)
     def extensions = Nil
     val MatchedFormat = format
     def treeProcessor = { case MatchedFormat => TreeProcessor[IO].mapDocuments(f) }
-  }
+  })
   
 }

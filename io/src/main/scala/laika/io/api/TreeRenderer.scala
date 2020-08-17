@@ -45,15 +45,15 @@ object TreeRenderer {
 
   /** Builder step that allows to specify the execution context for blocking IO and CPU-bound tasks.
     */
-  case class Builder[F[_]: Sync: Runtime] (renderer: Renderer, theme: Theme[F]) {
+  case class Builder[F[_]: Sync: Runtime] (renderer: Renderer, theme: Resource[F, Theme[F]]) {
 
     /** Applies the specified theme to this renderer, overriding any previously specified themes.
       */
-    def withTheme (theme: Theme[F]): Builder[F] = copy(theme = theme)
+    def withTheme (theme: Resource[F, Theme[F]]): Builder[F] = copy(theme = theme)
 
     /** Final builder step that creates a parallel renderer.
       */
-    def build: Resource[F, TreeRenderer[F]] = Resource.pure(new TreeRenderer[F](renderer, theme))
+    def build: Resource[F, TreeRenderer[F]] = theme.map(new TreeRenderer[F](renderer, _))
 
   }
 

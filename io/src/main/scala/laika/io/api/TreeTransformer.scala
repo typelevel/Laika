@@ -62,7 +62,7 @@ object TreeTransformer {
     */
   case class Builder[F[_]: Sync: Runtime] (parsers: NonEmptyList[MarkupParser], 
                                            renderer: Renderer, 
-                                           theme: Theme[F], 
+                                           theme: Resource[F, Theme[F]], 
                                            mapper: TreeMapper[F]) extends TreeMapperOps[F] {
 
     type MapRes = Builder[F]
@@ -87,11 +87,11 @@ object TreeTransformer {
 
     /** Applies the specified theme to this transformer, overriding any previously specified themes.
       */
-    def withTheme (theme: Theme[F]): Builder[F] = copy(theme = theme)
+    def withTheme (theme: Resource[F, Theme[F]]): Builder[F] = copy(theme = theme)
     
     /** Final builder step that creates a parallel transformer.
       */
-    def build: Resource[F, TreeTransformer[F]] = Resource.pure(new TreeTransformer[F](parsers, renderer, theme, mapper))
+    def build: Resource[F, TreeTransformer[F]] = theme.map(new TreeTransformer[F](parsers, renderer, _, mapper))
 
   }
 

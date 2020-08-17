@@ -57,7 +57,7 @@ object TreeParser {
   /** Builder step that allows to specify the execution context
     * for blocking IO and CPU-bound tasks.
     */
-  case class Builder[F[_]: Sync: Runtime] (parsers: NonEmptyList[MarkupParser], theme: Theme[F]) {
+  case class Builder[F[_]: Sync: Runtime] (parsers: NonEmptyList[MarkupParser], theme: Resource[F, Theme[F]]) {
 
     /** Specifies an additional parser for text markup.
       * 
@@ -77,11 +77,11 @@ object TreeParser {
 
     /** Applies the specified theme to this parser, overriding any previously specified themes.
       */
-    def withTheme (theme: Theme[F]): Builder[F] = copy(theme = theme)
+    def withTheme (theme: Resource[F, Theme[F]]): Builder[F] = copy(theme = theme)
 
     /** Final builder step that creates a parallel parser.
       */
-    def build: Resource[F, TreeParser[F]] = Resource.pure(new TreeParser[F](parsers, theme))
+    def build: Resource[F, TreeParser[F]] = theme.map(new TreeParser[F](parsers, _))
 
   }
 

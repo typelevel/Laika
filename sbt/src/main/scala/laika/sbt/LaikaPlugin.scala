@@ -16,7 +16,7 @@
 
 package laika.sbt
 
-import cats.effect.IO
+import cats.effect.{IO, Resource}
 import laika.bundle.ExtensionBundle
 import laika.helium.Helium
 import org.apache.fop.apps.FopFactory
@@ -89,7 +89,7 @@ object LaikaPlugin extends AutoPlugin {
 
     // settingKey macro does not accept HK types
     implicit class InputTreeBuilder (val delegate: laika.io.model.InputTreeBuilder[IO])
-    implicit class Theme (val delegate: laika.theme.Theme[IO])
+    implicit class Theme (val delegate: Resource[IO, laika.theme.Theme[IO]])
     
     val Laika             = sbt.config("laika")
 

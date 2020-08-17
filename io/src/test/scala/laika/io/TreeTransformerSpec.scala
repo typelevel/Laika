@@ -196,7 +196,7 @@ class TreeTransformerSpec extends IOSpec with FileIO {
         Root / "README.md" -> Contents.name,
         Root / "cover.md" -> Contents.name
       )
-      def theme: Theme[IO]
+      def theme: Resource[IO, Theme[IO]]
       def expectedDocResult: String
       
       val mapperFunction: Document => Document = doc => doc.copy(content = doc.content.copy(content = Seq(Paragraph("foo-bar"))))
@@ -220,17 +220,17 @@ class TreeTransformerSpec extends IOSpec with FileIO {
 
     "transform a tree with a document mapper from a theme" in new TreeProcessorSetup {
       def expectedDocResult = mappedResult
-      def theme: Theme[IO] = ThemeBuilder.forDocumentMapper(mapperFunction)
+      def theme: Resource[IO, Theme[IO]] = ThemeBuilder.forDocumentMapper(mapperFunction)
     }
 
     "transform a tree with a document mapper from a theme specific to the output format" in new TreeProcessorSetup {
       def expectedDocResult = mappedResult
-      def theme: Theme[IO] = ThemeBuilder.forDocumentMapper(AST)(mapperFunction)
+      def theme: Resource[IO, Theme[IO]] = ThemeBuilder.forDocumentMapper(AST)(mapperFunction)
     }
 
     "transform a tree ignoring the document mapper from a theme if the format does not match" in new TreeProcessorSetup {
       def expectedDocResult = simpleResult
-      def theme: Theme[IO] = ThemeBuilder.forDocumentMapper(HTML)(mapperFunction)
+      def theme: Resource[IO, Theme[IO]] = ThemeBuilder.forDocumentMapper(HTML)(mapperFunction)
     }
 
     "transform a tree with a template document populated by a config file in the directory" in new TreeTransformerSetup {
