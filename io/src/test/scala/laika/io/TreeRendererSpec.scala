@@ -256,8 +256,7 @@ class TreeRendererSpec extends IOSpec
         val template = TemplateRoot(t("["), TemplateContextReference(CursorKeys.documentContent, required = true), t("]"))
         override lazy val renderer = Renderer.of(HTML).io(blocker).parallel[IO]
           .withTheme(ThemeBuilder.forInputs(InputTree[IO]
-            .addTemplate(TemplateDocument(DefaultTemplatePath.forHTML, template))
-            .build)
+            .addTemplate(TemplateDocument(DefaultTemplatePath.forHTML, template)))
           ).build
         val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
         val expected = """[<h1 id="title" class="title">Title</h1>
@@ -313,8 +312,7 @@ class TreeRendererSpec extends IOSpec
             .io(blocker)
             .parallel[IO]
             .withTheme(ThemeBuilder.forInputs(InputTree[IO]
-              .addTemplate(TemplateDocument(DefaultTemplatePath.forEPUB, template))
-              .build))
+              .addTemplate(TemplateDocument(DefaultTemplatePath.forEPUB, template))))
             .build
         val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
         val expected = """[<h1 id="title" class="title">Title</h1>
@@ -352,8 +350,7 @@ class TreeRendererSpec extends IOSpec
             .parallel[IO]
             .withTheme(ThemeBuilder.forInputs(InputTree[IO]
               .addStyles(customThemeStyles, FOStyles.defaultPath)
-              .addTemplate(TemplateDocument(DefaultTemplatePath.forFO, TestTheme.foTemplate))
-              .build))
+              .addTemplate(TemplateDocument(DefaultTemplatePath.forFO, TestTheme.foTemplate))))
             .build
         val input = DocumentTree(Root, List(
           Document(Root / "doc", rootElem),
@@ -411,7 +408,7 @@ class TreeRendererSpec extends IOSpec
     "render a tree with a single static document from a theme" in new ASTRenderer with DocBuilder {
       val input = DocumentTree(Root, Nil)
       override def treeRoot = DocumentTreeRoot(input, staticDocuments = Seq(staticDoc(1).path))
-      val theme = ThemeBuilder.forInputs(InputTree[IO].addString("...", Root / "static1.txt").build)
+      val theme = ThemeBuilder.forInputs(InputTree[IO].addString("...", Root / "static1.txt"))
       Renderer
         .of(AST)
         .io(blocker)

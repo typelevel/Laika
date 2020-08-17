@@ -20,39 +20,27 @@ import cats.effect.{IO, Resource}
 import laika.ast.Document
 import laika.bundle.ExtensionBundle
 import laika.factory.Format
-import laika.io.model.InputTree
+import laika.io.model.{InputTree, InputTreeBuilder}
 import laika.theme.{Theme, TreeProcessor}
 
 
 object ThemeBuilder {
 
-  def forInputs (themeInputs: IO[InputTree[IO]]): Resource[IO, Theme[IO]] = Resource.liftF[IO, Theme[IO]](
-    themeInputs.map(initInputs => new Theme[IO] {
-      def inputs = initInputs
-      def extensions = Nil
-      def treeProcessor = PartialFunction.empty
-    })
-  )
+  def forInputs (themeInputs: InputTreeBuilder[IO]): Resource[IO, Theme[IO]] = Theme(themeInputs).build
 
   def forBundle (bundle: ExtensionBundle): Resource[IO, Theme[IO]] = forBundles(Seq(bundle))
 
-  def forBundles (bundles: Seq[ExtensionBundle]): Resource[IO, Theme[IO]] = Resource.pure[IO, Theme[IO]](new Theme[IO] {
-    def inputs = InputTree.empty
-    def extensions = bundles
-    def treeProcessor = PartialFunction.empty
-  })
+  def forBundles (bundles: Seq[ExtensionBundle]): Resource[IO, Theme[IO]] = Theme(InputTree[IO], bundles: _*).build
   
-  def forDocumentMapper (f: Document => Document): Resource[IO, Theme[IO]] = Resource.pure[IO, Theme[IO]](new Theme[IO] {
-    def inputs = InputTree.empty
-    def extensions = Nil
-    def treeProcessor = { case _ => TreeProcessor[IO].mapDocuments(f) }
-  })
+  def forDocumentMapper (f: Document => Document): Resource[IO, Theme[IO]] = Theme(InputTree[IO]).processTree { 
+    case _ => TreeProcessor[IO].mapDocuments(f)
+  }.build
 
-  def forDocumentMapper (format: Format)(f: Document => Document): Resource[IO, Theme[IO]] = Resource.pure[IO, Theme[IO]](new Theme[IO] {
-    def inputs = InputTree.empty
-    def extensions = Nil
+  def forDocumentMapper (format: Format)(f: Document => Document): Resource[IO, Theme[IO]] = {
     val MatchedFormat = format
-    def treeProcessor = { case MatchedFormat => TreeProcessor[IO].mapDocuments(f) }
-  })
-  
+    Theme(InputTree[IO]).processTree {
+      case MatchedFormat => TreeProcessor[IO].mapDocuments(f)
+    }.build
+  }
+
 }

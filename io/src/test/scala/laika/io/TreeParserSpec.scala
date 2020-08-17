@@ -525,11 +525,10 @@ class TreeParserSpec extends IOSpec
       ))
       def useTheme: Boolean = false
       def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO]
-      def build (builder: InputTreeBuilder[IO]): IO[InputTree[IO]] = builder.build
       lazy val input: InputTreeBuilder[IO] =
         if (useTheme) InputTree[IO].addDirectory(dirname)
         else addDoc(InputTree[IO].addDirectory(dirname))
-      lazy val parser: Resource[IO, TreeParser[IO]] = if (useTheme) defaultBuilder.withTheme(ThemeBuilder.forInputs(build(addDoc(InputTree[IO])))).build
+      lazy val parser: Resource[IO, TreeParser[IO]] = if (useTheme) defaultBuilder.withTheme(ThemeBuilder.forInputs(addDoc(InputTree[IO]))).build
         else defaultBuilder.build
       
       def run (): Assertion = parser.use(_.fromInput(input).parse).map(toTreeView).assertEquals(treeResult)
@@ -708,7 +707,13 @@ class TreeParserSpec extends IOSpec
       val treeInput = InputTree[IO].addDirectory(dir1)
       val themeInput = InputTree[IO].addDirectory(dir2).build(MarkupParser.of(Markdown).build.config.docTypeMatcher)
 
-      defaultBuilder.withTheme(ThemeBuilder.forInputs(themeInput)).build.use(_.fromInput(treeInput).parse).map(toTreeView).assertEquals(treeResult)
+      val theme = themeInput.map{ themeInputs => new Theme[IO] {
+        def inputs = themeInputs
+        def extensions = Nil
+        def treeProcessor = PartialFunction.empty
+      }}
+      
+      defaultBuilder.withTheme(Resource.liftF(theme)).build.use(_.fromInput(treeInput).parse).map(toTreeView).assertEquals(treeResult)
     }
 
     "merge a directory at a specific mount-point using an InputTreeBuilder" in new MergedDirectorySetup {

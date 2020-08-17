@@ -76,7 +76,6 @@ case class Helium (fontResources: Seq[FontDefinition],
       .addClasspathResource("laika/helium/css/toc.css", Root / "css" / "toc.css")
       .addString(new FOStyles(this).input , FOStyles.defaultPath)
       .addString(CSSVarGenerator.generate(this), Root / "css" / "vars.css")
-      .build
     
     def estimateLines (blocks: Seq[Block]): Int = blocks.collect {
       case sp: SpanContainer => sp.extractText.count(_ == '\n')
@@ -128,20 +127,15 @@ case class Helium (fontResources: Seq[FontDefinition],
       }
     }
 
-    Resource.liftF[F, Theme[F]](themeInputs.map(initializedInputs =>
-      new Theme[F] {
-        def inputs = initializedInputs
-        def extensions = Seq(bundle)
-        def treeProcessor = { 
-          case HTML => addDownloadPage
-            .andThen(TocPageGenerator.generate(self, HTML))
-            .andThen(landingPage.fold(noOp)(LandingPageGenerator.generate))
-            .andThen(mergeCSS)
-            .andThen(filterFonts(HTML))
-          case format => TocPageGenerator.generate(self, format).andThen(filterFonts(format))
-        }
-      }
-    ))
+      Theme(themeInputs, bundle).processTree {
+        case HTML => addDownloadPage
+          .andThen(TocPageGenerator.generate(self, HTML))
+          .andThen(landingPage.fold(noOp)(LandingPageGenerator.generate))
+          .andThen(mergeCSS)
+          .andThen(filterFonts(HTML))
+        case format => TocPageGenerator.generate(self, format).andThen(filterFonts(format))
+      }.build
+    
   } 
   
 }

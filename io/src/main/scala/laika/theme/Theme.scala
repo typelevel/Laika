@@ -16,12 +16,13 @@
 
 package laika.theme
 
-import cats.Applicative
+import cats.implicits._
+import cats.{Applicative, Monad}
 import cats.data.Kleisli
 import cats.effect.Resource
 import laika.bundle.ExtensionBundle
 import laika.factory.Format
-import laika.io.model.{InputTree, ParsedTree}
+import laika.io.model.{InputTree, InputTreeBuilder, ParsedTree}
 
 /**
   * @author Jens Halm
@@ -38,10 +39,27 @@ trait Theme[F[_]] {
 
 object Theme {
 
-  def empty[F[_]: Applicative]: Resource[F, Theme[F]] = Resource.pure(new Theme[F] {
+  def empty[F[_]: Applicative]: Resource[F, Theme[F]] = Resource.pure[F, Theme[F]](new Theme[F] {
     def inputs: InputTree[F] = InputTree.empty
     def extensions: Seq[ExtensionBundle] = Nil
     def treeProcessor: PartialFunction[Format, Kleisli[F, ParsedTree[F], ParsedTree[F]]] = PartialFunction.empty
   })
 
+  def apply[F[_]: Monad](inputs: InputTreeBuilder[F], extensions: ExtensionBundle*): Builder[F] = 
+    new Builder[F](inputs, extensions, PartialFunction.empty)
+  
+  class Builder[F[_]: Monad] private[laika] (inputs: InputTreeBuilder[F],
+                             extensions: Seq[ExtensionBundle],
+                             treeProcessor: PartialFunction[Format, Kleisli[F, ParsedTree[F], ParsedTree[F]]]) { self =>
+    
+    def processTree (f: PartialFunction[Format, Kleisli[F, ParsedTree[F], ParsedTree[F]]]): Builder[F] =
+      new Builder[F](inputs, extensions, f)
+    
+    def build: Resource[F, Theme[F]] = Resource.liftF(inputs.build.map(in => new Theme[F] {
+      def inputs: InputTree[F] = in
+      def extensions: Seq[ExtensionBundle] = self.extensions
+      def treeProcessor: PartialFunction[Format, Kleisli[F, ParsedTree[F], ParsedTree[F]]] = self.treeProcessor
+    }))
+  }
+  
 }
