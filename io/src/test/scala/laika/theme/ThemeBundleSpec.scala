@@ -25,13 +25,13 @@ import laika.ast._
 import laika.bundle.{BundleOrigin, BundleProvider, ExtensionBundle}
 import laika.format.{HTML, Markdown}
 import laika.io.helper.ThemeBuilder
-import laika.io.{FileIO, IOSpec}
+import laika.io.{FileIO, IOWordSpec}
 import org.scalatest.matchers.should.Matchers
 
 /**
   * @author Jens Halm
   */
-class ThemeBundleSpec extends IOSpec with Matchers {
+class ThemeBundleSpec extends IOWordSpec with Matchers {
 
 
   trait BundleSetup {

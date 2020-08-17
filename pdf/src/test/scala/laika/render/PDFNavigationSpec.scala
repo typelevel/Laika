@@ -29,14 +29,14 @@ import laika.io.helper.RenderResult
 import laika.io.implicits._
 import laika.io.model.{BinaryOutput, RenderedTreeRoot}
 import laika.io.runtime.Runtime
-import laika.io.{FileIO, IOSpec}
+import laika.io.{FileIO, IOWordSpec}
 import laika.render.FOFormatter.Preamble
 import laika.render.fo.TestTheme
 import laika.render.pdf.FOConcatenation
 import laika.theme.Theme
 
 
-class PDFNavigationSpec extends IOSpec with FileIO {
+class PDFNavigationSpec extends IOWordSpec with FileIO {
 
   
   object FOTest extends TwoPhaseRenderFormat[FOFormatter, BinaryPostProcessorBuilder] {

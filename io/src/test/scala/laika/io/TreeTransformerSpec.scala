@@ -42,7 +42,7 @@ import laika.rewrite.DefaultTemplatePath
 import laika.rewrite.link.SlugBuilder
 import org.scalatest.Assertion
 
-class TreeTransformerSpec extends IOSpec with FileIO {
+class TreeTransformerSpec extends IOWordSpec with FileIO {
 
   
   private val transformer: Resource[IO, TreeTransformer[IO]] = Transformer.from(Markdown).to(AST).io(blocker).parallel[IO].build

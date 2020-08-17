@@ -41,7 +41,7 @@ import laika.rewrite.ReferenceResolver.CursorKeys
 
 import scala.io.Codec
 
-class TreeRendererSpec extends IOSpec 
+class TreeRendererSpec extends IOWordSpec 
                            with ModelBuilder
                            with FileIO { self =>
 

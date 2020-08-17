@@ -26,14 +26,14 @@ import laika.bundle.BundleProvider
 import laika.config.Origin.{DocumentScope, TreeScope}
 import laika.config.{ConfigValue, Field, LongValue, ObjectValue, Origin}
 import laika.format.{Markdown, ReStructuredText}
-import laika.io.{FileIO, IOSpec}
+import laika.io.{FileIO, IOWordSpec}
 import laika.io.implicits._
 import laika.io.model.{InputTreeBuilder, ParsedTree}
 import laika.io.helper.{InputBuilder, ThemeBuilder}
 import laika.rewrite.{DefaultTemplatePath, TemplateRewriter}
 
 
-class ConfigSpec extends IOSpec 
+class ConfigSpec extends IOWordSpec 
                     with ModelBuilder
                     with FileIO {
 

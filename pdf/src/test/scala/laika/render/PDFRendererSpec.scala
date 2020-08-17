@@ -25,7 +25,7 @@ import laika.ast.{DocumentTree, DocumentTreeRoot}
 import laika.format.{Markdown, PDF}
 import laika.io.implicits._
 import laika.io.model.{InputTree, ParsedTree}
-import laika.io.{FileIO, IOSpec}
+import laika.io.{FileIO, IOSpec, IOWordSpec}
 import laika.rewrite.DefaultTemplatePath
 import org.scalatest.Assertion
 
@@ -38,7 +38,7 @@ import org.scalatest.Assertion
  *  on Apache FOP for converting the rendered XSL-FO to PDF, therefore having 
  *  limited scope in this particular spec is acceptable.  
  */
-class PDFRendererSpec extends IOSpec with FileIO {
+class PDFRendererSpec extends IOWordSpec with FileIO {
 
   
   trait FileSetup {

@@ -18,9 +18,9 @@ package laika.io.runtime
 
 import cats.effect.IO
 import cats.implicits._
-import laika.io.IOSpec
+import laika.io.IOWordSpec
 
-class BatchRuntimeSpec extends IOSpec {
+class BatchRuntimeSpec extends IOWordSpec {
 
   trait Setup {
 

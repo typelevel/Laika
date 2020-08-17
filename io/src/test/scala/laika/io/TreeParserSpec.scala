@@ -43,7 +43,7 @@ import laika.rewrite.{DefaultTemplatePath, TemplateRewriter}
 import org.scalatest.Assertion
 
 
-class TreeParserSpec extends IOSpec 
+class TreeParserSpec extends IOWordSpec 
                          with ModelBuilder
                          with FileIO {
 

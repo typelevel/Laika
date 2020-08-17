@@ -18,12 +18,13 @@ package laika.io
 
 import cats.effect.{ContextShift, IO, Timer}
 import org.scalatest.Assertion
+import org.scalatest.funsuite.AnyFunSuite
 
 import scala.concurrent.ExecutionContext
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
-trait IOSpec extends AnyWordSpec with Matchers {
+trait IOSpec extends Matchers {
   
   /* not using AsyncWordSpec/unsafeToFuture due to poor support in sbt and IntelliJ 
      (wrong grouping of tests in reports) */
@@ -44,3 +45,8 @@ trait IOSpec extends AnyWordSpec with Matchers {
   }
   
 }
+
+trait IOWordSpec extends AnyWordSpec with IOSpec 
+trait IOFunSuite extends AnyFunSuite with IOSpec 
+
+
