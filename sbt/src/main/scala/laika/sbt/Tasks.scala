@@ -117,6 +117,7 @@ object Tasks {
         .withConfig(parser.config)
         .io(blocker)
         .parallel[IO]
+        .withTheme(laikaTheme.value.delegate)
         .build
         .from(tree.root)
         .copying(tree.staticDocuments)
@@ -139,6 +140,7 @@ object Tasks {
         .withConfig(parser.config)
         .io(blocker)
         .parallel[IO]
+        .withTheme(laikaTheme.value.delegate)
         .build 
         .use { renderer =>
           val roots = SelectionGroupConfig.createCombinations(tree.root)

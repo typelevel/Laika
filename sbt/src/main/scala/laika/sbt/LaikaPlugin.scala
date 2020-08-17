@@ -18,6 +18,7 @@ package laika.sbt
 
 import cats.effect.IO
 import laika.bundle.ExtensionBundle
+import laika.helium.Helium
 import org.apache.fop.apps.FopFactory
 import sbt.Keys._
 import sbt._
@@ -55,6 +56,9 @@ import sbt._
   *     - `renderMessageLevel`: the minimum level required for an invalid node to be rendered to the output (default `Warning`)
   *     - `logMessageLevel`: the minimum level required for an invalid node to be logged to the console (default `Warning`)
   *     - `withConfigValue`: applies a global configuration value (that can be overridden in folders and documents)
+  *     
+  * - `laikaTheme`: configuration for the theme to use for all transformations, if not specified the default
+  *   `Helium` theme with all default colors and fonts will be used.
   *
   * - `laikaIncludeAPI`, `laikaIncludeEPUB` and `laikaIncludePDF`: 
   *   specifies whether to include scaladoc and/or PDF output in the generated site.
@@ -83,7 +87,9 @@ object LaikaPlugin extends AutoPlugin {
 
   object autoImport extends ExtensionBundles {
 
-    implicit class InputTreeBuilder (val delegate: laika.io.model.InputTreeBuilder[IO]) // settingKey macro does not accept HK types
+    // settingKey macro does not accept HK types
+    implicit class InputTreeBuilder (val delegate: laika.io.model.InputTreeBuilder[IO])
+    implicit class Theme (val delegate: laika.theme.Theme[IO])
     
     val Laika             = sbt.config("laika")
 
@@ -110,6 +116,8 @@ object LaikaPlugin extends AutoPlugin {
     val laikaConfig       = settingKey[LaikaConfig]("Configuration options for all transformations")
     
     val laikaInputs       = settingKey[InputTreeBuilder]("Freely composed input tree, overriding sourceDirectories")
+    
+    val laikaTheme        = settingKey[Theme]("Configures the theme to use for all transformations")
     
 
     val laikaGenerateAPI  = taskKey[Seq[String]]("Generates API documentation and moves it to the site's API target")
@@ -146,6 +154,7 @@ object LaikaPlugin extends AutoPlugin {
 
     laikaExtensions         := Nil,
     laikaConfig             := LaikaConfig(),
+    laikaTheme              := Helium.defaults.build[IO],
     laikaDescribe           := Settings.describe.value,
 
     laikaIncludeAPI         := false,
