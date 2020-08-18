@@ -74,6 +74,7 @@ case class Helium (fontResources: Seq[FontDefinition],
       .addClasspathResource("laika/helium/css/nav.css", Root / "css" / "nav.css")
       .addClasspathResource("laika/helium/css/code.css", Root / "css" / "code.css")
       .addClasspathResource("laika/helium/css/toc.css", Root / "css" / "toc.css")
+      .addClasspathResource("laika/helium/js/theme.js", Root / "laika" / "helium.js")
       .addString(new FOStyles(this).input , FOStyles.defaultPath)
       .addString(CSSVarGenerator.generate(this), Root / "css" / "vars.css")
     
@@ -115,7 +116,7 @@ case class Helium (fontResources: Seq[FontDefinition],
         }
         new SequenceInputStream(enum)
       }
-      val newTree = tree.copy(staticDocuments = otherDocs :+ BinaryInput(css / "laika-helium.css", () => mergedInput))
+      val newTree = tree.replaceStaticDocuments(otherDocs :+ BinaryInput(css / "laika-helium.css", () => mergedInput))
       Sync[F].pure(newTree)
     }
     

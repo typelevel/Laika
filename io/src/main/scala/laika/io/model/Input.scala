@@ -241,4 +241,20 @@ object DirectoryInput {
   * might copy them into a target directory, or embed them into an output format
   * like EPUB.
   */
-case class ParsedTree[F[_]] (root: DocumentTreeRoot, staticDocuments: Seq[BinaryInput[F]])
+case class ParsedTree[F[_]] (root: DocumentTreeRoot, staticDocuments: Seq[BinaryInput[F]]) {
+
+  /** Removes all static documents of this instance and replaces them with the specified alternatives.
+    */
+  def replaceStaticDocuments (newStaticDocs: Seq[BinaryInput[F]]): ParsedTree[F] = copy(
+    root = root.copy(staticDocuments = newStaticDocs.map(_.path)),
+    staticDocuments = newStaticDocs
+  )
+
+  /** Adds the specified static documents to this instance.
+    */
+  def addStaticDocuments (newStaticDocs: Seq[BinaryInput[F]]): ParsedTree[F] = copy(
+    root = root.copy(staticDocuments = root.staticDocuments ++ newStaticDocs.map(_.path)),
+    staticDocuments = staticDocuments ++ newStaticDocs
+  )
+  
+}
