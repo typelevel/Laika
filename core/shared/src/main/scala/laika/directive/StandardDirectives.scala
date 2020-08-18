@@ -613,12 +613,13 @@ object StandardDirectives extends DirectiveRegistry {
   
   private def renderLinks (cursor: DocumentCursor,
                            suffixFilter: String => Boolean, 
-                           includes: NonEmptyChain[Path], 
+                           includes: NonEmptyChain[Path],
+                           excludes: Seq[Path],
                            render: RelativePath => String): TemplateElement = {
     
-    val filteredBySuffix = cursor.root.target.staticDocuments.filter(_.suffix.exists(suffixFilter))
+    val preFiltered = cursor.root.target.staticDocuments.filter(p => p.suffix.exists(suffixFilter) && !excludes.exists(p.isSubPath))
 
-    val included = includes.foldLeft((filteredBySuffix, Seq.empty[Path])) { case ((candidates, acc), include) =>
+    val included = includes.foldLeft((preFiltered, Seq.empty[Path])) { case ((candidates, acc), include) =>
       val (newIncludes, remaining) = candidates.partition(_.isSubPath(include))
       (remaining, acc ++ newIncludes)
     }._2
@@ -652,8 +653,9 @@ object StandardDirectives extends DirectiveRegistry {
         case Some("html") => suffix: String => suffix.endsWith("css") && suffix != "epub.css"
         case _ => _ => false
       }
+      val excludePaths: Seq[Path] = Seq(cursor.root.config.get[Path](LaikaKeys.site.apiPath).toOption.getOrElse(Root / "api"))
       val includePaths: NonEmptyChain[Path] = NonEmptyChain.fromSeq(includes.getOrElse(Nil)).getOrElse(NonEmptyChain.one(Root))
-      renderLinks(cursor, suffixFilter, includePaths, path => s"""<link rel="stylesheet" type="text/css" href="$path" />""")
+      renderLinks(cursor, suffixFilter, includePaths, excludePaths, path => s"""<link rel="stylesheet" type="text/css" href="$path" />""")
     }
   }
 
@@ -670,7 +672,8 @@ object StandardDirectives extends DirectiveRegistry {
     import Templates.dsl._
     (attribute("paths").as[Seq[Path]].optional.widen, cursor).mapN { (includes, cursor) =>
       val includePaths: NonEmptyChain[Path] = NonEmptyChain.fromSeq(includes.getOrElse(Nil)).getOrElse(NonEmptyChain.one(Root))
-      renderLinks(cursor, _ == "js", includePaths, path => s"""<script src="$path"></script>""")
+      val excludePaths: Seq[Path] = Seq(cursor.root.config.get[Path](LaikaKeys.site.apiPath).toOption.getOrElse(Root / "api"))
+      renderLinks(cursor, _ == "js", includePaths, excludePaths, path => s"""<script src="$path"></script>""")
     }
   }
 

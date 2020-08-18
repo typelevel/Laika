@@ -19,6 +19,7 @@ package laika.helium
 import cats.effect.IO
 import laika.io.implicits._
 import laika.api.{MarkupParser, Renderer, Transformer}
+import laika.ast./
 import laika.ast.Path.Root
 import laika.format.{HTML, Markdown}
 import laika.io.helper.{InputBuilder, ResultExtractor}
@@ -82,6 +83,19 @@ class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
       case (p, r) => p.fromInput(build(inputs)).parse.flatMap { tree =>
         r.from(tree.root).toOutput(StringTreeOutput).render
       }
+    }
+      .map(_.extractTidiedSubstring(Root / "name.html", "<head>", "</head>"))
+      .assertEquals(Some(defaultResult))
+  }
+
+  test("exclude CSS and JS from API directory") {
+    val inputs = Seq(
+      Root / "name.md" -> "text",
+      Root / "api" / "foo.js" -> "",
+      Root / "api" / "foo.css" -> "",
+    )
+    transformer.use {
+      t => t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
     }
       .map(_.extractTidiedSubstring(Root / "name.html", "<head>", "</head>"))
       .assertEquals(Some(defaultResult))
