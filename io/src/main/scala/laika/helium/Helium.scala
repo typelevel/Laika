@@ -64,15 +64,38 @@ class Helium private[laika] (private[laika] val siteSettings: Helium.SiteSetting
                 navigationWidth: Size,
                 defaultBlockSpacing: Size,
                 defaultLineHeight: Double,
-                anchorPlacement: AnchorPlacement,
-                favIcons: Seq[Favicon] = Nil,
-                topNavigationBar: TopNavigationBar = TopNavigationBar.default,
-                tableOfContent: Option[TableOfContent] = None,
-                downloadPage: Option[DownloadPage] = None,
-                markupEditLinks: Option[MarkupEditLinks] = None): Helium = {
-      val layout = WebLayout(contentWidth, navigationWidth, defaultBlockSpacing, defaultLineHeight, anchorPlacement,
-        favIcons, topNavigationBar, tableOfContent, downloadPage, markupEditLinks)
+                anchorPlacement: AnchorPlacement): Helium = {
+      val layout = siteSettings.webLayout.copy(
+        contentWidth = contentWidth,
+        navigationWidth = navigationWidth,
+        defaultBlockSpacing = defaultBlockSpacing,
+        defaultLineHeight = defaultLineHeight,
+        anchorPlacement = anchorPlacement
+      )
       new Helium(siteSettings.copy(webLayout = layout), epubSettings, pdfSettings)
+    }
+      
+    def favIcons (icons: Favicon*): Helium = {
+      val newLayout = siteSettings.webLayout.copy(favIcons = icons)
+      new Helium(siteSettings.copy(webLayout = newLayout), epubSettings, pdfSettings)
+    }
+    def topNavigationBar (logo: Option[Image], links: Seq[ThemeLink]): Helium = {
+      val newLayout = siteSettings.webLayout.copy(topNavigationBar = TopNavigationBar(logo, links))
+      new Helium(siteSettings.copy(webLayout = newLayout), epubSettings, pdfSettings)
+    }
+    def tableOfContent (title: String, depth: Int): Helium = {
+      val newLayout = siteSettings.webLayout.copy(tableOfContent = Some(TableOfContent(title, depth)))
+      new Helium(siteSettings.copy(webLayout = newLayout), epubSettings, pdfSettings)
+    }
+    def downloadPage (title: String, description: Option[String], downloadPath: Path = Root / "downloads",
+                      includeEPUB: Boolean = true, includePDF: Boolean = true): Helium = {
+      val newLayout = siteSettings.webLayout
+        .copy(downloadPage = Some(DownloadPage(title, description, downloadPath, includeEPUB, includePDF)))
+      new Helium(siteSettings.copy(webLayout = newLayout), epubSettings, pdfSettings)
+    }
+    def markupEditLinks (text: String, baseURL: String): Helium = {
+      val newLayout = siteSettings.webLayout.copy(markupEditLinks = Some(MarkupEditLinks(text, baseURL)))
+      new Helium(siteSettings.copy(webLayout = newLayout), epubSettings, pdfSettings)
     }
     
     def landingPage (logo: Option[Image] = None,
@@ -209,7 +232,7 @@ class Helium private[laika] (private[laika] val siteSettings: Helium.SiteSetting
       .addClasspathResource("laika/helium/css/nav.css", Root / "css" / "nav.css")
       .addClasspathResource("laika/helium/css/code.css", Root / "css" / "code.css")
       .addClasspathResource("laika/helium/css/toc.css", Root / "css" / "toc.css")
-      .addClasspathResource("laika/helium/js/theme.js", Root / "laika" / "helium.js")
+      .addClasspathResource("laika/helium/js/theme.js", Root / "helium" / "laika-helium.js")
       .addString(new FOStyles(this).input , FOStyles.defaultPath)
       .addString(CSSVarGenerator.generate(this), Root / "css" / "vars.css")
 
@@ -251,7 +274,7 @@ class Helium private[laika] (private[laika] val siteSettings: Helium.SiteSetting
         }
         new SequenceInputStream(enum)
       }
-      val newTree = tree.replaceStaticDocuments(otherDocs :+ BinaryInput(css / "laika-helium.css", () => mergedInput))
+      val newTree = tree.replaceStaticDocuments(otherDocs :+ BinaryInput(Root / "helium" / "laika-helium.css", () => mergedInput))
       Sync[F].pure(newTree)
     }
 
@@ -317,7 +340,7 @@ object Helium {
                   version: Option[String] = None): Helium
   }
   
-  trait SingleConfigOps extends CommonConfigOps {
+  private[laika] trait SingleConfigOps extends CommonConfigOps {
     protected def currentColors: ColorSet
     protected def withFontFamilies (fonts: ThemeFonts): Helium
     protected def withFontSizes (sizes: FontSizes): Helium

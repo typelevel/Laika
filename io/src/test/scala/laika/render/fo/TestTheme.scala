@@ -42,7 +42,7 @@ object TestTheme {
     Root / "css" / "nav.css", 
     Root / "css" / "code.css", 
     Root / "css" / "toc.css", 
-    Root / "laika" / "helium.js",
+    Root / "helium" / "laika-helium.js",
     Root / "css" / "vars.css",
   )
   val fonts = Seq(

@@ -91,7 +91,7 @@ This is a complete list of values exposed in the `cursor` namespace:
 These are usually not accessed in user templates and mostly intended for Laika's own internal processing, 
 but are nevertheless exposed like any other value in the configuration.
 
-* `laika.metadata`: holds the [Document Metadata] specified in configuration.
+* `laika.<format>.metadata`: holds the [Document Metadata] specified in configuration.
 
 * `laika.links`: holds navigation configuration for [Global Link Definitions], [Linking to API Documentation]
   and [Disabling Validation].

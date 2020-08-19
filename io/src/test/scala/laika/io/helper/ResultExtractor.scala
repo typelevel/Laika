@@ -16,8 +16,6 @@
 
 package laika.io.helper
 
-import java.util.regex.Pattern
-
 import laika.ast.Path
 import laika.io.model.RenderedTreeRoot
 
@@ -31,8 +29,13 @@ trait ResultExtractor {
     def extractTidiedSubstring (path: Path, start: String, end: String): Option[String] =
       for {
         doc  <- root.allDocuments.find(_.path == path)
-        rest <- doc.content.split(Pattern.quote(start)).drop(1).headOption
-        res  <- rest.split(Pattern.quote(end)).headOption
+        res  <- doc.content.extract(start, end)
+      } yield res.removeIndentation.removeBlankLines
+
+    def extractTidiedTagContent (path: Path, tagName: String): Option[String] =
+      for {
+        doc  <- root.allDocuments.find(_.path == path)
+        res  <- doc.content.extractTag(tagName)
       } yield res.removeIndentation.removeBlankLines
 
   }

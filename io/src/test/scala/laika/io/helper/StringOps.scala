@@ -16,12 +16,21 @@
 
 package laika.io.helper
 
+import java.util.regex.Pattern
+
 /**
   * @author Jens Halm
   */
 trait StringOps {
 
   implicit class TestStringOps (val str: String) {
+    
+    def extract (start: String, end: String): Option[String] = for {
+      rest <- str.split(Pattern.quote(start)).drop(1).headOption
+      res  <- rest.split(Pattern.quote(end)).headOption
+    } yield res
+
+    def extractTag (tag: String): Option[String] = extract(s"<$tag>", s"</$tag>")
     
     def removeBlankLines: String = str.split('\n').flatMap { line =>
       if (line.trim.nonEmpty) Some(line)

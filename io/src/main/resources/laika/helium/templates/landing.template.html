@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="${?laika.metadata.language}">
+<html lang="${?laika.site.metadata.language}">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="Laika 0.16.0 + Helium Theme" />
-    <title>${laika.metadata.title}</title>
-    @:for(laika.metadata.authors)
+    <title>${laika.site.metadata.title}</title>
+    @:for(laika.site.metadata.authors)
       <meta name="author" content="${_}"/>
     @:@
-    @:for(laika.metadata.description)
+    @:for(laika.site.metadata.description)
       <meta name="description" content="${_}"/>
     @:@
     @:for(helium.favIcons)
