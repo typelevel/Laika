@@ -39,7 +39,7 @@ object InputRuntime {
       readAll(reader, sizeHint).map(source => ParserInput(doc.path, ParserContext(source)))
   }
 
-  private def readAll[F[_]: Sync: Runtime] (reader: Reader, sizeHint: Int): F[String] = Runtime[F].runBlocking {
+  def readAll[F[_]: Sync: Runtime] (reader: Reader, sizeHint: Int): F[String] = Runtime[F].runBlocking {
     
     def read(inBuffer: Array[Char], outBuffer: StringBuilder): F[Unit] = {
       for {

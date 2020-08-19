@@ -46,20 +46,23 @@ object Theme {
   })
 
   def apply[F[_]: Monad](inputs: InputTreeBuilder[F], extensions: ExtensionBundle*): Builder[F] = 
+    new Builder[F](Monad[F].pure(inputs), extensions, PartialFunction.empty)
+
+  def apply[F[_]: Monad](inputs: F[InputTreeBuilder[F]], extensions: ExtensionBundle*): Builder[F] =
     new Builder[F](inputs, extensions, PartialFunction.empty)
   
-  class Builder[F[_]: Monad] private[laika] (inputs: InputTreeBuilder[F],
+  class Builder[F[_]: Monad] private[laika] (inputs: F[InputTreeBuilder[F]],
                              extensions: Seq[ExtensionBundle],
                              treeProcessor: PartialFunction[Format, Kleisli[F, ParsedTree[F], ParsedTree[F]]]) { self =>
     
     def processTree (f: PartialFunction[Format, Kleisli[F, ParsedTree[F], ParsedTree[F]]]): Builder[F] =
       new Builder[F](inputs, extensions, f)
     
-    def build: Resource[F, Theme[F]] = Resource.liftF(inputs.build.map(in => new Theme[F] {
+    def build: Resource[F, Theme[F]] = Resource.liftF(inputs.flatMap(_.build.map(in => new Theme[F] {
       def inputs: InputTree[F] = in
       def extensions: Seq[ExtensionBundle] = self.extensions
       def treeProcessor: PartialFunction[Format, Kleisli[F, ParsedTree[F], ParsedTree[F]]] = self.treeProcessor
-    }))
+    })))
   }
   
 }

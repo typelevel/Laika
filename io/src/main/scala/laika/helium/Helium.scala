@@ -16,7 +16,6 @@
 
 package laika.helium
 
-import java.io.{InputStream, SequenceInputStream}
 import java.util.Date
 
 import cats.data.Kleisli
@@ -31,7 +30,7 @@ import laika.factory.{Format, TwoPhaseRenderFormat}
 import laika.format.HTML
 import laika.helium.Helium.{CommonConfigOps, SingleConfigOps}
 import laika.helium.generate._
-import laika.io.model.{BinaryInput, InputTree, ParsedTree}
+import laika.io.model.{InputTree, ParsedTree}
 import laika.rewrite.DefaultTemplatePath
 import laika.theme._
 
@@ -227,14 +226,12 @@ class Helium private[laika] (private[laika] val siteSettings: Helium.SiteSetting
       .addClasspathResource("laika/helium/templates/default.template.html", DefaultTemplatePath.forHTML)
       .addClasspathResource("laika/helium/templates/landing.template.html", Root / "landing.template.html")
       .addClasspathResource("laika/helium/templates/default.template.fo", DefaultTemplatePath.forFO)
-      .addClasspathResource("laika/helium/css/container.css", Root / "css" / "container.css")
-      .addClasspathResource("laika/helium/css/content.css", Root / "css" / "content.css")
-      .addClasspathResource("laika/helium/css/nav.css", Root / "css" / "nav.css")
-      .addClasspathResource("laika/helium/css/code.css", Root / "css" / "code.css")
-      .addClasspathResource("laika/helium/css/toc.css", Root / "css" / "toc.css")
       .addClasspathResource("laika/helium/js/theme.js", Root / "helium" / "laika-helium.js")
       .addString(new FOStyles(this).input , FOStyles.defaultPath)
-      .addString(CSSVarGenerator.generate(this), Root / "css" / "vars.css")
+    
+    val inputsWithCss = MergedCSSGenerator.merge(CSSVarGenerator.generate(this)).map {
+      themeInputs.addString(_, Root / "helium" / "laika-helium.css")
+    }
 
     def estimateLines (blocks: Seq[Block]): Int = blocks.collect {
       case sp: SpanContainer => sp.extractText.count(_ == '\n')
@@ -260,24 +257,6 @@ class Helium private[laika] (private[laika] val siteSettings: Helium.SiteSetting
       .filter(p => p.includeEPUB || p.includePDF)
       .fold(noOp)(DownloadPageGenerator.generate)
 
-    def mergeCSS: TreeProcessor = Kleisli { tree =>
-      val css = Root / "css"
-      val webCSS = IndexedSeq(css / "vars.css", css / "container.css", css / "content.css", css / "nav.css", css / "code.css", css / "toc.css")
-      val (cssDocs, otherDocs) = tree.staticDocuments.partition(doc => webCSS.contains(doc.path))
-      // TODO - 0.16 - merge just once upfront as soon as Theme is a Resource itself
-      def mergedInput: InputStream = {
-        val cssInputs = cssDocs.toList.sortBy(in => webCSS.indexOf(in.path))
-        val iter = cssInputs.iterator
-        val enum = new java.util.Enumeration[InputStream] {
-          def hasMoreElements = iter.hasNext
-          def nextElement() = iter.next().stream()
-        }
-        new SequenceInputStream(enum)
-      }
-      val newTree = tree.replaceStaticDocuments(otherDocs :+ BinaryInput(Root / "helium" / "laika-helium.css", () => mergedInput))
-      Sync[F].pure(newTree)
-    }
-
     def filterFonts (format: Format): TreeProcessor = format match {
       case _: TwoPhaseRenderFormat[_,_] => noOp
       case _ => Kleisli { tree: ParsedTree[F] =>
@@ -286,11 +265,10 @@ class Helium private[laika] (private[laika] val siteSettings: Helium.SiteSetting
       }
     }
 
-    Theme(themeInputs, bundle).processTree {
+    Theme(inputsWithCss, bundle).processTree {
       case HTML => addDownloadPage
         .andThen(TocPageGenerator.generate(self, HTML))
         .andThen(siteSettings.landingPage.fold(noOp)(LandingPageGenerator.generate))
-        .andThen(mergeCSS)
         .andThen(filterFonts(HTML)): TreeProcessor
       case format => TocPageGenerator.generate(self, format).andThen(filterFonts(format)): TreeProcessor
     }.build

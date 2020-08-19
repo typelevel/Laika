@@ -67,7 +67,7 @@ object CSSVarGenerator {
       .mkString(
         ":root {\n  ",
         "\n",
-        "\n}"
+        "\n}\n\n"
     )
   }
   
