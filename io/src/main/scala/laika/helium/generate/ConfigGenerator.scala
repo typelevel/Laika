@@ -58,7 +58,7 @@ object ConfigGenerator {
   implicit val topNavBarEncoder: ConfigEncoder[TopNavigationBar] = ConfigEncoder[TopNavigationBar] { navBar =>
     ConfigEncoder.ObjectBuilder.empty
       .withValue("home", navBar.logo)
-      .withValue("links", SpanSequence(navBar.links))
+      .withValue("links", SpanSequence(navBar.links, HeliumStyles.row))
       .build
   }
 

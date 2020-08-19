@@ -41,7 +41,7 @@
 
       @:navigationTree {
         entries = [ 
-          { target = "/", excludeRoot = true, depth = 2 } 
+          { target = "/", excludeRoot = true, excludeSections = true, depth = 2 } 
         ]
       }
       
@@ -58,7 +58,7 @@
           ]
         }
         
-        <p class="footer">@:for(helium.markupEditLinks) <a href="${_.baseURL}${cursor.currentDocument.path}">${_.text}</a> @:@</p>
+        <p class="footer">@:for(helium.markupEditLinks)<a href="${_.baseURL}${cursor.currentDocument.path}">${_.text}</a>@:@</p>
       </nav>
 
       <main class="content">

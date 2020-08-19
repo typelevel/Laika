@@ -89,5 +89,6 @@ object AnchorPlacement {
 case class HTMLIncludes (includeCSS: Seq[Path] = Seq(Root), includeJS: Seq[Path] = Seq(Root))
 
 object HeliumStyles {
+  val row: Options = Styles("row")
   val button: Options = Styles("button")
 }
