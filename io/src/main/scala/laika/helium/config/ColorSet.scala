@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package laika.helium
+package laika.helium.config
 
 import laika.theme.Color
 
-case class ColorSet (primary: Color, 
-                     primaryDark: Color, 
-                     primaryLight: Color,  
+case class ColorSet (primary: Color,
+                     primaryDark: Color,
+                     primaryLight: Color,
                      secondary: Color,
                      messages: MessageColors,
                      syntaxHighlighting: SyntaxColors)
 
-case class MessageColors (info: Color, 
-                          infoLight: Color, 
-                          warning: Color, 
-                          warningLight: Color, 
-                          error: Color, 
+case class MessageColors (info: Color,
+                          infoLight: Color,
+                          warning: Color,
+                          warningLight: Color,
+                          error: Color,
                           errorLight: Color)
 
 case class SyntaxColors (base: ColorQuintet, wheel: ColorQuintet)

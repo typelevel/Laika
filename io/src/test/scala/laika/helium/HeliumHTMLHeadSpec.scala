@@ -22,6 +22,7 @@ import laika.api.{MarkupParser, Renderer, Transformer}
 import laika.ast.Path
 import laika.ast.Path.Root
 import laika.format.{HTML, Markdown}
+import laika.helium.config.Favicon
 import laika.io.helper.{InputBuilder, ResultExtractor, StringOps}
 import laika.io.model.StringTreeOutput
 import laika.io.{FileIO, IOFunSuite}

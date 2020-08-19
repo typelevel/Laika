@@ -22,7 +22,8 @@ import laika.ast.Path.Root
 import laika.ast.{Document, NavigationBuilderContext, NavigationList, RootElement, Styles, Title}
 import laika.factory.Format
 import laika.format.{EPUB, HTML, XSLFO}
-import laika.helium.{Helium, TableOfContent}
+import laika.helium.Helium
+import laika.helium.config.TableOfContent
 import laika.io.model.ParsedTree
 
 /**

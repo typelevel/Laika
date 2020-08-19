@@ -21,10 +21,10 @@ import cats.effect.Sync
 import laika.ast.Path.Root
 import laika.ast.{Block, BlockSequence, Document, Image, InternalTarget, Paragraph, Path, RootElement, SpanLink, Styles, Text, Title, TitledBlock}
 import laika.config.LaikaKeys
-import laika.helium.DownloadPage
+import laika.helium.config.DownloadPage
 import laika.io.config.SiteConfig
 import laika.io.model.ParsedTree
-import laika.rewrite.nav.{ChoiceConfig, SelectionGroupConfig, CoverImages}
+import laika.rewrite.nav.{ChoiceConfig, CoverImages, SelectionGroupConfig}
 
 /**
   * @author Jens Halm

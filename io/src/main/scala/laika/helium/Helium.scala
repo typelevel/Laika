@@ -21,7 +21,6 @@ import java.util.Date
 import cats.data.Kleisli
 import cats.effect.{Resource, Sync}
 import cats.implicits._
-import laika.ast.LengthUnit.{cm, mm, pt, px}
 import laika.ast.Path.Root
 import laika.ast._
 import laika.bundle.{BundleOrigin, ExtensionBundle}
@@ -29,6 +28,7 @@ import laika.config.Config
 import laika.factory.{Format, TwoPhaseRenderFormat}
 import laika.format.HTML
 import laika.helium.Helium.{CommonConfigOps, SingleConfigOps}
+import laika.helium.config.{AnchorPlacement, ColorQuintet, ColorSet, DownloadPage, Favicon, HTMLIncludes, HeliumDefaults, HeliumRenderOverrides, LandingPage, MarkupEditLinks, MessageColors, PDFLayout, ReleaseInfo, SyntaxColors, TableOfContent, Teaser, TextLink, ThemeLink, TopNavigationBar, WebLayout}
 import laika.helium.generate._
 import laika.io.model.{InputTree, ParsedTree}
 import laika.rewrite.DefaultTemplatePath
@@ -386,187 +386,10 @@ object Helium {
                            colors: ColorSet,
                            htmlIncludes: HTMLIncludes)
   
-  private val fontPath = "laika/helium/fonts/"
-  
-  private val defaultFonts = Seq(
-    FontDefinition(
-      Font.embedResource(fontPath + "Lato/Lato-Regular.ttf").webCSS("http://fonts.googleapis.com/css?family=Lato:400,700"),
-      "Lato", FontWeight.Normal, FontStyle.Normal
-    ),
-    FontDefinition(
-      Font.embedResource(fontPath + "Lato/Lato-Italic.ttf"),
-      "Lato", FontWeight.Normal, FontStyle.Italic
-    ),
-    FontDefinition(
-      Font.embedResource(fontPath + "Lato/Lato-Bold.ttf"),
-      "Lato", FontWeight.Bold, FontStyle.Normal
-    ),
-    FontDefinition(
-      Font.embedResource(fontPath + "Lato/Lato-BoldItalic.ttf"),
-      "Lato", FontWeight.Bold, FontStyle.Italic
-    ),
-    FontDefinition(
-      Font.embedResource(fontPath + "FiraCode/FiraCode-Medium.otf").webCSS("https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css"),
-      "FiraCode", FontWeight.Normal, FontStyle.Normal
-    ),
-    FontDefinition(
-      Font.embedResource(fontPath + "icofont/icofont.ttf").webCSS("../icons/icofont.min.css"),
-      "IcoFont", FontWeight.Normal, FontStyle.Normal
-    ),
-  )
-  private val defaultThemeFonts = ThemeFonts("Lato", "Lato", "FiraCode")
-  private val defaultSiteSettings = SiteSettings(
-    fontResources = defaultFonts,
-    themeFonts = defaultThemeFonts, 
-    fontSizes = FontSizes( // TODO
-      body = pt(10),
-      code = pt(9),
-      title = pt(24),
-      header2 = pt(14),
-      header3 = pt(12),
-      header4 = pt(11),
-      small = pt(8)
-    ),
-    colors = ColorSet( // TODO
-      primary = Color.hex("007c99"),
-      secondary = Color.hex("931813"),
-      primaryDark = Color.hex("007c99"),
-      primaryLight = Color.hex("ebf6f7"),
-      messages = MessageColors(
-        info = Color.hex("007c99"),
-        infoLight = Color.hex("ebf6f7"),
-        warning = Color.hex("b1a400"),
-        warningLight = Color.hex("fcfacd"),
-        error = Color.hex("d83030"),
-        errorLight = Color.hex("ffe9e3"),
-      ),
-      syntaxHighlighting = SyntaxColors(
-        base = ColorQuintet(
-          Color.hex("F6F1EF"), Color.hex("AF9E84"), Color.hex("937F61"), Color.hex("645133"), Color.hex("362E21")
-        ),
-        wheel = ColorQuintet(
-          Color.hex("9A6799"), Color.hex("9F4C46"), Color.hex("A0742D"), Color.hex("7D8D4C"), Color.hex("6498AE")
-        )
-      )
-    ),
-    htmlIncludes = HTMLIncludes(),
-    landingPage = None,
-    webLayout = WebLayout(
-      contentWidth = px(860),
-      navigationWidth = px(275),
-      defaultBlockSpacing = px(10),
-      defaultLineHeight = 1.5,
-      anchorPlacement = AnchorPlacement.Left
-    ),
-    metadata = DocumentMetadata()
-  )
-  private val defaultEPUBSettings = EPUBSettings(
-    bookConfig = BookConfig(fonts = defaultFonts),
-    themeFonts = defaultThemeFonts,
-    fontSizes = FontSizes( // TODO
-      body = pt(10),
-      code = pt(9),
-      title = pt(24),
-      header2 = pt(14),
-      header3 = pt(12),
-      header4 = pt(11),
-      small = pt(8)
-    ),
-    colors = ColorSet( // TODO
-      primary = Color.hex("007c99"),
-      secondary = Color.hex("931813"),
-      primaryDark = Color.hex("007c99"),
-      primaryLight = Color.hex("ebf6f7"),
-      messages = MessageColors(
-        info = Color.hex("007c99"),
-        infoLight = Color.hex("ebf6f7"),
-        warning = Color.hex("b1a400"),
-        warningLight = Color.hex("fcfacd"),
-        error = Color.hex("d83030"),
-        errorLight = Color.hex("ffe9e3"),
-      ),
-      syntaxHighlighting = SyntaxColors(
-        base = ColorQuintet(
-          Color.hex("F6F1EF"), Color.hex("AF9E84"), Color.hex("937F61"), Color.hex("645133"), Color.hex("362E21")
-        ),
-        wheel = ColorQuintet(
-          Color.hex("9A6799"), Color.hex("9F4C46"), Color.hex("A0742D"), Color.hex("7D8D4C"), Color.hex("6498AE")
-        )
-      )
-    ),
-    htmlIncludes = HTMLIncludes()
-  )
-  
-  private val defaultPDFSettings = PDFSettings(
-    bookConfig = BookConfig(fonts = defaultFonts),
-    themeFonts = defaultThemeFonts,
-    fontSizes = FontSizes( // TODO
-      body = pt(10),
-      code = pt(9),
-      title = pt(24),
-      header2 = pt(14),
-      header3 = pt(12),
-      header4 = pt(11),
-      small = pt(8)
-    ),
-    colors = ColorSet( // TODO
-      primary = Color.hex("007c99"),
-      secondary = Color.hex("931813"),
-      primaryDark = Color.hex("007c99"),
-      primaryLight = Color.hex("ebf6f7"),
-      messages = MessageColors(
-        info = Color.hex("007c99"),
-        infoLight = Color.hex("ebf6f7"),
-        warning = Color.hex("b1a400"),
-        warningLight = Color.hex("fcfacd"),
-        error = Color.hex("d83030"),
-        errorLight = Color.hex("ffe9e3"),
-      ),
-      syntaxHighlighting = SyntaxColors(
-        base = ColorQuintet(
-          Color.hex("F6F1EF"), Color.hex("AF9E84"), Color.hex("937F61"), Color.hex("645133"), Color.hex("362E21")
-        ),
-        wheel = ColorQuintet(
-          Color.hex("9A6799"), Color.hex("9F4C46"), Color.hex("A0742D"), Color.hex("7D8D4C"), Color.hex("6498AE")
-        )
-      )
-    ),
-    pdfLayout = PDFLayout(
-      pageWidth = cm(21),
-      pageHeight = cm(29.7),
-      marginTop = cm(1),
-      marginRight = cm(2.5),
-      marginBottom = cm(1),
-      marginLeft = cm(2.5),
-      defaultBlockSpacing = mm(3),
-      defaultLineHeight = 1.5,
-      keepTogetherDecoratedLines = 12
-    )
-  )
-  // TODO - extract into HeliumDefaults
-  
-  val defaults: Helium = new Helium(defaultSiteSettings, defaultEPUBSettings, defaultPDFSettings)
+  val defaults: Helium = HeliumDefaults.instance
     
 }
 
 object HeliumStyles {
   val button: Options = Styles("button")
-}
-
-object HeliumIcon {
-  private val options = Styles("icofont-laika")
-  val navigationMenu: Icon = Icon('\uefa2', options)
-  val home: Icon = Icon('\uef47', options)
-  val link: Icon = Icon('\uef71', options)
-  val close: Icon = Icon('\ueedd', options)
-  val check: Icon = Icon('\ueed7', options)
-  val chat: Icon = Icon('\ueed5', options)
-  val settings: Icon = Icon('\ueed5', options)
-  val edit: Icon = Icon('\uef10', options)
-  val demo: Icon = Icon('\ueeea', options)
-  val download: Icon = Icon('\uef08', options)
-  val info: Icon = Icon('\uef4e', options)
-  val warning: Icon = Icon('\uefb0', options)
-  val error: Icon = Icon('\ueedd', options)
-  val twitter: Icon = Icon('\ued7a', options)
 }

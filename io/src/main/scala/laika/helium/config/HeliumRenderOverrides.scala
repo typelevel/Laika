@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package laika.helium
+package laika.helium.config
 
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentDocument

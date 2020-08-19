@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package laika.helium
+package laika.helium.config
 
 import laika.ast._
+import laika.helium.HeliumStyles
 
 /**
   * @author Jens Halm

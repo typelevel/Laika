@@ -21,7 +21,7 @@ import cats.effect.Sync
 import laika.ast.Path.Root
 import laika.ast.{Document, RootElement}
 import laika.config.LaikaKeys
-import laika.helium.LandingPage
+import laika.helium.config.LandingPage
 import laika.io.model.ParsedTree
 import laika.rewrite.nav.TitleDocumentConfig
 

@@ -17,9 +17,10 @@
 package laika.helium.generate
 
 import laika.ast.Path.Root
-import laika.ast.{DocumentCursor, ExternalTarget, InternalTarget, InvalidElement, NoOpt, Options, Path, Span, SpanResolver, SpanSequence, TemplateElement, TemplateSpan, TemplateSpanSequence, TemplateString, Text}
+import laika.ast._
 import laika.config.{ASTValue, Config, ConfigBuilder, ConfigEncoder}
-import laika.helium.{Favicon, Helium, LandingPage, MarkupEditLinks, PDFLayout, ReleaseInfo, Teaser, ThemeTarget, TopNavigationBar}
+import laika.helium.Helium
+import laika.helium.config._
 import laika.theme.ThemeFonts
 
 /**
