@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package laika.helium.config
+package laika.helium.builder
 
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentDocument
 import laika.ast._
+import laika.helium.config.AnchorPlacement
 import laika.render.HTMLFormatter
 
 /**
   * @author Jens Halm
   */
-object HeliumRenderOverrides {
+private[laika] object HeliumRenderOverrides {
 
   case class Tabs (tabs: Seq[Tab], options: Options = NoOpt) extends Block {
     type Self = Tabs

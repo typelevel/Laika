@@ -18,20 +18,12 @@ package laika.helium
 
 import java.util.Date
 
-import cats.data.Kleisli
 import cats.effect.{Resource, Sync}
-import cats.implicits._
 import laika.ast.Path.Root
 import laika.ast._
-import laika.bundle.{BundleOrigin, ExtensionBundle}
-import laika.config.Config
-import laika.factory.{Format, TwoPhaseRenderFormat}
-import laika.format.HTML
 import laika.helium.Helium.{CommonConfigOps, SingleConfigOps}
-import laika.helium.config.{AnchorPlacement, ColorQuintet, ColorSet, DownloadPage, Favicon, HTMLIncludes, HeliumDefaults, HeliumRenderOverrides, LandingPage, MarkupEditLinks, MessageColors, PDFLayout, ReleaseInfo, SyntaxColors, TableOfContent, Teaser, TextLink, ThemeLink, TopNavigationBar, WebLayout}
-import laika.helium.generate._
-import laika.io.model.{InputTree, ParsedTree}
-import laika.rewrite.DefaultTemplatePath
+import laika.helium.builder.HeliumThemeBuilder
+import laika.helium.config._
 import laika.theme._
 
 /**
@@ -205,75 +197,7 @@ class Helium private[laika] (private[laika] val siteSettings: Helium.SiteSetting
     }
   }
   
-  def build[F[_]: Sync]: Resource[F, Theme[F]] = {
-
-    type TreeProcessor = Kleisli[F, ParsedTree[F], ParsedTree[F]]
-    
-    val noOp: TreeProcessor = Kleisli.ask[F, ParsedTree[F]]
-    
-    val fontResources = (siteSettings.fontResources ++ epubSettings.bookConfig.fonts ++ pdfSettings.bookConfig.fonts)
-      .flatMap(_.resource.embedResource).distinct
-
-    val fontInputs = fontResources.foldLeft(InputTree[F]) { case (tree, embedResource) =>
-      embedResource match {
-        case res: EmbeddedFontFile     => tree.addFile(res.file, res.path)
-        case res: EmbeddedFontResource => tree.addClasspathResource(res.name, res.path)
-      }
-    }
-
-    val themeInputs = fontInputs
-      .addTemplate(TemplateDocument(DefaultTemplatePath.forEPUB, EPUBTemplate.default))
-      .addClasspathResource("laika/helium/templates/default.template.html", DefaultTemplatePath.forHTML)
-      .addClasspathResource("laika/helium/templates/landing.template.html", Root / "landing.template.html")
-      .addClasspathResource("laika/helium/templates/default.template.fo", DefaultTemplatePath.forFO)
-      .addClasspathResource("laika/helium/js/theme.js", Root / "helium" / "laika-helium.js")
-      .addString(new FOStyles(this).input , FOStyles.defaultPath)
-    
-    val inputsWithCss = MergedCSSGenerator.merge(CSSVarGenerator.generate(this)).map {
-      themeInputs.addString(_, Root / "helium" / "laika-helium.css")
-    }
-
-    def estimateLines (blocks: Seq[Block]): Int = blocks.collect {
-      case sp: SpanContainer => sp.extractText.count(_ == '\n')
-      case bc: BlockContainer => estimateLines(bc.content) // TODO - handle lists and tables
-    }.sum
-
-    val rewriteRule: RewriteRules = RewriteRules.forBlocks {
-      case cb: CodeBlock if cb.extractText.count(_ == '\n') <= pdfSettings.pdfLayout.keepTogetherDecoratedLines =>
-        Replace(cb.mergeOptions(Style.keepTogether))
-      case bs: BlockSequence if bs.options.styles.contains("callout") && estimateLines(bs.content) <= pdfSettings.pdfLayout.keepTogetherDecoratedLines =>
-        Replace(bs.mergeOptions(Style.keepTogether))
-    }
-
-    val bundle: ExtensionBundle = new ExtensionBundle {
-      override val origin: BundleOrigin = BundleOrigin.Theme
-      val description = "Helium Theme Rewrite Rules and Render Overrides"
-      override val rewriteRules: Seq[DocumentCursor => RewriteRules] = Seq(_ => rewriteRule)
-      override val renderOverrides = Seq(HTML.Overrides(HeliumRenderOverrides.create(siteSettings.webLayout.anchorPlacement)))
-      override val baseConfig: Config = ConfigGenerator.populateConfig(self)
-    }
-
-    def addDownloadPage: TreeProcessor = siteSettings.webLayout.downloadPage
-      .filter(p => p.includeEPUB || p.includePDF)
-      .fold(noOp)(DownloadPageGenerator.generate)
-
-    def filterFonts (format: Format): TreeProcessor = format match {
-      case _: TwoPhaseRenderFormat[_,_] => noOp
-      case _ => Kleisli { tree: ParsedTree[F] =>
-        val filteredOther = tree.staticDocuments.filterNot(_.path.isSubPath(Root / "laika" / "fonts"))
-        Sync[F].pure(tree.copy(staticDocuments = filteredOther))
-      }
-    }
-
-    Theme(inputsWithCss, bundle).processTree {
-      case HTML => addDownloadPage
-        .andThen(TocPageGenerator.generate(self, HTML))
-        .andThen(siteSettings.landingPage.fold(noOp)(LandingPageGenerator.generate))
-        .andThen(filterFonts(HTML)): TreeProcessor
-      case format => TocPageGenerator.generate(self, format).andThen(filterFonts(format)): TreeProcessor
-    }.build
-    
-  } 
+  def build[F[_]: Sync]: Resource[F, Theme[F]] = HeliumThemeBuilder.build(this)
   
 }
 
