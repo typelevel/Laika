@@ -32,9 +32,9 @@ private[laika] object TocPageGenerator {
 
   def generate[F[_]: Sync] (helium: Helium, format: Format): Kleisli[F, ParsedTree[F], ParsedTree[F]] = {
     val tocConfig = (format match {
-      case HTML => helium.webLayout.tableOfContent
-      case EPUB.XHTML => helium.webLayout.tableOfContent // TODO - create EPUBLayout
-      case XSLFO => helium.pdfLayout.tableOfContent
+      case HTML => helium.siteSettings.webLayout.tableOfContent
+      case EPUB.XHTML => helium.siteSettings.webLayout.tableOfContent // TODO - create EPUBLayout
+      case XSLFO => helium.pdfSettings.pdfLayout.tableOfContent
       case _ => None
     }).filter(_.depth > 0)
     tocConfig.fold[Kleisli[F, ParsedTree[F], ParsedTree[F]]](Kleisli(Sync[F].pure))(generate(_))

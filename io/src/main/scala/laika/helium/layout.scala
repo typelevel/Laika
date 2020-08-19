@@ -44,7 +44,8 @@ object TopNavigationBar {
   val default: TopNavigationBar = TopNavigationBar(None, Nil) // TODO - use home icon instead of image if empty
 }
 
-case class DownloadPage (title: String, description: Option[String], includeEPUB: Boolean = true, includePDF: Boolean = true)
+case class DownloadPage (title: String, description: Option[String], downloadPath: Path = Root / "downloads", 
+                         includeEPUB: Boolean = true, includePDF: Boolean = true)
 
 case class LandingPage (logo: Option[Image] = None,
                         title: Option[String] = None,

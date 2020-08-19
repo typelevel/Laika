@@ -26,6 +26,8 @@ import laika.helium.Helium
   */
 class FOStyles (helium: Helium) {
   
+  import helium.pdfSettings._
+  
   /*
   TODO - this string template approach is a temporary solution until Laika's 'CSS for PDF' supports CSS variables
   */
@@ -38,11 +40,11 @@ class FOStyles (helium: Helium) {
     */
   val input: String = s"""
     |Paragraph {
-    |  font-family: ${helium.themeFonts.body};
-    |  font-size: ${helium.fontSizes.body.displayValue};
-    |  line-height: ${helium.pdfLayout.defaultLineHeight};
+    |  font-family: ${themeFonts.body};
+    |  font-size: ${fontSizes.body.displayValue};
+    |  line-height: ${pdfLayout.defaultLineHeight};
     |  text-align: justify;
-    |  space-after: ${helium.pdfLayout.defaultBlockSpacing.displayValue};
+    |  space-after: ${pdfLayout.defaultBlockSpacing.displayValue};
     |}
     |
     |TitledBlock {
@@ -52,24 +54,24 @@ class FOStyles (helium: Helium) {
     |}
     |
     |TitledBlock .title {
-    |  font-family: ${helium.themeFonts.headlines};
-    |  font-size: ${helium.fontSizes.header4.displayValue};
+    |  font-family: ${themeFonts.headlines};
+    |  font-size: ${fontSizes.header4.displayValue};
     |  font-weight: bold;
-    |  space-after: ${helium.pdfLayout.defaultBlockSpacing.displayValue};
+    |  space-after: ${pdfLayout.defaultBlockSpacing.displayValue};
     |}
     |
     |QuotedBlock {
     |  font-style: italic;
     |  margin-left: 8mm;
     |  margin-right: 8mm;
-    |  space-after: ${helium.pdfLayout.defaultBlockSpacing.displayValue};
+    |  space-after: ${pdfLayout.defaultBlockSpacing.displayValue};
     |}
     |
     |QuotedBlock .attribution {
-    |  font-family: ${helium.themeFonts.body};
-    |  font-size: ${helium.fontSizes.body.displayValue};
+    |  font-family: ${themeFonts.body};
+    |  font-size: ${fontSizes.body.displayValue};
     |  text-align: right;
-    |  line-height: ${helium.pdfLayout.defaultLineHeight};
+    |  line-height: ${pdfLayout.defaultLineHeight};
     |}
     |
     |Image {
@@ -84,54 +86,54 @@ class FOStyles (helium: Helium) {
     |}
     |
     |Figure .caption {
-    |  font-family: ${helium.themeFonts.body};
-    |  font-size: ${helium.fontSizes.code.displayValue};
+    |  font-family: ${themeFonts.body};
+    |  font-size: ${fontSizes.code.displayValue};
     |  font-style: italic;
-    |  space-after: ${helium.pdfLayout.defaultBlockSpacing.displayValue};
+    |  space-after: ${pdfLayout.defaultBlockSpacing.displayValue};
     |}
     |
     |Figure .legend {
-    |  font-size: ${helium.fontSizes.code.displayValue};
+    |  font-size: ${fontSizes.code.displayValue};
     |  font-style: italic;
     |}
     |
     |Footnote, Citation {
-    |  font-size: ${helium.fontSizes.small.displayValue};
+    |  font-size: ${fontSizes.small.displayValue};
     |}
     |
     |.default-space {
-    |  space-after: ${helium.pdfLayout.defaultBlockSpacing.displayValue};
+    |  space-after: ${pdfLayout.defaultBlockSpacing.displayValue};
     |}
     |
     |Header {
-    |  font-family: ${helium.themeFonts.headlines};
-    |  font-size: ${helium.fontSizes.header4.displayValue};
+    |  font-family: ${themeFonts.headlines};
+    |  font-size: ${fontSizes.header4.displayValue};
     |  font-weight: bold;
     |  space-before: 7mm;
-    |  space-after: ${helium.pdfLayout.defaultBlockSpacing.displayValue};
+    |  space-after: ${pdfLayout.defaultBlockSpacing.displayValue};
     |}
     |
     |Title {
-    |  font-family: ${helium.themeFonts.headlines};
-    |  font-size: ${helium.fontSizes.title.displayValue};
+    |  font-family: ${themeFonts.headlines};
+    |  font-size: ${fontSizes.title.displayValue};
     |  font-weight: bold;
-    |  color: ${helium.colors.primary.displayValue};
+    |  color: ${colors.primary.displayValue};
     |  space-before: 0mm;
     |  space-after: 6mm;
     |}
     |
     |Header.level1 {
-    |  font-size: ${helium.fontSizes.header2.displayValue};
+    |  font-size: ${fontSizes.header2.displayValue};
     |  space-before: 12mm;
     |  space-after: 6mm;
     |}
     |
     |Header.level2 {
-    |  font-size: ${helium.fontSizes.header2.displayValue};
+    |  font-size: ${fontSizes.header2.displayValue};
     |}
     |
     |Header.level3 {
-    |  font-size: ${helium.fontSizes.header3.displayValue};
+    |  font-size: ${fontSizes.header3.displayValue};
     |}
     |
     |BulletList, EnumList {
@@ -145,15 +147,15 @@ class FOStyles (helium: Helium) {
     |}
     |
     |BulletListItem, EnumListItem, DefinitionListItem {
-    |  space-after: ${helium.pdfLayout.defaultBlockSpacing.displayValue};
+    |  space-after: ${pdfLayout.defaultBlockSpacing.displayValue};
     |}
     |
     |CodeBlock, LiteralBlock, ParsedLiteralBlock {
-    |  font-family: ${helium.themeFonts.code};
-    |  font-size: ${helium.fontSizes.code.displayValue};
+    |  font-family: ${themeFonts.code};
+    |  font-size: ${fontSizes.code.displayValue};
     |  line-height: 1.4;
-    |  color: ${helium.colors.syntaxHighlighting.base.c5.displayValue};
-    |  background-color: ${helium.colors.syntaxHighlighting.base.c1.displayValue};
+    |  color: ${colors.syntaxHighlighting.base.c5.displayValue};
+    |  background-color: ${colors.syntaxHighlighting.base.c1.displayValue};
     |  fox:border-radius: 2mm;
     |  margin-left: 2mm;
     |  margin-right: 2mm;
@@ -165,35 +167,35 @@ class FOStyles (helium: Helium) {
     |}
     |
     |Literal, InlineCode {
-    |  font-family: ${helium.themeFonts.code};
-    |  font-size: ${helium.fontSizes.code.displayValue};
+    |  font-family: ${themeFonts.code};
+    |  font-size: ${fontSizes.code.displayValue};
     |}
     |
     |.callout {
-    |  font-family: ${helium.themeFonts.body};
-    |  font-size: ${helium.fontSizes.body.displayValue};
-    |  line-height: ${helium.pdfLayout.defaultLineHeight};
+    |  font-family: ${themeFonts.body};
+    |  font-size: ${fontSizes.body.displayValue};
+    |  line-height: ${pdfLayout.defaultLineHeight};
     |  margin-left: 2mm;
     |  margin-right: 2mm;
-    |  padding: ${helium.pdfLayout.defaultBlockSpacing.displayValue} ${helium.pdfLayout.defaultBlockSpacing.displayValue} 0.1mm ${helium.pdfLayout.defaultBlockSpacing.displayValue};
+    |  padding: ${pdfLayout.defaultBlockSpacing.displayValue} ${pdfLayout.defaultBlockSpacing.displayValue} 0.1mm ${pdfLayout.defaultBlockSpacing.displayValue};
     |  fox:border-after-end-radius: 2mm;
     |  fox:border-before-end-radius: 2mm;
     |  space-after: 6mm;
     |}
     |
     |.callout.info {
-    |  border-left: 3pt solid ${helium.colors.messages.info.displayValue};
-    |  background-color: ${helium.colors.messages.infoLight.displayValue};
+    |  border-left: 3pt solid ${colors.messages.info.displayValue};
+    |  background-color: ${colors.messages.infoLight.displayValue};
     |}
     |
     |.callout.warning {
-    |  border-left: 3pt solid ${helium.colors.messages.warning.displayValue};
-    |  background-color: ${helium.colors.messages.warningLight.displayValue};
+    |  border-left: 3pt solid ${colors.messages.warning.displayValue};
+    |  background-color: ${colors.messages.warningLight.displayValue};
     |}
     |
     |.callout.error {
-    |  border-left: 3pt solid ${helium.colors.messages.error.displayValue};
-    |  background-color: ${helium.colors.messages.errorLight.displayValue};
+    |  border-left: 3pt solid ${colors.messages.error.displayValue};
+    |  background-color: ${colors.messages.errorLight.displayValue};
     |}
     |
     |Table {
@@ -216,7 +218,7 @@ class FOStyles (helium: Helium) {
     |}
     |
     |FootnoteLink, CitationLink, SpanLink {
-    |  color: ${helium.colors.secondary.displayValue};
+    |  color: ${colors.secondary.displayValue};
     |}
     |
     |SpanLink {
@@ -225,12 +227,12 @@ class FOStyles (helium: Helium) {
     |
     |NavigationLink SpanLink {
     |  font-weight: bold;
-    |  color: ${helium.colors.primary.displayValue};
+    |  color: ${colors.primary.displayValue};
     |}
     |
     |Paragraph.level2.nav SpanLink {
     |  font-weight: bold;
-    |  color: ${helium.colors.secondary.displayValue};
+    |  color: ${colors.secondary.displayValue};
     |}
     |
     |Emphasized {
@@ -250,54 +252,54 @@ class FOStyles (helium: Helium) {
     |}
     |
     |.subscript {
-    |  font-size: ${helium.fontSizes.small.displayValue};
+    |  font-size: ${fontSizes.small.displayValue};
     |  vertical-align: sub;
     |}
     |
     |.superscript {
-    |  font-size: ${helium.fontSizes.small.displayValue};
+    |  font-size: ${fontSizes.small.displayValue};
     |  vertical-align: super;
     |}
     |
     |.footnote-label {
-    |  font-size: ${helium.fontSizes.small.displayValue};
+    |  font-size: ${fontSizes.small.displayValue};
     |  vertical-align: super;
     |}
     |
     |CodeBlock .comment, CodeBlock .xml-cdata, CodeBlock .markup-quote {
-    |  color: ${helium.colors.syntaxHighlighting.base.c2.displayValue};
+    |  color: ${colors.syntaxHighlighting.base.c2.displayValue};
     |}
     |
     |CodeBlock .tag-punctuation {
-    |  color: ${helium.colors.syntaxHighlighting.base.c3.displayValue};
+    |  color: ${colors.syntaxHighlighting.base.c3.displayValue};
     |}
     |
     |CodeBlock .identifier {
-    |  color: ${helium.colors.syntaxHighlighting.base.c4.displayValue};
+    |  color: ${colors.syntaxHighlighting.base.c4.displayValue};
     |}
     |
     |CodeBlock .substitution, CodeBlock .annotation, CodeBlock .markup-emphasized, CodeBlock .xml-processing-instruction {
-    |  color: ${helium.colors.syntaxHighlighting.wheel.c1.displayValue};
+    |  color: ${colors.syntaxHighlighting.wheel.c1.displayValue};
     |}
     |
     |CodeBlock .keyword, CodeBlock .escape-sequence, CodeBlock .markup-headline {
-    |  color: ${helium.colors.syntaxHighlighting.wheel.c2.displayValue};
+    |  color: ${colors.syntaxHighlighting.wheel.c2.displayValue};
     |}
     |
     |CodeBlock .attribute-name, CodeBlock .declaration-name, CodeBlock .markup-link-target {
-    |  color: ${helium.colors.syntaxHighlighting.wheel.c3.displayValue};
+    |  color: ${colors.syntaxHighlighting.wheel.c3.displayValue};
     |}
     |
     |CodeBlock .number-literal, CodeBlock .string-literal, CodeBlock .char-literal, CodeBlock .boolean-literal, CodeBlock .regex-literal, CodeBlock .symbol-literal, CodeBlock .literal-value, CodeBlock .markup-link-text {
-    |  color: ${helium.colors.syntaxHighlighting.wheel.c4.displayValue};
+    |  color: ${colors.syntaxHighlighting.wheel.c4.displayValue};
     |}
     |
     |CodeBlock .type-name, CodeBlock .tag-name, CodeBlock .xml-dtd-tag-name, CodeBlock .markup-fence {
-    |  color: ${helium.colors.syntaxHighlighting.wheel.c5.displayValue};
+    |  color: ${colors.syntaxHighlighting.wheel.c5.displayValue};
     |}
     |
     |Paragraph.nav {
-    |  font-size: ${helium.fontSizes.body.displayValue};
+    |  font-size: ${fontSizes.body.displayValue};
     |  text-align-last: justify;
     |  margin-left: 8mm;
     |  space-before: 2mm;
@@ -307,7 +309,7 @@ class FOStyles (helium: Helium) {
     |Paragraph.nav.level1 {
     |  font-size: 22pt; /* TODO - align with header font sizes */
     |  font-weight: bold;
-    |  color: ${helium.colors.secondary.displayValue};
+    |  color: ${colors.secondary.displayValue};
     |  margin-left: 0mm;
     |  text-align-last: center;
     |  text-transform: uppercase;
@@ -316,15 +318,15 @@ class FOStyles (helium: Helium) {
     |
     |Paragraph.nav.level2 {
     |  font-size: 17pt;
-    |  color: ${helium.colors.secondary.displayValue};
+    |  color: ${colors.secondary.displayValue};
     |  margin-left: 4mm;
     |  space-before: 7mm;
     |}
     |
     |Paragraph.nav.level3 {
-    |  font-size: ${helium.fontSizes.header3.displayValue};
+    |  font-size: ${fontSizes.header3.displayValue};
     |  margin-left: 6mm;
-    |  space-before: ${helium.pdfLayout.defaultBlockSpacing.displayValue};
+    |  space-before: ${pdfLayout.defaultBlockSpacing.displayValue};
     |}
     |
     |Paragraph.nav.level4 {
@@ -375,28 +377,28 @@ class FOStyles (helium: Helium) {
     |  leader-length: 100%;
     |  rule-style: solid;
     |  rule-thickness: 2pt;
-    |  space-after: ${helium.pdfLayout.defaultBlockSpacing.displayValue};
+    |  space-after: ${pdfLayout.defaultBlockSpacing.displayValue};
     |}
     |
     |RuntimeMessage.debug, RuntimeMessage.info {
-    |  color: ${helium.colors.messages.info.displayValue};
-    |  background-color: ${helium.colors.messages.infoLight.displayValue};
+    |  color: ${colors.messages.info.displayValue};
+    |  background-color: ${colors.messages.infoLight.displayValue};
     |  padding: 1pt 2pt;
-    |  border: 1pt solid ${helium.colors.messages.info.displayValue};
+    |  border: 1pt solid ${colors.messages.info.displayValue};
     |}
     |
     |RuntimeMessage.warning {
-    |  color: ${helium.colors.messages.warning.displayValue};
-    |  background-color: ${helium.colors.messages.warningLight.displayValue};
+    |  color: ${colors.messages.warning.displayValue};
+    |  background-color: ${colors.messages.warningLight.displayValue};
     |  padding: 1pt 2pt;
-    |  border: 1pt solid ${helium.colors.messages.warning.displayValue};
+    |  border: 1pt solid ${colors.messages.warning.displayValue};
     |}
     |
     |RuntimeMessage.error, RuntimeMessage.fatal {
-    |  color: ${helium.colors.messages.error.displayValue};
-    |  background-color: ${helium.colors.messages.errorLight.displayValue};
+    |  color: ${colors.messages.error.displayValue};
+    |  background-color: ${colors.messages.errorLight.displayValue};
     |  padding: 1pt 2pt;
-    |  border: 1pt solid ${helium.colors.messages.error.displayValue};
+    |  border: 1pt solid ${colors.messages.error.displayValue};
     |}
     |""".stripMargin
 

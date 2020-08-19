@@ -277,7 +277,7 @@ class TreeRendererSpec extends IOWordSpec
             DocumentViews(List(RenderedDocumentView(Root / "doc.html", expected)))
           )),
           Some(RenderedDocumentView(Root / "cover.html", expected)),
-          Seq(Root / "css" / "laika-helium.css")
+          Seq(Root / "laika" / "helium.js", Root / "css" / "laika-helium.css")
         ))
       }
     }

@@ -112,16 +112,23 @@ object ConfigGenerator {
 
   def populateConfig (helium: Helium): Config =
     ConfigBuilder.empty
-      .withValue("helium.landingPage", helium.landingPage)
-      .withValue("helium.topBar", helium.webLayout.topNavigationBar)
-      .withValue("helium.favIcons", helium.webLayout.favIcons)
-      .withValue("helium.markupEditLinks", helium.webLayout.markupEditLinks)
-      .withValue("helium.pdf", helium.pdfLayout)
-      .withValue("helium.themeFonts", helium.themeFonts)
-      .withValue("helium.includeCSS", (Root / "helium") +: helium.htmlIncludes.includeCSS)
-      .withValue("helium.includeJS", (Root / "helium") +: helium.htmlIncludes.includeJS)
-      .withValue("helium.webFonts", helium.fontResources.flatMap { _.resource.webCSS })
-      .withValue(helium.fontResources)
+      .withValue("helium.landingPage", helium.siteSettings.landingPage)
+      .withValue("helium.topBar", helium.siteSettings.webLayout.topNavigationBar)
+      .withValue("helium.favIcons", helium.siteSettings.webLayout.favIcons)
+      .withValue("helium.markupEditLinks", helium.siteSettings.webLayout.markupEditLinks)
+      .withValue("helium.site.metadata", helium.siteSettings.metadata)
+      .withValue("helium.pdf", helium.pdfSettings.pdfLayout)
+      .withValue("helium.pdf", helium.pdfSettings.bookConfig)
+      .withValue("helium.epub", helium.epubSettings.bookConfig)
+      .withValue("helium.webFonts", helium.siteSettings.fontResources.flatMap { _.resource.webCSS })
+      .withValue("helium.site.includeCSS", (Root / "helium") +: helium.siteSettings.htmlIncludes.includeCSS)
+      .withValue("helium.site.includeJS", (Root / "helium") +: helium.siteSettings.htmlIncludes.includeJS)
+      .withValue("helium.epub.includeCSS", (Root / "helium") +: helium.epubSettings.htmlIncludes.includeCSS)
+      .withValue("helium.epub.includeJS", (Root / "helium") +: helium.epubSettings.htmlIncludes.includeJS)
+      .withValue("helium.site.fontFamilies", helium.siteSettings.themeFonts)
+      .withValue("helium.epub.fontFamilies", helium.epubSettings.themeFonts)
+      .withValue("helium.pdf.fontFamilies", helium.pdfSettings.themeFonts)
       .build
+  
   
 }

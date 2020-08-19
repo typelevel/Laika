@@ -17,7 +17,7 @@
 package laika.render.fo
 
 import laika.ast.Path.Root
-import laika.ast.{StyleDeclarationSet, TemplateContextReference, TemplateRoot}
+import laika.ast.{/, StyleDeclarationSet, TemplateContextReference, TemplateRoot}
 import laika.helium.Helium
 import laika.helium.generate.FOStyles
 import laika.theme._
@@ -26,7 +26,7 @@ import laika.rewrite.ReferenceResolver.CursorKeys
 
 object TestTheme {
   
-  lazy val heliumTestProps = Helium.defaults.copy(themeFonts = ThemeFonts("serif", "sans-serif", "monospaced"))
+  lazy val heliumTestProps = Helium.defaults.allFormats.fontFamilies("serif", "sans-serif", "monospaced")
   lazy val foStyles: StyleDeclarationSet = CSSParsers.styleDeclarationSet
     .parse(new FOStyles(heliumTestProps).input)
     .map(StyleDeclarationSet(Set(FOStyles.defaultPath), _))
@@ -42,7 +42,8 @@ object TestTheme {
     Root / "css" / "nav.css", 
     Root / "css" / "code.css", 
     Root / "css" / "toc.css", 
-    Root / "css" / "vars.css"
+    Root / "laika" / "helium.js",
+    Root / "css" / "vars.css",
   )
   val fonts = Seq(
     FontDefinition(Font.embedFile("/path/to/font-a.tff"), "Font-A", FontWeight.Normal, FontStyle.Normal),
