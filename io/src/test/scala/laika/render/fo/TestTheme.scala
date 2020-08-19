@@ -26,7 +26,7 @@ import laika.rewrite.ReferenceResolver.CursorKeys
 
 object TestTheme {
   
-  lazy val heliumTestProps = Helium.defaults.allFormats.fontFamilies("serif", "sans-serif", "monospaced")
+  lazy val heliumTestProps = Helium.defaults.all.fontFamilies("serif", "sans-serif", "monospaced")
   lazy val foStyles: StyleDeclarationSet = CSSParsers.styleDeclarationSet
     .parse(new FOStyles(heliumTestProps).input)
     .map(StyleDeclarationSet(Set(FOStyles.defaultPath), _))

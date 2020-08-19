@@ -18,7 +18,6 @@ package laika.helium.config
 
 import laika.ast.DocumentMetadata
 import laika.ast.LengthUnit.{cm, mm, pt, px}
-import laika.helium.Helium.{EPUBSettings, PDFSettings, SiteSettings}
 import laika.helium.Helium
 import laika.theme.{BookConfig, Color, Font, FontDefinition, FontSizes, FontStyle, FontWeight, ThemeFonts}
 

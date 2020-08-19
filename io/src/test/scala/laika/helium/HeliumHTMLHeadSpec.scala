@@ -135,7 +135,7 @@ class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
   }
   
   test("metadata (authors, description)") {
-    val helium = Helium.defaults.allFormats.metadata(
+    val helium = Helium.defaults.all.metadata(
       authors = Seq("Maria Green", "Elena Blue"),
       description = Some("Some description")
     )
@@ -157,7 +157,7 @@ class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
   }
 
   test("metadata (language)") {
-    val helium = Helium.defaults.allFormats.metadata(
+    val helium = Helium.defaults.all.metadata(
       language = Some("de")
     )
     transformAndExtract(singleDoc, helium, "<html ", ">").assertEquals("""lang="de"""")

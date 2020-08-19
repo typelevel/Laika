@@ -17,7 +17,7 @@
 package laika.helium.config
 
 import laika.ast.Path.Root
-import laika.ast.{Image, Path, Size}
+import laika.ast.{Image, Options, Path, Size, Styles}
 
 case class WebLayout (contentWidth: Size, 
                       navigationWidth: Size, 
@@ -87,3 +87,7 @@ object AnchorPlacement {
 }
 
 case class HTMLIncludes (includeCSS: Seq[Path] = Seq(Root), includeJS: Seq[Path] = Seq(Root))
+
+object HeliumStyles {
+  val button: Options = Styles("button")
+}

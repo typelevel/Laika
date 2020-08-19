@@ -17,7 +17,7 @@
 package laika.helium.builder
 
 import laika.ast._
-import laika.helium.Helium.PDFSettings
+import laika.helium.config.PDFSettings
 
 /**
   * @author Jens Halm
