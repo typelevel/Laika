@@ -172,30 +172,34 @@ class HeliumSiteCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                               |--line-height: 1.5;""".stripMargin
 
   test("custom colors - via 'site' selector") {
+    import Color._
     val helium = Helium.defaults
-      .site.themeColors(primary = Color.rgb(1,1,1), primaryDark = Color.rgb(0,0,0), primaryLight = Color.rgb(2,2,2),
-        secondary = Color.rgb(212,212,212))
-      .site.messageColors(info = Color.hex("aaaaaa"), infoLight = Color.hex("aaaaab"), 
-                          warning = Color.hex("aaaaac"), warningLight = Color.hex("aaaaad"),
-                          error = Color.hex("aaaaae"), errorLight = Color.hex("aaaaaf"))
+      .site.themeColors(primary = rgb(1,1,1), primaryDark = rgb(0,0,0), primaryLight = rgb(2,2,2),
+        secondary = rgb(212,212,212))
+      .site.messageColors(info = hex("aaaaaa"), infoLight = hex("aaaaab"), 
+        warning = hex("aaaaac"), warningLight = hex("aaaaad"),
+        error = hex("aaaaae"), errorLight = hex("aaaaaf")
+      )
       .site.syntaxHighlightingColors(
-        base = ColorQuintet(Color.hex("000011"), Color.hex("000022"), Color.hex("000033"), Color.hex("000044"), Color.hex("000055")),
-        wheel = ColorQuintet(Color.hex("110011"), Color.hex("110022"), Color.hex("110033"), Color.hex("110044"), Color.hex("110055"))
+        base = ColorQuintet(hex("000011"), hex("000022"), hex("000033"), hex("000044"), hex("000055")),
+        wheel = ColorQuintet(hex("110011"), hex("110022"), hex("110033"), hex("110044"), hex("110055"))
       )
     transformAndExtract(singleDoc, helium, ":root {", "}").assertEquals(customColors)
   }
 
   test("custom colors - via 'all' selector") {
+    import Color._
     val helium = Helium.defaults
-      .all.themeColors(primary = Color.rgb(1,1,1), primaryDark = Color.rgb(0,0,0), primaryLight = Color.rgb(2,2,2),
-      secondary = Color.rgb(212,212,212))
-      .all.messageColors(info = Color.hex("aaaaaa"), infoLight = Color.hex("aaaaab"),
-      warning = Color.hex("aaaaac"), warningLight = Color.hex("aaaaad"),
-      error = Color.hex("aaaaae"), errorLight = Color.hex("aaaaaf"))
+      .all.themeColors(primary = rgb(1,1,1), primaryDark = rgb(0,0,0), primaryLight = rgb(2,2,2),
+        secondary = rgb(212,212,212))
+      .all.messageColors(info = hex("aaaaaa"), infoLight = hex("aaaaab"),
+        warning = hex("aaaaac"), warningLight = hex("aaaaad"),
+        error = hex("aaaaae"), errorLight = hex("aaaaaf")
+      )
       .all.syntaxHighlightingColors(
-      base = ColorQuintet(Color.hex("000011"), Color.hex("000022"), Color.hex("000033"), Color.hex("000044"), Color.hex("000055")),
-      wheel = ColorQuintet(Color.hex("110011"), Color.hex("110022"), Color.hex("110033"), Color.hex("110044"), Color.hex("110055"))
-    )
+        base = ColorQuintet(hex("000011"), hex("000022"), hex("000033"), hex("000044"), hex("000055")),
+        wheel = ColorQuintet(hex("110011"), hex("110022"), hex("110033"), hex("110044"), hex("110055"))
+      )
     transformAndExtract(singleDoc, helium, ":root {", "}").assertEquals(customColors)
   }
 

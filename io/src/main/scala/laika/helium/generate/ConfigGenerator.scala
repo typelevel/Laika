@@ -131,5 +131,4 @@ object ConfigGenerator {
       .withValue("helium.pdf.fontFamilies", helium.pdfSettings.themeFonts)
       .build
   
-  
 }

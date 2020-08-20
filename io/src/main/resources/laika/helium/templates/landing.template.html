@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="Laika 0.16.0 + Helium Theme" />
-    <title>${laika.site.metadata.title}</title>
+    <title>${?laika.site.metadata.title}</title>
     @:for(laika.site.metadata.authors)
       <meta name="author" content="${_}"/>
     @:@
@@ -27,7 +27,7 @@
 
     <div id="header">
       <div id="header-left">
-        ${helium.landingPage.logo}
+        @:for(helium.landingPage.logo) ${_} @:@
         @:for(helium.landingPage.title) <h1>${_}</h1> @:@
         @:for(helium.landingPage.subtitle) <h2>${_}</h2> @:@
       </div>

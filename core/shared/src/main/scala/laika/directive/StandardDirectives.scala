@@ -137,6 +137,7 @@ object StandardDirectives extends DirectiveRegistry {
         else cursor.resolveReference(Key.parse(parts.head.ref)) match {
           case Right(Some(BooleanValue(true)))               => rewrite(parts.head.body)
           case Right(Some(StringValue(s))) if trueStrings(s) => rewrite(parts.head.body)
+          case Right(Some(a: ArrayValue)) if !a.isEmpty      => rewrite(parts.head.body)
           case _ => process(parts.tail)
         }
       

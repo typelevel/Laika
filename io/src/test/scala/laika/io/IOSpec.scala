@@ -16,6 +16,7 @@
 
 package laika.io
 
+import cats.implicits._
 import cats.effect.{ContextShift, IO, Timer}
 import org.scalatest.Assertion
 import org.scalatest.funsuite.AnyFunSuite
@@ -42,6 +43,9 @@ trait IOSpec extends Matchers {
     def asserting(f: A => Assertion): Assertion = self.map(f).unsafeRunSync()
 
     def assertFailsWith (t: Throwable): Assertion = self.attempt.map(_ shouldBe Left(t)).unsafeRunSync()
+    
+    def assertFailsWithMessage (msg: String): Assertion = 
+      self.attempt.map(_.leftMap(_.getMessage) shouldBe Left(msg)).unsafeRunSync()
   }
   
 }

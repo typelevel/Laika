@@ -20,7 +20,7 @@ import cats.data.Kleisli
 import cats.effect.Sync
 import laika.ast.Path.Root
 import laika.ast.{Document, RootElement}
-import laika.config.LaikaKeys
+import laika.config.{Config, LaikaKeys}
 import laika.helium.config.LandingPage
 import laika.io.model.ParsedTree
 import laika.rewrite.nav.TitleDocumentConfig
@@ -31,18 +31,26 @@ import laika.rewrite.nav.TitleDocumentConfig
 private[laika] object LandingPageGenerator {
 
   def generate[F[_]: Sync] (landingPage: LandingPage): Kleisli[F, ParsedTree[F], ParsedTree[F]] = Kleisli { tree =>
-    val landingPageContent = tree.root.tree.content.collectFirst {
-      case d: Document if d.path.withoutSuffix.name == "landing-page" => d.content
-    }.getOrElse(RootElement.empty)
+    
+    val (landingPageContent, landingPageConfig) = tree.root.tree.content.collectFirst {
+      case d: Document if d.path.withoutSuffix.name == "landing-page" => (d.content, d.config)
+    }.getOrElse((RootElement.empty, tree.root.config))
+    
     val titleDocument = tree.root.titleDocument.fold(
-      Document(Root / TitleDocumentConfig.inputName(tree.root.config), landingPageContent)
+      Document(Root / TitleDocumentConfig.inputName(tree.root.config), landingPageContent, config = landingPageConfig)
     ) { titleDoc =>
       titleDoc.copy(content = RootElement(titleDoc.content.content ++ landingPageContent.content))
     }
+    
     val titleDocWithTemplate =
       if (titleDocument.config.hasKey(LaikaKeys.template)) titleDocument
       else titleDocument.copy(config = titleDocument.config.withValue(LaikaKeys.template, "landing.template.html").build)
-    Sync[F].pure(tree.copy(root = tree.root.copy(tree = tree.root.tree.copy(titleDocument = Some(titleDocWithTemplate)))))
+    
+    // TODO - add API for replaceDocument, removeDocument, appendDocument, prependDocument
+    Sync[F].pure(tree.copy(root = tree.root.copy(tree = tree.root.tree.copy(
+      titleDocument = Some(titleDocWithTemplate),
+      content = tree.root.tree.content.filterNot(_.path.withoutSuffix.name == "landing-page")
+    ))))
   }
 
 }
