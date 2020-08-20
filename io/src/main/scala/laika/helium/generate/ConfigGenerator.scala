@@ -129,6 +129,8 @@ object ConfigGenerator {
       .withValue("helium.site.fontFamilies", helium.siteSettings.themeFonts)
       .withValue("helium.epub.fontFamilies", helium.epubSettings.themeFonts)
       .withValue("helium.pdf.fontFamilies", helium.pdfSettings.themeFonts)
+      .withValue("laika.pdf.coverImages", helium.pdfSettings.coverImages)
+      .withValue("laika.epub.coverImages", helium.epubSettings.coverImages)
       .build
   
 }

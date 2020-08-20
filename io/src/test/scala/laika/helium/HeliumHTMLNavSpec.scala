@@ -113,7 +113,8 @@ class HeliumHTMLNavSpec extends IOFunSuite with InputBuilder with ResultExtracto
     val expected =
       """<a id="nav-icon">
         |<i class="icofont-navigation-menu icofont-xlg"></i>
-        |</a>""".stripMargin
+        |</a>
+        |<span class="row"></span>""".stripMargin
     transformAndExtract(threeDocs, Helium.defaults, "<header id=\"top-bar\">", "</header>").assertEquals(expected)
   }
 

@@ -122,7 +122,8 @@ private[laika] object HeliumDefaults {
       small = pt(8)
     ),
     colors = colors(syntaxLightScheme),
-    htmlIncludes = HTMLIncludes()
+    htmlIncludes = HTMLIncludes(),
+    coverImages = Nil
   )
 
   private val defaultPDFSettings = PDFSettings(
@@ -148,7 +149,8 @@ private[laika] object HeliumDefaults {
       defaultBlockSpacing = mm(3),
       defaultLineHeight = 1.5,
       keepTogetherDecoratedLines = 12
-    )
+    ),
+    coverImages = Nil
   )
 
   val instance: Helium = new Helium(defaultSiteSettings, defaultEPUBSettings, defaultPDFSettings)

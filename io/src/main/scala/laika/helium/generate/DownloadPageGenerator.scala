@@ -55,25 +55,23 @@ private[laika] object DownloadPageGenerator {
         if (combinations.isEmpty) {
           val epubLink = downloadPath / s"$artifactBaseName.epub"
           val pdfLink = downloadPath / s"$artifactBaseName.pdf"
-          Seq(
-            BlockSequence(
-              downloadAST(epubLink, "EPUB", epubCoverImages.default),
-              downloadAST(pdfLink, "PDF", pdfCoverImages.default)
-            ).withOptions(Styles("downloads"))
-          )
+          val epubAST = if (pageConfig.includeEPUB) Seq(downloadAST(epubLink, "EPUB", epubCoverImages.default)) else Nil
+          val pdfAST = if (pageConfig.includePDF) Seq(downloadAST(pdfLink, "PDF", pdfCoverImages.default)) else Nil
+          Seq(BlockSequence(epubAST ++ pdfAST).withOptions(Styles("downloads")))
         }
         else combinations.map { combination =>
           val baseTitle = combination.map(_.label).mkString(" - ")
           val classifier = combination.map(_.name).mkString("-")
           val epubLink = downloadPath / s"$artifactBaseName-$classifier.epub"
           val pdfLink = downloadPath / s"$artifactBaseName-$classifier.pdf"
-          BlockSequence(
-            downloadAST(epubLink, baseTitle + " (EPUB)", epubCoverImages.getImageFor(classifier)),
-            downloadAST(pdfLink, baseTitle + " (PDF)", pdfCoverImages.getImageFor(classifier))
-          ).withOptions(Styles("downloads"))
+          val epubAST = if (pageConfig.includeEPUB) 
+            Seq(downloadAST(epubLink, baseTitle + " (EPUB)", epubCoverImages.getImageFor(classifier))) else Nil
+          val pdfAST = if (pageConfig.includePDF) 
+            Seq(downloadAST(pdfLink, baseTitle + " (PDF)", pdfCoverImages.getImageFor(classifier))) else Nil
+          BlockSequence(epubAST ++ pdfAST).withOptions(Styles("downloads"))
         }
       val blocks = Title(pageConfig.title) +: pageConfig.description.map(Paragraph(_)).toSeq ++: downloads
-      val doc = Document(Root / "downloads", RootElement(blocks))
+      val doc = Document(Root / "downloads", RootElement(blocks), config = tree.root.config)
       Sync[F].pure(tree.copy(
         root = tree.root.copy(
           tree = tree.root.tree.copy(

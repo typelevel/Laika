@@ -21,6 +21,7 @@ import java.util.Date
 import laika.ast.Path.Root
 import laika.ast.{DocumentMetadata, Image, Path, Size}
 import laika.helium.Helium
+import laika.rewrite.nav.CoverImage
 import laika.theme.{BookConfig, Color, FontDefinition, FontSizes, ThemeFonts}
 
 private[laika] case class SiteSettings (fontResources: Seq[FontDefinition],
@@ -36,13 +37,15 @@ private[laika] case class PDFSettings (bookConfig: BookConfig,
                                       themeFonts: ThemeFonts,
                                       fontSizes: FontSizes,
                                       colors: ColorSet,
-                                      pdfLayout: PDFLayout)
+                                      pdfLayout: PDFLayout,
+                                      coverImages: Seq[CoverImage])
 
 private[laika] case class EPUBSettings (bookConfig: BookConfig,
                                        themeFonts: ThemeFonts,
                                        fontSizes: FontSizes,
                                        colors: ColorSet,
-                                       htmlIncludes: HTMLIncludes)
+                                       htmlIncludes: HTMLIncludes,
+                                       coverImages: Seq[CoverImage])
 
 private[laika] trait CommonConfigOps {
 
@@ -263,6 +266,8 @@ private[laika] trait EPUBOps extends SingleConfigOps with CopyOps {
     copyWith(helium.epubSettings.copy(htmlIncludes = helium.epubSettings.htmlIncludes.copy(includeCSS = paths)))
   def autoLinkJS (paths: Path*): Helium =
     copyWith(helium.epubSettings.copy(htmlIncludes = helium.epubSettings.htmlIncludes.copy(includeJS = paths)))
+  def coverImages (images: CoverImage*): Helium =
+    copyWith(helium.epubSettings.copy(coverImages = images))
 }
 
 private[laika] trait PDFOps extends SingleConfigOps with CopyOps {
@@ -281,10 +286,11 @@ private[laika] trait PDFOps extends SingleConfigOps with CopyOps {
               defaultBlockSpacing: Size, defaultLineHeight: Double,
               keepTogetherDecoratedLines: Int,
               navigationDepth: Int,
-              tableOfContent: Option[TableOfContent] = None,
-              coverImage: Option[Path] = None): Helium =
+              tableOfContent: Option[TableOfContent] = None): Helium = // TODO - extract TOC config
     copyWith(helium.pdfSettings.copy(pdfLayout = PDFLayout(
       pageWidth, pageHeight, marginTop, marginRight, marginBottom, marginLeft,
       defaultBlockSpacing, defaultLineHeight, keepTogetherDecoratedLines, tableOfContent
     )))
+  def coverImages (images: CoverImage*): Helium =
+    copyWith(helium.pdfSettings.copy(coverImages = images))
 }

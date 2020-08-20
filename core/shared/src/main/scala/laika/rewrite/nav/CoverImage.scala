@@ -28,7 +28,7 @@ import laika.config.{Config, ConfigDecoder, ConfigEncoder, Key, LaikaKeys}
   * 
   * @author Jens Halm
   */
-case class CoverImage (path: Path, classifier: Option[String])
+case class CoverImage (path: Path, classifier: Option[String] = None)
 
 object CoverImage {
 

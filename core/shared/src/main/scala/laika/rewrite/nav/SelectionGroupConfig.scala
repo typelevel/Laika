@@ -28,7 +28,7 @@ case class SelectionGroupConfig (selections: Seq[SelectionConfig]) {
   def getClassifiers: Classifiers = Classifiers(selections.flatMap { group =>
     group.choices.find(_.selected).map(_.name)
   })
-}
+}// TODO - convenience constructors + rename to Selections
 case class Classifiers (value: Seq[String])
 
 object SelectionGroupConfig {
