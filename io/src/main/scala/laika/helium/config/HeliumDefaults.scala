@@ -44,48 +44,60 @@ private[laika] object HeliumDefaults {
     ),
     FontDefinition(
       Font.embedResource(fontPath + "FiraCode/FiraCode-Medium.otf").webCSS("https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css"),
-      "FiraCode", FontWeight.Normal, FontStyle.Normal
+      "Fira Code", FontWeight.Normal, FontStyle.Normal
     ),
     FontDefinition(
       Font.embedResource(fontPath + "icofont/icofont.ttf").webCSS("../icons/icofont.min.css"),
       "IcoFont", FontWeight.Normal, FontStyle.Normal
     ),
   )
-  private val defaultThemeFonts = ThemeFonts("Lato", "Lato", "FiraCode")
+  private val defaultThemeFonts = ThemeFonts("Lato", "Lato", "Fira Code")
+  private val defaultMessageColors = MessageColors(
+    info = Color.hex("007c99"),
+    infoLight = Color.hex("ebf6f7"),
+    warning = Color.hex("b1a400"),
+    warningLight = Color.hex("fcfacd"),
+    error = Color.hex("d83030"),
+    errorLight = Color.hex("ffe9e3"),
+  )
+  private val syntaxDarkScheme = SyntaxColors(
+    base = ColorQuintet(
+      Color.hex("2a3236"), Color.hex("8c878e"), Color.hex("b2adb4"), Color.hex("bddcee"), Color.hex("e8e8e8")
+    ),
+    wheel = ColorQuintet(
+      Color.hex("e28e93"), Color.hex("ef9725"), Color.hex("ffc66d"), Color.hex("7fb971"), Color.hex("4dbed4")
+    )
+  )
+  private val syntaxLightScheme = SyntaxColors(
+    base = ColorQuintet(
+      Color.hex("F6F1EF"), Color.hex("AF9E84"), Color.hex("937F61"), Color.hex("645133"), Color.hex("362E21")
+    ),
+    wheel = ColorQuintet(
+      Color.hex("9A6799"), Color.hex("9F4C46"), Color.hex("A0742D"), Color.hex("7D8D4C"), Color.hex("6498AE")
+    )
+  )
+  def colors (syntaxScheme: SyntaxColors): ColorSet = ColorSet(
+    primary = Color.hex("007c99"),
+    secondary = Color.hex("931813"),
+    primaryDark = Color.hex("007c99"),
+    primaryLight = Color.hex("ebf6f7"),
+    messages = defaultMessageColors,
+    syntaxHighlighting = syntaxScheme
+  )
+  
   private val defaultSiteSettings = SiteSettings(
     fontResources = defaultFonts,
     themeFonts = defaultThemeFonts,
-    fontSizes = FontSizes( // TODO
-      body = pt(10),
-      code = pt(9),
-      title = pt(24),
-      header2 = pt(14),
-      header3 = pt(12),
-      header4 = pt(11),
-      small = pt(8)
+    fontSizes = FontSizes(
+      body = px(15),
+      code = px(14),
+      title = px(34),
+      header2 = px(28),
+      header3 = px(20),
+      header4 = px(15),
+      small = px(12)
     ),
-    colors = ColorSet( // TODO
-      primary = Color.hex("007c99"),
-      secondary = Color.hex("931813"),
-      primaryDark = Color.hex("007c99"),
-      primaryLight = Color.hex("ebf6f7"),
-      messages = MessageColors(
-        info = Color.hex("007c99"),
-        infoLight = Color.hex("ebf6f7"),
-        warning = Color.hex("b1a400"),
-        warningLight = Color.hex("fcfacd"),
-        error = Color.hex("d83030"),
-        errorLight = Color.hex("ffe9e3"),
-      ),
-      syntaxHighlighting = SyntaxColors(
-        base = ColorQuintet(
-          Color.hex("F6F1EF"), Color.hex("AF9E84"), Color.hex("937F61"), Color.hex("645133"), Color.hex("362E21")
-        ),
-        wheel = ColorQuintet(
-          Color.hex("9A6799"), Color.hex("9F4C46"), Color.hex("A0742D"), Color.hex("7D8D4C"), Color.hex("6498AE")
-        )
-      )
-    ),
+    colors = colors(syntaxDarkScheme),
     htmlIncludes = HTMLIncludes(),
     landingPage = None,
     webLayout = WebLayout(
@@ -109,35 +121,14 @@ private[laika] object HeliumDefaults {
       header4 = pt(11),
       small = pt(8)
     ),
-    colors = ColorSet( // TODO
-      primary = Color.hex("007c99"),
-      secondary = Color.hex("931813"),
-      primaryDark = Color.hex("007c99"),
-      primaryLight = Color.hex("ebf6f7"),
-      messages = MessageColors(
-        info = Color.hex("007c99"),
-        infoLight = Color.hex("ebf6f7"),
-        warning = Color.hex("b1a400"),
-        warningLight = Color.hex("fcfacd"),
-        error = Color.hex("d83030"),
-        errorLight = Color.hex("ffe9e3"),
-      ),
-      syntaxHighlighting = SyntaxColors(
-        base = ColorQuintet(
-          Color.hex("F6F1EF"), Color.hex("AF9E84"), Color.hex("937F61"), Color.hex("645133"), Color.hex("362E21")
-        ),
-        wheel = ColorQuintet(
-          Color.hex("9A6799"), Color.hex("9F4C46"), Color.hex("A0742D"), Color.hex("7D8D4C"), Color.hex("6498AE")
-        )
-      )
-    ),
+    colors = colors(syntaxLightScheme),
     htmlIncludes = HTMLIncludes()
   )
 
   private val defaultPDFSettings = PDFSettings(
     bookConfig = BookConfig(fonts = defaultFonts),
     themeFonts = defaultThemeFonts,
-    fontSizes = FontSizes( // TODO
+    fontSizes = FontSizes(
       body = pt(10),
       code = pt(9),
       title = pt(24),
@@ -146,28 +137,7 @@ private[laika] object HeliumDefaults {
       header4 = pt(11),
       small = pt(8)
     ),
-    colors = ColorSet( // TODO
-      primary = Color.hex("007c99"),
-      secondary = Color.hex("931813"),
-      primaryDark = Color.hex("007c99"),
-      primaryLight = Color.hex("ebf6f7"),
-      messages = MessageColors(
-        info = Color.hex("007c99"),
-        infoLight = Color.hex("ebf6f7"),
-        warning = Color.hex("b1a400"),
-        warningLight = Color.hex("fcfacd"),
-        error = Color.hex("d83030"),
-        errorLight = Color.hex("ffe9e3"),
-      ),
-      syntaxHighlighting = SyntaxColors(
-        base = ColorQuintet(
-          Color.hex("F6F1EF"), Color.hex("AF9E84"), Color.hex("937F61"), Color.hex("645133"), Color.hex("362E21")
-        ),
-        wheel = ColorQuintet(
-          Color.hex("9A6799"), Color.hex("9F4C46"), Color.hex("A0742D"), Color.hex("7D8D4C"), Color.hex("6498AE")
-        )
-      )
-    ),
+    colors = colors(syntaxLightScheme),
     pdfLayout = PDFLayout(
       pageWidth = cm(21),
       pageHeight = cm(29.7),

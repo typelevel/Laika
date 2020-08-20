@@ -98,7 +98,7 @@ private[laika] trait SingleConfigOps extends CommonConfigOps {
                    primaryDark: Color,
                    primaryLight: Color,
                    secondary: Color): Helium = withColors(currentColors.copy(
-    primary = primary, primaryDark = primaryDark, primaryLight = primaryLight
+    primary = primary, primaryDark = primaryDark, primaryLight = primaryLight, secondary = secondary
   ))
   def messageColors (info: Color,
                      infoLight: Color,
@@ -175,7 +175,6 @@ private[laika] trait AllFormatsOps extends CommonConfigOps {
 
 private[laika] trait CopyOps {
   protected def helium: Helium
-  protected def currentColors: ColorSet = helium.epubSettings.colors
 
   def copyWith (siteSettings: SiteSettings): Helium = new Helium(siteSettings, helium.epubSettings, helium.pdfSettings)
   def copyWith (epubSettings: EPUBSettings): Helium = new Helium(helium.siteSettings, epubSettings, helium.pdfSettings)
@@ -183,6 +182,7 @@ private[laika] trait CopyOps {
 }
 
 private[laika] trait SiteOps extends SingleConfigOps with CopyOps {
+  protected def currentColors: ColorSet = helium.siteSettings.colors
   def fontResources (defn: FontDefinition*): Helium =  copyWith(helium.siteSettings.copy(fontResources = defn))
   protected def withFontFamilies (fonts: ThemeFonts): Helium = copyWith(helium.siteSettings.copy(themeFonts = fonts))
   protected def withFontSizes (sizes: FontSizes): Helium = copyWith(helium.siteSettings.copy(fontSizes = sizes))
@@ -246,6 +246,7 @@ private[laika] trait SiteOps extends SingleConfigOps with CopyOps {
 }
 
 private[laika] trait EPUBOps extends SingleConfigOps with CopyOps {
+  protected def currentColors: ColorSet = helium.epubSettings.colors
   
   def fontResources (defn: FontDefinition*): Helium =
     copyWith(helium.epubSettings.copy(bookConfig = helium.epubSettings.bookConfig.copy(fonts = defn)))
@@ -265,6 +266,7 @@ private[laika] trait EPUBOps extends SingleConfigOps with CopyOps {
 }
 
 private[laika] trait PDFOps extends SingleConfigOps with CopyOps {
+  protected def currentColors: ColorSet = helium.pdfSettings.colors
   
   def fontResources (defn: FontDefinition*): Helium =
     copyWith(helium.pdfSettings.copy(bookConfig = helium.pdfSettings.bookConfig.copy(fonts = defn)))
