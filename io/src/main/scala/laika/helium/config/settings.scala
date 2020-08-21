@@ -285,12 +285,15 @@ private[laika] trait PDFOps extends SingleConfigOps with CopyOps {
               marginTop: Size, marginRight: Size, marginBottom: Size, marginLeft: Size,
               defaultBlockSpacing: Size, defaultLineHeight: Double,
               keepTogetherDecoratedLines: Int,
-              navigationDepth: Int,
-              tableOfContent: Option[TableOfContent] = None): Helium = // TODO - extract TOC config
+              navigationDepth: Int): Helium =
     copyWith(helium.pdfSettings.copy(pdfLayout = PDFLayout(
       pageWidth, pageHeight, marginTop, marginRight, marginBottom, marginLeft,
-      defaultBlockSpacing, defaultLineHeight, keepTogetherDecoratedLines, tableOfContent
+      defaultBlockSpacing, defaultLineHeight, keepTogetherDecoratedLines
     )))
+  def tableOfContent (title: String, depth: Int): Helium = {
+    val newLayout = helium.pdfSettings.pdfLayout.copy(tableOfContent = Some(TableOfContent(title, depth)))
+    copyWith(helium.pdfSettings.copy(pdfLayout = newLayout))
+  }
   def coverImages (images: CoverImage*): Helium =
     copyWith(helium.pdfSettings.copy(coverImages = images))
 }
