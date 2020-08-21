@@ -82,10 +82,6 @@ object FORenderer extends ((FOFormatter, Element) => String) {
         case other => other
       }
 
-      val tempIcon = RawContent(NonEmptySet.one("fo"), """<fo:block font-family="IcoFont" font-size="16pt" color="#007c99" padding-top="-2mm">
-        &#xEEDD;
-      </fo:block>""")
-
       con match {
         case RootElement(content, _)            => fmt.childPerLine(content)
         case EmbeddedRoot(content, indent, _)   => fmt.withMinIndentation(indent)(_.childPerLine(content))
@@ -106,7 +102,6 @@ object FORenderer extends ((FOFormatter, Element) => String) {
 
         case WithFallback(fallback)         => fmt.child(fallback)
         case c: Customizable                => c match {
-          case b@BlockSequence(content, opt) if opt.styles.contains("callout") => fmt.blockContainer(b, tempIcon +: content) // TODO - 0.16 - move to theme
           case BlockSequence(content, NoOpt) => fmt.childPerLine(content) // this case could be standalone above, but triggers a compiler bug then
           case unknown                      => fmt.blockContainer(unknown, unknown.content)
         }

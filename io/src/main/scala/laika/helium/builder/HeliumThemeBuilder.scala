@@ -20,7 +20,7 @@ import cats.effect.{Resource, Sync}
 import laika.ast._
 import laika.bundle.{BundleOrigin, ExtensionBundle}
 import laika.config.Config
-import laika.format.HTML
+import laika.format.{HTML, XSLFO}
 import laika.helium.Helium
 import laika.helium.generate._
 import laika.theme.Theme
@@ -38,7 +38,10 @@ private[laika] object HeliumThemeBuilder {
       override val origin: BundleOrigin = BundleOrigin.Theme
       val description = "Helium Theme Rewrite Rules and Render Overrides"
       override val rewriteRules: Seq[DocumentCursor => RewriteRules] = HeliumRewriteRules.build(pdfSettings)
-      override val renderOverrides = Seq(HTML.Overrides(HeliumRenderOverrides.create(siteSettings.webLayout.anchorPlacement)))
+      override val renderOverrides = Seq(
+        HTML.Overrides(HeliumRenderOverrides.forHTML(siteSettings.webLayout.anchorPlacement)),
+        XSLFO.Overrides(HeliumRenderOverrides.forPDF)
+      )
       override val baseConfig: Config = ConfigGenerator.populateConfig(helium)
     }
 

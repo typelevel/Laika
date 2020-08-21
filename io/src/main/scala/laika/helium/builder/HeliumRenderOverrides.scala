@@ -20,7 +20,7 @@ import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentDocument
 import laika.ast._
 import laika.helium.config.{AnchorPlacement, HeliumIcon}
-import laika.render.HTMLFormatter
+import laika.render.{FOFormatter, HTMLFormatter}
 
 /**
   * @author Jens Halm
@@ -46,7 +46,14 @@ private[laika] object HeliumRenderOverrides {
     fmt.indentedElement("div", options + Styles("tab-container"), tabs +: content, "data-tab-group" -> name)
   }
   
-  def create (anchorPlacement: AnchorPlacement): PartialFunction[(HTMLFormatter, Element), String] = {
+  def icon (opt: Options): Option[Icon] = (opt.styles - "callout").headOption match {
+    case Some("warning") => Some(HeliumIcon.warning)
+    case Some("error") => Some(HeliumIcon.error)
+    case Some("info") => Some(HeliumIcon.info)
+    case _ => None
+  }
+  
+  def forHTML (anchorPlacement: AnchorPlacement): PartialFunction[(HTMLFormatter, Element), String] = {
     case (fmt, Header(level, content, opt)) =>
       def link = opt.id.map(id => SpanLink(Seq(HeliumIcon.link), InternalTarget(Root, CurrentDocument(id)), options = Styles("anchor-link")))
       val linkedContent = anchorPlacement match {
@@ -56,18 +63,17 @@ private[laika] object HeliumRenderOverrides {
       }
       fmt.newLine + fmt.element("h"+level.toString, opt, linkedContent)
     case (fmt, BlockSequence(content, opt)) if opt.styles.contains("callout") =>
-      val icon = (opt.styles - "callout").headOption match {
-        case Some("warning") => Some(HeliumIcon.warning)
-        case Some("error") => Some(HeliumIcon.error)
-        case Some("info") => Some(HeliumIcon.info)
-        case _ => None
-      }
-      fmt.indentedElement("div", opt, icon.toSeq ++ content)
+      fmt.indentedElement("div", opt, icon(opt).toSeq ++ content)
     case (fmt, Selection(name, choices, opt)) => renderChoices(fmt, name, choices, opt)
       
     case (fmt, tabs: Tabs)      => fmt.indentedElement("ul", Styles("tab-group"), tabs.tabs)
     case (fmt, tab: TabContent) => fmt.indentedElement("div", Styles("tab-content"), tab.content, "data-choice-name" -> tab.name)
     case (fmt, tab: Tab)        => fmt.element("li", Styles("tab"), Seq(Text(tab.label)), "data-choice-name" -> tab.name)
+  }
+  
+  def forPDF: PartialFunction[(FOFormatter, Element), String] = {
+    case (fmt, b @ BlockSequence(content, opt)) if opt.styles.contains("callout") =>
+      fmt.blockContainer(b, SpanSequence(icon(opt).toSeq, Styles("icon")) +: content)
   }
   
 }

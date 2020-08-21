@@ -171,6 +171,25 @@ class FOStyles (helium: Helium) {
     |  font-size: ${fontSizes.code.displayValue};
     |}
     |
+    |SpanSequence.icon {
+    |  padding-top: -2mm;
+    |}
+    |
+    |Icon {
+    |  font-family: IcoFont; 
+    |  font-size: 16pt;
+    |}
+    |
+    |.callout.info Icon {
+    |  color: ${colors.messages.info.displayValue};
+    |}
+    |.callout.warning Icon {
+    |  color: ${colors.messages.warning.displayValue};
+    |}
+    |.callout.error Icon {
+    |  color: ${colors.messages.error.displayValue};
+    |}
+    |
     |.callout {
     |  font-family: ${themeFonts.body};
     |  font-size: ${fontSizes.body.displayValue};
