@@ -193,31 +193,31 @@ class HeliumDownloadPageSpec extends IOFunSuite with InputBuilder with ResultExt
         description = Some("EPUB & PDF"),
         downloadPath = Root / "documents"
       )
-      .pdf.coverImages(CoverImage(Root / "cover.png"))
-      .epub.coverImages(CoverImage(Root / "cover.png"))
+      .pdf.coverImages(CoverImage(Root / "cover-sbt.png", Some("sbt")), CoverImage(Root / "cover-library.png", Some("library")))
+      .epub.coverImages(CoverImage(Root / "cover-sbt.png", Some("sbt")), CoverImage(Root / "cover-library.png", Some("library")))
     val expected = """<h1>Downloads</h1>
                      |<p>EPUB &amp; PDF</p>
                      |<div class="downloads">
                      |<div>
                      |<p class="title">sbt Plugin (EPUB)</p>
-                     |<p><img src="cover.png" alt="sbt Plugin (EPUB)"></p>
+                     |<p><img src="cover-sbt.png" alt="sbt Plugin (EPUB)"></p>
                      |<p><a href="downloads/download-sbt.epub">Download</a></p>
                      |</div>
                      |<div>
                      |<p class="title">sbt Plugin (PDF)</p>
-                     |<p><img src="cover.png" alt="sbt Plugin (PDF)"></p>
+                     |<p><img src="cover-sbt.png" alt="sbt Plugin (PDF)"></p>
                      |<p><a href="downloads/download-sbt.pdf">Download</a></p>
                      |</div>
                      |</div>
                      |<div class="downloads">
                      |<div>
                      |<p class="title">Library API (EPUB)</p>
-                     |<p><img src="cover.png" alt="Library API (EPUB)"></p>
+                     |<p><img src="cover-library.png" alt="Library API (EPUB)"></p>
                      |<p><a href="downloads/download-library.epub">Download</a></p>
                      |</div>
                      |<div>
                      |<p class="title">Library API (PDF)</p>
-                     |<p><img src="cover.png" alt="Library API (PDF)"></p>
+                     |<p><img src="cover-library.png" alt="Library API (PDF)"></p>
                      |<p><a href="downloads/download-library.pdf">Download</a></p>
                      |</div>
                      |</div>""".stripMargin

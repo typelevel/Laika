@@ -19,7 +19,7 @@ package laika.helium.builder
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentDocument
 import laika.ast._
-import laika.helium.config.AnchorPlacement
+import laika.helium.config.{AnchorPlacement, HeliumIcon}
 import laika.render.HTMLFormatter
 
 /**
@@ -48,21 +48,20 @@ private[laika] object HeliumRenderOverrides {
   
   def create (anchorPlacement: AnchorPlacement): PartialFunction[(HTMLFormatter, Element), String] = {
     case (fmt, Header(level, content, opt)) =>
-      def link = opt.id.map(id => SpanLink(Seq(SpanSequence(Nil, Styles("anchor"))), InternalTarget(Root, CurrentDocument(id)), options = Styles("anchor-link")))
+      def link = opt.id.map(id => SpanLink(Seq(HeliumIcon.link), InternalTarget(Root, CurrentDocument(id)), options = Styles("anchor-link")))
       val linkedContent = anchorPlacement match {
         case AnchorPlacement.None => content
         case AnchorPlacement.Left => link.toSeq ++ content
         case AnchorPlacement.Right => content ++ link.toSeq
       }
-      fmt.newLine + fmt.element("h"+level.toString, opt, link.toSeq ++ linkedContent)
+      fmt.newLine + fmt.element("h"+level.toString, opt, linkedContent)
     case (fmt, BlockSequence(content, opt)) if opt.styles.contains("callout") =>
-      val iconStyle = (opt.styles - "callout").headOption match {
-        case Some("warning") => Some("icofont-close-circled")
-        case Some("error") => Some("icofont-close-circled")
-        case Some("info") => Some("icofont-close-circled")
+      val icon = (opt.styles - "callout").headOption match {
+        case Some("warning") => Some(HeliumIcon.warning)
+        case Some("error") => Some(HeliumIcon.error)
+        case Some("info") => Some(HeliumIcon.info)
         case _ => None
       }
-      val icon = iconStyle.map(st => SpanSequence(Nil, Styles("icon", "icofont-xlg", st)))
       fmt.indentedElement("div", opt, icon.toSeq ++ content)
     case (fmt, Selection(name, choices, opt)) => renderChoices(fmt, name, choices, opt)
       
