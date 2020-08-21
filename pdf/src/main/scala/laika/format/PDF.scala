@@ -93,17 +93,17 @@ class PDF private(val interimFormat: RenderFormat[FOFormatter], fopFactory: Opti
     
     def build[F[_] : Sync](config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor] = Resource.liftF {
       val pdfConfig = PDF.BookConfig.decodeWithDefaults(config).getOrElse(PDF.BookConfig())
-        fopFactory.fold(FopFactoryBuilder.build(pdfConfig, theme.inputs.binaryInputs))(Sync[F].pure).map { fopFactory =>
-          new BinaryPostProcessor {
-            private val renderer = new PDFRenderer(fopFactory)
-            override def process[G[_] : Sync : Runtime](result: RenderedTreeRoot[G], output: BinaryOutput[G], opConfig: OperationConfig): G[Unit] =
-              for {
-                fo <- Sync[G].fromEither(FOConcatenation(result, pdfConfig, opConfig))
-                _  <- renderer.render(fo, output, pdfConfig.metadata, result.staticDocuments)
-              } yield ()
-          }
+      fopFactory.fold(FopFactoryBuilder.build(pdfConfig, theme.inputs.binaryInputs))(Sync[F].pure).map { fopFactory =>
+        new BinaryPostProcessor {
+          private val renderer = new PDFRenderer(fopFactory)
+          override def process[G[_] : Sync : Runtime](result: RenderedTreeRoot[G], output: BinaryOutput[G], opConfig: OperationConfig): G[Unit] =
+            for {
+              fo <- Sync[G].fromEither(FOConcatenation(result, pdfConfig, opConfig))
+              _  <- renderer.render(fo, output, pdfConfig.metadata, result.staticDocuments)
+            } yield ()
         }
       }
+    }
   }
   
 }

@@ -29,34 +29,37 @@ import org.apache.fop.apps.{FopConfParser, FopFactory}
   * @author Jens Halm
   */
 object FopFactoryBuilder {
-
-  def build[F[_]: Sync] (config: PDF.BookConfig, staticDocs: Seq[BinaryInput[F]]): F[FopFactory] = {
-    
+  
+  def generateXMLConfig (config: PDF.BookConfig): String = {
     // since there is no API to define fonts for Apache FOP we have to generate configuration XML here
     val fontDefs = config.fonts.flatMap { font =>
       font.resource.embedResource.map { res =>
-        s"""<font kerning="yes" embed-url="${res.path}" embedding-mode="subset">
-            |  <font-triplet name="${font.family}" style="${font.style.value}" weight="${font.weight.value}"/>
-            |</font>""".stripMargin
+        s"""        <font kerning="yes" embed-url="${res.path}" embedding-mode="subset">
+           |          <font-triplet name="${font.family}" style="${font.style.value}" weight="${font.weight.value}"/>
+           |        </font>""".stripMargin
       }
-    }.mkString("\n        ")
-    val xmlConf =
-      s"""<fop version="1.0">
-        |  <renderers>
-        |    <renderer mime="application/pdf">
-        |      <fonts>
-        |        $fontDefs
-        |      </fonts>
-        |    </renderer>
-        |  </renderers>
-        |</fop>
-      """.stripMargin
+    }.mkString("\n").stripPrefix("        ")
     
-    val confInput = new ByteArrayInputStream(xmlConf.getBytes)
+    s"""<fop version="1.0">
+       |  <renderers>
+       |    <renderer mime="application/pdf">
+       |      <fonts>
+       |        $fontDefs
+       |      </fonts>
+       |    </renderer>
+       |  </renderers>
+       |</fop>""".stripMargin
+  }
+
+  def build[F[_]: Sync] (config: PDF.BookConfig, staticDocs: Seq[BinaryInput[F]]): F[FopFactory] = {
+    
+    val confInput = new ByteArrayInputStream(generateXMLConfig(config).getBytes)
     val resolver = new FopResourceResolver(staticDocs)
     
-    val parser = new FopConfParser(confInput, new File(".").toURI, resolver)
-    Sync[F].delay(parser.getFopFactoryBuilder.build())
+    Sync[F].delay { 
+      val parser = new FopConfParser(confInput, new File(".").toURI, resolver)
+      parser.getFopFactoryBuilder.build() 
+    }
   }
   
 }
