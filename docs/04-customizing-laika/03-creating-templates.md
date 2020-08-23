@@ -8,7 +8,6 @@ of the transformed markup documents.
 When using a theme, creating a custom template is often not necessary, 
 as the theme will have higher level configuration options that drive the look and feel of the output,
 based on its own internal templates.
-(Note: Themes are scheduled to be introduced in the next release - 0.16).
 
 When subtle tweaks to a theme are not sufficient or when working without a theme,
 adding custom templates will give you additional flexibility in controlling the output.

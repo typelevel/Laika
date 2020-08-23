@@ -398,11 +398,9 @@ Transformers and Parsers distinguish between the following file types:
 * **Template Files**: You can provide a default template per directory with the name `default.template.<suffix>`
   with the suffix matching the output format (e.g. `.html`). 
   They will also be applied to sub-directories, unless overridden. 
+  Default templates in one of your input directories always override default templates provided by themes.
   You can also add additional templates with the name pattern `*.template.<suffix>`, 
   which will only be applied when a markup document explicitly refers to them in its configuration header.
-  (The upcoming 0.16 release will introduce Themes which will provide default templates out of the box. 
-  Until then you need to provide at least one default template in the root directory unless you are fine with the
-  very basic fallback template.)
 * **Static Files**: All other files, like CSS, JavaScript, images, etc., will be copied over to the 
   target in the same directory structure and with identical file names.
 

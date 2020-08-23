@@ -281,10 +281,11 @@ tables of contents and navigation bars.
 
 ### Websites
 
-The next release (version 0.16) will introduce themes and come with a default theme that includes navigation.
+The default Helium theme provides a main navigation tree in the left sidebar and page navigation on the 
+right out of the box.
 
-Until then you have to include your own templates that include navigation bars.
-The easiest way is to use the `@:navigationTree` directive described below. 
+If you include your own templates, either for overriding the Helium templates or when not using a theme at all,
+you can easily generate custom navigation structures with the `@:navigationTree` directive described below. 
 
 For more details on templating, see [Creating Templates].
 

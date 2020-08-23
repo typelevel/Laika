@@ -108,12 +108,10 @@ The default ordering, when not provided explicitly, is alphabetical.
 You can provide a default template per directory with the name `default.template.<suffix>`,
 where the suffix matches the output format (e.g. `.html`). 
 They will also be applied to sub-directories, unless overridden. 
+Default templates in one of your input directories always override default template provided by themes.
 
 Additionally you can add templates with the name pattern `*.template.<suffix>`, which will only
 be applied when a markup document explicitly refers to them in its configuration header.
-(The upcoming 0.16 release will introduce Themes which will provide default templates out of the box. 
-Until then you need to provide at least one default template in the root directory unless you are fine with the
-very basic fallback template.)
 
 For more details on the template engine, see the chapter [Creating Templates].
 
@@ -148,8 +146,8 @@ the structure will also be used by various features of the library that auto-gen
 
 * **Web Sites**: For HTML output you can use directives like [The navigationTree Directive] in templates to auto-generate
   a navigation structure from the root of your input tree or any other specific sub-node.
-  With the next release (0.16) the library will also contain default themes that provide basic navigation
-  out of the box.
+  The default Helium theme also provides a main navigation tree in the left sidebar and page navigation on the 
+  right out of the box.
 
 The presence of title documents would determine how exactly chapter title are rendered in the navigation structure.
 
