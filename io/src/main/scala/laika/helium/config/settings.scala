@@ -16,6 +16,7 @@
 
 package laika.helium.config
 
+import java.time.Instant
 import java.util.Date
 
 import laika.ast.Path.Root
@@ -75,7 +76,7 @@ private[laika] trait CommonConfigOps {
                 identifier: Option[String] = None,
                 authors: Seq[String] = Nil,
                 language: Option[String] = None,
-                date: Option[Date] = None,
+                date: Option[Instant] = None,
                 version: Option[String] = None): Helium
 }
 
@@ -120,9 +121,9 @@ private[laika] trait SingleConfigOps extends CommonConfigOps {
                 identifier: Option[String] = None,
                 authors: Seq[String] = Nil,
                 language: Option[String] = None,
-                date: Option[Date] = None,
+                date: Option[Instant] = None,
                 version: Option[String] = None): Helium =
-    withMetadata(DocumentMetadata(title, description, identifier, authors, language, date, version))
+    withMetadata(DocumentMetadata(title, description, identifier, authors, language, date.map(Date.from), version))
 }
 
 private[laika] trait AllFormatsOps extends CommonConfigOps {
@@ -169,7 +170,7 @@ private[laika] trait AllFormatsOps extends CommonConfigOps {
                 identifier: Option[String] = None,
                 authors: Seq[String] = Nil,
                 language: Option[String] = None,
-                date: Option[Date] = None,
+                date: Option[Instant] = None,
                 version: Option[String] = None): Helium = formats.foldLeft(helium) {
     case (helium, format) =>
       format(helium).metadata(title, description, identifier, authors, language, date, version)
@@ -281,6 +282,8 @@ private[laika] trait PDFOps extends SingleConfigOps with CopyOps {
   protected def withMetadata (metadata: DocumentMetadata): Helium =
     copyWith(helium.pdfSettings.copy(bookConfig = helium.pdfSettings.bookConfig.copy(metadata = metadata)))
 
+  // TODO - 0.16 - navigationDepth here and for EPUB
+  
   def layout (pageWidth: Size, pageHeight: Size,
               marginTop: Size, marginRight: Size, marginBottom: Size, marginLeft: Size,
               defaultBlockSpacing: Size, defaultLineHeight: Double,
