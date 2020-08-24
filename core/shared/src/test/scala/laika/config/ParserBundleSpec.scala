@@ -54,7 +54,7 @@ class ParserBundleSpec extends AnyWordSpec with Matchers {
     }
 
     val docConfig = {
-      val base = ConfigBuilder.withOrigin(Origin(Origin.DocumentScope, Root)).build
+      val base = ConfigBuilder.withOrigin(Origin(Origin.DocumentScope, Root / "doc")).build
       ConfigBuilder.withFallback(base).build // TODO - why is this nested twice?
     }
   }
@@ -103,7 +103,7 @@ class ParserBundleSpec extends AnyWordSpec with Matchers {
       }
 
     def doc (blocks: (Char, String)*): Document =
-      Document(Root, RootElement(blocks.map { case (deco, text) => DecoratedBlock(deco, Seq(Text(text))) }),
+      Document(Root / "doc", RootElement(blocks.map { case (deco, text) => DecoratedBlock(deco, Seq(Text(text))) }),
         config = docConfig)
 
   }
@@ -171,7 +171,7 @@ class ParserBundleSpec extends AnyWordSpec with Matchers {
       }
 
     def doc (spans: (Char, String)*): Document =
-      Document(Root, RootElement(Paragraph(
+      Document(Root / "doc", RootElement(Paragraph(
         spans.map { case (deco, text) => DecoratedSpan(deco, text) }
       )), config = docConfig)
   }
@@ -239,7 +239,7 @@ class ParserBundleSpec extends AnyWordSpec with Matchers {
       }
     }
 
-    def doc (text: String): Document = Document(Root, RootElement(text), config = docConfig)
+    def doc (text: String): Document = Document(Root / "doc", RootElement(text), config = docConfig)
 
   }
 

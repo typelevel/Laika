@@ -33,7 +33,7 @@ class XSLFORendererSpec extends AnyFlatSpec
   with Matchers
   with ModelBuilder {
 
-  private val pathTranslator = BasicPathTranslator(XSLFO.fileSuffix)
+  private val pathTranslator = BasicPathTranslator(XSLFO.fileSuffix, _ => DocumentType.Static)
   
   private val defaultRenderer = Renderer.of(XSLFO).build
 
@@ -46,15 +46,15 @@ class XSLFORendererSpec extends AnyFlatSpec
     render(elem, TestTheme.foStyles ++ StyleDeclarationSet(Path.Root, style))
 
   def render (elem: Element, style: StyleDeclarationSet): String = 
-    defaultRenderer.render(elem, Root, pathTranslator, style)
+    defaultRenderer.render(elem, Root / "doc", pathTranslator, style)
   
   def render (elem: Element, messageFilter: MessageFilter): String =
-    Renderer.of(XSLFO).renderMessages(messageFilter).build.render(elem, Root, pathTranslator, TestTheme.foStyles)
+    Renderer.of(XSLFO).renderMessages(messageFilter).build.render(elem, Root / "doc", pathTranslator, TestTheme.foStyles)
 
   def renderUnformatted (elem: Element): String = 
-    Renderer.of(XSLFO).unformatted.build.render(elem, Root, pathTranslator, TestTheme.foStyles)
+    Renderer.of(XSLFO).unformatted.build.render(elem, Root / "doc", pathTranslator, TestTheme.foStyles)
 
-  val imageTarget = InternalTarget(Root / "foo.jpg", CurrentTree / "foo.jpg")
+  val imageTarget = InternalTarget(CurrentTree / "foo.jpg")
   
 
   "The XSLFO renderer" should "render a paragraph with plain text" in {
@@ -413,7 +413,7 @@ class XSLFORendererSpec extends AnyFlatSpec
     val elem = BlockSequence(p(Text("some "), CitationLink("ref","label"), Text(" span")), Citation("ref", List(p("a"),p("b")), Id("ref")))
     val fo = s"""<fo:block $defaultParagraphStyles>some <fo:footnote>
                |  <fo:inline font-size="8pt" vertical-align="super">[label]</fo:inline>
-               |  <fo:footnote-body id="__ref">
+               |  <fo:footnote-body id="_doc_ref">
                |    <fo:block $defaultParagraphStyles><fo:inline font-size="8pt" vertical-align="super">[label]</fo:inline> a</fo:block>
                |    <fo:block $defaultParagraphStyles>b</fo:block>
                |  </fo:footnote-body>
@@ -426,7 +426,7 @@ class XSLFORendererSpec extends AnyFlatSpec
     val elem = BlockSequence(p(Text("some "), FootnoteLink("id","label"), Text(" span")), Footnote("label", List(p("a"),p("b")), Id("id")))
     val fo = s"""<fo:block $defaultParagraphStyles>some <fo:footnote>
                |  <fo:inline font-size="8pt" vertical-align="super">[label]</fo:inline>
-               |  <fo:footnote-body id="__id">
+               |  <fo:footnote-body id="_doc_id">
                |    <fo:block $defaultParagraphStyles><fo:inline font-size="8pt" vertical-align="super">[label]</fo:inline> a</fo:block>
                |    <fo:block $defaultParagraphStyles>b</fo:block>
                |  </fo:footnote-body>
@@ -549,7 +549,7 @@ class XSLFORendererSpec extends AnyFlatSpec
   }
 
   it should "render a figure" in {
-    val elem = Figure(Image(InternalTarget(Root / "image.jpg", CurrentTree / "image.jpg"), alt = Some("alt")), List(Text("some "), Emphasized("caption"), Text(" text")), List(p("aaa"), Rule(), p("bbb")))
+    val elem = Figure(Image(InternalTarget(CurrentTree / "image.jpg"), alt = Some("alt")), List(Text("some "), Emphasized("caption"), Text(" text")), List(p("aaa"), Rule(), p("bbb")))
     val fo = s"""<fo:block space-after="6mm">
                |  <fo:block space-after="3mm" text-align="center"><fo:external-graphic content-width="scale-down-to-fit" scaling="uniform" src="/image.jpg" width="85%"/></fo:block>
                |  <fo:block font-family="serif" font-size="9pt" font-style="italic" space-after="3mm">some <fo:inline font-style="italic">caption</fo:inline> text</fo:block>
@@ -600,7 +600,7 @@ class XSLFORendererSpec extends AnyFlatSpec
   
   it should "render a navigation list with two levels" in {
     def link (level: Int, titleNum: Int, children: Seq[NavigationLink] = Nil): NavigationLink = {
-      val target = InternalTarget.fromPath(Root / s"doc#title-$titleNum", Root / "doc")
+      val target = InternalTarget(Root / s"doc#title-$titleNum").relativeTo(Root / "doc")
       val title = SpanSequence("Title "+titleNum)
       NavigationLink(title, target, children, options = Style.level(level))
     }
@@ -688,35 +688,35 @@ class XSLFORendererSpec extends AnyFlatSpec
   }
 
   it should "render a paragraph containing an internal link with emphasized text" in {
-    val elem = p(Text("some "), SpanLink(List(Text("link"),Emphasized("text")), InternalTarget(Path.parse("/#foo"),RelativePath.parse("#foo"))), Text(" span"))
+    val elem = p(Text("some "), SpanLink(List(Text("link"),Emphasized("text")), InternalTarget(RelativePath.parse("#foo"))), Text(" span"))
     val fo = s"""<fo:block $defaultParagraphStyles>some """ +
-      """<fo:basic-link color="#931813" font-weight="bold" internal-destination="__foo">link<fo:inline font-style="italic">text</fo:inline></fo:basic-link> span</fo:block>"""
+      """<fo:basic-link color="#931813" font-weight="bold" internal-destination="_doc_foo">link<fo:inline font-style="italic">text</fo:inline></fo:basic-link> span</fo:block>"""
     render (elem) should be (fo)
   }
 
   it should "render a paragraph containing a cross link with a fragment part" in {
-    val elem = p(Text("some "), SpanLink(List(Text("link"),Emphasized("text")), InternalTarget(Path.parse("/bar#foo"),RelativePath.parse("../bar#foo"))), Text(" span"))
+    val elem = p(Text("some "), SpanLink(List(Text("link"),Emphasized("text")), InternalTarget(RelativePath.parse("../bar#foo"))), Text(" span"))
     val fo = s"""<fo:block $defaultParagraphStyles>some """ +
       """<fo:basic-link color="#931813" font-weight="bold" internal-destination="_bar_foo">link<fo:inline font-style="italic">text</fo:inline></fo:basic-link> span</fo:block>"""
     render (elem) should be (fo)
   }
 
   it should "render a paragraph containing a cross link without a fragment part" in {
-    val elem = p(Text("some "), SpanLink(List(Text("link"),Emphasized("text")), InternalTarget(Path.parse("/bar"),RelativePath.parse("../bar"))), Text(" span"))
+    val elem = p(Text("some "), SpanLink(List(Text("link"),Emphasized("text")), InternalTarget(RelativePath.parse("../bar"))), Text(" span"))
     val fo = s"""<fo:block $defaultParagraphStyles>some """ +
       """<fo:basic-link color="#931813" font-weight="bold" internal-destination="_bar">link<fo:inline font-style="italic">text</fo:inline></fo:basic-link> span</fo:block>"""
     render (elem) should be (fo)
   }
 
   it should "render a paragraph containing a cross link with a filename without suffix" in {
-    val elem = p(Text("some "), SpanLink(List(Text("link"),Emphasized("text")), InternalTarget(Path.parse("/bar"),RelativePath.parse("../bar"))), Text(" span"))
+    val elem = p(Text("some "), SpanLink(List(Text("link"),Emphasized("text")), InternalTarget(RelativePath.parse("../bar"))), Text(" span"))
     val fo = s"""<fo:block $defaultParagraphStyles>some """ +
       """<fo:basic-link color="#931813" font-weight="bold" internal-destination="_bar">link<fo:inline font-style="italic">text</fo:inline></fo:basic-link> span</fo:block>"""
     render (elem) should be (fo)
   }
 
   it should "prefer the external URL when an internal link has one defined" in {
-    val elem = p(Text("some "), SpanLink(List(Text("link")), InternalTarget(Path.parse("/#foo"),RelativePath.parse("#foo"),Some("http://external/"))), Text(" span"))
+    val elem = p(Text("some "), SpanLink(List(Text("link")), ResolvedInternalTarget(Path.parse("/#foo"),RelativePath.parse("#foo"),Some("http://external/"))), Text(" span"))
     val fo = s"""<fo:block $defaultParagraphStyles>some """ +
       """<fo:basic-link color="#931813" external-destination="http://external/" font-weight="bold">link</fo:basic-link> span</fo:block>"""
     render (elem) should be (fo)
@@ -770,7 +770,7 @@ class XSLFORendererSpec extends AnyFlatSpec
 
   it should "render a paragraph containing an internal link target" in {
     val elem = p(Text("some "), InternalLinkTarget(Id("target")), Text(" span"))
-    val fo = s"""<fo:block $defaultParagraphStyles>some <fo:inline id="__target"></fo:inline> span</fo:block>"""
+    val fo = s"""<fo:block $defaultParagraphStyles>some <fo:inline id="_doc_target"></fo:inline> span</fo:block>"""
     render (elem) should be (fo)
   }
 

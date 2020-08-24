@@ -61,7 +61,7 @@ class CrossReferenceSpec extends AnyFlatSpec
   "The reference resolver" should "resolve a cross reference to a target in another document in the same directory" in {
      new TreeModel {
       val tree = treeWithDocs(Root, "doc", rootWithRef("doc2#ref", "text"), rootWithTarget("ref"))
-      val treeResult = treeViewWithDocs(Root, "doc", rootWithLink("text", InternalTarget(Root / "doc2#ref", CurrentTree / "doc2#ref")), rootWithTarget("ref"))
+      val treeResult = treeViewWithDocs(Root, "doc", rootWithLink("text", InternalTarget(Root / "doc2#ref").relativeTo(Root / "doc1")), rootWithTarget("ref"))
       viewOf(rewrite(tree)) should be (treeResult)
     } 
   }
@@ -71,7 +71,7 @@ class CrossReferenceSpec extends AnyFlatSpec
       val subtree = treeWithDoc(Root / "sub", "doc1", rootWithRef("../doc2#ref", "text"))
       val rootTree = treeWithDoc(Root, "doc2", rootWithTarget("ref"), List(subtree))
       
-      val subtreeResult = treeViewWithDoc(Root / "sub", "doc1", rootWithLink("text", InternalTarget(Root / "doc2#ref", Parent(1) / "doc2#ref")))
+      val subtreeResult = treeViewWithDoc(Root / "sub", "doc1", rootWithLink("text", InternalTarget(Parent(1) / "doc2#ref").relativeTo(Root / "sub" / "doc1")))
       val treeResult = treeViewWithDoc(Root, "doc2", rootWithTarget("ref"), Some(subtreeResult))
       viewOf(rewrite(rootTree)) should be (treeResult)
     } 
@@ -79,25 +79,27 @@ class CrossReferenceSpec extends AnyFlatSpec
   
   it should "resolve a cross reference to a target in a document in a child directory" in {
      new TreeModel {
-      val subtree = treeWithDoc(Root / "sub", "doc2", rootWithTarget("ref"))
-      val rootTree = treeWithDoc(Root, "doc1", rootWithRef("sub/doc2#ref", "text"), List(subtree))
+       val subtree = treeWithDoc(Root / "sub", "doc2", rootWithTarget("ref"))
+       val rootTree = treeWithDoc(Root, "doc1", rootWithRef("sub/doc2#ref", "text"), List(subtree))
       
-      val subtreeResult = treeViewWithDoc(Root / "sub", "doc2", rootWithTarget("ref"))
-      val treeResult = treeViewWithDoc(Root, "doc1", rootWithLink("text", InternalTarget(Root / "sub" / "doc2#ref", CurrentTree / "sub" / "doc2#ref")), Some(subtreeResult))
-      viewOf(rewrite(rootTree)) should be (treeResult)
+       val subtreeResult = treeViewWithDoc(Root / "sub", "doc2", rootWithTarget("ref"))
+       val resultTarget = InternalTarget(Root / "sub" / "doc2#ref").relativeTo(Root / "doc1")
+       val treeResult = treeViewWithDoc(Root, "doc1", rootWithLink("text", resultTarget), Some(subtreeResult))
+       viewOf(rewrite(rootTree)) should be (treeResult)
     } 
   }
   
   it should "resolve a cross reference to a target in a document in a sibling directory" in {
      new TreeModel {
-      val subtree1 = treeWithDoc(Root / "sub1", "doc1", rootWithRef("../sub2/doc2#ref", "text"))
-      val subtree2 = treeWithDoc(Root / "sub2", "doc2", rootWithTarget("ref"))
-      val rootTree = treeWithSubtrees(Root, subtree1, subtree2)
-      
-      val subtreeResult1 = treeViewWithDoc(Root / "sub1", "doc1", rootWithLink("text", InternalTarget(Root / "sub2" / "doc2#ref", Parent(1) / "sub2" / "doc2#ref")))
-      val subtreeResult2 = treeViewWithDoc(Root / "sub2", "doc2", rootWithTarget("ref"))
-      val treeResult = treeViewWithSubtrees(Root, subtreeResult1, subtreeResult2)
-      viewOf(rewrite(rootTree)) should be (treeResult)
+       val subtree1 = treeWithDoc(Root / "sub1", "doc1", rootWithRef("../sub2/doc2#ref", "text"))
+       val subtree2 = treeWithDoc(Root / "sub2", "doc2", rootWithTarget("ref"))
+       val rootTree = treeWithSubtrees(Root, subtree1, subtree2)
+
+       val resultTarget = InternalTarget(Parent(1) / "sub2" / "doc2#ref").relativeTo(Root / "sub1" / "doc1")
+       val subtreeResult1 = treeViewWithDoc(Root / "sub1", "doc1", rootWithLink("text", resultTarget))
+       val subtreeResult2 = treeViewWithDoc(Root / "sub2", "doc2", rootWithTarget("ref"))
+       val treeResult = treeViewWithSubtrees(Root, subtreeResult1, subtreeResult2)
+       viewOf(rewrite(rootTree)) should be (treeResult)
     } 
   }
   

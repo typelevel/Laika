@@ -17,7 +17,7 @@
 package laika.render.epub
 
 import laika.ast.Path.Root
-import laika.ast._
+import laika.ast.{InternalTarget, _}
 import laika.io.model.RenderedTree
 
 object NavigationBuilder {
@@ -40,11 +40,11 @@ object NavigationBuilder {
       case h: NavigationHeader => h.copy(content = h.content.map(adjustPath))
       case l: NavigationLink => l.target match {
         case _: ExternalTarget => l
-        case InternalTarget(_, rel, _) => 
-          val adjustedPath = (Root / "content" / rel).withSuffix("epub.xhtml")
+        case it: InternalTarget => 
+          val adjustedPath = (Root / "content" / it.relativeTo(Root / "doc").relativePath).withSuffix("epub.xhtml")
           l.copy(
             content = l.content.map(adjustPath),
-            target = InternalTarget(adjustedPath, adjustedPath.relative)
+            target = InternalTarget(adjustedPath.relative)
           )
       }
     }

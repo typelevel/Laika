@@ -55,7 +55,7 @@ private[laika] object HeliumRenderOverrides {
   
   def forHTML (anchorPlacement: AnchorPlacement): PartialFunction[(HTMLFormatter, Element), String] = {
     case (fmt, Header(level, content, opt)) =>
-      def link = opt.id.map(id => SpanLink(Seq(HeliumIcon.link), InternalTarget(Root, CurrentDocument(id)), options = Styles("anchor-link")))
+      def link = opt.id.map(id => SpanLink(Seq(HeliumIcon.link), InternalTarget(CurrentDocument(id)), options = Styles("anchor-link")))
       val linkedContent = anchorPlacement match {
         case AnchorPlacement.None => content
         case AnchorPlacement.Left => link.toSeq ++ content

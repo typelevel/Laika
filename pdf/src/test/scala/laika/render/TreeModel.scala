@@ -38,7 +38,7 @@ trait TreeModel {
       Paragraph(s"Text $num")
     ))
   }
-    
+  
   def configWithTreeTitle (num: Int): Config = ConfigBuilder
     .withFallback(pdfFileConfig, Origin(Origin.TreeScope, Root))
     .withValue(LaikaKeys.title, s"Tree $num & More")

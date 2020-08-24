@@ -17,11 +17,9 @@
 package laika.api
 
 import laika.api.builder.{OperationConfig, RendererBuilder, TwoPhaseRendererBuilder}
-import laika.config.ConfigError
 import laika.ast.Path.Root
 import laika.ast._
-import laika.factory.{RenderContext, RenderFormat, TwoPhaseRenderFormat}
-import laika.rewrite.TemplateRewriter
+import laika.factory.{MarkupFormat, RenderContext, RenderFormat, TwoPhaseRenderFormat}
 import laika.rewrite.nav.{BasicPathTranslator, PathTranslator}
 
 /** Performs a render operation from a document AST to a target format
@@ -55,13 +53,16 @@ abstract class Renderer (val config: OperationConfig) {
   type Formatter
 
   def format: RenderFormat[Formatter]
+  
+  def forInputFormat (markupFormat: MarkupFormat): Renderer = 
+    new RendererBuilder(format, config.withBundlesFor(markupFormat)).build
 
   private lazy val renderFunction: (Formatter, Element) => String = (fmt, element) =>
     config.renderOverridesFor(format).value.applyOrElse[(Formatter, Element), String]((fmt, element), {
       case (f, e) => format.defaultRenderer(f, e)
     })
 
-  private val defaultPathTranslator: PathTranslator = BasicPathTranslator(format.fileSuffix)
+  private val defaultPathTranslator: PathTranslator = BasicPathTranslator(format.fileSuffix, config.docTypeMatcher)
 
   /** Renders the specified document as a String.
     */
@@ -77,7 +78,7 @@ abstract class Renderer (val config: OperationConfig) {
 
   /** Renders the specified element as a String.
     */
-  def render (element: Element): String = render(element, Root, defaultPathTranslator, StyleDeclarationSet.empty)
+  def render (element: Element): String = render(element, Root / "doc", defaultPathTranslator, StyleDeclarationSet.empty)
 
   /** Renders the specified element as a String.
     * 

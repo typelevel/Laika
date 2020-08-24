@@ -120,9 +120,9 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
 
     val fullyPopulatedInstance = LinkConfig(
       Seq(
-        TargetDefinition("bar", InternalTarget(Root, CurrentTree / "bar")),
+        TargetDefinition("bar", InternalTarget(CurrentTree / "bar")),
         TargetDefinition("ext", ExternalTarget("http://ext.com")),
-        TargetDefinition("foo", InternalTarget(Root, CurrentTree / "foo"))
+        TargetDefinition("foo", InternalTarget(CurrentTree / "foo"))
       ),
       Seq(Root / "foo", Root / "bar" / "baz"),
       Seq(
@@ -184,7 +184,7 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
           |}
         """.stripMargin
       sort(decode[LinkConfig](input)) shouldBe Right(LinkConfig(
-        targets = Seq(TargetDefinition("foo", InternalTarget(Root, CurrentTree / "foo"))),
+        targets = Seq(TargetDefinition("foo", InternalTarget(CurrentTree / "foo"))),
         apiLinks = Seq(ApiLinks("https://bar.api/"))
       ))
     }

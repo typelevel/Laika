@@ -129,7 +129,7 @@ class HeliumHTMLNavSpec extends IOFunSuite with InputBuilder with ResultExtracto
     val imagePath = Root / "home.png"
     val helium = Helium.defaults.site
       .topNavigationBar(
-        logo = Some(Image(InternalTarget(imagePath, imagePath.relative), alt = Some("Homepage"), title = Some("Home"))), 
+        logo = Some(Image(InternalTarget(imagePath), alt = Some("Homepage"), title = Some("Home"))), 
         links = Seq(
           IconLink(ThemeTarget.internal(Root / "doc-2.md"), HeliumIcon.demo),
           ButtonLink(ThemeTarget.external("http://somewhere.com/"), "Somewhere")

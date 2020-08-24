@@ -81,7 +81,7 @@ class ExplicitBlockParsersSpec extends AnyFlatSpec
 
   it should "parse a named internal target on one line" in {
     val input = """.. _some-link: ../foo/bar.md#ref"""
-    Parsing (input) should produce (root(LinkDefinition("some-link", InternalTarget(Root, RelativePath.parse("../foo/bar.md#ref")))))
+    Parsing (input) should produce (root(LinkDefinition("some-link", InternalTarget(RelativePath.parse("../foo/bar.md#ref")))))
   }
   
   it should "parse a named external target with the reference name in backticks" in {
@@ -104,7 +104,7 @@ class ExplicitBlockParsersSpec extends AnyFlatSpec
   it should "parse a named internal target with the URL entirely on the next line" in {
     val input = """.. _some-link: 
                   |     ../foo/bar.md#ref""".stripMargin
-    Parsing (input) should produce (root(LinkDefinition("some-link", InternalTarget(Root, RelativePath.parse("../foo/bar.md#ref")))))
+    Parsing (input) should produce (root(LinkDefinition("some-link", InternalTarget(RelativePath.parse("../foo/bar.md#ref")))))
   }
   
   it should "parse an anonymous external target" in {
@@ -114,7 +114,7 @@ class ExplicitBlockParsersSpec extends AnyFlatSpec
 
   it should "parse an anonymous internal target" in {
     val input = """.. __: ../foo/bar.md#ref"""
-    Parsing (input) should produce (root(LinkDefinition("", InternalTarget(Root, RelativePath.parse("../foo/bar.md#ref")))))
+    Parsing (input) should produce (root(LinkDefinition("", InternalTarget(RelativePath.parse("../foo/bar.md#ref")))))
   }
   
   it should "parse a short anonymous external target" in {
@@ -124,7 +124,7 @@ class ExplicitBlockParsersSpec extends AnyFlatSpec
 
   it should "parse a short anonymous internal target" in {
     val input = """__ ../foo/bar.md#ref"""
-    Parsing (input) should produce (root(LinkDefinition("", InternalTarget(Root, RelativePath.parse("../foo/bar.md#ref")))))
+    Parsing (input) should produce (root(LinkDefinition("", InternalTarget(RelativePath.parse("../foo/bar.md#ref")))))
   }
   
   it should "parse an indirect simple reference" in {

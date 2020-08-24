@@ -17,7 +17,7 @@
 package laika.render
 
 import laika.ast.Path.Root
-import laika.ast._
+import laika.ast.{InternalTarget, _}
 import laika.factory.RenderContext
 import laika.rewrite.nav.PathTranslator
 
@@ -234,7 +234,7 @@ case class FOFormatter (renderChild: (FOFormatter, Element) => String,
    */
   def bookmark (bookmark: NavigationItem): String = {
     def internalTarget (link: NavigationLink): Option[Path] = link.target match {
-      case InternalTarget(absPath, _, _) => Some(absPath)
+      case it: InternalTarget => Some(it.relativeTo(path).absolutePath)
       case _ => None
     }
     val target = bookmark match {
@@ -318,7 +318,16 @@ object FOFormatter extends (RenderContext[FOFormatter] => FOFormatter) {
   /** Creates a new formatter instance based on the specified render context.
     */
   def apply(context: RenderContext[FOFormatter]): FOFormatter =
-    FOFormatter(context.renderChild, context.root, Nil, context.pathTranslator, context.path, context.styles, context.indentation, context.config.renderMessages)
+    FOFormatter(
+      context.renderChild, 
+      context.root, 
+      Nil, 
+      context.pathTranslator, 
+      context.pathTranslator.translate(context.path), 
+      context.styles, 
+      context.indentation, 
+      context.config.renderMessages
+    )
   
 }
 

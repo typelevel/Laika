@@ -66,7 +66,7 @@ object ThemeTarget {
     def resolve  (cursor: DocumentCursor): Either[String, Target] = {
       val valid = cursor.root.target.tree.selectDocument(target.withoutFragment.relative).nonEmpty || 
         cursor.root.target.staticDocuments.contains(target.withoutFragment)
-      if (valid) Right(InternalTarget.fromPath(target, cursor.path))
+      if (valid) Right(InternalTarget(target).relativeTo(cursor.path))
       else Left(s"Theme Link to unresolved target: $target")
     }
   }

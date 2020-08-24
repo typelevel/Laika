@@ -43,7 +43,7 @@ object LinkConfig {
       sourceLinks <- config.get[Seq[SourceLinks]]("source", Nil)
     } yield {
       val mappedTargets = targets.map {
-        case (id, targetURL) => TargetDefinition(id, Target.create(targetURL))
+        case (id, targetURL) => TargetDefinition(id, Target.parse(targetURL))
       }
       LinkConfig(mappedTargets.toSeq, exclude, linkMaps, apiLinks, sourceLinks)
     }

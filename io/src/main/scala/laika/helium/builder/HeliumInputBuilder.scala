@@ -51,7 +51,7 @@ private[laika] object HeliumInputBuilder {
       .addClasspathResource("laika/helium/templates/landing.template.html", Root / "landing.template.html")
       .addClasspathResource("laika/helium/templates/default.template.fo", DefaultTemplatePath.forFO)
       .addClasspathResource("laika/helium/js/theme.js", Root / "helium" / "laika-helium.js")
-      .addString(new FOStyles(helium).input , FOStyles.defaultPath)
+      .addString(new FOStyles(helium).input, FOStyles.defaultPath)
   
     MergedCSSGenerator.merge(CSSVarGenerator.generate(helium)).map {
       themeInputs.addString(_, Root / "helium" / "laika-helium.css")

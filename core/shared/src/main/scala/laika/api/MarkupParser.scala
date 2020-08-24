@@ -63,7 +63,7 @@ class MarkupParser (val format: MarkupFormat, val config: OperationConfig) {
 
   /** Parses the specified markup string into a document AST structure.
     */
-  def parse (input: String): Either[ParserError, Document] = parse(ParserInput(Root, ParserContext(input)))
+  def parse (input: String): Either[ParserError, Document] = parse(ParserInput(Root / "doc", ParserContext(input)))
 
   /** Parses the specified markup string into a document AST structure.
     * The given (virtual) path will be assigned to the result.

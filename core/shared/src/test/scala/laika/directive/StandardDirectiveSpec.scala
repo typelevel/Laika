@@ -732,7 +732,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
 
     def sectionList (path: Path, section: Int, level: Int): NavigationLink = NavigationLink(
       SpanSequence(s"Section $section"),
-      InternalTarget.fromPath(path.withFragment(s"section-$section"), refPath),
+      InternalTarget(path.withFragment(s"section-$section")).relativeTo(refPath),
       if (section % 2 == 0 || level == maxLevels) Nil else Seq(
         sectionList(path, section + 1, level+1)
       ),
@@ -741,7 +741,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
 
     def docList (path: Path, doc: Int, level: Int, title: Option[String] = None): NavigationLink = NavigationLink(
       SpanSequence(title.getOrElse(s"Doc $doc")),
-      InternalTarget.fromPath(path, refPath),
+      InternalTarget(path).relativeTo(refPath),
       if (level == maxLevels || excludeSections) Nil else Seq(
         sectionList(path, 1, level+1),
         sectionList(path, 3, level+1)
@@ -755,7 +755,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
         docList(Root / s"sub$tree" / s"doc$docStartNum", docStartNum, level + 1),
         docList(Root / s"sub$tree" / s"doc${docStartNum + 1}", docStartNum + 1, level + 1),
       )
-      if (hasTitleDocs) NavigationLink(SpanSequence("TitleDoc"), InternalTarget.fromPath(Root / s"sub$tree" / "title", refPath), children, options = styles(level))
+      if (hasTitleDocs) NavigationLink(SpanSequence("TitleDoc"), InternalTarget(Root / s"sub$tree" / "title").relativeTo(refPath), children, options = styles(level))
       else NavigationHeader(SpanSequence(s"Tree $tree"), if (excludeSelf) children.take(1) else children, options = styles(level))
     }
 
@@ -1201,7 +1201,8 @@ class StandardDirectiveSpec extends AnyFlatSpec
 
   trait ImageSetup {
 
-    val imgTarget = InternalTarget(Root / "picture.jpg", CurrentTree / "picture.jpg")
+    val imgTarget = InternalTarget(CurrentTree / "picture.jpg")
+    val resolvedImageTarget = InternalTarget(CurrentTree / "picture.jpg").relativeTo(Root / "doc")
 
     val defaultBlockStyle = Styles("default-image-block")
     val defaultSpanStyle = Styles("default-image-span")
@@ -1215,7 +1216,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
   }
 
   "The image block directive" should "succeed without any HOCON attributes" in new ImageSetup {
-    val result = root(p("aaa"), BlockSequence(Seq(SpanSequence(Image(imgTarget))), defaultBlockStyle), p("bbb"))
+    val result = root(p("aaa"), BlockSequence(Seq(SpanSequence(Image(resolvedImageTarget))), defaultBlockStyle), p("bbb"))
     parse(blocks("@:image(picture.jpg)")).content should be (result)
   }
 
@@ -1224,7 +1225,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |  alt = alt
                   |  title = desc
                   |}""".stripMargin
-    val result = root(p("aaa"), BlockSequence(Seq(SpanSequence(Image(imgTarget, alt = Some("alt"), title = Some("desc")))), defaultBlockStyle), p("bbb"))
+    val result = root(p("aaa"), BlockSequence(Seq(SpanSequence(Image(resolvedImageTarget, alt = Some("alt"), title = Some("desc")))), defaultBlockStyle), p("bbb"))
     parse(blocks(input)).content should be (result)
   }
 
@@ -1233,7 +1234,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |  intrinsicWidth = 320
                   |  intrinsicHeight = 240
                   |}""".stripMargin
-    val result = root(p("aaa"), BlockSequence(Seq(SpanSequence(Image(imgTarget, width = Some(LengthUnit.px(320)), height = Some(LengthUnit.px(240))))), defaultBlockStyle), p("bbb"))
+    val result = root(p("aaa"), BlockSequence(Seq(SpanSequence(Image(resolvedImageTarget, width = Some(LengthUnit.px(320)), height = Some(LengthUnit.px(240))))), defaultBlockStyle), p("bbb"))
     parse(blocks(input)).content should be (result)
   }
 
@@ -1241,12 +1242,12 @@ class StandardDirectiveSpec extends AnyFlatSpec
     val input = """@:image(picture.jpg) {
                   |  style = small-image
                   |}""".stripMargin
-    val result = root(p("aaa"), BlockSequence(Seq(SpanSequence(Image(imgTarget))), Styles("small-image")), p("bbb"))
+    val result = root(p("aaa"), BlockSequence(Seq(SpanSequence(Image(resolvedImageTarget))), Styles("small-image")), p("bbb"))
     parse(blocks(input)).content should be (result)
   }
 
   "The image span directive" should "succeed without any HOCON attributes" in new ImageSetup {
-    val result = root(p(Text("aaa "), Image(imgTarget, options = defaultSpanStyle), Text(" bbb")))
+    val result = root(p(Text("aaa "), Image(resolvedImageTarget, options = defaultSpanStyle), Text(" bbb")))
     parse("aaa @:image(picture.jpg) bbb").content should be (result)
   }
 
@@ -1255,7 +1256,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |  alt = alt
                   |  title = desc
                   |} bbb""".stripMargin
-    val result = root(p(Text("aaa "), Image(imgTarget, alt = Some("alt"), title = Some("desc"), options = defaultSpanStyle), Text(" bbb")))
+    val result = root(p(Text("aaa "), Image(resolvedImageTarget, alt = Some("alt"), title = Some("desc"), options = defaultSpanStyle), Text(" bbb")))
     parse(input).content should be (result)
   }
 
@@ -1264,7 +1265,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |  intrinsicWidth = 320
                   |  intrinsicHeight = 240
                   |} bbb""".stripMargin
-    val result = root(p(Text("aaa "), Image(imgTarget, width = Some(LengthUnit.px(320)), height = Some(LengthUnit.px(240)), options = defaultSpanStyle), Text(" bbb")))
+    val result = root(p(Text("aaa "), Image(resolvedImageTarget, width = Some(LengthUnit.px(320)), height = Some(LengthUnit.px(240)), options = defaultSpanStyle), Text(" bbb")))
     parse(input).content should be (result)
   }
 
@@ -1272,7 +1273,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
     val input = """aaa @:image(picture.jpg) {
                   |  style = small-image
                   |} bbb""".stripMargin
-    val result = root(p(Text("aaa "), Image(imgTarget, options = Styles("small-image")), Text(" bbb")))
+    val result = root(p(Text("aaa "), Image(resolvedImageTarget, options = Styles("small-image")), Text(" bbb")))
     parse(input).content should be (result)
   }
 

@@ -18,7 +18,7 @@ package laika.rewrite
 
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
-import laika.ast.RelativePath.{CurrentDocument, CurrentTree, Parent}
+import laika.ast.RelativePath.{CurrentDocument, Parent}
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.config.{Config, ConfigBuilder, ConfigParser}
@@ -36,6 +36,8 @@ class RewriteRulesSpec extends AnyWordSpec
     val rules = OperationConfig.default.rewriteRulesFor(doc)
     doc.rewrite(rules).content
   }
+  
+  val refPath: Path = Root / "doc"
 
   def invalidSpan (message: String, fallback: String): InvalidSpan = InvalidElement(message, fallback).asSpan
 
@@ -63,11 +65,11 @@ class RewriteRulesSpec extends AnyWordSpec
 
   def intLink (ref: String) = SpanLink(List(Text("text")), rootLinkTarget(ref))
 
-  def intLink (path: RelativePath) = SpanLink(List(Text("text")), InternalTarget.fromPath(path, Path.Root))
+  def intLink (path: RelativePath) = SpanLink(List(Text("text")), InternalTarget(path).relativeTo(refPath))
 
-  def docLink (ref: String) = SpanLink(List(Text("text")), InternalTarget((Root / "doc").withFragment(ref), CurrentDocument(ref)))
+  def docLink (ref: String) = SpanLink(List(Text("text")), InternalTarget(CurrentDocument(ref)).relativeTo(refPath))
 
-  def rootLinkTarget (fragment: String): InternalTarget = InternalTarget.fromPath(RelativePath.parse(s"#$fragment"), Path.Root)
+  def rootLinkTarget (fragment: String): InternalTarget = InternalTarget(RelativePath.parse(s"#$fragment"))
 
   def simpleImgRef (id: String = "name") = ImageIdReference("text", id, "text")
 
@@ -155,12 +157,12 @@ class RewriteRulesSpec extends AnyWordSpec
     }
 
     "resolve internal link definitions" in {
-      val rootElem = root(p(linkIdRef()), LinkDefinition("name", InternalTarget(Root, RelativePath.parse("foo.md#ref"))))
+      val rootElem = root(p(linkIdRef()), LinkDefinition("name", InternalTarget(RelativePath.parse("foo.md#ref"))))
       rewritten(rootElem) should be(root(p(intLink(RelativePath.parse("foo.md#ref")))))
     }
 
     "interpret internal link definitions as external when they point upwards beyond the virtual root" in {
-      val rootElem = root(p(linkIdRef()), LinkDefinition("name", InternalTarget(Root, RelativePath.parse("../../foo.md#ref"))))
+      val rootElem = root(p(linkIdRef()), LinkDefinition("name", InternalTarget(RelativePath.parse("../../foo.md#ref"))))
       rewritten(rootElem) should be(root(p(extLink("../../foo.md#ref"))))
     }
 
@@ -177,8 +179,8 @@ class RewriteRulesSpec extends AnyWordSpec
     "resolve anonymous internal link definitions" in {
       val rootElem = root(
         p(linkIdRef(""), linkIdRef("")),
-        LinkDefinition("", InternalTarget(Root, RelativePath.parse("foo.md#ref"))),
-        LinkDefinition("", InternalTarget(Root, RelativePath.parse("bar.md#ref")))
+        LinkDefinition("", InternalTarget(RelativePath.parse("foo.md#ref"))),
+        LinkDefinition("", InternalTarget(RelativePath.parse("bar.md#ref")))
       )
       rewritten(rootElem) should be(root(p(intLink(RelativePath.parse("foo.md#ref")), intLink(RelativePath.parse("bar.md#ref")))))
     }
@@ -237,7 +239,7 @@ class RewriteRulesSpec extends AnyWordSpec
 
     "resolve internal link references to a target in the parent tree" in {
       val rootElem = root(p(linkIdRef("int")))
-      val internalLink = SpanLink(List(Text("text")), InternalTarget.fromPath(RelativePath.parse("../doc1.md#ref"), Root / "tree1"))
+      val internalLink = SpanLink(List(Text("text")), InternalTarget(RelativePath.parse("../doc1.md#ref")).relativeTo(Root / "tree1"))
       rewrittenTreeDoc(rootElem) should be(root(p(internalLink)))
     }
 
@@ -264,6 +266,7 @@ class RewriteRulesSpec extends AnyWordSpec
 
   "The rewrite rules for internal links" should {
 
+    val refPath = Root / "tree1" / "doc3.md"
     def rootWithTarget(id: String = "ref") = root(InternalLinkTarget(Id(id)))
     def rootWithHeader(level: Int, id: String = "ref") = root(Header(level, Seq(Text("Header"))), InternalLinkTarget(Id(id)))
 
@@ -293,9 +296,9 @@ class RewriteRulesSpec extends AnyWordSpec
     def pathRef (ref: String) = LinkPathReference(List(Text("text")), RelativePath.parse(ref), "text")
     def imgPathRef (ref: String) = ImagePathReference(RelativePath.parse(ref), "text", alt = Some("text"))
     def internalLink (path: RelativePath, externalUrl: Option[String] = None) =
-      SpanLink(List(Text("text")), InternalTarget.fromPath(path, Root / "tree1" / "doc3.md").copy(externalUrl = externalUrl))
+      SpanLink(List(Text("text")), InternalTarget(path).relativeTo(Root / "tree1" / "doc3.md").copy(externalUrl = externalUrl))
     def docLink (ref: String) =
-      SpanLink(List(Text("text")), InternalTarget((Root / "tree1" / "doc3.md").withFragment(ref), CurrentDocument(ref)))
+      SpanLink(List(Text("text")), InternalTarget(CurrentDocument(ref)).relativeTo(refPath))
 
     "resolve internal link references to a target in the same document" in {
       val rootElem = root(p(pathRef("#ref")), InternalLinkTarget(Id("ref")))
@@ -324,7 +327,7 @@ class RewriteRulesSpec extends AnyWordSpec
 
     "resolve internal link references to an image" in {
       val rootElem = root(p(imgPathRef("../images/frog.jpg")))
-      val target = InternalTarget(Root / "images" / "frog.jpg", Parent(1) / "images" / "frog.jpg")
+      val target = InternalTarget(Parent(1) / "images" / "frog.jpg").relativeTo(refPath)
       rewrittenTreeDoc(rootElem) should be(root(p(Image(target, alt = Some("text")))))
     }
 
@@ -381,8 +384,8 @@ class RewriteRulesSpec extends AnyWordSpec
     }
 
     "resolve internal link references" in {
-      val rootElem = root(p(simpleImgRef()), LinkDefinition("name", InternalTarget(Root, RelativePath.parse("foo.jpg"))))
-      rewritten(rootElem) should be(root(p(Image(InternalTarget(Root / "foo.jpg", CurrentTree / "foo.jpg"), alt = Some("text")))))
+      val rootElem = root(p(simpleImgRef()), LinkDefinition("name", InternalTarget(RelativePath.parse("foo.jpg"))))
+      rewritten(rootElem) should be(root(p(Image(InternalTarget(Root / "foo.jpg").relativeTo(refPath), alt = Some("text")))))
     }
 
     "replace an unresolvable reference with an invalid span" in {

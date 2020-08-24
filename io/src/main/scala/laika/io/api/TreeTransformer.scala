@@ -75,7 +75,10 @@ object TreeTransformer {
       * will be determined by the suffix of the input document, e.g.
       * `.md` for Markdown and `.rst` for reStructuredText.
       */
-    def withAlternativeParser (parser: MarkupParser): Builder[F] = copy(parsers = parsers.append(parser))
+    def withAlternativeParser (parser: MarkupParser): Builder[F] = copy(
+      parsers = parsers.append(parser),
+      renderer = renderer.forInputFormat(parser.format)
+    )
 
     /** Specifies an additional parser for text markup.
       *
@@ -83,7 +86,7 @@ object TreeTransformer {
       * will be determined by the suffix of the input document, e.g.
       * `.md` for Markdown and `.rst` for reStructuredText.
       */
-    def withAlternativeParser (parser: ParserBuilder): Builder[F] = copy(parsers = parsers.append(parser.build))
+    def withAlternativeParser (parser: ParserBuilder): Builder[F] = withAlternativeParser(parser.build)
 
     /** Applies the specified theme to this transformer, overriding any previously specified themes.
       */

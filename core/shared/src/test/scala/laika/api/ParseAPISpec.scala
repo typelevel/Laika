@@ -73,7 +73,7 @@ class ParseAPISpec extends AnyFlatSpec
     val msg = """One or more error nodes in result:
                 | unresolved link id reference: invalid1
                 | unresolved link id reference: invalid2""".stripMargin
-    MarkupParser.of(Markdown).build.parse(input) shouldBe Left(ParserError(msg, Root))
+    MarkupParser.of(Markdown).build.parse(input) shouldBe Left(ParserError(msg, Root / "doc"))
   }
   
   it should "replace unresolved nodes with invalid elements" in {

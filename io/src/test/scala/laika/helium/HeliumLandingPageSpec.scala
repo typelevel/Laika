@@ -99,7 +99,7 @@ class HeliumLandingPageSpec extends IOFunSuite with InputBuilder with ResultExtr
                      |</body>""".stripMargin
     val imagePath = Root / "home.png"
     val helium = Helium.defaults.site.landingPage(
-      logo = Some(Image(InternalTarget(imagePath, imagePath.relative), alt = Some("Project Logo"))), // TODO - Logo type similar to Icon type
+      logo = Some(Image(InternalTarget(imagePath), alt = Some("Project Logo"))), // TODO - Logo type similar to Icon type
       title = Some("My Project"),
       subtitle = Some("Awesome Hyperbole Overkill"),
       latestReleases = Seq(
@@ -156,7 +156,7 @@ class HeliumLandingPageSpec extends IOFunSuite with InputBuilder with ResultExtr
     val inputs = twoDocs :+ (Root / "landing-page.md", "Some *markup* here.")
     val imagePath = Root / "home.png"
     val helium = Helium.defaults.site.landingPage(
-      logo = Some(Image(InternalTarget(imagePath, imagePath.relative), alt = Some("Project Logo"))), // TODO - Logo type similar to Icon type
+      logo = Some(Image(InternalTarget(imagePath), alt = Some("Project Logo"))), // TODO - Logo type similar to Icon type
       subtitle = Some("Awesome Hyperbole Overkill"),
       latestReleases = Seq(
         ReleaseInfo("Latest Release", "2.3.5")

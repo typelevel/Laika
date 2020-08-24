@@ -151,7 +151,7 @@ class XHTMLRendererSpec extends IOWordSpec with ModelBuilder with FileIO {
     }
 
     "prefer the external URL when an internal link has one defined" in {
-      val target = InternalTarget(Path.parse("/#foo"), RelativePath.parse("#foo"), Some("http://external/"))
+      val target = ResolvedInternalTarget(Path.parse("/#foo"), RelativePath.parse("#foo"), Some("http://external/"))
       val elem = p(Text("some "), SpanLink(List(Text("link")), target), Text(" span"))
       defaultRenderer.render(elem) should be ("""<p>some <a href="http://external/">link</a> span</p>""")
     }

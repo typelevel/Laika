@@ -17,7 +17,7 @@
 package laika.helium.generate
 
 import laika.ast.Path.Root
-import laika.ast._
+import laika.ast.{InternalTarget, _}
 import laika.config.{ASTValue, Config, ConfigBuilder, ConfigEncoder}
 import laika.helium.Helium
 import laika.helium.config._
@@ -88,11 +88,12 @@ object ConfigGenerator {
       .build
   }
   
+  // TODO - is this still needed after the InternalTarget refactor?
   case class RelativePath (target: ThemeTarget) extends SpanResolver {
     type Self = RelativePath
     def resolve(cursor: DocumentCursor): Span = target.resolve(cursor) match {
       case Left(msg) => InvalidElement(s"unresolved target ${target.description}: $msg", "<unresolved target>").asSpan
-      case Right(InternalTarget(_, relativePath, _)) => Text(relativePath.toString)
+      case Right(it: InternalTarget) => Text(it.relativeTo(cursor.path).relativePath.toString)
       case Right(ExternalTarget(url)) => Text(url)
     } 
     def unresolvedMessage: String = s"Unresolved target '${target.description}'"

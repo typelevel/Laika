@@ -141,7 +141,7 @@ case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor
       val treeWithStyles = StyleSupport.ensureContainsStyles(tree)
       treeConfig.coverImage.fold(tree) { image =>
         treeWithStyles.copy(tree = treeWithStyles.tree.copy(
-          content = Document(Root / "cover", RootElement(SpanSequence(Image(InternalTarget(image, image.relative), alt = Some("cover")))), 
+          content = Document(Root / "cover", RootElement(SpanSequence(Image(InternalTarget(image), alt = Some("cover")))), 
           config = ConfigBuilder.empty.withValue(LaikaKeys.title, "Cover").build) +: tree.tree.content
         ))
       }

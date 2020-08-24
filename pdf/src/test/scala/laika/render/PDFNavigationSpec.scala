@@ -23,7 +23,7 @@ import laika.api.builder.{OperationConfig, TwoPhaseRendererBuilder}
 import laika.ast.{DocumentTreeRoot, TemplateRoot}
 import laika.config.{Config, ConfigException}
 import laika.factory.{BinaryPostProcessor, BinaryPostProcessorBuilder, RenderFormat, TwoPhaseRenderFormat}
-import laika.format.{PDF, XSLFO}
+import laika.format.{Markdown, PDF, XSLFO}
 import laika.io.api.BinaryTreeRenderer
 import laika.io.helper.RenderResult
 import laika.io.implicits._
@@ -135,12 +135,14 @@ class PDFNavigationSpec extends IOWordSpec with FileIO {
   
   trait Setup extends TreeModel with ResultModel {
     
-    lazy val renderer: Resource[IO, BinaryTreeRenderer[IO]] = Renderer
-      .of(FOTest)
-      .io(blocker)
-      .parallel[IO]
-      .withTheme(TestTheme.heliumTestProps.build)
-      .build
+    lazy val renderer: Resource[IO, BinaryTreeRenderer[IO]] = {
+      val builder = Renderer.of(FOTest)
+      builder.withConfig(builder.config.withBundlesFor(Markdown))
+        .io(blocker)
+        .parallel[IO]
+        .withTheme(TestTheme.heliumTestProps.build)
+        .build
+    }
     
     type Builder = TwoPhaseRendererBuilder[FOFormatter, BinaryPostProcessor]
     

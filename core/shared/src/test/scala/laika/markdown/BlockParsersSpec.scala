@@ -491,12 +491,12 @@ class BlockParsersSpec extends AnyFlatSpec
   
   it should "parse an internal target" in {
     val input = """[def]: ../foo/bar.md#xy""".stripMargin
-    Parsing (input) should produce (root(LinkDefinition("def", InternalTarget(Root, RelativePath.parse("../foo/bar.md#xy")))))
+    Parsing (input) should produce (root(LinkDefinition("def", InternalTarget(RelativePath.parse("../foo/bar.md#xy")))))
   }
 
   it should "parse an internal target with title enclosed in parentheses" in {
     val input = """[def]: foo/bar.md#xy (Some Title)""".stripMargin
-    Parsing (input) should produce (root(LinkDefinition("def", InternalTarget(Root, RelativePath.parse("foo/bar.md#xy")), Some("Some Title"))))
+    Parsing (input) should produce (root(LinkDefinition("def", InternalTarget(RelativePath.parse("foo/bar.md#xy")), Some("Some Title"))))
   }
   
   

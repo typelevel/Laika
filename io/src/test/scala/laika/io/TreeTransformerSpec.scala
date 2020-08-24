@@ -385,7 +385,7 @@ class TreeTransformerSpec extends IOWordSpec with FileIO {
         s"""RootElement - Blocks: 1
           |. Paragraph - Spans: 2
           |. . Text - 'This is a '
-          |. . SpanLink(InternalTarget(/baz.md#$sectionSlug,../baz.md#$sectionSlug,None),None) - Spans: 1
+          |. . SpanLink(ResolvedInternalTarget(/baz.md#$sectionSlug,../baz.md#$sectionSlug,None),None) - Spans: 1
           |. . . Text - 'cross ref'""".stripMargin
 
       def inputs: Seq[(Path, String)] = Seq(

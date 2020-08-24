@@ -36,11 +36,13 @@ class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
     .parallel[IO]
     .build
 
-  val renderer = Renderer
-    .of(HTML)
-    .io(FileIO.blocker)
-    .parallel[IO]
-    .build
+  val renderer = {
+    val builder = Renderer.of(HTML)
+    builder.withConfig(builder.config.withBundlesFor(Markdown)) // TODO - there should be dedicated API for this scenario
+      .io(FileIO.blocker)
+      .parallel[IO]
+      .build
+  }
   
   val parserAndRenderer = for {
     p <- parser

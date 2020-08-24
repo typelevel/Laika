@@ -242,7 +242,7 @@ object StandardDirectives extends DirectiveRegistry {
           }
 
         case GeneratedNavigationNode(targetPath, title, depth, optExcludeRoot, optExcludeSections) =>
-          val resolvedTarget = InternalTarget.fromPath(targetPath, cursor.path).absolutePath.relative
+          val resolvedTarget = InternalTarget(targetPath).relativeTo(cursor.path).absolutePath.relative
           val target = cursor.root.target.tree.selectDocument(resolvedTarget).orElse(
             cursor.root.target.tree.selectSubtree(resolvedTarget)
           )
@@ -427,7 +427,7 @@ object StandardDirectives extends DirectiveRegistry {
             if (isPackage) packageName.replace(".", "/") + "/" + link.packageSummary 
             else fqName.replace(".", "/") + ".html"
           val uri = link.baseUri + typePath + method.fold("")("#" + _)
-          Right(SpanLink(Seq(Text(text)), Target.create(uri)))
+          Right(SpanLink(Seq(Text(text)), Target.parse(uri)))
         }
       }
   }
@@ -449,7 +449,7 @@ object StandardDirectives extends DirectiveRegistry {
           val typePath = linkId.replace(".", "/") + "." + link.suffix
           val uri = link.baseUri + typePath
           val text = linkId.split('.').last
-          Right(SpanLink(Seq(Text(text)), Target.create(uri)))
+          Right(SpanLink(Seq(Text(text)), Target.parse(uri)))
         }
       }
   }
@@ -702,7 +702,7 @@ object StandardDirectives extends DirectiveRegistry {
       attribute("title").as[String].optional,
       cursor).mapN { (src, width, height, style, alt, title, cursor) =>
         val img = Image(
-          InternalTarget.fromPath(PathBase.parse(src), cursor.path),
+          InternalTarget(PathBase.parse(src)).relativeTo(cursor.path),
           width.map(LengthUnit.px(_)),
           height.map(LengthUnit.px(_)),
           alt,
@@ -738,7 +738,7 @@ object StandardDirectives extends DirectiveRegistry {
       cursor).mapN { (src, width, height, style, alt, title, cursor) =>
         val options = Styles(style.getOrElse("default-image-span"))
         Image(
-          InternalTarget.fromPath(PathBase.parse(src), cursor.path),
+          InternalTarget(PathBase.parse(src)).relativeTo(cursor.path),
           width.map(LengthUnit.px(_)),
           height.map(LengthUnit.px(_)),
           alt,

@@ -18,8 +18,7 @@ package laika.render
 
 import cats.implicits._
 import cats.data.NonEmptySet
-import javafx.scene.control.Tab
-import laika.ast._
+import laika.ast.{InternalTarget, _}
 import laika.rst.ast.RstStyle
 
 /** Default renderer implementation for the HTML output format.
@@ -118,10 +117,7 @@ class HTMLRenderer (fileSuffix: String, formats: NonEmptySet[String]) extends ((
       
       def linkAttributes (target: Target, title: Option[String]): Seq[(String, String)] = {
         val href = target match {
-          case InternalTarget(_, relPath, _) =>
-            // TODO - 0.16 - generalize suffix check
-            if (relPath.suffix.contains("md") || relPath.suffix.contains("rst")) fmt.internalLink(relPath)
-            else relPath.toString
+          case it: InternalTarget  => fmt.pathTranslator.translate(it).relativeTo(fmt.path).relativePath.toString
           case ExternalTarget(url) => url
         }
         fmt.optAttributes(
@@ -230,7 +226,7 @@ class HTMLRenderer (fileSuffix: String, formats: NonEmptySet[String]) extends ((
         val (heightAttr, hStyle) = sizeAttr(height, "height")
         val styleAttr = (wStyle ++ hStyle).reduceLeftOption((a,b) => s"$a;$b")
         val uri = target match {
-          case it: InternalTarget => it.relativePath.toString
+          case it: InternalTarget => it.relativeTo(fmt.path).relativePath.toString
           case et: ExternalTarget => et.url
         }
         val allAttr = fmt.optAttributes("src" -> Some(uri), "alt" -> alt, "title" -> title,

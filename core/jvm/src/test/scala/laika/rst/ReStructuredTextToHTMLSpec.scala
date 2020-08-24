@@ -20,7 +20,7 @@ import cats.implicits._
 import cats.data.NonEmptySet
 import laika.api.Transformer
 import laika.ast.Path.Root
-import laika.ast._
+import laika.ast.{InternalTarget, _}
 import laika.file.FileIO
 import laika.format.{HTML, ReStructuredText}
 import laika.html.TidyHTML
@@ -92,7 +92,8 @@ class ReStructuredTextToHTMLSpec extends AnyFlatSpec
         case (fmt, sl@ SpanLink(content, target, title, opt)) => target match {
           case ExternalTarget(url) =>
             fmt.element("a", opt + Styles("reference","external"), content, fmt.optAttributes("href" -> Some(url), "title" -> title):_*)
-          case InternalTarget(_, relativePath, _) =>
+          case it: InternalTarget =>
+            val relativePath = it.relativeTo(fmt.path).relativePath
             // rst makes a different kind of distinction between external and internal links, so we adjust Laika's renderers just for this test
             if (relativePath.suffix.contains("html") || relativePath.fragment.isEmpty) fmt.child(sl.copy(target = ExternalTarget(relativePath.toString)))
             else fmt.element("a", opt + Styles("reference","internal"), content, fmt.optAttributes("href" -> Some("#"+relativePath.fragment.get), "title"->title):_*)

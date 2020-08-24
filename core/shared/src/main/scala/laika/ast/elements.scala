@@ -18,7 +18,6 @@ package laika.ast
 
 import cats.data.NonEmptySet
 import laika.api.Renderer
-import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentDocument
 import laika.config.{ConfigEncoder, ConfigValue}
 import laika.format.AST
@@ -267,11 +266,11 @@ trait SpanContainer extends ElementContainer[Span] with RewritableContainer {
   /**  Extracts the text from the spans of this container, removing
     *  any formatting or links.
     */
-  def extractText: String = content map {
+  def extractText: String = content.map {
     case tc: TextContainer => tc.content
     case sc: SpanContainer => sc.extractText
     case _ => ""
-  } mkString
+  }.mkString
 
 }
 
@@ -1125,8 +1124,7 @@ object Inserted extends SpanContainerCompanion {
   protected def createSpanContainer (spans: Seq[Span]): Inserted = Inserted(spans)
 }
 
-/** Represents a target that can be referred to by links,
-  * either within the virtual tree or external.
+/** Represents a target that can be referred to by links, either within the virtual tree or external.
   */
 sealed trait Target {
   def render (internalTargetsAbsolute: Boolean = false): String
@@ -1138,21 +1136,47 @@ case class ExternalTarget (url: String) extends Target {
   def render (internalTargetsAbsolute: Boolean = false): String = url
 }
 
-/** Represents an internal target with an absolute and relative path, the latter
-  * relative to the document that referred to the target. 
-  * 
+/** Represents a target within the virtual tree that can be referred to by links.
+  */
+trait InternalTarget extends Target {
+  def relativeTo (refPath: Path): ResolvedInternalTarget
+}
+
+/** Represents a resolved internal target where both the absolute and relative path are known, 
+  * the latter relative to the document that referred to the target. 
+  *
   * The optional `externalUrl` property can be set for links which are internal
   * on a rendered site, but external for e-books like EPUB and PDF.
   */
-case class InternalTarget (absolutePath: Path, relativePath: RelativePath, externalUrl: Option[String] = None) extends Target {
-  def relativeTo (refPath: Path): InternalTarget = InternalTarget.fromPath(relativePath, refPath)
-  def render (internalTargetsAbsolute: Boolean = false): String = 
+case class ResolvedInternalTarget (absolutePath: Path, relativePath: RelativePath, externalUrl: Option[String] = None) extends InternalTarget {
+  def relativeTo (refPath: Path): ResolvedInternalTarget = 
+    ResolvedInternalTarget(absolutePath, absolutePath.relativeTo(refPath))
+  def render (internalTargetsAbsolute: Boolean = false): String =
     if (internalTargetsAbsolute) absolutePath.toString
     else relativePath.toString
 }
+
+/** Represents a target defined by an absolute path.
+  */
+case class AbsoluteInternalTarget (path: Path) extends InternalTarget {
+  def relativeTo (refPath: Path): ResolvedInternalTarget = ResolvedInternalTarget(path, path.relativeTo(refPath))
+  def render (internalTargetsAbsolute: Boolean = false): String = path.toString
+}
+
+/** Represents a target defined by a relative path; 
+  * the absolute path of such a target needs to be resolved later in the context of the containing document and its path.
+  */
+case class RelativeInternalTarget (path: RelativePath) extends InternalTarget {
+  def relativeTo (refPath: Path): ResolvedInternalTarget = path match {
+    case p: CurrentDocument => ResolvedInternalTarget(refPath / p, p)
+    case p: RelativePath    => ResolvedInternalTarget(refPath.parent / p, p)
+  }
+  def render (internalTargetsAbsolute: Boolean = false): String = path.toString
+}
+
 object Target {
   
-  /** Creates a new target from the specified URL.
+  /** Creates a new target by parsing the specified URL.
     * 
     * If the target is an absolute URL (starting with '/' or 'http'/'https') the
     * result will be an external target. 
@@ -1164,19 +1188,31 @@ object Target {
     * External targets on the other hand are not validated, 
     * as the availability of the external resource during validation cannot be guaranteed.
     */
-  def create (url: String): Target = 
+  def parse (url: String): Target = 
     if (url.startsWith("http:") || url.startsWith("https:") || url.startsWith("/")) ExternalTarget(url)
-    else InternalTarget(Root, RelativePath.parse(url))
+    else RelativeInternalTarget(RelativePath.parse(url))
+  
+  private[laika] def parseInternal (url: String): Either[RelativeInternalTarget, ExternalTarget] =
+    if (url.startsWith("http:") || url.startsWith("https:") || url.startsWith("/")) Right(ExternalTarget(url))
+    else Left(RelativeInternalTarget(RelativePath.parse(url)))
+
+  @deprecated("use Target.parse instead", "0.16.0")
+  def create(url: String): Target = parse(url)
 }
 object InternalTarget {
-  
-  /** Creates an instance for the specified path relative to
-    * the provided reference path.
+
+  /** Creates an internal target based on the specified relative or absolute path.
     */
+  def apply (path: PathBase): InternalTarget = path match {
+    case p: RelativePath => RelativeInternalTarget(p)
+    case p: Path => AbsoluteInternalTarget(p)
+  }
+  
+  @deprecated("use InternalTarget(path: PathBase).relativeTo(refPath: Path)", "0.16.0")
   def fromPath (path: PathBase, refPath: Path): InternalTarget = path match {
-    case p: Path            => InternalTarget(p, p.relativeTo(refPath))
-    case p: CurrentDocument => InternalTarget(refPath / p, p)
-    case p: RelativePath    => InternalTarget(refPath.parent / p, p)
+    case p: Path            => ResolvedInternalTarget(p, p.relativeTo(refPath))
+    case p: CurrentDocument => ResolvedInternalTarget(refPath / p, p)
+    case p: RelativePath    => ResolvedInternalTarget(refPath.parent / p, p)
   }
 }
 
@@ -1218,9 +1254,9 @@ case class Image (target: Target,
 object Image {
   def create (url: String, source: String, width: Option[Size] = None,
               height: Option[Size] = None, alt: Option[String] = None, title: Option[String] = None): Span =
-    Target.create(url) match {
-      case et: ExternalTarget => Image(et, width, height, alt, title)
-      case it: InternalTarget => ImagePathReference(it.relativePath, source, width, height, alt, title)
+    Target.parseInternal(url) match {
+      case Right(external) => Image(external, width, height, alt, title)
+      case Left(internal)  => ImagePathReference(internal.path, source, width, height, alt, title)
     }
 }
 
@@ -1278,9 +1314,9 @@ object Link {
     * URL which will be parsed and interpreted as an internal or external target.
     */
   def create (linkText: Seq[Span], url: String, source: String, title: Option[String] = None): Span =
-    Target.create(url) match {
-      case et: ExternalTarget => SpanLink(linkText, et, title)
-      case it: InternalTarget => LinkPathReference(linkText, it.relativePath, source, title)
+    Target.parseInternal(url) match {
+      case Right(external) => SpanLink(linkText, external, title)
+      case Left(internal)  => LinkPathReference(linkText, internal.path, source, title)
     }
 }
 
@@ -1289,7 +1325,7 @@ object LinkDefinition {
     * URL which will be parsed and interpreted as an internal or external target.
     */
   def create (id: String, url: String, title: Option[String] = None): Block with Span = 
-    LinkDefinition(id, Target.create(url), title)
+    LinkDefinition(id, Target.parse(url), title)
 }
 
 /** A reference to content within the virtual input tree, the path pointing to the source path.

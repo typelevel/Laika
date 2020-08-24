@@ -40,7 +40,7 @@ class HTMLRendererSpec extends AnyFlatSpec
     
   def renderUnformatted (elem: Element): String = Renderer.of(HTML).unformatted.build.render(elem)
   
-  val imageTarget = InternalTarget(Root / "foo.jpg", CurrentTree / "foo.jpg")
+  val imageTarget = InternalTarget(Root / "foo.jpg")
 
 
   "The HTML renderer" should "render a paragraph with plain text" in {
@@ -230,23 +230,24 @@ class HTMLRendererSpec extends AnyFlatSpec
   }
   
   it should "render a navigation list" in {
+    val refPath = Root / "doc-99"
     val elem = NavigationList(Seq(
-      NavigationLink(SpanSequence("Link-1"), InternalTarget.fromPath(Root / "doc-1", Root), Seq(
-        NavigationLink(SpanSequence("Link-2"), InternalTarget.fromPath(Root / "doc-2", Root), Nil, options = Style.level(2))
+      NavigationLink(SpanSequence("Link-1"), InternalTarget(Root / "doc-1").relativeTo(refPath), Seq(
+        NavigationLink(SpanSequence("Link-2"), InternalTarget(Root / "doc-2").relativeTo(refPath), Nil, options = Style.level(2))
       ), options = Style.level(1)),
       NavigationHeader(SpanSequence("Header-3"), Seq(
-        NavigationLink(SpanSequence("Link-4"), InternalTarget.fromPath(Root / "doc-4", Root), Nil, selfLink = true, options = Style.level(2))
+        NavigationLink(SpanSequence("Link-4"), InternalTarget(Root / "doc-4").relativeTo(refPath), Nil, selfLink = true, options = Style.level(2))
       ), options = Style.level(1)),
-      NavigationLink(SpanSequence("Link-5"), InternalTarget.fromPath(Root / "doc-5", Root), Nil,
+      NavigationLink(SpanSequence("Link-5"), InternalTarget(Root / "doc-5").relativeTo(refPath), Nil,
         options = Style.level(1))
     ))
     val html =
       """<ul class="nav-list">
-        |  <li class="level1"><a href="doc-1">Link-1</a></li>
-        |  <li class="level2"><a href="doc-2">Link-2</a></li>
+        |  <li class="level1"><a href="doc-1.html">Link-1</a></li>
+        |  <li class="level2"><a href="doc-2.html">Link-2</a></li>
         |  <li class="level1 nav-header">Header-3</li>
-        |  <li class="level2 active"><a href="doc-4">Link-4</a></li>
-        |  <li class="level1"><a href="doc-5">Link-5</a></li>
+        |  <li class="level2 active"><a href="doc-4.html">Link-4</a></li>
+        |  <li class="level1"><a href="doc-5.html">Link-5</a></li>
         |</ul>""".stripMargin
     render (elem) should be (html)
   }
@@ -374,7 +375,7 @@ class HTMLRendererSpec extends AnyFlatSpec
   }
   
   it should "render a figure" in {
-    val elem = Figure(Image(InternalTarget(Root / "image.jpg", CurrentTree / "image.jpg"), alt = Some("alt")), List(Text("some "), Emphasized("caption"), Text(" text")), List(p("aaa"), Rule(), p("bbb")))
+    val elem = Figure(Image(InternalTarget(Root / "image.jpg"), alt = Some("alt")), List(Text("some "), Emphasized("caption"), Text(" text")), List(p("aaa"), Rule(), p("bbb")))
     val html = """<div class="figure">
       |  <img src="image.jpg" alt="alt">
       |  <p class="caption">some <em>caption</em> text</p>
@@ -523,27 +524,27 @@ class HTMLRendererSpec extends AnyFlatSpec
   }
   
   it should "render a paragraph containing an internal link with emphasized text" in {
-    val elem = p(Text("some "), SpanLink(List(Text("link"),Emphasized("text")),InternalTarget(Path.parse("/#foo"),RelativePath.parse("#foo"))), Text(" span"))
+    val elem = p(Text("some "), SpanLink(List(Text("link"),Emphasized("text")),InternalTarget(PathBase.parse("#foo"))), Text(" span"))
     render (elem) should be ("""<p>some <a href="#foo">link<em>text</em></a> span</p>""") 
   }
   
   it should "render a paragraph containing a internal link with a fragment part" in {
-    val elem = p(Text("some "), SpanLink(List(Text("link"),Emphasized("text")), InternalTarget(Path.parse("/bar#foo"),RelativePath.parse("../bar.md#foo"))), Text(" span"))
-    render (elem) should be ("""<p>some <a href="../bar.html#foo">link<em>text</em></a> span</p>""") 
+    val elem = p(Text("some "), SpanLink(List(Text("link"),Emphasized("text")), InternalTarget(Path.parse("/bar#foo"))), Text(" span"))
+    render (elem) should be ("""<p>some <a href="bar.html#foo">link<em>text</em></a> span</p>""") 
   }
   
   it should "render a paragraph containing a internal link without a fragment part" in {
-    val elem = p(Text("some "), SpanLink(List(Text("link"),Emphasized("text")), InternalTarget(Path.parse("/bar"),RelativePath.parse("../bar.md"))), Text(" span"))
-    render (elem) should be ("""<p>some <a href="../bar.html">link<em>text</em></a> span</p>""") 
+    val elem = p(Text("some "), SpanLink(List(Text("link"),Emphasized("text")), InternalTarget(Path.parse("/bar"))), Text(" span"))
+    render (elem) should be ("""<p>some <a href="bar.html">link<em>text</em></a> span</p>""") 
   }
   
-  it should "render a paragraph containing a internal link with a filename without suffix" in {
-    val elem = p(Text("some "), SpanLink(List(Text("link"),Emphasized("text")), InternalTarget(Path.parse("/bar"),RelativePath.parse("../bar"))), Text(" span"))
-    render (elem) should be ("""<p>some <a href="../bar">link<em>text</em></a> span</p>""") 
+  it should "render a paragraph containing a internal link with an input filename without suffix" in {
+    val elem = p(Text("some "), SpanLink(List(Text("link"),Emphasized("text")), InternalTarget(Path.parse("/bar"))), Text(" span"))
+    render (elem) should be ("""<p>some <a href="bar.html">link<em>text</em></a> span</p>""") 
   }
 
   it should "render a paragraph containing an internal link while ignoring the external URL" in {
-    val target = InternalTarget(Path.parse("/#foo"), RelativePath.parse("#foo"), Some("http://external/"))
+    val target = ResolvedInternalTarget(Path.parse("/doc#foo"), RelativePath.parse("#foo"), Some("http://external/"))
     val elem = p(Text("some "), SpanLink(List(Text("link")), target), Text(" span"))
     render (elem) should be ("""<p>some <a href="#foo">link</a> span</p>""")
   }

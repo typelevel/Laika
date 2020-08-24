@@ -18,7 +18,7 @@ package laika.render
 
 import cats.implicits._
 import cats.data.NonEmptySet
-import laika.ast.{Styles, _}
+import laika.ast.{InternalTarget, Styles, _}
 import laika.render.FOFormatter._
 
 /** Default renderer implementation for the XSL-FO output format.
@@ -128,9 +128,10 @@ object FORenderer extends ((FOFormatter, Element) => String) {
         case e @ InlineCode(lang,content,_)   => fmt.inline(e.copy(options=e.options + codeStyles(lang)),content)
         case e @ Line(content,_)              => fmt.block(e, content)
 
-        case e @ SpanLink(content, ExternalTarget(url), _, _)             => fmt.externalLink(e, url, content)
-        case e @ SpanLink(content, InternalTarget(_, _, Some(url)), _, _) => fmt.externalLink(e, url, content)
-        case e @ SpanLink(content, InternalTarget(absolute, _, _), _, _)  => fmt.internalLink(e, fmt.buildId(absolute), content)
+        case e @ SpanLink(content, ExternalTarget(url), _, _) => fmt.externalLink(e, url, content)
+        case e @ SpanLink(content, ResolvedInternalTarget(_, _, Some(url)), _, _) => fmt.externalLink(e, url, content)
+        case e @ SpanLink(content, it: InternalTarget, _, _) =>
+          fmt.internalLink(e, fmt.buildId(it.relativeTo(fmt.path).absolutePath), content)
 
         case WithFallback(fallback)         => fmt.child(fallback)
         case c: Customizable                => c match {
@@ -202,13 +203,13 @@ object FORenderer extends ((FOFormatter, Element) => String) {
       case SectionNumber(pos, opt)        => fmt.child(Text(pos.mkString(".") + " ", opt + Style.sectionNumber))
       case e @ Image(target,width,height,_,_,_) =>
         val uri = target match {
-          case it: InternalTarget => it.absolutePath.toString
+          case it: InternalTarget => it.relativeTo(fmt.path).absolutePath.toString
           case et: ExternalTarget => et.url
         }
         fmt.externalGraphic(e, uri, width, height)
       case icon: Icon                     => fmt.rawElement("fo:inline", icon, icon.codePointAsEntity)
       case e: Leader                      => fmt.textElement("fo:leader", e, "", "leader-pattern"->"dots", "padding-left" -> "2mm", "padding-right" -> "2mm")
-      case PageNumberCitation(target,_)     => s"""<fo:page-number-citation ref-id="${fmt.buildId(target.absolutePath)}" />"""
+      case PageNumberCitation(target,_)     => s"""<fo:page-number-citation ref-id="${fmt.buildId(target.relativeTo(fmt.path).absolutePath)}" />"""
       case LineBreak(_)                   => "&#x2028;"
       case TemplateElement(elem,indent,_) => fmt.withMinIndentation(indent)(_.child(elem))
 

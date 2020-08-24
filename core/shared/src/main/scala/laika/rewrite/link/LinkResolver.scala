@@ -16,7 +16,7 @@
 
 package laika.rewrite.link
 
-import laika.ast._
+import laika.ast.{InternalTarget, _}
 import laika.ast.Path.Root
 
 import scala.annotation.tailrec
@@ -72,20 +72,24 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
     
     def resolveWith (ref: Reference, target: Option[TargetResolver], msg: => String): RewriteAction[Span] = {
 
+      def assignExternalUrl (link: Span, target: ResolvedInternalTarget)(mapping: InternalLinkMapping): Span = link match {
+        case sl: SpanLink =>
+          sl.copy(target = target.copy(
+            externalUrl = Some(mapping.externalBaseUrl + target.absolutePath.relativeTo(mapping.internalPath / "ref").toString)
+          ))
+        case _: Image =>
+          InvalidElement(s"image with internal path: ${target.absolutePath.toString} cannot be mapped to external base URL ${mapping.externalBaseUrl}", ref.source).asSpan
+      }
+      
       def validateLink (link: Span, target: Target): Span = target match {
-        case InternalTarget(absPath, relativePath, _) =>
-          val selector = pathSelectorFor(relativePath)
+        case it: InternalTarget =>
+          val resolvedTarget = it.relativeTo(cursor.path)
+          val selector = pathSelectorFor(resolvedTarget.relativePath)
           if (excludeFromValidation.exists(p => selector.path.isSubPath(p)) || targets.select(Root, selector).isDefined) {
-            internalLinkMappings.find(m => selector.path.isSubPath(m.internalPath)).fold(link) { mapping =>
-              link match {
-                case sl: SpanLink => 
-                  sl.copy(target = InternalTarget(absPath, relativePath, Some(mapping.externalBaseUrl + absPath.relativeTo(mapping.internalPath / "ref").toString)))
-                case _: Image =>
-                  InvalidElement(s"image with internal path: ${absPath.toString} cannot be mapped to external base URL ${mapping.externalBaseUrl}", ref.source).asSpan
-              }
-            }
+            internalLinkMappings.find(m => selector.path.isSubPath(m.internalPath))
+              .fold(link)(assignExternalUrl(link, resolvedTarget))
           }
-          else InvalidElement(s"unresolved internal reference: ${relativePath.toString}", ref.source).asSpan
+          else InvalidElement(s"unresolved internal reference: ${resolvedTarget.relativePath.toString}", ref.source).asSpan
         case _ => link
       }
 
@@ -95,7 +99,7 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
         case Some(other)          => other
         case None                 => ref match {
           case p: PathReference =>
-            val target = ReferenceResolver.resolveTarget(InternalTarget.fromPath(p.path, cursor.path), cursor.path)
+            val target = ReferenceResolver.resolveTarget(p.path, cursor.path)
             validateLink(p.resolve(target), target)
           case _ =>
             InvalidElement(msg, ref.source).asSpan

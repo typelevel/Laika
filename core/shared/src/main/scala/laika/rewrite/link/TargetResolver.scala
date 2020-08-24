@@ -55,14 +55,18 @@ object ReferenceResolver {
   def lift(f: PartialFunction[LinkSource, Span]): LinkSource => Option[Span] = f.lift
   def internalLink (target: Path): LinkSource => Option[Span] = lift {
     case LinkSource(ref: PathReference, sourcePath) =>
-      ref.resolve(InternalTarget(target, target.relativeTo(sourcePath)))
+      ref.resolve(InternalTarget(target).relativeTo(sourcePath))
     case LinkSource(LinkIdReference (content, _, _, opt), sourcePath) =>
-      SpanLink(content, InternalTarget(target, target.relativeTo(sourcePath)), None, opt)
+      SpanLink(content, InternalTarget(target).relativeTo(sourcePath), None, opt)
   }
-  def resolveTarget (target: Target, refPath: Path): Target = target match {
+  def resolveTarget (target: RelativePath, refPath: Path): Target = {
     /* If an internal target point upwards beyond the virtual root of the processed tree, 
        it is treated as an external target and does not get validated. */
-    case it: InternalTarget if it.relativePath.parentLevels >= refPath.depth => ExternalTarget(it.relativePath.toString)
+    if (target.parentLevels >= refPath.depth) ExternalTarget(target.toString)
+    else InternalTarget(target).relativeTo(refPath)
+  }
+  def resolveTarget (target: Target, refPath: Path): Target = target match {
+    case it: RelativeInternalTarget => resolveTarget(it.path, refPath)
     case it: InternalTarget => it.relativeTo(refPath)
     case external => external
   }

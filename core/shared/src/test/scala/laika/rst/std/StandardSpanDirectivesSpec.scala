@@ -43,7 +43,7 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec
 
   def parse (input: String): RootElement = parser.parse(input, Root / "test.rst").toOption.get.content
   
-  val imgTarget = InternalTarget(Root / "picture.jpg", CurrentTree / "picture.jpg")
+  val imgTarget = InternalTarget(CurrentTree / "picture.jpg").relativeTo(Root / "test.rst")
   
   "The image directive" should "parse the URI argument" in {
     val input = """.. |subst| image:: picture.jpg

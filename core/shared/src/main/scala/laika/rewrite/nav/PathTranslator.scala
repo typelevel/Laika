@@ -16,7 +16,8 @@
 
 package laika.rewrite.nav
 
-import laika.ast.{Path, RelativePath}
+import laika.ast.Path.Root
+import laika.ast.{/, AbsoluteInternalTarget, DocumentType, InternalTarget, Path, PathBase, RelativeInternalTarget, RelativePath, ResolvedInternalTarget}
 import laika.config.Config
 
 /** Translates paths of input documents to the corresponding output path. 
@@ -36,32 +37,51 @@ trait PathTranslator {
     */
   def translate (input: RelativePath): RelativePath
   
+  def translate (target: InternalTarget): InternalTarget = target match {
+    case rt: ResolvedInternalTarget => 
+      rt.copy(absolutePath = translate(rt.absolutePath), relativePath = translate(rt.relativePath))
+    case at: AbsoluteInternalTarget => at.copy(path = translate(at.path))
+    case rt: RelativeInternalTarget => rt.copy(path = translate(rt.path))
+  }
+  
+  protected def documentTypeMatcher: Path => DocumentType
+  
+  protected def isContentPath (path: Path): Boolean =
+    path.suffix.isEmpty || documentTypeMatcher(path) == DocumentType.Markup
+  
 }
 
 /** Translates paths of input documents to the corresponding output path, based on a configuration instance.
   * 
   * @author Jens Halm
   */
-case class ConfigurablePathTranslator (config: Config, outputSuffix: String) extends PathTranslator {
+case class ConfigurablePathTranslator (config: Config, outputSuffix: String, documentTypeMatcher: Path => DocumentType) extends PathTranslator {
 
   private val titleDocInputName = TitleDocumentConfig.inputName(config)
   private val titleDocOutputName = TitleDocumentConfig.outputName(config)
 
   def translate (input: Path): Path = {
-    if (input.basename == titleDocInputName) input.withBasename(titleDocOutputName).withSuffix(outputSuffix)
-    else input.withSuffix(outputSuffix)
+    if (isContentPath(input)) {
+      if (input.basename == titleDocInputName) input.withBasename(titleDocOutputName).withSuffix(outputSuffix)
+      else input.withSuffix(outputSuffix)
+    }
+    else input
   }
 
   def translate (input: RelativePath): RelativePath = {
-    if (input.basename == titleDocInputName) input.withBasename(titleDocOutputName).withSuffix(outputSuffix)
-    else input.withSuffix(outputSuffix)
+    if (isContentPath(Root / input.name) && !input.name.isEmpty) {
+      if (input.basename == titleDocInputName) input.withBasename(titleDocOutputName).withSuffix(outputSuffix)
+      else input.withSuffix(outputSuffix)
+    }
+    else input
   }
   
 }
 
 /** Basic path translator implementation that only replaces the suffix of the path.
   */
-case class BasicPathTranslator (outputSuffix: String) extends PathTranslator {
-  def translate (input: Path): Path = input.withSuffix(outputSuffix)
-  def translate (input: RelativePath): RelativePath = input.withSuffix(outputSuffix)
+case class BasicPathTranslator (outputSuffix: String, documentTypeMatcher: Path => DocumentType) extends PathTranslator {
+  def translate (input: Path): Path = if (isContentPath(Root / input.name)) input.withSuffix(outputSuffix) else input
+  def translate (input: RelativePath): RelativePath = 
+    if (isContentPath(Root / input.name) && !input.name.isEmpty) input.withSuffix(outputSuffix) else input
 }

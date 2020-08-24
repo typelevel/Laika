@@ -27,7 +27,8 @@ import laika.rewrite.nav.PathTranslator
  * @param currentElement the active element currently being rendered                       
  * @param parents the stack of parent elements of this formatter in recursive rendering, 
  *                with the root element being the last in the list
- * @param pathTranslator translates paths of input documents to the corresponding output path               
+ * @param pathTranslator translates paths of input documents to the corresponding output path
+ * @param path the virtual path of the document getting rendered
  * @param indentation the indentation mechanism for this formatter
  * @param messageFilter the filter to apply before rendering runtime messages  
  *                   
@@ -37,6 +38,7 @@ case class HTMLFormatter (renderChild: (HTMLFormatter, Element) => String,
                           currentElement: Element,
                           parents: List[Element],
                           pathTranslator: PathTranslator,
+                          path: Path,
                           indentation: Indentation,
                           messageFilter: MessageFilter,
                           closeEmptyTags: Boolean) extends 
@@ -67,7 +69,7 @@ case class HTMLFormatter (renderChild: (HTMLFormatter, Element) => String,
   */
 object HTMLFormatter extends (RenderContext[HTMLFormatter] => HTMLFormatter) {
   def apply (context: RenderContext[HTMLFormatter]): HTMLFormatter =
-    HTMLFormatter(context.renderChild, context.root, Nil, context.pathTranslator, context.indentation, 
+    HTMLFormatter(context.renderChild, context.root, Nil, context.pathTranslator, context.pathTranslator.translate(context.path), context.indentation, 
       context.config.renderMessages, closeEmptyTags = false)
 }
 
@@ -78,6 +80,6 @@ object HTMLFormatter extends (RenderContext[HTMLFormatter] => HTMLFormatter) {
   */
 object XHTMLFormatter extends (RenderContext[HTMLFormatter] => HTMLFormatter) {
   def apply (context: RenderContext[HTMLFormatter]): HTMLFormatter =
-    HTMLFormatter(context.renderChild, context.root, Nil, context.pathTranslator, context.indentation,
+    HTMLFormatter(context.renderChild, context.root, Nil, context.pathTranslator, context.pathTranslator.translate(context.path), context.indentation,
       context.config.renderMessages, closeEmptyTags = true)
 }
