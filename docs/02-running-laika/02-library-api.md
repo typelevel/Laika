@@ -93,16 +93,15 @@ You can use it with any effect that supports the `cats-effect` type classes, lik
 * The blocker passed in the example gives you control over which `ExecutionContext` blocking IO is performed in.
 
 * The call to `parallel[IO]` builds a transformer that lets you specify entire directories as input and allows to instruct
-  the library which effect type to use (cats-IO in this example). There is a second variant, `sequential`, 
-  that builds a transformer that accepts individual files, streams or strings as input and output.
+  the library which effect type to use (cats-IO in this example). There are two more variants, `sequential`, 
+  that processes inputs sequentially as well as an overload for `parallel` that allows to specify the level of parallelism.
   
 Using a `Transformer` is the most convenient option when you want to go directly from the raw input format (text markup)
 to the final output format. There are also `Parser` and `Renderer` instances that only do one half of the transformation.
 
-All types, `Transformer`, `Parser` and `Renderer` come in three flavors each. 
-A simple, pure API for dealing with strings as input and output, 
-a sequential, effectful API for processing individual files and streams 
-and finally a parallel, effectful API for processing entire directories with templates and configuration files 
+All types, `Transformer`, `Parser` and `Renderer` come in two flavors each. 
+A simple, pure API for dealing with strings as input and output
+and a parallel, effectful API for processing entire directories with templates and configuration files 
 in addition to the usual text markup input.
 
 
@@ -160,6 +159,8 @@ Setup for Effectful Transformations
 In case you want to go beyond pure string transformations, 
 you need to switch your dependency to the `laika-io` module as shown in the [Dependencies] section.
 
+This dependency will add file/stream IO, theme support, templating and the ability to process entire directories.
+
 This module depends on cats-effect, and models all side effects in an abstract effect,
 so that you can use it with cats IO, Monix or Zio.
 
@@ -187,13 +188,14 @@ The following example assumes the use case of an application written around abst
 from cats.IO for initialization:
 
 ```scala
-def createTransformer[F[_]: Async: ContextShift](blocker: Blocker): SequentialTransformer[F] =
+def createTransformer[F[_]: Async: ContextShift]
+    (blocker: Blocker): Resource[F, TreeTransformer[F]] =
   Transformer
     .from(Markdown)
     .to(HTML)
     .using(GitHubFlavor)
     .io(blocker)
-    .sequential[F]
+    .parallel[F]
     .build
 ``` 
 
@@ -239,10 +241,11 @@ val transformer = createTransformer(blocker)
 The resulting instance can then be used to describe a transformation: 
 
 ```scala
-val result: IO[String] = transformer
-  .fromFile("hello.md")
-  .toFile("hello.html")
-  .transform
+val result: IO[String] = transformer.use {
+  _.fromDirectory("docs")
+   .toDirectory("target")
+   .transform
+}
 ```
 
 The resulting `IO` instance is only a description of a program, as it starts evaluation lazily, 
@@ -277,56 +280,12 @@ when using them is referential transparency. But if you are using a `Future`-bas
 your program is not referentially transparent anyway.
 
 
-File and Stream IO
-------------------
-
-With transformer instances created by the setup shown in the previous section in place, 
-you can now transform the content of files:
-
-```scala
-val res: IO[String] = transformer
-  .fromFile("hello.md")
-  .toFile("hello.html")
-  .transform
-```
-
-Or use streams as input and output:
-
-```scala
-val input: IO[InputStream] = ???
-val output: IO[InputStream] = ???
-
-val res: IO[Unit] = transformer
-  .fromStream(input)
-  .toStream(output, autoClose = false)
-  .transform 
-```
-
-The API is similar to that for File IO, but the creation of the streams are treated as an effect, 
-so you have to pass an `F[InputStream]` or `F[OutputStream]`:
-
-The `autoClose` flag is `true` by default, 
-which means the stream will be closed after all input has been read or all output has been written.
-
-The previous two example both showed matching input and output types, but of course they can be freely combined.
-The last example shows an in-memory string as input and a file as output:
-
-```scala
-val res: IO[String] = transformer
-  .fromString("hello *there*")
-  .toFile("hello.html")
-  .transform
-```
-
-
 Entire Directories as Input
 ---------------------------
 
-The parallel, effectful transformer is the most powerful variant and also the one that is the basis for the sbt plugin.
+The effectful transformer is the most powerful variant and also the one that is the basis for the sbt plugin.
 It expands the functionality beyond just processing markup files to also parsing templates and configuration files
 as well as copying static files over to the target directory.
-
-The setup is almost identical to the transformer for individual files or streams:
 
 ```scala
 val transformer = Transformer
@@ -338,18 +297,14 @@ val transformer = Transformer
   .build
 ```
 
-The only difference is switching from `sequential[IO]` to `parallel[IO]`. 
-This switch does not only cause a change in the internal execution model, 
-but also actually changes the API of the transformer. 
-The sequential API offers the `fromFile/toFile` or `fromStream/toStream` methods (amongst other options), 
-whereas the parallel API comes with the `fromDirectory/toDirectory` combination, 
-alongside other ways to transform multiple inputs in parallel.
+The above transformer can then be used to process a directory of markup, template and configuration files:
 
 ```scala
-val res: IO[RenderedTreeRoot[IO]] = transformer
-  .fromDirectory("src")
-  .toDirectory("target")
-  .transform
+val res: IO[RenderedTreeRoot[IO]] = transformer.use {
+  _.fromDirectory("src")
+   .toDirectory("target")
+   .transform
+}
 ```
 
 The `target` directory is expected to exist, while any required subdirectories will be automatically created during rendering. 
@@ -361,10 +316,11 @@ This is because these formats always produce a single binary result,
 merging all content from the input directories into a single, linearized e-book:
 
 ```scala
-val res: IO[Unit] = transformer
-  .fromDirectory("src")
-  .toFile("output.epub")
-  .transform
+val res: IO[Unit] = transformer.use {
+  _.fromDirectory("src")
+   .toFile("output.epub")
+   .transform
+}
 ```
 
 
@@ -373,10 +329,11 @@ val res: IO[Unit] = transformer
 All previous examples read content from the single input directory. But you can also merge the contents of multiple directories:
 
 ```scala
-val res: IO[RenderedTreeRoot[IO]] = transformer
-  .fromDirectories("markup", "theme")
-  .toDirectory("target")
-  .transform
+val res: IO[RenderedTreeRoot[IO]] = transformer.use {
+  _.fromDirectories("markup", "theme")
+   .toDirectory("target")
+   .transform
+}
 ```
 
 This adds some additional flexibility, as it allows, for example, to keep reusable styles and templates separately.
@@ -431,7 +388,7 @@ The following code example demonstrates the third scenario listed above: Renderi
 First we create a parser that reads from a directory:
 
 ```scala
-val parser = MarkupParser
+val parserRes = MarkupParser
   .of(Markdown)
   .using(GitHubFlavor)
   .io(blocker)
@@ -442,21 +399,34 @@ val parser = MarkupParser
 Next we create the renderers for the three output formats:
 
 ```scala
-val htmlRenderer = Renderer.of(HTML).io(blocker).parallel[IO].build
-val epubRenderer = Renderer.of(EPUB).io(blocker).parallel[IO].build
-val pdfRenderer  = Renderer.of(PDF).io(blocker).parallel[IO].build
+val htmlRendererRes = Renderer.of(HTML).io(blocker).parallel[IO].build
+val epubRendererRes = Renderer.of(EPUB).io(blocker).parallel[IO].build
+val pdfRendererRes  = Renderer.of(PDF).io(blocker).parallel[IO].build
+```
+
+Since all four processors are a cats-effect `Resource`, we combine them into one:
+
+```scala
+val allResources = for {
+  parser <- parserRes
+  html <- htmlRendererRes
+  epub <- epubRendererRes
+  pdf <- pdfRendererRes
+} yield (parser, html, epub, pdf)
 ```
 
 Finally we define the actual transformation by wiring the parser and the three renderers:
 
 ```scala
-val transformOp: IO[Unit] = 
-  parser.fromDirectory("source").parse.flatMap { tree =>
-    val htmlOp = htmlRenderer.from(tree).toDirectory("target").render
-    val epubOp = epubRenderer.from(tree).toFile("out.epub").render
-    val pdfOp = pdfRenderer.from(tree).toFile("out.pdf").render
-    (htmlOp, epubOp, pdfOp).parMapN { (_, _, _) => () }
-  }
+val transformOp: IO[Unit] = allResources.use { 
+  case (parser, htmlRenderer, epubRenderer, pdfRenderer) =>
+    parser.fromDirectory("source").parse.flatMap { tree =>
+      val htmlOp = htmlRenderer.from(tree.root).toDirectory("target").render
+      val epubOp = epubRenderer.from(tree.root).toFile("out.epub").render
+      val pdfOp = pdfRenderer.from(tree.root).toFile("out.pdf").render
+      (htmlOp, epubOp, pdfOp).parMapN { (_, _, _) => () }
+    }
+}
 ```
 
 We are using cats' `parMapN` here to run the three renderers in parallel.
@@ -465,8 +435,8 @@ The `tree` instance passed to all renderers is of type `DocumentTreeRoot`.
 If necessary you can use its API to inspect or transform the tree before rendering.
 See [The Document AST] for details.
 
-The sample code in this scenario showed the parallel-effectful variant of the `Parser` and `Renderer` types,
-but just as the `Transformer` they exist in the other two flavors as well: sequential-effectful and pure.
+The sample code in this scenario showed the effectful variant of the `Parser` and `Renderer` types,
+but just as the `Transformer` they exist in the other flavor as well: a pure variant as part of the `laika-core` module.
 
 
 Configuration

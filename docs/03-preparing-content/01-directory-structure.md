@@ -4,7 +4,7 @@ Directory Structure
 
 Laika does not have any special directories and content can be nested in sub-directories down to arbitrary levels.
 
-When you are using the sbt plugin or the parallel transformer from the library API that accepts directories as input,
+When you are using the sbt plugin or the tree transformer from the library API that accepts directories as input,
 Laika supports additional file types and navigation features on top of just parsing text markup.
 This section describes the supported [Document Types], how [Auto-Generated Navigation] works with
 directory input and how the [Virtual Tree Abstraction] decouples the logic from the file system. 

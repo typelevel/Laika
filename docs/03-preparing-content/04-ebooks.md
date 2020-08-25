@@ -39,10 +39,11 @@ val transformer = Transformer
   .parallel[IO]
   .build
 
-transformer
-  .fromDirectory("src")
-  .toFile("hello.epub")
-  .transform
+transformer.use {
+  _.fromDirectory("src")
+   .toFile("hello.epub")
+   .transform
+}
 ```
 
 See [Library API] for more details on these APIs and ensure you have the necessary dependencies in place -

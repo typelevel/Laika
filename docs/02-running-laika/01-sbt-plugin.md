@@ -179,7 +179,7 @@ laikaTheme := Theme.empty
 ```
 
 If you do not use this property Laika will run with the default settings of the Helium theme, 
-meaning your site and e-books will look exactly like this documenation, including all color and font choices.
+meaning your site and e-books will look exactly like this documentation, including all color and font choices.
 
 Since the theme offers a lot of configuration options it has its own dedicated chapter [Theme Settings].
 

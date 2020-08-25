@@ -198,10 +198,11 @@ val transformer = Transformer
   .parallel[IO]
   .build
   
-val res: IO[Unit] = transformer
-  .fromDirectory("src")
-  .toDirectory("target")
-  .transform
+val res: IO[Unit] = transformer.use {
+  _.fromDirectory("src")
+   .toDirectory("target")
+   .transform
+}
 ```
 
 Note that while the new code sample looks more verbose, it now gives you full
