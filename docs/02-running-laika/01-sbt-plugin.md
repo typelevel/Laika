@@ -153,9 +153,60 @@ apart from differences in the syntax/mechanics which with they are applied, whic
 For this reason this section only gives a very brief overview while linking to the relevant sections in the other chapters.
 
 
+### laikaTheme Setting
+
+This setting allows to configure the built-in Helium theme or a 3rd-party theme you might use.
+You can also use it to specify an empty theme if you want to put all templates and styles right 
+into your input directory.
+
+Example for applying a few Helium settings:
+
+```scala
+laikaTheme := Helium.defaults
+  .all.metadata(
+    title = Some("Project Name"),
+    language = Some("de"),
+  )
+  .epub.navigationDepth(4)
+  .pdf.navigationDepth(4)
+  .build
+```
+
+Setting an empty theme:
+
+```scala
+laikaTheme := Theme.empty
+```
+
+If you do not use this property Laika will run with the default settings of the Helium theme, 
+meaning your site and e-books will look exactly like this documenation, including all color and font choices.
+
+Since the theme offers a lot of configuration options it has its own dedicated chapter [Theme Settings].
+
+To just give a brief overview, those settings allow you to configure:
+
+* The [Fonts] to embed in EPUB and PDF files or to link in HTML files.
+
+* The [Colors] for the main theme and for syntax highlighting.
+
+* Several aspects of the theme's [Layout], like column widths, block spacing or PDF page sizes.
+
+* [Metadata] (title, authors, description, language, etc.) to include in the generated site or e-books.
+
+* Adding [Favicons] or custom links to the [Top Navigation Bar]
+
+* Adding an optional [Download Page] for the site's content as EPUB or PDF
+
+* Providing logos, text and links for an optional [Website Landing Page].
+
+* Configure [Cover Images for E-books] or [Auto-Linking CSS & JS Files].
+
+
 ### laikaConfig Setting
 
 A builder-style API for basic configuration options grouped in a single sbt setting.
+These are configuration options not tied to the default theme and are available even when using a 3rd party theme
+or no theme at all.
 
 Example:
   
@@ -200,15 +251,15 @@ laikaExtensions := Seq(GitHubFlavor, SyntaxHighlighting)
 
 Most of these setting are introduced in the sections above.
 
-- `sourceDirectories in Laika` default `Seq(sourceDirectory.value / "docs")`, usually `Seq("src/docs")`.
+- `Laika / sourceDirectories` default `Seq(sourceDirectory.value / "docs")`, usually `Seq("src/docs")`.
   Specifies one or more source directories to process to be merged into a tree with a single root.
   See [Preparing Content] for details.
   
-- `target in Laika` - default `target.value / "docs",`, usually `Seq("target/docs")`.
+- `Laika / target` - default `target.value / "docs",`, usually `Seq("target/docs")`.
   Specifies the directory where the plugin should generate the site. 
   See [Generating a Site] for details.
   
-- `excludeFilter in Laika` - default `HiddenFileFilter`  
+- `Laika / excludeFilter` - default `HiddenFileFilter`  
   Specifies files to exclude from processing.
   Note that Laika ignores any `includeFilter` you set, as the tool needs more than a simple yes/no
   decision for deciding how to process files. 
@@ -224,6 +275,53 @@ Most of these setting are introduced in the sections above.
     ```
   
   The list of pattern matches can be incomplete, they will be added to the built-in default matches.
+  
+  
+### Freely Composing Inputs
+
+If you need additional flexibility instead of just configuring one or more input directories, 
+e.g. when there is a need to generate content on-the-fly before starting the transformation,
+you can use the `laikaInputs` setting. 
+This setting completely overrides any value set with `Laika / sourceDirectories`.
+
+```scala
+val themeInputs = InputTree[F]
+  .addDirectory("/path-to-my/markup-files")
+  .addDirectory("/path-to-my/images", Root / "images")
+  .addClasspathResource("my-templates/default.template.html", DefaultTemplatePath.forHTML)
+  .addString(generateStyles(), Root / "css" / "site.css")
+```
+
+In the example above we specify two directories, a classpath resource and a string containing CSS generated on the fly.
+By default directories get merged into a single virtual root, but in the example we declare a mount point
+for the second directory, which causes the content of that directory to be assigned the corresponding logical path.
+
+@:callout(info)
+
+Always keep in mind that declaring inputs and outputs are the only places in the Laika universe where you'd ever
+use concrete file system paths.
+Beyond this configuration step you are entirely within Laika's virtual path abstraction and refer to other
+resources by their virtual path.
+This is true for linking, using image resources, specifying templates to use in configuration headers, and so on.
+It means that everything you can refer to in your markup files needs to be included in the input composition step.
+
+@:@
+
+The `InputTreeBuilder` API gives you the following options:
+
+* Add entire directories and optionally specify a "mount point" at which they should be linked in the virtual tree.
+
+* Specify individual files or classpath resources.
+
+* Add in-memory string which will enter the parsing pipelines like file resources.
+
+* Add in-memory AST nodes which will by-pass the parsing step and added directly to the other document AST
+  obtained through parsing.
+  
+When generating input on the fly it is usually a question of convenience or reducing boilerplate 
+whether you choose to generate a string for parsing or the AST directly.
+
+For the complete API see @:api(laika.io.model.InputTreeBuilder).
 
 
 ### Settings for the laikaSite task
