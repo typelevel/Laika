@@ -13,8 +13,60 @@ see the intro sections to [Customizing Laika](../04-customizing-laika/01-overvie
 and [Extending Laika](../05-extending-laika/01-overview.md) for an overview.
 
 
-Basic Settings
+Theme Settings
 --------------
+
+Laika comes with a lightweight default theme called Helium.
+Since the theme offers a lot of configuration options it has its own dedicated chapter [Theme Settings].
+
+To just give a brief overview, those settings allow you to configure:
+
+* The [Fonts] to embed in EPUB and PDF files or to link in HTML files.
+
+* The [Colors] for the main theme and for syntax highlighting.
+
+* Several aspects of the theme's [Layout], like column widths, block spacing or PDF page sizes.
+
+* [Metadata] (title, authors, description, language, etc.) to include in the generated site or e-books.
+
+* Adding [Favicons] or custom links to the [Top Navigation Bar]
+
+* Adding an optional [Download Page] for the site's content as EPUB or PDF
+
+* Providing logos, text and links for an optional [Website Landing Page].
+
+* Configure [Cover Images for E-books] or [Auto-Linking CSS & JS Files].
+
+
+Navigation
+----------
+
+These settings also have their dedicated [Navigation] chapter, including configuration examples,
+therefore we'll just give a brief overview of available configuration options here and link to the relevant sections.
+
+* [Global Link Definitions] help to avoid repetition by mapping URLs to an id in configuration and making
+  them available for use with "native" markup link syntax (e.g. `link to [my-globally-defined-id]` in Markdown).
+
+* [Linking to API Documentation] describes the `@:api` shortcut for defining links to API documentation,
+  which requires setting the relevant base URLs in the configuration.
+  
+* [Disabling Validation] is a configuration option for excluding some directories/paths from
+  validation, e.g. in cases where you know that a directory will be populated by some external tool.
+  In its default setup, a Laika transformation fails when an internal link points to a document that does
+  not exist in the input directory.
+
+* E-books (EPUB or PDF) have additional configuration options for navigation:
+
+    * [Book Navigation] allows to specify the depth of the auto-generated navigation.
+    
+    * The location of [Cover Images] can be configured, too.
+    
+    * And [Document Metadata] can be specified so that it will be converted to a format
+      compatible with the corresponding readers.
+      
+      
+Run Modes
+---------
 
 These settings are available in the library API and the sbt plugin.
 
@@ -117,33 +169,6 @@ implicit val codec:Codec = Codec.UTF8
 This has to be in scope where you specify the input and ouput files for your transformer
 
 @:@
-
-
-Navigation
-----------
-
-These features have their dedicated [Navigation] chapter, including configuration examples,
-therefore we'll just give a brief overview of available configuration options here and link to the relevant sections.
-
-* [Global Link Definitions] help to avoid repetition by mapping URLs to an id in configuration and making
-  them available for use with "native" markup link syntax (e.g. `link to [my-globally-defined-id]` in Markdown).
-
-* [Linking to API Documentation] describes the `@:api` shortcut for defining links to API documentation,
-  which requires setting the relevant base URLs in the configuration.
-  
-* [Disabling Validation] is a configuration option for excluding some directories/paths from
-  validation, e.g. in cases where you know that a directory will be populated by some external tool.
-  In its default setup, a Laika transformation fails when an internal link points to a document that does
-  not exist in the input directory.
-
-* E-books (EPUB or PDF) have additional configuration options for navigation:
-
-    * [Book Navigation] allows to specify the depth of the auto-generated navigation.
-    
-    * The location of [Cover Images] can be configured, too.
-    
-    * And [Document Metadata] can be specified so that it will be converted to a format
-      compatible with the corresponding readers.
 
 
 Error Handling

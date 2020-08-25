@@ -8,8 +8,8 @@ the distinction is mostly meant to be between these two scenarios:
 
 * Customizing Laika refers to the things you most like want to tweak and adjust in your own project.
   
-* Extending Laika refers to the kind of re-usable extensions you might want to write as an in-house
-  library or a 3rd-party open source extension.
+* Extending Laika refers to the kind of re-usable extensions you might want to write as an in-house library 
+  or a 3rd-party open source extension.
   
 This section deals with the latter scenario.
 
@@ -85,6 +85,22 @@ val transformer = Transformer
 
 You've probably already seen examples for specifying `GitHubFlavor` or `SyntaxHighlighting` extensions in this way.
 These are implementations of `ExtensionBundle`, too, and come bundled with the `laika-core` module.
+
+
+### The Theme API
+
+Creating themes expands on the extension hooks provided by bundles and adds the capability of pre-populating
+the input tree with templates and styles.
+It allows to offer users ready-to-use rendering styles without the need to craft their own templates, 
+CSS or JavaScript.
+
+Laika also comes with a lightweight default theme called Helium, and in many cases just tweaking its settings
+might give you enough flexibility for achieving the desired look & feel.
+The theme comes with default styles for the three main output formats of Laika: web site, EPUB and PDF.
+Configuring Helium is covered in detail in the chapter [Theme Settings].
+
+If you need full control over all aspect of the design, see the chapter [Creating Themes] for instructions.
+The remainder of this chapter deals with the functionality of the `ExtensionBundle` API introduced above. 
 
 
 ### Extending Markup Syntax

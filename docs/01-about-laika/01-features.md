@@ -47,6 +47,9 @@ Supported Formats
 
 * [E-Books (EPUB & PDF)] with auto-generated navigation
 
+* Lightweight default theme with configurable styling for site, EPUB and PDF output
+  with extensive [Theme Settings].
+
 
 Content Organization
 --------------------
@@ -80,11 +83,11 @@ Library API
 Customizations
 --------------
 
+* Create your own look & feel by [Creating Themes] or adjust the built-in theme by [Creating Templates].
+
 * Process and transform [The Document AST] between parsing and rendering by [AST Rewriting].
   
 * Adjust the rendered output for individual AST node types by [Overriding Renderers].
-
-* Control the final output of documents by [Creating Templates] for each supported output format. 
 
 
 Extensibility

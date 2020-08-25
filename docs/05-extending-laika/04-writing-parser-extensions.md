@@ -464,8 +464,8 @@ the former must be specified first, as otherwise the single asterisk parser woul
 and consume all matching input itself.
 
 
-Performance Optimization
-------------------------
+Internal Design & Performance
+-----------------------------
 
 For span parsers the parser you are passing to the `standalone` or `recursive` methods must be 
 of type `PrefixedParser[Span]`, which is a subtype of the base trait `Parser[T]`. 

@@ -412,7 +412,7 @@ These kind of parsers are quite challenging to optimize as they are at a hotspot
 recurse between user-provided and library-provided parsers which makes it harder to optimize based on static analysis.
 
 
-### Internal Design
+### Inline Parsing Challenges
 
 Laika has therefore chosen an approach where the optimization happens at parser construction time,
 at a point where all participating parsers are known.
