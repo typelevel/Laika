@@ -71,15 +71,34 @@ See [Document Types] for general info about the various types of input files Lai
 and [Supported Document Types] in this chapter for additional info specific to EPUB and PDF.
 
 
-Book Navigation
----------------
+Configuration
+-------------
+
+The most convenient way to configure aspects like metadata, look & feel and navigation for your e-books
+is to use the built-in default theme called Helium and its settings.
+
+There is a dedicated [Theme Settings] chapter, so we'll just link the most relevant aspects that can be configured
+for e-books from here.
+
+* The [Fonts] to embed in EPUB and PDF files in case you do not want to use Helium's default fonts.
+
+* The [Colors] for the main theme and for syntax highlighting.
+
+* Several aspects of the theme's [Layout], like line height, block spacing or PDF page sizes.
+
+* [Metadata] (title, authors, description, language, etc.) to include in the generated e-books in a way that reader
+  software can expose.
+
+* Configure [Cover Images for E-books] or [Auto-Linking CSS & JS Files].
+
+
+### Book Navigation
 
 Laika supports a directory structure with sub-directories of any depth. 
 Markup files from the input directory will form the content of the e-book, 
 linearized in depth-first traversal and using your configured [Navigation Order][Configuration Files].
 
-Laika will generate navigation elements compatible with e-book readers,
-as shown in the images below:
+Laika will generate navigation elements compatible with e-book readers, as shown in the images below:
 
 PDF Navigation in Preview for Mac:
 
@@ -95,154 +114,21 @@ EPUB Navigation in iBooks:
   width = 473px
 }
 
-The navigation depth is unlimited by default and will also include links to each section inside your documents.
-The depth to traverse can be changed via Laika's global configuration:
+The navigation depth can be configured with the Helium API:
 
-@:select(config)
-
-@:choice(sbt)
 ```scala
-laikaConfig := LaikaConfig.defaults
-  .withConfigValue(BookConfig(navigationDepth = Some(3)))
+Helium.defaults
+  .epub.navigationDepth(4)
+  .pdf.navigationDepth(4)
 ```
 
-@:choice(library)
-```scala
-val transformer = Transformer
-  .from(Markdown)
-  .to(HTML)
-  .using(GitHubFlavor)
-  .withConfigValue(BookConfig(navigationDepth = Some(3)))
-  .build
-```
-@:@
+Note that this affects the navigation structure that will be generated for the navigation tools of the respective
+EPUB or PDF readers.
 
-In the example above, the specified `BookConfig` will apply to both formats, EPUB and PDF.
-They can alternatively be set separately:
-
-@:select(config)
-
-@:choice(sbt)
-```scala
-laikaConfig := LaikaConfig.defaults
-  .withConfigValue(EPUB.BookConfig(navigationDepth = Some(3)))
-  .withConfigValue(PDF.BookConfig(navigationDepth = Some(4)))
-```
-
-@:choice(library)
-```scala
-val transformer = Transformer
-  .from(Markdown)
-  .to(HTML)
-  .using(GitHubFlavor)
-  .withConfigValue(EPUB.BookConfig(navigationDepth = Some(3)))
-  .withConfigValue(PDF.BookConfig(navigationDepth = Some(4)))
-  .build
-```
-@:@
-
-
-Cover Images
-------------
-
-A cover image can be specified for EPUB and PDF:
-
-@:select(config)
-
-@:choice(sbt)
-```scala
-val transformer = Transformer
-  .from(Markdown)
-  .to(HTML)
-  .using(GitHubFlavor)
-  .withConfigValue(BookConfig(
-    coverImage = Some(Root / "images" / "book-cover.jpg")
-  ))
-  .build
-```
-
-@:choice(library)
-```scala
-laikaConfig := LaikaConfig.defaults
-  .withConfigValue(BookConfig(
-    coverImage = Some(Root / "images" / "book-cover.jpg")
-  ))
-```
-
-@:@
-
-
-Or two different cover images can be configured for EPUB and PDF separately:
-
-@:select(config)
-
-@:choice(sbt)
-```scala
-laikaConfig := LaikaConfig.defaults
-  .withConfigValue(EPUB.BookConfig(
-    coverImage = Some(Root / "images" / "epub-cover.jpg")
-  ))
-  .withConfigValue(PDF.BookConfig(
-    coverImage = Some(Root / "images" / "pdf-cover.jpg")
-  ))
-```
-
-@:choice(library)
-```scala
-val transformer = Transformer
-  .from(Markdown)
-  .to(HTML)
-  .using(GitHubFlavor)
-  .withConfigValue(EPUB.BookConfig(
-    coverImage = Some(Root / "images" / "epub-cover.jpg")
-  ))
-  .withConfigValue(PDF.BookConfig(
-    coverImage = Some(Root / "images" / "pdf-cover.jpg")
-  ))
-  .build
-```
-@:@
-
-See [Supported Document Types] for a list of supported image formats.
-
-
-Document Metadata
------------------
-
-You can add document metadata to the configuration that Laika will apply to the generated output formats where supported:
-
-@:select(config)
-
-@:choice(sbt)
-```scala
-laikaConfig := LaikaConfig.defaults
-  .withConfigValue(BookConfig(metadata = DocumentMetadata(
-     identifier = Some("urn:isbn:978-3-16-148410-0"),
-     authors = Seq("Deborah Green", "Maria Brown"),
-     language = Some("en:GB"),
-     date = Some(Date.from(Instant.now))
-  )))
-```
-
-@:choice(library)
-```scala
-val transformer = Transformer
-  .from(Markdown)
-  .to(HTML)
-  .using(GitHubFlavor)
-  .withConfigValue(BookConfig(metadata = DocumentMetadata(
-     identifier = Some("urn:isbn:978-3-16-148410-0"),
-     authors = Seq("Deborah Green", "Maria Brown"),
-     language = Some("en:GB"),
-     date = Some(Date.from(Instant.now))
-  )))
-  .build
-```
-@:@
-
-Note that the `DocumentMetadata` type uses the venerable `java.util.Date` API.
-This is for staying platform-neutral between JVM and Scala.js 
-which does not have the `java.time` APIs in its core library.
+You might additionally want to insert a table of content into the page flow, right after the cover image,
+as this would be the only navigation structure that would be available when printing the document.
+See [Table of Contents] how to configure such a structure which can also have a different navigation depth
+than the tree generated for the readers.
 
 
 Supported Document Types
@@ -267,8 +153,6 @@ The supported file types / suffixes are:
 * Images: `jpg`, `jpeg`, `gif`, `png`, `svg`, `bmp`, `tiff`
 * Fonts: `pfb` (Type 1), `ttf`, `otf` 
 
-@:todo(example for registering Fonts with FOP)
-
 
 CSS for EPUB
 ------------
@@ -276,12 +160,18 @@ CSS for EPUB
 Since content files for EPUB are standard XHTML files (apart from optional EPUB-specific attributes), 
 you can style your e-books with standard CSS. 
 
-It is sufficient to simply place all CSS into the input directory,
-alongside the text markup and other file types. 
+It is sufficient to simply place all CSS into the input directory, alongside the text markup and other file types. 
 References to these CSS files will be automatically added to the header section of all generated HTML files. 
 
-When referencing images or fonts from your CSS files,
-you can use relative paths, as the directory layout will be retained inside the EPUB container.
+To enable a distinction between EPUB and web site generation in case you want to produce both with the same inputs,
+Laika expects the following suffixes for CSS files:
+
+* Files ending with `.epub.css` will only be linked in HTML files for EPUB, not for the site
+* File ending with `.shared.css` will be linked for both
+* All other files ending with `.css` will only be used for web site content
+
+When referencing images or fonts from your CSS files, you can use relative paths, 
+as the directory layout will be retained inside the EPUB container.
 
 
 CSS for PDF

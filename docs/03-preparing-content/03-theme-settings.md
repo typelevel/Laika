@@ -589,6 +589,8 @@ Helium.defaults
 
 @:todo(document cover images for select directive)
 
+See [Supported Document Types] for a list of supported image formats.
+
 
 Auto-Linking CSS & JS Files
 ---------------------------
