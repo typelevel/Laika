@@ -285,7 +285,7 @@ you can use the `laikaInputs` setting.
 This setting completely overrides any value set with `Laika / sourceDirectories`.
 
 ```scala
-val themeInputs = InputTree[F]
+val inputs = InputTree[F]
   .addDirectory("/path-to-my/markup-files")
   .addDirectory("/path-to-my/images", Root / "images")
   .addClasspathResource("my-templates/default.template.html", DefaultTemplatePath.forHTML)
