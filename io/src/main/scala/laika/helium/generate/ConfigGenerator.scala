@@ -41,7 +41,7 @@ private[laika] object ConfigGenerator {
       .build
   }
   
-  private def buildTeaserRows (teasers: Seq[Id[Teaser]]): Seq[ObjectValue] = 
+  private def buildTeaserRows (teasers: Seq[Id[Teaser]]): Seq[ObjectValue] = if (teasers.isEmpty) Nil else
     BatchRuntime.createBatches(teasers.toVector, Math.ceil(teasers.size.toDouble / 3).toInt).map { row =>
       ObjectBuilder.empty.withValue("teasers", row).build
     }
@@ -92,7 +92,6 @@ private[laika] object ConfigGenerator {
       .build
   }
   
-  // TODO - is this still needed after the InternalTarget refactor?
   case class RelativePath (target: ThemeTarget) extends SpanResolver {
     type Self = RelativePath
     def resolve(cursor: DocumentCursor): Span = target.resolve(cursor) match {

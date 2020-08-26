@@ -263,6 +263,9 @@ private[helium] trait EPUBOps extends SingleConfigOps with CopyOps {
   protected def withMetadata (metadata: DocumentMetadata): Helium =
     copyWith(helium.epubSettings.copy(bookConfig = helium.epubSettings.bookConfig.copy(metadata = metadata)))
 
+  def navigationDepth (depth: Int): Helium =
+    copyWith(helium.epubSettings.copy(bookConfig = helium.epubSettings.bookConfig.copy(navigationDepth = Some(depth))))
+  
   def autoLinkCSS (paths: Path*): Helium =
     copyWith(helium.epubSettings.copy(htmlIncludes = helium.epubSettings.htmlIncludes.copy(includeCSS = paths)))
   def autoLinkJS (paths: Path*): Helium =
@@ -282,7 +285,8 @@ private[helium] trait PDFOps extends SingleConfigOps with CopyOps {
   protected def withMetadata (metadata: DocumentMetadata): Helium =
     copyWith(helium.pdfSettings.copy(bookConfig = helium.pdfSettings.bookConfig.copy(metadata = metadata)))
 
-  // TODO - 0.16 - navigationDepth here and for EPUB
+  def navigationDepth (depth: Int): Helium =
+    copyWith(helium.pdfSettings.copy(bookConfig = helium.pdfSettings.bookConfig.copy(navigationDepth = Some(depth))))
   
   def layout (pageWidth: Size, pageHeight: Size,
               marginTop: Size, marginRight: Size, marginBottom: Size, marginLeft: Size,
