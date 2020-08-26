@@ -155,6 +155,91 @@ Any block level elements can be used as the content, including lists, tables or 
 Helium comes with pre-defined styles and icons for the attributes `info`, `warning` and `error`.
 
 
+### `@:select`
+
+The select directive is a special directive that allows to create alternative versions of the same documentation,
+for example one with Scala code examples and one with Java. 
+Or as in the case of Laika's own documentation, one showing configuration setup with sbt and the other 
+through the library API.
+
+When using the default Helium theme these alternatives will be rendered as tabs in the website:
+
+@:todo(include screenshot)
+
+While for EPUB and PDF output it triggers the generation of separate books for each of the alternatives
+and offers them on the download page:
+
+@:todo(include screenshot)
+
+This accounts for the fact that tabs would not make much sense when printed on paper!
+
+Before using this directive you need to put a bit of configuration in place.
+Laika expects the labels to use for the alternatives to be declared centrally, 
+so that they do not need to be repeated with each use of the directive.
+
+This is how the settings for Laika's manual look:
+
+@:select(config)
+
+@:choice(sbt)
+
+```scala
+laikaConfig := LaikaConfig.defaults
+  .withConfigValue(SelectionGroupConfig(Seq(SelectionConfig("config", NonEmptyChain(
+    ChoiceConfig("sbt", "sbt Plugin"),
+    ChoiceConfig("library", "Library API")
+  )))))
+```
+
+@:todo(simplify Selections config API)
+
+@:choice(library)
+
+```scala
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .using(GitHubFlavor)
+  .withConfigValue(SelectionGroupConfig(Seq(SelectionConfig("config", NonEmptyChain(
+    ChoiceConfig("sbt", "sbt Plugin"),
+    ChoiceConfig("library", "Library API")
+  )))))
+  .build
+```
+
+@:@
+
+The configuration above uses three identifiers: `config` as the name of the group of alternatives,
+and `sbt` and `library` as the name of the two choices together with their labels.
+
+With this configuration in place the directive can be used like this:
+
+```laika-md
+@:select(config)
+
+@:choice(sbt)
+\```scala
+laikaConfig := LaikaConfig.defaults.strict
+\```
+
+@:choice(library)
+\```scala
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .using(GitHubFlavor)
+  .strict
+  .build
+\```
+
+@:@
+
+```
+
+The `@:choice` directives are child directives called "separator directives" that can only be used inside
+the corresponding parent directive to mark specific sections within the directive's body.
+
+
 ### `@:fragment`
 
 Can only be used in block elements in text markup.
