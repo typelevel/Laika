@@ -96,6 +96,20 @@ class HeliumLandingPageSpec extends IOFunSuite with InputBuilder with ResultExtr
                      |<p class="large"><a class="button" href="http://somewhere.com/">Somewhere</a></p>
                      |</div>
                      |</div>
+                     |<div class="teasers">
+                     |<div class="teaser">
+                     |<h2>Teaser 1</h2>
+                     |<p>Description 1</p>
+                     |</div>
+                     |<div class="teaser">
+                     |<h2>Teaser 2</h2>
+                     |<p>Description 2</p>
+                     |</div>
+                     |<div class="teaser">
+                     |<h2>Teaser 3</h2>
+                     |<p>Description 3</p>
+                     |</div>
+                     |</div>
                      |</body>""".stripMargin
     val imagePath = Root / "home.png"
     val helium = Helium.defaults.site.landingPage(

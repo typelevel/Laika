@@ -16,11 +16,14 @@
 
 package laika.helium.generate
 
+import cats.Id
 import laika.ast.Path.Root
 import laika.ast.{InternalTarget, _}
-import laika.config.{ASTValue, Config, ConfigBuilder, ConfigEncoder}
+import laika.config.ConfigEncoder.ObjectBuilder
+import laika.config.{ASTValue, Config, ConfigBuilder, ConfigEncoder, ObjectValue}
 import laika.helium.Helium
 import laika.helium.config._
+import laika.io.runtime.BatchRuntime
 
 private[laika] object ConfigGenerator {
 
@@ -37,6 +40,11 @@ private[laika] object ConfigGenerator {
       .withValue("description", teaser.description)
       .build
   }
+  
+  private def buildTeaserRows (teasers: Seq[Id[Teaser]]): Seq[ObjectValue] = 
+    BatchRuntime.createBatches(teasers.toVector, Math.ceil(teasers.size.toDouble / 3).toInt).map { row =>
+      ObjectBuilder.empty.withValue("teasers", row).build
+    }
 
   implicit val landingPageEncoder: ConfigEncoder[LandingPage] = ConfigEncoder[LandingPage] { landingPage =>
     ConfigEncoder.ObjectBuilder.empty
@@ -47,7 +55,7 @@ private[laika] object ConfigGenerator {
       .withValue("license", landingPage.license)
       .withValue("documentationLinks", landingPage.documentationLinks)
       .withValue("projectLinks", landingPage.projectLinks)
-      .withValue("teasers", landingPage.teasers) // TODO - change to teaserRows
+      .withValue("teaserRows", buildTeaserRows(landingPage.teasers))
       .build
   }
 
