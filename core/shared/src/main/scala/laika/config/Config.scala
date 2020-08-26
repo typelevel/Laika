@@ -184,10 +184,7 @@ class ObjectConfig (private[laika] val root: ObjectValue,
   }
 
   private def lookup(key: Key): Option[Field] =
-    if (key.segments.isEmpty) Some(Field("", root, origin)) else lookup(key.segments, root).orElse {
-      if (key.segments.head == "config") lookup(Key(key.segments.tail)) // TODO - remove in 0.16 - legacy path prefix pre-0.12
-      else None
-    }
+    if (key.segments.isEmpty) Some(Field("", root, origin)) else lookup(key.segments, root)
 
   def hasKey (key: Key): Boolean = lookup(key).nonEmpty || fallback.hasKey(key)
 
