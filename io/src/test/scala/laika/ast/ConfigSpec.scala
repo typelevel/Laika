@@ -29,7 +29,7 @@ import laika.format.{Markdown, ReStructuredText}
 import laika.io.{FileIO, IOWordSpec}
 import laika.io.implicits._
 import laika.io.model.{InputTreeBuilder, ParsedTree}
-import laika.io.helper.{InputBuilder, ThemeBuilder}
+import laika.io.helper.{InputBuilder, TestThemeBuilder}
 import laika.rewrite.{DefaultTemplatePath, TemplateRewriter}
 
 
@@ -356,7 +356,7 @@ class ConfigSpec extends IOWordSpec
         .using(BundleProvider.forConfigString(config5))
         .io(blocker)
         .parallel[IO]
-        .withTheme(ThemeBuilder.forBundle(BundleProvider.forConfigString(config6)))
+        .withTheme(TestThemeBuilder.forBundle(BundleProvider.forConfigString(config6)))
         .build
         .use { p =>
           p.fromInput(build(inputs)).parse

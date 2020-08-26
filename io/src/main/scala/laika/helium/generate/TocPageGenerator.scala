@@ -31,7 +31,7 @@ private[helium] object TocPageGenerator {
   def generate[F[_]: Sync] (helium: Helium, format: Format): Kleisli[F, ParsedTree[F], ParsedTree[F]] = {
     val tocConfig = (format match {
       case HTML => helium.siteSettings.webLayout.tableOfContent
-      case EPUB.XHTML => helium.siteSettings.webLayout.tableOfContent // TODO - create EPUBLayout
+      case EPUB.XHTML => helium.siteSettings.webLayout.tableOfContent // TODO - RELEASE - create EPUBLayout
       case XSLFO => helium.pdfSettings.pdfLayout.tableOfContent
       case _ => None
     }).filter(_.depth > 0)

@@ -29,11 +29,11 @@ private[helium] object HeliumRewriteRules {
     case bc: BlockContainer => estimateLines(bc.content) // TODO - handle lists and tables
   }.sum
 
-  def build (pdfSettings: PDFSettings): Seq[DocumentCursor => RewriteRules] = Seq(_ => RewriteRules.forBlocks {
+  def build (pdfSettings: PDFSettings): RewriteRules = RewriteRules.forBlocks {
     case cb: CodeBlock if cb.extractText.count(_ == '\n') <= pdfSettings.pdfLayout.keepTogetherDecoratedLines =>
       Replace(cb.mergeOptions(Style.keepTogether))
     case bs: BlockSequence if bs.options.styles.contains("callout") && estimateLines(bs.content) <= pdfSettings.pdfLayout.keepTogetherDecoratedLines =>
       Replace(bs.mergeOptions(Style.keepTogether))
-  })
+  }
   
 }

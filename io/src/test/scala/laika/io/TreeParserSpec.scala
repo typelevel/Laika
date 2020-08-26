@@ -31,7 +31,7 @@ import laika.config.Origin.TreeScope
 import laika.config.{ConfigBuilder, Origin}
 import laika.format.{Markdown, ReStructuredText}
 import laika.io.api.TreeParser
-import laika.io.helper.{InputBuilder, ThemeBuilder}
+import laika.io.helper.{InputBuilder, TestThemeBuilder}
 import laika.io.implicits._
 import laika.io.model.{InputTree, InputTreeBuilder, ParsedTree}
 import laika.io.runtime.ParserRuntime.{DuplicatePath, ParserErrors}
@@ -72,7 +72,7 @@ class TreeParserSpec extends IOWordSpec
         .io(blocker)
         .parallel[IO]
         .withTheme(Theme.empty)
-        .withTheme(ThemeBuilder.forBundle(bundle))
+        .withTheme(TestThemeBuilder.forBundle(bundle))
         .build
 
     def parserWithThemeAndBundle (themeBundle: ExtensionBundle, appBundle: ExtensionBundle): Resource[IO, TreeParser[IO]] =
@@ -81,7 +81,7 @@ class TreeParserSpec extends IOWordSpec
         .using(appBundle)
         .io(blocker)
         .parallel[IO]
-        .withTheme(ThemeBuilder.forBundle(themeBundle))
+        .withTheme(TestThemeBuilder.forBundle(themeBundle))
         .build
 
     def toTreeView (parsed: ParsedTree[IO]): TreeView = viewOf(parsed.root.tree)
@@ -528,7 +528,7 @@ class TreeParserSpec extends IOWordSpec
       lazy val input: InputTreeBuilder[IO] =
         if (useTheme) InputTree[IO].addDirectory(dirname)
         else addDoc(InputTree[IO].addDirectory(dirname))
-      lazy val parser: Resource[IO, TreeParser[IO]] = if (useTheme) defaultBuilder.withTheme(ThemeBuilder.forInputs(addDoc(InputTree[IO]))).build
+      lazy val parser: Resource[IO, TreeParser[IO]] = if (useTheme) defaultBuilder.withTheme(TestThemeBuilder.forInputs(addDoc(InputTree[IO]))).build
         else defaultBuilder.build
       
       def run (): Assertion = parser.use(_.fromInput(input).parse).map(toTreeView).assertEquals(treeResult)

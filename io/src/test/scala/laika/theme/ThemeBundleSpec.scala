@@ -24,7 +24,7 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.bundle.{BundleOrigin, BundleProvider, ExtensionBundle}
 import laika.format.{HTML, Markdown}
-import laika.io.helper.ThemeBuilder
+import laika.io.helper.TestThemeBuilder
 import laika.io.{FileIO, IOWordSpec}
 import org.scalatest.matchers.should.Matchers
 
@@ -49,7 +49,7 @@ class ThemeBundleSpec extends IOWordSpec with Matchers {
         .using(appBundles:_*)
         .io(FileIO.blocker)
         .parallel[IO]
-        .withTheme(ThemeBuilder.forBundles(themeBundles))
+        .withTheme(TestThemeBuilder.forBundles(themeBundles))
         .build
         .use(t => IO.pure(t.config))
         .unsafeRunSync()

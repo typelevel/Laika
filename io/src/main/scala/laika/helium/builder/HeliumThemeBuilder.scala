@@ -17,13 +17,10 @@
 package laika.helium.builder
 
 import cats.effect.{Resource, Sync}
-import laika.ast._
-import laika.bundle.{BundleOrigin, ExtensionBundle}
-import laika.config.Config
 import laika.format.{HTML, XSLFO}
 import laika.helium.Helium
 import laika.helium.generate._
-import laika.theme.Theme
+import laika.theme.{Theme, ThemeBuilder}
 
 /**
   * @author Jens Halm
@@ -34,23 +31,19 @@ private[helium] object HeliumThemeBuilder {
 
     import helium._
 
-    val bundle: ExtensionBundle = new ExtensionBundle {
-      override val origin: BundleOrigin = BundleOrigin.Theme
-      val description = "Helium Theme Rewrite Rules and Render Overrides"
-      override val rewriteRules: Seq[DocumentCursor => RewriteRules] = HeliumRewriteRules.build(pdfSettings)
-      override val renderOverrides = Seq(
-        HTML.Overrides(HeliumRenderOverrides.forHTML(siteSettings.webLayout.anchorPlacement)),
-        XSLFO.Overrides(HeliumRenderOverrides.forPDF)
-      )
-      override val baseConfig: Config = ConfigGenerator.populateConfig(helium)
-    }
-
     val treeProcessor = new HeliumTreeProcessor[F](helium)
 
-    Theme(HeliumInputBuilder.build(helium), bundle).processTree {
-      case HTML => treeProcessor.forHTML
-      case format => treeProcessor.forFormat(format)
-    }.build
+    ThemeBuilder("Helium")
+      .addInputs(HeliumInputBuilder.build(helium))
+      .addBaseConfig(ConfigGenerator.populateConfig(helium))
+      .addRewriteRules(HeliumRewriteRules.build(pdfSettings))
+      .addRenderOverrides(HTML.Overrides(HeliumRenderOverrides.forHTML(siteSettings.webLayout.anchorPlacement)))
+      .addRenderOverrides(XSLFO.Overrides(HeliumRenderOverrides.forPDF))
+      .processTree {
+        case HTML => treeProcessor.forHTML
+        case format => treeProcessor.forFormat(format)
+      }
+      .build
 
   }
 

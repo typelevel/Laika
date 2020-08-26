@@ -30,10 +30,10 @@ import laika.format._
 import laika.io.api.{BinaryTreeTransformer, TreeTransformer}
 import laika.io.descriptor.TransformerDescriptor
 import laika.io.helper.OutputBuilder._
-import laika.io.helper.{InputBuilder, RenderResult, ThemeBuilder}
+import laika.io.helper.{InputBuilder, RenderResult, TestThemeBuilder}
 import laika.io.implicits._
 import laika.io.model.{InputTree, StringTreeOutput}
-import laika.theme.Theme
+import laika.theme.{Theme, ThemeBuilder}
 import laika.parse.Parser
 import laika.parse.code.SyntaxHighlighting
 import laika.parse.text.TextParsers
@@ -220,17 +220,17 @@ class TreeTransformerSpec extends IOWordSpec with FileIO {
 
     "transform a tree with a document mapper from a theme" in new TreeProcessorSetup {
       def expectedDocResult = mappedResult
-      def theme: Resource[IO, Theme[IO]] = ThemeBuilder.forDocumentMapper(mapperFunction)
+      def theme: Resource[IO, Theme[IO]] = TestThemeBuilder.forDocumentMapper(mapperFunction)
     }
 
     "transform a tree with a document mapper from a theme specific to the output format" in new TreeProcessorSetup {
       def expectedDocResult = mappedResult
-      def theme: Resource[IO, Theme[IO]] = ThemeBuilder.forDocumentMapper(AST)(mapperFunction)
+      def theme: Resource[IO, Theme[IO]] = TestThemeBuilder.forDocumentMapper(AST)(mapperFunction)
     }
 
     "transform a tree ignoring the document mapper from a theme if the format does not match" in new TreeProcessorSetup {
       def expectedDocResult = simpleResult
-      def theme: Resource[IO, Theme[IO]] = ThemeBuilder.forDocumentMapper(HTML)(mapperFunction)
+      def theme: Resource[IO, Theme[IO]] = TestThemeBuilder.forDocumentMapper(HTML)(mapperFunction)
     }
 
     "transform a tree with a template document populated by a config file in the directory" in new TreeTransformerSetup {
@@ -496,7 +496,7 @@ class TreeTransformerSpec extends IOWordSpec with FileIO {
                        |  Support for user-defined reStructuredText directives (supplied by parser)
                        |  Standard directives for reStructuredText (supplied by parser)
                        |  Document Type Matcher for reStructuredText (supplied by parser)
-                       |  Helium Theme Rewrite Rules and Render Overrides (supplied by theme)
+                       |  Extensions for theme 'Helium' (supplied by theme)
                        |Settings:
                        |  Strict Mode: false
                        |  Accept Raw Content: false

@@ -112,7 +112,7 @@ private[helium] object HeliumDefaults {
   private val defaultEPUBSettings = EPUBSettings(
     bookConfig = BookConfig(fonts = defaultFonts),
     themeFonts = defaultThemeFonts,
-    fontSizes = FontSizes( // TODO
+    fontSizes = FontSizes( // TODO - RELEASE - EPUB styling
       body = pt(10),
       code = pt(9),
       title = pt(24),
