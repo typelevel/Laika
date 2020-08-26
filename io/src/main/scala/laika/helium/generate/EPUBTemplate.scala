@@ -17,7 +17,6 @@
 package laika.helium.generate
 
 import laika.ast._
-import laika.directive.StandardDirectives.StyleLinks
 import laika.rewrite.ReferenceResolver.CursorKeys
 
 private[helium] object EPUBTemplate {
@@ -44,7 +43,7 @@ private[helium] object EPUBTemplate {
       templateSpans(0),
       TemplateContextReference(CursorKeys.documentTitle, required = true),
       templateSpans(1),
-      StyleLinks,
+      TemplateSpanSequence.empty,
       templateSpans(2),
       TemplateContextReference(CursorKeys.documentContent, required = true),
       templateSpans(3)

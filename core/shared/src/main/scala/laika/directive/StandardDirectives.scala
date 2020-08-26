@@ -19,7 +19,7 @@ package laika.directive
 import cats.data.{NonEmptyChain, NonEmptySet, ValidatedNec}
 import cats.implicits._
 import laika.ast.Path.Root
-import laika.ast.{SpanResolver, TemplateSpan, _}
+import laika.ast._
 import laika.bundle.BundleOrigin
 import laika.config._
 import laika.rewrite.TemplateRewriter
@@ -596,22 +596,6 @@ object StandardDirectives extends DirectiveRegistry {
     attribute(0).map { _ => BlockSequence(Nil) }
   }
   
-  @deprecated("use the more flexible new @:linkCSS directive", "0.16.0")
-  case object StyleLinks extends SpanResolver with TemplateSpan { // TODO - 0.16 - remove
-    type Self = this.type
-    def withOptions (options: Options): this.type = this
-    val options: Options = NoOpt
-
-    def resolve (cursor: DocumentCursor): TemplateElement = {
-      val allLinks = cursor.root.target.staticDocuments.filter(_.suffix.contains("css")).map { staticPath =>
-        val path = staticPath.relativeTo(cursor.path).toString
-        s"""<link rel="stylesheet" type="text/css" href="$path" />"""
-      }
-      TemplateElement(RawContent(NonEmptySet.of("html","xhtml"), allLinks.mkString("\n    ")))
-    }
-    lazy val unresolvedMessage: String = s"Unresolved style links generator"
-  }
-  
   private def renderLinks (cursor: DocumentCursor,
                            suffixFilter: String => Boolean, 
                            includes: NonEmptyChain[Path],
@@ -630,11 +614,6 @@ object StandardDirectives extends DirectiveRegistry {
       render(path)
     }
     TemplateElement(RawContent(NonEmptySet.of("html","xhtml"), allLinks.mkString("\n    ")))
-  }
-
-  @deprecated("use the more flexible new @:linkCSS directive", "0.16.0")
-  lazy val styleLinksDirective: Templates.Directive = Templates.create("styleLinks") {
-    Templates.dsl.cursor.map(StyleLinks.resolve)
   }
 
   /** Template directive that inserts links to all CSS inputs found in the document tree, using a path
@@ -778,7 +757,6 @@ object StandardDirectives extends DirectiveRegistry {
     templateNav,
     templateFor,
     templateIf,
-    styleLinksDirective,
     linkCSSDirective,
     linkJSDirective,
     relativePath

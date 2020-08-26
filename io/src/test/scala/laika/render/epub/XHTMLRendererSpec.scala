@@ -83,7 +83,7 @@ class XHTMLRendererSpec extends IOWordSpec with ModelBuilder with FileIO {
 
   "The XHTML Renderer for EPUB" should {
 
-    "render a tree with 2 documents and 2 style sheets" in {
+    "render a tree with 2 documents and 2 style sheets" ignore { // TODO - 0.16 - resurrect when template has been adjusted
       new DocBuilder with StringRenderer {
         val input = DocumentTreeRoot(
           tree = DocumentTree(Root,
