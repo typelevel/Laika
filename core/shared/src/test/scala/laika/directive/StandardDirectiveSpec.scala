@@ -206,10 +206,12 @@ class StandardDirectiveSpec extends AnyFlatSpec
     val parser = MarkupParser
       .of(Markdown)
       .failOnMessages(MessageFilter.None)
-      .withConfigValue(Selections(Seq(SelectionConfig("config", NonEmptyChain(
-        ChoiceConfig("a", "label-a"),
-        ChoiceConfig("b", "label-b")
-      )))))
+      .withConfigValue(Selections(
+        SelectionConfig("config",
+          ChoiceConfig("a", "label-a"),
+          ChoiceConfig("b", "label-b")
+        )
+      ))
       .build
 
     def parse (input: String): RootElement = parser.parse(input).toOption.get.content
@@ -312,9 +314,9 @@ class StandardDirectiveSpec extends AnyFlatSpec
       Choice("a","label-a", List(p("common"), p("11\n22"))),
       Choice("b","label-b", List(p("common"), p("33\n44")))
     ))
-    val config = Selections(Seq(
-      SelectionConfig("config", NonEmptyChain(ChoiceConfig("a", "label-a"), ChoiceConfig("b", "label-b", selected = true)))
-    ))
+    val config = Selections(
+      SelectionConfig("config", ChoiceConfig("a", "label-a"), ChoiceConfig("b", "label-b", selected = true))
+    )
     val doc = Document(Root / "doc", root(group))
     val tree = DocumentTreeRoot(DocumentTree(Root, Seq(doc), config = ConfigBuilder.empty.withValue(config).build))
     val cursor = DocumentCursor(doc, TreeCursor(RootCursor(tree)), tree.config, TreePosition(Nil))

@@ -131,7 +131,7 @@ trait TemplateRewriter {
     // maps selection name to selected choice name
     val selections: Map[String, String] = cursor.root.config
       .get[Selections]
-      .getOrElse(Selections(Nil))
+      .getOrElse(Selections.empty)
       .selections
       .flatMap(selection => selection.choices.find(_.selected).map(c => (selection.name, c.name)))
       .toMap

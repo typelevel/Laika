@@ -16,7 +16,7 @@
 
 package laika.rewrite.nav
 
-import cats.data.NonEmptyChain
+import cats.data.{Chain, NonEmptyChain}
 import laika.ast.DocumentTreeRoot
 import laika.config._
 
@@ -28,7 +28,7 @@ case class Selections (selections: Seq[SelectionConfig]) {
   def getClassifiers: Classifiers = Classifiers(selections.flatMap { group =>
     group.choices.find(_.selected).map(_.name)
   })
-}// TODO - convenience constructors
+}
 case class Classifiers (value: Seq[String])
 
 object Selections {
@@ -39,6 +39,10 @@ object Selections {
 
   implicit val encoder: ConfigEncoder[Selections] = ConfigEncoder.seq[SelectionConfig].contramap(_.selections)
 
+  val empty = Selections(Nil)
+  
+  def apply (selection: SelectionConfig, selections: SelectionConfig*): Selections = Selections(selection +: selections)
+  
   def createCombinationsConfig (config: Config): Seq[Seq[ChoiceConfig]] = {
 
     def createCombinations (value: Selections): Seq[Seq[ChoiceConfig]] =
@@ -103,12 +107,17 @@ object Selections {
 }
 
 case class SelectionConfig (name: String, choices: NonEmptyChain[ChoiceConfig], separateEbooks: Boolean = false) {
+  def withSeparateEbooks: SelectionConfig = copy(separateEbooks = true)
   def getLabel (name: String): Option[String] = choices.find(_.name == name).map(_.label)
   def select (choice: ChoiceConfig): SelectionConfig = 
     copy(choices = choices.map(c => if (c == choice) c.copy(selected = true) else c))
 }
 
 object SelectionConfig {
+  
+  def apply (name: String, choice: ChoiceConfig, choices: ChoiceConfig*): SelectionConfig =
+    SelectionConfig(name, NonEmptyChain.fromChainPrepend(choice, Chain.fromSeq(choices)))
+  
   implicit val decoder: ConfigDecoder[SelectionConfig] = ConfigDecoder.config.flatMap { config =>
     for {
       name     <- config.get[String]("name")

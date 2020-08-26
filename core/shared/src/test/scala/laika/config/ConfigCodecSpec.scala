@@ -198,16 +198,16 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
   
   "The codec for ChoiceGroupsConfig" should {
 
-    val sample = Selections(Seq(
-      SelectionConfig("foo", NonEmptyChain(
+    val sample = Selections(
+      SelectionConfig("foo",
         ChoiceConfig("foo-a", "foo-label-a", selected = true),
         ChoiceConfig("foo-b", "foo-label-b")
-      ), separateEbooks = true),
-      SelectionConfig("bar", NonEmptyChain(
+      ).withSeparateEbooks,
+      SelectionConfig("bar",
         ChoiceConfig("bar-a", "bar-label-a"),
         ChoiceConfig("bar-b", "bar-label-b")
-      ))
-    ))
+      )
+    )
     
     "decode an instance with all fields populated" in {
       val input =

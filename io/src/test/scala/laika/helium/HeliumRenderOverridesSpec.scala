@@ -87,12 +87,12 @@ class HeliumRenderOverridesSpec extends IOFunSuite with InputBuilder with Result
         |<p>2nd choice</p>
         |</div>
         |</div>""".stripMargin
-    val configure: ConfigureTransformer = _.withConfigValue(Selections(Seq(
-      SelectionConfig("config", NonEmptyChain(
+    val configure: ConfigureTransformer = _.withConfigValue(Selections(
+      SelectionConfig("config",
         ChoiceConfig("sbt", "sbt Plugin"),
         ChoiceConfig("library", "Library API")
-      ), separateEbooks = true)
-    )))
+      ).withSeparateEbooks
+    ))
     transformAndExtract(input, configure = configure).assertEquals(expected)
   }
 

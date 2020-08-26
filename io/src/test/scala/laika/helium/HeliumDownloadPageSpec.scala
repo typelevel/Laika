@@ -221,12 +221,12 @@ class HeliumDownloadPageSpec extends IOFunSuite with InputBuilder with ResultExt
                      |<p><a href="downloads/download-library.pdf">Download</a></p>
                      |</div>
                      |</div>""".stripMargin
-    val configure: ConfigureTransformer = _.withConfigValue(Selections(Seq(
-      SelectionConfig("config", NonEmptyChain(
+    val configure: ConfigureTransformer = _.withConfigValue(Selections(
+      SelectionConfig("config",
         ChoiceConfig("sbt", "sbt Plugin"),
         ChoiceConfig("library", "Library API")
-      ), separateEbooks = true)
-    )))
+      ).withSeparateEbooks
+    ))
     transformAndExtract(singleDoc, heliumWithDownloadsAndCovers, "<main class=\"content\">", "</main>", configure)
       .assertEquals(expected)
   }

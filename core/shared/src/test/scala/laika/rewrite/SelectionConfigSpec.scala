@@ -61,52 +61,51 @@ class SelectionConfigSpec extends AnyWordSpec
     }
 
     "succeed with no choice groups in the config" in {
-      val config = ConfigBuilder.empty.withValue(Selections(Nil)).build
+      val config = ConfigBuilder.empty.withValue(Selections.empty).build
       val result = Selections.createCombinations(config)
       result.length shouldBe 1
-      result.head._1.get[Selections] shouldBe Right(Selections(Nil))
+      result.head._1.get[Selections] shouldBe Right(Selections.empty)
     }
 
     "succeed with a single choice group without separation" in {
-      val config = ConfigBuilder.empty.withValue(Selections(Seq(selectionFoo))).build
+      val config = ConfigBuilder.empty.withValue(Selections(selectionFoo)).build
       val result = Selections.createCombinations(config)
       result.length shouldBe 1
-      result.head._1.get[Selections] shouldBe Right(Selections(Seq(selectionFoo)))
+      result.head._1.get[Selections] shouldBe Right(Selections(selectionFoo))
     }
 
     "succeed with a single choice group with separation" in {
-      val config = ConfigBuilder.empty.withValue(Selections(Seq(selectionFooSeparate))).build
+      val config = ConfigBuilder.empty.withValue(Selections(selectionFooSeparate)).build
       val result = run(config)
-      val expectedGroup1 = Selections(Seq(
-        SelectionConfig("foo", NonEmptyChain(
+      val expectedGroup1 = Selections(
+        SelectionConfig("foo",
           ChoiceConfig("foo-a", "foo-label-a", selected = true),
           ChoiceConfig("foo-b", "foo-label-b")
-        ), separateEbooks = true)
-      ))
-      val expectedGroup2 = Selections(Seq(
-        SelectionConfig("foo", NonEmptyChain(
+        ).withSeparateEbooks
+      )
+      val expectedGroup2 = Selections(
+        SelectionConfig("foo",
           ChoiceConfig("foo-a", "foo-label-a"),
           ChoiceConfig("foo-b", "foo-label-b", selected = true)
-        ), separateEbooks = true)
-      ))
+        ).withSeparateEbooks
+      )
       result.length shouldBe 2
       result.get(0) shouldBe Some(Right(expectedGroup1))
       result.get(1) shouldBe Some(Right(expectedGroup2))
     }
 
     "succeed with a two choice groups with separation and one without" in {
-      val config = ConfigBuilder.empty.withValue(Selections(Seq(
-        selectionFooSeparate,
-        selectionBarSeparate,
-        selectionBaz))).build
+      val config = ConfigBuilder.empty
+        .withValue(Selections(selectionFooSeparate, selectionBarSeparate, selectionBaz))
+        .build
       val result = run(config)
 
       def select (selection: SelectionConfig, pos: Int): SelectionConfig =
         selection.select(selection.choices.toNonEmptyVector.getUnsafe(pos))
 
-      def groups (selectIn1: Int, selectIn2: Int): Selections = Selections(Seq(
+      def groups (selectIn1: Int, selectIn2: Int): Selections = Selections(
         select(selectionFooSeparate, selectIn1), select(selectionBarSeparate, selectIn2), selectionBaz
-      ))
+      )
 
       result.length shouldBe 4
       result.get(0) shouldBe Some(Right(groups(0,0)))
@@ -117,7 +116,7 @@ class SelectionConfigSpec extends AnyWordSpec
 
     "should use per-classifier cover image configuration" in {
       val config = ConfigBuilder.empty
-        .withValue(Selections(Seq(selectionFooSeparate)))
+        .withValue(Selections(selectionFooSeparate))
         .withValue(LaikaKeys.coverImage, Root / "default.png")
         .withValue(LaikaKeys.coverImages, Seq(CoverImage(Root / "foo-a.png", "foo-a"), CoverImage(Root / "foo-b.png", "foo-b")))
         .build
@@ -130,7 +129,7 @@ class SelectionConfigSpec extends AnyWordSpec
     "should use the default cover image if none has been specified for a classifier" in {
       val defaultPath = Root / "default.png"
       val config = ConfigBuilder.empty
-        .withValue(Selections(Seq(selectionFooSeparate)))
+        .withValue(Selections(selectionFooSeparate))
         .withValue(LaikaKeys.coverImage, defaultPath)
         .build
       val result = runAndGetCoverImage(config)
