@@ -268,8 +268,72 @@ val transformer = Transformer
 
 @:@
 
-
 In cases where this simple mechanism is not sufficient, you can always define [Custom Link Directives].
+
+
+Linking to Source Code
+----------------------
+
+The `@:source` directive can be used to link to the source code of types by providing just the fully qualified type name:
+
+```laika-md
+You can examine the source code of @:source(laika.api.Transformer) for inspiration.
+```
+
+It is very similar to the `@:api` directive with only a few subtle differences in its configuration.
+This directive requires the base URI and suffix to be defined in the project's configuration:
+
+@:select(config)
+
+@:choice(sbt)
+```scala
+laikaConfig := LaikaConfig.defaults
+  .withConfigValue(LinkConfig(sourceLinks = Seq(
+    SourceLinks(baseUri = "https://github.com/team/project", suffix = "scala")
+  )))
+```
+
+@:choice(library)
+```scala
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .using(GitHubFlavor)
+  .withConfigValue(LinkConfig(sourceLinks = Seq(
+     SourceLinks(baseUri = "https://github.com/team/project", suffix = "scala")
+  )))
+  .build
+```
+@:@
+
+If you use link to different sources hosted on different servers, you can associate base URIs with package prefixes,
+while keeping one base URI as a default for all packages that do not match any prefix:
+
+@:select(config)
+
+@:choice(sbt)
+```scala
+laikaConfig := LaikaConfig.defaults
+  .withConfigValue(LinkConfig(sourceLinks = Seq(
+    SourceLinks(baseUri = "https://github.com/team/project", suffix = "scala"),
+    SourceLinks(baseUri = "https://github.com/elsewhere/project", suffix = "scala", packagePrefix = "com.lib42")
+  )))
+```
+
+@:choice(library)
+```scala
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .using(GitHubFlavor)
+  .withConfigValue(LinkConfig(sourceLinks = Seq(
+    SourceLinks(baseUri = "https://github.com/team/project", suffix = "scala"),
+    SourceLinks(baseUri = "https://github.com/elsewhere/project", suffix = "scala", packagePrefix = "com.lib42")
+  )))
+  .build
+```
+
+@:@
 
 
 Generating Navigation Trees

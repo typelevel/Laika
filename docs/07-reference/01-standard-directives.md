@@ -47,6 +47,15 @@ Serves as a shortcut for creating links to API documentation, e.g. `@:api(laika.
 See [Linking to API Documentation] for details.
 
 
+### `@:source`
+
+Can be used as inline element and within links in text markup.
+
+Serves as a shortcut for creating links to the source code of types, e.g. `@:source(laika.api.Transformer)`.
+
+See [Linking to Source Code] for details.
+
+
 Applying Styles
 ---------------
 
@@ -119,6 +128,70 @@ not in PDF, EPUB or any other format.
 
 @:@
 ```
+
+
+HTML Templates
+--------------
+
+These directives can only be used in HTML or EPUB templates, 
+as they drive the inclusion of tags in the HTML `<head>` section.
+
+If you use the Helium theme and do not design your own templates or themes, 
+you do not need to use these directives directly, as the Helium template already contain them.
+In that case you can control which CSS and JS files to link via the theme's configuration
+as described in [Auto-Linking CSS & JS Files].
+
+
+### @:linkCSS
+
+Causes the automatic inclusion of `<link>` tags for CSS files found in the input tree.
+
+```laika-html
+@:linkCSS
+```
+
+When used without attributes as in the example above it will simply link any CSS file found in the input tree.
+
+If you only want to pick files from specific locations, you can use the `paths` attribute:
+
+```laika-html
+@:linkCSS {
+  paths = [ /shared, /css ]
+}
+```
+
+The order of the link tags will reflect the order of paths specified.
+You can point to individual files or directories. 
+In the latter case all files found in that directory or any sub-directory will be included.
+
+Note that the paths, like everything in Laika, are within the virtual path of the input tree you configured.
+See [Virtual Tree Abstraction] for details.
+
+
+### @:linkJS
+
+Causes the automatic inclusion of `<script>` tags for JavaScript files found in the input tree.
+
+```laika-html
+@:linkJS
+```
+
+When used without attributes as in the example above it will simply link any JavaScript file found in the input tree.
+
+If you only want to pick files from specific locations, you can use the `paths` attribute:
+
+```laika-html
+@:linkJS {
+  paths = [ /shared, /js ]
+}
+```
+
+The order of the script tags will reflect the order of paths specified.
+You can point to individual files or directories. 
+In the latter case all files found in that directory or any sub-directory will be included.
+
+Note that the paths, like everything in Laika, are within the virtual path of the input tree you configured.
+See [Virtual Tree Abstraction] for details.
 
 
 Conditionals and Loops
@@ -212,3 +285,20 @@ into the final PDF document.
 ```laika-md
 @:pageBreak
 ```
+
+
+Comments
+--------
+
+Since Markdown does not have any native comment syntax, Laika offers a directive to add todo's to text markup:
+
+
+### `@:todo`
+
+Can be used in block and span elements in text markup.
+
+```laika-md
+@:todo(add diagram)
+```
+
+The directive will be ignored by all renderers and won't show up in any output documents.
