@@ -66,7 +66,7 @@ But you can alternatively assign style hints to markup explicitly.
 
 ### `@:style`
 
-Can be used in block and span elements in text markup.
+Can be used in block or span elements in text markup.
 
 Adds a style to the root element of the body of the directive, 
 that can be used by renderers to change the appearance of the rendered element.
@@ -94,11 +94,65 @@ Burrito - @:style(price) £3.50 @:@.
 ```
 
 
-Special Markup Blocks
----------------------
+Markup Blocks
+-------------
 
-These directives mark blocks in a way that they may not be part of the main content block that is accessed
-via `@{cursor.currentDocument.content}` in templates.
+The directives in this section can only be used in place of block-level elements in text markup.
+
+
+### `@:image`
+
+Can be used in block or span elements in text markup.
+
+The image directive is an alternative to the native syntax for including images that supports additional attributes.
+
+```laika-md
+@:image(logo.png) {
+  intrinsicWidth = 64
+  intrinsicHeight = 64
+  style = logo
+  alt = Project Logo
+  title = Tooltip Text
+}
+```
+
+Note that the path, like everything in Laika, is interpreted to be within the virtual path 
+of the input tree you configured.
+It can be relative or absolute, in the latter case it would start with a `/` and 
+See [Virtual Tree Abstraction] for details.
+
+All other attributes shown in the example are optional:
+
+* `intrinsicWidth` and `intrinsicHeight` can be used to avoid "layout shift" by telling the browser the size
+  of the image before it is loaded.
+  As the attribute names imply, they are not intended to be used for the actual display size.
+  For this purpose you should use the `style` attribute and provide corresponding CSS for sizing the image.
+  
+* `alt` and `title` are pass-through attributes for the generated image tag.
+  They are both ignored for PDF output.
+
+
+### `@:callout`
+
+Can only be used in block elements in text markup.
+
+A callout is a decorated block element that stands out from the surrounding paragraphs.
+When using the Helium theme it will be rendered as shown in the screenshot below.
+
+@:todo(add screenshot)
+
+In markup the directive simply surrounds the content of the callout:
+
+```laika-md
+@:callout(warning)
+
+This text appears inside the decorated callout box.
+Any block level elements can be used as the content, including lists, tables or code blocks.
+
+@:@
+```
+
+Helium comes with pre-defined styles and icons for the attributes `info`, `warning` and `error`.
 
 
 ### `@:fragment`
@@ -120,7 +174,7 @@ Can only be used in block elements in text markup.
 
 The body of such a directive will only be included into the output by renderers for the specified type:
 
-```laika-html
+```laika-md
 @:format(html)
 
 This text only appears in the HTML output,
