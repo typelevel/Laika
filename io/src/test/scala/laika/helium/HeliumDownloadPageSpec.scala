@@ -28,7 +28,7 @@ import laika.io.implicits._
 import laika.io.model.StringTreeOutput
 import laika.io.{FileIO, IOFunSuite}
 import laika.render.HTMLFormatter
-import laika.rewrite.nav.{ChoiceConfig, CoverImage, SelectionConfig, SelectionGroupConfig}
+import laika.rewrite.nav.{ChoiceConfig, CoverImage, SelectionConfig, Selections}
 import laika.theme._
 
 class HeliumDownloadPageSpec extends IOFunSuite with InputBuilder with ResultExtractor with StringOps {
@@ -221,7 +221,7 @@ class HeliumDownloadPageSpec extends IOFunSuite with InputBuilder with ResultExt
                      |<p><a href="downloads/download-library.pdf">Download</a></p>
                      |</div>
                      |</div>""".stripMargin
-    val configure: ConfigureTransformer = _.withConfigValue(SelectionGroupConfig(Seq(
+    val configure: ConfigureTransformer = _.withConfigValue(Selections(Seq(
       SelectionConfig("config", NonEmptyChain(
         ChoiceConfig("sbt", "sbt Plugin"),
         ChoiceConfig("library", "Library API")

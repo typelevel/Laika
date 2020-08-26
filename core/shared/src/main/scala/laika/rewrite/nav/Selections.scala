@@ -23,25 +23,25 @@ import laika.config._
 /**
   * @author Jens Halm
   */
-case class SelectionGroupConfig (selections: Seq[SelectionConfig]) {
+case class Selections (selections: Seq[SelectionConfig]) {
   def getSelection (name: String): Option[SelectionConfig] = selections.find(_.name == name)
   def getClassifiers: Classifiers = Classifiers(selections.flatMap { group =>
     group.choices.find(_.selected).map(_.name)
   })
-}// TODO - convenience constructors + rename to Selections
+}// TODO - convenience constructors
 case class Classifiers (value: Seq[String])
 
-object SelectionGroupConfig {
+object Selections {
 
-  implicit val key: DefaultKey[SelectionGroupConfig] = DefaultKey(LaikaKeys.selections)
+  implicit val key: DefaultKey[Selections] = DefaultKey(LaikaKeys.selections)
 
-  implicit val decoder: ConfigDecoder[SelectionGroupConfig] = ConfigDecoder.seq[SelectionConfig].map(SelectionGroupConfig.apply)
+  implicit val decoder: ConfigDecoder[Selections] = ConfigDecoder.seq[SelectionConfig].map(Selections.apply)
 
-  implicit val encoder: ConfigEncoder[SelectionGroupConfig] = ConfigEncoder.seq[SelectionConfig].contramap(_.selections)
+  implicit val encoder: ConfigEncoder[Selections] = ConfigEncoder.seq[SelectionConfig].contramap(_.selections)
 
   def createCombinationsConfig (config: Config): Seq[Seq[ChoiceConfig]] = {
 
-    def createCombinations (value: SelectionGroupConfig): Seq[Seq[ChoiceConfig]] =
+    def createCombinations (value: Selections): Seq[Seq[ChoiceConfig]] =
       value.selections
         .filter(_.separateEbooks)
         .map(_.choices.toChain.toList.map(List(_)))
@@ -50,7 +50,7 @@ object SelectionGroupConfig {
         }
         .getOrElse(Nil)
 
-    config.get[SelectionGroupConfig].fold(
+    config.get[Selections].fold(
       _ => Nil,
       choiceGroups => createCombinations(choiceGroups)
     )
@@ -61,7 +61,7 @@ object SelectionGroupConfig {
     val epubCoverImages = CoverImages.forEPUB(config)
     val pdfCoverImages = CoverImages.forPDF(config)
     
-    def createCombinations(value: SelectionGroupConfig): NonEmptyChain[SelectionGroupConfig] = {
+    def createCombinations(value: Selections): NonEmptyChain[Selections] = {
       val (separated, nonSeparated) = value.selections.partition(_.separateEbooks)
       
       val combinations = separated
@@ -73,11 +73,11 @@ object SelectionGroupConfig {
         }
 
       combinations.fold(NonEmptyChain.one(value))(_.map {
-        combined => SelectionGroupConfig(combined.toChain.toList ++ nonSeparated)
+        combined => Selections(combined.toChain.toList ++ nonSeparated)
       })
     }
     
-    def addCoverImages (value: SelectionGroupConfig, config: ConfigBuilder): ConfigBuilder = {
+    def addCoverImages (value: Selections, config: ConfigBuilder): ConfigBuilder = {
       val classifier = value.getClassifiers.value.mkString("-")
       val withEPUB = epubCoverImages.getImageFor(classifier).fold(config) { img =>
         config.withValue(LaikaKeys.root.child("epub").child(LaikaKeys.coverImage.local), img)
@@ -87,7 +87,7 @@ object SelectionGroupConfig {
       }
     }
     
-    config.get[SelectionGroupConfig].fold(
+    config.get[Selections].fold(
       _ => NonEmptyChain.one((config, Classifiers(Nil))),
       choiceGroups => createCombinations(choiceGroups).map { newConfig =>
         val populatedConfig = addCoverImages(newConfig, config.withValue(newConfig)).build

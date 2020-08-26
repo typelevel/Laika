@@ -24,7 +24,7 @@ import laika.config.LaikaKeys
 import laika.helium.config.DownloadPage
 import laika.io.config.SiteConfig
 import laika.io.model.ParsedTree
-import laika.rewrite.nav.{ChoiceConfig, CoverImages, SelectionGroupConfig}
+import laika.rewrite.nav.{ChoiceConfig, CoverImages, Selections}
 
 private[helium] object DownloadPageGenerator {
 
@@ -46,7 +46,7 @@ private[helium] object DownloadPageGenerator {
       val artifactBaseName = tree.root.config.get[String](LaikaKeys.artifactBaseName).getOrElse("download")
       val downloadPath = SiteConfig.downloadPath(tree.root.config)
 
-      val combinations: Seq[Seq[ChoiceConfig]] = SelectionGroupConfig
+      val combinations: Seq[Seq[ChoiceConfig]] = Selections
         .createCombinationsConfig(tree.root.config)
       val downloads: Seq[Block] =
         if (combinations.isEmpty) {

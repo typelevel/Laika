@@ -29,7 +29,7 @@ import laika.io.implicits._
 import laika.io.model.StringTreeOutput
 import laika.io.{FileIO, IOFunSuite}
 import laika.render.HTMLFormatter
-import laika.rewrite.nav.{ChoiceConfig, SelectionConfig, SelectionGroupConfig}
+import laika.rewrite.nav.{ChoiceConfig, SelectionConfig, Selections}
 import laika.theme._
 
 class HeliumRenderOverridesSpec extends IOFunSuite with InputBuilder with ResultExtractor with StringOps {
@@ -87,7 +87,7 @@ class HeliumRenderOverridesSpec extends IOFunSuite with InputBuilder with Result
         |<p>2nd choice</p>
         |</div>
         |</div>""".stripMargin
-    val configure: ConfigureTransformer = _.withConfigValue(SelectionGroupConfig(Seq(
+    val configure: ConfigureTransformer = _.withConfigValue(Selections(Seq(
       SelectionConfig("config", NonEmptyChain(
         ChoiceConfig("sbt", "sbt Plugin"),
         ChoiceConfig("library", "Library API")

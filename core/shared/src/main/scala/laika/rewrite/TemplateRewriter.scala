@@ -21,7 +21,7 @@ import laika.ast._
 import laika.config.Origin.TemplateScope
 import laika.config.{ConfigError, LaikaKeys, Origin}
 import laika.rewrite.ReferenceResolver.CursorKeys
-import laika.rewrite.nav.SelectionGroupConfig
+import laika.rewrite.nav.Selections
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
@@ -130,8 +130,8 @@ trait TemplateRewriter {
     
     // maps selection name to selected choice name
     val selections: Map[String, String] = cursor.root.config
-      .get[SelectionGroupConfig]
-      .getOrElse(SelectionGroupConfig(Nil))
+      .get[Selections]
+      .getOrElse(Selections(Nil))
       .selections
       .flatMap(selection => selection.choices.find(_.selected).map(c => (selection.name, c.name)))
       .toMap

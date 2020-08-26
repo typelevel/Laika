@@ -26,7 +26,7 @@ import laika.format._
 import laika.io.config.SiteConfig
 import laika.io.implicits._
 import laika.io.model._
-import laika.rewrite.nav.SelectionGroupConfig
+import laika.rewrite.nav.Selections
 import laika.sbt.LaikaPlugin.autoImport._
 import sbt.Keys._
 import sbt._
@@ -146,7 +146,7 @@ object Tasks {
         .withTheme(laikaTheme.value.delegate)
         .build 
         .use { renderer =>
-          val roots = SelectionGroupConfig.createCombinations(tree.root)
+          val roots = Selections.createCombinations(tree.root)
           roots.map { case (root, classifiers) =>
             val classifier = if (classifiers.value.isEmpty) "" else "-" + classifiers.value.mkString("-")
             val docName = artifactBaseName + classifier + "." + formatDesc.toLowerCase

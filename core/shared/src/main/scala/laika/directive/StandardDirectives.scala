@@ -24,7 +24,7 @@ import laika.bundle.BundleOrigin
 import laika.config._
 import laika.rewrite.TemplateRewriter
 import laika.rewrite.link.LinkConfig
-import laika.rewrite.nav.SelectionGroupConfig
+import laika.rewrite.nav.Selections
 
 import scala.annotation.tailrec
 import scala.collection.immutable.TreeSet
@@ -495,7 +495,7 @@ object StandardDirectives extends DirectiveRegistry {
     }
     
     (attribute(0).as[String], separatedBody(Seq(separator)), cursor).mapN { (name, multiPart, cursor) =>
-      cursor.config.get[SelectionGroupConfig]
+      cursor.config.get[Selections]
         .leftMap(e => s"Error reading config for selections: ${e.message}")
         .flatMap { config =>
           config.getSelection(name).toRight(s"Not found: selection '$name'").flatMap { selection =>

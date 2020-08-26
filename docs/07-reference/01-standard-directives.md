@@ -185,7 +185,7 @@ This is how the settings for Laika's manual look:
 
 ```scala
 laikaConfig := LaikaConfig.defaults
-  .withConfigValue(SelectionGroupConfig(Seq(SelectionConfig("config", NonEmptyChain(
+  .withConfigValue(Selections(Seq(SelectionConfig("config", NonEmptyChain(
     ChoiceConfig("sbt", "sbt Plugin"),
     ChoiceConfig("library", "Library API")
   )))))
@@ -200,7 +200,7 @@ val transformer = Transformer
   .from(Markdown)
   .to(HTML)
   .using(GitHubFlavor)
-  .withConfigValue(SelectionGroupConfig(Seq(SelectionConfig("config", NonEmptyChain(
+  .withConfigValue(Selections(Seq(SelectionConfig("config", NonEmptyChain(
     ChoiceConfig("sbt", "sbt Plugin"),
     ChoiceConfig("library", "Library API")
   )))))
