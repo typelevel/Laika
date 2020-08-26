@@ -22,7 +22,7 @@ import laika.helium.config.PDFSettings
 /**
   * @author Jens Halm
   */
-private[laika] object HeliumRewriteRules {
+private[helium] object HeliumRewriteRules {
 
   private def estimateLines (blocks: Seq[Block]): Int = blocks.collect {
     case sp: SpanContainer => sp.extractText.count(_ == '\n')

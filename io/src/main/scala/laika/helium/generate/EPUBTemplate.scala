@@ -20,11 +20,7 @@ import laika.ast._
 import laika.directive.StandardDirectives.StyleLinks
 import laika.rewrite.ReferenceResolver.CursorKeys
 
-/** The default template for EPUB XHTML renderers.
-  *
-  * @author Jens Halm
-  */
-object EPUBTemplate {
+private[helium] object EPUBTemplate {
   
   private val templateText = """<?xml version="1.0" encoding="UTF-8"?>
                                |<!DOCTYPE html>
@@ -42,13 +38,6 @@ object EPUBTemplate {
                                |  </body>
                                |</html>""".stripMargin
 
-  /** The default template for EPUB XHTML renderers.
-    *
-    * It can be overridden by placing a custom template document
-    * with the name `default.template.epub.xhtml` into the root directory
-    * of the input files. Alternatively the default can also be overridden
-    * for individual sub-directories with a corresponding file with the same name.
-    */
   val default: TemplateRoot = {
     val templateSpans = templateText.split("#").map(TemplateString(_))
     TemplateRoot(

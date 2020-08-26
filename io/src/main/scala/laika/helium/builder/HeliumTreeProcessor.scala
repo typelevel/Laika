@@ -28,7 +28,7 @@ import laika.io.model.ParsedTree
 /**
   * @author Jens Halm
   */
-private[laika] class HeliumTreeProcessor[F[_]: Sync](helium: Helium) {
+private[helium] class HeliumTreeProcessor[F[_]: Sync](helium: Helium) {
 
   import helium._
   

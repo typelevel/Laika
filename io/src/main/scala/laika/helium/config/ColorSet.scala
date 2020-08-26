@@ -18,20 +18,20 @@ package laika.helium.config
 
 import laika.theme.Color
 
-case class ColorSet (primary: Color,
-                     primaryDark: Color,
-                     primaryLight: Color,
-                     secondary: Color,
-                     messages: MessageColors,
-                     syntaxHighlighting: SyntaxColors)
+private[helium] case class ColorSet (primary: Color,
+                                     primaryDark: Color,
+                                     primaryLight: Color,
+                                     secondary: Color,
+                                     messages: MessageColors,
+                                     syntaxHighlighting: SyntaxColors)
 
-case class MessageColors (info: Color,
-                          infoLight: Color,
-                          warning: Color,
-                          warningLight: Color,
-                          error: Color,
-                          errorLight: Color)
+private[helium] case class MessageColors (info: Color,
+                                          infoLight: Color,
+                                          warning: Color,
+                                          warningLight: Color,
+                                          error: Color,
+                                          errorLight: Color)
 
-case class SyntaxColors (base: ColorQuintet, wheel: ColorQuintet)
+private[helium] case class SyntaxColors (base: ColorQuintet, wheel: ColorQuintet)
 
 case class ColorQuintet (c1: Color, c2: Color, c3: Color, c4: Color, c5: Color)

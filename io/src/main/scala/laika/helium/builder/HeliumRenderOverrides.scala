@@ -16,7 +16,6 @@
 
 package laika.helium.builder
 
-import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentDocument
 import laika.ast._
 import laika.helium.config.{AnchorPlacement, HeliumIcon}
@@ -25,7 +24,7 @@ import laika.render.{FOFormatter, HTMLFormatter}
 /**
   * @author Jens Halm
   */
-private[laika] object HeliumRenderOverrides {
+private[helium] object HeliumRenderOverrides {
 
   case class Tabs (tabs: Seq[Tab], options: Options = NoOpt) extends Block {
     type Self = Tabs

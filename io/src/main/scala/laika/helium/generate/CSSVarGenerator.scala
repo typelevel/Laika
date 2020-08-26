@@ -18,10 +18,7 @@ package laika.helium.generate
 
 import laika.helium.Helium
 
-/**
-  * @author Jens Halm
-  */
-object CSSVarGenerator {
+private[helium] object CSSVarGenerator {
   
 
   def generate (helium: Helium): String = {

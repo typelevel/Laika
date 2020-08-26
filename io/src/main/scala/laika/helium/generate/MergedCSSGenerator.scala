@@ -28,10 +28,7 @@ import laika.io.runtime.Runtime
 import scala.concurrent.ExecutionContext
 import scala.io.Codec
 
-/**
-  * @author Jens Halm
-  */
-object MergedCSSGenerator {
+private[helium] object MergedCSSGenerator {
 
   // TODO - temporary hack - create ThemeBuilder type and pass it in
   private val blocker = Blocker.liftExecutionContext(

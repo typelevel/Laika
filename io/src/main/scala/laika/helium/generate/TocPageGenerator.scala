@@ -26,10 +26,7 @@ import laika.helium.Helium
 import laika.helium.config.TableOfContent
 import laika.io.model.ParsedTree
 
-/**
-  * @author Jens Halm
-  */
-private[laika] object TocPageGenerator {
+private[helium] object TocPageGenerator {
 
   def generate[F[_]: Sync] (helium: Helium, format: Format): Kleisli[F, ParsedTree[F], ParsedTree[F]] = {
     val tocConfig = (format match {

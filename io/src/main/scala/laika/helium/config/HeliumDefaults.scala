@@ -19,9 +19,9 @@ package laika.helium.config
 import laika.ast.DocumentMetadata
 import laika.ast.LengthUnit.{cm, mm, pt, px}
 import laika.helium.Helium
-import laika.theme.{BookConfig, Color, Font, FontDefinition, FontSizes, FontStyle, FontWeight, ThemeFonts}
+import laika.theme.{BookConfig, Color, Font, FontDefinition, FontStyle, FontWeight}
 
-private[laika] object HeliumDefaults {
+private[helium] object HeliumDefaults {
 
   private val fontPath = "laika/helium/fonts/"
 

@@ -20,11 +20,7 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.helium.Helium
 
-/** The default styles for PDF and XSL-FO output.
-  * 
-  * @author Jens Halm
-  */
-class FOStyles (helium: Helium) {
+private[helium] class FOStyles (helium: Helium) {
   
   import helium.pdfSettings._
   
@@ -32,12 +28,6 @@ class FOStyles (helium: Helium) {
   TODO - this string template approach is a temporary solution until Laika's 'CSS for PDF' supports CSS variables
   */
 
-  /** The default styles for PDF and XSL-FO renderers.
-    *
-    * They can be overridden by placing a custom CSS document
-    * with the name `default.fo.css` into the root directory
-    * of the input files.
-    */
   val input: String = s"""
     |Paragraph {
     |  font-family: ${themeFonts.body};

@@ -21,12 +21,8 @@ import laika.ast.{InternalTarget, _}
 import laika.config.{ASTValue, Config, ConfigBuilder, ConfigEncoder}
 import laika.helium.Helium
 import laika.helium.config._
-import laika.theme.ThemeFonts
 
-/**
-  * @author Jens Halm
-  */
-object ConfigGenerator {
+private[laika] object ConfigGenerator {
 
   implicit val releaseEncoder: ConfigEncoder[ReleaseInfo] = ConfigEncoder[ReleaseInfo] { releaseInfo =>
     ConfigEncoder.ObjectBuilder.empty

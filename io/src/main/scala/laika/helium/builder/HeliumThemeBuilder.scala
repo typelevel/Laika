@@ -28,7 +28,7 @@ import laika.theme.Theme
 /**
   * @author Jens Halm
   */
-private[laika] object HeliumThemeBuilder {
+private[helium] object HeliumThemeBuilder {
 
   def build[F[_]: Sync](helium: Helium): Resource[F, Theme[F]] = {
 

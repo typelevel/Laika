@@ -19,46 +19,46 @@ package laika.helium.config
 import laika.ast.Path.Root
 import laika.ast.{Image, Options, Path, Size, Styles}
 
-case class WebLayout (contentWidth: Size, 
-                      navigationWidth: Size, 
-                      defaultBlockSpacing: Size, 
-                      defaultLineHeight: Double,
-                      anchorPlacement: AnchorPlacement,
-                      favIcons: Seq[Favicon] = Nil,
-                      topNavigationBar: TopNavigationBar = TopNavigationBar.default,
-                      tableOfContent: Option[TableOfContent] = None,
-                      downloadPage: Option[DownloadPage] = None,
-                      markupEditLinks: Option[MarkupEditLinks] = None)
+private[helium] case class WebLayout(contentWidth: Size,
+                                     navigationWidth: Size,
+                                     defaultBlockSpacing: Size,
+                                     defaultLineHeight: Double,
+                                     anchorPlacement: AnchorPlacement,
+                                     favIcons: Seq[Favicon] = Nil,
+                                     topNavigationBar: TopNavigationBar = TopNavigationBar.default,
+                                     tableOfContent: Option[TableOfContent] = None,
+                                     downloadPage: Option[DownloadPage] = None,
+                                     markupEditLinks: Option[MarkupEditLinks] = None)
 
-case class PDFLayout (pageWidth: Size, pageHeight: Size,
-                      marginTop: Size, marginRight: Size, marginBottom: Size, marginLeft: Size,
-                      defaultBlockSpacing: Size, defaultLineHeight: Double,
-                      keepTogetherDecoratedLines: Int,
-                      tableOfContent: Option[TableOfContent] = None)
+private[helium] case class PDFLayout (pageWidth: Size, pageHeight: Size,
+                                      marginTop: Size, marginRight: Size, marginBottom: Size, marginLeft: Size,
+                                      defaultBlockSpacing: Size, defaultLineHeight: Double,
+                                      keepTogetherDecoratedLines: Int,
+                                      tableOfContent: Option[TableOfContent] = None)
 
-case class TableOfContent (title: String, depth: Int)
+private[helium] case class TableOfContent (title: String, depth: Int)
 
-case class TopNavigationBar (logo: Option[Image], links: Seq[ThemeLink])
+private[helium] case class TopNavigationBar (logo: Option[Image], links: Seq[ThemeLink])
 
-object TopNavigationBar {
+private[helium] object TopNavigationBar {
   val default: TopNavigationBar = TopNavigationBar(None, Nil) // TODO - use home icon instead of image if empty
 }
 
-case class DownloadPage (title: String, description: Option[String], downloadPath: Path = Root / "downloads", 
-                         includeEPUB: Boolean = true, includePDF: Boolean = true)
+private[helium] case class DownloadPage (title: String, description: Option[String], downloadPath: Path = Root / "downloads", 
+                                        includeEPUB: Boolean = true, includePDF: Boolean = true)
 
-case class LandingPage (logo: Option[Image] = None,
-                        title: Option[String] = None,
-                        subtitle: Option[String] = None,
-                        latestReleases: Seq[ReleaseInfo] = Nil,
-                        license: Option[String] = None,
-                        documentationLinks: Seq[TextLink] = Nil,
-                        projectLinks: Seq[ThemeLink] = Nil,
-                        teasers: Seq[Teaser] = Nil)
+private[helium] case class LandingPage (logo: Option[Image] = None,
+                                        title: Option[String] = None,
+                                        subtitle: Option[String] = None,
+                                        latestReleases: Seq[ReleaseInfo] = Nil,
+                                        license: Option[String] = None,
+                                        documentationLinks: Seq[TextLink] = Nil,
+                                        projectLinks: Seq[ThemeLink] = Nil,
+                                        teasers: Seq[Teaser] = Nil)
 
-case class MarkupEditLinks (text: String, baseURL: String)
+private[helium] case class MarkupEditLinks (text: String, baseURL: String)
 
-case class Favicon (target: ThemeTarget, sizes: Option[String], mediaType: Option[String])
+case class Favicon private (target: ThemeTarget, sizes: Option[String], mediaType: Option[String])
 
 object Favicon {
   private def mediaType (suffix: Option[String]): Option[String] = suffix.collect {
@@ -86,9 +86,13 @@ object AnchorPlacement {
   object Right extends AnchorPlacement
 }
 
-case class HTMLIncludes (includeCSS: Seq[Path] = Seq(Root), includeJS: Seq[Path] = Seq(Root))
+private[helium] case class HTMLIncludes (includeCSS: Seq[Path] = Seq(Root), includeJS: Seq[Path] = Seq(Root))
 
-object HeliumStyles {
+private[helium] object HeliumStyles {
   val row: Options = Styles("row")
   val button: Options = Styles("button")
 }
+
+private[helium] case class ThemeFonts private (body: String, headlines: String, code: String)
+
+private[helium] case class FontSizes (body: Size, code: Size, title: Size, header2: Size, header3: Size, header4: Size, small: Size)

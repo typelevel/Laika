@@ -26,10 +26,7 @@ import laika.io.config.SiteConfig
 import laika.io.model.ParsedTree
 import laika.rewrite.nav.{ChoiceConfig, CoverImages, SelectionGroupConfig}
 
-/**
-  * @author Jens Halm
-  */
-private[laika] object DownloadPageGenerator {
+private[helium] object DownloadPageGenerator {
 
   def generate[F[_]: Sync](pageConfig: DownloadPage): Kleisli[F, ParsedTree[F], ParsedTree[F]] = {
 

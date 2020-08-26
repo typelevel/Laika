@@ -25,10 +25,7 @@ import laika.helium.config.LandingPage
 import laika.io.model.ParsedTree
 import laika.rewrite.nav.TitleDocumentConfig
 
-/**
-  * @author Jens Halm
-  */
-private[laika] object LandingPageGenerator {
+private[helium] object LandingPageGenerator {
 
   def generate[F[_]: Sync] (landingPage: LandingPage): Kleisli[F, ParsedTree[F], ParsedTree[F]] = Kleisli { tree =>
     

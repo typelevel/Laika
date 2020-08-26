@@ -133,7 +133,3 @@ object FontDefinition {
   implicit val defaultKey: DefaultKey[Seq[FontDefinition]] = DefaultKey(LaikaKeys.root.child("fonts"))
   
 }
-
-case class ThemeFonts private (body: String, headlines: String, code: String)
-
-case class FontSizes (body: Size, code: Size, title: Size, header2: Size, header3: Size, header4: Size, small: Size)

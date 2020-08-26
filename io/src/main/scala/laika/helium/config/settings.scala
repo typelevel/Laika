@@ -23,32 +23,32 @@ import laika.ast.Path.Root
 import laika.ast.{DocumentMetadata, Image, Path, Size}
 import laika.helium.Helium
 import laika.rewrite.nav.CoverImage
-import laika.theme.{BookConfig, Color, FontDefinition, FontSizes, ThemeFonts}
+import laika.theme.{BookConfig, Color, FontDefinition}
 
-private[laika] case class SiteSettings (fontResources: Seq[FontDefinition],
-                                       themeFonts: ThemeFonts,
-                                       fontSizes: FontSizes,
-                                       colors: ColorSet,
-                                       htmlIncludes: HTMLIncludes,
-                                       landingPage: Option[LandingPage],
-                                       webLayout: WebLayout,
-                                       metadata: DocumentMetadata)
+private[helium] case class SiteSettings (fontResources: Seq[FontDefinition],
+                                         themeFonts: ThemeFonts,
+                                         fontSizes: FontSizes,
+                                         colors: ColorSet,
+                                         htmlIncludes: HTMLIncludes,
+                                         landingPage: Option[LandingPage],
+                                         webLayout: WebLayout,
+                                         metadata: DocumentMetadata)
 
-private[laika] case class PDFSettings (bookConfig: BookConfig,
-                                      themeFonts: ThemeFonts,
-                                      fontSizes: FontSizes,
-                                      colors: ColorSet,
-                                      pdfLayout: PDFLayout,
-                                      coverImages: Seq[CoverImage])
+private[helium] case class PDFSettings (bookConfig: BookConfig,
+                                        themeFonts: ThemeFonts,
+                                        fontSizes: FontSizes,
+                                        colors: ColorSet,
+                                        pdfLayout: PDFLayout,
+                                        coverImages: Seq[CoverImage])
 
-private[laika] case class EPUBSettings (bookConfig: BookConfig,
-                                       themeFonts: ThemeFonts,
-                                       fontSizes: FontSizes,
-                                       colors: ColorSet,
-                                       htmlIncludes: HTMLIncludes,
-                                       coverImages: Seq[CoverImage])
+private[helium] case class EPUBSettings (bookConfig: BookConfig,
+                                         themeFonts: ThemeFonts,
+                                         fontSizes: FontSizes,
+                                         colors: ColorSet,
+                                         htmlIncludes: HTMLIncludes,
+                                         coverImages: Seq[CoverImage])
 
-private[laika] trait CommonConfigOps {
+private[helium] trait CommonConfigOps {
 
   def fontResources (defn: FontDefinition*): Helium
   def fontFamilies (body: String, headlines: String, code: String): Helium
@@ -80,7 +80,7 @@ private[laika] trait CommonConfigOps {
                 version: Option[String] = None): Helium
 }
 
-private[laika] trait SingleConfigOps extends CommonConfigOps {
+private[helium] trait SingleConfigOps extends CommonConfigOps {
   protected def currentColors: ColorSet
   protected def withFontFamilies (fonts: ThemeFonts): Helium
   protected def withFontSizes (sizes: FontSizes): Helium
@@ -126,7 +126,7 @@ private[laika] trait SingleConfigOps extends CommonConfigOps {
     withMetadata(DocumentMetadata(title, description, identifier, authors, language, date.map(Date.from), version))
 }
 
-private[laika] trait AllFormatsOps extends CommonConfigOps {
+private[helium] trait AllFormatsOps extends CommonConfigOps {
   protected def helium: Helium
   
   private val formats: Seq[Helium => CommonConfigOps] = Seq(_.site, _.epub, _.pdf)
@@ -177,7 +177,7 @@ private[laika] trait AllFormatsOps extends CommonConfigOps {
   }
 }
 
-private[laika] trait CopyOps {
+private[helium] trait CopyOps {
   protected def helium: Helium
 
   def copyWith (siteSettings: SiteSettings): Helium = new Helium(siteSettings, helium.epubSettings, helium.pdfSettings)
@@ -185,7 +185,7 @@ private[laika] trait CopyOps {
   def copyWith (pdfSettings: PDFSettings): Helium   = new Helium(helium.siteSettings, helium.epubSettings, pdfSettings)
 }
 
-private[laika] trait SiteOps extends SingleConfigOps with CopyOps {
+private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
   protected def currentColors: ColorSet = helium.siteSettings.colors
   def fontResources (defn: FontDefinition*): Helium =  copyWith(helium.siteSettings.copy(fontResources = defn))
   protected def withFontFamilies (fonts: ThemeFonts): Helium = copyWith(helium.siteSettings.copy(themeFonts = fonts))
@@ -249,7 +249,7 @@ private[laika] trait SiteOps extends SingleConfigOps with CopyOps {
   }
 }
 
-private[laika] trait EPUBOps extends SingleConfigOps with CopyOps {
+private[helium] trait EPUBOps extends SingleConfigOps with CopyOps {
   protected def currentColors: ColorSet = helium.epubSettings.colors
   
   def fontResources (defn: FontDefinition*): Helium =
@@ -271,7 +271,7 @@ private[laika] trait EPUBOps extends SingleConfigOps with CopyOps {
     copyWith(helium.epubSettings.copy(coverImages = images))
 }
 
-private[laika] trait PDFOps extends SingleConfigOps with CopyOps {
+private[helium] trait PDFOps extends SingleConfigOps with CopyOps {
   protected def currentColors: ColorSet = helium.pdfSettings.colors
   
   def fontResources (defn: FontDefinition*): Helium =
