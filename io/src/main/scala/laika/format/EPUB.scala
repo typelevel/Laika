@@ -31,8 +31,8 @@ import laika.io.model.{BinaryOutput, RenderedTreeRoot}
 import laika.io.runtime.Runtime
 import laika.render.epub.{ContainerWriter, StyleSupport, XHTMLRenderer}
 import laika.render.{HTMLFormatter, XHTMLFormatter}
-import laika.theme.config.FontDefinition
-import laika.theme.{Theme, config}
+import laika.theme.config.{FontDefinition, BookConfig => CommonBookConfig}
+import laika.theme.Theme
 
 /** A post processor for EPUB output, based on an interim HTML renderer.
  *  May be directly passed to the `Renderer` or `Transformer` APIs:
@@ -107,17 +107,17 @@ case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor
   
   object BookConfig {
     
-    implicit val decoder: ConfigDecoder[BookConfig] = laika.theme.config.BookConfig.decoder.map(c => BookConfig(
+    implicit val decoder: ConfigDecoder[BookConfig] = CommonBookConfig.decoder.map(c => BookConfig(
       c.metadata, c.navigationDepth, c.fonts, c.coverImage
     ))
-    implicit val encoder: ConfigEncoder[BookConfig] = laika.theme.config.BookConfig.encoder.contramap(c => 
-      config.BookConfig(c.metadata, c.navigationDepth, c.fonts, c.coverImage)
+    implicit val encoder: ConfigEncoder[BookConfig] = CommonBookConfig.encoder.contramap(c =>
+      CommonBookConfig(c.metadata, c.navigationDepth, c.fonts, c.coverImage)
     )
     implicit val defaultKey: DefaultKey[BookConfig] = DefaultKey(Key("laika","epub"))
     
     def decodeWithDefaults (config: Config): ConfigResult[BookConfig] = for {
       epubConfig   <- config.getOpt[BookConfig].map(_.getOrElse(BookConfig()))
-      commonConfig <- config.getOpt[laika.theme.config.BookConfig].map(_.getOrElse(laika.theme.config.BookConfig()))
+      commonConfig <- config.getOpt[CommonBookConfig].map(_.getOrElse(CommonBookConfig()))
     } yield {
       BookConfig(
         epubConfig.metadata.withDefaults(commonConfig.metadata), 

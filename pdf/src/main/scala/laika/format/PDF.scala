@@ -33,7 +33,7 @@ import laika.theme.Theme
 import laika.render.FOFormatter
 import laika.render.FOFormatter.Preamble
 import laika.render.pdf.{FOConcatenation, FopFactoryBuilder, PDFRenderer}
-import laika.theme.config.FontDefinition
+import laika.theme.config.{FontDefinition, BookConfig => CommonBookConfig}
 import org.apache.fop.apps.FopFactory
 
 /** A post processor for PDF output, based on an interim XSL-FO renderer. 
@@ -134,17 +134,17 @@ object PDF extends PDF(XSLFO, None) {
 
   object BookConfig {
 
-    implicit val decoder: ConfigDecoder[BookConfig] = laika.theme.config.BookConfig.decoder.map(c => BookConfig(
+    implicit val decoder: ConfigDecoder[BookConfig] = CommonBookConfig.decoder.map(c => BookConfig(
       c.metadata, c.navigationDepth, c.fonts, c.coverImage
     ))
-    implicit val encoder: ConfigEncoder[BookConfig] = laika.theme.config.BookConfig.encoder.contramap(c =>
-      laika.theme.config.BookConfig(c.metadata, c.navigationDepth, c.fonts, c.coverImage)
+    implicit val encoder: ConfigEncoder[BookConfig] = CommonBookConfig.encoder.contramap(c =>
+      CommonBookConfig(c.metadata, c.navigationDepth, c.fonts, c.coverImage)
     )
     implicit val defaultKey: DefaultKey[BookConfig] = DefaultKey(Key("laika","pdf"))
 
     def decodeWithDefaults (config: Config): ConfigResult[BookConfig] = for {
       pdfConfig    <- config.getOpt[BookConfig].map(_.getOrElse(BookConfig()))
-      commonConfig <- config.getOpt[laika.theme.config.BookConfig].map(_.getOrElse(laika.theme.config.BookConfig()))
+      commonConfig <- config.getOpt[CommonBookConfig].map(_.getOrElse(CommonBookConfig()))
     } yield {
       BookConfig(
         pdfConfig.metadata.withDefaults(commonConfig.metadata),
