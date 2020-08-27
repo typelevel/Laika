@@ -27,6 +27,7 @@ import laika.factory.Format
 import laika.io.api.{BinaryTreeRenderer, BinaryTreeTransformer, TreeParser, TreeRenderer, TreeTransformer}
 import laika.io.model.{DirectoryInput, DirectoryOutput, InputTree, ParsedTree, RenderedTreeRoot, TreeOutput}
 import laika.theme.Theme
+import laika.theme.Theme.TreeProcessor
 
 /** Internal runtime for transform operations, for text and binary output as well
   * as parallel and sequential execution. 
@@ -38,7 +39,7 @@ object TransformerRuntime {
   private def themeWithoutInputs[F[_]: Monad] (theme: Theme[F]): Theme[F] = new Theme[F] {
     def inputs: InputTree[F] = InputTree.empty
     def extensions: Seq[ExtensionBundle] = theme.extensions
-    def treeProcessor: PartialFunction[Format, Kleisli[F, ParsedTree[F], ParsedTree[F]]] = theme.treeProcessor
+    def treeProcessor: Format => TreeProcessor[F] = theme.treeProcessor
   }
   
   private def fileFilterFor (output: TreeOutput): File => Boolean = output match {

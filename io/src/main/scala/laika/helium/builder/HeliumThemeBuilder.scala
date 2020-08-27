@@ -40,10 +40,8 @@ private[helium] class HeliumThemeBuilder (helium: Helium) extends ThemeProvider 
       .addRewriteRules(HeliumRewriteRules.build(pdfSettings))
       .addRenderOverrides(HTML.Overrides(HeliumRenderOverrides.forHTML(siteSettings.webLayout.anchorPlacement)))
       .addRenderOverrides(XSLFO.Overrides(HeliumRenderOverrides.forPDF))
-      .processTree {
-        case HTML => treeProcessor.forHTML
-        case format => treeProcessor.forFormat(format)
-      }
+      .processTree(treeProcessor.forHTML, HTML)
+      .processTree(treeProcessor.forAllFormats)
       .build
 
   }

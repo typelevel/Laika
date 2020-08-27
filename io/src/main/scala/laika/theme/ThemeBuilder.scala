@@ -25,6 +25,7 @@ import laika.bundle.{BundleOrigin, ExtensionBundle, RenderOverrides}
 import laika.config.Config
 import laika.factory.Format
 import laika.io.model.{InputTree, InputTreeBuilder, ParsedTree}
+import laika.theme.Theme.TreeProcessor
 import laika.theme.ThemeBuilder.BundleBuilder
 
 /**
@@ -34,36 +35,45 @@ class ThemeBuilder[F[_]: Monad] private[laika] (themeName: String,
                                                 inputs: F[InputTreeBuilder[F]],
                                                 extensions: Seq[ExtensionBundle],
                                                 bundleBuilder: BundleBuilder,
-                                                treeProcessor: PartialFunction[Format, Kleisli[F, ParsedTree[F], ParsedTree[F]]]) { self =>
+                                                treeProcessors: Seq[Format => TreeProcessor[F]]) { self =>
+
+  private val noOp: TreeProcessor[F] = Kleisli.ask[F, ParsedTree[F]]
   
   def addInputs (inputs: InputTreeBuilder[F]): ThemeBuilder[F] = 
-    new ThemeBuilder(themeName, Monad[F].pure(inputs), extensions, bundleBuilder, treeProcessor)
+    new ThemeBuilder(themeName, Monad[F].pure(inputs), extensions, bundleBuilder, treeProcessors)
   
   def addInputs (inputs: F[InputTreeBuilder[F]]): ThemeBuilder[F] = 
-    new ThemeBuilder(themeName, inputs, extensions, bundleBuilder, treeProcessor)
+    new ThemeBuilder(themeName, inputs, extensions, bundleBuilder, treeProcessors)
   
   def addExtensions (bundles: ExtensionBundle*): ThemeBuilder[F] = 
-    new ThemeBuilder(themeName, inputs, extensions ++ bundles, bundleBuilder, treeProcessor)
+    new ThemeBuilder(themeName, inputs, extensions ++ bundles, bundleBuilder, treeProcessors)
   
   def addBaseConfig (config: Config): ThemeBuilder[F] =
-    new ThemeBuilder(themeName, inputs, extensions, bundleBuilder.addConfig(config), treeProcessor)
+    new ThemeBuilder(themeName, inputs, extensions, bundleBuilder.addConfig(config), treeProcessors)
 
   def addRenderOverrides (overrides: RenderOverrides): ThemeBuilder[F] =
-    new ThemeBuilder(themeName, inputs, extensions, bundleBuilder.addRenderOverrides(overrides), treeProcessor)
+    new ThemeBuilder(themeName, inputs, extensions, bundleBuilder.addRenderOverrides(overrides), treeProcessors)
 
   def addRewriteRules (rules: DocumentCursor => RewriteRules): ThemeBuilder[F] =
-    new ThemeBuilder(themeName, inputs, extensions, bundleBuilder.addRewriteRules(rules), treeProcessor)
+    new ThemeBuilder(themeName, inputs, extensions, bundleBuilder.addRewriteRules(rules), treeProcessors)
 
   def addRewriteRules (rules: RewriteRules): ThemeBuilder[F] =
-    new ThemeBuilder(themeName, inputs, extensions, bundleBuilder.addRewriteRules(_ => rules), treeProcessor)
+    new ThemeBuilder(themeName, inputs, extensions, bundleBuilder.addRewriteRules(_ => rules), treeProcessors)
   
-  def processTree (f: PartialFunction[Format, Kleisli[F, ParsedTree[F], ParsedTree[F]]]): ThemeBuilder[F] =
-    new ThemeBuilder[F](themeName, inputs, extensions, bundleBuilder, f)
+  def processTree (f: Format => TreeProcessor[F]): ThemeBuilder[F] =
+    new ThemeBuilder[F](themeName, inputs, extensions, bundleBuilder, treeProcessors :+ f)
+
+  def processTree (f: TreeProcessor[F], format: Format): ThemeBuilder[F] =
+    new ThemeBuilder[F](themeName, inputs, extensions, bundleBuilder, treeProcessors :+ { fmt: Format => 
+      if (fmt == format) f else noOp
+    })
 
   def build: Resource[F, Theme[F]] = Resource.liftF(inputs.flatMap(_.build.map(in => new Theme[F] {
     def inputs: InputTree[F] = in
     def extensions: Seq[ExtensionBundle] = self.extensions ++ bundleBuilder.build.toSeq
-    def treeProcessor: PartialFunction[Format, Kleisli[F, ParsedTree[F], ParsedTree[F]]] = self.treeProcessor
+    def treeProcessor: Format => TreeProcessor[F] = { format =>
+      treeProcessors.map(_(format)).reduceLeftOption(_ andThen _).getOrElse(noOp)
+    }
   })))
 }
 
@@ -89,6 +99,6 @@ object ThemeBuilder {
   }
   
   def apply[F[_] : Sync] (themeName: String): ThemeBuilder[F] = 
-    new ThemeBuilder[F](themeName, Sync[F].pure(InputTree[F]), Nil, BundleBuilder(themeName), PartialFunction.empty)
+    new ThemeBuilder[F](themeName, Sync[F].pure(InputTree[F]), Nil, BundleBuilder(themeName), Nil)
 
 }

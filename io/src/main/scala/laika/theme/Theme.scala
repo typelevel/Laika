@@ -22,6 +22,7 @@ import laika.bundle.ExtensionBundle
 import laika.factory.Format
 import laika.io.model.{InputTree, ParsedTree}
 import laika.io.runtime.Runtime
+import laika.theme.Theme.TreeProcessor
 
 /**
   * @author Jens Halm
@@ -32,11 +33,13 @@ trait Theme[F[_]] {
   
   def extensions: Seq[ExtensionBundle]
   
-  def treeProcessor: PartialFunction[Format, Kleisli[F, ParsedTree[F], ParsedTree[F]]]
+  def treeProcessor: Format => TreeProcessor[F]
   
 }
 
 object Theme {
+
+  type TreeProcessor[F[_]] = Kleisli[F, ParsedTree[F], ParsedTree[F]]
 
   def empty: ThemeProvider = new ThemeProvider {
     def build[F[_]: Sync: Runtime] = ThemeBuilder("Empty Theme").build

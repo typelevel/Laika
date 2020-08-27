@@ -134,7 +134,7 @@ object RendererRuntime {
     val tree = ParsedTree(op.input, staticDocs)
     
     for {
-      mappedTree  <- op.theme.treeProcessor.lift(op.renderer.format).fold(Sync[F].pure(tree))(_.run(tree))
+      mappedTree  <- op.theme.treeProcessor(op.renderer.format).run(tree)
       finalRoot   <- Sync[F].fromEither(applyTemplate(mappedTree.root)
                        .leftMap(e => RendererErrors(Seq(ConfigException(e))))
                        .flatMap(root => InvalidDocuments.from(root, op.config.failOnMessages).toLeft(root)))

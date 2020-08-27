@@ -22,7 +22,7 @@ import laika.bundle.ExtensionBundle
 import laika.factory.Format
 import laika.io.model.InputTreeBuilder
 import laika.io.runtime.Runtime
-import laika.theme.{ThemeBuilder, ThemeProvider, TreeProcessor}
+import laika.theme.{ThemeBuilder, ThemeProvider, TreeProcessorBuilder}
 
 
 object TestThemeBuilder {
@@ -45,16 +45,14 @@ object TestThemeBuilder {
   
   def forDocumentMapper (f: Document => Document): ThemeProvider = new ThemeProvider {
     def build[F[_]: Sync: Runtime] = ThemeBuilder("test")
-      .processTree { case _ => TreeProcessor[F].mapDocuments(f) }
+      .processTree { case _ => TreeProcessorBuilder[F].mapDocuments(f) }
       .build
   }
- 
 
   def forDocumentMapper (format: Format)(f: Document => Document): ThemeProvider = new ThemeProvider {
     def build[F[_]: Sync: Runtime] = {
-      val MatchedFormat = format
       ThemeBuilder("test")
-        .processTree { case MatchedFormat => TreeProcessor[F].mapDocuments(f) }
+        .processTree(TreeProcessorBuilder[F].mapDocuments(f), format)
         .build
     }
   }
