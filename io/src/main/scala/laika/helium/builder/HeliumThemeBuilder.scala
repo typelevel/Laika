@@ -18,16 +18,17 @@ package laika.helium.builder
 
 import cats.effect.{Resource, Sync}
 import laika.format.{HTML, XSLFO}
+import laika.io.runtime.Runtime
 import laika.helium.Helium
 import laika.helium.generate._
-import laika.theme.{Theme, ThemeBuilder}
+import laika.theme.{Theme, ThemeBuilder, ThemeProvider}
 
 /**
   * @author Jens Halm
   */
-private[helium] object HeliumThemeBuilder {
+private[helium] class HeliumThemeBuilder (helium: Helium) extends ThemeProvider {
 
-  def build[F[_]: Sync](helium: Helium): Resource[F, Theme[F]] = {
+  def build[F[_]: Sync: Runtime]: Resource[F, Theme[F]] = {
 
     import helium._
 

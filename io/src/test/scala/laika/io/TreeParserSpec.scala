@@ -19,7 +19,7 @@ package laika.io
 import java.io.ByteArrayInputStream
 
 import cats.data.{Chain, NonEmptyChain}
-import cats.effect.{IO, Resource}
+import cats.effect.{IO, Resource, Sync}
 import laika.api.MarkupParser
 import laika.ast.DocumentType._
 import laika.ast.Path.Root
@@ -35,6 +35,7 @@ import laika.io.helper.{InputBuilder, TestThemeBuilder}
 import laika.io.implicits._
 import laika.io.model.{InputTree, InputTreeBuilder, ParsedTree}
 import laika.io.runtime.ParserRuntime.{DuplicatePath, ParserErrors}
+import laika.io.runtime.Runtime
 import laika.theme.Theme
 import laika.parse.Parser
 import laika.parse.markup.DocumentParser.{InvalidDocument, InvalidDocuments}
@@ -523,15 +524,26 @@ class TreeParserSpec extends IOWordSpec
         Documents(List(docView(1), docView(2))),
         Subtrees(List(subtree1, subtree2))
       ))
-      def useTheme: Boolean = false
-      def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO]
-      lazy val input: InputTreeBuilder[IO] =
-        if (useTheme) InputTree[IO].addDirectory(dirname)
-        else addDoc(InputTree[IO].addDirectory(dirname))
-      lazy val parser: Resource[IO, TreeParser[IO]] = if (useTheme) defaultBuilder.withTheme(TestThemeBuilder.forInputs(addDoc(InputTree[IO]))).build
-        else defaultBuilder.build
+      
+      def input: InputTreeBuilder[IO]
+      def parser: Resource[IO, TreeParser[IO]]
       
       def run (): Assertion = parser.use(_.fromInput(input).parse).map(toTreeView).assertEquals(treeResult)
+    }
+
+    trait CustomInput extends CustomInputSetup {
+      lazy val input: InputTreeBuilder[IO] = addDoc(InputTree[IO].addDirectory(dirname))
+      lazy val parser: Resource[IO, TreeParser[IO]] = defaultBuilder.build
+      def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO]
+    }
+    
+    trait CustomTheme extends CustomInputSetup {
+      lazy val input: InputTreeBuilder[IO] = InputTree[IO].addDirectory(dirname)
+      val themInputs = new TestThemeBuilder.Inputs {
+        def build[F[_]: Sync: Runtime] = addDoc(InputTree[F])
+      }
+      lazy val parser: Resource[IO, TreeParser[IO]] = defaultBuilder.withTheme(TestThemeBuilder.forInputs(themInputs)).build
+      def addDoc[F[_]: Sync: Runtime] (input: InputTreeBuilder[F]): InputTreeBuilder[F]
     }
     
     trait ExtraDocSetup extends CustomInputSetup {
@@ -560,64 +572,61 @@ class TreeParserSpec extends IOWordSpec
       ))
     }
 
-    "read a directory from the file system plus one AST input" in new ExtraDocSetup {
+    "read a directory from the file system plus one AST input" in new ExtraDocSetup with CustomInput {
       def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO] = 
         input.addDocument(Document(Root / "dir2" / "doc7.md", RootElement(Paragraph("Doc7"))))
       run()
     }
 
-    "read a directory from the file system plus one AST input from a theme" in new ExtraDocSetup {
-      override val useTheme: Boolean = true
-      def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO] =
+    "read a directory from the file system plus one AST input from a theme" in new ExtraDocSetup with CustomTheme {
+      def addDoc[F[_]: Sync: Runtime] (input: InputTreeBuilder[F]): InputTreeBuilder[F] =
         input.addDocument(Document(Root / "dir2" / "doc7.md", RootElement(Paragraph("Doc7"))))
       run()
     }
 
-    "read a directory from the file system plus one string input" in new ExtraDocSetup {
+    "read a directory from the file system plus one string input" in new ExtraDocSetup with CustomInput {
       def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO] = input.addString("Doc7", Root / "dir2" / "doc7.md")
       run()
     }
 
-    "read a directory from the file system plus one document from an input stream" in new ExtraDocSetup {
+    "read a directory from the file system plus one document from an input stream" in new ExtraDocSetup with CustomInput {
       def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO] = input.addStream(new ByteArrayInputStream("Doc7".getBytes), Root / "dir2" / "doc7.md")
       run()
     }
 
-    "read a directory from the file system plus one extra file" in new ExtraDocSetup {
+    "read a directory from the file system plus one extra file" in new ExtraDocSetup with CustomInput {
       lazy val filename: String = getClass.getResource("/trees/d/doc7.md").getFile
       def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO] = input.addFile(filename, Root / "dir2" / "doc7.md")
       run()
     }
 
-    "read a directory from the file system plus one extra template from a string" in new ExtraTemplateSetup {
+    "read a directory from the file system plus one extra template from a string" in new ExtraTemplateSetup with CustomInput {
       def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO] = input.addString("Template", templatePath)
       run()
     }
 
-    "read a directory from the file system plus one extra template from a string in a theme" in new ExtraTemplateSetup {
-      override val useTheme: Boolean = true
-      def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO] = input.addString("Template", templatePath)
+    "read a directory from the file system plus one extra template from a string in a theme" in new ExtraTemplateSetup with CustomTheme {
+      def addDoc[F[_]: Sync: Runtime] (input: InputTreeBuilder[F]): InputTreeBuilder[F] = input.addString("Template", templatePath)
       run()
     }
 
-    "read a directory from the file system plus one extra template from an AST" in new ExtraTemplateSetup {
+    "read a directory from the file system plus one extra template from an AST" in new ExtraTemplateSetup with CustomInput {
       def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO] = 
         input.addTemplate(TemplateDocument(templatePath, TemplateRoot(TemplateString("Template"))))
       run()
     }
 
-    "read a directory from the file system plus one extra config document from a string" in new ExtraConfigSetup {
+    "read a directory from the file system plus one extra config document from a string" in new ExtraConfigSetup with CustomInput {
       def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO] = input.addString("foo = 7", configPath)
       run()
     }
 
-    "read a directory from the file system plus one extra config document from a string in a theme" in new ExtraConfigSetup {
-      override val useTheme: Boolean = true
-      def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO] = input.addString("foo = 7", configPath)
+    "read a directory from the file system plus one extra config document from a string in a theme" in new ExtraConfigSetup with CustomTheme {
+      def addDoc[F[_]: Sync: Runtime] (input: InputTreeBuilder[F]): InputTreeBuilder[F] = input.addString("foo = 7", configPath)
       run()
     }
 
-    "read a directory from the file system plus one extra config document built programmatically" in new ExtraConfigSetup {
+    "read a directory from the file system plus one extra config document built programmatically" in new ExtraConfigSetup with CustomInput {
       def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO] = 
         input.addConfig(ConfigBuilder.withOrigin(Origin(TreeScope, configPath)).withValue("foo", 7).build, configPath)
       run()
@@ -703,17 +712,27 @@ class TreeParserSpec extends IOWordSpec
       defaultParser.use(_.fromInput(treeInput).parse).map(toTreeView).assertEquals(treeResult)
     }
 
-    "merge a directory with a directory from a theme" in new MergedDirectorySetup {
+    "merge a directory with a directory from a theme" ignore new MergedDirectorySetup {
+      // TODO - remove or adjust - using markup documents as theme inputs is currently not possible
       val treeInput = InputTree[IO].addDirectory(dir1)
       val themeInput = InputTree[IO].addDirectory(dir2).build(MarkupParser.of(Markdown).build.config.docTypeMatcher)
 
-      val theme = themeInput.map{ themeInputs => new Theme[IO] {
-        def inputs = themeInputs
-        def extensions = Nil
-        def treeProcessor = PartialFunction.empty
-      }}
+//      val theme = themeInput.map{ themeInputs => new Theme[IO] {
+//        def inputs = themeInputs
+//        def extensions = Nil
+//        def treeProcessor = PartialFunction.empty
+//      }}
+
+      val inputs = new TestThemeBuilder.Inputs {
+        def build[F[_]: Sync: Runtime] = InputTree[F].addDirectory(dir2)//.build(MarkupParser.of(Markdown).build.config.docTypeMatcher)
+      }
       
-      defaultBuilder.withTheme(Resource.liftF(theme)).build.use(_.fromInput(treeInput).parse).map(toTreeView).assertEquals(treeResult)
+      defaultBuilder
+        .withTheme(TestThemeBuilder.forInputs(inputs))
+        .build
+        .use(_.fromInput(treeInput).parse)
+        .map(toTreeView)
+        .assertEquals(treeResult)
     }
 
     "merge a directory at a specific mount-point using an InputTreeBuilder" in new MergedDirectorySetup {

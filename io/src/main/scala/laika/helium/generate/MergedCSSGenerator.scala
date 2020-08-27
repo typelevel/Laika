@@ -16,30 +16,18 @@
 
 package laika.helium.generate
 
-import java.util.concurrent.Executors
-
+import cats.effect.Sync
 import cats.implicits._
-import cats.effect.{Blocker, ContextShift, IO, Sync}
 import laika.ast.Path.Root
 import laika.io.model.InputTree
-import laika.io.runtime.InputRuntime
-import laika.io.runtime.Runtime
+import laika.io.runtime.{InputRuntime, Runtime}
 
-import scala.concurrent.ExecutionContext
 import scala.io.Codec
 
 private[helium] object MergedCSSGenerator {
 
-  // TODO - temporary hack - create ThemeBuilder type and pass it in
-  private val blocker = Blocker.liftExecutionContext(
-    ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
-  )
+  def merge[F[_]: Sync: Runtime](varBlock: String): F[String] = {
 
-  def merge[F[_]: Sync](varBlock: String): F[String] = {
-
-    // TODO - temporary hack - create ThemeBuilder type and pass it in
-    implicit val contextShift: ContextShift[F] = IO.contextShift(ExecutionContext.global).asInstanceOf[ContextShift[F]]
-    
     val inputTree = InputTree[F]
       .addClasspathResource("laika/helium/css/container.css", Root / "css" / "container.css")
       .addClasspathResource("laika/helium/css/content.css", Root / "css" / "content.css")
@@ -52,7 +40,6 @@ private[helium] object MergedCSSGenerator {
       inputs.binaryInputs.map(_.asResource).toList.sequence.use { streams =>
         streams.map { stream =>
           InputRuntime.textStreamResource(Sync[F].pure(stream), Codec.UTF8, autoClose = false).use { reader => 
-            implicit val runtime: Runtime[F] = Runtime.sequential(blocker)
             InputRuntime.readAll(reader, 4000)
           }
         }.sequence.map(_.mkString("\n\n"))

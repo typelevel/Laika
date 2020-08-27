@@ -21,12 +21,13 @@ import cats.effect.{Resource, Sync}
 import laika.api.builder.{OperationConfig, ParserBuilder}
 import laika.api.{MarkupParser, Renderer}
 import laika.ast.{DocumentType, TextDocumentType}
+import laika.io.api.BinaryTreeRenderer.Builder
 import laika.io.api.BinaryTreeTransformer.TreeMapper
 import laika.io.descriptor.TransformerDescriptor
 import laika.io.model.{InputTreeBuilder, ParsedTree, RenderedTreeRoot, TreeOutput}
 import laika.io.ops.{InputOps, TextOutputOps, TreeMapperOps}
 import laika.io.runtime.{Runtime, TransformerRuntime}
-import laika.theme.Theme
+import laika.theme.{Theme, ThemeProvider}
 
 /** Transformer for a tree of input and output documents.
   *
@@ -62,7 +63,7 @@ object TreeTransformer {
     */
   case class Builder[F[_]: Sync: Runtime] (parsers: NonEmptyList[MarkupParser], 
                                            renderer: Renderer, 
-                                           theme: Resource[F, Theme[F]], 
+                                           theme: ThemeProvider, 
                                            mapper: TreeMapper[F]) extends TreeMapperOps[F] {
 
     type MapRes = Builder[F]
@@ -90,11 +91,11 @@ object TreeTransformer {
 
     /** Applies the specified theme to this transformer, overriding any previously specified themes.
       */
-    def withTheme (theme: Resource[F, Theme[F]]): Builder[F] = copy(theme = theme)
+    def withTheme (theme: ThemeProvider): Builder[F] = copy(theme = theme)
     
     /** Final builder step that creates a parallel transformer.
       */
-    def build: Resource[F, TreeTransformer[F]] = theme.map(new TreeTransformer[F](parsers, renderer, _, mapper))
+    def build: Resource[F, TreeTransformer[F]] = theme.build.map(new TreeTransformer[F](parsers, renderer, _, mapper))
 
   }
 

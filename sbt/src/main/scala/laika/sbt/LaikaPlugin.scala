@@ -19,6 +19,7 @@ package laika.sbt
 import cats.effect.{IO, Resource}
 import laika.bundle.ExtensionBundle
 import laika.helium.Helium
+import laika.theme.ThemeProvider
 import org.apache.fop.apps.FopFactory
 import sbt.Keys._
 import sbt._
@@ -89,7 +90,6 @@ object LaikaPlugin extends AutoPlugin {
 
     // settingKey macro does not accept HK types
     implicit class InputTreeBuilder (val delegate: laika.io.model.InputTreeBuilder[IO])
-    implicit class Theme (val delegate: Resource[IO, laika.theme.Theme[IO]])
     
     val Laika             = sbt.config("laika")
 
@@ -117,7 +117,7 @@ object LaikaPlugin extends AutoPlugin {
     
     val laikaInputs       = settingKey[InputTreeBuilder]("Freely composed input tree, overriding sourceDirectories")
     
-    val laikaTheme        = settingKey[Theme]("Configures the theme to use for all transformations")
+    val laikaTheme        = settingKey[ThemeProvider]("Configures the theme to use for all transformations")
     
 
     val laikaGenerateAPI  = taskKey[Seq[String]]("Generates API documentation and moves it to the site's API target")
@@ -154,7 +154,7 @@ object LaikaPlugin extends AutoPlugin {
 
     laikaExtensions         := Nil,
     laikaConfig             := LaikaConfig(),
-    laikaTheme              := Helium.defaults.build[IO],
+    laikaTheme              := Helium.defaults.build,
     laikaDescribe           := Settings.describe.value,
 
     laikaIncludeAPI         := false,

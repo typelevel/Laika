@@ -16,30 +16,14 @@
 
 package laika.theme
 
-import cats.data.Kleisli
-import cats.effect.Sync
-import laika.bundle.ExtensionBundle
-import laika.factory.Format
-import laika.io.model.{InputTree, ParsedTree}
+import cats.effect.{Resource, Sync}
 import laika.io.runtime.Runtime
 
 /**
   * @author Jens Halm
   */
-trait Theme[F[_]] {
+trait ThemeProvider {
 
-  def inputs: InputTree[F]
+  def build[F[_]: Sync: Runtime]: Resource[F, Theme[F]]
   
-  def extensions: Seq[ExtensionBundle]
-  
-  def treeProcessor: PartialFunction[Format, Kleisli[F, ParsedTree[F], ParsedTree[F]]]
-  
-}
-
-object Theme {
-
-  def empty: ThemeProvider = new ThemeProvider {
-    def build[F[_]: Sync: Runtime] = ThemeBuilder("Empty Theme").build
-  }
-
 }

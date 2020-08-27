@@ -26,7 +26,7 @@ import laika.io.descriptor.RendererDescriptor
 import laika.io.model.{BinaryInput, BinaryOutput}
 import laika.io.ops.BinaryOutputOps
 import laika.io.runtime.{RendererRuntime, Runtime}
-import laika.theme.Theme
+import laika.theme.{Theme, ThemeProvider}
 
 /** Renderer that merges a tree of input documents to a single binary output document.
   *
@@ -77,16 +77,16 @@ object BinaryTreeRenderer {
   
   /** Builder step that allows to specify the execution context for blocking IO and CPU-bound tasks.
     */
-  case class Builder[F[_]: Sync: Runtime] (format: BinaryRenderFormat, config: OperationConfig, theme: Resource[F, Theme[F]]) {
+  case class Builder[F[_]: Sync: Runtime] (format: BinaryRenderFormat, config: OperationConfig, theme: ThemeProvider) {
 
     /** Applies the specified theme to this renderer, overriding any previously specified themes.
       */
-    def withTheme (theme: Resource[F, Theme[F]]): Builder[F] = copy(theme = theme)
+    def withTheme (theme: ThemeProvider): Builder[F] = copy(theme = theme)
     
     /** Final builder step that creates a parallel renderer for binary output.
       */
     def build: Resource[F, BinaryTreeRenderer[F]] = for {
-      initializedTheme    <- theme
+      initializedTheme    <- theme.build
       initializedRenderer <- buildRenderer(format, config, initializedTheme)
     } yield new BinaryTreeRenderer[F](initializedRenderer, initializedTheme)
   }

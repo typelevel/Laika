@@ -33,13 +33,13 @@ import laika.io.helper.OutputBuilder._
 import laika.io.helper.{InputBuilder, RenderResult, TestThemeBuilder}
 import laika.io.implicits._
 import laika.io.model.{InputTree, StringTreeOutput}
-import laika.theme.{Theme, ThemeBuilder}
 import laika.parse.Parser
 import laika.parse.code.SyntaxHighlighting
 import laika.parse.text.TextParsers
 import laika.render.fo.TestTheme
 import laika.rewrite.DefaultTemplatePath
 import laika.rewrite.link.SlugBuilder
+import laika.theme.ThemeProvider
 import org.scalatest.Assertion
 
 class TreeTransformerSpec extends IOWordSpec with FileIO {
@@ -196,7 +196,7 @@ class TreeTransformerSpec extends IOWordSpec with FileIO {
         Root / "README.md" -> Contents.name,
         Root / "cover.md" -> Contents.name
       )
-      def theme: Resource[IO, Theme[IO]]
+      def theme: ThemeProvider
       def expectedDocResult: String
       
       val mapperFunction: Document => Document = doc => doc.copy(content = doc.content.copy(content = Seq(Paragraph("foo-bar"))))
@@ -220,17 +220,17 @@ class TreeTransformerSpec extends IOWordSpec with FileIO {
 
     "transform a tree with a document mapper from a theme" in new TreeProcessorSetup {
       def expectedDocResult = mappedResult
-      def theme: Resource[IO, Theme[IO]] = TestThemeBuilder.forDocumentMapper(mapperFunction)
+      def theme: ThemeProvider = TestThemeBuilder.forDocumentMapper(mapperFunction)
     }
 
     "transform a tree with a document mapper from a theme specific to the output format" in new TreeProcessorSetup {
       def expectedDocResult = mappedResult
-      def theme: Resource[IO, Theme[IO]] = TestThemeBuilder.forDocumentMapper(AST)(mapperFunction)
+      def theme: ThemeProvider = TestThemeBuilder.forDocumentMapper(AST)(mapperFunction)
     }
 
     "transform a tree ignoring the document mapper from a theme if the format does not match" in new TreeProcessorSetup {
       def expectedDocResult = simpleResult
-      def theme: Resource[IO, Theme[IO]] = TestThemeBuilder.forDocumentMapper(HTML)(mapperFunction)
+      def theme: ThemeProvider = TestThemeBuilder.forDocumentMapper(HTML)(mapperFunction)
     }
 
     "transform a tree with a template document populated by a config file in the directory" in new TreeTransformerSetup {

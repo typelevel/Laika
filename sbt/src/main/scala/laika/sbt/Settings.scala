@@ -76,7 +76,7 @@ object Settings {
       .using(laikaExtensions.value: _*)
       .io(blocker)
       .parallel[IO]
-      .withTheme(laikaTheme.value.delegate)
+      .withTheme(laikaTheme.value)
       .withAlternativeParser(createParser(ReStructuredText))
       .build
 
@@ -118,7 +118,7 @@ object Settings {
     createParser(Markdown)
       .io(blocker)
       .parallel[IO]
-      .withTheme(laikaTheme.value.delegate)
+      .withTheme(laikaTheme.value)
       .withAlternativeParser(createParser(ReStructuredText))
       .build
   }

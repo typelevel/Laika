@@ -25,7 +25,7 @@ import laika.io.descriptor.ParserDescriptor
 import laika.io.model.{InputTreeBuilder, ParsedTree}
 import laika.io.ops.InputOps
 import laika.io.runtime.{ParserRuntime, Runtime}
-import laika.theme.Theme
+import laika.theme.{Theme, ThemeProvider}
 import laika.parse.markup.DocumentParser
 import laika.parse.markup.DocumentParser.{ParserError, ParserInput}
 
@@ -57,7 +57,7 @@ object TreeParser {
   /** Builder step that allows to specify the execution context
     * for blocking IO and CPU-bound tasks.
     */
-  case class Builder[F[_]: Sync: Runtime] (parsers: NonEmptyList[MarkupParser], theme: Resource[F, Theme[F]]) {
+  case class Builder[F[_]: Sync: Runtime] (parsers: NonEmptyList[MarkupParser], theme: ThemeProvider) {
 
     /** Specifies an additional parser for text markup.
       * 
@@ -77,11 +77,11 @@ object TreeParser {
 
     /** Applies the specified theme to this parser, overriding any previously specified themes.
       */
-    def withTheme (theme: Resource[F, Theme[F]]): Builder[F] = copy(theme = theme)
+    def withTheme (theme: ThemeProvider): Builder[F] = copy(theme = theme)
 
     /** Final builder step that creates a parallel parser.
       */
-    def build: Resource[F, TreeParser[F]] = theme.map(new TreeParser[F](parsers, _))
+    def build: Resource[F, TreeParser[F]] = theme.build.map(new TreeParser[F](parsers, _))
 
   }
 

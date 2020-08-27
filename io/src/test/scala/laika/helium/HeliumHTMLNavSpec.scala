@@ -16,10 +16,10 @@
 
 package laika.helium
 
-import cats.effect.{IO, Resource}
+import cats.effect.IO
 import laika.api.Transformer
-import laika.ast.{Image, InternalTarget, Path}
 import laika.ast.Path.Root
+import laika.ast.{Image, InternalTarget, Path}
 import laika.format.{HTML, Markdown}
 import laika.helium.config.{ButtonLink, HeliumIcon, IconLink, ThemeTarget}
 import laika.io.helper.{InputBuilder, ResultExtractor, StringOps}
@@ -30,7 +30,7 @@ import laika.theme._
 
 class HeliumHTMLNavSpec extends IOFunSuite with InputBuilder with ResultExtractor with StringOps {
 
-  def transformer (theme: Resource[IO, Theme[IO]]) = Transformer
+  def transformer (theme: ThemeProvider) = Transformer
     .from(Markdown)
     .to(HTML)
     .io(FileIO.blocker)

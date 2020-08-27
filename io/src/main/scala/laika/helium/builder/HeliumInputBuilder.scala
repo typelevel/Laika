@@ -23,6 +23,7 @@ import laika.ast.TemplateDocument
 import laika.helium.Helium
 import laika.helium.generate.{CSSVarGenerator, EPUBTemplate, FOStyles, MergedCSSGenerator}
 import laika.io.model.{InputTree, InputTreeBuilder}
+import laika.io.runtime.Runtime
 import laika.rewrite.DefaultTemplatePath
 import laika.theme.{EmbeddedFontFile, EmbeddedFontResource}
 
@@ -31,7 +32,7 @@ import laika.theme.{EmbeddedFontFile, EmbeddedFontResource}
   */
 private[helium] object HeliumInputBuilder {
 
-  def build[F[_]: Sync] (helium: Helium): F[InputTreeBuilder[F]] = {
+  def build[F[_]: Sync: Runtime] (helium: Helium): F[InputTreeBuilder[F]] = {
     
     import helium._
     

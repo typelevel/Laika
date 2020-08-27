@@ -118,7 +118,7 @@ object Tasks {
         .withConfig(Settings.parserConfig.value)
         .io(blocker)
         .parallel[IO]
-        .withTheme(laikaTheme.value.delegate)
+        .withTheme(laikaTheme.value)
         .build
         .use(_
           .from(tree.root)
@@ -143,7 +143,7 @@ object Tasks {
         .withConfig(Settings.parserConfig.value)
         .io(blocker)
         .parallel[IO]
-        .withTheme(laikaTheme.value.delegate)
+        .withTheme(laikaTheme.value)
         .build 
         .use { renderer =>
           val roots = Selections.createCombinations(tree.root)

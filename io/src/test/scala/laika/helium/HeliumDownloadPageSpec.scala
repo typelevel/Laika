@@ -16,8 +16,7 @@
 
 package laika.helium
 
-import cats.data.NonEmptyChain
-import cats.effect.{IO, Resource}
+import cats.effect.IO
 import laika.api.Transformer
 import laika.api.builder.TransformerBuilder
 import laika.ast.Path
@@ -35,7 +34,7 @@ class HeliumDownloadPageSpec extends IOFunSuite with InputBuilder with ResultExt
 
   type ConfigureTransformer = TransformerBuilder[HTMLFormatter] => TransformerBuilder[HTMLFormatter]
   
-  def transformer (theme: Resource[IO, Theme[IO]], configure: ConfigureTransformer) = {
+  def transformer (theme: ThemeProvider, configure: ConfigureTransformer) = {
     val builder = Transformer.from(Markdown).to(HTML)
     configure(builder)  
       .io(FileIO.blocker)

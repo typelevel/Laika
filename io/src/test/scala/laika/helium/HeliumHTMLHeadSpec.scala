@@ -16,17 +16,17 @@
 
 package laika.helium
 
-import cats.effect.{IO, Resource}
-import laika.io.implicits._
+import cats.effect.IO
 import laika.api.{MarkupParser, Renderer, Transformer}
 import laika.ast.Path
 import laika.ast.Path.Root
 import laika.format.{HTML, Markdown}
 import laika.helium.config.Favicon
 import laika.io.helper.{InputBuilder, ResultExtractor, StringOps}
+import laika.io.implicits._
 import laika.io.model.StringTreeOutput
 import laika.io.{FileIO, IOFunSuite}
-import laika.theme.{Font, FontDefinition, FontStyle, FontWeight, Theme}
+import laika.theme._
 
 class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtractor with StringOps {
 
@@ -49,7 +49,7 @@ class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
     r <- renderer
   } yield (p, r)
   
-  def transformer (theme: Resource[IO, Theme[IO]]) = Transformer
+  def transformer (theme: ThemeProvider) = Transformer
     .from(Markdown)
     .to(HTML)
     .io(FileIO.blocker)

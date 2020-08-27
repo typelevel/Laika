@@ -16,7 +16,7 @@
 
 package laika.helium
 
-import cats.effect.{IO, Resource}
+import cats.effect.IO
 import laika.api.Transformer
 import laika.ast.Path
 import laika.ast.Path.Root
@@ -29,7 +29,7 @@ import laika.theme._
 
 class HeliumTocPageSpec extends IOFunSuite with InputBuilder with ResultExtractor with StringOps {
 
-  def transformer (theme: Resource[IO, Theme[IO]]) = Transformer
+  def transformer (theme: ThemeProvider) = Transformer
     .from(Markdown)
     .to(HTML)
     .io(FileIO.blocker)

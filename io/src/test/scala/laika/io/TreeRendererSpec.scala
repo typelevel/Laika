@@ -19,7 +19,7 @@ package laika.io
 import java.io.File
 
 import cats.data.{Chain, NonEmptyChain}
-import cats.effect.{IO, Resource}
+import cats.effect.{IO, Resource, Sync}
 import laika.api.Renderer
 import laika.ast.Path.Root
 import laika.ast._
@@ -33,6 +33,7 @@ import laika.io.helper.{InputBuilder, RenderResult, TestThemeBuilder}
 import laika.io.implicits._
 import laika.io.model.{InputTree, StringTreeOutput}
 import laika.io.runtime.RendererRuntime.{DuplicatePath, RendererErrors}
+import laika.io.runtime.Runtime
 import laika.parse.markup.DocumentParser.{InvalidDocument, InvalidDocuments}
 import laika.render._
 import laika.render.fo.TestTheme
@@ -254,10 +255,15 @@ class TreeRendererSpec extends IOWordSpec
     "render a tree with a single document to HTML using a custom template in an extension bundle" in {
       new HTMLRenderer {
         val template = TemplateRoot(t("["), TemplateContextReference(CursorKeys.documentContent, required = true), t("]"))
-        override lazy val renderer = Renderer.of(HTML).io(blocker).parallel[IO]
-          .withTheme(TestThemeBuilder.forInputs(InputTree[IO]
-            .addTemplate(TemplateDocument(DefaultTemplatePath.forHTML, template)))
-          ).build
+        val inputs = new TestThemeBuilder.Inputs {
+          def build[F[_]: Sync: Runtime] = InputTree[F]
+            .addTemplate(TemplateDocument(DefaultTemplatePath.forHTML, template))
+        }
+        override lazy val renderer = Renderer.of(HTML)
+          .io(blocker)
+          .parallel[IO]
+          .withTheme(TestThemeBuilder.forInputs(inputs))
+          .build
         val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
         val expected = """[<h1 id="title" class="title">Title</h1>
                          |<p>bbb</p>]""".stripMargin
@@ -306,13 +312,16 @@ class TreeRendererSpec extends IOWordSpec
     "render a tree with a single document to EPUB.XHTML using a custom template in a theme" in {
       new EPUB_XHTMLRenderer {
         val template = TemplateRoot(t("["), TemplateContextReference(CursorKeys.documentContent, required = true), t("]"))
+        val inputs = new TestThemeBuilder.Inputs {
+          def build[F[_]: Sync: Runtime] = InputTree[F]
+            .addTemplate(TemplateDocument(DefaultTemplatePath.forEPUB, template))
+        }
         override lazy val renderer = 
           Renderer
             .of(EPUB.XHTML)
             .io(blocker)
             .parallel[IO]
-            .withTheme(TestThemeBuilder.forInputs(InputTree[IO]
-              .addTemplate(TemplateDocument(DefaultTemplatePath.forEPUB, template))))
+            .withTheme(TestThemeBuilder.forInputs(inputs))
             .build
         val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
         val expected = """[<h1 id="title" class="title">Title</h1>
@@ -343,14 +352,17 @@ class TreeRendererSpec extends IOWordSpec
   
     "render a tree with two documents to XSL-FO using a custom style sheet in a theme" in {
       new FORenderer {
+        val inputs = new TestThemeBuilder.Inputs {
+          def build[F[_]: Sync: Runtime] = InputTree[F]
+            .addStyles(customThemeStyles, FOStyles.defaultPath)
+            .addTemplate(TemplateDocument(DefaultTemplatePath.forFO, TestTheme.foTemplate))
+        }
         override val renderer =
           Renderer
             .of(XSLFO)
             .io(blocker)
             .parallel[IO]
-            .withTheme(TestThemeBuilder.forInputs(InputTree[IO]
-              .addStyles(customThemeStyles, FOStyles.defaultPath)
-              .addTemplate(TemplateDocument(DefaultTemplatePath.forFO, TestTheme.foTemplate))))
+            .withTheme(TestThemeBuilder.forInputs(inputs))
             .build
         val input = DocumentTree(Root, List(
           Document(Root / "doc", rootElem),
@@ -408,7 +420,10 @@ class TreeRendererSpec extends IOWordSpec
     "render a tree with a single static document from a theme" in new ASTRenderer with DocBuilder {
       val input = DocumentTree(Root, Nil)
       override def treeRoot = DocumentTreeRoot(input, staticDocuments = Seq(staticDoc(1).path))
-      val theme = TestThemeBuilder.forInputs(InputTree[IO].addString("...", Root / "static1.txt"))
+      val inputs = new TestThemeBuilder.Inputs {
+        def build[F[_]: Sync: Runtime] = InputTree[F].addString("...", Root / "static1.txt")
+      }
+      val theme = TestThemeBuilder.forInputs(inputs)
       Renderer
         .of(AST)
         .io(blocker)

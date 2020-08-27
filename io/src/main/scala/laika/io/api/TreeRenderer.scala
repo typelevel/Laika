@@ -24,7 +24,7 @@ import laika.io.descriptor.RendererDescriptor
 import laika.io.model.{BinaryInput, RenderedTreeRoot, TreeOutput}
 import laika.io.ops.TextOutputOps
 import laika.io.runtime.{RendererRuntime, Runtime}
-import laika.theme.Theme
+import laika.theme.{Theme, ThemeProvider}
 
 /** Renderer for a tree of output documents.
   *
@@ -45,15 +45,15 @@ object TreeRenderer {
 
   /** Builder step that allows to specify the execution context for blocking IO and CPU-bound tasks.
     */
-  case class Builder[F[_]: Sync: Runtime] (renderer: Renderer, theme: Resource[F, Theme[F]]) {
+  case class Builder[F[_]: Sync: Runtime] (renderer: Renderer, theme: ThemeProvider) {
 
     /** Applies the specified theme to this renderer, overriding any previously specified themes.
       */
-    def withTheme (theme: Resource[F, Theme[F]]): Builder[F] = copy(theme = theme)
+    def withTheme (theme: ThemeProvider): Builder[F] = copy(theme = theme)
 
     /** Final builder step that creates a parallel renderer.
       */
-    def build: Resource[F, TreeRenderer[F]] = theme.map(new TreeRenderer[F](renderer, _))
+    def build: Resource[F, TreeRenderer[F]] = theme.build.map(new TreeRenderer[F](renderer, _))
 
   }
 

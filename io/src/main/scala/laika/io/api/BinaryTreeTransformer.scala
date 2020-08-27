@@ -27,7 +27,7 @@ import laika.io.descriptor.TransformerDescriptor
 import laika.io.model._
 import laika.io.ops.{BinaryOutputOps, InputOps, TreeMapperOps}
 import laika.io.runtime.{Runtime, TransformerRuntime}
-import laika.theme.Theme
+import laika.theme.{Theme, ThemeProvider}
 
 /** Transformer that merges a tree of input documents to a single binary output document.
   *
@@ -66,7 +66,7 @@ object BinaryTreeTransformer {
   case class Builder[F[_]: Sync: Runtime] (parsers: NonEmptyList[MarkupParser],
                                            renderFormat: BinaryRenderFormat,
                                            config: OperationConfig,
-                                           theme: Resource[F, Theme[F]],
+                                           theme: ThemeProvider,
                                            mapper: TreeMapper[F]) extends TreeMapperOps[F] {
 
     type MapRes = Builder[F]
@@ -92,12 +92,12 @@ object BinaryTreeTransformer {
 
     /** Applies the specified theme to this transformer, overriding any previously specified themes.
       */
-    def withTheme (theme: Resource[F, Theme[F]]): Builder[F] = copy(theme = theme)
+    def withTheme (theme: ThemeProvider): Builder[F] = copy(theme = theme)
     
     /** Final builder step that creates a parallel transformer for binary output.
       */
     def build: Resource[F, BinaryTreeTransformer[F]] = for {
-      initializedTheme    <- theme
+      initializedTheme    <- theme.build
       initializedRenderer <- BinaryTreeRenderer.buildRenderer(renderFormat, config, initializedTheme)
     } yield new BinaryTreeTransformer[F](parsers, initializedRenderer, initializedTheme, mapper)
 

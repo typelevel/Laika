@@ -16,34 +16,47 @@
 
 package laika.io.helper
 
-import cats.effect.{IO, Resource}
+import cats.effect.Sync
 import laika.ast.Document
 import laika.bundle.ExtensionBundle
 import laika.factory.Format
 import laika.io.model.InputTreeBuilder
-import laika.theme.{Theme, ThemeBuilder, TreeProcessor}
+import laika.io.runtime.Runtime
+import laika.theme.{ThemeBuilder, ThemeProvider, TreeProcessor}
 
 
 object TestThemeBuilder {
   
-  def forInputs (themeInputs: InputTreeBuilder[IO]): Resource[IO, Theme[IO]] = 
-    ThemeBuilder[IO]("test").addInputs(themeInputs).build
-
-  def forBundle (bundle: ExtensionBundle): Resource[IO, Theme[IO]] = 
-    ThemeBuilder[IO]("test").addExtensions(bundle).build
-
-  def forBundles (bundles: Seq[ExtensionBundle]): Resource[IO, Theme[IO]] = 
-    ThemeBuilder[IO]("test").addExtensions(bundles:_*).build
+  trait Inputs {
+    def build[F[_]: Sync: Runtime]: InputTreeBuilder[F]
+  }
   
-  def forDocumentMapper (f: Document => Document): Resource[IO, Theme[IO]] = ThemeBuilder[IO]("test")
-    .processTree { case _ => TreeProcessor[IO].mapDocuments(f) }
-    .build
+  def forInputs (themeInputs: Inputs): ThemeProvider = new ThemeProvider {
+    def build[F[_]: Sync: Runtime] = ThemeBuilder("test").addInputs(themeInputs.build).build
+  }
 
-  def forDocumentMapper (format: Format)(f: Document => Document): Resource[IO, Theme[IO]] = {
-    val MatchedFormat = format
-    ThemeBuilder[IO]("test")
-      .processTree { case MatchedFormat => TreeProcessor[IO].mapDocuments(f) }
+  def forBundle (bundle: ExtensionBundle): ThemeProvider = new ThemeProvider {
+    def build[F[_]: Sync: Runtime] = ThemeBuilder("test").addExtensions(bundle).build
+  }
+
+  def forBundles (bundles: Seq[ExtensionBundle]): ThemeProvider = new ThemeProvider {
+    def build[F[_]: Sync: Runtime] = ThemeBuilder("test").addExtensions(bundles:_*).build
+  }
+  
+  def forDocumentMapper (f: Document => Document): ThemeProvider = new ThemeProvider {
+    def build[F[_]: Sync: Runtime] = ThemeBuilder("test")
+      .processTree { case _ => TreeProcessor[F].mapDocuments(f) }
       .build
   }
-    
+ 
+
+  def forDocumentMapper (format: Format)(f: Document => Document): ThemeProvider = new ThemeProvider {
+    def build[F[_]: Sync: Runtime] = {
+      val MatchedFormat = format
+      ThemeBuilder("test")
+        .processTree { case MatchedFormat => TreeProcessor[F].mapDocuments(f) }
+        .build
+    }
+  }
+  
 }

@@ -16,7 +16,6 @@
 
 package laika.helium
 
-import cats.effect.{Resource, Sync}
 import laika.helium.builder.HeliumThemeBuilder
 import laika.helium.config._
 import laika.theme._
@@ -44,7 +43,7 @@ class Helium private[laika] (private[laika] val siteSettings: SiteSettings,
     protected def helium: Helium = self
   }
   
-  def build[F[_]: Sync]: Resource[F, Theme[F]] = HeliumThemeBuilder.build(this)
+  def build: ThemeProvider = new HeliumThemeBuilder(this)
   
 }
 
