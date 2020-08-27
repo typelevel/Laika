@@ -19,11 +19,22 @@ package laika.theme
 import cats.effect.{Resource, Sync}
 import laika.io.runtime.Runtime
 
-/**
+/** Responsible for building a theme resource with the user-provided effect type and runtime configuration.
+  * 
+  * Implementations of this trait can be passed to the `withTheme` method of the parser, renderer and transformer
+  * APIs of the `laika-io` module.
+  * Theme authors would usually offer a theme-specific configuration API with a final `build` method
+  * that provides a `ThemeProvider` for the user.
+  * 
   * @author Jens Halm
   */
 trait ThemeProvider {
 
+  /** Builds the theme resource with the user-provided effect type and runtime configuration.
+    * 
+    * For convenience, implementations of this method usually utilize a [[laika.theme.ThemeBuilder]] to construct
+    * `Theme` instances, but this is not mandatory.
+    */
   def build[F[_]: Sync: Runtime]: Resource[F, Theme[F]]
   
 }
