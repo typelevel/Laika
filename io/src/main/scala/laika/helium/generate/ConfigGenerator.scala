@@ -118,13 +118,13 @@ private[laika] object ConfigGenerator {
   def populateConfig (helium: Helium): Config =
     ConfigBuilder.empty
       .withValue("helium.landingPage", helium.siteSettings.landingPage)
-      .withValue("helium.topBar", helium.siteSettings.webLayout.topNavigationBar)
-      .withValue("helium.favIcons", helium.siteSettings.webLayout.favIcons)
-      .withValue("helium.markupEditLinks", helium.siteSettings.webLayout.markupEditLinks)
+      .withValue("helium.topBar", helium.siteSettings.layout.topNavigationBar)
+      .withValue("helium.favIcons", helium.siteSettings.layout.favIcons)
+      .withValue("helium.markupEditLinks", helium.siteSettings.layout.markupEditLinks)
       .withValue("laika.site.metadata", helium.siteSettings.metadata)
       .withValue("laika.epub", helium.epubSettings.bookConfig)
       .withValue("laika.pdf", helium.pdfSettings.bookConfig)
-      .withValue("helium.pdf", helium.pdfSettings.pdfLayout)
+      .withValue("helium.pdf", helium.pdfSettings.layout)
       .withValue("helium.webFonts", helium.siteSettings.fontResources.flatMap { _.resource.webCSS })
       .withValue("helium.site.includeCSS", (Root / "helium") +: helium.siteSettings.htmlIncludes.includeCSS)
       .withValue("helium.site.includeJS", (Root / "helium") +: helium.siteSettings.htmlIncludes.includeJS)

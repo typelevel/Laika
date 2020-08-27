@@ -34,7 +34,7 @@ private[helium] class HeliumTreeProcessor[F[_]: Sync](helium: Helium) {
   
   private val noOp: TreeProcessor[F] = Kleisli.ask[F, ParsedTree[F]]
   
-  private def addDownloadPage: TreeProcessor[F] = siteSettings.webLayout.downloadPage
+  private def addDownloadPage: TreeProcessor[F] = siteSettings.layout.downloadPage
     .filter(p => p.includeEPUB || p.includePDF)
     .fold(noOp)(DownloadPageGenerator.generate)
 

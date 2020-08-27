@@ -53,10 +53,10 @@ private[helium] object CSSVarGenerator {
       "header2-font-size" -> fontSizes.header2.displayValue,
       "header3-font-size" -> fontSizes.header3.displayValue,
       "header4-font-size" -> fontSizes.header4.displayValue,
-      "content-width" -> webLayout.contentWidth.displayValue,
-      "nav-width" -> webLayout.navigationWidth.displayValue,
-      "block-spacing" -> webLayout.defaultBlockSpacing.displayValue,
-      "line-height" -> webLayout.defaultLineHeight.toString
+      "content-width" -> layout.contentWidth.displayValue,
+      "nav-width" -> layout.navigationWidth.displayValue,
+      "block-spacing" -> layout.defaultBlockSpacing.displayValue,
+      "line-height" -> layout.defaultLineHeight.toString
     )
       .map { case (name, value) => 
         s"  --$name: $value;"

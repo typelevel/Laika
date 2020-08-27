@@ -99,7 +99,7 @@ class HeliumFORendererSpec extends IOFunSuite with InputBuilder with ResultExtra
     transformAndExtract(inputs, Helium.defaults, startTag, "</fo:root>").assertEquals(expected)
   }
   
-  private val defaultLayout = Helium.defaults.pdfSettings.pdfLayout
+  private val defaultLayout = Helium.defaults.pdfSettings.layout
   
   def withCustomLayout(helium: Helium): Helium = helium.pdf.layout(
     pageWidth = defaultLayout.pageWidth,

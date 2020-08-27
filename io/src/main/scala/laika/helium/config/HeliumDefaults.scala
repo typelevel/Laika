@@ -100,7 +100,7 @@ private[helium] object HeliumDefaults {
     colors = colors(syntaxDarkScheme),
     htmlIncludes = HTMLIncludes(),
     landingPage = None,
-    webLayout = WebLayout(
+    layout = WebLayout(
       contentWidth = px(860),
       navigationWidth = px(275),
       defaultBlockSpacing = px(10),
@@ -139,7 +139,7 @@ private[helium] object HeliumDefaults {
       small = pt(8)
     ),
     colors = colors(syntaxLightScheme),
-    pdfLayout = PDFLayout(
+    layout = PDFLayout(
       pageWidth = cm(21),
       pageHeight = cm(29.7),
       marginTop = cm(1),

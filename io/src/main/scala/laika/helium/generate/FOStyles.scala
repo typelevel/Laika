@@ -32,9 +32,9 @@ private[helium] class FOStyles (helium: Helium) {
     |Paragraph {
     |  font-family: ${themeFonts.body};
     |  font-size: ${fontSizes.body.displayValue};
-    |  line-height: ${pdfLayout.defaultLineHeight};
+    |  line-height: ${layout.defaultLineHeight};
     |  text-align: justify;
-    |  space-after: ${pdfLayout.defaultBlockSpacing.displayValue};
+    |  space-after: ${layout.defaultBlockSpacing.displayValue};
     |}
     |
     |TitledBlock {
@@ -47,21 +47,21 @@ private[helium] class FOStyles (helium: Helium) {
     |  font-family: ${themeFonts.headlines};
     |  font-size: ${fontSizes.header4.displayValue};
     |  font-weight: bold;
-    |  space-after: ${pdfLayout.defaultBlockSpacing.displayValue};
+    |  space-after: ${layout.defaultBlockSpacing.displayValue};
     |}
     |
     |QuotedBlock {
     |  font-style: italic;
     |  margin-left: 8mm;
     |  margin-right: 8mm;
-    |  space-after: ${pdfLayout.defaultBlockSpacing.displayValue};
+    |  space-after: ${layout.defaultBlockSpacing.displayValue};
     |}
     |
     |QuotedBlock .attribution {
     |  font-family: ${themeFonts.body};
     |  font-size: ${fontSizes.body.displayValue};
     |  text-align: right;
-    |  line-height: ${pdfLayout.defaultLineHeight};
+    |  line-height: ${layout.defaultLineHeight};
     |}
     |
     |Image {
@@ -79,7 +79,7 @@ private[helium] class FOStyles (helium: Helium) {
     |  font-family: ${themeFonts.body};
     |  font-size: ${fontSizes.code.displayValue};
     |  font-style: italic;
-    |  space-after: ${pdfLayout.defaultBlockSpacing.displayValue};
+    |  space-after: ${layout.defaultBlockSpacing.displayValue};
     |}
     |
     |Figure .legend {
@@ -92,7 +92,7 @@ private[helium] class FOStyles (helium: Helium) {
     |}
     |
     |.default-space {
-    |  space-after: ${pdfLayout.defaultBlockSpacing.displayValue};
+    |  space-after: ${layout.defaultBlockSpacing.displayValue};
     |}
     |
     |Header {
@@ -100,7 +100,7 @@ private[helium] class FOStyles (helium: Helium) {
     |  font-size: ${fontSizes.header4.displayValue};
     |  font-weight: bold;
     |  space-before: 7mm;
-    |  space-after: ${pdfLayout.defaultBlockSpacing.displayValue};
+    |  space-after: ${layout.defaultBlockSpacing.displayValue};
     |}
     |
     |Title {
@@ -137,7 +137,7 @@ private[helium] class FOStyles (helium: Helium) {
     |}
     |
     |BulletListItem, EnumListItem, DefinitionListItem {
-    |  space-after: ${pdfLayout.defaultBlockSpacing.displayValue};
+    |  space-after: ${layout.defaultBlockSpacing.displayValue};
     |}
     |
     |CodeBlock, LiteralBlock, ParsedLiteralBlock {
@@ -183,10 +183,10 @@ private[helium] class FOStyles (helium: Helium) {
     |.callout {
     |  font-family: ${themeFonts.body};
     |  font-size: ${fontSizes.body.displayValue};
-    |  line-height: ${pdfLayout.defaultLineHeight};
+    |  line-height: ${layout.defaultLineHeight};
     |  margin-left: 2mm;
     |  margin-right: 2mm;
-    |  padding: ${pdfLayout.defaultBlockSpacing.displayValue} ${pdfLayout.defaultBlockSpacing.displayValue} 0.1mm ${pdfLayout.defaultBlockSpacing.displayValue};
+    |  padding: ${layout.defaultBlockSpacing.displayValue} ${layout.defaultBlockSpacing.displayValue} 0.1mm ${layout.defaultBlockSpacing.displayValue};
     |  fox:border-after-end-radius: 2mm;
     |  fox:border-before-end-radius: 2mm;
     |  space-after: 6mm;
@@ -335,7 +335,7 @@ private[helium] class FOStyles (helium: Helium) {
     |Paragraph.nav.level3 {
     |  font-size: ${fontSizes.header3.displayValue};
     |  margin-left: 6mm;
-    |  space-before: ${pdfLayout.defaultBlockSpacing.displayValue};
+    |  space-before: ${layout.defaultBlockSpacing.displayValue};
     |}
     |
     |Paragraph.nav.level4 {
@@ -386,7 +386,7 @@ private[helium] class FOStyles (helium: Helium) {
     |  leader-length: 100%;
     |  rule-style: solid;
     |  rule-thickness: 2pt;
-    |  space-after: ${pdfLayout.defaultBlockSpacing.displayValue};
+    |  space-after: ${layout.defaultBlockSpacing.displayValue};
     |}
     |
     |RuntimeMessage.debug, RuntimeMessage.info {

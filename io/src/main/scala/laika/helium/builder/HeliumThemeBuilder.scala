@@ -38,7 +38,7 @@ private[helium] class HeliumThemeBuilder (helium: Helium) extends ThemeProvider 
       .addInputs(HeliumInputBuilder.build(helium))
       .addBaseConfig(ConfigGenerator.populateConfig(helium))
       .addRewriteRules(HeliumRewriteRules.build(pdfSettings))
-      .addRenderOverrides(HTML.Overrides(HeliumRenderOverrides.forHTML(siteSettings.webLayout.anchorPlacement)))
+      .addRenderOverrides(HTML.Overrides(HeliumRenderOverrides.forHTML(siteSettings.layout.anchorPlacement)))
       .addRenderOverrides(XSLFO.Overrides(HeliumRenderOverrides.forPDF))
       .processTree(treeProcessor.forHTML, HTML)
       .processTree(treeProcessor.forAllFormats)

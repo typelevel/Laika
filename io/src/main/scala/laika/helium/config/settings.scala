@@ -31,14 +31,14 @@ private[helium] case class SiteSettings (fontResources: Seq[FontDefinition],
                                          colors: ColorSet,
                                          htmlIncludes: HTMLIncludes,
                                          landingPage: Option[LandingPage],
-                                         webLayout: WebLayout,
+                                         layout: WebLayout,
                                          metadata: DocumentMetadata)
 
 private[helium] case class PDFSettings (bookConfig: BookConfig,
                                         themeFonts: ThemeFonts,
                                         fontSizes: FontSizes,
                                         colors: ColorSet,
-                                        pdfLayout: PDFLayout,
+                                        layout: PDFLayout,
                                         coverImages: Seq[CoverImage])
 
 private[helium] case class EPUBSettings (bookConfig: BookConfig,
@@ -203,37 +203,37 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
               defaultBlockSpacing: Size,
               defaultLineHeight: Double,
               anchorPlacement: AnchorPlacement): Helium = {
-    val layout = helium.siteSettings.webLayout.copy(
+    val layout = helium.siteSettings.layout.copy(
       contentWidth = contentWidth,
       navigationWidth = navigationWidth,
       defaultBlockSpacing = defaultBlockSpacing,
       defaultLineHeight = defaultLineHeight,
       anchorPlacement = anchorPlacement
     )
-    copyWith(helium.siteSettings.copy(webLayout = layout))
+    copyWith(helium.siteSettings.copy(layout = layout))
   }
 
   def favIcons (icons: Favicon*): Helium = {
-    val newLayout = helium.siteSettings.webLayout.copy(favIcons = icons)
-    copyWith(helium.siteSettings.copy(webLayout = newLayout))
+    val newLayout = helium.siteSettings.layout.copy(favIcons = icons)
+    copyWith(helium.siteSettings.copy(layout = newLayout))
   }
   def topNavigationBar (logo: Option[Image], links: Seq[ThemeLink]): Helium = {
-    val newLayout = helium.siteSettings.webLayout.copy(topNavigationBar = TopNavigationBar(logo, links))
-    copyWith(helium.siteSettings.copy(webLayout = newLayout))
+    val newLayout = helium.siteSettings.layout.copy(topNavigationBar = TopNavigationBar(logo, links))
+    copyWith(helium.siteSettings.copy(layout = newLayout))
   }
   def tableOfContent (title: String, depth: Int): Helium = {
-    val newLayout = helium.siteSettings.webLayout.copy(tableOfContent = Some(TableOfContent(title, depth)))
-    copyWith(helium.siteSettings.copy(webLayout = newLayout))
+    val newLayout = helium.siteSettings.layout.copy(tableOfContent = Some(TableOfContent(title, depth)))
+    copyWith(helium.siteSettings.copy(layout = newLayout))
   }
   def downloadPage (title: String, description: Option[String], downloadPath: Path = Root / "downloads",
                     includeEPUB: Boolean = true, includePDF: Boolean = true): Helium = {
-    val newLayout = helium.siteSettings.webLayout
+    val newLayout = helium.siteSettings.layout
       .copy(downloadPage = Some(DownloadPage(title, description, downloadPath, includeEPUB, includePDF)))
-    copyWith(helium.siteSettings.copy(webLayout = newLayout))
+    copyWith(helium.siteSettings.copy(layout = newLayout))
   }
   def markupEditLinks (text: String, baseURL: String): Helium = {
-    val newLayout = helium.siteSettings.webLayout.copy(markupEditLinks = Some(MarkupEditLinks(text, baseURL)))
-    copyWith(helium.siteSettings.copy(webLayout = newLayout))
+    val newLayout = helium.siteSettings.layout.copy(markupEditLinks = Some(MarkupEditLinks(text, baseURL)))
+    copyWith(helium.siteSettings.copy(layout = newLayout))
   }
 
   def landingPage (logo: Option[Image] = None,
@@ -293,13 +293,13 @@ private[helium] trait PDFOps extends SingleConfigOps with CopyOps {
               defaultBlockSpacing: Size, defaultLineHeight: Double,
               keepTogetherDecoratedLines: Int,
               navigationDepth: Int): Helium =
-    copyWith(helium.pdfSettings.copy(pdfLayout = PDFLayout(
+    copyWith(helium.pdfSettings.copy(layout = PDFLayout(
       pageWidth, pageHeight, marginTop, marginRight, marginBottom, marginLeft,
       defaultBlockSpacing, defaultLineHeight, keepTogetherDecoratedLines
     )))
   def tableOfContent (title: String, depth: Int): Helium = {
-    val newLayout = helium.pdfSettings.pdfLayout.copy(tableOfContent = Some(TableOfContent(title, depth)))
-    copyWith(helium.pdfSettings.copy(pdfLayout = newLayout))
+    val newLayout = helium.pdfSettings.layout.copy(tableOfContent = Some(TableOfContent(title, depth)))
+    copyWith(helium.pdfSettings.copy(layout = newLayout))
   }
   def coverImages (images: CoverImage*): Helium =
     copyWith(helium.pdfSettings.copy(coverImages = images))

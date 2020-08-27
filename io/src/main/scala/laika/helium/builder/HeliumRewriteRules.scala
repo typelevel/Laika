@@ -30,9 +30,9 @@ private[helium] object HeliumRewriteRules {
   }.sum
 
   def build (pdfSettings: PDFSettings): RewriteRules = RewriteRules.forBlocks {
-    case cb: CodeBlock if cb.extractText.count(_ == '\n') <= pdfSettings.pdfLayout.keepTogetherDecoratedLines =>
+    case cb: CodeBlock if cb.extractText.count(_ == '\n') <= pdfSettings.layout.keepTogetherDecoratedLines =>
       Replace(cb.mergeOptions(Style.keepTogether))
-    case bs: BlockSequence if bs.options.styles.contains("callout") && estimateLines(bs.content) <= pdfSettings.pdfLayout.keepTogetherDecoratedLines =>
+    case bs: BlockSequence if bs.options.styles.contains("callout") && estimateLines(bs.content) <= pdfSettings.layout.keepTogetherDecoratedLines =>
       Replace(bs.mergeOptions(Style.keepTogether))
   }
   
