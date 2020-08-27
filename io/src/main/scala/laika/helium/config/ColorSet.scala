@@ -16,7 +16,7 @@
 
 package laika.helium.config
 
-import laika.theme.Color
+import laika.theme.config.Color
 
 private[helium] case class ColorSet (primary: Color,
                                      primaryDark: Color,

@@ -27,6 +27,7 @@ import laika.io.implicits._
 import laika.io.model.StringTreeOutput
 import laika.io.{FileIO, IOFunSuite}
 import laika.theme._
+import laika.theme.config.{Font, FontDefinition, FontStyle, FontWeight}
 
 class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtractor with StringOps {
 

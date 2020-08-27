@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package laika.theme
+package laika.theme.config
 
 import laika.parse.text.CharGroup
 

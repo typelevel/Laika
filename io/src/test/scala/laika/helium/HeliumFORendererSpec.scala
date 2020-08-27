@@ -30,7 +30,8 @@ import laika.io.{FileIO, IOFunSuite}
 import laika.markdown.github.GitHubFlavor
 import laika.parse.code.SyntaxHighlighting
 import laika.rewrite.nav.CoverImage
-import laika.theme.{Color, ThemeProvider}
+import laika.theme.ThemeProvider
+import laika.theme.config.Color
 
 /**
   * @author Jens Halm

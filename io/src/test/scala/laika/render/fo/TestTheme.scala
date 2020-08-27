@@ -20,9 +20,9 @@ import laika.ast.Path.Root
 import laika.ast.{/, StyleDeclarationSet, TemplateContextReference, TemplateRoot}
 import laika.helium.Helium
 import laika.helium.generate.FOStyles
-import laika.theme._
 import laika.parse.css.CSSParsers
 import laika.rewrite.ReferenceResolver.CursorKeys
+import laika.theme.config.{Font, FontDefinition, FontStyle, FontWeight}
 
 object TestTheme {
   

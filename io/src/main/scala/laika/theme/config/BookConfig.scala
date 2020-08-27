@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package laika.theme
+package laika.theme.config
 
 import laika.ast.{DocumentMetadata, Path}
 import laika.config.{ConfigDecoder, ConfigEncoder, DefaultKey, LaikaKeys}

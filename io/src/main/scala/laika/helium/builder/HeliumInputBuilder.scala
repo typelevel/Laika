@@ -25,7 +25,7 @@ import laika.helium.generate.{CSSVarGenerator, EPUBTemplate, FOStyles, MergedCSS
 import laika.io.model.{InputTree, InputTreeBuilder}
 import laika.io.runtime.Runtime
 import laika.rewrite.DefaultTemplatePath
-import laika.theme.{EmbeddedFontFile, EmbeddedFontResource}
+import laika.theme.config.{EmbeddedFontFile, EmbeddedFontResource}
 
 /**
   * @author Jens Halm

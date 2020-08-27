@@ -20,7 +20,7 @@ import laika.format.PDF
 import laika.helium.Helium
 import laika.helium.generate.ConfigGenerator
 import laika.render.pdf.FopFactoryBuilder
-import laika.theme.{Font, FontDefinition, FontStyle, FontWeight}
+import laika.theme.config.{Font, FontDefinition, FontStyle, FontWeight}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 

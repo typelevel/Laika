@@ -20,7 +20,7 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.helium.Helium
 
-private[helium] class FOStyles (helium: Helium) {
+private[laika] class FOStyles (helium: Helium) {
   
   import helium.pdfSettings._
   

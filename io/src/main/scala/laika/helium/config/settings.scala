@@ -23,7 +23,7 @@ import laika.ast.Path.Root
 import laika.ast.{DocumentMetadata, Image, Path, Size}
 import laika.helium.Helium
 import laika.rewrite.nav.CoverImage
-import laika.theme.{BookConfig, Color, FontDefinition}
+import laika.theme.config.{BookConfig, Color, FontDefinition}
 
 private[helium] case class SiteSettings (fontResources: Seq[FontDefinition],
                                          themeFonts: ThemeFonts,

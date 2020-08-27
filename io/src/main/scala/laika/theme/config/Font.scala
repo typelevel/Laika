@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package laika.theme
+package laika.theme.config
 
 import java.io.File
 
 import laika.ast.Path.Root
-import laika.ast.{Path, PathBase, Size}
+import laika.ast.{Path, PathBase}
 import laika.config._
 
 /**

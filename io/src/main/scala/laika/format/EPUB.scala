@@ -25,14 +25,14 @@ import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast._
 import laika.config.Config.ConfigResult
-import laika.config.{Config, ConfigBuilder, ConfigDecoder, ConfigEncoder, ConfigException, DefaultKey, Key, LaikaKeys}
-import laika.factory.{BinaryPostProcessor, BinaryPostProcessorBuilder, RenderContext, RenderFormat, TwoPhaseRenderFormat}
+import laika.config._
+import laika.factory._
 import laika.io.model.{BinaryOutput, RenderedTreeRoot}
 import laika.io.runtime.Runtime
-import laika.theme
-import laika.theme.{FontDefinition, Theme}
 import laika.render.epub.{ContainerWriter, StyleSupport, XHTMLRenderer}
 import laika.render.{HTMLFormatter, XHTMLFormatter}
+import laika.theme.config.FontDefinition
+import laika.theme.{Theme, config}
 
 /** A post processor for EPUB output, based on an interim HTML renderer.
  *  May be directly passed to the `Renderer` or `Transformer` APIs:
@@ -107,17 +107,17 @@ case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor
   
   object BookConfig {
     
-    implicit val decoder: ConfigDecoder[BookConfig] = laika.theme.BookConfig.decoder.map(c => BookConfig(
+    implicit val decoder: ConfigDecoder[BookConfig] = laika.theme.config.BookConfig.decoder.map(c => BookConfig(
       c.metadata, c.navigationDepth, c.fonts, c.coverImage
     ))
-    implicit val encoder: ConfigEncoder[BookConfig] = laika.theme.BookConfig.encoder.contramap(c => 
-      theme.BookConfig(c.metadata, c.navigationDepth, c.fonts, c.coverImage)
+    implicit val encoder: ConfigEncoder[BookConfig] = laika.theme.config.BookConfig.encoder.contramap(c => 
+      config.BookConfig(c.metadata, c.navigationDepth, c.fonts, c.coverImage)
     )
     implicit val defaultKey: DefaultKey[BookConfig] = DefaultKey(Key("laika","epub"))
     
     def decodeWithDefaults (config: Config): ConfigResult[BookConfig] = for {
       epubConfig   <- config.getOpt[BookConfig].map(_.getOrElse(BookConfig()))
-      commonConfig <- config.getOpt[laika.theme.BookConfig].map(_.getOrElse(theme.BookConfig()))
+      commonConfig <- config.getOpt[laika.theme.config.BookConfig].map(_.getOrElse(laika.theme.config.BookConfig()))
     } yield {
       BookConfig(
         epubConfig.metadata.withDefaults(commonConfig.metadata), 

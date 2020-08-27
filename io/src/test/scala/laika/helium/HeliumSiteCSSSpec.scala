@@ -27,7 +27,7 @@ import laika.io.helper.{InputBuilder, ResultExtractor, StringOps}
 import laika.io.implicits._
 import laika.io.model.StringTreeOutput
 import laika.io.{FileIO, IOFunSuite}
-import laika.theme._
+import laika.theme.ThemeProvider
 
 class HeliumSiteCSSSpec extends IOFunSuite with InputBuilder with ResultExtractor with StringOps {
 
@@ -172,7 +172,7 @@ class HeliumSiteCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                               |--line-height: 1.5;""".stripMargin
 
   test("custom colors - via 'site' selector") {
-    import Color._
+    import laika.theme.config.Color._
     val helium = Helium.defaults
       .site.themeColors(primary = rgb(1,1,1), primaryDark = rgb(0,0,0), primaryLight = rgb(2,2,2),
         secondary = rgb(212,212,212))
@@ -188,7 +188,7 @@ class HeliumSiteCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
   }
 
   test("custom colors - via 'all' selector") {
-    import Color._
+    import laika.theme.config.Color._
     val helium = Helium.defaults
       .all.themeColors(primary = rgb(1,1,1), primaryDark = rgb(0,0,0), primaryLight = rgb(2,2,2),
         secondary = rgb(212,212,212))

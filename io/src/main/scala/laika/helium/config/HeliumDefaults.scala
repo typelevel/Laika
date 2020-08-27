@@ -19,7 +19,7 @@ package laika.helium.config
 import laika.ast.DocumentMetadata
 import laika.ast.LengthUnit.{cm, mm, pt, px}
 import laika.helium.Helium
-import laika.theme.{BookConfig, Color, Font, FontDefinition, FontStyle, FontWeight}
+import laika.theme.config._
 
 private[helium] object HeliumDefaults {
 

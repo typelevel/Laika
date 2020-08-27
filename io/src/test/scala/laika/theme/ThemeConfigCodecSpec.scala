@@ -21,6 +21,7 @@ import laika.ast.Path.Root
 import laika.config.Config.ConfigResult
 import laika.config._
 import laika.render.fo.TestTheme
+import laika.theme.config.BookConfig
 import laika.time.PlatformDateFormat
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
