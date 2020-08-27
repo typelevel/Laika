@@ -24,21 +24,21 @@ import laika.factory.Format
 import laika.format.{EPUB, HTML, XSLFO}
 import laika.helium.Helium
 import laika.helium.config.TableOfContent
-import laika.io.model.ParsedTree
+import laika.theme.Theme.TreeProcessor
 
 private[helium] object TocPageGenerator {
 
-  def generate[F[_]: Sync] (helium: Helium, format: Format): Kleisli[F, ParsedTree[F], ParsedTree[F]] = {
+  def generate[F[_]: Sync] (helium: Helium, format: Format): TreeProcessor[F] = {
     val tocConfig = (format match {
       case HTML => helium.siteSettings.layout.tableOfContent
       case EPUB.XHTML => helium.siteSettings.layout.tableOfContent // TODO - RELEASE - create EPUBLayout
       case XSLFO => helium.pdfSettings.layout.tableOfContent
       case _ => None
     }).filter(_.depth > 0)
-    tocConfig.fold[Kleisli[F, ParsedTree[F], ParsedTree[F]]](Kleisli(Sync[F].pure))(generate(_))
+    tocConfig.fold[TreeProcessor[F]](Kleisli(Sync[F].pure))(generate(_))
   }
   
-  def generate[F[_]: Sync](tocConfig: TableOfContent): Kleisli[F, ParsedTree[F], ParsedTree[F]] = Kleisli { tree =>
+  def generate[F[_]: Sync](tocConfig: TableOfContent): TreeProcessor[F] = Kleisli { tree =>
     val result =
       if (tocConfig.depth < 1) tree
       else {

@@ -25,10 +25,11 @@ import laika.helium.config.DownloadPage
 import laika.io.config.SiteConfig
 import laika.io.model.ParsedTree
 import laika.rewrite.nav.{ChoiceConfig, CoverImages, Selections}
+import laika.theme.Theme.TreeProcessor
 
 private[helium] object DownloadPageGenerator {
 
-  def generate[F[_]: Sync](pageConfig: DownloadPage): Kleisli[F, ParsedTree[F], ParsedTree[F]] = {
+  def generate[F[_]: Sync](pageConfig: DownloadPage): TreeProcessor[F] = {
 
     val refPath: Path = Root / "downloads"
 

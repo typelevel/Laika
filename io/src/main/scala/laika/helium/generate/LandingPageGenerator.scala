@@ -20,14 +20,14 @@ import cats.data.Kleisli
 import cats.effect.Sync
 import laika.ast.Path.Root
 import laika.ast.{Document, RootElement}
-import laika.config.{Config, LaikaKeys}
+import laika.config.LaikaKeys
 import laika.helium.config.LandingPage
-import laika.io.model.ParsedTree
 import laika.rewrite.nav.TitleDocumentConfig
+import laika.theme.Theme.TreeProcessor
 
 private[helium] object LandingPageGenerator {
 
-  def generate[F[_]: Sync] (landingPage: LandingPage): Kleisli[F, ParsedTree[F], ParsedTree[F]] = Kleisli { tree =>
+  def generate[F[_]: Sync] (landingPage: LandingPage): TreeProcessor[F] = Kleisli { tree =>
     
     val (landingPageContent, landingPageConfig) = tree.root.tree.content.collectFirst {
       case d: Document if d.path.withoutSuffix.name == "landing-page" => (d.content, d.config)
