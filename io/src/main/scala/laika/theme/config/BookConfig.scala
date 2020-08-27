@@ -19,8 +19,12 @@ package laika.theme.config
 import laika.ast.{DocumentMetadata, Path}
 import laika.config.{ConfigDecoder, ConfigEncoder, DefaultKey, LaikaKeys}
 
-/**
-  * @author Jens Halm
+/** Captures common configuration element of e-books, used by both EPUB and PDF renderers.
+  * 
+  * @param metadata        metadata to be embedded in the document in a way that respective reader software can surface
+  * @param navigationDepth the number of levels to provide navigation structure for
+  * @param fonts           the fonts that should be embedded in the e-book output
+  * @param coverImage      the path to the cover image within the virtual document tree   
   */
 case class BookConfig (metadata: DocumentMetadata = DocumentMetadata(), 
                        navigationDepth: Option[Int] = None,

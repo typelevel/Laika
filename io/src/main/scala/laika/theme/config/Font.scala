@@ -22,26 +22,72 @@ import laika.ast.Path.Root
 import laika.ast.{Path, PathBase}
 import laika.config._
 
-/**
+/** Represents a font resource, either based on a local classpath or file system resource,
+  * or a web font URL, or both.
+  * 
+  * E-book formats like EPUB or PDF require a local font file to be available for embedding.
+  * A web font URL can only be used for website generation.
+  * 
   * @author Jens Halm
   */
 case class Font private (embedResource: Option[EmbeddedFont], webCSS: Option[String]) {
 
+  /** Specifies a font file that can be used for embedding in EPUB or PDF.
+    * This is one of the few places in Laika where a real file-system path needs to be provided,
+    * not a path from the library's virtual path.
+    */
   def embedFile (name: String): Font = embedFile(new File(name))
+
+  /** Specifies a font file that can be used for embedding in EPUB or PDF.
+    * This is one of the few places in Laika where a real file-system path needs to be provided,
+    * not a path from the library's virtual path.
+    */
   def embedFile (file: File): Font = new Font(Some(EmbeddedFontFile(file)), webCSS)
+
+  /** Specifies a font file as a classpath resource that can be used for embedding in EPUB or PDF.
+    * For theme authors classpath resources are the recommended way of providing default fonts.
+    */
   def embedResource (name: String): Font = new Font(Some(EmbeddedFontResource(name)), webCSS)
+
+  /** Specifies a URL for a web font which can be auto-linked in a theme template.
+    */
   def webCSS (url: String): Font = new Font(embedResource, Some(url))
-  
+
+   /** Creates the final `FontDefinition` instance that can be used in Laika's and Helium's configuration
+    *  by mapping the font resource to a family name, font weight and style.
+    */
   def definedAs (family: String, weight: FontWeight, style: FontStyle): FontDefinition =
     FontDefinition(this, family, weight, style)
   
 }
 
+/** Companion for creating Font instances.
+  * 
+  * Operations can be chained, e.g. by calling `Font.embedFile(...).webCSS(...)` if both need to be provided.
+  * The final `FontDefinition` instance that can be used in Laika's and Helium's configuration can be obtained
+  * by calling `definedAs` in the end, where the font resource is mapped to a family name, font weight and style.
+  */
 object Font {
-  
+
+  /** Specifies a font file that can be used for embedding in EPUB or PDF.
+    * This is one of the few places in Laika where a real file-system path needs to be provided,
+    * not a path from the library's virtual path.
+    */
   def embedFile (name: String): Font = embedFile(new File(name))
+
+  /** Specifies a font file that can be used for embedding in EPUB or PDF.
+    * This is one of the few places in Laika where a real file-system path needs to be provided,
+    * not a path from the library's virtual path.
+    */
   def embedFile (file: File): Font = new Font(Some(EmbeddedFontFile(file)), None)
+
+  /** Specifies a font file as a classpath resource that can be used for embedding in EPUB or PDF.
+    * For theme authors classpath resources are the recommended way of providing default fonts.
+    */
   def embedResource (name: String): Font = new Font(Some(EmbeddedFontResource(name)), None)
+
+  /** Specifies a URL for a web font which can be auto-linked in a theme template.
+    */
   def webCSS (url: String): Font = new Font(None, Some(url))
   
   private[laika] def create (embedResource: Option[String], embedFile: Option[String], webCSS: Option[String]): Option[Font] =
@@ -53,19 +99,29 @@ object Font {
     }
 }
 
+/** Base trait for the types of embedded fonts Laika supports, which are either a file-system or classpath resource.
+  */
 sealed trait EmbeddedFont {
   def path: Path
 }
+
+/** Represent a font resource from the file system.
+  */
 case class EmbeddedFontFile (file: File) extends EmbeddedFont {
   val path: Path = Root / "laika" / "fonts" / file.getName
 }
+/** Represent a font files as a classpath resource.
+  */
 case class EmbeddedFontResource (name: String) extends EmbeddedFont {
   val path: Path = Root / "laika" / "fonts" / PathBase.parse(name).name
 }
 
+/** Enumeration for the valid font weights that can be assigned to a font resource, compatible with CSS properties.
+  */
+sealed abstract class FontWeight (val value: String)
 
-sealed abstract class FontWeight (val value: String) 
-
+/** Enumeration for the valid font weights that can be assigned to a font resource, compatible with CSS properties.
+  */
 object FontWeight {
   
   object Bold extends FontWeight("bold")
@@ -86,8 +142,12 @@ object FontWeight {
   
 }
 
+/** Enumeration for the valid font styles that can be assigned to a font resource, compatible with CSS properties.
+  */
 sealed abstract class FontStyle (val value: String)
 
+/** Enumeration for the valid font styles that can be assigned to a font resource, compatible with CSS properties.
+  */
 object FontStyle {
   
   object Normal extends FontStyle("normal")
@@ -101,6 +161,12 @@ object FontStyle {
   
 }
 
+/** Represent a full font definition, combining the font resource (file and/or web URL) plus the 
+  * mapping to a family name, font weight and style.
+  * 
+  * When providing multiple different weights and styles for the same font, 
+  * a separate `FontDefinition` instance needs to be built for each of them.
+  */
 case class FontDefinition (resource: Font, family: String, weight: FontWeight, style: FontStyle)
 
 object FontDefinition {
