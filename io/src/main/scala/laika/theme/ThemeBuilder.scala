@@ -39,11 +39,12 @@ class ThemeBuilder[F[_]: Monad] private[laika] (themeName: String,
 
   private val noOp: TreeProcessor[F] = Kleisli.ask[F, ParsedTree[F]]
   
-  def addInputs (inputs: InputTreeBuilder[F]): ThemeBuilder[F] = 
-    new ThemeBuilder(themeName, Monad[F].pure(inputs), extensions, bundleBuilder, treeProcessors)
+  def addInputs (inputs: InputTreeBuilder[F]): ThemeBuilder[F] = addInputs(Monad[F].pure(inputs))
   
-  def addInputs (inputs: F[InputTreeBuilder[F]]): ThemeBuilder[F] = 
-    new ThemeBuilder(themeName, inputs, extensions, bundleBuilder, treeProcessors)
+  def addInputs (inputBuilders: F[InputTreeBuilder[F]]): ThemeBuilder[F] = {
+    val mergedInputs = for { i1 <- inputs; i2 <- inputBuilders } yield i1.merge(i2)
+    new ThemeBuilder(themeName, mergedInputs, extensions, bundleBuilder, treeProcessors)
+  }
   
   def addExtensions (bundles: ExtensionBundle*): ThemeBuilder[F] = 
     new ThemeBuilder(themeName, inputs, extensions ++ bundles, bundleBuilder, treeProcessors)

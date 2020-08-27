@@ -109,7 +109,8 @@ object InputTree {
 }
 
 
-class InputTreeBuilder[F[_]](exclude: File => Boolean, steps: Vector[(Path => DocumentType, File => Boolean) => Kleisli[F, InputTree[F], InputTree[F]]])(implicit F: Sync[F]) {
+class InputTreeBuilder[F[_]](private[model] val exclude: File => Boolean, 
+                             private[model] val steps: Vector[(Path => DocumentType, File => Boolean) => Kleisli[F, InputTree[F], InputTree[F]]])(implicit F: Sync[F]) {
   
   import cats.implicits._
   
@@ -184,6 +185,9 @@ class InputTreeBuilder[F[_]](exclude: File => Boolean, steps: Vector[(Path => Do
     val combinedFilter: File => Boolean = f => filter(f) || exclude(f)
     new InputTreeBuilder(combinedFilter, steps)
   }
+  
+  def merge (other: InputTreeBuilder[F]): InputTreeBuilder[F] = 
+    new InputTreeBuilder(f => other.exclude(f) || exclude(f), steps ++ other.steps)
   
   def build: F[InputTree[F]] = build(DocumentTypeMatcher.base)
   
