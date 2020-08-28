@@ -34,7 +34,14 @@ sealed trait InputReader extends Product with Serializable
 case class PureReader(input: String) extends InputReader
 case class StreamReader(input: Reader, sizeHint: Int) extends InputReader
 
+/** A binary input stream and its virtual path within the input tree.
+  */
 case class BinaryInput[F[_]: Sync] (path: Path, stream: () => InputStream, autoClose: Boolean = true, sourceFile: Option[File] = None) extends Navigatable {
+
+  /** Provides the InputStream as a cats-effect Resource.
+    * 
+    * The resource only closes the stream in its tear-down effect when the autoClose property on this instance is true.
+    */
   def asResource: Resource[F, InputStream] = {
     val fStream = Sync[F].delay(stream())
     if (autoClose) Resource.fromAutoCloseable(fStream) else Resource.liftF(fStream)
@@ -42,6 +49,9 @@ case class BinaryInput[F[_]: Sync] (path: Path, stream: () => InputStream, autoC
 }
 
 object BinaryInput {
+  
+  /** Creates a BinaryInput instance for the specified file, assigning the given virtual path.
+    */
   def apply[F[_]: Sync] (file: File, path: Path): BinaryInput[F] = 
     BinaryInput(path, () => new BufferedInputStream(new FileInputStream(file)), autoClose = true, Some(file))
 }
@@ -94,21 +104,72 @@ case class InputTree[F[_]](textInputs: Seq[TextInput[F]] = Nil,
   def + (parsedResult: ParserResult): InputTree[F] = copy(parsedResults = parsedResults :+ parsedResult)
 }
 
-/** Factory methods for creating `TreeInput` instances.
+/** Factory methods for creating `InputTreeBuilder` instances.
   */
 object InputTree {
 
+  /** Creates a new, empty InputTreeBuilder will the specified exclusion filter.
+    * The filter will only be used for scanning directories when calling `addDirectory` on the builder,
+    * not for any of the other methods.
+    */
   def apply[F[_]: Sync] (exclude: File => Boolean): InputTreeBuilder[F] = new InputTreeBuilder(exclude, Vector.empty)
-  
+
+  /** Creates a new, empty InputTreeBuilder.
+    */
   def apply[F[_]: Sync]: InputTreeBuilder[F] = new InputTreeBuilder(DirectoryInput.hiddenFileFilter, Vector.empty)
   
-  
-  /** An empty input collection.
+  /** An empty input tree.
     */
   def empty[F[_]]: InputTree[F] = InputTree(Nil, Nil, Nil)
 }
 
 
+/** Builder API for freely constructing input trees from directories, files, classpath resources, in-memory strings
+  * or pre-constructed AST trees.
+  * 
+  * If your input is just one or more directories, you can use the corresponding shortcuts on the parser or
+  * transformer instances, e.g. `transformer.fromDirectory(...).toDirectory(...)`.
+  * This builder is meant to be used for situations where more flexibility is required.
+  * 
+  * All the specified inputs will be combined into a single logical tree and each document gets a virtual path
+  * assigned that describes its logical position within the tree.
+  * As a consequence all cross-linking or referencing of images can happen within the virtual path abstraction,
+  * meaning a resource from the file system can point to an input constructed in-memory via a relative, virtual path.
+  * 
+  * When adding strings, files or directories you need to specify a "mount point" that signals where within
+  * the virtual tree the inputs should be placed.
+  * For adding directories the mount point is optional, when omitted the directory becomes the virtual root of
+  * the input tree.
+  * 
+  * The resulting input tree can be passed to parsers, transformers and theme builders.
+  * 
+  * Example for composing inputs from two directories, a template loaded from the classpath and a CSS
+  * file generated in-memory:
+  * 
+  * {{{
+  * val inputs = InputTree[F]
+  *   .addDirectory("/path-to-my/markup-files")
+  *   .addDirectory("/path-to-my/images", Root / "images")
+  *   .addClasspathResource("my-templates/default.template.html", DefaultTemplatePath.forHTML)
+  *   .addString(generateMyStyles(), Root / "css" / "site.css")
+  * }}}
+  * 
+  * These inputs can then be configured for the sbt plugin:
+  * 
+  * {{{
+  *   laikaInputs := inputs
+  * }}}
+  * 
+  * Or passed to a `TreeTransformer` instance:
+  * 
+  * {{{
+  * val res: F[RenderedTreeRoot[F]] = transformer.use {
+  *   _.fromInputTree(inputs)
+  *    .toDirectory("target")
+  *    .transform
+  * }
+  * }}}
+  */
 class InputTreeBuilder[F[_]](private[model] val exclude: File => Boolean, 
                              private[model] val steps: Vector[(Path => DocumentType, File => Boolean) => Kleisli[F, InputTree[F], InputTree[F]]])(implicit F: Sync[F]) {
   
@@ -128,28 +189,58 @@ class InputTreeBuilder[F[_]](private[model] val exclude: File => Boolean,
     Kleisli(tree => (tree + result).pure[F])
   }
 
+  /** Adds the specified directories to the input tree, merging them all into a single virtual root, recursively.
+    */
   def addDirectories (dirs: Seq[File])(implicit codec: Codec): InputTreeBuilder[F] = dirs.foldLeft(this) {
     case (builder, dir) => builder.addDirectory(dir)
   }
-  
+
+  /** Adds the specified directories to the input tree, placing it in the virtual root.
+    */
   def addDirectory (name: String)(implicit codec: Codec): InputTreeBuilder[F] = addDirectory(new File(name), Root)
+
+  /** Adds the specified directories to the input tree, placing it at the specified mount point in the virtual tree.
+    */
   def addDirectory (name: String, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] = 
     addDirectory(new File(name), mountPoint)
+
+  /** Adds the specified directories to the input tree, placing it in the virtual root.
+    */
   def addDirectory (dir: File)(implicit codec: Codec): InputTreeBuilder[F] = addDirectory(dir, Root)
+
+  /** Adds the specified directories to the input tree, placing it at the specified mount point in the virtual tree.
+    */
   def addDirectory (dir: File, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] = addStep { (docTypeFunction, fileFilter) =>
     Kleisli { input => 
       DirectoryScanner.scanDirectories[F](new DirectoryInput(Seq(dir), codec, docTypeFunction, fileFilter, mountPoint)).map(input ++ _)
     }
   }
 
+  /** Adds the specified file to the input tree, placing it at the specified mount point in the virtual tree.
+    * 
+    * The content type of the stream will be determined by the suffix of the virtual path, e.g.
+    * `doc.md` would be passed to the markup parser, `doc.template.html` to the template parser, and so on.
+    */
   def addFile (name: String, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] = 
     addFile(new File(name), mountPoint)
+
+  /** Adds the specified file to the input tree, placing it at the specified mount point in the virtual tree.
+    * 
+    * The content type of the stream will be determined by the suffix of the virtual path, e.g.
+    * `doc.md` would be passed to the markup parser, `doc.template.html` to the template parser, and so on.
+    */
   def addFile (file: File, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] =
     addStep(mountPoint) {
       case DocumentType.Static => _ + BinaryInput(file, mountPoint)
       case docType: TextDocumentType => _ + TextInput.fromFile[F](mountPoint, docType, file, codec)
     }
-  
+
+  /** Adds the specified classpath resource to the input tree, placing it at the specified mount point in the virtual tree.
+    * The specified name must be compatible with Java's `ClassLoader.getResource`.
+    * 
+    * The content type of the stream will be determined by the suffix of the virtual path, e.g.
+    * `doc.md` would be passed to the markup parser, `doc.template.html` to the template parser, and so on.
+    */
   def addClasspathResource (name: String, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] = {
     def stream = {
       val res = getClass.getClassLoader.getResourceAsStream(name)
@@ -159,6 +250,18 @@ class InputTreeBuilder[F[_]](private[model] val exclude: File => Boolean,
     addStream(stream, mountPoint)
   }
 
+  /** Adds the specified input stream to the input tree, placing it at the specified mount point in the virtual tree.
+    * 
+    * The content type of the stream will be determined by the suffix of the virtual path, e.g.
+    * `doc.md` would be passed to the markup parser, `doc.template.html` to the template parser, and so on.
+    * 
+    * This is a by-name argument so that the effectful creation can be deferred internally.
+    * The method does not accept an `F[InputStream]` even though this would appear most intuitive,
+    * as there are cases like PDF rendering where the stream has to be passed to an impure Java callback,
+    * where Laika does the necessary effect-wrapping on a higher level.
+    * 
+    * The autoClose argument indicates whether the stream should be closed after use.
+    */
   def addStream (stream: => InputStream, mountPoint: Path, autoClose: Boolean = true)(implicit codec: Codec): InputTreeBuilder[F] =
     addStep(mountPoint) {
       case DocumentType.Static =>
@@ -167,30 +270,75 @@ class InputTreeBuilder[F[_]](private[model] val exclude: File => Boolean,
       case docType: TextDocumentType => 
         _ + TextInput.fromStream(mountPoint, docType, F.delay(stream), codec, autoClose)
     }
-  
+
+  /** Adds the specified string resource to the input tree, placing it at the specified mount point in the virtual tree.
+    * 
+    * The content type of the stream will be determined by the suffix of the virtual path, e.g.
+    * * `doc.md` would be passed to the markup parser, `doc.template.html` to the template parser, and so on.
+    */
   def addString (str: String, mountPoint: Path): InputTreeBuilder[F] =
     addStep(mountPoint) {
       case DocumentType.Static => _ + BinaryInput(mountPoint, () => new ByteArrayInputStream(str.getBytes))
       case docType: TextDocumentType => _ + TextInput.fromString[F](mountPoint, docType, str)
     }
-  
+
+  /** Adds the specified document AST to the input tree, by-passing the parsing step.
+    * 
+    * In some cases when generating input on the fly, it might be more convenient or more type-safe to construct
+    * the AST directly than to generate the text markup as input for the parser.
+    */
   def addDocument (doc: Document): InputTreeBuilder[F] = addParserResult(DocumentResult(doc))
+
+  /** Adds the specified template AST to the input tree, by-passing the parsing step.
+    *
+    * In some cases when generating input on the fly, it might be more convenient or more type-safe to construct
+    * the AST directly than to generate the template as a string as input for the template parser.
+    */
   def addTemplate (doc: TemplateDocument): InputTreeBuilder[F] = addParserResult(TemplateResult(doc))
+
+  /** Adds the specified configuration instance and assigns it to the specified tree path in a way
+    * that is equivalent to having a HOCON file called `directory.conf` in that directory.
+    */
   def addConfig (config: Config, treePath: Path): InputTreeBuilder[F] = addParserResult(ConfigResult(treePath, config))
+
+  /** Adds the specified styles for PDF to the input tree.
+    * These type of style declarations are only used in the context of Laika's "CSS for PDF" support 
+    * which works slightly differently than web CSS as PDF generation Laika is not based on interim HTML results.
+    */
   def addStyles (styles: Set[StyleDeclaration], path: Path, precedence: Precedence = Precedence.High): InputTreeBuilder[F] = 
     addParserResult(StyleResult(StyleDeclarationSet(Set(path), styles, precedence), "fo"))
-  
-  
+
+  /** Adds the specified file filter to this input tree.
+    * 
+    * The filter will only be used for scanning directories when calling `addDirectory` on this builder,
+    * not for any of the other methods.
+    */
   def withFileFilter (filter: File => Boolean): InputTreeBuilder[F] = {
     val combinedFilter: File => Boolean = f => filter(f) || exclude(f)
     new InputTreeBuilder(combinedFilter, steps)
   }
-  
+
+  /** Merges this input tree with the specified tree, recursively.
+    */
   def merge (other: InputTreeBuilder[F]): InputTreeBuilder[F] = 
     new InputTreeBuilder(f => other.exclude(f) || exclude(f), steps ++ other.steps)
-  
+
+  /** Builds the tree based on the inputs added to this instance.
+    * 
+    * The method is effectful as it might involve scanning directories to determine the tree structure.
+    * 
+    * This method is normally not called by application code directly, as the parser and transformer APIs
+    * expect an `InputTreeBuilder` instance.
+    */
   def build: F[InputTree[F]] = build(DocumentTypeMatcher.base)
-  
+
+  /** Builds the tree based on the inputs added to this instance and the specified custom document type matcher.
+    *
+    * The method is effectful as it might involve scanning directories to determine the tree structure.
+    *
+    * This method is normally not called by application code directly, as the parser and transformer APIs
+    * expect an `InputTreeBuilder` instance.
+    */
   def build (docTypeMatcher: Path => DocumentType): F[InputTree[F]] = 
     steps
       .map(_(docTypeMatcher, exclude))
