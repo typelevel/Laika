@@ -111,8 +111,7 @@ class HeliumFORendererSpec extends IOFunSuite with InputBuilder with ResultExtra
     marginLeft = defaultLayout.marginLeft,
     defaultBlockSpacing = mm(2),
     defaultLineHeight = 1.4,
-    keepTogetherDecoratedLines = defaultLayout.keepTogetherDecoratedLines,
-    navigationDepth = 3
+    keepTogetherDecoratedLines = defaultLayout.keepTogetherDecoratedLines
   )
   
   test("custom master page layout") {
@@ -128,8 +127,7 @@ class HeliumFORendererSpec extends IOFunSuite with InputBuilder with ResultExtra
       marginLeft = cm(1.8), 
       defaultBlockSpacing = mm(2),
       defaultLineHeight = 1.4,
-      keepTogetherDecoratedLines = 10,
-      navigationDepth = 3)
+      keepTogetherDecoratedLines = 10)
     val expected =
       """master-name="default"
         |page-height="21cm"
