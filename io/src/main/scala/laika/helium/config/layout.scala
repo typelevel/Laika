@@ -58,8 +58,14 @@ private[helium] case class LandingPage (logo: Option[Image] = None,
 
 private[helium] case class MarkupEditLinks (text: String, baseURL: String)
 
+/** Configuration for a single favicon which can be an internal resource or an external URL.
+  * 
+  * The sizes string will be used in the corresponding `sizes` attribute of the generated `&lt;link&gt;` tag.
+  */
 case class Favicon private (target: ThemeTarget, sizes: Option[String], mediaType: Option[String])
 
+/** Companion for creating Favicon configuration instances.
+  */
 object Favicon {
   private def mediaType (suffix: Option[String]): Option[String] = suffix.collect {
     case "ico" => "image/x-icon"
@@ -68,21 +74,48 @@ object Favicon {
     case "jpg" | "jpeg" => "image/jpeg"
     case "svg" => "image/svg+xml"
   }
+
+  /** Creates the configuration for a single favicon with an external URL.
+    *
+    * The sizes string will be used in the corresponding `sizes` attribute of the generated `&lt;link&gt;` tag.
+    */
   def external (url: String, sizes: String, mediaType: String): Favicon = 
     Favicon(ThemeTarget.external(url), Some(sizes), Some(mediaType))
+
+  /** Creates the configuration for a single favicon based on an internal resource and its virtual path.
+    * This resource must be part of the inputs known to Laika.
+    *
+    * The sizes string will be used in the corresponding `sizes` attribute of the generated `&lt;link&gt;` tag.
+    */
   def internal (path: Path, sizes: String): Favicon = 
     Favicon(ThemeTarget.internal(path), Some(sizes), mediaType(path.suffix))
 }
 
+/** Represents release info to be displayed on the landing page.
+  * 
+  * This is specific for sites that serve as documentation for software projects.
+  * 
+  * @param title the header above the version number, e.g. "Latest Stable Release"
+  * @param version the version number of the release
+  */
 case class ReleaseInfo (title: String, version: String)
 
+/** Represents a single teaser block to be displayed on the landing page.
+  * Any number of these blocks can be passed to the Helium configuration.
+  */
 case class Teaser (title: String, description: String)
 
+/** Configures the anchor placement for section headers.
+  * Anchors appear on mouse-over and allow to copy the direct link to the section.
+  */
 sealed trait AnchorPlacement
 
 object AnchorPlacement {
+  /** Disables anchors for all section headers. */
   object None extends AnchorPlacement
+  /** Places anchors to the left of section headers. */
   object Left extends AnchorPlacement
+  /** Places anchors to the right of section headers. */
   object Right extends AnchorPlacement
 }
 

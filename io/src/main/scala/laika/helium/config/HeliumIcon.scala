@@ -18,7 +18,14 @@ package laika.helium.config
 
 import laika.ast.{Icon, Styles}
 
-/**
+/** Enumeration for using any of the icons provided by the Helium theme out of the box in the theme configuration.
+  * 
+  * Several options like those for the landing page or the top navigation bar allow the addition of icon links
+  * where these pre-built selection can be used.
+  * 
+  * They are based on the `icofont` which is licensed under the Open Font license and part of the `laika-io`
+  * artifact.
+  * 
   * @author Jens Halm
   */
 object HeliumIcon {
