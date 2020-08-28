@@ -236,13 +236,18 @@ object DocumentMetadata {
 }
 
 /** The position of an element within a document tree.
-  *
-  * @param toSeq the positions (one-based) of each nesting level of this
-  *              position (an empty sequence for the root position)
   */
-case class TreePosition(toSeq: Seq[Int]) extends Ordered[TreePosition] {
+class TreePosition private (private val positions: Option[Seq[Int]]) extends Ordered[TreePosition] {
 
-  override def toString: String = toSeq.mkString(".")
+  /** The positions (one-based) of each nesting level of this instance (an empty sequence for the root or none positions)
+    */
+  def toSeq: Seq[Int] = positions.getOrElse(Nil)
+  
+  override def toString: String = positions match {
+    case None => "TreePosition.none"
+    case Some(Nil) => "TreePosition.root"
+    case Some(pos) => s"TreePosition(${pos.mkString(".")})"
+  } 
 
   /** This tree position as a span that can get rendered
     * as part of a numbered title for example.
@@ -272,10 +277,18 @@ case class TreePosition(toSeq: Seq[Int]) extends Ordered[TreePosition] {
     compare(toSeq.padTo(maxLen, 0), other.toSeq.padTo(maxLen, 0))
   }
 
+  override def hashCode(): Int = positions.hashCode()
+
+  override def equals(obj: Any): Boolean = obj match {
+    case tp: TreePosition => tp.positions == positions
+  }
+  
 }
 
 object TreePosition {
-  def root = TreePosition(Seq())
+  def apply (pos: Seq[Int]) = new TreePosition(Some(pos))
+  val root = new TreePosition(Some(Nil))
+  val none = new TreePosition(None)
 }
 
 /** The structure of a markup document.
@@ -570,7 +583,7 @@ case class Document (path: Path,
                      content: RootElement,
                      fragments: Map[String, Element] = Map.empty,
                      config: Config = Config.empty,
-                     position: TreePosition = TreePosition(Seq())) extends DocumentStructure with TreeContent {
+                     position: TreePosition = TreePosition.none) extends DocumentStructure with TreeContent {
 
   /** Returns a new, rewritten document model based on the specified rewrite rules.
    *

@@ -301,7 +301,7 @@ object DocumentCursor {
 
   /** Creates a cursor by placing the specified document as a sole node into an otherwise empty document tree. */
   def apply (document: Document, targetFormat: Option[String] = None): DocumentCursor =
-    apply(document, TreeCursor(DocumentTree(Root, Seq(document)), targetFormat), document.config, TreePosition.root)
+    apply(document, TreeCursor(DocumentTree(Root, Seq(document)), targetFormat), document.config, TreePosition.none)
 
   @deprecated("no longer useful for current feature set", "0.16.0")
   def forEmptyDocument (name: String, parent: TreeCursor): DocumentCursor = {
