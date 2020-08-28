@@ -94,7 +94,7 @@ You can import `laika.theme.Color._` for specifying colors with `hex("ffaaff")` 
 `laika.ast.LengthUnit._` for specifying sizes with `px(12)` or `pt(9)` or other available units.
 All configuration examples in this chapter assume these imports are in place.
 
-The final call to `build` produces a cats-effect `Resource[F, Theme[F]]` that can be passed to Laika's transformers
+The final call to `build` produces a `ThemeProvider` that can be passed to Laika's transformers
 or the `laikaTheme` sbt setting:
 
 @:select(config)
