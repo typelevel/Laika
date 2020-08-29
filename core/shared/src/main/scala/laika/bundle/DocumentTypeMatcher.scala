@@ -32,7 +32,7 @@ object DocumentTypeMatcher {
     case index => name.drop(index+1)
   }
 
-  private val TemplateName = """.+\.template\.[^\.]+$""".r
+  private val TemplateName = """.+\.template\..+$""".r
   private val StylesheetName = """.+\.fo.css$""".r // stylesheets for HTML are treated as static documents
   private val ConfigName = "directory.conf"
 
