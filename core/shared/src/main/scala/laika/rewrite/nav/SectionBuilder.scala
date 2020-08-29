@@ -68,7 +68,7 @@ object SectionBuilder extends (DocumentCursor => RewriteRules) {
       
       val extractTitle = cursor.config
         .get[Boolean](LaikaKeys.firstHeaderAsTitle)
-        .getOrElse(cursor.position != TreePosition.none)
+        .getOrElse(cursor.position != TreePosition.orphan)
       
       val (titleSection, rest) = if (!extractTitle) (Nil, document.content) else {
         

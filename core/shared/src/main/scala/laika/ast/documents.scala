@@ -239,7 +239,8 @@ object DocumentMetadata {
   */
 class TreePosition private (private val positions: Option[Seq[Int]]) extends Ordered[TreePosition] {
 
-  /** The positions (one-based) of each nesting level of this instance (an empty sequence for the root or none positions)
+  /** The positions (one-based) of each nesting level of this instance 
+    * (an empty sequence for the root or orphan positions).
     */
   def toSeq: Seq[Int] = positions.getOrElse(Nil)
   
@@ -288,7 +289,7 @@ class TreePosition private (private val positions: Option[Seq[Int]]) extends Ord
 object TreePosition {
   def apply (pos: Seq[Int]) = new TreePosition(Some(pos))
   val root = new TreePosition(Some(Nil))
-  val none = new TreePosition(None)
+  val orphan = new TreePosition(None)
 }
 
 /** The structure of a markup document.
@@ -583,7 +584,7 @@ case class Document (path: Path,
                      content: RootElement,
                      fragments: Map[String, Element] = Map.empty,
                      config: Config = Config.empty,
-                     position: TreePosition = TreePosition.none) extends DocumentStructure with TreeContent {
+                     position: TreePosition = TreePosition.orphan) extends DocumentStructure with TreeContent {
 
   /** Returns a new, rewritten document model based on the specified rewrite rules.
    *
