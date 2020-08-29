@@ -18,10 +18,10 @@ package laika.helium
 
 import cats.effect.IO
 import laika.api.Transformer
+import laika.ast.Path
 import laika.ast.Path.Root
-import laika.ast.{Image, InternalTarget, Path}
 import laika.format.{HTML, Markdown}
-import laika.helium.config.{ButtonLink, HeliumIcon, IconLink, ThemeTarget}
+import laika.helium.config._
 import laika.io.helper.{InputBuilder, ResultExtractor, StringOps}
 import laika.io.implicits._
 import laika.io.model.StringTreeOutput
@@ -58,10 +58,11 @@ class HeliumHTMLNavSpec extends IOFunSuite with InputBuilder with ResultExtracto
       |### Section 2.1
     """.stripMargin
   
-  val threeDocs = Seq(
+  val inputs = Seq(
     Root / "doc-1.md" -> inputWithTitle(1),
     Root / "doc-2.md" -> inputWithTitle(2),
     Root / "doc-3.md" -> inputWithTitle(3),
+    Root / "home.png" -> ""
   )
   
   def transformAndExtract(inputs: Seq[(Path, String)], helium: Helium, start: String, end: String): IO[String] = transformer(helium.build).use { t =>
@@ -78,7 +79,7 @@ class HeliumHTMLNavSpec extends IOFunSuite with InputBuilder with ResultExtracto
                      |<li class="level1"><a href="doc-2.html">Doc 2</a></li>
                      |<li class="level1"><a href="doc-3.html">Doc 3</a></li>
                      |</ul>""".stripMargin
-    transformAndExtract(threeDocs, Helium.defaults, "<nav id=\"sidebar\">", "</nav>").assertEquals(expected)
+    transformAndExtract(inputs, Helium.defaults, "<nav id=\"sidebar\">", "</nav>").assertEquals(expected)
   }
 
   test("page navigation - two levels") {
@@ -91,7 +92,7 @@ class HeliumHTMLNavSpec extends IOFunSuite with InputBuilder with ResultExtracto
         |<li class="level2"><a href="#section-2-1">Section 2.1</a></li>
         |</ul>
         |<p class="footer"></p>""".stripMargin
-    transformAndExtract(threeDocs, Helium.defaults, "<nav id=\"page-nav\">", "</nav>").assertEquals(expected)
+    transformAndExtract(inputs, Helium.defaults, "<nav id=\"page-nav\">", "</nav>").assertEquals(expected)
   }
 
   test("page navigation - with footer link") {
@@ -105,36 +106,35 @@ class HeliumHTMLNavSpec extends IOFunSuite with InputBuilder with ResultExtracto
         |</ul>
         |<p class="footer"><a href="https://github.com/my-project/doc-1.md">Source for this page</a></p>""".stripMargin
     val helium = Helium.defaults.site.markupEditLinks("Source for this page", "https://github.com/my-project")
-    transformAndExtract(threeDocs, helium, "<nav id=\"page-nav\">", "</nav>").assertEquals(expected)
+    transformAndExtract(inputs, helium, "<nav id=\"page-nav\">", "</nav>").assertEquals(expected)
   }
 
-  // TODO - should have home button in defaults
   test("top navigation - defaults") {
     val expected =
       """<a id="nav-icon">
         |<i class="icofont-navigation-menu icofont-xlg"></i>
         |</a>
+        |<a href="index.html"><i class="icofont-laika">&#xef47;</i></a>
         |<span class="row"></span>""".stripMargin
-    transformAndExtract(threeDocs, Helium.defaults, "<header id=\"top-bar\">", "</header>").assertEquals(expected)
+    transformAndExtract(inputs, Helium.defaults, "<header id=\"top-bar\">", "</header>").assertEquals(expected)
   }
 
-  // TODO - logo should be link to homepage
   test("top navigation - with custom links") {
     val expected =
       """<a id="nav-icon">
         |<i class="icofont-navigation-menu icofont-xlg"></i>
         |</a>
-        |<img src="home.png" alt="Homepage" title="Home">
+        |<a href="index.html"><img src="home.png" alt="Homepage" title="Home"></a>
         |<span class="row"><a href="doc-2.html"><i class="icofont-laika">&#xeeea;</i></a><a class="button" href="http://somewhere.com/">Somewhere</a></span>""".stripMargin
     val imagePath = Root / "home.png"
     val helium = Helium.defaults.site
       .topNavigationBar(
-        logo = Some(Image(InternalTarget(imagePath), alt = Some("Homepage"), title = Some("Home"))), 
+        logo = Some(ThemeLogo(ThemeTarget.internal(imagePath), alt = Some("Homepage"), title = Some("Home"))), 
         links = Seq(
           IconLink(ThemeTarget.internal(Root / "doc-2.md"), HeliumIcon.demo),
           ButtonLink(ThemeTarget.external("http://somewhere.com/"), "Somewhere")
         ))
-    transformAndExtract(threeDocs, helium, "<header id=\"top-bar\">", "</header>").assertEquals(expected)
+    transformAndExtract(inputs, helium, "<header id=\"top-bar\">", "</header>").assertEquals(expected)
   }
   
 }

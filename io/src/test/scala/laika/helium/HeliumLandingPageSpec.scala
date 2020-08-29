@@ -18,8 +18,8 @@ package laika.helium
 
 import cats.effect.IO
 import laika.api.Transformer
+import laika.ast.Path
 import laika.ast.Path.Root
-import laika.ast.{Image, InternalTarget, Path}
 import laika.format.{HTML, Markdown}
 import laika.helium.config._
 import laika.io.helper.{InputBuilder, ResultExtractor, StringOps}
@@ -38,9 +38,10 @@ class HeliumLandingPageSpec extends IOFunSuite with InputBuilder with ResultExtr
     .withTheme(theme)
     .build
   
-  val twoDocs = Seq(
+  val inputs = Seq(
     Root / "doc-1.md" -> "text",
-    Root / "doc-2.md" -> "text"
+    Root / "doc-2.md" -> "text",
+    Root / "home.png" -> ""
   )
   
   def transformAndExtract(inputs: Seq[(Path, String)], helium: Helium, start: String, end: String): IO[String] = transformer(helium.build).use { t =>
@@ -52,7 +53,7 @@ class HeliumLandingPageSpec extends IOFunSuite with InputBuilder with ResultExtr
   }
     
   test("no landing page configured") {
-    transformAndExtract(twoDocs, Helium.defaults, "", "")
+    transformAndExtract(inputs, Helium.defaults, "", "")
       .assertFailsWithMessage("Missing document under test")
   }
   
@@ -113,7 +114,7 @@ class HeliumLandingPageSpec extends IOFunSuite with InputBuilder with ResultExtr
                      |</body>""".stripMargin
     val imagePath = Root / "home.png"
     val helium = Helium.defaults.site.landingPage(
-      logo = Some(Image(InternalTarget(imagePath), alt = Some("Project Logo"))), // TODO - Logo type similar to Icon type
+      logo = Some(ThemeLogo(ThemeTarget.internal(imagePath), alt = Some("Project Logo"))),
       title = Some("My Project"),
       subtitle = Some("Awesome Hyperbole Overkill"),
       latestReleases = Seq(
@@ -135,7 +136,7 @@ class HeliumLandingPageSpec extends IOFunSuite with InputBuilder with ResultExtr
         Teaser("Teaser 3", "Description 3")
       )
     )
-    transformAndExtract(twoDocs, helium, "<html lang=\"\">", "</html>").assertEquals(expected)
+    transformAndExtract(inputs, helium, "<html lang=\"\">", "</html>").assertEquals(expected)
   }
 
   test("partial landing page configured with custom content") {
@@ -167,10 +168,9 @@ class HeliumLandingPageSpec extends IOFunSuite with InputBuilder with ResultExtr
                      |</div>
                      |<p>Some <em>markup</em> here.</p>
                      |</body>""".stripMargin
-    val inputs = twoDocs :+ (Root / "landing-page.md", "Some *markup* here.")
     val imagePath = Root / "home.png"
     val helium = Helium.defaults.site.landingPage(
-      logo = Some(Image(InternalTarget(imagePath), alt = Some("Project Logo"))), // TODO - Logo type similar to Icon type
+      logo = Some(ThemeLogo(ThemeTarget.internal(imagePath), alt = Some("Project Logo"))),
       subtitle = Some("Awesome Hyperbole Overkill"),
       latestReleases = Seq(
         ReleaseInfo("Latest Release", "2.3.5")
@@ -180,7 +180,8 @@ class HeliumLandingPageSpec extends IOFunSuite with InputBuilder with ResultExtr
         ButtonLink(ThemeTarget.external("http://somewhere.com/"), "Somewhere")
       )
     )
-    transformAndExtract(inputs, helium, "<html lang=\"\">", "</html>").assertEquals(expected)
+    val inputsWithExtraDoc = inputs :+ (Root / "landing-page.md", "Some *markup* here.")
+    transformAndExtract(inputsWithExtraDoc, helium, "<html lang=\"\">", "</html>").assertEquals(expected)
   }
 
 }
