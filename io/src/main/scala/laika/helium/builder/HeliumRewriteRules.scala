@@ -24,9 +24,21 @@ import laika.helium.config.PDFSettings
   */
 private[helium] object HeliumRewriteRules {
 
-  private def estimateLines (blocks: Seq[Block]): Int = blocks.collect {
-    case sp: SpanContainer => sp.extractText.count(_ == '\n')
-    case bc: BlockContainer => estimateLines(bc.content) // TODO - handle lists and tables
+  /** This is only a rough estimate as it counts *source* lines and not output lines.
+    */
+  def estimateLines (blocks: Seq[Block]): Int = blocks.collect {
+    case s: Section => estimateLines(s.content) + 1
+    case sp: SpanContainer  => sp.extractText.count(_ == '\n') + 1
+    case bc: BlockContainer => estimateLines(bc.content)
+    case ni: NavigationItem => 1 + estimateLines(ni.content)
+    case lc: ListContainer  =>  lc.content.map {
+      case bc: BlockContainer => estimateLines(bc.content)
+      case ni: NavigationItem => 1 + estimateLines(ni.content)
+      case _                  => 1
+    }.sum
+    case table: Table       => (table.head.content ++ table.body.content).map { row =>
+      row.content.map(cell => estimateLines(cell.content)).max
+    }.sum
   }.sum
 
   def build (pdfSettings: PDFSettings): RewriteRules = RewriteRules.forBlocks {
