@@ -1,20 +1,21 @@
 
 function switchTabs (elements, choiceName) { 
   elements.forEach(elem => {
-    if (elem.dataset.choiceName == choiceName) elem.classList.add("active");
+    if (elem.dataset.choiceName === choiceName) elem.classList.add("active");
     else (elem.classList.remove("active"));
   });
 }
 
 function initTabs () {
-  const groups = {"foo": []}; // TODO - populate by theme renderer
+  const groups = {};
   const tabs = document.querySelectorAll(".tab")
   const content = document.querySelectorAll(".tab-content")
   tabs.forEach(tab => {
     const group = tab.parentElement.parentElement.dataset.tabGroup;
     const choiceName = tab.dataset.choiceName;
-    if (group && groups[group] && choiceName) {
-      groups[group].push(tab);
+    if (group && choiceName) {
+      if (groups[name] === undefined) groups[name] = [];
+      groups[name].push(tab);
       tab.firstElementChild.onclick = (e) => {
         e.preventDefault();
         switchTabs(groups[group], choiceName);
