@@ -36,13 +36,4 @@ object StyleSupport {
   def collectStylePaths[F[_]] (root: RenderedTreeRoot[F]): Seq[Path] = 
     root.staticDocuments.collect { case doc if doc.path.suffix.contains("css") => doc.path }
 
-  /** Verifies that the specified document tree contains at least one CSS file
-    * (determined by file suffix). If this is the case the tree is returned unchanged,
-    * otherwise a new tree with a minimal fallback CSS inserted into the root is returned instead.
-    */
-  def ensureContainsStyles (root: DocumentTreeRoot): DocumentTreeRoot = {
-    if (root.staticDocuments.exists(_.suffix.contains("css"))) root
-    else root.copy(staticDocuments = root.staticDocuments :+ fallbackStylePath)
-  }
-
 }

@@ -48,7 +48,8 @@ object StaticContent {
     * if no CSS files are present in the input tree of the
     * Transform operation.
     */
-  val fallbackStyles =
+    // TODO - RELEASE - remove
+  private val fallbackStyles =
     """body { margin: 5%; text-align: justify; font-size: medium; }
       |code { font-family: monospace; }
       |ol.toc { padding: 0; list-style: none; }

@@ -63,10 +63,7 @@ class ContainerWriter {
     def toBinaryInput (content: String, path: Path): BinaryInput[F] =
       BinaryInput(path, () => new ByteArrayInputStream(content.getBytes(Charset.forName("UTF-8"))))
 
-    val fallbackStyles = if (result.staticDocuments.exists(_.path.suffix.contains("css"))) Vector() 
-                         else Vector(toBinaryInput(StaticContent.fallbackStyles, StyleSupport.fallbackStylePath))
-    
-    val finalResult = result.copy[F](staticDocuments = result.staticDocuments ++ fallbackStyles)
+    val finalResult = result.copy[F](staticDocuments = result.staticDocuments)
     
     val staticDocs: Seq[BinaryInput[F]] = finalResult.staticDocuments
       .filter(in => in.path.suffix.exists(MimeTypes.supportedTypes.contains))

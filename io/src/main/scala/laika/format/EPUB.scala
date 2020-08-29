@@ -135,14 +135,13 @@ case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor
     * and a fallback CSS resource (if the input tree did not contain any CSS),
     * before the tree gets passed to the XHTML renderer.
     */
-  def prepareTree (tree: DocumentTreeRoot): Either[Throwable, DocumentTreeRoot] = {
-    BookConfig.decodeWithDefaults(tree.config).map { treeConfig =>
+  def prepareTree (root: DocumentTreeRoot): Either[Throwable, DocumentTreeRoot] = {
+    BookConfig.decodeWithDefaults(root.config).map { treeConfig =>
       
-      val treeWithStyles = StyleSupport.ensureContainsStyles(tree)
-      treeConfig.coverImage.fold(tree) { image =>
-        treeWithStyles.copy(tree = treeWithStyles.tree.copy(
+      treeConfig.coverImage.fold(root) { image =>
+        root.copy(tree = root.tree.copy(
           content = Document(Root / "cover", RootElement(SpanSequence(Image(InternalTarget(image), alt = Some("cover")))), 
-          config = ConfigBuilder.empty.withValue(LaikaKeys.title, "Cover").build) +: tree.tree.content
+          config = ConfigBuilder.empty.withValue(LaikaKeys.title, "Cover").build) +: root.tree.content
         ))
       }
     }.left.map(ConfigException)
