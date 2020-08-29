@@ -245,7 +245,7 @@ class TreePosition private (private val positions: Option[Seq[Int]]) extends Ord
   def toSeq: Seq[Int] = positions.getOrElse(Nil)
   
   override def toString: String = positions match {
-    case None => "TreePosition.none"
+    case None => "TreePosition.orphan"
     case Some(Nil) => "TreePosition.root"
     case Some(pos) => s"TreePosition(${pos.mkString(".")})"
   } 

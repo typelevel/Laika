@@ -20,9 +20,7 @@ import cats.effect.Sync
 import cats.implicits._
 import laika.ast.Path.Root
 import laika.io.model.InputTree
-import laika.io.runtime.{InputRuntime, Runtime}
-
-import scala.io.Codec
+import laika.io.runtime.Runtime
 
 private[helium] object MergedCSSGenerator {
 
@@ -36,19 +34,9 @@ private[helium] object MergedCSSGenerator {
       .addClasspathResource("laika/helium/css/toc.css", Root / "css" / "toc.css")
       .build
     
-    def merge (inputs: InputTree[F]): F[String] = {
-      inputs.binaryInputs.map(_.asResource).toList.sequence.use { streams =>
-        streams.map { stream =>
-          InputRuntime.textStreamResource(Sync[F].pure(stream), Codec.UTF8, autoClose = false).use { reader => 
-            InputRuntime.readAll(reader, 4000)
-          }
-        }.sequence.map(_.mkString("\n\n"))
-      }
-    }
-    
     for {
       inputs <- inputTree
-      merged <- merge(inputs)
+      merged <- MergedStringInputs.merge(inputs.binaryInputs)
     } yield varBlock + merged
   }
   
