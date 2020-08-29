@@ -40,6 +40,8 @@ object LaikaKeys {
   
   val navigationOrder: Key = root.child("navigationOrder")
   
+  val firstHeaderAsTitle: Key = root.child("firstHeaderAsTitle")
+  
   val artifactBaseName: Key = root.child("artifactBaseName")
   
   val coverImage: Key = root.child("coverImage")

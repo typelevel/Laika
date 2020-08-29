@@ -18,10 +18,12 @@ package laika.parse.code.languages
 
 import laika.api.MarkupParser
 import laika.ast._
+import laika.config.LaikaKeys
 import laika.format.Markdown
 import laika.markdown.github.GitHubFlavor
 import laika.parse.code.{CodeCategory, SyntaxHighlighting}
 import laika.parse.code.CodeCategory._
+import laika.parse.markup.DocumentParser.ParserError
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
@@ -33,8 +35,13 @@ class LanguageSpec extends AnyWordSpec with Matchers {
   
   "The syntax highlighter for code blocks" should {
     
-    def parse (input: String): RootElement = 
-      MarkupParser.of(Markdown).using(GitHubFlavor, SyntaxHighlighting).build.parse(input).toOption.get.content
+    def parse (input: String): Either[ParserError, RootElement] = MarkupParser
+      .of(Markdown)
+      .using(GitHubFlavor, SyntaxHighlighting)
+      .withConfigValue(LaikaKeys.firstHeaderAsTitle, true)
+      .build
+      .parse(input)
+      .map(_.content)
     
     val space: CodeSpan = CodeSpan(" ")
     val colonSpace: CodeSpan = CodeSpan(": ")
@@ -60,10 +67,10 @@ class LanguageSpec extends AnyWordSpec with Matchers {
     def other(value: String): CodeSpan = CodeSpan(value)
     def multiline(value: String): CodeSpan = string("\"\"\""+value+"\"\"\"")
     
-    def result(lang: String, spans: CodeSpan*): RootElement = RootElement(
+    def result(lang: String, spans: CodeSpan*): Either[ParserError, RootElement] = Right(RootElement(
       Title(Seq(Text("Doc")), Style.title + Id("doc")),
       CodeBlock(lang, spans.toSeq)
-    )
+    ))
     
     trait TagFormats {
       def string(value: String): CodeSpan = CodeSpan("\"" + value + "\"", StringLiteral)

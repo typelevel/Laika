@@ -18,8 +18,11 @@ package laika.ast
 
 import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
+import laika.ast.Path.Root
 import laika.ast.helper.ModelBuilder
+import laika.config.LaikaKeys
 import laika.format.Markdown
+import laika.parse.markup.DocumentParser.ParserError
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
@@ -28,7 +31,7 @@ class DocumentAPISpec extends AnyFlatSpec
   with ModelBuilder {
 
 
-  val parser = MarkupParser.of(Markdown).build
+  val defaultParser = MarkupParser.of(Markdown).build
 
   "The Document API" should "allow to specify a title in a config section" in {
     val markup = """{% laika.title: Foo and Bar %}
@@ -41,10 +44,10 @@ class DocumentAPISpec extends AnyFlatSpec
       |
       |Some more text""".stripMargin
 
-    parser.parse(markup).toOption.get.title should be (Some(SpanSequence("Foo and Bar")))
+    defaultParser.parse(markup).toOption.get.title should be (Some(SpanSequence("Foo and Bar")))
   }
 
-  it should "use the title from the first headline if it is not overridden in a config section" in {
+  it should "should have no title if run in the default mode for pure parsers where title extraction is disabled" in {
     val markup = """# Title
       |
       |Some text
@@ -53,7 +56,24 @@ class DocumentAPISpec extends AnyFlatSpec
       |
       |Some more text""".stripMargin
 
-    parser.parse(markup).toOption.get.title should be (Some(SpanSequence("Title")))
+    defaultParser.parse(markup).toOption.get.title should be (None)
+  }
+
+  it should "use the title from the first headline if it is not overridden in a config section and title extraction is enabled" in {
+    val markup = """# Title
+                   |
+                   |Some text
+                   |
+                   |## Section
+                   |
+                   |Some more text""".stripMargin
+
+    MarkupParser
+      .of(Markdown)
+      .withConfigValue(LaikaKeys.firstHeaderAsTitle, true)
+      .build
+      .parse(markup)
+      .flatMap(_.title.toRight(ParserError("no title", Root))) should be (Right(SpanSequence("Title")))
   }
 
   it should "return an empty list if there is neither a structure with a title nor a title in a config section" in {
@@ -61,7 +81,7 @@ class DocumentAPISpec extends AnyFlatSpec
       |
       |Some more text""".stripMargin
 
-    parser.parse(markup).toOption.get.title should be (None)
+    defaultParser.parse(markup).toOption.get.title should be (None)
   }
 
   it should "produce the same result when rewriting a document once or twice" in {
@@ -73,7 +93,7 @@ class DocumentAPISpec extends AnyFlatSpec
       |
       |Some more text""".stripMargin
     
-    val doc = parser.parseUnresolved(markup).toOption.get.document
+    val doc = defaultParser.parseUnresolved(markup).toOption.get.document
 
     val rewritten1 = doc.rewrite(OperationConfig.default.rewriteRulesFor(doc))
     val rewritten2 = rewritten1.rewrite(OperationConfig.default.rewriteRulesFor(rewritten1))
@@ -91,13 +111,12 @@ class DocumentAPISpec extends AnyFlatSpec
       |
       |Some more text""".stripMargin
 
-    val raw = parser.parseUnresolved(markup).toOption.get.document
-    val cursor = DocumentCursor(raw)
+    val raw = defaultParser.parseUnresolved(markup).toOption.get.document
     val testRule = RewriteRules.forSpans {
       case Text("Some text",_) => Replace(Text("Swapped"))
     }
-    val rules = testRule ++ OperationConfig.default.rewriteRulesFor(cursor.target)
-    val rewritten = raw rewrite rules
+    val rules = testRule ++ OperationConfig.default.rewriteRulesFor(raw.copy(position = TreePosition.root))
+    val rewritten = raw.rewrite(rules)
     rewritten.content should be (root(
       Title(List(Text("Title")), Id("title") + Style.title),
       Section(Header(1, List(Text("Section 1")), Id("section-1") + Style.section), List(p("Swapped"))),

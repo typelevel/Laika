@@ -21,6 +21,7 @@ import cats.data.NonEmptySet
 import laika.api.Transformer
 import laika.ast.Path.Root
 import laika.ast.{InternalTarget, _}
+import laika.config.LaikaKeys
 import laika.file.FileIO
 import laika.format.{HTML, ReStructuredText}
 import laika.html.TidyHTML
@@ -47,8 +48,11 @@ class ReStructuredTextToHTMLSpec extends AnyFlatSpec
       .replace("\r\n", "\n")
       .replace("\r", "\n")
       .replaceAll("([^\n])</", "$1\n</") // rst often inserts a new line before a closing tag
-      .replace("$Revision: 7629 $","7629").replace("$Date: 2013-03-11 21:01:03 +0000 (Mon, 11 Mar 2013) $","2013-03-11") // RCS field substitution not supported
-      .replace("""class="field-list"""", """class="docinfo"""").replace("""class="field-name"""","""class="docinfo-name"""").replace("""class="field-body"""","""class="docinfo-content"""") // docinfo field lists deferred to 0.4
+      .replace("$Revision: 7629 $","7629")
+      .replace("$Date: 2013-03-11 21:01:03 +0000 (Mon, 11 Mar 2013) $","2013-03-11") // RCS field substitution not supported
+      .replace("""class="field-list"""", """class="docinfo"""")
+      .replace("""class="field-name"""","""class="docinfo-name"""")
+      .replace("""class="field-body"""","""class="docinfo-content"""") // docinfo field lists deferred to 0.4
     
     TidyHTML(prepared)
       .replace("<col></colgroup>", "<col>\n</colgroup>") // fix for JTidy oddity
@@ -109,10 +113,12 @@ class ReStructuredTextToHTMLSpec extends AnyFlatSpec
         case (fmt, TitledBlock(title, content, opt)) => fmt.indentedElement("div", opt, Paragraph(title,Styles("admonition-title")) +: content)
         case (fmt, QuotedBlock(content,attr,opt)) => renderBlocks(fmt, "blockquote", opt, quotedBlockContent(content,attr))
         case (fmt, InternalLinkTarget(opt))       => fmt.textElement("span", opt, "")
-        case (_, i: InvalidBlock)                 => ""
+        case (_, _: InvalidBlock)                 => ""
      }
       .failOnMessages(MessageFilter.None)
-      .build.transform(input, Root / "doc")
+      .withConfigValue(LaikaKeys.firstHeaderAsTitle, true)
+      .build
+      .transform(input, Root / "doc")
     
     val expected = FileIO.readFile(path + "-tidy.html")
     tidyAndAdjust(actual.toOption.get) should be (expected)

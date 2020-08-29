@@ -17,6 +17,7 @@
 package laika.api
 
 import laika.ast._
+import laika.config.LaikaKeys
 import laika.format._
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -38,7 +39,7 @@ class TransformAPISpec extends AnyFlatSpec
     |. . Emphasized - Spans: 1
     |. . . Text - 'foo'""".stripMargin
     
-  val builder = Transformer.from(Markdown).to(AST)
+  val builder = Transformer.from(Markdown).to(AST).withConfigValue(LaikaKeys.firstHeaderAsTitle, true)
   
   
   "The Transform API" should "transform from string to string" in {

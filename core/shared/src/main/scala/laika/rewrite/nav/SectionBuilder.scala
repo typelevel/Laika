@@ -18,6 +18,7 @@ package laika.rewrite.nav
 
 import laika.ast._
 import laika.collection.Stack
+import laika.config.LaikaKeys
 import laika.rewrite.nav
 
 import scala.collection.mutable.ListBuffer
@@ -65,7 +66,11 @@ object SectionBuilder extends (DocumentCursor => RewriteRules) {
 
       val docPosition = if (autonumberConfig.documents) cursor.position else TreePosition.root
       
-      val (titleSection, rest) = {
+      val extractTitle = cursor.config
+        .get[Boolean](LaikaKeys.firstHeaderAsTitle)
+        .getOrElse(cursor.position != TreePosition.none)
+      
+      val (titleSection, rest) = if (!extractTitle) (Nil, document.content) else {
         
         val title = document.content.collectFirst {
           case h: Header =>

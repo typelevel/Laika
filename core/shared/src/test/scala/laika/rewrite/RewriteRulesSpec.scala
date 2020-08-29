@@ -21,7 +21,7 @@ import laika.ast.Path.Root
 import laika.ast.RelativePath.{CurrentDocument, Parent}
 import laika.ast._
 import laika.ast.helper.ModelBuilder
-import laika.config.{Config, ConfigBuilder, ConfigParser}
+import laika.config.{Config, ConfigBuilder, ConfigParser, LaikaKeys}
 import laika.rewrite.link.{InternalLinkMapping, LinkConfig}
 import laika.rst.ast.Underline
 import org.scalatest.matchers.should.Matchers
@@ -31,8 +31,10 @@ class RewriteRulesSpec extends AnyWordSpec
   with Matchers
   with ModelBuilder {
 
-  def rewritten (root: RootElement): RootElement = {
-    val doc = Document(Path.Root / "doc", root, config = disableInternalLinkValidation)
+  def rewritten (root: RootElement, withTitles: Boolean = true): RootElement = {
+    val config = if (withTitles) disableInternalLinkValidation.withValue(LaikaKeys.firstHeaderAsTitle, true).build
+                 else disableInternalLinkValidation
+    val doc = Document(Path.Root / "doc", root, config = config)
     val rules = OperationConfig.default.rewriteRulesFor(doc)
     doc.rewrite(rules).content
   }
@@ -431,6 +433,19 @@ class RewriteRulesSpec extends AnyWordSpec
         Section(Header(1, List(Text("Header 1")), Id("header-1") + Style.section), List(
           Section(Header(2, List(Text("Header 2")), Id("header-2") + Style.section), Nil))),
         Section(Header(1, List(Text("Header 3")), Id("header-3") + Style.section), Nil)))
+    }
+    
+    "not create title nodes in the default configuration for orphan documents" in {
+      val rootElem = root(
+        DecoratedHeader(Underline('#'), List(Text("Title"))),
+        DecoratedHeader(Underline('#'), List(Text("Header 1"))),
+        DecoratedHeader(Underline('#'), List(Text("Header 2")))
+      )
+      rewritten(rootElem, withTitles = false) should be(root(
+        Section(Header(1, List(Text("Title")), Id("title") + Style.section), Nil),
+        Section(Header(1, List(Text("Header 1")), Id("header-1") + Style.section), Nil),
+        Section(Header(1, List(Text("Header 2")), Id("header-2") + Style.section), Nil)
+      ))
     }
 
   }
