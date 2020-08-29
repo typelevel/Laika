@@ -75,6 +75,14 @@ sealed trait ThemeTarget {
 }
 
 /** Companion for creating ThemeTarget instances.
+  * 
+  * This is a type tailored for theme configuration as it limits the way a target can be defined:
+  * it has to be either an external URL or an absolute, internal path.
+  * 
+  * A relative internal path would be impossible to interpret in global theme configuration,
+  * since a relative path can only be resolved from the perspective of a concrete document.
+  * Laika's core AST and its `Target` type are most often used by parsers when constructing
+  * the result of parsed markup, and inside a markup document relative paths can be properly resolved.
   */
 object ThemeTarget {
 
@@ -97,4 +105,18 @@ object ThemeTarget {
     val description = s"external target: '$url'"
     def resolve  (cursor: DocumentCursor): Either[String, Target] = Right(ExternalTarget(url))
   }
+}
+
+/** A logo type that can be used in various Helium configuration options.
+  * The only required property is the target, which is either an external URL or an internal, relative path.
+  */
+case class ThemeLogo (target: ThemeTarget, 
+                      width: Option[Size] = None, 
+                      height: Option[Size] = None,
+                      alt: Option[String] = None,
+                      title: Option[String] = None,
+                      options: Options = NoOpt) extends ThemeLink {
+  type Self = ThemeLogo
+  protected def createLink (target: Target): Span = Image(target, width, height, alt, title)
+  def withOptions(newOptions: Options): ThemeLogo = copy(options = newOptions)
 }

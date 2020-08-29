@@ -38,7 +38,7 @@ private[helium] case class PDFLayout (pageWidth: Size, pageHeight: Size,
 
 private[helium] case class TableOfContent (title: String, depth: Int)
 
-private[helium] case class TopNavigationBar (logo: Option[Image], links: Seq[ThemeLink])
+private[helium] case class TopNavigationBar (logo: Option[ThemeLogo], links: Seq[ThemeLink])
 
 private[helium] object TopNavigationBar {
   val default: TopNavigationBar = TopNavigationBar(None, Nil) // TODO - use home icon instead of image if empty
@@ -47,7 +47,7 @@ private[helium] object TopNavigationBar {
 private[helium] case class DownloadPage (title: String, description: Option[String], downloadPath: Path = Root / "downloads", 
                                         includeEPUB: Boolean = true, includePDF: Boolean = true)
 
-private[helium] case class LandingPage (logo: Option[Image] = None,
+private[helium] case class LandingPage (logo: Option[ThemeLogo] = None,
                                         title: Option[String] = None,
                                         subtitle: Option[String] = None,
                                         latestReleases: Seq[ReleaseInfo] = Nil,
