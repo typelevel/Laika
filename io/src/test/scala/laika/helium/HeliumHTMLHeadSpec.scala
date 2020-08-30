@@ -136,6 +136,33 @@ class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
                      |<script> /* for avoiding page load transitions */ </script>""".stripMargin
     transformAndExtractHead(inputs).assertEquals(expected)
   }
+
+  test("custom configuration for CSS and JS file locations") {
+    val inputs = Seq(
+      Root / "name.md" -> "text",
+      Root / "web" / "foo.js" -> "",
+      Root / "web" / "foo.css" -> "",
+      Root / "custom-js" / "foo.js" -> "",
+      Root / "custom-css" / "foo.css" -> "",
+    )
+    val helium = Helium.defaults
+      .site.autoLinkCSS(Root / "custom-css")
+      .site.autoLinkJS(Root / "custom-js")
+    val expected = """<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+                     |<meta charset="utf-8">
+                     |<meta name="viewport" content="width=device-width, initial-scale=1.0">
+                     |<meta name="generator" content="Laika 0.16.0 + Helium Theme" />
+                     |<title></title>
+                     |<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lato:400,700">
+                     |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+                     |<link rel="stylesheet" href="../icons/icofont.min.css">
+                     |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
+                     |<link rel="stylesheet" type="text/css" href="custom-css/foo.css" />
+                     |<script src="helium/laika-helium.js"></script>
+                     |<script src="custom-js/foo.js"></script>
+                     |<script> /* for avoiding page load transitions */ </script>""".stripMargin
+    transformAndExtractHead(inputs, helium).assertEquals(expected)
+  }
   
   test("metadata (authors, description)") {
     val helium = Helium.defaults.all.metadata(
