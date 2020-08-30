@@ -292,7 +292,7 @@ class TreeRendererSpec extends IOWordSpec
       new EPUB_XHTMLRenderer {
         val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
         val expected = RenderResult.epub.withDefaultTemplate("Title", """<h1 id="title" class="title">Title</h1>
-                                                                        |      <p>bbb</p>""".stripMargin)
+                                                                        |<p>bbb</p>""".stripMargin)
         val path = (Root / "doc").withSuffix("epub.xhtml")
         renderedTree.assertEquals(RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(path, expected))))))
       }

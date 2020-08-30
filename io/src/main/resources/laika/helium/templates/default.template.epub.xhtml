@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html lang="${?laika.site.metadata.language}" xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
+  <head>
+    <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8" />
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="generator" content="Laika 0.16.0 + Helium Theme" />
+    <title>${cursor.currentDocument.title}</title>
+    @:for(laika.site.metadata.authors)
+      <meta name="author" content="${_}"/>
+    @:@
+    @:for(laika.site.metadata.description)
+      <meta name="description" content="${_}"/>
+    @:@
+    @:linkCSS { paths = ${helium.site.includeCSS} }
+    @:linkJS { paths = ${helium.site.includeJS} }    
+    <script> /* for avoiding page load transitions */ </script>
+  </head>
+
+  <body epub:type="bodymatter">
+
+    <main class="content">
+
+      ${cursor.currentDocument.content}
+
+    </main>
+
+  </body>
+</html>

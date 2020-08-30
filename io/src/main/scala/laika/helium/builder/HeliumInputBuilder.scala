@@ -19,9 +19,8 @@ package laika.helium.builder
 import cats.effect.Sync
 import cats.implicits._
 import laika.ast.Path.Root
-import laika.ast.TemplateDocument
 import laika.helium.Helium
-import laika.helium.generate.{CSSVarGenerator, EPUBTemplate, FOStyles, MergedCSSGenerator}
+import laika.helium.generate.{CSSVarGenerator, FOStyles, MergedCSSGenerator}
 import laika.io.model.{InputTree, InputTreeBuilder}
 import laika.io.runtime.Runtime
 import laika.rewrite.DefaultTemplatePath
@@ -47,7 +46,7 @@ private[helium] object HeliumInputBuilder {
     }
   
     val themeInputs = fontInputs
-      .addTemplate(TemplateDocument(DefaultTemplatePath.forEPUB, EPUBTemplate.default))
+      .addClasspathResource("laika/helium/templates/default.template.epub.xhtml", DefaultTemplatePath.forEPUB)
       .addClasspathResource("laika/helium/templates/default.template.html", DefaultTemplatePath.forHTML)
       .addClasspathResource("laika/helium/templates/landing.template.html", Root / "landing.template.html")
       .addClasspathResource("laika/helium/templates/default.template.fo", DefaultTemplatePath.forFO)
