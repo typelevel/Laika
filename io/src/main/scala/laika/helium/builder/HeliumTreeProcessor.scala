@@ -42,20 +42,15 @@ private[helium] class HeliumTreeProcessor[F[_]: Sync](helium: Helium) {
 
   private def filterFonts (format: Format): TreeProcessor[F] = format match {
     case _: TwoPhaseRenderFormat[_,_] => noOp
-    case _ => Kleisli { tree: ParsedTree[F] =>
-      Sync[F].pure(tree.removeStaticDocuments(_.isSubPath(Root / "laika" / "fonts")))
-    }
+    case _ => noOp.map { _.removeStaticDocuments(_.isSubPath(Root / "laika" / "fonts")) }
   }
 
   private def filterCSSandJS (format: Format): TreeProcessor[F] = format match {
-    case HTML => Kleisli { tree: ParsedTree[F] =>
-      Sync[F].pure(tree.removeStaticDocuments(_.suffix.contains("epub.css")))
-    }
-    case EPUB | EPUB.XHTML => Kleisli { tree: ParsedTree[F] =>
-      val filter: Path => Boolean = path =>
+    case HTML => noOp.map { _.removeStaticDocuments(_.suffix.contains("epub.css")) }
+    case EPUB | EPUB.XHTML => 
+      noOp.map { _.removeStaticDocuments { path =>
         (path.isSubPath(Root / "helium") && path.suffix.contains("js")) || path.suffix.contains("css")
-      Sync[F].pure(tree.removeStaticDocuments(filter))
-    }
+      }}
     case _ => noOp
   }
 
