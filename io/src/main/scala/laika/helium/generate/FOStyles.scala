@@ -374,7 +374,7 @@ private[laika] class FOStyles (helium: Helium) {
     |  keep-with-next: always;
     |}
     |
-    |.keep-together {
+    |.keep-together.pdf {
     |  page-break-inside: avoid;
     |}
     |

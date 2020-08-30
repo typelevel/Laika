@@ -46,6 +46,7 @@ private[helium] case class EPUBSettings (bookConfig: BookConfig,
                                          fontSizes: FontSizes,
                                          colors: ColorSet,
                                          htmlIncludes: HTMLIncludes,
+                                         keepTogetherDecoratedLines: Int,
                                          tableOfContent: Option[TableOfContent],
                                          coverImages: Seq[CoverImage])
 

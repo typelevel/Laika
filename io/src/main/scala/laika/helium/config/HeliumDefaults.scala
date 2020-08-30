@@ -123,6 +123,7 @@ private[helium] object HeliumDefaults {
     ),
     colors = colors(syntaxLightScheme),
     htmlIncludes = HTMLIncludes(),
+    keepTogetherDecoratedLines = 12,
     coverImages = Nil,
     tableOfContent = None
   )

@@ -17,7 +17,7 @@
 package laika.helium.builder
 
 import laika.ast._
-import laika.helium.config.PDFSettings
+import laika.helium.Helium
 
 /**
   * @author Jens Halm
@@ -28,8 +28,9 @@ private[helium] object HeliumRewriteRules {
     */
   def estimateLines (blocks: Seq[Block]): Int = blocks.collect {
     case s: Section => estimateLines(s.content) + 1
-    case sp: SpanContainer  => sp.extractText.count(_ == '\n') + 1
+    case sc: SpanContainer  => sc.extractText.count(_ == '\n') + 1
     case bc: BlockContainer => estimateLines(bc.content)
+    case tc: TextContainer  => tc.content.count(_ == '\n') + 1
     case ni: NavigationItem => 1 + estimateLines(ni.content)
     case lc: ListContainer  =>  lc.content.map {
       case bc: BlockContainer => estimateLines(bc.content)
@@ -40,12 +41,17 @@ private[helium] object HeliumRewriteRules {
       row.content.map(cell => estimateLines(cell.content)).max
     }.sum
   }.sum
+  
+  private def applyStyles (block: Block, count: Int, helium: Helium): RewriteAction[Block] = {
+    val pdf = if (count <= helium.pdfSettings.layout.keepTogetherDecoratedLines) Some("pdf") else None
+    val epub = if (count <= helium.epubSettings.keepTogetherDecoratedLines) Some("epub") else None
+    if (pdf.isEmpty && epub.isEmpty) Retain
+    else Replace(block.mergeOptions(Style.keepTogether + Styles(pdf.toSet ++ epub.toSet)))
+  }
 
-  def build (pdfSettings: PDFSettings): RewriteRules = RewriteRules.forBlocks {
-    case cb: CodeBlock if cb.extractText.count(_ == '\n') <= pdfSettings.layout.keepTogetherDecoratedLines =>
-      Replace(cb.mergeOptions(Style.keepTogether))
-    case bs: BlockSequence if bs.options.styles.contains("callout") && estimateLines(bs.content) <= pdfSettings.layout.keepTogetherDecoratedLines =>
-      Replace(bs.mergeOptions(Style.keepTogether))
+  def build (helium: Helium): RewriteRules = RewriteRules.forBlocks {
+    case cb: CodeBlock => applyStyles(cb, cb.extractText.count(_ == '\n') + 1, helium)
+    case bs: BlockSequence if bs.options.styles.contains("callout") => applyStyles(bs, estimateLines(bs.content), helium)
   }
   
 }
