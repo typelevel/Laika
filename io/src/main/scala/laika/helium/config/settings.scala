@@ -20,7 +20,7 @@ import java.time.Instant
 import java.util.Date
 
 import laika.ast.Path.Root
-import laika.ast.{DocumentMetadata, Image, Path, Size}
+import laika.ast.{DocumentMetadata, Path, Size}
 import laika.helium.Helium
 import laika.rewrite.nav.CoverImage
 import laika.theme.config.{BookConfig, Color, FontDefinition}

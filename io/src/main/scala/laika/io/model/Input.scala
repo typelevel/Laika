@@ -395,6 +395,13 @@ object DirectoryInput {
   */
 case class ParsedTree[F[_]] (root: DocumentTreeRoot, staticDocuments: Seq[BinaryInput[F]]) {
 
+  /** Removes all static documents of this instance that match the specified filter.
+    */
+  def removeStaticDocuments (filter: Path => Boolean): ParsedTree[F] = copy(
+    root = root.copy(staticDocuments = root.staticDocuments.filterNot(filter)),
+    staticDocuments = staticDocuments.filterNot(doc => filter(doc.path))
+  )
+  
   /** Removes all static documents of this instance and replaces them with the specified alternatives.
     */
   def replaceStaticDocuments (newStaticDocs: Seq[BinaryInput[F]]): ParsedTree[F] = copy(
