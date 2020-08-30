@@ -46,6 +46,7 @@ private[helium] case class EPUBSettings (bookConfig: BookConfig,
                                          fontSizes: FontSizes,
                                          colors: ColorSet,
                                          htmlIncludes: HTMLIncludes,
+                                         tableOfContent: Option[TableOfContent],
                                          coverImages: Seq[CoverImage])
 
 private[helium] trait CommonConfigOps {
@@ -154,6 +155,14 @@ private[helium] trait CommonConfigOps {
                 language: Option[String] = None,
                 date: Option[Instant] = None,
                 version: Option[String] = None): Helium
+
+  /** Adds a dedicated page for a table of content, in addition to the reader-native navigation structure.
+    *
+    * @param title the title to display on the page and in navigation that links to the page
+    * @param depth the navigation depth which may be different than the one for the reader-native navigation structure
+    */
+  def tableOfContent (title: String, depth: Int): Helium
+
 }
 
 private[helium] trait SingleConfigOps extends CommonConfigOps {
@@ -250,6 +259,10 @@ private[helium] trait AllFormatsOps extends CommonConfigOps {
                 version: Option[String] = None): Helium = formats.foldLeft(helium) {
     case (helium, format) =>
       format(helium).metadata(title, description, identifier, authors, language, date, version)
+  }
+  def tableOfContent (title: String, depth: Int): Helium = formats.foldLeft(helium) {
+    case (helium, format) =>
+      format(helium).tableOfContent(title, depth) 
   }
 }
 
@@ -427,6 +440,14 @@ private[helium] trait EPUBOps extends SingleConfigOps with CopyOps {
   def navigationDepth (depth: Int): Helium =
     copyWith(helium.epubSettings.copy(bookConfig = helium.epubSettings.bookConfig.copy(navigationDepth = Some(depth))))
 
+  /** Adds a dedicated page for a table of content, in addition to the left navigation bar.
+    *
+    * @param title the title to display on the page and in navigation that links to the page
+    * @param depth the navigation depth which may be different than the one for the navigation bar
+    */
+  def tableOfContent (title: String, depth: Int): Helium =
+    copyWith(helium.epubSettings.copy(tableOfContent = Some(TableOfContent(title, depth))))
+  
   /** Auto-links CSS documents from the specified paths.
     * By default all CSS documents found anywhere in the input tree will be linked in HTML files.
     * This setting allows to narrow it down to one or more dedicated paths within the virtual tree,

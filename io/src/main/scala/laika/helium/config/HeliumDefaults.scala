@@ -123,7 +123,8 @@ private[helium] object HeliumDefaults {
     ),
     colors = colors(syntaxLightScheme),
     htmlIncludes = HTMLIncludes(),
-    coverImages = Nil
+    coverImages = Nil,
+    tableOfContent = None
   )
 
   private val defaultPDFSettings = PDFSettings(

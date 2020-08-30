@@ -1,0 +1,86 @@
+/*
+ * Copyright 2012-2020 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package laika.helium
+
+import cats.effect.IO
+import laika.api.Transformer
+import laika.ast.Path
+import laika.ast.Path.Root
+import laika.format.{EPUB, Markdown}
+import laika.io.helper.RenderResult.html
+import laika.io.helper.{InputBuilder, ResultExtractor, StringOps}
+import laika.io.implicits._
+import laika.io.model.StringTreeOutput
+import laika.io.{FileIO, IOFunSuite}
+import laika.theme._
+
+class HeliumEPUBTocPageSpec extends IOFunSuite with InputBuilder with ResultExtractor with StringOps {
+
+  def transformer (theme: ThemeProvider) = Transformer
+    .from(Markdown)
+    .to(EPUB.XHTML)
+    .io(FileIO.blocker)
+    .parallel[IO]
+    .withTheme(theme)
+    .build
+  
+  val inputs = Seq(
+    Root / "doc-1.md" -> "text",
+    Root / "doc-2.md" -> "text",
+    Root / "dir-1" / "doc-3.md" -> "text",
+    Root / "dir-1" / "sub-dir" / "doc-3.md" -> "text"
+  )
+  
+  def transformAndExtract(inputs: Seq[(Path, String)], helium: Helium, start: String, end: String): IO[String] = transformer(helium.build).use { t =>
+    for {
+      resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
+      res        <- IO.fromEither(resultTree.extractTidiedSubstring(Root / "table-of-contents.epub.xhtml", start, end)
+        .toRight(new RuntimeException("Missing document under test")))
+    } yield res
+  }
+    
+  test("no table of content page configured") {
+    transformAndExtract(inputs, Helium.defaults, "", "")
+      .assertFailsWithMessage("Missing document under test")
+  }
+  
+  test("table of content included") {
+    val expected = """<head>
+                     |<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8" />
+                     |<meta charset="utf-8"/>
+                     |<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+                     |<meta name="generator" content="Laika 0.16.0 + Helium Theme" />
+                     |<title>Contents</title>
+                     |<link rel="stylesheet" type="text/css" href="helium/laika-helium.epub.css" />
+                     |<script> /* for avoiding page load transitions */ </script>
+                     |</head>
+                     |<body epub:type="bodymatter">
+                     |<main class="content">
+                     |<h1>Contents</h1>
+                     |<ul class="toc nav-list">
+                     |<li class="level1 toc"><a href="doc-1.epub.xhtml">doc-1.md</a></li>
+                     |<li class="level1 toc"><a href="doc-2.epub.xhtml">doc-2.md</a></li>
+                     |<li class="level1 toc nav-header">dir-1</li>
+                     |<li class="level2 toc"><a href="dir-1/doc-3.epub.xhtml">doc-3.md</a></li>
+                     |</ul>
+                     |</main>
+                     |</body>""".stripMargin
+    val helium = Helium.defaults.epub.tableOfContent("Contents", 2)
+    transformAndExtract(inputs, helium, """<html lang="" xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">""", "</html>").assertEquals(expected)
+  }
+
+}
