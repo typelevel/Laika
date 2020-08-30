@@ -83,27 +83,6 @@ class XHTMLRendererSpec extends IOWordSpec with ModelBuilder with FileIO {
 
   "The XHTML Renderer for EPUB" should {
 
-    "render a tree with 2 documents and 2 style sheets" ignore { // TODO - 0.16 - resurrect when template has been adjusted
-      new DocBuilder with StringRenderer {
-        val input = DocumentTreeRoot(
-          tree = DocumentTree(Root,
-            content = List(
-              markupDoc(1),
-              DocumentTree(Root / "sub", content = List(markupDoc(2, Root / "sub")))
-            )
-          ),
-          staticDocuments = Seq(Root / "sub" / "styles2.css", Root / "styles1.css"),
-        )
-
-        val expected = Seq(
-          RenderedDocument((Root / "doc1").withSuffix("epub.xhtml"), None, Nil, renderedXhtml(1, "sub/styles2.css", "styles1.css")),
-          RenderedDocument((Root / "sub" / "doc2").withSuffix("epub.xhtml"), None, Nil, renderedXhtml(2, "styles2.css", "../styles1.css"))
-        )
-
-        renderedDocs(input).assertEquals(expected)
-      }
-    }
-
     "render a paragraph containing a citation link with an epub:type attribute" in {
       val elem = p(Text("some "), CitationLink("ref", "label"), Text(" span"))
       defaultRenderer.render(elem) should be("""<p>some <a class="citation" href="#ref" epub:type="noteref">[label]</a> span</p>""")
