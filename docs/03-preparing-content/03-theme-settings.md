@@ -301,7 +301,11 @@ Helium.defaults
 
 For dark themes the base colors have to go from dark to light, for light themes the other way round.
 
-@:todo(maybe list some of the categories these colors are mapped to?)
+The base colors are used as background color (the first), for comments, punctuation, identifiers and uncategorized
+spans, the wheel colors are used for the more significant types of code spans. 
+Amongst others these are substitution references, annotations (1st color), keywords, escape sequences (2nd),
+attribute names, declaration names (3rd), all types of literals (4th), type names, tag names (5th), 
+and several categories for other types of syntax, e.g. in text markup.
 
 
 Layout
@@ -356,8 +360,6 @@ Finally, `keepTogetherDecoratedLines` controls the number of lines for decorated
 that should always be kept on the same page. 
 With the above setting of `12` only blocks with more than 12 lines are allowed to be split across multiple pages.
 
-@:todo(EPUB layout settings + extract navigationDepth from pdf layout options)
-
 
 Metadata
 --------
@@ -403,12 +405,11 @@ You can place a logo serving as home button into the middle of the top navigatio
 and a row of buttons or icons with links at the right corner.
 The left corner of the top bar is always reserved for the button to open or close the navigation.
 
-@:todo(improve internal target definitions or use ThemeTarget for the logo)
-
 ```scala
+val logoPath = ThemeTarget.internal(Root / "image.png")
 Helium.defaults.site
   .topNavigationBar(
-    logo = Some(Image(InternalTarget(imagePath, imagePath.relative), alt = Some("Homepage"), title = Some("Home"))), 
+    logo = Some(ThemeLogo(logoPath, alt = Some("Homepage"), title = Some("Home"))),
     links = Seq(
       IconLink(ThemeTarget.internal(Root / "doc-2.md"), HeliumIcon.demo),
       ButtonLink(ThemeTarget.external("http://somewhere.com/"), "Somewhere")
@@ -621,7 +622,8 @@ Custom Templates
 In cases where even custom CSS files do not give you the level of control you need, 
 the final step (apart from creating your own theme), would be to create your own default templates.
 
-As a starting point you can copy and modify Helium's default templates, which you can find here @:todo(link).
+As a starting point you can copy and modify Helium's default templates, which you can find 
+[here](https://github.com/planet42/Laika/tree/master/io/src/main/resources/laika/helium/templates).
 Or you can start from scratch and only use the existing templates as an inspiration.
 
 Any default templates placed into the user input directories will override the corresponding templates

@@ -201,7 +201,30 @@ Using AST nodes has the advantage that you do not have to pre-render the output 
 If it is a node type supported by Laika Core it is already known to all renderers, 
 allowing you to reduce the boilerplate and stringly logic of rendering the format directly.
 
-@:todo(add code sample when ThemeBuilder supports adding configuration)
+The below example shows how the `ThemeBuilder` API can be used to pre-populate the transformer configuration:
+
+```scala
+val logo = ThemeLogo(ThemeTarget.internal(Root / "logo.png"), alt = Some("Project Logo"))
+
+val baseConfig = ConfigBuilder.empty
+  .withValue("theme-name.logo", logo)
+  .build
+
+ThemeBuilder("Theme Name")
+  .addBaseConfig(baseConfig)
+  .build
+```
+
+It defines a logo AST element, based on the virtual path `Root / "logo.png"` and associates it with the key
+`theme-name.logo`.
+Finally it passes the configuration to the theme builder, making the logo available for templates via a
+substitution reference (`${theme-name.logo}`).
+
+The indirection via the configuration key means that even if the user customizes the default templates
+of the theme you created, these references can still be used by the end user.
+
+Of course the above example is a minimal excerpt of a typical theme builder, which would normally add more
+keys to the configuration and also use the theme builder to pre-populate templates and styles.
 
 
 ### CSS
@@ -233,14 +256,98 @@ EPUB or PDF documents.
 Ideally the license should also not require the users of the theme to add an attribution to each page.
 
 When including font defaults for convenience, the theme's configuration API should always allow for their replacement.
+The API should accept a sequence of `FontDefinition` instances that define the fonts to be embedded.
 
-@:todo(add hook to add configured fonts to `ThemeBuilder` API)
+These definitions can then be passed to the base configuration of the theme (which will be merged with the 
+user configuration):
+
+```scala
+val fonts: Seq[FontDefinition] = ???
+val baseConfig = ConfigBuilder.empty
+  .withValue("laika.epub.fonts", fonts)
+  .withValue("laika.pdf.fonts", fonts)
+  .build
+  
+ThemeBuilder("Theme Name")
+  .addBaseConfig(baseConfig)
+  .build
+```
+
+Of course, like with Laika's default Helium theme, you can allow to define different fonts for EPUB and PDF.
+
+@:todo(add shortcut for adding configured fonts to `ThemeBuilder` API)
 
 
 Constructing a Theme Instance
 -----------------------------
 
-@:todo(write once the API is finalized)
+Finally all the templates, styles, configuration and fonts that you gather from the user's theme configuration
+or from your defaults if omitted, need to be assembled into a theme provider instance.
+
+This step will be very different for each theme depending on its feature set, 
+so we just show Laika's own Helium theme builder as an example:
+
+```scala
+private[helium] class HeliumThemeBuilder (helium: Helium) extends ThemeProvider {
+
+  def build[F[_]: Sync: Runtime]: Resource[F, Theme[F]] = {
+
+    import helium._
+
+    val treeProcessor = new HeliumTreeProcessor[F](helium)
+    val htmlOverrides = HeliumRenderOverrides
+                          .forHTML(siteSettings.layout.anchorPlacement)
+
+    ThemeBuilder("Helium")
+      .addInputs(HeliumInputBuilder.build(helium))
+      .addBaseConfig(ConfigGenerator.populateConfig(helium))
+      .addRewriteRules(HeliumRewriteRules.build(helium))
+      .addRenderOverrides(HTML.Overrides(htmlOverrides))
+      .addRenderOverrides(XSLFO.Overrides(HeliumRenderOverrides.forPDF))
+      .processTree(treeProcessor.forHTML, HTML)
+      .processTree(treeProcessor.forAllFormats)
+      .build
+
+  }
+}
+```
+
+As you can see, it is a very tiny class as it delegates to various other builders to properly separate concerns.
+Let's just highlight the most important aspects:
+
+* Your theme builder must implement `ThemeProvider` as that is ultimately the type that can be passed
+  to the library's transformer API or to the `laikaTheme` sbt setting.
+  An instance of this type is what the final call to `build` in your configuration API should produce.
+  
+* The `build` method will be invoked by Laika when the transformer resource is created.
+  It passes in the effect type as it is in the hand of the end user to select the concrete implementation,
+  any implementation of `cats.Sync` is supported.
+  It also provides a `Runtime` instance, which is a Laika type that encapsulates user runtime configuration
+  (the execution contexts to use, level of parallelism, etc.).
+  It has an API that allows to call `runBlocking` or `runParallel` which will use the user provided contexts.
+  
+* The `ThemeBuilder` is an optional API, but usually recommended as it reduces boilerplate.
+  The only requirement is that the `build` method returns a cats-effect `Resource[F, Theme[F]]`.
+  In the case of Helium, you can see that the API is used to: 
+  
+    a) Pre-populate the input tree with documents (templates, styles, JavaScript) via `addInputs`,
+       as described in [Generating or Loading Documents] above.
+    
+    b) Pre-populate the transformer configuration (e.g. with text or AST nodes that can be referenced in templates)
+       via `addBaseConfig` as shown in [Generating Configuration for Templates] above.
+       
+    c) Customize the rendering of some AST nodes with theme-specific features via `addRenderOverrides`.
+       In Helium this is used for rendering tabs for user-selectable content, anchors for copying section links,
+       and for adding custom icons to callouts.
+       See [Overriding Renderers] for details.
+       
+    d) Add AST rewrite rules via `addRewriteRules`, which is somewhat more low-level and allows to remove or swap
+       AST nodes between parsing and rendering.
+       See [AST Rewriting] for details on this topic.
+       
+    e) Finally, it adds or removes additional documents via `processTree` which allows for a final modification
+       of the document tree per output format, e.g. to remove a JavaScript file that your theme from the EPUB
+       output which is only intended for websites.
 
 
 Publishing a Theme
