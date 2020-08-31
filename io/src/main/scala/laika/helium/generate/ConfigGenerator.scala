@@ -72,6 +72,7 @@ private[laika] object ConfigGenerator {
     ConfigEncoder.ObjectBuilder.empty
       .withValue("text", links.text)
       .withValue("baseURL", links.baseURL.stripSuffix("/"))
+      .withValue("icon", HeliumIcon.edit)
       .build
   }
 
