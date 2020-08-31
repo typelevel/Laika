@@ -42,12 +42,16 @@ trait ResultExtractor {
         InputRuntime.readAll(reader, 4000)
       }
     }
+
+    def extractStaticContent (path: Path, blocker: Blocker): F[String] = for {
+      input   <- Sync[F].fromEither(root.staticDocuments.find(_.path == path)
+        .toRight(new RuntimeException(s"Not found: '$path'")))
+      content <- readText(input.asResource, blocker)
+    } yield content
     
     def extractStaticContent (path: Path, start: String, end: String, blocker: Blocker): F[String] =
       for {
-        input   <- Sync[F].fromEither(root.staticDocuments.find(_.path == path)
-                          .toRight(new RuntimeException(s"Not found: '$path'")))
-        content <- readText(input.asResource, blocker)
+        content <- extractStaticContent(path, blocker)
         res     <- Sync[F].fromEither(content.extract(start, end)
                           .toRight(new RuntimeException(s"No substring between: '$start' and '$end'")))
       } yield res.removeIndentation.removeBlankLines

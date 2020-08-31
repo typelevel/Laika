@@ -22,7 +22,7 @@ import laika.ast.LengthUnit.px
 import laika.ast.Path
 import laika.ast.Path.Root
 import laika.format.{EPUB, Markdown}
-import laika.helium.config.{AnchorPlacement, ColorQuintet}
+import laika.helium.config.ColorQuintet
 import laika.io.helper.{InputBuilder, ResultExtractor, StringOps}
 import laika.io.implicits._
 import laika.io.model.StringTreeOutput
@@ -47,6 +47,13 @@ class HeliumEPUBCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
     for {
       resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
       res        <- resultTree.extractStaticContent(Root / "helium" / "laika-helium.epub.css", start, end, FileIO.blocker)
+    } yield res
+  }
+
+  def transformAndExtract(inputs: Seq[(Path, String)], helium: Helium): IO[String] = transformer(helium.build).use { t =>
+    for {
+      resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
+      res        <- resultTree.extractStaticContent(Root / "helium" / "laika-helium.epub.css", FileIO.blocker)
     } yield res
   }
     
@@ -81,6 +88,50 @@ class HeliumEPUBCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                      |--header3-font-size: 20px;
                      |--header4-font-size: 15px;""".stripMargin
     transformAndExtract(singleDoc, Helium.defaults, ":root {", "}").assertEquals(expected)
+  }
+
+  test("embedded fonts") {
+    val expected = 
+      """@font-face {
+        |font-family: "Lato";
+        |font-weight: normal;
+        |font-style: normal;
+        |src: url("../laika/fonts/Lato-Regular.ttf");
+        |}
+        |@font-face {
+        |font-family: "Lato";
+        |font-weight: normal;
+        |font-style: italic;
+        |src: url("../laika/fonts/Lato-Italic.ttf");
+        |}
+        |@font-face {
+        |font-family: "Lato";
+        |font-weight: bold;
+        |font-style: normal;
+        |src: url("../laika/fonts/Lato-Bold.ttf");
+        |}
+        |@font-face {
+        |font-family: "Lato";
+        |font-weight: bold;
+        |font-style: italic;
+        |src: url("../laika/fonts/Lato-BoldItalic.ttf");
+        |}
+        |@font-face {
+        |font-family: "Fira Code";
+        |font-weight: normal;
+        |font-style: normal;
+        |src: url("../laika/fonts/FiraCode-Medium.otf");
+        |}
+        |@font-face {
+        |font-family: "IcoFont";
+        |font-weight: normal;
+        |font-style: normal;
+        |src: url("../laika/fonts/icofont.ttf");
+        |}
+        |""".stripMargin
+    transformAndExtract(singleDoc, Helium.defaults)
+      .map(_.removeIndentation.removeBlankLines.split(":root").head)
+      .assertEquals(expected)
   }
   
   private val customFonts = """--primary-color: #007c99;

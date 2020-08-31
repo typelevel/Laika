@@ -16,10 +16,21 @@
 
 package laika.helium.generate
 
+import laika.ast.RelativePath
+import laika.ast.Path.Root
 import laika.helium.config.{CommonSettings, EPUBSettings, SiteSettings}
+import laika.theme.config.FontDefinition
 
 private[helium] object CSSVarGenerator {
 
+  private def generateFontFace (fontDef: FontDefinition, path: RelativePath): String = 
+    s"""@font-face {
+        |  font-family: "${fontDef.family}";
+        |  font-weight: ${fontDef.weight.value.toLowerCase};
+        |  font-style: ${fontDef.style.value.toLowerCase};
+        |  src: url("$path");
+        |}""".stripMargin
+  
   def generate (settings: SiteSettings): String = {
     import settings.layout._
     val layoutStyles = Seq(
@@ -30,8 +41,14 @@ private[helium] object CSSVarGenerator {
     )
     generate(settings, layoutStyles)
   }
+  
   def generate (settings: EPUBSettings): String = {
-    generate(settings, Nil)
+    val embeddedFonts = settings.bookConfig.fonts.flatMap { font =>
+      font.resource.embedResource.map { res =>
+        generateFontFace(font, res.path.relativeTo(Root / "helium" / "laika-helium.epub.css"))
+      }
+    }.mkString("", "\n\n", "\n\n")
+    embeddedFonts + generate(settings, Nil)
   }
 
   def generate (common: CommonSettings, additionalStyles: Seq[(String, String)]): String = {
