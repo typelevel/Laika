@@ -753,7 +753,7 @@ class XSLFORendererSpec extends AnyFlatSpec
   }
 
   it should "render a paragraph containing an icon link" in {
-    val elem = p(Text("some "), SpanLink(Seq(Icon('\uefa2', Styles("icofont-laika"))), ExternalTarget("/foo")), Text(" span"))
+    val elem = p(Text("some "), SpanLink(Seq(Icon('\uefa2', options = Styles("icofont-laika"))), ExternalTarget("/foo")), Text(" span"))
     val fo = s"""<fo:block $defaultParagraphStyles>some <fo:basic-link color="#931813" external-destination="/foo" font-weight="bold"><fo:inline font-family="IcoFont" font-size="16pt">&#xefa2;</fo:inline></fo:basic-link> span</fo:block>"""
     render (elem) should be (fo)
   }

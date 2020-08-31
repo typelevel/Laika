@@ -1303,7 +1303,7 @@ object LengthUnit {
   * This approach would currently not work well with Laika's PDF support which is
   * not based on an interim HTML renderer.
   */
-case class Icon (codePoint: Char, options: Options = NoOpt) extends Span {
+case class Icon (codePoint: Char, title: Option[String] = None, options: Options = NoOpt) extends Span {
   def codePointAsEntity: String = s"&#x${Integer.toHexString(codePoint)};"
   type Self = Icon
   def withOptions(newOptions: Options): Icon = copy(options = newOptions)

@@ -104,7 +104,7 @@ class HeliumHTMLNavSpec extends IOFunSuite with InputBuilder with ResultExtracto
         |<li class="level1"><a href="#section-2">Section 2</a></li>
         |<li class="level2"><a href="#section-2-1">Section 2.1</a></li>
         |</ul>
-        |<p class="footer"><a href="https://github.com/my-project/doc-1.md">Source for this page</a></p>""".stripMargin
+        |<p class="footer"><a href="https://github.com/my-project/doc-1.md"><i class="icofont-laika" title="Edit">&#xef10;</i>Source for this page</a></p>""".stripMargin
     val helium = Helium.defaults.site.markupEditLinks("Source for this page", "https://github.com/my-project")
     transformAndExtract(inputs, helium, "<nav id=\"page-nav\">", "</nav>").assertEquals(expected)
   }
@@ -114,7 +114,7 @@ class HeliumHTMLNavSpec extends IOFunSuite with InputBuilder with ResultExtracto
       """<a id="nav-icon">
         |<i class="icofont-navigation-menu icofont-xlg"></i>
         |</a>
-        |<a href="index.html"><i class="icofont-laika">&#xef47;</i></a>
+        |<a href="index.html"><i class="icofont-laika" title="Home">&#xef47;</i></a>
         |<span class="row"></span>""".stripMargin
     transformAndExtract(inputs, Helium.defaults, "<header id=\"top-bar\">", "</header>").assertEquals(expected)
   }
@@ -125,7 +125,7 @@ class HeliumHTMLNavSpec extends IOFunSuite with InputBuilder with ResultExtracto
         |<i class="icofont-navigation-menu icofont-xlg"></i>
         |</a>
         |<a href="index.html"><img src="home.png" alt="Homepage" title="Home"></a>
-        |<span class="row"><a href="doc-2.html"><i class="icofont-laika">&#xeeea;</i></a><a class="button" href="http://somewhere.com/">Somewhere</a></span>""".stripMargin
+        |<span class="row"><a href="doc-2.html"><i class="icofont-laika" title="Demo">&#xeeea;</i></a><a class="button" href="http://somewhere.com/">Somewhere</a></span>""".stripMargin
     val imagePath = Root / "home.png"
     val helium = Helium.defaults.site
       .topNavigationBar(

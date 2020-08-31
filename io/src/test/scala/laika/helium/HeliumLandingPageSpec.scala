@@ -93,7 +93,7 @@ class HeliumLandingPageSpec extends IOFunSuite with InputBuilder with ResultExtr
                      |<li><a href="doc-2.html">Doc 2</a></li>
                      |</ul>
                      |</div>
-                     |<p class="large"><a href="doc-2.html"><i class="icofont-laika">&#xeeea;</i></a></p>
+                     |<p class="large"><a href="doc-2.html"><i class="icofont-laika" title="Demo">&#xeeea;</i></a></p>
                      |<p class="large"><a class="button" href="http://somewhere.com/">Somewhere</a></p>
                      |</div>
                      |</div>
@@ -162,7 +162,7 @@ class HeliumLandingPageSpec extends IOFunSuite with InputBuilder with ResultExtr
                      |<div id="header-right">
                      |<p>Latest Release</p>
                      |<p class="large">2.3.5</p>
-                     |<p class="large"><a href="doc-2.html"><i class="icofont-laika">&#xeeea;</i></a></p>
+                     |<p class="large"><a href="doc-2.html"><i class="icofont-laika" title="Demo">&#xeeea;</i></a></p>
                      |<p class="large"><a class="button" href="http://somewhere.com/">Somewhere</a></p>
                      |</div>
                      |</div>
