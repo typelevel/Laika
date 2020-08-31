@@ -25,6 +25,13 @@ import laika.helium.Helium
 import laika.rewrite.nav.CoverImage
 import laika.theme.config.{BookConfig, Color, FontDefinition}
 
+private[helium] trait CommonSettings {
+  def themeFonts: ThemeFonts
+  def fontSizes: FontSizes
+  def colors: ColorSet
+  def metadata: DocumentMetadata
+}
+
 private[helium] case class SiteSettings (fontResources: Seq[FontDefinition],
                                          themeFonts: ThemeFonts,
                                          fontSizes: FontSizes,
@@ -32,14 +39,16 @@ private[helium] case class SiteSettings (fontResources: Seq[FontDefinition],
                                          htmlIncludes: HTMLIncludes,
                                          landingPage: Option[LandingPage],
                                          layout: WebLayout,
-                                         metadata: DocumentMetadata)
+                                         metadata: DocumentMetadata) extends CommonSettings
 
 private[helium] case class PDFSettings (bookConfig: BookConfig,
                                         themeFonts: ThemeFonts,
                                         fontSizes: FontSizes,
                                         colors: ColorSet,
                                         layout: PDFLayout,
-                                        coverImages: Seq[CoverImage])
+                                        coverImages: Seq[CoverImage]) extends CommonSettings {
+  val metadata: DocumentMetadata = bookConfig.metadata
+}
 
 private[helium] case class EPUBSettings (bookConfig: BookConfig,
                                          themeFonts: ThemeFonts,
@@ -48,7 +57,9 @@ private[helium] case class EPUBSettings (bookConfig: BookConfig,
                                          htmlIncludes: HTMLIncludes,
                                          keepTogetherDecoratedLines: Int,
                                          tableOfContent: Option[TableOfContent],
-                                         coverImages: Seq[CoverImage])
+                                         coverImages: Seq[CoverImage]) extends CommonSettings {
+  val metadata: DocumentMetadata = bookConfig.metadata
+}
 
 private[helium] trait CommonConfigOps {
 

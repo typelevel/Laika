@@ -16,14 +16,27 @@
 
 package laika.helium.generate
 
-import laika.helium.Helium
+import laika.helium.config.{CommonSettings, EPUBSettings, SiteSettings}
 
 private[helium] object CSSVarGenerator {
-  
 
-  def generate (helium: Helium): String = {
-    import helium.siteSettings._
-    Seq(
+  def generate (settings: SiteSettings): String = {
+    import settings.layout._
+    val layoutStyles = Seq(
+      "content-width" -> contentWidth.displayValue,
+      "nav-width" -> navigationWidth.displayValue,
+      "block-spacing" -> defaultBlockSpacing.displayValue,
+      "line-height" -> defaultLineHeight.toString
+    )
+    generate(settings, layoutStyles)
+  }
+  def generate (settings: EPUBSettings): String = {
+    generate(settings, Nil)
+  }
+
+  def generate (common: CommonSettings, additionalStyles: Seq[(String, String)]): String = {
+    import common._
+    (Seq(
       "primary-color" -> colors.primary.displayValue,
       "primary-light" -> colors.primaryLight.displayValue,
       "secondary-color" -> colors.secondary.displayValue,
@@ -52,12 +65,8 @@ private[helium] object CSSVarGenerator {
       "title-font-size" -> fontSizes.title.displayValue,
       "header2-font-size" -> fontSizes.header2.displayValue,
       "header3-font-size" -> fontSizes.header3.displayValue,
-      "header4-font-size" -> fontSizes.header4.displayValue,
-      "content-width" -> layout.contentWidth.displayValue,
-      "nav-width" -> layout.navigationWidth.displayValue,
-      "block-spacing" -> layout.defaultBlockSpacing.displayValue,
-      "line-height" -> layout.defaultLineHeight.toString
-    )
+      "header4-font-size" -> fontSizes.header4.displayValue
+    ) ++ additionalStyles)
       .map { case (name, value) => 
         s"  --$name: $value;"
       }

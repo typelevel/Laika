@@ -53,8 +53,13 @@ private[helium] object HeliumInputBuilder {
       .addClasspathResource("laika/helium/js/theme.js", Root / "helium" / "laika-helium.js")
       .addString(new FOStyles(helium).input, FOStyles.defaultPath)
   
-    MergedCSSGenerator.merge(CSSVarGenerator.generate(helium)).map {
-      themeInputs.addString(_, Root / "helium" / "laika-helium.css")
+    val siteVars = CSSVarGenerator.generate(helium.siteSettings)
+    val epubVars = CSSVarGenerator.generate(helium.epubSettings)
+    
+    (MergedCSSGenerator.mergeSiteCSS(siteVars), MergedCSSGenerator.mergeEPUBCSS(epubVars)).mapN { (siteCSS, epubCSS) =>
+      themeInputs
+        .addString(siteCSS, Root / "helium" / "laika-helium.css")
+        .addString(epubCSS, Root / "helium" / "laika-helium.epub.css")
     }
   }
   

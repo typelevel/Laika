@@ -39,6 +39,7 @@ object TestTheme {
   val staticPaths = Seq(
     Root / "helium" / "laika-helium.js",
     Root / "helium" / "laika-helium.css",
+    Root / "helium" / "laika-helium.epub.css",
   )
   val fonts = Seq(
     FontDefinition(Font.embedFile("/path/to/font-a.tff"), "Font-A", FontWeight.Normal, FontStyle.Normal),

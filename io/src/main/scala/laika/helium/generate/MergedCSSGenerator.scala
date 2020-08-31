@@ -24,7 +24,7 @@ import laika.io.runtime.Runtime
 
 private[helium] object MergedCSSGenerator {
 
-  def merge[F[_]: Sync: Runtime](varBlock: String): F[String] = {
+  def mergeSiteCSS[F[_]: Sync: Runtime](varBlock: String): F[String] = {
 
     val inputTree = InputTree[F]
       .addClasspathResource("laika/helium/css/container.css", Root / "css" / "container.css")
@@ -34,6 +34,19 @@ private[helium] object MergedCSSGenerator {
       .addClasspathResource("laika/helium/css/toc.css", Root / "css" / "toc.css")
       .build
     
+    for {
+      inputs <- inputTree
+      merged <- MergedStringInputs.merge(inputs.binaryInputs)
+    } yield varBlock + merged
+  }
+
+  def mergeEPUBCSS[F[_]: Sync: Runtime](varBlock: String): F[String] = {
+
+    val inputTree = InputTree[F]
+      .addClasspathResource("laika/helium/css/content.epub.css", Root / "css" / "content.css")
+      .addClasspathResource("laika/helium/css/code.css", Root / "css" / "code.css")
+      .build
+
     for {
       inputs <- inputTree
       merged <- MergedStringInputs.merge(inputs.binaryInputs)
