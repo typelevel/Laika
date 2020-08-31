@@ -103,15 +103,17 @@ Laika will generate navigation elements compatible with e-book readers, as shown
 PDF Navigation in Preview for Mac:
 
 @:image(../img/nav-pdf.png) {
-  title = PDF Navigation
-  width = 473px
+  alt = PDF Navigation
+  intrinsicWidth = 311px
+  intrinsicHeight = 311px
 }
 
 EPUB Navigation in iBooks:
 
 @:image(../img/nav-epub.png) {
-  title = EPUB Navigation
-  width = 473px
+  alt = EPUB Navigation
+  intrinsicWidth = 473px
+  intrinsicHeight = 470px
 }
 
 The navigation depth can be configured with the Helium API:

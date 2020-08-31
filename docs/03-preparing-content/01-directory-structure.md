@@ -154,8 +154,9 @@ The presence of title documents would determine how exactly chapter title are re
 **Example for a structure with title documents** 
 
 @:image(../img/dir-with-title-docs.png) {
-  title = Input Directory with Title Documents
-  width = 680px
+  alt = Input Directory with Title Documents
+  intrinsicWidth = 680px
+  intrinsicHeight = 405px
 }
 
 In this example each directory has a title document. 
@@ -167,8 +168,9 @@ and the title is linked to the document.
 **Example for a structure without title documents** 
 
 @:image(../img/dir-without-title-docs.png) {
-  title = Input Directory without Title Documents
-  width = 680px
+  alt = Input Directory without Title Documents
+  intrinsicWidth = 680px
+  intrinsicHeight = 405px
 }
   
 In this example there are no title documents and chapter titles are taken from the file `directory.conf`
@@ -190,8 +192,9 @@ When merged directories contain sub-folders with the same name, those will be me
 Only files with the same name in the same folder are treated as errors.
 
 @:image(../img/merged-directories.png) {
-  title = Merging Directories
-  width = 564px
+  alt = Merging Directories
+  intrinsicWidth = 564px
+  intrinsicHeight = 718px
 }
 
 In the example above two directories get merged into a single virtual root (`/`).

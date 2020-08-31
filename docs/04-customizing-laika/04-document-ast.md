@@ -29,8 +29,9 @@ The traits are not sealed as the model is designed to be extensible.
 At the top of the hierarchy the AST contains the following node types:
 
 @:image(../img/document-ast.png) {
-  title = Base Traits of the Document AST
-  width = 872px
+  alt = Base Traits of the Document AST
+  intrinsicWidth = 872px
+  intrinsicHeight = 405px
 }
 
 * `Element` is the base trait of the hierarchy. 

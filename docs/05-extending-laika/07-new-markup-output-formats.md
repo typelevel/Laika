@@ -7,8 +7,9 @@ that at some point becomes part of an `ExtensionBundle`.
 As [Anatomy of the API] showed, it is one of the major API hooks for building a transformer:
 
 @:image(../img/anatomy-api.png) {
-  title = Anatomy of the API
-  width = 602px
+  alt = Anatomy of the API
+  intrinsicWidth = 602px
+  intrinsicHeight = 345px
 }
 
 While an `ExtensionBundle` is about enhancing functionality for existing input and output formats,

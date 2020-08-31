@@ -479,8 +479,9 @@ The classic `@:breadcrumb` component generates a simple, flat list of links refl
 from the root to the current document:
 
 @:image(../img/breadcrumb.png) {
-  title = Breadcrumb
-  width = 321px
+  alt = Breadcrumb
+  intrinsicWidth = 321px
+  intrinsicHeight = 88px
 }
 
 This component works best in a directory structure that contains [Title Documents], as otherwise the
@@ -521,8 +522,9 @@ The configuration above will number both documents and sections within documents
 The numbers will be added to the headers of the sections and also appear in tables of contents.
 
 @:image(../img/auto-numbering.png) {
-  title = Auto-Numbering
-  width = 680px
+  alt = Auto-Numbering
+  intrinsicWidth = 680px
+  intrinsicHeight = 405px
 }
 
 The default setting for Laika has auto-numbering switched off completely.

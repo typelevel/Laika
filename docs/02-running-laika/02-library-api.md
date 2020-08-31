@@ -58,8 +58,9 @@ also exposes one of the main design goals of Laika: that everything is meant to 
 The following example for creating a pure transformer shows the main building blocks:
 
 @:image(../img/anatomy-api.png) {
-  title = Anatomy of the API
-  width = 602px
+  alt = Anatomy of the API
+  intrinsicWidth = 602px
+  intrinsicHeight = 345px
 }
 
 * All inputs need to support the `MarkupFormat` contract.
@@ -80,8 +81,9 @@ If you require support for file/stream IO, templating or binary output formats,
 the `laika-io` module expands on the core API to add this functionality:
 
 @:image(../img/io-api.png) {
-  title = Anatomy of the IO API
-  width = 602px
+  alt = Anatomy of the IO API
+  intrinsicWidth = 602px
+  intrinsicHeight = 417px
 }
 
 The blue elements of the API are identical to the pure transformer.
