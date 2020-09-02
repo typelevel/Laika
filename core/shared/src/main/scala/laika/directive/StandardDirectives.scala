@@ -394,10 +394,13 @@ object StandardDirectives extends DirectiveRegistry {
     }
   }
   
-  private def linkConfig[T] (cursor: DocumentCursor, extract: LinkConfig => Seq[T]): Either[String, Seq[T]] = 
+  private def linkConfig[T] (cursor: DocumentCursor, extract: LinkConfig => Seq[T]): Either[String, Seq[T]] =
+    linkConfig(cursor).map(extract)
+
+  private def linkConfig[T] (cursor: DocumentCursor): Either[String, LinkConfig] =
     cursor.config
       .getOpt[LinkConfig]
-      .map(_.map(extract).getOrElse(Nil))
+      .map(_.getOrElse(LinkConfig()))
       .leftMap(_.message)
 
   /** Implementation of the `api` directive that creates links to API documentation based
@@ -408,10 +411,10 @@ object StandardDirectives extends DirectiveRegistry {
     * otherwise fail. See [[laika.rewrite.link.LinkConfig]] for details.
     */
   lazy val api: Links.Directive = Links.eval("api") { (linkId, cursor) =>
-    linkConfig(cursor, _.apiLinks)
-      .flatMap { apiLinks =>
-        val matching = apiLinks.toList.filter(l => linkId.startsWith(l.packagePrefix)).maximumByOption(_.packagePrefix.length)
-        matching.orElse(apiLinks.find(_.packagePrefix == "*")).fold[Either[String, SpanLink]] (
+    linkConfig(cursor)
+      .flatMap { linkConfig =>
+        val matching = linkConfig.apiLinks.toList.filter(l => linkId.startsWith(l.packagePrefix)).maximumByOption(_.packagePrefix.length)
+        matching.orElse(linkConfig.apiLinks.find(_.packagePrefix == "*")).fold[Either[String, SpanLink]] (
           Left(s"No base URI defined for '$linkId' and no default URI available.")
         ) { link => 
           def splitAtLast(in: String, char: Char) = in.split(char).toSeq match {
@@ -427,7 +430,17 @@ object StandardDirectives extends DirectiveRegistry {
             if (isPackage) packageName.replace(".", "/") + "/" + link.packageSummary 
             else fqName.replace(".", "/") + ".html"
           val uri = link.baseUri + typePath + method.fold("")("#" + _)
-          Right(SpanLink(Seq(Text(text)), Target.parse(uri)))
+          val target = Target.parse(uri) match {
+            case et: ExternalTarget => et
+            case it: InternalTarget =>
+              val resolved = it.relativeTo(cursor.path)
+              val externalUrl = linkConfig.internalLinkMappings.collectFirst {
+                case mapping if resolved.absolutePath.isSubPath(mapping.internalPath) => 
+                  mapping.externalBaseUrl + resolved.absolutePath.relativeTo(mapping.internalPath / "ref").toString // TODO - move this logic into model, it's used in multiple places
+              }
+              resolved.copy(externalUrl = externalUrl)
+          }
+          Right(SpanLink(Seq(Text(text)), target))
         }
       }
   }
