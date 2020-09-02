@@ -283,7 +283,7 @@ In that case you can control which CSS and JS files to link via the theme's conf
 as described in [Auto-Linking CSS & JS Files].
 
 
-### @:linkCSS
+### `@:linkCSS`
 
 Causes the automatic inclusion of `<link>` tags for CSS files found in the input tree.
 
@@ -309,7 +309,7 @@ Note that the paths, like everything in Laika, are within the virtual path of th
 See [Virtual Tree Abstraction] for details.
 
 
-### @:linkJS
+### `@:linkJS`
 
 Causes the automatic inclusion of `<script>` tags for JavaScript files found in the input tree.
 

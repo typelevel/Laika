@@ -59,9 +59,9 @@ therefore we'll just give a brief overview of available configuration options he
 
     * [Book Navigation] allows to specify the depth of the auto-generated navigation.
     
-    * The location of [Cover Images] can be configured, too.
+    * The location of [Cover Images for E-books] can be configured, too.
     
-    * And [Document Metadata] can be specified so that it will be converted to a format
+    * And [Metadata] can be specified so that it will be converted to a format
       compatible with the corresponding readers.
       
       
