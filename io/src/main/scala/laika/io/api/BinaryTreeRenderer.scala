@@ -69,11 +69,13 @@ object BinaryTreeRenderer {
 
   private[laika] def buildRenderer[F[_]: Sync] (format: BinaryRenderFormat, 
                                                 config: OperationConfig, 
-                                                theme: Theme[F]): Resource[F, BinaryRenderer] =
-    format.postProcessor.build(config.baseConfig, theme).map { pp =>
-      val targetRenderer = new RendererBuilder(format.interimFormat, config).build
+                                                theme: Theme[F]): Resource[F, BinaryRenderer] = {
+    val combinedConfig = config.withBundles(theme.extensions)
+    format.postProcessor.build(combinedConfig.baseConfig, theme).map { pp =>
+      val targetRenderer = new RendererBuilder(format.interimFormat, combinedConfig).build
       BinaryRenderer(targetRenderer, format.prepareTree, pp, format.description)
     }
+  }
   
   /** Builder step that allows to specify the execution context for blocking IO and CPU-bound tasks.
     */
@@ -125,7 +127,7 @@ object BinaryTreeRenderer {
 
     /** The configuration of the renderer for the interim format.
       */
-    val config: OperationConfig = renderer.interimRenderer.config.withBundles(theme.extensions)
+    val config: OperationConfig = renderer.interimRenderer.config
 
     /** Performs the rendering operation based on the library's
       * default runtime implementation, suspended in the effect F.
