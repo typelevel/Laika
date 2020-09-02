@@ -59,8 +59,8 @@ The following example for creating a pure transformer shows the main building bl
 
 @:image(../img/anatomy-api.png) {
   alt = Anatomy of the API
-  intrinsicWidth = 602px
-  intrinsicHeight = 345px
+  intrinsicWidth = 602
+  intrinsicHeight = 345
 }
 
 * All inputs need to support the `MarkupFormat` contract.
@@ -82,8 +82,8 @@ the `laika-io` module expands on the core API to add this functionality:
 
 @:image(../img/io-api.png) {
   alt = Anatomy of the IO API
-  intrinsicWidth = 602px
-  intrinsicHeight = 417px
+  intrinsicWidth = 602
+  intrinsicHeight = 417
 }
 
 The blue elements of the API are identical to the pure transformer.

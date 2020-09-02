@@ -104,16 +104,16 @@ PDF Navigation in Preview for Mac:
 
 @:image(../img/nav-pdf.png) {
   alt = PDF Navigation
-  intrinsicWidth = 311px
-  intrinsicHeight = 311px
+  intrinsicWidth = 311
+  intrinsicHeight = 311
 }
 
 EPUB Navigation in iBooks:
 
 @:image(../img/nav-epub.png) {
   alt = EPUB Navigation
-  intrinsicWidth = 473px
-  intrinsicHeight = 470px
+  intrinsicWidth = 473
+  intrinsicHeight = 470
 }
 
 The navigation depth can be configured with the Helium API:

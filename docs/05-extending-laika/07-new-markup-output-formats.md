@@ -8,8 +8,8 @@ As [Anatomy of the API] showed, it is one of the major API hooks for building a 
 
 @:image(../img/anatomy-api.png) {
   alt = Anatomy of the API
-  intrinsicWidth = 602px
-  intrinsicHeight = 345px
+  intrinsicWidth = 602
+  intrinsicHeight = 345
 }
 
 While an `ExtensionBundle` is about enhancing functionality for existing input and output formats,

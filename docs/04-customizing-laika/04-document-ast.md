@@ -30,8 +30,8 @@ At the top of the hierarchy the AST contains the following node types:
 
 @:image(../img/document-ast.png) {
   alt = Base Traits of the Document AST
-  intrinsicWidth = 872px
-  intrinsicHeight = 405px
+  intrinsicWidth = 872
+  intrinsicHeight = 405
 }
 
 * `Element` is the base trait of the hierarchy. 

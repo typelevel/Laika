@@ -480,8 +480,8 @@ from the root to the current document:
 
 @:image(../img/breadcrumb.png) {
   alt = Breadcrumb
-  intrinsicWidth = 321px
-  intrinsicHeight = 88px
+  intrinsicWidth = 321
+  intrinsicHeight = 88
 }
 
 This component works best in a directory structure that contains [Title Documents], as otherwise the
@@ -523,8 +523,8 @@ The numbers will be added to the headers of the sections and also appear in tabl
 
 @:image(../img/auto-numbering.png) {
   alt = Auto-Numbering
-  intrinsicWidth = 680px
-  intrinsicHeight = 405px
+  intrinsicWidth = 680
+  intrinsicHeight = 405
 }
 
 The default setting for Laika has auto-numbering switched off completely.

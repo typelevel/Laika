@@ -155,8 +155,8 @@ The presence of title documents would determine how exactly chapter title are re
 
 @:image(../img/dir-with-title-docs.png) {
   alt = Input Directory with Title Documents
-  intrinsicWidth = 680px
-  intrinsicHeight = 405px
+  intrinsicWidth = 680
+  intrinsicHeight = 405
 }
 
 In this example each directory has a title document. 
@@ -169,8 +169,8 @@ and the title is linked to the document.
 
 @:image(../img/dir-without-title-docs.png) {
   alt = Input Directory without Title Documents
-  intrinsicWidth = 680px
-  intrinsicHeight = 405px
+  intrinsicWidth = 680
+  intrinsicHeight = 405
 }
   
 In this example there are no title documents and chapter titles are taken from the file `directory.conf`
@@ -193,8 +193,8 @@ Only files with the same name in the same folder are treated as errors.
 
 @:image(../img/merged-directories.png) {
   alt = Merging Directories
-  intrinsicWidth = 564px
-  intrinsicHeight = 718px
+  intrinsicWidth = 564
+  intrinsicHeight = 718
 }
 
 In the example above two directories get merged into a single virtual root (`/`).

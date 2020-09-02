@@ -28,8 +28,8 @@ The following diagram shows a markup directive with all its optional elements pr
 
 @:image(../img/directive-syntax.png) {
   alt = Directive Syntax
-  intrinsicWidth = 602px
-  intrinsicHeight = 405px
+  intrinsicWidth = 602
+  intrinsicHeight = 405
 }
 
 It is quite abstract and contrived, because any real-world directive would not use all optional elements at once.
@@ -70,8 +70,8 @@ Finally, let's also examine the anatomy of a directive implementation:
 
 @:image(../img/directive-dsl.png) {
   alt = Directive DSL
-  intrinsicWidth = 641px
-  intrinsicHeight = 328px
+  intrinsicWidth = 641
+  intrinsicHeight = 328
 }
 
 We'll go through this line by line:
