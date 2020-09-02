@@ -158,7 +158,7 @@ object RendererRuntime {
     val suffix = op.renderer.interimRenderer.format.fileSuffix
     for {
       preparedTree <- Sync[F].fromEither(op.renderer.prepareTree(op.input))
-      renderedTree <- run(TreeRenderer.Op[F](op.renderer.interimRenderer, op.theme, preparedTree, StringTreeOutput), op.theme.inputs)
+      renderedTree <- run(TreeRenderer.Op[F](op.renderer.interimRenderer, op.theme, preparedTree, StringTreeOutput, op.staticDocuments), op.theme.inputs)
       finalTree    =  renderedTree.copy[F](defaultTemplate = op.input.tree.getDefaultTemplate(suffix).fold(getDefaultTemplate(op.theme.inputs, suffix))(_.content))
       _            <- op.renderer.postProcessor.process(finalTree, op.output, op.config)
     } yield ()
