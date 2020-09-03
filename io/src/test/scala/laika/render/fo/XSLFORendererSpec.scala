@@ -551,7 +551,7 @@ class XSLFORendererSpec extends AnyFlatSpec
   it should "render a figure" in {
     val elem = Figure(Image(InternalTarget(CurrentTree / "image.jpg"), alt = Some("alt")), List(Text("some "), Emphasized("caption"), Text(" text")), List(p("aaa"), Rule(), p("bbb")))
     val fo = s"""<fo:block space-after="6mm">
-               |  <fo:block space-after="3mm" text-align="center"><fo:external-graphic content-width="scale-down-to-fit" scaling="uniform" src="/image.jpg" width="85%"/></fo:block>
+               |  <fo:block space-after="3mm" text-align="center"><fo:external-graphic content-width="scale-down-to-fit" height="auto" scaling="uniform" src="/image.jpg" width="85%"/></fo:block>
                |  <fo:block font-family="serif" font-size="9pt" font-style="italic" space-after="3mm">some <fo:inline font-style="italic">caption</fo:inline> text</fo:block>
                |  <fo:block font-size="9pt" font-style="italic">
                |    <fo:block $defaultParagraphStyles>aaa</fo:block>
@@ -724,31 +724,31 @@ class XSLFORendererSpec extends AnyFlatSpec
 
   it should "render a paragraph containing only an image centered" in {
     val elem = p(Image(imageTarget, alt = Some("img")))
-    val fo = s"""<fo:block space-after="3mm" text-align="center"><fo:external-graphic content-width="scale-down-to-fit" scaling="uniform" src="/foo.jpg" width="85%"/></fo:block>"""
+    val fo = s"""<fo:block space-after="3mm" text-align="center"><fo:external-graphic content-width="scale-down-to-fit" height="auto" scaling="uniform" src="/foo.jpg" width="85%"/></fo:block>"""
     render (elem) should be (fo)
   }
   
   it should "render a paragraph containing an image without title" in {
     val elem = p(Text("some "), Image(imageTarget, alt = Some("img")), Text(" span"))
-    val fo = s"""<fo:block $defaultParagraphStyles>some <fo:external-graphic content-width="scale-down-to-fit" scaling="uniform" src="/foo.jpg" width="85%"/> span</fo:block>"""
+    val fo = s"""<fo:block $defaultParagraphStyles>some <fo:external-graphic content-width="scale-down-to-fit" height="auto" scaling="uniform" src="/foo.jpg" width="85%"/> span</fo:block>"""
     render (elem) should be (fo)
   }
 
   it should "render a paragraph containing an image with title" in {
     val elem = p(Text("some "), Image(imageTarget, alt = Some("img"), title = Some("title")), Text(" span"))
-    val fo = s"""<fo:block $defaultParagraphStyles>some <fo:external-graphic content-width="scale-down-to-fit" scaling="uniform" src="/foo.jpg" width="85%"/> span</fo:block>"""
+    val fo = s"""<fo:block $defaultParagraphStyles>some <fo:external-graphic content-width="scale-down-to-fit" height="auto" scaling="uniform" src="/foo.jpg" width="85%"/> span</fo:block>"""
     render (elem) should be (fo)
   }
 
-  it should "render a paragraph containing an image with width and height attributes" in {
+  it should "render a paragraph containing an image, ignoring intrinsic width and height attributes" in {
     val elem = p(Text("some "), Image(imageTarget, alt = Some("img"), width = Some(LengthUnit.px(120)), height = Some(LengthUnit.px(80))), Text(" span"))
-    val fo = s"""<fo:block $defaultParagraphStyles>some <fo:external-graphic content-width="scale-down-to-fit" height="80px" scaling="uniform" src="/foo.jpg" width="120px"/> span</fo:block>"""
+    val fo = s"""<fo:block $defaultParagraphStyles>some <fo:external-graphic content-width="scale-down-to-fit" height="auto" scaling="uniform" src="/foo.jpg" width="85%"/> span</fo:block>"""
     render (elem) should be (fo)
   }
 
   it should "render a paragraph containing an image with vertical align style" in {
     val elem = p(Text("some "), Image(imageTarget, alt = Some("img")).copy(options = Styles("align-top")), Text(" span"))
-    val fo = s"""<fo:block $defaultParagraphStyles>some <fo:external-graphic content-width="scale-down-to-fit" scaling="uniform" src="/foo.jpg" vertical-align="top" width="85%"/> span</fo:block>"""
+    val fo = s"""<fo:block $defaultParagraphStyles>some <fo:external-graphic content-width="scale-down-to-fit" height="auto" scaling="uniform" src="/foo.jpg" vertical-align="top" width="85%"/> span</fo:block>"""
     render (elem) should be (fo)
   }
 

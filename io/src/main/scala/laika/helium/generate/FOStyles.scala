@@ -67,6 +67,7 @@ private[laika] class FOStyles (helium: Helium) {
     |Image {
     |  space-after: 6mm;
     |  width: 85%;
+    |  height: auto;
     |  content-width: scale-down-to-fit;
     |  scaling: uniform;
     |}

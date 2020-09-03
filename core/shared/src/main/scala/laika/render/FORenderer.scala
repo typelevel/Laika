@@ -102,6 +102,8 @@ object FORenderer extends ((FOFormatter, Element) => String) {
 
         case WithFallback(fallback)         => fmt.child(fallback)
         case c: Customizable                => c match {
+          case BlockSequence(Seq(SpanSequence(Seq(img: Image), optSpan)), optBlock) => 
+            fmt.child(SpanSequence(Seq(img.mergeOptions(optSpan + optBlock)), Styles("align-center", "default-space")))
           case BlockSequence(content, NoOpt) => fmt.childPerLine(content) // this case could be standalone above, but triggers a compiler bug then
           case unknown                      => fmt.blockContainer(unknown, unknown.content)
         }
@@ -201,12 +203,12 @@ object FORenderer extends ((FOFormatter, Element) => String) {
       case e @ CitationLink(ref,label,_)  => fmt.withCitation(ref)(c => fmt.footnote(e,label,c.content,c.options))
       case e @ FootnoteLink(ref,label,_)  => fmt.withFootnote(ref)(f => fmt.footnote(e,label,f.content,f.options))
       case SectionNumber(pos, opt)        => fmt.child(Text(pos.mkString(".") + " ", opt + Style.sectionNumber))
-      case e @ Image(target,width,height,_,_,_) =>
+      case e @ Image(target,_,_,_,_,_) =>
         val uri = target match {
           case it: InternalTarget => it.relativeTo(fmt.path).absolutePath.toString
           case et: ExternalTarget => et.url
         }
-        fmt.externalGraphic(e, uri, width, height)
+        fmt.externalGraphic(e, uri, None, None) // ignore intrinsic size and rely on styles for sizing
       case icon: Icon                     => fmt.rawElement("fo:inline", icon, icon.codePointAsEntity)
       case e: Leader                      => fmt.textElement("fo:leader", e, "", "leader-pattern"->"dots", "padding-left" -> "2mm", "padding-right" -> "2mm")
       case PageNumberCitation(target,_)     => s"""<fo:page-number-citation ref-id="${fmt.buildId(target.relativeTo(fmt.path).absolutePath)}" />"""
