@@ -28,6 +28,9 @@ trait InputTreeBuilder extends ModelBuilder with InputBuilder {
 
   val uuid = "some-uuid"
 
+  def doc(path: Path, title: String): RenderedDocument =
+    RenderedDocument(path.withSuffix("xhtml"), Some(SpanSequence(Text(title))), Nil, "zzz")
+  
   def doc(path: Path, num: Int, sections: Seq[SectionInfo] = Nil): RenderedDocument = 
     RenderedDocument(path.withSuffix("xhtml"), Some(SpanSequence(Text(s"Title $num"))), sections, "zzz")
 

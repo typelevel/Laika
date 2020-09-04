@@ -189,4 +189,17 @@ class HTMLNavRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
     renderer.render(input, Some(1)) shouldBe renderer.fileContent("Tree 1", "", result)
   }
 
+  it should "escape special characters in titles" in new InputTreeBuilder {
+    val docRef = doc(Path.Root / "foo", "This & That")
+    val input = rootTree(Path.Root, 1, docRef)
+    val result =
+      """      <ol class="toc">
+        |        <li id="toc-li-0">
+        |          <a href="content/foo.epub.xhtml">This &amp; That</a>
+        |
+        |        </li>
+        |      </ol>""".stripMargin
+    renderer.render(input, Some(1)) shouldBe renderer.fileContent("Tree 1", "", result)
+  }
+
 }

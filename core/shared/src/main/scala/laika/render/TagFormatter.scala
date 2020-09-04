@@ -49,7 +49,7 @@ abstract class TagFormatter[Rep <: BaseFormatter[Rep]] (renderChild: (Rep, Eleme
   /** Renders the specified string on the same line, 
    *  with all special XML/HTML characters converted to entities.
    */
-  def text (str: String): String = escaped(str)
+  def text (str: String): String = TagFormatter.escape(str, newLine)
 
   /** Renders an HTML/XML comment.
     */
@@ -115,28 +115,29 @@ abstract class TagFormatter[Rep <: BaseFormatter[Rep]] (renderChild: (Rep, Eleme
   /** Renders the internal link as an absolute path. */
   def internalLink (path: Path): String = pathTranslator.translate(path).toString
  
-  /** Replaces all special XML/HTML characters
-   *  with entities.
-   */
-  private def escaped (str: String): String = {
+}
+
+object TagFormatter {
+
+  /** Replaces all special XML/HTML characters with entities. */
+  def escape (str: String, newLine: String = "\n"): String = {
     var i = 0
     val end = str.length
     val result = new mutable.StringBuilder
     while (i < end) {
       str.charAt(i) match {
-        case '<' => result append "&lt;"
-        case '>' => result append "&gt;"
-        case '"' => result append "&quot;"
-        case '\''=> result append "&#39;"
-        case '&' => result append "&amp;"
-        case '\u00A0' => result append "&nbsp;"
-        case '\n' => result append newLine 
-        case c   => result append c
+        case '<' => result.append("&lt;")
+        case '>' => result.append("&gt;")
+        case '"' => result.append("&quot;")
+        case '\''=> result.append("&#39;")
+        case '&' => result.append("&amp;")
+        case '\u00A0' => result.append("&nbsp;")
+        case '\n' => result.append(newLine)
+        case c   => result.append(c)
       }
       i += 1
     }
     result.toString
   }
-
   
 }

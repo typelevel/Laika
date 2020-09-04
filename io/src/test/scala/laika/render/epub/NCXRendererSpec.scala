@@ -160,4 +160,18 @@ class NCXRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
     renderer.render(input, uuid, Some(1)) shouldBe renderer.fileContent(uuid, "Tree 1", result, 1)
   }
 
+  it should "escape special characters in titles" in new InputTreeBuilder {
+    val docRef = doc(Path.Root / "foo", "This & That")
+    val input = rootTree(Path.Root, 1, docRef)
+    val result =
+      """    <navPoint id="navPoint-0">
+        |      <navLabel>
+        |        <text>This &amp; That</text>
+        |      </navLabel>
+        |      <content src="content/foo.epub.xhtml" />
+        |
+        |    </navPoint>""".stripMargin
+    renderer.render(input, uuid, Some(1)) shouldBe renderer.fileContent(uuid, "Tree 1", result, 1)
+  }
+
 }

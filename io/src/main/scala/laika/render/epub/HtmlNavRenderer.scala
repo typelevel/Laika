@@ -18,6 +18,7 @@ package laika.render.epub
 
 import laika.ast.{NavigationHeader, NavigationItem, NavigationLink}
 import laika.io.model.RenderedTreeRoot
+import laika.render.TagFormatter
 import laika.render.epub.StyleSupport.collectStylePaths
 
 /** Renders the entire content of an EPUB HTML navigation file.
@@ -52,9 +53,9 @@ class HtmlNavRenderer {
 
   /** Renders a single navigation link.
     */
-  private def navLink (title: String, link: String, pos: Int, children: String, epubType: String = ""): String =
+  private def navLink (title: String, link: String, pos: Int, children: String): String =
     s"""        <li id="toc-li-$pos">
-       |          <a ${epubType}href="$link">$title</a>
+       |          <a href="$link">${TagFormatter.escape(title)}</a>
        |$children
        |        </li>""".stripMargin
 
@@ -98,7 +99,7 @@ class HtmlNavRenderer {
     * The configuration key for setting the recursion depth is `epub.toc.depth`.
     */
   def render[F[_]] (result: RenderedTreeRoot[F], depth: Option[Int]): String = {
-    val title = result.title.fold("UNTITLED")(_.extractText)
+    val title = TagFormatter.escape(result.title.fold("UNTITLED")(_.extractText))
     val bookNav = NavigationBuilder.forTree(result.tree, depth)
     val styles = collectStylePaths(result).map { path =>
       s"""<link rel="stylesheet" type="text/css" href="content${path.toString}" />"""

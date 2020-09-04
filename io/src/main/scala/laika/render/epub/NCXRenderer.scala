@@ -18,6 +18,7 @@ package laika.render.epub
 
 import laika.ast.{NavigationHeader, NavigationItem, NavigationLink}
 import laika.io.model.RenderedTreeRoot
+import laika.render.TagFormatter
 
 /** Renders the entire content of an NCX navigation file.
   * These files will be ignored by EPUB 3 readers and are only
@@ -55,7 +56,7 @@ class NCXRenderer {
   private def navPoint (title: String, link: String, pos: Int, children: String): String =
     s"""    <navPoint id="navPoint-$pos">
        |      <navLabel>
-       |        <text>$title</text>
+       |        <text>${TagFormatter.escape(title)}</text>
        |      </navLabel>
        |      <content src="$link" />
        |$children
@@ -94,7 +95,7 @@ class NCXRenderer {
     * The configuration key for setting the recursion depth is `epub.toc.depth`.
     */
   def render[F[_]] (result: RenderedTreeRoot[F], identifier: String, depth: Option[Int]): String = {
-    val title = result.title.fold("UNTITLED")(_.extractText)
+    val title = TagFormatter.escape(result.title.fold("UNTITLED")(_.extractText))
     val bookNav = NavigationBuilder.forTree(result.tree, depth)
     val renderedNavPoints = navPoints(bookNav)
     def flattenItems (items: Seq[NavigationItem], level: Int): Int = 
