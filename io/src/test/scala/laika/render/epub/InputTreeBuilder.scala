@@ -131,7 +131,7 @@ trait TreeWithStaticDocuments extends InputTreeBuilder {
   val doc1 = doc(Path.Root / "foo", 2)
   val doc2 = doc(Path.Root / "sub" / "bar", 3)
   val static1 = ByteInput("", Path.parse("/sub/image.jpg"))
-  val static2 = ByteInput("", Path.parse("/sub/styles.css"))
+  val static2 = ByteInput("", Path.parse("/sub/styles.epub.css"))
   val unknown = ByteInput("", Path.parse("/sub/doc.pdf"))
   val subtree = tree(Path.Root / "sub", 4, doc2)
 

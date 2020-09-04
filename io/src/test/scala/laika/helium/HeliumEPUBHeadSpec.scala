@@ -41,13 +41,11 @@ class HeliumEPUBHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
     Root / "name.md" -> "text"
   )
   
-  val defaultResult = """<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8" />
-                        |<meta charset="utf-8"/>
+  val defaultResult = """<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
                         |<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
                         |<meta name="generator" content="Laika 0.16.0 + Helium Theme" />
                         |<title></title>
-                        |<link rel="stylesheet" type="text/css" href="helium/laika-helium.epub.css" />
-                        |<script> /* for avoiding page load transitions */ </script>""".stripMargin
+                        |<link rel="stylesheet" type="text/css" href="helium/laika-helium.epub.css" />""".stripMargin
   
   def transformAndExtractHead(inputs: Seq[(Path, String)]): IO[String] = transformAndExtractHead(inputs, Helium.defaults)
 
@@ -86,15 +84,13 @@ class HeliumEPUBHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
       Root / "web" / "foo.js" -> "",
       Root / "web" / "foo.shared.css" -> "",
     )
-    val expected = """<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8" />
-                     |<meta charset="utf-8"/>
+    val expected = """<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
                      |<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
                      |<meta name="generator" content="Laika 0.16.0 + Helium Theme" />
                      |<title></title>
                      |<link rel="stylesheet" type="text/css" href="helium/laika-helium.epub.css" />
                      |<link rel="stylesheet" type="text/css" href="web/foo.shared.css" />
-                     |<script src="web/foo.js"></script>
-                     |<script> /* for avoiding page load transitions */ </script>""".stripMargin
+                     |<script src="web/foo.js"></script>""".stripMargin
     transformAndExtractHead(inputs).assertEquals(expected)
   }
 
@@ -109,15 +105,13 @@ class HeliumEPUBHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
     val helium = Helium.defaults
       .epub.autoLinkCSS(Root / "custom-css")
       .epub.autoLinkJS(Root / "custom-js")
-    val expected = """<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8" />
-                     |<meta charset="utf-8"/>
+    val expected = """<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
                      |<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
                      |<meta name="generator" content="Laika 0.16.0 + Helium Theme" />
                      |<title></title>
                      |<link rel="stylesheet" type="text/css" href="helium/laika-helium.epub.css" />
                      |<link rel="stylesheet" type="text/css" href="custom-css/foo.shared.css" />
-                     |<script src="custom-js/foo.js"></script>
-                     |<script> /* for avoiding page load transitions */ </script>""".stripMargin
+                     |<script src="custom-js/foo.js"></script>""".stripMargin
     transformAndExtractHead(inputs, helium).assertEquals(expected)
   }
   
@@ -126,16 +120,14 @@ class HeliumEPUBHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
       authors = Seq("Maria Green", "Elena Blue"),
       description = Some("Some description")
     )
-    val expected = """<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8" />
-                     |<meta charset="utf-8"/>
+    val expected = """<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
                      |<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
                      |<meta name="generator" content="Laika 0.16.0 + Helium Theme" />
                      |<title></title>
                      |<meta name="author" content="Maria Green"/>
                      |<meta name="author" content="Elena Blue"/>
                      |<meta name="description" content="Some description"/>
-                     |<link rel="stylesheet" type="text/css" href="helium/laika-helium.epub.css" />
-                     |<script> /* for avoiding page load transitions */ </script>""".stripMargin
+                     |<link rel="stylesheet" type="text/css" href="helium/laika-helium.epub.css" />""".stripMargin
     transformAndExtractHead(singleDoc, helium).assertEquals(expected)
   }
 

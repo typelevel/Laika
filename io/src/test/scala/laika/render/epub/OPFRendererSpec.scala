@@ -124,7 +124,7 @@ class OPFRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
       """    <item id="foo_epub_xhtml" href="content/foo.epub.xhtml" media-type="application/xhtml+xml" />
         |    <item id="sub_bar_epub_xhtml" href="content/sub/bar.epub.xhtml" media-type="application/xhtml+xml" />
         |    <item id="sub_image_jpg" href="content/sub/image.jpg" media-type="image/jpeg" />
-        |    <item id="sub_styles_css" href="content/sub/styles.css" media-type="text/css" />""".stripMargin
+        |    <item id="sub_styles_epub_css" href="content/sub/styles.epub.css" media-type="text/css" />""".stripMargin
     val spineRefs =
       """    <itemref idref="foo_epub_xhtml" />
         |    <itemref idref="sub_bar_epub_xhtml" />"""

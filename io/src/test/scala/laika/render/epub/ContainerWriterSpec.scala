@@ -80,7 +80,7 @@ class ContainerWriterSpec extends AnyFlatSpec with Matchers with ModelBuilder {
       "/EPUB/content/foo.xhtml",
       "/EPUB/content/sub/bar.xhtml",
       "/EPUB/content/sub/image.jpg",
-      "/EPUB/content/sub/styles.css"
+      "/EPUB/content/sub/styles.epub.css"
     )
     collectInputs(input) shouldBe standardFiles ++ result
   }
