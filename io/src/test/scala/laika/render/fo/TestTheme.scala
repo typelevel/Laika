@@ -37,9 +37,15 @@ object TestTheme {
   )
   lazy val htmlTemplate = TemplateRoot.fallback
   val staticPaths = Seq(
+    Root / "laika" / "fonts" / "Lato-Regular.ttf",
+    Root / "laika" / "fonts" / "Lato-Italic.ttf", 
+    Root / "laika" / "fonts" / "Lato-Bold.ttf", 
+    Root / "laika" / "fonts" / "Lato-BoldItalic.ttf", 
+    Root / "laika" / "fonts" / "FiraCode-Medium.otf", 
+    Root / "laika" / "fonts" / "icofont.ttf",
     Root / "helium" / "laika-helium.js",
     Root / "helium" / "laika-helium.css",
-    Root / "helium" / "laika-helium.epub.css",
+    Root / "helium" / "laika-helium.epub.css"
   )
   val fonts = Seq(
     FontDefinition(Font.embedFile("/path/to/font-a.tff"), "Font-A", FontWeight.Normal, FontStyle.Normal),

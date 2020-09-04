@@ -41,8 +41,8 @@ private[helium] class HeliumTreeProcessor[F[_]: Sync](helium: Helium) {
     .fold(noOp)(DownloadPageGenerator.generate)
 
   private def filterFonts (format: Format): TreeProcessor[F] = format match {
-    case _: TwoPhaseRenderFormat[_,_] => noOp
-    case _ => noOp.map { _.removeStaticDocuments(_.isSubPath(Root / "laika" / "fonts")) }
+    case HTML => noOp.map { _.removeStaticDocuments(_.isSubPath(Root / "laika" / "fonts")) }
+    case _    => noOp
   }
 
   private def filterCSSandJS (format: Format): TreeProcessor[F] = format match {
