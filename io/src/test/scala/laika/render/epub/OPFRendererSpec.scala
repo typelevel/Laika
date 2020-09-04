@@ -65,6 +65,17 @@ class OPFRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
     renderer.render[IO](input, configWithoutLang) shouldBe fileContent(manifestItems, "", spineRefs, uuid, language = Locale.getDefault.toLanguageTag)
   }
 
+  it should "render a tree with a single document with valid XML id for the name starting with a digit" in new InputTreeBuilder {
+    val docRef = doc(Path.Root / "01-foo", 2)
+    val input = rootTree(Path.Root, 1, docRef)
+    val manifestItems =
+      """    <item id="_01-foo_epub_xhtml" href="content/01-foo.epub.xhtml" media-type="application/xhtml+xml" />"""
+    val spineRefs =
+      """    <itemref idref="_01-foo_epub_xhtml" />"""
+    val configWithoutLang = config.copy(metadata = config.metadata.copy(language = None))
+    renderer.render[IO](input, configWithoutLang) shouldBe fileContent(manifestItems, "", spineRefs, uuid, language = Locale.getDefault.toLanguageTag)
+  }
+
   it should "render a tree with a two documents" in new TwoDocuments {
     val manifestItems =
       """    <item id="foo_epub_xhtml" href="content/foo.epub.xhtml" media-type="application/xhtml+xml" />

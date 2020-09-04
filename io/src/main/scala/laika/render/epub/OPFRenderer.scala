@@ -19,6 +19,7 @@ package laika.render.epub
 import laika.ast._
 import laika.format.EPUB
 import laika.io.model.RenderedTreeRoot
+import laika.rewrite.link.SlugBuilder
 
 /** Renders the content of an EPUB Package document (OPF).
   *
@@ -68,7 +69,10 @@ class OPFRenderer {
 
     val link = NavigationBuilder.fullPath(path, forceXhtml)
 
-    val id = link.drop(8).replace("/", "_").replace(".", "_")
+    val id = {
+      val candidate = link.drop(8).replace("/", "_").replace(".", "_")
+      SlugBuilder.default(candidate)
+    }
 
   }
 
