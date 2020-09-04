@@ -56,6 +56,15 @@ class OPFRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
     renderer.render[IO](input, config) shouldBe fileContent(manifestItems, "", spineRefs, uuid)
   }
 
+  it should "render a tree with a single document with the default locale rendered correctly" in new SingleDocument {
+    val manifestItems =
+      """    <item id="foo_epub_xhtml" href="content/foo.epub.xhtml" media-type="application/xhtml+xml" />"""
+    val spineRefs =
+      """    <itemref idref="foo_epub_xhtml" />"""
+    val configWithoutLang = config.copy(metadata = config.metadata.copy(language = None))
+    renderer.render[IO](input, configWithoutLang) shouldBe fileContent(manifestItems, "", spineRefs, uuid, language = Locale.getDefault.toLanguageTag)
+  }
+
   it should "render a tree with a two documents" in new TwoDocuments {
     val manifestItems =
       """    <item id="foo_epub_xhtml" href="content/foo.epub.xhtml" media-type="application/xhtml+xml" />
@@ -131,7 +140,13 @@ class OPFRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
     renderer.render(input, config) shouldBe fileContent(manifestItems, "", spineRefs, uuid)
   }
 
-  def fileContent (manifestItems: String, titleRef: String, spineRefs: String, uuid: String, title: String = "Tree 1", coverEntries: Option[CoverEntries] = None): String =
+  def fileContent (manifestItems: String, 
+                   titleRef: String, 
+                   spineRefs: String, 
+                   uuid: String, 
+                   title: String = "Tree 1",
+                   language: String = "en-GB",
+                   coverEntries: Option[CoverEntries] = None): String =
     s"""<?xml version="1.0" encoding="UTF-8"?>
        |<package
        |    version="3.0"
@@ -142,7 +157,7 @@ class OPFRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
        |    <dc:identifier id="epub-id-1">urn:uuid:$uuid</dc:identifier>
        |    <dc:title>$title</dc:title>
        |    <dc:date id="epub-date">$timestamp</dc:date>
-       |    <dc:language>en-GB</dc:language>
+       |    <dc:language>$language</dc:language>
        |    <dc:creator>Mia Miller</dc:creator>
        |${coverEntries.fold("")(_.metadata)}
        |    <meta property="dcterms:modified">$timestamp</meta>
