@@ -17,7 +17,7 @@
 package laika.helium.builder
 
 import cats.effect.{Resource, Sync}
-import laika.format.{HTML, XSLFO}
+import laika.format.{EPUB, HTML, XSLFO}
 import laika.io.runtime.Runtime
 import laika.helium.Helium
 import laika.helium.generate._
@@ -39,6 +39,7 @@ private[helium] class HeliumThemeBuilder (helium: Helium) extends ThemeProvider 
       .addBaseConfig(ConfigGenerator.populateConfig(helium))
       .addRewriteRules(HeliumRewriteRules.build(helium))
       .addRenderOverrides(HTML.Overrides(HeliumRenderOverrides.forHTML(siteSettings.layout.anchorPlacement)))
+      .addRenderOverrides(EPUB.XHTML.Overrides(HeliumRenderOverrides.forEPUB))
       .addRenderOverrides(XSLFO.Overrides(HeliumRenderOverrides.forPDF))
       .processTree(treeProcessor.forHTML, HTML)
       .processTree(treeProcessor.forAllFormats)

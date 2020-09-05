@@ -74,5 +74,10 @@ private[helium] object HeliumRenderOverrides {
     case (fmt, b @ BlockSequence(content, opt)) if opt.styles.contains("callout") =>
       fmt.blockContainer(b, SpanSequence(icon(opt).toSeq, Styles("icon")) +: content)
   }
+
+  def forEPUB: PartialFunction[(HTMLFormatter, Element), String] = {
+    case (fmt, BlockSequence(content, opt)) if opt.styles.contains("callout") =>
+      fmt.indentedElement("div", opt, icon(opt).toSeq ++ content)
+  }
   
 }
