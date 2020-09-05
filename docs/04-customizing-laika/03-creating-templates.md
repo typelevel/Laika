@@ -187,11 +187,14 @@ a custom parser.
 A directive always starts with an `@:`, the name of the directive and optionally attributes or body elements.
 
 * Positional attributes can follow enclosed in `(` and `)`, e.g. `@:fragment(sidebar)`.
+
 * Named attributes in HOCON format can follow between `{` and `}` and can be any valid HOCON structure,
   e.g. `@:navigationTree { entries = [{ target = "/" }] }`.
+  
 * Body elements is regular markup or template content immediately after the directive declaration until
   a `@:@` fence, as shown in the example in [Document Fragments]. 
   The AST for these parsed body elements will be passed to the directive implementation for processing. 
+  
 * Positional and named attribute can theoretically both appear in the same directive, 
   but is usually avoided for sakes of clarity and simplicity.
   
