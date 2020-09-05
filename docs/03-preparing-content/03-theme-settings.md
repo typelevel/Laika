@@ -453,6 +453,15 @@ Helium.defaults
   .pdf.navigationDepth(4)
 ```
 
+@:callout(info) 
+
+The default for EPUB is just 2 levels as some readers like iBooks mess with the hierarchy of navigation items
+when using more than 2 levels.
+If you increase this setting make sure you verify it's looking good in the targeted readers.
+
+@:@
+
+
 ### Links to Markup Sources
 
 A Helium site contains a page navigation pane on the right side on bigger screens.
