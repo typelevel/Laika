@@ -79,7 +79,7 @@ class OPFRenderer {
   /** Renders the content of an EPUB Package document (OPF) generated from
     * the specified document tree.
     */
-  def render[F[_]] (result: RenderedTreeRoot[F], config: EPUB.BookConfig): String = {
+  def render[F[_]] (result: RenderedTreeRoot[F], title: String, config: EPUB.BookConfig): String = {
 
     val coverDoc = result.coverDocument.map(doc => DocumentRef(doc.path, "application/xhtml+xml", isSpine = false, isCover = true, forceXhtml = true))
     val titleDoc = result.titleDocument.map(doc => DocumentRef(doc.path, "application/xhtml+xml", isSpine = false, isTitle = true, forceXhtml = true))
@@ -96,7 +96,6 @@ class OPFRenderer {
 
     val docRefs = coverDoc.toSeq ++ titleDoc.toSeq ++ renderedDocs ++ staticDocs
 
-    val title = result.title.fold("UNTITLED")(_.extractText)
     fileContent(config.identifier, config.language, title, config.coverImage.map(p => "content/" + p.relative.toString), config.formattedDate, docRefs, config.metadata.authors)
   }
 

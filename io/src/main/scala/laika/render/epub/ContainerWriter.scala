@@ -27,6 +27,7 @@ import laika.config.ConfigException
 import laika.format.EPUB
 import laika.io.model._
 import laika.io.runtime.Runtime
+import laika.render.TagFormatter
 
 /** Creates the EPUB container based on a document tree and the HTML result
   * of a preceding render operation.
@@ -71,12 +72,14 @@ class ContainerWriter {
         doc.copy(path = shiftContentPath(doc.path))
       }
 
+    val title     = TagFormatter.escape(config.metadata.title.getOrElse(finalResult.title.fold("UNTITLED")(_.extractText)))
+    
     val mimeType  = toBinaryInput(StaticContent.mimeType, Root / "mimetype")
     val container = toBinaryInput(StaticContent.container, Root / "META-INF" / "container.xml")
     val iBooksOpt = toBinaryInput(StaticContent.iBooksOptions, Root / "META-INF" / "com.apple.ibooks.display-options.xml")
-    val opf       = toBinaryInput(opfRenderer.render(finalResult, config), Root / "EPUB" / "content.opf")
-    val nav       = toBinaryInput(navRenderer.render(finalResult, config.navigationDepth), Root / "EPUB" / "nav.xhtml")
-    val ncx       = toBinaryInput(ncxRenderer.render(finalResult, config.identifier, config.navigationDepth), Root / "EPUB" / "toc.ncx")
+    val opf       = toBinaryInput(opfRenderer.render(finalResult, title, config), Root / "EPUB" / "content.opf")
+    val nav       = toBinaryInput(navRenderer.render(finalResult, title, config.navigationDepth), Root / "EPUB" / "nav.xhtml")
+    val ncx       = toBinaryInput(ncxRenderer.render(finalResult, title, config.identifier, config.navigationDepth), Root / "EPUB" / "toc.ncx")
     
     val renderedDocs = finalResult.allDocuments.map(doc => toBinaryInput(doc.content, shiftContentPath(doc.path)))
 

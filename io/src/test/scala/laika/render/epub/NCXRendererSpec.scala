@@ -24,9 +24,10 @@ import org.scalatest.matchers.should.Matchers
 class NCXRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
 
   val renderer = new NCXRenderer
+  val title = "Tree 1"
 
   "The NCX Renderer" should "render an empty tree" in new InputTreeBuilder {
-    renderer.render(rootTree(Path.Root, 1), uuid, Some(1)) shouldBe renderer.fileContent(uuid, "Tree 1", "", 1)
+    renderer.render(rootTree(Path.Root, 1), title, uuid, Some(1)) shouldBe renderer.fileContent(uuid, title, "", 1)
   }
 
   it should "render a tree with a single document" in new SingleDocument {
@@ -38,7 +39,7 @@ class NCXRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
       |      <content src="content/foo.epub.xhtml" />
       |
       |    </navPoint>""".stripMargin
-    renderer.render(input, uuid, Some(1)) shouldBe renderer.fileContent(uuid, "Tree 1", result, 1)
+    renderer.render(input, title, uuid, Some(1)) shouldBe renderer.fileContent(uuid, title, result, 1)
   }
 
   it should "render a tree with a two documents" in new TwoDocuments {
@@ -57,7 +58,7 @@ class NCXRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
      |      <content src="content/bar.epub.xhtml" />
      |
      |    </navPoint>""".stripMargin
-    renderer.render(input, uuid, Some(1)) shouldBe renderer.fileContent(uuid, "Tree 1", result, 1)
+    renderer.render(input, title, uuid, Some(1)) shouldBe renderer.fileContent(uuid, title, result, 1)
   }
 
   it should "render a tree with a nested tree" in new NestedTree {
@@ -83,7 +84,7 @@ class NCXRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
      |
      |    </navPoint>
      |    </navPoint>""".stripMargin
-    renderer.render(input, uuid, Some(2)) shouldBe renderer.fileContent(uuid, "Tree 1", result, 2)
+    renderer.render(input, title, uuid, Some(2)) shouldBe renderer.fileContent(uuid, title, result, 2)
   }
 
   it should "not render a nested tree if the depth is 1" in new NestedTree {
@@ -95,7 +96,7 @@ class NCXRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
      |      <content src="content/foo.epub.xhtml" />
      |
      |    </navPoint>""".stripMargin
-    renderer.render(input, uuid, Some(1)) shouldBe renderer.fileContent(uuid, "Tree 1", result, 1)
+    renderer.render(input, title, uuid, Some(1)) shouldBe renderer.fileContent(uuid, title, result, 1)
   }
 
   it should "render a document with sections when the depth is 2" in new DocumentsWithSections {
@@ -139,7 +140,7 @@ class NCXRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
      |
      |    </navPoint>
      |    </navPoint>""".stripMargin
-    renderer.render(input, uuid, Some(2)) shouldBe renderer.fileContent(uuid, "Tree 1", result, 2)
+    renderer.render(input, title, uuid, Some(2)) shouldBe renderer.fileContent(uuid, title, result, 2)
   }
 
   it should "not render a document with sections when the depth is 1" in new DocumentsWithSections {
@@ -157,7 +158,7 @@ class NCXRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
      |      <content src="content/bar.epub.xhtml" />
      |
      |    </navPoint>""".stripMargin
-    renderer.render(input, uuid, Some(1)) shouldBe renderer.fileContent(uuid, "Tree 1", result, 1)
+    renderer.render(input, title, uuid, Some(1)) shouldBe renderer.fileContent(uuid, title, result, 1)
   }
 
   it should "escape special characters in titles" in new InputTreeBuilder {
@@ -171,7 +172,7 @@ class NCXRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
         |      <content src="content/foo.epub.xhtml" />
         |
         |    </navPoint>""".stripMargin
-    renderer.render(input, uuid, Some(1)) shouldBe renderer.fileContent(uuid, "Tree 1", result, 1)
+    renderer.render(input, title, uuid, Some(1)) shouldBe renderer.fileContent(uuid, title, result, 1)
   }
 
 }

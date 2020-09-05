@@ -30,7 +30,8 @@ import org.scalatest.matchers.should.Matchers
 class OPFRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
 
   val renderer = new OPFRenderer
-
+  
+  val title = "Tree 1"
   val timestamp = "2018-01-01T12:00:00Z"
   val instant = Date.from(Instant.parse(timestamp))
   val identifier = s"urn:uuid:${new InputTreeBuilder{}.uuid}"
@@ -45,7 +46,7 @@ class OPFRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
 
 
   "The OPF Renderer" should "render an empty tree" in new InputTreeBuilder {
-    renderer.render(rootTree(Path.Root, 1), config) shouldBe fileContent("", "", "", uuid)
+    renderer.render(rootTree(Path.Root, 1), title, config) shouldBe fileContent("", "", "", uuid)
   }
 
   it should "render a tree with a single document" in new SingleDocument {
@@ -53,7 +54,7 @@ class OPFRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
       """    <item id="foo_epub_xhtml" href="content/foo.epub.xhtml" media-type="application/xhtml+xml" />"""
     val spineRefs =
       """    <itemref idref="foo_epub_xhtml" />"""
-    renderer.render[IO](input, config) shouldBe fileContent(manifestItems, "", spineRefs, uuid)
+    renderer.render[IO](input, title, config) shouldBe fileContent(manifestItems, "", spineRefs, uuid)
   }
 
   it should "render a tree with a single document with the default locale rendered correctly" in new SingleDocument {
@@ -62,7 +63,7 @@ class OPFRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
     val spineRefs =
       """    <itemref idref="foo_epub_xhtml" />"""
     val configWithoutLang = config.copy(metadata = config.metadata.copy(language = None))
-    renderer.render[IO](input, configWithoutLang) shouldBe fileContent(manifestItems, "", spineRefs, uuid, language = Locale.getDefault.toLanguageTag)
+    renderer.render[IO](input, title, configWithoutLang) shouldBe fileContent(manifestItems, "", spineRefs, uuid, language = Locale.getDefault.toLanguageTag)
   }
 
   it should "render a tree with a single document with valid XML id for the name starting with a digit" in new InputTreeBuilder {
@@ -73,7 +74,7 @@ class OPFRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
     val spineRefs =
       """    <itemref idref="_01-foo_epub_xhtml" />"""
     val configWithoutLang = config.copy(metadata = config.metadata.copy(language = None))
-    renderer.render[IO](input, configWithoutLang) shouldBe fileContent(manifestItems, "", spineRefs, uuid, language = Locale.getDefault.toLanguageTag)
+    renderer.render[IO](input, title, configWithoutLang) shouldBe fileContent(manifestItems, "", spineRefs, uuid, language = Locale.getDefault.toLanguageTag)
   }
 
   it should "render a tree with a two documents" in new TwoDocuments {
@@ -83,7 +84,7 @@ class OPFRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
     val spineRefs =
       """    <itemref idref="foo_epub_xhtml" />
         |    <itemref idref="bar_epub_xhtml" />"""
-    renderer.render(input, config) shouldBe fileContent(manifestItems, "", spineRefs, uuid)
+    renderer.render(input, title, config) shouldBe fileContent(manifestItems, "", spineRefs, uuid)
   }
 
   it should "render a tree with a title document" in new DocumentPlusTitle {
@@ -93,7 +94,7 @@ class OPFRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
     val titleRef = """    <itemref idref="title_epub_xhtml" />"""
     val spineRefs =
       """    <itemref idref="bar_epub_xhtml" />"""
-    renderer.render(input, config) shouldBe fileContent(manifestItems, titleRef, spineRefs, uuid, "From TitleDoc")
+    renderer.render(input, "From TitleDoc", config) shouldBe fileContent(manifestItems, titleRef, spineRefs, uuid, "From TitleDoc")
   }
 
   it should "render a tree with a cover" in new DocumentPlusCover {
@@ -110,7 +111,7 @@ class OPFRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
     val spineRefs =
       """    <itemref idref="foo_epub_xhtml" />
         |    <itemref idref="bar_epub_xhtml" />""".stripMargin
-    renderer.render(input, config.copy(coverImage = Some(Root / "cover.png"))) shouldBe fileContent(manifestItems, "", spineRefs, uuid, coverEntries = Some(coverEntries))
+    renderer.render(input, title, config.copy(coverImage = Some(Root / "cover.png"))) shouldBe fileContent(manifestItems, "", spineRefs, uuid, coverEntries = Some(coverEntries))
   }
 
   it should "render a tree with a nested tree" in new NestedTree {
@@ -120,7 +121,7 @@ class OPFRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
     val spineRefs =
       """    <itemref idref="foo_epub_xhtml" />
         |    <itemref idref="sub_bar_epub_xhtml" />"""
-    renderer.render(input, config) shouldBe fileContent(manifestItems, "", spineRefs, uuid)
+    renderer.render(input, title, config) shouldBe fileContent(manifestItems, "", spineRefs, uuid)
   }
 
   it should "render a tree with two nested trees" in new TwoNestedTrees {
@@ -136,7 +137,7 @@ class OPFRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
         |    <itemref idref="sub1_baz_epub_xhtml" />
         |    <itemref idref="sub2_bar_epub_xhtml" />
         |    <itemref idref="sub2_baz_epub_xhtml" />"""
-    renderer.render(input, config) shouldBe fileContent(manifestItems, "", spineRefs, uuid)
+    renderer.render(input, title, config) shouldBe fileContent(manifestItems, "", spineRefs, uuid)
   }
 
   it should "render a tree with a nested tree and static documents" in new TreeWithStaticDocuments {
@@ -148,7 +149,7 @@ class OPFRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
     val spineRefs =
       """    <itemref idref="foo_epub_xhtml" />
         |    <itemref idref="sub_bar_epub_xhtml" />"""
-    renderer.render(input, config) shouldBe fileContent(manifestItems, "", spineRefs, uuid)
+    renderer.render(input, title, config) shouldBe fileContent(manifestItems, "", spineRefs, uuid)
   }
 
   def fileContent (manifestItems: String, 
