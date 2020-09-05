@@ -80,10 +80,10 @@ class HeliumSiteCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                      |--header2-font-size: 28px;
                      |--header3-font-size: 20px;
                      |--header4-font-size: 15px;
-                     |--content-width: 860px;
-                     |--nav-width: 275px;
                      |--block-spacing: 10px;
-                     |--line-height: 1.5;""".stripMargin
+                     |--line-height: 1.5;
+                     |--content-width: 860px;
+                     |--nav-width: 275px;""".stripMargin
     transformAndExtract(singleDoc, Helium.defaults, ":root {", "}").assertEquals(expected)
   }
   
@@ -116,10 +116,10 @@ class HeliumSiteCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                               |--header2-font-size: 27px;
                               |--header3-font-size: 19px;
                               |--header4-font-size: 14px;
-                              |--content-width: 860px;
-                              |--nav-width: 275px;
                               |--block-spacing: 10px;
-                              |--line-height: 1.5;""".stripMargin
+                              |--line-height: 1.5;
+                              |--content-width: 860px;
+                              |--nav-width: 275px;""".stripMargin
 
   test("custom font families and font sizes - via 'site' selector") {
     val helium = Helium.defaults
@@ -166,10 +166,10 @@ class HeliumSiteCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                               |--header2-font-size: 28px;
                               |--header3-font-size: 20px;
                               |--header4-font-size: 15px;
-                              |--content-width: 860px;
-                              |--nav-width: 275px;
                               |--block-spacing: 10px;
-                              |--line-height: 1.5;""".stripMargin
+                              |--line-height: 1.5;
+                              |--content-width: 860px;
+                              |--nav-width: 275px;""".stripMargin
 
   test("custom colors - via 'site' selector") {
     import laika.theme.config.Color._
@@ -232,10 +232,10 @@ class HeliumSiteCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                                |--header2-font-size: 28px;
                                |--header3-font-size: 20px;
                                |--header4-font-size: 15px;
-                               |--content-width: 1000px;
-                               |--nav-width: 300px;
                                |--block-spacing: 9px;
-                               |--line-height: 1.2;""".stripMargin
+                               |--line-height: 1.2;
+                               |--content-width: 1000px;
+                               |--nav-width: 300px;""".stripMargin
   
   test("layout") {
     val helium = Helium.defaults

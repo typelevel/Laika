@@ -86,7 +86,9 @@ class HeliumEPUBCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                      |--title-font-size: 34px;
                      |--header2-font-size: 28px;
                      |--header3-font-size: 20px;
-                     |--header4-font-size: 15px;""".stripMargin
+                     |--header4-font-size: 15px;
+                     |--block-spacing: 10px;
+                     |--line-height: 1.5;""".stripMargin
     transformAndExtract(singleDoc, Helium.defaults, ":root {", "}").assertEquals(expected)
   }
 
@@ -162,7 +164,9 @@ class HeliumEPUBCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                               |--title-font-size: 33px;
                               |--header2-font-size: 27px;
                               |--header3-font-size: 19px;
-                              |--header4-font-size: 14px;""".stripMargin
+                              |--header4-font-size: 14px;
+                              |--block-spacing: 10px;
+                              |--line-height: 1.5;""".stripMargin
 
   test("custom font families and font sizes - via 'epub' selector") {
     val helium = Helium.defaults
@@ -208,7 +212,9 @@ class HeliumEPUBCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                               |--title-font-size: 34px;
                               |--header2-font-size: 28px;
                               |--header3-font-size: 20px;
-                              |--header4-font-size: 15px;""".stripMargin
+                              |--header4-font-size: 15px;
+                              |--block-spacing: 10px;
+                              |--line-height: 1.5;""".stripMargin
 
   test("custom colors - via 'epub' selector") {
     import laika.theme.config.Color._
@@ -240,6 +246,43 @@ class HeliumEPUBCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
         wheel = ColorQuintet(hex("110011"), hex("110022"), hex("110033"), hex("110044"), hex("110055"))
       )
     transformAndExtract(singleDoc, helium, ":root {", "}").assertEquals(customColors)
+  }
+
+  test("layout") {
+    val expected = """--primary-color: #007c99;
+                     |--primary-light: #ebf6f7;
+                     |--secondary-color: #931813;
+                     |--messages-info: #007c99;
+                     |--messages-info-light: #ebf6f7;
+                     |--messages-warning: #b1a400;
+                     |--messages-warning-light: #fcfacd;
+                     |--messages-error: #d83030;
+                     |--messages-error-light: #ffe9e3;
+                     |--syntax-base1: #F6F1EF;
+                     |--syntax-base2: #AF9E84;
+                     |--syntax-base3: #937F61;
+                     |--syntax-base4: #645133;
+                     |--syntax-base5: #362E21;
+                     |--syntax-wheel1: #9A6799;
+                     |--syntax-wheel2: #9F4C46;
+                     |--syntax-wheel3: #A0742D;
+                     |--syntax-wheel4: #7D8D4C;
+                     |--syntax-wheel5: #6498AE;
+                     |--body-font: "Lato";
+                     |--header-font: "Lato";
+                     |--code-font: "Fira Code";
+                     |--body-font-size: 15px;
+                     |--code-font-size: 14px;
+                     |--small-font-size: 12px;
+                     |--title-font-size: 34px;
+                     |--header2-font-size: 28px;
+                     |--header3-font-size: 20px;
+                     |--header4-font-size: 15px;
+                     |--block-spacing: 9px;
+                     |--line-height: 1.2;""".stripMargin
+    val helium = Helium.defaults
+      .epub.layout(defaultBlockSpacing = px(9), defaultLineHeight = 1.2, keepTogetherDecoratedLines = 15)
+    transformAndExtract(singleDoc, helium, ":root {", "}").assertEquals(expected)
   }
 
 }

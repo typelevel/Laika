@@ -35,9 +35,7 @@ private[helium] object CSSVarGenerator {
     import settings.layout._
     val layoutStyles = Seq(
       "content-width" -> contentWidth.displayValue,
-      "nav-width" -> navigationWidth.displayValue,
-      "block-spacing" -> defaultBlockSpacing.displayValue,
-      "line-height" -> defaultLineHeight.toString
+      "nav-width" -> navigationWidth.displayValue
     )
     generate(settings, layoutStyles)
   }
@@ -82,7 +80,9 @@ private[helium] object CSSVarGenerator {
       "title-font-size" -> fontSizes.title.displayValue,
       "header2-font-size" -> fontSizes.header2.displayValue,
       "header3-font-size" -> fontSizes.header3.displayValue,
-      "header4-font-size" -> fontSizes.header4.displayValue
+      "header4-font-size" -> fontSizes.header4.displayValue,
+      "block-spacing" -> common.layout.defaultBlockSpacing.displayValue,
+      "line-height" -> common.layout.defaultLineHeight.toString
     ) ++ additionalStyles)
       .map { case (name, value) => 
         s"  --$name: $value;"

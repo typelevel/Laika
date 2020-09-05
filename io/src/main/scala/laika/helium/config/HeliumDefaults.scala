@@ -123,9 +123,12 @@ private[helium] object HeliumDefaults {
     ),
     colors = colors(syntaxLightScheme),
     htmlIncludes = HTMLIncludes(),
-    keepTogetherDecoratedLines = 12,
-    coverImages = Nil,
-    tableOfContent = None
+    layout = EPUBLayout(
+      defaultBlockSpacing = px(10),
+      defaultLineHeight = 1.5,
+      keepTogetherDecoratedLines = 12
+    ),
+    coverImages = Nil
   )
 
   private val defaultPDFSettings = PDFSettings(

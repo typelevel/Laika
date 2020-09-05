@@ -30,6 +30,7 @@ private[helium] trait CommonSettings {
   def fontSizes: FontSizes
   def colors: ColorSet
   def metadata: DocumentMetadata
+  def layout: CommonLayout
 }
 
 private[helium] case class SiteSettings (fontResources: Seq[FontDefinition],
@@ -55,8 +56,7 @@ private[helium] case class EPUBSettings (bookConfig: BookConfig,
                                          fontSizes: FontSizes,
                                          colors: ColorSet,
                                          htmlIncludes: HTMLIncludes,
-                                         keepTogetherDecoratedLines: Int,
-                                         tableOfContent: Option[TableOfContent],
+                                         layout: EPUBLayout,
                                          coverImages: Seq[CoverImage]) extends CommonSettings {
   val metadata: DocumentMetadata = bookConfig.metadata
 }
@@ -452,13 +452,35 @@ private[helium] trait EPUBOps extends SingleConfigOps with CopyOps {
   def navigationDepth (depth: Int): Helium =
     copyWith(helium.epubSettings.copy(bookConfig = helium.epubSettings.bookConfig.copy(navigationDepth = Some(depth))))
 
+  /** Allows to override the defaults for Helium's EPUB layout.
+    *
+    * You can use the constructors found in the `LengthUnit` companion to create length values,
+    * e.g. `LengthUnit.px(12)`.
+    * It's usually most convenient to import `laika.ast.LengthUnit._` for your configuration code.
+    *
+    * Most arguments should be self-explanatory.
+    * The `keepTogetherDecoratedLines` value controls the number of lines for decorated blocks like code examples 
+    * or callouts that should always be kept on the same page. 
+    * With a setting of `12` for example only blocks with more than 12 lines are allowed to be split across multiple pages.
+    * If you choose very high numbers for this setting you might see pages with a lot of blank space when it has
+    * to move a large block to the next page.
+    */
+  def layout (defaultBlockSpacing: Size, 
+              defaultLineHeight: Double,
+              keepTogetherDecoratedLines: Int): Helium =
+    copyWith(helium.epubSettings.copy(layout = EPUBLayout(
+      defaultBlockSpacing, defaultLineHeight, keepTogetherDecoratedLines
+    )))
+  
   /** Adds a dedicated page for a table of content, in addition to the left navigation bar.
     *
     * @param title the title to display on the page and in navigation that links to the page
     * @param depth the navigation depth which may be different than the one for the navigation bar
     */
-  def tableOfContent (title: String, depth: Int): Helium =
-    copyWith(helium.epubSettings.copy(tableOfContent = Some(TableOfContent(title, depth))))
+  def tableOfContent (title: String, depth: Int): Helium = {
+    val newLayout = helium.epubSettings.layout.copy(tableOfContent = Some(TableOfContent(title, depth)))
+    copyWith(helium.epubSettings.copy(layout = newLayout))
+  }
   
   /** Auto-links CSS documents from the specified paths.
     * By default all CSS documents found anywhere in the input tree will be linked in HTML files.
@@ -530,7 +552,8 @@ private[helium] trait PDFOps extends SingleConfigOps with CopyOps {
     */
   def layout (pageWidth: Size, pageHeight: Size,
               marginTop: Size, marginRight: Size, marginBottom: Size, marginLeft: Size,
-              defaultBlockSpacing: Size, defaultLineHeight: Double,
+              defaultBlockSpacing: Size, 
+              defaultLineHeight: Double,
               keepTogetherDecoratedLines: Int): Helium =
     copyWith(helium.pdfSettings.copy(layout = PDFLayout(
       pageWidth, pageHeight, marginTop, marginRight, marginBottom, marginLeft,

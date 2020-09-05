@@ -19,6 +19,12 @@ package laika.helium.config
 import laika.ast.Path.Root
 import laika.ast.{Image, Options, Path, Size, Styles}
 
+private[helium] sealed trait CommonLayout {
+  def defaultBlockSpacing: Size
+  def defaultLineHeight: Double
+  def tableOfContent: Option[TableOfContent]
+}
+
 private[helium] case class WebLayout(contentWidth: Size,
                                      navigationWidth: Size,
                                      defaultBlockSpacing: Size,
@@ -28,13 +34,19 @@ private[helium] case class WebLayout(contentWidth: Size,
                                      topNavigationBar: TopNavigationBar = TopNavigationBar.default,
                                      tableOfContent: Option[TableOfContent] = None,
                                      downloadPage: Option[DownloadPage] = None,
-                                     markupEditLinks: Option[MarkupEditLinks] = None)
+                                     markupEditLinks: Option[MarkupEditLinks] = None) extends CommonLayout
 
 private[helium] case class PDFLayout (pageWidth: Size, pageHeight: Size,
                                       marginTop: Size, marginRight: Size, marginBottom: Size, marginLeft: Size,
-                                      defaultBlockSpacing: Size, defaultLineHeight: Double,
+                                      defaultBlockSpacing: Size, 
+                                      defaultLineHeight: Double,
                                       keepTogetherDecoratedLines: Int,
-                                      tableOfContent: Option[TableOfContent] = None)
+                                      tableOfContent: Option[TableOfContent] = None) extends CommonLayout
+
+private[helium] case class EPUBLayout (defaultBlockSpacing: Size, 
+                                       defaultLineHeight: Double,
+                                       keepTogetherDecoratedLines: Int,
+                                       tableOfContent: Option[TableOfContent] = None) extends CommonLayout
 
 private[helium] case class TableOfContent (title: String, depth: Int)
 

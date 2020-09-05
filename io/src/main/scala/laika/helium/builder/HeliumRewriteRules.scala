@@ -44,7 +44,7 @@ private[helium] object HeliumRewriteRules {
   
   private def applyStyles (block: Block, count: Int, helium: Helium): RewriteAction[Block] = {
     val pdf = if (count <= helium.pdfSettings.layout.keepTogetherDecoratedLines) Some("pdf") else None
-    val epub = if (count <= helium.epubSettings.keepTogetherDecoratedLines) Some("epub") else None
+    val epub = if (count <= helium.epubSettings.layout.keepTogetherDecoratedLines) Some("epub") else None
     if (pdf.isEmpty && epub.isEmpty) Retain
     else Replace(block.mergeOptions(Style.keepTogether + Styles(pdf.toSet ++ epub.toSet)))
   }
