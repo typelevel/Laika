@@ -1,9 +1,20 @@
 
-body { margin: 5%; text-align: justify; font-size: medium; }
+body {
+  font-family: var(--body-font);
+  text-align: justify; 
+  font-size: medium;
+  line-height: var(--line-height);
+}
 
-/* code { font-family: monospace; } */
 
-ol.toc { padding: 0; list-style: none; }
+/* table of content ========================================= */
+
+/* TODO - these are very old styles and may no longer match the output */
+
+ol.toc { 
+  padding: 0; 
+  list-style: none; 
+}
 ol.toc a {
   display: block;
 }
@@ -22,11 +33,11 @@ ol.toc > li > ol > li > ol > li > a {
   font-size: 13px;
 }
 
-/* ================================================================================== */
-
+/* remove ============================================================================ */
 
 p {
   /*margin: 0 0 var(--block-spacing);*/
+  /*border: 1px solid red;*/
 }
 section {
   /*padding-top: 30px;*/
@@ -56,6 +67,7 @@ ul li {
 li ul {
   margin-bottom: var(--block-spacing);
   margin-top: 0;
+  margin-left: 25px;
 }
 
 /* headers ========================================= */
@@ -65,6 +77,18 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--secondary-color);
   margin: var(--block-spacing) 0;
   line-height: 20px; /* TODO */
+  /*break-after: avoid;*/
+  /*page-break-after: avoid;*/
+  page-break-inside: avoid;
+}
+
+/* this is a hack, since e-book readers do not support break-after: avoid properly */
+h1::after, h2::after, h3::after, h4::after, h5::after, h6::after {
+  content: "x";
+  color: transparent;
+  display: block;
+  height: 100px;
+  margin-bottom: -100px;
 }
 
 h1, h2, h3 {
@@ -75,7 +99,6 @@ h1 {
   font-size: var(--title-font-size);
 }
 h1.title {
-  padding-top: calc(70px + var(--top-bar-height));
   padding-bottom: 10px;
   margin-bottom: 30px;
   border-bottom: 1px solid #dddddd;
@@ -87,7 +110,7 @@ h2 {
 }
 h3 {
   font-size: var(--header3-font-size);
-  margin-top: 16px;
+  margin-top: 28px;
   margin-bottom: 4px; /* TODO */
 }
 h4, h5, h6 {
@@ -113,21 +136,37 @@ a:hover {
 
 /* callouts ========================================= */
 
+.icofont-laika {
+  font-family: 'IcoFont' !important;
+  font-size: 1.75em;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  line-height: 1;
+  /*border: 1px solid green;*/
+}
+
 .callout {
   margin: 20px 20px;
   padding: 4px 10px;
   border-radius: 5px;
 }
-.callout .icon {
+.callout .icofont-laika {
   display: block;
   padding: 5px 0;
+  margin-bottom: -12px;
 }
 
 .callout.warning {
   background-color: var(--messages-warning-light);
   border-left: 7px solid var(--messages-warning);
 }
-.callout.warning .icon {
+.callout.warning .icofont-laika {
   color: var(--messages-warning);
 }
 
@@ -135,7 +174,7 @@ a:hover {
   background-color: var(--messages-info-light);
   border-left: 7px solid var(--messages-info);
 }
-.callout.info .icon {
+.callout.info .icofont-laika {
   color: var(--messages-info);
 }
 
@@ -143,7 +182,7 @@ a:hover {
   background-color: var(--messages-error-light);
   border-left: 7px solid var(--messages-error);
 }
-.callout.error .icon {
+.callout.error .icofont-laika {
   color: var(--messages-error);
 }
 
