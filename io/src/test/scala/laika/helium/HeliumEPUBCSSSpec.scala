@@ -80,13 +80,13 @@ class HeliumEPUBCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                      |--body-font: "Lato";
                      |--header-font: "Lato";
                      |--code-font: "Fira Code";
-                     |--body-font-size: 15px;
-                     |--code-font-size: 14px;
-                     |--small-font-size: 12px;
-                     |--title-font-size: 34px;
-                     |--header2-font-size: 28px;
-                     |--header3-font-size: 20px;
-                     |--header4-font-size: 15px;
+                     |--body-font-size: 1em;
+                     |--code-font-size: 0.9em;
+                     |--small-font-size: 0.8em;
+                     |--title-font-size: 2em;
+                     |--header2-font-size: 1.6em;
+                     |--header3-font-size: 1.3em;
+                     |--header4-font-size: 1.1em;
                      |--block-spacing: 10px;
                      |--line-height: 1.5;""".stripMargin
     transformAndExtract(singleDoc, Helium.defaults, ":root {", "}").assertEquals(expected)
@@ -206,13 +206,13 @@ class HeliumEPUBCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                               |--body-font: "Lato";
                               |--header-font: "Lato";
                               |--code-font: "Fira Code";
-                              |--body-font-size: 15px;
-                              |--code-font-size: 14px;
-                              |--small-font-size: 12px;
-                              |--title-font-size: 34px;
-                              |--header2-font-size: 28px;
-                              |--header3-font-size: 20px;
-                              |--header4-font-size: 15px;
+                              |--body-font-size: 1em;
+                              |--code-font-size: 0.9em;
+                              |--small-font-size: 0.8em;
+                              |--title-font-size: 2em;
+                              |--header2-font-size: 1.6em;
+                              |--header3-font-size: 1.3em;
+                              |--header4-font-size: 1.1em;
                               |--block-spacing: 10px;
                               |--line-height: 1.5;""".stripMargin
 
@@ -271,13 +271,13 @@ class HeliumEPUBCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                      |--body-font: "Lato";
                      |--header-font: "Lato";
                      |--code-font: "Fira Code";
-                     |--body-font-size: 15px;
-                     |--code-font-size: 14px;
-                     |--small-font-size: 12px;
-                     |--title-font-size: 34px;
-                     |--header2-font-size: 28px;
-                     |--header3-font-size: 20px;
-                     |--header4-font-size: 15px;
+                     |--body-font-size: 1em;
+                     |--code-font-size: 0.9em;
+                     |--small-font-size: 0.8em;
+                     |--title-font-size: 2em;
+                     |--header2-font-size: 1.6em;
+                     |--header3-font-size: 1.3em;
+                     |--header4-font-size: 1.1em;
                      |--block-spacing: 9px;
                      |--line-height: 1.2;""".stripMargin
     val helium = Helium.defaults
