@@ -2,7 +2,7 @@
 body {
   font-family: var(--body-font);
   text-align: justify; 
-  font-size: medium;
+  font-size: var(--body-font-size);
   line-height: var(--line-height);
 }
 

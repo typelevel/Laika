@@ -4,7 +4,7 @@ pre {
   border-radius: 5px;
   padding: 12px 9px 9px 15px;
   margin: 0 0 10px;
-  font-size: 13px;
+  font-size: 13px; /* TODO */
   line-height: 21px;
   word-break: break-all;
   word-wrap: break-word;
@@ -16,7 +16,7 @@ code {
   background-color: var(--primary-light);
   border: 1px solid #c3d6d8;
   border-radius: 5px;
-  font-size: 13px;
+  font-size: 13px; /* TODO */
   white-space: nowrap;
   padding: 1px 4px;
 }

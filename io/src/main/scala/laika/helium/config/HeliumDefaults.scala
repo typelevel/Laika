@@ -17,7 +17,7 @@
 package laika.helium.config
 
 import laika.ast.DocumentMetadata
-import laika.ast.LengthUnit.{cm, mm, pt, px}
+import laika.ast.LengthUnit.{cm, em, mm, pt, px}
 import laika.helium.Helium
 import laika.theme.config._
 
@@ -116,13 +116,13 @@ private[helium] object HeliumDefaults {
     ),
     themeFonts = defaultThemeFonts,
     fontSizes = FontSizes(
-      body = px(15),
-      code = px(14),
-      title = px(34),
-      header2 = px(28),
-      header3 = px(20),
-      header4 = px(15),
-      small = px(12)
+      body    = em(1.0),
+      code    = em(0.9),
+      title   = em(2.0),
+      header2 = em(1.6),
+      header3 = em(1.3),
+      header4 = em(1.1),
+      small   = em(0.8)
     ),
     colors = colors(syntaxLightScheme),
     htmlIncludes = HTMLIncludes(),

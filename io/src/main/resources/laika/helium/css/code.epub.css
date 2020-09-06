@@ -3,5 +3,5 @@ code {
   background-color: transparent;
   border: none;
   padding: 0;
-  font-size: 0.9em;
+  font-size: var(--code-font-size);
 }
