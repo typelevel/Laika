@@ -17,17 +17,17 @@
 package laika.helium.config
 
 import laika.ast.Path.Root
-import laika.ast.{Image, Options, Path, Size, Styles}
+import laika.ast.{Image, Options, Path, Length, Styles}
 
 private[helium] sealed trait CommonLayout {
-  def defaultBlockSpacing: Size
+  def defaultBlockSpacing: Length
   def defaultLineHeight: Double
   def tableOfContent: Option[TableOfContent]
 }
 
-private[helium] case class WebLayout(contentWidth: Size,
-                                     navigationWidth: Size,
-                                     defaultBlockSpacing: Size,
+private[helium] case class WebLayout(contentWidth: Length,
+                                     navigationWidth: Length,
+                                     defaultBlockSpacing: Length,
                                      defaultLineHeight: Double,
                                      anchorPlacement: AnchorPlacement,
                                      favIcons: Seq[Favicon] = Nil,
@@ -36,14 +36,14 @@ private[helium] case class WebLayout(contentWidth: Size,
                                      downloadPage: Option[DownloadPage] = None,
                                      markupEditLinks: Option[MarkupEditLinks] = None) extends CommonLayout
 
-private[helium] case class PDFLayout (pageWidth: Size, pageHeight: Size,
-                                      marginTop: Size, marginRight: Size, marginBottom: Size, marginLeft: Size,
-                                      defaultBlockSpacing: Size, 
+private[helium] case class PDFLayout (pageWidth: Length, pageHeight: Length,
+                                      marginTop: Length, marginRight: Length, marginBottom: Length, marginLeft: Length,
+                                      defaultBlockSpacing: Length,
                                       defaultLineHeight: Double,
                                       keepTogetherDecoratedLines: Int,
                                       tableOfContent: Option[TableOfContent] = None) extends CommonLayout
 
-private[helium] case class EPUBLayout (defaultBlockSpacing: Size, 
+private[helium] case class EPUBLayout (defaultBlockSpacing: Length,
                                        defaultLineHeight: Double,
                                        keepTogetherDecoratedLines: Int,
                                        tableOfContent: Option[TableOfContent] = None) extends CommonLayout
@@ -140,4 +140,4 @@ private[helium] object HeliumStyles {
 
 private[helium] case class ThemeFonts private (body: String, headlines: String, code: String)
 
-private[helium] case class FontSizes (body: Size, code: Size, title: Size, header2: Size, header3: Size, header4: Size, small: Size)
+private[helium] case class FontSizes (body: Length, code: Length, title: Length, header2: Length, header3: Length, header4: Length, small: Length)

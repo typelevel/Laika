@@ -1242,8 +1242,8 @@ case class CitationLink (ref: String, label: String, options: Options = NoOpt) e
 /** An inline image optional title, alt and size properties.
  */
 case class Image (target: Target,
-                  width: Option[Size] = None,
-                  height: Option[Size] = None,
+                  width: Option[Length] = None,
+                  height: Option[Length] = None,
                   alt: Option[String] = None,
                   title: Option[String] = None,
                   options: Options = NoOpt) extends Link {
@@ -1252,8 +1252,8 @@ case class Image (target: Target,
 }
 
 object Image {
-  def create (url: String, source: String, width: Option[Size] = None,
-              height: Option[Size] = None, alt: Option[String] = None, title: Option[String] = None): Span =
+  def create (url: String, source: String, width: Option[Length] = None,
+              height: Option[Length] = None, alt: Option[String] = None, title: Option[String] = None): Span =
     Target.parseInternal(url) match {
       case Right(external) => Image(external, width, height, alt, title)
       case Left(internal)  => ImagePathReference(internal.path, source, width, height, alt, title)
@@ -1262,15 +1262,15 @@ object Image {
 
 /** Encapsulates size information with a CSS-compatible length unit.
   */
-case class Size (amount: Double, unit: LengthUnit) {
-  def scale (percent: Double): Size = copy(amount * percent / 100)
+case class Length (amount: Double, unit: LengthUnit) {
+  def scale (percent: Double): Length = copy(amount * percent / 100)
   def displayValue: String = amount.toString.stripSuffix(".0") + unit.displayValue
 }
 
 /** A base for builder of CSS-compatible length units.
   */
-sealed abstract class LengthUnit (val displayValue: String) extends (Double => Size) {
-  def apply(amount: Double): Size = Size(amount, this)
+sealed abstract class LengthUnit (val displayValue: String) extends (Double => Length) {
+  def apply (amount: Double): Length = Length(amount, this)
 }
 object LengthUnit {
   object px extends LengthUnit("px")
@@ -1364,8 +1364,8 @@ case class LinkPathReference(content: Seq[Span],
   */
 case class ImagePathReference (path: RelativePath,
                                source: String,
-                               width: Option[Size] = None,
-                               height: Option[Size] = None,
+                               width: Option[Length] = None,
+                               height: Option[Length] = None,
                                alt: Option[String] = None,
                                title: Option[String] = None,
                                options: Options = NoOpt) extends PathReference {

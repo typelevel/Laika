@@ -18,7 +18,7 @@ package laika.parse.text
 
 import cats.implicits._
 import cats.data.NonEmptySet
-import laika.ast.{Size, ~}
+import laika.ast.{Length, ~}
 import laika.parse.{Failure, Message, Parser, Success}
 import laika.parse.combinator.Parsers
 import laika.parse.implicits._

@@ -158,7 +158,7 @@ case class FOFormatter (renderChild: (FOFormatter, Element) => String,
 
   /** Renders an FO `external-graphic` element.
    */
-  def externalGraphic (styleHint: Element, src: String, width: Option[Size], height: Option[Size]): String =
+  def externalGraphic (styleHint: Element, src: String, width: Option[Length], height: Option[Length]): String =
     emptyElement("fo:external-graphic", styleHint, optAttributes("src" -> Some(src),
                  "width" -> width.map(_.displayValue), "height" -> height.map(_.displayValue)):_*)
 

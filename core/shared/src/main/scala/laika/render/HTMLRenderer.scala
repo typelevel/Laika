@@ -218,9 +218,9 @@ class HTMLRenderer (fileSuffix: String, formats: NonEmptySet[String]) extends ((
       case FootnoteLink(ref,label,opt) => fmt.textElement("a", opt + Style.footnote, s"[$label]", "href"->("#"+ref))
         
       case Image(target,width,height,alt,title,opt) =>
-        def sizeAttr (size: Option[Size], styleName: String): (Option[String],Option[String]) = size map {
-          case Size(amount, LengthUnit.px) => (Some(amount.toInt.toString), None)
-          case s:Size => (None, Some(s"$styleName:${s.displayValue}"))
+        def sizeAttr (size: Option[Length], styleName: String): (Option[String],Option[String]) = size map {
+          case Length(amount, LengthUnit.px) => (Some(amount.toInt.toString), None)
+          case s:Length => (None, Some(s"$styleName:${s.displayValue}"))
         } getOrElse (None, None)
         val (widthAttr, wStyle) = sizeAttr(width, "width")
         val (heightAttr, hStyle) = sizeAttr(height, "height")

@@ -110,9 +110,9 @@ object ThemeTarget {
 /** A logo type that can be used in various Helium configuration options.
   * The only required property is the target, which is either an external URL or an internal, relative path.
   */
-case class ThemeLogo (target: ThemeTarget, 
-                      width: Option[Size] = None, 
-                      height: Option[Size] = None,
+case class ThemeLogo (target: ThemeTarget,
+                      width: Option[Length] = None,
+                      height: Option[Length] = None,
                       alt: Option[String] = None,
                       title: Option[String] = None,
                       options: Options = NoOpt) extends ThemeLink {

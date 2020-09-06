@@ -20,7 +20,7 @@ import java.time.Instant
 import java.util.Date
 
 import laika.ast.Path.Root
-import laika.ast.{DocumentMetadata, Path, Size}
+import laika.ast.{DocumentMetadata, Path, Length}
 import laika.helium.Helium
 import laika.rewrite.nav.CoverImage
 import laika.theme.config.{BookConfig, Color, FontDefinition}
@@ -87,13 +87,13 @@ private[helium] trait CommonConfigOps {
     * Most property names are self-explanatory, the small font is currently only used for footnote references 
     * in PDF output.
     */
-  def fontSizes (body: Size,
-                 code: Size,
-                 title: Size,
-                 header2: Size,
-                 header3: Size,
-                 header4: Size,
-                 small: Size): Helium
+  def fontSizes (body: Length,
+                 code: Length,
+                 title: Length,
+                 header2: Length,
+                 header3: Length,
+                 header4: Length,
+                 small: Length): Helium
 
   /** Configures the four main colors used by the theme.
     * 
@@ -187,13 +187,13 @@ private[helium] trait SingleConfigOps extends CommonConfigOps {
   def fontResources (defn: FontDefinition*): Helium
   def fontFamilies (body: String, headlines: String, code: String): Helium =
     withFontFamilies(ThemeFonts(body, headlines, code))
-  def fontSizes (body: Size,
-                 code: Size,
-                 title: Size,
-                 header2: Size,
-                 header3: Size,
-                 header4: Size,
-                 small: Size): Helium =
+  def fontSizes (body: Length,
+                 code: Length,
+                 title: Length,
+                 header2: Length,
+                 header3: Length,
+                 header4: Length,
+                 small: Length): Helium =
     withFontSizes(FontSizes(body, code, title, header2, header3, header4, small))
   def themeColors (primary: Color,
                    primaryDark: Color,
@@ -233,13 +233,13 @@ private[helium] trait AllFormatsOps extends CommonConfigOps {
   def fontFamilies (body: String, headlines: String, code: String): Helium = formats.foldLeft(helium) {
     case (helium, format) => format(helium).fontFamilies(body, headlines, code)
   }
-  def fontSizes (body: Size,
-                 code: Size,
-                 title: Size,
-                 header2: Size,
-                 header3: Size,
-                 header4: Size,
-                 small: Size): Helium = formats.foldLeft(helium) {
+  def fontSizes (body: Length,
+                 code: Length,
+                 title: Length,
+                 header2: Length,
+                 header3: Length,
+                 header4: Length,
+                 small: Length): Helium = formats.foldLeft(helium) {
     case (helium, format) => format(helium).fontSizes(body, code, title, header2, header3, header4, small)
   }
   def themeColors (primary: Color,
@@ -321,9 +321,9 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
     * @param defaultLineHeight   the default line height
     * @param anchorPlacement     the placement of anchors for copying the links of section headlines (left, right or none)
     */
-  def layout (contentWidth: Size,
-              navigationWidth: Size,
-              defaultBlockSpacing: Size,
+  def layout (contentWidth: Length,
+              navigationWidth: Length,
+              defaultBlockSpacing: Length,
               defaultLineHeight: Double,
               anchorPlacement: AnchorPlacement): Helium = {
     val layout = helium.siteSettings.layout.copy(
@@ -465,7 +465,7 @@ private[helium] trait EPUBOps extends SingleConfigOps with CopyOps {
     * If you choose very high numbers for this setting you might see pages with a lot of blank space when it has
     * to move a large block to the next page.
     */
-  def layout (defaultBlockSpacing: Size, 
+  def layout (defaultBlockSpacing: Length,
               defaultLineHeight: Double,
               keepTogetherDecoratedLines: Int): Helium =
     copyWith(helium.epubSettings.copy(layout = EPUBLayout(
@@ -550,9 +550,9 @@ private[helium] trait PDFOps extends SingleConfigOps with CopyOps {
     * If you choose very high numbers for this setting you might see pages with a lot of blank space when it has
     * to move a large block to the next page.
     */
-  def layout (pageWidth: Size, pageHeight: Size,
-              marginTop: Size, marginRight: Size, marginBottom: Size, marginLeft: Size,
-              defaultBlockSpacing: Size, 
+  def layout (pageWidth: Length, pageHeight: Length,
+              marginTop: Length, marginRight: Length, marginBottom: Length, marginLeft: Length,
+              defaultBlockSpacing: Length,
               defaultLineHeight: Double,
               keepTogetherDecoratedLines: Int): Helium =
     copyWith(helium.pdfSettings.copy(layout = PDFLayout(
