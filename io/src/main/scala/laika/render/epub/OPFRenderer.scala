@@ -53,8 +53,6 @@ class OPFRenderer {
        |${docRefs.map { ref => s"""    <item id="${ref.id}" href="${ref.link}" media-type="${ref.mediaType}" />""" }.mkString("\n")}
        |  </manifest>
        |  <spine toc="ncx">
-       |${docRefs.filter(_.isCover).map { ref => s"""    <itemref idref="${ref.id}" />""" }.mkString("\n")}
-       |${docRefs.filter(_.isTitle).map { ref => s"""    <itemref idref="${ref.id}" />""" }.mkString("\n")}
        |${docRefs.filter(_.isSpine).map { ref => s"""    <itemref idref="${ref.id}" />""" }.mkString("\n")}
        |  </spine>
        |  <guide>
@@ -64,7 +62,7 @@ class OPFRenderer {
        |</package>
     """.stripMargin.replaceAll("[\n]+", "\n")
 
-  private case class DocumentRef (path: Path, mediaType: String, isSpine: Boolean, isTitle: Boolean = false, isCover: Boolean = false, forceXhtml: Boolean = false) {
+  private case class DocumentRef (path: Path, mediaType: String, isSpine: Boolean, isCover: Boolean = false, forceXhtml: Boolean = false) {
 
     val link = NavigationBuilder.fullPath(path, forceXhtml)
 
@@ -80,8 +78,8 @@ class OPFRenderer {
     */
   def render[F[_]] (result: RenderedTreeRoot[F], title: String, config: EPUB.BookConfig): String = {
 
-    val coverDoc = result.coverDocument.map(doc => DocumentRef(doc.path, "application/xhtml+xml", isSpine = false, isCover = true, forceXhtml = true))
-    val titleDoc = result.titleDocument.map(doc => DocumentRef(doc.path, "application/xhtml+xml", isSpine = false, isTitle = true, forceXhtml = true))
+    val coverDoc = result.coverDocument.map(doc => DocumentRef(doc.path, "application/xhtml+xml", isSpine = true, isCover = true, forceXhtml = true))
+    val titleDoc = result.titleDocument.map(doc => DocumentRef(doc.path, "application/xhtml+xml", isSpine = true, forceXhtml = true))
     
     val renderedDocs = result.allDocuments.drop(coverDoc.size + titleDoc.size).map { doc =>
       DocumentRef(doc.path, "application/xhtml+xml", isSpine = true, forceXhtml = true)
