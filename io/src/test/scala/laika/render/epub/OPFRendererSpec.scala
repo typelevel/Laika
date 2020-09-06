@@ -182,7 +182,6 @@ class OPFRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
        |  <spine toc="ncx">
        |${coverEntries.fold("")(_.spine)}
        |$titleRef
-       |    <itemref idref="nav" />
        |$spineRefs
        |  </spine>
        |  <guide>

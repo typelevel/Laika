@@ -55,7 +55,6 @@ class OPFRenderer {
        |  <spine toc="ncx">
        |${docRefs.filter(_.isCover).map { ref => s"""    <itemref idref="${ref.id}" />""" }.mkString("\n")}
        |${docRefs.filter(_.isTitle).map { ref => s"""    <itemref idref="${ref.id}" />""" }.mkString("\n")}
-       |    <itemref idref="nav" />
        |${docRefs.filter(_.isSpine).map { ref => s"""    <itemref idref="${ref.id}" />""" }.mkString("\n")}
        |  </spine>
        |  <guide>
