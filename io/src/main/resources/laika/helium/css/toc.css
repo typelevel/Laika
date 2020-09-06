@@ -3,10 +3,17 @@ ul.toc, .toc ul {
   list-style: none;
 }
 .toc.nav-header {
-  font-size: 36px; /* TODO */
+  font-size: 36px;
   margin-bottom: 20px;
   margin-top: 36px;
-  background: linear-gradient(180deg, #ffffff 65%, #c3d6d8 65%);
+  background: linear-gradient(180deg, #ffffff 65%, #c3d6d8 65%); /* TODO - var */
+  color: var(--secondary-color);
+  display: block;
+  padding: 3px 15px;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-left: -5px;
+  line-height: 20px;
 }
 .toc.active {
   display: none;
@@ -14,9 +21,16 @@ ul.toc, .toc ul {
 .toc.level2 {
   font-size: 28px; /* TODO */
   color: var(--primary-color);
+  margin-left: 10px;
+  margin-top: 20px;
 }
 .toc.level3 {
   font-size: 18px; /* TODO */
+  margin-left: 25px;
+}
+.toc.level4 {
+  font-size: 0.9em; /* TODO */
+  margin-left: 40px;
 }
 .toc.level4 a {
   color: var(--primary-color);

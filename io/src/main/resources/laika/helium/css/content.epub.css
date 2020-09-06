@@ -6,34 +6,11 @@ body {
   line-height: var(--line-height);
 }
 
+/* table of content additions ========================================= */
 
-/* table of content ========================================= */
 
-/* TODO - these are very old styles and may no longer match the output */
 
-ol.toc { 
-  padding: 0; 
-  list-style: none; 
-}
-ol.toc a {
-  display: block;
-}
-ol.toc li { list-style-type: none; margin: 0; padding: 0; }
-ol.toc > li > a {
-  padding-top: 20px;
-  font-size: 21px;
-}
-ol.toc > li > ol > li > a {
-  padding-top: 20px;
-  font-size: 16px;
-}
-ol.toc > li > ol > li > ol > li > a {
-  padding-top: 10px;
-  padding-bottom: 0;
-  font-size: 13px;
-}
-
-/* remove ============================================================================ */
+/* remove ============================================================= */
 
 p {
   /*margin: 0 0 var(--block-spacing);*/

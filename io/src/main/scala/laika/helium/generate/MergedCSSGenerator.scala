@@ -44,6 +44,7 @@ private[helium] object MergedCSSGenerator {
 
     val inputTree = InputTree[F]
       .addClasspathResource("laika/helium/css/content.epub.css", Root / "css" / "content.css")
+      .addClasspathResource("laika/helium/css/toc.css", Root / "css" / "content.css")
       .addClasspathResource("laika/helium/css/code.css", Root / "css" / "code.css")
       .addClasspathResource("laika/helium/css/code.epub.css", Root / "css" / "code.epub.css")
       .build
