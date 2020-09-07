@@ -1,0 +1,19 @@
+
+.color-block {
+  margin-bottom: 35px;
+}
+
+.color-row {
+  display: flex;
+  justify-content: space-evenly;
+  margin: 20px 0;
+}
+
+.color-cell p {
+  font-weight: bold;
+}
+
+.color-box {
+  width: 100px;
+  height: 100px;
+}
