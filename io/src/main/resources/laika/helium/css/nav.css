@@ -8,7 +8,7 @@
 header {
   display: flex;
   justify-content: space-between;
-  background-color: #bfdde1; /* TODO */
+  background-color: var(--primary-light);
   margin: 0;
   position: fixed;
   top: 0;
@@ -18,6 +18,7 @@ header {
   width: 100%;
   align-items: center;
   padding: 0 45px 0 20px;
+  border-bottom: 1px solid #c3d6d8; /* TODO */
 }
 header a {
   color: var(--primary-color);
@@ -103,9 +104,15 @@ ul.nav-list, #page-nav ul {
 }
 #page-nav .header, #page-nav .footer {
   padding: 5px 12px;
-  background-color: #006180; /* TODO */
   margin: 0;
 }
+#page-nav .header {
+  background-color: #006180; /* TODO */
+}
+#page-nav .footer {
+  border-top: 1px solid #c3d6d8; /* TODO */
+}
+
 ul.nav-list {
   padding-top: 10px;
   padding-bottom: 15px;
@@ -150,13 +157,17 @@ ul.nav-list {
 .nav-list .active a,
 .nav-list .active a:hover,
 #page-nav .header a,
-#page-nav .header a:hover,
-#page-nav .footer a,
-#page-nav .footer a:hover {
+#page-nav .header a:hover {
   color: #ffffff; /* TODO */
   background-color: #006180; /* TODO */
   text-decoration: none;
 }
+#page-nav .footer a,
+#page-nav .footer a:hover {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
 .nav-list li + .nav-header {
   margin-top: 9px;
 }
@@ -167,7 +178,6 @@ ul.nav-list {
   top: calc(45px + var(--top-bar-height));
   right: 45px;
   width: 250px;
-  border: 1px solid #c3d6d8; /* TODO */
   background-color: var(--primary-light);
   border-radius: 5px;
 }
