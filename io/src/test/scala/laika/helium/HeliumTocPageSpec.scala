@@ -74,7 +74,7 @@ class HeliumTocPageSpec extends IOFunSuite with InputBuilder with ResultExtracto
                      |<body>
                      |<header id="top-bar">
                      |<a id="nav-icon">
-                     |<i class="icofont-navigation-menu icofont-xlg"></i>
+                     |<i class="icofont-laika">&#xefa2;</i>
                      |</a>
                      |<a href="index.html"><i class="icofont-laika" title="Home">&#xef47;</i></a>
                      |<span class="row"></span>

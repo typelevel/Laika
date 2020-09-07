@@ -54,11 +54,11 @@ private[helium] object HeliumRenderOverrides {
   
   def forHTML (anchorPlacement: AnchorPlacement): PartialFunction[(HTMLFormatter, Element), String] = {
     case (fmt, Header(level, content, opt)) =>
-      def link = opt.id.map(id => SpanLink(Seq(HeliumIcon.link), InternalTarget(CurrentDocument(id)), options = Styles("anchor-link")))
+      def link (style: String) = opt.id.map(id => SpanLink(Seq(HeliumIcon.link), InternalTarget(CurrentDocument(id)), options = Styles("anchor-link", style)))
       val linkedContent = anchorPlacement match {
         case AnchorPlacement.None => content
-        case AnchorPlacement.Left => link.toSeq ++ content
-        case AnchorPlacement.Right => content ++ link.toSeq
+        case AnchorPlacement.Left => link("left").toSeq ++ content
+        case AnchorPlacement.Right => content ++ link("right").toSeq
       }
       fmt.newLine + fmt.element("h"+level.toString, opt, linkedContent)
     case (fmt, BlockSequence(content, opt)) if opt.styles.contains("callout") =>

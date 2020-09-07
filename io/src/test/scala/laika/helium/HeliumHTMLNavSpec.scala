@@ -112,7 +112,7 @@ class HeliumHTMLNavSpec extends IOFunSuite with InputBuilder with ResultExtracto
   test("top navigation - defaults") {
     val expected =
       """<a id="nav-icon">
-        |<i class="icofont-navigation-menu icofont-xlg"></i>
+        |<i class="icofont-laika">&#xefa2;</i>
         |</a>
         |<a href="index.html"><i class="icofont-laika" title="Home">&#xef47;</i></a>
         |<span class="row"></span>""".stripMargin
@@ -122,7 +122,7 @@ class HeliumHTMLNavSpec extends IOFunSuite with InputBuilder with ResultExtracto
   test("top navigation - with custom links") {
     val expected =
       """<a id="nav-icon">
-        |<i class="icofont-navigation-menu icofont-xlg"></i>
+        |<i class="icofont-laika">&#xefa2;</i>
         |</a>
         |<a href="index.html"><img src="home.png" alt="Homepage" title="Home"></a>
         |<span class="row"><a href="doc-2.html"><i class="icofont-laika" title="Demo">&#xeeea;</i></a><a class="button" href="http://somewhere.com/">Somewhere</a></span>""".stripMargin

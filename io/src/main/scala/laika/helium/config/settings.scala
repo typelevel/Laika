@@ -350,7 +350,7 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
     * @param links an optional set of links to be placed at the right side of the bar, supported link
     *              types are `IconLink`, `ButtonLink` and a plain `TextLink`
     */
-  def topNavigationBar (logo: Option[ThemeLogo], links: Seq[ThemeLink]): Helium = {
+  def topNavigationBar (logo: Option[ThemeLogo] = None, links: Seq[ThemeLink] = Nil): Helium = {
     val newLayout = helium.siteSettings.layout.copy(topNavigationBar = TopNavigationBar(logo, links))
     copyWith(helium.siteSettings.copy(layout = newLayout))
   }
