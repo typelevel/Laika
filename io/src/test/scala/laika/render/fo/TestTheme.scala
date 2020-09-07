@@ -44,6 +44,9 @@ object TestTheme {
     Root / "laika" / "fonts" / "FiraCode-Medium.otf", 
     Root / "laika" / "fonts" / "icofont.ttf",
     Root / "helium" / "laika-helium.js",
+    Root / "helium" / "icofont.min.css", 
+    Root / "helium" / "fonts"/ "icofont.woff", 
+    Root / "helium" / "fonts"/ "icofont.woff2",
     Root / "helium" / "laika-helium.css",
     Root / "helium" / "laika-helium.epub.css"
   )

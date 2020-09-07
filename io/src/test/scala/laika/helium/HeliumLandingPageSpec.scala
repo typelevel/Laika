@@ -67,7 +67,7 @@ class HeliumLandingPageSpec extends IOFunSuite with InputBuilder with ResultExtr
                      |<title></title>
                      |<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lato:400,700">
                      |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
-                     |<link rel="stylesheet" href="../icons/icofont.min.css">
+                     |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
                      |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
                      |<script src="helium/laika-helium.js"></script>
                      |<script> /* for avoiding page load transitions */ </script>
@@ -148,7 +148,7 @@ class HeliumLandingPageSpec extends IOFunSuite with InputBuilder with ResultExtr
                      |<title></title>
                      |<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lato:400,700">
                      |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
-                     |<link rel="stylesheet" href="../icons/icofont.min.css">
+                     |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
                      |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
                      |<script src="helium/laika-helium.js"></script>
                      |<script> /* for avoiding page load transitions */ </script>

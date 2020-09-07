@@ -95,8 +95,6 @@ class HeliumRenderOverridesSpec extends IOFunSuite with InputBuilder with Result
     transformAndExtract(input, configure = configure).assertEquals(expected)
   }
 
-  // orig: <span class="icon icofont-xlg">
-  
   test("callouts") {
     val input =
       """

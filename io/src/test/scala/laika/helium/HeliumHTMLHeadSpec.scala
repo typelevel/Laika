@@ -69,7 +69,7 @@ class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
                         |<title></title>
                         |<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lato:400,700">
                         |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
-                        |<link rel="stylesheet" href="../icons/icofont.min.css">
+                        |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
                         |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
                         |<script src="helium/laika-helium.js"></script>
                         |<script> /* for avoiding page load transitions */ </script>""".stripMargin
@@ -128,7 +128,7 @@ class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
                      |<title></title>
                      |<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lato:400,700">
                      |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
-                     |<link rel="stylesheet" href="../icons/icofont.min.css">
+                     |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
                      |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
                      |<link rel="stylesheet" type="text/css" href="web/foo.css" />
                      |<script src="helium/laika-helium.js"></script>
@@ -155,7 +155,7 @@ class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
                      |<title></title>
                      |<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lato:400,700">
                      |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
-                     |<link rel="stylesheet" href="../icons/icofont.min.css">
+                     |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
                      |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
                      |<link rel="stylesheet" type="text/css" href="custom-css/foo.css" />
                      |<script src="helium/laika-helium.js"></script>
@@ -179,7 +179,7 @@ class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
                      |<meta name="description" content="Some description"/>
                      |<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lato:400,700">
                      |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
-                     |<link rel="stylesheet" href="../icons/icofont.min.css">
+                     |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
                      |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
                      |<script src="helium/laika-helium.js"></script>
                      |<script> /* for avoiding page load transitions */ </script>""".stripMargin
@@ -212,7 +212,7 @@ class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
                      |<link rel="icon" sizes="64x64" type="image/png" href="icon-2.png" />
                      |<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lato:400,700">
                      |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
-                     |<link rel="stylesheet" href="../icons/icofont.min.css">
+                     |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
                      |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
                      |<script src="helium/laika-helium.js"></script>
                      |<script> /* for avoiding page load transitions */ </script>""".stripMargin
@@ -231,6 +231,7 @@ class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
                      |<title></title>
                      |<link rel="stylesheet" href="http://fonts.com/font-1.css">
                      |<link rel="stylesheet" href="http://fonts.com/font-2.css">
+                     |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
                      |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
                      |<script src="helium/laika-helium.js"></script>
                      |<script> /* for avoiding page load transitions */ </script>""".stripMargin
