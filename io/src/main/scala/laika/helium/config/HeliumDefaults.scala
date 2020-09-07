@@ -79,7 +79,7 @@ private[helium] object HeliumDefaults {
   def colors (syntaxScheme: SyntaxColors): ColorSet = ColorSet(
     primary = Color.hex("007c99"),
     secondary = Color.hex("931813"),
-    primaryDark = Color.hex("007c99"),
+    primaryDark = Color.hex("095269"),
     primaryLight = Color.hex("ebf6f7"),
     messages = defaultMessageColors,
     syntaxHighlighting = syntaxScheme
