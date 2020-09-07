@@ -47,7 +47,7 @@ private[helium] object HeliumDefaults {
       "Fira Code", FontWeight.Normal, FontStyle.Normal
     ),
     FontDefinition(
-      Font.embedResource(fontPath + "icofont/fonts/icofont.ttf").webCSS("../icons/icofont.min.css"),
+      Font.embedResource(fontPath + "icofont/fonts/icofont.ttf").webCSS("../helium/icofont.min.css"),
       "IcoFont", FontWeight.Normal, FontStyle.Normal
     ),
   )

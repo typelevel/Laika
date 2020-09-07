@@ -44,22 +44,27 @@ private[helium] object HeliumInputBuilder {
         case res: EmbeddedFontResource => tree.addClasspathResource(res.name, res.path)
       }
     }
+    
+    val heliumPath = Root / "helium"
   
     val themeInputs = fontInputs
       .addClasspathResource("laika/helium/templates/default.template.epub.xhtml", DefaultTemplatePath.forEPUB)
       .addClasspathResource("laika/helium/templates/default.template.html", DefaultTemplatePath.forHTML)
       .addClasspathResource("laika/helium/templates/landing.template.html", Root / "landing.template.html")
       .addClasspathResource("laika/helium/templates/default.template.fo", DefaultTemplatePath.forFO)
-      .addClasspathResource("laika/helium/js/theme.js", Root / "helium" / "laika-helium.js")
+      .addClasspathResource("laika/helium/js/theme.js", heliumPath / "laika-helium.js")
+      .addClasspathResource("laika/helium/fonts/icofont/icofont.min.css", heliumPath / "icofont.min.css")
+      .addClasspathResource("laika/helium/fonts/icofont/fonts/icofont.woff", heliumPath / "fonts" / "icofont.woff")
+      .addClasspathResource("laika/helium/fonts/icofont/fonts/icofont.woff2", heliumPath / "fonts" / "icofont.woff2")
       .addString(new FOStyles(helium).input, FOStyles.defaultPath)
   
-    val siteVars = CSSVarGenerator.generate(helium.siteSettings)
-    val epubVars = CSSVarGenerator.generate(helium.epubSettings)
+    val siteVars = MergedCSSGenerator.mergeSiteCSS(CSSVarGenerator.generate(helium.siteSettings))
+    val epubVars = MergedCSSGenerator.mergeEPUBCSS(CSSVarGenerator.generate(helium.epubSettings))
     
-    (MergedCSSGenerator.mergeSiteCSS(siteVars), MergedCSSGenerator.mergeEPUBCSS(epubVars)).mapN { (siteCSS, epubCSS) =>
+    (siteVars, epubVars).mapN { (siteCSS, epubCSS) =>
       themeInputs
-        .addString(siteCSS, Root / "helium" / "laika-helium.css")
-        .addString(epubCSS, Root / "helium" / "laika-helium.epub.css")
+        .addString(siteCSS, heliumPath / "laika-helium.css")
+        .addString(epubCSS, heliumPath / "laika-helium.epub.css")
     }
   }
   
