@@ -76,10 +76,10 @@ class HeliumRenderOverridesSpec extends IOFunSuite with InputBuilder with Result
     val expected = 
       """<div class="tab-container" data-tab-group="config">
         |<ul class="tab-group">
-        |<li class="tab" data-choice-name="sbt">sbt Plugin</li>
-        |<li class="tab" data-choice-name="library">Library API</li>
+        |<li class="tab active" data-choice-name="sbt"><a href="#">sbt Plugin</a></li>
+        |<li class="tab" data-choice-name="library"><a href="#">Library API</a></li>
         |</ul>
-        |<div class="tab-content" data-choice-name="sbt">
+        |<div class="tab-content active" data-choice-name="sbt">
         |<p>1st choice</p>
         |</div>
         |<div class="tab-content" data-choice-name="library">

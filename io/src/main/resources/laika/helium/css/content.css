@@ -187,7 +187,7 @@ li.tab.active {
 }
 .tab-content {
   display: none;
-  padding: 2px 5px;
+  padding: 12px 5px 5px;
   border: 1px solid #c3d6d8; /* TODO */
   border-radius: 0 5px 5px 5px;
   margin-top: 0 !important;

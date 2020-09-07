@@ -40,9 +40,13 @@ private[helium] object HeliumRenderOverrides {
   }
 
   def renderChoices (fmt:HTMLFormatter, name: String, choices: Seq[Choice], options: Options): String = {
-    val tabs = Tabs(choices.map(c => Tab(c.name, c.label)))
-    val content = choices.map(c => TabContent(c.name, c.content))
-    fmt.indentedElement("div", options + Styles("tab-container"), tabs +: content, "data-tab-group" -> name)
+    choices match {
+      case Nil => ""
+      case first +: rest =>
+        val tabs = Tabs(Tab(first.name, first.label, Style.active) +: rest.map(c => Tab(c.name, c.label)))
+        val content = TabContent(first.name, first.content, Style.active) +: rest.map(c => TabContent(c.name, c.content))
+        fmt.indentedElement("div", options + Styles("tab-container"), tabs +: content, "data-tab-group" -> name)
+    }
   }
   
   def icon (opt: Options): Option[Icon] = (opt.styles - "callout").headOption match {
@@ -66,8 +70,10 @@ private[helium] object HeliumRenderOverrides {
     case (fmt, Selection(name, choices, opt)) => renderChoices(fmt, name, choices, opt)
       
     case (fmt, tabs: Tabs)      => fmt.indentedElement("ul", Styles("tab-group"), tabs.tabs)
-    case (fmt, tab: TabContent) => fmt.indentedElement("div", Styles("tab-content"), tab.content, "data-choice-name" -> tab.name)
-    case (fmt, tab: Tab)        => fmt.element("li", Styles("tab"), Seq(Text(tab.label)), "data-choice-name" -> tab.name)
+    case (fmt, tab: TabContent) => fmt.indentedElement("div", Styles("tab-content") + tab.options, tab.content, "data-choice-name" -> tab.name)
+    case (fmt, tab: Tab)        => 
+      val link = SpanLink(Seq(Text(tab.label)), InternalTarget(CurrentDocument()))
+      fmt.element("li", Styles("tab") + tab.options, Seq(link), "data-choice-name" -> tab.name)
   }
   
   def forPDF: PartialFunction[(FOFormatter, Element), String] = {

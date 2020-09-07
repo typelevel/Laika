@@ -11,14 +11,14 @@ function initTabs () {
   const tabs = document.querySelectorAll(".tab")
   const content = document.querySelectorAll(".tab-content")
   tabs.forEach(tab => {
-    const group = tab.parentElement.parentElement.dataset.tabGroup;
+    const groupName = tab.parentElement.parentElement.dataset.tabGroup;
     const choiceName = tab.dataset.choiceName;
-    if (group && choiceName) {
-      if (groups[name] === undefined) groups[name] = [];
-      groups[name].push(tab);
+    if (groupName && choiceName) {
+      if (groups[groupName] === undefined) groups[groupName] = [];
+      groups[groupName].push(tab);
       tab.firstElementChild.onclick = (e) => {
         e.preventDefault();
-        switchTabs(groups[group], choiceName);
+        switchTabs(groups[groupName], choiceName);
       };
     }
   });
