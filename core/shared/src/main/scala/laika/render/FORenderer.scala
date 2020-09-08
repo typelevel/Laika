@@ -77,8 +77,8 @@ object FORenderer extends ((FOFormatter, Element) => String) {
         case other           => Text(other.toString)
       }
 
-      def replaceSpanContainers (content: Seq[Block]): Seq[Block] = content map {
-        case sc: SpanContainer => Paragraph(sc.content, sc.options)
+      def replaceSpanSequences (content: Seq[Block]): Seq[Block] = content map {
+        case sc: SpanSequence => Paragraph(sc.content, sc.options)
         case other => other
       }
 
@@ -92,7 +92,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
         case e @ BulletListItem(content,format,_)   => fmt.listItem(e, List(bulletLabel(format)), content)
         case e @ EnumListItem(content,format,num,_) => fmt.listItem(e, List(Text(enumLabel(format,num))), content)
         case e @ DefinitionListItem(term,defn,_)    => fmt.listItem(e, term, defn)
-        case e @ ListItemBody(content,_)            => fmt.listItemBody(e, replaceSpanContainers(content))
+        case e @ ListItemBody(content,_)            => fmt.listItemBody(e, replaceSpanSequences(content))
 
         case e @ Figure(img,caption,legend,_)   => fmt.blockContainer(e, figureContent(img,caption,legend))
 
