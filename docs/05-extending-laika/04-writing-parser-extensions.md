@@ -82,7 +82,8 @@ import laika.parse.implicits._
 
 val ticketParser: PrefixedParser[Span] = 
   ("#" ~> someOf(CharGroup.digits)).map { num =>
-    SpanLink(Seq(Text("#" + num)), ExternalTarget(s"http://our-tracker.com/$num"))
+    val url = s"http://our-tracker.com/$num"
+    SpanLink(Seq(Text("#" + num)), ExternalTarget(url))
   }
 ```
 
@@ -157,8 +158,8 @@ case class TicketResolver (num: String, options: Options = NoOpt) extends SpanRe
 
   def resolve (cursor: DocumentCursor): Span = {
     cursor.config.get[String]("ticket.baseURL").fold(
-      error => InvalidElement(s"Unable to read base URL for tickets: $error", "#" + num).asSpan,
-      baseURL => SpanLink(Seq(Text("#" + num)), ExternalTarget(s"$baseURL$num"))
+      error => InvalidElement(s"Invalid base URL: $error", "#" + num).asSpan,
+      baseURL => SpanLink(Seq(Text("#"+num)), ExternalTarget(s"$baseURL$num"))
     )
   }
 }

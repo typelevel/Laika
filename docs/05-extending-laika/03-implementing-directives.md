@@ -164,7 +164,8 @@ import Spans.dsl._
 
 val ticketDirective = Spans.create("ticket") {
   attribute(0).as[Int].map { ticketNo => 
-    SpanLink(Seq(Text("#" + num)), ExternalTarget(s"http://our-tracker.com/$num"))
+    val url = s"http://our-tracker.com/$ticketNo"
+    SpanLink(Seq(Text("#" + ticketNo)), ExternalTarget(url))
   }
 }
 ```
@@ -242,10 +243,10 @@ provided alongside the expected attribute value:
 import Spans.dsl._
 
 val ticketDirective = Spans.create("ticket") {
-  (attribute(0).as[Int], cursor).mapN { (ticketNo, cursor) => 
+  (attribute(0).as[Int], cursor).mapN { (num, cursor) => 
     cursor.config.get[String]("ticket.baseURL").fold(
-      error => InvalidElement(s"Unable to read base URL: $error", "#" + num).asSpan,
-      baseURL => SpanLink(Seq(Text("#" + num)), ExternalTarget(s"$baseURL$num"))
+      error => InvalidElement(s"Invalid base URL: $error", "#" + num).asSpan,
+      baseURL => SpanLink(Seq(Text("#"+num)), ExternalTarget(s"$baseURL$num"))
     )
   }
 }

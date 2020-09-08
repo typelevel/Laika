@@ -286,7 +286,9 @@ Let's pick CSS in HTML as an example and show a simplified definition for a such
 ```scala
 val styleTagParser: PrefixedParser[Seq[CodeSpan]] = {
   val cat = CodeCategory.Tag.Name
-  val bodyAndEndTag = EmbeddedCodeSpans.parser(delimitedBy("</style>"), CSSSyntax)
+  val bodyAndEndTag = 
+    EmbeddedCodeSpans.parser(delimitedBy("</style>"), CSSSyntax)
+    
   (literal("<style>") ~> bodyAndEndTag).map { css =>
     CodeSpan("<style>", cat) +: css :+ CodeSpan("</style>", cat)
   }

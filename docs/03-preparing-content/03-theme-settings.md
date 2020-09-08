@@ -133,11 +133,15 @@ You can override these defaults by defining your own set of fonts.
 This is an excerpt of Laika's default configuration as an example:
 
 ```scala
+val latoURL = "http://fonts.googleapis.com/css?family=Lato:400,700"
+val firaURL = 
+  "https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css"
+
 Helium.defaults.all.fontResources(
   FontDefinition(
     Font
       .embedResource(fontPath + "Lato/Lato-Regular.ttf")
-      .webCSS("http://fonts.googleapis.com/css?family=Lato:400,700"),
+      .webCSS(latoURL),
     "Lato", FontWeight.Normal, FontStyle.Normal
   ),
   FontDefinition(
@@ -148,7 +152,7 @@ Helium.defaults.all.fontResources(
   FontDefinition(
     Font
       .embedResource(fontPath + "FiraCode/FiraCode-Medium.otf")
-      .webCSS("https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css"),
+      .webCSS(firaURL),
     "Fira Code", FontWeight.Normal, FontStyle.Normal
   ),
   FontDefinition(
@@ -233,7 +237,7 @@ The default theme colors, which are used for the documentation you are reading r
 
 007c99 primary
 931813 secondary
-007c99 primaryDark
+095269 primaryDark
 ebf6f7 primaryLight
 
 @:@
@@ -294,8 +298,14 @@ They can be overridden per format or for all at once:
 ```scala
 Helium.defaults
   .all.syntaxHighlightingColors(
-    base = ColorQuintet(hex("2a3236"), hex("8c878e"), hex("b2adb4"), hex("bddcee"), hex("e8e8e8")),
-    wheel = ColorQuintet(hex("e28e93"), hex("ef9725"), hex("ffc66d"), hex("7fb971"), hex("4dbed4"))
+    base = ColorQuintet(
+      hex("2a3236"), hex("8c878e"), hex("b2adb4"), 
+      hex("bddcee"), hex("e8e8e8")
+    ),
+    wheel = ColorQuintet(
+      hex("e28e93"), hex("ef9725"), hex("ffc66d"), 
+      hex("7fb971"), hex("4dbed4")
+    )
   )
 ```
 
@@ -409,7 +419,10 @@ The left corner of the top bar is always reserved for the button to open or clos
 val logoPath = ThemeTarget.internal(Root / "image.png")
 Helium.defaults.site
   .topNavigationBar(
-    logo = Some(ThemeLogo(logoPath, alt = Some("Homepage"), title = Some("Home"))),
+    logo = Some(ThemeLogo(logoPath, 
+      alt = Some("Homepage"), 
+      title = Some("Home")
+    )),
     links = Seq(
       IconLink(ThemeTarget.internal(Root / "doc-2.md"), HeliumIcon.demo),
       ButtonLink(ThemeTarget.external("http://somewhere.com/"), "Somewhere")

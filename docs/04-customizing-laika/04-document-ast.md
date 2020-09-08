@@ -345,7 +345,8 @@ If you create a custom element type you can use these base traits to get all the
 ```scala
 object MyElement extends BlockContainerCompanion {
   type ContainerType = MyElement
-  override protected def createBlockContainer (blocks: Seq[Block]) = MyElement(blocks)
+  override protected def createBlockContainer (blocks: Seq[Block]) = 
+    MyElement(blocks)
 }
 ```
 
@@ -368,8 +369,8 @@ case class Document (
   content: RootElement,
   fragments: Map[String, Element] = Map.empty,
   config: Config = Config.empty,
-  position: TreePosition = TreePosition(Seq())
-) extends DocumentStructure
+  position: TreePosition = TreePosition.orphan
+) extends DocumentStructure with TreeContent
 ```
 
 * The `path` property holds the absolute, virtual path of the document inside the tree.
@@ -414,7 +415,7 @@ case class DocumentTree (
   templates: Seq[TemplateDocument] = Nil,
   config: Config = Config.empty,
   position: TreePosition = TreePosition.root
-) extends TreeStructure
+) extends TreeStructure with TreeContent
 ```
 
 * Like with documents, the `path` property holds the absolute, virtual path of the document inside the tree.

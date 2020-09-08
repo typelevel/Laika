@@ -315,8 +315,15 @@ while keeping one base URI as a default for all packages that do not match any p
 ```scala
 laikaConfig := LaikaConfig.defaults
   .withConfigValue(LinkConfig(sourceLinks = Seq(
-    SourceLinks(baseUri = "https://github.com/team/project", suffix = "scala"),
-    SourceLinks(baseUri = "https://github.com/elsewhere/project", suffix = "scala", packagePrefix = "com.lib42")
+    SourceLinks(
+      baseUri = "https://github.com/team/project", 
+      suffix = "scala"
+    ),
+    SourceLinks(
+      baseUri = "https://github.com/elsewhere/project", 
+      suffix = "scala", 
+      packagePrefix = "com.lib42"
+    )
   )))
 ```
 
@@ -327,8 +334,15 @@ val transformer = Transformer
   .to(HTML)
   .using(GitHubFlavor)
   .withConfigValue(LinkConfig(sourceLinks = Seq(
-    SourceLinks(baseUri = "https://github.com/team/project", suffix = "scala"),
-    SourceLinks(baseUri = "https://github.com/elsewhere/project", suffix = "scala", packagePrefix = "com.lib42")
+    SourceLinks(
+      baseUri = "https://github.com/team/project", 
+      suffix = "scala"
+    ),
+    SourceLinks(
+      baseUri = "https://github.com/elsewhere/project", 
+      suffix = "scala", 
+      packagePrefix = "com.lib42"
+    )
   )))
   .build
 ```

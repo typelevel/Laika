@@ -47,7 +47,13 @@ trait Theme[F[_]] {
   
   def extensions: Seq[ExtensionBundle]
   
-  def treeProcessor: PartialFunction[Format, Kleisli[F, ParsedTree[F], ParsedTree[F]]]
+  def treeProcessor: Format => TreeProcessor[F]
+  
+}
+
+object Theme {
+
+  type TreeProcessor[F[_]] = Kleisli[F, ParsedTree[F], ParsedTree[F]]
   
 }
 ```
@@ -73,9 +79,8 @@ Finally, the `treeProcessor` property is another optional hook that allows to in
 between parsing and rendering.
 This can be useful if some of your theme's configuration logic needs to look at the input documents or configuration
 supplied by the user before generating the final AST.
-It is a partial function that expects the output format, so you can create separate logic for producing the AST for the
+It is a function that expects the output format, so you can create separate logic for producing the AST for the
 site, EPUB and PDF output.
-If this hook is not needed for your theme, simply define `PartialFunction.empty` here.
 
 
 Designing a Configuration API
@@ -154,22 +159,22 @@ There are two approaches you can choose from:
 * Generate the entire template as an in-memory string based on the user's theme configuration and 
   add the result to the `InputTreeBuilder`:
   
-  ```scala
-  val builder: InputTreeBuilder[F] = ???
-  val templateString: String = MyTemplateGenerator.generate(config)
-  builder.addString(templateString, DefaultTemplatePath.forHTML)
-  ```
+    ```scala
+    val builder: InputTreeBuilder[F] = ???
+    val templateString: String = MyTemplateGenerator.generate(config)
+    builder.addString(templateString, DefaultTemplatePath.forHTML)
+    ```
   
   This might be quite convenient to implement, but has the disadvantage that the user does not have a way
   to look at the default template in case she wants to place a modified copy into the input tree.
   
 * Or place the entire default template into the resource folder of your library and load it from there:
 
-  ```scala
-  val builder: InputTreeBuilder[F] = ???
-  val resourcePath = "my-theme/templates/default.template.html"
-  builder.addClasspathResource(resourcePath, DefaultTemplatePath.forHTML)
-  ```
+    ```scala
+    val builder: InputTreeBuilder[F] = ???
+    val resourcePath = "my-theme/templates/default.template.html"
+    builder.addClasspathResource(resourcePath, DefaultTemplatePath.forHTML)
+    ```
   
   In this case you would use Laika's template syntax to access your theme's configuration, 
   usually mostly by using the following features:
@@ -204,7 +209,10 @@ allowing you to reduce the boilerplate and stringly logic of rendering the forma
 The below example shows how the `ThemeBuilder` API can be used to pre-populate the transformer configuration:
 
 ```scala
-val logo = ThemeLogo(ThemeTarget.internal(Root / "logo.png"), alt = Some("Project Logo"))
+val logo = ThemeLogo(
+  target = ThemeTarget.internal(Root / "logo.png"), 
+  alt = Some("Project Logo")
+)
 
 val baseConfig = ConfigBuilder.empty
   .withValue("theme-name.logo", logo)
@@ -288,7 +296,7 @@ This step will be very different for each theme depending on its feature set,
 so we just show Laika's own Helium theme builder as an example:
 
 ```scala
-private[helium] class HeliumThemeBuilder (helium: Helium) extends ThemeProvider {
+class HeliumThemeBuilder (helium: Helium) extends ThemeProvider {
 
   def build[F[_]: Sync: Runtime]: Resource[F, Theme[F]] = {
 

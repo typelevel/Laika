@@ -149,7 +149,8 @@ You can then flatMap on the string decoder to obtain a Color decoder:
 ```scala
 implicit val colorDecoder: ConfigDecoder[Color] = 
   ConfigDecoder.string.flatMap { str =>
-    Color.fromString(str).toRight(DecodingError(s"Unsupported color name: $str"))
+    Color.fromString(str)
+      .toRight(DecodingError(s"Unsupported color name: $str"))
   }
 ```
 
@@ -163,14 +164,15 @@ For mapping a HOCON object to a Scala case class you would usually build on top 
 which decodes a nested object into an instance that has the same API for querying values as the root.
 
 ```scala
-implicit val decoder: ConfigDecoder[Person] = ConfigDecoder.config.flatMap { config =>
-  for {
-    name <- config.get[String]("name")
-    age  <- config.get[Int]("age")
-    city <- config.getOpt[String]("city")
-  } yield {
-    Person(name, age, city)
-  }
+implicit val decoder: ConfigDecoder[Person] = 
+  ConfigDecoder.config.flatMap { config =>
+    for {
+      name <- config.get[String]("name")
+      age  <- config.get[Int]("age")
+      city <- config.getOpt[String]("city")
+    } yield {
+      Person(name, age, city)
+    }
 }
 ```
 

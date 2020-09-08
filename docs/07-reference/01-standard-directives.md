@@ -147,7 +147,8 @@ In markup the directive simply surrounds the content of the callout:
 @:callout(warning)
 
 This text appears inside the decorated callout box.
-Any block level elements can be used as the content, including lists, tables or code blocks.
+Any block level elements can be used as the content, 
+including lists, tables or code blocks.
 
 @:@
 ```
@@ -216,27 +217,27 @@ and `sbt` and `library` as the name of the two choices together with their label
 
 With this configuration in place the directive can be used like this:
 
-```laika-md
+````laika-md
 @:select(config)
 
 @:choice(sbt)
-\```scala
+```scala
 laikaConfig := LaikaConfig.defaults.strict
-\```
+```
 
 @:choice(library)
-\```scala
+```scala
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
   .using(GitHubFlavor)
   .strict
   .build
-\```
+```
 
 @:@
 
-```
+````
 
 The `@:choice` directives are child directives called "separator directives" that can only be used inside
 the corresponding parent directive to mark specific sections within the directive's body.

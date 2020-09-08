@@ -352,7 +352,7 @@ you can use the `InputTree` builder.
 val inputs = InputTree[F]
   .addDirectory("/path-to-my/markup-files")
   .addDirectory("/path-to-my/images", Root / "images")
-  .addClasspathResource("my-templates/default.template.html", DefaultTemplatePath.forHTML)
+  .addClasspathResource("templates/default.html", DefaultTemplatePath.forHTML)
   .addString(generateStyles(), Root / "css" / "site.css")
 ```
 
