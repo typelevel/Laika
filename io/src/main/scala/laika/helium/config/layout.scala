@@ -74,7 +74,7 @@ private[helium] case class MarkupEditLinks (text: String, baseURL: String)
   * 
   * The sizes string will be used in the corresponding `sizes` attribute of the generated `&lt;link&gt;` tag.
   */
-case class Favicon private (target: ThemeTarget, sizes: Option[String], mediaType: Option[String])
+case class Favicon private (target: ThemeTarget, sizes: Option[String] = None, mediaType: Option[String] = None)
 
 /** Companion for creating Favicon configuration instances.
   */
