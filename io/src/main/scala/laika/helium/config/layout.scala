@@ -50,7 +50,7 @@ private[helium] case class EPUBLayout (defaultBlockSpacing: Length,
 
 private[helium] case class TableOfContent (title: String, depth: Int)
 
-private[helium] case class TopNavigationBar (logo: Option[ThemeLogo], links: Seq[ThemeLink])
+private[helium] case class TopNavigationBar (logo: Option[Logo], links: Seq[ThemeLink])
 
 private[helium] object TopNavigationBar {
   val default: TopNavigationBar = TopNavigationBar(None, Nil) // TODO - use home icon instead of image if empty
@@ -59,7 +59,7 @@ private[helium] object TopNavigationBar {
 private[helium] case class DownloadPage (title: String, description: Option[String], downloadPath: Path = Root / "downloads", 
                                         includeEPUB: Boolean = true, includePDF: Boolean = true)
 
-private[helium] case class LandingPage (logo: Option[ThemeLogo] = None,
+private[helium] case class LandingPage (logo: Option[Logo] = None,
                                         title: Option[String] = None,
                                         subtitle: Option[String] = None,
                                         latestReleases: Seq[ReleaseInfo] = Nil,
