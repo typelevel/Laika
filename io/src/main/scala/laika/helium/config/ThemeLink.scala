@@ -42,7 +42,7 @@ sealed trait ThemeLink extends SpanResolver {
   */
 case class IconLink (target: ThemeTarget, icon: Icon, text: Option[String] = None, options: Options = NoOpt) extends ThemeLink {
   type Self = IconLink
-  protected def createLink (target: Target): Span = SpanLink(icon +: text.map(Text(_)).toSeq, target)
+  protected def createLink (target: Target): Span = SpanLink(icon +: text.map(Text(_)).toSeq, target, options = options)
   def withOptions(newOptions: Options): IconLink = copy(options = newOptions)
 }
 
@@ -50,7 +50,7 @@ case class IconLink (target: ThemeTarget, icon: Icon, text: Option[String] = Non
   */
 case class ButtonLink (target: ThemeTarget, text: String, icon: Option[Icon] = None, options: Options = NoOpt) extends ThemeLink {
   type Self = ButtonLink
-  protected def createLink (target: Target): Span = SpanLink(icon.toSeq :+ Text(text), target, options = HeliumStyles.button)
+  protected def createLink (target: Target): Span = SpanLink(icon.toSeq :+ Text(text), target, options = HeliumStyles.button + options)
   def withOptions(newOptions: Options): ButtonLink = copy(options = newOptions)
 }
 
@@ -58,7 +58,7 @@ case class ButtonLink (target: ThemeTarget, text: String, icon: Option[Icon] = N
   */
 case class TextLink (target: ThemeTarget, text: String, options: Options = NoOpt) extends ThemeLink {
   type Self = TextLink
-  protected def createLink (target: Target): Span = SpanLink(Seq(Text(text)), target)
+  protected def createLink (target: Target): Span = SpanLink(Seq(Text(text)), target, options = options)
   def withOptions(newOptions: Options): TextLink = copy(options = newOptions)
 }
 
