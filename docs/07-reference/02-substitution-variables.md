@@ -32,9 +32,11 @@ If an optional reference points to an undefined value, the reference in the temp
 Pre-Defined Values
 ------------------
 
-Laika provides a set of pre-defined variables in two namespaces.
+Laika provides a set of pre-defined variables in three namespaces.
 One is the `cursor` namespace that holds information about the current document and its siblings and parents.
-The other is the `laika` namespace that holds all values coming from Laika's internal configuration.
+The second is `laika` holding all values coming from Laika's internal configuration.
+Finally the `helium` namespace which is only populated if you use Laika's default theme called Helium,
+contains the theme configuration and some pre-built AST nodes.
 
 
 ### Cursor Values
@@ -110,9 +112,9 @@ User-Defined Values
 
 In addition to the library's pre-defined values users can define their own values in any scope.
 
-The only reserved namespaces for variable keys are `cursor` (e.g. `cursor.currentDocument.title`)
-and `laika` (e.g. `laika.pdf.coverImage`). 
-You can freely choose any key outside of these two namespaces.
+The only reserved namespaces for variable keys are `cursor` (e.g. `cursor.currentDocument.title`),
+`laika` (e.g. `laika.pdf.coverImage`) and `helium` for the default theme. 
+You can freely choose any key outside of these three namespaces.
 
 
 ### Programmatic Definition

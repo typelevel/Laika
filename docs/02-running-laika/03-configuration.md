@@ -334,5 +334,5 @@ It's released under the ${license} license.
 
 If you define them in a narrower scope and not globally, they won't be available outside of that scope.
 
-There are two namespaces for variable keys which are used by the library, `laika.*` and `cursor.*`.
-As long as you avoid these two namespaces, you can freely use any configuration keys.
+There are three namespaces for variable keys which are used by the library, `laika.*`, `cursor.*` and `helium.*`.
+As long as you avoid these three namespaces, you can freely use any configuration keys.

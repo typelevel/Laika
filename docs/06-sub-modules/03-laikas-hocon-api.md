@@ -87,6 +87,8 @@ Whenever the corresponding configuration header or file is missing, an empty `Co
 
 The `Config` instances will be populated with values supplied by the library in the `laika.*` and `cursor.*` namespaces.
 The former holds configuration values and the latter navigation info for the current document.
+An additional namespace `helium.*` will be used if you use the default theme, containing theme configuration
+and some pre-built AST nodes.
 
 Any user-supplied values will be available, too, and should live in any namespace other than the two reserved ones.
 
