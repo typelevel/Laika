@@ -114,7 +114,7 @@ class HeliumLandingPageSpec extends IOFunSuite with InputBuilder with ResultExtr
                      |</body>""".stripMargin
     val imagePath = Root / "home.png"
     val helium = Helium.defaults.site.landingPage(
-      logo = Some(ThemeLogo(ThemeTarget.internal(imagePath), alt = Some("Project Logo"))),
+      logo = Some(ThemeLogo.internal(imagePath, alt = Some("Project Logo"))),
       title = Some("My Project"),
       subtitle = Some("Awesome Hyperbole Overkill"),
       latestReleases = Seq(
@@ -123,12 +123,12 @@ class HeliumLandingPageSpec extends IOFunSuite with InputBuilder with ResultExtr
       ),
       license = Some("MIT"),
       documentationLinks = Seq(
-        TextLink(ThemeTarget.internal(Root / "doc-1.md"), "Doc 1"),
-        TextLink(ThemeTarget.internal(Root / "doc-2.md"), "Doc 2")
+        TextLink.internal(Root / "doc-1.md", "Doc 1"),
+        TextLink.internal(Root / "doc-2.md", "Doc 2")
       ),
       projectLinks = Seq(
-        IconLink(ThemeTarget.internal(Root / "doc-2.md"), HeliumIcon.demo),
-        ButtonLink(ThemeTarget.external("http://somewhere.com/"), "Somewhere")
+        IconLink.internal(Root / "doc-2.md", HeliumIcon.demo),
+        ButtonLink.external("http://somewhere.com/", "Somewhere")
       ),
       teasers = Seq(
         Teaser("Teaser 1", "Description 1"),
@@ -170,14 +170,14 @@ class HeliumLandingPageSpec extends IOFunSuite with InputBuilder with ResultExtr
                      |</body>""".stripMargin
     val imagePath = Root / "home.png"
     val helium = Helium.defaults.site.landingPage(
-      logo = Some(ThemeLogo(ThemeTarget.internal(imagePath), alt = Some("Project Logo"))),
+      logo = Some(ThemeLogo.internal(imagePath, alt = Some("Project Logo"))),
       subtitle = Some("Awesome Hyperbole Overkill"),
       latestReleases = Seq(
         ReleaseInfo("Latest Release", "2.3.5")
       ),
       projectLinks = Seq(
-        IconLink(ThemeTarget.internal(Root / "doc-2.md"), HeliumIcon.demo),
-        ButtonLink(ThemeTarget.external("http://somewhere.com/"), "Somewhere")
+        IconLink.internal(Root / "doc-2.md", HeliumIcon.demo),
+        ButtonLink.external("http://somewhere.com/", "Somewhere")
       )
     )
     val inputsWithExtraDoc = inputs :+ (Root / "landing-page.md", "Some *markup* here.")

@@ -40,26 +40,53 @@ sealed trait ThemeLink extends SpanResolver {
 
 /** A link consisting of an icon and optional text.
   */
-case class IconLink (target: ThemeTarget, icon: Icon, text: Option[String] = None, options: Options = NoOpt) extends ThemeLink {
+sealed abstract case class IconLink (target: ThemeTarget, icon: Icon, text: Option[String] = None, options: Options = NoOpt) extends ThemeLink {
   type Self = IconLink
   protected def createLink (target: Target): Span = SpanLink(icon +: text.map(Text(_)).toSeq, target, options = options)
-  def withOptions(newOptions: Options): IconLink = copy(options = newOptions)
+  def withOptions(newOptions: Options): IconLink = new IconLink(target, icon, text, newOptions) {}
+}
+
+object IconLink {
+  /** Creates an icon link to an external target, consisting of an icon and optional text. */
+  def external (url: String, icon: Icon, text: Option[String] = None, options: Options = NoOpt): IconLink =
+    new IconLink(ThemeTarget.external(url), icon, text, options) {}
+  /** Creates an icon link to an internal target, consisting of an icon and optional text. */
+  def internal (path: Path, icon: Icon, text: Option[String] = None, options: Options = NoOpt): IconLink =
+    new IconLink(ThemeTarget.internal(path), icon, text, options) {}
 }
 
 /** A link consisting of text and an optional icon rendered in a rounded rectangle.
   */
-case class ButtonLink (target: ThemeTarget, text: String, icon: Option[Icon] = None, options: Options = NoOpt) extends ThemeLink {
+sealed abstract case class ButtonLink (target: ThemeTarget, text: String, icon: Option[Icon] = None, options: Options = NoOpt) extends ThemeLink {
   type Self = ButtonLink
   protected def createLink (target: Target): Span = SpanLink(icon.toSeq :+ Text(text), target, options = HeliumStyles.button + options)
-  def withOptions(newOptions: Options): ButtonLink = copy(options = newOptions)
+  def withOptions(newOptions: Options): ButtonLink = new ButtonLink(target, text, icon, newOptions) {}
+}
+
+object ButtonLink {
+  /** Creates a button link to an external target, consisting of text and an optional icon rendered in a rounded rectangle. */
+  def external (url: String, text: String, icon: Option[Icon] = None, options: Options = NoOpt): ButtonLink =
+    new ButtonLink(ThemeTarget.external(url), text, icon, options) {}
+  /** Creates a button link to an internal target, consisting of text and an optional icon rendered in a rounded rectangle. */
+  def internal (path: Path, text: String, icon: Option[Icon] = None, options: Options = NoOpt): ButtonLink =
+    new ButtonLink(ThemeTarget.internal(path), text, icon, options) {}
 }
 
 /** A simple text link.
   */
-case class TextLink (target: ThemeTarget, text: String, options: Options = NoOpt) extends ThemeLink {
+sealed abstract case class TextLink (target: ThemeTarget, text: String, options: Options = NoOpt) extends ThemeLink {
   type Self = TextLink
   protected def createLink (target: Target): Span = SpanLink(Seq(Text(text)), target, options = options)
-  def withOptions(newOptions: Options): TextLink = copy(options = newOptions)
+  def withOptions(newOptions: Options): TextLink = new TextLink(target, text, newOptions) {}
+}
+
+object TextLink {
+  /** Creates a simple text link to an external target. */
+  def external (url: String, text: String, options: Options = NoOpt): TextLink =
+    new TextLink(ThemeTarget.external(url), text, options) {}
+  /** Creates a simple text link to an internal target. */
+  def internal (path: Path, text: String, options: Options = NoOpt): TextLink =
+    new TextLink(ThemeTarget.internal(path), text, options) {}
 }
 
 /** A link target for Helium's buttons.
@@ -76,6 +103,9 @@ sealed trait ThemeTarget {
 
 /** Companion for creating ThemeTarget instances.
   * 
+  * Usually not used directly in theme configuration, as all objects expecting a target have a 
+  * corresponding companion with shortcuts, e.g. `TextLink.external("[URL]", "[Text]")`.
+  * 
   * This is a type tailored for theme configuration as it limits the way a target can be defined:
   * it has to be either an external URL or an absolute, internal path.
   * 
@@ -90,7 +120,7 @@ object ThemeTarget {
     * 
     * The path will be validated, therefore must point to the an input resource known to Laika.
     */
-  def internal (target: Path): ThemeTarget = new ThemeTarget {
+  private[helium] def internal (target: Path): ThemeTarget = new ThemeTarget {
     val description = s"internal target: '${target.toString}'"
     def resolve  (cursor: DocumentCursor): Either[String, Target] = {
       val valid = cursor.root.target.tree.selectDocument(target.withoutFragment.relative).nonEmpty || 
@@ -101,7 +131,7 @@ object ThemeTarget {
   }
   
   /** Creates a target based on an external URL */
-  def external (url: String): ThemeTarget = new ThemeTarget {
+  private[helium] def external (url: String): ThemeTarget = new ThemeTarget {
     val description = s"external target: '$url'"
     def resolve  (cursor: DocumentCursor): Either[String, Target] = Right(ExternalTarget(url))
   }
@@ -110,13 +140,45 @@ object ThemeTarget {
 /** A logo type that can be used in various Helium configuration options.
   * The only required property is the target, which is either an external URL or an internal, relative path.
   */
-case class ThemeLogo (target: ThemeTarget,
-                      width: Option[Length] = None,
-                      height: Option[Length] = None,
-                      alt: Option[String] = None,
-                      title: Option[String] = None,
-                      options: Options = NoOpt) extends ThemeLink {
+sealed abstract case class ThemeLogo (target: ThemeTarget,
+                                      width: Option[Length] = None,
+                                      height: Option[Length] = None,
+                                      alt: Option[String] = None,
+                                      title: Option[String] = None,
+                                      options: Options = NoOpt) extends ThemeLink {
   type Self = ThemeLogo
   protected def createLink (target: Target): Span = Image(target, width, height, alt, title)
-  def withOptions(newOptions: Options): ThemeLogo = copy(options = newOptions)
+  def withOptions(newOptions: Options): ThemeLogo =
+    new ThemeLogo(target, width, height, alt, title, newOptions) {}
+}
+
+object ThemeLogo {
+  
+  /** Creates a logo with an external image URL.
+    * The width and height are interpreted as the intrinsic size of the image and do not necessarily represent
+    * the actual display size which should be set via CSS. 
+    * You can assign classes to the options property for this purpose.
+    * The `alt` and `title` properties will be rendered as the corresponding attributes in HTML and ignored for PDF.
+   */
+  def external (url: String,
+                width: Option[Length] = None,
+                height: Option[Length] = None,
+                alt: Option[String] = None,
+                title: Option[String] = None,
+                options: Options = NoOpt): ThemeLogo = 
+    new ThemeLogo(ThemeTarget.external(url), width, height, alt, title, options) {}
+  
+  /** Creates a logo for an image that is part of the input resources of the transformation.
+    * The width and height are interpreted as the intrinsic size of the image and do not necessarily represent
+    * the actual display size which should be set via CSS. 
+    * You can assign classes to the options property for this purpose.
+    * The `alt` and `title` properties will be rendered as the corresponding attributes in HTML and ignored for PDF.
+    */
+  def internal (path: Path,
+                width: Option[Length] = None,
+                height: Option[Length] = None,
+                alt: Option[String] = None,
+                title: Option[String] = None,
+                options: Options = NoOpt): ThemeLogo =
+    new ThemeLogo(ThemeTarget.internal(path), width, height, alt, title, options) {}
 }
