@@ -285,6 +285,7 @@ class TreeRendererSpec extends IOWordSpec
           Some(RenderedDocumentView(Root / "cover.html", expected)),
           Seq(
             Root / "helium" / "laika-helium.js",
+            Root / "helium" / "landing.page.css",
             Root / "helium" / "icofont.min.css",
             Root / "helium" / "fonts"/ "icofont.woff",
             Root / "helium" / "fonts"/ "icofont.woff2",

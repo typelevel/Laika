@@ -48,7 +48,7 @@ class HeliumEPUBTocPageSpec extends IOFunSuite with InputBuilder with ResultExtr
   def transformAndExtract(inputs: Seq[(Path, String)], helium: Helium, start: String, end: String): IO[String] = transformer(helium.build).use { t =>
     for {
       resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
-      res        <- IO.fromEither(resultTree.extractTidiedSubstring(Root / "table-of-contents.epub.xhtml", start, end)
+      res        <- IO.fromEither(resultTree.extractTidiedSubstring(Root / "table-of-content.epub.xhtml", start, end)
         .toRight(new RuntimeException("Missing document under test")))
     } yield res
   }

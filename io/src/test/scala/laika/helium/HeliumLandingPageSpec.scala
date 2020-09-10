@@ -69,6 +69,7 @@ class HeliumLandingPageSpec extends IOFunSuite with InputBuilder with ResultExtr
                      |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
                      |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
                      |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
+                     |<link rel="stylesheet" type="text/css" href="helium/landing.page.css" />
                      |<script src="helium/laika-helium.js"></script>
                      |<script> /* for avoiding page load transitions */ </script>
                      |</head>
@@ -93,8 +94,8 @@ class HeliumLandingPageSpec extends IOFunSuite with InputBuilder with ResultExtr
                      |<li><a href="doc-2.html">Doc 2</a></li>
                      |</ul>
                      |</div>
-                     |<p class="large"><a href="doc-2.html"><i class="icofont-laika" title="Demo">&#xeeea;</i></a></p>
-                     |<p class="large"><a class="button" href="http://somewhere.com/">Somewhere</a></p>
+                     |<p class="medium"><a href="doc-2.html"><i class="icofont-laika" title="Demo">&#xeeea;</i></a></p>
+                     |<p class="medium"><a class="button" href="http://somewhere.com/">Somewhere</a></p>
                      |</div>
                      |</div>
                      |<div class="teasers">
@@ -150,6 +151,7 @@ class HeliumLandingPageSpec extends IOFunSuite with InputBuilder with ResultExtr
                      |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
                      |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
                      |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
+                     |<link rel="stylesheet" type="text/css" href="helium/landing.page.css" />
                      |<script src="helium/laika-helium.js"></script>
                      |<script> /* for avoiding page load transitions */ </script>
                      |</head>
@@ -162,8 +164,8 @@ class HeliumLandingPageSpec extends IOFunSuite with InputBuilder with ResultExtr
                      |<div id="header-right">
                      |<p>Latest Release</p>
                      |<p class="large">2.3.5</p>
-                     |<p class="large"><a href="doc-2.html"><i class="icofont-laika" title="Demo">&#xeeea;</i></a></p>
-                     |<p class="large"><a class="button" href="http://somewhere.com/">Somewhere</a></p>
+                     |<p class="medium"><a href="doc-2.html"><i class="icofont-laika" title="Demo">&#xeeea;</i></a></p>
+                     |<p class="medium"><a class="button" href="http://somewhere.com/">Somewhere</a></p>
                      |</div>
                      |</div>
                      |<p>Some <em>markup</em> here.</p>
