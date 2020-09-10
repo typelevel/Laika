@@ -16,6 +16,8 @@
 
 package laika.helium
 
+import java.util.Locale
+
 import cats.effect.IO
 import laika.api.Transformer
 import laika.ast.Path
@@ -136,7 +138,7 @@ class HeliumLandingPageSpec extends IOFunSuite with InputBuilder with ResultExtr
         Teaser("Teaser 3", "Description 3")
       )
     )
-    transformAndExtract(inputs, helium, "<html lang=\"\">", "</html>").assertEquals(expected)
+    transformAndExtract(inputs, helium, s"""<html lang="${Locale.getDefault.toLanguageTag}">""", "</html>").assertEquals(expected)
   }
 
   test("partial landing page configured with custom content") {
@@ -182,7 +184,7 @@ class HeliumLandingPageSpec extends IOFunSuite with InputBuilder with ResultExtr
       )
     )
     val inputsWithExtraDoc = inputs :+ (Root / "landing-page.md", "Some *markup* here.")
-    transformAndExtract(inputsWithExtraDoc, helium, "<html lang=\"\">", "</html>").assertEquals(expected)
+    transformAndExtract(inputsWithExtraDoc, helium, s"""<html lang="${Locale.getDefault.toLanguageTag}">""", "</html>").assertEquals(expected)
   }
 
 }

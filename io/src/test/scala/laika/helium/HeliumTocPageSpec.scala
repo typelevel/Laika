@@ -16,6 +16,8 @@
 
 package laika.helium
 
+import java.util.Locale
+
 import cats.effect.IO
 import laika.api.Transformer
 import laika.ast.Path
@@ -107,7 +109,7 @@ class HeliumTocPageSpec extends IOFunSuite with InputBuilder with ResultExtracto
                      |</div>
                      |</body>""".stripMargin
     val helium = Helium.defaults.site.tableOfContent("Contents", 2)
-    transformAndExtract(twoDocs, helium, "<html lang=\"\">", "</html>").assertEquals(expected)
+    transformAndExtract(twoDocs, helium, s"""<html lang="${Locale.getDefault.toLanguageTag}">""", "</html>").assertEquals(expected)
   }
 
 }

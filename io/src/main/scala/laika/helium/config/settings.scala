@@ -302,7 +302,8 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
   protected def withFontFamilies (fonts: ThemeFonts): Helium = copyWith(helium.siteSettings.copy(themeFonts = fonts))
   protected def withFontSizes (sizes: FontSizes): Helium = copyWith(helium.siteSettings.copy(fontSizes = sizes))
   protected def withColors (colors: ColorSet): Helium = copyWith(helium.siteSettings.copy(colors = colors))
-  protected def withMetadata (metadata: DocumentMetadata): Helium = copyWith(helium.siteSettings.copy(metadata = metadata))
+  protected def withMetadata (metadata: DocumentMetadata): Helium = 
+    copyWith(helium.siteSettings.copy(metadata = metadata.withDefaults(helium.siteSettings.metadata)))
 
   /** Auto-links CSS documents from the specified paths.
     * By default all CSS documents found anywhere in the input tree will be linked in HTML files.

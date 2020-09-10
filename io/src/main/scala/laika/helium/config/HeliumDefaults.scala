@@ -16,6 +16,8 @@
 
 package laika.helium.config
 
+import java.util.Locale
+
 import laika.ast.DocumentMetadata
 import laika.ast.LengthUnit.{cm, em, mm, pt, px}
 import laika.helium.Helium
@@ -109,7 +111,9 @@ private[helium] object HeliumDefaults {
       defaultLineHeight = 1.5,
       anchorPlacement = AnchorPlacement.Left
     ),
-    metadata = DocumentMetadata()
+    metadata = DocumentMetadata(
+      language = Some(Locale.getDefault.toLanguageTag)
+    )
   )
   private val defaultEPUBSettings = EPUBSettings(
     bookConfig = BookConfig(

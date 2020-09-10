@@ -16,12 +16,13 @@
 
 package laika.helium
 
+import java.util.Locale
+
 import cats.effect.IO
 import laika.api.Transformer
 import laika.ast.Path
 import laika.ast.Path.Root
 import laika.format.{EPUB, Markdown}
-import laika.io.helper.RenderResult.html
 import laika.io.helper.{InputBuilder, ResultExtractor, StringOps}
 import laika.io.implicits._
 import laika.io.model.StringTreeOutput
@@ -78,7 +79,7 @@ class HeliumEPUBTocPageSpec extends IOFunSuite with InputBuilder with ResultExtr
                      |</main>
                      |</body>""".stripMargin
     val helium = Helium.defaults.epub.tableOfContent("Contents", 2)
-    transformAndExtract(inputs, helium, """<html lang="" xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">""", "</html>").assertEquals(expected)
+    transformAndExtract(inputs, helium, s"""<html lang="${Locale.getDefault.toLanguageTag}" xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">""", "</html>").assertEquals(expected)
   }
 
 }

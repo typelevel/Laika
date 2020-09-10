@@ -129,7 +129,7 @@ object PDF extends PDF(XSLFO, None) {
     lazy val identifier: String = metadata.identifier.getOrElse(s"urn:uuid:${UUID.randomUUID.toString}")
     lazy val date: Date = metadata.date.getOrElse(new Date)
     lazy val formattedDate: String = DateTimeFormatter.ISO_INSTANT.format(date.toInstant.truncatedTo(ChronoUnit.SECONDS))
-    lazy val language: String = metadata.language.getOrElse(Locale.getDefault.getDisplayName)
+    lazy val language: String = metadata.language.getOrElse(Locale.getDefault.toLanguageTag)
   }
 
   object BookConfig {

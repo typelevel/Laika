@@ -16,6 +16,8 @@
 
 package laika.helium
 
+import java.util.Locale
+
 import cats.effect.IO
 import laika.api.Transformer
 import laika.api.builder.TransformerBuilder
@@ -119,7 +121,7 @@ class HeliumDownloadPageSpec extends IOFunSuite with InputBuilder with ResultExt
                      |</main>
                      |</div>
                      |</body>""".stripMargin
-    transformAndExtract(singleDoc, heliumWithDownloadPage, "<html lang=\"\">", "</html>").assertEquals(expected)
+    transformAndExtract(singleDoc, heliumWithDownloadPage, s"""<html lang="${Locale.getDefault.toLanguageTag}">""", "</html>").assertEquals(expected)
   }
 
   test("configure artifact base name") {
