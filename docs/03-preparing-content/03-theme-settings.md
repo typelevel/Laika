@@ -227,7 +227,9 @@ Helium.defaults
     primary = hex("007c99"),
     primaryDark = hex("931813"),
     primaryLight = hex("095269"),
-    secondary = hex("ebf6f7")
+    primaryMedium = Color.hex("a7d4de"),
+    primaryLight = Color.hex("ebf6f7"),
+    text = Color.hex("5f5f5f")
   )
 ```
 
@@ -238,14 +240,22 @@ The default theme colors, which are used for the documentation you are reading r
 007c99 primary
 931813 secondary
 095269 primaryDark
+a7d4de primaryMedium
 ebf6f7 primaryLight
 
 @:@
 
-* `primary` is used for highlights and the text of navigation panes.
+* `primary` is used for highlights and the text of navigation panes and inline code spans.
 * `secondary` is used for links and headlines.
 * `primaryDark` is usually a darker shade of the primary color, currently only used for the gradient on the landing page.
+* `primaryMedium` is usually a shade slightly darker than `primaryLight`, used for borders and text on dark background.
 * `primaryLight` is usually a lighter shade of the primary color, used as background color.
+* `text` is solely used as the color of the body text.
+
+In terms of getting the right contrast, the color combinations must support the following:
+
+* Text in `primary` color must be readable on `primaryLight` background.
+* Text in `primaryMedium` color must be readable on `primary` background (this combination is only used on the landing page).
 
 
 ### Syntax Highlighting
