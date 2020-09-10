@@ -140,8 +140,11 @@ case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor
       
       treeConfig.coverImage.fold(root) { image =>
         root.copy(tree = root.tree.copy(
-          content = Document(Root / "cover", RootElement(SpanSequence(Image(InternalTarget(image), alt = Some("cover")))), 
-          config = ConfigBuilder.empty.withValue(LaikaKeys.title, "Cover").build) +: root.tree.content
+          content = Document(
+            path    = Root / "cover", 
+            content = RootElement(SpanSequence(Image(InternalTarget(image), alt = Some("cover")))), 
+            config  = ConfigBuilder.withFallback(root.config).withValue(LaikaKeys.title, "Cover").build
+          ) +: root.tree.content
         ))
       }
     }.left.map(ConfigException)
