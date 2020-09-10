@@ -51,7 +51,7 @@ private[helium] object TocPageGenerator {
         val navList = NavigationList(navItem.content, Styles("toc"))
         val title = Title(tocConfig.title)
         val root = RootElement(title, navList)
-        val doc = Document(Root / "table-of-contents", root, config = tree.root.config)
+        val doc = Document(Root / "table-of-content", root, config = tree.root.config)
         val oldTree = tree.root.tree
         val newTree = tree.copy(root = tree.root.copy(tree = oldTree.copy(content = doc +: oldTree.content)))
         newTree

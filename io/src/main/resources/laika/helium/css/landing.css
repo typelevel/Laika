@@ -16,6 +16,12 @@ body {
   justify-content: center;
   align-items: center;
 }
+#header a, #header a:hover {
+  color: #a7d4de;
+}
+#header #docs a {
+  font-weight: normal;
+}
 .teasers {
   width: 100%;
   padding: 0;
@@ -78,6 +84,11 @@ li {
   font-size: 24px;
   font-weight: bold;
   margin-bottom: 15px;
+}
+.medium {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 12px;
 }
 #header-left h2 {
   color: #a7d4de;

@@ -19,6 +19,7 @@
       <link rel="stylesheet" href="${_}">
     @:@
     @:linkCSS { paths = ${helium.site.includeCSS} }
+    <link rel="stylesheet" type="text/css" href="helium/landing.page.css" />
     @:linkJS { paths = ${helium.site.includeJS} }
     <script> /* for avoiding page load transitions */ </script>
   </head>
@@ -51,7 +52,7 @@
           </div>
         @:@
         @:for(helium.landingPage.projectLinks)
-          <p class="large">${_}</p>
+          <p class="medium">${_}</p>
         @:@
       </div>
     </div>
