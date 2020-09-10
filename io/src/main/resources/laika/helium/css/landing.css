@@ -8,7 +8,7 @@ body {
 #header {
   width: 100%;
   min-height: 250px;
-  background-image: linear-gradient(#095269, #007c99);
+  background-image: linear-gradient(var(--primary-dark), var(--primary-color));
   padding: 40px 30px 30px;
   margin: 0 auto;
   text-align: center;
