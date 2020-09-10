@@ -148,20 +148,29 @@ object Selections {
       })
     }
     
-    def addCoverImages (value: Selections, config: ConfigBuilder): ConfigBuilder = {
+    def populateConfig (value: Selections, configBuilder: ConfigBuilder): ConfigBuilder = {
       val classifier = value.getClassifiers.value.mkString("-")
-      val withEPUB = epubCoverImages.getImageFor(classifier).fold(config) { img =>
-        config.withValue(LaikaKeys.root.child("epub").child(LaikaKeys.coverImage.local), img)
+      val withEPUB = epubCoverImages.getImageFor(classifier).fold(configBuilder) { img =>
+        configBuilder.withValue(LaikaKeys.root.child("epub").child(LaikaKeys.coverImage.local), img)
       }
-      pdfCoverImages.getImageFor(classifier).fold(withEPUB) { img =>
+      val withImages = pdfCoverImages.getImageFor(classifier).fold(withEPUB) { img =>
         withEPUB.withValue(LaikaKeys.root.child("pdf").child(LaikaKeys.coverImage.local), img)
+      }
+      if (classifier.isEmpty) withImages else {
+        val baseKey = "metadata.identifier"
+        val fallback = config.get[String](baseKey).toOption
+        val epubId = config.get[String](s"epub.$baseKey").toOption.orElse(fallback).map(_ + classifier)
+        val pdfId = config.get[String](s"pdf.$baseKey").toOption.orElse(fallback).map(_ + classifier)
+        withImages
+          .withValue(s"epub.$baseKey", epubId)
+          .withValue(s"pdf.$baseKey", pdfId)
       }
     }
     
     config.get[Selections].fold(
       _ => NonEmptyChain.one((config, Classifiers(Nil))),
       choiceGroups => createCombinations(choiceGroups).map { newConfig =>
-        val populatedConfig = addCoverImages(newConfig, config.withValue(newConfig)).build
+        val populatedConfig = populateConfig(newConfig, config.withValue(newConfig)).build
         (populatedConfig, newConfig.getClassifiers)
       }
     )
