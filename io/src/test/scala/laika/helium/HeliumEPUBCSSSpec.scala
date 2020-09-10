@@ -60,7 +60,10 @@ class HeliumEPUBCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
   test("defaults") {
     val expected = """--primary-color: #007c99;
                      |--primary-light: #ebf6f7;
+                     |--primary-medium: #a7d4de;
+                     |--primary-dark: #095269;
                      |--secondary-color: #931813;
+                     |--text-color: #5f5f5f;
                      |--messages-info: #007c99;
                      |--messages-info-light: #ebf6f7;
                      |--messages-warning: #b1a400;
@@ -138,7 +141,10 @@ class HeliumEPUBCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
   
   private val customFonts = """--primary-color: #007c99;
                               |--primary-light: #ebf6f7;
+                              |--primary-medium: #a7d4de;
+                              |--primary-dark: #095269;
                               |--secondary-color: #931813;
+                              |--text-color: #5f5f5f;
                               |--messages-info: #007c99;
                               |--messages-info-light: #ebf6f7;
                               |--messages-warning: #b1a400;
@@ -186,7 +192,10 @@ class HeliumEPUBCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
 
   private val customColors = """--primary-color: rgb(1,1,1);
                               |--primary-light: rgb(2,2,2);
+                              |--primary-medium: rgb(4,4,4);
+                              |--primary-dark: rgb(0,0,0);
                               |--secondary-color: rgb(212,212,212);
+                              |--text-color: rgb(10,10,10);
                               |--messages-info: #aaaaaa;
                               |--messages-info-light: #aaaaab;
                               |--messages-warning: #aaaaac;
@@ -219,8 +228,8 @@ class HeliumEPUBCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
   test("custom colors - via 'epub' selector") {
     import laika.theme.config.Color._
     val helium = Helium.defaults
-      .epub.themeColors(primary = rgb(1,1,1), primaryDark = rgb(0,0,0), primaryLight = rgb(2,2,2),
-        secondary = rgb(212,212,212))
+      .epub.themeColors(primary = rgb(1,1,1), primaryDark = rgb(0,0,0), primaryLight = rgb(2,2,2), primaryMedium = rgb(4,4,4),
+        secondary = rgb(212,212,212), text = rgb(10,10,10))
       .epub.messageColors(info = hex("aaaaaa"), infoLight = hex("aaaaab"), 
         warning = hex("aaaaac"), warningLight = hex("aaaaad"),
         error = hex("aaaaae"), errorLight = hex("aaaaaf")
@@ -235,8 +244,8 @@ class HeliumEPUBCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
   test("custom colors - via 'all' selector") {
     import laika.theme.config.Color._
     val helium = Helium.defaults
-      .all.themeColors(primary = rgb(1,1,1), primaryDark = rgb(0,0,0), primaryLight = rgb(2,2,2),
-        secondary = rgb(212,212,212))
+      .all.themeColors(primary = rgb(1,1,1), primaryDark = rgb(0,0,0), primaryLight = rgb(2,2,2), primaryMedium = rgb(4,4,4),
+        secondary = rgb(212,212,212), text = rgb(10,10,10))
       .all.messageColors(info = hex("aaaaaa"), infoLight = hex("aaaaab"),
         warning = hex("aaaaac"), warningLight = hex("aaaaad"),
         error = hex("aaaaae"), errorLight = hex("aaaaaf")
@@ -251,7 +260,10 @@ class HeliumEPUBCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
   test("layout") {
     val expected = """--primary-color: #007c99;
                      |--primary-light: #ebf6f7;
+                     |--primary-medium: #a7d4de;
+                     |--primary-dark: #095269;
                      |--secondary-color: #931813;
+                     |--text-color: #5f5f5f;
                      |--messages-info: #007c99;
                      |--messages-info-light: #ebf6f7;
                      |--messages-warning: #b1a400;

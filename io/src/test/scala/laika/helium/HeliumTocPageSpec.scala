@@ -96,7 +96,7 @@ class HeliumTocPageSpec extends IOFunSuite with InputBuilder with ResultExtracto
                      |<p class="footer"></p>
                      |</nav>
                      |<main class="content">
-                     |<h1>Contents</h1>
+                     |<h1 class="title">Contents</h1>
                      |<ul class="toc nav-list">
                      |<li class="level1 toc"><a href="doc-1.html">doc-1.md</a></li>
                      |<li class="level1 toc"><a href="doc-2.html">doc-2.md</a></li>

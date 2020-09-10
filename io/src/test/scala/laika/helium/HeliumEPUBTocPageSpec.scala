@@ -68,7 +68,7 @@ class HeliumEPUBTocPageSpec extends IOFunSuite with InputBuilder with ResultExtr
                      |</head>
                      |<body epub:type="bodymatter">
                      |<main class="content">
-                     |<h1>Contents</h1>
+                     |<h1 class="title">Contents</h1>
                      |<ul class="toc nav-list">
                      |<li class="level1 toc"><a href="doc-1.epub.xhtml">doc-1.md</a></li>
                      |<li class="level1 toc"><a href="doc-2.epub.xhtml">doc-2.md</a></li>

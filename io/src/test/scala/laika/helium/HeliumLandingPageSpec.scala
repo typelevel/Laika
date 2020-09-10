@@ -58,7 +58,6 @@ class HeliumLandingPageSpec extends IOFunSuite with InputBuilder with ResultExtr
   }
   
   test("full landing page configured") {
-    // TODO - 0.16 - needs to link landing.css while excluding it for other pages
     val expected = """<head>
                      |<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
                      |<meta charset="utf-8">

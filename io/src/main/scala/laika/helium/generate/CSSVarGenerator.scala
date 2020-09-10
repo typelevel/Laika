@@ -54,8 +54,10 @@ private[helium] object CSSVarGenerator {
     (Seq(
       "primary-color" -> colors.primary.displayValue,
       "primary-light" -> colors.primaryLight.displayValue,
+      "primary-medium" -> colors.primaryMedium.displayValue,
       "primary-dark" -> colors.primaryDark.displayValue,
       "secondary-color" -> colors.secondary.displayValue,
+      "text-color" -> colors.text.displayValue,
       "messages-info" -> colors.messages.info.displayValue,
       "messages-info-light" -> colors.messages.infoLight.displayValue,
       "messages-warning" -> colors.messages.warning.displayValue,

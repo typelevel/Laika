@@ -20,8 +20,10 @@ import laika.theme.config.Color
 
 private[helium] case class ColorSet (primary: Color,
                                      primaryDark: Color,
+                                     primaryMedium: Color,
                                      primaryLight: Color,
                                      secondary: Color,
+                                     text: Color,
                                      messages: MessageColors,
                                      syntaxHighlighting: SyntaxColors)
 
