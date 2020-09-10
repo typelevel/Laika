@@ -224,10 +224,10 @@ The following example overrides Laika's theme colors for all output formats:
 ```scala
 Helium.defaults
   .all.themeColors(
-    primary = hex(""),
-    primaryDark = hex(""),
-    primaryLight = hex(""),
-    secondary = hex("")
+    primary = hex("007c99"),
+    primaryDark = hex("931813"),
+    primaryLight = hex("095269"),
+    secondary = hex("ebf6f7")
   )
 ```
 
