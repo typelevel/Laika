@@ -226,7 +226,12 @@ p.title {
 .downloads {
   display: flex;
   justify-content: space-evenly;
-  margin: 15px 30px var(--block-spacing) 0;
+  margin: 30px 30px var(--block-spacing) 0;
+}
+.downloads img {
+  width: 245px;
+  height: auto;
+  display: inline-block;
 }
 
 .keep-together {

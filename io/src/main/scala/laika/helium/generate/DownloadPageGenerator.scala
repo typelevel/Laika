@@ -19,7 +19,7 @@ package laika.helium.generate
 import cats.data.Kleisli
 import cats.effect.Sync
 import laika.ast.Path.Root
-import laika.ast.{Block, BlockSequence, Document, Image, InternalTarget, Paragraph, Path, RootElement, SpanLink, Styles, Text, Title, TitledBlock}
+import laika.ast.{Block, BlockSequence, Document, Image, InternalTarget, Paragraph, Path, RootElement, SpanLink, Style, Styles, Text, Title, TitledBlock}
 import laika.config.LaikaKeys
 import laika.helium.config.DownloadPage
 import laika.io.config.SiteConfig
@@ -68,7 +68,7 @@ private[helium] object DownloadPageGenerator {
             Seq(downloadAST(pdfLink, baseTitle + " (PDF)", pdfCoverImages.getImageFor(classifier))) else Nil
           BlockSequence(epubAST ++ pdfAST).withOptions(Styles("downloads"))
         }
-      val blocks = Title(pageConfig.title) +: pageConfig.description.map(Paragraph(_)).toSeq ++: downloads
+      val blocks = Title(pageConfig.title).withOptions(Style.title) +: pageConfig.description.map(Paragraph(_)).toSeq ++: downloads
       val doc = Document(Root / "downloads", RootElement(blocks), config = tree.root.config)
       Sync[F].pure(tree.copy(
         root = tree.root.copy(

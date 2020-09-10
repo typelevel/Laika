@@ -104,7 +104,7 @@ class HeliumDownloadPageSpec extends IOFunSuite with InputBuilder with ResultExt
                      |<p class="footer"></p>
                      |</nav>
                      |<main class="content">
-                     |<h1>Downloads</h1>
+                     |<h1 class="title">Downloads</h1>
                      |<p>EPUB &amp; PDF</p>
                      |<div class="downloads">
                      |<div>
@@ -127,7 +127,7 @@ class HeliumDownloadPageSpec extends IOFunSuite with InputBuilder with ResultExt
       Root / "doc.md" -> "text",
       Root / "directory.conf" -> "laika.artifactBaseName = documentation" // TODO - might be added to Helium Config API
     )
-    val expected = """<h1>Downloads</h1>
+    val expected = """<h1 class="title">Downloads</h1>
                      |<p>EPUB &amp; PDF</p>
                      |<div class="downloads">
                      |<div>
@@ -149,7 +149,7 @@ class HeliumDownloadPageSpec extends IOFunSuite with InputBuilder with ResultExt
       downloadPath = Root / "documents",
       includePDF = false,
     )
-    val expected = """<h1>Downloads</h1>
+    val expected = """<h1 class="title">Downloads</h1>
                      |<p>EPUB &amp; PDF</p>
                      |<div class="downloads">
                      |<div>
@@ -169,7 +169,7 @@ class HeliumDownloadPageSpec extends IOFunSuite with InputBuilder with ResultExt
       )
       .pdf.coverImages(CoverImage(Root / "cover.png"))
       .epub.coverImages(CoverImage(Root / "cover.png"))
-    val expected = """<h1>Downloads</h1>
+    val expected = """<h1 class="title">Downloads</h1>
                      |<p>EPUB &amp; PDF</p>
                      |<div class="downloads">
                      |<div>
@@ -195,7 +195,7 @@ class HeliumDownloadPageSpec extends IOFunSuite with InputBuilder with ResultExt
       )
       .pdf.coverImages(CoverImage(Root / "cover-sbt.png", Some("sbt")), CoverImage(Root / "cover-library.png", Some("library")))
       .epub.coverImages(CoverImage(Root / "cover-sbt.png", Some("sbt")), CoverImage(Root / "cover-library.png", Some("library")))
-    val expected = """<h1>Downloads</h1>
+    val expected = """<h1 class="title">Downloads</h1>
                      |<p>EPUB &amp; PDF</p>
                      |<div class="downloads">
                      |<div>
