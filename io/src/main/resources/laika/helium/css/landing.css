@@ -17,7 +17,7 @@ body {
   align-items: center;
 }
 #header a, #header a:hover {
-  color: #a7d4de;
+  color: var(--primary-medium);
 }
 #header #docs a {
   font-weight: normal;
@@ -42,12 +42,12 @@ body {
 #header-left {
   /*border: 2px solid greenyellow;*/
   max-width: 450px;
-  color: #a7d4de;
+  color: var(--primary-medium);
 }
 #header-right {
   /*border: 2px solid greenyellow;*/
   max-width: 450px;
-  color: #a7d4de;
+  color: var(--primary-medium);
   padding-left: 120px;
   text-align: left;
 }
@@ -63,7 +63,7 @@ ul {
 }
 #docs {
   font-size: 17px;
-  border: 1px solid #a7d4de;
+  border: 1px solid var(--primary-medium);
   border-radius: 5px;
   margin-bottom: 15px;
   margin-top: 18px;
@@ -71,7 +71,7 @@ ul {
 }
 #docs p {
   padding: 6px 10px 6px 10px;
-  border-bottom: 1px solid #a7d4de;
+  border-bottom: 1px solid var(--primary-medium);
   background-color: rgba(255, 255, 255, 0.15);
   margin-bottom: 5px;
 }
@@ -91,7 +91,7 @@ li {
   margin-bottom: 12px;
 }
 #header-left h2 {
-  color: #a7d4de;
+  color: var(--primary-medium);
   font-size: 24px;
 }
 h2 {

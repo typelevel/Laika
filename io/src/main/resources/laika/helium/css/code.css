@@ -3,8 +3,8 @@ pre {
   background-color: var(--syntax-base1);
   border-radius: 5px;
   padding: 12px 9px 9px 15px;
-  margin: 0 0 10px;
-  font-size: 13px; /* TODO */
+  margin: 0 0 var(--block-spacing);
+  font-size: var(--code-font-size);
   line-height: 21px;
   word-break: break-all;
   word-wrap: break-word;
@@ -14,9 +14,9 @@ code {
   font-family: var(--code-font);
   color: var(--primary-color);
   background-color: var(--primary-light);
-  border: 1px solid #c3d6d8;
+  border: 1px solid var(--primary-medium);
   border-radius: 5px;
-  font-size: 13px; /* TODO */
+  font-size: 0.85em;
   white-space: nowrap;
   padding: 1px 4px;
 }

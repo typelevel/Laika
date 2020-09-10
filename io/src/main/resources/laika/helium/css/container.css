@@ -4,7 +4,7 @@
 
 body {
   font-family: var(--body-font);
-  color: #5f5f5f; /* TODO */
+  color: var(--text-color);
   font-size: var(--body-font-size);
   line-height: var(--line-height);
   position: relative;

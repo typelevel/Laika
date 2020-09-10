@@ -6,7 +6,7 @@ p {
 /* lists =========================================== */
 
 section > ul li {
-  margin-bottom: 25px; /* TODO */
+  margin-bottom: 25px;
   line-height: var(--line-height);
 }
 
@@ -16,7 +16,7 @@ ul, ol {
 }
 
 ul li {
-  margin-bottom: 5px;
+  margin-bottom: calc(var(--block-spacing) / 2);
   line-height: var(--line-height);
 }
 
@@ -29,10 +29,6 @@ li ul {
 
 section {
   padding-top: 30px;
-}
-
-section > .lead {
-  color: #5a5a5a; /* TODO */
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -52,23 +48,23 @@ h1 {
 h1.title {
   padding-top: calc(70px + var(--top-bar-height));
   padding-bottom: 10px;
-  margin-bottom: 30px;
-  border-bottom: 1px solid #dddddd;
+  margin-bottom: calc(var(--block-spacing) * 3);
+  border-bottom: 1px solid var(--primary-medium);
 }
 h2 {
   font-size: var(--header2-font-size);
-  margin-top: 35px;
-  margin-bottom: 12px; /* TODO */
+  margin-top: calc(var(--block-spacing) * 3.5);
+  margin-bottom: calc(var(--block-spacing) * 1.2);
 }
 h3 {
   font-size: var(--header3-font-size);
-  margin-top: 16px;
-  margin-bottom: 4px; /* TODO */
+  margin-top: calc(var(--block-spacing) * 1.6);
+  margin-bottom: calc(var(--block-spacing) / 2);
 }
 h4, h5, h6 {
   font-size: var(--header4-font-size);
-  margin-top: 16px;
-  margin-bottom: 4px; /* TODO */
+  margin-top: calc(var(--block-spacing) * 1.6);
+  margin-bottom: calc(var(--block-spacing) / 2);
 }
 
 /* links =========================================== */
@@ -122,7 +118,7 @@ h6:hover > a.anchor-link {
 /* callout =========================================== */
 
 .callout {
-  margin: 20px 20px;
+  margin: calc(var(--block-spacing) * 2);
   padding: 4px 10px;
   border-radius: 5px;
 }
@@ -158,7 +154,8 @@ h6:hover > a.anchor-link {
 /* tabs =========================================== */
 
 .tab-container {
-  margin-top: 18px;
+  margin-top: calc(var(--block-spacing) * 1.8);
+  margin-bottom: calc(var(--block-spacing) * 1.8);
 }
 ul.tab-group {
   list-style: none;
@@ -167,7 +164,7 @@ ul.tab-group {
 }
 li.tab {
   display: inline-block;
-  border: 1px solid #c3d6d8; /* TODO */
+  border: 1px solid var(--primary-medium);
   border-radius: 5px 5px 0 0;
   background-color: var(--primary-light);
   padding: 2px 5px;
@@ -188,7 +185,7 @@ li.tab.active {
 .tab-content {
   display: none;
   padding: 12px 5px 5px;
-  border: 1px solid #c3d6d8; /* TODO */
+  border: 1px solid var(--primary-medium);
   border-radius: 0 5px 5px 5px;
   margin-top: 0 !important;
 }
@@ -199,24 +196,24 @@ li.tab.active {
 /* tables =========================================== */
 
 table {
-  margin: 20px 0;
-  border: 1px solid #dddddd;
+  margin: calc(var(--block-spacing) * 2) 0;
+  border: 1px solid var(--primary-medium);
   border-collapse: collapse;
 }
 thead > tr {
-  border-bottom: 1px solid #dddddd;
+  border-bottom: 1px solid var(--primary-medium);
 }
 td {
   padding: 5px 8px;
 }
 tbody > tr:nth-child(odd) {
-  background: #f2f2f2;
+  background: var(--primary-light);
 }
 
 /* other =========================================== */
 
 blockquote {
-  margin: 20px;
+  margin: calc(var(--block-spacing) * 2);
   font-style: italic;
 }
 

@@ -18,7 +18,7 @@ header {
   width: 100%;
   align-items: center;
   padding: 0 45px 0 20px;
-  border-bottom: 1px solid #c3d6d8; /* TODO */
+  border-bottom: 1px solid var(--primary-medium);
 }
 header a {
   color: var(--primary-color);
@@ -70,7 +70,7 @@ header .row a {
 }
 
 .nav-list li.nav-header {
-  font-size: 15px; /* TODO */
+  font-size: var(--body-font-size);
   color: var(--secondary-color);
   display: block;
   padding: 3px 15px;
@@ -95,7 +95,7 @@ ul.nav-list, #page-nav ul {
 }
 #page-nav .level3 {
   margin-left: 18px;
-  font-size: 14px; /* TODO */
+  font-size: var(--code-font-size);
 }
 #page-nav a {
   display: block;
@@ -107,10 +107,10 @@ ul.nav-list, #page-nav ul {
   margin: 0;
 }
 #page-nav .header {
-  background-color: #006180; /* TODO */
+  background-color: var(--primary-color);
 }
 #page-nav .footer {
-  border-top: 1px solid #c3d6d8; /* TODO */
+  border-top: 1px solid var(--primary-medium);
 }
 
 ul.nav-list {
@@ -127,11 +127,11 @@ ul.nav-list {
   line-height: 1.5;
 }
 #page-nav .nav-list .level1 {
-  font-size: 15px; /* TODO */
+  font-size: var(--body-font-size);
 }
 #page-nav .nav-list .level2 {
   margin-left: 18px;
-  font-size: 14px; /* TODO */
+  font-size: var(--code-font-size);
 }
 #page-nav .nav-list li a {
   padding: 0;
@@ -139,13 +139,13 @@ ul.nav-list {
 .nav-list li {
   margin-left: 10px;
   margin-bottom: 2px;
-  line-height: 1.1; /* TODO */
-  font-size: 14px; /* TODO */
+  line-height: 1.1;
+  font-size: var(--body-font-size);
 }
 
 #page-nav li a:hover,
 .nav-list li a:hover {
-  background-color: #e4f0f2; /* TODO */
+  background-color: rgba(0, 0, 0, 0.03);
   text-decoration: none;
 }
 .nav-list li a {
@@ -158,8 +158,8 @@ ul.nav-list {
 .nav-list .active a:hover,
 #page-nav .header a,
 #page-nav .header a:hover {
-  color: #ffffff; /* TODO */
-  background-color: #006180; /* TODO */
+  color: #ffffff;
+  background-color: var(--primary-color);
   text-decoration: none;
 }
 #page-nav .footer a,

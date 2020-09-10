@@ -21,13 +21,13 @@ section {
 }
 
 section > .lead {
-  /*color: #5a5a5a; !* TODO *!*/
+  /*color: #5a5a5a;*/
 }
 
 /* lists ========================================= */
 
 section > ul li {
-  margin-bottom: 25px; /* TODO */
+  margin-bottom: 25px;
   line-height: var(--line-height);
 }
 
@@ -37,7 +37,7 @@ ul, ol {
 }
 
 ul li {
-  margin-bottom: 5px;
+  margin-bottom: calc(var(--block-spacing) / 2);
   line-height: var(--line-height);
 }
 
@@ -77,23 +77,23 @@ h1 {
 }
 h1.title {
   padding-bottom: 10px;
-  margin-bottom: 30px;
-  border-bottom: 1px solid #dddddd;
+  margin-bottom: calc(var(--block-spacing) * 3);
+  border-bottom: 1px solid var(--primary-medium);
 }
 h2 {
   font-size: var(--header2-font-size);
-  margin-top: 35px;
-  margin-bottom: 12px; /* TODO */
+  margin-top: calc(var(--block-spacing) * 3.5);
+  margin-bottom: calc(var(--block-spacing) * 1.2);
 }
 h3 {
   font-size: var(--header3-font-size);
-  margin-top: 28px;
-  margin-bottom: 4px; /* TODO */
+  margin-top: calc(var(--block-spacing) * 2.8);
+  margin-bottom: calc(var(--block-spacing) / 2);
 }
 h4, h5, h6 {
   font-size: var(--header4-font-size);
-  margin-top: 16px;
-  margin-bottom: 4px; /* TODO */
+  margin-top: calc(var(--block-spacing) * 1.6);
+  margin-bottom: calc(var(--block-spacing) / 2);
 }
 p.title {
   font-weight: bold;
@@ -129,7 +129,7 @@ a:hover {
 }
 
 .callout {
-  margin: 20px 20px;
+  margin: calc(var(--block-spacing) * 2);
   padding: 4px 10px;
   border-radius: 5px;
 }
@@ -166,24 +166,24 @@ a:hover {
 /* tables ========================================= */
 
 table {
-  margin: 20px 0;
-  border: 1px solid #dddddd;
+  margin: calc(var(--block-spacing) * 2) 0;
+  border: 1px solid var(--primary-medium);
   border-collapse: collapse;
 }
 thead > tr {
-  border-bottom: 1px solid #dddddd;
+  border-bottom: 1px solid var(--primary-medium);
 }
 td {
   padding: 5px 8px;
 }
 tbody > tr:nth-child(odd) {
-  background: #f2f2f2;
+  background: var(--primary-light);
 }
 
 /* other ========================================= */
 
 blockquote {
-  margin: 20px;
+  margin: calc(var(--block-spacing) * 2);
   font-style: italic;
 }
 

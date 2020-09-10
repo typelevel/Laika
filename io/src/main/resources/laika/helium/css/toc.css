@@ -13,7 +13,7 @@ ul.toc, .toc ul {
   font-size: var(--title-font-size);
   margin-bottom: 20px;
   margin-top: 36px;
-  background: linear-gradient(180deg, #ffffff 65%, #c3d6d8 65%); /* TODO - var */
+  background: linear-gradient(180deg, #ffffff 65%, var(--primary-medium) 65%);
   color: var(--secondary-color);
   display: block;
   padding: 3px 15px;
