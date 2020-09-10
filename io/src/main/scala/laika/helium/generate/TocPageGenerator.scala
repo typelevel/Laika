@@ -19,7 +19,7 @@ package laika.helium.generate
 import cats.data.Kleisli
 import cats.effect.Sync
 import laika.ast.Path.Root
-import laika.ast.{Document, NavigationBuilderContext, NavigationList, RootElement, Styles, Title}
+import laika.ast.{/, Document, InternalTarget, NavigationBuilderContext, NavigationLink, NavigationList, RootElement, Style, Styles, Title}
 import laika.factory.Format
 import laika.format.{EPUB, HTML, XSLFO}
 import laika.helium.Helium
@@ -48,8 +48,15 @@ private[helium] object TocPageGenerator {
           maxLevels = tocConfig.depth,
           currentLevel = 0)
         val navItem = tree.root.tree.asNavigationItem(navContext)
-        val navList = NavigationList(navItem.content, Styles("toc"))
-        val title = Title(tocConfig.title)
+        val navContent = navItem.content.filter {
+          case item: NavigationLink => item.target match {
+            case in: InternalTarget => in.relativeTo(Root / "doc").absolutePath != Root / "downloads"
+            case _ => true
+          }
+          case _ => true
+        }
+        val navList = NavigationList(navContent, Styles("toc"))
+        val title = Title(tocConfig.title).withOptions(Style.title)
         val root = RootElement(title, navList)
         val doc = Document(Root / "table-of-content", root, config = tree.root.config)
         val oldTree = tree.root.tree

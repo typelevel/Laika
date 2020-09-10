@@ -2,7 +2,14 @@
 ul.toc, .toc ul {
   list-style: none;
 }
-.toc.nav-header {
+.toc.nav-list li {
+  line-height: 1.4;
+}
+.toc.nav-list a {
+  font-weight: bold;
+  color: var(--primary-color-color);
+}
+.toc.nav-list li.nav-header {
   font-size: var(--title-font-size);
   margin-bottom: 20px;
   margin-top: 36px;
@@ -20,9 +27,11 @@ ul.toc, .toc ul {
 }
 .toc.level2 {
   font-size: var(--header2-font-size);
-  color: var(--primary-color);
   margin-left: 10px;
   margin-top: 20px;
+}
+.toc.level2 a {
+  color: var(--secondary-color);
 }
 .toc.level3 {
   font-size: var(--header3-font-size);
