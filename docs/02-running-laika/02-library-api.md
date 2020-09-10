@@ -83,7 +83,7 @@ the `laika-io` module expands on the core API to add this functionality:
 @:image(../img/io-api.png) {
   alt = Anatomy of the IO API
   intrinsicWidth = 602
-  intrinsicHeight = 417
+  intrinsicHeight = 433
 }
 
 The blue elements of the API are identical to the pure transformer.
