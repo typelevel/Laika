@@ -89,6 +89,10 @@ header .row a {
   margin-left: 0 !important;
 }
 
+#sidebar ul {
+  margin-bottom: 15px;
+}
+
 .nav-list li.nav-header {
   font-size: var(--body-font-size);
   color: var(--secondary-color);

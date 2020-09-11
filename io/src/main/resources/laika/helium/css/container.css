@@ -28,6 +28,7 @@ main.content {
   margin-left: auto;
   min-height: 100vh;
   padding: 15px 15px 45px;
+  margin-bottom: 70px;
 }
 
 @media (min-width: 576px) {

@@ -13,12 +13,10 @@ pre {
 code {
   font-family: var(--code-font);
   color: var(--primary-color);
-  background-color: var(--primary-light);
-  border: 1px solid var(--primary-medium);
-  border-radius: 5px;
-  font-size: 0.85em;
+  font-size: var(--code-font-size);
+  font-weight: 500;
   white-space: nowrap;
-  padding: 1px 4px;
+  padding: 0 0.1em;
 }
 pre code {
   font-size: var(--code-font-size);
