@@ -104,6 +104,7 @@ PDF Navigation in Preview for Mac:
 
 @:image(../img/nav-pdf.png) {
   alt = PDF Navigation
+  style = small-image
   intrinsicWidth = 311
   intrinsicHeight = 311
 }
@@ -112,6 +113,7 @@ EPUB Navigation in iBooks:
 
 @:image(../img/nav-epub.png) {
   alt = EPUB Navigation
+  style = small-image
   intrinsicWidth = 473
   intrinsicHeight = 470
 }

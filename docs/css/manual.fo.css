@@ -1,0 +1,15 @@
+
+.medium-image Image {
+  space-after: 6mm;
+  width: 65%;
+  height: auto;
+  content-width: scale-down-to-fit;
+  scaling: uniform;
+}
+.small-image Image {
+  space-after: 6mm;
+  width: 45%;
+  height: auto;
+  content-width: scale-down-to-fit;
+  scaling: uniform;
+}

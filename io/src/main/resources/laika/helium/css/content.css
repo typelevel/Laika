@@ -79,6 +79,22 @@ a:hover {
   text-decoration: underline;
 }
 
+/* images =========================================== */
+
+.default-image-block {
+  text-align: center;
+}
+
+.default-image-block img {
+  width: 90%;
+  height: auto;
+}
+
+img.default-image-span {
+  height: 1em;
+  width: auto;
+}
+
 /* anchor =========================================== */
 
 a.anchor-link {

@@ -1,4 +1,18 @@
 
+/* images =================================== */
+
+.medium-image, .small-image {
+  text-align: center;
+}
+.medium-image img {
+  width: 65%;
+  height: auto;
+}
+.small-image img {
+  width: 45%;
+  height: auto;
+}
+
 /* color samples ============================ */
 
 .color-block {

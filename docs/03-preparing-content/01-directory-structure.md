@@ -193,6 +193,7 @@ Only files with the same name in the same folder are treated as errors.
 
 @:image(../img/merged-directories.png) {
   alt = Merging Directories
+  style = medium-image
   intrinsicWidth = 564
   intrinsicHeight = 718
 }

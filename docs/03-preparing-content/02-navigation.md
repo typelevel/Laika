@@ -494,6 +494,7 @@ from the root to the current document:
 
 @:image(../img/breadcrumb.png) {
   alt = Breadcrumb
+  style = small-image
   intrinsicWidth = 321
   intrinsicHeight = 88
 }

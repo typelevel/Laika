@@ -348,7 +348,7 @@ defining an attribute.
 Markup example:
 
 ```laika-html
-@:image { width = 280px, height = 220px }
+@:image { intrinsicWidth = 280px, intrinsicHeight = 220px }
 ```
 
 Combinators:

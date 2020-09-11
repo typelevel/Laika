@@ -174,6 +174,7 @@ When using the default Helium theme these alternatives will be rendered as tabs 
 
 @:image(../img/selection-tabs.png) {
   alt = Tabs for User Selections
+  style = medium-image
   intrinsicWidth = 500
   intrinsicHeight = 106
 }
@@ -183,6 +184,7 @@ and offers them on the download page:
 
 @:image(../img/e-book-downloads.png) {
   alt = Separate Downloads for E-Books per Selection
+  style = medium-image
   intrinsicWidth = 447
   intrinsicHeight = 300
 }
