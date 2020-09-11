@@ -55,7 +55,7 @@ private[helium] object HeliumRenderOverrides {
     case Some("info") => Some(HeliumIcon.info)
     case _ => None
   }
-  
+
   def forHTML (anchorPlacement: AnchorPlacement): PartialFunction[(HTMLFormatter, Element), String] = {
     case (fmt, Header(level, content, opt)) =>
       def link (style: String) = opt.id.map(id => SpanLink(Seq(HeliumIcon.link), InternalTarget(CurrentDocument(id)), options = Styles("anchor-link", style)))
@@ -68,6 +68,9 @@ private[helium] object HeliumRenderOverrides {
     case (fmt, BlockSequence(content, opt)) if opt.styles.contains("callout") =>
       fmt.indentedElement("div", opt, icon(opt).toSeq ++ content)
     case (fmt, Selection(name, choices, opt)) => renderChoices(fmt, name, choices, opt)
+
+    case (fmt, i: Icon) if i.options.styles.contains("api-link")    => fmt.newLine + SVGIcons.apiIcon + fmt.newLine
+    case (fmt, i: Icon) if i.options.styles.contains("source-link") => fmt.newLine + SVGIcons.githubIcon + fmt.newLine
       
     case (fmt, tabs: Tabs)      => fmt.indentedElement("ul", Styles("tab-group"), tabs.tabs)
     case (fmt, tab: TabContent) => fmt.indentedElement("div", Styles("tab-content") + tab.options, tab.content, "data-choice-name" -> tab.name)

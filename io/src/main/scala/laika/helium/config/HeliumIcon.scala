@@ -44,4 +44,8 @@ object HeliumIcon {
   val warning: Icon        = Icon('\uf026', None, options)
   val error: Icon          = Icon('\ueedd', None, options)
   val twitter: Icon        = Icon('\ued7a', Some("Twitter"), options)
+  
+  // the last two are not font icons, but temporary placeholders for SVG icons which are not fully supported yet
+  val api: Icon            = Icon('0', title = Some("API"), options = Styles("api-link"))
+  val github: Icon         = Icon('0', title = Some("Source Code"), options = Styles("source-link"))
 }

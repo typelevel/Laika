@@ -33,27 +33,3 @@
   width: 100px;
   height: 100px;
 }
-
-/* svg icon ===================================== */
-
-.row a {
-  line-height: 1.75em;
-}
-
-.api-link {
-  position: relative;
-  top: 4px;
-}
-
-.svg-icon {
-  height: 1.7em;
-  width: 1.7em;
-}
-
-#api-icon {
-  fill: var(--primary-color);
-}
-
-a:hover #api-icon {
-  fill: var(--secondary-color);
-}

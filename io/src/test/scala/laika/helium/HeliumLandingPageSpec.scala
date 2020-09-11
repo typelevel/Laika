@@ -91,12 +91,12 @@ class HeliumLandingPageSpec extends IOFunSuite with InputBuilder with ResultExtr
                      |<div id="docs">
                      |<p>Documentation</p>
                      |<ul>
-                     |<li><a href="doc-1.html">Doc 1</a></li>
-                     |<li><a href="doc-2.html">Doc 2</a></li>
+                     |<li><a class="text-link" href="doc-1.html">Doc 1</a></li>
+                     |<li><a class="text-link" href="doc-2.html">Doc 2</a></li>
                      |</ul>
                      |</div>
-                     |<p class="medium"><a href="doc-2.html"><i class="icofont-laika" title="Demo">&#xeeea;</i></a></p>
-                     |<p class="medium"><a class="button" href="http://somewhere.com/">Somewhere</a></p>
+                     |<p class="medium"><a class="icon-link" href="doc-2.html"><i class="icofont-laika" title="Demo">&#xeeea;</i></a></p>
+                     |<p class="medium"><a class="button-link" href="http://somewhere.com/">Somewhere</a></p>
                      |</div>
                      |</div>
                      |<div class="teasers">
@@ -165,8 +165,8 @@ class HeliumLandingPageSpec extends IOFunSuite with InputBuilder with ResultExtr
                      |<div id="header-right">
                      |<p>Latest Release</p>
                      |<p class="large">2.3.5</p>
-                     |<p class="medium"><a href="doc-2.html"><i class="icofont-laika" title="Demo">&#xeeea;</i></a></p>
-                     |<p class="medium"><a class="button" href="http://somewhere.com/">Somewhere</a></p>
+                     |<p class="medium"><a class="icon-link" href="doc-2.html"><i class="icofont-laika" title="Demo">&#xeeea;</i></a></p>
+                     |<p class="medium"><a class="button-link" href="http://somewhere.com/">Somewhere</a></p>
                      |</div>
                      |</div>
                      |<p>Some <em>markup</em> here.</p>

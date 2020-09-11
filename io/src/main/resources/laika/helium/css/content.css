@@ -226,6 +226,30 @@ tbody > tr:nth-child(odd) {
   background: var(--primary-light);
 }
 
+/* svg icon ===================================== */
+
+.row a {
+  line-height: 1.75em;
+}
+
+.svg-link {
+  position: relative;
+  top: 4px;
+}
+
+.svg-icon {
+  height: 1.7em;
+  width: 1.7em;
+}
+
+.svg-shape {
+  fill: var(--primary-color);
+}
+
+a:hover .svg-shape {
+  fill: var(--secondary-color);
+}
+
 /* other =========================================== */
 
 blockquote {

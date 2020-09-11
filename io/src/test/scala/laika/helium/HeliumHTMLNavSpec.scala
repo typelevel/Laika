@@ -125,7 +125,7 @@ class HeliumHTMLNavSpec extends IOFunSuite with InputBuilder with ResultExtracto
         |<i class="icofont-laika">&#xefa2;</i>
         |</a>
         |<a href="index.html"><img src="home.png" alt="Homepage" title="Home"></a>
-        |<span class="row"><a href="doc-2.html"><i class="icofont-laika" title="Demo">&#xeeea;</i></a><a class="button" href="http://somewhere.com/">Somewhere</a></span>""".stripMargin
+        |<span class="row"><a class="icon-link" href="doc-2.html"><i class="icofont-laika" title="Demo">&#xeeea;</i></a><a class="button-link" href="http://somewhere.com/">Somewhere</a></span>""".stripMargin
     val imagePath = Root / "home.png"
     val helium = Helium.defaults.site
       .topNavigationBar(
