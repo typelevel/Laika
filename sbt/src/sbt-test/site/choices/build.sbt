@@ -11,7 +11,9 @@ scalaVersion := "2.12.6"
 enablePlugins(LaikaPlugin)
 
 laikaConfig := LaikaConfig.defaults
-  .withConfigValue(SelectionGroupConfig(Seq(SelectionConfig("config", NonEmptyChain(
-    ChoiceConfig("sbt", "sbt Plugin"),
-    ChoiceConfig("library", "Library API")
-  ), separateEbooks = true))))
+  .withConfigValue(Selections(
+    SelectionConfig("config",
+      ChoiceConfig("sbt", "sbt Plugin"),
+      ChoiceConfig("library", "Library API")
+    ).withSeparateEbooks
+  ))

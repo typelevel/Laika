@@ -21,14 +21,15 @@ import java.util.concurrent.Executors
 import cats.effect.{Blocker, ContextShift, IO, Resource}
 import laika.api.builder.{OperationConfig, ParserBuilder}
 import laika.api.{MarkupParser, Transformer}
-import laika.config.{ConfigBuilder, LaikaKeys}
+import laika.bundle.{BundleOrigin, ExtensionBundle}
+import laika.config.{Config, ConfigBuilder, LaikaKeys}
 import laika.factory.MarkupFormat
 import laika.format.{HTML, Markdown, ReStructuredText}
 import laika.io.api.TreeParser
 import laika.io.implicits._
 import laika.io.model.{InputTree, InputTreeBuilder}
 import laika.sbt.LaikaPlugin.autoImport._
-import sbt.Keys._
+import sbt.Keys.{description, _}
 import sbt._
 
 import scala.concurrent.ExecutionContext
@@ -96,21 +97,30 @@ object Settings {
   }
   
   val parser: Initialize[Resource[IO, TreeParser[IO]]] = setting {
-    val fallback = ConfigBuilder.empty
-      .withValue(LaikaKeys.metadata.child("title"), name.value)
-      .withValue(LaikaKeys.metadata.child("description"), description.value)
-      .withValue(LaikaKeys.metadata.child("version"), version.value)
-      .withValue(LaikaKeys.artifactBaseName, name.value + "-" + version.value.split('.').take(2).mkString("."))
-      .build
-    val userConfig = laikaConfig.value
+    
+    val configFallbacks: ExtensionBundle = new ExtensionBundle {
+      val description = "Config Defaults from sbt Plugin"
+      override def origin = BundleOrigin.Library // for lowest precedence, as helium metadata should override this
+      override def baseConfig: Config = ConfigBuilder.empty
+        .withValue(LaikaKeys.metadata.child("title"), name.value)
+        .withValue(LaikaKeys.site.metadata.child("title"), name.value)
+        .withValue(LaikaKeys.metadata.child("description"), Keys.description.value)
+        .withValue(LaikaKeys.site.metadata.child("description"), Keys.description.value)
+        .withValue(LaikaKeys.metadata.child("version"), version.value)
+        .withValue(LaikaKeys.site.metadata.child("version"), version.value)
+        .withValue(LaikaKeys.artifactBaseName, name.value + "-" + version.value.split('.').take(2).mkString("."))
+        .build
+    }
 
+    val userConfig = laikaConfig.value
     def createParser (format: MarkupFormat): ParserBuilder = {
       val parser = MarkupParser.of(format)
       val mergedConfig = parser.config.copy(
+        bundles = parser.config.bundles :+ configFallbacks,
         bundleFilter = userConfig.bundleFilter,
         failOnMessages = userConfig.failOnMessages,
         renderMessages = userConfig.renderMessages,
-        configBuilder = userConfig.configBuilder.withFallback(fallback)
+        configBuilder = userConfig.configBuilder
       )
       parser.withConfig(mergedConfig).using(laikaExtensions.value: _*)
     }

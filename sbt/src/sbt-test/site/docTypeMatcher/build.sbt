@@ -10,8 +10,6 @@ scalaVersion := "2.12.6"
 enablePlugins(LaikaPlugin)
 
 laikaExtensions += laikaDocTypeMatcher {
-  case path: Path => path.name match {
-    case "hello.md"   => Markup
-    case "hello2.md"  => Static
-  }
+  case path: Path if path.name == "hello.md" => Markup
+  case path: Path if path.name == "hello2.md" => Static
 }

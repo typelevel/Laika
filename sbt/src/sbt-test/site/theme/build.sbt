@@ -1,5 +1,5 @@
 import laika.helium._
-import laika.theme._
+import laika.theme.config._
 
 name := "site-theme"
 
@@ -9,6 +9,5 @@ scalaVersion := "2.12.6"
 
 enablePlugins(LaikaPlugin)
 
-laikaTheme := Helium.defaults.copy(fontResources = Helium.defaults.fontResources :+
+laikaTheme :=  Helium.defaults.site.fontResources(
   FontDefinition(Font.webCSS("http://home.com/myFont.css"), "MyFont", FontWeight.Normal, FontStyle.Normal)).build
-
