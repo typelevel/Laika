@@ -158,8 +158,8 @@ object LaikaPlugin extends AutoPlugin {
     laikaDescribe           := Settings.describe.value,
 
     laikaIncludeAPI         := false,
-    laikaIncludeEPUB        := false,
-    laikaIncludePDF         := false,
+    laikaIncludeEPUB        := Settings.parserConfig.value.baseConfig.get[Boolean]("helium.site.includeEPUB").getOrElse(false),
+    laikaIncludePDF         := Settings.parserConfig.value.baseConfig.get[Boolean]("helium.site.includePDF").getOrElse(false),
 
     laikaSite               := Tasks.site.value,
     laikaGenerate           := Tasks.generate.evaluated,

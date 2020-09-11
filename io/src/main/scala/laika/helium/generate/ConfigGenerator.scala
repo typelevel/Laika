@@ -129,6 +129,8 @@ private[laika] object ConfigGenerator {
       .withValue("laika.pdf", helium.pdfSettings.bookConfig)
       .withValue("helium.pdf", helium.pdfSettings.layout)
       .withValue("helium.webFonts", helium.siteSettings.fontResources.flatMap { _.resource.webCSS })
+      .withValue("helium.site.includeEPUB", helium.siteSettings.layout.downloadPage.fold(false)(_.includeEPUB))
+      .withValue("helium.site.includePDF", helium.siteSettings.layout.downloadPage.fold(false)(_.includePDF))
       .withValue("helium.site.includeCSS", (Root / "helium") +: helium.siteSettings.htmlIncludes.includeCSS)
       .withValue("helium.site.includeJS", (Root / "helium") +: helium.siteSettings.htmlIncludes.includeJS)
       .withValue("helium.epub.includeCSS", (Root / "helium") +: helium.epubSettings.htmlIncludes.includeCSS)
