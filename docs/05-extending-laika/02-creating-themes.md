@@ -209,8 +209,8 @@ allowing you to reduce the boilerplate and stringly logic of rendering the forma
 The below example shows how the `ThemeBuilder` API can be used to pre-populate the transformer configuration:
 
 ```scala
-val logo = ThemeLogo(
-  target = ThemeTarget.internal(Root / "logo.png"), 
+val logo = Logo.internal(
+  path = Root / "logo.png", 
   alt = Some("Project Logo")
 )
 

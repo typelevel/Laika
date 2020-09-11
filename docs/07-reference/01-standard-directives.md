@@ -137,9 +137,6 @@ All other attributes shown in the example are optional:
 Can only be used in block elements in text markup.
 
 A callout is a decorated block element that stands out from the surrounding paragraphs.
-When using the Helium theme it will be rendered as shown in the screenshot below.
-
-@:todo(add screenshot)
 
 In markup the directive simply surrounds the content of the callout:
 
@@ -153,6 +150,16 @@ including lists, tables or code blocks.
 @:@
 ```
 
+When using the Helium theme it will be rendered as shown in the example below.
+
+@:callout(warning)
+
+This text appears inside the decorated callout box.
+Any block level elements can be used as the content, 
+including lists, tables or code blocks.
+
+@:@
+
 Helium comes with pre-defined styles and icons for the attributes `info`, `warning` and `error`.
 
 
@@ -165,12 +172,20 @@ through the library API.
 
 When using the default Helium theme these alternatives will be rendered as tabs in the website:
 
-@:todo(include screenshot)
+@:image(../img/selection-tabs.png) {
+  alt = Tabs for User Selections
+  intrinsicWidth = 500
+  intrinsicHeight = 106
+}
 
 While for EPUB and PDF output it triggers the generation of separate books for each of the alternatives
 and offers them on the download page:
 
-@:todo(include screenshot)
+@:image(../img/e-book-downloads.png) {
+  alt = Separate Downloads for E-Books per Selection
+  intrinsicWidth = 447
+  intrinsicHeight = 300
+}
 
 This accounts for the fact that tabs would not make much sense when printed on paper!
 

@@ -426,16 +426,17 @@ and a row of buttons or icons with links at the right corner.
 The left corner of the top bar is always reserved for the button to open or close the navigation.
 
 ```scala
-val logoPath = ThemeTarget.internal(Root / "image.png")
 Helium.defaults.site
   .topNavigationBar(
-    logo = Some(ThemeLogo(logoPath, 
+    logo = Some(Logo.internal(
+      path = Root / "image.png", 
       alt = Some("Homepage"), 
       title = Some("Home")
     )),
     links = Seq(
-      IconLink(ThemeTarget.internal(Root / "doc-2.md"), HeliumIcon.demo),
-      ButtonLink(ThemeTarget.external("http://somewhere.com/"), "Somewhere")
+      IconLink.internal(Root / "doc-2.md", HeliumIcon.download),
+      ButtonLink.external("http://somewhere.com/", "Text Link"),
+      ButtonLink.external("http://somewhere.com/", "Button Link")
     ))
 ```
 
@@ -445,7 +446,16 @@ For the links to the right navigation bar you can choose between an `IconLink` w
 a `ButtonLink` with an optional icon, or a plain text link.
 Internal targets are again within the virtual path and will be validated.
 
-@:todo(screenshots of 3 link types, list Laika's icons somewhere)
+With the default Helium settings the three link types from our code example render as shown below:
+
+@:image(../img/helium-links.png) {
+  alt = Screenshot of Helium Link Styles
+  intrinsicWidth = 270
+  intrinsicHeight = 35
+}
+
+@:todo(show Helium's available icons somewhere)
+
 
 ### Table of Contents
 
@@ -557,12 +567,12 @@ Helium.defaults
     ),
     license = Some("MIT"),
     documentationLinks = Seq(
-      TextLink(ThemeTarget.internal(Root / "doc-1.md"), "Doc 1"),
-      TextLink(ThemeTarget.internal(Root / "doc-2.md"), "Doc 2")
+      TextLink.internal(Root / "doc-1.md", "Doc 1"),
+      TextLink.internal(Root / "doc-2.md", "Doc 2")
     ),
     projectLinks = Seq(
-      IconLink(ThemeTarget.internal(Root / "doc-2.md"), HeliumIcon.demo),
-      ButtonLink(ThemeTarget.external("http://somewhere.com/"), "Somewhere")
+      IconLink.internal(Root / "doc-2.md", HeliumIcon.demo),
+      ButtonLink.external("http://somewhere.com/", "Somewhere")
     ),
     teasers = Seq(
       Teaser("Teaser 1", "Description 1"),
@@ -576,7 +586,11 @@ Every single content item shown above is optional, but of course the page would 
 
 The diagram below shows the positions of these items on the page:
 
-@:todo(diagram)
+@:image(../img/landing-page.png) { 
+  alt = "Configurable Areas on the Landing Page"
+  intrinsicWidth = 700
+  intrinsicHeight = 570
+}
 
 The left side of the header introduces the project, ideally you would choose at least one of the three options 
 (logo, title and subtitle). 
