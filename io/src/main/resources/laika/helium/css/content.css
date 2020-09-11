@@ -1,5 +1,5 @@
 
-p {
+p, main > div {
   margin: 0 0 var(--block-spacing);
 }
 
@@ -46,7 +46,7 @@ h1 {
   font-size: var(--title-font-size);
 }
 h1.title {
-  padding-top: calc(70px + var(--top-bar-height));
+  padding-top: calc(40px + var(--top-bar-height));
   padding-bottom: 10px;
   margin-bottom: calc(var(--block-spacing) * 3);
   border-bottom: 1px solid var(--primary-medium);

@@ -42,7 +42,7 @@ sealed trait ThemeLink extends SpanResolver {
   */
 sealed abstract case class IconLink (target: ThemeTarget, icon: Icon, text: Option[String] = None, options: Options = NoOpt) extends ThemeLink {
   type Self = IconLink
-  protected def createLink (target: Target): Span = SpanLink(icon +: text.map(Text(_)).toSeq, target, options = options)
+  protected def createLink (target: Target): Span = SpanLink(icon +: text.map(Text(_)).toSeq, target, options = HeliumStyles.iconLink + options)
   def withOptions(newOptions: Options): IconLink = new IconLink(target, icon, text, newOptions) {}
 }
 
@@ -59,7 +59,7 @@ object IconLink {
   */
 sealed abstract case class ButtonLink (target: ThemeTarget, text: String, icon: Option[Icon] = None, options: Options = NoOpt) extends ThemeLink {
   type Self = ButtonLink
-  protected def createLink (target: Target): Span = SpanLink(icon.toSeq :+ Text(text), target, options = HeliumStyles.button + options)
+  protected def createLink (target: Target): Span = SpanLink(icon.toSeq :+ Text(text), target, options = HeliumStyles.buttonLink + options)
   def withOptions(newOptions: Options): ButtonLink = new ButtonLink(target, text, icon, newOptions) {}
 }
 
@@ -76,7 +76,7 @@ object ButtonLink {
   */
 sealed abstract case class TextLink (target: ThemeTarget, text: String, options: Options = NoOpt) extends ThemeLink {
   type Self = TextLink
-  protected def createLink (target: Target): Span = SpanLink(Seq(Text(text)), target, options = options)
+  protected def createLink (target: Target): Span = SpanLink(Seq(Text(text)), target, options = HeliumStyles.textLink + options)
   def withOptions(newOptions: Options): TextLink = new TextLink(target, text, newOptions) {}
 }
 

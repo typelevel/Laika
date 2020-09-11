@@ -135,7 +135,9 @@ private[helium] case class HTMLIncludes (includeCSS: Seq[Path] = Seq(Root), incl
 
 private[helium] object HeliumStyles {
   val row: Options = Styles("row")
-  val button: Options = Styles("button")
+  val buttonLink: Options = Styles("button-link")
+  val textLink: Options = Styles("text-link")
+  val iconLink: Options = Styles("icon-link")
 }
 
 private[helium] case class ThemeFonts private (body: String, headlines: String, code: String)

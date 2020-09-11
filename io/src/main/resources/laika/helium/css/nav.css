@@ -42,6 +42,26 @@ header .row a {
   }
 }
 
+.text-link {
+  position: relative;
+  bottom: 2px;
+}
+
+.button-link {
+  position: relative;
+  bottom: 2px;
+  display: inline-block;
+  border-radius: 9px;
+  padding: 0 7px;
+  background-color: var(--primary-color);
+  color: var(--primary-light);
+  font-size: 0.9em;
+}
+.button-link:hover {
+  background-color: var(--secondary-color);
+  color: var(--primary-light);
+}
+
 /* left navigation bar =========================================== */
 
 #sidebar {
