@@ -245,6 +245,8 @@ ebf6f7 primaryLight
 
 @:@
 
+@:pageBreak
+
 * `primary` is used for highlights and the text of navigation panes and inline code spans.
 * `secondary` is used for links and headlines.
 * `primaryDark` is usually a darker shade of the primary color, currently only used for the gradient on the landing page.
@@ -284,6 +286,8 @@ ffc66d wheel-3
 4dbed4 wheel-5
 
 @:@
+
+@:pageBreak
 
 For the light scheme (used by default in EPUB and PDF output) they are:
 

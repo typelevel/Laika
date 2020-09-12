@@ -19,7 +19,6 @@ package laika.io.runtime
 import java.io.File
 
 import cats.Monad
-import cats.data.Kleisli
 import cats.effect.Sync
 import cats.implicits._
 import laika.bundle.ExtensionBundle

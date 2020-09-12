@@ -19,21 +19,21 @@ If you want to stick to pure transformations from string to string and don't nee
 any of the binary output formats like EPUB or PDF, you are fine with just using the `laika-core` module:
 
 ```scala
-libraryDependencies += "org.planet42" %% "laika-core" % "0.15.0" 
+libraryDependencies += "org.planet42" %% "laika-core" % "0.16.1" 
 ```
 
 This module is also 100% supported for Scala.js, so you can alternatively use the triple `%%%` syntax
 if you want to cross-build for Scala.js and the JVM:
 
 ```scala
-libraryDependencies += "org.planet42" %%% "laika-core" % "0.15.0" 
+libraryDependencies += "org.planet42" %%% "laika-core" % "0.16.1" 
 ```
 
 If you want to add support for file and stream IO and/or output in the EPUB format, 
 you need to depend on the `laika-io` module instead:
 
 ```scala
-libraryDependencies += "org.planet42" %% "laika-io" % "0.15.0" 
+libraryDependencies += "org.planet42" %% "laika-io" % "0.16.1" 
 ```
 
 This depends on `laika-core` in turn, so you always only need to add one module as a dependency and will get
@@ -43,11 +43,12 @@ are in JVM land here.
 Finally PDF support comes with its own module as it adds a whole range of additional dependencies:
 
 ```scala
-libraryDependencies += "org.planet42" %% "laika-pdf" % "0.15.0" 
+libraryDependencies += "org.planet42" %% "laika-pdf" % "0.16.1" 
 ```
 
 Again, this builds on top of the other modules, so adding just this one dependency is sufficient.
 
+@:pageBreak
 
 Anatomy of the API
 ------------------
@@ -76,6 +77,8 @@ The following example for creating a pure transformer shows the main building bl
   This API has hooks for all phases of the transformation process, parsing, AST transformation and rendering
   and is Laika's main extension point.
   Shown above are `GitHubFlavor` and `SyntaxHighlighting`, two bundles provided by the library that can be enabled on demand. 
+
+@:pageBreak
 
 If you require support for file/stream IO, templating or binary output formats, 
 the `laika-io` module expands on the core API to add this functionality:
@@ -200,6 +203,8 @@ def createTransformer[F[_]: Async: ContextShift]
     .parallel[F]
     .build
 ``` 
+
+@:pageBreak
 
 The setup method above can then be used inside `IOApp` initialization logic:
 
@@ -359,6 +364,8 @@ val inputs = InputTree[F]
 In the example above we specify two directories, a classpath resource and a string containing CSS generated on the fly.
 By default directories get merged into a single virtual root, but in the example we declare a mount point
 for the second directory, which causes the content of that directory to be assigned the corresponding logical path.
+
+@:pageBreak
 
 @:callout(info)
 

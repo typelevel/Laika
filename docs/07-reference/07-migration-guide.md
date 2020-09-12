@@ -12,6 +12,41 @@ The only change of the top-level library API in 8 years had been the 0.12.0 rele
 migration instructions below.
 
 
+Versions older than 0.16.0
+--------------------------
+
+The 0.16 release introduced theme support and as a consequence all parsers, renderers and transformers are now
+provided as a cat-effect `Resource`.
+
+If you are using the sbt plugin, you are not affected by this API change.
+When using the library API the necessary code changes are quite trivial. Change:
+
+```scala
+val transformer = ??? // build your transformer like before
+
+transformer
+  .fromDirectory("docs")
+  .toDirectory("target")
+  .transform
+```
+
+to
+
+```scala
+val transformer = ??? // build your transformer like before
+
+transformer.use {
+  _.fromDirectory("docs")
+   .toDirectory("target")
+   .transform
+}
+```
+
+Ensure that you create the transformer only once at application start to avoid unnecessary overhead and memory usage 
+for repeated use.
+
+Finally, the legacy directive syntax which had been deprecated in the 0.12 release, has now been removed. 
+
 Versions older than 0.15.0
 --------------------------
 
@@ -163,6 +198,8 @@ val res: Either[ParserError, String] = transformer
   .transform(input)
 ```
 
+@:pageBreak
+
 **Transforming a directory of files from Markdown to HTML**
 
 Before
@@ -208,6 +245,7 @@ val res: IO[Unit] = transformer.use {
 Note that while the new code sample looks more verbose, it now gives you full
 control over where your effects are run.
 
+@:pageBreak
 
 **Customizing Renderers**
 
@@ -257,6 +295,8 @@ On the API surface, there are only two changes:
 * The return type is more explicit (e.g. `Replace(newElement)` instead of `Some(newElement)`)
 * Rules for rewriting spans and blocks get registered separately for increased
   type-safety, as it is invalid to replace a span with a block element.
+
+@:pageBreak
 
 Before
 
@@ -308,6 +348,8 @@ provided by Laika, you can skip the section on the DSL.
   unnamed attribute in parenthesis
 * The old syntax is still supported, but will be removed at some point before the 1.0 release
 
+@:pageBreak
+
 Before
 
 ```laika-html
@@ -357,6 +399,8 @@ val spanDirective = Spans.create("note") {
   (attribute(Default) ~ body(Default)) (Note(_,_))
 }  
 ```
+
+@:pageBreak
 
 After
 

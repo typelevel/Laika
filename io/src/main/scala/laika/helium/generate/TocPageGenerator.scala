@@ -19,11 +19,12 @@ package laika.helium.generate
 import cats.data.Kleisli
 import cats.effect.Sync
 import laika.ast.Path.Root
-import laika.ast.{/, Document, InternalTarget, NavigationBuilderContext, NavigationLink, NavigationList, RootElement, Style, Styles, Title}
+import laika.ast.{/, BlockSequence, Document, InternalTarget, NavigationBuilderContext, NavigationLink, NavigationList, RootElement, Style, Styles, Title}
 import laika.factory.Format
 import laika.format.{EPUB, HTML, XSLFO}
 import laika.helium.Helium
 import laika.helium.config.TableOfContent
+import laika.render.FOFormatter.Preamble
 import laika.theme.Theme.TreeProcessor
 
 private[helium] object TocPageGenerator {
@@ -59,7 +60,7 @@ private[helium] object TocPageGenerator {
         }
         val navList = NavigationList(navContent, Styles("toc"))
         val title = Title(tocConfig.title).withOptions(Style.title)
-        val root = RootElement(title, navList)
+        val root = RootElement(Preamble(tocConfig.title), title, navList) // TODO - Preamble should be inserted in PDF.prepareTree
         val doc = Document(Root / "table-of-content", root, config = tree.root.config)
         val oldTree = tree.root.tree
         val newTree = tree.copy(root = tree.root.copy(tree = oldTree.copy(content = doc +: oldTree.content)))

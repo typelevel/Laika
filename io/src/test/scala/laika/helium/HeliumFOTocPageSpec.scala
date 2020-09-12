@@ -59,7 +59,10 @@ class HeliumFOTocPageSpec extends IOFunSuite with InputBuilder with ResultExtrac
   
   test("table of content included") {
     val expected = 
-      """<fo:block color="#007c99" font-family="Lato" font-size="24pt" font-weight="bold" keep-with-next="always" space-after="6mm" space-before="0mm">Contents</fo:block>
+      """<fo:block id="_table-of-content" page-break-before="always">
+        |<fo:marker marker-class-name="chapter"><fo:block>Contents</fo:block></fo:marker>
+        |</fo:block>
+        |<fo:block color="#007c99" font-family="Lato" font-size="24pt" font-weight="bold" keep-with-next="always" space-after="6mm" space-before="0mm">Contents</fo:block>
         |<fo:block color="#931813" font-family="Lato" font-size="22pt" font-weight="bold" line-height="1.5" margin-left="0mm" space-after="0mm" space-before="15mm" text-align="justify" text-align-last="center" text-transform="uppercase"><fo:basic-link color="#007c99" font-weight="bold" internal-destination="_doc-1">doc-1.md<fo:leader leader-pattern="dots" padding-left="2mm" padding-right="2mm"></fo:leader><fo:page-number-citation ref-id="_doc-1" /></fo:basic-link></fo:block>
         |<fo:block color="#931813" font-family="Lato" font-size="22pt" font-weight="bold" line-height="1.5" margin-left="0mm" space-after="0mm" space-before="15mm" text-align="justify" text-align-last="center" text-transform="uppercase"><fo:basic-link color="#007c99" font-weight="bold" internal-destination="_doc-2">doc-2.md<fo:leader leader-pattern="dots" padding-left="2mm" padding-right="2mm"></fo:leader><fo:page-number-citation ref-id="_doc-2" /></fo:basic-link></fo:block>
         |<fo:block color="#931813" font-family="Lato" font-size="22pt" font-weight="bold" keep-with-next="always" line-height="1.5" margin-left="0mm" space-after="0mm" space-before="15mm" text-align="justify" text-align-last="center" text-transform="uppercase">dir-1</fo:block>

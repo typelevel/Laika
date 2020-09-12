@@ -3,6 +3,79 @@ Release Notes
 =============
 
 
+0.16.1 (Sep 12, 2020)
+---------------------
+
+* New Lightweight Theme called Helium
+    * Ready-to-use styles for the 3 major output formats: HTML, EPUB, PDF
+    * No dependency on 3rd-party CSS or JavaScript frameworks, just a minimal amount of hand-crafted CSS and JS.
+    * Responsive design of the site output.
+    * Define font resources, color sets, layout and other details with the Scala configuration API for Helium
+    * Support font embedding for EPUB and PDF out of the box
+    * Supports auto-linking of all CSS and JavaScript files from your input tree in the HTML output for websites
+      and EPUB, search paths can be restricted if necessary.
+    * Obtain more low-level control over the output by overriding the theme's CSS.
+    * Includes an auto-generated main navigation bar and a page navigation with configurable depth.
+    * Anchors on mouse-over for headlines, providing the URL to the section.
+    * Favicon support.
+    * Support for font icons as well as a set of default icons included in the theme.
+    * Integrated download page offering the site content as EPUB and PDF.
+    * Website landing page tailored for software documentation sites.
+
+* New API for Theme Authors
+    * The Theme API allows to create 3rd-party themes by pre-populating the input tree with styles, scripts, images, 
+      font resources as well as providing extensions for the Laika Core features in the form 
+      of the existing `ExtensionBundle` API.
+
+* New API for freely composing inputs
+    * Individual files, in-memory strings or streams can now be freely combined and "mounted" to a logical path
+      within Laika's input tree.
+    * Add support for classpath resources.
+    * Add support for providing inputs as a pre-built document AST, bypassing the parsing step altogether.
+    * Supported for user code (when specifying the inputs to transform) as well as for theme authors.
+    
+* New Directives
+    * `@:callout` produces decorated text blocks with background color and icon.
+    * `@:image` enhances the options native markup provides by allowing to specify the intrinsic width and height
+      of images to avoid layout shift in browsers as well as assigning a style for controlling the display size via CSS.
+    * `@:select` is a powerful directive to create alternative versions of your content, e.g. for Scala vs. Java APIs
+      or for sbt vs Mill build examples.
+      In the rendered website these choices are available via tabs, for EPUB and PDF they will lead to separate
+      artifacts containing only one of the choices.
+    * `@:source` is a link directive, allowing to specify a fully qualified classname, similar to the existing 
+      `@:api` directive, but linking to the source (e.g. on GitHub) instead of the API documentation.
+    * `@:linkCSS` and `@:linkJS` can be used in HTML template files in the `head` section for auto-linking
+      all CSS and JS files found in the input tree (or restricted to specific directories only).
+    * `@:todo` is a little helper directive to overcome the problem that Markdown does not have comment syntax.
+      Renderers will simply ignore the content of the directive.
+    
+* EPUB Support
+    * Tweak defaults to accommodate for the fact that some popular readers like iBooks do not support the full standard
+      for their navigation menus. Default navigation depth is now only 2 for EPUB output.
+    * Introduction of special suffixes to distinguish CSS for EPUB from site CSS: `*.epub.css` will only be used 
+      for EPUB, `*.shared.css` will be used for EPUB and site, while all other CSS files will only be used for the site.
+    
+* API Change for Theme Support
+    * All transformers, parsers and renderers from the `laika-io` module are now provided as a cats-effect `Resource`.
+      This change was necessary as themes are themselves passed to transformers as a `Resource` as they might
+      require side-effecting initialization logic.
+      See the [Migration Guide](07-migration-guide.md#versions-older-than-0-16-0) for the (trivial) changes that are necessary for code building transformers.
+
+* Bugfixes
+    * EPUB: the library could produce invalid XML metadata files for the EPUB container under some circumstances,
+      e.g. a headline staring with a number or containing an ampersand.
+    * The `excludeFromValidation` flag was ignored in some scenarios.
+    * An AST rewrite rule returning an explicit `Retain` could override a `Replace` action from a previous rule.
+
+* Project Maintenance
+    * Update dependencies to cats 2.2.0, cats-effect 2.2.0 and ScalaTest 3.2.2.
+    * Solely use sbt's slash syntax in Laika's build and all configuration examples for Laika's sbt plugin
+    * Remove all deprecated classes and methods.
+    * Remove legacy directive syntax that had been deprecated since 0.12.
+    
+* This release is identical with 0.16.0 which had a broken `laika-pdf` artifact.
+
+
 0.15.0 (May 29, 2020)
 ---------------------
 

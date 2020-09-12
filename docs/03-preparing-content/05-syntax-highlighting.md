@@ -69,10 +69,11 @@ More languages will be added over time (contributions are also welcome of course
 Styling
 -------
 
-Laika currently does not come with built-in themes as a quick start for creating entire sites
-or e-books (this functionality is currently scheduled for the 0.15 release). 
-You'd therefore need to create your own CSS for this purpose. 
+The default Helium theme contains color sets for HTML, EPUB and PDF that can be overridden via the configuration API
+as shown in [Theme Settings / Syntax Highlighting](../03-preparing-content/03-theme-settings.md#syntax-highlighting).
 
+If you do not only want to specify the color scheme, but also how code categories are grouped into the color set,
+you can alternatively add custom CSS.
 The classes generated for code spans are:
 
 * `comment`
