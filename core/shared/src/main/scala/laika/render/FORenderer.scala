@@ -16,7 +16,6 @@
 
 package laika.render
 
-import cats.implicits._
 import cats.data.NonEmptySet
 import laika.ast.{InternalTarget, Styles, _}
 import laika.render.FOFormatter._

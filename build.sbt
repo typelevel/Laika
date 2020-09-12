@@ -8,7 +8,7 @@ lazy val basicSettings = Seq(
   description           := "Text Markup Transformer for sbt and Scala applications",
   startYear             := Some(2012),
   licenses              := Seq("Apache 2.0" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt")),
-  scalaVersion          := "2.12.11",
+  scalaVersion          := "2.12.12",
   scalacOptions         := (Opts.compile.encoding("UTF-8") :+ 
                            Opts.compile.deprecation :+ 
                            Opts.compile.unchecked :+ 
@@ -27,7 +27,7 @@ def priorTo2_13(version: String): Boolean =
   }
 
 lazy val moduleSettings = basicSettings ++ Seq(
-  crossScalaVersions := Seq("2.12.11", "2.13.3")
+  crossScalaVersions := Seq("2.12.12", "2.13.3")
 )
 
 lazy val publishSettings = Seq(
@@ -58,10 +58,10 @@ lazy val noPublishSettings = Seq(
   publishTo := None
 )
 
-val scalatest  = "org.scalatest"          %% "scalatest"   % "3.1.2" % "test"
+val scalatest  = "org.scalatest"          %% "scalatest"   % "3.2.2" % "test"
 val jTidy      = "net.sf.jtidy"           %  "jtidy"       % "r938"  % "test"
 
-val catsEffect = "org.typelevel"          %% "cats-effect" % "2.1.3"
+val catsEffect = "org.typelevel"          %% "cats-effect" % "2.2.0"
 
 val fop        = "org.apache.xmlgraphics" %  "fop"         % "2.3"
 val http4s     = Seq(
@@ -88,8 +88,8 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
   .settings(
     name := "laika-core",
     libraryDependencies ++= Seq(
-      "org.scalatest" %%% "scalatest" % "3.1.1" % "test",
-      "org.typelevel" %%% "cats-core" % "2.1.1"
+      "org.scalatest" %%% "scalatest" % "3.2.2" % "test",
+      "org.typelevel" %%% "cats-core" % "2.2.0"
     )
   )
   .jvmSettings(
@@ -121,7 +121,7 @@ lazy val plugin = project.in(file("sbt"))
   .settings(
     name := "laika-sbt",
     sbtPlugin := true,
-    crossScalaVersions := Seq("2.12.8"),
+    crossScalaVersions := Seq("2.12.12"),
     publishMavenStyle := false,
     bintrayRepository := "sbt-plugins",
     bintrayOrganization := None,
@@ -138,7 +138,7 @@ lazy val demo = crossProject(JSPlatform, JVMPlatform)
   .settings(basicSettings)
   .settings(
     name := "laika-demo",
-    version := "0.14.0.2"
+    version := "0.16.0.0"
   )
   .jvmSettings(
     libraryDependencies ++= http4s,

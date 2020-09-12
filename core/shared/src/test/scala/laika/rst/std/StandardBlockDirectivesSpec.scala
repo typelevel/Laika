@@ -16,7 +16,6 @@
 
 package laika.rst.std
 
-import cats.implicits._
 import cats.data.NonEmptySet
 import laika.api.MarkupParser
 import laika.api.builder.OperationConfig

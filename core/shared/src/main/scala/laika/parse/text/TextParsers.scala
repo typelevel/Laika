@@ -16,12 +16,9 @@
 
 package laika.parse.text
 
-import cats.implicits._
 import cats.data.NonEmptySet
-import laika.ast.{Length, ~}
 import laika.parse.{Failure, Message, Parser, Success}
 import laika.parse.combinator.Parsers
-import laika.parse.implicits._
 
 /** Base text parsers that provide optimized low-level parsers for typical requirements
  *  of text markup parsers. In particular they are meant as an efficient replacement

@@ -16,7 +16,6 @@
 
 package laika.rst
 
-import cats.implicits._
 import cats.data.NonEmptySet
 import laika.api.Transformer
 import laika.ast.Path.Root

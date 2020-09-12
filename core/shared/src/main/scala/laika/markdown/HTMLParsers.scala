@@ -16,7 +16,6 @@
 
 package laika.markdown
 
-import cats.implicits._
 import cats.data.NonEmptySet
 import laika.ast._
 import laika.bundle.{BlockParser, BlockParserBuilder, SpanParser, SpanParserBuilder}

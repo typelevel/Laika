@@ -17,7 +17,6 @@
 package laika.render.fo
 
 import cats.data.NonEmptySet
-import cats.implicits._
 import laika.api.Renderer
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree

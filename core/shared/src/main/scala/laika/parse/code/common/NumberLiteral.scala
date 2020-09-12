@@ -17,8 +17,7 @@
 package laika.parse.code.common
 
 import cats.data.NonEmptySet
-import cats.implicits._
-import laika.ast.{CodeSpan, ~}
+import laika.ast.CodeSpan
 import laika.parse.code.CodeCategory
 import laika.parse.builders._
 import laika.parse.implicits._

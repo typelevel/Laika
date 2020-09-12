@@ -17,7 +17,6 @@
 package laika.parse.text
 
 import cats.data.NonEmptySet
-import cats.implicits._
 import laika.parse.Parser
 import laika.parse.builders._
 import org.scalatest.matchers.should.Matchers

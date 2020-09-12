@@ -16,11 +16,9 @@
 
 package laika.render
 
-import cats.implicits._
 import cats.data.NonEmptySet
 import laika.api.Renderer
 import laika.ast.Path.Root
-import laika.ast.RelativePath.CurrentTree
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.HTML

@@ -16,18 +16,17 @@
 
 package laika.parse.directive
 
-import cats.implicits._
 import cats.data.NonEmptySet
-import laika.config.{ArrayValue, Key, StringValue}
 import laika.ast._
 import laika.bundle.{BlockParser, BlockParserBuilder, SpanParser, SpanParserBuilder}
+import laika.config.Key
 import laika.directive._
-import laika.parse.{Failure, Message, Parser, ParserContext, Success}
-import laika.parse.hocon.{ArrayBuilderValue, BuilderField, ConfigResolver, HoconParsers, InvalidBuilderValue, ObjectBuilderValue, ResolvedBuilderValue, SelfReference, ValidStringValue}
+import laika.parse.builders._
+import laika.parse.hocon._
+import laika.parse.implicits._
 import laika.parse.markup.{EscapedTextParsers, RecursiveParsers, RecursiveSpanParsers}
 import laika.parse.text.{CharGroup, PrefixedParser}
-import laika.parse.builders._
-import laika.parse.implicits._
+import laika.parse.{Failure, Message, Parser, ParserContext}
 
 /** Parsers for all types of custom directives that can be used
  *  in templates or as inline or block elements in markup documents.
@@ -165,7 +164,6 @@ object BlockDirectiveParsers {
 
   import DirectiveParsers._
   import laika.directive.Blocks
-  import laika.parse.markup.BlockParsers._
 
   def blockDirective (directives: Map[String, Blocks.Directive]): BlockParserBuilder =
     BlockParser.recursive(blockDirectiveParser(directives))

@@ -16,7 +16,6 @@
 
 package laika.parse.text
 
-import cats.implicits._
 import cats.data.NonEmptySet
 
 /** Common groups of characters as input for parser definitions.

@@ -150,8 +150,6 @@ object HoconParsers {
     val unicode = "u" ~> DigitParsers.hex.take(4).map(Integer.parseInt(_, 16).toChar.toString)
     val escape = "\\" ~> ((literalChar | specialChar | unicode).map(Right(_)) | oneChar.withContext.map(Left(_)) )
     
-    import cats.implicits._
-    
     val value = (chars | escape).rep.map { parts => 
       parts.sequence.fold(
         error => InvalidStringValue(

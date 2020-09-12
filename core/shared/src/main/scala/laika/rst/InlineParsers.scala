@@ -17,7 +17,6 @@
 package laika.rst
 
 import cats.data.NonEmptySet
-import cats.implicits._
 import laika.ast._
 import laika.bundle.{SpanParser, SpanParserBuilder}
 import laika.collection.TransitionalCollectionOps._
@@ -26,7 +25,7 @@ import laika.parse.text.PrefixedParser
 import laika.parse.builders._
 import laika.parse.implicits._
 import laika.parse.uri.AutoLinkParsers
-import laika.parse.{Failure, Message, Parser, Success}
+import laika.parse.{Failure, Parser, Success}
 import laika.rst.BaseParsers._
 import laika.rst.ast.{InterpretedText, ReferenceName, RstStyle, SubstitutionReference}
 

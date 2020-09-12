@@ -16,7 +16,6 @@
 
 package laika.rst.std
 
-import cats.implicits._
 import cats.data.NonEmptySet
 import laika.ast._
 import laika.config.{Field, LaikaKeys, ObjectValue, Origin, StringValue}

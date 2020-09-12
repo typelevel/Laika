@@ -16,7 +16,6 @@
 
 package laika.parse.text
 
-import cats.implicits._
 import cats.data.NonEmptySet
 import laika.parse.{Failure, Message, Parser, Success}
 

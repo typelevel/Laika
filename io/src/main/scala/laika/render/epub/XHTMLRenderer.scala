@@ -17,7 +17,6 @@
 package laika.render.epub
 
 import cats.data.NonEmptySet
-import cats.implicits._
 import laika.ast._
 import laika.render.{HTMLFormatter, HTMLRenderer}
 
